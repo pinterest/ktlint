@@ -439,14 +439,7 @@
                             <description>${project.version}</description>
                             <releaseName>${project.version}</releaseName>
                             <tag>${project.version}</tag>
-                            <fileSets>
-                                <fileSet>
-                                    <directory>${project.build.directory}</directory>
-                                    <includes>
-                                        <include>ktlint</include>
-                                    </includes>
-                                </fileSet>
-                            </fileSets>
+                            <artifact>${project.build.directory}/${project.artifactId}</artifact>
                         </configuration>
                         <executions>
                             <execution>
