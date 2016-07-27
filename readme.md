@@ -20,7 +20,7 @@ Features:
 
 ## Installation
 
-> Skip all the way to the "Integration" section if you don't plan to use `ktlint`'s command line intreface.
+> Skip all the way to the "Integration" section if you don't plan to use `ktlint`'s command line interface.
 
 ```sh
 curl -sL https://github.com/shyiko/ktlint/releases/download/0.1.0/ktlint > ktlint &&
