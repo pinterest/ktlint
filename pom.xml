@@ -192,7 +192,7 @@
                         ./mvnw clean verify
 
                         # publish a new version
-                        ./mvnw versions:set -DnewVersion &lt;version&gt;
+                        ./mvnw versions:set -DnewVersion=&lt;version&gt;
                         ./mvnw -Ddeploy=maven-central
                         ./mvnw -Ddeploy=github
                     </usage>
