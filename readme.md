@@ -1,4 +1,4 @@
-# ktlint [![Build Status](https://travis-ci.org/shyiko/mysql-binlog-connector-java.svg?branch=master)](https://travis-ci.org/shyiko/ktlint) [![Maven Central](http://img.shields.io/badge/maven_central-0.1.0-blue.svg?style=flat)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.github.shyiko%22%20AND%20a%3A%22ktlint%22)
+# ktlint [![Build Status](https://travis-ci.org/shyiko/ktlint.svg?branch=master)](https://travis-ci.org/shyiko/ktlint) [![Maven Central](http://img.shields.io/badge/maven_central-0.1.0-blue.svg?style=flat)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.github.shyiko%22%20AND%20a%3A%22ktlint%22)
 
 [Kotlin](https://kotlinlang.org/) linter in spirit of <a href="https://github.com/feross/standard">feross/standard</a> (JavaScript) and <a href="https://golang.org/cmd/gofmt/">gofmt</a> (Go).
 
