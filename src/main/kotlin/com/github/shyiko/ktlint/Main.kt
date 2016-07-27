@@ -44,7 +44,7 @@ object Main {
 
     private fun CmdLineParser.usage(): String =
         """
-        Kotlin Standard Style (https://github.com/shyiko/ktlint).
+        Kotlin linter (https://github.com/shyiko/ktlint).
 
         Usage:
           ktlint <flags> [patterns]
@@ -55,12 +55,15 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
             .joinToString("\n")}
 
         Examples:
-          # lint all **/*.kt and **/*.kts files starting from the current working directory.
-          # NOTE: hidden directories (beginning with .) and files present in .gitignore will not be checked.
+          # check the style of all Kotlin files inside the current dir (recursively)
+          # (hidden folders will be skipped)
           ktlint
 
-          # lint kotlin files under src/main/kotlin
-          ktlint "src/main/kotlin/**/.kt{,s}"
+          # check only certain locations (prepend ! to negate the pattern)
+          ktlint "src/**/*.kt" "!src/**/*Test.kt"
+
+          # auto-correct style violations
+          ktlint -F "src/**/*.kt"
         """.trimIndent()
 
     @JvmStatic

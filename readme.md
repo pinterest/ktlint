@@ -47,7 +47,7 @@ $ ktlint
 # check only certain locations (prepend ! to negate the pattern) 
 $ ktlint "src/**/*.kt" "!src/**/*Test.kt"
 
-# correct style violations in place
+# auto-correct style violations
 $ ktlint -F "src/**/*.kt"
 ```
 
