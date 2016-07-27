@@ -7,13 +7,6 @@ Features:
 - **Built-in formatter.** So that you wouldn't have to fix all style violations by hand.
 - **A single executable jar with all dependencies included.**
 
-## Installation
-
-```sh
-curl -sL https://github.com/shyiko/ktlint/releases/download/0.1.0/ktlint > ktlint &&
-  chmod a+x ktlint
-```
-
 ## Rules
 
 - 4 spaces for indentation.
@@ -24,6 +17,24 @@ curl -sL https://github.com/shyiko/ktlint/releases/download/0.1.0/ktlint > ktlin
 - Consistent spacing after keywords, commas; around colons, curly braces, infix operators, etc.
 
 > Missing your favourite rule? [Create a ticket](https://github.com/shyiko/ktlint/issues) and let's have a discussion.
+
+## Installation
+
+> Skip all the way to the "Integration" section if you don't plan to use `ktlint`'s command line intreface.
+
+```sh
+curl -sL https://github.com/shyiko/ktlint/releases/download/0.1.0/ktlint > ktlint &&
+  chmod a+x ktlint
+```
+
+> If you don't have curl installed - replace `curl -sL` with `wget -qO-`.
+
+> If you are behind a proxy see -
+[curl](https://curl.haxx.se/docs/manpage.html#ENVIRONMENT) / 
+[wget](https://www.gnu.org/software/wget/manual/wget.html#Proxies) manpage. 
+Usually simple `http_proxy=http://proxy-server:port https_proxy=http://proxy-server:port curl -sL ...` is enough. 
+
+... or just download `ktlint` from the ["release(s)"](https://github.com/shyiko/ktlint/releases) page.  
 
 ## Usage
 
