@@ -36,6 +36,8 @@ Usually simple `http_proxy=http://proxy-server:port https_proxy=http://proxy-ser
 
 ... or just download `ktlint` from the ["release(s)"](https://github.com/shyiko/ktlint/releases) page.  
 
+> On Mac OS X one can also use [brew](http://brew.sh/) - `brew install shyiko/ktlint/ktlint`.
+
 ## Usage
 
 ```bash
