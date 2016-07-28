@@ -108,18 +108,21 @@ To run formatter - `mvn antrun:run@ktlint-format`.
 #### ... with [Gradle]()
 
 ```groovy
-buildscript {
-   repositories {
-     mavenCentral()
-   }
-   dependencies {
-     classpath 'com.github.shyiko:ktlint:0.1.0'
-   }
+repositories {
+    mavenCentral()
+}
+
+configurations {
+    ktlint
+}
+
+dependencies {
+    ktlint 'com.github.shyiko:ktlint:0.1.0'
 }
 
 task ktlint(type:JavaExec) {
     main = "com.github.shyiko.ktlint.Main"
-    classpath = buildscript.configurations.classpath
+    classpath = configurations.ktlint
     args "src/**/*.kt"
 }
 
@@ -127,7 +130,7 @@ check.dependsOn ktlint
 
 task ktlintFormat(type:JavaExec) {
     main = "com.github.shyiko.ktlint.Main"
-    classpath = buildscript.configurations.classpath
+    classpath = configurations.ktlint
     args "-F", "src/**/*.kt"
 }
 ```
