@@ -28,4 +28,4 @@ echo "  end"
 echo "end"
 } > $CHECKOUT_DIR/ktlint.rb
 
-(cd $CHECKOUT_DIR && git commit -m $VERSION ktlint.rb && git tag $VERSION && git push origin $VERSION)
+(cd $CHECKOUT_DIR && git commit -m $VERSION ktlint.rb && git tag $VERSION && git push origin master --tags)
