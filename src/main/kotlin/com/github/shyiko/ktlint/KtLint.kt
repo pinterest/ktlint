@@ -45,6 +45,8 @@ object KtLint {
     init {
         val project = KotlinCoreEnvironment.createForProduction(Disposable {},
             CompilerConfiguration(), emptyList()).project
+        // everything below (up until PsiFileFactory.getInstance(...) is to get AST mutations working
+        // (required by `format`)
         val pomModel: PomModel = object : UserDataHolderBase(), PomModel {
 
             override fun runTransaction(transaction: PomTransaction) {
@@ -64,8 +66,7 @@ object KtLint {
                 return null
             }
 
-            override fun addModelListener(listener: PomModelListener) {
-            }
+            override fun addModelListener(listener: PomModelListener) {}
         }
         Extensions.getArea(project).registerExtensionPoint("org.jetbrains.kotlin.com.intellij.treeCopyHandler",
             "org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.TreeCopyHandler", ExtensionPoint.Kind.INTERFACE)
