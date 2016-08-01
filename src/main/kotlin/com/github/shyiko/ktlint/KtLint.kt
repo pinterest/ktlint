@@ -45,7 +45,7 @@ object KtLint {
     init {
         val project = KotlinCoreEnvironment.createForProduction(Disposable {},
             CompilerConfiguration(), emptyList()).project
-        // everything below (up until PsiFileFactory.getInstance(...) is to get AST mutations working
+        // everything below (up until PsiFileFactory.getInstance(...)) is to get AST mutations working
         // (required by `format`)
         val pomModel: PomModel = object : UserDataHolderBase(), PomModel {
 
@@ -245,16 +245,16 @@ object KtLint {
                             parseHintArgs(commentText, "ktlint-disable")?.apply {
                                 open.add(SuppressionHint(IntRange(node.startOffset, node.startOffset), HashSet(this)))
                             } ?:
-                                parseHintArgs(commentText, "ktlint-enable")?.apply {
-                                    // match open hint
-                                    val disabledRules = HashSet(this)
-                                    val openHintIndex = open.indexOfLast { it.disabledRules == disabledRules }
-                                    if (openHintIndex != -1) {
-                                        val openingHint = open.removeAt(openHintIndex)
-                                        result.add(SuppressionHint(IntRange(openingHint.range.start, node.startOffset),
-                                            disabledRules))
-                                    }
+                            parseHintArgs(commentText, "ktlint-enable")?.apply {
+                                // match open hint
+                                val disabledRules = HashSet(this)
+                                val openHintIndex = open.indexOfLast { it.disabledRules == disabledRules }
+                                if (openHintIndex != -1) {
+                                    val openingHint = open.removeAt(openHintIndex)
+                                    result.add(SuppressionHint(IntRange(openingHint.range.start, node.startOffset),
+                                        disabledRules))
                                 }
+                            }
                         }
                     }
                 }
