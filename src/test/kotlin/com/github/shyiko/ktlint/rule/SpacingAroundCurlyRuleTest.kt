@@ -39,8 +39,12 @@ class SpacingAroundCurlyRuleTest {
                 val v = if (true) { return "" }
                 fn({a -> a}, 0)
                 fn({ a -> a }, 0)
-                fn({}, 0)
+                fn({},{}, {}, 0)
                 fn({ }, 0)
+                fn({ a -> try{a()}catch (e: Exception){null} }, 0)
+                try{call()}catch (e: Exception){}
+                call({}, {})
+                a.let{}.apply({})
             }
             """.trimIndent()
         )).isEqualTo(
@@ -50,8 +54,12 @@ class SpacingAroundCurlyRuleTest {
                 val v = if (true) { return "" }
                 fn({ a -> a }, 0)
                 fn({ a -> a }, 0)
-                fn({}, 0)
+                fn({}, {}, {}, 0)
                 fn({ }, 0)
+                fn({ a -> try { a() } catch (e: Exception) { null } }, 0)
+                try { call() } catch (e: Exception) {}
+                call({}, {})
+                a.let {}.apply({})
             }
             """.trimIndent()
         )
