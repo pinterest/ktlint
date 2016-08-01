@@ -45,6 +45,7 @@ class SpacingAroundCurlyRuleTest {
                 try{call()}catch (e: Exception){}
                 call({}, {})
                 a.let{}.apply({})
+                f({ if (true) {r.add(v)}; r})
             }
             """.trimIndent()
         )).isEqualTo(
@@ -60,6 +61,7 @@ class SpacingAroundCurlyRuleTest {
                 try { call() } catch (e: Exception) {}
                 call({}, {})
                 a.let {}.apply({})
+                f({ if (true) { r.add(v) }; r })
             }
             """.trimIndent()
         )

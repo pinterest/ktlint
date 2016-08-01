@@ -25,7 +25,8 @@ class SpacingAroundCurlyRule : Rule {
                 spacingBefore = prevLeaf is PsiWhiteSpace || prevLeaf?.node?.elementType == KtTokens.LBRACE
                 val nextElementType = nextLeaf?.node?.elementType
                 spacingAfter = nextLeaf is PsiWhiteSpace || nextLeaf == null || nextElementType == KtTokens.DOT ||
-                    nextElementType == KtTokens.COMMA || nextElementType == KtTokens.RPAR
+                    nextElementType == KtTokens.COMMA || nextElementType == KtTokens.RPAR ||
+                    nextElementType == KtTokens.SEMICOLON
             } else {
                 return
             }
