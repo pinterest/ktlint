@@ -1,4 +1,4 @@
-# ktlint [![Build Status](https://travis-ci.org/shyiko/ktlint.svg?branch=master)](https://travis-ci.org/shyiko/ktlint) [![Maven Central](http://img.shields.io/badge/maven_central-0.1.0-blue.svg?style=flat)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.github.shyiko%22%20AND%20a%3A%22ktlint%22)
+# ktlint [![Build Status](https://travis-ci.org/shyiko/ktlint.svg?branch=master)](https://travis-ci.org/shyiko/ktlint) [![Maven Central](http://img.shields.io/badge/maven_central-0.1.1-blue.svg?style=flat)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.github.shyiko%22%20AND%20a%3A%22ktlint%22)
 
 [Kotlin](https://kotlinlang.org/) linter in spirit of <a href="https://github.com/feross/standard">feross/standard</a> (JavaScript) and <a href="https://golang.org/cmd/gofmt/">gofmt</a> (Go).
 
@@ -23,7 +23,7 @@ Features:
 > Skip all the way to the "Integration" section if you don't plan to use `ktlint`'s command line interface.
 
 ```sh
-curl -sL https://github.com/shyiko/ktlint/releases/download/0.1.0/ktlint > ktlint &&
+curl -sL https://github.com/shyiko/ktlint/releases/download/0.1.1/ktlint > ktlint &&
   chmod a+x ktlint
 ```
 
@@ -98,7 +98,7 @@ $ ktlint -F "src/**/*.kt"
         <dependency>
             <groupId>com.github.shyiko</groupId>
             <artifactId>ktlint</artifactId>
-            <version>0.1.0</version>
+            <version>0.1.1</version>
         </dependency>
     </dependencies>
 </plugin>
@@ -119,7 +119,7 @@ configurations {
 }
 
 dependencies {
-    ktlint 'com.github.shyiko:ktlint:0.1.0'
+    ktlint 'com.github.shyiko:ktlint:0.1.1'
 }
 
 task ktlint(type:JavaExec) {
