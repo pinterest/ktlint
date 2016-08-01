@@ -3,7 +3,7 @@
 [Kotlin](https://kotlinlang.org/) linter in spirit of <a href="https://github.com/feross/standard">feross/standard</a> (JavaScript) and <a href="https://golang.org/cmd/gofmt/">gofmt</a> (Go).
 
 Features:
-- **No configuration.** Which means no decisions to make, nothing to argue about and no special files to manage.
+- **No configuration.** Which means no decisions to make, nothing to argue about and no special files to manage. While this might sound extreme, keep in mind that **ktlint** tries to capture (reflect) official code style from [kotlinlang.org](https://kotlinlang.org/docs/reference/). 
 - **Built-in formatter.** So that you wouldn't have to fix all style violations by hand.
 - **A single executable jar with all dependencies included.**
 
