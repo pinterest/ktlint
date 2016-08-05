@@ -19,16 +19,20 @@ class NoUnusedImportsRuleTest {
             import p2.B
             import p.C
             import p.a.*
+            import escaped.`when`
+            import escaped.`foo`
 
             fun main() {
                 println(a())
                 C.call(B())
+                `when`()
             }
             """.trimIndent()
         )).isEqualTo(listOf(
             LintError(2, 1, "rule-id", "Unused import"),
             LintError(3, 1, "rule-id", "Unused import"),
-            LintError(4, 1, "rule-id", "Unused import")
+            LintError(4, 1, "rule-id", "Unused import"),
+            LintError(9, 1, "rule-id", "Unused import")
         ))
     }
 
@@ -41,11 +45,14 @@ class NoUnusedImportsRuleTest {
             import p.B as B12
             import p2.B as B2
             import p.C
+            import escaped.`when`
+            import escaped.`foo`
 
             fun main() {
                 println(a())
                 C.call()
                 fn(B2.NAME)
+                `when`()
             }
             """.trimIndent()
         )).isEqualTo(
@@ -53,11 +60,13 @@ class NoUnusedImportsRuleTest {
             import p.a
             import p2.B as B2
             import p.C
+            import escaped.`when`
 
             fun main() {
                 println(a())
                 C.call()
                 fn(B2.NAME)
+                `when`()
             }
             """.trimIndent()
         )

@@ -16,7 +16,7 @@ class NoUnusedImportsRule : Rule {
             node.visit { node ->
                 if (node.elementType == KtStubElementTypes.REFERENCE_EXPRESSION) {
                     if (node.psi.getNonStrictParentOfType(KtImportDirective::class.java) == null) {
-                        ref.add(node.text)
+                        ref.add(node.text.trim('`'))
                     }
                 }
             }
