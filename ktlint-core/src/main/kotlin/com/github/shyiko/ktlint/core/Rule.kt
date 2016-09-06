@@ -3,7 +3,7 @@ package com.github.shyiko.ktlint.core
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 /**
- * A contract for the rule.
+ * A rule contract.
  *
  * Implementation **doesn't** have to be thread-safe or stateless
  * (provided RuleSetProvider creates a new instance on each `get()` call).
