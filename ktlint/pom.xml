@@ -13,6 +13,12 @@
     <groupId>com.github.shyiko</groupId>
     <artifactId>ktlint</artifactId>
 
+    <scm>
+        <connection>scm:git:git@github.com:shyiko/ktlint.git</connection>
+        <developerConnection>scm:git:git@github.com:shyiko/ktlint.git</developerConnection>
+        <url>git@github.com:shyiko/ktlint.git</url>
+    </scm>
+
     <dependencies>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
