@@ -175,9 +175,9 @@ To run formatter - `gradle ktlintFormat`.
 
 Go to `File -> Settings... -> Editor`
 - `Code Style -> Manage... -> Import -> Intellij IDEA code style XML`,
-select [intellij-idea/configs/codestyles/ktlint.xml](https://raw.githubusercontent.com/shyiko/ktlint/master/intellij-idea/configs/codestyles/ktlint.xml).
+select [integration/intellij-idea/configs/codestyles/ktlint.xml](integration/intellij-idea/configs/codestyles/ktlint.xml).
 - `Inspections -> Manage -> Import`,
-select [intellij-idea/configs/inspection/ktlint.xml](https://raw.githubusercontent.com/shyiko/ktlint/master/intellij-idea/configs/inspection/ktlint.xml).
+select [integration/intellij-idea/configs/inspection/ktlint.xml](integration/intellij-idea/configs/inspection/ktlint.xml).
 
 > Integrated with something else? Send a PR.
 
