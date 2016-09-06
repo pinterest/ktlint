@@ -139,7 +139,7 @@
                         ./mvnw versions:set -DnewVersion=&lt;version&gt;
                         ./mvnw -Ddeploy=maven-central
                         ./mvnw -Ddeploy=github
-                        ./mvnw -Ddeploy=homebrew
+                        ./mvnw -Ddeploy=homebrew -N
                     </usage>
                 </configuration>
             </plugin>
