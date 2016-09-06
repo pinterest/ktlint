@@ -6,9 +6,9 @@ if [ "$GITHUB_TOKEN" == "" ]; then exit 1; fi
 # project.version
 if [ "$VERSION" == "" ]; then exit 1; fi
 
-if [ ! -f target/ktlint ]; then echo "target/ktlint wasn't found"; exit 1; fi
+if [ ! -f ktlint/target/ktlint ]; then echo "ktlint/target/ktlint wasn't found"; exit 1; fi
 
-HASH=$(shasum -a 256 target/ktlint | cut -d\  -f1)
+HASH=$(shasum -a 256 ktlint/target/ktlint | cut -d\  -f1)
 
 CHECKOUT_DIR=$(mktemp -d /tmp/homebrew-ktlint.XXXXXX)
 git clone https://${GITHUB_TOKEN}@github.com/shyiko/homebrew-ktlint.git $CHECKOUT_DIR

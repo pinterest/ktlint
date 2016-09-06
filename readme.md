@@ -1,13 +1,24 @@
-# ktlint [![Build Status](https://travis-ci.org/shyiko/ktlint.svg?branch=master)](https://travis-ci.org/shyiko/ktlint) [![Maven Central](http://img.shields.io/badge/maven_central-0.1.2-blue.svg?style=flat)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.github.shyiko%22%20AND%20a%3A%22ktlint%22)
+<center>
+# ktlint
+[![Build Status](https://travis-ci.org/shyiko/ktlint.svg?branch=master)](https://travis-ci.org/shyiko/ktlint) [![Maven Central](http://img.shields.io/badge/maven_central-0.2.0-blue.svg?style=flat)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.github.shyiko%22%20AND%20a%3A%22ktlint%22)
 
-[Kotlin](https://kotlinlang.org/) linter in spirit of <a href="https://github.com/feross/standard">feross/standard</a> (JavaScript) and <a href="https://golang.org/cmd/gofmt/">gofmt</a> (Go).
+[Kotlin](https://kotlinlang.org/) linter in spirit of <a href="https://github.com/feross/standard">feross/standard</a> (JavaScript) and <a href="https://golang.org/cmd/gofmt/">gofmt</a> (Go).  
+</center>
 
 Features:
-- **No configuration.** Which means no decisions to make, nothing to argue about and no special files to manage. While this might sound extreme, keep in mind that **ktlint** tries to capture (reflect) official code style from [kotlinlang.org](https://kotlinlang.org/docs/reference/). 
+- **No configuration.** Which means no decisions to make, nothing to argue about and no special files to manage.   
+While this might sound extreme, keep in mind that `ktlint` tries to capture (reflect) **official code style** from [kotlinlang.org](https://kotlinlang.org/docs/reference/)
+(+ we support **additional** [3rd party rulesets](#creating-a-ruleset)).
 - **Built-in formatter.** So that you wouldn't have to fix all style violations by hand.
 - **A single executable jar with all dependencies included.**
 
-## Rules
+<center>
+[Standard rules](#standard-rules) | [Installation](#installation) | 
+[Usage](#usage) | [Integration](#integration) with [Maven](#-with-maven) / [Gradle](#-with-gradle) / [IntelliJ IDEA](#-with-intellij-idea) | 
+[Creating a ruleset](#creating-a-ruleset) | [FAQ](#faq)
+</center>
+
+## Standard rules
 
 - 4 spaces for indentation.
 - No semicolons (unless used to separate multiple statements on the same line).
@@ -16,14 +27,14 @@ Features:
 - No trailing whitespaces.
 - Consistent spacing after keywords, commas; around colons, curly braces, infix operators, etc.
 
-> Missing your favourite rule? [Create a ticket](https://github.com/shyiko/ktlint/issues) and let's have a discussion.
+> [More coming](https://github.com/shyiko/ktlint/labels/rule).
 
 ## Installation
 
 > Skip all the way to the "Integration" section if you don't plan to use `ktlint`'s command line interface.
 
 ```sh
-curl -sL https://github.com/shyiko/ktlint/releases/download/0.1.2/ktlint > ktlint &&
+curl -sL https://github.com/shyiko/ktlint/releases/download/0.2.0/ktlint > ktlint &&
   chmod a+x ktlint
 ```
 
@@ -36,7 +47,7 @@ Usually simple `http_proxy=http://proxy-server:port https_proxy=http://proxy-ser
 
 ... or just download `ktlint` from the ["release(s)"](https://github.com/shyiko/ktlint/releases) page.  
 
-> On Mac OS X one can also use [brew](http://brew.sh/) - `brew install shyiko/ktlint/ktlint`.
+> On Mac OS X ([or Linux](http://linuxbrew.sh/)) one can also use [brew](http://brew.sh/) - `brew install shyiko/ktlint/ktlint`.
 
 ## Usage
 
@@ -50,7 +61,16 @@ $ ktlint
 $ ktlint "src/**/*.kt" "!src/**/*Test.kt"
 
 # auto-correct style violations
+# (if some errors cannot be fixed automatically they will be printed to stderr) 
 $ ktlint -F "src/**/*.kt"
+
+# enable additional 3rd party ruleset by pointing ktlint to its location on the file system
+$ ktlint -R /path/to/custom/rulseset.jar "src/test/**/*.kt"
+
+# you can also use <groupId>:<artifactId>:<version> triple in which case artifact is
+# downloaded from Maven Central, JCenter or JitPack (depending on where it's located and 
+# whether or not it's already present in local Maven cache)
+$ ktlint -R com.github.username:ktlint-rulseset-magical:master-SNAPSHOT
 ```
 
 > on Windows you'll have to use `java -jar ktlint ...`. 
@@ -61,7 +81,10 @@ $ ktlint -F "src/**/*.kt"
 
 #### ... with [Maven]()
 
+> pom.xml
+
 ```xml
+...
 <plugin>
     <groupId>org.apache.maven.plugins</groupId>
     <artifactId>maven-antrun-plugin</artifactId>
@@ -98,16 +121,20 @@ $ ktlint -F "src/**/*.kt"
         <dependency>
             <groupId>com.github.shyiko</groupId>
             <artifactId>ktlint</artifactId>
-            <version>0.1.2</version>
+            <version>0.2.0</version>
         </dependency>
+        <!-- additional 3rd party ruleset(s) can be specified here -->
     </dependencies>
 </plugin>
+...
 ```
 
 To check code style - `mvn antrun:run@ktlint` (it's also bound to `mvn verify`).  
 To run formatter - `mvn antrun:run@ktlint-format`.   
 
 #### ... with [Gradle]()
+
+> build.gradle
 
 ```groovy
 repositories {
@@ -119,10 +146,13 @@ configurations {
 }
 
 dependencies {
-    ktlint 'com.github.shyiko:ktlint:0.1.2'
+    ktlint 'com.github.shyiko:ktlint:0.2.0'
+    // additional 3rd party ruleset(s) can be specified here
+    // just add them to the classpath (ktlint 'groupId:artifactId:version') and 
+    // ktlint will pick them up
 }
 
-task ktlint(type:JavaExec) {
+task ktlint(type: JavaExec) {
     main = "com.github.shyiko.ktlint.Main"
     classpath = configurations.ktlint
     args "src/**/*.kt"
@@ -130,7 +160,7 @@ task ktlint(type:JavaExec) {
 
 check.dependsOn ktlint
 
-task ktlintFormat(type:JavaExec) {
+task ktlintFormat(type: JavaExec) {
     main = "com.github.shyiko.ktlint.Main"
     classpath = configurations.ktlint
     args "-F", "src/**/*.kt"
@@ -149,6 +179,16 @@ select [intellij-idea/configs/codestyles/ktlint.xml](https://raw.githubuserconte
 select [intellij-idea/configs/inspection/ktlint.xml](https://raw.githubusercontent.com/shyiko/ktlint/master/intellij-idea/configs/inspection/ktlint.xml).
 
 > Integrated with something else? Send a PR.
+
+## Creating a ruleset
+
+In a nutshell: "ruleset" is a JAR containing one or more [Rule](ktlint-core/src/main/kotlin/com/github/shyiko/ktlint/core/Rule.kt)s gathered together in a [RuleSet](ktlint-core/src/main/kotlin/com/github/shyiko/ktlint/core/RuleSet.kt). `ktlint` is relying on 
+[ServiceLoader](https://docs.oracle.com/javase/8/docs/api/java/util/ServiceLoader.html) to discover all available "RuleSet"s
+on the classpath (as a ruleset author, all you need to do is to include a `META-INF/services/com.github.shyiko.ktlint.core.RuleSetProvider` file 
+containing a fully qualified name of your [RuleSetProvider](ktlint-core/src/main/kotlin/com/github/shyiko/ktlint/core/RuleSetProvider.kt) implementation).    
+
+A complete sample project (with tests and build files) is included in this repo under the [ktlint-ruleset-template](ktlint-ruleset-template) directory 
+(make sure to check [NoVarRuleTest](ktlint-ruleset-template/src/test/kotlin/yourpkgname/NoVarRuleTest.kt) as it contains some useful information). 
 
 ## FAQ
 
