@@ -1,9 +1,11 @@
-<center>
-# ktlint
+<h1 align="center">
+ktlint
+</h1>
+<p align="center">
 [![Build Status](https://travis-ci.org/shyiko/ktlint.svg?branch=master)](https://travis-ci.org/shyiko/ktlint) [![Maven Central](http://img.shields.io/badge/maven_central-0.2.0-blue.svg?style=flat)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.github.shyiko%22%20AND%20a%3A%22ktlint%22)
 
+<p align="center">
 [Kotlin](https://kotlinlang.org/) linter in spirit of <a href="https://github.com/feross/standard">feross/standard</a> (JavaScript) and <a href="https://golang.org/cmd/gofmt/">gofmt</a> (Go).  
-</center>
 
 Features:
 - **No configuration.** Which means no decisions to make, nothing to argue about and no special files to manage.   
@@ -12,11 +14,10 @@ While this might sound extreme, keep in mind that `ktlint` tries to capture (ref
 - **Built-in formatter.** So that you wouldn't have to fix all style violations by hand.
 - **A single executable jar with all dependencies included.**
 
-<center>
+<p align="center">
 [Standard rules](#standard-rules) | [Installation](#installation) | 
 [Usage](#usage) | [Integration](#integration) with [Maven](#-with-maven) / [Gradle](#-with-gradle) / [IntelliJ IDEA](#-with-intellij-idea) | 
 [Creating a ruleset](#creating-a-ruleset) | [FAQ](#faq)
-</center>
 
 ## Standard rules
 
