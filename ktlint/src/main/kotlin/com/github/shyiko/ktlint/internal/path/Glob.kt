@@ -1,6 +1,5 @@
 package com.github.shyiko.ktlint.internal.path
 
-import com.github.shyiko.ktlint.internal.path.slash
 import java.io.File
 import java.util.BitSet
 
@@ -68,19 +67,48 @@ data class Glob(val baseDir: String, val pattern: String, val restrictToBaseDir:
 
     private fun slashJoin(l: String, r: String) = "${l.removeSuffix("/")}/${r.removePrefix("/")}"
 
-    private fun matches0(path: List<String>, pathIndex: Int = 0, stateIndex: Int = 0,
-            visited: BitSet = BitSet(path.size * state.size)): Boolean = when {
-        pathIndex == path.size ->
-            stateIndex == state.lastIndex && state[stateIndex].optional
-        stateIndex != state.size && state[stateIndex].matches(path[pathIndex]) &&
-                !visited.get(pathIndex * state.size + stateIndex) -> {
-            visited.set(pathIndex * state.size + stateIndex)
-            stateIndex == state.lastIndex && pathIndex == path.lastIndex ||
-                (state[stateIndex].optional && (matches0(path, pathIndex, stateIndex + 1, visited) ||
-                    matches0(path, pathIndex + 1, stateIndex, visited))) ||
-                matches0(path, pathIndex + 1, stateIndex + 1, visited)
+    // example:
+    // path: b/b/c, glob: **/b/c
+    //
+    // +---+----+---+---+---+
+    // |   | ** | b | c |   |
+    // +---+----+---+---+---+
+    // |   | x  |   |   |   |
+    // | b | x  | x | o |   | <- next possible state
+    // | b | x  | x | x |   |
+    // | c | x  | o |   | x |
+    // +---+----+---+---+---+
+    //
+    // time: O(n*m), space: O(m), where n - path.size, m - state.size
+    //
+    private fun matches0(path: List<String>): Boolean {
+        val sizeOfState = state.size
+        var match = BitSet(sizeOfState + 1).apply { set(0) }
+        var nextMatch = BitSet(sizeOfState + 1) // next possible state
+        for (p in path) {
+            var stateIndex = -1
+            while (true) {
+                stateIndex = match.nextSetBit(stateIndex + 1)
+                if (stateIndex == -1 || stateIndex == sizeOfState) {
+                    break
+                }
+                val s = state[stateIndex]
+                if (s.matches(p)) {
+                    nextMatch[stateIndex + 1] = true
+                }
+                if (s.optional) {
+                    nextMatch[stateIndex] = true
+                    match.set(stateIndex + 1)
+                }
+            }
+            if (nextMatch.isEmpty) {
+                return false
+            }
+            nextMatch = match.apply { match = nextMatch } // swap
+            nextMatch.clear()
         }
-        else -> false
+        return match[sizeOfState] ||
+            (match[sizeOfState - 1] && state[sizeOfState - 1].optional)
     }
 
     fun matches(absolutePath: String): Boolean = matches0(absolutePath.split('/')) != negate

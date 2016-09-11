@@ -1,6 +1,5 @@
 package com.github.shyiko.ktlint.internal.path
 
-import com.github.shyiko.ktlint.internal.path.Glob
 import org.assertj.core.api.Assertions.assertThat
 import org.testng.annotations.Test
 
@@ -12,6 +11,13 @@ class GlobTest {
             "/tmp/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/f.jsx")
         assertMatch(Glob("/tmp", "**/a/**/a/**/a/**/a/**/a/**/*.jsx"),
             "!/tmp/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/f.kt")
+    }
+
+    @Test
+    fun testBacktracking() {
+        assertMatch(Glob("/tmp", "**/b/c"), "/tmp/b/b/c")
+        assertMatch(Glob("/tmp", "**/b/c"), "/tmp/b/c/b/c")
+        assertMatch(Glob("/tmp", "**/b/**/c/d"), "/tmp/b/c/b/c/d")
     }
 
     @Test
@@ -86,6 +92,7 @@ class GlobTest {
         assertMatch(Glob("/tmp", "b"), "!/tmp/b/d/f.js")
         assertMatch(Glob("/tmp", "b/d"), "!/tmp/b/f.js")
         assertMatch(Glob("/tmp", "b/d"), "!/tmp/b/d/f.js")
+        assertMatch(Glob("/tmp", "b/**/b"), "!/tmp/c/b/b")
         // ...and now outside of cwd
         assertMatch(Glob("/tmp", "/*.js"), "!/tmp/f.js")
         assertMatch(Glob("/tmp", "/*.js"), "!/tmp/d/f.js")
