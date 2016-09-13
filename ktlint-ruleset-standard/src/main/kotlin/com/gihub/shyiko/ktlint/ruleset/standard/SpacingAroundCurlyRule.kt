@@ -26,9 +26,12 @@ class SpacingAroundCurlyRule : Rule("curly-spacing") {
             if (node.textMatches("}")) {
                 spacingBefore = prevLeaf is PsiWhiteSpace || prevLeaf?.node?.elementType == KtTokens.LBRACE
                 val nextElementType = nextLeaf?.node?.elementType
-                spacingAfter = nextLeaf is PsiWhiteSpace || nextLeaf == null || nextElementType == KtTokens.DOT ||
-                    nextElementType == KtTokens.COMMA || nextElementType == KtTokens.RPAR ||
-                    nextElementType == KtTokens.SEMICOLON
+                spacingAfter = nextLeaf == null || nextLeaf is PsiWhiteSpace ||
+                    nextElementType == KtTokens.DOT ||
+                    nextElementType == KtTokens.COMMA ||
+                    nextElementType == KtTokens.RPAR ||
+                    nextElementType == KtTokens.SEMICOLON ||
+                    nextElementType == KtTokens.SAFE_ACCESS
             } else {
                 return
             }

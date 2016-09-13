@@ -29,6 +29,8 @@ class SpacingAroundCurlyRuleTest {
             .isEmpty()
         assertThat(SpacingAroundCurlyRule().lint("fun main() { fn({}, 0) && fn2({ }, 0) }"))
             .isEmpty()
+        assertThat(SpacingAroundCurlyRule().lint("fun main() { find { it.default ?: false }?.phone }"))
+            .isEmpty()
     }
 
     @Test
