@@ -71,7 +71,7 @@ $ ktlint -R /path/to/custom/rulseset.jar "src/test/**/*.kt"
 # you can also use <groupId>:<artifactId>:<version> triple in which case artifact is
 # downloaded from Maven Central, JCenter or JitPack (depending on where it's located and 
 # whether or not it's already present in local Maven cache)
-$ ktlint -R com.github.username:ktlint-rulseset-magical:master-SNAPSHOT
+$ ktlint -R com.github.username:rulseset:master-SNAPSHOT
 ```
 
 > on Windows you'll have to use `java -jar ktlint ...`. 
