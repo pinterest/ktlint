@@ -15,10 +15,11 @@ class NoWildcardImportsRuleTest {
             import a.*
             import a.b.c.*
             import a.b
+            import kotlinx.android.synthetic.main.layout_name.*
             """.trimIndent()
         )).isEqualTo(listOf(
-            LintError(1, 10, "no-wildcard-imports", "Wildcard import"),
-            LintError(2, 14, "no-wildcard-imports", "Wildcard import")
+            LintError(1, 1, "no-wildcard-imports", "Wildcard import"),
+            LintError(2, 1, "no-wildcard-imports", "Wildcard import")
         ))
     }
 

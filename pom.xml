@@ -129,7 +129,7 @@
                 <version>1.0.0</version>
                 <configuration>
                     <usage>
-                        # build "./ktlitn/target/ktlint" (executable jar)
+                        # build "./ktlint/target/ktlint" (executable jar)
                         ./mvnw -Pcapsule clean package -Dmaven.test.skip=true
 
                         # test (&amp; check code style)
