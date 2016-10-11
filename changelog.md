@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.2.2 - 2016-10-11
+
+### Fixed
+- `no-wildcard-imports` rule (kotlinx.android.synthetic excluded from check) ([#16](https://github.com/shyiko/ktlint/pull/16)).
+
 ## 0.2.1 - 2016-09-13
 
 ### Fixed
