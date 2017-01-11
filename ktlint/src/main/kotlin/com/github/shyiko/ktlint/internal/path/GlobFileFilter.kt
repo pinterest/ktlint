@@ -1,6 +1,5 @@
 package com.github.shyiko.ktlint.internal.path
 
-import com.github.shyiko.ktlint.internal.path.Glob
 import java.io.File
 import java.io.FileFilter
 
