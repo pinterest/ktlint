@@ -1,6 +1,6 @@
 @if "%DEBUG%" == "" @echo off
 @rem
-@rem The Maven Wrapper (https://github.com/shyiko/mvnw).
+@rem The Maven Wrapper 0.1.0 (https://github.com/shyiko/mvnw).
 @rem Based on https://github.com/gradle/gradle/blob/62925785791e2487c43d19d234c2fced6d750412/gradlew.bat.
 @rem
 
