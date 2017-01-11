@@ -5,6 +5,8 @@ import java.io.FileFilter
 
 fun FileFilter.and(fileFilter: FileFilter) =
     FileFilter { file -> this@and.accept(file) && fileFilter.accept(file) }
+fun FileFilter.or(fileFilter: FileFilter) =
+    FileFilter { file -> this@or.accept(file) || fileFilter.accept(file) }
 
 /**
  * On Windows: "C:\io" -> "/C:/io", does nothing everywhere else.

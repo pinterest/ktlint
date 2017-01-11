@@ -1,8 +1,10 @@
 package com.github.shyiko.ktlint
 
 import com.github.shyiko.ktlint.core.KtLint
+import com.github.shyiko.ktlint.core.LintError
 import com.github.shyiko.ktlint.core.ParseException
 import com.github.shyiko.ktlint.core.RuleExecutionException
+import com.github.shyiko.ktlint.core.RuleSet
 import com.github.shyiko.ktlint.core.RuleSetProvider
 import com.github.shyiko.ktlint.internal.MavenDependencyResolver
 import com.github.shyiko.ktlint.internal.path.Glob
@@ -11,6 +13,7 @@ import com.github.shyiko.ktlint.internal.path.HiddenFileFilter
 import com.github.shyiko.ktlint.internal.path.and
 import com.github.shyiko.ktlint.internal.path.expandTilde
 import com.github.shyiko.ktlint.internal.path.fromSlash
+import com.github.shyiko.ktlint.internal.path.or
 import com.github.shyiko.ktlint.internal.path.slash
 import org.eclipse.aether.RepositoryException
 import org.eclipse.aether.artifact.DefaultArtifact
@@ -203,7 +206,7 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
             val result = ArrayList<String>()
             if (format) {
                 val formattedFileContent = try {
-                    KtLint.format(fileContent, rp.map { it.second.get() }, { e, corrected ->
+                    format(fileName, fileContent, rp.map { it.second.get() }, { e, corrected ->
                         if (!corrected) {
                             result.add("$fileName:${e.line}:${e.col}: " +
                                 "${e.detail}${if (verbose) " (${e.ruleId})" else ""}")
@@ -223,7 +226,7 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
                 }
             } else {
                 try {
-                    KtLint.lint(fileContent, rp.map { it.second.get() }, { e ->
+                    lint(fileName, fileContent, rp.map { it.second.get() }, { e ->
                         tripped = true
                         result.add("$fileName:${e.line}:${e.col}: " +
                             "${e.detail}${if (verbose) " (${e.ruleId})" else ""}")
@@ -247,7 +250,8 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
             apply("<text>", String(System.`in`.readBytes()))
         } else {
             if (patterns.isEmpty()) {
-                val filter = HiddenFileFilter(reverse = true).and(GlobFileFilter(workDir, "**/*.kt"))
+                val filter = HiddenFileFilter(reverse = true)
+                    .and(GlobFileFilter(workDir, "**/*.kt").or(GlobFileFilter(workDir, "**/*.kts")))
                 process(File(workDir), filter)
             } else {
                 val patterns = patterns.map { expandTilde(it) }
@@ -272,6 +276,15 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
             exitProcess(1)
         }
     }
+
+    fun lint(fileName: String, text: String, ruleSets: Iterable<RuleSet>, cb: (e: LintError) -> Unit) =
+        if (fileName.endsWith(".kt", ignoreCase = true)) KtLint.lint(text, ruleSets, cb) else
+            KtLint.lintScript(text, ruleSets, cb)
+
+    fun format(fileName: String, text: String, ruleSets: Iterable<RuleSet>,
+            cb: (e: LintError, corrected: Boolean) -> Unit): String =
+        if (fileName.endsWith(".kt", ignoreCase = true)) KtLint.format(text, ruleSets, cb) else
+            KtLint.formatScript(text, ruleSets, cb)
 
     fun visit(dir: File, filter: FileFilter): Sequence<File> {
         val stack = ArrayDeque<File>().apply { push(dir) }

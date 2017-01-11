@@ -81,12 +81,31 @@ object KtLint {
      * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
      */
     fun lint(text: String, ruleSets: Iterable<RuleSet>, cb: (e: LintError) -> Unit) {
+        lint(text, ruleSets, cb, script = false)
+    }
+
+    /**
+     * Check source for lint errors.
+     *
+     * @param text script source
+     * @param ruleSets a collection of "RuleSet"s used to validate source
+     * @param cb callback that is going to be executed for every lint error
+     *
+     * @throws ParseException if text is not a valid Kotlin code
+     * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
+     */
+    fun lintScript(text: String, ruleSets: Iterable<RuleSet>, cb: (e: LintError) -> Unit) {
+        lint(text, ruleSets, cb, script = true)
+    }
+
+    private fun lint(text: String, ruleSets: Iterable<RuleSet>, cb: (e: LintError) -> Unit, script: Boolean) {
         val positionByOffset = calculateLineColByOffset(text).let {
             val offsetDueToLineBreakNormalization = calculateLineBreakOffset(text)
             return@let { offset: Int -> it(offset + offsetDueToLineBreakNormalization(offset)) }
         }
         val normalizedText = text.replace("\r\n", "\n").replace("\r", "\n")
-        val psiFile = psiFileFactory.createFileFromText(KotlinLanguage.INSTANCE, normalizedText) as KtFile
+        val fileName = if (script) "file.kts" else "file.kt"
+        val psiFile = psiFileFactory.createFileFromText(fileName, KotlinLanguage.INSTANCE, normalizedText) as KtFile
         val errorElement = psiFile.findErrorElement()
         if (errorElement != null) {
             val (line, col) = positionByOffset(errorElement.textOffset)
@@ -155,13 +174,31 @@ object KtLint {
      * @throws ParseException if text is not a valid Kotlin code
      * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
      */
-    fun format(text: String, ruleSets: Iterable<RuleSet>, cb: (e: LintError, corrected: Boolean) -> Unit): String {
+    fun format(text: String, ruleSets: Iterable<RuleSet>, cb: (e: LintError, corrected: Boolean) -> Unit): String =
+        format(text, ruleSets, cb, script = false)
+
+    /**
+     * Fix style violations.
+     *
+     * @param text script source
+     * @param ruleSets a collection of "RuleSet"s used to validate source
+     * @param cb callback that is going to be executed for every lint error
+     *
+     * @throws ParseException if text is not a valid Kotlin code
+     * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
+     */
+    fun formatScript(text: String, ruleSets: Iterable<RuleSet>, cb: (e: LintError, corrected: Boolean) -> Unit): String =
+        format(text, ruleSets, cb, script = true)
+
+    private fun format(text: String, ruleSets: Iterable<RuleSet>, cb: (e: LintError, corrected: Boolean) -> Unit,
+            script: Boolean): String {
         val positionByOffset = calculateLineColByOffset(text).let {
             val offsetDueToLineBreakNormalization = calculateLineBreakOffset(text)
             return@let { offset: Int -> it(offset + offsetDueToLineBreakNormalization(offset)) }
         }
         val normalizedText = text.replace("\r\n", "\n").replace("\r", "\n")
-        val psiFile = psiFileFactory.createFileFromText(KotlinLanguage.INSTANCE, normalizedText) as KtFile
+        val fileName = if (script) "file.kts" else "file.kt"
+        val psiFile = psiFileFactory.createFileFromText(fileName, KotlinLanguage.INSTANCE, normalizedText) as KtFile
         val errorElement = psiFile.findErrorElement()
         if (errorElement != null) {
             val (line, col) = positionByOffset(errorElement.textOffset)
