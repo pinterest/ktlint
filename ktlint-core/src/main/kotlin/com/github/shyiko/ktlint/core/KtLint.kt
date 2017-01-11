@@ -10,7 +10,6 @@ import org.jetbrains.kotlin.com.intellij.openapi.util.UserDataHolderBase
 import org.jetbrains.kotlin.com.intellij.pom.PomModel
 import org.jetbrains.kotlin.com.intellij.pom.PomModelAspect
 import org.jetbrains.kotlin.com.intellij.pom.PomTransaction
-import org.jetbrains.kotlin.com.intellij.pom.event.PomModelListener
 import org.jetbrains.kotlin.com.intellij.pom.impl.PomTransactionBase
 import org.jetbrains.kotlin.com.intellij.pom.tree.TreeAspect
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
@@ -57,7 +56,6 @@ object KtLint {
                 return null
             }
 
-            override fun addModelListener(listener: PomModelListener) {}
         }
         val extensionPoint = "org.jetbrains.kotlin.com.intellij.treeCopyHandler"
         val extensionClassName = TreeCopyHandler::class.java.name!!
