@@ -179,6 +179,10 @@ select [integration/intellij-idea/configs/codestyles/ktlint.xml](integration/int
 - `Inspections -> Manage -> Import`,
 select [integration/intellij-idea/configs/inspection/ktlint.xml](integration/intellij-idea/configs/inspection/ktlint.xml).
 
+#### ... with [GNU Emacs](https://www.gnu.org/software/emacs/)
+
+See [whirm/flycheck-kotlin](https://github.com/whirm/flycheck-kotlin).
+
 > Integrated with something else? Send a PR.
 
 ## Creating a ruleset
