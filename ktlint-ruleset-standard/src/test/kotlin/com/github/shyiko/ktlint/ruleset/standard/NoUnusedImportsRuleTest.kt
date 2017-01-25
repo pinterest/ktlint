@@ -22,10 +22,12 @@ class NoUnusedImportsRuleTest {
             import p.a.*
             import escaped.`when`
             import escaped.`foo`
+            import infixfunc
 
             fun main() {
                 println(a())
                 C.call(B())
+                1 infixfunc 2
                 `when`()
             }
             """.trimIndent()

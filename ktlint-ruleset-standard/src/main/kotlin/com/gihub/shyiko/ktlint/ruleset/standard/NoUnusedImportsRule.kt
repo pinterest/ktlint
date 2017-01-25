@@ -1,6 +1,7 @@
 package com.gihub.shyiko.ktlint.ruleset.standard
 
 import com.github.shyiko.ktlint.core.Rule
+import org.jetbrains.kotlin.KtNodeTypes
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.psi.KtImportDirective
 import org.jetbrains.kotlin.psi.psiUtil.startOffset
@@ -17,8 +18,9 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
             emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
         if (node.elementType == KtStubElementTypes.FILE) {
             node.visit { node ->
-                if (node.elementType == KtStubElementTypes.REFERENCE_EXPRESSION &&
-                        !node.psi.isPartOf(KtImportDirective::class)) {
+                val type = node.elementType
+                if ((type == KtNodeTypes.REFERENCE_EXPRESSION || type == KtNodeTypes.OPERATION_REFERENCE) &&
+                    !node.psi.isPartOf(KtImportDirective::class)) {
                     ref.add(node.text.trim('`'))
                 }
             }
