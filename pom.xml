@@ -74,7 +74,7 @@
             <url>http://jcenter.bintray.com</url>
         </pluginRepository>
         <pluginRepository>
-            <id>bintray</id>
+            <id>bintray-kotlin-eap</id>
             <name>bintray-kotlin-eap</name>
             <url>http://dl.bintray.com/kotlin/kotlin-eap-1.1</url>
         </pluginRepository>
