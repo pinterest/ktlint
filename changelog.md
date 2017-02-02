@@ -2,6 +2,14 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.4.0 - 2017-02-01
+
+### Fixed
+- NPE in case of "Permission denied" (while scanning the file system).
+
+### Changed
+- `kotlin-compiler` version to 1.1-M04 (from 1.0.6).
+
 ## 0.3.1 - 2017-01-25
 
 ### Fixed
