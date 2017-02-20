@@ -17,7 +17,8 @@ class StandardRuleSetProvider : RuleSetProvider {
         SpacingAfterKeywordRule(),
         SpacingAroundColonRule(),
         SpacingAroundCurlyRule(),
-        SpacingAroundOperatorsRule()
+        SpacingAroundOperatorsRule(),
+        CapitalizedClassNamesRule()
     )
 
 }
