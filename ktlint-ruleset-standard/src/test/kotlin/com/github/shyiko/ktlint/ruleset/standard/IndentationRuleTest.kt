@@ -37,4 +37,35 @@ class IndentationRuleTest {
             LintError(12, 1, "indent", "Unexpected indentation (3)")
         ))
     }
+
+    @Test
+    fun testParameterIndentationIsNotEnforced() {
+        assertThat(IndentationRule().lint(
+            """
+            data class D(val a: Any,
+                         val b: Any,
+                         val c: Any) {
+            }
+
+            data class D2(
+                val a: Any,
+                val b: Any,
+                val c: Any
+            ) {
+            }
+
+            fun f(val a: Any,
+                  val b: Any,
+                  val c: Any) {
+            }
+
+            fun f2(
+                val a: Any,
+                val b: Any,
+                val c: Any
+            ) {
+            }
+            """.trimIndent()
+        )).isEmpty()
+    }
 }

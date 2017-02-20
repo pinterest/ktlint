@@ -4,12 +4,13 @@ import com.github.shyiko.ktlint.core.Rule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
+import org.jetbrains.kotlin.psi.KtParameterList
 
 class IndentationRule : Rule("indent") {
 
     override fun visit(node: ASTNode, autoCorrect: Boolean,
             emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
-        if (node is PsiWhiteSpace && !node.isPartOf(PsiComment::class)) {
+        if (node is PsiWhiteSpace && !node.isPartOf(PsiComment::class) && !node.isPartOf(KtParameterList::class)) {
             val split = node.getText().split("\n")
             if (split.size > 1) {
                 var offset = node.startOffset + split.first().length + 1
