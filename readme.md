@@ -177,6 +177,14 @@ To run formatter - `gradle ktlintFormat`.
 #### ... with [IntelliJ IDEA](https://www.jetbrains.com/idea/)
 
 Go to `File -> Settings... -> Editor`
+- `Code Style -> Kotlin`
+  - open `Imports` tab, select all `Use single name import` options and remove `import java.util.*` from `Packages to Use Import with '*'`.
+  - (optional by recommended) open `Wrapping and Braces` tab, uncheck `Method declaration parameters -> Align when multiline`. 
+  - (optional by recommended) open `Tabs and Indents` tab, change `Continuation indent` to 4.
+- `Inspections` 
+  - change `Severity` level of `Unused import directive`, `Redundant semicolon` and (optional by recommended) `Unused symbol` to `ERROR`.
+
+Alternatively, go to `File -> Settings... -> Editor`
 - `Code Style -> Manage... -> Import -> Intellij IDEA code style XML`,
 select [integration/intellij-idea/configs/codestyles/ktlint.xml](integration/intellij-idea/configs/codestyles/ktlint.xml).
 - `Inspections -> Manage -> Import`,
