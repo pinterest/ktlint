@@ -2,10 +2,15 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.5.1] - 2017-02-28
+
+### Fixed
+- Unnecessary spacing around angle brackets in case of `super<T>` ([#34](https://github.com/shyiko/ktlint/issues/34)).
+
 ## [0.5.0] - 2017-02-20
 
 ### Fixed
-- redundant space inserted between `}` and `!!` (curly-spacing).
+- Redundant space inserted between `}` and `!!` (curly-spacing).
 
 ### Changed
 - `indent` rule to allow "Method declaration parameters -> Align when multiline" (as this option is (unfortunately) "on" by default in Intellij IDEA) ([#26](https://github.com/shyiko/ktlint/issues/26)).
@@ -67,6 +72,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## 0.1.0 - 2016-07-27
 
+[0.5.1]: https://github.com/shyiko/ktlint/compare/0.5.0...0.5.1
 [0.5.0]: https://github.com/shyiko/ktlint/compare/0.4.0...0.5.0
 [0.4.0]: https://github.com/shyiko/ktlint/compare/0.3.1...0.4.0
 [0.3.1]: https://github.com/shyiko/ktlint/compare/0.3.0...0.3.1
