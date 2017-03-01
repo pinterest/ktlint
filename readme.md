@@ -142,7 +142,6 @@ apply plugin: 'java'
 
 repositories {
     mavenCentral()
-    maven { url "http://dl.bintray.com/kotlin/kotlin-eap-1.1" }
 }
 
 configurations {
