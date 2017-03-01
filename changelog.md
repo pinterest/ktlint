@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.6.0] - 2017-03-01
+
+### Changed
+- `kotlin-compiler` version to 1.1.0 (from 1.1-M04).
+
 ## [0.5.1] - 2017-02-28
 
 ### Fixed
