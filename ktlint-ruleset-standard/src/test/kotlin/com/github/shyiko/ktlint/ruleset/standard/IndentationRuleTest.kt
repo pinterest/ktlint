@@ -34,7 +34,47 @@ class IndentationRuleTest {
             }
             """.trimIndent()
         )).isEqualTo(listOf(
-            LintError(12, 1, "indent", "Unexpected indentation (3)")
+            LintError(12, 1, "indent", "Unexpected indentation (3) (it should be multiple of 4)")
+        ))
+    }
+
+    @Test
+    fun testVerticallyAlignedParametersDoNotTriggerAnError() {
+        assertThat(IndentationRule().lint(
+            """
+            data class D(val a: Any,
+                         @Test val b: Any,
+                         val c: Any = 0) {
+            }
+
+            data class D2(
+                val a: Any,
+                val b: Any,
+                val c: Any
+            ) {
+            }
+
+            fun f(val a: Any,
+                  val b: Any,
+                  val c: Any) {
+            }
+
+            fun f2(
+                val a: Any,
+                val b: Any,
+                val c: Any
+            ) {
+            }
+            """.trimIndent()
+        )).isEmpty()
+        assertThat(IndentationRule().lint(
+            """
+            class A(
+               //
+            ) {}
+            """.trimIndent()
+        )).isEqualTo(listOf(
+            LintError(2, 1, "indent", "Unexpected indentation (3) (it should be multiple of 4)")
         ))
     }
 }

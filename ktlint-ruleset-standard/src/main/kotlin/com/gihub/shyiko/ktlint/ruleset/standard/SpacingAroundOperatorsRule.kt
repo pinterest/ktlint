@@ -32,6 +32,7 @@ import org.jetbrains.kotlin.lexer.KtTokens.PLUS
 import org.jetbrains.kotlin.lexer.KtTokens.PLUSEQ
 import org.jetbrains.kotlin.psi.KtImportDirective
 import org.jetbrains.kotlin.psi.KtPrefixExpression
+import org.jetbrains.kotlin.psi.KtSuperExpression
 import org.jetbrains.kotlin.psi.KtTypeArgumentList
 import org.jetbrains.kotlin.psi.KtTypeParameterList
 import org.jetbrains.kotlin.psi.KtValueArgument
@@ -48,7 +49,8 @@ class SpacingAroundOperatorsRule : Rule("op-spacing") {
             !node.isPartOf(KtTypeParameterList::class) && // fun <T>fn(): T {}
             !node.isPartOf(KtTypeArgumentList::class) && // C<T>
             !node.isPartOf(KtValueArgument::class) && // fn(*array)
-            !node.isPartOf(KtImportDirective::class) // import *
+            !node.isPartOf(KtImportDirective::class) && // import *
+            !node.isPartOf(KtSuperExpression::class) // super<T>
         ) {
             val spacingBefore = PsiTreeUtil.prevLeaf(node, true) is PsiWhiteSpace
             val spacingAfter = PsiTreeUtil.nextLeaf(node, true) is PsiWhiteSpace

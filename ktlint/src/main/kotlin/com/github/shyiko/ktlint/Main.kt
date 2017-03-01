@@ -292,7 +292,10 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
             while (true) {
                 val file = stack.pollLast()
                 if (file != null && file.isDirectory) {
-                    stack.addAll(file.listFiles(filter))
+                    val fileList = file.listFiles(filter)
+                    if (fileList != null) {
+                        stack.addAll(fileList)
+                    }
                     continue
                 }
                 return file

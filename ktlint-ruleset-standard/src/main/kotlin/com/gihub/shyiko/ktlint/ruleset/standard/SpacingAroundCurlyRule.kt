@@ -2,6 +2,7 @@ package com.gihub.shyiko.ktlint.ruleset.standard
 
 import com.github.shyiko.ktlint.core.Rule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
+import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
@@ -25,13 +26,14 @@ class SpacingAroundCurlyRule : Rule("curly-spacing") {
             } else
             if (node.textMatches("}")) {
                 spacingBefore = prevLeaf is PsiWhiteSpace || prevLeaf?.node?.elementType == KtTokens.LBRACE
-                val nextElementType = nextLeaf?.node?.elementType
-                spacingAfter = nextLeaf == null || nextLeaf is PsiWhiteSpace ||
-                    nextElementType == KtTokens.DOT ||
-                    nextElementType == KtTokens.COMMA ||
-                    nextElementType == KtTokens.RPAR ||
-                    nextElementType == KtTokens.SEMICOLON ||
-                    nextElementType == KtTokens.SAFE_ACCESS
+                spacingAfter = nextLeaf == null || nextLeaf is PsiWhiteSpace || shouldNotToBeSeparatedBySpace(nextLeaf)
+                if (nextLeaf is PsiWhiteSpace && !nextLeaf.textContains('\n') &&
+                        shouldNotToBeSeparatedBySpace(PsiTreeUtil.nextLeaf(nextLeaf, true))) {
+                    emit(node.startOffset, "Unexpected space after \"${node.text}\"", true)
+                    if (autoCorrect) {
+                        nextLeaf.delete()
+                    }
+                }
             } else {
                 return
             }
@@ -57,6 +59,17 @@ class SpacingAroundCurlyRule : Rule("curly-spacing") {
                 }
             }
         }
+    }
+
+    fun shouldNotToBeSeparatedBySpace(leaf: PsiElement?): Boolean {
+        val nextElementType = leaf?.node?.elementType
+        return nextElementType != null &&
+            nextElementType == KtTokens.DOT ||
+            nextElementType == KtTokens.COMMA ||
+            nextElementType == KtTokens.RPAR ||
+            nextElementType == KtTokens.SEMICOLON ||
+            nextElementType == KtTokens.SAFE_ACCESS ||
+            nextElementType == KtTokens.EXCLEXCL
     }
 
 }

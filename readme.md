@@ -2,7 +2,7 @@
 ktlint
 </h1>
 <p align="center">
-[![Build Status](https://travis-ci.org/shyiko/ktlint.svg?branch=master)](https://travis-ci.org/shyiko/ktlint) [![Maven Central](http://img.shields.io/badge/maven_central-0.3.1-blue.svg?style=flat)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.github.shyiko%22%20AND%20a%3A%22ktlint%22)
+[![Build Status](https://travis-ci.org/shyiko/ktlint.svg?branch=master)](https://travis-ci.org/shyiko/ktlint) [![Maven Central](http://img.shields.io/badge/maven_central-0.6.0-blue.svg?style=flat)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.github.shyiko%22%20AND%20a%3A%22ktlint%22)
 
 <p align="center">
 [Kotlin](https://kotlinlang.org/) linter in spirit of <a href="https://github.com/feross/standard">feross/standard</a> (JavaScript) and <a href="https://golang.org/cmd/gofmt/">gofmt</a> (Go).  
@@ -35,7 +35,7 @@ While this might sound extreme, keep in mind that `ktlint` tries to capture (ref
 > Skip all the way to the "Integration" section if you don't plan to use `ktlint`'s command line interface.
 
 ```sh
-curl -sL https://github.com/shyiko/ktlint/releases/download/0.3.1/ktlint > ktlint &&
+curl -sL https://github.com/shyiko/ktlint/releases/download/0.6.0/ktlint > ktlint &&
   chmod a+x ktlint
 ```
 
@@ -122,7 +122,7 @@ $ ktlint -R com.github.username:rulseset:master-SNAPSHOT
         <dependency>
             <groupId>com.github.shyiko</groupId>
             <artifactId>ktlint</artifactId>
-            <version>0.3.1</version>
+            <version>0.6.0</version>
         </dependency>
         <!-- additional 3rd party ruleset(s) can be specified here -->
     </dependencies>
@@ -138,6 +138,8 @@ To run formatter - `mvn antrun:run@ktlint-format`.
 > build.gradle
 
 ```groovy
+apply plugin: 'java'
+
 repositories {
     mavenCentral()
 }
@@ -147,7 +149,7 @@ configurations {
 }
 
 dependencies {
-    ktlint 'com.github.shyiko:ktlint:0.3.1'
+    ktlint 'com.github.shyiko:ktlint:0.6.0'
     // additional 3rd party ruleset(s) can be specified here
     // just add them to the classpath (ktlint 'groupId:artifactId:version') and 
     // ktlint will pick them up
@@ -174,6 +176,14 @@ To run formatter - `gradle ktlintFormat`.
 #### ... with [IntelliJ IDEA](https://www.jetbrains.com/idea/)
 
 Go to `File -> Settings... -> Editor`
+- `Code Style -> Kotlin`
+  - open `Imports` tab, select all `Use single name import` options and remove `import java.util.*` from `Packages to Use Import with '*'`.
+  - (optional but recommended) open `Wrapping and Braces` tab, uncheck `Method declaration parameters -> Align when multiline`. 
+  - (optional but recommended) open `Tabs and Indents` tab, change `Continuation indent` to 4.
+- `Inspections` 
+  - change `Severity` level of `Unused import directive`, `Redundant semicolon` and (optional but recommended) `Unused symbol` to `ERROR`.
+
+Alternatively, go to `File -> Settings... -> Editor`
 - `Code Style -> Manage... -> Import -> Intellij IDEA code style XML`,
 select [integration/intellij-idea/configs/codestyles/ktlint.xml](integration/intellij-idea/configs/codestyles/ktlint.xml).
 - `Inspections -> Manage -> Import`,

@@ -30,6 +30,12 @@ class SpacingAroundOperatorsRuleTest {
                 val a= ""
                 d *= 1
                 call(*v)
+                open class A<T> {
+                    open fun x() {}
+                }
+                class B<T> : A<T>() {
+                    override fun x() = super<A>.x()
+                }
             }
             """.trimIndent()
         )).isEqualTo(listOf(

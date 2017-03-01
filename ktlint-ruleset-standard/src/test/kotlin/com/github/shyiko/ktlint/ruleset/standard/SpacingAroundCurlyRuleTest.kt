@@ -31,6 +31,15 @@ class SpacingAroundCurlyRuleTest {
             .isEmpty()
         assertThat(SpacingAroundCurlyRule().lint("fun main() { find { it.default ?: false }?.phone }"))
             .isEmpty()
+        assertThat(SpacingAroundCurlyRule().lint("""
+            fun main() {
+                emptyList<String>().find { true } !!.hashCode()
+                emptyList<String>().find { true }!!.hashCode()
+            }
+            """.trimIndent()))
+            .isEqualTo(listOf(
+                LintError(2, 37, "curly-spacing", "Unexpected space after \"}\"")
+            ))
     }
 
     @Test
@@ -49,6 +58,8 @@ class SpacingAroundCurlyRuleTest {
                 call({}, {})
                 a.let{}.apply({})
                 f({ if (true) {r.add(v)}; r})
+                emptyList<String>().find { true }!!.hashCode()
+                emptyList<String>().find { true } !!.hashCode()
             }
             """.trimIndent()
         )).isEqualTo(
@@ -65,6 +76,8 @@ class SpacingAroundCurlyRuleTest {
                 call({}, {})
                 a.let {}.apply({})
                 f({ if (true) { r.add(v) }; r })
+                emptyList<String>().find { true }!!.hashCode()
+                emptyList<String>().find { true }!!.hashCode()
             }
             """.trimIndent()
         )
