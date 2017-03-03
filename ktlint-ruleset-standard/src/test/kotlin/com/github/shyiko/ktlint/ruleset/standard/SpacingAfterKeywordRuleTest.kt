@@ -1,6 +1,6 @@
 package com.github.shyiko.ktlint.ruleset.standard
 
-import com.gihub.shyiko.ktlint.ruleset.standard.SpacingAfterKeywordRule
+import com.github.shyiko.ktlint.ruleset.standard.SpacingAfterKeywordRule
 import com.github.shyiko.ktlint.core.LintError
 import com.github.shyiko.ktlint.test.lint
 import com.github.shyiko.ktlint.test.format

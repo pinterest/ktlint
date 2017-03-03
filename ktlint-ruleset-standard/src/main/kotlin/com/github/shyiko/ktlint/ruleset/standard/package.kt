@@ -1,4 +1,4 @@
-package com.gihub.shyiko.ktlint.ruleset.standard
+package com.github.shyiko.ktlint.ruleset.standard
 
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.psi.KtStringTemplateEntry

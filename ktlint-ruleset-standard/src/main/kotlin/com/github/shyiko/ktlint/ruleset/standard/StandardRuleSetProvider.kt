@@ -1,4 +1,4 @@
-package com.gihub.shyiko.ktlint.ruleset.standard
+package com.github.shyiko.ktlint.ruleset.standard
 
 import com.github.shyiko.ktlint.core.RuleSet
 import com.github.shyiko.ktlint.core.RuleSetProvider
