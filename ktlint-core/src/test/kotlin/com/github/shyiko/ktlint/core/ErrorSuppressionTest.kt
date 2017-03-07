@@ -1,6 +1,5 @@
 package com.github.shyiko.ktlint.core
 
-import com.github.shyiko.ktlint.core.KtLint
 import org.assertj.core.api.Assertions.assertThat
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement

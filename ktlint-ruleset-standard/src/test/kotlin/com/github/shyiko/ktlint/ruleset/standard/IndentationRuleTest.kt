@@ -1,6 +1,5 @@
 package com.github.shyiko.ktlint.ruleset.standard
 
-import com.github.shyiko.ktlint.ruleset.standard.IndentationRule
 import com.github.shyiko.ktlint.core.LintError
 import com.github.shyiko.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
