@@ -26,7 +26,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - `indent` rule to allow "Method declaration parameters -> Align when multiline" (as this option is (unfortunately) "on" by default in Intellij IDEA) ([#26](https://github.com/shyiko/ktlint/issues/26)).
 
-## 0.4.0 - 2017-02-01
+## [0.4.0] - 2017-02-01
 
 ### Fixed
 - NPE in case of "Permission denied" (while scanning the file system).
