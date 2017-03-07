@@ -291,14 +291,15 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
         return generateSequence(fun (): File? {
             while (true) {
                 val file = stack.pollLast()
-                if (file != null && file.isDirectory) {
+                if (file == null || file.isFile) {
+                    return file
+                }
+                if (file.isDirectory) {
                     val fileList = file.listFiles(filter)
                     if (fileList != null) {
                         stack.addAll(fileList)
                     }
-                    continue
                 }
-                return file
             }
         })
     }
