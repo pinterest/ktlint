@@ -5,7 +5,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [0.6.1] - 2017-03-06
 
 ### Fixed
-- Unnecessary "same package" imports detection (no-unused-imports).
+- Detection of unnecessary "same package" imports (no-unused-imports).
 - FileNotFoundException while scanning FS ([#36](https://github.com/shyiko/ktlint/issues/36)).
 
 ## [0.6.0] - 2017-03-01
