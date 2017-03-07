@@ -14,6 +14,7 @@ class NoConsecutiveBlankLinesRuleTest {
         assertThat(NoConsecutiveBlankLinesRule().lint("fun main() {\n\n\n}")).isEqualTo(listOf(
             LintError(3, 1, "no-consecutive-blank-lines", "Needless blank line(s)")
         ))
+        assertThat(NoConsecutiveBlankLinesRule().lint("fun main() {println(\"\"\"\n\n\n\"\"\")}")).isEmpty()
     }
 
     @Test
