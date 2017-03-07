@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.6.1] - 2017-03-06
+
+### Fixed
+- Unnecessary "same package" imports detection (no-unused-imports).
+- FileNotFoundException while scanning FS ([#36](https://github.com/shyiko/ktlint/issues/36)).
+
 ## [0.6.0] - 2017-03-01
 
 ### Changed
@@ -77,6 +83,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## 0.1.0 - 2016-07-27
 
+[0.6.1]: https://github.com/shyiko/ktlint/compare/0.6.0...0.6.1
 [0.6.0]: https://github.com/shyiko/ktlint/compare/0.5.1...0.6.0
 [0.5.1]: https://github.com/shyiko/ktlint/compare/0.5.0...0.5.1
 [0.5.0]: https://github.com/shyiko/ktlint/compare/0.4.0...0.5.0
