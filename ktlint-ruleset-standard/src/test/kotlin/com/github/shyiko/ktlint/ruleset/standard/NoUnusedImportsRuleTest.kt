@@ -22,7 +22,7 @@ class NoUnusedImportsRuleTest {
             import p.a.*
             import escaped.`when`
             import escaped.`foo`
-            import infixfunc
+            import p.infixfunc
 
             fun main() {
                 println(a())
@@ -46,6 +46,46 @@ class NoUnusedImportsRuleTest {
             }
             """.trimIndent()
         )).isEmpty()
+    }
+
+    @Test
+    fun testSamePackageImport() {
+        assertThat(NoUnusedImportsRule().lint(
+            """
+
+
+            import C1
+            import C1 as C1X
+            import `C2`
+            import `C2` as C2X
+            import C3.method
+
+            fun main() {
+                println(C1, C1X, C2, C2X, method)
+            }
+            """.trimIndent()
+        )).isEqualTo(listOf(
+            LintError(3, 1, "no-unused-imports", "Unnecessary import"),
+            LintError(5, 1, "no-unused-imports", "Unnecessary import")
+        ))
+        assertThat(NoUnusedImportsRule().lint(
+            """
+            package p
+
+            import p.C1
+            import p.C1 as C1X
+            import p.`C2`
+            import p.`C2` as C2X
+            import p.C3.method
+
+            fun main() {
+                println(C1, C1X, C2, C2X, method)
+            }
+            """.trimIndent()
+        )).isEqualTo(listOf(
+            LintError(3, 1, "no-unused-imports", "Unnecessary import"),
+            LintError(5, 1, "no-unused-imports", "Unnecessary import")
+        ))
     }
 
     @Test
