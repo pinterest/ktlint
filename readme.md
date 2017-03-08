@@ -173,6 +173,10 @@ task ktlintFormat(type: JavaExec) {
 To check code style - `gradle ktlint` (it's also bound to `gradle check`).  
 To run formatter - `gradle ktlintFormat`.
 
+**Another option** is [jlleitschuh/ktlint-gradle](https://github.com/jlleitschuh/ktlint-gradle) Gradle plugin.
+It's more aligned with the way things are usually done in Gradle, requires almost no configuration and has
+some unique features. Check it out!
+
 #### ... with [IntelliJ IDEA](https://www.jetbrains.com/idea/)
 
 Go to `File -> Settings... -> Editor`
