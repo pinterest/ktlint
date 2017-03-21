@@ -19,9 +19,8 @@ While this might sound extreme, keep in mind that `ktlint` tries to capture (ref
 - **A single executable jar with all dependencies included.**
 
 <p align="center">
-[Standard rules](#standard-rules) | [Installation](#installation) | 
-[Usage](#usage) | [Integration](#integration) with [Maven](#-with-maven) / [Gradle](#-with-gradle) / [IntelliJ IDEA](#-with-intellij-idea) | 
-[Creating a ruleset](#creating-a-ruleset) | [FAQ](#faq)
+<a href="#standard-rules">Standard rules</a> | <a href="#installation">Installation</a> | <a href="#usage">Usage</a> | <a href="#integration">Integration</a> with <a href="#-with-maven">Maven</a> / <a href="#-with-gradle">Gradle</a> / <a href="#-with-intellij-idea">IntelliJ IDEA</a> | <a href="#creating-a-ruleset">Creating a ruleset</a> | <a href="#faq">FAQ</a>
+</p>
 
 ## Standard rules
 
