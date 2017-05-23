@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.6.2] - 2017-05-22
+
+### Fixed
+- Unused "iterator" extension function import false positive ([#40](https://github.com/shyiko/ktlint/issues/40)).
+
 ## [0.6.1] - 2017-03-06
 
 ### Fixed
@@ -83,6 +88,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## 0.1.0 - 2016-07-27
 
+[0.6.2]: https://github.com/shyiko/ktlint/compare/0.6.1...0.6.2
 [0.6.1]: https://github.com/shyiko/ktlint/compare/0.6.0...0.6.1
 [0.6.0]: https://github.com/shyiko/ktlint/compare/0.5.1...0.6.0
 [0.5.1]: https://github.com/shyiko/ktlint/compare/0.5.0...0.5.1
