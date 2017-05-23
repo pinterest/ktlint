@@ -10,9 +10,28 @@ import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
 
 class NoUnusedImportsRule : Rule("no-unused-imports") {
 
-    private val operatorSet = setOf("unaryPlus", "unaryMinus", "not", "inc", "dec", "plus", "minus", "times", "div",
-        "mod", "rangeTo", "contains", "get", "set", "invoke", "plusAssign", "minusAssign", "timesAssign", "divAssign",
-        "modAssign", "equals", "compareTo")
+    private val operatorSet = setOf(
+        // unary
+        "unaryPlus", "unaryMinus", "not",
+        // inc/dec
+        "inc", "dec",
+        // arithmetic
+        "plus", "minus", "times", "div", "rem", "mod", "rangeTo",
+        // in
+        "contains",
+        // indexed access
+        "get", "set",
+        // invoke
+        "invoke",
+        // augmented assignments
+        "plusAssign", "minusAssign", "timesAssign", "divAssign", "modAssign",
+        // (in)equality
+        "equals",
+        // comparison
+        "compareTo",
+        // iteration (https://github.com/shyiko/ktlint/issues/40)
+        "iterator"
+    )
     private val ref = mutableSetOf("*")
     private var packageName = ""
 
