@@ -49,7 +49,7 @@ curl -sL https://github.com/shyiko/ktlint/releases/download/0.6.2/ktlint > ktlin
 [wget](https://www.gnu.org/software/wget/manual/wget.html#Proxies) manpage. 
 Usually simple `http_proxy=http://proxy-server:port https_proxy=http://proxy-server:port curl -sL ...` is enough. 
 
-... or just download `ktlint` from the ["release(s)"](https://github.com/shyiko/ktlint/releases) page.  
+... or just download `ktlint` from the ["release(s)"](https://github.com/shyiko/ktlint/releases) page  (`ktlint.asc` contains PGP signature which you can verify with `curl -sS https://keybase.io/shyiko/pgp_keys.asc | gpg --import && gpg --verify ktlint.asc`).  
 
 > On Mac OS X ([or Linux](http://linuxbrew.sh/)) one can also use [brew](http://brew.sh/) - `brew install shyiko/ktlint/ktlint`.
 
