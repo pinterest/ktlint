@@ -319,11 +319,11 @@
                             <description>${project.version}</description>
                             <releaseName>${project.version}</releaseName>
                             <tag>${project.version}</tag>
+                            <artifact>${project.build.directory}/${project.artifactId}</artifact>
                             <fileSets>
                                 <fileSet>
                                     <directory>${project.build.directory}</directory>
                                     <includes>
-                                        <include>${project.artifactId}</include>
                                         <include>${project.artifactId}.asc</include>
                                     </includes>
                                 </fileSet>
