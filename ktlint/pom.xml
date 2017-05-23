@@ -290,6 +290,28 @@
             <build>
                 <plugins>
                     <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>1.7</version>
+                        <executions>
+                            <execution>
+                                <id>ktlint</id>
+                                <phase>verify</phase>
+                                <configuration>
+                                    <target name="gpg-sign">
+                                        <exec executable="gpg" dir="${basedir}" failonerror="true">
+                                            <arg value="-ab"/>
+                                            <arg value="${project.build.directory}/${project.artifactId}"/>
+                                        </exec>
+                                    </target>
+                                </configuration>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
                         <groupId>de.jutzig</groupId>
                         <artifactId>github-release-plugin</artifactId>
                         <version>1.1.1</version>
@@ -297,7 +319,15 @@
                             <description>${project.version}</description>
                             <releaseName>${project.version}</releaseName>
                             <tag>${project.version}</tag>
-                            <artifact>${project.build.directory}/${project.artifactId}</artifact>
+                            <fileSets>
+                                <fileSet>
+                                    <directory>${project.build.directory}</directory>
+                                    <includes>
+                                        <include>${project.artifactId}</include>
+                                        <include>${project.artifactId}.asc</include>
+                                    </includes>
+                                </fileSet>
+                            </fileSets>
                         </configuration>
                         <executions>
                             <execution>
