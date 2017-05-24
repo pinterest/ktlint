@@ -182,6 +182,8 @@ To run formatter - `gradle ktlintFormat`.
 
 Each plugin has some unique features (like incremental build support in case of [jeremymailen/kotlinter-gradle](https://github.com/jeremymailen/kotlinter-gradle)) so check them out.
 
+You might also want to take a look at [diffplug/spotless](https://github.com/diffplug/spotless/tree/master/plugin-gradle#applying-ktlint-to-kotlin-files) which has a built-in support for ktlint. In addition to linting/formatting kotlin code it allows you to keep license headers, markdown documentation, etc. in check.
+
 #### ... with [IntelliJ IDEA](https://www.jetbrains.com/idea/)
 
 Go to `File -> Settings... -> Editor`
