@@ -1,5 +1,7 @@
 <h1 align="center">
-ktlint
+<a href="https://ktlint.github.io/">
+  <img src="https://cloud.githubusercontent.com/assets/370176/26518284/38b680da-4262-11e7-8d27-2b9e849fb55f.png"/>
+</a>
 </h1>
 
 <p align="center">
