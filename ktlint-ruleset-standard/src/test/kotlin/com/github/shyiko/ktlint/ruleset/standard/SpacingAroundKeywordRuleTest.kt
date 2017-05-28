@@ -27,6 +27,10 @@ class SpacingAroundKeywordRuleTest {
                 if (true) {
                 } else {}
                 if (true) {} else {}
+                if (true)
+                    println()
+                else
+                    entry.value
 
                 try {
                     "".trim()

@@ -37,7 +37,8 @@ class SpacingAroundKeywordRule : Rule("keyword-spacing") {
         if (noLFBeforeSet.contains(node.elementType) && node is LeafPsiElement) {
             val prevLeaf = PsiTreeUtil.prevLeaf(node)
             if (prevLeaf is PsiWhiteSpaceImpl && prevLeaf.textContains('\n') &&
-                (node.elementType != ELSE_KEYWORD || node.parent !is KtWhenEntry)) {
+                (node.elementType != ELSE_KEYWORD || node.parent !is KtWhenEntry) &&
+                (PsiTreeUtil.prevLeaf(prevLeaf)?.textMatches("}") ?: false)) {
                 emit(node.startOffset, "Unexpected newline before \"${node.text}\"", true)
                 if (autoCorrect) {
                     prevLeaf.rawReplaceWithText(" ")
