@@ -52,6 +52,7 @@
         <module>ktlint-core</module>
         <module>ktlint-test</module>
         <module>ktlint-ruleset-standard</module>
+        <module>ktlint-intellij-idea-integration</module>
         <module>ktlint</module>
     </modules>
 
