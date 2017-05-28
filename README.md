@@ -6,7 +6,7 @@
 
 <p align="center">
 <a href="https://travis-ci.org/shyiko/ktlint"><img src="https://travis-ci.org/shyiko/ktlint.svg?branch=master" alt="Build Status"></a>
-<a href="http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.github.shyiko%22%20AND%20a%3A%22ktlint%22"><img src="http://img.shields.io/badge/maven_central-0.6.2-blue.svg?style=flat" alt="Maven Central"></a>
+<a href="http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.github.shyiko%22%20AND%20a%3A%22ktlint%22"><img src="http://img.shields.io/badge/maven_central-0.7.0-blue.svg?style=flat" alt="Maven Central"></a>
 </p>
 
 <p align="center">
@@ -26,11 +26,13 @@ While this might sound extreme, keep in mind that `ktlint` tries to capture (ref
 
 ## Standard rules
 
-- 4 spaces for indentation.
+- 4 spaces for indentation (please take a vote on [#43](https://github.com/shyiko/ktlint/issues/43)).
 - No semicolons (unless used to separate multiple statements on the same line).
 - No wildcard / unused imports.
 - No consecutive blank lines.
 - No trailing whitespaces.
+- No Unit returns;
+- Consistent order of modifiers;
 - Consistent spacing after keywords, commas; around colons, curly braces, infix operators, etc.
 
 > [More coming](https://github.com/shyiko/ktlint/labels/rule).
@@ -40,7 +42,7 @@ While this might sound extreme, keep in mind that `ktlint` tries to capture (ref
 > Skip all the way to the "Integration" section if you don't plan to use `ktlint`'s command line interface.
 
 ```sh
-curl -sL https://github.com/shyiko/ktlint/releases/download/0.6.2/ktlint > ktlint &&
+curl -sSLO https://github.com/shyiko/ktlint/releases/download/0.7.0/ktlint &&
   chmod a+x ktlint
 ```
 
@@ -69,14 +71,6 @@ $ ktlint "src/**/*.kt" "!src/**/*Test.kt"
 # auto-correct style violations
 # (if some errors cannot be fixed automatically they will be printed to stderr) 
 $ ktlint -F "src/**/*.kt"
-
-# enable additional 3rd party ruleset by pointing ktlint to its location on the file system
-$ ktlint -R /path/to/custom/rulseset.jar "src/test/**/*.kt"
-
-# you can also use <groupId>:<artifactId>:<version> triple in which case artifact is
-# downloaded from Maven Central, JCenter or JitPack (depending on where it's located and 
-# whether or not it's already present in local Maven cache)
-$ ktlint -R com.github.username:rulseset:master-SNAPSHOT
 ```
 
 > on Windows you'll have to use `java -jar ktlint ...`. 
@@ -127,7 +121,7 @@ $ ktlint -R com.github.username:rulseset:master-SNAPSHOT
         <dependency>
             <groupId>com.github.shyiko</groupId>
             <artifactId>ktlint</artifactId>
-            <version>0.6.2</version>
+            <version>0.7.0</version>
         </dependency>
         <!-- additional 3rd party ruleset(s) can be specified here -->
     </dependencies>
@@ -154,7 +148,7 @@ configurations {
 }
 
 dependencies {
-    ktlint 'com.github.shyiko:ktlint:0.6.2'
+    ktlint 'com.github.shyiko:ktlint:0.7.0'
     // additional 3rd party ruleset(s) can be specified here
     // just add them to the classpath (ktlint 'groupId:artifactId:version') and 
     // ktlint will pick them up
@@ -188,6 +182,31 @@ You might also want to take a look at [diffplug/spotless](https://github.com/dif
 
 #### ... with [IntelliJ IDEA](https://www.jetbrains.com/idea/)
 
+> While this is not strictly necessary it makes Intellij IDEA's built-in formatter produce 100% ktlint-compatible 
+ code. 
+
+##### Option #1 (recommended)
+
+```sh
+curl -sSLO https://github.com/shyiko/ktlint/releases/download/0.7.0/ktlint-intellij-idea-integration 
+chmod a+x ktlint-intellij-idea-integration
+# you can also download ktlint-intellij-idea-integration manually from 
+# https://github.com/shyiko/ktlint/releases
+
+# inside project's root directory  
+ktlint-intellij-idea-integration apply 
+```
+
+##### Option #2
+
+Go to `File -> Settings... -> Editor`
+- `Code Style -> Manage... -> Import -> Intellij IDEA code style XML`,
+select [codestyles/ktlint.xml](ktlint-intellij-idea-integration/src/main/resources/config/codestyles/ktlint.xml).
+- `Inspections -> Manage -> Import`,
+select [inspection/ktlint.xml](ktlint-intellij-idea-integration/src/main/resources/config/inspection/ktlint.xml).
+
+##### Option #3
+
 Go to `File -> Settings... -> Editor`
 - `Code Style -> Kotlin`
   - open `Imports` tab, select all `Use single name import` options and remove `import java.util.*` from `Packages to Use Import with '*'`.
@@ -195,12 +214,6 @@ Go to `File -> Settings... -> Editor`
   - (optional but recommended) open `Tabs and Indents` tab, change `Continuation indent` to 4.
 - `Inspections` 
   - change `Severity` level of `Unused import directive`, `Redundant semicolon` and (optional but recommended) `Unused symbol` to `ERROR`.
-
-Alternatively, go to `File -> Settings... -> Editor`
-- `Code Style -> Manage... -> Import -> Intellij IDEA code style XML`,
-select [integration/intellij-idea/configs/codestyles/ktlint.xml](integration/intellij-idea/configs/codestyles/ktlint.xml).
-- `Inspections -> Manage -> Import`,
-select [integration/intellij-idea/configs/inspection/ktlint.xml](integration/intellij-idea/configs/inspection/ktlint.xml).
 
 #### ... with [GNU Emacs](https://www.gnu.org/software/emacs/)
 
@@ -219,6 +232,34 @@ A complete sample project (with tests and build files) is included in this repo 
 (make sure to check [NoVarRuleTest](ktlint-ruleset-template/src/test/kotlin/yourpkgname/NoVarRuleTest.kt) as it contains some useful information). 
 
 ## FAQ
+
+### Why should I use ktlint?
+
+**Simplicity**.
+
+Spending time on configuration (& maintenance down the road) of hundred-line long style config file(s) is counter-productive. Instead of wasting your energy on something that has no business value - focus on what really matters (not debating whether to use tabs or spaces).
+
+By using ktlint you put the importance of code clarity and community conventions over personal preferences. This makes things easier for people reading your code as well as frees you from having to document & explain what style potential contributor(s) have to follow.
+
+ktlint is a single binary with both linter & formatter included. All you need is to drop it in (no need to get [overwhelmed](https://en.wikipedia.org/wiki/Decision_fatigue) while choosing among [dozens of code style options](http://checkstyle.sourceforge.net/checks.html)).
+
+### Can I have my own rules on top of ktlint?
+
+Absolutely, "no configuration" doesn't mean "no extensibility". You can add your own ruleset(s) to discover potential bugs, check for anti-patterns, etc.
+
+See [Creating A Ruleset](#creating-a-ruleset).
+
+Once packaged in a JAR you can load it with
+
+```sh
+# enable additional 3rd party ruleset by pointing ktlint to its location on the file system
+$ ktlint -R /path/to/custom/rulseset.jar "src/test/**/*.kt"
+
+# you can also use <groupId>:<artifactId>:<version> triple in which case artifact is
+# downloaded from Maven Central, JCenter or JitPack (depending on where it's located and 
+# whether or not it's already present in local Maven cache)
+$ ktlint -R com.github.username:rulseset:master-SNAPSHOT
+```
 
 ### How do I suppress an error?
 
@@ -244,6 +285,8 @@ import package.* // ktlint-disable
 ```
 
 ## Development
+
+> Make sure to read [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ```sh
 git clone https://github.com/shyiko/ktlint && cd ktlint
