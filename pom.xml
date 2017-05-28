@@ -140,6 +140,7 @@
                         ./mvnw versions:set -DnewVersion=&lt;version&gt;
                         ./mvnw -Ddeploy=maven-central
                         ./mvnw -Ddeploy=github
+                        ./mvnw -Ddeploy=github-release-notes -N
                         ./mvnw -Ddeploy=homebrew -N
                     </usage>
                 </configuration>
@@ -210,6 +211,37 @@
             </activation>
             <build>
                 <defaultGoal>clean deploy</defaultGoal>
+            </build>
+        </profile>
+        <profile>
+            <!--
+                https://github.com/mattbrictson/chandler must be installed and available on PATH
+            -->
+            <id>update-github-release-notes</id>
+            <activation>
+                <property>
+                    <name>deploy</name>
+                    <value>github-release-notes</value>
+                </property>
+            </activation>
+            <build>
+                <defaultGoal>antrun:run</defaultGoal>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>1.7</version>
+                        <configuration>
+                            <target name="update-github-release-notes">
+                                <exec executable="chandler" dir="${basedir}" failonerror="true">
+                                    <arg value="push"/>
+                                    <arg value="${project.version}"/>
+                                    <env key="CHANDLER_GITHUB_API_TOKEN" value="${settings.servers.github.privateKey}"/>
+                                </exec>
+                            </target>
+                        </configuration>
+                    </plugin>
+                </plugins>
             </build>
         </profile>
         <profile>
