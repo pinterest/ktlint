@@ -17,7 +17,7 @@ class NoUnitReturnRuleTest {
             fun f3(): String = ""
             """.trimIndent()
         )).isEqualTo(listOf(
-            LintError(2, 11, "no-unit-return-type", "Unnecessary \"Unit\" return type")
+            LintError(2, 11, "no-unit-return", "Unnecessary \"Unit\" return type")
         ))
     }
 
