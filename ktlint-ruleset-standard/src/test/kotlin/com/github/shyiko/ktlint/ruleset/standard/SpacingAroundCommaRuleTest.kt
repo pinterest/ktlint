@@ -6,15 +6,15 @@ import com.github.shyiko.ktlint.test.format
 import org.assertj.core.api.Assertions.assertThat
 import org.testng.annotations.Test
 
-class SpacingAfterCommaRuleTest {
+class SpacingAroundCommaRuleTest {
 
     @Test
     fun testLint() {
-        assertThat(SpacingAfterCommaRule().lint("fun main() { x(1,3); x(1, 3); println(\",\") }"))
+        assertThat(SpacingAroundCommaRule().lint("fun main() { x(1,3); x(1, 3); println(\",\") }"))
             .isEqualTo(listOf(
                 LintError(1, 18, "comma-spacing", "Missing spacing after \",\"")
             ))
-        assertThat(SpacingAfterCommaRule().lint(
+        assertThat(SpacingAroundCommaRule().lint(
             """
             enum class E {
                 A, B,C
@@ -27,7 +27,7 @@ class SpacingAfterCommaRuleTest {
 
     @Test
     fun testFormat() {
-        assertThat(SpacingAfterCommaRule().format("fun main() { x(1,3); x(1, 3) }"))
+        assertThat(SpacingAroundCommaRule().format("fun main() { x(1,3); x(1, 3) }"))
             .isEqualTo("fun main() { x(1, 3); x(1, 3) }")
     }
 

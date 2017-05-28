@@ -13,8 +13,8 @@ class StandardRuleSetProvider : RuleSetProvider {
         NoTrailingSpacesRule(),
         NoUnusedImportsRule(),
         NoWildcardImportsRule(),
-        SpacingAfterCommaRule(),
-        SpacingAfterKeywordRule(),
+        SpacingAroundCommaRule(),
+        SpacingAroundKeywordRule(),
         SpacingAroundColonRule(),
         SpacingAroundCurlyRule(),
         SpacingAroundOperatorsRule()

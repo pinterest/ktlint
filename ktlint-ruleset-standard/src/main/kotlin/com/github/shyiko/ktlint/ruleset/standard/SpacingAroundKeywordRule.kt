@@ -16,9 +16,11 @@ import org.jetbrains.kotlin.lexer.KtTokens.IF_KEYWORD
 import org.jetbrains.kotlin.lexer.KtTokens.TRY_KEYWORD
 import org.jetbrains.kotlin.lexer.KtTokens.WHEN_KEYWORD
 import org.jetbrains.kotlin.lexer.KtTokens.WHILE_KEYWORD
+import org.jetbrains.kotlin.psi.KtWhenEntry
 
-class SpacingAfterKeywordRule : Rule("keyword-spacing") {
+class SpacingAroundKeywordRule : Rule("keyword-spacing") {
 
+    private val noLFBeforeSet = TokenSet.create(ELSE_KEYWORD, CATCH_KEYWORD, FINALLY_KEYWORD)
     private val tokenSet = TokenSet.create(FOR_KEYWORD, IF_KEYWORD, ELSE_KEYWORD, WHILE_KEYWORD, DO_KEYWORD,
         TRY_KEYWORD, CATCH_KEYWORD, FINALLY_KEYWORD, WHEN_KEYWORD)
     // todo: but not after fun(, get(, set(
@@ -30,6 +32,16 @@ class SpacingAfterKeywordRule : Rule("keyword-spacing") {
             emit(node.startOffset + node.text.length, "Missing spacing after \"${node.text}\"", true)
             if (autoCorrect) {
                 node.rawInsertAfterMe(PsiWhiteSpaceImpl(" "))
+            }
+        }
+        if (noLFBeforeSet.contains(node.elementType) && node is LeafPsiElement) {
+            val prevLeaf = PsiTreeUtil.prevLeaf(node)
+            if (prevLeaf is PsiWhiteSpaceImpl && prevLeaf.textContains('\n') &&
+                (node.elementType != ELSE_KEYWORD || node.parent !is KtWhenEntry)) {
+                emit(node.startOffset, "Unexpected newline before \"${node.text}\"", true)
+                if (autoCorrect) {
+                    prevLeaf.rawReplaceWithText(" ")
+                }
             }
         }
     }
