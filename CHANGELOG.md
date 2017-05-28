@@ -2,6 +2,15 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.7.0] - 2017-05-28
+
+### Added
+
+- "no-unit-return" rule.
+- "modifier-order" rule ([#42](https://github.com/shyiko/ktlint/issues/42)).
+- `else/catch/finally` on the same line as `}` check (now part of "keyword-spacing" rule).
+- "ktlint-intellij-idea-integration" binary for easy Intellij IDEA config injection.
+
 ## [0.6.2] - 2017-05-22
 
 ### Fixed
@@ -88,6 +97,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## 0.1.0 - 2016-07-27
 
+[0.7.0]: https://github.com/shyiko/ktlint/compare/0.6.2...0.7.0
 [0.6.2]: https://github.com/shyiko/ktlint/compare/0.6.1...0.6.2
 [0.6.1]: https://github.com/shyiko/ktlint/compare/0.6.0...0.6.1
 [0.6.0]: https://github.com/shyiko/ktlint/compare/0.5.1...0.6.0
