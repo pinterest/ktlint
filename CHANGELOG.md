@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.7.1] - 2017-05-29
+
+### Fixed
+
+- Triggering of "Unused import" when element is referenced in KDoc(s) only ([#46](https://github.com/shyiko/ktlint/issues/46)).
+
 ## [0.7.0] - 2017-05-28
 
 ### Added
@@ -97,6 +103,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## 0.1.0 - 2016-07-27
 
+[0.7.1]: https://github.com/shyiko/ktlint/compare/0.7.0...0.7.1
 [0.7.0]: https://github.com/shyiko/ktlint/compare/0.6.2...0.7.0
 [0.6.2]: https://github.com/shyiko/ktlint/compare/0.6.1...0.6.2
 [0.6.1]: https://github.com/shyiko/ktlint/compare/0.6.0...0.6.1
