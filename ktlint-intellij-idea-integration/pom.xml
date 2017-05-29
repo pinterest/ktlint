@@ -11,6 +11,12 @@
 
     <artifactId>ktlint-intellij-idea-integration</artifactId>
 
+    <scm>
+        <connection>scm:git:git@github.com:shyiko/ktlint.git</connection>
+        <developerConnection>scm:git:git@github.com:shyiko/ktlint.git</developerConnection>
+        <url>git@github.com:shyiko/ktlint.git</url>
+    </scm>
+
     <build>
         <plugins>
             <plugin>
