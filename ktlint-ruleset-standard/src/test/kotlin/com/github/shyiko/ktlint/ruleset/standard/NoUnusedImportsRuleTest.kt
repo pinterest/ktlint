@@ -48,6 +48,42 @@ class NoUnusedImportsRuleTest {
     }
 
     @Test
+    fun testLintKDocLinkImport() {
+        assertThat(NoUnusedImportsRule().lint(
+            """
+            package kdoc
+
+            import DRef
+            import p.PDRef
+            import DRef2
+            import p.PDRef2
+            import p.DRef3
+            import p.PDRef3
+            import p.PDRef4
+            import p.PDRef5
+            import p.O
+
+            /**
+             * [DRef] DRef2
+             * [O.method]
+             * [p.PDRef] p.PDRef2
+             * [PDRef3](p.DRef3) p.PDRef4 PDRef5
+             * [] text
+             */
+            fun main() {}
+            """.trimIndent()
+        )).isEqualTo(listOf(
+            LintError(4, 1, "no-unused-imports", "Unused import"),
+            LintError(5, 1, "no-unused-imports", "Unused import"),
+            LintError(6, 1, "no-unused-imports", "Unused import"),
+            LintError(7, 1, "no-unused-imports", "Unused import"),
+            LintError(8, 1, "no-unused-imports", "Unused import"),
+            LintError(9, 1, "no-unused-imports", "Unused import"),
+            LintError(10, 1, "no-unused-imports", "Unused import")
+        ))
+    }
+
+    @Test
     fun testSamePackageImport() {
         assertThat(NoUnusedImportsRule().lint(
             """
@@ -119,6 +155,44 @@ class NoUnusedImportsRuleTest {
                 fn(B2.NAME)
                 `when`()
             }
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun testFormatKDocLinkImport() {
+        assertThat(NoUnusedImportsRule().format(
+            """
+            package kdoc
+
+            import DRef
+            import p.PDRef
+            import DRef2
+            import p.PDRef2
+            import p.DRef3
+            import p.PDRef3
+            import p.PDRef4
+            import p.PDRef5
+
+            /**
+             * [DRef] DRef2
+             * [p.PDRef] p.PDRef2
+             * [PDRef3](p.DRef3) p.PDRef4 PDRef5
+             */
+            fun main() {}
+            """.trimIndent()
+        )).isEqualTo(
+            """
+            package kdoc
+
+            import DRef
+
+            /**
+             * [DRef] DRef2
+             * [p.PDRef] p.PDRef2
+             * [PDRef3](p.DRef3) p.PDRef4 PDRef5
+             */
+            fun main() {}
             """.trimIndent()
         )
     }

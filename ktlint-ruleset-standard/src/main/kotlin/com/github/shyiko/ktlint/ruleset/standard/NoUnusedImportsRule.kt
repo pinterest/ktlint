@@ -3,6 +3,8 @@ package com.github.shyiko.ktlint.ruleset.standard
 import com.github.shyiko.ktlint.core.Rule
 import org.jetbrains.kotlin.KtNodeTypes
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
+import org.jetbrains.kotlin.kdoc.lexer.KDocTokens
+import org.jetbrains.kotlin.kdoc.psi.impl.KDocLink
 import org.jetbrains.kotlin.psi.KtImportDirective
 import org.jetbrains.kotlin.psi.KtPackageDirective
 import org.jetbrains.kotlin.psi.psiUtil.startOffset
@@ -39,9 +41,14 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
             emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
         if (node.elementType == KtStubElementTypes.FILE) {
             node.visit { node ->
+                val psi = node.psi
                 val type = node.elementType
+                if (type == KDocTokens.MARKDOWN_LINK && psi is KDocLink) {
+                    val linkText = psi.getLinkText().replace("`", "")
+                    ref.add(linkText.split('.').first())
+                } else
                 if ((type == KtNodeTypes.REFERENCE_EXPRESSION || type == KtNodeTypes.OPERATION_REFERENCE) &&
-                    !node.psi.isPartOf(KtImportDirective::class)) {
+                    !psi.isPartOf(KtImportDirective::class)) {
                     ref.add(node.text.trim('`'))
                 }
             }
