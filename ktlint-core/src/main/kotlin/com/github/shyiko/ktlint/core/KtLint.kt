@@ -30,6 +30,8 @@ import java.util.HashSet
 
 object KtLint {
 
+    val EDITOR_CONFIG_USER_DATA_KEY = Key<EditorConfig>("EDITOR_CONFIG")
+
     private val psiFileFactory: PsiFileFactory
     private val nullSuppression = { _: Int, _: String -> false }
 
@@ -83,8 +85,8 @@ object KtLint {
         lint(text, ruleSets, emptyMap(), cb, script = false)
     }
 
-    fun lint(text: String, ruleSets: Iterable<RuleSet>, data: Map<String, String>, cb: (e: LintError) -> Unit) {
-        lint(text, ruleSets, data, cb, script = false)
+    fun lint(text: String, ruleSets: Iterable<RuleSet>, userData: Map<String, String>, cb: (e: LintError) -> Unit) {
+        lint(text, ruleSets, userData, cb, script = false)
     }
 
     /**
@@ -125,9 +127,7 @@ object KtLint {
             throw ParseException(line, col, errorElement.errorDescription)
         }
         val rootNode = psiFile.node
-        for ((key, value) in userData) {
-            rootNode.putUserData(Key("ktlint.$key"), value)
-        }
+        rootNode.putUserData(EDITOR_CONFIG_USER_DATA_KEY, EditorConfig.fromMap(userData))
         val isSuppressed = calculateSuppressedRegions(rootNode)
         val r = flatten(ruleSets)
         rootNode.visit { node ->
@@ -215,7 +215,7 @@ object KtLint {
     private fun format(
         text: String,
         ruleSets: Iterable<RuleSet>,
-        data: Map<String, String>,
+        userData: Map<String, String>,
         cb: (e: LintError, corrected: Boolean) -> Unit,
         script: Boolean
     ): String {
@@ -232,9 +232,7 @@ object KtLint {
             throw ParseException(line, col, errorElement.errorDescription)
         }
         val rootNode = psiFile.node
-        for ((key, value) in data) {
-            rootNode.putUserData(Key("ktlint.$key"), value)
-        }
+        rootNode.putUserData(EDITOR_CONFIG_USER_DATA_KEY, EditorConfig.fromMap(userData))
         var isSuppressed = calculateSuppressedRegions(rootNode)
         val r = flatten(ruleSets)
         var autoCorrect = false

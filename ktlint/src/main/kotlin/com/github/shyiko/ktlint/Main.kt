@@ -191,7 +191,15 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
             rp.forEach { System.err.println("[DEBUG] Discovered ruleset \"${it.first}\"") }
         }
         // load .editorconfig
-        val userData = locateEditorConfig(File(workDir))?.let { loadEditorConfig(it) } ?: emptyMap()
+        val userData = locateEditorConfig(File(workDir))?.let {
+            if (debug) {
+                System.err.println("[DEBUG] Discovered .editorconfig (${it.parent})")
+            }
+            loadEditorConfig(it)
+        } ?: emptyMap()
+        if (debug) {
+            System.err.println("[DEBUG] ${userData.mapKeys { it.key }} loaded from .editorconfig")
+        }
         fun msg(fileName: String, e: Exception): String = when (e) {
             is ParseException -> {
                 "$fileName:${e.line}:${e.col}: Not a valid Kotlin file (${e.message?.toLowerCase()})"

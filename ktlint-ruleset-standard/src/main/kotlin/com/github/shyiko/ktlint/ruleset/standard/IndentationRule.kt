@@ -1,8 +1,8 @@
 package com.github.shyiko.ktlint.ruleset.standard
 
+import com.github.shyiko.ktlint.core.KtLint
 import com.github.shyiko.ktlint.core.Rule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.openapi.util.Key
 import org.jetbrains.kotlin.com.intellij.openapi.util.TextRange
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
@@ -26,10 +26,9 @@ class IndentationRule : Rule("indent") {
     override fun visit(node: ASTNode, autoCorrect: Boolean,
             emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
         if (node.elementType == KtStubElementTypes.FILE) {
-            @Suppress("DEPRECATION") // fixme
-            val indentSizeKey = Key.findKeyByName("ktlint.indent_size")
-            if (indentSizeKey != null) {
-                (node.getUserData(indentSizeKey) as? String)?.toInt()?.let { indent = it }
+            val editorConfig = node.getUserData(KtLint.EDITOR_CONFIG_USER_DATA_KEY)!!
+            editorConfig.get("indent_size")?.toInt()?.apply {
+                indent = this
             }
         }
         if (node is PsiWhiteSpace && !node.isPartOf(PsiComment::class)) {
