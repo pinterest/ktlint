@@ -6,6 +6,7 @@ import org.jetbrains.kotlin.com.intellij.mock.MockProject
 import org.jetbrains.kotlin.com.intellij.openapi.Disposable
 import org.jetbrains.kotlin.com.intellij.openapi.extensions.ExtensionPoint
 import org.jetbrains.kotlin.com.intellij.openapi.extensions.Extensions.getArea
+import org.jetbrains.kotlin.com.intellij.openapi.util.Key
 import org.jetbrains.kotlin.com.intellij.openapi.util.UserDataHolderBase
 import org.jetbrains.kotlin.com.intellij.pom.PomModel
 import org.jetbrains.kotlin.com.intellij.pom.PomModelAspect
@@ -79,7 +80,11 @@ object KtLint {
      * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
      */
     fun lint(text: String, ruleSets: Iterable<RuleSet>, cb: (e: LintError) -> Unit) {
-        lint(text, ruleSets, cb, script = false)
+        lint(text, ruleSets, emptyMap(), cb, script = false)
+    }
+
+    fun lint(text: String, ruleSets: Iterable<RuleSet>, data: Map<String, String>, cb: (e: LintError) -> Unit) {
+        lint(text, ruleSets, data, cb, script = false)
     }
 
     /**
@@ -93,10 +98,20 @@ object KtLint {
      * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
      */
     fun lintScript(text: String, ruleSets: Iterable<RuleSet>, cb: (e: LintError) -> Unit) {
-        lint(text, ruleSets, cb, script = true)
+        lint(text, ruleSets, emptyMap(), cb, script = true)
     }
 
-    private fun lint(text: String, ruleSets: Iterable<RuleSet>, cb: (e: LintError) -> Unit, script: Boolean) {
+    fun lintScript(text: String, ruleSets: Iterable<RuleSet>, userData: Map<String, String>, cb: (e: LintError) -> Unit) {
+        lint(text, ruleSets, userData, cb, script = true)
+    }
+
+    private fun lint(
+        text: String,
+        ruleSets: Iterable<RuleSet>,
+        userData: Map<String, String>,
+        cb: (e: LintError) -> Unit,
+        script: Boolean
+    ) {
         val positionByOffset = calculateLineColByOffset(text).let {
             val offsetDueToLineBreakNormalization = calculateLineBreakOffset(text)
             return@let { offset: Int -> it(offset + offsetDueToLineBreakNormalization(offset)) }
@@ -110,6 +125,9 @@ object KtLint {
             throw ParseException(line, col, errorElement.errorDescription)
         }
         val rootNode = psiFile.node
+        for ((key, value) in userData) {
+            rootNode.putUserData(Key("ktlint.$key"), value)
+        }
         val isSuppressed = calculateSuppressedRegions(rootNode)
         val r = flatten(ruleSets)
         rootNode.visit { node ->
@@ -173,7 +191,10 @@ object KtLint {
      * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
      */
     fun format(text: String, ruleSets: Iterable<RuleSet>, cb: (e: LintError, corrected: Boolean) -> Unit): String =
-        format(text, ruleSets, cb, script = false)
+        format(text, ruleSets, emptyMap<String, String>(), cb, script = false)
+
+    fun format(text: String, ruleSets: Iterable<RuleSet>, userData: Map<String, String>,
+        cb: (e: LintError, corrected: Boolean) -> Unit): String = format(text, ruleSets, userData, cb, script = false)
 
     /**
      * Fix style violations.
@@ -186,10 +207,18 @@ object KtLint {
      * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
      */
     fun formatScript(text: String, ruleSets: Iterable<RuleSet>, cb: (e: LintError, corrected: Boolean) -> Unit): String =
-        format(text, ruleSets, cb, script = true)
+        format(text, ruleSets, emptyMap(), cb, script = true)
 
-    private fun format(text: String, ruleSets: Iterable<RuleSet>, cb: (e: LintError, corrected: Boolean) -> Unit,
-            script: Boolean): String {
+    fun formatScript(text: String, ruleSets: Iterable<RuleSet>, userData: Map<String, String>,
+        cb: (e: LintError, corrected: Boolean) -> Unit): String = format(text, ruleSets, userData, cb, script = true)
+
+    private fun format(
+        text: String,
+        ruleSets: Iterable<RuleSet>,
+        data: Map<String, String>,
+        cb: (e: LintError, corrected: Boolean) -> Unit,
+        script: Boolean
+    ): String {
         val positionByOffset = calculateLineColByOffset(text).let {
             val offsetDueToLineBreakNormalization = calculateLineBreakOffset(text)
             return@let { offset: Int -> it(offset + offsetDueToLineBreakNormalization(offset)) }
@@ -203,6 +232,9 @@ object KtLint {
             throw ParseException(line, col, errorElement.errorDescription)
         }
         val rootNode = psiFile.node
+        for ((key, value) in data) {
+            rootNode.putUserData(Key("ktlint.$key"), value)
+        }
         var isSuppressed = calculateSuppressedRegions(rootNode)
         val r = flatten(ruleSets)
         var autoCorrect = false

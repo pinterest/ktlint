@@ -2,6 +2,7 @@ package com.github.shyiko.ktlint.ruleset.standard
 
 import com.github.shyiko.ktlint.core.Rule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
+import org.jetbrains.kotlin.com.intellij.openapi.util.Key
 import org.jetbrains.kotlin.com.intellij.openapi.util.TextRange
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
@@ -11,11 +12,24 @@ import org.jetbrains.kotlin.psi.KtParameter
 import org.jetbrains.kotlin.psi.KtParameterList
 import org.jetbrains.kotlin.psi.psiUtil.getNonStrictParentOfType
 import org.jetbrains.kotlin.psi.psiUtil.startOffset
+import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
 
 class IndentationRule : Rule("indent") {
 
+    companion object {
+        // indentation size recommended by JetBrains
+        private const val DEFAULT_INDENT = 4
+    }
+
+    private var indent = DEFAULT_INDENT
+
     override fun visit(node: ASTNode, autoCorrect: Boolean,
             emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
+        if (node.elementType == KtStubElementTypes.FILE) {
+            @Suppress("DEPRECATION") // fixme
+            (node.getUserData(Key.findKeyByName("ktlint.indent_size") as Key<out Any>) as? String)
+                ?.toInt()?.let { indent = it }
+        }
         if (node is PsiWhiteSpace && !node.isPartOf(PsiComment::class)) {
             val split = node.getText().split("\n")
             if (split.size > 1) {
@@ -31,7 +45,7 @@ class IndentationRule : Rule("indent") {
                     } ?: 0
                 }
                 split.tail().forEach {
-                    if (it.length % 4 != 0) {
+                    if (it.length % indent != 0) {
                         if (node.isPartOf(KtParameterList::class) && firstParameterColumn.value != 0) {
                             if (firstParameterColumn.value - 1 != it.length) {
                                 emit(offset, "Unexpected indentation (${it.length}) (" +

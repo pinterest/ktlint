@@ -21,6 +21,7 @@ import org.eclipse.aether.repository.RemoteRepository
 import org.eclipse.aether.repository.RepositoryPolicy
 import org.eclipse.aether.repository.RepositoryPolicy.CHECKSUM_POLICY_IGNORE
 import org.eclipse.aether.repository.RepositoryPolicy.UPDATE_POLICY_NEVER
+import org.ini4j.Wini
 import org.jetbrains.kotlin.preprocessor.mkdirsOrFail
 import org.kohsuke.args4j.Argument
 import org.kohsuke.args4j.CmdLineException
@@ -122,6 +123,7 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
         val workDir = File(".").canonicalPath
         var tripped = false
         val start = System.currentTimeMillis()
+        // load 3rd party ruleset(s) (if any)
         if (!rulesets.isEmpty()) {
             val mavenLocal = File(File(System.getProperty("user.home"), ".m2"), "repository")
             mavenLocal.mkdirsOrFail()
@@ -152,7 +154,7 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
             if (debug) {
                 dependencyResolver.setTransferEventListener { e ->
                     System.err.println("[DEBUG] Transfer ${e.type.toString().toLowerCase()} ${e.resource.repositoryUrl}" +
-                        "${e.resource.resourceName}" + (e.exception?.let { " (${it.message})" } ?: ""))
+                        e.resource.resourceName + (e.exception?.let { " (${it.message})" } ?: ""))
                 }
             }
             (ClassLoader.getSystemClassLoader() as java.net.URLClassLoader).addURLs(rulesets.flatMap {
@@ -188,6 +190,8 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
         if (debug) {
             rp.forEach { System.err.println("[DEBUG] Discovered ruleset \"${it.first}\"") }
         }
+        // load .editorconfig
+        val userData = locateEditorConfig(File(workDir))?.let { loadEditorConfig(it) } ?: emptyMap()
         fun msg(fileName: String, e: Exception): String = when (e) {
             is ParseException -> {
                 "$fileName:${e.line}:${e.col}: Not a valid Kotlin file (${e.message?.toLowerCase()})"
@@ -206,7 +210,7 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
             val result = ArrayList<String>()
             if (format) {
                 val formattedFileContent = try {
-                    format(fileName, fileContent, rp.map { it.second.get() }, { e, corrected ->
+                    format(fileName, fileContent, rp.map { it.second.get() }, userData, { e, corrected ->
                         if (!corrected) {
                             result.add("$fileName:${e.line}:${e.col}: " +
                                 "${e.detail}${if (verbose) " (${e.ruleId})" else ""}")
@@ -226,7 +230,7 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
                 }
             } else {
                 try {
-                    lint(fileName, fileContent, rp.map { it.second.get() }, { e ->
+                    lint(fileName, fileContent, rp.map { it.second.get() }, userData, { e ->
                         tripped = true
                         result.add("$fileName:${e.line}:${e.col}: " +
                             "${e.detail}${if (verbose) " (${e.ruleId})" else ""}")
@@ -277,14 +281,30 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
         }
     }
 
-    fun lint(fileName: String, text: String, ruleSets: Iterable<RuleSet>, cb: (e: LintError) -> Unit) =
-        if (fileName.endsWith(".kt", ignoreCase = true)) KtLint.lint(text, ruleSets, cb) else
-            KtLint.lintScript(text, ruleSets, cb)
+    fun locateEditorConfig(dir: File?): File? = when (dir) {
+        null -> null
+        else -> File(dir, ".editorconfig").let {
+            if (it.exists()) it else locateEditorConfig(dir.parentFile)
+        }
+    }
 
-    fun format(fileName: String, text: String, ruleSets: Iterable<RuleSet>,
+    fun loadEditorConfig(file: File): Map<String, String> {
+        val editorConfig = Wini(file)
+        // right now ktlint requires explicit [*.{kt,kts}] section
+        // (this way we can be sure that users want .editorconfig to be recognized by ktlint)
+        val section = editorConfig["*.{kt,kts}"]
+        return section?.toSortedMap() ?: emptyMap<String, String>()
+    }
+
+    fun lint(fileName: String, text: String, ruleSets: Iterable<RuleSet>, userData: Map<String, String>,
+            cb: (e: LintError) -> Unit) =
+        if (fileName.endsWith(".kt", ignoreCase = true)) KtLint.lint(text, ruleSets, userData, cb) else
+            KtLint.lintScript(text, ruleSets, userData, cb)
+
+    fun format(fileName: String, text: String, ruleSets: Iterable<RuleSet>, userData: Map<String, String>,
             cb: (e: LintError, corrected: Boolean) -> Unit): String =
-        if (fileName.endsWith(".kt", ignoreCase = true)) KtLint.format(text, ruleSets, cb) else
-            KtLint.formatScript(text, ruleSets, cb)
+        if (fileName.endsWith(".kt", ignoreCase = true)) KtLint.format(text, ruleSets, userData, cb) else
+            KtLint.formatScript(text, ruleSets, userData, cb)
 
     fun visit(dir: File, filter: FileFilter): Sequence<File> {
         val stack = ArrayDeque<File>().apply { push(dir) }

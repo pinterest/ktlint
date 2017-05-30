@@ -6,11 +6,11 @@ import com.github.shyiko.ktlint.core.Rule
 import com.github.shyiko.ktlint.core.RuleSet
 import java.util.ArrayList
 
-fun Rule.lint(text: String): List<LintError> {
+fun Rule.lint(text: String, userData: Map<String, String> = emptyMap()): List<LintError> {
     val res = ArrayList<LintError>()
     val debug = debugAST()
     KtLint.lint(text, (if (debug) listOf(RuleSet("debug", DumpAST())) else emptyList()) +
-        listOf(RuleSet("standard", this@lint)), {
+        listOf(RuleSet("standard", this@lint)), userData, {
         if (debug) {
             System.err.println("^^ lint error")
         }
