@@ -12,6 +12,7 @@ class StandardRuleSetProvider : RuleSetProvider {
         NoMultipleSpacesRule(),
         NoSemicolonsRule(),
         NoTrailingSpacesRule(),
+        NoUnitReturnRule(),
         NoUnusedImportsRule(),
         NoWildcardImportsRule(),
         SpacingAroundCommaRule(),
