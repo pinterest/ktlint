@@ -7,6 +7,7 @@ class StandardRuleSetProvider : RuleSetProvider {
 
     override fun get(): RuleSet = RuleSet("standard",
         IndentationRule(),
+        ModifierOrderRule(),
         NoConsecutiveBlankLinesRule(),
         NoMultipleSpacesRule(),
         NoSemicolonsRule(),
