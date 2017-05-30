@@ -26,9 +26,7 @@ While this might sound extreme, keep in mind that `ktlint` tries to capture (ref
 
 ## Standard rules
 
-- 4 spaces for indentation.
-
-  > Starting from [0.8.0](https://github.com/shyiko/ktlint/releases/tag/0.8.0) value of `indent_size` specified under `[*{kt,kts}]` section in [.editorconfig](http://editorconfig.org/) takes precedence (if any). Official recommendation is to use 4 spaces, though. (see [#43](https://github.com/shyiko/ktlint/issues/43#issuecomment-304953280) for details)
+- 4 spaces for indentation*.
 - No semicolons (unless used to separate multiple statements on the same line).
 - No wildcard / unused imports.
 - No consecutive blank lines.
@@ -36,6 +34,8 @@ While this might sound extreme, keep in mind that `ktlint` tries to capture (ref
 - No Unit returns;
 - Consistent order of modifiers;
 - Consistent spacing after keywords, commas; around colons, curly braces, infix operators, etc.
+
+> * Starting from [0.8.0](https://github.com/shyiko/ktlint/releases/tag/0.8.0) value of `indent_size` specified under `[*{kt,kts}]` section in [.editorconfig](http://editorconfig.org/) takes precedence (if any). Official recommendation is to use 4 spaces, though. (see [#43](https://github.com/shyiko/ktlint/issues/43#issuecomment-304953280) for details)
 
 > [More coming](https://github.com/shyiko/ktlint/labels/rule).
 
