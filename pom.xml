@@ -40,7 +40,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <kotlin.version>1.1.0</kotlin.version>
+        <kotlin.version>1.1.2-2</kotlin.version>
         <aether.version>1.1.0</aether.version>
         <aether.maven.provider.version>3.2.5</aether.maven.provider.version>
         <args4j.version>2.33</args4j.version>
@@ -86,6 +86,11 @@
                 <artifactId>kotlin-maven-plugin</artifactId>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <version>${kotlin.version}</version>
+                <configuration>
+                    <args>
+                        <arg>-Xskip-runtime-version-check</arg>
+                    </args>
+                </configuration>
                 <executions>
                     <execution>
                         <id>compile</id>
