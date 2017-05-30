@@ -14,10 +14,6 @@ set in `[*{kt,kts}]` section).
 
 - ktlint-ruleset-standard ("no-unit-return" & "modifier-order" where not included).
 
-### Changed 
-
-- `kotlin-compiler` version to 1.1.2-2 (from 1.1.0).
-
 ## [0.7.1] - 2017-05-29
 
 ### Fixed
