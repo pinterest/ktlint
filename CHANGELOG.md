@@ -2,6 +2,22 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.8.0] - 2017-05-30
+
+### Added
+
+- [.editorconfig](http://editorconfig.org/) support (right now only `indent_size` is honored and only if it's 
+set in `[*{kt,kts}]` section).
+- Support for vertically aligned comments (see [NoMultipleSpacesRuleTest.kt](ktlint-ruleset-standard/src/test/kotlin/com/github/shyiko/ktlint/ruleset/standard/NoMultipleSpacesRuleTest.kt)).
+
+### Fixed
+
+- ktlint-ruleset-standard ("no-unit-return" & "modifier-order" where not included).
+
+### Changed 
+
+- `kotlin-compiler` version to 1.1.2-2 (from 1.1.0).
+
 ## [0.7.1] - 2017-05-29
 
 ### Fixed
@@ -103,6 +119,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## 0.1.0 - 2016-07-27
 
+[0.8.0]: https://github.com/shyiko/ktlint/compare/0.7.1...0.8.0
 [0.7.1]: https://github.com/shyiko/ktlint/compare/0.7.0...0.7.1
 [0.7.0]: https://github.com/shyiko/ktlint/compare/0.6.2...0.7.0
 [0.6.2]: https://github.com/shyiko/ktlint/compare/0.6.1...0.6.2
