@@ -27,8 +27,10 @@ class IndentationRule : Rule("indent") {
             emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
         if (node.elementType == KtStubElementTypes.FILE) {
             @Suppress("DEPRECATION") // fixme
-            (node.getUserData(Key.findKeyByName("ktlint.indent_size") as Key<out Any>) as? String)
-                ?.toInt()?.let { indent = it }
+            val indentSizeKey = Key.findKeyByName("ktlint.indent_size")
+            if (indentSizeKey != null) {
+                (node.getUserData(indentSizeKey) as? String)?.toInt()?.let { indent = it }
+            }
         }
         if (node is PsiWhiteSpace && !node.isPartOf(PsiComment::class)) {
             val split = node.getText().split("\n")
