@@ -19,6 +19,6 @@ fun Rule.lint(text: String, userData: Map<String, String> = emptyMap()): List<Li
     return res
 }
 
-fun Rule.format(text: String, cb: (e: LintError, corrected: Boolean) -> Unit = { _1, _2 -> }): String =
+fun Rule.format(text: String, cb: (e: LintError, corrected: Boolean) -> Unit = { _, _ -> }): String =
     KtLint.format(text, (if (debugAST()) listOf(RuleSet("debug", DumpAST())) else emptyList()) +
         listOf(RuleSet("standard", this@format)), cb)

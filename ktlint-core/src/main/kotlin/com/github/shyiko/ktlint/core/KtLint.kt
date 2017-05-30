@@ -31,7 +31,7 @@ import java.util.HashSet
 object KtLint {
 
     private val psiFileFactory: PsiFileFactory
-    private val nullSuppression = { offset: Int, ruleId: String -> false }
+    private val nullSuppression = { _: Int, _: String -> false }
 
     init {
         val project = KotlinCoreEnvironment.createForProduction(Disposable {},
@@ -135,7 +135,7 @@ object KtLint {
                 val (id, rule) = it
                 if (!isSuppressed(node.startOffset, id)) {
                     try {
-                        rule.visit(node, false) { offset, errorMessage, canBeAutoCorrected ->
+                        rule.visit(node, false) { offset, errorMessage, _ ->
                             val (line, col) = positionByOffset(offset)
                             cb(LintError(line, col, id, errorMessage))
                         }
@@ -263,7 +263,7 @@ object KtLint {
                     val (id, rule) = it
                     if (!isSuppressed(node.startOffset, id)) {
                         try {
-                            rule.visit(node, true) { offset, errorMessage, canBeAutoCorrected ->
+                            rule.visit(node, true) { _, _, canBeAutoCorrected ->
                                 if (canBeAutoCorrected && isSuppressed !== nullSuppression) {
                                     isSuppressed = calculateSuppressedRegions(rootNode)
                                 }
@@ -290,7 +290,7 @@ object KtLint {
         } while (i != -1)
         arr.add(fileContent.length)
         return if (arr.size != 2)
-            SegmentTree(arr.toTypedArray()).let { return { offset -> it.indexOf(offset) } } else { offset -> 0 }
+            SegmentTree(arr.toTypedArray()).let { return { offset -> it.indexOf(offset) } } else { _ -> 0 }
     }
 
     private fun determineLineSeparator(fileContent: String): String {
