@@ -121,6 +121,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.8.1]: https://github.com/shyiko/ktlint/compare/0.8.0...0.8.1
 [0.8.0]: https://github.com/shyiko/ktlint/compare/0.7.1...0.8.0
 [0.7.1]: https://github.com/shyiko/ktlint/compare/0.7.0...0.7.1
 [0.7.0]: https://github.com/shyiko/ktlint/compare/0.6.2...0.7.0
