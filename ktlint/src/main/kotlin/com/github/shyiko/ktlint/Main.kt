@@ -256,10 +256,10 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
             .parallel({
                 fileNumber++
                 errorNumber += it.size
-                if (stdin) it.forEach { System.err.println(it) } else it.forEach { System.out.println(it) }
+                it.forEach { System.out.println(it) }
             })
         if (stdin) {
-            apply("<text>", String(System.`in`.readBytes()))
+            apply("<text>", String(System.`in`.readBytes())).forEach { System.err.println(it) }
         } else {
             if (patterns.isEmpty()) {
                 val filter = HiddenFileFilter(reverse = true)
