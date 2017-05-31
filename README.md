@@ -6,7 +6,7 @@
 
 <p align="center">
 <a href="https://travis-ci.org/shyiko/ktlint"><img src="https://travis-ci.org/shyiko/ktlint.svg?branch=master" alt="Build Status"></a>
-<a href="http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.github.shyiko%22%20AND%20a%3A%22ktlint%22"><img src="http://img.shields.io/badge/maven_central-0.8.0-blue.svg?style=flat" alt="Maven Central"></a>
+<a href="http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.github.shyiko%22%20AND%20a%3A%22ktlint%22"><img src="http://img.shields.io/badge/maven_central-0.8.1-blue.svg?style=flat" alt="Maven Central"></a>
 </p>
 
 <p align="center">
@@ -44,7 +44,7 @@ While this might sound extreme, keep in mind that `ktlint` tries to capture (ref
 > Skip all the way to the "Integration" section if you don't plan to use `ktlint`'s command line interface.
 
 ```sh
-curl -sSLO https://github.com/shyiko/ktlint/releases/download/0.8.0/ktlint &&
+curl -sSLO https://github.com/shyiko/ktlint/releases/download/0.8.1/ktlint &&
   chmod a+x ktlint
 ```
 
@@ -123,7 +123,7 @@ $ ktlint -F "src/**/*.kt"
         <dependency>
             <groupId>com.github.shyiko</groupId>
             <artifactId>ktlint</artifactId>
-            <version>0.8.0</version>
+            <version>0.8.1</version>
         </dependency>
         <!-- additional 3rd party ruleset(s) can be specified here -->
     </dependencies>
@@ -150,7 +150,7 @@ configurations {
 }
 
 dependencies {
-    ktlint 'com.github.shyiko:ktlint:0.8.0'
+    ktlint 'com.github.shyiko:ktlint:0.8.1'
     // additional 3rd party ruleset(s) can be specified here
     // just add them to the classpath (ktlint 'groupId:artifactId:version') and 
     // ktlint will pick them up
@@ -190,7 +190,7 @@ You might also want to take a look at [diffplug/spotless](https://github.com/dif
 ##### Option #1 (recommended)
 
 ```sh
-curl -sSLO https://github.com/shyiko/ktlint/releases/download/0.8.0/ktlint-intellij-idea-integration 
+curl -sSLO https://github.com/shyiko/ktlint/releases/download/0.8.1/ktlint-intellij-idea-integration 
 chmod a+x ktlint-intellij-idea-integration
 # you can also download ktlint-intellij-idea-integration manually from 
 # https://github.com/shyiko/ktlint/releases
