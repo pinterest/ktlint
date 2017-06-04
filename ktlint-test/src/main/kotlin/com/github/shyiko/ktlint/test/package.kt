@@ -18,7 +18,7 @@ class DumpAST : Rule("dump") {
             level++
             parent = parent?.treeParent
         } while (parent != null)
-        System.err.println("  ".repeat(level) + node.psi.javaClass.name +
+        System.err.println("  ".repeat(level) + node.psi.javaClass.name + " (${node.elementType})" +
             (if (node.getChildren(null).isEmpty()) " | \"" + node.text.escape() + "\"" else ""))
     }
 
