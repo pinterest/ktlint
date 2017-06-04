@@ -7,6 +7,7 @@
 <p align="center">
 <a href="https://travis-ci.org/shyiko/ktlint"><img src="https://travis-ci.org/shyiko/ktlint.svg?branch=master" alt="Build Status"></a>
 <a href="http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.github.shyiko%22%20AND%20a%3A%22ktlint%22"><img src="http://img.shields.io/badge/maven_central-0.8.1-blue.svg?style=flat" alt="Maven Central"></a>
+<a href="https://ktlint.github.io/"><img src="https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg" alt="ktlint"></a>
 </p>
 
 <p align="center">
@@ -16,12 +17,12 @@
 Features:
 - **No configuration.** Which means no decisions to make, nothing to argue about and no special files to manage.   
 While this might sound extreme, keep in mind that `ktlint` tries to capture (reflect) **official code style** from [kotlinlang.org](https://kotlinlang.org/docs/reference/)
-(+ we support **additional** [3rd party rulesets](#creating-a-ruleset)).
+(+ we respect you [.editorconfig](http://editorconfig.org/) and support additional [ruleset](#creating-a-ruleset)|s).
 - **Built-in formatter.** So that you wouldn't have to fix all style violations by hand.
 - **A single executable jar with all dependencies included.**
 
 <p align="center">
-<a href="#standard-rules">Standard rules</a> | <a href="#installation">Installation</a> | <a href="#usage">Usage</a> | <a href="#integration">Integration</a> with <a href="#-with-maven">Maven</a> / <a href="#-with-gradle">Gradle</a> / <a href="#-with-intellij-idea">IntelliJ IDEA</a> | <a href="#creating-a-ruleset">Creating a ruleset</a> | <a href="#faq">FAQ</a>
+<a href="#installation">Installation</a> | <a href="#usage">Usage</a> | <a href="#integration">Integration</a> with <a href="#-with-maven">Maven</a> / <a href="#-with-gradle">Gradle</a> / <a href="#-with-intellij-idea">IntelliJ IDEA</a> / <a href="#-with-emacs">Emacs</a> | <a href="#creating-a-ruleset">Creating a ruleset</a> | <a href="#badge">Badge</a> | <a href="#faq">FAQ</a>
 </p>
 
 ## Standard rules
@@ -233,6 +234,16 @@ containing a fully qualified name of your [RuleSetProvider](ktlint-core/src/main
 
 A complete sample project (with tests and build files) is included in this repo under the [ktlint-ruleset-template](ktlint-ruleset-template) directory 
 (make sure to check [NoVarRuleTest](ktlint-ruleset-template/src/test/kotlin/yourpkgname/NoVarRuleTest.kt) as it contains some useful information). 
+
+## Badge
+
+If you use ktlint in your project, consider including a badge in your readme to let people know that your code is checked by ktlint. 
+
+[![ktlint](https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg)](https://ktlint.github.io/)
+
+```md
+[![ktlint](https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg)](https://ktlint.github.io/)
+```
 
 ## FAQ
 
