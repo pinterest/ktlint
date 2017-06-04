@@ -212,6 +212,7 @@ select [inspection/ktlint.xml](ktlint-intellij-idea-integration/src/main/resourc
 Go to `File -> Settings... -> Editor`
 - `Code Style -> Kotlin`
   - open `Imports` tab, select all `Use single name import` options and remove `import java.util.*` from `Packages to Use Import with '*'`.
+  - open `Blank Lines` tab, change `Keep Maximum Blank Lines` -> `In declarations` & `In code` to 1.
   - (optional but recommended) open `Wrapping and Braces` tab, uncheck `Method declaration parameters -> Align when multiline`. 
   - (optional but recommended) open `Tabs and Indents` tab, change `Continuation indent` to 4.
 - `Inspections` 
