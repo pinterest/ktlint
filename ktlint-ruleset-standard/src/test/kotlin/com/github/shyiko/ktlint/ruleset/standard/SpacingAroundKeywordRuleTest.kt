@@ -95,7 +95,7 @@ class SpacingAroundKeywordRuleTest {
     }
 
     @Test
-    fun noSpaceAfterGetterAndSetterFunction() {
+    fun getterAndSetterFunction() {
         assertThat(SpacingAroundKeywordRule().format(
             """
             var x: String
@@ -132,7 +132,7 @@ class SpacingAroundKeywordRuleTest {
             (value) { setterOnNextLine = value}
             """
         )).isEqualTo(listOf(
-            LintError(6, 11, "keyword-spacing", "Missing spacing after \"set\"")
+            LintError(7, 21, "keyword-spacing", "Unexpected spacing after \"set\"")
         ))
     }
 
