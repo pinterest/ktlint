@@ -46,7 +46,8 @@ class SpacingAroundKeywordRule : Rule("keyword-spacing") {
                         node.nextLeaf()?.delete()
                     }
                 }
-            } else if (noLFBeforeSet.contains(node.elementType)) {
+            }
+            if (noLFBeforeSet.contains(node.elementType)) {
                 val prevLeaf = PsiTreeUtil.prevLeaf(node)
                 if (prevLeaf is PsiWhiteSpaceImpl && prevLeaf.textContains('\n') &&
                     (node.elementType != ELSE_KEYWORD || node.parent !is KtWhenEntry) &&
