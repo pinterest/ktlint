@@ -34,7 +34,7 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
         // iteration (https://github.com/shyiko/ktlint/issues/40)
         "iterator",
         // by (https://github.com/shyiko/ktlint/issues/54)
-        "getValue"
+        "getValue", "setValue"
     )
     private val ref = mutableSetOf("*")
     private var packageName = ""
