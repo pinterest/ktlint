@@ -2,6 +2,14 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.8.3] - 2017-06-19
+
+### Fixed
+
+- "Missing spacing after ";"" at the end of package declaration ([#59](https://github.com/shyiko/ktlint/issues/59)).
+- "Unused import" false positive (`setValue`) ([#55](https://github.com/shyiko/ktlint/issues/55)).
+- `get`/`set`ter spacing ([#56](https://github.com/shyiko/ktlint/pull/56)).
+
 ## [0.8.2] - 2017-06-06
 
 ### Fixed
@@ -127,6 +135,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.8.3]: https://github.com/shyiko/ktlint/compare/0.8.2...0.8.3
 [0.8.2]: https://github.com/shyiko/ktlint/compare/0.8.1...0.8.2
 [0.8.1]: https://github.com/shyiko/ktlint/compare/0.8.0...0.8.1
 [0.8.0]: https://github.com/shyiko/ktlint/compare/0.7.1...0.8.0
