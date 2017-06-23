@@ -50,11 +50,11 @@ class IndentationRule : Rule("indent") {
                         if (node.isPartOf(KtParameterList::class) && firstParameterColumn.value != 0) {
                             if (firstParameterColumn.value - 1 != it.length) {
                                 emit(offset, "Unexpected indentation (${it.length}) (" +
-                                    "parameters should be either vertically aligned or indented by the multiple of 4" +
+                                    "parameters should be either vertically aligned or indented by the multiple of $indent" +
                                 ")", false)
                             }
                         } else {
-                            emit(offset, "Unexpected indentation (${it.length}) (it should be multiple of 4)", false)
+                            emit(offset, "Unexpected indentation (${it.length}) (it should be multiple of $indent)", false)
                         }
                     }
                     offset += it.length + 1
