@@ -22,4 +22,17 @@ class NoWildcardImportsRuleTest {
         ))
     }
 
+    @Test
+    fun testLintWithOverride() {
+        assertThat(NoWildcardImportsRule().lint(
+            """
+            import a.*
+            import a.b.c.*
+            import a.b
+            import kotlinx.android.synthetic.main.layout_name.*
+            """.trimIndent(),
+            mapOf("allow_wildcard_imports" to "true")
+        )).isEqualTo(listOf<LintError>())
+    }
+
 }
