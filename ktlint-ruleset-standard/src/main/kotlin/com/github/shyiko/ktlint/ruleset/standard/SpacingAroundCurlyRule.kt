@@ -20,7 +20,7 @@ class SpacingAroundCurlyRule : Rule("curly-spacing") {
             val spacingBefore: Boolean
             val spacingAfter: Boolean
             if (node.textMatches("{")) {
-                spacingBefore = prevLeaf is PsiWhiteSpace || (prevLeaf?.node?.elementType == KtTokens.LPAR &&
+                spacingBefore = prevLeaf is PsiWhiteSpace || prevLeaf is KtTokens.AT || (prevLeaf?.node?.elementType == KtTokens.LPAR &&
                     (node.parent is KtLambdaExpression || node.parent.parent is KtLambdaExpression))
                 spacingAfter = nextLeaf is PsiWhiteSpace || nextLeaf?.node?.elementType == KtTokens.RBRACE
             } else
