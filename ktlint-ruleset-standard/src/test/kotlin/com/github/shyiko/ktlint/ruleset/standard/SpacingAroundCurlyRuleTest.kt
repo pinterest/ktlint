@@ -11,6 +11,7 @@ class SpacingAroundCurlyRuleTest {
     @Test
     fun testLint() {
         assertThat(SpacingAroundCurlyRule().lint("fun emit() { }")).isEmpty()
+        assertThat(SpacingAroundCurlyRule().lint("fun emit() { val a = a@{ } }")).isEmpty()
         assertThat(SpacingAroundCurlyRule().lint("fun emit() {}")).isEmpty()
         assertThat(SpacingAroundCurlyRule().lint("fun main() { val v = if (true){return 0} }"))
             .isEqualTo(listOf(
