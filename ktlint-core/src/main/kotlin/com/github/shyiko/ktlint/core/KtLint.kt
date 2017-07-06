@@ -1,5 +1,6 @@
 package com.github.shyiko.ktlint.core
 
+import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.mock.MockProject
@@ -37,7 +38,7 @@ object KtLint {
 
     init {
         val project = KotlinCoreEnvironment.createForProduction(Disposable {},
-            CompilerConfiguration(), emptyList()).project
+            CompilerConfiguration(), EnvironmentConfigFiles.EMPTY).project
         // everything below (up to PsiFileFactory.getInstance(...)) is to get AST mutations (`ktlint -F ...`) working
         // otherwise it's not needed
         val pomModel: PomModel = object : UserDataHolderBase(), PomModel {
