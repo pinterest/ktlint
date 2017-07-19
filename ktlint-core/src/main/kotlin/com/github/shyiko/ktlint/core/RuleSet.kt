@@ -1,5 +1,9 @@
 package com.github.shyiko.ktlint.core
 
+/**
+ * A group of [Rule]s discoverable through [RuleSetProvider].
+ * @see RuleSetProvider
+ */
 class RuleSet(val id: String, vararg val rules: Rule) : Iterable<Rule> {
 
     init {

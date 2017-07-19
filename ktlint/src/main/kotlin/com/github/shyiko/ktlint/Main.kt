@@ -3,6 +3,7 @@ package com.github.shyiko.ktlint
 import com.github.shyiko.ktlint.core.KtLint
 import com.github.shyiko.ktlint.core.LintError
 import com.github.shyiko.ktlint.core.ParseException
+import com.github.shyiko.ktlint.core.ReporterProvider
 import com.github.shyiko.ktlint.core.RuleExecutionException
 import com.github.shyiko.ktlint.core.RuleSet
 import com.github.shyiko.ktlint.core.RuleSetProvider
@@ -31,8 +32,10 @@ import org.kohsuke.args4j.ParserProperties
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileFilter
+import java.net.URLDecoder
 import java.util.ArrayDeque
 import java.util.ArrayList
+import java.util.HashMap
 import java.util.ServiceLoader
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.Callable
@@ -43,8 +46,11 @@ import kotlin.system.exitProcess
 
 object Main {
 
-    @Option(name="--format", aliases = arrayOf("-F"), usage = "Automatically format code")
+    @Option(name="--format", aliases = arrayOf("-F"), usage = "Fix any deviations from the code style")
     private var format: Boolean = false
+
+    @Option(name="--reporter", usage = "Reporter to use (e.g. plain (default), plain?group_by_file, json, checkstyle)")
+    private var reporter: String = "plain"
 
     @Option(name="--ruleset", aliases = arrayOf("-R"),
         usage = "A path to a JAR file containing additional ruleset(s) or a " +
@@ -102,6 +108,9 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
 
           # auto-correct style violations
           ktlint -F "src/**/*.kt"
+
+          # use custom reporter
+          ktlint --reporter=checkstyle > ktlint-report-in-checkstyle-format.xml
         """.trimIndent()
 
     @JvmStatic
@@ -190,6 +199,21 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
         if (debug) {
             rp.forEach { System.err.println("[DEBUG] Discovered ruleset \"${it.first}\"") }
         }
+        // load reporter
+        val reporters = ServiceLoader.load(ReporterProvider::class.java).associate { it.id to it }
+        if (debug) {
+            reporters.forEach { (id) -> System.err.println("[DEBUG] Discovered reporter \"${id}\"") }
+        }
+        val (reporterId, rawReporterConfig) = this.reporter.split("?", limit = 2) + listOf("")
+        val reporterConfig = mapOf("verbose" to verbose.toString()) + parseQuery(rawReporterConfig)
+        System.err.println("[DEBUG] Initializing \"$reporterId\" reporter with $reporterConfig")
+        val reporter = reporters[reporterId]?.get(
+            if (stdin) System.err else System.out, reporterConfig
+        )
+        if (reporter == null) {
+            System.err.println("Error: reporter \"$reporterId\" wasn't found")
+            exitProcess(1)
+        }
         // load .editorconfig
         val userData = locateEditorConfig(File(workDir))?.let {
             if (debug) {
@@ -200,32 +224,31 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
         if (debug) {
             System.err.println("[DEBUG] ${userData.mapKeys { it.key }} loaded from .editorconfig")
         }
-        fun msg(fileName: String, e: Exception): String = when (e) {
-            is ParseException -> {
-                "$fileName:${e.line}:${e.col}: Not a valid Kotlin file (${e.message?.toLowerCase()})"
-            }
-            is RuleExecutionException -> {
-                "$fileName:${e.line}:${e.col}: Internal Error (${e.ruleId}). " +
-                    "Please create a ticket at https://github.com/shyiko/ktlint/issue " +
-                    "(if possible, provide the source code that triggered an error)"
-            }
+        data class LintErrorWithCorrectionInfo(val err: LintError, val corrected: Boolean)
+        fun lintErrorFrom(e: Exception): LintError = when (e) {
+            is ParseException ->
+                LintError(e.line, e.col, "",
+                "Not a valid Kotlin file (${e.message?.toLowerCase()})")
+            is RuleExecutionException ->
+                LintError(e.line, e.col, "", "Internal Error (${e.ruleId}). " +
+                "Please create a ticket at https://github.com/shyiko/ktlint/issue " +
+                "(if possible, provide the source code that triggered an error)")
             else -> throw e
         }
-        fun apply(fileName: String, fileContent: String): List<String> {
+        fun apply(fileName: String, fileContent: String): List<LintErrorWithCorrectionInfo> {
             if (debug) {
                 System.err.println("[DEBUG] Checking $fileName")
             }
-            val result = ArrayList<String>()
+            val result = ArrayList<LintErrorWithCorrectionInfo>()
             if (format) {
                 val formattedFileContent = try {
-                    format(fileName, fileContent, rp.map { it.second.get() }, userData, { e, corrected ->
+                    format(fileName, fileContent, rp.map { it.second.get() }, userData, { err, corrected ->
                         if (!corrected) {
-                            result.add("$fileName:${e.line}:${e.col}: " +
-                                "${e.detail}${if (verbose) " (${e.ruleId})" else ""}")
+                            result.add(LintErrorWithCorrectionInfo(err, corrected))
                         }
                     })
                 } catch (e: Exception) {
-                    result.add(msg(fileName, e))
+                    result.add(LintErrorWithCorrectionInfo(lintErrorFrom(e), false))
                     tripped = true
                     fileContent // making sure `cat file | ktlint --stdint > file` is (relatively) safe
                 }
@@ -238,13 +261,12 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
                 }
             } else {
                 try {
-                    lint(fileName, fileContent, rp.map { it.second.get() }, userData, { e ->
+                    lint(fileName, fileContent, rp.map { it.second.get() }, userData, { err ->
                         tripped = true
-                        result.add("$fileName:${e.line}:${e.col}: " +
-                            "${e.detail}${if (verbose) " (${e.ruleId})" else ""}")
+                        result.add(LintErrorWithCorrectionInfo(err, false))
                     })
                 } catch (e: Exception) {
-                    result.add(msg(fileName, e))
+                    result.add(LintErrorWithCorrectionInfo(lintErrorFrom(e), false))
                 }
             }
             return result
@@ -252,14 +274,23 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
         var fileNumber = 0
         var errorNumber = 0
         fun process(dir: File, filter: FileFilter) = visit(dir, filter)
-            .map { file -> Callable { apply(file.path, file.readText()) } }
-            .parallel({
+            .map { file -> Callable { file.path to apply(file.path, file.readText()) } }
+            .parallel({ (fileName, errList) ->
                 fileNumber++
-                errorNumber += it.size
-                it.forEach { System.out.println(it) }
+                errorNumber += errList.size
+                reporter.before(fileName)
+                errList.forEach { (err, corrected) ->
+                    reporter.onLintError(fileName, err, corrected) }
+                reporter.after(fileName)
             })
+        reporter.beforeAll()
         if (stdin) {
-            apply("<text>", String(System.`in`.readBytes())).forEach { System.err.println(it) }
+            val fileName = "<text>"
+            reporter.before(fileName)
+            apply(fileName, String(System.`in`.readBytes()))
+                .forEach { (err, corrected) ->
+                    reporter.onLintError(fileName, err, corrected) }
+            reporter.after(fileName)
         } else {
             if (patterns.isEmpty()) {
                 val filter = HiddenFileFilter(reverse = true)
@@ -280,6 +311,7 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
                     .forEach { process(File(it), filter) }
             }
         }
+        reporter.afterAll()
         if (debug) {
             System.err.println("[DEBUG] ${(System.currentTimeMillis() - start)
                 }ms / ${fileNumber}file(s) / ${errorNumber}error(s)")
@@ -288,6 +320,16 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
             exitProcess(1)
         }
     }
+
+    fun parseQuery(query: String) = query.split("&")
+        .fold(HashMap<String, String>(), { map, s ->
+            if (!s.isEmpty()) {
+                s.split("=", limit = 2).let { map.put(it[0],
+                    URLDecoder.decode(it.getOrElse(1, { "true" }), "UTF-8")) }
+            }
+            map
+        })
+
 
     fun locateEditorConfig(dir: File?): File? = when (dir) {
         null -> null
