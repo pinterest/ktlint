@@ -46,6 +46,13 @@ import kotlin.system.exitProcess
 
 object Main {
 
+    private val DEPRECATED_FLAGS = mapOf(
+        "--ruleset-repository" to "--repository",
+        "--reporter-repository" to "--repository",
+        "--ruleset-update" to "--repository-update",
+        "--reporter-update" to "--repository-update"
+    )
+
     // todo: this should have been a command, not a flag (consider changing in 1.0.0)
     @Option(name="--format", aliases = arrayOf("-F"), usage = "Fix any deviations from the code style")
     private var format: Boolean = false
@@ -65,12 +72,12 @@ object Main {
             "Maven Central/JCenter/JitPack/user-provided repository)")
     private var rulesets = ArrayList<String>()
 
-    @Option(name="--ruleset-repository",
+    @Option(name="--repository", aliases = arrayOf("--ruleset-repository", "--reporter-repository"),
         usage = "An additional Maven repository (Maven Central/JCenter/JitPack are active by default)" +
             "(value format: <id>=<url>)")
     private var repositories = ArrayList<String>()
 
-    @Option(name="--ruleset-update", aliases = arrayOf("-U"),
+    @Option(name="--repository-update", aliases = arrayOf("-U", "--ruleset-update", "--reporter-update"),
         usage = "Check remote repositories for updated snapshots")
     private var forceUpdate: Boolean = false
 
@@ -121,6 +128,15 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
 
     @JvmStatic
     fun main(args: Array<String>) {
+        args.forEach {
+            if (it.startsWith("--") && it.contains("=")) {
+                val flag = it.substringBefore("=")
+                val alt = DEPRECATED_FLAGS[flag]
+                if (alt != null) {
+                    System.err.println("$flag flag is deprecated and will be removed in 1.0.0 (use $alt instead)")
+                }
+            }
+        }
         val parser = CmdLineParser(this, ParserProperties.defaults()
             .withShowDefaults(false)
             .withUsageWidth(120)
