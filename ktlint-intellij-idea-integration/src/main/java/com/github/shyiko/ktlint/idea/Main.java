@@ -41,6 +41,7 @@ public class Main {
             if (!new File(".idea").isDirectory()) {
                 System.err.println(".idea directory not found. " +
                     "Are you sure you are executing ktlint-intellij-idea-integration inside project root directory?");
+                return;
             }
             final String home = System.getProperty("user.home");
             // https://github.com/EsotericSoftware/wildcard
