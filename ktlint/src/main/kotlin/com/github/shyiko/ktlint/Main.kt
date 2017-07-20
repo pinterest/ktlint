@@ -47,10 +47,14 @@ import kotlin.system.exitProcess
 object Main {
 
     private val DEPRECATED_FLAGS = mapOf(
-        "--ruleset-repository" to "--repository",
-        "--reporter-repository" to "--repository",
-        "--ruleset-update" to "--repository-update",
-        "--reporter-update" to "--repository-update"
+        "--ruleset-repository" to
+            "--repository",
+        "--reporter-repository" to
+            "--repository",
+        "--ruleset-update" to
+            "--repository-update",
+        "--reporter-update" to
+            "--repository-update"
     )
 
     // todo: this should have been a command, not a flag (consider changing in 1.0.0)
@@ -245,20 +249,18 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
             }
             return result
         }
+        var fileNumber = 0
+        var errorNumber = 0
         fun report(fileName: String, errList: List<LintErrorWithCorrectionInfo>) {
+            fileNumber++
+            errorNumber += errList.size
             reporter.before(fileName)
             errList.forEach { (err, corrected) -> reporter.onLintError(fileName, err, corrected) }
             reporter.after(fileName)
         }
-        var fileNumber = 0
-        var errorNumber = 0
         fun process(dir: File, filter: FileFilter) = visit(dir, filter)
             .map { file -> Callable { file.path to process(file.path, file.readText()) } }
-            .parallel({ (fileName, errList) ->
-                fileNumber++
-                errorNumber += errList.size
-                report(fileName, errList)
-            })
+            .parallel({ (fileName, errList) -> report(fileName, errList) })
         reporter.beforeAll()
         if (stdin) {
             report("<text>", process("<text>", String(System.`in`.readBytes())))
