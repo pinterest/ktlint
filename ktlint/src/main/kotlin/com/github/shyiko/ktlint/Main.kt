@@ -88,6 +88,10 @@ object Main {
     @Option(name="--limit", usage = "Maximum number of errors to show (default: show all)")
     private var limit: Int = -1
 
+    @Option(name="--relative", usage = "Print files relative to the working directory " +
+        "(e.g. dir/file.kt instead of /home/user/project/dir/file.kt)")
+    private var relative: Boolean = false
+
     @Option(name="--verbose", aliases = arrayOf("-v"), usage = "Show error codes")
     private var verbose: Boolean = false
 
@@ -220,7 +224,9 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
         }
         fun process(fileName: String, fileContent: String): List<LintErrorWithCorrectionInfo> {
             if (debug) {
-                System.err.println("[DEBUG] Checking $fileName")
+                System.err.println("[DEBUG] Checking ${
+                    if (relative && fileName != "<text>") File(fileName).toRelativeString(File(workDir)) else fileName
+                }")
             }
             val result = ArrayList<LintErrorWithCorrectionInfo>()
             if (format) {
@@ -269,8 +275,9 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
         }
         fun process(dir: File, filter: FileFilter) = visit(dir, filter)
             .takeWhile { errorNumber < limit }
-            .map { file -> Callable { file.path to process(file.path, file.readText()) } }
-            .parallel({ (fileName, errList) -> report(fileName, errList) })
+            .map { file -> Callable { file to process(file.path, file.readText()) } }
+            .parallel({ (file, errList) ->
+                report(if (relative) file.toRelativeString(File(workDir)) else file.path, errList) })
         reporter.beforeAll()
         if (stdin) {
             report("<text>", process("<text>", String(System.`in`.readBytes())))
