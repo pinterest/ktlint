@@ -116,8 +116,17 @@ class GlobTest {
         assertMatch(Glob("$dir/a", "../b/d", includeChildren = true), "$dir/b/d/f.js")
     }
 
-    fun assertMatch(glob: Glob, target: String) {
-        assertThat(glob.matches(target.removePrefix("!")))
+    @Test
+    fun testPartialMatching() {
+        assertMatch(Glob(dir, "b/d/**/*.js"), "!$dir/b")
+        assertMatch(Glob(dir, "b/d/**/*.js"), "$dir/b", entire = false)
+        assertMatch(Glob(dir, "c/d/**/*.js"), "!$dir/b", entire = false)
+        assertMatch(Glob(dir, "b/d/**/*.js"), "$dir/b/d/c", entire = false)
+        assertMatch(Glob(dir, "b/d/*.js"), "!$dir/b/d/c", entire = false)
+    }
+
+    fun assertMatch(glob: Glob, target: String, entire: Boolean = true) {
+        assertThat(glob.matches(target.removePrefix("!"), entire))
             .describedAs("%s -> %s", glob, target).isEqualTo(!target.startsWith("!"))
     }
 

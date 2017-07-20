@@ -12,10 +12,10 @@ class GlobFileFilter(baseDir: String, vararg pattern: String) : FileFilter {
      * will become included again), false otherwise
      */
     override fun accept(file: File): Boolean {
-        return file.isDirectory || glob.fold(false) { r, g ->
+        return glob.fold(false) { r, g ->
             val absolutePath = slash(file.absolutePath)
             if (g.pattern.startsWith("!")) { return@fold g.matches(absolutePath) && r }
-            return@fold g.matches(absolutePath) || r
+            return@fold g.matches(absolutePath, !file.isDirectory) || r
         }
     }
 

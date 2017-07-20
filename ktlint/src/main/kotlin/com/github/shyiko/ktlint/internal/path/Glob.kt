@@ -81,7 +81,7 @@ data class Glob(val baseDir: String, val pattern: String, val restrictToBaseDir:
     //
     // time: O(n*m), space: O(m), where n - path.size, m - state.size
     //
-    private fun matches0(path: List<String>): Boolean {
+    private fun matches0(path: List<String>, entire: Boolean): Boolean {
         val sizeOfState = state.size
         var match = BitSet(sizeOfState + 1).apply { set(0) }
         var nextMatch = BitSet(sizeOfState + 1) // next possible state
@@ -107,10 +107,11 @@ data class Glob(val baseDir: String, val pattern: String, val restrictToBaseDir:
             nextMatch = match.apply { match = nextMatch } // swap
             nextMatch.clear()
         }
-        return match[sizeOfState] ||
+        return !entire || match[sizeOfState] ||
             (match[sizeOfState - 1] && state[sizeOfState - 1].optional)
     }
 
-    fun matches(absolutePath: String): Boolean = matches0(absolutePath.split('/')) != negate
+    fun matches(absolutePath: String, entire: Boolean = true): Boolean =
+        matches0(absolutePath.split('/'), entire) != negate
 
 }
