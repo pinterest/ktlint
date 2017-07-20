@@ -46,10 +46,16 @@ import kotlin.system.exitProcess
 
 object Main {
 
+    // todo: this should have been a command, not a flag (consider changing in 1.0.0)
     @Option(name="--format", aliases = arrayOf("-F"), usage = "Fix any deviations from the code style")
     private var format: Boolean = false
 
-    @Option(name="--reporter", usage = "Reporter to use (e.g. plain (default), plain?group_by_file, json, checkstyle)")
+    @Option(name="--reporter",
+        usage = "A reporter to use (built-in: plain (default), plain?group_by_file, json, checkstyle). " +
+            "To use a third-party reporter specify either a path to a JAR file on the filesystem or a" +
+            "<groupId>:<artifactId>:<version> triple pointing to a remote artifact (in which case ktlint will first " +
+            "check local cache (~/.m2/repository) and then, if not found, attempt downloading it from " +
+            "Maven Central/JCenter/JitPack/user-provided repository)")
     private var reporter: String = "plain"
 
     @Option(name="--ruleset", aliases = arrayOf("-R"),
@@ -133,64 +139,9 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
         var tripped = false
         val start = System.currentTimeMillis()
         // load 3rd party ruleset(s) (if any)
+        val dependencyResolver by lazy { buildDependencyResolver() }
         if (!rulesets.isEmpty()) {
-            val mavenLocal = File(File(System.getProperty("user.home"), ".m2"), "repository")
-            mavenLocal.mkdirsOrFail()
-            val dependencyResolver = MavenDependencyResolver(
-                mavenLocal,
-                listOf(
-                    RemoteRepository.Builder(
-                        "central", "default", "http://repo1.maven.org/maven2/"
-                    ).setSnapshotPolicy(RepositoryPolicy(false, UPDATE_POLICY_NEVER,
-                        CHECKSUM_POLICY_IGNORE)).build(),
-                    RemoteRepository.Builder(
-                        "bintray", "default", "http://jcenter.bintray.com"
-                    ).setSnapshotPolicy(RepositoryPolicy(false, UPDATE_POLICY_NEVER,
-                        CHECKSUM_POLICY_IGNORE)).build(),
-                    RemoteRepository.Builder(
-                        "jitpack", "default", "http://jitpack.io").build()
-                ) + repositories.map {
-                    val colon = it.indexOf("=").apply {
-                        if (this == -1) { throw RuntimeException("$it is not a valid repository entry " +
-                            "(make sure it's provided as <id>=<url>") }
-                    }
-                    val id = it.substring(0, colon)
-                    val url = it.substring(colon + 1)
-                    RemoteRepository.Builder(id, "default", url).build()
-                },
-                forceUpdate
-            )
-            if (debug) {
-                dependencyResolver.setTransferEventListener { e ->
-                    System.err.println("[DEBUG] Transfer ${e.type.toString().toLowerCase()} ${e.resource.repositoryUrl}" +
-                        e.resource.resourceName + (e.exception?.let { " (${it.message})" } ?: ""))
-                }
-            }
-            (ClassLoader.getSystemClassLoader() as java.net.URLClassLoader).addURLs(rulesets.flatMap {
-                if (debug) {
-                    System.err.println("[DEBUG] Resolving $it")
-                }
-                val result = try {
-                    dependencyResolver.resolve(DefaultArtifact(it)).map { it.toURI().toURL() }
-                } catch (e: IllegalArgumentException) {
-                    val file = File(expandTilde(it))
-                    if (!file.exists()) {
-                        System.err.println("Error: $it does not exist")
-                        exitProcess(1)
-                    }
-                    listOf(file.toURI().toURL())
-                } catch (e: RepositoryException) {
-                    if (debug) {
-                        e.printStackTrace()
-                    }
-                    System.err.println("Error: $it wasn't found")
-                    exitProcess(1)
-                }
-                if (debug) {
-                    result.forEach { url -> System.err.println("[DEBUG] Loading $url") }
-                }
-                result
-            })
+            loadJARs(dependencyResolver, rulesets)
         }
         // standard should go first
         val rp = ServiceLoader.load(RuleSetProvider::class.java)
@@ -199,12 +150,19 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
         if (debug) {
             rp.forEach { System.err.println("[DEBUG] Discovered ruleset \"${it.first}\"") }
         }
-        // load reporter
-        val reporters = ServiceLoader.load(ReporterProvider::class.java).associate { it.id to it }
-        if (debug) {
-            reporters.forEach { (id) -> System.err.println("[DEBUG] Discovered reporter \"${id}\"") }
-        }
         val (reporterId, rawReporterConfig) = this.reporter.split("?", limit = 2) + listOf("")
+        // load reporter
+        val reporterLoader = ServiceLoader.load(ReporterProvider::class.java)
+        val reporters = reporterLoader.associate { it.id to it }.let { map ->
+            if (!map.containsKey(reporterId)) {
+                loadJARs(dependencyResolver, listOf(reporterId))
+                reporterLoader.reload()
+                reporterLoader.associate { it.id to it }
+            } else map
+        }
+        if (debug) {
+            reporters.forEach { (id) -> System.err.println("[DEBUG] Discovered reporter \"$id\"") }
+        }
         val reporterConfig = mapOf("verbose" to verbose.toString()) + parseQuery(rawReporterConfig)
         System.err.println("[DEBUG] Initializing \"$reporterId\" reporter with $reporterConfig")
         val reporter = reporters[reporterId]?.get(
@@ -235,7 +193,7 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
                 "(if possible, provide the source code that triggered an error)")
             else -> throw e
         }
-        fun apply(fileName: String, fileContent: String): List<LintErrorWithCorrectionInfo> {
+        fun process(fileName: String, fileContent: String): List<LintErrorWithCorrectionInfo> {
             if (debug) {
                 System.err.println("[DEBUG] Checking $fileName")
             }
@@ -271,26 +229,23 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
             }
             return result
         }
+        fun report(fileName: String, errList: List<LintErrorWithCorrectionInfo>) {
+            reporter.before(fileName)
+            errList.forEach { (err, corrected) -> reporter.onLintError(fileName, err, corrected) }
+            reporter.after(fileName)
+        }
         var fileNumber = 0
         var errorNumber = 0
         fun process(dir: File, filter: FileFilter) = visit(dir, filter)
-            .map { file -> Callable { file.path to apply(file.path, file.readText()) } }
+            .map { file -> Callable { file.path to process(file.path, file.readText()) } }
             .parallel({ (fileName, errList) ->
                 fileNumber++
                 errorNumber += errList.size
-                reporter.before(fileName)
-                errList.forEach { (err, corrected) ->
-                    reporter.onLintError(fileName, err, corrected) }
-                reporter.after(fileName)
+                report(fileName, errList)
             })
         reporter.beforeAll()
         if (stdin) {
-            val fileName = "<text>"
-            reporter.before(fileName)
-            apply(fileName, String(System.`in`.readBytes()))
-                .forEach { (err, corrected) ->
-                    reporter.onLintError(fileName, err, corrected) }
-            reporter.after(fileName)
+            report("<text>", process("<text>", String(System.`in`.readBytes())))
         } else {
             if (patterns.isEmpty()) {
                 val filter = HiddenFileFilter(reverse = true)
@@ -319,6 +274,71 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
         if (tripped) {
             exitProcess(1)
         }
+    }
+
+    fun buildDependencyResolver(): MavenDependencyResolver {
+        val mavenLocal = File(File(System.getProperty("user.home"), ".m2"), "repository")
+        mavenLocal.mkdirsOrFail()
+        val dependencyResolver = MavenDependencyResolver(
+            mavenLocal,
+            listOf(
+                RemoteRepository.Builder(
+                    "central", "default", "http://repo1.maven.org/maven2/"
+                ).setSnapshotPolicy(RepositoryPolicy(false, UPDATE_POLICY_NEVER,
+                    CHECKSUM_POLICY_IGNORE)).build(),
+                RemoteRepository.Builder(
+                    "bintray", "default", "http://jcenter.bintray.com"
+                ).setSnapshotPolicy(RepositoryPolicy(false, UPDATE_POLICY_NEVER,
+                    CHECKSUM_POLICY_IGNORE)).build(),
+                RemoteRepository.Builder(
+                    "jitpack", "default", "http://jitpack.io").build()
+            ) + repositories.map {
+                val colon = it.indexOf("=").apply {
+                    if (this == -1) { throw RuntimeException("$it is not a valid repository entry " +
+                        "(make sure it's provided as <id>=<url>") }
+                }
+                val id = it.substring(0, colon)
+                val url = it.substring(colon + 1)
+                RemoteRepository.Builder(id, "default", url).build()
+            },
+            forceUpdate
+        )
+        if (debug) {
+            dependencyResolver.setTransferEventListener { e ->
+                System.err.println("[DEBUG] Transfer ${e.type.toString().toLowerCase()} ${e.resource.repositoryUrl}" +
+                    e.resource.resourceName + (e.exception?.let { " (${it.message})" } ?: ""))
+            }
+        }
+        return dependencyResolver
+    }
+
+    fun loadJARs(dependencyResolver: MavenDependencyResolver, artifacts: List<String>) {
+        (ClassLoader.getSystemClassLoader() as java.net.URLClassLoader)
+            .addURLs(artifacts.flatMap {
+                if (debug) {
+                    System.err.println("[DEBUG] Resolving $it")
+                }
+                val result = try {
+                    dependencyResolver.resolve(DefaultArtifact(it)).map { it.toURI().toURL() }
+                } catch (e: IllegalArgumentException) {
+                    val file = File(expandTilde(it))
+                    if (!file.exists()) {
+                        System.err.println("Error: $it does not exist")
+                        exitProcess(1)
+                    }
+                    listOf(file.toURI().toURL())
+                } catch (e: RepositoryException) {
+                    if (debug) {
+                        e.printStackTrace()
+                    }
+                    System.err.println("Error: $it wasn't found")
+                    exitProcess(1)
+                }
+                if (debug) {
+                    result.forEach { url -> System.err.println("[DEBUG] Loading $url") }
+                }
+                result
+            })
     }
 
     fun parseQuery(query: String) = query.split("&")
