@@ -85,6 +85,9 @@ object Main {
         usage = "Check remote repositories for updated snapshots")
     private var forceUpdate: Boolean = false
 
+    @Option(name="--limit", usage = "Maximum number of errors to show (default: show all)")
+    private var limit: Int = -1
+
     @Option(name="--verbose", aliases = arrayOf("-v"), usage = "Show error codes")
     private var verbose: Boolean = false
 
@@ -184,7 +187,9 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
             reporters.forEach { (id) -> System.err.println("[DEBUG] Discovered reporter \"$id\"") }
         }
         val reporterConfig = mapOf("verbose" to verbose.toString()) + parseQuery(rawReporterConfig)
-        System.err.println("[DEBUG] Initializing \"$reporterId\" reporter with $reporterConfig")
+        if (debug) {
+            System.err.println("[DEBUG] Initializing \"$reporterId\" reporter with $reporterConfig")
+        }
         val reporter = reporters[reporterId]?.get(
             if (stdin) System.err else System.out, reporterConfig
         )
@@ -249,16 +254,21 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
             }
             return result
         }
+        if (limit < 0) {
+            limit = Int.MAX_VALUE
+        }
         var fileNumber = 0
         var errorNumber = 0
         fun report(fileName: String, errList: List<LintErrorWithCorrectionInfo>) {
             fileNumber++
-            errorNumber += errList.size
+            val errListLimit = minOf(errList.size, maxOf(limit - errorNumber, 0))
+            errorNumber += errListLimit
             reporter.before(fileName)
-            errList.forEach { (err, corrected) -> reporter.onLintError(fileName, err, corrected) }
+            errList.head(errListLimit).forEach { (err, corrected) -> reporter.onLintError(fileName, err, corrected) }
             reporter.after(fileName)
         }
         fun process(dir: File, filter: FileFilter) = visit(dir, filter)
+            .takeWhile { errorNumber < limit }
             .map { file -> Callable { file.path to process(file.path, file.readText()) } }
             .parallel({ (fileName, errList) -> report(fileName, errList) })
         reporter.beforeAll()
@@ -293,6 +303,8 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
             exitProcess(1)
         }
     }
+
+    fun <T> List<T>.head(limit: Int) = if (limit == size) this else this.subList(0, limit)
 
     fun buildDependencyResolver(): MavenDependencyResolver {
         val mavenLocal = File(File(System.getProperty("user.home"), ".m2"), "repository")
