@@ -40,16 +40,16 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
     override fun visit(node: ASTNode, autoCorrect: Boolean,
             emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
         if (node.elementType == KtStubElementTypes.FILE) {
-            node.visit { node ->
-                val psi = node.psi
-                val type = node.elementType
+            node.visit { vnode ->
+                val psi = vnode.psi
+                val type = vnode.elementType
                 if (type == KDocTokens.MARKDOWN_LINK && psi is KDocLink) {
                     val linkText = psi.getLinkText().replace("`", "")
                     ref.add(linkText.split('.').first())
                 } else
                 if ((type == KtNodeTypes.REFERENCE_EXPRESSION || type == KtNodeTypes.OPERATION_REFERENCE) &&
                     !psi.isPartOf(KtImportDirective::class)) {
-                    ref.add(node.text.trim('`'))
+                    ref.add(vnode.text.trim('`'))
                 }
             }
         } else

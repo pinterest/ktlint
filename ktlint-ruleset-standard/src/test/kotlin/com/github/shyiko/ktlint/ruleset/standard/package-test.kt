@@ -32,7 +32,7 @@ fun testLintUsingResource(rule: Rule, qualifier: String = "", userData: Map<Stri
     assertThat(rule.lint(input, userData)).isEqualTo(errors)
 }
 
-fun testFormatUsingResource(rule: Rule, qualifier: String  = "") {
+fun testFormatUsingResource(rule: Rule, qualifier: String = "") {
     val q = if (qualifier.isEmpty()) "" else "-$qualifier"
     assertThat(rule.format(getResourceAsText("spec/${rule.id}/format$q.kt.spec")))
         .isEqualTo(getResourceAsText("spec/${rule.id}/format$q-expected.kt.spec"))

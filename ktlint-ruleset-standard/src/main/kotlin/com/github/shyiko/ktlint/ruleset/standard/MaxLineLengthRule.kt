@@ -24,7 +24,7 @@ class MaxLineLengthRule : Rule("max-line-length") {
             val text = node.text
             val lines = text.split("\n")
             var offset = 0
-            lines.forEachIndexed { i, line ->
+            for (line in lines) {
                 if (line.length > maxLineLength) {
                     val el = node.psi.findElementAt(offset + line.length - 1)!!
                     if (!el.isPartOf(PsiComment::class)) {
