@@ -390,7 +390,6 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
             map
         })
 
-
     fun locateEditorConfig(dir: File?): File? = when (dir) {
         null -> null
         else -> File(dir, ".editorconfig").let {
