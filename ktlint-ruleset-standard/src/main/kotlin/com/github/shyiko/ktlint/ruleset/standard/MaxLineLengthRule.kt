@@ -1,0 +1,49 @@
+package com.github.shyiko.ktlint.ruleset.standard
+
+import com.github.shyiko.ktlint.core.KtLint
+import com.github.shyiko.ktlint.core.Rule
+import org.jetbrains.kotlin.com.intellij.lang.ASTNode
+import org.jetbrains.kotlin.com.intellij.psi.PsiComment
+import org.jetbrains.kotlin.psi.psiUtil.getPrevSiblingIgnoringWhitespaceAndComments
+import org.jetbrains.kotlin.psi.psiUtil.startOffset
+import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
+
+class MaxLineLengthRule : Rule("max-line-length") {
+
+    private var maxLineLength = 0
+
+    override fun visit(
+        node: ASTNode,
+        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+    ) {
+        if (node.elementType == KtStubElementTypes.FILE) {
+            val editorConfig = node.getUserData(KtLint.EDITOR_CONFIG_USER_DATA_KEY)!!
+            editorConfig.get("max_line_length")?.toInt()?.apply {
+                maxLineLength = this
+            }
+            if (maxLineLength <= 0) {
+                return
+            }
+            val text = node.text
+            val lines = text.split("\n")
+            var offset = 0
+            lines.forEachIndexed { i, line ->
+                if (line.length > maxLineLength) {
+                    val el = node.psi.findElementAt(offset + line.length - 1)!!
+                    if (!el.isPartOf(PsiComment::class)) {
+                        emit(offset, "Exceeded max line length ($maxLineLength)", false)
+                    } else {
+                        // if comment is the only thing on the line - fine, otherwise emit an error
+                        val prevLeaf = el.getPrevSiblingIgnoringWhitespaceAndComments(false)
+                        if (prevLeaf != null && prevLeaf.startOffset >= offset) {
+                            emit(offset, "Exceeded max line length ($maxLineLength)", false)
+                        }
+                    }
+                }
+                offset += line.length + 1
+            }
+        }
+    }
+
+}

@@ -11,7 +11,7 @@ fun getResourceAsText(path: String) =
         .bufferedReader()
         .readText()
 
-fun testLintUsingResource(rule: Rule, qualifier: String = "") {
+fun testLintUsingResource(rule: Rule, qualifier: String = "", userData: Map<String, String> = emptyMap()) {
     val resource = "spec/${rule.id}/lint${if (qualifier.isEmpty()) "" else "-$qualifier"}.kt.spec"
     val resourceText = getResourceAsText(resource)
     val dividerIndex = resourceText.lastIndexOf("\n// expect\n")
@@ -29,7 +29,7 @@ fun testLintUsingResource(rule: Rule, qualifier: String = "") {
                 LintError(it[0].toInt(), it[1].toInt(), rule.id, it[2])
             }
     }
-    assertThat(rule.lint(input)).isEqualTo(errors)
+    assertThat(rule.lint(input, userData)).isEqualTo(errors)
 }
 
 fun testFormatUsingResource(rule: Rule, qualifier: String  = "") {
