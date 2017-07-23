@@ -6,9 +6,12 @@ import com.github.shyiko.ktlint.core.RuleSetProvider
 class StandardRuleSetProvider : RuleSetProvider {
 
     override fun get(): RuleSet = RuleSet("standard",
+        FinalNewlineRule(),
         IndentationRule(),
+        MaxLineLengthRule(),
         ModifierOrderRule(),
         NoConsecutiveBlankLinesRule(),
+        NoEmptyClassBodyRule(),
         NoMultipleSpacesRule(),
         NoSemicolonsRule(),
         NoTrailingSpacesRule(),
@@ -19,7 +22,8 @@ class StandardRuleSetProvider : RuleSetProvider {
         SpacingAroundKeywordRule(),
         SpacingAroundColonRule(),
         SpacingAroundCurlyRule(),
-        SpacingAroundOperatorsRule()
+        SpacingAroundOperatorsRule(),
+        StringTemplateRule()
     )
 
 }

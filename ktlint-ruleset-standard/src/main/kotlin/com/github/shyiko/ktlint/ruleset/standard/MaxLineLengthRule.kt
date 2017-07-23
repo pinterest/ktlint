@@ -10,8 +10,6 @@ import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
 
 class MaxLineLengthRule : Rule("max-line-length") {
 
-    private var maxLineLength = 0
-
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
@@ -19,9 +17,7 @@ class MaxLineLengthRule : Rule("max-line-length") {
     ) {
         if (node.elementType == KtStubElementTypes.FILE) {
             val editorConfig = node.getUserData(KtLint.EDITOR_CONFIG_USER_DATA_KEY)!!
-            editorConfig.get("max_line_length")?.toInt()?.apply {
-                maxLineLength = this
-            }
+            val maxLineLength = editorConfig.get("max_line_length")?.toInt() ?: 0
             if (maxLineLength <= 0) {
                 return
             }
