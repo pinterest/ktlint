@@ -203,7 +203,8 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
             if (stdin) System.err else System.out, reporterConfig
         )
         if (reporter == null) {
-            System.err.println("Error: reporter \"$reporterId\" wasn't found")
+            System.err.println("Error: reporter \"$reporterId\" wasn't found (available: ${
+                reporters.keys.sorted().joinToString(",")})")
             exitProcess(1)
         }
         // load .editorconfig
