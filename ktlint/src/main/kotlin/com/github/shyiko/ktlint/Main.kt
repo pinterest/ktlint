@@ -102,6 +102,12 @@ object Main {
     @Option(name="--debug", usage = "Turn on debug output")
     private var debug: Boolean = false
 
+    // todo: make it a command in 1.0.0 (it's too late right as we might interfere with valid "lint" patterns)
+    @Option(name="--apply", usage = "Update Intellij IDEA project settings")
+    private var apply: Boolean = false
+    @Option(name="-y", hidden = true)
+    private var forceApply: Boolean = false
+
     @Argument
     private var patterns = ArrayList<String>()
 
@@ -157,6 +163,11 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
         }
         if (version) { println(javaClass.`package`.implementationVersion); exitProcess(0) }
         if (help) { println(parser.usage()); exitProcess(0) }
+        if (apply) {
+            com.github.shyiko.ktlint.idea.Main.main(arrayOf("apply") +
+                (if (forceApply) arrayOf("-y") else emptyArray()))
+            return // process will be terminated before can reach this line
+        }
         val workDir = File(".").canonicalPath
         val start = System.currentTimeMillis()
         // load 3rd party ruleset(s) (if any)
