@@ -1,91 +1,57 @@
 package com.github.shyiko.ktlint.idea;
 
-import com.esotericsoftware.wildcard.Paths;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Main {
 
     private Main() {}
 
-    private static void writeToFile(File file, String content) throws IOException {
-        file.getParentFile().mkdirs();
-        final PrintWriter writer = new PrintWriter(file, "UTF-8");
-        try {
-            writer.println(content);
-        } finally {
-            writer.close();
-        }
-    }
-
-    private static String getResourceText(String name) {
-        // https://community.oracle.com/blogs/pat/2004/10/23/stupid-scanner-tricks
-        return new Scanner(Main.class.getResourceAsStream(name), "UTF-8").useDelimiter("\\A").next();
-    }
-
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
         Arrays.sort(args);
         final boolean help = Arrays.binarySearch(args, "--help") > -1;
         final boolean version = Arrays.binarySearch(args, "--version") > -1;
         final boolean apply = Arrays.binarySearch(args, "apply") > -1 && !help;
-        final boolean dryRun = Arrays.binarySearch(args, "--dry-run") > -1;
+        final boolean forceApply = Arrays.binarySearch(args, "-y") > -1;
         if (version) {
             System.err.println(Main.class.getPackage().getImplementationVersion());
             System.exit(0);
         }
         if (apply) {
-            if (!new File(".idea").isDirectory()) {
+            try {
+                final Path workDir = Paths.get(".");
+                if (!forceApply) {
+                    final Path[] fileList = KtLintIntellijIDEAIntegration.apply(workDir, true);
+                    System.err.println("The following files are going to be updated:\n\n\t" +
+                        Arrays.stream(fileList).map(Path::toString).collect(Collectors.joining("\n\t")) +
+                        "\n\nDo you wish to proceed? [y/n]\n" +
+                        "(in future, use -y flag if you wish to skip confirmation)");
+                    final Scanner scanner = new Scanner(System.in);
+                    final String res = Stream.generate(() -> {
+                            try { return scanner.next(); } catch (NoSuchElementException e) { return "n"; }
+                        })
+                        .filter(line -> !line.trim().isEmpty())
+                        .findFirst()
+                        .get();
+                    if (!"y".equalsIgnoreCase(res)) {
+                        System.err.println("(update canceled)");
+                        System.exit(1);
+                    }
+                }
+                KtLintIntellijIDEAIntegration.apply(workDir, false);
+            } catch (KtLintIntellijIDEAIntegration.ProjectNotFoundException e) {
                 System.err.println(".idea directory not found. " +
-                    "Are you sure you are executing ktlint-intellij-idea-integration inside project root directory?");
-                return;
+                    "Are you sure you are executing \"apply\" inside project root directory?");
+                System.exit(1);
             }
-            final String home = System.getProperty("user.home");
-            // https://github.com/EsotericSoftware/wildcard
-            final Paths paths = new Paths();
-            // macOS
-            paths.glob(
-                new File(new File(home, "Library"), "Preferences").getAbsolutePath(),
-                "IntelliJIdea*",
-                "IdeaIC*",
-                "AndroidStudio*"
-            );
-            // linux/windows
-            paths.glob(
-                home,
-                ".IntelliJIdea*/config",
-                ".IdeaIC*/config",
-                ".AndroidStudio*/config"
-            );
-            for (String dir : paths.dirsOnly()) {
-                final File codeStyleConfig = new File(new File(dir, "codestyles"), "ktlint.xml");
-                System.err.println("Writing " + codeStyleConfig.toString());
-                if (!dryRun) {
-                    writeToFile(codeStyleConfig, getResourceText("/config/codestyles/ktlint.xml"));
-                }
-                final File inspectionConfig = new File(new File(dir, "inspection"), "ktlint.xml");
-                System.err.println("Writing " + inspectionConfig.toString());
-                if (!dryRun) {
-                    writeToFile(inspectionConfig, getResourceText("/config/inspection/ktlint.xml"));
-                }
-                final File activeCodeStyleConfig = new File(new File(dir, "options"), "code.style.schemes.xml");
-                System.err.println("Writing " + activeCodeStyleConfig.toString());
-                if (!dryRun) {
-                    writeToFile(activeCodeStyleConfig, getResourceText("/config/options/code.style.schemes.xml"));
-                }
-            }
-            final File projectActiveInspectionProfileConfig =
-                new File(new File(".idea", "inspectionProfiles"), "profiles_settings.xml");
-            System.err.println("Writing " + projectActiveInspectionProfileConfig.toString());
-            if (!dryRun) {
-                writeToFile(projectActiveInspectionProfileConfig,
-                    getResourceText("/config/.idea/inspectionProfiles/profiles_settings.xml"));
-                System.err.println("\nPlease restart you IDE");
-                System.err.println("(if you experience any issues please report them at https://github.com/shyiko/ktlint)");
-            }
+            System.err.println("(updated)");
+            System.err.println("\nPlease restart your IDE");
+            System.err.println("(if you experience any issues please report them at https://github.com/shyiko/ktlint)");
         } else {
             System.err.println(
                 "ktlint Intellij IDEA integration (https://github.com/shyiko/ktlint).\n" +
@@ -95,7 +61,6 @@ public class Main {
                 "  java -jar ktlint-intellij-idea-integration <flags> apply\n" +
                 "\n" +
                 "Flags:\n" +
-                "  --dry-run : Do not modify anything, just show what's going to happen\n" +
                 "  --version : Version\n"
             );
             if (!help) {

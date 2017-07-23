@@ -1,5 +1,6 @@
 package com.github.shyiko.ktlint
 
+import com.github.shyiko.klob.Glob
 import com.github.shyiko.ktlint.core.KtLint
 import com.github.shyiko.ktlint.core.LintError
 import com.github.shyiko.ktlint.core.ParseException
@@ -8,14 +9,6 @@ import com.github.shyiko.ktlint.core.RuleExecutionException
 import com.github.shyiko.ktlint.core.RuleSet
 import com.github.shyiko.ktlint.core.RuleSetProvider
 import com.github.shyiko.ktlint.internal.MavenDependencyResolver
-import com.github.shyiko.ktlint.internal.path.Glob
-import com.github.shyiko.ktlint.internal.path.GlobFileFilter
-import com.github.shyiko.ktlint.internal.path.HiddenFileFilter
-import com.github.shyiko.ktlint.internal.path.and
-import com.github.shyiko.ktlint.internal.path.expandTilde
-import com.github.shyiko.ktlint.internal.path.fromSlash
-import com.github.shyiko.ktlint.internal.path.or
-import com.github.shyiko.ktlint.internal.path.slash
 import org.eclipse.aether.RepositoryException
 import org.eclipse.aether.artifact.DefaultArtifact
 import org.eclipse.aether.repository.RemoteRepository
@@ -31,9 +24,9 @@ import org.kohsuke.args4j.Option
 import org.kohsuke.args4j.ParserProperties
 import java.io.ByteArrayOutputStream
 import java.io.File
-import java.io.FileFilter
 import java.net.URLDecoder
-import java.util.ArrayDeque
+import java.nio.file.Path
+import java.nio.file.Paths
 import java.util.ArrayList
 import java.util.HashMap
 import java.util.ServiceLoader
@@ -42,6 +35,8 @@ import java.util.concurrent.Callable
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.system.exitProcess
 
 object Main {
@@ -163,7 +158,6 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
         if (version) { println(javaClass.`package`.implementationVersion); exitProcess(0) }
         if (help) { println(parser.usage()); exitProcess(0) }
         val workDir = File(".").canonicalPath
-        var tripped = false
         val start = System.currentTimeMillis()
         // load 3rd party ruleset(s) (if any)
         val dependencyResolver by lazy { buildDependencyResolver() }
@@ -222,6 +216,7 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
                 "(if possible, provide the source code that triggered an error)")
             else -> throw e
         }
+        val tripped = AtomicBoolean()
         fun process(fileName: String, fileContent: String): List<LintErrorWithCorrectionInfo> {
             if (debug) {
                 System.err.println("[DEBUG] Checking ${
@@ -238,7 +233,7 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
                     })
                 } catch (e: Exception) {
                     result.add(LintErrorWithCorrectionInfo(lintErrorFrom(e), false))
-                    tripped = true
+                    tripped.set(true)
                     fileContent // making sure `cat file | ktlint --stdint > file` is (relatively) safe
                 }
                 if (stdin) {
@@ -251,7 +246,7 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
             } else {
                 try {
                     lint(fileName, fileContent, rp.map { it.second.get() }, userData, { err ->
-                        tripped = true
+                        tripped.set(true)
                         result.add(LintErrorWithCorrectionInfo(err, false))
                     })
                 } catch (e: Exception) {
@@ -263,53 +258,50 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
         if (limit < 0) {
             limit = Int.MAX_VALUE
         }
-        var fileNumber = 0
-        var errorNumber = 0
+        val (fileNumber, errorNumber) = Pair(AtomicInteger(), AtomicInteger())
         fun report(fileName: String, errList: List<LintErrorWithCorrectionInfo>) {
-            fileNumber++
-            val errListLimit = minOf(errList.size, maxOf(limit - errorNumber, 0))
-            errorNumber += errListLimit
+            fileNumber.incrementAndGet()
+            val errListLimit = minOf(errList.size, maxOf(limit - errorNumber.get(), 0))
+            errorNumber.addAndGet(errListLimit)
             reporter.before(fileName)
             errList.head(errListLimit).forEach { (err, corrected) -> reporter.onLintError(fileName, err, corrected) }
             reporter.after(fileName)
         }
-        fun process(dir: File, filter: FileFilter) = visit(dir, filter)
-            .takeWhile { errorNumber < limit }
-            .map { file -> Callable { file to process(file.path, file.readText()) } }
-            .parallel({ (file, errList) ->
-                report(if (relative) file.toRelativeString(File(workDir)) else file.path, errList) })
         reporter.beforeAll()
         if (stdin) {
             report("<text>", process("<text>", String(System.`in`.readBytes())))
         } else {
-            if (patterns.isEmpty()) {
-                val filter = HiddenFileFilter(reverse = true)
-                    .and(GlobFileFilter(workDir, "**/*.kt").or(GlobFileFilter(workDir, "**/*.kts")))
-                process(File(workDir), filter)
-            } else {
-                val patterns = patterns.map { expandTilde(it) }
-                val filter = GlobFileFilter(workDir, *patterns.toTypedArray())
-                patterns
-                    .map { Glob.prefix(slash(it)) }
-                    .distinct()
-                    .map { (if (it.startsWith("/")) File(fromSlash(it)) else
-                        File(workDir, fromSlash(it))).canonicalPath }
-                    // remove overlapping paths (e.g. /a & /a/b -> /a)
-                    .sorted()
-                    .fold(ArrayList<String>(), { r, v ->
-                        if (r.isEmpty() || !v.startsWith(r.last())) { r.add(v) }; r })
-                    .forEach { process(File(it), filter) }
+            val pathIterator = when {
+                patterns.isEmpty() ->
+                    Glob.from("**/*.kt", "**/*.kts")
+                        .iterate(Paths.get(workDir), Glob.IterationOption.SKIP_HIDDEN)
+                else ->
+                    Glob.from(*patterns.map { expandTilde(it) }.toTypedArray())
+                        .iterate(Paths.get(workDir))
             }
+            pathIterator
+                .asSequence()
+                .takeWhile { errorNumber.get() < limit }
+                .map(Path::toFile)
+                .map { file ->
+                    Callable { file to process(file.path, file.readText()) }
+                }
+                .parallel({ (file, errList) ->
+                    report(if (relative) file.toRelativeString(File(workDir)) else file.path, errList) })
         }
         reporter.afterAll()
         if (debug) {
             System.err.println("[DEBUG] ${(System.currentTimeMillis() - start)
                 }ms / ${fileNumber}file(s) / ${errorNumber}error(s)")
         }
-        if (tripped) {
+        if (tripped.get()) {
             exitProcess(1)
         }
     }
+
+    // a complete solution would be to implement https://www.gnu.org/software/bash/manual/html_node/Tilde-Expansion.html
+    // this implementation takes care only of the most commonly used case (~/)
+    fun expandTilde(path: String) = path.replaceFirst(Regex("^~"), System.getProperty("user.home"))
 
     fun <T> List<T>.head(limit: Int) = if (limit == size) this else this.subList(0, limit)
 
@@ -412,24 +404,6 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
             cb: (e: LintError, corrected: Boolean) -> Unit): String =
         if (fileName.endsWith(".kt", ignoreCase = true)) KtLint.format(text, ruleSets, userData, cb) else
             KtLint.formatScript(text, ruleSets, userData, cb)
-
-    fun visit(dir: File, filter: FileFilter): Sequence<File> {
-        val stack = ArrayDeque<File>().apply { push(dir) }
-        return generateSequence(fun (): File? {
-            while (true) {
-                val file = stack.pollLast()
-                if (file == null || file.isFile) {
-                    return file
-                }
-                if (file.isDirectory) {
-                    val fileList = file.listFiles(filter)
-                    if (fileList != null) {
-                        stack.addAll(fileList)
-                    }
-                }
-            }
-        })
-    }
 
     fun java.net.URLClassLoader.addURLs(url: Iterable<java.net.URL>) {
         val method = java.net.URLClassLoader::class.java.getDeclaredMethod("addURL", java.net.URL::class.java)
