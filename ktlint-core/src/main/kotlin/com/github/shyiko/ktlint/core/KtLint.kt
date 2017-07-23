@@ -168,8 +168,12 @@ object KtLint {
         val segmentTree = SegmentTree(arr.toTypedArray())
         return { offset ->
             val line = segmentTree.indexOf(offset)
-            val col = offset - segmentTree.get(line).left
-            line + 1 to col + 1
+            if (line != -1) {
+                val col = offset - segmentTree.get(line).left
+                line + 1 to col + 1
+            } else {
+                1 to 1
+            }
         }
     }
 
