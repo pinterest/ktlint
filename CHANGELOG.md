@@ -6,7 +6,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-- [Reporter](src/main/kotlin/com/github/shyiko/ktlint/core/Reporter.kt) API.   
+- [Reporter](ktlint-core/src/main/kotlin/com/github/shyiko/ktlint/core/Reporter.kt) API.   
 `ktlint` comes with 3 built-in reporters: `plain` (default; `?group_by_file` can be appended to enable grouping by file (shown below)), `json` and `checkstyle`. 
 ```
 $ ktlint --reporter=plain?group_by_file
@@ -16,10 +16,10 @@ path/to/file.kt
 path/to/another-file.kt
   1:10 Unnecessary semicolon.
 ```   
-- [string-template](https://ktlint.github.io/#string-template), 
-[no-empty-class-body](https://ktlint.github.io/#no-empty-class-body), 
-[max-line-length](https://ktlint.github.io/#max-line-length),
-[final-newline](https://ktlint.github.io/#final-newline) rules.
+- [string-template](https://ktlint.github.io/#rule-string-template),  
+[no-empty-class-body](https://ktlint.github.io/#rule-empty-class-body),  
+max-line-length ([#47](https://github.com/shyiko/ktlint/issues/47)),  
+final-newline (activated only if `insert_final_newline` is set in `.editorconfig` (under `[*.{kt,kts}]`)) rules.
 - `--limit` CLI option (e.g. use `--limit=10` to limit the number of errors to display).
 - `--relative` CLI flag which makes `ktlint` output file paths relative to working directory (e.g. `dir/file.kt` instead of
 `/home/269/project/dir/file.kt`).
