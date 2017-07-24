@@ -102,7 +102,7 @@ object Main {
     @Option(name="--debug", usage = "Turn on debug output")
     private var debug: Boolean = false
 
-    // todo: make it a command in 1.0.0 (it's too late right as we might interfere with valid "lint" patterns)
+    // todo: make it a command in 1.0.0 (it's too late now as we might interfere with valid "lint" patterns)
     @Option(name="--apply", usage = "Update Intellij IDEA project settings")
     private var apply: Boolean = false
     @Option(name="-y", hidden = true)
@@ -135,6 +135,7 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
           ktlint -F "src/**/*.kt"
 
           # use custom reporter
+          ktlint --reporter=plain?group_by_file
           ktlint --reporter=checkstyle > ktlint-report-in-checkstyle-format.xml
         """.trimIndent()
 
@@ -151,7 +152,7 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
         }
         val parser = CmdLineParser(this, ParserProperties.defaults()
             .withShowDefaults(false)
-            .withUsageWidth(120)
+            .withUsageWidth(80)
             .withOptionSorter({ l, r ->
                 l.option.toString().replace("-", "").compareTo(r.option.toString().replace("-", ""))
             }))
@@ -276,7 +277,9 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
             val errListLimit = minOf(errList.size, maxOf(limit - errorNumber.get(), 0))
             errorNumber.addAndGet(errListLimit)
             reporter.before(fileName)
-            errList.head(errListLimit).forEach { (err, corrected) -> reporter.onLintError(fileName, err, corrected) }
+            errList.head(errListLimit).forEach { (err, corrected) ->
+                reporter.onLintError(fileName, err, corrected)
+            }
             reporter.after(fileName)
         }
         reporter.beforeAll()
