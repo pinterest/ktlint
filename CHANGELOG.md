@@ -2,6 +2,40 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.9.0] - 2017-07-23
+
+### Added
+
+- [Reporter](src/main/kotlin/com/github/shyiko/ktlint/core/Reporter.kt) API.   
+`ktlint` comes with 3 built-in reporters: `plain` (default; `?group_by_file` can be appended to enable grouping by file (shown below)), `json` and `checkstyle`. 
+```
+$ ktlint --reporter=plain?group_by_file
+path/to/file.kt
+  1:10 Unused import.
+  2:10 Unnecessary "Unit" return type.
+path/to/another-file.kt
+  1:10 Unnecessary semicolon.
+```   
+- [string-template](https://ktlint.github.io/#string-template), 
+[no-empty-class-body](https://ktlint.github.io/#no-empty-class-body), 
+[max-line-length](https://ktlint.github.io/#max-line-length),
+[final-newline](https://ktlint.github.io/#final-newline) rules.
+- `--limit` CLI option (e.g. use `--limit=10` to limit the number of errors to display).
+- `--relative` CLI flag which makes `ktlint` output file paths relative to working directory (e.g. `dir/file.kt` instead of
+`/home/269/project/dir/file.kt`).
+
+### Changed
+
+- **BREAKING**: JDK version to 1.8 (as a result of upgrading `kotlin-compiler` to 1.1.3-2 (from 1.1.0)).
+- file matching (offloaded to [klob](https://github.com/shyiko/klob)).  
+
+### Deprecated
+
+- `--ruleset-repository` and `--ruleset-update` CLI arguments in favour of `--repository` and `--repository-update` 
+respectively (`--ruleset-*` will be removed in 1.0.0).  
+- `ktlint-intellij-idea-integration` binary   
+([Intellij IDEA integration](https://github.com/shyiko/ktlint#option-1-recommended) task is now included in `ktlint` (as `ktlint --apply`)).
+
 ## [0.8.1] - 2017-05-30
 
 ### Fixed
@@ -30,10 +64,10 @@ set in `[*{kt,kts}]` section).
 
 ### Added
 
-- "no-unit-return" rule.
-- "modifier-order" rule ([#42](https://github.com/shyiko/ktlint/issues/42)).
+- [no-unit-return](https://ktlint.github.io/#rule-unit-return) rule.
+- [modifier-order](https://ktlint.github.io/#rule-modifier-order) rule ([#42](https://github.com/shyiko/ktlint/issues/42)).
 - `else/catch/finally` on the same line as `}` check (now part of "keyword-spacing" rule).
-- "ktlint-intellij-idea-integration" binary for easy Intellij IDEA config injection.
+- `ktlint-intellij-idea-integration` binary for easy Intellij IDEA config injection.
 
 ## [0.6.2] - 2017-05-22
 
@@ -121,6 +155,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.9.0]: https://github.com/shyiko/ktlint/compare/0.8.1...0.9.0
 [0.8.1]: https://github.com/shyiko/ktlint/compare/0.8.0...0.8.1
 [0.8.0]: https://github.com/shyiko/ktlint/compare/0.7.1...0.8.0
 [0.7.1]: https://github.com/shyiko/ktlint/compare/0.7.0...0.7.1
