@@ -286,6 +286,12 @@
                                                 <include>**</include>
                                             </includes>
                                         </filter>
+                                        <filter>
+                                            <artifact>com.github.shyiko.ktlint:ktlint-intellij-idea-integration</artifact>
+                                            <includes>
+                                                <include>com/github/shyiko/ktlint/idea/**</include>
+                                            </includes>
+                                        </filter>
                                     </filters>
                                 </configuration>
                             </execution>
