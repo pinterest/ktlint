@@ -23,7 +23,7 @@ While this might sound extreme, keep in mind that `ktlint` tries to capture (ref
 It's also [easy to create your own](#creating-a-reporter).
 - **A single executable jar with all dependencies included.**
 
-> \* as of [0.9.0]((https://github.com/shyiko/ktlint/releases/tag/0.9.0)) ktlint recognizes `insert_final_newline`, `max_line_length` and `indent_size`  
+> \* as of [0.9.0](https://github.com/shyiko/ktlint/releases/tag/0.9.0) ktlint recognizes `insert_final_newline`, `max_line_length` and `indent_size`  
 (provided they are specified under `[*.{kt,kts}]`).
 
 <p align="center">
@@ -148,7 +148,7 @@ To check code style - `mvn antrun:run@ktlint` (it's also bound to `mvn verify`).
 To run formatter - `mvn antrun:run@ktlint-format`.   
 
 To redirect output to a file you can use something like: 
-```
+```xml
 <execution>
     <id>ktlint-generate-checkstyle-xml</id>
     <configuration>
@@ -208,7 +208,7 @@ To check code style - `gradle ktlint` (it's also bound to `gradle check`).
 To run formatter - `gradle ktlintFormat`.
 
 To redirect output to a file you can use something like: 
-```
+```groovy
 task ktlintGenerateCheckstyleXML(type: Exec) {
   commandLine 'java', '-cp', configurations.ktlint.join(System.getProperty('path.separator')),
     'com.github.shyiko.ktlint.Main', '--reporter=checkstyle', 'src/**/*.kt'
