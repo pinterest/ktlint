@@ -34,7 +34,7 @@ path/to/another-file.kt
 - `--ruleset-repository` and `--ruleset-update` CLI arguments in favour of `--repository` and `--repository-update` 
 respectively (`--ruleset-*` will be removed in 1.0.0).  
 - `ktlint-intellij-idea-integration` binary   
-([Intellij IDEA integration](https://github.com/shyiko/ktlint#option-1-recommended) task is now included in `ktlint` (as `ktlint --apply`)).
+([Intellij IDEA integration](https://github.com/shyiko/ktlint#option-1-recommended) task is now included in `ktlint` (as `ktlint --apply-to-idea`)).
 
 ## [0.8.1] - 2017-05-30
 

@@ -240,7 +240,7 @@ You might also want to take a look at [diffplug/spotless](https://github.com/dif
 
 ```sh
 # inside project's root directory  
-ktlint --apply 
+ktlint --apply-to-idea 
 ```
 
 ##### Option #2

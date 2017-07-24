@@ -103,7 +103,7 @@ object Main {
     private var debug: Boolean = false
 
     // todo: make it a command in 1.0.0 (it's too late now as we might interfere with valid "lint" patterns)
-    @Option(name="--apply", usage = "Update Intellij IDEA project settings")
+    @Option(name="--apply-to-idea", usage = "Update Intellij IDEA project settings")
     private var apply: Boolean = false
     @Option(name="-y", hidden = true)
     private var forceApply: Boolean = false
