@@ -222,11 +222,16 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
         fun lintErrorFrom(e: Exception): LintError = when (e) {
             is ParseException ->
                 LintError(e.line, e.col, "",
-                "Not a valid Kotlin file (${e.message?.toLowerCase()})")
-            is RuleExecutionException ->
+                    "Not a valid Kotlin file (${e.message?.toLowerCase()})")
+            is RuleExecutionException -> {
+                if (debug) {
+                    System.err.println("[DEBUG] Internal Error (${e.ruleId})")
+                    e.printStackTrace(System.err)
+                }
                 LintError(e.line, e.col, "", "Internal Error (${e.ruleId}). " +
-                "Please create a ticket at https://github.com/shyiko/ktlint/issue " +
-                "(if possible, provide the source code that triggered an error)")
+                    "Please create a ticket at https://github.com/shyiko/ktlint/issue " +
+                    "(if possible, provide the source code that triggered an error)")
+            }
             else -> throw e
         }
         val tripped = AtomicBoolean()
