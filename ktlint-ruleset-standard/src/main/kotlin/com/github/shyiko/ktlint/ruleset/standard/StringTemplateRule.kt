@@ -42,9 +42,10 @@ class StringTemplateRule : Rule("string-template") {
             }
         }
         if (elementType == KtNodeTypes.LONG_STRING_TEMPLATE_ENTRY &&
-            !node.textContains('.') &&
-            node.psi.nextSibling.node.elementType == KtNodeTypes.LITERAL_STRING_TEMPLATE_ENTRY &&
-            !node.psi.nextSibling.text[0].isPartOfIdentifier()) {
+            node.text.let { it.substring(2, it.length - 1) }.all { it.isPartOfIdentifier() } &&
+            (node.treeNext.elementType == KtTokens.CLOSING_QUOTE ||
+            (node.psi.nextSibling.node.elementType == KtNodeTypes.LITERAL_STRING_TEMPLATE_ENTRY &&
+            !node.psi.nextSibling.text[0].isPartOfIdentifier()))) {
             emit(node.treePrev.startOffset + 2, "Redundant curly braces", true)
             if (autoCorrect) {
                 // fixme: a proper way would be to downcast to SHORT_STRING_TEMPLATE_ENTRY
