@@ -1,8 +1,8 @@
 package com.github.shyiko.ktlint.ruleset.standard
 
 import com.github.shyiko.ktlint.core.LintError
-import com.github.shyiko.ktlint.test.lint
 import com.github.shyiko.ktlint.test.format
+import com.github.shyiko.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
 import org.testng.annotations.Test
 
@@ -12,6 +12,8 @@ class NoSemicolonsRuleTest {
     fun testLint() {
         assertThat(NoSemicolonsRule().lint(
             """
+            package a.b.c;
+
             fun main() {
                 fun name() { a(); return b }
                 println(";")
@@ -19,7 +21,8 @@ class NoSemicolonsRuleTest {
             }
             """.trimIndent()
         )).isEqualTo(listOf(
-            LintError(4, 14, "no-semi", "Unnecessary semicolon")
+            LintError(1, 14, "no-semi", "Unnecessary semicolon"),
+            LintError(6, 14, "no-semi", "Unnecessary semicolon")
         ))
     }
 

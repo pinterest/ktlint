@@ -1,8 +1,8 @@
 package com.github.shyiko.ktlint.ruleset.standard
 
 import com.github.shyiko.ktlint.core.LintError
-import com.github.shyiko.ktlint.test.lint
 import com.github.shyiko.ktlint.test.format
+import com.github.shyiko.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
 import org.testng.annotations.Test
 
@@ -92,6 +92,48 @@ class SpacingAroundKeywordRuleTest {
             }
             """.trimIndent()
         )
+    }
+
+    @Test
+    fun getterAndSetterFunction() {
+        assertThat(SpacingAroundKeywordRule().format(
+            """
+            var x: String
+			    get () {
+				    return ""
+			    }
+			    private set (value) {
+				    x = value
+			    }
+            """.trimIndent()
+        )).isEqualTo(
+            """
+            var x: String
+			    get() {
+				    return ""
+			    }
+			    private set(value) {
+				    x = value
+			    }
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun visibilityOrInjectProperty() {
+        assertThat(SpacingAroundKeywordRule().lint(
+            """
+        var setterVisibility: String = "abc"
+            private set
+        var setterWithAnnotation: Any? = null
+            @Inject set
+        var setterOnNextLine: String
+            private set
+            (value) { setterOnNextLine = value}
+            """
+        )).isEqualTo(listOf(
+            LintError(7, 21, "keyword-spacing", "Unexpected spacing after \"set\"")
+        ))
     }
 
 }

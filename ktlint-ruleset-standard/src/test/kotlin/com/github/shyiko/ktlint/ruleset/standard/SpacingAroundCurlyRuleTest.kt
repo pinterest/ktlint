@@ -1,8 +1,8 @@
 package com.github.shyiko.ktlint.ruleset.standard
 
 import com.github.shyiko.ktlint.core.LintError
-import com.github.shyiko.ktlint.test.lint
 import com.github.shyiko.ktlint.test.format
+import com.github.shyiko.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
 import org.testng.annotations.Test
 
@@ -11,6 +11,7 @@ class SpacingAroundCurlyRuleTest {
     @Test
     fun testLint() {
         assertThat(SpacingAroundCurlyRule().lint("fun emit() { }")).isEmpty()
+        assertThat(SpacingAroundCurlyRule().lint("fun emit() { val a = a@{ } }")).isEmpty()
         assertThat(SpacingAroundCurlyRule().lint("fun emit() {}")).isEmpty()
         assertThat(SpacingAroundCurlyRule().lint("fun main() { val v = if (true){return 0} }"))
             .isEqualTo(listOf(
