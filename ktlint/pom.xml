@@ -290,6 +290,7 @@
                                             <artifact>com.github.shyiko.ktlint:ktlint-intellij-idea-integration</artifact>
                                             <includes>
                                                 <include>com/github/shyiko/ktlint/idea/**</include>
+                                                <include>config/**</include>
                                             </includes>
                                         </filter>
                                     </filters>
