@@ -6,7 +6,7 @@
 
 <p align="center">
 <a href="https://travis-ci.org/shyiko/ktlint"><img src="https://travis-ci.org/shyiko/ktlint.svg?branch=master" alt="Build Status"></a>
-<a href="http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.github.shyiko%22%20AND%20a%3A%22ktlint%22"><img src="http://img.shields.io/badge/maven_central-0.8.1-blue.svg?style=flat" alt="Maven Central"></a>
+<a href="http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.github.shyiko%22%20AND%20a%3A%22ktlint%22"><img src="http://img.shields.io/badge/maven_central-0.9.0-blue.svg?style=flat" alt="Maven Central"></a>
 <a href="https://ktlint.github.io/"><img src="https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg" alt="ktlint"></a>
 </p>
 
@@ -17,22 +17,29 @@
 Features:
 - **No configuration.** Which means no decisions to make, nothing to argue about and no special files to manage.   
 While this might sound extreme, keep in mind that `ktlint` tries to capture (reflect) **official code style** from [kotlinlang.org](https://kotlinlang.org/docs/reference/)
-(+ we respect you [.editorconfig](http://editorconfig.org/) and support additional [ruleset](#creating-a-ruleset)|s).
+(+ we respect you [.editorconfig](http://editorconfig.org/)\* and support additional [ruleset](#creating-a-ruleset)|s).
 - **Built-in formatter.** So that you wouldn't have to fix all style violations by hand.
+- **Customizable output.** `plain` (+ `plain?group_by_file`), `json` and `checkstyle` reporters are available out-of-the-box. 
+It's also [easy to create your own](#creating-a-reporter).
 - **A single executable jar with all dependencies included.**
 
+> \* as of [0.9.0]((https://github.com/shyiko/ktlint/releases/tag/0.9.0)) ktlint recognizes `insert_final_newline`, `max_line_length` and `indent_size`  
+(provided they are specified under `[*.{kt,kts}]`).
+
 <p align="center">
-<a href="#installation">Installation</a> | <a href="#usage">Usage</a> | <a href="#integration">Integration</a> with <a href="#-with-maven">Maven</a> / <a href="#-with-gradle">Gradle</a> / <a href="#-with-intellij-idea">IntelliJ IDEA</a> / <a href="#-with-emacs">Emacs</a> | <a href="#creating-a-ruleset">Creating a ruleset</a> | <a href="#badge">Badge</a> | <a href="#faq">FAQ</a>
+<a href="#installation">Installation</a> | <a href="#usage">Usage</a> | <a href="#integration">Integration</a> with <a href="#-with-maven">Maven</a> / <a href="#-with-gradle">Gradle</a> / <a href="#-with-intellij-idea">IntelliJ IDEA</a> / <a href="#-with-emacs">Emacs</a> | Creating <a href="#creating-a-ruleset">a ruleset</a> | <a href="#creating-a-reporter">a reporter</a> | <a href="#badge">Badge</a> | <a href="#faq">FAQ</a>
 </p>
 
 ## Standard rules
 
-- 4 spaces for indentation*.
-- No semicolons (unless used to separate multiple statements on the same line).
-- No wildcard / unused imports.
-- No consecutive blank lines.
-- No trailing whitespaces.
+- 4 spaces for indentation*;
+- No semicolons (unless used to separate multiple statements on the same line);
+- No wildcard / unused imports;
+- No consecutive blank lines;
+- No trailing whitespaces;
 - No Unit returns;
+- No empty (`{}`) class bodies;
+- Consistent string templates (`$v` instead of `${v}`, `${p.v}` instead of `${p.v.toString()}`);
 - Consistent order of modifiers;
 - Consistent spacing after keywords, commas; around colons, curly braces, infix operators, etc.
 
@@ -45,7 +52,7 @@ While this might sound extreme, keep in mind that `ktlint` tries to capture (ref
 > Skip all the way to the "Integration" section if you don't plan to use `ktlint`'s command line interface.
 
 ```sh
-curl -sSLO https://github.com/shyiko/ktlint/releases/download/0.8.1/ktlint &&
+curl -sSLO https://github.com/shyiko/ktlint/releases/download/0.9.0/ktlint &&
   chmod a+x ktlint
 ```
 
@@ -74,6 +81,10 @@ $ ktlint "src/**/*.kt" "!src/**/*Test.kt"
 # auto-correct style violations
 # (if some errors cannot be fixed automatically they will be printed to stderr) 
 $ ktlint -F "src/**/*.kt"
+
+# use custom reporter
+ktlint --reporter=plain?group_by_file
+ktlint --reporter=checkstyle > ktlint-report-in-checkstyle-format.xml
 ```
 
 > on Windows you'll have to use `java -jar ktlint ...`. 
@@ -101,6 +112,7 @@ $ ktlint -F "src/**/*.kt"
                 <java taskname="ktlint" dir="${basedir}" fork="true" failonerror="true"
                     classname="com.github.shyiko.ktlint.Main" classpathref="maven.plugin.classpath">
                     <arg value="src/**/*.kt"/>
+                    <!-- prepend "--reporter=plain?group_by_file" arg to change the reporter -->
                 </java>
             </target>
             </configuration>
@@ -124,7 +136,7 @@ $ ktlint -F "src/**/*.kt"
         <dependency>
             <groupId>com.github.shyiko</groupId>
             <artifactId>ktlint</artifactId>
-            <version>0.8.1</version>
+            <version>0.9.0</version>
         </dependency>
         <!-- additional 3rd party ruleset(s) can be specified here -->
     </dependencies>
@@ -134,6 +146,25 @@ $ ktlint -F "src/**/*.kt"
 
 To check code style - `mvn antrun:run@ktlint` (it's also bound to `mvn verify`).  
 To run formatter - `mvn antrun:run@ktlint-format`.   
+
+To redirect output to a file you can use something like: 
+```
+<execution>
+    <id>ktlint-generate-checkstyle-xml</id>
+    <configuration>
+    <target name="ktlint">
+        <java taskname="ktlint" dir="${basedir}" fork="true" failonerror="true"
+            classname="com.github.shyiko.ktlint.Main" classpathref="maven.plugin.classpath"
+            output="${project.build.directory}/ktlint-checkstyle-report.xml" 
+            logError="true">
+            <arg value="--reporter=checkstyle"/>
+            <arg value="src/**/*.kt"/>
+        </java>
+    </target>
+    </configuration>
+    <goals><goal>run</goal></goals>
+</execution>
+```
 
 #### ... with [Gradle]()
 
@@ -151,7 +182,7 @@ configurations {
 }
 
 dependencies {
-    ktlint 'com.github.shyiko:ktlint:0.8.1'
+    ktlint 'com.github.shyiko:ktlint:0.9.0'
     // additional 3rd party ruleset(s) can be specified here
     // just add them to the classpath (ktlint 'groupId:artifactId:version') and 
     // ktlint will pick them up
@@ -161,6 +192,7 @@ task ktlint(type: JavaExec) {
     main = "com.github.shyiko.ktlint.Main"
     classpath = configurations.ktlint
     args "src/**/*.kt"
+    // prepend "--reporter=plain?group_by_file" arg to change the reporter
 }
 
 check.dependsOn ktlint
@@ -174,6 +206,22 @@ task ktlintFormat(type: JavaExec) {
 
 To check code style - `gradle ktlint` (it's also bound to `gradle check`).  
 To run formatter - `gradle ktlintFormat`.
+
+To redirect output to a file you can use something like: 
+```
+task ktlintGenerateCheckstyleXML(type: Exec) {
+  commandLine 'java', '-cp', configurations.ktlint.join(System.getProperty('path.separator')),
+    'com.github.shyiko.ktlint.Main', '--reporter=checkstyle', 'src/**/*.kt'
+  standardOutput = new FileOutputStream(new File(buildDir, "ktlint-checkstyle-report.xml"))
+  ignoreExitValue = true
+  doLast {
+    standardOutput.close()
+    if (execResult.exitValue != 0) {
+      throw new GradleException("ktlint finished with non-zero exit value ${execResult.exitValue}")
+    }
+  }
+}
+```
 
 **Another option** is to use Gradle plugin (in order of appearance):
 - [jlleitschuh/ktlint-gradle](https://github.com/jlleitschuh/ktlint-gradle)
@@ -191,13 +239,8 @@ You might also want to take a look at [diffplug/spotless](https://github.com/dif
 ##### Option #1 (recommended)
 
 ```sh
-curl -sSLO https://github.com/shyiko/ktlint/releases/download/0.8.1/ktlint-intellij-idea-integration 
-chmod a+x ktlint-intellij-idea-integration
-# you can also download ktlint-intellij-idea-integration manually from 
-# https://github.com/shyiko/ktlint/releases
-
 # inside project's root directory  
-ktlint-intellij-idea-integration apply 
+ktlint --apply 
 ```
 
 ##### Option #2
