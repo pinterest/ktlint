@@ -7,6 +7,7 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.TreeElement
 import org.jetbrains.kotlin.com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.kotlin.lexer.KtTokens
+import org.jetbrains.kotlin.psi.KtObjectLiteralExpression
 import org.jetbrains.kotlin.psi.psiUtil.getNextSiblingIgnoringWhitespace
 
 class NoEmptyClassBodyRule : Rule("no-empty-class-body") {
@@ -18,7 +19,8 @@ class NoEmptyClassBodyRule : Rule("no-empty-class-body") {
     ) {
         if (node.elementType == CLASS_BODY && node.psi.firstChild != null &&
             node.psi.firstChild.node.elementType == KtTokens.LBRACE &&
-            node.psi.firstChild.getNextSiblingIgnoringWhitespace(false)!!.node.elementType == KtTokens.RBRACE) {
+            node.psi.firstChild.getNextSiblingIgnoringWhitespace(false)!!.node.elementType == KtTokens.RBRACE &&
+            !node.psi.isPartOf(KtObjectLiteralExpression::class)) {
             emit(node.startOffset, "Unnecessary block (\"{}\")", true)
             if (autoCorrect) {
                 val prevNode = node.psi.prevSibling.node

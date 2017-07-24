@@ -14,6 +14,8 @@ data class DC2(val v: Any) { /**/ }
 interface I2 { /**/ }
 object O2 { /**/ }
 
+val o = object : TypeReference<HashMap<String, String>>() {}
+
 fun main() {}
 
 // expect
