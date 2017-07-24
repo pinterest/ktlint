@@ -278,6 +278,18 @@ containing a fully qualified name of your [RuleSetProvider](ktlint-core/src/main
 A complete sample project (with tests and build files) is included in this repo under the [ktlint-ruleset-template](ktlint-ruleset-template) directory 
 (make sure to check [NoVarRuleTest](ktlint-ruleset-template/src/test/kotlin/yourpkgname/NoVarRuleTest.kt) as it contains some useful information). 
 
+## Creating a reporter
+
+Take a look at [ktlint-reporter-plain](ktlint-reporter-plain). 
+
+In short, all you need to do is to implement a 
+[Reporter](ktlint-core/src/main/kotlin/com/github/shyiko/ktlint/core/Reporter.kt) and make it available by registering 
+a custom [ReporterProvider](ktlint-core/src/main/kotlin/com/github/shyiko/ktlint/core/ReporterProvider.kt) using
+`META-INF/services/com.github.shyiko.ktlint.core.ReporterProvider`. Pack all of that into a JAR and you're done.
+
+To load a custom (3rd party) reporter use `ktlint --reporter=groupId:artifactId:version` / `ktlint --reporter=/path/to/custom-ktlint-reporter.jar`
+(see `ktlint --help` for more).
+ 
 ## Badge
 
 If you use ktlint in your project, consider including a badge in your readme to let people know that your code is checked by ktlint. 
