@@ -21,7 +21,7 @@ class NoSemicolonsRule : Rule("no-semi") {
                 ) {
                 emit(node.startOffset, "Unnecessary semicolon", true)
                 if (autoCorrect) {
-                    node.delete()
+                    node.treeParent.removeChild(node)
                 }
             } else if (nextLeaf !is PsiWhiteSpace) {
                 // todo: move to a separate rule

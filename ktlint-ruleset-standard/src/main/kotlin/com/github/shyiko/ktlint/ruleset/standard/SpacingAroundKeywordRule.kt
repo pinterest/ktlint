@@ -40,10 +40,11 @@ class SpacingAroundKeywordRule : Rule("keyword-spacing") {
                 }
             } else if (keywordsWithoutSpaces.contains(node.elementType) && node.nextLeaf() is PsiWhiteSpace) {
                 val parent = node.parent
-                if (parent is KtPropertyAccessor && parent.hasBody()) {
+                val nextLeaf = node.nextLeaf()
+                if (parent is KtPropertyAccessor && parent.hasBody() && nextLeaf != null) {
                     emit(node.startOffset, "Unexpected spacing after \"${node.text}\"", true)
                     if (autoCorrect) {
-                        node.nextLeaf()?.delete()
+                        nextLeaf.node.treeParent.removeChild(nextLeaf.node)
                     }
                 }
             }

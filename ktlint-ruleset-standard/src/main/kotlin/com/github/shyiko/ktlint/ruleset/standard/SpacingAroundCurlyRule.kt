@@ -31,7 +31,7 @@ class SpacingAroundCurlyRule : Rule("curly-spacing") {
                         shouldNotToBeSeparatedBySpace(PsiTreeUtil.nextLeaf(nextLeaf, true))) {
                     emit(node.startOffset, "Unexpected space after \"${node.text}\"", true)
                     if (autoCorrect) {
-                        nextLeaf.delete()
+                        nextLeaf.node.treeParent.removeChild(nextLeaf.node)
                     }
                 }
             } else {
