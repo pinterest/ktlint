@@ -32,7 +32,8 @@ class StringTemplateRule : Rule("string-template") {
             if (dotQualifiedExpression?.node?.elementType == KtStubElementTypes.DOT_QUALIFIED_EXPRESSION) {
                 val callExpression = dotQualifiedExpression!!.lastChild
                 val dot = callExpression.prevSibling
-                if (dot.node.elementType == KtTokens.DOT && callExpression.text == "toString()") {
+                if (dot.node.elementType == KtTokens.DOT && callExpression.text == "toString()" &&
+                    dotQualifiedExpression.firstChild.node.elementType != KtNodeTypes.SUPER_EXPRESSION) {
                     emit(dot.node.startOffset, "Redundant 'toString()' call in string template", true)
                     if (autoCorrect) {
                         node.removeChild(dot.node)
