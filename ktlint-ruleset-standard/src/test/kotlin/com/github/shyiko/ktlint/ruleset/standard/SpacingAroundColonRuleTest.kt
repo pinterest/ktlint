@@ -1,8 +1,8 @@
 package com.github.shyiko.ktlint.ruleset.standard
 
 import com.github.shyiko.ktlint.core.LintError
-import com.github.shyiko.ktlint.test.lint
 import com.github.shyiko.ktlint.test.format
+import com.github.shyiko.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
 import org.testng.annotations.Test
 
@@ -70,6 +70,31 @@ class SpacingAroundColonRuleTest {
             }
             interface D
             interface C : D
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun testLintMethod() {
+        assertThat(SpacingAroundColonRule().lint(
+            """
+            fun main() : String = "duck"
+            fun duck(): String = "main"
+            """.trimIndent()
+        )).isEqualTo(listOf(
+            LintError(1, 12, "colon-spacing", SpacingAroundColonRule.EXTRA_SPACE_MESSAGE)
+        ))
+    }
+
+    @Test
+    fun testFormatMethod() {
+        assertThat(SpacingAroundColonRule().format(
+            """
+            fun main() : String = "duck"
+            """.trimIndent()
+        )).isEqualTo(
+            """
+            fun main(): String = "duck"
             """.trimIndent()
         )
     }
