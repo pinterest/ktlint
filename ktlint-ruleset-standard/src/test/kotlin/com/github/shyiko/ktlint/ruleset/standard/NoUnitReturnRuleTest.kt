@@ -14,6 +14,9 @@ class NoUnitReturnRuleTest {
             """
             fun f1() {}
             fun f2(): Unit {}
+            fun f2(): Unit = start()
+            fun f2_(): Unit /**/
+                = start()
             fun f3(): String = ""
             """.trimIndent()
         )).isEqualTo(listOf(
