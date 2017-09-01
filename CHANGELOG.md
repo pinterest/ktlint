@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.9.2] - 2017-09-01
+
+### Fixed
+
+- `: Unit =` formatting (`: Unit` is no longer dropped when `=` is used) ([#77](https://github.com/shyiko/ktlint/issues/77)). 
+
 ## [0.9.1] - 2017-07-30
 
 ### Fixed
@@ -175,6 +181,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.9.2]: https://github.com/shyiko/ktlint/compare/0.9.1...0.9.2
 [0.9.1]: https://github.com/shyiko/ktlint/compare/0.9.0...0.9.1
 [0.9.0]: https://github.com/shyiko/ktlint/compare/0.8.3...0.9.0
 [0.8.3]: https://github.com/shyiko/ktlint/compare/0.8.2...0.8.3
