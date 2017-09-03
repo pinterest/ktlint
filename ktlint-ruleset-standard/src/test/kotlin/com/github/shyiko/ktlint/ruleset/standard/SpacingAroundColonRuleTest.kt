@@ -99,4 +99,33 @@ class SpacingAroundColonRuleTest {
         )
     }
 
+    @Test
+    fun testLintMethodParams() {
+        assertThat(SpacingAroundColonRule().lint(
+            """
+            fun identity(value: String): String = value
+            fun unformattedIdentity(value : String): String = value
+            """.trimIndent()
+        )).isEqualTo(listOf(
+            LintError(2, 31, "colon-spacing", SpacingAroundColonRule.EXTRA_SPACE_MESSAGE)
+        ))
+    }
+
+    @Test
+    fun testFormatMethodParams() {
+        assertThat(SpacingAroundColonRule().format(
+            """
+            fun validIdentity(value: String): String = value
+            fun identity(value  : String): String = value
+            fun oneSpaceIdentity(value : String): String = value
+            """.trimIndent()
+        )).isEqualTo(
+            """
+            fun validIdentity(value: String): String = value
+            fun identity(value: String): String = value
+            fun oneSpaceIdentity(value: String): String = value
+            """.trimIndent()
+        )
+    }
+
 }

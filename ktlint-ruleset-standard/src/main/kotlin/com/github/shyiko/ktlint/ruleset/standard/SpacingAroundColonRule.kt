@@ -2,10 +2,10 @@ package com.github.shyiko.ktlint.ruleset.standard
 
 import com.github.shyiko.ktlint.core.Rule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.PsiMethod
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
+import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtAnnotation
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
 import org.jetbrains.kotlin.psi.KtClassOrObject
@@ -24,11 +24,14 @@ class SpacingAroundColonRule : Rule("colon-spacing") {
                 return
             }
             if (node.prevSibling is PsiWhiteSpace
-                && node.treeParent.elementType == KtStubElementTypes.FUNCTION) {
+                && node.parent !is KtClassOrObject) {
                 emit(node.startOffset, EXTRA_SPACE_MESSAGE, true)
                 if (autoCorrect) {
                     var prevNode = node
-                    while (prevNode.treePrev.elementType != KtStubElementTypes.VALUE_PARAMETER_LIST) {
+                    while (prevNode
+                        .treePrev
+                        .elementType
+                        .let { it != KtStubElementTypes.VALUE_PARAMETER_LIST && it != KtTokens.IDENTIFIER }) {
                         prevNode = prevNode.treePrev
                     }
                     node.treeParent.removeRange(prevNode, node)
