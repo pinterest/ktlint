@@ -9,6 +9,7 @@ import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtAnnotation
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
 import org.jetbrains.kotlin.psi.KtClassOrObject
+import org.jetbrains.kotlin.psi.KtTypeParameterList
 import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
 
 class SpacingAroundColonRule : Rule("colon-spacing") {
@@ -23,8 +24,10 @@ class SpacingAroundColonRule : Rule("colon-spacing") {
                 // todo: enfore "no spacing"
                 return
             }
+
             if (node.prevSibling is PsiWhiteSpace
-                && node.parent !is KtClassOrObject) {
+                && node.parent !is KtClassOrObject
+                && node.parent.parent !is KtTypeParameterList) {
                 emit(node.startOffset, EXTRA_SPACE_MESSAGE, true)
                 if (autoCorrect) {
                     var prevNode = node
@@ -37,7 +40,8 @@ class SpacingAroundColonRule : Rule("colon-spacing") {
                     node.treeParent.removeRange(prevNode, node)
                 }
             }
-            val missingSpacingBefore = node.prevSibling !is PsiWhiteSpace && node.parent is KtClassOrObject
+            val missingSpacingBefore = node.prevSibling !is PsiWhiteSpace &&
+                (node.parent is KtClassOrObject || node.parent.parent is KtTypeParameterList)
             val missingSpacingAfter = node.nextSibling !is PsiWhiteSpace
             when {
                 missingSpacingBefore && missingSpacingAfter -> {

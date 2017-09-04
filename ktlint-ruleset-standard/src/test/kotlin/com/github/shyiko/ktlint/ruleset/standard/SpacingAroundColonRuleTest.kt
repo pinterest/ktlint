@@ -95,8 +95,7 @@ class SpacingAroundColonRuleTest {
         )).isEqualTo(
             """
             fun main(): String = "duck"
-            """.trimIndent()
-        )
+            """.trimIndent())
     }
 
     @Test
@@ -124,8 +123,31 @@ class SpacingAroundColonRuleTest {
             fun validIdentity(value: String): String = value
             fun identity(value: String): String = value
             fun oneSpaceIdentity(value: String): String = value
-            """.trimIndent()
-        )
+            """.trimIndent())
     }
 
+    @Test
+    fun testLintGenericMethodParam() {
+        assertThat(SpacingAroundColonRule().lint(
+            """
+            fun <T: Any> trueIdentity(value: T): T = value
+            """.trimIndent()
+        )).isEqualTo(listOf(
+            LintError(1, 7, "colon-spacing", "Missing spacing before \":\"")
+        ))
+    }
+
+    @Test
+    fun testFormatGenericMethodParam() {
+        assertThat(SpacingAroundColonRule().format(
+            """
+            fun <T: Any> trueIdentity(value: T): T = value
+            fun <T : Any> trueIdentity(value: T): T = value
+            """.trimIndent()
+        )).isEqualTo(
+            """
+            fun <T : Any> trueIdentity(value: T): T = value
+            fun <T : Any> trueIdentity(value: T): T = value
+            """.trimIndent())
+    }
 }
