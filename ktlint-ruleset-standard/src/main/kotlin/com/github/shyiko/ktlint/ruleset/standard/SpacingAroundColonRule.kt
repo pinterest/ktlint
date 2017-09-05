@@ -13,9 +13,6 @@ import org.jetbrains.kotlin.psi.KtTypeParameterList
 import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
 
 class SpacingAroundColonRule : Rule("colon-spacing") {
-    companion object {
-        const val EXTRA_SPACE_MESSAGE = "Extra space before \":\" before return type"
-    }
 
     override fun visit(node: ASTNode, autoCorrect: Boolean,
             emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
@@ -24,11 +21,9 @@ class SpacingAroundColonRule : Rule("colon-spacing") {
                 // todo: enfore "no spacing"
                 return
             }
-
-            if (node.prevSibling is PsiWhiteSpace
-                && node.parent !is KtClassOrObject
-                && node.parent.parent !is KtTypeParameterList) {
-                emit(node.startOffset, EXTRA_SPACE_MESSAGE, true)
+            if (node.prevSibling is PsiWhiteSpace &&
+                node.parent !is KtClassOrObject && node.parent.parent !is KtTypeParameterList) {
+                emit(node.startOffset, "Unexpected spacing before \":\"", true)
                 if (autoCorrect) {
                     var prevNode = node
                     while (prevNode

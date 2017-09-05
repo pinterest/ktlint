@@ -82,7 +82,7 @@ class SpacingAroundColonRuleTest {
             fun duck(): String = "main"
             """.trimIndent()
         )).isEqualTo(listOf(
-            LintError(1, 12, "colon-spacing", SpacingAroundColonRule.EXTRA_SPACE_MESSAGE)
+            LintError(1, 12, "colon-spacing", "Unexpected spacing before \":\"")
         ))
     }
 
@@ -106,7 +106,7 @@ class SpacingAroundColonRuleTest {
             fun unformattedIdentity(value : String): String = value
             """.trimIndent()
         )).isEqualTo(listOf(
-            LintError(2, 31, "colon-spacing", SpacingAroundColonRule.EXTRA_SPACE_MESSAGE)
+            LintError(2, 31, "colon-spacing", "Unexpected spacing before \":\"")
         ))
     }
 
