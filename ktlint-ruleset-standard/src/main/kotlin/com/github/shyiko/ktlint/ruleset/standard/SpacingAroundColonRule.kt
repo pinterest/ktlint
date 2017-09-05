@@ -5,11 +5,17 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
+import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtAnnotation
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
 import org.jetbrains.kotlin.psi.KtClassOrObject
+import org.jetbrains.kotlin.psi.KtTypeParameterList
+import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
 
 class SpacingAroundColonRule : Rule("colon-spacing") {
+    companion object {
+        const val EXTRA_SPACE_MESSAGE = "Extra space before \":\" before return type"
+    }
 
     override fun visit(node: ASTNode, autoCorrect: Boolean,
             emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
@@ -18,7 +24,24 @@ class SpacingAroundColonRule : Rule("colon-spacing") {
                 // todo: enfore "no spacing"
                 return
             }
-            val missingSpacingBefore = node.prevSibling !is PsiWhiteSpace && node.parent is KtClassOrObject
+
+            if (node.prevSibling is PsiWhiteSpace
+                && node.parent !is KtClassOrObject
+                && node.parent.parent !is KtTypeParameterList) {
+                emit(node.startOffset, EXTRA_SPACE_MESSAGE, true)
+                if (autoCorrect) {
+                    var prevNode = node
+                    while (prevNode
+                        .treePrev
+                        .elementType
+                        .let { it != KtStubElementTypes.VALUE_PARAMETER_LIST && it != KtTokens.IDENTIFIER }) {
+                        prevNode = prevNode.treePrev
+                    }
+                    node.treeParent.removeRange(prevNode, node)
+                }
+            }
+            val missingSpacingBefore = node.prevSibling !is PsiWhiteSpace &&
+                (node.parent is KtClassOrObject || node.parent.parent is KtTypeParameterList)
             val missingSpacingAfter = node.nextSibling !is PsiWhiteSpace
             when {
                 missingSpacingBefore && missingSpacingAfter -> {
