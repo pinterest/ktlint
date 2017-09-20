@@ -6,7 +6,7 @@
 
 <p align="center">
 <a href="https://travis-ci.org/shyiko/ktlint"><img src="https://travis-ci.org/shyiko/ktlint.svg?branch=master" alt="Build Status"></a>
-<a href="http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.github.shyiko%22%20AND%20a%3A%22ktlint%22"><img src="http://img.shields.io/badge/maven_central-0.9.0-blue.svg?style=flat" alt="Maven Central"></a>
+<a href="http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.github.shyiko%22%20AND%20a%3A%22ktlint%22"><img src="https://img.shields.io/maven-central/v/com.github.shyiko/ktlint.svg" alt="Maven Central"></a>
 <a href="https://ktlint.github.io/"><img src="https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg" alt="ktlint"></a>
 </p>
 
@@ -52,7 +52,7 @@ It's also [easy to create your own](#creating-a-reporter).
 > Skip all the way to the "Integration" section if you don't plan to use `ktlint`'s command line interface.
 
 ```sh
-curl -sSLO https://github.com/shyiko/ktlint/releases/download/0.9.0/ktlint &&
+curl -sSLO https://github.com/shyiko/ktlint/releases/download/0.9.2/ktlint &&
   chmod a+x ktlint
 ```
 
@@ -136,7 +136,7 @@ ktlint --reporter=checkstyle > ktlint-report-in-checkstyle-format.xml
         <dependency>
             <groupId>com.github.shyiko</groupId>
             <artifactId>ktlint</artifactId>
-            <version>0.9.0</version>
+            <version>0.9.2</version>
         </dependency>
         <!-- additional 3rd party ruleset(s) can be specified here -->
     </dependencies>
@@ -182,7 +182,7 @@ configurations {
 }
 
 dependencies {
-    ktlint 'com.github.shyiko:ktlint:0.9.0'
+    ktlint 'com.github.shyiko:ktlint:0.9.2'
     // additional 3rd party ruleset(s) can be specified here
     // just add them to the classpath (ktlint 'groupId:artifactId:version') and 
     // ktlint will pick them up
