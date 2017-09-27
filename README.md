@@ -188,21 +188,24 @@ dependencies {
     // ktlint will pick them up
 }
 
-task ktlint(type: JavaExec) {
+task ktlint(type: JavaExec, group: "verification") {
+    description = "Check Kotlin code style."
     main = "com.github.shyiko.ktlint.Main"
     classpath = configurations.ktlint
     args "src/**/*.kt"
     // prepend "--reporter=plain?group_by_file" arg to change the reporter
 }
-
 check.dependsOn ktlint
 
-task ktlintFormat(type: JavaExec) {
+task ktlintFormat(type: JavaExec, group: "formatting") {
+    description = "Fix Kotlin code style deviations."
     main = "com.github.shyiko.ktlint.Main"
     classpath = configurations.ktlint
     args "-F", "src/**/*.kt"
 }
 ```
+
+> Note: For an Android project this config would typically go into your app/build.gradle.
 
 To check code style - `gradle ktlint` (it's also bound to `gradle check`).  
 To run formatter - `gradle ktlintFormat`.
