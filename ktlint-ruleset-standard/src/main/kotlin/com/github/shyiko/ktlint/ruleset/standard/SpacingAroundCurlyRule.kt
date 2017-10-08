@@ -23,6 +23,13 @@ class SpacingAroundCurlyRule : Rule("curly-spacing") {
                 spacingBefore = prevLeaf is PsiWhiteSpace || (prevLeaf?.node?.elementType == KtTokens.LPAR &&
                     (node.parent is KtLambdaExpression || node.parent.parent is KtLambdaExpression))
                 spacingAfter = nextLeaf is PsiWhiteSpace || nextLeaf?.node?.elementType == KtTokens.RBRACE
+                if (prevLeaf is PsiWhiteSpace &&
+                        PsiTreeUtil.prevLeaf(prevLeaf, true)?.node?.elementType == KtTokens.LPAR) {
+                    emit(node.startOffset, "Unexpected space before \"${node.text}\"", true)
+                    if (autoCorrect) {
+                        prevLeaf.node.treeParent.removeChild(prevLeaf.node)
+                    }
+                }
             } else
             if (node.textMatches("}")) {
                 spacingBefore = prevLeaf is PsiWhiteSpace || prevLeaf?.node?.elementType == KtTokens.LBRACE

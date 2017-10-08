@@ -53,6 +53,7 @@ class SpacingAroundCurlyRuleTest {
                 fn({},{}, {}, 0)
                 fn({ }, 0)
                 fn({ a -> try{a()}catch (e: Exception){null} }, 0)
+                foo.associateBy( { it.length } , { it } )
                 try{call()}catch (e: Exception){}
                 call({}, {})
                 a.let{}.apply({})
@@ -71,6 +72,7 @@ class SpacingAroundCurlyRuleTest {
                 fn({}, {}, {}, 0)
                 fn({ }, 0)
                 fn({ a -> try { a() } catch (e: Exception) { null } }, 0)
+                foo.associateBy({ it.length }, { it })
                 try { call() } catch (e: Exception) {}
                 call({}, {})
                 a.let {}.apply({})
