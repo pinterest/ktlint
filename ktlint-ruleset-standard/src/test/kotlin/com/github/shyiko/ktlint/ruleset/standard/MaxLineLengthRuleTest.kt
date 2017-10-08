@@ -9,4 +9,9 @@ class MaxLineLengthRuleTest {
         testLintUsingResource(MaxLineLengthRule(), userData = mapOf("max_line_length" to "80"))
     }
 
+    @Test
+    fun testLintOff() {
+        testLintUsingResource(MaxLineLengthRule(), userData = mapOf("max_line_length" to "off"), qualifier = "off")
+    }
+
 }
