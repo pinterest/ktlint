@@ -27,9 +27,12 @@ class IndentationRule : Rule("indent") {
             emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
         if (node.elementType == KtStubElementTypes.FILE) {
             val editorConfig = node.getUserData(KtLint.EDITOR_CONFIG_USER_DATA_KEY)!!
-            editorConfig.get("indent_size")?.toInt()?.apply {
-                indent = this
-            }
+            val indentSize = editorConfig.get("indent_size")
+            indent = indentSize?.toIntOrNull() ?: if (indentSize?.toLowerCase() == "unset") -1 else indent
+            return
+        }
+        if (indent <= 0) {
+            return
         }
         if (node is PsiWhiteSpace && !node.isPartOf(PsiComment::class)) {
             val split = node.getText().split("\n")

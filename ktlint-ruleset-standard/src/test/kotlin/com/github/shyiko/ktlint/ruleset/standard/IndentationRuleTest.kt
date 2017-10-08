@@ -113,4 +113,17 @@ class IndentationRuleTest {
             LintError(3, 1, "indent", "Unexpected indentation (4) (it should be multiple of 3)")
         ))
     }
+
+    @Test
+    fun testErrorWithIndentSizeUnset() {
+        assertThat(IndentationRule().lint(
+            """
+            fun main() {
+               val v = ""
+                println(v)
+            }
+            """.trimIndent(),
+            mapOf("indent_size" to "unset")
+        )).isEmpty()
+    }
 }
