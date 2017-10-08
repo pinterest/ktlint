@@ -4,6 +4,7 @@ import com.github.shyiko.klob.Glob
 import com.github.shyiko.ktlint.core.KtLint
 import com.github.shyiko.ktlint.core.LintError
 import com.github.shyiko.ktlint.core.ParseException
+import com.github.shyiko.ktlint.core.Reporter
 import com.github.shyiko.ktlint.core.ReporterProvider
 import com.github.shyiko.ktlint.core.RuleExecutionException
 import com.github.shyiko.ktlint.core.RuleSet
@@ -24,6 +25,7 @@ import org.kohsuke.args4j.Option
 import org.kohsuke.args4j.ParserProperties
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.PrintStream
 import java.net.URLDecoder
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -62,7 +64,7 @@ object Main {
             "<groupId>:<artifactId>:<version> triple pointing to a remote artifact (in which case ktlint will first " +
             "check local cache (~/.m2/repository) and then, if not found, attempt downloading it from " +
             "Maven Central/JCenter/JitPack/user-provided repository)")
-    private var reporter: String = "plain"
+    private var reporters = arrayListOf("plain")
 
     @Option(name="--ruleset", aliases = arrayOf("-R"),
         usage = "A path to a JAR file containing additional ruleset(s) or a " +
@@ -137,6 +139,8 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
           # use custom reporter
           ktlint --reporter=plain?group_by_file
           ktlint --reporter=checkstyle > ktlint-report-in-checkstyle-format.xml
+          # print to a console and to a file
+          ktlint --reporter=plain --reporter=checkstyle,output=ktlint-report-in-checkstyle-format.xml
         """.trimIndent()
 
     @JvmStatic
@@ -183,31 +187,49 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
         if (debug) {
             rp.forEach { System.err.println("[DEBUG] Discovered ruleset \"${it.first}\"") }
         }
-        val (reporterId, rawReporterConfig) = this.reporter.split("?", limit = 2) + listOf("")
+        data class R(val id: String, val config: Map<String, String>, var output: String?)
+        val rr = this.reporters.map {
+            val split = it.split(",")
+            val (reporterId, rawReporterConfig) = split[0].split("?", limit = 2) + listOf("")
+            R(reporterId, mapOf("verbose" to verbose.toString()) + parseQuery(rawReporterConfig),
+                split.getOrNull(1))
+        }
         // load reporter
         val reporterLoader = ServiceLoader.load(ReporterProvider::class.java)
-        val reporters = reporterLoader.associate { it.id to it }.let { map ->
-            if (!map.containsKey(reporterId)) {
-                loadJARs(dependencyResolver, listOf(reporterId))
+        val reporterProviderById = reporterLoader.associate { it.id to it }.let { map ->
+            val missingReporters = rr.map { it.id }.distinct().filter({ !map.containsKey(it) })
+            if (!missingReporters.isEmpty()) {
+                loadJARs(dependencyResolver, missingReporters)
                 reporterLoader.reload()
                 reporterLoader.associate { it.id to it }
             } else map
         }
         if (debug) {
-            reporters.forEach { (id) -> System.err.println("[DEBUG] Discovered reporter \"$id\"") }
+            reporterProviderById.forEach { (id) -> System.err.println("[DEBUG] Discovered reporter \"$id\"") }
         }
-        val reporterConfig = mapOf("verbose" to verbose.toString()) + parseQuery(rawReporterConfig)
-        if (debug) {
-            System.err.println("[DEBUG] Initializing \"$reporterId\" reporter with $reporterConfig")
-        }
-        val reporter = reporters[reporterId]?.get(
-            if (stdin) System.err else System.out, reporterConfig
-        )
-        if (reporter == null) {
-            System.err.println("Error: reporter \"$reporterId\" wasn't found (available: ${
-                reporters.keys.sorted().joinToString(",")})")
-            exitProcess(1)
-        }
+        val reporter = Reporter.from(*rr.map { r ->
+            val reporterProvider = reporterProviderById[r.id]
+            if (reporterProvider == null) {
+                System.err.println("Error: reporter \"${r.id}\" wasn't found (available: ${
+                    reporterProviderById.keys.sorted().joinToString(",")})")
+                exitProcess(1)
+            }
+            if (debug) {
+                System.err.println("[DEBUG] Initializing \"${r.id}\" reporter with ${r.config}")
+            }
+            val output = if (r.output != null) PrintStream(r.output) else
+                if (stdin) System.err else System.out
+            reporterProvider.get(output, r.config).let { reporter ->
+                if (r.output != null)
+                    object: Reporter by reporter {
+                        override fun afterAll() {
+                            super.afterAll()
+                            output.close()
+                        }
+                    }
+                else reporter
+            }
+        }.toTypedArray())
         // load .editorconfig
         val userData = locateEditorConfig(File(workDir))?.let {
             if (debug) {
