@@ -60,6 +60,29 @@ class SpacingAroundCurlyRuleTest {
                 f({ if (true) {r.add(v)}; r})
                 emptyList<String>().find { true }!!.hashCode()
                 emptyList<String>().find { true } !!.hashCode()
+                class A
+                {
+                    companion object
+                    {
+                    }
+                }
+                interface A
+                {
+                }
+                if (true)
+                {
+                }
+                do
+                {
+                } while (true)
+                call(
+                    { echo() },
+                    { echo() },
+                    //
+                    { echo() }
+                )
+                val f =
+                    { true }
             }
             """.trimIndent()
         )).isEqualTo(
@@ -79,6 +102,24 @@ class SpacingAroundCurlyRuleTest {
                 f({ if (true) { r.add(v) }; r })
                 emptyList<String>().find { true }!!.hashCode()
                 emptyList<String>().find { true }!!.hashCode()
+                class A {
+                    companion object {
+                    }
+                }
+                interface A {
+                }
+                if (true) {
+                }
+                do {
+                } while (true)
+                call(
+                    { echo() },
+                    { echo() },
+                    //
+                    { echo() }
+                )
+                val f =
+                    { true }
             }
             """.trimIndent()
         )

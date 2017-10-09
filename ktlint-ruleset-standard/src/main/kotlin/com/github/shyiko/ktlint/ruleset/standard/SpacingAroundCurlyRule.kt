@@ -1,6 +1,7 @@
 package com.github.shyiko.ktlint.ruleset.standard
 
 import com.github.shyiko.ktlint.core.Rule
+import org.jetbrains.kotlin.KtNodeTypes
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
@@ -24,10 +25,23 @@ class SpacingAroundCurlyRule : Rule("curly-spacing") {
                     (node.parent is KtLambdaExpression || node.parent.parent is KtLambdaExpression))
                 spacingAfter = nextLeaf is PsiWhiteSpace || nextLeaf?.node?.elementType == KtTokens.RBRACE
                 if (prevLeaf is PsiWhiteSpace &&
+                        !prevLeaf.textContains('\n') &&
                         PsiTreeUtil.prevLeaf(prevLeaf, true)?.node?.elementType == KtTokens.LPAR) {
                     emit(node.startOffset, "Unexpected space before \"${node.text}\"", true)
                     if (autoCorrect) {
                         prevLeaf.node.treeParent.removeChild(prevLeaf.node)
+                    }
+                }
+                if (prevLeaf is PsiWhiteSpace &&
+                    prevLeaf.textContains('\n') &&
+                    prevLeaf.text.isBlank() &&
+                    (PsiTreeUtil.prevLeaf(prevLeaf, true)?.node?.let {
+                        it.elementType == KtTokens.RPAR || KtTokens.KEYWORDS.contains(it.elementType)
+                    } == true ||
+                    node.parent.node.elementType == KtNodeTypes.CLASS_BODY)) {
+                    emit(node.startOffset, "Unexpected newline before \"${node.text}\"", true)
+                    if (autoCorrect) {
+                        (prevLeaf.node as LeafPsiElement).replaceWithText(" ")
                     }
                 }
             } else
