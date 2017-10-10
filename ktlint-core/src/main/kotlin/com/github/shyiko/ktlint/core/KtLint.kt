@@ -1,18 +1,12 @@
 package com.github.shyiko.ktlint.core
 
-import net.sf.cglib.proxy.Enhancer
-import net.sf.cglib.proxy.MethodInterceptor
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.mock.MockApplication
 import org.jetbrains.kotlin.com.intellij.mock.MockProject
 import org.jetbrains.kotlin.com.intellij.openapi.Disposable
-import org.jetbrains.kotlin.com.intellij.openapi.application.ApplicationManager
 import org.jetbrains.kotlin.com.intellij.openapi.extensions.ExtensionPoint
 import org.jetbrains.kotlin.com.intellij.openapi.extensions.Extensions.getArea
-import org.jetbrains.kotlin.com.intellij.openapi.fileTypes.FileType
-import org.jetbrains.kotlin.com.intellij.openapi.project.Project
 import org.jetbrains.kotlin.com.intellij.openapi.util.Key
 import org.jetbrains.kotlin.com.intellij.openapi.util.UserDataHolderBase
 import org.jetbrains.kotlin.com.intellij.pom.PomModel
@@ -25,8 +19,6 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.PsiErrorElement
 import org.jetbrains.kotlin.com.intellij.psi.PsiFileFactory
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
-import org.jetbrains.kotlin.com.intellij.psi.codeStyle.CodeStyleManager
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.codeStyle.IndentHelper
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.TreeCopyHandler
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.idea.KotlinLanguage
@@ -78,25 +70,6 @@ object KtLint {
         }
         project as MockProject
         project.registerService(PomModel::class.java, pomModel)
-        // required by KtPsiFactory.createExpressionByPattern used in LambdaOutsideOfParensRule
-        // cglib is used to guard against com.intellij.psi API (which isn't exactly stable) changes
-        project.registerService(CodeStyleManager::class.java,
-            Enhancer.create(CodeStyleManager::class.java, MethodInterceptor { _, method, args, _ ->
-                if (method.name.startsWith("reformat") &&
-                    method.returnType == PsiElement::class.java &&
-                    !args.isEmpty()) {
-                    val firstArg = args[0]
-                    if (firstArg is PsiElement) {
-                        return@MethodInterceptor firstArg
-                    }
-                }
-                null
-            }) as CodeStyleManager)
-        (ApplicationManager.getApplication() as MockApplication).registerService(IndentHelper::class.java,
-            object: IndentHelper() {
-                override fun getIndent(p0: Project?, p1: FileType?, p2: ASTNode?): Int = 0
-                override fun getIndent(p0: Project?, p1: FileType?, p2: ASTNode?, p3: Boolean): Int = 0
-            })
         psiFileFactory = PsiFileFactory.getInstance(project)
     }
 
@@ -402,8 +375,8 @@ object KtLint {
         private val segments: List<Segment>
 
         constructor(sortedArray: Array<Int>) {
-            require(sortedArray.size > 1, { "At least two data points are required" })
-            sortedArray.reduce({ r, v -> require(r <= v, { "Data points are not sorted (ASC)" }); v })
+            require(sortedArray.size > 1) { "At least two data points are required" }
+            sortedArray.reduce { r, v -> require(r <= v) { "Data points are not sorted (ASC)" }; v }
             segments = sortedArray.take(sortedArray.size - 1)
                 .mapIndexed { i: Int, v: Int -> Segment(v, sortedArray[i + 1] - 1) }
         }

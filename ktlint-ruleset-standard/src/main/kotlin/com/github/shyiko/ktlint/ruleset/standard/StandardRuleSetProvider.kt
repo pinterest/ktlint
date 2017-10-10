@@ -9,7 +9,6 @@ class StandardRuleSetProvider : RuleSetProvider {
         FinalNewlineRule(),
         ImportOrderingRule(),
         IndentationRule(),
-        LambdaOutsideOfParensRule(),
         MaxLineLengthRule(),
         ModifierOrderRule(),
         NoConsecutiveBlankLinesRule(),
