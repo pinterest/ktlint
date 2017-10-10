@@ -19,14 +19,14 @@ fun testLintUsingResource(rule: Rule, qualifier: String = "", userData: Map<Stri
         throw RuntimeException("$resource must contain '// expect' line")
     }
     val input = resourceText.substring(0, dividerIndex)
-    val errors = resourceText.substring(dividerIndex + 1).split('\n').mapNotNull {
-        if (it.isBlank() || it == "// expect") null else
-            it.trimMargin("// ").split(':', limit = 3).let {
-                if (it.size != 3) {
+    val errors = resourceText.substring(dividerIndex + 1).split('\n').mapNotNull { line ->
+        if (line.isBlank() || line == "// expect") null else
+            line.trimMargin("// ").split(':', limit = 3).let { expectation ->
+                if (expectation.size != 3) {
                     throw RuntimeException("$resource expectation must be a triple <line>:<column>:<message>")
                         // " (<message> is not allowed to contain \":\")")
                 }
-                LintError(it[0].toInt(), it[1].toInt(), rule.id, it[2])
+                LintError(expectation[0].toInt(), expectation[1].toInt(), rule.id, expectation[2])
             }
     }
     assertThat(rule.lint(input, userData)).isEqualTo(errors)

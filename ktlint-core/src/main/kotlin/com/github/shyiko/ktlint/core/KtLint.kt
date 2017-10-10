@@ -133,8 +133,7 @@ object KtLint {
         val isSuppressed = calculateSuppressedRegions(rootNode)
         val r = flatten(ruleSets)
         rootNode.visit { node ->
-            r.forEach {
-                val (id, rule) = it
+            r.forEach { (id, rule) ->
                 if (!isSuppressed(node.startOffset, id)) {
                     try {
                         rule.visit(node, false) { offset, errorMessage, _ ->
@@ -179,10 +178,10 @@ object KtLint {
     }
 
     private fun calculateSuppressedRegions(rootNode: ASTNode) =
-        SuppressionHint.collect(rootNode).let {
-            if (it.isEmpty()) nullSuppression else { offset, ruleId ->
-                it.any { (it.disabledRules.isEmpty() || it.disabledRules.contains(ruleId)) &&
-                    it.range.contains(offset) }
+        SuppressionHint.collect(rootNode).let { listOfHints ->
+            if (listOfHints.isEmpty()) nullSuppression else { offset, ruleId ->
+                listOfHints.any { (range, disabledRules) ->
+                    (disabledRules.isEmpty() || disabledRules.contains(ruleId)) && range.contains(offset) }
             }
         }
 
@@ -243,8 +242,7 @@ object KtLint {
         val r = flatten(ruleSets)
         var autoCorrect = false
         rootNode.visit { node ->
-            r.forEach {
-                val (id, rule) = it
+            r.forEach { (id, rule) ->
                 if (!isSuppressed(node.startOffset, id)) {
                     try {
                         rule.visit(node, false) { offset, errorMessage, canBeAutoCorrected ->
@@ -263,8 +261,7 @@ object KtLint {
         }
         if (autoCorrect) {
             rootNode.visit { node ->
-                r.forEach {
-                    val (id, rule) = it
+                r.forEach { (id, rule) ->
                     if (!isSuppressed(node.startOffset, id)) {
                         try {
                             rule.visit(node, true) { _, _, canBeAutoCorrected ->
@@ -401,8 +398,8 @@ object KtLint {
         if (this is PsiErrorElement) {
             return this
         }
-        this.children.forEach {
-            val errorElement = it.findErrorElement()
+        this.children.forEach { child ->
+            val errorElement = child.findErrorElement()
             if (errorElement != null) {
                 return errorElement
             }

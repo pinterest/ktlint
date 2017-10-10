@@ -35,9 +35,9 @@ class IndentationRule : Rule("indent") {
             return
         }
         if (node is PsiWhiteSpace && !node.isPartOf(PsiComment::class)) {
-            val split = node.getText().split("\n")
-            if (split.size > 1) {
-                var offset = node.startOffset + split.first().length + 1
+            val lines = node.getText().split("\n")
+            if (lines.size > 1) {
+                var offset = node.startOffset + lines.first().length + 1
                 val firstParameterColumn = lazy {
                     val firstParameter = PsiTreeUtil.findChildOfType(
                         node.getNonStrictParentOfType(KtParameterList::class.java),
@@ -48,19 +48,19 @@ class IndentationRule : Rule("indent") {
                             TextRange(startOffset, startOffset)).column
                     } ?: 0
                 }
-                split.tail().forEach {
-                    if (it.length % indent != 0) {
+                lines.tail().forEach { line ->
+                    if (line.length % indent != 0) {
                         if (node.isPartOf(KtParameterList::class) && firstParameterColumn.value != 0) {
-                            if (firstParameterColumn.value - 1 != it.length) {
-                                emit(offset, "Unexpected indentation (${it.length}) (" +
+                            if (firstParameterColumn.value - 1 != line.length) {
+                                emit(offset, "Unexpected indentation (${line.length}) (" +
                                     "parameters should be either vertically aligned or indented by the multiple of $indent" +
                                 ")", false)
                             }
                         } else {
-                            emit(offset, "Unexpected indentation (${it.length}) (it should be multiple of $indent)", false)
+                            emit(offset, "Unexpected indentation (${line.length}) (it should be multiple of $indent)", false)
                         }
                     }
-                    offset += it.length + 1
+                    offset += line.length + 1
                 }
             }
         }

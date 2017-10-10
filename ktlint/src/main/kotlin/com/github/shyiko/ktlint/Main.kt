@@ -145,9 +145,9 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
 
     @JvmStatic
     fun main(args: Array<String>) {
-        args.forEach {
-            if (it.startsWith("--") && it.contains("=")) {
-                val flag = it.substringBefore("=")
+        args.forEach { arg ->
+            if (arg.startsWith("--") && arg.contains("=")) {
+                val flag = arg.substringBefore("=")
                 val alt = DEPRECATED_FLAGS[flag]
                 if (alt != null) {
                     System.err.println("$flag flag is deprecated and will be removed in 1.0.0 (use $alt instead)")
@@ -188,8 +188,8 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
             rp.forEach { System.err.println("[DEBUG] Discovered ruleset \"${it.first}\"") }
         }
         data class R(val id: String, val config: Map<String, String>, var output: String?)
-        val rr = this.reporters.map {
-            val split = it.split(",")
+        val rr = this.reporters.map { reporter ->
+            val split = reporter.split(",")
             val (reporterId, rawReporterConfig) = split[0].split("?", limit = 2) + listOf("")
             R(reporterId, mapOf("verbose" to verbose.toString()) + parseQuery(rawReporterConfig),
                 split.getOrNull(1))
@@ -231,11 +231,11 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
             }
         }.toTypedArray())
         // load .editorconfig
-        val userData = locateEditorConfig(File(workDir))?.let {
+        val userData = locateEditorConfig(File(workDir))?.let { editoConfigFile ->
             if (debug) {
-                System.err.println("[DEBUG] Discovered .editorconfig (${it.parent})")
+                System.err.println("[DEBUG] Discovered .editorconfig (${editoConfigFile.parent})")
             }
-            loadEditorConfig(it)
+            loadEditorConfig(editoConfigFile)
         } ?: emptyMap()
         if (debug) {
             System.err.println("[DEBUG] ${userData.mapKeys { it.key }} loaded from .editorconfig")
@@ -363,13 +363,13 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
                     CHECKSUM_POLICY_IGNORE)).build(),
                 RemoteRepository.Builder(
                     "jitpack", "default", "http://jitpack.io").build()
-            ) + repositories.map {
-                val colon = it.indexOf("=").apply {
-                    if (this == -1) { throw RuntimeException("$it is not a valid repository entry " +
+            ) + repositories.map { repository ->
+                val colon = repository.indexOf("=").apply {
+                    if (this == -1) { throw RuntimeException("$repository is not a valid repository entry " +
                         "(make sure it's provided as <id>=<url>") }
                 }
-                val id = it.substring(0, colon)
-                val url = it.substring(colon + 1)
+                val id = repository.substring(0, colon)
+                val url = repository.substring(colon + 1)
                 RemoteRepository.Builder(id, "default", url).build()
             },
             forceUpdate
@@ -385,16 +385,16 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
 
     fun loadJARs(dependencyResolver: MavenDependencyResolver, artifacts: List<String>) {
         (ClassLoader.getSystemClassLoader() as java.net.URLClassLoader)
-            .addURLs(artifacts.flatMap {
+            .addURLs(artifacts.flatMap { artifact ->
                 if (debug) {
-                    System.err.println("[DEBUG] Resolving $it")
+                    System.err.println("[DEBUG] Resolving $artifact")
                 }
                 val result = try {
-                    dependencyResolver.resolve(DefaultArtifact(it)).map { it.toURI().toURL() }
+                    dependencyResolver.resolve(DefaultArtifact(artifact)).map { it.toURI().toURL() }
                 } catch (e: IllegalArgumentException) {
-                    val file = File(expandTilde(it))
+                    val file = File(expandTilde(artifact))
                     if (!file.exists()) {
-                        System.err.println("Error: $it does not exist")
+                        System.err.println("Error: $artifact does not exist")
                         exitProcess(1)
                     }
                     listOf(file.toURI().toURL())
@@ -402,7 +402,7 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
                     if (debug) {
                         e.printStackTrace()
                     }
-                    System.err.println("Error: $it wasn't found")
+                    System.err.println("Error: $artifact wasn't found")
                     exitProcess(1)
                 }
                 if (debug) {
@@ -415,8 +415,8 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
     fun parseQuery(query: String) = query.split("&")
         .fold(HashMap<String, String>()) { map, s ->
             if (!s.isEmpty()) {
-                s.split("=", limit = 2).let { map.put(it[0],
-                    URLDecoder.decode(it.getOrElse(1) { "true" }, "UTF-8")) }
+                s.split("=", limit = 2).let { e -> map.put(e[0],
+                    URLDecoder.decode(e.getOrElse(1) { "true" }, "UTF-8")) }
             }
             map
         }
