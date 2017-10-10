@@ -14,7 +14,8 @@ class StandardRuleSetProvider : RuleSetProvider {
         ModifierOrderRule(),
         NoConsecutiveBlankLinesRule(),
         NoEmptyClassBodyRule(),
-        NoItParamInMultilineLambdaRule(),
+        // disabled until it's clear what to do in case of `import _.it`
+        // NoItParamInMultilineLambdaRule(),
         NoMultipleSpacesRule(),
         NoSemicolonsRule(),
         NoTrailingSpacesRule(),
