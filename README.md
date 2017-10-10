@@ -34,10 +34,10 @@ It's also [easy to create your own](#creating-a-reporter).
 
 - 4 spaces for indentation*;
 - No semicolons (unless used to separate multiple statements on the same line);
-- No wildcard / unused imports;
+- No wildcard / unused `import`s;
 - No consecutive blank lines;
 - No trailing whitespaces;
-- No Unit returns;
+- No `Unit` returns (`fun fn {}` instead of `fun fn: Unit {}`);
 - No empty (`{}`) class bodies;
 - Consistent string templates (`$v` instead of `${v}`, `${p.v}` instead of `${p.v.toString()}`);
 - Consistent order of modifiers;
@@ -52,7 +52,7 @@ It's also [easy to create your own](#creating-a-reporter).
 > Skip all the way to the "Integration" section if you don't plan to use `ktlint`'s command line interface.
 
 ```sh
-curl -sSLO https://github.com/shyiko/ktlint/releases/download/0.9.2/ktlint &&
+curl -sSLO https://github.com/shyiko/ktlint/releases/download/0.10.0/ktlint &&
   chmod a+x ktlint
 ```
 
@@ -83,8 +83,9 @@ $ ktlint "src/**/*.kt" "!src/**/*Test.kt"
 $ ktlint -F "src/**/*.kt"
 
 # use custom reporter
-ktlint --reporter=plain?group_by_file
-ktlint --reporter=checkstyle > ktlint-report-in-checkstyle-format.xml
+$ ktlint --reporter=plain?group_by_file
+# multiple reporters can be specified like this 
+$ ktlint --reporter=plain --reporter=checkstyle,output=ktlint-report-in-checkstyle-format.xml
 ```
 
 > on Windows you'll have to use `java -jar ktlint ...`. 
@@ -112,7 +113,12 @@ ktlint --reporter=checkstyle > ktlint-report-in-checkstyle-format.xml
                 <java taskname="ktlint" dir="${basedir}" fork="true" failonerror="true"
                     classname="com.github.shyiko.ktlint.Main" classpathref="maven.plugin.classpath">
                     <arg value="src/**/*.kt"/>
-                    <!-- prepend "--reporter=plain?group_by_file" arg to change the reporter -->
+                    <!-- to generate report in checkstyle format prepend following args: -->
+                    <!-- 
+                    <arg value="--reporter=plain"/>
+                    <arg value="--reporter=checkstyle,output=${project.build.directory}/ktlint.xml"/>
+                    -->
+                    <!-- see https://github.com/shyiko/ktlint#usage for more -->                    
                 </java>
             </target>
             </configuration>
@@ -136,7 +142,7 @@ ktlint --reporter=checkstyle > ktlint-report-in-checkstyle-format.xml
         <dependency>
             <groupId>com.github.shyiko</groupId>
             <artifactId>ktlint</artifactId>
-            <version>0.9.2</version>
+            <version>0.10.0</version>
         </dependency>
         <!-- additional 3rd party ruleset(s) can be specified here -->
     </dependencies>
@@ -146,25 +152,6 @@ ktlint --reporter=checkstyle > ktlint-report-in-checkstyle-format.xml
 
 To check code style - `mvn antrun:run@ktlint` (it's also bound to `mvn verify`).  
 To run formatter - `mvn antrun:run@ktlint-format`.   
-
-To redirect output to a file you can use something like: 
-```xml
-<execution>
-    <id>ktlint-generate-checkstyle-xml</id>
-    <configuration>
-    <target name="ktlint">
-        <java taskname="ktlint" dir="${basedir}" fork="true" failonerror="true"
-            classname="com.github.shyiko.ktlint.Main" classpathref="maven.plugin.classpath"
-            output="${project.build.directory}/ktlint-checkstyle-report.xml" 
-            logError="true">
-            <arg value="--reporter=checkstyle"/>
-            <arg value="src/**/*.kt"/>
-        </java>
-    </target>
-    </configuration>
-    <goals><goal>run</goal></goals>
-</execution>
-```
 
 #### ... with [Gradle]()
 
@@ -182,7 +169,7 @@ configurations {
 }
 
 dependencies {
-    ktlint 'com.github.shyiko:ktlint:0.9.2'
+    ktlint 'com.github.shyiko:ktlint:0.10.0'
     // additional 3rd party ruleset(s) can be specified here
     // just add them to the classpath (ktlint 'groupId:artifactId:version') and 
     // ktlint will pick them up
@@ -193,7 +180,9 @@ task ktlint(type: JavaExec, group: "verification") {
     main = "com.github.shyiko.ktlint.Main"
     classpath = configurations.ktlint
     args "src/**/*.kt"
-    // prepend "--reporter=plain?group_by_file" arg to change the reporter
+    // to generate report in checkstyle format prepend following args:
+    // "--reporter=plain", "--reporter=checkstyle,output=${buildDir}/ktlint.xml"
+    // see https://github.com/shyiko/ktlint#usage for more
 }
 check.dependsOn ktlint
 
@@ -209,22 +198,6 @@ task ktlintFormat(type: JavaExec, group: "formatting") {
 
 To check code style - `gradle ktlint` (it's also bound to `gradle check`).  
 To run formatter - `gradle ktlintFormat`.
-
-To redirect output to a file you can use something like: 
-```groovy
-task ktlintGenerateCheckstyleXML(type: Exec) {
-  commandLine 'java', '-cp', configurations.ktlint.join(System.getProperty('path.separator')),
-    'com.github.shyiko.ktlint.Main', '--reporter=checkstyle', 'src/**/*.kt'
-  standardOutput = new FileOutputStream(new File(buildDir, "ktlint-checkstyle-report.xml"))
-  ignoreExitValue = true
-  doLast {
-    standardOutput.close()
-    if (execResult.exitValue != 0) {
-      throw new GradleException("ktlint finished with non-zero exit value ${execResult.exitValue}")
-    }
-  }
-}
-```
 
 **Another option** is to use Gradle plugin (in order of appearance):
 - [jlleitschuh/ktlint-gradle](https://github.com/jlleitschuh/ktlint-gradle)
@@ -249,14 +222,8 @@ ktlint --apply-to-idea
 ##### Option #2
 
 Go to `File -> Settings... -> Editor`
-- `Code Style -> Manage... -> Import -> Intellij IDEA code style XML`,
-select [codestyles/ktlint.xml](ktlint-intellij-idea-integration/src/main/resources/config/codestyles/ktlint.xml).
-- `Inspections -> Manage -> Import`,
-select [inspection/ktlint.xml](ktlint-intellij-idea-integration/src/main/resources/config/inspection/ktlint.xml).
-
-##### Option #3
-
-Go to `File -> Settings... -> Editor`
+- `General -> Auto Import`
+  - check `Optimize imports on the fly (for current project)`.
 - `Code Style -> Kotlin`
   - open `Imports` tab, select all `Use single name import` options and remove `import java.util.*` from `Packages to Use Import with '*'`.
   - open `Blank Lines` tab, change `Keep Maximum Blank Lines` -> `In declarations` & `In code` to 1.
@@ -277,6 +244,18 @@ In a nutshell: "ruleset" is a JAR containing one or more [Rule](ktlint-core/src/
 [ServiceLoader](https://docs.oracle.com/javase/8/docs/api/java/util/ServiceLoader.html) to discover all available "RuleSet"s
 on the classpath (as a ruleset author, all you need to do is to include a `META-INF/services/com.github.shyiko.ktlint.core.RuleSetProvider` file 
 containing a fully qualified name of your [RuleSetProvider](ktlint-core/src/main/kotlin/com/github/shyiko/ktlint/core/RuleSetProvider.kt) implementation).    
+
+Once packaged in a JAR you can load it with
+
+```sh
+# enable additional 3rd party ruleset by pointing ktlint to its location on the file system
+$ ktlint -R /path/to/custom/rulseset.jar "src/test/**/*.kt"
+
+# you can also use <groupId>:<artifactId>:<version> triple in which case artifact is
+# downloaded from Maven Central, JCenter or JitPack (depending on where it's located and 
+# whether or not it's already present in local Maven cache)
+$ ktlint -R com.github.username:rulseset:master-SNAPSHOT
+```
 
 A complete sample project (with tests and build files) is included in this repo under the [ktlint-ruleset-template](ktlint-ruleset-template) directory 
 (make sure to check [NoVarRuleTest](ktlint-ruleset-template/src/test/kotlin/yourpkgname/NoVarRuleTest.kt) as it contains some useful information). 
@@ -320,18 +299,6 @@ ktlint is a single binary with both linter & formatter included. All you need is
 Absolutely, "no configuration" doesn't mean "no extensibility". You can add your own ruleset(s) to discover potential bugs, check for anti-patterns, etc.
 
 See [Creating A Ruleset](#creating-a-ruleset).
-
-Once packaged in a JAR you can load it with
-
-```sh
-# enable additional 3rd party ruleset by pointing ktlint to its location on the file system
-$ ktlint -R /path/to/custom/rulseset.jar "src/test/**/*.kt"
-
-# you can also use <groupId>:<artifactId>:<version> triple in which case artifact is
-# downloaded from Maven Central, JCenter or JitPack (depending on where it's located and 
-# whether or not it's already present in local Maven cache)
-$ ktlint -R com.github.username:rulseset:master-SNAPSHOT
-```
 
 ### How do I suppress an error?
 
