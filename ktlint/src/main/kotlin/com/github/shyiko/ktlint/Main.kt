@@ -30,7 +30,6 @@ import java.net.URLDecoder
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.ArrayList
-import java.util.HashMap
 import java.util.ServiceLoader
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.Callable
@@ -64,7 +63,7 @@ object Main {
             "<groupId>:<artifactId>:<version> triple pointing to a remote artifact (in which case ktlint will first " +
             "check local cache (~/.m2/repository) and then, if not found, attempt downloading it from " +
             "Maven Central/JCenter/JitPack/user-provided repository)")
-    private var reporters = arrayListOf("plain")
+    private var reporters = ArrayList<String>()
 
     @Option(name="--ruleset", aliases = arrayOf("-R"),
         usage = "A path to a JAR file containing additional ruleset(s) or a " +
@@ -138,9 +137,8 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
 
           # use custom reporter
           ktlint --reporter=plain?group_by_file
-          ktlint --reporter=checkstyle > ktlint-report-in-checkstyle-format.xml
-          # print to a console and to a file
-          ktlint --reporter=plain --reporter=checkstyle,output=ktlint-report-in-checkstyle-format.xml
+          # multiple reporters can be specified like this
+          ktlint --reporter=plain --reporter=checkstyle,output=ktlint-checkstyle-report.xml
         """.trimIndent()
 
     @JvmStatic
@@ -188,12 +186,15 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
             rp.forEach { System.err.println("[DEBUG] Discovered ruleset \"${it.first}\"") }
         }
         data class R(val id: String, val config: Map<String, String>, var output: String?)
+        if (reporters.isEmpty()) {
+            reporters.add("plain")
+        }
         val rr = this.reporters.map { reporter ->
             val split = reporter.split(",")
             val (reporterId, rawReporterConfig) = split[0].split("?", limit = 2) + listOf("")
             R(reporterId, mapOf("verbose" to verbose.toString()) + parseQuery(rawReporterConfig),
-                split.getOrNull(1))
-        }
+                split.getOrNull(1)?.let { if (it.startsWith("output=")) it.split("=")[1] else null })
+        }.distinct()
         // load reporter
         val reporterLoader = ServiceLoader.load(ReporterProvider::class.java)
         val reporterProviderById = reporterLoader.associate { it.id to it }.let { map ->
@@ -215,7 +216,8 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
                 exitProcess(1)
             }
             if (debug) {
-                System.err.println("[DEBUG] Initializing \"${r.id}\" reporter with ${r.config}")
+                System.err.println("[DEBUG] Initializing \"${r.id}\" reporter with ${r.config}" +
+                    (r.output?.let { ", output=$it" } ?: ""))
             }
             val output = if (r.output != null) PrintStream(r.output) else
                 if (stdin) System.err else System.out
@@ -223,11 +225,12 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
                 if (r.output != null)
                     object : Reporter by reporter {
                         override fun afterAll() {
-                            super.afterAll()
+                            reporter.afterAll()
                             output.close()
                         }
                     }
-                else reporter
+                else
+                    reporter
             }
         }.toTypedArray())
         // load .editorconfig
@@ -413,7 +416,7 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
     }
 
     fun parseQuery(query: String) = query.split("&")
-        .fold(HashMap<String, String>()) { map, s ->
+        .fold(LinkedHashMap<String, String>()) { map, s ->
             if (!s.isEmpty()) {
                 s.split("=", limit = 2).let { e -> map.put(e[0],
                     URLDecoder.decode(e.getOrElse(1) { "true" }, "UTF-8")) }
