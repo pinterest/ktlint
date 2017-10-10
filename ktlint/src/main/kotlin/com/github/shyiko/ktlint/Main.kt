@@ -21,15 +21,20 @@ import org.jetbrains.kotlin.preprocessor.mkdirsOrFail
 import org.kohsuke.args4j.Argument
 import org.kohsuke.args4j.CmdLineException
 import org.kohsuke.args4j.CmdLineParser
+import org.kohsuke.args4j.NamedOptionDef
 import org.kohsuke.args4j.Option
+import org.kohsuke.args4j.OptionHandlerFilter
 import org.kohsuke.args4j.ParserProperties
+import org.kohsuke.args4j.spi.OptionHandler
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.PrintStream
+import java.io.PrintWriter
 import java.net.URLDecoder
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.ArrayList
+import java.util.ResourceBundle
 import java.util.ServiceLoader
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.Callable
@@ -52,6 +57,7 @@ object Main {
         "--reporter-update" to
             "--repository-update"
     )
+    private val CLI_MAX_LINE_LENGTH_REGEX = Regex("(.{0,120})(?:\\s|$)")
 
     // todo: this should have been a command, not a flag (consider changing in 1.0.0)
     @Option(name="--format", aliases = arrayOf("-F"), usage = "Fix any deviations from the code style")
@@ -73,7 +79,7 @@ object Main {
     private var rulesets = ArrayList<String>()
 
     @Option(name="--repository", aliases = arrayOf("--ruleset-repository", "--reporter-repository"),
-        usage = "An additional Maven repository (Maven Central/JCenter/JitPack are active by default)" +
+        usage = "An additional Maven repository (Maven Central/JCenter/JitPack are active by default) " +
             "(value format: <id>=<url>)")
     private var repositories = ArrayList<String>()
 
@@ -114,15 +120,11 @@ object Main {
 
     private fun CmdLineParser.usage(): String =
         """
-        Kotlin linter (https://github.com/shyiko/ktlint).
+        An anti-bikeshedding Kotlin linter with built-in formatter (https://github.com/shyiko/ktlint).
 
         Usage:
           ktlint <flags> [patterns]
           java -jar ktlint <flags> [patterns]
-
-        Flags:
-${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().split("\n").map { "         $it" }
-            .joinToString("\n")}
 
         Examples:
           # check the style of all Kotlin files inside the current dir (recursively)
@@ -139,6 +141,11 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
           ktlint --reporter=plain?group_by_file
           # multiple reporters can be specified like this
           ktlint --reporter=plain --reporter=checkstyle,output=ktlint-checkstyle-report.xml
+
+        Flags:
+${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().split("\n")
+            .map { line -> ("  " + line).replace(CLI_MAX_LINE_LENGTH_REGEX, "        $1\n").trimEnd() }
+            .joinToString("\n")}
         """.trimIndent()
 
     @JvmStatic
@@ -152,12 +159,29 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
                 }
             }
         }
-        val parser = CmdLineParser(this, ParserProperties.defaults()
+        val parser = object : CmdLineParser(this, ParserProperties.defaults()
             .withShowDefaults(false)
-            .withUsageWidth(80)
+            .withUsageWidth(512)
             .withOptionSorter { l, r ->
                 l.option.toString().replace("-", "").compareTo(r.option.toString().replace("-", ""))
-            })
+            }) {
+
+            override fun printOption(out: PrintWriter, handler: OptionHandler<*>, len: Int, rb: ResourceBundle?, filter: OptionHandlerFilter?) {
+                handler.defaultMetaVariable
+                val opt = handler.option as? NamedOptionDef ?: return
+                if (opt.hidden() || opt.help()) {
+                    return
+                }
+                val maxNameLength = options.map { h ->
+                    val o = h.option
+                    (o as? NamedOptionDef)?.let { it.name().length + 1 + (h.defaultMetaVariable ?: "").length } ?: 0
+                }.max()!!
+                val shorthand = opt.aliases().find { it.startsWith("-") && !it.startsWith("--") }
+                val line = (if (shorthand != null) "$shorthand, " else "    ") +
+                    (opt.name() + " " + (handler.defaultMetaVariable ?: "")).padEnd(maxNameLength, ' ') + "  " + opt.usage()
+                out.println(line)
+            }
+        }
         try {
             parser.parseArgument(*args)
         } catch (err: CmdLineException) {
