@@ -5,6 +5,11 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
 
+/**
+ * Android Studio:
+ *   Alphabetical within each grouping, with capital letters before lower case letters (e.g. Z before a).
+ *   Separated by a blank line between each major grouping (android, com, junit, net, org, java, javax).
+ */
 class ImportOrderingRule : Rule("import-ordering") {
 
     override fun visit(
