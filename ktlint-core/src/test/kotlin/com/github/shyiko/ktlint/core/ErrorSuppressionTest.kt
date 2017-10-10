@@ -23,7 +23,7 @@ class ErrorSuppressionTest {
         }
         fun lint(text: String) =
             ArrayList<LintError>().apply {
-                KtLint.lint(text, listOf(RuleSet("standard", NoWildcardImportsRule())), { e -> add(e) })
+                KtLint.lint(text, listOf(RuleSet("standard", NoWildcardImportsRule()))) { e -> add(e) }
             }
         assertThat(lint(
             """

@@ -12,7 +12,7 @@ class JsonReporter(val out: PrintStream) : Reporter {
 
     override fun onLintError(file: String, err: LintError, corrected: Boolean) {
         if (!corrected) {
-            acc.getOrPut(file, { ArrayList<LintError>() }).add(err)
+            acc.getOrPut(file) { ArrayList<LintError>() }.add(err)
         }
     }
 

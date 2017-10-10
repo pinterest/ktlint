@@ -157,9 +157,9 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
         val parser = CmdLineParser(this, ParserProperties.defaults()
             .withShowDefaults(false)
             .withUsageWidth(80)
-            .withOptionSorter({ l, r ->
+            .withOptionSorter { l, r ->
                 l.option.toString().replace("-", "").compareTo(r.option.toString().replace("-", ""))
-            }))
+            })
         try {
             parser.parseArgument(*args)
         } catch (err: CmdLineException) {
@@ -197,7 +197,7 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
         // load reporter
         val reporterLoader = ServiceLoader.load(ReporterProvider::class.java)
         val reporterProviderById = reporterLoader.associate { it.id to it }.let { map ->
-            val missingReporters = rr.map { it.id }.distinct().filter({ !map.containsKey(it) })
+            val missingReporters = rr.map { it.id }.distinct().filter { !map.containsKey(it) }
             if (!missingReporters.isEmpty()) {
                 loadJARs(dependencyResolver, missingReporters)
                 reporterLoader.reload()
@@ -221,7 +221,7 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
                 if (stdin) System.err else System.out
             reporterProvider.get(output, r.config).let { reporter ->
                 if (r.output != null)
-                    object: Reporter by reporter {
+                    object : Reporter by reporter {
                         override fun afterAll() {
                             super.afterAll()
                             output.close()
@@ -266,11 +266,11 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
             val result = ArrayList<LintErrorWithCorrectionInfo>()
             if (format) {
                 val formattedFileContent = try {
-                    format(fileName, fileContent, rp.map { it.second.get() }, userData, { err, corrected ->
+                    format(fileName, fileContent, rp.map { it.second.get() }, userData) { err, corrected ->
                         if (!corrected) {
                             result.add(LintErrorWithCorrectionInfo(err, corrected))
                         }
-                    })
+                    }
                 } catch (e: Exception) {
                     result.add(LintErrorWithCorrectionInfo(lintErrorFrom(e), false))
                     tripped.set(true)
@@ -285,10 +285,10 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
                 }
             } else {
                 try {
-                    lint(fileName, fileContent, rp.map { it.second.get() }, userData, { err ->
+                    lint(fileName, fileContent, rp.map { it.second.get() }, userData) { err ->
                         tripped.set(true)
                         result.add(LintErrorWithCorrectionInfo(err, false))
-                    })
+                    }
                 } catch (e: Exception) {
                     result.add(LintErrorWithCorrectionInfo(lintErrorFrom(e), false))
                 }
@@ -413,13 +413,13 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
     }
 
     fun parseQuery(query: String) = query.split("&")
-        .fold(HashMap<String, String>(), { map, s ->
+        .fold(HashMap<String, String>()) { map, s ->
             if (!s.isEmpty()) {
                 s.split("=", limit = 2).let { map.put(it[0],
-                    URLDecoder.decode(it.getOrElse(1, { "true" }), "UTF-8")) }
+                    URLDecoder.decode(it.getOrElse(1) { "true" }, "UTF-8")) }
             }
             map
-        })
+        }
 
     fun locateEditorConfig(dir: File?): File? = when (dir) {
         null -> null

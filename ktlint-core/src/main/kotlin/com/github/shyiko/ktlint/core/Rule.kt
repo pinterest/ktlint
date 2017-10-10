@@ -15,7 +15,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 abstract class Rule(val id: String) {
 
     init {
-        require(id.matches(Regex("[a-z]+([-][a-z]+)*")), { "id must match [a-z]+([-][a-z]+)*" })
+        require(id.matches(Regex("[a-z]+([-][a-z]+)*"))) { "id must match [a-z]+([-][a-z]+)*" }
     }
 
     /**

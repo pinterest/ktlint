@@ -10,12 +10,12 @@ fun Rule.lint(text: String, userData: Map<String, String> = emptyMap()): List<Li
     val res = ArrayList<LintError>()
     val debug = debugAST()
     KtLint.lint(text, (if (debug) listOf(RuleSet("debug", DumpAST())) else emptyList()) +
-        listOf(RuleSet("standard", this@lint)), userData, {
+        listOf(RuleSet("standard", this@lint)), userData) {
         if (debug) {
             System.err.println("^^ lint error")
         }
         res.add(it)
-    })
+    }
     return res
 }
 

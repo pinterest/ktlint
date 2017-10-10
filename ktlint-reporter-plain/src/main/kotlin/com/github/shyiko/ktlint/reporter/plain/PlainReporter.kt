@@ -13,7 +13,7 @@ class PlainReporter(val out: PrintStream, val verbose: Boolean = false, val grou
     override fun onLintError(file: String, err: LintError, corrected: Boolean) {
         if (!corrected) {
             if (groupByFile) {
-                acc.getOrPut(file, { ArrayList<LintError>() }).add(err)
+                acc.getOrPut(file) { ArrayList<LintError>() }.add(err)
             } else {
                 out.println("$file:${err.line}:${err.col}: " +
                     "${err.detail}${if (verbose) " (${err.ruleId})" else ""}")
