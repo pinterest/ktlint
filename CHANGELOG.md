@@ -2,6 +2,24 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.10.0] - 2017-10-10
+
+### Added
+
+- Ability to specify multiple reporters   
+(output can be controlled with `--reporter=<name>,output=<path/to/file>`) ([#71](https://github.com/shyiko/ktlint/issues/71)).
+- Support for `indent_size=unset` (`.editorconfig`) ([#70](https://github.com/shyiko/ktlint/issues/70)).
+
+## Fixed
+- `( {` formatting   
+(previously both `( {` and `({` were accepted as correct, while only `({` should be) (`curly-spacing` rule) ([#80](https://github.com/shyiko/ktlint/issues/80)).
+- `if\nfn {}\nelse` formatting (`curly-spacing` rule). 
+- `max_line_length=off` & `max_line_length=unset` handling (`.editorconfig`).
+
+### Changed
+- `kotlin-compiler` version to 1.1.51 (from 1.1.3-2).
+- `ktlint --apply-to-idea` to include `OPTIMIZE_IMPORTS_ON_THE_FLY=true`. 
+
 ## [0.9.2] - 2017-09-01
 
 ### Fixed
@@ -39,7 +57,7 @@ final-newline (activated only if `insert_final_newline` is set in `.editorconfig
 ### Changed
 
 - **BREAKING**: JDK version to 1.8 (as a result of upgrading `kotlin-compiler` to 1.1.3-2 (from 1.1.0)).
-- file matching (offloaded to [klob](https://github.com/shyiko/klob)).  
+- File matching (offloaded to [klob](https://github.com/shyiko/klob)).  
 
 ### Deprecated
 
@@ -181,6 +199,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.10.0]: https://github.com/shyiko/ktlint/compare/0.9.2...0.10.0
 [0.9.2]: https://github.com/shyiko/ktlint/compare/0.9.1...0.9.2
 [0.9.1]: https://github.com/shyiko/ktlint/compare/0.9.0...0.9.1
 [0.9.0]: https://github.com/shyiko/ktlint/compare/0.8.3...0.9.0
