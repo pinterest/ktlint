@@ -43,6 +43,11 @@ class SpacingAroundKeywordRuleTest {
                     1 -> println("")
                     else -> println("")
                 }
+
+                if (V)
+                    V.let { "" }
+                else
+                    V
             }
             """.trimIndent()
         )).isEqualTo(listOf(

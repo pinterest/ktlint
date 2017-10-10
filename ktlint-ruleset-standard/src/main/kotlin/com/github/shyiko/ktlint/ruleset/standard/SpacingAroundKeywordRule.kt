@@ -51,11 +51,17 @@ class SpacingAroundKeywordRule : Rule("keyword-spacing") {
             if (noLFBeforeSet.contains(node.elementType)) {
                 val prevLeaf = PsiTreeUtil.prevLeaf(node)
                 if (prevLeaf is PsiWhiteSpaceImpl && prevLeaf.textContains('\n') &&
-                    (node.elementType != ELSE_KEYWORD || node.parent !is KtWhenEntry) &&
-                    (PsiTreeUtil.prevLeaf(prevLeaf)?.textMatches("}") ?: false)) {
-                    emit(node.startOffset, "Unexpected newline before \"${node.text}\"", true)
-                    if (autoCorrect) {
-                        prevLeaf.rawReplaceWithText(" ")
+                    (node.elementType != ELSE_KEYWORD || node.parent !is KtWhenEntry)) {
+                    val presumablyCurly = PsiTreeUtil.prevLeaf(prevLeaf)
+                    if (presumablyCurly != null &&
+                        presumablyCurly.node.elementType == KtTokens.RBRACE &&
+                        (node.elementType != ELSE_KEYWORD ||
+                        // `if (...) v.let { } else` case
+                        presumablyCurly.node.treeParent?.treeParent?.treeParent == node.treeParent)) {
+                        emit(node.startOffset, "Unexpected newline before \"${node.text}\"", true)
+                        if (autoCorrect) {
+                            prevLeaf.rawReplaceWithText(" ")
+                        }
                     }
                 }
             }
