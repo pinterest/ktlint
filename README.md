@@ -82,10 +82,13 @@ $ ktlint "src/**/*.kt" "!src/**/*Test.kt"
 # (if some errors cannot be fixed automatically they will be printed to stderr) 
 $ ktlint -F "src/**/*.kt"
 
-# use custom reporter
+# print style violations grouped by file
 $ ktlint --reporter=plain?group_by_file
-# multiple reporters can be specified like this 
+# print style violations as usual + create report in checkstyle format 
 $ ktlint --reporter=plain --reporter=checkstyle,output=ktlint-report-in-checkstyle-format.xml
+
+# install git hook to automatically check files for style violations on commit
+$ ktlint --install-git-pre-commit-hook
 ```
 
 > on Windows you'll have to use `java -jar ktlint ...`. 
