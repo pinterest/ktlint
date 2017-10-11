@@ -12,7 +12,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 (output can be controlled with `--reporter=<name>,output=<path/to/file>`) ([#71](https://github.com/shyiko/ktlint/issues/71)).
 - Support for `indent_size=unset` (`.editorconfig`) ([#70](https://github.com/shyiko/ktlint/issues/70)).
 
-## Fixed
+### Fixed
 - `( {` formatting   
 (previously both `( {` and `({` were accepted as correct, while only `({` should be) (`curly-spacing` rule) ([#80](https://github.com/shyiko/ktlint/issues/80)).
 - `if\nfn {}\nelse` formatting (`curly-spacing` rule). 
