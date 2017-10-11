@@ -46,7 +46,7 @@ public class Main {
                 KtLintIntellijIDEAIntegration.apply(workDir, false);
             } catch (KtLintIntellijIDEAIntegration.ProjectNotFoundException e) {
                 System.err.println(".idea directory not found. " +
-                    "Are you sure you are executing \"apply\" inside project root directory?");
+                    "Are you sure you are inside project root directory?");
                 System.exit(1);
             }
             System.err.println("(updated)");
