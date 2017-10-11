@@ -28,12 +28,16 @@ import org.kohsuke.args4j.ParserProperties
 import org.kohsuke.args4j.spi.OptionHandler
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.FileNotFoundException
 import java.io.PrintStream
 import java.io.PrintWriter
+import java.math.BigInteger
 import java.net.URLDecoder
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.security.MessageDigest
 import java.util.ArrayList
+import java.util.Arrays
 import java.util.ResourceBundle
 import java.util.ServiceLoader
 import java.util.concurrent.ArrayBlockingQueue
@@ -112,6 +116,8 @@ object Main {
     // todo: make it a command in 1.0.0 (it's too late now as we might interfere with valid "lint" patterns)
     @Option(name="--apply-to-idea", usage = "Update Intellij IDEA project settings")
     private var apply: Boolean = false
+    @Option(name="--install-git-pre-commit-hook", usage = "Install git hook to automatically check files for style violations on commit")
+    private var installGitPreCommitHook: Boolean = false
     @Option(name="-y", hidden = true)
     private var forceApply: Boolean = false
 
@@ -190,6 +196,32 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
         }
         if (version) { println(javaClass.`package`.implementationVersion); exitProcess(0) }
         if (help) { println(parser.usage()); exitProcess(0) }
+        if (installGitPreCommitHook) {
+            if (!File(".git").isDirectory) {
+                System.err.println(".git directory not found. " +
+                    "Are you sure you are inside project root directory?")
+                System.exit(1)
+            }
+            val hooksDir = File(".git", "hooks")
+            hooksDir.mkdirsOrFail()
+            val preCommitHookFile = File(hooksDir, "pre-commit")
+            val expectedPreCommitHook = ClassLoader.getSystemClassLoader()
+                .getResourceAsStream("ktlint-git-pre-commit-hook.sh").readBytes()
+            // backup existing hook (if any)
+            val actualPreCommitHook = try { preCommitHookFile.readBytes() } catch (e: FileNotFoundException) { null }
+            if (actualPreCommitHook != null && !actualPreCommitHook.isEmpty() && !Arrays.equals(actualPreCommitHook, expectedPreCommitHook)) {
+                val backupFile = File(hooksDir, "pre-commit.ktlint-backup." + hex(actualPreCommitHook))
+                System.err.println(".git/hooks/pre-commit -> $backupFile")
+                preCommitHookFile.copyTo(backupFile, overwrite = true)
+            }
+            // > .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+            preCommitHookFile.writeBytes(expectedPreCommitHook)
+            preCommitHookFile.setExecutable(true)
+            System.err.println(".git/hooks/pre-commit installed")
+            if (!apply) {
+                exitProcess(0)
+            }
+        }
         if (apply) {
             com.github.shyiko.ktlint.idea.Main.main(arrayOf("apply") +
                 (if (forceApply) arrayOf("-y") else emptyArray()))
@@ -367,6 +399,8 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
             exitProcess(1)
         }
     }
+
+    fun hex(input: ByteArray) = BigInteger(MessageDigest.getInstance("SHA-256").digest(input)).toString(16)
 
     // a complete solution would be to implement https://www.gnu.org/software/bash/manual/html_node/Tilde-Expansion.html
     // this implementation takes care only of the most commonly used case (~/)
