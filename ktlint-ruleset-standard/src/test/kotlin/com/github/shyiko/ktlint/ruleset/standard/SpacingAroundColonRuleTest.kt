@@ -47,6 +47,15 @@ class SpacingAroundColonRuleTest {
             }
             """.trimIndent()
         )).isEmpty()
+        assertThat(SpacingAroundColonRule().lint(
+            """
+            class A {
+                constructor() : this("")
+                constructor(s: String) {
+                }
+            }
+            """.trimIndent()
+        )).isEmpty()
     }
 
     @Test

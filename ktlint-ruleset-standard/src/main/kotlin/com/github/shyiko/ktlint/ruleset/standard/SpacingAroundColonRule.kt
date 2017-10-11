@@ -9,6 +9,7 @@ import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtAnnotation
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
 import org.jetbrains.kotlin.psi.KtClassOrObject
+import org.jetbrains.kotlin.psi.KtConstructor
 import org.jetbrains.kotlin.psi.KtTypeParameterList
 import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
 
@@ -22,7 +23,9 @@ class SpacingAroundColonRule : Rule("colon-spacing") {
                 return
             }
             if (node.prevSibling is PsiWhiteSpace &&
-                node.parent !is KtClassOrObject && node.parent.parent !is KtTypeParameterList) {
+                node.parent !is KtClassOrObject &&
+                node.parent !is KtConstructor<*> &&
+                node.parent?.parent !is KtTypeParameterList) {
                 emit(node.startOffset, "Unexpected spacing before \":\"", true)
                 if (autoCorrect) {
                     var prevNode = node
