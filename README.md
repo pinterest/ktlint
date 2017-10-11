@@ -161,7 +161,7 @@ To run formatter - `mvn antrun:run@ktlint-format`.
 > build.gradle
 
 ```groovy
-apply plugin: 'java'
+apply plugin: "java"
 
 repositories {
     mavenCentral()
@@ -172,7 +172,7 @@ configurations {
 }
 
 dependencies {
-    ktlint 'com.github.shyiko:ktlint:0.10.0'
+    ktlint "com.github.shyiko:ktlint:0.10.0"
     // additional 3rd party ruleset(s) can be specified here
     // just add them to the classpath (ktlint 'groupId:artifactId:version') and 
     // ktlint will pick them up
