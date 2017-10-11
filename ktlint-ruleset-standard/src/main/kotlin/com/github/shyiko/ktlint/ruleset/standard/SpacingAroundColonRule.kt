@@ -5,14 +5,12 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
-import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtAnnotation
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
 import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.jetbrains.kotlin.psi.KtConstructor
 import org.jetbrains.kotlin.psi.KtTypeConstraint
 import org.jetbrains.kotlin.psi.KtTypeParameterList
-import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
 
 class SpacingAroundColonRule : Rule("colon-spacing") {
 
@@ -30,14 +28,7 @@ class SpacingAroundColonRule : Rule("colon-spacing") {
                 node.parent?.parent !is KtTypeParameterList) {
                 emit(node.startOffset, "Unexpected spacing before \":\"", true)
                 if (autoCorrect) {
-                    var prevNode = node
-                    while (prevNode
-                        .treePrev
-                        .elementType
-                        .let { it != KtStubElementTypes.VALUE_PARAMETER_LIST && it != KtTokens.IDENTIFIER }) {
-                        prevNode = prevNode.treePrev
-                    }
-                    node.treeParent.removeRange(prevNode, node)
+                    node.prevSibling.node.treeParent.removeChild(node.prevSibling.node)
                 }
             }
             val missingSpacingBefore = node.prevSibling !is PsiWhiteSpace &&
