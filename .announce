@@ -18,12 +18,16 @@ if [ "$(git status --porcelain=v1 README.md)" != "" ]; then
   exit 1
 fi
 
-escape-for-sed() { echo $1 | sed -e 's/[]\/$*.^|[]/\\&/g'; }
+escape_for_sed() { echo $1 | sed -e 's/[]\/$*.^|[]/\\&/g'; }
 
 # update readme.md
 
-sed -i "/$(escape-for-sed $PREVIOUS_VERSION)/$(escape-for-sed $VERSION)/g" README.md
+sed -i "s/$(escape_for_sed $PREVIOUS_VERSION)/$(escape_for_sed $VERSION)/g" README.md
 git --no-pager diff README.md
+
+# ask for user confirmation
+read -p "commit & push (y/n)? " -n 1 -r; echo; if [[ ! $REPLY =~ ^[Yy]$ ]]; then exit 1; fi
+
 git commit -m "$COMMIT_MESSAGE" README.md && git push origin master
 
 # update ktlint.github.io
@@ -31,6 +35,10 @@ git commit -m "$COMMIT_MESSAGE" README.md && git push origin master
 CHECKOUT_DIR=$(mktemp -d /tmp/ktlint.github.io.XXXXXX)
 git clone https://${GITHUB_TOKEN}@github.com/ktlint/ktlint.github.io.git $CHECKOUT_DIR
 
-sed -i "/$(escape-for-sed $PREVIOUS_VERSION)/$(escape-for-sed $VERSION)/g" $CHECKOUT_DIR/README.md
-git --no-pager diff $CHECKOUT_DIR/README.md
-(cd $CHECKOUT_DIR && git commit -m "$COMMIT_MESSAGE" README.md && git push origin master)
+sed -i "s/$(escape_for_sed $PREVIOUS_VERSION)/$(escape_for_sed $VERSION)/g" $CHECKOUT_DIR/index.html
+(cd $CHECKOUT_DIR && git --no-pager diff index.html)
+
+# ask for user confirmation
+read -p "commit & push (y/n)? " -n 1 -r; echo; if [[ ! $REPLY =~ ^[Yy]$ ]]; then exit 1; fi
+
+(cd $CHECKOUT_DIR && git commit -m "$COMMIT_MESSAGE" index.html && git push origin master)
