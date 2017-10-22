@@ -60,6 +60,8 @@ class SpacingAroundCurlyRuleTest {
                 f({ if (true) {r.add(v)}; r})
                 emptyList<String>().find { true }!!.hashCode()
                 emptyList<String>().find { true } !!.hashCode()
+                l.groupBy { it }[key] + l.groupBy { it } [key]
+                l.groupBy { it }(key) + l.groupBy { it } (key)
                 class A
                 {
                     companion object
@@ -102,6 +104,8 @@ class SpacingAroundCurlyRuleTest {
                 f({ if (true) { r.add(v) }; r })
                 emptyList<String>().find { true }!!.hashCode()
                 emptyList<String>().find { true }!!.hashCode()
+                l.groupBy { it }[key] + l.groupBy { it }[key]
+                l.groupBy { it }(key) + l.groupBy { it }(key)
                 class A {
                     companion object {
                     }
