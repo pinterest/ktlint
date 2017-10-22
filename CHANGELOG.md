@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.10.1] - 2017-10-22
+
+### Fixed
+- Redundant space inserted between `}` and `[key]`/`(...)` (curly-spacing) ([#91](https://github.com/shyiko/ktlint/issues/91)).
+
 ## [0.10.0] - 2017-10-10
 
 ### Added
@@ -201,6 +206,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.10.1]: https://github.com/shyiko/ktlint/compare/0.10.0...0.10.1
 [0.10.0]: https://github.com/shyiko/ktlint/compare/0.9.2...0.10.0
 [0.9.2]: https://github.com/shyiko/ktlint/compare/0.9.1...0.9.2
 [0.9.1]: https://github.com/shyiko/ktlint/compare/0.9.0...0.9.1
