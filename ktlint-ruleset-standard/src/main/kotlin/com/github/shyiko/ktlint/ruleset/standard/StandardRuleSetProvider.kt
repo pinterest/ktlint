@@ -12,6 +12,7 @@ class StandardRuleSetProvider : RuleSetProvider {
         IndentationRule(),
         MaxLineLengthRule(),
         ModifierOrderRule(),
+        NoBlankLineBeforeRbraceRule(),
         NoConsecutiveBlankLinesRule(),
         NoEmptyClassBodyRule(),
         // disabled until it's clear what to do in case of `import _.it`
