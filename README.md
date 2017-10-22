@@ -36,7 +36,6 @@ It's also [easy to create your own](#creating-a-reporter).
 - No semicolons (unless used to separate multiple statements on the same line);
 - No wildcard / unused `import`s;
 - No consecutive blank lines;
-- No blank lines before `}`;
 - No trailing whitespaces;
 - No `Unit` returns (`fun fn {}` instead of `fun fn: Unit {}`);
 - No empty (`{}`) class bodies;
@@ -230,7 +229,7 @@ Go to `File -> Settings... -> Editor`
   - check `Optimize imports on the fly (for current project)`.
 - `Code Style -> Kotlin`
   - open `Imports` tab, select all `Use single name import` options and remove `import java.util.*` from `Packages to Use Import with '*'`.
-  - open `Blank Lines` tab, change `Keep Maximum Blank Lines` -> `In declarations` & `In code` to 1 and `Before '}'` to 0.
+  - open `Blank Lines` tab, change `Keep Maximum Blank Lines` -> `In declarations` & `In code` to 1.
   - (optional but recommended) open `Wrapping and Braces` tab, uncheck `Method declaration parameters -> Align when multiline`. 
   - (optional but recommended) open `Tabs and Indents` tab, change `Continuation indent` to 4.
 - `Inspections` 
