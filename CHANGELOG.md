@@ -2,10 +2,17 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.10.2] - 2017-10-25
+## [0.11.0] - 2017-10-25
+
+### Added
+- `no-blank-line-before-rbrace` rule ([#65](https://github.com/shyiko/ktlint/issues/65)).
 
 ### Fixed
 - Redundant space inserted between `}` and `::` (curly-spacing).
+
+## [0.10.2] - 2017-10-25 [YANKED]
+
+This release contains changes that were meant for 0.11.0 and so it was retagged as such.
 
 ## [0.10.1] - 2017-10-22
 
@@ -211,6 +218,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.11.0]: https://github.com/shyiko/ktlint/compare/0.10.1...0.11.0
 [0.10.2]: https://github.com/shyiko/ktlint/compare/0.10.1...0.10.2
 [0.10.1]: https://github.com/shyiko/ktlint/compare/0.10.0...0.10.1
 [0.10.0]: https://github.com/shyiko/ktlint/compare/0.9.2...0.10.0
