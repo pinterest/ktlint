@@ -92,7 +92,8 @@ class SpacingAroundCurlyRule : Rule("curly-spacing") {
             nextElementType == KtTokens.SAFE_ACCESS ||
             nextElementType == KtTokens.EXCLEXCL ||
             nextElementType == KtTokens.LBRACKET ||
-            nextElementType == KtTokens.LPAR
+            nextElementType == KtTokens.LPAR ||
+            nextElementType == KtTokens.COLONCOLON
     }
 
 }
