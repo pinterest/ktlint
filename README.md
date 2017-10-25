@@ -97,7 +97,7 @@ $ ktlint --install-git-pre-commit-hook
 
 ### Integration 
 
-#### ... with [Maven]()
+#### ... with [Maven](https://github.com/shyiko/mvnw)
 
 > pom.xml
 
@@ -156,7 +156,7 @@ $ ktlint --install-git-pre-commit-hook
 To check code style - `mvn antrun:run@ktlint` (it's also bound to `mvn verify`).  
 To run formatter - `mvn antrun:run@ktlint-format`.   
 
-#### ... with [Gradle]()
+#### ... with [Gradle](https://gradle.org/)
 
 > build.gradle
 
