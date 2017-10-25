@@ -37,5 +37,4 @@ class NoTrailingSpacesRule : Rule("no-trailing-spaces") {
             violationOffset += line.length + 1
         }
     }
-
 }

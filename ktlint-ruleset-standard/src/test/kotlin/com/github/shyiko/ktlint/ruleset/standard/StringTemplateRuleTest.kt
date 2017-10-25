@@ -13,5 +13,4 @@ class StringTemplateRuleTest {
     fun testFormat() {
         testFormatUsingResource(StringTemplateRule())
     }
-
 }

@@ -32,5 +32,4 @@ class NoSemicolonsRule : Rule("no-semi") {
             }
         }
     }
-
 }

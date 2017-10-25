@@ -24,5 +24,4 @@ class DumpAST : Rule("dump") {
 
     private fun String.escape() =
         this.replace("\\", "\\\\").replace("\n", "\\n").replace("\t", "\\t").replace("\r", "\\r")
-
 }

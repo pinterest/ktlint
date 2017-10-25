@@ -7,5 +7,4 @@ class NoItParamInMultilineLambdaRuleTest {
     @Test
     fun testLint() =
         testLintUsingResource(NoItParamInMultilineLambdaRule())
-
 }

@@ -7,6 +7,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.testng.annotations.Test
 
 class NoConsecutiveBlankLinesRuleTest {
+
     @Test
     fun testLintInDeclarations() {
         assertThat(NoConsecutiveBlankLinesRule().lint(

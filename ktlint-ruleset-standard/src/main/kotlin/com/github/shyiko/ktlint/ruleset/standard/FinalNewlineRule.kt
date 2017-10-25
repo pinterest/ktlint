@@ -35,7 +35,5 @@ class FinalNewlineRule : Rule("final-newline") {
                 }
             }
         }
-
     }
-
 }

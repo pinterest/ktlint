@@ -64,5 +64,4 @@ class ErrorSuppressionTest {
             LintError(5, 10, "no-wildcard-imports", "Wildcard import")
         ))
     }
-
 }

@@ -19,5 +19,4 @@ class NoConsecutiveBlankLinesRule : Rule("no-consecutive-blank-lines") {
             }
         }
     }
-
 }

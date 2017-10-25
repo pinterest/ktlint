@@ -45,5 +45,4 @@ class MaxLineLengthRule : Rule("max-line-length") {
             }
         }
     }
-
 }

@@ -132,5 +132,4 @@ class SpacingAroundCurlyRuleTest {
             """.trimIndent()
         )
     }
-
 }

@@ -70,5 +70,4 @@ class ModifierOrderRule : Rule("modifier-order") {
             }
         }
     }
-
 }

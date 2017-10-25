@@ -11,5 +11,4 @@ class ImportOrderingRuleTest {
     @Test
     fun testFormat() =
         testFormatUsingResource(ImportOrderingRule())
-
 }

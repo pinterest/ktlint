@@ -77,5 +77,4 @@ class SpacingAroundOperatorsRule : Rule("op-spacing") {
             }
         }
     }
-
 }

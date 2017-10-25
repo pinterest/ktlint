@@ -9,5 +9,4 @@ interface EditorConfig {
     }
 
     fun get(key: String): String?
-
 }

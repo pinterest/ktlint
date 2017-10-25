@@ -80,5 +80,4 @@ class NoMultipleSpacesRule : Rule("no-multi-spaces") {
         cb(this)
         this.getChildren(null).forEach { it.visit(cb) }
     }
-
 }

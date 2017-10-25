@@ -12,5 +12,4 @@ class RuleSet(val id: String, vararg val rules: Rule) : Iterable<Rule> {
     }
 
     override fun iterator(): Iterator<Rule> = rules.iterator()
-
 }

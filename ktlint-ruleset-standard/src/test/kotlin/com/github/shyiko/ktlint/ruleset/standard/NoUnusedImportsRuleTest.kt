@@ -196,5 +196,4 @@ class NoUnusedImportsRuleTest {
             """.trimIndent()
         )
     }
-
 }

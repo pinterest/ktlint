@@ -95,5 +95,4 @@ class SpacingAroundCurlyRule : Rule("curly-spacing") {
             nextElementType == KtTokens.LPAR ||
             nextElementType == KtTokens.COLONCOLON
     }
-
 }

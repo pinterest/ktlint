@@ -393,7 +393,7 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
         reporter.afterAll()
         if (debug) {
             System.err.println("[DEBUG] ${(System.currentTimeMillis() - start)
-                }ms / ${fileNumber} file(s) / ${errorNumber} error(s)")
+                }ms / $fileNumber file(s) / $errorNumber error(s)")
         }
         if (tripped.get()) {
             exitProcess(1)
@@ -542,5 +542,4 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
         executorService.shutdown()
         consumer.join()
     }
-
 }

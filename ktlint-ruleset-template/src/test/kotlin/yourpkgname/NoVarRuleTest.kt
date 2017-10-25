@@ -23,8 +23,6 @@ class NoVarRuleTest : Spek({
             assertThat(rule.lint("""fun fn() { var v = "var" }"""))
                 .isEqualTo(listOf(LintError(1, 12, "no-var", "Unexpected var, use val instead")))
         }
-
     }
-
 })
 

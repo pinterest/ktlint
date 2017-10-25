@@ -13,5 +13,4 @@ class NoEmptyClassBodyRuleTest {
     fun testFormat() {
         testFormatUsingResource(NoEmptyClassBodyRule())
     }
-
 }

@@ -70,5 +70,4 @@ class SpacingAroundOperatorsRuleTest {
             """.trimIndent()
         )
     }
-
 }

@@ -63,5 +63,4 @@ class MavenDependencyResolver(baseDir: File, val repositories: Iterable<RemoteRe
         repoSystem.resolveDependencies(session, DependencyRequest().apply { root = node })
         return PreorderNodeListGenerator().apply { node.accept(this) }.files
     }
-
 }

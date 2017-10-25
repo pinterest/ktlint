@@ -49,5 +49,4 @@ class JsonReporter(val out: PrintStream) : Reporter {
     }
 
     private fun String.escapeJsonValue() = this.replace("\"", "\\\"")
-
 }

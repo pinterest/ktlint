@@ -84,5 +84,4 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
         cb(this)
         this.getChildren(null).forEach { it.visit(cb) }
     }
-
 }

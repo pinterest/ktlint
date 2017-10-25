@@ -30,5 +30,4 @@ class StandardRuleSetProvider : RuleSetProvider {
         SpacingAroundOperatorsRule(),
         StringTemplateRule()
     )
-
 }

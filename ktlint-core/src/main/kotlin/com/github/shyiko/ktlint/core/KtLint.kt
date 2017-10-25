@@ -59,7 +59,6 @@ object KtLint {
                 }
                 return null
             }
-
         }
         val extensionPoint = "org.jetbrains.kotlin.com.intellij.treeCopyHandler"
         val extensionClassName = TreeCopyHandler::class.java.name!!
@@ -362,9 +361,7 @@ object KtLint {
                 comment.replace(Regex("\\s"), " ").replace(" {2,}", " ").split(" ")
 
             private fun <T>List<T>.tail() = this.subList(1, this.size)
-
         }
-
     }
 
     private class SegmentTree {
@@ -389,7 +386,6 @@ object KtLint {
                 if (v < s.left) binarySearch(v, l, i - 1) else (if (s.right < v) binarySearch(v, i + 1, r) else i)
             }
         }
-
     }
 
     private data class Segment(val left: Int, val right: Int)
@@ -411,5 +407,4 @@ object KtLint {
         cb(this)
         this.getChildren(null).forEach { it.visit(cb) }
     }
-
 }
