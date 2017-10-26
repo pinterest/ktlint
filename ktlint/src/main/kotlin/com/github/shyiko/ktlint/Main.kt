@@ -275,7 +275,7 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
                 System.err.println("[DEBUG] Initializing \"${r.id}\" reporter with ${r.config}" +
                     (r.output?.let { ", output=$it" } ?: ""))
             }
-            val output = if (r.output != null) PrintStream(r.output) else
+            val output = if (r.output != null) { File(r.output).parentFile?.mkdirsOrFail(); PrintStream(r.output) } else
                 if (stdin) System.err else System.out
             reporterProvider.get(output, r.config).let { reporter ->
                 if (r.output != null)
