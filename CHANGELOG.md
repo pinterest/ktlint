@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.11.1] - 2017-10-26
+
+### Fixed
+- `--reporter`'s `output` handling (previously parent directory was expected to exist) ([#97](https://github.com/shyiko/ktlint/issues/97)).
+
 ## [0.11.0] - 2017-10-25
 
 ### Added
@@ -218,6 +223,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.11.1]: https://github.com/shyiko/ktlint/compare/0.11.0...0.11.1
 [0.11.0]: https://github.com/shyiko/ktlint/compare/0.10.1...0.11.0
 [0.10.2]: https://github.com/shyiko/ktlint/compare/0.10.1...0.10.2
 [0.10.1]: https://github.com/shyiko/ktlint/compare/0.10.0...0.10.1
