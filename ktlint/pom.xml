@@ -52,17 +52,6 @@
             <version>0.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>com.github.shyiko.ktlint</groupId>
-            <artifactId>ktlint-intellij-idea-integration</artifactId>
-            <version>0.0.0-SNAPSHOT</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.github.shyiko.klob</groupId>
-                    <artifactId>klob</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
             <groupId>com.github.shyiko.klob</groupId>
             <artifactId>klob</artifactId>
             <version>0.2.0</version>
@@ -284,13 +273,6 @@
                                             <artifact>org.jetbrains.kotlin:kotlin-compiler-embeddable</artifact>
                                             <includes>
                                                 <include>**</include>
-                                            </includes>
-                                        </filter>
-                                        <filter>
-                                            <artifact>com.github.shyiko.ktlint:ktlint-intellij-idea-integration</artifact>
-                                            <includes>
-                                                <include>com/github/shyiko/ktlint/idea/**</include>
-                                                <include>config/**</include>
                                             </includes>
                                         </filter>
                                     </filters>

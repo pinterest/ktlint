@@ -55,7 +55,6 @@
         <module>ktlint-reporter-plain</module>
         <module>ktlint-reporter-json</module>
         <module>ktlint-reporter-checkstyle</module>
-        <module>ktlint-intellij-idea-integration</module>
         <module>ktlint</module>
     </modules>
 

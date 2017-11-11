@@ -9,6 +9,8 @@ import com.github.shyiko.ktlint.core.ReporterProvider
 import com.github.shyiko.ktlint.core.RuleExecutionException
 import com.github.shyiko.ktlint.core.RuleSet
 import com.github.shyiko.ktlint.core.RuleSetProvider
+import com.github.shyiko.ktlint.internal.EditorConfig
+import com.github.shyiko.ktlint.internal.IntellijIDEAIntegration
 import com.github.shyiko.ktlint.internal.MavenDependencyResolver
 import org.eclipse.aether.RepositoryException
 import org.eclipse.aether.artifact.DefaultArtifact
@@ -16,7 +18,6 @@ import org.eclipse.aether.repository.RemoteRepository
 import org.eclipse.aether.repository.RepositoryPolicy
 import org.eclipse.aether.repository.RepositoryPolicy.CHECKSUM_POLICY_IGNORE
 import org.eclipse.aether.repository.RepositoryPolicy.UPDATE_POLICY_NEVER
-import org.ini4j.Wini
 import org.jetbrains.kotlin.preprocessor.mkdirsOrFail
 import org.kohsuke.args4j.Argument
 import org.kohsuke.args4j.CmdLineException
@@ -38,7 +39,9 @@ import java.nio.file.Paths
 import java.security.MessageDigest
 import java.util.ArrayList
 import java.util.Arrays
+import java.util.NoSuchElementException
 import java.util.ResourceBundle
+import java.util.Scanner
 import java.util.ServiceLoader
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.Callable
@@ -66,6 +69,9 @@ object Main {
     // todo: this should have been a command, not a flag (consider changing in 1.0.0)
     @Option(name="--format", aliases = arrayOf("-F"), usage = "Fix any deviations from the code style")
     private var format: Boolean = false
+
+    @Option(name="--android", aliases = arrayOf("-a"), usage = "Turn on Android Kotlin Style Guide compatibility")
+    private var android: Boolean = false
 
     @Option(name="--reporter",
         usage = "A reporter to use (built-in: plain (default), plain?group_by_file, json, checkstyle). " +
@@ -154,8 +160,7 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
             .joinToString("\n")}
         """.trimIndent()
 
-    @JvmStatic
-    fun main(args: Array<String>) {
+    fun parseCmdLine(args: Array<String>) {
         args.forEach { arg ->
             if (arg.startsWith("--") && arg.contains("=")) {
                 val flag = arg.substringBefore("=")
@@ -194,38 +199,25 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
             System.err.println("Error: ${err.message}\n\n${parser.usage()}")
             exitProcess(1)
         }
-        if (version) { println(javaClass.`package`.implementationVersion); exitProcess(0) }
         if (help) { println(parser.usage()); exitProcess(0) }
+    }
+
+    @JvmStatic
+    fun main(args: Array<String>) {
+        parseCmdLine(args)
+        if (version) {
+            println(javaClass.`package`.implementationVersion)
+            exitProcess(0)
+        }
         if (installGitPreCommitHook) {
-            if (!File(".git").isDirectory) {
-                System.err.println(".git directory not found. " +
-                    "Are you sure you are inside project root directory?")
-                System.exit(1)
-            }
-            val hooksDir = File(".git", "hooks")
-            hooksDir.mkdirsOrFail()
-            val preCommitHookFile = File(hooksDir, "pre-commit")
-            val expectedPreCommitHook = ClassLoader.getSystemClassLoader()
-                .getResourceAsStream("ktlint-git-pre-commit-hook.sh").readBytes()
-            // backup existing hook (if any)
-            val actualPreCommitHook = try { preCommitHookFile.readBytes() } catch (e: FileNotFoundException) { null }
-            if (actualPreCommitHook != null && !actualPreCommitHook.isEmpty() && !Arrays.equals(actualPreCommitHook, expectedPreCommitHook)) {
-                val backupFile = File(hooksDir, "pre-commit.ktlint-backup." + hex(actualPreCommitHook))
-                System.err.println(".git/hooks/pre-commit -> $backupFile")
-                preCommitHookFile.copyTo(backupFile, overwrite = true)
-            }
-            // > .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
-            preCommitHookFile.writeBytes(expectedPreCommitHook)
-            preCommitHookFile.setExecutable(true)
-            System.err.println(".git/hooks/pre-commit installed")
+            installGitPreCommitHook()
             if (!apply) {
                 exitProcess(0)
             }
         }
         if (apply) {
-            com.github.shyiko.ktlint.idea.Main.main(arrayOf("apply") +
-                (if (forceApply) arrayOf("-y") else emptyArray()))
-            return // process will be terminated before can reach this line
+            applyToIDEA()
+            exitProcess(0)
         }
         val workDir = File(".").canonicalPath
         val start = System.currentTimeMillis()
@@ -290,12 +282,15 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
             }
         }.toTypedArray())
         // load .editorconfig
-        val userData = locateEditorConfig(File(workDir))?.let { editoConfigFile ->
-            if (debug) {
-                System.err.println("[DEBUG] Discovered .editorconfig (${editoConfigFile.parent})")
-            }
-            loadEditorConfig(editoConfigFile)
-        } ?: emptyMap()
+        val userData = (
+            EditorConfig.of(workDir)
+                ?.also { editorConfig ->
+                    if (debug) {
+                        System.err.println("[DEBUG] Discovered .editorconfig (${editorConfig.path.parent})")
+                    }
+                }
+                ?: emptyMap<String, String>()
+            ) + mapOf("android" to android.toString())
         if (debug) {
             System.err.println("[DEBUG] ${userData.mapKeys { it.key }} loaded from .editorconfig")
         }
@@ -400,6 +395,62 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
         }
     }
 
+    fun installGitPreCommitHook() {
+        if (!File(".git").isDirectory) {
+            System.err.println(".git directory not found. " +
+                "Are you sure you are inside project root directory?")
+            exitProcess(1)
+        }
+        val hooksDir = File(".git", "hooks")
+        hooksDir.mkdirsOrFail()
+        val preCommitHookFile = File(hooksDir, "pre-commit")
+        val expectedPreCommitHook = ClassLoader.getSystemClassLoader()
+            .getResourceAsStream("ktlint-git-pre-commit-hook.sh").readBytes()
+        // backup existing hook (if any)
+        val actualPreCommitHook = try { preCommitHookFile.readBytes() } catch (e: FileNotFoundException) { null }
+        if (actualPreCommitHook != null && !actualPreCommitHook.isEmpty() && !Arrays.equals(actualPreCommitHook, expectedPreCommitHook)) {
+            val backupFile = File(hooksDir, "pre-commit.ktlint-backup." + hex(actualPreCommitHook))
+            System.err.println(".git/hooks/pre-commit -> $backupFile")
+            preCommitHookFile.copyTo(backupFile, overwrite = true)
+        }
+        // > .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+        preCommitHookFile.writeBytes(expectedPreCommitHook)
+        preCommitHookFile.setExecutable(true)
+        System.err.println(".git/hooks/pre-commit installed")
+    }
+
+    fun applyToIDEA() {
+        try {
+            val workDir = Paths.get(".")
+            if (!forceApply) {
+                val fileList = IntellijIDEAIntegration.apply(workDir, true, android)
+                System.err.println("The following files are going to be updated:\n\n\t" +
+                    fileList.joinToString("\n\t") +
+                    "\n\nDo you wish to proceed? [y/n]\n" +
+                    "(in future, use -y flag if you wish to skip confirmation)")
+                val scanner = Scanner(System.`in`)
+
+                val res = generateSequence {
+                        try { scanner.next() } catch (e: NoSuchElementException) { null }
+                    }
+                    .filter { line -> !line.trim().isEmpty() }
+                    .first()
+                if (!"y".equals(res, ignoreCase = true)) {
+                    System.err.println("(update canceled)")
+                    exitProcess(1)
+                }
+            }
+            IntellijIDEAIntegration.apply(workDir, false, android)
+        } catch (e: IntellijIDEAIntegration.ProjectNotFoundException) {
+            System.err.println(".idea directory not found. " +
+                "Are you sure you are inside project root directory?")
+            exitProcess(1)
+        }
+        System.err.println("(updated)")
+        System.err.println("\nPlease restart your IDE")
+        System.err.println("(if you experience any issues please report them at https://github.com/shyiko/ktlint)")
+    }
+
     fun hex(input: ByteArray) = BigInteger(MessageDigest.getInstance("SHA-256").digest(input)).toString(16)
 
     // a complete solution would be to implement https://www.gnu.org/software/bash/manual/html_node/Tilde-Expansion.html
@@ -481,21 +532,6 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
             }
             map
         }
-
-    fun locateEditorConfig(dir: File?): File? = when (dir) {
-        null -> null
-        else -> File(dir, ".editorconfig").let {
-            if (it.exists()) it else locateEditorConfig(dir.parentFile)
-        }
-    }
-
-    fun loadEditorConfig(file: File): Map<String, String> {
-        val editorConfig = Wini(file)
-        // right now ktlint requires explicit [*.{kt,kts}] section
-        // (this way we can be sure that users want .editorconfig to be recognized by ktlint)
-        val section = editorConfig["*.{kt,kts}"]
-        return section?.toSortedMap() ?: emptyMap<String, String>()
-    }
 
     fun lint(fileName: String, text: String, ruleSets: Iterable<RuleSet>, userData: Map<String, String>,
             cb: (e: LintError) -> Unit) =
