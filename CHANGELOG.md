@@ -2,6 +2,21 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.12.0] - 2017-11-10
+
+### Added
+- `--android` (`-a`) CLI option (turns on [Android Kotlin Style Guide](https://android.github.io/kotlin-guides/style.html) compatibility)  
+(right now it's used only by `ktlint --apply-to-idea`).
+
+### Changed
+- `ktlint --apply-to-idea` to account for `indent_size` & `continuation_indent_size` in `.editorconfig` (if any). 
+
+### Removed
+- `ktlint-intellij-idea-integration` binary (deprecated in [0.9.0](#090---2017-07-23)).
+
+### Fixed
+- "Unused import" false positive (`component1`..`component5`).
+
 ## [0.11.1] - 2017-10-26
 
 ### Fixed
@@ -223,6 +238,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.12.0]: https://github.com/shyiko/ktlint/compare/0.11.1...0.12.0
 [0.11.1]: https://github.com/shyiko/ktlint/compare/0.11.0...0.11.1
 [0.11.0]: https://github.com/shyiko/ktlint/compare/0.10.1...0.11.0
 [0.10.2]: https://github.com/shyiko/ktlint/compare/0.10.1...0.10.2
