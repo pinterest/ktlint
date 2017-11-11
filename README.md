@@ -16,15 +16,12 @@
 
 Features:
 - **No configuration.** Which means no decisions to make, nothing to argue about and no special files to manage.   
-While this might sound extreme, keep in mind that `ktlint` tries to capture (reflect) **official code style** from [kotlinlang.org](https://kotlinlang.org/docs/reference/)
-(+ we respect you [.editorconfig](http://editorconfig.org/)\* and support additional [ruleset](#creating-a-ruleset)|s).
+While this might sound extreme, keep in mind that `ktlint` tries to capture (reflect) **official code style** from [kotlinlang.org](https://kotlinlang.org/docs/reference/coding-conventions.html) and [Android Kotlin Style Guide](https://android.github.io/kotlin-guides/style.html)
+(+ [we respect you .editorconfig](#editorconfig) and support additional [ruleset](#creating-a-ruleset)|s).
 - **Built-in formatter.** So that you wouldn't have to fix all style violations by hand.
 - **Customizable output.** `plain` (+ `plain?group_by_file`), `json` and `checkstyle` reporters are available out-of-the-box. 
 It's also [easy to create your own](#creating-a-reporter).
 - **A single executable jar with all dependencies included.**
-
-> \* as of [0.9.0](https://github.com/shyiko/ktlint/releases/tag/0.9.0) ktlint recognizes `insert_final_newline`, `max_line_length` and `indent_size`  
-(provided they are specified under `[*.{kt,kts}]`).
 
 <p align="center">
 <a href="#installation">Installation</a> | <a href="#usage">Usage</a> | <a href="#integration">Integration</a> with <a href="#-with-maven">Maven</a> / <a href="#-with-gradle">Gradle</a> / <a href="#-with-intellij-idea">IntelliJ IDEA</a> / <a href="#-with-emacs">Emacs</a> | Creating <a href="#creating-a-ruleset">a ruleset</a> | <a href="#creating-a-reporter">a reporter</a> | <a href="#badge">Badge</a> | <a href="#faq">FAQ</a>
@@ -32,7 +29,8 @@ It's also [easy to create your own](#creating-a-reporter).
 
 ## Standard rules
 
-- 4 spaces for indentation*;
+- 4 spaces for indentation  
+(unless a different `indent_size` value is set in .editorconfig (see [EditorConfig](#editorconfig) section for more));
 - No semicolons (unless used to separate multiple statements on the same line);
 - No wildcard / unused `import`s;
 - No consecutive blank lines;
@@ -42,11 +40,23 @@ It's also [easy to create your own](#creating-a-reporter).
 - No empty (`{}`) class bodies;
 - Consistent string templates (`$v` instead of `${v}`, `${p.v}` instead of `${p.v.toString()}`);
 - Consistent order of modifiers;
-- Consistent spacing after keywords, commas; around colons, curly braces, infix operators, etc.
+- Consistent spacing after keywords, commas; around colons, curly braces, infix operators, etc;
+- Newline at the end of each file  
+(unless `insert_final_newline` is set to false in .editorconfig (see [EditorConfig](#editorconfig) section for more)).
 
-> \* Starting from [0.8.0](https://github.com/shyiko/ktlint/releases/tag/0.8.0) value of `indent_size` specified under `[*{kt,kts}]` section in [.editorconfig](http://editorconfig.org/) takes precedence (if any). Official recommendation is to use 4 spaces, though. (see [#43](https://github.com/shyiko/ktlint/issues/43#issuecomment-304953280) for details)
+## EditorConfig
 
-> [More coming](https://github.com/shyiko/ktlint/labels/rule).
+ktlint recognizes the following [.editorconfig](http://editorconfig.org/) properties (provided they are specified under `[*.{kt,kts}]`):  
+(values shown below are the defaults and do not need to be specified explicitly)
+```ini
+[*.{kt,kts}]
+# possible values: number (e.g. 2), "unset" (makes ktlint ignore indentation completely)  
+indent_size=4
+continuation_indent_size=8
+insert_final_newline=true
+# possible values: number (e.g. 120) (package name, imports & comments are ignored), "off" 
+max_line_length=off
+```
 
 ## Installation
 
@@ -54,8 +64,13 @@ It's also [easy to create your own](#creating-a-reporter).
 
 ```sh
 curl -sSLO https://github.com/shyiko/ktlint/releases/download/0.11.1/ktlint &&
-  chmod a+x ktlint
+  chmod a+x ktlint &&
+  sudo mv ktlint /usr/local/bin/
 ```
+
+... or just download `ktlint` from the [releases](https://github.com/shyiko/ktlint/releases) page  (`ktlint.asc` contains PGP signature which you can verify with `curl -sS https://keybase.io/shyiko/pgp_keys.asc | gpg --import && gpg --verify ktlint.asc`).  
+
+On macOS ([or Linux](http://linuxbrew.sh/)) you can also use [brew](http://brew.sh/) - `brew install shyiko/ktlint/ktlint`.
 
 > If you don't have curl installed - replace `curl -sL` with `wget -qO-`.
 
@@ -63,10 +78,6 @@ curl -sSLO https://github.com/shyiko/ktlint/releases/download/0.11.1/ktlint &&
 [curl](https://curl.haxx.se/docs/manpage.html#ENVIRONMENT) / 
 [wget](https://www.gnu.org/software/wget/manual/wget.html#Proxies) manpage. 
 Usually simple `http_proxy=http://proxy-server:port https_proxy=http://proxy-server:port curl -sL ...` is enough. 
-
-... or just download `ktlint` from the ["release(s)"](https://github.com/shyiko/ktlint/releases) page  (`ktlint.asc` contains PGP signature which you can verify with `curl -sS https://keybase.io/shyiko/pgp_keys.asc | gpg --import && gpg --verify ktlint.asc`).  
-
-> On Mac OS X ([or Linux](http://linuxbrew.sh/)) one can also use [brew](http://brew.sh/) - `brew install shyiko/ktlint/ktlint`.
 
 ## Usage
 
@@ -218,9 +229,12 @@ You might also want to take a look at [diffplug/spotless](https://github.com/dif
 
 ##### Option #1 (recommended)
 
+> (inside project's root directory)  
+
 ```sh
-# inside project's root directory  
-ktlint --apply-to-idea 
+ktlint --apply-to-idea
+# or if you want to be compliant with Android Kotlin Style Guide
+ktlint --apply-to-idea --android 
 ```
 
 ##### Option #2
@@ -232,7 +246,8 @@ Go to `File -> Settings... -> Editor`
   - open `Imports` tab, select all `Use single name import` options and remove `import java.util.*` from `Packages to Use Import with '*'`.
   - open `Blank Lines` tab, change `Keep Maximum Blank Lines` -> `In declarations` & `In code` to 1 and `Before '}'` to 0.
   - (optional but recommended) open `Wrapping and Braces` tab, uncheck `Method declaration parameters -> Align when multiline`. 
-  - (optional but recommended) open `Tabs and Indents` tab, change `Continuation indent` to 4.
+  - (optional but recommended) open `Tabs and Indents` tab, change `Continuation indent` to 4 (to be compliant with 
+  [Android Kotlin Style Guide](https://android.github.io/kotlin-guides/style.html) value should stay equal 8).
 - `Inspections` 
   - change `Severity` level of `Unused import directive`, `Redundant semicolon` and (optional but recommended) `Unused symbol` to `ERROR`.
 
@@ -278,9 +293,9 @@ To load a custom (3rd party) reporter use `ktlint --reporter=groupId:artifactId:
  
 ## Badge
 
-If you use ktlint in your project, consider including a badge in your readme to let people know that your code is checked by ktlint. 
-
-[![ktlint](https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg)](https://ktlint.github.io/)
+If you use ktlint in your project, consider including 
+<span style="position:relative;top:5px;">[![ktlint](https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg)](https://ktlint.github.io/)</span>
+badge in your readme to let people know that your code is checked by ktlint. 
 
 ```md
 [![ktlint](https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg)](https://ktlint.github.io/)
