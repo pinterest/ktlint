@@ -43,7 +43,7 @@ object IntellijIDEAIntegration {
             Glob.from(".IntelliJIdea*/config", ".IdeaIC*/config", ".AndroidStudio*/config")
                 .iterate(Paths.get(home),
                     Glob.IterationOption.SKIP_CHILDREN, Glob.IterationOption.DIRECTORY).asSequence()
-        val updates = paths.flatMap { dir ->
+        val updates = (paths.flatMap { dir ->
             sequenceOf(
                 Paths.get(dir.toString(), "codestyles", "$codeStyleName.xml") to
                     overwriteWithResource("/config/codestyles/ktlint.xml") { resource ->
@@ -85,14 +85,14 @@ object IntellijIDEAIntegration {
                 },
             Paths.get(workDir.toString(), ".idea", "inspectionProfiles", "profiles_settings.xml") to
                 overwriteWithResource("/config/.idea/inspectionProfiles/profiles_settings.xml")
-        )
+        )).toList()
         if (!dryRun) {
             updates.forEach { (path, contentSupplier) ->
                 Files.createDirectories(path.parent)
                 Files.write(path, contentSupplier())
             }
         }
-        return updates.map { (path) -> path }.toList().toTypedArray()
+        return updates.map { (path) -> path }.toTypedArray()
     }
 
     private fun overwriteWithResource(resource: String, transformer: ((String) -> String) = { it }): () -> ByteArray = {
