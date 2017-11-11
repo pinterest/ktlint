@@ -1,3 +1,4 @@
 target
 .gradle
 build
+!ktlint/src/main/resources/config/.idea
