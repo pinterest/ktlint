@@ -287,13 +287,11 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
                 ?.also { editorConfig ->
                     if (debug) {
                         System.err.println("[DEBUG] Discovered .editorconfig (${editorConfig.path.parent})")
+                        System.err.println("[DEBUG] ${editorConfig.mapKeys { it.key }} loaded from .editorconfig")
                     }
                 }
                 ?: emptyMap<String, String>()
             ) + mapOf("android" to android.toString())
-        if (debug) {
-            System.err.println("[DEBUG] ${userData.mapKeys { it.key }} loaded from .editorconfig")
-        }
         data class LintErrorWithCorrectionInfo(val err: LintError, val corrected: Boolean)
         fun lintErrorFrom(e: Exception): LintError = when (e) {
             is ParseException ->
