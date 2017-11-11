@@ -32,6 +32,7 @@ import java.util.HashSet
 object KtLint {
 
     val EDITOR_CONFIG_USER_DATA_KEY = Key<EditorConfig>("EDITOR_CONFIG")
+    val ANDROID_USER_DATA_KEY = Key<Boolean>("ANDROID")
 
     private val psiFileFactory: PsiFileFactory
     private val nullSuppression = { _: Int, _: String -> false }
@@ -128,7 +129,8 @@ object KtLint {
             throw ParseException(line, col, errorElement.errorDescription)
         }
         val rootNode = psiFile.node
-        rootNode.putUserData(EDITOR_CONFIG_USER_DATA_KEY, EditorConfig.fromMap(userData))
+        rootNode.putUserData(EDITOR_CONFIG_USER_DATA_KEY, EditorConfig.fromMap(userData - "android"))
+        rootNode.putUserData(ANDROID_USER_DATA_KEY, userData["android"]?.toBoolean() ?: false)
         val isSuppressed = calculateSuppressedRegions(rootNode)
         val r = flatten(ruleSets)
         rootNode.visit { node ->
@@ -236,7 +238,8 @@ object KtLint {
             throw ParseException(line, col, errorElement.errorDescription)
         }
         val rootNode = psiFile.node
-        rootNode.putUserData(EDITOR_CONFIG_USER_DATA_KEY, EditorConfig.fromMap(userData))
+        rootNode.putUserData(EDITOR_CONFIG_USER_DATA_KEY, EditorConfig.fromMap(userData - "android"))
+        rootNode.putUserData(ANDROID_USER_DATA_KEY, userData["android"]?.toBoolean() ?: false)
         var isSuppressed = calculateSuppressedRegions(rootNode)
         val r = flatten(ruleSets)
         var autoCorrect = false
