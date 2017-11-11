@@ -293,9 +293,7 @@ To load a custom (3rd party) reporter use `ktlint --reporter=groupId:artifactId:
  
 ## Badge
 
-If you use ktlint in your project, consider including 
-<span style="position:relative;top:5px;">[![ktlint](https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg)](https://ktlint.github.io/)</span>
-badge in your readme to let people know that your code is checked by ktlint. 
+[![ktlint](https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg)](https://ktlint.github.io/)
 
 ```md
 [![ktlint](https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg)](https://ktlint.github.io/)
