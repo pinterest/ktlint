@@ -405,7 +405,7 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
         hooksDir.mkdirsOrFail()
         val preCommitHookFile = File(hooksDir, "pre-commit")
         val expectedPreCommitHook = ClassLoader.getSystemClassLoader()
-            .getResourceAsStream("ktlint-git-pre-commit-hook.sh").readBytes()
+            .getResourceAsStream("ktlint-git-pre-commit-hook${if (android) "-android" else ""}.sh").readBytes()
         // backup existing hook (if any)
         val actualPreCommitHook = try { preCommitHookFile.readBytes() } catch (e: FileNotFoundException) { null }
         if (actualPreCommitHook != null && !actualPreCommitHook.isEmpty() && !Arrays.equals(actualPreCommitHook, expectedPreCommitHook)) {
