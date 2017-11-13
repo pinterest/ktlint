@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.12.1] - 2017-11-13
+
+### Fixed
+- A conflict between `org.eclipse.aether:aether-*:1.1.0` and `org.eclipse.aether:aether-*:1.0.0.v20140518` ([#100](https://github.com/shyiko/ktlint/issues/100)).
+
 ## [0.12.0] - 2017-11-10
 
 ### Added
@@ -238,6 +243,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.12.1]: https://github.com/shyiko/ktlint/compare/0.12.0...0.12.1
 [0.12.0]: https://github.com/shyiko/ktlint/compare/0.11.1...0.12.0
 [0.11.1]: https://github.com/shyiko/ktlint/compare/0.11.0...0.11.1
 [0.11.0]: https://github.com/shyiko/ktlint/compare/0.10.1...0.11.0
