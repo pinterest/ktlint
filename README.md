@@ -42,7 +42,7 @@ It's also [easy to create your own](#creating-a-reporter).
 - Consistent order of modifiers;
 - Consistent spacing after keywords, commas; around colons, curly braces, infix operators, etc;
 - Newline at the end of each file  
-(unless `insert_final_newline` is set to false in .editorconfig (see [EditorConfig](#editorconfig) section for more)).
+(provided `insert_final_newline` is set to true in .editorconfig (see [EditorConfig](#editorconfig) section for more)).
 
 ## EditorConfig
 
@@ -53,7 +53,8 @@ ktlint recognizes the following [.editorconfig](http://editorconfig.org/) proper
 # possible values: number (e.g. 2), "unset" (makes ktlint ignore indentation completely)  
 indent_size=4
 continuation_indent_size=8
-insert_final_newline=true
+# true / false
+insert_final_newline=unset
 # possible values: number (e.g. 120) (package name, imports & comments are ignored), "off" 
 max_line_length=off
 ```
