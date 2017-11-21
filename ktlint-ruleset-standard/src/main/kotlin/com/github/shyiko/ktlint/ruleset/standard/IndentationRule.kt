@@ -46,7 +46,7 @@ class IndentationRule : Rule("indent") {
             continuationIndent = continuationIndentSize?.toIntOrNull() ?: if (continuationIndentSize?.toLowerCase() == "unset") -1 else indent
             return
         }
-        if (indent <= 0 && continuationIndent <= 0) {
+        if (indent <= 0 || continuationIndent <= 0) {
             return
         }
         if (node is PsiWhiteSpace && !node.isPartOf(PsiComment::class)) {
