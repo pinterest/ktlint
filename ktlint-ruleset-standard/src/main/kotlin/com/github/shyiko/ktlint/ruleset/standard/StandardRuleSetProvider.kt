@@ -28,6 +28,7 @@ class StandardRuleSetProvider : RuleSetProvider {
         SpacingAroundCurlyRule(),
         SpacingAroundKeywordRule(),
         SpacingAroundOperatorsRule(),
-        StringTemplateRule()
+        StringTemplateRule(),
+        NoLineBreakBeforeAssignmentRule()
     )
 }
