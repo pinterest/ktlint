@@ -6,6 +6,7 @@
 
 <p align="center">
 <a href="https://travis-ci.org/shyiko/ktlint"><img src="https://travis-ci.org/shyiko/ktlint.svg?branch=master" alt="Build Status"></a>
+<a href="https://ci.appveyor.com/project/shyiko/ktlint"><img src="https://ci.appveyor.com/api/projects/status/9dtlak3cj5rum48g?svg=true&passingText=passing" alt="Build Status"></a>
 <a href="http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.github.shyiko%22%20AND%20a%3A%22ktlint%22"><img src="https://img.shields.io/maven-central/v/com.github.shyiko/ktlint.svg" alt="Maven Central"></a>
 <a href="https://ktlint.github.io/"><img src="https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg" alt="ktlint"></a>
 </p>
