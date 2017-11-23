@@ -18,32 +18,24 @@ class JsonReporter(val out: PrintStream) : Reporter {
 
     override fun afterAll() {
         out.println("[")
-        for ((i, entry) in acc.entries.sortedBy { it.key }.withIndex()) {
+        val indexLast = acc.size - 1
+        for ((index, entry) in acc.entries.sortedBy { it.key }.withIndex()) {
             val (file, errList) = entry
-            out.println(
-                """
-                |	{
-                |		"file": "${file.escapeJsonValue()}",
-                |		"errors": [
-                """.trimMargin()
-            )
-            out.println(
-                errList.map { (line, col, ruleId, detail) ->
-                    """
-                    |			{
-                    |				"line": $line,
-                    |				"column": $col,
-                    |				"message": "${detail.escapeJsonValue()}",
-                    |				"rule": "$ruleId"
-                    |			}
-                    """.trimMargin()
-                }.joinToString(",\n")
-            )
-            out.println(
-                """
-                |		]
-                |	}${if (i < acc.size - 1) "," else ""}
-                """.trimMargin())
+            out.println("""	{""")
+            out.println("""		"file": "${file.escapeJsonValue()}",""")
+            out.println("""		"errors": [""")
+            val errIndexLast = errList.size - 1
+            for ((errIndex, err) in errList.withIndex()) {
+                val (line, col, ruleId, detail) = err
+                out.println("""			{""")
+                out.println("""				"line": $line,""")
+                out.println("""				"column": $col,""")
+                out.println("""				"message": "${detail.escapeJsonValue()}",""")
+                out.println("""				"rule": "$ruleId"""")
+                out.println("""			}${if (errIndex != errIndexLast) "," else ""}""")
+            }
+            out.println("""		]""")
+            out.println("""	}${if (index != indexLast) "," else ""}""")
         }
         out.println("]")
     }
