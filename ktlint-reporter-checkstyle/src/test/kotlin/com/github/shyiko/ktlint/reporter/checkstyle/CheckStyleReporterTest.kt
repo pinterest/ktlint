@@ -37,7 +37,7 @@ class CheckStyleReporterTest {
 		<error line="2" column="20" severity="error" message="A single thin straight line" source="rule-2" />
 	</file>
 </checkstyle>
-""".trimStart()
+""".trimStart().replace("\n", System.lineSeparator())
         )
     }
 }
