@@ -20,7 +20,9 @@ class MaxLineLengthRule : Rule("max-line-length") {
     ) {
         if (node.elementType == KtStubElementTypes.FILE) {
             val editorConfig = node.getUserData(KtLint.EDITOR_CONFIG_USER_DATA_KEY)!!
-            val maxLineLength = editorConfig.get("max_line_length")?.toIntOrNull() ?: 0
+            val android = node.getUserData(KtLint.ANDROID_USER_DATA_KEY)!!
+            val maxLineLength = editorConfig.get("max_line_length")?.toIntOrNull() ?:
+                if (android) 100 else 0
             if (maxLineLength <= 0) {
                 return
             }
