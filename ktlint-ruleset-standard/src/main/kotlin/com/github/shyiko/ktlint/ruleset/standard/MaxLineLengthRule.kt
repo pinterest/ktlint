@@ -4,6 +4,7 @@ import com.github.shyiko.ktlint.core.KtLint
 import com.github.shyiko.ktlint.core.Rule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
+import org.jetbrains.kotlin.kdoc.psi.api.KDoc
 import org.jetbrains.kotlin.psi.KtImportDirective
 import org.jetbrains.kotlin.psi.KtPackageDirective
 import org.jetbrains.kotlin.psi.psiUtil.getPrevSiblingIgnoringWhitespaceAndComments
@@ -29,15 +30,17 @@ class MaxLineLengthRule : Rule("max-line-length") {
             for (line in lines) {
                 if (line.length > maxLineLength) {
                     val el = node.psi.findElementAt(offset + line.length - 1)!!
-                    if (!el.isPartOf(PsiComment::class)) {
-                        if (!el.isPartOf(KtPackageDirective::class) && !el.isPartOf(KtImportDirective::class)) {
-                            emit(offset, "Exceeded max line length ($maxLineLength)", false)
-                        }
-                    } else {
-                        // if comment is the only thing on the line - fine, otherwise emit an error
-                        val prevLeaf = el.getPrevSiblingIgnoringWhitespaceAndComments(false)
-                        if (prevLeaf != null && prevLeaf.startOffset >= offset) {
-                            emit(offset, "Exceeded max line length ($maxLineLength)", false)
+                    if (!el.isPartOf(KDoc::class)) {
+                        if (!el.isPartOf(PsiComment::class)) {
+                            if (!el.isPartOf(KtPackageDirective::class) && !el.isPartOf(KtImportDirective::class)) {
+                                emit(offset, "Exceeded max line length ($maxLineLength)", false)
+                            }
+                        } else {
+                            // if comment is the only thing on the line - fine, otherwise emit an error
+                            val prevLeaf = el.getPrevSiblingIgnoringWhitespaceAndComments(false)
+                            if (prevLeaf != null && prevLeaf.startOffset >= offset) {
+                                emit(offset, "Exceeded max line length ($maxLineLength)", false)
+                            }
                         }
                     }
                 }
