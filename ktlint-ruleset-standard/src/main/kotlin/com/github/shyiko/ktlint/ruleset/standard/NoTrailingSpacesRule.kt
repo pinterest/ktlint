@@ -15,13 +15,13 @@ class NoTrailingSpacesRule : Rule("no-trailing-spaces") {
             if (lines.size > 1) {
                 checkForTrailingSpaces(lines.head(), node.startOffset, emit)
                 if (autoCorrect) {
-                    (node as LeafPsiElement).replaceWithText("\n".repeat(lines.size - 1) + lines.last())
+                    (node as LeafPsiElement).rawReplaceWithText("\n".repeat(lines.size - 1) + lines.last())
                 }
             } else
             if (PsiTreeUtil.nextLeaf(node) == null /* eof */) {
                 checkForTrailingSpaces(lines, node.startOffset, emit)
                 if (autoCorrect) {
-                    (node as LeafPsiElement).replaceWithText("\n".repeat(lines.size - 1))
+                    (node as LeafPsiElement).rawReplaceWithText("\n".repeat(lines.size - 1))
                 }
             }
         }

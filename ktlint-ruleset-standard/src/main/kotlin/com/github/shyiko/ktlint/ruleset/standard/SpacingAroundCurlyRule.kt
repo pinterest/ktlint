@@ -41,7 +41,7 @@ class SpacingAroundCurlyRule : Rule("curly-spacing") {
                     node.parent.node.elementType == KtNodeTypes.CLASS_BODY)) {
                     emit(node.startOffset, "Unexpected newline before \"${node.text}\"", true)
                     if (autoCorrect) {
-                        (prevLeaf.node as LeafPsiElement).replaceWithText(" ")
+                        (prevLeaf.node as LeafPsiElement).rawReplaceWithText(" ")
                     }
                 }
             } else

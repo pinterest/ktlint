@@ -64,7 +64,7 @@ class ModifierOrderRule : Rule("modifier-order") {
                 if (autoCorrect) {
                     modifierArr.forEachIndexed { i, n ->
                         // fixme: find a better way (node type is now potentially out of sync)
-                        (n.psi as LeafPsiElement).replaceWithText(sorted[i].text)
+                        (n.psi as LeafPsiElement).rawReplaceWithText(sorted[i].text)
                     }
                 }
             }

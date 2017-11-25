@@ -71,7 +71,7 @@ class NoMultipleSpacesRule : Rule("no-multi-spaces") {
             }
             emit(node.startOffset + 1, "Unnecessary space(s)", true)
             if (autoCorrect) {
-                (node as LeafPsiElement).replaceWithText(" ")
+                (node as LeafPsiElement).rawReplaceWithText(" ")
             }
         }
     }

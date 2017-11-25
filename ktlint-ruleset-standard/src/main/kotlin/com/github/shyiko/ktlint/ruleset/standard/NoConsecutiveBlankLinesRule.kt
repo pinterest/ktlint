@@ -14,7 +14,7 @@ class NoConsecutiveBlankLinesRule : Rule("no-consecutive-blank-lines") {
             if (split.size > 3) {
                 emit(node.startOffset + split[0].length + split[1].length + 2, "Needless blank line(s)", true)
                 if (autoCorrect) {
-                    (node as LeafPsiElement).replaceWithText("${split.first()}\n\n${split.last()}")
+                    (node as LeafPsiElement).rawReplaceWithText("${split.first()}\n\n${split.last()}")
                 }
             }
         }

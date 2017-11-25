@@ -19,7 +19,7 @@ class NoBlankLineBeforeRbraceRule : Rule("no-blank-line-before-rbrace") {
                 emit(node.startOffset + split[0].length + split[1].length + 1,
                     "Needless blank line(s)", true)
                 if (autoCorrect) {
-                    (node as LeafPsiElement).replaceWithText("${split.first()}\n${split.last()}")
+                    (node as LeafPsiElement).rawReplaceWithText("${split.first()}\n${split.last()}")
                 }
             }
         }

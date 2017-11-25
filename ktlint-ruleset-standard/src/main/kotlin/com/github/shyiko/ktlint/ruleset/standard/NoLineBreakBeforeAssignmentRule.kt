@@ -14,8 +14,8 @@ class NoLineBreakBeforeAssignmentRule : Rule("no-line-break-before-assignment") 
             if (prevElement is PsiWhiteSpace && prevElement.text.contains("\n")) {
                 emit(node.startOffset, "Line break before assignment is not allowed", true)
                 if (autoCorrect) {
-                    (node.treeNext?.psi as LeafPsiElement).replaceWithText(prevElement.text)
-                    (prevElement as LeafPsiElement).replaceWithText(" ")
+                    (node.treeNext?.psi as LeafPsiElement).rawReplaceWithText(prevElement.text)
+                    (prevElement as LeafPsiElement).rawReplaceWithText(" ")
                 }
             }
         }
