@@ -48,7 +48,7 @@ class SpacingAroundOperatorsRule : Rule("op-spacing") {
             !node.isPartOf(KtPrefixExpression::class) && // not unary
             !node.isPartOf(KtTypeParameterList::class) && // fun <T>fn(): T {}
             !node.isPartOf(KtTypeArgumentList::class) && // C<T>
-            !node.isPartOf(KtValueArgument::class) && // fn(*array)
+            !(node.elementType == MUL && node.isPartOf(KtValueArgument::class)) && // fn(*array)
             !node.isPartOf(KtImportDirective::class) && // import *
             !node.isPartOf(KtSuperExpression::class) // super<T>
         ) {

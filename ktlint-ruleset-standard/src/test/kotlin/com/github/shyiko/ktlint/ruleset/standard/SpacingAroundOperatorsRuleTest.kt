@@ -48,6 +48,7 @@ class SpacingAroundOperatorsRuleTest {
     fun testFormat() {
         assertThat(SpacingAroundOperatorsRule().format(
             """
+            @O(name="--debug", usage = "Turn on debug output")
             fun main() {
                 val v1 = 0-1*2
                 val v2 = -0-1
@@ -59,6 +60,7 @@ class SpacingAroundOperatorsRuleTest {
             """.trimIndent()
         )).isEqualTo(
             """
+            @O(name = "--debug", usage = "Turn on debug output")
             fun main() {
                 val v1 = 0 - 1 * 2
                 val v2 = -0 - 1
