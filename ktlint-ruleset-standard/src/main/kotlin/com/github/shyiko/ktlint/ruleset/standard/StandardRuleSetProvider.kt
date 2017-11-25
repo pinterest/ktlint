@@ -17,6 +17,7 @@ class StandardRuleSetProvider : RuleSetProvider {
         NoEmptyClassBodyRule(),
         // disabled until it's clear what to do in case of `import _.it`
         // NoItParamInMultilineLambdaRule(),
+        NoLineBreakBeforeAssignmentRule(),
         NoMultipleSpacesRule(),
         NoSemicolonsRule(),
         NoTrailingSpacesRule(),
@@ -28,7 +29,7 @@ class StandardRuleSetProvider : RuleSetProvider {
         SpacingAroundCurlyRule(),
         SpacingAroundKeywordRule(),
         SpacingAroundOperatorsRule(),
-        StringTemplateRule(),
-        NoLineBreakBeforeAssignmentRule()
+        SpacingAroundRangeOperatorRule(),
+        StringTemplateRule()
     )
 }
