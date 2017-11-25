@@ -363,7 +363,7 @@ object KtLint {
             private fun splitCommentBySpace(comment: String) =
                 comment.replace(Regex("\\s"), " ").replace(" {2,}", " ").split(" ")
 
-            private fun <T>List<T>.tail() = this.subList(1, this.size)
+            private fun <T> List<T>.tail() = this.subList(1, this.size)
         }
     }
 
