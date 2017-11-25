@@ -220,6 +220,7 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
             exitProcess(0)
         }
         val workDir = File(".").canonicalPath
+        fun File.location() = if (relative) this.toRelativeString(File(workDir)) else this.path
         val start = System.currentTimeMillis()
         // load 3rd party ruleset(s) (if any)
         val dependencyResolver by lazy { buildDependencyResolver() }
@@ -288,7 +289,9 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
             EditorConfig.of(workDir)
                 ?.also { editorConfig ->
                     if (debug) {
-                        System.err.println("[DEBUG] Discovered .editorconfig (${editorConfig.path.parent})")
+                        System.err.println("[DEBUG] Discovered .editorconfig (${
+                            generateSequence(editorConfig) { it.parent }.map { it.path.parent.toFile().location() }.joinToString()
+                        })")
                         System.err.println("[DEBUG] ${editorConfig.mapKeys { it.key }} loaded from .editorconfig")
                     }
                 }
@@ -313,9 +316,7 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
         val tripped = AtomicBoolean()
         fun process(fileName: String, fileContent: String): List<LintErrorWithCorrectionInfo> {
             if (debug) {
-                System.err.println("[DEBUG] Checking ${
-                    if (relative && fileName != "<text>") File(fileName).toRelativeString(File(workDir)) else fileName
-                }")
+                System.err.println("[DEBUG] Checking ${if (fileName != "<text>") File(fileName).location() else fileName}")
             }
             val result = ArrayList<LintErrorWithCorrectionInfo>()
             if (format) {
@@ -382,8 +383,7 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
                 .map { file ->
                     Callable { file to process(file.path, file.readText()) }
                 }
-                .parallel({ (file, errList) ->
-                    report(if (relative) file.toRelativeString(File(workDir)) else file.path, errList) })
+                .parallel({ (file, errList) -> report(file.location(), errList) })
         }
         reporter.afterAll()
         if (debug) {
