@@ -329,8 +329,8 @@ object KtLint {
                             val commentText = text.removePrefix("/*").removeSuffix("*/").trim()
                             parseHintArgs(commentText, "ktlint-disable")?.apply {
                                 open.add(SuppressionHint(IntRange(node.startOffset, node.startOffset), HashSet(this)))
-                            } ?:
-                            parseHintArgs(commentText, "ktlint-enable")?.apply {
+                            }
+                            ?: parseHintArgs(commentText, "ktlint-enable")?.apply {
                                 // match open hint
                                 val disabledRules = HashSet(this)
                                 val openHintIndex = open.indexOfLast { it.disabledRules == disabledRules }

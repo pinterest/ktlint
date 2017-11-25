@@ -67,13 +67,13 @@ object Main {
     private val CLI_MAX_LINE_LENGTH_REGEX = Regex("(.{0,120})(?:\\s|$)")
 
     // todo: this should have been a command, not a flag (consider changing in 1.0.0)
-    @Option(name="--format", aliases = arrayOf("-F"), usage = "Fix any deviations from the code style")
+    @Option(name = "--format", aliases = arrayOf("-F"), usage = "Fix any deviations from the code style")
     private var format: Boolean = false
 
-    @Option(name="--android", aliases = arrayOf("-a"), usage = "Turn on Android Kotlin Style Guide compatibility")
+    @Option(name = "--android", aliases = arrayOf("-a"), usage = "Turn on Android Kotlin Style Guide compatibility")
     private var android: Boolean = false
 
-    @Option(name="--reporter",
+    @Option(name = "--reporter",
         usage = "A reporter to use (built-in: plain (default), plain?group_by_file, json, checkstyle). " +
             "To use a third-party reporter specify either a path to a JAR file on the filesystem or a" +
             "<groupId>:<artifactId>:<version> triple pointing to a remote artifact (in which case ktlint will first " +
@@ -81,50 +81,50 @@ object Main {
             "Maven Central/JCenter/JitPack/user-provided repository)")
     private var reporters = ArrayList<String>()
 
-    @Option(name="--ruleset", aliases = arrayOf("-R"),
+    @Option(name = "--ruleset", aliases = arrayOf("-R"),
         usage = "A path to a JAR file containing additional ruleset(s) or a " +
             "<groupId>:<artifactId>:<version> triple pointing to a remote artifact (in which case ktlint will first " +
             "check local cache (~/.m2/repository) and then, if not found, attempt downloading it from " +
             "Maven Central/JCenter/JitPack/user-provided repository)")
     private var rulesets = ArrayList<String>()
 
-    @Option(name="--repository", aliases = arrayOf("--ruleset-repository", "--reporter-repository"),
+    @Option(name = "--repository", aliases = arrayOf("--ruleset-repository", "--reporter-repository"),
         usage = "An additional Maven repository (Maven Central/JCenter/JitPack are active by default) " +
             "(value format: <id>=<url>)")
     private var repositories = ArrayList<String>()
 
-    @Option(name="--repository-update", aliases = arrayOf("-U", "--ruleset-update", "--reporter-update"),
+    @Option(name = "--repository-update", aliases = arrayOf("-U", "--ruleset-update", "--reporter-update"),
         usage = "Check remote repositories for updated snapshots")
     private var forceUpdate: Boolean = false
 
-    @Option(name="--limit", usage = "Maximum number of errors to show (default: show all)")
+    @Option(name = "--limit", usage = "Maximum number of errors to show (default: show all)")
     private var limit: Int = -1
 
-    @Option(name="--relative", usage = "Print files relative to the working directory " +
+    @Option(name = "--relative", usage = "Print files relative to the working directory " +
         "(e.g. dir/file.kt instead of /home/user/project/dir/file.kt)")
     private var relative: Boolean = false
 
-    @Option(name="--verbose", aliases = arrayOf("-v"), usage = "Show error codes")
+    @Option(name = "--verbose", aliases = arrayOf("-v"), usage = "Show error codes")
     private var verbose: Boolean = false
 
-    @Option(name="--stdin", usage = "Read file from stdin")
+    @Option(name = "--stdin", usage = "Read file from stdin")
     private var stdin: Boolean = false
 
-    @Option(name="--version", usage = "Version", help = true)
+    @Option(name = "--version", usage = "Version", help = true)
     private var version: Boolean = false
 
-    @Option(name="--help", aliases = arrayOf("-h"), help = true)
+    @Option(name = "--help", aliases = arrayOf("-h"), help = true)
     private var help: Boolean = false
 
-    @Option(name="--debug", usage = "Turn on debug output")
+    @Option(name = "--debug", usage = "Turn on debug output")
     private var debug: Boolean = false
 
     // todo: make it a command in 1.0.0 (it's too late now as we might interfere with valid "lint" patterns)
-    @Option(name="--apply-to-idea", usage = "Update Intellij IDEA project settings")
+    @Option(name = "--apply-to-idea", usage = "Update Intellij IDEA project settings")
     private var apply: Boolean = false
-    @Option(name="--install-git-pre-commit-hook", usage = "Install git hook to automatically check files for style violations on commit")
+    @Option(name = "--install-git-pre-commit-hook", usage = "Install git hook to automatically check files for style violations on commit")
     private var installGitPreCommitHook: Boolean = false
-    @Option(name="-y", hidden = true)
+    @Option(name = "-y", hidden = true)
     private var forceApply: Boolean = false
 
     @Argument
@@ -261,7 +261,7 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
             val reporterProvider = reporterProviderById[r.id]
             if (reporterProvider == null) {
                 System.err.println("Error: reporter \"${r.id}\" wasn't found (available: ${
-                    reporterProviderById.keys.sorted().joinToString(",")})")
+                reporterProviderById.keys.sorted().joinToString(",")})")
                 exitProcess(1)
             }
             if (debug) {
@@ -387,8 +387,9 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
         }
         reporter.afterAll()
         if (debug) {
-            System.err.println("[DEBUG] ${(System.currentTimeMillis() - start)
-                }ms / $fileNumber file(s) / $errorNumber error(s)")
+            System.err.println("[DEBUG] ${
+                System.currentTimeMillis() - start
+            }ms / $fileNumber file(s) / $errorNumber error(s)")
         }
         if (tripped.get()) {
             exitProcess(1)
@@ -549,7 +550,7 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
         url.forEach { method.invoke(this, it) }
     }
 
-    fun <T>Sequence<Callable<T>>.parallel(cb: (T) -> Unit,
+    fun <T> Sequence<Callable<T>>.parallel(cb: (T) -> Unit,
         numberOfThreads: Int = Runtime.getRuntime().availableProcessors()) {
         val q = ArrayBlockingQueue<Future<T>>(numberOfThreads)
         val pill = object : Future<T> {
