@@ -44,6 +44,7 @@
         <aether.version>1.1.0</aether.version>
         <aether.maven.provider.version>3.2.5</aether.maven.provider.version>
         <args4j.version>2.33</args4j.version>
+        <kolor.version>0.0.2</kolor.version>
         <testng.version>6.8.21</testng.version>
         <assertj.version>1.7.1</assertj.version>
     </properties>

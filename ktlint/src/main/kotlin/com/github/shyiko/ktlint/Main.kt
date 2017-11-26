@@ -134,6 +134,8 @@ object Main {
 
     @Option(name = "--print-ast", usage = "Print AST (useful when writing/debugging rules)")
     private var printAST: Boolean = false
+    @Option(name = "--color", usage = "Make output colorful")
+    private var color: Boolean = false
 
     @Argument
     private var patterns = ArrayList<String>()
@@ -336,8 +338,11 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
             .map { reporter ->
                 val split = reporter.split(",")
                 val (reporterId, rawReporterConfig) = split[0].split("?", limit = 2) + listOf("")
-                ReporterTemplate(reporterId, mapOf("verbose" to verbose.toString()) + parseQuery(rawReporterConfig),
-                    split.getOrNull(1)?.let { if (it.startsWith("output=")) it.split("=")[1] else null })
+                ReporterTemplate(
+                    reporterId,
+                    mapOf("verbose" to verbose.toString(), "color" to color.toString()) + parseQuery(rawReporterConfig),
+                    split.getOrNull(1)?.let { if (it.startsWith("output=")) it.split("=")[1] else null }
+                )
             }
             .distinct()
         val reporterLoader = ServiceLoader.load(ReporterProvider::class.java)
@@ -407,7 +412,7 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
             if (debug) {
                 System.err.println("[DEBUG] Analyzing ${if (fileName != "<text>") File(fileName).location() else fileName}")
             }
-            lint(fileName, fileContent, listOf(RuleSet("debug", DumpAST(System.out))), emptyMap()) {}
+            lint(fileName, fileContent, listOf(RuleSet("debug", DumpAST(System.out, color))), emptyMap()) {}
         }
         if (stdin) {
             process("<text>", String(System.`in`.readBytes()))
