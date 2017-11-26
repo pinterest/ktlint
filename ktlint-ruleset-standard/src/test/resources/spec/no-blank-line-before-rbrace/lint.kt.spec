@@ -16,6 +16,6 @@ fun main() {println("""
 }""")}
 
 // expect
-// 3:1:Needless blank line(s)
-// 6:1:Needless blank line(s)
-// 10:1:Needless blank line(s)
+// 3:1:Unexpected blank line(s) before "}"
+// 6:1:Unexpected blank line(s) before "}"
+// 10:1:Unexpected blank line(s) before "}"

@@ -17,7 +17,7 @@ class NoBlankLineBeforeRbraceRule : Rule("no-blank-line-before-rbrace") {
             val split = node.getText().split("\n")
             if (split.size > 2) {
                 emit(node.startOffset + split[0].length + split[1].length + 1,
-                    "Needless blank line(s)", true)
+                    "Unexpected blank line(s) before \"}\"", true)
                 if (autoCorrect) {
                     (node as LeafPsiElement).rawReplaceWithText("${split.first()}\n${split.last()}")
                 }
