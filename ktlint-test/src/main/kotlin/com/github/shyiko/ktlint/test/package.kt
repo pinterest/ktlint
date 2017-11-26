@@ -6,7 +6,6 @@ import com.github.shyiko.ktlint.core.Rule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.kotlin.diagnostics.DiagnosticUtils
-import org.jetbrains.kotlin.psi.psiUtil.nextLeaf
 import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
 import java.io.PrintStream
 
@@ -21,12 +20,14 @@ class DumpAST @JvmOverloads constructor(
 ) : Rule("dump") {
 
     private var lineNumberColumnLength: Int = 0
+    private var lastNode: ASTNode? = null
 
     override fun visit(node: ASTNode, autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, corrected: Boolean) -> Unit) {
         if (node.elementType == KtStubElementTypes.FILE) {
             lineNumberColumnLength = (location(PsiTreeUtil.getDeepestLast(node.psi).node)?.line ?: 0)
                 .let { var v = it; var c = 0; while (v > 0) { c++; v /= 10 }; c }
+            lastNode = lastChildNodeOf(node)
         }
         var level = -1
         var parent: ASTNode? = node
@@ -39,7 +40,7 @@ class DumpAST @JvmOverloads constructor(
             colorClassName(node.psi.className) +
             " (".gray() + colorClassName(node.elementType.className) + "." + node.elementType + ")".gray() +
             if (node.getChildren(null).isEmpty()) " \"" + node.text.escape().yellow() + "\"" else "")
-        if (node.psi.nextLeaf(false) == null && node.elementType != KtStubElementTypes.FILE) {
+        if (lastNode == node) {
             out.println()
             out.println(" ".repeat(lineNumberColumnLength) +
                 "  format: <line_number:> <node.psi::class> (<node.elementType>) \"<node.text>\"".gray())
@@ -48,6 +49,9 @@ class DumpAST @JvmOverloads constructor(
             out.println()
         }
     }
+
+    private tailrec fun lastChildNodeOf(node: ASTNode): ASTNode? =
+        if (node.lastChildNode == null) node else lastChildNodeOf(node.lastChildNode)
 
     private fun location(node: ASTNode) =
         DiagnosticUtils.getClosestPsiElement(node)
