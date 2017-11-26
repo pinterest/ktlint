@@ -7,7 +7,7 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
 
-class FinalNewlineRule : Rule("final-newline") {
+class FinalNewlineRule : Rule("final-newline"), Rule.Modifier.RestrictToRoot {
 
     override fun visit(
         node: ASTNode,

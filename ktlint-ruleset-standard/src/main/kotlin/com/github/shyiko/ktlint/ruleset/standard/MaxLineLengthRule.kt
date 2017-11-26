@@ -11,7 +11,7 @@ import org.jetbrains.kotlin.psi.psiUtil.getPrevSiblingIgnoringWhitespaceAndComme
 import org.jetbrains.kotlin.psi.psiUtil.startOffset
 import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
 
-class MaxLineLengthRule : Rule("max-line-length") {
+class MaxLineLengthRule : Rule("max-line-length"), Rule.Modifier.RestrictToRootLast {
 
     override fun visit(
         node: ASTNode,
