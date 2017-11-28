@@ -4,12 +4,10 @@ import com.github.shyiko.ktlint.core.KtLint
 import com.github.shyiko.ktlint.core.Rule
 import org.jetbrains.kotlin.KtNodeTypes
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.openapi.util.TextRange
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.kotlin.diagnostics.DiagnosticUtils
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtBinaryExpression
 import org.jetbrains.kotlin.psi.KtDotQualifiedExpression
@@ -23,6 +21,7 @@ import org.jetbrains.kotlin.psi.KtSuperTypeListEntry
 import org.jetbrains.kotlin.psi.KtTypeProjection
 import org.jetbrains.kotlin.psi.KtValueArgumentList
 import org.jetbrains.kotlin.psi.psiUtil.getNonStrictParentOfType
+import org.jetbrains.kotlin.psi.psiUtil.getPrevSiblingIgnoringWhitespaceAndComments
 import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
 
 class IndentationRule : Rule("indent") {
@@ -63,9 +62,7 @@ class IndentationRule : Rule("indent") {
                         KtParameter::class.java
                     )
                 }
-                val firstParameterColumn = lazy {
-                    firstParameter.value?.node?.column ?: 0
-                }
+                val firstParameterColumn = lazy { firstParameter.value?.column ?: 0 }
                 val previousIndent = calculatePreviousIndent(node)
                 val expectedIndentSize = if (continuationIndent == indent || shouldUseContinuationIndent(node))
                     continuationIndent else indent
@@ -100,14 +97,24 @@ class IndentationRule : Rule("indent") {
         }
     }
 
-    private val ASTNode.column
-        // todo: get rid of DiagnosticUtils (IndexOutOfBoundsException)
-        get() = DiagnosticUtils.getLineAndColumnInPsiFile(this.psi.containingFile,
-            TextRange(this.startOffset, this.startOffset)).column
+    private val PsiElement.column: Int
+        get() {
+            var leaf = PsiTreeUtil.prevLeaf(this)
+            var offsetToTheLeft = 0
+            while (leaf != null) {
+                if (leaf.node.elementType == KtTokens.WHITE_SPACE && leaf.textContains('\n')) {
+                    offsetToTheLeft += leaf.textLength - 1 - leaf.text.lastIndexOf('\n')
+                    break
+                }
+                offsetToTheLeft += leaf.textLength
+                leaf = PsiTreeUtil.prevLeaf(leaf)
+            }
+            return offsetToTheLeft + 1
+        }
 
     private fun shouldUseContinuationIndent(node: PsiWhiteSpace): Boolean {
         val parentNode = node.parent
-        val prevNode = findPrevSibling(node)?.node?.elementType
+        val prevNode = node.getPrevSiblingIgnoringWhitespaceAndComments()?.node?.elementType
         val nextNode = node.nextSibling?.node?.elementType
         return (
             prevNode in KtTokens.ALL_ASSIGNMENTS
@@ -122,14 +129,6 @@ class IndentationRule : Rule("indent") {
                 || parentNode is KtSafeQualifiedExpression
                 || parentNode is KtParenthesizedExpression
             )
-    }
-
-    private fun findPrevSibling(node: PsiWhiteSpace): PsiElement? {
-        var prevNode = node.prevSibling
-        while (prevNode != null && (prevNode is PsiComment || prevNode is PsiWhiteSpace)) {
-            prevNode = prevNode.prevSibling
-        }
-        return prevNode
     }
 
     private fun calculatePreviousIndent(node: ASTNode): Int {
