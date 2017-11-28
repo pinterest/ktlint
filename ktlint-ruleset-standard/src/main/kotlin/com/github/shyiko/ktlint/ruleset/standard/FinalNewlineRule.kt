@@ -17,7 +17,7 @@ class FinalNewlineRule : Rule("final-newline"), Rule.Modifier.RestrictToRoot {
         if (node.elementType == KtStubElementTypes.FILE) {
             val editorConfig = node.getUserData(KtLint.EDITOR_CONFIG_USER_DATA_KEY)!!
             val insertFinalNewline = editorConfig.get("insert_final_newline")?.toBoolean() ?: return
-            val lastNode = node.lastChildNode
+            val lastNode = lastChildNodeOf(node)
             if (insertFinalNewline) {
                 if (lastNode !is PsiWhiteSpace || !lastNode.textContains('\n')) {
                     // (PsiTreeUtil.getDeepestLast(lastNode.psi).node ?: lastNode).startOffset
@@ -36,4 +36,7 @@ class FinalNewlineRule : Rule("final-newline"), Rule.Modifier.RestrictToRoot {
             }
         }
     }
+
+    private tailrec fun lastChildNodeOf(node: ASTNode): ASTNode? =
+        if (node.lastChildNode == null) node else lastChildNodeOf(node.lastChildNode)
 }
