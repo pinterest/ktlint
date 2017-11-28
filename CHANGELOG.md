@@ -26,8 +26,6 @@ Also, a search for .editorconfig will no longer stop on first (closest) `.editor
 - `no-empty-class-body` auto-correction at the end of file ([#109](https://github.com/shyiko/ktlint/issues/109)).
 - `max-line-length` rule when applied to KDoc ([#112](https://github.com/shyiko/ktlint/issues/112))  
 (previously KDoc was subject to `max-line-length` even though regular comments were not).
-- `max-line-length` not triggering when `ktlint --format` pushes lines over the max line limit
- (related to [#101](https://github.com/shyiko/ktlint/issues/101)).
 - Spacing around `=` in @annotation|s (`op-spacing`).
 - Spacing around generic type parameters of functions (e.g. `fun <T>f(): T {}` -> `fun <T> f(): T {}`).
 - `no-consecutive-blank-lines` not triggering at the end of file (when exactly 2 blank lines are present) ([#108](https://github.com/shyiko/ktlint/issues/108)) 
