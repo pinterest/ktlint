@@ -181,14 +181,14 @@ object KtLint {
     }
 
     private fun calculateLineColByOffset(text: String): (offset: Int) -> Pair<Int, Int> {
-        var i = 0
+        var i = -1
         val e = text.length
         val arr = ArrayList<Int>()
         do {
-            arr.add(i)
-            i = text.indexOf('\n', i) + 1
-        } while (i != 0 && i != e)
-        arr.add(e)
+            arr.add(i + 1)
+            i = text.indexOf('\n', i + 1)
+        } while (i != -1)
+        arr.add(e + if (arr.last() == e) 1 else 0)
         val segmentTree = SegmentTree(arr.toTypedArray())
         return { offset ->
             val line = segmentTree.indexOf(offset)
