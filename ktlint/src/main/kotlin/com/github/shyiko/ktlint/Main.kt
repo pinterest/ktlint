@@ -412,7 +412,14 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
             if (debug) {
                 System.err.println("[DEBUG] Analyzing ${if (fileName != "<text>") File(fileName).location() else fileName}")
             }
-            lint(fileName, fileContent, listOf(RuleSet("debug", DumpAST(System.out, color))), emptyMap()) {}
+            try {
+                lint(fileName, fileContent, listOf(RuleSet("debug", DumpAST(System.out, color))), emptyMap()) {}
+            } catch (e: Exception) {
+                if (e is ParseException) {
+                    throw ParseException(e.line, e.col, "Not a valid Kotlin file (${e.message?.toLowerCase()})")
+                }
+                throw e
+            }
         }
         if (stdin) {
             process("<text>", String(System.`in`.readBytes()))
