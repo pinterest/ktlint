@@ -5,6 +5,7 @@ import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.mock.MockProject
 import org.jetbrains.kotlin.com.intellij.openapi.Disposable
+import org.jetbrains.kotlin.com.intellij.openapi.diagnostic.DefaultLogger
 import org.jetbrains.kotlin.com.intellij.openapi.extensions.ExtensionPoint
 import org.jetbrains.kotlin.com.intellij.openapi.extensions.Extensions.getArea
 import org.jetbrains.kotlin.com.intellij.openapi.util.Key
@@ -28,6 +29,7 @@ import org.jetbrains.kotlin.psi.psiUtil.startOffset
 import sun.reflect.ReflectionFactory
 import java.util.ArrayList
 import java.util.HashSet
+import org.jetbrains.kotlin.com.intellij.openapi.diagnostic.Logger as DiagnosticLogger
 
 object KtLint {
 
@@ -38,6 +40,14 @@ object KtLint {
     private val nullSuppression = { _: Int, _: String -> false }
 
     init {
+        // do not print anything to the stderr when lexer is unable to match input
+        class LoggerFactory : DiagnosticLogger.Factory {
+            override fun getLoggerInstance(p: String): DiagnosticLogger = object : DefaultLogger(null) {
+                override fun warn(message: String?, t: Throwable?) {}
+                override fun error(message: String?, vararg details: String?) {}
+            }
+        }
+        DiagnosticLogger.setFactory(LoggerFactory::class.java)
         val project = KotlinCoreEnvironment.createForProduction(Disposable {},
             CompilerConfiguration(), EnvironmentConfigFiles.EMPTY).project
         // everything below (up to PsiFileFactory.getInstance(...)) is to get AST mutations (`ktlint -F ...`) working
