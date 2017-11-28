@@ -107,4 +107,23 @@ class NoConsecutiveBlankLinesRuleTest {
             """
         )
     }
+
+    @Test
+    fun testFormatAtTheEndOfFile() {
+        assertThat(NoConsecutiveBlankLinesRule().format(
+            """
+            fun main() {
+            }
+
+
+            """,
+            script = true
+        )).isEqualTo(
+            """
+            fun main() {
+            }
+
+            """
+        )
+    }
 }
