@@ -222,7 +222,7 @@
                         <configuration>
                             <nexusUrl>https://oss.sonatype.org/</nexusUrl>
                             <serverId>maven-central</serverId>
-                            <skipStagingRepositoryClose>true</skipStagingRepositoryClose>
+                            <!--<skipStagingRepositoryClose>true</skipStagingRepositoryClose>-->
                             <!--<autoReleaseAfterClose>true</autoReleaseAfterClose>-->
                         </configuration>
                     </plugin>
