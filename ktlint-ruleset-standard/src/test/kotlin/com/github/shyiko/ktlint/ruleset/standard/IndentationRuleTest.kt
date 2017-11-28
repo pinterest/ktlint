@@ -54,15 +54,15 @@ class IndentationRuleTest {
             ) {
             }
 
-            fun f(val a: Any,
-                  val b: Any,
-                  val c: Any) {
+            fun f(a: Any,
+                  b: Any,
+                  c: Any) {
             }
 
             fun f2(
-                val a: Any,
-                val b: Any,
-                val c: Any
+                a: Any,
+                b: Any,
+                c: Any
             ) {
             }
             """.trimIndent()
