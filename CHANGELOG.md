@@ -2,6 +2,41 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.13.0] - 2017-11-28
+
+### Added
+- `no-line-break-before-assignment` ([#105](https://github.com/shyiko/ktlint/issues/105)),  
+  `chain-wrapping` ([#23](https://github.com/shyiko/ktlint/issues/23))
+(when wrapping chained calls `.`, `?.` and `?:` should be placed on the next line),  
+  `range-spacing` (no spaces around range (`..`) operator) rules.
+- `--print-ast` CLI option which can be used to dump AST of the file   
+(see [README / Creating a ruleset / AST](https://github.com/shyiko/ktlint#ast) for more details)
+- `--color` CLI option for colored output (where supported, e.g. --print-ast, default (plain) reporter, etc) 
+
+### Changed
+- `.editorconfig` property resolution.   
+An explicit `[*.{kt,kts}]` is not required anymore (ktlint looks for sections
+containing `*.kt` (or `*.kts`) and will fallback to `[*]` whenever property cannot be found elsewhere).   
+Also, a search for .editorconfig will no longer stop on first (closest) `.editorconfig` (unless it contains `root=true`). 
+- `max-line-length` rule to assume `max_line_length=100` when `ktlint --android ...` is used  
+(per [Android Kotlin Style Guide](https://android.github.io/kotlin-guides/style.html)).  
+- `kotlin-compiler` version to 1.2.0 (from 1.1.51).
+
+### Fixed
+- `no-empty-class-body` auto-correction at the end of file ([#109](https://github.com/shyiko/ktlint/issues/109)).
+- `max-line-length` rule when applied to KDoc ([#112](https://github.com/shyiko/ktlint/issues/112))  
+(previously KDoc was subject to `max-line-length` even though regular comments were not).
+- `max-line-length` not triggering when `ktlint --format` pushes lines over the max line limit
+ (related to [#101](https://github.com/shyiko/ktlint/issues/101)).
+- Spacing around `=` in @annotation|s (`op-spacing`).
+- Spacing around generic type parameters of functions (e.g. `fun <T>f(): T {}` -> `fun <T> f(): T {}`).
+- `no-consecutive-blank-lines` not triggering at the end of file (when exactly 2 blank lines are present) ([#108](https://github.com/shyiko/ktlint/issues/108)) 
+- `indent` `continuation_indent_size % indent_size != 0` case ([#76](https://github.com/shyiko/ktlint/issues/76))
+- `indent` rule skipping first parameter indentation check. 
+- `final-newline` rule in the context of kotlin script.
+- Git hook (previously files containing space character (among others) in their names were ignored)  
+- Exit code when file cannot be linted due to the invalid syntax or internal error.
+
 ## [0.12.1] - 2017-11-13
 
 ### Fixed
@@ -243,6 +278,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.13.0]: https://github.com/shyiko/ktlint/compare/0.12.1...0.13.0
 [0.12.1]: https://github.com/shyiko/ktlint/compare/0.12.0...0.12.1
 [0.12.0]: https://github.com/shyiko/ktlint/compare/0.11.1...0.12.0
 [0.11.1]: https://github.com/shyiko/ktlint/compare/0.11.0...0.11.1
