@@ -129,6 +129,22 @@ class IndentationRuleTest {
     }
 
     @Test
+    fun testShouldReportIncorrectIndentOfFirstParameter() {
+        assertThat(IndentationRule().lint(
+            """
+            fun x(
+                 x: Int = 0,
+                y: Int = 0
+            ) {
+            }
+            """.trimIndent(),
+            script = true
+        )).isEqualTo(listOf(
+            LintError(2, 1, "indent", "Unexpected indentation (5) (it should be 4)")
+        ))
+    }
+
+    @Test
     fun testShouldRespectContinuationIndent() {
         assertThat(IndentationRule().lint(
             """

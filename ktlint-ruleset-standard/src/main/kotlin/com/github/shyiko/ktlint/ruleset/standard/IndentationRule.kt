@@ -23,7 +23,6 @@ import org.jetbrains.kotlin.psi.KtSuperTypeListEntry
 import org.jetbrains.kotlin.psi.KtTypeProjection
 import org.jetbrains.kotlin.psi.KtValueArgumentList
 import org.jetbrains.kotlin.psi.psiUtil.getNonStrictParentOfType
-import org.jetbrains.kotlin.psi.psiUtil.startOffset
 import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
 
 class IndentationRule : Rule("indent") {
@@ -58,25 +57,34 @@ class IndentationRule : Rule("indent") {
             val lines = node.getText().split("\n")
             if (lines.size > 1) {
                 var offset = node.startOffset + lines.first().length + 1
-                val firstParameterColumn = lazy {
-                    val firstParameter = PsiTreeUtil.findChildOfType(
+                val firstParameter = lazy {
+                    PsiTreeUtil.findChildOfType(
                         node.getNonStrictParentOfType(KtParameterList::class.java),
                         KtParameter::class.java
                     )
-                    firstParameter?.run {
-                        DiagnosticUtils.getLineAndColumnInPsiFile(node.containingFile,
-                            TextRange(startOffset, startOffset)).column
-                    } ?: 0
+                }
+                val firstParameterColumn = lazy {
+                    firstParameter.value?.node?.column ?: 0
                 }
                 val previousIndent = calculatePreviousIndent(node)
                 val expectedIndentSize = if (continuationIndent == indent || shouldUseContinuationIndent(node))
                     continuationIndent else indent
                 lines.tail().forEach { line ->
                     if (line.isNotEmpty() && (line.length - previousIndent) % expectedIndentSize != 0) {
-                        if (node.isPartOf(KtParameterList::class) && firstParameterColumn.value != 0) {
+                        if (node.isPartOf(KtParameterList::class) &&
+                            firstParameterColumn.value != 0 &&
+                            (
+                                // is not the first parameter
+                                node.parent.node.findChildByType(KtStubElementTypes.VALUE_PARAMETER) !=
+                                firstParameter.value?.node ||
+                                // ... or is next to (
+                                firstParameter.value?.let { PsiTreeUtil.prevLeaf(it, true) }?.node
+                                    ?.elementType == KtTokens.LPAR)
+                            ) {
                             if (firstParameterColumn.value - 1 != line.length) {
                                 emit(offset, "Unexpected indentation (${line.length}) (" +
-                                    "parameters should be either vertically aligned or indented by the multiple of $indent" +
+                                    "parameters should be either vertically aligned or " +
+                                    "indented by the multiple of $indent" +
                                     ")", false)
                             }
                         } else {
@@ -91,6 +99,11 @@ class IndentationRule : Rule("indent") {
             }
         }
     }
+
+    private val ASTNode.column
+        // todo: get rid of DiagnosticUtils (IndexOutOfBoundsException)
+        get() = DiagnosticUtils.getLineAndColumnInPsiFile(this.psi.containingFile,
+            TextRange(this.startOffset, this.startOffset)).column
 
     private fun shouldUseContinuationIndent(node: PsiWhiteSpace): Boolean {
         val parentNode = node.parent
