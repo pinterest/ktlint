@@ -35,7 +35,12 @@ class DumpAST @JvmOverloads constructor(
             level++
             parent = parent?.treeParent
         } while (parent != null)
-        out.println((location(node)?.let { String.format("%${lineNumberColumnLength}s: ", it.line).gray() } ?: "") +
+        out.println((
+            location(node)
+                ?.let { String.format("%${lineNumberColumnLength}s: ", it.line).gray() }
+                // should only happen when autoCorrect=true and other rules mutate AST in a way that changes text length
+                ?: String.format("%${lineNumberColumnLength}s: ", "?").gray()
+            ) +
             "  ".repeat(level).gray() +
             colorClassName(node.psi.className) +
             " (".gray() + colorClassName(node.elementType.className) + "." + node.elementType + ")".gray() +
@@ -57,7 +62,12 @@ class DumpAST @JvmOverloads constructor(
         DiagnosticUtils.getClosestPsiElement(node)
             ?.takeIf { it.isValid && it.containingFile != null }
             ?.let {
-                DiagnosticUtils.offsetToLineAndColumn(it.containingFile.viewProvider.document, it.textRange.startOffset)
+                try {
+                    DiagnosticUtils.offsetToLineAndColumn(it.containingFile.viewProvider.document,
+                        it.textRange.startOffset)
+                } catch (e: Exception) {
+                    null // DiagnosticUtils.offsetToLineAndColumn has knowledge of mutated AST
+                }
             }
 
     private fun colorClassName(className: String): String {
