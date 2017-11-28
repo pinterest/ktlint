@@ -39,11 +39,14 @@ It's also [easy to create your own](#creating-a-reporter).
 - No trailing whitespaces;
 - No `Unit` returns (`fun fn {}` instead of `fun fn: Unit {}`);
 - No empty (`{}`) class bodies;
+- No spaces around range (`..`) operator;
+- When wrapping chained calls `.`, `?.` and `?:` should be placed on the next line;
+- When a line is broken at an assignment (`=`) operator the break comes after the symbol; 
 - Consistent string templates (`$v` instead of `${v}`, `${p.v}` instead of `${p.v.toString()}`);
 - Consistent order of modifiers;
 - Consistent spacing after keywords, commas; around colons, curly braces, infix operators, etc;
-- Newline at the end of each file  
-(provided `insert_final_newline` is set to true in .editorconfig (see [EditorConfig](#editorconfig) section for more)).
+- Newline at the end of each file (not enabled by default, but recommended)  
+(set `insert_final_newline=true` in .editorconfig to enable (see [EditorConfig](#editorconfig) section for more)).
 
 ## EditorConfig
 
@@ -53,10 +56,13 @@ ktlint recognizes the following [.editorconfig](http://editorconfig.org/) proper
 [*.{kt,kts}]
 # possible values: number (e.g. 2), "unset" (makes ktlint ignore indentation completely)  
 indent_size=4
-continuation_indent_size=8
-# true / false
+# possible values: number (e.g. 2), "unset"
+# it's automatically set to 8 on `ktlint --android ...` (per Android Kotlin Style Guide)
+continuation_indent_size=unset
+# true (recommended) / false
 insert_final_newline=unset
-# possible values: number (e.g. 120) (package name, imports & comments are ignored), "off" 
+# possible values: number (e.g. 120) (package name, imports & comments are ignored), "off"
+# it's automatically set to 100 on `ktlint --android ...` (per Android Kotlin Style Guide)
 max_line_length=off
 ```
 
@@ -65,7 +71,7 @@ max_line_length=off
 > Skip all the way to the "Integration" section if you don't plan to use `ktlint`'s command line interface.
 
 ```sh
-curl -sSLO https://github.com/shyiko/ktlint/releases/download/0.12.1/ktlint &&
+curl -sSLO https://github.com/shyiko/ktlint/releases/download/0.13.0/ktlint &&
   chmod a+x ktlint &&
   sudo mv ktlint /usr/local/bin/
 ```
@@ -86,7 +92,7 @@ Usually simple `http_proxy=http://proxy-server:port https_proxy=http://proxy-ser
 ```bash
 # check the style of all Kotlin files inside the current dir (recursively)
 # (hidden folders will be skipped)
-$ ktlint
+$ ktlint --color
   src/main/kotlin/Main.kt:10:10: Unused import
   
 # check only certain locations (prepend ! to negate the pattern) 
@@ -128,7 +134,7 @@ $ ktlint --install-git-pre-commit-hook
             <configuration>
             <target name="ktlint">
                 <java taskname="ktlint" dir="${basedir}" fork="true" failonerror="true"
-                    classname="com.github.shyiko.ktlint.Main" classpathref="maven.plugin.classpath">
+                    classpathref="maven.plugin.classpath" classname="com.github.shyiko.ktlint.Main">
                     <arg value="src/**/*.kt"/>
                     <!-- to generate report in checkstyle format prepend following args: -->
                     <!-- 
@@ -146,7 +152,7 @@ $ ktlint --install-git-pre-commit-hook
             <configuration>
             <target name="ktlint">
                 <java taskname="ktlint" dir="${basedir}" fork="true" failonerror="true"
-                    classname="com.github.shyiko.ktlint.Main" classpathref="maven.plugin.classpath">
+                    classpathref="maven.plugin.classpath" classname="com.github.shyiko.ktlint.Main">
                     <arg value="-F"/>
                     <arg value="src/**/*.kt"/>
                 </java>
@@ -159,7 +165,7 @@ $ ktlint --install-git-pre-commit-hook
         <dependency>
             <groupId>com.github.shyiko</groupId>
             <artifactId>ktlint</artifactId>
-            <version>0.12.1</version>
+            <version>0.13.0</version>
         </dependency>
         <!-- additional 3rd party ruleset(s) can be specified here -->
     </dependencies>
@@ -171,6 +177,8 @@ To check code style - `mvn antrun:run@ktlint` (it's also bound to `mvn verify`).
 To run formatter - `mvn antrun:run@ktlint-format`.   
 
 #### ... with [Gradle](https://gradle.org/)
+
+#### (without a plugin)
 
 > build.gradle
 
@@ -186,16 +194,16 @@ configurations {
 }
 
 dependencies {
-    ktlint "com.github.shyiko:ktlint:0.12.1"
+    ktlint "com.github.shyiko:ktlint:0.13.0"
     // additional 3rd party ruleset(s) can be specified here
-    // just add them to the classpath (ktlint 'groupId:artifactId:version') and 
+    // just add them to the classpath (e.g. ktlint 'groupId:artifactId:version') and 
     // ktlint will pick them up
 }
 
 task ktlint(type: JavaExec, group: "verification") {
     description = "Check Kotlin code style."
-    main = "com.github.shyiko.ktlint.Main"
     classpath = configurations.ktlint
+    main = "com.github.shyiko.ktlint.Main"
     args "src/**/*.kt"
     // to generate report in checkstyle format prepend following args:
     // "--reporter=plain", "--reporter=checkstyle,output=${buildDir}/ktlint.xml"
@@ -205,8 +213,8 @@ check.dependsOn ktlint
 
 task ktlintFormat(type: JavaExec, group: "formatting") {
     description = "Fix Kotlin code style deviations."
-    main = "com.github.shyiko.ktlint.Main"
     classpath = configurations.ktlint
+    main = "com.github.shyiko.ktlint.Main"
     args "-F", "src/**/*.kt"
 }
 ```
@@ -216,11 +224,14 @@ task ktlintFormat(type: JavaExec, group: "formatting") {
 To check code style - `gradle ktlint` (it's also bound to `gradle check`).  
 To run formatter - `gradle ktlintFormat`.
 
-**Another option** is to use Gradle plugin (in order of appearance):
-- [jlleitschuh/ktlint-gradle](https://github.com/jlleitschuh/ktlint-gradle)
-- [jeremymailen/kotlinter-gradle](https://github.com/jeremymailen/kotlinter-gradle)
+#### (with a plugin)
 
-Each plugin has some unique features (like incremental build support in case of [jeremymailen/kotlinter-gradle](https://github.com/jeremymailen/kotlinter-gradle)) so check them out.
+Gradle plugins (in order of appearance):
+- [jlleitschuh/ktlint-gradle](https://github.com/jlleitschuh/ktlint-gradle)  
+The very first ktlint gradle plugin.
+
+- [jeremymailen/kotlinter-gradle](https://github.com/jeremymailen/kotlinter-gradle)  
+Gradle plugin featuring incremental build, `*.kts` support.
 
 You might also want to take a look at [diffplug/spotless](https://github.com/diffplug/spotless/tree/master/plugin-gradle#applying-ktlint-to-kotlin-files) which has a built-in support for ktlint. In addition to linting/formatting kotlin code it allows you to keep license headers, markdown documentation, etc. in check.
 
@@ -245,11 +256,16 @@ Go to `File -> Settings... -> Editor`
 - `General -> Auto Import`
   - check `Optimize imports on the fly (for current project)`.
 - `Code Style -> Kotlin`
-  - open `Imports` tab, select all `Use single name import` options and remove `import java.util.*` from `Packages to Use Import with '*'`.
-  - open `Blank Lines` tab, change `Keep Maximum Blank Lines` -> `In declarations` & `In code` to 1 and `Before '}'` to 0.
-  - (optional but recommended) open `Wrapping and Braces` tab, uncheck `Method declaration parameters -> Align when multiline`. 
-  - (optional but recommended) open `Tabs and Indents` tab, change `Continuation indent` to 4 (to be compliant with 
-  [Android Kotlin Style Guide](https://android.github.io/kotlin-guides/style.html) value should stay equal 8).
+  - open `Imports` tab
+    - select `Use single name import` (all);
+    - remove `import java.util.*` from `Packages to Use Import with '*'`.
+  - open `Blank Lines` tab
+    - change `Keep Maximum Blank Lines` -> `In declarations` & `In code` to 1 and `Before '}'` to 0.
+  - (optional but recommended) open `Wrapping and Braces` tab
+    - uncheck `Method declaration parameters -> Align when multiline`. 
+  - (optional but recommended) open `Tabs and Indents` tab
+    - change `Continuation indent` to 4   
+    (to be compliant with [Android Kotlin Style Guide](https://android.github.io/kotlin-guides/style.html) value should stay equal 8).
 - `Inspections` 
   - change `Severity` level of `Unused import directive`, `Redundant semicolon` and (optional but recommended) `Unused symbol` to `ERROR`.
 
@@ -280,6 +296,39 @@ $ ktlint -R com.github.username:rulseset:master-SNAPSHOT
 
 A complete sample project (with tests and build files) is included in this repo under the [ktlint-ruleset-template](ktlint-ruleset-template) directory 
 (make sure to check [NoVarRuleTest](ktlint-ruleset-template/src/test/kotlin/yourpkgname/NoVarRuleTest.kt) as it contains some useful information). 
+
+#### AST
+
+While writing/debugging [Rule](ktlint-core/src/main/kotlin/com/github/shyiko/ktlint/core/Rule.kt)s it's often helpful to have an AST
+printed out to see the structure rules have to work with. ktlint >= 0.13.0 has `--print-ast` flag specifically for this purpose
+(usage: `ktlint --color --print-ast <file>`).  
+An example of the output it shown below. 
+
+```sh
+$ printf "fun main {}" | ./ktlint/target/ktlint --color --print-ast --stdin
+
+1: ~.psi.KtFile (~.psi.stubs.elements.KtFileElementType.kotlin.FILE)
+1:   ~.psi.KtPackageDirective (~.psi.stubs.elements.KtPlaceHolderStubElementType.PACKAGE_DIRECTIVE) ""
+1:   ~.psi.KtImportList (~.psi.stubs.elements.KtPlaceHolderStubElementType.IMPORT_LIST) ""
+1:   ~.psi.KtScript (~.psi.stubs.elements.KtScriptElementType.SCRIPT)
+1:     ~.psi.KtBlockExpression (~.KtNodeType.BLOCK)
+1:       ~.psi.KtNamedFunction (~.psi.stubs.elements.KtFunctionElementType.FUN)
+1:         ~.c.i.p.impl.source.tree.LeafPsiElement (~.lexer.KtKeywordToken.fun) "fun"
+1:         ~.c.i.p.impl.source.tree.PsiWhiteSpaceImpl (~.c.i.p.tree.IElementType.WHITE_SPACE) " "
+1:         ~.c.i.p.impl.source.tree.LeafPsiElement (~.lexer.KtToken.IDENTIFIER) "main"
+1:         ~.psi.KtParameterList 
+  (~.psi.stubs.elements.KtPlaceHolderStubElementType.VALUE_PARAMETER_LIST)
+1:           ~.c.i.p.impl.source.tree.LeafPsiElement (~.lexer.KtSingleValueToken.LPAR) "("
+1:           ~.c.i.p.impl.source.tree.LeafPsiElement (~.lexer.KtSingleValueToken.RPAR) ")"
+1:         ~.c.i.p.impl.source.tree.PsiWhiteSpaceImpl (~.c.i.p.tree.IElementType.WHITE_SPACE) " "
+1:         ~.psi.KtBlockExpression (~.KtNodeType.BLOCK)
+1:           ~.c.i.p.impl.source.tree.LeafPsiElement (~.lexer.KtSingleValueToken.LBRACE) "{"
+1:           ~.c.i.p.impl.source.tree.LeafPsiElement (~.lexer.KtSingleValueToken.RBRACE) "}"
+
+   format: <line_number:> <node.psi::class> (<node.elementType>) "<node.text>"
+   legend: ~ = org.jetbrains.kotlin, c.i.p = com.intellij.psi
+   
+```
 
 ## Creating a reporter
 
