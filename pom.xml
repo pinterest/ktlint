@@ -308,20 +308,24 @@
                 </property>
             </activation>
             <build>
-                <defaultGoal>antrun:run</defaultGoal>
+                <defaultGoal>exec:exec@announce</defaultGoal>
                 <plugins>
                     <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-antrun-plugin</artifactId>
-                        <version>1.7</version>
-                        <configuration>
-                            <target name="announce">
-                                <exec executable="${project.basedir}/.announce" failonerror="true">
-                                    <env key="VERSION" value="${project.version}"/>
-                                    <env key="GITHUB_TOKEN" value="${settings.servers.github.privateKey}"/>
-                                </exec>
-                            </target>
-                        </configuration>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>1.5.0</version>
+                        <executions>
+                            <execution>
+                                <id>announce</id>
+                                <configuration>
+                                    <executable>${project.basedir}/.announce</executable>
+                                    <environmentVariables>
+                                        <VERSION>${project.version}</VERSION>
+                                        <GITHUB_TOKEN>${settings.servers.github.privateKey}</GITHUB_TOKEN>
+                                    </environmentVariables>
+                                </configuration>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>
