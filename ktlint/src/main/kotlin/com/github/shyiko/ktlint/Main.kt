@@ -292,11 +292,12 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
             } else {
                 try {
                     lint(fileName, fileContent, ruleSetProviders.map { it.second.get() }, userData) { err ->
-                        tripped.set(true)
                         result.add(LintErrorWithCorrectionInfo(err, false))
+                        tripped.set(true)
                     }
                 } catch (e: Exception) {
                     result.add(LintErrorWithCorrectionInfo(e.toLintError(), false))
+                    tripped.set(true)
                 }
             }
             return result
