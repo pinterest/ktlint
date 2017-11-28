@@ -31,19 +31,24 @@ class IndentationRule : Rule("indent") {
     companion object {
         // indentation size recommended by JetBrains
         private const val DEFAULT_INDENT = 4
+        private const val DEFAULT_CONTINUATION_INDENT = 4
+        // Android Kotlin Style Guide
+        private const val DEFAULT_CONTINUATION_INDENT_ANDROID = 8
     }
 
-    private var indent = DEFAULT_INDENT
-    private var continuationIndent = DEFAULT_INDENT
+    private var indent = -1
+    private var continuationIndent = -1
 
     override fun visit(node: ASTNode, autoCorrect: Boolean,
-                       emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
+            emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
         if (node.elementType == KtStubElementTypes.FILE) {
+            val android = node.getUserData(KtLint.ANDROID_USER_DATA_KEY)!!
             val editorConfig = node.getUserData(KtLint.EDITOR_CONFIG_USER_DATA_KEY)!!
             val indentSize = editorConfig.get("indent_size")
             val continuationIndentSize = editorConfig.get("continuation_indent_size")
-            indent = indentSize?.toIntOrNull() ?: if (indentSize?.toLowerCase() == "unset") -1 else indent
-            continuationIndent = continuationIndentSize?.toIntOrNull() ?: if (continuationIndentSize?.toLowerCase() == "unset") -1 else indent
+            indent = indentSize?.toIntOrNull() ?: if (indentSize?.toLowerCase() == "unset") -1 else DEFAULT_INDENT
+            continuationIndent = continuationIndentSize?.toIntOrNull()
+                ?: if (android) DEFAULT_CONTINUATION_INDENT_ANDROID else DEFAULT_CONTINUATION_INDENT
             return
         }
         if (indent <= 0 || continuationIndent <= 0) {
@@ -63,10 +68,11 @@ class IndentationRule : Rule("indent") {
                             TextRange(startOffset, startOffset)).column
                     } ?: 0
                 }
-                val parentElementIndent = calculatePreviousIndent(node)
-                val expectedIndentSize = calculateExpectedIndent(node)
+                val previousIndent = calculatePreviousIndent(node)
+                val expectedIndentSize = if (continuationIndent == indent || shouldUseContinuationIndent(node))
+                    continuationIndent else indent
                 lines.tail().forEach { line ->
-                    if (line.isNotEmpty() && (line.length - parentElementIndent) % expectedIndentSize != 0) {
+                    if (line.isNotEmpty() && (line.length - previousIndent) % expectedIndentSize != 0) {
                         if (node.isPartOf(KtParameterList::class) && firstParameterColumn.value != 0) {
                             if (firstParameterColumn.value - 1 != line.length) {
                                 emit(offset, "Unexpected indentation (${line.length}) (" +
@@ -75,7 +81,7 @@ class IndentationRule : Rule("indent") {
                             }
                         } else {
                             emit(offset,
-                                "Unexpected indentation (${line.length - parentElementIndent}) " +
+                                "Unexpected indentation (${line.length - previousIndent}) " +
                                     "(it should be $expectedIndentSize)",
                                 false)
                         }
@@ -86,63 +92,60 @@ class IndentationRule : Rule("indent") {
         }
     }
 
-    private fun calculateExpectedIndent(node: PsiWhiteSpace): Int =
-        if (continuationIndent == indent || shouldUseContinuationIndent(node)) continuationIndent else indent
-}
-
-private fun shouldUseContinuationIndent(node: PsiWhiteSpace): Boolean {
-    val parentNode = node.parent
-    val prevNode = findPrevSiblling(node)?.node?.elementType
-    val nextNode = node.nextSibling?.node?.elementType
-    return (
-        prevNode in KtTokens.ALL_ASSIGNMENTS
-            || parentNode is KtSecondaryConstructor
-            || nextNode == KtStubElementTypes.TYPE_REFERENCE
-            || node.nextSibling is KtSuperTypeList
-            || node.nextSibling is KtSuperTypeListEntry
-            || node.nextSibling is KtTypeProjection
-            || parentNode is KtValueArgumentList
-            || parentNode is KtBinaryExpression
-            || parentNode is KtDotQualifiedExpression
-            || parentNode is KtSafeQualifiedExpression
-            || parentNode is KtParenthesizedExpression
-        )
-}
-
-fun findPrevSiblling(node: PsiWhiteSpace): PsiElement? {
-    var prevNode = node.prevSibling
-    while (prevNode != null && (prevNode is PsiComment || prevNode is PsiWhiteSpace)) {
-        prevNode = prevNode.prevSibling
+    private fun shouldUseContinuationIndent(node: PsiWhiteSpace): Boolean {
+        val parentNode = node.parent
+        val prevNode = findPrevSibling(node)?.node?.elementType
+        val nextNode = node.nextSibling?.node?.elementType
+        return (
+            prevNode in KtTokens.ALL_ASSIGNMENTS
+                || parentNode is KtSecondaryConstructor
+                || nextNode == KtStubElementTypes.TYPE_REFERENCE
+                || node.nextSibling is KtSuperTypeList
+                || node.nextSibling is KtSuperTypeListEntry
+                || node.nextSibling is KtTypeProjection
+                || parentNode is KtValueArgumentList
+                || parentNode is KtBinaryExpression
+                || parentNode is KtDotQualifiedExpression
+                || parentNode is KtSafeQualifiedExpression
+                || parentNode is KtParenthesizedExpression
+            )
     }
-    return prevNode
-}
 
-private fun calculatePreviousIndent(node: ASTNode): Int {
-    val parentNode = node.treeParent.psi
-    var prevIndent = 0
-    var prevSibling = parentNode
-    var prevSpaceIsFound = false
-    while (prevSibling != null && !prevSpaceIsFound) {
-        val nextNode = prevSibling.nextSibling?.node?.elementType
-        if (prevSibling is PsiWhiteSpace
-            && nextNode != KtStubElementTypes.TYPE_REFERENCE
-            && nextNode != KtStubElementTypes.SUPER_TYPE_LIST
-            && nextNode != KtNodeTypes.CONSTRUCTOR_DELEGATION_CALL) {
-            val prevLines = prevSibling.text.split("\n")
-            if (prevLines.size > 1) {
-                prevIndent = prevLines.last().length
-                prevSpaceIsFound = true
-            }
+    private fun findPrevSibling(node: PsiWhiteSpace): PsiElement? {
+        var prevNode = node.prevSibling
+        while (prevNode != null && (prevNode is PsiComment || prevNode is PsiWhiteSpace)) {
+            prevNode = prevNode.prevSibling
         }
-        prevSibling = if (prevSpaceIsFound) {
-            null
-        } else {
-            if (prevSibling.prevSibling != null) {
-                prevSibling.prevSibling
+        return prevNode
+    }
+
+    private fun calculatePreviousIndent(node: ASTNode): Int {
+        val parentNode = node.treeParent?.psi
+        var prevIndent = 0
+        var prevSibling = parentNode
+        var prevSpaceIsFound = false
+        while (prevSibling != null && !prevSpaceIsFound) {
+            val nextNode = prevSibling.nextSibling?.node?.elementType
+            if (prevSibling is PsiWhiteSpace
+                && nextNode != KtStubElementTypes.TYPE_REFERENCE
+                && nextNode != KtStubElementTypes.SUPER_TYPE_LIST
+                && nextNode != KtNodeTypes.CONSTRUCTOR_DELEGATION_CALL) {
+                val prevLines = prevSibling.text.split('\n')
+                if (prevLines.size > 1) {
+                    prevIndent = prevLines.last().length
+                    prevSpaceIsFound = true
+                }
+            }
+            prevSibling = if (prevSpaceIsFound) {
+                null
             } else {
-                prevSibling.parent
+                if (prevSibling.prevSibling != null) {
+                    prevSibling.prevSibling
+                } else {
+                    prevSibling.parent
+                }
             }
         }
+        return prevIndent
     }
-    return prevIndent
 }
