@@ -38,6 +38,19 @@ class NoConsecutiveBlankLinesRuleTest {
     }
 
     @Test
+    fun testLintAtTheEndOfFile() {
+        assertThat(NoConsecutiveBlankLinesRule().lint(
+            """
+            fun main() {
+            }
+
+
+            """.trimIndent()
+        )).isEqualTo(listOf(
+            LintError(4, 1, "no-consecutive-blank-lines", "Needless blank line(s)")))
+    }
+
+    @Test
     fun testLintInString() {
         assertThat(NoConsecutiveBlankLinesRule().lint(
             "fun main() {println(\"\"\"\n\n\n\"\"\")}")).isEmpty()
