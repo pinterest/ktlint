@@ -305,7 +305,7 @@ printed out to see the structure rules have to work with. ktlint >= 0.13.0 has `
 An example of the output it shown below. 
 
 ```sh
-$ printf "fun main {}" | ./ktlint/target/ktlint --color --print-ast --stdin
+$ printf "fun main {}" | ktlint --color --print-ast --stdin
 
 1: ~.psi.KtFile (~.psi.stubs.elements.KtFileElementType.kotlin.FILE)
 1:   ~.psi.KtPackageDirective (~.psi.stubs.elements.KtPlaceHolderStubElementType.PACKAGE_DIRECTIVE) ""
