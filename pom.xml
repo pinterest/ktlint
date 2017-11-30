@@ -41,6 +41,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kotlin.version>1.2.0</kotlin.version>
+        <kotlin.compiler.languageVersion>1.1</kotlin.compiler.languageVersion>
         <aether.version>1.1.0</aether.version>
         <aether.maven.provider.version>3.2.5</aether.maven.provider.version>
         <args4j.version>2.33</args4j.version>
