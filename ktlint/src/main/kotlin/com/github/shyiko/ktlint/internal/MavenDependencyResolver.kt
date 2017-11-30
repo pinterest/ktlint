@@ -8,6 +8,7 @@ import org.eclipse.aether.artifact.Artifact
 import org.eclipse.aether.collection.CollectRequest
 import org.eclipse.aether.connector.basic.BasicRepositoryConnectorFactory
 import org.eclipse.aether.graph.Dependency
+import org.eclipse.aether.impl.DefaultServiceLocator
 import org.eclipse.aether.repository.LocalRepository
 import org.eclipse.aether.repository.RemoteRepository
 import org.eclipse.aether.repository.RepositoryPolicy
@@ -32,6 +33,11 @@ class MavenDependencyResolver(baseDir: File, val repositories: Iterable<RemoteRe
         locator.addService(RepositoryConnectorFactory::class.java, BasicRepositoryConnectorFactory::class.java)
         locator.addService(TransporterFactory::class.java, FileTransporterFactory::class.java)
         locator.addService(TransporterFactory::class.java, HttpTransporterFactory::class.java)
+        locator.setErrorHandler(object : DefaultServiceLocator.ErrorHandler() {
+            override fun serviceCreationFailed(type: Class<*>?, impl: Class<*>?, ex: Throwable) {
+                throw ex
+            }
+        })
         repoSystem = locator.getService(RepositorySystem::class.java)
         session = MavenRepositorySystemUtils.newSession()
         session.localRepositoryManager = repoSystem.newLocalRepositoryManager(session, LocalRepository(baseDir))

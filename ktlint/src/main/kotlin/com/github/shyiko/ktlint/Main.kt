@@ -40,6 +40,7 @@ import java.nio.file.Paths
 import java.security.MessageDigest
 import java.util.ArrayList
 import java.util.Arrays
+import java.util.LinkedHashMap
 import java.util.NoSuchElementException
 import java.util.ResourceBundle
 import java.util.Scanner
@@ -238,7 +239,7 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
         }
         val start = System.currentTimeMillis()
         // load 3rd party ruleset(s) (if any)
-        val dependencyResolver by lazy { buildDependencyResolver() }
+        val dependencyResolver = lazy(LazyThreadSafetyMode.NONE) { buildDependencyResolver() }
         if (!rulesets.isEmpty()) {
             loadJARs(dependencyResolver, rulesets)
         }
@@ -333,7 +334,7 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
         }
     }
 
-    private fun loadReporter(dependencyResolver: MavenDependencyResolver): Reporter {
+    private fun loadReporter(dependencyResolver: Lazy<MavenDependencyResolver>): Reporter {
         data class ReporterTemplate(val id: String, val config: Map<String, String>, var output: String?)
         val tpls = (if (reporters.isEmpty()) listOf("plain") else reporters)
             .map { reporter ->
@@ -543,14 +544,14 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
         return dependencyResolver
     }
 
-    private fun loadJARs(dependencyResolver: MavenDependencyResolver, artifacts: List<String>) {
+    private fun loadJARs(dependencyResolver: Lazy<MavenDependencyResolver>, artifacts: List<String>) {
         (ClassLoader.getSystemClassLoader() as java.net.URLClassLoader)
             .addURLs(artifacts.flatMap { artifact ->
                 if (debug) {
                     System.err.println("[DEBUG] Resolving $artifact")
                 }
                 val result = try {
-                    dependencyResolver.resolve(DefaultArtifact(artifact)).map { it.toURI().toURL() }
+                    dependencyResolver.value.resolve(DefaultArtifact(artifact)).map { it.toURI().toURL() }
                 } catch (e: IllegalArgumentException) {
                     val file = File(expandTilde(artifact))
                     if (!file.exists()) {
