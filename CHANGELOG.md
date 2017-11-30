@@ -2,6 +2,14 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.14.0] - 2017-11-30
+
+### Changed
+- `continuation_indent_size` to 4 when `--android` profile is used ([android/kotlin-guides#37](https://github.com/android/kotlin-guides/issues/37)). 
+
+### Fixed
+- Maven integration ([#117](https://github.com/shyiko/ktlint/issues/117)).
+
 ## [0.13.0] - 2017-11-28
 
 ### Added
@@ -276,6 +284,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.14.0]: https://github.com/shyiko/ktlint/compare/0.13.0...0.14.0
 [0.13.0]: https://github.com/shyiko/ktlint/compare/0.12.1...0.13.0
 [0.12.1]: https://github.com/shyiko/ktlint/compare/0.12.0...0.12.1
 [0.12.0]: https://github.com/shyiko/ktlint/compare/0.11.1...0.12.0
