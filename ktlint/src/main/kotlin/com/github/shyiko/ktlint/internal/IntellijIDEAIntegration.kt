@@ -27,7 +27,7 @@ object IntellijIDEAIntegration {
         }
         val home = System.getProperty("user.home")
         val editorConfig: Map<String, String> = EditorConfig.of(".") ?: emptyMap()
-        val continuationIndentSize = editorConfig["continuation_indent_size"]?.toIntOrNull() ?: if (android) 8 else 4
+        val continuationIndentSize = editorConfig["continuation_indent_size"]?.toIntOrNull() ?: 4
         val indentSize = editorConfig["indent_size"]?.toIntOrNull() ?: 4
         val codeStyleName = "ktlint${
             if (continuationIndentSize == 4) "" else "-cis$continuationIndentSize"
