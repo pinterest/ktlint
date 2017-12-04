@@ -69,9 +69,7 @@ class IndentationRule : Rule("indent") {
                         && firstParameter.value?.node != node.nextSibling.node) {
                         if ((line.length + 1) != firstParameterColumn.value) {
                             emit(offset, "Unexpected indentation (${line.length}) (" +
-                                "parameters should be either vertically aligned or " +
-                                "indented by the multiple of $indent" +
-                                ")", true)
+                                "parameters should be vertically aligned)", true)
                         }
                     } else if (line.isNotEmpty() && (line.length - previousIndent) % expectedIndentSize != 0) {
 

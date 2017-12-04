@@ -141,7 +141,7 @@ class IndentationRuleTest {
             script = true
         )).isEqualTo(listOf(
             LintError(2, 1, "indent", "Unexpected indentation (5) (it should be 4)"),
-            LintError(3, 1, "indent", "Unexpected indentation (4) (parameters should be either vertically aligned or indented by the multiple of 4)")
+            LintError(3, 1, "indent", "Unexpected indentation (4) (parameters should be vertically aligned)")
         ))
     }
 
