@@ -11,7 +11,7 @@ import org.jetbrains.kotlin.psi.KtEnumEntry
 class NoSemicolonsRule : Rule("no-semi") {
 
     override fun visit(node: ASTNode, autoCorrect: Boolean,
-            emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
+                       emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
         if (node is LeafPsiElement && node.textMatches(";") && !node.isPartOfString() &&
                 !node.isPartOf(KtEnumEntry::class)) {
             val nextLeaf = PsiTreeUtil.nextLeaf(node, true)

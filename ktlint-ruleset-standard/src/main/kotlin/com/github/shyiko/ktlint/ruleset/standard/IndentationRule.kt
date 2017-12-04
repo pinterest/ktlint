@@ -36,7 +36,7 @@ class IndentationRule : Rule("indent") {
     private var continuationIndent = -1
 
     override fun visit(node: ASTNode, autoCorrect: Boolean,
-            emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
+                       emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
         if (node.elementType == KtStubElementTypes.FILE) {
             val android = node.getUserData(KtLint.ANDROID_USER_DATA_KEY)!!
             val editorConfig = node.getUserData(KtLint.EDITOR_CONFIG_USER_DATA_KEY)!!
@@ -64,29 +64,21 @@ class IndentationRule : Rule("indent") {
                 val expectedIndentSize = if (continuationIndent == indent || shouldUseContinuationIndent(node))
                     continuationIndent else indent
                 lines.tail().forEach { line ->
-                    if (line.isNotEmpty() && (line.length - previousIndent) % expectedIndentSize != 0) {
-                        if (node.isPartOf(KtParameterList::class) &&
-                            firstParameterColumn.value != 0 &&
-                            (
-                                // is not the first parameter
-                                node.parent.node.findChildByType(KtStubElementTypes.VALUE_PARAMETER) !=
-                                firstParameter.value?.node ||
-                                // ... or is next to (
-                                firstParameter.value?.let { PsiTreeUtil.prevLeaf(it, true) }?.node
-                                    ?.elementType == KtTokens.LPAR)
-                            ) {
-                            if (firstParameterColumn.value - 1 != line.length) {
-                                emit(offset, "Unexpected indentation (${line.length}) (" +
-                                    "parameters should be either vertically aligned or " +
-                                    "indented by the multiple of $indent" +
-                                    ")", false)
-                            }
-                        } else {
-                            emit(offset,
-                                "Unexpected indentation (${line.length - previousIndent}) " +
-                                    "(it should be $expectedIndentSize)",
-                                false)
+                    if (node.isPartOf(KtParameterList::class)
+                        && node.nextSibling is KtParameter
+                        && firstParameter.value?.node != node.nextSibling.node) {
+                        if ((line.length + 1) != firstParameterColumn.value) {
+                            emit(offset, "Unexpected indentation (${line.length}) (" +
+                                "parameters should be either vertically aligned or " +
+                                "indented by the multiple of $indent" +
+                                ")", true)
                         }
+                    } else if (line.isNotEmpty() && (line.length - previousIndent) % expectedIndentSize != 0) {
+
+                        emit(offset,
+                            "Unexpected indentation (${line.length - previousIndent}) " +
+                                "(it should be $expectedIndentSize)",
+                            false)
                     }
                     offset += line.length + 1
                 }

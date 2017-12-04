@@ -27,7 +27,7 @@ abstract class Rule(val id: String) {
      * @param emit a way for rule to notify about a violation (lint error)
      */
     abstract fun visit(node: ASTNode, autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit)
+                       emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit)
 
     object Modifier {
         /**
