@@ -344,10 +344,6 @@ To load a custom (3rd party) reporter use `ktlint --reporter=groupId:artifactId:
 
 [![ktlint](https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg)](https://ktlint.github.io/)
 
-```md
-[![ktlint](https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg)](https://ktlint.github.io/)
-```
-
 ## FAQ
 
 ### Why should I use ktlint?
