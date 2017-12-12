@@ -1,5 +1,5 @@
 buildscript {
-    ext.kotlin_version = '1.1.51'
+    ext.kotlin_version = '1.2.0'
     repositories {
         mavenCentral()
         maven { url 'http://repo.spring.io/plugins-release' }
@@ -7,7 +7,7 @@ buildscript {
     dependencies {
         classpath 'org.springframework.build.gradle:propdeps-plugin:0.0.7'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'org.junit.platform:junit-platform-gradle-plugin:1.0.0-M2'
+        classpath 'org.junit.platform:junit-platform-gradle-plugin:1.0.0'
     }
 }
 
@@ -24,7 +24,7 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 repositories {
-    mavenCentral()
+    jcenter()
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
@@ -48,14 +48,14 @@ configurations {
 
 dependencies {
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    provided 'com.github.shyiko.ktlint:ktlint-core:0.10.0'
+    provided 'com.github.shyiko.ktlint:ktlint-core:0.14.0'
 
-    testCompile 'org.jetbrains.spek:spek-api:1.0.89'
-    testRuntime 'org.jetbrains.spek:spek-junit-platform-engine:1.0.89'
+    testCompile 'org.jetbrains.spek:spek-api:1.1.5'
+    testRuntime 'org.jetbrains.spek:spek-junit-platform-engine:1.1.5'
     testCompile 'org.assertj:assertj-core:3.5.2'
     testCompile 'com.github.shyiko.ktlint:ktlint-test:0.9.0'
 
-    ktlint 'com.github.shyiko:ktlint:0.10.0'
+    ktlint 'com.github.shyiko:ktlint:0.14.0'
 }
 
 task ktlint(type: JavaExec, dependsOn: classes) {

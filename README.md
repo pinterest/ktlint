@@ -185,7 +185,7 @@ To run formatter - `mvn antrun:run@ktlint-format`.
 apply plugin: "java"
 
 repositories {
-    mavenCentral()
+    jcenter()
 }
 
 configurations {
