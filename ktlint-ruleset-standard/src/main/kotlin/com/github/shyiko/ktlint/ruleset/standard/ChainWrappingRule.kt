@@ -46,8 +46,7 @@ class ChainWrappingRule : Rule("chain-wrapping") {
                     }
                 }
             }
-        } else
-        if (sameLineTokens.contains(elementType)) {
+        } else if (sameLineTokens.contains(elementType)) {
             val prevLeaf = node.psi.prevLeaf(true)
             if (prevLeaf is PsiWhiteSpaceImpl && prevLeaf.textContains('\n')) {
                 emit(node.startOffset, "Line must not begin with \"${node.text}\"", true)
