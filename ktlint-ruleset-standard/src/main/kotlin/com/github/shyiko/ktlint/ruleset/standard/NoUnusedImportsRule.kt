@@ -52,18 +52,15 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
                 if (type == KDocTokens.MARKDOWN_LINK && psi is KDocLink) {
                     val linkText = psi.getLinkText().replace("`", "")
                     ref.add(linkText.split('.').first())
-                } else
-                if ((type == KtNodeTypes.REFERENCE_EXPRESSION || type == KtNodeTypes.OPERATION_REFERENCE) &&
+                } else if ((type == KtNodeTypes.REFERENCE_EXPRESSION || type == KtNodeTypes.OPERATION_REFERENCE) &&
                     !psi.isPartOf(KtImportDirective::class)) {
                     ref.add(vnode.text.trim('`'))
                 }
             }
-        } else
-        if (node.elementType == KtStubElementTypes.PACKAGE_DIRECTIVE) {
+        } else if (node.elementType == KtStubElementTypes.PACKAGE_DIRECTIVE) {
             val packageDirective = node.psi as KtPackageDirective
             packageName = packageDirective.qualifiedName
-        } else
-        if (node.elementType == KtStubElementTypes.IMPORT_DIRECTIVE) {
+        } else if (node.elementType == KtStubElementTypes.IMPORT_DIRECTIVE) {
             val importDirective = node.psi as KtImportDirective
             val name = importDirective.importPath?.importedName?.asString()
             val importPath = importDirective.importPath?.pathStr!!
@@ -74,8 +71,7 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
                 if (autoCorrect) {
                     importDirective.delete()
                 }
-            } else
-            if (name != null && !ref.contains(name) && !operatorSet.contains(name)) {
+            } else if (name != null && !ref.contains(name) && !operatorSet.contains(name)) {
                 emit(importDirective.startOffset, "Unused import", true)
                 if (autoCorrect) {
                     importDirective.delete()

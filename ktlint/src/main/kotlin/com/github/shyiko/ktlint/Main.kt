@@ -373,8 +373,7 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
             }
             val stream = if (output != null) {
                 File(output).parentFile?.mkdirsOrFail(); PrintStream(output, "UTF-8")
-            } else
-                if (stdin) System.err else System.out
+            } else if (stdin) System.err else System.out
             return reporterProvider.get(stream, config)
                 .let { reporter ->
                     if (output != null)
@@ -384,8 +383,7 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
                                 stream.close()
                             }
                         }
-                    else
-                        reporter
+                    else reporter
                 }
         }
         return Reporter.from(*tpls.map { it.toReporter() }.toTypedArray())
@@ -583,14 +581,12 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
         }
 
     private fun lint(fileName: String, text: String, ruleSets: Iterable<RuleSet>, userData: Map<String, String>,
-                     cb: (e: LintError) -> Unit) =
-        if (fileName.endsWith(".kt", ignoreCase = true)) KtLint.lint(text, ruleSets, userData, cb) else
-            KtLint.lintScript(text, ruleSets, userData, cb)
+            cb: (e: LintError) -> Unit) =
+        if (fileName.endsWith(".kt", ignoreCase = true)) KtLint.lint(text, ruleSets, userData, cb) else KtLint.lintScript(text, ruleSets, userData, cb)
 
     private fun format(fileName: String, text: String, ruleSets: Iterable<RuleSet>, userData: Map<String, String>,
-                       cb: (e: LintError, corrected: Boolean) -> Unit): String =
-        if (fileName.endsWith(".kt", ignoreCase = true)) KtLint.format(text, ruleSets, userData, cb) else
-            KtLint.formatScript(text, ruleSets, userData, cb)
+            cb: (e: LintError, corrected: Boolean) -> Unit): String =
+        if (fileName.endsWith(".kt", ignoreCase = true)) KtLint.format(text, ruleSets, userData, cb) else KtLint.formatScript(text, ruleSets, userData, cb)
 
     private fun java.net.URLClassLoader.addURLs(url: Iterable<java.net.URL>) {
         val method = java.net.URLClassLoader::class.java.getDeclaredMethod("addURL", java.net.URL::class.java)

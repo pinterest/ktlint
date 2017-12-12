@@ -15,8 +15,7 @@ class KtLintTest {
                                emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
                 if (node.elementType == KtStubElementTypes.FILE) {
                     bus.add("file:$id")
-                } else
-                if (!done) {
+                } else if (!done) {
                     bus.add(id)
                     done = true
                 }

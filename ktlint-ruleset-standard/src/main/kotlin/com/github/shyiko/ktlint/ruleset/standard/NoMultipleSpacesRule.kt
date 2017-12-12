@@ -51,8 +51,7 @@ class NoMultipleSpacesRule : Rule("no-multi-spaces") {
                        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
         if (node.elementType == KtStubElementTypes.FILE) {
             fileNode = node
-        } else
-        if (node is PsiWhiteSpace && !node.textContains('\n') && node.getTextLength() > 1) {
+        } else if (node is PsiWhiteSpace && !node.textContains('\n') && node.getTextLength() > 1) {
             val nextLeaf = PsiTreeUtil.nextLeaf(node, true)
             if (nextLeaf is PsiComment) {
                 val positionMap = commentMap

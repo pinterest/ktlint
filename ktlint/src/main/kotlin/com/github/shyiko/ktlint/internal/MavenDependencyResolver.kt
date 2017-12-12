@@ -41,8 +41,11 @@ class MavenDependencyResolver(baseDir: File, val repositories: Iterable<RemoteRe
         repoSystem = locator.getService(RepositorySystem::class.java)
         session = MavenRepositorySystemUtils.newSession()
         session.localRepositoryManager = repoSystem.newLocalRepositoryManager(session, LocalRepository(baseDir))
-        session.updatePolicy = if (forceUpdate) RepositoryPolicy.UPDATE_POLICY_ALWAYS else
+        session.updatePolicy = if (forceUpdate) {
+            RepositoryPolicy.UPDATE_POLICY_ALWAYS
+        } else {
             RepositoryPolicy.UPDATE_POLICY_NEVER
+        }
     }
 
     fun setTransferEventListener(listener: (event: TransferEvent) -> Unit) {
