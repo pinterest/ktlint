@@ -44,8 +44,7 @@ class SpacingAroundCurlyRule : Rule("curly-spacing") {
                         (prevLeaf.node as LeafPsiElement).rawReplaceWithText(" ")
                     }
                 }
-            } else
-            if (node.textMatches("}")) {
+            } else if (node.textMatches("}")) {
                 spacingBefore = prevLeaf is PsiWhiteSpace || prevLeaf?.node?.elementType == KtTokens.LBRACE
                 spacingAfter = nextLeaf == null || nextLeaf is PsiWhiteSpace || shouldNotToBeSeparatedBySpace(nextLeaf)
                 if (nextLeaf is PsiWhiteSpace && !nextLeaf.textContains('\n') &&

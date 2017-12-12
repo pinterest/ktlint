@@ -23,7 +23,7 @@ import org.eclipse.aether.util.graph.visitor.PreorderNodeListGenerator
 import java.io.File
 
 class MavenDependencyResolver(baseDir: File, val repositories: Iterable<RemoteRepository>,
-    forceUpdate: Boolean) {
+                              forceUpdate: Boolean) {
 
     private val repoSystem: RepositorySystem
     private val session: RepositorySystemSession
@@ -41,8 +41,11 @@ class MavenDependencyResolver(baseDir: File, val repositories: Iterable<RemoteRe
         repoSystem = locator.getService(RepositorySystem::class.java)
         session = MavenRepositorySystemUtils.newSession()
         session.localRepositoryManager = repoSystem.newLocalRepositoryManager(session, LocalRepository(baseDir))
-        session.updatePolicy = if (forceUpdate) RepositoryPolicy.UPDATE_POLICY_ALWAYS else
+        session.updatePolicy = if (forceUpdate) {
+            RepositoryPolicy.UPDATE_POLICY_ALWAYS
+        } else {
             RepositoryPolicy.UPDATE_POLICY_NEVER
+        }
     }
 
     fun setTransferEventListener(listener: (event: TransferEvent) -> Unit) {

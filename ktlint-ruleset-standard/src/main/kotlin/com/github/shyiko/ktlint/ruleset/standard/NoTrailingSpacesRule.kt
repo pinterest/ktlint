@@ -17,8 +17,7 @@ class NoTrailingSpacesRule : Rule("no-trailing-spaces") {
                 if (autoCorrect) {
                     (node as LeafPsiElement).rawReplaceWithText("\n".repeat(lines.size - 1) + lines.last())
                 }
-            } else
-            if (PsiTreeUtil.nextLeaf(node) == null /* eof */) {
+            } else if (PsiTreeUtil.nextLeaf(node) == null /* eof */) {
                 checkForTrailingSpaces(lines, node.startOffset, emit)
                 if (autoCorrect) {
                     (node as LeafPsiElement).rawReplaceWithText("\n".repeat(lines.size - 1))
