@@ -7,6 +7,7 @@ import org.assertj.core.api.Assertions
 import org.testng.annotations.Test
 
 class NoLineBreakAfterElseRuleTest {
+
     @Test
     fun testViolationForLineBreakBetweenElseAndIf() {
         Assertions.assertThat(NoLineBreakAfterElseRule().lint(
@@ -21,7 +22,7 @@ class NoLineBreakAfterElseRuleTest {
             }
             """.trimIndent()
         )).isEqualTo(listOf(
-            LintError(5, 1, NoLineBreakAfterElseRule.RULE_ID, "Unexpected line break after \"else\"")
+            LintError(5, 1, "no-line-break-after-else", "Unexpected line break after \"else\"")
         ))
     }
 
@@ -95,7 +96,7 @@ class NoLineBreakAfterElseRuleTest {
             }
             """.trimIndent()
         )).isEqualTo(listOf(
-            LintError(5, 1, NoLineBreakAfterElseRule.RULE_ID, "Unexpected line break after \"else\"")
+            LintError(5, 1, "no-line-break-after-else", "Unexpected line break after \"else\"")
         ))
     }
 
@@ -111,7 +112,7 @@ class NoLineBreakAfterElseRuleTest {
             }
             """.trimIndent()
         )).isEqualTo(listOf(
-            LintError(5, 1, NoLineBreakAfterElseRule.RULE_ID, "Unexpected line break after \"else\"")
+            LintError(5, 1, "no-line-break-after-else", "Unexpected line break after \"else\"")
         ))
     }
 
