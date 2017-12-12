@@ -7,6 +7,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
+import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtBinaryExpression
@@ -63,6 +64,7 @@ class IndentationRule : Rule("indent") {
                 val previousIndent = calculatePreviousIndent(node)
                 val expectedIndentSize = if (continuationIndent == indent || shouldUseContinuationIndent(node))
                     continuationIndent else indent
+                var correctedIndent = "\n"
                 lines.tail().forEach { line ->
                     if (line.isNotEmpty() && (line.length - previousIndent) % expectedIndentSize != 0) {
                         if (node.isPartOf(KtParameterList::class) &&
@@ -70,25 +72,33 @@ class IndentationRule : Rule("indent") {
                             (
                                 // is not the first parameter
                                 node.parent.node.findChildByType(KtStubElementTypes.VALUE_PARAMETER) !=
-                                firstParameter.value?.node ||
-                                // ... or is next to (
-                                firstParameter.value?.let { PsiTreeUtil.prevLeaf(it, true) }?.node
-                                    ?.elementType == KtTokens.LPAR)
+                                    firstParameter.value?.node ||
+                                    // ... or is next to (
+                                    firstParameter.value?.let { PsiTreeUtil.prevLeaf(it, true) }?.node
+                                        ?.elementType == KtTokens.LPAR)
                             ) {
                             if (firstParameterColumn.value - 1 != line.length) {
                                 emit(offset, "Unexpected indentation (${line.length}) (" +
                                     "parameters should be either vertically aligned or " +
                                     "indented by the multiple of $indent" +
-                                    ")", false)
+                                    ")",
+                                    //auto correction is not supported because we don't know exact expected indent
+                                    false)
                             }
                         } else {
                             emit(offset,
                                 "Unexpected indentation (${line.length - previousIndent}) " +
                                     "(it should be $expectedIndentSize)",
-                                false)
+                                true)
+                            if (autoCorrect) correctedIndent += " ".repeat(expectedIndentSize)
                         }
+                    } else if (autoCorrect) {
+                        correctedIndent += line
                     }
                     offset += line.length + 1
+                }
+                if (autoCorrect) {
+                    (node as LeafPsiElement).rawReplaceWithText(correctedIndent)
                 }
             }
         }
