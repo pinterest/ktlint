@@ -1,6 +1,6 @@
 package com.github.shyiko.ktlint.ruleset.standard
 
-import com.github.shyiko.ktlint.core.KtLint
+import com.github.shyiko.ktlint.core.IndentationConfig
 import com.github.shyiko.ktlint.core.Rule
 import org.jetbrains.kotlin.KtNodeTypes
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -32,21 +32,16 @@ class IndentationRule : Rule("indent") {
         private const val DEFAULT_CONTINUATION_INDENT = 4
     }
 
-    private var indent = -1
-    private var continuationIndent = -1
+    private var indentConfig = IndentationConfig(-1, -1, true)
+
 
     override fun visit(node: ASTNode, autoCorrect: Boolean,
                        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
         if (node.elementType == KtStubElementTypes.FILE) {
-            val android = node.getUserData(KtLint.ANDROID_USER_DATA_KEY)!!
-            val editorConfig = node.getUserData(KtLint.EDITOR_CONFIG_USER_DATA_KEY)!!
-            val indentSize = editorConfig.get("indent_size")
-            val continuationIndentSize = editorConfig.get("continuation_indent_size")
-            indent = indentSize?.toIntOrNull() ?: if (indentSize?.toLowerCase() == "unset") -1 else DEFAULT_INDENT
-            continuationIndent = continuationIndentSize?.toIntOrNull() ?: DEFAULT_CONTINUATION_INDENT
+            indentConfig = IndentationConfig.create(node)
             return
         }
-        if (indent <= 0 || continuationIndent <= 0) {
+        if (indentConfig.disabled) {
             return
         }
         if (node is PsiWhiteSpace && !node.isPartOf(PsiComment::class)) {
@@ -60,9 +55,13 @@ class IndentationRule : Rule("indent") {
                     )
                 }
                 val firstParameterColumn = lazy { firstParameter.value?.column ?: 0 }
-                val previousIndent = calculatePreviousIndent(node)
-                val expectedIndentSize = if (continuationIndent == indent || shouldUseContinuationIndent(node))
-                    continuationIndent else indent
+                val previousIndent = node.calculatePreviousIndent()
+                val expectedIndentSize =
+                    if (indentConfig.continuation == indentConfig.regular || shouldUseContinuationIndent(node)) {
+                        indentConfig.continuation
+                    } else {
+                        indentConfig.regular
+                    }
                 lines.tail().forEach { line ->
                     if (node.isPartOf(KtParameterList::class)
                         && node.nextSibling is KtParameter
