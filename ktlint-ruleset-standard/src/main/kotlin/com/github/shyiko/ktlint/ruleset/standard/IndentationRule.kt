@@ -34,9 +34,10 @@ class IndentationRule : Rule("indent") {
 
     private var indentConfig = IndentationConfig(-1, -1, true)
 
-
-    override fun visit(node: ASTNode, autoCorrect: Boolean,
-                       emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
+    override fun visit(
+        node: ASTNode,
+        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
         if (node.elementType == KtStubElementTypes.FILE) {
             indentConfig = IndentationConfig.create(node)
             return
