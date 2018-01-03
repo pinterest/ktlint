@@ -57,6 +57,7 @@ ktlint recognizes the following [.editorconfig](http://editorconfig.org/) proper
 # possible values: number (e.g. 2), "unset" (makes ktlint ignore indentation completely)  
 indent_size=4
 # possible values: number (e.g. 2), "unset"
+# it's automatically set to 8 on `ktlint --android ...` (per Android Kotlin Style Guide)
 continuation_indent_size=unset
 # true (recommended) / false
 insert_final_newline=unset
@@ -264,6 +265,7 @@ Go to `File -> Settings... -> Editor`
     - uncheck `Method declaration parameters -> Align when multiline`. 
   - (optional but recommended) open `Tabs and Indents` tab
     - change `Continuation indent` to 4   
+    (to be compliant with [Android Kotlin Style Guide](https://android.github.io/kotlin-guides/style.html) value should stay equal 8).
 - `Inspections` 
   - change `Severity` level of `Unused import directive`, `Redundant semicolon` and (optional but recommended) `Unused symbol` to `ERROR`.
 

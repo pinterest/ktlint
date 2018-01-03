@@ -30,6 +30,8 @@ class IndentationRule : Rule("indent") {
         // indentation size recommended by JetBrains
         private const val DEFAULT_INDENT = 4
         private const val DEFAULT_CONTINUATION_INDENT = 4
+        // Android Kotlin Style Guide
+        private const val DEFAULT_CONTINUATION_INDENT_ANDROID = 8
     }
 
     private var indent = -1
@@ -43,7 +45,8 @@ class IndentationRule : Rule("indent") {
             val indentSize = editorConfig.get("indent_size")
             val continuationIndentSize = editorConfig.get("continuation_indent_size")
             indent = indentSize?.toIntOrNull() ?: if (indentSize?.toLowerCase() == "unset") -1 else DEFAULT_INDENT
-            continuationIndent = continuationIndentSize?.toIntOrNull() ?: DEFAULT_CONTINUATION_INDENT
+            continuationIndent = continuationIndentSize?.toIntOrNull()
+                ?: if (android) DEFAULT_CONTINUATION_INDENT_ANDROID else DEFAULT_CONTINUATION_INDENT
             return
         }
         if (indent <= 0 || continuationIndent <= 0) {
