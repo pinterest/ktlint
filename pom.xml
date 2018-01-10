@@ -64,14 +64,14 @@
         <repository>
             <id>bintray</id>
             <name>JCenter</name>
-            <url>http://jcenter.bintray.com</url>
+            <url>https://jcenter.bintray.com</url>
         </repository>
     </repositories>
     <pluginRepositories>
         <pluginRepository>
             <id>bintray</id>
             <name>JCenter</name>
-            <url>http://jcenter.bintray.com</url>
+            <url>https://jcenter.bintray.com</url>
         </pluginRepository>
     </pluginRepositories>
 
