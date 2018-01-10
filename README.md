@@ -7,7 +7,7 @@
 <p align="center">
 <a href="https://travis-ci.org/shyiko/ktlint"><img src="https://travis-ci.org/shyiko/ktlint.svg?branch=master" alt="Build Status"></a>
 <a href="https://ci.appveyor.com/project/shyiko/ktlint"><img src="https://ci.appveyor.com/api/projects/status/9dtlak3cj5rum48g?svg=true&passingText=passing" alt="Build Status"></a>
-<a href="http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.github.shyiko%22%20AND%20a%3A%22ktlint%22"><img src="https://img.shields.io/maven-central/v/com.github.shyiko/ktlint.svg" alt="Maven Central"></a>
+<a href="https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.github.shyiko%22%20AND%20a%3A%22ktlint%22"><img src="https://img.shields.io/maven-central/v/com.github.shyiko/ktlint.svg" alt="Maven Central"></a>
 <a href="https://ktlint.github.io/"><img src="https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg" alt="ktlint"></a>
 </p>
 
@@ -78,7 +78,7 @@ curl -sSLO https://github.com/shyiko/ktlint/releases/download/0.14.0/ktlint &&
 
 ... or just download `ktlint` from the [releases](https://github.com/shyiko/ktlint/releases) page  (`ktlint.asc` contains PGP signature which you can verify with `curl -sS https://keybase.io/shyiko/pgp_keys.asc | gpg --import && gpg --verify ktlint.asc`).  
 
-On macOS ([or Linux](http://linuxbrew.sh/)) you can also use [brew](http://brew.sh/) - `brew install shyiko/ktlint/ktlint`.
+On macOS ([or Linux](http://linuxbrew.sh/)) you can also use [brew](https://brew.sh/) - `brew install shyiko/ktlint/ktlint`.
 
 > If you don't have curl installed - replace `curl -sL` with `wget -qO-`.
 
