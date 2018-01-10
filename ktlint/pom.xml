@@ -24,13 +24,13 @@
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-stdlib</artifactId>
             <version>${kotlin.version}</version>
-            <!-- not longer included in kotlin-compiler-embeddable (>=1.1.60) -->
+            <!-- no longer included in kotlin-compiler-embeddable (>=1.1.60) -->
             <!--<scope>provided</scope>-->
         </dependency>
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
-            <version>13.0</version>
+            <version>15.0</version>
             <scope>provided</scope>
             <!-- included (at least org.jetbrains.annotations.*) in kotlin-compiler-embeddable -->
         </dependency>
@@ -186,7 +186,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.7</version>
+                <version>1.8</version>
                 <executions>
                     <execution>
                         <id>ktlint</id>
@@ -288,7 +288,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-shade-plugin</artifactId>
-                        <version>2.4.3</version>
+                        <version>3.1.0</version>
                         <executions>
                             <execution>
                                 <phase>package</phase>
@@ -364,7 +364,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-antrun-plugin</artifactId>
-                        <version>1.7</version>
+                        <version>1.8</version>
                         <executions>
                             <execution>
                                 <id>ktlint</id>
@@ -386,7 +386,7 @@
                     <plugin>
                         <groupId>de.jutzig</groupId>
                         <artifactId>github-release-plugin</artifactId>
-                        <version>1.1.1</version>
+                        <version>1.2.0</version>
                         <configuration>
                             <description>${project.version}</description>
                             <releaseName>${project.version}</releaseName>

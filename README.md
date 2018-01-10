@@ -126,7 +126,7 @@ $ ktlint --install-git-pre-commit-hook
 <plugin>
     <groupId>org.apache.maven.plugins</groupId>
     <artifactId>maven-antrun-plugin</artifactId>
-    <version>1.7</version>
+    <version>1.8</version>
     <executions>
         <execution>
             <id>ktlint</id>
