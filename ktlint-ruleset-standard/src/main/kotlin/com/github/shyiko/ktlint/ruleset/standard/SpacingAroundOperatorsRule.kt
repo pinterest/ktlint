@@ -36,6 +36,8 @@ import org.jetbrains.kotlin.psi.KtSuperExpression
 import org.jetbrains.kotlin.psi.KtTypeArgumentList
 import org.jetbrains.kotlin.psi.KtTypeParameterList
 import org.jetbrains.kotlin.psi.KtValueArgument
+import org.jetbrains.kotlin.psi.psiUtil.getNonStrictParentOfType
+import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
 
 class SpacingAroundOperatorsRule : Rule("op-spacing") {
 
@@ -46,14 +48,21 @@ class SpacingAroundOperatorsRule : Rule("op-spacing") {
             emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
         if (tokenSet.contains(node.elementType) && node is LeafPsiElement &&
             !node.isPartOf(KtPrefixExpression::class) && // not unary
-            !node.isPartOf(KtTypeParameterList::class) && // fun <T>fn(): T {}
             !node.isPartOf(KtTypeArgumentList::class) && // C<T>
-            !node.isPartOf(KtValueArgument::class) && // fn(*array)
+            !(node.elementType == MUL && node.isPartOf(KtValueArgument::class)) && // fn(*array)
             !node.isPartOf(KtImportDirective::class) && // import *
             !node.isPartOf(KtSuperExpression::class) // super<T>
         ) {
-            val spacingBefore = PsiTreeUtil.prevLeaf(node, true) is PsiWhiteSpace
-            val spacingAfter = PsiTreeUtil.nextLeaf(node, true) is PsiWhiteSpace
+            if ((node.elementType == GT || node.elementType == LT) &&
+                // fun <T>fn(): T {}
+                node.getNonStrictParentOfType(KtTypeParameterList::class.java)?.parent?.node?.elementType !=
+                    KtStubElementTypes.FUNCTION) {
+                return
+            }
+            val spacingBefore = PsiTreeUtil.prevLeaf(node, true) is PsiWhiteSpace ||
+                node.elementType == GT
+            val spacingAfter = PsiTreeUtil.nextLeaf(node, true) is PsiWhiteSpace ||
+                node.elementType == LT
             when {
                 !spacingBefore && !spacingAfter -> {
                     emit(node.startOffset, "Missing spacing around \"${node.text}\"", true)
@@ -77,5 +86,4 @@ class SpacingAroundOperatorsRule : Rule("op-spacing") {
             }
         }
     }
-
 }

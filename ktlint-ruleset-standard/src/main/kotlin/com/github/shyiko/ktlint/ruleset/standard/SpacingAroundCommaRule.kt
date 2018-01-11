@@ -19,5 +19,4 @@ class SpacingAroundCommaRule : Rule("comma-spacing") {
             }
         }
     }
-
 }

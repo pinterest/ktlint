@@ -33,7 +33,8 @@ class NoMultipleSpacesRule : Rule("no-multi-spaces") {
                 val psi = node.psi
                 if (psi is PsiComment) { comments.add(psi) }
             }
-            return comments.foldIndexed(mutableMapOf<Offset, CommentRelativeLocation>()) { i, acc, comment ->
+            return comments.foldIndexed(mutableMapOf()) { i, acc, comment ->
+                // todo: get rid of DiagnosticUtils (IndexOutOfBoundsException)
                 val pos = DiagnosticUtils.getLineAndColumnInPsiFile(fileNode.psi as PsiFile,
                     TextRange(comment.startOffset, comment.startOffset))
                 acc.put(comment.startOffset, CommentRelativeLocation(
@@ -50,8 +51,7 @@ class NoMultipleSpacesRule : Rule("no-multi-spaces") {
             emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
         if (node.elementType == KtStubElementTypes.FILE) {
             fileNode = node
-        } else
-        if (node is PsiWhiteSpace && !node.textContains('\n') && node.getTextLength() > 1) {
+        } else if (node is PsiWhiteSpace && !node.textContains('\n') && node.getTextLength() > 1) {
             val nextLeaf = PsiTreeUtil.nextLeaf(node, true)
             if (nextLeaf is PsiComment) {
                 val positionMap = commentMap
@@ -71,7 +71,7 @@ class NoMultipleSpacesRule : Rule("no-multi-spaces") {
             }
             emit(node.startOffset + 1, "Unnecessary space(s)", true)
             if (autoCorrect) {
-                (node as LeafPsiElement).replaceWithText(" ")
+                (node as LeafPsiElement).rawReplaceWithText(" ")
             }
         }
     }
@@ -80,5 +80,4 @@ class NoMultipleSpacesRule : Rule("no-multi-spaces") {
         cb(this)
         this.getChildren(null).forEach { it.visit(cb) }
     }
-
 }

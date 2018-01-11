@@ -11,31 +11,29 @@ class NoTrailingSpacesRule : Rule("no-trailing-spaces") {
     override fun visit(node: ASTNode, autoCorrect: Boolean,
             emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
         if (node is PsiWhiteSpace) {
-            val split = node.getText().split("\n")
-            if (split.size > 1) {
-                checkForTrailingSpaces(split.head(), node.startOffset, emit)
+            val lines = node.getText().split("\n")
+            if (lines.size > 1) {
+                checkForTrailingSpaces(lines.head(), node.startOffset, emit)
                 if (autoCorrect) {
-                    (node as LeafPsiElement).replaceWithText("\n".repeat(split.size - 1) + split.last())
+                    (node as LeafPsiElement).rawReplaceWithText("\n".repeat(lines.size - 1) + lines.last())
                 }
-            } else
-            if (PsiTreeUtil.nextLeaf(node) == null /* eof */) {
-                checkForTrailingSpaces(split, node.startOffset, emit)
+            } else if (PsiTreeUtil.nextLeaf(node) == null /* eof */) {
+                checkForTrailingSpaces(lines, node.startOffset, emit)
                 if (autoCorrect) {
-                    (node as LeafPsiElement).replaceWithText("\n".repeat(split.size - 1))
+                    (node as LeafPsiElement).rawReplaceWithText("\n".repeat(lines.size - 1))
                 }
             }
         }
     }
 
-    private fun checkForTrailingSpaces(split: List<String>, offset: Int,
+    private fun checkForTrailingSpaces(lines: List<String>, offset: Int,
             emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
         var violationOffset = offset
-        return split.forEach {
-            if (!it.isEmpty()) {
+        return lines.forEach { line ->
+            if (!line.isEmpty()) {
                 emit(violationOffset, "Trailing space(s)", true)
             }
-            violationOffset += it.length + 1
+            violationOffset += line.length + 1
         }
     }
-
 }

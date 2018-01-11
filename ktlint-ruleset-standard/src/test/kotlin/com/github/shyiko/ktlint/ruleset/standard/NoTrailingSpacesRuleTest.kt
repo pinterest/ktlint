@@ -1,8 +1,8 @@
 package com.github.shyiko.ktlint.ruleset.standard
 
 import com.github.shyiko.ktlint.core.LintError
-import com.github.shyiko.ktlint.test.lint
 import com.github.shyiko.ktlint.test.format
+import com.github.shyiko.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
 import org.testng.annotations.Test
 
@@ -22,5 +22,4 @@ class NoTrailingSpacesRuleTest {
         assertThat(NoTrailingSpacesRule().format("fun main() {\n    val a = 1 \n  \n \n} "))
             .isEqualTo("fun main() {\n    val a = 1\n\n\n}")
     }
-
 }

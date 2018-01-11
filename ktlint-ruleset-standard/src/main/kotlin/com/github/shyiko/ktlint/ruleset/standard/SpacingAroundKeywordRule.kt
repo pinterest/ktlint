@@ -40,21 +40,28 @@ class SpacingAroundKeywordRule : Rule("keyword-spacing") {
                 }
             } else if (keywordsWithoutSpaces.contains(node.elementType) && node.nextLeaf() is PsiWhiteSpace) {
                 val parent = node.parent
-                if (parent is KtPropertyAccessor && parent.hasBody()) {
+                val nextLeaf = node.nextLeaf()
+                if (parent is KtPropertyAccessor && parent.hasBody() && nextLeaf != null) {
                     emit(node.startOffset, "Unexpected spacing after \"${node.text}\"", true)
                     if (autoCorrect) {
-                        node.nextLeaf()?.delete()
+                        nextLeaf.node.treeParent.removeChild(nextLeaf.node)
                     }
                 }
             }
             if (noLFBeforeSet.contains(node.elementType)) {
                 val prevLeaf = PsiTreeUtil.prevLeaf(node)
                 if (prevLeaf is PsiWhiteSpaceImpl && prevLeaf.textContains('\n') &&
-                    (node.elementType != ELSE_KEYWORD || node.parent !is KtWhenEntry) &&
-                    (PsiTreeUtil.prevLeaf(prevLeaf)?.textMatches("}") ?: false)) {
-                    emit(node.startOffset, "Unexpected newline before \"${node.text}\"", true)
-                    if (autoCorrect) {
-                        prevLeaf.rawReplaceWithText(" ")
+                    (node.elementType != ELSE_KEYWORD || node.parent !is KtWhenEntry)) {
+                    val presumablyCurly = PsiTreeUtil.prevLeaf(prevLeaf)
+                    if (presumablyCurly != null &&
+                        presumablyCurly.node.elementType == KtTokens.RBRACE &&
+                        (node.elementType != ELSE_KEYWORD ||
+                        // `if (...) v.let { } else` case
+                        presumablyCurly.node.treeParent?.treeParent?.treeParent == node.treeParent)) {
+                        emit(node.startOffset, "Unexpected newline before \"${node.text}\"", true)
+                        if (autoCorrect) {
+                            prevLeaf.rawReplaceWithText(" ")
+                        }
                     }
                 }
             }

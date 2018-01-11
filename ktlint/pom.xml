@@ -24,7 +24,15 @@
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-stdlib</artifactId>
             <version>${kotlin.version}</version>
+            <!-- not longer included in kotlin-compiler-embeddable (>=1.1.60) -->
+            <!--<scope>provided</scope>-->
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>13.0</version>
             <scope>provided</scope>
+            <!-- included (at least org.jetbrains.annotations.*) in kotlin-compiler-embeddable -->
         </dependency>
         <dependency>
             <groupId>com.github.shyiko.ktlint</groupId>
@@ -37,16 +45,69 @@
             <version>0.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>org.ini4j</groupId>
-            <artifactId>ini4j</artifactId>
-            <version>0.5.4</version>
+            <groupId>com.github.shyiko.ktlint</groupId>
+            <artifactId>ktlint-reporter-plain</artifactId>
+            <version>0.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.shyiko.ktlint</groupId>
+            <artifactId>ktlint-reporter-json</artifactId>
+            <version>0.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.shyiko.ktlint</groupId>
+            <artifactId>ktlint-reporter-checkstyle</artifactId>
+            <version>0.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.shyiko.ktlint</groupId>
+            <artifactId>ktlint-test</artifactId>
+            <version>0.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.shyiko.klob</groupId>
+            <artifactId>klob</artifactId>
+            <version>0.2.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-aether-provider</artifactId>
             <version>${aether.maven.provider.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.eclipse.aether</groupId>
+                    <artifactId>aether-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.eclipse.aether</groupId>
+                    <artifactId>aether-spi</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.eclipse.aether</groupId>
+                    <artifactId>aether-util</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.eclipse.aether</groupId>
+                    <artifactId>aether-impl</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- maven-aether-provider's transitive dependency -->
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-model</artifactId>
+            <version>${aether.maven.provider.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-model-builder</artifactId>
+            <version>${aether.maven.provider.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-repository-metadata</artifactId>
+            <version>${aether.maven.provider.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
@@ -108,6 +169,12 @@
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
             <version>${assertj.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.jimfs</groupId>
+            <artifactId>jimfs</artifactId>
+            <version>1.1</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

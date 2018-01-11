@@ -1,8 +1,8 @@
 package com.github.shyiko.ktlint.ruleset.standard
 
 import com.github.shyiko.ktlint.core.LintError
-import com.github.shyiko.ktlint.test.lint
 import com.github.shyiko.ktlint.test.format
+import com.github.shyiko.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
 import org.testng.annotations.Test
 
@@ -53,12 +53,40 @@ class SpacingAroundCurlyRuleTest {
                 fn({},{}, {}, 0)
                 fn({ }, 0)
                 fn({ a -> try{a()}catch (e: Exception){null} }, 0)
+                foo.associateBy( { it.length } , { it } )
                 try{call()}catch (e: Exception){}
                 call({}, {})
                 a.let{}.apply({})
                 f({ if (true) {r.add(v)}; r})
                 emptyList<String>().find { true }!!.hashCode()
                 emptyList<String>().find { true } !!.hashCode()
+                l.groupBy { it }[key] + l.groupBy { it } [key]
+                l.groupBy { it }(key) + l.groupBy { it } (key)
+                object : Any() {}::class.java.classLoader
+                object : Any() {} ::class.java.classLoader
+                class A
+                {
+                    companion object
+                    {
+                    }
+                }
+                interface A
+                {
+                }
+                if (true)
+                {
+                }
+                do
+                {
+                } while (true)
+                call(
+                    { echo() },
+                    { echo() },
+                    //
+                    { echo() }
+                )
+                val f =
+                    { true }
             }
             """.trimIndent()
         )).isEqualTo(
@@ -71,15 +99,37 @@ class SpacingAroundCurlyRuleTest {
                 fn({}, {}, {}, 0)
                 fn({ }, 0)
                 fn({ a -> try { a() } catch (e: Exception) { null } }, 0)
+                foo.associateBy({ it.length }, { it })
                 try { call() } catch (e: Exception) {}
                 call({}, {})
                 a.let {}.apply({})
                 f({ if (true) { r.add(v) }; r })
                 emptyList<String>().find { true }!!.hashCode()
                 emptyList<String>().find { true }!!.hashCode()
+                l.groupBy { it }[key] + l.groupBy { it }[key]
+                l.groupBy { it }(key) + l.groupBy { it }(key)
+                object : Any() {}::class.java.classLoader
+                object : Any() {}::class.java.classLoader
+                class A {
+                    companion object {
+                    }
+                }
+                interface A {
+                }
+                if (true) {
+                }
+                do {
+                } while (true)
+                call(
+                    { echo() },
+                    { echo() },
+                    //
+                    { echo() }
+                )
+                val f =
+                    { true }
             }
             """.trimIndent()
         )
     }
-
 }

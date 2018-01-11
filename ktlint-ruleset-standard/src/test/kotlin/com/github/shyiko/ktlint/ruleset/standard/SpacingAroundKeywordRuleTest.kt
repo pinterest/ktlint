@@ -43,6 +43,11 @@ class SpacingAroundKeywordRuleTest {
                     1 -> println("")
                     else -> println("")
                 }
+
+                if (V)
+                    V.let { "" }
+                else
+                    V
             }
             """.trimIndent()
         )).isEqualTo(listOf(
@@ -135,6 +140,4 @@ class SpacingAroundKeywordRuleTest {
             LintError(7, 21, "keyword-spacing", "Unexpected spacing after \"set\"")
         ))
     }
-
 }
-

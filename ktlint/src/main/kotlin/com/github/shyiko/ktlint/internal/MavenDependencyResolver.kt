@@ -8,6 +8,7 @@ import org.eclipse.aether.artifact.Artifact
 import org.eclipse.aether.collection.CollectRequest
 import org.eclipse.aether.connector.basic.BasicRepositoryConnectorFactory
 import org.eclipse.aether.graph.Dependency
+import org.eclipse.aether.impl.DefaultServiceLocator
 import org.eclipse.aether.repository.LocalRepository
 import org.eclipse.aether.repository.RemoteRepository
 import org.eclipse.aether.repository.RepositoryPolicy
@@ -22,7 +23,7 @@ import org.eclipse.aether.util.graph.visitor.PreorderNodeListGenerator
 import java.io.File
 
 class MavenDependencyResolver(baseDir: File, val repositories: Iterable<RemoteRepository>,
-    forceUpdate: Boolean) {
+                              forceUpdate: Boolean) {
 
     private val repoSystem: RepositorySystem
     private val session: RepositorySystemSession
@@ -32,11 +33,19 @@ class MavenDependencyResolver(baseDir: File, val repositories: Iterable<RemoteRe
         locator.addService(RepositoryConnectorFactory::class.java, BasicRepositoryConnectorFactory::class.java)
         locator.addService(TransporterFactory::class.java, FileTransporterFactory::class.java)
         locator.addService(TransporterFactory::class.java, HttpTransporterFactory::class.java)
+        locator.setErrorHandler(object : DefaultServiceLocator.ErrorHandler() {
+            override fun serviceCreationFailed(type: Class<*>?, impl: Class<*>?, ex: Throwable) {
+                throw ex
+            }
+        })
         repoSystem = locator.getService(RepositorySystem::class.java)
         session = MavenRepositorySystemUtils.newSession()
         session.localRepositoryManager = repoSystem.newLocalRepositoryManager(session, LocalRepository(baseDir))
-        session.updatePolicy = if (forceUpdate) RepositoryPolicy.UPDATE_POLICY_ALWAYS else
+        session.updatePolicy = if (forceUpdate) {
+            RepositoryPolicy.UPDATE_POLICY_ALWAYS
+        } else {
             RepositoryPolicy.UPDATE_POLICY_NEVER
+        }
     }
 
     fun setTransferEventListener(listener: (event: TransferEvent) -> Unit) {
@@ -63,5 +72,4 @@ class MavenDependencyResolver(baseDir: File, val repositories: Iterable<RemoteRe
         repoSystem.resolveDependencies(session, DependencyRequest().apply { root = node })
         return PreorderNodeListGenerator().apply { node.accept(this) }.files
     }
-
 }
