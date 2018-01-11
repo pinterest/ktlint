@@ -34,5 +34,4 @@ class NoWildcardImportsRuleTest {
             mapOf("allow_wildcard_imports" to "true")
         )).isEqualTo(listOf<LintError>())
     }
-
 }
