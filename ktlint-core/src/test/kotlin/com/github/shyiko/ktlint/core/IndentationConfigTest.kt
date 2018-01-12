@@ -28,6 +28,14 @@ class IndentationConfigTest {
     }
 
     @Test
+    fun shouldReturnAndroidSpecificDefaultValues() {
+        node.putUserData(KtLint.ANDROID_USER_DATA_KEY, true)
+        node.putUserData(KtLint.EDITOR_CONFIG_USER_DATA_KEY, EditorConfig.fromMap(emptyMap()))
+        val config = IndentationConfig.create(node)
+        assertThat(config).isEqualTo(IndentationConfig(4, 8, false))
+    }
+
+    @Test
     fun shouldReadValuesFromConfig() {
         node.putUserData(KtLint.ANDROID_USER_DATA_KEY, false)
         node.putUserData(KtLint.EDITOR_CONFIG_USER_DATA_KEY,
