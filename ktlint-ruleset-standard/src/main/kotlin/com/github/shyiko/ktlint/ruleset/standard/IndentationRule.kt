@@ -2,7 +2,6 @@ package com.github.shyiko.ktlint.ruleset.standard
 
 import com.github.shyiko.ktlint.core.IndentationConfig
 import com.github.shyiko.ktlint.core.Rule
-import org.jetbrains.kotlin.KtNodeTypes
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
@@ -25,12 +24,6 @@ import org.jetbrains.kotlin.psi.psiUtil.getPrevSiblingIgnoringWhitespaceAndComme
 import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
 
 class IndentationRule : Rule("indent") {
-
-    companion object {
-        // indentation size recommended by JetBrains
-        private const val DEFAULT_INDENT = 4
-        private const val DEFAULT_CONTINUATION_INDENT = 8
-    }
 
     private var indentConfig = IndentationConfig(-1, -1, true)
 
@@ -116,35 +109,5 @@ class IndentationRule : Rule("indent") {
                 || parentNode is KtSafeQualifiedExpression
                 || parentNode is KtParenthesizedExpression
             )
-    }
-
-    private fun calculatePreviousIndent(node: ASTNode): Int {
-        val parentNode = node.treeParent?.psi
-        var prevIndent = 0
-        var prevSibling = parentNode
-        var prevSpaceIsFound = false
-        while (prevSibling != null && !prevSpaceIsFound) {
-            val nextNode = prevSibling.nextSibling?.node?.elementType
-            if (prevSibling is PsiWhiteSpace
-                && nextNode != KtStubElementTypes.TYPE_REFERENCE
-                && nextNode != KtStubElementTypes.SUPER_TYPE_LIST
-                && nextNode != KtNodeTypes.CONSTRUCTOR_DELEGATION_CALL) {
-                val prevLines = prevSibling.text.split('\n')
-                if (prevLines.size > 1) {
-                    prevIndent = prevLines.last().length
-                    prevSpaceIsFound = true
-                }
-            }
-            prevSibling = if (prevSpaceIsFound) {
-                null
-            } else {
-                if (prevSibling.prevSibling != null) {
-                    prevSibling.prevSibling
-                } else {
-                    prevSibling.parent
-                }
-            }
-        }
-        return prevIndent
     }
 }
