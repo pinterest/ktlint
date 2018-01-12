@@ -29,7 +29,7 @@ class IndentationRule : Rule("indent") {
     companion object {
         // indentation size recommended by JetBrains
         private const val DEFAULT_INDENT = 4
-        private const val DEFAULT_CONTINUATION_INDENT = 4
+        private const val DEFAULT_CONTINUATION_INDENT = 8
     }
 
     private var indentConfig = IndentationConfig(-1, -1, true)

@@ -49,7 +49,7 @@ object KtLint {
         }
         DiagnosticLogger.setFactory(LoggerFactory::class.java)
         val project = KotlinCoreEnvironment.createForProduction(Disposable {},
-            CompilerConfiguration(), EnvironmentConfigFiles.EMPTY).project
+            CompilerConfiguration(), EnvironmentConfigFiles.JVM_CONFIG_FILES).project
         // everything below (up to PsiFileFactory.getInstance(...)) is to get AST mutations (`ktlint -F ...`) working
         // otherwise it's not needed
         val pomModel: PomModel = object : UserDataHolderBase(), PomModel {
