@@ -22,7 +22,9 @@ class DumpAST @JvmOverloads constructor(
     private var lineNumberColumnLength: Int = 0
     private var lastNode: ASTNode? = null
 
-    override fun visit(node: ASTNode, autoCorrect: Boolean,
+    override fun visit(
+        node: ASTNode,
+        autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, corrected: Boolean) -> Unit) {
         if (node.elementType == KtStubElementTypes.FILE) {
             lineNumberColumnLength = (location(PsiTreeUtil.getDeepestLast(node.psi).node)?.line ?: 0)

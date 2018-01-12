@@ -140,7 +140,8 @@ class IndentationRuleTest {
             """.trimIndent(),
             script = true
         )).isEqualTo(listOf(
-            LintError(2, 1, "indent", "Unexpected indentation (5) (it should be 4)")
+            LintError(2, 1, "indent", "Unexpected indentation (5) (it should be 4)"),
+            LintError(3, 1, "indent", "Unexpected indentation (4) (parameters should be vertically aligned)")
         ))
     }
 
@@ -503,6 +504,22 @@ class IndentationRuleTest {
                   // comment
                   // comment
                   call(argA)
+            """.trimIndent(),
+            mapOf("indent_size" to "4",
+                "continuation_indent_size" to "6")
+        )).isEmpty()
+    }
+
+    @Test
+    fun testLambdaParametersShouldBeAligned() {
+        assertThat(IndentationRule().lint(
+            """
+            val fieldExample =
+                  LongNameClass { paramA,
+                                  paramB,
+                                  paramC ->
+                      ClassB(paramA, paramB, paramC)
+                  }
             """.trimIndent(),
             mapOf("indent_size" to "4",
                 "continuation_indent_size" to "6")

@@ -8,7 +8,9 @@ import org.jetbrains.kotlin.psi.KtStringTemplateEntry
 
 class NoVarRule : Rule("no-var") {
 
-    override fun visit(node: ASTNode, autoCorrect: Boolean,
+    override fun visit(
+        node: ASTNode,
+        autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
         if (node is LeafPsiElement && node.textMatches("var") &&
                 getNonStrictParentOfType(node, KtStringTemplateEntry::class.java) == null) {

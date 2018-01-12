@@ -13,8 +13,10 @@ import org.jetbrains.kotlin.psi.KtLambdaExpression
 
 class SpacingAroundCurlyRule : Rule("curly-spacing") {
 
-    override fun visit(node: ASTNode, autoCorrect: Boolean,
-            emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
+    override fun visit(
+        node: ASTNode,
+        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
         if (node is LeafPsiElement && !node.isPartOfString()) {
             val prevLeaf = PsiTreeUtil.prevLeaf(node, true)
             val nextLeaf = PsiTreeUtil.nextLeaf(node, true)
