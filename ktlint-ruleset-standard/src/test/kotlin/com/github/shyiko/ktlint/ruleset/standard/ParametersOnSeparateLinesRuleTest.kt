@@ -9,6 +9,7 @@ import org.testng.annotations.Test
 class ParametersOnSeparateLinesRuleTest {
     private val expectedErrorMessage = "Parameter should be on separate line with indentation"
     private val expectedParenthesesMessage = "Parentheses should be on new line"
+    private val expectedRuleId = ParametersOnSeparateLinesRule.RULE_ID
     private val configUserData = mapOf("indent_size" to "4", "continuation_indent_size" to "6")
     private fun expectedIndentErrorMessage(actualInden: Int, expectedIndent: Int): String {
         return "Unexpected indentation for parameter $actualInden (should be $expectedIndent)"
@@ -24,10 +25,10 @@ class ParametersOnSeparateLinesRuleTest {
             configUserData
         )).isEqualTo(
             listOf(
-                LintError(1, 14, ParametersOnSeparateLinesRule.RULE_ID, expectedErrorMessage),
-                LintError(1, 30, ParametersOnSeparateLinesRule.RULE_ID, expectedErrorMessage),
-                LintError(2, 14, ParametersOnSeparateLinesRule.RULE_ID, expectedIndentErrorMessage(13, 4)),
-                LintError(2, 28, ParametersOnSeparateLinesRule.RULE_ID, expectedParenthesesMessage))
+                LintError(1, 14, expectedRuleId, expectedErrorMessage),
+                LintError(1, 30, expectedRuleId, expectedErrorMessage),
+                LintError(2, 14, expectedRuleId, expectedIndentErrorMessage(13, 4)),
+                LintError(2, 28, expectedRuleId, expectedParenthesesMessage))
         )
     }
 
@@ -86,10 +87,10 @@ class ParametersOnSeparateLinesRuleTest {
             configUserData
         )).isEqualTo(
             listOf(
-                LintError(1, 7, ParametersOnSeparateLinesRule.RULE_ID, expectedErrorMessage),
-                LintError(2, 7, ParametersOnSeparateLinesRule.RULE_ID, expectedIndentErrorMessage(6, 4)),
-                LintError(3, 7, ParametersOnSeparateLinesRule.RULE_ID, expectedIndentErrorMessage(6, 4)),
-                LintError(3, 13, ParametersOnSeparateLinesRule.RULE_ID, expectedParenthesesMessage)
+                LintError(1, 7, expectedRuleId, expectedErrorMessage),
+                LintError(2, 7, expectedRuleId, expectedIndentErrorMessage(6, 4)),
+                LintError(3, 7, expectedRuleId, expectedIndentErrorMessage(6, 4)),
+                LintError(3, 13, expectedRuleId, expectedParenthesesMessage)
             )
         )
     }
@@ -145,9 +146,9 @@ class ParametersOnSeparateLinesRuleTest {
             configUserData
         )).isEqualTo(
             listOf(
-                LintError(3, 8, ParametersOnSeparateLinesRule.RULE_ID, expectedIndentErrorMessage(3, 4)),
-                LintError(4, 8, ParametersOnSeparateLinesRule.RULE_ID, expectedIndentErrorMessage(3, 4)),
-                LintError(4, 14, ParametersOnSeparateLinesRule.RULE_ID, expectedParenthesesMessage)
+                LintError(3, 8, expectedRuleId, expectedIndentErrorMessage(3, 4)),
+                LintError(4, 8, expectedRuleId, expectedIndentErrorMessage(3, 4)),
+                LintError(4, 14, expectedRuleId, expectedParenthesesMessage)
             )
         )
     }
@@ -172,6 +173,87 @@ class ParametersOnSeparateLinesRuleTest {
                     b: Any,
                     c: Any
                 ) {
+                }
+            }
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun testFailWhenHeaderIsTooLong() {
+        Assertions.assertThat(ParametersOnSeparateLinesRule().lint(
+            """
+            class WithLongClassHeader(parameter1: Int, parameter2: Int, parameter3: Int) {
+              fun a() = ""
+            }
+            """.trimIndent(),
+            mapOf("max_line_length" to "50")
+        )).isEqualTo(
+            listOf(
+                LintError(1, 27, expectedRuleId, expectedErrorMessage),
+                LintError(1, 44, expectedRuleId, expectedErrorMessage),
+                LintError(1, 61, expectedRuleId, expectedErrorMessage),
+                LintError(1, 76, expectedRuleId, expectedParenthesesMessage)
+            )
+        )
+    }
+
+    @Test
+    fun testFormatClassWithAllCases() {
+        Assertions.assertThat(ParametersOnSeparateLinesRule().format(
+            """
+            class WithLongClassHeader(parameter1: Int, parameter2: Int, parameter3: Int) {
+                constructor(parameter1: Int, parameter2: Int, parameter3: Int) {
+                }
+
+                constructor() {
+                    val defaultParameter1 = 0
+                    val defaultParameter2 = 0
+                    val defaultParameter3 = 0
+                    this(defaultParameter1, defaultParameter2, defaultParameter3)
+                }
+
+                fun withLongDefinition(param1: Int, parameter2: Int, parameter3: Int): String {
+                    return " "
+                }
+
+                fun a(param1: Int): String {
+                    return "very long line that exceeds fifty characters, to make sure that this doesn't count"
+                }
+            }
+            """.trimIndent(),
+            mapOf("max_line_length" to "50")
+        )).isEqualTo(
+            """
+            class WithLongClassHeader(
+                parameter1: Int,
+                parameter2: Int,
+                parameter3: Int
+            ) {
+                constructor(
+                    parameter1: Int,
+                    parameter2: Int,
+                    parameter3: Int
+                ) {
+                }
+
+                constructor() {
+                    val defaultParameter1 = 0
+                    val defaultParameter2 = 0
+                    val defaultParameter3 = 0
+                    this(defaultParameter1, defaultParameter2, defaultParameter3)
+                }
+
+                fun withLongDefinition(
+                    param1: Int,
+                    parameter2: Int,
+                    parameter3: Int
+                ): String {
+                    return " "
+                }
+
+                fun a(param1: Int): String {
+                    return "very long line that exceeds fifty characters, to make sure that this doesn't count"
                 }
             }
             """.trimIndent()

@@ -1,6 +1,7 @@
 package com.github.shyiko.ktlint.ruleset.standard
 
 import com.github.shyiko.ktlint.core.IndentationConfig
+import com.github.shyiko.ktlint.core.MaxLineLengthConfig
 import com.github.shyiko.ktlint.core.Rule
 import org.jetbrains.kotlin.KtNodeTypes
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -8,14 +9,23 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.CompositeElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.TreeUtil
+import org.jetbrains.kotlin.com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.kotlin.lexer.KtTokens
+import org.jetbrains.kotlin.psi.KtClass
+import org.jetbrains.kotlin.psi.KtClassBody
+import org.jetbrains.kotlin.psi.KtExpressionImpl
+import org.jetbrains.kotlin.psi.KtNamedFunction
+import org.jetbrains.kotlin.psi.KtSecondaryConstructor
 import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
 
 class ParametersOnSeparateLinesRule : Rule(RULE_ID) {
+    private val newLineRegex by lazy { System.lineSeparator().toRegex() }
     private var indentConfig = IndentationConfig(-1, -1, true)
+    private var lineLengthConfig = MaxLineLengthConfig(-1)
     override fun visit(node: ASTNode, autoCorrect: Boolean, emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
         if (node.elementType == KtStubElementTypes.FILE) {
             indentConfig = IndentationConfig.create(node)
+            lineLengthConfig = MaxLineLengthConfig.create(node)
             return
         }
         val previousIndent: Int by lazy { node.calculatePreviousIndent() }
@@ -86,7 +96,39 @@ class ParametersOnSeparateLinesRule : Rule(RULE_ID) {
     }
 
     private fun shouldWrap(parentFile: ASTNode?, parentParameterList: ASTNode): Boolean {
-        return parentFile != null && parentParameterList.textRange.substring(parentFile.text).contains("\n")
+
+        return parentFile != null &&
+            //line break already present in parameter list
+            (parentParameterList.textRange.substring(parentFile.text).contains("\n") ||
+                //entire class definition exceed max line length
+                (lineLengthConfig.isEnabled() &&
+                    classLengthWithoutBody(parentParameterList, parentFile) > lineLengthConfig.lineLength))
+    }
+
+    private fun classLengthWithoutBody(node: ASTNode, parentFile: ASTNode?): Int {
+        val parentNode = PsiTreeUtil.findFirstParent(
+            node.psi,
+            { psiElement ->
+                psiElement is KtClass ||
+                    psiElement is KtNamedFunction ||
+                    psiElement is KtSecondaryConstructor
+            }
+        )
+        return if (parentNode != null && parentFile != null) {
+            val expressionOrBodyNode = PsiTreeUtil.findChildOfAnyType(parentNode, KtClassBody::class.java, KtExpressionImpl::class.java)
+            val bodyOffset = expressionOrBodyNode?.textOffset ?: parentNode.textOffset + parentNode.textLength
+            val classWithoutBodyText = parentFile.text.substring(parentNode.textOffset, bodyOffset)
+            //TODO cover that with tests
+            //we also count first opening brace
+            val bracketSize = if (expressionOrBodyNode?.firstChild == KtTokens.LBRACE) 1 else 0
+            classWithoutBodyText.length - countLineBreak(classWithoutBodyText) + bracketSize
+        } else {
+            0
+        }
+    }
+
+    private fun countLineBreak(text: String): Int {
+        return newLineRegex.findAll(text, 0).toList().size
     }
 
     companion object {
