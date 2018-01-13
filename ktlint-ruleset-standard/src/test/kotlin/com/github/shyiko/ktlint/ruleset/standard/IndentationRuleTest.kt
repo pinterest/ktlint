@@ -1,6 +1,7 @@
 package com.github.shyiko.ktlint.ruleset.standard
 
 import com.github.shyiko.ktlint.core.LintError
+import com.github.shyiko.ktlint.test.format
 import com.github.shyiko.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
 import org.testng.annotations.Test
@@ -508,6 +509,65 @@ class IndentationRuleTest {
             mapOf("indent_size" to "4",
                 "continuation_indent_size" to "6")
         )).isEmpty()
+    }
+
+    @Test
+    fun testFormatWithRegularIndent() {
+        assertThat(IndentationRule().format(
+            """
+            fun funA(argA: String) {
+              return argA
+            }
+            """.trimIndent(),
+            mapOf("indent_size" to "4",
+                "continuation_indent_size" to "6")
+        ))
+            .isEqualTo(
+                """
+            fun funA(argA: String) {
+                return argA
+            }
+            """.trimIndent()
+            )
+    }
+
+    @Test
+    fun testFormatWithContinuationIndent() {
+        assertThat(IndentationRule().format(
+            """
+            val valueA = call()
+             ?.chainCallC { it.anotherCall() }
+            """.trimIndent(),
+            mapOf("indent_size" to "4",
+                "continuation_indent_size" to "6")
+        ))
+            .isEqualTo(
+                """
+            val valueA = call()
+                  ?.chainCallC { it.anotherCall() }
+            """.trimIndent()
+            )
+    }
+
+    @Test
+    fun testAutoCorrectionIsDisabledForParameters() {
+        assertThat(IndentationRule().format(
+            """
+            fun funA(a: A,
+             b: B) {
+                return ""
+            }
+            """.trimIndent(),
+            mapOf("indent_size" to "4",
+                "continuation_indent_size" to "6")
+        )).isEqualTo(
+            """
+            fun funA(a: A,
+             b: B) {
+                return ""
+            }
+            """.trimIndent()
+        )
     }
 
     @Test

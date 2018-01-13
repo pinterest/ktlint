@@ -6,6 +6,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
+import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtBinaryExpression
@@ -56,6 +57,7 @@ class IndentationRule : Rule("indent") {
                     } else {
                         indentConfig.regular
                     }
+                var correctedIndent = "\n"
                 lines.tail().forEach { line ->
                     if (node.isPartOf(KtParameterList::class)
                         && node.nextSibling is KtParameter
@@ -69,9 +71,13 @@ class IndentationRule : Rule("indent") {
                         emit(offset,
                             "Unexpected indentation (${line.length - previousIndent}) " +
                                 "(it should be $expectedIndentSize)",
-                            false)
+                            true)
+                        if (autoCorrect) correctedIndent += " ".repeat(expectedIndentSize)
                     }
                     offset += line.length + 1
+                }
+                if (autoCorrect) {
+                    (node as LeafPsiElement).rawReplaceWithText(correctedIndent)
                 }
             }
         }
