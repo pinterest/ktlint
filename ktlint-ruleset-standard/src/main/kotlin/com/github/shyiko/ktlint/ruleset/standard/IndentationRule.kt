@@ -57,14 +57,16 @@ class IndentationRule : Rule("indent") {
                     } else {
                         indentConfig.regular
                     }
-                var correctedIndent = "\n"
                 lines.tail().forEach { line ->
                     if (node.isPartOf(KtParameterList::class)
                         && node.nextSibling is KtParameter
                         && firstParameter.value?.node != node.nextSibling.node) {
-                        if ((line.length + 1) != firstParameterColumn.value) {
-                            emit(offset, "Unexpected indentation (${line.length}) (" +
-                                "parameters should be vertically aligned)", true)
+                        if ((line.length) != firstParameterColumn.value - 1) {
+                            emit(offset,
+                                "Unexpected indentation (${line.length}) (" +
+                                    "parameters should be vertically aligned)",
+                                true)
+                            if (autoCorrect) replaceWithExpectedIndent(node, firstParameterColumn.value - 1)
                         }
                     } else if (line.isNotEmpty() && (line.length - previousIndent) % expectedIndentSize != 0) {
 
@@ -72,15 +74,17 @@ class IndentationRule : Rule("indent") {
                             "Unexpected indentation (${line.length - previousIndent}) " +
                                 "(it should be $expectedIndentSize)",
                             true)
-                        if (autoCorrect) correctedIndent += " ".repeat(expectedIndentSize)
+                        if (autoCorrect) replaceWithExpectedIndent(node, expectedIndentSize)
                     }
                     offset += line.length + 1
                 }
-                if (autoCorrect) {
-                    (node as LeafPsiElement).rawReplaceWithText(correctedIndent)
-                }
             }
         }
+    }
+
+    private fun replaceWithExpectedIndent(node: ASTNode, expectedIndentSize: Int) {
+        val correctedIndent = "\n" + " ".repeat(expectedIndentSize)
+        (node as LeafPsiElement).rawReplaceWithText(correctedIndent)
     }
 
     private val PsiElement.column: Int

@@ -550,7 +550,7 @@ class IndentationRuleTest {
     }
 
     @Test
-    fun testAutoCorrectionIsDisabledForParameters() {
+    fun shouldAlignParameters() {
         assertThat(IndentationRule().format(
             """
             fun funA(a: A,
@@ -563,7 +563,7 @@ class IndentationRuleTest {
         )).isEqualTo(
             """
             fun funA(a: A,
-             b: B) {
+                     b: B) {
                 return ""
             }
             """.trimIndent()
