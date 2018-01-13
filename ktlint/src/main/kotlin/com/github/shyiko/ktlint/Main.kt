@@ -585,7 +585,8 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
         text: String,
         ruleSets: Iterable<RuleSet>,
         userData: Map<String, String>,
-        cb: (e: LintError) -> Unit) =
+        cb: (e: LintError) -> Unit
+    ) =
         if (fileName.endsWith(".kt", ignoreCase = true)) KtLint.lint(text, ruleSets, userData, cb) else KtLint.lintScript(text, ruleSets, userData, cb)
 
     private fun format(
@@ -593,7 +594,8 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
         text: String,
         ruleSets: Iterable<RuleSet>,
         userData: Map<String, String>,
-        cb: (e: LintError, corrected: Boolean) -> Unit): String =
+        cb: (e: LintError, corrected: Boolean) -> Unit
+    ): String =
         if (fileName.endsWith(".kt", ignoreCase = true)) KtLint.format(text, ruleSets, userData, cb) else KtLint.formatScript(text, ruleSets, userData, cb)
 
     private fun java.net.URLClassLoader.addURLs(url: Iterable<java.net.URL>) {
@@ -604,7 +606,8 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
 
     private fun <T> Sequence<Callable<T>>.parallel(
         cb: (T) -> Unit,
-        numberOfThreads: Int = Runtime.getRuntime().availableProcessors()) {
+        numberOfThreads: Int = Runtime.getRuntime().availableProcessors()
+    ) {
         val q = ArrayBlockingQueue<Future<T>>(numberOfThreads)
         val pill = object : Future<T> {
 

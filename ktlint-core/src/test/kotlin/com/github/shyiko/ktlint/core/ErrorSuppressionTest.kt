@@ -16,7 +16,8 @@ class ErrorSuppressionTest {
             override fun visit(
                 node: ASTNode,
                 autoCorrect: Boolean,
-                emit: (offset: Int, errorMessage: String, corrected: Boolean) -> Unit) {
+                emit: (offset: Int, errorMessage: String, corrected: Boolean) -> Unit
+            ) {
                 if (node is LeafPsiElement && node.textMatches("*") &&
                         PsiTreeUtil.getNonStrictParentOfType(node, KtImportDirective::class.java) != null) {
                     emit(node.startOffset, "Wildcard import", false)

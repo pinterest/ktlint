@@ -25,7 +25,8 @@ import java.io.File
 class MavenDependencyResolver(
     baseDir: File,
     val repositories: Iterable<RemoteRepository>,
-    forceUpdate: Boolean) {
+    forceUpdate: Boolean
+) {
 
     private val repoSystem: RepositorySystem
     private val session: RepositorySystemSession

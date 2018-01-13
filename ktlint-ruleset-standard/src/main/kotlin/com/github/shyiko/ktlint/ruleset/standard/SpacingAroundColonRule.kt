@@ -17,7 +17,8 @@ class SpacingAroundColonRule : Rule("colon-spacing") {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+    ) {
         if (node is LeafPsiElement && node.textMatches(":") && !node.isPartOfString()) {
             if (node.isPartOf(KtAnnotation::class) || node.isPartOf(KtAnnotationEntry::class)) {
                 // todo: enfore "no spacing"

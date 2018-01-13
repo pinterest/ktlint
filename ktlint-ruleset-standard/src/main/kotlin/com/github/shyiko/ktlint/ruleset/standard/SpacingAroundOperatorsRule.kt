@@ -47,7 +47,8 @@ class SpacingAroundOperatorsRule : Rule("op-spacing") {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+    ) {
         if (tokenSet.contains(node.elementType) && node is LeafPsiElement &&
             !node.isPartOf(KtPrefixExpression::class) && // not unary
             !node.isPartOf(KtTypeArgumentList::class) && // C<T>

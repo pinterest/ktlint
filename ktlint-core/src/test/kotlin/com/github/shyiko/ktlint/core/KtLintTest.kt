@@ -14,7 +14,8 @@ class KtLintTest {
             override fun visit(
                 node: ASTNode,
                 autoCorrect: Boolean,
-                emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
+                emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+            ) {
                 if (node.elementType == KtStubElementTypes.FILE) {
                     bus.add("file:$id")
                 } else if (!done) {

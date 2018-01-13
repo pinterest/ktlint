@@ -236,7 +236,8 @@ object KtLint {
         text: String,
         ruleSets: Iterable<RuleSet>,
         userData: Map<String, String>,
-        cb: (e: LintError, corrected: Boolean) -> Unit): String = format(text, ruleSets, userData, cb, script = false)
+        cb: (e: LintError, corrected: Boolean) -> Unit
+    ): String = format(text, ruleSets, userData, cb, script = false)
 
     /**
      * Fix style violations.
@@ -255,7 +256,8 @@ object KtLint {
         text: String,
         ruleSets: Iterable<RuleSet>,
         userData: Map<String, String>,
-        cb: (e: LintError, corrected: Boolean) -> Unit): String = format(text, ruleSets, userData, cb, script = true)
+        cb: (e: LintError, corrected: Boolean) -> Unit
+    ): String = format(text, ruleSets, userData, cb, script = true)
 
     private fun format(
         text: String,

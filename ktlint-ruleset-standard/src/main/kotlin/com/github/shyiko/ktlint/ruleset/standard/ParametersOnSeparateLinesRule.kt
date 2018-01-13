@@ -89,11 +89,9 @@ class ParametersOnSeparateLinesRule : Rule(RULE_ID) {
         return parentFile != null && parentParameterList.textRange.substring(parentFile.text).contains("\n")
     }
 
-
     companion object {
         const val RULE_ID = "parameters-on-separate-lines"
         private const val MISSED_NEW_LINE_ERROR = "Parameter should be on separate line with indentation"
         private const val PARENTHESES_NEW_LINE_ERROR = "Parentheses should be on new line"
     }
 }
-

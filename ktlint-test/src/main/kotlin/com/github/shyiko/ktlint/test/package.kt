@@ -25,7 +25,8 @@ class DumpAST @JvmOverloads constructor(
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, corrected: Boolean) -> Unit) {
+        emit: (offset: Int, errorMessage: String, corrected: Boolean) -> Unit
+    ) {
         if (node.elementType == KtStubElementTypes.FILE) {
             lineNumberColumnLength = (location(PsiTreeUtil.getDeepestLast(node.psi).node)?.line ?: 0)
                 .let { var v = it; var c = 0; while (v > 0) { c++; v /= 10 }; c }
