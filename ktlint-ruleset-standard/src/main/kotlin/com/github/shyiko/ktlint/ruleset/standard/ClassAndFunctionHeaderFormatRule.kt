@@ -96,16 +96,15 @@ class ClassAndFunctionHeaderFormatRule : Rule(RULE_ID) {
     }
 
     private fun shouldWrap(parentFile: ASTNode?, parentParameterList: ASTNode): Boolean {
-
         return parentFile != null &&
             //line break already present in parameter list
             (parentParameterList.textRange.substring(parentFile.text).contains("\n") ||
                 //entire class definition exceed max line length
                 (lineLengthConfig.isEnabled() &&
-                    classLengthWithoutBody(parentParameterList, parentFile) > lineLengthConfig.lineLength))
+                    headerBodyLength(parentParameterList, parentFile) > lineLengthConfig.lineLength))
     }
 
-    private fun classLengthWithoutBody(node: ASTNode, parentFile: ASTNode?): Int {
+    private fun headerBodyLength(node: ASTNode, parentFile: ASTNode?): Int {
         val parentNode = PsiTreeUtil.findFirstParent(
             node.psi,
             { psiElement ->
@@ -117,11 +116,11 @@ class ClassAndFunctionHeaderFormatRule : Rule(RULE_ID) {
         return if (parentNode != null && parentFile != null) {
             val expressionOrBodyNode = PsiTreeUtil.findChildOfAnyType(parentNode, KtClassBody::class.java, KtExpressionImpl::class.java)
             val bodyOffset = expressionOrBodyNode?.textOffset ?: parentNode.textOffset + parentNode.textLength
-            val classWithoutBodyText = parentFile.text.substring(parentNode.textOffset, bodyOffset)
+            val headerWithoutBodyText = parentFile.text.substring(parentNode.textOffset, bodyOffset)
             //TODO cover that with tests
             //we also count first opening brace
             val bracketSize = if (expressionOrBodyNode?.firstChild == KtTokens.LBRACE) 1 else 0
-            classWithoutBodyText.length - countLineBreak(classWithoutBodyText) + bracketSize
+            headerWithoutBodyText.length - countLineBreak(headerWithoutBodyText) + bracketSize
         } else {
             0
         }
