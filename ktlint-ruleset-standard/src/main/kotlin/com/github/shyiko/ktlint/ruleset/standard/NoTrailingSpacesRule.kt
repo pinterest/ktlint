@@ -8,8 +8,11 @@ import org.jetbrains.kotlin.com.intellij.psi.util.PsiTreeUtil
 
 class NoTrailingSpacesRule : Rule("no-trailing-spaces") {
 
-    override fun visit(node: ASTNode, autoCorrect: Boolean,
-            emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
+    override fun visit(
+        node: ASTNode,
+        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+    ) {
         if (node is PsiWhiteSpace) {
             val lines = node.getText().split("\n")
             if (lines.size > 1) {
@@ -26,8 +29,11 @@ class NoTrailingSpacesRule : Rule("no-trailing-spaces") {
         }
     }
 
-    private fun checkForTrailingSpaces(lines: List<String>, offset: Int,
-            emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
+    private fun checkForTrailingSpaces(
+        lines: List<String>,
+        offset: Int,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+    ) {
         var violationOffset = offset
         return lines.forEach { line ->
             if (!line.isEmpty()) {

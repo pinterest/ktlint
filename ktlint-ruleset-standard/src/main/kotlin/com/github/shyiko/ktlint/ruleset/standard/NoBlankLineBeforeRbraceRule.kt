@@ -9,8 +9,11 @@ import org.jetbrains.kotlin.lexer.KtTokens
 
 class NoBlankLineBeforeRbraceRule : Rule("no-blank-line-before-rbrace") {
 
-    override fun visit(node: ASTNode, autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
+    override fun visit(
+        node: ASTNode,
+        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+    ) {
         if (node is PsiWhiteSpace &&
             node.textContains('\n') &&
             PsiTreeUtil.nextLeaf(node, true)?.node?.elementType == KtTokens.RBRACE) {

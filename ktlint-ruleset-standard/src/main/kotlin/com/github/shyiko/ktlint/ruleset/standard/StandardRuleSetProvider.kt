@@ -11,6 +11,7 @@ class StandardRuleSetProvider : RuleSetProvider {
         // disabled until it's clear how to reconcile difference in Intellij & Android Studio import layout
         // ImportOrderingRule(),
         NoLineBreakAfterElseRule(),
+        ClassAndFunctionHeaderFormatRule(),
         IndentationRule(),
         MaxLineLengthRule(),
         ModifierOrderRule(),
