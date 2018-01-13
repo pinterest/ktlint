@@ -5,6 +5,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 data class MaxLineLengthConfig(val lineLength: Int) {
 
     fun isDisabled(): Boolean = lineLength <= 0
+    fun isEnabled(): Boolean = !isDisabled()
 
     companion object {
         private const val DEFAULT_ANDROID_MAX_LINE_SIZE = 100

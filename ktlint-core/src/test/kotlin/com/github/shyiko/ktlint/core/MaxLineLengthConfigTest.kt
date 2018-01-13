@@ -39,4 +39,25 @@ class MaxLineLengthConfigTest {
         val config = MaxLineLengthConfig.create(node)
         assertThat(config.lineLength).isEqualTo(100)
     }
+
+    @Test
+    fun shouldBeDisabledWhenNegativeValue() {
+        val config = MaxLineLengthConfig(-1)
+        assertThat(config.isDisabled()).isTrue()
+        assertThat(config.isEnabled()).isFalse()
+    }
+
+    @Test
+    fun shouldBeDisabledWhenZeroValue() {
+        val config = MaxLineLengthConfig(0)
+        assertThat(config.isDisabled()).isTrue()
+        assertThat(config.isEnabled()).isFalse()
+    }
+
+    @Test
+    fun shouldBeEnabledWhenPositiveValue() {
+        val config = MaxLineLengthConfig(1)
+        assertThat(config.isDisabled()).isFalse()
+        assertThat(config.isEnabled()).isTrue()
+    }
 }
