@@ -6,18 +6,18 @@ import com.github.shyiko.ktlint.test.lint
 import org.assertj.core.api.Assertions
 import org.testng.annotations.Test
 
-class ParametersOnSeparateLinesRuleTest {
-    private val expectedErrorMessage = "Parameter should be on separate line with indentation"
-    private val expectedParenthesesMessage = "Parentheses should be on new line"
-    private val expectedRuleId = ParametersOnSeparateLinesRule.RULE_ID
+class ClassAndFunctionHeaderFormatRuleTest {
+    private val errorMessageMissedNewLineForParameter = "Parameter should be on separate line with indentation"
+    private val errorMessageMissedNewLineForParenthesis = "Parenthesis should be on new line"
+    private val expectedRuleId = "class-and-function-header-format"
     private val configUserData = mapOf("indent_size" to "4", "continuation_indent_size" to "6")
-    private fun expectedIndentErrorMessage(actualInden: Int, expectedIndent: Int): String {
-        return "Unexpected indentation for parameter $actualInden (should be $expectedIndent)"
+    private fun errorMessageWhenWrongIndent(actualIndent: Int, expectedIndent: Int): String {
+        return "Unexpected indentation for parameter $actualIndent (should be $expectedIndent)"
     }
 
     @Test
     fun testClassWithAbsentLineBreak() {
-        Assertions.assertThat(ParametersOnSeparateLinesRule().lint(
+        Assertions.assertThat(ClassAndFunctionHeaderFormatRule().lint(
             """
             class ClassA(paramA: String, paramB: String,
                          paramC: String)
@@ -25,16 +25,16 @@ class ParametersOnSeparateLinesRuleTest {
             configUserData
         )).isEqualTo(
             listOf(
-                LintError(1, 14, expectedRuleId, expectedErrorMessage),
-                LintError(1, 30, expectedRuleId, expectedErrorMessage),
-                LintError(2, 14, expectedRuleId, expectedIndentErrorMessage(13, 4)),
-                LintError(2, 28, expectedRuleId, expectedParenthesesMessage))
+                LintError(1, 14, expectedRuleId, errorMessageMissedNewLineForParameter),
+                LintError(1, 30, expectedRuleId, errorMessageMissedNewLineForParameter),
+                LintError(2, 14, expectedRuleId, errorMessageWhenWrongIndent(13, 4)),
+                LintError(2, 28, expectedRuleId, errorMessageMissedNewLineForParenthesis))
         )
     }
 
     @Test
     fun testFormatClassWithAbsentLineBreak() {
-        Assertions.assertThat(ParametersOnSeparateLinesRule().format(
+        Assertions.assertThat(ClassAndFunctionHeaderFormatRule().format(
             """
             class ClassA(paramA: String, paramB: String,
                          paramC: String)
@@ -53,7 +53,7 @@ class ParametersOnSeparateLinesRuleTest {
 
     @Test
     fun testValidClassDefinitionWithMultipleLines() {
-        Assertions.assertThat(ParametersOnSeparateLinesRule().lint(
+        Assertions.assertThat(ClassAndFunctionHeaderFormatRule().lint(
             """
             class ClassA(
                 paramA: String,
@@ -67,7 +67,7 @@ class ParametersOnSeparateLinesRuleTest {
 
     @Test
     fun testValidClassDefinitionOnOneLine() {
-        Assertions.assertThat(ParametersOnSeparateLinesRule().lint(
+        Assertions.assertThat(ClassAndFunctionHeaderFormatRule().lint(
             """
             class ClassA(paramA: String, paramB: String, paramC: String)
             """.trimIndent(),
@@ -77,7 +77,7 @@ class ParametersOnSeparateLinesRuleTest {
 
     @Test
     fun testErrorWhenFirstParameterIsNotOnNewLine() {
-        Assertions.assertThat(ParametersOnSeparateLinesRule().lint(
+        Assertions.assertThat(ClassAndFunctionHeaderFormatRule().lint(
             """
             fun f(a: Any,
                   b: Any,
@@ -87,17 +87,17 @@ class ParametersOnSeparateLinesRuleTest {
             configUserData
         )).isEqualTo(
             listOf(
-                LintError(1, 7, expectedRuleId, expectedErrorMessage),
-                LintError(2, 7, expectedRuleId, expectedIndentErrorMessage(6, 4)),
-                LintError(3, 7, expectedRuleId, expectedIndentErrorMessage(6, 4)),
-                LintError(3, 13, expectedRuleId, expectedParenthesesMessage)
+                LintError(1, 7, expectedRuleId, errorMessageMissedNewLineForParameter),
+                LintError(2, 7, expectedRuleId, errorMessageWhenWrongIndent(6, 4)),
+                LintError(3, 7, expectedRuleId, errorMessageWhenWrongIndent(6, 4)),
+                LintError(3, 13, expectedRuleId, errorMessageMissedNewLineForParenthesis)
             )
         )
     }
 
     @Test
     fun testFormatWhenFirstParameterIsNoOnNewLine() {
-        Assertions.assertThat(ParametersOnSeparateLinesRule().format(
+        Assertions.assertThat(ClassAndFunctionHeaderFormatRule().format(
             """
             fun f(a: Any,
                   b: Any,
@@ -119,7 +119,7 @@ class ParametersOnSeparateLinesRuleTest {
 
     @Test
     fun testIgnoreLambdaParameters() {
-        Assertions.assertThat(ParametersOnSeparateLinesRule().lint(
+        Assertions.assertThat(ClassAndFunctionHeaderFormatRule().lint(
             """
             val fieldExample =
                   LongNameClass { paramA,
@@ -134,7 +134,7 @@ class ParametersOnSeparateLinesRuleTest {
 
     @Test
     fun testFailWhenWrongIndentIsUsed() {
-        Assertions.assertThat(ParametersOnSeparateLinesRule().lint(
+        Assertions.assertThat(ClassAndFunctionHeaderFormatRule().lint(
             """
             class A {
                 fun f(
@@ -146,16 +146,16 @@ class ParametersOnSeparateLinesRuleTest {
             configUserData
         )).isEqualTo(
             listOf(
-                LintError(3, 8, expectedRuleId, expectedIndentErrorMessage(3, 4)),
-                LintError(4, 8, expectedRuleId, expectedIndentErrorMessage(3, 4)),
-                LintError(4, 14, expectedRuleId, expectedParenthesesMessage)
+                LintError(3, 8, expectedRuleId, errorMessageWhenWrongIndent(3, 4)),
+                LintError(4, 8, expectedRuleId, errorMessageWhenWrongIndent(3, 4)),
+                LintError(4, 14, expectedRuleId, errorMessageMissedNewLineForParenthesis)
             )
         )
     }
 
     @Test
     fun testRespectOuterIndent() {
-        Assertions.assertThat(ParametersOnSeparateLinesRule().format(
+        Assertions.assertThat(ClassAndFunctionHeaderFormatRule().format(
             """
             class A {
                 fun f(a: Any,
@@ -180,8 +180,35 @@ class ParametersOnSeparateLinesRuleTest {
     }
 
     @Test
+    fun testRespectOuterIndentWhenCalculateParanthesisIndent() {
+        Assertions.assertThat(ClassAndFunctionHeaderFormatRule().format(
+            """
+            class A {
+                fun f(a: Any,
+                      b: Any,
+                      c: Any
+                   ) {
+                }
+            }
+            """.trimIndent(),
+            configUserData
+        )).isEqualTo(
+            """
+            class A {
+                fun f(
+                    a: Any,
+                    b: Any,
+                    c: Any
+                ) {
+                }
+            }
+            """.trimIndent()
+        )
+    }
+
+    @Test
     fun testFailWhenHeaderIsTooLong() {
-        Assertions.assertThat(ParametersOnSeparateLinesRule().lint(
+        Assertions.assertThat(ClassAndFunctionHeaderFormatRule().lint(
             """
             class WithLongClassHeader(parameter1: Int, parameter2: Int, parameter3: Int) {
               fun a() = ""
@@ -190,17 +217,17 @@ class ParametersOnSeparateLinesRuleTest {
             mapOf("max_line_length" to "50")
         )).isEqualTo(
             listOf(
-                LintError(1, 27, expectedRuleId, expectedErrorMessage),
-                LintError(1, 44, expectedRuleId, expectedErrorMessage),
-                LintError(1, 61, expectedRuleId, expectedErrorMessage),
-                LintError(1, 76, expectedRuleId, expectedParenthesesMessage)
+                LintError(1, 27, expectedRuleId, errorMessageMissedNewLineForParameter),
+                LintError(1, 44, expectedRuleId, errorMessageMissedNewLineForParameter),
+                LintError(1, 61, expectedRuleId, errorMessageMissedNewLineForParameter),
+                LintError(1, 76, expectedRuleId, errorMessageMissedNewLineForParenthesis)
             )
         )
     }
 
     @Test
     fun testFormatClassWithAllCases() {
-        Assertions.assertThat(ParametersOnSeparateLinesRule().format(
+        Assertions.assertThat(ClassAndFunctionHeaderFormatRule().format(
             """
             class WithLongClassHeader(parameter1: Int, parameter2: Int, parameter3: Int) {
                 constructor(parameter1: Int, parameter2: Int, parameter3: Int) {

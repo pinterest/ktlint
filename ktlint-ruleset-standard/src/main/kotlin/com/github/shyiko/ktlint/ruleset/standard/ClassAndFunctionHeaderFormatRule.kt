@@ -18,7 +18,7 @@ import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtSecondaryConstructor
 import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
 
-class ParametersOnSeparateLinesRule : Rule(RULE_ID) {
+class ClassAndFunctionHeaderFormatRule : Rule(RULE_ID) {
     private val newLineRegex by lazy { System.lineSeparator().toRegex() }
     private var indentConfig = IndentationConfig(-1, -1, true)
     private var lineLengthConfig = MaxLineLengthConfig(-1)
@@ -65,7 +65,7 @@ class ParametersOnSeparateLinesRule : Rule(RULE_ID) {
                 }
                 if (node.elementType == KtTokens.RPAR) {
                     if (node.treePrev !is PsiWhiteSpace) {
-                        emit(node.startOffset, PARENTHESES_NEW_LINE_ERROR, true)
+                        emit(node.startOffset, PARENTHESIS_NEW_LINE_ERROR, true)
                         if (autoCorrect) {
                             (parentParameterList as CompositeElement).addLeaf(
                                 KtTokens.WHITE_SPACE,
@@ -132,8 +132,8 @@ class ParametersOnSeparateLinesRule : Rule(RULE_ID) {
     }
 
     companion object {
-        const val RULE_ID = "parameters-on-separate-lines"
+        private const val RULE_ID = "class-and-function-header-format"
         private const val MISSED_NEW_LINE_ERROR = "Parameter should be on separate line with indentation"
-        private const val PARENTHESES_NEW_LINE_ERROR = "Parentheses should be on new line"
+        private const val PARENTHESIS_NEW_LINE_ERROR = "Parenthesis should be on new line"
     }
 }
