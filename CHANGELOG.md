@@ -2,6 +2,14 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.15.0] - 2018-01-18
+
+### Added
+- `no-line-break-after-else` rule ([#125](https://github.com/shyiko/ktlint/issues/125)).
+
+### Changed
+- `kotlin-compiler` version to 1.2.20 (from 1.2.0).
+
 ## [0.14.0] - 2017-11-30
 
 ### Changed
@@ -284,6 +292,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.15.0]: https://github.com/shyiko/ktlint/compare/0.14.0...0.15.0
 [0.14.0]: https://github.com/shyiko/ktlint/compare/0.13.0...0.14.0
 [0.13.0]: https://github.com/shyiko/ktlint/compare/0.12.1...0.13.0
 [0.12.1]: https://github.com/shyiko/ktlint/compare/0.12.0...0.12.1
