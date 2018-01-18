@@ -8,7 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - `no-line-break-after-else` rule ([#125](https://github.com/shyiko/ktlint/issues/125)).
 
 ### Changed
-- `kotlin-compiler` version to 1.2.20 (from 1.2.0).
+- `kotlin-compiler` version to 1.2.20 (from 1.2.0) ([#132](https://github.com/shyiko/ktlint/pull/132)).
 
 ## [0.14.0] - 2017-11-30
 
