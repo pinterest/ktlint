@@ -70,7 +70,7 @@ max_line_length=off
 > Skip all the way to the "Integration" section if you don't plan to use `ktlint`'s command line interface.
 
 ```sh
-curl -sSLO https://github.com/shyiko/ktlint/releases/download/0.14.0/ktlint &&
+curl -sSLO https://github.com/shyiko/ktlint/releases/download/0.15.0/ktlint &&
   chmod a+x ktlint &&
   sudo mv ktlint /usr/local/bin/
 ```
@@ -164,7 +164,7 @@ $ ktlint --install-git-pre-commit-hook
         <dependency>
             <groupId>com.github.shyiko</groupId>
             <artifactId>ktlint</artifactId>
-            <version>0.14.0</version>
+            <version>0.15.0</version>
         </dependency>
         <!-- additional 3rd party ruleset(s) can be specified here -->
     </dependencies>
@@ -193,7 +193,7 @@ configurations {
 }
 
 dependencies {
-    ktlint "com.github.shyiko:ktlint:0.14.0"
+    ktlint "com.github.shyiko:ktlint:0.15.0"
     // additional 3rd party ruleset(s) can be specified here
     // just add them to the classpath (e.g. ktlint 'groupId:artifactId:version') and 
     // ktlint will pick them up
@@ -298,7 +298,7 @@ A complete sample project (with tests and build files) is included in this repo 
 #### AST
 
 While writing/debugging [Rule](ktlint-core/src/main/kotlin/com/github/shyiko/ktlint/core/Rule.kt)s it's often helpful to have an AST
-printed out to see the structure rules have to work with. ktlint >= 0.14.0 has `--print-ast` flag specifically for this purpose
+printed out to see the structure rules have to work with. ktlint >= 0.15.0 has `--print-ast` flag specifically for this purpose
 (usage: `ktlint --color --print-ast <file>`).  
 An example of the output it shown below. 
 
