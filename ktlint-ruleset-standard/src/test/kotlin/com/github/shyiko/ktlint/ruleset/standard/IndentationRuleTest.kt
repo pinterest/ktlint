@@ -585,4 +585,33 @@ class IndentationRuleTest {
                 "continuation_indent_size" to "6")
         )).isEmpty()
     }
+
+    @Test
+    fun shouldRespectPreviousIntent() {
+        assertThat(
+            IndentationRule().format(
+                """
+            fun setUp() {
+                 helper = ClassA(
+                    paramA,
+                    paramB
+                )
+            }
+            """.trimIndent(),
+                mapOf(
+                    "indent_size" to "4",
+                    "continuation_indent_size" to "6"
+                )
+            )
+        ).isEqualTo(
+            """
+            fun setUp() {
+                helper = ClassA(
+                      paramA,
+                      paramB
+                )
+            }
+            """.trimIndent()
+        )
+    }
 }

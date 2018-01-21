@@ -75,7 +75,7 @@ class IndentationRule : Rule("indent") {
                             "Unexpected indentation (${line.length - previousIndent}) " +
                                 "(it should be $expectedIndentSize)",
                             true)
-                        if (autoCorrect) replaceWithExpectedIndent(node, expectedIndentSize)
+                        if (autoCorrect) replaceWithExpectedIndent(node, previousIndent + expectedIndentSize)
                     }
                     offset += line.length + 1
                 }
