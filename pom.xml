@@ -54,6 +54,7 @@
         <testng.version>6.8.21</testng.version>
         <assertj.version>3.9.0</assertj.version>
         <gpg.skip>false</gpg.skip>
+        <github.description>${project.version}</github.description>
     </properties>
 
     <modules>

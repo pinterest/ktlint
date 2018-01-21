@@ -389,7 +389,7 @@
                         <artifactId>github-release-plugin</artifactId>
                         <version>1.2.0</version>
                         <configuration>
-                            <description>${project.version}</description>
+                            <description>${github.description}</description>
                             <releaseName>${project.version}</releaseName>
                             <tag>${project.version}</tag>
                             <artifact>${project.build.directory}/${project.artifactId}</artifact>
