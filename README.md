@@ -398,6 +398,39 @@ git clone https://github.com/shyiko/ktlint && cd ktlint
 ./mvnw # shows how to build, test, etc. project
 ```
 
+#### Access to the latest `master` snapshot
+
+Whenever a commit is added to the `master` branch `0.0.0-SNAPSHOT` is automatically uploaded to [Sonatype's snapshots repository](https://oss.sonatype.org/content/repositories/snapshots/com/github/shyiko/ktlint/).
+If you are eager to try upcoming changes (that might or might not be included in the next stable release) you can do 
+so by changing version of ktlint to `0.0.0-SNAPSHOT` + adding a repo: 
+
+##### Maven
+
+```xml
+...
+<repository>
+    <id>sonatype-snapshots</id>
+    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    <snapshots>
+        <enabled>true</enabled>
+    </snapshots>
+    <releases>
+        <enabled>false</enabled>
+    </releases>
+</repository>
+...
+```
+
+##### Gradle
+
+```groovy
+repositories {
+  maven {
+    url "https://oss.sonatype.org/content/repositories/snapshots"
+  }
+}
+```
+
 ## Legal
 
 This project is not affiliated with or endorsed by the Jetbrains.  
