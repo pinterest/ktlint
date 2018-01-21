@@ -370,6 +370,7 @@
                                 <id>ktlint</id>
                                 <phase>verify</phase>
                                 <configuration>
+                                    <skip>${gpg.skip}</skip>
                                     <target name="gpg-sign">
                                         <exec executable="gpg" dir="${basedir}" failonerror="true">
                                             <arg value="-ab"/>
@@ -392,6 +393,7 @@
                             <releaseName>${project.version}</releaseName>
                             <tag>${project.version}</tag>
                             <artifact>${project.build.directory}/${project.artifactId}</artifact>
+                            <overwriteArtifact>true</overwriteArtifact>
                             <fileSets>
                                 <fileSet>
                                     <directory>${project.build.directory}</directory>
