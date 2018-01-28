@@ -1,6 +1,6 @@
 target
 .gradle
 build
-!ktlint/src/main/resources/config/.idea
 /.idea
+!ktlint/src/main/resources/config/.idea
 *.iml

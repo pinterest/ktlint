@@ -1,0 +1,11 @@
+plugins {
+  id "org.jetbrains.kotlin.jvm"
+}
+
+dependencies {
+  compile project(':ktlint-core')
+  compile libraries.kotlin_stdlib
+
+  testCompile libraries.testng
+  testCompile libraries.assertj_core
+}
