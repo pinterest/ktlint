@@ -15,10 +15,12 @@ ext.libraries = [
   "aether_transport_file": "org.eclipse.aether:aether-transport-file:1.1.0",
   "aether_transport_http": "org.eclipse.aether:aether-transport-http:1.1.0",
   "aether_connector_basic": "org.eclipse.aether:aether-connector-basic:1.1.0",
+  "kolor": "com.andreapivetta.kolor:kolor:0.0.2",
 
   // Testing libraries
   "testng": "org.testng:testng:6.8.21",
   "assertj_core": "org.assertj:assertj-core:1.7.1",
+  "jimfs": "com.google.jimfs:jimfs:1.1"
 ]
 
 subprojects {

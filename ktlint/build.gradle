@@ -1,4 +1,5 @@
 plugins {
+  id "com.github.johnrengelman.shadow" version "2.0.2"
   id "org.jetbrains.kotlin.jvm"
 }
 
@@ -20,4 +21,17 @@ dependencies {
   compile libraries.aether_transport_file
   compile libraries.aether_transport_http
   compile libraries.aether_connector_basic
+
+  testCompile libraries.testng
+  testCompile libraries.assertj_core
+  testCompile libraries.jimfs
+}
+
+compileKotlin {
+  sourceCompatibility = JavaVersion.VERSION_1_8
+  targetCompatibility = JavaVersion.VERSION_1_8
+
+  kotlinOptions {
+    jvmTarget = "1.8"
+  }
 }
