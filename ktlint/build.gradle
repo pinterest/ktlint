@@ -1,7 +1,12 @@
 plugins {
-  id "com.github.johnrengelman.shadow" version "2.0.2"
   id "org.jetbrains.kotlin.jvm"
+  id "application"
+  // applied after mainClassName per https://github.com/johnrengelman/shadow/issues/336
+  id "com.github.johnrengelman.shadow" version "2.0.2" apply false
 }
+
+mainClassName = 'com.github.shyiko.ktlint.Main'
+apply plugin: 'com.github.johnrengelman.shadow'
 
 dependencies {
   compile project(":ktlint-core")
