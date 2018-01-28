@@ -12,6 +12,8 @@ import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
 
 class NoUnusedImportsRule : Rule("no-unused-imports") {
 
+    private val destructureOperator = Regex("(?:component)[\\d]+\\b")
+
     private val operatorSet = setOf(
         // unary
         "unaryPlus", "unaryMinus", "not",
@@ -34,9 +36,7 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
         // iteration (https://github.com/shyiko/ktlint/issues/40)
         "iterator",
         // by (https://github.com/shyiko/ktlint/issues/54)
-        "getValue", "setValue",
-        // destructuring assignment
-        "component1", "component2", "component3", "component4", "component5"
+        "getValue", "setValue"
     )
     private val ref = mutableSetOf<String>()
     private var packageName = ""
@@ -74,7 +74,7 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
                 if (autoCorrect) {
                     importDirective.delete()
                 }
-            } else if (name != null && !ref.contains(name) && !operatorSet.contains(name)) {
+            } else if (name != null && !ref.contains(name) && !operatorSet.contains(name) && !destructureOperator.matches(name)) {
                 emit(importDirective.startOffset, "Unused import", true)
                 if (autoCorrect) {
                     importDirective.delete()
