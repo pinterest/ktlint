@@ -30,6 +30,11 @@ class FinalNewlineRuleTest {
             "fun name() {\n}\n",
             mapOf("insert_final_newline" to "true")
         )).isEmpty()
+        assertThat(FinalNewlineRule().lint(
+            "fun main() {\n}\n\n\n",
+            mapOf("insert_final_newline" to "true"),
+            script = true
+        )).isEmpty()
         // false
         assertThat(FinalNewlineRule().lint(
             "fun name() {\n}",

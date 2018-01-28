@@ -40,5 +40,4 @@ class NoMultipleSpacesRuleTest {
         assertThat(NoMultipleSpacesRule().format("fun main() { x(1,3);  x(1, 3)\n  \n  }"))
             .isEqualTo("fun main() { x(1,3); x(1, 3)\n  \n  }")
     }
-
 }

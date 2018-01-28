@@ -24,7 +24,15 @@
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-stdlib</artifactId>
             <version>${kotlin.version}</version>
+            <!-- no longer included in kotlin-compiler-embeddable (>=1.1.60) -->
+            <!--<scope>provided</scope>-->
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>13.0</version>
             <scope>provided</scope>
+            <!-- included (at least org.jetbrains.annotations.*) in kotlin-compiler-embeddable -->
         </dependency>
         <dependency>
             <groupId>com.github.shyiko.ktlint</groupId>
@@ -53,14 +61,8 @@
         </dependency>
         <dependency>
             <groupId>com.github.shyiko.ktlint</groupId>
-            <artifactId>ktlint-intellij-idea-integration</artifactId>
+            <artifactId>ktlint-test</artifactId>
             <version>0.0.0-SNAPSHOT</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.github.shyiko.klob</groupId>
-                    <artifactId>klob</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.github.shyiko.klob</groupId>
@@ -68,16 +70,44 @@
             <version>0.2.0</version>
         </dependency>
         <dependency>
-            <groupId>org.ini4j</groupId>
-            <artifactId>ini4j</artifactId>
-            <version>0.5.4</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-aether-provider</artifactId>
             <version>${aether.maven.provider.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.eclipse.aether</groupId>
+                    <artifactId>aether-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.eclipse.aether</groupId>
+                    <artifactId>aether-spi</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.eclipse.aether</groupId>
+                    <artifactId>aether-util</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.eclipse.aether</groupId>
+                    <artifactId>aether-impl</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- maven-aether-provider's transitive dependency -->
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-model</artifactId>
+            <version>${aether.maven.provider.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-model-builder</artifactId>
+            <version>${aether.maven.provider.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-repository-metadata</artifactId>
+            <version>${aether.maven.provider.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
@@ -141,6 +171,12 @@
             <version>${assertj.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.google.jimfs</groupId>
+            <artifactId>jimfs</artifactId>
+            <version>1.1</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -150,7 +186,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.7</version>
+                <version>1.8</version>
                 <executions>
                     <execution>
                         <id>ktlint</id>
@@ -252,7 +288,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-shade-plugin</artifactId>
-                        <version>2.4.3</version>
+                        <version>3.1.0</version>
                         <executions>
                             <execution>
                                 <phase>package</phase>
@@ -284,13 +320,6 @@
                                             <artifact>org.jetbrains.kotlin:kotlin-compiler-embeddable</artifact>
                                             <includes>
                                                 <include>**</include>
-                                            </includes>
-                                        </filter>
-                                        <filter>
-                                            <artifact>com.github.shyiko.ktlint:ktlint-intellij-idea-integration</artifact>
-                                            <includes>
-                                                <include>com/github/shyiko/ktlint/idea/**</include>
-                                                <include>config/**</include>
                                             </includes>
                                         </filter>
                                     </filters>
@@ -335,12 +364,13 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-antrun-plugin</artifactId>
-                        <version>1.7</version>
+                        <version>1.8</version>
                         <executions>
                             <execution>
                                 <id>ktlint</id>
                                 <phase>verify</phase>
                                 <configuration>
+                                    <skip>${gpg.skip}</skip>
                                     <target name="gpg-sign">
                                         <exec executable="gpg" dir="${basedir}" failonerror="true">
                                             <arg value="-ab"/>
@@ -357,12 +387,13 @@
                     <plugin>
                         <groupId>de.jutzig</groupId>
                         <artifactId>github-release-plugin</artifactId>
-                        <version>1.1.1</version>
+                        <version>1.2.0</version>
                         <configuration>
-                            <description>${project.version}</description>
+                            <description>${github.description}</description>
                             <releaseName>${project.version}</releaseName>
                             <tag>${project.version}</tag>
                             <artifact>${project.build.directory}/${project.artifactId}</artifact>
+                            <overwriteArtifact>true</overwriteArtifact>
                             <fileSets>
                                 <fileSet>
                                     <directory>${project.build.directory}</directory>

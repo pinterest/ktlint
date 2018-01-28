@@ -7,7 +7,7 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
 
-class FinalNewlineRule : Rule("final-newline") {
+class FinalNewlineRule : Rule("final-newline"), Rule.Modifier.RestrictToRoot {
 
     override fun visit(
         node: ASTNode,
@@ -17,7 +17,7 @@ class FinalNewlineRule : Rule("final-newline") {
         if (node.elementType == KtStubElementTypes.FILE) {
             val editorConfig = node.getUserData(KtLint.EDITOR_CONFIG_USER_DATA_KEY)!!
             val insertFinalNewline = editorConfig.get("insert_final_newline")?.toBoolean() ?: return
-            val lastNode = node.lastChildNode
+            val lastNode = lastChildNodeOf(node)
             if (insertFinalNewline) {
                 if (lastNode !is PsiWhiteSpace || !lastNode.textContains('\n')) {
                     // (PsiTreeUtil.getDeepestLast(lastNode.psi).node ?: lastNode).startOffset
@@ -35,7 +35,8 @@ class FinalNewlineRule : Rule("final-newline") {
                 }
             }
         }
-
     }
 
+    private tailrec fun lastChildNodeOf(node: ASTNode): ASTNode? =
+        if (node.lastChildNode == null) node else lastChildNodeOf(node.lastChildNode)
 }

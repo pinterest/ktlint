@@ -21,5 +21,4 @@ class NoWildcardImportsRuleTest {
             LintError(2, 1, "no-wildcard-imports", "Wildcard import")
         ))
     }
-
 }

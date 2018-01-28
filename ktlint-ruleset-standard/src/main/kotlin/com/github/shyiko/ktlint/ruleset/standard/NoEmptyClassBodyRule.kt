@@ -25,7 +25,7 @@ class NoEmptyClassBodyRule : Rule("no-empty-class-body") {
             if (autoCorrect) {
                 val prevNode = node.psi.prevSibling.node
                 val nextNode = PsiTreeUtil.nextLeaf(node.psi, true)?.node
-                if (prevNode.elementType == KtTokens.WHITE_SPACE && nextNode?.elementType == KtTokens.WHITE_SPACE) {
+                if (prevNode.elementType == KtTokens.WHITE_SPACE && (nextNode == null || nextNode.elementType == KtTokens.WHITE_SPACE)) {
                     // remove space between declaration and block
                     prevNode.treeParent.removeChild(prevNode)
                 }

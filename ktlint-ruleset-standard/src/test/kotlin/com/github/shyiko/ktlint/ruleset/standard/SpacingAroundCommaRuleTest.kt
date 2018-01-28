@@ -30,6 +30,4 @@ class SpacingAroundCommaRuleTest {
         assertThat(SpacingAroundCommaRule().format("fun main() { x(1,3); x(1, 3) }"))
             .isEqualTo("fun main() { x(1, 3); x(1, 3) }")
     }
-
 }
-

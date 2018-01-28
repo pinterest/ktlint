@@ -57,7 +57,7 @@ class JsonReporterTest {
 		]
 	}
 ]
-""".trimStart()
+""".trimStart().replace("\n", System.lineSeparator())
         )
     }
 }

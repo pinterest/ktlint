@@ -27,5 +27,4 @@ class NoUnitReturnRule : Rule("no-unit-return") {
             }
         }
     }
-
 }

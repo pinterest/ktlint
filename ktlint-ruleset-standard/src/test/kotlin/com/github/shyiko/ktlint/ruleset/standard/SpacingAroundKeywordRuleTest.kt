@@ -140,6 +140,4 @@ class SpacingAroundKeywordRuleTest {
             LintError(7, 21, "keyword-spacing", "Unexpected spacing after \"set\"")
         ))
     }
-
 }
-

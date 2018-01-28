@@ -57,5 +57,4 @@ class StringTemplateRule : Rule("string-template") {
     }
 
     private fun Char.isPartOfIdentifier() = this == '_' || this.isLetterOrDigit()
-
 }

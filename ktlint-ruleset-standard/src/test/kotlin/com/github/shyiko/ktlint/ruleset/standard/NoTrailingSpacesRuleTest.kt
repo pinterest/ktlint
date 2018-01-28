@@ -22,5 +22,4 @@ class NoTrailingSpacesRuleTest {
         assertThat(NoTrailingSpacesRule().format("fun main() {\n    val a = 1 \n  \n \n} "))
             .isEqualTo("fun main() {\n    val a = 1\n\n\n}")
     }
-
 }

@@ -2,6 +2,92 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.15.0] - 2018-01-18
+
+### Added
+- `no-line-break-after-else` rule ([#125](https://github.com/shyiko/ktlint/issues/125)).
+
+### Changed
+- `kotlin-compiler` version to 1.2.20 (from 1.2.0) ([#132](https://github.com/shyiko/ktlint/pull/132)).
+
+## [0.14.0] - 2017-11-30
+
+### Changed
+- `continuation_indent_size` to 4 when `--android` profile is used ([android/kotlin-guides#37](https://github.com/android/kotlin-guides/issues/37)). 
+
+### Fixed
+- Maven integration ([#117](https://github.com/shyiko/ktlint/issues/117)).
+
+## [0.13.0] - 2017-11-28
+
+### Added
+- `no-line-break-before-assignment` ([#105](https://github.com/shyiko/ktlint/issues/105)),  
+  `chain-wrapping` ([#23](https://github.com/shyiko/ktlint/issues/23))
+(when wrapping chained calls `.`, `?.` and `?:` should be placed on the next line),  
+  `range-spacing` (no spaces around range (`..`) operator) rules.
+- `--print-ast` CLI option which can be used to dump AST of the file   
+(see [README / Creating a ruleset / AST](https://github.com/shyiko/ktlint#ast) for more details)
+- `--color` CLI option for colored output (where supported, e.g. --print-ast, default (plain) reporter, etc) 
+
+### Changed
+- `.editorconfig` property resolution.   
+An explicit `[*.{kt,kts}]` is not required anymore (ktlint looks for sections
+containing `*.kt` (or `*.kts`) and will fallback to `[*]` whenever property cannot be found elsewhere).   
+Also, a search for .editorconfig will no longer stop on first (closest) `.editorconfig` (unless it contains `root=true`). 
+- `max-line-length` rule to assume `max_line_length=100` when `ktlint --android ...` is used  
+(per [Android Kotlin Style Guide](https://android.github.io/kotlin-guides/style.html)).  
+- `kotlin-compiler` version to 1.2.0 (from 1.1.51).
+
+### Fixed
+- `no-empty-class-body` auto-correction at the end of file ([#109](https://github.com/shyiko/ktlint/issues/109)).
+- `max-line-length` rule when applied to KDoc ([#112](https://github.com/shyiko/ktlint/issues/112))  
+(previously KDoc was subject to `max-line-length` even though regular comments were not).
+- Spacing around `=` in @annotation|s (`op-spacing`).
+- Spacing around generic type parameters of functions (e.g. `fun <T>f(): T {}` -> `fun <T> f(): T {}`).
+- `no-consecutive-blank-lines` not triggering at the end of file (when exactly 2 blank lines are present) ([#108](https://github.com/shyiko/ktlint/issues/108)) 
+- `indent` `continuation_indent_size % indent_size != 0` case ([#76](https://github.com/shyiko/ktlint/issues/76))
+- `indent` rule skipping first parameter indentation check. 
+- `final-newline` rule in the context of kotlin script.
+- Git hook (previously files containing space character (among others) in their names were ignored)  
+- Exit code when file cannot be linted due to the invalid syntax or internal error.
+
+## [0.12.1] - 2017-11-13
+
+### Fixed
+- A conflict between `org.eclipse.aether:aether-*:1.1.0` and `org.eclipse.aether:aether-*:1.0.0.v20140518` ([#100](https://github.com/shyiko/ktlint/issues/100)).
+
+## [0.12.0] - 2017-11-10
+
+### Added
+- `--android` (`-a`) CLI option (turns on [Android Kotlin Style Guide](https://android.github.io/kotlin-guides/style.html) compatibility)  
+(right now it's used only by `ktlint --apply-to-idea`).
+
+### Changed
+- `ktlint --apply-to-idea` to account for `indent_size` & `continuation_indent_size` in `.editorconfig` (if any). 
+
+### Removed
+- `ktlint-intellij-idea-integration` binary (deprecated in [0.9.0](#090---2017-07-23)).
+
+### Fixed
+- "Unused import" false positive (`component1`..`component5`).
+
+## [0.11.1] - 2017-10-26
+
+### Fixed
+- `--reporter`'s `output` handling (previously parent directory was expected to exist) ([#97](https://github.com/shyiko/ktlint/issues/97)).
+
+## [0.11.0] - 2017-10-25
+
+### Added
+- `no-blank-line-before-rbrace` rule ([#65](https://github.com/shyiko/ktlint/issues/65)).
+
+### Fixed
+- Redundant space inserted between `}` and `::` (curly-spacing).
+
+## [0.10.2] - 2017-10-25 [YANKED]
+
+This release contains changes that were meant for 0.11.0 and so it was retagged as such.
+
 ## [0.10.1] - 2017-10-22
 
 ### Fixed
@@ -206,6 +292,14 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.15.0]: https://github.com/shyiko/ktlint/compare/0.14.0...0.15.0
+[0.14.0]: https://github.com/shyiko/ktlint/compare/0.13.0...0.14.0
+[0.13.0]: https://github.com/shyiko/ktlint/compare/0.12.1...0.13.0
+[0.12.1]: https://github.com/shyiko/ktlint/compare/0.12.0...0.12.1
+[0.12.0]: https://github.com/shyiko/ktlint/compare/0.11.1...0.12.0
+[0.11.1]: https://github.com/shyiko/ktlint/compare/0.11.0...0.11.1
+[0.11.0]: https://github.com/shyiko/ktlint/compare/0.10.1...0.11.0
+[0.10.2]: https://github.com/shyiko/ktlint/compare/0.10.1...0.10.2
 [0.10.1]: https://github.com/shyiko/ktlint/compare/0.10.0...0.10.1
 [0.10.0]: https://github.com/shyiko/ktlint/compare/0.9.2...0.10.0
 [0.9.2]: https://github.com/shyiko/ktlint/compare/0.9.1...0.9.2

@@ -62,6 +62,8 @@ class SpacingAroundCurlyRuleTest {
                 emptyList<String>().find { true } !!.hashCode()
                 l.groupBy { it }[key] + l.groupBy { it } [key]
                 l.groupBy { it }(key) + l.groupBy { it } (key)
+                object : Any() {}::class.java.classLoader
+                object : Any() {} ::class.java.classLoader
                 class A
                 {
                     companion object
@@ -106,6 +108,8 @@ class SpacingAroundCurlyRuleTest {
                 emptyList<String>().find { true }!!.hashCode()
                 l.groupBy { it }[key] + l.groupBy { it }[key]
                 l.groupBy { it }(key) + l.groupBy { it }(key)
+                object : Any() {}::class.java.classLoader
+                object : Any() {}::class.java.classLoader
                 class A {
                     companion object {
                     }
@@ -128,5 +132,4 @@ class SpacingAroundCurlyRuleTest {
             """.trimIndent()
         )
     }
-
 }

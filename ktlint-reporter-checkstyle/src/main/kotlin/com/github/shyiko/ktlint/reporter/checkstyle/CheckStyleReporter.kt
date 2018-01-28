@@ -33,5 +33,4 @@ class CheckStyleReporter(val out: PrintStream) : Reporter {
 
     private fun String.escapeXMLAttrValue() = this.replace("&", "&amp;").replace("\"", "&quot;").replace("'", "&apos;")
         .replace("<", "&lt;").replace(">", "&gt;")
-
 }

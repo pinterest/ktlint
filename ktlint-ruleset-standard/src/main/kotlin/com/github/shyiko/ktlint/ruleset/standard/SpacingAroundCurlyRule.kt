@@ -13,8 +13,11 @@ import org.jetbrains.kotlin.psi.KtLambdaExpression
 
 class SpacingAroundCurlyRule : Rule("curly-spacing") {
 
-    override fun visit(node: ASTNode, autoCorrect: Boolean,
-            emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
+    override fun visit(
+        node: ASTNode,
+        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+    ) {
         if (node is LeafPsiElement && !node.isPartOfString()) {
             val prevLeaf = PsiTreeUtil.prevLeaf(node, true)
             val nextLeaf = PsiTreeUtil.nextLeaf(node, true)
@@ -41,11 +44,10 @@ class SpacingAroundCurlyRule : Rule("curly-spacing") {
                     node.parent.node.elementType == KtNodeTypes.CLASS_BODY)) {
                     emit(node.startOffset, "Unexpected newline before \"${node.text}\"", true)
                     if (autoCorrect) {
-                        (prevLeaf.node as LeafPsiElement).replaceWithText(" ")
+                        (prevLeaf.node as LeafPsiElement).rawReplaceWithText(" ")
                     }
                 }
-            } else
-            if (node.textMatches("}")) {
+            } else if (node.textMatches("}")) {
                 spacingBefore = prevLeaf is PsiWhiteSpace || prevLeaf?.node?.elementType == KtTokens.LBRACE
                 spacingAfter = nextLeaf == null || nextLeaf is PsiWhiteSpace || shouldNotToBeSeparatedBySpace(nextLeaf)
                 if (nextLeaf is PsiWhiteSpace && !nextLeaf.textContains('\n') &&
@@ -92,7 +94,7 @@ class SpacingAroundCurlyRule : Rule("curly-spacing") {
             nextElementType == KtTokens.SAFE_ACCESS ||
             nextElementType == KtTokens.EXCLEXCL ||
             nextElementType == KtTokens.LBRACKET ||
-            nextElementType == KtTokens.LPAR
+            nextElementType == KtTokens.LPAR ||
+            nextElementType == KtTokens.COLONCOLON
     }
-
 }

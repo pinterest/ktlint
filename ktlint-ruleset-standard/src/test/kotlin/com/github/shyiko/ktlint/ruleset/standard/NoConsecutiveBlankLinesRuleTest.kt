@@ -7,6 +7,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.testng.annotations.Test
 
 class NoConsecutiveBlankLinesRuleTest {
+
     @Test
     fun testLintInDeclarations() {
         assertThat(NoConsecutiveBlankLinesRule().lint(
@@ -34,6 +35,19 @@ class NoConsecutiveBlankLinesRuleTest {
             }"""
         )).isEqualTo(listOf(
             LintError(5, 1, "no-consecutive-blank-lines", "Needless blank line(s)")))
+    }
+
+    @Test
+    fun testLintAtTheEndOfFile() {
+        assertThat(NoConsecutiveBlankLinesRule().lint(
+            """
+            fun main() {
+            }
+
+
+            """.trimIndent()
+        )).isEqualTo(listOf(
+            LintError(4, 1, "no-consecutive-blank-lines", "Needless blank line(s)")))
     }
 
     @Test
@@ -90,6 +104,25 @@ class NoConsecutiveBlankLinesRuleTest {
                 fun c()
 
             }
+            """
+        )
+    }
+
+    @Test
+    fun testFormatAtTheEndOfFile() {
+        assertThat(NoConsecutiveBlankLinesRule().format(
+            """
+            fun main() {
+            }
+
+
+            """,
+            script = true
+        )).isEqualTo(
+            """
+            fun main() {
+            }
+
             """
         )
     }

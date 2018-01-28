@@ -13,5 +13,4 @@ interface RuleSetProvider {
      * are not thread-safe - a new RuleSet must be created).
      */
     fun get(): RuleSet
-
 }

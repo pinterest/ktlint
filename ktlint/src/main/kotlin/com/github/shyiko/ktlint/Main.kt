@@ -9,14 +9,16 @@ import com.github.shyiko.ktlint.core.ReporterProvider
 import com.github.shyiko.ktlint.core.RuleExecutionException
 import com.github.shyiko.ktlint.core.RuleSet
 import com.github.shyiko.ktlint.core.RuleSetProvider
+import com.github.shyiko.ktlint.internal.EditorConfig
+import com.github.shyiko.ktlint.internal.IntellijIDEAIntegration
 import com.github.shyiko.ktlint.internal.MavenDependencyResolver
+import com.github.shyiko.ktlint.test.DumpAST
 import org.eclipse.aether.RepositoryException
 import org.eclipse.aether.artifact.DefaultArtifact
 import org.eclipse.aether.repository.RemoteRepository
 import org.eclipse.aether.repository.RepositoryPolicy
 import org.eclipse.aether.repository.RepositoryPolicy.CHECKSUM_POLICY_IGNORE
 import org.eclipse.aether.repository.RepositoryPolicy.UPDATE_POLICY_NEVER
-import org.ini4j.Wini
 import org.jetbrains.kotlin.preprocessor.mkdirsOrFail
 import org.kohsuke.args4j.Argument
 import org.kohsuke.args4j.CmdLineException
@@ -38,7 +40,10 @@ import java.nio.file.Paths
 import java.security.MessageDigest
 import java.util.ArrayList
 import java.util.Arrays
+import java.util.LinkedHashMap
+import java.util.NoSuchElementException
 import java.util.ResourceBundle
+import java.util.Scanner
 import java.util.ServiceLoader
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.Callable
@@ -64,10 +69,13 @@ object Main {
     private val CLI_MAX_LINE_LENGTH_REGEX = Regex("(.{0,120})(?:\\s|$)")
 
     // todo: this should have been a command, not a flag (consider changing in 1.0.0)
-    @Option(name="--format", aliases = arrayOf("-F"), usage = "Fix any deviations from the code style")
+    @Option(name = "--format", aliases = arrayOf("-F"), usage = "Fix any deviations from the code style")
     private var format: Boolean = false
 
-    @Option(name="--reporter",
+    @Option(name = "--android", aliases = arrayOf("-a"), usage = "Turn on Android Kotlin Style Guide compatibility")
+    private var android: Boolean = false
+
+    @Option(name = "--reporter",
         usage = "A reporter to use (built-in: plain (default), plain?group_by_file, json, checkstyle). " +
             "To use a third-party reporter specify either a path to a JAR file on the filesystem or a" +
             "<groupId>:<artifactId>:<version> triple pointing to a remote artifact (in which case ktlint will first " +
@@ -75,51 +83,60 @@ object Main {
             "Maven Central/JCenter/JitPack/user-provided repository)")
     private var reporters = ArrayList<String>()
 
-    @Option(name="--ruleset", aliases = arrayOf("-R"),
+    @Option(name = "--ruleset", aliases = arrayOf("-R"),
         usage = "A path to a JAR file containing additional ruleset(s) or a " +
             "<groupId>:<artifactId>:<version> triple pointing to a remote artifact (in which case ktlint will first " +
             "check local cache (~/.m2/repository) and then, if not found, attempt downloading it from " +
             "Maven Central/JCenter/JitPack/user-provided repository)")
     private var rulesets = ArrayList<String>()
 
-    @Option(name="--repository", aliases = arrayOf("--ruleset-repository", "--reporter-repository"),
+    @Option(name = "--repository", aliases = arrayOf("--ruleset-repository", "--reporter-repository"),
         usage = "An additional Maven repository (Maven Central/JCenter/JitPack are active by default) " +
             "(value format: <id>=<url>)")
     private var repositories = ArrayList<String>()
 
-    @Option(name="--repository-update", aliases = arrayOf("-U", "--ruleset-update", "--reporter-update"),
+    @Option(name = "--repository-update", aliases = arrayOf("-U", "--ruleset-update", "--reporter-update"),
         usage = "Check remote repositories for updated snapshots")
     private var forceUpdate: Boolean = false
 
-    @Option(name="--limit", usage = "Maximum number of errors to show (default: show all)")
+    @Option(name = "--limit", usage = "Maximum number of errors to show (default: show all)")
     private var limit: Int = -1
+        get() = if (field < 0) Int.MAX_VALUE else field
 
-    @Option(name="--relative", usage = "Print files relative to the working directory " +
+    @Option(name = "--relative", usage = "Print files relative to the working directory " +
         "(e.g. dir/file.kt instead of /home/user/project/dir/file.kt)")
     private var relative: Boolean = false
 
-    @Option(name="--verbose", aliases = arrayOf("-v"), usage = "Show error codes")
+    @Option(name = "--verbose", aliases = arrayOf("-v"), usage = "Show error codes")
     private var verbose: Boolean = false
 
-    @Option(name="--stdin", usage = "Read file from stdin")
+    @Option(name = "--stdin", usage = "Read file from stdin")
     private var stdin: Boolean = false
 
-    @Option(name="--version", usage = "Version", help = true)
+    @Option(name = "--version", usage = "Version", help = true)
     private var version: Boolean = false
 
-    @Option(name="--help", aliases = arrayOf("-h"), help = true)
+    @Option(name = "--help", aliases = arrayOf("-h"), help = true)
     private var help: Boolean = false
 
-    @Option(name="--debug", usage = "Turn on debug output")
+    @Option(name = "--debug", usage = "Turn on debug output")
     private var debug: Boolean = false
 
     // todo: make it a command in 1.0.0 (it's too late now as we might interfere with valid "lint" patterns)
-    @Option(name="--apply-to-idea", usage = "Update Intellij IDEA project settings")
+    @Option(name = "--apply-to-idea", usage = "Update Intellij IDEA project settings")
     private var apply: Boolean = false
-    @Option(name="--install-git-pre-commit-hook", usage = "Install git hook to automatically check files for style violations on commit")
-    private var installGitPreCommitHook: Boolean = false
-    @Option(name="-y", hidden = true)
+
+    @Option(name = "-y", hidden = true)
     private var forceApply: Boolean = false
+
+    @Option(name = "--install-git-pre-commit-hook",
+        usage = "Install git hook to automatically check files for style violations on commit")
+    private var installGitPreCommitHook: Boolean = false
+
+    @Option(name = "--print-ast", usage = "Print AST (useful when writing/debugging rules)")
+    private var printAST: Boolean = false
+    @Option(name = "--color", usage = "Make output colorful")
+    private var color: Boolean = false
 
     @Argument
     private var patterns = ArrayList<String>()
@@ -154,8 +171,10 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
             .joinToString("\n")}
         """.trimIndent()
 
-    @JvmStatic
-    fun main(args: Array<String>) {
+    private val workDir = File(".").canonicalPath
+    private fun File.location() = if (relative) this.toRelativeString(File(workDir)) else this.path
+
+    private fun parseCmdLine(args: Array<String>) {
         args.forEach { arg ->
             if (arg.startsWith("--") && arg.contains("=")) {
                 val flag = arg.substringBefore("=")
@@ -194,144 +213,73 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
             System.err.println("Error: ${err.message}\n\n${parser.usage()}")
             exitProcess(1)
         }
-        if (version) { println(javaClass.`package`.implementationVersion); exitProcess(0) }
         if (help) { println(parser.usage()); exitProcess(0) }
+    }
+
+    @JvmStatic
+    fun main(args: Array<String>) {
+        parseCmdLine(args)
+        if (version) {
+            println(javaClass.`package`.implementationVersion)
+            exitProcess(0)
+        }
         if (installGitPreCommitHook) {
-            if (!File(".git").isDirectory) {
-                System.err.println(".git directory not found. " +
-                    "Are you sure you are inside project root directory?")
-                System.exit(1)
-            }
-            val hooksDir = File(".git", "hooks")
-            hooksDir.mkdirsOrFail()
-            val preCommitHookFile = File(hooksDir, "pre-commit")
-            val expectedPreCommitHook = ClassLoader.getSystemClassLoader()
-                .getResourceAsStream("ktlint-git-pre-commit-hook.sh").readBytes()
-            // backup existing hook (if any)
-            val actualPreCommitHook = try { preCommitHookFile.readBytes() } catch (e: FileNotFoundException) { null }
-            if (actualPreCommitHook != null && !actualPreCommitHook.isEmpty() && !Arrays.equals(actualPreCommitHook, expectedPreCommitHook)) {
-                val backupFile = File(hooksDir, "pre-commit.ktlint-backup." + hex(actualPreCommitHook))
-                System.err.println(".git/hooks/pre-commit -> $backupFile")
-                preCommitHookFile.copyTo(backupFile, overwrite = true)
-            }
-            // > .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
-            preCommitHookFile.writeBytes(expectedPreCommitHook)
-            preCommitHookFile.setExecutable(true)
-            System.err.println(".git/hooks/pre-commit installed")
+            installGitPreCommitHook()
             if (!apply) {
                 exitProcess(0)
             }
         }
         if (apply) {
-            com.github.shyiko.ktlint.idea.Main.main(arrayOf("apply") +
-                (if (forceApply) arrayOf("-y") else emptyArray()))
-            return // process will be terminated before can reach this line
+            applyToIDEA()
+            exitProcess(0)
         }
-        val workDir = File(".").canonicalPath
+        if (printAST) {
+            printAST()
+            exitProcess(0)
+        }
         val start = System.currentTimeMillis()
         // load 3rd party ruleset(s) (if any)
-        val dependencyResolver by lazy { buildDependencyResolver() }
+        val dependencyResolver = lazy(LazyThreadSafetyMode.NONE) { buildDependencyResolver() }
         if (!rulesets.isEmpty()) {
             loadJARs(dependencyResolver, rulesets)
         }
         // standard should go first
-        val rp = ServiceLoader.load(RuleSetProvider::class.java)
+        val ruleSetProviders = ServiceLoader.load(RuleSetProvider::class.java)
             .map { it.get().id to it }
             .sortedBy { if (it.first == "standard") "\u0000${it.first}" else it.first }
         if (debug) {
-            rp.forEach { System.err.println("[DEBUG] Discovered ruleset \"${it.first}\"") }
+            ruleSetProviders.forEach { System.err.println("[DEBUG] Discovered ruleset \"${it.first}\"") }
         }
-        data class R(val id: String, val config: Map<String, String>, var output: String?)
-        if (reporters.isEmpty()) {
-            reporters.add("plain")
-        }
-        val rr = this.reporters.map { reporter ->
-            val split = reporter.split(",")
-            val (reporterId, rawReporterConfig) = split[0].split("?", limit = 2) + listOf("")
-            R(reporterId, mapOf("verbose" to verbose.toString()) + parseQuery(rawReporterConfig),
-                split.getOrNull(1)?.let { if (it.startsWith("output=")) it.split("=")[1] else null })
-        }.distinct()
-        // load reporter
-        val reporterLoader = ServiceLoader.load(ReporterProvider::class.java)
-        val reporterProviderById = reporterLoader.associate { it.id to it }.let { map ->
-            val missingReporters = rr.map { it.id }.distinct().filter { !map.containsKey(it) }
-            if (!missingReporters.isEmpty()) {
-                loadJARs(dependencyResolver, missingReporters)
-                reporterLoader.reload()
-                reporterLoader.associate { it.id to it }
-            } else map
-        }
-        if (debug) {
-            reporterProviderById.forEach { (id) -> System.err.println("[DEBUG] Discovered reporter \"$id\"") }
-        }
-        val reporter = Reporter.from(*rr.map { r ->
-            val reporterProvider = reporterProviderById[r.id]
-            if (reporterProvider == null) {
-                System.err.println("Error: reporter \"${r.id}\" wasn't found (available: ${
-                    reporterProviderById.keys.sorted().joinToString(",")})")
-                exitProcess(1)
-            }
-            if (debug) {
-                System.err.println("[DEBUG] Initializing \"${r.id}\" reporter with ${r.config}" +
-                    (r.output?.let { ", output=$it" } ?: ""))
-            }
-            val output = if (r.output != null) PrintStream(r.output) else
-                if (stdin) System.err else System.out
-            reporterProvider.get(output, r.config).let { reporter ->
-                if (r.output != null)
-                    object : Reporter by reporter {
-                        override fun afterAll() {
-                            reporter.afterAll()
-                            output.close()
-                        }
-                    }
-                else
-                    reporter
-            }
-        }.toTypedArray())
+        val reporter = loadReporter(dependencyResolver)
         // load .editorconfig
-        val userData = locateEditorConfig(File(workDir))?.let { editoConfigFile ->
-            if (debug) {
-                System.err.println("[DEBUG] Discovered .editorconfig (${editoConfigFile.parent})")
-            }
-            loadEditorConfig(editoConfigFile)
-        } ?: emptyMap()
-        if (debug) {
-            System.err.println("[DEBUG] ${userData.mapKeys { it.key }} loaded from .editorconfig")
-        }
-        data class LintErrorWithCorrectionInfo(val err: LintError, val corrected: Boolean)
-        fun lintErrorFrom(e: Exception): LintError = when (e) {
-            is ParseException ->
-                LintError(e.line, e.col, "",
-                    "Not a valid Kotlin file (${e.message?.toLowerCase()})")
-            is RuleExecutionException -> {
-                if (debug) {
-                    System.err.println("[DEBUG] Internal Error (${e.ruleId})")
-                    e.printStackTrace(System.err)
+        val userData = (
+            EditorConfig.of(workDir)
+                ?.also { editorConfig ->
+                    if (debug) {
+                        System.err.println("[DEBUG] Discovered .editorconfig (${
+                            generateSequence(editorConfig) { it.parent }.map { it.path.parent.toFile().location() }.joinToString()
+                        })")
+                        System.err.println("[DEBUG] ${editorConfig.mapKeys { it.key }} loaded from .editorconfig")
+                    }
                 }
-                LintError(e.line, e.col, "", "Internal Error (${e.ruleId}). " +
-                    "Please create a ticket at https://github.com/shyiko/ktlint/issue " +
-                    "(if possible, provide the source code that triggered an error)")
-            }
-            else -> throw e
-        }
+                ?: emptyMap<String, String>()
+            ) + mapOf("android" to android.toString())
         val tripped = AtomicBoolean()
+        data class LintErrorWithCorrectionInfo(val err: LintError, val corrected: Boolean)
         fun process(fileName: String, fileContent: String): List<LintErrorWithCorrectionInfo> {
             if (debug) {
-                System.err.println("[DEBUG] Checking ${
-                    if (relative && fileName != "<text>") File(fileName).toRelativeString(File(workDir)) else fileName
-                }")
+                System.err.println("[DEBUG] Checking ${if (fileName != "<text>") File(fileName).location() else fileName}")
             }
             val result = ArrayList<LintErrorWithCorrectionInfo>()
             if (format) {
                 val formattedFileContent = try {
-                    format(fileName, fileContent, rp.map { it.second.get() }, userData) { err, corrected ->
+                    format(fileName, fileContent, ruleSetProviders.map { it.second.get() }, userData) { err, corrected ->
                         if (!corrected) {
                             result.add(LintErrorWithCorrectionInfo(err, corrected))
                         }
                     }
                 } catch (e: Exception) {
-                    result.add(LintErrorWithCorrectionInfo(lintErrorFrom(e), false))
+                    result.add(LintErrorWithCorrectionInfo(e.toLintError(), false))
                     tripped.set(true)
                     fileContent // making sure `cat file | ktlint --stdint > file` is (relatively) safe
                 }
@@ -344,18 +292,16 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
                 }
             } else {
                 try {
-                    lint(fileName, fileContent, rp.map { it.second.get() }, userData) { err ->
-                        tripped.set(true)
+                    lint(fileName, fileContent, ruleSetProviders.map { it.second.get() }, userData) { err ->
                         result.add(LintErrorWithCorrectionInfo(err, false))
+                        tripped.set(true)
                     }
                 } catch (e: Exception) {
-                    result.add(LintErrorWithCorrectionInfo(lintErrorFrom(e), false))
+                    result.add(LintErrorWithCorrectionInfo(e.toLintError(), false))
+                    tripped.set(true)
                 }
             }
             return result
-        }
-        if (limit < 0) {
-            limit = Int.MAX_VALUE
         }
         val (fileNumber, errorNumber) = Pair(AtomicInteger(), AtomicInteger())
         fun report(fileName: String, errList: List<LintErrorWithCorrectionInfo>) {
@@ -372,43 +318,195 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
         if (stdin) {
             report("<text>", process("<text>", String(System.`in`.readBytes())))
         } else {
-            val pathIterator = when {
-                patterns.isEmpty() ->
-                    Glob.from("**/*.kt", "**/*.kts")
-                        .iterate(Paths.get(workDir), Glob.IterationOption.SKIP_HIDDEN)
-                else ->
-                    Glob.from(*patterns.map { expandTilde(it) }.toTypedArray())
-                        .iterate(Paths.get(workDir))
-            }
-            pathIterator
-                .asSequence()
+            fileSequence()
                 .takeWhile { errorNumber.get() < limit }
-                .map(Path::toFile)
-                .map { file ->
-                    Callable { file to process(file.path, file.readText()) }
-                }
-                .parallel({ (file, errList) ->
-                    report(if (relative) file.toRelativeString(File(workDir)) else file.path, errList) })
+                .map { file -> Callable { file to process(file.path, file.readText()) } }
+                .parallel({ (file, errList) -> report(file.location(), errList) })
         }
         reporter.afterAll()
         if (debug) {
-            System.err.println("[DEBUG] ${(System.currentTimeMillis() - start)
-                }ms / ${fileNumber}file(s) / ${errorNumber}error(s)")
+            System.err.println("[DEBUG] ${
+                System.currentTimeMillis() - start
+            }ms / $fileNumber file(s) / $errorNumber error(s)")
         }
         if (tripped.get()) {
             exitProcess(1)
         }
     }
 
-    fun hex(input: ByteArray) = BigInteger(MessageDigest.getInstance("SHA-256").digest(input)).toString(16)
+    private fun loadReporter(dependencyResolver: Lazy<MavenDependencyResolver>): Reporter {
+        data class ReporterTemplate(val id: String, val config: Map<String, String>, var output: String?)
+        val tpls = (if (reporters.isEmpty()) listOf("plain") else reporters)
+            .map { reporter ->
+                val split = reporter.split(",")
+                val (reporterId, rawReporterConfig) = split[0].split("?", limit = 2) + listOf("")
+                ReporterTemplate(
+                    reporterId,
+                    mapOf("verbose" to verbose.toString(), "color" to color.toString()) + parseQuery(rawReporterConfig),
+                    split.getOrNull(1)?.let { if (it.startsWith("output=")) it.split("=")[1] else null }
+                )
+            }
+            .distinct()
+        val reporterLoader = ServiceLoader.load(ReporterProvider::class.java)
+        val reporterProviderById = reporterLoader.associate { it.id to it }.let { map ->
+            val missingReporters = tpls.map { it.id }.distinct().filter { !map.containsKey(it) }
+            if (!missingReporters.isEmpty()) {
+                loadJARs(dependencyResolver, missingReporters)
+                reporterLoader.reload()
+                reporterLoader.associate { it.id to it }
+            } else map
+        }
+        if (debug) {
+            reporterProviderById.forEach { (id) -> System.err.println("[DEBUG] Discovered reporter \"$id\"") }
+        }
+        fun ReporterTemplate.toReporter(): Reporter {
+            val reporterProvider = reporterProviderById[id]
+            if (reporterProvider == null) {
+                System.err.println("Error: reporter \"$id\" wasn't found (available: ${
+                    reporterProviderById.keys.sorted().joinToString(",")
+                })")
+                exitProcess(1)
+            }
+            if (debug) {
+                System.err.println("[DEBUG] Initializing \"$id\" reporter with $config" +
+                    (output?.let { ", output=$it" } ?: ""))
+            }
+            val stream = if (output != null) {
+                File(output).parentFile?.mkdirsOrFail(); PrintStream(output, "UTF-8")
+            } else if (stdin) System.err else System.out
+            return reporterProvider.get(stream, config)
+                .let { reporter ->
+                    if (output != null)
+                        object : Reporter by reporter {
+                            override fun afterAll() {
+                                reporter.afterAll()
+                                stream.close()
+                            }
+                        }
+                    else reporter
+                }
+        }
+        return Reporter.from(*tpls.map { it.toReporter() }.toTypedArray())
+    }
+
+    private fun Exception.toLintError(): LintError = this.let { e ->
+        when (e) {
+            is ParseException ->
+                LintError(e.line, e.col, "",
+                    "Not a valid Kotlin file (${e.message?.toLowerCase()})")
+            is RuleExecutionException -> {
+                if (debug) {
+                    System.err.println("[DEBUG] Internal Error (${e.ruleId})")
+                    e.printStackTrace(System.err)
+                }
+                LintError(e.line, e.col, "", "Internal Error (${e.ruleId}). " +
+                    "Please create a ticket at https://github.com/shyiko/ktlint/issue " +
+                    "(if possible, provide the source code that triggered an error)")
+            }
+            else -> throw e
+        }
+    }
+
+    private fun printAST() {
+        fun process(fileName: String, fileContent: String) {
+            if (debug) {
+                System.err.println("[DEBUG] Analyzing ${if (fileName != "<text>") File(fileName).location() else fileName}")
+            }
+            try {
+                lint(fileName, fileContent, listOf(RuleSet("debug", DumpAST(System.out, color))), emptyMap()) {}
+            } catch (e: Exception) {
+                if (e is ParseException) {
+                    throw ParseException(e.line, e.col, "Not a valid Kotlin file (${e.message?.toLowerCase()})")
+                }
+                throw e
+            }
+        }
+        if (stdin) {
+            process("<text>", String(System.`in`.readBytes()))
+        } else {
+            for (file in fileSequence()) {
+                process(file.path, file.readText())
+            }
+        }
+    }
+
+    private fun fileSequence() =
+        when {
+            patterns.isEmpty() ->
+                Glob.from("**/*.kt", "**/*.kts")
+                    .iterate(Paths.get(workDir), Glob.IterationOption.SKIP_HIDDEN)
+            else ->
+                Glob.from(*patterns.map { expandTilde(it) }.toTypedArray())
+                    .iterate(Paths.get(workDir))
+        }
+            .asSequence()
+            .map(Path::toFile)
+
+    private fun installGitPreCommitHook() {
+        if (!File(".git").isDirectory) {
+            System.err.println(".git directory not found. " +
+                "Are you sure you are inside project root directory?")
+            exitProcess(1)
+        }
+        val hooksDir = File(".git", "hooks")
+        hooksDir.mkdirsOrFail()
+        val preCommitHookFile = File(hooksDir, "pre-commit")
+        val expectedPreCommitHook = ClassLoader.getSystemClassLoader()
+            .getResourceAsStream("ktlint-git-pre-commit-hook${if (android) "-android" else ""}.sh").readBytes()
+        // backup existing hook (if any)
+        val actualPreCommitHook = try { preCommitHookFile.readBytes() } catch (e: FileNotFoundException) { null }
+        if (actualPreCommitHook != null && !actualPreCommitHook.isEmpty() && !Arrays.equals(actualPreCommitHook, expectedPreCommitHook)) {
+            val backupFile = File(hooksDir, "pre-commit.ktlint-backup." + hex(actualPreCommitHook))
+            System.err.println(".git/hooks/pre-commit -> $backupFile")
+            preCommitHookFile.copyTo(backupFile, overwrite = true)
+        }
+        // > .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+        preCommitHookFile.writeBytes(expectedPreCommitHook)
+        preCommitHookFile.setExecutable(true)
+        System.err.println(".git/hooks/pre-commit installed")
+    }
+
+    private fun applyToIDEA() {
+        try {
+            val workDir = Paths.get(".")
+            if (!forceApply) {
+                val fileList = IntellijIDEAIntegration.apply(workDir, true, android)
+                System.err.println("The following files are going to be updated:\n\n\t" +
+                    fileList.joinToString("\n\t") +
+                    "\n\nDo you wish to proceed? [y/n]\n" +
+                    "(in future, use -y flag if you wish to skip confirmation)")
+                val scanner = Scanner(System.`in`)
+
+                val res = generateSequence {
+                        try { scanner.next() } catch (e: NoSuchElementException) { null }
+                    }
+                    .filter { line -> !line.trim().isEmpty() }
+                    .first()
+                if (!"y".equals(res, ignoreCase = true)) {
+                    System.err.println("(update canceled)")
+                    exitProcess(1)
+                }
+            }
+            IntellijIDEAIntegration.apply(workDir, false, android)
+        } catch (e: IntellijIDEAIntegration.ProjectNotFoundException) {
+            System.err.println(".idea directory not found. " +
+                "Are you sure you are inside project root directory?")
+            exitProcess(1)
+        }
+        System.err.println("(updated)")
+        System.err.println("\nPlease restart your IDE")
+        System.err.println("(if you experience any issues please report them at https://github.com/shyiko/ktlint)")
+    }
+
+    private fun hex(input: ByteArray) = BigInteger(MessageDigest.getInstance("SHA-256").digest(input)).toString(16)
 
     // a complete solution would be to implement https://www.gnu.org/software/bash/manual/html_node/Tilde-Expansion.html
     // this implementation takes care only of the most commonly used case (~/)
-    fun expandTilde(path: String) = path.replaceFirst(Regex("^~"), System.getProperty("user.home"))
+    private fun expandTilde(path: String) = path.replaceFirst(Regex("^~"), System.getProperty("user.home"))
 
-    fun <T> List<T>.head(limit: Int) = if (limit == size) this else this.subList(0, limit)
+    private fun <T> List<T>.head(limit: Int) = if (limit == size) this else this.subList(0, limit)
 
-    fun buildDependencyResolver(): MavenDependencyResolver {
+    private fun buildDependencyResolver(): MavenDependencyResolver {
         val mavenLocal = File(File(System.getProperty("user.home"), ".m2"), "repository")
         mavenLocal.mkdirsOrFail()
         val dependencyResolver = MavenDependencyResolver(
@@ -444,14 +542,14 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
         return dependencyResolver
     }
 
-    fun loadJARs(dependencyResolver: MavenDependencyResolver, artifacts: List<String>) {
+    private fun loadJARs(dependencyResolver: Lazy<MavenDependencyResolver>, artifacts: List<String>) {
         (ClassLoader.getSystemClassLoader() as java.net.URLClassLoader)
             .addURLs(artifacts.flatMap { artifact ->
                 if (debug) {
                     System.err.println("[DEBUG] Resolving $artifact")
                 }
                 val result = try {
-                    dependencyResolver.resolve(DefaultArtifact(artifact)).map { it.toURI().toURL() }
+                    dependencyResolver.value.resolve(DefaultArtifact(artifact)).map { it.toURI().toURL() }
                 } catch (e: IllegalArgumentException) {
                     val file = File(expandTilde(artifact))
                     if (!file.exists()) {
@@ -473,7 +571,7 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
             })
     }
 
-    fun parseQuery(query: String) = query.split("&")
+    private fun parseQuery(query: String) = query.split("&")
         .fold(LinkedHashMap<String, String>()) { map, s ->
             if (!s.isEmpty()) {
                 s.split("=", limit = 2).let { e -> map.put(e[0],
@@ -482,39 +580,34 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
             map
         }
 
-    fun locateEditorConfig(dir: File?): File? = when (dir) {
-        null -> null
-        else -> File(dir, ".editorconfig").let {
-            if (it.exists()) it else locateEditorConfig(dir.parentFile)
-        }
-    }
+    private fun lint(
+        fileName: String,
+        text: String,
+        ruleSets: Iterable<RuleSet>,
+        userData: Map<String, String>,
+        cb: (e: LintError) -> Unit
+    ) =
+        if (fileName.endsWith(".kt", ignoreCase = true)) KtLint.lint(text, ruleSets, userData, cb) else KtLint.lintScript(text, ruleSets, userData, cb)
 
-    fun loadEditorConfig(file: File): Map<String, String> {
-        val editorConfig = Wini(file)
-        // right now ktlint requires explicit [*.{kt,kts}] section
-        // (this way we can be sure that users want .editorconfig to be recognized by ktlint)
-        val section = editorConfig["*.{kt,kts}"]
-        return section?.toSortedMap() ?: emptyMap<String, String>()
-    }
+    private fun format(
+        fileName: String,
+        text: String,
+        ruleSets: Iterable<RuleSet>,
+        userData: Map<String, String>,
+        cb: (e: LintError, corrected: Boolean) -> Unit
+    ): String =
+        if (fileName.endsWith(".kt", ignoreCase = true)) KtLint.format(text, ruleSets, userData, cb) else KtLint.formatScript(text, ruleSets, userData, cb)
 
-    fun lint(fileName: String, text: String, ruleSets: Iterable<RuleSet>, userData: Map<String, String>,
-            cb: (e: LintError) -> Unit) =
-        if (fileName.endsWith(".kt", ignoreCase = true)) KtLint.lint(text, ruleSets, userData, cb) else
-            KtLint.lintScript(text, ruleSets, userData, cb)
-
-    fun format(fileName: String, text: String, ruleSets: Iterable<RuleSet>, userData: Map<String, String>,
-            cb: (e: LintError, corrected: Boolean) -> Unit): String =
-        if (fileName.endsWith(".kt", ignoreCase = true)) KtLint.format(text, ruleSets, userData, cb) else
-            KtLint.formatScript(text, ruleSets, userData, cb)
-
-    fun java.net.URLClassLoader.addURLs(url: Iterable<java.net.URL>) {
+    private fun java.net.URLClassLoader.addURLs(url: Iterable<java.net.URL>) {
         val method = java.net.URLClassLoader::class.java.getDeclaredMethod("addURL", java.net.URL::class.java)
         method.isAccessible = true
         url.forEach { method.invoke(this, it) }
     }
 
-    fun <T>Sequence<Callable<T>>.parallel(cb: (T) -> Unit,
-        numberOfThreads: Int = Runtime.getRuntime().availableProcessors()) {
+    private fun <T> Sequence<Callable<T>>.parallel(
+        cb: (T) -> Unit,
+        numberOfThreads: Int = Runtime.getRuntime().availableProcessors()
+    ) {
         val q = ArrayBlockingQueue<Future<T>>(numberOfThreads)
         val pill = object : Future<T> {
 
@@ -542,5 +635,4 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
         executorService.shutdown()
         consumer.join()
     }
-
 }

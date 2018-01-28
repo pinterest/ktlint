@@ -21,5 +21,4 @@ class NoItParamInMultilineLambdaRule : Rule("no-it-in-multiline-lambda") {
             }
         }
     }
-
 }

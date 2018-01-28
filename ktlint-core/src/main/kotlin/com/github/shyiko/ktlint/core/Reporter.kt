@@ -41,5 +41,4 @@ interface Reporter {
             }
         }
     }
-
 }

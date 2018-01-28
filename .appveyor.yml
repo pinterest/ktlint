@@ -1,0 +1,19 @@
+version: '{branch}.{build}'
+
+skip_tags: true
+
+environment:
+  matrix:
+    - JAVA_HOME: C:\Program Files\Java\jdk1.8.0
+
+install:
+  - cmd: echo %JAVA_HOME%
+  - cmd: echo %M2_HOME%
+
+test_script:
+  - mvn clean verify
+
+cache:
+  - C:\Users\appveyor\.m2
+
+build: off

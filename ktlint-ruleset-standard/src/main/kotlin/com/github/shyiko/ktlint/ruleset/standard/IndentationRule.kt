@@ -1,68 +1,124 @@
 package com.github.shyiko.ktlint.ruleset.standard
 
-import com.github.shyiko.ktlint.core.KtLint
+import com.github.shyiko.ktlint.core.IndentationConfig
 import com.github.shyiko.ktlint.core.Rule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.openapi.util.TextRange
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
+import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
+import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.kotlin.diagnostics.DiagnosticUtils
+import org.jetbrains.kotlin.lexer.KtTokens
+import org.jetbrains.kotlin.psi.KtBinaryExpression
+import org.jetbrains.kotlin.psi.KtDotQualifiedExpression
 import org.jetbrains.kotlin.psi.KtParameter
 import org.jetbrains.kotlin.psi.KtParameterList
+import org.jetbrains.kotlin.psi.KtParenthesizedExpression
+import org.jetbrains.kotlin.psi.KtSafeQualifiedExpression
+import org.jetbrains.kotlin.psi.KtSecondaryConstructor
+import org.jetbrains.kotlin.psi.KtSuperTypeList
+import org.jetbrains.kotlin.psi.KtSuperTypeListEntry
+import org.jetbrains.kotlin.psi.KtTypeProjection
+import org.jetbrains.kotlin.psi.KtValueArgumentList
 import org.jetbrains.kotlin.psi.psiUtil.getNonStrictParentOfType
-import org.jetbrains.kotlin.psi.psiUtil.startOffset
+import org.jetbrains.kotlin.psi.psiUtil.getPrevSiblingIgnoringWhitespaceAndComments
 import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
 
 class IndentationRule : Rule("indent") {
 
-    companion object {
-        // indentation size recommended by JetBrains
-        private const val DEFAULT_INDENT = 4
-    }
+    private var indentConfig = IndentationConfig(-1, -1, true)
 
-    private var indent = DEFAULT_INDENT
-
-    override fun visit(node: ASTNode, autoCorrect: Boolean,
-            emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
+    override fun visit(
+        node: ASTNode,
+        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+    ) {
         if (node.elementType == KtStubElementTypes.FILE) {
-            val editorConfig = node.getUserData(KtLint.EDITOR_CONFIG_USER_DATA_KEY)!!
-            val indentSize = editorConfig.get("indent_size")
-            indent = indentSize?.toIntOrNull() ?: if (indentSize?.toLowerCase() == "unset") -1 else indent
+            indentConfig = IndentationConfig.create(node)
             return
         }
-        if (indent <= 0) {
+        if (indentConfig.disabled) {
             return
         }
         if (node is PsiWhiteSpace && !node.isPartOf(PsiComment::class)) {
             val lines = node.getText().split("\n")
             if (lines.size > 1) {
                 var offset = node.startOffset + lines.first().length + 1
-                val firstParameterColumn = lazy {
-                    val firstParameter = PsiTreeUtil.findChildOfType(
+                val firstParameter = lazy {
+                    PsiTreeUtil.findChildOfType(
                         node.getNonStrictParentOfType(KtParameterList::class.java),
                         KtParameter::class.java
                     )
-                    firstParameter?.run {
-                        DiagnosticUtils.getLineAndColumnInPsiFile(node.containingFile,
-                            TextRange(startOffset, startOffset)).column
-                    } ?: 0
                 }
+                val firstParameterColumn = lazy { firstParameter.value?.column ?: 0 }
+                val previousIndent = node.calculatePreviousIndent()
+                val expectedIndentSize =
+                    if (indentConfig.continuation == indentConfig.regular || shouldUseContinuationIndent(node)) {
+                        indentConfig.continuation
+                    } else {
+                        indentConfig.regular
+                    }
                 lines.tail().forEach { line ->
-                    if (line.length % indent != 0) {
-                        if (node.isPartOf(KtParameterList::class) && firstParameterColumn.value != 0) {
-                            if (firstParameterColumn.value - 1 != line.length) {
-                                emit(offset, "Unexpected indentation (${line.length}) (" +
-                                    "parameters should be either vertically aligned or indented by the multiple of $indent" +
-                                ")", false)
-                            }
-                        } else {
-                            emit(offset, "Unexpected indentation (${line.length}) (it should be multiple of $indent)", false)
+                    if (node.isPartOf(KtParameterList::class)
+                        && node.nextSibling is KtParameter
+                        && firstParameter.value?.node != node.nextSibling.node) {
+                        if ((line.length) != firstParameterColumn.value - 1) {
+                            emit(offset,
+                                "Unexpected indentation (${line.length}) (" +
+                                    "parameters should be vertically aligned)",
+                                true)
+                            if (autoCorrect) replaceWithExpectedIndent(node, firstParameterColumn.value - 1)
                         }
+                    } else if (line.isNotEmpty() && (line.length - previousIndent) % expectedIndentSize != 0) {
+
+                        emit(offset,
+                            "Unexpected indentation (${line.length - previousIndent}) " +
+                                "(it should be $expectedIndentSize)",
+                            true)
+                        if (autoCorrect) replaceWithExpectedIndent(node, previousIndent + expectedIndentSize)
                     }
                     offset += line.length + 1
                 }
             }
         }
+    }
+
+    private fun replaceWithExpectedIndent(node: ASTNode, expectedIndentSize: Int) {
+        val correctedIndent = "\n" + " ".repeat(expectedIndentSize)
+        (node as LeafPsiElement).rawReplaceWithText(correctedIndent)
+    }
+
+    private val PsiElement.column: Int
+        get() {
+            var leaf = PsiTreeUtil.prevLeaf(this)
+            var offsetToTheLeft = 0
+            while (leaf != null) {
+                if (leaf.node.elementType == KtTokens.WHITE_SPACE && leaf.textContains('\n')) {
+                    offsetToTheLeft += leaf.textLength - 1 - leaf.text.lastIndexOf('\n')
+                    break
+                }
+                offsetToTheLeft += leaf.textLength
+                leaf = PsiTreeUtil.prevLeaf(leaf)
+            }
+            return offsetToTheLeft + 1
+        }
+
+    private fun shouldUseContinuationIndent(node: PsiWhiteSpace): Boolean {
+        val parentNode = node.parent
+        val prevNode = node.getPrevSiblingIgnoringWhitespaceAndComments()?.node?.elementType
+        val nextNode = node.nextSibling?.node?.elementType
+        return (
+            prevNode in KtTokens.ALL_ASSIGNMENTS
+                || parentNode is KtSecondaryConstructor
+                || nextNode == KtStubElementTypes.TYPE_REFERENCE
+                || node.nextSibling is KtSuperTypeList
+                || node.nextSibling is KtSuperTypeListEntry
+                || node.nextSibling is KtTypeProjection
+                || parentNode is KtValueArgumentList
+                || parentNode is KtBinaryExpression
+                || parentNode is KtDotQualifiedExpression
+                || parentNode is KtSafeQualifiedExpression
+                || parentNode is KtParenthesizedExpression
+            )
     }
 }
