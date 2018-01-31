@@ -1,0 +1,25 @@
+name: ktlint
+version: git
+summary: An anti-bikeshedding Kotlin linter with built-in formatter
+description: |
+   Kotlin linter in spirit of feross/standard (JavaScript) and gofmt (Go).
+
+confinement: devmode
+
+apps:
+  ktlint:
+    command: ktlint
+    plugs: [home]
+    environment:
+      PATH: $PATH:$SNAP/usr/lib/jvm/java-8-openjdk-amd64/bin
+
+parts:
+  ktlint:
+    source: .
+    plugin: nil
+    build-packages: [openjdk-8-jdk]
+    stage-packages: [openjdk-8-jre]
+    build: |
+      ./mvnw -Pcapsule clean package -Dmaven.test.skip=true
+    install:
+      mv ktlint/target/ktlint $SNAPCRAFT_PART_INSTALL
