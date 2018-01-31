@@ -9,7 +9,7 @@ confinement: devmode
 apps:
   ktlint:
     command: ktlint
-    plugs: [home]
+    plugs: [home, network]
     environment:
       PATH: $PATH:$SNAP/usr/lib/jvm/java-8-openjdk-amd64/bin
 
