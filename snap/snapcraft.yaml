@@ -8,7 +8,7 @@ confinement: devmode
 
 apps:
   ktlint:
-    command: java -jar $SNAP/ktlint-0.0.0-SNAPSHOT-shaded.jar
+    command: ktlint
     plugs: [home]
     environment:
       PATH: $PATH:$SNAP/usr/lib/jvm/java-8-openjdk-amd64/bin
@@ -20,7 +20,6 @@ parts:
     build-packages: [openjdk-8-jdk]
     stage-packages: [openjdk-8-jre]
     build: |
-      ./mvnw
       ./mvnw -Pcapsule clean package -Dmaven.test.skip=true
     install:
-      mv ktlint/target/ktlint-0.0.0-SNAPSHOT-shaded.jar $SNAPCRAFT_PART_INSTALL
+      mv ktlint/target/ktlint $SNAPCRAFT_PART_INSTALL
