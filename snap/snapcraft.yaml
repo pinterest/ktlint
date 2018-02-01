@@ -22,23 +22,55 @@ parts:
     build: |
       bash -c '
       http_proxy_regex="^https?://(([^:]{1,128}):([^@]{1,256})@)?([^:/]{1,255})(:([0-9]{1,5}))?/?"
-      export JAVA_TOOL_OPTIONS="$JAVA_TOOL_OPTIONS -Djdk.http.auth.tunneling.disabledSchemes="
+      export JAVA_OPTS="$JAVA_OPTS -Djdk.http.auth.tunneling.disabledSchemes="
+      maven_settings_proxies=
       if [[ "$http_proxy" =~ $http_proxy_regex ]]; then
-        export JAVA_TOOL_OPTIONS="$JAVA_TOOL_OPTIONS \
+        export JAVA_OPTS="$JAVA_OPTS \
           -Dhttp.proxyUser=${BASH_REMATCH[2]} \
           -Dhttp.proxyPassword=${BASH_REMATCH[3]} \
           -Dhttp.proxyHost=${BASH_REMATCH[4]} \
           -Dhttp.proxyPort=${BASH_REMATCH[6]:-80}"
+        maven_settings_proxies="$maven_settings_proxies
+          <proxy>
+            <id>http_proxy</id>
+            <active>true</active>
+            <protocol>http</protocol>
+            <username>${BASH_REMATCH[2]}</username>
+            <password>${BASH_REMATCH[3]}</password>
+            <host>${BASH_REMATCH[4]}</host>
+            <port>${BASH_REMATCH[6]:-80}</port>
+            <nonProxyHosts>localhost|127.*|[::1]</nonProxyHosts>
+          </proxy>
+        "
       fi
       if [[ "$https_proxy" =~ $http_proxy_regex ]]; then
-        export JAVA_TOOL_OPTIONS="$JAVA_TOOL_OPTIONS \
+        export JAVA_OPTS="$JAVA_OPTS \
           -Dhttps.proxyUser=${BASH_REMATCH[2]} \
           -Dhttps.proxyPassword=${BASH_REMATCH[3]} \
           -Dhttps.proxyHost=${BASH_REMATCH[4]} \
           -Dhttps.proxyPort=${BASH_REMATCH[6]:-443}"
+        maven_settings_proxies="$maven_settings_proxies
+          <proxy>
+            <id>https_proxy</id>
+            <active>true</active>
+            <protocol>https</protocol>
+            <username>${BASH_REMATCH[2]}</username>
+            <password>${BASH_REMATCH[3]}</password>
+            <host>${BASH_REMATCH[4]}</host>
+            <port>${BASH_REMATCH[6]:-443}</port>
+            <nonProxyHosts>localhost|127.*|[::1]</nonProxyHosts>
+          </proxy>
+        "
       fi
-      printf " $JAVA_TOOL_OPTIONS" >> .mvn/jvm.config
-      ./mvnw -Pcapsule clean package -Dmaven.test.skip=true -Dmaven.wagon.provider.http=lightweight $JAVA_TOOL_OPTIONS
+      printf "
+        <settings>
+        <proxies>
+        $maven_settings_proxies
+        </proxies>
+        </settings>
+      " > /tmp/maven_global_settings.xml
+      printf " -gs /tmp/maven_global_settings.xml" >> .mvn/maven.config
+      ./mvnw -Pcapsule clean package -Dmaven.test.skip=true
       '
     install:
       mv ktlint/target/ktlint $SNAPCRAFT_PART_INSTALL
