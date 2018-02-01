@@ -20,7 +20,17 @@ parts:
     build-packages: [openjdk-8-jdk]
     stage-packages: [openjdk-8-jre]
     build: |
+      bash -c "
+      http_proxy_regex='^https?://(([^:]{1,128}):([^@]{1,256})@)?([^:/]{1,255})(:([0-9]{1,5}))?/?'
+      if [[ \"$http_proxy\" =~ $http_proxy_regex ]]; then
+        export JAVA_TOOL_OPTIONS=\"$JAVA_TOOL_OPTIONS -Dhttp.proxyHost=${BASH_REMATCH[4]} -Dhttp.proxyPort=${BASH_REMATCH[6]:-80}\"
+      fi
+      if [[ \"$https_proxy\" =~ $http_proxy_regex ]]; then
+        export JAVA_TOOL_OPTIONS=\"$JAVA_TOOL_OPTIONS -Dhttps.proxyHost=${BASH_REMATCH[4]} -Dhttps.proxyPort=${BASH_REMATCH[6]:-443}\"
+      fi
+      echo JAVA_TOOL_OPTIONS set to \"$JAVA_TOOL_OPTIONS\"
       ./mvnw -Pcapsule clean package -Dmaven.test.skip=true
+      "
     install:
       mv ktlint/target/ktlint $SNAPCRAFT_PART_INSTALL
     organize:
