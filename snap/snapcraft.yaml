@@ -11,7 +11,7 @@ apps:
     command: ktlint
     plugs: [home]
     environment:
-      PATH: $PATH:$SNAP/usr/lib/jvm/java-8-openjdk-amd64/bin
+      PATH: $PATH:$SNAP/usr/lib/jvm/java-8-openjdk/bin
 
 parts:
   ktlint:
@@ -23,3 +23,5 @@ parts:
       ./mvnw -Pcapsule clean package -Dmaven.test.skip=true
     install:
       mv ktlint/target/ktlint $SNAPCRAFT_PART_INSTALL
+    organize:
+      usr/lib/jvm/java-8-openjdk-*: usr/lib/jvm/java-8-openjdk
