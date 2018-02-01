@@ -22,6 +22,7 @@ parts:
     build: |
       bash -c '
       http_proxy_regex="^https?://(([^:]{1,128}):([^@]{1,256})@)?([^:/]{1,255})(:([0-9]{1,5}))?/?"
+      export JAVA_TOOL_OPTIONS="$JAVA_TOOL_OPTIONS -Djdk.http.auth.tunneling.disabledSchemes="
       if [[ "$http_proxy" =~ $http_proxy_regex ]]; then
         export JAVA_TOOL_OPTIONS="$JAVA_TOOL_OPTIONS \
           -Dhttp.proxyUser=${BASH_REMATCH[2]} \
