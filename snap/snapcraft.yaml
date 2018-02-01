@@ -19,18 +19,18 @@ parts:
     plugin: nil
     build-packages: [openjdk-8-jdk]
     stage-packages: [openjdk-8-jre]
-    build: |
+    prepare: |
       bash -c '
       http_proxy_regex="^https?://(([^:]{1,128}):([^@]{1,256})@)?([^:/]{1,255})(:([0-9]{1,5}))?/?"
-      export JAVA_OPTS="$JAVA_OPTS -Djdk.http.auth.tunneling.disabledSchemes="
-      maven_settings_proxies=
+      printf " -Djdk.http.auth.tunneling.disabledSchemes=" >> .mvn/jvm.config
+      printf "<settings>\n<proxies>" > .mvn/global_settings.xml
       if [[ "$http_proxy" =~ $http_proxy_regex ]]; then
-        export JAVA_OPTS="$JAVA_OPTS \
+        printf "\
           -Dhttp.proxyUser=${BASH_REMATCH[2]} \
           -Dhttp.proxyPassword=${BASH_REMATCH[3]} \
           -Dhttp.proxyHost=${BASH_REMATCH[4]} \
-          -Dhttp.proxyPort=${BASH_REMATCH[6]:-80}"
-        maven_settings_proxies="$maven_settings_proxies
+          -Dhttp.proxyPort=${BASH_REMATCH[6]:-80}" >> .mvn/jvm.config
+        printf "
           <proxy>
             <id>http_proxy</id>
             <active>true</active>
@@ -40,16 +40,15 @@ parts:
             <host>${BASH_REMATCH[4]}</host>
             <port>${BASH_REMATCH[6]:-80}</port>
             <nonProxyHosts>localhost|127.*|[::1]</nonProxyHosts>
-          </proxy>
-        "
+          </proxy>" >> .mvn/global_settings.xml
       fi
       if [[ "$https_proxy" =~ $http_proxy_regex ]]; then
-        export JAVA_OPTS="$JAVA_OPTS \
+        printf "\
           -Dhttps.proxyUser=${BASH_REMATCH[2]} \
           -Dhttps.proxyPassword=${BASH_REMATCH[3]} \
           -Dhttps.proxyHost=${BASH_REMATCH[4]} \
-          -Dhttps.proxyPort=${BASH_REMATCH[6]:-443}"
-        maven_settings_proxies="$maven_settings_proxies
+          -Dhttps.proxyPort=${BASH_REMATCH[6]:-443}" >> .mvn/jvm.config
+        printf "
           <proxy>
             <id>https_proxy</id>
             <active>true</active>
@@ -59,19 +58,13 @@ parts:
             <host>${BASH_REMATCH[4]}</host>
             <port>${BASH_REMATCH[6]:-443}</port>
             <nonProxyHosts>localhost|127.*|[::1]</nonProxyHosts>
-          </proxy>
-        "
+          </proxy>" >> .mvn/global_settings.xml
       fi
-      printf "
-        <settings>
-        <proxies>
-        $maven_settings_proxies
-        </proxies>
-        </settings>
-      " > /tmp/maven_global_settings.xml
-      printf " -gs /tmp/maven_global_settings.xml" >> .mvn/maven.config
-      ./mvnw -Pcapsule clean package -Dmaven.test.skip=true
+      printf "\n</proxies>\n</settings>" >> .mvn/global_settings.xml
+      printf " -gs .mvn/global_settings.xml" >> .mvn/maven.config
       '
+    build:
+      ./mvnw -Pcapsule clean package -Dmaven.test.skip=true
     install:
       mv ktlint/target/ktlint $SNAPCRAFT_PART_INSTALL
     organize:
