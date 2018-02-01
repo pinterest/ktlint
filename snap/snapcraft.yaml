@@ -23,12 +23,19 @@ parts:
       bash -c '
       http_proxy_regex="^https?://(([^:]{1,128}):([^@]{1,256})@)?([^:/]{1,255})(:([0-9]{1,5}))?/?"
       if [[ "$http_proxy" =~ $http_proxy_regex ]]; then
-        export JAVA_TOOL_OPTIONS="$JAVA_TOOL_OPTIONS -Dhttp.proxyHost=${BASH_REMATCH[4]} -Dhttp.proxyPort=${BASH_REMATCH[6]:-80}"
+        export JAVA_TOOL_OPTIONS="$JAVA_TOOL_OPTIONS \
+          -Dhttp.proxyUser=${BASH_REMATCH[2]} \
+          -Dhttp.proxyPassword=${BASH_REMATCH[3]} \
+          -Dhttp.proxyHost=${BASH_REMATCH[4]} \
+          -Dhttp.proxyPort=${BASH_REMATCH[6]:-80}"
       fi
       if [[ "$https_proxy" =~ $http_proxy_regex ]]; then
-        export JAVA_TOOL_OPTIONS="$JAVA_TOOL_OPTIONS -Dhttps.proxyHost=${BASH_REMATCH[4]} -Dhttps.proxyPort=${BASH_REMATCH[6]:-443}"
+        export JAVA_TOOL_OPTIONS="$JAVA_TOOL_OPTIONS \
+          -Dhttps.proxyUser=${BASH_REMATCH[2]} \
+          -Dhttps.proxyPassword=${BASH_REMATCH[3]} \
+          -Dhttps.proxyHost=${BASH_REMATCH[4]} \
+          -Dhttps.proxyPort=${BASH_REMATCH[6]:-443}"
       fi
-      echo "JAVA_TOOL_OPTIONS set to \"$JAVA_TOOL_OPTIONS\""
       ./mvnw -Pcapsule clean package -Dmaven.test.skip=true
       '
     install:
