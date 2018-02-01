@@ -37,8 +37,8 @@ parts:
           -Dhttps.proxyHost=${BASH_REMATCH[4]} \
           -Dhttps.proxyPort=${BASH_REMATCH[6]:-443}"
       fi
-      export MAVEN_OPTS="$MAVEN_OPTS $JAVA_TOOL_OPTIONS"
-      ./mvnw -Pcapsule clean package -Dmaven.test.skip=true
+      printf " $JAVA_TOOL_OPTIONS" >> .mvn/jvm.config
+      ./mvnw -Pcapsule clean package -Dmaven.test.skip=true $JAVA_TOOL_OPTIONS
       '
     install:
       mv ktlint/target/ktlint $SNAPCRAFT_PART_INSTALL
