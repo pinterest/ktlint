@@ -13,7 +13,7 @@ import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
 
 class ClassAndFunctionHeaderFormatRule : Rule(RULE_ID) {
-    private val newLineRegex by lazy { System.lineSeparator().toRegex() }
+    private val newLineRegex by lazy { "\n".toRegex() }
     private var indentConfig = IndentationConfig(-1, -1, true)
     private var lineLengthConfig = MaxLineLengthConfig(-1)
     override fun visit(node: ASTNode, autoCorrect: Boolean, emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
