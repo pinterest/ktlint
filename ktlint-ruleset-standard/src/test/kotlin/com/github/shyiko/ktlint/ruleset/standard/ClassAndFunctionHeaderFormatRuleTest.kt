@@ -3,21 +3,24 @@ package com.github.shyiko.ktlint.ruleset.standard
 import com.github.shyiko.ktlint.core.LintError
 import com.github.shyiko.ktlint.test.format
 import com.github.shyiko.ktlint.test.lint
-import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.testng.annotations.Test
 
 class ClassAndFunctionHeaderFormatRuleTest {
     private val errorMessageMissedNewLineForParameter = "Parameter should be on separate line with indentation"
     private val errorMessageMissedNewLineForParenthesis = "Parenthesis should be on new line"
     private val expectedRuleId = "class-and-function-header-format"
-    private val configUserData = mapOf("indent_size" to "4", "continuation_indent_size" to "6")
+    private val configUserData = mapOf(
+        "indent_size" to "4",
+        "continuation_indent_size" to "6",
+        "max_line_length" to "100")
     private fun errorMessageWhenWrongIndent(actualIndent: Int, expectedIndent: Int): String {
         return "Unexpected indentation for parameter $actualIndent (should be $expectedIndent)"
     }
 
     @Test
     fun testClassWithAbsentLineBreak() {
-        Assertions.assertThat(ClassAndFunctionHeaderFormatRule().lint(
+        assertThat(ClassAndFunctionHeaderFormatRule().lint(
             """
             class ClassA(paramA: String, paramB: String,
                          paramC: String)
@@ -34,7 +37,7 @@ class ClassAndFunctionHeaderFormatRuleTest {
 
     @Test
     fun testFormatClassWithAbsentLineBreak() {
-        Assertions.assertThat(ClassAndFunctionHeaderFormatRule().format(
+        assertThat(ClassAndFunctionHeaderFormatRule().format(
             """
             class ClassA(paramA: String, paramB: String,
                          paramC: String)
@@ -53,7 +56,7 @@ class ClassAndFunctionHeaderFormatRuleTest {
 
     @Test
     fun testValidClassDefinitionWithMultipleLines() {
-        Assertions.assertThat(ClassAndFunctionHeaderFormatRule().lint(
+        assertThat(ClassAndFunctionHeaderFormatRule().lint(
             """
             class ClassA(
                 paramA: String,
@@ -67,7 +70,7 @@ class ClassAndFunctionHeaderFormatRuleTest {
 
     @Test
     fun testValidClassDefinitionOnOneLine() {
-        Assertions.assertThat(ClassAndFunctionHeaderFormatRule().lint(
+        assertThat(ClassAndFunctionHeaderFormatRule().lint(
             """
             class ClassA(paramA: String, paramB: String, paramC: String)
             """.trimIndent(),
@@ -77,7 +80,7 @@ class ClassAndFunctionHeaderFormatRuleTest {
 
     @Test
     fun testErrorWhenFirstParameterIsNotOnNewLine() {
-        Assertions.assertThat(ClassAndFunctionHeaderFormatRule().lint(
+        assertThat(ClassAndFunctionHeaderFormatRule().lint(
             """
             fun f(a: Any,
                   b: Any,
@@ -97,7 +100,7 @@ class ClassAndFunctionHeaderFormatRuleTest {
 
     @Test
     fun testFormatWhenFirstParameterIsNoOnNewLine() {
-        Assertions.assertThat(ClassAndFunctionHeaderFormatRule().format(
+        assertThat(ClassAndFunctionHeaderFormatRule().format(
             """
             fun f(a: Any,
                   b: Any,
@@ -119,7 +122,7 @@ class ClassAndFunctionHeaderFormatRuleTest {
 
     @Test
     fun testIgnoreLambdaParameters() {
-        Assertions.assertThat(ClassAndFunctionHeaderFormatRule().lint(
+        assertThat(ClassAndFunctionHeaderFormatRule().lint(
             """
             val fieldExample =
                   LongNameClass { paramA,
@@ -134,7 +137,7 @@ class ClassAndFunctionHeaderFormatRuleTest {
 
     @Test
     fun testFailWhenWrongIndentIsUsed() {
-        Assertions.assertThat(ClassAndFunctionHeaderFormatRule().lint(
+        assertThat(ClassAndFunctionHeaderFormatRule().lint(
             """
             class A {
                 fun f(
@@ -155,7 +158,7 @@ class ClassAndFunctionHeaderFormatRuleTest {
 
     @Test
     fun testRespectOuterIndent() {
-        Assertions.assertThat(ClassAndFunctionHeaderFormatRule().format(
+        assertThat(ClassAndFunctionHeaderFormatRule().format(
             """
             class A {
                 fun f(a: Any,
@@ -181,7 +184,7 @@ class ClassAndFunctionHeaderFormatRuleTest {
 
     @Test
     fun testRespectOuterIndentWhenCalculateParanthesisIndent() {
-        Assertions.assertThat(ClassAndFunctionHeaderFormatRule().format(
+        assertThat(ClassAndFunctionHeaderFormatRule().format(
             """
             class A {
                 fun f(a: Any,
@@ -208,7 +211,7 @@ class ClassAndFunctionHeaderFormatRuleTest {
 
     @Test
     fun testFailWhenHeaderIsTooLong() {
-        Assertions.assertThat(ClassAndFunctionHeaderFormatRule().lint(
+        assertThat(ClassAndFunctionHeaderFormatRule().lint(
             """
             class WithLongClassHeader(parameter1: Int, parameter2: Int, parameter3: Int) {
               fun a() = ""
@@ -227,7 +230,7 @@ class ClassAndFunctionHeaderFormatRuleTest {
 
     @Test
     fun testFormatClassWithAllCases() {
-        Assertions.assertThat(ClassAndFunctionHeaderFormatRule().format(
+        assertThat(ClassAndFunctionHeaderFormatRule().format(
             """
             class WithLongClassHeader(parameter1: Int, parameter2: Int, parameter3: Int) {
                 constructor(parameter1: Int, parameter2: Int, parameter3: Int) {
@@ -284,6 +287,54 @@ class ClassAndFunctionHeaderFormatRuleTest {
                 }
             }
             """.trimIndent()
+        )
+    }
+
+    @Test
+    fun testNoErrorWhenShorterThanMaxLengthSize() {
+        assertThat(
+            ClassAndFunctionHeaderFormatRule().lint(
+                """
+                class A {
+                    fun f(a: Any, b: Any) = ""
+                }
+                """.trimIndent(),
+                mapOf("max_line_length" to "31")
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun testNoErrorWhenEqualToMaxLengthSize() {
+        assertThat(
+            ClassAndFunctionHeaderFormatRule().lint(
+                """
+                class A {
+                    fun f(a: Any, b: Any) = ""
+                }
+                """.trimIndent(),
+                mapOf("max_line_length" to "30")
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun testErrorWhenLongerThanMaxLengthSize() {
+        assertThat(
+            ClassAndFunctionHeaderFormatRule().lint(
+                """
+                class A {
+                    fun f(a: Any, b: Any) = ""
+                }
+                """.trimIndent(),
+                mapOf("max_line_length" to "29")
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(2, 11, expectedRuleId, errorMessageMissedNewLineForParameter),
+                LintError(2, 19, expectedRuleId, errorMessageMissedNewLineForParameter),
+                LintError(2, 25, expectedRuleId, errorMessageMissedNewLineForParenthesis)
+            )
         )
     }
 }
