@@ -1,5 +1,8 @@
 package com.github.shyiko.ktlint.core
 
+import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
+import org.jetbrains.kotlin.cli.common.messages.MessageRenderer
+import org.jetbrains.kotlin.cli.common.messages.PrintingMessageCollector
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -48,8 +51,13 @@ object KtLint {
             }
         }
         DiagnosticLogger.setFactory(LoggerFactory::class.java)
+
+        val compilerConfiguration = CompilerConfiguration()
+        compilerConfiguration.put(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY,
+            PrintingMessageCollector(System.err, MessageRenderer.PLAIN_FULL_PATHS, false))
+
         val project = KotlinCoreEnvironment.createForProduction(Disposable {},
-            CompilerConfiguration(), EnvironmentConfigFiles.JVM_CONFIG_FILES).project
+            compilerConfiguration, EnvironmentConfigFiles.JVM_CONFIG_FILES).project
         // everything below (up to PsiFileFactory.getInstance(...)) is to get AST mutations (`ktlint -F ...`) working
         // otherwise it's not needed
         val pomModel: PomModel = object : UserDataHolderBase(), PomModel {
