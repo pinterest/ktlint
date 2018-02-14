@@ -9,17 +9,11 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.CompositeElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.TreeUtil
-import org.jetbrains.kotlin.com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.kotlin.lexer.KtTokens
-import org.jetbrains.kotlin.psi.KtClass
-import org.jetbrains.kotlin.psi.KtClassBody
-import org.jetbrains.kotlin.psi.KtExpressionImpl
-import org.jetbrains.kotlin.psi.KtNamedFunction
-import org.jetbrains.kotlin.psi.KtSecondaryConstructor
 import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
 
 class ClassAndFunctionHeaderFormatRule : Rule(RULE_ID) {
-    private val newLineRegex by lazy { System.lineSeparator().toRegex() }
+    private val newLineRegex by lazy { "\n".toRegex() }
     private var indentConfig = IndentationConfig(-1, -1, true)
     private var lineLengthConfig = MaxLineLengthConfig(-1)
     override fun visit(node: ASTNode, autoCorrect: Boolean, emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
@@ -101,33 +95,26 @@ class ClassAndFunctionHeaderFormatRule : Rule(RULE_ID) {
             (parentParameterList.textRange.substring(parentFile.text).contains("\n") ||
                 //entire class definition exceed max line length
                 (lineLengthConfig.isEnabled() &&
-                    headerBodyLength(parentParameterList, parentFile) > lineLengthConfig.lineLength))
+                    calculateLineLength(parentParameterList, parentFile) > lineLengthConfig.lineLength))
     }
 
-    private fun headerBodyLength(node: ASTNode, parentFile: ASTNode?): Int {
-        val parentNode = PsiTreeUtil.findFirstParent(
-            node.psi,
-            { psiElement ->
-                psiElement is KtClass ||
-                    psiElement is KtNamedFunction ||
-                    psiElement is KtSecondaryConstructor
+    /**
+     * Calculates length of the line where [node] appears.
+     *
+     * Returns line length or zero, if line length cannot be calculated
+     */
+    private fun calculateLineLength(node: ASTNode, parentFile: ASTNode?): Int {
+        val res = newLineRegex.findAll(parentFile?.text ?: "").iterator()
+        var startIndex = 0
+        while (res.hasNext()) {
+            val match: MatchResult = res.next()
+            if (node.startOffset in startIndex..match.range.first) {
+                return match.range.first - startIndex
+            } else {
+                startIndex = match.range.first + match.value.length
             }
-        )
-        return if (parentNode != null && parentFile != null) {
-            val expressionOrBodyNode = PsiTreeUtil.findChildOfAnyType(parentNode, KtClassBody::class.java, KtExpressionImpl::class.java)
-            val bodyOffset = expressionOrBodyNode?.textOffset ?: parentNode.textOffset + parentNode.textLength
-            val headerWithoutBodyText = parentFile.text.substring(parentNode.textOffset, bodyOffset)
-            //TODO cover that with tests
-            //we also count first opening brace
-            val bracketSize = if (expressionOrBodyNode?.firstChild == KtTokens.LBRACE) 1 else 0
-            headerWithoutBodyText.length - countLineBreak(headerWithoutBodyText) + bracketSize
-        } else {
-            0
         }
-    }
-
-    private fun countLineBreak(text: String): Int {
-        return newLineRegex.findAll(text, 0).toList().size
+        return 0
     }
 
     companion object {
