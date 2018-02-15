@@ -159,7 +159,9 @@ object KtLint {
 
     private fun visitor(
         rootNode: ASTNode,
-        ruleSets: Iterable<RuleSet>
+        ruleSets: Iterable<RuleSet>,
+        concurrent: Boolean = true,
+        filter: (fqRuleId: String) -> Boolean = { true }
     ): ((node: ASTNode, rule: Rule, fqRuleId: String) -> Unit) -> Unit {
         val fqrsRestrictedToRoot = mutableListOf<Pair<String, Rule>>()
         val fqrs = mutableListOf<Pair<String, Rule>>()
@@ -167,7 +169,11 @@ object KtLint {
         for (ruleSet in ruleSets) {
             val prefix = if (ruleSet.id === "standard") "" else "${ruleSet.id}:"
             for (rule in ruleSet) {
-                val fqr = "$prefix${rule.id}" to rule
+                val fqRuleId = "$prefix${rule.id}"
+                if (!filter(fqRuleId)) {
+                    continue
+                }
+                val fqr = fqRuleId to rule
                 when {
                     rule is Rule.Modifier.RestrictToRootLast -> fqrsExpectedToBeExecutedLast.add(fqr)
                     rule is Rule.Modifier.RestrictToRoot -> fqrsRestrictedToRoot.add(fqr)
@@ -179,9 +185,17 @@ object KtLint {
             for ((fqRuleId, rule) in fqrsRestrictedToRoot) {
                 visit(rootNode, rule, fqRuleId)
             }
-            rootNode.visit { node ->
+            if (concurrent) {
+                rootNode.visit { node ->
+                    for ((fqRuleId, rule) in fqrs) {
+                        visit(node, rule, fqRuleId)
+                    }
+                }
+            } else {
                 for ((fqRuleId, rule) in fqrs) {
-                    visit(node, rule, fqRuleId)
+                    rootNode.visit { node ->
+                        visit(node, rule, fqRuleId)
+                    }
                 }
             }
             for ((fqRuleId, rule) in fqrsExpectedToBeExecutedLast) {
@@ -274,14 +288,13 @@ object KtLint {
         rootNode.putUserData(EDITOR_CONFIG_USER_DATA_KEY, EditorConfig.fromMap(userData - "android"))
         rootNode.putUserData(ANDROID_USER_DATA_KEY, userData["android"]?.toBoolean() ?: false)
         var isSuppressed = calculateSuppressedRegions(rootNode)
-        val visit = visitor(rootNode, ruleSets)
-        var autoCorrect = false
-        visit { node, rule, fqRuleId ->
+        val autoCorrect = HashSet<String>()
+        visitor(rootNode, ruleSets).invoke { node, rule, fqRuleId ->
             if (!isSuppressed(node.startOffset, fqRuleId)) {
                 try {
                     rule.visit(node, false) { offset, errorMessage, canBeAutoCorrected ->
                         if (canBeAutoCorrected) {
-                            autoCorrect = true
+                            autoCorrect.add(fqRuleId)
                         }
                         val (line, col) = positionByOffset(offset)
                         cb(LintError(line, col, fqRuleId, errorMessage), canBeAutoCorrected)
@@ -292,22 +305,23 @@ object KtLint {
                 }
             }
         }
-        if (autoCorrect) {
-            visit { node, rule, fqRuleId ->
-                if (!isSuppressed(node.startOffset, fqRuleId)) {
-                    try {
-                        rule.visit(node, true) { _, _, canBeAutoCorrected ->
-                            if (canBeAutoCorrected && isSuppressed !== nullSuppression) {
-                                isSuppressed = calculateSuppressedRegions(rootNode)
+        if (!autoCorrect.isEmpty()) {
+            visitor(rootNode, ruleSets, concurrent = false) { fqRuleId -> autoCorrect.contains(fqRuleId) }
+                .invoke { node, rule, fqRuleId ->
+                    if (!isSuppressed(node.startOffset, fqRuleId)) {
+                        try {
+                            rule.visit(node, true) { _, _, canBeAutoCorrected ->
+                                if (canBeAutoCorrected && isSuppressed !== nullSuppression) {
+                                    isSuppressed = calculateSuppressedRegions(rootNode)
+                                }
                             }
+                        } catch (e: Exception) {
+                            // line/col cannot be reliably mapped as exception might originate from a node not present
+                            // in the original AST
+                            throw RuleExecutionException(0, 0, fqRuleId, e)
                         }
-                    } catch (e: Exception) {
-                        // line/col cannot be reliably mapped as exception might originate from a node not present
-                        // in the original AST
-                        throw RuleExecutionException(0, 0, fqRuleId, e)
                     }
                 }
-            }
             return rootNode.text.replace("\n", determineLineSeparator(text))
         }
         return text
