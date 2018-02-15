@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.15.1] - 2018-02-14
+
+### Fixed
+- Race condition when multiple rules try to modify AST node that gets detached as a result of mutation ([#154](https://github.com/shyiko/ktlint/issues/154)).
+
 ## [0.15.0] - 2018-01-18
 
 ### Added
@@ -292,6 +297,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.15.1]: https://github.com/shyiko/ktlint/compare/0.15.0...0.15.1
 [0.15.0]: https://github.com/shyiko/ktlint/compare/0.14.0...0.15.0
 [0.14.0]: https://github.com/shyiko/ktlint/compare/0.13.0...0.14.0
 [0.13.0]: https://github.com/shyiko/ktlint/compare/0.12.1...0.13.0
