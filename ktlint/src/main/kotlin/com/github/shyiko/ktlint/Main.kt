@@ -34,6 +34,7 @@ import java.io.FileNotFoundException
 import java.io.PrintStream
 import java.io.PrintWriter
 import java.math.BigInteger
+import java.net.URL
 import java.net.URLDecoder
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -52,6 +53,7 @@ import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
+import java.util.jar.Manifest
 import kotlin.system.exitProcess
 
 object Main {
@@ -220,7 +222,7 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
     fun main(args: Array<String>) {
         parseCmdLine(args)
         if (version) {
-            println(javaClass.`package`.implementationVersion)
+            println(version())
             exitProcess(0)
         }
         if (installGitPreCommitHook) {
@@ -428,6 +430,21 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
                 process(file.path, file.readText())
             }
         }
+    }
+
+    private fun version() = javaClass.`package`.implementationVersion ?: guessVersion()
+
+    private fun guessVersion(): String? {
+        //HACK: Workaround for https://bugs.openjdk.java.net/browse/JDK-8190987
+        val classFile = javaClass.simpleName + ".class"
+        val classPath = javaClass.getResource(classFile).toString()
+        if (!classPath.startsWith("jar")) return null
+
+        val manifestPath = classPath.substring(0, classPath.lastIndexOf("!") + 1) + "/META-INF/MANIFEST.MF"
+        val manifest = Manifest(URL(manifestPath).openStream())
+        val attributes = manifest.mainAttributes
+
+        return attributes.getValue("Implementation-Version")
     }
 
     private fun fileSequence() =
