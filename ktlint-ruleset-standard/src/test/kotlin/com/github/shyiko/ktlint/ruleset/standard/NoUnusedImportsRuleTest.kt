@@ -48,6 +48,35 @@ class NoUnusedImportsRuleTest {
     }
 
     @Test
+    fun testLintDestructuringAssignment() {
+        assertThat(NoUnusedImportsRule().lint(
+            """
+            import p.component6
+
+            fun main() {
+                val (one, two, three, four, five, six) = someList
+            }
+            """.trimIndent()
+        )).isEmpty()
+        assertThat(NoUnusedImportsRule().lint(
+            """
+            import p.component6
+            import p.component2
+            import p.component100
+            import p.component
+            import p.component12woohoo
+
+            fun main() {
+                val (one, two, three, four, five, six) = someList
+            }
+            """.trimIndent()
+        )).isEqualTo(listOf(
+            LintError(4, 1, "no-unused-imports", "Unused import"),
+            LintError(5, 1, "no-unused-imports", "Unused import")
+        ))
+    }
+
+    @Test
     fun testLintKDocLinkImport() {
         assertThat(NoUnusedImportsRule().lint(
             """
