@@ -143,7 +143,9 @@ object KtLint {
         rootNode.putUserData(ANDROID_USER_DATA_KEY, userData["android"]?.toBoolean() ?: false)
         val isSuppressed = calculateSuppressedRegions(rootNode)
         visitor(rootNode, ruleSets).invoke { node, rule, fqRuleId ->
-            if (!isSuppressed(node.startOffset, fqRuleId)) {
+            // fixme: enforcing suppression based on node.startOffset is wrong
+            // (not just because not all nodes are leaves but because rules are free to emit (and fix!) errors are any position)
+            if (!isSuppressed(node.startOffset, fqRuleId) || node === rootNode) {
                 try {
                     rule.visit(node, false) { offset, errorMessage, _ ->
                         val (line, col) = positionByOffset(offset)
@@ -165,6 +167,7 @@ object KtLint {
     ): ((node: ASTNode, rule: Rule, fqRuleId: String) -> Unit) -> Unit {
         val fqrsRestrictedToRoot = mutableListOf<Pair<String, Rule>>()
         val fqrs = mutableListOf<Pair<String, Rule>>()
+        val fqrsExpectedToBeExecutedLastOnRoot = mutableListOf<Pair<String, Rule>>()
         val fqrsExpectedToBeExecutedLast = mutableListOf<Pair<String, Rule>>()
         for (ruleSet in ruleSets) {
             val prefix = if (ruleSet.id === "standard") "" else "${ruleSet.id}:"
@@ -175,7 +178,8 @@ object KtLint {
                 }
                 val fqr = fqRuleId to rule
                 when {
-                    rule is Rule.Modifier.RestrictToRootLast -> fqrsExpectedToBeExecutedLast.add(fqr)
+                    rule is Rule.Modifier.Last -> fqrsExpectedToBeExecutedLast.add(fqr)
+                    rule is Rule.Modifier.RestrictToRootLast -> fqrsExpectedToBeExecutedLastOnRoot.add(fqr)
                     rule is Rule.Modifier.RestrictToRoot -> fqrsRestrictedToRoot.add(fqr)
                     else -> fqrs.add(fqr)
                 }
@@ -198,8 +202,23 @@ object KtLint {
                     }
                 }
             }
-            for ((fqRuleId, rule) in fqrsExpectedToBeExecutedLast) {
+            for ((fqRuleId, rule) in fqrsExpectedToBeExecutedLastOnRoot) {
                 visit(rootNode, rule, fqRuleId)
+            }
+            if (!fqrsExpectedToBeExecutedLast.isEmpty()) {
+                if (concurrent) {
+                    rootNode.visit { node ->
+                        for ((fqRuleId, rule) in fqrsExpectedToBeExecutedLast) {
+                            visit(node, rule, fqRuleId)
+                        }
+                    }
+                } else {
+                    for ((fqRuleId, rule) in fqrsExpectedToBeExecutedLast) {
+                        rootNode.visit { node ->
+                            visit(node, rule, fqRuleId)
+                        }
+                    }
+                }
             }
         }
     }
@@ -290,7 +309,9 @@ object KtLint {
         var isSuppressed = calculateSuppressedRegions(rootNode)
         val autoCorrect = HashSet<String>()
         visitor(rootNode, ruleSets).invoke { node, rule, fqRuleId ->
-            if (!isSuppressed(node.startOffset, fqRuleId)) {
+            // fixme: enforcing suppression based on node.startOffset is wrong
+            // (not just because not all nodes are leaves but because rules are free to emit (and fix!) errors are any position)
+            if (!isSuppressed(node.startOffset, fqRuleId) || node === rootNode) {
                 try {
                     rule.visit(node, false) { offset, errorMessage, canBeAutoCorrected ->
                         if (canBeAutoCorrected) {
@@ -308,7 +329,9 @@ object KtLint {
         if (!autoCorrect.isEmpty()) {
             visitor(rootNode, ruleSets, concurrent = false) { fqRuleId -> autoCorrect.contains(fqRuleId) }
                 .invoke { node, rule, fqRuleId ->
-                    if (!isSuppressed(node.startOffset, fqRuleId)) {
+                    // fixme: enforcing suppression based on node.startOffset is wrong
+                    // (not just because not all nodes are leaves but because rules are free to emit (and fix!) errors are any position)
+                    if (!isSuppressed(node.startOffset, fqRuleId) || node === rootNode) {
                         try {
                             rule.visit(node, true) { _, _, canBeAutoCorrected ->
                                 if (canBeAutoCorrected && isSuppressed !== nullSuppression) {
