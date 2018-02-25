@@ -38,7 +38,6 @@ class IndentationRule : Rule("indent") {
     override fun visit(node: ASTNode, autoCorrect: Boolean,
             emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
         if (node.elementType == KtStubElementTypes.FILE) {
-            val android = node.getUserData(KtLint.ANDROID_USER_DATA_KEY)!!
             val editorConfig = node.getUserData(KtLint.EDITOR_CONFIG_USER_DATA_KEY)!!
             val indentSize = editorConfig.get("indent_size")
             val continuationIndentSize = editorConfig.get("continuation_indent_size")
