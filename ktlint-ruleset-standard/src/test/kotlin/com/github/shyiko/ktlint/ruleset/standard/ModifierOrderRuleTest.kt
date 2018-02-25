@@ -22,8 +22,8 @@ class ModifierOrderRuleTest {
 
             class B : A() {
                 override public val v = ""
-                override suspend fun f(v: Any): Any = ""
-                override tailrec fun findFixPoint(x: Double): Double
+                suspend override fun f(v: Any): Any = ""
+                tailrec override fun findFixPoint(x: Double): Double
                     = if (x == Math.cos(x)) x else findFixPoint(Math.cos(x))
 
                 companion object {
@@ -38,8 +38,8 @@ class ModifierOrderRuleTest {
             LintError(4, 5, "modifier-order", "Incorrect modifier order (should be \"public lateinit\")"),
             LintError(5, 5, "modifier-order", "Incorrect modifier order (should be \"abstract tailrec\")"),
             LintError(9, 5, "modifier-order", "Incorrect modifier order (should be \"public override\")"),
-            LintError(10, 5, "modifier-order", "Incorrect modifier order (should be \"suspend override\")"),
-            LintError(11, 5, "modifier-order", "Incorrect modifier order (should be \"tailrec override\")"),
+            LintError(10, 5, "modifier-order", "Incorrect modifier order (should be \"override suspend\")"),
+            LintError(11, 5, "modifier-order", "Incorrect modifier order (should be \"override tailrec\")"),
             LintError(15, 8, "modifier-order", "Incorrect modifier order (should be \"internal const\")")
         ))
     }
@@ -57,8 +57,8 @@ class ModifierOrderRuleTest {
 
             class B : A() {
                 override public val v = ""
-                override suspend fun f(v: Any): Any = ""
-                override tailrec fun findFixPoint(x: Double): Double
+                suspend override fun f(v: Any): Any = ""
+                tailrec override fun findFixPoint(x: Double): Double
                     = if (x == Math.cos(x)) x else findFixPoint(Math.cos(x))
 
                 companion object {
@@ -77,8 +77,8 @@ class ModifierOrderRuleTest {
 
             class B : A() {
                 public override val v = ""
-                suspend override fun f(v: Any): Any = ""
-                tailrec override fun findFixPoint(x: Double): Double
+                override suspend fun f(v: Any): Any = ""
+                override tailrec fun findFixPoint(x: Double): Double
                     = if (x == Math.cos(x)) x else findFixPoint(Math.cos(x))
 
                 companion object {
