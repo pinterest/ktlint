@@ -52,6 +52,7 @@ import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
+import java.util.jar.Manifest
 import kotlin.system.exitProcess
 
 object Main {
@@ -220,7 +221,7 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
     fun main(args: Array<String>) {
         parseCmdLine(args)
         if (version) {
-            println(javaClass.`package`.implementationVersion)
+            println(getImplementationVersion())
             exitProcess(0)
         }
         if (installGitPreCommitHook) {
@@ -333,6 +334,15 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
             exitProcess(1)
         }
     }
+
+    private fun getImplementationVersion() = javaClass.`package`.implementationVersion
+        // JDK 9 regression workaround (https://bugs.openjdk.java.net/browse/JDK-8190987, fixed in JDK 10)
+        // (note that version reported by the fallback might not be null if META-INF/MANIFEST.MF is
+        // loaded from another JAR on the classpath (e.g. if META-INF/MANIFEST.MF wasn't created as part of the build))
+        ?: javaClass.getResourceAsStream("/META-INF/MANIFEST.MF")
+            ?.let { stream ->
+                Manifest(stream).mainAttributes.getValue("Implementation-Version")
+            }
 
     private fun loadReporter(dependencyResolver: Lazy<MavenDependencyResolver>): Reporter {
         data class ReporterTemplate(val id: String, val config: Map<String, String>, var output: String?)
