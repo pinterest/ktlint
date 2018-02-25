@@ -7,6 +7,7 @@
     </option>
     <option name="NAME_COUNT_TO_USE_STAR_IMPORT" value="2147483647" />
     <option name="NAME_COUNT_TO_USE_STAR_IMPORT_FOR_MEMBERS" value="2147483647" />
+    <option name="CONTINUATION_INDENT_IN_PARAMETER_LISTS" value="false" />
   </JetCodeStyleSettings>
   <codeStyleSettings language="kotlin">
     <option name="KEEP_BLANK_LINES_IN_DECLARATIONS" value="1" />
