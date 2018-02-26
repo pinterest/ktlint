@@ -6,4 +6,8 @@ fun main() {
         ?: bar
     val s = foo()
         ?.bar
+    val s = "foo" +
+        "bar"
+    val s = true &&
+        false
 }

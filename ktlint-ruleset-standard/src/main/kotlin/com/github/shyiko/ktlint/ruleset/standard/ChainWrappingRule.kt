@@ -5,18 +5,22 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
+import org.jetbrains.kotlin.lexer.KtTokens.ANDAND
+import org.jetbrains.kotlin.lexer.KtTokens.DIV
 import org.jetbrains.kotlin.lexer.KtTokens.DOT
 import org.jetbrains.kotlin.lexer.KtTokens.ELVIS
+import org.jetbrains.kotlin.lexer.KtTokens.MINUS
+import org.jetbrains.kotlin.lexer.KtTokens.MUL
+import org.jetbrains.kotlin.lexer.KtTokens.OROR
+import org.jetbrains.kotlin.lexer.KtTokens.PERC
+import org.jetbrains.kotlin.lexer.KtTokens.PLUS
 import org.jetbrains.kotlin.lexer.KtTokens.SAFE_ACCESS
 import org.jetbrains.kotlin.psi.psiUtil.nextLeaf
 import org.jetbrains.kotlin.psi.psiUtil.prevLeaf
 
 class ChainWrappingRule : Rule("chain-wrapping") {
 
-    // *,+,-,/,% position differ in
-    // https://github.com/yole/kotlin-style-guide/issues/9
-    // https://android.github.io/kotlin-guides/style.html#where-to-break
-    private val sameLineTokens = TokenSet.EMPTY // TokenSet.create(MUL, PLUS, MINUS, DIV, PERC)
+    private val sameLineTokens = TokenSet.create(MUL, PLUS, MINUS, DIV, PERC, ANDAND, OROR)
     private val nextLineTokens = TokenSet.create(DOT, SAFE_ACCESS, ELVIS)
     private val noSpaceAroundTokens = TokenSet.create(DOT, SAFE_ACCESS)
 
