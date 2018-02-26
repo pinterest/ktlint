@@ -10,7 +10,6 @@ class StandardRuleSetProvider : RuleSetProvider {
         FinalNewlineRule(),
         // disabled until it's clear how to reconcile difference in Intellij & Android Studio import layout
         // ImportOrderingRule(),
-        NoLineBreakAfterElseRule(),
         IndentationRule(),
         MaxLineLengthRule(),
         ModifierOrderRule(),
@@ -19,6 +18,7 @@ class StandardRuleSetProvider : RuleSetProvider {
         NoEmptyClassBodyRule(),
         // disabled until it's clear what to do in case of `import _.it`
         // NoItParamInMultilineLambdaRule(),
+        NoLineBreakAfterElseRule(),
         NoLineBreakBeforeAssignmentRule(),
         NoMultipleSpacesRule(),
         NoSemicolonsRule(),
@@ -26,6 +26,7 @@ class StandardRuleSetProvider : RuleSetProvider {
         NoUnitReturnRule(),
         NoUnusedImportsRule(),
         NoWildcardImportsRule(),
+        ParameterListWrappingRule(),
         SpacingAroundColonRule(),
         SpacingAroundCommaRule(),
         SpacingAroundCurlyRule(),
