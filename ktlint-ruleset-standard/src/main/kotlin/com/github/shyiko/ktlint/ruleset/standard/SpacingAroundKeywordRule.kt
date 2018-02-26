@@ -29,8 +29,11 @@ class SpacingAroundKeywordRule : Rule("keyword-spacing") {
 
     private val keywordsWithoutSpaces = TokenSet.create(KtTokens.GET_KEYWORD, KtTokens.SET_KEYWORD)
 
-    override fun visit(node: ASTNode, autoCorrect: Boolean,
-                       emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
+    override fun visit(
+        node: ASTNode,
+        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+    ) {
 
         if (node is LeafPsiElement) {
             if (tokenSet.contains(node.elementType) && node.nextLeaf() !is PsiWhiteSpace) {

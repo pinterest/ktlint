@@ -13,10 +13,10 @@ class NoUnitReturnRule : Rule("no-unit-return") {
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        if (node.elementType == KtStubElementTypes.TYPE_REFERENCE
-            && node.treeParent.elementType == KtStubElementTypes.FUNCTION
-            && node.text.contentEquals("Unit")
-            && PsiTreeUtil.nextVisibleLeaf(node.psi)?.node?.elementType == KtTokens.LBRACE) {
+        if (node.elementType == KtStubElementTypes.TYPE_REFERENCE &&
+            node.treeParent.elementType == KtStubElementTypes.FUNCTION &&
+            node.text.contentEquals("Unit") &&
+            PsiTreeUtil.nextVisibleLeaf(node.psi)?.node?.elementType == KtTokens.LBRACE) {
             emit(node.startOffset, "Unnecessary \"Unit\" return type", true)
             if (autoCorrect) {
                 var prevNode = node

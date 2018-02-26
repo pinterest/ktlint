@@ -590,13 +590,31 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
             map
         }
 
-    private fun lint(fileName: String, text: String, ruleSets: Iterable<RuleSet>, userData: Map<String, String>,
-            cb: (e: LintError) -> Unit) =
-        if (fileName.endsWith(".kt", ignoreCase = true)) KtLint.lint(text, ruleSets, userData, cb) else KtLint.lintScript(text, ruleSets, userData, cb)
+    private fun lint(
+        fileName: String,
+        text: String,
+        ruleSets: Iterable<RuleSet>,
+        userData: Map<String, String>,
+        cb: (e: LintError) -> Unit
+    ) =
+        if (fileName.endsWith(".kt", ignoreCase = true)) {
+            KtLint.lint(text, ruleSets, userData, cb)
+        } else {
+            KtLint.lintScript(text, ruleSets, userData, cb)
+        }
 
-    private fun format(fileName: String, text: String, ruleSets: Iterable<RuleSet>, userData: Map<String, String>,
-            cb: (e: LintError, corrected: Boolean) -> Unit): String =
-        if (fileName.endsWith(".kt", ignoreCase = true)) KtLint.format(text, ruleSets, userData, cb) else KtLint.formatScript(text, ruleSets, userData, cb)
+    private fun format(
+        fileName: String,
+        text: String,
+        ruleSets: Iterable<RuleSet>,
+        userData: Map<String, String>,
+        cb: (e: LintError, corrected: Boolean) -> Unit
+    ): String =
+        if (fileName.endsWith(".kt", ignoreCase = true)) {
+            KtLint.format(text, ruleSets, userData, cb)
+        } else {
+            KtLint.formatScript(text, ruleSets, userData, cb)
+        }
 
     private fun java.net.URLClassLoader.addURLs(url: Iterable<java.net.URL>) {
         val method = java.net.URLClassLoader::class.java.getDeclaredMethod("addURL", java.net.URL::class.java)
@@ -604,8 +622,10 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
         url.forEach { method.invoke(this, it) }
     }
 
-    private fun <T> Sequence<Callable<T>>.parallel(cb: (T) -> Unit,
-        numberOfThreads: Int = Runtime.getRuntime().availableProcessors()) {
+    private fun <T> Sequence<Callable<T>>.parallel(
+        cb: (T) -> Unit,
+        numberOfThreads: Int = Runtime.getRuntime().availableProcessors()
+    ) {
         val q = ArrayBlockingQueue<Future<T>>(numberOfThreads)
         val pill = object : Future<T> {
 

@@ -269,8 +269,12 @@ object KtLint {
     fun format(text: String, ruleSets: Iterable<RuleSet>, cb: (e: LintError, corrected: Boolean) -> Unit): String =
         format(text, ruleSets, emptyMap<String, String>(), cb, script = false)
 
-    fun format(text: String, ruleSets: Iterable<RuleSet>, userData: Map<String, String>,
-        cb: (e: LintError, corrected: Boolean) -> Unit): String = format(text, ruleSets, userData, cb, script = false)
+    fun format(
+        text: String,
+        ruleSets: Iterable<RuleSet>,
+        userData: Map<String, String>,
+        cb: (e: LintError, corrected: Boolean) -> Unit
+    ): String = format(text, ruleSets, userData, cb, script = false)
 
     /**
      * Fix style violations.
@@ -285,8 +289,12 @@ object KtLint {
     fun formatScript(text: String, ruleSets: Iterable<RuleSet>, cb: (e: LintError, corrected: Boolean) -> Unit): String =
         format(text, ruleSets, emptyMap(), cb, script = true)
 
-    fun formatScript(text: String, ruleSets: Iterable<RuleSet>, userData: Map<String, String>,
-        cb: (e: LintError, corrected: Boolean) -> Unit): String = format(text, ruleSets, userData, cb, script = true)
+    fun formatScript(
+        text: String,
+        ruleSets: Iterable<RuleSet>,
+        userData: Map<String, String>,
+        cb: (e: LintError, corrected: Boolean) -> Unit
+    ): String = format(text, ruleSets, userData, cb, script = true)
 
     private fun format(
         text: String,

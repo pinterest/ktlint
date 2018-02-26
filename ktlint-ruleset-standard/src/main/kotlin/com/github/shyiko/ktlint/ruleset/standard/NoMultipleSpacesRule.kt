@@ -47,8 +47,11 @@ class NoMultipleSpacesRule : Rule("no-multi-spaces") {
             }
         }
 
-    override fun visit(node: ASTNode, autoCorrect: Boolean,
-            emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
+    override fun visit(
+        node: ASTNode,
+        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+    ) {
         if (node.elementType == KtStubElementTypes.FILE) {
             fileNode = node
         } else if (node is PsiWhiteSpace && !node.textContains('\n') && node.getTextLength() > 1) {
