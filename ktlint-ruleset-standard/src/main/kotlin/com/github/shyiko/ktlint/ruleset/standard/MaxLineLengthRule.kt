@@ -1,8 +1,8 @@
 package com.github.shyiko.ktlint.ruleset.standard
 
-import com.github.shyiko.ktlint.core.KtLint
 import com.github.shyiko.ktlint.core.Rule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
+import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.kdoc.psi.api.KDoc
@@ -14,7 +14,7 @@ import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
 
 class MaxLineLengthRule : Rule("max-line-length"), Rule.Modifier.Last {
 
-    private var maxLineLength: Int = 0
+    private var maxLineLength: Int = -1
     private var rangeTree = RangeTree()
 
     override fun visit(
@@ -23,10 +23,8 @@ class MaxLineLengthRule : Rule("max-line-length"), Rule.Modifier.Last {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         if (node.elementType == KtStubElementTypes.FILE) {
-            val editorConfig = node.getUserData(KtLint.EDITOR_CONFIG_USER_DATA_KEY)!!
-            val android = node.getUserData(KtLint.ANDROID_USER_DATA_KEY)!!
-            maxLineLength = editorConfig.get("max_line_length")?.toIntOrNull()
-                ?: if (android) 100 else 0
+            val ec = EditorConfig.from(node as FileASTNode)
+            maxLineLength = ec.maxLineLength
             if (maxLineLength <= 0) {
                 return
             }
