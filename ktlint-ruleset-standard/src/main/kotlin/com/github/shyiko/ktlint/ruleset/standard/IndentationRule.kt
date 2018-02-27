@@ -46,16 +46,17 @@ class IndentationRule : Rule("indent") {
                 val previousIndentSize = node.previousIndentSize()
                 val expectedIndentSize = if (continuationIndentSize == indentSize || shouldUseContinuationIndent(node))
                     continuationIndentSize else indentSize
-                lines.tail().forEach { line ->
-                    if (line.isNotEmpty() && (line.length - previousIndentSize) % expectedIndentSize != 0) {
+                lines.tail().forEach { indent ->
+                    if (indent.isNotEmpty() && (indent.length - previousIndentSize) % expectedIndentSize != 0) {
                         if (!node.isPartOf(KtParameterList::class)) { // parameter list wrapping enforced by ParameterListWrappingRule
                             emit(offset,
-                                "Unexpected indentation (${line.length - previousIndentSize}) " +
-                                    "(it should be $expectedIndentSize)",
+                                "Unexpected indentation (${
+                                    indent.length.let { if (it < previousIndentSize) it else it - previousIndentSize}
+                                }) (it should be ${previousIndentSize + expectedIndentSize})",
                                 false)
                         }
                     }
-                    offset += line.length + 1
+                    offset += indent.length + 1
                 }
             }
         }
@@ -80,21 +81,20 @@ class IndentationRule : Rule("indent") {
         )
     }
 
+    // todo: calculating indent based on the previous line value is wrong (see IndentationRule.testLint)
     private fun ASTNode.previousIndentSize(): Int {
-        val parentNode = this.treeParent?.psi
-        var prevSibling = parentNode
-        while (prevSibling != null) {
-            val nextNode = prevSibling.nextSibling?.node?.elementType
-            if (prevSibling is PsiWhiteSpace &&
+        var node = this.treeParent?.psi
+        while (node != null) {
+            val nextNode = node.nextSibling?.node?.elementType
+            if (node is PsiWhiteSpace &&
                 nextNode != KtStubElementTypes.TYPE_REFERENCE &&
                 nextNode != KtStubElementTypes.SUPER_TYPE_LIST &&
-                nextNode != KtNodeTypes.CONSTRUCTOR_DELEGATION_CALL) {
-                val prevLines = prevSibling.text.split('\n')
-                if (prevLines.size > 1) {
-                    return prevLines.last().length
-                }
+                nextNode != KtNodeTypes.CONSTRUCTOR_DELEGATION_CALL &&
+                node.textContains('\n') &&
+                node.nextLeaf()?.isPartOf(PsiComment::class) != true) {
+                return node.text.length - node.text.lastIndexOf('\n') - 1
             }
-            prevSibling = prevSibling.prevSibling ?: prevSibling.parent
+            node = node.prevSibling ?: node.parent
         }
         return 0
     }

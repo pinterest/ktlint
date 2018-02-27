@@ -34,7 +34,8 @@ class IndentationRuleTest {
             """.trimIndent()
         )).isEqualTo(listOf(
             LintError(12, 1, "indent", "Unexpected indentation (3) (it should be 4)"),
-            LintError(13, 1, "indent", "Unexpected indentation (5) (it should be 4)")
+            // fixme: expected indent should not depend on the "previous" line value
+            LintError(13, 1, "indent", "Unexpected indentation (5) (it should be 7)")
         ))
     }
 
@@ -355,8 +356,17 @@ class IndentationRuleTest {
                   // comment
             // comment
                   call(argA)
+            fun main() {
+                addOnLayoutChangeListener(object : View.OnLayoutChangeListener {
+             // comment
+                    override fun onLayoutChange(
+                    )
+                })
+            }
             """.trimIndent(),
             mapOf("indent_size" to "4", "continuation_indent_size" to "6")
-        )).isEmpty()
+        )).isEqualTo(listOf(
+            LintError(7, 1, "indent", "Unexpected indentation (1) (it should be 8)")
+        ))
     }
 }
