@@ -3,9 +3,12 @@ package com.github.shyiko.ktlint.ruleset.standard
 import com.github.shyiko.ktlint.core.Rule
 import org.jetbrains.kotlin.KtNodeTypes
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
+import org.jetbrains.kotlin.com.intellij.psi.PsiComment
+import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
+import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.lexer.KtTokens.ANDAND
 import org.jetbrains.kotlin.lexer.KtTokens.DIV
 import org.jetbrains.kotlin.lexer.KtTokens.DOT
@@ -59,10 +62,12 @@ class ChainWrappingRule : Rule("chain-wrapping") {
             if (
                 prevLeaf is PsiWhiteSpaceImpl &&
                 prevLeaf.textContains('\n') &&
-                !sameLineTokens.contains(prevLeaf.prevLeaf()?.node?.elementType) && // <op>\n +-exp
-                node.treeParent?.elementType != KtNodeTypes.VALUE_ARGUMENT && // *array
-                // LeafPsiElement->KtOperationReferenceExpression->KtPrefixExpression->KtValueArgument
-                node.treeParent?.treeParent?.treeParent?.elementType != KtNodeTypes.VALUE_ARGUMENT // +-exp as argument
+                prevLeaf.prevLeafIgnoringWhitespaceAndComments()?.let { leaf ->
+                    val type = leaf.node.elementType
+                    type == KtTokens.LPAR || type == KtTokens.COMMA || sameLineTokens.contains(type)
+                } == false &&
+                // LeafPsiElement->KtOperationReferenceExpression->KtPrefixExpression->KtWhenConditionWithExpression
+                node.treeParent?.treeParent?.treeParent?.elementType != KtNodeTypes.WHEN_CONDITION_EXPRESSION
             ) {
                 emit(node.startOffset, "Line must not begin with \"${node.text}\"", true)
                 if (autoCorrect) {
@@ -81,4 +86,7 @@ class ChainWrappingRule : Rule("chain-wrapping") {
             }
         }
     }
+
+    private fun PsiElement.prevLeafIgnoringWhitespaceAndComments() =
+        this.prevLeaf { it.node.elementType != KtTokens.WHITE_SPACE && !it.isPartOf(PsiComment::class) }
 }
