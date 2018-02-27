@@ -12,7 +12,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Unused `componentN` import (where N > 5) false positive ([#142](https://github.com/shyiko/ktlint/issues/142)).
 - max-line-length error suppression ([#158](https://github.com/shyiko/ktlint/issues/158)). 
 
-## Changed
+### Changed
 - `modifier-order` rule to match official [Kotlin Coding Conventions](https://kotlinlang.org/docs/reference/coding-conventions.html#modifiers) ([#146](https://github.com/shyiko/ktlint/issues/146))  
 (`override` modifier should be placed before `suspend`/`tailrec`, not after) 
 
