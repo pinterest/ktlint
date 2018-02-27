@@ -36,6 +36,11 @@
             <name>Sonatype Nexus Staging</name>
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
         </repository>
+        <snapshotRepository>
+            <id>maven-central</id>
+            <name>Sonatype Nexus Snapshots</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
     </distributionManagement>
 
     <properties>
@@ -44,12 +49,14 @@
         <kotlin.compiler.languageVersion>1.1</kotlin.compiler.languageVersion>
         <kotlin.compiler.apiVersion>1.1</kotlin.compiler.apiVersion>
         <aether.version>1.1.0</aether.version>
-        <aether.maven.provider.version>3.2.5</aether.maven.provider.version>
+        <aether.maven.provider.version>3.3.9</aether.maven.provider.version>
         <args4j.version>2.33</args4j.version>
         <kolor.version>0.0.2</kolor.version>
         <testng.version>6.8.21</testng.version>
-        <assertj.version>1.7.1</assertj.version>
+        <assertj.version>3.9.0</assertj.version>
         <jimfs.version>1.1</jimfs.version>
+        <gpg.skip>false</gpg.skip>
+        <github.description>${project.version}</github.description>
     </properties>
 
     <modules>
@@ -66,14 +73,14 @@
         <repository>
             <id>bintray</id>
             <name>JCenter</name>
-            <url>http://jcenter.bintray.com</url>
+            <url>https://jcenter.bintray.com</url>
         </repository>
     </repositories>
     <pluginRepositories>
         <pluginRepository>
             <id>bintray</id>
             <name>JCenter</name>
-            <url>http://jcenter.bintray.com</url>
+            <url>https://jcenter.bintray.com</url>
         </pluginRepository>
     </pluginRepositories>
 
@@ -82,7 +89,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.5.1</version>
+                <version>3.7.0</version>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
@@ -131,7 +138,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>1.4.1</version>
+                <version>3.0.0-M1</version>
                 <executions>
                     <execution>
                         <id>enforce</id>
@@ -181,7 +188,7 @@
             <extension>
                 <groupId>com.github.shyiko.servers-maven-extension</groupId>
                 <artifactId>servers-maven-extension</artifactId>
-                <version>1.3.0</version>
+                <version>1.3.1</version>
             </extension>
             <extension>
                 <groupId>com.github.shyiko.usage-maven-plugin</groupId>
@@ -220,7 +227,7 @@
                     <plugin>
                         <groupId>org.sonatype.plugins</groupId>
                         <artifactId>nexus-staging-maven-plugin</artifactId>
-                        <version>1.6.7</version>
+                        <version>1.6.8</version>
                         <extensions>true</extensions>
                         <configuration>
                             <nexusUrl>https://oss.sonatype.org/</nexusUrl>
@@ -261,7 +268,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-antrun-plugin</artifactId>
-                        <version>1.7</version>
+                        <version>1.8</version>
                         <configuration>
                             <target name="update-github-release-notes">
                                 <exec executable="chandler" dir="${basedir}" failonerror="true">
@@ -289,7 +296,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-antrun-plugin</artifactId>
-                        <version>1.7</version>
+                        <version>1.8</version>
                         <configuration>
                             <target name="deploy-to-homebrew">
                                 <exec executable="${project.basedir}/.deploy-to-homebrew" failonerror="true">
@@ -316,7 +323,7 @@
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>exec-maven-plugin</artifactId>
-                        <version>1.5.0</version>
+                        <version>1.6.0</version>
                         <executions>
                             <execution>
                                 <id>announce</id>

@@ -24,7 +24,7 @@
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-stdlib</artifactId>
             <version>${kotlin.version}</version>
-            <!-- not longer included in kotlin-compiler-embeddable (>=1.1.60) -->
+            <!-- no longer included in kotlin-compiler-embeddable (>=1.1.60) -->
             <!--<scope>provided</scope>-->
         </dependency>
         <dependency>
@@ -186,7 +186,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.7</version>
+                <version>1.8</version>
                 <executions>
                     <execution>
                         <id>ktlint</id>
@@ -288,7 +288,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-shade-plugin</artifactId>
-                        <version>2.4.3</version>
+                        <version>3.1.0</version>
                         <executions>
                             <execution>
                                 <phase>package</phase>
@@ -364,12 +364,13 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-antrun-plugin</artifactId>
-                        <version>1.7</version>
+                        <version>1.8</version>
                         <executions>
                             <execution>
                                 <id>ktlint</id>
                                 <phase>verify</phase>
                                 <configuration>
+                                    <skip>${gpg.skip}</skip>
                                     <target name="gpg-sign">
                                         <exec executable="gpg" dir="${basedir}" failonerror="true">
                                             <arg value="-ab"/>
@@ -386,12 +387,13 @@
                     <plugin>
                         <groupId>de.jutzig</groupId>
                         <artifactId>github-release-plugin</artifactId>
-                        <version>1.1.1</version>
+                        <version>1.2.0</version>
                         <configuration>
-                            <description>${project.version}</description>
+                            <description>${github.description}</description>
                             <releaseName>${project.version}</releaseName>
                             <tag>${project.version}</tag>
                             <artifact>${project.build.directory}/${project.artifactId}</artifact>
+                            <overwriteArtifact>true</overwriteArtifact>
                             <fileSets>
                                 <fileSet>
                                     <directory>${project.build.directory}</directory>
