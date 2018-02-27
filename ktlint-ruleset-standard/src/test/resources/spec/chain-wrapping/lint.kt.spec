@@ -10,6 +10,8 @@ fun main() {
         + "bar"
     val s = true
         && false
+    val d = 1 +
+        -1
 }
 
 // expect
