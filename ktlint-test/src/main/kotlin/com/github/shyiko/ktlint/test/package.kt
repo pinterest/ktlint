@@ -28,7 +28,7 @@ class DumpAST @JvmOverloads constructor(
         emit: (offset: Int, errorMessage: String, corrected: Boolean) -> Unit
     ) {
         if (node.elementType == KtStubElementTypes.FILE) {
-            lineNumberColumnLength = (location(PsiTreeUtil.getDeepestLast(node.psi).node)?.line ?: 0)
+            lineNumberColumnLength = (location(PsiTreeUtil.getDeepestLast(node.psi).node)?.line ?: 1)
                 .let { var v = it; var c = 0; while (v > 0) { c++; v /= 10 }; c }
             lastNode = lastChildNodeOf(node)
         }
