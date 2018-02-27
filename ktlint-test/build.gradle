@@ -1,0 +1,9 @@
+plugins {
+  id "org.jetbrains.kotlin.jvm"
+}
+
+dependencies {
+  compile project(':ktlint-core')
+  compile libraries.kotlin_stdlib
+  compile libraries.kolor
+}

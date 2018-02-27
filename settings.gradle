@@ -1,0 +1,7 @@
+include ":ktlint-core"
+include ':ktlint-test'
+include ':ktlint-ruleset-standard'
+include ':ktlint-reporter-plain'
+include ':ktlint-reporter-json'
+include ':ktlint-reporter-checkstyle'
+include ":ktlint"
