@@ -2,7 +2,12 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.16.0] - 2018-02-26
+## [0.16.1] - 2018-02-27
+
+### Fixed
+- Handling of negative number condition in `when` block ([#160](https://github.com/shyiko/ktlint/issues/160)). 
+
+## [0.16.0] - 2018-02-27
 
 ### Added
 - `parameter-list-wrapping` rule ([#130](https://github.com/shyiko/ktlint/issues/130)).
@@ -311,6 +316,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.16.1]: https://github.com/shyiko/ktlint/compare/0.16.0...0.16.1
 [0.16.0]: https://github.com/shyiko/ktlint/compare/0.15.1...0.16.0
 [0.15.1]: https://github.com/shyiko/ktlint/compare/0.15.0...0.15.1
 [0.15.0]: https://github.com/shyiko/ktlint/compare/0.14.0...0.15.0
