@@ -32,8 +32,9 @@ class StringTemplateRule : Rule("string-template") {
             if (dotQualifiedExpression?.node?.elementType == KtStubElementTypes.DOT_QUALIFIED_EXPRESSION) {
                 val callExpression = dotQualifiedExpression!!.lastChild
                 val dot = callExpression.prevSibling
-                if (dot.node.elementType == KtTokens.DOT && callExpression.text == "toString()" &&
-                    dotQualifiedExpression.firstChild.node.elementType != KtNodeTypes.SUPER_EXPRESSION) {
+                if (dot?.node?.elementType == KtTokens.DOT &&
+                    callExpression.text == "toString()" &&
+                    dotQualifiedExpression.firstChild?.node?.elementType != KtNodeTypes.SUPER_EXPRESSION) {
                     emit(dot.node.startOffset, "Redundant \"toString()\" call in string template", true)
                     if (autoCorrect) {
                         node.removeChild(dot.node)
@@ -41,17 +42,17 @@ class StringTemplateRule : Rule("string-template") {
                     }
                 }
             }
-        }
-        if (elementType == KtNodeTypes.LONG_STRING_TEMPLATE_ENTRY &&
-            node.text.let { it.substring(2, it.length - 1) }.all { it.isPartOfIdentifier() } &&
-            (node.treeNext.elementType == KtTokens.CLOSING_QUOTE ||
-            (node.psi.nextSibling.node.elementType == KtNodeTypes.LITERAL_STRING_TEMPLATE_ENTRY &&
-            !node.psi.nextSibling.text[0].isPartOfIdentifier()))) {
-            emit(node.treePrev.startOffset + 2, "Redundant curly braces", true)
-            if (autoCorrect) {
-                // fixme: a proper way would be to downcast to SHORT_STRING_TEMPLATE_ENTRY
-                (node.psi.firstChild as LeafPsiElement).rawReplaceWithText("$") // entry start
-                (node.psi.lastChild as LeafPsiElement).rawReplaceWithText("") // entry end
+            if (node.text.startsWith("${'$'}{") &&
+                node.text.let { it.substring(2, it.length - 1) }.all { it.isPartOfIdentifier() } &&
+                (node.treeNext.elementType == KtTokens.CLOSING_QUOTE ||
+                    (node.psi.nextSibling.node.elementType == KtNodeTypes.LITERAL_STRING_TEMPLATE_ENTRY &&
+                        !node.psi.nextSibling.text[0].isPartOfIdentifier()))) {
+                emit(node.treePrev.startOffset + 2, "Redundant curly braces", true)
+                if (autoCorrect) {
+                    // fixme: a proper way would be to downcast to SHORT_STRING_TEMPLATE_ENTRY
+                    (node.psi.firstChild as LeafPsiElement).rawReplaceWithText("$") // entry start
+                    (node.psi.lastChild as LeafPsiElement).rawReplaceWithText("") // entry end
+                }
             }
         }
     }

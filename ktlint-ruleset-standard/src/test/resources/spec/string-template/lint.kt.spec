@@ -22,8 +22,8 @@ class B(val k: String) {
 }
 
 // expect
-// 2:29:Redundant 'toString()' call in string template
-// 3:28:Redundant 'toString()' call in string template
+// 2:29:Redundant "toString()" call in string template
+// 3:28:Redundant "toString()" call in string template
 // 6:15:Redundant curly braces
 // 7:15:Redundant curly braces
-// 21:79:Redundant 'toString()' call in string template
+// 21:79:Redundant "toString()" call in string template
