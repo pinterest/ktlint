@@ -40,8 +40,10 @@ It's also [easy to create your own](#creating-a-reporter).
 - No `Unit` returns (`fun fn {}` instead of `fun fn: Unit {}`);
 - No empty (`{}`) class bodies;
 - No spaces around range (`..`) operator;
+- No newline before (binary) `+` & `-`, `*`, `/`, `%`, `&&`, `||`; 
 - When wrapping chained calls `.`, `?.` and `?:` should be placed on the next line;
-- When a line is broken at an assignment (`=`) operator the break comes after the symbol; 
+- When a line is broken at an assignment (`=`) operator the break comes after the symbol;
+- When class/function signature doesn't fit on a single line, each parameter must be on a separate line;
 - Consistent string templates (`$v` instead of `${v}`, `${p.v}` instead of `${p.v.toString()}`);
 - Consistent order of modifiers;
 - Consistent spacing after keywords, commas; around colons, curly braces, infix operators, etc;
@@ -57,7 +59,7 @@ ktlint recognizes the following [.editorconfig](http://editorconfig.org/) proper
 # possible values: number (e.g. 2), "unset" (makes ktlint ignore indentation completely)  
 indent_size=4
 # possible values: number (e.g. 2), "unset"
-continuation_indent_size=unset
+continuation_indent_size=4
 # true (recommended) / false
 insert_final_newline=unset
 # possible values: number (e.g. 120) (package name, imports & comments are ignored), "off"
