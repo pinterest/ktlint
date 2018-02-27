@@ -2,6 +2,20 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.16.0] - 2018-02-26
+
+### Added
+- `parameter-list-wrapping` rule ([#130](https://github.com/shyiko/ktlint/issues/130)).
+- `+`, `-`, `*`, `/`, `%`, `&&`, `||` wrapping check (now part of `chain-wrapping` rule).
+
+### Fixed
+- Unused `componentN` import (where N > 5) false positive ([#142](https://github.com/shyiko/ktlint/issues/142)).
+- max-line-length error suppression ([#158](https://github.com/shyiko/ktlint/issues/158)). 
+
+## Changed
+- `modifier-order` rule to match official [Kotlin Coding Conventions](https://kotlinlang.org/docs/reference/coding-conventions.html#modifiers) ([#146](https://github.com/shyiko/ktlint/issues/146))  
+(`override` modifier should be placed before `suspend`/`tailrec`, not after) 
+
 ## [0.15.1] - 2018-02-14
 
 ### Fixed
@@ -297,6 +311,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.16.0]: https://github.com/shyiko/ktlint/compare/0.15.1...0.16.0
 [0.15.1]: https://github.com/shyiko/ktlint/compare/0.15.0...0.15.1
 [0.15.0]: https://github.com/shyiko/ktlint/compare/0.14.0...0.15.0
 [0.14.0]: https://github.com/shyiko/ktlint/compare/0.13.0...0.14.0
