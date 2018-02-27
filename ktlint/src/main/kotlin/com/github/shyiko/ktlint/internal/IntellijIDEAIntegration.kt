@@ -20,6 +20,7 @@ import javax.xml.xpath.XPathFactory
 
 object IntellijIDEAIntegration {
 
+    @Suppress("UNUSED_PARAMETER")
     @Throws(IOException::class)
     fun apply(workDir: Path, dryRun: Boolean, android: Boolean = false): Array<Path> {
         if (!Files.isDirectory(workDir.resolve(".idea"))) {
