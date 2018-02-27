@@ -1,6 +1,7 @@
 package com.github.shyiko.ktlint.ruleset.standard
 
 import com.github.shyiko.ktlint.core.Rule
+import org.jetbrains.kotlin.KtNodeTypes
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
@@ -58,7 +59,10 @@ class ChainWrappingRule : Rule("chain-wrapping") {
             if (
                 prevLeaf is PsiWhiteSpaceImpl &&
                 prevLeaf.textContains('\n') &&
-                !sameLineTokens.contains(prevLeaf.prevLeaf()?.node?.elementType)
+                !sameLineTokens.contains(prevLeaf.prevLeaf()?.node?.elementType) && // <op>\n +-exp
+                node.treeParent?.elementType != KtNodeTypes.VALUE_ARGUMENT && // *array
+                // LeafPsiElement->KtOperationReferenceExpression->KtPrefixExpression->KtValueArgument
+                node.treeParent?.treeParent?.treeParent?.elementType != KtNodeTypes.VALUE_ARGUMENT // +-exp as argument
             ) {
                 emit(node.startOffset, "Line must not begin with \"${node.text}\"", true)
                 if (autoCorrect) {

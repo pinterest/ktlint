@@ -12,6 +12,11 @@ fun main() {
         && false
     val d = 1 +
         -1
+    fn(
+        *typedArray<EventListener>(),
+        -0,
+        *typedArray<EventListener>()
+    )
 }
 
 // expect
