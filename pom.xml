@@ -49,6 +49,7 @@
         <kolor.version>0.0.2</kolor.version>
         <testng.version>6.8.21</testng.version>
         <assertj.version>1.7.1</assertj.version>
+        <jimfs.version>1.1</jimfs.version>
     </properties>
 
     <modules>
