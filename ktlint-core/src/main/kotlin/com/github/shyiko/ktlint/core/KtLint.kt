@@ -148,7 +148,7 @@ object KtLint {
         val isSuppressed = calculateSuppressedRegions(rootNode)
         visitor(rootNode, ruleSets).invoke { node, rule, fqRuleId ->
             // fixme: enforcing suppression based on node.startOffset is wrong
-            // (not just because not all nodes are leaves but because rules are free to emit (and fix!) errors are any position)
+            // (not just because not all nodes are leaves but because rules are free to emit (and fix!) errors at any position)
             if (!isSuppressed(node.startOffset, fqRuleId) || node === rootNode) {
                 try {
                     rule.visit(node, false) { offset, errorMessage, _ ->
@@ -319,47 +319,48 @@ object KtLint {
         rootNode.putUserData(EDITOR_CONFIG_USER_DATA_KEY, EditorConfig.fromMap(userData - "android"))
         rootNode.putUserData(ANDROID_USER_DATA_KEY, userData["android"]?.toBoolean() ?: false)
         var isSuppressed = calculateSuppressedRegions(rootNode)
-        val autoCorrect = HashSet<String>()
-        visitor(rootNode, ruleSets).invoke { node, rule, fqRuleId ->
-            // fixme: enforcing suppression based on node.startOffset is wrong
-            // (not just because not all nodes are leaves but because rules are free to emit (and fix!) errors are any position)
-            if (!isSuppressed(node.startOffset, fqRuleId) || node === rootNode) {
-                try {
-                    rule.visit(node, false) { offset, errorMessage, canBeAutoCorrected ->
-                        if (canBeAutoCorrected) {
-                            autoCorrect.add(fqRuleId)
-                        }
-                        val (line, col) = positionByOffset(offset)
-                        cb(LintError(line, col, fqRuleId, errorMessage), canBeAutoCorrected)
-                    }
-                } catch (e: Exception) {
-                    val (line, col) = positionByOffset(node.startOffset)
-                    throw RuleExecutionException(line, col, fqRuleId, e)
-                }
-            }
-        }
-        if (!autoCorrect.isEmpty()) {
-            visitor(rootNode, ruleSets, concurrent = false) { fqRuleId -> autoCorrect.contains(fqRuleId) }
-                .invoke { node, rule, fqRuleId ->
-                    // fixme: enforcing suppression based on node.startOffset is wrong
-                    // (not just because not all nodes are leaves but because rules are free to emit (and fix!) errors are any position)
-                    if (!isSuppressed(node.startOffset, fqRuleId) || node === rootNode) {
-                        try {
-                            rule.visit(node, true) { _, _, canBeAutoCorrected ->
-                                if (canBeAutoCorrected && isSuppressed !== nullSuppression) {
+        var tripped = false
+        var mutated = false
+        visitor(rootNode, ruleSets, concurrent = false)
+            .invoke { node, rule, fqRuleId ->
+                // fixme: enforcing suppression based on node.startOffset is wrong
+                // (not just because not all nodes are leaves but because rules are free to emit (and fix!) errors at any position)
+                if (!isSuppressed(node.startOffset, fqRuleId) || node === rootNode) {
+                    try {
+                        rule.visit(node, true) { _, _, canBeAutoCorrected ->
+                            tripped = true
+                            if (canBeAutoCorrected) {
+                                mutated = true
+                                if (isSuppressed !== nullSuppression) {
                                     isSuppressed = calculateSuppressedRegions(rootNode)
                                 }
                             }
-                        } catch (e: Exception) {
-                            // line/col cannot be reliably mapped as exception might originate from a node not present
-                            // in the original AST
-                            throw RuleExecutionException(0, 0, fqRuleId, e)
                         }
+                    } catch (e: Exception) {
+                        // line/col cannot be reliably mapped as exception might originate from a node not present
+                        // in the original AST
+                        throw RuleExecutionException(0, 0, fqRuleId, e)
                     }
                 }
-            return rootNode.text.replace("\n", determineLineSeparator(text))
+            }
+        if (tripped) {
+            visitor(rootNode, ruleSets).invoke { node, rule, fqRuleId ->
+                // fixme: enforcing suppression based on node.startOffset is wrong
+                // (not just because not all nodes are leaves but because rules are free to emit (and fix!) errors at any position)
+                if (!isSuppressed(node.startOffset, fqRuleId) || node === rootNode) {
+                    try {
+                        rule.visit(node, false) { offset, errorMessage, _ ->
+                            val (line, col) = positionByOffset(offset)
+                            cb(LintError(line, col, fqRuleId, errorMessage), false)
+                        }
+                    } catch (e: Exception) {
+                        val (line, col) = positionByOffset(node.startOffset)
+                        throw RuleExecutionException(line, col, fqRuleId, e)
+                    }
+                }
+            }
         }
-        return text
+        return if (mutated) rootNode.text.replace("\n", determineLineSeparator(text)) else text
     }
 
     private fun calculateLineBreakOffset(fileContent: String): (offset: Int) -> Int {
