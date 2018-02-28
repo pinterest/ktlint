@@ -348,6 +348,23 @@ class IndentationRuleTest {
         )).isEmpty()
     }
 
+    // https://kotlinlang.org/docs/reference/coding-conventions.html#method-call-formatting
+    @Test
+    fun testLintMultilineFunctionCall() {
+        assertThat(IndentationRule().lint(
+            """
+            fun main() {
+                fn(a,
+                   b,
+                   c)
+            }
+            """.trimIndent()
+        )).isEqualTo(listOf(
+            LintError(3, 1, "indent", "Unexpected indentation (7) (it should be 8)"),
+            LintError(4, 1, "indent", "Unexpected indentation (7) (it should be 8)")
+        ))
+    }
+
     @Test
     fun testLintCommentsAreIgnored() {
         assertThat(IndentationRule().lint(
