@@ -5,6 +5,7 @@ import org.jetbrains.kotlin.KtNodeTypes
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
+import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.kotlin.lexer.KtTokens
@@ -47,6 +48,7 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
                     when (child.elementType) {
                         KtStubElementTypes.VALUE_PARAMETER,
                         KtTokens.RPAR -> {
+                            var paramInnerIndentAdjustment = 0
                             val prevLeaf = child.psi.prevLeaf()!!
                             val intendedIndent = if (child.elementType == KtStubElementTypes.VALUE_PARAMETER)
                                 paramIndent else indent
@@ -64,13 +66,30 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
                                     emit(child.startOffset, errorMessage(child), true)
                                 }
                                 if (autoCorrect) {
-                                    val prefix = if (cut > -1) spacing.substring(0, cut) else ""
-                                    prevLeaf.rawReplaceWithText(prefix + intendedIndent)
+                                    val adjustedIndent = (if (cut > -1) spacing.substring(0, cut) else "") + intendedIndent
+                                    paramInnerIndentAdjustment = adjustedIndent.length - prevLeaf.textLength
+                                    prevLeaf.rawReplaceWithText(adjustedIndent)
                                 }
                             } else {
                                 emit(child.startOffset, errorMessage(child), true)
                                 if (autoCorrect) {
+                                    paramInnerIndentAdjustment = intendedIndent.length - child.psi.column
                                     node.addChild(PsiWhiteSpaceImpl(intendedIndent), child)
+                                }
+                            }
+                            if (paramInnerIndentAdjustment != 0 &&
+                                child.elementType == KtStubElementTypes.VALUE_PARAMETER) {
+                                child.visit { n ->
+                                    if (n.elementType == KtTokens.WHITE_SPACE && n.textContains('\n')) {
+                                        val split = n.text.split("\n")
+                                        (n.psi as LeafElement).rawReplaceWithText(split.joinToString("\n") {
+                                            if (paramInnerIndentAdjustment > 0) {
+                                                it + " ".repeat(paramInnerIndentAdjustment)
+                                            } else {
+                                                it.substring(0, Math.max(it.length + paramInnerIndentAdjustment, 0))
+                                            }
+                                        })
+                                    }
                                 }
                             }
                         }
@@ -78,6 +97,26 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
                 }
             }
         }
+    }
+
+    private val PsiElement.column: Int
+        get() {
+            var leaf = PsiTreeUtil.prevLeaf(this)
+            var offsetToTheLeft = 0
+            while (leaf != null) {
+                if (leaf.node.elementType == KtTokens.WHITE_SPACE && leaf.textContains('\n')) {
+                    offsetToTheLeft += leaf.textLength - 1 - leaf.text.lastIndexOf('\n')
+                    break
+                }
+                offsetToTheLeft += leaf.textLength
+                leaf = PsiTreeUtil.prevLeaf(leaf)
+            }
+            return offsetToTheLeft + 1
+        }
+
+    private fun ASTNode.visit(cb: (node: ASTNode) -> Unit) {
+        cb(this)
+        this.getChildren(null).forEach { it.visit(cb) }
     }
 
     private fun errorMessage(node: ASTNode) =
