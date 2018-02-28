@@ -277,6 +277,7 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
                     format(fileName, fileContent, ruleSetProviders.map { it.second.get() }, userData) { err, corrected ->
                         if (!corrected) {
                             result.add(LintErrorWithCorrectionInfo(err, corrected))
+                            tripped.set(true)
                         }
                     }
                 } catch (e: Exception) {
