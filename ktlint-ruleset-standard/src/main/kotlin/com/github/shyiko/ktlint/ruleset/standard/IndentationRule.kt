@@ -49,11 +49,11 @@ class IndentationRule : Rule("indent") {
                 lines.tail().forEach { indent ->
                     if (indent.isNotEmpty() && (indent.length - previousIndentSize) % expectedIndentSize != 0) {
                         if (!node.isPartOf(KtParameterList::class)) { // parameter list wrapping enforced by ParameterListWrappingRule
-                            emit(offset,
-                                "Unexpected indentation (${
-                                    indent.length.let { if (it < previousIndentSize) it else it - previousIndentSize}
-                                }) (it should be ${previousIndentSize + expectedIndentSize})",
-                                false)
+                            emit(
+                                offset,
+                                "Unexpected indentation (${indent.length}) (it should be ${previousIndentSize + expectedIndentSize})",
+                                false
+                            )
                         }
                     }
                     offset += indent.length + 1

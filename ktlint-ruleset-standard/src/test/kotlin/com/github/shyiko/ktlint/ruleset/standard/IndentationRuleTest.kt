@@ -23,7 +23,7 @@ class IndentationRuleTest {
                 val b = builder().setX().setY()
                     .build()
                val c = builder("long_string" +
-                    "")
+                     "")
             }
 
             class A {
@@ -35,7 +35,7 @@ class IndentationRuleTest {
         )).isEqualTo(listOf(
             LintError(12, 1, "indent", "Unexpected indentation (3) (it should be 4)"),
             // fixme: expected indent should not depend on the "previous" line value
-            LintError(13, 1, "indent", "Unexpected indentation (5) (it should be 7)")
+            LintError(13, 1, "indent", "Unexpected indentation (9) (it should be 7)")
         ))
     }
 
