@@ -10,7 +10,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Expected indentation reported by `indent` rule.
 
 ### Changed
-- Error code returned by `ktlint --format/-F` when some of the errors cannot be auto-corrected (previously is was 0 instead of expected 1) ([#162](https://github.com/shyiko/ktlint/issues/162)). 
+- Error code returned by `ktlint --format/-F` when some of the errors cannot be auto-corrected (previously it was 0 instead of expected 1) ([#162](https://github.com/shyiko/ktlint/issues/162)). 
 
 ## [0.16.1] - 2018-02-27
 
