@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 - `+`/`-` wrapping inside `catch` block, after `else` and `if (..)` ([#160](https://github.com/shyiko/ktlint/issues/160)). 
 - Multi-line parameter declaration indentation ([#161](https://github.com/shyiko/ktlint/issues/161)).
+- Expected indentation reported by `indent` rule.
 
 ### Changed
 - Error code returned by `ktlint --format/-F` when some of the errors cannot be auto-corrected (previously is was 0 instead of expected 1) ([#162](https://github.com/shyiko/ktlint/issues/162)). 
