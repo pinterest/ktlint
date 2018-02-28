@@ -2,6 +2,15 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.17.0] - 2018-02-28
+
+### Fixed
+- `+`/`-` wrapping inside `catch` block, after `else` and `if (..)` ([#160](https://github.com/shyiko/ktlint/issues/160)). 
+- Multi-line parameter declaration indentation ([#161](https://github.com/shyiko/ktlint/issues/161)).
+
+### Changed
+- Error code returned by `ktlint --format/-F` when some of the errors cannot be auto-corrected (previously is was 0 instead of expected 1) ([#162](https://github.com/shyiko/ktlint/issues/162)). 
+
 ## [0.16.1] - 2018-02-27
 
 ### Fixed
@@ -316,6 +325,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.17.0]: https://github.com/shyiko/ktlint/compare/0.16.1...0.17.0
 [0.16.1]: https://github.com/shyiko/ktlint/compare/0.16.0...0.16.1
 [0.16.0]: https://github.com/shyiko/ktlint/compare/0.15.1...0.16.0
 [0.15.1]: https://github.com/shyiko/ktlint/compare/0.15.0...0.15.1
