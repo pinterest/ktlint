@@ -33,4 +33,17 @@ fun main() {
       /* comment */
       -3 == a()
     ) {}
+    if (c)
+      -7
+    else
+      -8
+    try {
+      fn()
+    } catch(e: Exception) {
+      -9
+    }
+    var x =
+        -2 >
+        (2 + 2)
+    -3
 }
