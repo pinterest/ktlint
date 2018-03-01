@@ -15,7 +15,6 @@ import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
 class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
 
     private var indentSize = -1
-    private var maxLineLength: Int = -1
 
     override fun visit(
         node: ASTNode,
@@ -25,7 +24,9 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
         if (node.elementType == KtStubElementTypes.FILE) {
             val ec = EditorConfig.from(node as FileASTNode)
             indentSize = ec.indentSize
-            maxLineLength = ec.maxLineLength
+            return
+        }
+        if (indentSize <= 0) {
             return
         }
         if (node.elementType == KtStubElementTypes.VALUE_PARAMETER_LIST &&
