@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.17.1] - 2018-02-28
+
+### Fixed
+- `Internal Error (parameter-list-wrapping)` when `indent_size=unset` ([#165](https://github.com/shyiko/ktlint/issues/165)). 
+
 ## [0.17.0] - 2018-02-28
 
 ### Fixed
@@ -326,6 +331,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.17.1]: https://github.com/shyiko/ktlint/compare/0.17.0...0.17.1
 [0.17.0]: https://github.com/shyiko/ktlint/compare/0.16.1...0.17.0
 [0.16.1]: https://github.com/shyiko/ktlint/compare/0.16.0...0.16.1
 [0.16.0]: https://github.com/shyiko/ktlint/compare/0.15.1...0.16.0
