@@ -2,6 +2,14 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.18.0] - 2018-03-01
+
+### Added
+- Java 9 support ([#152](https://github.com/shyiko/ktlint/issues/152)).
+
+### Changed
+- `kotlin-compiler` version to 1.2.30 (from 1.2.20).
+
 ## [0.17.1] - 2018-02-28
 
 ### Fixed
@@ -331,6 +339,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.18.0]: https://github.com/shyiko/ktlint/compare/0.17.1...0.18.0
 [0.17.1]: https://github.com/shyiko/ktlint/compare/0.17.0...0.17.1
 [0.17.0]: https://github.com/shyiko/ktlint/compare/0.16.1...0.17.0
 [0.16.1]: https://github.com/shyiko/ktlint/compare/0.16.0...0.16.1
