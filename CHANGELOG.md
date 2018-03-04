@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.19.0] - 2018-03-04
+
+### Changed
+- Lambda formatting: if lambda is assigned a label, there should be no space between the label and the opening curly brace ([#167](https://github.com/shyiko/ktlint/issues/167)).  
+
 ## [0.18.0] - 2018-03-01
 
 ### Added
@@ -339,6 +344,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.19.0]: https://github.com/shyiko/ktlint/compare/0.18.0...0.19.0
 [0.18.0]: https://github.com/shyiko/ktlint/compare/0.17.1...0.18.0
 [0.17.1]: https://github.com/shyiko/ktlint/compare/0.17.0...0.17.1
 [0.17.0]: https://github.com/shyiko/ktlint/compare/0.16.1...0.17.0
