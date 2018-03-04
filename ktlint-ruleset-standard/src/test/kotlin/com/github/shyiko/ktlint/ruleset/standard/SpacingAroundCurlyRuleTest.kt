@@ -89,6 +89,7 @@ class SpacingAroundCurlyRuleTest {
                 val f =
                     { true }
             }
+            class A { private val shouldEjectBlock = block@ { (pathProgress ?: return@block false) >= 0.85 } }
             """.trimIndent()
         )).isEqualTo(
             """
@@ -130,6 +131,7 @@ class SpacingAroundCurlyRuleTest {
                 val f =
                     { true }
             }
+            class A { private val shouldEjectBlock = block@{ (pathProgress ?: return@block false) >= 0.85 } }
             """.trimIndent()
         )
     }
