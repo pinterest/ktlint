@@ -10,6 +10,8 @@ fun main() {
         + "bar"
     val s = true
         && false
+    val s = b.equals(o.b)
+        && g == o.g
     val d = 1 +
         -1
     fn(
@@ -26,3 +28,4 @@ fun main() {
 // 7:18:Line must not end with "?."
 // 10:9:Line must not begin with "+"
 // 12:9:Line must not begin with "&&"
+// 14:9:Line must not begin with "&&"
