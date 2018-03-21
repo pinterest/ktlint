@@ -25,7 +25,7 @@ dependencies {
   compile libraries.aether_transport_http
   compile libraries.slf4j_nop
   compile libraries.maven_aether_provider
-  compile libraries.args4j
+  compile libraries.picocli
 
   testCompile libraries.testng
   testCompile libraries.assertj_core

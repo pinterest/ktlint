@@ -20,19 +20,14 @@ import org.eclipse.aether.repository.RepositoryPolicy
 import org.eclipse.aether.repository.RepositoryPolicy.CHECKSUM_POLICY_IGNORE
 import org.eclipse.aether.repository.RepositoryPolicy.UPDATE_POLICY_NEVER
 import org.jetbrains.kotlin.preprocessor.mkdirsOrFail
-import org.kohsuke.args4j.Argument
-import org.kohsuke.args4j.CmdLineException
-import org.kohsuke.args4j.CmdLineParser
-import org.kohsuke.args4j.NamedOptionDef
-import org.kohsuke.args4j.Option
-import org.kohsuke.args4j.OptionHandlerFilter
-import org.kohsuke.args4j.ParserProperties
-import org.kohsuke.args4j.spi.OptionHandler
+import picocli.CommandLine
+import picocli.CommandLine.Command
+import picocli.CommandLine.Option
+import picocli.CommandLine.Parameters
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.PrintStream
-import java.io.PrintWriter
 import java.math.BigInteger
 import java.net.URLDecoder
 import java.nio.file.Path
@@ -42,7 +37,6 @@ import java.util.ArrayList
 import java.util.Arrays
 import java.util.LinkedHashMap
 import java.util.NoSuchElementException
-import java.util.ResourceBundle
 import java.util.Scanner
 import java.util.ServiceLoader
 import java.util.concurrent.ArrayBlockingQueue
@@ -55,6 +49,38 @@ import java.util.concurrent.atomic.AtomicInteger
 import java.util.jar.Manifest
 import kotlin.system.exitProcess
 
+@Command(
+    headerHeading = """An anti-bikeshedding Kotlin linter with built-in formatter
+(https://github.com/shyiko/ktlint).
+
+Usage:
+  ktlint <flags> [patterns]
+  java -jar ktlint <flags> [patterns]
+
+Examples:
+  # check the style of all Kotlin files inside the current dir (recursively)
+  # (hidden folders will be skipped)
+  ktlint
+
+  # check only certain locations (prepend ! to negate the pattern)
+  ktlint "src/**/*.kt" "!src/**/*Test.kt"
+
+  # auto-correct style violations
+  ktlint -F "src/**/*.kt"
+
+  # custom reporter
+  ktlint --reporter=plain?group_by_file
+  # multiple reporters can be specified like this
+  ktlint --reporter=plain \
+    --reporter=checkstyle,output=ktlint-checkstyle-report.xml
+  # 3rd-party reporter
+  ktlint --reporter=html,artifact=com.gihub.user:repo:master-SNAPSHOT
+
+Flags:""",
+    synopsisHeading = "",
+    customSynopsis = arrayOf(""),
+    sortOptions = false
+)
 object Main {
 
     private val DEPRECATED_FLAGS = mapOf(
@@ -67,115 +93,122 @@ object Main {
         "--reporter-update" to
             "--repository-update"
     )
-    private val CLI_MAX_LINE_LENGTH_REGEX = Regex("(.{0,120})(?:\\s|$)")
-
-    // todo: this should have been a command, not a flag (consider changing in 1.0.0)
-    @Option(name = "--format", aliases = arrayOf("-F"), usage = "Fix any deviations from the code style")
-    private var format: Boolean = false
-
-    @Option(name = "--android", aliases = arrayOf("-a"), usage = "Turn on Android Kotlin Style Guide compatibility")
+    @Option(names = arrayOf("--android", "-a"), description = arrayOf("Turn on Android Kotlin Style Guide compatibility"))
     private var android: Boolean = false
 
-    @Option(name = "--reporter",
-        usage = "A reporter to use (built-in: plain (default), plain?group_by_file, json, checkstyle). " +
-            "To use a third-party reporter specify either a path to a JAR file on the filesystem or a" +
-            "<groupId>:<artifactId>:<version> triple pointing to a remote artifact (in which case ktlint will first " +
-            "check local cache (~/.m2/repository) and then, if not found, attempt downloading it from " +
-            "Maven Central/JCenter/JitPack/user-provided repository)")
-    private var reporters = ArrayList<String>()
+    // todo: make it a command in 1.0.0 (it's too late now as we might interfere with valid "lint" patterns)
+    @Option(names = arrayOf("--apply-to-idea"), description = arrayOf("Update Intellij IDEA project settings"))
+    private var apply: Boolean = false
 
-    @Option(name = "--ruleset", aliases = arrayOf("-R"),
-        usage = "A path to a JAR file containing additional ruleset(s) or a " +
-            "<groupId>:<artifactId>:<version> triple pointing to a remote artifact (in which case ktlint will first " +
-            "check local cache (~/.m2/repository) and then, if not found, attempt downloading it from " +
-            "Maven Central/JCenter/JitPack/user-provided repository)")
-    private var rulesets = ArrayList<String>()
+    @Option(names = arrayOf("--color"), description = arrayOf("Make output colorful"))
+    private var color: Boolean = false
 
-    @Option(name = "--repository", aliases = arrayOf("--ruleset-repository", "--reporter-repository"),
-        usage = "An additional Maven repository (Maven Central/JCenter/JitPack are active by default) " +
-            "(value format: <id>=<url>)")
-    private var repositories = ArrayList<String>()
+    @Option(names = arrayOf("--debug"), description = arrayOf("Turn on debug output"))
+    private var debug: Boolean = false
 
-    @Option(name = "--repository-update", aliases = arrayOf("-U", "--ruleset-update", "--reporter-update"),
-        usage = "Check remote repositories for updated snapshots")
-    private var forceUpdate: Boolean = false
+    // todo: this should have been a command, not a flag (consider changing in 1.0.0)
+    @Option(names = arrayOf("--format", "-F"), description = arrayOf("Fix any deviations from the code style"))
+    private var format: Boolean = false
 
-    @Option(name = "--limit", usage = "Maximum number of errors to show (default: show all)")
+    @Option(names = arrayOf("--install-git-pre-commit-hook"), description = arrayOf(
+        "Install git hook to automatically check files for style violations on commit"
+    ))
+    private var installGitPreCommitHook: Boolean = false
+
+    @Option(names = arrayOf("--limit"), description = arrayOf(
+        "Maximum number of errors to show (default: show all)"
+    ))
     private var limit: Int = -1
         get() = if (field < 0) Int.MAX_VALUE else field
 
-    @Option(name = "--relative", usage = "Print files relative to the working directory " +
-        "(e.g. dir/file.kt instead of /home/user/project/dir/file.kt)")
+    @Option(names = arrayOf("--print-ast"), description = arrayOf(
+        "Print AST (useful when writing/debugging rules)"
+    ))
+    private var printAST: Boolean = false
+
+    @Option(names = arrayOf("--relative"), description = arrayOf(
+        "Print files relative to the working directory " +
+            "(e.g. dir/file.kt instead of /home/user/project/dir/file.kt)"
+    ))
     private var relative: Boolean = false
 
-    @Option(name = "--verbose", aliases = arrayOf("-v"), usage = "Show error codes")
-    private var verbose: Boolean = false
+    @Option(names = arrayOf("--reporter"), description = arrayOf(
+        "A reporter to use (built-in: plain (default), plain?group_by_file, json, checkstyle). " +
+        "To use a third-party reporter specify either a path to a JAR file on the filesystem or a" +
+        "<groupId>:<artifactId>:<version> triple pointing to a remote artifact (in which case ktlint will first " +
+        "check local cache (~/.m2/repository) and then, if not found, attempt downloading it from " +
+        "Maven Central/JCenter/JitPack/user-provided repository)"
+    ))
+    private var reporters = ArrayList<String>()
 
-    @Option(name = "--stdin", usage = "Read file from stdin")
+    @Option(names = arrayOf("--repository"), description = arrayOf(
+        "An additional Maven repository (Maven Central/JCenter/JitPack are active by default) " +
+            "(value format: <id>=<url>)"
+    ))
+    private var repositories = ArrayList<String>()
+    @Option(names = arrayOf("--ruleset-repository", "--reporter-repository"), hidden = true)
+    private var repositoriesDeprecated = ArrayList<String>()
+
+    @Option(names = arrayOf("--repository-update", "-U"), description = arrayOf(
+        "Check remote repositories for updated snapshots"
+    ))
+    private var forceUpdate: Boolean? = null
+    @Option(names = arrayOf("--ruleset-update", "--reporter-update"), hidden = true)
+    private var forceUpdateDeprecated: Boolean? = null
+
+    @Option(names = arrayOf("--ruleset", "-R"), description = arrayOf(
+        "A path to a JAR file containing additional ruleset(s) or a " +
+        "<groupId>:<artifactId>:<version> triple pointing to a remote artifact (in which case ktlint will first " +
+        "check local cache (~/.m2/repository) and then, if not found, attempt downloading it from " +
+        "Maven Central/JCenter/JitPack/user-provided repository)"
+    ))
+    private var rulesets = ArrayList<String>()
+
+    @Option(names = arrayOf("--skip-classpath-check"), description = arrayOf("Do not check classpath for pottential conflicts"))
+    private var skipClasspathCheck: Boolean = false
+
+    @Option(names = arrayOf("--stdin"), description = arrayOf("Read file from stdin"))
     private var stdin: Boolean = false
 
-    @Option(name = "--version", usage = "Version", help = true)
+    @Option(names = arrayOf("--verbose", "-v"), description = arrayOf("Show error codes"))
+    private var verbose: Boolean = false
+
+    @Option(names = arrayOf("--version"), description = arrayOf("Print version information"))
     private var version: Boolean = false
 
-    @Option(name = "--help", aliases = arrayOf("-h"), help = true)
+    @Option(names = arrayOf("--help", "-h"), help = true, hidden = true)
     private var help: Boolean = false
 
-    @Option(name = "--debug", usage = "Turn on debug output")
-    private var debug: Boolean = false
-
-    // todo: make it a command in 1.0.0 (it's too late now as we might interfere with valid "lint" patterns)
-    @Option(name = "--apply-to-idea", usage = "Update Intellij IDEA project settings")
-    private var apply: Boolean = false
-
-    @Option(name = "-y", hidden = true)
+    @Option(names = arrayOf("-y"), hidden = true)
     private var forceApply: Boolean = false
 
-    @Option(name = "--install-git-pre-commit-hook",
-        usage = "Install git hook to automatically check files for style violations on commit")
-    private var installGitPreCommitHook: Boolean = false
-
-    @Option(name = "--print-ast", usage = "Print AST (useful when writing/debugging rules)")
-    private var printAST: Boolean = false
-    @Option(name = "--color", usage = "Make output colorful")
-    private var color: Boolean = false
-
-    @Argument
+    @Parameters(hidden = true)
     private var patterns = ArrayList<String>()
-
-    private fun CmdLineParser.usage(): String =
-        """
-        An anti-bikeshedding Kotlin linter with built-in formatter (https://github.com/shyiko/ktlint).
-
-        Usage:
-          ktlint <flags> [patterns]
-          java -jar ktlint <flags> [patterns]
-
-        Examples:
-          # check the style of all Kotlin files inside the current dir (recursively)
-          # (hidden folders will be skipped)
-          ktlint
-
-          # check only certain locations (prepend ! to negate the pattern)
-          ktlint "src/**/*.kt" "!src/**/*Test.kt"
-
-          # auto-correct style violations
-          ktlint -F "src/**/*.kt"
-
-          # use custom reporter
-          ktlint --reporter=plain?group_by_file
-          # multiple reporters can be specified like this
-          ktlint --reporter=plain --reporter=checkstyle,output=ktlint-checkstyle-report.xml
-
-        Flags:
-${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().split("\n")
-            .map { line -> ("  " + line).replace(CLI_MAX_LINE_LENGTH_REGEX, "        $1\n").trimEnd() }
-            .joinToString("\n")}
-        """.trimIndent()
 
     private val workDir = File(".").canonicalPath
     private fun File.location() = if (relative) this.toRelativeString(File(workDir)) else this.path
 
+    private fun usage() =
+        ByteArrayOutputStream()
+            .also { CommandLine.usage(this, PrintStream(it), CommandLine.Help.Ansi.OFF) }
+            .toString()
+            .replace(" ".repeat(32), " ".repeat(30))
+
     private fun parseCmdLine(args: Array<String>) {
+        try {
+            CommandLine.populateCommand(this, *args)
+            repositories.addAll(repositoriesDeprecated)
+            if (forceUpdateDeprecated != null && forceUpdate == null) {
+                forceUpdate = forceUpdateDeprecated
+            }
+        } catch (e: Exception) {
+            System.err.println("Error: ${e.message}\n\n${usage()}")
+            exitProcess(1)
+        }
+        if (help) {
+            println(usage())
+            exitProcess(0)
+        }
         args.forEach { arg ->
             if (arg.startsWith("--") && arg.contains("=")) {
                 val flag = arg.substringBefore("=")
@@ -185,36 +218,6 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
                 }
             }
         }
-        val parser = object : CmdLineParser(this, ParserProperties.defaults()
-            .withShowDefaults(false)
-            .withUsageWidth(512)
-            .withOptionSorter { l, r ->
-                l.option.toString().replace("-", "").compareTo(r.option.toString().replace("-", ""))
-            }) {
-
-            override fun printOption(out: PrintWriter, handler: OptionHandler<*>, len: Int, rb: ResourceBundle?, filter: OptionHandlerFilter?) {
-                handler.defaultMetaVariable
-                val opt = handler.option as? NamedOptionDef ?: return
-                if (opt.hidden() || opt.help()) {
-                    return
-                }
-                val maxNameLength = options.map { h ->
-                    val o = h.option
-                    (o as? NamedOptionDef)?.let { it.name().length + 1 + (h.defaultMetaVariable ?: "").length } ?: 0
-                }.max()!!
-                val shorthand = opt.aliases().find { it.startsWith("-") && !it.startsWith("--") }
-                val line = (if (shorthand != null) "$shorthand, " else "    ") +
-                    (opt.name() + " " + (handler.defaultMetaVariable ?: "")).padEnd(maxNameLength, ' ') + "  " + opt.usage()
-                out.println(line)
-            }
-        }
-        try {
-            parser.parseArgument(*args)
-        } catch (err: CmdLineException) {
-            System.err.println("Error: ${err.message}\n\n${parser.usage()}")
-            exitProcess(1)
-        }
-        if (help) { println(parser.usage()); exitProcess(0) }
     }
 
     @JvmStatic
@@ -346,21 +349,22 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
             }
 
     private fun loadReporter(dependencyResolver: Lazy<MavenDependencyResolver>): Reporter {
-        data class ReporterTemplate(val id: String, val config: Map<String, String>, var output: String?)
+        data class ReporterTemplate(val id: String, val artifact: String?, val config: Map<String, String>, var output: String?)
         val tpls = (if (reporters.isEmpty()) listOf("plain") else reporters)
             .map { reporter ->
                 val split = reporter.split(",")
                 val (reporterId, rawReporterConfig) = split[0].split("?", limit = 2) + listOf("")
                 ReporterTemplate(
                     reporterId,
+                    split.lastOrNull { it.startsWith("artifact=") }?.let { it.split("=")[1] },
                     mapOf("verbose" to verbose.toString(), "color" to color.toString()) + parseQuery(rawReporterConfig),
-                    split.getOrNull(1)?.let { if (it.startsWith("output=")) it.split("=")[1] else null }
+                    split.lastOrNull { it.startsWith("output=") }?.let { it.split("=")[1] }
                 )
             }
             .distinct()
         val reporterLoader = ServiceLoader.load(ReporterProvider::class.java)
         val reporterProviderById = reporterLoader.associate { it.id to it }.let { map ->
-            val missingReporters = tpls.map { it.id }.distinct().filter { !map.containsKey(it) }
+            val missingReporters = tpls.filter { !map.containsKey(it.id) }.mapNotNull { it.artifact }.distinct()
             if (!missingReporters.isEmpty()) {
                 loadJARs(dependencyResolver, missingReporters)
                 reporterLoader.reload()
@@ -542,7 +546,7 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
                 val url = repository.substring(colon + 1)
                 RemoteRepository.Builder(id, "default", url).build()
             },
-            forceUpdate
+            forceUpdate == true
         )
         if (debug) {
             dependencyResolver.setTransferEventListener { e ->
@@ -553,6 +557,7 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
         return dependencyResolver
     }
 
+    // fixme: isn't going to work on JDK 9
     private fun loadJARs(dependencyResolver: Lazy<MavenDependencyResolver>, artifacts: List<String>) {
         (ClassLoader.getSystemClassLoader() as java.net.URLClassLoader)
             .addURLs(artifacts.flatMap { artifact ->
@@ -577,6 +582,20 @@ ${ByteArrayOutputStream().let { this.printUsage(it); it }.toString().trimEnd().s
                 }
                 if (debug) {
                     result.forEach { url -> System.err.println("[DEBUG] Loading $url") }
+                }
+                if (!skipClasspathCheck) {
+                    if (result.any { it.toString().substringAfterLast("/").startsWith("ktlint-core-") }) {
+                        System.err.println("\"$artifact\" appears to have a runtime/compile dependency on \"ktlint-core\".\n" +
+                            "Please inform the author that \"com.github.shyiko:ktlint*\" should be marked " +
+                            "compileOnly (Gradle) / provided (Maven).\n" +
+                            "(to suppress this warning use --skip-classpath-check)")
+                    }
+                    if (result.any { it.toString().substringAfterLast("/").startsWith("kotlin-stdlib-") }) {
+                        System.err.println("\"$artifact\" appears to have a runtime/compile dependency on \"kotlin-stdlib\".\n" +
+                            "Please inform the author that \"org.jetbrains.kotlin:kotlin-stdlib*\" should be marked " +
+                            "compileOnly (Gradle) / provided (Maven).\n" +
+                            "(to suppress this warning use --skip-classpath-check)")
+                    }
                 }
                 result
             })

@@ -155,9 +155,9 @@
             <version>1.6.2</version>
         </dependency>
         <dependency>
-            <groupId>args4j</groupId>
-            <artifactId>args4j</artifactId>
-            <version>${args4j.version}</version>
+            <groupId>info.picocli</groupId>
+            <artifactId>picocli</artifactId>
+            <version>${picocli.version}</version>
         </dependency>
         <dependency>
             <groupId>org.testng</groupId>
