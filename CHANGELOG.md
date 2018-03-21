@@ -2,6 +2,19 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.20.0] - 2018-03-20
+
+### Added
+- Ability to load 3rd party reporters from the command-line (e.g. `--reporter=<name>,artifact=<group_id>:<artifact_id>:<version>`) ([#176](https://github.com/shyiko/ktlint/issues/176)).
+- `--ruleset`/`--reporter` dependency tree validation.
+
+### Fixed
+- Handling of spaces in `--reporter=...,output=<path_to_a_file>` ([#177](https://github.com/shyiko/ktlint/issues/177)).
+- `+`, `-`, `*`, `/`, `%`, `&&`, `||` wrapping ([#168](https://github.com/shyiko/ktlint/issues/168)).
+
+### Changed
+- `comma-spacing` rule to be more strict ([#173](https://github.com/shyiko/ktlint/issues/173)). 
+
 ## [0.19.0] - 2018-03-04
 
 ### Changed
@@ -344,6 +357,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.20.0]: https://github.com/shyiko/ktlint/compare/0.19.0...0.20.0
 [0.19.0]: https://github.com/shyiko/ktlint/compare/0.18.0...0.19.0
 [0.18.0]: https://github.com/shyiko/ktlint/compare/0.17.1...0.18.0
 [0.17.1]: https://github.com/shyiko/ktlint/compare/0.17.0...0.17.1
