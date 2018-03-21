@@ -6,12 +6,22 @@ fun main() {
         bar
     val s = foo()?.
         bar
-    val s = "foo"
-        + "bar"
+    val d = 1
+        + 1
     val s = true
         && false
+    val s = b.equals(o.b)
+        && g == o.g
+    val s = ((1 + 2)
+        / 3)
     val d = 1 +
         -1
+    val d = 1
+        + -1
+    val d = (1
+        + 1)
+    fn(1,
+    -1)
     fn(
         *typedArray<EventListener>(),
         -0,
@@ -24,5 +34,7 @@ fun main() {
 // 3:33:Line must not end with "."
 // 5:19:Line must not end with "?:"
 // 7:18:Line must not end with "?."
-// 10:9:Line must not begin with "+"
 // 12:9:Line must not begin with "&&"
+// 14:9:Line must not begin with "&&"
+// 16:9:Line must not begin with "/"
+// 22:9:Line must not begin with "+"

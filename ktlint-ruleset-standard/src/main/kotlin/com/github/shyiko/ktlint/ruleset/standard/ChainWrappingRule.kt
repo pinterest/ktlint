@@ -24,7 +24,8 @@ import org.jetbrains.kotlin.psi.psiUtil.prevLeaf
 
 class ChainWrappingRule : Rule("chain-wrapping") {
 
-    private val sameLineTokens = TokenSet.create(MUL, PLUS, MINUS, DIV, PERC, ANDAND, OROR)
+    private val sameLineTokens = TokenSet.create(MUL, DIV, PERC, ANDAND, OROR)
+    private val prefixTokens = TokenSet.create(PLUS, MINUS)
     private val nextLineTokens = TokenSet.create(DOT, SAFE_ACCESS, ELVIS)
     private val noSpaceAroundTokens = TokenSet.create(DOT, SAFE_ACCESS)
 
@@ -57,22 +58,17 @@ class ChainWrappingRule : Rule("chain-wrapping") {
                     }
                 }
             }
-        } else if (sameLineTokens.contains(elementType)) {
+        } else if (sameLineTokens.contains(elementType) || prefixTokens.contains(elementType)) {
             val prevLeaf = node.psi.prevLeaf(true)
             if (
                 prevLeaf is PsiWhiteSpaceImpl &&
                 prevLeaf.textContains('\n') &&
-                prevLeaf.prevLeafIgnoringWhitespaceAndComments()?.let { leaf ->
-                    val type = leaf.node.elementType
-                    type == KtTokens.LPAR ||
-                    type == KtTokens.RPAR ||
-                    type == KtTokens.COMMA ||
-                    type == KtTokens.LBRACE ||
-                    type == KtTokens.ELSE_KEYWORD ||
-                    KtTokens.OPERATIONS.contains(type)
-                } == false &&
+                // fn(*typedArray<...>()) case
+                (elementType != MUL || !prevLeaf.isPartOfSpread()) &&
+                // unary +/-
+                (!prefixTokens.contains(elementType) || !node.isInPrefixPosition()) &&
                 // LeafPsiElement->KtOperationReferenceExpression->KtPrefixExpression->KtWhenConditionWithExpression
-                node.treeParent?.treeParent?.treeParent?.elementType != KtNodeTypes.WHEN_CONDITION_EXPRESSION
+                !node.isPartOfWhenCondition()
             ) {
                 emit(node.startOffset, "Line must not begin with \"${node.text}\"", true)
                 if (autoCorrect) {
@@ -91,6 +87,22 @@ class ChainWrappingRule : Rule("chain-wrapping") {
             }
         }
     }
+
+    private fun PsiElement.isPartOfSpread() =
+        prevLeafIgnoringWhitespaceAndComments()?.let { leaf ->
+            val type = leaf.node.elementType
+            type == KtTokens.LPAR ||
+            type == KtTokens.COMMA ||
+            type == KtTokens.LBRACE ||
+            type == KtTokens.ELSE_KEYWORD ||
+            KtTokens.OPERATIONS.contains(type)
+        } == true
+
+    private fun ASTNode.isInPrefixPosition() =
+        treeParent?.treeParent?.elementType == KtNodeTypes.PREFIX_EXPRESSION
+
+    private fun ASTNode.isPartOfWhenCondition() =
+        treeParent?.treeParent?.treeParent?.elementType == KtNodeTypes.WHEN_CONDITION_EXPRESSION
 
     private fun PsiElement.prevLeafIgnoringWhitespaceAndComments() =
         this.prevLeaf { it.node.elementType != KtTokens.WHITE_SPACE && !it.isPartOf(PsiComment::class) }

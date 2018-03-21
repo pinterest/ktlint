@@ -6,14 +6,16 @@ fun main() {
         ?: bar
     val s = foo()
         ?.bar
-    val s = "foo" +
-        "bar"
+    val s = 1
+        + 2
     val s = true &&
         false
+    val s = b.equals(o.b) &&
+        g == o.g
     val d = 1 +
         -1
-    val d = 1 +
-        -1
+    val d = 1
+        + -1
     when (foo){
         0 -> {
         }
