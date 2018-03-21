@@ -13,7 +13,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - `+`, `-`, `*`, `/`, `%`, `&&`, `||` wrapping ([#168](https://github.com/shyiko/ktlint/issues/168)).
 
 ### Changed
-- `comma-spacing` rule to be more strict ([#173](https://github.com/shyiko/ktlint/issues/173)). 
+- `comma-spacing` rule to be more strict ([#173](https://github.com/shyiko/ktlint/issues/173)).
+- `no-line-break-after-else` rule to allow multi-line `if/else` without curly braces. 
 
 ## [0.19.0] - 2018-03-04
 

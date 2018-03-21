@@ -111,9 +111,7 @@ class NoLineBreakAfterElseRuleTest {
                     doAnotherThing()
             }
             """.trimIndent()
-        )).isEqualTo(listOf(
-            LintError(5, 1, "no-line-break-after-else", "Unexpected line break after \"else\"")
-        ))
+        )).isEmpty()
     }
 
     @Test
