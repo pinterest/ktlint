@@ -184,7 +184,8 @@ To run formatter - `mvn antrun:run@ktlint-format`.
 > build.gradle
 
 ```groovy
-apply plugin: "java"
+// kotlin-gradle-plugin must be applied for configuration below to work
+// (see https://kotlinlang.org/docs/reference/using-gradle.html)
 
 repositories {
     jcenter()
@@ -220,10 +221,10 @@ task ktlintFormat(type: JavaExec, group: "formatting") {
 }
 ```
 
-> Note: For an Android project this config would typically go into your app/build.gradle.
-
 To check code style - `gradle ktlint` (it's also bound to `gradle check`).  
 To run formatter - `gradle ktlintFormat`.
+
+See [Making your Gradle tasks incremental](https://proandroiddev.com/making-your-gradle-tasks-incremental-7f26e4ef09c3) by [Niklas Baudy](https://github.com/vanniktech) on how to make tasks above incremental. 
 
 #### (with a plugin)
 
