@@ -15,6 +15,7 @@ import org.jetbrains.kotlin.psi.KtSafeQualifiedExpression
 import org.jetbrains.kotlin.psi.KtSecondaryConstructor
 import org.jetbrains.kotlin.psi.KtSuperTypeList
 import org.jetbrains.kotlin.psi.KtSuperTypeListEntry
+import org.jetbrains.kotlin.psi.KtTypeConstraintList
 import org.jetbrains.kotlin.psi.KtTypeProjection
 import org.jetbrains.kotlin.psi.KtValueArgumentList
 import org.jetbrains.kotlin.psi.psiUtil.getPrevSiblingIgnoringWhitespaceAndComments
@@ -39,9 +40,9 @@ class IndentationRule : Rule("indent") {
         if (indentSize <= 0 || continuationIndentSize <= 0) {
             return
         }
-        if (node is PsiWhiteSpace && !node.isPartOf(PsiComment::class)) {
+        if (node is PsiWhiteSpace) {
             val lines = node.getText().split("\n")
-            if (lines.size > 1) {
+            if (lines.size > 1 && !node.isPartOf(PsiComment::class) && !node.isPartOf(KtTypeConstraintList::class)) {
                 var offset = node.startOffset + lines.first().length + 1
                 val previousIndentSize = node.previousIndentSize()
                 val expectedIndentSize = if (continuationIndentSize == indentSize || shouldUseContinuationIndent(node))
