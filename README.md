@@ -340,7 +340,7 @@ In short, all you need to do is to implement a
 a custom [ReporterProvider](ktlint-core/src/main/kotlin/com/github/shyiko/ktlint/core/ReporterProvider.kt) using
 `META-INF/services/com.github.shyiko.ktlint.core.ReporterProvider`. Pack all of that into a JAR and you're done.
 
-To load a custom (3rd party) reporter use `ktlint --reporter=groupId:artifactId:version` / `ktlint --reporter=/path/to/custom-ktlint-reporter.jar`
+To load a custom (3rd party) reporter use `ktlint --reporter=name,artifact=groupId:artifactId:version` / `ktlint --reporter=name,artifact=/path/to/custom-ktlint-reporter.jar`
 (see `ktlint --help` for more).
  
 ## Badge

@@ -137,7 +137,8 @@ object Main {
         "To use a third-party reporter specify either a path to a JAR file on the filesystem or a" +
         "<groupId>:<artifactId>:<version> triple pointing to a remote artifact (in which case ktlint will first " +
         "check local cache (~/.m2/repository) and then, if not found, attempt downloading it from " +
-        "Maven Central/JCenter/JitPack/user-provided repository)"
+        "Maven Central/JCenter/JitPack/user-provided repository)\n" +
+        "e.g. \"html,artifact=com.github.username:ktlint-reporter-html:master-SNAPSHOT\""
     ))
     private var reporters = ArrayList<String>()
 
