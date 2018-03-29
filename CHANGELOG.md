@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.21.0] - 2018-03-29
+
+### Changed
+- `indent` rule to ignore `where <type constraint list>` clause ([#180](https://github.com/shyiko/ktlint/issues/180)).
+
 ## [0.20.0] - 2018-03-20
 
 ### Added
@@ -358,6 +363,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.21.0]: https://github.com/shyiko/ktlint/compare/0.20.0...0.21.0
 [0.20.0]: https://github.com/shyiko/ktlint/compare/0.19.0...0.20.0
 [0.19.0]: https://github.com/shyiko/ktlint/compare/0.18.0...0.19.0
 [0.18.0]: https://github.com/shyiko/ktlint/compare/0.17.1...0.18.0
