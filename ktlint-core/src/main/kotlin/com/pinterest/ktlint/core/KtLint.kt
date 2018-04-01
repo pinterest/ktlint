@@ -35,7 +35,13 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.TreeCopyHandler
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.idea.KotlinLanguage
+import org.jetbrains.kotlin.psi.KtAnnotated
+import org.jetbrains.kotlin.psi.KtAnnotationEntry
+import org.jetbrains.kotlin.psi.KtCollectionLiteralExpression
 import org.jetbrains.kotlin.psi.KtFile
+import org.jetbrains.kotlin.psi.psiUtil.endOffset
+import org.jetbrains.kotlin.psi.psiUtil.getNonStrictParentOfType
+import org.jetbrains.kotlin.psi.psiUtil.startOffset
 import sun.reflect.ReflectionFactory
 
 object KtLint {
@@ -339,7 +345,7 @@ object KtLint {
                 }
             }
         }
-
+            .also { collect(rootNode) }
     /**
      * Fix style violations.
      *
@@ -535,5 +541,79 @@ object KtLint {
     private fun ASTNode.visit(cb: (node: ASTNode) -> Unit) {
         cb(this)
         this.getChildren(null).forEach { it.visit(cb) }
+    }
+
+    private fun collect(rootNode: ASTNode): List<SuppressionHint> {
+        val result = ArrayList<SuppressionHint>()
+//        this should also work, but at the moment it throws compilation exception
+//        rootNode.psi?.forEachDescendantOfType<KtAnnotated> {  }
+        rootNode.psi?.let {
+            rootNode.visit {node ->
+                val psi = node.psi
+                when (psi) {
+                    is KtAnnotated -> {
+                        println("Found KtAnnotated")
+                        psi.annotationEntries
+                            .filter {
+                                it.calleeExpression?.constructorReferenceExpression
+                                    ?.getReferencedName() == "Suppress"
+                            }.filter { suppressAnnotation ->
+                                println("Suppress annotation: $suppressAnnotation")
+                                suppressAnnotation.valueArguments.let {
+                                    if (it.size == 1 && it.first().getArgumentExpression() is
+                                            KtCollectionLiteralExpression
+                                    ) {
+                                        (it.first().getArgumentExpression() as KtCollectionLiteralExpression)
+                                            .getInnerExpressions()
+                                            .any { it.text == "\"RemoveCurlyBracesFromTemplate\"" }
+                                    } else {
+                                        it.any {
+                                            it.getArgumentExpression()?.text == "\"RemoveCurlyBracesFromTemplate\""
+                                        }
+                                    }
+
+                                }
+                            }.forEach {
+                                println(psi.node.textRange)
+                                result.add(SuppressionHint(IntRange(it.startOffset, it.endOffset)))
+                            }
+                    }
+                    else -> {
+                        println("Not annotated !!! ${node.elementType}")
+                    }
+                }
+            }
+        }
+        println("Result: $result")
+        return result
+}
+
+
+    private fun hasSuppressRemoveCurlyBracesFromTemplate(node: ASTNode): Boolean {
+        return searchForSuppressAnnotation(node)?.let { suppressAnnotation ->
+            println("Suppress annotation: $suppressAnnotation")
+            suppressAnnotation.valueArguments.let {
+                if (it.size == 1 && it.first().getArgumentExpression() is
+                        KtCollectionLiteralExpression
+                ) {
+                    (it.first().getArgumentExpression() as KtCollectionLiteralExpression)
+                        .getInnerExpressions()
+                        .any { it.text == "\"RemoveCurlyBracesFromTemplate\"" }
+                } else {
+                    it.any {
+                        it.getArgumentExpression()?.text == "\"RemoveCurlyBracesFromTemplate\""
+                    }
+                }
+            }
+        } ?: false
+    }
+
+    private fun searchForSuppressAnnotation(node: ASTNode) : KtAnnotationEntry? {
+        return node.psi.getNonStrictParentOfType(KtAnnotated::class.java)
+            ?.annotationEntries
+            ?.find {
+                it.calleeExpression?.constructorReferenceExpression
+                    ?.getReferencedName() == "Suppress"
+            }
     }
 }
