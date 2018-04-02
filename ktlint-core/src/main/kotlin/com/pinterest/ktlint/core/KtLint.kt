@@ -345,7 +345,7 @@ object KtLint {
                 }
             }
         }
-            .also { collect(rootNode) }
+
     /**
      * Fix style violations.
      *
@@ -472,6 +472,24 @@ object KtLint {
                                 }
                         }
                     }
+                    val psi = node.psi
+                    when (psi) {
+                        is KtAnnotated -> {
+                            psi.annotationEntries
+                                .filter {
+                                    it.calleeExpression?.constructorReferenceExpression
+                                        ?.getReferencedName() == "Suppress"
+                                }.flatMap { suppressAnnotation ->
+                                    suppressAnnotation.extractArguments()
+                                }.map {
+                                    annotationRuleMap[it]
+                                }.distinct().let {
+                                    if (it.isNotEmpty()) {
+                                        result.add(SuppressionHint(IntRange(psi.startOffset, psi.endOffset), setOf()))
+                                    }
+                                }
+                        }
+                    }
                 }
                 result.addAll(
                     open.map {
@@ -496,6 +514,23 @@ object KtLint {
                 comment.replace(Regex("\\s"), " ").replace(" {2,}", " ").split(" ")
 
             private fun <T> List<T>.tail() = this.subList(1, this.size)
+
+            private val annotationRuleMap = mapOf(
+                "RemoveCurlyBracesFromTemplate" to "string-template"
+            )
+
+            private fun KtAnnotationEntry.extractArguments() : List<String> {
+                return this.valueArguments.let {
+                    if (it.size == 1 && it.first().getArgumentExpression() is
+                            KtCollectionLiteralExpression
+                    ) {
+                        (it.first().getArgumentExpression() as KtCollectionLiteralExpression)
+                            .getInnerExpressions().map { it.text }
+                    } else {
+                        it.map { it.getArgumentExpression()?.text }
+                    }.filterNotNull()
+                }
+            }
         }
     }
 
@@ -541,79 +576,5 @@ object KtLint {
     private fun ASTNode.visit(cb: (node: ASTNode) -> Unit) {
         cb(this)
         this.getChildren(null).forEach { it.visit(cb) }
-    }
-
-    private fun collect(rootNode: ASTNode): List<SuppressionHint> {
-        val result = ArrayList<SuppressionHint>()
-//        this should also work, but at the moment it throws compilation exception
-//        rootNode.psi?.forEachDescendantOfType<KtAnnotated> {  }
-        rootNode.psi?.let {
-            rootNode.visit {node ->
-                val psi = node.psi
-                when (psi) {
-                    is KtAnnotated -> {
-                        println("Found KtAnnotated")
-                        psi.annotationEntries
-                            .filter {
-                                it.calleeExpression?.constructorReferenceExpression
-                                    ?.getReferencedName() == "Suppress"
-                            }.filter { suppressAnnotation ->
-                                println("Suppress annotation: $suppressAnnotation")
-                                suppressAnnotation.valueArguments.let {
-                                    if (it.size == 1 && it.first().getArgumentExpression() is
-                                            KtCollectionLiteralExpression
-                                    ) {
-                                        (it.first().getArgumentExpression() as KtCollectionLiteralExpression)
-                                            .getInnerExpressions()
-                                            .any { it.text == "\"RemoveCurlyBracesFromTemplate\"" }
-                                    } else {
-                                        it.any {
-                                            it.getArgumentExpression()?.text == "\"RemoveCurlyBracesFromTemplate\""
-                                        }
-                                    }
-
-                                }
-                            }.forEach {
-                                println(psi.node.textRange)
-                                result.add(SuppressionHint(IntRange(it.startOffset, it.endOffset)))
-                            }
-                    }
-                    else -> {
-                        println("Not annotated !!! ${node.elementType}")
-                    }
-                }
-            }
-        }
-        println("Result: $result")
-        return result
-}
-
-
-    private fun hasSuppressRemoveCurlyBracesFromTemplate(node: ASTNode): Boolean {
-        return searchForSuppressAnnotation(node)?.let { suppressAnnotation ->
-            println("Suppress annotation: $suppressAnnotation")
-            suppressAnnotation.valueArguments.let {
-                if (it.size == 1 && it.first().getArgumentExpression() is
-                        KtCollectionLiteralExpression
-                ) {
-                    (it.first().getArgumentExpression() as KtCollectionLiteralExpression)
-                        .getInnerExpressions()
-                        .any { it.text == "\"RemoveCurlyBracesFromTemplate\"" }
-                } else {
-                    it.any {
-                        it.getArgumentExpression()?.text == "\"RemoveCurlyBracesFromTemplate\""
-                    }
-                }
-            }
-        } ?: false
-    }
-
-    private fun searchForSuppressAnnotation(node: ASTNode) : KtAnnotationEntry? {
-        return node.psi.getNonStrictParentOfType(KtAnnotated::class.java)
-            ?.annotationEntries
-            ?.find {
-                it.calleeExpression?.constructorReferenceExpression
-                    ?.getReferencedName() == "Suppress"
-            }
     }
 }
