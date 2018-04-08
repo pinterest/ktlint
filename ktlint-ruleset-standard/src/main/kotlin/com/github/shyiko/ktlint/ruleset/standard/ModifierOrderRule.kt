@@ -2,7 +2,7 @@ package com.github.shyiko.ktlint.ruleset.standard
 
 import com.github.shyiko.ktlint.core.Rule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
+import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 import org.jetbrains.kotlin.lexer.KtTokens.ABSTRACT_KEYWORD
 import org.jetbrains.kotlin.lexer.KtTokens.ACTUAL_KEYWORD
@@ -30,12 +30,14 @@ import org.jetbrains.kotlin.lexer.KtTokens.SUSPEND_KEYWORD
 import org.jetbrains.kotlin.lexer.KtTokens.TAILREC_KEYWORD
 import org.jetbrains.kotlin.lexer.KtTokens.VARARG_KEYWORD
 import org.jetbrains.kotlin.psi.KtDeclarationModifierList
+import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes.ANNOTATION_ENTRY
 import java.util.Arrays
 
 class ModifierOrderRule : Rule("modifier-order") {
 
-    // subset of KtTokens.MODIFIER_KEYWORDS_ARRAY
+    // subset of KtTokens.MODIFIER_KEYWORDS_ARRAY (+ annotations entries)
     private val order = arrayOf(
+        ANNOTATION_ENTRY,
         PUBLIC_KEYWORD, PROTECTED_KEYWORD, PRIVATE_KEYWORD, INTERNAL_KEYWORD,
         EXPECT_KEYWORD, ACTUAL_KEYWORD,
         FINAL_KEYWORD, OPEN_KEYWORD, ABSTRACT_KEYWORD, SEALED_KEYWORD, CONST_KEYWORD,
@@ -70,9 +72,12 @@ class ModifierOrderRule : Rule("modifier-order") {
                     sorted.map { it.text }.joinToString(" ")
                 }\")", true)
                 if (autoCorrect) {
-                    modifierArr.forEachIndexed { i, n ->
-                        // fixme: find a better way (node type is now potentially out of sync)
-                        (n.psi as LeafPsiElement).rawReplaceWithText(sorted[i].text)
+                    node.removeRange(node.firstChildNode, node.lastChildNode.treeNext)
+                    modifierArr.forEachIndexed { i, _ ->
+                        node.addChild(sorted[i], null)
+                        if (i != sorted.size - 1) {
+                            node.addChild(PsiWhiteSpaceImpl(" "), null)
+                        }
                     }
                 }
             }
