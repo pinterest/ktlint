@@ -2,7 +2,6 @@ package com.github.shyiko.ktlint.ruleset.standard
 
 import com.github.shyiko.ktlint.core.Rule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 import org.jetbrains.kotlin.lexer.KtTokens.ABSTRACT_KEYWORD
 import org.jetbrains.kotlin.lexer.KtTokens.ACTUAL_KEYWORD
@@ -72,12 +71,8 @@ class ModifierOrderRule : Rule("modifier-order") {
                     sorted.map { it.text }.joinToString(" ")
                 }\")", true)
                 if (autoCorrect) {
-                    node.removeRange(node.firstChildNode, node.lastChildNode.treeNext)
-                    modifierArr.forEachIndexed { i, _ ->
-                        node.addChild(sorted[i], null)
-                        if (i != sorted.size - 1) {
-                            node.addChild(PsiWhiteSpaceImpl(" "), null)
-                        }
+                    modifierArr.forEachIndexed { i, n ->
+                        node.replaceChild(n, sorted[i].clone() as ASTNode)
                     }
                 }
             }

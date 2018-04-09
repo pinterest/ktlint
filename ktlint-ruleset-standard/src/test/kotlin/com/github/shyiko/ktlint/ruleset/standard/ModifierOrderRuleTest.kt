@@ -27,8 +27,14 @@ class ModifierOrderRuleTest {
                     = if (x == Math.cos(x)) x else findFixPoint(Math.cos(x))
                 override @Annotation fun getSomething() = ""
                 override @Annotation suspend public @Woohoo(data = "woohoo") fun doSomething() = ""
-                @AnnotationAboveLine
-                fun returnsSomething() = ""
+                @A
+                @B(v = [
+                    "foo",
+                    "baz",
+                    "bar"
+                ])
+                @C
+                suspend public fun returnsSomething() = ""
 
                 companion object {
                    const internal val V = ""
@@ -46,7 +52,13 @@ class ModifierOrderRuleTest {
             LintError(11, 5, "modifier-order", "Incorrect modifier order (should be \"override tailrec\")"),
             LintError(13, 5, "modifier-order", "Incorrect modifier order (should be \"@Annotation override\")"),
             LintError(14, 5, "modifier-order", "Incorrect modifier order (should be \"@Annotation @Woohoo(data = \"woohoo\") public override suspend\")"),
-            LintError(19, 8, "modifier-order", "Incorrect modifier order (should be \"internal const\")")
+            LintError(15, 5, "modifier-order", """Incorrect modifier order (should be "@A @B(v = [
+                |        "foo",
+                |        "baz",
+                |        "bar"
+                |    ]) @C public suspend")
+                """.trimMargin()),
+            LintError(25, 8, "modifier-order", "Incorrect modifier order (should be \"internal const\")")
         ))
     }
 
@@ -68,8 +80,14 @@ class ModifierOrderRuleTest {
                     = if (x == Math.cos(x)) x else findFixPoint(Math.cos(x))
                 override @Annotation fun getSomething() = ""
                 suspend @Annotation override public @Woohoo(data = "woohoo") fun doSomething() = ""
-                @AnnotationAboveLine
-                fun returnsSomething() = ""
+                @A
+                @B(v = [
+                    "foo",
+                    "baz",
+                    "bar"
+                ])
+                @C
+                suspend public fun returnsSomething() = ""
 
                 companion object {
                    const internal val V = ""
@@ -92,8 +110,14 @@ class ModifierOrderRuleTest {
                     = if (x == Math.cos(x)) x else findFixPoint(Math.cos(x))
                 @Annotation override fun getSomething() = ""
                 @Annotation @Woohoo(data = "woohoo") public override suspend fun doSomething() = ""
-                @AnnotationAboveLine
-                fun returnsSomething() = ""
+                @A
+                @B(v = [
+                    "foo",
+                    "baz",
+                    "bar"
+                ])
+                @C
+                public suspend fun returnsSomething() = ""
 
                 companion object {
                    internal const val V = ""
