@@ -13,7 +13,7 @@ class ModifierOrderRuleTest {
         // pretty much every line below should trip an error
         assertThat(ModifierOrderRule().lint(
             """
-            abstract open class A { // open is here for test purposes only, otherwise it's redundant
+            abstract @Deprecated open class A { // open is here for test purposes only, otherwise it's redundant
                 open protected val v = ""
                 open suspend internal fun f(v: Any): Any = ""
                 lateinit public var lv: String
@@ -25,6 +25,16 @@ class ModifierOrderRuleTest {
                 suspend override fun f(v: Any): Any = ""
                 tailrec override fun findFixPoint(x: Double): Double
                     = if (x == Math.cos(x)) x else findFixPoint(Math.cos(x))
+                override @Annotation fun getSomething() = ""
+                override @Annotation suspend public @Woohoo(data = "woohoo") fun doSomething() = ""
+                @A
+                @B(v = [
+                    "foo",
+                    "baz",
+                    "bar"
+                ])
+                @C
+                suspend public fun returnsSomething() = ""
 
                 companion object {
                    const internal val V = ""
@@ -32,7 +42,7 @@ class ModifierOrderRuleTest {
             }
             """.trimIndent()
         )).isEqualTo(listOf(
-            LintError(1, 1, "modifier-order", "Incorrect modifier order (should be \"open abstract\")"),
+            LintError(1, 1, "modifier-order", "Incorrect modifier order (should be \"@Annotation... open abstract\")"),
             LintError(2, 5, "modifier-order", "Incorrect modifier order (should be \"protected open\")"),
             LintError(3, 5, "modifier-order", "Incorrect modifier order (should be \"internal open suspend\")"),
             LintError(4, 5, "modifier-order", "Incorrect modifier order (should be \"public lateinit\")"),
@@ -40,7 +50,10 @@ class ModifierOrderRuleTest {
             LintError(9, 5, "modifier-order", "Incorrect modifier order (should be \"public override\")"),
             LintError(10, 5, "modifier-order", "Incorrect modifier order (should be \"override suspend\")"),
             LintError(11, 5, "modifier-order", "Incorrect modifier order (should be \"override tailrec\")"),
-            LintError(15, 8, "modifier-order", "Incorrect modifier order (should be \"internal const\")")
+            LintError(13, 5, "modifier-order", "Incorrect modifier order (should be \"@Annotation... override\")"),
+            LintError(14, 5, "modifier-order", "Incorrect modifier order (should be \"@Annotation... public override suspend\")"),
+            LintError(15, 5, "modifier-order", "Incorrect modifier order (should be \"@Annotation... public suspend\")"),
+            LintError(25, 8, "modifier-order", "Incorrect modifier order (should be \"internal const\")")
         ))
     }
 
@@ -48,7 +61,7 @@ class ModifierOrderRuleTest {
     fun testFormat() {
         assertThat(ModifierOrderRule().format(
             """
-            abstract open class A { // open is here for test purposes only, otherwise it's redundant
+            abstract @Deprecated open class A { // open is here for test purposes only, otherwise it's redundant
                 open protected val v = ""
                 open suspend internal fun f(v: Any): Any = ""
                 lateinit public var lv: String
@@ -60,6 +73,16 @@ class ModifierOrderRuleTest {
                 suspend override fun f(v: Any): Any = ""
                 tailrec override fun findFixPoint(x: Double): Double
                     = if (x == Math.cos(x)) x else findFixPoint(Math.cos(x))
+                override @Annotation fun getSomething() = ""
+                suspend @Annotation override public @Woohoo(data = "woohoo") fun doSomething() = ""
+                @A
+                @B(v = [
+                    "foo",
+                    "baz",
+                    "bar"
+                ])
+                @C
+                suspend public fun returnsSomething() = ""
 
                 companion object {
                    const internal val V = ""
@@ -68,7 +91,7 @@ class ModifierOrderRuleTest {
             """
         )).isEqualTo(
             """
-            open abstract class A { // open is here for test purposes only, otherwise it's redundant
+            @Deprecated open abstract class A { // open is here for test purposes only, otherwise it's redundant
                 protected open val v = ""
                 internal open suspend fun f(v: Any): Any = ""
                 public lateinit var lv: String
@@ -80,6 +103,16 @@ class ModifierOrderRuleTest {
                 override suspend fun f(v: Any): Any = ""
                 override tailrec fun findFixPoint(x: Double): Double
                     = if (x == Math.cos(x)) x else findFixPoint(Math.cos(x))
+                @Annotation override fun getSomething() = ""
+                @Annotation @Woohoo(data = "woohoo") public override suspend fun doSomething() = ""
+                @A
+                @B(v = [
+                    "foo",
+                    "baz",
+                    "bar"
+                ])
+                @C
+                public suspend fun returnsSomething() = ""
 
                 companion object {
                    internal const val V = ""
