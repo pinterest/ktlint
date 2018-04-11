@@ -28,6 +28,7 @@ import org.jetbrains.kotlin.lexer.KtTokens.SEALED_KEYWORD
 import org.jetbrains.kotlin.lexer.KtTokens.SUSPEND_KEYWORD
 import org.jetbrains.kotlin.lexer.KtTokens.TAILREC_KEYWORD
 import org.jetbrains.kotlin.lexer.KtTokens.VARARG_KEYWORD
+import org.jetbrains.kotlin.psi.KtAnnotationEntry
 import org.jetbrains.kotlin.psi.KtDeclarationModifierList
 import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes.ANNOTATION_ENTRY
 import java.util.Arrays
@@ -67,8 +68,10 @@ class ModifierOrderRule : Rule("modifier-order") {
             val modifierArr = node.getChildren(tokenSet)
             val sorted = modifierArr.copyOf().apply { sortWith(compareBy { order.indexOf(it.elementType) }) }
             if (!Arrays.equals(modifierArr, sorted)) {
+                // Since annotations can be fairly lengthy and/or span multiple lines we are
+                // squashing them into a single placeholder text to guarantee a single line output
                 emit(node.startOffset, "Incorrect modifier order (should be \"${
-                    sorted.map { it.text }.joinToString(" ")
+                    squashAnnotations(sorted).joinToString(" ")
                 }\")", true)
                 if (autoCorrect) {
                     modifierArr.forEachIndexed { i, n ->
@@ -76,6 +79,15 @@ class ModifierOrderRule : Rule("modifier-order") {
                     }
                 }
             }
+        }
+    }
+
+    private fun squashAnnotations(sorted: Array<ASTNode>): List<String> {
+        val nonAnnotationModifiers = sorted.filter { it.psi !is KtAnnotationEntry }
+        return if (nonAnnotationModifiers.size != sorted.size) {
+            listOf("@Annotation...") + nonAnnotationModifiers.map { it.text }
+        } else {
+            nonAnnotationModifiers.map { it.text }
         }
     }
 }

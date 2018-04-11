@@ -42,7 +42,7 @@ class ModifierOrderRuleTest {
             }
             """.trimIndent()
         )).isEqualTo(listOf(
-            LintError(1, 1, "modifier-order", "Incorrect modifier order (should be \"@Deprecated open abstract\")"),
+            LintError(1, 1, "modifier-order", "Incorrect modifier order (should be \"@Annotation... open abstract\")"),
             LintError(2, 5, "modifier-order", "Incorrect modifier order (should be \"protected open\")"),
             LintError(3, 5, "modifier-order", "Incorrect modifier order (should be \"internal open suspend\")"),
             LintError(4, 5, "modifier-order", "Incorrect modifier order (should be \"public lateinit\")"),
@@ -50,14 +50,9 @@ class ModifierOrderRuleTest {
             LintError(9, 5, "modifier-order", "Incorrect modifier order (should be \"public override\")"),
             LintError(10, 5, "modifier-order", "Incorrect modifier order (should be \"override suspend\")"),
             LintError(11, 5, "modifier-order", "Incorrect modifier order (should be \"override tailrec\")"),
-            LintError(13, 5, "modifier-order", "Incorrect modifier order (should be \"@Annotation override\")"),
-            LintError(14, 5, "modifier-order", "Incorrect modifier order (should be \"@Annotation @Woohoo(data = \"woohoo\") public override suspend\")"),
-            LintError(15, 5, "modifier-order", """Incorrect modifier order (should be "@A @B(v = [
-                |        "foo",
-                |        "baz",
-                |        "bar"
-                |    ]) @C public suspend")
-                """.trimMargin()),
+            LintError(13, 5, "modifier-order", "Incorrect modifier order (should be \"@Annotation... override\")"),
+            LintError(14, 5, "modifier-order", "Incorrect modifier order (should be \"@Annotation... public override suspend\")"),
+            LintError(15, 5, "modifier-order", "Incorrect modifier order (should be \"@Annotation... public suspend\")"),
             LintError(25, 8, "modifier-order", "Incorrect modifier order (should be \"internal const\")")
         ))
     }
