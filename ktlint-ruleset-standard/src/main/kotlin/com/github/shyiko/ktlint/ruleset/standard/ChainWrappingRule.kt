@@ -5,6 +5,7 @@ import org.jetbrains.kotlin.KtNodeTypes
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
+import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
@@ -20,6 +21,7 @@ import org.jetbrains.kotlin.lexer.KtTokens.PERC
 import org.jetbrains.kotlin.lexer.KtTokens.PLUS
 import org.jetbrains.kotlin.lexer.KtTokens.SAFE_ACCESS
 import org.jetbrains.kotlin.psi.psiUtil.nextLeaf
+import org.jetbrains.kotlin.psi.psiUtil.nextLeafs
 import org.jetbrains.kotlin.psi.psiUtil.prevLeaf
 
 class ChainWrappingRule : Rule("chain-wrapping") {
@@ -72,17 +74,39 @@ class ChainWrappingRule : Rule("chain-wrapping") {
             ) {
                 emit(node.startOffset, "Line must not begin with \"${node.text}\"", true)
                 if (autoCorrect) {
-                    val nextLeaf = node.psi.nextLeaf(true)
-                    if (nextLeaf is PsiWhiteSpaceImpl) {
-                        nextLeaf.rawReplaceWithText(prevLeaf.text)
+                    val leavesToMove =
+                        listOf(node.psi) +
+                            node.psi.nextLeafs.takeWhile {
+                                it is PsiWhiteSpace
+                            }.toList()
+                    var textToMove = leavesToMove
+                        .joinToString("") { it.text }
+                    var insertionPoint = prevLeaf.prevLeafIgnoringWhitespaceAndComments()
+                        ?: prevLeaf
+                    val afterInsertionPoint = insertionPoint.nextLeaf(true)
+
+                    if (
+                        afterInsertionPoint is PsiWhiteSpace &&
+                        !afterInsertionPoint.textContains('\n')
+                    ) {
+                        // If we have whitespace to insert after on the same line,
+                        // go ahead and do it so we don't have to add our own.
+                        insertionPoint = afterInsertionPoint
+                    } else if (afterInsertionPoint is PsiWhiteSpace) {
+                        // Or if there is whitespace and it has a newline,
+                        // ensure we don't add trailing space.
+                        textToMove = " ${textToMove.trimEnd()}"
                     } else {
-                        (node.psi as LeafPsiElement).rawInsertAfterMe(PsiWhiteSpaceImpl(prevLeaf.text))
+                        // Otherwise, ensure there's at least a space between the
+                        // left operand and the operator.
+                        textToMove = " $textToMove"
                     }
-                    if (noSpaceAroundTokens.contains(elementType)) {
-                        prevLeaf.node.treeParent.removeChild(prevLeaf.node)
-                    } else {
-                        prevLeaf.rawReplaceWithText(" ")
+
+                    for (leafToMove in leavesToMove) {
+                        leafToMove.node.treeParent.removeChild(leafToMove.node)
                     }
+
+                    (insertionPoint as LeafPsiElement).rawInsertAfterMe(PsiWhiteSpaceImpl(textToMove))
                 }
             }
         }
