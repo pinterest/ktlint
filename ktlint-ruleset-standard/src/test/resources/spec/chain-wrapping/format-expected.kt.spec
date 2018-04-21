@@ -47,5 +47,10 @@ fun main() {
     var x =
         -2 >
         (2 + 2)
+    var y = false && // comment
+        false
+    y = false &&
+        // comment
+        false
     -3
 }
