@@ -41,24 +41,34 @@ class ChainWrappingRule : Rule("chain-wrapping") {
          */
         val elementType = node.elementType
         if (nextLineTokens.contains(elementType)) {
-            val nextLeaf = node.psi.nextLeaf(true)
+            if (node.psi.isPartOf(PsiComment::class)) {
+                return
+            }
+            val nextLeaf = node.psi.nextLeafIgnoringWhitespaceAndComments()?.prevLeaf(true)
             if (nextLeaf is PsiWhiteSpaceImpl && nextLeaf.textContains('\n')) {
                 emit(node.startOffset, "Line must not end with \"${node.text}\"", true)
                 if (autoCorrect) {
+                    // rewriting
+                    // <prevLeaf><node="."><nextLeaf="\n"> to
+                    // <prevLeaf><delete space if any><nextLeaf="\n"><node="."><space if needed>
+                    // (or)
+                    // <prevLeaf><node="."><spaceBeforeComment><comment><nextLeaf="\n"> to
+                    // <prevLeaf><delete space if any><spaceBeforeComment><comment><nextLeaf="\n"><node="."><space if needed>
                     val prevLeaf = node.psi.prevLeaf(true)
                     if (prevLeaf is PsiWhiteSpaceImpl) {
-                        prevLeaf.rawReplaceWithText(nextLeaf.text)
-                    } else {
-                        (node.psi as LeafPsiElement).rawInsertBeforeMe(PsiWhiteSpaceImpl(nextLeaf.text))
+                        prevLeaf.node.treeParent.removeChild(prevLeaf.node)
                     }
-                    if (noSpaceAroundTokens.contains(elementType)) {
-                        nextLeaf.node.treeParent.removeChild(nextLeaf.node)
-                    } else {
-                        nextLeaf.rawReplaceWithText(" ")
+                    if (!noSpaceAroundTokens.contains(elementType)) {
+                        nextLeaf.rawInsertAfterMe(PsiWhiteSpaceImpl(" "))
                     }
+                    node.treeParent.removeChild(node)
+                    nextLeaf.rawInsertAfterMe(node.psi as LeafPsiElement)
                 }
             }
         } else if (sameLineTokens.contains(elementType) || prefixTokens.contains(elementType)) {
+            if (node.psi.isPartOf(PsiComment::class)) {
+                return
+            }
             val prevLeaf = node.psi.prevLeaf(true)
             if (
                 prevLeaf is PsiWhiteSpaceImpl &&
@@ -72,16 +82,21 @@ class ChainWrappingRule : Rule("chain-wrapping") {
             ) {
                 emit(node.startOffset, "Line must not begin with \"${node.text}\"", true)
                 if (autoCorrect) {
+                    // rewriting
+                    // <insertionPoint><prevLeaf="\n"><node="&&"><nextLeaf=" "> to
+                    // <insertionPoint><prevLeaf=" "><node="&&"><nextLeaf="\n"><delete node="&&"><delete nextLeaf=" ">
+                    // (or)
+                    // <insertionPoint><spaceBeforeComment><comment><prevLeaf="\n"><node="&&"><nextLeaf=" "> to
+                    // <insertionPoint><space if needed><node="&&"><spaceBeforeComment><comment><prevLeaf="\n"><delete node="&&"><delete nextLeaf=" ">
                     val nextLeaf = node.psi.nextLeaf(true)
                     if (nextLeaf is PsiWhiteSpaceImpl) {
-                        nextLeaf.rawReplaceWithText(prevLeaf.text)
-                    } else {
-                        (node.psi as LeafPsiElement).rawInsertAfterMe(PsiWhiteSpaceImpl(prevLeaf.text))
+                        nextLeaf.node.treeParent.removeChild(nextLeaf.node)
                     }
-                    if (noSpaceAroundTokens.contains(elementType)) {
-                        prevLeaf.node.treeParent.removeChild(prevLeaf.node)
-                    } else {
-                        prevLeaf.rawReplaceWithText(" ")
+                    val insertionPoint = prevLeaf.prevLeafIgnoringWhitespaceAndComments() as LeafPsiElement
+                    node.treeParent.removeChild(node)
+                    insertionPoint.rawInsertAfterMe(node.psi as LeafPsiElement)
+                    if (!noSpaceAroundTokens.contains(elementType)) {
+                        insertionPoint.rawInsertAfterMe(PsiWhiteSpaceImpl(" "))
                     }
                 }
             }
@@ -103,6 +118,9 @@ class ChainWrappingRule : Rule("chain-wrapping") {
 
     private fun ASTNode.isPartOfWhenCondition() =
         treeParent?.treeParent?.treeParent?.elementType == KtNodeTypes.WHEN_CONDITION_EXPRESSION
+
+    private fun PsiElement.nextLeafIgnoringWhitespaceAndComments() =
+        this.nextLeaf { it.node.elementType != KtTokens.WHITE_SPACE && !it.isPartOf(PsiComment::class) }
 
     private fun PsiElement.prevLeafIgnoringWhitespaceAndComments() =
         this.prevLeaf { it.node.elementType != KtTokens.WHITE_SPACE && !it.isPartOf(PsiComment::class) }

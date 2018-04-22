@@ -48,4 +48,19 @@ fun main() {
         -2 >
         (2 + 2)
     -3
+    // https://github.com/shyiko/ktlint/pull/193
+    var x = false && // comment
+        false
+    x = false &&
+        /* comment */
+        // comment
+        false
+    var y = false // comment
+        .call()
+    y = false
+        // comment
+        .call()
+    y = false // comment
+        /* comment */
+        .call()
 }

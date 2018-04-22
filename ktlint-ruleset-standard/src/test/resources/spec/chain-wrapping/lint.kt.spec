@@ -29,6 +29,12 @@ fun main() {
     )
 }
 
+/**
+ * @see KtLint.EDITOR_CONFIG_USER_DATA_KEY
+ * @see KtLint.ANDROID_USER_DATA_KEY
+ */
+fun get(key: String): String?
+
 // expect
 // 2:36:Line must not end with "."
 // 3:33:Line must not end with "."
