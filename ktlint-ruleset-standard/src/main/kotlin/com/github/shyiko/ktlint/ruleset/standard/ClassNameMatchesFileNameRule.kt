@@ -24,8 +24,8 @@ class ClassNameMatchesFileNameRule : Rule("class-name-matches-file-name"), Rule.
 
         node.visit {
             if (it.elementType == KtStubElementTypes.CLASS && it.treeParent.elementType == KtStubElementTypes.FILE) {
-                val ktClass = it.findChildByType(KtTokens.IDENTIFIER)
-                ktClass?.let {
+                val classIdentifier = it.findChildByType(KtTokens.IDENTIFIER)
+                classIdentifier?.let {
                     val className = it.text
                     topLevelClassNames.add(NameWithOffset(className, it.startOffset))
                 }
