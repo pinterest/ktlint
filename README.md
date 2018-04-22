@@ -267,7 +267,7 @@ Go to <kbd>File</kbd> -> <kbd>Settings...</kbd> -> <kbd>Editor</kbd>
   - (optional but recommended) open <kbd>Wrapping and Braces</kbd> tab
     - uncheck `Method declaration parameters` / `Align when multiline`.     
   - (optional but recommended) open <kbd>Tabs and Indents</kbd> tab
-    - change `Continuation indent` to 4   
+    - change `Continuation indent` to the same value as `Indent` (4 by default).   
 - <kbd>Inspections</kbd> 
   - change `Severity` level of `Unused import directive` and `Redundant semicolon` to `ERROR`.
 
