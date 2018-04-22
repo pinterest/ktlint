@@ -276,9 +276,10 @@ object Main {
                 System.err.println("[DEBUG] Checking ${if (fileName != "<text>") File(fileName).location() else fileName}")
             }
             val result = ArrayList<LintErrorWithCorrectionInfo>()
+            val localUserData = if (fileName != "<text>") userData + ("file_path" to fileName) else userData
             if (format) {
                 val formattedFileContent = try {
-                    format(fileName, fileContent, ruleSetProviders.map { it.second.get() }, userData) { err, corrected ->
+                    format(fileName, fileContent, ruleSetProviders.map { it.second.get() }, localUserData) { err, corrected ->
                         if (!corrected) {
                             result.add(LintErrorWithCorrectionInfo(err, corrected))
                             tripped.set(true)
@@ -298,7 +299,7 @@ object Main {
                 }
             } else {
                 try {
-                    lint(fileName, fileContent, ruleSetProviders.map { it.second.get() }, userData) { err ->
+                    lint(fileName, fileContent, ruleSetProviders.map { it.second.get() }, localUserData) { err ->
                         result.add(LintErrorWithCorrectionInfo(err, false))
                         tripped.set(true)
                     }

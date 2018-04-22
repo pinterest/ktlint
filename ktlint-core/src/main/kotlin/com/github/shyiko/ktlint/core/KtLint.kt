@@ -37,6 +37,7 @@ object KtLint {
 
     val EDITOR_CONFIG_USER_DATA_KEY = Key<EditorConfig>("EDITOR_CONFIG")
     val ANDROID_USER_DATA_KEY = Key<Boolean>("ANDROID")
+    val FILE_PATH_USER_DATA_KEY = Key<String>("FILE_PATH")
 
     private val psiFileFactory: PsiFileFactory
     private val nullSuppression = { _: Int, _: String -> false }
@@ -143,8 +144,9 @@ object KtLint {
             throw ParseException(line, col, errorElement.errorDescription)
         }
         val rootNode = psiFile.node
-        rootNode.putUserData(EDITOR_CONFIG_USER_DATA_KEY, EditorConfig.fromMap(userData - "android"))
+        rootNode.putUserData(EDITOR_CONFIG_USER_DATA_KEY, EditorConfig.fromMap(userData - "android" - "file_path"))
         rootNode.putUserData(ANDROID_USER_DATA_KEY, userData["android"]?.toBoolean() ?: false)
+        rootNode.putUserData(FILE_PATH_USER_DATA_KEY, userData["file_path"])
         val isSuppressed = calculateSuppressedRegions(rootNode)
         visitor(rootNode, ruleSets).invoke { node, rule, fqRuleId ->
             // fixme: enforcing suppression based on node.startOffset is wrong
@@ -316,8 +318,9 @@ object KtLint {
             throw ParseException(line, col, errorElement.errorDescription)
         }
         val rootNode = psiFile.node
-        rootNode.putUserData(EDITOR_CONFIG_USER_DATA_KEY, EditorConfig.fromMap(userData - "android"))
+        rootNode.putUserData(EDITOR_CONFIG_USER_DATA_KEY, EditorConfig.fromMap(userData - "android" - "file_path"))
         rootNode.putUserData(ANDROID_USER_DATA_KEY, userData["android"]?.toBoolean() ?: false)
+        rootNode.putUserData(FILE_PATH_USER_DATA_KEY, userData["file_path"])
         var isSuppressed = calculateSuppressedRegions(rootNode)
         var tripped = false
         var mutated = false
