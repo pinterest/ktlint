@@ -14,7 +14,6 @@ internal data class EditorConfig(
     companion object {
 
         private const val DEFAULT_INDENT = 4
-        private const val DEFAULT_CONTINUATION_INDENT = 4
 
         // https://android.github.io/kotlin-guides/style.html#line-wrapping
         private const val ANDROID_MAX_LINE_LENGTH = 100
@@ -29,7 +28,7 @@ internal data class EditorConfig(
             val continuationIndentSizeRaw = editorConfig.get("continuation_indent_size")
             val continuationIndentSize = when {
                 continuationIndentSizeRaw?.toLowerCase() == "unset" -> -1
-                else -> continuationIndentSizeRaw?.toIntOrNull() ?: DEFAULT_CONTINUATION_INDENT
+                else -> continuationIndentSizeRaw?.toIntOrNull() ?: indentSize
             }
             val android = node.getUserData(KtLint.ANDROID_USER_DATA_KEY)!!
             val maxLineLength = editorConfig.get("max_line_length")?.toIntOrNull()
