@@ -21,10 +21,10 @@ class IndentationRule : Rule("indent") {
     ) {
         if (node.elementType == KtStubElementTypes.FILE) {
             val ec = EditorConfig.from(node as FileASTNode)
-            indentSize = ec.indentSize
+            indentSize = gcd(maxOf(ec.indentSize, 1), maxOf(ec.continuationIndentSize, 1))
             return
         }
-        if (indentSize <= 0) {
+        if (indentSize <= 1) {
             return
         }
         if (node is PsiWhiteSpace) {
@@ -46,6 +46,12 @@ class IndentationRule : Rule("indent") {
                 }
             }
         }
+    }
+
+    private fun gcd(a: Int, b: Int): Int = when {
+        a > b -> gcd(a - b, b)
+        a < b -> gcd(a, b - a)
+        else -> a
     }
 
     // todo: calculating indent based on the previous line value is wrong (see IndentationRule.testLint)
