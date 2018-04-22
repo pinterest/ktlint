@@ -2,6 +2,23 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.22.0] - 2018-04-22
+
+### Added
+- `--apply-to-idea-project` (as an alternative to (global) `--apply-to-idea`) ([#178](https://github.com/shyiko/ktlint/issues/178)).
+- Check to verify that annotations are placed before the modifiers ([#183](https://github.com/shyiko/ktlint/pull/183)).
+- Access to PsiFile location information ([#194](https://github.com/shyiko/ktlint/pull/194)).
+
+### Fixed
+- `--format` commenting out operators (`chain-wrapping` rule) ([#193](https://github.com/shyiko/ktlint/pull/193)).
+
+### Changed
+- `indent` rule (`continuation_indent_size` is now ignored) ([#171](https://github.com/shyiko/ktlint/issues/171)).  
+NOTE: if you have a custom `continuation_indent_size` (and `gcd(indent_size, continuation_indent_size) == 1`) ktlint
+won't check the indentation.
+- `--apply-to-idea` to inherit "Predefined style / Kotlin style guide" (Kotlin plugin 1.2.20+).
+- `kotlin-compiler` version to 1.2.40 (from 1.2.30).
+
 ## [0.21.0] - 2018-03-29
 
 ### Changed
@@ -363,6 +380,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.22.0]: https://github.com/shyiko/ktlint/compare/0.21.0...0.22.0
 [0.21.0]: https://github.com/shyiko/ktlint/compare/0.20.0...0.21.0
 [0.20.0]: https://github.com/shyiko/ktlint/compare/0.19.0...0.20.0
 [0.19.0]: https://github.com/shyiko/ktlint/compare/0.18.0...0.19.0
