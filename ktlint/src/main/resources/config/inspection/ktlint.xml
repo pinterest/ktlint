@@ -3,6 +3,5 @@
   <option name="myName" value="ktlint" />
   <inspection_tool class="KotlinUnusedImport" enabled="true" level="ERROR" enabled_by_default="true" />
   <inspection_tool class="RedundantSemicolon" enabled="true" level="ERROR" enabled_by_default="true" />
-  <inspection_tool class="UnusedSymbol" enabled="true" level="ERROR" enabled_by_default="true" />
 </inspections>
 

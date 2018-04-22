@@ -22,71 +22,101 @@ object IntellijIDEAIntegration {
 
     @Suppress("UNUSED_PARAMETER")
     @Throws(IOException::class)
-    fun apply(workDir: Path, dryRun: Boolean, android: Boolean = false): Array<Path> {
+    fun apply(workDir: Path, dryRun: Boolean, android: Boolean = false, local: Boolean = false): Array<Path> {
         if (!Files.isDirectory(workDir.resolve(".idea"))) {
             throw ProjectNotFoundException()
         }
-        val home = System.getProperty("user.home")
         val editorConfig: Map<String, String> = EditorConfig.of(".") ?: emptyMap()
-        val continuationIndentSize = editorConfig["continuation_indent_size"]?.toIntOrNull() ?: 4
         val indentSize = editorConfig["indent_size"]?.toIntOrNull() ?: 4
-        val codeStyleName = "ktlint${
-            if (continuationIndentSize == 4) "" else "-cis$continuationIndentSize"
-        }${
-            if (indentSize == 4) "" else "-is$indentSize"
-        }"
-        val paths =
-            // macOS
-            Glob.from("IntelliJIdea*", "IdeaIC*", "AndroidStudio*")
-                .iterate(Paths.get(home, "Library", "Preferences"),
-                    Glob.IterationOption.SKIP_CHILDREN, Glob.IterationOption.DIRECTORY).asSequence() +
-            // linux/windows
-            Glob.from(".IntelliJIdea*/config", ".IdeaIC*/config", ".AndroidStudio*/config")
-                .iterate(Paths.get(home),
-                    Glob.IterationOption.SKIP_CHILDREN, Glob.IterationOption.DIRECTORY).asSequence()
-        val updates = (paths.flatMap { dir ->
-            sequenceOf(
-                Paths.get(dir.toString(), "codestyles", "$codeStyleName.xml") to
-                    overwriteWithResource("/config/codestyles/ktlint.xml") { resource ->
+        val continuationIndentSize = editorConfig["continuation_indent_size"]?.toIntOrNull() ?: 4
+        val updates = if (local) {
+            listOf(
+                Paths.get(workDir.toString(), ".idea", "codeStyles", "codeStyleConfig.xml") to
+                    overwriteWithResource("/project-config/.idea/codeStyles/codeStyleConfig.xml"),
+                Paths.get(workDir.toString(), ".idea", "codeStyles", "Project.xml") to
+                    overwriteWithResource("/project-config/.idea/codeStyles/Project.xml") { resource ->
                         resource
-                            .replace("code_scheme name=\"ktlint\"",
-                                "code_scheme name=\"$codeStyleName\"")
                             .replace("option name=\"INDENT_SIZE\" value=\"4\"",
                                 "option name=\"INDENT_SIZE\" value=\"$indentSize\"")
                             .replace("option name=\"CONTINUATION_INDENT_SIZE\" value=\"8\"",
                                 "option name=\"CONTINUATION_INDENT_SIZE\" value=\"$continuationIndentSize\"")
                     },
-                Paths.get(dir.toString(), "options", "code.style.schemes.xml") to
-                    overwriteWithResource("/config/options/code.style.schemes.xml") { content ->
-                        content
-                            .replace("option name=\"CURRENT_SCHEME_NAME\" value=\"ktlint\"",
-                                "option name=\"CURRENT_SCHEME_NAME\" value=\"$codeStyleName\"")
-                    },
-                Paths.get(dir.toString(), "inspection", "ktlint.xml") to
-                    overwriteWithResource("/config/inspection/ktlint.xml"),
-                Paths.get(dir.toString(), "options", "editor.codeinsight.xml") to {
-                    var arr = "<application></application>".toByteArray()
+                Paths.get(workDir.toString(), ".idea", "inspectionProfiles", "profiles_settings.xml") to
+                    overwriteWithResource("/project-config/.idea/inspectionProfiles/profiles_settings.xml"),
+                Paths.get(workDir.toString(), ".idea", "inspectionProfiles", "ktlint.xml") to
+                    overwriteWithResource("/project-config/.idea/inspectionProfiles/ktlint.xml"),
+                Paths.get(workDir.toString(), ".idea", "workspace.xml") to {
+                    var arr = "<project version=\"4\"></project>".toByteArray()
                     try {
-                        arr = Files.readAllBytes(Paths.get(dir.toString(), "options", "editor.codeinsight.xml"))
+                        arr = Files.readAllBytes(Paths.get(workDir.toString(), ".idea", "workspace.xml"))
                     } catch (e: IOException) {
                         if (e !is NoSuchFileException) {
                             throw e
                         }
                     }
-                    enableOptimizeImportsOnTheFly(arr)
+                    enableOptimizeImportsOnTheFlyInsideWorkspace(arr)
                 }
             )
-        } + sequenceOf(
-            Paths.get(workDir.toString(), ".idea", "codeStyleSettings.xml") to
-                overwriteWithResource("/config/.idea/codeStyleSettings.xml") { content ->
-                    content.replace(
-                        "option name=\"PREFERRED_PROJECT_CODE_STYLE\" value=\"ktlint\"",
-                        "option name=\"PREFERRED_PROJECT_CODE_STYLE\" value=\"$codeStyleName\""
-                    )
-                },
-            Paths.get(workDir.toString(), ".idea", "inspectionProfiles", "profiles_settings.xml") to
-                overwriteWithResource("/config/.idea/inspectionProfiles/profiles_settings.xml")
-        )).toList()
+        } else {
+            val home = System.getProperty("user.home")
+            val codeStyleName = "ktlint${
+                if (continuationIndentSize == 4) "" else "-cis$continuationIndentSize"
+            }${
+                if (indentSize == 4) "" else "-is$indentSize"
+            }"
+            val paths =
+                // macOS
+                Glob.from("IntelliJIdea*", "IdeaIC*", "AndroidStudio*")
+                    .iterate(Paths.get(home, "Library", "Preferences"),
+                        Glob.IterationOption.SKIP_CHILDREN, Glob.IterationOption.DIRECTORY).asSequence() +
+                // linux/windows
+                Glob.from(".IntelliJIdea*/config", ".IdeaIC*/config", ".AndroidStudio*/config")
+                    .iterate(Paths.get(home),
+                        Glob.IterationOption.SKIP_CHILDREN, Glob.IterationOption.DIRECTORY).asSequence()
+            (paths.flatMap { dir ->
+                sequenceOf(
+                    Paths.get(dir.toString(), "codestyles", "$codeStyleName.xml") to
+                        overwriteWithResource("/config/codestyles/ktlint.xml") { resource ->
+                            resource
+                                .replace("code_scheme name=\"ktlint\"",
+                                    "code_scheme name=\"$codeStyleName\"")
+                                .replace("option name=\"INDENT_SIZE\" value=\"4\"",
+                                    "option name=\"INDENT_SIZE\" value=\"$indentSize\"")
+                                .replace("option name=\"CONTINUATION_INDENT_SIZE\" value=\"8\"",
+                                    "option name=\"CONTINUATION_INDENT_SIZE\" value=\"$continuationIndentSize\"")
+                        },
+                    Paths.get(dir.toString(), "options", "code.style.schemes.xml") to
+                        overwriteWithResource("/config/options/code.style.schemes.xml") { content ->
+                            content
+                                .replace("option name=\"CURRENT_SCHEME_NAME\" value=\"ktlint\"",
+                                    "option name=\"CURRENT_SCHEME_NAME\" value=\"$codeStyleName\"")
+                        },
+                    Paths.get(dir.toString(), "inspection", "ktlint.xml") to
+                        overwriteWithResource("/config/inspection/ktlint.xml"),
+                    Paths.get(dir.toString(), "options", "editor.codeinsight.xml") to {
+                        var arr = "<application></application>".toByteArray()
+                        try {
+                            arr = Files.readAllBytes(Paths.get(dir.toString(), "options", "editor.codeinsight.xml"))
+                        } catch (e: IOException) {
+                            if (e !is NoSuchFileException) {
+                                throw e
+                            }
+                        }
+                        enableOptimizeImportsOnTheFly(arr)
+                    }
+                )
+            } + sequenceOf(
+                Paths.get(workDir.toString(), ".idea", "codeStyleSettings.xml") to
+                    overwriteWithResource("/config/.idea/codeStyleSettings.xml") { content ->
+                        content.replace(
+                            "option name=\"PREFERRED_PROJECT_CODE_STYLE\" value=\"ktlint\"",
+                            "option name=\"PREFERRED_PROJECT_CODE_STYLE\" value=\"$codeStyleName\""
+                        )
+                    },
+                Paths.get(workDir.toString(), ".idea", "inspectionProfiles", "profiles_settings.xml") to
+                    overwriteWithResource("/config/.idea/inspectionProfiles/profiles_settings.xml")
+            )).toList()
+        }
         if (!dryRun) {
             updates.forEach { (path, contentSupplier) ->
                 Files.createDirectories(path.parent)
@@ -130,6 +160,39 @@ object IntellijIDEAIntegration {
         val transformer = TransformerFactory.newInstance().newTransformer()
         val out = ByteArrayOutputStream()
         transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes")
+        transformer.transform(DOMSource(doc), StreamResult(out))
+        return out.toByteArray()
+    }
+
+    private fun enableOptimizeImportsOnTheFlyInsideWorkspace(arr: ByteArray): ByteArray {
+        /*
+        <project>
+          <component name="CodeInsightWorkspaceSettings">
+            <option name="optimizeImportsOnTheFly" value="false" />
+            ...
+          </component>
+          ...
+        </project>
+        */
+        val doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(ByteArrayInputStream(arr))
+        val xpath = XPathFactory.newInstance().newXPath()
+        var cis = xpath.evaluate("//component[@name='CodeInsightWorkspaceSettings']",
+            doc, XPathConstants.NODE) as Element?
+        if (cis == null) {
+            cis = doc.createElement("component")
+            cis.setAttribute("name", "CodeInsightWorkspaceSettings")
+            cis = doc.documentElement.appendChild(cis) as Element
+        }
+        var oiotf = xpath.evaluate("//option[@name='optimizeImportsOnTheFly']",
+            cis, XPathConstants.NODE) as Element?
+        if (oiotf == null) {
+            oiotf = doc.createElement("option")
+            oiotf.setAttribute("name", "optimizeImportsOnTheFly")
+            oiotf = cis.appendChild(oiotf) as Element
+        }
+        oiotf.setAttribute("value", "true")
+        val transformer = TransformerFactory.newInstance().newTransformer()
+        val out = ByteArrayOutputStream()
         transformer.transform(DOMSource(doc), StreamResult(out))
         return out.toByteArray()
     }

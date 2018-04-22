@@ -97,8 +97,12 @@ object Main {
     private var android: Boolean = false
 
     // todo: make it a command in 1.0.0 (it's too late now as we might interfere with valid "lint" patterns)
-    @Option(names = arrayOf("--apply-to-idea"), description = arrayOf("Update Intellij IDEA project settings"))
+    @Option(names = arrayOf("--apply-to-idea"), description = arrayOf("Update Intellij IDEA settings (global)"))
     private var apply: Boolean = false
+
+    // todo: make it a command in 1.0.0 (it's too late now as we might interfere with valid "lint" patterns)
+    @Option(names = arrayOf("--apply-to-idea-project"), description = arrayOf("Update Intellij IDEA project settings"))
+    private var applyToProject: Boolean = false
 
     @Option(names = arrayOf("--color"), description = arrayOf("Make output colorful"))
     private var color: Boolean = false
@@ -234,7 +238,7 @@ object Main {
                 exitProcess(0)
             }
         }
-        if (apply) {
+        if (apply || applyToProject) {
             applyToIDEA()
             exitProcess(0)
         }
@@ -487,13 +491,12 @@ object Main {
         try {
             val workDir = Paths.get(".")
             if (!forceApply) {
-                val fileList = IntellijIDEAIntegration.apply(workDir, true, android)
+                val fileList = IntellijIDEAIntegration.apply(workDir, true, android, applyToProject)
                 System.err.println("The following files are going to be updated:\n\n\t" +
                     fileList.joinToString("\n\t") +
                     "\n\nDo you wish to proceed? [y/n]\n" +
                     "(in future, use -y flag if you wish to skip confirmation)")
                 val scanner = Scanner(System.`in`)
-
                 val res = generateSequence {
                         try { scanner.next() } catch (e: NoSuchElementException) { null }
                     }
@@ -504,7 +507,7 @@ object Main {
                     exitProcess(1)
                 }
             }
-            IntellijIDEAIntegration.apply(workDir, false, android)
+            IntellijIDEAIntegration.apply(workDir, false, android, applyToProject)
         } catch (e: IntellijIDEAIntegration.ProjectNotFoundException) {
             System.err.println(".idea directory not found. " +
                 "Are you sure you are inside project root directory?")
