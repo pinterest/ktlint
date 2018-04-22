@@ -247,28 +247,29 @@ You might also want to take a look at [diffplug/spotless](https://github.com/dif
 > (inside project's root directory)  
 
 ```sh
-ktlint --apply-to-idea
+ktlint --apply-to-idea-project
 # or if you want to be compliant with Android Kotlin Style Guide
-ktlint --apply-to-idea --android 
+ktlint --apply-to-idea-project --android 
 ```
 
 ##### Option #2
 
-Go to `File -> Settings... -> Editor`
-- `General -> Auto Import`
+Go to <kbd>File</kbd> -> <kbd>Settings...</kbd> -> <kbd>Editor</kbd>
+- <kbd>General</kbd> -> <kbd>Auto Import</kbd>
   - check `Optimize imports on the fly (for current project)`.
-- `Code Style -> Kotlin`
-  - open `Imports` tab
-    - select `Use single name import` (all);
+- <kbd>Code Style</kbd> -> <kbd>Kotlin</kbd>
+  - <kbd>Set from...</kbd> -> <kbd>Predefined style</kbd> -> <kbd>Kotlin style guide</kbd> (Kotlin plugin 1.2.20+).
+  - open <kbd>Imports</kbd> tab
+    - select `Use single name import` (all of them);
     - remove `import java.util.*` from `Packages to Use Import with '*'`.
-  - open `Blank Lines` tab
-    - change `Keep Maximum Blank Lines` -> `In declarations` & `In code` to 1 and `Before '}'` to 0.
-  - (optional but recommended) open `Wrapping and Braces` tab
-    - uncheck `Method declaration parameters -> Align when multiline`. 
-  - (optional but recommended) open `Tabs and Indents` tab
+  - open <kbd>Blank Lines</kbd> tab
+    - change `Keep Maximum Blank Lines` / `In declarations` & `In code` to 1 and `Before '}'` to 0.
+  - (optional but recommended) open <kbd>Wrapping and Braces</kbd> tab
+    - uncheck `Method declaration parameters` / `Align when multiline`.     
+  - (optional but recommended) open <kbd>Tabs and Indents</kbd> tab
     - change `Continuation indent` to 4   
-- `Inspections` 
-  - change `Severity` level of `Unused import directive`, `Redundant semicolon` and (optional but recommended) `Unused symbol` to `ERROR`.
+- <kbd>Inspections</kbd> 
+  - change `Severity` level of `Unused import directive` and `Redundant semicolon` to `ERROR`.
 
 #### ... with [GNU Emacs](https://www.gnu.org/software/emacs/)
 
