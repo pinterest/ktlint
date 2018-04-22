@@ -4,6 +4,7 @@ import com.andreapivetta.kolor.Color
 import com.andreapivetta.kolor.Kolor
 import com.github.shyiko.ktlint.core.Rule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
+import org.jetbrains.kotlin.com.intellij.openapi.util.TextRange
 import org.jetbrains.kotlin.com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.kotlin.diagnostics.DiagnosticUtils
 import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
@@ -62,16 +63,16 @@ class DumpAST @JvmOverloads constructor(
         if (node.lastChildNode == null) node else lastChildNodeOf(node.lastChildNode)
 
     private fun location(node: ASTNode) =
-        DiagnosticUtils.getClosestPsiElement(node)
-            ?.takeIf { it.isValid && it.containingFile != null }
-            ?.let {
-                try {
-                    DiagnosticUtils.offsetToLineAndColumn(it.containingFile.viewProvider.document,
-                        it.textRange.startOffset)
-                } catch (e: Exception) {
-                    null // DiagnosticUtils.offsetToLineAndColumn has knowledge of mutated AST
-                }
+        node.psi.containingFile?.let { psiFile ->
+            try {
+                DiagnosticUtils.getLineAndColumnInPsiFile(
+                    psiFile,
+                    TextRange(node.startOffset, node.startOffset)
+                )
+            } catch (e: Exception) {
+                null // DiagnosticUtils has no knowledge of mutated AST
             }
+        }
 
     private fun colorClassName(className: String): String {
         val name = className.substringAfterLast(".")
