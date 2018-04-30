@@ -15,6 +15,7 @@ import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
 class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
 
     private var indentSize = -1
+    private var maxLineLength = -1
 
     override fun visit(
         node: ASTNode,
@@ -24,6 +25,7 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
         if (node.elementType == KtStubElementTypes.FILE) {
             val ec = EditorConfig.from(node as FileASTNode)
             indentSize = ec.indentSize
+            maxLineLength = ec.maxLineLength
             return
         }
         if (indentSize <= 0) {
@@ -37,8 +39,12 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
             // - maxLineLength exceeded (and separating parameters with \n would actually help)
             // in addition, "(" and ")" must be on separates line if any of the parameters are (otherwise on the same)
             val putParametersOnSeparateLines = node.textContains('\n')
-                // maxLineLength > 0 && node.lineLength() > maxLineLength
-            if (putParametersOnSeparateLines) {
+
+            val maxLineLengthExceeded =
+                if (maxLineLength > -1) (node.startOffset + node.textLength) > maxLineLength
+                else false
+
+            if (putParametersOnSeparateLines || maxLineLengthExceeded) {
                 // aiming for
                 // ... LPAR
                 // <LPAR line indent + indentSize> VALUE_PARAMETER...
