@@ -28,6 +28,25 @@ class ParameterListWrappingRuleTest {
     }
 
     @Test
+    fun testLintClassParameterListWhenMaxLineLengthExceeded() {
+        assertThat(
+            ParameterListWrappingRule().lint(
+            """
+            class ClassA(paramA: String, paramB: String, paramC: String)
+            """.trimIndent(),
+            userData = mapOf("max_line_length" to "10")
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(1, 14, "parameter-list-wrapping", "Parameter should be on a separate line (unless all parameters can fit a single line)"),
+                LintError(1, 30, "parameter-list-wrapping", "Parameter should be on a separate line (unless all parameters can fit a single line)"),
+                LintError(1, 46, "parameter-list-wrapping", "Parameter should be on a separate line (unless all parameters can fit a single line)"),
+                LintError(1, 60, "parameter-list-wrapping", """Missing newline before ")"""")
+            )
+        )
+    }
+
+    @Test
     fun testLintClassParameterListValid() {
         assertThat(
             ParameterListWrappingRule().lint(
@@ -74,6 +93,26 @@ class ParameterListWrappingRuleTest {
     }
 
     @Test
+    fun testFormatClassParameterListWhenMaxLineLengthExceeded() {
+        assertThat(
+            ParameterListWrappingRule().format(
+            """
+            class ClassA(paramA: String, paramB: String, paramC: String)
+            """.trimIndent(),
+            userData = mapOf("max_line_length" to "10")
+            )
+        ).isEqualTo(
+            """
+            class ClassA(
+                paramA: String,
+                paramB: String,
+                paramC: String
+            )
+            """.trimIndent()
+        )
+    }
+
+    @Test
     fun testLintFunctionParameterList() {
         assertThat(
             ParameterListWrappingRule().lint(
@@ -94,6 +133,25 @@ class ParameterListWrappingRuleTest {
     }
 
     @Test
+    fun testLintFunctionParameterListWhenMaxLineLengthExceeded() {
+        assertThat(
+            ParameterListWrappingRule().lint(
+            """
+            fun f(a: Any, b: Any, c: Any) {
+            }
+            """.trimIndent(),
+            userData = mapOf("max_line_length" to "10")
+            )).isEqualTo(
+            listOf(
+                LintError(1, 7, "parameter-list-wrapping", "Parameter should be on a separate line (unless all parameters can fit a single line)"),
+                LintError(1, 15, "parameter-list-wrapping", "Parameter should be on a separate line (unless all parameters can fit a single line)"),
+                LintError(1, 23, "parameter-list-wrapping", "Parameter should be on a separate line (unless all parameters can fit a single line)"),
+                LintError(1, 29, "parameter-list-wrapping", """Missing newline before ")"""")
+            )
+        )
+    }
+
+    @Test
     fun testFormatFunctionParameterList() {
         assertThat(
             ParameterListWrappingRule().format(
@@ -104,6 +162,28 @@ class ParameterListWrappingRuleTest {
             }
             """.trimIndent()
             )).isEqualTo(
+            """
+            fun f(
+                a: Any,
+                b: Any,
+                c: Any
+            ) {
+            }
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun testFormatFunctionParameterListWhenMaxLineLengthExceeded() {
+        assertThat(
+            ParameterListWrappingRule().format(
+            """
+            fun f(a: Any, b: Any, c: Any) {
+            }
+            """.trimIndent(),
+            userData = mapOf("max_line_length" to "10")
+            )
+        ).isEqualTo(
             """
             fun f(
                 a: Any,
@@ -235,6 +315,29 @@ class ParameterListWrappingRuleTest {
                 canBeAutoCorrected: Boolean) -> Unit
             ) {}
             """.trimIndent()
+            )).isEqualTo(
+            """
+            fun visit(
+                node: ASTNode,
+                autoCorrect: Boolean,
+                emit: (
+                    offset: Int,
+                    errorMessage: String,
+                    canBeAutoCorrected: Boolean
+                ) -> Unit
+            ) {}
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun testFormatNestedDeclarationsWhenMaxLineLengthExceeded() {
+        assertThat(
+            ParameterListWrappingRule().format(
+            """
+            fun visit(node: ASTNode, autoCorrect: Boolean, emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {}
+            """.trimIndent(),
+            userData = mapOf("max_line_length" to "10")
             )).isEqualTo(
             """
             fun visit(
