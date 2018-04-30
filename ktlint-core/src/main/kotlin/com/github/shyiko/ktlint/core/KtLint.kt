@@ -487,4 +487,9 @@ object KtLint {
         }
         return null
     }
+
+    private fun ASTNode.visit(cb: (node: ASTNode) -> Unit) {
+        cb(this)
+        this.getChildren(null).forEach { it.visit(cb) }
+    }
 }

@@ -1,7 +1,6 @@
 package com.github.shyiko.ktlint.ruleset.standard
 
 import com.github.shyiko.ktlint.core.Rule
-import com.github.shyiko.ktlint.core.visit
 import org.jetbrains.kotlin.KtNodeTypes
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.kdoc.lexer.KDocTokens
