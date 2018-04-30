@@ -378,13 +378,8 @@ object KtLint {
             SegmentTree(arr.toTypedArray()).let { return { offset -> it.indexOf(offset) } } else { _ -> 0 }
     }
 
-    private fun determineLineSeparator(fileContent: String): String {
-        val i = fileContent.lastIndexOf('\n')
-        if (i == -1) {
-            return if (fileContent.lastIndexOf('\r') == -1) System.getProperty("line.separator") else "\r"
-        }
-        return if (i != 0 && fileContent[i] == '\r') "\r\n" else "\n"
-    }
+    private fun determineLineSeparator(fileContent: String) =
+        if (fileContent.lastIndexOf('\r') != -1) "\r\n" else "\n"
 
     /**
      * @param range zero-based range of lines where lint errors should be suppressed
