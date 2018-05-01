@@ -121,11 +121,6 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
             return offsetToTheLeft + 1
         }
 
-    private fun ASTNode.visit(cb: (node: ASTNode) -> Unit) {
-        cb(this)
-        this.getChildren(null).forEach { it.visit(cb) }
-    }
-
     private fun errorMessage(node: ASTNode) =
         when (node.elementType) {
             KtStubElementTypes.VALUE_PARAMETER ->
