@@ -47,12 +47,21 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
             if (putParametersOnSeparateLines || maxLineLengthExceeded) {
                 // aiming for
                 // ... LPAR
-                // <LPAR line indent + indentSize> VALUE_PARAMETER...
-                // <LPAR line indent> RPAR
+                // <line indent + indentSize> VALUE_PARAMETER...
+                // <line indent> RPAR
                 val indent = "\n" + node.psi.lineIndent()
                 val paramIndent = indent + " ".repeat(indentSize) // single indent as recommended by Jetbrains/Google
                 nextChild@ for (child in node.children()) {
                     when (child.elementType) {
+                        KtTokens.LPAR -> {
+                            val prevLeaf = child.psi.prevLeaf()!!
+                            if (prevLeaf.elementType == KtTokens.WHITE_SPACE && prevLeaf.textContains('\n')) {
+                                emit(child.startOffset, errorMessage(child), true)
+                                if (autoCorrect) {
+                                    prevLeaf.delete()
+                                }
+                            }
+                        }
                         KtStubElementTypes.VALUE_PARAMETER,
                         KtTokens.RPAR -> {
                             var paramInnerIndentAdjustment = 0
@@ -121,13 +130,9 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
             return offsetToTheLeft + 1
         }
 
-    private fun ASTNode.visit(cb: (node: ASTNode) -> Unit) {
-        cb(this)
-        this.getChildren(null).forEach { it.visit(cb) }
-    }
-
     private fun errorMessage(node: ASTNode) =
         when (node.elementType) {
+            KtTokens.LPAR -> """Unnecessary newline before "(""""
             KtStubElementTypes.VALUE_PARAMETER ->
                 "Parameter should be on a separate line (unless all parameters can fit a single line)"
             KtTokens.RPAR -> """Missing newline before ")""""

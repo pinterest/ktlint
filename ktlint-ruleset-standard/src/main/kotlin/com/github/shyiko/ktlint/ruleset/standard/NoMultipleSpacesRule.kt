@@ -78,9 +78,4 @@ class NoMultipleSpacesRule : Rule("no-multi-spaces") {
             }
         }
     }
-
-    private fun ASTNode.visit(cb: (node: ASTNode) -> Unit) {
-        cb(this)
-        this.getChildren(null).forEach { it.visit(cb) }
-    }
 }

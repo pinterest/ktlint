@@ -84,9 +84,4 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
     }
 
     private fun String.isComponentN() = componentNRegex.matches(this)
-
-    private fun ASTNode.visit(cb: (node: ASTNode) -> Unit) {
-        cb(this)
-        this.getChildren(null).forEach { it.visit(cb) }
-    }
 }
