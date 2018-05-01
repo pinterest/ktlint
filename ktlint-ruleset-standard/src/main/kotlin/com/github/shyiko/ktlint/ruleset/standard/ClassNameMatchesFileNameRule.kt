@@ -17,27 +17,22 @@ class ClassNameMatchesFileNameRule : Rule("class-name-matches-file-name"), Rule.
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
+        val filePath = node.getUserData(KtLint.FILE_PATH_USER_DATA_KEY)
+
         // Ignore all non ".kt" files (including ".kts")
-        if (node.getUserData(KtLint.FILE_PATH_USER_DATA_KEY)?.endsWith(".kt") != true) {
+        if (filePath?.endsWith(".kt") != true) {
             return
         }
 
-        val topLevelClassNames = mutableListOf<String>()
+        val topLevelClassNames = node.getChildren(null)
+            .filter { it.elementType == KtStubElementTypes.CLASS }
+            .mapNotNull { it.findChildByType(KtTokens.IDENTIFIER)?.text }
 
-        node.visit {
-            if (it.elementType == KtStubElementTypes.CLASS && it.treeParent.elementType == KtStubElementTypes.FILE) {
-                val classIdentifier = it.findChildByType(KtTokens.IDENTIFIER)
-                classIdentifier?.let {
-                    val className = it.text
-                    topLevelClassNames.add(className)
-                }
-            }
-        }
-
-        val name = Paths.get(node.getUserData(KtLint.FILE_PATH_USER_DATA_KEY)).fileName.toString().substringBefore(".")
+        val name = Paths.get(filePath).fileName.toString().substringBefore(".")
         if (topLevelClassNames.size == 1 && name != topLevelClassNames.first()) {
+            val className = topLevelClassNames.first()
             emit(0,
-                "Single top level class name [${topLevelClassNames.first()}] does not match file name",
+                "Class $className should be declared in a file named $className.kt",
                 false)
         }
     }

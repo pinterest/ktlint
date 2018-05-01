@@ -25,7 +25,7 @@ class ClassNameMatchesFileNameRuleTest {
             """.trimIndent(),
             fileName("A.kt")
         )).isEqualTo(listOf(
-            LintError(1, 1, "class-name-matches-file-name", "Single top level class name [B] does not match file name")
+            LintError(1, 1, "class-name-matches-file-name", "Class B should be declared in a file named B.kt")
         ))
     }
 
@@ -51,7 +51,7 @@ class ClassNameMatchesFileNameRuleTest {
             """.trimIndent(),
             fileName("A.kt")
         )).isEqualTo(listOf(
-            LintError(1, 1, "class-name-matches-file-name", "Single top level class name [B] does not match file name")
+            LintError(1, 1, "class-name-matches-file-name", "Class B should be declared in a file named B.kt")
         ))
     }
 
@@ -63,7 +63,7 @@ class ClassNameMatchesFileNameRuleTest {
             """.trimIndent(),
             fileName("woohoo.kt")
         )).isEqualTo(listOf(
-            LintError(1, 1, "class-name-matches-file-name", "Single top level class name [Woohoo] does not match file name")
+            LintError(1, 1, "class-name-matches-file-name", "Class Woohoo should be declared in a file named Woohoo.kt")
         ))
     }
 
