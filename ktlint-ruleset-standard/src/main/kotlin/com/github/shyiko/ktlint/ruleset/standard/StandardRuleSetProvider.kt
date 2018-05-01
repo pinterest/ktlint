@@ -7,6 +7,7 @@ class StandardRuleSetProvider : RuleSetProvider {
 
     override fun get(): RuleSet = RuleSet("standard",
         ChainWrappingRule(),
+        CommentSpacingRule(),
         FinalNewlineRule(),
         // disabled until it's clear how to reconcile difference in Intellij & Android Studio import layout
         // ImportOrderingRule(),
