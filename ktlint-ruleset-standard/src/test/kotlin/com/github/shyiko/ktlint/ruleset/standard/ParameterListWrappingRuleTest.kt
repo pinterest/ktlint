@@ -391,4 +391,92 @@ class ParameterListWrappingRuleTest {
             LintError(6, 4, "parameter-list-wrapping", "Unexpected indentation (expected 4, actual 3)")
         ))
     }
+
+    @Test
+    fun testLintClassDanglingLeftParen() {
+        assertThat(
+            ParameterListWrappingRule().lint(
+            """
+            class ClassA
+            (
+                paramA: String,
+                paramB: String,
+                paramC: String
+            )
+            """.trimIndent()
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(2, 1, "parameter-list-wrapping", """Unnecessary newline before "("""")
+            )
+        )
+    }
+
+    @Test
+    fun testLintFunctionDanglingLeftParen() {
+        assertThat(
+            ParameterListWrappingRule().lint(
+            """
+            fun doSomething
+            (
+                paramA: String,
+                paramB: String,
+                paramC: String
+            )
+            """.trimIndent()
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(2, 1, "parameter-list-wrapping", """Unnecessary newline before "("""")
+            )
+        )
+    }
+
+    @Test
+    fun testFormatClassDanglingLeftParen() {
+        assertThat(
+            ParameterListWrappingRule().format(
+            """
+            class ClassA constructor
+            (
+                paramA: String,
+                paramB: String,
+                paramC: String
+            )
+            """.trimIndent()
+            )
+        ).isEqualTo(
+            """
+            class ClassA constructor(
+                paramA: String,
+                paramB: String,
+                paramC: String
+            )
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun testFormatFunctionDanglingLeftParen() {
+        assertThat(
+            ParameterListWrappingRule().format(
+            """
+            fun doSomething
+            (
+                paramA: String,
+                paramB: String,
+                paramC: String
+            )
+            """.trimIndent()
+            )
+        ).isEqualTo(
+            """
+            fun doSomething(
+                paramA: String,
+                paramB: String,
+                paramC: String
+            )
+            """.trimIndent()
+        )
+    }
 }
