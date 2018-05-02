@@ -38,13 +38,10 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
             // - at least one of the parameters is
             // - maxLineLength exceeded (and separating parameters with \n would actually help)
             // in addition, "(" and ")" must be on separates line if any of the parameters are (otherwise on the same)
-            val putParametersOnSeparateLines = node.textContains('\n')
-
-            val maxLineLengthExceeded =
-                if (maxLineLength > -1) (node.startOffset + node.textLength) > maxLineLength
-                else false
-
-            if (putParametersOnSeparateLines || maxLineLengthExceeded) {
+            val putParametersOnSeparateLines = node.textContains('\n') ||
+                // max_line_length exceeded
+                maxLineLength > -1 && (node.psi.column - 1 + node.textLength) > maxLineLength
+            if (putParametersOnSeparateLines) {
                 // aiming for
                 // ... LPAR
                 // <line indent + indentSize> VALUE_PARAMETER...

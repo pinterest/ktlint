@@ -44,6 +44,22 @@ class ParameterListWrappingRuleTest {
                 LintError(1, 60, "parameter-list-wrapping", """Missing newline before ")"""")
             )
         )
+        // corner case
+        assertThat(
+            ParameterListWrappingRule().lint(
+            """
+            class ClassA(paramA: String)
+             class ClassA(paramA: String)
+            class ClassA(paramA: String)
+            """.trimIndent(),
+            userData = mapOf("max_line_length" to "28")
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(2, 15, "parameter-list-wrapping", "Parameter should be on a separate line (unless all parameters can fit a single line)"),
+                LintError(2, 29, "parameter-list-wrapping", "Missing newline before \")\"")
+            )
+        )
     }
 
     @Test
