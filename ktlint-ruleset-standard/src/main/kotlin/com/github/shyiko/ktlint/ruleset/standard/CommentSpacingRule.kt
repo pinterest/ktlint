@@ -18,13 +18,13 @@ class CommentSpacingRule : Rule("comment-spacing") {
         if (node is LeafPsiElement && node is PsiComment && node.getText().startsWith("//")) {
             val prevLeaf = PsiTreeUtil.prevLeaf(node)
             if (prevLeaf !is PsiWhiteSpace && prevLeaf is LeafPsiElement) {
-                emit(node.startOffset, "Missing space before end of line comment", true)
+                emit(node.startOffset, "Missing space before //", true)
                 if (autoCorrect) {
                     node.rawInsertBeforeMe(PsiWhiteSpaceImpl(" "))
                 }
             }
             if (!node.getText().startsWith("// ")) {
-                emit(node.startOffset, "Missing space after double slash in end of line comment", true)
+                emit(node.startOffset, "Missing space after //", true)
                 if (autoCorrect) {
                     node.rawReplaceWithText("// " + node.getText().removePrefix("//"))
                 }
