@@ -48,6 +48,21 @@ class NoUnusedImportsRuleTest {
     }
 
     @Test
+    fun testLintIssue204() {
+        assertThat(NoUnusedImportsRule().lint(
+            """
+            package com.example.another
+
+            import com.example.anotherThing
+
+            class Foo {
+                val bar = anotherThing
+            }
+            """.trimIndent()
+        )).isEmpty()
+    }
+
+    @Test
     fun testLintDestructuringAssignment() {
         assertThat(NoUnusedImportsRule().lint(
             """
