@@ -15,7 +15,7 @@ class CommentSpacingRule : Rule("comment-spacing") {
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        if (node is LeafPsiElement && node is PsiComment && node.getText().startsWith("//")) {
+        if (node is PsiComment && node is LeafPsiElement && node.getText().startsWith("//")) {
             val prevLeaf = PsiTreeUtil.prevLeaf(node)
             if (prevLeaf !is PsiWhiteSpace && prevLeaf is LeafPsiElement) {
                 emit(node.startOffset, "Missing space before //", true)
@@ -23,10 +23,11 @@ class CommentSpacingRule : Rule("comment-spacing") {
                     node.rawInsertBeforeMe(PsiWhiteSpaceImpl(" "))
                 }
             }
-            if (!node.getText().startsWith("// ")) {
+            val text = node.getText()
+            if (text.length != 2 && !text.startsWith("// ")) {
                 emit(node.startOffset, "Missing space after //", true)
                 if (autoCorrect) {
-                    node.rawReplaceWithText("// " + node.getText().removePrefix("//"))
+                    node.rawReplaceWithText("// " + text.removePrefix("//"))
                 }
             }
         }

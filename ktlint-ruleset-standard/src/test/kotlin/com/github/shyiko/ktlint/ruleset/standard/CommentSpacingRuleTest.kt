@@ -12,6 +12,7 @@ class CommentSpacingRuleTest {
     fun testLintValidCommentSpacing() {
         assertThat(CommentSpacingRule().lint(
             """
+                //
                 // comment
                 var debugging = false // comment
                 var debugging = false // comment//word
