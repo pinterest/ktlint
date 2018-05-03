@@ -5,7 +5,9 @@ import org.jetbrains.kotlin.KtNodeTypes
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
+import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
+import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.kotlin.lexer.KtTokens
@@ -51,8 +53,8 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
                 nextChild@ for (child in node.children()) {
                     when (child.elementType) {
                         KtTokens.LPAR -> {
-                            val prevLeaf = child.psi.prevLeaf()!!
-                            if (prevLeaf.elementType == KtTokens.WHITE_SPACE && prevLeaf.textContains('\n')) {
+                            val prevLeaf = child.psi.prevLeaf()
+                            if (prevLeaf is PsiWhiteSpace && prevLeaf.textContains('\n')) {
                                 emit(child.startOffset, errorMessage(child), true)
                                 if (autoCorrect) {
                                     prevLeaf.delete()
@@ -62,10 +64,10 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
                         KtStubElementTypes.VALUE_PARAMETER,
                         KtTokens.RPAR -> {
                             var paramInnerIndentAdjustment = 0
-                            val prevLeaf = child.psi.prevLeaf()!!
+                            val prevLeaf = child.psi.prevLeaf()
                             val intendedIndent = if (child.elementType == KtStubElementTypes.VALUE_PARAMETER)
                                 paramIndent else indent
-                            if (prevLeaf.node.elementType == KtTokens.WHITE_SPACE) {
+                            if (prevLeaf is PsiWhiteSpace) {
                                 val spacing = prevLeaf.text
                                 val cut = spacing.lastIndexOf("\n")
                                 if (cut > -1) {
@@ -81,7 +83,7 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
                                 if (autoCorrect) {
                                     val adjustedIndent = (if (cut > -1) spacing.substring(0, cut) else "") + intendedIndent
                                     paramInnerIndentAdjustment = adjustedIndent.length - prevLeaf.textLength
-                                    prevLeaf.rawReplaceWithText(adjustedIndent)
+                                    (prevLeaf as LeafPsiElement).rawReplaceWithText(adjustedIndent)
                                 }
                             } else {
                                 emit(child.startOffset, errorMessage(child), true)
