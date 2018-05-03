@@ -2,6 +2,20 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.23.0] - 2018-05-02
+
+### Added
+- `comment-spacing` ([#198](https://github.com/shyiko/ktlint/pull/198)),  
+  `filename` ([#194](https://github.com/shyiko/ktlint/pull/194)) rules.
+- `parameter-list-wrapping` left parenthesis placement check ([#201](https://github.com/shyiko/ktlint/pull/201)).
+- `parameter-list-wrapping` auto-correction when `max_line_length` is exceeded ([#200](https://github.com/shyiko/ktlint/pull/200)).
+
+### Fixed
+- "Unused import" false positive (x.y.zNNN import inside x.y.z package) ([#204](https://github.com/shyiko/ktlint/issues/204)).
+
+### Changed
+- `kotlin-compiler` version to 1.2.41 (from 1.2.40).
+
 ## [0.22.0] - 2018-04-22
 
 ### Added
@@ -380,6 +394,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.23.0]: https://github.com/shyiko/ktlint/compare/0.22.0...0.23.0
 [0.22.0]: https://github.com/shyiko/ktlint/compare/0.21.0...0.22.0
 [0.21.0]: https://github.com/shyiko/ktlint/compare/0.20.0...0.21.0
 [0.20.0]: https://github.com/shyiko/ktlint/compare/0.19.0...0.20.0
