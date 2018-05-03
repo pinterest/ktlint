@@ -46,7 +46,7 @@ It's also [easy to create your own](#creating-a-reporter).
 - When class/function signature doesn't fit on a single line, each parameter must be on a separate line;
 - Consistent string templates (`$v` instead of `${v}`, `${p.v}` instead of `${p.v.toString()}`);
 - Consistent order of modifiers;
-- Consistent spacing after keywords, commas; around colons, curly braces, infix operators, etc;
+- Consistent spacing after keywords, commas; around colons, curly braces, infix operators, comments, etc;
 - Newline at the end of each file (not enabled by default, but recommended)  
 (set `insert_final_newline=true` in .editorconfig to enable (see [EditorConfig](#editorconfig) section for more)).
 
@@ -72,7 +72,7 @@ max_line_length=off
 > Skip all the way to the "Integration" section if you don't plan to use `ktlint`'s command line interface.
 
 ```sh
-curl -sSLO https://github.com/shyiko/ktlint/releases/download/0.22.0/ktlint &&
+curl -sSLO https://github.com/shyiko/ktlint/releases/download/0.23.0/ktlint &&
   chmod a+x ktlint &&
   sudo mv ktlint /usr/local/bin/
 ```
@@ -166,7 +166,7 @@ $ ktlint --install-git-pre-commit-hook
         <dependency>
             <groupId>com.github.shyiko</groupId>
             <artifactId>ktlint</artifactId>
-            <version>0.22.0</version>
+            <version>0.23.0</version>
         </dependency>
         <!-- additional 3rd party ruleset(s) can be specified here -->
     </dependencies>
@@ -196,7 +196,7 @@ configurations {
 }
 
 dependencies {
-    ktlint "com.github.shyiko:ktlint:0.22.0"
+    ktlint "com.github.shyiko:ktlint:0.23.0"
     // additional 3rd party ruleset(s) can be specified here
     // just add them to the classpath (e.g. ktlint 'groupId:artifactId:version') and 
     // ktlint will pick them up
