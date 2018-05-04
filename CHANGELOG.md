@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.23.1] - 2018-05-04
+
+### Fixed
+- `ClassCastException: cannot be cast to LeafPsiElement` ([#205](https://github.com/shyiko/ktlint/issues/205))
+
 ## [0.23.0] - 2018-05-02
 
 ### Added
@@ -394,6 +399,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.23.1]: https://github.com/shyiko/ktlint/compare/0.23.0...0.23.1
 [0.23.0]: https://github.com/shyiko/ktlint/compare/0.22.0...0.23.0
 [0.22.0]: https://github.com/shyiko/ktlint/compare/0.21.0...0.22.0
 [0.21.0]: https://github.com/shyiko/ktlint/compare/0.20.0...0.21.0
