@@ -187,6 +187,14 @@ object Main {
     @Option(names = arrayOf("-y"), hidden = true)
     private var forceApply: Boolean = false
 
+    @Option(names = arrayOf("--editorconfig-path"), description = arrayOf("Specify folder path of .editorconfig"))
+    private var editorConfigDirParam: String? = null
+    private val editorConfigDir: String
+        get() {
+            val filePath = if (editorConfigDirParam == null) File(".") else File(editorConfigDirParam)
+            return filePath.canonicalPath
+        }
+
     @Parameters(hidden = true)
     private var patterns = ArrayList<String>()
 
@@ -262,7 +270,7 @@ object Main {
         val reporter = loadReporter(dependencyResolver)
         // load .editorconfig
         val userData = (
-            EditorConfig.of(workDir)
+            EditorConfig.of(editorConfigDir)
                 ?.also { editorConfig ->
                     if (debug) {
                         System.err.println("[DEBUG] Discovered .editorconfig (${
