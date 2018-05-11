@@ -343,7 +343,10 @@ a custom [ReporterProvider](ktlint-core/src/main/kotlin/com/github/shyiko/ktlint
 
 To load a custom (3rd party) reporter use `ktlint --reporter=name,artifact=groupId:artifactId:version` / `ktlint --reporter=name,artifact=/path/to/custom-ktlint-reporter.jar`
 (see `ktlint --help` for more).
- 
+
+Third-party:
+* [mcassiano/ktlint-html-reporter](https://github.com/mcassiano/ktlint-html-reporter)
+
 ## Badge
 
 [![ktlint](https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg)](https://ktlint.github.io/)
