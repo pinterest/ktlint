@@ -13,6 +13,7 @@ class CommentSpacingRuleTest {
         assertThat(CommentSpacingRule().lint(
             """
                 //
+                //noinspection AndroidLintRecycle
                 // comment
                 var debugging = false // comment
                 var debugging = false // comment//word
