@@ -10,6 +10,7 @@ import com.github.shyiko.ktlint.core.RuleExecutionException
 import com.github.shyiko.ktlint.core.RuleSet
 import com.github.shyiko.ktlint.core.RuleSetProvider
 import com.github.shyiko.ktlint.internal.EditorConfig
+import com.github.shyiko.ktlint.internal.EditorConfigFinder
 import com.github.shyiko.ktlint.internal.IntellijIDEAIntegration
 import com.github.shyiko.ktlint.internal.MavenDependencyResolver
 import com.github.shyiko.ktlint.test.DumpAST
@@ -187,19 +188,12 @@ object Main {
     @Option(names = arrayOf("-y"), hidden = true)
     private var forceApply: Boolean = false
 
-    @Option(names = arrayOf("--editorconfig-path"), description = arrayOf("Specify folder path of .editorconfig"))
-    private var editorConfigDirParam: String? = null
-    private val editorConfigDir: String
-        get() {
-            val filePath = if (editorConfigDirParam == null) File(".") else File(editorConfigDirParam)
-            return filePath.canonicalPath
-        }
-
     @Parameters(hidden = true)
     private var patterns = ArrayList<String>()
 
     private val workDir = File(".").canonicalPath
     private fun File.location() = if (relative) this.toRelativeString(File(workDir)) else this.path
+    private val editConfigFinder = EditorConfigFinder(workDir, true)
 
     private fun usage() =
         ByteArrayOutputStream()
@@ -268,27 +262,17 @@ object Main {
             ruleSetProviders.forEach { System.err.println("[DEBUG] Discovered ruleset \"${it.first}\"") }
         }
         val reporter = loadReporter(dependencyResolver)
-        // load .editorconfig
-        val userData = (
-            EditorConfig.of(editorConfigDir)
-                ?.also { editorConfig ->
-                    if (debug) {
-                        System.err.println("[DEBUG] Discovered .editorconfig (${
-                            generateSequence(editorConfig) { it.parent }.map { it.path.parent.toFile().location() }.joinToString()
-                        })")
-                        System.err.println("[DEBUG] ${editorConfig.mapKeys { it.key }} loaded from .editorconfig")
-                    }
-                }
-                ?: emptyMap<String, String>()
-            ) + mapOf("android" to android.toString())
+        val userData = mapOf("android" to android.toString())
+
         val tripped = AtomicBoolean()
         data class LintErrorWithCorrectionInfo(val err: LintError, val corrected: Boolean)
         fun process(fileName: String, fileContent: String): List<LintErrorWithCorrectionInfo> {
             if (debug) {
                 System.err.println("[DEBUG] Checking ${if (fileName != "<text>") File(fileName).location() else fileName}")
             }
+            val editorConfig = editConfigFinder.getEditorConfig(fileName)
             val result = ArrayList<LintErrorWithCorrectionInfo>()
-            val localUserData = if (fileName != "<text>") userData + ("file_path" to fileName) else userData
+            val localUserData = editorConfig.safe() + if (fileName != "<text>") userData + ("file_path" to fileName) else userData
             if (format) {
                 val formattedFileContent = try {
                     format(fileName, fileContent, ruleSetProviders.map { it.second.get() }, localUserData) { err, corrected ->
@@ -685,5 +669,17 @@ object Main {
         q.put(pill)
         executorService.shutdown()
         consumer.join()
+    }
+
+    private fun EditorConfig?.safe(): Map<String, String> {
+        this ?: return emptyMap()
+
+        if (debug) {
+            System.err.println("[DEBUG] Discovered .editorconfig (${
+            generateSequence(this) { it.parent }.map { it.path.parent.toFile().location() }.joinToString()
+            })")
+            System.err.println("[DEBUG] ${this.mapKeys { it.key }} loaded from " + this.path)
+        }
+        return this
     }
 }
