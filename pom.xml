@@ -45,7 +45,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <kotlin.version>1.2.41</kotlin.version>
+        <kotlin.version>1.2.50</kotlin.version>
         <kotlin.compiler.languageVersion>1.1</kotlin.compiler.languageVersion>
         <kotlin.compiler.apiVersion>1.1</kotlin.compiler.apiVersion>
         <aether.version>1.1.0</aether.version>

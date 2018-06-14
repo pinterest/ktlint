@@ -20,7 +20,6 @@ import org.eclipse.aether.repository.RemoteRepository
 import org.eclipse.aether.repository.RepositoryPolicy
 import org.eclipse.aether.repository.RepositoryPolicy.CHECKSUM_POLICY_IGNORE
 import org.eclipse.aether.repository.RepositoryPolicy.UPDATE_POLICY_NEVER
-import org.jetbrains.kotlin.preprocessor.mkdirsOrFail
 import picocli.CommandLine
 import picocli.CommandLine.Command
 import picocli.CommandLine.Option
@@ -28,6 +27,7 @@ import picocli.CommandLine.Parameters
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileNotFoundException
+import java.io.IOException
 import java.io.PrintStream
 import java.math.BigInteger
 import java.net.URLDecoder
@@ -637,6 +637,12 @@ object Main {
         val method = java.net.URLClassLoader::class.java.getDeclaredMethod("addURL", java.net.URL::class.java)
         method.isAccessible = true
         url.forEach { method.invoke(this, it) }
+    }
+
+    private fun File.mkdirsOrFail() {
+        if (!mkdirs() && !isDirectory) {
+            throw IOException("Unable to create \"${this}\" directory");
+        }
     }
 
     private fun <T> Sequence<Callable<T>>.parallel(
