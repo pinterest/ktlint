@@ -394,6 +394,7 @@ object Main {
                             override fun afterAll() {
                                 reporter.afterAll()
                                 stream.close()
+                                System.err.println("Generated ${File(output).location()}")
                             }
                         }
                     else reporter
@@ -641,7 +642,7 @@ object Main {
 
     private fun File.mkdirsOrFail() {
         if (!mkdirs() && !isDirectory) {
-            throw IOException("Unable to create \"${this}\" directory");
+            throw IOException("Unable to create \"${this}\" directory")
         }
     }
 
