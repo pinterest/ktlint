@@ -389,7 +389,7 @@ object Main {
             } else if (stdin) System.err else System.out
             return reporterProvider.get(stream, config)
                 .let { reporter ->
-                    if (output != null)
+                    if (output != null) {
                         object : Reporter by reporter {
                             override fun afterAll() {
                                 reporter.afterAll()
@@ -397,7 +397,9 @@ object Main {
                                 System.err.println("Generated ${File(output).location()}")
                             }
                         }
-                    else reporter
+                    } else {
+                        reporter
+                    }
                 }
         }
         return Reporter.from(*tpls.map { it.toReporter() }.toTypedArray())

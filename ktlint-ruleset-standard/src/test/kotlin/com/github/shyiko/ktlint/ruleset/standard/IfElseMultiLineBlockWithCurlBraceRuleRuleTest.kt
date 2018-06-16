@@ -1,6 +1,5 @@
 package com.github.shyiko.ktlint.ruleset.standard
 
-
 import com.github.shyiko.ktlint.core.LintError
 import com.github.shyiko.ktlint.test.format
 import com.github.shyiko.ktlint.test.lint
@@ -49,7 +48,6 @@ class IfElseMultiLineBlockWithCurlBraceRuleRuleTest {
             LintError(line = 2, col = 9, ruleId = "if-else-multiline-block-with-curly-brace-rule", detail = "if-else block with multiline should end with `}`")
         ))
 
-
         val ifElseWithoutCurlyBrace = "fun main() { if (true) \n return 0 \n else \n return 1 }"
         val ifElseWithoutCurlyBraceExpected = "fun main() { if (true) \n {return 0} \n else \n {return 1} }"
         assertThat(format(ifElseWithoutCurlyBrace)).isEqualTo(ifElseWithoutCurlyBraceExpected)
@@ -73,5 +71,4 @@ class IfElseMultiLineBlockWithCurlBraceRuleRuleTest {
     private fun lint(kotlinScript: String): List<LintError> {
         return IfElseMultiLineBlockWithCurlBraceRule().lint(kotlinScript)
     }
-
 }

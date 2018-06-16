@@ -10,9 +10,8 @@ import org.jetbrains.kotlin.lexer.KtTokens
 class IfElseMultiLineBlockWithCurlBraceRule : Rule("if-else-multiline-block-with-curly-brace-rule") {
     override fun visit(node: ASTNode, autoCorrect: Boolean, emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
 
-
-        if (node.elementType == KtNodeTypes.THEN
-            || node.elementType == KtNodeTypes.ELSE
+        if (node.elementType == KtNodeTypes.THEN ||
+            node.elementType == KtNodeTypes.ELSE
         ) {
             assert(node.treeParent?.elementType == KtNodeTypes.IF)
             // skip one line if(true) <statement>
@@ -36,5 +35,4 @@ class IfElseMultiLineBlockWithCurlBraceRule : Rule("if-else-multiline-block-with
             }
         }
     }
-
 }
