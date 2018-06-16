@@ -120,6 +120,11 @@ object Main {
     ))
     private var installGitPreCommitHook: Boolean = false
 
+    @Option(names = arrayOf("--install-git-pre-push-hook"), description = arrayOf(
+        "Install git hook to automatically check files for style violations before push"
+    ))
+    private var installGitPrePushHook: Boolean = false
+
     @Option(names = arrayOf("--limit"), description = arrayOf(
         "Maximum number of errors to show (default: show all)"
     ))
@@ -236,6 +241,12 @@ object Main {
         }
         if (installGitPreCommitHook) {
             installGitPreCommitHook()
+            if (!apply) {
+                exitProcess(0)
+            }
+        }
+        if (installGitPrePushHook) {
+            installGitPrePushHook()
             if (!apply) {
                 exitProcess(0)
             }
@@ -478,6 +489,30 @@ object Main {
         preCommitHookFile.writeBytes(expectedPreCommitHook)
         preCommitHookFile.setExecutable(true)
         System.err.println(".git/hooks/pre-commit installed")
+    }
+
+    private fun installGitPrePushHook() {
+        if (!File(".git").isDirectory) {
+            System.err.println(".git directory not found. " +
+                "Are you sure you are inside project root directory?")
+            exitProcess(1)
+        }
+        val hooksDir = File(".git", "hooks")
+        hooksDir.mkdirsOrFail()
+        val prePushHookFile = File(hooksDir, "pre-push")
+        val expectedPrePushHook = ClassLoader.getSystemClassLoader()
+            .getResourceAsStream("ktlint-git-pre-push-hook${if (android) "-android" else ""}.sh").readBytes()
+        // backup existing hook (if any)
+        val actualPrePushHook = try { prePushHookFile.readBytes() } catch (e: FileNotFoundException) { null }
+        if (actualPrePushHook != null && !actualPrePushHook.isEmpty() && !Arrays.equals(actualPrePushHook, expectedPrePushHook)) {
+            val backupFile = File(hooksDir, "pre-push.ktlint-backup." + hex(actualPrePushHook))
+            System.err.println(".git/hooks/pre-push -> $backupFile")
+            prePushHookFile.copyTo(backupFile, overwrite = true)
+        }
+        // > .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+        prePushHookFile.writeBytes(expectedPrePushHook)
+        prePushHookFile.setExecutable(true)
+        System.err.println(".git/hooks/pre-push installed")
     }
 
     private fun applyToIDEA() {
