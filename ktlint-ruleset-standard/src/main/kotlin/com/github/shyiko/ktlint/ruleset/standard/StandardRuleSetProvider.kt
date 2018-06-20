@@ -24,6 +24,7 @@ class StandardRuleSetProvider : RuleSetProvider {
         NoLineBreakBeforeAssignmentRule(),
         NoMultipleSpacesRule(),
         NoSemicolonsRule(),
+        NoSpaceBetweenParentheses(),
         NoTrailingSpacesRule(),
         NoUnitReturnRule(),
         NoUnusedImportsRule(),
