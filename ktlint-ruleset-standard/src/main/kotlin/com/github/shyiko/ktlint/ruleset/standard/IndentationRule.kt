@@ -30,20 +30,18 @@ class IndentationRule : Rule("indent") {
         }
         if (node is PsiWhiteSpace) {
             val lines = node.getText().split("\n")
-            if (lines.size > 1 && !node.isPartOf(PsiComment::class) && !node.isPartOf(KtTypeConstraintList::class)) {
+            if (lines.size > 1 && formatIsEnabledForNode(node)) {
                 var offset = node.startOffset + lines.first().length + 1
                 val previousIndentSize = node.previousIndentSize()
                 lines.tail().forEach { indent ->
                     if (indent.isNotEmpty() && (indent.length - previousIndentSize) % indentSize != 0) {
-                        if (!node.isPartOf(KtParameterList::class)) { // parameter list wrapping enforced by ParameterListWrappingRule
-                            emit(
-                                offset,
-                                "Unexpected indentation (${indent.length}) (it should be ${previousIndentSize + indentSize})",
-                                true
-                            )
-                            if (autoCorrect) {
-                                replaceWithExpectedIndent(node, previousIndentSize + indentSize)
-                            }
+                        emit(
+                            offset,
+                            "Unexpected indentation (${indent.length}) (it should be ${previousIndentSize + indentSize})",
+                            true
+                        )
+                        if (autoCorrect) {
+                            replaceWithExpectedIndent(node, previousIndentSize + indentSize)
                         }
                     }
                     offset += indent.length + 1
@@ -79,5 +77,14 @@ class IndentationRule : Rule("indent") {
             node = node.prevSibling ?: node.parent
         }
         return 0
+    }
+
+    private fun formatIsEnabledForNode(node: PsiWhiteSpace): Boolean {
+        return !node.isPartOf(PsiComment::class) &&
+            // formatting inside "where" clause is not implemented yet
+            // https://github.com/shyiko/ktlint/issues/180
+            !node.isPartOf(KtTypeConstraintList::class) &&
+            // parameter list wrapping enforced by ParameterListWrappingRule
+            !node.isPartOf(KtParameterList::class)
     }
 }
