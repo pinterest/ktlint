@@ -7,13 +7,14 @@ import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
+import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtParameterList
 import org.jetbrains.kotlin.psi.KtTypeConstraintList
 import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
 
 class IndentationRule : Rule("indent") {
 
-    private var indentSize = -1
+    private var config: EditorConfig = EditorConfig(-1, -1, -1, false)
 
     override fun visit(
         node: ASTNode,
@@ -21,11 +22,10 @@ class IndentationRule : Rule("indent") {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         if (node.elementType == KtStubElementTypes.FILE) {
-            val ec = EditorConfig.from(node as FileASTNode)
-            indentSize = gcd(maxOf(ec.indentSize, 1), maxOf(ec.continuationIndentSize, 1))
+            config = EditorConfig.from(node as FileASTNode)
             return
         }
-        if (indentSize <= 1) {
+        if (config.indentSize <= 1) {
             return
         }
         if (node is PsiWhiteSpace) {
@@ -33,19 +33,25 @@ class IndentationRule : Rule("indent") {
             if (lines.size > 1 && formatIsEnabledForNode(node)) {
                 var offset = node.startOffset + lines.first().length + 1
                 val previousIndentSize = node.previousIndentSize()
-                lines.tail().forEach { indent ->
-                    if (indent.isNotEmpty() && (indent.length - previousIndentSize) % indentSize != 0) {
-                        emit(
-                            offset,
-                            "Unexpected indentation (${indent.length}) (it should be ${previousIndentSize + indentSize})",
-                            true
-                        )
-                        if (autoCorrect) {
-                            replaceWithExpectedIndent(node, previousIndentSize + indentSize)
+                val indentSize = expectedIndentForNode(node, config)
+                lines.tail()
+                    .filter { it.isNotEmpty() }
+                    .forEach { indent ->
+                        if (
+                            (indentSize == 0 && (indent.length - previousIndentSize) != 0) ||
+                            (indentSize != 0 && (indent.length - previousIndentSize) % indentSize != 0)
+                        ) {
+                            emit(
+                                offset,
+                                "Unexpected indentation (${indent.length}) (it should be ${previousIndentSize + indentSize})",
+                                true
+                            )
+                            if (autoCorrect) {
+                                replaceWithExpectedIndent(node, previousIndentSize + indentSize)
+                            }
                         }
+                        offset += indent.length + 1
                     }
-                    offset += indent.length + 1
-                }
             }
         }
     }
@@ -63,20 +69,30 @@ class IndentationRule : Rule("indent") {
 
     // todo: calculating indent based on the previous line value is wrong (see IndentationRule.testLint)
     private fun ASTNode.previousIndentSize(): Int {
-        var node = this.treeParent?.psi
+        var node = this.getParentNodeForIndent().psi
         while (node != null) {
             val nextNode = node.nextSibling?.node?.elementType
             if (node is PsiWhiteSpace &&
                 nextNode != KtStubElementTypes.TYPE_REFERENCE &&
                 nextNode != KtStubElementTypes.SUPER_TYPE_LIST &&
                 nextNode != KtNodeTypes.CONSTRUCTOR_DELEGATION_CALL &&
-                node.textContains('\n') &&
-                node.nextLeaf()?.isPartOf(PsiComment::class) != true) {
+                node.textContains('\n')
+            ) {
                 return node.text.length - node.text.lastIndexOf('\n') - 1
             }
             node = node.prevSibling ?: node.parent
         }
         return 0
+    }
+
+    private fun ASTNode.getParentNodeForIndent(): ASTNode {
+        val parentNode: ASTNode? = this.treeParent
+        return when {
+            parentNode == null -> this
+            parentNode.elementType == KtNodeTypes.CLASS_BODY ||
+                parentNode.elementType == KtStubElementTypes.FUNCTION -> parentNode.getParentNodeForIndent()
+            else -> parentNode
+        }
     }
 
     private fun formatIsEnabledForNode(node: PsiWhiteSpace): Boolean {
@@ -86,5 +102,14 @@ class IndentationRule : Rule("indent") {
             !node.isPartOf(KtTypeConstraintList::class) &&
             // parameter list wrapping enforced by ParameterListWrappingRule
             !node.isPartOf(KtParameterList::class)
+    }
+
+    private fun expectedIndentForNode(node: PsiWhiteSpace, config: EditorConfig): Int {
+        val nextNode = node.nextSibling?.node?.elementType
+        return if (nextNode == KtTokens.RBRACE) {
+            0
+        } else {
+            gcd(maxOf(config.indentSize, 1), maxOf(config.continuationIndentSize, 1))
+        }
     }
 }

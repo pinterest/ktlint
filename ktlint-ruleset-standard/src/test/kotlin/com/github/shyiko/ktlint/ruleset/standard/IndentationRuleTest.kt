@@ -309,4 +309,94 @@ class IndentationRuleTest {
             """.trimIndent()
         )).isEmpty()
     }
+
+    @Test
+    fun testFormatCurlyBraceInWhereBlock() {
+        assertThat(IndentationRule().format(
+            """
+            class BiAdapter<C : RecyclerView.ViewHolder, V1 : C, V2 : C, out A1, out A2>(
+                val adapter1: A1
+            ) : RecyclerView.Adapter<C>()
+                where A1 : Type1,
+                      A2 : Type2 {
+             }
+            """.trimIndent()
+        )).isEqualTo(
+            """
+            class BiAdapter<C : RecyclerView.ViewHolder, V1 : C, V2 : C, out A1, out A2>(
+                val adapter1: A1
+            ) : RecyclerView.Adapter<C>()
+                where A1 : Type1,
+                      A2 : Type2 {
+            }
+                """.trimIndent()
+        )
+    }
+
+    @Test
+    fun testCurlyBrace() {
+        assertThat(IndentationRule().lint(
+            """
+            class ReaderFacade {
+                fun run() {
+                 }
+            }
+              """.trimIndent()
+        )).isEqualTo(
+            listOf(
+                LintError(3, 1, "indent", "Unexpected indentation (5) (it should be 4)")
+            )
+        )
+    }
+
+    @Test
+    fun testCurlyBraceFormat() {
+        assertThat(IndentationRule().format(
+            """
+                class ReaderFacade {
+                    fun run() {
+                     }
+                }
+              """.trimIndent()
+        )).isEqualTo(
+            """
+                class ReaderFacade {
+                    fun run() {
+                    }
+                }
+                """.trimIndent()
+        )
+    }
+
+    @Test
+    fun testCurlyBraceInNestedBlockWithComment() {
+        assertThat(IndentationRule().lint(
+            """
+            object KtLint {
+                // comment
+                class LoggerFactory {
+                }
+            }
+              """.trimIndent()
+        )).isEmpty()
+    }
+
+    @Test
+    fun testCurlyBraceWithCompanionObjectFormat() {
+        assertThat(IndentationRule().format(
+            """
+            class Foo {
+              // asdf
+                companion object {
+                }
+            }
+              """.trimIndent()
+        )).isEqualTo("""
+            class Foo {
+                // asdf
+                companion object {
+                }
+            }
+        """.trimIndent())
+    }
 }
