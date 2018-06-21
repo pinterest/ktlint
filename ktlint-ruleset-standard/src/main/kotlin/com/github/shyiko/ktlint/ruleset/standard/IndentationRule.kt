@@ -6,6 +6,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
+import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.psi.KtParameterList
 import org.jetbrains.kotlin.psi.KtTypeConstraintList
 import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
@@ -38,8 +39,11 @@ class IndentationRule : Rule("indent") {
                             emit(
                                 offset,
                                 "Unexpected indentation (${indent.length}) (it should be ${previousIndentSize + indentSize})",
-                                false
+                                true
                             )
+                            if (autoCorrect) {
+                                replaceWithExpectedIndent(node, previousIndentSize + indentSize)
+                            }
                         }
                     }
                     offset += indent.length + 1
@@ -52,6 +56,11 @@ class IndentationRule : Rule("indent") {
         a > b -> gcd(a - b, b)
         a < b -> gcd(a, b - a)
         else -> a
+    }
+
+    private fun replaceWithExpectedIndent(node: ASTNode, expectedIndentSize: Int) {
+        val correctedIndent = "\n" + " ".repeat(expectedIndentSize)
+        (node as LeafPsiElement).rawReplaceWithText(correctedIndent)
     }
 
     // todo: calculating indent based on the previous line value is wrong (see IndentationRule.testLint)
