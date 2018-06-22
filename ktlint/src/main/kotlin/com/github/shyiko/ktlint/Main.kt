@@ -10,7 +10,6 @@ import com.github.shyiko.ktlint.core.RuleExecutionException
 import com.github.shyiko.ktlint.core.RuleSet
 import com.github.shyiko.ktlint.core.RuleSetProvider
 import com.github.shyiko.ktlint.internal.EditorConfig
-import com.github.shyiko.ktlint.internal.EditorConfigFinder
 import com.github.shyiko.ktlint.internal.IntellijIDEAIntegration
 import com.github.shyiko.ktlint.internal.MavenDependencyResolver
 import com.github.shyiko.ktlint.test.DumpAST
@@ -20,6 +19,7 @@ import org.eclipse.aether.repository.RemoteRepository
 import org.eclipse.aether.repository.RepositoryPolicy
 import org.eclipse.aether.repository.RepositoryPolicy.CHECKSUM_POLICY_IGNORE
 import org.eclipse.aether.repository.RepositoryPolicy.UPDATE_POLICY_NEVER
+import org.jetbrains.kotlin.backend.common.onlyIf
 import picocli.CommandLine
 import picocli.CommandLine.Command
 import picocli.CommandLine.Option
@@ -42,6 +42,7 @@ import java.util.Scanner
 import java.util.ServiceLoader
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.Callable
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
@@ -193,7 +194,6 @@ object Main {
 
     private val workDir = File(".").canonicalPath
     private fun File.location() = if (relative) this.toRelativeString(File(workDir)) else this.path
-    private val editConfigFinder = EditorConfigFinder(workDir, true)
 
     private fun usage() =
         ByteArrayOutputStream()
@@ -262,20 +262,18 @@ object Main {
             ruleSetProviders.forEach { System.err.println("[DEBUG] Discovered ruleset \"${it.first}\"") }
         }
         val reporter = loadReporter(dependencyResolver)
-        val userData = mapOf("android" to android.toString())
-
+        val resolveUserData = userDataResolver()
         val tripped = AtomicBoolean()
         data class LintErrorWithCorrectionInfo(val err: LintError, val corrected: Boolean)
         fun process(fileName: String, fileContent: String): List<LintErrorWithCorrectionInfo> {
             if (debug) {
                 System.err.println("[DEBUG] Checking ${if (fileName != "<text>") File(fileName).location() else fileName}")
             }
-            val editorConfig = editConfigFinder.getEditorConfig(fileName)
             val result = ArrayList<LintErrorWithCorrectionInfo>()
-            val localUserData = editorConfig.safe() + if (fileName != "<text>") userData + ("file_path" to fileName) else userData
+            val userData = resolveUserData(fileName)
             if (format) {
                 val formattedFileContent = try {
-                    format(fileName, fileContent, ruleSetProviders.map { it.second.get() }, localUserData) { err, corrected ->
+                    format(fileName, fileContent, ruleSetProviders.map { it.second.get() }, userData) { err, corrected ->
                         if (!corrected) {
                             result.add(LintErrorWithCorrectionInfo(err, corrected))
                             tripped.set(true)
@@ -295,7 +293,7 @@ object Main {
                 }
             } else {
                 try {
-                    lint(fileName, fileContent, ruleSetProviders.map { it.second.get() }, localUserData) { err ->
+                    lint(fileName, fileContent, ruleSetProviders.map { it.second.get() }, userData) { err ->
                         result.add(LintErrorWithCorrectionInfo(err, false))
                         tripped.set(true)
                     }
@@ -334,6 +332,40 @@ object Main {
         }
         if (tripped.get()) {
             exitProcess(1)
+        }
+    }
+
+    private fun userDataResolver(): (String) -> Map<String, String> {
+        val cliUserData = mapOf("android" to android.toString())
+        val workdirUserData = lazy {
+            (
+                EditorConfig.of(workDir)
+                    ?.onlyIf({ debug }) { ec ->
+                        for (lec in generateSequence(ec) { ec.parent }.toList().reversed()) {
+                            System.err.println("[DEBUG] Found .editorconfig in ${lec.path.parent.toFile().location()}" +
+                                " (${lec.keys.joinToString(", ")})")
+                        }
+                    }
+                ?: emptyMap<String, String>()
+            ) + cliUserData
+        }
+        val editorConfig = EditorConfig.cached()
+        val editorConfigSet = ConcurrentHashMap<Path, Boolean>()
+        return fun (fileName: String): Map<String, String> {
+            if (fileName == "<text>") {
+                return workdirUserData.value
+            }
+            return (
+                editorConfig.of(Paths.get(fileName).parent)
+                    ?.onlyIf({ debug }) { ec ->
+                        for (lec in generateSequence(ec) { ec.parent }
+                                .takeWhile { editorConfigSet.put(it.path, true) != true }.toList().reversed()) {
+                            System.err.println("[DEBUG] Found .editorconfig in ${lec.path.parent.toFile().location()}" +
+                                " (${lec.keys.joinToString(", ")})")
+                        }
+                    }
+                ?: emptyMap<String, String>()
+            ) + cliUserData + ("file_path" to fileName)
         }
     }
 
@@ -659,13 +691,19 @@ object Main {
             override fun cancel(mayInterruptIfRunning: Boolean): Boolean { throw UnsupportedOperationException() }
             override fun isCancelled(): Boolean { throw UnsupportedOperationException() }
         }
+        var consumerThrowable: Throwable? = null
         val consumer = Thread(Runnable {
             while (true) {
                 val future = q.poll(Long.MAX_VALUE, TimeUnit.NANOSECONDS)
                 if (future === pill) {
                     break
                 }
-                cb(future.get())
+                try {
+                    cb(future.get())
+                } catch (e: Throwable) {
+                    consumerThrowable = e;
+                    break
+                }
             }
         })
         consumer.start()
@@ -676,17 +714,6 @@ object Main {
         q.put(pill)
         executorService.shutdown()
         consumer.join()
-    }
-
-    private fun EditorConfig?.safe(): Map<String, String> {
-        this ?: return emptyMap()
-
-        if (debug) {
-            System.err.println("[DEBUG] Discovered .editorconfig (${
-            generateSequence(this) { it.parent }.map { it.path.parent.toFile().location() }.joinToString()
-            })")
-            System.err.println("[DEBUG] ${this.mapKeys { it.key }} loaded from " + this.path)
-        }
-        return this
+        consumerThrowable?.also { throw it }
     }
 }

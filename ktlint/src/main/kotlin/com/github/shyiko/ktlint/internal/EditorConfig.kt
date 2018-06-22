@@ -5,6 +5,8 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.Properties
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ConcurrentHashMap
 
 class EditorConfig private constructor (
     val parent: EditorConfig?,
@@ -12,11 +14,10 @@ class EditorConfig private constructor (
     private val data: Map<String, String>
 ) : Map<String, String> by data {
 
-    companion object {
+    companion object : EditorConfigLookup {
 
-        fun of(dir: String) =
-            of(Paths.get(dir))
-        fun of(dir: Path) =
+        override fun of(dir: String) = of(Paths.get(dir))
+        override fun of(dir: Path) =
             generateSequence(locate(dir)) { seed -> locate(seed.parent.parent) } // seed.parent == .editorconfig dir
                 .map { it to lazy { load(it) } }
                 .let { seq ->
@@ -31,6 +32,44 @@ class EditorConfig private constructor (
                 .fold(null as EditorConfig?) { parent, (path, data) ->
                     EditorConfig(parent, path, (parent?.data ?: emptyMap()) + flatten(data.value))
                 }
+
+        fun cached(): EditorConfigLookup = object : EditorConfigLookup {
+
+            // todo: concurrent radix tree can potentially save a lot of memory here
+            private val cache = ConcurrentHashMap<Path, CompletableFuture<EditorConfig?>>()
+
+            override fun of(dir: String) = of(Paths.get(dir))
+            override fun of(dir: Path): EditorConfig? {
+                val cachedEditorConfig = cache[dir]
+                return when {
+                    cachedEditorConfig != null -> cachedEditorConfig.get()
+                    else -> {
+                        val future = CompletableFuture<EditorConfig?>()
+                        val cachedFuture = cache.putIfAbsent(dir, future)
+                        if (cachedFuture == null) {
+                            val editorConfigPath = dir.resolve(".editorconfig")
+                            val parent = if (dir.parent != null) of(dir.parent) else null
+                            try {
+                                val editorConfig = if (Files.exists(editorConfigPath)) {
+                                    EditorConfig(parent, editorConfigPath,
+                                        (parent?.data ?: emptyMap()) + flatten(load(editorConfigPath)))
+                                } else {
+                                    parent
+                                }
+                                future.complete(editorConfig)
+                                editorConfig
+                            } catch (e: Exception) {
+                                future.completeExceptionally(e)
+                                cache.remove(dir)
+                                throw e
+                            }
+                        } else {
+                            cachedFuture.get()
+                        }
+                    }
+                }
+            }
+        }
 
         private fun locate(dir: Path?): Path? = when (dir) {
             null -> null
@@ -93,7 +132,7 @@ class EditorConfig private constructor (
             }
             // [["*.kt"], ["", "s"], ["~"]] -> [*.kt~, *.kts~]
             fun List<List<String>>.collect(): List<String> =
-                mutableListOf<String>().also { this.collect0(0, arrayOfNulls<String>(this.size), it) }
+                mutableListOf<String>().also { this.collect0(0, arrayOfNulls(this.size), it) }
             val chunks: MutableList<MutableList<String>> = mutableListOf()
             chunks.add(mutableListOf())
             var l = 0
@@ -126,4 +165,9 @@ class EditorConfig private constructor (
             return result
         }
     }
+}
+
+interface EditorConfigLookup {
+    fun of(dir: String): EditorConfig?
+    fun of(dir: Path): EditorConfig?
 }
