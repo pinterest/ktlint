@@ -45,16 +45,23 @@ object IntellijIDEAIntegration {
                     overwriteWithResource("/project-config/.idea/inspectionProfiles/profiles_settings.xml"),
                 Paths.get(workDir.toString(), ".idea", "inspectionProfiles", "ktlint.xml") to
                     overwriteWithResource("/project-config/.idea/inspectionProfiles/ktlint.xml"),
-                Paths.get(workDir.toString(), ".idea", "workspace.xml") to {
-                    var arr = "<project version=\"4\"></project>".toByteArray()
-                    try {
-                        arr = Files.readAllBytes(Paths.get(workDir.toString(), ".idea", "workspace.xml"))
-                    } catch (e: IOException) {
-                        if (e !is NoSuchFileException) {
-                            throw e
+                Paths.get(workDir.toString(), ".idea", "workspace.xml").let { src ->
+                    src to {
+                        var arr = "<project version=\"4\"></project>".toByteArray()
+                        try {
+                            arr = Files.readAllBytes(Paths.get(workDir.toString(), ".idea", "workspace.xml"))
+                        } catch (e: IOException) {
+                            if (e !is NoSuchFileException) {
+                                throw e
+                            }
                         }
+                        try {
+                            enableOptimizeImportsOnTheFly(arr)
+                        } catch (e: Exception) {
+                            throw IOException("Failed to enable \"Optimize imports on the fly\" ($src)", e)
+                        }
+
                     }
-                    enableOptimizeImportsOnTheFlyInsideWorkspace(arr)
                 }
             )
         } else {
@@ -93,16 +100,22 @@ object IntellijIDEAIntegration {
                         },
                     Paths.get(dir.toString(), "inspection", "ktlint.xml") to
                         overwriteWithResource("/config/inspection/ktlint.xml"),
-                    Paths.get(dir.toString(), "options", "editor.codeinsight.xml") to {
-                        var arr = "<application></application>".toByteArray()
-                        try {
-                            arr = Files.readAllBytes(Paths.get(dir.toString(), "options", "editor.codeinsight.xml"))
-                        } catch (e: IOException) {
-                            if (e !is NoSuchFileException) {
-                                throw e
+                    Paths.get(dir.toString(), "options", "editor.codeinsight.xml").let { src ->
+                        src to {
+                            var arr = "<application></application>".toByteArray()
+                            try {
+                                arr = Files.readAllBytes(src)
+                            } catch (e: IOException) {
+                                if (e !is NoSuchFileException) {
+                                    throw e
+                                }
+                            }
+                            try {
+                                enableOptimizeImportsOnTheFlyInsideWorkspace(arr)
+                            } catch (e: Exception) {
+                                throw IOException("Failed to enable \"Optimize imports on the fly\" ($src)", e)
                             }
                         }
-                        enableOptimizeImportsOnTheFly(arr)
                     }
                 )
             } + sequenceOf(
