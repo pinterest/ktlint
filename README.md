@@ -46,7 +46,7 @@ It's also [easy to create your own](#creating-a-reporter).
 - When class/function signature doesn't fit on a single line, each parameter must be on a separate line;
 - Consistent string templates (`$v` instead of `${v}`, `${p.v}` instead of `${p.v.toString()}`);
 - Consistent order of modifiers;
-- Consistent spacing after keywords, commas; around colons, curly braces, infix operators, comments, etc;
+- Consistent spacing after keywords, commas; around colons, curly braces, parens, infix operators, comments, etc;
 - Newline at the end of each file (not enabled by default, but recommended)  
 (set `insert_final_newline=true` in .editorconfig to enable (see [EditorConfig](#editorconfig) section for more)).
 

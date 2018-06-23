@@ -34,6 +34,7 @@ class StandardRuleSetProvider : RuleSetProvider {
         SpacingAroundCurlyRule(),
         SpacingAroundKeywordRule(),
         SpacingAroundOperatorsRule(),
+        SpacingAroundParensRule(),
         SpacingAroundRangeOperatorRule(),
         StringTemplateRule()
     )
