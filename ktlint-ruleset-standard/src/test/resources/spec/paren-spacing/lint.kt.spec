@@ -4,6 +4,8 @@ fun main() {
     fn ((1 + 2) / 3)
     fn( )
     @Deprecated ("")
+    fn(
+    )
 
     mapOf(
       "key" to (v ?: "")
@@ -23,3 +25,4 @@ fun main() {
 // 4:7:Unexpected spacing before "("
 // 5:8:Unexpected spacing after "("
 // 6:16:Unexpected spacing before "("
+// 7:8:Unexpected spacing after "("

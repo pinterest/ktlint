@@ -20,8 +20,7 @@ class SpacingAroundParensRule : Rule("paren-spacing") {
             val nextLeaf = PsiTreeUtil.nextLeaf(node.psi, true)
             val spacingBefore = if (node.elementType == KtTokens.LPAR) {
                 prevLeaf is PsiWhiteSpace && !prevLeaf.textContains('\n') &&
-                PsiTreeUtil.prevLeaf(prevLeaf, true)?.node?.elementType == KtTokens.IDENTIFIER &&
-                (
+                PsiTreeUtil.prevLeaf(prevLeaf, true)?.node?.elementType == KtTokens.IDENTIFIER && (
                     node.treeParent?.elementType == KtNodeTypes.VALUE_PARAMETER_LIST ||
                     node.treeParent?.elementType == KtNodeTypes.VALUE_ARGUMENT_LIST
                 )
@@ -30,7 +29,10 @@ class SpacingAroundParensRule : Rule("paren-spacing") {
                 PsiTreeUtil.prevLeaf(prevLeaf, true)?.node?.elementType != KtTokens.LPAR
             }
             val spacingAfter = if (node.elementType == KtTokens.LPAR) {
-                nextLeaf is PsiWhiteSpace && !nextLeaf.textContains('\n')
+                nextLeaf is PsiWhiteSpace && (
+                    !nextLeaf.textContains('\n') ||
+                    PsiTreeUtil.nextLeaf(nextLeaf, true)?.node?.elementType == KtTokens.RPAR
+                )
             } else {
                 nextLeaf is PsiWhiteSpace && !nextLeaf.textContains('\n') &&
                 PsiTreeUtil.nextLeaf(nextLeaf, true)?.node?.elementType == KtTokens.RPAR
