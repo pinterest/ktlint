@@ -1,5 +1,5 @@
 buildscript {
-    ext.kotlin_version = '1.2.50'
+    ext.kotlin_version = '1.2.41'
     repositories {
         mavenCentral()
         maven { url 'http://repo.spring.io/plugins-release' }
@@ -47,15 +47,19 @@ configurations {
 }
 
 dependencies {
-    compileOnly "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    provided 'com.github.shyiko.ktlint:ktlint-core:0.22.0'
+    compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
-    testCompile 'org.jetbrains.spek:spek-api:1.1.5'
-    testRuntime 'org.jetbrains.spek:spek-junit-platform-engine:1.1.5'
+    provided 'com.github.shyiko.ktlint:ktlint-core:0.23.1'
+
     testCompile 'org.assertj:assertj-core:3.5.2'
-    testCompile 'com.github.shyiko.ktlint:ktlint-test:0.22.0'
+    testCompile 'com.github.shyiko.ktlint:ktlint-test:0.23.1'
+    testCompile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    testCompile('org.jetbrains.spek:spek-junit-platform-engine:1.1.5') {
+        exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib'
+        exclude group: 'org.jetbrains.kotlin', module: 'kotlin-reflect'
+    }
 
-    ktlint 'com.github.shyiko:ktlint:0.22.0'
+    ktlint 'com.github.shyiko:ktlint:0.23.1'
 }
 
 task ktlint(type: JavaExec, dependsOn: classes) {
