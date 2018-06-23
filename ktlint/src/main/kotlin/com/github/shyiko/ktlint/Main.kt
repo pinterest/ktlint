@@ -342,8 +342,8 @@ object Main {
                 EditorConfig.of(workDir)
                     ?.onlyIf({ debug }) { ec ->
                         for (lec in generateSequence(ec) { ec.parent }.toList().reversed()) {
-                            System.err.println("[DEBUG] Found .editorconfig in ${lec.path.parent.toFile().location()}" +
-                                " (${lec.keys.joinToString(", ")})")
+                            System.err.println("[DEBUG] Discovered .editorconfig (${lec.path.parent.toFile().location()})" +
+                                " {${lec.entries.joinToString(", ")}}")
                         }
                     }
                 ?: emptyMap<String, String>()
@@ -360,8 +360,8 @@ object Main {
                     ?.onlyIf({ debug }) { ec ->
                         for (lec in generateSequence(ec) { ec.parent }
                                 .takeWhile { editorConfigSet.put(it.path, true) != true }.toList().reversed()) {
-                            System.err.println("[DEBUG] Found .editorconfig in ${lec.path.parent.toFile().location()}" +
-                                " (${lec.keys.joinToString(", ")})")
+                            System.err.println("[DEBUG] Discovered .editorconfig (${lec.path.parent.toFile().location()})" +
+                                " {${lec.entries.joinToString(", ")}}")
                         }
                     }
                 ?: emptyMap<String, String>()
@@ -426,7 +426,7 @@ object Main {
                             override fun afterAll() {
                                 reporter.afterAll()
                                 stream.close()
-                                System.err.println("Generated ${File(output).location()}")
+                                System.err.println("\"$id\" report written to ${File(output).absoluteFile.location()}")
                             }
                         }
                     else reporter
@@ -701,7 +701,7 @@ object Main {
                 try {
                     cb(future.get())
                 } catch (e: Throwable) {
-                    consumerThrowable = e;
+                    consumerThrowable = e
                     break
                 }
             }

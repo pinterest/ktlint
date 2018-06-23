@@ -60,7 +60,6 @@ object IntellijIDEAIntegration {
                         } catch (e: Exception) {
                             throw IOException("Failed to enable \"Optimize imports on the fly\" ($src)", e)
                         }
-
                     }
                 }
             )
