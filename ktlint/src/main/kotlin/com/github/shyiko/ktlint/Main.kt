@@ -311,7 +311,11 @@ object Main {
             errorNumber.addAndGet(errListLimit)
             reporter.before(fileName)
             errList.head(errListLimit).forEach { (err, corrected) ->
-                reporter.onLintError(fileName, err, corrected)
+                reporter.onLintError(
+                    fileName,
+                    if (!corrected) err.copy(detail = err.detail + " (cannot be auto-corrected)") else err,
+                    corrected
+                )
             }
             reporter.after(fileName)
         }
