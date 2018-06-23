@@ -369,7 +369,7 @@ object KtLint {
                 }
             }
         }
-        return if (mutated) rootNode.text.replace("\n", determineLineSeparator(text)) else text
+        return if (mutated) rootNode.text.replace("\n", determineLineSeparator(text, userData)) else text
     }
 
     private fun calculateLineBreakOffset(fileContent: String): (offset: Int) -> Int {
@@ -384,8 +384,8 @@ object KtLint {
             SegmentTree(arr.toTypedArray()).let { return { offset -> it.indexOf(offset) } } else { _ -> 0 }
     }
 
-    private fun determineLineSeparator(fileContent: String) =
-        if (fileContent.lastIndexOf('\r') != -1) "\r\n" else "\n"
+    private fun determineLineSeparator(fileContent: String, userData: Map<String, String>) =
+        if (userData["end_of_line"]?.trim()?.toLowerCase() == "crlf" || fileContent.lastIndexOf('\r') != -1) "\r\n" else "\n"
 
     /**
      * @param range zero-based range of lines where lint errors should be suppressed
