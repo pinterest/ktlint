@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.24.0] - 2018-06-14
+## [0.24.0] - 2018-06-22
 
 ### Added 
 - `paren-spacing` rule ([#223](https://github.com/shyiko/ktlint/issues/223)).
