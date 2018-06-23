@@ -110,6 +110,9 @@ $ ktlint --reporter=plain --reporter=checkstyle,output=ktlint-report-in-checksty
 
 # install git hook to automatically check files for style violations on commit
 $ ktlint --install-git-pre-commit-hook
+
+# install git hook to automatically check files for style violations before push
+$ ktlint --install-git-pre-push-hook
 ```
 
 > on Windows you'll have to use `java -jar ktlint ...`. 
