@@ -380,8 +380,11 @@ object KtLint {
             i = fileContent.indexOf("\r\n", i + 1)
         } while (i != -1)
         arr.add(fileContent.length)
-        return if (arr.size != 2)
-            SegmentTree(arr.toTypedArray()).let { return { offset -> it.indexOf(offset) } } else { _ -> 0 }
+        return if (arr.size != 2) {
+            SegmentTree(arr.toTypedArray()).let { return { offset -> it.indexOf(offset) } }
+        } else {
+            _ -> 0
+        }
     }
 
     private fun determineLineSeparator(fileContent: String, userData: Map<String, String>) =

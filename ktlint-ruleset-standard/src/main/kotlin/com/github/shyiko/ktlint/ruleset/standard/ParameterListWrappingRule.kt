@@ -65,8 +65,11 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
                         KtTokens.RPAR -> {
                             var paramInnerIndentAdjustment = 0
                             val prevLeaf = child.psi.prevLeaf()
-                            val intendedIndent = if (child.elementType == KtStubElementTypes.VALUE_PARAMETER)
-                                paramIndent else indent
+                            val intendedIndent = if (child.elementType == KtStubElementTypes.VALUE_PARAMETER) {
+                                paramIndent
+                            } else {
+                                indent
+                            }
                             if (prevLeaf is PsiWhiteSpace) {
                                 val spacing = prevLeaf.text
                                 val cut = spacing.lastIndexOf("\n")
