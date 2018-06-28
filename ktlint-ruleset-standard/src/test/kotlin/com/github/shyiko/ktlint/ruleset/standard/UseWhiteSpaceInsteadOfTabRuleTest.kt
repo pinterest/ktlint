@@ -36,6 +36,21 @@ class UseWhiteSpaceInsteadOfTabRuleTest {
         ))
     }
 
+    @Test
+    fun testErrorMessage() {
+        assertThat(UseWhiteSpaceInsteadOfTabRule().getErrorMessage(4)).isEqualToIgnoringCase(
+            "Use 4 spaces for indentation. Do not use tabs."
+        )
+
+        assertThat(UseWhiteSpaceInsteadOfTabRule().getErrorMessage(0)).isEqualToIgnoringCase(
+            "Use some spaces for indentation. Do not use tabs."
+        )
+
+        assertThat(UseWhiteSpaceInsteadOfTabRule().getErrorMessage(-1)).isEqualToIgnoringCase(
+            "Use some spaces for indentation. Do not use tabs."
+        )
+    }
+
     private fun format(kotlinScript: String, userData: Map<String, String> = emptyMap()): String {
         return UseWhiteSpaceInsteadOfTabRule().format(kotlinScript, userData)
     }
