@@ -11,7 +11,7 @@ import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
  * @author yokotaso <yokotaso.t@gmail.com>
  */
 class UseWhiteSpaceInsteadOfTabRule : Rule("use-whitespace-instead-of-tab-rule") {
-    var indentSize = -1
+    var indentSize = 4
 
     override fun visit(node: ASTNode, autoCorrect: Boolean, emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
         if (node.elementType == KtStubElementTypes.FILE) {
@@ -21,8 +21,7 @@ class UseWhiteSpaceInsteadOfTabRule : Rule("use-whitespace-instead-of-tab-rule")
         }
 
         if (node.psi is PsiWhiteSpace &&
-            (node.psi as PsiWhiteSpace).textContains('\t') &&
-            indentSize != -1) {
+            (node.psi as PsiWhiteSpace).textContains('\t')) {
 
             emit(node.startOffset, "Use $indentSize spaces for indentation. Do not use tabs.", true)
             if (autoCorrect) {
