@@ -22,10 +22,10 @@ class UseWhiteSpaceInsteadOfTabRule : Rule("use-whitespace-instead-of-tab-rule")
 
         if (node.psi is PsiWhiteSpace &&
             (node.psi as PsiWhiteSpace).textContains('\t')) {
-            // indentSize should be set.
-
             emit(node.startOffset, getErrorMessage(indentSize), true)
+
             if (autoCorrect) {
+                // indentSize should be set.
                 assert(indentSize > 0, { "illegal indentSize." })
                 val whitespace = node.text.replace("\t", " ".repeat(indentSize))
                 (node as LeafPsiElement).rawReplaceWithText(whitespace)
