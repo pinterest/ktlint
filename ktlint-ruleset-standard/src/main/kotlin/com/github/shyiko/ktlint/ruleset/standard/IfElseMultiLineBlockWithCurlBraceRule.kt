@@ -7,6 +7,9 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.TreeElement
 import org.jetbrains.kotlin.lexer.KtTokens
 
+/**
+ * @author yokotaso <yokotaso.t@gmail.com>
+ */
 class IfElseMultiLineBlockWithCurlBraceRule : Rule("if-else-multiline-block-with-curly-brace-rule") {
     override fun visit(node: ASTNode, autoCorrect: Boolean, emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
 
