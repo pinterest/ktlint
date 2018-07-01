@@ -4,6 +4,8 @@ import com.github.shyiko.ktlint.core.LintError
 import com.github.shyiko.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
 import org.testng.annotations.Test
+import java.net.URI
+import java.nio.file.Paths
 
 class PackageNameRuleTest {
 
@@ -44,7 +46,7 @@ class PackageNameRuleTest {
             ))
     }
 
-    private fun fileName(fileName: String) = mapOf("file_path" to fileName)
+    private fun fileName(fileName: String) = mapOf("file_path" to Paths.get(URI.create("file:///$fileName")).toString())
 
     private fun lintSuccess(ktScript: String, fileName: String) {
         assertThat(PackageNameRule().lint(ktScript, fileName(fileName))).isEmpty()
