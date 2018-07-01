@@ -10,6 +10,7 @@ class StandardRuleSetProvider : RuleSetProvider {
         CommentSpacingRule(),
         FilenameRule(),
         FinalNewlineRule(),
+        PackageNameRule(),
         UseWhiteSpaceInsteadOfTabRule(),
         IfElseMultiLineBlockWithCurlBraceRule(),
         // disabled until it's clear how to reconcile difference in Intellij & Android Studio import layout
