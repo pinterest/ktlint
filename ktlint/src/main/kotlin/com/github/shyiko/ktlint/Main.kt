@@ -176,7 +176,7 @@ object Main {
     ))
     private var rulesets = ArrayList<String>()
 
-    @Option(names = arrayOf("--skip-classpath-check"), description = arrayOf("Do not check classpath for pottential conflicts"))
+    @Option(names = arrayOf("--skip-classpath-check"), description = arrayOf("Do not check classpath for potential conflicts"))
     private var skipClasspathCheck: Boolean = false
 
     @Option(names = arrayOf("--stdin"), description = arrayOf("Read file from stdin"))
