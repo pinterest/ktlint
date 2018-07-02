@@ -7,6 +7,9 @@ import org.jetbrains.kotlin.psi.KtPackageDirective
 import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
 import java.io.File
 
+/**
+ * @author yokotaso <yokotaso.t@gmail.com>
+ */
 class PackageNameRule : Rule("package-name-rule") {
     private var filePath: String? = null
 

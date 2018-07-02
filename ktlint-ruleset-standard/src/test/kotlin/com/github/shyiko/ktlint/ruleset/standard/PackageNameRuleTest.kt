@@ -7,6 +7,9 @@ import org.testng.annotations.Test
 import java.net.URI
 import java.nio.file.Paths
 
+/**
+ * @author yokotaso <yokotaso.t@gmail.com>
+ */
 class PackageNameRuleTest {
 
     @Test
