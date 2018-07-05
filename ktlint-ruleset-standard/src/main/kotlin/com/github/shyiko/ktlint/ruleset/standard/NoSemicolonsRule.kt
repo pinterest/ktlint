@@ -16,12 +16,12 @@ class NoSemicolonsRule : Rule("no-semi") {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         if (node is LeafPsiElement && node.textMatches(";") && !node.isPartOfString() &&
-                !node.isPartOf(KtEnumEntry::class)) {
+            !node.isPartOf(KtEnumEntry::class)) {
             val nextLeaf = PsiTreeUtil.nextLeaf(node, true)
             if (nextLeaf == null /* eof */ ||
                 (nextLeaf is PsiWhiteSpace && (nextLeaf.text.contains("\n") ||
                     PsiTreeUtil.nextLeaf(nextLeaf, true) == null /* \s+ and then eof */))
-                ) {
+            ) {
                 emit(node.startOffset, "Unnecessary semicolon", true)
                 if (autoCorrect) {
                     node.treeParent.removeChild(node)

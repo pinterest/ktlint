@@ -565,8 +565,7 @@ object Main {
                 val scanner = Scanner(System.`in`)
                 val res = generateSequence {
                         try { scanner.next() } catch (e: NoSuchElementException) { null }
-                    }
-                    .filter { line -> !line.trim().isEmpty() }
+                }.filter { line -> !line.trim().isEmpty() }
                     .first()
                 if (!"y".equals(res, ignoreCase = true)) {
                     System.err.println("(update canceled)")

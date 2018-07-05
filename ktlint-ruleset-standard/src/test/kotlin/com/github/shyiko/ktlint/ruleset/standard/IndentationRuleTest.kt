@@ -1,6 +1,7 @@
 package com.github.shyiko.ktlint.ruleset.standard
 
 import com.github.shyiko.ktlint.core.LintError
+import com.github.shyiko.ktlint.test.format
 import com.github.shyiko.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
 import org.testng.annotations.Test
@@ -10,6 +11,39 @@ class IndentationRuleTest {
     @Test
     fun testLint() {
         assertThat(IndentationRule().lint(
+            """
+            /**
+             * _
+             */
+            fun main() {
+                val a = 0
+                // this is not detected because actual indent 8 % 4 = 0
+                    val b = 0
+                if (a == 0) {
+                    println(a)
+                }
+                val b = builder().setX().setY()
+                    .build()
+               val c = builder("long_string" +
+                     "")
+            }
+
+            class A {
+                var x: String
+                    get() = ""
+                    set(v: String) { x = v }
+            }
+            """.trimIndent()
+        )).isEqualTo(listOf(
+            LintError(13, 1, "indent", "Unexpected indentation (3) (it should be 4)"),
+            // fixme: expected indent should not depend on the "previous" line value
+            LintError(14, 1, "indent", "Unexpected indentation (9) (it should be 7)")
+        ))
+    }
+
+    @Test
+    fun testLintFormat() {
+        assertThat(IndentationRule().format(
             """
             /**
              * _
@@ -32,11 +66,28 @@ class IndentationRuleTest {
                     set(v: String) { x = v }
             }
             """.trimIndent()
-        )).isEqualTo(listOf(
-            LintError(12, 1, "indent", "Unexpected indentation (3) (it should be 4)"),
-            // fixme: expected indent should not depend on the "previous" line value
-            LintError(13, 1, "indent", "Unexpected indentation (9) (it should be 7)")
-        ))
+        )).isEqualTo("""
+            /**
+             * _
+             */
+            fun main() {
+                val a = 0
+                    val b = 0
+                if (a == 0) {
+                    println(a)
+                }
+                val b = builder().setX().setY()
+                    .build()
+                val c = builder("long_string" +
+                    "")
+            }
+
+            class A {
+                var x: String
+                    get() = ""
+                    set(v: String) { x = v }
+            }
+        """.trimIndent())
     }
 
     @Test
@@ -52,6 +103,25 @@ class IndentationRuleTest {
         )).isEqualTo(listOf(
             LintError(3, 1, "indent", "Unexpected indentation (4) (it should be 3)")
         ))
+    }
+
+    @Test
+    fun testLintCustomIndentSizeFormat() {
+        assertThat(IndentationRule().format(
+            """
+            fun main() {
+               val v = ""
+                println(v)
+            }
+            """.trimIndent(),
+            mapOf("indent_size" to "3")
+        )).isEqualTo("""
+            fun main() {
+               val v = ""
+               println(v)
+            }
+        """.trimIndent()
+        )
     }
 
     @Test
@@ -136,15 +206,39 @@ class IndentationRuleTest {
         assertThat(IndentationRule().lint(
             """
             fun main() {
-                fn(a,
+                fn(
+                   a,
                    b,
                    c)
             }
             """.trimIndent()
         )).isEqualTo(listOf(
             LintError(3, 1, "indent", "Unexpected indentation (7) (it should be 8)"),
-            LintError(4, 1, "indent", "Unexpected indentation (7) (it should be 8)")
+            LintError(4, 1, "indent", "Unexpected indentation (7) (it should be 8)"),
+            LintError(5, 1, "indent", "Unexpected indentation (7) (it should be 8)")
         ))
+    }
+
+    // https://kotlinlang.org/docs/reference/coding-conventions.html#method-call-formatting
+    @Test
+    fun testLintMultilineFunctionCallFormat() {
+        assertThat(IndentationRule().format(
+            """
+            fun main() {
+                fn(
+                   a,
+                   b,
+                   c)
+            }
+            """.trimIndent()
+        )).isEqualTo("""
+            fun main() {
+                fn(
+                    a,
+                    b,
+                    c)
+            }
+        """.trimIndent())
     }
 
     @Test
@@ -169,6 +263,38 @@ class IndentationRuleTest {
         ))
     }
 
+    @Test
+    fun testLintCommentsAreIgnoredFormat() {
+        assertThat(IndentationRule().format(
+            """
+            fun funA(argA: String) =
+                // comment
+            // comment
+                call(argA)
+            fun main() {
+                addOnLayoutChangeListener(object : View.OnLayoutChangeListener {
+             // comment
+                    override fun onLayoutChange(
+                    )
+                })
+            }
+            """.trimIndent(),
+            mapOf("indent_size" to "4")
+        )).isEqualTo("""
+            fun funA(argA: String) =
+                // comment
+            // comment
+                call(argA)
+            fun main() {
+                addOnLayoutChangeListener(object : View.OnLayoutChangeListener {
+                    // comment
+                    override fun onLayoutChange(
+                    )
+                })
+            }
+        """.trimIndent())
+    }
+
     @Test(description = "https://github.com/shyiko/ktlint/issues/180")
     fun testLintWhereClause() {
         assertThat(IndentationRule().lint(
@@ -182,5 +308,95 @@ class IndentationRuleTest {
             }
             """.trimIndent()
         )).isEmpty()
+    }
+
+    @Test
+    fun testFormatCurlyBraceInWhereBlock() {
+        assertThat(IndentationRule().format(
+            """
+            class BiAdapter<C : RecyclerView.ViewHolder, V1 : C, V2 : C, out A1, out A2>(
+                val adapter1: A1
+            ) : RecyclerView.Adapter<C>()
+                where A1 : Type1,
+                      A2 : Type2 {
+             }
+            """.trimIndent()
+        )).isEqualTo(
+            """
+            class BiAdapter<C : RecyclerView.ViewHolder, V1 : C, V2 : C, out A1, out A2>(
+                val adapter1: A1
+            ) : RecyclerView.Adapter<C>()
+                where A1 : Type1,
+                      A2 : Type2 {
+            }
+                """.trimIndent()
+        )
+    }
+
+    @Test
+    fun testCurlyBrace() {
+        assertThat(IndentationRule().lint(
+            """
+            class ReaderFacade {
+                fun run() {
+                 }
+            }
+              """.trimIndent()
+        )).isEqualTo(
+            listOf(
+                LintError(3, 1, "indent", "Unexpected indentation (5) (it should be 4)")
+            )
+        )
+    }
+
+    @Test
+    fun testCurlyBraceFormat() {
+        assertThat(IndentationRule().format(
+            """
+                class ReaderFacade {
+                    fun run() {
+                     }
+                }
+              """.trimIndent()
+        )).isEqualTo(
+            """
+                class ReaderFacade {
+                    fun run() {
+                    }
+                }
+                """.trimIndent()
+        )
+    }
+
+    @Test
+    fun testCurlyBraceInNestedBlockWithComment() {
+        assertThat(IndentationRule().lint(
+            """
+            object KtLint {
+                // comment
+                class LoggerFactory {
+                }
+            }
+              """.trimIndent()
+        )).isEmpty()
+    }
+
+    @Test
+    fun testCurlyBraceWithCompanionObjectFormat() {
+        assertThat(IndentationRule().format(
+            """
+            class Foo {
+              // asdf
+                companion object {
+                }
+            }
+              """.trimIndent()
+        )).isEqualTo("""
+            class Foo {
+                // asdf
+                companion object {
+                }
+            }
+        """.trimIndent())
     }
 }
