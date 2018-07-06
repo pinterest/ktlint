@@ -42,11 +42,9 @@ class PackageNameRuleTest {
 
     @Test
     fun testPackageName_UpperCaseContains() {
-        lintFailed(
+        lintSuccess(
             "package hoge.moge.hogeMoge",
-            "/hoge/moge/hogeMoge/A.kt",
-            listOf(LintError(1, 1, "package-name-rule", "package names should be all lowercase.")
-            ))
+            "/hoge/moge/hogeMoge/A.kt")
     }
 
     private fun fileName(fileName: String) = mapOf("file_path" to Paths.get(URI.create("file:///$fileName")).toString())

@@ -8,6 +8,8 @@ import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
 import java.io.File
 
 /**
+ * @see [kotlin style guide](https://kotlinlang.org/docs/reference/coding-conventions.html#naming-rules)
+ * @see [android style guide](https://android.github.io/kotlin-guides/style.html#package-names)
  * @author yokotaso <yokotaso.t@gmail.com>
  */
 class PackageNameRule : Rule("package-name-rule") {
@@ -26,10 +28,6 @@ class PackageNameRule : Rule("package-name-rule") {
             val qualifiedName = (node.psi as KtPackageDirective).qualifiedName
             if (packageNameNotContainsDirectoryPath(qualifiedName)) {
                 emit(node.startOffset, "package name should match directory name.", false)
-            }
-
-            if (qualifiedName.any { it.isUpperCase() }) {
-                emit(node.startOffset, "package names should be all lowercase.", false)
             }
 
             if (qualifiedName.contains('_', false)) {
