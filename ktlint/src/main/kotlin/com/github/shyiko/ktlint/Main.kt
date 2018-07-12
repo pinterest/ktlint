@@ -194,6 +194,9 @@ object Main {
     @Option(names = arrayOf("-y"), hidden = true)
     private var forceApply: Boolean = false
 
+    @Option(names = arrayOf("--editorconfig-path"), description = arrayOf("Specify folder path of .editorconfig"))
+    private var editorConfigDirParam: String? = null
+
     @Parameters(hidden = true)
     private var patterns = ArrayList<String>()
 
@@ -364,9 +367,24 @@ object Main {
                 ?: emptyMap<String, String>()
             ) + cliUserData
         }
+        val configuredUserData = lazy {
+            (
+                EditorConfig.of(File(editorConfigDirParam).canonicalPath)
+                    ?.onlyIf({ debug }) { ec ->
+                        for (lec in generateSequence(ec) { ec.parent }.toList().reversed()) {
+                            System.err.println("[DEBUG] Using provided .editorconfig (${lec.path.parent.toFile().location()})" +
+                                " {${lec.entries.joinToString(", ")}}")
+                        }
+                    }
+                ?: emptyMap<String, String>()
+            ) + cliUserData
+        }
         val editorConfig = EditorConfig.cached()
         val editorConfigSet = ConcurrentHashMap<Path, Boolean>()
         return fun (fileName: String): Map<String, String> {
+            if (editorConfigDirParam != null) {
+                return configuredUserData.value
+            }
             if (fileName == "<text>") {
                 return workdirUserData.value
             }
