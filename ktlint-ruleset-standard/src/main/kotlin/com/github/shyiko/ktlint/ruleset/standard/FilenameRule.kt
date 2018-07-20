@@ -49,7 +49,7 @@ class FilenameRule : Rule("filename"), Rule.Modifier.RestrictToRoot {
                 type = id?.psi?.getPrevSiblingIgnoringWhitespaceAndComments(false)?.text
                 className = id?.text
             } else if (!ignoreSet.contains(el.elementType)) {
-                // https://github.com/android/android-ktx/blob/master/src/main/java/androidx/core/graphics/Path.kt case
+                // https://github.com/android/android-ktx/blob/51005889235123f41492eaaecde3c623473dfe95/src/main/java/androidx/core/graphics/Path.kt case
                 return
             }
         }
