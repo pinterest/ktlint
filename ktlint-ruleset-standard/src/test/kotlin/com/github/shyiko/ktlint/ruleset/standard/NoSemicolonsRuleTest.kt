@@ -18,6 +18,12 @@ class NoSemicolonsRuleTest {
                 fun name() { a(); return b }
                 println(";")
                 println();
+
+                Any();
+                {
+                }.print()
+                Any()
+                ;{ /*...*/ }.print()
             }
             """.trimIndent()
         )).isEqualTo(listOf(
