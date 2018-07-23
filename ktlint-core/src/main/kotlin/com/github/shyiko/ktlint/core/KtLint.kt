@@ -153,9 +153,9 @@ object KtLint {
             // (not just because not all nodes are leaves but because rules are free to emit (and fix!) errors at any position)
             if (!isSuppressed(node.startOffset, fqRuleId, node === rootNode)) {
                 try {
-                    rule.visit(node, false) { offset, errorMessage, _ ->
+                    rule.visit(node, false) { offset, errorMessage, canBeAutoCorrected ->
                         val (line, col) = positionByOffset(offset)
-                        cb(LintError(line, col, fqRuleId, errorMessage))
+                        cb(LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected))
                     }
                 } catch (e: Exception) {
                     val (line, col) = positionByOffset(node.startOffset)
@@ -358,9 +358,9 @@ object KtLint {
                 // (not just because not all nodes are leaves but because rules are free to emit (and fix!) errors at any position)
                 if (!isSuppressed(node.startOffset, fqRuleId, node === rootNode)) {
                     try {
-                        rule.visit(node, false) { offset, errorMessage, _ ->
+                        rule.visit(node, false) { offset, errorMessage, canBeAutoCorrected ->
                             val (line, col) = positionByOffset(offset)
-                            cb(LintError(line, col, fqRuleId, errorMessage), false)
+                            cb(LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected), false)
                         }
                     } catch (e: Exception) {
                         val (line, col) = positionByOffset(node.startOffset)

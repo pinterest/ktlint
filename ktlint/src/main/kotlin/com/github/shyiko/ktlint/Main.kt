@@ -324,7 +324,7 @@ object Main {
             errList.head(errListLimit).forEach { (err, corrected) ->
                 reporter.onLintError(
                     fileName,
-                    if (!corrected) err.copy(detail = err.detail + " (cannot be auto-corrected)") else err,
+                    if (!err.canBeAutoCorrected) err.copy(detail = err.detail + " (cannot be auto-corrected)") else err,
                     corrected
                 )
             }
