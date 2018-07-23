@@ -387,8 +387,14 @@ object KtLint {
         }
     }
 
-    private fun determineLineSeparator(fileContent: String, userData: Map<String, String>) =
-        if (userData["end_of_line"]?.trim()?.toLowerCase() == "crlf" || fileContent.lastIndexOf('\r') != -1) "\r\n" else "\n"
+    private fun determineLineSeparator(fileContent: String, userData: Map<String, String>): String {
+        val eol = userData["end_of_line"]?.trim()?.toLowerCase()
+        return when {
+            eol == "native" -> System.lineSeparator()
+            eol == "crlf" || eol != "lf" && fileContent.lastIndexOf('\r') != -1 -> "\r\n"
+            else -> "\n"
+        }
+    }
 
     /**
      * @param range zero-based range of lines where lint errors should be suppressed
