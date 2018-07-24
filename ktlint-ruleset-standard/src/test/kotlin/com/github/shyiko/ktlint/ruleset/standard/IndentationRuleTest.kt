@@ -1,6 +1,7 @@
 package com.github.shyiko.ktlint.ruleset.standard
 
 import com.github.shyiko.ktlint.core.LintError
+import com.github.shyiko.ktlint.test.format
 import com.github.shyiko.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
 import org.testng.annotations.Test
@@ -182,5 +183,29 @@ class IndentationRuleTest {
             }
             """.trimIndent()
         )).isEmpty()
+    }
+
+    @Test
+    fun testTab() {
+        val ktScript = "fun main() {\n\t\treturn 0\n\t}"
+        assertThat(IndentationRule().format(ktScript)).isEqualTo("fun main() {\n        return 0\n    }")
+        assertThat(IndentationRule().lint(ktScript)).isEqualTo(listOf(
+            LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected indentation (2) (it should be 4)"),
+            LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected Tab character(s)"),
+            LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected indentation (1) (it should be 4)"),
+            LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected Tab character(s)")
+        ))
+    }
+
+    @Test
+    fun testTabEditorConfig() {
+        val ktScript = "fun main() {\n\t\treturn 0\n\t}"
+        assertThat(IndentationRule().format(ktScript, mapOf("indent_size" to "3"))).isEqualTo("fun main() {\n      return 0\n   }")
+        assertThat(IndentationRule().lint(ktScript, mapOf("indent_size" to "3"))).isEqualTo(listOf(
+            LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected indentation (2) (it should be 3)"),
+            LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected Tab character(s)"),
+            LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected indentation (1) (it should be 3)"),
+            LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected Tab character(s)")
+        ))
     }
 }

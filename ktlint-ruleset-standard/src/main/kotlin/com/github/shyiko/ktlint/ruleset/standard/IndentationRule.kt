@@ -6,6 +6,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
+import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.psi.KtParameterList
 import org.jetbrains.kotlin.psi.KtTypeConstraintList
 import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
@@ -27,9 +28,9 @@ class IndentationRule : Rule("indent") {
         if (indentSize <= 1) {
             return
         }
-        if (node is PsiWhiteSpace) {
+        if (node is PsiWhiteSpace && !node.isPartOf(PsiComment::class)) {
             val lines = node.getText().split("\n")
-            if (lines.size > 1 && !node.isPartOf(PsiComment::class) && !node.isPartOf(KtTypeConstraintList::class)) {
+            if (lines.size > 1 && !node.isPartOf(KtTypeConstraintList::class)) {
                 var offset = node.startOffset + lines.first().length + 1
                 val previousIndentSize = node.previousIndentSize()
                 lines.tail().forEach { indent ->
@@ -43,6 +44,13 @@ class IndentationRule : Rule("indent") {
                         }
                     }
                     offset += indent.length + 1
+                }
+            }
+            if (node.textContains('\t')) {
+                val text = node.getText()
+                emit(node.startOffset + text.indexOf('\t'), "Unexpected Tab character(s)", true)
+                if (autoCorrect) {
+                    (node as LeafPsiElement).rawReplaceWithText(text.replace("\t", " ".repeat(indentSize)))
                 }
             }
         }
