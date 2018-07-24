@@ -13,47 +13,49 @@ import java.nio.file.Paths
 class PackageNameRuleTest {
 
     @Test
-    fun testPackageName_Success() {
-        lintSuccess("package hoge.fuga", "/hoge/fuga/A.kt")
-        lintSuccess("package hoge.fuga\nclass B{}", "/hoge/fuga/B.kt")
-        lintSuccess("package hoge.fuga\nclass C{}", "/var/tmp/hoge/fuga/C.kt")
-        lintSuccess("package hoge.fuga\nclass B{}\nclass C{}", "/var/tmp/hoge/fuga/Mix.kt")
-        lintSuccess("package hoge.fuga\nfun main() {}", "/var/tmp/hoge/fuga/main.kt")
-        lintSuccess("class A{}", "/var/tmp/hoge/fuga/A.kt")
+    fun testOK() {
+        assertOK("package hoge.fuga", "/hoge/fuga/A.kt")
+        assertOK("package hoge.fuga\nclass B{}", "/hoge/fuga/B.kt")
+        assertOK("package hoge.fuga\nclass C{}", "/var/tmp/hoge/fuga/C.kt")
+        assertOK("package hoge.fuga\nclass B{}\nclass C{}", "/var/tmp/hoge/fuga/Mix.kt")
+        assertOK("package hoge.fuga\nfun main() {}", "/var/tmp/hoge/fuga/main.kt")
+        assertOK("class A{}", "/var/tmp/hoge/fuga/A.kt")
     }
 
     @Test
-    fun testPackageName_Failed() {
-        lintFailed(
+    fun testNOK() {
+        assertNOK(
             "package hoge.fuga",
             "/hoge/moge/A.kt",
-            listOf(LintError(1, 1, "package-name-rule", "package name should match directory name.")
-        ))
+            listOf(LintError(1, 1, "package-name", "Package directive doesn't match file location"))
+        )
     }
 
     @Test
-    fun testPackageName_UnderScoreContains() {
-        lintFailed(
+    fun testNOKUnderScore() {
+        assertNOK(
             "package hoge.moge.hoge_moge",
             "/hoge/moge/hoge_moge/A.kt",
-            listOf(LintError(1, 1, "package-name-rule", "package names should be not contain underscore.")
-            ))
+            listOf(LintError(1, 1, "package-name", "Package name must not contain underscore"))
+        )
     }
 
     @Test
-    fun testPackageName_UpperCaseContains() {
-        lintSuccess(
+    fun testOKUpperCase() {
+        assertOK(
             "package hoge.moge.hogeMoge",
-            "/hoge/moge/hogeMoge/A.kt")
+            "/hoge/moge/hogeMoge/A.kt"
+        )
     }
 
-    private fun fileName(fileName: String) = mapOf("file_path" to Paths.get(URI.create("file:///$fileName")).toString())
+    private fun fileName(fileName: String) =
+        mapOf("file_path" to Paths.get(URI.create("file:///$fileName")).toString())
 
-    private fun lintSuccess(ktScript: String, fileName: String) {
+    private fun assertOK(ktScript: String, fileName: String) {
         assertThat(PackageNameRule().lint(ktScript, fileName(fileName))).isEmpty()
     }
 
-    private fun lintFailed(ktScript: String, fileName: String, lintErrors: List<LintError>) {
+    private fun assertNOK(ktScript: String, fileName: String, lintErrors: List<LintError>) {
         assertThat(PackageNameRule().lint(ktScript, fileName(fileName))).isEqualTo(lintErrors)
     }
 }

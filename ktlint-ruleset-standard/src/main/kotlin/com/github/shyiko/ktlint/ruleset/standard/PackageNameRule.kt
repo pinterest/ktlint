@@ -8,42 +8,31 @@ import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
 import java.io.File
 
 /**
- * @see [kotlin style guide](https://kotlinlang.org/docs/reference/coding-conventions.html#naming-rules)
- * @see [android style guide](https://android.github.io/kotlin-guides/style.html#package-names)
+ * @see [Kotlin Style Guide](https://kotlinlang.org/docs/reference/coding-conventions.html#naming-rules)
+ * @see [Android Style Guide](https://android.github.io/kotlin-guides/style.html#package-names)
  * @author yokotaso <yokotaso.t@gmail.com>
  */
-class PackageNameRule : Rule("package-name-rule") {
-    private var filePath: String? = null
+class PackageNameRule : Rule("package-name") {
 
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        if (node.elementType == KtStubElementTypes.FILE) {
-            filePath = node.getUserData(KtLint.FILE_PATH_USER_DATA_KEY)
-        }
-
         if (node.elementType == KtStubElementTypes.PACKAGE_DIRECTIVE) {
             val qualifiedName = (node.psi as KtPackageDirective).qualifiedName
-            if (packageNameNotContainsDirectoryPath(qualifiedName)) {
-                emit(node.startOffset, "package name should match directory name.", false)
+            if (qualifiedName.isEmpty()) {
+                return
             }
-
-            if (qualifiedName.contains('_', false)) {
-                emit(node.startOffset, "package names should be not contain underscore.", false)
+            val filePath = node.psi.containingFile.node.getUserData(KtLint.FILE_PATH_USER_DATA_KEY) ?: return
+            if (!filePath.substringBeforeLast(File.separatorChar)
+                    .endsWith(File.separatorChar + qualifiedName.replace('.', File.separatorChar))) {
+                emit(node.startOffset, "Package directive doesn't match file location", false)
+            }
+            if (qualifiedName.contains('_')) {
+                emit(node.startOffset, "Package name must not contain underscore", false)
+                // "package name must be in lowercase" is violated by too many to projects in the wild to forbid
             }
         }
-    }
-
-    private fun packageNameNotContainsDirectoryPath(qualifiedName: String): Boolean {
-        var filePathFromQualifiedName = qualifiedName.replace('.', File.separatorChar, false)
-        // Skip package name is empty
-        if (filePathFromQualifiedName.isEmpty()) {
-            return false
-        }
-
-        val actualFilePath = filePath.orEmpty()
-        return actualFilePath.contains(filePathFromQualifiedName).not()
     }
 }

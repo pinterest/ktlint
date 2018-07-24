@@ -361,7 +361,7 @@ object Main {
                     ?.onlyIf({ debug }) { printEditorConfigChain(it) }
                 ?: emptyMap<String, String>()
             ) + cliUserData
-            return fun (_: String) = userData
+            return fun (fileName: String) = userData + ("file_path" to fileName)
         }
         val workdirUserData = lazy {
             (
