@@ -194,8 +194,8 @@ object Main {
     @Option(names = arrayOf("-y"), hidden = true)
     private var forceApply: Boolean = false
 
-    @Option(names = arrayOf("--editorconfig-path"), description = arrayOf("Specify folder path of .editorconfig"))
-    private var editorConfigDirParam: String? = null
+    @Option(names = arrayOf("--editorconfig"), description = arrayOf("Path to .editorconfig"))
+    private var editorConfigPath: String? = null
 
     @Parameters(hidden = true)
     private var patterns = ArrayList<String>()
@@ -355,50 +355,43 @@ object Main {
 
     private fun userDataResolver(): (String) -> Map<String, String> {
         val cliUserData = mapOf("android" to android.toString())
+        if (editorConfigPath != null) {
+            val userData = (
+                EditorConfig.of(File(editorConfigPath).canonicalPath)
+                    ?.onlyIf({ debug }) { printEditorConfigChain(it) }
+                ?: emptyMap<String, String>()
+            ) + cliUserData
+            return fun (_: String) = userData
+        }
         val workdirUserData = lazy {
             (
                 EditorConfig.of(workDir)
-                    ?.onlyIf({ debug }) { ec ->
-                        for (lec in generateSequence(ec) { ec.parent }.toList().reversed()) {
-                            System.err.println("[DEBUG] Discovered .editorconfig (${lec.path.parent.toFile().location()})" +
-                                " {${lec.entries.joinToString(", ")}}")
-                        }
-                    }
-                ?: emptyMap<String, String>()
-            ) + cliUserData
-        }
-        val configuredUserData = lazy {
-            (
-                EditorConfig.of(File(editorConfigDirParam).canonicalPath)
-                    ?.onlyIf({ debug }) { ec ->
-                        for (lec in generateSequence(ec) { ec.parent }.toList().reversed()) {
-                            System.err.println("[DEBUG] Using provided .editorconfig (${lec.path.parent.toFile().location()})" +
-                                " {${lec.entries.joinToString(", ")}}")
-                        }
-                    }
+                    ?.onlyIf({ debug }) { printEditorConfigChain(it) }
                 ?: emptyMap<String, String>()
             ) + cliUserData
         }
         val editorConfig = EditorConfig.cached()
         val editorConfigSet = ConcurrentHashMap<Path, Boolean>()
         return fun (fileName: String): Map<String, String> {
-            if (editorConfigDirParam != null) {
-                return configuredUserData.value
-            }
             if (fileName == "<text>") {
                 return workdirUserData.value
             }
             return (
                 editorConfig.of(Paths.get(fileName).parent)
-                    ?.onlyIf({ debug }) { ec ->
-                        for (lec in generateSequence(ec) { ec.parent }
-                                .takeWhile { editorConfigSet.put(it.path, true) != true }.toList().reversed()) {
-                            System.err.println("[DEBUG] Discovered .editorconfig (${lec.path.parent.toFile().location()})" +
-                                " {${lec.entries.joinToString(", ")}}")
+                    ?.onlyIf({ debug }) {
+                        printEditorConfigChain(it) {
+                            editorConfigSet.put(it.path, true) != true
                         }
                     }
                 ?: emptyMap<String, String>()
             ) + cliUserData + ("file_path" to fileName)
+        }
+    }
+
+    private fun printEditorConfigChain(ec: EditorConfig, predicate: (EditorConfig) -> Boolean = { true }) {
+        for (lec in generateSequence(ec) { it.parent }.takeWhile(predicate)) {
+            System.err.println("[DEBUG] Discovered .editorconfig (${lec.path.parent.toFile().location()})" +
+                " {${lec.entries.joinToString(", ")}}")
         }
     }
 
