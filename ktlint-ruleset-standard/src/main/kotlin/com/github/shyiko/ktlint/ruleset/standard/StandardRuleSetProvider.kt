@@ -11,7 +11,9 @@ class StandardRuleSetProvider : RuleSetProvider {
         FilenameRule(),
         FinalNewlineRule(),
         PackageNameRule(),
-        IfElseMultiLineBlockWithCurlBraceRule(),
+        // disabled until auto-correct is working properly
+        // (e.g. try formatting "if (true)\n    return { _ ->\n        _\n}")
+        // MultiLineIfElseRule(),
         // disabled until it's clear how to reconcile difference in Intellij & Android Studio import layout
         // ImportOrderingRule(),
         IndentationRule(),
