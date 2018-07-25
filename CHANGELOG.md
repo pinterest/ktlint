@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.25.1] - 2018-07-25
+
+### Fixed
+- `json` reporter \ and control characters escaping ([#256](https://github.com/shyiko/ktlint/issues/256)).
+
 ## [0.25.0] - 2018-07-25
 
 ### Added
@@ -434,6 +439,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.25.1]: https://github.com/shyiko/ktlint/compare/0.25.0...0.25.1
 [0.25.0]: https://github.com/shyiko/ktlint/compare/0.24.0...0.25.0
 [0.24.0]: https://github.com/shyiko/ktlint/compare/0.23.1...0.24.0
 [0.23.1]: https://github.com/shyiko/ktlint/compare/0.23.0...0.23.1
