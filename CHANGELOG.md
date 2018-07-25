@@ -2,6 +2,22 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.25.0] - 2018-07-25
+
+### Added
+- `package-name` rule ([#246](https://github.com/shyiko/ktlint/pull/246)).
+- `--editorconfig=path/to/.editorconfig` ([#250](https://github.com/shyiko/ktlint/pull/250)).
+- Support for `end_of_line=native` (`.editorconfig`) ([#225](https://github.com/shyiko/ktlint/issues/225)).
+- `tab -> space * indent_size` auto-correction (`--format`/`-F`).
+
+### Fixed
+- "Unnecessary semicolon" false positive ([#255](https://github.com/shyiko/ktlint/issues/255)).
+- `(cannot be auto-corrected)` reporting.
+- OOM in `--debug` mode while trying to print `root=true <- root=false` `.editorconfig` chain.
+
+### Changed
+- `kotlin-compiler` version to 1.2.51 (from 1.2.50).
+
 ## [0.24.0] - 2018-06-22
 
 ### Added 
@@ -418,6 +434,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.25.0]: https://github.com/shyiko/ktlint/compare/0.24.0...0.25.0
 [0.24.0]: https://github.com/shyiko/ktlint/compare/0.23.1...0.24.0
 [0.23.1]: https://github.com/shyiko/ktlint/compare/0.23.0...0.23.1
 [0.23.0]: https://github.com/shyiko/ktlint/compare/0.22.0...0.23.0
