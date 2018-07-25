@@ -12,7 +12,7 @@ class JsonReporter(val out: PrintStream) : Reporter {
 
     override fun onLintError(file: String, err: LintError, corrected: Boolean) {
         if (!corrected) {
-            acc.getOrPut(file) { ArrayList<LintError>() }.add(err)
+            acc.getOrPut(file) { ArrayList() }.add(err)
         }
     }
 
@@ -22,7 +22,7 @@ class JsonReporter(val out: PrintStream) : Reporter {
         for ((index, entry) in acc.entries.sortedBy { it.key }.withIndex()) {
             val (file, errList) = entry
             out.println("""	{""")
-            out.println("""		"file": "${file.escapeFileName()}",""")
+            out.println("""		"file": "${file.escapeJsonValue()}",""")
             out.println("""		"errors": [""")
             val errIndexLast = errList.size - 1
             for ((errIndex, err) in errList.withIndex()) {
@@ -40,7 +40,11 @@ class JsonReporter(val out: PrintStream) : Reporter {
         out.println("]")
     }
 
-    private fun String.escapeJsonValue() = this.replace("\"", "\\\"")
-
-    private fun String.escapeFileName() = this.replace("""\""", """\\""")
+    private fun String.escapeJsonValue() = this
+        .replace("\\", "\\\\")
+        .replace("\"", "\\\"")
+        .replace("\b", "\\b")
+        .replace("\n", "\\n")
+        .replace("\r", "\\r")
+        .replace("\t", "\\t")
 }
