@@ -22,7 +22,7 @@ class JsonReporter(val out: PrintStream) : Reporter {
         for ((index, entry) in acc.entries.sortedBy { it.key }.withIndex()) {
             val (file, errList) = entry
             out.println("""	{""")
-            out.println("""		"file": "${file.escapeJsonValue()}",""")
+            out.println("""		"file": "${file.escapeFileName()}",""")
             out.println("""		"errors": [""")
             val errIndexLast = errList.size - 1
             for ((errIndex, err) in errList.withIndex()) {
@@ -41,4 +41,6 @@ class JsonReporter(val out: PrintStream) : Reporter {
     }
 
     private fun String.escapeJsonValue() = this.replace("\"", "\\\"")
+
+    private fun String.escapeFileName() = this.replace("""\""", """\\""")
 }

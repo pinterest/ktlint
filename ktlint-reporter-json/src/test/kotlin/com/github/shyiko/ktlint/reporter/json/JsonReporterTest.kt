@@ -60,4 +60,32 @@ class JsonReporterTest {
 """.trimStart().replace("\n", System.lineSeparator())
         )
     }
+
+    @Test
+    fun testProperEscaping() {
+        val out = ByteArrayOutputStream()
+        val reporter = JsonReporter(PrintStream(out, true))
+        reporter.onLintError("src\\main\\all\\corrected.kt", LintError(4, 7, "rule-7", "Did it pass?"), false)
+        reporter.afterAll()
+
+        val result = String(out.toByteArray())
+        val shouldBe =
+            """
+[
+	{
+		"file": "src\\main\\all\\corrected.kt",
+		"errors": [
+			{
+				"line": 4,
+				"column": 7,
+				"message": "Did it pass?",
+				"rule": "rule-7"
+			}
+		]
+	}
+]
+""".trimStart().replace("\n", System.lineSeparator()
+            )
+        Assertions.assertThat(result).isEqualTo(shouldBe)
+    }
 }
