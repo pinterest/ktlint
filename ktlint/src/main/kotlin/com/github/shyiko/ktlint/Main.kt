@@ -30,6 +30,8 @@ import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.PrintStream
 import java.math.BigInteger
+import java.net.URL
+import java.net.URLClassLoader
 import java.net.URLDecoder
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -641,7 +643,8 @@ object Main {
 
     // fixme: isn't going to work on JDK 9
     private fun loadJARs(dependencyResolver: Lazy<MavenDependencyResolver>, artifacts: List<String>) {
-        (ClassLoader.getSystemClassLoader() as java.net.URLClassLoader)
+        val classLoader = URLClassLoader(arrayOf<URL>())
+        classLoader
             .addURLs(artifacts.flatMap { artifact ->
                 if (debug) {
                     System.err.println("[DEBUG] Resolving $artifact")
