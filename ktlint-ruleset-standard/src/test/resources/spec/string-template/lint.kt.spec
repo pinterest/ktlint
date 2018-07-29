@@ -20,10 +20,6 @@ fun main() {
     println("${s0}")
     @Suppress("RemoveCurlyBracesFromTemplate", "Unused")
     println("${s0}")
-    @Suppress(names = ["RemoveCurlyBracesFromTemplate", "Unused"])
-    println("${s0}")
-    @Suppress(names = arrayOf("RemoveCurlyBracesFromTemplate", "Unused"))
-    println("${s0}")
     @Suppress("RemoveCurlyBracesFromTemplate")
     val t = "${s0}"
 }
@@ -42,4 +38,4 @@ class C {
 // 3:28:Redundant "toString()" call in string template
 // 6:15:Redundant curly braces
 // 7:15:Redundant curly braces
-// 32:79:Redundant "toString()" call in string template
+// 28:79:Redundant "toString()" call in string template

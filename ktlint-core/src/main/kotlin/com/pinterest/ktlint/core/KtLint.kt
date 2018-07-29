@@ -37,7 +37,6 @@ import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.idea.KotlinLanguage
 import org.jetbrains.kotlin.psi.KtAnnotated
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
-import org.jetbrains.kotlin.psi.KtCollectionLiteralExpression
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.psiUtil.endOffset
 import org.jetbrains.kotlin.psi.psiUtil.getNonStrictParentOfType
@@ -472,23 +471,22 @@ object KtLint {
                                 }
                         }
                     }
+                    // Extract all Suppress annotations and create SuppressionHints
                     val psi = node.psi
-                    when (psi) {
-                        is KtAnnotated -> {
-                            psi.annotationEntries
-                                .filter {
-                                    it.calleeExpression?.constructorReferenceExpression
-                                        ?.getReferencedName() == "Suppress"
-                                }.flatMap { suppressAnnotation ->
-                                    suppressAnnotation.extractArguments()
-                                }.map {
-                                    annotationRuleMap[it]
-                                }.distinct().let {
-                                    if (it.isNotEmpty()) {
-                                        result.add(SuppressionHint(IntRange(psi.startOffset, psi.endOffset), setOf()))
-                                    }
+                    if (psi is KtAnnotated) {
+                        psi.annotationEntries
+                            .filter {
+                                it.calleeExpression?.constructorReferenceExpression
+                                    ?.getReferencedName() == "Suppress"
+                            }.flatMap(KtAnnotationEntry::getValueArguments)
+                            .mapNotNull { it.getArgumentExpression()?.text?.removeSurrounding("\"") }
+                            .mapNotNull(suppressAnnotationRuleMap::get)
+                            .distinct()
+                            .let {
+                                if (it.isNotEmpty()) {
+                                    result.add(SuppressionHint(IntRange(psi.startOffset, psi.endOffset), it.toSet()))
                                 }
-                        }
+                            }
                     }
                 }
                 result.addAll(
@@ -515,22 +513,9 @@ object KtLint {
 
             private fun <T> List<T>.tail() = this.subList(1, this.size)
 
-            private val annotationRuleMap = mapOf(
+            private val suppressAnnotationRuleMap = mapOf(
                 "RemoveCurlyBracesFromTemplate" to "string-template"
             )
-
-            private fun KtAnnotationEntry.extractArguments() : List<String> {
-                return this.valueArguments.let {
-                    if (it.size == 1 && it.first().getArgumentExpression() is
-                            KtCollectionLiteralExpression
-                    ) {
-                        (it.first().getArgumentExpression() as KtCollectionLiteralExpression)
-                            .getInnerExpressions().map { it.text }
-                    } else {
-                        it.map { it.getArgumentExpression()?.text }
-                    }.filterNotNull()
-                }
-            }
         }
     }
 
