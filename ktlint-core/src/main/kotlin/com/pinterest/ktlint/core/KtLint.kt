@@ -477,7 +477,7 @@ object KtLint {
                         psi.annotationEntries
                             .filter {
                                 it.calleeExpression?.constructorReferenceExpression
-                                    ?.getReferencedName() == "Suppress"
+                                    ?.getReferencedName() in suppressAnnotations
                             }.flatMap(KtAnnotationEntry::getValueArguments)
                             .mapNotNull { it.getArgumentExpression()?.text?.removeSurrounding("\"") }
                             .mapNotNull(suppressAnnotationRuleMap::get)
@@ -516,6 +516,8 @@ object KtLint {
             private val suppressAnnotationRuleMap = mapOf(
                 "RemoveCurlyBracesFromTemplate" to "string-template"
             )
+
+            private val suppressAnnotations = setOf("Suppress", "SuppressWarnings")
         }
     }
 

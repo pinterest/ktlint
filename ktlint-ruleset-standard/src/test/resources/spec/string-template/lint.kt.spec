@@ -26,10 +26,26 @@ fun main() {
 
 class B(val k: String) {
     override fun toString(): String = "${super.toString()}, ${super.hashCode().toString()}, k=$k"
+
+    @Suppress("RemoveCurlyBracesFromTemplate", "Shit")
+    val a
+        get() = "${s0}"
 }
 
 @Suppress("RemoveCurlyBracesFromTemplate")
 class C {
+    override fun toString(): String = "${s0}"
+}
+
+class D {
+    @Suppress("RemoveCurlyBracesFromTemplate")
+    override fun toString(): String = "${s0}"
+
+    fun test() = "${s0}"
+}
+
+@SuppressWarnings("RemoveCurlyBracesFromTemplate")
+class E {
     override fun toString(): String = "${s0}"
 }
 
@@ -39,3 +55,4 @@ class C {
 // 6:15:Redundant curly braces
 // 7:15:Redundant curly braces
 // 28:79:Redundant "toString()" call in string template
+// 44:20:Redundant curly braces
