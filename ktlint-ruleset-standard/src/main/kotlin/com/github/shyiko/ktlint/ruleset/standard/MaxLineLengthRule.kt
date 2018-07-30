@@ -35,7 +35,7 @@ class MaxLineLengthRule : Rule("max-line-length"), Rule.Modifier.Last {
             for (line in lines) {
                 if (line.length > maxLineLength) {
                     val el = node.psi.findElementAt(offset + line.length - 1)!!
-                    if (!el.isPartOf(KDoc::class)) {
+                    if (!el.isPartOf(KDoc::class) && !el.isPartOfMultiLineString()) {
                         if (!el.isPartOf(PsiComment::class)) {
                             if (!el.isPartOf(KtPackageDirective::class) && !el.isPartOf(KtImportDirective::class)) {
                                 // fixme:
