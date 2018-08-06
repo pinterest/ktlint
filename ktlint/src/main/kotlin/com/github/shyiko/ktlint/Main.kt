@@ -275,9 +275,9 @@ object Main {
         if (debug) {
             ruleSetProviders.forEach { System.err.println("[DEBUG] Discovered ruleset \"${it.first}\"") }
         }
-        val reporter = loadReporter(dependencyResolver)
-        val resolveUserData = userDataResolver()
         val tripped = AtomicBoolean()
+        val reporter = loadReporter(dependencyResolver) { tripped.get() }
+        val resolveUserData = userDataResolver()
         data class LintErrorWithCorrectionInfo(val err: LintError, val corrected: Boolean)
         fun process(fileName: String, fileContent: String): List<LintErrorWithCorrectionInfo> {
             if (debug) {
@@ -404,7 +404,7 @@ object Main {
                 Manifest(stream).mainAttributes.getValue("Implementation-Version")
             }
 
-    private fun loadReporter(dependencyResolver: Lazy<MavenDependencyResolver>): Reporter {
+    private fun loadReporter(dependencyResolver: Lazy<MavenDependencyResolver>, tripped: () -> Boolean): Reporter {
         data class ReporterTemplate(val id: String, val artifact: String?, val config: Map<String, String>, var output: String?)
         val tpls = (if (reporters.isEmpty()) listOf("plain") else reporters)
             .map { reporter ->
@@ -452,7 +452,9 @@ object Main {
                             override fun afterAll() {
                                 reporter.afterAll()
                                 stream.close()
-                                System.err.println("\"$id\" report written to ${File(output).absoluteFile.location()}")
+                                if (tripped()) {
+                                    System.err.println("\"$id\" report written to ${File(output).absoluteFile.location()}")
+                                }
                             }
                         }
                     } else {
