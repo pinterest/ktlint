@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.27.0] - 2018-08-06
+
+### Changed
+- ktlint output (report location is now printed only if there are style violations) ([#267](https://github.com/shyiko/ktlint/issues/267)).
+
 ## [0.26.0] - 2018-07-30
 
 ### Changed
@@ -444,6 +449,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.27.0]: https://github.com/shyiko/ktlint/compare/0.26.0...0.27.0
 [0.26.0]: https://github.com/shyiko/ktlint/compare/0.25.1...0.26.0
 [0.25.1]: https://github.com/shyiko/ktlint/compare/0.25.0...0.25.1
 [0.25.0]: https://github.com/shyiko/ktlint/compare/0.24.0...0.25.0
