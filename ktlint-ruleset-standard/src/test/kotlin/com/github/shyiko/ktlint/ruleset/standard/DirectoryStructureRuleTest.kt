@@ -10,7 +10,7 @@ import java.nio.file.Paths
 /**
  * @author yokotaso <yokotaso.t@gmail.com>
  */
-class PackageNameRuleTest {
+class DirectoryStructureRuleTest {
 
     @Test
     fun testOK() {
@@ -27,16 +27,7 @@ class PackageNameRuleTest {
         assertNOK(
             "package hoge.fuga",
             "/hoge/moge/A.kt",
-            listOf(LintError(1, 1, "package-name", "Package directive doesn't match file location"))
-        )
-    }
-
-    @Test
-    fun testNOKUnderScore() {
-        assertNOK(
-            "package hoge.moge.hoge_moge",
-            "/hoge/moge/hoge_moge/A.kt",
-            listOf(LintError(1, 1, "package-name", "Package name must not contain underscore"))
+            listOf(LintError(1, 1, "directory-structure", "Package directive doesn't match file location"))
         )
     }
 
@@ -52,10 +43,10 @@ class PackageNameRuleTest {
         mapOf("file_path" to Paths.get(URI.create("file:///$fileName")).toString())
 
     private fun assertOK(ktScript: String, fileName: String) {
-        assertThat(PackageNameRule().lint(ktScript, fileName(fileName))).isEmpty()
+        assertThat(DirectoryStructureRule().lint(ktScript, fileName(fileName))).isEmpty()
     }
 
     private fun assertNOK(ktScript: String, fileName: String, lintErrors: List<LintError>) {
-        assertThat(PackageNameRule().lint(ktScript, fileName(fileName))).isEqualTo(lintErrors)
+        assertThat(DirectoryStructureRule().lint(ktScript, fileName(fileName))).isEqualTo(lintErrors)
     }
 }

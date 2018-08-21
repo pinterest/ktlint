@@ -8,11 +8,10 @@ import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
 import java.io.File
 
 /**
- * @see [Kotlin Style Guide](https://kotlinlang.org/docs/reference/coding-conventions.html#naming-rules)
- * @see [Android Style Guide](https://android.github.io/kotlin-guides/style.html#package-names)
+ * @see [Kotlin Style Guide](https://kotlinlang.org/docs/reference/coding-conventions.html#directory-structure)
  * @author yokotaso <yokotaso.t@gmail.com>
  */
-class PackageNameRule : Rule("package-name") {
+class DirectoryStructureRule : Rule("directory-structure") {
 
     override fun visit(
         node: ASTNode,
@@ -28,10 +27,6 @@ class PackageNameRule : Rule("package-name") {
             if (!filePath.substringBeforeLast(File.separatorChar)
                     .endsWith(File.separatorChar + qualifiedName.replace('.', File.separatorChar))) {
                 emit(node.startOffset, "Package directive doesn't match file location", false)
-            }
-            if (qualifiedName.contains('_')) {
-                emit(node.startOffset, "Package name must not contain underscore", false)
-                // "package name must be in lowercase" is violated by too many to projects in the wild to forbid
             }
         }
     }

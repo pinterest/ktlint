@@ -10,7 +10,7 @@ class StandardRuleSetProvider : RuleSetProvider {
         CommentSpacingRule(),
         FilenameRule(),
         FinalNewlineRule(),
-        PackageNameRule(),
+        DirectoryStructureRule(),
         // disabled until auto-correct is working properly
         // (e.g. try formatting "if (true)\n    return { _ ->\n        _\n}")
         // MultiLineIfElseRule(),
