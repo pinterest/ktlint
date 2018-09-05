@@ -2,6 +2,14 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.28.0] - 2018-09-05
+
+### Fixed
+- ktlint hanging in case of unhandled exception in a reporter ([#277](https://github.com/shyiko/ktlint/issues/277)).
+
+### Changed
+- `package-name` rule (directories containing `.` in their names are no longer considered to be invalid) ([#276](https://github.com/shyiko/ktlint/issues/276)).
+
 ## [0.27.0] - 2018-08-06
 
 ### Changed
@@ -449,6 +457,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.28.0]: https://github.com/shyiko/ktlint/compare/0.27.0...0.28.0
 [0.27.0]: https://github.com/shyiko/ktlint/compare/0.26.0...0.27.0
 [0.26.0]: https://github.com/shyiko/ktlint/compare/0.25.1...0.26.0
 [0.25.1]: https://github.com/shyiko/ktlint/compare/0.25.0...0.25.1
