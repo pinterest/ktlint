@@ -23,6 +23,11 @@ class PackageNameRuleTest {
     }
 
     @Test
+    fun testOKWithDotInDirectoryName() {
+        assertOK("package a.b.c.d\nclass A{}", "/var/tmp/a/b.c/d/A.kt")
+    }
+
+    @Test
     fun testNOK() {
         assertNOK(
             "package hoge.fuga",

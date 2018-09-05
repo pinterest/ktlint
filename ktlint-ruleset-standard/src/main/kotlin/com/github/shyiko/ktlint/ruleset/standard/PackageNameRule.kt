@@ -25,8 +25,9 @@ class PackageNameRule : Rule("package-name") {
                 return
             }
             val filePath = node.psi.containingFile.node.getUserData(KtLint.FILE_PATH_USER_DATA_KEY) ?: return
-            if (!filePath.substringBeforeLast(File.separatorChar)
-                    .endsWith(File.separatorChar + qualifiedName.replace('.', File.separatorChar))) {
+            val fileDir = filePath.substringBeforeLast(File.separatorChar)
+                .replace('.', File.separatorChar) // kotlinc a/b.c/d/E.kt produces a/b/c/d/E.class
+            if (!fileDir.endsWith(File.separatorChar + qualifiedName.replace('.', File.separatorChar))) {
                 emit(node.startOffset, "Package directive doesn't match file location", false)
             }
             if (qualifiedName.contains('_')) {
