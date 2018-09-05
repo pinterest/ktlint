@@ -49,6 +49,7 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.jar.Manifest
+import kotlin.concurrent.thread
 import kotlin.system.exitProcess
 
 @Command(
@@ -732,11 +733,33 @@ object Main {
         }
     }
 
+    /**
+     * Executes "Callable"s in parallel (lazily).
+     * The results are gathered one-by-one (by `cb(<callable result>)`) in the order of corresponding "Callable"s
+     * in the "Sequence" (think `seq.toList().map { executorService.submit(it) }.forEach { cb(it.get()) }` but without
+     * buffering an entire sequence).
+     *
+     * Once kotlinx-coroutines are out of "experimental" stage everything below can be replaced with
+     * ```
+     * suspend fun <T> Sequence<Callable<T>>.parallel(...) {
+     *     val ctx = newFixedThreadPoolContext(numberOfThreads, "Sequence<Callable<T>>.parallel")
+     *     ctx.use {
+     *         val channel = produce(ctx, numberOfThreads) {
+     *             for (task in this@parallel) {
+     *                 send(async(ctx) { task.call() })
+     *             }
+     *         }
+     *         for (res in channel) {
+     *             cb(res.await())
+     *         }
+     *     }
+     * }
+     * ```
+     */
     private fun <T> Sequence<Callable<T>>.parallel(
         cb: (T) -> Unit,
         numberOfThreads: Int = Runtime.getRuntime().availableProcessors()
     ) {
-        val q = ArrayBlockingQueue<Future<T>>(numberOfThreads)
         val pill = object : Future<T> {
 
             override fun isDone(): Boolean { throw UnsupportedOperationException() }
@@ -745,29 +768,28 @@ object Main {
             override fun cancel(mayInterruptIfRunning: Boolean): Boolean { throw UnsupportedOperationException() }
             override fun isCancelled(): Boolean { throw UnsupportedOperationException() }
         }
-        var consumerThrowable: Throwable? = null
-        val consumer = Thread(Runnable {
-            while (true) {
-                val future = q.poll(Long.MAX_VALUE, TimeUnit.NANOSECONDS)
-                if (future === pill) {
-                    break
+        val q = ArrayBlockingQueue<Future<T>>(numberOfThreads)
+        val producer = thread(start = true) {
+            val executorService = Executors.newCachedThreadPool()
+            try {
+                for (task in this) {
+                    q.put(executorService.submit(task))
                 }
-                try {
-                    cb(future.get())
-                } catch (e: Throwable) {
-                    consumerThrowable = e
-                    break
-                }
+                q.put(pill)
+            } catch (e: InterruptedException) {
+                // we've been asked to stop consuming sequence
+            } finally {
+                executorService.shutdown()
             }
-        })
-        consumer.start()
-        val executorService = Executors.newCachedThreadPool()
-        for (v in this) {
-            q.put(executorService.submit(v))
         }
-        q.put(pill)
-        executorService.shutdown()
-        consumer.join()
-        consumerThrowable?.also { throw it }
+        try {
+            while (true) {
+                val result = q.take()
+                if (result != pill) cb(result.get()) else break
+            }
+        } finally {
+            producer.interrupt() // in case q.take()/result.get() throws
+            producer.join()
+        }
     }
 }
