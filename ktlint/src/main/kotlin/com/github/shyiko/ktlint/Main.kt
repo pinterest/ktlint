@@ -300,7 +300,7 @@ object Main {
                     fileContent // making sure `cat file | ktlint --stdint > file` is (relatively) safe
                 }
                 if (stdin) {
-                    println(formattedFileContent)
+                    print(formattedFileContent)
                 } else {
                     if (fileContent !== formattedFileContent) {
                         File(fileName).writeText(formattedFileContent, charset("UTF-8"))
