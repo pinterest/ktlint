@@ -2,6 +2,17 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.29.0] - 2018-10-02
+
+### Fixed
+- `no-semi` rule to preserve semicolon after `companion object;` (see [#281](https://github.com/shyiko/ktlint/issues/281) for details).
+- "line number off by one" when `end_of_line=CRLF` is used ([#286](https://github.com/shyiko/ktlint/issues/286)).
+
+### Changed
+- `package-name` rule not to check file location (until [#280](https://github.com/shyiko/ktlint/issues/280) can be properly addressed).
+- `comment-spacing` rule not to flag `//region` & `//endregion` comments ([#278](https://github.com/shyiko/ktlint/issues/278)).
+- `kotlin-compiler` version to 1.2.71 (from 1.2.51).
+
 ## [0.28.0] - 2018-09-05
 
 ### Fixed
@@ -457,6 +468,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.29.0]: https://github.com/shyiko/ktlint/compare/0.28.0...0.29.0
 [0.28.0]: https://github.com/shyiko/ktlint/compare/0.27.0...0.28.0
 [0.27.0]: https://github.com/shyiko/ktlint/compare/0.26.0...0.27.0
 [0.26.0]: https://github.com/shyiko/ktlint/compare/0.25.1...0.26.0
