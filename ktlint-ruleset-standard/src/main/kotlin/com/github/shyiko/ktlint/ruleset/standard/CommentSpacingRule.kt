@@ -24,7 +24,12 @@ class CommentSpacingRule : Rule("comment-spacing") {
                 }
             }
             val text = node.getText()
-            if (text.length != 2 && !text.startsWith("// ") && !text.startsWith("//noinspection")) {
+            if (text.length != 2 &&
+                !text.startsWith("// ") &&
+                !text.startsWith("//noinspection") &&
+                !text.startsWith("//region") &&
+                !text.startsWith("//endregion")
+            ) {
                 emit(node.startOffset, "Missing space after //", true)
                 if (autoCorrect) {
                     node.rawReplaceWithText("// " + text.removePrefix("//"))
