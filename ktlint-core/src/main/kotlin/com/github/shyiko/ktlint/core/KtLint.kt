@@ -131,11 +131,11 @@ object KtLint {
         cb: (e: LintError) -> Unit,
         script: Boolean
     ) {
-        val positionByOffset = calculateLineColByOffset(text).let {
-            val offsetDueToLineBreakNormalization = calculateLineBreakOffset(text)
+        val normalizedText = text.replace("\r\n", "\n").replace("\r", "\n")
+        val positionByOffset = calculateLineColByOffset(normalizedText).let {
+            val offsetDueToLineBreakNormalization = calculateLineBreakOffset(normalizedText)
             return@let { offset: Int -> it(offset + offsetDueToLineBreakNormalization(offset)) }
         }
-        val normalizedText = text.replace("\r\n", "\n").replace("\r", "\n")
         val fileName = if (script) "file.kts" else "file.kt"
         val psiFile = psiFileFactory.createFileFromText(fileName, KotlinLanguage.INSTANCE, normalizedText) as KtFile
         val errorElement = psiFile.findErrorElement()
@@ -311,11 +311,11 @@ object KtLint {
         cb: (e: LintError, corrected: Boolean) -> Unit,
         script: Boolean
     ): String {
-        val positionByOffset = calculateLineColByOffset(text).let {
-            val offsetDueToLineBreakNormalization = calculateLineBreakOffset(text)
+        val normalizedText = text.replace("\r\n", "\n").replace("\r", "\n")
+        val positionByOffset = calculateLineColByOffset(normalizedText).let {
+            val offsetDueToLineBreakNormalization = calculateLineBreakOffset(normalizedText)
             return@let { offset: Int -> it(offset + offsetDueToLineBreakNormalization(offset)) }
         }
-        val normalizedText = text.replace("\r\n", "\n").replace("\r", "\n")
         val fileName = if (script) "file.kts" else "file.kt"
         val psiFile = psiFileFactory.createFileFromText(fileName, KotlinLanguage.INSTANCE, normalizedText) as KtFile
         val errorElement = psiFile.findErrorElement()
