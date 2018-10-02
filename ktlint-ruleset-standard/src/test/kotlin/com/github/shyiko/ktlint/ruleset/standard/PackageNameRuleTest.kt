@@ -27,7 +27,7 @@ class PackageNameRuleTest {
         assertOK("package a.b.c.d\nclass A{}", "/var/tmp/a/b.c/d/A.kt")
     }
 
-    @Test
+    @Test(enabled = false)
     fun testNOK() {
         assertNOK(
             "package hoge.fuga",
