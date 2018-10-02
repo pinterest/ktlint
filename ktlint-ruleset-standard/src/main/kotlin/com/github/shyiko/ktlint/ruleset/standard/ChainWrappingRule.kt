@@ -118,10 +118,4 @@ class ChainWrappingRule : Rule("chain-wrapping") {
 
     private fun ASTNode.isPartOfWhenCondition() =
         treeParent?.treeParent?.treeParent?.elementType == KtNodeTypes.WHEN_CONDITION_EXPRESSION
-
-    private fun PsiElement.nextLeafIgnoringWhitespaceAndComments() =
-        this.nextLeaf { it.node.elementType != KtTokens.WHITE_SPACE && !it.isPartOf(PsiComment::class) }
-
-    private fun PsiElement.prevLeafIgnoringWhitespaceAndComments() =
-        this.prevLeaf { it.node.elementType != KtTokens.WHITE_SPACE && !it.isPartOf(PsiComment::class) }
 }

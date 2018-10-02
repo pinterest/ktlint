@@ -69,4 +69,24 @@ class NoSemicolonsRuleTest {
             """.trimIndent()
         )
     }
+
+    @Test
+    fun testSemiIsPreservedAfterCompanionObject() {
+        // github issue #281
+        assertThat(NoSemicolonsRule().lint(
+            """
+            class A {
+                companion object;
+                companion object ;
+            }
+            class A {
+                companion object {
+                    val s = ""
+                };
+            }
+            """.trimIndent()
+        )).isEqualTo(listOf(
+            LintError(8, 6, "no-semi", "Unnecessary semicolon")
+        ))
+    }
 }

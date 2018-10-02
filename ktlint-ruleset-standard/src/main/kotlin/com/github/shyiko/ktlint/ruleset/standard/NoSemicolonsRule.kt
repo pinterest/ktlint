@@ -7,6 +7,7 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtEnumEntry
 
 class NoSemicolonsRule : Rule("no-semi") {
@@ -20,6 +21,10 @@ class NoSemicolonsRule : Rule("no-semi") {
                 !node.isPartOf(KtEnumEntry::class)) {
             val nextLeaf = PsiTreeUtil.nextLeaf(node, true)
             if (doesNotRequirePreSemi(nextLeaf)) {
+                if (node.psi.prevLeafIgnoringWhitespaceAndComments()?.node?.elementType == KtTokens.OBJECT_KEYWORD) {
+                    // https://github.com/shyiko/ktlint/issues/281
+                    return
+                }
                 emit(node.startOffset, "Unnecessary semicolon", true)
                 if (autoCorrect) {
                     node.treeParent.removeChild(node)
