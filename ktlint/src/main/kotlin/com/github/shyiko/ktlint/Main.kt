@@ -77,7 +77,7 @@ Examples:
   ktlint --reporter=plain \
     --reporter=checkstyle,output=ktlint-checkstyle-report.xml
   # 3rd-party reporter
-  ktlint --reporter=html,artifact=com.gihub.user:repo:master-SNAPSHOT
+  ktlint --reporter=html,artifact=com.github.user:repo:master-SNAPSHOT
 
 Flags:""",
     synopsisHeading = "",
