@@ -9,6 +9,7 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.psi.KtParameterList
 import org.jetbrains.kotlin.psi.KtTypeConstraintList
+import org.jetbrains.kotlin.psi.psiUtil.children
 import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
 
 class IndentationRule : Rule("indent") {
@@ -23,36 +24,92 @@ class IndentationRule : Rule("indent") {
         if (node.elementType == KtStubElementTypes.FILE) {
             val ec = EditorConfig.from(node as FileASTNode)
             indentSize = gcd(maxOf(ec.indentSize, 1), maxOf(ec.continuationIndentSize, 1))
+
+            val traverse = makeTraverser(emit, autoCorrect)
+            exploreTree(node.children(), traverse)
             return
         }
         if (indentSize <= 1) {
             return
         }
-        if (node is PsiWhiteSpace && !node.isPartOf(PsiComment::class)) {
+    }
+
+    private fun makeTraverser(
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        autoCorrect: Boolean
+    ) = { node: ASTNode, nestedLevel: Int ->
+        if (node is PsiWhiteSpace &&
+            !node.isPartOf(PsiComment::class) &&
+            !node.isPartOf(KtTypeConstraintList::class)
+        ) {
             val lines = node.getText().split("\n")
-            if (lines.size > 1 && !node.isPartOf(KtTypeConstraintList::class)) {
+            if (lines.size > 1) {
                 var offset = node.startOffset + lines.first().length + 1
                 val previousIndentSize = node.previousIndentSize()
+
                 lines.tail().forEach { indent ->
-                    if (indent.isNotEmpty() && (indent.length - previousIndentSize) % indentSize != 0) {
-                        if (!node.isPartOf(KtParameterList::class)) { // parameter list wrapping enforced by ParameterListWrappingRule
+                    if (indent.isNotEmpty() &&
+                        // parameter list wrapping enforced by ParameterListWrappingRule
+                        !node.isPartOf(KtParameterList::class) &&
+                        (indent.length - previousIndentSize) % indentSize != 0) {
                             emit(
                                 offset,
-                                "Unexpected indentation (${indent.length}) (it should be ${previousIndentSize + indentSize})",
+                                wrongIndentSizeMessage(
+                                    indent.length,
+                                    previousIndentSize + indentSize
+                                ),
                                 false
                             )
-                        }
                     }
                     offset += indent.length + 1
                 }
             }
+
             if (node.textContains('\t')) {
                 val text = node.getText()
-                emit(node.startOffset + text.indexOf('\t'), "Unexpected Tab character(s)", true)
+
+                emit(
+                    node.startOffset + text.indexOf('\t'),
+                    "Unexpected Tab character(s)",
+                    true
+                )
+
                 if (autoCorrect) {
-                    (node as LeafPsiElement).rawReplaceWithText(text.replace("\t", " ".repeat(indentSize)))
+                    (node as LeafPsiElement)
+                        .rawReplaceWithText(text.replace("\t", " ".repeat(indentSize)))
                 }
             }
+        }
+    }
+
+    private fun wrongIndentSizeMessage(actual: Int, expected: Int) =
+        "Unexpected indentation ($actual) (it should be $expected)"
+
+    private fun exploreTree(
+        children: Sequence<ASTNode>,
+        traverse: (ASTNode, Int) -> Unit,
+        nestedLevel: Int = 0
+    ): List<ASTNode> {
+        return children.toList().map {
+            // condition
+            // binary operator (nested)
+            // function literal
+            // Block
+            // when
+            // dot qualified exp
+            // parenthesize
+            // when ()
+            // when {}
+            // prevSibling = EQ, immediate white space
+            // prevSibling = arrow under when entry, immediate white space
+
+            traverse(it, nestedLevel)
+
+            if (!it.children().none()) {
+                exploreTree(it.children(), traverse, nestedLevel)
+            }
+
+            it
         }
     }
 
