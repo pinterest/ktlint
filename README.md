@@ -233,7 +233,8 @@ See [Making your Gradle tasks incremental](https://proandroiddev.com/making-your
 
 Gradle plugins (in order of appearance):
 - [jlleitschuh/ktlint-gradle](https://github.com/jlleitschuh/ktlint-gradle)  
-The very first ktlint gradle plugin.
+Gradle plugin that automatically creates check and format tasks for project Kotlin sources,
+supports different kotlin plugins and Gradle build caching.
 
 - [jeremymailen/kotlinter-gradle](https://github.com/jeremymailen/kotlinter-gradle)  
 Gradle plugin featuring incremental build, `*.kts` support.
