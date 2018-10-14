@@ -3,10 +3,43 @@ package com.github.shyiko.ktlint.ruleset.standard
 import com.github.shyiko.ktlint.core.LintError
 import com.github.shyiko.ktlint.test.format
 import com.github.shyiko.ktlint.test.lint
+import jdk.nashorn.internal.ir.annotations.Ignore
 import org.assertj.core.api.Assertions.assertThat
 import org.testng.annotations.Test
 
 class IndentationRuleTest {
+
+    @Test
+    fun testSimpleLint() {
+        assertThat(IndentationRule().lint(
+            """
+            val a =
+                0
+
+            val b = 1 + 2
+            """.trimIndent()
+        )).isEmpty()
+    }
+
+    @Test
+    fun testChain() {
+        assertThat(IndentationRule().lint(
+            """
+            val a =
+                listOf(listOf(1, 2, 3))
+                    .map {
+                        it
+                            .map { it + 1 }
+                            .filter { it % 2 == 0 }
+                    }
+                    .reduce { acc, curr -> acc + curr }
+                    .toString()
+
+
+            val b = 1
+            """.trimIndent()
+        )).isEmpty()
+    }
 
     @Test
     fun testLint() {
@@ -34,9 +67,9 @@ class IndentationRuleTest {
             }
             """.trimIndent()
         )).isEqualTo(listOf(
+            LintError(6, 1, "indent", "Unexpected indentation (8) (it should be 4)"),
             LintError(12, 1, "indent", "Unexpected indentation (3) (it should be 4)"),
-            // fixme: expected indent should not depend on the "previous" line value
-            LintError(13, 1, "indent", "Unexpected indentation (9) (it should be 7)")
+            LintError(13, 1, "indent", "Unexpected indentation (9) (it should be 8)")
         ))
     }
 
@@ -92,7 +125,6 @@ class IndentationRuleTest {
 
     @Test
     fun testLintWithContinuationIndentSizeSet() {
-        // gcd(indent_size, continuation_indent_size) == 2
         assertThat(IndentationRule().lint(
             """
             fun main() {
@@ -103,8 +135,9 @@ class IndentationRuleTest {
             """.trimIndent(),
             mapOf("indent_size" to "4", "continuation_indent_size" to "6")
         )).isEqualTo(listOf(
-            LintError(4, 1, "indent", "Unexpected indentation (5) (it should be 2)")
+            LintError(4, 1, "indent", "Unexpected indentation (5) (it should be 4)")
         ))
+
         assertThat(IndentationRule().lint(
             """
             fun main() {
@@ -115,9 +148,10 @@ class IndentationRuleTest {
             """.trimIndent(),
             mapOf("indent_size" to "4", "continuation_indent_size" to "2")
         )).isEqualTo(listOf(
-            LintError(4, 1, "indent", "Unexpected indentation (5) (it should be 2)")
+            LintError(3, 1, "indent", "Unexpected indentation (10) (it should be 6)"),
+            LintError(4, 1, "indent", "Unexpected indentation (5) (it should be 4)")
         ))
-        // gcd(indent_size, continuation_indent_size) == 1 equals no indent check
+
         assertThat(IndentationRule().lint(
             """
             fun main() {
@@ -128,7 +162,11 @@ class IndentationRuleTest {
             }
             """.trimIndent(),
             mapOf("indent_size" to "4", "continuation_indent_size" to "3")
-        )).isEmpty()
+        )).isEqualTo(listOf(
+            LintError(3, 1, "indent", "Unexpected indentation (8) (it should be 7)"),
+            LintError(4, 1, "indent", "Unexpected indentation (9) (it should be 7)"),
+            LintError(5, 1, "indent", "Unexpected indentation (10) (it should be 7)")
+        ))
     }
 
     // https://kotlinlang.org/docs/reference/coding-conventions.html#method-call-formatting
@@ -148,7 +186,7 @@ class IndentationRuleTest {
         ))
     }
 
-    @Test
+    @Test(enabled = false)
     fun testLintCommentsAreIgnored() {
         assertThat(IndentationRule().lint(
             """
@@ -192,7 +230,7 @@ class IndentationRuleTest {
         assertThat(IndentationRule().lint(ktScript)).isEqualTo(listOf(
             LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected indentation (2) (it should be 4)"),
             LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected Tab character(s)"),
-            LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected indentation (1) (it should be 4)"),
+            LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected indentation (1) (it should be 0)"),
             LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected Tab character(s)")
         ))
     }
@@ -204,7 +242,7 @@ class IndentationRuleTest {
         assertThat(IndentationRule().lint(ktScript, mapOf("indent_size" to "3"))).isEqualTo(listOf(
             LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected indentation (2) (it should be 3)"),
             LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected Tab character(s)"),
-            LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected indentation (1) (it should be 3)"),
+            LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected indentation (1) (it should be 0)"),
             LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected Tab character(s)")
         ))
     }

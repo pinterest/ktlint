@@ -1,139 +1,260 @@
 package com.github.shyiko.ktlint.ruleset.standard
 
 import com.github.shyiko.ktlint.core.Rule
-import org.jetbrains.kotlin.KtNodeTypes
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
+import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
+import org.jetbrains.kotlin.com.intellij.util.containers.Stack
+import org.jetbrains.kotlin.lexer.KtToken
+import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtParameterList
 import org.jetbrains.kotlin.psi.KtTypeConstraintList
 import org.jetbrains.kotlin.psi.psiUtil.children
+import org.jetbrains.kotlin.psi.psiUtil.parents
+import org.jetbrains.kotlin.psi.psiUtil.startOffset
+import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementType
 import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
 
-class IndentationRule : Rule("indent") {
+sealed class IndentationScope(val isContinuation: Boolean = false)
 
+data class ExpressionScope(
+    val elementType: KtStubElementType<*, *>
+) : IndentationScope(isContinuation = true)
+
+data class InternalNodeScopeWithTriggerToken(
+    val elementType: KtStubElementType<*, *>,
+    val trigger: KtToken
+) : IndentationScope()
+
+data class LeafNodeScope(val startToken: KtToken, val endToken: KtToken) : IndentationScope()
+
+object PropertyAccessorScope : IndentationScope()
+
+fun isInScope(node: ASTNode, indentationScope: IndentationScope): Boolean =
+    when (indentationScope) {
+        is ExpressionScope ->
+            node.elementType == KtStubElementTypes.DOT_QUALIFIED_EXPRESSION &&
+                node.treeParent.elementType != KtStubElementTypes.DOT_QUALIFIED_EXPRESSION
+
+        is InternalNodeScopeWithTriggerToken ->
+            node.elementType == indentationScope.elementType &&
+                node.children().zip(node.children().drop(1))
+                    .any { (a, b) ->
+                        a.elementType == indentationScope.trigger &&
+                            b is PsiWhiteSpace &&
+                            b.textContains('\n')
+                    }
+
+        is LeafNodeScope ->
+            node.elementType == indentationScope.startToken
+
+        is PropertyAccessorScope -> {
+            val firstPropAccessor = node
+                .findOutermostConsecutiveParent(KtStubElementTypes.PROPERTY)
+                ?.findChildByType(KtStubElementTypes.PROPERTY_ACCESSOR)
+
+            firstPropAccessor != null && node.treeNext == firstPropAccessor
+        }
+    }
+
+fun isOutOfScope(node: ASTNode, indentationScope: IndentationScope): Boolean =
+    when (indentationScope) {
+        is ExpressionScope -> {
+            val isPrevContainsDQX = node.treePrev?.findChildByType(KtStubElementTypes.DOT_QUALIFIED_EXPRESSION) != null
+            val isPrevTreeDQX = node.treePrev?.elementType == KtStubElementTypes.DOT_QUALIFIED_EXPRESSION
+
+            (isPrevTreeDQX && (node.elementType != KtTokens.DOT && node.treeNext.elementType != KtTokens.DOT)) ||
+                (!isPrevTreeDQX && isPrevContainsDQX)
+        }
+
+        is InternalNodeScopeWithTriggerToken ->
+            node.isSucceeding(indentationScope.elementType)
+
+        is LeafNodeScope -> {
+            val isNewline: (ASTNode?) -> Boolean = { it is PsiWhiteSpace && it.textContains('\n') }
+            val isNewLineThenEndToken = isNewline(node) && node.isPreceding(indentationScope.endToken)
+            val isEndTokenAfterNonNewLine = !isNewline(node.treePrev) && node.elementType == indentationScope.endToken
+
+            isNewLineThenEndToken || isEndTokenAfterNonNewLine
+        }
+
+        is PropertyAccessorScope ->
+            node.isSucceeding(KtStubElementTypes.PROPERTY)
+    }
+
+val scopeSet = setOf(
+    ExpressionScope(KtStubElementTypes.DOT_QUALIFIED_EXPRESSION),
+    InternalNodeScopeWithTriggerToken(
+        KtStubElementTypes.PROPERTY,
+        KtTokens.EQ
+    ),
+    InternalNodeScopeWithTriggerToken(
+        KtStubElementTypes.FUNCTION,
+        KtTokens.EQ
+    ),
+    LeafNodeScope(KtTokens.LBRACE, KtTokens.RBRACE),
+    LeafNodeScope(KtTokens.LBRACKET, KtTokens.RBRACKET),
+    LeafNodeScope(KtTokens.LPAR, KtTokens.RPAR),
+    PropertyAccessorScope
+)
+
+class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRoot {
     private var indentSize = -1
-
+    private var continuationIndentSize = -1
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        if (node.elementType == KtStubElementTypes.FILE) {
-            val ec = EditorConfig.from(node as FileASTNode)
-            indentSize = gcd(maxOf(ec.indentSize, 1), maxOf(ec.continuationIndentSize, 1))
+        val ec = EditorConfig.from(node as FileASTNode)
+        indentSize = ec.indentSize
+        continuationIndentSize = ec.continuationIndentSize
 
-            val traverse = makeTraverser(emit, autoCorrect)
-            exploreTree(node.children(), traverse)
-            return
-        }
         if (indentSize <= 1) {
             return
         }
+
+        exploreTree(node, emit, autoCorrect)
     }
 
-    private fun makeTraverser(
+    private fun exploreTree(
+        node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
         autoCorrect: Boolean
-    ) = { node: ASTNode, nestedLevel: Int ->
-        if (node is PsiWhiteSpace &&
-            !node.isPartOf(PsiComment::class) &&
-            !node.isPartOf(KtTypeConstraintList::class)
-        ) {
-            val lines = node.getText().split("\n")
-            if (lines.size > 1) {
-                var offset = node.startOffset + lines.first().length + 1
-                val previousIndentSize = node.previousIndentSize()
+    ) {
+        val scopeStack = Stack<IndentationScope>()
+        val stack = Stack<ASTNode>()
 
-                lines.tail().forEach { indent ->
-                    if (indent.isNotEmpty() &&
-                        // parameter list wrapping enforced by ParameterListWrappingRule
-                        !node.isPartOf(KtParameterList::class) &&
-                        (indent.length - previousIndentSize) % indentSize != 0) {
-                            emit(
-                                offset,
-                                wrongIndentSizeMessage(
-                                    indent.length,
-                                    previousIndentSize + indentSize
-                                ),
-                                false
-                            )
+        stack.push(node)
+
+        while (!stack.empty()) {
+            val current = stack.pop()
+            val children = current.children()
+            // expr
+            // prevSibling = arrow under when entry, immediate white space
+
+            val poppedScope = mutableSetOf<IndentationScope>()
+
+            while (
+                !scopeStack.empty() &&
+                !poppedScope.contains(scopeStack.peek()) &&
+                isOutOfScope(current, scopeStack.peek())
+            ) {
+                poppedScope.add(scopeStack.pop())
+            }
+
+            scopeSet.forEach {
+                if (isInScope(current, it)) {
+                    scopeStack.push(it)
+                }
+            }
+
+
+            if (children.none()) {
+                if (current is PsiWhiteSpace &&
+                    current.treeNext !is PsiComment &&
+                    current.treeNext.firstChildNode !is PsiComment &&
+                    current.treeNext.elementType != KtTokens.WHERE_KEYWORD &&
+                    !current.isPartOf(PsiComment::class) &&
+                    !current.isPartOf(KtTypeConstraintList::class)
+                ) {
+                    val continuationCount = scopeStack.count { it.isContinuation }
+                    val normalIndentationCount = scopeStack.count { !it.isContinuation }
+                    handleNewline(current, emit, autoCorrect, normalIndentationCount, continuationCount)
+
+                    if (current.textContains('\t')) {
+                        handleTab(current, emit, autoCorrect)
                     }
-                    offset += indent.length + 1
+                }
+            } else {
+                children
+                    .toList()
+                    .reversed()
+                    .forEach { stack.push(it) }
+            }
+        }
+    }
+
+    private fun handleNewline(
+        node: PsiWhiteSpace,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        autoCorrect: Boolean,
+        normalIndentationCount: Int,
+        continuationIndentationCount: Int
+    ) {
+        val lines = node.text.split("\n")
+        if (lines.size > 1) {
+            val offset = node.startOffset + lines.first().length + 1
+
+            lines.take(lines.count() - 1).forEach { indent ->
+                if (indent != "") {
+                    emit(
+                        offset,
+                        wrongIndentSizeMessage(
+                            indent.length,
+                            0
+                        ),
+                        false
+                    )
                 }
             }
 
-            if (node.textContains('\t')) {
-                val text = node.getText()
+            val indent = lines.last()
 
+            val totalIndentationSize = normalIndentationCount * indentSize +
+                continuationIndentationCount * continuationIndentSize
+
+            if (
+            // parameter list wrapping enforced by ParameterListWrappingRule
+                !node.isPartOf(KtParameterList::class) &&
+                indent.length != totalIndentationSize
+            ) {
                 emit(
-                    node.startOffset + text.indexOf('\t'),
-                    "Unexpected Tab character(s)",
-                    true
+                    offset,
+                    wrongIndentSizeMessage(
+                        indent.length,
+                        totalIndentationSize
+                    ),
+                    false
                 )
-
-                if (autoCorrect) {
-                    (node as LeafPsiElement)
-                        .rawReplaceWithText(text.replace("\t", " ".repeat(indentSize)))
-                }
             }
+        }
+    }
+
+    private fun handleTab(
+        node: ASTNode,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        autoCorrect: Boolean
+    ) {
+        emit(
+            node.startOffset + node.text.indexOf('\t'),
+            "Unexpected Tab character(s)",
+            true
+        )
+
+        if (autoCorrect) {
+            val tabToSpaceString = node.text.replace("\t", " ".repeat(indentSize))
+            (node as LeafPsiElement).rawReplaceWithText(tabToSpaceString)
         }
     }
 
     private fun wrongIndentSizeMessage(actual: Int, expected: Int) =
         "Unexpected indentation ($actual) (it should be $expected)"
-
-    private fun exploreTree(
-        children: Sequence<ASTNode>,
-        traverse: (ASTNode, Int) -> Unit,
-        nestedLevel: Int = 0
-    ): List<ASTNode> {
-        return children.toList().map {
-            // condition
-            // binary operator (nested)
-            // function literal
-            // Block
-            // when
-            // dot qualified exp
-            // parenthesize
-            // when ()
-            // when {}
-            // prevSibling = EQ, immediate white space
-            // prevSibling = arrow under when entry, immediate white space
-
-            traverse(it, nestedLevel)
-
-            if (!it.children().none()) {
-                exploreTree(it.children(), traverse, nestedLevel)
-            }
-
-            it
-        }
-    }
-
-    private fun gcd(a: Int, b: Int): Int = when {
-        a > b -> gcd(a - b, b)
-        a < b -> gcd(a, b - a)
-        else -> a
-    }
-
-    // todo: calculating indent based on the previous line value is wrong (see IndentationRule.testLint)
-    private fun ASTNode.previousIndentSize(): Int {
-        var node = this.treeParent?.psi
-        while (node != null) {
-            val nextNode = node.nextSibling?.node?.elementType
-            if (node is PsiWhiteSpace &&
-                nextNode != KtStubElementTypes.TYPE_REFERENCE &&
-                nextNode != KtStubElementTypes.SUPER_TYPE_LIST &&
-                nextNode != KtNodeTypes.CONSTRUCTOR_DELEGATION_CALL &&
-                node.textContains('\n') &&
-                node.nextLeaf()?.isPartOf(PsiComment::class) != true) {
-                return node.text.length - node.text.lastIndexOf('\n') - 1
-            }
-            node = node.prevSibling ?: node.parent
-        }
-        return 0
-    }
 }
+
+private fun ASTNode.isSucceeding(elementType: IElementType) =
+    this.treePrev?.elementType == elementType
+
+private fun ASTNode.isPreceding(elementType: IElementType) =
+    this.treeNext?.elementType == elementType
+
+private fun ASTNode.findOutermostConsecutiveParent(elementType: IElementType): ASTNode? =
+    this
+        .parents()
+        .asSequence()
+        .dropWhile { it.elementType != elementType }
+        .takeWhile { it.elementType == elementType }
+        .lastOrNull()
