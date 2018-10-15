@@ -7,7 +7,6 @@ import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
-import org.jetbrains.kotlin.com.intellij.psi.search.PsiSearchScopeUtil.isInScope
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
 import org.jetbrains.kotlin.com.intellij.util.containers.Stack
 import org.jetbrains.kotlin.lexer.KtToken
@@ -77,17 +76,15 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRoot {
         while (!stack.empty()) {
             val current = stack.pop()
             val children = current.children()
-            // prevSibling = arrow under when entry, immediate white space
-            // it case
 
-            val poppedScope = mutableSetOf<IndentationScope>()
+            val exitedScopesOnCurrentNode = mutableSetOf<IndentationScope>()
 
             while (
                 !scopeStack.empty() &&
-                !poppedScope.contains(scopeStack.peek()) &&
+                !exitedScopesOnCurrentNode.contains(scopeStack.peek()) &&
                 scopeStack.peek().isLeaving(current)
             ) {
-                poppedScope.add(scopeStack.pop())
+                exitedScopesOnCurrentNode.add(scopeStack.pop())
             }
 
             scopeSet.forEach {
@@ -137,10 +134,7 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRoot {
                 if (indent != "") {
                     emit(
                         offset,
-                        wrongIndentSizeMessage(
-                            indent.length,
-                            0
-                        ),
+                        "Unexpected indentation (${indent.length}) (it should be 0)",
                         false
                     )
                 }
@@ -158,10 +152,7 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRoot {
             ) {
                 emit(
                     offset,
-                    wrongIndentSizeMessage(
-                        indent.length,
-                        totalIndentationSize
-                    ),
+                    "Unexpected indentation (${indent.length}) (it should be $totalIndentationSize)",
                     false
                 )
             }
@@ -184,9 +175,6 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRoot {
             (node as LeafPsiElement).rawReplaceWithText(tabToSpaceString)
         }
     }
-
-    private fun wrongIndentSizeMessage(actual: Int, expected: Int) =
-        "Unexpected indentation ($actual) (it should be $expected)"
 }
 
 sealed class IndentationScope(val isContinuation: Boolean = false) {
