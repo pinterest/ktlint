@@ -24,8 +24,10 @@ class IndentationRuleTest {
                 }
                 val b = builder().setX().setY()
                     .build()
-               val c = builder("long_string" +
-                     "")
+               val c = builder(
+                     "long_string" +
+                        ""
+                )
             }
 
             class A {
@@ -141,6 +143,11 @@ class IndentationRuleTest {
     fun testDotChain() {
         assertThat(IndentationRule().lint(
             """
+            val b = nullableList
+                .find { !it.empty() }
+                ?.map { x + 2 }
+                ?.filter { true }
+
             val a =
                 listOf(listOf(1, 2, 3))
                     .map {
@@ -151,8 +158,7 @@ class IndentationRuleTest {
                     .reduce { acc, curr -> acc + curr }
                     .toString()
 
-
-            val b = 1
+            val c = 1
             """.trimIndent()
         )).isEmpty()
     }

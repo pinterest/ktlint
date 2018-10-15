@@ -48,9 +48,11 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRoot {
         val stack = Stack<ASTNode>()
 
         val scopeSet = setOf(
-            ExpressionScope(KtStubElementTypes.DOT_QUALIFIED_EXPRESSION, KtTokens.DOT),
-            ExpressionScope(KtStubElementTypes.DOT_QUALIFIED_EXPRESSION, KtTokens.SAFE_ACCESS),
-            ExpressionScope(KtNodeTypes.BINARY_EXPRESSION, KtNodeTypes.OPERATION_REFERENCE),
+            ExpressionScope(
+                listOf(KtStubElementTypes.DOT_QUALIFIED_EXPRESSION, KtNodeTypes.SAFE_ACCESS_EXPRESSION),
+                listOf(KtTokens.DOT, KtTokens.SAFE_ACCESS)
+            ),
+            ExpressionScope(listOf(KtNodeTypes.BINARY_EXPRESSION), listOf(KtNodeTypes.OPERATION_REFERENCE)),
             InternalNodeScopeWithTriggerToken(
                 KtStubElementTypes.PROPERTY,
                 KtTokens.EQ
@@ -186,8 +188,8 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRoot {
 sealed class IndentationScope(val isContinuation: Boolean = false)
 
 data class ExpressionScope(
-    val elementType: IElementType,
-    val chainingElement: IElementType
+    val elementTypes: List<IElementType>,
+    val chainingElements: List<IElementType>
 ) : IndentationScope(isContinuation = true)
 
 data class InternalNodeScopeWithTriggerToken(
@@ -202,8 +204,8 @@ object PropertyAccessorScope : IndentationScope()
 fun isInScope(node: ASTNode, indentationScope: IndentationScope): Boolean =
     when (indentationScope) {
         is ExpressionScope ->
-            node.elementType == indentationScope.elementType &&
-                node.treeParent.elementType != indentationScope.elementType
+            indentationScope.elementTypes.contains(node.elementType) &&
+                !indentationScope.elementTypes.contains(node.treeParent?.elementType)
 
         is InternalNodeScopeWithTriggerToken ->
             node.elementType == indentationScope.elementType &&
@@ -247,11 +249,15 @@ fun isInScope(node: ASTNode, indentationScope: IndentationScope): Boolean =
 fun isOutOfScope(node: ASTNode, indentationScope: IndentationScope): Boolean =
     when (indentationScope) {
         is ExpressionScope -> {
-            val isPrevTreeContainsExpression = node.treePrev?.findChildByType(indentationScope.elementType) != null
-            val isPrevTreeExpression = node.treePrev?.elementType == indentationScope.elementType
+            val isPrevTreeContainsExpression = indentationScope
+                .elementTypes
+                .any { node.treePrev?.findDeepChildByType(it) != null }
 
-            val currentAndNextAreNotChainingElement = node.elementType != indentationScope.chainingElement &&
-                node.treeNext?.elementType != indentationScope.chainingElement
+            val isPrevTreeExpression = indentationScope.elementTypes.contains(node.treePrev?.elementType)
+
+            val currentAndNextAreNotChainingElement =
+                !indentationScope.chainingElements.contains(node.elementType) &&
+                    !indentationScope.chainingElements.contains(node.treeNext?.elementType)
 
             (isPrevTreeExpression && currentAndNextAreNotChainingElement) ||
                 (!isPrevTreeExpression && isPrevTreeContainsExpression)
@@ -277,6 +283,16 @@ private fun ASTNode.isSucceeding(elementType: IElementType) =
 
 private fun ASTNode.isPreceding(elementType: IElementType) =
     this.treeNext?.elementType == elementType
+
+private fun ASTNode.findDeepChildByType(elementType: IElementType): ASTNode? =
+    findChildByType(elementType) ?: if (!this.children().none()) {
+        val targetParent = this.children().find {
+            it.findDeepChildByType(elementType) != null
+        }
+        targetParent?.findDeepChildByType(elementType)
+    } else {
+        null
+    }
 
 private fun ASTNode.findOutermostConsecutiveParent(elementType: IElementType): ASTNode? =
     this
