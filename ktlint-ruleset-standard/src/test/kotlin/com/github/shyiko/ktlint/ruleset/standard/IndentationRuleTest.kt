@@ -140,12 +140,12 @@ class IndentationRuleTest {
     }
 
     @Test
-    fun testDotChain() {
+    fun testLintDotChain() {
         assertThat(IndentationRule().lint(
             """
             val b = nullableList
-                .find { !it.empty() }
-                ?.map { x + 2 }
+               .find { !it.empty() }
+                 ?.map { x + 2 }
                 ?.filter { true }
 
             val a =
@@ -153,14 +153,18 @@ class IndentationRuleTest {
                     .map {
                         it
                             .map { it + 1 }
-                            .filter { it % 2 == 0 }
+                          .filter { it % 2 == 0 }
                     }
                     .reduce { acc, curr -> acc + curr }
                     .toString()
 
             val c = 1
             """.trimIndent()
-        )).isEmpty()
+        )).isEqualTo(listOf(
+            LintError(2, 1, "indent", "Unexpected indentation (3) (it should be 4)"),
+            LintError(3, 1, "indent", "Unexpected indentation (5) (it should be 4)"),
+            LintError(11, 1, "indent", "Unexpected indentation (14) (it should be 16)")
+        ))
     }
 
     @Test
@@ -173,11 +177,13 @@ class IndentationRuleTest {
 
             val b = true &&
                 (false || false) ||
-                false
+                    false
 
             val c = 1
             """.trimIndent()
-        )).isEmpty()
+        )).isEqualTo(listOf(
+            LintError(7, 1, "indent", "Unexpected indentation (8) (it should be 4)")
+        ))
     }
 
     @Test
@@ -190,7 +196,7 @@ class IndentationRuleTest {
                         true
                     2 -> false
                     3 ->
-                        true
+                    true
                     4 -> false ||
                         true
 
@@ -202,7 +208,9 @@ class IndentationRuleTest {
                 val y = 2
             }
             """.trimIndent()
-        )).isEmpty()
+        )).isEqualTo(listOf(
+            LintError(7, 1, "indent", "Unexpected indentation (8) (it should be 12)")
+        ))
     }
 
     @Test
