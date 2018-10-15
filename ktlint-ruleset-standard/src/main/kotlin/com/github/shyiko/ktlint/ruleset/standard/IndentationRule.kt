@@ -1,6 +1,7 @@
 package com.github.shyiko.ktlint.ruleset.standard
 
 import com.github.shyiko.ktlint.core.Rule
+import org.jetbrains.kotlin.KtNodeTypes
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
@@ -47,7 +48,9 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRoot {
         val stack = Stack<ASTNode>()
 
         val scopeSet = setOf(
-            ExpressionScope(KtStubElementTypes.DOT_QUALIFIED_EXPRESSION),
+            ExpressionScope(KtStubElementTypes.DOT_QUALIFIED_EXPRESSION, KtTokens.DOT),
+            ExpressionScope(KtStubElementTypes.DOT_QUALIFIED_EXPRESSION, KtTokens.SAFE_ACCESS),
+            ExpressionScope(KtNodeTypes.BINARY_EXPRESSION, KtNodeTypes.OPERATION_REFERENCE),
             InternalNodeScopeWithTriggerToken(
                 KtStubElementTypes.PROPERTY,
                 KtTokens.EQ
@@ -68,8 +71,8 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRoot {
         while (!stack.empty()) {
             val current = stack.pop()
             val children = current.children()
-            // expr
             // prevSibling = arrow under when entry, immediate white space
+            // it case
 
             val poppedScope = mutableSetOf<IndentationScope>()
 
@@ -183,7 +186,8 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRoot {
 sealed class IndentationScope(val isContinuation: Boolean = false)
 
 data class ExpressionScope(
-    val elementType: KtStubElementType<*, *>
+    val elementType: IElementType,
+    val chainingElement: IElementType
 ) : IndentationScope(isContinuation = true)
 
 data class InternalNodeScopeWithTriggerToken(
@@ -198,8 +202,8 @@ object PropertyAccessorScope : IndentationScope()
 fun isInScope(node: ASTNode, indentationScope: IndentationScope): Boolean =
     when (indentationScope) {
         is ExpressionScope ->
-            node.elementType == KtStubElementTypes.DOT_QUALIFIED_EXPRESSION &&
-                node.treeParent.elementType != KtStubElementTypes.DOT_QUALIFIED_EXPRESSION
+            node.elementType == indentationScope.elementType &&
+                node.treeParent.elementType != indentationScope.elementType
 
         is InternalNodeScopeWithTriggerToken ->
             node.elementType == indentationScope.elementType &&
@@ -243,11 +247,14 @@ fun isInScope(node: ASTNode, indentationScope: IndentationScope): Boolean =
 fun isOutOfScope(node: ASTNode, indentationScope: IndentationScope): Boolean =
     when (indentationScope) {
         is ExpressionScope -> {
-            val isPrevContainsDQX = node.treePrev?.findChildByType(KtStubElementTypes.DOT_QUALIFIED_EXPRESSION) != null
-            val isPrevTreeDQX = node.treePrev?.elementType == KtStubElementTypes.DOT_QUALIFIED_EXPRESSION
+            val isPrevTreeContainsExpression = node.treePrev?.findChildByType(indentationScope.elementType) != null
+            val isPrevTreeExpression = node.treePrev?.elementType == indentationScope.elementType
 
-            (isPrevTreeDQX && (node.elementType != KtTokens.DOT && node.treeNext.elementType != KtTokens.DOT)) ||
-                (!isPrevTreeDQX && isPrevContainsDQX)
+            val currentAndNextAreNotChainingElement = node.elementType != indentationScope.chainingElement &&
+                node.treeNext?.elementType != indentationScope.chainingElement
+
+            (isPrevTreeExpression && currentAndNextAreNotChainingElement) ||
+                (!isPrevTreeExpression && isPrevTreeContainsExpression)
         }
 
         is InternalNodeScopeWithTriggerToken ->

@@ -156,6 +156,24 @@ class IndentationRuleTest {
             """.trimIndent()
         )).isEmpty()
     }
+
+    @Test
+    fun testBinaryExpressionChain() {
+        assertThat(IndentationRule().lint(
+            """
+            val a = 1 + 2 +
+                3 +
+                4
+
+            val b = true &&
+                (false || false) ||
+                false
+
+            val c = 1
+            """.trimIndent()
+        )).isEmpty()
+    }
+
     // https://kotlinlang.org/docs/reference/coding-conventions.html#method-call-formatting
     @Test
     fun testLintMultilineFunctionCall() {
