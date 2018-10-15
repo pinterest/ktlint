@@ -180,6 +180,31 @@ class IndentationRuleTest {
         )).isEmpty()
     }
 
+    @Test
+    fun testLintWhenExpression() {
+        assertThat(IndentationRule().lint(
+            """
+            fun main() {
+                val x = when (1) {
+                    1 ->
+                        true
+                    2 -> false
+                    3 ->
+                        true
+                    4 -> false ||
+                        true
+            
+                    else -> {
+                        true
+                    }
+                }
+
+                val y = 2
+            }
+            """.trimIndent()
+        )).isEmpty()
+    }
+
     // https://kotlinlang.org/docs/reference/coding-conventions.html#method-call-formatting
     @Test
     fun testLintMultilineFunctionCall() {

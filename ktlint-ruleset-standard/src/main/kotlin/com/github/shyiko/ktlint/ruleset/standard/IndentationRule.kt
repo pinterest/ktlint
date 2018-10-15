@@ -64,6 +64,10 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRoot {
                 KtStubElementTypes.FUNCTION,
                 KtTokens.EQ
             ),
+            IndentationScope.InternalNodeScopeWithTriggerToken(
+                KtNodeTypes.WHEN_ENTRY,
+                KtTokens.ARROW
+            ),
             IndentationScope.ParenScope(KtTokens.LBRACE, KtTokens.RBRACE),
             IndentationScope.ParenScope(KtTokens.LBRACKET, KtTokens.RBRACKET),
             IndentationScope.ParenScope(KtTokens.LPAR, KtTokens.RPAR),
@@ -206,7 +210,7 @@ sealed class IndentationScope(val isContinuation: Boolean = false) {
     }
 
     data class InternalNodeScopeWithTriggerToken(
-        val elementType: KtStubElementType<*, *>,
+        val elementType: IElementType,
         val trigger: KtToken
     ) : IndentationScope() {
         override fun isEntering(node: ASTNode): Boolean =
