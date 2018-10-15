@@ -131,9 +131,9 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRoot {
     ) {
         val lines = node.text.split("\n")
         if (lines.size > 1) {
-            val offset = node.startOffset + lines.first().length + 1
+            var offset = node.startOffset + lines.first().length + 1
 
-            lines.take(lines.count() - 1).forEach { indent ->
+            lines.tail().take(lines.count() - 2).forEach { indent ->
                 if (indent != "") {
                     emit(
                         offset,
@@ -141,6 +141,8 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRoot {
                         false
                     )
                 }
+
+                offset += indent.length + 1
             }
 
             val indent = lines.last()

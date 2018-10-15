@@ -100,12 +100,16 @@ class IndentationRuleTest {
             fun main() {
                 val v = ""
                       .call()
+                val u = 1 +
+                      2 +
+                      3
+
                  call()
             }
             """.trimIndent(),
             mapOf("indent_size" to "4", "continuation_indent_size" to "6")
         )).isEqualTo(listOf(
-            LintError(4, 1, "indent", "Unexpected indentation (5) (it should be 4)")
+            LintError(8, 1, "indent", "Unexpected indentation (5) (it should be 4)")
         ))
 
         assertThat(IndentationRule().lint(
