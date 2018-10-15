@@ -193,12 +193,36 @@ class IndentationRuleTest {
                         true
                     4 -> false ||
                         true
-            
+
                     else -> {
                         true
                     }
                 }
 
+                val y = 2
+            }
+            """.trimIndent()
+        )).isEmpty()
+    }
+
+    @Test
+    fun testLintBinaryExpressionInConditionalBlock() {
+        assertThat(IndentationRule().lint(
+            """
+            fun main() {
+                if (
+                    listOf<Any>()
+                        .toString()
+                        .isEmpty() &&
+                    false ||
+                    (
+                        true ||
+                            false
+                    ) ||
+                    false
+                ) {
+                    println("hello")
+                }
                 val y = 2
             }
             """.trimIndent()

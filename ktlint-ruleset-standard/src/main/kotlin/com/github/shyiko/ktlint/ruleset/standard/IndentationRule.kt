@@ -17,7 +17,6 @@ import org.jetbrains.kotlin.psi.psiUtil.children
 import org.jetbrains.kotlin.psi.psiUtil.nextLeafs
 import org.jetbrains.kotlin.psi.psiUtil.parents
 import org.jetbrains.kotlin.psi.psiUtil.startOffset
-import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementType
 import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
 
 class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRoot {
@@ -189,9 +188,13 @@ sealed class IndentationScope(val isContinuation: Boolean = false) {
         val elementTypes: List<IElementType>,
         val chainingElements: List<IElementType>
     ) : IndentationScope(isContinuation = true) {
-        override fun isEntering(node: ASTNode): Boolean =
-            this.elementTypes.contains(node.elementType) &&
+        override fun isEntering(node: ASTNode): Boolean {
+            val isDirectChildOfCondition = node.treeParent?.elementType == KtNodeTypes.CONDITION
+
+            return !(isDirectChildOfCondition && elementTypes.contains(KtNodeTypes.BINARY_EXPRESSION)) &&
+                this.elementTypes.contains(node.elementType) &&
                 !this.elementTypes.contains(node.treeParent?.elementType)
+        }
 
         override fun isLeaving(node: ASTNode): Boolean {
             val isPrevTreeContainsExpression = this
