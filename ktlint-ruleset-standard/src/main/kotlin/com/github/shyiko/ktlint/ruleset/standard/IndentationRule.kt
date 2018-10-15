@@ -15,7 +15,6 @@ import org.jetbrains.kotlin.psi.KtTypeConstraintList
 import org.jetbrains.kotlin.psi.psiUtil.children
 import org.jetbrains.kotlin.psi.psiUtil.nextLeafs
 import org.jetbrains.kotlin.psi.psiUtil.parents
-import org.jetbrains.kotlin.psi.psiUtil.prevLeafs
 import org.jetbrains.kotlin.psi.psiUtil.startOffset
 import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementType
 import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
@@ -60,6 +59,7 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRoot {
             LeafNodeScope(KtTokens.LBRACE, KtTokens.RBRACE),
             LeafNodeScope(KtTokens.LBRACKET, KtTokens.RBRACKET),
             LeafNodeScope(KtTokens.LPAR, KtTokens.RPAR),
+            LeafNodeScope(KtTokens.LT, KtTokens.GT),
             PropertyAccessorScope
         )
 
@@ -70,7 +70,6 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRoot {
             val children = current.children()
             // expr
             // prevSibling = arrow under when entry, immediate white space
-            // Type params <>
 
             val poppedScope = mutableSetOf<IndentationScope>()
 

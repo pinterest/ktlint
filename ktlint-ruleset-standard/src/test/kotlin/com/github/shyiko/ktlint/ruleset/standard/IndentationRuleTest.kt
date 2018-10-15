@@ -10,38 +10,6 @@ import org.testng.annotations.Test
 class IndentationRuleTest {
 
     @Test
-    fun testSimpleLint() {
-        assertThat(IndentationRule().lint(
-            """
-            val a =
-                0
-
-            val b = 1 + 2
-            """.trimIndent()
-        )).isEmpty()
-    }
-
-    @Test
-    fun testChain() {
-        assertThat(IndentationRule().lint(
-            """
-            val a =
-                listOf(listOf(1, 2, 3))
-                    .map {
-                        it
-                            .map { it + 1 }
-                            .filter { it % 2 == 0 }
-                    }
-                    .reduce { acc, curr -> acc + curr }
-                    .toString()
-
-
-            val b = 1
-            """.trimIndent()
-        )).isEmpty()
-    }
-
-    @Test
     fun testLint() {
         assertThat(IndentationRule().lint(
             """
@@ -169,6 +137,25 @@ class IndentationRuleTest {
         ))
     }
 
+    @Test
+    fun testDotChain() {
+        assertThat(IndentationRule().lint(
+            """
+            val a =
+                listOf(listOf(1, 2, 3))
+                    .map {
+                        it
+                            .map { it + 1 }
+                            .filter { it % 2 == 0 }
+                    }
+                    .reduce { acc, curr -> acc + curr }
+                    .toString()
+
+
+            val b = 1
+            """.trimIndent()
+        )).isEmpty()
+    }
     // https://kotlinlang.org/docs/reference/coding-conventions.html#method-call-formatting
     @Test
     fun testLintMultilineFunctionCall() {
