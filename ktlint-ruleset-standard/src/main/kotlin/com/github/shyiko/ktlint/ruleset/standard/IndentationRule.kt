@@ -2,13 +2,16 @@ package com.github.shyiko.ktlint.ruleset.standard
 
 import com.github.shyiko.ktlint.core.Rule
 import org.jetbrains.kotlin.KtNodeTypes
+import org.jetbrains.kotlin.cfg.LeakingThisDescriptor
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
+import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
 import org.jetbrains.kotlin.com.intellij.util.containers.Stack
+import org.jetbrains.kotlin.daemon.common.OSKind.Companion.current
 import org.jetbrains.kotlin.lexer.KtToken
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtParameterList
@@ -105,13 +108,13 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRoot {
                     !current.isPartOf(PsiComment::class) &&
                     !current.isPartOf(KtTypeConstraintList::class)
                 ) {
-                    val continuationCount = scopeStack.count { it.isContinuation }
-                    val normalIndentationCount = scopeStack.count { !it.isContinuation }
-                    handleNewline(current, emit, autoCorrect, normalIndentationCount, continuationCount)
-
                     if (current.textContains('\t')) {
                         handleTab(current, emit, autoCorrect)
                     }
+
+                    val continuationCount = scopeStack.count { it.isContinuation }
+                    val normalIndentationCount = scopeStack.count { !it.isContinuation }
+                    handleNewline(current, emit, autoCorrect, normalIndentationCount, continuationCount)
                 }
             } else {
                 children
@@ -130,15 +133,21 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRoot {
         continuationIndentationCount: Int
     ) {
         val lines = node.text.split("\n")
-        if (lines.size > 1) {
+        if (
+            lines.size > 1 &&
+            // parameter list wrapping enforced by ParameterListWrappingRule
+            !node.isPartOf(KtParameterList::class)
+        ) {
             var offset = node.startOffset + lines.first().length + 1
 
-            lines.tail().take(lines.count() - 2).forEach { indent ->
+            val inBetweenLines = lines.tail().take(lines.count() - 2)
+
+            inBetweenLines.forEach { indent ->
                 if (indent != "") {
                     emit(
                         offset,
                         "Unexpected indentation (${indent.length}) (it should be 0)",
-                        false
+                        true
                     )
                 }
 
@@ -150,17 +159,21 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRoot {
             val totalIndentationSize = normalIndentationCount * indentSize +
                 continuationIndentationCount * continuationIndentSize
 
-            if (
-            // parameter list wrapping enforced by ParameterListWrappingRule
-                !node.isPartOf(KtParameterList::class) &&
-                indent.length != totalIndentationSize
-            ) {
+            if (indent.length != totalIndentationSize) {
                 emit(
                     offset,
                     "Unexpected indentation (${indent.length}) (it should be $totalIndentationSize)",
-                    false
+                    true
                 )
             }
+
+            if (autoCorrect) {
+                val fixedString = node.text
+                    .replace("""\n.*\n""", """\n\n""")
+                    .replaceAfterLast('\n', " ".repeat(totalIndentationSize))
+                (node as LeafPsiElement).rawReplaceWithText(fixedString)
+            }
+
         }
     }
 

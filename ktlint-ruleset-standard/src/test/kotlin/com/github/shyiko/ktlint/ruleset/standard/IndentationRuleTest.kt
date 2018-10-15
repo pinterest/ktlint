@@ -172,6 +172,48 @@ class IndentationRuleTest {
     }
 
     @Test
+    fun testFormatDotChain() {
+        assertThat(IndentationRule().format(
+            """
+            val b = nullableList
+                .find { !it.empty() }
+                 ?.map { x + 2 }
+                ?.filter { true }
+
+            val a =
+                listOf(listOf(1, 2, 3))
+                    .map {
+                        it
+                            .map { it + 1 }
+                          .filter { it % 2 == 0 }
+                    }
+                       .reduce { acc, curr -> acc + curr }
+                      .toString()
+
+            val c = 1
+            """.trimIndent()
+        )).isEqualTo(
+            """
+            val b = nullableList
+                .find { !it.empty() }
+                ?.map { x + 2 }
+                ?.filter { true }
+
+            val a =
+                listOf(listOf(1, 2, 3))
+                    .map {
+                        it
+                            .map { it + 1 }
+                            .filter { it % 2 == 0 }
+                    }
+                    .reduce { acc, curr -> acc + curr }
+                    .toString()
+
+            val c = 1
+        """.trimIndent())
+    }
+
+    @Test
     fun testBinaryExpressionChain() {
         assertThat(IndentationRule().lint(
             """
@@ -298,10 +340,10 @@ class IndentationRuleTest {
         val ktScript = "fun main() {\n\t\treturn 0\n\t}"
         assertThat(IndentationRule().format(ktScript)).isEqualTo("fun main() {\n        return 0\n    }")
         assertThat(IndentationRule().lint(ktScript)).isEqualTo(listOf(
-            LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected indentation (2) (it should be 4)"),
             LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected Tab character(s)"),
-            LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected indentation (1) (it should be 0)"),
-            LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected Tab character(s)")
+            LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected indentation (2) (it should be 4)"),
+            LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected Tab character(s)"),
+            LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected indentation (1) (it should be 0)")
         ))
     }
 
@@ -310,10 +352,10 @@ class IndentationRuleTest {
         val ktScript = "fun main() {\n\t\treturn 0\n\t}"
         assertThat(IndentationRule().format(ktScript, mapOf("indent_size" to "3"))).isEqualTo("fun main() {\n      return 0\n   }")
         assertThat(IndentationRule().lint(ktScript, mapOf("indent_size" to "3"))).isEqualTo(listOf(
-            LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected indentation (2) (it should be 3)"),
             LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected Tab character(s)"),
-            LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected indentation (1) (it should be 0)"),
-            LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected Tab character(s)")
+            LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected indentation (2) (it should be 3)"),
+            LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected Tab character(s)"),
+            LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected indentation (1) (it should be 0)")
         ))
     }
 }
