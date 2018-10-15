@@ -173,7 +173,6 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRoot {
                     .replaceAfterLast('\n', " ".repeat(totalIndentationSize))
                 (node as LeafPsiElement).rawReplaceWithText(fixedString)
             }
-
         }
     }
 

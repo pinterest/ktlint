@@ -44,6 +44,60 @@ class IndentationRuleTest {
     }
 
     @Test
+    fun testFormat() {
+        assertThat(IndentationRule().format(
+            """
+            /**
+             * _
+             */
+            fun main() {
+                val a = 0
+                    val b = 0
+                if (a == 0) {
+                    println(a)
+                }
+                val b = builder().setX().setY()
+                    .build()
+               val c = builder(
+                     "long_string" +
+                        ""
+                )
+            }
+
+            class A {
+                var x: String
+                    get() = ""
+                    set(v: String) { x = v }
+            }
+            """.trimIndent()
+        )).isEqualTo(
+            """
+            /**
+             * _
+             */
+            fun main() {
+                val a = 0
+                val b = 0
+                if (a == 0) {
+                    println(a)
+                }
+                val b = builder().setX().setY()
+                    .build()
+                val c = builder(
+                    "long_string" +
+                        ""
+                )
+            }
+
+            class A {
+                var x: String
+                    get() = ""
+                    set(v: String) { x = v }
+            }
+            """.trimIndent())
+    }
+
+    @Test
     fun testLintCustomIndentSize() {
         assertThat(IndentationRule().lint(
             """
@@ -94,6 +148,26 @@ class IndentationRuleTest {
     }
 
     @Test
+    fun testFormatIndentSizeUnset() {
+        assertThat(IndentationRule().format(
+            """
+            fun main() {
+               val v = ""
+                println(v)
+            }
+            """.trimIndent(),
+            mapOf("indent_size" to "unset")
+        )).isEqualTo(
+            """
+            fun main() {
+               val v = ""
+                println(v)
+            }
+            """.trimIndent()
+        )
+    }
+
+    @Test
     fun testLintWithContinuationIndentSizeSet() {
         assertThat(IndentationRule().lint(
             """
@@ -141,6 +215,54 @@ class IndentationRuleTest {
             LintError(4, 1, "indent", "Unexpected indentation (9) (it should be 7)"),
             LintError(5, 1, "indent", "Unexpected indentation (10) (it should be 7)")
         ))
+    }
+
+    @Test
+    fun testFormatWithContinuationIndentSizeSet() {
+        assertThat(IndentationRule().format(
+            """
+            fun main() {
+                val v = ""
+                      .call()
+                val u = 1 +
+                      2 +
+                      3
+
+                 call()
+            }
+            """.trimIndent(),
+            mapOf("indent_size" to "4", "continuation_indent_size" to "6")
+        )).isEqualTo(
+            """
+            fun main() {
+                val v = ""
+                      .call()
+                val u = 1 +
+                      2 +
+                      3
+
+                call()
+            }
+            """.trimIndent()
+        )
+
+        assertThat(IndentationRule().format(
+            """
+            fun main() {
+                val v = ""
+                      .call()
+                 call()
+            }
+            """.trimIndent(),
+            mapOf("indent_size" to "4", "continuation_indent_size" to "2")
+        )).isEqualTo(
+            """
+            fun main() {
+                val v = ""
+                  .call()
+                call()
+            }
+            """.trimIndent())
     }
 
     @Test
@@ -214,7 +336,7 @@ class IndentationRuleTest {
     }
 
     @Test
-    fun testBinaryExpressionChain() {
+    fun testLintBinaryExpressionChain() {
         assertThat(IndentationRule().lint(
             """
             val a = 1 + 2 +
@@ -230,6 +352,34 @@ class IndentationRuleTest {
         )).isEqualTo(listOf(
             LintError(7, 1, "indent", "Unexpected indentation (8) (it should be 4)")
         ))
+    }
+
+    @Test
+    fun testFormatBinaryExpressionChain() {
+        assertThat(IndentationRule().format(
+            """
+            val a = 1 + 2 +
+                3 +
+                4
+
+            val b = true &&
+                (false || false) ||
+                   false
+
+            val c = 1
+            """.trimIndent()
+        )).isEqualTo(
+            """
+            val a = 1 + 2 +
+                3 +
+                4
+
+            val b = true &&
+                (false || false) ||
+                false
+
+            val c = 1
+            """.trimIndent())
     }
 
     @Test
@@ -257,6 +407,50 @@ class IndentationRuleTest {
         )).isEqualTo(listOf(
             LintError(7, 1, "indent", "Unexpected indentation (8) (it should be 12)")
         ))
+    }
+
+    @Test
+    fun testFormatWhenExpression() {
+        assertThat(IndentationRule().format(
+            """
+            fun main() {
+                val x = when (1) {
+                    1 ->
+                        true
+                    2 -> false
+                    3 ->
+                    true
+                    4 -> false ||
+                        true
+
+                    else -> {
+                        true
+                    }
+                }
+
+                val y = 2
+            }
+            """.trimIndent()
+        )).isEqualTo(
+            """
+            fun main() {
+                val x = when (1) {
+                    1 ->
+                        true
+                    2 -> false
+                    3 ->
+                        true
+                    4 -> false ||
+                        true
+
+                    else -> {
+                        true
+                    }
+                }
+
+                val y = 2
+            }
+            """.trimIndent())
     }
 
     @Test
