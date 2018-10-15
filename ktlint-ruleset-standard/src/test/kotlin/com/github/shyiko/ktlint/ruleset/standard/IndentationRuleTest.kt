@@ -186,7 +186,7 @@ class IndentationRuleTest {
         ))
     }
 
-    @Test(enabled = false)
+    @Test
     fun testLintCommentsAreIgnored() {
         assertThat(IndentationRule().lint(
             """
@@ -203,9 +203,7 @@ class IndentationRuleTest {
             }
             """.trimIndent(),
             mapOf("indent_size" to "4")
-        )).isEqualTo(listOf(
-            LintError(7, 1, "indent", "Unexpected indentation (1) (it should be 8)")
-        ))
+        )).isEmpty()
     }
 
     @Test(description = "https://github.com/shyiko/ktlint/issues/180")

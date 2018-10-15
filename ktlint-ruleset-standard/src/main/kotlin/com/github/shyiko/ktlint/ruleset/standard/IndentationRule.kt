@@ -13,93 +13,12 @@ import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtParameterList
 import org.jetbrains.kotlin.psi.KtTypeConstraintList
 import org.jetbrains.kotlin.psi.psiUtil.children
+import org.jetbrains.kotlin.psi.psiUtil.nextLeafs
 import org.jetbrains.kotlin.psi.psiUtil.parents
+import org.jetbrains.kotlin.psi.psiUtil.prevLeafs
 import org.jetbrains.kotlin.psi.psiUtil.startOffset
 import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementType
 import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
-
-sealed class IndentationScope(val isContinuation: Boolean = false)
-
-data class ExpressionScope(
-    val elementType: KtStubElementType<*, *>
-) : IndentationScope(isContinuation = true)
-
-data class InternalNodeScopeWithTriggerToken(
-    val elementType: KtStubElementType<*, *>,
-    val trigger: KtToken
-) : IndentationScope()
-
-data class LeafNodeScope(val startToken: KtToken, val endToken: KtToken) : IndentationScope()
-
-object PropertyAccessorScope : IndentationScope()
-
-fun isInScope(node: ASTNode, indentationScope: IndentationScope): Boolean =
-    when (indentationScope) {
-        is ExpressionScope ->
-            node.elementType == KtStubElementTypes.DOT_QUALIFIED_EXPRESSION &&
-                node.treeParent.elementType != KtStubElementTypes.DOT_QUALIFIED_EXPRESSION
-
-        is InternalNodeScopeWithTriggerToken ->
-            node.elementType == indentationScope.elementType &&
-                node.children().zip(node.children().drop(1))
-                    .any { (a, b) ->
-                        a.elementType == indentationScope.trigger &&
-                            b is PsiWhiteSpace &&
-                            b.textContains('\n')
-                    }
-
-        is LeafNodeScope ->
-            node.elementType == indentationScope.startToken
-
-        is PropertyAccessorScope -> {
-            val firstPropAccessor = node
-                .findOutermostConsecutiveParent(KtStubElementTypes.PROPERTY)
-                ?.findChildByType(KtStubElementTypes.PROPERTY_ACCESSOR)
-
-            firstPropAccessor != null && node.treeNext == firstPropAccessor
-        }
-    }
-
-fun isOutOfScope(node: ASTNode, indentationScope: IndentationScope): Boolean =
-    when (indentationScope) {
-        is ExpressionScope -> {
-            val isPrevContainsDQX = node.treePrev?.findChildByType(KtStubElementTypes.DOT_QUALIFIED_EXPRESSION) != null
-            val isPrevTreeDQX = node.treePrev?.elementType == KtStubElementTypes.DOT_QUALIFIED_EXPRESSION
-
-            (isPrevTreeDQX && (node.elementType != KtTokens.DOT && node.treeNext.elementType != KtTokens.DOT)) ||
-                (!isPrevTreeDQX && isPrevContainsDQX)
-        }
-
-        is InternalNodeScopeWithTriggerToken ->
-            node.isSucceeding(indentationScope.elementType)
-
-        is LeafNodeScope -> {
-            val isNewline: (ASTNode?) -> Boolean = { it is PsiWhiteSpace && it.textContains('\n') }
-            val isNewLineThenEndToken = isNewline(node) && node.isPreceding(indentationScope.endToken)
-            val isEndTokenAfterNonNewLine = !isNewline(node.treePrev) && node.elementType == indentationScope.endToken
-
-            isNewLineThenEndToken || isEndTokenAfterNonNewLine
-        }
-
-        is PropertyAccessorScope ->
-            node.isSucceeding(KtStubElementTypes.PROPERTY)
-    }
-
-val scopeSet = setOf(
-    ExpressionScope(KtStubElementTypes.DOT_QUALIFIED_EXPRESSION),
-    InternalNodeScopeWithTriggerToken(
-        KtStubElementTypes.PROPERTY,
-        KtTokens.EQ
-    ),
-    InternalNodeScopeWithTriggerToken(
-        KtStubElementTypes.FUNCTION,
-        KtTokens.EQ
-    ),
-    LeafNodeScope(KtTokens.LBRACE, KtTokens.RBRACE),
-    LeafNodeScope(KtTokens.LBRACKET, KtTokens.RBRACKET),
-    LeafNodeScope(KtTokens.LPAR, KtTokens.RPAR),
-    PropertyAccessorScope
-)
 
 class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRoot {
     private var indentSize = -1
@@ -128,6 +47,22 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRoot {
         val scopeStack = Stack<IndentationScope>()
         val stack = Stack<ASTNode>()
 
+        val scopeSet = setOf(
+            ExpressionScope(KtStubElementTypes.DOT_QUALIFIED_EXPRESSION),
+            InternalNodeScopeWithTriggerToken(
+                KtStubElementTypes.PROPERTY,
+                KtTokens.EQ
+            ),
+            InternalNodeScopeWithTriggerToken(
+                KtStubElementTypes.FUNCTION,
+                KtTokens.EQ
+            ),
+            LeafNodeScope(KtTokens.LBRACE, KtTokens.RBRACE),
+            LeafNodeScope(KtTokens.LBRACKET, KtTokens.RBRACKET),
+            LeafNodeScope(KtTokens.LPAR, KtTokens.RPAR),
+            PropertyAccessorScope
+        )
+
         stack.push(node)
 
         while (!stack.empty()) {
@@ -135,6 +70,7 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRoot {
             val children = current.children()
             // expr
             // prevSibling = arrow under when entry, immediate white space
+            // Type params <>
 
             val poppedScope = mutableSetOf<IndentationScope>()
 
@@ -244,6 +180,91 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRoot {
     private fun wrongIndentSizeMessage(actual: Int, expected: Int) =
         "Unexpected indentation ($actual) (it should be $expected)"
 }
+
+sealed class IndentationScope(val isContinuation: Boolean = false)
+
+data class ExpressionScope(
+    val elementType: KtStubElementType<*, *>
+) : IndentationScope(isContinuation = true)
+
+data class InternalNodeScopeWithTriggerToken(
+    val elementType: KtStubElementType<*, *>,
+    val trigger: KtToken
+) : IndentationScope()
+
+data class LeafNodeScope(val startToken: KtToken, val endToken: KtToken) : IndentationScope()
+
+object PropertyAccessorScope : IndentationScope()
+
+fun isInScope(node: ASTNode, indentationScope: IndentationScope): Boolean =
+    when (indentationScope) {
+        is ExpressionScope ->
+            node.elementType == KtStubElementTypes.DOT_QUALIFIED_EXPRESSION &&
+                node.treeParent.elementType != KtStubElementTypes.DOT_QUALIFIED_EXPRESSION
+
+        is InternalNodeScopeWithTriggerToken ->
+            node.elementType == indentationScope.elementType &&
+                node.children().zip(node.children().drop(1))
+                    .any { (a, b) ->
+                        a.elementType == indentationScope.trigger &&
+                            b is PsiWhiteSpace &&
+                            b.textContains('\n')
+                    }
+
+        is LeafNodeScope -> {
+            val lookAhead = node
+                .psi
+                .nextLeafs
+                .takeWhile { !(it is PsiWhiteSpace && it.textContains('\n')) }
+
+            val whatever =
+                listOf(
+                    KtTokens.LPAR to KtTokens.RPAR,
+                    KtTokens.LBRACKET to KtTokens.RBRACKET,
+                    KtTokens.LBRACE to KtTokens.RBRACE
+                )
+                    .all { (open, close) ->
+                        (lookAhead.find { it.node.elementType == open } == null ||
+                            (lookAhead.find { it.node.elementType == open } != null &&
+                                lookAhead.find { it.node.elementType == close } != null))
+                    }
+
+            node.elementType == indentationScope.startToken && whatever
+        }
+
+        is PropertyAccessorScope -> {
+            val firstPropAccessor = node
+                .findOutermostConsecutiveParent(KtStubElementTypes.PROPERTY)
+                ?.findChildByType(KtStubElementTypes.PROPERTY_ACCESSOR)
+
+            firstPropAccessor != null && node.treeNext == firstPropAccessor
+        }
+    }
+
+fun isOutOfScope(node: ASTNode, indentationScope: IndentationScope): Boolean =
+    when (indentationScope) {
+        is ExpressionScope -> {
+            val isPrevContainsDQX = node.treePrev?.findChildByType(KtStubElementTypes.DOT_QUALIFIED_EXPRESSION) != null
+            val isPrevTreeDQX = node.treePrev?.elementType == KtStubElementTypes.DOT_QUALIFIED_EXPRESSION
+
+            (isPrevTreeDQX && (node.elementType != KtTokens.DOT && node.treeNext.elementType != KtTokens.DOT)) ||
+                (!isPrevTreeDQX && isPrevContainsDQX)
+        }
+
+        is InternalNodeScopeWithTriggerToken ->
+            node.isSucceeding(indentationScope.elementType)
+
+        is LeafNodeScope -> {
+            val isNewline: (ASTNode?) -> Boolean = { it is PsiWhiteSpace && it.textContains('\n') }
+            val isNewLineThenEndToken = isNewline(node) && node.isPreceding(indentationScope.endToken)
+            val isEndTokenAfterNonNewLine = !isNewline(node.treePrev) && node.elementType == indentationScope.endToken
+
+            isNewLineThenEndToken || isEndTokenAfterNonNewLine
+        }
+
+        is PropertyAccessorScope ->
+            node.isSucceeding(KtStubElementTypes.PROPERTY)
+    }
 
 private fun ASTNode.isSucceeding(elementType: IElementType) =
     this.treePrev?.elementType == elementType
