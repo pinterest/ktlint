@@ -132,7 +132,7 @@ $ ktlint --install-git-pre-commit-hook
     <executions>
         <execution>
             <id>ktlint</id>
-            <phase>verify</phase>
+            <phase>validate</phase>
             <configuration>
             <target name="ktlint">
                 <java taskname="ktlint" dir="${basedir}" fork="true" failonerror="true"
@@ -175,7 +175,7 @@ $ ktlint --install-git-pre-commit-hook
 ...
 ```
 
-To check code style - `mvn antrun:run@ktlint` (it's also bound to `mvn verify`).  
+To check code style - `mvn antrun:run@ktlint` (it's also bound to `mvn validate`).  
 To run formatter - `mvn antrun:run@ktlint-format`.   
 
 **Another option** is to use a dedicated Maven plugin - [gantsign/ktlint-maven-plugin](https://github.com/gantsign/ktlint-maven-plugin). 
