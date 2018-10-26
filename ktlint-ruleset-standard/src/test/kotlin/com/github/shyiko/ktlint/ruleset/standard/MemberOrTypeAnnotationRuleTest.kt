@@ -24,8 +24,7 @@ class MemberOrTypeAnnotationRuleTest {
 
     @Test
     fun `format single annotation may be placed on line before annotated construct`() {
-        val code =
-            """
+        val code = """
               @FunctionalInterface class A {
                   @JvmField
                   var x: String
@@ -51,8 +50,7 @@ class MemberOrTypeAnnotationRuleTest {
 
     @Test
     fun `format single annotation may be placed on same line as annotated construct`() {
-        val code =
-            """
+        val code = """
               @FunctionalInterface class A {
                   @JvmField var x: String
 
@@ -249,12 +247,73 @@ class MemberOrTypeAnnotationRuleTest {
 
     @Test
     fun `format annotation after keyword`() {
-        val code =
-            """
+        val code = """
               class A {
                   private @Test fun myTest() {}
               }
             """.trimIndent()
         assertThat(MemberOrTypeAnnotationRule().format(code)).isEqualTo(code)
+    }
+
+    @Test
+    fun `lint multi-line annotation`() {
+        assertThat(
+            MemberOrTypeAnnotationRule().lint(
+                """
+                class A {
+                    @JvmField @Volatile @Annotation(
+                        enabled = true,
+                        groups = [
+                            "a",
+                            "b",
+                            "c"
+                        ]
+                    ) val a: Any
+                }
+            """.trimIndent()
+            )
+        ).containsExactly(
+            LintError(
+                2, 5, "member-or-type-annotation",
+                MemberOrTypeAnnotationRule.multipleAnnotationsOnSameLineAsAnnotatedConstructErrorMessage
+            ),
+            LintError(
+                2, 5, "member-or-type-annotation",
+                MemberOrTypeAnnotationRule.annotationsWithParametersAreNotOnSeparateLinesErrorMessage
+            )
+        )
+    }
+
+    @Test
+    fun `format multi-line annotation`() {
+        val code = """
+                class A {
+                    @JvmField @Volatile @Annotation(
+                        enabled = true,
+                        groups = [
+                            "a",
+                            "b",
+                            "c"
+                        ]
+                    ) val a: Any
+                }
+            """.trimIndent()
+        assertThat(MemberOrTypeAnnotationRule().format(code)).isEqualTo(
+            """
+                class A {
+                    @JvmField
+                    @Volatile
+                    @Annotation(
+                        enabled = true,
+                        groups = [
+                            "a",
+                            "b",
+                            "c"
+                        ]
+                    )
+                    val a: Any
+                }
+            """.trimIndent()
+        )
     }
 }
