@@ -33,3 +33,28 @@ internal fun ASTNode.visit(cb: (node: ASTNode) -> Unit) {
 
 internal fun <T> List<T>.head() = this.subList(0, this.size - 1)
 internal fun <T> List<T>.tail() = this.subList(1, this.size)
+
+internal val PsiElement.column: Int
+    get() {
+        var leaf = PsiTreeUtil.prevLeaf(this)
+        var offsetToTheLeft = 0
+        while (leaf != null) {
+            if (leaf.node.elementType == KtTokens.WHITE_SPACE && leaf.textContains('\n')) {
+                offsetToTheLeft += leaf.textLength - 1 - leaf.text.lastIndexOf('\n')
+                break
+            }
+            offsetToTheLeft += leaf.textLength
+            leaf = PsiTreeUtil.prevLeaf(leaf)
+        }
+        return offsetToTheLeft + 1
+    }
+internal fun PsiElement.lineIndent(): String {
+    var leaf = PsiTreeUtil.prevLeaf(this)
+    while (leaf != null) {
+        if (leaf.node.elementType == KtTokens.WHITE_SPACE && leaf.textContains('\n')) {
+            return leaf.text.substring(leaf.text.lastIndexOf('\n') + 1)
+        }
+        leaf = PsiTreeUtil.prevLeaf(leaf)
+    }
+    return ""
+}

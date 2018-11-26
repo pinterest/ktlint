@@ -4,17 +4,15 @@ import com.github.shyiko.ktlint.core.Rule
 import org.jetbrains.kotlin.KtNodeTypes
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
-import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
-import org.jetbrains.kotlin.com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.psiUtil.children
 import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
 
-class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
+class ArgumentListWrappingRule : Rule("argument-list-wrapping") {
 
     private var indentSize = -1
     private var maxLineLength = -1
@@ -33,16 +31,13 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
         if (indentSize <= 0) {
             return
         }
-        if (node.elementType == KtStubElementTypes.VALUE_PARAMETER_LIST &&
-            // skip lambda parameters
-            node.treeParent?.elementType != KtNodeTypes.FUNCTION_LITERAL) {
+        if (node.elementType == KtNodeTypes.VALUE_ARGUMENT_LIST) {
             // each parameter should be on a separate line if
             // - at least one of the parameters is
             // - maxLineLength exceeded (and separating parameters with \n would actually help)
             // in addition, "(" and ")" must be on separates line if any of the parameters are (otherwise on the same)
-            val putParametersOnSeparateLines = node.textContains('\n') ||
-                // max_line_length exceeded
-                maxLineLength > -1 && (node.psi.column - 1 + node.textLength) > maxLineLength
+            val exceedsMaxLength = maxLineLength > -1 && (node.psi.column - 1 + node.textLength) > maxLineLength
+            val putParametersOnSeparateLines = node.textContains('\n') || exceedsMaxLength
             if (putParametersOnSeparateLines) {
                 // aiming for
                 // ... LPAR
@@ -53,23 +48,24 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
                 nextChild@ for (child in node.children()) {
                     when (child.elementType) {
                         KtTokens.LPAR -> {
-                            val prevLeaf = child.psi.prevLeaf()
-                            if (prevLeaf is PsiWhiteSpace && prevLeaf.textContains('\n')) {
-                                emit(child.startOffset, errorMessage(child), true)
+                            val nextLeaf = child.psi.nextLeaf()
+                            if (nextLeaf !is PsiWhiteSpace || !nextLeaf.textContains('\n')) {
+                                emit(child.startOffset, """Missing newline after "("""", true)
                                 if (autoCorrect) {
-                                    prevLeaf.delete()
+                                    node.addChild(PsiWhiteSpaceImpl(paramIndent), child.treeNext)
                                 }
                             }
                         }
-                        KtStubElementTypes.VALUE_PARAMETER,
+                        KtNodeTypes.VALUE_ARGUMENT,
                         KtTokens.RPAR -> {
                             var paramInnerIndentAdjustment = 0
                             val prevLeaf = child.psi.prevLeaf()
-                            val intendedIndent = if (child.elementType == KtStubElementTypes.VALUE_PARAMETER) {
+                            val intendedIndent = if (child.elementType == KtNodeTypes.VALUE_ARGUMENT) {
                                 paramIndent
                             } else {
                                 indent
                             }
+                            val issueApplies = child.elementType == KtTokens.RPAR || exceedsMaxLength
                             if (prevLeaf is PsiWhiteSpace) {
                                 val spacing = prevLeaf.text
                                 val cut = spacing.lastIndexOf("\n")
@@ -80,15 +76,15 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
                                     }
                                     emit(child.startOffset, "Unexpected indentation" +
                                         " (expected ${intendedIndent.length - 1}, actual ${childIndent.length - 1})", true)
-                                } else {
+                                } else if (issueApplies) {
                                     emit(child.startOffset, errorMessage(child), true)
                                 }
-                                if (autoCorrect) {
+                                if (autoCorrect && (cut > -1 || issueApplies)) {
                                     val adjustedIndent = (if (cut > -1) spacing.substring(0, cut) else "") + intendedIndent
                                     paramInnerIndentAdjustment = adjustedIndent.length - prevLeaf.textLength
                                     (prevLeaf as LeafPsiElement).rawReplaceWithText(adjustedIndent)
                                 }
-                            } else {
+                            } else if (issueApplies) {
                                 emit(child.startOffset, errorMessage(child), true)
                                 if (autoCorrect) {
                                     paramInnerIndentAdjustment = intendedIndent.length - child.psi.column
@@ -96,7 +92,7 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
                                 }
                             }
                             if (paramInnerIndentAdjustment != 0 &&
-                                child.elementType == KtStubElementTypes.VALUE_PARAMETER) {
+                                child.elementType == KtNodeTypes.VALUE_ARGUMENT) {
                                 child.visit { n ->
                                     if (n.elementType == KtTokens.WHITE_SPACE && n.textContains('\n')) {
                                         val split = n.text.split("\n")
@@ -119,9 +115,7 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
 
     private fun errorMessage(node: ASTNode) =
         when (node.elementType) {
-            KtTokens.LPAR -> """Unnecessary newline before "(""""
-            KtStubElementTypes.VALUE_PARAMETER ->
-                "Parameter should be on a separate line (unless all parameters can fit a single line)"
+            KtNodeTypes.VALUE_ARGUMENT -> "Arguments exceed maximum line length (can be split)"
             KtTokens.RPAR -> """Missing newline before ")""""
             else -> throw UnsupportedOperationException()
         }

@@ -40,6 +40,7 @@ class StandardRuleSetProvider : RuleSetProvider {
         SpacingAroundOperatorsRule(),
         SpacingAroundParensRule(),
         SpacingAroundRangeOperatorRule(),
-        StringTemplateRule()
+        StringTemplateRule(),
+        ArgumentListWrappingRule()
     )
 }
