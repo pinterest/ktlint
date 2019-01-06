@@ -35,7 +35,8 @@ class SpacingAroundColonRule : Rule("colon-spacing") {
                 }
             }
             val missingSpacingBefore = node.prevSibling !is PsiWhiteSpace &&
-                (node.parent is KtClassOrObject || node.parent.parent is KtTypeParameterList)
+                (node.parent is KtClassOrObject || node.parent is KtConstructor<*> ||
+                    node.parent is KtTypeConstraint || node.parent.parent is KtTypeParameterList)
             val missingSpacingAfter = node.nextSibling !is PsiWhiteSpace
             when {
                 missingSpacingBefore && missingSpacingAfter -> {

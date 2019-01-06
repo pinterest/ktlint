@@ -57,10 +57,17 @@ class SpacingAroundColonRuleTest {
             class A {
                 @Deprecated("") @Throws(IOException::class, SecurityException::class)
                 protected abstract fun <T> f(
-                    @Nullable thing: String, things: List<T>): Runnable where T : Runnable, T : Closeable
+                    @Nullable thing: String, things: List<T>): Runnable where T : Runnable, T: Closeable
+            }
+            class A : B {
+                constructor(): super()
+                constructor(param: String) : super(param)
             }
             """.trimIndent()
-        )).isEmpty()
+        )).isEqualTo(listOf(
+            LintError(9, 82, "colon-spacing", "Missing spacing before \":\""),
+            LintError(12, 18, "colon-spacing", "Missing spacing before \":\"")
+        ))
     }
 
     @Test
@@ -74,6 +81,15 @@ class SpacingAroundColonRuleTest {
             }
             interface D
             interface C: D
+            class F(param: String):D(param)
+            class F2 constructor(param: String): D3(param)
+            class F3 : D3 {
+                constructor():super()
+                constructor(param: String): super(param)
+
+                val x = object:D3 { }
+            }
+            fun <T> max(a: T, b: T) where T: Comparable<T>
             """.trimIndent()
         )).isEqualTo(
             """
@@ -84,6 +100,15 @@ class SpacingAroundColonRuleTest {
             }
             interface D
             interface C : D
+            class F(param: String) : D(param)
+            class F2 constructor(param: String) : D3(param)
+            class F3 : D3 {
+                constructor() : super()
+                constructor(param: String) : super(param)
+
+                val x = object : D3 { }
+            }
+            fun <T> max(a: T, b: T) where T : Comparable<T>
             """.trimIndent()
         )
     }
