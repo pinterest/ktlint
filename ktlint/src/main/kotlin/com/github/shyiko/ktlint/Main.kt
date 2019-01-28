@@ -642,8 +642,8 @@ object Main {
                  */
                 System.err.println(
                     "[WARN]: Repository ${it.id} is using an insecure protocol (eg. http, ftp, ect...). " +
-                    "This leave you vulnerable to a Man In The Middle (MITM) attack." +
-                    "Attackers can use this to achieve Remote Code Execution (RCE) your system."
+                    "This leaves you vulnerable to a Man In The Middle (MITM) attack. " +
+                    "Attackers can use this to achieve Remote Code Execution (RCE) on your system."
                 )
             }
         }
