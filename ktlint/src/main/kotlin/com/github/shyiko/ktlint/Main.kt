@@ -609,28 +609,48 @@ object Main {
     private fun buildDependencyResolver(): MavenDependencyResolver {
         val mavenLocal = File(File(System.getProperty("user.home"), ".m2"), "repository")
         mavenLocal.mkdirsOrFail()
+        val mavenRepositories = listOf(
+            RemoteRepository.Builder(
+                "central", "default", "https://repo1.maven.org/maven2/"
+            ).setSnapshotPolicy(RepositoryPolicy(false, UPDATE_POLICY_NEVER,
+                CHECKSUM_POLICY_IGNORE)).build(),
+            RemoteRepository.Builder(
+                "bintray", "default", "https://jcenter.bintray.com"
+            ).setSnapshotPolicy(RepositoryPolicy(false, UPDATE_POLICY_NEVER,
+                CHECKSUM_POLICY_IGNORE)).build(),
+            RemoteRepository.Builder(
+                "jitpack", "default", "https://jitpack.io").build()
+        ) + repositories.map { repository ->
+            val colon = repository.indexOf("=").apply {
+                if (this == -1) { throw RuntimeException("$repository is not a valid repository entry " +
+                    "(make sure it's provided as <id>=<url>") }
+            }
+            val id = repository.substring(0, colon)
+            val url = repository.substring(colon + 1)
+            RemoteRepository.Builder(id, "default", url).build()
+        }
+
+        val insecureProtocols = setOf(
+            "http", // Should use https
+            "ftp" // Should use ftps
+        )
+        mavenRepositories.forEach {
+            if (insecureProtocols.any { protocol -> protocol.equals(it.protocol, ignoreCase = true) }) {
+                /*
+                 * Read more here:
+                 * https://max.computer/blog/how-to-take-over-the-computer-of-any-java-or-clojure-or-scala-developer/
+                 */
+                System.err.println(
+                    "[WARN]: Repository ${it.id} is using an insecure protocol (eg. http, ftp, ect...). " +
+                    "This leave you vulnerable to a Man In The Middle (MITM) attack." +
+                    "Attackers can use this to achieve Remote Code Execution (RCE) your system."
+                )
+            }
+        }
+
         val dependencyResolver = MavenDependencyResolver(
             mavenLocal,
-            listOf(
-                RemoteRepository.Builder(
-                    "central", "default", "http://repo1.maven.org/maven2/"
-                ).setSnapshotPolicy(RepositoryPolicy(false, UPDATE_POLICY_NEVER,
-                    CHECKSUM_POLICY_IGNORE)).build(),
-                RemoteRepository.Builder(
-                    "bintray", "default", "http://jcenter.bintray.com"
-                ).setSnapshotPolicy(RepositoryPolicy(false, UPDATE_POLICY_NEVER,
-                    CHECKSUM_POLICY_IGNORE)).build(),
-                RemoteRepository.Builder(
-                    "jitpack", "default", "http://jitpack.io").build()
-            ) + repositories.map { repository ->
-                val colon = repository.indexOf("=").apply {
-                    if (this == -1) { throw RuntimeException("$repository is not a valid repository entry " +
-                        "(make sure it's provided as <id>=<url>") }
-                }
-                val id = repository.substring(0, colon)
-                val url = repository.substring(colon + 1)
-                RemoteRepository.Builder(id, "default", url).build()
-            },
+            mavenRepositories,
             forceUpdate == true
         )
         if (debug) {
