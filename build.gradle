@@ -1,10 +1,10 @@
 plugins {
-  id "org.jetbrains.kotlin.jvm" version "1.3.10" apply false
+  id "org.jetbrains.kotlin.jvm" version "1.3.20" apply false
 }
 
 ext.libraries = [
-  "kotlin_stdlib": "org.jetbrains.kotlin:kotlin-stdlib:1.3.10",
-  "kotlin_compiler_embeddable": "org.jetbrains.kotlin:kotlin-compiler-embeddable:1.3.10",
+  "kotlin_stdlib": "org.jetbrains.kotlin:kotlin-stdlib:1.3.20",
+  "kotlin_compiler_embeddable": "org.jetbrains.kotlin:kotlin-compiler-embeddable:1.3.20",
   "klob": "com.github.shyiko.klob:klob:0.2.1",
   "aether_api": "org.eclipse.aether:aether-api:1.1.0",
   "aether_spi": "org.eclipse.aether:aether-spi:1.1.0",
