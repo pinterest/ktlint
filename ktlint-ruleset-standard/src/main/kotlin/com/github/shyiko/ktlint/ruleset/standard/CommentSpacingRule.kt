@@ -31,6 +31,7 @@ class CommentSpacingRule : Rule("comment-spacing") {
                 !text.startsWith("//noinspection") &&
                 !text.startsWith("//region") &&
                 !text.startsWith("//endregion") &&
+                !text.startsWith("//language=") &&
                 !allForwardSlashesRegex.matches(text)
             ) {
                 emit(node.startOffset, "Missing space after //", true)

@@ -14,6 +14,7 @@ class CommentSpacingRuleTest {
             """
                 //
                 //noinspection AndroidLintRecycle
+                //language=SQL
                 // comment
                 var debugging = false // comment
                 var debugging = false // comment//word
