@@ -2,6 +2,21 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.30.0] - 2019-02-03
+
+### Added
+- `dot-spacing` ([#293](https://github.com/shyiko/ktlint/issues/293)),   
+`annotation` ([#303](https://github.com/shyiko/ktlint/issues/303)) rules.
+
+### Fixed
+- `Missing newline before ")"` ([#327](https://github.com/shyiko/ktlint/issues/327)).
+
+### Changed
+- `kotlin-compiler` version to 1.3.20 (from 1.2.71) ([#331](https://github.com/shyiko/ktlint/issues/331)).
+
+### Security
+- `--ruleset`/`--reporter` switched to HTTPS ([#332](https://github.com/shyiko/ktlint/issues/332)).
+
 ## [0.29.0] - 2018-10-02
 
 ### Fixed
@@ -468,6 +483,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.30.0]: https://github.com/shyiko/ktlint/compare/0.29.0...0.30.0
 [0.29.0]: https://github.com/shyiko/ktlint/compare/0.28.0...0.29.0
 [0.28.0]: https://github.com/shyiko/ktlint/compare/0.27.0...0.28.0
 [0.27.0]: https://github.com/shyiko/ktlint/compare/0.26.0...0.27.0
