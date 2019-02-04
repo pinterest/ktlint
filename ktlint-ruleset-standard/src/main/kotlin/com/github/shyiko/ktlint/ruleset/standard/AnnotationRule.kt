@@ -9,7 +9,7 @@ import org.jetbrains.kotlin.psi.KtAnnotationEntry
 import org.jetbrains.kotlin.psi.psiUtil.children
 import org.jetbrains.kotlin.psi.psiUtil.startOffset
 
-class MemberOrTypeAnnotationRule : Rule("member-or-type-annotation") {
+class AnnotationRule : Rule("annotation") {
 
     companion object {
         const val multipleAnnotationsOnSameLineAsAnnotatedConstructErrorMessage =

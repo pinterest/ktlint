@@ -6,12 +6,12 @@ import com.github.shyiko.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
 import org.testng.annotations.Test
 
-class MemberOrTypeAnnotationRuleTest {
+class AnnotationRuleTest {
 
     @Test
     fun `lint single annotation may be placed on line before annotated construct`() {
         assertThat(
-            MemberOrTypeAnnotationRule().lint(
+            AnnotationRule().lint(
                 """
               @FunctionalInterface class A {
                   @JvmField
@@ -30,13 +30,13 @@ class MemberOrTypeAnnotationRuleTest {
                   var x: String
               }
             """.trimIndent()
-        assertThat(MemberOrTypeAnnotationRule().format(code)).isEqualTo(code)
+        assertThat(AnnotationRule().format(code)).isEqualTo(code)
     }
 
     @Test
     fun `lint single annotation may be placed on same line as annotated construct`() {
         assertThat(
-            MemberOrTypeAnnotationRule().lint(
+            AnnotationRule().lint(
                 """
               @FunctionalInterface class A {
                   @JvmField var x: String
@@ -57,13 +57,13 @@ class MemberOrTypeAnnotationRuleTest {
                   @Test fun myTest() {}
               }
             """.trimIndent()
-        assertThat(MemberOrTypeAnnotationRule().format(code)).isEqualTo(code)
+        assertThat(AnnotationRule().format(code)).isEqualTo(code)
     }
 
     @Test
     fun `lint multiple annotations should not be placed on same line as annotated construct`() {
         assertThat(
-            MemberOrTypeAnnotationRule().lint(
+            AnnotationRule().lint(
                 """
               class A {
                   @JvmField @Volatile var x: String
@@ -75,8 +75,8 @@ class MemberOrTypeAnnotationRuleTest {
             )
         ).containsExactly(
             LintError(
-                2, 5, "member-or-type-annotation",
-                MemberOrTypeAnnotationRule.multipleAnnotationsOnSameLineAsAnnotatedConstructErrorMessage
+                2, 5, "annotation",
+                AnnotationRule.multipleAnnotationsOnSameLineAsAnnotatedConstructErrorMessage
             )
         )
     }
@@ -84,7 +84,7 @@ class MemberOrTypeAnnotationRuleTest {
     @Test
     fun `format multiple annotations should not be placed on same line as annotated construct`() {
         assertThat(
-            MemberOrTypeAnnotationRule().format(
+            AnnotationRule().format(
                 """
               class A {
                   @JvmField @Volatile var x: String
@@ -109,7 +109,7 @@ class MemberOrTypeAnnotationRuleTest {
 
     @Test
     fun `format multiple annotations should not be placed on same line as annotated construct (with no previous whitespace)`() {
-        assertThat(MemberOrTypeAnnotationRule().format("@JvmField @Volatile var x: String"))
+        assertThat(AnnotationRule().format("@JvmField @Volatile var x: String"))
             .isEqualTo(
                 """
               @JvmField @Volatile
@@ -121,7 +121,7 @@ class MemberOrTypeAnnotationRuleTest {
     @Test
     fun `format multiple annotations should not be placed on same line as annotated construct (with no previous indent)`() {
         assertThat(
-            MemberOrTypeAnnotationRule().format(
+            AnnotationRule().format(
                 """
 
               @JvmField @Volatile var x: String
@@ -139,7 +139,7 @@ class MemberOrTypeAnnotationRuleTest {
     @Test
     fun `lint annotations with params should not be placed on same line before annotated construct`() {
         assertThat(
-            MemberOrTypeAnnotationRule().lint(
+            AnnotationRule().lint(
                 """
               class A {
                   @JvmName("xJava") var x: String
@@ -151,8 +151,8 @@ class MemberOrTypeAnnotationRuleTest {
             )
         ).containsExactly(
             LintError(
-                2, 5, "member-or-type-annotation",
-                MemberOrTypeAnnotationRule.annotationsWithParametersAreNotOnSeparateLinesErrorMessage
+                2, 5, "annotation",
+                AnnotationRule.annotationsWithParametersAreNotOnSeparateLinesErrorMessage
             )
         )
     }
@@ -160,7 +160,7 @@ class MemberOrTypeAnnotationRuleTest {
     @Test
     fun `format annotations with params should not be placed on same line before annotated construct`() {
         assertThat(
-            MemberOrTypeAnnotationRule().format(
+            AnnotationRule().format(
                 """
               class A {
                   @JvmName("xJava") var x: String
@@ -186,7 +186,7 @@ class MemberOrTypeAnnotationRuleTest {
     @Test
     fun `lint multiple annotations with params should not be placed on same line before annotated construct`() {
         assertThat(
-            MemberOrTypeAnnotationRule().lint(
+            AnnotationRule().lint(
                 """
               @Retention(SOURCE) @Target(FUNCTION, PROPERTY_SETTER, FIELD) annotation class A
 
@@ -197,12 +197,12 @@ class MemberOrTypeAnnotationRuleTest {
             )
         ).containsExactly(
             LintError(
-                1, 1, "member-or-type-annotation",
-                MemberOrTypeAnnotationRule.multipleAnnotationsOnSameLineAsAnnotatedConstructErrorMessage
+                1, 1, "annotation",
+                AnnotationRule.multipleAnnotationsOnSameLineAsAnnotatedConstructErrorMessage
             ),
             LintError(
-                1, 1, "member-or-type-annotation",
-                MemberOrTypeAnnotationRule.annotationsWithParametersAreNotOnSeparateLinesErrorMessage
+                1, 1, "annotation",
+                AnnotationRule.annotationsWithParametersAreNotOnSeparateLinesErrorMessage
             )
         )
     }
@@ -210,7 +210,7 @@ class MemberOrTypeAnnotationRuleTest {
     @Test
     fun `format multiple annotations with params should not be placed on same line before annotated construct`() {
         assertThat(
-            MemberOrTypeAnnotationRule().format(
+            AnnotationRule().format(
                 """
               @Retention(SOURCE) @Target(FUNCTION, PROPERTY_SETTER, FIELD) annotation class A
 
@@ -235,7 +235,7 @@ class MemberOrTypeAnnotationRuleTest {
     @Test
     fun `lint annotation after keyword`() {
         assertThat(
-            MemberOrTypeAnnotationRule().lint(
+            AnnotationRule().lint(
                 """
               class A {
                   private @Test fun myTest() {}
@@ -252,13 +252,13 @@ class MemberOrTypeAnnotationRuleTest {
                   private @Test fun myTest() {}
               }
             """.trimIndent()
-        assertThat(MemberOrTypeAnnotationRule().format(code)).isEqualTo(code)
+        assertThat(AnnotationRule().format(code)).isEqualTo(code)
     }
 
     @Test
     fun `lint multi-line annotation`() {
         assertThat(
-            MemberOrTypeAnnotationRule().lint(
+            AnnotationRule().lint(
                 """
                 class A {
                     @JvmField @Volatile @Annotation(
@@ -274,12 +274,12 @@ class MemberOrTypeAnnotationRuleTest {
             )
         ).containsExactly(
             LintError(
-                2, 5, "member-or-type-annotation",
-                MemberOrTypeAnnotationRule.multipleAnnotationsOnSameLineAsAnnotatedConstructErrorMessage
+                2, 5, "annotation",
+                AnnotationRule.multipleAnnotationsOnSameLineAsAnnotatedConstructErrorMessage
             ),
             LintError(
-                2, 5, "member-or-type-annotation",
-                MemberOrTypeAnnotationRule.annotationsWithParametersAreNotOnSeparateLinesErrorMessage
+                2, 5, "annotation",
+                AnnotationRule.annotationsWithParametersAreNotOnSeparateLinesErrorMessage
             )
         )
     }
@@ -298,7 +298,7 @@ class MemberOrTypeAnnotationRuleTest {
                     ) val a: Any
                 }
             """.trimIndent()
-        assertThat(MemberOrTypeAnnotationRule().format(code)).isEqualTo(
+        assertThat(AnnotationRule().format(code)).isEqualTo(
             """
                 class A {
                     @JvmField
