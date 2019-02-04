@@ -79,7 +79,7 @@ curl -sSLO https://github.com/shyiko/ktlint/releases/download/0.29.0/ktlint &&
 
 ... or just download `ktlint` from the [releases](https://github.com/shyiko/ktlint/releases) page  (`ktlint.asc` contains PGP signature which you can verify with `curl -sS https://keybase.io/shyiko/pgp_keys.asc | gpg --import && gpg --verify ktlint.asc`).  
 
-On macOS ([or Linux](http://linuxbrew.sh/)) you can also use [brew](https://brew.sh/) - `brew install shyiko/ktlint/ktlint`.
+On macOS ([or Linux](http://linuxbrew.sh/)) you can also use [brew](https://brew.sh/) - `brew tap shyiko/ktlint && brew install shyiko/ktlint/ktlint`.
 
 > If you don't have curl installed - replace `curl -sL` with `wget -qO-`.
 
