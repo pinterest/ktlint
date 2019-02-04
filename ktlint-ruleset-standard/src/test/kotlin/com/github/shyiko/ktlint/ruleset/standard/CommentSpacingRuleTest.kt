@@ -65,15 +65,4 @@ class CommentSpacingRuleTest {
             """.trimIndent()
         )
     }
-
-    @Test
-    fun testAllForwardSlashes() {
-        assertThat(CommentSpacingRule().lint(
-            """
-                //////////////////////
-                // function
-                //////////////////////
-            """.trimIndent()
-        )).isEmpty()
-    }
 }

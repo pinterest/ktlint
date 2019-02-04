@@ -10,8 +10,6 @@ import org.jetbrains.kotlin.com.intellij.psi.util.PsiTreeUtil
 
 class CommentSpacingRule : Rule("comment-spacing") {
 
-    private val allForwardSlashesRegex = Regex("\\/+")
-
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
@@ -31,8 +29,7 @@ class CommentSpacingRule : Rule("comment-spacing") {
                 !text.startsWith("//noinspection") &&
                 !text.startsWith("//region") &&
                 !text.startsWith("//endregion") &&
-                !text.startsWith("//language=") &&
-                !allForwardSlashesRegex.matches(text)
+                !text.startsWith("//language=")
             ) {
                 emit(node.startOffset, "Missing space after //", true)
                 if (autoCorrect) {
