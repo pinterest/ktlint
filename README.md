@@ -408,14 +408,7 @@ import package.* // ktlint-disable
 
 ```sh
 git clone https://github.com/shyiko/ktlint && cd ktlint
-./mvnw # shows how to build, test, etc. project
-```
-#### Running ktlint from local build
-
-This will build ktlint and run it with any args you want to include.
-
-```sh
-gradle run --args="--color"
+./mvnw # shows how to build, test, run, etc. project
 ```
 
 #### Access to the latest `master` snapshot
