@@ -137,6 +137,8 @@ class ParameterListWrappingRuleTest {
                   b: Any,
                   c: Any) {
             }
+            fun f() {}
+            fun f(/**/) {}
             """.trimIndent()
             )).isEqualTo(
             listOf(

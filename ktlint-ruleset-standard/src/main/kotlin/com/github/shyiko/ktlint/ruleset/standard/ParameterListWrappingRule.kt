@@ -88,7 +88,7 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
                                     paramInnerIndentAdjustment = adjustedIndent.length - prevLeaf.textLength
                                     (prevLeaf as LeafPsiElement).rawReplaceWithText(adjustedIndent)
                                 }
-                            } else {
+                            } else if (prevLeaf?.prevLeafIgnoringWhitespaceAndComments()?.node?.elementType != KtTokens.LPAR) {
                                 emit(child.startOffset, errorMessage(child), true)
                                 if (autoCorrect) {
                                     paramInnerIndentAdjustment = intendedIndent.length - child.psi.column
