@@ -175,6 +175,8 @@ $ ktlint --install-git-pre-commit-hook
 ...
 ```
 
+> If you want ktlint to run before code compilation takes place - change `<phase>verify</phase>` to `<phase>validate</phase>` (see [Maven Build Lifecycle](https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html) for more).
+
 To check code style - `mvn antrun:run@ktlint` (it's also bound to `mvn verify`).  
 To run formatter - `mvn antrun:run@ktlint-format`.   
 
