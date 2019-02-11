@@ -31,8 +31,11 @@ internal data class EditorConfig(
                 else -> continuationIndentSizeRaw?.toIntOrNull() ?: indentSize
             }
             val android = node.getUserData(KtLint.ANDROID_USER_DATA_KEY)!!
-            val maxLineLength = editorConfig.get("max_line_length")?.toIntOrNull()
-                ?: if (android) ANDROID_MAX_LINE_LENGTH else -1
+            val maxLineLengthRaw = editorConfig.get("max_line_length")
+            val maxLineLength = when {
+                maxLineLengthRaw?.toLowerCase() == "off" -> -1
+                else -> maxLineLengthRaw?.toIntOrNull() ?: if (android) ANDROID_MAX_LINE_LENGTH else -1
+            }
             val insertFinalNewline = editorConfig.get("insert_final_newline")?.toBoolean()
             return EditorConfig(indentSize, continuationIndentSize, maxLineLength, insertFinalNewline)
         }
