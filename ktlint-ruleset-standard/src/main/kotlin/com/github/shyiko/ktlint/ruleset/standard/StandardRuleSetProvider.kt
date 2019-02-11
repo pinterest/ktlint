@@ -6,6 +6,7 @@ import com.github.shyiko.ktlint.core.RuleSetProvider
 class StandardRuleSetProvider : RuleSetProvider {
 
     override fun get(): RuleSet = RuleSet("standard",
+        AnnotationRule(),
         ChainWrappingRule(),
         CommentSpacingRule(),
         FilenameRule(),
@@ -36,6 +37,7 @@ class StandardRuleSetProvider : RuleSetProvider {
         SpacingAroundColonRule(),
         SpacingAroundCommaRule(),
         SpacingAroundCurlyRule(),
+        SpacingAroundDotRule(),
         SpacingAroundKeywordRule(),
         SpacingAroundOperatorsRule(),
         SpacingAroundParensRule(),
