@@ -6,7 +6,8 @@ import com.github.shyiko.ktlint.core.RuleSetProvider
 class StandardRuleSetProvider : RuleSetProvider {
 
     override fun get(): RuleSet = RuleSet("standard",
-        AnnotationRule(),
+        // disabled ("./mvnw clean verify" fails with "Internal Error")
+        // AnnotationRule(),
         ChainWrappingRule(),
         CommentSpacingRule(),
         FilenameRule(),
