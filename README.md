@@ -58,8 +58,6 @@ ktlint recognizes the following [.editorconfig](http://editorconfig.org/) proper
 [*.{kt,kts}]
 # possible values: number (e.g. 2), "unset" (makes ktlint ignore indentation completely)  
 indent_size=4
-# possible values: number (e.g. 2), "unset"
-continuation_indent_size=4
 # true (recommended) / false
 insert_final_newline=unset
 # possible values: number (e.g. 120) (package name, imports & comments are ignored), "off"
