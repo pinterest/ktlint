@@ -20,6 +20,7 @@ internal fun PsiElement.isPartOfMultiLineString(): Boolean {
         stringTemplate.firstChild.textMatches("\"\"\"") &&
         stringTemplate.children.any { it.textMatches("\n") }
 }
+internal fun PsiElement.isPartOfComment() = isPartOf(PsiComment::class)
 internal fun PsiElement.prevLeaf(): PsiElement? = PsiTreeUtil.prevLeaf(this)
 internal fun PsiElement.nextLeaf(): PsiElement? = PsiTreeUtil.nextLeaf(this)
 internal fun PsiElement.nextLeafIgnoringWhitespaceAndComments() =

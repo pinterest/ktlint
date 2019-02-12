@@ -65,6 +65,19 @@ class SpacingAroundDotRuleTest {
     }
 
     @Test
+    fun testLintComment() {
+        assertThat(SpacingAroundDotRule().lint(
+            """
+            fun foo() {
+                /**.*/
+                generateSequence(locate(dir)) { seed -> locate(seed.parent.parent) } // seed.parent == .editorconfig dir
+                    .map { it to lazy { load(it) } }
+            }
+            """.trimIndent()
+        )).isEmpty()
+    }
+
+    @Test
     fun testFormat() {
         assertThat(SpacingAroundDotRule().format("fun String .foo() = \"foo . \""))
             .isEqualTo("fun String.foo() = \"foo . \"")
