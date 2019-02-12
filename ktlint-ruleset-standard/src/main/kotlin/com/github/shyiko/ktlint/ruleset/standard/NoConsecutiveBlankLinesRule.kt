@@ -14,12 +14,18 @@ class NoConsecutiveBlankLinesRule : Rule("no-consecutive-blank-lines") {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         if (node is PsiWhiteSpace) {
-            val split = node.getText().split("\n")
-            if (split.size > 3 || split.size == 3 && PsiTreeUtil.nextLeaf(node) == null /* eof */) {
+            val text = node.getText()
+            val lfcount = text.count { it == '\n' }
+            if (lfcount < 2) {
+                return
+            }
+            val eof = PsiTreeUtil.nextLeaf(node) == null
+            if (lfcount > 2 || eof) {
+                val split = text.split("\n")
                 emit(node.startOffset + split[0].length + split[1].length + 2, "Needless blank line(s)", true)
                 if (autoCorrect) {
                     (node as LeafPsiElement)
-                        .rawReplaceWithText("${split.first()}\n${if (split.size > 3) "\n" else ""}${split.last()}")
+                        .rawReplaceWithText("${split.first()}\n${if (eof) "" else "\n"}${split.last()}")
                 }
             }
         }
