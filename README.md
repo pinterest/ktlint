@@ -263,6 +263,9 @@ Go to <kbd>File</kbd> -> <kbd>Settings...</kbd> -> <kbd>Editor</kbd>
   - check `Optimize imports on the fly (for current project)`.
 - <kbd>Code Style</kbd> -> <kbd>Kotlin</kbd>
   - <kbd>Set from...</kbd> -> <kbd>Predefined style</kbd> -> <kbd>Kotlin style guide</kbd> (Kotlin plugin 1.2.20+).
+  - open <kbd>Code Generation</kbd> tab
+    - uncheck `Line comment at first column`;
+    - select `Add a space at comment start`.
   - open <kbd>Imports</kbd> tab
     - select `Use single name import` (all of them);
     - remove `import java.util.*` from `Packages to Use Import with '*'`.
