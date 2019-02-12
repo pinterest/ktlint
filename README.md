@@ -411,6 +411,11 @@ git clone https://github.com/shyiko/ktlint && cd ktlint
 ./mvnw # shows how to build, test, run, etc. project
 ```
 
+> To open ktlint in Intellij IDEA:  
+<kbd>File</kbd> -> <kbd>Open...</kbd> (you may need to right-click on `pom.xml` (in the project dir) and then <kbd>Maven</kbd> -> <kbd>Reimport</kbd>).  
+You'll also need to set "Project SDK" to [1.8](https://github.com/shyiko/jabba#usage), "Project language level" to 8 in "Project Settings" (<kbd>File</kbd> -> <kbd>Project Structure...</kbd>).  
+To run `ktlint` - right-click on `ktlint/src/main/kotlin/com/github/shyiko/ktlint/Main.kt` -> <kbd>Run</kbd>.       
+
 #### Access to the latest `master` snapshot
 
 Whenever a commit is added to the `master` branch `0.0.0-SNAPSHOT` is automatically uploaded to [Sonatype's snapshots repository](https://oss.sonatype.org/content/repositories/snapshots/com/github/shyiko/ktlint/).
