@@ -4,10 +4,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.30.0] - 2019-02-03
 
-### Added
-- `dot-spacing` ([#293](https://github.com/shyiko/ktlint/issues/293)),   
-`annotation` ([#303](https://github.com/shyiko/ktlint/issues/303)) rules.
-
 ### Fixed
 - `Missing newline before ")"` ([#327](https://github.com/shyiko/ktlint/issues/327)).
 
