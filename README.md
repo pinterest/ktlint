@@ -290,7 +290,7 @@ In a nutshell: "ruleset" is a JAR containing one or more [Rule](ktlint-core/src/
 on the classpath (as a ruleset author, all you need to do is to include a `META-INF/services/com.github.shyiko.ktlint.core.RuleSetProvider` file 
 containing a fully qualified name of your [RuleSetProvider](ktlint-core/src/main/kotlin/com/github/shyiko/ktlint/core/RuleSetProvider.kt) implementation).    
 
-Once packaged in a JAR you can load it with
+Once packaged in a JAR <sup>[e.g. via `./gradlew build`](https://github.com/shyiko/ktlint/issues/300#issuecomment-432408753)</sup> you can load it with
 
 ```sh
 # enable additional 3rd party ruleset by pointing ktlint to its location on the file system
