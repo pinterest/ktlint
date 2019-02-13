@@ -13,7 +13,7 @@ class MaxLineLengthRuleTest {
     }
 
     @Test
-    fun testErrorSupression() {
+    fun testErrorSuppression() {
         assertThat(MaxLineLengthRule().lint(
             """
             fun main(vaaaaaaaaaaaaaaaaaaaaaaar: String) { // ktlint-disable max-line-length

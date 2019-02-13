@@ -403,12 +403,7 @@ object KtLint {
                             parseHintArgs(commentText, "ktlint-disable")?.let { args ->
                                 val lineStart = (node.prevLeaf { it is PsiWhiteSpace && it.textContains('\n') } as
                                     PsiWhiteSpace?)?.let { it.startOffset + it.text.lastIndexOf('\n') + 1 } ?: 0
-                                val nextLeaf = PsiTreeUtil.nextLeaf(node)
-                                result.add(SuppressionHint(
-                                    IntRange(lineStart, node.startOffset + node.getTextLength() +
-                                        (if (nextLeaf != null) 1 else 0)),
-                                    HashSet(args)
-                                ))
+                                result.add(SuppressionHint(IntRange(lineStart, node.startOffset), HashSet(args)))
                             }
                         } else {
                             val commentText = text.removePrefix("/*").removeSuffix("*/").trim()
