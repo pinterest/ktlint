@@ -23,6 +23,7 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiErrorElement
 import org.jetbrains.kotlin.com.intellij.psi.PsiFileFactory
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.TreeCopyHandler
+import org.jetbrains.kotlin.com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.idea.KotlinLanguage
 import org.jetbrains.kotlin.psi.KtFile
@@ -132,10 +133,7 @@ object KtLint {
         script: Boolean
     ) {
         val normalizedText = text.replace("\r\n", "\n").replace("\r", "\n")
-        val positionByOffset = calculateLineColByOffset(normalizedText).let {
-            val offsetDueToLineBreakNormalization = calculateLineBreakOffset(normalizedText)
-            return@let { offset: Int -> it(offset + offsetDueToLineBreakNormalization(offset)) }
-        }
+        val positionByOffset = calculateLineColByOffset(normalizedText)
         val fileName = if (script) "file.kts" else "file.kt"
         val psiFile = psiFileFactory.createFileFromText(fileName, KotlinLanguage.INSTANCE, normalizedText) as KtFile
         val errorElement = psiFile.findErrorElement()
@@ -154,6 +152,10 @@ object KtLint {
             if (!isSuppressed(node.startOffset, fqRuleId, node === rootNode)) {
                 try {
                     rule.visit(node, false) { offset, errorMessage, canBeAutoCorrected ->
+                        // https://github.com/shyiko/ktlint/issues/158#issuecomment-462728189
+                        if (node.startOffset != offset && isSuppressed(offset, fqRuleId, node === rootNode)) {
+                            return@visit
+                        }
                         val (line, col) = positionByOffset(offset)
                         cb(LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected))
                     }
@@ -312,10 +314,7 @@ object KtLint {
         script: Boolean
     ): String {
         val normalizedText = text.replace("\r\n", "\n").replace("\r", "\n")
-        val positionByOffset = calculateLineColByOffset(normalizedText).let {
-            val offsetDueToLineBreakNormalization = calculateLineBreakOffset(normalizedText)
-            return@let { offset: Int -> it(offset + offsetDueToLineBreakNormalization(offset)) }
-        }
+        val positionByOffset = calculateLineColByOffset(normalizedText)
         val fileName = if (script) "file.kts" else "file.kt"
         val psiFile = psiFileFactory.createFileFromText(fileName, KotlinLanguage.INSTANCE, normalizedText) as KtFile
         val errorElement = psiFile.findErrorElement()
@@ -359,6 +358,10 @@ object KtLint {
                 if (!isSuppressed(node.startOffset, fqRuleId, node === rootNode)) {
                     try {
                         rule.visit(node, false) { offset, errorMessage, canBeAutoCorrected ->
+                            // https://github.com/shyiko/ktlint/issues/158#issuecomment-462728189
+                            if (node.startOffset != offset && isSuppressed(offset, fqRuleId, node === rootNode)) {
+                                return@visit
+                            }
                             val (line, col) = positionByOffset(offset)
                             cb(LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected), false)
                         }
@@ -370,21 +373,6 @@ object KtLint {
             }
         }
         return if (mutated) rootNode.text.replace("\n", determineLineSeparator(text, userData)) else text
-    }
-
-    private fun calculateLineBreakOffset(fileContent: String): (offset: Int) -> Int {
-        val arr = ArrayList<Int>()
-        var i = 0
-        do {
-            arr.add(i)
-            i = fileContent.indexOf("\r\n", i + 1)
-        } while (i != -1)
-        arr.add(fileContent.length)
-        return if (arr.size != 2) {
-            SegmentTree(arr.toTypedArray()).let { return { offset -> it.indexOf(offset) } }
-        } else {
-            _ -> 0
-        }
     }
 
     private fun determineLineSeparator(fileContent: String, userData: Map<String, String>): String {
@@ -415,7 +403,12 @@ object KtLint {
                             parseHintArgs(commentText, "ktlint-disable")?.let { args ->
                                 val lineStart = (node.prevLeaf { it is PsiWhiteSpace && it.textContains('\n') } as
                                     PsiWhiteSpace?)?.let { it.startOffset + it.text.lastIndexOf('\n') + 1 } ?: 0
-                                result.add(SuppressionHint(IntRange(lineStart, node.startOffset), HashSet(args)))
+                                val nextLeaf = PsiTreeUtil.nextLeaf(node)
+                                result.add(SuppressionHint(
+                                    IntRange(lineStart, node.startOffset + node.getTextLength() +
+                                        (if (nextLeaf != null) 1 else 0)),
+                                    HashSet(args)
+                                ))
                             }
                         } else {
                             val commentText = text.removePrefix("/*").removeSuffix("*/").trim()
