@@ -23,7 +23,6 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiErrorElement
 import org.jetbrains.kotlin.com.intellij.psi.PsiFileFactory
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.TreeCopyHandler
-import org.jetbrains.kotlin.com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.idea.KotlinLanguage
 import org.jetbrains.kotlin.psi.KtFile
@@ -54,8 +53,10 @@ object KtLint {
         DiagnosticLogger.setFactory(LoggerFactory::class.java)
         val compilerConfiguration = CompilerConfiguration()
         compilerConfiguration.put(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY, MessageCollector.NONE)
-        val project = KotlinCoreEnvironment.createForProduction(Disposable {},
-            compilerConfiguration, EnvironmentConfigFiles.JVM_CONFIG_FILES).project
+        val project = KotlinCoreEnvironment.createForProduction(
+            Disposable {},
+            compilerConfiguration, EnvironmentConfigFiles.JVM_CONFIG_FILES
+        ).project
         // everything below (up to PsiFileFactory.getInstance(...)) is to get AST mutations (`ktlint -F ...`) working
         // otherwise it's not needed
         val pomModel: PomModel = object : UserDataHolderBase(), PomModel {
@@ -71,7 +72,8 @@ object KtLint {
                     // (check constructor signature and compare it to the source)
                     // (org.jetbrains.kotlin:kotlin-compiler-embeddable:1.0.3)
                     val constructor = ReflectionFactory.getReflectionFactory().newConstructorForSerialization(
-                        aspect, Any::class.java.getDeclaredConstructor(*arrayOfNulls<Class<*>>(0)))
+                        aspect, Any::class.java.getDeclaredConstructor(*arrayOfNulls<Class<*>>(0))
+                    )
                     return constructor.newInstance(*emptyArray()) as T
                 }
                 return null
@@ -121,7 +123,12 @@ object KtLint {
         lint(text, ruleSets, emptyMap(), cb, script = true)
     }
 
-    fun lintScript(text: String, ruleSets: Iterable<RuleSet>, userData: Map<String, String>, cb: (e: LintError) -> Unit) {
+    fun lintScript(
+        text: String,
+        ruleSets: Iterable<RuleSet>,
+        userData: Map<String, String>,
+        cb: (e: LintError) -> Unit
+    ) {
         lint(text, ruleSets, userData, cb, script = true)
     }
 
@@ -296,7 +303,11 @@ object KtLint {
      * @throws ParseException if text is not a valid Kotlin code
      * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
      */
-    fun formatScript(text: String, ruleSets: Iterable<RuleSet>, cb: (e: LintError, corrected: Boolean) -> Unit): String =
+    fun formatScript(
+        text: String,
+        ruleSets: Iterable<RuleSet>,
+        cb: (e: LintError, corrected: Boolean) -> Unit
+    ): String =
         format(text, ruleSets, emptyMap(), cb, script = true)
 
     fun formatScript(
@@ -410,16 +421,20 @@ object KtLint {
                             parseHintArgs(commentText, "ktlint-disable")?.apply {
                                 open.add(SuppressionHint(IntRange(node.startOffset, node.startOffset), HashSet(this)))
                             }
-                            ?: parseHintArgs(commentText, "ktlint-enable")?.apply {
-                                // match open hint
-                                val disabledRules = HashSet(this)
-                                val openHintIndex = open.indexOfLast { it.disabledRules == disabledRules }
-                                if (openHintIndex != -1) {
-                                    val openingHint = open.removeAt(openHintIndex)
-                                    result.add(SuppressionHint(IntRange(openingHint.range.start, node.startOffset),
-                                        disabledRules))
+                                ?: parseHintArgs(commentText, "ktlint-enable")?.apply {
+                                    // match open hint
+                                    val disabledRules = HashSet(this)
+                                    val openHintIndex = open.indexOfLast { it.disabledRules == disabledRules }
+                                    if (openHintIndex != -1) {
+                                        val openingHint = open.removeAt(openHintIndex)
+                                        result.add(
+                                            SuppressionHint(
+                                                IntRange(openingHint.range.start, node.startOffset),
+                                                disabledRules
+                                            )
+                                        )
+                                    }
                                 }
-                            }
                         }
                     }
                 }
