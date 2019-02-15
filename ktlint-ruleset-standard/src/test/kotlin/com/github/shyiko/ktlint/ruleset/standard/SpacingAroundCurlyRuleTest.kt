@@ -40,13 +40,22 @@ class SpacingAroundCurlyRuleTest {
             .isEqualTo(listOf(
                 LintError(2, 37, "curly-spacing", "Unexpected space after \"}\"")
             ))
+        assertThat(SpacingAroundCurlyRule().lint("""
+            fun main(): String
+            {
+            }
+        """.trimIndent()))
+            .isEqualTo(listOf(
+                LintError(2, 1, "curly-spacing", "Unexpected newline before \"{\"")
+            ))
     }
 
     @Test
     fun testFormat() {
         assertThat(SpacingAroundCurlyRule().format(
             """
-            fun main() {
+            fun main(): Int
+             {
                 val v = if (true){return ""}
                 val v = if (true) { return "" }
                 fn({a -> a}, 0)
@@ -93,7 +102,7 @@ class SpacingAroundCurlyRuleTest {
             """.trimIndent()
         )).isEqualTo(
             """
-            fun main() {
+            fun main(): Int {
                 val v = if (true) { return "" }
                 val v = if (true) { return "" }
                 fn({ a -> a }, 0)

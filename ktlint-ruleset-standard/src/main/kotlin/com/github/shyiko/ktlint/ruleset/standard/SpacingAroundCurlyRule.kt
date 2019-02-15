@@ -41,7 +41,7 @@ class SpacingAroundCurlyRule : Rule("curly-spacing") {
                     prevLeaf.textContains('\n') &&
                     prevLeaf.text.isBlank() &&
                     (PsiTreeUtil.prevLeaf(prevLeaf, true)?.node?.let {
-                        it.elementType == KtTokens.RPAR || KtTokens.KEYWORDS.contains(it.elementType)
+                        it.elementType == KtTokens.RPAR || it.elementType == KtTokens.IDENTIFIER || KtTokens.KEYWORDS.contains(it.elementType)
                     } == true ||
                     node.parent.node.elementType == KtNodeTypes.CLASS_BODY)) {
                     emit(node.startOffset, "Unexpected newline before \"${node.text}\"", true)
