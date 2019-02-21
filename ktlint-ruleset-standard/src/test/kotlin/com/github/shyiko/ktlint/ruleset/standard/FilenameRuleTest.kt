@@ -11,6 +11,7 @@ class FilenameRuleTest {
     fun testMatchingSingleClassName() {
         for (src in listOf(
             "class A",
+            "class `A`",
             "data class A(val v: Int)",
             "sealed class A",
             "interface A",
@@ -112,6 +113,18 @@ class FilenameRuleTest {
             fileName("woohoo.kt")
         )).isEqualTo(listOf(
             LintError(1, 1, "filename", "interface Woohoo should be declared in a file named Woohoo.kt")
+        ))
+    }
+
+    @Test
+    fun testCaseEscapedClassNames() {
+        assertThat(FilenameRule().lint(
+            """
+            class `A`
+            """.trimIndent(),
+            fileName("B.kt")
+        )).isEqualTo(listOf(
+            LintError(1, 1, "filename", "class `A` should be declared in a file named A.kt")
         ))
     }
 
