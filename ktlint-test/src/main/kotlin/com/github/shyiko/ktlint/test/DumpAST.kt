@@ -1,8 +1,8 @@
 package com.github.shyiko.ktlint.test
 
-import com.andreapivetta.kolor.Color
-import com.andreapivetta.kolor.Kolor
 import com.github.shyiko.ktlint.core.Rule
+import com.github.shyiko.ktlint.test.internal.Color
+import com.github.shyiko.ktlint.test.internal.color
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.openapi.util.TextRange
 import org.jetbrains.kotlin.com.intellij.psi.util.PsiTreeUtil
@@ -80,9 +80,9 @@ class DumpAST @JvmOverloads constructor(
     }
 
     private fun String.yellow() =
-        if (color) Kolor.foreground(this, Color.YELLOW) else this
+        if (color) this.color(Color.YELLOW) else this
     private fun String.gray() =
-        if (color) Kolor.foreground(this, Color.DARK_GRAY) else this
+        if (color) this.color(Color.DARK_GRAY) else this
 
     private val Any.className
         get() = this.javaClass.name

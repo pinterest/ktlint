@@ -52,7 +52,6 @@
         <aether.version>1.1.0</aether.version>
         <aether.maven.provider.version>3.3.9</aether.maven.provider.version>
         <picocli.version>2.3.0</picocli.version>
-        <kolor.version>0.0.2</kolor.version>
         <testng.version>6.8.21</testng.version>
         <assertj.version>3.9.0</assertj.version>
         <jimfs.version>1.1</jimfs.version>
@@ -69,21 +68,6 @@
         <module>ktlint-reporter-checkstyle</module>
         <module>ktlint</module>
     </modules>
-
-    <repositories>
-        <repository>
-            <id>bintray</id>
-            <name>JCenter</name>
-            <url>https://jcenter.bintray.com</url>
-        </repository>
-    </repositories>
-    <pluginRepositories>
-        <pluginRepository>
-            <id>bintray</id>
-            <name>JCenter</name>
-            <url>https://jcenter.bintray.com</url>
-        </pluginRepository>
-    </pluginRepositories>
 
     <build>
         <plugins>

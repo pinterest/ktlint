@@ -1,9 +1,9 @@
 package com.github.shyiko.ktlint.reporter.plain
 
-import com.andreapivetta.kolor.Color
-import com.andreapivetta.kolor.Kolor
 import com.github.shyiko.ktlint.core.LintError
 import com.github.shyiko.ktlint.core.Reporter
+import com.github.shyiko.ktlint.reporter.plain.internal.Color
+import com.github.shyiko.ktlint.reporter.plain.internal.color
 import java.io.File
 import java.io.PrintStream
 import java.util.ArrayList
@@ -49,5 +49,5 @@ class PlainReporter(
     }
 
     private fun String.gray() =
-        if (color) Kolor.foreground(this, Color.DARK_GRAY) else this
+        if (color) this.color(Color.DARK_GRAY) else this
 }
