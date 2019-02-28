@@ -45,7 +45,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <kotlin.version>1.3.20</kotlin.version>
+        <kotlin.version>1.3.21</kotlin.version>
         <kotlin.compiler.languageVersion>1.3</kotlin.compiler.languageVersion>
         <kotlin.compiler.apiVersion>1.3</kotlin.compiler.apiVersion>
         <klob.version>0.2.1</klob.version>
