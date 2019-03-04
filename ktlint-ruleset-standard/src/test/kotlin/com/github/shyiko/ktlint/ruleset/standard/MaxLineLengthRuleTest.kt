@@ -1,6 +1,7 @@
 package com.github.shyiko.ktlint.ruleset.standard
 
 import com.github.shyiko.ktlint.core.LintError
+import com.github.shyiko.ktlint.test.diffFileLint
 import com.github.shyiko.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
 import org.testng.annotations.Test
@@ -9,7 +10,10 @@ class MaxLineLengthRuleTest {
 
     @Test
     fun testLint() {
-        testLintUsingResource(MaxLineLengthRule(), userData = mapOf("max_line_length" to "80"))
+        assertThat(MaxLineLengthRule().diffFileLint(
+            "spec/max-line-length/lint.kt.spec",
+            userData = mapOf("max_line_length" to "80")
+        )).isEmpty()
     }
 
     @Test
@@ -30,7 +34,10 @@ class MaxLineLengthRuleTest {
 
     @Test
     fun testLintOff() {
-        testLintUsingResource(MaxLineLengthRule(), userData = mapOf("max_line_length" to "off"), qualifier = "off")
+        assertThat(MaxLineLengthRule().diffFileLint(
+            "spec/max-line-length/lint-off.kt.spec",
+            userData = mapOf("max_line_length" to "off")
+        )).isEmpty()
     }
 
     @Test

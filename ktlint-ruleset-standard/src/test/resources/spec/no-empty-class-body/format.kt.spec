@@ -3,7 +3,7 @@ data class DC0(val v: Any) {}
 interface I0 {}
 object O0 {}
 object O00 { }
-class A{}class B
+class A{}
 
 class C1
 data class DC1(val v: Any)

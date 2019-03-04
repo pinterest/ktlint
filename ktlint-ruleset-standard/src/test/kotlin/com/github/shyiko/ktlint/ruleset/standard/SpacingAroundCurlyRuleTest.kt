@@ -43,6 +43,14 @@ class SpacingAroundCurlyRuleTest {
     }
 
     @Test
+    fun testLintStringTemplate() {
+        assertThat(SpacingAroundCurlyRule().lint(
+            """fun main() { emit(node.startOffset, "Line must not end with \"${'$'}{node.text}\"", true) }"""
+                .trimIndent()
+        )).isEmpty()
+    }
+
+    @Test
     fun testFormat() {
         assertThat(SpacingAroundCurlyRule().format(
             """

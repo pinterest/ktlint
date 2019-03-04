@@ -90,47 +90,6 @@ class IndentationRuleTest {
         )).isEmpty()
     }
 
-    @Test
-    fun testLintWithContinuationIndentSizeSet() {
-        // gcd(indent_size, continuation_indent_size) == 2
-        assertThat(IndentationRule().lint(
-            """
-            fun main() {
-                val v = ""
-                      .call()
-                 call()
-            }
-            """.trimIndent(),
-            mapOf("indent_size" to "4", "continuation_indent_size" to "6")
-        )).isEqualTo(listOf(
-            LintError(4, 1, "indent", "Unexpected indentation (5) (it should be 2)")
-        ))
-        assertThat(IndentationRule().lint(
-            """
-            fun main() {
-                val v = ""
-                      .call()
-                 call()
-            }
-            """.trimIndent(),
-            mapOf("indent_size" to "4", "continuation_indent_size" to "2")
-        )).isEqualTo(listOf(
-            LintError(4, 1, "indent", "Unexpected indentation (5) (it should be 2)")
-        ))
-        // gcd(indent_size, continuation_indent_size) == 1 equals no indent check
-        assertThat(IndentationRule().lint(
-            """
-            fun main() {
-                val v = ""
-                    .call()
-                     .call()
-                      .call()
-            }
-            """.trimIndent(),
-            mapOf("indent_size" to "4", "continuation_indent_size" to "3")
-        )).isEmpty()
-    }
-
     // https://kotlinlang.org/docs/reference/coding-conventions.html#method-call-formatting
     @Test
     fun testLintMultilineFunctionCall() {

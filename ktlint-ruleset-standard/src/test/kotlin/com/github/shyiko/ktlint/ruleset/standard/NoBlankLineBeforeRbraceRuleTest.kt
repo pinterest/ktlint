@@ -1,16 +1,24 @@
 package com.github.shyiko.ktlint.ruleset.standard
 
+import com.github.shyiko.ktlint.test.diffFileFormat
+import com.github.shyiko.ktlint.test.diffFileLint
+import org.assertj.core.api.Assertions.assertThat
 import org.testng.annotations.Test
 
 class NoBlankLineBeforeRbraceRuleTest {
 
     @Test
     fun testLint() {
-        testLintUsingResource(NoBlankLineBeforeRbraceRule())
+        assertThat(NoBlankLineBeforeRbraceRule().diffFileLint(
+            "spec/no-blank-line-before-rbrace/lint.kt.spec"
+        )).isEmpty()
     }
 
     @Test
     fun testFormat() {
-        testFormatUsingResource(NoBlankLineBeforeRbraceRule())
+        assertThat(NoBlankLineBeforeRbraceRule().diffFileFormat(
+            "spec/no-blank-line-before-rbrace/format.kt.spec",
+            "spec/no-blank-line-before-rbrace/format-expected.kt.spec"
+        )).isEmpty()
     }
 }
