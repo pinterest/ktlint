@@ -77,7 +77,7 @@ fun Rule.diffFileLint(path: String, userData: Map<String, String> = emptyMap()):
             }
         }
     }
-    val actual = lint(input, userData)
+    val actual = lint(input, userData, script = true)
     val str = { err: LintError ->
         val ruleId = if (err.ruleId != id) " (${err.ruleId})" else ""
         val correctionStatus = if (!err.canBeAutoCorrected) " (cannot be auto-corrected)" else ""
