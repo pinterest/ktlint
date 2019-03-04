@@ -150,6 +150,7 @@ object KtLint {
         val rootNode = psiFile.node
         injectUserData(rootNode, userData)
         val isSuppressed = calculateSuppressedRegions(rootNode)
+        val errors = mutableListOf<LintError>()
         visitor(rootNode, ruleSets).invoke { node, rule, fqRuleId ->
             // fixme: enforcing suppression based on node.startOffset is wrong
             // (not just because not all nodes are leaves but because rules are free to emit (and fix!) errors at any position)
@@ -161,7 +162,7 @@ object KtLint {
                             return@visit
                         }
                         val (line, col) = positionByOffset(offset)
-                        cb(LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected))
+                        errors.add(LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected))
                     }
                 } catch (e: Exception) {
                     val (line, col) = positionByOffset(node.startOffset)
@@ -169,6 +170,9 @@ object KtLint {
                 }
             }
         }
+        errors
+            .sortedWith(Comparator { l, r -> if (l.line != r.line) l.line - r.line else l.col - r.col })
+            .forEach(cb)
     }
 
     private fun injectUserData(node: ASTNode, userData: Map<String, String>) {
@@ -373,6 +377,7 @@ object KtLint {
                 }
             }
         if (tripped) {
+            val errors = mutableListOf<Pair<LintError, Boolean>>()
             visitor(rootNode, ruleSets).invoke { node, rule, fqRuleId ->
                 // fixme: enforcing suppression based on node.startOffset is wrong
                 // (not just because not all nodes are leaves but because rules are free to emit (and fix!) errors at any position)
@@ -384,7 +389,7 @@ object KtLint {
                                 return@visit
                             }
                             val (line, col) = positionByOffset(offset)
-                            cb(LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected), false)
+                            errors.add(Pair(LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected), false))
                         }
                     } catch (e: Exception) {
                         val (line, col) = positionByOffset(node.startOffset)
@@ -392,6 +397,9 @@ object KtLint {
                     }
                 }
             }
+            errors
+                .sortedWith(Comparator { (l), (r) -> if (l.line != r.line) l.line - r.line else l.col - r.col })
+                .forEach { (e, corrected) -> cb(e, corrected) }
         }
         return if (mutated) rootNode.text.replace("\n", determineLineSeparator(text, userData)) else text
     }
