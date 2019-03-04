@@ -76,18 +76,6 @@ import java.util.LinkedList
  * - 1st pass - insert missing newlines (e.g. between parentheses of a multi-line function call)
  * - 2st pass - correct indentation
  *
- * Key principles:
- * - If something (e.g. condition) does not fit a single line - it should be on a separate line.
- *   e.g. if (a &&
- *            b) {
- *        }
- *        ->
- *        if (
- *            a &&
- *            b
- *        } {
- *        }
- *
  * Current limitations:
  * - indent_style=tab not supported.
  * - "all or nothing" (currently, rule can only be disabled for an entire file)
