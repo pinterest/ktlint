@@ -12,4 +12,10 @@ fun main() {
         x
             .f()
     })
+    when {
+        // comment
+        true -> {
+
+        }
+    }
 }

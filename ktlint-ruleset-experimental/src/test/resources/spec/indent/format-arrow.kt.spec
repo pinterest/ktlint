@@ -9,4 +9,10 @@ fun main() {
     f({ v -> x
         .f()
     })
+    when {
+        // comment
+        true -> {
+
+        }
+    }
 }

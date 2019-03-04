@@ -319,7 +319,7 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRoot {
                     it == BINARY_EXPRESSION ||
                     it == BINARY_WITH_TYPE
             } ||
-            !node.treeParent.textContains('\n') ||
+            !node.nextSubstringContains('\n') ||
             mustBeFollowedByNewline(node)
         ) {
             return
@@ -332,6 +332,17 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRoot {
         if (!nextCodeLeaf.prevLeaf().isWhiteSpaceWithNewline()) {
             requireNewlineAfterLeaf(node, autoCorrect, emit)
         }
+    }
+
+    private fun ASTNode.nextSubstringContains(c: Char): Boolean {
+        var n = this.treeNext
+        while (n != null) {
+            if (n.textContains(c)) {
+                return true
+            }
+            n = n.treeNext
+        }
+        return false
     }
 
     private fun mustBeFollowedByNewline(node: ASTNode): Boolean {

@@ -1,3 +1,9 @@
+class C {
+    // KtNodeTypes
+    val CLASS: IElementType = KtNodeTypes.CLASS
+    val FUN: IElementType = KtNodeTypes.FUN
+}
+
 fun f() {
     val x =
         "a" +
