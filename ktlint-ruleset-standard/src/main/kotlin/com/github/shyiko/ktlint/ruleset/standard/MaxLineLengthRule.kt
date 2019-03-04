@@ -1,12 +1,12 @@
 package com.github.shyiko.ktlint.ruleset.standard
 
+import com.github.shyiko.ktlint.core.KtLint
 import com.github.shyiko.ktlint.core.Rule
 import com.github.shyiko.ktlint.core.ast.isPartOf
 import com.github.shyiko.ktlint.core.ast.isPartOfRawMultiLineString
 import com.github.shyiko.ktlint.core.ast.isRoot
 import com.github.shyiko.ktlint.core.ast.prevCodeSibling
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.kdoc.psi.api.KDoc
@@ -24,7 +24,7 @@ class MaxLineLengthRule : Rule("max-line-length"), Rule.Modifier.Last {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         if (node.isRoot()) {
-            val editorConfig = EditorConfig.from(node as FileASTNode)
+            val editorConfig = node.getUserData(KtLint.EDITOR_CONFIG_USER_DATA_KEY)!!
             maxLineLength = editorConfig.maxLineLength
             if (maxLineLength <= 0) {
                 return

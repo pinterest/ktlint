@@ -148,9 +148,7 @@ object KtLint {
             throw ParseException(line, col, errorElement.errorDescription)
         }
         val rootNode = psiFile.node
-        rootNode.putUserData(EDITOR_CONFIG_USER_DATA_KEY, EditorConfig.fromMap(userData - "android" - "file_path"))
-        rootNode.putUserData(ANDROID_USER_DATA_KEY, userData["android"]?.toBoolean() ?: false)
-        rootNode.putUserData(FILE_PATH_USER_DATA_KEY, userData["file_path"])
+        injectUserData(rootNode, userData)
         val isSuppressed = calculateSuppressedRegions(rootNode)
         visitor(rootNode, ruleSets).invoke { node, rule, fqRuleId ->
             // fixme: enforcing suppression based on node.startOffset is wrong
@@ -171,6 +169,21 @@ object KtLint {
                 }
             }
         }
+    }
+
+    private fun injectUserData(node: ASTNode, userData: Map<String, String>) {
+        val android = userData["android"]?.toBoolean() ?: false
+        val editorConfigMap =
+            if (android &&
+                userData["max_line_length"].let { it?.toLowerCase() != "off" && it?.toIntOrNull() == null }
+            ) {
+                userData + mapOf("max_line_length" to "100")
+            } else {
+                userData
+            }
+        node.putUserData(FILE_PATH_USER_DATA_KEY, userData["file_path"])
+        node.putUserData(EDITOR_CONFIG_USER_DATA_KEY, EditorConfig.fromMap(editorConfigMap - "android" - "file_path"))
+        node.putUserData(ANDROID_USER_DATA_KEY, android)
     }
 
     private fun visitor(
@@ -333,9 +346,7 @@ object KtLint {
             throw ParseException(line, col, errorElement.errorDescription)
         }
         val rootNode = psiFile.node
-        rootNode.putUserData(EDITOR_CONFIG_USER_DATA_KEY, EditorConfig.fromMap(userData - "android" - "file_path"))
-        rootNode.putUserData(ANDROID_USER_DATA_KEY, userData["android"]?.toBoolean() ?: false)
-        rootNode.putUserData(FILE_PATH_USER_DATA_KEY, userData["file_path"])
+        injectUserData(rootNode, userData)
         var isSuppressed = calculateSuppressedRegions(rootNode)
         var tripped = false
         var mutated = false

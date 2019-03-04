@@ -1,9 +1,9 @@
 package com.github.shyiko.ktlint.ruleset.standard
 
+import com.github.shyiko.ktlint.core.KtLint
 import com.github.shyiko.ktlint.core.Rule
 import com.github.shyiko.ktlint.core.ast.isRoot
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 
@@ -15,7 +15,7 @@ class FinalNewlineRule : Rule("final-newline"), Rule.Modifier.RestrictToRoot {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         if (node.isRoot()) {
-            val editorConfig = EditorConfig.from(node as FileASTNode)
+            val editorConfig = node.getUserData(KtLint.EDITOR_CONFIG_USER_DATA_KEY)!!
             val insertFinalNewline = editorConfig.insertFinalNewline ?: return
             val lastNode = lastChildNodeOf(node)
             if (insertFinalNewline) {
