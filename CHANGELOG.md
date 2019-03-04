@@ -2,6 +2,20 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+
+### Added
+- `experimental/indent` rule ([#338](https://github.com/shyiko/ktlint/issues/338)).  
+  Use `ktlint --experimental` to enable. 
+
+### Changed
+- `no-multi-spaces` rule (horizontal alignment of comments is no longer allowed) ([#269](https://github.com/shyiko/ktlint/issues/269)).
+- `package-name` rule disabled until there is a way to suppress rules globally. 
+- `kotlin-compiler` version to 1.3.21 (from 1.3.20).
+
+### Removed 
+- Dependency on JCenter ([#349](https://github.com/shyiko/ktlint/issues/349)).
+
 ## [0.30.0] - 2019-02-03
 
 ### Fixed
