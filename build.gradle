@@ -20,7 +20,7 @@ ext.libraries = [
 
   // Testing libraries
   "testng": "org.testng:testng:6.8.21",
-  "assertj_core": "org.assertj:assertj-core:1.7.1",
+  "assertj_core": "org.assertj:assertj-core:3.9.0",
   "jimfs": "com.google.jimfs:jimfs:1.1"
 ]
 

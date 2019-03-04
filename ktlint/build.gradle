@@ -10,10 +10,12 @@ apply plugin: 'com.github.johnrengelman.shadow'
 
 dependencies {
   compile project(":ktlint-core")
-  compile project(":ktlint-ruleset-standard")
-  compile project(":ktlint-reporter-plain")
-  compile project(":ktlint-reporter-json")
   compile project(":ktlint-reporter-checkstyle")
+  compile project(":ktlint-reporter-json")
+  compile project(":ktlint-reporter-plain")
+  compile project(":ktlint-ruleset-experimental")
+  compile project(":ktlint-ruleset-standard")
+  compile project(":ktlint-test")
   compile libraries.kotlin_stdlib
   compile libraries.klob
   compile libraries.aether_api
