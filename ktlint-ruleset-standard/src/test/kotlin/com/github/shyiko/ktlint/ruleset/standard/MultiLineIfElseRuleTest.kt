@@ -40,16 +40,20 @@ class MultiLineIfElseRuleTest {
         val ifWithoutCurlyBraceExpected = "fun main() { if (true) \n {return 0} }"
         // If-Then block with multiple lines and curly brace.
         assertThat(format(ifWithoutCurlyBrace)).isEqualTo(ifWithoutCurlyBraceExpected)
-        assertThat(lint(ifWithoutCurlyBrace)).isEqualTo(listOf(
-            LintError(2, 2, "multiline-if-else", "Missing { ... }")
-        ))
+        assertThat(lint(ifWithoutCurlyBrace)).isEqualTo(
+            listOf(
+                LintError(2, 2, "multiline-if-else", "Missing { ... }")
+            )
+        )
         val ifElseWithoutCurlyBrace = "fun main() { if (true) \n return 0 \n else \n return 1 }"
         val ifElseWithoutCurlyBraceExpected = "fun main() { if (true) \n {return 0} \n else \n {return 1} }"
         assertThat(format(ifElseWithoutCurlyBrace)).isEqualTo(ifElseWithoutCurlyBraceExpected)
-        assertThat(lint(ifElseWithoutCurlyBrace)).isEqualTo(listOf(
-            LintError(2, 2, "multiline-if-else", "Missing { ... }"),
-            LintError(4, 2, "multiline-if-else", "Missing { ... }")
-        ))
+        assertThat(lint(ifElseWithoutCurlyBrace)).isEqualTo(
+            listOf(
+                LintError(2, 2, "multiline-if-else", "Missing { ... }"),
+                LintError(4, 2, "multiline-if-else", "Missing { ... }")
+            )
+        )
     }
 
     private fun assertOK(kotlinScript: String) {

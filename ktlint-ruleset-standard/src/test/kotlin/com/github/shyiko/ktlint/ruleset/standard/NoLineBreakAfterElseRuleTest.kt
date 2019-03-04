@@ -10,8 +10,9 @@ class NoLineBreakAfterElseRuleTest {
 
     @Test
     fun testViolationForLineBreakBetweenElseAndIf() {
-        Assertions.assertThat(NoLineBreakAfterElseRule().lint(
-            """
+        Assertions.assertThat(
+            NoLineBreakAfterElseRule().lint(
+                """
             fun funA() {
                 if (conditionA()) {
                     doSomething()
@@ -21,15 +22,19 @@ class NoLineBreakAfterElseRuleTest {
                 }
             }
             """.trimIndent()
-        )).isEqualTo(listOf(
-            LintError(5, 1, "no-line-break-after-else", "Unexpected line break after \"else\"")
-        ))
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(5, 1, "no-line-break-after-else", "Unexpected line break after \"else\"")
+            )
+        )
     }
 
     @Test
     fun testFixViolationForLineBreakBetweenElseAndIf() {
-        Assertions.assertThat(NoLineBreakAfterElseRule().format(
-            """
+        Assertions.assertThat(
+            NoLineBreakAfterElseRule().format(
+                """
             fun funA() {
                 if (conditionA()) {
                     doSomething()
@@ -39,7 +44,8 @@ class NoLineBreakAfterElseRuleTest {
                 }
             }
             """.trimIndent()
-        )).isEqualTo(
+            )
+        ).isEqualTo(
             """
             fun funA() {
                 if (conditionA()) {
@@ -54,8 +60,9 @@ class NoLineBreakAfterElseRuleTest {
 
     @Test
     fun testValidElseIf() {
-        Assertions.assertThat(NoLineBreakAfterElseRule().lint(
-            """
+        Assertions.assertThat(
+            NoLineBreakAfterElseRule().lint(
+                """
             fun funA() {
                 if (conditionA()) {
                     doSomething()
@@ -64,13 +71,15 @@ class NoLineBreakAfterElseRuleTest {
                 }
             }
             """.trimIndent()
-        )).isEmpty()
+            )
+        ).isEmpty()
     }
 
     @Test
     fun testValidSimpleElse() {
-        Assertions.assertThat(NoLineBreakAfterElseRule().lint(
-            """
+        Assertions.assertThat(
+            NoLineBreakAfterElseRule().lint(
+                """
             fun funA() {
                 if (conditionA()) {
                     doSomething()
@@ -79,13 +88,15 @@ class NoLineBreakAfterElseRuleTest {
                 }
             }
             """.trimIndent()
-        )).isEmpty()
+            )
+        ).isEmpty()
     }
 
     @Test
     fun testViolationForLineBreakBetweenElseAndBracket() {
-        Assertions.assertThat(NoLineBreakAfterElseRule().lint(
-            """
+        Assertions.assertThat(
+            NoLineBreakAfterElseRule().lint(
+                """
             fun funA() {
                 if (conditionA()) {
                     doSomething()
@@ -95,15 +106,19 @@ class NoLineBreakAfterElseRuleTest {
                 }
             }
             """.trimIndent()
-        )).isEqualTo(listOf(
-            LintError(5, 1, "no-line-break-after-else", "Unexpected line break after \"else\"")
-        ))
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(5, 1, "no-line-break-after-else", "Unexpected line break after \"else\"")
+            )
+        )
     }
 
     @Test
     fun testViolationWhenBracketOmitted() {
-        Assertions.assertThat(NoLineBreakAfterElseRule().lint(
-            """
+        Assertions.assertThat(
+            NoLineBreakAfterElseRule().lint(
+                """
             fun funA() {
                 if (conditionA())
                     doSomething()
@@ -111,17 +126,20 @@ class NoLineBreakAfterElseRuleTest {
                     doAnotherThing()
             }
             """.trimIndent()
-        )).isEmpty()
+            )
+        ).isEmpty()
     }
 
     @Test
     fun testValidWhenBracketOmitted() {
-        Assertions.assertThat(NoLineBreakAfterElseRule().lint(
-            """
+        Assertions.assertThat(
+            NoLineBreakAfterElseRule().lint(
+                """
             fun funA() {
                 if (conditionA()) doSomething() else doAnotherThing()
             }
             """.trimIndent()
-        )).isEmpty()
+            )
+        ).isEmpty()
     }
 }

@@ -13,22 +13,23 @@ class AnnotationRuleTest {
         assertThat(
             AnnotationRule().lint(
                 """
-              @FunctionalInterface class A {
-                  @JvmField
-                  var x: String
-              }
-            """.trimIndent()
+                @FunctionalInterface class A {
+                    @JvmField
+                    var x: String
+                }
+                """.trimIndent()
             )
         ).isEmpty()
     }
 
     @Test
     fun `format single annotation may be placed on line before annotated construct`() {
-        val code = """
-              @FunctionalInterface class A {
-                  @JvmField
-                  var x: String
-              }
+        val code =
+            """
+            @FunctionalInterface class A {
+                @JvmField
+                var x: String
+            }
             """.trimIndent()
         assertThat(AnnotationRule().format(code)).isEqualTo(code)
     }
@@ -38,24 +39,25 @@ class AnnotationRuleTest {
         assertThat(
             AnnotationRule().lint(
                 """
-              @FunctionalInterface class A {
-                  @JvmField var x: String
+                @FunctionalInterface class A {
+                    @JvmField var x: String
 
-                  @Test fun myTest() {}
-              }
-            """.trimIndent()
+                    @Test fun myTest() {}
+                }
+                """.trimIndent()
             )
         ).isEmpty()
     }
 
     @Test
     fun `format single annotation may be placed on same line as annotated construct`() {
-        val code = """
-              @FunctionalInterface class A {
-                  @JvmField var x: String
+        val code =
+            """
+            @FunctionalInterface class A {
+                @JvmField var x: String
 
-                  @Test fun myTest() {}
-              }
+                @Test fun myTest() {}
+            }
             """.trimIndent()
         assertThat(AnnotationRule().format(code)).isEqualTo(code)
     }
@@ -65,13 +67,13 @@ class AnnotationRuleTest {
         assertThat(
             AnnotationRule().lint(
                 """
-              class A {
-                  @JvmField @Volatile var x: String
+                class A {
+                    @JvmField @Volatile var x: String
 
-                  @JvmField @Volatile
-                  var y: String
-              }
-            """.trimIndent()
+                    @JvmField @Volatile
+                    var y: String
+                }
+                """.trimIndent()
             )
         ).containsExactly(
             LintError(
@@ -86,24 +88,24 @@ class AnnotationRuleTest {
         assertThat(
             AnnotationRule().format(
                 """
-              class A {
-                  @JvmField @Volatile var x: String
+                class A {
+                    @JvmField @Volatile var x: String
 
-                  @JvmField @Volatile
-                  var y: String
-              }
-            """.trimIndent()
+                    @JvmField @Volatile
+                    var y: String
+                }
+                """.trimIndent()
             )
         ).isEqualTo(
             """
-              class A {
-                  @JvmField @Volatile
-                  var x: String
+            class A {
+                @JvmField @Volatile
+                var x: String
 
-                  @JvmField @Volatile
-                  var y: String
-              }
-        """.trimIndent()
+                @JvmField @Volatile
+                var y: String
+            }
+            """.trimIndent()
         )
     }
 
@@ -112,9 +114,9 @@ class AnnotationRuleTest {
         assertThat(AnnotationRule().format("@JvmField @Volatile var x: String"))
             .isEqualTo(
                 """
-              @JvmField @Volatile
-              var x: String
-            """.trimIndent()
+                @JvmField @Volatile
+                var x: String
+                """.trimIndent()
             )
     }
 
@@ -124,14 +126,14 @@ class AnnotationRuleTest {
             AnnotationRule().format(
                 """
 
-              @JvmField @Volatile var x: String
+            @JvmField @Volatile var x: String
             """.trimIndent()
             )
         ).isEqualTo(
             """
 
-              @JvmField @Volatile
-              var x: String
+            @JvmField @Volatile
+            var x: String
             """.trimIndent()
         )
     }
@@ -141,13 +143,13 @@ class AnnotationRuleTest {
         assertThat(
             AnnotationRule().lint(
                 """
-              class A {
-                  @JvmName("xJava") var x: String
+                class A {
+                    @JvmName("xJava") var x: String
 
-                  @JvmName("yJava")
-                  var y: String
-              }
-            """.trimIndent()
+                    @JvmName("yJava")
+                    var y: String
+                }
+                """.trimIndent()
             )
         ).containsExactly(
             LintError(
@@ -162,23 +164,23 @@ class AnnotationRuleTest {
         assertThat(
             AnnotationRule().format(
                 """
-              class A {
-                  @JvmName("xJava") var x: String
+                class A {
+                    @JvmName("xJava") var x: String
 
-                  @JvmName("yJava")
-                  var y: String
-              }
-            """.trimIndent()
+                    @JvmName("yJava")
+                    var y: String
+                }
+                """.trimIndent()
             )
         ).isEqualTo(
             """
-              class A {
-                  @JvmName("xJava")
-                  var x: String
+            class A {
+                @JvmName("xJava")
+                var x: String
 
-                  @JvmName("yJava")
-                  var y: String
-              }
+                @JvmName("yJava")
+                var y: String
+            }
             """.trimIndent()
         )
     }
@@ -188,12 +190,12 @@ class AnnotationRuleTest {
         assertThat(
             AnnotationRule().lint(
                 """
-              @Retention(SOURCE) @Target(FUNCTION, PROPERTY_SETTER, FIELD) annotation class A
+                @Retention(SOURCE) @Target(FUNCTION, PROPERTY_SETTER, FIELD) annotation class A
 
-              @Retention(SOURCE)
-              @Target(FUNCTION, PROPERTY_SETTER, FIELD)
-              annotation class B
-            """.trimIndent()
+                @Retention(SOURCE)
+                @Target(FUNCTION, PROPERTY_SETTER, FIELD)
+                annotation class B
+                """.trimIndent()
             )
         ).containsExactly(
             LintError(
@@ -212,22 +214,22 @@ class AnnotationRuleTest {
         assertThat(
             AnnotationRule().format(
                 """
-              @Retention(SOURCE) @Target(FUNCTION, PROPERTY_SETTER, FIELD) annotation class A
+                @Retention(SOURCE) @Target(FUNCTION, PROPERTY_SETTER, FIELD) annotation class A
 
-              @Retention(SOURCE)
-              @Target(FUNCTION, PROPERTY_SETTER, FIELD)
-              annotation class B
-            """.trimIndent()
+                @Retention(SOURCE)
+                @Target(FUNCTION, PROPERTY_SETTER, FIELD)
+                annotation class B
+                """.trimIndent()
             )
         ).isEqualTo(
             """
-              @Retention(SOURCE)
-              @Target(FUNCTION, PROPERTY_SETTER, FIELD)
-              annotation class A
+            @Retention(SOURCE)
+            @Target(FUNCTION, PROPERTY_SETTER, FIELD)
+            annotation class A
 
-              @Retention(SOURCE)
-              @Target(FUNCTION, PROPERTY_SETTER, FIELD)
-              annotation class B
+            @Retention(SOURCE)
+            @Target(FUNCTION, PROPERTY_SETTER, FIELD)
+            annotation class B
             """.trimIndent()
         )
     }
@@ -237,20 +239,21 @@ class AnnotationRuleTest {
         assertThat(
             AnnotationRule().lint(
                 """
-              class A {
-                  private @Test fun myTest() {}
-              }
-            """.trimIndent()
+                class A {
+                    private @Test fun myTest() {}
+                }
+                """.trimIndent()
             )
         ).isEmpty()
     }
 
     @Test
     fun `format annotation after keyword`() {
-        val code = """
-              class A {
-                  private @Test fun myTest() {}
-              }
+        val code =
+            """
+            class A {
+                private @Test fun myTest() {}
+            }
             """.trimIndent()
         assertThat(AnnotationRule().format(code)).isEqualTo(code)
     }
@@ -270,7 +273,7 @@ class AnnotationRuleTest {
                         ]
                     ) val a: Any
                 }
-            """.trimIndent()
+                """.trimIndent()
             )
         ).containsExactly(
             LintError(
@@ -286,33 +289,34 @@ class AnnotationRuleTest {
 
     @Test
     fun `format multi-line annotation`() {
-        val code = """
-                class A {
-                    @JvmField @Volatile @Annotation(
-                        enabled = true,
-                        groups = [
-                            "a",
-                            "b",
-                            "c"
-                        ]
-                    ) val a: Any
-                }
+        val code =
+            """
+            class A {
+                @JvmField @Volatile @Annotation(
+                    enabled = true,
+                    groups = [
+                        "a",
+                        "b",
+                        "c"
+                    ]
+                ) val a: Any
+            }
             """.trimIndent()
         assertThat(AnnotationRule().format(code)).isEqualTo(
             """
-                class A {
-                    @JvmField
-                    @Volatile
-                    @Annotation(
-                        enabled = true,
-                        groups = [
-                            "a",
-                            "b",
-                            "c"
-                        ]
-                    )
-                    val a: Any
-                }
+            class A {
+                @JvmField
+                @Volatile
+                @Annotation(
+                    enabled = true,
+                    groups = [
+                        "a",
+                        "b",
+                        "c"
+                    ]
+                )
+                val a: Any
+            }
             """.trimIndent()
         )
     }

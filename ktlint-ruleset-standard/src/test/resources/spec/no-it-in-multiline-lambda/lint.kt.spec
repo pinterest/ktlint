@@ -11,4 +11,4 @@ fun main() {
 }
 
 // expect
-// 3:27:Multiline lambda must explicitly name "it" parameter
+// 3:27:Multiline lambda must explicitly name "it" parameter (cannot be auto-corrected)

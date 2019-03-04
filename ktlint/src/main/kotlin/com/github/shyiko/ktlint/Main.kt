@@ -198,6 +198,11 @@ object Main {
     @Option(names = arrayOf("--editorconfig"), description = arrayOf("Path to .editorconfig"))
     private var editorConfigPath: String? = null
 
+    @Option(names = arrayOf("--experimental"), description = arrayOf(
+        "Enabled experimental rules (ktlint-ruleset-experimental)"
+    ))
+    private var experimental: Boolean = false
+
     @Parameters(hidden = true)
     private var patterns = ArrayList<String>()
 
@@ -272,6 +277,7 @@ object Main {
         // standard should go first
         val ruleSetProviders = ServiceLoader.load(RuleSetProvider::class.java)
             .map { it.get().id to it }
+            .filter { (id) -> experimental || id != "experimental" }
             .sortedBy { if (it.first == "standard") "\u0000${it.first}" else it.first }
         if (debug) {
             ruleSetProviders.forEach { System.err.println("[DEBUG] Discovered ruleset \"${it.first}\"") }

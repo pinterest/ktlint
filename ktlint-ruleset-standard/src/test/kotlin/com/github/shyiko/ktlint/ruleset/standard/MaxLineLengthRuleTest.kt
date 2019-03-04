@@ -1,6 +1,7 @@
 package com.github.shyiko.ktlint.ruleset.standard
 
 import com.github.shyiko.ktlint.core.LintError
+import com.github.shyiko.ktlint.test.diffFileLint
 import com.github.shyiko.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
 import org.testng.annotations.Test
@@ -9,28 +10,42 @@ class MaxLineLengthRuleTest {
 
     @Test
     fun testLint() {
-        testLintUsingResource(MaxLineLengthRule(), userData = mapOf("max_line_length" to "80"))
+        assertThat(
+            MaxLineLengthRule().diffFileLint(
+                "spec/max-line-length/lint.kt.spec",
+                userData = mapOf("max_line_length" to "80")
+            )
+        ).isEmpty()
     }
 
     @Test
     fun testErrorSuppression() {
-        assertThat(MaxLineLengthRule().lint(
-            """
+        assertThat(
+            MaxLineLengthRule().lint(
+                """
             fun main(vaaaaaaaaaaaaaaaaaaaaaaar: String) { // ktlint-disable max-line-length
                 println("teeeeeeeeeeeeeeeeeeeeeeeeeeeeeeext")
             /* ktlint-disable max-line-length */
                 println("teeeeeeeeeeeeeeeeeeeeeeeeeeeeeeext")
             }
             """.trimIndent(),
-            userData = mapOf("max_line_length" to "40")
-        )).isEqualTo(listOf(
-            LintError(2, 1, "max-line-length", "Exceeded max line length (40)")
-        ))
+                userData = mapOf("max_line_length" to "40")
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(2, 1, "max-line-length", "Exceeded max line length (40)")
+            )
+        )
     }
 
     @Test
     fun testLintOff() {
-        testLintUsingResource(MaxLineLengthRule(), userData = mapOf("max_line_length" to "off"), qualifier = "off")
+        assertThat(
+            MaxLineLengthRule().diffFileLint(
+                "spec/max-line-length/lint-off.kt.spec",
+                userData = mapOf("max_line_length" to "off")
+            )
+        ).isEmpty()
     }
 
     @Test

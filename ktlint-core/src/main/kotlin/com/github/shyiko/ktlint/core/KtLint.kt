@@ -1,5 +1,6 @@
 package com.github.shyiko.ktlint.core
 
+import com.github.shyiko.ktlint.core.ast.prevLeaf
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
@@ -26,8 +27,6 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.TreeCopyHandler
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.idea.KotlinLanguage
 import org.jetbrains.kotlin.psi.KtFile
-import org.jetbrains.kotlin.psi.psiUtil.prevLeaf
-import org.jetbrains.kotlin.psi.psiUtil.startOffset
 import sun.reflect.ReflectionFactory
 import java.util.ArrayList
 import java.util.HashSet
@@ -149,10 +148,9 @@ object KtLint {
             throw ParseException(line, col, errorElement.errorDescription)
         }
         val rootNode = psiFile.node
-        rootNode.putUserData(EDITOR_CONFIG_USER_DATA_KEY, EditorConfig.fromMap(userData - "android" - "file_path"))
-        rootNode.putUserData(ANDROID_USER_DATA_KEY, userData["android"]?.toBoolean() ?: false)
-        rootNode.putUserData(FILE_PATH_USER_DATA_KEY, userData["file_path"])
+        injectUserData(rootNode, userData)
         val isSuppressed = calculateSuppressedRegions(rootNode)
+        val errors = mutableListOf<LintError>()
         visitor(rootNode, ruleSets).invoke { node, rule, fqRuleId ->
             // fixme: enforcing suppression based on node.startOffset is wrong
             // (not just because not all nodes are leaves but because rules are free to emit (and fix!) errors at any position)
@@ -164,7 +162,7 @@ object KtLint {
                             return@visit
                         }
                         val (line, col) = positionByOffset(offset)
-                        cb(LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected))
+                        errors.add(LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected))
                     }
                 } catch (e: Exception) {
                     val (line, col) = positionByOffset(node.startOffset)
@@ -172,6 +170,24 @@ object KtLint {
                 }
             }
         }
+        errors
+            .sortedWith(Comparator { l, r -> if (l.line != r.line) l.line - r.line else l.col - r.col })
+            .forEach(cb)
+    }
+
+    private fun injectUserData(node: ASTNode, userData: Map<String, String>) {
+        val android = userData["android"]?.toBoolean() ?: false
+        val editorConfigMap =
+            if (android &&
+                userData["max_line_length"].let { it?.toLowerCase() != "off" && it?.toIntOrNull() == null }
+            ) {
+                userData + mapOf("max_line_length" to "100")
+            } else {
+                userData
+            }
+        node.putUserData(FILE_PATH_USER_DATA_KEY, userData["file_path"])
+        node.putUserData(EDITOR_CONFIG_USER_DATA_KEY, EditorConfig.fromMap(editorConfigMap - "android" - "file_path"))
+        node.putUserData(ANDROID_USER_DATA_KEY, android)
     }
 
     private fun visitor(
@@ -334,9 +350,7 @@ object KtLint {
             throw ParseException(line, col, errorElement.errorDescription)
         }
         val rootNode = psiFile.node
-        rootNode.putUserData(EDITOR_CONFIG_USER_DATA_KEY, EditorConfig.fromMap(userData - "android" - "file_path"))
-        rootNode.putUserData(ANDROID_USER_DATA_KEY, userData["android"]?.toBoolean() ?: false)
-        rootNode.putUserData(FILE_PATH_USER_DATA_KEY, userData["file_path"])
+        injectUserData(rootNode, userData)
         var isSuppressed = calculateSuppressedRegions(rootNode)
         var tripped = false
         var mutated = false
@@ -363,6 +377,7 @@ object KtLint {
                 }
             }
         if (tripped) {
+            val errors = mutableListOf<Pair<LintError, Boolean>>()
             visitor(rootNode, ruleSets).invoke { node, rule, fqRuleId ->
                 // fixme: enforcing suppression based on node.startOffset is wrong
                 // (not just because not all nodes are leaves but because rules are free to emit (and fix!) errors at any position)
@@ -374,7 +389,7 @@ object KtLint {
                                 return@visit
                             }
                             val (line, col) = positionByOffset(offset)
-                            cb(LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected), false)
+                            errors.add(Pair(LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected), false))
                         }
                     } catch (e: Exception) {
                         val (line, col) = positionByOffset(node.startOffset)
@@ -382,6 +397,9 @@ object KtLint {
                     }
                 }
             }
+            errors
+                .sortedWith(Comparator { (l), (r) -> if (l.line != r.line) l.line - r.line else l.col - r.col })
+                .forEach { (e, corrected) -> cb(e, corrected) }
         }
         return if (mutated) rootNode.text.replace("\n", determineLineSeparator(text, userData)) else text
     }
@@ -412,8 +430,10 @@ object KtLint {
                         if (text.startsWith("//")) {
                             val commentText = text.removePrefix("//").trim()
                             parseHintArgs(commentText, "ktlint-disable")?.let { args ->
-                                val lineStart = (node.prevLeaf { it is PsiWhiteSpace && it.textContains('\n') } as
-                                    PsiWhiteSpace?)?.let { it.startOffset + it.text.lastIndexOf('\n') + 1 } ?: 0
+                                val lineStart = (
+                                    node.prevLeaf { it is PsiWhiteSpace && it.textContains('\n') } as
+                                        PsiWhiteSpace?
+                                    )?.let { it.node.startOffset + it.text.lastIndexOf('\n') + 1 } ?: 0
                                 result.add(SuppressionHint(IntRange(lineStart, node.startOffset), HashSet(args)))
                             }
                         } else {
@@ -438,9 +458,11 @@ object KtLint {
                         }
                     }
                 }
-                result.addAll(open.map {
-                    SuppressionHint(IntRange(it.range.first, rootNode.textLength), it.disabledRules)
-                })
+                result.addAll(
+                    open.map {
+                        SuppressionHint(IntRange(it.range.first, rootNode.textLength), it.disabledRules)
+                    }
+                )
                 return result
             }
 

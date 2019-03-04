@@ -10,8 +10,9 @@ class NoConsecutiveBlankLinesRuleTest {
 
     @Test
     fun testLintInDeclarations() {
-        assertThat(NoConsecutiveBlankLinesRule().lint(
-            """fun a() {
+        assertThat(
+            NoConsecutiveBlankLinesRule().lint(
+                """fun a() {
 
             }
 
@@ -19,47 +20,65 @@ class NoConsecutiveBlankLinesRuleTest {
             fun b() {
 
             }"""
-        )).isEqualTo(listOf(
-            LintError(5, 1, "no-consecutive-blank-lines", "Needless blank line(s)")))
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(5, 1, "no-consecutive-blank-lines", "Needless blank line(s)")
+            )
+        )
     }
 
     @Test
     fun testLintInCode() {
-        assertThat(NoConsecutiveBlankLinesRule().lint(
-            """fun main() {
+        assertThat(
+            NoConsecutiveBlankLinesRule().lint(
+                """fun main() {
                 fun a()
                 fun b()
 
 
                 fun c()
             }"""
-        )).isEqualTo(listOf(
-            LintError(5, 1, "no-consecutive-blank-lines", "Needless blank line(s)")))
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(5, 1, "no-consecutive-blank-lines", "Needless blank line(s)")
+            )
+        )
     }
 
     @Test
     fun testLintAtTheEndOfFile() {
-        assertThat(NoConsecutiveBlankLinesRule().lint(
-            """
+        assertThat(
+            NoConsecutiveBlankLinesRule().lint(
+                """
             fun main() {
             }
 
 
             """.trimIndent()
-        )).isEqualTo(listOf(
-            LintError(4, 1, "no-consecutive-blank-lines", "Needless blank line(s)")))
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(4, 1, "no-consecutive-blank-lines", "Needless blank line(s)")
+            )
+        )
     }
 
     @Test
     fun testLintInString() {
-        assertThat(NoConsecutiveBlankLinesRule().lint(
-            "fun main() {println(\"\"\"\n\n\n\"\"\")}")).isEmpty()
+        assertThat(
+            NoConsecutiveBlankLinesRule().lint(
+                "fun main() {println(\"\"\"\n\n\n\"\"\")}"
+            )
+        ).isEmpty()
     }
 
     @Test
     fun testFormatInDeclarations() {
-        assertThat(NoConsecutiveBlankLinesRule().format(
-            """
+        assertThat(
+            NoConsecutiveBlankLinesRule().format(
+                """
             fun a() {
 
             }
@@ -69,7 +88,8 @@ class NoConsecutiveBlankLinesRuleTest {
 
             }
             """
-        )).isEqualTo(
+            )
+        ).isEqualTo(
             """
             fun a() {
 
@@ -84,8 +104,9 @@ class NoConsecutiveBlankLinesRuleTest {
 
     @Test
     fun testFormatInCode() {
-        assertThat(NoConsecutiveBlankLinesRule().format(
-            """
+        assertThat(
+            NoConsecutiveBlankLinesRule().format(
+                """
             fun main() {
                 fun a()
                 fun b()
@@ -95,7 +116,8 @@ class NoConsecutiveBlankLinesRuleTest {
 
             }
             """
-        )).isEqualTo(
+            )
+        ).isEqualTo(
             """
             fun main() {
                 fun a()

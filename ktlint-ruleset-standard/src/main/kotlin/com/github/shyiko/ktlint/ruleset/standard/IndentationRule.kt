@@ -1,15 +1,19 @@
 package com.github.shyiko.ktlint.ruleset.standard
 
+import com.github.shyiko.ktlint.core.KtLint
 import com.github.shyiko.ktlint.core.Rule
-import org.jetbrains.kotlin.KtNodeTypes
+import com.github.shyiko.ktlint.core.ast.ElementType.CONSTRUCTOR_DELEGATION_CALL
+import com.github.shyiko.ktlint.core.ast.ElementType.SUPER_TYPE_LIST
+import com.github.shyiko.ktlint.core.ast.ElementType.TYPE_REFERENCE
+import com.github.shyiko.ktlint.core.ast.isPartOf
+import com.github.shyiko.ktlint.core.ast.isRoot
+import com.github.shyiko.ktlint.core.ast.nextLeaf
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.psi.KtParameterList
 import org.jetbrains.kotlin.psi.KtTypeConstraintList
-import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
 
 class IndentationRule : Rule("indent") {
 
@@ -20,9 +24,9 @@ class IndentationRule : Rule("indent") {
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        if (node.elementType == KtStubElementTypes.FILE) {
-            val ec = EditorConfig.from(node as FileASTNode)
-            indentSize = gcd(maxOf(ec.indentSize, 1), maxOf(ec.continuationIndentSize, 1))
+        if (node.isRoot()) {
+            val editorConfig = node.getUserData(KtLint.EDITOR_CONFIG_USER_DATA_KEY)!!
+            indentSize = editorConfig.indentSize
             return
         }
         if (indentSize <= 1) {
@@ -56,26 +60,22 @@ class IndentationRule : Rule("indent") {
         }
     }
 
-    private fun gcd(a: Int, b: Int): Int = when {
-        a > b -> gcd(a - b, b)
-        a < b -> gcd(a, b - a)
-        else -> a
-    }
-
     // todo: calculating indent based on the previous line value is wrong (see IndentationRule.testLint)
     private fun ASTNode.previousIndentSize(): Int {
-        var node = this.treeParent?.psi
+        var node: ASTNode? = this.treeParent
         while (node != null) {
-            val nextNode = node.nextSibling?.node?.elementType
+            val nextNode = node.treeNext?.elementType
             if (node is PsiWhiteSpace &&
-                nextNode != KtStubElementTypes.TYPE_REFERENCE &&
-                nextNode != KtStubElementTypes.SUPER_TYPE_LIST &&
-                nextNode != KtNodeTypes.CONSTRUCTOR_DELEGATION_CALL &&
+                nextNode != TYPE_REFERENCE &&
+                nextNode != SUPER_TYPE_LIST &&
+                nextNode != CONSTRUCTOR_DELEGATION_CALL &&
                 node.textContains('\n') &&
-                node.nextLeaf()?.isPartOf(PsiComment::class) != true) {
-                return node.text.length - node.text.lastIndexOf('\n') - 1
+                node.nextLeaf()?.isPartOf(PsiComment::class) != true
+            ) {
+                val text = node.getText()
+                return text.length - text.lastIndexOf('\n') - 1
             }
-            node = node.prevSibling ?: node.parent
+            node = node.treePrev ?: node.treeParent
         }
         return 0
     }

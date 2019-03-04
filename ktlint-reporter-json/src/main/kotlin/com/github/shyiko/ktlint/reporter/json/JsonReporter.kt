@@ -40,11 +40,12 @@ class JsonReporter(val out: PrintStream) : Reporter {
         out.println("]")
     }
 
-    private fun String.escapeJsonValue() = this
-        .replace("\\", "\\\\")
-        .replace("\"", "\\\"")
-        .replace("\b", "\\b")
-        .replace("\n", "\\n")
-        .replace("\r", "\\r")
-        .replace("\t", "\\t")
+    private fun String.escapeJsonValue() =
+        this
+            .replace("\\", "\\\\")
+            .replace("\"", "\\\"")
+            .replace("\b", "\\b")
+            .replace("\n", "\\n")
+            .replace("\r", "\\r")
+            .replace("\t", "\\t")
 }

@@ -1,10 +1,10 @@
 package com.github.shyiko.ktlint.ruleset.standard
 
 import com.github.shyiko.ktlint.core.Rule
+import com.github.shyiko.ktlint.core.ast.nextLeaf
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
-import org.jetbrains.kotlin.com.intellij.psi.util.PsiTreeUtil
 
 class NoTrailingSpacesRule : Rule("no-trailing-spaces") {
 
@@ -20,7 +20,7 @@ class NoTrailingSpacesRule : Rule("no-trailing-spaces") {
                 if (violated && autoCorrect) {
                     (node as LeafPsiElement).rawReplaceWithText("\n".repeat(lines.size - 1) + lines.last())
                 }
-            } else if (PsiTreeUtil.nextLeaf(node) == null /* eof */) {
+            } else if (node.nextLeaf() == null /* eof */) {
                 val violated = checkForTrailingSpaces(lines, node.startOffset, emit)
                 if (violated && autoCorrect) {
                     (node as LeafPsiElement).rawReplaceWithText("\n".repeat(lines.size - 1))

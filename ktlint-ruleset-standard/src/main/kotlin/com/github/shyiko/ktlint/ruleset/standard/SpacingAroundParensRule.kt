@@ -1,12 +1,15 @@
 package com.github.shyiko.ktlint.ruleset.standard
 
 import com.github.shyiko.ktlint.core.Rule
-import org.jetbrains.kotlin.KtNodeTypes
+import com.github.shyiko.ktlint.core.ast.ElementType.IDENTIFIER
+import com.github.shyiko.ktlint.core.ast.ElementType.LPAR
+import com.github.shyiko.ktlint.core.ast.ElementType.RPAR
+import com.github.shyiko.ktlint.core.ast.ElementType.VALUE_ARGUMENT_LIST
+import com.github.shyiko.ktlint.core.ast.ElementType.VALUE_PARAMETER_LIST
+import com.github.shyiko.ktlint.core.ast.nextLeaf
+import com.github.shyiko.ktlint.core.ast.prevLeaf
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
-import org.jetbrains.kotlin.com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.kotlin.lexer.KtTokens
-import org.jetbrains.kotlin.psi.psiUtil.startOffset
 
 class SpacingAroundParensRule : Rule("paren-spacing") {
 
@@ -15,46 +18,46 @@ class SpacingAroundParensRule : Rule("paren-spacing") {
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        if (node.elementType == KtTokens.LPAR || node.elementType == KtTokens.RPAR) {
-            val prevLeaf = PsiTreeUtil.prevLeaf(node.psi, true)
-            val nextLeaf = PsiTreeUtil.nextLeaf(node.psi, true)
-            val spacingBefore = if (node.elementType == KtTokens.LPAR) {
+        if (node.elementType == LPAR || node.elementType == RPAR) {
+            val prevLeaf = node.prevLeaf()
+            val nextLeaf = node.nextLeaf()
+            val spacingBefore = if (node.elementType == LPAR) {
                 prevLeaf is PsiWhiteSpace && !prevLeaf.textContains('\n') &&
-                PsiTreeUtil.prevLeaf(prevLeaf, true)?.node?.elementType == KtTokens.IDENTIFIER && (
-                    node.treeParent?.elementType == KtNodeTypes.VALUE_PARAMETER_LIST ||
-                    node.treeParent?.elementType == KtNodeTypes.VALUE_ARGUMENT_LIST
-                )
+                    prevLeaf.prevLeaf()?.elementType == IDENTIFIER && (
+                    node.treeParent?.elementType == VALUE_PARAMETER_LIST ||
+                        node.treeParent?.elementType == VALUE_ARGUMENT_LIST
+                    )
             } else {
                 prevLeaf is PsiWhiteSpace && !prevLeaf.textContains('\n') &&
-                PsiTreeUtil.prevLeaf(prevLeaf, true)?.node?.elementType != KtTokens.LPAR
+                    prevLeaf.prevLeaf()?.elementType != LPAR
             }
-            val spacingAfter = if (node.elementType == KtTokens.LPAR) {
+            val spacingAfter = if (node.elementType == LPAR) {
                 nextLeaf is PsiWhiteSpace && (
                     !nextLeaf.textContains('\n') ||
-                    PsiTreeUtil.nextLeaf(nextLeaf, true)?.node?.elementType == KtTokens.RPAR
-                )
+                        nextLeaf.nextLeaf()?.elementType == RPAR
+                    )
             } else {
                 nextLeaf is PsiWhiteSpace && !nextLeaf.textContains('\n') &&
-                PsiTreeUtil.nextLeaf(nextLeaf, true)?.node?.elementType == KtTokens.RPAR
+                    nextLeaf.nextLeaf()?.elementType == RPAR
             }
             when {
                 spacingBefore && spacingAfter -> {
                     emit(node.startOffset, "Unexpected spacing around \"${node.text}\"", true)
                     if (autoCorrect) {
-                        prevLeaf!!.node.treeParent.removeChild(prevLeaf.node)
-                        nextLeaf!!.node.treeParent.removeChild(nextLeaf.node)
+                        prevLeaf!!.treeParent.removeChild(prevLeaf)
+                        nextLeaf!!.treeParent.removeChild(nextLeaf)
                     }
                 }
                 spacingBefore -> {
                     emit(prevLeaf!!.startOffset, "Unexpected spacing before \"${node.text}\"", true)
                     if (autoCorrect) {
-                        prevLeaf.node.treeParent.removeChild(prevLeaf.node)
+                        prevLeaf.treeParent.removeChild(prevLeaf)
                     }
                 }
                 spacingAfter -> {
                     emit(node.startOffset + 1, "Unexpected spacing after \"${node.text}\"", true)
                     if (autoCorrect) {
-                        nextLeaf!!.node.treeParent.removeChild(nextLeaf.node)
+                        nextLeaf!!.treeParent.removeChild(nextLeaf)
                     }
                 }
             }
