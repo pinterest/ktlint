@@ -16,6 +16,14 @@ class IndentationRuleTest {
     }
 
     @Test
+    fun testFormat() {
+        assertThat(IndentationRule().diffFileFormat(
+            "spec/indent/format.kt.spec",
+            "spec/indent/format-expected.kt.spec"
+        )).isEmpty()
+    }
+
+    @Test
     fun testLintIndentSize2() {
         assertThat(
             IndentationRule().lint(
