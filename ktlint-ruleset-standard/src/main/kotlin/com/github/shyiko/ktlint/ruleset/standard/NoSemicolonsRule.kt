@@ -1,13 +1,16 @@
 package com.github.shyiko.ktlint.ruleset.standard
 
 import com.github.shyiko.ktlint.core.Rule
+import com.github.shyiko.ktlint.core.ast.ElementType.OBJECT_KEYWORD
+import com.github.shyiko.ktlint.core.ast.isPartOf
+import com.github.shyiko.ktlint.core.ast.isPartOfString
+import com.github.shyiko.ktlint.core.ast.nextLeaf
+import com.github.shyiko.ktlint.core.ast.prevCodeLeaf
+import com.github.shyiko.ktlint.core.ast.prevLeaf
+import com.github.shyiko.ktlint.core.ast.upsertWhitespaceAfterMe
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
-import org.jetbrains.kotlin.com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtEnumEntry
 
 class NoSemicolonsRule : Rule("no-semi") {
@@ -19,9 +22,9 @@ class NoSemicolonsRule : Rule("no-semi") {
     ) {
         if (node is LeafPsiElement && node.textMatches(";") && !node.isPartOfString() &&
                 !node.isPartOf(KtEnumEntry::class)) {
-            val nextLeaf = PsiTreeUtil.nextLeaf(node, true)
+            val nextLeaf = node.nextLeaf()
             if (doesNotRequirePreSemi(nextLeaf)) {
-                if (node.psi.prevLeafIgnoringWhitespaceAndComments()?.node?.elementType == KtTokens.OBJECT_KEYWORD) {
+                if (node.prevCodeLeaf()?.elementType == OBJECT_KEYWORD) {
                     // https://github.com/shyiko/ktlint/issues/281
                     return
                 }
@@ -30,25 +33,25 @@ class NoSemicolonsRule : Rule("no-semi") {
                     node.treeParent.removeChild(node)
                 }
             } else if (nextLeaf !is PsiWhiteSpace) {
-                val prevLeaf = PsiTreeUtil.prevLeaf(node, true)
+                val prevLeaf = node.prevLeaf()
                 if (prevLeaf is PsiWhiteSpace && prevLeaf.textContains('\n')) { // \n;{
                     return
                 }
                 // todo: move to a separate rule
                 emit(node.startOffset + 1, "Missing spacing after \";\"", true)
                 if (autoCorrect) {
-                    node.rawInsertAfterMe(PsiWhiteSpaceImpl(" "))
+                    node.upsertWhitespaceAfterMe(" ")
                 }
             }
         }
     }
 
-    private fun doesNotRequirePreSemi(nextLeaf: PsiElement?): Boolean {
+    private fun doesNotRequirePreSemi(nextLeaf: ASTNode?): Boolean {
         if (nextLeaf is PsiWhiteSpace) {
-            val nextNextLeaf = PsiTreeUtil.nextLeaf(nextLeaf, true)
+            val nextNextLeaf = nextLeaf.nextLeaf()
             return (
                 nextNextLeaf == null || // \s+ and then eof
-                nextLeaf.textContains('\n') && !nextNextLeaf.textMatches("{")
+                nextLeaf.textContains('\n') && nextNextLeaf.text != "{"
             )
         }
         return nextLeaf == null /* eof */

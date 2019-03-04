@@ -1,9 +1,10 @@
 package com.github.shyiko.ktlint.ruleset.standard
 
 import com.github.shyiko.ktlint.core.Rule
+import com.github.shyiko.ktlint.core.ast.ElementType.IMPORT_DIRECTIVE
+import com.github.shyiko.ktlint.core.ast.ElementType.IMPORT_LIST
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
-import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
 
 /**
  * Android Studio:
@@ -17,10 +18,10 @@ class ImportOrderingRule : Rule("import-ordering") {
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        if (node.elementType == KtStubElementTypes.IMPORT_LIST) {
+        if (node.elementType == IMPORT_LIST) {
             val children = node.getChildren(null)
             if (children.isNotEmpty()) {
-                val imports = children.filter { it.elementType == KtStubElementTypes.IMPORT_DIRECTIVE }
+                val imports = children.filter { it.elementType == IMPORT_DIRECTIVE }
                 val sortedImports = imports.sortedBy { it.text }
                 if (imports != sortedImports) {
                     emit(node.startOffset, "Imports must be ordered in lexicographic order", true)

@@ -1,13 +1,12 @@
 package com.github.shyiko.ktlint.ruleset.standard
 
 import com.github.shyiko.ktlint.core.Rule
-import org.jetbrains.kotlin.KtNodeTypes
+import com.github.shyiko.ktlint.core.ast.ElementType.MODIFIER_LIST
+import com.github.shyiko.ktlint.core.ast.children
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
+import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
-import org.jetbrains.kotlin.psi.psiUtil.children
-import org.jetbrains.kotlin.psi.psiUtil.startOffset
 
 class AnnotationRule : Rule("annotation") {
 
@@ -23,7 +22,7 @@ class AnnotationRule : Rule("annotation") {
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        val root = node.children().firstOrNull { it.elementType == KtNodeTypes.MODIFIER_LIST }
+        val root = node.children().firstOrNull { it.elementType == MODIFIER_LIST }
             ?: return
 
         val annotations = root.children()
@@ -40,7 +39,7 @@ class AnnotationRule : Rule("annotation") {
         //      val s: Any
         //
         val whiteSpaces = (annotations.asSequence().map { it.nextSibling } + root.treeNext)
-            .filterIsInstance<PsiWhiteSpaceImpl>()
+            .filterIsInstance<PsiWhiteSpace>()
             .take(annotations.size)
             .toList()
 
@@ -52,14 +51,14 @@ class AnnotationRule : Rule("annotation") {
 
         if (multipleAnnotationsOnSameLineAsAnnotatedConstruct) {
             emit(
-                annotations.first().startOffset,
+                annotations.first().node.startOffset,
                 multipleAnnotationsOnSameLineAsAnnotatedConstructErrorMessage,
                 true
             )
         }
         if (annotationsWithParametersAreNotOnSeparateLines) {
             emit(
-                annotations.first().startOffset,
+                annotations.first().node.startOffset,
                 annotationsWithParametersAreNotOnSeparateLinesErrorMessage,
                 true
             )
@@ -73,10 +72,10 @@ class AnnotationRule : Rule("annotation") {
 
             if (annotationsWithParametersAreNotOnSeparateLines) {
                 whiteSpaces.forEach {
-                    it.rawReplaceWithText(newLineWithIndent)
+                    (it as LeafPsiElement).rawReplaceWithText(newLineWithIndent)
                 }
             } else if (multipleAnnotationsOnSameLineAsAnnotatedConstruct) {
-                whiteSpaces.last().rawReplaceWithText(newLineWithIndent)
+                (whiteSpaces.last() as LeafPsiElement).rawReplaceWithText(newLineWithIndent)
             }
         }
     }

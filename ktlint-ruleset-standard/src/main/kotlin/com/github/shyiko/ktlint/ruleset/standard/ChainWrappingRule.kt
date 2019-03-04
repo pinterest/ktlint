@@ -1,26 +1,35 @@
 package com.github.shyiko.ktlint.ruleset.standard
 
 import com.github.shyiko.ktlint.core.Rule
-import org.jetbrains.kotlin.KtNodeTypes
+import com.github.shyiko.ktlint.core.ast.ElementType.ANDAND
+import com.github.shyiko.ktlint.core.ast.ElementType.COMMA
+import com.github.shyiko.ktlint.core.ast.ElementType.DIV
+import com.github.shyiko.ktlint.core.ast.ElementType.DOT
+import com.github.shyiko.ktlint.core.ast.ElementType.ELSE_KEYWORD
+import com.github.shyiko.ktlint.core.ast.ElementType.ELVIS
+import com.github.shyiko.ktlint.core.ast.ElementType.LBRACE
+import com.github.shyiko.ktlint.core.ast.ElementType.LPAR
+import com.github.shyiko.ktlint.core.ast.ElementType.MINUS
+import com.github.shyiko.ktlint.core.ast.ElementType.MUL
+import com.github.shyiko.ktlint.core.ast.ElementType.OROR
+import com.github.shyiko.ktlint.core.ast.ElementType.PERC
+import com.github.shyiko.ktlint.core.ast.ElementType.PLUS
+import com.github.shyiko.ktlint.core.ast.ElementType.PREFIX_EXPRESSION
+import com.github.shyiko.ktlint.core.ast.ElementType.SAFE_ACCESS
+import com.github.shyiko.ktlint.core.ast.ElementType.WHEN_CONDITION_WITH_EXPRESSION
+import com.github.shyiko.ktlint.core.ast.ElementType.WHITE_SPACE
+import com.github.shyiko.ktlint.core.ast.isPartOfComment
+import com.github.shyiko.ktlint.core.ast.nextCodeLeaf
+import com.github.shyiko.ktlint.core.ast.nextLeaf
+import com.github.shyiko.ktlint.core.ast.prevCodeLeaf
+import com.github.shyiko.ktlint.core.ast.prevLeaf
+import com.github.shyiko.ktlint.core.ast.upsertWhitespaceAfterMe
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.PsiComment
-import org.jetbrains.kotlin.com.intellij.psi.PsiElement
+import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
+import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 import org.jetbrains.kotlin.lexer.KtTokens
-import org.jetbrains.kotlin.lexer.KtTokens.ANDAND
-import org.jetbrains.kotlin.lexer.KtTokens.DIV
-import org.jetbrains.kotlin.lexer.KtTokens.DOT
-import org.jetbrains.kotlin.lexer.KtTokens.ELVIS
-import org.jetbrains.kotlin.lexer.KtTokens.MINUS
-import org.jetbrains.kotlin.lexer.KtTokens.MUL
-import org.jetbrains.kotlin.lexer.KtTokens.OROR
-import org.jetbrains.kotlin.lexer.KtTokens.PERC
-import org.jetbrains.kotlin.lexer.KtTokens.PLUS
-import org.jetbrains.kotlin.lexer.KtTokens.SAFE_ACCESS
-import org.jetbrains.kotlin.psi.psiUtil.nextLeaf
-import org.jetbrains.kotlin.psi.psiUtil.prevLeaf
 
 class ChainWrappingRule : Rule("chain-wrapping") {
 
@@ -41,11 +50,12 @@ class ChainWrappingRule : Rule("chain-wrapping") {
          */
         val elementType = node.elementType
         if (nextLineTokens.contains(elementType)) {
-            if (node.psi.isPartOf(PsiComment::class)) {
+            if (node.isPartOfComment()) {
                 return
             }
-            val nextLeaf = node.psi.nextLeafIgnoringWhitespaceAndComments()?.prevLeaf(true)
-            if (nextLeaf is PsiWhiteSpaceImpl && nextLeaf.textContains('\n')) {
+            val nextLeaf = node.nextCodeLeaf()?.prevLeaf()
+            if (nextLeaf?.elementType == WHITE_SPACE &&
+                nextLeaf.textContains('\n')) {
                 emit(node.startOffset, "Line must not end with \"${node.text}\"", true)
                 if (autoCorrect) {
                     // rewriting
@@ -54,24 +64,24 @@ class ChainWrappingRule : Rule("chain-wrapping") {
                     // (or)
                     // <prevLeaf><node="."><spaceBeforeComment><comment><nextLeaf="\n"> to
                     // <prevLeaf><delete space if any><spaceBeforeComment><comment><nextLeaf="\n"><node="."><space if needed>
-                    val prevLeaf = node.psi.prevLeaf(true)
-                    if (prevLeaf is PsiWhiteSpaceImpl) {
+                    val prevLeaf = node.prevLeaf()
+                    if (prevLeaf is PsiWhiteSpace) {
                         prevLeaf.node.treeParent.removeChild(prevLeaf.node)
                     }
                     if (!noSpaceAroundTokens.contains(elementType)) {
-                        nextLeaf.rawInsertAfterMe(PsiWhiteSpaceImpl(" "))
+                        (nextLeaf as LeafElement).upsertWhitespaceAfterMe(" ")
                     }
                     node.treeParent.removeChild(node)
-                    nextLeaf.rawInsertAfterMe(node.psi as LeafPsiElement)
+                    (nextLeaf as LeafElement).rawInsertAfterMe(node as LeafElement)
                 }
             }
         } else if (sameLineTokens.contains(elementType) || prefixTokens.contains(elementType)) {
-            if (node.psi.isPartOf(PsiComment::class)) {
+            if (node.isPartOfComment()) {
                 return
             }
-            val prevLeaf = node.psi.prevLeaf(true)
+            val prevLeaf = node.prevLeaf()
             if (
-                prevLeaf is PsiWhiteSpaceImpl &&
+                prevLeaf?.elementType == WHITE_SPACE &&
                 prevLeaf.textContains('\n') &&
                 // fn(*typedArray<...>()) case
                 (elementType != MUL || !prevLeaf.isPartOfSpread()) &&
@@ -88,34 +98,34 @@ class ChainWrappingRule : Rule("chain-wrapping") {
                     // (or)
                     // <insertionPoint><spaceBeforeComment><comment><prevLeaf="\n"><node="&&"><nextLeaf=" "> to
                     // <insertionPoint><space if needed><node="&&"><spaceBeforeComment><comment><prevLeaf="\n"><delete node="&&"><delete nextLeaf=" ">
-                    val nextLeaf = node.psi.nextLeaf(true)
-                    if (nextLeaf is PsiWhiteSpaceImpl) {
+                    val nextLeaf = node.nextLeaf()
+                    if (nextLeaf is PsiWhiteSpace) {
                         nextLeaf.node.treeParent.removeChild(nextLeaf.node)
                     }
-                    val insertionPoint = prevLeaf.prevLeafIgnoringWhitespaceAndComments() as LeafPsiElement
+                    val insertionPoint = prevLeaf.prevCodeLeaf() as LeafPsiElement
                     node.treeParent.removeChild(node)
-                    insertionPoint.rawInsertAfterMe(node.psi as LeafPsiElement)
+                    insertionPoint.rawInsertAfterMe(node as LeafPsiElement)
                     if (!noSpaceAroundTokens.contains(elementType)) {
-                        insertionPoint.rawInsertAfterMe(PsiWhiteSpaceImpl(" "))
+                        insertionPoint.upsertWhitespaceAfterMe(" ")
                     }
                 }
             }
         }
     }
 
-    private fun PsiElement.isPartOfSpread() =
-        prevLeafIgnoringWhitespaceAndComments()?.let { leaf ->
-            val type = leaf.node.elementType
-            type == KtTokens.LPAR ||
-            type == KtTokens.COMMA ||
-            type == KtTokens.LBRACE ||
-            type == KtTokens.ELSE_KEYWORD ||
+    private fun ASTNode.isPartOfSpread() =
+        prevCodeLeaf()?.let { leaf ->
+            val type = leaf.elementType
+            type == LPAR ||
+            type == COMMA ||
+            type == LBRACE ||
+            type == ELSE_KEYWORD ||
             KtTokens.OPERATIONS.contains(type)
         } == true
 
     private fun ASTNode.isInPrefixPosition() =
-        treeParent?.treeParent?.elementType == KtNodeTypes.PREFIX_EXPRESSION
+        treeParent?.treeParent?.elementType == PREFIX_EXPRESSION
 
     private fun ASTNode.isPartOfWhenCondition() =
-        treeParent?.treeParent?.treeParent?.elementType == KtNodeTypes.WHEN_CONDITION_EXPRESSION
+        treeParent?.treeParent?.treeParent?.elementType == WHEN_CONDITION_WITH_EXPRESSION
 }

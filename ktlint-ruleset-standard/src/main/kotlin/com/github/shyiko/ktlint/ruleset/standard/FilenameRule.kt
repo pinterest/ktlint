@@ -2,11 +2,21 @@ package com.github.shyiko.ktlint.ruleset.standard
 
 import com.github.shyiko.ktlint.core.KtLint
 import com.github.shyiko.ktlint.core.Rule
+import com.github.shyiko.ktlint.core.ast.ElementType.BLOCK_COMMENT
+import com.github.shyiko.ktlint.core.ast.ElementType.CLASS
+import com.github.shyiko.ktlint.core.ast.ElementType.EOL_COMMENT
+import com.github.shyiko.ktlint.core.ast.ElementType.FILE_ANNOTATION_LIST
+import com.github.shyiko.ktlint.core.ast.ElementType.IDENTIFIER
+import com.github.shyiko.ktlint.core.ast.ElementType.IMPORT_LIST
+import com.github.shyiko.ktlint.core.ast.ElementType.KDOC
+import com.github.shyiko.ktlint.core.ast.ElementType.OBJECT_DECLARATION
+import com.github.shyiko.ktlint.core.ast.ElementType.PACKAGE_DIRECTIVE
+import com.github.shyiko.ktlint.core.ast.ElementType.SHEBANG_COMMENT
+import com.github.shyiko.ktlint.core.ast.ElementType.TYPEALIAS
+import com.github.shyiko.ktlint.core.ast.ElementType.WHITE_SPACE
+import com.github.shyiko.ktlint.core.ast.prevCodeSibling
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
-import org.jetbrains.kotlin.lexer.KtTokens
-import org.jetbrains.kotlin.psi.psiUtil.getPrevSiblingIgnoringWhitespaceAndComments
-import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
 import java.nio.file.Paths
 
 /**
@@ -15,14 +25,14 @@ import java.nio.file.Paths
 class FilenameRule : Rule("filename"), Rule.Modifier.RestrictToRoot {
 
     private val ignoreSet = setOf<IElementType>(
-        KtStubElementTypes.FILE_ANNOTATION_LIST,
-        KtStubElementTypes.PACKAGE_DIRECTIVE,
-        KtStubElementTypes.IMPORT_LIST,
-        KtTokens.WHITE_SPACE,
-        KtTokens.EOL_COMMENT,
-        KtTokens.BLOCK_COMMENT,
-        KtTokens.DOC_COMMENT,
-        KtTokens.SHEBANG_COMMENT
+        FILE_ANNOTATION_LIST,
+        PACKAGE_DIRECTIVE,
+        IMPORT_LIST,
+        WHITE_SPACE,
+        EOL_COMMENT,
+        BLOCK_COMMENT,
+        KDOC,
+        SHEBANG_COMMENT
     )
 
     override fun visit(
@@ -38,15 +48,16 @@ class FilenameRule : Rule("filename"), Rule.Modifier.RestrictToRoot {
         var type: String? = null
         var className: String? = null
         for (el in node.getChildren(null)) {
-            if (el.elementType == KtStubElementTypes.CLASS ||
-                el.elementType == KtStubElementTypes.OBJECT_DECLARATION ||
-                el.elementType == KtStubElementTypes.TYPEALIAS) {
+            if (el.elementType == CLASS ||
+                el.elementType == OBJECT_DECLARATION ||
+                el.elementType == TYPEALIAS
+            ) {
                 if (className != null) {
                     // more than one class/object/typealias present
                     return
                 }
-                val id = el.findChildByType(KtTokens.IDENTIFIER)
-                type = id?.psi?.getPrevSiblingIgnoringWhitespaceAndComments(false)?.text
+                val id = el.findChildByType(IDENTIFIER)
+                type = id?.prevCodeSibling()?.text
                 className = id?.text
             } else if (!ignoreSet.contains(el.elementType)) {
                 // https://github.com/android/android-ktx/blob/51005889235123f41492eaaecde3c623473dfe95/src/main/java/androidx/core/graphics/Path.kt case

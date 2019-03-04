@@ -1,9 +1,9 @@
 package com.github.shyiko.ktlint.ruleset.standard
 
 import com.github.shyiko.ktlint.core.Rule
+import com.github.shyiko.ktlint.core.ast.ElementType.PACKAGE_DIRECTIVE
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.psi.KtPackageDirective
-import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
 
 /**
  * @see [Kotlin Style Guide](https://kotlinlang.org/docs/reference/coding-conventions.html#naming-rules)
@@ -17,7 +17,7 @@ class PackageNameRule : Rule("package-name") {
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        if (node.elementType == KtStubElementTypes.PACKAGE_DIRECTIVE) {
+        if (node.elementType == PACKAGE_DIRECTIVE) {
             val qualifiedName = (node.psi as KtPackageDirective).qualifiedName
             if (qualifiedName.isEmpty()) {
                 return

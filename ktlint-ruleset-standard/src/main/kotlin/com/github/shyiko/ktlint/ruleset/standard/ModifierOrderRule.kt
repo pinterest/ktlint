@@ -1,41 +1,41 @@
 package com.github.shyiko.ktlint.ruleset.standard
 
 import com.github.shyiko.ktlint.core.Rule
+import com.github.shyiko.ktlint.core.ast.ElementType.ABSTRACT_KEYWORD
+import com.github.shyiko.ktlint.core.ast.ElementType.ACTUAL_KEYWORD
+import com.github.shyiko.ktlint.core.ast.ElementType.ANNOTATION_ENTRY
+import com.github.shyiko.ktlint.core.ast.ElementType.ANNOTATION_KEYWORD
+import com.github.shyiko.ktlint.core.ast.ElementType.COMPANION_KEYWORD
+import com.github.shyiko.ktlint.core.ast.ElementType.CONST_KEYWORD
+import com.github.shyiko.ktlint.core.ast.ElementType.DATA_KEYWORD
+import com.github.shyiko.ktlint.core.ast.ElementType.ENUM_KEYWORD
+import com.github.shyiko.ktlint.core.ast.ElementType.EXPECT_KEYWORD
+import com.github.shyiko.ktlint.core.ast.ElementType.EXTERNAL_KEYWORD
+import com.github.shyiko.ktlint.core.ast.ElementType.FINAL_KEYWORD
+import com.github.shyiko.ktlint.core.ast.ElementType.INFIX_KEYWORD
+import com.github.shyiko.ktlint.core.ast.ElementType.INLINE_KEYWORD
+import com.github.shyiko.ktlint.core.ast.ElementType.INNER_KEYWORD
+import com.github.shyiko.ktlint.core.ast.ElementType.INTERNAL_KEYWORD
+import com.github.shyiko.ktlint.core.ast.ElementType.LATEINIT_KEYWORD
+import com.github.shyiko.ktlint.core.ast.ElementType.OPEN_KEYWORD
+import com.github.shyiko.ktlint.core.ast.ElementType.OPERATOR_KEYWORD
+import com.github.shyiko.ktlint.core.ast.ElementType.OVERRIDE_KEYWORD
+import com.github.shyiko.ktlint.core.ast.ElementType.PRIVATE_KEYWORD
+import com.github.shyiko.ktlint.core.ast.ElementType.PROTECTED_KEYWORD
+import com.github.shyiko.ktlint.core.ast.ElementType.PUBLIC_KEYWORD
+import com.github.shyiko.ktlint.core.ast.ElementType.SEALED_KEYWORD
+import com.github.shyiko.ktlint.core.ast.ElementType.SUSPEND_KEYWORD
+import com.github.shyiko.ktlint.core.ast.ElementType.TAILREC_KEYWORD
+import com.github.shyiko.ktlint.core.ast.ElementType.VARARG_KEYWORD
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
-import org.jetbrains.kotlin.lexer.KtTokens.ABSTRACT_KEYWORD
-import org.jetbrains.kotlin.lexer.KtTokens.ACTUAL_KEYWORD
-import org.jetbrains.kotlin.lexer.KtTokens.ANNOTATION_KEYWORD
-import org.jetbrains.kotlin.lexer.KtTokens.COMPANION_KEYWORD
-import org.jetbrains.kotlin.lexer.KtTokens.CONST_KEYWORD
-import org.jetbrains.kotlin.lexer.KtTokens.DATA_KEYWORD
-import org.jetbrains.kotlin.lexer.KtTokens.ENUM_KEYWORD
-import org.jetbrains.kotlin.lexer.KtTokens.EXPECT_KEYWORD
-import org.jetbrains.kotlin.lexer.KtTokens.EXTERNAL_KEYWORD
-import org.jetbrains.kotlin.lexer.KtTokens.FINAL_KEYWORD
-import org.jetbrains.kotlin.lexer.KtTokens.INFIX_KEYWORD
-import org.jetbrains.kotlin.lexer.KtTokens.INLINE_KEYWORD
-import org.jetbrains.kotlin.lexer.KtTokens.INNER_KEYWORD
-import org.jetbrains.kotlin.lexer.KtTokens.INTERNAL_KEYWORD
-import org.jetbrains.kotlin.lexer.KtTokens.LATEINIT_KEYWORD
-import org.jetbrains.kotlin.lexer.KtTokens.OPEN_KEYWORD
-import org.jetbrains.kotlin.lexer.KtTokens.OPERATOR_KEYWORD
-import org.jetbrains.kotlin.lexer.KtTokens.OVERRIDE_KEYWORD
-import org.jetbrains.kotlin.lexer.KtTokens.PRIVATE_KEYWORD
-import org.jetbrains.kotlin.lexer.KtTokens.PROTECTED_KEYWORD
-import org.jetbrains.kotlin.lexer.KtTokens.PUBLIC_KEYWORD
-import org.jetbrains.kotlin.lexer.KtTokens.SEALED_KEYWORD
-import org.jetbrains.kotlin.lexer.KtTokens.SUSPEND_KEYWORD
-import org.jetbrains.kotlin.lexer.KtTokens.TAILREC_KEYWORD
-import org.jetbrains.kotlin.lexer.KtTokens.VARARG_KEYWORD
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
 import org.jetbrains.kotlin.psi.KtDeclarationModifierList
-import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes.ANNOTATION_ENTRY
 import java.util.Arrays
 
 class ModifierOrderRule : Rule("modifier-order") {
 
-    // subset of KtTokens.MODIFIER_KEYWORDS_ARRAY (+ annotations entries)
+    // subset of ElementType.MODIFIER_KEYWORDS_ARRAY (+ annotations entries)
     private val order = arrayOf(
         ANNOTATION_ENTRY,
         PUBLIC_KEYWORD, PROTECTED_KEYWORD, PRIVATE_KEYWORD, INTERNAL_KEYWORD,

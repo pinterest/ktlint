@@ -1,13 +1,14 @@
 package com.github.shyiko.ktlint.test
 
 import com.github.shyiko.ktlint.core.Rule
+import com.github.shyiko.ktlint.core.ast.ElementType
+import com.github.shyiko.ktlint.core.ast.isRoot
+import com.github.shyiko.ktlint.core.ast.lastChildLeafOrSelf
 import com.github.shyiko.ktlint.test.internal.Color
 import com.github.shyiko.ktlint.test.internal.color
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.openapi.util.TextRange
-import org.jetbrains.kotlin.com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.kotlin.diagnostics.DiagnosticUtils
-import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
+import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
+import org.jetbrains.kotlin.lexer.KtTokens
 import java.io.PrintStream
 
 val debugAST = {
@@ -20,6 +21,10 @@ class DumpAST @JvmOverloads constructor(
     private val color: Boolean = false
 ) : Rule("dump") {
 
+    private companion object {
+        val elementTypeSet = ElementType::class.members.map { it.name }.toSet()
+    }
+
     private var lineNumberColumnLength: Int = 0
     private var lastNode: ASTNode? = null
 
@@ -28,10 +33,11 @@ class DumpAST @JvmOverloads constructor(
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, corrected: Boolean) -> Unit
     ) {
-        if (node.elementType == KtStubElementTypes.FILE) {
-            lineNumberColumnLength = (location(PsiTreeUtil.getDeepestLast(node.psi).node)?.line ?: 1)
-                .let { var v = it; var c = 0; while (v > 0) { c++; v /= 10 }; c }
-            lastNode = lastChildNodeOf(node)
+        if (node.isRoot()) {
+            lineNumberColumnLength =
+                (node.lastChildLeafOrSelf().lineNumber() ?: 1)
+                    .let { var v = it; var c = 0; while (v > 0) { c++; v /= 10 }; c }
+            lastNode = node.lastChildLeafOrSelf()
         }
         var level = -1
         var parent: ASTNode? = node
@@ -39,55 +45,56 @@ class DumpAST @JvmOverloads constructor(
             level++
             parent = parent?.treeParent
         } while (parent != null)
+
         out.println((
-            location(node)
-                ?.let { String.format("%${lineNumberColumnLength}s: ", it.line).gray() }
+            node.lineNumber()
+                ?.let { String.format("%${lineNumberColumnLength}s: ", it).dim() }
                 // should only happen when autoCorrect=true and other rules mutate AST in a way that changes text length
-                ?: String.format("%${lineNumberColumnLength}s: ", "?").gray()
+                ?: String.format("%${lineNumberColumnLength}s: ", "?").dim()
             ) +
-            "  ".repeat(level).gray() +
+            "  ".repeat(level).dim() +
             colorClassName(node.psi.className) +
-            " (".gray() + colorClassName(node.elementType.className) + "." + node.elementType + ")".gray() +
-            if (node.getChildren(null).isEmpty()) " \"" + node.text.escape().yellow() + "\"" else "")
+            " (".dim() + colorClassName(elementTypeClassName(node.elementType)) + ")".dim() +
+            if (node.getChildren(null).isEmpty()) " \"" + node.text.escape().brighten() + "\"" else "")
         if (lastNode == node) {
             out.println()
             out.println(" ".repeat(lineNumberColumnLength) +
-                "  format: <line_number:> <node.psi::class> (<node.elementType>) \"<node.text>\"".gray())
+                "  format: <line_number:> <node.psi::class> (<node.elementType>) \"<node.text>\"".dim())
             out.println(" ".repeat(lineNumberColumnLength) +
-                "  legend: ~ = org.jetbrains.kotlin, c.i.p = com.intellij.psi".gray())
+                "  legend: ~ = org.jetbrains.kotlin, c.i.p = com.intellij.psi".dim())
             out.println()
         }
     }
 
-    private tailrec fun lastChildNodeOf(node: ASTNode): ASTNode? =
-        if (node.lastChildNode == null) node else lastChildNodeOf(node.lastChildNode)
-
-    private fun location(node: ASTNode) =
-        node.psi.containingFile?.let { psiFile ->
-            try {
-                DiagnosticUtils.getLineAndColumnInPsiFile(
-                    psiFile,
-                    TextRange(node.startOffset, node.startOffset)
-                )
-            } catch (e: Exception) {
-                null // DiagnosticUtils has no knowledge of mutated AST
-            }
+    private fun elementTypeClassName(elementType: IElementType): String {
+        var name = elementType.toString().substringAfterLast(".").toUpperCase()
+        if (name == "FLOAT_CONSTANT" && elementType == KtTokens.FLOAT_LITERAL) {
+            // resolve KtNodeTypes.FLOAT_CONSTANT vs KtTokens.FLOAT_LITERAL(FLOAT_CONSTANT) conflict
+            name = "FLOAT_LITERAL"
         }
+        if (KtTokens.KEYWORDS.contains(elementType) || KtTokens.SOFT_KEYWORDS.contains(elementType)) {
+            name = "${name}_KEYWORD"
+        }
+        return if (elementTypeSet.contains(name)) name else elementType.className + "." + elementType
+    }
+
+    private fun ASTNode.lineNumber() =
+        this.psi.containingFile?.viewProvider?.document?.getLineNumber(this.startOffset)?.let { it + 1 }
 
     private fun colorClassName(className: String): String {
         val name = className.substringAfterLast(".")
-        return className.substring(0, className.length - name.length).gray() + name
+        return className.substring(0, className.length - name.length).dim() + name
     }
 
-    private fun String.yellow() =
-        if (color) this.color(Color.YELLOW) else this
-    private fun String.gray() =
-        if (color) this.color(Color.DARK_GRAY) else this
+    private fun String.brighten() = optColor(Color.YELLOW)
+    private fun String.dim() = optColor(Color.DARK_GRAY)
+    private fun String.optColor(foreground: Color) = if (color) this.color(foreground) else this
 
     private val Any.className
-        get() = this.javaClass.name
-            .replace("org.jetbrains.kotlin.", "~.")
-            .replace("com.intellij.psi.", "c.i.p.")
+        get() =
+            this.javaClass.name
+                .replace("org.jetbrains.kotlin.", "~.")
+                .replace("com.intellij.psi.", "c.i.p.")
 
     private fun String.escape() =
         this.replace("\\", "\\\\").replace("\n", "\\n").replace("\t", "\\t").replace("\r", "\\r")

@@ -1,10 +1,11 @@
 package com.github.shyiko.ktlint.ruleset.standard
 
 import com.github.shyiko.ktlint.core.Rule
+import com.github.shyiko.ktlint.core.ast.ElementType.RANGE
+import com.github.shyiko.ktlint.core.ast.nextLeaf
+import com.github.shyiko.ktlint.core.ast.prevLeaf
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
-import org.jetbrains.kotlin.com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.kotlin.lexer.KtTokens
 
 class SpacingAroundRangeOperatorRule : Rule("range-spacing") {
 
@@ -13,9 +14,9 @@ class SpacingAroundRangeOperatorRule : Rule("range-spacing") {
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        if (node.elementType == KtTokens.RANGE) {
-            val prevLeaf = PsiTreeUtil.prevLeaf(node.psi, true)
-            val nextLeaf = PsiTreeUtil.nextLeaf(node.psi, true)
+        if (node.elementType == RANGE) {
+            val prevLeaf = node.prevLeaf()
+            val nextLeaf = node.nextLeaf()
             when {
                 prevLeaf is PsiWhiteSpace && nextLeaf is PsiWhiteSpace -> {
                     emit(node.startOffset, "Unexpected spacing around \"..\"", true)

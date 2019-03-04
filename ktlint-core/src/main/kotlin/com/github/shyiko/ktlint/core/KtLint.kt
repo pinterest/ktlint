@@ -1,5 +1,6 @@
 package com.github.shyiko.ktlint.core
 
+import com.github.shyiko.ktlint.core.ast.prevLeaf
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
@@ -26,8 +27,6 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.TreeCopyHandler
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.idea.KotlinLanguage
 import org.jetbrains.kotlin.psi.KtFile
-import org.jetbrains.kotlin.psi.psiUtil.prevLeaf
-import org.jetbrains.kotlin.psi.psiUtil.startOffset
 import sun.reflect.ReflectionFactory
 import java.util.ArrayList
 import java.util.HashSet
@@ -413,7 +412,7 @@ object KtLint {
                             val commentText = text.removePrefix("//").trim()
                             parseHintArgs(commentText, "ktlint-disable")?.let { args ->
                                 val lineStart = (node.prevLeaf { it is PsiWhiteSpace && it.textContains('\n') } as
-                                    PsiWhiteSpace?)?.let { it.startOffset + it.text.lastIndexOf('\n') + 1 } ?: 0
+                                    PsiWhiteSpace?)?.let { it.node.startOffset + it.text.lastIndexOf('\n') + 1 } ?: 0
                                 result.add(SuppressionHint(IntRange(lineStart, node.startOffset), HashSet(args)))
                             }
                         } else {

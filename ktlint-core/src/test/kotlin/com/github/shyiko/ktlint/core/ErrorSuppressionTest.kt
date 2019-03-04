@@ -1,10 +1,10 @@
 package com.github.shyiko.ktlint.core
 
+import com.github.shyiko.ktlint.core.ast.ElementType
+import com.github.shyiko.ktlint.core.ast.isPartOf
 import org.assertj.core.api.Assertions.assertThat
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
-import org.jetbrains.kotlin.com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.kotlin.psi.KtImportDirective
 import org.testng.annotations.Test
 import java.util.ArrayList
 
@@ -18,8 +18,7 @@ class ErrorSuppressionTest {
                 autoCorrect: Boolean,
                 emit: (offset: Int, errorMessage: String, corrected: Boolean) -> Unit
             ) {
-                if (node is LeafPsiElement && node.textMatches("*") &&
-                        PsiTreeUtil.getNonStrictParentOfType(node, KtImportDirective::class.java) != null) {
+                if (node is LeafPsiElement && node.textMatches("*") && node.isPartOf(ElementType.IMPORT_DIRECTIVE)) {
                     emit(node.startOffset, "Wildcard import", false)
                 }
             }

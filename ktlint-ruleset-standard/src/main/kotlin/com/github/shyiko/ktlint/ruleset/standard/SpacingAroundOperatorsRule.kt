@@ -1,43 +1,46 @@
 package com.github.shyiko.ktlint.ruleset.standard
 
 import com.github.shyiko.ktlint.core.Rule
+import com.github.shyiko.ktlint.core.ast.ElementType.ANDAND
+import com.github.shyiko.ktlint.core.ast.ElementType.ARROW
+import com.github.shyiko.ktlint.core.ast.ElementType.DIV
+import com.github.shyiko.ktlint.core.ast.ElementType.DIVEQ
+import com.github.shyiko.ktlint.core.ast.ElementType.ELVIS
+import com.github.shyiko.ktlint.core.ast.ElementType.EQ
+import com.github.shyiko.ktlint.core.ast.ElementType.EQEQ
+import com.github.shyiko.ktlint.core.ast.ElementType.EQEQEQ
+import com.github.shyiko.ktlint.core.ast.ElementType.EXCLEQ
+import com.github.shyiko.ktlint.core.ast.ElementType.EXCLEQEQEQ
+import com.github.shyiko.ktlint.core.ast.ElementType.FUN
+import com.github.shyiko.ktlint.core.ast.ElementType.GT
+import com.github.shyiko.ktlint.core.ast.ElementType.GTEQ
+import com.github.shyiko.ktlint.core.ast.ElementType.LT
+import com.github.shyiko.ktlint.core.ast.ElementType.LTEQ
+import com.github.shyiko.ktlint.core.ast.ElementType.MINUS
+import com.github.shyiko.ktlint.core.ast.ElementType.MINUSEQ
+import com.github.shyiko.ktlint.core.ast.ElementType.MUL
+import com.github.shyiko.ktlint.core.ast.ElementType.MULTEQ
+import com.github.shyiko.ktlint.core.ast.ElementType.OROR
+import com.github.shyiko.ktlint.core.ast.ElementType.PERC
+import com.github.shyiko.ktlint.core.ast.ElementType.PERCEQ
+import com.github.shyiko.ktlint.core.ast.ElementType.PLUS
+import com.github.shyiko.ktlint.core.ast.ElementType.PLUSEQ
+import com.github.shyiko.ktlint.core.ast.ElementType.TYPE_PARAMETER_LIST
+import com.github.shyiko.ktlint.core.ast.isPartOf
+import com.github.shyiko.ktlint.core.ast.nextLeaf
+import com.github.shyiko.ktlint.core.ast.parent
+import com.github.shyiko.ktlint.core.ast.prevLeaf
+import com.github.shyiko.ktlint.core.ast.upsertWhitespaceAfterMe
+import com.github.shyiko.ktlint.core.ast.upsertWhitespaceBeforeMe
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
+import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
-import org.jetbrains.kotlin.com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.kotlin.lexer.KtTokens.ANDAND
-import org.jetbrains.kotlin.lexer.KtTokens.ARROW
-import org.jetbrains.kotlin.lexer.KtTokens.DIV
-import org.jetbrains.kotlin.lexer.KtTokens.DIVEQ
-import org.jetbrains.kotlin.lexer.KtTokens.ELVIS
-import org.jetbrains.kotlin.lexer.KtTokens.EQ
-import org.jetbrains.kotlin.lexer.KtTokens.EQEQ
-import org.jetbrains.kotlin.lexer.KtTokens.EQEQEQ
-import org.jetbrains.kotlin.lexer.KtTokens.EXCLEQ
-import org.jetbrains.kotlin.lexer.KtTokens.EXCLEQEQEQ
-import org.jetbrains.kotlin.lexer.KtTokens.GT
-import org.jetbrains.kotlin.lexer.KtTokens.GTEQ
-import org.jetbrains.kotlin.lexer.KtTokens.LT
-import org.jetbrains.kotlin.lexer.KtTokens.LTEQ
-import org.jetbrains.kotlin.lexer.KtTokens.MINUS
-import org.jetbrains.kotlin.lexer.KtTokens.MINUSEQ
-import org.jetbrains.kotlin.lexer.KtTokens.MUL
-import org.jetbrains.kotlin.lexer.KtTokens.MULTEQ
-import org.jetbrains.kotlin.lexer.KtTokens.OROR
-import org.jetbrains.kotlin.lexer.KtTokens.PERC
-import org.jetbrains.kotlin.lexer.KtTokens.PERCEQ
-import org.jetbrains.kotlin.lexer.KtTokens.PLUS
-import org.jetbrains.kotlin.lexer.KtTokens.PLUSEQ
 import org.jetbrains.kotlin.psi.KtImportDirective
 import org.jetbrains.kotlin.psi.KtPrefixExpression
 import org.jetbrains.kotlin.psi.KtSuperExpression
 import org.jetbrains.kotlin.psi.KtTypeArgumentList
-import org.jetbrains.kotlin.psi.KtTypeParameterList
 import org.jetbrains.kotlin.psi.KtValueArgument
-import org.jetbrains.kotlin.psi.psiUtil.getNonStrictParentOfType
-import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
 
 class SpacingAroundOperatorsRule : Rule("op-spacing") {
 
@@ -49,7 +52,8 @@ class SpacingAroundOperatorsRule : Rule("op-spacing") {
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        if (tokenSet.contains(node.elementType) && node is LeafPsiElement &&
+        if (tokenSet.contains(node.elementType) &&
+            node is LeafElement &&
             !node.isPartOf(KtPrefixExpression::class) && // not unary
             !node.isPartOf(KtTypeArgumentList::class) && // C<T>
             !(node.elementType == MUL && node.isPartOf(KtValueArgument::class)) && // fn(*array)
@@ -58,32 +62,29 @@ class SpacingAroundOperatorsRule : Rule("op-spacing") {
         ) {
             if ((node.elementType == GT || node.elementType == LT) &&
                 // fun <T>fn(): T {}
-                node.getNonStrictParentOfType(KtTypeParameterList::class.java)?.parent?.node?.elementType !=
-                    KtStubElementTypes.FUNCTION) {
+                node.parent(TYPE_PARAMETER_LIST)?.treeParent?.elementType != FUN) {
                 return
             }
-            val spacingBefore = PsiTreeUtil.prevLeaf(node, true) is PsiWhiteSpace ||
-                node.elementType == GT
-            val spacingAfter = PsiTreeUtil.nextLeaf(node, true) is PsiWhiteSpace ||
-                node.elementType == LT
+            val spacingBefore = node.prevLeaf() is PsiWhiteSpace || node.elementType == GT
+            val spacingAfter = node.nextLeaf() is PsiWhiteSpace || node.elementType == LT
             when {
                 !spacingBefore && !spacingAfter -> {
                     emit(node.startOffset, "Missing spacing around \"${node.text}\"", true)
                     if (autoCorrect) {
-                        node.rawInsertBeforeMe(PsiWhiteSpaceImpl(" "))
-                        node.rawInsertAfterMe(PsiWhiteSpaceImpl(" "))
+                        node.upsertWhitespaceBeforeMe(" ")
+                        node.upsertWhitespaceAfterMe(" ")
                     }
                 }
                 !spacingBefore -> {
                     emit(node.startOffset, "Missing spacing before \"${node.text}\"", true)
                     if (autoCorrect) {
-                        node.rawInsertBeforeMe(PsiWhiteSpaceImpl(" "))
+                        node.upsertWhitespaceBeforeMe(" ")
                     }
                 }
                 !spacingAfter -> {
                     emit(node.startOffset + 1, "Missing spacing after \"${node.text}\"", true)
                     if (autoCorrect) {
-                        node.rawInsertAfterMe(PsiWhiteSpaceImpl(" "))
+                        node.upsertWhitespaceAfterMe(" ")
                     }
                 }
             }
