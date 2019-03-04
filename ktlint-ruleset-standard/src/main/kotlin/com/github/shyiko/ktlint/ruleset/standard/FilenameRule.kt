@@ -65,9 +65,10 @@ class FilenameRule : Rule("filename"), Rule.Modifier.RestrictToRoot {
             }
         }
         if (className != null) {
+            val unescapedClassName = className.replace("`", "")
             val name = Paths.get(filePath).fileName.toString().substringBefore(".")
-            if (name != "package" && name != className) {
-                emit(0, "$type $className should be declared in a file named $className.kt", false)
+            if (name != "package" && name != unescapedClassName) {
+                emit(0, "$type $className should be declared in a file named $unescapedClassName.kt", false)
             }
         }
     }
