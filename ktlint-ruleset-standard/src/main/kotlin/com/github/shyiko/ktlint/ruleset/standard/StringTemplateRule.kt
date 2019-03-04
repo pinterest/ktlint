@@ -50,8 +50,10 @@ class StringTemplateRule : Rule("string-template") {
                 node.text.let { it.substring(2, it.length - 1) }.all { it.isPartOfIdentifier() } &&
                 node.treeNext.let { nextSibling ->
                     nextSibling.elementType == CLOSING_QUOTE ||
-                        (nextSibling.elementType == LITERAL_STRING_TEMPLATE_ENTRY &&
-                            !nextSibling.text[0].isPartOfIdentifier())
+                        (
+                            nextSibling.elementType == LITERAL_STRING_TEMPLATE_ENTRY &&
+                                !nextSibling.text[0].isPartOfIdentifier()
+                            )
                 }
             ) {
                 emit(node.treePrev.startOffset + 2, "Redundant curly braces", true)

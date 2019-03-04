@@ -12,12 +12,13 @@ class ChainWrappingRuleTest {
         assertThat(ChainWrappingRule().diffFileLint("spec/chain-wrapping/lint.kt.spec")).isEmpty()
     }
 
-
     @Test
     fun testFormat() {
-        assertThat(ChainWrappingRule().diffFileFormat(
-            "spec/chain-wrapping/format.kt.spec",
-            "spec/chain-wrapping/format-expected.kt.spec"
-        )).isEmpty()
+        assertThat(
+            ChainWrappingRule().diffFileFormat(
+                "spec/chain-wrapping/format.kt.spec",
+                "spec/chain-wrapping/format-expected.kt.spec"
+            )
+        ).isEmpty()
     }
 }

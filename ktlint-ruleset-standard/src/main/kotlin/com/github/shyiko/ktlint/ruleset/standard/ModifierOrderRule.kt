@@ -70,9 +70,13 @@ class ModifierOrderRule : Rule("modifier-order") {
             if (!Arrays.equals(modifierArr, sorted)) {
                 // Since annotations can be fairly lengthy and/or span multiple lines we are
                 // squashing them into a single placeholder text to guarantee a single line output
-                emit(node.startOffset, "Incorrect modifier order (should be \"${
+                emit(
+                    node.startOffset,
+                    "Incorrect modifier order (should be \"${
                     squashAnnotations(sorted).joinToString(" ")
-                }\")", true)
+                    }\")",
+                    true
+                )
                 if (autoCorrect) {
                     modifierArr.forEachIndexed { i, n ->
                         node.replaceChild(n, sorted[i].clone() as ASTNode)

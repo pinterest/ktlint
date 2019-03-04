@@ -17,8 +17,9 @@ class IndentationRuleTest {
 
     @Test
     fun testLintIndentSize2() {
-        assertThat(IndentationRule().lint(
-            """
+        assertThat(
+            IndentationRule().lint(
+                """
             fun main() {
                val v = ""
                 println(v)
@@ -33,24 +34,29 @@ class IndentationRuleTest {
                 set(v: String) { x = v }
             }
             """.trimIndent(),
-            mapOf("indent_size" to "2")
-        )).isEqualTo(listOf(
-            LintError(2, 1, "indent", "Unexpected indentation (3) (should be 2)"),
-            LintError(3, 1, "indent", "Unexpected indentation (4) (should be 2)")
-        ))
+                mapOf("indent_size" to "2")
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(2, 1, "indent", "Unexpected indentation (3) (should be 2)"),
+                LintError(3, 1, "indent", "Unexpected indentation (4) (should be 2)")
+            )
+        )
     }
 
     @Test
     fun testLintIndentSizeUnset() {
-        assertThat(IndentationRule().lint(
-            """
+        assertThat(
+            IndentationRule().lint(
+                """
             fun main() {
                val v = ""
                 println(v)
             }
             """.trimIndent(),
-            mapOf("indent_size" to "unset")
-        )).isEmpty()
+                mapOf("indent_size" to "unset")
+            )
+        ).isEmpty()
     }
 
     @Test
@@ -75,10 +81,12 @@ class IndentationRuleTest {
 
     @Test
     fun testFormatPropertyAccessor() {
-        assertThat(IndentationRule().diffFileFormat(
-            "spec/indent/format-property-accessor.kt.spec",
-            "spec/indent/format-property-accessor-expected.kt.spec"
-        )).isEmpty()
+        assertThat(
+            IndentationRule().diffFileFormat(
+                "spec/indent/format-property-accessor.kt.spec",
+                "spec/indent/format-property-accessor-expected.kt.spec"
+            )
+        ).isEmpty()
     }
 
     @Test
@@ -93,10 +101,12 @@ class IndentationRuleTest {
 
     @Test
     fun testFormatSuperType() {
-        assertThat(IndentationRule().diffFileFormat(
-            "spec/indent/format-supertype.kt.spec",
-            "spec/indent/format-supertype-expected.kt.spec"
-        )).isEmpty()
+        assertThat(
+            IndentationRule().diffFileFormat(
+                "spec/indent/format-supertype.kt.spec",
+                "spec/indent/format-supertype-expected.kt.spec"
+            )
+        ).isEmpty()
     }
 
     @Test
@@ -114,10 +124,12 @@ class IndentationRuleTest {
 
     @Test
     fun testFormatBinaryExpression() {
-        assertThat(IndentationRule().diffFileFormat(
-            "spec/indent/format-binary-expression.kt.spec",
-            "spec/indent/format-binary-expression-expected.kt.spec"
-        )).isEmpty()
+        assertThat(
+            IndentationRule().diffFileFormat(
+                "spec/indent/format-binary-expression.kt.spec",
+                "spec/indent/format-binary-expression-expected.kt.spec"
+            )
+        ).isEmpty()
     }
 
     @Test
@@ -137,56 +149,69 @@ class IndentationRuleTest {
 
     @Test
     fun testFormatDotQualifiedExpression() {
-        assertThat(IndentationRule().diffFileFormat(
-            "spec/indent/format-dot-qualified-expression.kt.spec",
-            "spec/indent/format-dot-qualified-expression-expected.kt.spec"
-        )).isEmpty()
+        assertThat(
+            IndentationRule().diffFileFormat(
+                "spec/indent/format-dot-qualified-expression.kt.spec",
+                "spec/indent/format-dot-qualified-expression-expected.kt.spec"
+            )
+        ).isEmpty()
     }
 
     @Test
     fun testFormatMultilineString() {
-        assertThat(IndentationRule().diffFileFormat(
-            "spec/indent/format-multiline-string.kt.spec",
-            "spec/indent/format-multiline-string-expected.kt.spec"
-        )).isEmpty()
+        assertThat(
+            IndentationRule().diffFileFormat(
+                "spec/indent/format-multiline-string.kt.spec",
+                "spec/indent/format-multiline-string-expected.kt.spec"
+            )
+        ).isEmpty()
     }
 
     @Test
     fun testFormatArrow() {
-        assertThat(IndentationRule().diffFileFormat(
-            "spec/indent/format-arrow.kt.spec",
-            "spec/indent/format-arrow-expected.kt.spec"
-        )).isEmpty()
+        assertThat(
+            IndentationRule().diffFileFormat(
+                "spec/indent/format-arrow.kt.spec",
+                "spec/indent/format-arrow-expected.kt.spec"
+            )
+        ).isEmpty()
     }
 
     @Test
     fun testFormatEq() {
-        assertThat(IndentationRule().diffFileFormat(
-            "spec/indent/format-eq.kt.spec",
-            "spec/indent/format-eq-expected.kt.spec"
-        )).isEmpty()
+        assertThat(
+            IndentationRule().diffFileFormat(
+                "spec/indent/format-eq.kt.spec",
+                "spec/indent/format-eq-expected.kt.spec"
+            )
+        ).isEmpty()
     }
 
     @Test
     fun testFormatParameterList() {
-        assertThat(IndentationRule().diffFileFormat(
-            "spec/indent/format-parameter-list.kt.spec",
-            "spec/indent/format-parameter-list-expected.kt.spec"
-        )).isEmpty()
+        assertThat(
+            IndentationRule().diffFileFormat(
+                "spec/indent/format-parameter-list.kt.spec",
+                "spec/indent/format-parameter-list-expected.kt.spec"
+            )
+        ).isEmpty()
     }
 
     @Test
     fun testFormatArgumentList() {
-        assertThat(IndentationRule().diffFileFormat(
-            "spec/indent/format-argument-list.kt.spec",
-            "spec/indent/format-argument-list-expected.kt.spec"
-        )).isEmpty()
+        assertThat(
+            IndentationRule().diffFileFormat(
+                "spec/indent/format-argument-list.kt.spec",
+                "spec/indent/format-argument-list-expected.kt.spec"
+            )
+        ).isEmpty()
     }
 
     @Test(description = "https://github.com/shyiko/ktlint/issues/180")
     fun testLintWhereClause() {
-        assertThat(IndentationRule().lint(
-            """
+        assertThat(
+            IndentationRule().lint(
+                """
             class BiAdapter<C : RecyclerView.ViewHolder, V1 : C, V2 : C, out A1, out A2>(
                 val adapter1: A1,
                 val adapter2: A2
@@ -195,18 +220,21 @@ class IndentationRuleTest {
                       A2 : RecyclerView.Adapter<V2>, A2 : ComposableAdapter.ViewTypeProvider {
             }
             """.trimIndent()
-        )).isEmpty()
+            )
+        ).isEmpty()
     }
 
     @Test
     fun testUnexpectedTabCharacter() {
         val ktScript = "fun main() {\n\t\treturn 0\n\t}"
-        assertThat(IndentationRule().lint(ktScript)).isEqualTo(listOf(
-            LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected Tab character(s)"),
-            LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected indentation (8) (should be 4)"),
-            LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected Tab character(s)"),
-            LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected indentation (4) (should be 0)")
-        ))
+        assertThat(IndentationRule().lint(ktScript)).isEqualTo(
+            listOf(
+                LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected Tab character(s)"),
+                LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected indentation (8) (should be 4)"),
+                LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected Tab character(s)"),
+                LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected indentation (4) (should be 0)")
+            )
+        )
         assertThat(IndentationRule().format(ktScript))
             .isEqualTo("fun main() {\n    return 0\n}")
     }
@@ -214,12 +242,14 @@ class IndentationRuleTest {
     @Test
     fun testUnexpectedTabCharacterWithCustomIndentSize() {
         val ktScript = "fun main() {\n\t\treturn 0\n\t}"
-        assertThat(IndentationRule().lint(ktScript, mapOf("indent_size" to "2"))).isEqualTo(listOf(
-            LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected Tab character(s)"),
-            LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected indentation (4) (should be 2)"),
-            LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected Tab character(s)"),
-            LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected indentation (2) (should be 0)")
-        ))
+        assertThat(IndentationRule().lint(ktScript, mapOf("indent_size" to "2"))).isEqualTo(
+            listOf(
+                LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected Tab character(s)"),
+                LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected indentation (4) (should be 2)"),
+                LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected Tab character(s)"),
+                LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected indentation (2) (should be 0)")
+            )
+        )
         assertThat(IndentationRule().format(ktScript, mapOf("indent_size" to "2")))
             .isEqualTo("fun main() {\n  return 0\n}")
     }

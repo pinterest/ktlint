@@ -24,9 +24,11 @@ class PlainReporter(
             if (groupByFile) {
                 acc.getOrPut(file) { ArrayList<LintError>() }.add(err)
             } else {
-                out.println("${colorFileName(file)}${":".gray()}${err.line}${
+                out.println(
+                    "${colorFileName(file)}${":".gray()}${err.line}${
                     ":${"${err.col}:".let { if (pad) String.format("%-4s", it) else it}}".gray()
-                } ${err.detail}${if (verbose) " (${err.ruleId})".gray() else ""}")
+                    } ${err.detail}${if (verbose) " (${err.ruleId})".gray() else ""}"
+                )
             }
         }
     }
@@ -36,9 +38,11 @@ class PlainReporter(
             val errList = acc[file] ?: return
             out.println(colorFileName(file))
             for ((line, col, ruleId, detail) in errList) {
-                out.println("  $line${
+                out.println(
+                    "  $line${
                     ":${if (pad) String.format("%-3s", col) else "$col"}".gray()
-                } $detail${if (verbose) " ($ruleId)".gray() else ""}")
+                    } $detail${if (verbose) " ($ruleId)".gray() else ""}"
+                )
             }
         }
     }

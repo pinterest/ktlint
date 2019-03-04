@@ -10,8 +10,9 @@ class IndentationRuleTest {
 
     @Test
     fun testLint() {
-        assertThat(IndentationRule().lint(
-            """
+        assertThat(
+            IndentationRule().lint(
+                """
             /**
              * _
              */
@@ -33,32 +34,40 @@ class IndentationRuleTest {
                     set(v: String) { x = v }
             }
             """.trimIndent()
-        )).isEqualTo(listOf(
-            LintError(12, 1, "indent", "Unexpected indentation (3) (it should be 4)"),
-            // fixme: expected indent should not depend on the "previous" line value
-            LintError(13, 1, "indent", "Unexpected indentation (9) (it should be 7)")
-        ))
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(12, 1, "indent", "Unexpected indentation (3) (it should be 4)"),
+                // fixme: expected indent should not depend on the "previous" line value
+                LintError(13, 1, "indent", "Unexpected indentation (9) (it should be 7)")
+            )
+        )
     }
 
     @Test
     fun testLintCustomIndentSize() {
-        assertThat(IndentationRule().lint(
-            """
+        assertThat(
+            IndentationRule().lint(
+                """
             fun main() {
                val v = ""
                 println(v)
             }
             """.trimIndent(),
-            mapOf("indent_size" to "3")
-        )).isEqualTo(listOf(
-            LintError(3, 1, "indent", "Unexpected indentation (4) (it should be 3)")
-        ))
+                mapOf("indent_size" to "3")
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(3, 1, "indent", "Unexpected indentation (4) (it should be 3)")
+            )
+        )
     }
 
     @Test
     fun testLintCustomIndentSizeValid() {
-        assertThat(IndentationRule().lint(
-            """
+        assertThat(
+            IndentationRule().lint(
+                """
             /**
              * _
              */
@@ -73,44 +82,52 @@ class IndentationRuleTest {
                 set(v: String) { x = v }
             }
             """.trimIndent(),
-            mapOf("indent_size" to "2")
-        )).isEmpty()
+                mapOf("indent_size" to "2")
+            )
+        ).isEmpty()
     }
 
     @Test
     fun testLintIndentSizeUnset() {
-        assertThat(IndentationRule().lint(
-            """
+        assertThat(
+            IndentationRule().lint(
+                """
             fun main() {
                val v = ""
                 println(v)
             }
             """.trimIndent(),
-            mapOf("indent_size" to "unset")
-        )).isEmpty()
+                mapOf("indent_size" to "unset")
+            )
+        ).isEmpty()
     }
 
     // https://kotlinlang.org/docs/reference/coding-conventions.html#method-call-formatting
     @Test
     fun testLintMultilineFunctionCall() {
-        assertThat(IndentationRule().lint(
-            """
+        assertThat(
+            IndentationRule().lint(
+                """
             fun main() {
                 fn(a,
                    b,
                    c)
             }
             """.trimIndent()
-        )).isEqualTo(listOf(
-            LintError(3, 1, "indent", "Unexpected indentation (7) (it should be 8)"),
-            LintError(4, 1, "indent", "Unexpected indentation (7) (it should be 8)")
-        ))
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(3, 1, "indent", "Unexpected indentation (7) (it should be 8)"),
+                LintError(4, 1, "indent", "Unexpected indentation (7) (it should be 8)")
+            )
+        )
     }
 
     @Test
     fun testLintCommentsAreIgnored() {
-        assertThat(IndentationRule().lint(
-            """
+        assertThat(
+            IndentationRule().lint(
+                """
             fun funA(argA: String) =
                 // comment
             // comment
@@ -123,16 +140,20 @@ class IndentationRuleTest {
                 })
             }
             """.trimIndent(),
-            mapOf("indent_size" to "4")
-        )).isEqualTo(listOf(
-            LintError(7, 1, "indent", "Unexpected indentation (1) (it should be 8)")
-        ))
+                mapOf("indent_size" to "4")
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(7, 1, "indent", "Unexpected indentation (1) (it should be 8)")
+            )
+        )
     }
 
     @Test(description = "https://github.com/shyiko/ktlint/issues/180")
     fun testLintWhereClause() {
-        assertThat(IndentationRule().lint(
-            """
+        assertThat(
+            IndentationRule().lint(
+                """
             class BiAdapter<C : RecyclerView.ViewHolder, V1 : C, V2 : C, out A1, out A2>(
                 val adapter1: A1,
                 val adapter2: A2
@@ -141,30 +162,35 @@ class IndentationRuleTest {
                       A2 : RecyclerView.Adapter<V2>, A2 : ComposableAdapter.ViewTypeProvider {
             }
             """.trimIndent()
-        )).isEmpty()
+            )
+        ).isEmpty()
     }
 
     @Test
     fun testTab() {
         val ktScript = "fun main() {\n\t\treturn 0\n\t}"
         assertThat(IndentationRule().format(ktScript)).isEqualTo("fun main() {\n        return 0\n    }")
-        assertThat(IndentationRule().lint(ktScript)).isEqualTo(listOf(
-            LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected indentation (2) (it should be 4)"),
-            LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected Tab character(s)"),
-            LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected indentation (1) (it should be 4)"),
-            LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected Tab character(s)")
-        ))
+        assertThat(IndentationRule().lint(ktScript)).isEqualTo(
+            listOf(
+                LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected indentation (2) (it should be 4)"),
+                LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected Tab character(s)"),
+                LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected indentation (1) (it should be 4)"),
+                LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected Tab character(s)")
+            )
+        )
     }
 
     @Test
     fun testTabEditorConfig() {
         val ktScript = "fun main() {\n\t\treturn 0\n\t}"
         assertThat(IndentationRule().format(ktScript, mapOf("indent_size" to "3"))).isEqualTo("fun main() {\n      return 0\n   }")
-        assertThat(IndentationRule().lint(ktScript, mapOf("indent_size" to "3"))).isEqualTo(listOf(
-            LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected indentation (2) (it should be 3)"),
-            LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected Tab character(s)"),
-            LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected indentation (1) (it should be 3)"),
-            LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected Tab character(s)")
-        ))
+        assertThat(IndentationRule().lint(ktScript, mapOf("indent_size" to "3"))).isEqualTo(
+            listOf(
+                LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected indentation (2) (it should be 3)"),
+                LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected Tab character(s)"),
+                LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected indentation (1) (it should be 3)"),
+                LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected Tab character(s)")
+            )
+        )
     }
 }

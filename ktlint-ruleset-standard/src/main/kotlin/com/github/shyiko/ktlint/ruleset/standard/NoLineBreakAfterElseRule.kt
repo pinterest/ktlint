@@ -18,9 +18,11 @@ class NoLineBreakAfterElseRule : Rule("no-line-break-after-else") {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         if (node is PsiWhiteSpace &&
-            node.textContains('\n')) {
+            node.textContains('\n')
+        ) {
             if (node.prevLeaf()?.elementType == ELSE_KEYWORD &&
-                node.nextLeaf()?.elementType.let { it == IF_KEYWORD || it == LBRACE }) {
+                node.nextLeaf()?.elementType.let { it == IF_KEYWORD || it == LBRACE }
+            ) {
                 emit(node.startOffset + 1, "Unexpected line break after \"else\"", true)
                 if (autoCorrect) {
                     (node as LeafPsiElement).rawReplaceWithText(" ")

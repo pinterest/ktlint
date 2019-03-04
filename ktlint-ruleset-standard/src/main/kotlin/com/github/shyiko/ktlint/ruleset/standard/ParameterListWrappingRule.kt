@@ -46,9 +46,10 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
             // - at least one of the parameters is
             // - maxLineLength exceeded (and separating parameters with \n would actually help)
             // in addition, "(" and ")" must be on separates line if any of the parameters are (otherwise on the same)
-            val putParametersOnSeparateLines = node.textContains('\n') ||
-                // max_line_length exceeded
-                maxLineLength > -1 && (node.column - 1 + node.textLength) > maxLineLength
+            val putParametersOnSeparateLines =
+                node.textContains('\n') ||
+                    // max_line_length exceeded
+                    maxLineLength > -1 && (node.column - 1 + node.textLength) > maxLineLength
             if (putParametersOnSeparateLines) {
                 // aiming for
                 // ... LPAR
@@ -84,8 +85,12 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
                                     if (childIndent == intendedIndent) {
                                         continue@nextChild
                                     }
-                                    emit(child.startOffset, "Unexpected indentation" +
-                                        " (expected ${intendedIndent.length - 1}, actual ${childIndent.length - 1})", true)
+                                    emit(
+                                        child.startOffset,
+                                        "Unexpected indentation" +
+                                            " (expected ${intendedIndent.length - 1}, actual ${childIndent.length - 1})",
+                                        true
+                                    )
                                 } else {
                                     emit(child.startOffset, errorMessage(child), true)
                                 }
@@ -107,13 +112,15 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
                                 child.visit { n ->
                                     if (n.elementType == WHITE_SPACE && n.textContains('\n')) {
                                         val split = n.text.split("\n")
-                                        (n as LeafElement).rawReplaceWithText(split.joinToString("\n") {
-                                            if (paramInnerIndentAdjustment > 0) {
-                                                it + " ".repeat(paramInnerIndentAdjustment)
-                                            } else {
-                                                it.substring(0, Math.max(it.length + paramInnerIndentAdjustment, 0))
+                                        (n as LeafElement).rawReplaceWithText(
+                                            split.joinToString("\n") {
+                                                if (paramInnerIndentAdjustment > 0) {
+                                                    it + " ".repeat(paramInnerIndentAdjustment)
+                                                } else {
+                                                    it.substring(0, Math.max(it.length + paramInnerIndentAdjustment, 0))
+                                                }
                                             }
-                                        })
+                                        )
                                     }
                                 }
                             }

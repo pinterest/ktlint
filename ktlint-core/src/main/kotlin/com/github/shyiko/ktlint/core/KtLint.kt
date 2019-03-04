@@ -430,8 +430,10 @@ object KtLint {
                         if (text.startsWith("//")) {
                             val commentText = text.removePrefix("//").trim()
                             parseHintArgs(commentText, "ktlint-disable")?.let { args ->
-                                val lineStart = (node.prevLeaf { it is PsiWhiteSpace && it.textContains('\n') } as
-                                    PsiWhiteSpace?)?.let { it.node.startOffset + it.text.lastIndexOf('\n') + 1 } ?: 0
+                                val lineStart = (
+                                    node.prevLeaf { it is PsiWhiteSpace && it.textContains('\n') } as
+                                        PsiWhiteSpace?
+                                    )?.let { it.node.startOffset + it.text.lastIndexOf('\n') + 1 } ?: 0
                                 result.add(SuppressionHint(IntRange(lineStart, node.startOffset), HashSet(args)))
                             }
                         } else {
@@ -456,9 +458,11 @@ object KtLint {
                         }
                     }
                 }
-                result.addAll(open.map {
-                    SuppressionHint(IntRange(it.range.first, rootNode.textLength), it.disabledRules)
-                })
+                result.addAll(
+                    open.map {
+                        SuppressionHint(IntRange(it.range.first, rootNode.textLength), it.disabledRules)
+                    }
+                )
                 return result
             }
 

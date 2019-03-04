@@ -22,7 +22,8 @@ class NoEmptyClassBodyRule : Rule("no-empty-class-body") {
                 n.elementType == LBRACE &&
                     n.nextLeaf { it.elementType != WHITE_SPACE }?.elementType == RBRACE
             } == true &&
-            !node.isPartOf(KtObjectLiteralExpression::class)) {
+            !node.isPartOf(KtObjectLiteralExpression::class)
+        ) {
             emit(node.startOffset, "Unnecessary block (\"{}\")", true)
             if (autoCorrect) {
                 val prevNode = node.treePrev

@@ -8,9 +8,10 @@ class NoItParamInMultilineLambdaRuleTest {
 
     @Test
     fun testLint() {
-        assertThat(NoItParamInMultilineLambdaRule().diffFileLint(
-            "spec/no-it-in-multiline-lambda/lint.kt.spec"
-        )).isEmpty()
-
+        assertThat(
+            NoItParamInMultilineLambdaRule().diffFileLint(
+                "spec/no-it-in-multiline-lambda/lint.kt.spec"
+            )
+        ).isEmpty()
     }
 }

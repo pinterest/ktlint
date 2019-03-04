@@ -11,34 +11,45 @@ class SpacingAroundCommaRuleTest {
     @Test
     fun testLint() {
         assertThat(SpacingAroundCommaRule().lint("fun main() { x(1,3); x(1, 3); println(\",\") }"))
-            .isEqualTo(listOf(
-                LintError(1, 18, "comma-spacing", "Missing spacing after \",\"")
-            ))
-        assertThat(SpacingAroundCommaRule().lint(
-            """
+            .isEqualTo(
+                listOf(
+                    LintError(1, 18, "comma-spacing", "Missing spacing after \",\"")
+                )
+            )
+        assertThat(
+            SpacingAroundCommaRule().lint(
+                """
             enum class E {
                 A, B,C
             }
             """.trimIndent()
-        )).isEqualTo(listOf(
-            LintError(2, 10, "comma-spacing", "Missing spacing after \",\"")
-        ))
-        assertThat(SpacingAroundCommaRule().lint(
-            """
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(2, 10, "comma-spacing", "Missing spacing after \",\"")
+            )
+        )
+        assertThat(
+            SpacingAroundCommaRule().lint(
+                """
             some.method(1 , 2)
             """.trimIndent(),
-            script = true
-        )).isEqualTo(listOf(
-            LintError(1, 14, "comma-spacing", "Unexpected spacing before \",\"")
-        ))
+                script = true
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(1, 14, "comma-spacing", "Unexpected spacing before \",\"")
+            )
+        )
     }
 
     @Test
     fun testFormat() {
         assertThat(SpacingAroundCommaRule().format("fun main() { x(1,3); x(1, 3) }"))
             .isEqualTo("fun main() { x(1, 3); x(1, 3) }")
-        assertThat(SpacingAroundCommaRule().format(
-            """
+        assertThat(
+            SpacingAroundCommaRule().format(
+                """
             fun fn(
                 arg1: Int ,
                 arg2: Int
@@ -47,7 +58,8 @@ class SpacingAroundCommaRuleTest {
                 arg3: Int
             ) = Unit
             """.trimIndent()
-        )).isEqualTo(
+            )
+        ).isEqualTo(
             """
             fun fn(
                 arg1: Int,
@@ -55,6 +67,7 @@ class SpacingAroundCommaRuleTest {
 
                 arg3: Int
             ) = Unit
-            """.trimIndent())
+            """.trimIndent()
+        )
     }
 }

@@ -23,10 +23,10 @@ class SpacingAroundParensRule : Rule("paren-spacing") {
             val nextLeaf = node.nextLeaf()
             val spacingBefore = if (node.elementType == LPAR) {
                 prevLeaf is PsiWhiteSpace && !prevLeaf.textContains('\n') &&
-                prevLeaf.prevLeaf()?.elementType == IDENTIFIER && (
+                    prevLeaf.prevLeaf()?.elementType == IDENTIFIER && (
                     node.treeParent?.elementType == VALUE_PARAMETER_LIST ||
-                    node.treeParent?.elementType == VALUE_ARGUMENT_LIST
-                )
+                        node.treeParent?.elementType == VALUE_ARGUMENT_LIST
+                    )
             } else {
                 prevLeaf is PsiWhiteSpace && !prevLeaf.textContains('\n') &&
                     prevLeaf.prevLeaf()?.elementType != LPAR

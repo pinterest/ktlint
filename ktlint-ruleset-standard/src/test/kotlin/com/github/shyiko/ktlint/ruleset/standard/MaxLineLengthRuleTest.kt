@@ -10,34 +10,42 @@ class MaxLineLengthRuleTest {
 
     @Test
     fun testLint() {
-        assertThat(MaxLineLengthRule().diffFileLint(
-            "spec/max-line-length/lint.kt.spec",
-            userData = mapOf("max_line_length" to "80")
-        )).isEmpty()
+        assertThat(
+            MaxLineLengthRule().diffFileLint(
+                "spec/max-line-length/lint.kt.spec",
+                userData = mapOf("max_line_length" to "80")
+            )
+        ).isEmpty()
     }
 
     @Test
     fun testErrorSuppression() {
-        assertThat(MaxLineLengthRule().lint(
-            """
+        assertThat(
+            MaxLineLengthRule().lint(
+                """
             fun main(vaaaaaaaaaaaaaaaaaaaaaaar: String) { // ktlint-disable max-line-length
                 println("teeeeeeeeeeeeeeeeeeeeeeeeeeeeeeext")
             /* ktlint-disable max-line-length */
                 println("teeeeeeeeeeeeeeeeeeeeeeeeeeeeeeext")
             }
             """.trimIndent(),
-            userData = mapOf("max_line_length" to "40")
-        )).isEqualTo(listOf(
-            LintError(2, 1, "max-line-length", "Exceeded max line length (40)")
-        ))
+                userData = mapOf("max_line_length" to "40")
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(2, 1, "max-line-length", "Exceeded max line length (40)")
+            )
+        )
     }
 
     @Test
     fun testLintOff() {
-        assertThat(MaxLineLengthRule().diffFileLint(
-            "spec/max-line-length/lint-off.kt.spec",
-            userData = mapOf("max_line_length" to "off")
-        )).isEmpty()
+        assertThat(
+            MaxLineLengthRule().diffFileLint(
+                "spec/max-line-length/lint-off.kt.spec",
+                userData = mapOf("max_line_length" to "off")
+            )
+        ).isEmpty()
     }
 
     @Test

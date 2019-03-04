@@ -124,7 +124,7 @@ class AnnotationRuleTest {
     fun `format multiple annotations should not be placed on same line as annotated construct (with no previous indent)`() {
         assertThat(
             AnnotationRule().format(
-            """
+                """
 
             @JvmField @Volatile var x: String
             """.trimIndent()

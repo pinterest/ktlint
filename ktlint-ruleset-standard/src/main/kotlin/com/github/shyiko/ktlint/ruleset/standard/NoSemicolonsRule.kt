@@ -21,7 +21,8 @@ class NoSemicolonsRule : Rule("no-semi") {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         if (node is LeafPsiElement && node.textMatches(";") && !node.isPartOfString() &&
-                !node.isPartOf(KtEnumEntry::class)) {
+            !node.isPartOf(KtEnumEntry::class)
+        ) {
             val nextLeaf = node.nextLeaf()
             if (doesNotRequirePreSemi(nextLeaf)) {
                 if (node.prevCodeLeaf()?.elementType == OBJECT_KEYWORD) {
@@ -51,8 +52,8 @@ class NoSemicolonsRule : Rule("no-semi") {
             val nextNextLeaf = nextLeaf.nextLeaf()
             return (
                 nextNextLeaf == null || // \s+ and then eof
-                nextLeaf.textContains('\n') && nextNextLeaf.text != "{"
-            )
+                    nextLeaf.textContains('\n') && nextNextLeaf.text != "{"
+                )
         }
         return nextLeaf == null /* eof */
     }

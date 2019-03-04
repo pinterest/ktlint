@@ -10,17 +10,21 @@ class NoEmptyClassBodyRuleTest {
 
     @Test
     fun testLint() {
-        assertThat(NoEmptyClassBodyRule().diffFileLint(
-            "spec/no-empty-class-body/lint.kt.spec"
-        )).isEmpty()
+        assertThat(
+            NoEmptyClassBodyRule().diffFileLint(
+                "spec/no-empty-class-body/lint.kt.spec"
+            )
+        ).isEmpty()
     }
 
     @Test
     fun testFormat() {
-        assertThat(NoEmptyClassBodyRule().diffFileFormat(
-            "spec/no-empty-class-body/format.kt.spec",
-            "spec/no-empty-class-body/format-expected.kt.spec"
-        )).isEmpty()
+        assertThat(
+            NoEmptyClassBodyRule().diffFileFormat(
+                "spec/no-empty-class-body/format.kt.spec",
+                "spec/no-empty-class-body/format-expected.kt.spec"
+            )
+        ).isEmpty()
     }
 
     @Test

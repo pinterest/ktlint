@@ -11,8 +11,9 @@ class ModifierOrderRuleTest {
     @Test
     fun testLint() {
         // pretty much every line below should trip an error
-        assertThat(ModifierOrderRule().lint(
-            """
+        assertThat(
+            ModifierOrderRule().lint(
+                """
             abstract @Deprecated open class A { // open is here for test purposes only, otherwise it's redundant
                 open protected val v = ""
                 open suspend internal fun f(v: Any): Any = ""
@@ -41,26 +42,30 @@ class ModifierOrderRuleTest {
                 }
             }
             """.trimIndent()
-        )).isEqualTo(listOf(
-            LintError(1, 1, "modifier-order", "Incorrect modifier order (should be \"@Annotation... open abstract\")"),
-            LintError(2, 5, "modifier-order", "Incorrect modifier order (should be \"protected open\")"),
-            LintError(3, 5, "modifier-order", "Incorrect modifier order (should be \"internal open suspend\")"),
-            LintError(4, 5, "modifier-order", "Incorrect modifier order (should be \"public lateinit\")"),
-            LintError(5, 5, "modifier-order", "Incorrect modifier order (should be \"abstract tailrec\")"),
-            LintError(9, 5, "modifier-order", "Incorrect modifier order (should be \"public override\")"),
-            LintError(10, 5, "modifier-order", "Incorrect modifier order (should be \"override suspend\")"),
-            LintError(11, 5, "modifier-order", "Incorrect modifier order (should be \"override tailrec\")"),
-            LintError(13, 5, "modifier-order", "Incorrect modifier order (should be \"@Annotation... override\")"),
-            LintError(14, 5, "modifier-order", "Incorrect modifier order (should be \"@Annotation... public override suspend\")"),
-            LintError(15, 5, "modifier-order", "Incorrect modifier order (should be \"@Annotation... public suspend\")"),
-            LintError(25, 8, "modifier-order", "Incorrect modifier order (should be \"internal const\")")
-        ))
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(1, 1, "modifier-order", "Incorrect modifier order (should be \"@Annotation... open abstract\")"),
+                LintError(2, 5, "modifier-order", "Incorrect modifier order (should be \"protected open\")"),
+                LintError(3, 5, "modifier-order", "Incorrect modifier order (should be \"internal open suspend\")"),
+                LintError(4, 5, "modifier-order", "Incorrect modifier order (should be \"public lateinit\")"),
+                LintError(5, 5, "modifier-order", "Incorrect modifier order (should be \"abstract tailrec\")"),
+                LintError(9, 5, "modifier-order", "Incorrect modifier order (should be \"public override\")"),
+                LintError(10, 5, "modifier-order", "Incorrect modifier order (should be \"override suspend\")"),
+                LintError(11, 5, "modifier-order", "Incorrect modifier order (should be \"override tailrec\")"),
+                LintError(13, 5, "modifier-order", "Incorrect modifier order (should be \"@Annotation... override\")"),
+                LintError(14, 5, "modifier-order", "Incorrect modifier order (should be \"@Annotation... public override suspend\")"),
+                LintError(15, 5, "modifier-order", "Incorrect modifier order (should be \"@Annotation... public suspend\")"),
+                LintError(25, 8, "modifier-order", "Incorrect modifier order (should be \"internal const\")")
+            )
+        )
     }
 
     @Test
     fun testFormat() {
-        assertThat(ModifierOrderRule().format(
-            """
+        assertThat(
+            ModifierOrderRule().format(
+                """
             abstract @Deprecated open class A { // open is here for test purposes only, otherwise it's redundant
                 open protected val v = ""
                 open suspend internal fun f(v: Any): Any = ""
@@ -89,7 +94,8 @@ class ModifierOrderRuleTest {
                 }
             }
             """
-        )).isEqualTo(
+            )
+        ).isEqualTo(
             """
             @Deprecated open abstract class A { // open is here for test purposes only, otherwise it's redundant
                 protected open val v = ""

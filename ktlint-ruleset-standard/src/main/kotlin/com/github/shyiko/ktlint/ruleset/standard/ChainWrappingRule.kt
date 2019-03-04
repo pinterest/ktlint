@@ -55,7 +55,8 @@ class ChainWrappingRule : Rule("chain-wrapping") {
             }
             val nextLeaf = node.nextCodeLeaf()?.prevLeaf()
             if (nextLeaf?.elementType == WHITE_SPACE &&
-                nextLeaf.textContains('\n')) {
+                nextLeaf.textContains('\n')
+            ) {
                 emit(node.startOffset, "Line must not end with \"${node.text}\"", true)
                 if (autoCorrect) {
                     // rewriting
@@ -117,10 +118,10 @@ class ChainWrappingRule : Rule("chain-wrapping") {
         prevCodeLeaf()?.let { leaf ->
             val type = leaf.elementType
             type == LPAR ||
-            type == COMMA ||
-            type == LBRACE ||
-            type == ELSE_KEYWORD ||
-            KtTokens.OPERATIONS.contains(type)
+                type == COMMA ||
+                type == LBRACE ||
+                type == ELSE_KEYWORD ||
+                KtTokens.OPERATIONS.contains(type)
         } == true
 
     private fun ASTNode.isInPrefixPosition() =

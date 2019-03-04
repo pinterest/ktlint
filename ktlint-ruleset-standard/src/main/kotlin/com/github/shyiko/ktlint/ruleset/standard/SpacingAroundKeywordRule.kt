@@ -28,8 +28,10 @@ import org.jetbrains.kotlin.psi.KtWhenEntry
 class SpacingAroundKeywordRule : Rule("keyword-spacing") {
 
     private val noLFBeforeSet = create(ELSE_KEYWORD, CATCH_KEYWORD, FINALLY_KEYWORD)
-    private val tokenSet = create(FOR_KEYWORD, IF_KEYWORD, ELSE_KEYWORD, WHILE_KEYWORD, DO_KEYWORD,
-        TRY_KEYWORD, CATCH_KEYWORD, FINALLY_KEYWORD, WHEN_KEYWORD)
+    private val tokenSet = create(
+        FOR_KEYWORD, IF_KEYWORD, ELSE_KEYWORD, WHILE_KEYWORD, DO_KEYWORD,
+        TRY_KEYWORD, CATCH_KEYWORD, FINALLY_KEYWORD, WHEN_KEYWORD
+    )
 
     private val keywordsWithoutSpaces = create(GET_KEYWORD, SET_KEYWORD)
 
@@ -64,9 +66,12 @@ class SpacingAroundKeywordRule : Rule("keyword-spacing") {
                     val presumablyCurly = prevLeaf.prevLeaf()
                     if (presumablyCurly != null &&
                         presumablyCurly.elementType == RBRACE &&
-                        (node.elementType != ELSE_KEYWORD ||
-                        // `if (...) v.let { } else` case
-                        presumablyCurly.treeParent?.treeParent?.treeParent == node.treeParent)) {
+                        (
+                            node.elementType != ELSE_KEYWORD ||
+                                // `if (...) v.let { } else` case
+                                presumablyCurly.treeParent?.treeParent?.treeParent == node.treeParent
+                            )
+                    ) {
                         emit(node.startOffset, "Unexpected newline before \"${node.text}\"", true)
                         if (autoCorrect) {
                             (prevLeaf as LeafElement).rawReplaceWithText(" ")

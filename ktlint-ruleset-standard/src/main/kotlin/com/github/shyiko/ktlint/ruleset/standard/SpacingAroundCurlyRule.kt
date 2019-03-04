@@ -43,14 +43,15 @@ class SpacingAroundCurlyRule : Rule("curly-spacing") {
                     prevLeaf?.elementType == AT ||
                     (
                         prevLeaf?.elementType == LPAR &&
-                        (node.parent is KtLambdaExpression || node.parent.parent is KtLambdaExpression)
-                    )
+                            (node.parent is KtLambdaExpression || node.parent.parent is KtLambdaExpression)
+                        )
                 spacingAfter = nextLeaf is PsiWhiteSpace || nextLeaf?.elementType == RBRACE
                 if (prevLeaf is PsiWhiteSpace &&
                     !prevLeaf.textContains('\n') &&
                     prevLeaf.prevLeaf()?.let {
                         it.elementType == LPAR || it.elementType == AT
-                    } == true) {
+                    } == true
+                ) {
                     emit(node.startOffset, "Unexpected space before \"${node.text}\"", true)
                     if (autoCorrect) {
                         prevLeaf.node.treeParent.removeChild(prevLeaf.node)
@@ -62,8 +63,8 @@ class SpacingAroundCurlyRule : Rule("curly-spacing") {
                         prevLeaf.prevLeaf()?.let {
                             it.elementType == RPAR || KtTokens.KEYWORDS.contains(it.elementType)
                         } == true ||
-                        node.treeParent.elementType == CLASS_BODY
-                    )
+                            node.treeParent.elementType == CLASS_BODY
+                        )
                 ) {
                     emit(node.startOffset, "Unexpected newline before \"${node.text}\"", true)
                     if (autoCorrect) {
@@ -74,7 +75,8 @@ class SpacingAroundCurlyRule : Rule("curly-spacing") {
                 spacingBefore = prevLeaf is PsiWhiteSpace || prevLeaf?.elementType == LBRACE
                 spacingAfter = nextLeaf == null || nextLeaf is PsiWhiteSpace || shouldNotToBeSeparatedBySpace(nextLeaf)
                 if (nextLeaf is PsiWhiteSpace && !nextLeaf.textContains('\n') &&
-                        shouldNotToBeSeparatedBySpace(nextLeaf.nextLeaf())) {
+                    shouldNotToBeSeparatedBySpace(nextLeaf.nextLeaf())
+                ) {
                     emit(node.startOffset, "Unexpected space after \"${node.text}\"", true)
                     if (autoCorrect) {
                         nextLeaf.node.treeParent.removeChild(nextLeaf.node)

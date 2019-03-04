@@ -14,9 +14,11 @@ class SpacingAroundRangeOperatorRuleTest {
 
     @Test
     fun testFormat() {
-        assertThat(SpacingAroundRangeOperatorRule().diffFileFormat(
-            "spec/range-spacing/format.kt.spec",
-            "spec/range-spacing/format-expected.kt.spec"
-        )).isEmpty()
+        assertThat(
+            SpacingAroundRangeOperatorRule().diffFileFormat(
+                "spec/range-spacing/format.kt.spec",
+                "spec/range-spacing/format-expected.kt.spec"
+            )
+        ).isEmpty()
     }
 }

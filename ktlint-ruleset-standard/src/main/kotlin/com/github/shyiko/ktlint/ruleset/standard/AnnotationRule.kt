@@ -22,12 +22,14 @@ class AnnotationRule : Rule("annotation") {
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        val root = node.children().firstOrNull { it.elementType == MODIFIER_LIST }
-            ?: return
+        val root =
+            node.children().firstOrNull { it.elementType == MODIFIER_LIST }
+                ?: return
 
-        val annotations = root.children()
-            .mapNotNull { it.psi as? KtAnnotationEntry }
-            .toList()
+        val annotations =
+            root.children()
+                .mapNotNull { it.psi as? KtAnnotationEntry }
+                .toList()
         check(!annotations.isEmpty()) { "Annotations list should not be empty" }
 
         // Join the nodes that immediately follow the annotations (whitespace), then add the final whitespace

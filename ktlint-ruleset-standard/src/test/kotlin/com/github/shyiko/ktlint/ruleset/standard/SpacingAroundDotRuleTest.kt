@@ -11,47 +11,60 @@ class SpacingAroundDotRuleTest {
     @Test
     fun testLint() {
         assertThat(SpacingAroundDotRule().lint("fun String .foo() = \"foo . \""))
-            .isEqualTo(listOf(
+            .isEqualTo(
+                listOf(
                     LintError(1, 11, "dot-spacing", "Unexpected spacing before \".\"")
-            ))
+                )
+            )
 
         assertThat(SpacingAroundDotRule().lint("fun String. foo() = \"foo . \""))
-            .isEqualTo(listOf(
+            .isEqualTo(
+                listOf(
                     LintError(1, 12, "dot-spacing", "Unexpected spacing after \".\"")
-            ))
+                )
+            )
 
         assertThat(SpacingAroundDotRule().lint("fun String . foo() = \"foo . \""))
-            .isEqualTo(listOf(
+            .isEqualTo(
+                listOf(
                     LintError(1, 11, "dot-spacing", "Unexpected spacing before \".\""),
                     LintError(1, 13, "dot-spacing", "Unexpected spacing after \".\"")
-            ))
+                )
+            )
 
-        assertThat(SpacingAroundDotRule().lint(
-            """
+        assertThat(
+            SpacingAroundDotRule().lint(
+                """
             |fun String.foo() {
             |    (2..10).map { it + 1 }
             |        .map { it * 2 }
             |        .toSet()
             |}
             """.trimMargin()
-        )).isEqualTo(
+            )
+        ).isEqualTo(
             emptyList<LintError>()
         )
 
-        assertThat(SpacingAroundDotRule().lint(
-            """
+        assertThat(
+            SpacingAroundDotRule().lint(
+                """
             |fun String.foo() {
             |    (2..10).map { it + 1 }
             |        . map { it * 2 }
             |        .toSet()
             |}
             """.trimMargin()
-        )).isEqualTo(listOf(
+            )
+        ).isEqualTo(
+            listOf(
                 LintError(3, 10, "dot-spacing", "Unexpected spacing after \".\"")
-        ))
+            )
+        )
 
-        assertThat(SpacingAroundDotRule().lint(
-            """
+        assertThat(
+            SpacingAroundDotRule().lint(
+                """
             |fun String.foo() {
             |    (2..10).map { it + 1 }
             |        // Some comment
@@ -59,22 +72,27 @@ class SpacingAroundDotRuleTest {
             |        .toSet()
             |}
             """.trimMargin()
-        )).isEqualTo(listOf(
+            )
+        ).isEqualTo(
+            listOf(
                 LintError(4, 10, "dot-spacing", "Unexpected spacing after \".\"")
-        ))
+            )
+        )
     }
 
     @Test
     fun testLintComment() {
-        assertThat(SpacingAroundDotRule().lint(
-            """
+        assertThat(
+            SpacingAroundDotRule().lint(
+                """
             fun foo() {
                 /**.*/
                 generateSequence(locate(dir)) { seed -> locate(seed.parent.parent) } // seed.parent == .editorconfig dir
                     .map { it to lazy { load(it) } }
             }
             """.trimIndent()
-        )).isEmpty()
+            )
+        ).isEmpty()
     }
 
     @Test
@@ -88,15 +106,17 @@ class SpacingAroundDotRuleTest {
         assertThat(SpacingAroundDotRule().format("fun String . foo() = \"foo . \""))
             .isEqualTo("fun String.foo() = \"foo . \"")
 
-        assertThat(SpacingAroundDotRule().format(
-            """
+        assertThat(
+            SpacingAroundDotRule().format(
+                """
             |fun String.foo() {
             |    (2..10).map { it + 1 }
             |        . map { it * 2 }
             |        .toSet()
             |}
             """.trimMargin()
-        )).isEqualTo(
+            )
+        ).isEqualTo(
             """
             |fun String.foo() {
             |    (2..10).map { it + 1 }

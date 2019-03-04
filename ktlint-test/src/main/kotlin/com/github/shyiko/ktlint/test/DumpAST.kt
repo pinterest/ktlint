@@ -46,22 +46,28 @@ class DumpAST @JvmOverloads constructor(
             parent = parent?.treeParent
         } while (parent != null)
 
-        out.println((
-            node.lineNumber()
-                ?.let { String.format("%${lineNumberColumnLength}s: ", it).dim() }
-                // should only happen when autoCorrect=true and other rules mutate AST in a way that changes text length
-                ?: String.format("%${lineNumberColumnLength}s: ", "?").dim()
-            ) +
-            "  ".repeat(level).dim() +
-            colorClassName(node.psi.className) +
-            " (".dim() + colorClassName(elementTypeClassName(node.elementType)) + ")".dim() +
-            if (node.getChildren(null).isEmpty()) " \"" + node.text.escape().brighten() + "\"" else "")
+        out.println(
+            (
+                node.lineNumber()
+                    ?.let { String.format("%${lineNumberColumnLength}s: ", it).dim() }
+                    // should only happen when autoCorrect=true and other rules mutate AST in a way that changes text length
+                    ?: String.format("%${lineNumberColumnLength}s: ", "?").dim()
+                ) +
+                "  ".repeat(level).dim() +
+                colorClassName(node.psi.className) +
+                " (".dim() + colorClassName(elementTypeClassName(node.elementType)) + ")".dim() +
+                if (node.getChildren(null).isEmpty()) " \"" + node.text.escape().brighten() + "\"" else ""
+        )
         if (lastNode == node) {
             out.println()
-            out.println(" ".repeat(lineNumberColumnLength) +
-                "  format: <line_number:> <node.psi::class> (<node.elementType>) \"<node.text>\"".dim())
-            out.println(" ".repeat(lineNumberColumnLength) +
-                "  legend: ~ = org.jetbrains.kotlin, c.i.p = com.intellij.psi".dim())
+            out.println(
+                " ".repeat(lineNumberColumnLength) +
+                    "  format: <line_number:> <node.psi::class> (<node.elementType>) \"<node.text>\"".dim()
+            )
+            out.println(
+                " ".repeat(lineNumberColumnLength) +
+                    "  legend: ~ = org.jetbrains.kotlin, c.i.p = com.intellij.psi".dim()
+            )
             out.println()
         }
     }

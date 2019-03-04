@@ -60,7 +60,8 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
                     val linkText = psi.getLinkText().replace("`", "")
                     ref.add(linkText.split('.').first())
                 } else if ((type == REFERENCE_EXPRESSION || type == OPERATION_REFERENCE) &&
-                    !vnode.isPartOf(IMPORT_DIRECTIVE)) {
+                    !vnode.isPartOf(IMPORT_DIRECTIVE)
+                ) {
                     ref.add(vnode.text.trim('`'))
                 }
             }
@@ -73,7 +74,8 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
             val importPath = importDirective.importPath?.pathStr!!
             if (importDirective.aliasName == null &&
                 (packageName.isEmpty() || importPath.startsWith("$packageName.")) &&
-                importPath.substring(packageName.length + 1).indexOf('.') == -1) {
+                importPath.substring(packageName.length + 1).indexOf('.') == -1
+            ) {
                 emit(node.startOffset, "Unnecessary import", true)
                 if (autoCorrect) {
                     importDirective.delete()

@@ -14,9 +14,11 @@ class SpacingAroundOperatorsRuleTest {
 
     @Test
     fun testFormat() {
-        assertThat(SpacingAroundOperatorsRule().diffFileFormat(
-            "spec/op-spacing/format.kt.spec",
-            "spec/op-spacing/format-expected.kt.spec"
-        )).isEmpty()
+        assertThat(
+            SpacingAroundOperatorsRule().diffFileFormat(
+                "spec/op-spacing/format.kt.spec",
+                "spec/op-spacing/format-expected.kt.spec"
+            )
+        ).isEmpty()
     }
 }

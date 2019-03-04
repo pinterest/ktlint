@@ -70,7 +70,8 @@ class IndentationRule : Rule("indent") {
                 nextNode != SUPER_TYPE_LIST &&
                 nextNode != CONSTRUCTOR_DELEGATION_CALL &&
                 node.textContains('\n') &&
-                node.nextLeaf()?.isPartOf(PsiComment::class) != true) {
+                node.nextLeaf()?.isPartOf(PsiComment::class) != true
+            ) {
                 val text = node.getText()
                 return text.length - text.lastIndexOf('\n') - 1
             }

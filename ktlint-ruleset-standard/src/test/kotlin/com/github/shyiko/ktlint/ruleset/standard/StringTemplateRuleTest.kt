@@ -14,9 +14,11 @@ class StringTemplateRuleTest {
 
     @Test
     fun testFormat() {
-        assertThat(StringTemplateRule().diffFileFormat(
-            "spec/string-template/format.kt.spec",
-            "spec/string-template/format-expected.kt.spec"
-        )).isEmpty()
+        assertThat(
+            StringTemplateRule().diffFileFormat(
+                "spec/string-template/format.kt.spec",
+                "spec/string-template/format-expected.kt.spec"
+            )
+        ).isEmpty()
     }
 }

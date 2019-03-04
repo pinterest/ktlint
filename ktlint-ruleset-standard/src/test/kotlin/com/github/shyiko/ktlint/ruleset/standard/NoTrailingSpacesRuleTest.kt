@@ -11,10 +11,12 @@ class NoTrailingSpacesRuleTest {
     @Test
     fun testLint() {
         assertThat(NoTrailingSpacesRule().lint("fun main() {\n    val a = 1\n\n \n} "))
-            .isEqualTo(listOf(
-                LintError(4, 1, "no-trailing-spaces", "Trailing space(s)"),
-                LintError(5, 2, "no-trailing-spaces", "Trailing space(s)")
-            ))
+            .isEqualTo(
+                listOf(
+                    LintError(4, 1, "no-trailing-spaces", "Trailing space(s)"),
+                    LintError(5, 2, "no-trailing-spaces", "Trailing space(s)")
+                )
+            )
     }
 
     @Test

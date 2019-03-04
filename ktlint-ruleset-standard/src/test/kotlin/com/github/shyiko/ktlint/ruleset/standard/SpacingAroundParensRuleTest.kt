@@ -14,9 +14,11 @@ class SpacingAroundParensRuleTest {
 
     @Test
     fun testFormat() {
-        assertThat(SpacingAroundParensRule().diffFileFormat(
-            "spec/paren-spacing/format.kt.spec",
-            "spec/paren-spacing/format-expected.kt.spec"
-        )).isEmpty()
+        assertThat(
+            SpacingAroundParensRule().diffFileFormat(
+                "spec/paren-spacing/format.kt.spec",
+                "spec/paren-spacing/format-expected.kt.spec"
+            )
+        ).isEmpty()
     }
 }

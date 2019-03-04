@@ -198,8 +198,8 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRoot {
             (
                 numberOfArgs == 1 &&
                     firstArg?.firstChildNode?.elementType
-                        ?.let { it == OBJECT_LITERAL || it == LAMBDA_EXPRESSION } == true
-            )
+                    ?.let { it == OBJECT_LITERAL || it == LAMBDA_EXPRESSION } == true
+                )
         ) {
             return
         }
@@ -248,7 +248,7 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRoot {
             !(
                 entries.head().all { it.elementType == SUPER_TYPE_ENTRY } &&
                     entries.last().elementType == SUPER_TYPE_CALL_ENTRY
-            )
+                )
         ) {
             // put space after :
             if (!node.prevLeaf().isWhiteSpaceWithNewline()) {
@@ -459,150 +459,153 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRoot {
             visitWhiteSpace(firstNotEmptyLeaf, autoCorrect, emit, editorConfig)
         }
         val ctx = IndentContext()
-        node.visit({ n ->
-            when (n.elementType) {
-                LPAR, LBRACE, LBRACKET -> {
-                    // ({[ should increase expectedIndent by 1
-                    val prevBlockLine = ctx.blockOpeningLineStack.peek() ?: -1
-                    if (prevBlockLine != line) {
-                        expectedIndent++
-                        debug { "++${n.text} -> $expectedIndent" }
-                    }
-                    ctx.blockOpeningLineStack.push(line)
-                }
-                RPAR, RBRACE, RBRACKET -> {
-                    // ]}) should decrease expectedIndent by 1
-                    val blockLine = ctx.blockOpeningLineStack.pop()
-                    val prevBlockLine = ctx.blockOpeningLineStack.peek() ?: -1
-                    if (prevBlockLine != blockLine) {
-                        expectedIndent--
-                        debug { "--${n.text} -> $expectedIndent" }
-                    }
-                }
-                LT ->
-                    // <T>
-                    if (n.treeParent.elementType.let { it == TYPE_PARAMETER_LIST || it == TYPE_ARGUMENT_LIST }) {
-                        expectedIndent++
-                        debug { "++${n.text} -> $expectedIndent" }
-                    }
-                GT ->
-                    // <T>
-                    if (n.treeParent.elementType.let { it == TYPE_PARAMETER_LIST || it == TYPE_ARGUMENT_LIST }) {
-                        expectedIndent--
-                        debug { "--${n.text} -> $expectedIndent" }
-                    }
-                SUPER_TYPE_LIST ->
-                    // class A :
-                    //     SUPER_TYPE_LIST
-                    adjustExpectedIndentInsideSuperTypeList(n)
-                SUPER_TYPE_CALL_ENTRY -> {
-                    // IDEA quirk:
-                    //
-                    // class A : B({
-                    //     f() {}
-                    // }),
-                    //     C({
-                    //         f() {}
-                    //     })
-                    //
-                    // instead of expected
-                    //
-                    // class A : B({
-                    //         f() {}
-                    //     }),
-                    //     C({
-                    //         f() {}
-                    //     })
-                    adjustExpectedIndentInsideSuperTypeCall(n, ctx)
-                }
-                // TODO: test
-                DOT_QUALIFIED_EXPRESSION, SAFE_ACCESS_EXPRESSION, BINARY_EXPRESSION, BINARY_WITH_TYPE -> {
-                    val prevBlockLine = ctx.blockOpeningLineStack.peek() ?: -1
-                    if (prevBlockLine == line) {
-                        ctx.ignored.add(n)
-                    }
-                }
-                WHITE_SPACE ->
-                    if (n.textContains('\n')) {
-                        if (
-                            !n.isPartOfComment() &&
-                            !n.isPartOfRawMultiLineString() &&
-                            !n.isPartOfTypeConstraint() // FIXME
-                        ) {
-                            val p = n.treeParent
-                            val nextSibling = n.treeNext
-                            val prevLeaf = n.prevLeaf()
-                            when {
-                                p.elementType.let {
-                                    it == DOT_QUALIFIED_EXPRESSION || it == SAFE_ACCESS_EXPRESSION
-                                } ->
-                                    // value
-                                    //     .x()
-                                    //     .y
-                                    adjustExpectedIndentInsideQualifiedExpression(n, ctx)
-                                p.elementType.let {
-                                    it == BINARY_EXPRESSION || it == BINARY_WITH_TYPE
-                                } ->
-                                    // value
-                                    //     + x()
-                                    //     + y
-                                    adjustExpectedIndentInsideBinaryExpression(n, ctx)
-                                nextSibling?.elementType.let {
-                                    it == THEN || it == ELSE || it == BODY
-                                } ->
-                                    // if (...)
-                                    //     THEN
-                                    // else
-                                    //     ELSE
-                                    // while (...)
-                                    //     BODY
-                                    adjustExpectedIndentInFrontOfControlBlock(n, ctx)
-                                nextSibling?.elementType == PROPERTY_ACCESSOR ->
-                                    // val f: Type =
-                                    //     PROPERTY_ACCESSOR get() = ...
-                                    //     PROPERTY_ACCESSOR set() = ...
-                                    adjustExpectedIndentInFrontOfPropertyAccessor(n, ctx)
-                                nextSibling?.elementType == SUPER_TYPE_LIST ->
-                                    // class C :
-                                    //     SUPER_TYPE_LIST
-                                    adjustExpectedIndentInFrontOfSuperTypeList(n, ctx)
-                                prevLeaf?.elementType == EQ ->
-                                    // v =
-                                    //     value
-                                    adjustExpectedIndentAfterEq(n, ctx)
-                                prevLeaf?.elementType == ARROW ->
-                                    // when {
-                                    //    v ->
-                                    //        value
-                                    // }
-                                    adjustExpectedIndentAfterArrow(n, ctx)
-                            }
-                            visitWhiteSpace(n, autoCorrect, emit, editorConfig)
-                            if (ctx.localAdj != 0) {
-                                expectedIndent += ctx.localAdj
-                                ctx.localAdj = 0
-                            }
+        node.visit(
+            { n ->
+                when (n.elementType) {
+                    LPAR, LBRACE, LBRACKET -> {
+                        // ({[ should increase expectedIndent by 1
+                        val prevBlockLine = ctx.blockOpeningLineStack.peek() ?: -1
+                        if (prevBlockLine != line) {
+                            expectedIndent++
+                            debug { "++${n.text} -> $expectedIndent" }
                         }
-                        line += n.text.count { it == '\n' }
+                        ctx.blockOpeningLineStack.push(line)
                     }
-                EOL_COMMENT ->
-                    if (debugMode && n.text == "// ktlint-debug-print-expected-indent") {
-                        debug { "expected indent: $expectedIndent" }
+                    RPAR, RBRACE, RBRACKET -> {
+                        // ]}) should decrease expectedIndent by 1
+                        val blockLine = ctx.blockOpeningLineStack.pop()
+                        val prevBlockLine = ctx.blockOpeningLineStack.peek() ?: -1
+                        if (prevBlockLine != blockLine) {
+                            expectedIndent--
+                            debug { "--${n.text} -> $expectedIndent" }
+                        }
                     }
+                    LT ->
+                        // <T>
+                        if (n.treeParent.elementType.let { it == TYPE_PARAMETER_LIST || it == TYPE_ARGUMENT_LIST }) {
+                            expectedIndent++
+                            debug { "++${n.text} -> $expectedIndent" }
+                        }
+                    GT ->
+                        // <T>
+                        if (n.treeParent.elementType.let { it == TYPE_PARAMETER_LIST || it == TYPE_ARGUMENT_LIST }) {
+                            expectedIndent--
+                            debug { "--${n.text} -> $expectedIndent" }
+                        }
+                    SUPER_TYPE_LIST ->
+                        // class A :
+                        //     SUPER_TYPE_LIST
+                        adjustExpectedIndentInsideSuperTypeList(n)
+                    SUPER_TYPE_CALL_ENTRY -> {
+                        // IDEA quirk:
+                        //
+                        // class A : B({
+                        //     f() {}
+                        // }),
+                        //     C({
+                        //         f() {}
+                        //     })
+                        //
+                        // instead of expected
+                        //
+                        // class A : B({
+                        //         f() {}
+                        //     }),
+                        //     C({
+                        //         f() {}
+                        //     })
+                        adjustExpectedIndentInsideSuperTypeCall(n, ctx)
+                    }
+                    // TODO: test
+                    DOT_QUALIFIED_EXPRESSION, SAFE_ACCESS_EXPRESSION, BINARY_EXPRESSION, BINARY_WITH_TYPE -> {
+                        val prevBlockLine = ctx.blockOpeningLineStack.peek() ?: -1
+                        if (prevBlockLine == line) {
+                            ctx.ignored.add(n)
+                        }
+                    }
+                    WHITE_SPACE ->
+                        if (n.textContains('\n')) {
+                            if (
+                                !n.isPartOfComment() &&
+                                !n.isPartOfRawMultiLineString() &&
+                                !n.isPartOfTypeConstraint() // FIXME
+                            ) {
+                                val p = n.treeParent
+                                val nextSibling = n.treeNext
+                                val prevLeaf = n.prevLeaf()
+                                when {
+                                    p.elementType.let {
+                                        it == DOT_QUALIFIED_EXPRESSION || it == SAFE_ACCESS_EXPRESSION
+                                    } ->
+                                        // value
+                                        //     .x()
+                                        //     .y
+                                        adjustExpectedIndentInsideQualifiedExpression(n, ctx)
+                                    p.elementType.let {
+                                        it == BINARY_EXPRESSION || it == BINARY_WITH_TYPE
+                                    } ->
+                                        // value
+                                        //     + x()
+                                        //     + y
+                                        adjustExpectedIndentInsideBinaryExpression(n, ctx)
+                                    nextSibling?.elementType.let {
+                                        it == THEN || it == ELSE || it == BODY
+                                    } ->
+                                        // if (...)
+                                        //     THEN
+                                        // else
+                                        //     ELSE
+                                        // while (...)
+                                        //     BODY
+                                        adjustExpectedIndentInFrontOfControlBlock(n, ctx)
+                                    nextSibling?.elementType == PROPERTY_ACCESSOR ->
+                                        // val f: Type =
+                                        //     PROPERTY_ACCESSOR get() = ...
+                                        //     PROPERTY_ACCESSOR set() = ...
+                                        adjustExpectedIndentInFrontOfPropertyAccessor(n, ctx)
+                                    nextSibling?.elementType == SUPER_TYPE_LIST ->
+                                        // class C :
+                                        //     SUPER_TYPE_LIST
+                                        adjustExpectedIndentInFrontOfSuperTypeList(n, ctx)
+                                    prevLeaf?.elementType == EQ ->
+                                        // v =
+                                        //     value
+                                        adjustExpectedIndentAfterEq(n, ctx)
+                                    prevLeaf?.elementType == ARROW ->
+                                        // when {
+                                        //    v ->
+                                        //        value
+                                        // }
+                                        adjustExpectedIndentAfterArrow(n, ctx)
+                                }
+                                visitWhiteSpace(n, autoCorrect, emit, editorConfig)
+                                if (ctx.localAdj != 0) {
+                                    expectedIndent += ctx.localAdj
+                                    ctx.localAdj = 0
+                                }
+                            }
+                            line += n.text.count { it == '\n' }
+                        }
+                    EOL_COMMENT ->
+                        if (debugMode && n.text == "// ktlint-debug-print-expected-indent") {
+                            debug { "expected indent: $expectedIndent" }
+                        }
+                }
+            },
+            { n ->
+                when (n.elementType) {
+                    SUPER_TYPE_LIST ->
+                        adjustExpectedIndentAfterSuperTypeList(n)
+                    DOT_QUALIFIED_EXPRESSION, SAFE_ACCESS_EXPRESSION, BINARY_EXPRESSION, BINARY_WITH_TYPE ->
+                        ctx.ignored.remove(n)
+                }
+                val adj = ctx.clearExitAdj(n)
+                if (adj != null) {
+                    expectedIndent += adj
+                    debug { "adjusted ${n.elementType} by $adj -> $expectedIndent" }
+                }
             }
-        }, { n ->
-            when (n.elementType) {
-                SUPER_TYPE_LIST ->
-                    adjustExpectedIndentAfterSuperTypeList(n)
-                DOT_QUALIFIED_EXPRESSION, SAFE_ACCESS_EXPRESSION, BINARY_EXPRESSION, BINARY_WITH_TYPE ->
-                    ctx.ignored.remove(n)
-            }
-            val adj = ctx.clearExitAdj(n)
-            if (adj != null) {
-                expectedIndent += adj
-                debug { "adjusted ${n.elementType} by $adj -> $expectedIndent" }
-            }
-        })
+        )
     }
 
     private fun adjustExpectedIndentInsideQualifiedExpression(n: ASTNode, ctx: IndentContext) {
@@ -683,12 +686,12 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRoot {
 
     private fun adjustExpectedIndentInsideSuperTypeCall(n: ASTNode, ctx: IndentContext) {
         if (
-        // n.treePrev == null &&
-        // n.treeParent.elementType == SUPER_TYPE_LIST &&
+            // n.treePrev == null &&
+            // n.treeParent.elementType == SUPER_TYPE_LIST &&
             n.prevLeaf()?.textContains('\n') == false
         ) {
             expectedIndent--
-            debug { "--inside(${n.elementType}) -> ${expectedIndent}" }
+            debug { "--inside(${n.elementType}) -> $expectedIndent" }
             ctx.exitAdjBy(n, 1)
         }
     }
@@ -741,7 +744,8 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRoot {
             //     true
             // )
             nextLeafElementType == RPAR &&
-                node.treeParent?.elementType == PARENTHESIZED -> 0
+                node.treeParent?.elementType == PARENTHESIZED ->
+                0
             // IDEA quirk:
             // class A : T<
             //     K,
@@ -755,7 +759,8 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRoot {
             // > {
             // }
             nextLeafElementType == GT &&
-                node.treeParent?.elementType.let { it == TYPE_PARAMETER_LIST || it == TYPE_ARGUMENT_LIST } -> 0
+                node.treeParent?.elementType.let { it == TYPE_PARAMETER_LIST || it == TYPE_ARGUMENT_LIST } ->
+                0
             nextLeafElementType in rTokenSet -> -1
             else -> 0
         }

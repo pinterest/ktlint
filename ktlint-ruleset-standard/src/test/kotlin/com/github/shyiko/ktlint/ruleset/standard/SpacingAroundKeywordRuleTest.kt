@@ -10,8 +10,9 @@ class SpacingAroundKeywordRuleTest {
 
     @Test
     fun testLint() {
-        assertThat(SpacingAroundKeywordRule().lint(
-            """
+        assertThat(
+            SpacingAroundKeywordRule().lint(
+                """
             fun main() {
                 if(true) {}
                 while(true) {}
@@ -50,20 +51,24 @@ class SpacingAroundKeywordRuleTest {
                     V
             }
             """.trimIndent()
-        )).isEqualTo(listOf(
-            LintError(2, 7, "keyword-spacing", "Missing spacing after \"if\""),
-            LintError(3, 10, "keyword-spacing", "Missing spacing after \"while\""),
-            LintError(4, 16, "keyword-spacing", "Missing spacing after \"while\""),
-            LintError(7, 5, "keyword-spacing", "Unexpected newline before \"else\""),
-            LintError(10, 5, "keyword-spacing", "Unexpected newline before \"catch\""),
-            LintError(11, 5, "keyword-spacing", "Unexpected newline before \"finally\"")
-        ))
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(2, 7, "keyword-spacing", "Missing spacing after \"if\""),
+                LintError(3, 10, "keyword-spacing", "Missing spacing after \"while\""),
+                LintError(4, 16, "keyword-spacing", "Missing spacing after \"while\""),
+                LintError(7, 5, "keyword-spacing", "Unexpected newline before \"else\""),
+                LintError(10, 5, "keyword-spacing", "Unexpected newline before \"catch\""),
+                LintError(11, 5, "keyword-spacing", "Unexpected newline before \"finally\"")
+            )
+        )
     }
 
     @Test
     fun testFormat() {
-        assertThat(SpacingAroundKeywordRule().format(
-            """
+        assertThat(
+            SpacingAroundKeywordRule().format(
+                """
             fun main() {
                 if(true) {}
                 if (true) {}
@@ -81,7 +86,8 @@ class SpacingAroundKeywordRuleTest {
                 finally {}
             }
             """.trimIndent()
-        )).isEqualTo(
+            )
+        ).isEqualTo(
             """
             fun main() {
                 if (true) {}
@@ -101,8 +107,9 @@ class SpacingAroundKeywordRuleTest {
 
     @Test
     fun getterAndSetterFunction() {
-        assertThat(SpacingAroundKeywordRule().format(
-            """
+        assertThat(
+            SpacingAroundKeywordRule().format(
+                """
             var x: String
 			    get () {
 				    return ""
@@ -111,7 +118,8 @@ class SpacingAroundKeywordRuleTest {
 				    x = value
 			    }
             """.trimIndent()
-        )).isEqualTo(
+            )
+        ).isEqualTo(
             """
             var x: String
 			    get() {
@@ -126,8 +134,9 @@ class SpacingAroundKeywordRuleTest {
 
     @Test
     fun visibilityOrInjectProperty() {
-        assertThat(SpacingAroundKeywordRule().lint(
-            """
+        assertThat(
+            SpacingAroundKeywordRule().lint(
+                """
         var setterVisibility: String = "abc"
             private set
         var setterWithAnnotation: Any? = null
@@ -136,8 +145,11 @@ class SpacingAroundKeywordRuleTest {
             private set
             (value) { setterOnNextLine = value}
             """
-        )).isEqualTo(listOf(
-            LintError(7, 21, "keyword-spacing", "Unexpected spacing after \"set\"")
-        ))
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(7, 21, "keyword-spacing", "Unexpected spacing after \"set\"")
+            )
+        )
     }
 }

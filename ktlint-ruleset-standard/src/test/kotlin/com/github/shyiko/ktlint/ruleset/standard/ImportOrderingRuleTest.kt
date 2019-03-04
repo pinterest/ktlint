@@ -14,9 +14,11 @@ class ImportOrderingRuleTest {
 
     @Test
     fun testFormat() {
-        assertThat(ImportOrderingRule().diffFileFormat(
-            "spec/import-ordering/format.kt.spec",
-            "spec/import-ordering/format-expected.kt.spec"
-        )).isEmpty()
+        assertThat(
+            ImportOrderingRule().diffFileFormat(
+                "spec/import-ordering/format.kt.spec",
+                "spec/import-ordering/format-expected.kt.spec"
+            )
+        ).isEmpty()
     }
 }
