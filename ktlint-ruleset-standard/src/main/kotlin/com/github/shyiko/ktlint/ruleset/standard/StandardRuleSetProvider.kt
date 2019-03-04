@@ -12,7 +12,8 @@ class StandardRuleSetProvider : RuleSetProvider {
         CommentSpacingRule(),
         FilenameRule(),
         FinalNewlineRule(),
-        PackageNameRule(),
+        // disabled until there is a way to suppress rules globally (https://git.io/fhxnm)
+        // PackageNameRule(),
         // disabled until auto-correct is working properly
         // (e.g. try formatting "if (true)\n    return { _ ->\n        _\n}")
         // MultiLineIfElseRule(),
