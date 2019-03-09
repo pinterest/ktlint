@@ -6,10 +6,14 @@ fun f0() {
     )
 
     println("""${true}""")
-    println(
+    f(
         """${
-true
-    }""",
+        true
+        }
+    text
+_${
+        true
+        }""",
         """text"""
     )
 }

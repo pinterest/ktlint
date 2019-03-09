@@ -53,7 +53,6 @@ import com.github.shyiko.ktlint.core.ast.children
 import com.github.shyiko.ktlint.core.ast.comment
 import com.github.shyiko.ktlint.core.ast.isPartOf
 import com.github.shyiko.ktlint.core.ast.isPartOfComment
-import com.github.shyiko.ktlint.core.ast.isPartOfRawMultiLineString
 import com.github.shyiko.ktlint.core.ast.nextCodeLeaf
 import com.github.shyiko.ktlint.core.ast.nextCodeSibling
 import com.github.shyiko.ktlint.core.ast.nextLeaf
@@ -520,7 +519,6 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRoot {
                         if (n.textContains('\n')) {
                             if (
                                 !n.isPartOfComment() &&
-                                !n.isPartOfRawMultiLineString() &&
                                 !n.isPartOfTypeConstraint() // FIXME
                             ) {
                                 val p = n.treeParent
@@ -799,8 +797,6 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRoot {
 
     private fun ASTNode?.isWhiteSpaceWithNewline() =
         this != null && elementType == WHITE_SPACE && textContains('\n')
-    private fun ASTNode?.isWhiteSpaceWithoutNewline() =
-        this != null && elementType == WHITE_SPACE && !textContains('\n')
 
     // e.g.
     // if (condition), while (condition), for (condition), ...
