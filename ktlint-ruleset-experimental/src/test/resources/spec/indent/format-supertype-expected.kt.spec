@@ -46,3 +46,11 @@ class A6 :
     Z({
 
     })
+
+class MyClass(
+    thisIsAParameter: ThisIsTheParameterClass
+) : AnotherClassName<SomeClass.AnInterfaceName>(thisIsAParameter),
+    YetAnotherInterfaceWeDeriveFrom {
+    val x = 1
+    val y = 2
+}

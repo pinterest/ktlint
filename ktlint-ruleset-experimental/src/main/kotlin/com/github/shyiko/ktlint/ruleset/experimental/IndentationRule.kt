@@ -244,7 +244,9 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRoot {
             // put space after :
             if (!node.prevLeaf().isWhiteSpaceWithNewline()) {
                 val colon = node.prevCodeLeaf()!!
-                requireNewlineAfterLeaf(colon, autoCorrect, emit)
+                if (colon.prevCodeLeaf().let { it?.elementType != RPAR || !it.prevLeaf().isWhiteSpaceWithNewline() }) {
+                    requireNewlineAfterLeaf(colon, autoCorrect, emit)
+                }
             }
             // put entries on separate lines
             // TODO: group emit()s below with the one above into one (similar to ParameterListWrappingRule)
