@@ -73,6 +73,14 @@ class IndentationRuleTest {
     }
 
     @Test
+    fun testFormatKDoc() {
+        assertThat(IndentationRule().diffFileFormat(
+            "spec/indent/format-kdoc.kt.spec",
+            "spec/indent/format-kdoc-expected.kt.spec"
+        )).isEmpty()
+    }
+
+    @Test
     fun testLintComment() {
         assertThat(IndentationRule().diffFileLint("spec/indent/lint-comment.kt.spec")).isEmpty()
     }

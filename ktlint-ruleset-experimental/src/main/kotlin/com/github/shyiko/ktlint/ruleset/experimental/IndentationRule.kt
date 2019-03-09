@@ -6,6 +6,7 @@ import com.github.shyiko.ktlint.core.Rule
 import com.github.shyiko.ktlint.core.ast.ElementType.ARROW
 import com.github.shyiko.ktlint.core.ast.ElementType.BINARY_EXPRESSION
 import com.github.shyiko.ktlint.core.ast.ElementType.BINARY_WITH_TYPE
+import com.github.shyiko.ktlint.core.ast.ElementType.BLOCK_COMMENT
 import com.github.shyiko.ktlint.core.ast.ElementType.BODY
 import com.github.shyiko.ktlint.core.ast.ElementType.COMMA
 import com.github.shyiko.ktlint.core.ast.ElementType.CONDITION
@@ -17,6 +18,8 @@ import com.github.shyiko.ktlint.core.ast.ElementType.EOL_COMMENT
 import com.github.shyiko.ktlint.core.ast.ElementType.EQ
 import com.github.shyiko.ktlint.core.ast.ElementType.FUNCTION_LITERAL
 import com.github.shyiko.ktlint.core.ast.ElementType.GT
+import com.github.shyiko.ktlint.core.ast.ElementType.KDOC
+import com.github.shyiko.ktlint.core.ast.ElementType.KDOC_START
 import com.github.shyiko.ktlint.core.ast.ElementType.LAMBDA_EXPRESSION
 import com.github.shyiko.ktlint.core.ast.ElementType.LBRACE
 import com.github.shyiko.ktlint.core.ast.ElementType.LBRACKET
@@ -571,7 +574,10 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRoot {
                                     expectedIndent += ctx.localAdj
                                     ctx.localAdj = 0
                                 }
-                            }
+                            } else
+                                if (n.isPartOf(KDOC)) {
+                                    visitWhiteSpace(n, autoCorrect, emit, editorConfig)
+                                }
                             line += n.text.count { it == '\n' }
                         }
                     EOL_COMMENT ->
@@ -717,8 +723,10 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRoot {
             if (nodeIndent.isEmpty()) {
                 return // comments are allowed at column 0
             }
-            if (comment.textContains('\n')) {
-                return // FIXME: multi-line comments are not checked
+            if (comment.textContains('\n') && comment.elementType == BLOCK_COMMENT) {
+                // FIXME: while we cannot assume any kind of layout inside a block comment,
+                // `/*` and `*/` can still be indented
+                return
             }
         }
         // adjusting expectedIndent based on what is in front
@@ -764,7 +772,10 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRoot {
             } else {
                 nodeIndent
             }
-        val expectedIndentLength = adjustedExpectedIndent * editorConfig.indentSize
+        val expectedIndentLength =
+            adjustedExpectedIndent * editorConfig.indentSize +
+                // +1 space before * in `/**\n *\n */`
+                if (comment?.elementType == KDOC && nextLeafElementType != KDOC_START) 1 else 0
         if (normalizedNodeIndent.length != expectedIndentLength) {
             emit(
                 node.startOffset + text.length - nodeIndent.length,
