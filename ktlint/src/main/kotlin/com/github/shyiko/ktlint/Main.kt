@@ -4,13 +4,12 @@ import com.github.shyiko.klob.Glob
 import com.github.shyiko.ktlint.core.KtLint
 import com.github.shyiko.ktlint.core.LintError
 import com.github.shyiko.ktlint.core.ParseException
-import com.github.shyiko.ktlint.core.Reporter
-import com.github.shyiko.ktlint.core.ReporterProvider
 import com.github.shyiko.ktlint.core.RuleExecutionException
 import com.github.shyiko.ktlint.core.RuleSet
 import com.github.shyiko.ktlint.internal.EditorConfig
 import com.github.shyiko.ktlint.internal.IntellijIDEAIntegration
 import com.github.shyiko.ktlint.internal.MavenDependencyResolver
+import com.github.shyiko.ktlint.internal.loadReporter
 import com.github.shyiko.ktlint.internal.loadRuleSets
 import com.github.shyiko.ktlint.internal.mkdirsOrFail
 import com.github.shyiko.ktlint.test.DumpAST
@@ -34,7 +33,6 @@ import java.util.Arrays
 import java.util.LinkedHashMap
 import java.util.NoSuchElementException
 import java.util.Scanner
-import java.util.ServiceLoader
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.Callable
 import java.util.concurrent.ConcurrentHashMap
@@ -278,7 +276,16 @@ object Main {
         )
 
         val tripped = AtomicBoolean()
-        val reporter = loadReporter(dependencyResolver) { tripped.get() }
+        val reporter = loadReporter(
+            dependencyResolver,
+            reporters = reporters,
+            debug = debug,
+            verbose = verbose,
+            stdin = stdin,
+            color = color,
+            skipClasspathCheck = skipClasspathCheck
+        ) { tripped.get() }
+
         val resolveUserData = userDataResolver()
         data class LintErrorWithCorrectionInfo(val err: LintError, val corrected: Boolean)
         fun process(fileName: String, fileContent: String): List<LintErrorWithCorrectionInfo> {
@@ -405,66 +412,6 @@ object Main {
             ?.let { stream ->
                 Manifest(stream).mainAttributes.getValue("Implementation-Version")
             }
-
-    private fun loadReporter(dependencyResolver: Lazy<MavenDependencyResolver>, tripped: () -> Boolean): Reporter {
-        data class ReporterTemplate(val id: String, val artifact: String?, val config: Map<String, String>, var output: String?)
-        val tpls = (if (reporters.isEmpty()) listOf("plain") else reporters)
-            .map { reporter ->
-                val split = reporter.split(",")
-                val (reporterId, rawReporterConfig) = split[0].split("?", limit = 2) + listOf("")
-                ReporterTemplate(
-                    reporterId,
-                    split.lastOrNull { it.startsWith("artifact=") }?.let { it.split("=")[1] },
-                    mapOf("verbose" to verbose.toString(), "color" to color.toString()) + parseQuery(rawReporterConfig),
-                    split.lastOrNull { it.startsWith("output=") }?.let { it.split("=")[1] }
-                )
-            }
-            .distinct()
-        val reporterLoader = ServiceLoader.load(ReporterProvider::class.java)
-        val reporterProviderById = reporterLoader.associate { it.id to it }.let { map ->
-            val missingReporters = tpls.filter { !map.containsKey(it.id) }.mapNotNull { it.artifact }.distinct()
-            if (!missingReporters.isEmpty()) {
-                val reporterClassloader = getServiceClassloader(dependencyResolver, missingReporters)
-                ServiceLoader.load(ReporterProvider::class.java, reporterClassloader).associate { it.id to it }
-            } else map
-        }
-        if (debug) {
-            reporterProviderById.forEach { (id) -> System.err.println("[DEBUG] Discovered reporter \"$id\"") }
-        }
-        fun ReporterTemplate.toReporter(): Reporter {
-            val reporterProvider = reporterProviderById[id]
-            if (reporterProvider == null) {
-                System.err.println("Error: reporter \"$id\" wasn't found (available: ${
-                    reporterProviderById.keys.sorted().joinToString(",")
-                })")
-                exitProcess(1)
-            }
-            if (debug) {
-                System.err.println("[DEBUG] Initializing \"$id\" reporter with $config" +
-                    (output?.let { ", output=$it" } ?: ""))
-            }
-            val stream = if (output != null) {
-                File(output).parentFile?.mkdirsOrFail(); PrintStream(output, "UTF-8")
-            } else if (stdin) System.err else System.out
-            return reporterProvider.get(stream, config)
-                .let { reporter ->
-                    if (output != null) {
-                        object : Reporter by reporter {
-                            override fun afterAll() {
-                                reporter.afterAll()
-                                stream.close()
-                                if (tripped()) {
-                                    System.err.println("\"$id\" report written to ${File(output).absoluteFile.location()}")
-                                }
-                            }
-                        }
-                    } else {
-                        reporter
-                    }
-                }
-        }
-        return Reporter.from(*tpls.map { it.toReporter() }.toTypedArray())
-    }
 
     private fun Exception.toLintError(): LintError = this.let { e ->
         when (e) {
