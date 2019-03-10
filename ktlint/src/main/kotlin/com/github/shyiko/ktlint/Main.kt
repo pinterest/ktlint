@@ -13,8 +13,6 @@ import com.github.shyiko.ktlint.internal.EditorConfig
 import com.github.shyiko.ktlint.internal.IntellijIDEAIntegration
 import com.github.shyiko.ktlint.internal.MavenDependencyResolver
 import com.github.shyiko.ktlint.test.DumpAST
-import org.eclipse.aether.RepositoryException
-import org.eclipse.aether.artifact.DefaultArtifact
 import org.eclipse.aether.repository.RemoteRepository
 import org.eclipse.aether.repository.RepositoryPolicy
 import org.eclipse.aether.repository.RepositoryPolicy.CHECKSUM_POLICY_IGNORE
@@ -651,49 +649,7 @@ object Main {
         if (artifacts.isEmpty()) {
             return parentClassloader
         }
-        val artifactUrls = artifacts.flatMap { artifact ->
-                    if (debug) {
-                        System.err.println("[DEBUG] Resolving $artifact")
-                    }
-                    val result = try {
-                        dependencyResolver.value.resolve(DefaultArtifact(artifact)).map { it.toURI().toURL() }
-                    } catch (e: IllegalArgumentException) {
-                        val file = File(expandTilde(artifact))
-                        if (!file.exists()) {
-                            System.err.println("Error: $artifact does not exist")
-                            exitProcess(1)
-                        }
-                        listOf(file.toURI().toURL())
-                    } catch (e: RepositoryException) {
-                        if (debug) {
-                            e.printStackTrace()
-                        }
-                        System.err.println("Error: $artifact wasn't found")
-                        exitProcess(1)
-                    }
-                    if (debug) {
-                        result.forEach { url -> System.err.println("[DEBUG] Loading $url") }
-                    }
-                    if (!skipClasspathCheck) {
-                        if (result.any { it.toString().substringAfterLast("/").startsWith("ktlint-core-") }) {
-                            System.err.println(
-                                "\"$artifact\" appears to have a runtime/compile dependency on \"ktlint-core\".\n" +
-                                    "Please inform the author that \"com.github.shyiko:ktlint*\" should be marked " +
-                                    "compileOnly (Gradle) / provided (Maven).\n" +
-                                    "(to suppress this warning use --skip-classpath-check)"
-                            )
-                        }
-                        if (result.any { it.toString().substringAfterLast("/").startsWith("kotlin-stdlib-") }) {
-                            System.err.println(
-                                "\"$artifact\" appears to have a runtime/compile dependency on \"kotlin-stdlib\".\n" +
-                                    "Please inform the author that \"org.jetbrains.kotlin:kotlin-stdlib*\" should be marked " +
-                                    "compileOnly (Gradle) / provided (Maven).\n" +
-                                    "(to suppress this warning use --skip-classpath-check)"
-                            )
-                        }
-                    }
-                    result
-                }
+        val artifactUrls = dependencyResolver.value.resolveArtifacts(artifacts, debug, skipClasspathCheck)
         return URLClassLoader(artifactUrls.toTypedArray(), parentClassloader)
     }
 
