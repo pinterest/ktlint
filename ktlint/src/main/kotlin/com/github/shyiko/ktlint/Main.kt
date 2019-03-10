@@ -23,14 +23,11 @@ import java.io.File
 import java.io.FileNotFoundException
 import java.io.PrintStream
 import java.math.BigInteger
-import java.net.URLClassLoader
-import java.net.URLDecoder
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.security.MessageDigest
 import java.util.ArrayList
 import java.util.Arrays
-import java.util.LinkedHashMap
 import java.util.NoSuchElementException
 import java.util.Scanner
 import java.util.concurrent.ArrayBlockingQueue
@@ -553,24 +550,6 @@ object Main {
 
     private fun <T> List<T>.head(limit: Int) = if (limit == size) this else this.subList(0, limit)
 
-    private fun getServiceClassloader(dependencyResolver: Lazy<MavenDependencyResolver>, artifacts: List<String>): ClassLoader {
-        val parentClassloader = Main::class.java.classLoader
-        if (artifacts.isEmpty()) {
-            return parentClassloader
-        }
-        val artifactUrls = dependencyResolver.value.resolveArtifacts(artifacts, debug, skipClasspathCheck)
-        return URLClassLoader(artifactUrls.toTypedArray(), parentClassloader)
-    }
-
-    private fun parseQuery(query: String) = query.split("&")
-        .fold(LinkedHashMap<String, String>()) { map, s ->
-            if (!s.isEmpty()) {
-                s.split("=", limit = 2).let { e -> map.put(e[0],
-                    URLDecoder.decode(e.getOrElse(1) { "true" }, "UTF-8")) }
-            }
-            map
-        }
-
     private fun lint(
         fileName: String,
         text: String,
@@ -596,12 +575,6 @@ object Main {
         } else {
             KtLint.formatScript(text, ruleSets, userData, cb)
         }
-
-    private fun java.net.URLClassLoader.addURLs(url: Iterable<java.net.URL>) {
-        val method = java.net.URLClassLoader::class.java.getDeclaredMethod("addURL", java.net.URL::class.java)
-        method.isAccessible = true
-        url.forEach { method.invoke(this, it) }
-    }
 
     /**
      * Executes "Callable"s in parallel (lazily).
