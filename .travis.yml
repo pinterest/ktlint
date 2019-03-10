@@ -1,6 +1,7 @@
 language: java
 jdk:
-- oraclejdk8
+  - oraclejdk8
+  - openjdk11
 script: if [[ $TRAVIS_REPO_SLUG == "shyiko/ktlint" && $TRAVIS_BRANCH == "master" &&
   $TRAVIS_PULL_REQUEST == "false" ]]; then ./mvnw -Ddeploy=maven-central -DskipStaging=true -Dgpg.skip=true &&
   ./mvnw -Ddeploy=github -Dgpg.skip=true -Dgithub.draft=true -Dgithub.description="https://github.com/shyiko/ktlint#access-to-the-latest-master-snapshot"; else ./mvnw clean verify;
