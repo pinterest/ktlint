@@ -6,13 +6,13 @@ import java.net.URL
 import java.net.URLClassLoader
 import java.util.ServiceLoader
 
-fun loadRuleSets(
+fun getRuleSetProviders(
     dependencyResolver: Lazy<MavenDependencyResolver>,
     ruleSetsUrls: Collection<String>,
     debug: Boolean,
     experimental: Boolean,
     skipClasspathCheck: Boolean
-): List<RuleSet> {
+): List<RuleSetProvider> {
     val additionalArtifactUrls: Collection<URL> = if (ruleSetsUrls.isEmpty())
         emptyList()
     else
@@ -22,10 +22,10 @@ fun loadRuleSets(
             skipClasspathCheck
         )
 
-    return doLoadRuleSets(additionalArtifactUrls, debug = debug, experimental = experimental)
+    return loadRuleSetProvider(additionalArtifactUrls, debug = debug, experimental = experimental)
 }
 
-private fun doLoadRuleSets(urls: Collection<URL>, debug: Boolean, experimental: Boolean): List<RuleSet> {
+private fun loadRuleSetProvider(urls: Collection<URL>, debug: Boolean, experimental: Boolean): List<RuleSetProvider> {
     val rulesetClassLoader = URLClassLoader(urls.toTypedArray(), RuleSet::class.java.classLoader)
 
     // standard should go first
@@ -36,5 +36,5 @@ private fun doLoadRuleSets(urls: Collection<URL>, debug: Boolean, experimental: 
     if (debug) {
         ruleSetProviders.forEach { System.err.println("[DEBUG] Discovered ruleset \"${it.first}\"") }
     }
-    return ruleSetProviders.map { it.second.get() }
+    return ruleSetProviders.map { it.second }
 }

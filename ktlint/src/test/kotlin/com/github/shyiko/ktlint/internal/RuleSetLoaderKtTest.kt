@@ -1,6 +1,5 @@
 package com.github.shyiko.ktlint.internal
 
-import com.github.shyiko.ktlint.core.RuleSet
 import org.assertj.core.api.Assertions.assertThat
 import org.testng.annotations.Test
 
@@ -13,7 +12,7 @@ class RuleSetLoaderKtTest {
     fun testLoadingExtraRuleSetsFromLocalJar() {
         val artifacts = listOf("src/test/resources/custom.jar")
 
-        val ruleSets = loadRuleSets(
+        val ruleSets = getRuleSetProviders(
             dependencyResolver,
             ruleSetsUrls = artifacts,
             debug = debug,
@@ -21,13 +20,13 @@ class RuleSetLoaderKtTest {
             skipClasspathCheck = false
         )
 
-        assertThat(ruleSets.map(RuleSet::id)).contains("custom")
+        assertThat(ruleSets.map { it.get().id }).contains("custom")
     }
 
     @Test
     fun testLoadingExtraRuleSetsFromMavenRepo() {
         val artifacts = listOf("com.gabrielittner.ktlint:ktlint-rules:0.2.0")
-        val ruleSets = loadRuleSets(
+        val ruleSets = getRuleSetProviders(
             dependencyResolver,
             ruleSetsUrls = artifacts,
             debug = debug,
@@ -35,12 +34,12 @@ class RuleSetLoaderKtTest {
             skipClasspathCheck = false
         )
 
-        assertThat(ruleSets.map(RuleSet::id)).contains("custom")
+        assertThat(ruleSets.map { it.get().id }).contains("custom")
     }
 
     @Test
     fun testExcludeExperimentaRuleSet() {
-        val ruleSets = loadRuleSets(
+        val ruleSets = getRuleSetProviders(
             dependencyResolver,
             ruleSetsUrls = emptyList(),
             debug = debug,
@@ -48,12 +47,12 @@ class RuleSetLoaderKtTest {
             skipClasspathCheck = false
         )
 
-        assertThat(ruleSets.map(RuleSet::id)).containsExactly("standard")
+        assertThat(ruleSets.map { it.get().id }).containsExactly("standard")
     }
 
     @Test
     fun testIncludeExperimentaRuleSetStandardFirst() {
-        val ruleSets = loadRuleSets(
+        val ruleSets = getRuleSetProviders(
             dependencyResolver,
             ruleSetsUrls = emptyList(),
             debug = debug,
@@ -61,6 +60,6 @@ class RuleSetLoaderKtTest {
             skipClasspathCheck = false
         )
 
-        assertThat(ruleSets.map(RuleSet::id)).containsExactly("standard", "experimental")
+        assertThat(ruleSets.map { it.get().id }).containsExactly("standard", "experimental")
     }
 }

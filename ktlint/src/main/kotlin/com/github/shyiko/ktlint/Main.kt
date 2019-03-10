@@ -9,8 +9,8 @@ import com.github.shyiko.ktlint.core.RuleSet
 import com.github.shyiko.ktlint.internal.EditorConfig
 import com.github.shyiko.ktlint.internal.IntellijIDEAIntegration
 import com.github.shyiko.ktlint.internal.MavenDependencyResolver
+import com.github.shyiko.ktlint.internal.getRuleSetProviders
 import com.github.shyiko.ktlint.internal.loadReporter
-import com.github.shyiko.ktlint.internal.loadRuleSets
 import com.github.shyiko.ktlint.internal.mkdirsOrFail
 import com.github.shyiko.ktlint.test.DumpAST
 import org.jetbrains.kotlin.backend.common.onlyIf
@@ -248,7 +248,7 @@ object Main {
             MavenDependencyResolver.lazyResolver(repositories, forceUpdate = forceUpdate ?: false, debug = debug)
 
         // load 3rd party ruleset(s) (if any)
-        val ruleSets = loadRuleSets(
+        val ruleSets = getRuleSetProviders(
             dependencyResolver,
             ruleSetsUrls = rulesets,
             debug = debug,
@@ -277,7 +277,7 @@ object Main {
             val userData = resolveUserData(fileName)
             if (format) {
                 val formattedFileContent = try {
-                    format(fileName, fileContent, ruleSets, userData) { err, corrected ->
+                    format(fileName, fileContent, ruleSets.map { it.get() }, userData) { err, corrected ->
                         if (!corrected) {
                             result.add(LintErrorWithCorrectionInfo(err, corrected))
                             tripped.set(true)
@@ -297,7 +297,7 @@ object Main {
                 }
             } else {
                 try {
-                    lint(fileName, fileContent, ruleSets, userData) { err ->
+                    lint(fileName, fileContent, ruleSets.map { it.get() }, userData) { err ->
                         result.add(LintErrorWithCorrectionInfo(err, false))
                         tripped.set(true)
                     }
