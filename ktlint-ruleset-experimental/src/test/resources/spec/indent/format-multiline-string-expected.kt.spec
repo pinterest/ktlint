@@ -37,6 +37,14 @@ fun f0() {
         _
         """.trimIndent()
     )
+    println(
+        """
+        text ""
+
+            text
+        """.trimIndent(),
+        ""
+    )
     f(
         """${
         true

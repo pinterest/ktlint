@@ -24,6 +24,14 @@ println("""
 
         text
 _""".trimIndent())
+    println(
+        """
+    text ""
+
+        text
+    """.trimIndent(),
+        ""
+    )
     f("""${
 true
     }

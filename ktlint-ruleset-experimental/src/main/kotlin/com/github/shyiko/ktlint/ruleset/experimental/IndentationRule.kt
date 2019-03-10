@@ -732,7 +732,8 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRoot {
             val tab = " ".repeat(editorConfig.tabWidth)
             val children = node.children()
             val prefixLength = children.fold(Int.MAX_VALUE) { l, child ->
-                if (child.elementType == LITERAL_STRING_TEMPLATE_ENTRY) {
+                if (child.elementType == LITERAL_STRING_TEMPLATE_ENTRY &&
+                    child.isPrecededByLFStringTemplateEntry()) {
                     val v = child.text
                     if (!v.isBlank()) {
                         return@fold min(l, v.replace("\t", tab).indentLength())
@@ -746,10 +747,11 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRoot {
                 prefixLength != expectedPrefixLength
             ) {
                 for (child in children) {
-                    if (child.elementType == LITERAL_STRING_TEMPLATE_ENTRY) {
+                    if (child.elementType == LITERAL_STRING_TEMPLATE_ENTRY &&
+                        child.isPrecededByLFStringTemplateEntry()) {
                         val v = child.text
                         if (!v.isBlank() || (v != "\n" && child.treeNext.elementType == CLOSING_QUOTE)) {
-                            val indentLength = v.indentLength()
+                            val indentLength = v.indentLength() // TODO: replace Tab(s)
                             val expectedIndentLength =
                                 if (v.length == indentLength) { // blank string (before """)
                                     expectedPrefixLength
@@ -832,6 +834,9 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRoot {
             }
         }
     }
+
+    private fun ASTNode.isPrecededByLFStringTemplateEntry() =
+        treePrev?.let { it.elementType == LITERAL_STRING_TEMPLATE_ENTRY && it.text == "\n" } == true
 
     private fun KtStringTemplateExpression.isMultiLine(): Boolean {
         for (child in node.children()) {
