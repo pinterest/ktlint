@@ -26,10 +26,10 @@ _""".trimIndent())
         ""
     )
     write(fs.getPath("/projects/.editorconfig"), """
-    root = true
-    [*]
-    end_of_line = lf
-""".trimIndent().toByteArray())
+        root = true
+        [*]
+        end_of_line = lf
+    """.trimIndent().toByteArray())
             SpacingAroundKeywordRule().format( // string below is tab-indented
                 """
             var x: String

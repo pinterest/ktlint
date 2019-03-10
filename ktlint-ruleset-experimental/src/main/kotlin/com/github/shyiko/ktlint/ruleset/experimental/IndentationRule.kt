@@ -752,29 +752,11 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                     if (child.elementType == LITERAL_STRING_TEMPLATE_ENTRY &&
                         child.isPrecededByLFStringTemplateEntry()) {
                         val v = child.text
-                        if (!v.isBlank() || (v != "\n" && child.treeNext.elementType == CLOSING_QUOTE)) {
+                        if (!v.isBlank()) {
                             val indentLength = v.indentLength()
-                            val expectedIndentLength =
-                                if (v.length == indentLength) { // blank string (before """)
-                                    expectedPrefixLength
-                                } else {
-                                    indentLength - prefixLength + expectedPrefixLength
-                                }
+                            val expectedIndentLength = indentLength - prefixLength + expectedPrefixLength
                             if (indentLength != expectedIndentLength) {
-                                emit(
-                                    child.startOffset,
-                                    "Unexpected indentation ($indentLength) (should be $expectedIndentLength)",
-                                    true
-                                )
-                                if (autoCorrect) {
-                                    (child.firstChildNode as LeafPsiElement).rawReplaceWithText(
-                                        " ".repeat(expectedIndentLength) + v.substring(indentLength)
-                                    )
-                                }
-                                debug {
-                                    (if (!autoCorrect) "would have " else "") +
-                                        "changed indentation to $expectedIndentLength (from $indentLength)"
-                                }
+                                indentStringTemplateEntry(child, autoCorrect, emit, indentLength, expectedIndentLength)
                             }
                         }
                     }
@@ -806,8 +788,7 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                     (if (!autoCorrect) "would have " else "") +
                         "changed indentation before (closing) \"\"\" to $expectedPrefixLength (from 0)"
                 }
-            } else
-            if (!closingQuote.treePrev.text.isBlank()) {
+            } else if (!closingQuote.treePrev.text.isBlank()) {
                 // rewriting
                 // """
                 //     text
@@ -833,7 +814,36 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                     (if (!autoCorrect) "would have " else "") +
                         "inserted newline before (closing) \"\"\""
                 }
+            } else {
+                val child = closingQuote.treePrev
+                val indentLength = child.text.length
+                if (indentLength != expectedPrefixLength) {
+                    indentStringTemplateEntry(child, autoCorrect, emit, indentLength, expectedPrefixLength)
+                }
             }
+        }
+    }
+
+    private fun indentStringTemplateEntry(
+        node: ASTNode,
+        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        indentLength: Int,
+        expectedIndentLength: Int
+    ) {
+        emit(
+            node.startOffset,
+            "Unexpected indentation ($indentLength) (should be $expectedIndentLength)",
+            true
+        )
+        if (autoCorrect) {
+            (node.firstChildNode as LeafPsiElement).rawReplaceWithText(
+                " ".repeat(expectedIndentLength) + node.text.substring(indentLength)
+            )
+        }
+        debug {
+            (if (!autoCorrect) "would have " else "") +
+                "changed indentation to $expectedIndentLength (from $indentLength)"
         }
     }
 
