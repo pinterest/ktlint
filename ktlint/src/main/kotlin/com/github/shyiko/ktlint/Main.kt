@@ -8,15 +8,12 @@ import com.github.shyiko.ktlint.core.Reporter
 import com.github.shyiko.ktlint.core.ReporterProvider
 import com.github.shyiko.ktlint.core.RuleExecutionException
 import com.github.shyiko.ktlint.core.RuleSet
-import com.github.shyiko.ktlint.core.RuleSetProvider
 import com.github.shyiko.ktlint.internal.EditorConfig
 import com.github.shyiko.ktlint.internal.IntellijIDEAIntegration
 import com.github.shyiko.ktlint.internal.MavenDependencyResolver
+import com.github.shyiko.ktlint.internal.loadRuleSets
+import com.github.shyiko.ktlint.internal.mkdirsOrFail
 import com.github.shyiko.ktlint.test.DumpAST
-import org.eclipse.aether.repository.RemoteRepository
-import org.eclipse.aether.repository.RepositoryPolicy
-import org.eclipse.aether.repository.RepositoryPolicy.CHECKSUM_POLICY_IGNORE
-import org.eclipse.aether.repository.RepositoryPolicy.UPDATE_POLICY_NEVER
 import org.jetbrains.kotlin.backend.common.onlyIf
 import picocli.CommandLine
 import picocli.CommandLine.Command
@@ -25,7 +22,6 @@ import picocli.CommandLine.Parameters
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileNotFoundException
-import java.io.IOException
 import java.io.PrintStream
 import java.math.BigInteger
 import java.net.URLClassLoader
@@ -268,17 +264,19 @@ object Main {
             exitProcess(0)
         }
         val start = System.currentTimeMillis()
+
+        val dependencyResolver =
+            MavenDependencyResolver.lazyResolver(repositories, forceUpdate = forceUpdate ?: false, debug = debug)
+
         // load 3rd party ruleset(s) (if any)
-        val dependencyResolver = lazy(LazyThreadSafetyMode.NONE) { buildDependencyResolver() }
-        val resultSetClassLoader = getServiceClassloader(dependencyResolver, rulesets)
-        // standard should go first
-        val ruleSetProviders = ServiceLoader.load(RuleSetProvider::class.java, resultSetClassLoader)
-            .map { it.get().id to it }
-            .filter { (id) -> experimental || id != "experimental" }
-            .sortedBy { if (it.first == "standard") "\u0000${it.first}" else it.first }
-        if (debug) {
-            ruleSetProviders.forEach { System.err.println("[DEBUG] Discovered ruleset \"${it.first}\"") }
-        }
+        val ruleSets = loadRuleSets(
+            dependencyResolver,
+            ruleSetsUrls = rulesets,
+            debug = debug,
+            experimental = experimental,
+            skipClasspathCheck = skipClasspathCheck
+        )
+
         val tripped = AtomicBoolean()
         val reporter = loadReporter(dependencyResolver) { tripped.get() }
         val resolveUserData = userDataResolver()
@@ -291,7 +289,7 @@ object Main {
             val userData = resolveUserData(fileName)
             if (format) {
                 val formattedFileContent = try {
-                    format(fileName, fileContent, ruleSetProviders.map { it.second.get() }, userData) { err, corrected ->
+                    format(fileName, fileContent, ruleSets, userData) { err, corrected ->
                         if (!corrected) {
                             result.add(LintErrorWithCorrectionInfo(err, corrected))
                             tripped.set(true)
@@ -311,7 +309,7 @@ object Main {
                 }
             } else {
                 try {
-                    lint(fileName, fileContent, ruleSetProviders.map { it.second.get() }, userData) { err ->
+                    lint(fileName, fileContent, ruleSets, userData) { err ->
                         result.add(LintErrorWithCorrectionInfo(err, false))
                         tripped.set(true)
                     }
@@ -608,42 +606,6 @@ object Main {
 
     private fun <T> List<T>.head(limit: Int) = if (limit == size) this else this.subList(0, limit)
 
-    private fun buildDependencyResolver(): MavenDependencyResolver {
-        val mavenLocal = File(File(System.getProperty("user.home"), ".m2"), "repository")
-        mavenLocal.mkdirsOrFail()
-        val dependencyResolver = MavenDependencyResolver(
-            mavenLocal,
-            listOf(
-                RemoteRepository.Builder(
-                    "central", "default", "https://repo1.maven.org/maven2/"
-                ).setSnapshotPolicy(RepositoryPolicy(false, UPDATE_POLICY_NEVER,
-                    CHECKSUM_POLICY_IGNORE)).build(),
-                RemoteRepository.Builder(
-                    "bintray", "default", "https://jcenter.bintray.com"
-                ).setSnapshotPolicy(RepositoryPolicy(false, UPDATE_POLICY_NEVER,
-                    CHECKSUM_POLICY_IGNORE)).build(),
-                RemoteRepository.Builder(
-                    "jitpack", "default", "https://jitpack.io").build()
-            ) + repositories.map { repository ->
-                val colon = repository.indexOf("=").apply {
-                    if (this == -1) { throw RuntimeException("$repository is not a valid repository entry " +
-                        "(make sure it's provided as <id>=<url>") }
-                }
-                val id = repository.substring(0, colon)
-                val url = repository.substring(colon + 1)
-                RemoteRepository.Builder(id, "default", url).build()
-            },
-            forceUpdate == true
-        )
-        if (debug) {
-            dependencyResolver.setTransferEventListener { e ->
-                System.err.println("[DEBUG] Transfer ${e.type.toString().toLowerCase()} ${e.resource.repositoryUrl}" +
-                    e.resource.resourceName + (e.exception?.let { " (${it.message})" } ?: ""))
-            }
-        }
-        return dependencyResolver
-    }
-
     private fun getServiceClassloader(dependencyResolver: Lazy<MavenDependencyResolver>, artifacts: List<String>): ClassLoader {
         val parentClassloader = Main::class.java.classLoader
         if (artifacts.isEmpty()) {
@@ -692,12 +654,6 @@ object Main {
         val method = java.net.URLClassLoader::class.java.getDeclaredMethod("addURL", java.net.URL::class.java)
         method.isAccessible = true
         url.forEach { method.invoke(this, it) }
-    }
-
-    private fun File.mkdirsOrFail() {
-        if (!mkdirs() && !isDirectory) {
-            throw IOException("Unable to create \"${this}\" directory")
-        }
     }
 
     /**

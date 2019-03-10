@@ -140,4 +140,63 @@ class MavenDependencyResolver(
         repoSystem.resolveDependencies(session, DependencyRequest().apply { root = node })
         return PreorderNodeListGenerator().apply { node.accept(this) }.files
     }
+
+    companion object {
+        fun lazyResolver(
+            repositories: Iterable<String>,
+            forceUpdate: Boolean,
+            debug: Boolean
+        ): Lazy<MavenDependencyResolver> =
+            lazy(LazyThreadSafetyMode.NONE) { buildDependencyResolver(repositories, forceUpdate, debug) }
+
+        private fun buildDependencyResolver(repositories: Iterable<String>, forceUpdate: Boolean, debug: Boolean):
+            MavenDependencyResolver {
+            val mavenLocal = File(File(System.getProperty("user.home"), ".m2"), "repository")
+            mavenLocal.mkdirsOrFail()
+            val dependencyResolver = MavenDependencyResolver(
+                mavenLocal,
+                listOf(
+                    RemoteRepository.Builder(
+                        "central", "default", "https://repo1.maven.org/maven2/"
+                    ).setSnapshotPolicy(
+                        RepositoryPolicy(
+                            false, RepositoryPolicy.UPDATE_POLICY_NEVER,
+                            RepositoryPolicy.CHECKSUM_POLICY_IGNORE
+                        )
+                    ).build(),
+                    RemoteRepository.Builder(
+                        "bintray", "default", "https://jcenter.bintray.com"
+                    ).setSnapshotPolicy(
+                        RepositoryPolicy(
+                            false, RepositoryPolicy.UPDATE_POLICY_NEVER,
+                            RepositoryPolicy.CHECKSUM_POLICY_IGNORE
+                        )
+                    ).build(),
+                    RemoteRepository.Builder(
+                        "jitpack", "default", "https://jitpack.io"
+                    ).build()
+                ) + repositories.map { repository ->
+                    val colon = repository.indexOf("=").apply {
+                        if (this == -1) {
+                            throw RuntimeException(
+                                "$repository is not a valid repository entry " +
+                                    "(make sure it's provided as <id>=<url>"
+                            )
+                        }
+                    }
+                    val id = repository.substring(0, colon)
+                    val url = repository.substring(colon + 1)
+                    RemoteRepository.Builder(id, "default", url).build()
+                },
+                forceUpdate == true
+            )
+            if (debug) {
+                dependencyResolver.setTransferEventListener { e ->
+                    System.err.println("[DEBUG] Transfer ${e.type.toString().toLowerCase()} ${e.resource.repositoryUrl}" +
+                        e.resource.resourceName + (e.exception?.let { " (${it.message})" } ?: ""))
+                }
+            }
+            return dependencyResolver
+        }
+    }
 }
