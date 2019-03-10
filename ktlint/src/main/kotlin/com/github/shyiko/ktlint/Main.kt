@@ -30,6 +30,7 @@ import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.PrintStream
 import java.math.BigInteger
+import java.net.URLClassLoader
 import java.net.URLDecoder
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -271,11 +272,9 @@ object Main {
         val start = System.currentTimeMillis()
         // load 3rd party ruleset(s) (if any)
         val dependencyResolver = lazy(LazyThreadSafetyMode.NONE) { buildDependencyResolver() }
-        if (!rulesets.isEmpty()) {
-            loadJARs(dependencyResolver, rulesets)
-        }
+        val resultSetClassLoader = getServiceClassloader(dependencyResolver, rulesets)
         // standard should go first
-        val ruleSetProviders = ServiceLoader.load(RuleSetProvider::class.java)
+        val ruleSetProviders = ServiceLoader.load(RuleSetProvider::class.java, resultSetClassLoader)
             .map { it.get().id to it }
             .filter { (id) -> experimental || id != "experimental" }
             .sortedBy { if (it.first == "standard") "\u0000${it.first}" else it.first }
@@ -429,9 +428,8 @@ object Main {
         val reporterProviderById = reporterLoader.associate { it.id to it }.let { map ->
             val missingReporters = tpls.filter { !map.containsKey(it.id) }.mapNotNull { it.artifact }.distinct()
             if (!missingReporters.isEmpty()) {
-                loadJARs(dependencyResolver, missingReporters)
-                reporterLoader.reload()
-                reporterLoader.associate { it.id to it }
+                val reporterClassloader = getServiceClassloader(dependencyResolver, missingReporters)
+                ServiceLoader.load(ReporterProvider::class.java, reporterClassloader).associate { it.id to it }
             } else map
         }
         if (debug) {
@@ -648,48 +646,55 @@ object Main {
         return dependencyResolver
     }
 
-    // fixme: isn't going to work on JDK 9
-    private fun loadJARs(dependencyResolver: Lazy<MavenDependencyResolver>, artifacts: List<String>) {
-        (ClassLoader.getSystemClassLoader() as java.net.URLClassLoader)
-            .addURLs(artifacts.flatMap { artifact ->
-                if (debug) {
-                    System.err.println("[DEBUG] Resolving $artifact")
-                }
-                val result = try {
-                    dependencyResolver.value.resolve(DefaultArtifact(artifact)).map { it.toURI().toURL() }
-                } catch (e: IllegalArgumentException) {
-                    val file = File(expandTilde(artifact))
-                    if (!file.exists()) {
-                        System.err.println("Error: $artifact does not exist")
+    private fun getServiceClassloader(dependencyResolver: Lazy<MavenDependencyResolver>, artifacts: List<String>): ClassLoader {
+        val parentClassloader = Main::class.java.classLoader
+        if (artifacts.isEmpty()) {
+            return parentClassloader
+        }
+        val artifactUrls = artifacts.flatMap { artifact ->
+                    if (debug) {
+                        System.err.println("[DEBUG] Resolving $artifact")
+                    }
+                    val result = try {
+                        dependencyResolver.value.resolve(DefaultArtifact(artifact)).map { it.toURI().toURL() }
+                    } catch (e: IllegalArgumentException) {
+                        val file = File(expandTilde(artifact))
+                        if (!file.exists()) {
+                            System.err.println("Error: $artifact does not exist")
+                            exitProcess(1)
+                        }
+                        listOf(file.toURI().toURL())
+                    } catch (e: RepositoryException) {
+                        if (debug) {
+                            e.printStackTrace()
+                        }
+                        System.err.println("Error: $artifact wasn't found")
                         exitProcess(1)
                     }
-                    listOf(file.toURI().toURL())
-                } catch (e: RepositoryException) {
                     if (debug) {
-                        e.printStackTrace()
+                        result.forEach { url -> System.err.println("[DEBUG] Loading $url") }
                     }
-                    System.err.println("Error: $artifact wasn't found")
-                    exitProcess(1)
-                }
-                if (debug) {
-                    result.forEach { url -> System.err.println("[DEBUG] Loading $url") }
-                }
-                if (!skipClasspathCheck) {
-                    if (result.any { it.toString().substringAfterLast("/").startsWith("ktlint-core-") }) {
-                        System.err.println("\"$artifact\" appears to have a runtime/compile dependency on \"ktlint-core\".\n" +
-                            "Please inform the author that \"com.github.shyiko:ktlint*\" should be marked " +
-                            "compileOnly (Gradle) / provided (Maven).\n" +
-                            "(to suppress this warning use --skip-classpath-check)")
+                    if (!skipClasspathCheck) {
+                        if (result.any { it.toString().substringAfterLast("/").startsWith("ktlint-core-") }) {
+                            System.err.println(
+                                "\"$artifact\" appears to have a runtime/compile dependency on \"ktlint-core\".\n" +
+                                    "Please inform the author that \"com.github.shyiko:ktlint*\" should be marked " +
+                                    "compileOnly (Gradle) / provided (Maven).\n" +
+                                    "(to suppress this warning use --skip-classpath-check)"
+                            )
+                        }
+                        if (result.any { it.toString().substringAfterLast("/").startsWith("kotlin-stdlib-") }) {
+                            System.err.println(
+                                "\"$artifact\" appears to have a runtime/compile dependency on \"kotlin-stdlib\".\n" +
+                                    "Please inform the author that \"org.jetbrains.kotlin:kotlin-stdlib*\" should be marked " +
+                                    "compileOnly (Gradle) / provided (Maven).\n" +
+                                    "(to suppress this warning use --skip-classpath-check)"
+                            )
+                        }
                     }
-                    if (result.any { it.toString().substringAfterLast("/").startsWith("kotlin-stdlib-") }) {
-                        System.err.println("\"$artifact\" appears to have a runtime/compile dependency on \"kotlin-stdlib\".\n" +
-                            "Please inform the author that \"org.jetbrains.kotlin:kotlin-stdlib*\" should be marked " +
-                            "compileOnly (Gradle) / provided (Maven).\n" +
-                            "(to suppress this warning use --skip-classpath-check)")
-                    }
+                    result
                 }
-                result
-            })
+        return URLClassLoader(artifactUrls.toTypedArray(), parentClassloader)
     }
 
     private fun parseQuery(query: String) = query.split("&")
