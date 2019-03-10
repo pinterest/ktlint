@@ -729,14 +729,16 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
     ) {
         val psi = node.psi as KtStringTemplateExpression
         if (psi.isMultiLine() && psi.isFollowedByTrimIndent()) {
-            val tab = " ".repeat(editorConfig.tabWidth)
             val children = node.children()
             val prefixLength = children.fold(Int.MAX_VALUE) { l, child ->
                 if (child.elementType == LITERAL_STRING_TEMPLATE_ENTRY &&
                     child.isPrecededByLFStringTemplateEntry()) {
                     val v = child.text
+                    if (v.contains('\t')) {
+                        return // bail
+                    }
                     if (!v.isBlank()) {
-                        return@fold min(l, v.replace("\t", tab).indentLength())
+                        return@fold min(l, v.indentLength())
                     }
                 }
                 l
@@ -751,7 +753,7 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                         child.isPrecededByLFStringTemplateEntry()) {
                         val v = child.text
                         if (!v.isBlank() || (v != "\n" && child.treeNext.elementType == CLOSING_QUOTE)) {
-                            val indentLength = v.indentLength() // TODO: replace Tab(s)
+                            val indentLength = v.indentLength()
                             val expectedIndentLength =
                                 if (v.length == indentLength) { // blank string (before """)
                                     expectedPrefixLength

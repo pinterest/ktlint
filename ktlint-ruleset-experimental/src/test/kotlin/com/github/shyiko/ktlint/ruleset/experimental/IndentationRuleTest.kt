@@ -106,6 +106,16 @@ class IndentationRuleTest {
     }
 
     @Test
+    fun testFormatRawStringTrimIndent() {
+        assertThat(
+            IndentationRule().diffFileFormat(
+                "spec/indent/format-raw-string-trim-indent.kt.spec",
+                "spec/indent/format-raw-string-trim-indent-expected.kt.spec"
+            )
+        ).isEmpty()
+    }
+
+    @Test
     fun testLintString() {
         assertThat(IndentationRule().diffFileLint("spec/indent/lint-string.kt.spec")).isEmpty()
     }
