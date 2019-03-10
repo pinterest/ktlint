@@ -89,7 +89,7 @@ import kotlin.math.min
  * - indent_style=tab not supported.
  * - "all or nothing" (currently, rule can only be disabled for an entire file)
  */
-class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRoot {
+class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
 
     private companion object {
         // run `KTLINT_DEBUG=experimental/indent ktlint ...` to enable debug output
