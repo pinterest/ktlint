@@ -49,3 +49,10 @@ class MyClass(
     val x = 1
     val y = 2
 }
+
+class AndroidModuleDependency()
+    : ModuleDependency(name, methodToCall, method)
+
+class AndroidModuleDependency()
+    : ModuleDependency(name, methodToCall, method),
+    ModuleDependency(name, methodToCall, method)

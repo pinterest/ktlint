@@ -10,6 +10,7 @@ import com.github.shyiko.ktlint.core.ast.ElementType.BLOCK_COMMENT
 import com.github.shyiko.ktlint.core.ast.ElementType.BODY
 import com.github.shyiko.ktlint.core.ast.ElementType.CALL_EXPRESSION
 import com.github.shyiko.ktlint.core.ast.ElementType.CLOSING_QUOTE
+import com.github.shyiko.ktlint.core.ast.ElementType.COLON
 import com.github.shyiko.ktlint.core.ast.ElementType.COMMA
 import com.github.shyiko.ktlint.core.ast.ElementType.CONDITION
 import com.github.shyiko.ktlint.core.ast.ElementType.DOT
@@ -59,6 +60,7 @@ import com.github.shyiko.ktlint.core.ast.children
 import com.github.shyiko.ktlint.core.ast.comment
 import com.github.shyiko.ktlint.core.ast.isPartOf
 import com.github.shyiko.ktlint.core.ast.isPartOfComment
+import com.github.shyiko.ktlint.core.ast.isWhiteSpaceWithNewline
 import com.github.shyiko.ktlint.core.ast.nextCodeLeaf
 import com.github.shyiko.ktlint.core.ast.nextCodeSibling
 import com.github.shyiko.ktlint.core.ast.nextLeaf
@@ -258,7 +260,10 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
             // put space after :
             if (!node.prevLeaf().isWhiteSpaceWithNewline()) {
                 val colon = node.prevCodeLeaf()!!
-                if (colon.prevCodeLeaf().let { it?.elementType != RPAR || !it.prevLeaf().isWhiteSpaceWithNewline() }) {
+                if (
+                    !colon.prevLeaf().isWhiteSpaceWithNewline() &&
+                    colon.prevCodeLeaf().let { it?.elementType != RPAR || !it.prevLeaf().isWhiteSpaceWithNewline() }
+                ) {
                     requireNewlineAfterLeaf(colon, autoCorrect, emit)
                 }
             }
@@ -957,6 +962,8 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
             //     V
             // > {
             // }
+            nextLeafElementType == COLON ->
+                1
             nextLeafElementType == GT &&
                 node.treeParent?.elementType.let { it == TYPE_PARAMETER_LIST || it == TYPE_ARGUMENT_LIST } ->
                 0
@@ -997,9 +1004,6 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
             }
         }
     }
-
-    private fun ASTNode?.isWhiteSpaceWithNewline() =
-        this != null && elementType == WHITE_SPACE && textContains('\n')
 
     // e.g.
     // if (condition), while (condition), for (condition), ...
