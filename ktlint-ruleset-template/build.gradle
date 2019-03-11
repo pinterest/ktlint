@@ -49,17 +49,17 @@ configurations {
 dependencies {
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
-    provided 'com.github.shyiko.ktlint:ktlint-core:0.29.0'
+    provided 'com.github.shyiko.ktlint:ktlint-core:0.31.0'
 
     testCompile 'org.assertj:assertj-core:3.5.2'
-    testCompile 'com.github.shyiko.ktlint:ktlint-test:0.29.0'
+    testCompile 'com.github.shyiko.ktlint:ktlint-test:0.31.0'
     testCompile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     testCompile('org.jetbrains.spek:spek-junit-platform-engine:1.1.5') {
         exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib'
         exclude group: 'org.jetbrains.kotlin', module: 'kotlin-reflect'
     }
 
-    ktlint 'com.github.shyiko:ktlint:0.29.0'
+    ktlint 'com.github.shyiko:ktlint:0.31.0'
 }
 
 task ktlint(type: JavaExec, dependsOn: classes) {
