@@ -2,9 +2,10 @@ package com.github.shyiko.ktlint.ruleset.standard
 
 import com.github.shyiko.ktlint.core.KtLint
 import com.github.shyiko.ktlint.core.Rule
+import com.github.shyiko.ktlint.core.ast.ElementType
 import com.github.shyiko.ktlint.core.ast.isPartOf
-import com.github.shyiko.ktlint.core.ast.isPartOfRawMultiLineString
 import com.github.shyiko.ktlint.core.ast.isRoot
+import com.github.shyiko.ktlint.core.ast.parent
 import com.github.shyiko.ktlint.core.ast.prevCodeSibling
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
@@ -71,6 +72,10 @@ class MaxLineLengthRule : Rule("max-line-length"), Rule.Modifier.Last {
                 }
         }
     }
+
+    fun ASTNode.isPartOfRawMultiLineString() =
+        parent(ElementType.STRING_TEMPLATE, strict = false)
+            ?.let { it.firstChildNode.text == "\"\"\"" && it.textContains('\n') } == true
 }
 
 class RangeTree(seq: List<Int> = emptyList()) {

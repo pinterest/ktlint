@@ -35,26 +35,24 @@ class SpacingAroundDotRuleTest {
         assertThat(
             SpacingAroundDotRule().lint(
                 """
-            |fun String.foo() {
-            |    (2..10).map { it + 1 }
-            |        .map { it * 2 }
-            |        .toSet()
-            |}
-            """.trimMargin()
+                fun String.foo() {
+                    (2..10).map { it + 1 }
+                        .map { it * 2 }
+                        .toSet()
+                }
+                """.trimIndent()
             )
-        ).isEqualTo(
-            emptyList<LintError>()
-        )
+        ).isEmpty()
 
         assertThat(
             SpacingAroundDotRule().lint(
                 """
-            |fun String.foo() {
-            |    (2..10).map { it + 1 }
-            |        . map { it * 2 }
-            |        .toSet()
-            |}
-            """.trimMargin()
+                fun String.foo() {
+                    (2..10).map { it + 1 }
+                        . map { it * 2 }
+                        .toSet()
+                }
+                """.trimIndent()
             )
         ).isEqualTo(
             listOf(
@@ -65,13 +63,13 @@ class SpacingAroundDotRuleTest {
         assertThat(
             SpacingAroundDotRule().lint(
                 """
-            |fun String.foo() {
-            |    (2..10).map { it + 1 }
-            |        // Some comment
-            |        . map { it * 2 }
-            |        .toSet()
-            |}
-            """.trimMargin()
+                fun String.foo() {
+                    (2..10).map { it + 1 }
+                        // Some comment
+                        . map { it * 2 }
+                        .toSet()
+                }
+                """.trimIndent()
             )
         ).isEqualTo(
             listOf(
@@ -109,21 +107,21 @@ class SpacingAroundDotRuleTest {
         assertThat(
             SpacingAroundDotRule().format(
                 """
-            |fun String.foo() {
-            |    (2..10).map { it + 1 }
-            |        . map { it * 2 }
-            |        .toSet()
-            |}
-            """.trimMargin()
+                fun String.foo() {
+                    (2..10).map { it + 1 }
+                        . map { it * 2 }
+                        .toSet()
+                }
+                """.trimIndent()
             )
         ).isEqualTo(
             """
-            |fun String.foo() {
-            |    (2..10).map { it + 1 }
-            |        .map { it * 2 }
-            |        .toSet()
-            |}
-            """.trimMargin()
+            fun String.foo() {
+                (2..10).map { it + 1 }
+                    .map { it * 2 }
+                    .toSet()
+            }
+            """.trimIndent()
         )
     }
 }

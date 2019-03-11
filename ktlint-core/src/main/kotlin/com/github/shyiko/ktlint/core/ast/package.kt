@@ -184,10 +184,6 @@ fun ASTNode.isPartOf(klass: KClass<out PsiElement>): Boolean {
 fun ASTNode.isPartOfString() =
     parent(STRING_TEMPLATE, strict = false) != null
 
-fun ASTNode.isPartOfRawMultiLineString() =
-    parent(STRING_TEMPLATE, strict = false)
-        ?.let { it.firstChildNode.text == "\"\"\"" && it.textContains('\n') } == true
-
 fun ASTNode?.isWhiteSpaceWithNewline() =
     this != null && elementType == WHITE_SPACE && textContains('\n')
 fun ASTNode?.isWhiteSpaceWithoutNewline() =
@@ -196,36 +192,29 @@ fun ASTNode?.isWhiteSpaceWithoutNewline() =
 fun ASTNode.isRoot() = elementType == ElementType.FILE
 fun ASTNode.isLeaf() = firstChildNode == null
 
-fun ASTNode.isPartOfComment() = comment() != null
-
-fun ASTNode.comment(): ASTNode? {
-    var n: ASTNode? = this
-    while (n != null) {
-        if (n.psi is PsiComment) { // regular comment or KDoc
-            return n
-        }
-        n = n.treeParent
-    }
-    return n
-}
+fun ASTNode.isPartOfComment() = parent({ it.psi is PsiComment }, strict = false) != null
 
 fun ASTNode.children() =
     generateSequence(firstChildNode) { node -> node.treeNext }
 
-fun LeafElement.upsertWhitespaceBeforeMe(text: String) {
+fun LeafElement.upsertWhitespaceBeforeMe(text: String): LeafElement {
     val s = treePrev
-    if (s != null && s.elementType == WHITE_SPACE) {
+    return if (s != null && s.elementType == WHITE_SPACE) {
         (s.psi as LeafElement).rawReplaceWithText(text)
     } else {
-        (psi as LeafElement).rawInsertBeforeMe(PsiWhiteSpaceImpl(text))
+        PsiWhiteSpaceImpl(text).also { w ->
+            (psi as LeafElement).rawInsertBeforeMe(w)
+        }
     }
 }
-fun LeafElement.upsertWhitespaceAfterMe(text: String) {
+fun LeafElement.upsertWhitespaceAfterMe(text: String): LeafElement {
     val s = treeNext
-    if (s != null && s.elementType == WHITE_SPACE) {
+    return if (s != null && s.elementType == WHITE_SPACE) {
         (s.psi as LeafElement).rawReplaceWithText(text)
     } else {
-        (psi as LeafElement).rawInsertAfterMe(PsiWhiteSpaceImpl(text))
+        PsiWhiteSpaceImpl(text).also { w ->
+            (psi as LeafElement).rawInsertAfterMe(w)
+        }
     }
 }
 

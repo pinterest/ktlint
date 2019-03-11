@@ -57,7 +57,6 @@ import com.github.shyiko.ktlint.core.ast.ElementType.WHEN_ENTRY
 import com.github.shyiko.ktlint.core.ast.ElementType.WHERE_KEYWORD
 import com.github.shyiko.ktlint.core.ast.ElementType.WHITE_SPACE
 import com.github.shyiko.ktlint.core.ast.children
-import com.github.shyiko.ktlint.core.ast.comment
 import com.github.shyiko.ktlint.core.ast.isPartOf
 import com.github.shyiko.ktlint.core.ast.isPartOfComment
 import com.github.shyiko.ktlint.core.ast.isWhiteSpaceWithNewline
@@ -74,6 +73,7 @@ import com.github.shyiko.ktlint.core.ast.upsertWhitespaceAfterMe
 import com.github.shyiko.ktlint.core.ast.upsertWhitespaceBeforeMe
 import com.github.shyiko.ktlint.core.ast.visit
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
+import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 import org.jetbrains.kotlin.psi.KtStringTemplateExpression
@@ -134,26 +134,21 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
             return
         }
         reset()
-        IndentationRule.debug { "rearranging (autoCorrect: $autoCorrect)" }
+        IndentationRule.debug { "phase: rearrangement (auto correction ${if (autoCorrect) "on" else "off"})" }
         // step 1: insert newlines (if/where needed)
         var emitted = false
         rearrange(node, autoCorrect) { offset, errorMessage, canBeAutoCorrected ->
             emitted = true
             emit(offset, errorMessage, canBeAutoCorrected)
         }
-        if (emitted) {
-            if (autoCorrect) {
-                IndentationRule.debug {
-                    "indenting:\n" +
-                        node.text.split("\n").mapIndexed { i, v -> "\t${i + 1}: $v" }.joinToString("\n")
-                }
-            } else {
-                // stop if there are missing newlines
-                // return FIXME
+        if (emitted && autoCorrect) {
+            IndentationRule.debug {
+                "indenting:\n" +
+                    node.text.split("\n").mapIndexed { i, v -> "\t${i + 1}: $v" }.joinToString("\n")
             }
         }
         reset()
-        IndentationRule.debug { "finished rearranging. indenting..." }
+        IndentationRule.debug { "phase: indentation" }
         // step 2: correct indentation
         indent(node, autoCorrect, emit, editorConfig)
     }
@@ -930,7 +925,7 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
         if (nextLeafElementType == OPEN_QUOTE && nextLeaf.text == "\"\"\"" && nodeIndent.isEmpty()) {
             return // raw strings ("""") are allowed at column 0
         }
-        val comment = nextLeaf?.comment()
+        val comment = nextLeaf?.parent({ it.psi is PsiComment }, strict = false)
         if (comment != null) {
             if (nodeIndent.isEmpty()) {
                 return // comments are allowed at column 0
