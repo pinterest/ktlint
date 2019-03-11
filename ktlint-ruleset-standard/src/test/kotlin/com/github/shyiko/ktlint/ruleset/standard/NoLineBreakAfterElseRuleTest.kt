@@ -13,15 +13,15 @@ class NoLineBreakAfterElseRuleTest {
         Assertions.assertThat(
             NoLineBreakAfterElseRule().lint(
                 """
-            fun funA() {
-                if (conditionA()) {
-                    doSomething()
-                } else
-                if (conditionB()) {
-                    doAnotherThing()
+                fun funA() {
+                    if (conditionA()) {
+                        doSomething()
+                    } else
+                    if (conditionB()) {
+                        doAnotherThing()
+                    }
                 }
-            }
-            """.trimIndent()
+                """.trimIndent()
             )
         ).isEqualTo(
             listOf(
@@ -35,15 +35,15 @@ class NoLineBreakAfterElseRuleTest {
         Assertions.assertThat(
             NoLineBreakAfterElseRule().format(
                 """
-            fun funA() {
-                if (conditionA()) {
-                    doSomething()
-                } else
-                if (conditionB()) {
-                    doAnotherThing()
+                fun funA() {
+                    if (conditionA()) {
+                        doSomething()
+                    } else
+                    if (conditionB()) {
+                        doAnotherThing()
+                    }
                 }
-            }
-            """.trimIndent()
+                """.trimIndent()
             )
         ).isEqualTo(
             """
@@ -54,7 +54,7 @@ class NoLineBreakAfterElseRuleTest {
                     doAnotherThing()
                 }
             }
-                """.trimIndent()
+            """.trimIndent()
         )
     }
 
@@ -63,14 +63,14 @@ class NoLineBreakAfterElseRuleTest {
         Assertions.assertThat(
             NoLineBreakAfterElseRule().lint(
                 """
-            fun funA() {
-                if (conditionA()) {
-                    doSomething()
-                } else if (conditionB()) {
-                    doAnotherThing()
+                fun funA() {
+                    if (conditionA()) {
+                        doSomething()
+                    } else if (conditionB()) {
+                        doAnotherThing()
+                    }
                 }
-            }
-            """.trimIndent()
+                """.trimIndent()
             )
         ).isEmpty()
     }
@@ -80,14 +80,14 @@ class NoLineBreakAfterElseRuleTest {
         Assertions.assertThat(
             NoLineBreakAfterElseRule().lint(
                 """
-            fun funA() {
-                if (conditionA()) {
-                    doSomething()
-                } else {
-                    doAnotherThing()
+                fun funA() {
+                    if (conditionA()) {
+                        doSomething()
+                    } else {
+                        doAnotherThing()
+                    }
                 }
-            }
-            """.trimIndent()
+                """.trimIndent()
             )
         ).isEmpty()
     }
@@ -97,15 +97,15 @@ class NoLineBreakAfterElseRuleTest {
         Assertions.assertThat(
             NoLineBreakAfterElseRule().lint(
                 """
-            fun funA() {
-                if (conditionA()) {
-                    doSomething()
-                } else
-                {
-                    doAnotherThing()
+                fun funA() {
+                    if (conditionA()) {
+                        doSomething()
+                    } else
+                    {
+                        doAnotherThing()
+                    }
                 }
-            }
-            """.trimIndent()
+                """.trimIndent()
             )
         ).isEqualTo(
             listOf(
@@ -119,13 +119,13 @@ class NoLineBreakAfterElseRuleTest {
         Assertions.assertThat(
             NoLineBreakAfterElseRule().lint(
                 """
-            fun funA() {
-                if (conditionA())
-                    doSomething()
-                else
-                    doAnotherThing()
-            }
-            """.trimIndent()
+                fun funA() {
+                    if (conditionA())
+                        doSomething()
+                    else
+                        doAnotherThing()
+                }
+                """.trimIndent()
             )
         ).isEmpty()
     }
@@ -135,10 +135,10 @@ class NoLineBreakAfterElseRuleTest {
         Assertions.assertThat(
             NoLineBreakAfterElseRule().lint(
                 """
-            fun funA() {
-                if (conditionA()) doSomething() else doAnotherThing()
-            }
-            """.trimIndent()
+                fun funA() {
+                    if (conditionA()) doSomething() else doAnotherThing()
+                }
+                """.trimIndent()
             )
         ).isEmpty()
     }

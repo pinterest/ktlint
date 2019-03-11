@@ -52,11 +52,11 @@ class NoConsecutiveBlankLinesRuleTest {
         assertThat(
             NoConsecutiveBlankLinesRule().lint(
                 """
-            fun main() {
-            }
+                fun main() {
+                }
 
 
-            """.trimIndent()
+                """.trimIndent()
             )
         ).isEqualTo(
             listOf(

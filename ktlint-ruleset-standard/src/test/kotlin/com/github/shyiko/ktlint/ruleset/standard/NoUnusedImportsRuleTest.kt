@@ -13,24 +13,24 @@ class NoUnusedImportsRuleTest {
         assertThat(
             NoUnusedImportsRule().lint(
                 """
-            import p.a
-            import p.B6
-            import java.nio.file.Paths
-            import p.B as B12
-            import p2.B
-            import p.C
-            import p.a.*
-            import escaped.`when`
-            import escaped.`foo`
-            import p.infixfunc
+                import p.a
+                import p.B6
+                import java.nio.file.Paths
+                import p.B as B12
+                import p2.B
+                import p.C
+                import p.a.*
+                import escaped.`when`
+                import escaped.`foo`
+                import p.infixfunc
 
-            fun main() {
-                println(a())
-                C.call(B())
-                1 infixfunc 2
-                `when`()
-            }
-            """.trimIndent()
+                fun main() {
+                    println(a())
+                    C.call(B())
+                    1 infixfunc 2
+                    `when`()
+                }
+                """.trimIndent()
             )
         ).isEqualTo(
             listOf(
@@ -43,12 +43,12 @@ class NoUnusedImportsRuleTest {
         assertThat(
             NoUnusedImportsRule().lint(
                 """
-            import rx.lang.kotlin.plusAssign
+                import rx.lang.kotlin.plusAssign
 
-            fun main() {
-                v += 1
-            }
-            """.trimIndent()
+                fun main() {
+                    v += 1
+                }
+                """.trimIndent()
             )
         ).isEmpty()
     }
@@ -58,14 +58,14 @@ class NoUnusedImportsRuleTest {
         assertThat(
             NoUnusedImportsRule().lint(
                 """
-            package com.example.another
+                package com.example.another
 
-            import com.example.anotherThing
+                import com.example.anotherThing
 
-            class Foo {
-                val bar = anotherThing
-            }
-            """.trimIndent()
+                class Foo {
+                    val bar = anotherThing
+                }
+                """.trimIndent()
             )
         ).isEmpty()
     }
@@ -75,27 +75,27 @@ class NoUnusedImportsRuleTest {
         assertThat(
             NoUnusedImportsRule().lint(
                 """
-            import p.component6
+                import p.component6
 
-            fun main() {
-                val (one, two, three, four, five, six) = someList
-            }
-            """.trimIndent()
+                fun main() {
+                    val (one, two, three, four, five, six) = someList
+                }
+                """.trimIndent()
             )
         ).isEmpty()
         assertThat(
             NoUnusedImportsRule().lint(
                 """
-            import p.component6
-            import p.component2
-            import p.component100
-            import p.component
-            import p.component12woohoo
+                import p.component6
+                import p.component2
+                import p.component100
+                import p.component
+                import p.component12woohoo
 
-            fun main() {
-                val (one, two, three, four, five, six) = someList
-            }
-            """.trimIndent()
+                fun main() {
+                    val (one, two, three, four, five, six) = someList
+                }
+                """.trimIndent()
             )
         ).isEqualTo(
             listOf(
@@ -110,27 +110,27 @@ class NoUnusedImportsRuleTest {
         assertThat(
             NoUnusedImportsRule().lint(
                 """
-            package kdoc
+                package kdoc
 
-            import DRef
-            import p.PDRef
-            import DRef2
-            import p.PDRef2
-            import p.DRef3
-            import p.PDRef3
-            import p.PDRef4
-            import p.PDRef5
-            import p.O
+                import DRef
+                import p.PDRef
+                import DRef2
+                import p.PDRef2
+                import p.DRef3
+                import p.PDRef3
+                import p.PDRef4
+                import p.PDRef5
+                import p.O
 
-            /**
-             * [DRef] DRef2
-             * [O.method]
-             * [p.PDRef] p.PDRef2
-             * [PDRef3](p.DRef3) p.PDRef4 PDRef5
-             * [] text
-             */
-            fun main() {}
-            """.trimIndent()
+                /**
+                 * [DRef] DRef2
+                 * [O.method]
+                 * [p.PDRef] p.PDRef2
+                 * [PDRef3](p.DRef3) p.PDRef4 PDRef5
+                 * [] text
+                 */
+                fun main() {}
+                """.trimIndent()
             )
         ).isEqualTo(
             listOf(
@@ -152,16 +152,16 @@ class NoUnusedImportsRuleTest {
                 """
 
 
-            import C1
-            import C1 as C1X
-            import `C2`
-            import `C2` as C2X
-            import C3.method
+                import C1
+                import C1 as C1X
+                import `C2`
+                import `C2` as C2X
+                import C3.method
 
-            fun main() {
-                println(C1, C1X, C2, C2X, method)
-            }
-            """.trimIndent()
+                fun main() {
+                    println(C1, C1X, C2, C2X, method)
+                }
+                """.trimIndent()
             )
         ).isEqualTo(
             listOf(
@@ -172,18 +172,18 @@ class NoUnusedImportsRuleTest {
         assertThat(
             NoUnusedImportsRule().lint(
                 """
-            package p
+                package p
 
-            import p.C1
-            import p.C1 as C1X
-            import p.`C2`
-            import p.`C2` as C2X
-            import p.C3.method
+                import p.C1
+                import p.C1 as C1X
+                import p.`C2`
+                import p.`C2` as C2X
+                import p.C3.method
 
-            fun main() {
-                println(C1, C1X, C2, C2X, method)
-            }
-            """.trimIndent()
+                fun main() {
+                    println(C1, C1X, C2, C2X, method)
+                }
+                """.trimIndent()
             )
         ).isEqualTo(
             listOf(
@@ -198,21 +198,21 @@ class NoUnusedImportsRuleTest {
         assertThat(
             NoUnusedImportsRule().format(
                 """
-            import p.a
-            import p.B6
-            import p.B as B12
-            import p2.B as B2
-            import p.C
-            import escaped.`when`
-            import escaped.`foo`
+                import p.a
+                import p.B6
+                import p.B as B12
+                import p2.B as B2
+                import p.C
+                import escaped.`when`
+                import escaped.`foo`
 
-            fun main() {
-                println(a())
-                C.call()
-                fn(B2.NAME)
-                `when`()
-            }
-            """.trimIndent()
+                fun main() {
+                    println(a())
+                    C.call()
+                    fn(B2.NAME)
+                    `when`()
+                }
+                """.trimIndent()
             )
         ).isEqualTo(
             """
@@ -236,24 +236,24 @@ class NoUnusedImportsRuleTest {
         assertThat(
             NoUnusedImportsRule().format(
                 """
-            package kdoc
+                package kdoc
 
-            import DRef
-            import p.PDRef
-            import DRef2
-            import p.PDRef2
-            import p.DRef3
-            import p.PDRef3
-            import p.PDRef4
-            import p.PDRef5
+                import DRef
+                import p.PDRef
+                import DRef2
+                import p.PDRef2
+                import p.DRef3
+                import p.PDRef3
+                import p.PDRef4
+                import p.PDRef5
 
-            /**
-             * [DRef] DRef2
-             * [p.PDRef] p.PDRef2
-             * [PDRef3](p.DRef3) p.PDRef4 PDRef5
-             */
-            fun main() {}
-            """.trimIndent()
+                /**
+                 * [DRef] DRef2
+                 * [p.PDRef] p.PDRef2
+                 * [PDRef3](p.DRef3) p.PDRef4 PDRef5
+                 */
+                fun main() {}
+                """.trimIndent()
             )
         ).isEqualTo(
             """

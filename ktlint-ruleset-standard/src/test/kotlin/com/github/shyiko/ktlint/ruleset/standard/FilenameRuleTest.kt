@@ -26,15 +26,15 @@ class FilenameRuleTest {
             assertThat(
                 FilenameRule().lint(
                     """
-                /*
-                 * license
-                 */
-                @file:JvmName("Foo")
-                package x
-                import y.Z
-                $src
-                //
-                """.trimIndent(),
+                    /*
+                     * license
+                     */
+                    @file:JvmName("Foo")
+                    package x
+                    import y.Z
+                    $src
+                    //
+                    """.trimIndent(),
                     fileName("/some/path/A.kt")
                 )
             ).isEmpty()
@@ -57,15 +57,15 @@ class FilenameRuleTest {
             assertThat(
                 FilenameRule().lint(
                     """
-                /*
-                 * license
-                 */
-                @file:JvmName("Foo")
-                package x
-                import y.Z
-                ${src.key}
-                //
-                """.trimIndent(),
+                    /*
+                     * license
+                     */
+                    @file:JvmName("Foo")
+                    package x
+                    import y.Z
+                    ${src.key}
+                    //
+                    """.trimIndent(),
                     fileName("/some/path/B.kt")
                 )
             ).isEqualTo(
@@ -81,10 +81,10 @@ class FilenameRuleTest {
         assertThat(
             FilenameRule().lint(
                 """
-            /*
-             * copyright
-             */
-            """.trimIndent(),
+                /*
+                 * copyright
+                 */
+                """.trimIndent(),
                 fileName("A.kt")
             )
         ).isEmpty()
@@ -95,9 +95,9 @@ class FilenameRuleTest {
         assertThat(
             FilenameRule().lint(
                 """
-            class B
-            class C
-            """.trimIndent(),
+                class B
+                class C
+                """.trimIndent(),
                 fileName("A.kt")
             )
         ).isEmpty()
@@ -108,11 +108,11 @@ class FilenameRuleTest {
         assertThat(
             FilenameRule().lint(
                 """
-            class B {
-                class C
-                class D
-            }
-            """.trimIndent(),
+                class B {
+                    class C
+                    class D
+                }
+                """.trimIndent(),
                 fileName("A.kt")
             )
         ).isEqualTo(
@@ -127,8 +127,8 @@ class FilenameRuleTest {
         assertThat(
             FilenameRule().lint(
                 """
-            interface Woohoo
-            """.trimIndent(),
+                interface Woohoo
+                """.trimIndent(),
                 fileName("woohoo.kt")
             )
         ).isEqualTo(
@@ -140,14 +140,18 @@ class FilenameRuleTest {
 
     @Test
     fun testCaseEscapedClassNames() {
-        assertThat(FilenameRule().lint(
-            """
-            class `A`
-            """.trimIndent(),
-            fileName("B.kt")
-        )).isEqualTo(listOf(
-            LintError(1, 1, "filename", "class `A` should be declared in a file named A.kt")
-        ))
+        assertThat(
+            FilenameRule().lint(
+                """
+                class `A`
+                """.trimIndent(),
+                fileName("B.kt")
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(1, 1, "filename", "class `A` should be declared in a file named A.kt")
+            )
+        )
     }
 
     @Test
@@ -155,8 +159,8 @@ class FilenameRuleTest {
         assertThat(
             FilenameRule().lint(
                 """
-            class B
-            """.trimIndent(),
+                class B
+                """.trimIndent(),
                 fileName("A.kts")
             )
         ).isEmpty()

@@ -22,7 +22,7 @@ class CommentSpacingRuleTest {
                 var debugging = false // comment
                 var debugging = false // comment//word
                     // comment
-            """.trimIndent()
+                """.trimIndent()
             )
         ).isEmpty()
     }
@@ -37,7 +37,7 @@ class CommentSpacingRuleTest {
                 var debugging = false //comment
                 var debugging = false//comment
                     //comment
-            """.trimIndent()
+                """.trimIndent()
             )
         ).isEqualTo(
             listOf(
@@ -61,15 +61,15 @@ class CommentSpacingRuleTest {
                 var debugging = false //comment
                 var debugging = false//comment
                     //comment
-            """.trimIndent()
+                """.trimIndent()
             )
         ).isEqualTo(
             """
+            // comment
+            var debugging = false // comment
+            var debugging = false // comment
+            var debugging = false // comment
                 // comment
-                var debugging = false // comment
-                var debugging = false // comment
-                var debugging = false // comment
-                    // comment
             """.trimIndent()
         )
     }

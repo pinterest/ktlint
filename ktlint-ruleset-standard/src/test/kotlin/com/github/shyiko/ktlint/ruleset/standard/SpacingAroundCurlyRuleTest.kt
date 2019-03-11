@@ -38,11 +38,11 @@ class SpacingAroundCurlyRuleTest {
         assertThat(
             SpacingAroundCurlyRule().lint(
                 """
-            fun main() {
-                emptyList<String>().find { true } !!.hashCode()
-                emptyList<String>().find { true }!!.hashCode()
-            }
-            """.trimIndent()
+                fun main() {
+                    emptyList<String>().find { true } !!.hashCode()
+                    emptyList<String>().find { true }!!.hashCode()
+                }
+                """.trimIndent()
             )
         )
             .isEqualTo(
@@ -67,51 +67,51 @@ class SpacingAroundCurlyRuleTest {
         assertThat(
             SpacingAroundCurlyRule().format(
                 """
-            fun main() {
-                val v = if (true){return ""}
-                val v = if (true) { return "" }
-                fn({a -> a}, 0)
-                fn({ a -> a }, 0)
-                fn({},{}, {}, 0)
-                fn({ }, 0)
-                fn({ a -> try{a()}catch (e: Exception){null} }, 0)
-                foo.associateBy( { it.length } , { it } )
-                try{call()}catch (e: Exception){}
-                call({}, {})
-                a.let{}.apply({})
-                f({ if (true) {r.add(v)}; r})
-                emptyList<String>().find { true }!!.hashCode()
-                emptyList<String>().find { true } !!.hashCode()
-                l.groupBy { it }[key] + l.groupBy { it } [key]
-                l.groupBy { it }(key) + l.groupBy { it } (key)
-                object : Any() {}::class.java.classLoader
-                object : Any() {} ::class.java.classLoader
-                class A
-                {
-                    companion object
+                fun main() {
+                    val v = if (true){return ""}
+                    val v = if (true) { return "" }
+                    fn({a -> a}, 0)
+                    fn({ a -> a }, 0)
+                    fn({},{}, {}, 0)
+                    fn({ }, 0)
+                    fn({ a -> try{a()}catch (e: Exception){null} }, 0)
+                    foo.associateBy( { it.length } , { it } )
+                    try{call()}catch (e: Exception){}
+                    call({}, {})
+                    a.let{}.apply({})
+                    f({ if (true) {r.add(v)}; r})
+                    emptyList<String>().find { true }!!.hashCode()
+                    emptyList<String>().find { true } !!.hashCode()
+                    l.groupBy { it }[key] + l.groupBy { it } [key]
+                    l.groupBy { it }(key) + l.groupBy { it } (key)
+                    object : Any() {}::class.java.classLoader
+                    object : Any() {} ::class.java.classLoader
+                    class A
+                    {
+                        companion object
+                        {
+                        }
+                    }
+                    interface A
                     {
                     }
+                    if (true)
+                    {
+                    }
+                    do
+                    {
+                    } while (true)
+                    call(
+                        { echo() },
+                        { echo() },
+                        //
+                        { echo() }
+                    )
+                    val f =
+                        { true }
                 }
-                interface A
-                {
-                }
-                if (true)
-                {
-                }
-                do
-                {
-                } while (true)
-                call(
-                    { echo() },
-                    { echo() },
-                    //
-                    { echo() }
-                )
-                val f =
-                    { true }
-            }
-            class A { private val shouldEjectBlock = block@ { (pathProgress ?: return@block false) >= 0.85 } }
-            """.trimIndent()
+                class A { private val shouldEjectBlock = block@ { (pathProgress ?: return@block false) >= 0.85 } }
+                """.trimIndent()
             )
         ).isEqualTo(
             """

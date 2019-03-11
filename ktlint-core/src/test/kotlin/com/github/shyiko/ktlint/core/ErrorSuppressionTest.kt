@@ -30,9 +30,9 @@ class ErrorSuppressionTest {
         assertThat(
             lint(
                 """
-            import a.* // ktlint-disable
-            import a.* // will trigger an error
-            """.trimIndent()
+                import a.* // ktlint-disable
+                import a.* // will trigger an error
+                """.trimIndent()
             )
         ).isEqualTo(
             listOf(
@@ -42,9 +42,9 @@ class ErrorSuppressionTest {
         assertThat(
             lint(
                 """
-            import a.* // ktlint-disable no-wildcard-imports
-            import a.* // will trigger an error
-            """.trimIndent()
+                import a.* // ktlint-disable no-wildcard-imports
+                import a.* // will trigger an error
+                """.trimIndent()
             )
         ).isEqualTo(
             listOf(
@@ -54,12 +54,12 @@ class ErrorSuppressionTest {
         assertThat(
             lint(
                 """
-            /* ktlint-disable */
-            import a.*
-            import a.*
-            /* ktlint-enable */
-            import a.* // will trigger an error
-            """.trimIndent()
+                /* ktlint-disable */
+                import a.*
+                import a.*
+                /* ktlint-enable */
+                import a.* // will trigger an error
+                """.trimIndent()
             )
         ).isEqualTo(
             listOf(
@@ -69,12 +69,12 @@ class ErrorSuppressionTest {
         assertThat(
             lint(
                 """
-            /* ktlint-disable no-wildcard-imports */
-            import a.*
-            import a.*
-            /* ktlint-enable no-wildcard-imports */
-            import a.* // will trigger an error
-            """.trimIndent()
+                /* ktlint-disable no-wildcard-imports */
+                import a.*
+                import a.*
+                /* ktlint-enable no-wildcard-imports */
+                import a.* // will trigger an error
+                """.trimIndent()
             )
         ).isEqualTo(
             listOf(

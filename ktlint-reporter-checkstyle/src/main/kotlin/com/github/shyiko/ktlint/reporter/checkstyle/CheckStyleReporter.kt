@@ -25,7 +25,7 @@ class CheckStyleReporter(val out: PrintStream) : Reporter {
                 out.println(
                     """		<error line="$line" column="$col" severity="error" message="${
                     detail.escapeXMLAttrValue()
-                }" source="$ruleId" />"""
+                    }" source="$ruleId" />"""
                 )
             }
             out.println("""	</file>""")

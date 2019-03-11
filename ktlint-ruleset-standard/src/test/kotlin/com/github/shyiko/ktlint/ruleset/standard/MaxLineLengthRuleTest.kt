@@ -23,12 +23,12 @@ class MaxLineLengthRuleTest {
         assertThat(
             MaxLineLengthRule().lint(
                 """
-            fun main(vaaaaaaaaaaaaaaaaaaaaaaar: String) { // ktlint-disable max-line-length
-                println("teeeeeeeeeeeeeeeeeeeeeeeeeeeeeeext")
-            /* ktlint-disable max-line-length */
-                println("teeeeeeeeeeeeeeeeeeeeeeeeeeeeeeext")
-            }
-            """.trimIndent(),
+                fun main(vaaaaaaaaaaaaaaaaaaaaaaar: String) { // ktlint-disable max-line-length
+                    println("teeeeeeeeeeeeeeeeeeeeeeeeeeeeeeext")
+                /* ktlint-disable max-line-length */
+                    println("teeeeeeeeeeeeeeeeeeeeeeeeeeeeeeext")
+                }
+                """.trimIndent(),
                 userData = mapOf("max_line_length" to "40")
             )
         ).isEqualTo(

@@ -13,20 +13,20 @@ class NoSemicolonsRuleTest {
         assertThat(
             NoSemicolonsRule().lint(
                 """
-            package a.b.c;
+                package a.b.c;
 
-            fun main() {
-                fun name() { a(); return b }
-                println(";")
-                println();
+                fun main() {
+                    fun name() { a(); return b }
+                    println(";")
+                    println();
 
-                Any();
-                {
-                }.print()
-                Any()
-                ;{ /*...*/ }.print()
-            }
-            """.trimIndent()
+                    Any();
+                    {
+                    }.print()
+                    Any()
+                    ;{ /*...*/ }.print()
+                }
+                """.trimIndent()
             )
         ).isEqualTo(
             listOf(
@@ -41,12 +41,12 @@ class NoSemicolonsRuleTest {
         assertThat(
             NoSemicolonsRule().format(
                 """
-            fun main() {
-                fun name() { a();return b }
-                println()
-                println();
-            };
-            """.trimIndent()
+                fun main() {
+                    fun name() { a();return b }
+                    println()
+                    println();
+                };
+                """.trimIndent()
             )
         ).isEqualTo(
             """
@@ -62,11 +62,11 @@ class NoSemicolonsRuleTest {
         assertThat(
             NoSemicolonsRule().format(
                 """
-            enum class E {
-                ONE, TWO;
-                fun fn() {}
-            }
-            """.trimIndent()
+                enum class E {
+                    ONE, TWO;
+                    fun fn() {}
+                }
+                """.trimIndent()
             )
         ).isEqualTo(
             """
@@ -84,16 +84,16 @@ class NoSemicolonsRuleTest {
         assertThat(
             NoSemicolonsRule().lint(
                 """
-            class A {
-                companion object;
-                companion object ;
-            }
-            class A {
-                companion object {
-                    val s = ""
-                };
-            }
-            """.trimIndent()
+                class A {
+                    companion object;
+                    companion object ;
+                }
+                class A {
+                    companion object {
+                        val s = ""
+                    };
+                }
+                """.trimIndent()
             )
         ).isEqualTo(
             listOf(

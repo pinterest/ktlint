@@ -13,44 +13,44 @@ class SpacingAroundKeywordRuleTest {
         assertThat(
             SpacingAroundKeywordRule().lint(
                 """
-            fun main() {
-                if(true) {}
-                while(true) {}
-                do {} while(true)
+                fun main() {
+                    if(true) {}
+                    while(true) {}
+                    do {} while(true)
 
-                if (true) {}
-                else {}
+                    if (true) {}
+                    else {}
 
-                try { "".trim() }
-                catch (e: Exception) {}
-                finally {}
+                    try { "".trim() }
+                    catch (e: Exception) {}
+                    finally {}
 
-                if (true) {
-                } else {}
-                if (true) {} else {}
-                if (true)
-                    println()
-                else
-                    entry.value
+                    if (true) {
+                    } else {}
+                    if (true) {} else {}
+                    if (true)
+                        println()
+                    else
+                        entry.value
 
-                try {
-                    "".trim()
-                } catch (e: Exception) {
-                } finally {}
-                try { "".trim() } catch (e: Exception) {} finally {}
+                    try {
+                        "".trim()
+                    } catch (e: Exception) {
+                    } finally {}
+                    try { "".trim() } catch (e: Exception) {} finally {}
 
-                val v = 0
-                when (v) {
-                    1 -> println("")
-                    else -> println("")
+                    val v = 0
+                    when (v) {
+                        1 -> println("")
+                        else -> println("")
+                    }
+
+                    if (V)
+                        V.let { "" }
+                    else
+                        V
                 }
-
-                if (V)
-                    V.let { "" }
-                else
-                    V
-            }
-            """.trimIndent()
+                """.trimIndent()
             )
         ).isEqualTo(
             listOf(
@@ -69,23 +69,23 @@ class SpacingAroundKeywordRuleTest {
         assertThat(
             SpacingAroundKeywordRule().format(
                 """
-            fun main() {
-                if(true) {}
-                if (true) {}
-                while(true) {}
-                do {} while(true)
+                fun main() {
+                    if(true) {}
+                    if (true) {}
+                    while(true) {}
+                    do {} while(true)
 
-                if (true) {}
-                else {}
-                if (true) {
+                    if (true) {}
+                    else {}
+                    if (true) {
+                    }
+                    else {}
+
+                    try { "".trim() }
+                    catch (e: Exception) {}
+                    finally {}
                 }
-                else {}
-
-                try { "".trim() }
-                catch (e: Exception) {}
-                finally {}
-            }
-            """.trimIndent()
+                """.trimIndent()
             )
         ).isEqualTo(
             """

@@ -51,8 +51,10 @@ class EditorConfig private constructor (
                             val parent = if (dir.parent != null) of(dir.parent) else null
                             try {
                                 val editorConfig = if (Files.exists(editorConfigPath)) {
-                                    EditorConfig(parent, editorConfigPath,
-                                        (parent?.data ?: emptyMap()) + flatten(load(editorConfigPath)))
+                                    EditorConfig(
+                                        parent, editorConfigPath,
+                                        (parent?.data ?: emptyMap()) + flatten(load(editorConfigPath))
+                                    )
                                 } else {
                                     parent
                                 }
@@ -88,8 +90,11 @@ class EditorConfig private constructor (
                 val patterns = try {
                     parseSection(sectionName.substring(1, sectionName.length - 1))
                 } catch (e: Exception) {
-                    throw RuntimeException("ktlint failed to parse .editorconfig section \"$sectionName\"" +
-                        " (please report at https://github.com/shyiko/ktlint)", e)
+                    throw RuntimeException(
+                        "ktlint failed to parse .editorconfig section \"$sectionName\"" +
+                            " (please report at https://github.com/shyiko/ktlint)",
+                        e
+                    )
                 }
                 if (patternsToSearchFor.any { patterns.contains(it) }) {
                     map.putAll(section.toMap())
@@ -109,8 +114,9 @@ class EditorConfig private constructor (
                         if (sectionName.startsWith('[') && sectionName.endsWith(']') && value == "") {
                             section = mutableMapOf<String, String>().also { map.put(sectionName, it) }
                         } else {
-                            val section = section
-                                ?: mutableMapOf<String, String>().also { section = it; map.put("", it) }
+                            val section =
+                                section
+                                    ?: mutableMapOf<String, String>().also { section = it; map.put("", it) }
                             section[key] = value.toString()
                         }
                         return null

@@ -13,27 +13,27 @@ class IndentationRuleTest {
         assertThat(
             IndentationRule().lint(
                 """
-            /**
-             * _
-             */
-            fun main() {
-                val a = 0
-                    val b = 0
-                if (a == 0) {
-                    println(a)
+                /**
+                 * _
+                 */
+                fun main() {
+                    val a = 0
+                        val b = 0
+                    if (a == 0) {
+                        println(a)
+                    }
+                    val b = builder().setX().setY()
+                        .build()
+                   val c = builder("long_string" +
+                         "")
                 }
-                val b = builder().setX().setY()
-                    .build()
-               val c = builder("long_string" +
-                     "")
-            }
 
-            class A {
-                var x: String
-                    get() = ""
-                    set(v: String) { x = v }
-            }
-            """.trimIndent()
+                class A {
+                    var x: String
+                        get() = ""
+                        set(v: String) { x = v }
+                }
+                """.trimIndent()
             )
         ).isEqualTo(
             listOf(
@@ -49,11 +49,11 @@ class IndentationRuleTest {
         assertThat(
             IndentationRule().lint(
                 """
-            fun main() {
-               val v = ""
-                println(v)
-            }
-            """.trimIndent(),
+                fun main() {
+                   val v = ""
+                    println(v)
+                }
+                """.trimIndent(),
                 mapOf("indent_size" to "3")
             )
         ).isEqualTo(
@@ -68,20 +68,20 @@ class IndentationRuleTest {
         assertThat(
             IndentationRule().lint(
                 """
-            /**
-             * _
-             */
-            fun main() {
-              val v = ""
-              println(v)
-            }
+                /**
+                 * _
+                 */
+                fun main() {
+                  val v = ""
+                  println(v)
+                }
 
-            class A {
-              var x: String
-                get() = ""
-                set(v: String) { x = v }
-            }
-            """.trimIndent(),
+                class A {
+                  var x: String
+                    get() = ""
+                    set(v: String) { x = v }
+                }
+                """.trimIndent(),
                 mapOf("indent_size" to "2")
             )
         ).isEmpty()
@@ -92,11 +92,11 @@ class IndentationRuleTest {
         assertThat(
             IndentationRule().lint(
                 """
-            fun main() {
-               val v = ""
-                println(v)
-            }
-            """.trimIndent(),
+                fun main() {
+                   val v = ""
+                    println(v)
+                }
+                """.trimIndent(),
                 mapOf("indent_size" to "unset")
             )
         ).isEmpty()
@@ -108,12 +108,12 @@ class IndentationRuleTest {
         assertThat(
             IndentationRule().lint(
                 """
-            fun main() {
-                fn(a,
-                   b,
-                   c)
-            }
-            """.trimIndent()
+                fun main() {
+                    fn(a,
+                       b,
+                       c)
+                }
+                """.trimIndent()
             )
         ).isEqualTo(
             listOf(
@@ -128,18 +128,18 @@ class IndentationRuleTest {
         assertThat(
             IndentationRule().lint(
                 """
-            fun funA(argA: String) =
+                fun funA(argA: String) =
+                    // comment
                 // comment
-            // comment
-                call(argA)
-            fun main() {
-                addOnLayoutChangeListener(object : View.OnLayoutChangeListener {
-             // comment
-                    override fun onLayoutChange(
-                    )
-                })
-            }
-            """.trimIndent(),
+                    call(argA)
+                fun main() {
+                    addOnLayoutChangeListener(object : View.OnLayoutChangeListener {
+                 // comment
+                        override fun onLayoutChange(
+                        )
+                    })
+                }
+                """.trimIndent(),
                 mapOf("indent_size" to "4")
             )
         ).isEqualTo(
@@ -154,14 +154,14 @@ class IndentationRuleTest {
         assertThat(
             IndentationRule().lint(
                 """
-            class BiAdapter<C : RecyclerView.ViewHolder, V1 : C, V2 : C, out A1, out A2>(
-                val adapter1: A1,
-                val adapter2: A2
-            ) : RecyclerView.Adapter<C>()
-                where A1 : RecyclerView.Adapter<V1>, A1 : ComposableAdapter.ViewTypeProvider,
-                      A2 : RecyclerView.Adapter<V2>, A2 : ComposableAdapter.ViewTypeProvider {
-            }
-            """.trimIndent()
+                class BiAdapter<C : RecyclerView.ViewHolder, V1 : C, V2 : C, out A1, out A2>(
+                    val adapter1: A1,
+                    val adapter2: A2
+                ) : RecyclerView.Adapter<C>()
+                    where A1 : RecyclerView.Adapter<V1>, A1 : ComposableAdapter.ViewTypeProvider,
+                          A2 : RecyclerView.Adapter<V2>, A2 : ComposableAdapter.ViewTypeProvider {
+                }
+                """.trimIndent()
             )
         ).isEmpty()
     }

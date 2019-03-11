@@ -14,8 +14,8 @@ class NoLineBreakBeforeAssignmentRuleTest {
         assertThat(
             NoLineBreakBeforeAssignmentRule().lint(
                 """
-              val valA = ""
-              """.trimIndent()
+                val valA = ""
+                """.trimIndent()
             )
         ).isEmpty()
     }
@@ -27,7 +27,7 @@ class NoLineBreakBeforeAssignmentRuleTest {
                 """
                 val valA =
                       ""
-              """.trimIndent()
+                """.trimIndent()
             )
         ).isEmpty()
     }
@@ -37,9 +37,9 @@ class NoLineBreakBeforeAssignmentRuleTest {
         assertThat(
             NoLineBreakBeforeAssignmentRule().lint(
                 """
-              val valA
-                    = ""
-              """.trimIndent()
+                val valA
+                      = ""
+                """.trimIndent()
             )
         ).isEqualTo(
             listOf(
@@ -53,9 +53,9 @@ class NoLineBreakBeforeAssignmentRuleTest {
         assertThat(
             NoLineBreakBeforeAssignmentRule().lint(
                 """
-              fun funA()
-                    = ""
-              """.trimIndent()
+                fun funA()
+                      = ""
+                """.trimIndent()
             )
         ).isEqualTo(
             listOf(
@@ -69,15 +69,15 @@ class NoLineBreakBeforeAssignmentRuleTest {
         assertThat(
             NoLineBreakBeforeAssignmentRule().format(
                 """
-              fun funA()
-                    = ""
-              """.trimIndent()
+                fun funA()
+                      = ""
+                """.trimIndent()
             )
         ).isEqualTo(
             """
-              fun funA() =
-                    ""
-              """.trimIndent()
+            fun funA() =
+                  ""
+            """.trimIndent()
         )
     }
 }

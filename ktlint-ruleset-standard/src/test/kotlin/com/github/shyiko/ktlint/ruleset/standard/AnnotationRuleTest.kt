@@ -126,8 +126,8 @@ class AnnotationRuleTest {
             AnnotationRule().format(
                 """
 
-            @JvmField @Volatile var x: String
-            """.trimIndent()
+                @JvmField @Volatile var x: String
+                """.trimIndent()
             )
         ).isEqualTo(
             """

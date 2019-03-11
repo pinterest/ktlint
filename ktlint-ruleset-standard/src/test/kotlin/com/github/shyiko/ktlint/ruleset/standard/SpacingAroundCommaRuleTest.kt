@@ -19,10 +19,10 @@ class SpacingAroundCommaRuleTest {
         assertThat(
             SpacingAroundCommaRule().lint(
                 """
-            enum class E {
-                A, B,C
-            }
-            """.trimIndent()
+                enum class E {
+                    A, B,C
+                }
+                """.trimIndent()
             )
         ).isEqualTo(
             listOf(
@@ -32,8 +32,8 @@ class SpacingAroundCommaRuleTest {
         assertThat(
             SpacingAroundCommaRule().lint(
                 """
-            some.method(1 , 2)
-            """.trimIndent(),
+                some.method(1 , 2)
+                """.trimIndent(),
                 script = true
             )
         ).isEqualTo(
@@ -50,14 +50,14 @@ class SpacingAroundCommaRuleTest {
         assertThat(
             SpacingAroundCommaRule().format(
                 """
-            fun fn(
-                arg1: Int ,
-                arg2: Int
-                ,
+                fun fn(
+                    arg1: Int ,
+                    arg2: Int
+                    ,
 
-                arg3: Int
-            ) = Unit
-            """.trimIndent()
+                    arg3: Int
+                ) = Unit
+                """.trimIndent()
             )
         ).isEqualTo(
             """

@@ -13,17 +13,17 @@ class SpacingAroundColonRuleTest {
         assertThat(
             SpacingAroundColonRule().lint(
                 """
-            class A:B
-            class A2 : B2
-            fun main() {
-                var x:Boolean
-                var y: Boolean
-                call(object: DefaultConsumer(channel) { })
-            }
-            interface D
-            interface C: D
-            interface C2 : D
-            """.trimIndent()
+                class A:B
+                class A2 : B2
+                fun main() {
+                    var x:Boolean
+                    var y: Boolean
+                    call(object: DefaultConsumer(channel) { })
+                }
+                interface D
+                interface C: D
+                interface C2 : D
+                """.trimIndent()
             )
         ).isEqualTo(
             listOf(
@@ -36,43 +36,43 @@ class SpacingAroundColonRuleTest {
         assertThat(
             SpacingAroundColonRule().lint(
                 """
-            @file:JvmName("Foo")
-            class Example(@field:Ann val foo: String, @get:Ann val bar: String)
-            class Example {
-                @set:[Inject VisibleForTesting]
-                public var collaborator: Collaborator
-            }
-            fun @receiver:Fancy String.myExtension() { }
-            """.trimIndent()
-            )
-        ).isEmpty()
-        assertThat(
-            SpacingAroundColonRule().lint(
-                """
-            fun main() {
-                val x = Foo::class
-            }
-            """.trimIndent()
-            )
-        ).isEmpty()
-        assertThat(
-            SpacingAroundColonRule().lint(
-                """
-            class A {
-                constructor() : this("")
-                constructor(s: String) {
+                @file:JvmName("Foo")
+                class Example(@field:Ann val foo: String, @get:Ann val bar: String)
+                class Example {
+                    @set:[Inject VisibleForTesting]
+                    public var collaborator: Collaborator
                 }
-            }
-            class A {
-                @Deprecated("") @Throws(IOException::class, SecurityException::class)
-                protected abstract fun <T> f(
-                    @Nullable thing: String, things: List<T>): Runnable where T : Runnable, T: Closeable
-            }
-            class A : B {
-                constructor(): super()
-                constructor(param: String) : super(param)
-            }
-            """.trimIndent()
+                fun @receiver:Fancy String.myExtension() { }
+                """.trimIndent()
+            )
+        ).isEmpty()
+        assertThat(
+            SpacingAroundColonRule().lint(
+                """
+                fun main() {
+                    val x = Foo::class
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+        assertThat(
+            SpacingAroundColonRule().lint(
+                """
+                class A {
+                    constructor() : this("")
+                    constructor(s: String) {
+                    }
+                }
+                class A {
+                    @Deprecated("") @Throws(IOException::class, SecurityException::class)
+                    protected abstract fun <T> f(
+                        @Nullable thing: String, things: List<T>): Runnable where T : Runnable, T: Closeable
+                }
+                class A : B {
+                    constructor(): super()
+                    constructor(param: String) : super(param)
+                }
+                """.trimIndent()
             )
         ).isEqualTo(
             listOf(
@@ -87,23 +87,23 @@ class SpacingAroundColonRuleTest {
         assertThat(
             SpacingAroundColonRule().format(
                 """
-            class A:B
-            fun main() {
-                var x:Boolean
-                var y: Boolean
-            }
-            interface D
-            interface C: D
-            class F(param: String):D(param)
-            class F2 constructor(param: String): D3(param)
-            class F3 : D3 {
-                constructor():super()
-                constructor(param: String): super(param)
+                class A:B
+                fun main() {
+                    var x:Boolean
+                    var y: Boolean
+                }
+                interface D
+                interface C: D
+                class F(param: String):D(param)
+                class F2 constructor(param: String): D3(param)
+                class F3 : D3 {
+                    constructor():super()
+                    constructor(param: String): super(param)
 
-                val x = object:D3 { }
-            }
-            fun <T> max(a: T, b: T) where T: Comparable<T>
-            """.trimIndent()
+                    val x = object:D3 { }
+                }
+                fun <T> max(a: T, b: T) where T: Comparable<T>
+                """.trimIndent()
             )
         ).isEqualTo(
             """
@@ -132,9 +132,9 @@ class SpacingAroundColonRuleTest {
         assertThat(
             SpacingAroundColonRule().lint(
                 """
-            fun main() : String = "duck"
-            fun duck(): String = "main"
-            """.trimIndent()
+                fun main() : String = "duck"
+                fun duck(): String = "main"
+                """.trimIndent()
             )
         ).isEqualTo(
             listOf(
@@ -148,8 +148,8 @@ class SpacingAroundColonRuleTest {
         assertThat(
             SpacingAroundColonRule().format(
                 """
-            fun main() : String = "duck"
-            """.trimIndent()
+                fun main() : String = "duck"
+                """.trimIndent()
             )
         ).isEqualTo(
             """
@@ -163,9 +163,9 @@ class SpacingAroundColonRuleTest {
         assertThat(
             SpacingAroundColonRule().lint(
                 """
-            fun identity(value: String): String = value
-            fun unformattedIdentity(value : String): String = value
-            """.trimIndent()
+                fun identity(value: String): String = value
+                fun unformattedIdentity(value : String): String = value
+                """.trimIndent()
             )
         ).isEqualTo(
             listOf(
@@ -179,10 +179,10 @@ class SpacingAroundColonRuleTest {
         assertThat(
             SpacingAroundColonRule().format(
                 """
-            fun validIdentity(value: String): String = value
-            fun identity(value  : String): String = value
-            fun oneSpaceIdentity(value : String): String = value
-            """.trimIndent()
+                fun validIdentity(value: String): String = value
+                fun identity(value  : String): String = value
+                fun oneSpaceIdentity(value : String): String = value
+                """.trimIndent()
             )
         ).isEqualTo(
             """
@@ -198,8 +198,8 @@ class SpacingAroundColonRuleTest {
         assertThat(
             SpacingAroundColonRule().lint(
                 """
-            fun <T: Any> trueIdentity(value: T): T = value
-            """.trimIndent()
+                fun <T: Any> trueIdentity(value: T): T = value
+                """.trimIndent()
             )
         ).isEqualTo(
             listOf(
@@ -213,9 +213,9 @@ class SpacingAroundColonRuleTest {
         assertThat(
             SpacingAroundColonRule().format(
                 """
-            fun <T: Any> trueIdentity(value: T): T = value
-            fun <T : Any> trueIdentity(value: T): T = value
-            """.trimIndent()
+                fun <T: Any> trueIdentity(value: T): T = value
+                fun <T : Any> trueIdentity(value: T): T = value
+                """.trimIndent()
             )
         ).isEqualTo(
             """

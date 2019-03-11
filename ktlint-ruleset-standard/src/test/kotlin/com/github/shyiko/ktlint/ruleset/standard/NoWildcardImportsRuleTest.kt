@@ -12,11 +12,11 @@ class NoWildcardImportsRuleTest {
         assertThat(
             NoWildcardImportsRule().lint(
                 """
-            import a.*
-            import a.b.c.*
-            import a.b
-            import kotlinx.android.synthetic.main.layout_name.*
-            """.trimIndent()
+                import a.*
+                import a.b.c.*
+                import a.b
+                import kotlinx.android.synthetic.main.layout_name.*
+                """.trimIndent()
             )
         ).isEqualTo(
             listOf(
