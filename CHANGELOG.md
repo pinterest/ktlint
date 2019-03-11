@@ -2,15 +2,45 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## [0.31.0] - 2019-03-10
 
 ### Added
+- `dot-spacing` rule ([#293](https://github.com/shyiko/ktlint/issues/293)).
 - `experimental/indent` rule ([#338](https://github.com/shyiko/ktlint/issues/338)).  
   Use `ktlint --experimental` to enable. 
 
+### Fixed
+- Spacing check around `<` & `>` operators.
+
 ### Changed
 - `no-multi-spaces` rule (horizontal alignment of comments is no longer allowed) ([#269](https://github.com/shyiko/ktlint/issues/269)).
-- `package-name` rule disabled until there is a way to suppress rules globally. 
+- `colon-spacing` rule (`:` must not appear at the beginning of the line).
+- `package-name` rule (disabled until [#208](https://github.com/shyiko/ktlint/issues/208) is resolved).
+- `--print-ast` to output [com.github.shyiko.ktlint.core.ast.ElementType.*](https://github.com/shyiko/ktlint/blob/master/ktlint-core/src/main/kotlin/com/github/shyiko/ktlint/core/ast/ElementType.kt) as `node.elementType`, e.g. 
+```
+$ echo 'fun f() {}' | ./ktlint/target/ktlint --print-ast --color --stdin
+1: ~.psi.KtFile (FILE)
+1:   ~.psi.KtPackageDirective (PACKAGE_DIRECTIVE) ""
+1:   ~.psi.KtImportList (IMPORT_LIST) ""
+1:   ~.psi.KtScript (SCRIPT)
+1:     ~.psi.KtBlockExpression (BLOCK)
+1:       ~.psi.KtNamedFunction (FUN)
+1:         ~.c.i.p.impl.source.tree.LeafPsiElement (FUN_KEYWORD) "fun"
+1:         ~.c.i.p.impl.source.tree.PsiWhiteSpaceImpl (WHITE_SPACE) " "
+1:         ~.c.i.p.impl.source.tree.LeafPsiElement (IDENTIFIER) "f"
+1:         ~.psi.KtParameterList (VALUE_PARAMETER_LIST)
+1:           ~.c.i.p.impl.source.tree.LeafPsiElement (LPAR) "("
+1:           ~.c.i.p.impl.source.tree.LeafPsiElement (RPAR) ")"
+1:         ~.c.i.p.impl.source.tree.PsiWhiteSpaceImpl (WHITE_SPACE) " "
+1:         ~.psi.KtBlockExpression (BLOCK)
+1:           ~.c.i.p.impl.source.tree.LeafPsiElement (LBRACE) "{"
+1:           ~.c.i.p.impl.source.tree.LeafPsiElement (RBRACE) "}"
+1:       ~.c.i.p.impl.source.tree.PsiWhiteSpaceImpl (WHITE_SPACE) "\n"
+
+   format: <line_number:> <node.psi::class> (<node.elementType>) "<node.text>"
+   legend: ~ = org.jetbrains.kotlin, c.i.p = com.intellij.psi
+```
+
 - `kotlin-compiler` version to 1.3.21 (from 1.3.20).
 
 ### Removed 
@@ -493,6 +523,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.31.0]: https://github.com/shyiko/ktlint/compare/0.30.0...0.31.0
 [0.30.0]: https://github.com/shyiko/ktlint/compare/0.29.0...0.30.0
 [0.29.0]: https://github.com/shyiko/ktlint/compare/0.28.0...0.29.0
 [0.28.0]: https://github.com/shyiko/ktlint/compare/0.27.0...0.28.0
