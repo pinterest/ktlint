@@ -26,6 +26,7 @@ import com.github.shyiko.ktlint.core.ast.ElementType.PERCEQ
 import com.github.shyiko.ktlint.core.ast.ElementType.PLUS
 import com.github.shyiko.ktlint.core.ast.ElementType.PLUSEQ
 import com.github.shyiko.ktlint.core.ast.ElementType.TYPE_PARAMETER_LIST
+import com.github.shyiko.ktlint.core.ast.ElementType.WHITE_SPACE
 import com.github.shyiko.ktlint.core.ast.isPartOf
 import com.github.shyiko.ktlint.core.ast.nextLeaf
 import com.github.shyiko.ktlint.core.ast.parent
@@ -62,11 +63,32 @@ class SpacingAroundOperatorsRule : Rule("op-spacing") {
             !node.isPartOf(KtImportDirective::class) && // import *
             !node.isPartOf(KtSuperExpression::class) // super<T>
         ) {
-            if ((node.elementType == GT || node.elementType == LT) &&
-                // fun <T>fn(): T {}
-                node.parent(TYPE_PARAMETER_LIST)?.treeParent?.elementType != FUN
-            ) {
-                return
+            if (node.elementType == LT || node.elementType == GT) {
+                val list = node.parent(TYPE_PARAMETER_LIST)
+                if (list != null) {
+                    if (node.elementType == LT) {
+                        // ensure no space after < in <T>
+                        val nextLeaf = node.nextLeaf()
+                        if (nextLeaf?.elementType == WHITE_SPACE && !nextLeaf.textContains('\n')) {
+                            emit(node.startOffset + 1, "Unexpected spacing after \"${node.text}\"", true)
+                            if (autoCorrect) {
+                                nextLeaf.treeParent.removeChild(nextLeaf)
+                            }
+                        }
+                    } else {
+                        // ensure no space before > in <T>
+                        val prevLeaf = node.prevLeaf()
+                        if (prevLeaf?.elementType == WHITE_SPACE && !prevLeaf.textContains('\n')) {
+                            emit(prevLeaf.startOffset, "Unexpected spacing before \"${node.text}\"", true)
+                            if (autoCorrect) {
+                                prevLeaf.treeParent.removeChild(prevLeaf)
+                            }
+                        }
+                    }
+                    if (node.parent(TYPE_PARAMETER_LIST)?.treeParent?.elementType != FUN) {
+                        return // FIXME: only `fun <T>fn(): T {}` is checked
+                    }
+                }
             }
             val spacingBefore = node.prevLeaf() is PsiWhiteSpace || node.elementType == GT
             val spacingAfter = node.nextLeaf() is PsiWhiteSpace || node.elementType == LT
