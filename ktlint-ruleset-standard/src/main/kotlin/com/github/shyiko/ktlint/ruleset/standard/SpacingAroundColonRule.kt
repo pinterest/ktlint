@@ -4,7 +4,10 @@ import com.github.shyiko.ktlint.core.Rule
 import com.github.shyiko.ktlint.core.ast.ElementType.ANNOTATION
 import com.github.shyiko.ktlint.core.ast.ElementType.ANNOTATION_ENTRY
 import com.github.shyiko.ktlint.core.ast.isPartOf
+import com.github.shyiko.ktlint.core.ast.isPartOfComment
 import com.github.shyiko.ktlint.core.ast.isPartOfString
+import com.github.shyiko.ktlint.core.ast.isWhiteSpaceWithNewline
+import com.github.shyiko.ktlint.core.ast.prevLeaf
 import com.github.shyiko.ktlint.core.ast.upsertWhitespaceAfterMe
 import com.github.shyiko.ktlint.core.ast.upsertWhitespaceBeforeMe
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -22,17 +25,35 @@ class SpacingAroundColonRule : Rule("colon-spacing") {
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        if (node is LeafPsiElement && node.textMatches(":") && !node.isPartOfString()) {
+        if (node is LeafPsiElement && node.textMatches(":") && !node.isPartOfString() && !node.isPartOfComment()) {
             if (node.isPartOf(ANNOTATION) || node.isPartOf(ANNOTATION_ENTRY)) {
                 // todo: enforce "no spacing"
                 return
             }
-            if (node.prevSibling is PsiWhiteSpace &&
+            val removeSpacingBefore =
                 node.parent !is KtClassOrObject &&
-                node.parent !is KtConstructor<*> && // constructor : this/super
-                node.parent !is KtTypeConstraint && // where T : S
-                node.parent?.parent !is KtTypeParameterList
+                    node.parent !is KtConstructor<*> && // constructor : this/super
+                    node.parent !is KtTypeConstraint && // where T : S
+                    node.parent?.parent !is KtTypeParameterList
+            val prevLeaf = node.prevLeaf()
+            if (prevLeaf != null &&
+                prevLeaf.isWhiteSpaceWithNewline() &&
+                // FIXME: relocate : so that it would be in front of comment
+                // (see SpacingAroundColonRuleTest.testFormatEOF & ChainWrappingRule)
+                prevLeaf.prevLeaf()?.isPartOfComment() != true
             ) {
+                emit(prevLeaf.startOffset, "Unexpected newline before \":\"", true)
+                val text = prevLeaf.text
+                if (autoCorrect) {
+                    if (removeSpacingBefore) {
+                        prevLeaf.treeParent.removeChild(prevLeaf)
+                    } else {
+                        (prevLeaf as LeafPsiElement).rawReplaceWithText(" ")
+                    }
+                    node.upsertWhitespaceAfterMe(text)
+                }
+            }
+            if (node.prevSibling is PsiWhiteSpace && removeSpacingBefore) {
                 emit(node.startOffset, "Unexpected spacing before \":\"", true)
                 if (autoCorrect) {
                     node.prevSibling.node.treeParent.removeChild(node.prevSibling.node)

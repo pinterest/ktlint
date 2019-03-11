@@ -188,6 +188,9 @@ fun ASTNode.isPartOfRawMultiLineString() =
     parent(STRING_TEMPLATE, strict = false)
         ?.let { it.firstChildNode.text == "\"\"\"" && it.textContains('\n') } == true
 
+fun ASTNode?.isWhiteSpaceWithNewline() =
+    this != null && elementType == WHITE_SPACE && textContains('\n')
+
 fun ASTNode.isRoot() = elementType == ElementType.FILE
 fun ASTNode.isLeaf() = firstChildNode == null
 

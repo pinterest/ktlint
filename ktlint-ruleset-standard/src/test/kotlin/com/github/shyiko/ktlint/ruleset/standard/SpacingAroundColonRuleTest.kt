@@ -224,4 +224,39 @@ class SpacingAroundColonRuleTest {
             """.trimIndent()
         )
     }
+
+    @Test
+    fun testFormatEOF() {
+        assertThat(
+            SpacingAroundColonRule().format(
+                """
+                class X
+                    : Y,
+                    Z
+                class A // comment
+                    : B
+                class A /*
+
+                */
+                    : B
+                val xmlFormatter
+                    : String = ""
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            """
+            class X :
+                Y,
+                Z
+            class A // comment
+                : B
+            class A /*
+
+            */
+                : B
+            val xmlFormatter:
+                String = ""
+            """.trimIndent()
+        )
+    }
 }
