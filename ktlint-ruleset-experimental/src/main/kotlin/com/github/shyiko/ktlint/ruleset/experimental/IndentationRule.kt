@@ -333,7 +333,11 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                     it == BINARY_WITH_TYPE
             } ||
             !node.nextSubstringContains('\n') ||
-            mustBeFollowedByNewline(node)
+            (
+                mustBeFollowedByNewline(node) &&
+                    // force """ to be on a separate line
+                    !node.nextCodeLeaf().let { it?.elementType == OPEN_QUOTE && it.text == "\"\"\"" }
+                )
         ) {
             return
         }

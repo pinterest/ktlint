@@ -85,3 +85,38 @@ fun f() {
             """.trimIndent()
     )
 }
+
+class C {
+    val CONFIG_COMPACT =
+        """
+        {
+        }
+        """.trimIndent()
+    val CONFIG_COMPACT = // comment
+        """
+        {
+        }
+        """.trimIndent()
+
+    fun getBazelWorkspaceContent(blueprint: BazelWorkspaceBlueprint) =
+        """${Target(
+            "android_sdk_repository",
+            listOf(StringAttribute("name", "androidsdk"))
+        )}
+
+${Comment("Google Maven Repository")}
+${LoadStatement("@bazel_tools//tools/build_defs/repo:http.bzl", listOf("http_archive"))}
+${AssignmentStatement("GMAVEN_TAG", "\"${blueprint.gmavenRulesTag}\"")}
+${Target(
+            "http_archive",
+            listOf(
+                StringAttribute("name", "gmaven_rules"),
+                RawAttribute("strip_prefix", "\"gmaven_rules-%s\" % GMAVEN_TAG"),
+                RawAttribute("urls", "[\"https://github.com/bazelbuild/gmaven_rules/archive/%s.tar.gz\" % GMAVEN_TAG]")
+            )
+        )}
+${LoadStatement("@gmaven_rules//:gmaven.bzl", listOf("gmaven_rules"))}
+${Target("gmaven_rules", listOf())}
+"""
+
+}
