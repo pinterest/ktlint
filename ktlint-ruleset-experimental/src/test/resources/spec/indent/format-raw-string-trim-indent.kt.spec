@@ -3,6 +3,16 @@ println("""${true}""".trimIndent())
 println("""
 """.trimIndent())
 println("""
+    ${true}
+
+        ${true}
+""".trimIndent())
+println("""
+${true}
+
+    ${true}
+""".trimIndent())
+println("""
     text
 
         text
@@ -24,6 +34,23 @@ _""".trimIndent())
         text
     """.trimIndent(),
         ""
+    )
+    format(
+                """
+            class A {
+                fun f(@Annotation
+                      a: Any,
+                      @Annotation([
+                          "v1",
+                          "v2"
+                      ])
+                      b: Any,
+                      c: Any =
+                          false,
+                      @Annotation d: Any) {
+                }
+            }
+            """.trimIndent()
     )
     write(fs.getPath("/projects/.editorconfig"), """
         root = true

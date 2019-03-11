@@ -17,10 +17,12 @@ class IndentationRuleTest {
 
     @Test
     fun testFormat() {
-        assertThat(IndentationRule().diffFileFormat(
-            "spec/indent/format.kt.spec",
-            "spec/indent/format-expected.kt.spec"
-        )).isEmpty()
+        assertThat(
+            IndentationRule().diffFileFormat(
+                "spec/indent/format.kt.spec",
+                "spec/indent/format-expected.kt.spec"
+            )
+        ).isEmpty()
     }
 
     @Test
@@ -28,20 +30,20 @@ class IndentationRuleTest {
         assertThat(
             IndentationRule().lint(
                 """
-            fun main() {
-               val v = ""
-                println(v)
-            }
-            fun main() {
-              val v = ""
-              println(v)
-            }
-            class A {
-              var x: String
-                get() = ""
-                set(v: String) { x = v }
-            }
-            """.trimIndent(),
+                fun main() {
+                   val v = ""
+                    println(v)
+                }
+                fun main() {
+                  val v = ""
+                  println(v)
+                }
+                class A {
+                  var x: String
+                    get() = ""
+                    set(v: String) { x = v }
+                }
+                """.trimIndent(),
                 mapOf("indent_size" to "2")
             )
         ).isEqualTo(
@@ -57,11 +59,11 @@ class IndentationRuleTest {
         assertThat(
             IndentationRule().lint(
                 """
-            fun main() {
-               val v = ""
-                println(v)
-            }
-            """.trimIndent(),
+                fun main() {
+                   val v = ""
+                    println(v)
+                }
+                """.trimIndent(),
                 mapOf("indent_size" to "unset")
             )
         ).isEmpty()
@@ -74,10 +76,12 @@ class IndentationRuleTest {
 
     @Test
     fun testFormatKDoc() {
-        assertThat(IndentationRule().diffFileFormat(
-            "spec/indent/format-kdoc.kt.spec",
-            "spec/indent/format-kdoc-expected.kt.spec"
-        )).isEmpty()
+        assertThat(
+            IndentationRule().diffFileFormat(
+                "spec/indent/format-kdoc.kt.spec",
+                "spec/indent/format-kdoc-expected.kt.spec"
+            )
+        ).isEmpty()
     }
 
     @Test
@@ -238,14 +242,14 @@ class IndentationRuleTest {
         assertThat(
             IndentationRule().lint(
                 """
-            class BiAdapter<C : RecyclerView.ViewHolder, V1 : C, V2 : C, out A1, out A2>(
-                val adapter1: A1,
-                val adapter2: A2
-            ) : RecyclerView.Adapter<C>()
-                where A1 : RecyclerView.Adapter<V1>, A1 : ComposableAdapter.ViewTypeProvider,
-                      A2 : RecyclerView.Adapter<V2>, A2 : ComposableAdapter.ViewTypeProvider {
-            }
-            """.trimIndent()
+                class BiAdapter<C : RecyclerView.ViewHolder, V1 : C, V2 : C, out A1, out A2>(
+                    val adapter1: A1,
+                    val adapter2: A2
+                ) : RecyclerView.Adapter<C>()
+                    where A1 : RecyclerView.Adapter<V1>, A1 : ComposableAdapter.ViewTypeProvider,
+                          A2 : RecyclerView.Adapter<V2>, A2 : ComposableAdapter.ViewTypeProvider {
+                }
+                """.trimIndent()
             )
         ).isEmpty()
     }

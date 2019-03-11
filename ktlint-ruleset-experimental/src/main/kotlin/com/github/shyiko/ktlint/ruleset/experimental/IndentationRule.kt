@@ -26,6 +26,7 @@ import com.github.shyiko.ktlint.core.ast.ElementType.LAMBDA_EXPRESSION
 import com.github.shyiko.ktlint.core.ast.ElementType.LBRACE
 import com.github.shyiko.ktlint.core.ast.ElementType.LBRACKET
 import com.github.shyiko.ktlint.core.ast.ElementType.LITERAL_STRING_TEMPLATE_ENTRY
+import com.github.shyiko.ktlint.core.ast.ElementType.LONG_STRING_TEMPLATE_ENTRY
 import com.github.shyiko.ktlint.core.ast.ElementType.LPAR
 import com.github.shyiko.ktlint.core.ast.ElementType.LT
 import com.github.shyiko.ktlint.core.ast.ElementType.OBJECT_LITERAL
@@ -74,9 +75,9 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 import org.jetbrains.kotlin.psi.KtStringTemplateExpression
 import org.jetbrains.kotlin.psi.KtSuperTypeList
+import java.lang.StringBuilder
 import java.util.Deque
 import java.util.LinkedList
-import kotlin.math.min
 
 /**
  * ktlint's rule that checks & corrects indentation.
@@ -590,10 +591,9 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                                     expectedIndent += ctx.localAdj
                                     ctx.localAdj = 0
                                 }
-                            } else
-                                if (n.isPartOf(KDOC)) {
-                                    visitWhiteSpace(n, autoCorrect, emit, editorConfig)
-                                }
+                            } else if (n.isPartOf(KDOC)) {
+                                visitWhiteSpace(n, autoCorrect, emit, editorConfig)
+                            }
                             line += n.text.count { it == '\n' }
                         }
                     EOL_COMMENT ->
@@ -730,33 +730,61 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
         val psi = node.psi as KtStringTemplateExpression
         if (psi.isMultiLine() && psi.isFollowedByTrimIndent()) {
             val children = node.children()
-            val prefixLength = children.fold(Int.MAX_VALUE) { l, child ->
-                if (child.elementType == LITERAL_STRING_TEMPLATE_ENTRY &&
-                    child.isPrecededByLFStringTemplateEntry()) {
-                    val v = child.text
-                    if (v.contains('\t')) {
-                        return // bail
+            val prefixLength =
+                children
+                    .fold(StringBuilder()) { sb, child ->
+                        when (child.elementType) {
+                            LITERAL_STRING_TEMPLATE_ENTRY -> {
+                                val text = child.text
+                                // bail if indentation contains Tab
+                                for (c in text) {
+                                    if (c == '\t') {
+                                        return // bail
+                                    }
+                                    if (!c.isWhitespace()) {
+                                        break
+                                    }
+                                }
+                                sb.append(text)
+                            }
+                            LONG_STRING_TEMPLATE_ENTRY -> sb.append("${'$'}{}")
+                            else -> sb
+                        }
                     }
-                    if (!v.isBlank()) {
-                        return@fold min(l, v.indentLength())
-                    }
-                }
-                l
-            }
+                    .split('\n')
+                    .filter(String::isNotBlank)
+                    .map { it.indentLength() }
+                    .min() ?: 0
             val expectedPrefixLength = expectedIndent * editorConfig.indentSize
-            if (
-                prefixLength != Int.MAX_VALUE && // not (\n)* string
-                prefixLength != expectedPrefixLength
-            ) {
+            if (prefixLength != expectedPrefixLength) {
                 for (child in children) {
-                    if (child.elementType == LITERAL_STRING_TEMPLATE_ENTRY &&
-                        child.isPrecededByLFStringTemplateEntry()) {
-                        val v = child.text
-                        if (!v.isBlank()) {
-                            val indentLength = v.indentLength()
-                            val expectedIndentLength = indentLength - prefixLength + expectedPrefixLength
-                            if (indentLength != expectedIndentLength) {
-                                indentStringTemplateEntry(child, autoCorrect, emit, indentLength, expectedIndentLength)
+                    if (child.isPrecededByLFStringTemplateEntry()) {
+                        when (child.elementType) {
+                            LITERAL_STRING_TEMPLATE_ENTRY -> {
+                                val v = child.text
+                                if (v != "\n") {
+                                    val indentLength = v.indentLength()
+                                    val expectedIndentLength = indentLength - prefixLength + expectedPrefixLength
+                                    if (indentLength != expectedIndentLength) {
+                                        reindentStringTemplateEntry(
+                                            child,
+                                            autoCorrect,
+                                            emit,
+                                            indentLength,
+                                            expectedIndentLength
+                                        )
+                                    }
+                                }
+                            }
+                            LONG_STRING_TEMPLATE_ENTRY -> {
+                                if (expectedPrefixLength != 0) {
+                                    preindentStringTemplateEntry(
+                                        child.firstChildNode,
+                                        autoCorrect,
+                                        emit,
+                                        expectedPrefixLength
+                                    )
+                                }
                             }
                         }
                     }
@@ -774,19 +802,8 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                 //     """
                 //     """.trimIndent()
                 // )
-                emit(
-                    closingQuote.startOffset,
-                    "Unexpected indentation (0) (should be $expectedPrefixLength)",
-                    true
-                )
-                if (autoCorrect) {
-                    (closingQuote as LeafPsiElement).rawInsertBeforeMe(
-                        LeafPsiElement(REGULAR_STRING_PART, " ".repeat(expectedPrefixLength))
-                    )
-                }
-                debug {
-                    (if (!autoCorrect) "would have " else "") +
-                        "changed indentation before (closing) \"\"\" to $expectedPrefixLength (from 0)"
+                if (expectedPrefixLength != 0) {
+                    preindentStringTemplateEntry(closingQuote, autoCorrect, emit, expectedPrefixLength)
                 }
             } else if (!closingQuote.treePrev.text.isBlank()) {
                 // rewriting
@@ -814,17 +831,39 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                     (if (!autoCorrect) "would have " else "") +
                         "inserted newline before (closing) \"\"\""
                 }
-            } else {
+            } else { // preceded by blank LITERAL_STRING_TEMPLATE_ENTRY
                 val child = closingQuote.treePrev
                 val indentLength = child.text.length
                 if (indentLength != expectedPrefixLength) {
-                    indentStringTemplateEntry(child, autoCorrect, emit, indentLength, expectedPrefixLength)
+                    reindentStringTemplateEntry(child, autoCorrect, emit, indentLength, expectedPrefixLength)
                 }
             }
         }
     }
 
-    private fun indentStringTemplateEntry(
+    private fun preindentStringTemplateEntry(
+        node: ASTNode,
+        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        expectedIndentLength: Int
+    ) {
+        emit(
+            node.startOffset,
+            "Unexpected indentation (0) (should be $expectedIndentLength)",
+            true
+        )
+        if (autoCorrect) {
+            (node as LeafPsiElement).rawInsertBeforeMe(
+                LeafPsiElement(REGULAR_STRING_PART, " ".repeat(expectedIndentLength))
+            )
+        }
+        debug {
+            (if (!autoCorrect) "would have " else "") +
+                "changed indentation before ${node.text} to $expectedIndentLength (from 0)"
+        }
+    }
+
+    private fun reindentStringTemplateEntry(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,

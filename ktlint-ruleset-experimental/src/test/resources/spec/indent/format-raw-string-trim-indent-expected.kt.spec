@@ -6,6 +6,20 @@ fun f() {
     )
     println(
         """
+        ${true}
+
+            ${true}
+        """.trimIndent()
+    )
+    println(
+        """
+        ${true}
+
+            ${true}
+        """.trimIndent()
+    )
+    println(
+        """
         text
 
             text
@@ -33,6 +47,23 @@ fun f() {
             text
         """.trimIndent(),
         ""
+    )
+    format(
+        """
+        class A {
+            fun f(@Annotation
+                  a: Any,
+                  @Annotation([
+                      "v1",
+                      "v2"
+                  ])
+                  b: Any,
+                  c: Any =
+                      false,
+                  @Annotation d: Any) {
+            }
+        }
+        """.trimIndent()
     )
     write(
         fs.getPath("/projects/.editorconfig"),
