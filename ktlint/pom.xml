@@ -203,7 +203,9 @@
                                       classpathref="maven.runtime.classpath"
                                       fork="true"
                                       failonerror="true"
-                                      taskname="lint"/>
+                                      taskname="lint">
+                                    <arg value="--experimental"/>
+                                </java>
                             </target>
                         </configuration>
                         <goals>
