@@ -84,4 +84,10 @@ fun f() {
             ?.onlyIf({ debug }) { printEditorConfigChain(it) }
             ?: emptyMap<String, String>()
         ) + cliUserData
+
+    val CONFIG_COMPACT = // comment
+        """
+        {
+        }
+        """.trimIndent()
 }

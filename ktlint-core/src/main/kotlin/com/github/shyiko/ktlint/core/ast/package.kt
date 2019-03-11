@@ -190,6 +190,8 @@ fun ASTNode.isPartOfRawMultiLineString() =
 
 fun ASTNode?.isWhiteSpaceWithNewline() =
     this != null && elementType == WHITE_SPACE && textContains('\n')
+fun ASTNode?.isWhiteSpaceWithoutNewline() =
+    this != null && elementType == WHITE_SPACE && !textContains('\n')
 
 fun ASTNode.isRoot() = elementType == ElementType.FILE
 fun ASTNode.isLeaf() = firstChildNode == null

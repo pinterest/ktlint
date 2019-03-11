@@ -61,6 +61,7 @@ import com.github.shyiko.ktlint.core.ast.comment
 import com.github.shyiko.ktlint.core.ast.isPartOf
 import com.github.shyiko.ktlint.core.ast.isPartOfComment
 import com.github.shyiko.ktlint.core.ast.isWhiteSpaceWithNewline
+import com.github.shyiko.ktlint.core.ast.isWhiteSpaceWithoutNewline
 import com.github.shyiko.ktlint.core.ast.nextCodeLeaf
 import com.github.shyiko.ktlint.core.ast.nextCodeSibling
 import com.github.shyiko.ktlint.core.ast.nextLeaf
@@ -530,7 +531,6 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                     }
                     STRING_TEMPLATE ->
                         indentStringTemplate(n, autoCorrect, emit, editorConfig)
-                    // TODO: test
                     DOT_QUALIFIED_EXPRESSION, SAFE_ACCESS_EXPRESSION, BINARY_EXPRESSION, BINARY_WITH_TYPE -> {
                         val prevBlockLine = ctx.blockOpeningLineStack.peek() ?: -1
                         if (prevBlockLine == line) {
@@ -541,11 +541,11 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                         if (n.textContains('\n')) {
                             if (
                                 !n.isPartOfComment() &&
-                                !n.isPartOfTypeConstraint() // FIXME
+                                !n.isPartOfTypeConstraint() // FIXME IndentationRuleTest.testLintWhereClause not checked
                             ) {
                                 val p = n.treeParent
                                 val nextSibling = n.treeNext
-                                val prevLeaf = n.prevLeaf()
+                                val prevLeaf = n.prevLeaf { !it.isPartOfComment() && !it.isWhiteSpaceWithoutNewline() }
                                 when {
                                     p.elementType.let {
                                         it == DOT_QUALIFIED_EXPRESSION || it == SAFE_ACCESS_EXPRESSION
