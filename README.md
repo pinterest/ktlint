@@ -282,6 +282,10 @@ Go to <kbd>File</kbd> -> <kbd>Settings...</kbd> -> <kbd>Editor</kbd>
 
 See [whirm/flycheck-kotlin](https://github.com/whirm/flycheck-kotlin).
 
+#### ... with [Vim](https://www.vim.org/)
+
+See [w0rp/ale](https://github.com/w0rp/ale).
+
 > Integrated with something else? Send a PR.
 
 ## Creating a ruleset
