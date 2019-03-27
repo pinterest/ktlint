@@ -51,8 +51,7 @@ It's also [easy to create your own](#creating-a-reporter).
 (set `insert_final_newline=true` in .editorconfig to enable (see [EditorConfig](#editorconfig) section for more)).
 
 ## Experimental rules
-New rules or rules that conflict with Jetbrains/Android Studio formatting will be added into the
-[experimental ruleset](https://github.com/pinterest/ktlint/tree/master/ktlint-ruleset-experimental), which can be enabled
+New rules will be added into the [experimental ruleset](https://github.com/pinterest/ktlint/tree/master/ktlint-ruleset-experimental), which can be enabled
 by passing the `--experimental` flag to `ktlint`.
 
 - Indentation formatting
