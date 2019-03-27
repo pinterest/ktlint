@@ -7,6 +7,7 @@ import com.github.shyiko.ktlint.core.ast.ElementType.COLONCOLON
 import com.github.shyiko.ktlint.core.ast.ElementType.COMMA
 import com.github.shyiko.ktlint.core.ast.ElementType.DOT
 import com.github.shyiko.ktlint.core.ast.ElementType.EXCLEXCL
+import com.github.shyiko.ktlint.core.ast.ElementType.FUN
 import com.github.shyiko.ktlint.core.ast.ElementType.LBRACE
 import com.github.shyiko.ktlint.core.ast.ElementType.LBRACKET
 import com.github.shyiko.ktlint.core.ast.ElementType.LPAR
@@ -63,7 +64,8 @@ class SpacingAroundCurlyRule : Rule("curly-spacing") {
                         prevLeaf.prevLeaf()?.let {
                             it.elementType == RPAR || KtTokens.KEYWORDS.contains(it.elementType)
                         } == true ||
-                            node.treeParent.elementType == CLASS_BODY
+                            node.treeParent.elementType == CLASS_BODY ||
+                            prevLeaf.treeParent.elementType == FUN
                         )
                 ) {
                     emit(node.startOffset, "Unexpected newline before \"${node.text}\"", true)
