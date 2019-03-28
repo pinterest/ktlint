@@ -25,13 +25,14 @@ class ImportOrderingRuleTest {
         ).isEmpty()
     }
 
-    private val formattedImports = """
-            import android.app.Activity
-            import android.view.View
-            import android.view.ViewGroup
-            import java.util.List
-            import kotlin.concurrent.Thread
-            """.trimIndent()
+    private val formattedImports =
+        """
+        import android.app.Activity
+        import android.view.View
+        import android.view.ViewGroup
+        import java.util.List
+        import kotlin.concurrent.Thread
+        """.trimIndent()
 
     private val errorMessage = "Imports must be ordered in lexicographic order in a single group"
 
@@ -43,22 +44,24 @@ class ImportOrderingRuleTest {
 
     @Test
     fun testFormatWrongOrder() {
-        val imports = """
+        val imports =
+            """
             import android.view.ViewGroup
             import android.view.View
             import android.app.Activity
             import kotlin.concurrent.Thread
             import java.util.List
             """.trimIndent()
-        assertThat(ImportOrderingRule().lint(imports)).isEqualTo(listOf(
-            LintError(1, 1, "import-ordering", errorMessage)
-        ))
+        assertThat(ImportOrderingRule().lint(imports)).isEqualTo(
+            listOf(LintError(1, 1, "import-ordering", errorMessage))
+        )
         assertThat(ImportOrderingRule().format(imports)).isEqualTo(formattedImports)
     }
 
     @Test
     fun testFormatWrongOrderAndBlankLines() {
-        val imports = """
+        val imports =
+            """
             import android.view.ViewGroup
 
 
@@ -69,15 +72,16 @@ class ImportOrderingRuleTest {
 
             import java.util.List
             """.trimIndent()
-        assertThat(ImportOrderingRule().lint(imports)).isEqualTo(listOf(
-            LintError(1, 1, "import-ordering", errorMessage)
-        ))
+        assertThat(ImportOrderingRule().lint(imports)).isEqualTo(
+            listOf(LintError(1, 1, "import-ordering", errorMessage))
+        )
         assertThat(ImportOrderingRule().format(imports)).isEqualTo(formattedImports)
     }
 
     @Test
     fun testFormatBlankLinesForMajorGroups() {
-        val imports = """
+        val imports =
+            """
             import android.app.Activity
             import android.view.View
             import android.view.ViewGroup
@@ -86,15 +90,16 @@ class ImportOrderingRuleTest {
 
             import kotlin.concurrent.Thread
             """.trimIndent()
-        assertThat(ImportOrderingRule().lint(imports)).isEqualTo(listOf(
-            LintError(1, 1, "import-ordering", errorMessage)
-        ))
+        assertThat(ImportOrderingRule().lint(imports)).isEqualTo(
+            listOf(LintError(1, 1, "import-ordering", errorMessage))
+        )
         assertThat(ImportOrderingRule().format(imports)).isEqualTo(formattedImports)
     }
 
     @Test
     fun testFormatBlankLines() {
-        val imports = """
+        val imports =
+            """
             import android.app.Activity
             import android.view.View
 
@@ -104,9 +109,9 @@ class ImportOrderingRuleTest {
 
             import kotlin.concurrent.Thread
             """.trimIndent()
-        assertThat(ImportOrderingRule().lint(imports)).isEqualTo(listOf(
-            LintError(1, 1, "import-ordering", errorMessage)
-        ))
+        assertThat(ImportOrderingRule().lint(imports)).isEqualTo(
+            listOf(LintError(1, 1, "import-ordering", errorMessage))
+        )
         assertThat(ImportOrderingRule().format(imports)).isEqualTo(formattedImports)
     }
 }
