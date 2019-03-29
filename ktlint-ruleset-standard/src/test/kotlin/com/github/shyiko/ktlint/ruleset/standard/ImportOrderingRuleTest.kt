@@ -109,40 +109,6 @@ class ImportOrderingRuleTest {
     }
 
     @Test
-    fun testFormatBlankLinesForMajorGroups() {
-        val imports =
-            """
-            import android.app.Activity
-            import android.view.View
-            import android.view.ViewGroup
-
-            import java.util.List
-
-            import kotlin.concurrent.Thread
-            """.trimIndent()
-
-        val expectedErrors = listOf(
-            LintError(
-                1,
-                1,
-                "import-ordering",
-                "Imports must be ordered in lexicographic order in a single group"
-            )
-        )
-        val formattedImports =
-            """
-            import android.app.Activity
-            import android.view.View
-            import android.view.ViewGroup
-            import java.util.List
-            import kotlin.concurrent.Thread
-            """.trimIndent()
-
-        assertThat(ImportOrderingRule().lint(imports)).isEqualTo(expectedErrors)
-        assertThat(ImportOrderingRule().format(imports)).isEqualTo(formattedImports)
-    }
-
-    @Test
     fun testFormatBlankLines() {
         val imports =
             """

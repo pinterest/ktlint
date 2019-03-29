@@ -25,7 +25,7 @@ class ImportOrderingRule : Rule("import-ordering") {
                 val imports = children.filter { it.elementType == IMPORT_DIRECTIVE }
                 val sortedImports = imports.sortedBy { it.text }
                 if (imports != sortedImports || hasTooMuchWhitespace(children)) {
-                    emit(node.startOffset, "Imports must be ordered in lexicographic order in a single group", true)
+                    emit(node.startOffset, "Imports must be ordered in lexicographic order", true)
                     if (autoCorrect) {
                         node.removeRange(node.firstChildNode, node.lastChildNode.treeNext)
                         sortedImports.forEachIndexed { i, astNode ->
