@@ -101,4 +101,19 @@ class NoSemicolonsRuleTest {
             )
         )
     }
+
+    @Test
+    fun testSemicolonAllowedInKDocAfterIdentifiers() {
+        assertThat(
+            NoSemicolonsRule().lint(
+                """
+                /**
+                 * [x];
+                 */
+                fun foo() {
+                }
+                """
+            )
+        ).isEmpty()
+    }
 }
