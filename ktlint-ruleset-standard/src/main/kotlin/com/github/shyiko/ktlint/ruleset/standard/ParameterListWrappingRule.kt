@@ -39,6 +39,8 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
             return
         }
         if (node.elementType == VALUE_PARAMETER_LIST &&
+            // skip when there are no parameters
+            node.firstChildNode?.treeNext?.elementType != RPAR &&
             // skip lambda parameters
             node.treeParent?.elementType != FUNCTION_LITERAL
         ) {
