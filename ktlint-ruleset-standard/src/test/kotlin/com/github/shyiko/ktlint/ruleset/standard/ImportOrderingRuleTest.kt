@@ -56,7 +56,7 @@ class ImportOrderingRuleTest {
                 1,
                 1,
                 "import-ordering",
-                "Imports must be ordered in lexicographic order"
+                "Imports must be ordered in lexicographic order without any empty lines in-between"
             )
         )
         val formattedImports =
@@ -92,7 +92,7 @@ class ImportOrderingRuleTest {
                 1,
                 1,
                 "import-ordering",
-                "Imports must be ordered in lexicographic order"
+                "Imports must be ordered in lexicographic order without any empty lines in-between"
             )
         )
         val formattedImports =
@@ -127,7 +127,7 @@ class ImportOrderingRuleTest {
                 1,
                 1,
                 "import-ordering",
-                "Imports must be ordered in lexicographic order"
+                "Imports must be ordered in lexicographic order without any empty lines in-between"
             )
         )
         val formattedImports =
