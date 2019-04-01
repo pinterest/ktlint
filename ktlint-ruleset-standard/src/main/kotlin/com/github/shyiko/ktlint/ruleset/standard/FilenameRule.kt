@@ -15,9 +15,9 @@ import com.github.shyiko.ktlint.core.ast.ElementType.SHEBANG_COMMENT
 import com.github.shyiko.ktlint.core.ast.ElementType.TYPEALIAS
 import com.github.shyiko.ktlint.core.ast.ElementType.WHITE_SPACE
 import com.github.shyiko.ktlint.core.ast.prevCodeSibling
+import java.nio.file.Paths
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
-import java.nio.file.Paths
 
 /**
  * If there is only one top level class/object/typealias in a given file, then its name should match the file's name.

@@ -72,15 +72,15 @@ import com.github.shyiko.ktlint.core.ast.prevSibling
 import com.github.shyiko.ktlint.core.ast.upsertWhitespaceAfterMe
 import com.github.shyiko.ktlint.core.ast.upsertWhitespaceBeforeMe
 import com.github.shyiko.ktlint.core.ast.visit
+import java.lang.StringBuilder
+import java.util.Deque
+import java.util.LinkedList
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 import org.jetbrains.kotlin.psi.KtStringTemplateExpression
 import org.jetbrains.kotlin.psi.KtSuperTypeList
-import java.lang.StringBuilder
-import java.util.Deque
-import java.util.LinkedList
 
 /**
  * ktlint's rule that checks & corrects indentation.

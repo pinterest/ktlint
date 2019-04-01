@@ -4,9 +4,9 @@ import com.github.shyiko.ktlint.core.KtLint
 import com.github.shyiko.ktlint.core.LintError
 import com.github.shyiko.ktlint.core.Rule
 import com.github.shyiko.ktlint.core.RuleSet
+import java.util.ArrayList
 import org.assertj.core.util.diff.DiffUtils.diff
 import org.assertj.core.util.diff.DiffUtils.generateUnifiedDiff
-import java.util.ArrayList
 
 fun Rule.lint(text: String, userData: Map<String, String> = emptyMap(), script: Boolean = false): List<LintError> {
     val res = ArrayList<LintError>()
