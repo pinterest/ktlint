@@ -157,4 +157,24 @@ class SpacingAroundCurlyRuleTest {
             """.trimIndent()
         )
     }
+
+    @Test
+    fun testNewLineAfterReturnTypeFails() {
+        assertThat(
+            SpacingAroundCurlyRule().format(
+                """
+                fun foo(): String
+                {
+                    return "foo"
+                }
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            """
+            fun foo(): String {
+                return "foo"
+            }
+            """.trimIndent()
+        )
+    }
 }
