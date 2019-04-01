@@ -1,6 +1,7 @@
 package com.github.shyiko.ktlint.ruleset.standard
 
 import com.github.shyiko.ktlint.core.Rule
+import com.github.shyiko.ktlint.core.ast.ElementType.KDOC_TEXT
 import com.github.shyiko.ktlint.core.ast.ElementType.OBJECT_KEYWORD
 import com.github.shyiko.ktlint.core.ast.isPartOf
 import com.github.shyiko.ktlint.core.ast.isPartOfString
@@ -20,6 +21,9 @@ class NoSemicolonsRule : Rule("no-semi") {
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
+        if (node.elementType == KDOC_TEXT) {
+            return
+        }
         if (node is LeafPsiElement && node.textMatches(";") && !node.isPartOfString() &&
             !node.isPartOf(KtEnumEntry::class)
         ) {
