@@ -10,7 +10,6 @@ import com.github.shyiko.ktlint.core.ast.ElementType.VALUE_PARAMETER_LIST
 import com.github.shyiko.ktlint.core.ast.ElementType.WHITE_SPACE
 import com.github.shyiko.ktlint.core.ast.children
 import com.github.shyiko.ktlint.core.ast.isRoot
-import com.github.shyiko.ktlint.core.ast.prevCodeLeaf
 import com.github.shyiko.ktlint.core.ast.prevLeaf
 import com.github.shyiko.ktlint.core.ast.visit
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -39,6 +38,8 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
             return
         }
         if (node.elementType == VALUE_PARAMETER_LIST &&
+            // skip when there are no parameters
+            node.firstChildNode?.treeNext?.elementType != RPAR &&
             // skip lambda parameters
             node.treeParent?.elementType != FUNCTION_LITERAL
         ) {
@@ -99,7 +100,7 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
                                     paramInnerIndentAdjustment = adjustedIndent.length - prevLeaf.getTextLength()
                                     (prevLeaf as LeafPsiElement).rawReplaceWithText(adjustedIndent)
                                 }
-                            } else if (prevLeaf?.prevCodeLeaf()?.elementType != LPAR) {
+                            } else {
                                 emit(child.startOffset, errorMessage(child), true)
                                 if (autoCorrect) {
                                     paramInnerIndentAdjustment = intendedIndent.length - child.column

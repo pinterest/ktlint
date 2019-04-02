@@ -63,6 +63,20 @@ class ParameterListWrappingRuleTest {
     }
 
     @Test
+    fun testLintClassParameterListWhenMaxLineLengthExceededAndNoParameters() {
+        assertThat(
+            ParameterListWrappingRule().lint(
+                """
+                class ClassAWithALongName()
+                """.trimIndent(),
+                userData = mapOf("max_line_length" to "10")
+            )
+        ).doesNotContain(
+            LintError(1, 27, "parameter-list-wrapping", """Missing newline before ")"""")
+        )
+    }
+
+    @Test
     fun testLintClassParameterListValid() {
         assertThat(
             ParameterListWrappingRule().lint(
@@ -137,8 +151,6 @@ class ParameterListWrappingRuleTest {
                       b: Any,
                       c: Any) {
                 }
-                fun f() {}
-                fun f(/**/) {}
                 """.trimIndent()
             )
         ).isEqualTo(
