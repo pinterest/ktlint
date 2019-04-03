@@ -5,7 +5,6 @@ import com.github.shyiko.ktlint.test.format
 import com.github.shyiko.ktlint.test.lint
 import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
-
 import org.testng.annotations.Test
 
 class MultiLineIfElseRuleTest {

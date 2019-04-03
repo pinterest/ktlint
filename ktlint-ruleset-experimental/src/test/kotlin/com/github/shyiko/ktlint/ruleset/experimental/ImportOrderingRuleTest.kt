@@ -1,4 +1,4 @@
-package com.github.shyiko.ktlint.ruleset.standard
+package com.github.shyiko.ktlint.ruleset.experimental
 
 import com.github.shyiko.ktlint.core.LintError
 import com.github.shyiko.ktlint.test.diffFileFormat

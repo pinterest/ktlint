@@ -1,14 +1,14 @@
 package com.github.shyiko.ktlint.core.ast
 
-import com.github.shyiko.ktlint.core.ast.ElementType.WHITE_SPACE
 import com.github.shyiko.ktlint.core.ast.ElementType.STRING_TEMPLATE
+import com.github.shyiko.ktlint.core.ast.ElementType.WHITE_SPACE
+import kotlin.reflect.KClass
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
-import kotlin.reflect.KClass
 
 fun ASTNode.nextLeaf(includeEmpty: Boolean = false, skipSubtree: Boolean = false): ASTNode? {
     var n = if (skipSubtree) this.lastChildLeafOrSelf().nextLeafAny() else this.nextLeafAny()

@@ -13,17 +13,6 @@ import com.github.shyiko.ktlint.internal.EditorConfig
 import com.github.shyiko.ktlint.internal.IntellijIDEAIntegration
 import com.github.shyiko.ktlint.internal.MavenDependencyResolver
 import com.github.shyiko.ktlint.test.DumpAST
-import org.eclipse.aether.RepositoryException
-import org.eclipse.aether.artifact.DefaultArtifact
-import org.eclipse.aether.repository.RemoteRepository
-import org.eclipse.aether.repository.RepositoryPolicy
-import org.eclipse.aether.repository.RepositoryPolicy.CHECKSUM_POLICY_IGNORE
-import org.eclipse.aether.repository.RepositoryPolicy.UPDATE_POLICY_NEVER
-import org.jetbrains.kotlin.backend.common.onlyIf
-import picocli.CommandLine
-import picocli.CommandLine.Command
-import picocli.CommandLine.Option
-import picocli.CommandLine.Parameters
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileNotFoundException
@@ -51,6 +40,17 @@ import java.util.concurrent.atomic.AtomicInteger
 import java.util.jar.Manifest
 import kotlin.concurrent.thread
 import kotlin.system.exitProcess
+import org.eclipse.aether.RepositoryException
+import org.eclipse.aether.artifact.DefaultArtifact
+import org.eclipse.aether.repository.RemoteRepository
+import org.eclipse.aether.repository.RepositoryPolicy
+import org.eclipse.aether.repository.RepositoryPolicy.CHECKSUM_POLICY_IGNORE
+import org.eclipse.aether.repository.RepositoryPolicy.UPDATE_POLICY_NEVER
+import org.jetbrains.kotlin.backend.common.onlyIf
+import picocli.CommandLine
+import picocli.CommandLine.Command
+import picocli.CommandLine.Option
+import picocli.CommandLine.Parameters
 
 @Command(
     headerHeading = """An anti-bikeshedding Kotlin linter with built-in formatter

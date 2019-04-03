@@ -6,10 +6,10 @@ import com.github.shyiko.ktlint.core.ast.isRoot
 import com.github.shyiko.ktlint.core.ast.lastChildLeafOrSelf
 import com.github.shyiko.ktlint.test.internal.Color
 import com.github.shyiko.ktlint.test.internal.color
+import java.io.PrintStream
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
 import org.jetbrains.kotlin.lexer.KtTokens
-import java.io.PrintStream
 
 val debugAST = {
     (System.getProperty("ktlintDebug") ?: System.getenv("KTLINT_DEBUG") ?: "")

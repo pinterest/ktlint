@@ -1,10 +1,10 @@
 package com.github.shyiko.ktlint.reporter.plain
 
 import com.github.shyiko.ktlint.core.LintError
-import org.assertj.core.api.Assertions.assertThat
-import org.testng.annotations.Test
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
+import org.assertj.core.api.Assertions.assertThat
+import org.testng.annotations.Test
 
 class PlainReporterTest {
 

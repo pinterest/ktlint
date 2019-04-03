@@ -2,9 +2,9 @@ package com.github.shyiko.ktlint.internal
 
 import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
+import java.nio.file.Files
 import org.assertj.core.api.Assertions.assertThat
 import org.testng.annotations.Test
-import java.nio.file.Files
 
 class EditorConfigTest {
 

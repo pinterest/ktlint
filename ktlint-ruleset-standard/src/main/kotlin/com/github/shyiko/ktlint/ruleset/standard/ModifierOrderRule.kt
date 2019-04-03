@@ -27,11 +27,11 @@ import com.github.shyiko.ktlint.core.ast.ElementType.SEALED_KEYWORD
 import com.github.shyiko.ktlint.core.ast.ElementType.SUSPEND_KEYWORD
 import com.github.shyiko.ktlint.core.ast.ElementType.TAILREC_KEYWORD
 import com.github.shyiko.ktlint.core.ast.ElementType.VARARG_KEYWORD
+import java.util.Arrays
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
 import org.jetbrains.kotlin.psi.KtDeclarationModifierList
-import java.util.Arrays
 
 class ModifierOrderRule : Rule("modifier-order") {
 

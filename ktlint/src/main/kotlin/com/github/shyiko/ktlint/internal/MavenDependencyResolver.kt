@@ -1,5 +1,6 @@
 package com.github.shyiko.ktlint.internal
 
+import java.io.File
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils
 import org.eclipse.aether.DefaultRepositorySystemSession
 import org.eclipse.aether.RepositorySystem
@@ -20,7 +21,6 @@ import org.eclipse.aether.transfer.TransferListener
 import org.eclipse.aether.transport.file.FileTransporterFactory
 import org.eclipse.aether.transport.http.HttpTransporterFactory
 import org.eclipse.aether.util.graph.visitor.PreorderNodeListGenerator
-import java.io.File
 
 class MavenDependencyResolver(
     baseDir: File,

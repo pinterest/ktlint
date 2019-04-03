@@ -2,10 +2,10 @@ package com.github.shyiko.ktlint.ruleset.standard
 
 import com.github.shyiko.ktlint.core.LintError
 import com.github.shyiko.ktlint.test.lint
-import org.assertj.core.api.Assertions.assertThat
-import org.testng.annotations.Test
 import java.net.URI
 import java.nio.file.Paths
+import org.assertj.core.api.Assertions.assertThat
+import org.testng.annotations.Test
 
 /**
  * @author yokotaso <yokotaso.t@gmail.com>

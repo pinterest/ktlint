@@ -1,10 +1,10 @@
 package com.github.shyiko.ktlint.ruleset.experimental
 
 import com.github.shyiko.ktlint.core.LintError
-import com.github.shyiko.ktlint.test.format
 import com.github.shyiko.ktlint.test.diffFileFormat
-import com.github.shyiko.ktlint.test.lint
 import com.github.shyiko.ktlint.test.diffFileLint
+import com.github.shyiko.ktlint.test.format
+import com.github.shyiko.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
 import org.testng.annotations.Test
 

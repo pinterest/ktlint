@@ -1,7 +1,6 @@
 package com.github.shyiko.ktlint.internal
 
 import com.github.shyiko.klob.Glob
-import org.w3c.dom.Element
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.IOException
@@ -17,6 +16,7 @@ import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
 import javax.xml.xpath.XPathConstants
 import javax.xml.xpath.XPathFactory
+import org.w3c.dom.Element
 
 object IntellijIDEAIntegration {
 
