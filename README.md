@@ -235,6 +235,39 @@ To run formatter - `gradle ktlintFormat`.
 
 See [Making your Gradle tasks incremental](https://proandroiddev.com/making-your-gradle-tasks-incremental-7f26e4ef09c3) by [Niklas Baudy](https://github.com/vanniktech) on how to make tasks above incremental. 
 
+
+#### (without a plugin) for Gradle Kotlin DSL (build.gradle.kts)
+
+> build.gradle.kts
+
+```kotlin
+val ktlint by configurations.creating
+
+dependencies {
+    ktlint("com.github.shyiko:ktlint:0.30.0")
+    ktlint(project(":ktlintx"))
+}
+
+val outputDir = "${project.buildDir}/reports/ktlint/"
+val inputFiles = project.fileTree(mapOf("dir" to "src", "include" to "**/*.kt"))
+
+val ktlintFormat by tasks.creating(JavaExec::class) {
+    inputs.files(inputFiles)
+    outputs.dir(outputDir)
+
+    description = "Fix Kotlin code style deviations."
+    classpath = ktlint
+    main = "com.github.shyiko.ktlint.Main"
+    args = listOf("-F", "src/**/*.kt")
+}
+
+tasks{
+    preBuild{
+        dependsOn(ktlintFormat)
+    }
+}
+```
+
 #### (with a plugin)
 
 Gradle plugins (in order of appearance):
