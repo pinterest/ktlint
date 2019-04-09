@@ -15,7 +15,7 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 /**
  * Ensures there are no extra spaces around parentheses.
  *
- * See https://kotlinlang.org/docs/reference/coding-conventions.html, "Horizontal Whitespace"
+ * See https://kotlinlang.org/docs/reference/coding-conventions.html#horizontal-whitespace
  */
 class SpacingAroundParensRule : Rule("paren-spacing") {
 
