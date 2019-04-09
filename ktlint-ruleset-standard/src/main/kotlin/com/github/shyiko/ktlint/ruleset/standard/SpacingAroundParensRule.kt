@@ -4,6 +4,7 @@ import com.github.shyiko.ktlint.core.Rule
 import com.github.shyiko.ktlint.core.ast.ElementType.IDENTIFIER
 import com.github.shyiko.ktlint.core.ast.ElementType.LPAR
 import com.github.shyiko.ktlint.core.ast.ElementType.RPAR
+import com.github.shyiko.ktlint.core.ast.ElementType.SUPER_KEYWORD
 import com.github.shyiko.ktlint.core.ast.ElementType.VALUE_ARGUMENT_LIST
 import com.github.shyiko.ktlint.core.ast.ElementType.VALUE_PARAMETER_LIST
 import com.github.shyiko.ktlint.core.ast.nextLeaf
@@ -11,6 +12,11 @@ import com.github.shyiko.ktlint.core.ast.prevLeaf
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 
+/**
+ * Ensures there are no extra spaces around parentheses.
+ *
+ * See https://kotlinlang.org/docs/reference/coding-conventions.html, "Horizontal Whitespace"
+ */
 class SpacingAroundParensRule : Rule("paren-spacing") {
 
     override fun visit(
@@ -23,7 +29,9 @@ class SpacingAroundParensRule : Rule("paren-spacing") {
             val nextLeaf = node.nextLeaf()
             val spacingBefore = if (node.elementType == LPAR) {
                 prevLeaf is PsiWhiteSpace && !prevLeaf.textContains('\n') &&
-                    prevLeaf.prevLeaf()?.elementType == IDENTIFIER && (
+                    (prevLeaf.prevLeaf()?.elementType == IDENTIFIER ||
+                        // Super keyword needs special-casing
+                        prevLeaf.prevLeaf()?.elementType == SUPER_KEYWORD) && (
                     node.treeParent?.elementType == VALUE_PARAMETER_LIST ||
                         node.treeParent?.elementType == VALUE_ARGUMENT_LIST
                     )
