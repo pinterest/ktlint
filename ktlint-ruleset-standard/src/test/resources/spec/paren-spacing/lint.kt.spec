@@ -1,4 +1,5 @@
 fun main() {
+    super ()
     val a = ( (1 + 2) / 3 )
     fn( (1 + 2) / 3)
     fn ((1 + 2) / 3)
@@ -19,10 +20,11 @@ fun main() {
 }
 
 // expect
-// 2:14:Unexpected spacing after "("
-// 2:26:Unexpected spacing before ")"
-// 3:8:Unexpected spacing after "("
-// 4:7:Unexpected spacing before "("
-// 5:8:Unexpected spacing after "("
-// 6:16:Unexpected spacing before "("
-// 7:8:Unexpected spacing after "("
+// 2:10:Unexpected spacing before "("
+// 3:14:Unexpected spacing after "("
+// 3:26:Unexpected spacing before ")"
+// 4:8:Unexpected spacing after "("
+// 5:7:Unexpected spacing before "("
+// 6:8:Unexpected spacing after "("
+// 7:16:Unexpected spacing before "("
+// 8:8:Unexpected spacing after "("
