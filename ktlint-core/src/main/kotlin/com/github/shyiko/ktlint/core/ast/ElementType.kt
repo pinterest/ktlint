@@ -53,7 +53,6 @@ object ElementType {
     val DYNAMIC_TYPE: IElementType = KtNodeTypes.DYNAMIC_TYPE
     val FUNCTION_TYPE: IElementType = KtNodeTypes.FUNCTION_TYPE
     val FUNCTION_TYPE_RECEIVER: IElementType = KtNodeTypes.FUNCTION_TYPE_RECEIVER
-    val SELF_TYPE: IElementType = KtNodeTypes.SELF_TYPE
     val NULLABLE_TYPE: IElementType = KtNodeTypes.NULLABLE_TYPE
     val TYPE_PROJECTION: IElementType = KtNodeTypes.TYPE_PROJECTION
     val PROPERTY_ACCESSOR: IElementType = KtNodeTypes.PROPERTY_ACCESSOR
