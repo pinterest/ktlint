@@ -276,7 +276,7 @@ object KtLint {
     }
 
     private fun calculateSuppressedRegions(rootNode: ASTNode) =
-        KtLint.SuppressionHint.collect(rootNode).let { listOfHints ->
+        SuppressionHint.collect(rootNode).let { listOfHints ->
             if (listOfHints.isEmpty()) nullSuppression else { offset, ruleId, root ->
                 if (root) {
                     val h = listOfHints[0]
