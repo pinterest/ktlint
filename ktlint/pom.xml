@@ -199,7 +199,7 @@
                         <configuration>
                             <target name="ktlint">
                                 <java dir="${basedir}${file.separator}.."
-                                      classname="com.github.shyiko.ktlint.Main"
+                                      classname="com.pinterest.ktlint.Main"
                                       classpathref="maven.runtime.classpath"
                                       fork="true"
                                       failonerror="true"
@@ -217,7 +217,7 @@
                         <configuration>
                             <target name="ktlint">
                                 <java dir="${basedir}${file.separator}.."
-                                      classname="com.github.shyiko.ktlint.Main"
+                                      classname="com.pinterest.ktlint.Main"
                                       classpathref="maven.runtime.classpath"
                                       fork="true"
                                       failonerror="true"
@@ -237,7 +237,7 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>1.6.0</version>
                 <configuration>
-                    <mainClass>com.github.shyiko.ktlint.Main</mainClass>
+                    <mainClass>com.pinterest.ktlint.Main</mainClass>
                 </configuration>
             </plugin>
         </plugins>
@@ -316,7 +316,7 @@
                                                          "org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                                         <transformer implementation=
                                                          "org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                            <mainClass>com.github.shyiko.ktlint.Main</mainClass>
+                                            <mainClass>com.pinterest.ktlint.Main</mainClass>
                                         </transformer>
                                     </transformers>
                                     <shadedArtifactAttached>true</shadedArtifactAttached>
