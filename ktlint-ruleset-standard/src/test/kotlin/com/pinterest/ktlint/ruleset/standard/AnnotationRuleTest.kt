@@ -11,7 +11,7 @@ class AnnotationRuleTest {
     @Test
     fun `lint single annotation may be placed on line before annotated construct`() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.AnnotationRule().lint(
+            AnnotationRule().lint(
                 """
                 @FunctionalInterface class A {
                     @JvmField
@@ -31,13 +31,13 @@ class AnnotationRuleTest {
                 var x: String
             }
             """.trimIndent()
-        assertThat(com.pinterest.ktlint.ruleset.standard.AnnotationRule().format(code)).isEqualTo(code)
+        assertThat(AnnotationRule().format(code)).isEqualTo(code)
     }
 
     @Test
     fun `lint single annotation may be placed on same line as annotated construct`() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.AnnotationRule().lint(
+            AnnotationRule().lint(
                 """
                 @FunctionalInterface class A {
                     @JvmField var x: String
@@ -59,13 +59,13 @@ class AnnotationRuleTest {
                 @Test fun myTest() {}
             }
             """.trimIndent()
-        assertThat(com.pinterest.ktlint.ruleset.standard.AnnotationRule().format(code)).isEqualTo(code)
+        assertThat(AnnotationRule().format(code)).isEqualTo(code)
     }
 
     @Test
     fun `lint multiple annotations should not be placed on same line as annotated construct`() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.AnnotationRule().lint(
+            AnnotationRule().lint(
                 """
                 class A {
                     @JvmField @Volatile var x: String
@@ -86,7 +86,7 @@ class AnnotationRuleTest {
     @Test
     fun `format multiple annotations should not be placed on same line as annotated construct`() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.AnnotationRule().format(
+            AnnotationRule().format(
                 """
                 class A {
                     @JvmField @Volatile var x: String
@@ -111,7 +111,7 @@ class AnnotationRuleTest {
 
     @Test
     fun `format multiple annotations should not be placed on same line as annotated construct (with no previous whitespace)`() {
-        assertThat(com.pinterest.ktlint.ruleset.standard.AnnotationRule().format("@JvmField @Volatile var x: String"))
+        assertThat(AnnotationRule().format("@JvmField @Volatile var x: String"))
             .isEqualTo(
                 """
                 @JvmField @Volatile
@@ -123,7 +123,7 @@ class AnnotationRuleTest {
     @Test
     fun `format multiple annotations should not be placed on same line as annotated construct (with no previous indent)`() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.AnnotationRule().format(
+            AnnotationRule().format(
                 """
 
                 @JvmField @Volatile var x: String
@@ -141,7 +141,7 @@ class AnnotationRuleTest {
     @Test
     fun `lint annotations with params should not be placed on same line before annotated construct`() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.AnnotationRule().lint(
+            AnnotationRule().lint(
                 """
                 class A {
                     @JvmName("xJava") var x: String
@@ -162,7 +162,7 @@ class AnnotationRuleTest {
     @Test
     fun `format annotations with params should not be placed on same line before annotated construct`() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.AnnotationRule().format(
+            AnnotationRule().format(
                 """
                 class A {
                     @JvmName("xJava") var x: String
@@ -188,7 +188,7 @@ class AnnotationRuleTest {
     @Test
     fun `lint multiple annotations with params should not be placed on same line before annotated construct`() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.AnnotationRule().lint(
+            AnnotationRule().lint(
                 """
                 @Retention(SOURCE) @Target(FUNCTION, PROPERTY_SETTER, FIELD) annotation class A
 
@@ -212,7 +212,7 @@ class AnnotationRuleTest {
     @Test
     fun `format multiple annotations with params should not be placed on same line before annotated construct`() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.AnnotationRule().format(
+            AnnotationRule().format(
                 """
                 @Retention(SOURCE) @Target(FUNCTION, PROPERTY_SETTER, FIELD) annotation class A
 
@@ -237,7 +237,7 @@ class AnnotationRuleTest {
     @Test
     fun `lint annotation after keyword`() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.AnnotationRule().lint(
+            AnnotationRule().lint(
                 """
                 class A {
                     private @Test fun myTest() {}
@@ -255,13 +255,13 @@ class AnnotationRuleTest {
                 private @Test fun myTest() {}
             }
             """.trimIndent()
-        assertThat(com.pinterest.ktlint.ruleset.standard.AnnotationRule().format(code)).isEqualTo(code)
+        assertThat(AnnotationRule().format(code)).isEqualTo(code)
     }
 
     @Test
     fun `lint multi-line annotation`() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.AnnotationRule().lint(
+            AnnotationRule().lint(
                 """
                 class A {
                     @JvmField @Volatile @Annotation(
@@ -302,7 +302,7 @@ class AnnotationRuleTest {
                 ) val a: Any
             }
             """.trimIndent()
-        assertThat(com.pinterest.ktlint.ruleset.standard.AnnotationRule().format(code)).isEqualTo(
+        assertThat(AnnotationRule().format(code)).isEqualTo(
             """
             class A {
                 @JvmField

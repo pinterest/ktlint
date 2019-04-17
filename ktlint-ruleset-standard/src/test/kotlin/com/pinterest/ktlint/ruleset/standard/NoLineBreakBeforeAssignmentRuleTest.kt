@@ -12,7 +12,7 @@ class NoLineBreakBeforeAssignmentRuleTest {
     @Test
     fun testAllPartsOnSameLineIsValid() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.NoLineBreakBeforeAssignmentRule().lint(
+            NoLineBreakBeforeAssignmentRule().lint(
                 """
                 val valA = ""
                 """.trimIndent()
@@ -23,7 +23,7 @@ class NoLineBreakBeforeAssignmentRuleTest {
     @Test
     fun testLineBreakAfterAssignmentIsValid() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.NoLineBreakBeforeAssignmentRule().lint(
+            NoLineBreakBeforeAssignmentRule().lint(
                 """
                 val valA =
                       ""
@@ -35,7 +35,7 @@ class NoLineBreakBeforeAssignmentRuleTest {
     @Test
     fun testLineBreakBeforeAssignmentIsViolation() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.NoLineBreakBeforeAssignmentRule().lint(
+            NoLineBreakBeforeAssignmentRule().lint(
                 """
                 val valA
                       = ""
@@ -51,7 +51,7 @@ class NoLineBreakBeforeAssignmentRuleTest {
     @Test
     fun testViolationInFunction() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.NoLineBreakBeforeAssignmentRule().lint(
+            NoLineBreakBeforeAssignmentRule().lint(
                 """
                 fun funA()
                       = ""
@@ -67,7 +67,7 @@ class NoLineBreakBeforeAssignmentRuleTest {
     @Test
     fun testFixViolationByRemovingLineBreakFromLeftAndPutItOnRightSide() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.NoLineBreakBeforeAssignmentRule().format(
+            NoLineBreakBeforeAssignmentRule().format(
                 """
                 fun funA()
                       = ""

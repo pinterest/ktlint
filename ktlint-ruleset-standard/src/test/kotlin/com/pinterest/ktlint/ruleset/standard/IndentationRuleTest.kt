@@ -11,7 +11,7 @@ class IndentationRuleTest {
     @Test
     fun testLint() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.IndentationRule().lint(
+            IndentationRule().lint(
                 """
                 /**
                  * _
@@ -47,7 +47,7 @@ class IndentationRuleTest {
     @Test
     fun testLintCustomIndentSize() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.IndentationRule().lint(
+            IndentationRule().lint(
                 """
                 fun main() {
                    val v = ""
@@ -66,7 +66,7 @@ class IndentationRuleTest {
     @Test
     fun testLintCustomIndentSizeValid() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.IndentationRule().lint(
+            IndentationRule().lint(
                 """
                 /**
                  * _
@@ -90,7 +90,7 @@ class IndentationRuleTest {
     @Test
     fun testLintIndentSizeUnset() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.IndentationRule().lint(
+            IndentationRule().lint(
                 """
                 fun main() {
                    val v = ""
@@ -106,7 +106,7 @@ class IndentationRuleTest {
     @Test
     fun testLintMultilineFunctionCall() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.IndentationRule().lint(
+            IndentationRule().lint(
                 """
                 fun main() {
                     fn(a,
@@ -126,7 +126,7 @@ class IndentationRuleTest {
     @Test
     fun testLintCommentsAreIgnored() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.IndentationRule().lint(
+            IndentationRule().lint(
                 """
                 fun funA(argA: String) =
                     // comment
@@ -152,7 +152,7 @@ class IndentationRuleTest {
     @Test(description = "https://github.com/shyiko/ktlint/issues/180")
     fun testLintWhereClause() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.IndentationRule().lint(
+            IndentationRule().lint(
                 """
                 class BiAdapter<C : RecyclerView.ViewHolder, V1 : C, V2 : C, out A1, out A2>(
                     val adapter1: A1,
@@ -169,8 +169,8 @@ class IndentationRuleTest {
     @Test
     fun testTab() {
         val ktScript = "fun main() {\n\t\treturn 0\n\t}"
-        assertThat(com.pinterest.ktlint.ruleset.standard.IndentationRule().format(ktScript)).isEqualTo("fun main() {\n        return 0\n    }")
-        assertThat(com.pinterest.ktlint.ruleset.standard.IndentationRule().lint(ktScript)).isEqualTo(
+        assertThat(IndentationRule().format(ktScript)).isEqualTo("fun main() {\n        return 0\n    }")
+        assertThat(IndentationRule().lint(ktScript)).isEqualTo(
             listOf(
                 LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected indentation (2) (it should be 4)"),
                 LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected Tab character(s)"),
@@ -183,8 +183,8 @@ class IndentationRuleTest {
     @Test
     fun testTabEditorConfig() {
         val ktScript = "fun main() {\n\t\treturn 0\n\t}"
-        assertThat(com.pinterest.ktlint.ruleset.standard.IndentationRule().format(ktScript, mapOf("indent_size" to "3"))).isEqualTo("fun main() {\n      return 0\n   }")
-        assertThat(com.pinterest.ktlint.ruleset.standard.IndentationRule().lint(ktScript, mapOf("indent_size" to "3"))).isEqualTo(
+        assertThat(IndentationRule().format(ktScript, mapOf("indent_size" to "3"))).isEqualTo("fun main() {\n      return 0\n   }")
+        assertThat(IndentationRule().lint(ktScript, mapOf("indent_size" to "3"))).isEqualTo(
             listOf(
                 LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected indentation (2) (it should be 3)"),
                 LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected Tab character(s)"),

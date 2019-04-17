@@ -11,7 +11,7 @@ class SpacingAroundColonRuleTest {
     @Test
     fun testLint() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.SpacingAroundColonRule().lint(
+            SpacingAroundColonRule().lint(
                 """
                 class A:B
                 class A2 : B2
@@ -34,7 +34,7 @@ class SpacingAroundColonRuleTest {
             )
         )
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.SpacingAroundColonRule().lint(
+            SpacingAroundColonRule().lint(
                 """
                 @file:JvmName("Foo")
                 class Example(@field:Ann val foo: String, @get:Ann val bar: String)
@@ -47,7 +47,7 @@ class SpacingAroundColonRuleTest {
             )
         ).isEmpty()
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.SpacingAroundColonRule().lint(
+            SpacingAroundColonRule().lint(
                 """
                 fun main() {
                     val x = Foo::class
@@ -56,7 +56,7 @@ class SpacingAroundColonRuleTest {
             )
         ).isEmpty()
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.SpacingAroundColonRule().lint(
+            SpacingAroundColonRule().lint(
                 """
                 class A {
                     constructor() : this("")
@@ -85,7 +85,7 @@ class SpacingAroundColonRuleTest {
     @Test
     fun testFormat() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.SpacingAroundColonRule().format(
+            SpacingAroundColonRule().format(
                 """
                 class A:B
                 fun main() {
@@ -130,7 +130,7 @@ class SpacingAroundColonRuleTest {
     @Test
     fun testLintMethod() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.SpacingAroundColonRule().lint(
+            SpacingAroundColonRule().lint(
                 """
                 fun main() : String = "duck"
                 fun duck(): String = "main"
@@ -146,7 +146,7 @@ class SpacingAroundColonRuleTest {
     @Test
     fun testFormatMethod() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.SpacingAroundColonRule().format(
+            SpacingAroundColonRule().format(
                 """
                 fun main() : String = "duck"
                 """.trimIndent()
@@ -161,7 +161,7 @@ class SpacingAroundColonRuleTest {
     @Test
     fun testLintMethodParams() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.SpacingAroundColonRule().lint(
+            SpacingAroundColonRule().lint(
                 """
                 fun identity(value: String): String = value
                 fun unformattedIdentity(value : String): String = value
@@ -177,7 +177,7 @@ class SpacingAroundColonRuleTest {
     @Test
     fun testFormatMethodParams() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.SpacingAroundColonRule().format(
+            SpacingAroundColonRule().format(
                 """
                 fun validIdentity(value: String): String = value
                 fun identity(value  : String): String = value
@@ -196,7 +196,7 @@ class SpacingAroundColonRuleTest {
     @Test
     fun testLintGenericMethodParam() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.SpacingAroundColonRule().lint(
+            SpacingAroundColonRule().lint(
                 """
                 fun <T: Any> trueIdentity(value: T): T = value
                 """.trimIndent()
@@ -211,7 +211,7 @@ class SpacingAroundColonRuleTest {
     @Test
     fun testFormatGenericMethodParam() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.SpacingAroundColonRule().format(
+            SpacingAroundColonRule().format(
                 """
                 fun <T: Any> trueIdentity(value: T): T = value
                 fun <T : Any> trueIdentity(value: T): T = value
@@ -228,7 +228,7 @@ class SpacingAroundColonRuleTest {
     @Test
     fun testFormatEOF() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.SpacingAroundColonRule().format(
+            SpacingAroundColonRule().format(
                 """
                 class X
                     : Y,

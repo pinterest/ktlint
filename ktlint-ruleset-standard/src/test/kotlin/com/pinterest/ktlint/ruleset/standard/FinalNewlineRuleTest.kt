@@ -11,11 +11,11 @@ class FinalNewlineRuleTest {
     @Test
     fun testLint() {
         // neither true nor false
-        assertThat(com.pinterest.ktlint.ruleset.standard.FinalNewlineRule().lint("fun name() {\n}")).isEmpty()
-        assertThat(com.pinterest.ktlint.ruleset.standard.FinalNewlineRule().lint("fun name() {\n}\n")).isEmpty()
+        assertThat(FinalNewlineRule().lint("fun name() {\n}")).isEmpty()
+        assertThat(FinalNewlineRule().lint("fun name() {\n}\n")).isEmpty()
         // true
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.FinalNewlineRule().lint(
+            FinalNewlineRule().lint(
                 "",
                 mapOf("insert_final_newline" to "true")
             )
@@ -25,7 +25,7 @@ class FinalNewlineRuleTest {
             )
         )
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.FinalNewlineRule().lint(
+            FinalNewlineRule().lint(
                 "fun name() {\n}",
                 mapOf("insert_final_newline" to "true")
             )
@@ -35,13 +35,13 @@ class FinalNewlineRuleTest {
             )
         )
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.FinalNewlineRule().lint(
+            FinalNewlineRule().lint(
                 "fun name() {\n}\n",
                 mapOf("insert_final_newline" to "true")
             )
         ).isEmpty()
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.FinalNewlineRule().lint(
+            FinalNewlineRule().lint(
                 "fun main() {\n}\n\n\n",
                 mapOf("insert_final_newline" to "true"),
                 script = true
@@ -49,13 +49,13 @@ class FinalNewlineRuleTest {
         ).isEmpty()
         // false
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.FinalNewlineRule().lint(
+            FinalNewlineRule().lint(
                 "fun name() {\n}",
                 mapOf("insert_final_newline" to "false")
             )
         ).isEmpty()
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.FinalNewlineRule().lint(
+            FinalNewlineRule().lint(
                 "fun name() {\n}\n",
                 mapOf("insert_final_newline" to "false")
             )
@@ -69,7 +69,7 @@ class FinalNewlineRuleTest {
     @Test
     fun testFormat() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.FinalNewlineRule().format(
+            FinalNewlineRule().format(
                 "fun name() {\n}",
                 mapOf("insert_final_newline" to "true")
             )
@@ -77,7 +77,7 @@ class FinalNewlineRuleTest {
             "fun name() {\n}\n"
         )
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.FinalNewlineRule().format(
+            FinalNewlineRule().format(
                 "fun name() {\n}\n",
                 mapOf("insert_final_newline" to "false")
             )

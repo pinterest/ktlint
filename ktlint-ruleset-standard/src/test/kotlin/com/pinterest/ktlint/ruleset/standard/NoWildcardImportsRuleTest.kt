@@ -10,7 +10,7 @@ class NoWildcardImportsRuleTest {
     @Test
     fun testLint() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.NoWildcardImportsRule().lint(
+            NoWildcardImportsRule().lint(
                 """
                 import a.*
                 import a.b.c.*

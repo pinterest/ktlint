@@ -61,10 +61,10 @@ class MultiLineIfElseRuleTest {
     }
 
     private fun format(kotlinScript: String): String {
-        return com.pinterest.ktlint.ruleset.standard.MultiLineIfElseRule().format(kotlinScript)
+        return MultiLineIfElseRule().format(kotlinScript)
     }
 
     private fun lint(kotlinScript: String): List<LintError> {
-        return com.pinterest.ktlint.ruleset.standard.MultiLineIfElseRule().lint(kotlinScript)
+        return MultiLineIfElseRule().lint(kotlinScript)
     }
 }

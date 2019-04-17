@@ -17,7 +17,7 @@ import org.jetbrains.kotlin.psi.KtPackageDirective
 class MaxLineLengthRule : Rule("max-line-length"), Rule.Modifier.Last {
 
     private var maxLineLength: Int = -1
-    private var rangeTree = com.pinterest.ktlint.ruleset.standard.RangeTree()
+    private var rangeTree = RangeTree()
 
     override fun visit(
         node: ASTNode,
@@ -63,7 +63,7 @@ class MaxLineLengthRule : Rule("max-line-length"), Rule.Modifier.Last {
                 }
                 offset += line.length + 1
             }
-            rangeTree = com.pinterest.ktlint.ruleset.standard.RangeTree(errorOffset)
+            rangeTree = RangeTree(errorOffset)
         } else if (!rangeTree.isEmpty() && node.psi is LeafPsiElement) {
             rangeTree
                 .query(node.startOffset, node.startOffset + node.textLength)
@@ -91,7 +91,7 @@ class RangeTree(seq: List<Int> = emptyList()) {
 
     // runtime: O(log(n)+k), where k is number of matching points
     // space: O(1)
-    fun query(vmin: Int, vmax: Int): com.pinterest.ktlint.ruleset.standard.RangeTree.ArrayView {
+    fun query(vmin: Int, vmax: Int): RangeTree.ArrayView {
         var r = arr.size - 1
         if (r == -1 || vmax < arr[0] || arr[r] < vmin) {
             return emptyArrayView

@@ -10,14 +10,14 @@ class SpacingAroundCommaRuleTest {
 
     @Test
     fun testLint() {
-        assertThat(com.pinterest.ktlint.ruleset.standard.SpacingAroundCommaRule().lint("fun main() { x(1,3); x(1, 3); println(\",\") }"))
+        assertThat(SpacingAroundCommaRule().lint("fun main() { x(1,3); x(1, 3); println(\",\") }"))
             .isEqualTo(
                 listOf(
                     LintError(1, 18, "comma-spacing", "Missing spacing after \",\"")
                 )
             )
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.SpacingAroundCommaRule().lint(
+            SpacingAroundCommaRule().lint(
                 """
                 enum class E {
                     A, B,C
@@ -30,7 +30,7 @@ class SpacingAroundCommaRuleTest {
             )
         )
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.SpacingAroundCommaRule().lint(
+            SpacingAroundCommaRule().lint(
                 """
                 some.method(1 , 2)
                 """.trimIndent(),
@@ -45,10 +45,10 @@ class SpacingAroundCommaRuleTest {
 
     @Test
     fun testFormat() {
-        assertThat(com.pinterest.ktlint.ruleset.standard.SpacingAroundCommaRule().format("fun main() { x(1,3); x(1, 3) }"))
+        assertThat(SpacingAroundCommaRule().format("fun main() { x(1,3); x(1, 3) }"))
             .isEqualTo("fun main() { x(1, 3); x(1, 3) }")
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.SpacingAroundCommaRule().format(
+            SpacingAroundCommaRule().format(
                 """
                 fun fn(
                     arg1: Int ,

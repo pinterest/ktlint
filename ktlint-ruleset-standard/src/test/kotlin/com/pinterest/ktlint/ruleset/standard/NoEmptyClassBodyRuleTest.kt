@@ -11,7 +11,7 @@ class NoEmptyClassBodyRuleTest {
     @Test
     fun testLint() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.NoEmptyClassBodyRule().diffFileLint(
+            NoEmptyClassBodyRule().diffFileLint(
                 "spec/no-empty-class-body/lint.kt.spec"
             )
         ).isEmpty()
@@ -20,7 +20,7 @@ class NoEmptyClassBodyRuleTest {
     @Test
     fun testFormat() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.NoEmptyClassBodyRule().diffFileFormat(
+            NoEmptyClassBodyRule().diffFileFormat(
                 "spec/no-empty-class-body/format.kt.spec",
                 "spec/no-empty-class-body/format-expected.kt.spec"
             )
@@ -29,7 +29,7 @@ class NoEmptyClassBodyRuleTest {
 
     @Test
     fun testFormatEmptyClassBodyAtTheEndOfFile() {
-        assertThat(com.pinterest.ktlint.ruleset.standard.NoEmptyClassBodyRule().format("class A {}\n")).isEqualTo("class A\n")
-        assertThat(com.pinterest.ktlint.ruleset.standard.NoEmptyClassBodyRule().format("class A {}")).isEqualTo("class A")
+        assertThat(NoEmptyClassBodyRule().format("class A {}\n")).isEqualTo("class A\n")
+        assertThat(NoEmptyClassBodyRule().format("class A {}")).isEqualTo("class A")
     }
 }

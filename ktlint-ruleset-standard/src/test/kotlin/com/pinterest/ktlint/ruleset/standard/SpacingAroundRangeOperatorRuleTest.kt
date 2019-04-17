@@ -9,13 +9,13 @@ class SpacingAroundRangeOperatorRuleTest {
 
     @Test
     fun testLint() {
-        assertThat(com.pinterest.ktlint.ruleset.standard.SpacingAroundRangeOperatorRule().diffFileLint("spec/range-spacing/lint.kt.spec")).isEmpty()
+        assertThat(SpacingAroundRangeOperatorRule().diffFileLint("spec/range-spacing/lint.kt.spec")).isEmpty()
     }
 
     @Test
     fun testFormat() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.SpacingAroundRangeOperatorRule().diffFileFormat(
+            SpacingAroundRangeOperatorRule().diffFileFormat(
                 "spec/range-spacing/format.kt.spec",
                 "spec/range-spacing/format-expected.kt.spec"
             )

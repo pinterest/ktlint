@@ -10,7 +10,7 @@ class NoMultipleSpacesRuleTest {
 
     @Test
     fun testLint() {
-        assertThat(com.pinterest.ktlint.ruleset.standard.NoMultipleSpacesRule().lint("fun main() { x(1,3);  x(1, 3)\n  \n  }"))
+        assertThat(NoMultipleSpacesRule().lint("fun main() { x(1,3);  x(1, 3)\n  \n  }"))
             .isEqualTo(
                 listOf(
                     LintError(1, 22, "no-multi-spaces", "Unnecessary space(s)")
@@ -20,7 +20,7 @@ class NoMultipleSpacesRuleTest {
 
     @Test
     fun testFormat() {
-        assertThat(com.pinterest.ktlint.ruleset.standard.NoMultipleSpacesRule().format("fun main() { x(1,3);  x(1, 3)\n  \n  }"))
+        assertThat(NoMultipleSpacesRule().format("fun main() { x(1,3);  x(1, 3)\n  \n  }"))
             .isEqualTo("fun main() { x(1,3); x(1, 3)\n  \n  }")
     }
 }

@@ -11,7 +11,7 @@ class ParameterListWrappingRuleTest {
     @Test
     fun testLintClassParameterList() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.ParameterListWrappingRule().lint(
+            ParameterListWrappingRule().lint(
                 """
                 class ClassA(paramA: String, paramB: String,
                              paramC: String)
@@ -30,7 +30,7 @@ class ParameterListWrappingRuleTest {
     @Test
     fun testLintClassParameterListWhenMaxLineLengthExceeded() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.ParameterListWrappingRule().lint(
+            ParameterListWrappingRule().lint(
                 """
                 class ClassA(paramA: String, paramB: String, paramC: String)
                 """.trimIndent(),
@@ -46,7 +46,7 @@ class ParameterListWrappingRuleTest {
         )
         // corner case
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.ParameterListWrappingRule().lint(
+            ParameterListWrappingRule().lint(
                 """
                 class ClassA(paramA: String)
                  class ClassA(paramA: String)
@@ -65,7 +65,7 @@ class ParameterListWrappingRuleTest {
     @Test
     fun testLintClassParameterListWhenMaxLineLengthExceededAndNoParameters() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.ParameterListWrappingRule().lint(
+            ParameterListWrappingRule().lint(
                 """
                 class ClassAWithALongName()
                 """.trimIndent(),
@@ -79,7 +79,7 @@ class ParameterListWrappingRuleTest {
     @Test
     fun testLintClassParameterListValid() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.ParameterListWrappingRule().lint(
+            ParameterListWrappingRule().lint(
                 """
                 class ClassA(paramA: String, paramB: String, paramC: String)
                 """.trimIndent()
@@ -90,7 +90,7 @@ class ParameterListWrappingRuleTest {
     @Test
     fun testLintClassParameterListValidMultiLine() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.ParameterListWrappingRule().lint(
+            ParameterListWrappingRule().lint(
                 """
                 class ClassA(
                     paramA: String,
@@ -105,7 +105,7 @@ class ParameterListWrappingRuleTest {
     @Test
     fun testFormatClassParameterList() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.ParameterListWrappingRule().format(
+            ParameterListWrappingRule().format(
                 """
                 class ClassA(paramA: String, paramB: String,
                              paramC: String)
@@ -125,7 +125,7 @@ class ParameterListWrappingRuleTest {
     @Test
     fun testFormatClassParameterListWhenMaxLineLengthExceeded() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.ParameterListWrappingRule().format(
+            ParameterListWrappingRule().format(
                 """
                 class ClassA(paramA: String, paramB: String, paramC: String)
                 """.trimIndent(),
@@ -145,7 +145,7 @@ class ParameterListWrappingRuleTest {
     @Test
     fun testLintFunctionParameterList() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.ParameterListWrappingRule().lint(
+            ParameterListWrappingRule().lint(
                 """
                 fun f(a: Any,
                       b: Any,
@@ -166,7 +166,7 @@ class ParameterListWrappingRuleTest {
     @Test
     fun testLintFunctionParameterListWhenMaxLineLengthExceeded() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.ParameterListWrappingRule().lint(
+            ParameterListWrappingRule().lint(
                 """
                 fun f(a: Any, b: Any, c: Any) {
                 }
@@ -186,7 +186,7 @@ class ParameterListWrappingRuleTest {
     @Test
     fun testFormatFunctionParameterList() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.ParameterListWrappingRule().format(
+            ParameterListWrappingRule().format(
                 """
                 fun f(a: Any,
                       b: Any,
@@ -209,7 +209,7 @@ class ParameterListWrappingRuleTest {
     @Test
     fun testFormatFunctionParameterListWhenMaxLineLengthExceeded() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.ParameterListWrappingRule().format(
+            ParameterListWrappingRule().format(
                 """
                 fun f(a: Any, b: Any, c: Any) {
                 }
@@ -231,7 +231,7 @@ class ParameterListWrappingRuleTest {
     @Test
     fun testLambdaParametersAreIgnored() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.ParameterListWrappingRule().lint(
+            ParameterListWrappingRule().lint(
                 """
                 val fieldExample =
                       LongNameClass { paramA,
@@ -247,7 +247,7 @@ class ParameterListWrappingRuleTest {
     @Test
     fun testFormatPreservesIndent() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.ParameterListWrappingRule().format(
+            ParameterListWrappingRule().format(
                 """
                 class A {
                     fun f(a: Any,
@@ -274,7 +274,7 @@ class ParameterListWrappingRuleTest {
     @Test
     fun testFormatPreservesIndentWithAnnotations() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.ParameterListWrappingRule().format(
+            ParameterListWrappingRule().format(
                 """
                 class A {
                     fun f(@Annotation
@@ -315,7 +315,7 @@ class ParameterListWrappingRuleTest {
     @Test
     fun testFormatCorrectsRPARIndentIfNeeded() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.ParameterListWrappingRule().format(
+            ParameterListWrappingRule().format(
                 """
                 class A {
                     fun f(a: Any,
@@ -343,7 +343,7 @@ class ParameterListWrappingRuleTest {
     @Test
     fun testFormatNestedDeclarations() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.ParameterListWrappingRule().format(
+            ParameterListWrappingRule().format(
                 """
                 fun visit(
                     node: ASTNode,
@@ -371,7 +371,7 @@ class ParameterListWrappingRuleTest {
     @Test
     fun testFormatNestedDeclarationsWhenMaxLineLengthExceeded() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.ParameterListWrappingRule().format(
+            ParameterListWrappingRule().format(
                 """
                 fun visit(node: ASTNode, autoCorrect: Boolean, emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {}
                 """.trimIndent(),
@@ -395,7 +395,7 @@ class ParameterListWrappingRuleTest {
     @Test
     fun testFormatNestedDeclarationsValid() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.ParameterListWrappingRule().format(
+            ParameterListWrappingRule().format(
                 """
                 fun visit(
                     node: ASTNode,
@@ -418,7 +418,7 @@ class ParameterListWrappingRuleTest {
     @Test
     fun testCommentsAreIgnored() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.ParameterListWrappingRule().lint(
+            ParameterListWrappingRule().lint(
                 """
                 data class A(
                    /*
@@ -439,7 +439,7 @@ class ParameterListWrappingRuleTest {
     @Test
     fun testLintClassDanglingLeftParen() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.ParameterListWrappingRule().lint(
+            ParameterListWrappingRule().lint(
                 """
                 class ClassA
                 (
@@ -459,7 +459,7 @@ class ParameterListWrappingRuleTest {
     @Test
     fun testLintFunctionDanglingLeftParen() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.ParameterListWrappingRule().lint(
+            ParameterListWrappingRule().lint(
                 """
                 fun doSomething
                 (
@@ -479,7 +479,7 @@ class ParameterListWrappingRuleTest {
     @Test
     fun testFormatClassDanglingLeftParen() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.ParameterListWrappingRule().format(
+            ParameterListWrappingRule().format(
                 """
                 class ClassA constructor
                 (
@@ -503,7 +503,7 @@ class ParameterListWrappingRuleTest {
     @Test
     fun testFormatFunctionDanglingLeftParen() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.ParameterListWrappingRule().format(
+            ParameterListWrappingRule().format(
                 """
                 fun doSomething
                 (

@@ -9,13 +9,13 @@ class SpacingAroundParensRuleTest {
 
     @Test
     fun testLint() {
-        assertThat(com.pinterest.ktlint.ruleset.standard.SpacingAroundParensRule().diffFileLint("spec/paren-spacing/lint.kt.spec")).isEmpty()
+        assertThat(SpacingAroundParensRule().diffFileLint("spec/paren-spacing/lint.kt.spec")).isEmpty()
     }
 
     @Test
     fun testFormat() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.SpacingAroundParensRule().diffFileFormat(
+            SpacingAroundParensRule().diffFileFormat(
                 "spec/paren-spacing/format.kt.spec",
                 "spec/paren-spacing/format-expected.kt.spec"
             )

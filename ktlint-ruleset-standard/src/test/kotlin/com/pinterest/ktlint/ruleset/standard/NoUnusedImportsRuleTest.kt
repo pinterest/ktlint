@@ -11,7 +11,7 @@ class NoUnusedImportsRuleTest {
     @Test
     fun testLint() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.NoUnusedImportsRule().lint(
+            NoUnusedImportsRule().lint(
                 """
                 import p.a
                 import p.B6
@@ -41,7 +41,7 @@ class NoUnusedImportsRuleTest {
             )
         )
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.NoUnusedImportsRule().lint(
+            NoUnusedImportsRule().lint(
                 """
                 import rx.lang.kotlin.plusAssign
 
@@ -56,7 +56,7 @@ class NoUnusedImportsRuleTest {
     @Test
     fun testLintIssue204() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.NoUnusedImportsRule().lint(
+            NoUnusedImportsRule().lint(
                 """
                 package com.example.another
 
@@ -73,7 +73,7 @@ class NoUnusedImportsRuleTest {
     @Test
     fun testLintDestructuringAssignment() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.NoUnusedImportsRule().lint(
+            NoUnusedImportsRule().lint(
                 """
                 import p.component6
 
@@ -84,7 +84,7 @@ class NoUnusedImportsRuleTest {
             )
         ).isEmpty()
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.NoUnusedImportsRule().lint(
+            NoUnusedImportsRule().lint(
                 """
                 import p.component6
                 import p.component2
@@ -108,7 +108,7 @@ class NoUnusedImportsRuleTest {
     @Test
     fun testLintKDocLinkImport() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.NoUnusedImportsRule().lint(
+            NoUnusedImportsRule().lint(
                 """
                 package kdoc
 
@@ -148,7 +148,7 @@ class NoUnusedImportsRuleTest {
     @Test
     fun testSamePackageImport() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.NoUnusedImportsRule().lint(
+            NoUnusedImportsRule().lint(
                 """
 
 
@@ -170,7 +170,7 @@ class NoUnusedImportsRuleTest {
             )
         )
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.NoUnusedImportsRule().lint(
+            NoUnusedImportsRule().lint(
                 """
                 package p
 
@@ -196,7 +196,7 @@ class NoUnusedImportsRuleTest {
     @Test
     fun testFormat() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.NoUnusedImportsRule().format(
+            NoUnusedImportsRule().format(
                 """
                 import p.a
                 import p.B6
@@ -234,7 +234,7 @@ class NoUnusedImportsRuleTest {
     @Test
     fun testFormatKDocLinkImport() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.NoUnusedImportsRule().format(
+            NoUnusedImportsRule().format(
                 """
                 package kdoc
 

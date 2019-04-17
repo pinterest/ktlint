@@ -11,7 +11,7 @@ class NoConsecutiveBlankLinesRuleTest {
     @Test
     fun testLintInDeclarations() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.NoConsecutiveBlankLinesRule().lint(
+            NoConsecutiveBlankLinesRule().lint(
                 """fun a() {
 
             }
@@ -31,7 +31,7 @@ class NoConsecutiveBlankLinesRuleTest {
     @Test
     fun testLintInCode() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.NoConsecutiveBlankLinesRule().lint(
+            NoConsecutiveBlankLinesRule().lint(
                 """fun main() {
                 fun a()
                 fun b()
@@ -50,7 +50,7 @@ class NoConsecutiveBlankLinesRuleTest {
     @Test
     fun testLintAtTheEndOfFile() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.NoConsecutiveBlankLinesRule().lint(
+            NoConsecutiveBlankLinesRule().lint(
                 """
                 fun main() {
                 }
@@ -68,7 +68,7 @@ class NoConsecutiveBlankLinesRuleTest {
     @Test
     fun testLintInString() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.NoConsecutiveBlankLinesRule().lint(
+            NoConsecutiveBlankLinesRule().lint(
                 "fun main() {println(\"\"\"\n\n\n\"\"\")}"
             )
         ).isEmpty()
@@ -77,7 +77,7 @@ class NoConsecutiveBlankLinesRuleTest {
     @Test
     fun testFormatInDeclarations() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.NoConsecutiveBlankLinesRule().format(
+            NoConsecutiveBlankLinesRule().format(
                 """
             fun a() {
 
@@ -105,7 +105,7 @@ class NoConsecutiveBlankLinesRuleTest {
     @Test
     fun testFormatInCode() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.NoConsecutiveBlankLinesRule().format(
+            NoConsecutiveBlankLinesRule().format(
                 """
             fun main() {
                 fun a()
@@ -132,8 +132,8 @@ class NoConsecutiveBlankLinesRuleTest {
 
     @Test
     fun testFormatAtTheEndOfFile() {
-        assertThat(com.pinterest.ktlint.ruleset.standard.NoConsecutiveBlankLinesRule().format("class A\n\n\n")).isEqualTo("class A\n")
-        assertThat(com.pinterest.ktlint.ruleset.standard.NoConsecutiveBlankLinesRule().format("class A\n\n")).isEqualTo("class A\n")
-        assertThat(com.pinterest.ktlint.ruleset.standard.NoConsecutiveBlankLinesRule().format("class A\n")).isEqualTo("class A\n")
+        assertThat(NoConsecutiveBlankLinesRule().format("class A\n\n\n")).isEqualTo("class A\n")
+        assertThat(NoConsecutiveBlankLinesRule().format("class A\n\n")).isEqualTo("class A\n")
+        assertThat(NoConsecutiveBlankLinesRule().format("class A\n")).isEqualTo("class A\n")
     }
 }

@@ -9,13 +9,13 @@ class StringTemplateRuleTest {
 
     @Test
     fun testLint() {
-        assertThat(com.pinterest.ktlint.ruleset.standard.StringTemplateRule().diffFileLint("spec/string-template/lint.kt.spec")).isEmpty()
+        assertThat(StringTemplateRule().diffFileLint("spec/string-template/lint.kt.spec")).isEmpty()
     }
 
     @Test
     fun testFormat() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.StringTemplateRule().diffFileFormat(
+            StringTemplateRule().diffFileFormat(
                 "spec/string-template/format.kt.spec",
                 "spec/string-template/format-expected.kt.spec"
             )

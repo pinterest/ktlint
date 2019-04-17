@@ -10,7 +10,7 @@ class NoUnitReturnRuleTest {
     @Test
     fun testLint() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.NoUnitReturnRule().diffFileLint(
+            NoUnitReturnRule().diffFileLint(
                 "spec/no-unit-return/lint.kt.spec"
             )
         ).isEmpty()
@@ -19,7 +19,7 @@ class NoUnitReturnRuleTest {
     @Test
     fun testFormat() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.NoUnitReturnRule().diffFileFormat(
+            NoUnitReturnRule().diffFileFormat(
                 "spec/no-unit-return/format.kt.spec",
                 "spec/no-unit-return/format-expected.kt.spec"
             )

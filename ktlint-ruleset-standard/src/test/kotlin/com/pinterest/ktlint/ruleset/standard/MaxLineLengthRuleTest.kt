@@ -11,7 +11,7 @@ class MaxLineLengthRuleTest {
     @Test
     fun testLint() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.MaxLineLengthRule().diffFileLint(
+            MaxLineLengthRule().diffFileLint(
                 "spec/max-line-length/lint.kt.spec",
                 userData = mapOf("max_line_length" to "80")
             )
@@ -21,7 +21,7 @@ class MaxLineLengthRuleTest {
     @Test
     fun testErrorSuppression() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.MaxLineLengthRule().lint(
+            MaxLineLengthRule().lint(
                 """
                 fun main(vaaaaaaaaaaaaaaaaaaaaaaar: String) { // ktlint-disable max-line-length
                     println("teeeeeeeeeeeeeeeeeeeeeeeeeeeeeeext")
@@ -41,7 +41,7 @@ class MaxLineLengthRuleTest {
     @Test
     fun testLintOff() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.MaxLineLengthRule().diffFileLint(
+            MaxLineLengthRule().diffFileLint(
                 "spec/max-line-length/lint-off.kt.spec",
                 userData = mapOf("max_line_length" to "off")
             )
@@ -51,14 +51,14 @@ class MaxLineLengthRuleTest {
     @Test
     fun testRangeSearch() {
         for (i in 0 until 10) {
-            assertThat(com.pinterest.ktlint.ruleset.standard.RangeTree((0..i).asSequence().toList()).query(Int.MIN_VALUE, Int.MAX_VALUE).toString())
+            assertThat(RangeTree((0..i).asSequence().toList()).query(Int.MIN_VALUE, Int.MAX_VALUE).toString())
                 .isEqualTo((0..i).asSequence().toList().toString())
         }
-        assertThat(com.pinterest.ktlint.ruleset.standard.RangeTree(emptyList()).query(1, 5).toString()).isEqualTo("[]")
-        assertThat(com.pinterest.ktlint.ruleset.standard.RangeTree((5 until 10).asSequence().toList()).query(1, 5).toString()).isEqualTo("[]")
-        assertThat(com.pinterest.ktlint.ruleset.standard.RangeTree((5 until 10).asSequence().toList()).query(3, 7).toString()).isEqualTo("[5, 6]")
-        assertThat(com.pinterest.ktlint.ruleset.standard.RangeTree((5 until 10).asSequence().toList()).query(7, 12).toString()).isEqualTo("[7, 8, 9]")
-        assertThat(com.pinterest.ktlint.ruleset.standard.RangeTree((5 until 10).asSequence().toList()).query(10, 15).toString()).isEqualTo("[]")
-        assertThat(com.pinterest.ktlint.ruleset.standard.RangeTree(listOf(1, 5, 10)).query(3, 4).toString()).isEqualTo("[]")
+        assertThat(RangeTree(emptyList()).query(1, 5).toString()).isEqualTo("[]")
+        assertThat(RangeTree((5 until 10).asSequence().toList()).query(1, 5).toString()).isEqualTo("[]")
+        assertThat(RangeTree((5 until 10).asSequence().toList()).query(3, 7).toString()).isEqualTo("[5, 6]")
+        assertThat(RangeTree((5 until 10).asSequence().toList()).query(7, 12).toString()).isEqualTo("[7, 8, 9]")
+        assertThat(RangeTree((5 until 10).asSequence().toList()).query(10, 15).toString()).isEqualTo("[]")
+        assertThat(RangeTree(listOf(1, 5, 10)).query(3, 4).toString()).isEqualTo("[]")
     }
 }

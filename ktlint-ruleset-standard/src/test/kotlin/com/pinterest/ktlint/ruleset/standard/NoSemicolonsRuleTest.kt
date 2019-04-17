@@ -11,7 +11,7 @@ class NoSemicolonsRuleTest {
     @Test
     fun testLint() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.NoSemicolonsRule().lint(
+            NoSemicolonsRule().lint(
                 """
                 package a.b.c;
 
@@ -39,7 +39,7 @@ class NoSemicolonsRuleTest {
     @Test
     fun testFormat() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.NoSemicolonsRule().format(
+            NoSemicolonsRule().format(
                 """
                 fun main() {
                     fun name() { a();return b }
@@ -57,10 +57,10 @@ class NoSemicolonsRuleTest {
             }
             """.trimIndent()
         )
-        assertThat(com.pinterest.ktlint.ruleset.standard.NoSemicolonsRule().format("fun main() {}; "))
+        assertThat(NoSemicolonsRule().format("fun main() {}; "))
             .isEqualTo("fun main() {} ")
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.NoSemicolonsRule().format(
+            NoSemicolonsRule().format(
                 """
                 enum class E {
                     ONE, TWO;
@@ -82,7 +82,7 @@ class NoSemicolonsRuleTest {
     fun testSemiIsPreservedAfterCompanionObject() {
         // github issue #281
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.NoSemicolonsRule().lint(
+            NoSemicolonsRule().lint(
                 """
                 class A {
                     companion object;
@@ -105,7 +105,7 @@ class NoSemicolonsRuleTest {
     @Test
     fun testSemicolonAllowedInKDocAfterIdentifiers() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.NoSemicolonsRule().lint(
+            NoSemicolonsRule().lint(
                 """
                 /**
                  * [x];

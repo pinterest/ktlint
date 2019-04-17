@@ -10,21 +10,21 @@ class SpacingAroundDotRuleTest {
 
     @Test
     fun testLint() {
-        assertThat(com.pinterest.ktlint.ruleset.standard.SpacingAroundDotRule().lint("fun String .foo() = \"foo . \""))
+        assertThat(SpacingAroundDotRule().lint("fun String .foo() = \"foo . \""))
             .isEqualTo(
                 listOf(
                     LintError(1, 11, "dot-spacing", "Unexpected spacing before \".\"")
                 )
             )
 
-        assertThat(com.pinterest.ktlint.ruleset.standard.SpacingAroundDotRule().lint("fun String. foo() = \"foo . \""))
+        assertThat(SpacingAroundDotRule().lint("fun String. foo() = \"foo . \""))
             .isEqualTo(
                 listOf(
                     LintError(1, 12, "dot-spacing", "Unexpected spacing after \".\"")
                 )
             )
 
-        assertThat(com.pinterest.ktlint.ruleset.standard.SpacingAroundDotRule().lint("fun String . foo() = \"foo . \""))
+        assertThat(SpacingAroundDotRule().lint("fun String . foo() = \"foo . \""))
             .isEqualTo(
                 listOf(
                     LintError(1, 11, "dot-spacing", "Unexpected spacing before \".\""),
@@ -33,7 +33,7 @@ class SpacingAroundDotRuleTest {
             )
 
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.SpacingAroundDotRule().lint(
+            SpacingAroundDotRule().lint(
                 """
                 fun String.foo() {
                     (2..10).map { it + 1 }
@@ -45,7 +45,7 @@ class SpacingAroundDotRuleTest {
         ).isEmpty()
 
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.SpacingAroundDotRule().lint(
+            SpacingAroundDotRule().lint(
                 """
                 fun String.foo() {
                     (2..10).map { it + 1 }
@@ -61,7 +61,7 @@ class SpacingAroundDotRuleTest {
         )
 
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.SpacingAroundDotRule().lint(
+            SpacingAroundDotRule().lint(
                 """
                 fun String.foo() {
                     (2..10).map { it + 1 }
@@ -81,7 +81,7 @@ class SpacingAroundDotRuleTest {
     @Test
     fun testLintComment() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.SpacingAroundDotRule().lint(
+            SpacingAroundDotRule().lint(
                 """
                 fun foo() {
                     /**.*/
@@ -95,17 +95,17 @@ class SpacingAroundDotRuleTest {
 
     @Test
     fun testFormat() {
-        assertThat(com.pinterest.ktlint.ruleset.standard.SpacingAroundDotRule().format("fun String .foo() = \"foo . \""))
+        assertThat(SpacingAroundDotRule().format("fun String .foo() = \"foo . \""))
             .isEqualTo("fun String.foo() = \"foo . \"")
 
-        assertThat(com.pinterest.ktlint.ruleset.standard.SpacingAroundDotRule().format("fun String. foo() = \"foo . \""))
+        assertThat(SpacingAroundDotRule().format("fun String. foo() = \"foo . \""))
             .isEqualTo("fun String.foo() = \"foo . \"")
 
-        assertThat(com.pinterest.ktlint.ruleset.standard.SpacingAroundDotRule().format("fun String . foo() = \"foo . \""))
+        assertThat(SpacingAroundDotRule().format("fun String . foo() = \"foo . \""))
             .isEqualTo("fun String.foo() = \"foo . \"")
 
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.SpacingAroundDotRule().format(
+            SpacingAroundDotRule().format(
                 """
                 fun String.foo() {
                     (2..10).map { it + 1 }

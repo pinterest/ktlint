@@ -54,14 +54,14 @@ class AnnotationRule : Rule("annotation") {
         if (multipleAnnotationsOnSameLineAsAnnotatedConstruct) {
             emit(
                 annotations.first().node.startOffset,
-                com.pinterest.ktlint.ruleset.standard.AnnotationRule.Companion.multipleAnnotationsOnSameLineAsAnnotatedConstructErrorMessage,
+                multipleAnnotationsOnSameLineAsAnnotatedConstructErrorMessage,
                 true
             )
         }
         if (annotationsWithParametersAreNotOnSeparateLines) {
             emit(
                 annotations.first().node.startOffset,
-                com.pinterest.ktlint.ruleset.standard.AnnotationRule.Companion.annotationsWithParametersAreNotOnSeparateLinesErrorMessage,
+                annotationsWithParametersAreNotOnSeparateLinesErrorMessage,
                 true
             )
         }

@@ -10,7 +10,7 @@ class NoBlankLineBeforeRbraceRuleTest {
     @Test
     fun testLint() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.NoBlankLineBeforeRbraceRule().diffFileLint(
+            NoBlankLineBeforeRbraceRule().diffFileLint(
                 "spec/no-blank-line-before-rbrace/lint.kt.spec"
             )
         ).isEmpty()
@@ -19,7 +19,7 @@ class NoBlankLineBeforeRbraceRuleTest {
     @Test
     fun testFormat() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.NoBlankLineBeforeRbraceRule().diffFileFormat(
+            NoBlankLineBeforeRbraceRule().diffFileFormat(
                 "spec/no-blank-line-before-rbrace/format.kt.spec",
                 "spec/no-blank-line-before-rbrace/format-expected.kt.spec"
             )

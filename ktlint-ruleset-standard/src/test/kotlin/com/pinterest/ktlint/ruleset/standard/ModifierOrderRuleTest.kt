@@ -12,7 +12,7 @@ class ModifierOrderRuleTest {
     fun testLint() {
         // pretty much every line below should trip an error
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.ModifierOrderRule().lint(
+            ModifierOrderRule().lint(
                 """
                 abstract @Deprecated open class A { // open is here for test purposes only, otherwise it's redundant
                     open protected val v = ""
@@ -64,7 +64,7 @@ class ModifierOrderRuleTest {
     @Test
     fun testFormat() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.ModifierOrderRule().format(
+            ModifierOrderRule().format(
                 """
             abstract @Deprecated open class A { // open is here for test purposes only, otherwise it's redundant
                 open protected val v = ""

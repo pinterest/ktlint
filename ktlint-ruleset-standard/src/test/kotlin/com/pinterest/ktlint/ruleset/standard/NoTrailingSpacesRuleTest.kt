@@ -10,7 +10,7 @@ class NoTrailingSpacesRuleTest {
 
     @Test
     fun testLint() {
-        assertThat(com.pinterest.ktlint.ruleset.standard.NoTrailingSpacesRule().lint("fun main() {\n    val a = 1\n\n \n} "))
+        assertThat(NoTrailingSpacesRule().lint("fun main() {\n    val a = 1\n\n \n} "))
             .isEqualTo(
                 listOf(
                     LintError(4, 1, "no-trailing-spaces", "Trailing space(s)"),
@@ -21,7 +21,7 @@ class NoTrailingSpacesRuleTest {
 
     @Test
     fun testFormat() {
-        assertThat(com.pinterest.ktlint.ruleset.standard.NoTrailingSpacesRule().format("fun main() {\n    val a = 1 \n  \n \n} "))
+        assertThat(NoTrailingSpacesRule().format("fun main() {\n    val a = 1 \n  \n \n} "))
             .isEqualTo("fun main() {\n    val a = 1\n\n\n}")
     }
 }

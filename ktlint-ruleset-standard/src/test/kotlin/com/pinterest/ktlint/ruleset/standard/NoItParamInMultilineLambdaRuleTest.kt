@@ -9,7 +9,7 @@ class NoItParamInMultilineLambdaRuleTest {
     @Test
     fun testLint() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.NoItParamInMultilineLambdaRule().diffFileLint(
+            NoItParamInMultilineLambdaRule().diffFileLint(
                 "spec/no-it-in-multiline-lambda/lint.kt.spec"
             )
         ).isEmpty()

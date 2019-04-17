@@ -11,7 +11,7 @@ class SpacingAroundKeywordRuleTest {
     @Test
     fun testLint() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.SpacingAroundKeywordRule().lint(
+            SpacingAroundKeywordRule().lint(
                 """
                 fun main() {
                     if(true) {}
@@ -67,7 +67,7 @@ class SpacingAroundKeywordRuleTest {
     @Test
     fun testFormat() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.SpacingAroundKeywordRule().format(
+            SpacingAroundKeywordRule().format(
                 """
                 fun main() {
                     if(true) {}
@@ -108,7 +108,7 @@ class SpacingAroundKeywordRuleTest {
     @Test
     fun getterAndSetterFunction() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.SpacingAroundKeywordRule().format(
+            SpacingAroundKeywordRule().format(
                 """
             var x: String
 			    get () {
@@ -135,7 +135,7 @@ class SpacingAroundKeywordRuleTest {
     @Test
     fun visibilityOrInjectProperty() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.SpacingAroundKeywordRule().lint(
+            SpacingAroundKeywordRule().lint(
                 """
         var setterVisibility: String = "abc"
             private set

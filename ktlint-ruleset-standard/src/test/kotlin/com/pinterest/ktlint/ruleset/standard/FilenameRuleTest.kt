@@ -24,7 +24,7 @@ class FilenameRuleTest {
             )
         ) {
             assertThat(
-                com.pinterest.ktlint.ruleset.standard.FilenameRule().lint(
+                FilenameRule().lint(
                     """
                     /*
                      * license
@@ -55,7 +55,7 @@ class FilenameRuleTest {
             )
         ) {
             assertThat(
-                com.pinterest.ktlint.ruleset.standard.FilenameRule().lint(
+                FilenameRule().lint(
                     """
                     /*
                      * license
@@ -79,7 +79,7 @@ class FilenameRuleTest {
     @Test
     fun testFileWithoutTopLevelDeclarations() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.FilenameRule().lint(
+            FilenameRule().lint(
                 """
                 /*
                  * copyright
@@ -93,7 +93,7 @@ class FilenameRuleTest {
     @Test
     fun testMultipleTopLevelClasses() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.FilenameRule().lint(
+            FilenameRule().lint(
                 """
                 class B
                 class C
@@ -106,7 +106,7 @@ class FilenameRuleTest {
     @Test
     fun testMultipleNonTopLevelClasses() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.FilenameRule().lint(
+            FilenameRule().lint(
                 """
                 class B {
                     class C
@@ -125,7 +125,7 @@ class FilenameRuleTest {
     @Test
     fun testCaseSensitiveMatching() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.FilenameRule().lint(
+            FilenameRule().lint(
                 """
                 interface Woohoo
                 """.trimIndent(),
@@ -141,7 +141,7 @@ class FilenameRuleTest {
     @Test
     fun testCaseEscapedClassNames() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.FilenameRule().lint(
+            FilenameRule().lint(
                 """
                 class `A`
                 """.trimIndent(),
@@ -157,7 +157,7 @@ class FilenameRuleTest {
     @Test
     fun testIgnoreKotlinScriptFiles() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.FilenameRule().lint(
+            FilenameRule().lint(
                 """
                 class B
                 """.trimIndent(),

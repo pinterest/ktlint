@@ -11,7 +11,7 @@ class NoLineBreakAfterElseRuleTest {
     @Test
     fun testViolationForLineBreakBetweenElseAndIf() {
         Assertions.assertThat(
-            com.pinterest.ktlint.ruleset.standard.NoLineBreakAfterElseRule().lint(
+            NoLineBreakAfterElseRule().lint(
                 """
                 fun funA() {
                     if (conditionA()) {
@@ -33,7 +33,7 @@ class NoLineBreakAfterElseRuleTest {
     @Test
     fun testFixViolationForLineBreakBetweenElseAndIf() {
         Assertions.assertThat(
-            com.pinterest.ktlint.ruleset.standard.NoLineBreakAfterElseRule().format(
+            NoLineBreakAfterElseRule().format(
                 """
                 fun funA() {
                     if (conditionA()) {
@@ -61,7 +61,7 @@ class NoLineBreakAfterElseRuleTest {
     @Test
     fun testValidElseIf() {
         Assertions.assertThat(
-            com.pinterest.ktlint.ruleset.standard.NoLineBreakAfterElseRule().lint(
+            NoLineBreakAfterElseRule().lint(
                 """
                 fun funA() {
                     if (conditionA()) {
@@ -78,7 +78,7 @@ class NoLineBreakAfterElseRuleTest {
     @Test
     fun testValidSimpleElse() {
         Assertions.assertThat(
-            com.pinterest.ktlint.ruleset.standard.NoLineBreakAfterElseRule().lint(
+            NoLineBreakAfterElseRule().lint(
                 """
                 fun funA() {
                     if (conditionA()) {
@@ -95,7 +95,7 @@ class NoLineBreakAfterElseRuleTest {
     @Test
     fun testViolationForLineBreakBetweenElseAndBracket() {
         Assertions.assertThat(
-            com.pinterest.ktlint.ruleset.standard.NoLineBreakAfterElseRule().lint(
+            NoLineBreakAfterElseRule().lint(
                 """
                 fun funA() {
                     if (conditionA()) {
@@ -117,7 +117,7 @@ class NoLineBreakAfterElseRuleTest {
     @Test
     fun testViolationWhenBracketOmitted() {
         Assertions.assertThat(
-            com.pinterest.ktlint.ruleset.standard.NoLineBreakAfterElseRule().lint(
+            NoLineBreakAfterElseRule().lint(
                 """
                 fun funA() {
                     if (conditionA())
@@ -133,7 +133,7 @@ class NoLineBreakAfterElseRuleTest {
     @Test
     fun testValidWhenBracketOmitted() {
         Assertions.assertThat(
-            com.pinterest.ktlint.ruleset.standard.NoLineBreakAfterElseRule().lint(
+            NoLineBreakAfterElseRule().lint(
                 """
                 fun funA() {
                     if (conditionA()) doSomething() else doAnotherThing()

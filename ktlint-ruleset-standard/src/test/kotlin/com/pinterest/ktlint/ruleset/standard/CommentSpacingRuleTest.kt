@@ -11,7 +11,7 @@ class CommentSpacingRuleTest {
     @Test
     fun testLintValidCommentSpacing() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.CommentSpacingRule().lint(
+            CommentSpacingRule().lint(
                 """
                 //
                 //noinspection AndroidLintRecycle
@@ -30,7 +30,7 @@ class CommentSpacingRuleTest {
     @Test
     fun testLintInvalidCommentSpacing() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.CommentSpacingRule().lint(
+            CommentSpacingRule().lint(
                 """
                 //comment
                 var debugging = false// comment
@@ -54,7 +54,7 @@ class CommentSpacingRuleTest {
     @Test
     fun testFormatInvalidCommentSpacing() {
         assertThat(
-            com.pinterest.ktlint.ruleset.standard.CommentSpacingRule().format(
+            CommentSpacingRule().format(
                 """
                 //comment
                 var debugging = false// comment
