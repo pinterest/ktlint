@@ -30,8 +30,13 @@ class EditorConfig private constructor (
                 .toList()
                 .asReversed()
                 .fold(null as EditorConfig?) { parent, (path, data) ->
-                    EditorConfig(parent, path, (parent?.data
-                        ?: emptyMap()) + flatten(data.value))
+                    EditorConfig(
+                        parent, path,
+                        (
+                            parent?.data
+                                ?: emptyMap()
+                            ) + flatten(data.value)
+                    )
                 }
 
         fun cached(): EditorConfigLookup = object : EditorConfigLookup {
@@ -54,8 +59,10 @@ class EditorConfig private constructor (
                                 val editorConfig = if (Files.exists(editorConfigPath)) {
                                     EditorConfig(
                                         parent, editorConfigPath,
-                                        (parent?.data
-                                            ?: emptyMap()) + flatten(load(editorConfigPath))
+                                        (
+                                            parent?.data
+                                                ?: emptyMap()
+                                            ) + flatten(load(editorConfigPath))
                                     )
                                 } else {
                                     parent
