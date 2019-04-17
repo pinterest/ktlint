@@ -1,7 +1,7 @@
 package yourpkgname
 
-import com.github.shyiko.ktlint.core.LintError
-import com.github.shyiko.ktlint.test.lint
+import com.pinterest.ktlint.core.LintError
+import com.pinterest.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
