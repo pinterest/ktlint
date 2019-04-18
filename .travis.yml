@@ -1,9 +1,9 @@
 language: java
 jdk:
 - oraclejdk8
-script: if [[ $TRAVIS_REPO_SLUG == "shyiko/ktlint" && $TRAVIS_BRANCH == "master" &&
+script: if [[ $TRAVIS_REPO_SLUG == "pinterest/ktlint" && $TRAVIS_BRANCH == "master" &&
   $TRAVIS_PULL_REQUEST == "false" ]]; then ./mvnw -Ddeploy=maven-central -DskipStaging=true -Dgpg.skip=true &&
-  ./mvnw -Ddeploy=github -Dgpg.skip=true -Dgithub.draft=true -Dgithub.description="https://github.com/shyiko/ktlint#access-to-the-latest-master-snapshot"; else ./mvnw clean verify;
+  ./mvnw -Ddeploy=github -Dgpg.skip=true -Dgithub.draft=true -Dgithub.description="https://github.com/pinterest/ktlint#access-to-the-latest-master-snapshot"; else ./mvnw clean verify;
   fi
 env:
   global:

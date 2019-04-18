@@ -1,7 +1,7 @@
 package yourpkgname
 
-import com.github.shyiko.ktlint.core.Rule
-import com.github.shyiko.ktlint.core.ast.ElementType.VAR_KEYWORD
+import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.ast.ElementType.VAR_KEYWORD
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 class NoVarRule : Rule("no-var") {
