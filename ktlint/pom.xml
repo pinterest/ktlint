@@ -4,19 +4,19 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.github.shyiko.ktlint</groupId>
+        <groupId>com.github.pinterest.ktlint</groupId>
         <artifactId>pom</artifactId>
         <version>0.0.0-SNAPSHOT</version>
     </parent>
 
     <!-- keeping original (pre 0.2.0) qualifier (com.github.shyiko:ktlint) so that no one would notice a thing -->
-    <groupId>com.github.shyiko</groupId>
+    <groupId>com.github.pinterest</groupId>
     <artifactId>ktlint</artifactId>
 
     <scm>
-        <connection>scm:git:git@github.com:shyiko/ktlint.git</connection>
-        <developerConnection>scm:git:git@github.com:shyiko/ktlint.git</developerConnection>
-        <url>git@github.com:shyiko/ktlint.git</url>
+        <connection>scm:git:git@github.com:pinterest/ktlint.git</connection>
+        <developerConnection>scm:git:git@github.com:pinterest/ktlint.git</developerConnection>
+        <url>git@github.com:pinterest/ktlint.git</url>
     </scm>
 
     <dependencies>
@@ -35,37 +35,37 @@
             <!-- included (at least org.jetbrains.annotations.*) in kotlin-compiler-embeddable -->
         </dependency>
         <dependency>
-            <groupId>com.github.shyiko.ktlint</groupId>
+            <groupId>com.github.pinterest.ktlint</groupId>
             <artifactId>ktlint-core</artifactId>
             <version>0.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>com.github.shyiko.ktlint</groupId>
+            <groupId>com.github.pinterest.ktlint</groupId>
             <artifactId>ktlint-ruleset-standard</artifactId>
             <version>0.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>com.github.shyiko.ktlint</groupId>
+            <groupId>com.github.pinterest.ktlint</groupId>
             <artifactId>ktlint-ruleset-experimental</artifactId>
             <version>0.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>com.github.shyiko.ktlint</groupId>
+            <groupId>com.github.pinterest.ktlint</groupId>
             <artifactId>ktlint-reporter-plain</artifactId>
             <version>0.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>com.github.shyiko.ktlint</groupId>
+            <groupId>com.github.pinterest.ktlint</groupId>
             <artifactId>ktlint-reporter-json</artifactId>
             <version>0.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>com.github.shyiko.ktlint</groupId>
+            <groupId>com.github.pinterest.ktlint</groupId>
             <artifactId>ktlint-reporter-checkstyle</artifactId>
             <version>0.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>com.github.shyiko.ktlint</groupId>
+            <groupId>com.github.pinterest.ktlint</groupId>
             <artifactId>ktlint-test</artifactId>
             <version>0.0.0-SNAPSHOT</version>
         </dependency>
