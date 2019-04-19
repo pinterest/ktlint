@@ -164,7 +164,6 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                 LPAR, LBRACE, LBRACKET -> rearrangeBlock(n, autoCorrect, emit) // TODO: LT
                 SUPER_TYPE_LIST -> rearrangeSuperTypeList(n, autoCorrect, emit)
                 VALUE_PARAMETER_LIST, VALUE_ARGUMENT_LIST -> rearrangeValueList(n, autoCorrect, emit)
-                EQ -> rearrangeEq(n, autoCorrect, emit)
                 ARROW -> rearrangeArrow(n, autoCorrect, emit)
                 WHITE_SPACE -> line += n.text.count { it == '\n' }
             }
@@ -313,37 +312,6 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                     requireNewlineAfterLeaf(nextSibling, autoCorrect, emit)
                 }
             }
-        }
-    }
-
-    private fun rearrangeEq(
-        node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
-    ) {
-        if (
-            !node.nextCodeSibling()?.elementType.let {
-                it == DOT_QUALIFIED_EXPRESSION ||
-                    it == SAFE_ACCESS_EXPRESSION ||
-                    it == BINARY_EXPRESSION ||
-                    it == BINARY_WITH_TYPE
-            } ||
-            !node.nextSubstringContains('\n') ||
-            (
-                mustBeFollowedByNewline(node) &&
-                    // force """ to be on a separate line
-                    !node.nextCodeLeaf().let { it?.elementType == OPEN_QUOTE && it.text == "\"\"\"" }
-                )
-        ) {
-            return
-        }
-        val nextCodeLeaf = node.nextCodeLeaf()!!
-        // val v = (...
-        if (nextCodeLeaf.elementType in lTokenSet) {
-            return
-        }
-        if (!nextCodeLeaf.prevLeaf().isWhiteSpaceWithNewline()) {
-            requireNewlineAfterLeaf(node, autoCorrect, emit)
         }
     }
 
