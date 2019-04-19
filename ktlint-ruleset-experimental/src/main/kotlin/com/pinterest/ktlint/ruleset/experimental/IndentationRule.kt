@@ -3,6 +3,7 @@ package com.pinterest.ktlint.ruleset.experimental
 import com.pinterest.ktlint.core.EditorConfig
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.ast.ElementType.ANNOTATION
 import com.pinterest.ktlint.core.ast.ElementType.ARROW
 import com.pinterest.ktlint.core.ast.ElementType.BINARY_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.BINARY_WITH_TYPE
@@ -280,7 +281,7 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
     ) {
         for (c in node.children()) {
             if (
-                (c.elementType == VALUE_PARAMETER || c.elementType == VALUE_ARGUMENT) &&
+                (c.elementType == VALUE_PARAMETER || c.elementType == VALUE_ARGUMENT || c.elementType == ANNOTATION) &&
                 c.textContains('\n')
             ) {
                 // rearrange
