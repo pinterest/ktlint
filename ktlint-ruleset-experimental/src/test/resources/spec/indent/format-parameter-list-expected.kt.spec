@@ -17,3 +17,10 @@ class C (
     }
 }
 
+class TestClass(
+    @Id @NotNull
+    @Column(
+        nullable = false
+    )
+    val id: String
+)
