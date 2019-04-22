@@ -2,6 +2,26 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.32.0] - 2019-04-22
+
+Note: This release will not be updated in the `homebrew-ktlint` tap; we will be opening a PR to make `ktlint` part of the core Homebrew formulae.
+
+### Added
+- `experimental/import-ordering` rule ([#189](https://github.com/pinterest/ktlint/issues/189)).
+  User `ktlint --experimental` to enabled.
+- Support for Kotlin 1.3.30
+- Build now compatible with jitpack
+
+### Fixed
+- Incorrectly flagging a missing newline for functions with no parameters ([#327](https://github.com/pinterest/ktlint/issues/327)).
+- Semicolons now allowed in KDocs ([#362](https://github.com/pinterest/ktlint/issues/362)).
+- Spaces now disallowed after `super` ([#369](https://github.com/pinterest/ktlint/issues/369)).
+- Annotations in function parameters now checked for indentation ([#374](https://github.com/pinterest/ktlint/issues/374)]
+
+### Changed
+- Code now lives in `com.pinterest` package
+- groupId now `com.pinterest.ktlint`
+
 ## [0.31.0] - 2019-03-10
 
 ### Added
