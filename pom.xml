@@ -3,14 +3,14 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.github.shyiko.ktlint</groupId>
+    <groupId>com.pinterest.ktlint</groupId>
     <artifactId>pom</artifactId>
     <version>0.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>pom</name>
     <description>An anti-bikeshedding Kotlin linter with built-in formatter</description>
-    <url>https://github.com/shyiko/ktlint</url>
+    <url>https://github.com/pinterest/ktlint</url>
     <licenses>
         <license>
             <name>MIT</name>
@@ -19,11 +19,15 @@
         </license>
     </licenses>
     <scm>
-        <connection>scm:git:git@github.com:shyiko/ktlint.git</connection>
-        <developerConnection>scm:git:git@github.com:shyiko/ktlint.git</developerConnection>
-        <url>git@github.com:shyiko/ktlint.git</url>
+        <connection>scm:git:git@github.com:pinterest/ktlint.git</connection>
+        <developerConnection>scm:git:git@github.com:pinterest/ktlint.git</developerConnection>
+        <url>git@github.com:pinterest/ktlint.git</url>
     </scm>
     <developers>
+        <developer>
+            <id>pinterest</id>
+            <name>Pinterest, Inc.</name>
+        </developer>
         <developer>
             <id>shyiko</id>
             <email>stanley.shyiko@gmail.com</email>
