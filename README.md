@@ -5,9 +5,8 @@
 </h1>
 
 <p align="center">
-<a href="https://travis-ci.org/shyiko/ktlint"><img src="https://travis-ci.org/shyiko/ktlint.svg?branch=master" alt="Build Status"></a>
-<a href="https://ci.appveyor.com/project/shyiko/ktlint"><img src="https://ci.appveyor.com/api/projects/status/9dtlak3cj5rum48g?svg=true&passingText=passing" alt="Build Status"></a>
-<a href="https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.github.shyiko%22%20AND%20a%3A%22ktlint%22"><img src="https://img.shields.io/maven-central/v/com.github.shyiko/ktlint.svg" alt="Maven Central"></a>
+<a href="https://travis-ci.org/pinterest/ktlint"><img src="https://travis-ci.org/pinterest/ktlint.svg?branch=master" alt="Build Status"></a>
+<a href="https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.pinterest%22%20AND%20a%3A%22ktlint%22"><img src="https://img.shields.io/maven-central/v/com.pinterest/ktlint.svg" alt="Maven Central"></a>
 <a href="https://ktlint.github.io/"><img src="https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg" alt="ktlint"></a>
 </p>
 
@@ -17,7 +16,7 @@
 
 Features:
 - **No configuration.** Which means no decisions to make, nothing to argue about and no special files to manage.   
-While this might sound extreme, keep in mind that `ktlint` tries to capture (reflect) **official code style**[*](https://github.com/shyiko/ktlint/issues/284#issuecomment-425177186) from [kotlinlang.org](https://kotlinlang.org/docs/reference/coding-conventions.html) and [Android Kotlin Style Guide](https://android.github.io/kotlin-guides/style.html)
+While this might sound extreme, keep in mind that `ktlint` tries to capture (reflect) **official code style**[*](https://github.com/pinterest/ktlint/issues/284#issuecomment-425177186) from [kotlinlang.org](https://kotlinlang.org/docs/reference/coding-conventions.html) and [Android Kotlin Style Guide](https://android.github.io/kotlin-guides/style.html)
 (+ [we respect your .editorconfig](#editorconfig) and support additional [ruleset](#creating-a-ruleset)|s).
 - **Built-in formatter.** So that you wouldn't have to fix all style violations by hand.
 - **Customizable output.** `plain` (+ `plain?group_by_file`), `json` and `checkstyle` reporters are available out-of-the-box. 
@@ -82,9 +81,9 @@ curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.32.0/ktlint &
   sudo mv ktlint /usr/local/bin/
 ```
 
-... or just download `ktlint` from the [releases](https://github.com/shyiko/ktlint/releases) page  (`ktlint.asc` contains PGP signature which you can verify with `curl -sS https://keybase.io/shyiko/pgp_keys.asc | gpg --import && gpg --verify ktlint.asc`).  
+... or just download `ktlint` from the [releases](https://github.com/pinterest/ktlint/releases) page  (`ktlint.asc` contains PGP signature which you can verify with `curl -sS https://keybase.io/pinterestandroid/pgp_keys.asc | gpg --import && gpg --verify ktlint.asc`).  
 
-On macOS ([or Linux](http://linuxbrew.sh/)) you can also use [brew](https://brew.sh/) - `brew tap shyiko/ktlint && brew install shyiko/ktlint/ktlint`.
+On macOS ([or Linux](http://linuxbrew.sh/)) you can also use [brew](https://brew.sh/) - `brew tap shyiko/ktlint && brew install shyiko/ktlint/ktlint`. (Note: tap deprecated as of version 0.32.0)
 
 > If you don't have curl installed - replace `curl -sL` with `wget -qO-`.
 
@@ -141,7 +140,7 @@ $ ktlint --install-git-pre-commit-hook
             <configuration>
             <target name="ktlint">
                 <java taskname="ktlint" dir="${basedir}" fork="true" failonerror="true"
-                    classpathref="maven.plugin.classpath" classname="com.github.shyiko.ktlint.Main">
+                    classpathref="maven.plugin.classpath" classname="com.pinterest.ktlint.Main">
                     <arg value="src/**/*.kt"/>
                     <!-- to generate report in checkstyle format prepend following args: -->
                     <!-- 
@@ -159,7 +158,7 @@ $ ktlint --install-git-pre-commit-hook
             <configuration>
             <target name="ktlint">
                 <java taskname="ktlint" dir="${basedir}" fork="true" failonerror="true"
-                    classpathref="maven.plugin.classpath" classname="com.github.shyiko.ktlint.Main">
+                    classpathref="maven.plugin.classpath" classname="com.pinterest.ktlint.Main">
                     <arg value="-F"/>
                     <arg value="src/**/*.kt"/>
                 </java>
@@ -170,7 +169,7 @@ $ ktlint --install-git-pre-commit-hook
     </executions>
     <dependencies>
         <dependency>
-            <groupId>com.github.shyiko</groupId>
+            <groupId>com.pinterest</groupId>
             <artifactId>ktlint</artifactId>
             <version>0.32.0</version>
         </dependency>
@@ -215,18 +214,18 @@ dependencies {
 task ktlint(type: JavaExec, group: "verification") {
     description = "Check Kotlin code style."
     classpath = configurations.ktlint
-    main = "com.github.shyiko.ktlint.Main"
+    main = "com.pinterest.ktlint.Main"
     args "src/**/*.kt"
     // to generate report in checkstyle format prepend following args:
     // "--reporter=plain", "--reporter=checkstyle,output=${buildDir}/ktlint.xml"
-    // see https://github.com/shyiko/ktlint#usage for more
+    // see https://github.com/pinterest/ktlint#usage for more
 }
 check.dependsOn ktlint
 
 task ktlintFormat(type: JavaExec, group: "formatting") {
     description = "Fix Kotlin code style deviations."
     classpath = configurations.ktlint
-    main = "com.github.shyiko.ktlint.Main"
+    main = "com.pinterest.ktlint.Main"
     args "-F", "src/**/*.kt"
 }
 ```
@@ -299,12 +298,12 @@ See [w0rp/ale](https://github.com/w0rp/ale).
 
 > See also [Writing your first ktlint rule](https://medium.com/@vanniktech/writing-your-first-ktlint-rule-5a1707f4ca5b) by [Niklas Baudy](https://github.com/vanniktech). 
 
-In a nutshell: "ruleset" is a JAR containing one or more [Rule](ktlint-core/src/main/kotlin/com/github/shyiko/ktlint/core/Rule.kt)s gathered together in a [RuleSet](ktlint-core/src/main/kotlin/com/github/shyiko/ktlint/core/RuleSet.kt). `ktlint` is relying on 
+In a nutshell: "ruleset" is a JAR containing one or more [Rule](ktlint-core/src/main/kotlin/com/pinterest/ktlint/core/Rule.kt)s gathered together in a [RuleSet](ktlint-core/src/main/kotlin/com/github/shyiko/ktlint/core/RuleSet.kt). `ktlint` is relying on 
 [ServiceLoader](https://docs.oracle.com/javase/8/docs/api/java/util/ServiceLoader.html) to discover all available "RuleSet"s
-on the classpath (as a ruleset author, all you need to do is to include a `META-INF/services/com.github.shyiko.ktlint.core.RuleSetProvider` file 
-containing a fully qualified name of your [RuleSetProvider](ktlint-core/src/main/kotlin/com/github/shyiko/ktlint/core/RuleSetProvider.kt) implementation).    
+on the classpath (as a ruleset author, all you need to do is to include a `META-INF/services/com.pinterest.ktlint.core.RuleSetProvider` file 
+containing a fully qualified name of your [RuleSetProvider](ktlint-core/src/main/kotlin/com/pinterest/ktlint/core/RuleSetProvider.kt) implementation).    
 
-Once packaged in a JAR <sup>[e.g. via `./gradlew build`](https://github.com/shyiko/ktlint/issues/300#issuecomment-432408753)</sup> you can load it with
+Once packaged in a JAR <sup>[e.g. via `./gradlew build`](https://github.com/pinterest/ktlint/issues/300#issuecomment-432408753)</sup> you can load it with
 
 ```sh
 # enable additional 3rd party ruleset by pointing ktlint to its location on the file system
@@ -321,7 +320,7 @@ A complete sample project (with tests and build files) is included in this repo 
 
 #### AST
 
-While writing/debugging [Rule](ktlint-core/src/main/kotlin/com/github/shyiko/ktlint/core/Rule.kt)s it's often helpful to have an AST
+While writing/debugging [Rule](ktlint-core/src/main/kotlin/com/pinterest/ktlint/core/Rule.kt)s it's often helpful to have an AST
 printed out to see the structure rules have to work with. ktlint >= 0.15.0 has `--print-ast` flag specifically for this purpose
 (usage: `ktlint --color --print-ast <file>`).  
 An example of the output is shown below. 
@@ -357,9 +356,9 @@ $ printf "fun main() {}" | ktlint --color --print-ast --stdin
 Take a look at [ktlint-reporter-plain](ktlint-reporter-plain). 
 
 In short, all you need to do is to implement a 
-[Reporter](ktlint-core/src/main/kotlin/com/github/shyiko/ktlint/core/Reporter.kt) and make it available by registering 
-a custom [ReporterProvider](ktlint-core/src/main/kotlin/com/github/shyiko/ktlint/core/ReporterProvider.kt) using
-`META-INF/services/com.github.shyiko.ktlint.core.ReporterProvider`. Pack all of that into a JAR and you're done.
+[Reporter](ktlint-core/src/main/kotlin/com/pinterest/ktlint/core/Reporter.kt) and make it available by registering 
+a custom [ReporterProvider](ktlint-core/src/main/kotlin/com/pinterest/ktlint/core/ReporterProvider.kt) using
+`META-INF/services/com.pinterest.ktlint.core.ReporterProvider`. Pack all of that into a JAR and you're done.
 
 To load a custom (3rd party) reporter use `ktlint --reporter=name,artifact=groupId:artifactId:version` / `ktlint --reporter=name,artifact=/path/to/custom-ktlint-reporter.jar`
 (see `ktlint --help` for more).
@@ -396,7 +395,7 @@ See [Creating A Ruleset](#creating-a-ruleset).
 ### How do I suppress an error?
 
 > This is meant primarily as an escape latch for the rare cases when **ktlint** is not able
-to produce the correct result (please report any such instances using [GitHub Issues](https://github.com/shyiko/ktlint/issues)).
+to produce the correct result (please report any such instances using [GitHub Issues](https://github.com/pinterest/ktlint/issues)).
 
 To disable a specific rule you'll need to turn on the verbose mode (`ktlint --verbose ...`). At the end of each line
 you'll see an error code. Use it as an argument for `ktlint-disable` directive (shown below).  
@@ -421,18 +420,18 @@ import package.* // ktlint-disable
 > Make sure to read [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ```sh
-git clone https://github.com/shyiko/ktlint && cd ktlint
+git clone https://github.com/pinterest/ktlint && cd ktlint
 ./mvnw # shows how to build, test, run, etc. project
 ```
 
 > To open ktlint in Intellij IDEA:  
 <kbd>File</kbd> -> <kbd>Open...</kbd> (you may need to right-click on `pom.xml` (in the project dir) and then <kbd>Maven</kbd> -> <kbd>Reimport</kbd>).  
 You'll also need to set "Project SDK" to [1.8](https://github.com/shyiko/jabba#usage), "Project language level" to 8 in "Project Settings" (<kbd>File</kbd> -> <kbd>Project Structure...</kbd>).  
-To run `ktlint` - right-click on `ktlint/src/main/kotlin/com/github/shyiko/ktlint/Main.kt` -> <kbd>Run</kbd>.       
+To run `ktlint` - right-click on `ktlint/src/main/kotlin/com/pinterest/ktlint/Main.kt` -> <kbd>Run</kbd>.       
 
 #### Access to the latest `master` snapshot
 
-Whenever a commit is added to the `master` branch `0.0.0-SNAPSHOT` is automatically uploaded to [Sonatype's snapshots repository](https://oss.sonatype.org/content/repositories/snapshots/com/github/shyiko/ktlint/).
+Whenever a commit is added to the `master` branch `0.0.0-SNAPSHOT` is automatically uploaded to [Sonatype's snapshots repository](https://oss.sonatype.org/content/repositories/snapshots/com/pinterest/ktlint/).
 If you are eager to try upcoming changes (that might or might not be included in the next stable release) you can do 
 so by changing version of ktlint to `0.0.0-SNAPSHOT` + adding a repo: 
 
