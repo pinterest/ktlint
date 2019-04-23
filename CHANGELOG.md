@@ -20,7 +20,7 @@ Note: This release will not be updated in the `homebrew-ktlint` tap; we will be 
 
 ### Changed
 - Code now lives in `com.pinterest` package
-- groupId now `com.pinterest.ktlint`
+- groupId now `com.pinterest`
 
 ## [0.31.0] - 2019-03-10
 
