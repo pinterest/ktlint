@@ -8,7 +8,7 @@ Note: This release will not be updated in the `homebrew-ktlint` tap; we will be 
 
 ### Added
 - `experimental/import-ordering` rule ([#189](https://github.com/pinterest/ktlint/issues/189)).
-  User `ktlint --experimental` to enabled.
+  Use `ktlint --experimental` to enabled.
 - Support for Kotlin 1.3.30
 - Build now compatible with jitpack
 
@@ -543,6 +543,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.32.0]: https://github.com/shyiko/ktlint/compare/0.31.0...0.32.0
 [0.31.0]: https://github.com/shyiko/ktlint/compare/0.30.0...0.31.0
 [0.30.0]: https://github.com/shyiko/ktlint/compare/0.29.0...0.30.0
 [0.29.0]: https://github.com/shyiko/ktlint/compare/0.28.0...0.29.0
