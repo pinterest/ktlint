@@ -20,6 +20,8 @@ class SpacingAroundCommaRule : Rule("comma-spacing") {
         if (node is LeafPsiElement && node.textMatches(",") && !node.isPartOfString()) {
             val prevLeaf = node.prevLeaf()
             if (prevLeaf is PsiWhiteSpace) {
+                // Error can be auto corrected only if comma doesn't preceded by comment
+                // https://github.com/pinterest/ktlint/issues/367
                 val canBeAutoCorrected = prevLeaf.prevLeaf { it !is PsiWhiteSpace } !is PsiComment
                 emit(prevLeaf.startOffset, "Unexpected spacing before \"${node.text}\"", canBeAutoCorrected)
                 if (autoCorrect && canBeAutoCorrected) {
