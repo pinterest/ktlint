@@ -4,13 +4,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.32.0] - 2019-04-22
 
-Note: This release will not be updated in the `homebrew-ktlint` tap; we will be opening a PR to make `ktlint` part of the core Homebrew formulae.
-
 ### Added
 - `experimental/import-ordering` rule ([#189](https://github.com/pinterest/ktlint/issues/189)).
   Use `ktlint --experimental` to enabled.
 - Support for Kotlin 1.3.30
 - Build now compatible with jitpack
+- `ktlint` now part of Homebrew core (`shyiko/ktlint` tap deprecated)
 
 ### Fixed
 - Incorrectly flagging a missing newline for functions with no parameters ([#327](https://github.com/pinterest/ktlint/issues/327)).
