@@ -56,7 +56,7 @@ private typealias F = (
 ) -> String
 
 fun Rule.diffFileLint(path: String, userData: Map<String, String> = emptyMap()): String {
-    val resourceText = getResourceAsText(path)
+    val resourceText = getResourceAsText(path).replace("\r\n", "\n")
     val dividerIndex = resourceText.lastIndexOf("\n// expect\n")
     if (dividerIndex == -1) {
         throw RuntimeException("$path must contain '// expect' line")
