@@ -5,21 +5,19 @@ class C {
 }
 
 fun f() {
-    val x =
-        "a" +
-            "b2"
+    val x = "a" +
+        "b2"
     val x =
         "a" +
             "b2"
 
-    val x =
-        paths.flatMap { dir ->
-            "hello"
-        } + f0(
-            "there"
-        ) + f1(
-            "sssss"
-        )
+    val x = paths.flatMap { dir ->
+        "hello"
+    } + f0(
+        "there"
+    ) + f1(
+        "sssss"
+    )
 
     fun Exception.toLintError(): LintError = this.let { e ->
         //
