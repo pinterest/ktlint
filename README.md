@@ -83,7 +83,7 @@ curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.32.0/ktlint &
 
 ... or just download `ktlint` from the [releases](https://github.com/pinterest/ktlint/releases) page  (`ktlint.asc` contains PGP signature which you can verify with `curl -sS https://keybase.io/pinterestandroid/pgp_keys.asc | gpg --import && gpg --verify ktlint.asc`).  
 
-On macOS ([or Linux](http://linuxbrew.sh/)) you can also use [brew](https://brew.sh/) - `brew tap shyiko/ktlint && brew install shyiko/ktlint/ktlint`. (Note: tap deprecated as of version 0.32.0)
+On macOS ([or Linux](http://linuxbrew.sh/)) you can also use [brew](https://brew.sh/) - `brew install ktlint`.
 
 > If you don't have curl installed - replace `curl -sL` with `wget -qO-`.
 

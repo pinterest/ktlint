@@ -171,7 +171,6 @@
                         ./mvnw -Ddeploy=maven-central
                         ./mvnw -Ddeploy=github
                         ./mvnw -Ddeploy=github-release-notes -N
-                        ./mvnw -Ddeploy=homebrew -N
                         ./mvnw -Ddeploy=refs -N
                     </usage>
                 </configuration>
@@ -268,33 +267,6 @@
                                     <arg value="push"/>
                                     <arg value="${project.version}"/>
                                     <env key="CHANDLER_GITHUB_API_TOKEN" value="${settings.servers.github.privateKey}"/>
-                                </exec>
-                            </target>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>deploy-to-homebrew</id>
-            <activation>
-                <property>
-                    <name>deploy</name>
-                    <value>homebrew</value>
-                </property>
-            </activation>
-            <build>
-                <defaultGoal>antrun:run</defaultGoal>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-antrun-plugin</artifactId>
-                        <version>1.8</version>
-                        <configuration>
-                            <target name="deploy-to-homebrew">
-                                <exec executable="${project.basedir}/.deploy-to-homebrew" failonerror="true">
-                                    <env key="VERSION" value="${project.version}"/>
-                                    <env key="GITHUB_TOKEN" value="${settings.servers.github.privateKey}"/>
                                 </exec>
                             </target>
                         </configuration>
