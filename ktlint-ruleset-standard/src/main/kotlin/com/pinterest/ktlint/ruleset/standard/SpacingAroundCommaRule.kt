@@ -2,6 +2,7 @@ package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.isPartOfString
+import com.pinterest.ktlint.core.ast.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.core.ast.nextLeaf
 import com.pinterest.ktlint.core.ast.nextSibling
 import com.pinterest.ktlint.core.ast.prevCodeLeaf
@@ -25,8 +26,8 @@ class SpacingAroundCommaRule : Rule("comma-spacing") {
                 emit(prevLeaf.startOffset, "Unexpected spacing before \"${node.text}\"", true)
                 if (autoCorrect) {
                     val isPrecededByComment = prevLeaf.prevLeaf { it !is PsiWhiteSpace } is PsiComment
-                    if (isPrecededByComment) {
-                        // If comma preceded by a comment, it should be moved before this comment
+                    if (isPrecededByComment && prevLeaf.isWhiteSpaceWithNewline()) {
+                        // If comma is on new line and preceded by a comment, it should be moved before this comment
                         // https://github.com/pinterest/ktlint/issues/367
                         val previousStatement = node.prevCodeLeaf()!!
                         previousStatement.treeParent.addChild(node.clone(), previousStatement.nextSibling { true })
