@@ -404,7 +404,14 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
             //     m -> 0 + d({
             //     })
             // }
-            (p.elementType == WHEN_ENTRY && mustBeFollowedByNewline(node))
+            (p.elementType == WHEN_ENTRY && mustBeFollowedByNewline(node)) ||
+            // permit
+            // when (this) {
+            //     in 0x1F600..0x1F64F, // Emoticons
+            //     0x200D // Zero-width Joiner
+            //     -> true
+            // }
+            (p.elementType == WHEN_ENTRY && node.prevLeaf()?.textContains('\n') == true)
         ) {
             return
         }
