@@ -12,6 +12,7 @@ class ExperimentalRuleSetProvider : RuleSetProvider {
         MultiLineIfElseRule(),
         NoEmptyFirstLineInMethodBlockRule(),
         PackageNameRule(),
-        EnumEntryNameCaseRule()
+        EnumEntryNameCaseRule(),
+        SpacingAroundDoubleColonRule()
     )
 }
