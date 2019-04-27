@@ -5,5 +5,5 @@ plugins {
 dependencies {
   compile project(':ktlint-core')
   compile libraries.kotlin_stdlib
-  compile libraries.kolor
+  compile libraries.assertj_core
 }

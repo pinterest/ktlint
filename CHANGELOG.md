@@ -2,6 +2,80 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.32.0] - 2019-04-22
+
+### Added
+- `experimental/import-ordering` rule ([#189](https://github.com/pinterest/ktlint/issues/189)).
+  Use `ktlint --experimental` to enabled.
+- Support for Kotlin 1.3.30
+- Build now compatible with jitpack
+- `ktlint` now part of Homebrew core (`shyiko/ktlint` tap deprecated)
+
+### Fixed
+- Incorrectly flagging a missing newline for functions with no parameters ([#327](https://github.com/pinterest/ktlint/issues/327)).
+- Semicolons now allowed in KDocs ([#362](https://github.com/pinterest/ktlint/issues/362)).
+- Spaces now disallowed after `super` ([#369](https://github.com/pinterest/ktlint/issues/369)).
+- Annotations in function parameters now checked for indentation ([#374](https://github.com/pinterest/ktlint/issues/374)]
+
+### Changed
+- Code now lives in `com.pinterest` package
+- groupId now `com.pinterest`
+
+## [0.31.0] - 2019-03-10
+
+### Added
+- `dot-spacing` rule ([#293](https://github.com/shyiko/ktlint/issues/293)).
+- `experimental/indent` rule ([#338](https://github.com/shyiko/ktlint/issues/338)).  
+  Use `ktlint --experimental` to enable. 
+
+### Fixed
+- Spacing check around `<` & `>` operators.
+
+### Changed
+- `no-multi-spaces` rule (horizontal alignment of comments is no longer allowed) ([#269](https://github.com/shyiko/ktlint/issues/269)).
+- `colon-spacing` rule (`:` must not appear at the beginning of the line).
+- `package-name` rule (disabled until [#208](https://github.com/shyiko/ktlint/issues/208) is resolved).
+- `--print-ast` to output [com.github.shyiko.ktlint.core.ast.ElementType.*](https://github.com/shyiko/ktlint/blob/master/ktlint-core/src/main/kotlin/com/github/shyiko/ktlint/core/ast/ElementType.kt) as `node.elementType`, e.g. 
+```
+$ echo 'fun f() {}' | ./ktlint/target/ktlint --print-ast --color --stdin
+1: ~.psi.KtFile (FILE)
+1:   ~.psi.KtPackageDirective (PACKAGE_DIRECTIVE) ""
+1:   ~.psi.KtImportList (IMPORT_LIST) ""
+1:   ~.psi.KtScript (SCRIPT)
+1:     ~.psi.KtBlockExpression (BLOCK)
+1:       ~.psi.KtNamedFunction (FUN)
+1:         ~.c.i.p.impl.source.tree.LeafPsiElement (FUN_KEYWORD) "fun"
+1:         ~.c.i.p.impl.source.tree.PsiWhiteSpaceImpl (WHITE_SPACE) " "
+1:         ~.c.i.p.impl.source.tree.LeafPsiElement (IDENTIFIER) "f"
+1:         ~.psi.KtParameterList (VALUE_PARAMETER_LIST)
+1:           ~.c.i.p.impl.source.tree.LeafPsiElement (LPAR) "("
+1:           ~.c.i.p.impl.source.tree.LeafPsiElement (RPAR) ")"
+1:         ~.c.i.p.impl.source.tree.PsiWhiteSpaceImpl (WHITE_SPACE) " "
+1:         ~.psi.KtBlockExpression (BLOCK)
+1:           ~.c.i.p.impl.source.tree.LeafPsiElement (LBRACE) "{"
+1:           ~.c.i.p.impl.source.tree.LeafPsiElement (RBRACE) "}"
+1:       ~.c.i.p.impl.source.tree.PsiWhiteSpaceImpl (WHITE_SPACE) "\n"
+
+   format: <line_number:> <node.psi::class> (<node.elementType>) "<node.text>"
+   legend: ~ = org.jetbrains.kotlin, c.i.p = com.intellij.psi
+```
+
+- `kotlin-compiler` version to 1.3.21 (from 1.3.20).
+
+### Removed 
+- Dependency on JCenter ([#349](https://github.com/shyiko/ktlint/issues/349)).
+
+## [0.30.0] - 2019-02-03
+
+### Fixed
+- `Missing newline before ")"` ([#327](https://github.com/shyiko/ktlint/issues/327)).
+
+### Changed
+- `kotlin-compiler` version to 1.3.20 (from 1.2.71) ([#331](https://github.com/shyiko/ktlint/issues/331)).
+
+### Security
+- `--ruleset`/`--reporter` switched to HTTPS ([#332](https://github.com/shyiko/ktlint/issues/332)).
+
 ## [0.29.0] - 2018-10-02
 
 ### Fixed
@@ -468,6 +542,9 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.32.0]: https://github.com/shyiko/ktlint/compare/0.31.0...0.32.0
+[0.31.0]: https://github.com/shyiko/ktlint/compare/0.30.0...0.31.0
+[0.30.0]: https://github.com/shyiko/ktlint/compare/0.29.0...0.30.0
 [0.29.0]: https://github.com/shyiko/ktlint/compare/0.28.0...0.29.0
 [0.28.0]: https://github.com/shyiko/ktlint/compare/0.27.0...0.28.0
 [0.27.0]: https://github.com/shyiko/ktlint/compare/0.26.0...0.27.0

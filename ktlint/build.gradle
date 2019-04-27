@@ -2,18 +2,26 @@ plugins {
   id "org.jetbrains.kotlin.jvm"
   id "application"
   // applied after mainClassName per https://github.com/johnrengelman/shadow/issues/336
-  id "com.github.johnrengelman.shadow" version "2.0.2" apply false
+  id "com.github.johnrengelman.shadow" version "4.0.2" apply false
 }
 
-mainClassName = 'com.github.shyiko.ktlint.Main'
 apply plugin: 'com.github.johnrengelman.shadow'
+
+shadowJar {
+  mainClassName = 'com.github.shyiko.ktlint.Main'
+  mergeServiceFiles {
+    include 'META-INF/services/com.github.shyiko.ktlint.core.*'
+  }
+}
 
 dependencies {
   compile project(":ktlint-core")
-  compile project(":ktlint-ruleset-standard")
-  compile project(":ktlint-reporter-plain")
-  compile project(":ktlint-reporter-json")
   compile project(":ktlint-reporter-checkstyle")
+  compile project(":ktlint-reporter-json")
+  compile project(":ktlint-reporter-plain")
+  compile project(":ktlint-ruleset-experimental")
+  compile project(":ktlint-ruleset-standard")
+  compile project(":ktlint-test")
   compile libraries.kotlin_stdlib
   compile libraries.klob
   compile libraries.aether_api

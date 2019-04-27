@@ -1,5 +1,5 @@
 package com.omg.sooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo.long
-import com.omg.soooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo.long
+
 // http://______________________________________________________________________.
 fun main() {
     // comment padded with spaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaace
@@ -31,7 +31,7 @@ fun main() {
  */
 
 // expect
-// 6:1:Exceeded max line length (80)
-// 7:1:Exceeded max line length (80)
-// 8:1:Exceeded max line length (80)
-// 10:1:Exceeded max line length (80)
+// 6:1:Exceeded max line length (80) (cannot be auto-corrected)
+// 7:1:Exceeded max line length (80) (cannot be auto-corrected)
+// 8:1:Exceeded max line length (80) (cannot be auto-corrected)
+// 10:1:Exceeded max line length (80) (cannot be auto-corrected)

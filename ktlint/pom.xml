@@ -4,19 +4,18 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.github.shyiko.ktlint</groupId>
+        <groupId>com.pinterest.ktlint</groupId>
         <artifactId>pom</artifactId>
         <version>0.0.0-SNAPSHOT</version>
     </parent>
 
-    <!-- keeping original (pre 0.2.0) qualifier (com.github.shyiko:ktlint) so that no one would notice a thing -->
-    <groupId>com.github.shyiko</groupId>
+    <groupId>com.pinterest</groupId>
     <artifactId>ktlint</artifactId>
 
     <scm>
-        <connection>scm:git:git@github.com:shyiko/ktlint.git</connection>
-        <developerConnection>scm:git:git@github.com:shyiko/ktlint.git</developerConnection>
-        <url>git@github.com:shyiko/ktlint.git</url>
+        <connection>scm:git:git@github.com:pinterest/ktlint.git</connection>
+        <developerConnection>scm:git:git@github.com:pinterest/ktlint.git</developerConnection>
+        <url>git@github.com:pinterest/ktlint.git</url>
     </scm>
 
     <dependencies>
@@ -35,32 +34,37 @@
             <!-- included (at least org.jetbrains.annotations.*) in kotlin-compiler-embeddable -->
         </dependency>
         <dependency>
-            <groupId>com.github.shyiko.ktlint</groupId>
+            <groupId>com.pinterest.ktlint</groupId>
             <artifactId>ktlint-core</artifactId>
             <version>0.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>com.github.shyiko.ktlint</groupId>
+            <groupId>com.pinterest.ktlint</groupId>
             <artifactId>ktlint-ruleset-standard</artifactId>
             <version>0.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>com.github.shyiko.ktlint</groupId>
+            <groupId>com.pinterest.ktlint</groupId>
+            <artifactId>ktlint-ruleset-experimental</artifactId>
+            <version>0.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.pinterest.ktlint</groupId>
             <artifactId>ktlint-reporter-plain</artifactId>
             <version>0.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>com.github.shyiko.ktlint</groupId>
+            <groupId>com.pinterest.ktlint</groupId>
             <artifactId>ktlint-reporter-json</artifactId>
             <version>0.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>com.github.shyiko.ktlint</groupId>
+            <groupId>com.pinterest.ktlint</groupId>
             <artifactId>ktlint-reporter-checkstyle</artifactId>
             <version>0.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>com.github.shyiko.ktlint</groupId>
+            <groupId>com.pinterest.ktlint</groupId>
             <artifactId>ktlint-test</artifactId>
             <version>0.0.0-SNAPSHOT</version>
         </dependency>
@@ -194,11 +198,13 @@
                         <configuration>
                             <target name="ktlint">
                                 <java dir="${basedir}${file.separator}.."
-                                      classname="com.github.shyiko.ktlint.Main"
+                                      classname="com.pinterest.ktlint.Main"
                                       classpathref="maven.runtime.classpath"
                                       fork="true"
                                       failonerror="true"
-                                      taskname="lint"/>
+                                      taskname="lint">
+                                    <arg value="--experimental"/>
+                                </java>
                             </target>
                         </configuration>
                         <goals>
@@ -210,7 +216,7 @@
                         <configuration>
                             <target name="ktlint">
                                 <java dir="${basedir}${file.separator}.."
-                                      classname="com.github.shyiko.ktlint.Main"
+                                      classname="com.pinterest.ktlint.Main"
                                       classpathref="maven.runtime.classpath"
                                       fork="true"
                                       failonerror="true"
@@ -224,6 +230,14 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.6.0</version>
+                <configuration>
+                    <mainClass>com.pinterest.ktlint.Main</mainClass>
+                </configuration>
             </plugin>
         </plugins>
     </build>
@@ -301,7 +315,7 @@
                                                          "org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                                         <transformer implementation=
                                                          "org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                            <mainClass>com.github.shyiko.ktlint.Main</mainClass>
+                                            <mainClass>com.pinterest.ktlint.Main</mainClass>
                                         </transformer>
                                     </transformers>
                                     <shadedArtifactAttached>true</shadedArtifactAttached>

@@ -1,10 +1,10 @@
 plugins {
-  id "org.jetbrains.kotlin.jvm" version "1.2.71" apply false
+  id "org.jetbrains.kotlin.jvm" version "1.3.30" apply false
 }
 
 ext.libraries = [
-  "kotlin_stdlib": "org.jetbrains.kotlin:kotlin-stdlib:1.2.71",
-  "kotlin_compiler_embeddable": "org.jetbrains.kotlin:kotlin-compiler-embeddable:1.2.71",
+  "kotlin_stdlib": "org.jetbrains.kotlin:kotlin-stdlib:1.3.30",
+  "kotlin_compiler_embeddable": "org.jetbrains.kotlin:kotlin-compiler-embeddable:1.3.30",
   "klob": "com.github.shyiko.klob:klob:0.2.1",
   "aether_api": "org.eclipse.aether:aether-api:1.1.0",
   "aether_spi": "org.eclipse.aether:aether-spi:1.1.0",
@@ -17,19 +17,15 @@ ext.libraries = [
   "slf4j_nop": "org.slf4j:slf4j-nop:1.6.2",
   "maven_aether_provider": "org.apache.maven:maven-aether-provider:3.2.5",
   "picocli": "info.picocli:picocli:2.3.0",
-  "kolor":  dependencies.create("com.andreapivetta.kolor:kolor:0.0.2") {
-    exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib-jre8"
-  },
 
   // Testing libraries
   "testng": "org.testng:testng:6.8.21",
-  "assertj_core": "org.assertj:assertj-core:1.7.1",
+  "assertj_core": "org.assertj:assertj-core:3.9.0",
   "jimfs": "com.google.jimfs:jimfs:1.1"
 ]
 
 subprojects {
   repositories {
-    jcenter()
     mavenCentral()
   }
 }
