@@ -35,14 +35,19 @@ class NoMultipleSpacesRule : Rule("no-multi-spaces") {
             }
             return comments.foldIndexed(mutableMapOf()) { i, acc, comment ->
                 // todo: get rid of DiagnosticUtils (IndexOutOfBoundsException)
-                val pos = DiagnosticUtils.getLineAndColumnInPsiFile(fileNode.psi as PsiFile,
-                    TextRange(comment.startOffset, comment.startOffset))
-                acc.put(comment.startOffset, CommentRelativeLocation(
-                    prevCommentOffset = comments.getOrNull(i - 1)?.startOffset ?: -1,
-                    line = pos.line,
-                    column = pos.column,
-                    nextCommentOffset = comments.getOrNull(i + 1)?.startOffset ?: -1
-                ))
+                val pos = DiagnosticUtils.getLineAndColumnInPsiFile(
+                    fileNode.psi as PsiFile,
+                    TextRange(comment.startOffset, comment.startOffset)
+                )
+                acc.put(
+                    comment.startOffset,
+                    CommentRelativeLocation(
+                        prevCommentOffset = comments.getOrNull(i - 1)?.startOffset ?: -1,
+                        line = pos.line,
+                        column = pos.column,
+                        nextCommentOffset = comments.getOrNull(i + 1)?.startOffset ?: -1
+                    )
+                )
                 acc
             }
         }

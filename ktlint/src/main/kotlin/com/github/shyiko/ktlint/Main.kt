@@ -117,64 +117,91 @@ object Main {
     @Option(names = arrayOf("--format", "-F"), description = arrayOf("Fix any deviations from the code style"))
     private var format: Boolean = false
 
-    @Option(names = arrayOf("--install-git-pre-commit-hook"), description = arrayOf(
-        "Install git hook to automatically check files for style violations on commit"
-    ))
+    @Option(
+        names = arrayOf("--install-git-pre-commit-hook"),
+        description = arrayOf(
+            "Install git hook to automatically check files for style violations on commit"
+        )
+    )
     private var installGitPreCommitHook: Boolean = false
 
-    @Option(names = arrayOf("--install-git-pre-push-hook"), description = arrayOf(
-        "Install git hook to automatically check files for style violations before push"
-    ))
+    @Option(
+        names = arrayOf("--install-git-pre-push-hook"),
+        description = arrayOf(
+            "Install git hook to automatically check files for style violations before push"
+        )
+    )
     private var installGitPrePushHook: Boolean = false
 
-    @Option(names = arrayOf("--limit"), description = arrayOf(
-        "Maximum number of errors to show (default: show all)"
-    ))
+    @Option(
+        names = arrayOf("--limit"),
+        description = arrayOf(
+            "Maximum number of errors to show (default: show all)"
+        )
+    )
     private var limit: Int = -1
         get() = if (field < 0) Int.MAX_VALUE else field
 
-    @Option(names = arrayOf("--print-ast"), description = arrayOf(
-        "Print AST (useful when writing/debugging rules)"
-    ))
+    @Option(
+        names = arrayOf("--print-ast"),
+        description = arrayOf(
+            "Print AST (useful when writing/debugging rules)"
+        )
+    )
     private var printAST: Boolean = false
 
-    @Option(names = arrayOf("--relative"), description = arrayOf(
-        "Print files relative to the working directory " +
-            "(e.g. dir/file.kt instead of /home/user/project/dir/file.kt)"
-    ))
+    @Option(
+        names = arrayOf("--relative"),
+        description = arrayOf(
+            "Print files relative to the working directory " +
+                "(e.g. dir/file.kt instead of /home/user/project/dir/file.kt)"
+        )
+    )
     private var relative: Boolean = false
 
-    @Option(names = arrayOf("--reporter"), description = arrayOf(
-        "A reporter to use (built-in: plain (default), plain?group_by_file, json, checkstyle). " +
-        "To use a third-party reporter specify either a path to a JAR file on the filesystem or a" +
-        "<groupId>:<artifactId>:<version> triple pointing to a remote artifact (in which case ktlint will first " +
-        "check local cache (~/.m2/repository) and then, if not found, attempt downloading it from " +
-        "Maven Central/JCenter/JitPack/user-provided repository)\n" +
-        "e.g. \"html,artifact=com.github.username:ktlint-reporter-html:master-SNAPSHOT\""
-    ))
+    @Option(
+        names = arrayOf("--reporter"),
+        description = arrayOf(
+            "A reporter to use (built-in: plain (default), plain?group_by_file, json, checkstyle). " +
+            "To use a third-party reporter specify either a path to a JAR file on the filesystem or a" +
+            "<groupId>:<artifactId>:<version> triple pointing to a remote artifact (in which case ktlint will first " +
+            "check local cache (~/.m2/repository) and then, if not found, attempt downloading it from " +
+            "Maven Central/JCenter/JitPack/user-provided repository)\n" +
+            "e.g. \"html,artifact=com.github.username:ktlint-reporter-html:master-SNAPSHOT\""
+        )
+    )
     private var reporters = ArrayList<String>()
 
-    @Option(names = arrayOf("--repository"), description = arrayOf(
-        "An additional Maven repository (Maven Central/JCenter/JitPack are active by default) " +
-            "(value format: <id>=<url>)"
-    ))
+    @Option(
+        names = arrayOf("--repository"),
+        description = arrayOf(
+            "An additional Maven repository (Maven Central/JCenter/JitPack are active by default) " +
+                "(value format: <id>=<url>)"
+        )
+    )
     private var repositories = ArrayList<String>()
     @Option(names = arrayOf("--ruleset-repository", "--reporter-repository"), hidden = true)
     private var repositoriesDeprecated = ArrayList<String>()
 
-    @Option(names = arrayOf("--repository-update", "-U"), description = arrayOf(
-        "Check remote repositories for updated snapshots"
-    ))
+    @Option(
+        names = arrayOf("--repository-update", "-U"),
+        description = arrayOf(
+            "Check remote repositories for updated snapshots"
+        )
+    )
     private var forceUpdate: Boolean? = null
     @Option(names = arrayOf("--ruleset-update", "--reporter-update"), hidden = true)
     private var forceUpdateDeprecated: Boolean? = null
 
-    @Option(names = arrayOf("--ruleset", "-R"), description = arrayOf(
-        "A path to a JAR file containing additional ruleset(s) or a " +
-        "<groupId>:<artifactId>:<version> triple pointing to a remote artifact (in which case ktlint will first " +
-        "check local cache (~/.m2/repository) and then, if not found, attempt downloading it from " +
-        "Maven Central/JCenter/JitPack/user-provided repository)"
-    ))
+    @Option(
+        names = arrayOf("--ruleset", "-R"),
+        description = arrayOf(
+            "A path to a JAR file containing additional ruleset(s) or a " +
+            "<groupId>:<artifactId>:<version> triple pointing to a remote artifact (in which case ktlint will first " +
+            "check local cache (~/.m2/repository) and then, if not found, attempt downloading it from " +
+            "Maven Central/JCenter/JitPack/user-provided repository)"
+        )
+    )
     private var rulesets = ArrayList<String>()
 
     @Option(names = arrayOf("--skip-classpath-check"), description = arrayOf("Do not check classpath for potential conflicts"))
@@ -469,16 +496,25 @@ object Main {
     private fun Exception.toLintError(): LintError = this.let { e ->
         when (e) {
             is ParseException ->
-                LintError(e.line, e.col, "",
-                    "Not a valid Kotlin file (${e.message?.toLowerCase()})")
+                LintError(
+                    e.line,
+                    e.col,
+                    "",
+                    "Not a valid Kotlin file (${e.message?.toLowerCase()})"
+                )
             is RuleExecutionException -> {
                 if (debug) {
                     System.err.println("[DEBUG] Internal Error (${e.ruleId})")
                     e.printStackTrace(System.err)
                 }
-                LintError(e.line, e.col, "", "Internal Error (${e.ruleId}). " +
-                    "Please create a ticket at https://github.com/shyiko/ktlint/issue " +
-                    "(if possible, provide the source code that triggered an error)")
+                LintError(
+                    e.line,
+                    e.col,
+                    "",
+                    "Internal Error (${e.ruleId}). " +
+                        "Please create a ticket at https://github.com/shyiko/ktlint/issue " +
+                        "(if possible, provide the source code that triggered an error)"
+                )
             }
             else -> throw e
         }
@@ -612,16 +648,14 @@ object Main {
         val dependencyResolver = MavenDependencyResolver(
             mavenLocal,
             listOf(
-                RemoteRepository.Builder(
-                    "central", "default", "http://repo1.maven.org/maven2/"
-                ).setSnapshotPolicy(RepositoryPolicy(false, UPDATE_POLICY_NEVER,
-                    CHECKSUM_POLICY_IGNORE)).build(),
-                RemoteRepository.Builder(
-                    "bintray", "default", "http://jcenter.bintray.com"
-                ).setSnapshotPolicy(RepositoryPolicy(false, UPDATE_POLICY_NEVER,
-                    CHECKSUM_POLICY_IGNORE)).build(),
-                RemoteRepository.Builder(
-                    "jitpack", "default", "http://jitpack.io").build()
+                RemoteRepository.Builder("central", "default", "http://repo1.maven.org/maven2/")
+                    .setSnapshotPolicy(RepositoryPolicy(false, UPDATE_POLICY_NEVER, CHECKSUM_POLICY_IGNORE))
+                    .build(),
+                RemoteRepository.Builder("bintray", "default", "http://jcenter.bintray.com")
+                    .setSnapshotPolicy(RepositoryPolicy(false, UPDATE_POLICY_NEVER, CHECKSUM_POLICY_IGNORE))
+                    .build(),
+                RemoteRepository.Builder("jitpack", "default", "http://jitpack.io")
+                    .build()
             ) + repositories.map { repository ->
                 val colon = repository.indexOf("=").apply {
                     if (this == -1) { throw RuntimeException("$repository is not a valid repository entry " +
@@ -689,8 +723,9 @@ object Main {
     private fun parseQuery(query: String) = query.split("&")
         .fold(LinkedHashMap<String, String>()) { map, s ->
             if (!s.isEmpty()) {
-                s.split("=", limit = 2).let { e -> map.put(e[0],
-                    URLDecoder.decode(e.getOrElse(1) { "true" }, "UTF-8")) }
+                s.split("=", limit = 2).let { e ->
+                    map.put(e[0], URLDecoder.decode(e.getOrElse(1) { "true" }, "UTF-8"))
+                }
             }
             map
         }

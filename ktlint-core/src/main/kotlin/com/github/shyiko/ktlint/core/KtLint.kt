@@ -53,8 +53,11 @@ object KtLint {
         DiagnosticLogger.setFactory(LoggerFactory::class.java)
         val compilerConfiguration = CompilerConfiguration()
         compilerConfiguration.put(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY, MessageCollector.NONE)
-        val project = KotlinCoreEnvironment.createForProduction(Disposable {},
-            compilerConfiguration, EnvironmentConfigFiles.JVM_CONFIG_FILES).project
+        val project = KotlinCoreEnvironment.createForProduction(
+            Disposable {},
+            compilerConfiguration,
+            EnvironmentConfigFiles.JVM_CONFIG_FILES
+        ).project
         // everything below (up to PsiFileFactory.getInstance(...)) is to get AST mutations (`ktlint -F ...`) working
         // otherwise it's not needed
         val pomModel: PomModel = object : UserDataHolderBase(), PomModel {
@@ -70,7 +73,9 @@ object KtLint {
                     // (check constructor signature and compare it to the source)
                     // (org.jetbrains.kotlin:kotlin-compiler-embeddable:1.0.3)
                     val constructor = ReflectionFactory.getReflectionFactory().newConstructorForSerialization(
-                        aspect, Any::class.java.getDeclaredConstructor(*arrayOfNulls<Class<*>>(0)))
+                        aspect,
+                        Any::class.java.getDeclaredConstructor(*arrayOfNulls<Class<*>>(0))
+                    )
                     return constructor.newInstance(*emptyArray()) as T
                 }
                 return null
@@ -428,8 +433,12 @@ object KtLint {
                                 val openHintIndex = open.indexOfLast { it.disabledRules == disabledRules }
                                 if (openHintIndex != -1) {
                                     val openingHint = open.removeAt(openHintIndex)
-                                    result.add(SuppressionHint(IntRange(openingHint.range.start, node.startOffset),
-                                        disabledRules))
+                                    result.add(
+                                        SuppressionHint(
+                                            IntRange(openingHint.range.start, node.startOffset),
+                                            disabledRules
+                                        )
+                                    )
                                 }
                             }
                         }

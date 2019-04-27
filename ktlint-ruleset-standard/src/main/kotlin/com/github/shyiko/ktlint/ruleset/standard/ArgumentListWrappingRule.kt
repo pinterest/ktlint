@@ -8,6 +8,7 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
+import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.psiUtil.children
 import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
@@ -31,7 +32,8 @@ class ArgumentListWrappingRule : Rule("argument-list-wrapping") {
         if (indentSize <= 0) {
             return
         }
-        if (node.elementType == KtNodeTypes.VALUE_ARGUMENT_LIST) {
+        if (node.elementType == KtNodeTypes.VALUE_ARGUMENT_LIST &&
+            node.getChildren(TokenSet.create(KtNodeTypes.VALUE_ARGUMENT)).size > 1) {
             // each parameter should be on a separate line if
             // - at least one of the parameters is
             // - maxLineLength exceeded (and separating parameters with \n would actually help)
@@ -74,8 +76,12 @@ class ArgumentListWrappingRule : Rule("argument-list-wrapping") {
                                     if (childIndent == intendedIndent) {
                                         continue@nextChild
                                     }
-                                    emit(child.startOffset, "Unexpected indentation" +
-                                        " (expected ${intendedIndent.length - 1}, actual ${childIndent.length - 1})", true)
+                                    emit(
+                                        child.startOffset,
+                                        "Unexpected indentation" +
+                                            " (expected ${intendedIndent.length - 1}, actual ${childIndent.length - 1})",
+                                        true
+                                    )
                                 } else if (issueApplies) {
                                     emit(child.startOffset, errorMessage(child), true)
                                 }

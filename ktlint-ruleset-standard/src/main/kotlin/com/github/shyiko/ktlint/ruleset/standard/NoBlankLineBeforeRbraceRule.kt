@@ -19,8 +19,11 @@ class NoBlankLineBeforeRbraceRule : Rule("no-blank-line-before-rbrace") {
             PsiTreeUtil.nextLeaf(node, true)?.node?.elementType == KtTokens.RBRACE) {
             val split = node.getText().split("\n")
             if (split.size > 2) {
-                emit(node.startOffset + split[0].length + split[1].length + 1,
-                    "Unexpected blank line(s) before \"}\"", true)
+                emit(
+                    node.startOffset + split[0].length + split[1].length + 1,
+                    "Unexpected blank line(s) before \"}\"",
+                    true
+                )
                 if (autoCorrect) {
                     (node as LeafPsiElement).rawReplaceWithText("${split.first()}\n${split.last()}")
                 }

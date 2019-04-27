@@ -48,21 +48,30 @@ class EditorConfigTest {
     fun testRootTermination() {
         val fs = Jimfs.newFileSystem(Configuration.unix())
         Files.createDirectories(fs.getPath("/projects/project-1/project-1-subdirectory"))
-        Files.write(fs.getPath("/projects/.editorconfig"), """
+        Files.write(
+            fs.getPath("/projects/.editorconfig"),
+            """
             root = true
             [*]
             end_of_line = lf
-        """.trimIndent().toByteArray())
-        Files.write(fs.getPath("/projects/project-1/.editorconfig"), """
+            """.trimIndent().toByteArray()
+        )
+        Files.write(
+            fs.getPath("/projects/project-1/.editorconfig"),
+            """
             root = true
             [*.{kt,kts}]
             indent_size = 4
             indent_style = space
-        """.trimIndent().toByteArray())
-        Files.write(fs.getPath("/projects/project-1/project-1-subdirectory/.editorconfig"), """
+            """.trimIndent().toByteArray()
+        )
+        Files.write(
+            fs.getPath("/projects/project-1/project-1-subdirectory/.editorconfig"),
+            """
             [*]
             indent_size = 2
-        """.trimIndent().toByteArray())
+            """.trimIndent().toByteArray()
+        )
         EditorConfig.of(fs.getPath("/projects/project-1/project-1-subdirectory")).let { editorConfig ->
             assertThat(editorConfig?.parent).isNotNull()
             assertThat(editorConfig?.parent?.parent).isNull()

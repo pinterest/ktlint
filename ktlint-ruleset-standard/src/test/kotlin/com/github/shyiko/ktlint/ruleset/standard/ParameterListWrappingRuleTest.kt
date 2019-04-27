@@ -12,10 +12,10 @@ class ParameterListWrappingRuleTest {
     fun testLintClassParameterList() {
         assertThat(
             ParameterListWrappingRule().lint(
-            """
-            class ClassA(paramA: String, paramB: String,
-                         paramC: String)
-            """.trimIndent()
+                """
+                class ClassA(paramA: String, paramB: String,
+                             paramC: String)
+                """.trimIndent()
             )
         ).isEqualTo(
             listOf(
@@ -31,10 +31,10 @@ class ParameterListWrappingRuleTest {
     fun testLintClassParameterListWhenMaxLineLengthExceeded() {
         assertThat(
             ParameterListWrappingRule().lint(
-            """
-            class ClassA(paramA: String, paramB: String, paramC: String)
-            """.trimIndent(),
-            userData = mapOf("max_line_length" to "10")
+                """
+                class ClassA(paramA: String, paramB: String, paramC: String)
+                """.trimIndent(),
+                userData = mapOf("max_line_length" to "10")
             )
         ).isEqualTo(
             listOf(
@@ -47,12 +47,12 @@ class ParameterListWrappingRuleTest {
         // corner case
         assertThat(
             ParameterListWrappingRule().lint(
-            """
-            class ClassA(paramA: String)
-             class ClassA(paramA: String)
-            class ClassA(paramA: String)
-            """.trimIndent(),
-            userData = mapOf("max_line_length" to "28")
+                """
+                class ClassA(paramA: String)
+                 class ClassA(paramA: String)
+                class ClassA(paramA: String)
+                """.trimIndent(),
+                userData = mapOf("max_line_length" to "28")
             )
         ).isEqualTo(
             listOf(
@@ -66,9 +66,9 @@ class ParameterListWrappingRuleTest {
     fun testLintClassParameterListValid() {
         assertThat(
             ParameterListWrappingRule().lint(
-            """
-            class ClassA(paramA: String, paramB: String, paramC: String)
-            """.trimIndent()
+                """
+                class ClassA(paramA: String, paramB: String, paramC: String)
+                """.trimIndent()
             )
         ).isEmpty()
     }
@@ -77,13 +77,13 @@ class ParameterListWrappingRuleTest {
     fun testLintClassParameterListValidMultiLine() {
         assertThat(
             ParameterListWrappingRule().lint(
-            """
-            class ClassA(
-                paramA: String,
-                paramB: String,
-                paramC: String
-            )
-            """.trimIndent()
+                """
+                class ClassA(
+                    paramA: String,
+                    paramB: String,
+                    paramC: String
+                )
+                """.trimIndent()
             )
         ).isEmpty()
     }
@@ -92,10 +92,10 @@ class ParameterListWrappingRuleTest {
     fun testFormatClassParameterList() {
         assertThat(
             ParameterListWrappingRule().format(
-            """
-            class ClassA(paramA: String, paramB: String,
-                         paramC: String)
-            """.trimIndent()
+                """
+                class ClassA(paramA: String, paramB: String,
+                             paramC: String)
+                """.trimIndent()
             )
         ).isEqualTo(
             """
@@ -112,10 +112,10 @@ class ParameterListWrappingRuleTest {
     fun testFormatClassParameterListWhenMaxLineLengthExceeded() {
         assertThat(
             ParameterListWrappingRule().format(
-            """
-            class ClassA(paramA: String, paramB: String, paramC: String)
-            """.trimIndent(),
-            userData = mapOf("max_line_length" to "10")
+                """
+                class ClassA(paramA: String, paramB: String, paramC: String)
+                """.trimIndent(),
+                userData = mapOf("max_line_length" to "10")
             )
         ).isEqualTo(
             """
@@ -132,13 +132,14 @@ class ParameterListWrappingRuleTest {
     fun testLintFunctionParameterList() {
         assertThat(
             ParameterListWrappingRule().lint(
-            """
-            fun f(a: Any,
-                  b: Any,
-                  c: Any) {
-            }
-            """.trimIndent()
-            )).isEqualTo(
+                """
+                fun f(a: Any,
+                      b: Any,
+                      c: Any) {
+                }
+                """.trimIndent()
+            )
+        ).isEqualTo(
             listOf(
                 LintError(1, 7, "parameter-list-wrapping", "Parameter should be on a separate line (unless all parameters can fit a single line)"),
                 LintError(2, 7, "parameter-list-wrapping", "Unexpected indentation (expected 4, actual 6)"),
@@ -152,12 +153,13 @@ class ParameterListWrappingRuleTest {
     fun testLintFunctionParameterListWhenMaxLineLengthExceeded() {
         assertThat(
             ParameterListWrappingRule().lint(
-            """
-            fun f(a: Any, b: Any, c: Any) {
-            }
-            """.trimIndent(),
-            userData = mapOf("max_line_length" to "10")
-            )).isEqualTo(
+                """
+                fun f(a: Any, b: Any, c: Any) {
+                }
+                """.trimIndent(),
+                userData = mapOf("max_line_length" to "10")
+            )
+        ).isEqualTo(
             listOf(
                 LintError(1, 7, "parameter-list-wrapping", "Parameter should be on a separate line (unless all parameters can fit a single line)"),
                 LintError(1, 15, "parameter-list-wrapping", "Parameter should be on a separate line (unless all parameters can fit a single line)"),
@@ -171,13 +173,14 @@ class ParameterListWrappingRuleTest {
     fun testFormatFunctionParameterList() {
         assertThat(
             ParameterListWrappingRule().format(
-            """
-            fun f(a: Any,
-                  b: Any,
-                  c: Any) {
-            }
-            """.trimIndent()
-            )).isEqualTo(
+                """
+                fun f(a: Any,
+                      b: Any,
+                      c: Any) {
+                }
+                """.trimIndent()
+            )
+        ).isEqualTo(
             """
             fun f(
                 a: Any,
@@ -193,11 +196,11 @@ class ParameterListWrappingRuleTest {
     fun testFormatFunctionParameterListWhenMaxLineLengthExceeded() {
         assertThat(
             ParameterListWrappingRule().format(
-            """
-            fun f(a: Any, b: Any, c: Any) {
-            }
-            """.trimIndent(),
-            userData = mapOf("max_line_length" to "10")
+                """
+                fun f(a: Any, b: Any, c: Any) {
+                }
+                """.trimIndent(),
+                userData = mapOf("max_line_length" to "10")
             )
         ).isEqualTo(
             """
@@ -215,30 +218,32 @@ class ParameterListWrappingRuleTest {
     fun testLambdaParametersAreIgnored() {
         assertThat(
             ParameterListWrappingRule().lint(
-            """
-            val fieldExample =
-                  LongNameClass { paramA,
-                                  paramB,
-                                  paramC ->
-                      ClassB(paramA, paramB, paramC)
-                  }
-            """.trimIndent()
-            )).isEmpty()
+                """
+                val fieldExample =
+                      LongNameClass { paramA,
+                                      paramB,
+                                      paramC ->
+                          ClassB(paramA, paramB, paramC)
+                      }
+                """.trimIndent()
+            )
+        ).isEmpty()
     }
 
     @Test
     fun testFormatPreservesIndent() {
         assertThat(
             ParameterListWrappingRule().format(
-            """
-            class A {
-                fun f(a: Any,
-                      b: Any,
-                      c: Any) {
+                """
+                class A {
+                    fun f(a: Any,
+                          b: Any,
+                          c: Any) {
+                    }
                 }
-            }
-            """.trimIndent()
-            )).isEqualTo(
+                """.trimIndent()
+            )
+        ).isEqualTo(
             """
             class A {
                 fun f(
@@ -256,22 +261,23 @@ class ParameterListWrappingRuleTest {
     fun testFormatPreservesIndentWithAnnotations() {
         assertThat(
             ParameterListWrappingRule().format(
-            """
-            class A {
-                fun f(@Annotation
-                      a: Any,
-                      @Annotation([
-                          "v1",
-                          "v2"
-                      ])
-                      b: Any,
-                      c: Any =
-                          false,
-                      @Annotation d: Any) {
+                """
+                class A {
+                    fun f(@Annotation
+                          a: Any,
+                          @Annotation([
+                              "v1",
+                              "v2"
+                          ])
+                          b: Any,
+                          c: Any =
+                              false,
+                          @Annotation d: Any) {
+                    }
                 }
-            }
-            """.trimIndent()
-            )).isEqualTo(
+                """.trimIndent()
+            )
+        ).isEqualTo(
             """
             class A {
                 fun f(
@@ -296,16 +302,17 @@ class ParameterListWrappingRuleTest {
     fun testFormatCorrectsRPARIndentIfNeeded() {
         assertThat(
             ParameterListWrappingRule().format(
-            """
-            class A {
-                fun f(a: Any,
-                      b: Any,
-                      c: Any
-                   ) {
+                """
+                class A {
+                    fun f(a: Any,
+                          b: Any,
+                          c: Any
+                       ) {
+                    }
                 }
-            }
-            """.trimIndent()
-            )).isEqualTo(
+                """.trimIndent()
+            )
+        ).isEqualTo(
             """
             class A {
                 fun f(
@@ -323,15 +330,16 @@ class ParameterListWrappingRuleTest {
     fun testFormatNestedDeclarations() {
         assertThat(
             ParameterListWrappingRule().format(
-            """
-            fun visit(
-                node: ASTNode,
-                    autoCorrect: Boolean,
-                emit: (offset: Int, errorMessage: String,
-                canBeAutoCorrected: Boolean) -> Unit
-            ) {}
-            """.trimIndent()
-            )).isEqualTo(
+                """
+                fun visit(
+                    node: ASTNode,
+                        autoCorrect: Boolean,
+                    emit: (offset: Int, errorMessage: String,
+                    canBeAutoCorrected: Boolean) -> Unit
+                ) {}
+                """.trimIndent()
+            )
+        ).isEqualTo(
             """
             fun visit(
                 node: ASTNode,
@@ -350,11 +358,12 @@ class ParameterListWrappingRuleTest {
     fun testFormatNestedDeclarationsWhenMaxLineLengthExceeded() {
         assertThat(
             ParameterListWrappingRule().format(
-            """
-            fun visit(node: ASTNode, autoCorrect: Boolean, emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {}
-            """.trimIndent(),
-            userData = mapOf("max_line_length" to "10")
-            )).isEqualTo(
+                """
+                fun visit(node: ASTNode, autoCorrect: Boolean, emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {}
+                """.trimIndent(),
+                userData = mapOf("max_line_length" to "10")
+            )
+        ).isEqualTo(
             """
             fun visit(
                 node: ASTNode,
@@ -373,14 +382,15 @@ class ParameterListWrappingRuleTest {
     fun testFormatNestedDeclarationsValid() {
         assertThat(
             ParameterListWrappingRule().format(
-            """
-            fun visit(
-                node: ASTNode,
-                autoCorrect: Boolean,
-                emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
-            ) {}
-            """.trimIndent()
-            )).isEqualTo(
+                """
+                fun visit(
+                    node: ASTNode,
+                    autoCorrect: Boolean,
+                    emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+                ) {}
+                """.trimIndent()
+            )
+        ).isEqualTo(
             """
             fun visit(
                 node: ASTNode,
@@ -393,33 +403,37 @@ class ParameterListWrappingRuleTest {
 
     @Test
     fun testCommentsAreIgnored() {
-        assertThat(ParameterListWrappingRule().lint(
-            """
-            data class A(
-               /*
-                * comment
-                */
-               //
-               var v: String
+        assertThat(
+            ParameterListWrappingRule().lint(
+                """
+                data class A(
+                   /*
+                    * comment
+                    */
+                   //
+                   var v: String
+                )
+                """.trimIndent()
             )
-            """.trimIndent()
-        )).isEqualTo(listOf(
-            LintError(6, 4, "parameter-list-wrapping", "Unexpected indentation (expected 4, actual 3)")
-        ))
+        ).isEqualTo(
+            listOf(
+                LintError(6, 4, "parameter-list-wrapping", "Unexpected indentation (expected 4, actual 3)")
+            )
+        )
     }
 
     @Test
     fun testLintClassDanglingLeftParen() {
         assertThat(
             ParameterListWrappingRule().lint(
-            """
-            class ClassA
-            (
-                paramA: String,
-                paramB: String,
-                paramC: String
-            )
-            """.trimIndent()
+                """
+                class ClassA
+                (
+                    paramA: String,
+                    paramB: String,
+                    paramC: String
+                )
+                """.trimIndent()
             )
         ).isEqualTo(
             listOf(
@@ -432,14 +446,14 @@ class ParameterListWrappingRuleTest {
     fun testLintFunctionDanglingLeftParen() {
         assertThat(
             ParameterListWrappingRule().lint(
-            """
-            fun doSomething
-            (
-                paramA: String,
-                paramB: String,
-                paramC: String
-            )
-            """.trimIndent()
+                """
+                fun doSomething
+                (
+                    paramA: String,
+                    paramB: String,
+                    paramC: String
+                )
+                """.trimIndent()
             )
         ).isEqualTo(
             listOf(
@@ -452,14 +466,14 @@ class ParameterListWrappingRuleTest {
     fun testFormatClassDanglingLeftParen() {
         assertThat(
             ParameterListWrappingRule().format(
-            """
-            class ClassA constructor
-            (
-                paramA: String,
-                paramB: String,
-                paramC: String
-            )
-            """.trimIndent()
+                """
+                class ClassA constructor
+                (
+                    paramA: String,
+                    paramB: String,
+                    paramC: String
+                )
+                """.trimIndent()
             )
         ).isEqualTo(
             """
@@ -476,14 +490,14 @@ class ParameterListWrappingRuleTest {
     fun testFormatFunctionDanglingLeftParen() {
         assertThat(
             ParameterListWrappingRule().format(
-            """
-            fun doSomething
-            (
-                paramA: String,
-                paramB: String,
-                paramC: String
-            )
-            """.trimIndent()
+                """
+                fun doSomething
+                (
+                    paramA: String,
+                    paramB: String,
+                    paramC: String
+                )
+                """.trimIndent()
             )
         ).isEqualTo(
             """

@@ -5,7 +5,8 @@ import com.github.shyiko.ktlint.core.RuleSetProvider
 
 class StandardRuleSetProvider : RuleSetProvider {
 
-    override fun get(): RuleSet = RuleSet("standard",
+    override fun get(): RuleSet = RuleSet(
+        "standard",
         ChainWrappingRule(),
         CommentSpacingRule(),
         FilenameRule(),

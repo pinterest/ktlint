@@ -12,14 +12,14 @@ class ArgumentListWrappingRuleTest {
     fun testLintCallArgumentList() {
         assertThat(
             ArgumentListWrappingRule().lint(
-            """
-            fun main() {
-                f(paramA,
-                    paramB,
-                       paramC,
-                    paramD)
-            }
-            """.trimIndent()
+                """
+                fun main() {
+                    f(paramA,
+                        paramB,
+                           paramC,
+                        paramD)
+                }
+                """.trimIndent()
             )
         ).isEqualTo(
             listOf(
@@ -34,12 +34,12 @@ class ArgumentListWrappingRuleTest {
     fun testLintCallArgumentWhenMaxLineLengthExceeded() {
         assertThat(
             ArgumentListWrappingRule().lint(
-            """
-            fun main() {
-                f(paramA, paramB, paramC, paramD)
-            }
-            """.trimIndent(),
-            userData = mapOf("max_line_length" to "10")
+                """
+                fun main() {
+                    f(paramA, paramB, paramC, paramD)
+                }
+                """.trimIndent(),
+                userData = mapOf("max_line_length" to "10")
             )
         ).isEqualTo(
             listOf(
@@ -57,11 +57,11 @@ class ArgumentListWrappingRuleTest {
     fun testLintCallArgumentListValid() {
         assertThat(
             ArgumentListWrappingRule().lint(
-            """
-            fun main() {
-                f(paramA, paramB, paramC, paramD)
-            }
-            """.trimIndent()
+                """
+                fun main() {
+                    f(paramA, paramB, paramC, paramD)
+                }
+                """.trimIndent()
             )
         ).isEmpty()
     }
@@ -70,16 +70,16 @@ class ArgumentListWrappingRuleTest {
     fun testLintCallArgumentListValidMultiLine() {
         assertThat(
             ArgumentListWrappingRule().lint(
-            """
-            fun main() {
-                f(
-                    paramA,
-                    paramB,
-                    paramC,
-                    paramD
-                )
-            }
-            """.trimIndent()
+                """
+                fun main() {
+                    f(
+                        paramA,
+                        paramB,
+                        paramC,
+                        paramD
+                    )
+                }
+                """.trimIndent()
             )
         ).isEmpty()
     }
@@ -88,15 +88,15 @@ class ArgumentListWrappingRuleTest {
     fun testLintCallArgumentListValidSomeSingleLine() {
         assertThat(
             ArgumentListWrappingRule().lint(
-            """
-            fun main() {
-                f(
-                    paramA,
-                    paramB, paramC,
-                    paramD
-                )
-            }
-            """.trimIndent()
+                """
+                fun main() {
+                    f(
+                        paramA,
+                        paramB, paramC,
+                        paramD
+                    )
+                }
+                """.trimIndent()
             )
         ).isEmpty()
     }
@@ -105,14 +105,14 @@ class ArgumentListWrappingRuleTest {
     fun testFormatCallArgumentList() {
         assertThat(
             ArgumentListWrappingRule().format(
-            """
-            fun main() {
-                f(paramA,
-                    paramB,
-                       paramC,
-                    paramD)
-            }
-            """.trimIndent()
+                """
+                fun main() {
+                    f(paramA,
+                        paramB,
+                           paramC,
+                        paramD)
+                }
+                """.trimIndent()
             )
         ).isEqualTo(
             """
@@ -132,12 +132,12 @@ class ArgumentListWrappingRuleTest {
     fun testFormatCallArgumentListWhenMaxLineLengthExceeded() {
         assertThat(
             ArgumentListWrappingRule().format(
-            """
-            fun main() {
-                f(paramA, paramB, paramC, paramD)
-            }
-            """.trimIndent(),
-            userData = mapOf("max_line_length" to "10")
+                """
+                fun main() {
+                    f(paramA, paramB, paramC, paramD)
+                }
+                """.trimIndent(),
+                userData = mapOf("max_line_length" to "10")
             )
         ).isEqualTo(
             """

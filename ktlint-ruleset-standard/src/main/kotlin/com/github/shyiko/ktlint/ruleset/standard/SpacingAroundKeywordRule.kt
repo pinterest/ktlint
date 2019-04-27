@@ -24,8 +24,10 @@ import org.jetbrains.kotlin.psi.psiUtil.nextLeaf
 class SpacingAroundKeywordRule : Rule("keyword-spacing") {
 
     private val noLFBeforeSet = TokenSet.create(ELSE_KEYWORD, CATCH_KEYWORD, FINALLY_KEYWORD)
-    private val tokenSet = TokenSet.create(FOR_KEYWORD, IF_KEYWORD, ELSE_KEYWORD, WHILE_KEYWORD, DO_KEYWORD,
-        TRY_KEYWORD, CATCH_KEYWORD, FINALLY_KEYWORD, WHEN_KEYWORD)
+    private val tokenSet = TokenSet.create(
+        FOR_KEYWORD, IF_KEYWORD, ELSE_KEYWORD, WHILE_KEYWORD, DO_KEYWORD,
+        TRY_KEYWORD, CATCH_KEYWORD, FINALLY_KEYWORD, WHEN_KEYWORD
+    )
 
     private val keywordsWithoutSpaces = TokenSet.create(KtTokens.GET_KEYWORD, KtTokens.SET_KEYWORD)
 

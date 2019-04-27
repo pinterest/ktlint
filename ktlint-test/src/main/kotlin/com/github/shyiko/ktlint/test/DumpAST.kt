@@ -39,16 +39,16 @@ class DumpAST @JvmOverloads constructor(
             level++
             parent = parent?.treeParent
         } while (parent != null)
-        out.println((
-            location(node)
+        out.println(
+            (location(node)
                 ?.let { String.format("%${lineNumberColumnLength}s: ", it.line).gray() }
                 // should only happen when autoCorrect=true and other rules mutate AST in a way that changes text length
-                ?: String.format("%${lineNumberColumnLength}s: ", "?").gray()
-            ) +
+                ?: String.format("%${lineNumberColumnLength}s: ", "?").gray()) +
             "  ".repeat(level).gray() +
             colorClassName(node.psi.className) +
             " (".gray() + colorClassName(node.elementType.className) + "." + node.elementType + ")".gray() +
-            if (node.getChildren(null).isEmpty()) " \"" + node.text.escape().yellow() + "\"" else "")
+            if (node.getChildren(null).isEmpty()) " \"" + node.text.escape().yellow() + "\"" else ""
+        )
         if (lastNode == node) {
             out.println()
             out.println(" ".repeat(lineNumberColumnLength) +

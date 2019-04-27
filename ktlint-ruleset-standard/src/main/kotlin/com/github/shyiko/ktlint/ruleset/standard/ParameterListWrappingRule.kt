@@ -4,12 +4,10 @@ import com.github.shyiko.ktlint.core.Rule
 import org.jetbrains.kotlin.KtNodeTypes
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
-import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
-import org.jetbrains.kotlin.com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.psiUtil.children
 import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
@@ -78,8 +76,12 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
                                     if (childIndent == intendedIndent) {
                                         continue@nextChild
                                     }
-                                    emit(child.startOffset, "Unexpected indentation" +
-                                        " (expected ${intendedIndent.length - 1}, actual ${childIndent.length - 1})", true)
+                                    emit(
+                                        child.startOffset,
+                                        "Unexpected indentation" +
+                                            " (expected ${intendedIndent.length - 1}, actual ${childIndent.length - 1})",
+                                        true
+                                    )
                                 } else {
                                     emit(child.startOffset, errorMessage(child), true)
                                 }

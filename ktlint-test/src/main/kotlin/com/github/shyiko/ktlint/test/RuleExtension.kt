@@ -10,8 +10,12 @@ fun Rule.lint(text: String, userData: Map<String, String> = emptyMap(), script: 
     val res = ArrayList<LintError>()
     val debug = debugAST()
     val f: L = if (script) KtLint::lintScript else KtLint::lint
-    f(text, (if (debug) listOf(RuleSet("debug", DumpAST())) else emptyList()) +
-            listOf(RuleSet("standard", this@lint)), userData) { e ->
+    f(
+        text,
+        (if (debug) listOf(RuleSet("debug", DumpAST())) else emptyList()) +
+            listOf(RuleSet("standard", this@lint)),
+        userData
+    ) { e ->
         if (debug) {
             System.err.println("^^ lint error")
         }
@@ -34,8 +38,13 @@ fun Rule.format(
     script: Boolean = false
 ): String {
     val f: F = if (script) KtLint::formatScript else KtLint::format
-    return f(text, (if (debugAST()) listOf(RuleSet("debug", DumpAST())) else emptyList()) +
-        listOf(RuleSet("standard", this@format)), userData, cb)
+    return f(
+        text,
+        (if (debugAST()) listOf(RuleSet("debug", DumpAST())) else emptyList()) +
+            listOf(RuleSet("standard", this@format)),
+        userData,
+        cb
+    )
 }
 
 private typealias F = (
