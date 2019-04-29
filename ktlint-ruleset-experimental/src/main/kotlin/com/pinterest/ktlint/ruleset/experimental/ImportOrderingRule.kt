@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.experimental
 
+import com.pinterest.ktlint.core.Issue
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.IMPORT_DIRECTIVE
 import com.pinterest.ktlint.core.ast.ElementType.IMPORT_LIST
@@ -17,7 +18,7 @@ class ImportOrderingRule : Rule("import-ordering") {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (issue: Issue) -> Unit
     ) {
         if (node.elementType == IMPORT_LIST) {
             val children = node.getChildren(null)
@@ -25,7 +26,7 @@ class ImportOrderingRule : Rule("import-ordering") {
                 val imports = children.filter { it.elementType == IMPORT_DIRECTIVE }
                 val sortedImports = imports.sortedBy { it.text }
                 if (imports != sortedImports || hasTooMuchWhitespace(children)) {
-                    emit(node.startOffset, "Imports must be ordered in lexicographic order without any empty lines in-between", true)
+                    emit(Issue(node.startOffset, "Imports must be ordered in lexicographic order without any empty lines in-between", true))
                     if (autoCorrect) {
                         node.removeRange(node.firstChildNode, node.lastChildNode.treeNext)
                         sortedImports.forEachIndexed { i, astNode ->

@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard
 
+import com.pinterest.ktlint.core.Issue
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.ABSTRACT_KEYWORD
 import com.pinterest.ktlint.core.ast.ElementType.ACTUAL_KEYWORD
@@ -62,7 +63,7 @@ class ModifierOrderRule : Rule("modifier-order") {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (issue: Issue) -> Unit
     ) {
         if (node.psi is KtDeclarationModifierList) {
             val modifierArr = node.getChildren(tokenSet)
@@ -71,11 +72,13 @@ class ModifierOrderRule : Rule("modifier-order") {
                 // Since annotations can be fairly lengthy and/or span multiple lines we are
                 // squashing them into a single placeholder text to guarantee a single line output
                 emit(
-                    node.startOffset,
-                    "Incorrect modifier order (should be \"${
-                    squashAnnotations(sorted).joinToString(" ")
-                    }\")",
-                    true
+                    Issue(
+                        node.startOffset,
+                        "Incorrect modifier order (should be \"${
+                        squashAnnotations(sorted).joinToString(" ")
+                        }\")",
+                        true
+                    )
                 )
                 if (autoCorrect) {
                     modifierArr.forEachIndexed { i, n ->

@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard
 
+import com.pinterest.ktlint.core.Issue
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.BLOCK_COMMENT
@@ -38,7 +39,7 @@ class FilenameRule : Rule("filename"), Rule.Modifier.RestrictToRoot {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (issue: Issue) -> Unit
     ) {
         val filePath = node.getUserData(KtLint.FILE_PATH_USER_DATA_KEY)
         if (filePath?.endsWith(".kt") != true) {
@@ -68,7 +69,7 @@ class FilenameRule : Rule("filename"), Rule.Modifier.RestrictToRoot {
             val unescapedClassName = className.replace("`", "")
             val name = Paths.get(filePath).fileName.toString().substringBefore(".")
             if (name != "package" && name != unescapedClassName) {
-                emit(0, "$type $className should be declared in a file named $unescapedClassName.kt", false)
+                emit(Issue(0, "$type $className should be declared in a file named $unescapedClassName.kt", false))
             }
         }
     }

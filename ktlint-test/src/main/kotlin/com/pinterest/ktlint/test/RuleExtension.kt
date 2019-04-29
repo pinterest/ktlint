@@ -2,14 +2,15 @@ package com.pinterest.ktlint.test
 
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.LintError
+import com.pinterest.ktlint.core.LintIssue
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.RuleSet
 import java.util.ArrayList
 import org.assertj.core.util.diff.DiffUtils.diff
 import org.assertj.core.util.diff.DiffUtils.generateUnifiedDiff
 
-fun Rule.lint(text: String, userData: Map<String, String> = emptyMap(), script: Boolean = false): List<LintError> {
-    val res = ArrayList<LintError>()
+fun Rule.lint(text: String, userData: Map<String, String> = emptyMap(), script: Boolean = false): List<LintIssue> {
+    val res = ArrayList<LintIssue>()
     val debug = debugAST()
     val f: L = if (script) KtLint::lintScript else KtLint::lint
     f(
@@ -30,13 +31,13 @@ private typealias L = (
     text: String,
     ruleSets: Iterable<RuleSet>,
     userData: Map<String, String>,
-    cb: (e: LintError) -> Unit
+    cb: (e: LintIssue) -> Unit
 ) -> Unit
 
 fun Rule.format(
     text: String,
     userData: Map<String, String> = emptyMap(),
-    cb: (e: LintError, corrected: Boolean) -> Unit = { _, _ -> },
+    cb: (e: LintIssue, corrected: Boolean) -> Unit = { _, _ -> },
     script: Boolean = false
 ): String {
     val f: F = if (script) KtLint::formatScript else KtLint::format
@@ -52,7 +53,7 @@ private typealias F = (
     text: String,
     ruleSets: Iterable<RuleSet>,
     userData: Map<String, String>,
-    cb: (e: LintError, corrected: Boolean) -> Unit
+    cb: (e: LintIssue, corrected: Boolean) -> Unit
 ) -> String
 
 fun Rule.diffFileLint(path: String, userData: Map<String, String> = emptyMap()): String {
@@ -78,7 +79,7 @@ fun Rule.diffFileLint(path: String, userData: Map<String, String> = emptyMap()):
         }
     }
     val actual = lint(input, userData, script = true)
-    val str = { err: LintError ->
+    val str = { err: LintIssue ->
         val ruleId = if (err.ruleId != id) " (${err.ruleId})" else ""
         val correctionStatus = if (!err.canBeAutoCorrected) " (cannot be auto-corrected)" else ""
         "${err.line}:${err.col}:${err.detail}$ruleId$correctionStatus"

@@ -3,6 +3,7 @@ package com.pinterest.ktlint
 import com.github.shyiko.klob.Glob
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.LintError
+import com.pinterest.ktlint.core.LintIssue
 import com.pinterest.ktlint.core.ParseException
 import com.pinterest.ktlint.core.Reporter
 import com.pinterest.ktlint.core.ReporterProvider
@@ -96,15 +97,24 @@ object Main {
         "--reporter-update" to
             "--repository-update"
     )
-    @Option(names = arrayOf("--android", "-a"), description = arrayOf("Turn on Android Kotlin Style Guide compatibility"))
+    @Option(
+        names = arrayOf("--android", "-a"),
+        description = arrayOf("Turn on Android Kotlin Style Guide compatibility")
+    )
     private var android: Boolean = false
 
     // todo: make it a command in 1.0.0 (it's too late now as we might interfere with valid "lint" patterns)
-    @Option(names = arrayOf("--apply-to-idea"), description = arrayOf("Update Intellij IDEA settings (global)"))
+    @Option(
+        names = arrayOf("--apply-to-idea"),
+        description = arrayOf("Update Intellij IDEA settings (global)")
+    )
     private var apply: Boolean = false
 
     // todo: make it a command in 1.0.0 (it's too late now as we might interfere with valid "lint" patterns)
-    @Option(names = arrayOf("--apply-to-idea-project"), description = arrayOf("Update Intellij IDEA project settings"))
+    @Option(
+        names = arrayOf("--apply-to-idea-project"),
+        description = arrayOf("Update Intellij IDEA project settings")
+    )
     private var applyToProject: Boolean = false
 
     @Option(names = arrayOf("--color"), description = arrayOf("Make output colorful"))
@@ -114,7 +124,10 @@ object Main {
     private var debug: Boolean = false
 
     // todo: this should have been a command, not a flag (consider changing in 1.0.0)
-    @Option(names = arrayOf("--format", "-F"), description = arrayOf("Fix any deviations from the code style"))
+    @Option(
+        names = arrayOf("--format", "-F"),
+        description = arrayOf("Fix any deviations from the code style")
+    )
     private var format: Boolean = false
 
     @Option(
@@ -204,7 +217,10 @@ object Main {
     )
     private var rulesets = ArrayList<String>()
 
-    @Option(names = arrayOf("--skip-classpath-check"), description = arrayOf("Do not check classpath for potential conflicts"))
+    @Option(
+        names = arrayOf("--skip-classpath-check"),
+        description = arrayOf("Do not check classpath for potential conflicts")
+    )
     private var skipClasspathCheck: Boolean = false
 
     @Option(names = arrayOf("--stdin"), description = arrayOf("Read file from stdin"))
@@ -316,7 +332,9 @@ object Main {
         val tripped = AtomicBoolean()
         val reporter = loadReporter(dependencyResolver) { tripped.get() }
         val resolveUserData = userDataResolver()
-        data class LintErrorWithCorrectionInfo(val err: LintError, val corrected: Boolean)
+
+        data class LintErrorWithCorrectionInfo(val err: LintIssue, val corrected: Boolean)
+
         fun process(fileName: String, fileContent: String): List<LintErrorWithCorrectionInfo> {
             if (debug) {
                 System.err.println("[DEBUG] Checking ${if (fileName != "<text>") File(fileName).location() else fileName}")
@@ -325,10 +343,17 @@ object Main {
             val userData = resolveUserData(fileName)
             if (format) {
                 val formattedFileContent = try {
-                    format(fileName, fileContent, ruleSetProviders.map { it.second.get() }, userData) { err, corrected ->
+                    format(
+                        fileName,
+                        fileContent,
+                        ruleSetProviders.map { it.second.get() },
+                        userData
+                    ) { err, corrected ->
                         if (!corrected) {
                             result.add(LintErrorWithCorrectionInfo(err, corrected))
-                            tripped.set(true)
+                            if (err is LintError) {
+                                tripped.set(true)
+                            }
                         }
                     }
                 } catch (e: Exception) {
@@ -345,9 +370,16 @@ object Main {
                 }
             } else {
                 try {
-                    lint(fileName, fileContent, ruleSetProviders.map { it.second.get() }, userData) { err ->
+                    lint(
+                        fileName,
+                        fileContent,
+                        ruleSetProviders.map { it.second.get() },
+                        userData
+                    ) { err ->
                         result.add(LintErrorWithCorrectionInfo(err, false))
-                        tripped.set(true)
+                        if (err is LintError) {
+                            tripped.set(true)
+                        }
                     }
                 } catch (e: Exception) {
                     result.add(LintErrorWithCorrectionInfo(e.toLintError(), false))
@@ -363,11 +395,7 @@ object Main {
             errorNumber.addAndGet(errListLimit)
             reporter.before(fileName)
             errList.head(errListLimit).forEach { (err, corrected) ->
-                reporter.onLintError(
-                    fileName,
-                    if (!err.canBeAutoCorrected) err.copy(detail = err.detail + " (cannot be auto-corrected)") else err,
-                    corrected
-                )
+                reporter.onLintError(fileName, err.asNonCorrectableIfItIs(), corrected)
             }
             reporter.after(fileName)
         }
@@ -401,7 +429,7 @@ object Main {
                     ?.onlyIf({ debug }) { printEditorConfigChain(it) }
                     ?: emptyMap<String, String>()
                 ) + cliUserData
-            return fun (fileName: String) = userData + ("file_path" to fileName)
+            return fun(fileName: String) = userData + ("file_path" to fileName)
         }
         val workdirUserData = lazy {
             (
@@ -412,7 +440,7 @@ object Main {
         }
         val editorConfig = EditorConfig.cached()
         val editorConfigSet = ConcurrentHashMap<Path, Boolean>()
-        return fun (fileName: String): Map<String, String> {
+        return fun(fileName: String): Map<String, String> {
             if (fileName == "<text>") {
                 return workdirUserData.value
             }
@@ -428,7 +456,10 @@ object Main {
         }
     }
 
-    private fun printEditorConfigChain(ec: EditorConfig, predicate: (EditorConfig) -> Boolean = { true }) {
+    private fun printEditorConfigChain(
+        ec: EditorConfig,
+        predicate: (EditorConfig) -> Boolean = { true }
+    ) {
         for (lec in generateSequence(ec) { it.parent }.takeWhile(predicate)) {
             System.err.println(
                 "[DEBUG] Discovered .editorconfig (${lec.path.parent.toFile().location()})" +
@@ -447,8 +478,17 @@ object Main {
                     Manifest(stream).mainAttributes.getValue("Implementation-Version")
                 }
 
-    private fun loadReporter(dependencyResolver: Lazy<MavenDependencyResolver>, tripped: () -> Boolean): Reporter {
-        data class ReporterTemplate(val id: String, val artifact: String?, val config: Map<String, String>, var output: String?)
+    private fun loadReporter(
+        dependencyResolver: Lazy<MavenDependencyResolver>,
+        tripped: () -> Boolean
+    ): Reporter {
+        data class ReporterTemplate(
+            val id: String,
+            val artifact: String?,
+            val config: Map<String, String>,
+            var output: String?
+        )
+
         val tpls = (if (reporters.isEmpty()) listOf("plain") else reporters)
             .map { reporter ->
                 val split = reporter.split(",")
@@ -456,14 +496,18 @@ object Main {
                 ReporterTemplate(
                     reporterId,
                     split.lastOrNull { it.startsWith("artifact=") }?.let { it.split("=")[1] },
-                    mapOf("verbose" to verbose.toString(), "color" to color.toString()) + parseQuery(rawReporterConfig),
+                    mapOf(
+                        "verbose" to verbose.toString(),
+                        "color" to color.toString()
+                    ) + parseQuery(rawReporterConfig),
                     split.lastOrNull { it.startsWith("output=") }?.let { it.split("=")[1] }
                 )
             }
             .distinct()
         val reporterLoader = ServiceLoader.load(ReporterProvider::class.java)
         val reporterProviderById = reporterLoader.associate { it.id to it }.let { map ->
-            val missingReporters = tpls.filter { !map.containsKey(it.id) }.mapNotNull { it.artifact }.distinct()
+            val missingReporters =
+                tpls.filter { !map.containsKey(it.id) }.mapNotNull { it.artifact }.distinct()
             if (!missingReporters.isEmpty()) {
                 loadJARs(dependencyResolver, missingReporters)
                 reporterLoader.reload()
@@ -512,7 +556,7 @@ object Main {
         return Reporter.from(*tpls.map { it.toReporter() }.toTypedArray())
     }
 
-    private fun Exception.toLintError(): LintError = this.let { e ->
+    private fun Exception.toLintError(): LintIssue = this.let { e ->
         when (e) {
             is ParseException ->
                 LintError(
@@ -541,10 +585,19 @@ object Main {
                 System.err.println("[DEBUG] Analyzing ${if (fileName != "<text>") File(fileName).location() else fileName}")
             }
             try {
-                lint(fileName, fileContent, listOf(RuleSet("debug", DumpAST(System.out, color))), emptyMap()) {}
+                lint(
+                    fileName,
+                    fileContent,
+                    listOf(RuleSet("debug", DumpAST(System.out, color))),
+                    emptyMap()
+                ) {}
             } catch (e: Exception) {
                 if (e is ParseException) {
-                    throw ParseException(e.line, e.col, "Not a valid Kotlin file (${e.message?.toLowerCase()})")
+                    throw ParseException(
+                        e.line,
+                        e.col,
+                        "Not a valid Kotlin file (${e.message?.toLowerCase()})"
+                    )
                 }
                 throw e
             }
@@ -583,10 +636,19 @@ object Main {
         val preCommitHookFile = File(hooksDir, "pre-commit")
         val expectedPreCommitHook =
             ClassLoader.getSystemClassLoader()
-                .getResourceAsStream("ktlint-git-pre-commit-hook${if (android) "-android" else ""}.sh").readBytes()
+                .getResourceAsStream("ktlint-git-pre-commit-hook${if (android) "-android" else ""}.sh")
+                .readBytes()
         // backup existing hook (if any)
-        val actualPreCommitHook = try { preCommitHookFile.readBytes() } catch (e: FileNotFoundException) { null }
-        if (actualPreCommitHook != null && !actualPreCommitHook.isEmpty() && !Arrays.equals(actualPreCommitHook, expectedPreCommitHook)) {
+        val actualPreCommitHook = try {
+            preCommitHookFile.readBytes()
+        } catch (e: FileNotFoundException) {
+            null
+        }
+        if (actualPreCommitHook != null && !actualPreCommitHook.isEmpty() && !Arrays.equals(
+            actualPreCommitHook,
+            expectedPreCommitHook
+        )
+        ) {
             val backupFile = File(hooksDir, "pre-commit.ktlint-backup." + hex(actualPreCommitHook))
             System.err.println(".git/hooks/pre-commit -> $backupFile")
             preCommitHookFile.copyTo(backupFile, overwrite = true)
@@ -610,10 +672,19 @@ object Main {
         val prePushHookFile = File(hooksDir, "pre-push")
         val expectedPrePushHook =
             ClassLoader.getSystemClassLoader()
-                .getResourceAsStream("ktlint-git-pre-push-hook${if (android) "-android" else ""}.sh").readBytes()
+                .getResourceAsStream("ktlint-git-pre-push-hook${if (android) "-android" else ""}.sh")
+                .readBytes()
         // backup existing hook (if any)
-        val actualPrePushHook = try { prePushHookFile.readBytes() } catch (e: FileNotFoundException) { null }
-        if (actualPrePushHook != null && !actualPrePushHook.isEmpty() && !Arrays.equals(actualPrePushHook, expectedPrePushHook)) {
+        val actualPrePushHook = try {
+            prePushHookFile.readBytes()
+        } catch (e: FileNotFoundException) {
+            null
+        }
+        if (actualPrePushHook != null && !actualPrePushHook.isEmpty() && !Arrays.equals(
+            actualPrePushHook,
+            expectedPrePushHook
+        )
+        ) {
             val backupFile = File(hooksDir, "pre-push.ktlint-backup." + hex(actualPrePushHook))
             System.err.println(".git/hooks/pre-push -> $backupFile")
             prePushHookFile.copyTo(backupFile, overwrite = true)
@@ -638,7 +709,11 @@ object Main {
                 val scanner = Scanner(System.`in`)
                 val res =
                     generateSequence {
-                        try { scanner.next() } catch (e: NoSuchElementException) { null }
+                        try {
+                            scanner.next()
+                        } catch (e: NoSuchElementException) {
+                            null
+                        }
                     }
                         .filter { line -> !line.trim().isEmpty() }
                         .first()
@@ -660,11 +735,13 @@ object Main {
         System.err.println("(if you experience any issues please report them at https://github.com/shyiko/ktlint)")
     }
 
-    private fun hex(input: ByteArray) = BigInteger(MessageDigest.getInstance("SHA-256").digest(input)).toString(16)
+    private fun hex(input: ByteArray) =
+        BigInteger(MessageDigest.getInstance("SHA-256").digest(input)).toString(16)
 
     // a complete solution would be to implement https://www.gnu.org/software/bash/manual/html_node/Tilde-Expansion.html
     // this implementation takes care only of the most commonly used case (~/)
-    private fun expandTilde(path: String) = path.replaceFirst(Regex("^~"), System.getProperty("user.home"))
+    private fun expandTilde(path: String) =
+        path.replaceFirst(Regex("^~"), System.getProperty("user.home"))
 
     private fun <T> List<T>.head(limit: Int) = if (limit == size) this else this.subList(0, limit)
 
@@ -720,7 +797,10 @@ object Main {
     }
 
     // fixme: isn't going to work on JDK 9
-    private fun loadJARs(dependencyResolver: Lazy<MavenDependencyResolver>, artifacts: List<String>) {
+    private fun loadJARs(
+        dependencyResolver: Lazy<MavenDependencyResolver>,
+        artifacts: List<String>
+    ) {
         (ClassLoader.getSystemClassLoader() as java.net.URLClassLoader)
             .addURLs(
                 artifacts.flatMap { artifact ->
@@ -728,7 +808,8 @@ object Main {
                         System.err.println("[DEBUG] Resolving $artifact")
                     }
                     val result = try {
-                        dependencyResolver.value.resolve(DefaultArtifact(artifact)).map { it.toURI().toURL() }
+                        dependencyResolver.value.resolve(DefaultArtifact(artifact))
+                            .map { it.toURI().toURL() }
                     } catch (e: IllegalArgumentException) {
                         val file = File(expandTilde(artifact))
                         if (!file.exists()) {
@@ -747,7 +828,10 @@ object Main {
                         result.forEach { url -> System.err.println("[DEBUG] Loading $url") }
                     }
                     if (!skipClasspathCheck) {
-                        if (result.any { it.toString().substringAfterLast("/").startsWith("ktlint-core-") }) {
+                        if (result.any {
+                            it.toString().substringAfterLast("/").startsWith("ktlint-core-")
+                        }
+                        ) {
                             System.err.println(
                                 "\"$artifact\" appears to have a runtime/compile dependency on \"ktlint-core\".\n" +
                                     "Please inform the author that \"com.github.shyiko:ktlint*\" should be marked " +
@@ -755,7 +839,10 @@ object Main {
                                     "(to suppress this warning use --skip-classpath-check)"
                             )
                         }
-                        if (result.any { it.toString().substringAfterLast("/").startsWith("kotlin-stdlib-") }) {
+                        if (result.any {
+                            it.toString().substringAfterLast("/").startsWith("kotlin-stdlib-")
+                        }
+                        ) {
                             System.err.println(
                                 "\"$artifact\" appears to have a runtime/compile dependency on \"kotlin-stdlib\".\n" +
                                     "Please inform the author that \"org.jetbrains.kotlin:kotlin-stdlib*\" should be marked " +
@@ -788,7 +875,7 @@ object Main {
         text: String,
         ruleSets: Iterable<RuleSet>,
         userData: Map<String, String>,
-        cb: (e: LintError) -> Unit
+        cb: (e: LintIssue) -> Unit
     ) =
         if (fileName.endsWith(".kt", ignoreCase = true)) {
             KtLint.lint(text, ruleSets, userData, cb)
@@ -801,7 +888,7 @@ object Main {
         text: String,
         ruleSets: Iterable<RuleSet>,
         userData: Map<String, String>,
-        cb: (e: LintError, corrected: Boolean) -> Unit
+        cb: (e: LintIssue, corrected: Boolean) -> Unit
     ): String =
         if (fileName.endsWith(".kt", ignoreCase = true)) {
             KtLint.format(text, ruleSets, userData, cb)
@@ -810,7 +897,10 @@ object Main {
         }
 
     private fun java.net.URLClassLoader.addURLs(url: Iterable<java.net.URL>) {
-        val method = java.net.URLClassLoader::class.java.getDeclaredMethod("addURL", java.net.URL::class.java)
+        val method = java.net.URLClassLoader::class.java.getDeclaredMethod(
+            "addURL",
+            java.net.URL::class.java
+        )
         method.isAccessible = true
         url.forEach { method.invoke(this, it) }
     }
@@ -850,11 +940,25 @@ object Main {
     ) {
         val pill = object : Future<T> {
 
-            override fun isDone(): Boolean { throw UnsupportedOperationException() }
-            override fun get(timeout: Long, unit: TimeUnit): T { throw UnsupportedOperationException() }
-            override fun get(): T { throw UnsupportedOperationException() }
-            override fun cancel(mayInterruptIfRunning: Boolean): Boolean { throw UnsupportedOperationException() }
-            override fun isCancelled(): Boolean { throw UnsupportedOperationException() }
+            override fun isDone(): Boolean {
+                throw UnsupportedOperationException()
+            }
+
+            override fun get(timeout: Long, unit: TimeUnit): T {
+                throw UnsupportedOperationException()
+            }
+
+            override fun get(): T {
+                throw UnsupportedOperationException()
+            }
+
+            override fun cancel(mayInterruptIfRunning: Boolean): Boolean {
+                throw UnsupportedOperationException()
+            }
+
+            override fun isCancelled(): Boolean {
+                throw UnsupportedOperationException()
+            }
         }
         val q = ArrayBlockingQueue<Future<T>>(numberOfThreads)
         val producer = thread(start = true) {

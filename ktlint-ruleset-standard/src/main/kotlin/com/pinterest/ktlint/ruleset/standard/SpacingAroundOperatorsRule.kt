@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard
 
+import com.pinterest.ktlint.core.Issue
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.ANDAND
 import com.pinterest.ktlint.core.ast.ElementType.ARROW
@@ -53,7 +54,7 @@ class SpacingAroundOperatorsRule : Rule("op-spacing") {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (issue: Issue) -> Unit
     ) {
         if (tokenSet.contains(node.elementType) &&
             node is LeafElement &&
@@ -70,7 +71,7 @@ class SpacingAroundOperatorsRule : Rule("op-spacing") {
                         // ensure no space after < in <T>
                         val nextLeaf = node.nextLeaf()
                         if (nextLeaf?.elementType == WHITE_SPACE && !nextLeaf.textContains('\n')) {
-                            emit(node.startOffset + 1, "Unexpected spacing after \"${node.text}\"", true)
+                            emit(Issue(node.startOffset + 1, "Unexpected spacing after \"${node.text}\"", true))
                             if (autoCorrect) {
                                 nextLeaf.treeParent.removeChild(nextLeaf)
                             }
@@ -79,7 +80,7 @@ class SpacingAroundOperatorsRule : Rule("op-spacing") {
                         // ensure no space before > in <T>
                         val prevLeaf = node.prevLeaf()
                         if (prevLeaf?.elementType == WHITE_SPACE && !prevLeaf.textContains('\n')) {
-                            emit(prevLeaf.startOffset, "Unexpected spacing before \"${node.text}\"", true)
+                            emit(Issue(prevLeaf.startOffset, "Unexpected spacing before \"${node.text}\"", true))
                             if (autoCorrect) {
                                 prevLeaf.treeParent.removeChild(prevLeaf)
                             }
@@ -94,20 +95,20 @@ class SpacingAroundOperatorsRule : Rule("op-spacing") {
             val spacingAfter = node.nextLeaf() is PsiWhiteSpace || node.elementType == LT
             when {
                 !spacingBefore && !spacingAfter -> {
-                    emit(node.startOffset, "Missing spacing around \"${node.text}\"", true)
+                    emit(Issue(node.startOffset, "Missing spacing around \"${node.text}\"", true))
                     if (autoCorrect) {
                         node.upsertWhitespaceBeforeMe(" ")
                         node.upsertWhitespaceAfterMe(" ")
                     }
                 }
                 !spacingBefore -> {
-                    emit(node.startOffset, "Missing spacing before \"${node.text}\"", true)
+                    emit(Issue(node.startOffset, "Missing spacing before \"${node.text}\"", true))
                     if (autoCorrect) {
                         node.upsertWhitespaceBeforeMe(" ")
                     }
                 }
                 !spacingAfter -> {
-                    emit(node.startOffset + 1, "Missing spacing after \"${node.text}\"", true)
+                    emit(Issue(node.startOffset + 1, "Missing spacing after \"${node.text}\"", true))
                     if (autoCorrect) {
                         node.upsertWhitespaceAfterMe(" ")
                     }

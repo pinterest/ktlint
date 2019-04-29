@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard
 
+import com.pinterest.ktlint.core.Issue
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.nextLeaf
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -11,7 +12,7 @@ class NoTrailingSpacesRule : Rule("no-trailing-spaces") {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (issue: Issue) -> Unit
     ) {
         if (node is PsiWhiteSpace) {
             val lines = node.getText().split("\n")
@@ -32,13 +33,13 @@ class NoTrailingSpacesRule : Rule("no-trailing-spaces") {
     private fun checkForTrailingSpaces(
         lines: List<String>,
         offset: Int,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (issue: Issue) -> Unit
     ): Boolean {
         var violated = false
         var violationOffset = offset
         lines.forEach { line ->
-            if (!line.isEmpty()) {
-                emit(violationOffset, "Trailing space(s)", true)
+            if (line.isNotEmpty()) {
+                emit(Issue(violationOffset, "Trailing space(s)", true))
                 violated = true
             }
             violationOffset += line.length + 1

@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.LintError
+import com.pinterest.ktlint.core.LintIssue
 import com.pinterest.ktlint.test.format
 import com.pinterest.ktlint.test.lint
 import org.assertj.core.api.Assertions
@@ -64,7 +65,7 @@ class MultiLineIfElseRuleTest {
         return MultiLineIfElseRule().format(kotlinScript)
     }
 
-    private fun lint(kotlinScript: String): List<LintError> {
+    private fun lint(kotlinScript: String): List<LintIssue> {
         return MultiLineIfElseRule().lint(kotlinScript)
     }
 }

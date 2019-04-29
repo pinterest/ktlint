@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard
 
+import com.pinterest.ktlint.core.Issue
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.AT
 import com.pinterest.ktlint.core.ast.ElementType.CLASS_BODY
@@ -31,7 +32,7 @@ class SpacingAroundCurlyRule : Rule("curly-spacing") {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (issue: Issue) -> Unit
     ) {
         if (node is LeafPsiElement && !node.isPartOfString()) {
             val prevLeaf = node.prevLeaf()
@@ -53,7 +54,7 @@ class SpacingAroundCurlyRule : Rule("curly-spacing") {
                         it.elementType == LPAR || it.elementType == AT
                     } == true
                 ) {
-                    emit(node.startOffset, "Unexpected space before \"${node.text}\"", true)
+                    emit(Issue(node.startOffset, "Unexpected space before \"${node.text}\"", true))
                     if (autoCorrect) {
                         prevLeaf.node.treeParent.removeChild(prevLeaf.node)
                     }
@@ -68,7 +69,7 @@ class SpacingAroundCurlyRule : Rule("curly-spacing") {
                             prevLeaf.treeParent.elementType == FUN
                         )
                 ) {
-                    emit(node.startOffset, "Unexpected newline before \"${node.text}\"", true)
+                    emit(Issue(node.startOffset, "Unexpected newline before \"${node.text}\"", true))
                     if (autoCorrect) {
                         (prevLeaf as LeafPsiElement).rawReplaceWithText(" ")
                     }
@@ -79,7 +80,7 @@ class SpacingAroundCurlyRule : Rule("curly-spacing") {
                 if (nextLeaf is PsiWhiteSpace && !nextLeaf.textContains('\n') &&
                     shouldNotToBeSeparatedBySpace(nextLeaf.nextLeaf())
                 ) {
-                    emit(node.startOffset, "Unexpected space after \"${node.text}\"", true)
+                    emit(Issue(node.startOffset, "Unexpected space after \"${node.text}\"", true))
                     if (autoCorrect) {
                         nextLeaf.node.treeParent.removeChild(nextLeaf.node)
                     }
@@ -89,20 +90,20 @@ class SpacingAroundCurlyRule : Rule("curly-spacing") {
             }
             when {
                 !spacingBefore && !spacingAfter -> {
-                    emit(node.startOffset, "Missing spacing around \"${node.text}\"", true)
+                    emit(Issue(node.startOffset, "Missing spacing around \"${node.text}\"", true))
                     if (autoCorrect) {
                         node.upsertWhitespaceBeforeMe(" ")
                         node.upsertWhitespaceAfterMe(" ")
                     }
                 }
                 !spacingBefore -> {
-                    emit(node.startOffset, "Missing spacing before \"${node.text}\"", true)
+                    emit(Issue(node.startOffset, "Missing spacing before \"${node.text}\"", true))
                     if (autoCorrect) {
                         node.upsertWhitespaceBeforeMe(" ")
                     }
                 }
                 !spacingAfter -> {
-                    emit(node.startOffset + 1, "Missing spacing after \"${node.text}\"", true)
+                    emit(Issue(node.startOffset + 1, "Missing spacing after \"${node.text}\"", true))
                     if (autoCorrect) {
                         node.upsertWhitespaceAfterMe(" ")
                     }

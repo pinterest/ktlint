@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard
 
+import com.pinterest.ktlint.core.Issue
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.KDOC_TEXT
 import com.pinterest.ktlint.core.ast.ElementType.OBJECT_KEYWORD
@@ -19,7 +20,7 @@ class NoSemicolonsRule : Rule("no-semi") {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (issue: Issue) -> Unit
     ) {
         if (node.elementType == KDOC_TEXT) {
             return
@@ -33,7 +34,7 @@ class NoSemicolonsRule : Rule("no-semi") {
                     // https://github.com/shyiko/ktlint/issues/281
                     return
                 }
-                emit(node.startOffset, "Unnecessary semicolon", true)
+                emit(Issue(node.startOffset, "Unnecessary semicolon", true))
                 if (autoCorrect) {
                     node.treeParent.removeChild(node)
                 }
@@ -43,7 +44,7 @@ class NoSemicolonsRule : Rule("no-semi") {
                     return
                 }
                 // todo: move to a separate rule
-                emit(node.startOffset + 1, "Missing spacing after \";\"", true)
+                emit(Issue(node.startOffset + 1, "Missing spacing after \";\"", true))
                 if (autoCorrect) {
                     node.upsertWhitespaceAfterMe(" ")
                 }

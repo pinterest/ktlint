@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard
 
+import com.pinterest.ktlint.core.Issue
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.CONSTRUCTOR_DELEGATION_CALL
@@ -22,7 +23,7 @@ class IndentationRule : Rule("indent") {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (issue: Issue) -> Unit
     ) {
         if (node.isRoot()) {
             val editorConfig = node.getUserData(KtLint.EDITOR_CONFIG_USER_DATA_KEY)!!
@@ -41,9 +42,11 @@ class IndentationRule : Rule("indent") {
                     if (indent.isNotEmpty() && (indent.length - previousIndentSize) % indentSize != 0) {
                         if (!node.isPartOf(KtParameterList::class)) { // parameter list wrapping enforced by ParameterListWrappingRule
                             emit(
-                                offset,
-                                "Unexpected indentation (${indent.length}) (it should be ${previousIndentSize + indentSize})",
-                                false
+                                Issue(
+                                    offset,
+                                    "Unexpected indentation (${indent.length}) (it should be ${previousIndentSize + indentSize})",
+                                    false
+                                )
                             )
                         }
                     }
@@ -52,7 +55,7 @@ class IndentationRule : Rule("indent") {
             }
             if (node.textContains('\t')) {
                 val text = node.getText()
-                emit(node.startOffset + text.indexOf('\t'), "Unexpected Tab character(s)", true)
+                emit(Issue(node.startOffset + text.indexOf('\t'), "Unexpected Tab character(s)", true))
                 if (autoCorrect) {
                     (node as LeafPsiElement).rawReplaceWithText(text.replace("\t", " ".repeat(indentSize)))
                 }

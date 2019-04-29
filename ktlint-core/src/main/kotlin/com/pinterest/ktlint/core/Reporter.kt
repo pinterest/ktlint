@@ -18,7 +18,7 @@ interface Reporter {
      * Called when file (matching the pattern) is found but before it's parsed.
      */
     fun before(file: String) {}
-    fun onLintError(file: String, err: LintError, corrected: Boolean)
+    fun onLintError(file: String, err: LintIssue, corrected: Boolean)
     /**
      * Called after ktlint is done with the file.
      */
@@ -34,7 +34,7 @@ interface Reporter {
             return object : Reporter {
                 override fun beforeAll() { reporters.forEach(Reporter::beforeAll) }
                 override fun before(file: String) { reporters.forEach { it.before(file) } }
-                override fun onLintError(file: String, err: LintError, corrected: Boolean) =
+                override fun onLintError(file: String, err: LintIssue, corrected: Boolean) =
                     reporters.forEach { it.onLintError(file, err, corrected) }
                 override fun after(file: String) { reporters.forEach { it.after(file) } }
                 override fun afterAll() { reporters.forEach(Reporter::afterAll) }

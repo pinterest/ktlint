@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard
 
+import com.pinterest.ktlint.core.Issue
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.ANDAND
 import com.pinterest.ktlint.core.ast.ElementType.COMMA
@@ -41,7 +42,7 @@ class ChainWrappingRule : Rule("chain-wrapping") {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (issue: Issue) -> Unit
     ) {
         /*
            org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement (DOT) | "."
@@ -57,7 +58,7 @@ class ChainWrappingRule : Rule("chain-wrapping") {
             if (nextLeaf?.elementType == WHITE_SPACE &&
                 nextLeaf.textContains('\n')
             ) {
-                emit(node.startOffset, "Line must not end with \"${node.text}\"", true)
+                emit(Issue(node.startOffset, "Line must not end with \"${node.text}\"", true))
                 if (autoCorrect) {
                     // rewriting
                     // <prevLeaf><node="."><nextLeaf="\n"> to
@@ -91,7 +92,7 @@ class ChainWrappingRule : Rule("chain-wrapping") {
                 // LeafPsiElement->KtOperationReferenceExpression->KtPrefixExpression->KtWhenConditionWithExpression
                 !node.isPartOfWhenCondition()
             ) {
-                emit(node.startOffset, "Line must not begin with \"${node.text}\"", true)
+                emit(Issue(node.startOffset, "Line must not begin with \"${node.text}\"", true))
                 if (autoCorrect) {
                     // rewriting
                     // <insertionPoint><prevLeaf="\n"><node="&&"><nextLeaf=" "> to

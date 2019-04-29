@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard
 
+import com.pinterest.ktlint.core.Issue
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.ELSE
 import com.pinterest.ktlint.core.ast.ElementType.LBRACE
@@ -18,14 +19,14 @@ class MultiLineIfElseRule : Rule("multiline-if-else") {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (issue: Issue) -> Unit
     ) {
         if (node.elementType == THEN || node.elementType == ELSE) {
             if (!node.treePrev.textContains('\n')) { // if (...) <statement>
                 return
             }
             if (node.firstChildNode?.firstChildNode?.elementType != LBRACE) {
-                emit(node.firstChildNode.startOffset, "Missing { ... }", true)
+                emit(Issue(node.firstChildNode.startOffset, "Missing { ... }", true))
                 if (autoCorrect) {
                     (node.firstChildNode.firstChildNode as TreeElement).rawInsertBeforeMe(LeafPsiElement(RBRACE, "{"))
                     (node.lastChildNode.lastChildNode as TreeElement).rawInsertAfterMe(LeafPsiElement(LBRACE, "}"))

@@ -29,7 +29,7 @@ abstract class Rule(val id: String) {
     abstract fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (issue: Issue) -> Unit
     )
 
     object Modifier {

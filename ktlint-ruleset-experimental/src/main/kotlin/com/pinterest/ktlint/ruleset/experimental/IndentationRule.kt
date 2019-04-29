@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.ruleset.experimental
 
 import com.pinterest.ktlint.core.EditorConfig
+import com.pinterest.ktlint.core.Issue
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.ANNOTATION
@@ -128,7 +129,7 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (issue: Issue) -> Unit
     ) {
         val editorConfig = node.getUserData(KtLint.EDITOR_CONFIG_USER_DATA_KEY)!!
         if (editorConfig.indentStyle == EditorConfig.IntentStyle.TAB || editorConfig.indentSize <= 1) {
@@ -140,7 +141,7 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
         var emitted = false
         rearrange(node, autoCorrect) { offset, errorMessage, canBeAutoCorrected ->
             emitted = true
-            emit(offset, errorMessage, canBeAutoCorrected)
+            emit(Issue(offset, errorMessage, canBeAutoCorrected))
         }
         if (emitted && autoCorrect) {
             IndentationRule.debug {
@@ -471,7 +472,7 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
     private fun indent(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (issue: Issue) -> Unit,
         editorConfig: EditorConfig
     ) {
         val firstNotEmptyLeaf = node.nextLeaf()
@@ -736,7 +737,7 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
     private fun indentStringTemplate(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (issue: Issue) -> Unit,
         editorConfig: EditorConfig
     ) {
         val psi = node.psi as KtStringTemplateExpression
@@ -828,9 +829,11 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                 // _
                 // """.trimIndent()
                 emit(
-                    closingQuote.startOffset,
-                    "Missing newline before \"\"\"",
-                    true
+                    Issue(
+                        closingQuote.startOffset,
+                        "Missing newline before \"\"\"",
+                        true
+                    )
                 )
                 if (autoCorrect) {
                     closingQuote as LeafPsiElement
@@ -856,13 +859,15 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
     private fun preindentStringTemplateEntry(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (issue: Issue) -> Unit,
         expectedIndentLength: Int
     ) {
         emit(
-            node.startOffset,
-            "Unexpected indentation (0) (should be $expectedIndentLength)",
-            true
+            Issue(
+                node.startOffset,
+                "Unexpected indentation (0) (should be $expectedIndentLength)",
+                true
+            )
         )
         if (autoCorrect) {
             (node as LeafPsiElement).rawInsertBeforeMe(
@@ -878,14 +883,16 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
     private fun reindentStringTemplateEntry(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (issue: Issue) -> Unit,
         indentLength: Int,
         expectedIndentLength: Int
     ) {
         emit(
-            node.startOffset,
-            "Unexpected indentation ($indentLength) (should be $expectedIndentLength)",
-            true
+            Issue(
+                node.startOffset,
+                "Unexpected indentation ($indentLength) (should be $expectedIndentLength)",
+                true
+            )
         )
         if (autoCorrect) {
             (node.firstChildNode as LeafPsiElement).rawReplaceWithText(
@@ -923,7 +930,7 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
     private fun visitWhiteSpace(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (issue: Issue) -> Unit,
         editorConfig: EditorConfig
     ) {
         val text = node.text
@@ -981,9 +988,11 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
         val normalizedNodeIndent =
             if (nodeIndent.contains('\t')) {
                 emit(
-                    node.startOffset + text.length - nodeIndent.length,
-                    "Unexpected Tab character(s)",
-                    true
+                    Issue(
+                        node.startOffset + text.length - nodeIndent.length,
+                        "Unexpected Tab character(s)",
+                        true
+                    )
                 )
                 nodeIndent.replace("\t", " ".repeat(editorConfig.tabWidth))
             } else {
@@ -995,9 +1004,11 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                 if (comment?.elementType == KDOC && nextLeafElementType != KDOC_START) 1 else 0
         if (normalizedNodeIndent.length != expectedIndentLength) {
             emit(
-                node.startOffset + text.length - nodeIndent.length,
-                "Unexpected indentation (${normalizedNodeIndent.length}) (should be $expectedIndentLength)",
-                true
+                Issue(
+                    node.startOffset + text.length - nodeIndent.length,
+                    "Unexpected indentation (${normalizedNodeIndent.length}) (should be $expectedIndentLength)",
+                    true
+                )
             )
             debug {
                 (if (!autoCorrect) "would have " else "") +

@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard
 
+import com.pinterest.ktlint.core.Issue
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType
@@ -22,7 +23,7 @@ class MaxLineLengthRule : Rule("max-line-length"), Rule.Modifier.Last {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (issue: Issue) -> Unit
     ) {
         if (node.isRoot()) {
             val editorConfig = node.getUserData(KtLint.EDITOR_CONFIG_USER_DATA_KEY)!!
@@ -68,7 +69,7 @@ class MaxLineLengthRule : Rule("max-line-length"), Rule.Modifier.Last {
             rangeTree
                 .query(node.startOffset, node.startOffset + node.textLength)
                 .forEach { offset ->
-                    emit(offset, "Exceeded max line length ($maxLineLength)", false)
+                    emit(Issue(offset, "Exceeded max line length ($maxLineLength)", false))
                 }
         }
     }

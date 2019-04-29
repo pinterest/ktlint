@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard
 
+import com.pinterest.ktlint.core.Issue
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.prevLeaf
 import com.pinterest.ktlint.core.ast.upsertWhitespaceBeforeMe
@@ -13,12 +14,12 @@ class CommentSpacingRule : Rule("comment-spacing") {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (issue: Issue) -> Unit
     ) {
         if (node is PsiComment && node is LeafPsiElement && node.getText().startsWith("//")) {
             val prevLeaf = node.prevLeaf()
             if (prevLeaf !is PsiWhiteSpace && prevLeaf is LeafPsiElement) {
-                emit(node.startOffset, "Missing space before //", true)
+                emit(Issue(node.startOffset, "Missing space before //", true))
                 if (autoCorrect) {
                     node.upsertWhitespaceBeforeMe(" ")
                 }
@@ -31,7 +32,7 @@ class CommentSpacingRule : Rule("comment-spacing") {
                 !text.startsWith("//endregion") &&
                 !text.startsWith("//language=")
             ) {
-                emit(node.startOffset, "Missing space after //", true)
+                emit(Issue(node.startOffset, "Missing space after //", true))
                 if (autoCorrect) {
                     node.rawReplaceWithText("// " + text.removePrefix("//"))
                 }

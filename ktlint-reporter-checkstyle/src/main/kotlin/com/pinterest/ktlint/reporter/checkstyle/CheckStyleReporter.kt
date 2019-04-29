@@ -1,6 +1,6 @@
 package com.pinterest.ktlint.reporter.checkstyle
 
-import com.pinterest.ktlint.core.LintError
+import com.pinterest.ktlint.core.LintIssue
 import com.pinterest.ktlint.core.Reporter
 import java.io.PrintStream
 import java.util.ArrayList
@@ -8,11 +8,11 @@ import java.util.concurrent.ConcurrentHashMap
 
 class CheckStyleReporter(val out: PrintStream) : Reporter {
 
-    private val acc = ConcurrentHashMap<String, MutableList<LintError>>()
+    private val acc = ConcurrentHashMap<String, MutableList<LintIssue>>()
 
-    override fun onLintError(file: String, err: LintError, corrected: Boolean) {
+    override fun onLintError(file: String, err: LintIssue, corrected: Boolean) {
         if (!corrected) {
-            acc.getOrPut(file) { ArrayList<LintError>() }.add(err)
+            acc.getOrPut(file) { ArrayList() }.add(err)
         }
     }
 

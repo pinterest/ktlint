@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.reporter.json
 
 import com.pinterest.ktlint.core.LintError
+import com.pinterest.ktlint.core.LintIssue
 import com.pinterest.ktlint.core.Reporter
 import java.io.PrintStream
 import java.util.ArrayList
@@ -8,9 +9,9 @@ import java.util.concurrent.ConcurrentHashMap
 
 class JsonReporter(val out: PrintStream) : Reporter {
 
-    private val acc = ConcurrentHashMap<String, MutableList<LintError>>()
+    private val acc = ConcurrentHashMap<String, MutableList<LintIssue>>()
 
-    override fun onLintError(file: String, err: LintError, corrected: Boolean) {
+    override fun onLintError(file: String, err: LintIssue, corrected: Boolean) {
         if (!corrected) {
             acc.getOrPut(file) { ArrayList() }.add(err)
         }
@@ -28,6 +29,7 @@ class JsonReporter(val out: PrintStream) : Reporter {
             for ((errIndex, err) in errList.withIndex()) {
                 val (line, col, ruleId, detail) = err
                 out.println("""			{""")
+                out.println("""				"type": "${err.tag()}",""")
                 out.println("""				"line": $line,""")
                 out.println("""				"column": $col,""")
                 out.println("""				"message": "${detail.escapeJsonValue()}",""")
@@ -39,6 +41,8 @@ class JsonReporter(val out: PrintStream) : Reporter {
         }
         out.println("]")
     }
+
+    private fun LintIssue.tag() = if (this is LintError) "ERROR" else "WARNING"
 
     private fun String.escapeJsonValue() =
         this

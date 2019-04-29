@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.test
 
+import com.pinterest.ktlint.core.Issue
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType
 import com.pinterest.ktlint.core.ast.isRoot
@@ -31,7 +32,7 @@ class DumpAST @JvmOverloads constructor(
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, corrected: Boolean) -> Unit
+        emit: (issue: Issue) -> Unit
     ) {
         if (node.isRoot()) {
             lineNumberColumnLength =

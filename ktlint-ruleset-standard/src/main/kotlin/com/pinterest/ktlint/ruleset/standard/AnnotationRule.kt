@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard
 
+import com.pinterest.ktlint.core.Issue
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.core.ast.children
@@ -20,7 +21,7 @@ class AnnotationRule : Rule("annotation") {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (issue: Issue) -> Unit
     ) {
         val root =
             node.children().firstOrNull { it.elementType == MODIFIER_LIST }
@@ -53,16 +54,20 @@ class AnnotationRule : Rule("annotation") {
 
         if (multipleAnnotationsOnSameLineAsAnnotatedConstruct) {
             emit(
-                annotations.first().node.startOffset,
-                multipleAnnotationsOnSameLineAsAnnotatedConstructErrorMessage,
-                true
+                Issue(
+                    annotations.first().node.startOffset,
+                    multipleAnnotationsOnSameLineAsAnnotatedConstructErrorMessage,
+                    true
+                )
             )
         }
         if (annotationsWithParametersAreNotOnSeparateLines) {
             emit(
-                annotations.first().node.startOffset,
-                annotationsWithParametersAreNotOnSeparateLinesErrorMessage,
-                true
+                Issue(
+                    annotations.first().node.startOffset,
+                    annotationsWithParametersAreNotOnSeparateLinesErrorMessage,
+                    true
+                )
             )
         }
 

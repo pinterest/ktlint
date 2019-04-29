@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard
 
+import com.pinterest.ktlint.core.Issue
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.CLASS_BODY
 import com.pinterest.ktlint.core.ast.ElementType.LBRACE
@@ -15,7 +16,7 @@ class NoEmptyClassBodyRule : Rule("no-empty-class-body") {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (issue: Issue) -> Unit
     ) {
         if (node.elementType == CLASS_BODY &&
             node.firstChildNode?.let { n ->
@@ -24,7 +25,7 @@ class NoEmptyClassBodyRule : Rule("no-empty-class-body") {
             } == true &&
             !node.isPartOf(KtObjectLiteralExpression::class)
         ) {
-            emit(node.startOffset, "Unnecessary block (\"{}\")", true)
+            emit(Issue(node.startOffset, "Unnecessary block (\"{}\")", true))
             if (autoCorrect) {
                 val prevNode = node.treePrev
                 if (prevNode.elementType == WHITE_SPACE) {

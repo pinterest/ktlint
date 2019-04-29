@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard
 
+import com.pinterest.ktlint.core.Issue
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.IMPORT_DIRECTIVE
 import com.pinterest.ktlint.core.ast.ElementType.OPERATION_REFERENCE
@@ -48,7 +49,7 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (issue: Issue) -> Unit
     ) {
         if (node.isRoot()) {
             ref.clear() // rule can potentially be executed more than once (when formatting)
@@ -76,12 +77,12 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
                 (packageName.isEmpty() || importPath.startsWith("$packageName.")) &&
                 importPath.substring(packageName.length + 1).indexOf('.') == -1
             ) {
-                emit(node.startOffset, "Unnecessary import", true)
+                emit(Issue(node.startOffset, "Unnecessary import", true))
                 if (autoCorrect) {
                     importDirective.delete()
                 }
             } else if (name != null && !ref.contains(name) && !operatorSet.contains(name) && !name.isComponentN()) {
-                emit(node.startOffset, "Unused import", true)
+                emit(Issue(node.startOffset, "Unused import", true))
                 if (autoCorrect) {
                     importDirective.delete()
                 }

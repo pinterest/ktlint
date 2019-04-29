@@ -100,11 +100,11 @@ object KtLint {
      * @throws ParseException if text is not a valid Kotlin code
      * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
      */
-    fun lint(text: String, ruleSets: Iterable<RuleSet>, cb: (e: LintError) -> Unit) {
+    fun lint(text: String, ruleSets: Iterable<RuleSet>, cb: (e: LintIssue) -> Unit) {
         lint(text, ruleSets, emptyMap(), cb, script = false)
     }
 
-    fun lint(text: String, ruleSets: Iterable<RuleSet>, userData: Map<String, String>, cb: (e: LintError) -> Unit) {
+    fun lint(text: String, ruleSets: Iterable<RuleSet>, userData: Map<String, String>, cb: (e: LintIssue) -> Unit) {
         lint(text, ruleSets, userData, cb, script = false)
     }
 
@@ -118,7 +118,7 @@ object KtLint {
      * @throws ParseException if text is not a valid Kotlin code
      * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
      */
-    fun lintScript(text: String, ruleSets: Iterable<RuleSet>, cb: (e: LintError) -> Unit) {
+    fun lintScript(text: String, ruleSets: Iterable<RuleSet>, cb: (e: LintIssue) -> Unit) {
         lint(text, ruleSets, emptyMap(), cb, script = true)
     }
 
@@ -126,7 +126,7 @@ object KtLint {
         text: String,
         ruleSets: Iterable<RuleSet>,
         userData: Map<String, String>,
-        cb: (e: LintError) -> Unit
+        cb: (e: LintIssue) -> Unit
     ) {
         lint(text, ruleSets, userData, cb, script = true)
     }
@@ -135,7 +135,7 @@ object KtLint {
         text: String,
         ruleSets: Iterable<RuleSet>,
         userData: Map<String, String>,
-        cb: (e: LintError) -> Unit,
+        cb: (e: LintIssue) -> Unit,
         script: Boolean
     ) {
         val normalizedText = text.replace("\r\n", "\n").replace("\r", "\n")
@@ -150,19 +150,19 @@ object KtLint {
         val rootNode = psiFile.node
         injectUserData(rootNode, userData)
         val isSuppressed = calculateSuppressedRegions(rootNode)
-        val errors = mutableListOf<LintError>()
+        val errors = mutableListOf<LintIssue>()
         visitor(rootNode, ruleSets).invoke { node, rule, fqRuleId ->
             // fixme: enforcing suppression based on node.startOffset is wrong
             // (not just because not all nodes are leaves but because rules are free to emit (and fix!) errors at any position)
             if (!isSuppressed(node.startOffset, fqRuleId, node === rootNode)) {
                 try {
-                    rule.visit(node, false) { offset, errorMessage, canBeAutoCorrected ->
+                    rule.visit(node, false) { issue ->
                         // https://github.com/shyiko/ktlint/issues/158#issuecomment-462728189
-                        if (node.startOffset != offset && isSuppressed(offset, fqRuleId, node === rootNode)) {
+                        if (node.startOffset != issue.offset && isSuppressed(issue.offset, fqRuleId, node === rootNode)) {
                             return@visit
                         }
-                        val (line, col) = positionByOffset(offset)
-                        errors.add(LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected))
+                        val (line, col) = positionByOffset(issue.offset)
+                        errors.add(issue.toLintIssue(line, col, fqRuleId))
                     }
                 } catch (e: Exception) {
                     val (line, col) = positionByOffset(node.startOffset)
@@ -299,14 +299,14 @@ object KtLint {
      * @throws ParseException if text is not a valid Kotlin code
      * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
      */
-    fun format(text: String, ruleSets: Iterable<RuleSet>, cb: (e: LintError, corrected: Boolean) -> Unit): String =
+    fun format(text: String, ruleSets: Iterable<RuleSet>, cb: (e: LintIssue, corrected: Boolean) -> Unit): String =
         format(text, ruleSets, emptyMap<String, String>(), cb, script = false)
 
     fun format(
         text: String,
         ruleSets: Iterable<RuleSet>,
         userData: Map<String, String>,
-        cb: (e: LintError, corrected: Boolean) -> Unit
+        cb: (e: LintIssue, corrected: Boolean) -> Unit
     ): String = format(text, ruleSets, userData, cb, script = false)
 
     /**
@@ -322,7 +322,7 @@ object KtLint {
     fun formatScript(
         text: String,
         ruleSets: Iterable<RuleSet>,
-        cb: (e: LintError, corrected: Boolean) -> Unit
+        cb: (e: LintIssue, corrected: Boolean) -> Unit
     ): String =
         format(text, ruleSets, emptyMap(), cb, script = true)
 
@@ -330,14 +330,14 @@ object KtLint {
         text: String,
         ruleSets: Iterable<RuleSet>,
         userData: Map<String, String>,
-        cb: (e: LintError, corrected: Boolean) -> Unit
+        cb: (e: LintIssue, corrected: Boolean) -> Unit
     ): String = format(text, ruleSets, userData, cb, script = true)
 
     private fun format(
         text: String,
         ruleSets: Iterable<RuleSet>,
         userData: Map<String, String>,
-        cb: (e: LintError, corrected: Boolean) -> Unit,
+        cb: (e: LintIssue, corrected: Boolean) -> Unit,
         script: Boolean
     ): String {
         val normalizedText = text.replace("\r\n", "\n").replace("\r", "\n")
@@ -360,9 +360,9 @@ object KtLint {
                 // (not just because not all nodes are leaves but because rules are free to emit (and fix!) errors at any position)
                 if (!isSuppressed(node.startOffset, fqRuleId, node === rootNode)) {
                     try {
-                        rule.visit(node, true) { _, _, canBeAutoCorrected ->
+                        rule.visit(node, true) { issue ->
                             tripped = true
-                            if (canBeAutoCorrected) {
+                            if (issue.canBeAutoCorrected) {
                                 mutated = true
                                 if (isSuppressed !== nullSuppression) {
                                     isSuppressed = calculateSuppressedRegions(rootNode)
@@ -377,19 +377,19 @@ object KtLint {
                 }
             }
         if (tripped) {
-            val errors = mutableListOf<Pair<LintError, Boolean>>()
+            val errors = mutableListOf<Pair<LintIssue, Boolean>>()
             visitor(rootNode, ruleSets).invoke { node, rule, fqRuleId ->
                 // fixme: enforcing suppression based on node.startOffset is wrong
                 // (not just because not all nodes are leaves but because rules are free to emit (and fix!) errors at any position)
                 if (!isSuppressed(node.startOffset, fqRuleId, node === rootNode)) {
                     try {
-                        rule.visit(node, false) { offset, errorMessage, canBeAutoCorrected ->
+                        rule.visit(node, false) { issue ->
                             // https://github.com/shyiko/ktlint/issues/158#issuecomment-462728189
-                            if (node.startOffset != offset && isSuppressed(offset, fqRuleId, node === rootNode)) {
+                            if (node.startOffset != issue.offset && isSuppressed(issue.offset, fqRuleId, node === rootNode)) {
                                 return@visit
                             }
-                            val (line, col) = positionByOffset(offset)
-                            errors.add(Pair(LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected), false))
+                            val (line, col) = positionByOffset(issue.offset)
+                            errors.add(Pair(issue.toLintIssue(line, col, fqRuleId), false))
                         }
                     } catch (e: Exception) {
                         val (line, col) = positionByOffset(node.startOffset)

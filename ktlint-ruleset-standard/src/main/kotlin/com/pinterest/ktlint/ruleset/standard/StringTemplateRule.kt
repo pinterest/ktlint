@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard
 
+import com.pinterest.ktlint.core.Issue
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.CLOSING_QUOTE
 import com.pinterest.ktlint.core.ast.ElementType.DOT
@@ -15,7 +16,7 @@ class StringTemplateRule : Rule("string-template") {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (issue: Issue) -> Unit
     ) {
         val elementType = node.elementType
         // code below is commented out because (setting aside potentially dangerous replaceChild part)
@@ -39,7 +40,7 @@ class StringTemplateRule : Rule("string-template") {
                     callExpression.text == "toString()" &&
                     dotQualifiedExpression.firstChildNode?.elementType != SUPER_EXPRESSION
                 ) {
-                    emit(dot.startOffset, "Redundant \"toString()\" call in string template", true)
+                    emit(Issue(dot.startOffset, "Redundant \"toString()\" call in string template", true))
                     if (autoCorrect) {
                         node.removeChild(dot)
                         node.removeChild(callExpression)
@@ -56,7 +57,7 @@ class StringTemplateRule : Rule("string-template") {
                             )
                 }
             ) {
-                emit(node.treePrev.startOffset + 2, "Redundant curly braces", true)
+                emit(Issue(node.treePrev.startOffset + 2, "Redundant curly braces", true))
                 if (autoCorrect) {
                     // fixme: a proper way would be to downcast to SHORT_STRING_TEMPLATE_ENTRY
                     (node.firstChildNode as LeafPsiElement).rawReplaceWithText("$") // entry start

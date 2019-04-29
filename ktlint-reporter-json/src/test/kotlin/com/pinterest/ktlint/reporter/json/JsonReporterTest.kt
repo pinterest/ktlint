@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.reporter.json
 
 import com.pinterest.ktlint.core.LintError
+import com.pinterest.ktlint.core.LintWarning
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 import org.assertj.core.api.Assertions.assertThat
@@ -62,6 +63,7 @@ class JsonReporterTest {
 		"file": "/one-fixed-and-one-not.kt",
 		"errors": [
 			{
+				"type": "ERROR",
 				"line": 1,
 				"column": 1,
 				"message": "<\"&'>",
@@ -73,12 +75,14 @@ class JsonReporterTest {
 		"file": "/two-not-fixed.kt",
 		"errors": [
 			{
+				"type": "ERROR",
 				"line": 1,
 				"column": 10,
 				"message": "I thought I would again",
 				"rule": "rule-1"
 			},
 			{
+				"type": "ERROR",
 				"line": 2,
 				"column": 20,
 				"message": "A single thin straight line",
@@ -104,6 +108,33 @@ class JsonReporterTest {
 		"file": "src\\main\\all\\corrected.kt",
 		"errors": [
 			{
+				"type": "ERROR",
+				"line": 4,
+				"column": 7,
+				"message": "\\n\n\r\t\"",
+				"rule": "rule-7"
+			}
+		]
+	}
+]
+""".trimStart().replace("\n", System.lineSeparator())
+        )
+    }
+
+    @Test
+    fun testWarnings() {
+        val out = ByteArrayOutputStream()
+        val reporter = JsonReporter(PrintStream(out, true))
+        reporter.onLintError("src\\main\\all\\corrected.kt", LintWarning(4, 7, "rule-7", "\\n\n\r\t\""), false)
+        reporter.afterAll()
+        assertThat(String(out.toByteArray())).isEqualTo(
+            """
+[
+	{
+		"file": "src\\main\\all\\corrected.kt",
+		"errors": [
+			{
+				"type": "WARNING",
 				"line": 4,
 				"column": 7,
 				"message": "\\n\n\r\t\"",

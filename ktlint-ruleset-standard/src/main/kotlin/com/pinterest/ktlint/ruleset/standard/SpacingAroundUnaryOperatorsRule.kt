@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard
 
+import com.pinterest.ktlint.core.Issue
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.EXCL
 import com.pinterest.ktlint.core.ast.ElementType.EXCLEXCL
@@ -29,7 +30,7 @@ class SpacingAroundUnaryOperatorsRule : Rule("unary-op-spacing") {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (Issue) -> Unit
     ) {
         if (node is LeafElement && tokenSet.contains(node.elementType)) {
             val unaryExpressionNode = node.parent({ it.elementType in listOf(POSTFIX_EXPRESSION, PREFIX_EXPRESSION) })
@@ -37,7 +38,7 @@ class SpacingAroundUnaryOperatorsRule : Rule("unary-op-spacing") {
                 PREFIX_EXPRESSION -> {
                     val nextLeaf = node.nextLeaf()
                     if (nextLeaf is PsiWhiteSpace) {
-                        emit(node.startOffset + 1, "Unexpected spacing after \"${node.text}\"", true)
+                        emit(Issue(node.startOffset + 1, "Unexpected spacing after \"${node.text}\"", true))
                         if (autoCorrect) {
                             nextLeaf.treeParent.removeChild(nextLeaf)
                         }
@@ -46,7 +47,7 @@ class SpacingAroundUnaryOperatorsRule : Rule("unary-op-spacing") {
                 POSTFIX_EXPRESSION -> {
                     val prevLeaf = node.prevLeaf()
                     if (prevLeaf is PsiWhiteSpace) {
-                        emit(node.startOffset - 1, "Unexpected spacing before \"${node.text}\"", true)
+                        emit(Issue(node.startOffset - 1, "Unexpected spacing before \"${node.text}\"", true))
                         if (autoCorrect) {
                             prevLeaf.treeParent.removeChild(prevLeaf)
                         }

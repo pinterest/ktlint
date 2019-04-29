@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard
 
+import com.pinterest.ktlint.core.Issue
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.ANNOTATION
 import com.pinterest.ktlint.core.ast.ElementType.ANNOTATION_ENTRY
@@ -23,7 +24,7 @@ class SpacingAroundColonRule : Rule("colon-spacing") {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (issue: Issue) -> Unit
     ) {
         if (node is LeafPsiElement && node.textMatches(":") && !node.isPartOfString() && !node.isPartOfComment()) {
             if (node.isPartOf(ANNOTATION) || node.isPartOf(ANNOTATION_ENTRY)) {
@@ -42,7 +43,7 @@ class SpacingAroundColonRule : Rule("colon-spacing") {
                 // (see SpacingAroundColonRuleTest.testFormatEOF & ChainWrappingRule)
                 prevLeaf.prevLeaf()?.isPartOfComment() != true
             ) {
-                emit(prevLeaf.startOffset, "Unexpected newline before \":\"", true)
+                emit(Issue(prevLeaf.startOffset, "Unexpected newline before \":\"", true))
                 val text = prevLeaf.text
                 if (autoCorrect) {
                     if (removeSpacingBefore) {
@@ -54,7 +55,7 @@ class SpacingAroundColonRule : Rule("colon-spacing") {
                 }
             }
             if (node.prevSibling is PsiWhiteSpace && removeSpacingBefore) {
-                emit(node.startOffset, "Unexpected spacing before \":\"", true)
+                emit(Issue(node.startOffset, "Unexpected spacing before \":\"", true))
                 if (autoCorrect) {
                     node.prevSibling.node.treeParent.removeChild(node.prevSibling.node)
                 }
@@ -68,20 +69,20 @@ class SpacingAroundColonRule : Rule("colon-spacing") {
             val missingSpacingAfter = node.nextSibling !is PsiWhiteSpace
             when {
                 missingSpacingBefore && missingSpacingAfter -> {
-                    emit(node.startOffset, "Missing spacing around \":\"", true)
+                    emit(Issue(node.startOffset, "Missing spacing around \":\"", true))
                     if (autoCorrect) {
                         node.upsertWhitespaceBeforeMe(" ")
                         node.upsertWhitespaceAfterMe(" ")
                     }
                 }
                 missingSpacingBefore -> {
-                    emit(node.startOffset, "Missing spacing before \":\"", true)
+                    emit(Issue(node.startOffset, "Missing spacing before \":\"", true))
                     if (autoCorrect) {
                         node.upsertWhitespaceBeforeMe(" ")
                     }
                 }
                 missingSpacingAfter -> {
-                    emit(node.startOffset + 1, "Missing spacing after \":\"", true)
+                    emit(Issue(node.startOffset + 1, "Missing spacing after \":\"", true))
                     if (autoCorrect) {
                         node.upsertWhitespaceAfterMe(" ")
                     }

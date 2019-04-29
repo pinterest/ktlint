@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard
 
+import com.pinterest.ktlint.core.Issue
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.FUNCTION_LITERAL
@@ -26,7 +27,7 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (issue: Issue) -> Unit
     ) {
         if (node.isRoot()) {
             val editorConfig = node.getUserData(KtLint.EDITOR_CONFIG_USER_DATA_KEY)!!
@@ -63,7 +64,7 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
                         LPAR -> {
                             val prevLeaf = child.prevLeaf()
                             if (prevLeaf is PsiWhiteSpace && prevLeaf.textContains('\n')) {
-                                emit(child.startOffset, errorMessage(child), true)
+                                emit(Issue(child.startOffset, errorMessage(child), true))
                                 if (autoCorrect) {
                                     prevLeaf.delete()
                                 }
@@ -87,13 +88,15 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
                                         continue@nextChild
                                     }
                                     emit(
-                                        child.startOffset,
-                                        "Unexpected indentation" +
-                                            " (expected ${intendedIndent.length - 1}, actual ${childIndent.length - 1})",
-                                        true
+                                        Issue(
+                                            child.startOffset,
+                                            "Unexpected indentation" +
+                                                " (expected ${intendedIndent.length - 1}, actual ${childIndent.length - 1})",
+                                            true
+                                        )
                                     )
                                 } else {
-                                    emit(child.startOffset, errorMessage(child), true)
+                                    emit(Issue(child.startOffset, errorMessage(child), true))
                                 }
                                 if (autoCorrect) {
                                     val adjustedIndent = (if (cut > -1) spacing.substring(0, cut) else "") + intendedIndent
@@ -101,7 +104,7 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
                                     (prevLeaf as LeafPsiElement).rawReplaceWithText(adjustedIndent)
                                 }
                             } else {
-                                emit(child.startOffset, errorMessage(child), true)
+                                emit(Issue(child.startOffset, errorMessage(child), true))
                                 if (autoCorrect) {
                                     paramInnerIndentAdjustment = intendedIndent.length - child.column
                                     node.addChild(PsiWhiteSpaceImpl(intendedIndent), child)

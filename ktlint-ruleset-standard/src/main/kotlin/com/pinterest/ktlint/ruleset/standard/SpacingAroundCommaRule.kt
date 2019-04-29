@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard
 
+import com.pinterest.ktlint.core.Issue
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.isPartOfString
 import com.pinterest.ktlint.core.ast.isWhiteSpaceWithNewline
@@ -18,12 +19,12 @@ class SpacingAroundCommaRule : Rule("comma-spacing") {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (issue: Issue) -> Unit
     ) {
         if (node is LeafPsiElement && node.textMatches(",") && !node.isPartOfString()) {
             val prevLeaf = node.prevLeaf()
             if (prevLeaf is PsiWhiteSpace) {
-                emit(prevLeaf.startOffset, "Unexpected spacing before \"${node.text}\"", true)
+                emit(Issue(prevLeaf.startOffset, "Unexpected spacing before \"${node.text}\"", true))
                 if (autoCorrect) {
                     val isPrecededByComment = prevLeaf.prevLeaf { it !is PsiWhiteSpace } is PsiComment
                     if (isPrecededByComment && prevLeaf.isWhiteSpaceWithNewline()) {
@@ -42,7 +43,7 @@ class SpacingAroundCommaRule : Rule("comma-spacing") {
                 }
             }
             if (node.nextLeaf() !is PsiWhiteSpace) {
-                emit(node.startOffset + 1, "Missing spacing after \"${node.text}\"", true)
+                emit(Issue(node.startOffset + 1, "Missing spacing after \"${node.text}\"", true))
                 if (autoCorrect) {
                     node.upsertWhitespaceAfterMe(" ")
                 }

@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard
 
+import com.pinterest.ktlint.core.Issue
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.IDENTIFIER
 import com.pinterest.ktlint.core.ast.ElementType.LPAR
@@ -22,7 +23,7 @@ class SpacingAroundParensRule : Rule("paren-spacing") {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (issue: Issue) -> Unit
     ) {
         if (node.elementType == LPAR || node.elementType == RPAR) {
             val prevLeaf = node.prevLeaf()
@@ -52,20 +53,20 @@ class SpacingAroundParensRule : Rule("paren-spacing") {
             }
             when {
                 spacingBefore && spacingAfter -> {
-                    emit(node.startOffset, "Unexpected spacing around \"${node.text}\"", true)
+                    emit(Issue(node.startOffset, "Unexpected spacing around \"${node.text}\"", true))
                     if (autoCorrect) {
                         prevLeaf!!.treeParent.removeChild(prevLeaf)
                         nextLeaf!!.treeParent.removeChild(nextLeaf)
                     }
                 }
                 spacingBefore -> {
-                    emit(prevLeaf!!.startOffset, "Unexpected spacing before \"${node.text}\"", true)
+                    emit(Issue(prevLeaf!!.startOffset, "Unexpected spacing before \"${node.text}\"", true))
                     if (autoCorrect) {
                         prevLeaf.treeParent.removeChild(prevLeaf)
                     }
                 }
                 spacingAfter -> {
-                    emit(node.startOffset + 1, "Unexpected spacing after \"${node.text}\"", true)
+                    emit(Issue(node.startOffset + 1, "Unexpected spacing after \"${node.text}\"", true))
                     if (autoCorrect) {
                         nextLeaf!!.treeParent.removeChild(nextLeaf)
                     }

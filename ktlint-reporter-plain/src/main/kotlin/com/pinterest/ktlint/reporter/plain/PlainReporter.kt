@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.reporter.plain
 
 import com.pinterest.ktlint.core.LintError
+import com.pinterest.ktlint.core.LintIssue
 import com.pinterest.ktlint.core.Reporter
 import com.pinterest.ktlint.reporter.plain.internal.Color
 import com.pinterest.ktlint.reporter.plain.internal.color
@@ -17,15 +18,15 @@ class PlainReporter(
     val pad: Boolean = false
 ) : Reporter {
 
-    private val acc = ConcurrentHashMap<String, MutableList<LintError>>()
+    private val acc = ConcurrentHashMap<String, MutableList<LintIssue>>()
 
-    override fun onLintError(file: String, err: LintError, corrected: Boolean) {
+    override fun onLintError(file: String, err: LintIssue, corrected: Boolean) {
         if (!corrected) {
             if (groupByFile) {
-                acc.getOrPut(file) { ArrayList<LintError>() }.add(err)
+                acc.getOrPut(file) { ArrayList() }.add(err)
             } else {
                 out.println(
-                    "${colorFileName(file)}${":".gray()}${err.line}${
+                    "${err.tag()} ${colorFileName(file)}${":".gray()}${err.line}${
                     ":${"${err.col}:".let { if (pad) String.format("%-4s", it) else it}}".gray()
                     } ${err.detail}${if (verbose) " (${err.ruleId})".gray() else ""}"
                 )
@@ -37,9 +38,10 @@ class PlainReporter(
         if (groupByFile) {
             val errList = acc[file] ?: return
             out.println(colorFileName(file))
-            for ((line, col, ruleId, detail) in errList) {
+            for (err in errList) {
+                val (line, col, ruleId, detail) = err
                 out.println(
-                    "  $line${
+                    " ${err.tag()} $line${
                     ":${if (pad) String.format("%-3s", col) else "$col"}".gray()
                     } $detail${if (verbose) " ($ruleId)".gray() else ""}"
                 )
@@ -54,4 +56,6 @@ class PlainReporter(
 
     private fun String.gray() =
         if (color) this.color(Color.DARK_GRAY) else this
+
+    private fun LintIssue.tag() = if (this is LintError) "[ERROR]" else "[WARNING]"
 }

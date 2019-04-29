@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard
 
+import com.pinterest.ktlint.core.Issue
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.ELSE_KEYWORD
 import com.pinterest.ktlint.core.ast.ElementType.IF_KEYWORD
@@ -15,7 +16,7 @@ class NoLineBreakAfterElseRule : Rule("no-line-break-after-else") {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (issue: Issue) -> Unit
     ) {
         if (node is PsiWhiteSpace &&
             node.textContains('\n')
@@ -23,7 +24,7 @@ class NoLineBreakAfterElseRule : Rule("no-line-break-after-else") {
             if (node.prevLeaf()?.elementType == ELSE_KEYWORD &&
                 node.nextLeaf()?.elementType.let { it == IF_KEYWORD || it == LBRACE }
             ) {
-                emit(node.startOffset + 1, "Unexpected line break after \"else\"", true)
+                emit(Issue(node.startOffset + 1, "Unexpected line break after \"else\"", true))
                 if (autoCorrect) {
                     (node as LeafPsiElement).rawReplaceWithText(" ")
                 }

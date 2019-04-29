@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard
 
+import com.pinterest.ktlint.core.Issue
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.CATCH_KEYWORD
 import com.pinterest.ktlint.core.ast.ElementType.DO_KEYWORD
@@ -38,11 +39,11 @@ class SpacingAroundKeywordRule : Rule("keyword-spacing") {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (issue: Issue) -> Unit
     ) {
         if (node is LeafPsiElement) {
             if (tokenSet.contains(node.elementType) && node.nextLeaf() !is PsiWhiteSpace) {
-                emit(node.startOffset + node.text.length, "Missing spacing after \"${node.text}\"", true)
+                emit(Issue(node.startOffset + node.text.length, "Missing spacing after \"${node.text}\"", true))
                 if (autoCorrect) {
                     node.upsertWhitespaceAfterMe(" ")
                 }
@@ -50,7 +51,7 @@ class SpacingAroundKeywordRule : Rule("keyword-spacing") {
                 val parent = node.parent
                 val nextLeaf = node.nextLeaf()
                 if (parent is KtPropertyAccessor && parent.hasBody() && nextLeaf != null) {
-                    emit(node.startOffset, "Unexpected spacing after \"${node.text}\"", true)
+                    emit(Issue(node.startOffset, "Unexpected spacing after \"${node.text}\"", true))
                     if (autoCorrect) {
                         nextLeaf.treeParent.removeChild(nextLeaf)
                     }
@@ -72,7 +73,7 @@ class SpacingAroundKeywordRule : Rule("keyword-spacing") {
                                 presumablyCurly.treeParent?.treeParent?.treeParent == node.treeParent
                             )
                     ) {
-                        emit(node.startOffset, "Unexpected newline before \"${node.text}\"", true)
+                        emit(Issue(node.startOffset, "Unexpected newline before \"${node.text}\"", true))
                         if (autoCorrect) {
                             (prevLeaf as LeafElement).rawReplaceWithText(" ")
                         }
