@@ -480,10 +480,14 @@ object KtLint {
                             }.flatMap(KtAnnotationEntry::getValueArguments)
                             .mapNotNull { it.getArgumentExpression()?.text?.removeSurrounding("\"") }
                             .mapNotNull(suppressAnnotationRuleMap::get)
-                            .distinct()
-                            .let {
-                                if (it.isNotEmpty()) {
-                                    result.add(SuppressionHint(IntRange(psi.startOffset, psi.endOffset), it.toSet()))
+                            .let { suppressedRules ->
+                                if (suppressedRules.isNotEmpty()) {
+                                    result.add(
+                                        SuppressionHint(
+                                            IntRange(psi.startOffset, psi.endOffset),
+                                            suppressedRules.toSet()
+                                        )
+                                    )
                                 }
                             }
                     }
