@@ -37,6 +37,7 @@ class C {
     override fun toString(): String = "${s0}"
 }
 
+// Ensure that suppression scope is as wider as it should be
 class D {
     @Suppress("RemoveCurlyBracesFromTemplate")
     override fun toString(): String = "${s0}"
@@ -55,4 +56,4 @@ class E {
 // 6:15:Redundant curly braces
 // 7:15:Redundant curly braces
 // 28:79:Redundant "toString()" call in string template
-// 44:20:Redundant curly braces
+// 45:20:Redundant curly braces
