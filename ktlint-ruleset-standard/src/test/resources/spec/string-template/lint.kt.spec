@@ -27,7 +27,7 @@ fun main() {
 class B(val k: String) {
     override fun toString(): String = "${super.toString()}, ${super.hashCode().toString()}, k=$k"
 
-    @Suppress("RemoveCurlyBracesFromTemplate", "Shit")
+    @Suppress("RemoveCurlyBracesFromTemplate")
     val a
         get() = "${s0}"
 }
