@@ -464,7 +464,7 @@ repositories {
 
 ## Legal
 
-This project is not affiliated with or endorsed by the Jetbrains.  
+This project is not affiliated with or endorsed by the JetBrains.  
 All code, unless specified otherwise, is licensed under the [MIT](https://opensource.org/licenses/MIT) license.  
 Copyright (c) 2019 Pinterest, Inc.  
 Copyright (c) 2016-2019 Stanley Shyiko.
