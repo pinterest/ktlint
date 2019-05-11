@@ -8,3 +8,4 @@ adds your information to this file.
 - [Freeletics](https://www.freeletics.com)
 - [Gradle](https://gradle.org)
 - [Pinterest](https://www.pinterest.com/)
+- [Shopify](https://www.shopify.com/)
