@@ -6,4 +6,5 @@ adds your information to this file.
 
 - [Ellation](http://www.ellation.com/)
 - [Freeletics](https://www.freeletics.com)
+- [Gradle](https://gradle.org)
 - [Pinterest](https://www.pinterest.com/)
