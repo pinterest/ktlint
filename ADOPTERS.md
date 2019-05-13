@@ -11,4 +11,5 @@ adds your information to this file.
 - [Gradle](https://gradle.org)
 - [Pinterest](https://www.pinterest.com/)
 - [Shopify](https://www.shopify.com/)
+- [Tinder](https://tinder.com)
 - [Workable](https://www.workable.com)
