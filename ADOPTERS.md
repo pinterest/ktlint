@@ -6,6 +6,7 @@ adds your information to this file.
 
 - [Airbnb](https://www.airbnb.com/)
 - [Ellation](http://www.ellation.com/)
+- [Faithlife](https://faithlife.com/about)
 - [Freeletics](https://www.freeletics.com)
 - [Gradle](https://gradle.org)
 - [Pinterest](https://www.pinterest.com/)
