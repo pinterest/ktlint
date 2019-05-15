@@ -47,6 +47,8 @@ class SpacingAroundCommaRuleTest {
     fun testFormat() {
         assertThat(SpacingAroundCommaRule().format("fun main() { x(1,3); x(1, 3) }"))
             .isEqualTo("fun main() { x(1, 3); x(1, 3) }")
+        assertThat(SpacingAroundCommaRule().format("fun main() { x(1 /* comment */ , 3); x(1 /* comment */, 3) }"))
+            .isEqualTo("fun main() { x(1 /* comment */, 3); x(1 /* comment */, 3) }")
         assertThat(
             SpacingAroundCommaRule().format(
                 """
@@ -66,6 +68,29 @@ class SpacingAroundCommaRuleTest {
                 arg2: Int,
 
                 arg3: Int
+            ) = Unit
+            """.trimIndent()
+        )
+        assertThat(
+            SpacingAroundCommaRule().format(
+                """
+                fun fn(
+                    arg1: Int ,
+                    arg2: Int // some comment
+                    , arg3: Int
+                    // other comment
+                    , arg4: Int
+                ) = Unit
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            """
+            fun fn(
+                arg1: Int,
+                arg2: Int, // some comment
+                arg3: Int,
+                // other comment
+                arg4: Int
             ) = Unit
             """.trimIndent()
         )
