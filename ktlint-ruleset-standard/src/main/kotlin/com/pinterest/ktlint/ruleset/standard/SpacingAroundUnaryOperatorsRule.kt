@@ -17,6 +17,11 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 
+/**
+ * Ensures there are no spaces around unary operators
+ *
+ * @see [Kotlin Style Guide](https://kotlinlang.org/docs/reference/coding-conventions.html#horizontal-whitespace)
+ */
 class SpacingAroundUnaryOperatorsRule : Rule("unary-op-spacing") {
 
     private val tokenSet = TokenSet.create(PLUS, PLUSPLUS, MINUS, MINUSMINUS, EXCL, EXCLEXCL)
