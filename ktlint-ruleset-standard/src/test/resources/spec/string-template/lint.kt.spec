@@ -37,7 +37,7 @@ class C {
     override fun toString(): String = "${s0}"
 }
 
-// Ensure that suppression scope is as wider as it should be
+// Ensure that suppression scope is as wide as it should be
 class D {
     @Suppress("RemoveCurlyBracesFromTemplate")
     override fun toString(): String = "${s0}"
