@@ -30,23 +30,23 @@ It's also [easy to create your own](#creating-a-reporter).
 ## Standard rules
 
 - 4 spaces for indentation  
-(unless a different `indent_size` value is set in .editorconfig (see [EditorConfig](#editorconfig) section for more));
-- No semicolons (unless used to separate multiple statements on the same line);
-- No unused `import`s;
-- No consecutive blank lines;
-- No blank lines before `}`;
-- No trailing whitespaces;
-- No `Unit` returns (`fun fn {}` instead of `fun fn: Unit {}`);
-- No empty (`{}`) class bodies;
-- No spaces around range (`..`) operator;
-- No newline before (binary) `+` & `-`, `*`, `/`, `%`, `&&`, `||`; 
-- When wrapping chained calls `.`, `?.` and `?:` should be placed on the next line;
-- When a line is broken at an assignment (`=`) operator the break comes after the symbol;
-- When class/function signature doesn't fit on a single line, each parameter must be on a separate line;
-- Consistent string templates (`$v` instead of `${v}`, `${p.v}` instead of `${p.v.toString()}`);
-- Consistent order of modifiers;
-- Consistent spacing after keywords, commas; around colons, curly braces, parens, infix operators, comments, etc;
-- Newline at the end of each file (not enabled by default, but recommended)  
+(unless a different `indent_size` value is set in .editorconfig (see [EditorConfig](#editorconfig) section for more))
+- No semicolons (unless used to separate multiple statements on the same line)
+- No unused `import`s
+- No consecutive blank lines
+- No blank lines before `}`
+- No trailing whitespaces
+- No `Unit` returns (`fun fn {}` instead of `fun fn: Unit {}`)
+- No empty (`{}`) class bodies
+- No spaces around range (`..`) operator
+- No newline before (binary) `+` & `-`, `*`, `/`, `%`, `&&`, `||` 
+- When wrapping chained calls `.`, `?.` and `?:` should be placed on the next line
+- When a line is broken at an assignment (`=`) operator the break comes after the symbol
+- When class/function signature doesn't fit on a single line, each parameter must be on a separate line
+- Consistent string templates (`$v` instead of `${v}`, `${p.v}` instead of `${p.v.toString()}`)
+- Consistent order of modifiers
+- Consistent spacing after keywords, commas; around colons, curly braces, parens, infix operators, comments, etc
+- Newline at the end of each file (not enabled by default, but recommended)
 (set `insert_final_newline=true` in .editorconfig to enable (see [EditorConfig](#editorconfig) section for more)).
 
 ## Experimental rules
@@ -57,11 +57,11 @@ by passing the `--experimental` flag to `ktlint`.
 - Import ordering
 
 ## Disabled rules
-- No wildcard `import`s;
-- Annotation formatting;
-- No underscores in package names;
-- Braces required for if/else statements;
-- Multi-line lambdas must name `it` param;
+- No wildcard `import`s
+- Annotation formatting
+- No underscores in package names
+- Braces required for if/else statements
+- Multi-line lambdas must name `it` param
 
 ## EditorConfig
 
