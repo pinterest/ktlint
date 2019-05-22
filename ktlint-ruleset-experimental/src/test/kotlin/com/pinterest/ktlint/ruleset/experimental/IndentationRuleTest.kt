@@ -283,4 +283,22 @@ class IndentationRuleTest {
         assertThat(IndentationRule().format(ktScript, mapOf("indent_size" to "2")))
             .isEqualTo("fun main() {\n  return 0\n}")
     }
+
+    @Test
+    fun testLintNewlineAfterEqALlowed() {
+        assertThat(
+            IndentationRule().lint(
+                // Previously the IndentationRule would force the line break after the `=`. Verify that it is
+                // still allowed.
+                """
+                private fun getImplementationVersion() =
+                    javaClass.`package`.implementationVersion
+                        ?: javaClass.getResourceAsStream("/META-INF/MANIFEST.MF")
+                            ?.let { stream ->
+                                Manifest(stream).mainAttributes.getValue("Implementation-Version")
+                            }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
 }
