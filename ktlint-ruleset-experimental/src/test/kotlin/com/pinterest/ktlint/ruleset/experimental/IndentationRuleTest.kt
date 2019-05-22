@@ -254,6 +254,27 @@ class IndentationRuleTest {
         ).isEmpty()
     }
 
+    @Test(description = "https://github.com/pinterest/ktlint/issues/433")
+    fun testLintParameterListWithComments() {
+        assertThat(
+            IndentationRule().lint(
+                """
+                fun main() {
+                    foo(
+                        /*param1=*/param1,
+                        /*param2=*/param2
+                    )
+
+                    foo(
+                        /*param1=*/ param1,
+                        /*param2=*/ param2
+                    )
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
     @Test
     fun testUnexpectedTabCharacter() {
         val ktScript = "fun main() {\n\t\treturn 0\n\t}"
