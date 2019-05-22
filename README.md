@@ -32,7 +32,7 @@ It's also [easy to create your own](#creating-a-reporter).
 - 4 spaces for indentation  
 (unless a different `indent_size` value is set in .editorconfig (see [EditorConfig](#editorconfig) section for more));
 - No semicolons (unless used to separate multiple statements on the same line);
-- No wildcard / unused `import`s;
+- No unused `import`s;
 - No consecutive blank lines;
 - No blank lines before `}`;
 - No trailing whitespaces;
@@ -55,6 +55,13 @@ by passing the `--experimental` flag to `ktlint`.
 
 - Indentation formatting
 - Import ordering
+
+## Disabled rules
+- No wildcard `import`s;
+- Annotation formatting;
+- No underscores in package names;
+- Braces required for if/else statements;
+- Multi-line lambdas must name `it` param;
 
 ## EditorConfig
 
