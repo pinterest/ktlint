@@ -53,7 +53,8 @@ import picocli.CommandLine.Option
 import picocli.CommandLine.Parameters
 
 @Command(
-    headerHeading = """An anti-bikeshedding Kotlin linter with built-in formatter
+    headerHeading =
+"""An anti-bikeshedding Kotlin linter with built-in formatter
 (https://github.com/shyiko/ktlint).
 
 Usage:

@@ -87,10 +87,11 @@ fun f() {
 }
 
 class C {
-    val CONFIG_COMPACT = """
-    {
-    }
-    """.trimIndent()
+    val CONFIG_COMPACT =
+        """
+        {
+        }
+        """.trimIndent()
     val CONFIG_COMPACT = // comment
         """
         {
