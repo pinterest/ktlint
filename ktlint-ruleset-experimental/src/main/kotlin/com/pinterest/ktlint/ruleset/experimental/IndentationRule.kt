@@ -208,11 +208,11 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
             return
         }
         if (!node.nextCodeLeaf()?.prevLeaf {
-                // Skip comments, whitespace, and empty nodes
-                !it.isPartOfComment() &&
+            // Skip comments, whitespace, and empty nodes
+            !it.isPartOfComment() &&
                 !it.isWhiteSpaceWithoutNewline() &&
                 it.textLength > 0
-            }.isWhiteSpaceWithNewline() &&
+        }.isWhiteSpaceWithNewline() &&
             // IDEA quirk:
             // if (true &&
             //     true
