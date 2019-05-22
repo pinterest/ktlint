@@ -33,7 +33,11 @@ class StandardRuleSetProvider : RuleSetProvider {
         NoTrailingSpacesRule(),
         NoUnitReturnRule(),
         NoUnusedImportsRule(),
-        NoWildcardImportsRule(),
+        // Disabling because it is now allowed by the Jetbrains styleguide, although it is still disallowed by
+        // the Android styleguide.
+        // Re-enable when there is a way to globally disable rules
+        // See discussion here: https://github.com/pinterest/ktlint/issues/48
+        // NoWildcardImportsRule(),
         ParameterListWrappingRule(),
         SpacingAroundColonRule(),
         SpacingAroundCommaRule(),
