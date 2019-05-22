@@ -207,7 +207,7 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
         ) {
             return
         }
-        if (!node.nextCodeLeaf()?.prevLeaf().isWhiteSpaceWithNewline() &&
+        if (!node.nextCodeLeaf()?.prevLeaf { !it.isPartOfComment() && it.textLength > 0 }.isWhiteSpaceWithNewline() &&
             // IDEA quirk:
             // if (true &&
             //     true
