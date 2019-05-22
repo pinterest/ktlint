@@ -285,7 +285,7 @@ class IndentationRuleTest {
     }
 
     @Test
-    fun testLintNewlineAfterEqALlowed() {
+    fun testLintNewlineAfterEqAllowed() {
         assertThat(
             IndentationRule().lint(
                 // Previously the IndentationRule would force the line break after the `=`. Verify that it is
