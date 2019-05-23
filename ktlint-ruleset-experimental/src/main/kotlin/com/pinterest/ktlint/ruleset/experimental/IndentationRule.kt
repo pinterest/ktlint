@@ -326,41 +326,18 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        if (
-            !node.nextCodeSibling()?.elementType.let {
-                it == DOT_QUALIFIED_EXPRESSION ||
-                    it == SAFE_ACCESS_EXPRESSION ||
-                    it == BINARY_EXPRESSION ||
-                    it == BINARY_WITH_TYPE
-            } ||
-            !node.nextSubstringContains('\n') ||
-            (
-                mustBeFollowedByNewline(node) &&
-                    // force """ to be on a separate line
-                    !node.nextCodeLeaf().let { it?.elementType == OPEN_QUOTE && it.text == "\"\"\"" }
-                )
-        ) {
+        // force """ to be on a separate line
+        if (!node.nextCodeLeaf().isRawString()) {
             return
         }
         val nextCodeLeaf = node.nextCodeLeaf()!!
-        // val v = (...
-        if (nextCodeLeaf.elementType in lTokenSet) {
-            return
-        }
         if (!nextCodeLeaf.prevLeaf().isWhiteSpaceWithNewline()) {
             requireNewlineAfterLeaf(node, autoCorrect, emit)
         }
     }
 
-    private fun ASTNode.nextSubstringContains(c: Char): Boolean {
-        var n = this.treeNext
-        while (n != null) {
-            if (n.textContains(c)) {
-                return true
-            }
-            n = n.treeNext
-        }
-        return false
+    private fun ASTNode?.isRawString(): Boolean {
+        return this?.elementType == OPEN_QUOTE && this.text == "\"\"\""
     }
 
     private fun mustBeFollowedByNewline(node: ASTNode): Boolean {
