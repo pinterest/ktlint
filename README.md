@@ -83,7 +83,7 @@ max_line_length=off
 > Skip all the way to the "Integration" section if you don't plan to use `ktlint`'s command line interface.
 
 ```sh
-curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.32.0/ktlint &&
+curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.33.0/ktlint &&
   chmod a+x ktlint &&
   sudo mv ktlint /usr/local/bin/
 ```
@@ -178,7 +178,7 @@ $ ktlint --install-git-pre-commit-hook
         <dependency>
             <groupId>com.pinterest</groupId>
             <artifactId>ktlint</artifactId>
-            <version>0.32.0</version>
+            <version>0.33.0</version>
         </dependency>
         <!-- additional 3rd party ruleset(s) can be specified here -->
     </dependencies>
@@ -212,7 +212,7 @@ configurations {
 }
 
 dependencies {
-    ktlint "com.pinterest:ktlint:0.32.0"
+    ktlint "com.pinterest:ktlint:0.33.0"
     // additional 3rd party ruleset(s) can be specified here
     // just add them to the classpath (e.g. ktlint 'groupId:artifactId:version') and 
     // ktlint will pick them up
