@@ -2,6 +2,21 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.33.0] - 2019-05-28
+
+### Added
+- Unary operator spacing rule ([#412](https://github.com/pinterest/ktlint/issues/412))
+- Support for Kotlin 1.3.31
+
+### Disabled
+- No wildcard imports rule ([#48](https://github.com/pinterest/ktlint/issues/48)). Developers wishing to still enforce this rule should add the code into a custom ruleset. 
+
+### Fixed
+- Spec file parsing is now platform-agnostic ([#365](https://github.com/pinterest/ktlint/pull/365))
+- Unnecessary newline after `->` in some cases ([#403](https://github.com/pinterest/ktlint/pull/403))
+- `SpacingAroundCommaRule` will no longer move code into comments
+- Made newlines after `=` less aggressive ([#368](https://github.com/pinterest/ktlint/issues/368)) ([#380](https://github.com/pinterest/ktlint/issues/380))
+
 ## [0.32.0] - 2019-04-22
 
 ### Added
@@ -542,6 +557,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.32.0]: https://github.com/shyiko/ktlint/compare/0.32.0...0.33.0
 [0.32.0]: https://github.com/shyiko/ktlint/compare/0.31.0...0.32.0
 [0.31.0]: https://github.com/shyiko/ktlint/compare/0.30.0...0.31.0
 [0.30.0]: https://github.com/shyiko/ktlint/compare/0.29.0...0.30.0

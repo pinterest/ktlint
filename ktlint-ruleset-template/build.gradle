@@ -49,10 +49,10 @@ configurations {
 dependencies {
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
-    provided 'com.pinterest.ktlint:ktlint-core:0.32.0'
+    provided 'com.pinterest.ktlint:ktlint-core:0.33.0'
 
     testCompile 'org.assertj:assertj-core:3.5.2'
-    testCompile 'com.pinterest.ktlint:ktlint-test:0.32.0'
+    testCompile 'com.pinterest.ktlint:ktlint-test:0.33.0'
     testCompile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     testCompile('org.jetbrains.spek:spek-junit-platform-engine:1.1.5') {
         exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib'
