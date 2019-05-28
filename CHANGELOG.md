@@ -16,6 +16,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Unnecessary newline after `->` in some cases ([#403](https://github.com/pinterest/ktlint/pull/403))
 - `SpacingAroundCommaRule` will no longer move code into comments
 - Made newlines after `=` less aggressive ([#368](https://github.com/pinterest/ktlint/issues/368)) ([#380](https://github.com/pinterest/ktlint/issues/380))
+- Erroneous newline when parameter comments are used ([#433](https://github.com/pinterest/ktlint/issues/433))
 
 ## [0.32.0] - 2019-04-22
 
