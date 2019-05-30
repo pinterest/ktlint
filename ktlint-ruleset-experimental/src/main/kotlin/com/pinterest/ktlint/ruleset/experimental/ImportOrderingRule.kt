@@ -1,6 +1,8 @@
 package com.pinterest.ktlint.ruleset.experimental
 
 import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.ast.ElementType.BLOCK_COMMENT
+import com.pinterest.ktlint.core.ast.ElementType.EOL_COMMENT
 import com.pinterest.ktlint.core.ast.ElementType.IMPORT_DIRECTIVE
 import com.pinterest.ktlint.core.ast.ElementType.IMPORT_LIST
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -23,10 +25,17 @@ class ImportOrderingRule : Rule("import-ordering") {
             val children = node.getChildren(null)
             if (children.isNotEmpty()) {
                 val imports = children.filter { it.elementType == IMPORT_DIRECTIVE }
+                val hasComments = children.find { it.elementType == BLOCK_COMMENT || it.elementType == EOL_COMMENT } != null
                 val sortedImports = imports.sortedBy { it.text }
+                val canAutoCorrect = !hasComments
                 if (imports != sortedImports || hasTooMuchWhitespace(children)) {
-                    emit(node.startOffset, "Imports must be ordered in lexicographic order without any empty lines in-between", true)
-                    if (autoCorrect) {
+                    val additionalMessage = if (!canAutoCorrect) {
+                        " -- no autocorrection due to comments in the import list"
+                    } else {
+                        ""
+                    }
+                    emit(node.startOffset, "Imports must be ordered in lexicographic order without any empty lines in-between$additionalMessage", canAutoCorrect)
+                    if (autoCorrect && canAutoCorrect) {
                         node.removeRange(node.firstChildNode, node.lastChildNode.treeNext)
                         sortedImports.forEachIndexed { i, astNode ->
                             if (i > 0) {
