@@ -142,4 +142,76 @@ class ImportOrderingRuleTest {
         assertThat(ImportOrderingRule().lint(imports)).isEqualTo(expectedErrors)
         assertThat(ImportOrderingRule().format(imports)).isEqualTo(formattedImports)
     }
+
+    @Test
+    fun testFormatImportsWithEOLComments() {
+        val imports =
+            """
+            import android.view.View
+            import android.app.Activity // comment
+            import android.view.ViewGroup
+            """.trimIndent()
+
+        val expectedErrors = listOf(
+            LintError(
+                1,
+                1,
+                "import-ordering",
+                "Imports must be ordered in lexicographic order without any empty lines in-between"
+            )
+        )
+        val formattedImports =
+            """
+            import android.app.Activity // comment
+            import android.view.View
+            import android.view.ViewGroup
+            """.trimIndent()
+
+        assertThat(ImportOrderingRule().lint(imports)).isEqualTo(expectedErrors)
+        assertThat(ImportOrderingRule().format(imports)).isEqualTo(formattedImports)
+    }
+
+    @Test
+    fun testCannotFormatImportsWithBlockComments() {
+        val imports =
+            """
+            import android.view.View
+            /* comment */
+            import android.app.Activity
+            import android.view.ViewGroup
+            """.trimIndent()
+
+        val expectedErrors = listOf(
+            LintError(
+                1,
+                1,
+                "import-ordering",
+                "Imports must be ordered in lexicographic order without any empty lines in-between -- no autocorrection due to comments in the import list"
+            )
+        )
+        assertThat(ImportOrderingRule().lint(imports)).isEqualTo(expectedErrors)
+        assertThat(ImportOrderingRule().format(imports)).isEqualTo(imports)
+    }
+
+    @Test
+    fun testCannotFormatImportsWithEOLComments() {
+        val imports =
+            """
+            import android.view.View
+            // comment
+            import android.app.Activity
+            import android.view.ViewGroup
+            """.trimIndent()
+
+        val expectedErrors = listOf(
+            LintError(
+                1,
+                1,
+                "import-ordering",
+                "Imports must be ordered in lexicographic order without any empty lines in-between -- no autocorrection due to comments in the import list"
+            )
+        )
+        assertThat(ImportOrderingRule().lint(imports)).isEqualTo(expectedErrors)
+        assertThat(ImportOrderingRule().format(imports)).isEqualTo(imports)
+    }
 }
