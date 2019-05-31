@@ -270,4 +270,129 @@ class NoUnusedImportsRuleTest {
             """.trimIndent()
         )
     }
+
+    @Test
+    fun testParentPackImport() {
+        assertThat(
+            NoUnusedImportsRule().lint(
+                """
+                import org.mockito.Mockito
+                import org.mockito.Mockito.withSettings
+                fun foo() {
+                        Mockito.mock(String::class.java, Mockito.withSettings().defaultAnswer {  })
+                    }
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(2, 1, "no-unused-imports", "Unused import")
+            )
+        )
+    }
+
+    @Test
+    fun testParentPackImportWithPackageNamePresent() {
+        assertThat(
+            NoUnusedImportsRule().lint(
+                """
+                package org.tw.project
+                import org.mockito.Mockito
+                import org.mockito.Mockito.withSettings
+                fun foo() {
+                        Mockito.mock(String::class.java, Mockito.withSettings().defaultAnswer {  })
+                    }
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(3, 1, "no-unused-imports", "Unused import")
+            )
+        )
+    }
+
+    @Test
+    fun testParentPackImportWithImportNameHavingNoParentImport() {
+        assertThat(
+            NoUnusedImportsRule().lint(
+                """
+                import org.assertj.core.util.diff.DiffUtils.diff
+                import org.assertj.core.util.diff.DiffUtils.generateUnifiedDiff
+                fun foo() {
+                val a = diff(2)
+                val diff = generateUnifiedDiff(1)
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun testParentImportWithStaticVariable() {
+        assertThat(
+            NoUnusedImportsRule().lint(
+                """
+                import org.repository.RepositoryPolicy
+                import org.repository.RepositoryPolicy.CHECKSUM_POLICY_IGNORE
+                fun main() {
+                        RepositoryPolicy(
+                        false, "trial",
+                        CHECKSUM_POLICY_IGNORE
+                    )
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun testParentImportWithStaticVariableImportAndParentImportUnused() {
+        assertThat(
+            NoUnusedImportsRule().lint(
+                """
+                import org.repository.RepositoryPolicy
+                import org.repository.RepositoryPolicy.CHECKSUM_POLICY_IGNORE
+                fun main() {
+                       val a = CHECKSUM_POLICY_IGNORE
+                }
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(1, 1, "no-unused-imports", "Unused import")
+            )
+        )
+    }
+
+    @Test
+    fun testFormatWhenParentImportWithStaticVariableAndMethod() {
+        assertThat(
+            NoUnusedImportsRule().format(
+                """
+                package org.tw.project
+                import org.repository.RepositoryPolicy
+                import org.repository.RepositoryPolicy.CHECKSUM_POLICY_IGNORE
+                import org.mockito.Mockito
+                import org.mockito.Mockito.withSettings
+                fun foo() {
+                        Mockito.mock(String::class.java, Mockito.withSettings().defaultAnswer {  })
+                }
+                fun main() {
+                       val a = CHECKSUM_POLICY_IGNORE
+                }
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            """
+            package org.tw.project
+            import org.repository.RepositoryPolicy.CHECKSUM_POLICY_IGNORE
+            import org.mockito.Mockito
+            fun foo() {
+                    Mockito.mock(String::class.java, Mockito.withSettings().defaultAnswer {  })
+            }
+            fun main() {
+                   val a = CHECKSUM_POLICY_IGNORE
+            }
+            """.trimIndent()
+        )
+    }
 }
