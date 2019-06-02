@@ -25,11 +25,12 @@ class MethodExpressionBodyRule : Rule("method-expression-body") {
                 it.getBody().let { bodyStatements ->
                     if (bodyStatements.size == 1) {
                         emit(node.firstChildNode.startOffset, "Single expression methods should use an expression body", true)
-                        val singleExpression = when (bodyStatements.first().elementType) {
-                            ElementType.RETURN -> bodyStatements.first().lastChildNode
-                            else -> bodyStatements.first()
-                        }
                         if (autoCorrect) {
+                            // If the single-statement inside the method has a 'return', we want to ignore it
+                            val singleExpression = when (bodyStatements.first().elementType) {
+                                ElementType.RETURN -> bodyStatements.first().lastChildNode
+                                else -> bodyStatements.first()
+                            }
                             node.removeChild(it)
                             node.addChild(LeafPsiElement(ElementType.EQ, "="), null)
                             node.addChild(PsiWhiteSpaceImpl(" "), null)
