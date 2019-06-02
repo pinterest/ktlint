@@ -3,7 +3,7 @@ package com.pinterest.ktlint.ruleset.standard
 import com.pinterest.ktlint.test.diffFileFormat
 import com.pinterest.ktlint.test.diffFileLint
 import org.assertj.core.api.Assertions.assertThat
-import org.testng.annotations.Test
+import org.junit.Test
 
 class NoBlankLineBeforeRbraceRuleTest {
 
