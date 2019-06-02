@@ -11,7 +11,11 @@ class FinalNewlineRuleTest {
     @Test
     fun testLint() {
         // neither true nor false
-        assertThat(FinalNewlineRule().lint("fun name() {\n}")).isEmpty()
+        assertThat(FinalNewlineRule().lint("fun name() {\n}")).isEqualTo(
+            listOf(
+                LintError(1, 1, "final-newline", "File must end with a newline (\\n)")
+            )
+        )
         assertThat(FinalNewlineRule().lint("fun name() {\n}\n")).isEmpty()
         // true
         assertThat(
