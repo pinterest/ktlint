@@ -11,7 +11,6 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.TreeElement
 
 /**
  * TODO: if, for, when branch, do, while
- * @author yokotaso <yokotaso.t@gmail.com>
  */
 class MultiLineIfElseRule : Rule("multiline-if-else") {
 
