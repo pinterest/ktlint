@@ -1,5 +1,6 @@
-package com.pinterest.ktlint.ruleset.standard
+package com.pinterest.ktlint.ruleset.experimental
 
+import com.pinterest.ktlint.ruleset.experimental.MethodExpressionBodyRule
 import com.pinterest.ktlint.test.diffFileFormat
 import com.pinterest.ktlint.test.diffFileLint
 import org.assertj.core.api.Assertions.assertThat

@@ -1,4 +1,4 @@
-package com.pinterest.ktlint.ruleset.standard
+package com.pinterest.ktlint.ruleset.experimental
 
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType
