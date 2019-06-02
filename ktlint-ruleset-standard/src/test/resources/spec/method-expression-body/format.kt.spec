@@ -13,8 +13,3 @@ fun goodFreeFunc() = funcReturningNothing()
 fun badFreeFunc() {
     funcReturningNothing()
 }
-
-// expect
-// 3:5:Single expression methods should use an expression body
-// 6:5:Single expression methods should use an expression body
-// 13:1:Single expression methods should use an expression body
