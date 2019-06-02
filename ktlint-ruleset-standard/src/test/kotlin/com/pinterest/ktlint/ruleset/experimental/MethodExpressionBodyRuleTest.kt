@@ -1,6 +1,5 @@
 package com.pinterest.ktlint.ruleset.experimental
 
-import com.pinterest.ktlint.ruleset.experimental.MethodExpressionBodyRule
 import com.pinterest.ktlint.test.diffFileFormat
 import com.pinterest.ktlint.test.diffFileLint
 import org.assertj.core.api.Assertions.assertThat
@@ -12,7 +11,7 @@ class MethodExpressionBodyRuleTest {
     fun testLint() {
         assertThat(
             MethodExpressionBodyRule().diffFileLint(
-            "spec/method-expression-body/lint.kt.spec"
+                "spec/method-expression-body/lint.kt.spec"
             )
         ).isEmpty()
     }
