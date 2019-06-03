@@ -64,6 +64,4 @@ class MethodExpressionBodyRule : Rule("method-expression-body") {
     private fun CompositeElement.containsSingleStatement(): Boolean = getBody().size == 1
 
     private fun ASTNode.containsNewline(): Boolean = textContains('\n')
-
-
 }
