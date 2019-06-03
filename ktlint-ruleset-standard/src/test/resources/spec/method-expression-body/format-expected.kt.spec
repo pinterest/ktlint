@@ -12,11 +12,13 @@ fun returnStatementWithMethodChain(): String = StringBuilder().append(0).toStrin
 
 fun returnStatementWithConditions(): Int = if (true) 5 else 6
 
-fun returnStatementInTryCatch(): Int = try {
+fun returnStatementInTryCatch(): Int {
+    return try {
         return 5
     } catch (e: Exception) {
         return 6
     }
+}
 
 fun ifStatement(): Int {
     if (true) return true

@@ -2,7 +2,10 @@ package com.pinterest.ktlint.ruleset.experimental
 
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType
+import com.pinterest.ktlint.core.ast.ElementType.BLOCK
 import com.pinterest.ktlint.core.ast.children
+import com.pinterest.ktlint.core.ast.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.core.ast.parent
 import org.jetbrains.kotlin.KtNodeTypes
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.CompositeElement
@@ -20,23 +23,30 @@ class MethodExpressionBodyRule : Rule("method-expression-body") {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         if (node.elementType == KtNodeTypes.FUN) {
-            node.findChildByType(KtNodeTypes.BLOCK)?.let {
-                it as CompositeElement
-                it.getBody().let { bodyStatements ->
-                    if (bodyStatements.size == 1) {
-                        emit(node.firstChildNode.startOffset, "Single expression methods should use an expression body", true)
-                        if (autoCorrect) {
-                            // If the single-statement inside the method has a 'return', we want to ignore it
-                            val singleExpression = when (bodyStatements.first().elementType) {
-                                ElementType.RETURN -> bodyStatements.first().lastChildNode
-                                else -> bodyStatements.first()
+            node.findChildByType(KtNodeTypes.BLOCK)?.let { functionBlock ->
+                functionBlock as CompositeElement
+                if (functionBlock.containsSingleStatement()) {
+                    functionBlock.getSingleStatementBody().let { statement ->
+                        // If a single expression is multi-line, users often prefer to use a normal body,
+                        // not an expression body, so don't fire a violation
+                        if (!statement.containsNewline()) {
+                            emit(node.firstChildNode.startOffset, "Single expression methods should use an expression body", true)
+                            if (autoCorrect) {
+                                // If the single-statement inside the method has a 'return', we want to remove it as
+                                // it's not necessary in expression body syntax
+                                val singleExpression = when (statement.elementType) {
+                                    ElementType.RETURN -> statement.lastChildNode
+                                    else -> statement
+                                }
+                                node.removeChild(functionBlock)
+                                node.addChild(LeafPsiElement(ElementType.EQ, "="), null)
+                                node.addChild(PsiWhiteSpaceImpl(" "), null)
+                                node.addChild(singleExpression, null)
                             }
-                            node.removeChild(it)
-                            node.addChild(LeafPsiElement(ElementType.EQ, "="), null)
-                            node.addChild(PsiWhiteSpaceImpl(" "), null)
-                            node.addChild(singleExpression, null)
+
                         }
                     }
+
                 }
             }
         }
@@ -53,4 +63,12 @@ class MethodExpressionBodyRule : Rule("method-expression-body") {
                 it.elementType != ElementType.WHITE_SPACE
         }.toList()
     }
+
+    private fun CompositeElement.getSingleStatementBody(): ASTNode = getBody().first()
+
+    private fun CompositeElement.containsSingleStatement(): Boolean = getBody().size == 1
+
+    private fun ASTNode.containsNewline(): Boolean = textContains('\n')
+
+
 }

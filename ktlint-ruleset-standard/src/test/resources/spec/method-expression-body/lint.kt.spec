@@ -41,4 +41,3 @@ fun ifStatement(): Int {
 // 13:1:Single expression methods should use an expression body
 // 17:1:Single expression methods should use an expression body
 // 21:1:Single expression methods should use an expression body
-// 25:1:Single expression methods should use an expression body
