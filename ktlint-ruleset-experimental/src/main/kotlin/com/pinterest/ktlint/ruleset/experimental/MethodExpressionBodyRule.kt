@@ -40,10 +40,8 @@ class MethodExpressionBodyRule : Rule("method-expression-body") {
                                 node.addChild(PsiWhiteSpaceImpl(" "), null)
                                 node.addChild(singleExpression, null)
                             }
-
                         }
                     }
-
                 }
             }
         }
