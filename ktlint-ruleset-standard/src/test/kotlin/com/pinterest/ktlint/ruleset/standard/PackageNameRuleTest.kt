@@ -7,9 +7,6 @@ import java.nio.file.Paths
 import org.assertj.core.api.Assertions.assertThat
 import org.testng.annotations.Test
 
-/**
- * @author yokotaso <yokotaso.t@gmail.com>
- */
 class PackageNameRuleTest {
 
     @Test
