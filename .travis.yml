@@ -1,7 +1,9 @@
 language: java
-jdk:
-- oraclejdk8
+
+jdk: oraclejdk8
+
 install: true
+
 script:
   - |
     if [[ $TRAVIS_REPO_SLUG == "pinterest/ktlint" && $TRAVIS_BRANCH == "master" && $TRAVIS_PULL_REQUEST == "false" ]]; then
@@ -9,6 +11,17 @@ script:
     else
       ./mvnw clean verify
     fi
+
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+
+cache:
+  directories:
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
+    - $HOME/.m2
+
 env:
   global:
   - secure: sk+fF6EPGXCy85gm8cdKM0JXy3pMKRZSRaAE/gE+OWir9BjUj1clG3KZw5P/xPudiSMnNIRfluqxkLRCPWpawh/6Ixvs3falZAC9JVBu6OyHSjTXDp3zIr4Mv3NNMEefr775iRPzuf6iBUTTP2bZQ2P62CE3HOd83lB8Jm1QcDE7LIscMn96DGZt8BDi88fEjfSDCMcw87w+5zOM5prUoOlPp9dyxnskw9ncwmFLLrsJJJmcC0bvrTiE6Z1CduwNDOwYDDRgsEa6k2EEpBDrRSStDcXoF8zFTm79C5B81lkH2s+kylpp7XjOQPWQAs4+n/tQ0TIlvUG7YMyrtf/NVK+7oClQtVKAeWOD1sl+Z1Qs8h3+pk9xrTWFRgMYMSyjAbHAyaf7x+3Lv/uDs8yKdLc0QHa5kb6khJJ6M9wdQX6NDXopeuPIkacmHtknRi1BhUBzHCbiJDhxsQ08suaqjNtxVZ3ECh3GTLvnbTof3SN9IlUOu9SdS5iIGRGERxIY9YdNHHuT2zf95YNAkjS4zJqZG/q9rBxi5/YWgiBeSCARtqrEJ9aMMg3nvBFqsZs6AHB1KaAH8N15Z1n1EqzISn1/Mk5B17SG6+FSNswYomKP54HxeILE35iXOIRGcNyeE5GrNKgoofFhtRVJYUuIZu26ZY+hG39WwdGfDa8QBPE=
