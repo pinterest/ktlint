@@ -1,10 +1,14 @@
 language: java
 jdk:
 - oraclejdk8
-script: if [[ $TRAVIS_REPO_SLUG == "pinterest/ktlint" && $TRAVIS_BRANCH == "master"
-  && $TRAVIS_PULL_REQUEST == "false" ]]; then ./mvnw -Ddeploy=maven-central -DskipStaging=true
-  -Dgpg.skip=true && ./mvnw -Ddeploy=github -Dgpg.skip=true -Dgithub.draft=true -Dgithub.description="https://github.com/pinterest/ktlint#access-to-the-latest-master-snapshot";
-  else ./mvnw clean verify; fi
+install: true
+script:
+  - |
+    if [[ $TRAVIS_REPO_SLUG == "pinterest/ktlint" && $TRAVIS_BRANCH == "master" && $TRAVIS_PULL_REQUEST == "false" ]]; then
+      ./gradlew build && ./mvnw -Ddeploy=maven-central -DskipStaging=true -Dgpg.skip=true && ./mvnw -Ddeploy=github -Dgpg.skip=true -Dgithub.draft=true -Dgithub.description="https://github.com/pinterest/ktlint#access-to-the-latest-master-snapshot"
+    else
+      ./mvnw clean verify
+    fi
 env:
   global:
   - secure: nyBIAr6PutBUNVhj7S0oPcrEKEH1v5/iU58IPxS5ntO40OSGcOQxDa10ZNLpTNCxu/KU7oam2P4YxoTJD2AcQtAHvFsj2SOOzCJgpkltIWbKu5luPDNxfSQKGDROcsmJPkhiWzOQO30SCf4Q1qrbAhgGckEMj14acmhxiIHTS3z0M8E1BwfIpBVwANYgEFwzJJXvC3S79JCQW0jG/BUzs/54XaxHQlaBRowj89mlCIaDTeqf/DYx8p0AWBucRQaoUKWM+BWQQvo3Pq5dHoAdiZ1EFjtOSrcGoaZ4fHmGQSolUK6apvAKhwdlq7xf/v2rgks47llP1MC5zPER+la692DHAcpS9gZQR7Mp/++PWjsvcm7rAdIEnqmiSl8qE75HadT1AlADuP9ttLhtEKoMpb5dmQZTKeChUp2ThskTh6DF1QKg2L76A/slBn0YY9G0pLps1k35a49fONoxLETzDHYvpg57lS6PGho/75sVRc2RNvhZ1m29ze8DcYqa/ahFw32Wd4anZIr01W9MTWcGSvGgFKsG90OzjXTQBHOtnO6x0awHZVcbJomV4PJ+1vVNhq0LPEcDuyWfZvDI5zmAfhyfhOD+qUrfyRlzhvrjlLIijhAiKhWgZyVJ5gN8gVY/ZooJw6/Q0dwX/lS3NOW9Dhgswglb9RehQRPy/pYRJgo=
