@@ -3,7 +3,7 @@ package com.pinterest.ktlint.core
 import com.pinterest.ktlint.core.ast.isRoot
 import org.assertj.core.api.Assertions.assertThat
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.testng.annotations.Test
+import org.junit.Test
 
 class KtLintTest {
 

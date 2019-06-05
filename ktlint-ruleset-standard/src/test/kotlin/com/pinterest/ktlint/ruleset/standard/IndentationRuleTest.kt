@@ -4,7 +4,7 @@ import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.test.format
 import com.pinterest.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
-import org.testng.annotations.Test
+import org.junit.Test
 
 class IndentationRuleTest {
 
@@ -149,7 +149,7 @@ class IndentationRuleTest {
         )
     }
 
-    @Test(description = "https://github.com/shyiko/ktlint/issues/180")
+    @Test // "https://github.com/shyiko/ktlint/issues/180"
     fun testLintWhereClause() {
         assertThat(
             IndentationRule().lint(

@@ -5,7 +5,8 @@ import com.pinterest.ktlint.test.lint
 import java.net.URI
 import java.nio.file.Paths
 import org.assertj.core.api.Assertions.assertThat
-import org.testng.annotations.Test
+import org.junit.Ignore
+import org.junit.Test
 
 class PackageNameRuleTest {
 
@@ -24,7 +25,7 @@ class PackageNameRuleTest {
         assertOK("package a.b.c.d\nclass A{}", "/var/tmp/a/b.c/d/A.kt")
     }
 
-    @Test(enabled = false)
+    @Ignore
     fun testNOK() {
         assertNOK(
             "package hoge.fuga",

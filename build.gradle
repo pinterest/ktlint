@@ -19,7 +19,7 @@ ext.libraries = [
   "picocli": "info.picocli:picocli:2.3.0",
 
   // Testing libraries
-  "testng": "org.testng:testng:6.8.21",
+  "junit": "junit:junit:4.12",
   "assertj_core": "org.assertj:assertj-core:3.9.0",
   "jimfs": "com.google.jimfs:jimfs:1.1"
 ]
