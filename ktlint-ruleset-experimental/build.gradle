@@ -7,6 +7,6 @@ dependencies {
   compile project(':ktlint-test')
   compile libraries.kotlin_stdlib
 
-  testCompile libraries.testng
+  testCompile libraries.junit
   testCompile libraries.assertj_core
 }

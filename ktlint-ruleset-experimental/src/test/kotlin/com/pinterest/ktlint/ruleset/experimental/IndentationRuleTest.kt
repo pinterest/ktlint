@@ -6,7 +6,7 @@ import com.pinterest.ktlint.test.diffFileLint
 import com.pinterest.ktlint.test.format
 import com.pinterest.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
-import org.testng.annotations.Test
+import org.junit.Test
 
 class IndentationRuleTest {
 
@@ -237,7 +237,7 @@ class IndentationRuleTest {
         ).isEmpty()
     }
 
-    @Test(description = "https://github.com/shyiko/ktlint/issues/180")
+    @Test // "https://github.com/shyiko/ktlint/issues/180"
     fun testLintWhereClause() {
         assertThat(
             IndentationRule().lint(
@@ -254,7 +254,7 @@ class IndentationRuleTest {
         ).isEmpty()
     }
 
-    @Test(description = "https://github.com/pinterest/ktlint/issues/433")
+    @Test // "https://github.com/pinterest/ktlint/issues/433"
     fun testLintParameterListWithComments() {
         assertThat(
             IndentationRule().lint(

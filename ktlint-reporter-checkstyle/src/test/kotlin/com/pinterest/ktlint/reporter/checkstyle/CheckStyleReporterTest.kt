@@ -4,7 +4,7 @@ import com.pinterest.ktlint.core.LintError
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 import org.assertj.core.api.Assertions.assertThat
-import org.testng.annotations.Test
+import org.junit.Test
 
 class CheckStyleReporterTest {
 
