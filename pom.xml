@@ -64,14 +64,14 @@
     </properties>
 
     <modules>
-        <module>ktlint-core</module>
-        <module>ktlint-test</module>
-        <module>ktlint-ruleset-standard</module>
-        <module>ktlint-ruleset-experimental</module>
-        <module>ktlint-reporter-plain</module>
-        <module>ktlint-reporter-json</module>
-        <module>ktlint-reporter-checkstyle</module>
         <module>ktlint</module>
+        <module>ktlint-core</module>
+        <module>ktlint-reporter-checkstyle</module>
+        <module>ktlint-reporter-json</module>
+        <module>ktlint-reporter-plain</module>
+        <module>ktlint-ruleset-experimental</module>
+        <module>ktlint-ruleset-standard</module>
+        <module>ktlint-test</module>
     </modules>
 
     <build>
