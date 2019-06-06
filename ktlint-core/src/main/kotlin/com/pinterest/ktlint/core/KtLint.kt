@@ -37,6 +37,7 @@ object KtLint {
     val EDITOR_CONFIG_USER_DATA_KEY = Key<EditorConfig>("EDITOR_CONFIG")
     val ANDROID_USER_DATA_KEY = Key<Boolean>("ANDROID")
     val FILE_PATH_USER_DATA_KEY = Key<String>("FILE_PATH")
+    val DISABLED_RULES = Key<Set<String>>("DISABLED_RULES")
 
     private val psiFileFactory: PsiFileFactory
     private val nullSuppression = { _: Int, _: String, _: Boolean -> false }
@@ -186,15 +187,17 @@ object KtLint {
                 userData
             }
         node.putUserData(FILE_PATH_USER_DATA_KEY, userData["file_path"])
-        node.putUserData(EDITOR_CONFIG_USER_DATA_KEY, EditorConfig.fromMap(editorConfigMap - "android" - "file_path"))
+        node.putUserData(EDITOR_CONFIG_USER_DATA_KEY, EditorConfig.fromMap(editorConfigMap - "android" - "file_path" - "disabled_rules"))
         node.putUserData(ANDROID_USER_DATA_KEY, android)
+        node.putUserData(DISABLED_RULES, userData["disabled_rules"]?.split(",")?.toSet() ?: setOf())
     }
 
     private fun visitor(
         rootNode: ASTNode,
         ruleSets: Iterable<RuleSet>,
         concurrent: Boolean = true,
-        filter: (fqRuleId: String) -> Boolean = { true }
+        filter: (rootNode: ASTNode, fqRuleId: String) -> Boolean = this::filterDisabledRules
+
     ): ((node: ASTNode, rule: Rule, fqRuleId: String) -> Unit) -> Unit {
         val fqrsRestrictedToRoot = mutableListOf<Pair<String, Rule>>()
         val fqrs = mutableListOf<Pair<String, Rule>>()
@@ -204,7 +207,7 @@ object KtLint {
             val prefix = if (ruleSet.id === "standard") "" else "${ruleSet.id}:"
             for (rule in ruleSet) {
                 val fqRuleId = "$prefix${rule.id}"
-                if (!filter(fqRuleId)) {
+                if (!filter(rootNode, fqRuleId)) {
                     continue
                 }
                 val fqr = fqRuleId to rule
@@ -252,6 +255,10 @@ object KtLint {
                 }
             }
         }
+    }
+
+    private fun filterDisabledRules(rootNode: ASTNode, fqRuleId: String): Boolean {
+        return rootNode.getUserData(DISABLED_RULES)?.contains(fqRuleId) == false
     }
 
     private fun calculateLineColByOffset(text: String): (offset: Int) -> Pair<Int, Int> {

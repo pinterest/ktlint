@@ -1,0 +1,7 @@
+// disabled ("./mvnw clean verify" fails with "Internal Error")
+annotation
+// disabled until auto-correct is working properly
+// (e.g. try formatting "if (true)\n    return { _ ->\n        _\n}")
+multiline-if-else
+// disabled until it's clear what to do in case of `import _.it`
+no-it-in-multiline-lambda

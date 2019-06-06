@@ -20,6 +20,7 @@ import java.io.IOException
 import java.io.PrintStream
 import java.math.BigInteger
 import java.net.URLDecoder
+import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.security.MessageDigest
@@ -234,6 +235,12 @@ object Main {
     )
     private var experimental: Boolean = false
 
+    @Option(names = arrayOf("--ktlintignore"), description = arrayOf("Path to .ktlintignore (defaults to working dir)"))
+    private var ktlintIgnorePath: String? = null
+
+    // Rules from .ktlintignore that will be globally disabled
+    private val disabledRules = mutableSetOf<String>()
+
     @Parameters(hidden = true)
     private var patterns = ArrayList<String>()
 
@@ -300,6 +307,10 @@ object Main {
             exitProcess(0)
         }
         val start = System.currentTimeMillis()
+
+        // Parse the .ktlintignore file
+        parseKtlintIgnore(ktlintIgnorePath ?: ".")
+
         // load 3rd party ruleset(s) (if any)
         val dependencyResolver = lazy(LazyThreadSafetyMode.NONE) { buildDependencyResolver() }
         if (!rulesets.isEmpty()) {
@@ -425,7 +436,11 @@ object Main {
                         }
                     }
                     ?: emptyMap<String, String>()
-                ) + cliUserData + ("file_path" to fileName)
+                ) +
+                cliUserData +
+                // For now, use a global list
+                ("disabled_rules" to disabledRules.joinToString(",")) +
+                ("file_path" to fileName)
         }
     }
 
@@ -783,6 +798,29 @@ object Main {
                 }
                 map
             }
+
+    /**
+     * Parses the .ktlintignore file, a list of ids of rules to globally disable. One rule per line.
+     */
+    private fun parseKtlintIgnore(path: String) {
+        val ktlintIgnorePath = Paths.get(File(path).canonicalPath).resolve(".ktlintignore") ?: return
+        if (!Files.exists(ktlintIgnorePath)) {
+            return
+        }
+
+        ktlintIgnorePath.toFile().forEachLine {
+            val line = it.trim()
+            if (line.isNotBlank() && !line.startsWith("//")) {
+                disabledRules.add(line)
+            }
+        }
+        if (debug && disabledRules.isNotEmpty()) {
+            System.err.println("[DEBUG] Disabled rules:")
+            disabledRules.forEach {
+                System.err.println("[DEBUG]    $it")
+            }
+        }
+    }
 
     private fun lint(
         fileName: String,
