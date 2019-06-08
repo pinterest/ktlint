@@ -82,7 +82,7 @@ Examples:
 
 Flags:""",
     synopsisHeading = "",
-    customSynopsis = arrayOf(""),
+    customSynopsis = [""],
     sortOptions = false
 )
 object Main {
@@ -97,140 +97,177 @@ object Main {
         "--reporter-update" to
             "--repository-update"
     )
-    @Option(names = arrayOf("--android", "-a"), description = arrayOf("Turn on Android Kotlin Style Guide compatibility"))
+
+    @Option(
+        names = ["--android", "-a"],
+        description = ["Turn on Android Kotlin Style Guide compatibility"]
+    )
     private var android: Boolean = false
 
     // todo: make it a command in 1.0.0 (it's too late now as we might interfere with valid "lint" patterns)
-    @Option(names = arrayOf("--apply-to-idea"), description = arrayOf("Update Intellij IDEA settings (global)"))
+    @Option(
+        names = ["--apply-to-idea"],
+        description = ["Update Intellij IDEA settings (global)"]
+    )
     private var apply: Boolean = false
 
     // todo: make it a command in 1.0.0 (it's too late now as we might interfere with valid "lint" patterns)
-    @Option(names = arrayOf("--apply-to-idea-project"), description = arrayOf("Update Intellij IDEA project settings"))
+    @Option(
+        names = ["--apply-to-idea-project"],
+        description = ["Update Intellij IDEA project settings"]
+    )
     private var applyToProject: Boolean = false
 
-    @Option(names = arrayOf("--color"), description = arrayOf("Make output colorful"))
+    @Option(
+        names = ["--color"],
+        description = ["Make output colorful"]
+    )
     private var color: Boolean = false
 
-    @Option(names = arrayOf("--debug"), description = arrayOf("Turn on debug output"))
+    @Option(
+        names = ["--debug"],
+        description = ["Turn on debug output"]
+    )
     private var debug: Boolean = false
 
     // todo: this should have been a command, not a flag (consider changing in 1.0.0)
-    @Option(names = arrayOf("--format", "-F"), description = arrayOf("Fix any deviations from the code style"))
+    @Option(
+        names = ["--format", "-F"],
+        description = ["Fix any deviations from the code style"]
+    )
     private var format: Boolean = false
 
     @Option(
-        names = arrayOf("--install-git-pre-commit-hook"),
-        description = arrayOf(
-            "Install git hook to automatically check files for style violations on commit"
-        )
+        names = ["--install-git-pre-commit-hook"],
+        description = ["Install git hook to automatically check files for style violations on commit"]
     )
     private var installGitPreCommitHook: Boolean = false
 
     @Option(
-        names = arrayOf("--install-git-pre-push-hook"),
-        description = arrayOf(
-            "Install git hook to automatically check files for style violations before push"
-        )
+        names = ["--install-git-pre-push-hook"],
+        description = ["Install git hook to automatically check files for style violations before push"]
     )
     private var installGitPrePushHook: Boolean = false
 
     @Option(
-        names = arrayOf("--limit"),
-        description = arrayOf(
-            "Maximum number of errors to show (default: show all)"
-        )
+        names = ["--limit"],
+        description = ["Maximum number of errors to show (default: show all)"]
     )
     private var limit: Int = -1
         get() = if (field < 0) Int.MAX_VALUE else field
 
     @Option(
-        names = arrayOf("--print-ast"),
-        description = arrayOf(
-            "Print AST (useful when writing/debugging rules)"
-        )
+        names = ["--print-ast"],
+        description = ["Print AST (useful when writing/debugging rules)"]
     )
     private var printAST: Boolean = false
 
     @Option(
-        names = arrayOf("--relative"),
-        description = arrayOf(
+        names = ["--relative"],
+        description = [
             "Print files relative to the working directory " +
                 "(e.g. dir/file.kt instead of /home/user/project/dir/file.kt)"
-        )
+        ]
     )
     private var relative: Boolean = false
 
     @Option(
-        names = arrayOf("--reporter"),
-        description = arrayOf(
+        names = ["--reporter"],
+        description = [
             "A reporter to use (built-in: plain (default), plain?group_by_file, json, checkstyle). " +
                 "To use a third-party reporter specify either a path to a JAR file on the filesystem or a" +
-                "<groupId>:<artifactId>:<version> triple pointing to a remote artifact (in which case ktlint will first " +
-                "check local cache (~/.m2/repository) and then, if not found, attempt downloading it from " +
-                "Maven Central/JCenter/JitPack/user-provided repository)\n" +
+                "<groupId>:<artifactId>:<version> triple pointing to a remote artifact " +
+                "(in which case ktlint will first check local cache (~/.m2/repository) and then, " +
+                "if not found, attempt downloading it from Maven Central/JCenter/JitPack/user-provided repository)\n" +
                 "e.g. \"html,artifact=com.github.username:ktlint-reporter-html:master-SNAPSHOT\""
-        )
+        ]
     )
     private var reporters = ArrayList<String>()
 
     @Option(
-        names = arrayOf("--repository"),
-        description = arrayOf(
+        names = ["--repository"],
+        description = [
             "An additional Maven repository (Maven Central/JCenter/JitPack are active by default) " +
                 "(value format: <id>=<url>)"
-        )
+        ]
     )
     private var repositories = ArrayList<String>()
-    @Option(names = arrayOf("--ruleset-repository", "--reporter-repository"), hidden = true)
+
+    @Option(
+        names = ["--ruleset-repository", "--reporter-repository"],
+        hidden = true
+    )
     private var repositoriesDeprecated = ArrayList<String>()
 
     @Option(
-        names = arrayOf("--repository-update", "-U"),
-        description = arrayOf(
-            "Check remote repositories for updated snapshots"
-        )
+        names = ["--repository-update", "-U"],
+        description = ["Check remote repositories for updated snapshots"]
     )
     private var forceUpdate: Boolean? = null
-    @Option(names = arrayOf("--ruleset-update", "--reporter-update"), hidden = true)
+
+    @Option(
+        names = ["--ruleset-update", "--reporter-update"],
+        hidden = true
+    )
     private var forceUpdateDeprecated: Boolean? = null
 
     @Option(
-        names = arrayOf("--ruleset", "-R"),
-        description = arrayOf(
+        names = ["--ruleset", "-R"],
+        description = [
             "A path to a JAR file containing additional ruleset(s) or a " +
-                "<groupId>:<artifactId>:<version> triple pointing to a remote artifact (in which case ktlint will first " +
-                "check local cache (~/.m2/repository) and then, if not found, attempt downloading it from " +
-                "Maven Central/JCenter/JitPack/user-provided repository)"
-        )
+                "<groupId>:<artifactId>:<version> triple pointing to a remote artifact " +
+                "(in which case ktlint will first check local cache (~/.m2/repository) and then, " +
+                "if not found, attempt downloading it from Maven Central/JCenter/JitPack/user-provided repository)"
+        ]
     )
     private var rulesets = ArrayList<String>()
 
-    @Option(names = arrayOf("--skip-classpath-check"), description = arrayOf("Do not check classpath for potential conflicts"))
+    @Option(
+        names = ["--skip-classpath-check"],
+        description = ["Do not check classpath for potential conflicts"]
+    )
     private var skipClasspathCheck: Boolean = false
 
-    @Option(names = arrayOf("--stdin"), description = arrayOf("Read file from stdin"))
+    @Option(
+        names = ["--stdin"],
+        description = ["Read file from stdin"]
+    )
     private var stdin: Boolean = false
 
-    @Option(names = arrayOf("--verbose", "-v"), description = arrayOf("Show error codes"))
+    @Option(
+        names = ["--verbose", "-v"],
+        description = ["Show error codes"]
+    )
     private var verbose: Boolean = false
 
-    @Option(names = arrayOf("--version"), description = arrayOf("Print version information"))
+    @Option(
+        names = ["--version"],
+        description = ["Print version information"]
+    )
     private var version: Boolean = false
 
-    @Option(names = arrayOf("--help", "-h"), help = true, hidden = true)
+    @Option(
+        names = ["--help", "-h"],
+        help = true,
+        hidden = true
+    )
     private var help: Boolean = false
 
-    @Option(names = arrayOf("-y"), hidden = true)
+    @Option(
+        names = ["-y"],
+        hidden = true
+    )
     private var forceApply: Boolean = false
 
-    @Option(names = arrayOf("--editorconfig"), description = arrayOf("Path to .editorconfig"))
+    @Option(
+        names = ["--editorconfig"],
+        description = ["Path to .editorconfig"]
+    )
     private var editorConfigPath: String? = null
 
     @Option(
-        names = arrayOf("--experimental"),
-        description = arrayOf(
-            "Enabled experimental rules (ktlint-ruleset-experimental)"
-        )
+        names = ["--experimental"],
+        description = ["Enabled experimental rules (ktlint-ruleset-experimental)"]
     )
     private var experimental: Boolean = false
 
