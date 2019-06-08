@@ -51,7 +51,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - `no-multi-spaces` rule (horizontal alignment of comments is no longer allowed) ([#269](https://github.com/shyiko/ktlint/issues/269)).
 - `colon-spacing` rule (`:` must not appear at the beginning of the line).
 - `package-name` rule (disabled until [#208](https://github.com/shyiko/ktlint/issues/208) is resolved).
-- `--print-ast` to output [com.github.shyiko.ktlint.core.ast.ElementType.*](https://github.com/shyiko/ktlint/blob/master/ktlint-core/src/main/kotlin/com/github/shyiko/ktlint/core/ast/ElementType.kt) as `node.elementType`, e.g. 
+- `--print-ast` to output [com.pinterest.ktlint.core.ast.ElementType.*](https://github.com/shyiko/ktlint/blob/master/ktlint-core/src/main/kotlin/com/github/shyiko/ktlint/core/ast/ElementType.kt) as `node.elementType`, e.g. 
 ```
 $ echo 'fun f() {}' | ./ktlint/target/ktlint --print-ast --color --stdin
 1: ~.psi.KtFile (FILE)

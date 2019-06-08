@@ -1,17 +1,10 @@
 plugins {
   id 'org.jetbrains.kotlin.jvm'
   id 'application'
-  // applied after mainClassName per https://github.com/johnrengelman/shadow/issues/336
-  id 'com.github.johnrengelman.shadow' version '4.0.2' apply false
 }
 
-apply plugin: 'com.github.johnrengelman.shadow'
-
-shadowJar {
-  mainClassName = 'com.github.shyiko.ktlint.Main'
-  mergeServiceFiles {
-    include 'META-INF/services/com.github.shyiko.ktlint.core.*'
-  }
+application {
+  mainClassName = 'com.pinterest.ktlint.Main'
 }
 
 dependencies {
