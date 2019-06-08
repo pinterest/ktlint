@@ -1,8 +1,8 @@
 plugins {
-  id "org.jetbrains.kotlin.jvm"
-  id "application"
+  id 'org.jetbrains.kotlin.jvm'
+  id 'application'
   // applied after mainClassName per https://github.com/johnrengelman/shadow/issues/336
-  id "com.github.johnrengelman.shadow" version "4.0.2" apply false
+  id 'com.github.johnrengelman.shadow' version '4.0.2' apply false
 }
 
 apply plugin: 'com.github.johnrengelman.shadow'
@@ -15,29 +15,29 @@ shadowJar {
 }
 
 dependencies {
-  compile project(":ktlint-core")
-  compile project(":ktlint-reporter-checkstyle")
-  compile project(":ktlint-reporter-json")
-  compile project(":ktlint-reporter-plain")
-  compile project(":ktlint-ruleset-experimental")
-  compile project(":ktlint-ruleset-standard")
-  compile project(":ktlint-test")
-  compile libraries.kotlin_stdlib
-  compile libraries.klob
-  compile libraries.aether_api
-  compile libraries.aether_spi
-  compile libraries.aether_util
-  compile libraries.aether_impl
-  compile libraries.aether_connector_basic
-  compile libraries.aether_transport_file
-  compile libraries.aether_transport_http
-  compile libraries.slf4j_nop
-  compile libraries.maven_aether_provider
-  compile libraries.picocli
+  compile project(':ktlint-core')
+  compile project(':ktlint-reporter-checkstyle')
+  compile project(':ktlint-reporter-json')
+  compile project(':ktlint-reporter-plain')
+  compile project(':ktlint-ruleset-experimental')
+  compile project(':ktlint-ruleset-standard')
+  compile project(':ktlint-test')
+  compile deps.kotlin.stdlib
+  compile deps.klob
+  compile deps.aether.api
+  compile deps.aether.spi
+  compile deps.aether.util
+  compile deps.aether.impl
+  compile deps.aether.connector.basic
+  compile deps.aether.transport.file
+  compile deps.aether.transport.http
+  compile deps.slf4j
+  compile deps.aetherProvider
+  compile deps.picocli
 
-  testCompile libraries.junit
-  testCompile libraries.assertj_core
-  testCompile libraries.jimfs
+  testCompile deps.junit
+  testCompile deps.assertj
+  testCompile deps.jimfs
 }
 
 compileKotlin {
@@ -45,6 +45,6 @@ compileKotlin {
   targetCompatibility = JavaVersion.VERSION_1_8
 
   kotlinOptions {
-    jvmTarget = "1.8"
+    jvmTarget = '1.8'
   }
 }
