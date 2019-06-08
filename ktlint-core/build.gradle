@@ -1,11 +1,11 @@
 plugins {
-  id "org.jetbrains.kotlin.jvm"
+  id 'org.jetbrains.kotlin.jvm'
 }
 
 dependencies {
-  compile libraries.kotlin_stdlib
-  compile libraries.kotlin_compiler_embeddable
+  compile deps.kotlin.stdlib
+  compile deps.kotlin.compiler
 
-  testCompile libraries.junit
-  testCompile libraries.assertj_core
+  testCompile deps.junit
+  testCompile deps.assertj
 }
