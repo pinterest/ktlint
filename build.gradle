@@ -29,7 +29,7 @@ ext.deps = [
   // Used to silence aether-transport-http
   'slf4j'          : 'org.slf4j:slf4j-nop:1.6.2',
   'aetherProvider': 'org.apache.maven:maven-aether-provider:3.2.5',
-  'picocli'       : 'info.picocli:picocli:2.3.0',
+  'picocli'       : 'info.picocli:picocli:3.9.6',
   // Testing libraries
   'junit'         : 'junit:junit:4.12',
   'assertj'       : 'org.assertj:assertj-core:3.9.0',
