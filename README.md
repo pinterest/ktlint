@@ -315,11 +315,6 @@ Once packaged in a JAR <sup>[e.g. via `./gradlew build`](https://github.com/pint
 ```sh
 # enable additional 3rd party ruleset by pointing ktlint to its location on the file system
 $ ktlint -R /path/to/custom/rulseset.jar "src/test/**/*.kt"
-
-# you can also use <groupId>:<artifactId>:<version> triple in which case artifact is
-# downloaded from Maven Central, JCenter or JitPack (depending on where it's located and 
-# whether or not it's already present in local Maven cache)
-$ ktlint -R com.github.username:rulseset:master-SNAPSHOT
 ```
 
 A complete sample project (with tests and build files) is included in this repo under the [ktlint-ruleset-template](ktlint-ruleset-template) directory 
@@ -367,7 +362,7 @@ In short, all you need to do is to implement a
 a custom [ReporterProvider](ktlint-core/src/main/kotlin/com/pinterest/ktlint/core/ReporterProvider.kt) using
 `META-INF/services/com.pinterest.ktlint.core.ReporterProvider`. Pack all of that into a JAR and you're done.
 
-To load a custom (3rd party) reporter use `ktlint --reporter=name,artifact=groupId:artifactId:version` / `ktlint --reporter=name,artifact=/path/to/custom-ktlint-reporter.jar`
+To load a custom (3rd party) reporter use `ktlint --reporter=name,artifact=/path/to/custom-ktlint-reporter.jar`
 (see `ktlint --help` for more).
 
 Third-party:
