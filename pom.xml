@@ -55,7 +55,7 @@
         <klob.version>0.2.1</klob.version>
         <aether.version>1.1.0</aether.version>
         <aether.maven.provider.version>3.3.9</aether.maven.provider.version>
-        <picocli.version>2.3.0</picocli.version>
+        <picocli.version>3.9.6</picocli.version>
         <junit.version>4.12</junit.version>
         <assertj.version>3.9.0</assertj.version>
         <jimfs.version>1.1</jimfs.version>
