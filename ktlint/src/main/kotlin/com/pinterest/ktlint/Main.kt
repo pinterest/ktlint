@@ -55,7 +55,7 @@ import picocli.CommandLine.Parameters
 @Command(
     headerHeading =
 """An anti-bikeshedding Kotlin linter with built-in formatter
-(https://github.com/shyiko/ktlint).
+(https://github.com/pinterest/ktlint).
 
 Usage:
   ktlint <flags> [patterns]
@@ -565,7 +565,7 @@ object Main {
                 LintError(
                     e.line, e.col, "",
                     "Internal Error (${e.ruleId}). " +
-                        "Please create a ticket at https://github.com/shyiko/ktlint/issue " +
+                        "Please create a ticket at https://github.com/pinterest/ktlint/issue " +
                         "(if possible, provide the source code that triggered an error)"
                 )
             }
@@ -695,7 +695,7 @@ object Main {
         }
         System.err.println("(updated)")
         System.err.println("\nPlease restart your IDE")
-        System.err.println("(if you experience any issues please report them at https://github.com/shyiko/ktlint)")
+        System.err.println("(if you experience any issues please report them at https://github.com/pinterest/ktlint)")
     }
 
     private fun hex(input: ByteArray) = BigInteger(MessageDigest.getInstance("SHA-256").digest(input)).toString(16)
@@ -788,7 +788,7 @@ object Main {
                         if (result.any { it.toString().substringAfterLast("/").startsWith("ktlint-core-") }) {
                             System.err.println(
                                 "\"$artifact\" appears to have a runtime/compile dependency on \"ktlint-core\".\n" +
-                                    "Please inform the author that \"com.github.shyiko:ktlint*\" should be marked " +
+                                    "Please inform the author that \"com.pinterest:ktlint*\" should be marked " +
                                     "compileOnly (Gradle) / provided (Maven).\n" +
                                     "(to suppress this warning use --skip-classpath-check)"
                             )
