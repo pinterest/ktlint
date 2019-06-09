@@ -1,10 +1,17 @@
 plugins {
   id 'org.jetbrains.kotlin.jvm'
-  id 'application'
+  id 'com.vanniktech.maven.publish'
+  id 'com.github.johnrengelman.shadow' version '5.0.0'
 }
 
-application {
-  mainClassName = 'com.pinterest.ktlint.Main'
+jar {
+  manifest {
+    attributes 'Main-Class': 'com.pinterest.ktlint.Main'
+  }
+}
+
+shadowJar {
+  mergeServiceFiles()
 }
 
 dependencies {
