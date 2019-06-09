@@ -24,6 +24,7 @@ dependencies {
   compile deps.aether.connector.basic
   compile deps.aether.transport.file
   compile deps.aether.transport.http
+  compile deps.guava
   compile deps.slf4j
   compile deps.aetherProvider
   compile deps.picocli
