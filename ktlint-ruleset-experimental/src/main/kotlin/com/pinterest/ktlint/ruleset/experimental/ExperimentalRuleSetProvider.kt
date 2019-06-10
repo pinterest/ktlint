@@ -8,6 +8,7 @@ class ExperimentalRuleSetProvider : RuleSetProvider {
     override fun get(): RuleSet = RuleSet(
         "experimental",
         ImportOrderingRule(),
-        IndentationRule()
+        IndentationRule(),
+        NoFirstLineBlankInMethodBlockRule()
     )
 }

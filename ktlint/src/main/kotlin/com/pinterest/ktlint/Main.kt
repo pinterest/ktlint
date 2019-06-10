@@ -887,7 +887,6 @@ object Main {
         numberOfThreads: Int = Runtime.getRuntime().availableProcessors()
     ) {
         val pill = object : Future<T> {
-
             override fun isDone(): Boolean { throw UnsupportedOperationException() }
             override fun get(timeout: Long, unit: TimeUnit): T { throw UnsupportedOperationException() }
             override fun get(): T { throw UnsupportedOperationException() }

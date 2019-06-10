@@ -53,7 +53,6 @@ class MavenDependencyResolver(
 
     fun setTransferEventListener(listener: (event: TransferEvent) -> Unit) {
         (session as DefaultRepositorySystemSession).transferListener = object : TransferListener {
-
             override fun transferProgressed(event: TransferEvent) = listener(event)
             override fun transferStarted(event: TransferEvent) = listener(event)
             override fun transferInitiated(event: TransferEvent) = listener(event)
