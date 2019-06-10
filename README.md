@@ -317,6 +317,9 @@ Once packaged in a JAR <sup>[e.g. via `./gradlew build`](https://github.com/pint
 $ ktlint -R /path/to/custom/rulseset.jar "src/test/**/*.kt"
 ```
 
+Loading custom (3rd party) ruleset via built-in maven dependency resolver is deprecated,
+see https://github.com/pinterest/ktlint/issues/451.
+
 A complete sample project (with tests and build files) is included in this repo under the [ktlint-ruleset-template](ktlint-ruleset-template) directory 
 (make sure to check [NoVarRuleTest](ktlint-ruleset-template/src/test/kotlin/yourpkgname/NoVarRuleTest.kt) as it contains some useful information). 
 
@@ -364,6 +367,9 @@ a custom [ReporterProvider](ktlint-core/src/main/kotlin/com/pinterest/ktlint/cor
 
 To load a custom (3rd party) reporter use `ktlint --reporter=name,artifact=/path/to/custom-ktlint-reporter.jar`
 (see `ktlint --help` for more).
+
+Loading custom (3rd party) reporter via built-in maven dependency resolver is deprecated,
+see https://github.com/pinterest/ktlint/issues/451.
 
 Third-party:
 * [mcassiano/ktlint-html-reporter](https://github.com/mcassiano/ktlint-html-reporter)
