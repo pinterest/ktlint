@@ -26,6 +26,8 @@ ext.deps = [
       'http': "org.eclipse.aether:aether-transport-http:${versions.aether}",
     ]
   ],
+  // Required by aether
+  'guava'         : 'com.google.guava:guava:18.0',
   // Used to silence aether-transport-http
   'slf4j'          : 'org.slf4j:slf4j-nop:1.6.2',
   'aetherProvider': 'org.apache.maven:maven-aether-provider:3.2.5',
