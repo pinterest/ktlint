@@ -5,7 +5,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [0.33.0] - 2019-05-28
 
 ### Added
-- Unary operator spacing rule ([#412](https://github.com/pinterest/ktlint/issues/412))
 - Support for Kotlin 1.3.31
 
 ### Disabled
