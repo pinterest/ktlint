@@ -1,3 +1,4 @@
+@file:JvmName("Main")
 package com.pinterest.ktlint
 
 import com.github.shyiko.klob.Glob
@@ -11,9 +12,9 @@ import com.pinterest.ktlint.core.RuleSet
 import com.pinterest.ktlint.core.RuleSetProvider
 import com.pinterest.ktlint.internal.EditorConfig
 import com.pinterest.ktlint.internal.IntellijIDEAIntegration
+import com.pinterest.ktlint.internal.KtlintVersionProvider
 import com.pinterest.ktlint.internal.MavenDependencyResolver
 import com.pinterest.ktlint.test.DumpAST
-import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -37,7 +38,6 @@ import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
-import java.util.jar.Manifest
 import kotlin.concurrent.thread
 import kotlin.system.exitProcess
 import org.eclipse.aether.RepositoryException
@@ -51,6 +51,17 @@ import picocli.CommandLine
 import picocli.CommandLine.Command
 import picocli.CommandLine.Option
 import picocli.CommandLine.Parameters
+
+fun main(args: Array<String>) {
+    val ktlintCommand = KtlintCommandLine()
+    val commandLine = CommandLine(ktlintCommand)
+    commandLine.parseArgs(*args)
+    when {
+        commandLine.isUsageHelpRequested -> commandLine.usage(System.out, CommandLine.Help.Ansi.OFF)
+        commandLine.isVersionHelpRequested -> commandLine.printVersionHelp(System.out, CommandLine.Help.Ansi.OFF)
+        else -> ktlintCommand.run(args)
+    }
+}
 
 @Command(
     headerHeading =
@@ -83,9 +94,11 @@ Examples:
 Flags:""",
     synopsisHeading = "",
     customSynopsis = [""],
-    sortOptions = false
+    sortOptions = false,
+    mixinStandardHelpOptions = true,
+    versionProvider = KtlintVersionProvider::class
 )
-object Main {
+class KtlintCommandLine {
 
     private val DEPRECATED_FLAGS = mapOf(
         "--ruleset-repository" to
@@ -241,19 +254,6 @@ object Main {
     private var verbose: Boolean = false
 
     @Option(
-        names = ["--version"],
-        description = ["Print version information"]
-    )
-    private var version: Boolean = false
-
-    @Option(
-        names = ["--help", "-h"],
-        help = true,
-        hidden = true
-    )
-    private var help: Boolean = false
-
-    @Option(
         names = ["-y"],
         hidden = true
     )
@@ -277,27 +277,12 @@ object Main {
     private val workDir = File(".").canonicalPath
     private fun File.location() = if (relative) this.toRelativeString(File(workDir)) else this.path
 
-    private fun usage() =
-        ByteArrayOutputStream()
-            .also { CommandLine.usage(this, PrintStream(it), CommandLine.Help.Ansi.OFF) }
-            .toString()
-            .replace(" ".repeat(32), " ".repeat(30))
-
     private fun parseCmdLine(args: Array<String>) {
-        try {
-            CommandLine.populateCommand(this, *args)
-            repositories.addAll(repositoriesDeprecated)
-            if (forceUpdateDeprecated != null && forceUpdate == null) {
-                forceUpdate = forceUpdateDeprecated
-            }
-        } catch (e: Exception) {
-            System.err.println("Error: ${e.message}\n\n${usage()}")
-            exitProcess(1)
+        repositories.addAll(repositoriesDeprecated)
+        if (forceUpdateDeprecated != null && forceUpdate == null) {
+            forceUpdate = forceUpdateDeprecated
         }
-        if (help) {
-            println(usage())
-            exitProcess(0)
-        }
+
         args.forEach { arg ->
             if (arg.startsWith("--") && arg.contains("=")) {
                 val flag = arg.substringBefore("=")
@@ -309,13 +294,8 @@ object Main {
         }
     }
 
-    @JvmStatic
-    fun main(args: Array<String>) {
+    fun run(args: Array<String>) {
         parseCmdLine(args)
-        if (version) {
-            println(getImplementationVersion())
-            exitProcess(0)
-        }
         if (installGitPreCommitHook) {
             installGitPreCommitHook()
             if (!apply) {
@@ -474,16 +454,6 @@ object Main {
             )
         }
     }
-
-    private fun getImplementationVersion() =
-        javaClass.`package`.implementationVersion
-            // JDK 9 regression workaround (https://bugs.openjdk.java.net/browse/JDK-8190987, fixed in JDK 10)
-            // (note that version reported by the fallback might not be null if META-INF/MANIFEST.MF is
-            // loaded from another JAR on the classpath (e.g. if META-INF/MANIFEST.MF wasn't created as part of the build))
-            ?: javaClass.getResourceAsStream("/META-INF/MANIFEST.MF")
-                ?.let { stream ->
-                    Manifest(stream).mainAttributes.getValue("Implementation-Version")
-                }
 
     private fun loadReporter(dependencyResolver: Lazy<MavenDependencyResolver>, tripped: () -> Boolean): Reporter {
         data class ReporterTemplate(val id: String, val artifact: String?, val config: Map<String, String>, var output: String?)
