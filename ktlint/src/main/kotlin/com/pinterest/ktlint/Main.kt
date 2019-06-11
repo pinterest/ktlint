@@ -59,7 +59,7 @@ fun main(args: Array<String>) {
     when {
         commandLine.isUsageHelpRequested -> commandLine.usage(System.out, CommandLine.Help.Ansi.OFF)
         commandLine.isVersionHelpRequested -> commandLine.printVersionHelp(System.out, CommandLine.Help.Ansi.OFF)
-        else -> ktlintCommand.run(args)
+        else -> ktlintCommand.run()
     }
 }
 
@@ -99,17 +99,6 @@ Flags:""",
     versionProvider = KtlintVersionProvider::class
 )
 class KtlintCommandLine {
-
-    private val DEPRECATED_FLAGS = mapOf(
-        "--ruleset-repository" to
-            "--repository",
-        "--reporter-repository" to
-            "--repository",
-        "--ruleset-update" to
-            "--repository-update",
-        "--reporter-update" to
-            "--repository-update"
-    )
 
     @Option(
         names = ["--android", "-a"],
@@ -205,22 +194,10 @@ class KtlintCommandLine {
     private var repositories = ArrayList<String>()
 
     @Option(
-        names = ["--ruleset-repository", "--reporter-repository"],
-        hidden = true
-    )
-    private var repositoriesDeprecated = ArrayList<String>()
-
-    @Option(
         names = ["--repository-update", "-U"],
         description = ["Check remote repositories for updated snapshots"]
     )
     private var forceUpdate: Boolean? = null
-
-    @Option(
-        names = ["--ruleset-update", "--reporter-update"],
-        hidden = true
-    )
-    private var forceUpdateDeprecated: Boolean? = null
 
     @Option(
         names = ["--ruleset", "-R"],
@@ -270,25 +247,7 @@ class KtlintCommandLine {
     private val workDir = File(".").canonicalPath
     private fun File.location() = if (relative) this.toRelativeString(File(workDir)) else this.path
 
-    private fun parseCmdLine(args: Array<String>) {
-        repositories.addAll(repositoriesDeprecated)
-        if (forceUpdateDeprecated != null && forceUpdate == null) {
-            forceUpdate = forceUpdateDeprecated
-        }
-
-        args.forEach { arg ->
-            if (arg.startsWith("--") && arg.contains("=")) {
-                val flag = arg.substringBefore("=")
-                val alt = DEPRECATED_FLAGS[flag]
-                if (alt != null) {
-                    System.err.println("$flag flag is deprecated and will be removed in 1.0.0 (use $alt instead)")
-                }
-            }
-        }
-    }
-
-    fun run(args: Array<String>) {
-        parseCmdLine(args)
+    fun run() {
         if (installGitPreCommitHook) {
             installGitPreCommitHook()
             if (!apply) {
