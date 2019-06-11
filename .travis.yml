@@ -1,6 +1,11 @@
 language: java
 
-jdk: oraclejdk8
+matrix:
+  include:
+    - dist: trusty
+      jdk: oraclejdk8
+    - dist: xenial
+      jdk: openjdk11
 
 install: true
 
