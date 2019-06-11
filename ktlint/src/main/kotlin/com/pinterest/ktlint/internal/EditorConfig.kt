@@ -40,7 +40,6 @@ class EditorConfig private constructor (
                 }
 
         fun cached(): EditorConfigLookup = object : EditorConfigLookup {
-
             // todo: concurrent radix tree can potentially save a lot of memory here
             private val cache = ConcurrentHashMap<Path, CompletableFuture<EditorConfig?>>()
 
@@ -115,7 +114,6 @@ class EditorConfig private constructor (
         private fun load(path: Path) =
             linkedMapOf<String, Map<String, String>>().also { map ->
                 object : Properties() {
-
                     private var section: MutableMap<String, String>? = null
 
                     override fun put(key: Any, value: Any): Any? {
