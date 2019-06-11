@@ -11,19 +11,20 @@ import com.pinterest.ktlint.core.RuleExecutionException
 import com.pinterest.ktlint.core.RuleSet
 import com.pinterest.ktlint.core.RuleSetProvider
 import com.pinterest.ktlint.internal.EditorConfig
+import com.pinterest.ktlint.internal.GitPreCommitHookSubCommand
 import com.pinterest.ktlint.internal.IntellijIDEAIntegration
 import com.pinterest.ktlint.internal.KtlintVersionProvider
 import com.pinterest.ktlint.internal.MavenDependencyResolver
+import com.pinterest.ktlint.internal.hex
+import com.pinterest.ktlint.internal.printHelpOrVersionUsage
 import com.pinterest.ktlint.test.DumpAST
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.PrintStream
-import java.math.BigInteger
 import java.net.URLDecoder
 import java.nio.file.Path
 import java.nio.file.Paths
-import java.security.MessageDigest
 import java.util.ArrayList
 import java.util.Arrays
 import java.util.LinkedHashMap
@@ -55,11 +56,25 @@ import picocli.CommandLine.Parameters
 fun main(args: Array<String>) {
     val ktlintCommand = KtlintCommandLine()
     val commandLine = CommandLine(ktlintCommand)
-    commandLine.parseArgs(*args)
-    when {
-        commandLine.isUsageHelpRequested -> commandLine.usage(System.out, CommandLine.Help.Ansi.OFF)
-        commandLine.isVersionHelpRequested -> commandLine.printVersionHelp(System.out, CommandLine.Help.Ansi.OFF)
-        else -> ktlintCommand.run()
+        .addSubcommand(GitPreCommitHookSubCommand.COMMAND_NAME, GitPreCommitHookSubCommand())
+    val parseResult = commandLine.parseArgs(*args)
+
+    commandLine.printHelpOrVersionUsage()
+
+    if (parseResult.hasSubcommand()) {
+        handleSubCommand(commandLine, parseResult)
+    } else {
+        ktlintCommand.run()
+    }
+}
+
+fun handleSubCommand(
+    commandLine: CommandLine,
+    parseResult: CommandLine.ParseResult
+) {
+    when (val subCommand = parseResult.subcommand().commandSpec().userObject()) {
+        is GitPreCommitHookSubCommand -> subCommand.run()
+        else -> commandLine.usage(System.out, CommandLine.Help.Ansi.OFF)
     }
 }
 
@@ -104,7 +119,7 @@ class KtlintCommandLine {
         names = ["--android", "-a"],
         description = ["Turn on Android Kotlin Style Guide compatibility"]
     )
-    private var android: Boolean = false
+    var android: Boolean = false
 
     // todo: make it a command in 1.0.0 (it's too late now as we might interfere with valid "lint" patterns)
     @Option(
@@ -138,12 +153,6 @@ class KtlintCommandLine {
         description = ["Fix any deviations from the code style"]
     )
     private var format: Boolean = false
-
-    @Option(
-        names = ["--install-git-pre-commit-hook"],
-        description = ["Install git hook to automatically check files for style violations on commit"]
-    )
-    private var installGitPreCommitHook: Boolean = false
 
     @Option(
         names = ["--install-git-pre-push-hook"],
@@ -248,12 +257,6 @@ class KtlintCommandLine {
     private fun File.location() = if (relative) this.toRelativeString(File(workDir)) else this.path
 
     fun run() {
-        if (installGitPreCommitHook) {
-            installGitPreCommitHook()
-            if (!apply) {
-                exitProcess(0)
-            }
-        }
         if (installGitPrePushHook) {
             installGitPrePushHook()
             if (!apply) {
@@ -539,33 +542,6 @@ class KtlintCommandLine {
             .asSequence()
             .map(Path::toFile)
 
-    private fun installGitPreCommitHook() {
-        if (!File(".git").isDirectory) {
-            System.err.println(
-                ".git directory not found. " +
-                    "Are you sure you are inside project root directory?"
-            )
-            exitProcess(1)
-        }
-        val hooksDir = File(".git", "hooks")
-        hooksDir.mkdirsOrFail()
-        val preCommitHookFile = File(hooksDir, "pre-commit")
-        val expectedPreCommitHook =
-            ClassLoader.getSystemClassLoader()
-                .getResourceAsStream("ktlint-git-pre-commit-hook${if (android) "-android" else ""}.sh").readBytes()
-        // backup existing hook (if any)
-        val actualPreCommitHook = try { preCommitHookFile.readBytes() } catch (e: FileNotFoundException) { null }
-        if (actualPreCommitHook != null && !actualPreCommitHook.isEmpty() && !Arrays.equals(actualPreCommitHook, expectedPreCommitHook)) {
-            val backupFile = File(hooksDir, "pre-commit.ktlint-backup." + hex(actualPreCommitHook))
-            System.err.println(".git/hooks/pre-commit -> $backupFile")
-            preCommitHookFile.copyTo(backupFile, overwrite = true)
-        }
-        // > .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
-        preCommitHookFile.writeBytes(expectedPreCommitHook)
-        preCommitHookFile.setExecutable(true)
-        System.err.println(".git/hooks/pre-commit installed")
-    }
-
     private fun installGitPrePushHook() {
         if (!File(".git").isDirectory) {
             System.err.println(
@@ -583,7 +559,7 @@ class KtlintCommandLine {
         // backup existing hook (if any)
         val actualPrePushHook = try { prePushHookFile.readBytes() } catch (e: FileNotFoundException) { null }
         if (actualPrePushHook != null && !actualPrePushHook.isEmpty() && !Arrays.equals(actualPrePushHook, expectedPrePushHook)) {
-            val backupFile = File(hooksDir, "pre-push.ktlint-backup." + hex(actualPrePushHook))
+            val backupFile = File(hooksDir, "pre-push.ktlint-backup." + actualPrePushHook.hex)
             System.err.println(".git/hooks/pre-push -> $backupFile")
             prePushHookFile.copyTo(backupFile, overwrite = true)
         }
@@ -628,8 +604,6 @@ class KtlintCommandLine {
         System.err.println("\nPlease restart your IDE")
         System.err.println("(if you experience any issues please report them at https://github.com/pinterest/ktlint)")
     }
-
-    private fun hex(input: ByteArray) = BigInteger(MessageDigest.getInstance("SHA-256").digest(input)).toString(16)
 
     // a complete solution would be to implement https://www.gnu.org/software/bash/manual/html_node/Tilde-Expansion.html
     // this implementation takes care only of the most commonly used case (~/)
