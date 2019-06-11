@@ -3,9 +3,9 @@ plugins {
 }
 
 dependencies {
-  compile deps.kotlin.stdlib
-  compile deps.kotlin.compiler
+  implementation deps.kotlin.stdlib
+  implementation deps.kotlin.compiler
 
-  testCompile deps.junit
-  testCompile deps.assertj
+  testImplementation deps.junit
+  testImplementation deps.assertj
 }

@@ -3,9 +3,9 @@ plugins {
 }
 
 dependencies {
-  compile project(':ktlint-core')
-  compile deps.kotlin.stdlib
+  implementation project(':ktlint-core')
+  implementation deps.kotlin.stdlib
 
-  testCompile deps.junit
-  testCompile deps.assertj
+  testImplementation deps.junit
+  testImplementation deps.assertj
 }
