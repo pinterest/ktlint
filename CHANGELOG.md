@@ -36,6 +36,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - Code now lives in `com.pinterest` package
 - groupId now `com.pinterest`
+- Custom ruleset `META-INF.services` file must be renamed to `com.pinterest.ktlint.core.RuleSetProvider`
 
 ## [0.31.0] - 2019-03-10
 
