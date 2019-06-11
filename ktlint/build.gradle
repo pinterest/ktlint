@@ -8,30 +8,31 @@ application {
 }
 
 dependencies {
-  compile project(':ktlint-core')
-  compile project(':ktlint-reporter-checkstyle')
-  compile project(':ktlint-reporter-json')
-  compile project(':ktlint-reporter-plain')
-  compile project(':ktlint-ruleset-experimental')
-  compile project(':ktlint-ruleset-standard')
-  compile project(':ktlint-test')
-  compile deps.kotlin.stdlib
-  compile deps.klob
-  compile deps.aether.api
-  compile deps.aether.spi
-  compile deps.aether.util
-  compile deps.aether.impl
-  compile deps.aether.connector.basic
-  compile deps.aether.transport.file
-  compile deps.aether.transport.http
-  compile deps.guava
-  compile deps.slf4j
-  compile deps.aetherProvider
-  compile deps.picocli
+  implementation project(':ktlint-core')
+  implementation project(':ktlint-reporter-checkstyle')
+  implementation project(':ktlint-reporter-json')
+  implementation project(':ktlint-reporter-plain')
+  implementation project(':ktlint-ruleset-experimental')
+  implementation project(':ktlint-ruleset-standard')
+  implementation project(':ktlint-test')
+  implementation deps.kotlin.stdlib
+  implementation deps.kotlin.compiler
+  implementation deps.klob
+  implementation deps.aether.api
+  implementation deps.aether.spi
+  implementation deps.aether.util
+  implementation deps.aether.impl
+  implementation deps.aether.connector.basic
+  implementation deps.aether.transport.file
+  implementation deps.aether.transport.http
+  implementation deps.guava
+  implementation deps.slf4j
+  implementation deps.aetherProvider
+  implementation deps.picocli
 
-  testCompile deps.junit
-  testCompile deps.assertj
-  testCompile deps.jimfs
+  testImplementation deps.junit
+  testImplementation deps.assertj
+  testImplementation deps.jimfs
 }
 
 compileKotlin {
