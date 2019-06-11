@@ -274,6 +274,15 @@ class KtlintCommandLine {
         if (!rulesets.isEmpty()) {
             loadJARs(dependencyResolver, rulesets)
         }
+
+        // Detect custom rulesets that have not been moved to the new package
+        if (ServiceLoader.load(com.github.shyiko.ktlint.core.RuleSetProvider::class.java).any()) {
+            System.err.println("[ERROR] Cannot load custom ruleset!")
+            System.err.println("[ERROR] RuleSetProvider has moved to com.pinterest.ktlint.core.")
+            System.err.println("[ERROR] Please rename META-INF/services/com.github.shyiko.ktlint.core.RuleSetProvider to META-INF/services/com.pinterest.ktlint.core.RuleSetProvider")
+            exitProcess(1)
+        }
+
         // standard should go first
         val ruleSetProviders =
             ServiceLoader.load(RuleSetProvider::class.java)
