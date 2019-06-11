@@ -315,12 +315,10 @@ Once packaged in a JAR <sup>[e.g. via `./gradlew build`](https://github.com/pint
 ```sh
 # enable additional 3rd party ruleset by pointing ktlint to its location on the file system
 $ ktlint -R /path/to/custom/rulseset.jar "src/test/**/*.kt"
-
-# you can also use <groupId>:<artifactId>:<version> triple in which case artifact is
-# downloaded from Maven Central, JCenter or JitPack (depending on where it's located and 
-# whether or not it's already present in local Maven cache)
-$ ktlint -R com.github.username:rulseset:master-SNAPSHOT
 ```
+
+Loading custom (3rd party) ruleset via built-in maven dependency resolver is deprecated,
+see https://github.com/pinterest/ktlint/issues/451.
 
 A complete sample project (with tests and build files) is included in this repo under the [ktlint-ruleset-template](ktlint-ruleset-template) directory 
 (make sure to check [NoVarRuleTest](ktlint-ruleset-template/src/test/kotlin/yourpkgname/NoVarRuleTest.kt) as it contains some useful information). 
@@ -367,8 +365,11 @@ In short, all you need to do is to implement a
 a custom [ReporterProvider](ktlint-core/src/main/kotlin/com/pinterest/ktlint/core/ReporterProvider.kt) using
 `META-INF/services/com.pinterest.ktlint.core.ReporterProvider`. Pack all of that into a JAR and you're done.
 
-To load a custom (3rd party) reporter use `ktlint --reporter=name,artifact=groupId:artifactId:version` / `ktlint --reporter=name,artifact=/path/to/custom-ktlint-reporter.jar`
+To load a custom (3rd party) reporter use `ktlint --reporter=name,artifact=/path/to/custom-ktlint-reporter.jar`
 (see `ktlint --help` for more).
+
+Loading custom (3rd party) reporter via built-in maven dependency resolver is deprecated,
+see https://github.com/pinterest/ktlint/issues/451.
 
 Third-party:
 * [mcassiano/ktlint-html-reporter](https://github.com/mcassiano/ktlint-html-reporter)

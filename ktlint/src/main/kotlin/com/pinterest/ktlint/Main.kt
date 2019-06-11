@@ -175,21 +175,19 @@ object Main {
         names = ["--reporter"],
         description = [
             "A reporter to use (built-in: plain (default), plain?group_by_file, json, checkstyle). " +
-                "To use a third-party reporter specify either a path to a JAR file on the filesystem or a" +
-                "<groupId>:<artifactId>:<version> triple pointing to a remote artifact " +
-                "(in which case ktlint will first check local cache (~/.m2/repository) and then, " +
-                "if not found, attempt downloading it from Maven Central/JCenter/JitPack/user-provided repository)\n" +
-                "e.g. \"html,artifact=com.github.username:ktlint-reporter-html:master-SNAPSHOT\""
+                "To use a third-party reporter specify a path to a JAR file on the filesystem."
         ]
     )
     private var reporters = ArrayList<String>()
 
+    @Deprecated("See https://github.com/pinterest/ktlint/issues/451")
     @Option(
         names = ["--repository"],
         description = [
             "An additional Maven repository (Maven Central/JCenter/JitPack are active by default) " +
                 "(value format: <id>=<url>)"
-        ]
+        ],
+        hidden = true
     )
     private var repositories = ArrayList<String>()
 
@@ -213,12 +211,7 @@ object Main {
 
     @Option(
         names = ["--ruleset", "-R"],
-        description = [
-            "A path to a JAR file containing additional ruleset(s) or a " +
-                "<groupId>:<artifactId>:<version> triple pointing to a remote artifact " +
-                "(in which case ktlint will first check local cache (~/.m2/repository) and then, " +
-                "if not found, attempt downloading it from Maven Central/JCenter/JitPack/user-provided repository)"
-        ]
+        description = ["A path to a JAR file containing additional ruleset(s)"]
     )
     private var rulesets = ArrayList<String>()
 

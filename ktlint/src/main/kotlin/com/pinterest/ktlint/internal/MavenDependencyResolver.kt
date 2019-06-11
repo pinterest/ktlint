@@ -64,6 +64,8 @@ class MavenDependencyResolver(
     }
 
     fun resolve(vararg artifacts: Artifact): Collection<File> {
+        System.err.println("[WARNING] Resolving third party rules/reporters from artifactory is deprecated!")
+        System.err.println("[WARNING] See: https://github.com/pinterest/ktlint/issues/451")
         val collectRequest = CollectRequest()
         artifacts.forEach {
             collectRequest.addDependency(Dependency(it, "compile"))
