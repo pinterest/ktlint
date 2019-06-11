@@ -38,8 +38,23 @@ ext.deps = [
   'jimfs'         : 'com.google.jimfs:jimfs:1.1'
 ]
 
-subprojects {
+configurations {
+  ktlint
+}
+
+dependencies {
+  ktlint project(':ktlint')
+}
+
+task ktlint(type: JavaExec, group: LifecycleBasePlugin.VERIFICATION_GROUP) {
+  description = "Check Kotlin code style."
+  classpath = configurations.ktlint
+  main = 'com.pinterest.ktlint.Main'
+  args '*/src/**/*.kt'
+}
+
+allprojects {
   repositories {
-    mavenCentral()
+    gradlePluginPortal()
   }
 }

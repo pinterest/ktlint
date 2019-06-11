@@ -12,9 +12,15 @@ install: true
 script:
   - |
     if [[ $TRAVIS_REPO_SLUG == "pinterest/ktlint" && $TRAVIS_BRANCH == "master" && $TRAVIS_PULL_REQUEST == "false" ]]; then
-      ./gradlew build && ./mvnw -Ddeploy=maven-central -DskipStaging=true -Dgpg.skip=true && ./mvnw -Ddeploy=github -Dgpg.skip=true -Dgithub.draft=true -Dgithub.description="https://github.com/pinterest/ktlint#access-to-the-latest-master-snapshot"
+      # Gradle
+      ./gradlew build
+      # Maven
+      ./mvnw -Ddeploy=maven-central -DskipStaging=true -Dgpg.skip=true && ./mvnw -Ddeploy=github -Dgpg.skip=true -Dgithub.draft=true -Dgithub.description="https://github.com/pinterest/ktlint#access-to-the-latest-master-snapshot"
     else
-      ./mvnw clean verify
+      # Gradle
+      ./gradlew build ktlint
+      # Maven
+      ./gradlew build && ./mvnw clean verify
     fi
 
 before_cache:
