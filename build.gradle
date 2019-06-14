@@ -1,5 +1,7 @@
 plugins {
   id 'org.jetbrains.kotlin.jvm' version '1.3.31' apply false
+  id 'com.github.johnrengelman.shadow' version '5.0.0'
+  id 'java'
 }
 
 ext.versions = [
@@ -44,6 +46,7 @@ configurations {
 
 dependencies {
   ktlint project(':ktlint')
+  compile subprojects
 }
 
 task ktlint(type: JavaExec, group: LifecycleBasePlugin.VERIFICATION_GROUP) {
@@ -57,4 +60,14 @@ allprojects {
   repositories {
     gradlePluginPortal()
   }
+}
+
+jar {
+  manifest {
+    attributes 'Main-Class': 'com.pinterest.ktlint.Main'
+  }
+}
+
+shadowJar {
+  mergeServiceFiles()
 }
