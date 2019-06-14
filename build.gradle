@@ -46,7 +46,11 @@ configurations {
 
 dependencies {
   ktlint project(':ktlint')
-  compile subprojects
+  subprojects.forEach { subproject ->
+    if (subproject.name != 'ktlint-ruleset-template') {
+      compile subproject
+    }
+  }
 }
 
 task ktlint(type: JavaExec, group: LifecycleBasePlugin.VERIFICATION_GROUP) {
