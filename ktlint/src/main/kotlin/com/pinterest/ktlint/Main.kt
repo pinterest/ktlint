@@ -12,21 +12,19 @@ import com.pinterest.ktlint.core.RuleSet
 import com.pinterest.ktlint.core.RuleSetProvider
 import com.pinterest.ktlint.internal.EditorConfig
 import com.pinterest.ktlint.internal.GitPreCommitHookSubCommand
+import com.pinterest.ktlint.internal.GitPrePushHookSubCommand
 import com.pinterest.ktlint.internal.IntellijIDEAIntegration
 import com.pinterest.ktlint.internal.KtlintVersionProvider
 import com.pinterest.ktlint.internal.MavenDependencyResolver
-import com.pinterest.ktlint.internal.hex
 import com.pinterest.ktlint.internal.printHelpOrVersionUsage
 import com.pinterest.ktlint.test.DumpAST
 import java.io.File
-import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.PrintStream
 import java.net.URLDecoder
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.ArrayList
-import java.util.Arrays
 import java.util.LinkedHashMap
 import java.util.NoSuchElementException
 import java.util.Scanner
@@ -57,6 +55,7 @@ fun main(args: Array<String>) {
     val ktlintCommand = KtlintCommandLine()
     val commandLine = CommandLine(ktlintCommand)
         .addSubcommand(GitPreCommitHookSubCommand.COMMAND_NAME, GitPreCommitHookSubCommand())
+        .addSubcommand(GitPrePushHookSubCommand.COMMAND_NAME, GitPrePushHookSubCommand())
     val parseResult = commandLine.parseArgs(*args)
 
     commandLine.printHelpOrVersionUsage()
@@ -74,6 +73,7 @@ fun handleSubCommand(
 ) {
     when (val subCommand = parseResult.subcommand().commandSpec().userObject()) {
         is GitPreCommitHookSubCommand -> subCommand.run()
+        is GitPrePushHookSubCommand -> subCommand.run()
         else -> commandLine.usage(System.out, CommandLine.Help.Ansi.OFF)
     }
 }
@@ -153,12 +153,6 @@ class KtlintCommandLine {
         description = ["Fix any deviations from the code style"]
     )
     private var format: Boolean = false
-
-    @Option(
-        names = ["--install-git-pre-push-hook"],
-        description = ["Install git hook to automatically check files for style violations before push"]
-    )
-    private var installGitPrePushHook: Boolean = false
 
     @Option(
         names = ["--limit"],
@@ -257,12 +251,6 @@ class KtlintCommandLine {
     private fun File.location() = if (relative) this.toRelativeString(File(workDir)) else this.path
 
     fun run() {
-        if (installGitPrePushHook) {
-            installGitPrePushHook()
-            if (!apply) {
-                exitProcess(0)
-            }
-        }
         if (apply || applyToProject) {
             applyToIDEA()
             exitProcess(0)
@@ -541,33 +529,6 @@ class KtlintCommandLine {
         }
             .asSequence()
             .map(Path::toFile)
-
-    private fun installGitPrePushHook() {
-        if (!File(".git").isDirectory) {
-            System.err.println(
-                ".git directory not found. " +
-                    "Are you sure you are inside project root directory?"
-            )
-            exitProcess(1)
-        }
-        val hooksDir = File(".git", "hooks")
-        hooksDir.mkdirsOrFail()
-        val prePushHookFile = File(hooksDir, "pre-push")
-        val expectedPrePushHook =
-            ClassLoader.getSystemClassLoader()
-                .getResourceAsStream("ktlint-git-pre-push-hook${if (android) "-android" else ""}.sh").readBytes()
-        // backup existing hook (if any)
-        val actualPrePushHook = try { prePushHookFile.readBytes() } catch (e: FileNotFoundException) { null }
-        if (actualPrePushHook != null && !actualPrePushHook.isEmpty() && !Arrays.equals(actualPrePushHook, expectedPrePushHook)) {
-            val backupFile = File(hooksDir, "pre-push.ktlint-backup." + actualPrePushHook.hex)
-            System.err.println(".git/hooks/pre-push -> $backupFile")
-            prePushHookFile.copyTo(backupFile, overwrite = true)
-        }
-        // > .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
-        prePushHookFile.writeBytes(expectedPrePushHook)
-        prePushHookFile.setExecutable(true)
-        System.err.println(".git/hooks/pre-push installed")
-    }
 
     private fun applyToIDEA() {
         try {
