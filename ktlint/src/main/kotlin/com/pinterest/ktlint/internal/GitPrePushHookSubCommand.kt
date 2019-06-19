@@ -5,14 +5,14 @@ import picocli.CommandLine
 
 @CommandLine.Command(
     description = [
-        "Install git hook to automatically check files for style violations on commit",
-        "Usage of \"--install-git-pre-commit-hook\" command line option is deprecated!"
+        "Install git hook to automatically check files for style violations before push",
+        "Usage of \"--install-git-pre-push-hook\" command line option is deprecated!"
     ],
-    aliases = ["--install-git-pre-commit-hook"],
+    aliases = ["--install-git-pre-push-hook"],
     mixinStandardHelpOptions = true,
     versionProvider = KtlintVersionProvider::class
 )
-class GitPreCommitHookSubCommand : Runnable {
+class GitPrePushHookSubCommand : Runnable {
     @CommandLine.ParentCommand
     private lateinit var ktlintCommand: KtlintCommandLine
 
@@ -22,18 +22,19 @@ class GitPreCommitHookSubCommand : Runnable {
     override fun run() {
         commandSpec.commandLine().printHelpOrVersionUsage()
 
-        GitHookInstaller.installGitHook("pre-commit") {
+        GitHookInstaller.installGitHook("pre-push") {
             loadHookContent()
         }
     }
 
-    private fun loadHookContent(): ByteArray = ClassLoader
+    private fun loadHookContent() = ClassLoader
         .getSystemClassLoader()
         .getResourceAsStream(
-            "ktlint-git-pre-commit-hook${if (ktlintCommand.android) "-android" else ""}.sh"
-        ).use { it.readBytes() }
+            "ktlint-git-pre-push-hook${if (ktlintCommand.android) "-android" else ""}.sh"
+        )
+        .readBytes()
 
     companion object {
-        const val COMMAND_NAME = "installGitPreCommitHook"
+        const val COMMAND_NAME = "installGitPrePushHook"
     }
 }
