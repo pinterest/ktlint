@@ -3,29 +3,23 @@ package com.pinterest.ktlint
 
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.ParseException
-import com.pinterest.ktlint.core.Reporter
-import com.pinterest.ktlint.core.ReporterProvider
 import com.pinterest.ktlint.core.RuleExecutionException
-import com.pinterest.ktlint.core.RuleSetProvider
 import com.pinterest.ktlint.internal.GitPreCommitHookSubCommand
 import com.pinterest.ktlint.internal.GitPrePushHookSubCommand
 import com.pinterest.ktlint.internal.IntellijIDEAIntegration
 import com.pinterest.ktlint.internal.KtlintVersionProvider
 import com.pinterest.ktlint.internal.MavenDependencyResolver
 import com.pinterest.ktlint.internal.PrintASTSubCommand
-import com.pinterest.ktlint.internal.expandTilde
 import com.pinterest.ktlint.internal.fileSequence
 import com.pinterest.ktlint.internal.formatFile
+import com.pinterest.ktlint.internal.getRuleSetProviders
 import com.pinterest.ktlint.internal.lintFile
+import com.pinterest.ktlint.internal.loadReporter
 import com.pinterest.ktlint.internal.location
 import com.pinterest.ktlint.internal.printHelpOrVersionUsage
 import java.io.File
-import java.io.IOException
-import java.io.PrintStream
-import java.net.URLDecoder
 import java.nio.file.Paths
 import java.util.ArrayList
-import java.util.LinkedHashMap
 import java.util.NoSuchElementException
 import java.util.Scanner
 import java.util.ServiceLoader
@@ -38,12 +32,6 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.concurrent.thread
 import kotlin.system.exitProcess
-import org.eclipse.aether.RepositoryException
-import org.eclipse.aether.artifact.DefaultArtifact
-import org.eclipse.aether.repository.RemoteRepository
-import org.eclipse.aether.repository.RepositoryPolicy
-import org.eclipse.aether.repository.RepositoryPolicy.CHECKSUM_POLICY_IGNORE
-import org.eclipse.aether.repository.RepositoryPolicy.UPDATE_POLICY_NEVER
 import picocli.CommandLine
 import picocli.CommandLine.Command
 import picocli.CommandLine.Option
@@ -241,8 +229,6 @@ class KtlintCommandLine {
     @Parameters(hidden = true)
     private var patterns = ArrayList<String>()
 
-    private val workDir = File(".").canonicalPath
-
     fun run() {
         if (apply || applyToProject) {
             applyToIDEA()
@@ -250,11 +236,16 @@ class KtlintCommandLine {
         }
         val start = System.currentTimeMillis()
 
-        // load 3rd party ruleset(s) (if any)
-        val dependencyResolver = lazy(LazyThreadSafetyMode.NONE) { buildDependencyResolver() }
-        if (!rulesets.isEmpty()) {
-            loadJARs(dependencyResolver, rulesets)
-        }
+        val dependencyResolver =
+            MavenDependencyResolver.lazyResolver(repositories, forceUpdate = forceUpdate ?: false, debug = debug)
+
+        val ruleSets = getRuleSetProviders(
+            dependencyResolver,
+            ruleSetsUrls = rulesets,
+            debug = debug,
+            experimental = experimental,
+            skipClasspathCheck = skipClasspathCheck
+        )
 
         // Detect custom rulesets that have not been moved to the new package
         if (ServiceLoader.load(com.github.shyiko.ktlint.core.RuleSetProvider::class.java).any()) {
@@ -264,17 +255,16 @@ class KtlintCommandLine {
             exitProcess(1)
         }
 
-        // standard should go first
-        val ruleSetProviders =
-            ServiceLoader.load(RuleSetProvider::class.java)
-                .map { it.get().id to it }
-                .filter { (id) -> experimental || id != "experimental" }
-                .sortedBy { if (it.first == "standard") "\u0000${it.first}" else it.first }
-        if (debug) {
-            ruleSetProviders.forEach { System.err.println("[DEBUG] Discovered ruleset \"${it.first}\"") }
-        }
         val tripped = AtomicBoolean()
-        val reporter = loadReporter(dependencyResolver) { tripped.get() }
+        val reporter = loadReporter(
+            dependencyResolver,
+            reporters = reporters,
+            debug = debug,
+            verbose = verbose,
+            stdin = stdin,
+            color = color,
+            skipClasspathCheck = skipClasspathCheck
+        ) { tripped.get() }
         data class LintErrorWithCorrectionInfo(val err: LintError, val corrected: Boolean)
         val userData = mapOf("android" to android.toString())
         fun process(fileName: String, fileContent: String): List<LintErrorWithCorrectionInfo> {
@@ -288,7 +278,7 @@ class KtlintCommandLine {
                     formatFile(
                         fileName,
                         fileContent,
-                        ruleSetProviders.map { it.second.get() },
+                        ruleSets.map { it.get() },
                         userData,
                         editorConfigPath,
                         debug
@@ -315,7 +305,7 @@ class KtlintCommandLine {
                     lintFile(
                         fileName,
                         fileContent,
-                        ruleSetProviders.map { it.second.get() },
+                        ruleSets.map { it.get() },
                         userData,
                         editorConfigPath,
                         debug
@@ -365,72 +355,6 @@ class KtlintCommandLine {
         if (tripped.get()) {
             exitProcess(1)
         }
-    }
-
-    private fun loadReporter(dependencyResolver: Lazy<MavenDependencyResolver>, tripped: () -> Boolean): Reporter {
-        data class ReporterTemplate(val id: String, val artifact: String?, val config: Map<String, String>, var output: String?)
-        val tpls = (if (reporters.isEmpty()) listOf("plain") else reporters)
-            .map { reporter ->
-                val split = reporter.split(",")
-                val (reporterId, rawReporterConfig) = split[0].split("?", limit = 2) + listOf("")
-                ReporterTemplate(
-                    reporterId,
-                    split.lastOrNull { it.startsWith("artifact=") }?.let { it.split("=")[1] },
-                    mapOf("verbose" to verbose.toString(), "color" to color.toString()) + parseQuery(rawReporterConfig),
-                    split.lastOrNull { it.startsWith("output=") }?.let { it.split("=")[1] }
-                )
-            }
-            .distinct()
-        val reporterLoader = ServiceLoader.load(ReporterProvider::class.java)
-        val reporterProviderById = reporterLoader.associate { it.id to it }.let { map ->
-            val missingReporters = tpls.filter { !map.containsKey(it.id) }.mapNotNull { it.artifact }.distinct()
-            if (!missingReporters.isEmpty()) {
-                loadJARs(dependencyResolver, missingReporters)
-                reporterLoader.reload()
-                reporterLoader.associate { it.id to it }
-            } else map
-        }
-        if (debug) {
-            reporterProviderById.forEach { (id) -> System.err.println("[DEBUG] Discovered reporter \"$id\"") }
-        }
-        fun ReporterTemplate.toReporter(): Reporter {
-            val reporterProvider = reporterProviderById[id]
-            if (reporterProvider == null) {
-                System.err.println(
-                    "Error: reporter \"$id\" wasn't found (available: ${
-                    reporterProviderById.keys.sorted().joinToString(",")
-                    })"
-                )
-                exitProcess(1)
-            }
-            if (debug) {
-                System.err.println(
-                    "[DEBUG] Initializing \"$id\" reporter with $config" +
-                        (output?.let { ", output=$it" } ?: "")
-                )
-            }
-            val stream = if (output != null) {
-                File(output).parentFile?.mkdirsOrFail(); PrintStream(output, "UTF-8")
-            } else if (stdin) System.err else System.out
-            return reporterProvider.get(stream, config)
-                .let { reporter ->
-                    if (output != null) {
-                        object : Reporter by reporter {
-                            override fun afterAll() {
-                                reporter.afterAll()
-                                stream.close()
-                                if (tripped()) {
-                                    val outputLocation = File(output).absoluteFile.location(relative)
-                                    System.err.println("\"$id\" report written to $outputLocation")
-                                }
-                            }
-                        }
-                    } else {
-                        reporter
-                    }
-                }
-        }
-        return Reporter.from(*tpls.map { it.toReporter() }.toTypedArray())
     }
 
     private fun Exception.toLintError(): LintError = this.let { e ->
@@ -493,133 +417,6 @@ class KtlintCommandLine {
     }
 
     private fun <T> List<T>.head(limit: Int) = if (limit == size) this else this.subList(0, limit)
-
-    private fun buildDependencyResolver(): MavenDependencyResolver {
-        val mavenLocal = File(File(System.getProperty("user.home"), ".m2"), "repository")
-        mavenLocal.mkdirsOrFail()
-        val dependencyResolver = MavenDependencyResolver(
-            mavenLocal,
-            listOf(
-                RemoteRepository.Builder(
-                    "central", "default", "https://repo1.maven.org/maven2/"
-                ).setSnapshotPolicy(
-                    RepositoryPolicy(
-                        false, UPDATE_POLICY_NEVER,
-                        CHECKSUM_POLICY_IGNORE
-                    )
-                ).build(),
-                RemoteRepository.Builder(
-                    "bintray", "default", "https://jcenter.bintray.com"
-                ).setSnapshotPolicy(
-                    RepositoryPolicy(
-                        false, UPDATE_POLICY_NEVER,
-                        CHECKSUM_POLICY_IGNORE
-                    )
-                ).build(),
-                RemoteRepository.Builder(
-                    "jitpack", "default", "https://jitpack.io"
-                ).build()
-            ) + repositories.map { repository ->
-                val colon = repository.indexOf("=").apply {
-                    if (this == -1) {
-                        throw RuntimeException(
-                            "$repository is not a valid repository entry " +
-                                "(make sure it's provided as <id>=<url>"
-                        )
-                    }
-                }
-                val id = repository.substring(0, colon)
-                val url = repository.substring(colon + 1)
-                RemoteRepository.Builder(id, "default", url).build()
-            },
-            forceUpdate == true
-        )
-        if (debug) {
-            dependencyResolver.setTransferEventListener { e ->
-                System.err.println(
-                    "[DEBUG] Transfer ${e.type.toString().toLowerCase()} ${e.resource.repositoryUrl}" +
-                        e.resource.resourceName + (e.exception?.let { " (${it.message})" } ?: "")
-                )
-            }
-        }
-        return dependencyResolver
-    }
-
-    // fixme: isn't going to work on JDK 9
-    private fun loadJARs(dependencyResolver: Lazy<MavenDependencyResolver>, artifacts: List<String>) {
-        (ClassLoader.getSystemClassLoader() as java.net.URLClassLoader)
-            .addURLs(
-                artifacts.flatMap { artifact ->
-                    if (debug) {
-                        System.err.println("[DEBUG] Resolving $artifact")
-                    }
-                    val result = try {
-                        dependencyResolver.value.resolve(DefaultArtifact(artifact)).map { it.toURI().toURL() }
-                    } catch (e: IllegalArgumentException) {
-                        val file = File(expandTilde(artifact))
-                        if (!file.exists()) {
-                            System.err.println("Error: $artifact does not exist")
-                            exitProcess(1)
-                        }
-                        listOf(file.toURI().toURL())
-                    } catch (e: RepositoryException) {
-                        if (debug) {
-                            e.printStackTrace()
-                        }
-                        System.err.println("Error: $artifact wasn't found")
-                        exitProcess(1)
-                    }
-                    if (debug) {
-                        result.forEach { url -> System.err.println("[DEBUG] Loading $url") }
-                    }
-                    if (!skipClasspathCheck) {
-                        if (result.any { it.toString().substringAfterLast("/").startsWith("ktlint-core-") }) {
-                            System.err.println(
-                                "\"$artifact\" appears to have a runtime/compile dependency on \"ktlint-core\".\n" +
-                                    "Please inform the author that \"com.pinterest:ktlint*\" should be marked " +
-                                    "compileOnly (Gradle) / provided (Maven).\n" +
-                                    "(to suppress this warning use --skip-classpath-check)"
-                            )
-                        }
-                        if (result.any { it.toString().substringAfterLast("/").startsWith("kotlin-stdlib-") }) {
-                            System.err.println(
-                                "\"$artifact\" appears to have a runtime/compile dependency on \"kotlin-stdlib\".\n" +
-                                    "Please inform the author that \"org.jetbrains.kotlin:kotlin-stdlib*\" should be marked " +
-                                    "compileOnly (Gradle) / provided (Maven).\n" +
-                                    "(to suppress this warning use --skip-classpath-check)"
-                            )
-                        }
-                    }
-                    result
-                }
-            )
-    }
-
-    private fun parseQuery(query: String) =
-        query.split("&")
-            .fold(LinkedHashMap<String, String>()) { map, s ->
-                if (!s.isEmpty()) {
-                    s.split("=", limit = 2).let { e ->
-                        map.put(
-                            e[0],
-                            URLDecoder.decode(e.getOrElse(1) { "true" }, "UTF-8")
-                        )
-                    }
-                }
-                map
-            }
-
-    private fun java.net.URLClassLoader.addURLs(url: Iterable<java.net.URL>) {
-        val method = java.net.URLClassLoader::class.java.getDeclaredMethod("addURL", java.net.URL::class.java)
-        method.isAccessible = true
-        url.forEach { method.invoke(this, it) }
-    }
-
-    private fun File.mkdirsOrFail() {
-        if (!mkdirs() && !isDirectory) {
-            throw IOException("Unable to create \"${this}\" directory")
-        }
-    }
 
     /**
      * Executes "Callable"s in parallel (lazily).

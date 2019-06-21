@@ -5,6 +5,7 @@ import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.RuleSet
 import java.io.File
+import java.io.IOException
 import java.nio.file.Path
 import java.nio.file.Paths
 
@@ -88,3 +89,9 @@ internal fun formatFile(
             debug = debug
         )
     )
+
+internal fun File.mkdirsOrFail() {
+    if (!mkdirs() && !isDirectory) {
+        throw IOException("Unable to create \"${this}\" directory")
+    }
+}
