@@ -23,6 +23,18 @@ class AnnotationRuleTest {
     }
 
     @Test
+    fun `lint single annotation with parameters ends with a comment`() {
+        assertThat(
+            AnnotationRule().lint(
+                """
+                @Suppress("AnnotationRule") // this is a comment
+                class A
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
     fun `format single annotation may be placed on line before annotated construct`() {
         val code =
             """
