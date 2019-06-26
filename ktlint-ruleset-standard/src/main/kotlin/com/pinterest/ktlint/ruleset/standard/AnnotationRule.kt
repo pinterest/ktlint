@@ -15,6 +15,7 @@ class AnnotationRule : Rule("annotation") {
             "Multiple annotations should not be placed on the same line as the annotated construct"
         const val annotationsWithParametersAreNotOnSeparateLinesErrorMessage =
             "Annotations with parameters should all be placed on separate lines prior to the annotated construct"
+        const val DATA_KEYWORD = "data"
     }
 
     override fun visit(
@@ -23,7 +24,7 @@ class AnnotationRule : Rule("annotation") {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         val root =
-            node.children().firstOrNull { it.elementType == MODIFIER_LIST }
+            node.children().firstOrNull { it.elementType == MODIFIER_LIST && it.text != DATA_KEYWORD }
                 ?: return
 
         val annotations =

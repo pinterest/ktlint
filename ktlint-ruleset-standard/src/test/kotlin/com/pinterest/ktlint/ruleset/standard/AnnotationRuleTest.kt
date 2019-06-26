@@ -320,4 +320,30 @@ class AnnotationRuleTest {
             """.trimIndent()
         )
     }
+
+    @Test
+    fun `no annotation present for data class passes`() {
+        val code =
+            """
+            package com.example.application.a.b
+
+            data class FileModel(val uri: String, val name: String)
+            """.trimIndent()
+        assertThat(AnnotationRule().format(code)).isEqualTo(code)
+    }
+
+    @Test
+    fun `no annotation present succeeds for class`() {
+        val code =
+            """
+            package com.example.application.a
+
+            import android.os.Environment
+
+            class PathProvider {
+                fun gallery(): String = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).path
+            }
+            """.trimIndent()
+        assertThat(AnnotationRule().format(code)).isEqualTo(code)
+    }
 }
