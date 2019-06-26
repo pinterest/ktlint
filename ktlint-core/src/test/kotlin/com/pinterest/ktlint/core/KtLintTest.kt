@@ -26,17 +26,20 @@ class KtLintTest {
         }
         val bus = mutableListOf<String>()
         KtLint.lint(
-            "fun main() {}",
-            listOf(
-                RuleSet(
-                    "standard",
-                    object : R(bus, "d"), Rule.Modifier.RestrictToRootLast {},
-                    R(bus, "b"),
-                    object : R(bus, "a"), Rule.Modifier.RestrictToRoot {},
-                    R(bus, "c")
-                )
+            KtLint.Params(
+                text = "fun main() {}",
+                ruleSets = listOf(
+                    RuleSet(
+                        "standard",
+                        object : R(bus, "d"), Rule.Modifier.RestrictToRootLast {},
+                        R(bus, "b"),
+                        object : R(bus, "a"), Rule.Modifier.RestrictToRoot {},
+                        R(bus, "c")
+                    )
+                ),
+                cb = { _, _ -> }
             )
-        ) {}
+        )
         assertThat(bus).isEqualTo(listOf("file:a", "file:b", "file:c", "b", "c", "file:d"))
     }
 }

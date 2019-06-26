@@ -1,4 +1,4 @@
-package com.pinterest.ktlint.internal
+package com.pinterest.ktlint.core.internal
 
 import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
@@ -6,7 +6,7 @@ import java.nio.file.Files
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
-class EditorConfigTest {
+class EditorConfigInternalTest {
 
     @Test
     fun testParentDirectoryFallback() {
@@ -38,7 +38,7 @@ class EditorConfigTest {
             )
         ) {
             Files.write(fs.getPath("/projects/project-1/.editorconfig"), cfg.trimIndent().toByteArray())
-            val editorConfig = EditorConfig.of(fs.getPath("/projects/project-1/project-1-subdirectory"))
+            val editorConfig = EditorConfigInternal.of(fs.getPath("/projects/project-1/project-1-subdirectory"))
             assertThat(editorConfig?.parent).isNull()
             assertThat(editorConfig?.toMap())
                 .overridingErrorMessage("Expected \n%s\nto yield indent_size = 2", cfg.trimIndent())
@@ -74,7 +74,7 @@ class EditorConfigTest {
             indent_size = 2
             """.trimIndent().toByteArray()
         )
-        EditorConfig.of(fs.getPath("/projects/project-1/project-1-subdirectory")).let { editorConfig ->
+        EditorConfigInternal.of(fs.getPath("/projects/project-1/project-1-subdirectory")).let { editorConfig ->
             assertThat(editorConfig?.parent).isNotNull()
             assertThat(editorConfig?.parent?.parent).isNull()
             assertThat(editorConfig?.toMap()).isEqualTo(
@@ -84,7 +84,7 @@ class EditorConfigTest {
                 )
             )
         }
-        EditorConfig.of(fs.getPath("/projects/project-1")).let { editorConfig ->
+        EditorConfigInternal.of(fs.getPath("/projects/project-1")).let { editorConfig ->
             assertThat(editorConfig?.parent).isNull()
             assertThat(editorConfig?.toMap()).isEqualTo(
                 mapOf(
@@ -93,7 +93,7 @@ class EditorConfigTest {
                 )
             )
         }
-        EditorConfig.of(fs.getPath("/projects")).let { editorConfig ->
+        EditorConfigInternal.of(fs.getPath("/projects")).let { editorConfig ->
             assertThat(editorConfig?.parent).isNull()
             assertThat(editorConfig?.toMap()).isEqualTo(
                 mapOf(
@@ -105,22 +105,22 @@ class EditorConfigTest {
 
     @Test
     fun testSectionParsing() {
-        assertThat(EditorConfig.parseSection("*")).isEqualTo(listOf("*"))
-        assertThat(EditorConfig.parseSection("*.{js,py}")).isEqualTo(listOf("*.js", "*.py"))
-        assertThat(EditorConfig.parseSection("*.py")).isEqualTo(listOf("*.py"))
-        assertThat(EditorConfig.parseSection("Makefile")).isEqualTo(listOf("Makefile"))
-        assertThat(EditorConfig.parseSection("lib/**.js")).isEqualTo(listOf("lib/**.js"))
-        assertThat(EditorConfig.parseSection("{package.json,.travis.yml}"))
+        assertThat(EditorConfigInternal.parseSection("*")).isEqualTo(listOf("*"))
+        assertThat(EditorConfigInternal.parseSection("*.{js,py}")).isEqualTo(listOf("*.js", "*.py"))
+        assertThat(EditorConfigInternal.parseSection("*.py")).isEqualTo(listOf("*.py"))
+        assertThat(EditorConfigInternal.parseSection("Makefile")).isEqualTo(listOf("Makefile"))
+        assertThat(EditorConfigInternal.parseSection("lib/**.js")).isEqualTo(listOf("lib/**.js"))
+        assertThat(EditorConfigInternal.parseSection("{package.json,.travis.yml}"))
             .isEqualTo(listOf("package.json", ".travis.yml"))
     }
 
     @Test
     fun testMalformedSectionParsing() {
-        assertThat(EditorConfig.parseSection("")).isEqualTo(listOf(""))
-        assertThat(EditorConfig.parseSection(",*")).isEqualTo(listOf("", "*"))
-        assertThat(EditorConfig.parseSection("*,")).isEqualTo(listOf("*", ""))
-        assertThat(EditorConfig.parseSection("*.{js,py")).isEqualTo(listOf("*.js", "*.py"))
-        assertThat(EditorConfig.parseSection("*.{js,{py")).isEqualTo(listOf("*.js", "*.{py"))
-        assertThat(EditorConfig.parseSection("*.py}")).isEqualTo(listOf("*.py}"))
+        assertThat(EditorConfigInternal.parseSection("")).isEqualTo(listOf(""))
+        assertThat(EditorConfigInternal.parseSection(",*")).isEqualTo(listOf("", "*"))
+        assertThat(EditorConfigInternal.parseSection("*,")).isEqualTo(listOf("*", ""))
+        assertThat(EditorConfigInternal.parseSection("*.{js,py")).isEqualTo(listOf("*.js", "*.py"))
+        assertThat(EditorConfigInternal.parseSection("*.{js,{py")).isEqualTo(listOf("*.js", "*.{py"))
+        assertThat(EditorConfigInternal.parseSection("*.py}")).isEqualTo(listOf("*.py}"))
     }
 }

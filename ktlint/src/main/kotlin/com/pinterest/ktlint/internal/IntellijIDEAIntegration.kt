@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.internal
 
 import com.github.shyiko.klob.Glob
+import com.pinterest.ktlint.core.internal.EditorConfigInternal
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.IOException
@@ -26,7 +27,7 @@ object IntellijIDEAIntegration {
         if (!Files.isDirectory(workDir.resolve(".idea"))) {
             throw ProjectNotFoundException()
         }
-        val editorConfig: Map<String, String> = EditorConfig.of(".") ?: emptyMap()
+        val editorConfig: Map<String, String> = EditorConfigInternal.of(".") ?: emptyMap()
         val indentSize = editorConfig["indent_size"]?.toIntOrNull() ?: 4
         val continuationIndentSize = editorConfig["continuation_indent_size"]?.toIntOrNull() ?: 4
         val updates = if (local) {

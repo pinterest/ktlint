@@ -1,4 +1,4 @@
-package com.pinterest.ktlint.internal
+package com.pinterest.ktlint.core.internal
 
 import java.io.ByteArrayInputStream
 import java.nio.file.Files
@@ -8,8 +8,8 @@ import java.util.Properties
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 
-class EditorConfig private constructor (
-    val parent: EditorConfig?,
+class EditorConfigInternal private constructor (
+    val parent: EditorConfigInternal?,
     val path: Path,
     private val data: Map<String, String>
 ) : Map<String, String> by data {
@@ -29,8 +29,8 @@ class EditorConfig private constructor (
                 }
                 .toList()
                 .asReversed()
-                .fold(null as EditorConfig?) { parent, (path, data) ->
-                    EditorConfig(
+                .fold(null as EditorConfigInternal?) { parent, (path, data) ->
+                    EditorConfigInternal(
                         parent, path,
                         (
                             parent?.data
@@ -41,22 +41,22 @@ class EditorConfig private constructor (
 
         fun cached(): EditorConfigLookup = object : EditorConfigLookup {
             // todo: concurrent radix tree can potentially save a lot of memory here
-            private val cache = ConcurrentHashMap<Path, CompletableFuture<EditorConfig?>>()
+            private val cache = ConcurrentHashMap<Path, CompletableFuture<EditorConfigInternal?>>()
 
             override fun of(dir: String) = of(Paths.get(dir))
-            override fun of(dir: Path): EditorConfig? {
+            override fun of(dir: Path): EditorConfigInternal? {
                 val cachedEditorConfig = cache[dir]
                 return when {
                     cachedEditorConfig != null -> cachedEditorConfig.get()
                     else -> {
-                        val future = CompletableFuture<EditorConfig?>()
+                        val future = CompletableFuture<EditorConfigInternal?>()
                         val cachedFuture = cache.putIfAbsent(dir, future)
                         if (cachedFuture == null) {
                             val editorConfigPath = dir.resolve(".editorconfig")
                             val parent = if (dir.parent != null) of(dir.parent) else null
                             try {
                                 val editorConfig = if (Files.exists(editorConfigPath)) {
-                                    EditorConfig(
+                                    EditorConfigInternal(
                                         parent, editorConfigPath,
                                         (
                                             parent?.data
@@ -181,6 +181,6 @@ class EditorConfig private constructor (
 }
 
 interface EditorConfigLookup {
-    fun of(dir: String): EditorConfig?
-    fun of(dir: Path): EditorConfig?
+    fun of(dir: String): EditorConfigInternal?
+    fun of(dir: Path): EditorConfigInternal?
 }
