@@ -1,13 +1,11 @@
 @file:JvmName("Main")
 package com.pinterest.ktlint
 
-import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.ParseException
 import com.pinterest.ktlint.core.Reporter
 import com.pinterest.ktlint.core.ReporterProvider
 import com.pinterest.ktlint.core.RuleExecutionException
-import com.pinterest.ktlint.core.RuleSet
 import com.pinterest.ktlint.core.RuleSetProvider
 import com.pinterest.ktlint.internal.GitPreCommitHookSubCommand
 import com.pinterest.ktlint.internal.GitPrePushHookSubCommand
@@ -16,6 +14,7 @@ import com.pinterest.ktlint.internal.KtlintVersionProvider
 import com.pinterest.ktlint.internal.MavenDependencyResolver
 import com.pinterest.ktlint.internal.PrintASTSubCommand
 import com.pinterest.ktlint.internal.expandTilde
+import com.pinterest.ktlint.internal.formatFile
 import com.pinterest.ktlint.internal.fileSequence
 import com.pinterest.ktlint.internal.lintFile
 import com.pinterest.ktlint.internal.location
@@ -24,7 +23,6 @@ import java.io.File
 import java.io.IOException
 import java.io.PrintStream
 import java.net.URLDecoder
-import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.ArrayList
 import java.util.LinkedHashMap
@@ -287,7 +285,14 @@ class KtlintCommandLine {
             val result = ArrayList<LintErrorWithCorrectionInfo>()
             if (format) {
                 val formattedFileContent = try {
-                    format(fileName, fileContent, ruleSetProviders.map { it.second.get() }, userData) { err, corrected ->
+                    formatFile(
+                        fileName,
+                        fileContent,
+                        ruleSetProviders.map { it.second.get() },
+                        userData,
+                        editorConfigPath,
+                        debug
+                    ) { err, corrected ->
                         if (!corrected) {
                             result.add(LintErrorWithCorrectionInfo(err, corrected))
                             tripped.set(true)
@@ -307,7 +312,14 @@ class KtlintCommandLine {
                 }
             } else {
                 try {
-                    lintFile(fileName, fileContent, ruleSetProviders.map { it.second.get() }, userData) { err ->
+                    lintFile(
+                        fileName,
+                        fileContent,
+                        ruleSetProviders.map { it.second.get() },
+                        userData,
+                        editorConfigPath,
+                        debug
+                    ) { err ->
                         result.add(LintErrorWithCorrectionInfo(err, false))
                         tripped.set(true)
                     }
@@ -354,7 +366,7 @@ class KtlintCommandLine {
             exitProcess(1)
         }
     }
-    
+
     private fun loadReporter(dependencyResolver: Lazy<MavenDependencyResolver>, tripped: () -> Boolean): Reporter {
         data class ReporterTemplate(val id: String, val artifact: String?, val config: Map<String, String>, var output: String?)
         val tpls = (if (reporters.isEmpty()) listOf("plain") else reporters)
@@ -596,51 +608,6 @@ class KtlintCommandLine {
                 }
                 map
             }
-
-<<<<<<< HEAD
-=======
-    private fun lint(
-        fileName: String,
-        text: String,
-        ruleSets: Iterable<RuleSet>,
-        userData: Map<String, String>,
-        cb: (e: LintError) -> Unit
-    ) =
-        KtLint.lint(
-            KtLint.Params(
-                fileName = fileName,
-                text = text,
-                ruleSets = ruleSets,
-                userData = userData,
-                script = !fileName.endsWith(".kt", ignoreCase = true),
-                editorConfigPath = editorConfigPath,
-                cb = { e, _ ->
-                    cb(e)
-                },
-                debug = debug
-            )
-        )
-
->>>>>>> Add support for disabled_rules property to .editorconfig for globally disabling rules
-    private fun format(
-        fileName: String,
-        text: String,
-        ruleSets: Iterable<RuleSet>,
-        userData: Map<String, String>,
-        cb: (e: LintError, corrected: Boolean) -> Unit
-    ): String =
-        KtLint.format(
-            KtLint.Params(
-                fileName = fileName,
-                text = text,
-                ruleSets = ruleSets,
-                userData = userData,
-                script = !fileName.endsWith(".kt", ignoreCase = true),
-                editorConfigPath = editorConfigPath,
-                cb = cb,
-                debug = debug
-            )
-        )
 
     private fun java.net.URLClassLoader.addURLs(url: Iterable<java.net.URL>) {
         val method = java.net.URLClassLoader::class.java.getDeclaredMethod("addURL", java.net.URL::class.java)
