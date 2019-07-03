@@ -14,8 +14,8 @@ import com.pinterest.ktlint.internal.KtlintVersionProvider
 import com.pinterest.ktlint.internal.MavenDependencyResolver
 import com.pinterest.ktlint.internal.PrintASTSubCommand
 import com.pinterest.ktlint.internal.expandTilde
-import com.pinterest.ktlint.internal.formatFile
 import com.pinterest.ktlint.internal.fileSequence
+import com.pinterest.ktlint.internal.formatFile
 import com.pinterest.ktlint.internal.lintFile
 import com.pinterest.ktlint.internal.location
 import com.pinterest.ktlint.internal.printHelpOrVersionUsage

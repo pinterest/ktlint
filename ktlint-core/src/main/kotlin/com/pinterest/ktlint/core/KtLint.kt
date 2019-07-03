@@ -352,7 +352,8 @@ object KtLint {
             throw ParseException(line, col, errorElement.errorDescription)
         }
         val rootNode = psiFile.node
-        val mergedUserData = params.userData + userDataResolver(params.editorConfigPath, params.debug)(params.fileName)
+        // Passed-in userData overrides .editorconfig
+        val mergedUserData = userDataResolver(params.editorConfigPath, params.debug)(params.fileName) + params.userData
         injectUserData(rootNode, mergedUserData)
         var isSuppressed = calculateSuppressedRegions(rootNode)
         var tripped = false
