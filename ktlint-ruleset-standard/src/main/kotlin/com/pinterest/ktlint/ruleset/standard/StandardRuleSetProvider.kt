@@ -5,6 +5,7 @@ import com.pinterest.ktlint.core.RuleSetProvider
 
 class StandardRuleSetProvider : RuleSetProvider {
 
+    // Note: some of these rules may be disabled by default. See the default .editorconfig.
     override fun get(): RuleSet = RuleSet(
         "standard",
         AnnotationRule(),
