@@ -326,12 +326,12 @@ A complete sample project (with tests and build files) is included in this repo 
 #### AST
 
 While writing/debugging [Rule](ktlint-core/src/main/kotlin/com/pinterest/ktlint/core/Rule.kt)s it's often helpful to have an AST
-printed out to see the structure rules have to work with. ktlint >= 0.15.0 has `--print-ast` flag specifically for this purpose
-(usage: `ktlint --color --print-ast <file>`).  
+printed out to see the structure rules have to work with. ktlint >= 0.15.0 has `printAST` subcommand specifically for this purpose
+(usage: `ktlint --color printAST <file>`).
 An example of the output is shown below. 
 
 ```sh
-$ printf "fun main() {}" | ktlint --color --print-ast --stdin
+$ printf "fun main() {}" | ktlint --color printAST --stdin
 
 1: ~.psi.KtFile (~.psi.stubs.elements.KtFileElementType.kotlin.FILE)
 1:   ~.psi.KtPackageDirective (~.psi.stubs.elements.KtPlaceHolderStubElementType.PACKAGE_DIRECTIVE) ""

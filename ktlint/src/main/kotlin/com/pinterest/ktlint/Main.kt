@@ -1,7 +1,6 @@
 @file:JvmName("Main")
 package com.pinterest.ktlint
 
-import com.github.shyiko.klob.Glob
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.ParseException
@@ -16,8 +15,12 @@ import com.pinterest.ktlint.internal.GitPrePushHookSubCommand
 import com.pinterest.ktlint.internal.IntellijIDEAIntegration
 import com.pinterest.ktlint.internal.KtlintVersionProvider
 import com.pinterest.ktlint.internal.MavenDependencyResolver
+import com.pinterest.ktlint.internal.PrintASTSubCommand
+import com.pinterest.ktlint.internal.expandTilde
+import com.pinterest.ktlint.internal.fileSequence
+import com.pinterest.ktlint.internal.lintFile
+import com.pinterest.ktlint.internal.location
 import com.pinterest.ktlint.internal.printHelpOrVersionUsage
-import com.pinterest.ktlint.test.DumpAST
 import java.io.File
 import java.io.IOException
 import java.io.PrintStream
@@ -56,6 +59,7 @@ fun main(args: Array<String>) {
     val commandLine = CommandLine(ktlintCommand)
         .addSubcommand(GitPreCommitHookSubCommand.COMMAND_NAME, GitPreCommitHookSubCommand())
         .addSubcommand(GitPrePushHookSubCommand.COMMAND_NAME, GitPrePushHookSubCommand())
+        .addSubcommand(PrintASTSubCommand.COMMAND_NAME, PrintASTSubCommand())
     val parseResult = commandLine.parseArgs(*args)
 
     commandLine.printHelpOrVersionUsage()
@@ -74,6 +78,7 @@ fun handleSubCommand(
     when (val subCommand = parseResult.subcommand().commandSpec().userObject()) {
         is GitPreCommitHookSubCommand -> subCommand.run()
         is GitPrePushHookSubCommand -> subCommand.run()
+        is PrintASTSubCommand -> subCommand.run()
         else -> commandLine.usage(System.out, CommandLine.Help.Ansi.OFF)
     }
 }
@@ -139,13 +144,13 @@ class KtlintCommandLine {
         names = ["--color"],
         description = ["Make output colorful"]
     )
-    private var color: Boolean = false
+    var color: Boolean = false
 
     @Option(
         names = ["--debug"],
         description = ["Turn on debug output"]
     )
-    private var debug: Boolean = false
+    var debug: Boolean = false
 
     // todo: this should have been a command, not a flag (consider changing in 1.0.0)
     @Option(
@@ -162,19 +167,13 @@ class KtlintCommandLine {
         get() = if (field < 0) Int.MAX_VALUE else field
 
     @Option(
-        names = ["--print-ast"],
-        description = ["Print AST (useful when writing/debugging rules)"]
-    )
-    private var printAST: Boolean = false
-
-    @Option(
         names = ["--relative"],
         description = [
             "Print files relative to the working directory " +
                 "(e.g. dir/file.kt instead of /home/user/project/dir/file.kt)"
         ]
     )
-    private var relative: Boolean = false
+    var relative: Boolean = false
 
     @Option(
         names = ["--reporter"],
@@ -248,15 +247,10 @@ class KtlintCommandLine {
     private var patterns = ArrayList<String>()
 
     private val workDir = File(".").canonicalPath
-    private fun File.location() = if (relative) this.toRelativeString(File(workDir)) else this.path
 
     fun run() {
         if (apply || applyToProject) {
             applyToIDEA()
-            exitProcess(0)
-        }
-        if (printAST) {
-            printAST()
             exitProcess(0)
         }
         val start = System.currentTimeMillis()
@@ -289,7 +283,8 @@ class KtlintCommandLine {
         data class LintErrorWithCorrectionInfo(val err: LintError, val corrected: Boolean)
         fun process(fileName: String, fileContent: String): List<LintErrorWithCorrectionInfo> {
             if (debug) {
-                System.err.println("[DEBUG] Checking ${if (fileName != "<text>") File(fileName).location() else fileName}")
+                val fileLocation = if (fileName != "<text>") File(fileName).location(relative) else fileName
+                System.err.println("[DEBUG] Checking $fileLocation")
             }
             val result = ArrayList<LintErrorWithCorrectionInfo>()
             val userData = resolveUserData(fileName)
@@ -315,7 +310,7 @@ class KtlintCommandLine {
                 }
             } else {
                 try {
-                    lint(fileName, fileContent, ruleSetProviders.map { it.second.get() }, userData) { err ->
+                    lintFile(fileName, fileContent, ruleSetProviders.map { it.second.get() }, userData) { err ->
                         result.add(LintErrorWithCorrectionInfo(err, false))
                         tripped.set(true)
                     }
@@ -345,10 +340,10 @@ class KtlintCommandLine {
         if (stdin) {
             report("<text>", process("<text>", String(System.`in`.readBytes())))
         } else {
-            fileSequence()
+            patterns.fileSequence()
                 .takeWhile { errorNumber.get() < limit }
                 .map { file -> Callable { file to process(file.path, file.readText()) } }
-                .parallel({ (file, errList) -> report(file.location(), errList) })
+                .parallel({ (file, errList) -> report(file.location(relative), errList) })
         }
         reporter.afterAll()
         if (debug) {
@@ -401,7 +396,7 @@ class KtlintCommandLine {
     private fun printEditorConfigChain(ec: EditorConfig, predicate: (EditorConfig) -> Boolean = { true }) {
         for (lec in generateSequence(ec) { it.parent }.takeWhile(predicate)) {
             System.err.println(
-                "[DEBUG] Discovered .editorconfig (${lec.path.parent.toFile().location()})" +
+                "[DEBUG] Discovered .editorconfig (${lec.path.parent.toFile().location(relative)})" +
                     " {${lec.entries.joinToString(", ")}}"
             )
         }
@@ -460,7 +455,8 @@ class KtlintCommandLine {
                                 reporter.afterAll()
                                 stream.close()
                                 if (tripped()) {
-                                    System.err.println("\"$id\" report written to ${File(output).absoluteFile.location()}")
+                                    val outputLocation = File(output).absoluteFile.location(relative)
+                                    System.err.println("\"$id\" report written to $outputLocation")
                                 }
                             }
                         }
@@ -494,41 +490,6 @@ class KtlintCommandLine {
             else -> throw e
         }
     }
-
-    private fun printAST() {
-        fun process(fileName: String, fileContent: String) {
-            if (debug) {
-                System.err.println("[DEBUG] Analyzing ${if (fileName != "<text>") File(fileName).location() else fileName}")
-            }
-            try {
-                lint(fileName, fileContent, listOf(RuleSet("debug", DumpAST(System.out, color))), emptyMap()) {}
-            } catch (e: Exception) {
-                if (e is ParseException) {
-                    throw ParseException(e.line, e.col, "Not a valid Kotlin file (${e.message?.toLowerCase()})")
-                }
-                throw e
-            }
-        }
-        if (stdin) {
-            process("<text>", String(System.`in`.readBytes()))
-        } else {
-            for (file in fileSequence()) {
-                process(file.path, file.readText())
-            }
-        }
-    }
-
-    private fun fileSequence() =
-        when {
-            patterns.isEmpty() ->
-                Glob.from("**/*.kt", "**/*.kts")
-                    .iterate(Paths.get(workDir), Glob.IterationOption.SKIP_HIDDEN)
-            else ->
-                Glob.from(*patterns.map { expandTilde(it) }.toTypedArray())
-                    .iterate(Paths.get(workDir))
-        }
-            .asSequence()
-            .map(Path::toFile)
 
     private fun applyToIDEA() {
         try {
@@ -565,10 +526,6 @@ class KtlintCommandLine {
         System.err.println("\nPlease restart your IDE")
         System.err.println("(if you experience any issues please report them at https://github.com/pinterest/ktlint)")
     }
-
-    // a complete solution would be to implement https://www.gnu.org/software/bash/manual/html_node/Tilde-Expansion.html
-    // this implementation takes care only of the most commonly used case (~/)
-    private fun expandTilde(path: String) = path.replaceFirst(Regex("^~"), System.getProperty("user.home"))
 
     private fun <T> List<T>.head(limit: Int) = if (limit == size) this else this.subList(0, limit)
 
@@ -686,19 +643,6 @@ class KtlintCommandLine {
                 }
                 map
             }
-
-    private fun lint(
-        fileName: String,
-        text: String,
-        ruleSets: Iterable<RuleSet>,
-        userData: Map<String, String>,
-        cb: (e: LintError) -> Unit
-    ) =
-        if (fileName.endsWith(".kt", ignoreCase = true)) {
-            KtLint.lint(text, ruleSets, userData, cb)
-        } else {
-            KtLint.lintScript(text, ruleSets, userData, cb)
-        }
 
     private fun format(
         fileName: String,
