@@ -21,7 +21,6 @@ class StandardRuleSetProvider : RuleSetProvider {
         NoBlankLineBeforeRbraceRule(),
         NoConsecutiveBlankLinesRule(),
         NoEmptyClassBodyRule(),
-        NoItParamInMultilineLambdaRule(),
         NoLineBreakAfterElseRule(),
         NoLineBreakBeforeAssignmentRule(),
         NoMultipleSpacesRule(),

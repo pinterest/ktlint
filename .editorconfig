@@ -16,7 +16,7 @@ indent_size = 4
 # multiline-if-else - disabled until auto-correct is working properly
 #   (e.g. try formatting "if (true)\n    return { _ ->\n        _\n}")
 # no-it-in-multiline-lambda - disabled until it's clear what to do in case of `import _.it`
-disabled_rules=annotation,multiline-if-else,no-it-in-multiline-lambda
+disabled_rules=annotation,multiline-if-else
 
 [{Makefile,*.go}]
 indent_style = tab
