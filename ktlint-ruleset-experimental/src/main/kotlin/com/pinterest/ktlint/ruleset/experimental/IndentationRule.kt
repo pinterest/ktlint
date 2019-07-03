@@ -131,7 +131,7 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         val editorConfig = node.getUserData(KtLint.EDITOR_CONFIG_USER_DATA_KEY)!!
-        if (editorConfig.indentStyle == EditorConfig.IntentStyle.TAB || editorConfig.indentSize <= 1) {
+        if (editorConfig.indentStyle == EditorConfig.IndentStyle.TAB || editorConfig.indentSize <= 1) {
             return
         }
         reset()
