@@ -43,6 +43,7 @@ object KtLint {
     val EDITOR_CONFIG_USER_DATA_KEY = Key<EditorConfig>("EDITOR_CONFIG")
     val ANDROID_USER_DATA_KEY = Key<Boolean>("ANDROID")
     val FILE_PATH_USER_DATA_KEY = Key<String>("FILE_PATH")
+    val DISABLED_RULES = Key<Set<String>>("DISABLED_RULES")
 
     private val psiFileFactory: PsiFileFactory
     private val nullSuppression = { _: Int, _: String, _: Boolean -> false }
@@ -227,6 +228,7 @@ object KtLint {
         node.putUserData(FILE_PATH_USER_DATA_KEY, userData["file_path"])
         node.putUserData(EDITOR_CONFIG_USER_DATA_KEY, EditorConfig.fromMap(editorConfigMap - "android" - "file_path"))
         node.putUserData(ANDROID_USER_DATA_KEY, android)
+        node.putUserData(DISABLED_RULES, userData["disabled_rules"]?.split(",")?.toSet() ?: emptySet())
     }
 
     private fun visitor(
@@ -295,7 +297,7 @@ object KtLint {
     }
 
     private fun filterDisabledRules(rootNode: ASTNode, fqRuleId: String): Boolean {
-        return rootNode.getUserData(EDITOR_CONFIG_USER_DATA_KEY)?.disabledRules?.contains(fqRuleId) == false
+        return rootNode.getUserData(DISABLED_RULES)?.contains(fqRuleId) == false
     }
 
     private fun calculateLineColByOffset(text: String): (offset: Int) -> Pair<Int, Int> {

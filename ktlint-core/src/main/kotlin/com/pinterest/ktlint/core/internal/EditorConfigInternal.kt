@@ -8,6 +8,9 @@ import java.util.Properties
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 
+/**
+ * This class handles traversing the filetree and parsing and merging the contents of any discovered .editorconfig files
+ */
 class EditorConfigInternal private constructor (
     val parent: EditorConfigInternal?,
     val path: Path,

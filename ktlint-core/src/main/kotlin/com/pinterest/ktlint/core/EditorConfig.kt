@@ -2,6 +2,8 @@ package com.pinterest.ktlint.core
 
 /**
  * @see [EditorConfig](http://editorconfig.org/)
+ *
+ * This class is injected into the user data, so it is available to rules via [KtLint.EDITOR_CONFIG_USER_DATA_KEY]
  */
 interface EditorConfig {
 
@@ -12,7 +14,6 @@ interface EditorConfig {
     val tabWidth: Int
     val maxLineLength: Int
     val insertFinalNewline: Boolean
-    val disabledRules: Set<String>
     fun get(key: String): String?
 
     companion object {
@@ -27,14 +28,12 @@ interface EditorConfig {
             val tabWidth = map["indent_size"]?.toIntOrNull()
             val maxLineLength = map["max_line_length"]?.toIntOrNull() ?: -1
             val insertFinalNewline = map["insert_final_newline"]?.toBoolean() ?: true
-            val disabledRules = map["disabled_rules"]?.split(",")?.toSet() ?: emptySet()
             return object : EditorConfig {
                 override val indentStyle = indentStyle
                 override val indentSize = indentSize
                 override val tabWidth = tabWidth ?: indentSize
                 override val maxLineLength = maxLineLength
                 override val insertFinalNewline = insertFinalNewline
-                override val disabledRules: Set<String> = disabledRules
                 override fun get(key: String): String? = map[key]
             }
         }
