@@ -43,5 +43,4 @@ dependencies {
 
   testImplementation deps.junit
   testImplementation deps.assertj
-  testImplementation deps.jimfs
 }

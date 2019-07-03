@@ -11,27 +11,23 @@ import org.assertj.core.util.diff.DiffUtils.generateUnifiedDiff
 fun Rule.lint(text: String, userData: Map<String, String> = emptyMap(), script: Boolean = false): List<LintError> {
     val res = ArrayList<LintError>()
     val debug = debugAST()
-    val f: L = if (script) KtLint::lintScript else KtLint::lint
-    f(
-        text,
-        (if (debug) listOf(RuleSet("debug", DumpAST())) else emptyList()) +
-            listOf(RuleSet("standard", this@lint)),
-        userData
-    ) { e ->
-        if (debug) {
-            System.err.println("^^ lint error")
-        }
-        res.add(e)
-    }
+    KtLint.lint(
+        KtLint.Params(
+            text = text,
+            ruleSets = (if (debug) listOf(RuleSet("debug", DumpAST())) else emptyList()) +
+                listOf(RuleSet("standard", this@lint)),
+            userData = userData,
+            script = script,
+            cb = { e, _ ->
+                if (debug) {
+                    System.err.println("^^ lint error")
+                }
+                res.add(e)
+            }
+        )
+    )
     return res
 }
-
-private typealias L = (
-    text: String,
-    ruleSets: Iterable<RuleSet>,
-    userData: Map<String, String>,
-    cb: (e: LintError) -> Unit
-) -> Unit
 
 fun Rule.format(
     text: String,
@@ -39,21 +35,18 @@ fun Rule.format(
     cb: (e: LintError, corrected: Boolean) -> Unit = { _, _ -> },
     script: Boolean = false
 ): String {
-    val f: F = if (script) KtLint::formatScript else KtLint::format
-    return f(
-        text,
-        (if (debugAST()) listOf(RuleSet("debug", DumpAST())) else emptyList()) +
-            listOf(RuleSet("standard", this@format)),
-        userData, cb
+    return KtLint.format(
+        KtLint.Params(
+            text = text,
+            ruleSets = (if (debugAST()) listOf(RuleSet("debug", DumpAST())) else emptyList()) +
+                listOf(RuleSet("standard", this@format)),
+            userData = userData,
+            script = script,
+            cb = cb
+        )
+
     )
 }
-
-private typealias F = (
-    text: String,
-    ruleSets: Iterable<RuleSet>,
-    userData: Map<String, String>,
-    cb: (e: LintError, corrected: Boolean) -> Unit
-) -> String
 
 fun Rule.diffFileLint(path: String, userData: Map<String, String> = emptyMap()): String {
     val resourceText = getResourceAsText(path).replace("\r\n", "\n")

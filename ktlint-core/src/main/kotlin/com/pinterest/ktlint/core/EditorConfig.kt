@@ -2,12 +2,14 @@ package com.pinterest.ktlint.core
 
 /**
  * @see [EditorConfig](http://editorconfig.org/)
+ *
+ * This class is injected into the user data, so it is available to rules via [KtLint.EDITOR_CONFIG_USER_DATA_KEY]
  */
 interface EditorConfig {
 
-    enum class IntentStyle { SPACE, TAB }
+    enum class IndentStyle { SPACE, TAB }
 
-    val indentStyle: IntentStyle
+    val indentStyle: IndentStyle
     val indentSize: Int
     val tabWidth: Int
     val maxLineLength: Int
@@ -17,8 +19,8 @@ interface EditorConfig {
     companion object {
         fun fromMap(map: Map<String, String>): EditorConfig {
             val indentStyle = when {
-                map["indent_style"]?.toLowerCase() == "tab" -> IntentStyle.TAB
-                else -> IntentStyle.SPACE
+                map["indent_style"]?.toLowerCase() == "tab" -> IndentStyle.TAB
+                else -> IndentStyle.SPACE
             }
             val indentSize = map["indent_size"].let { v ->
                 if (v?.toLowerCase() == "unset") -1 else v?.toIntOrNull() ?: 4

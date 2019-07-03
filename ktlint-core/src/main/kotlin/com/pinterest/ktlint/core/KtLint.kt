@@ -1,8 +1,14 @@
 package com.pinterest.ktlint.core
 
 import com.pinterest.ktlint.core.ast.prevLeaf
+import com.pinterest.ktlint.core.internal.EditorConfigInternal
+import java.io.File
+import java.nio.file.Path
+import java.nio.file.Paths
 import java.util.ArrayList
 import java.util.HashSet
+import java.util.concurrent.ConcurrentHashMap
+import org.jetbrains.kotlin.backend.common.onlyIf
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
@@ -37,9 +43,31 @@ object KtLint {
     val EDITOR_CONFIG_USER_DATA_KEY = Key<EditorConfig>("EDITOR_CONFIG")
     val ANDROID_USER_DATA_KEY = Key<Boolean>("ANDROID")
     val FILE_PATH_USER_DATA_KEY = Key<String>("FILE_PATH")
+    val DISABLED_RULES = Key<Set<String>>("DISABLED_RULES")
 
     private val psiFileFactory: PsiFileFactory
     private val nullSuppression = { _: Int, _: String, _: Boolean -> false }
+
+    /**
+     * @param fileName path of file to lint/format
+     * @param text Contents of file to lint/format
+     * @param ruleSets a collection of "RuleSet"s used to validate source
+     * @param userData Map of user options
+     * @param cb callback invoked for each lint error
+     * @param script true if this is a Kotlin script file
+     * @param editorConfigPath optional path of the .editorconfig file (otherwise will use working directory)
+     * @param debug True if invoked with the --debug flag
+     */
+    data class Params(
+        val fileName: String? = null,
+        val text: String,
+        val ruleSets: Iterable<RuleSet>,
+        val userData: Map<String, String> = emptyMap(),
+        val cb: (e: LintError, corrected: Boolean) -> Unit,
+        val script: Boolean = false,
+        val editorConfigPath: String? = null,
+        val debug: Boolean = false
+    )
 
     init {
         // do not print anything to the stderr when lexer is unable to match input
@@ -93,65 +121,25 @@ object KtLint {
     /**
      * Check source for lint errors.
      *
-     * @param text source
-     * @param ruleSets a collection of "RuleSet"s used to validate source
-     * @param cb callback that is going to be executed for every lint error
-     *
      * @throws ParseException if text is not a valid Kotlin code
      * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
      */
-    fun lint(text: String, ruleSets: Iterable<RuleSet>, cb: (e: LintError) -> Unit) {
-        lint(text, ruleSets, emptyMap(), cb, script = false)
-    }
-
-    fun lint(text: String, ruleSets: Iterable<RuleSet>, userData: Map<String, String>, cb: (e: LintError) -> Unit) {
-        lint(text, ruleSets, userData, cb, script = false)
-    }
-
-    /**
-     * Check source for lint errors.
-     *
-     * @param text script source
-     * @param ruleSets a collection of "RuleSet"s used to validate source
-     * @param cb callback that is going to be executed for every lint error
-     *
-     * @throws ParseException if text is not a valid Kotlin code
-     * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
-     */
-    fun lintScript(text: String, ruleSets: Iterable<RuleSet>, cb: (e: LintError) -> Unit) {
-        lint(text, ruleSets, emptyMap(), cb, script = true)
-    }
-
-    fun lintScript(
-        text: String,
-        ruleSets: Iterable<RuleSet>,
-        userData: Map<String, String>,
-        cb: (e: LintError) -> Unit
-    ) {
-        lint(text, ruleSets, userData, cb, script = true)
-    }
-
-    private fun lint(
-        text: String,
-        ruleSets: Iterable<RuleSet>,
-        userData: Map<String, String>,
-        cb: (e: LintError) -> Unit,
-        script: Boolean
-    ) {
-        val normalizedText = text.replace("\r\n", "\n").replace("\r", "\n")
+    fun lint(params: Params) {
+        val normalizedText = params.text.replace("\r\n", "\n").replace("\r", "\n")
         val positionByOffset = calculateLineColByOffset(normalizedText)
-        val fileName = if (script) "file.kts" else "file.kt"
-        val psiFile = psiFileFactory.createFileFromText(fileName, KotlinLanguage.INSTANCE, normalizedText) as KtFile
+        val psiFileName = if (params.script) "file.kts" else "file.kt"
+        val psiFile = psiFileFactory.createFileFromText(psiFileName, KotlinLanguage.INSTANCE, normalizedText) as KtFile
         val errorElement = psiFile.findErrorElement()
         if (errorElement != null) {
             val (line, col) = positionByOffset(errorElement.textOffset)
             throw ParseException(line, col, errorElement.errorDescription)
         }
         val rootNode = psiFile.node
-        injectUserData(rootNode, userData)
+        val mergedUserData = params.userData + userDataResolver(params.editorConfigPath, params.debug)(params.fileName)
+        injectUserData(rootNode, mergedUserData)
         val isSuppressed = calculateSuppressedRegions(rootNode)
         val errors = mutableListOf<LintError>()
-        visitor(rootNode, ruleSets).invoke { node, rule, fqRuleId ->
+        visitor(rootNode, params.ruleSets).invoke { node, rule, fqRuleId ->
             // fixme: enforcing suppression based on node.startOffset is wrong
             // (not just because not all nodes are leaves but because rules are free to emit (and fix!) errors at any position)
             if (!isSuppressed(node.startOffset, fqRuleId, node === rootNode)) {
@@ -172,7 +160,59 @@ object KtLint {
         }
         errors
             .sortedWith(Comparator { l, r -> if (l.line != r.line) l.line - r.line else l.col - r.col })
-            .forEach(cb)
+            .forEach { e -> params.cb(e, false) }
+    }
+
+    private fun userDataResolver(editorConfigPath: String?, debug: Boolean): (String?) -> Map<String, String> {
+        if (editorConfigPath != null) {
+            val userData = (
+                EditorConfigInternal.of(File(editorConfigPath).canonicalPath)
+                    ?.onlyIf({ debug }) { printEditorConfigChain(it) }
+                    ?: emptyMap<String, String>()
+                )
+            return fun (fileName: String?) = if (fileName != null) {
+                userData + ("file_path" to fileName)
+            } else {
+                emptyMap()
+            }
+        }
+        val workDir = File(".").canonicalPath
+        val workdirUserData = lazy {
+            (
+                EditorConfigInternal.of(workDir)
+                    ?.onlyIf({ debug }) { printEditorConfigChain(it) }
+                    ?: emptyMap<String, String>()
+                )
+        }
+        val editorConfig = EditorConfigInternal.cached()
+        val editorConfigSet = ConcurrentHashMap<Path, Boolean>()
+        return fun (fileName: String?): Map<String, String> {
+            if (fileName == null) {
+                return emptyMap()
+            }
+
+            if (fileName == "<text>") {
+                return workdirUserData.value
+            }
+            return (
+                editorConfig.of(Paths.get(fileName).parent)
+                    ?.onlyIf({ debug }) {
+                        printEditorConfigChain(it) {
+                            editorConfigSet.put(it.path, true) != true
+                        }
+                    }
+                    ?: emptyMap<String, String>()
+                ) + ("file_path" to fileName)
+        }
+    }
+
+    private fun printEditorConfigChain(ec: EditorConfigInternal, predicate: (EditorConfigInternal) -> Boolean = { true }) {
+        for (lec in generateSequence(ec) { it.parent }.takeWhile(predicate)) {
+            System.err.println(
+                "[DEBUG] Discovered .editorconfig (${lec.path.parent.toFile().path})" +
+                    " {${lec.entries.joinToString(", ")}}"
+            )
+        }
     }
 
     private fun injectUserData(node: ASTNode, userData: Map<String, String>) {
@@ -188,13 +228,15 @@ object KtLint {
         node.putUserData(FILE_PATH_USER_DATA_KEY, userData["file_path"])
         node.putUserData(EDITOR_CONFIG_USER_DATA_KEY, EditorConfig.fromMap(editorConfigMap - "android" - "file_path"))
         node.putUserData(ANDROID_USER_DATA_KEY, android)
+        node.putUserData(DISABLED_RULES, userData["disabled_rules"]?.split(",")?.toSet() ?: emptySet())
     }
 
     private fun visitor(
         rootNode: ASTNode,
         ruleSets: Iterable<RuleSet>,
         concurrent: Boolean = true,
-        filter: (fqRuleId: String) -> Boolean = { true }
+        filter: (rootNode: ASTNode, fqRuleId: String) -> Boolean = this::filterDisabledRules
+
     ): ((node: ASTNode, rule: Rule, fqRuleId: String) -> Unit) -> Unit {
         val fqrsRestrictedToRoot = mutableListOf<Pair<String, Rule>>()
         val fqrs = mutableListOf<Pair<String, Rule>>()
@@ -204,7 +246,7 @@ object KtLint {
             val prefix = if (ruleSet.id === "standard") "" else "${ruleSet.id}:"
             for (rule in ruleSet) {
                 val fqRuleId = "$prefix${rule.id}"
-                if (!filter(fqRuleId)) {
+                if (!filter(rootNode, fqRuleId)) {
                     continue
                 }
                 val fqr = fqRuleId to rule
@@ -254,6 +296,10 @@ object KtLint {
         }
     }
 
+    private fun filterDisabledRules(rootNode: ASTNode, fqRuleId: String): Boolean {
+        return rootNode.getUserData(DISABLED_RULES)?.contains(fqRuleId) == false
+    }
+
     private fun calculateLineColByOffset(text: String): (offset: Int) -> Pair<Int, Int> {
         var i = -1
         val e = text.length
@@ -292,69 +338,27 @@ object KtLint {
     /**
      * Fix style violations.
      *
-     * @param text source
-     * @param ruleSets a collection of "RuleSet"s used to validate source
-     * @param cb callback that is going to be executed for every lint error
-     *
      * @throws ParseException if text is not a valid Kotlin code
      * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
      */
-    fun format(text: String, ruleSets: Iterable<RuleSet>, cb: (e: LintError, corrected: Boolean) -> Unit): String =
-        format(text, ruleSets, emptyMap<String, String>(), cb, script = false)
-
-    fun format(
-        text: String,
-        ruleSets: Iterable<RuleSet>,
-        userData: Map<String, String>,
-        cb: (e: LintError, corrected: Boolean) -> Unit
-    ): String = format(text, ruleSets, userData, cb, script = false)
-
-    /**
-     * Fix style violations.
-     *
-     * @param text script source
-     * @param ruleSets a collection of "RuleSet"s used to validate source
-     * @param cb callback that is going to be executed for every lint error
-     *
-     * @throws ParseException if text is not a valid Kotlin code
-     * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
-     */
-    fun formatScript(
-        text: String,
-        ruleSets: Iterable<RuleSet>,
-        cb: (e: LintError, corrected: Boolean) -> Unit
-    ): String =
-        format(text, ruleSets, emptyMap(), cb, script = true)
-
-    fun formatScript(
-        text: String,
-        ruleSets: Iterable<RuleSet>,
-        userData: Map<String, String>,
-        cb: (e: LintError, corrected: Boolean) -> Unit
-    ): String = format(text, ruleSets, userData, cb, script = true)
-
-    private fun format(
-        text: String,
-        ruleSets: Iterable<RuleSet>,
-        userData: Map<String, String>,
-        cb: (e: LintError, corrected: Boolean) -> Unit,
-        script: Boolean
-    ): String {
-        val normalizedText = text.replace("\r\n", "\n").replace("\r", "\n")
+    fun format(params: Params): String {
+        val normalizedText = params.text.replace("\r\n", "\n").replace("\r", "\n")
         val positionByOffset = calculateLineColByOffset(normalizedText)
-        val fileName = if (script) "file.kts" else "file.kt"
-        val psiFile = psiFileFactory.createFileFromText(fileName, KotlinLanguage.INSTANCE, normalizedText) as KtFile
+        val psiFileName = if (params.script) "file.kts" else "file.kt"
+        val psiFile = psiFileFactory.createFileFromText(psiFileName, KotlinLanguage.INSTANCE, normalizedText) as KtFile
         val errorElement = psiFile.findErrorElement()
         if (errorElement != null) {
             val (line, col) = positionByOffset(errorElement.textOffset)
             throw ParseException(line, col, errorElement.errorDescription)
         }
         val rootNode = psiFile.node
-        injectUserData(rootNode, userData)
+        // Passed-in userData overrides .editorconfig
+        val mergedUserData = userDataResolver(params.editorConfigPath, params.debug)(params.fileName) + params.userData
+        injectUserData(rootNode, mergedUserData)
         var isSuppressed = calculateSuppressedRegions(rootNode)
         var tripped = false
         var mutated = false
-        visitor(rootNode, ruleSets, concurrent = false)
+        visitor(rootNode, params.ruleSets, concurrent = false)
             .invoke { node, rule, fqRuleId ->
                 // fixme: enforcing suppression based on node.startOffset is wrong
                 // (not just because not all nodes are leaves but because rules are free to emit (and fix!) errors at any position)
@@ -378,7 +382,7 @@ object KtLint {
             }
         if (tripped) {
             val errors = mutableListOf<Pair<LintError, Boolean>>()
-            visitor(rootNode, ruleSets).invoke { node, rule, fqRuleId ->
+            visitor(rootNode, params.ruleSets).invoke { node, rule, fqRuleId ->
                 // fixme: enforcing suppression based on node.startOffset is wrong
                 // (not just because not all nodes are leaves but because rules are free to emit (and fix!) errors at any position)
                 if (!isSuppressed(node.startOffset, fqRuleId, node === rootNode)) {
@@ -399,9 +403,9 @@ object KtLint {
             }
             errors
                 .sortedWith(Comparator { (l), (r) -> if (l.line != r.line) l.line - r.line else l.col - r.col })
-                .forEach { (e, corrected) -> cb(e, corrected) }
+                .forEach { (e, corrected) -> params.cb(e, corrected) }
         }
-        return if (mutated) rootNode.text.replace("\n", determineLineSeparator(text, userData)) else text
+        return if (mutated) rootNode.text.replace("\n", determineLineSeparator(params.text, params.userData)) else params.text
     }
 
     private fun determineLineSeparator(fileContent: String, userData: Map<String, String>): String {

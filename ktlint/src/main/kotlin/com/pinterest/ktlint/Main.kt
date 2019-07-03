@@ -1,15 +1,12 @@
 @file:JvmName("Main")
 package com.pinterest.ktlint
 
-import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.ParseException
 import com.pinterest.ktlint.core.Reporter
 import com.pinterest.ktlint.core.ReporterProvider
 import com.pinterest.ktlint.core.RuleExecutionException
-import com.pinterest.ktlint.core.RuleSet
 import com.pinterest.ktlint.core.RuleSetProvider
-import com.pinterest.ktlint.internal.EditorConfig
 import com.pinterest.ktlint.internal.GitPreCommitHookSubCommand
 import com.pinterest.ktlint.internal.GitPrePushHookSubCommand
 import com.pinterest.ktlint.internal.IntellijIDEAIntegration
@@ -18,6 +15,7 @@ import com.pinterest.ktlint.internal.MavenDependencyResolver
 import com.pinterest.ktlint.internal.PrintASTSubCommand
 import com.pinterest.ktlint.internal.expandTilde
 import com.pinterest.ktlint.internal.fileSequence
+import com.pinterest.ktlint.internal.formatFile
 import com.pinterest.ktlint.internal.lintFile
 import com.pinterest.ktlint.internal.location
 import com.pinterest.ktlint.internal.printHelpOrVersionUsage
@@ -25,7 +23,6 @@ import java.io.File
 import java.io.IOException
 import java.io.PrintStream
 import java.net.URLDecoder
-import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.ArrayList
 import java.util.LinkedHashMap
@@ -34,7 +31,6 @@ import java.util.Scanner
 import java.util.ServiceLoader
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.Callable
-import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
@@ -48,7 +44,6 @@ import org.eclipse.aether.repository.RemoteRepository
 import org.eclipse.aether.repository.RepositoryPolicy
 import org.eclipse.aether.repository.RepositoryPolicy.CHECKSUM_POLICY_IGNORE
 import org.eclipse.aether.repository.RepositoryPolicy.UPDATE_POLICY_NEVER
-import org.jetbrains.kotlin.backend.common.onlyIf
 import picocli.CommandLine
 import picocli.CommandLine.Command
 import picocli.CommandLine.Option
@@ -254,6 +249,7 @@ class KtlintCommandLine {
             exitProcess(0)
         }
         val start = System.currentTimeMillis()
+
         // load 3rd party ruleset(s) (if any)
         val dependencyResolver = lazy(LazyThreadSafetyMode.NONE) { buildDependencyResolver() }
         if (!rulesets.isEmpty()) {
@@ -279,18 +275,24 @@ class KtlintCommandLine {
         }
         val tripped = AtomicBoolean()
         val reporter = loadReporter(dependencyResolver) { tripped.get() }
-        val resolveUserData = userDataResolver()
         data class LintErrorWithCorrectionInfo(val err: LintError, val corrected: Boolean)
+        val userData = mapOf("android" to android.toString())
         fun process(fileName: String, fileContent: String): List<LintErrorWithCorrectionInfo> {
             if (debug) {
                 val fileLocation = if (fileName != "<text>") File(fileName).location(relative) else fileName
                 System.err.println("[DEBUG] Checking $fileLocation")
             }
             val result = ArrayList<LintErrorWithCorrectionInfo>()
-            val userData = resolveUserData(fileName)
             if (format) {
                 val formattedFileContent = try {
-                    format(fileName, fileContent, ruleSetProviders.map { it.second.get() }, userData) { err, corrected ->
+                    formatFile(
+                        fileName,
+                        fileContent,
+                        ruleSetProviders.map { it.second.get() },
+                        userData,
+                        editorConfigPath,
+                        debug
+                    ) { err, corrected ->
                         if (!corrected) {
                             result.add(LintErrorWithCorrectionInfo(err, corrected))
                             tripped.set(true)
@@ -310,7 +312,14 @@ class KtlintCommandLine {
                 }
             } else {
                 try {
-                    lintFile(fileName, fileContent, ruleSetProviders.map { it.second.get() }, userData) { err ->
+                    lintFile(
+                        fileName,
+                        fileContent,
+                        ruleSetProviders.map { it.second.get() },
+                        userData,
+                        editorConfigPath,
+                        debug
+                    ) { err ->
                         result.add(LintErrorWithCorrectionInfo(err, false))
                         tripped.set(true)
                     }
@@ -355,50 +364,6 @@ class KtlintCommandLine {
         }
         if (tripped.get()) {
             exitProcess(1)
-        }
-    }
-
-    private fun userDataResolver(): (String) -> Map<String, String> {
-        val cliUserData = mapOf("android" to android.toString())
-        if (editorConfigPath != null) {
-            val userData = (
-                EditorConfig.of(File(editorConfigPath).canonicalPath)
-                    ?.onlyIf({ debug }) { printEditorConfigChain(it) }
-                    ?: emptyMap<String, String>()
-                ) + cliUserData
-            return fun (fileName: String) = userData + ("file_path" to fileName)
-        }
-        val workdirUserData = lazy {
-            (
-                EditorConfig.of(workDir)
-                    ?.onlyIf({ debug }) { printEditorConfigChain(it) }
-                    ?: emptyMap<String, String>()
-                ) + cliUserData
-        }
-        val editorConfig = EditorConfig.cached()
-        val editorConfigSet = ConcurrentHashMap<Path, Boolean>()
-        return fun (fileName: String): Map<String, String> {
-            if (fileName == "<text>") {
-                return workdirUserData.value
-            }
-            return (
-                editorConfig.of(Paths.get(fileName).parent)
-                    ?.onlyIf({ debug }) {
-                        printEditorConfigChain(it) {
-                            editorConfigSet.put(it.path, true) != true
-                        }
-                    }
-                    ?: emptyMap<String, String>()
-                ) + cliUserData + ("file_path" to fileName)
-        }
-    }
-
-    private fun printEditorConfigChain(ec: EditorConfig, predicate: (EditorConfig) -> Boolean = { true }) {
-        for (lec in generateSequence(ec) { it.parent }.takeWhile(predicate)) {
-            System.err.println(
-                "[DEBUG] Discovered .editorconfig (${lec.path.parent.toFile().location(relative)})" +
-                    " {${lec.entries.joinToString(", ")}}"
-            )
         }
     }
 
@@ -643,19 +608,6 @@ class KtlintCommandLine {
                 }
                 map
             }
-
-    private fun format(
-        fileName: String,
-        text: String,
-        ruleSets: Iterable<RuleSet>,
-        userData: Map<String, String>,
-        cb: (e: LintError, corrected: Boolean) -> Unit
-    ): String =
-        if (fileName.endsWith(".kt", ignoreCase = true)) {
-            KtLint.format(text, ruleSets, userData, cb)
-        } else {
-            KtLint.formatScript(text, ruleSets, userData, cb)
-        }
 
     private fun java.net.URLClassLoader.addURLs(url: Iterable<java.net.URL>) {
         val method = java.net.URLClassLoader::class.java.getDeclaredMethod("addURL", java.net.URL::class.java)
