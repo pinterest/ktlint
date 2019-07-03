@@ -329,7 +329,18 @@ class AnnotationRuleTest {
 
             data class FileModel(val uri: String, val name: String)
             """.trimIndent()
-        assertThat(AnnotationRule().format(code)).isEqualTo(code)
+        assertThat(AnnotationRule().lint(code)).isEmpty()
+    }
+
+    @Test
+    fun `no annotation present for function override passes`() {
+        val code =
+            """
+            package com.example.application.a.b
+
+            override fun foo()
+            """.trimIndent()
+        assertThat(AnnotationRule().lint(code)).isEmpty()
     }
 
     @Test
@@ -344,6 +355,6 @@ class AnnotationRuleTest {
                 fun gallery(): String = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).path
             }
             """.trimIndent()
-        assertThat(AnnotationRule().format(code)).isEqualTo(code)
+        assertThat(AnnotationRule().lint(code)).isEmpty()
     }
 }
