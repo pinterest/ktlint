@@ -429,7 +429,7 @@ class NoUnusedImportsRuleTest {
         assertThat(
             NoUnusedImportsRule().lint(
                 """
-                import org.gradle.kotlin.dsl.registering
+                import org.gradle.kotlin.dsl.provideDelegate
 
                 fun main() {
                 }
