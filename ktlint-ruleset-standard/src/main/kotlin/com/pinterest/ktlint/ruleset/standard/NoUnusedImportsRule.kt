@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.ast.ElementType.BY_KEYWORD
 import com.pinterest.ktlint.core.ast.ElementType.DOT_QUALIFIED_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.IMPORT_DIRECTIVE
 import com.pinterest.ktlint.core.ast.ElementType.OPERATION_REFERENCE
@@ -44,9 +45,28 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
         // by (https://github.com/shyiko/ktlint/issues/54)
         "getValue", "setValue"
     )
+
+    private val conditionalWhitelist = mapOf<String, (node: ASTNode) -> Boolean>(
+        Pair(
+            // Ignore provideDelegate if there is a `by` anywhere in the file
+            "org.gradle.kotlin.dsl.provideDelegate",
+            { rootNode ->
+                var hasByKeyword = false
+                rootNode.visit { child ->
+                    if (child.elementType == BY_KEYWORD) {
+                        hasByKeyword = true
+                        return@visit
+                    }
+                }
+                hasByKeyword
+            }
+        )
+    )
+
     private val ref = mutableSetOf<String>()
     private val imports = mutableSetOf<String>()
     private var packageName = ""
+    private var rootNode: ASTNode? = null
 
     override fun visit(
         node: ASTNode,
@@ -54,8 +74,10 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         if (node.isRoot()) {
+            rootNode = node
             ref.clear() // rule can potentially be executed more than once (when formatting)
             ref.add("*")
+            imports.clear()
             var parentExpression: String? = null
             node.visit { vnode ->
                 val psi = vnode.psi
@@ -92,7 +114,9 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
                     importDirective.delete()
                 }
             } else if (name != null && (!ref.contains(name) || !isAValidImport(importPath)) &&
-                !operatorSet.contains(name) && !name.isComponentN()
+                !operatorSet.contains(name) &&
+                !name.isComponentN() &&
+                conditionalWhitelist[importPath]?.invoke(rootNode!!) != true
             ) {
                 emit(node.startOffset, "Unused import", true)
                 if (autoCorrect) {
