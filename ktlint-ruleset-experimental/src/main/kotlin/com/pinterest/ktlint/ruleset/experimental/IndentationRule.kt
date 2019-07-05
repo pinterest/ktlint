@@ -707,11 +707,14 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
     }
 
     private fun adjustExpectedIndentAfterArrow(n: ASTNode, ctx: IndentContext) {
-        val prevBlockLine = ctx.blockOpeningLineStack.peek() ?: -1
-        if (prevBlockLine != line) {
-            expectedIndent++
-            debug { "++after(ARROW) -> $expectedIndent" }
-            ctx.exitAdjBy(n.treeParent, -1)
+        // Only adjust indents for arrows inside of when statements. Lambda arrows should not increase indent.
+        if (n.treeParent?.elementType == WHEN_ENTRY) {
+            val prevBlockLine = ctx.blockOpeningLineStack.peek() ?: -1
+            if (prevBlockLine != line) {
+                expectedIndent++
+                debug { "++after(ARROW) -> $expectedIndent" }
+                ctx.exitAdjBy(n.treeParent, -1)
+            }
         }
     }
 

@@ -322,4 +322,26 @@ class IndentationRuleTest {
             )
         ).isEmpty()
     }
+
+    @Test
+    fun `no indentation after lambda arrow`() {
+        assertThat(
+            IndentationRule().lint(
+                """
+                fun bar() {
+                    foo.func {
+                        param1, param2 ->
+                            doSomething()
+                            doSomething2()
+                    }
+                }
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(line = 4, col = 1, ruleId = "indent", detail = "Unexpected indentation (12) (should be 8)"),
+                LintError(line = 5, col = 1, ruleId = "indent", detail = "Unexpected indentation (12) (should be 8)")
+            )
+        )
+    }
 }

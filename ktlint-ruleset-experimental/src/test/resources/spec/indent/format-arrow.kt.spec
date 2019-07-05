@@ -20,4 +20,9 @@ fun main() {
         2 // second element
         -> true
     }
+    foo.func {
+        param1, param2 ->
+            doSomething()
+            doSomething2()
+        }
 }
