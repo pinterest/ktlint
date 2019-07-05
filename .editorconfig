@@ -12,11 +12,9 @@ insert_final_newline = true
 
 [*.{java,kt,kts,scala,rs,xml,kt.spec,kts.spec}]
 indent_size = 4
-# annotation - "./mvnw clean verify" fails with "Internal Error")
 # multiline-if-else - disabled until auto-correct is working properly
 #   (e.g. try formatting "if (true)\n    return { _ ->\n        _\n}")
-# no-it-in-multiline-lambda - disabled until it's clear what to do in case of `import _.it`
-disabled_rules=annotation,multiline-if-else
+disabled_rules=multiline-if-else
 
 [{Makefile,*.go}]
 indent_style = tab

@@ -24,14 +24,16 @@ class AnnotationRule : Rule("annotation") {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         val root =
-            node.children().firstOrNull { it.elementType == MODIFIER_LIST && it.text != DATA_KEYWORD }
+            node.children().firstOrNull { it.elementType == MODIFIER_LIST }
                 ?: return
 
         val annotations =
             root.children()
                 .mapNotNull { it.psi as? KtAnnotationEntry }
                 .toList()
-        check(!annotations.isEmpty()) { "Annotations list should not be empty" }
+        if (annotations.isEmpty()) {
+            return
+        }
 
         // Join the nodes that immediately follow the annotations (whitespace), then add the final whitespace
         // if it's not a child of root. This happens when a new line separates the annotations from the annotated
