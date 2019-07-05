@@ -8,4 +8,5 @@ dependencies {
   implementation deps.kotlin.stdlib
   implementation deps.kotlin.compiler
   implementation deps.assertj
+  implementation deps.junit
 }
