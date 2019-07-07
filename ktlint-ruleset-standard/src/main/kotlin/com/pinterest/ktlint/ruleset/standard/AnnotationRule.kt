@@ -52,7 +52,7 @@ class AnnotationRule : Rule("annotation") {
         val annotationsWithParametersAreNotOnSeparateLines =
             annotations.any { it.valueArgumentList != null } &&
                 !whiteSpaces.all { it.textContains('\n') } &&
-                whiteSpaces.lastOrNull()?.nextLeaf() !is PsiComment
+                doesNotEndWithAComment(whiteSpaces)
 
         if (multipleAnnotationsOnSameLineAsAnnotatedConstruct) {
             emit(
@@ -83,5 +83,10 @@ class AnnotationRule : Rule("annotation") {
                 (whiteSpaces.last() as LeafPsiElement).rawReplaceWithText(newLineWithIndent)
             }
         }
+    }
+
+    private fun doesNotEndWithAComment(whiteSpaces: List<PsiWhiteSpace>): Boolean {
+        val lastNode = whiteSpaces.lastOrNull()?.nextLeaf()
+        return lastNode !is PsiComment || lastNode.nextLeaf()?.textContains('\n') == false
     }
 }

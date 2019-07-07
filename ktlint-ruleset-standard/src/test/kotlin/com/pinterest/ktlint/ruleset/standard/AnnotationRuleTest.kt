@@ -35,6 +35,28 @@ class AnnotationRuleTest {
     }
 
     @Test
+    fun `lint single annotation with parameters on the same line with a comment`() {
+        assertThat(
+            AnnotationRule().lint(
+                """
+                @Suppress("AnnotationRule") /* this is a comment */ class A
+                """.trimIndent()
+            )
+        ).hasSize(1)
+    }
+
+    @Test
+    fun `lint single annotation with parameters on the same line with a comment and many spaces`() {
+        assertThat(
+            AnnotationRule().lint(
+                """
+                @Suppress("AnnotationRule") /* this is a comment */    class A
+                """.trimIndent()
+            )
+        ).hasSize(1)
+    }
+
+    @Test
     fun `format single annotation may be placed on line before annotated construct`() {
         val code =
             """
