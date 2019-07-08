@@ -195,6 +195,18 @@ To run formatter - `mvn antrun:run@ktlint-format`.
 
 #### ... with [Gradle](https://gradle.org/)
 
+#### (with a plugin - Recommended)
+
+Gradle plugins (in order of appearance):
+- [jlleitschuh/ktlint-gradle](https://github.com/jlleitschuh/ktlint-gradle)  
+Gradle plugin that automatically creates check and format tasks for project Kotlin sources,
+supports different kotlin plugins and Gradle build caching.
+
+- [jeremymailen/kotlinter-gradle](https://github.com/jeremymailen/kotlinter-gradle)  
+Gradle plugin featuring incremental build, `*.kts` support.
+
+You might also want to take a look at [diffplug/spotless](https://github.com/diffplug/spotless/tree/master/plugin-gradle#applying-ktlint-to-kotlin-files) which has a built-in support for ktlint. In addition to linting/formatting kotlin code it allows you to keep license headers, markdown documentation, etc. in check.
+
 #### (without a plugin)
 
 > build.gradle
@@ -241,18 +253,6 @@ To check code style - `gradle ktlint` (it's also bound to `gradle check`).
 To run formatter - `gradle ktlintFormat`.
 
 See [Making your Gradle tasks incremental](https://proandroiddev.com/making-your-gradle-tasks-incremental-7f26e4ef09c3) by [Niklas Baudy](https://github.com/vanniktech) on how to make tasks above incremental. 
-
-#### (with a plugin)
-
-Gradle plugins (in order of appearance):
-- [jlleitschuh/ktlint-gradle](https://github.com/jlleitschuh/ktlint-gradle)  
-Gradle plugin that automatically creates check and format tasks for project Kotlin sources,
-supports different kotlin plugins and Gradle build caching.
-
-- [jeremymailen/kotlinter-gradle](https://github.com/jeremymailen/kotlinter-gradle)  
-Gradle plugin featuring incremental build, `*.kts` support.
-
-You might also want to take a look at [diffplug/spotless](https://github.com/diffplug/spotless/tree/master/plugin-gradle#applying-ktlint-to-kotlin-files) which has a built-in support for ktlint. In addition to linting/formatting kotlin code it allows you to keep license headers, markdown documentation, etc. in check.
 
 #### ... with [IntelliJ IDEA](https://www.jetbrains.com/idea/)
 
