@@ -203,7 +203,7 @@ Gradle plugin that automatically creates check and format tasks for project Kotl
 supports different kotlin plugins and Gradle build caching.
 
 - [jeremymailen/kotlinter-gradle](https://github.com/jeremymailen/kotlinter-gradle)  
-Gradle plugin featuring incremental build, `*.kts` support.
+Gradle plugin featuring incremental build support, file reports, and `*.kts` source support.
 
 You might also want to take a look at [diffplug/spotless](https://github.com/diffplug/spotless/tree/master/plugin-gradle#applying-ktlint-to-kotlin-files) which has a built-in support for ktlint. In addition to linting/formatting kotlin code it allows you to keep license headers, markdown documentation, etc. in check.
 
@@ -214,6 +214,8 @@ You might also want to take a look at [diffplug/spotless](https://github.com/dif
 ```groovy
 // kotlin-gradle-plugin must be applied for configuration below to work
 // (see https://kotlinlang.org/docs/reference/using-gradle.html)
+
+apply plugin: &quot;java&quot;
 
 repositories {
     jcenter()
