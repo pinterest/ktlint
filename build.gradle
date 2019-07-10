@@ -35,7 +35,7 @@ ext.deps = [
   'picocli'       : 'info.picocli:picocli:3.9.6',
   // Testing libraries
   'junit'         : 'junit:junit:4.12',
-  'assertj'       : 'org.assertj:assertj-core:3.9.0',
+  'assertj'       : 'org.assertj:assertj-core:3.12.2',
   'jimfs'         : 'com.google.jimfs:jimfs:1.1'
 ]
 
@@ -67,7 +67,7 @@ allprojects {
   tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
-    
+
     kotlinOptions {
       jvmTarget = '1.8'
     }
