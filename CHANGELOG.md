@@ -2,6 +2,36 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.34.0] - 2019-07-14
+
+### Added
+- Support for Kotlin 1.3.41
+- Support for globally disabling rules via custom `disabled_rules` property in `.editorconfig` ([#503](https://github.com/pinterest/ktlint/pull/503))
+- `experimental:no-first-line-blank-in-method-block-rule` ([#474](https://github.com/pinterest/ktlint/pull/474)
+- Unit tests for ruleset providers
+
+### Upgraded
+- AssertJ from 3.9.0 to 3.12.2 ([#520](https://github.com/pinterest/ktlint/pull/520)) 
+
+### Enabled
+- Final newline by default ([#446](https://github.com/pinterest/ktlint/pull/446))
+- `annotation` ([#509](https://github.com/pinterest/ktlint/pull/509))
+- `no-wildcard-import` (Re-enabled after temporarily disabling in 0.33.0)
+- `package-name` (currently only disallows underscored in package names)
+
+### Deprecated
+- `MavenDependencyResolver`. Scheduled to be removed in 0.35.0 ([#468](https://github.com/pinterest/ktlint/pull/468)
+- `--install-git-pre-commit-hook` flag; use `installGitPreCommitHook` subcommand instead ([#487](https://github.com/pinterest/ktlint/pull/487))
+- `--printAST` flag; use `printAST` subcommand instead ([#500](https://github.com/pinterest/ktlint/pull/500))
+
+### Removed
+- Support for `--ruleset-repository` and `--ruleset-update` flags
+
+### Fixed
+- `import-ordering` will now refuse to format import lists that contain top-level comments ([#408](https://github.com/pinterest/ktlint/issues/408))
+- `no-unused-imports` reporting false negatives or false positives in some cases ([#405](https://github.com/pinterest/ktlint/issues/405)) and ([#506](https://github.com/pinterest/ktlint/issues/506))
+- `experimental:indent` incorrectly formatting a lambda's closing brace ([#479](https://github.com/pinterest/ktlint/issues/479))
+
 ## [0.33.0] - 2019-05-28
 
 ### Added
@@ -558,7 +588,8 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
-[0.32.0]: https://github.com/shyiko/ktlint/compare/0.32.0...0.33.0
+[0.34.0]: https://github.com/shyiko/ktlint/compare/0.33.0...0.34.0
+[0.33.0]: https://github.com/shyiko/ktlint/compare/0.32.0...0.33.0
 [0.32.0]: https://github.com/shyiko/ktlint/compare/0.31.0...0.32.0
 [0.31.0]: https://github.com/shyiko/ktlint/compare/0.30.0...0.31.0
 [0.30.0]: https://github.com/shyiko/ktlint/compare/0.29.0...0.30.0
