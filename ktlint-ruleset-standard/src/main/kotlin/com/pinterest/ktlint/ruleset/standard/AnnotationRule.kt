@@ -4,9 +4,11 @@ import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.core.ast.children
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
+import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
+import org.jetbrains.kotlin.psi.psiUtil.nextLeaf
 
 class AnnotationRule : Rule("annotation") {
 
@@ -52,7 +54,8 @@ class AnnotationRule : Rule("annotation") {
             annotations.size > 1 && !whiteSpaces.last().textContains('\n')
         val annotationsWithParametersAreNotOnSeparateLines =
             annotations.any { it.valueArgumentList != null } &&
-                !whiteSpaces.all { it.textContains('\n') }
+                !whiteSpaces.all { it.textContains('\n') } &&
+                doesNotEndWithAComment(whiteSpaces)
 
         if (multipleAnnotationsOnSameLineAsAnnotatedConstruct) {
             emit(
@@ -83,5 +86,10 @@ class AnnotationRule : Rule("annotation") {
                 (whiteSpaces.last() as LeafPsiElement).rawReplaceWithText(newLineWithIndent)
             }
         }
+    }
+
+    private fun doesNotEndWithAComment(whiteSpaces: List<PsiWhiteSpace>): Boolean {
+        val lastNode = whiteSpaces.lastOrNull()?.nextLeaf()
+        return lastNode !is PsiComment || lastNode.nextLeaf()?.textContains('\n') == false
     }
 }
