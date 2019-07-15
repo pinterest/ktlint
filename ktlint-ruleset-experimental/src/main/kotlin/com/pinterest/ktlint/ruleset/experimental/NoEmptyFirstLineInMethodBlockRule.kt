@@ -9,7 +9,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
-class NoFirstLineBlankInMethodBlockRule : Rule("no-first-line-blank-in-method-block-rule") {
+class NoEmptyFirstLineInMethodBlockRule : Rule("no-empty-first-line-in-method-block") {
 
     override fun visit(
         node: ASTNode,

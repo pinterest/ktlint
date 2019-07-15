@@ -1,10 +1,7 @@
-package com.pinterest.ktlint.ruleset.experimental
+package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.ast.ElementType.BLOCK_COMMENT
-import com.pinterest.ktlint.core.ast.ElementType.EOL_COMMENT
-import com.pinterest.ktlint.core.ast.ElementType.IMPORT_DIRECTIVE
-import com.pinterest.ktlint.core.ast.ElementType.IMPORT_LIST
+import com.pinterest.ktlint.core.ast.ElementType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
@@ -13,6 +10,8 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
  * Alphabetical with capital letters before lower case letters (e.g. Z before a).
  * No blank lines between major groups (android, com, junit, net, org, java, javax).
  * Single group regardless of import type.
+ *
+ * https://developer.android.com/kotlin/style-guide#import_statements
  */
 class ImportOrderingRule : Rule("import-ordering") {
 
@@ -21,11 +20,11 @@ class ImportOrderingRule : Rule("import-ordering") {
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        if (node.elementType == IMPORT_LIST) {
+        if (node.elementType == ElementType.IMPORT_LIST) {
             val children = node.getChildren(null)
             if (children.isNotEmpty()) {
-                val imports = children.filter { it.elementType == IMPORT_DIRECTIVE }
-                val hasComments = children.find { it.elementType == BLOCK_COMMENT || it.elementType == EOL_COMMENT } != null
+                val imports = children.filter { it.elementType == ElementType.IMPORT_DIRECTIVE }
+                val hasComments = children.find { it.elementType == ElementType.BLOCK_COMMENT || it.elementType == ElementType.EOL_COMMENT } != null
                 val sortedImports = imports.sortedBy { it.text }
                 val canAutoCorrect = !hasComments
                 if (imports != sortedImports || hasTooMuchWhitespace(children)) {
