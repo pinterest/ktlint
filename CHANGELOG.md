@@ -21,7 +21,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - `experimental:package-name` (currently only disallows underscores in package names)
 
 ### Deprecated
-- `MavenDependencyResolver`. Scheduled to be removed in 0.35.0 ([#468](https://github.com/pinterest/ktlint/pull/468)
+- `MavenDependencyResolver`. Scheduled to be removed in 0.35.0 ([#468](https://github.com/pinterest/ktlint/pull/468))
 - `--install-git-pre-commit-hook` flag; use `installGitPreCommitHook` subcommand instead ([#487](https://github.com/pinterest/ktlint/pull/487))
 - `--print-ast` flag; use `printAST` subcommand instead ([#500](https://github.com/pinterest/ktlint/pull/500))
 
