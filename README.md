@@ -40,28 +40,25 @@ It's also [easy to create your own](#creating-a-reporter).
 - No empty (`{}`) class bodies
 - No spaces around range (`..`) operator
 - No newline before (binary) `+` & `-`, `*`, `/`, `%`, `&&`, `||` 
+- No wildcard `import`s
 - When wrapping chained calls `.`, `?.` and `?:` should be placed on the next line
 - When a line is broken at an assignment (`=`) operator the break comes after the symbol
 - When class/function signature doesn't fit on a single line, each parameter must be on a separate line
 - Consistent string templates (`$v` instead of `${v}`, `${p.v}` instead of `${p.v.toString()}`)
 - Consistent order of modifiers
 - Consistent spacing after keywords, commas; around colons, curly braces, parens, infix operators, comments, etc
-- Newline at the end of each file (not enabled by default, but recommended)
-(set `insert_final_newline=true` in .editorconfig to enable (see [EditorConfig](#editorconfig) section for more)).
+- Newline at the end of each file (enabled by default)
+(set `insert_final_newline=false` in .editorconfig to disable (see [EditorConfig](#editorconfig) section for more)).
+- Imports ordered in alphabetic order with no spaces between major groups
 
 ## Experimental rules
 New rules will be added into the [experimental ruleset](https://github.com/pinterest/ktlint/tree/master/ktlint-ruleset-experimental), which can be enabled
 by passing the `--experimental` flag to `ktlint`.
 
-- Indentation formatting
-- Import ordering
-
-## Disabled rules
-- No wildcard `import`s
-- Annotation formatting
+- Indentation formatting - respects `.editorconfig` `indent_size` with no continuation indent
+- Annotation formatting - multiple annotations should be on a separate line than the annotated declaration; annotations with parameters should each be on separate lines
 - No underscores in package names
-- Braces required for if/else statements
-- Multi-line lambdas must name `it` param
+- Braces required for multiline if/else statements
 
 ## EditorConfig
 
@@ -76,6 +73,10 @@ insert_final_newline=unset
 # possible values: number (e.g. 120) (package name, imports & comments are ignored), "off"
 # it's automatically set to 100 on `ktlint --android ...` (per Android Kotlin Style Guide)
 max_line_length=off
+# Comma-separated list of rules to disable (Since 0.34.0)
+# Note that rules in any ruleset other than the standard ruleset will need to be prefixed 
+# by the ruleset identifier.
+disabled_rules=no-wildcard-imports,experimental:annotation,my-custom-ruleset:my-custom-rule
 ```
 
 ## Installation
@@ -83,7 +84,7 @@ max_line_length=off
 > Skip all the way to the "Integration" section if you don't plan to use `ktlint`'s command line interface.
 
 ```sh
-curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.33.0/ktlint &&
+curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.34.0/ktlint &&
   chmod a+x ktlint &&
   sudo mv ktlint /usr/local/bin/
 ```
@@ -178,7 +179,7 @@ $ ktlint installGitPreCommitHook
         <dependency>
             <groupId>com.pinterest</groupId>
             <artifactId>ktlint</artifactId>
-            <version>0.33.0</version>
+            <version>0.34.0</version>
         </dependency>
         <!-- additional 3rd party ruleset(s) can be specified here -->
     </dependencies>
@@ -226,7 +227,7 @@ configurations {
 }
 
 dependencies {
-    ktlint "com.pinterest:ktlint:0.33.0"
+    ktlint "com.pinterest:ktlint:0.34.0"
     // additional 3rd party ruleset(s) can be specified here
     // just add them to the classpath (e.g. ktlint 'groupId:artifactId:version') and 
     // ktlint will pick them up
@@ -328,7 +329,7 @@ A complete sample project (with tests and build files) is included in this repo 
 #### AST
 
 While writing/debugging [Rule](ktlint-core/src/main/kotlin/com/pinterest/ktlint/core/Rule.kt)s it's often helpful to have an AST
-printed out to see the structure rules have to work with. ktlint >= 0.15.0 has `printAST` subcommand specifically for this purpose
+printed out to see the structure rules have to work with. ktlint >= 0.15.0 has a `printAST` subcommand (or `--print-ast` flag for ktlint < 0.34.0) specifically for this purpose
 (usage: `ktlint --color printAST <file>`).
 An example of the output is shown below. 
 
@@ -402,7 +403,7 @@ Absolutely, "no configuration" doesn't mean "no extensibility". You can add your
 
 See [Creating A Ruleset](#creating-a-ruleset).
 
-### How do I suppress an error?
+### How do I suppress an error for a line/block/file?
 
 > This is meant primarily as an escape latch for the rare cases when **ktlint** is not able
 to produce the correct result (please report any such instances using [GitHub Issues](https://github.com/pinterest/ktlint/issues)).
@@ -424,6 +425,9 @@ To disable all checks:
 ```kotlin
 import package.* // ktlint-disable
 ```
+
+### How do I globally disable a rule?
+See the [EditorConfig section](https://github.com/pinterest/ktlint#editorconfig) for details on how to use the `disabled_rules` property.
 
 ## Development
 
