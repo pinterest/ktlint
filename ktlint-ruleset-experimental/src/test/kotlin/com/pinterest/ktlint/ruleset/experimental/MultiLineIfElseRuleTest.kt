@@ -1,4 +1,4 @@
-package com.pinterest.ktlint.ruleset.standard
+package com.pinterest.ktlint.ruleset.experimental
 
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.test.format
