@@ -39,7 +39,7 @@ class NoEmptyFirstLineInMethodBlockRuleTest {
 
         assertThat(NoEmptyFirstLineInMethodBlockRule().lint(unformattedFunction)).isEqualTo(
             listOf(
-                LintError(2, 1, "no-first-line-blank-in-method-block-rule", "First line in a method block should not be empty")
+                LintError(2, 1, "no-empty-first-line-in-method-block", "First line in a method block should not be empty")
             )
         )
         assertThat(NoEmptyFirstLineInMethodBlockRule().format(unformattedFunction)).isEqualTo(formattedFunction)
@@ -72,8 +72,8 @@ class NoEmptyFirstLineInMethodBlockRuleTest {
 
         assertThat(NoEmptyFirstLineInMethodBlockRule().lint(unformattedFunction)).isEqualTo(
             listOf(
-                LintError(2, 1, "no-first-line-blank-in-method-block-rule", "First line in a method block should not be empty"),
-                LintError(4, 1, "no-first-line-blank-in-method-block-rule", "First line in a method block should not be empty")
+                LintError(2, 1, "no-empty-first-line-in-method-block", "First line in a method block should not be empty"),
+                LintError(4, 1, "no-empty-first-line-in-method-block", "First line in a method block should not be empty")
             )
         )
         assertThat(NoEmptyFirstLineInMethodBlockRule().format(unformattedFunction)).isEqualTo(formattedFunction)
@@ -105,7 +105,7 @@ class NoEmptyFirstLineInMethodBlockRuleTest {
 
         assertThat(NoEmptyFirstLineInMethodBlockRule().lint(unformattedFunction)).isEqualTo(
             listOf(
-                LintError(3, 1, "no-first-line-blank-in-method-block-rule", "First line in a method block should not be empty")
+                LintError(3, 1, "no-empty-first-line-in-method-block", "First line in a method block should not be empty")
             )
         )
         assertThat(NoEmptyFirstLineInMethodBlockRule().format(unformattedFunction)).isEqualTo(formattedFunction)
@@ -135,7 +135,7 @@ class NoEmptyFirstLineInMethodBlockRuleTest {
 
         assertThat(NoEmptyFirstLineInMethodBlockRule().lint(unformattedFunction)).isEqualTo(
             listOf(
-                LintError(4, 1, "no-first-line-blank-in-method-block-rule", "First line in a method block should not be empty")
+                LintError(4, 1, "no-empty-first-line-in-method-block", "First line in a method block should not be empty")
             )
         )
         assertThat(NoEmptyFirstLineInMethodBlockRule().format(unformattedFunction)).isEqualTo(formattedFunction)
