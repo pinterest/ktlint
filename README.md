@@ -69,10 +69,15 @@ ktlint recognizes the following [.editorconfig](http://editorconfig.org/) proper
 # possible values: number (e.g. 2), "unset" (makes ktlint ignore indentation completely)  
 indent_size=4
 # true (recommended) / false
-insert_final_newline=unset
+insert_final_newline=true
 # possible values: number (e.g. 120) (package name, imports & comments are ignored), "off"
 # it's automatically set to 100 on `ktlint --android ...` (per Android Kotlin Style Guide)
 max_line_length=off
+```
+
+### Custom properties
+
+```
 # Comma-separated list of rules to disable (Since 0.34.0)
 # Note that rules in any ruleset other than the standard ruleset will need to be prefixed 
 # by the ruleset identifier.
