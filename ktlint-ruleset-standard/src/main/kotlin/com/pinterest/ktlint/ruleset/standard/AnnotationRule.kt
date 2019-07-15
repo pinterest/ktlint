@@ -8,6 +8,12 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
 
+/**
+ * Ensures multiple annotations are not on the same line as the annotated declaration. Also ensures that annotations
+ * with parameters are placed on separate lines.
+ *
+ * https://kotlinlang.org/docs/reference/coding-conventions.html#annotation-formatting
+ */
 class AnnotationRule : Rule("annotation") {
 
     companion object {
@@ -15,7 +21,6 @@ class AnnotationRule : Rule("annotation") {
             "Multiple annotations should not be placed on the same line as the annotated construct"
         const val annotationsWithParametersAreNotOnSeparateLinesErrorMessage =
             "Annotations with parameters should all be placed on separate lines prior to the annotated construct"
-        const val DATA_KEYWORD = "data"
     }
 
     override fun visit(
