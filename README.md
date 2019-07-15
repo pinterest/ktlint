@@ -73,9 +73,9 @@ insert_final_newline=unset
 # possible values: number (e.g. 120) (package name, imports & comments are ignored), "off"
 # it's automatically set to 100 on `ktlint --android ...` (per Android Kotlin Style Guide)
 max_line_length=off
-# (Since 0.34.0)
-# Comma-separated list of rules to disable
-# Note that rules in any ruleset other than the standard ruleset will need to be prefixed by the ruleset identifier.
+# Comma-separated list of rules to disable (Since 0.34.0)
+# Note that rules in any ruleset other than the standard ruleset will need to be prefixed 
+# by the ruleset identifier.
 disabled_rules=no-wildcard-imports,experimental:annotation,my-custom-ruleset:my-custom-rule
 ```
 
