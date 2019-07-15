@@ -15,6 +15,7 @@ class StandardRuleSetProvider : RuleSetProvider {
         FinalNewlineRule(),
         PackageNameRule(),
         MultiLineIfElseRule(),
+        ImportOrderingRule(),
         IndentationRule(),
         MaxLineLengthRule(),
         ModifierOrderRule(),
