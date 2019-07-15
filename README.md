@@ -75,9 +75,9 @@ insert_final_newline=true
 max_line_length=off
 ```
 
-### Custom properties
+### Custom EditorConfig properties
 
-```
+```ini
 # Comma-separated list of rules to disable (Since 0.34.0)
 # Note that rules in any ruleset other than the standard ruleset will need to be prefixed 
 # by the ruleset identifier.
