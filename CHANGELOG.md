@@ -2,12 +2,12 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.34.0] - 2019-07-14
+## [0.34.0] - 2019-07-15
 
 ### Added
 - Support for Kotlin 1.3.41
 - Support for globally disabling rules via custom `disabled_rules` property in `.editorconfig` ([#503](https://github.com/pinterest/ktlint/pull/503))
-- `experimental:no-first-line-blank-in-method-block-rule` ([#474](https://github.com/pinterest/ktlint/pull/474)
+- `experimental:no-first-line-blank-in-method-block-rule` ([#474](https://github.com/pinterest/ktlint/pull/474))
 - Unit tests for ruleset providers
 
 ### Upgraded
@@ -16,6 +16,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Enabled
 - Final newline by default ([#446](https://github.com/pinterest/ktlint/pull/446))
 - `annotation` ([#509](https://github.com/pinterest/ktlint/pull/509))
+- `multiline-if-else` (with no autocorrection)
 - `no-wildcard-import` (Re-enabled after temporarily disabling in 0.33.0)
 - `package-name` (currently only disallows underscored in package names)
 
