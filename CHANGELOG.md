@@ -7,7 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - Support for Kotlin 1.3.41
 - Support for globally disabling rules via custom `disabled_rules` property in `.editorconfig` ([#503](https://github.com/pinterest/ktlint/pull/503))
-- `experimental:no-first-line-blank-in-method-block-rule` ([#474](https://github.com/pinterest/ktlint/pull/474))
+- `experimental:no-empty-first-line-in-method-block` ([#474](https://github.com/pinterest/ktlint/pull/474))
 - Unit tests for ruleset providers
 
 ### Upgraded
@@ -15,15 +15,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Enabled
 - Final newline by default ([#446](https://github.com/pinterest/ktlint/pull/446))
-- `annotation` ([#509](https://github.com/pinterest/ktlint/pull/509))
-- `multiline-if-else` (with no autocorrection)
 - `no-wildcard-import` (Re-enabled after temporarily disabling in 0.33.0)
-- `package-name` (currently only disallows underscored in package names)
+- `experimental:annotation` ([#509](https://github.com/pinterest/ktlint/pull/509))
+- `experimental:multiline-if-else` (no autocorrection)
+- `experimental:package-name` (currently only disallows underscores in package names)
 
 ### Deprecated
 - `MavenDependencyResolver`. Scheduled to be removed in 0.35.0 ([#468](https://github.com/pinterest/ktlint/pull/468)
 - `--install-git-pre-commit-hook` flag; use `installGitPreCommitHook` subcommand instead ([#487](https://github.com/pinterest/ktlint/pull/487))
-- `--printAST` flag; use `printAST` subcommand instead ([#500](https://github.com/pinterest/ktlint/pull/500))
+- `--print-ast` flag; use `printAST` subcommand instead ([#500](https://github.com/pinterest/ktlint/pull/500))
 
 ### Removed
 - Support for `--ruleset-repository` and `--ruleset-update` flags
