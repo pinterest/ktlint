@@ -145,8 +145,9 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
     // Contains list of all imports and checks if given import is present
     private fun checkIfParentImportExists(text: String): Boolean {
         imports.forEach {
-            if (it.endsWith(text))
+            if (it.endsWith(text)) {
                 return true
+            }
         }
         return false
     }
