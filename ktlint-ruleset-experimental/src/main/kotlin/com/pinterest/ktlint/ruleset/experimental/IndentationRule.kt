@@ -689,6 +689,11 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
     }
 
     private fun adjustExpectedIndentInsideSuperTypeCall(n: ASTNode, ctx: IndentContext) {
+        // Don't adjust indents for initializer lists
+        if (n.treeParent?.elementType != SUPER_TYPE_LIST) {
+            return
+        }
+
         if (
             // n.treePrev == null &&
             // n.treeParent.elementType == SUPER_TYPE_LIST &&
