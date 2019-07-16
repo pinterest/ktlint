@@ -241,8 +241,6 @@ class KtlintCommandLine {
     @Parameters(hidden = true)
     private var patterns = ArrayList<String>()
 
-    private val workDir = File(".").canonicalPath
-
     fun run() {
         if (apply || applyToProject) {
             applyToIDEA()

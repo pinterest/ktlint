@@ -66,7 +66,7 @@ internal class PrintASTSubCommand : Runnable {
         }
 
         try {
-            lintFile(fileName, fileContent, astRuleSet)
+            lintFile(fileName, fileContent, astRuleSet, debug = ktlintCommand.debug)
         } catch (e: Exception) {
             if (e is ParseException) {
                 throw ParseException(e.line, e.col, "Not a valid Kotlin file (${e.message?.toLowerCase()})")
@@ -77,6 +77,6 @@ internal class PrintASTSubCommand : Runnable {
 
     companion object {
         internal const val COMMAND_NAME = "printAST"
-        private const val STDIN_FILE = "<stdin>"
+        private const val STDIN_FILE = "<text>"
     }
 }
