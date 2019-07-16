@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.internal
 
 import com.pinterest.ktlint.KtlintCommandLine
+import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.ParseException
 import com.pinterest.ktlint.core.RuleSet
 import com.pinterest.ktlint.test.DumpAST
@@ -44,7 +45,7 @@ internal class PrintASTSubCommand : Runnable {
         commandSpec.commandLine().printHelpOrVersionUsage()
 
         if (stdin) {
-            printAST(STDIN_FILE, String(System.`in`.readBytes()))
+            printAST(KtLint.STDIN_FILE, String(System.`in`.readBytes()))
         } else {
             for (file in patterns.fileSequence()) {
                 printAST(file.path, file.readText())
@@ -57,7 +58,7 @@ internal class PrintASTSubCommand : Runnable {
         fileContent: String
     ) {
         if (ktlintCommand.debug) {
-            val fileLocation = if (fileName != STDIN_FILE) {
+            val fileLocation = if (fileName != KtLint.STDIN_FILE) {
                 File(fileName).location(ktlintCommand.relative)
             } else {
                 "stdin"
@@ -77,6 +78,5 @@ internal class PrintASTSubCommand : Runnable {
 
     companion object {
         internal const val COMMAND_NAME = "printAST"
-        private const val STDIN_FILE = "<text>"
     }
 }

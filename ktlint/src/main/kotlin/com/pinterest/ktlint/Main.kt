@@ -1,6 +1,7 @@
 @file:JvmName("Main")
 package com.pinterest.ktlint
 
+import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.ParseException
 import com.pinterest.ktlint.core.Reporter
@@ -277,7 +278,7 @@ class KtlintCommandLine {
         val userData = mapOf("android" to android.toString())
         fun process(fileName: String, fileContent: String): List<LintErrorWithCorrectionInfo> {
             if (debug) {
-                val fileLocation = if (fileName != "<text>") File(fileName).location(relative) else fileName
+                val fileLocation = if (fileName != KtLint.STDIN_FILE) File(fileName).location(relative) else fileName
                 System.err.println("[DEBUG] Checking $fileLocation")
             }
             val result = ArrayList<LintErrorWithCorrectionInfo>()
@@ -345,7 +346,7 @@ class KtlintCommandLine {
         }
         reporter.beforeAll()
         if (stdin) {
-            report("<text>", process("<text>", String(System.`in`.readBytes())))
+            report(KtLint.STDIN_FILE, process(KtLint.STDIN_FILE, String(System.`in`.readBytes())))
         } else {
             patterns.fileSequence()
                 .takeWhile { errorNumber.get() < limit }

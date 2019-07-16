@@ -44,6 +44,7 @@ object KtLint {
     val ANDROID_USER_DATA_KEY = Key<Boolean>("ANDROID")
     val FILE_PATH_USER_DATA_KEY = Key<String>("FILE_PATH")
     val DISABLED_RULES = Key<Set<String>>("DISABLED_RULES")
+    const val STDIN_FILE = "<stdin>"
 
     private val psiFileFactory: PsiFileFactory
     private val nullSuppression = { _: Int, _: String, _: Boolean -> false }
@@ -191,7 +192,7 @@ object KtLint {
                 return emptyMap()
             }
 
-            if (fileName == "<text>") {
+            if (fileName == STDIN_FILE) {
                 return workdirUserData.value
             }
             return (
