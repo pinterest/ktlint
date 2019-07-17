@@ -56,3 +56,15 @@ class AndroidModuleDependency()
 class AndroidModuleDependency()
     : ModuleDependency(name, methodToCall, method),
     ModuleDependency(name, methodToCall, method)
+
+// https://github.com/pinterest/ktlint/issues/518
+enum class Color(val displayName: String, val value: Int) {
+    RED(
+        displayName = "Red",
+        value = 1
+    ),
+    BLUE(
+        displayName = "Blue",
+        value = 2
+    );
+}
