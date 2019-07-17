@@ -102,7 +102,8 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
                     importDirective.delete()
                 }
             } else if (name != null && !ref.contains(name) && !operatorSet.contains(name) && !name.isComponentN() &&
-                conditionalWhitelist[importPath]?.invoke(rootNode!!) != true) {
+                conditionalWhitelist[importPath]?.invoke(rootNode!!) != true
+            ) {
                 emit(node.startOffset, "Unused import", true)
                 if (autoCorrect) {
                     importDirective.delete()
