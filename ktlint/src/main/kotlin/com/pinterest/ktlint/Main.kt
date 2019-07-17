@@ -148,6 +148,12 @@ class KtlintCommandLine {
     )
     var debug: Boolean = false
 
+    @Option(
+        names = ["--disabled_rules"],
+        description = ["Comma-separated list of rules to globally disable"]
+    )
+    var disabledRules: String = ""
+
     // todo: this should have been a command, not a flag (consider changing in 1.0.0)
     @Option(
         names = ["--format", "-F"],
@@ -275,7 +281,8 @@ class KtlintCommandLine {
         val tripped = AtomicBoolean()
         val reporter = loadReporter(dependencyResolver) { tripped.get() }
         data class LintErrorWithCorrectionInfo(val err: LintError, val corrected: Boolean)
-        val userData = mapOf("android" to android.toString())
+        val userData = mapOf("android" to android.toString(), "disabled_rules" to disabledRules)
+
         fun process(fileName: String, fileContent: String): List<LintErrorWithCorrectionInfo> {
             if (debug) {
                 val fileLocation = if (fileName != KtLint.STDIN_FILE) File(fileName).location(relative) else fileName
