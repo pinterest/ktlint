@@ -2,6 +2,19 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.34.1] - 2019-07-22
+
+Minor bugfix release for 0.34.0
+
+### Added
+- Support for globally disabling rules via `--disabled_rules` command line flag. ([#534](https://github.com/pinterest/ktlint/pull/534))
+
+### Fixed
+- Regression with `--stdin` flag for `printAST` command ([#528](https://github.com/pinterest/ktlint/issues/528))
+- Regressions with `NoUnusedImports` rule ([#531](https://github.com/pinterest/ktlint/issues/531), [#526](https://github.com/pinterest/ktlint/issues/526))
+  - Note: this re-introduces [#405](https://github.com/pinterest/ktlint/issues/405)
+- Indentation for enums with multi-line initializers ([#518](https://github.com/pinterest/ktlint/issues/518))
+
 ## [0.34.0] - 2019-07-15
 
 ### Added
@@ -589,6 +602,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.34.1]: https://github.com/shyiko/ktlint/compare/0.33.0...0.34.1
 [0.34.0]: https://github.com/shyiko/ktlint/compare/0.33.0...0.34.0
 [0.33.0]: https://github.com/shyiko/ktlint/compare/0.32.0...0.33.0
 [0.32.0]: https://github.com/shyiko/ktlint/compare/0.31.0...0.32.0
