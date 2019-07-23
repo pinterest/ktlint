@@ -281,7 +281,10 @@ class KtlintCommandLine {
         val tripped = AtomicBoolean()
         val reporter = loadReporter(dependencyResolver) { tripped.get() }
         data class LintErrorWithCorrectionInfo(val err: LintError, val corrected: Boolean)
-        val userData = mapOf("android" to android.toString(), "disabled_rules" to disabledRules)
+        val userData = listOfNotNull(
+            "android" to android.toString(),
+            if (disabledRules.isNotBlank()) "disabled_rules" to disabledRules else null
+        ).toMap()
 
         fun process(fileName: String, fileContent: String): List<LintErrorWithCorrectionInfo> {
             if (debug) {
