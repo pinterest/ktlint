@@ -14,7 +14,10 @@
 <a href="https://kotlinlang.org/">Kotlin</a> linter in spirit of <a href="https://github.com/feross/standard">feross/standard</a> (JavaScript) and <a href="https://golang.org/cmd/gofmt/">gofmt</a> (Go).  
 </p>
 
-Features:
+## User survey
+Interested in providing your feedback about `ktlint`? Please fill out our [2019 user survey](https://forms.gle/FPv2VkHyDsMJDvPG7).
+
+## Features
 - **No configuration.**[*](https://github.com/pinterest/ktlint#how-do-i-globally-disable-a-rule) Which means no decisions to make, nothing to argue about and no special files to manage.   
 While this might sound extreme, keep in mind that `ktlint` tries to capture (reflect) **official code style**[*](https://github.com/pinterest/ktlint/issues/284#issuecomment-425177186) from [kotlinlang.org](https://kotlinlang.org/docs/reference/coding-conventions.html) and [Android Kotlin Style Guide](https://android.github.io/kotlin-guides/style.html)
 (+ [we respect your .editorconfig](#editorconfig) and support additional [ruleset](#creating-a-ruleset)|s).
