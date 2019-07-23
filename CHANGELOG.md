@@ -2,9 +2,9 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.34.1] - 2019-07-22
+## [0.34.2] - 2019-07-22
 
-Minor bugfix release for 0.34.0
+Minor bugfix release for 0.34.0. (Note: 0.34.1 deprecated/deleted due to regression in disabled_flags .editorconfig support.)
 
 ### Added
 - Support for globally disabling rules via `--disabled_rules` command line flag. ([#534](https://github.com/pinterest/ktlint/pull/534))
@@ -602,7 +602,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
-[0.34.1]: https://github.com/shyiko/ktlint/compare/0.33.0...0.34.1
+[0.34.2]: https://github.com/shyiko/ktlint/compare/0.33.0...0.34.2
 [0.34.0]: https://github.com/shyiko/ktlint/compare/0.33.0...0.34.0
 [0.33.0]: https://github.com/shyiko/ktlint/compare/0.32.0...0.33.0
 [0.32.0]: https://github.com/shyiko/ktlint/compare/0.31.0...0.32.0
