@@ -30,12 +30,12 @@ class AnnotationRule : Rule("annotation") {
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        val root =
+        val modifierListRoot =
             node.children().firstOrNull { it.elementType == MODIFIER_LIST }
                 ?: return
 
         val annotations =
-            root.children()
+            modifierListRoot.children()
                 .mapNotNull { it.psi as? KtAnnotationEntry }
                 .toList()
         if (annotations.isEmpty()) {
@@ -50,7 +50,7 @@ class AnnotationRule : Rule("annotation") {
         //      @JvmField
         //      val s: Any
         //
-        val whiteSpaces = (annotations.asSequence().map { it.nextSibling } + root.treeNext)
+        val whiteSpaces = (annotations.asSequence().map { it.nextSibling } + modifierListRoot.treeNext)
             .filterIsInstance<PsiWhiteSpace>()
             .take(annotations.size)
             .toList()
@@ -78,10 +78,13 @@ class AnnotationRule : Rule("annotation") {
         }
 
         if (autoCorrect) {
-            val nodeBeforeAnnotations = root.treeParent.treePrev as? PsiWhiteSpace
+            val nodeBeforeAnnotations = modifierListRoot.treeParent.treePrev as? PsiWhiteSpace
             // If there is no whitespace before the annotation, the annotation is the first
             // text in the file
-            val newLineWithIndent = nodeBeforeAnnotations?.text ?: "\n"
+            val newLineWithIndent = (nodeBeforeAnnotations?.text ?: "\n").let {
+                // Make sure we only insert a single newline
+                it.substring(it.lastIndexOf('\n'))
+            }
 
             if (annotationsWithParametersAreNotOnSeparateLines) {
                 whiteSpaces.forEach {
