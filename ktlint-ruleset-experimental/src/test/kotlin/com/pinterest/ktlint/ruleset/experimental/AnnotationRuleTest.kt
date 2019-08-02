@@ -391,4 +391,36 @@ class AnnotationRuleTest {
             """.trimIndent()
         assertThat(AnnotationRule().lint(code)).isEmpty()
     }
+
+    @Test
+    fun `multiple newlines preceding annotation`() {
+        val code =
+            """
+            fun foo() {
+
+
+
+
+                @Subscribe(threadMode = ThreadMode.MAIN) fun onEventMainThread(e: ModalContainer.ShowEvent) {
+                    modalContainer?.show(e)
+                }
+            }
+            """.trimIndent()
+        assertThat(
+            AnnotationRule().format(code)
+        ).isEqualTo(
+            """
+            fun foo() {
+
+
+
+
+                @Subscribe(threadMode = ThreadMode.MAIN)
+                fun onEventMainThread(e: ModalContainer.ShowEvent) {
+                    modalContainer?.show(e)
+                }
+            }
+            """.trimIndent()
+        )
+    }
 }
