@@ -423,4 +423,24 @@ class AnnotationRuleTest {
             """.trimIndent()
         )
     }
+
+    @Test
+    fun `poop`() {
+        val code =
+            """@Subscribe(threadMode = ThreadMode.MAIN) fun onEventMainThread(e: ModalContainer.ShowEvent) {
+                    modalContainer?.show(e)
+                }
+            }
+            """.trimIndent()
+        assertThat(
+            AnnotationRule().lint(code)
+        ).isEqualTo(
+            """@Subscribe(threadMode = ThreadMode.MAIN)
+    fun onEventMainThread(e: ModalContainer.ShowEvent) {
+                    modalContainer?.show(e)
+                }
+            }
+            """.trimIndent()
+        )
+    }
 }

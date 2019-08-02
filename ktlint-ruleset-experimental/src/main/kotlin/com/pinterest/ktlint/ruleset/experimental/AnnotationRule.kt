@@ -68,6 +68,9 @@ class AnnotationRule : Rule("annotation") {
                 multipleAnnotationsOnSameLineAsAnnotatedConstructErrorMessage,
                 true
             )
+            if (autoCorrect) {
+                (whiteSpaces.last() as LeafPsiElement).rawReplaceWithText(getNewlineWithIndent(modifierListRoot))
+            }
         }
         if (annotationsWithParametersAreNotOnSeparateLines) {
             emit(
@@ -75,24 +78,24 @@ class AnnotationRule : Rule("annotation") {
                 annotationsWithParametersAreNotOnSeparateLinesErrorMessage,
                 true
             )
-        }
-
-        if (autoCorrect) {
-            val nodeBeforeAnnotations = modifierListRoot.treeParent.treePrev as? PsiWhiteSpace
-            // If there is no whitespace before the annotation, the annotation is the first
-            // text in the file
-            val newLineWithIndent = (nodeBeforeAnnotations?.text ?: "\n").let {
-                // Make sure we only insert a single newline
-                it.substring(it.lastIndexOf('\n'))
-            }
-
-            if (annotationsWithParametersAreNotOnSeparateLines) {
+            if (autoCorrect) {
                 whiteSpaces.forEach {
-                    (it as LeafPsiElement).rawReplaceWithText(newLineWithIndent)
+                    (it as LeafPsiElement).rawReplaceWithText(getNewlineWithIndent(modifierListRoot))
                 }
-            } else if (multipleAnnotationsOnSameLineAsAnnotatedConstruct) {
-                (whiteSpaces.last() as LeafPsiElement).rawReplaceWithText(newLineWithIndent)
             }
+        }
+    }
+
+    private fun getNewlineWithIndent(modifierListRoot: ASTNode): String {
+        val nodeBeforeAnnotations = modifierListRoot.treeParent.treePrev as? PsiWhiteSpace
+        // If there is no whitespace before the annotation, the annotation is the first
+        // text in the file
+        val newLineWithIndent = nodeBeforeAnnotations?.text ?: "\n"
+        return if (newLineWithIndent.contains('\n')) {
+            // Make sure we only insert a single newline
+            newLineWithIndent.substring(newLineWithIndent.lastIndexOf('\n'))
+        } else {
+            newLineWithIndent
         }
     }
 
