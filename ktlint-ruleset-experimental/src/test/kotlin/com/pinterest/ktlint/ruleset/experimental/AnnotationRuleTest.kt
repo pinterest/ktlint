@@ -407,19 +407,20 @@ class AnnotationRuleTest {
             }
             """.trimIndent()
         assertThat(
-            AnnotationRule().format(code)).isEqualTo(
-                """
-                fun foo() {
+            AnnotationRule().format(code)
+        ).isEqualTo(
+            """
+            fun foo() {
 
 
 
 
-                    @Subscribe(threadMode = ThreadMode.MAIN)
-                    fun onEventMainThread(e: ModalContainer.ShowEvent) {
-                        modalContainer?.show(e)
-                    }
+                @Subscribe(threadMode = ThreadMode.MAIN)
+                fun onEventMainThread(e: ModalContainer.ShowEvent) {
+                    modalContainer?.show(e)
                 }
-                """.trimIndent()
+            }
+            """.trimIndent()
         )
     }
 }
