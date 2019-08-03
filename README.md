@@ -282,6 +282,17 @@ ktlint --apply-to-idea-project --android
 
 ##### Option #2
 
+Apply to all IDEA projects:
+```shell
+$ ./ktlint applyToIDEA
+```
+Or if you want to use android specific code style:
+```shell
+$ ./ktlint --android applyToIDEA
+```
+
+##### Option #3
+
 Go to <kbd>File</kbd> -> <kbd>Settings...</kbd> -> <kbd>Editor</kbd>
 - <kbd>General</kbd> -> <kbd>Auto Import</kbd>
   - check `Optimize imports on the fly (for current project)`.
