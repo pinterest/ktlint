@@ -230,7 +230,10 @@ object KtLint {
         node.putUserData(FILE_PATH_USER_DATA_KEY, userData["file_path"])
         node.putUserData(EDITOR_CONFIG_USER_DATA_KEY, EditorConfig.fromMap(editorConfigMap - "android" - "file_path"))
         node.putUserData(ANDROID_USER_DATA_KEY, android)
-        node.putUserData(DISABLED_RULES, userData["disabled_rules"]?.split(",")?.toSet() ?: emptySet())
+        node.putUserData(
+            DISABLED_RULES,
+            userData["disabled_rules"]?.split(",")?.map { it.trim() }?.toSet() ?: emptySet()
+        )
     }
 
     private fun visitor(
