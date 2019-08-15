@@ -14,6 +14,7 @@ ext.deps = [
     'compiler': "org.jetbrains.kotlin:kotlin-compiler-embeddable:${versions.kotlin}"
   ],
   'klob'          : 'com.github.shyiko.klob:klob:0.2.1',
+  ec4j            : 'org.ec4j.core:ec4j-core:0.2.0',
   'aether'        : [
     'api'      : "org.eclipse.aether:aether-api:${versions.aether}",
     'spi'      : "org.eclipse.aether:aether-spi:${versions.aether}",

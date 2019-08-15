@@ -1,12 +1,18 @@
 package com.pinterest.ktlint.core.internal
 
-import java.io.ByteArrayInputStream
+import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
-import java.util.Properties
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
+import org.ec4j.core.PropertyTypeRegistry
+import org.ec4j.core.Resource
+import org.ec4j.core.model.EditorConfig
+import org.ec4j.core.model.Version
+import org.ec4j.core.parser.EditorConfigModelHandler
+import org.ec4j.core.parser.EditorConfigParser
+import org.ec4j.core.parser.ErrorHandler
 
 /**
  * This class handles traversing the filetree and parsing and merging the contents of any discovered .editorconfig files
@@ -18,11 +24,10 @@ class EditorConfigInternal private constructor (
 ) : Map<String, String> by data {
 
     companion object : EditorConfigLookup {
-
         override fun of(dir: String) = of(Paths.get(dir))
         override fun of(dir: Path) =
             generateSequence(locate(dir)) { seed -> locate(seed.parent.parent) } // seed.parent == .editorconfig dir
-                .map { it to lazy { load(it) } }
+                .map { it to lazy { loadEditorconfigFile(it) } }
                 .let { seq ->
                     // stop when .editorconfig with "root = true" is found, go deeper otherwise
                     var prev: Pair<Path, Lazy<Map<String, Map<String, String>>>>? = null
@@ -64,7 +69,7 @@ class EditorConfigInternal private constructor (
                                         (
                                             parent?.data
                                                 ?: emptyMap()
-                                            ) + flatten(load(editorConfigPath))
+                                            ) + flatten(loadEditorconfigFile(editorConfigPath))
                                     )
                                 } else {
                                     parent
@@ -91,7 +96,7 @@ class EditorConfigInternal private constructor (
             }
         }
 
-        private fun flatten(data: LinkedHashMap<String, Map<String, String>>): Map<String, String> {
+        private fun flatten(data: Map<String, Map<String, String>>): Map<String, String> {
             val map = mutableMapOf<String, String>()
             val patternsToSearchFor = arrayOf("*", "*.kt", "*.kts")
             for ((sectionName, section) in data) {
@@ -99,7 +104,7 @@ class EditorConfigInternal private constructor (
                     continue
                 }
                 val patterns = try {
-                    parseSection(sectionName.substring(1, sectionName.length - 1))
+                    parseSection(sectionName)
                 } catch (e: Exception) {
                     throw RuntimeException(
                         "ktlint failed to parse .editorconfig section \"$sectionName\"" +
@@ -114,25 +119,36 @@ class EditorConfigInternal private constructor (
             return map.toSortedMap()
         }
 
-        private fun load(path: Path) =
-            linkedMapOf<String, Map<String, String>>().also { map ->
-                object : Properties() {
-                    private var section: MutableMap<String, String>? = null
+        private fun parseEditorconfigFile(path: Path): EditorConfig {
+            val parser = EditorConfigParser.builder().build()
+            val handler = EditorConfigModelHandler(PropertyTypeRegistry.default_(), Version.CURRENT)
 
-                    override fun put(key: Any, value: Any): Any? {
-                        val sectionName = (key as String).trim()
-                        if (sectionName.startsWith('[') && sectionName.endsWith(']') && value == "") {
-                            section = mutableMapOf<String, String>().also { map.put(sectionName, it) }
-                        } else {
-                            val section =
-                                section
-                                    ?: mutableMapOf<String, String>().also { section = it; map.put("", it) }
-                            section[key] = value.toString()
+            parser.parse(
+                Resource.Resources.ofPath(path, StandardCharsets.UTF_8),
+                handler,
+                ErrorHandler.THROW_SYNTAX_ERRORS_IGNORE_OTHERS
+            )
+            return handler.editorConfig
+        }
+
+        private fun loadEditorconfigFile(editorConfigFile: Path): Map<String, Map<String, String>> {
+            val editorConfig = parseEditorconfigFile(editorConfigFile)
+
+            var mapRepresentation = editorConfig.sections
+                .associate { section ->
+                    section.glob.toString() to section
+                        .properties
+                        .mapValues { entry ->
+                            entry.value.sourceValue
                         }
-                        return null
-                    }
-                }.load(ByteArrayInputStream(Files.readAllBytes(path)))
+                }
+
+            if (editorConfig.isRoot) {
+                mapRepresentation = mapRepresentation + ("" to mapOf("root" to true.toString()))
             }
+
+            return mapRepresentation
+        }
 
         internal fun parseSection(sectionName: String): List<String> {
             val result = mutableListOf<String>()
