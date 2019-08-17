@@ -24,6 +24,11 @@
             <version>${kotlin.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.ec4j.core</groupId>
+            <artifactId>ec4j-core</artifactId>
+            <version>${ec4j.version}</version>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>${junit.version}</version>
