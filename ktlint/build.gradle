@@ -29,16 +29,6 @@ dependencies {
   implementation deps.kotlin.stdlib
   implementation deps.kotlin.compiler
   implementation deps.klob
-  implementation deps.aether.api
-  implementation deps.aether.spi
-  implementation deps.aether.util
-  implementation deps.aether.impl
-  implementation deps.aether.connector.basic
-  implementation deps.aether.transport.file
-  implementation deps.aether.transport.http
-  implementation deps.guava
-  implementation deps.slf4j
-  implementation deps.aetherProvider
   implementation deps.picocli
 
   testImplementation deps.junit

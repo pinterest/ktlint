@@ -12,7 +12,6 @@ import com.pinterest.ktlint.internal.GitPreCommitHookSubCommand
 import com.pinterest.ktlint.internal.GitPrePushHookSubCommand
 import com.pinterest.ktlint.internal.IntellijIDEAIntegration
 import com.pinterest.ktlint.internal.KtlintVersionProvider
-import com.pinterest.ktlint.internal.MavenDependencyResolver
 import com.pinterest.ktlint.internal.PrintASTSubCommand
 import com.pinterest.ktlint.internal.expandTilde
 import com.pinterest.ktlint.internal.fileSequence
@@ -23,6 +22,8 @@ import com.pinterest.ktlint.internal.printHelpOrVersionUsage
 import java.io.File
 import java.io.IOException
 import java.io.PrintStream
+import java.net.URL
+import java.net.URLClassLoader
 import java.net.URLDecoder
 import java.nio.file.Paths
 import java.util.ArrayList
@@ -39,12 +40,6 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.concurrent.thread
 import kotlin.system.exitProcess
-import org.eclipse.aether.RepositoryException
-import org.eclipse.aether.artifact.DefaultArtifact
-import org.eclipse.aether.repository.RemoteRepository
-import org.eclipse.aether.repository.RepositoryPolicy
-import org.eclipse.aether.repository.RepositoryPolicy.CHECKSUM_POLICY_IGNORE
-import org.eclipse.aether.repository.RepositoryPolicy.UPDATE_POLICY_NEVER
 import picocli.CommandLine
 import picocli.CommandLine.Command
 import picocli.CommandLine.Option
@@ -186,34 +181,11 @@ class KtlintCommandLine {
     )
     private var reporters = ArrayList<String>()
 
-    @Deprecated("See https://github.com/pinterest/ktlint/issues/451")
-    @Option(
-        names = ["--repository"],
-        description = [
-            "An additional Maven repository (Maven Central/JCenter/JitPack are active by default) " +
-                "(value format: <id>=<url>)"
-        ],
-        hidden = true
-    )
-    private var repositories = ArrayList<String>()
-
-    @Option(
-        names = ["--repository-update", "-U"],
-        description = ["Check remote repositories for updated snapshots"]
-    )
-    private var forceUpdate: Boolean? = null
-
     @Option(
         names = ["--ruleset", "-R"],
         description = ["A path to a JAR file containing additional ruleset(s)"]
     )
     private var rulesets = ArrayList<String>()
-
-    @Option(
-        names = ["--skip-classpath-check"],
-        description = ["Do not check classpath for potential conflicts"]
-    )
-    private var skipClasspathCheck: Boolean = false
 
     @Option(
         names = ["--stdin"],
@@ -256,10 +228,7 @@ class KtlintCommandLine {
         val start = System.currentTimeMillis()
 
         // load 3rd party ruleset(s) (if any)
-        val dependencyResolver = lazy(LazyThreadSafetyMode.NONE) { buildDependencyResolver() }
-        if (!rulesets.isEmpty()) {
-            loadJARs(dependencyResolver, rulesets)
-        }
+        if (rulesets.isNotEmpty()) loadJARs(rulesets)
 
         // Detect custom rulesets that have not been moved to the new package
         if (ServiceLoader.load(com.github.shyiko.ktlint.core.RuleSetProvider::class.java).any()) {
@@ -279,7 +248,7 @@ class KtlintCommandLine {
             ruleSetProviders.forEach { System.err.println("[DEBUG] Discovered ruleset \"${it.first}\"") }
         }
         val tripped = AtomicBoolean()
-        val reporter = loadReporter(dependencyResolver) { tripped.get() }
+        val reporter = loadReporter() { tripped.get() }
         data class LintErrorWithCorrectionInfo(val err: LintError, val corrected: Boolean)
         val userData = listOfNotNull(
             "android" to android.toString(),
@@ -376,9 +345,17 @@ class KtlintCommandLine {
         }
     }
 
-    private fun loadReporter(dependencyResolver: Lazy<MavenDependencyResolver>, tripped: () -> Boolean): Reporter {
-        data class ReporterTemplate(val id: String, val artifact: String?, val config: Map<String, String>, var output: String?)
-        val tpls = (if (reporters.isEmpty()) listOf("plain") else reporters)
+    private data class ReporterTemplate(
+        val id: String,
+        val artifact: String?,
+        val config: Map<String, String>,
+        val output: String?
+    )
+
+    private fun loadReporter(tripped: () -> Boolean): Reporter {
+        val configuredReporters = if (reporters.isEmpty()) listOf("plain") else reporters
+
+        val tpls = configuredReporters
             .map { reporter ->
                 val split = reporter.split(",")
                 val (reporterId, rawReporterConfig) = split[0].split("?", limit = 2) + listOf("")
@@ -391,13 +368,15 @@ class KtlintCommandLine {
             }
             .distinct()
         val reporterLoader = ServiceLoader.load(ReporterProvider::class.java)
-        val reporterProviderById = reporterLoader.associate { it.id to it }.let { map ->
-            val missingReporters = tpls.filter { !map.containsKey(it.id) }.mapNotNull { it.artifact }.distinct()
-            if (!missingReporters.isEmpty()) {
-                loadJARs(dependencyResolver, missingReporters)
-                reporterLoader.reload()
-                reporterLoader.associate { it.id to it }
-            } else map
+        val reporterProviderById = reporterLoader.associateBy { it.id }
+        val missingReporters = tpls
+            .filter { !reporterProviderById.containsKey(it.id) }
+            .mapNotNull { it.artifact }
+            .distinct()
+        if (missingReporters.isNotEmpty()) {
+            loadJARs(missingReporters)
+            reporterLoader.reload()
+            reporterLoader.associateBy { it.id }
         }
         if (debug) {
             reporterProviderById.forEach { (id) -> System.err.println("[DEBUG] Discovered reporter \"$id\"") }
@@ -503,105 +482,20 @@ class KtlintCommandLine {
 
     private fun <T> List<T>.head(limit: Int) = if (limit == size) this else this.subList(0, limit)
 
-    private fun buildDependencyResolver(): MavenDependencyResolver {
-        val mavenLocal = File(File(System.getProperty("user.home"), ".m2"), "repository")
-        mavenLocal.mkdirsOrFail()
-        val dependencyResolver = MavenDependencyResolver(
-            mavenLocal,
-            listOf(
-                RemoteRepository.Builder(
-                    "central", "default", "https://repo1.maven.org/maven2/"
-                ).setSnapshotPolicy(
-                    RepositoryPolicy(
-                        false, UPDATE_POLICY_NEVER,
-                        CHECKSUM_POLICY_IGNORE
-                    )
-                ).build(),
-                RemoteRepository.Builder(
-                    "bintray", "default", "https://jcenter.bintray.com"
-                ).setSnapshotPolicy(
-                    RepositoryPolicy(
-                        false, UPDATE_POLICY_NEVER,
-                        CHECKSUM_POLICY_IGNORE
-                    )
-                ).build(),
-                RemoteRepository.Builder(
-                    "jitpack", "default", "https://jitpack.io"
-                ).build()
-            ) + repositories.map { repository ->
-                val colon = repository.indexOf("=").apply {
-                    if (this == -1) {
-                        throw RuntimeException(
-                            "$repository is not a valid repository entry " +
-                                "(make sure it's provided as <id>=<url>"
-                        )
-                    }
-                }
-                val id = repository.substring(0, colon)
-                val url = repository.substring(colon + 1)
-                RemoteRepository.Builder(id, "default", url).build()
-            },
-            forceUpdate == true
-        )
-        if (debug) {
-            dependencyResolver.setTransferEventListener { e ->
-                System.err.println(
-                    "[DEBUG] Transfer ${e.type.toString().toLowerCase()} ${e.resource.repositoryUrl}" +
-                        e.resource.resourceName + (e.exception?.let { " (${it.message})" } ?: "")
-                )
-            }
-        }
-        return dependencyResolver
-    }
-
     // fixme: isn't going to work on JDK 9
-    private fun loadJARs(dependencyResolver: Lazy<MavenDependencyResolver>, artifacts: List<String>) {
-        (ClassLoader.getSystemClassLoader() as java.net.URLClassLoader)
-            .addURLs(
-                artifacts.flatMap { artifact ->
-                    if (debug) {
-                        System.err.println("[DEBUG] Resolving $artifact")
-                    }
-                    val result = try {
-                        dependencyResolver.value.resolve(DefaultArtifact(artifact)).map { it.toURI().toURL() }
-                    } catch (e: IllegalArgumentException) {
-                        val file = File(expandTilde(artifact))
-                        if (!file.exists()) {
-                            System.err.println("Error: $artifact does not exist")
-                            exitProcess(1)
-                        }
-                        listOf(file.toURI().toURL())
-                    } catch (e: RepositoryException) {
-                        if (debug) {
-                            e.printStackTrace()
-                        }
-                        System.err.println("Error: $artifact wasn't found")
-                        exitProcess(1)
-                    }
-                    if (debug) {
-                        result.forEach { url -> System.err.println("[DEBUG] Loading $url") }
-                    }
-                    if (!skipClasspathCheck) {
-                        if (result.any { it.toString().substringAfterLast("/").startsWith("ktlint-core-") }) {
-                            System.err.println(
-                                "\"$artifact\" appears to have a runtime/compile dependency on \"ktlint-core\".\n" +
-                                    "Please inform the author that \"com.pinterest:ktlint*\" should be marked " +
-                                    "compileOnly (Gradle) / provided (Maven).\n" +
-                                    "(to suppress this warning use --skip-classpath-check)"
-                            )
-                        }
-                        if (result.any { it.toString().substringAfterLast("/").startsWith("kotlin-stdlib-") }) {
-                            System.err.println(
-                                "\"$artifact\" appears to have a runtime/compile dependency on \"kotlin-stdlib\".\n" +
-                                    "Please inform the author that \"org.jetbrains.kotlin:kotlin-stdlib*\" should be marked " +
-                                    "compileOnly (Gradle) / provided (Maven).\n" +
-                                    "(to suppress this warning use --skip-classpath-check)"
-                            )
-                        }
-                    }
-                    result
+    private fun loadJARs(artifacts: List<String>) {
+        val jarUrls = artifacts
+            .map {
+                val artifactFile = File(expandTilde(it))
+                if (!artifactFile.exists()) {
+                    System.err.println("Error: $it does not exist")
+                    exitProcess(1)
                 }
-            )
+                artifactFile.toURI().toURL()
+            }
+
+        val classLoader = ClassLoader.getSystemClassLoader() as URLClassLoader
+        classLoader.addURLs(jarUrls)
     }
 
     private fun parseQuery(query: String) =
@@ -618,8 +512,8 @@ class KtlintCommandLine {
                 map
             }
 
-    private fun java.net.URLClassLoader.addURLs(url: Iterable<java.net.URL>) {
-        val method = java.net.URLClassLoader::class.java.getDeclaredMethod("addURL", java.net.URL::class.java)
+    private fun URLClassLoader.addURLs(url: Iterable<URL>) {
+        val method = URLClassLoader::class.java.getDeclaredMethod("addURL", URL::class.java)
         method.isAccessible = true
         url.forEach { method.invoke(this, it) }
     }

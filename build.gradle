@@ -15,24 +15,6 @@ ext.deps = [
   ],
   'klob'          : 'com.github.shyiko.klob:klob:0.2.1',
   ec4j            : 'org.ec4j.core:ec4j-core:0.2.0',
-  'aether'        : [
-    'api'      : "org.eclipse.aether:aether-api:${versions.aether}",
-    'spi'      : "org.eclipse.aether:aether-spi:${versions.aether}",
-    'util'     : "org.eclipse.aether:aether-util:${versions.aether}",
-    'impl'     : "org.eclipse.aether:aether-impl:${versions.aether}",
-    'connector': [
-      'basic': "org.eclipse.aether:aether-connector-basic:${versions.aether}",
-    ],
-    'transport': [
-      'file': "org.eclipse.aether:aether-transport-file:${versions.aether}",
-      'http': "org.eclipse.aether:aether-transport-http:${versions.aether}",
-    ]
-  ],
-  // Required by aether
-  'guava'         : 'com.google.guava:guava:18.0',
-  // Used to silence aether-transport-http
-  'slf4j'          : 'org.slf4j:slf4j-nop:1.6.2',
-  'aetherProvider': 'org.apache.maven:maven-aether-provider:3.2.5',
   'picocli'       : 'info.picocli:picocli:3.9.6',
   // Testing libraries
   'junit'         : 'junit:junit:4.12',
