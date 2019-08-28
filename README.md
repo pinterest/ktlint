@@ -224,7 +224,7 @@ You might also want to take a look at [diffplug/spotless](https://github.com/dif
 // kotlin-gradle-plugin must be applied for configuration below to work
 // (see https://kotlinlang.org/docs/reference/using-gradle.html)
 
-apply plugin: &quot;java&quot;
+apply plugin: 'java'
 
 repositories {
     jcenter()
