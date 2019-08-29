@@ -98,7 +98,7 @@ class ImportOrderingRuleTest {
         assertThat(ImportOrderingRule().lint(imports)).isEqualTo(expectedErrors)
         assertThat(ImportOrderingRule().format(imports)).isEqualTo(formattedImports)
     }
-    
+
     @Test
     fun testFormatWrongOrderAndBlankLines() {
         val imports =
