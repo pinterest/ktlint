@@ -25,7 +25,7 @@ class ImportOrderingRule : Rule("import-ordering") {
             if (children.isNotEmpty()) {
                 val imports = children.filter { it.elementType == ElementType.IMPORT_DIRECTIVE }
                 val hasComments = children.find { it.elementType == ElementType.BLOCK_COMMENT || it.elementType == ElementType.EOL_COMMENT } != null
-                val sortedImports = imports.sortedBy { it.text }
+                val sortedImports = imports.sortedBy { it.text }.distinctBy { it.text }
                 val canAutoCorrect = !hasComments
                 if (imports != sortedImports || hasTooMuchWhitespace(children)) {
                     val additionalMessage = if (!canAutoCorrect) {

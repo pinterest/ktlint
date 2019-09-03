@@ -73,6 +73,33 @@ class ImportOrderingRuleTest {
     }
 
     @Test
+    fun testFormatDuplicate() {
+        val imports =
+            """
+            import android.view.ViewGroup
+            import android.view.View
+            import android.view.ViewGroup
+            """.trimIndent()
+
+        val expectedErrors = listOf(
+            LintError(
+                1,
+                1,
+                "import-ordering",
+                "Imports must be ordered in lexicographic order without any empty lines in-between"
+            )
+        )
+        val formattedImports =
+            """
+            import android.view.View
+            import android.view.ViewGroup
+            """.trimIndent()
+
+        assertThat(ImportOrderingRule().lint(imports)).isEqualTo(expectedErrors)
+        assertThat(ImportOrderingRule().format(imports)).isEqualTo(formattedImports)
+    }
+
+    @Test
     fun testFormatWrongOrderAndBlankLines() {
         val imports =
             """
