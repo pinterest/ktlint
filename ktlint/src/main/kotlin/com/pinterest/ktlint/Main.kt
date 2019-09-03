@@ -8,6 +8,7 @@ import com.pinterest.ktlint.core.Reporter
 import com.pinterest.ktlint.core.ReporterProvider
 import com.pinterest.ktlint.core.RuleExecutionException
 import com.pinterest.ktlint.core.RuleSetProvider
+import com.pinterest.ktlint.internal.ApplyToIDEAGloballySubCommand
 import com.pinterest.ktlint.internal.GitPreCommitHookSubCommand
 import com.pinterest.ktlint.internal.GitPrePushHookSubCommand
 import com.pinterest.ktlint.internal.IntellijIDEAIntegration
@@ -51,6 +52,7 @@ fun main(args: Array<String>) {
         .addSubcommand(GitPreCommitHookSubCommand.COMMAND_NAME, GitPreCommitHookSubCommand())
         .addSubcommand(GitPrePushHookSubCommand.COMMAND_NAME, GitPrePushHookSubCommand())
         .addSubcommand(PrintASTSubCommand.COMMAND_NAME, PrintASTSubCommand())
+        .addSubcommand(ApplyToIDEAGloballySubCommand.COMMAND_NAME, ApplyToIDEAGloballySubCommand())
     val parseResult = commandLine.parseArgs(*args)
 
     commandLine.printHelpOrVersionUsage()
@@ -70,6 +72,7 @@ fun handleSubCommand(
         is GitPreCommitHookSubCommand -> subCommand.run()
         is GitPrePushHookSubCommand -> subCommand.run()
         is PrintASTSubCommand -> subCommand.run()
+        is ApplyToIDEAGloballySubCommand -> subCommand.run()
         else -> commandLine.usage(System.out, CommandLine.Help.Ansi.OFF)
     }
 }
@@ -116,13 +119,6 @@ class KtlintCommandLine {
         description = ["Turn on Android Kotlin Style Guide compatibility"]
     )
     var android: Boolean = false
-
-    // todo: make it a command in 1.0.0 (it's too late now as we might interfere with valid "lint" patterns)
-    @Option(
-        names = ["--apply-to-idea"],
-        description = ["Update Intellij IDEA settings (global)"]
-    )
-    private var apply: Boolean = false
 
     // todo: make it a command in 1.0.0 (it's too late now as we might interfere with valid "lint" patterns)
     @Option(
@@ -221,7 +217,7 @@ class KtlintCommandLine {
     private var patterns = ArrayList<String>()
 
     fun run() {
-        if (apply || applyToProject) {
+        if (applyToProject) {
             applyToIDEA()
             exitProcess(0)
         }
