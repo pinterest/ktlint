@@ -7,6 +7,7 @@ import com.pinterest.ktlint.core.ParseException
 import com.pinterest.ktlint.core.Reporter
 import com.pinterest.ktlint.core.ReporterProvider
 import com.pinterest.ktlint.core.RuleExecutionException
+import com.pinterest.ktlint.core.RuleSet
 import com.pinterest.ktlint.core.RuleSetProvider
 import com.pinterest.ktlint.internal.ApplyToIDEAGloballySubCommand
 import com.pinterest.ktlint.internal.GitPreCommitHookSubCommand
@@ -224,7 +225,7 @@ class KtlintCommandLine {
         val start = System.currentTimeMillis()
 
         // load 3rd party ruleset(s) (if any)
-        if (rulesets.isNotEmpty()) loadJARs(rulesets)
+        if (rulesets.isNotEmpty()) loadJARs(rulesets, RuleSet::class.java.classLoader)
 
         // Detect custom rulesets that have not been moved to the new package
         if (ServiceLoader.load(com.github.shyiko.ktlint.core.RuleSetProvider::class.java).any()) {
@@ -370,7 +371,7 @@ class KtlintCommandLine {
             .mapNotNull { it.artifact }
             .distinct()
         if (missingReporters.isNotEmpty()) {
-            loadJARs(missingReporters)
+            loadJARs(missingReporters, Reporter::class.java.classLoader)
             reporterLoader.reload()
             reporterLoader.associateBy { it.id }
         }
@@ -478,8 +479,7 @@ class KtlintCommandLine {
 
     private fun <T> List<T>.head(limit: Int) = if (limit == size) this else this.subList(0, limit)
 
-    // fixme: isn't going to work on JDK 9
-    private fun loadJARs(artifacts: List<String>) {
+    private fun loadJARs(artifacts: List<String>, classLoader: ClassLoader) {
         val jarUrls = artifacts
             .map {
                 val artifactFile = File(expandTilde(it))
@@ -490,8 +490,8 @@ class KtlintCommandLine {
                 artifactFile.toURI().toURL()
             }
 
-        val classLoader = ClassLoader.getSystemClassLoader() as URLClassLoader
-        classLoader.addURLs(jarUrls)
+        val urlClassLoader = URLClassLoader(jarUrls.toTypedArray(), classLoader)
+        urlClassLoader.addURLs(jarUrls)
     }
 
     private fun parseQuery(query: String) =
