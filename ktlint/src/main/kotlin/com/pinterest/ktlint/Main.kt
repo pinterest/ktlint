@@ -23,7 +23,6 @@ import com.pinterest.ktlint.internal.printHelpOrVersionUsage
 import java.io.File
 import java.io.IOException
 import java.io.PrintStream
-import java.net.URL
 import java.net.URLClassLoader
 import java.net.URLDecoder
 import java.nio.file.Paths
@@ -223,9 +222,6 @@ class KtlintCommandLine {
         }
         val start = System.currentTimeMillis()
 
-        // load 3rd party ruleset(s) (if any)
-        if (rulesets.isNotEmpty()) loadJARs(rulesets)
-
         // Detect custom rulesets that have not been moved to the new package
         if (ServiceLoader.load(com.github.shyiko.ktlint.core.RuleSetProvider::class.java).any()) {
             System.err.println("[ERROR] Cannot load custom ruleset!")
@@ -234,17 +230,9 @@ class KtlintCommandLine {
             exitProcess(1)
         }
 
-        // standard should go first
-        val ruleSetProviders =
-            ServiceLoader.load(RuleSetProvider::class.java)
-                .map { it.get().id to it }
-                .filter { (id) -> experimental || id != "experimental" }
-                .sortedBy { if (it.first == "standard") "\u0000${it.first}" else it.first }
-        if (debug) {
-            ruleSetProviders.forEach { System.err.println("[DEBUG] Discovered ruleset \"${it.first}\"") }
-        }
+        val ruleSetProviders = loadRulesets(rulesets)
         val tripped = AtomicBoolean()
-        val reporter = loadReporter() { tripped.get() }
+        val reporter = loadReporter { tripped.get() }
         data class LintErrorWithCorrectionInfo(val err: LintError, val corrected: Boolean)
         val userData = listOfNotNull(
             "android" to android.toString(),
@@ -262,7 +250,7 @@ class KtlintCommandLine {
                     formatFile(
                         fileName,
                         fileContent,
-                        ruleSetProviders.map { it.second.get() },
+                        ruleSetProviders.map { it.value.get() },
                         userData,
                         editorConfigPath,
                         debug
@@ -289,7 +277,7 @@ class KtlintCommandLine {
                     lintFile(
                         fileName,
                         fileContent,
-                        ruleSetProviders.map { it.second.get() },
+                        ruleSetProviders.map { it.value.get() },
                         userData,
                         editorConfigPath,
                         debug
@@ -363,20 +351,7 @@ class KtlintCommandLine {
                 )
             }
             .distinct()
-        val reporterLoader = ServiceLoader.load(ReporterProvider::class.java)
-        val reporterProviderById = reporterLoader.associateBy { it.id }
-        val missingReporters = tpls
-            .filter { !reporterProviderById.containsKey(it.id) }
-            .mapNotNull { it.artifact }
-            .distinct()
-        if (missingReporters.isNotEmpty()) {
-            loadJARs(missingReporters)
-            reporterLoader.reload()
-            reporterLoader.associateBy { it.id }
-        }
-        if (debug) {
-            reporterProviderById.forEach { (id) -> System.err.println("[DEBUG] Discovered reporter \"$id\"") }
-        }
+        val reporterProviderById = loadReporters(tpls.mapNotNull { it.artifact })
         fun ReporterTemplate.toReporter(): Reporter {
             val reporterProvider = reporterProviderById[id]
             if (reporterProvider == null) {
@@ -478,22 +453,6 @@ class KtlintCommandLine {
 
     private fun <T> List<T>.head(limit: Int) = if (limit == size) this else this.subList(0, limit)
 
-    // fixme: isn't going to work on JDK 9
-    private fun loadJARs(artifacts: List<String>) {
-        val jarUrls = artifacts
-            .map {
-                val artifactFile = File(expandTilde(it))
-                if (!artifactFile.exists()) {
-                    System.err.println("Error: $it does not exist")
-                    exitProcess(1)
-                }
-                artifactFile.toURI().toURL()
-            }
-
-        val classLoader = ClassLoader.getSystemClassLoader() as URLClassLoader
-        classLoader.addURLs(jarUrls)
-    }
-
     private fun parseQuery(query: String) =
         query.split("&")
             .fold(LinkedHashMap<String, String>()) { map, s ->
@@ -507,12 +466,6 @@ class KtlintCommandLine {
                 }
                 map
             }
-
-    private fun URLClassLoader.addURLs(url: Iterable<URL>) {
-        val method = URLClassLoader::class.java.getDeclaredMethod("addURL", URL::class.java)
-        method.isAccessible = true
-        url.forEach { method.invoke(this, it) }
-    }
 
     private fun File.mkdirsOrFail() {
         if (!mkdirs() && !isDirectory) {
@@ -577,5 +530,48 @@ class KtlintCommandLine {
             producer.interrupt() // in case q.take()/result.get() throws
             producer.join()
         }
+    }
+
+    private fun loadRulesets(externalRulesetsJarPaths: List<String>) = ServiceLoader
+        .load(
+            RuleSetProvider::class.java,
+            URLClassLoader(externalRulesetsJarPaths.toFilesURIList().toTypedArray())
+        )
+        .associateBy {
+            val key = it.get().id
+            // standard should go first
+            if (key == "standard") "\u0000$key" else key
+        }
+        .filterKeys { experimental || it != "experimental" }
+        .toSortedMap()
+        .also {
+            if (debug) {
+                it.forEach { entry ->
+                    println("[DEBUG] Discovered ruleset with \"${entry.key}\" id.")
+                }
+            }
+        }
+
+    private fun loadReporters(externalReportersJarPaths: List<String>) = ServiceLoader
+        .load(
+            ReporterProvider::class.java,
+            URLClassLoader(externalReportersJarPaths.toFilesURIList().toTypedArray())
+        )
+        .associateBy { it.id }
+        .also {
+            if (debug) {
+                it.forEach { entry ->
+                    println("[DEBUG] Discovered reporter with \"${entry.key}\" id.")
+                }
+            }
+        }
+
+    private fun List<String>.toFilesURIList() = map {
+        val jarFile = File(expandTilde(it))
+        if (!jarFile.exists()) {
+            println("Error: $it does not exist")
+            exitProcess(1)
+        }
+        jarFile.toURI().toURL()
     }
 }
