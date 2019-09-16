@@ -10,6 +10,7 @@ adds your information to this file.
 - [Freeletics](https://www.freeletics.com)
 - [Gradle](https://gradle.org)
 - [Pinterest](https://www.pinterest.com/)
+- [Runtastic](https://www.runtastic.com/)
 - [Shopify](https://www.shopify.com/)
 - [Tinder](https://tinder.com)
 - [Workable](https://www.workable.com)
