@@ -1,9 +1,12 @@
 package com.pinterest.ktlint.reporter.plain
 
 import com.pinterest.ktlint.core.LintError
+import com.pinterest.ktlint.reporter.plain.internal.Color
+import com.pinterest.ktlint.reporter.plain.internal.color
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class PlainReporterTest {
@@ -55,12 +58,44 @@ class PlainReporterTest {
             true
         )
         assertThat(String(out.toByteArray())).isEqualTo(
-"""
+            """
 /one-fixed-and-one-not.kt:1:1: <"&'>
 /two-not-fixed.kt:1:10: I thought I would again
 /two-not-fixed.kt:2:20: A single thin straight line
 """.trimStart().replace("\n", System.lineSeparator())
         )
+    }
+
+    @Test
+    fun testColoredOutput() {
+        val out = ByteArrayOutputStream()
+        val outputColor = Color.DARK_GRAY
+        val reporter = PlainReporter(
+            PrintStream(out, true),
+            shouldColorOutput = true,
+            color = outputColor
+        )
+        reporter.onLintError(
+            "/one-fixed-and-one-not.kt",
+            LintError(
+                1, 1, "rule-1",
+                "<\"&'>"
+            ),
+            false
+        )
+
+        val outputString = String(out.toByteArray())
+
+        // We don't expect class name, or first line to be colored
+        val expectedOutput =
+            "/".color(outputColor) +
+                "one-fixed-and-one-not.kt" +
+                ":".color(outputColor) +
+                "1" +
+                ":1:".color(outputColor) +
+                " <\"&'>\n"
+
+        assertEquals(expectedOutput, outputString)
     }
 
     @Test
@@ -113,7 +148,7 @@ class PlainReporterTest {
         reporter.after("/two-not-fixed.kt")
         reporter.after("/all-corrected.kt")
         assertThat(String(out.toByteArray())).isEqualTo(
-"""
+            """
 /one-fixed-and-one-not.kt
   1:1 <"&'>
 /two-not-fixed.kt

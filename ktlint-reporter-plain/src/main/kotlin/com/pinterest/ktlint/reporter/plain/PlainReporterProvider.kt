@@ -2,6 +2,7 @@ package com.pinterest.ktlint.reporter.plain
 
 import com.pinterest.ktlint.core.Reporter
 import com.pinterest.ktlint.core.ReporterProvider
+import com.pinterest.ktlint.reporter.plain.internal.Color
 import java.io.PrintStream
 
 class PlainReporterProvider : ReporterProvider {
@@ -13,9 +14,14 @@ class PlainReporterProvider : ReporterProvider {
             out,
             verbose = opt["verbose"]?.emptyOrTrue() ?: false,
             groupByFile = opt["group_by_file"]?.emptyOrTrue() ?: false,
-            color = opt["color"]?.emptyOrTrue() ?: false,
+            shouldColorOutput = opt["color"]?.emptyOrTrue() ?: false,
+            outputColor = getColor(opt["color_name"]),
             pad = opt["pad"]?.emptyOrTrue() ?: false
         )
 
     private fun String.emptyOrTrue() = this == "" || this == "true"
+
+    private fun getColor(colorInput: String?): Color {
+        return Color.values().firstOrNull { it.name == colorInput } ?: throw IllegalArgumentException("Invalid color parameter.")
+    }
 }
