@@ -133,6 +133,12 @@ class KtlintCommandLine {
     var color: Boolean = false
 
     @Option(
+        names = ["--outputColor"],
+        description = ["The name of the color to use for console output if --color is true. Defaults to DARK_GRAY"]
+    )
+    var outputColor: String = ""
+
+    @Option(
         names = ["--debug"],
         description = ["Turn on debug output"]
     )
@@ -346,7 +352,7 @@ class KtlintCommandLine {
                 ReporterTemplate(
                     reporterId,
                     split.lastOrNull { it.startsWith("artifact=") }?.let { it.split("=")[1] },
-                    mapOf("verbose" to verbose.toString(), "color" to color.toString()) + parseQuery(rawReporterConfig),
+                    mapOf("verbose" to verbose.toString(), "color" to color.toString(), "outputColor" to outputColor) + parseQuery(rawReporterConfig),
                     split.lastOrNull { it.startsWith("output=") }?.let { it.split("=")[1] }
                 )
             }
