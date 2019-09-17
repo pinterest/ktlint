@@ -13,7 +13,7 @@ class PlainReporterProvider : ReporterProvider {
             out,
             verbose = opt["verbose"]?.emptyOrTrue() ?: false,
             groupByFile = opt["group_by_file"]?.emptyOrTrue() ?: false,
-            color = opt["color"]?.emptyOrTrue() ?: false,
+            shouldColorOutput = opt["color"]?.emptyOrTrue() ?: false,
             pad = opt["pad"]?.emptyOrTrue() ?: false
         )
 
