@@ -1,10 +1,12 @@
 package com.pinterest.ktlint.reporter.plain
 
 import com.pinterest.ktlint.reporter.plain.internal.Color
-import org.junit.Assert.*
-import org.junit.Test
 import java.io.PrintStream
 import java.lang.System.out
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.junit.Test
 
 class PlainReporterProviderTest {
     @Test
@@ -19,7 +21,7 @@ class PlainReporterProviderTest {
     }
 
     @Test
-    fun testValidColor() {
+    fun testValidShouldColorBoolean() {
         val plainReporter = PlainReporterProvider().get(
             out = PrintStream(out, true),
             opt = mapOf("color" to "true")
