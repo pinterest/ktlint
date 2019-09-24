@@ -12,5 +12,7 @@ adds your information to this file.
 - [Pinterest](https://www.pinterest.com/)
 - [Runtastic](https://www.runtastic.com/)
 - [Shopify](https://www.shopify.com/)
+- [Square](https://squareup.com)
 - [Tinder](https://tinder.com)
+- [Uber](https://uber.com)
 - [Workable](https://www.workable.com)
