@@ -14,6 +14,7 @@ class ExperimentalRuleSetProvider : RuleSetProvider {
         EnumEntryNameCaseRule(),
         SpacingAroundDoubleColonRule(),
         SpacingBetweenDeclarationsWithCommentsRule(),
-        SpacingBetweenDeclarationsWithAnnotationsRule()
+        SpacingBetweenDeclarationsWithAnnotationsRule(),
+        SpacingAroundAngleBracketsRule()
     )
 }
