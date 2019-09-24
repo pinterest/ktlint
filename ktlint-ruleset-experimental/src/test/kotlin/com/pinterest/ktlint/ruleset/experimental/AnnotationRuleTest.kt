@@ -425,20 +425,18 @@ class AnnotationRuleTest {
     }
 
     @Test
-    fun `poop`() {
+    fun `annotation at top of file`() {
         val code =
-            """@Subscribe(threadMode = ThreadMode.MAIN) fun onEventMainThread(e: ModalContainer.ShowEvent) {
-                    modalContainer?.show(e)
-                }
+            """
+            @MyAnnotation(parameter = "bar") class Foo {
             }
             """.trimIndent()
         assertThat(
-            AnnotationRule().lint(code)
+            AnnotationRule().format(code)
         ).isEqualTo(
-            """@Subscribe(threadMode = ThreadMode.MAIN)
-    fun onEventMainThread(e: ModalContainer.ShowEvent) {
-                    modalContainer?.show(e)
-                }
+            """
+            @MyAnnotation(parameter = "bar")
+            class Foo {
             }
             """.trimIndent()
         )
