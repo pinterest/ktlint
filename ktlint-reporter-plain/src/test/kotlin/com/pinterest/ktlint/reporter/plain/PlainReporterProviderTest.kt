@@ -47,7 +47,7 @@ class PlainReporterProviderTest {
             opt = mapOf("color_name" to "RED")
         ) as PlainReporter
 
-        assertEquals(Color.RED, plainReporter.color)
+        assertEquals(Color.RED, plainReporter.outputColor)
     }
 
     @Test

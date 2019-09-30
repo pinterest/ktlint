@@ -73,7 +73,7 @@ class PlainReporterTest {
         val reporter = PlainReporter(
             PrintStream(out, true),
             shouldColorOutput = true,
-            color = outputColor
+            outputColor = outputColor
         )
         reporter.onLintError(
             "/one-fixed-and-one-not.kt",
