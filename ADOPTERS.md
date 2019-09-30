@@ -10,6 +10,7 @@ adds your information to this file.
 - [Faithlife](https://faithlife.com/about)
 - [Freeletics](https://www.freeletics.com)
 - [Gradle](https://gradle.org)
+- [M1 Finance](https://www.m1finance.com/)
 - [Pinterest](https://www.pinterest.com/)
 - [Runtastic](https://www.runtastic.com/)
 - [Shopify](https://www.shopify.com/)
