@@ -20,6 +20,7 @@ import com.pinterest.ktlint.internal.formatFile
 import com.pinterest.ktlint.internal.lintFile
 import com.pinterest.ktlint.internal.location
 import com.pinterest.ktlint.internal.printHelpOrVersionUsage
+import com.pinterest.ktlint.reporter.plain.internal.Color
 import java.io.File
 import java.io.IOException
 import java.io.PrintStream
@@ -131,6 +132,12 @@ class KtlintCommandLine {
         description = ["Make output colorful"]
     )
     var color: Boolean = false
+
+    @Option(
+        names = ["--color-name"],
+        description = ["Customize the output color"]
+    )
+    var colorName: String = Color.DARK_GRAY.name
 
     @Option(
         names = ["--debug"],
@@ -346,7 +353,7 @@ class KtlintCommandLine {
                 ReporterTemplate(
                     reporterId,
                     split.lastOrNull { it.startsWith("artifact=") }?.let { it.split("=")[1] },
-                    mapOf("verbose" to verbose.toString(), "color" to color.toString()) + parseQuery(rawReporterConfig),
+                    mapOf("verbose" to verbose.toString(), "color" to color.toString(), "color_name" to colorName) + parseQuery(rawReporterConfig),
                     split.lastOrNull { it.startsWith("output=") }?.let { it.split("=")[1] }
                 )
             }

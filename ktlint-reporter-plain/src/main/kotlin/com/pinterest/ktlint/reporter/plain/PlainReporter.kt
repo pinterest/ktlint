@@ -13,7 +13,8 @@ class PlainReporter(
     val out: PrintStream,
     val verbose: Boolean = false,
     val groupByFile: Boolean = false,
-    val color: Boolean = false,
+    val shouldColorOutput: Boolean = false,
+    val outputColor: Color = Color.DARK_GRAY,
     val pad: Boolean = false
 ) : Reporter {
 
@@ -25,9 +26,9 @@ class PlainReporter(
                 acc.getOrPut(file) { ArrayList<LintError>() }.add(err)
             } else {
                 out.println(
-                    "${colorFileName(file)}${":".gray()}${err.line}${
-                    ":${"${err.col}:".let { if (pad) String.format("%-4s", it) else it}}".gray()
-                    } ${err.detail}${if (verbose) " (${err.ruleId})".gray() else ""}"
+                    "${colorFileName(file)}${":".colored()}${err.line}${
+                    ":${"${err.col}:".let { if (pad) String.format("%-4s", it) else it}}".colored()
+                    } ${err.detail}${if (verbose) " (${err.ruleId})".colored() else ""}"
                 )
             }
         }
@@ -40,8 +41,8 @@ class PlainReporter(
             for ((line, col, ruleId, detail) in errList) {
                 out.println(
                     "  $line${
-                    ":${if (pad) String.format("%-3s", col) else "$col"}".gray()
-                    } $detail${if (verbose) " ($ruleId)".gray() else ""}"
+                    ":${if (pad) String.format("%-3s", col) else "$col"}".colored()
+                    } $detail${if (verbose) " ($ruleId)".colored() else ""}"
                 )
             }
         }
@@ -49,9 +50,9 @@ class PlainReporter(
 
     private fun colorFileName(fileName: String): String {
         val name = fileName.substringAfterLast(File.separator)
-        return fileName.substring(0, fileName.length - name.length).gray() + name
+        return fileName.substring(0, fileName.length - name.length).colored() + name
     }
 
-    private fun String.gray() =
-        if (color) this.color(Color.DARK_GRAY) else this
+    private fun String.colored() =
+        if (shouldColorOutput) this.color(outputColor) else this
 }
