@@ -363,6 +363,9 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
             val lf = rToken?.nextLeaf { it.isWhiteSpaceWithNewline() }
             return lf?.parent({ it == p }) == null
         }
+        if (nextCodeSibling?.textContains('\n') == false) {
+            return true
+        }
         return false
     }
 
