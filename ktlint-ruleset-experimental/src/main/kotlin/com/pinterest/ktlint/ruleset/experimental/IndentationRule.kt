@@ -965,6 +965,16 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                 node.treeParent?.elementType.let { it == TYPE_PARAMETER_LIST || it == TYPE_ARGUMENT_LIST } ->
                 0
             nextLeafElementType in rTokenSet -> -1
+            // IDEA quirk:
+            // var value: DataClass =
+            //     DataClass("too long line")
+            //     private set
+            //
+            //  instead of expected:
+            //  var value: DataClass =
+            //      DataClass("too long line")
+            //          private set
+            node.nextCodeSibling()?.elementType == PROPERTY_ACCESSOR && node.treeParent.findChildByType(EQ)?.nextLeaf().isWhiteSpaceWithNewline() -> -1
             else -> 0
         }
         // indentation with all \t replaced

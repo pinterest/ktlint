@@ -28,7 +28,12 @@ class A {
 
     var setterWithAnnotation: Any? = null
         @Inject set
+
+    var multilineInitialValue: String =
+        "tooooooooooooo loooooooooooooooong"
+            private set
 }
 
 // expect
 // 3:1:Unexpected indentation (4) (should be 8)
+// 34:1:Unexpected indentation (12) (should be 8)
