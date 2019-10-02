@@ -173,6 +173,23 @@ class AnnotationRuleTest {
     }
 
     @Test
+    fun `lint spacing after annotations`() {
+        assertThat(
+            AnnotationRule().lint(
+                """
+                class A {
+                    @SomeAnnotation("value")val x: String
+                }
+                """.trimIndent()
+            )
+        ).containsExactly(
+            LintError(
+                2, 28, "annotation", "Missing spacing after @SomeAnnotation(\"value\")"
+            )
+        )
+    }
+
+    @Test
     fun `lint annotations with params should not be placed on same line before annotated construct`() {
         assertThat(
             AnnotationRule().lint(
