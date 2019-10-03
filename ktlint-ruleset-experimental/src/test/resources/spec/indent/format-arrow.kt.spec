@@ -20,6 +20,10 @@ fun main() {
         2 // second element
         -> true
     }
+    when {
+        1,
+        2 -> true
+    }
     foo.func {
         param1, param2 ->
             doSomething()
