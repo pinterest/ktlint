@@ -26,6 +26,7 @@ import com.pinterest.ktlint.core.ast.ElementType.PERCEQ
 import com.pinterest.ktlint.core.ast.ElementType.PLUS
 import com.pinterest.ktlint.core.ast.ElementType.PLUSEQ
 import com.pinterest.ktlint.core.ast.ElementType.TYPE_PARAMETER_LIST
+import com.pinterest.ktlint.core.ast.ElementType.VALUE_ARGUMENT
 import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.core.ast.isPartOf
 import com.pinterest.ktlint.core.ast.nextLeaf
@@ -41,7 +42,6 @@ import org.jetbrains.kotlin.psi.KtImportDirective
 import org.jetbrains.kotlin.psi.KtPrefixExpression
 import org.jetbrains.kotlin.psi.KtSuperExpression
 import org.jetbrains.kotlin.psi.KtTypeArgumentList
-import org.jetbrains.kotlin.psi.KtValueArgument
 
 class SpacingAroundOperatorsRule : Rule("op-spacing") {
 
@@ -59,7 +59,7 @@ class SpacingAroundOperatorsRule : Rule("op-spacing") {
             node is LeafElement &&
             !node.isPartOf(KtPrefixExpression::class) && // not unary
             !node.isPartOf(KtTypeArgumentList::class) && // C<T>
-            !(node.elementType == MUL && node.isPartOf(KtValueArgument::class)) && // fn(*array)
+            !(node.elementType == MUL && node.treeParent.elementType == VALUE_ARGUMENT) && // fn(*array)
             !node.isPartOf(KtImportDirective::class) && // import *
             !node.isPartOf(KtSuperExpression::class) // super<T>
         ) {
