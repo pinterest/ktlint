@@ -3,11 +3,13 @@ package com.pinterest.ktlint.ruleset.experimental
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.core.ast.children
+import com.pinterest.ktlint.core.ast.upsertWhitespaceBeforeMe
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
+import org.jetbrains.kotlin.psi.psiUtil.endOffset
 import org.jetbrains.kotlin.psi.psiUtil.nextLeaf
 
 /**
@@ -55,6 +57,15 @@ class AnnotationRule : Rule("annotation") {
             .take(annotations.size)
             .toList()
 
+        val noWhiteSpaceAfterAnnotation = whiteSpaces.isEmpty() || whiteSpaces.last().nextSibling is KtAnnotationEntry
+        if (noWhiteSpaceAfterAnnotation) {
+            emit(
+                annotations.last().endOffset - 1,
+                "Missing spacing after ${annotations.last().text}",
+                true
+            )
+        }
+
         val multipleAnnotationsOnSameLineAsAnnotatedConstruct =
             annotations.size > 1 && !whiteSpaces.last().textContains('\n')
         val annotationsWithParametersAreNotOnSeparateLines =
@@ -86,11 +97,15 @@ class AnnotationRule : Rule("annotation") {
                 it.substring(it.lastIndexOf('\n'))
             }
 
+            if (noWhiteSpaceAfterAnnotation) {
+                (annotations.last().nextLeaf() as LeafPsiElement).upsertWhitespaceBeforeMe(" ")
+            }
             if (annotationsWithParametersAreNotOnSeparateLines) {
                 whiteSpaces.forEach {
                     (it as LeafPsiElement).rawReplaceWithText(newLineWithIndent)
                 }
-            } else if (multipleAnnotationsOnSameLineAsAnnotatedConstruct) {
+            }
+            if (multipleAnnotationsOnSameLineAsAnnotatedConstruct) {
                 (whiteSpaces.last() as LeafPsiElement).rawReplaceWithText(newLineWithIndent)
             }
         }
