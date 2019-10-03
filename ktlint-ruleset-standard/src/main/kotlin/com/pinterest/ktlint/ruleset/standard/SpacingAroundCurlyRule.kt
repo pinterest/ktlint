@@ -12,6 +12,7 @@ import com.pinterest.ktlint.core.ast.ElementType.LBRACE
 import com.pinterest.ktlint.core.ast.ElementType.LBRACKET
 import com.pinterest.ktlint.core.ast.ElementType.LPAR
 import com.pinterest.ktlint.core.ast.ElementType.RBRACE
+import com.pinterest.ktlint.core.ast.ElementType.RBRACKET
 import com.pinterest.ktlint.core.ast.ElementType.RPAR
 import com.pinterest.ktlint.core.ast.ElementType.SAFE_ACCESS
 import com.pinterest.ktlint.core.ast.ElementType.SEMICOLON
@@ -116,6 +117,7 @@ class SpacingAroundCurlyRule : Rule("curly-spacing") {
         return (
             nextElementType == DOT ||
                 nextElementType == COMMA ||
+                nextElementType == RBRACKET ||
                 nextElementType == RPAR ||
                 nextElementType == SEMICOLON ||
                 nextElementType == SAFE_ACCESS ||

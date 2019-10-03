@@ -50,6 +50,14 @@ class SpacingAroundCurlyRuleTest {
                     LintError(2, 37, "curly-spacing", "Unexpected space after \"}\"")
                 )
             )
+        assertThat(SpacingAroundCurlyRule().lint("fun main() { map[1 + list.count { it != true }] = 1 }"))
+            .isEmpty()
+        assertThat(SpacingAroundCurlyRule().lint("fun main() { map[1 + list.count { it != true } ] = 1 }"))
+            .isEqualTo(
+                listOf(
+                    LintError(1, 46, "curly-spacing", "Unexpected space after \"}\"")
+                )
+            )
     }
 
     @Test
@@ -109,6 +117,7 @@ class SpacingAroundCurlyRuleTest {
                     )
                     val f =
                         { true }
+                    map[1 + list.count { it != true } ] = 1
                 }
                 class A { private val shouldEjectBlock = block@ { (pathProgress ?: return@block false) >= 0.85 } }
                 """.trimIndent()
@@ -152,6 +161,7 @@ class SpacingAroundCurlyRuleTest {
                 )
                 val f =
                     { true }
+                map[1 + list.count { it != true }] = 1
             }
             class A { private val shouldEjectBlock = block@{ (pathProgress ?: return@block false) >= 0.85 } }
             """.trimIndent()
