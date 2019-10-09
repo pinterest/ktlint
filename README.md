@@ -116,7 +116,8 @@ Usually simple `http_proxy=http://proxy-server:port https_proxy=http://proxy-ser
 $ ktlint --color
   src/main/kotlin/Main.kt:10:10: Unused import
   
-# check only certain locations (prepend ! to negate the pattern) 
+# check only certain locations (prepend ! to negate the pattern,
+# Ktlint uses .gitignore pattern style syntax)
 $ ktlint "src/**/*.kt" "!src/**/*Test.kt"
 
 # auto-correct style violations

@@ -91,7 +91,8 @@ Examples:
   # (hidden folders will be skipped)
   ktlint
 
-  # check only certain locations (prepend ! to negate the pattern)
+  # check only certain locations (prepend ! to negate the pattern,
+  # Ktlint uses .gitignore pattern style syntax)
   ktlint "src/**/*.kt" "!src/**/*Test.kt"
 
   # auto-correct style violations
