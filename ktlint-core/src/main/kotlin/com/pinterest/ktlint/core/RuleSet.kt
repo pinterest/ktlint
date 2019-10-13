@@ -1,14 +1,19 @@
 package com.pinterest.ktlint.core
 
+import com.pinterest.ktlint.core.internal.IdNamingPolicy
+
 /**
  * A group of [Rule]s discoverable through [RuleSetProvider].
  * @see RuleSetProvider
  */
-class RuleSet(val id: String, vararg val rules: Rule) : Iterable<Rule> {
+class RuleSet(
+    val id: String,
+    vararg val rules: Rule
+) : Iterable<Rule> {
 
     init {
-        require(id.matches(Regex("[a-z]+([-][a-z]+)*"))) { "id must match [a-z]+([-][a-z]+)*" }
-        require(!rules.isEmpty()) { "At least one rule must be provided" }
+        IdNamingPolicy.enforceNaming(id)
+        require(rules.isNotEmpty()) { "At least one rule must be provided" }
     }
 
     override fun iterator(): Iterator<Rule> = rules.iterator()
