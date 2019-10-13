@@ -14,9 +14,6 @@
 <a href="https://kotlinlang.org/">Kotlin</a> linter in spirit of <a href="https://github.com/feross/standard">feross/standard</a> (JavaScript) and <a href="https://golang.org/cmd/gofmt/">gofmt</a> (Go).  
 </p>
 
-## User survey
-Interested in providing your feedback about `ktlint`? Please fill out our [2019 user survey](https://forms.gle/FPv2VkHyDsMJDvPG7).
-
 ## Features
 - **No configuration.**[*](https://github.com/pinterest/ktlint#how-do-i-globally-disable-a-rule) Which means no decisions to make, nothing to argue about and no special files to manage.   
 While this might sound extreme, keep in mind that `ktlint` tries to capture (reflect) **official code style**[*](https://github.com/pinterest/ktlint/issues/284#issuecomment-425177186) from [kotlinlang.org](https://kotlinlang.org/docs/reference/coding-conventions.html) and [Android Kotlin Style Guide](https://android.github.io/kotlin-guides/style.html)
@@ -59,7 +56,7 @@ New rules will be added into the [experimental ruleset](https://github.com/pinte
 by passing the `--experimental` flag to `ktlint`.
 
 - Indentation formatting - respects `.editorconfig` `indent_size` with no continuation indent
-- Annotation formatting - multiple annotations should be on a separate line than the annotated declaration; annotations with parameters should each be on separate lines
+- Annotation formatting - multiple annotations should be on a separate line than the annotated declaration; annotations with parameters should each be on separate lines; annotations should be followed by a space
 - No underscores in package names
 - Braces required for multiline if/else statements
 
@@ -113,7 +110,7 @@ Usually simple `http_proxy=http://proxy-server:port https_proxy=http://proxy-ser
 ```bash
 # check the style of all Kotlin files inside the current dir (recursively)
 # (hidden folders will be skipped)
-$ ktlint --color
+$ ktlint --color [--color-name="RED"]
   src/main/kotlin/Main.kt:10:10: Unused import
   
 # check only certain locations (prepend ! to negate the pattern,
@@ -276,9 +273,9 @@ See [Making your Gradle tasks incremental](https://proandroiddev.com/making-your
 > (inside project's root directory)  
 
 ```sh
-ktlint --apply-to-idea-project
+ktlint applyToIDEAProject
 # or if you want to be compliant with Android Kotlin Style Guide
-ktlint --apply-to-idea-project --android 
+ktlint --android applyToIDEAProject
 ```
 
 ##### Option #2

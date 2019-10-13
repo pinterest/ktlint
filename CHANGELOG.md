@@ -2,6 +2,32 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.35.0] - 2019-10-12
+
+### Added
+- Support for specifying color for output via `--color-name` command line flag. ([#585](https://github.com/pinterest/ktlint/pull/585))
+- Support for custom rulesets and providers on Java 9+ ([#573](https://github.com/pinterest/ktlint/pull/573))
+
+### Deprecated
+- `--apply-to-idea` flag; use `applyToIDEA` subcommand instead ([#554](https://github.com/pinterest/ktlint/pull/554))
+- `--apply-to-idea-project` flag; use `applyToIDEAProject` subcommand instead ([#593](https://github.com/pinterest/ktlint/pull/593))
+- `0.0.0-SNAPSHOT` builds; snapshot builds are now versioned, e.g. 0.35.0-SNAPSHOT ([#588](https://github.com/pinterest/ktlint/pull/588))
+  - Note: When using the new snapshot builds, you may need to add an explicit dependency on `kotlin-compiler-embeddable` to your ruleset project.
+
+### Removed
+- Support for loading 3rd party rulesets via Maven ([#566](https://github.com/pinterest/ktlint/pull/566))
+
+### Upgraded
+- Kotlin version to 1.3.50 ([#565](https://github.com/pinterest/ktlint/pull/565)) ([#611](https://github.com/pinterest/ktlint/pull/611))
+
+### Fixed
+- Bugs with spacing in experimental `AnnotationRule` ([#552](https://github.com/pinterest/ktlint/pull/552)) ([#601](https://github.com/pinterest/ktlint/pull/601/)
+- Brackets would be removed from empty companion object ([#600](https://github.com/pinterest/ktlint/pull/600/))
+- Bugs with experimental `IndentationRule` ([#597](https://github.com/pinterest/ktlint/pull/597/)) ([#599](https://github.com/pinterest/ktlint/pull/599/))
+- Erroneous space between `}` and `]` ([#596](https://github.com/pinterest/ktlint/pull/596))
+- Spacing around multiplication sign in lambdas ([#598](https://github.com/pinterest/ktlint/pull/598))
+- `--version` output with gradle-built JAR ([#613](https://github.com/pinterest/ktlint/issues/613))
+
 ## [0.34.2] - 2019-07-22
 
 Minor bugfix release for 0.34.0. (Note: 0.34.1 deprecated/deleted due to regression in disabled_flags .editorconfig support.)
@@ -602,6 +628,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.35.0]: https://github.com/shyiko/ktlint/compare/0.34.2...0.35.0
 [0.34.2]: https://github.com/shyiko/ktlint/compare/0.33.0...0.34.2
 [0.34.0]: https://github.com/shyiko/ktlint/compare/0.33.0...0.34.0
 [0.33.0]: https://github.com/shyiko/ktlint/compare/0.32.0...0.33.0
