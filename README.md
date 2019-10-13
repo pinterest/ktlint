@@ -468,7 +468,7 @@ To run `ktlint` - right-click on `ktlint/src/main/kotlin/com/pinterest/ktlint/Ma
 
 Whenever a commit is added to the `master` branch a snapshot build is automatically uploaded to [Sonatype's snapshots repository](https://oss.sonatype.org/content/repositories/snapshots/com/pinterest/ktlint/).
 If you are eager to try upcoming changes (that might or might not be included in the next stable release) you can do 
-so by changing version of ktlint to `0.35.0-SNAPSHOT` + adding a repo: 
+so by changing version of ktlint to `<latest-version>-SNAPSHOT` + adding a repo: 
 
 ##### Maven
 
