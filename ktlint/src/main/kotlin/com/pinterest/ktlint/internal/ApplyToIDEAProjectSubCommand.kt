@@ -5,13 +5,13 @@ import picocli.CommandLine
 
 @CommandLine.Command(
     description = [
-        "Update Intellij IDEA Kotlin codestyle settings (global)"
+        "Update Intellij IDEA project settings"
     ],
-    aliases = ["--apply-to-idea"],
+    aliases = ["--apply-to-idea-project"],
     mixinStandardHelpOptions = true,
     versionProvider = KtlintVersionProvider::class
 )
-class ApplyToIDEAGloballySubCommand : Runnable {
+class ApplyToIDEAProjectSubCommand : Runnable {
     @CommandLine.ParentCommand
     private lateinit var ktlintCommand: KtlintCommandLine
 
@@ -28,13 +28,13 @@ class ApplyToIDEAGloballySubCommand : Runnable {
         commandSpec.commandLine().printHelpOrVersionUsage()
 
         ApplyToIDEACommandHelper(
-            false,
+            true,
             forceApply,
             ktlintCommand.android
         ).apply()
     }
 
     companion object {
-        const val COMMAND_NAME = "applyToIDEA"
+        const val COMMAND_NAME = "applyToIDEAProject"
     }
 }

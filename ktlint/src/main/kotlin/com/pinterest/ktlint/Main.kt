@@ -9,9 +9,9 @@ import com.pinterest.ktlint.core.ReporterProvider
 import com.pinterest.ktlint.core.RuleExecutionException
 import com.pinterest.ktlint.core.RuleSetProvider
 import com.pinterest.ktlint.internal.ApplyToIDEAGloballySubCommand
+import com.pinterest.ktlint.internal.ApplyToIDEAProjectSubCommand
 import com.pinterest.ktlint.internal.GitPreCommitHookSubCommand
 import com.pinterest.ktlint.internal.GitPrePushHookSubCommand
-import com.pinterest.ktlint.internal.IntellijIDEAIntegration
 import com.pinterest.ktlint.internal.KtlintVersionProvider
 import com.pinterest.ktlint.internal.PrintASTSubCommand
 import com.pinterest.ktlint.internal.expandTilde
@@ -26,11 +26,8 @@ import java.io.IOException
 import java.io.PrintStream
 import java.net.URLClassLoader
 import java.net.URLDecoder
-import java.nio.file.Paths
 import java.util.ArrayList
 import java.util.LinkedHashMap
-import java.util.NoSuchElementException
-import java.util.Scanner
 import java.util.ServiceLoader
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.Callable
@@ -53,6 +50,7 @@ fun main(args: Array<String>) {
         .addSubcommand(GitPrePushHookSubCommand.COMMAND_NAME, GitPrePushHookSubCommand())
         .addSubcommand(PrintASTSubCommand.COMMAND_NAME, PrintASTSubCommand())
         .addSubcommand(ApplyToIDEAGloballySubCommand.COMMAND_NAME, ApplyToIDEAGloballySubCommand())
+        .addSubcommand(ApplyToIDEAProjectSubCommand.COMMAND_NAME, ApplyToIDEAProjectSubCommand())
     val parseResult = commandLine.parseArgs(*args)
 
     commandLine.printHelpOrVersionUsage()
@@ -73,6 +71,7 @@ fun handleSubCommand(
         is GitPrePushHookSubCommand -> subCommand.run()
         is PrintASTSubCommand -> subCommand.run()
         is ApplyToIDEAGloballySubCommand -> subCommand.run()
+        is ApplyToIDEAProjectSubCommand -> subCommand.run()
         else -> commandLine.usage(System.out, CommandLine.Help.Ansi.OFF)
     }
 }
@@ -120,13 +119,6 @@ class KtlintCommandLine {
         description = ["Turn on Android Kotlin Style Guide compatibility"]
     )
     var android: Boolean = false
-
-    // todo: make it a command in 1.0.0 (it's too late now as we might interfere with valid "lint" patterns)
-    @Option(
-        names = ["--apply-to-idea-project"],
-        description = ["Update Intellij IDEA project settings"]
-    )
-    private var applyToProject: Boolean = false
 
     @Option(
         names = ["--color"],
@@ -203,12 +195,6 @@ class KtlintCommandLine {
     private var verbose: Boolean = false
 
     @Option(
-        names = ["-y"],
-        hidden = true
-    )
-    private var forceApply: Boolean = false
-
-    @Option(
         names = ["--editorconfig"],
         description = ["Path to .editorconfig"]
     )
@@ -224,10 +210,6 @@ class KtlintCommandLine {
     private var patterns = ArrayList<String>()
 
     fun run() {
-        if (applyToProject) {
-            applyToIDEA()
-            exitProcess(0)
-        }
         val start = System.currentTimeMillis()
 
         // Detect custom rulesets that have not been moved to the new package
@@ -421,42 +403,6 @@ class KtlintCommandLine {
             }
             else -> throw e
         }
-    }
-
-    private fun applyToIDEA() {
-        try {
-            val workDir = Paths.get(".")
-            if (!forceApply) {
-                val fileList = IntellijIDEAIntegration.apply(workDir, true, android, applyToProject)
-                System.err.println(
-                    "The following files are going to be updated:\n\n\t" +
-                        fileList.joinToString("\n\t") +
-                        "\n\nDo you wish to proceed? [y/n]\n" +
-                        "(in future, use -y flag if you wish to skip confirmation)"
-                )
-                val scanner = Scanner(System.`in`)
-                val res =
-                    generateSequence {
-                        try { scanner.next() } catch (e: NoSuchElementException) { null }
-                    }
-                        .filter { line -> !line.trim().isEmpty() }
-                        .first()
-                if (!"y".equals(res, ignoreCase = true)) {
-                    System.err.println("(update canceled)")
-                    exitProcess(1)
-                }
-            }
-            IntellijIDEAIntegration.apply(workDir, false, android, applyToProject)
-        } catch (e: IntellijIDEAIntegration.ProjectNotFoundException) {
-            System.err.println(
-                ".idea directory not found. " +
-                    "Are you sure you are inside project root directory?"
-            )
-            exitProcess(1)
-        }
-        System.err.println("(updated)")
-        System.err.println("\nPlease restart your IDE")
-        System.err.println("(if you experience any issues please report them at https://github.com/pinterest/ktlint)")
     }
 
     private fun <T> List<T>.head(limit: Int) = if (limit == size) this else this.subList(0, limit)
