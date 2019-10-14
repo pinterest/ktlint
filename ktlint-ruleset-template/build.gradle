@@ -26,11 +26,12 @@ configurations {
 }
 
 dependencies {
-  api project(':ktlint-core')
-  api deps.kotlin.stdlib
-  api deps.kotlin.compiler
+  compileOnly project(':ktlint-core')
+  compileOnly deps.kotlin.stdlib
 
+  testImplementation project(':ktlint-core')
   testImplementation project(':ktlint-test')
+  testImplementation deps.kotlin.stdlib
   testImplementation deps.assertj
   testImplementation('org.jetbrains.spek:spek-junit-platform-engine:1.1.5') {
     exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib'
