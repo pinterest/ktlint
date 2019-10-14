@@ -223,59 +223,6 @@ class KtlintCommandLine {
             if (disabledRules.isNotBlank()) "disabled_rules" to disabledRules else null
         ).toMap()
 
-        fun process(fileName: String, fileContent: String): List<LintErrorWithCorrectionInfo> {
-            if (debug) {
-                val fileLocation = if (fileName != KtLint.STDIN_FILE) File(fileName).location(relative) else fileName
-                System.err.println("[DEBUG] Checking $fileLocation")
-            }
-            val result = ArrayList<LintErrorWithCorrectionInfo>()
-            if (format) {
-                val formattedFileContent = try {
-                    formatFile(
-                        fileName,
-                        fileContent,
-                        ruleSetProviders.map { it.value.get() },
-                        userData,
-                        editorConfigPath,
-                        debug
-                    ) { err, corrected ->
-                        if (!corrected) {
-                            result.add(LintErrorWithCorrectionInfo(err, corrected))
-                            tripped.set(true)
-                        }
-                    }
-                } catch (e: Exception) {
-                    result.add(LintErrorWithCorrectionInfo(e.toLintError(), false))
-                    tripped.set(true)
-                    fileContent // making sure `cat file | ktlint --stdint > file` is (relatively) safe
-                }
-                if (stdin) {
-                    print(formattedFileContent)
-                } else {
-                    if (fileContent !== formattedFileContent) {
-                        File(fileName).writeText(formattedFileContent, charset("UTF-8"))
-                    }
-                }
-            } else {
-                try {
-                    lintFile(
-                        fileName,
-                        fileContent,
-                        ruleSetProviders.map { it.value.get() },
-                        userData,
-                        editorConfigPath,
-                        debug
-                    ) { err ->
-                        result.add(LintErrorWithCorrectionInfo(err, false))
-                        tripped.set(true)
-                    }
-                } catch (e: Exception) {
-                    result.add(LintErrorWithCorrectionInfo(e.toLintError(), false))
-                    tripped.set(true)
-                }
-            }
-            return result
-        }
         val (fileNumber, errorNumber) = Pair(AtomicInteger(), AtomicInteger())
         fun report(fileName: String, errList: List<LintErrorWithCorrectionInfo>) {
             fileNumber.incrementAndGet()
@@ -293,11 +240,30 @@ class KtlintCommandLine {
         }
         reporter.beforeAll()
         if (stdin) {
-            report(KtLint.STDIN_FILE, process(KtLint.STDIN_FILE, String(System.`in`.readBytes())))
+            report(
+                KtLint.STDIN_FILE,
+                process(
+                    KtLint.STDIN_FILE,
+                    String(System.`in`.readBytes()),
+                    ruleSetProviders,
+                    userData,
+                    tripped
+                )
+            )
         } else {
             patterns.fileSequence()
                 .takeWhile { errorNumber.get() < limit }
-                .map { file -> Callable { file to process(file.path, file.readText()) } }
+                .map { file ->
+                    Callable {
+                        file to process(
+                            file.path,
+                            file.readText(),
+                            ruleSetProviders,
+                            userData,
+                            tripped
+                        )
+                    }
+                }
                 .parallel({ (file, errList) -> report(file.location(relative), errList) })
         }
         reporter.afterAll()
@@ -323,6 +289,66 @@ class KtlintCommandLine {
             System.err.println("[ERROR] Please rename META-INF/services/com.github.shyiko.ktlint.core.RuleSetProvider to META-INF/services/com.pinterest.ktlint.core.RuleSetProvider")
             exitProcess(1)
         }
+    }
+
+    private fun process(
+        fileName: String,
+        fileContent: String,
+        ruleSetProviders: Map<String, RuleSetProvider>,
+        userData: Map<String, String>,
+        tripped: AtomicBoolean
+    ): List<LintErrorWithCorrectionInfo> {
+        if (debug) {
+            val fileLocation = if (fileName != KtLint.STDIN_FILE) File(fileName).location(relative) else fileName
+            System.err.println("[DEBUG] Checking $fileLocation")
+        }
+        val result = ArrayList<LintErrorWithCorrectionInfo>()
+        if (format) {
+            val formattedFileContent = try {
+                formatFile(
+                    fileName,
+                    fileContent,
+                    ruleSetProviders.map { it.value.get() },
+                    userData,
+                    editorConfigPath,
+                    debug
+                ) { err, corrected ->
+                    if (!corrected) {
+                        result.add(LintErrorWithCorrectionInfo(err, corrected))
+                        tripped.set(true)
+                    }
+                }
+            } catch (e: Exception) {
+                result.add(LintErrorWithCorrectionInfo(e.toLintError(), false))
+                tripped.set(true)
+                fileContent // making sure `cat file | ktlint --stdint > file` is (relatively) safe
+            }
+            if (stdin) {
+                print(formattedFileContent)
+            } else {
+                if (fileContent !== formattedFileContent) {
+                    File(fileName).writeText(formattedFileContent, charset("UTF-8"))
+                }
+            }
+        } else {
+            try {
+                lintFile(
+                    fileName,
+                    fileContent,
+                    ruleSetProviders.map { it.value.get() },
+                    userData,
+                    editorConfigPath,
+                    debug
+                ) { err ->
+                    result.add(LintErrorWithCorrectionInfo(err, false))
+                    tripped.set(true)
+                }
+            } catch (e: Exception) {
+                result.add(LintErrorWithCorrectionInfo(e.toLintError(), false))
+                tripped.set(true)
+            }
+        }
+        return result
     }
 
     private data class ReporterTemplate(
