@@ -373,13 +373,6 @@ class KtlintCommandLine {
         return result
     }
 
-    private data class ReporterTemplate(
-        val id: String,
-        val artifact: String?,
-        val config: Map<String, String>,
-        val output: String?
-    )
-
     private fun loadReporter(tripped: () -> Boolean): Reporter {
         val configuredReporters = if (reporters.isEmpty()) listOf("plain") else reporters
 
@@ -583,5 +576,15 @@ class KtlintCommandLine {
         jarFile.toURI().toURL()
     }
 
-    data class LintErrorWithCorrectionInfo(val err: LintError, val corrected: Boolean)
+    private data class LintErrorWithCorrectionInfo(
+        val err: LintError,
+        val corrected: Boolean
+    )
+
+    private data class ReporterTemplate(
+        val id: String,
+        val artifact: String?,
+        val config: Map<String, String>,
+        val output: String?
+    )
 }
