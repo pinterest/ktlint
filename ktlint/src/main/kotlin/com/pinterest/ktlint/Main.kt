@@ -284,6 +284,7 @@ class KtlintCommandLine {
     /**
      * Detect custom rulesets that have not been moved to the new package.
      */
+    @Suppress("Deprecation")
     private fun failOnOldRulesetProviderUsage() {
         if (ServiceLoader.load(com.github.shyiko.ktlint.core.RuleSetProvider::class.java).any()) {
             System.err.println("[ERROR] Cannot load custom ruleset!")
