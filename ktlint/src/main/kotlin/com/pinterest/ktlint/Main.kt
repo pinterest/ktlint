@@ -209,37 +209,22 @@ class KtlintCommandLine {
     @Parameters(hidden = true)
     private var patterns = ArrayList<String>()
 
+    private val tripped = AtomicBoolean()
+    private val fileNumber = AtomicInteger()
+    private val errorNumber = AtomicInteger()
+
     fun run() {
         failOnOldRulesetProviderUsage()
 
         val start = System.currentTimeMillis()
 
         val ruleSetProviders = loadRulesets(rulesets)
-        val tripped = AtomicBoolean()
         val reporter = loadReporter { tripped.get() }
-
         val userData = listOfNotNull(
             "android" to android.toString(),
             if (disabledRules.isNotBlank()) "disabled_rules" to disabledRules else null
         ).toMap()
 
-        val fileNumber = AtomicInteger()
-        val errorNumber = AtomicInteger()
-
-        fun report(fileName: String, errList: List<LintErrorWithCorrectionInfo>) {
-            fileNumber.incrementAndGet()
-            val errListLimit = minOf(errList.size, maxOf(limit - errorNumber.get(), 0))
-            errorNumber.addAndGet(errListLimit)
-            reporter.before(fileName)
-            errList.head(errListLimit).forEach { (err, corrected) ->
-                reporter.onLintError(
-                    fileName,
-                    if (!err.canBeAutoCorrected) err.copy(detail = err.detail + " (cannot be auto-corrected)") else err,
-                    corrected
-                )
-            }
-            reporter.after(fileName)
-        }
         reporter.beforeAll()
         if (stdin) {
             report(
@@ -248,9 +233,9 @@ class KtlintCommandLine {
                     KtLint.STDIN_FILE,
                     String(System.`in`.readBytes()),
                     ruleSetProviders,
-                    userData,
-                    tripped
-                )
+                    userData
+                ),
+                reporter
             )
         } else {
             patterns.fileSequence()
@@ -261,12 +246,11 @@ class KtlintCommandLine {
                             file.path,
                             file.readText(),
                             ruleSetProviders,
-                            userData,
-                            tripped
+                            userData
                         )
                     }
                 }
-                .parallel({ (file, errList) -> report(file.location(relative), errList) })
+                .parallel({ (file, errList) -> report(file.location(relative), errList, reporter) })
         }
         reporter.afterAll()
         if (debug) {
@@ -293,12 +277,31 @@ class KtlintCommandLine {
         }
     }
 
+    private fun report(
+        fileName: String,
+        errList: List<LintErrorWithCorrectionInfo>,
+        reporter: Reporter
+    ) {
+        fileNumber.incrementAndGet()
+        val errListLimit = minOf(errList.size, maxOf(limit - errorNumber.get(), 0))
+        errorNumber.addAndGet(errListLimit)
+
+        reporter.before(fileName)
+        errList.head(errListLimit).forEach { (err, corrected) ->
+            reporter.onLintError(
+                fileName,
+                if (!err.canBeAutoCorrected) err.copy(detail = err.detail + " (cannot be auto-corrected)") else err,
+                corrected
+            )
+        }
+        reporter.after(fileName)
+    }
+
     private fun process(
         fileName: String,
         fileContent: String,
         ruleSetProviders: Map<String, RuleSetProvider>,
-        userData: Map<String, String>,
-        tripped: AtomicBoolean
+        userData: Map<String, String>
     ): List<LintErrorWithCorrectionInfo> {
         if (debug) {
             val fileLocation = if (fileName != KtLint.STDIN_FILE) File(fileName).location(relative) else fileName
