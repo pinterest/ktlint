@@ -227,30 +227,9 @@ class KtlintCommandLine {
 
         reporter.beforeAll()
         if (stdin) {
-            report(
-                KtLint.STDIN_FILE,
-                process(
-                    KtLint.STDIN_FILE,
-                    String(System.`in`.readBytes()),
-                    ruleSetProviders,
-                    userData
-                ),
-                reporter
-            )
+            lintStdin(ruleSetProviders, userData, reporter)
         } else {
-            patterns.fileSequence()
-                .takeWhile { errorNumber.get() < limit }
-                .map { file ->
-                    Callable {
-                        file to process(
-                            file.path,
-                            file.readText(),
-                            ruleSetProviders,
-                            userData
-                        )
-                    }
-                }
-                .parallel({ (file, errList) -> report(file.location(relative), errList, reporter) })
+            lintFiles(ruleSetProviders, userData, reporter)
         }
         reporter.afterAll()
         if (debug) {
@@ -263,6 +242,43 @@ class KtlintCommandLine {
         if (tripped.get()) {
             exitProcess(1)
         }
+    }
+
+    private fun lintFiles(
+        ruleSetProviders: Map<String, RuleSetProvider>,
+        userData: Map<String, String>,
+        reporter: Reporter
+    ) {
+        patterns.fileSequence()
+            .takeWhile { errorNumber.get() < limit }
+            .map { file ->
+                Callable {
+                    file to process(
+                        file.path,
+                        file.readText(),
+                        ruleSetProviders,
+                        userData
+                    )
+                }
+            }
+            .parallel({ (file, errList) -> report(file.location(relative), errList, reporter) })
+    }
+
+    private fun lintStdin(
+        ruleSetProviders: Map<String, RuleSetProvider>,
+        userData: Map<String, String>,
+        reporter: Reporter
+    ) {
+        report(
+            KtLint.STDIN_FILE,
+            process(
+                KtLint.STDIN_FILE,
+                String(System.`in`.readBytes()),
+                ruleSetProviders,
+                userData
+            ),
+            reporter
+        )
     }
 
     /**
