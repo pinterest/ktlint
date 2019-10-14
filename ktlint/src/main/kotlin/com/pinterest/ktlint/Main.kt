@@ -219,7 +219,7 @@ class KtlintCommandLine {
         val start = System.currentTimeMillis()
 
         val ruleSetProviders = loadRulesets(rulesets)
-        val reporter = loadReporter { tripped.get() }
+        val reporter = loadReporter()
         val userData = listOfNotNull(
             "android" to android.toString(),
             if (disabledRules.isNotBlank()) "disabled_rules" to disabledRules else null
@@ -373,7 +373,7 @@ class KtlintCommandLine {
         return result
     }
 
-    private fun loadReporter(tripped: () -> Boolean): Reporter {
+    private fun loadReporter(): Reporter {
         val configuredReporters = if (reporters.isEmpty()) listOf("plain") else reporters
 
         val tpls = configuredReporters
@@ -389,44 +389,47 @@ class KtlintCommandLine {
             }
             .distinct()
         val reporterProviderById = loadReporters(tpls.mapNotNull { it.artifact })
-        fun ReporterTemplate.toReporter(): Reporter {
-            val reporterProvider = reporterProviderById[id]
-            if (reporterProvider == null) {
-                System.err.println(
-                    "Error: reporter \"$id\" wasn't found (available: ${
-                    reporterProviderById.keys.sorted().joinToString(",")
-                    })"
-                )
-                exitProcess(1)
-            }
-            if (debug) {
-                System.err.println(
-                    "[DEBUG] Initializing \"$id\" reporter with $config" +
-                        (output?.let { ", output=$it" } ?: "")
-                )
-            }
-            val stream = if (output != null) {
-                File(output).parentFile?.mkdirsOrFail(); PrintStream(output, "UTF-8")
-            } else if (stdin) System.err else System.out
-            return reporterProvider.get(stream, config)
-                .let { reporter ->
-                    if (output != null) {
-                        object : Reporter by reporter {
-                            override fun afterAll() {
-                                reporter.afterAll()
-                                stream.close()
-                                if (tripped()) {
-                                    val outputLocation = File(output).absoluteFile.location(relative)
-                                    System.err.println("\"$id\" report written to $outputLocation")
-                                }
+        return Reporter.from(*tpls.map { it.toReporter(reporterProviderById) }.toTypedArray())
+    }
+
+    private fun ReporterTemplate.toReporter(
+        reporterProviderById: Map<String, ReporterProvider>
+    ): Reporter {
+        val reporterProvider = reporterProviderById[id]
+        if (reporterProvider == null) {
+            System.err.println(
+                "Error: reporter \"$id\" wasn't found (available: ${
+                reporterProviderById.keys.sorted().joinToString(",")
+                })"
+            )
+            exitProcess(1)
+        }
+        if (debug) {
+            System.err.println(
+                "[DEBUG] Initializing \"$id\" reporter with $config" +
+                    (output?.let { ", output=$it" } ?: "")
+            )
+        }
+        val stream = if (output != null) {
+            File(output).parentFile?.mkdirsOrFail(); PrintStream(output, "UTF-8")
+        } else if (stdin) System.err else System.out
+        return reporterProvider.get(stream, config)
+            .let { reporter ->
+                if (output != null) {
+                    object : Reporter by reporter {
+                        override fun afterAll() {
+                            reporter.afterAll()
+                            stream.close()
+                            if (tripped.get()) {
+                                val outputLocation = File(output).absoluteFile.location(relative)
+                                System.err.println("\"$id\" report written to $outputLocation")
                             }
                         }
-                    } else {
-                        reporter
                     }
+                } else {
+                    reporter
                 }
-        }
-        return Reporter.from(*tpls.map { it.toReporter() }.toTypedArray())
+            }
     }
 
     private fun Exception.toLintError(): LintError = this.let { e ->
