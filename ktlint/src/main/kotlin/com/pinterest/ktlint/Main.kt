@@ -223,7 +223,9 @@ class KtlintCommandLine {
             if (disabledRules.isNotBlank()) "disabled_rules" to disabledRules else null
         ).toMap()
 
-        val (fileNumber, errorNumber) = Pair(AtomicInteger(), AtomicInteger())
+        val fileNumber = AtomicInteger()
+        val errorNumber = AtomicInteger()
+
         fun report(fileName: String, errList: List<LintErrorWithCorrectionInfo>) {
             fileNumber.incrementAndGet()
             val errListLimit = minOf(errList.size, maxOf(limit - errorNumber.get(), 0))
