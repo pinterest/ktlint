@@ -210,15 +210,9 @@ class KtlintCommandLine {
     private var patterns = ArrayList<String>()
 
     fun run() {
-        val start = System.currentTimeMillis()
+        failOnOldRulesetProviderUsage()
 
-        // Detect custom rulesets that have not been moved to the new package
-        if (ServiceLoader.load(com.github.shyiko.ktlint.core.RuleSetProvider::class.java).any()) {
-            System.err.println("[ERROR] Cannot load custom ruleset!")
-            System.err.println("[ERROR] RuleSetProvider has moved to com.pinterest.ktlint.core.")
-            System.err.println("[ERROR] Please rename META-INF/services/com.github.shyiko.ktlint.core.RuleSetProvider to META-INF/services/com.pinterest.ktlint.core.RuleSetProvider")
-            exitProcess(1)
-        }
+        val start = System.currentTimeMillis()
 
         val ruleSetProviders = loadRulesets(rulesets)
         val tripped = AtomicBoolean()
@@ -315,6 +309,18 @@ class KtlintCommandLine {
             )
         }
         if (tripped.get()) {
+            exitProcess(1)
+        }
+    }
+
+    /**
+     * Detect custom rulesets that have not been moved to the new package.
+     */
+    private fun failOnOldRulesetProviderUsage() {
+        if (ServiceLoader.load(com.github.shyiko.ktlint.core.RuleSetProvider::class.java).any()) {
+            System.err.println("[ERROR] Cannot load custom ruleset!")
+            System.err.println("[ERROR] RuleSetProvider has moved to com.pinterest.ktlint.core.")
+            System.err.println("[ERROR] Please rename META-INF/services/com.github.shyiko.ktlint.core.RuleSetProvider to META-INF/services/com.pinterest.ktlint.core.RuleSetProvider")
             exitProcess(1)
         }
     }
