@@ -217,7 +217,7 @@ class KtlintCommandLine {
         val ruleSetProviders = loadRulesets(rulesets)
         val tripped = AtomicBoolean()
         val reporter = loadReporter { tripped.get() }
-        data class LintErrorWithCorrectionInfo(val err: LintError, val corrected: Boolean)
+
         val userData = listOfNotNull(
             "android" to android.toString(),
             if (disabledRules.isNotBlank()) "disabled_rules" to disabledRules else null
@@ -534,4 +534,6 @@ class KtlintCommandLine {
         }
         jarFile.toURI().toURL()
     }
+
+    data class LintErrorWithCorrectionInfo(val err: LintError, val corrected: Boolean)
 }
