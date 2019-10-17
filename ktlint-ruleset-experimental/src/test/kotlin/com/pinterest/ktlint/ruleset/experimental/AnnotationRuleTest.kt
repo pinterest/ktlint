@@ -440,4 +440,20 @@ class AnnotationRuleTest {
             """.trimIndent()
         )
     }
+
+    @Test
+    fun `annotation at top of file`() {
+        val code =
+            """
+            @file:JvmName("FooClass") package foo.bar
+            """.trimIndent()
+        assertThat(
+            AnnotationRule().format(code)
+        ).isEqualTo(
+            """
+            @file:JvmName("FooClass")
+            package foo.bar
+            """.trimIndent()
+        )
+    }
 }

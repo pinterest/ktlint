@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.ruleset.experimental
 
 import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.ast.ElementType.FILE_ANNOTATION_LIST
 import com.pinterest.ktlint.core.ast.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.core.ast.children
 import com.pinterest.ktlint.core.ast.upsertWhitespaceBeforeMe
@@ -9,8 +10,11 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
+import org.jetbrains.kotlin.psi.KtImportList
+import org.jetbrains.kotlin.psi.KtPackageDirective
 import org.jetbrains.kotlin.psi.psiUtil.endOffset
 import org.jetbrains.kotlin.psi.psiUtil.nextLeaf
+import org.jetbrains.kotlin.psi.psiUtil.siblings
 
 /**
  * Ensures multiple annotations are not on the same line as the annotated declaration. Also ensures that annotations
@@ -32,12 +36,12 @@ class AnnotationRule : Rule("annotation") {
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        val modifierListRoot =
-            node.children().firstOrNull { it.elementType == MODIFIER_LIST }
-                ?: return
+        if (node.elementType != MODIFIER_LIST && node.elementType != FILE_ANNOTATION_LIST) {
+            return
+        }
 
         val annotations =
-            modifierListRoot.children()
+            node.children()
                 .mapNotNull { it.psi as? KtAnnotationEntry }
                 .toList()
         if (annotations.isEmpty()) {
@@ -52,7 +56,7 @@ class AnnotationRule : Rule("annotation") {
         //      @JvmField
         //      val s: Any
         //
-        val whiteSpaces = (annotations.asSequence().map { it.nextSibling } + modifierListRoot.treeNext)
+        val whiteSpaces = (annotations.asSequence().map { it.nextSibling } + node.treeNext)
             .filterIsInstance<PsiWhiteSpace>()
             .take(annotations.size)
             .toList()
@@ -64,50 +68,52 @@ class AnnotationRule : Rule("annotation") {
                 "Missing spacing after ${annotations.last().text}",
                 true
             )
+            if (autoCorrect) {
+                (annotations.last().nextLeaf() as? LeafPsiElement)?.upsertWhitespaceBeforeMe(" ")
+            }
         }
 
         val multipleAnnotationsOnSameLineAsAnnotatedConstruct =
             annotations.size > 1 && !whiteSpaces.last().textContains('\n')
-        val annotationsWithParametersAreNotOnSeparateLines =
-            annotations.any { it.valueArgumentList != null } &&
-                !whiteSpaces.all { it.textContains('\n') } &&
-                doesNotEndWithAComment(whiteSpaces)
-
         if (multipleAnnotationsOnSameLineAsAnnotatedConstruct) {
             emit(
                 annotations.first().node.startOffset,
                 multipleAnnotationsOnSameLineAsAnnotatedConstructErrorMessage,
                 true
             )
+            if (autoCorrect) {
+                (whiteSpaces.last() as LeafPsiElement).rawReplaceWithText(getNewlineWithIndent(node))
+            }
         }
+
+        val annotationsWithParametersAreNotOnSeparateLines =
+            annotations.any { it.valueArgumentList != null } &&
+                !whiteSpaces.all { it.textContains('\n') } &&
+                doesNotEndWithAComment(whiteSpaces)
         if (annotationsWithParametersAreNotOnSeparateLines) {
             emit(
                 annotations.first().node.startOffset,
                 annotationsWithParametersAreNotOnSeparateLinesErrorMessage,
                 true
             )
-        }
-
-        if (autoCorrect) {
-            val nodeBeforeAnnotations = modifierListRoot.treeParent.treePrev as? PsiWhiteSpace
-            // If there is no whitespace before the annotation, the annotation is the first
-            // text in the file
-            val newLineWithIndent = (nodeBeforeAnnotations?.text ?: "\n").let {
-                // Make sure we only insert a single newline
-                it.substring(it.lastIndexOf('\n'))
-            }
-
-            if (noWhiteSpaceAfterAnnotation) {
-                (annotations.last().nextLeaf() as LeafPsiElement).upsertWhitespaceBeforeMe(" ")
-            }
-            if (annotationsWithParametersAreNotOnSeparateLines) {
+            if (autoCorrect) {
                 whiteSpaces.forEach {
-                    (it as LeafPsiElement).rawReplaceWithText(newLineWithIndent)
+                    (it as LeafPsiElement).rawReplaceWithText(getNewlineWithIndent(node))
                 }
             }
-            if (multipleAnnotationsOnSameLineAsAnnotatedConstruct) {
-                (whiteSpaces.last() as LeafPsiElement).rawReplaceWithText(newLineWithIndent)
-            }
+        }
+    }
+
+    private fun getNewlineWithIndent(modifierListRoot: ASTNode): String {
+        val nodeBeforeAnnotations = modifierListRoot.treeParent.treePrev as? PsiWhiteSpace
+        // If there is no whitespace before the annotation, the annotation is the first
+        // text in the file
+        val newLineWithIndent = nodeBeforeAnnotations?.text ?: "\n"
+        return if (newLineWithIndent.contains('\n')) {
+            // Make sure we only insert a single newline
+            newLineWithIndent.substring(newLineWithIndent.lastIndexOf('\n'))
+        } else {
+            newLineWithIndent
         }
     }
 
