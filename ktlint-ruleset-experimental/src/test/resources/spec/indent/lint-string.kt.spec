@@ -19,4 +19,11 @@ fun f4() = "${
 true
 }"
 
+fun f5() {
+    Integer
+        .parseInt("32").let {
+            println("parsed $it")
+        }
+}
+
 // expect
