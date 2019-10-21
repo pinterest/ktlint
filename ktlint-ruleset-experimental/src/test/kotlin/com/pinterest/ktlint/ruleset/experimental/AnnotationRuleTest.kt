@@ -440,4 +440,19 @@ class AnnotationRuleTest {
             """.trimIndent()
         )
     }
+
+    @Test
+    fun `no error with formatting annotation for primary constructor`() {
+        val code =
+            """
+            class Foo @Inject internal constructor()
+            """.trimIndent()
+        assertThat(
+            AnnotationRule().format(code)
+        ).isEqualTo(
+            """
+            class Foo @Inject internal constructor()
+            """.trimIndent()
+        )
+    }
 }
