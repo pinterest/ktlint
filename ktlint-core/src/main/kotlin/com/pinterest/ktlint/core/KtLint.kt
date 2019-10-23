@@ -126,7 +126,7 @@ object KtLint {
      * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
      */
     fun lint(params: Params) {
-        val normalizedText = params.text.replace("\r\n", "\n").replace("\r", "\n")
+        val normalizedText = normalizeText(params.text)
         val positionByOffset = calculateLineColByOffset(normalizedText)
         val psiFileName = if (params.script) "file.kts" else "file.kt"
         val psiFile = psiFileFactory.createFileFromText(psiFileName, KotlinLanguage.INSTANCE, normalizedText) as KtFile
@@ -163,6 +163,13 @@ object KtLint {
         errors
             .sortedWith(Comparator { l, r -> if (l.line != r.line) l.line - r.line else l.col - r.col })
             .forEach { e -> params.cb(e, false) }
+    }
+
+    private fun normalizeText(text: String): String {
+        return text
+            .replace("\r\n", "\n")
+            .replace("\r", "\n")
+            .replaceFirst("\uFEFF", "") // Remove UTF-8 BOM
     }
 
     private fun userDataResolver(editorConfigPath: String?, debug: Boolean): (String?) -> Map<String, String> {
@@ -347,7 +354,7 @@ object KtLint {
      * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
      */
     fun format(params: Params): String {
-        val normalizedText = params.text.replace("\r\n", "\n").replace("\r", "\n")
+        val normalizedText = normalizeText(params.text)
         val positionByOffset = calculateLineColByOffset(normalizedText)
         val psiFileName = if (params.script) "file.kts" else "file.kt"
         val psiFile = psiFileFactory.createFileFromText(psiFileName, KotlinLanguage.INSTANCE, normalizedText) as KtFile
