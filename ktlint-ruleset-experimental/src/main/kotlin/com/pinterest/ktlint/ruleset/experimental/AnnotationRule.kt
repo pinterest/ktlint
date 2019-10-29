@@ -94,7 +94,8 @@ class AnnotationRule : Rule("annotation") {
             // text in the file
             val newLineWithIndent = (nodeBeforeAnnotations?.text ?: "\n").let {
                 // Make sure we only insert a single newline
-                it.substring(it.lastIndexOf('\n'))
+                if (it.contains('\n')) it.substring(it.lastIndexOf('\n'))
+                else it
             }
 
             if (noWhiteSpaceAfterAnnotation) {
