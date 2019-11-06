@@ -67,6 +67,7 @@
         <module>ktlint-core</module>
         <module>ktlint-reporter-checkstyle</module>
         <module>ktlint-reporter-json</module>
+        <module>ktlint-reporter-html</module>
         <module>ktlint-reporter-plain</module>
         <module>ktlint-ruleset-experimental</module>
         <module>ktlint-ruleset-standard</module>

@@ -23,6 +23,7 @@ dependencies {
   implementation project(':ktlint-core')
   implementation project(':ktlint-reporter-checkstyle')
   implementation project(':ktlint-reporter-json')
+  implementation project(':ktlint-reporter-html')
   implementation project(':ktlint-reporter-plain')
   implementation project(':ktlint-ruleset-experimental')
   implementation project(':ktlint-ruleset-standard')
