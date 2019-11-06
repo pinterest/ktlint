@@ -44,6 +44,7 @@ object KtLint {
     val ANDROID_USER_DATA_KEY = Key<Boolean>("ANDROID")
     val FILE_PATH_USER_DATA_KEY = Key<String>("FILE_PATH")
     val DISABLED_RULES = Key<Set<String>>("DISABLED_RULES")
+    private const val UTF8_BOM = "\uFEFF"
     const val STDIN_FILE = "<stdin>"
 
     private val psiFileFactory: PsiFileFactory
@@ -169,7 +170,7 @@ object KtLint {
         return text
             .replace("\r\n", "\n")
             .replace("\r", "\n")
-            .replaceFirst("\uFEFF", "") // Remove UTF-8 BOM
+            .replaceFirst(UTF8_BOM, "")
     }
 
     private fun userDataResolver(editorConfigPath: String?, debug: Boolean): (String?) -> Map<String, String> {
@@ -354,6 +355,7 @@ object KtLint {
      * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
      */
     fun format(params: Params): String {
+        val hasUTF8BOM = params.text.startsWith(UTF8_BOM)
         val normalizedText = normalizeText(params.text)
         val positionByOffset = calculateLineColByOffset(normalizedText)
         val psiFileName = if (params.script) "file.kts" else "file.kt"
@@ -417,7 +419,14 @@ object KtLint {
                 .sortedWith(Comparator { (l), (r) -> if (l.line != r.line) l.line - r.line else l.col - r.col })
                 .forEach { (e, corrected) -> params.cb(e, corrected) }
         }
-        return if (mutated) rootNode.text.replace("\n", determineLineSeparator(params.text, params.userData)) else params.text
+
+        if(!mutated) {
+            return params.text
+        }
+
+        return if(hasUTF8BOM) UTF8_BOM else "" + // Restore UTF8 BOM if it was present
+            rootNode.text.replace("\n", determineLineSeparator(params.text, params.userData))
+
     }
 
     private fun determineLineSeparator(fileContent: String, userData: Map<String, String>): String {
