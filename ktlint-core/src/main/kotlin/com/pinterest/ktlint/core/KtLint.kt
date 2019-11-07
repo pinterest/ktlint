@@ -473,23 +473,10 @@ object KtLint {
                     // Extract all Suppress annotations and create SuppressionHints
                     val psi = node.psi
                     if (psi is KtAnnotated) {
-                        psi.annotationEntries
-                            .filter {
-                                it.calleeExpression?.constructorReferenceExpression
-                                    ?.getReferencedName() in suppressAnnotations
-                            }.flatMap(KtAnnotationEntry::getValueArguments)
-                            .mapNotNull { it.getArgumentExpression()?.text?.removeSurrounding("\"") }
-                            .mapNotNull(suppressAnnotationRuleMap::get)
-                            .let { suppressedRules ->
-                                if (suppressedRules.isNotEmpty()) {
-                                    result.add(
-                                        SuppressionHint(
-                                            IntRange(psi.startOffset, psi.endOffset),
-                                            suppressedRules.toSet()
-                                        )
-                                    )
-                                }
-                            }
+                        createSuppressionHintFromAnnotations(psi, suppressAnnotations, suppressAnnotationRuleMap)
+                            ?.let {
+                            result.add(it)
+                        }
                     }
                 }
                 result.addAll(
@@ -521,6 +508,36 @@ object KtLint {
             )
 
             private val suppressAnnotations = setOf("Suppress", "SuppressWarnings")
+
+            /**
+             * Creates [SuppressionHint] from annotations of given [psi]
+             * Returns null if no [targetAnnotations] present or no mapping exists
+             * between annotations' values and ktlint rules
+             */
+            private fun createSuppressionHintFromAnnotations(
+                psi: KtAnnotated,
+                targetAnnotations: Collection<String>,
+                annotationValueToRuleMapping: Map<String, String>
+            ): SuppressionHint? {
+
+                return psi.annotationEntries
+                    .filter {
+                        it.calleeExpression?.constructorReferenceExpression
+                            ?.getReferencedName() in targetAnnotations
+                    }.flatMap(KtAnnotationEntry::getValueArguments)
+                    .mapNotNull { it.getArgumentExpression()?.text?.removeSurrounding("\"") }
+                    .mapNotNull(annotationValueToRuleMapping::get)
+                    .let { suppressedRules ->
+                        if (suppressedRules.isNotEmpty()) {
+                            SuppressionHint(
+                                IntRange(psi.startOffset, psi.endOffset),
+                                suppressedRules.toSet()
+                            )
+                        } else {
+                            null
+                        }
+                    }
+            }
         }
     }
 
