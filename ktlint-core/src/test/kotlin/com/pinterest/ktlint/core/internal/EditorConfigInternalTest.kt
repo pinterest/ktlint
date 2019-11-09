@@ -4,6 +4,7 @@ import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
 import java.nio.file.FileSystem
 import java.nio.file.Files
+import java.nio.file.Path
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
 import org.junit.Test
@@ -11,12 +12,17 @@ import org.junit.Test
 class EditorConfigInternalTest {
     private val tempFileSystem = Jimfs.newFileSystem(Configuration.forCurrentPlatform())
 
+    private fun FileSystem.normalizedPath(path: String): Path {
+        val root = rootDirectories.joinToString(separator = "/")
+        return getPath("$root$path")
+    }
+
     private fun FileSystem.writeEditorConfigFile(
         filePath: String,
         content: String
     ) {
-        Files.createDirectories(getPath(filePath))
-        Files.write(getPath("$filePath/.editorconfig"), content.toByteArray())
+        Files.createDirectories(normalizedPath(filePath))
+        Files.write(normalizedPath("$filePath/.editorconfig"), content.toByteArray())
     }
 
     @After
@@ -28,7 +34,7 @@ class EditorConfigInternalTest {
     fun testParentDirectoryFallback() {
         val projectDir = "/projects/project-1"
         val projectSubDirectory = "$projectDir/project-1-subdirectory"
-        Files.createDirectories(tempFileSystem.getPath(projectSubDirectory))
+        Files.createDirectories(tempFileSystem.normalizedPath(projectSubDirectory))
         val editorConfigFiles = arrayOf(
             """
             [*]
@@ -57,7 +63,7 @@ class EditorConfigInternalTest {
             tempFileSystem.writeEditorConfigFile(projectDir, editorConfigFileContent)
 
             val editorConfig = EditorConfigInternal.of(
-                tempFileSystem.getPath(projectSubDirectory)
+                tempFileSystem.normalizedPath(projectSubDirectory)
             )
 
             assertThat(editorConfig?.parent).isNull()
@@ -106,7 +112,7 @@ class EditorConfigInternalTest {
         )
 
         var parsedEditorConfig = EditorConfigInternal.of(
-            tempFileSystem.getPath(project1Subdirectory)
+            tempFileSystem.normalizedPath(project1Subdirectory)
         )
         assertThat(parsedEditorConfig?.parent).isNotNull
         assertThat(parsedEditorConfig?.parent?.parent).isNull()
@@ -119,7 +125,7 @@ class EditorConfigInternalTest {
         )
 
         parsedEditorConfig = EditorConfigInternal.of(
-            tempFileSystem.getPath(project1Dir)
+            tempFileSystem.normalizedPath(project1Dir)
         )
         assertThat(parsedEditorConfig?.parent).isNull()
         assertThat(parsedEditorConfig?.toMap()).isEqualTo(
@@ -131,7 +137,7 @@ class EditorConfigInternalTest {
         )
 
         parsedEditorConfig = EditorConfigInternal.of(
-            tempFileSystem.getPath(rootDir)
+            tempFileSystem.normalizedPath(rootDir)
         )
         assertThat(parsedEditorConfig?.parent).isNull()
         assertThat(parsedEditorConfig?.toMap()).isEqualTo(
@@ -174,7 +180,7 @@ class EditorConfigInternalTest {
         tempFileSystem.writeEditorConfigFile(projectDir, editorconfigFile)
 
         val parsedEditorConfig = EditorConfigInternal.of(
-            tempFileSystem.getPath(projectDir)
+            tempFileSystem.normalizedPath(projectDir)
         )
 
         assertThat(parsedEditorConfig).isNotNull
@@ -197,7 +203,7 @@ class EditorConfigInternalTest {
         tempFileSystem.writeEditorConfigFile(projectDir, editorconfigFile)
 
         val parsedEditorConfig = EditorConfigInternal.of(
-            tempFileSystem.getPath(projectDir)
+            tempFileSystem.normalizedPath(projectDir)
         )
 
         assertThat(parsedEditorConfig).isNotNull
