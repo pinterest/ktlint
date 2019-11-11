@@ -4,6 +4,7 @@ import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.reporter.plain.internal.Color
 import com.pinterest.ktlint.reporter.plain.internal.color
 import java.io.ByteArrayOutputStream
+import java.io.File
 import java.io.PrintStream
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Assert.assertEquals
@@ -76,7 +77,7 @@ class PlainReporterTest {
             outputColor = outputColor
         )
         reporter.onLintError(
-            "/one-fixed-and-one-not.kt",
+            File.separator + "one-fixed-and-one-not.kt",
             LintError(
                 1, 1, "rule-1",
                 "<\"&'>"
@@ -88,12 +89,13 @@ class PlainReporterTest {
 
         // We don't expect class name, or first line to be colored
         val expectedOutput =
-            "/".color(outputColor) +
+            File.separator.color(outputColor) +
                 "one-fixed-and-one-not.kt" +
                 ":".color(outputColor) +
                 "1" +
                 ":1:".color(outputColor) +
-                " <\"&'>\n"
+                " <\"&'>" +
+                System.lineSeparator()
 
         assertEquals(expectedOutput, outputString)
     }
