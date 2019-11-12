@@ -420,13 +420,12 @@ object KtLint {
                 .forEach { (e, corrected) -> params.cb(e, corrected) }
         }
 
-        if(!mutated) {
+        if (!mutated) {
             return params.text
         }
 
-        return if(hasUTF8BOM) UTF8_BOM else "" + // Restore UTF8 BOM if it was present
+        return if (hasUTF8BOM) UTF8_BOM else "" + // Restore UTF8 BOM if it was present
             rootNode.text.replace("\n", determineLineSeparator(params.text, params.userData))
-
     }
 
     private fun determineLineSeparator(fileContent: String, userData: Map<String, String>): String {
