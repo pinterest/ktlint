@@ -187,4 +187,26 @@ class SpacingAroundCurlyRuleTest {
             """.trimIndent()
         )
     }
+
+    @Test
+    fun `lint new line after lambda return type passes`() {
+        assertThat(SpacingAroundCurlyRule().lint("""
+            fun magicNumber1(): () -> Int = { 37 }
+            fun magicNumber2(): () -> Int =
+                { 42 }
+        """.trimIndent())).isEmpty()
+    }
+
+    @Test
+    fun `format new line after lambda return type passes`() {
+        assertThat(SpacingAroundCurlyRule().format("""
+            fun magicNumber1(): () -> Int = { 37 }
+            fun magicNumber2(): () -> Int =
+                { 42 }
+        """.trimIndent())).isEqualTo("""
+            fun magicNumber1(): () -> Int = { 37 }
+            fun magicNumber2(): () -> Int =
+                { 42 }
+        """.trimIndent())
+    }
 }

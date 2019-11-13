@@ -8,6 +8,7 @@ import com.pinterest.ktlint.core.ast.ElementType.COMMA
 import com.pinterest.ktlint.core.ast.ElementType.DOT
 import com.pinterest.ktlint.core.ast.ElementType.EXCLEXCL
 import com.pinterest.ktlint.core.ast.ElementType.FUN
+import com.pinterest.ktlint.core.ast.ElementType.LAMBDA_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.LBRACE
 import com.pinterest.ktlint.core.ast.ElementType.LBRACKET
 import com.pinterest.ktlint.core.ast.ElementType.LPAR
@@ -39,7 +40,7 @@ class SpacingAroundCurlyRule : Rule("curly-spacing") {
             val nextLeaf = node.nextLeaf()
             val spacingBefore: Boolean
             val spacingAfter: Boolean
-            if (node.textMatches("{")) {
+            if (node.elementType == LBRACE) {
                 spacingBefore =
                     prevLeaf is PsiWhiteSpace ||
                     prevLeaf?.elementType == AT ||
@@ -59,22 +60,17 @@ class SpacingAroundCurlyRule : Rule("curly-spacing") {
                         prevLeaf.node.treeParent.removeChild(prevLeaf.node)
                     }
                 }
-                if (prevLeaf is PsiWhiteSpace &&
-                    prevLeaf.textContains('\n') &&
-                    (
-                        prevLeaf.prevLeaf()?.let {
-                            it.elementType == RPAR || KtTokens.KEYWORDS.contains(it.elementType)
-                        } == true ||
-                            node.treeParent.elementType == CLASS_BODY ||
-                            prevLeaf.treeParent.elementType == FUN
-                        )
+                if (prevLeaf is PsiWhiteSpace && prevLeaf.textContains('\n') &&
+                    (prevLeaf.prevLeaf()?.let { it.elementType == RPAR || KtTokens.KEYWORDS.contains(it.elementType) } == true ||
+                        node.treeParent.elementType == CLASS_BODY ||
+                        (prevLeaf.treeParent.elementType == FUN && prevLeaf.treeNext.elementType != LAMBDA_EXPRESSION)) // allow newline for lambda return type
                 ) {
                     emit(node.startOffset, "Unexpected newline before \"${node.text}\"", true)
                     if (autoCorrect) {
                         (prevLeaf as LeafPsiElement).rawReplaceWithText(" ")
                     }
                 }
-            } else if (node.textMatches("}")) {
+            } else if (node.elementType == RBRACE) {
                 spacingBefore = prevLeaf is PsiWhiteSpace || prevLeaf?.elementType == LBRACE
                 spacingAfter = nextLeaf == null || nextLeaf is PsiWhiteSpace || shouldNotToBeSeparatedBySpace(nextLeaf)
                 if (nextLeaf is PsiWhiteSpace && !nextLeaf.textContains('\n') &&
