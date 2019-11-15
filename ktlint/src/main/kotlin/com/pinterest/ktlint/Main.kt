@@ -52,6 +52,14 @@ fun main(args: Array<String>) {
         .addSubcommand(ApplyToIDEAGloballySubCommand.COMMAND_NAME, ApplyToIDEAGloballySubCommand())
         .addSubcommand(ApplyToIDEAProjectSubCommand.COMMAND_NAME, ApplyToIDEAProjectSubCommand())
     val parseResult = commandLine.parseArgs(*args)
+    val argsDiff = parseResult.originalArgs() - parseResult.matchedOptions().map { it.longestName() } -
+        if (parseResult.hasSubcommand()) parseResult.subcommand().commandSpec().names() else listOf()
+
+    if (argsDiff.isNotEmpty()) {
+        System.err.println("Invalid commands: ${argsDiff.joinToString()}")
+        System.err.println("Check available options with --help")
+        exitProcess(1)
+    }
 
     commandLine.printHelpOrVersionUsage()
 
