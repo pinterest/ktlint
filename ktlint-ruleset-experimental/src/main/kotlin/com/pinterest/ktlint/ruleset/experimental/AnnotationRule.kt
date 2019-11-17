@@ -2,6 +2,8 @@ package com.pinterest.ktlint.ruleset.experimental
 
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.MODIFIER_LIST
+import com.pinterest.ktlint.core.ast.ElementType.VALUE_ARGUMENT_LIST
+import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.core.ast.children
 import com.pinterest.ktlint.core.ast.upsertWhitespaceBeforeMe
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -71,7 +73,9 @@ class AnnotationRule : Rule("annotation") {
         val annotationsWithParametersAreNotOnSeparateLines =
             annotations.any { it.valueArgumentList != null } &&
                 !whiteSpaces.all { it.textContains('\n') } &&
-                doesNotEndWithAComment(whiteSpaces)
+                doesNotEndWithAComment(whiteSpaces) &&
+                node.treeParent.elementType != VALUE_PARAMETER_LIST &&
+                node.treeParent.elementType != VALUE_ARGUMENT_LIST
 
         if (multipleAnnotationsOnSameLineAsAnnotatedConstruct) {
             emit(
