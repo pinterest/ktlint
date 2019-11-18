@@ -164,6 +164,83 @@ class ParameterListWrappingRuleTest {
     }
 
     @Test
+    fun testLintFunctionParameterInconsistency() {
+        assertThat(
+            ParameterListWrappingRule().lint(
+                """
+                    fun f(
+                        a: Any,
+                        b: Any, c: Any
+                    )
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(3, 13, "parameter-list-wrapping", "Parameter should be on a separate line (unless all parameters can fit a single line)")
+            )
+        )
+    }
+
+    @Test
+    fun testLintArgumentInconsistency() {
+        assertThat(
+            ParameterListWrappingRule().lint(
+                """
+                    val x = f(
+                        a,
+                        b, c
+                    )
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(3, 8, "parameter-list-wrapping", "Argument should be on a separate line (unless all arguments can fit a single line)")
+            )
+        )
+    }
+
+    @Test
+    fun testFormatArgumentInconsistency() {
+        assertThat(
+            ParameterListWrappingRule().format(
+                """
+                    val x = f(
+                        a,
+                        b, c
+                    )
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            """
+                val x = f(
+                    a,
+                    b,
+                    c
+                )
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun testLintArgumentListWhenMaxLineLengthExceeded() {
+        assertThat(
+            ParameterListWrappingRule().lint(
+                """
+                    val x = f(a, b, c)
+                """.trimIndent(),
+                userData = mapOf("max_line_length" to "10")
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(1, 11, "parameter-list-wrapping", "Argument should be on a separate line (unless all arguments can fit a single line)"),
+                LintError(1, 14, "parameter-list-wrapping", "Argument should be on a separate line (unless all arguments can fit a single line)"),
+                LintError(1, 17, "parameter-list-wrapping", "Argument should be on a separate line (unless all arguments can fit a single line)"),
+                LintError(1, 18, "parameter-list-wrapping", """Missing newline before ")"""")
+            )
+        )
+    }
+
+    @Test
     fun testLintFunctionParameterListWhenMaxLineLengthExceeded() {
         assertThat(
             ParameterListWrappingRule().lint(
@@ -297,10 +374,12 @@ class ParameterListWrappingRuleTest {
                 fun f(
                     @Annotation
                     a: Any,
-                    @Annotation([
+                    @Annotation(
+                        [
                         "v1",
                         "v2"
-                    ])
+                    ]
+                    )
                     b: Any,
                     c: Any =
                         false,

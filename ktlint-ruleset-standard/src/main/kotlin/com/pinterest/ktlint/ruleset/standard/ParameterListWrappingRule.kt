@@ -5,6 +5,8 @@ import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.FUNCTION_LITERAL
 import com.pinterest.ktlint.core.ast.ElementType.LPAR
 import com.pinterest.ktlint.core.ast.ElementType.RPAR
+import com.pinterest.ktlint.core.ast.ElementType.VALUE_ARGUMENT
+import com.pinterest.ktlint.core.ast.ElementType.VALUE_ARGUMENT_LIST
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
@@ -37,7 +39,8 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
         if (indentSize <= 0) {
             return
         }
-        if (node.elementType == VALUE_PARAMETER_LIST &&
+        val isParameterOrArgumentList = (node.elementType == VALUE_PARAMETER_LIST || node.elementType == VALUE_ARGUMENT_LIST)
+        if (isParameterOrArgumentList &&
             // skip when there are no parameters
             node.firstChildNode?.treeNext?.elementType != RPAR &&
             // skip lambda parameters
@@ -70,10 +73,12 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
                             }
                         }
                         VALUE_PARAMETER,
+                        VALUE_ARGUMENT,
                         RPAR -> {
                             var paramInnerIndentAdjustment = 0
                             val prevLeaf = child.prevLeaf()
-                            val intendedIndent = if (child.elementType == VALUE_PARAMETER) {
+                            val isParameterOrArgument = child.elementType == VALUE_PARAMETER || child.elementType == VALUE_ARGUMENT
+                            val intendedIndent = if (isParameterOrArgument) {
                                 paramIndent
                             } else {
                                 indent
@@ -152,6 +157,8 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
             LPAR -> """Unnecessary newline before "(""""
             VALUE_PARAMETER ->
                 "Parameter should be on a separate line (unless all parameters can fit a single line)"
+            VALUE_ARGUMENT ->
+                "Argument should be on a separate line (unless all arguments can fit a single line)"
             RPAR -> """Missing newline before ")""""
             else -> throw UnsupportedOperationException()
         }
