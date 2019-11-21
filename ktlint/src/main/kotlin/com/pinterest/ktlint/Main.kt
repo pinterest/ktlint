@@ -447,7 +447,7 @@ class KtlintCommandLine {
                 LintError(
                     e.line, e.col, "",
                     "Internal Error (${e.ruleId}). " +
-                        "Please create a ticket at https://github.com/pinterest/ktlint/issue " +
+                        "Please create a ticket at https://github.com/pinterest/ktlint/issues " +
                         "(if possible, provide the source code that triggered an error)"
                 )
             }
