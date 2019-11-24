@@ -549,4 +549,40 @@ class AnnotationRuleTest {
             """.trimIndent()
         assertThat(AnnotationRule().format(code)).isEqualTo(code)
     }
+
+    @Test
+    fun `lint annotations on type arguments may be placed on same line`() {
+        val code =
+            """
+            val aProperty: Map<@Ann("test") Int, @JvmSuppressWildcards(true) (String) -> Int?>
+            val bProperty: Map<
+                @Ann String,
+                @Ann("test") Int, 
+                @JvmSuppressWildcards(true) (String) -> Int?
+                >
+                
+            fun doSomething() {
+                funWithGenericsCall<@JvmSuppressWildcards(true) Int>()
+            }
+            """.trimIndent()
+        assertThat(AnnotationRule().lint(code)).isEmpty()
+    }
+
+    @Test
+    fun `format annotations on type arguments may be placed on same line`() {
+        val code =
+            """
+            val aProperty: Map<@Ann("test") Int, @JvmSuppressWildcards(true) (String) -> Int?>
+            val bProperty: Map<
+                @Ann String,
+                @Ann("test") Int, 
+                @JvmSuppressWildcards(true) (String) -> Int?
+                >
+                
+            fun doSomething() {
+                funWithGenericsCall<@JvmSuppressWildcards(true) Int>()
+            }
+            """.trimIndent()
+        assertThat(AnnotationRule().format(code)).isEqualTo(code)
+    }
 }
