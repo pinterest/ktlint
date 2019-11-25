@@ -103,7 +103,7 @@ Examples:
   ktlint --reporter=plain \
     --reporter=checkstyle,output=ktlint-checkstyle-report.xml
   # 3rd-party reporter
-  ktlint --reporter=html,artifact=com.github.user:repo:master-SNAPSHOT
+  ktlint --reporter=csv,artifact=com.github.user:repo:master-SNAPSHOT
 
 Flags:""",
     synopsisHeading = "",
@@ -170,7 +170,7 @@ class KtlintCommandLine {
     @Option(
         names = ["--reporter"],
         description = [
-            "A reporter to use (built-in: plain (default), plain?group_by_file, json, checkstyle). " +
+            "A reporter to use (built-in: plain (default), plain?group_by_file, json, checkstyle, html). " +
                 "To use a third-party reporter specify a path to a JAR file on the filesystem."
         ]
     )
