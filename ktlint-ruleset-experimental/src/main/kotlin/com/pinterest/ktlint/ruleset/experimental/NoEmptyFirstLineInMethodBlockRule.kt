@@ -2,6 +2,7 @@ package com.pinterest.ktlint.ruleset.experimental
 
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType
+import com.pinterest.ktlint.core.ast.ElementType.CLASS_BODY
 import com.pinterest.ktlint.core.ast.ElementType.FUN
 import com.pinterest.ktlint.core.ast.isPartOf
 import com.pinterest.ktlint.core.ast.prevLeaf
@@ -17,7 +18,8 @@ class NoEmptyFirstLineInMethodBlockRule : Rule("no-empty-first-line-in-method-bl
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         if (node is PsiWhiteSpace && node.textContains('\n') &&
-            node.prevLeaf()?.elementType == ElementType.LBRACE && node.isPartOf(FUN)
+            node.prevLeaf()?.elementType == ElementType.LBRACE && node.isPartOf(FUN) &&
+            node.treeParent.elementType != CLASS_BODY // fun fn() = object : Builder {\n\n fun stuff() = Unit }
         ) {
             val split = node.getText().split("\n")
             if (split.size > 2) {
