@@ -2,9 +2,11 @@ package com.pinterest.ktlint.ruleset.experimental
 
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.MODIFIER_LIST
+import com.pinterest.ktlint.core.ast.ElementType.TYPE_ARGUMENT_LIST
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_ARGUMENT_LIST
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.core.ast.children
+import com.pinterest.ktlint.core.ast.isPartOf
 import com.pinterest.ktlint.core.ast.upsertWhitespaceBeforeMe
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
@@ -74,8 +76,9 @@ class AnnotationRule : Rule("annotation") {
             annotations.any { it.valueArgumentList != null } &&
                 !whiteSpaces.all { it.textContains('\n') } &&
                 doesNotEndWithAComment(whiteSpaces) &&
-                node.treeParent.elementType != VALUE_PARAMETER_LIST &&
-                node.treeParent.elementType != VALUE_ARGUMENT_LIST
+                node.treeParent.elementType != VALUE_PARAMETER_LIST && // fun fn(@Ann("blah") a: String)
+                node.treeParent.elementType != VALUE_ARGUMENT_LIST && // fn(@Ann("blah") "42")
+                !node.isPartOf(TYPE_ARGUMENT_LIST) // val property: Map<@Ann("blah") String, Int>
 
         if (multipleAnnotationsOnSameLineAsAnnotatedConstruct) {
             emit(
