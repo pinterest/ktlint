@@ -4,6 +4,7 @@ import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.test.format
 import com.pinterest.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.Ignore
 import org.junit.Test
 
 class EnumEntryNameCaseRuleTest {
@@ -25,6 +26,7 @@ class EnumEntryNameCaseRuleTest {
     }
 
     @Test
+    @Ignore("https://github.com/pinterest/ktlint/pull/638#issuecomment-558119749")
     fun testFormat() {
         val unformatted =
             """
