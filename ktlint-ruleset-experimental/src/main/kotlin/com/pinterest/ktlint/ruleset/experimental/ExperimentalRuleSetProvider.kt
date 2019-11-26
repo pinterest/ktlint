@@ -11,6 +11,7 @@ class ExperimentalRuleSetProvider : RuleSetProvider {
         IndentationRule(),
         MultiLineIfElseRule(),
         NoEmptyFirstLineInMethodBlockRule(),
-        PackageNameRule()
+        PackageNameRule(),
+        EnumEntryNameCaseRule()
     )
 }
