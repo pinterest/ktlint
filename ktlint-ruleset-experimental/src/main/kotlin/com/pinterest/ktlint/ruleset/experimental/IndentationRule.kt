@@ -582,6 +582,10 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                                         //        value
                                         // }
                                         adjustExpectedIndentAfterArrow(n, ctx)
+                                    prevLeaf?.elementType == COLON ->
+                                        // fun fn():
+                                        //     Int
+                                        adjustExpectedIndentAfterColon(n, ctx)
                                 }
                                 visitWhiteSpace(n, autoCorrect, emit, editorConfig)
                                 if (ctx.localAdj != 0) {
@@ -725,6 +729,12 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                 ctx.exitAdjBy(n.treeParent, -1)
             }
         }
+    }
+
+    private fun adjustExpectedIndentAfterColon(n: ASTNode, ctx: IndentContext) {
+        expectedIndent++
+        debug { "++after(COLON) -> $expectedIndent" }
+        ctx.exitAdjBy(n.treeParent, -1)
     }
 
     private fun indentStringTemplate(
