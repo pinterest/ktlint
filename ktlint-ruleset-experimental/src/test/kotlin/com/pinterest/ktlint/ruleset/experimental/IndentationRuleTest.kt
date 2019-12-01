@@ -344,4 +344,49 @@ class IndentationRuleTest {
             )
         )
     }
+
+    @Test
+    fun `lint indentation new line before return type`() {
+        assertThat(
+            IndentationRule().lint(
+                """
+                abstract fun doPerformSomeOperation(param: ALongParameter):
+                    SomeLongInterface<ALongParameter.InnerClass, SomeOtherClass>
+                val s: 
+                    String = ""
+                fun process(
+                    fileName: 
+                        String
+                ): List<Output>
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `format indentation new line before return type`() {
+        assertThat(IndentationRule().format("""
+            abstract fun doPerformSomeOperation(param: ALongParameter):
+            SomeLongInterface<ALongParameter.InnerClass, SomeOtherClass>
+
+            val s: 
+                    String = ""
+
+            fun process(
+                fileName: 
+                    String
+            ): List<Output>
+        """.trimIndent())).isEqualTo("""
+            abstract fun doPerformSomeOperation(param: ALongParameter):
+                SomeLongInterface<ALongParameter.InnerClass, SomeOtherClass>
+
+            val s: 
+                String = ""
+
+            fun process(
+                fileName: 
+                    String
+            ): List<Output>
+        """.trimIndent())
+    }
 }
