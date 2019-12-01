@@ -64,3 +64,26 @@ tasks.withType(Wrapper.class).configureEach {
   gradleVersion = versions.gradle
   distributionType = Wrapper.DistributionType.BIN
 }
+
+// Deployment tasks
+
+// Put "servers.github.privKey" in "$HOME/.gradle/gradle.properties".
+def announceTask = tasks.register("announceRelease", Exec.class) { announceTask ->
+  group = "Help"
+  description = "Runs .announce script"
+  subprojects { subproject ->
+    subproject.tasks.named("uploadArchives") { task ->
+      announceTask.dependsOn ":${subproject.name}:${task.name}"
+    }
+  }
+
+  commandLine './.announce', '-y'
+  environment VERSION: "${project.'VERSION_NAME'}"
+  environment GITHUB_TOKEN: "${project.'servers.github.privKey'}"
+}
+
+tasks.register("publishNewRelease", DefaultTask.class) {
+  group = "Help"
+  description = "Triggers uploading new archives and publish announcements"
+  dependsOn announceTask
+}
