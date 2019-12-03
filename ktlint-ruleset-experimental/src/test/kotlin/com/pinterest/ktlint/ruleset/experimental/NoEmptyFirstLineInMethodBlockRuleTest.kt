@@ -140,4 +140,32 @@ class NoEmptyFirstLineInMethodBlockRuleTest {
         )
         assertThat(NoEmptyFirstLineInMethodBlockRule().format(unformattedFunction)).isEqualTo(formattedFunction)
     }
+
+    @Test
+    fun `lint empty first line may be placed in function inside anonymous object`() {
+        val code =
+            """
+            fun fooBuilder() = object : Foo {
+            
+                override fun foo() {
+                    TODO()
+                }
+            }
+            """.trimIndent()
+        assertThat(NoEmptyFirstLineInMethodBlockRule().lint(code)).isEmpty()
+    }
+
+    @Test
+    fun `format empty first line may be placed in function inside anonymous object`() {
+        val code =
+            """
+            fun fooBuilder() = object : Foo {
+            
+                override fun foo() {
+                    TODO()
+                }
+            }
+            """.trimIndent()
+        assertThat(NoEmptyFirstLineInMethodBlockRule().format(code)).isEqualTo(code)
+    }
 }

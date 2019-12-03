@@ -582,6 +582,10 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                                         //        value
                                         // }
                                         adjustExpectedIndentAfterArrow(n, ctx)
+                                    prevLeaf?.elementType == COLON ->
+                                        // fun fn():
+                                        //     Int
+                                        adjustExpectedIndentAfterColon(n, ctx)
                                 }
                                 visitWhiteSpace(n, autoCorrect, emit, editorConfig)
                                 if (ctx.localAdj != 0) {
@@ -616,7 +620,7 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
     }
 
     private fun adjustExpectedIndentInsideQualifiedExpression(n: ASTNode, ctx: IndentContext) {
-        val p = n.treeParent
+        val p = n.parent({ it.treeParent.elementType != DOT_QUALIFIED_EXPRESSION }) ?: return
         val nextSibling = n.treeNext
         if (!ctx.ignored.contains(p) && nextSibling != null) {
             expectedIndent++
@@ -631,7 +635,8 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
             } else {
                 nextSibling
             }
-            ctx.exitAdjBy(e, -1)
+            ctx.ignored.add(p)
+            ctx.exitAdjBy(p, -1)
         }
     }
 
@@ -724,6 +729,12 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                 ctx.exitAdjBy(n.treeParent, -1)
             }
         }
+    }
+
+    private fun adjustExpectedIndentAfterColon(n: ASTNode, ctx: IndentContext) {
+        expectedIndent++
+        debug { "++after(COLON) -> $expectedIndent" }
+        ctx.exitAdjBy(n.treeParent, -1)
     }
 
     private fun indentStringTemplate(

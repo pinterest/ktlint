@@ -442,6 +442,151 @@ class AnnotationRuleTest {
     }
 
     @Test
+    fun `no error with formatting annotation for primary constructor`() {
+        val code =
+            """
+            class Foo @Inject internal constructor()
+            """.trimIndent()
+        assertThat(
+            AnnotationRule().format(code)
+        ).isEqualTo(
+            """
+            class Foo @Inject internal constructor()
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun `lint annotations on method parameters may be placed on same line`() {
+        val code =
+            """
+            interface FooService {
+
+                fun foo1(
+                    @Path("fooId") fooId: String,
+                    @Path("bar") bar: String,
+                    @Body body: Foo
+                ): Completable
+            
+                fun foo2(@Query("include") include: String? = null, @QueryMap fields: Map<String, String> = emptyMap()): Single
+            
+                fun foo3(@Path("fooId") fooId: String): Completable
+            }
+            """.trimIndent()
+        assertThat(AnnotationRule().lint(code)).isEmpty()
+    }
+
+    @Test
+    fun `format annotations on method parameters may be placed on same line`() {
+        val code =
+            """
+            interface FooService {
+
+                fun foo1(
+                    @Path("fooId") fooId: String,
+                    @Path("bar") bar: String,
+                    @Body body: Foo
+                ): Completable
+            
+                fun foo2(@Query("include") include: String? = null, @QueryMap fields: Map<String, String> = emptyMap()): Single
+            
+                fun foo3(@Path("fooId") fooId: String): Completable
+            }
+            """.trimIndent()
+        assertThat(AnnotationRule().format(code)).isEqualTo(code)
+    }
+
+    @Test
+    fun `lint annotations on constructor parameters may be placed on same line`() {
+        val code =
+            """
+            class Foo(@Path("fooId") val fooId: String)
+            class Bar(
+                @NotNull("fooId") val fooId: String,
+                @NotNull("bar") bar: String
+            )
+            """.trimIndent()
+        assertThat(AnnotationRule().lint(code)).isEmpty()
+    }
+
+    @Test
+    fun `format annotations on constructor parameters may be placed on same line`() {
+        val code =
+            """
+            class Foo(@Path("fooId") val fooId: String)
+            class Bar(
+                @NotNull("fooId") val fooId: String,
+                @NotNull("bar") bar: String
+            )
+            """.trimIndent()
+        assertThat(AnnotationRule().format(code)).isEqualTo(code)
+    }
+
+    @Test
+    fun `lint annotations on arguments may be placed on same line`() {
+        val code =
+            """
+            fun doSomething() {
+                actuallyDoSomething(
+                    @ExpressionStringAnn("foo") "test",
+                    @ExpressionIntAnn("bar") 42
+                )
+            }
+            """.trimIndent()
+        assertThat(AnnotationRule().lint(code)).isEmpty()
+    }
+
+    @Test
+    fun `format annotations on arguments may be placed on same line`() {
+        val code =
+            """
+            fun doSomething() {
+                actuallyDoSomething(
+                    @ExpressionStringAnn("foo") "test",
+                    @ExpressionIntAnn("bar") 42
+                )
+            }
+            """.trimIndent()
+        assertThat(AnnotationRule().format(code)).isEqualTo(code)
+    }
+
+    @Test
+    fun `lint annotations on type arguments may be placed on same line`() {
+        val code =
+            """
+            val aProperty: Map<@Ann("test") Int, @JvmSuppressWildcards(true) (String) -> Int?>
+            val bProperty: Map<
+                @Ann String,
+                @Ann("test") Int, 
+                @JvmSuppressWildcards(true) (String) -> Int?
+                >
+                
+            fun doSomething() {
+                funWithGenericsCall<@JvmSuppressWildcards(true) Int>()
+            }
+            """.trimIndent()
+        assertThat(AnnotationRule().lint(code)).isEmpty()
+    }
+
+    @Test
+    fun `format annotations on type arguments may be placed on same line`() {
+        val code =
+            """
+            val aProperty: Map<@Ann("test") Int, @JvmSuppressWildcards(true) (String) -> Int?>
+            val bProperty: Map<
+                @Ann String,
+                @Ann("test") Int, 
+                @JvmSuppressWildcards(true) (String) -> Int?
+                >
+                
+            fun doSomething() {
+                funWithGenericsCall<@JvmSuppressWildcards(true) Int>()
+            }
+            """.trimIndent()
+        assertThat(AnnotationRule().format(code)).isEqualTo(code)
+    }
+
+    @Test
     fun `annotation at top of file`() {
         val code =
             """

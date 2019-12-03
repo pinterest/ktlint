@@ -42,6 +42,13 @@ return 2
 }
 }
 
+fun foo3() {
+Integer
+.parseInt("32").let {
+println("parsed $it")
+}
+}
+
 private val f =
 { a: Int -> a * 2 }
 

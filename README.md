@@ -89,7 +89,7 @@ disabled_rules=no-wildcard-imports,experimental:annotation,my-custom-ruleset:my-
 > Skip all the way to the "Integration" section if you don't plan to use `ktlint`'s command line interface.
 
 ```sh
-curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.34.2/ktlint &&
+curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.35.0/ktlint &&
   chmod a+x ktlint &&
   sudo mv ktlint /usr/local/bin/
 ```
@@ -185,7 +185,7 @@ $ ktlint installGitPreCommitHook
         <dependency>
             <groupId>com.pinterest</groupId>
             <artifactId>ktlint</artifactId>
-            <version>0.34.2</version>
+            <version>0.35.0</version>
         </dependency>
         <!-- additional 3rd party ruleset(s) can be specified here -->
     </dependencies>
@@ -233,7 +233,7 @@ configurations {
 }
 
 dependencies {
-    ktlint "com.pinterest:ktlint:0.34.2"
+    ktlint "com.pinterest:ktlint:0.35.0"
     // additional 3rd party ruleset(s) can be specified here
     // just add them to the classpath (e.g. ktlint 'groupId:artifactId:version') and 
     // ktlint will pick them up
