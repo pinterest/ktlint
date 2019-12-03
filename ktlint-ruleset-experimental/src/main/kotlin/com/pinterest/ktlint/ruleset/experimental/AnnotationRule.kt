@@ -4,8 +4,8 @@ import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.FILE_ANNOTATION_LIST
 import com.pinterest.ktlint.core.ast.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.core.ast.ElementType.TYPE_ARGUMENT_LIST
-import com.pinterest.ktlint.core.ast.ElementType.VALUE_ARGUMENT_LIST
-import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER_LIST
+import com.pinterest.ktlint.core.ast.ElementType.VALUE_ARGUMENT
+import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER
 import com.pinterest.ktlint.core.ast.children
 import com.pinterest.ktlint.core.ast.isPartOf
 import com.pinterest.ktlint.core.ast.upsertWhitespaceBeforeMe
@@ -91,8 +91,8 @@ class AnnotationRule : Rule("annotation") {
             annotations.any { it.valueArgumentList != null } &&
                 !whiteSpaces.all { it.textContains('\n') } &&
                 doesNotEndWithAComment(whiteSpaces) &&
-                node.treeParent.elementType != VALUE_PARAMETER_LIST && // fun fn(@Ann("blah") a: String)
-                node.treeParent.elementType != VALUE_ARGUMENT_LIST && // fn(@Ann("blah") "42")
+                node.treeParent.elementType != VALUE_PARAMETER && // fun fn(@Ann("blah") a: String)
+                node.treeParent.elementType != VALUE_ARGUMENT && // fn(@Ann("blah") "42")
                 !node.isPartOf(TYPE_ARGUMENT_LIST) // val property: Map<@Ann("blah") String, Int>
         if (annotationsWithParametersAreNotOnSeparateLines) {
             emit(
