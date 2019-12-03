@@ -2,6 +2,28 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.36.0] - 2019-12-03
+
+### Added
+- HTML reporter ([#641](https://github.com/pinterest/ktlint/pull/641))
+- Experimental rule to lint enum entry names ([#638](https://github.com/pinterest/ktlint/pull/638))
+- `@Suppress("RemoveCurlyBracesFromTemplate")` now respected ([#263](https://github.com/pinterest/ktlint/pull/263))
+
+### Upgraded
+- Gradle version to 5.6.2 ([#616](https://github.com/pinterest/ktlint/pull/616))
+- Kotlin to 1.3.60 ([#658](https://github.com/pinterest/ktlint/pull/658))
+
+### Fixed
+- `.git` directory now discovered instead of hardcoded ([#623](https://github.com/pinterest/ktlint/pull/623))
+- Several bugs with the experimental annotation rule ([#628](https://github.com/pinterest/ktlint/pull/628)) ([#642](https://github.com/pinterest/ktlint/pull/642)) ([#654](https://github.com/pinterest/ktlint/pull/654)) ([#624](https://github.com/pinterest/ktlint/pull/624))
+- Allow newline after lambda return type ([#643](https://github.com/pinterest/ktlint/pull/643))
+- Allow empty first line in a function that returns an anonymous object ([#655](https://github.com/pinterest/ktlint/pull/655))
+- Indentation with lambda argument ([#627](https://github.com/pinterest/ktlint/pull/627))
+- ktlint can now lint UTF-8 files with BOM ([#630](https://github.com/pinterest/ktlint/pull/630)
+- Indentation with newline before return type ([#663](https://github.com/pinterest/ktlint/pull/663))
+- Build/tests on Windows ([#640](https://github.com/pinterest/ktlint/pull/640))
+- Allow whitespace after `(` followed by a comment ([#664](https://github.com/pinterest/ktlint/pull/664))
+
 ## [0.35.0] - 2019-10-12
 
 ### Added
@@ -628,6 +650,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.36.0]: https://github.com/shyiko/ktlint/compare/0.35.0...0.36.0
 [0.35.0]: https://github.com/shyiko/ktlint/compare/0.34.2...0.35.0
 [0.34.2]: https://github.com/shyiko/ktlint/compare/0.33.0...0.34.2
 [0.34.0]: https://github.com/shyiko/ktlint/compare/0.33.0...0.34.0
