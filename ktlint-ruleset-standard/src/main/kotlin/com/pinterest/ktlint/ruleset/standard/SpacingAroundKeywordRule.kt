@@ -22,6 +22,7 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet.create
+import org.jetbrains.kotlin.kdoc.psi.impl.KDocName
 import org.jetbrains.kotlin.psi.KtPropertyAccessor
 import org.jetbrains.kotlin.psi.KtWhenEntry
 
@@ -41,7 +42,7 @@ class SpacingAroundKeywordRule : Rule("keyword-spacing") {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         if (node is LeafPsiElement) {
-            if (tokenSet.contains(node.elementType) && node.nextLeaf() !is PsiWhiteSpace) {
+            if (tokenSet.contains(node.elementType) && node.parent !is KDocName && node.nextLeaf() !is PsiWhiteSpace) {
                 emit(node.startOffset + node.text.length, "Missing spacing after \"${node.text}\"", true)
                 if (autoCorrect) {
                     node.upsertWhitespaceAfterMe(" ")
