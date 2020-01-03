@@ -212,7 +212,7 @@ supports different kotlin plugins and Gradle build caching.
 - [jeremymailen/kotlinter-gradle](https://github.com/jeremymailen/kotlinter-gradle)  
 Gradle plugin featuring incremental build support, file reports, and `*.kts` source support.
 
-You might also want to take a look at [diffplug/spotless](https://github.com/diffplug/spotless/tree/master/plugin-gradle#applying-ktlint-to-kotlin-files) which has a built-in support for ktlint. In addition to linting/formatting kotlin code it allows you to keep license headers, markdown documentation, etc. in check.
+You might also want to take a look at [diffplug/spotless](https://github.com/diffplug/spotless/tree/master/plugin-gradle#applying-ktlint-to-kotlin-files) or [autostyle/autostyle](https://github.com/autostyle/autostyle/tree/master/plugin-gradle#applying-ktlint-to-kotlin-files) that have a built-in support for ktlint. In addition to linting/formatting kotlin code it allows you to keep license headers, markdown documentation, etc. in check.
 
 #### (without a plugin)
 
