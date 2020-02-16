@@ -66,6 +66,14 @@ tasks.withType(Wrapper.class).configureEach {
 }
 
 // Deployment tasks
+String getGithubToken() {
+  if (project.hasProperty("servers.github.privKey")) {
+    return project.'servers.github.privKey'
+  } else {
+    logger.warn("No github token specified")
+    return ""
+  }
+}
 
 // Put "servers.github.privKey" in "$HOME/.gradle/gradle.properties".
 def announceTask = tasks.register("announceRelease", Exec.class) { announceTask ->
@@ -79,7 +87,7 @@ def announceTask = tasks.register("announceRelease", Exec.class) { announceTask 
 
   commandLine './.announce', '-y'
   environment VERSION: "${project.'VERSION_NAME'}"
-  environment GITHUB_TOKEN: "${project.'servers.github.privKey'}"
+  environment GITHUB_TOKEN: "${getGithubToken()}"
 }
 
 tasks.register("publishNewRelease", DefaultTask.class) {
