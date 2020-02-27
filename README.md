@@ -168,6 +168,9 @@ $ ktlint --reporter=plain?group_by_file
 # print style violations as usual + create report in checkstyle format 
 $ ktlint --reporter=plain --reporter=checkstyle,output=ktlint-report-in-checkstyle-format.xml
 
+# check against a baseline file
+$ ktlint --baseline=ktlint-baseline.xml
+
 # install git hook to automatically check files for style violations on commit
 # Run "ktlint installGitPrePushHook" if you wish to run ktlint on push instead
 $ ktlint installGitPreCommitHook
@@ -288,6 +291,8 @@ task ktlint(type: JavaExec, group: "verification") {
     args "src/**/*.kt"
     // to generate report in checkstyle format prepend following args:
     // "--reporter=plain", "--reporter=checkstyle,output=${buildDir}/ktlint.xml"
+    // to add a baseline to check against prepend following args:
+    // "--baseline=ktlint-baseline.xml"
     // see https://github.com/pinterest/ktlint#usage for more
 }
 check.dependsOn ktlint
