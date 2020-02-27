@@ -232,15 +232,20 @@ class KtlintCommandLine {
         val start = System.currentTimeMillis()
 
         val baselineResults = loadBaseline(baseline)
-        if (baselineResults.baselineGenerationNeeded) {
-            if (reporters.isEmpty()) {
-                reporters.add("plain")
-            }
-            reporters.add("baseline,output=$baseline")
-        }
-
         val ruleSetProviders = rulesets.loadRulesets(experimental, debug)
-        val reporter = loadReporter()
+        var reporter = loadReporter()
+        if (baselineResults.baselineGenerationNeeded) {
+            val baselineReporter = ReporterTemplate(
+                "baseline",
+                null,
+                emptyMap(),
+                baseline
+            )
+            val reporterProviderById = loadReporters(emptyList()).mapKeys { entry ->
+                if (entry.key == "checkstyle") "baseline" else entry.key
+            }
+            reporter = Reporter.from(reporter, baselineReporter.toReporter(reporterProviderById))
+        }
         val userData = listOfNotNull(
             "android" to android.toString(),
             if (disabledRules.isNotBlank()) "disabled_rules" to disabledRules else null
@@ -424,8 +429,7 @@ class KtlintCommandLine {
     private fun ReporterTemplate.toReporter(
         reporterProviderById: Map<String, ReporterProvider>
     ): Reporter {
-        val innerId = if (id == "baseline") "checkstyle" else id
-        val reporterProvider = reporterProviderById[innerId]
+        val reporterProvider = reporterProviderById[id]
         if (reporterProvider == null) {
             System.err.println(
                 "Error: reporter \"$id\" wasn't found (available: ${
