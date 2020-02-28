@@ -113,4 +113,10 @@ internal fun List<LintError>.containsLintError(error: LintError): Boolean {
  * Also adjusts the slashes for uniformity between file systems
  */
 internal val File.relativeRoute: String
-    get() = Paths.get("").toAbsolutePath().relativize(this.toPath()).toString().replace('\\', '/')
+    get() = Paths.get("").toAbsolutePath().relativize(this.toPath()).toString().replace('\\', '/').let { name ->
+        if (name[0] != '/') {
+            "/$name"
+        } else {
+            name
+        }
+    }

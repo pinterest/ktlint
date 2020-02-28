@@ -3,6 +3,7 @@ package com.pinterest.ktlint.reporter.baseline
 import com.pinterest.ktlint.core.LintError
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
+import java.nio.file.Paths
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
@@ -10,10 +11,11 @@ class BaselineReporterTest {
 
     @Test
     fun testReportGeneration() {
+        val basePath = Paths.get("").toAbsolutePath()
         val out = ByteArrayOutputStream()
         val reporter = BaselineReporter(PrintStream(out, true))
         reporter.onLintError(
-            "/one-fixed-and-one-not.kt",
+            "$basePath/one-fixed-and-one-not.kt",
             LintError(
                 1, 1, "rule-1",
                 "<\"&'>"
@@ -21,7 +23,7 @@ class BaselineReporterTest {
             false
         )
         reporter.onLintError(
-            "/one-fixed-and-one-not.kt",
+            "$basePath/one-fixed-and-one-not.kt",
             LintError(
                 2, 1, "rule-2",
                 "And if you see my friend"
@@ -30,7 +32,7 @@ class BaselineReporterTest {
         )
 
         reporter.onLintError(
-            "/two-not-fixed.kt",
+            "$basePath/two-not-fixed.kt",
             LintError(
                 1, 10, "rule-1",
                 "I thought I would again"
@@ -38,7 +40,7 @@ class BaselineReporterTest {
             false
         )
         reporter.onLintError(
-            "/two-not-fixed.kt",
+            "$basePath/two-not-fixed.kt",
             LintError(
                 2, 20, "rule-2",
                 "A single thin straight line"
@@ -47,7 +49,7 @@ class BaselineReporterTest {
         )
 
         reporter.onLintError(
-            "/all-corrected.kt",
+            "$basePath/all-corrected.kt",
             LintError(
                 1, 1, "rule-1",
                 "I thought we had more time"

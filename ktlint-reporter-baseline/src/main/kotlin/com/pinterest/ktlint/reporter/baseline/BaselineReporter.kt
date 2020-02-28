@@ -26,6 +26,12 @@ class BaselineReporter(val out: PrintStream) : Reporter {
                 Paths.get("").toAbsolutePath().relativize(File(file).toPath()).toString().replace('\\', '/')
             } catch (e: IllegalArgumentException) {
                 file
+            }.let { name ->
+                if (name[0] != '/') {
+                    "/$name"
+                } else {
+                    name
+                }
             }
             out.println("""	<file name="${fileName.escapeXMLAttrValue()}">""")
             for ((line, col, ruleId, _) in errList) {
