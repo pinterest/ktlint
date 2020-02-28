@@ -278,7 +278,7 @@ class KtlintCommandLine {
                         file.readText(),
                         ruleSetProviders,
                         userData,
-                        baseline?.get(file.path)
+                        baseline?.get(file.relativeRoute)
                     )
                 }
             }
@@ -580,19 +580,6 @@ class KtlintCommandLine {
                 }
             }
         }
-
-    /**
-     * Checks if the list contains the lint error. We cannot use the contains function
-     * as the `checkstyle` reporter formats the details string and hence the comparison
-     * normally fails
-     */
-    private fun List<LintError>.containsLintError(error: LintError): Boolean {
-        return firstOrNull { lintError ->
-            lintError.col == error.col &&
-                lintError.line == error.line &&
-                lintError.ruleId == error.ruleId
-        } != null
-    }
 
     private data class LintErrorWithCorrectionInfo(
         val err: LintError,

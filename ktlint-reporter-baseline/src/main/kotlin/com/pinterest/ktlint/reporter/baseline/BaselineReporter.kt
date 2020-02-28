@@ -2,7 +2,9 @@ package com.pinterest.ktlint.reporter.baseline
 
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.Reporter
+import java.io.File
 import java.io.PrintStream
+import java.nio.file.Paths
 import java.util.ArrayList
 import java.util.concurrent.ConcurrentHashMap
 
@@ -20,7 +22,12 @@ class BaselineReporter(val out: PrintStream) : Reporter {
         out.println("""<?xml version="1.0" encoding="utf-8"?>""")
         out.println("""<baseline version="1.0">""")
         for ((file, errList) in acc.entries.sortedBy { it.key }) {
-            out.println("""	<file name="${file.escapeXMLAttrValue()}">""")
+            val fileName = try {
+                Paths.get("").toAbsolutePath().relativize(File(file).toPath()).toString()
+            } catch (e: IllegalArgumentException) {
+                file
+            }
+            out.println("""	<file name="${fileName.escapeXMLAttrValue()}">""")
             for ((line, col, ruleId, _) in errList) {
                 out.println(
                     """		<error line="$line" column="$col" source="$ruleId" />"""

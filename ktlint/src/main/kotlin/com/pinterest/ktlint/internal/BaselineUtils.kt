@@ -3,6 +3,7 @@ package com.pinterest.ktlint.internal
 import com.pinterest.ktlint.core.LintError
 import java.io.File
 import java.io.IOException
+import java.io.InputStream
 import java.nio.file.Paths
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.parsers.ParserConfigurationException
@@ -25,7 +26,7 @@ internal fun loadBaseline(baselineFilePath: String): CurrentBaseline {
     val baselineFile = Paths.get(baselineFilePath).toFile()
     if (baselineFile.exists()) {
         try {
-            baselineRules = parseBaseline(baselineFile)
+            baselineRules = parseBaseline(baselineFile.inputStream())
             baselineGenerationNeeded = false
         } catch (e: IOException) {
             System.err.println("Unable to parse baseline file: $baselineFilePath")
@@ -53,7 +54,7 @@ internal fun loadBaseline(baselineFilePath: String): CurrentBaseline {
  * @param baselineFile the file containing the current baseline
  * @return a mapping of file names to a list of all [LintError] in that file
  */
-private fun parseBaseline(baselineFile: File): Map<String, List<LintError>> {
+internal fun parseBaseline(baselineFile: InputStream): Map<String, List<LintError>> {
     val baselineRules = HashMap<String, MutableList<LintError>>()
     val builderFactory = DocumentBuilderFactory.newInstance()
     val docBuilder = builderFactory.newDocumentBuilder()
@@ -93,3 +94,22 @@ internal class CurrentBaseline(
     val baselineRules: Map<String, List<LintError>>?,
     val baselineGenerationNeeded: Boolean
 )
+
+/**
+ * Checks if the list contains the lint error. We cannot use the contains function
+ * as the `checkstyle` reporter formats the details string and hence the comparison
+ * normally fails
+ */
+internal fun List<LintError>.containsLintError(error: LintError): Boolean {
+    return firstOrNull { lintError ->
+        lintError.col == error.col &&
+            lintError.line == error.line &&
+            lintError.ruleId == error.ruleId
+    } != null
+}
+
+/**
+ * Gets the relative route of the file for baselines
+ */
+internal val File.relativeRoute: String
+    get() = Paths.get("").toAbsolutePath().relativize(this.toPath()).toString()
