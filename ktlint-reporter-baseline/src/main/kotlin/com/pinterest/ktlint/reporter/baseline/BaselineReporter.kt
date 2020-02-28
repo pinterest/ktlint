@@ -23,7 +23,7 @@ class BaselineReporter(val out: PrintStream) : Reporter {
         out.println("""<baseline version="1.0">""")
         for ((file, errList) in acc.entries.sortedBy { it.key }) {
             val fileName = try {
-                Paths.get("").toAbsolutePath().relativize(File(file).toPath()).toString()
+                Paths.get("").toAbsolutePath().relativize(File(file).toPath()).toString().replace('\\', '/')
             } catch (e: IllegalArgumentException) {
                 file
             }

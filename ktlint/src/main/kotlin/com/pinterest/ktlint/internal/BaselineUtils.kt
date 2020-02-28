@@ -110,6 +110,7 @@ internal fun List<LintError>.containsLintError(error: LintError): Boolean {
 
 /**
  * Gets the relative route of the file for baselines
+ * Also adjusts the slashes for uniformity between file systems
  */
 internal val File.relativeRoute: String
-    get() = Paths.get("").toAbsolutePath().relativize(this.toPath()).toString()
+    get() = Paths.get("").toAbsolutePath().relativize(this.toPath()).toString().replace('\\', '/')
