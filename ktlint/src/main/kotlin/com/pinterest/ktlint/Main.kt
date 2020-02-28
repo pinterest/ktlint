@@ -235,15 +235,8 @@ class KtlintCommandLine {
         val ruleSetProviders = rulesets.loadRulesets(experimental, debug)
         var reporter = loadReporter()
         if (baselineResults.baselineGenerationNeeded) {
-            val baselineReporter = ReporterTemplate(
-                "baseline",
-                null,
-                emptyMap(),
-                baseline
-            )
-            val reporterProviderById = loadReporters(emptyList()).mapKeys { entry ->
-                if (entry.key == "checkstyle") "baseline" else entry.key
-            }
+            val baselineReporter = ReporterTemplate("baseline", null, emptyMap(), baseline)
+            val reporterProviderById = loadReporters(emptyList())
             reporter = Reporter.from(reporter, baselineReporter.toReporter(reporterProviderById))
         }
         val userData = listOfNotNull(

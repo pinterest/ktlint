@@ -25,6 +25,7 @@ publishing.publications.named("maven").configure {
 
 dependencies {
   implementation project(':ktlint-core')
+  implementation project(':ktlint-reporter-baseline')
   implementation project(':ktlint-reporter-checkstyle')
   implementation project(':ktlint-reporter-json')
   implementation project(':ktlint-reporter-html')
