@@ -19,7 +19,7 @@ import org.jetbrains.kotlin.com.intellij.openapi.Disposable
 import org.jetbrains.kotlin.com.intellij.openapi.diagnostic.DefaultLogger
 import org.jetbrains.kotlin.com.intellij.openapi.diagnostic.Logger as DiagnosticLogger
 import org.jetbrains.kotlin.com.intellij.openapi.extensions.ExtensionPoint
-import org.jetbrains.kotlin.com.intellij.openapi.extensions.Extensions.getArea
+import org.jetbrains.kotlin.com.intellij.openapi.extensions.Extensions.getRootArea
 import org.jetbrains.kotlin.com.intellij.openapi.util.Key
 import org.jetbrains.kotlin.com.intellij.openapi.util.UserDataHolderBase
 import org.jetbrains.kotlin.com.intellij.pom.PomModel
@@ -114,7 +114,7 @@ object KtLint {
         }
         val extensionPoint = "org.jetbrains.kotlin.com.intellij.treeCopyHandler"
         val extensionClassName = TreeCopyHandler::class.java.name!!
-        for (area in arrayOf(getArea(project), getArea(null))) {
+        for (area in arrayOf(project.extensionArea, getRootArea())) {
             if (!area.hasExtensionPoint(extensionPoint)) {
                 area.registerExtensionPoint(extensionPoint, extensionClassName, ExtensionPoint.Kind.INTERFACE)
             }
