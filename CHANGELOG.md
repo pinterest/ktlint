@@ -2,6 +2,23 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+
+### Added
+- ?
+
+### Changed
+- Kotlin was updated to 1.3.70 version
+
+### Fixed
+- ?
+
+### Deprecated
+- ?
+
+### Removed
+- ?
+
 ## [0.36.0] - 2019-12-03
 
 ### Added
