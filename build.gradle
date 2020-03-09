@@ -1,6 +1,7 @@
 plugins {
   id 'org.jetbrains.kotlin.jvm' version '1.3.70' apply false
   id 'com.vanniktech.maven.publish' version '0.8.0' apply false
+  id 'com.github.breadmoirai.github-release' version '2.2.12'
 }
 
 ext.versions = [
@@ -75,6 +76,19 @@ String getGithubToken() {
   }
 }
 
+githubRelease {
+  token getGithubToken()
+  owner "pinterest"
+  repo "ktlint"
+  overwrite true
+  dryRun false
+  body {
+    def changelog = project.file("CHANGELOG.md").text
+    changelog = changelog.substring(changelog.indexOf("## "))
+    changelog.substring(0, changelog.indexOf("## ["))
+  }
+}
+
 // Put "servers.github.privKey" in "$HOME/.gradle/gradle.properties".
 def announceTask = tasks.register("announceRelease", Exec.class) { announceTask ->
   group = "Help"
@@ -93,5 +107,5 @@ def announceTask = tasks.register("announceRelease", Exec.class) { announceTask 
 tasks.register("publishNewRelease", DefaultTask.class) {
   group = "Help"
   description = "Triggers uploading new archives and publish announcements"
-  dependsOn announceTask
+  dependsOn(announceTask, tasks.named("githubRelease"))
 }
