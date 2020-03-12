@@ -1,4 +1,5 @@
 @file:JvmName("Main")
+
 package com.pinterest.ktlint
 
 import com.pinterest.ktlint.core.KtLint

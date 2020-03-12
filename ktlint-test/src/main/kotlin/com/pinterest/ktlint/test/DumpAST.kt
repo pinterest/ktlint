@@ -4,6 +4,7 @@ import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType
 import com.pinterest.ktlint.core.ast.isRoot
 import com.pinterest.ktlint.core.ast.lastChildLeafOrSelf
+import com.pinterest.ktlint.core.ast.lineNumber
 import com.pinterest.ktlint.test.internal.Color
 import com.pinterest.ktlint.test.internal.color
 import java.io.PrintStream
@@ -83,9 +84,6 @@ class DumpAST @JvmOverloads constructor(
         }
         return if (elementTypeSet.contains(name)) name else elementType.className + "." + elementType
     }
-
-    private fun ASTNode.lineNumber() =
-        this.psi.containingFile?.viewProvider?.document?.getLineNumber(this.startOffset)?.let { it + 1 }
 
     private fun colorClassName(className: String): String {
         val name = className.substringAfterLast(".")
