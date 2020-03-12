@@ -23,15 +23,11 @@ class BaselineReporter(val out: PrintStream) : Reporter {
         out.println("""<baseline version="1.0">""")
         for ((file, errList) in acc.entries.sortedBy { it.key }) {
             val fileName = try {
-                Paths.get("").toAbsolutePath().relativize(File(file).toPath()).toString().replace('\\', '/')
+                val rootPath = Paths.get("").toAbsolutePath()
+                val filePath = Paths.get(file)
+                rootPath.relativize(filePath).toString().replace(File.separatorChar, '/')
             } catch (e: IllegalArgumentException) {
                 file
-            }.let { name ->
-                if (name[0] != '/') {
-                    "/$name"
-                } else {
-                    name
-                }
             }
             out.println("""	<file name="${fileName.escapeXMLAttrValue()}">""")
             for ((line, col, ruleId, _) in errList) {
