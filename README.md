@@ -393,6 +393,7 @@ see https://github.com/pinterest/ktlint/issues/451.
 
 Third-party:
 * [mcassiano/ktlint-html-reporter](https://github.com/mcassiano/ktlint-html-reporter)
+* [kryanod/ktlint-junit-reporter](https://github.com/kryanod/ktlint-junit-reporter)
 
 ## Badge
 
