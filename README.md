@@ -281,12 +281,12 @@ ktlint --android applyToIDEAProject
 ##### Option #2
 
 Apply to all IDEA projects:
-```shell
-$ ./ktlint applyToIDEA
+```sh
+ktlint applyToIDEA
 ```
 Or if you want to use android specific code style:
-```shell
-$ ./ktlint --android applyToIDEA
+```sh
+ktlint --android applyToIDEA
 ```
 
 ##### Option #3
