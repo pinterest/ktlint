@@ -88,8 +88,7 @@ class SpacingAroundCurlyRule : Rule("curly-spacing") {
                             }
                             (node.treeParent.treeParent as TreeElement).removeChild(commentLeaf)
                             (node.treeParent as TreeElement).addChild(commentLeaf, node.treeNext)
-                            val indent = (prevLeaf as PsiWhiteSpace).text.filter { it == ' ' }
-                            node.upsertWhitespaceAfterMe("\n" + indent + " ".repeat(indentSize))
+                            node.upsertWhitespaceAfterMe(" ")
                         }
                         (prevLeaf as LeafPsiElement).rawReplaceWithText(" ")
                     }

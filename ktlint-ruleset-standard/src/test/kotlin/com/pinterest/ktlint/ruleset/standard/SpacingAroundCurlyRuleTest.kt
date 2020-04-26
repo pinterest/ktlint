@@ -223,8 +223,7 @@ class SpacingAroundCurlyRuleTest {
             )
         ).isEqualTo(
             """
-                class MyClass() {
-                    // a comment
+                class MyClass() { // a comment
                     val x = 0
                 }
                 """.trimIndent()
@@ -244,34 +243,8 @@ class SpacingAroundCurlyRuleTest {
             )
         ).isEqualTo(
             """
-                class MyClass() {
-                    // a comment
+                class MyClass() { // a comment
                     val x = 0
-                }
-                """.trimIndent()
-        )
-    }
-
-    @Test
-    fun `eol comment placed after curly brace with nested indent`() {
-        assertThat(
-            SpacingAroundCurlyRule().format(
-                """
-                class MyClass() {
-                    class InnerClass() // a comment
-                    {
-                        val x = 0
-                    }
-                }
-                """.trimIndent()
-            )
-        ).isEqualTo(
-            """
-                class MyClass() {
-                    class InnerClass() {
-                        // a comment
-                        val x = 0
-                    }
                 }
                 """.trimIndent()
         )
