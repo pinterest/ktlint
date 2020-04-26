@@ -7,6 +7,7 @@ import com.pinterest.ktlint.core.ast.ElementType.LBRACE
 import com.pinterest.ktlint.core.ast.ElementType.RBRACE
 import com.pinterest.ktlint.core.ast.ElementType.THEN
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
+import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.psi.KtBlockExpression
@@ -38,14 +39,16 @@ class MultiLineIfElseRule : Rule("multiline-if-else") {
     }
 
     private fun autocorrect(node: ASTNode) {
-        node.treeParent.replaceChild(node.treePrev, PsiWhiteSpaceImpl(" "))
-        val previousChild = node.firstChildNode
+        val bodyIndent = node.treePrev.text
+        val rightBraceIndent = (node.treeParent.treePrev as? PsiWhiteSpace)?.text ?: "\n"
+        (node.treePrev as LeafPsiElement).rawReplaceWithText(" ")
         KtBlockExpression(null).apply {
+            val previousChild = node.firstChildNode
             node.replaceChild(node.firstChildNode, this)
             addChild(LeafPsiElement(LBRACE, "{"))
-            addChild(PsiWhiteSpaceImpl("\n"))
+            addChild(PsiWhiteSpaceImpl(bodyIndent))
             addChild(previousChild)
-            addChild(PsiWhiteSpaceImpl("\n"))
+            addChild(PsiWhiteSpaceImpl(rightBraceIndent))
             addChild(LeafPsiElement(RBRACE, "}"))
         }
 
