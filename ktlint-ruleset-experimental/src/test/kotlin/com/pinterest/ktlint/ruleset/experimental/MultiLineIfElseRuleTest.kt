@@ -89,6 +89,41 @@ class MultiLineIfElseRuleTest {
         )
     }
 
+    @Test
+    fun testMultilineCondition() {
+        val ifElseWithoutCurlyBrace =
+            """
+            fun main() {
+                if (i2 > 0 &&
+                    i3 < 0
+                )
+                    return 2
+                else
+                    return 3
+            }
+            """.trimIndent()
+
+        assertThat(lint(ifElseWithoutCurlyBrace)).isEqualTo(
+            listOf(
+                LintError(5, 9, "multiline-if-else", "Missing { ... }"),
+                LintError(7, 9, "multiline-if-else", "Missing { ... }")
+            )
+        )
+        assertThat(format(ifElseWithoutCurlyBrace)).isEqualTo(
+            """
+            fun main() {
+                if (i2 > 0 &&
+                    i3 < 0
+                ) {
+                    return 2
+                } else {
+                    return 3
+                }
+            }
+            """.trimIndent()
+        )
+    }
+
     private fun assertOK(kotlinScript: String) {
         Assertions.assertThat(format(kotlinScript)).isEqualTo(kotlinScript)
         Assertions.assertThat(lint(kotlinScript)).isEqualTo(emptyList<LintError>())
