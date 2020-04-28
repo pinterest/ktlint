@@ -23,11 +23,7 @@ class FinalNewlineRuleTest {
                 "",
                 mapOf("insert_final_newline" to "true")
             )
-        ).isEqualTo(
-            listOf(
-                LintError(1, 1, "final-newline", "File must end with a newline (\\n)")
-            )
-        )
+        ).isEmpty()
         assertThat(
             FinalNewlineRule().lint(
                 "fun name() {\n}",
@@ -52,6 +48,12 @@ class FinalNewlineRuleTest {
             )
         ).isEmpty()
         // false
+        assertThat(
+            FinalNewlineRule().lint(
+                "",
+                mapOf("insert_final_newline" to "false")
+            )
+        ).isEmpty()
         assertThat(
             FinalNewlineRule().lint(
                 "fun name() {\n}",

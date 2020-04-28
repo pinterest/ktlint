@@ -15,6 +15,7 @@ class FinalNewlineRule : Rule("final-newline"), Rule.Modifier.RestrictToRoot {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         if (node.isRoot()) {
+            if (node.textLength == 0) return
             val editorConfig = node.getUserData(KtLint.EDITOR_CONFIG_USER_DATA_KEY)!!
             val insertFinalNewline = editorConfig.insertFinalNewline
             val lastNode = lastChildNodeOf(node)
