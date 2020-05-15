@@ -313,7 +313,11 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                 val nextSibling = c.nextSibling { it.elementType != WHITE_SPACE }
                 if (
                     nextSibling?.elementType == COMMA &&
-                    !nextSibling.treeNext.isWhiteSpaceWithNewline()
+                    !nextSibling.treeNext.isWhiteSpaceWithNewline() &&
+                    // value(
+                    // ), // a comment
+                    // c, d
+                    nextSibling.treeNext?.treeNext?.psi !is PsiComment
                 ) {
                     requireNewlineAfterLeaf(nextSibling, autoCorrect, emit)
                 }
