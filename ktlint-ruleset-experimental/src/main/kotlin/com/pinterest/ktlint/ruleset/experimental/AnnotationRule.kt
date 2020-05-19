@@ -75,7 +75,7 @@ class AnnotationRule : Rule("annotation") {
         }
 
         val multipleAnnotationsOnSameLineAsAnnotatedConstruct =
-            annotations.size > 1 && !whiteSpaces.last().textContains('\n')
+            annotations.size > 1 && !whiteSpaces.last().textContains('\n') && doesNotEndWithAComment(whiteSpaces)
         if (multipleAnnotationsOnSameLineAsAnnotatedConstruct) {
             emit(
                 annotations.first().node.startOffset,

@@ -467,9 +467,9 @@ class AnnotationRuleTest {
                     @Path("bar") bar: String,
                     @Body body: Foo
                 ): Completable
-            
+
                 fun foo2(@Query("include") include: String? = null, @QueryMap fields: Map<String, String> = emptyMap()): Single
-            
+
                 fun foo3(@Path("fooId") fooId: String): Completable
             }
             """.trimIndent()
@@ -487,9 +487,9 @@ class AnnotationRuleTest {
                     @Path("bar") bar: String,
                     @Body body: Foo
                 ): Completable
-            
+
                 fun foo2(@Query("include") include: String? = null, @QueryMap fields: Map<String, String> = emptyMap()): Single
-            
+
                 fun foo3(@Path("fooId") fooId: String): Completable
             }
             """.trimIndent()
@@ -557,10 +557,10 @@ class AnnotationRuleTest {
             val aProperty: Map<@Ann("test") Int, @JvmSuppressWildcards(true) (String) -> Int?>
             val bProperty: Map<
                 @Ann String,
-                @Ann("test") Int, 
+                @Ann("test") Int,
                 @JvmSuppressWildcards(true) (String) -> Int?
                 >
-                
+
             fun doSomething() {
                 funWithGenericsCall<@JvmSuppressWildcards(true) Int>()
             }
@@ -575,10 +575,10 @@ class AnnotationRuleTest {
             val aProperty: Map<@Ann("test") Int, @JvmSuppressWildcards(true) (String) -> Int?>
             val bProperty: Map<
                 @Ann String,
-                @Ann("test") Int, 
+                @Ann("test") Int,
                 @JvmSuppressWildcards(true) (String) -> Int?
                 >
-                
+
             fun doSomething() {
                 funWithGenericsCall<@JvmSuppressWildcards(true) Int>()
             }
@@ -600,5 +600,35 @@ class AnnotationRuleTest {
             package foo.bar
             """.trimIndent()
         )
+    }
+
+    @Test
+    fun `lint multiple annotations ends with a comment`() {
+        val code =
+            """
+            annotation class A
+            annotation class B
+
+            @A
+            @B // comment
+            fun test() {
+            }
+             """.trimIndent()
+        assertThat(AnnotationRule().lint(code)).isEmpty()
+    }
+
+    @Test
+    fun `lint multiple annotations ends with a comment 2`() {
+        val code =
+            """
+            annotation class A
+            annotation class B
+
+            @A // comment
+            @B
+            fun test() {
+            }
+             """.trimIndent()
+        assertThat(AnnotationRule().lint(code)).isEmpty()
     }
 }
