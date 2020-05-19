@@ -616,4 +616,19 @@ class AnnotationRuleTest {
              """.trimIndent()
         assertThat(AnnotationRule().lint(code)).isEmpty()
     }
+
+    @Test
+    fun `lint multiple annotations ends with a comment 2`() {
+        val code =
+            """
+            annotation class A
+            annotation class B
+
+            @A // comment
+            @B
+            fun test() {
+            }
+             """.trimIndent()
+        assertThat(AnnotationRule().lint(code)).isEmpty()
+    }
 }
