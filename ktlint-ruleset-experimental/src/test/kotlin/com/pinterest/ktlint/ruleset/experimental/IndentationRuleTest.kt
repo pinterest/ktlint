@@ -352,10 +352,10 @@ class IndentationRuleTest {
                 """
                 abstract fun doPerformSomeOperation(param: ALongParameter):
                     SomeLongInterface<ALongParameter.InnerClass, SomeOtherClass>
-                val s: 
+                val s:
                     String = ""
                 fun process(
-                    fileName: 
+                    fileName:
                         String
                 ): List<Output>
                 """.trimIndent()
@@ -369,24 +369,51 @@ class IndentationRuleTest {
             abstract fun doPerformSomeOperation(param: ALongParameter):
             SomeLongInterface<ALongParameter.InnerClass, SomeOtherClass>
 
-            val s: 
+            val s:
                     String = ""
 
             fun process(
-                fileName: 
+                fileName:
                     String
             ): List<Output>
         """.trimIndent())).isEqualTo("""
             abstract fun doPerformSomeOperation(param: ALongParameter):
                 SomeLongInterface<ALongParameter.InnerClass, SomeOtherClass>
 
-            val s: 
+            val s:
                 String = ""
 
             fun process(
-                fileName: 
+                fileName:
                     String
             ): List<Output>
         """.trimIndent())
+    }
+
+    @Test
+    fun `lint trailing comment in multiline parameter is allowed`() {
+        assertThat(IndentationRule().lint("""
+            fun foo(param: Foo, other: String) {
+                foo(
+                    param = param
+                        .copy(foo = ""), // A comment
+                    other = ""
+                )
+            }
+        """.trimIndent())).isEmpty()
+    }
+
+    @Test
+    fun `format trailing comment in multiline parameter is allowed`() {
+        val code = """
+            fun foo(param: Foo, other: String) {
+                foo(
+                    param = param
+                        .copy(foo = ""), // A comment
+                    other = ""
+                )
+            }
+        """.trimIndent()
+        assertThat(IndentationRule().format(code)).isEqualTo(code)
     }
 }
