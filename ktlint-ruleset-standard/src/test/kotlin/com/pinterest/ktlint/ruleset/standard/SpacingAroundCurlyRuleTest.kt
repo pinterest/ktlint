@@ -209,4 +209,44 @@ class SpacingAroundCurlyRuleTest {
                 { 42 }
         """.trimIndent())
     }
+
+    @Test
+    fun `eol comment placed after curly brace`() {
+        assertThat(
+            SpacingAroundCurlyRule().format(
+                """
+                class MyClass()// a comment
+                {
+                    val x = 0
+                }
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            """
+                class MyClass() { // a comment
+                    val x = 0
+                }
+                """.trimIndent()
+        )
+    }
+
+    @Test
+    fun `eol comment with preceding whitespace placed after curly brace`() {
+        assertThat(
+            SpacingAroundCurlyRule().format(
+                """
+                class MyClass() // a comment
+                {
+                    val x = 0
+                }
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            """
+                class MyClass() { // a comment
+                    val x = 0
+                }
+                """.trimIndent()
+        )
+    }
 }

@@ -6,6 +6,7 @@ import com.pinterest.ktlint.core.ast.ElementType.CLASS_BODY
 import com.pinterest.ktlint.core.ast.ElementType.COLONCOLON
 import com.pinterest.ktlint.core.ast.ElementType.COMMA
 import com.pinterest.ktlint.core.ast.ElementType.DOT
+import com.pinterest.ktlint.core.ast.ElementType.EOL_COMMENT
 import com.pinterest.ktlint.core.ast.ElementType.EXCLEXCL
 import com.pinterest.ktlint.core.ast.ElementType.FUN
 import com.pinterest.ktlint.core.ast.ElementType.LAMBDA_EXPRESSION
@@ -23,8 +24,10 @@ import com.pinterest.ktlint.core.ast.prevLeaf
 import com.pinterest.ktlint.core.ast.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.core.ast.upsertWhitespaceBeforeMe
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
+import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
+import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.TreeElement
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtLambdaExpression
 
@@ -67,6 +70,18 @@ class SpacingAroundCurlyRule : Rule("curly-spacing") {
                 ) {
                     emit(node.startOffset, "Unexpected newline before \"${node.text}\"", true)
                     if (autoCorrect) {
+                        val eolCommentExists = prevLeaf.prevLeaf()?.let {
+                            it is PsiComment && it.elementType == EOL_COMMENT
+                        } ?: false
+                        if (eolCommentExists) {
+                            val commentLeaf = prevLeaf.prevLeaf()!!
+                            if (commentLeaf.prevLeaf() is PsiWhiteSpace) {
+                                (commentLeaf.prevLeaf() as LeafPsiElement).rawRemove()
+                            }
+                            (node.treeParent.treeParent as TreeElement).removeChild(commentLeaf)
+                            (node.treeParent as TreeElement).addChild(commentLeaf, node.treeNext)
+                            node.upsertWhitespaceAfterMe(" ")
+                        }
                         (prevLeaf as LeafPsiElement).rawReplaceWithText(" ")
                     }
                 }
