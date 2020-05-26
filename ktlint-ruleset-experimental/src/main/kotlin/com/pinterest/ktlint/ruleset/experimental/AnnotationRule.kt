@@ -126,10 +126,11 @@ class AnnotationRule : Rule("annotation") {
             if (lineNumber != null && nextLineNumber != null) {
                 val diff = nextLineNumber - lineNumber
                 if (diff < 2) {
-                    emit(0, fileAnnotationsShouldBeSeparated, true)
+                    val psi = node.psi
+                    emit(psi.endOffset - 1, fileAnnotationsShouldBeSeparated, true)
                     if (autoCorrect) {
                         if (diff == 0) {
-                            node.psi.getNextSiblingIgnoringWhitespaceAndComments(withItself = false)?.node
+                            psi.getNextSiblingIgnoringWhitespaceAndComments(withItself = false)?.node
                                 ?.prevSibling { it.isWhiteSpace() }
                                 ?.let { (it as? LeafPsiElement)?.delete() }
                             next.treeParent.addChild(PsiWhiteSpaceImpl("\n"), next)

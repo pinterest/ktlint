@@ -604,25 +604,6 @@ class AnnotationRuleTest {
     }
 
     @Test
-    fun `format file annotations should be separated with a blank line 1`() {
-        assertThat(
-            AnnotationRule().format(
-                """
-                @file:JvmName package foo.bar
-
-                """.trimIndent()
-            )
-        ).isEqualTo(
-            """
-            @file:JvmName
-
-            package foo.bar
-
-            """.trimIndent()
-        )
-    }
-
-    @Test
     fun `lint multiple annotations ends with a comment`() {
         val code =
             """
@@ -652,10 +633,34 @@ class AnnotationRuleTest {
         assertThat(AnnotationRule().lint(code)).isEmpty()
     }
 
+    @Test
+    fun `format file annotations should be separated with a blank line 1`() {
+        assertThat(
+            AnnotationRule().format(
+                """
+                @file:JvmName package foo.bar
+
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            """
+            @file:JvmName
+
+            package foo.bar
+
+            """.trimIndent()
+        )
+    }
+
+    @Test
     fun `format file annotations should be separated with a blank line 2`() {
         assertThat(
             AnnotationRule().format(
                 """
+                /*
+                 * Copyright 2000-2020 XXX
+                 */
+
                 @file:JvmName
                 package foo.bar
 
@@ -663,6 +668,10 @@ class AnnotationRuleTest {
             )
         ).isEqualTo(
             """
+            /*
+             * Copyright 2000-2020 XXX
+             */
+
             @file:JvmName
 
             package foo.bar
@@ -763,7 +772,7 @@ class AnnotationRuleTest {
             )
         ).isEqualTo(
             listOf(
-                LintError(1, 1, "annotation", AnnotationRule.fileAnnotationsShouldBeSeparated)
+                LintError(1, 13, "annotation", AnnotationRule.fileAnnotationsShouldBeSeparated)
             )
         )
     }
@@ -773,6 +782,10 @@ class AnnotationRuleTest {
         assertThat(
             AnnotationRule().lint(
                 """
+                /*
+                 * Copyright 2000-2020 XXX
+                 */
+
                 @file:JvmName
                 package foo.bar
 
@@ -780,7 +793,7 @@ class AnnotationRuleTest {
             )
         ).isEqualTo(
             listOf(
-                LintError(1, 1, "annotation", AnnotationRule.fileAnnotationsShouldBeSeparated)
+                LintError(5, 13, "annotation", AnnotationRule.fileAnnotationsShouldBeSeparated)
             )
         )
     }
@@ -797,7 +810,7 @@ class AnnotationRuleTest {
             )
         ).isEqualTo(
             listOf(
-                LintError(1, 1, "annotation", AnnotationRule.fileAnnotationsShouldBeSeparated)
+                LintError(1, 13, "annotation", AnnotationRule.fileAnnotationsShouldBeSeparated)
             )
         )
     }
@@ -814,7 +827,7 @@ class AnnotationRuleTest {
             )
         ).isEqualTo(
             listOf(
-                LintError(1, 1, "annotation", AnnotationRule.fileAnnotationsShouldBeSeparated)
+                LintError(1, 13, "annotation", AnnotationRule.fileAnnotationsShouldBeSeparated)
             )
         )
     }
@@ -830,7 +843,7 @@ class AnnotationRuleTest {
             )
         ).isEqualTo(
             listOf(
-                LintError(1, 1, "annotation", AnnotationRule.fileAnnotationsShouldBeSeparated)
+                LintError(1, 13, "annotation", AnnotationRule.fileAnnotationsShouldBeSeparated)
             )
         )
     }
@@ -848,7 +861,7 @@ class AnnotationRuleTest {
             )
         ).isEqualTo(
             listOf(
-                LintError(1, 1, "annotation", AnnotationRule.fileAnnotationsShouldBeSeparated)
+                LintError(1, 13, "annotation", AnnotationRule.fileAnnotationsShouldBeSeparated)
             )
         )
     }
