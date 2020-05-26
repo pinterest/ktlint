@@ -184,6 +184,8 @@ fun ASTNode.isPartOf(klass: KClass<out PsiElement>): Boolean {
 fun ASTNode.isPartOfString() =
     parent(STRING_TEMPLATE, strict = false) != null
 
+fun ASTNode?.isWhiteSpace() =
+    this != null && elementType == WHITE_SPACE
 fun ASTNode?.isWhiteSpaceWithNewline() =
     this != null && elementType == WHITE_SPACE && textContains('\n')
 fun ASTNode?.isWhiteSpaceWithoutNewline() =
@@ -228,3 +230,6 @@ fun ASTNode.visit(enter: (node: ASTNode) -> Unit, exit: (node: ASTNode) -> Unit)
     this.getChildren(null).forEach { it.visit(enter, exit) }
     exit(this)
 }
+
+fun ASTNode.lineNumber(): Int? =
+    this.psi.containingFile?.viewProvider?.document?.getLineNumber(this.startOffset)?.let { it + 1 }

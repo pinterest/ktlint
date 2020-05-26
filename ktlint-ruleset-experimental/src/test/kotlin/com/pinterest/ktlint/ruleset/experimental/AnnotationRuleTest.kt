@@ -597,6 +597,7 @@ class AnnotationRuleTest {
         ).isEqualTo(
             """
             @file:JvmName("FooClass")
+
             package foo.bar
             """.trimIndent()
         )
@@ -630,5 +631,293 @@ class AnnotationRuleTest {
             }
              """.trimIndent()
         assertThat(AnnotationRule().lint(code)).isEmpty()
+    }
+
+    @Test
+    fun `format file annotations should be separated with a blank line 1`() {
+        assertThat(
+            AnnotationRule().format(
+                """
+                @file:JvmName package foo.bar
+
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            """
+            @file:JvmName
+
+            package foo.bar
+
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun `format file annotations should be separated with a blank line 2`() {
+        assertThat(
+            AnnotationRule().format(
+                """
+                /*
+                 * Copyright 2000-2020 XXX
+                 */
+
+                @file:JvmName
+                package foo.bar
+
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            """
+            /*
+             * Copyright 2000-2020 XXX
+             */
+
+            @file:JvmName
+
+            package foo.bar
+
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun `format file annotations should be separated with a blank line 3`() {
+        assertThat(
+            AnnotationRule().format(
+                """
+                @file:JvmName
+                fun foo() {}
+
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            """
+            @file:JvmName
+
+            fun foo() {}
+
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun `format file annotations should be separated with a blank line 4`() {
+        assertThat(
+            AnnotationRule().format(
+                """
+                @file:JvmName // comment
+                package foo.bar
+
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            """
+            @file:JvmName // comment
+
+            package foo.bar
+
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun `format file annotations should be separated with a blank line 5`() {
+        assertThat(
+            AnnotationRule().format(
+                """
+                @file:JvmName /* comment */ package foo.bar
+
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            """
+            @file:JvmName /* comment */
+
+            package foo.bar
+
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun `format file annotations should be separated with a blank line 6`() {
+        assertThat(
+            AnnotationRule().format(
+                """
+                @file:JvmName
+                // comment
+                package foo.bar
+
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            """
+            @file:JvmName
+
+            // comment
+            package foo.bar
+
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun `lint file annotations should be separated with a blank line 1`() {
+        assertThat(
+            AnnotationRule().lint(
+                """
+                @file:JvmName package foo.bar
+
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(1, 13, "annotation", AnnotationRule.fileAnnotationsShouldBeSeparated)
+            )
+        )
+    }
+
+    @Test
+    fun `lint file annotations should be separated with a blank line 2`() {
+        assertThat(
+            AnnotationRule().lint(
+                """
+                /*
+                 * Copyright 2000-2020 XXX
+                 */
+
+                @file:JvmName
+                package foo.bar
+
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(5, 13, "annotation", AnnotationRule.fileAnnotationsShouldBeSeparated)
+            )
+        )
+    }
+
+    @Test
+    fun `lint file annotations should be separated with a blank line 3`() {
+        assertThat(
+            AnnotationRule().lint(
+                """
+                @file:JvmName
+                fun foo() {}
+
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(1, 13, "annotation", AnnotationRule.fileAnnotationsShouldBeSeparated)
+            )
+        )
+    }
+
+    @Test
+    fun `lint file annotations should be separated with a blank line 4`() {
+        assertThat(
+            AnnotationRule().lint(
+                """
+                @file:JvmName // comment
+                package foo.bar
+
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(1, 13, "annotation", AnnotationRule.fileAnnotationsShouldBeSeparated)
+            )
+        )
+    }
+
+    @Test
+    fun `lint file annotations should be separated with a blank line 5`() {
+        assertThat(
+            AnnotationRule().lint(
+                """
+                @file:JvmName /* comment */ package foo.bar
+
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(1, 13, "annotation", AnnotationRule.fileAnnotationsShouldBeSeparated)
+            )
+        )
+    }
+
+    @Test
+    fun `lint file annotations should be separated with a blank line 6`() {
+        assertThat(
+            AnnotationRule().lint(
+                """
+                @file:JvmName
+                // comment
+                package foo.bar
+
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(1, 13, "annotation", AnnotationRule.fileAnnotationsShouldBeSeparated)
+            )
+        )
+    }
+
+    @Test
+    fun `lint file annotations should be separated with a blank line 7`() {
+        assertThat(
+            AnnotationRule().lint(
+                """
+                @file:JvmName
+
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `lint file annotations should be separated with a blank line 8`() {
+        assertThat(
+            AnnotationRule().lint(
+                """
+                @file:JvmName
+
+                package foo.bar
+
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `lint file annotations should be separated with a blank line 9`() {
+        assertThat(
+            AnnotationRule().lint(
+                """
+                @file:JvmName
+
+
+                package foo.bar
+
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `lint file annotations should be separated with a blank line 10`() {
+        assertThat(
+            AnnotationRule().lint(
+                """
+                @file:JvmName
+
+                fun foo() {}
+
+                """.trimIndent()
+            )
+        ).isEmpty()
     }
 }

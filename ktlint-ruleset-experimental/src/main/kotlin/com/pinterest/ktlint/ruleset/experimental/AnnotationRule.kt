@@ -8,13 +8,20 @@ import com.pinterest.ktlint.core.ast.ElementType.VALUE_ARGUMENT
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER
 import com.pinterest.ktlint.core.ast.children
 import com.pinterest.ktlint.core.ast.isPartOf
+import com.pinterest.ktlint.core.ast.isPartOfComment
+import com.pinterest.ktlint.core.ast.isWhiteSpace
+import com.pinterest.ktlint.core.ast.lineNumber
+import com.pinterest.ktlint.core.ast.nextSibling
+import com.pinterest.ktlint.core.ast.prevSibling
 import com.pinterest.ktlint.core.ast.upsertWhitespaceBeforeMe
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
+import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
 import org.jetbrains.kotlin.psi.psiUtil.endOffset
+import org.jetbrains.kotlin.psi.psiUtil.getNextSiblingIgnoringWhitespaceAndComments
 import org.jetbrains.kotlin.psi.psiUtil.nextLeaf
 
 /**
@@ -30,6 +37,8 @@ class AnnotationRule : Rule("annotation") {
             "Multiple annotations should not be placed on the same line as the annotated construct"
         const val annotationsWithParametersAreNotOnSeparateLinesErrorMessage =
             "Annotations with parameters should all be placed on separate lines prior to the annotated construct"
+        const val fileAnnotationsShouldBeSeparated =
+            "File annotations should be separated from file contents with a blank line"
     }
 
     override fun visit(
@@ -62,7 +71,8 @@ class AnnotationRule : Rule("annotation") {
             .take(annotations.size)
             .toList()
 
-        val noWhiteSpaceAfterAnnotation = whiteSpaces.isEmpty() || whiteSpaces.last().nextSibling is KtAnnotationEntry
+        val noWhiteSpaceAfterAnnotation = node.elementType != FILE_ANNOTATION_LIST &&
+            (whiteSpaces.isEmpty() || whiteSpaces.last().nextSibling is KtAnnotationEntry)
         if (noWhiteSpaceAfterAnnotation) {
             emit(
                 annotations.last().endOffset - 1,
@@ -103,6 +113,30 @@ class AnnotationRule : Rule("annotation") {
             if (autoCorrect) {
                 whiteSpaces.forEach {
                     (it as LeafPsiElement).rawReplaceWithText(getNewlineWithIndent(node))
+                }
+            }
+        }
+
+        if (node.elementType == FILE_ANNOTATION_LIST) {
+            val lineNumber = node.lineNumber()
+            val next = node.nextSibling {
+                !it.isWhiteSpace() && it.textLength > 0 && !(it.isPartOfComment() && it.lineNumber() == lineNumber)
+            }
+            val nextLineNumber = next?.lineNumber()
+            if (lineNumber != null && nextLineNumber != null) {
+                val diff = nextLineNumber - lineNumber
+                if (diff < 2) {
+                    val psi = node.psi
+                    emit(psi.endOffset - 1, fileAnnotationsShouldBeSeparated, true)
+                    if (autoCorrect) {
+                        if (diff == 0) {
+                            psi.getNextSiblingIgnoringWhitespaceAndComments(withItself = false)?.node
+                                ?.prevSibling { it.isWhiteSpace() }
+                                ?.let { (it as? LeafPsiElement)?.delete() }
+                            next.treeParent.addChild(PsiWhiteSpaceImpl("\n"), next)
+                        }
+                        next.treeParent.addChild(PsiWhiteSpaceImpl("\n"), next)
+                    }
                 }
             }
         }
