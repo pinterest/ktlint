@@ -37,7 +37,8 @@ class AnnotationRule : Rule("annotation") {
             "Multiple annotations should not be placed on the same line as the annotated construct"
         const val annotationsWithParametersAreNotOnSeparateLinesErrorMessage =
             "Annotations with parameters should all be placed on separate lines prior to the annotated construct"
-        const val fileAnnotationsShouldBeSeparated = "File annotations should be separated from packages with a blank line"
+        const val fileAnnotationsShouldBeSeparated =
+            "File annotations should be separated from file contents with a blank line"
     }
 
     override fun visit(
