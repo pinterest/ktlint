@@ -170,7 +170,7 @@ object KtLint {
             .forEach { e -> params.cb(e, false) }
     }
 
-    private fun normalizeText(text: String): String {
+    fun normalizeText(text: String): String {
         return text
             .replace("\r\n", "\n")
             .replace("\r", "\n")
@@ -317,7 +317,7 @@ object KtLint {
         return rootNode.getUserData(DISABLED_RULES)?.contains(fqRuleId) == false
     }
 
-    private fun calculateLineColByOffset(text: String): (offset: Int) -> Pair<Int, Int> {
+    fun calculateLineColByOffset(text: String): (offset: Int) -> Pair<Int, Int> {
         var i = -1
         val e = text.length
         val arr = ArrayList<Int>()
