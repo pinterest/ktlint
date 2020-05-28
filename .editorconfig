@@ -13,6 +13,9 @@ insert_final_newline = true
 [*.{java,kt,kts,scala,rs,xml,kt.spec,kts.spec}]
 indent_size = 4
 
+[*.{kt,kts}]
+kotlin_imports_layout=ascii
+
 [{Makefile,*.go}]
 indent_style = tab
 indent_size = 4
