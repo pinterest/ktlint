@@ -80,4 +80,21 @@ class NoLineBreakBeforeAssignmentRuleTest {
             """.trimIndent()
         )
     }
+
+    @Test
+    fun `test assignment with no following space issue #693`() {
+        assertThat(
+            NoLineBreakBeforeAssignmentRule().format(
+                """
+                fun a()
+                        =f()
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            """
+            fun a() =
+                    f()
+            """.trimIndent()
+        )
+    }
 }
