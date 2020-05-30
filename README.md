@@ -75,13 +75,25 @@ insert_final_newline=true
 max_line_length=off
 ```
 
-### Custom EditorConfig properties
+### Custom Ktlint specific EditorConfig properties
 
 ```ini
 # Comma-separated list of rules to disable (Since 0.34.0)
 # Note that rules in any ruleset other than the standard ruleset will need to be prefixed 
 # by the ruleset identifier.
 disabled_rules=no-wildcard-imports,experimental:annotation,my-custom-ruleset:my-custom-rule
+```
+
+### Overriding Editorconfig properties for specific directories
+
+You could [override](https://editorconfig.org/#file-format-details) properties for specific directories inside your project:
+```ini
+[*.{kt,kts}]
+disabled_rules=import-ordering
+
+# Note that in this case 'import-ordering' rule will be active and 'indent' will be disabled
+[api/*.{kt,kts}]
+disabled_rules=indent
 ```
 
 ## Installation

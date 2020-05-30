@@ -1,14 +1,10 @@
 package com.pinterest.ktlint.core
 
 import com.pinterest.ktlint.core.ast.prevLeaf
-import com.pinterest.ktlint.core.internal.EditorConfigInternal
-import java.io.File
-import java.nio.file.Path
+import com.pinterest.ktlint.core.internal.EditorConfigLoader
 import java.nio.file.Paths
 import java.util.ArrayList
 import java.util.HashSet
-import java.util.concurrent.ConcurrentHashMap
-import org.jetbrains.kotlin.backend.common.onlyIf
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
@@ -53,6 +49,8 @@ object KtLint {
 
     private val psiFileFactory: PsiFileFactory
     private val nullSuppression = { _: Int, _: String, _: Boolean -> false }
+
+    private val editorConfigLoader = EditorConfigLoader()
 
     /**
      * @param fileName path of file to lint/format
@@ -142,7 +140,11 @@ object KtLint {
         }
         val rootNode = psiFile.node
         // Passed-in userData overrides .editorconfig
-        val mergedUserData = userDataResolver(params.editorConfigPath, params.debug)(params.fileName) + params.userData
+        val mergedUserData = editorConfigLoader.loadPropertiesForFile(
+            params.fileName?.let { Paths.get(it) },
+            params.editorConfigPath?.let { Paths.get(it) },
+            params.debug
+        ) + params.userData
         injectUserData(rootNode, mergedUserData)
         val isSuppressed = calculateSuppressedRegions(rootNode)
         val errors = mutableListOf<LintError>()
@@ -175,58 +177,6 @@ object KtLint {
             .replace("\r\n", "\n")
             .replace("\r", "\n")
             .replaceFirst(UTF8_BOM, "")
-    }
-
-    private fun userDataResolver(editorConfigPath: String?, debug: Boolean): (String?) -> Map<String, String> {
-        if (editorConfigPath != null) {
-            val userData = (
-                EditorConfigInternal.of(File(editorConfigPath).canonicalPath)
-                    ?.onlyIf({ debug }) { printEditorConfigChain(it) }
-                    ?: emptyMap<String, String>()
-                )
-            return fun (fileName: String?) = if (fileName != null) {
-                userData + ("file_path" to fileName)
-            } else {
-                emptyMap()
-            }
-        }
-        val workDir = File(".").canonicalPath
-        val workdirUserData = lazy {
-            (
-                EditorConfigInternal.of(workDir)
-                    ?.onlyIf({ debug }) { printEditorConfigChain(it) }
-                    ?: emptyMap<String, String>()
-                )
-        }
-        val editorConfig = EditorConfigInternal.cached()
-        val editorConfigSet = ConcurrentHashMap<Path, Boolean>()
-        return fun (fileName: String?): Map<String, String> {
-            if (fileName == null) {
-                return emptyMap()
-            }
-
-            if (fileName == STDIN_FILE) {
-                return workdirUserData.value
-            }
-            return (
-                editorConfig.of(Paths.get(fileName).parent)
-                    ?.onlyIf({ debug }) {
-                        printEditorConfigChain(it) {
-                            editorConfigSet.put(it.path, true) != true
-                        }
-                    }
-                    ?: emptyMap<String, String>()
-                ) + ("file_path" to fileName)
-        }
-    }
-
-    private fun printEditorConfigChain(ec: EditorConfigInternal, predicate: (EditorConfigInternal) -> Boolean = { true }) {
-        for (lec in generateSequence(ec) { it.parent }.takeWhile(predicate)) {
-            System.err.println(
-                "[DEBUG] Discovered .editorconfig (${lec.path.parent.toFile().path})" +
-                    " {${lec.entries.joinToString(", ")}}"
-            )
-        }
     }
 
     private fun injectUserData(node: ASTNode, userData: Map<String, String>) {
@@ -371,7 +321,11 @@ object KtLint {
         }
         val rootNode = psiFile.node
         // Passed-in userData overrides .editorconfig
-        val mergedUserData = userDataResolver(params.editorConfigPath, params.debug)(params.fileName) + params.userData
+        val mergedUserData = editorConfigLoader.loadPropertiesForFile(
+            params.fileName?.let { Paths.get(it) },
+            params.editorConfigPath?.let { Paths.get(it) },
+            params.debug
+        ) + params.userData
         injectUserData(rootNode, mergedUserData)
         var isSuppressed = calculateSuppressedRegions(rootNode)
         var tripped = false
@@ -430,6 +384,13 @@ object KtLint {
 
         return if (hasUTF8BOM) UTF8_BOM else "" + // Restore UTF8 BOM if it was present
             rootNode.text.replace("\n", determineLineSeparator(params.text, params.userData))
+    }
+
+    /**
+     * Reduce memory usage of all internal caches.
+     */
+    fun trimMemory() {
+        editorConfigLoader.trimMemory()
     }
 
     private fun determineLineSeparator(fileContent: String, userData: Map<String, String>): String {
