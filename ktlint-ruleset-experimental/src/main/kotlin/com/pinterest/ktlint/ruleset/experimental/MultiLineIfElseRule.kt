@@ -1,16 +1,24 @@
 package com.pinterest.ktlint.ruleset.experimental
 
+import com.pinterest.ktlint.core.KtLint
+import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.RuleSet
+import com.pinterest.ktlint.core.ast.ElementType
+import com.pinterest.ktlint.core.ast.ElementType.BLOCK
 import com.pinterest.ktlint.core.ast.ElementType.ELSE
 import com.pinterest.ktlint.core.ast.ElementType.ELSE_KEYWORD
+import com.pinterest.ktlint.core.ast.ElementType.IF
 import com.pinterest.ktlint.core.ast.ElementType.LBRACE
 import com.pinterest.ktlint.core.ast.ElementType.RBRACE
 import com.pinterest.ktlint.core.ast.ElementType.THEN
+import com.pinterest.ktlint.core.ast.parent
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.psi.KtBlockExpression
+import org.jetbrains.kotlin.psi.psiUtil.parents
 
 /**
  * https://kotlinlang.org/docs/reference/coding-conventions.html#formatting-control-flow-statements
@@ -40,7 +48,12 @@ class MultiLineIfElseRule : Rule("multiline-if-else") {
 
     private fun autocorrect(node: ASTNode) {
         val bodyIndent = node.treePrev.text
-        val rightBraceIndent = (node.treeParent.treePrev as? PsiWhiteSpace)?.text ?: "\n"
+        val rightBraceIndent = when {
+            // in case of else if, get the indentation from the first if
+            node.treeParent.treeParent.elementType == ELSE -> node.parent({ it.elementType == IF && it.treeParent.elementType == BLOCK})!!.treePrev.text
+            node.treeParent.treePrev is PsiWhiteSpace -> node.treeParent.treePrev.text
+            else -> "\n"
+        }
         (node.treePrev as LeafPsiElement).rawReplaceWithText(" ")
         KtBlockExpression(null).apply {
             val previousChild = node.firstChildNode
