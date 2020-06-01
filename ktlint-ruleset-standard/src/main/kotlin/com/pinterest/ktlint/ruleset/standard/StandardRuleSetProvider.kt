@@ -13,6 +13,7 @@ class StandardRuleSetProvider : RuleSetProvider {
         FilenameRule(),
         FinalNewlineRule(),
         ImportOrderingRule(),
+        IndentationRule(),
         MaxLineLengthRule(),
         ModifierOrderRule(),
         NoBlankLineBeforeRbraceRule(),

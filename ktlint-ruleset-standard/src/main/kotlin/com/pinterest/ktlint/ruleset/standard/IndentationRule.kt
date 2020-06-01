@@ -1,4 +1,4 @@
-package com.pinterest.ktlint.ruleset.experimental
+package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.EditorConfig
 import com.pinterest.ktlint.core.KtLint
@@ -110,7 +110,8 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
         private val lTokenSet = TokenSet.create(LPAR, LBRACE, LBRACKET, LT)
         private val rTokenSet = TokenSet.create(RPAR, RBRACE, RBRACKET, GT)
         private val matchingRToken =
-            lTokenSet.types.zip(rTokenSet.types).toMap()
+            lTokenSet.types.zip(
+                rTokenSet.types).toMap()
     }
 
     private var line = 1
@@ -122,7 +123,7 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
     }
 
     private inline fun debug(msg: () -> String) {
-        IndentationRule.debug { "$line: " + msg() }
+        Companion.debug { "$line: " + msg() }
     }
 
     override fun visit(
@@ -135,7 +136,7 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
             return
         }
         reset()
-        IndentationRule.debug { "phase: rearrangement (auto correction ${if (autoCorrect) "on" else "off"})" }
+        Companion.debug { "phase: rearrangement (auto correction ${if (autoCorrect) "on" else "off"})" }
         // step 1: insert newlines (if/where needed)
         var emitted = false
         rearrange(node, autoCorrect) { offset, errorMessage, canBeAutoCorrected ->
@@ -143,13 +144,13 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
             emit(offset, errorMessage, canBeAutoCorrected)
         }
         if (emitted && autoCorrect) {
-            IndentationRule.debug {
+            Companion.debug {
                 "indenting:\n" +
                     node.text.split("\n").mapIndexed { i, v -> "\t${i + 1}: $v" }.joinToString("\n")
             }
         }
         reset()
-        IndentationRule.debug { "phase: indentation" }
+        Companion.debug { "phase: indentation" }
         // step 2: correct indentation
         indent(node, autoCorrect, emit, editorConfig)
     }
