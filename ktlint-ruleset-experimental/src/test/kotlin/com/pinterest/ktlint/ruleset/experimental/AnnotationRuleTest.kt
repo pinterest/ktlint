@@ -934,4 +934,22 @@ class AnnotationRuleTest {
         ).isEmpty()
     }
 
+
+    @Test
+    fun `lint there should not be empty lines between an annotation and object`() {
+        assertThat(
+            AnnotationRule().lint(
+                """
+                @JvmField
+
+                fun foo() {}
+
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(1, 13, "annotation", AnnotationRule.fileAnnotationsLineBreaks)
+            )
+        )
+    }
 }

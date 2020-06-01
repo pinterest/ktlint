@@ -39,6 +39,8 @@ class AnnotationRule : Rule("annotation") {
             "Annotations with parameters should all be placed on separate lines prior to the annotated construct"
         const val fileAnnotationsShouldBeSeparated =
             "File annotations should be separated from file contents with a blank line"
+        const val fileAnnotationsLineBreaks =
+            "There should not be empty lines between an annotation and the object that it's annotating"
     }
 
     override fun visit(
