@@ -13,6 +13,8 @@ class ExperimentalRuleSetProvider : RuleSetProvider {
         NoEmptyFirstLineInMethodBlockRule(),
         PackageNameRule(),
         EnumEntryNameCaseRule(),
-        SpacingAroundDoubleColonRule()
+        SpacingAroundDoubleColonRule(),
+        SpacingBetweenDeclarationsWithCommentsRule(),
+        SpacingBetweenDeclarationsWithAnnotationsRule()
     )
 }
