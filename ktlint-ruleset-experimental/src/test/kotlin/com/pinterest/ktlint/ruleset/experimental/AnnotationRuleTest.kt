@@ -948,7 +948,7 @@ class AnnotationRuleTest {
             )
         ).isEqualTo(
             listOf(
-                LintError(1, 13, "annotation", AnnotationRule.fileAnnotationsLineBreaks)
+                LintError(1, 9, "annotation", AnnotationRule.fileAnnotationsLineBreaks)
             )
         )
     }
