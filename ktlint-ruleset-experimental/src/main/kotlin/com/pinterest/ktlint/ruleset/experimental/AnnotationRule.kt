@@ -145,15 +145,11 @@ class AnnotationRule : Rule("annotation") {
         if (lineNumber != null && nextLineNumber != null) {
             val diff = nextLineNumber - lineNumber
             // Ensure declaration is not on the same line and there is a line break in between
-            if (lineNumber != nextLineNumber && diff > 1) {
+            if (lineNumber != nextLineNumber && diff > 1 && !node.text.contains("@file")) {
                 val psi = node.psi
                 emit(psi.endOffset - 1, fileAnnotationsLineBreaks, true)
                 if (autoCorrect) {
-                    val next = node.nextSibling {
-                            it.isWhiteSpaceWithNewline()
-                        } as? LeafPsiElement
-                    // Replace the extra white space with a single break
-                    next?.rawReplaceWithText("\n")
+                    removeExtraLineBreaks(node)
                 }
             }
         }
@@ -170,6 +166,19 @@ class AnnotationRule : Rule("annotation") {
         } else {
             newLineWithIndent
         }
+    }
+
+    private fun removeExtraLineBreaks(node: ASTNode) {
+        val next = node.nextSibling {
+            it.isWhiteSpaceWithNewline()
+        } as? LeafPsiElement
+        // Replace the extra white space with a single break
+        val text = next?.text
+        val firstIndex = (text?.indexOf("\n") ?: 0) + 1
+        val replacementText = text?.substring(0, firstIndex) +
+            text?.substringAfter("\n")?.replace("\n", "")
+
+        next?.rawReplaceWithText(replacementText)
     }
 
     private fun doesNotEndWithAComment(whiteSpaces: List<PsiWhiteSpace>): Boolean {
