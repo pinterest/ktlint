@@ -1,19 +1,12 @@
 package com.pinterest.ktlint.ruleset.experimental
 
 import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.ast.*
 import com.pinterest.ktlint.core.ast.ElementType.FILE_ANNOTATION_LIST
 import com.pinterest.ktlint.core.ast.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.core.ast.ElementType.TYPE_ARGUMENT_LIST
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_ARGUMENT
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER
-import com.pinterest.ktlint.core.ast.children
-import com.pinterest.ktlint.core.ast.isPartOf
-import com.pinterest.ktlint.core.ast.isPartOfComment
-import com.pinterest.ktlint.core.ast.isWhiteSpace
-import com.pinterest.ktlint.core.ast.lineNumber
-import com.pinterest.ktlint.core.ast.nextSibling
-import com.pinterest.ktlint.core.ast.prevSibling
-import com.pinterest.ktlint.core.ast.upsertWhitespaceBeforeMe
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
@@ -155,6 +148,13 @@ class AnnotationRule : Rule("annotation") {
             if (lineNumber != nextLineNumber && diff > 1) {
                 val psi = node.psi
                 emit(psi.endOffset - 1, fileAnnotationsLineBreaks, true)
+                if (autoCorrect) {
+                    val next = node.nextSibling {
+                            it.isWhiteSpaceWithNewline()
+                        } as? LeafPsiElement
+                    // Replace the extra white space with a single break
+                    next?.rawReplaceWithText("\n")
+                }
             }
         }
     }
