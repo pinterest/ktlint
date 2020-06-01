@@ -10,45 +10,53 @@ import org.junit.Test
 class SpacingBetweenDeclarationsWithAnnotationsRuleTest {
     @Test
     fun `annotation at top of file should do nothing`() {
-        Assertions.assertThat(SpacingBetweenDeclarationsWithAnnotationsRule().lint(
-            """
+        Assertions.assertThat(
+            SpacingBetweenDeclarationsWithAnnotationsRule().lint(
+                """
                 @Foo
                 fun a()
-            """.trimIndent()
-        )).isEmpty()
+                """.trimIndent()
+            )
+        ).isEmpty()
     }
 
     @Test
     fun `multiple annotations should do nothing`() {
-        Assertions.assertThat(SpacingBetweenDeclarationsWithAnnotationsRule().lint(
-            """
+        Assertions.assertThat(
+            SpacingBetweenDeclarationsWithAnnotationsRule().lint(
+                """
                 @Foo
                 @Bar
                 fun a()
-            """.trimIndent()
-        )).isEmpty()
+                """.trimIndent()
+            )
+        ).isEmpty()
     }
 
     @Test
     fun `missing space after comment should do nothing`() {
-        Assertions.assertThat(SpacingBetweenDeclarationsWithAnnotationsRule().lint(
-            """
+        Assertions.assertThat(
+            SpacingBetweenDeclarationsWithAnnotationsRule().lint(
+                """
                 // hello
                 @Foo
                 fun a()
-            """.trimIndent()
-        )).isEmpty()
+                """.trimIndent()
+            )
+        ).isEmpty()
     }
 
     @Test
     fun `missing space before declaration with annotation should cause error`() {
-        Assertions.assertThat(SpacingBetweenDeclarationsWithAnnotationsRule().lint(
-            """
+        Assertions.assertThat(
+            SpacingBetweenDeclarationsWithAnnotationsRule().lint(
+                """
                 fun a()
                 @Foo
                 fun b()
-            """.trimIndent()
-        )).isEqualTo(
+                """.trimIndent()
+            )
+        ).isEqualTo(
             listOf(
                 LintError(
                     2,
@@ -62,14 +70,16 @@ class SpacingBetweenDeclarationsWithAnnotationsRuleTest {
 
     @Test
     fun `missing space before declaration with multiple annotations should cause error`() {
-        Assertions.assertThat(SpacingBetweenDeclarationsWithAnnotationsRule().lint(
-            """
+        Assertions.assertThat(
+            SpacingBetweenDeclarationsWithAnnotationsRule().lint(
+                """
                 fun a()
                 @Foo
                 @Bar
                 fun b()
-            """.trimIndent()
-        )).isEqualTo(
+                """.trimIndent()
+            )
+        ).isEqualTo(
             listOf(
                 LintError(
                     2,
@@ -85,16 +95,16 @@ class SpacingBetweenDeclarationsWithAnnotationsRuleTest {
     fun `autoformat should work correctly`() {
         assertEquals(
             """
-                @Annotation1
-                fun one() = 1
-                
-                @Annotation1
-                @Annotation2
-                fun two() = 2
-                fun three() = 42
-                
-                @Annotation1
-                fun four() = 44
+            @Annotation1
+            fun one() = 1
+            
+            @Annotation1
+            @Annotation2
+            fun two() = 2
+            fun three() = 42
+            
+            @Annotation1
+            fun four() = 44
             """.trimIndent(),
             SpacingBetweenDeclarationsWithAnnotationsRule().format(
                 """
@@ -106,7 +116,7 @@ class SpacingBetweenDeclarationsWithAnnotationsRuleTest {
                 fun three() = 42
                 @Annotation1
                 fun four() = 44
-            """.trimIndent()
+                """.trimIndent()
             )
         )
     }

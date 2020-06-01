@@ -365,18 +365,23 @@ internal class IndentationRuleTest {
 
     @Test
     fun `format indentation new line before return type`() {
-        assertThat(IndentationRule().format("""
-            abstract fun doPerformSomeOperation(param: ALongParameter):
-            SomeLongInterface<ALongParameter.InnerClass, SomeOtherClass>
+        assertThat(
+            IndentationRule().format(
+                """
+                abstract fun doPerformSomeOperation(param: ALongParameter):
+                SomeLongInterface<ALongParameter.InnerClass, SomeOtherClass>
 
-            val s:
-                    String = ""
+                val s:
+                        String = ""
 
-            fun process(
-                fileName:
-                    String
-            ): List<Output>
-        """.trimIndent())).isEqualTo("""
+                fun process(
+                    fileName:
+                        String
+                ): List<Output>
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            """
             abstract fun doPerformSomeOperation(param: ALongParameter):
                 SomeLongInterface<ALongParameter.InnerClass, SomeOtherClass>
 
@@ -387,25 +392,31 @@ internal class IndentationRuleTest {
                 fileName:
                     String
             ): List<Output>
-        """.trimIndent())
+            """.trimIndent()
+        )
     }
 
     @Test
     fun `lint trailing comment in multiline parameter is allowed`() {
-        assertThat(IndentationRule().lint("""
-            fun foo(param: Foo, other: String) {
-                foo(
-                    param = param
-                        .copy(foo = ""), // A comment
-                    other = ""
-                )
-            }
-        """.trimIndent())).isEmpty()
+        assertThat(
+            IndentationRule().lint(
+                """
+                fun foo(param: Foo, other: String) {
+                    foo(
+                        param = param
+                            .copy(foo = ""), // A comment
+                        other = ""
+                    )
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
     }
 
     @Test
     fun `format trailing comment in multiline parameter is allowed`() {
-        val code = """
+        val code =
+            """
             fun foo(param: Foo, other: String) {
                 foo(
                     param = param
@@ -413,7 +424,7 @@ internal class IndentationRuleTest {
                     other = ""
                 )
             }
-        """.trimIndent()
+            """.trimIndent()
         assertThat(IndentationRule().format(code)).isEqualTo(code)
     }
 }

@@ -27,7 +27,8 @@ class NoMultipleSpacesRuleTest {
     @Test
     fun `lint multiple spaces in kdoc allowed`() {
         assertThat(
-            NoMultipleSpacesRule().lint("""
+            NoMultipleSpacesRule().lint(
+                """
                 /**
                  * Gets Blabla from user.
                  *
@@ -39,13 +40,15 @@ class NoMultipleSpacesRuleTest {
                  * @return the user profile
                  *
                  */
-            """.trimIndent())
+                """.trimIndent()
+            )
         ).isEmpty()
     }
 
     @Test
     fun `format multiple spaces in kdoc allowed`() {
-        val code = """
+        val code =
+            """
             /**
             * Gets Blabla from user.
             *
@@ -57,7 +60,7 @@ class NoMultipleSpacesRuleTest {
             * @return the user profile
             *
             */
-        """.trimIndent()
+            """.trimIndent()
         assertThat(NoMultipleSpacesRule().format(code)).isEqualTo(code)
     }
 }

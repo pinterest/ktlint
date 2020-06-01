@@ -111,7 +111,8 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
         private val rTokenSet = TokenSet.create(RPAR, RBRACE, RBRACKET, GT)
         private val matchingRToken =
             lTokenSet.types.zip(
-                rTokenSet.types).toMap()
+                rTokenSet.types
+            ).toMap()
     }
 
     private var line = 1

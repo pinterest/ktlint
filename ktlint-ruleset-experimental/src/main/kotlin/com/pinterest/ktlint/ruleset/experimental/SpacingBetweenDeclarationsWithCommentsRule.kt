@@ -23,10 +23,13 @@ class SpacingBetweenDeclarationsWithCommentsRule : Rule("spacing-between-declara
             val prevSibling = node.parent.node.prevSibling { it.elementType != WHITE_SPACE }
             if (prevSibling != null &&
                 prevSibling.elementType != FILE &&
-                prevSibling !is PsiComment) {
+                prevSibling !is PsiComment
+            ) {
                 if (node.parent.prevSibling is PsiWhiteSpace && node.parent.prevSibling.text == "\n") {
-                    emit(node.startOffset,
-                        "Declarations and declarations with comments should have an empty space between.", true)
+                    emit(
+                        node.startOffset,
+                        "Declarations and declarations with comments should have an empty space between.", true
+                    )
                     if (autoCorrect) {
                         (node.parent.prevSibling.node as LeafPsiElement).rawReplaceWithText("\n\n")
                     }

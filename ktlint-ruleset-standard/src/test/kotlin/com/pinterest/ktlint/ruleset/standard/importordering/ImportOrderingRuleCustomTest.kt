@@ -44,7 +44,8 @@ class ImportOrderingRuleCustomTest {
     fun `empty line between imports and aliases - no empty line`() {
         val emptyLineBeforeAliasPattern = mapOf("kotlin_imports_layout" to "*,|,^*")
 
-        val imports = """
+        val imports =
+            """
             import android.app.Activity
             import android.view.View
             import android.view.ViewGroup
@@ -52,7 +53,7 @@ class ImportOrderingRuleCustomTest {
             import kotlin.concurrent.Thread
             import android.content.Context as Ctx
             import androidx.fragment.app.Fragment as F
-        """.trimIndent()
+            """.trimIndent()
 
         val formattedImports =
             """
@@ -74,7 +75,8 @@ class ImportOrderingRuleCustomTest {
     fun `empty line between imports and aliases - wrong order`() {
         val emptyLineBeforeAliasPattern = mapOf("kotlin_imports_layout" to "*,|,^*")
 
-        val imports = """
+        val imports =
+            """
             import android.app.Activity
             import android.content.Context as Ctx
             import androidx.fragment.app.Fragment as F
@@ -85,7 +87,7 @@ class ImportOrderingRuleCustomTest {
 
             import java.util.List
             import kotlin.concurrent.Thread
-        """.trimIndent()
+            """.trimIndent()
 
         val formattedImports =
             """

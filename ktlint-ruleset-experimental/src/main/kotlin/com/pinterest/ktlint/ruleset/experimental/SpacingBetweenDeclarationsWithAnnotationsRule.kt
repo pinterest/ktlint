@@ -26,10 +26,13 @@ class SpacingBetweenDeclarationsWithAnnotationsRule : Rule("spacing-between-decl
             val prevSibling = node.psi.parent.node.prevSibling { it.elementType != WHITE_SPACE }
             if (prevSibling != null &&
                 prevSibling.elementType != FILE &&
-                prevSibling !is PsiComment) {
+                prevSibling !is PsiComment
+            ) {
                 if (node.psi.parent.prevSibling is PsiWhiteSpace && node.psi.parent.prevSibling.text == "\n") {
-                    emit(node.startOffset,
-                        "Declarations and declarations with annotations should have an empty space between.", true)
+                    emit(
+                        node.startOffset,
+                        "Declarations and declarations with annotations should have an empty space between.", true
+                    )
                     if (autoCorrect) {
                         (node.psi.parent.prevSibling.node as LeafPsiElement).rawReplaceWithText("\n\n")
                     }
