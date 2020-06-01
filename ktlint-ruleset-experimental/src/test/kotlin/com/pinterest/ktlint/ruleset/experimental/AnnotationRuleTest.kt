@@ -920,4 +920,18 @@ class AnnotationRuleTest {
             )
         ).isEmpty()
     }
+
+    @Test
+    fun `lint no empty lines between an annotation and object`() {
+        assertThat(
+            AnnotationRule().lint(
+                """
+                @JvmField
+                fun foo() {}
+
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
 }
