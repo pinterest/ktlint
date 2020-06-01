@@ -142,6 +142,21 @@ class AnnotationRule : Rule("annotation") {
                 }
             }
         }
+
+        // Check to make sure no trailing line breaks between annotation and object
+        val lineNumber = node.lineNumber()
+        val next = node.nextSibling {
+            !it.isWhiteSpace() && it.textLength > 0 && !(it.isPartOfComment() && it.lineNumber() == lineNumber)
+        }
+        val nextLineNumber = next?.lineNumber()
+        if (lineNumber != null && nextLineNumber != null) {
+            val diff = nextLineNumber - lineNumber
+            // Ensure declaration is not on the same line and there is a line break in between
+            if (lineNumber != nextLineNumber && diff > 1) {
+                val psi = node.psi
+                emit(psi.endOffset - 1, fileAnnotationsLineBreaks, true)
+            }
+        }
     }
 
     private fun getNewlineWithIndent(modifierListRoot: ASTNode): String {
