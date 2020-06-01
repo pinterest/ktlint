@@ -1,28 +1,45 @@
-package com.pinterest.ktlint.ruleset.standard
+package com.pinterest.ktlint.ruleset.standard.importordering
 
 import com.pinterest.ktlint.core.LintError
-import com.pinterest.ktlint.test.diffFileFormat
-import com.pinterest.ktlint.test.diffFileLint
+import com.pinterest.ktlint.ruleset.standard.ImportOrderingRule
 import com.pinterest.ktlint.test.format
 import com.pinterest.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
-class ImportOrderingRuleTest {
+class ImportOrderingRuleAsciiTest {
 
-    @Test
-    fun testLint() {
-        assertThat(ImportOrderingRule().diffFileLint("spec/import-ordering/lint.kt.spec")).isEmpty()
+    companion object {
+        private val userData = mapOf("kotlin_imports_layout" to "ascii")
+
+        private fun expectedErrors(additionalMessage: String = "") = listOf(
+            LintError(
+                1,
+                1,
+                "import-ordering",
+                "Imports must be ordered in lexicographic order without any empty lines in-between$additionalMessage"
+            )
+        )
     }
 
     @Test
     fun testFormat() {
-        assertThat(
-            ImportOrderingRule().diffFileFormat(
-                "spec/import-ordering/format.kt.spec",
-                "spec/import-ordering/format-expected.kt.spec"
-            )
-        ).isEmpty()
+        val imports =
+            """
+            import a.A
+            import b.C
+            import a.AB
+            """.trimIndent()
+
+        val formattedImports =
+            """
+            import a.A
+            import a.AB
+            import b.C
+            """.trimIndent()
+
+        assertThat(ImportOrderingRule().lint(imports, userData)).isEqualTo(expectedErrors())
+        assertThat(ImportOrderingRule().format(imports, userData)).isEqualTo(formattedImports)
     }
 
     @Test
@@ -36,8 +53,8 @@ class ImportOrderingRuleTest {
             import kotlin.concurrent.Thread
             """.trimIndent()
 
-        assertThat(ImportOrderingRule().lint(formattedImports)).isEmpty()
-        assertThat(ImportOrderingRule().format(formattedImports)).isEqualTo(formattedImports)
+        assertThat(ImportOrderingRule().lint(formattedImports, userData)).isEmpty()
+        assertThat(ImportOrderingRule().format(formattedImports, userData)).isEqualTo(formattedImports)
     }
 
     @Test
@@ -51,14 +68,6 @@ class ImportOrderingRuleTest {
             import java.util.List
             """.trimIndent()
 
-        val expectedErrors = listOf(
-            LintError(
-                1,
-                1,
-                "import-ordering",
-                "Imports must be ordered in lexicographic order without any empty lines in-between"
-            )
-        )
         val formattedImports =
             """
             import android.app.Activity
@@ -68,8 +77,8 @@ class ImportOrderingRuleTest {
             import kotlin.concurrent.Thread
             """.trimIndent()
 
-        assertThat(ImportOrderingRule().lint(imports)).isEqualTo(expectedErrors)
-        assertThat(ImportOrderingRule().format(imports)).isEqualTo(formattedImports)
+        assertThat(ImportOrderingRule().lint(imports, userData)).isEqualTo(expectedErrors())
+        assertThat(ImportOrderingRule().format(imports, userData)).isEqualTo(formattedImports)
     }
 
     @Test
@@ -81,22 +90,14 @@ class ImportOrderingRuleTest {
             import android.view.ViewGroup
             """.trimIndent()
 
-        val expectedErrors = listOf(
-            LintError(
-                1,
-                1,
-                "import-ordering",
-                "Imports must be ordered in lexicographic order without any empty lines in-between"
-            )
-        )
         val formattedImports =
             """
             import android.view.View
             import android.view.ViewGroup
             """.trimIndent()
 
-        assertThat(ImportOrderingRule().lint(imports)).isEqualTo(expectedErrors)
-        assertThat(ImportOrderingRule().format(imports)).isEqualTo(formattedImports)
+        assertThat(ImportOrderingRule().lint(imports, userData)).isEqualTo(expectedErrors())
+        assertThat(ImportOrderingRule().format(imports, userData)).isEqualTo(formattedImports)
     }
 
     @Test
@@ -114,14 +115,6 @@ class ImportOrderingRuleTest {
             import java.util.List
             """.trimIndent()
 
-        val expectedErrors = listOf(
-            LintError(
-                1,
-                1,
-                "import-ordering",
-                "Imports must be ordered in lexicographic order without any empty lines in-between"
-            )
-        )
         val formattedImports =
             """
             import android.app.Activity
@@ -131,8 +124,8 @@ class ImportOrderingRuleTest {
             import kotlin.concurrent.Thread
             """.trimIndent()
 
-        assertThat(ImportOrderingRule().lint(imports)).isEqualTo(expectedErrors)
-        assertThat(ImportOrderingRule().format(imports)).isEqualTo(formattedImports)
+        assertThat(ImportOrderingRule().lint(imports, userData)).isEqualTo(expectedErrors())
+        assertThat(ImportOrderingRule().format(imports, userData)).isEqualTo(formattedImports)
     }
 
     @Test
@@ -149,14 +142,6 @@ class ImportOrderingRuleTest {
             import kotlin.concurrent.Thread
             """.trimIndent()
 
-        val expectedErrors = listOf(
-            LintError(
-                1,
-                1,
-                "import-ordering",
-                "Imports must be ordered in lexicographic order without any empty lines in-between"
-            )
-        )
         val formattedImports =
             """
             import android.app.Activity
@@ -166,8 +151,8 @@ class ImportOrderingRuleTest {
             import kotlin.concurrent.Thread
             """.trimIndent()
 
-        assertThat(ImportOrderingRule().lint(imports)).isEqualTo(expectedErrors)
-        assertThat(ImportOrderingRule().format(imports)).isEqualTo(formattedImports)
+        assertThat(ImportOrderingRule().lint(imports, userData)).isEqualTo(expectedErrors())
+        assertThat(ImportOrderingRule().format(imports, userData)).isEqualTo(formattedImports)
     }
 
     @Test
@@ -179,14 +164,6 @@ class ImportOrderingRuleTest {
             import android.view.ViewGroup
             """.trimIndent()
 
-        val expectedErrors = listOf(
-            LintError(
-                1,
-                1,
-                "import-ordering",
-                "Imports must be ordered in lexicographic order without any empty lines in-between"
-            )
-        )
         val formattedImports =
             """
             import android.app.Activity // comment
@@ -194,8 +171,8 @@ class ImportOrderingRuleTest {
             import android.view.ViewGroup
             """.trimIndent()
 
-        assertThat(ImportOrderingRule().lint(imports)).isEqualTo(expectedErrors)
-        assertThat(ImportOrderingRule().format(imports)).isEqualTo(formattedImports)
+        assertThat(ImportOrderingRule().lint(imports, userData)).isEqualTo(expectedErrors())
+        assertThat(ImportOrderingRule().format(imports, userData)).isEqualTo(formattedImports)
     }
 
     @Test
@@ -208,16 +185,8 @@ class ImportOrderingRuleTest {
             import android.view.ViewGroup
             """.trimIndent()
 
-        val expectedErrors = listOf(
-            LintError(
-                1,
-                1,
-                "import-ordering",
-                "Imports must be ordered in lexicographic order without any empty lines in-between -- no autocorrection due to comments in the import list"
-            )
-        )
-        assertThat(ImportOrderingRule().lint(imports)).isEqualTo(expectedErrors)
-        assertThat(ImportOrderingRule().format(imports)).isEqualTo(imports)
+        assertThat(ImportOrderingRule().lint(imports, userData)).isEqualTo(expectedErrors(" -- no autocorrection due to comments in the import list"))
+        assertThat(ImportOrderingRule().format(imports, userData)).isEqualTo(imports)
     }
 
     @Test
@@ -230,15 +199,31 @@ class ImportOrderingRuleTest {
             import android.view.ViewGroup
             """.trimIndent()
 
-        val expectedErrors = listOf(
-            LintError(
-                1,
-                1,
-                "import-ordering",
-                "Imports must be ordered in lexicographic order without any empty lines in-between -- no autocorrection due to comments in the import list"
-            )
-        )
-        assertThat(ImportOrderingRule().lint(imports)).isEqualTo(expectedErrors)
-        assertThat(ImportOrderingRule().format(imports)).isEqualTo(imports)
+        assertThat(ImportOrderingRule().lint(imports, userData)).isEqualTo(expectedErrors(" -- no autocorrection due to comments in the import list"))
+        assertThat(ImportOrderingRule().format(imports, userData)).isEqualTo(imports)
+    }
+
+    @Test
+    fun testAliasesAreSortedAmongNormalImports() {
+        val imports =
+            """
+            import android.view.ViewGroup as VG
+            import android.view.View as V
+            import android.app.Activity
+            import kotlin.concurrent.Thread
+            import java.util.List as L
+            """.trimIndent()
+
+        val formattedImports =
+            """
+            import android.app.Activity
+            import android.view.View as V
+            import android.view.ViewGroup as VG
+            import java.util.List as L
+            import kotlin.concurrent.Thread
+            """.trimIndent()
+
+        assertThat(ImportOrderingRule().lint(imports, userData)).isEqualTo(expectedErrors())
+        assertThat(ImportOrderingRule().format(imports, userData)).isEqualTo(formattedImports)
     }
 }
