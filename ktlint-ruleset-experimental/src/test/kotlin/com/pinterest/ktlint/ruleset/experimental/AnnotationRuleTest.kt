@@ -934,7 +934,6 @@ class AnnotationRuleTest {
         ).isEmpty()
     }
 
-
     @Test
     fun `lint there should not be empty lines between an annotation and object`() {
         assertThat(
@@ -950,6 +949,27 @@ class AnnotationRuleTest {
             listOf(
                 LintError(1, 9, "annotation", AnnotationRule.fileAnnotationsLineBreaks)
             )
+        )
+    }
+
+    @Test
+    fun `lint there should not be empty lines between an annotation and object autocorrected`() {
+        val code =
+            """
+                @JvmField
+
+                fun foo() {}
+
+            """.trimIndent()
+
+        assertThat(
+            AnnotationRule().format(code)
+        ).isEqualTo(
+            """
+                @JvmField
+                fun foo() {}
+
+            """.trimIndent()
         )
     }
 }
