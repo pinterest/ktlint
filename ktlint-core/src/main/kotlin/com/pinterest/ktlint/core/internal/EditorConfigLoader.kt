@@ -44,13 +44,15 @@ class EditorConfigLoader {
         }
 
         val normalizedFilePath = when {
-            filePath.endsWith(STDIN_FILE) -> Paths
-                .get(".")
-                .toAbsolutePath()
-                .resolve("stdin${SUPPORTED_FILES.first()}")
-            alternativeEditorConfig != null -> alternativeEditorConfig
-                .toAbsolutePath()
-                .resolve("${filePath.last()}")
+            filePath.endsWith(STDIN_FILE) ->
+                Paths
+                    .get(".")
+                    .toAbsolutePath()
+                    .resolve("stdin${SUPPORTED_FILES.first()}")
+            alternativeEditorConfig != null ->
+                alternativeEditorConfig
+                    .toAbsolutePath()
+                    .resolve("${filePath.last()}")
             else -> filePath
         }
 

@@ -190,24 +190,34 @@ class SpacingAroundCurlyRuleTest {
 
     @Test
     fun `lint new line after lambda return type passes`() {
-        assertThat(SpacingAroundCurlyRule().lint("""
-            fun magicNumber1(): () -> Int = { 37 }
-            fun magicNumber2(): () -> Int =
-                { 42 }
-        """.trimIndent())).isEmpty()
+        assertThat(
+            SpacingAroundCurlyRule().lint(
+                """
+                fun magicNumber1(): () -> Int = { 37 }
+                fun magicNumber2(): () -> Int =
+                    { 42 }
+                """.trimIndent()
+            )
+        ).isEmpty()
     }
 
     @Test
     fun `format new line after lambda return type passes`() {
-        assertThat(SpacingAroundCurlyRule().format("""
+        assertThat(
+            SpacingAroundCurlyRule().format(
+                """
+                fun magicNumber1(): () -> Int = { 37 }
+                fun magicNumber2(): () -> Int =
+                    { 42 }
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            """
             fun magicNumber1(): () -> Int = { 37 }
             fun magicNumber2(): () -> Int =
                 { 42 }
-        """.trimIndent())).isEqualTo("""
-            fun magicNumber1(): () -> Int = { 37 }
-            fun magicNumber2(): () -> Int =
-                { 42 }
-        """.trimIndent())
+            """.trimIndent()
+        )
     }
 
     @Test
@@ -223,10 +233,10 @@ class SpacingAroundCurlyRuleTest {
             )
         ).isEqualTo(
             """
-                class MyClass() { // a comment
-                    val x = 0
-                }
-                """.trimIndent()
+            class MyClass() { // a comment
+                val x = 0
+            }
+            """.trimIndent()
         )
     }
 
@@ -243,10 +253,10 @@ class SpacingAroundCurlyRuleTest {
             )
         ).isEqualTo(
             """
-                class MyClass() { // a comment
-                    val x = 0
-                }
-                """.trimIndent()
+            class MyClass() { // a comment
+                val x = 0
+            }
+            """.trimIndent()
         )
     }
 }

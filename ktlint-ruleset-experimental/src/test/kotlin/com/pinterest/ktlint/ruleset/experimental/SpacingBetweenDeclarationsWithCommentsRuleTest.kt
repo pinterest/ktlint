@@ -10,20 +10,23 @@ import org.junit.Test
 class SpacingBetweenDeclarationsWithCommentsRuleTest {
     @Test
     fun `comment at top of file should do nothing`() {
-        assertThat(SpacingBetweenDeclarationsWithCommentsRule().lint(
-            """
+        assertThat(
+            SpacingBetweenDeclarationsWithCommentsRule().lint(
+                """
                 /**
                  * foo
                  */
                 fun a()
-            """.trimIndent()
-        )).isEmpty()
+                """.trimIndent()
+            )
+        ).isEmpty()
     }
 
     @Test
     fun `multiple comments should do nothing`() {
-        assertThat(SpacingBetweenDeclarationsWithCommentsRule().lint(
-            """
+        assertThat(
+            SpacingBetweenDeclarationsWithCommentsRule().lint(
+                """
                 /**
                  * boo
                  */
@@ -31,43 +34,50 @@ class SpacingBetweenDeclarationsWithCommentsRuleTest {
                  * foo
                  */
                 fun a()
-            """.trimIndent()
-        )).isEmpty()
+                """.trimIndent()
+            )
+        ).isEmpty()
 
-        assertThat(SpacingBetweenDeclarationsWithCommentsRule().lint(
-            """
+        assertThat(
+            SpacingBetweenDeclarationsWithCommentsRule().lint(
+                """
                 // bar
                 /**
                  * foo
                  */
                 fun a()
-            """.trimIndent()
-        )).isEmpty()
+                """.trimIndent()
+            )
+        ).isEmpty()
 
         // This matches the Kotlin plugin behavior although I sort of think it violates the spirit of the rule.
-        assertThat(SpacingBetweenDeclarationsWithCommentsRule().lint(
-            """
+        assertThat(
+            SpacingBetweenDeclarationsWithCommentsRule().lint(
+                """
                 fun blah()
                 // foo
                 /**
                  * Doc 1
                  */
                 const val bar = 1
-            """.trimIndent()
-        )).isEmpty()
+                """.trimIndent()
+            )
+        ).isEmpty()
     }
 
     @Test
     fun `missing space before declaration with kdoc should cause error`() {
-        assertThat(SpacingBetweenDeclarationsWithCommentsRule().lint(
-            """
+        assertThat(
+            SpacingBetweenDeclarationsWithCommentsRule().lint(
+                """
                 fun a()
                 /**
                  * foo
                  */
                 fun b()
-            """.trimIndent()
-        )).isEqualTo(
+                """.trimIndent()
+            )
+        ).isEqualTo(
             listOf(
                 LintError(
                     2,
@@ -81,13 +91,15 @@ class SpacingBetweenDeclarationsWithCommentsRuleTest {
 
     @Test
     fun `missing space before declaration with eol comment should cause error`() {
-        assertThat(SpacingBetweenDeclarationsWithCommentsRule().lint(
-            """
+        assertThat(
+            SpacingBetweenDeclarationsWithCommentsRule().lint(
+                """
                 fun a()
                 // foo
                 fun b()
-            """.trimIndent()
-        )).isEqualTo(
+                """.trimIndent()
+            )
+        ).isEqualTo(
             listOf(
                 LintError(
                     2,
@@ -103,19 +115,19 @@ class SpacingBetweenDeclarationsWithCommentsRuleTest {
     fun `autoformat should work correctly`() {
         assertEquals(
             """
-                /**
-                 * Doc 1
-                 */
-                fun one() = 1
-                
-                /**
-                 * Doc 2
-                 */
-                fun two() = 2
-                fun three() = 42
-                
-                // comment
-                fun four() = 44
+            /**
+             * Doc 1
+             */
+            fun one() = 1
+            
+            /**
+             * Doc 2
+             */
+            fun two() = 2
+            fun three() = 42
+            
+            // comment
+            fun four() = 44
             """.trimIndent(),
             SpacingBetweenDeclarationsWithCommentsRule().format(
                 """
@@ -130,7 +142,7 @@ class SpacingBetweenDeclarationsWithCommentsRuleTest {
                 fun three() = 42
                 // comment
                 fun four() = 44
-            """.trimIndent()
+                """.trimIndent()
             )
         )
     }

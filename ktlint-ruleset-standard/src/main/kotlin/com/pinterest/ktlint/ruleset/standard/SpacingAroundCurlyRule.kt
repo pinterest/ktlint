@@ -64,9 +64,11 @@ class SpacingAroundCurlyRule : Rule("curly-spacing") {
                     }
                 }
                 if (prevLeaf is PsiWhiteSpace && prevLeaf.textContains('\n') &&
-                    (prevLeaf.prevLeaf()?.let { it.elementType == RPAR || KtTokens.KEYWORDS.contains(it.elementType) } == true ||
-                        node.treeParent.elementType == CLASS_BODY ||
-                        (prevLeaf.treeParent.elementType == FUN && prevLeaf.treeNext.elementType != LAMBDA_EXPRESSION)) // allow newline for lambda return type
+                    (
+                        prevLeaf.prevLeaf()?.let { it.elementType == RPAR || KtTokens.KEYWORDS.contains(it.elementType) } == true ||
+                            node.treeParent.elementType == CLASS_BODY ||
+                            (prevLeaf.treeParent.elementType == FUN && prevLeaf.treeNext.elementType != LAMBDA_EXPRESSION)
+                        ) // allow newline for lambda return type
                 ) {
                     emit(node.startOffset, "Unexpected newline before \"${node.text}\"", true)
                     if (autoCorrect) {

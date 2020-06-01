@@ -26,24 +26,29 @@ class SpacingAroundParensRuleTest {
 
     @Test
     fun `lint spacing after lpar followed by a comment is allowed`() {
-        assertThat(SpacingAroundParensRule().lint("""
-            fun main() {
-                System.out.println( /** 123 */
-                    "test kdoc"
-                )
-                System.out.println( /* 123 */
-                    "test comment block"
-                )
-                System.out.println( // 123
-                    "test single comment"
-                )
-            }
-        """.trimIndent())).isEmpty()
+        assertThat(
+            SpacingAroundParensRule().lint(
+                """
+                fun main() {
+                    System.out.println( /** 123 */
+                        "test kdoc"
+                    )
+                    System.out.println( /* 123 */
+                        "test comment block"
+                    )
+                    System.out.println( // 123
+                        "test single comment"
+                    )
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
     }
 
     @Test
     fun `format spacing after lpar followed by a comment is allowed`() {
-        val code = """
+        val code =
+            """
             fun main() {
                 System.out.println( /** 123 */
                     "test kdoc"
@@ -55,28 +60,33 @@ class SpacingAroundParensRuleTest {
                     "test single comment"
                 )
             }
-        """.trimIndent()
+            """.trimIndent()
         assertThat(SpacingAroundParensRule().format(code)).isEqualTo(code)
     }
 
     @Test
     fun `lint spacing before annotated function type is allowed`() {
-        assertThat(SpacingAroundParensRule().lint("""
-            val myFun1: @Foo () -> Unit = {}
-            val myFun2: @Foo() () -> Unit = {}
-            val typeParameter1: (@Foo () -> Unit) -> Unit = { {} }
-            val typeParameter2: (@Foo() () -> Unit) -> Unit = { { } }
-        """.trimIndent())).isEmpty()
+        assertThat(
+            SpacingAroundParensRule().lint(
+                """
+                val myFun1: @Foo () -> Unit = {}
+                val myFun2: @Foo() () -> Unit = {}
+                val typeParameter1: (@Foo () -> Unit) -> Unit = { {} }
+                val typeParameter2: (@Foo() () -> Unit) -> Unit = { { } }
+                """.trimIndent()
+            )
+        ).isEmpty()
     }
 
     @Test
     fun `format spacing before annotated function type is allowed`() {
-        val code = """
+        val code =
+            """
             val myFun1: @Foo () -> Unit = {}
             val myFun2: @Foo() () -> Unit = {}
             val typeParameter1: (@Foo () -> Unit) -> Unit = { {} }
             val typeParameter2: (@Foo() () -> Unit) -> Unit = { { } }
-        """.trimIndent()
+            """.trimIndent()
         assertThat(SpacingAroundParensRule().format(code)).isEqualTo(code)
     }
 }

@@ -451,8 +451,8 @@ object KtLint {
                     if (psi is KtAnnotated) {
                         createSuppressionHintFromAnnotations(psi, suppressAnnotations, suppressAnnotationRuleMap)
                             ?.let {
-                            result.add(it)
-                        }
+                                result.add(it)
+                            }
                     }
                 }
                 result.addAll(

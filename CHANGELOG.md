@@ -10,7 +10,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - Kotlin was updated to 1.3.70 version
 - Loading properties from `.editorconfig` was fully delegated to ec4j library. This fixes ability to override
-properties for specific files/directories ([#742](https://github.com/pinterest/ktlint/issues/742)) 
+properties for specific files/directories ([#742](https://github.com/pinterest/ktlint/issues/742))
+- Promote experimental "indent" rule to standard one, old standard "indent" rule is removed 
 
 ### Fixed
 - ?

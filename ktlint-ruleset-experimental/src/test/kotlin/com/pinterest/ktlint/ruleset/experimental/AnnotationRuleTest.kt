@@ -614,7 +614,7 @@ class AnnotationRuleTest {
             @B // comment
             fun test() {
             }
-             """.trimIndent()
+            """.trimIndent()
         assertThat(AnnotationRule().lint(code)).isEmpty()
     }
 
@@ -629,7 +629,7 @@ class AnnotationRuleTest {
             @B
             fun test() {
             }
-             """.trimIndent()
+            """.trimIndent()
         assertThat(AnnotationRule().lint(code)).isEmpty()
     }
 

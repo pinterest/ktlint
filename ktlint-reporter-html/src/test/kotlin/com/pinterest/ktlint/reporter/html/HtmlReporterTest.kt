@@ -38,7 +38,8 @@ class HtmlReporterTest {
         val reporter = HtmlReporter(PrintStream(out, true))
         reporter.afterAll()
 
-        val actual = """
+        val actual =
+            """
 <html>
 <head>
 <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" />
@@ -73,7 +74,8 @@ h3 {
 
         reporter.afterAll()
 
-        val actual = """<html>
+        val actual =
+            """<html>
 <head>
 <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" />
 <style>
@@ -119,7 +121,8 @@ h3 {
 
         reporter.afterAll()
 
-        val actual = """<html>
+        val actual =
+            """<html>
 <head>
 <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" />
 <style>
