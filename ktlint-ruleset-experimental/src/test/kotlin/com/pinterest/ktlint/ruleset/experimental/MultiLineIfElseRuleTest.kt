@@ -3,7 +3,6 @@ package com.pinterest.ktlint.ruleset.experimental
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.test.format
 import com.pinterest.ktlint.test.lint
-import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
@@ -34,30 +33,227 @@ class MultiLineIfElseRuleTest {
     }
 
     @Test
-    fun tesMultiLineWithoutCurlyBraces() {
-        val ifWithoutCurlyBrace = "fun main() { if (true) \n return 0 }"
-        val ifWithoutCurlyBraceExpected = "fun main() { if (true) \n {return 0} }"
-        // If-Then block with multiple lines and curly brace.
-        // assertThat(format(ifWithoutCurlyBrace)).isEqualTo(ifWithoutCurlyBraceExpected)
+    fun testMultiLineIfWithoutCurlyBraces() {
+        val ifWithoutCurlyBrace =
+            """
+            fun main() {
+                if (true)
+                    return 0
+            }
+            """.trimIndent()
         assertThat(lint(ifWithoutCurlyBrace)).isEqualTo(
             listOf(
-                LintError(2, 2, "multiline-if-else", "Missing { ... }")
+                LintError(3, 9, "multiline-if-else", "Missing { ... }")
             )
         )
-        val ifElseWithoutCurlyBrace = "fun main() { if (true) \n return 0 \n else \n return 1 }"
-        val ifElseWithoutCurlyBraceExpected = "fun main() { if (true) \n {return 0} \n else \n {return 1} }"
-        // assertThat(format(ifElseWithoutCurlyBrace)).isEqualTo(ifElseWithoutCurlyBraceExpected)
+        assertThat(format(ifWithoutCurlyBrace)).isEqualTo(
+            """
+            fun main() {
+                if (true) {
+                    return 0
+                }
+            }
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun testMultiLineIfElseWithoutCurlyBraces() {
+        val ifElseWithoutCurlyBrace =
+            """
+            fun main() {
+                if (true)
+                    return 0
+                else
+                    return 1
+            }
+            """.trimIndent()
+
         assertThat(lint(ifElseWithoutCurlyBrace)).isEqualTo(
             listOf(
-                LintError(2, 2, "multiline-if-else", "Missing { ... }"),
-                LintError(4, 2, "multiline-if-else", "Missing { ... }")
+                LintError(3, 9, "multiline-if-else", "Missing { ... }"),
+                LintError(5, 9, "multiline-if-else", "Missing { ... }")
             )
+        )
+        assertThat(format(ifElseWithoutCurlyBrace)).isEqualTo(
+            """
+            fun main() {
+                if (true) {
+                    return 0
+                } else {
+                    return 1
+                }
+            }
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun testMultilineCondition() {
+        val ifElseWithoutCurlyBrace =
+            """
+            fun main() {
+                if (i2 > 0 &&
+                    i3 < 0
+                )
+                    return 2
+                else
+                    return 3
+            }
+            """.trimIndent()
+
+        assertThat(lint(ifElseWithoutCurlyBrace)).isEqualTo(
+            listOf(
+                LintError(5, 9, "multiline-if-else", "Missing { ... }"),
+                LintError(7, 9, "multiline-if-else", "Missing { ... }")
+            )
+        )
+        assertThat(format(ifElseWithoutCurlyBrace)).isEqualTo(
+            """
+            fun main() {
+                if (i2 > 0 &&
+                    i3 < 0
+                ) {
+                    return 2
+                } else {
+                    return 3
+                }
+            }
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun testMultiLineIfElseIfElseWithoutCurlyBraces() {
+        val ifElseWithoutCurlyBrace =
+            """
+            fun main() {
+                if (true)
+                    return 0
+                else if (false)
+                    return 1
+                else
+                    return -1
+            }
+            """.trimIndent()
+
+        assertThat(lint(ifElseWithoutCurlyBrace)).isEqualTo(
+            listOf(
+                LintError(3, 9, "multiline-if-else", "Missing { ... }"),
+                LintError(5, 9, "multiline-if-else", "Missing { ... }"),
+                LintError(7, 9, "multiline-if-else", "Missing { ... }")
+            )
+        )
+        assertThat(format(ifElseWithoutCurlyBrace)).isEqualTo(
+            """
+            fun main() {
+                if (true) {
+                    return 0
+                } else if (false) {
+                    return 1
+                } else {
+                    return -1
+                }
+            }
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun testNestedMultiLineIfElse() {
+        val ifElseWithoutCurlyBrace =
+            """
+            fun main() {
+                if (outerCondition1)
+                    if (innerCondition1)
+                        if (innerCondition11)
+                            return 0
+                        else if (innerCondition12)
+                            return 12
+                        else if (innerCondition13)
+                            return 13
+                        else
+                            return 14
+                    else if (innerCondition44)
+                        return 1
+                    else {
+                        return 16
+                    }
+                else if (outerCondition2)
+                    if (innerCondition2)
+                        return 2
+                    else if (innerCondition3)
+                        return 3
+                    else
+                        return 4
+                else
+                    if (innerCondition4)
+                        return 5
+                    else
+                        return -1
+            }
+            """.trimIndent()
+
+        assertThat(lint(ifElseWithoutCurlyBrace)).isEqualTo(
+            listOf(
+                LintError(3, 9, "multiline-if-else", "Missing { ... }"),
+                LintError(4, 13, "multiline-if-else", "Missing { ... }"),
+                LintError(5, 17, "multiline-if-else", "Missing { ... }"),
+                LintError(7, 17, "multiline-if-else", "Missing { ... }"),
+                LintError(9, 17, "multiline-if-else", "Missing { ... }"),
+                LintError(11, 17, "multiline-if-else", "Missing { ... }"),
+                LintError(13, 13, "multiline-if-else", "Missing { ... }"),
+                LintError(18, 9, "multiline-if-else", "Missing { ... }"),
+                LintError(19, 13, "multiline-if-else", "Missing { ... }"),
+                LintError(21, 13, "multiline-if-else", "Missing { ... }"),
+                LintError(23, 13, "multiline-if-else", "Missing { ... }"),
+                LintError(25, 9, "multiline-if-else", "Missing { ... }"),
+                LintError(26, 13, "multiline-if-else", "Missing { ... }"),
+                LintError(28, 13, "multiline-if-else", "Missing { ... }")
+            )
+        )
+        assertThat(format(ifElseWithoutCurlyBrace)).isEqualTo(
+            """
+            fun main() {
+                if (outerCondition1) {
+                    if (innerCondition1) {
+                        if (innerCondition11) {
+                            return 0
+                        } else if (innerCondition12) {
+                            return 12
+                        } else if (innerCondition13) {
+                            return 13
+                        } else {
+                            return 14
+                        }
+                    } else if (innerCondition44) {
+                        return 1
+                    } else {
+                        return 16
+                    }
+                } else if (outerCondition2) {
+                    if (innerCondition2) {
+                        return 2
+                    } else if (innerCondition3) {
+                        return 3
+                    } else {
+                        return 4
+                    }
+                } else {
+                    if (innerCondition4) {
+                        return 5
+                    } else {
+                        return -1
+                    }
+                }
+            }
+            """.trimIndent()
         )
     }
 
     private fun assertOK(kotlinScript: String) {
-        Assertions.assertThat(format(kotlinScript)).isEqualTo(kotlinScript)
-        Assertions.assertThat(lint(kotlinScript)).isEqualTo(emptyList<LintError>())
+        assertThat(format(kotlinScript)).isEqualTo(kotlinScript)
+        assertThat(lint(kotlinScript)).isEqualTo(emptyList<LintError>())
     }
 
     private fun format(kotlinScript: String): String {
