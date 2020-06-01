@@ -75,7 +75,7 @@ insert_final_newline=true
 max_line_length=off
 ```
 
-### Custom EditorConfig properties
+### Custom Ktlint specific EditorConfig properties
 
 ```ini
 # Comma-separated list of rules to disable (Since 0.34.0)
@@ -97,6 +97,18 @@ kotlin_imports_layout=android.*,|,^org.junit.*,kotlin.io.Closeable,|,*,^* # cust
 # Alternatively ij_kotlin_imports_layout name can be used, in order to set an imports layout for both ktlint and IDEA via a single property
 # Note: this is not yet implemented on IDEA side, so it only takes effect for ktlint
 ij_kotlin_imports_layout=*
+```
+
+### Overriding Editorconfig properties for specific directories
+
+You could [override](https://editorconfig.org/#file-format-details) properties for specific directories inside your project:
+```ini
+[*.{kt,kts}]
+disabled_rules=import-ordering
+
+# Note that in this case 'import-ordering' rule will be active and 'indent' will be disabled
+[api/*.{kt,kts}]
+disabled_rules=indent
 ```
 
 ## Installation
