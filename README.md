@@ -29,8 +29,7 @@ It's also [easy to create your own](#creating-a-reporter).
 
 ## Standard rules
 
-- 4 spaces for indentation  
-(unless a different `indent_size` value is set in .editorconfig (see [EditorConfig](#editorconfig) section for more))
+- Indentation formatting - respects `.editorconfig` `indent_size` with no continuation indent (see [EditorConfig](#editorconfig) section for more)
 - No semicolons (unless used to separate multiple statements on the same line)
 - No unused `import`s
 - No consecutive blank lines
@@ -49,16 +48,19 @@ It's also [easy to create your own](#creating-a-reporter).
 - Consistent spacing after keywords, commas; around colons, curly braces, parens, infix operators, comments, etc
 - Newline at the end of each file (enabled by default)
 (set `insert_final_newline=false` in .editorconfig to disable (see [EditorConfig](#editorconfig) section for more)).
-- Imports ordered in alphabetic order with no spaces between major groups
+- Imports ordered consistently (see [Custom ktlint EditorConfig properties](#custom-ktlint-specific-editorconfig-properties) for more)
 
 ## Experimental rules
 New rules will be added into the [experimental ruleset](https://github.com/pinterest/ktlint/tree/master/ktlint-ruleset-experimental), which can be enabled
 by passing the `--experimental` flag to `ktlint`.
 
-- Indentation formatting - respects `.editorconfig` `indent_size` with no continuation indent
-- Annotation formatting - multiple annotations should be on a separate line than the annotated declaration; annotations with parameters should each be on separate lines; annotations should be followed by a space
+- Annotation formatting - multiple annotations should be on a separate line than the annotated declaration; annotations with parameters should each be on separate lines; annotations should be followed by a space; declarations with annotations should be separated by a blank line
+- Comment space formatting - declarations with comments should be separated by a blank line
 - No underscores in package names
 - Braces required for multiline if/else statements
+- Enum entry names should be uppercase underscore-separated names
+- No spaces around `::`
+
 
 ## EditorConfig
 
@@ -116,7 +118,7 @@ disabled_rules=indent
 > Skip all the way to the "Integration" section if you don't plan to use `ktlint`'s command line interface.
 
 ```sh
-curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.36.0/ktlint &&
+curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.37.0/ktlint &&
   chmod a+x ktlint &&
   sudo mv ktlint /usr/local/bin/
 ```
@@ -212,7 +214,7 @@ $ ktlint installGitPreCommitHook
         <dependency>
             <groupId>com.pinterest</groupId>
             <artifactId>ktlint</artifactId>
-            <version>0.36.0</version>
+            <version>0.37.0</version>
         </dependency>
         <!-- additional 3rd party ruleset(s) can be specified here -->
     </dependencies>
@@ -260,7 +262,7 @@ configurations {
 }
 
 dependencies {
-    ktlint "com.pinterest:ktlint:0.36.0"
+    ktlint "com.pinterest:ktlint:0.37.0"
     // additional 3rd party ruleset(s) can be specified here
     // just add them to the classpath (e.g. ktlint 'groupId:artifactId:version') and 
     // ktlint will pick them up
