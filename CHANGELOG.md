@@ -2,25 +2,40 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## [0.37.0] - 2020-06-02
+
+Thank you to @Tapchicoma and @romtsn for all their hard work on this release!
 
 ### Added
-- ?
+- Gradle wrapper validation ([#684](https://github.com/pinterest/ktlint/pull/684))
+- Experimental `SpacingAroundDoubleColon` rule ([#722](https://github.com/pinterest/ktlint/pull/722)]
+- Experimental `SpacingBetweenDeclarationsWithCommentsRule` and `SpacingBetweenDeclarationsWithAnnotationsRule`. Fixes ([#721]https://github.com/pinterest/ktlint/issues/721)
+- `kotlin_imports_layout` config for `.editorconfig` file so that import ordering is configurable. Fixes ([#527](https://github.com/pinterest/ktlint/issues/527))
+
 
 ### Changed
 - Kotlin was updated to 1.3.70 version
 - Loading properties from `.editorconfig` was fully delegated to ec4j library. This fixes ability to override
 properties for specific files/directories ([#742](https://github.com/pinterest/ktlint/issues/742))
 - Promote experimental "indent" rule to standard one, old standard "indent" rule is removed 
+- Functions to calculate line/column are now public so they can be used by 3rd party tools ([#725](https://github.com/pinterest/ktlint/pull/725))
+- `AnnotationRule` now handles file annotations as well ([#714](https://github.com/pinterest/ktlint/pull/714))
 
 ### Fixed
-- ?
+- Ignore keywords in KDoc comments ([#671](https://github.com/pinterest/ktlint/issues/671))
+- Allow multiple spaces in KDoc comments ([#706](https://github.com/pinterest/ktlint/issues/706))
+- Trailing comment no longer reported as incorrect indentation ([#710](https://github.com/pinterest/ktlint/issues/710)]
+- Annotated function types no longer reported as an error ([#737](https://github.com/pinterest/ktlint/issues/737))
+- `FinalNewlineRule` no longer reports error for empty files ([#723](https://github.com/pinterest/ktlint/issues/723))
+- EOL comments will no longer cause `AnnotationRule` to report an error ([#736](https://github.com/pinterest/ktlint/issues/736))
+- Formatter will no longer break class declaration with trailing comment ([#728](https://github.com/pinterest/ktlint/issues/728))
+- Formatting for single line if/else statements ([#174](https://github.com/pinterest/ktlint/issues/174))
+- Exception in `NoLineBreakBeforeAssignmentRule` ([#693](https://github.com/pinterest/ktlint/issues/693))
 
-### Deprecated
-- ?
 
 ### Removed
-- ?
+- Removed Maven; builds all run under Gradle ([#445](https://github.com/pinterest/ktlint/issues/445))
+- Old standard `IndentRule`
 
 ## [0.36.0] - 2019-12-03
 
@@ -670,6 +685,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.37.0]: https://github.com/shyiko/ktlint/compare/0.36.0...0.37.0
 [0.36.0]: https://github.com/shyiko/ktlint/compare/0.35.0...0.36.0
 [0.35.0]: https://github.com/shyiko/ktlint/compare/0.34.2...0.35.0
 [0.34.2]: https://github.com/shyiko/ktlint/compare/0.33.0...0.34.2
