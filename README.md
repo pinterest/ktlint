@@ -29,7 +29,7 @@ It's also [easy to create your own](#creating-a-reporter).
 
 ## Standard rules
 
-- Indentation formatting - respects `.editorconfig` `indent_size` with no continuation indent (see [EditorConfig](#editorconfig) section for more))
+- Indentation formatting - respects `.editorconfig` `indent_size` with no continuation indent (see [EditorConfig](#editorconfig) section for more)
 - No semicolons (unless used to separate multiple statements on the same line)
 - No unused `import`s
 - No consecutive blank lines
@@ -48,7 +48,7 @@ It's also [easy to create your own](#creating-a-reporter).
 - Consistent spacing after keywords, commas; around colons, curly braces, parens, infix operators, comments, etc
 - Newline at the end of each file (enabled by default)
 (set `insert_final_newline=false` in .editorconfig to disable (see [EditorConfig](#editorconfig) section for more)).
-- Imports ordered consistently (see https://github.com/pinterest/ktlint#custom-ktlint-specific-editorconfig-properties)
+- Imports ordered consistently (see [Custom ktlint EditorConfig properties](#custom-ktlint-specific-editorconfig-properties) for more)
 
 ## Experimental rules
 New rules will be added into the [experimental ruleset](https://github.com/pinterest/ktlint/tree/master/ktlint-ruleset-experimental), which can be enabled
