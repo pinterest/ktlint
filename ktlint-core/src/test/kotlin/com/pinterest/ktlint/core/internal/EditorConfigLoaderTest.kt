@@ -2,7 +2,6 @@ package com.pinterest.ktlint.core.internal
 
 import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
-import com.pinterest.ktlint.core.KtLint.STDIN_FILE
 import java.nio.file.FileSystem
 import java.nio.file.Files
 import java.nio.file.Path
@@ -13,7 +12,7 @@ import org.junit.Test
 
 internal class EditorConfigLoaderTest {
     private val tempFileSystem = Jimfs.newFileSystem(Configuration.forCurrentPlatform())
-    private val editorConfigLoader = EditorConfigLoader()
+    private val editorConfigLoader = EditorConfigLoader(tempFileSystem)
 
     private fun FileSystem.normalizedPath(path: String): Path {
         val root = rootDirectories.joinToString(separator = "/")
@@ -221,21 +220,24 @@ internal class EditorConfigLoaderTest {
 
     @Test
     fun `Should return properties for stdin from current directory`() {
-        val projectDir = "/project"
         @Language("EditorConfig") val editorconfigFile =
             """
             [*.{kt,kts}]
             insert_final_newline = true
             disabled_rules = import-ordering
             """.trimIndent()
-        tempFileSystem.writeEditorConfigFile(projectDir, editorconfigFile)
+        tempFileSystem.writeEditorConfigFile(".", editorconfigFile)
 
-        val lintFile = tempFileSystem.normalizedPath(projectDir).resolve(STDIN_FILE)
-        val parsedEditorConfig = editorConfigLoader.loadPropertiesForFile(lintFile)
+        val parsedEditorConfig = editorConfigLoader.loadPropertiesForFile(null, isStdIn = true, debug = true)
 
         assertThat(parsedEditorConfig).isNotEmpty
         assertThat(parsedEditorConfig).doesNotContainKey(EditorConfigLoader.FILE_PATH_PROPERTY)
-        // It is not possible to reliably check all loaded properties for stdin as it will depend on the machine
+        assertThat(parsedEditorConfig).isEqualTo(
+            mapOf(
+                "insert_final_newline" to "true",
+                "disabled_rules" to "import-ordering"
+            )
+        )
     }
 
     @Test

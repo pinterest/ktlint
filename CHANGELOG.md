@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+
+### Fixed
+- Invalid path exception error on windows machines when loading properties from .editorconfig ([#761](https://github.com/pinterest/ktlint/issues/761))
+
 ## [0.37.0] - 2020-06-02
 
 Thank you to [Tapchicoma](https://github.com/Tapchicoma) and [romtsn](https://github.com/romtsn) for all their hard work on this release!

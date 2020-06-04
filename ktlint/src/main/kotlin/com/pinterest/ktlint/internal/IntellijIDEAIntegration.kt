@@ -6,6 +6,7 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.nio.charset.Charset
+import java.nio.file.FileSystems
 import java.nio.file.Files
 import java.nio.file.NoSuchFileException
 import java.nio.file.Path
@@ -27,7 +28,8 @@ object IntellijIDEAIntegration {
         if (!Files.isDirectory(workDir.resolve(".idea"))) {
             throw ProjectNotFoundException()
         }
-        val editorConfig: Map<String, String> = EditorConfigLoader().loadPropertiesForFile(Paths.get("."))
+        val editorConfig: Map<String, String> = EditorConfigLoader(FileSystems.getDefault())
+            .loadPropertiesForFile(null, isStdIn = true)
         val indentSize = editorConfig["indent_size"]?.toIntOrNull() ?: 4
         val continuationIndentSize = editorConfig["continuation_indent_size"]?.toIntOrNull() ?: 4
         val updates = if (local) {
