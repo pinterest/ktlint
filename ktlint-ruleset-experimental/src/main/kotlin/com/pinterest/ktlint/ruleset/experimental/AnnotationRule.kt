@@ -146,16 +146,19 @@ class AnnotationRule : Rule("annotation") {
 
         // Check to make sure no trailing line breaks between annotation and object
         val lineNumber = node.lineNumber()
-        val next = node.nextSiblingWithAtLeastOneOf({
-            !it.isWhiteSpace() &&
-                it.textLength > 0 &&
-                !(it.isPartOfComment() && it.lineNumber() == lineNumber) &&
-                !it.isPartOf(FILE_ANNOTATION_LIST)
-        }, {
-            val s = it.text
-            // Ensure at least one occurrence of two line breaks
-            s.indexOf("\n") != s.lastIndexOf("\n")
-        })
+        val next = node.nextSiblingWithAtLeastOneOf(
+            {
+                !it.isWhiteSpace() &&
+                    it.textLength > 0 &&
+                    !(it.isPartOfComment() && it.lineNumber() == lineNumber) &&
+                    !it.isPartOf(FILE_ANNOTATION_LIST)
+            },
+            {
+                val s = it.text
+                // Ensure at least one occurrence of two line breaks
+                s.indexOf("\n") != s.lastIndexOf("\n")
+            }
+        )
         val nextLineNumber = next?.lineNumber()
         if (lineNumber != null && nextLineNumber != null) {
             val diff = nextLineNumber - lineNumber
@@ -178,7 +181,9 @@ class AnnotationRule : Rule("annotation") {
         var n = this.treeNext
         var occurrenceCount = 0
         while (n != null) {
-            if (needsToOccur(n)) { occurrenceCount++ }
+            if (needsToOccur(n)) {
+                occurrenceCount++
+            }
             if (p(n)) {
                 return if (occurrenceCount > 0) {
                     n

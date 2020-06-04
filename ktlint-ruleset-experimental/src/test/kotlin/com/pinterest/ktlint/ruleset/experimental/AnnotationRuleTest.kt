@@ -956,9 +956,9 @@ class AnnotationRuleTest {
     fun `lint there should not be empty lines between an annotation and object autocorrected`() {
         val code =
             """
-                @JvmField
+            @JvmField
 
-                fun foo() {}
+            fun foo() {}
 
             """.trimIndent()
 
@@ -966,8 +966,8 @@ class AnnotationRuleTest {
             AnnotationRule().format(code)
         ).isEqualTo(
             """
-                @JvmField
-                fun foo() {}
+            @JvmField
+            fun foo() {}
 
             """.trimIndent()
         )
@@ -977,12 +977,12 @@ class AnnotationRuleTest {
     fun `lint there should not be empty lines between an annotation and object autocorrected with control`() {
         val code =
             """
-                @JvmField
+            @JvmField
 
-                fun foo() {
-                  @JvmStatic
-                  val r = A()
-                }
+            fun foo() {
+              @JvmStatic
+              val r = A()
+            }
 
             """.trimIndent()
 
@@ -990,11 +990,11 @@ class AnnotationRuleTest {
             AnnotationRule().format(code)
         ).isEqualTo(
             """
-                @JvmField
-                fun foo() {
-                  @JvmStatic
-                  val r = A()
-                }
+            @JvmField
+            fun foo() {
+              @JvmStatic
+              val r = A()
+            }
 
             """.trimIndent()
         )
@@ -1004,11 +1004,11 @@ class AnnotationRuleTest {
     fun `lint there should not be empty lines between an annotation and object autocorrected multiple lines`() {
         val code =
             """
-                @JvmField
+            @JvmField
 
 
 
-                fun foo() {}
+            fun foo() {}
 
             """.trimIndent()
 
@@ -1016,8 +1016,8 @@ class AnnotationRuleTest {
             AnnotationRule().format(code)
         ).isEqualTo(
             """
-                @JvmField
-                fun foo() {}
+            @JvmField
+            fun foo() {}
 
             """.trimIndent()
         )
@@ -1027,15 +1027,15 @@ class AnnotationRuleTest {
     fun `lint there should not be empty lines between an annotation and object autocorrected multiple annotations`() {
         val code =
             """
-                @JvmField
+            @JvmField
 
 
 
-                fun foo() {
-                  @JvmStatic
+            fun foo() {
+              @JvmStatic
 
-                  val foo = Foo()
-                }
+              val foo = Foo()
+            }
 
             """.trimIndent()
 
@@ -1043,11 +1043,11 @@ class AnnotationRuleTest {
             AnnotationRule().format(code)
         ).isEqualTo(
             """
-                @JvmField
-                fun foo() {
-                  @JvmStatic
-                  val foo = Foo()
-                }
+            @JvmField
+            fun foo() {
+              @JvmStatic
+              val foo = Foo()
+            }
 
             """.trimIndent()
         )
