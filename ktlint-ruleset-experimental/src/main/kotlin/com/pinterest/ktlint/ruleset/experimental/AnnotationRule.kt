@@ -1,18 +1,26 @@
 package com.pinterest.ktlint.ruleset.experimental
 
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.ast.*
 import com.pinterest.ktlint.core.ast.ElementType.FILE_ANNOTATION_LIST
 import com.pinterest.ktlint.core.ast.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.core.ast.ElementType.TYPE_ARGUMENT_LIST
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_ARGUMENT
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER
+import com.pinterest.ktlint.core.ast.isPartOf
+import com.pinterest.ktlint.core.ast.isPartOfComment
+import com.pinterest.ktlint.core.ast.isWhiteSpace
+import com.pinterest.ktlint.core.ast.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.core.ast.lineNumber
+import com.pinterest.ktlint.core.ast.nextSibling
+import com.pinterest.ktlint.core.ast.prevSibling
+import com.pinterest.ktlint.core.ast.upsertWhitespaceBeforeMe
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
+import org.jetbrains.kotlin.psi.psiUtil.children
 import org.jetbrains.kotlin.psi.psiUtil.endOffset
 import org.jetbrains.kotlin.psi.psiUtil.getNextSiblingIgnoringWhitespaceAndComments
 import org.jetbrains.kotlin.psi.psiUtil.nextLeaf
@@ -138,11 +146,11 @@ class AnnotationRule : Rule("annotation") {
 
         // Check to make sure no trailing line breaks between annotation and object
         val lineNumber = node.lineNumber()
-        val next = node.nextSiblingWithAtLeastOneOf( {
-            !it.isWhiteSpace()
-                && it.textLength > 0
-                && !(it.isPartOfComment() && it.lineNumber() == lineNumber)
-                && !it.isPartOf(FILE_ANNOTATION_LIST)
+        val next = node.nextSiblingWithAtLeastOneOf({
+            !it.isWhiteSpace() &&
+                it.textLength > 0 &&
+                !(it.isPartOfComment() && it.lineNumber() == lineNumber) &&
+                !it.isPartOf(FILE_ANNOTATION_LIST)
         }, {
             val s = it.text
             // Ensure at least one occurrence of two line breaks
