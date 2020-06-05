@@ -241,4 +241,39 @@ class ImportOrderingRuleIdeaTest {
         assertThat(ImportOrderingRule().lint(imports, userData)).isEqualTo(expectedErrors)
         assertThat(ImportOrderingRule().format(imports, userData)).isEqualTo(formattedImports)
     }
+
+    @Test
+    fun `format imports containing "as" in the path - does not remove them`() {
+        val formattedImports =
+            """
+            import assertk.all
+            import assertk.assertThat
+            import assertk.assertions.contains
+            import assertk.assertions.doesNotContain
+            import assertk.assertions.isEqualTo
+            import assertk.assertions.isFailure
+            import assertk.assertions.isInstanceOf
+            import assertk.assertions.isNotNull
+            import assertk.assertions.isNull
+            import assertk.assertions.message
+            import com.fasterxml.jackson.annotation.JsonIgnore
+            import com.fasterxml.jackson.databind.JsonMappingException
+            import com.fasterxml.jackson.databind.ObjectMapper
+            import com.fasterxml.jackson.module.kotlin.readValue
+            import com.google.inject.multibindings.MapBinder
+            import com.google.inject.name.Names
+            import com.trib3.json.modules.ObjectMapperModule
+            import dev.misfitlabs.kotlinguice4.KotlinModule
+            import dev.misfitlabs.kotlinguice4.typeLiteral
+            import org.testng.annotations.Guice
+            import org.testng.annotations.Test
+            import org.threeten.extra.YearQuarter
+            import java.time.LocalDate
+            import javax.inject.Inject
+            import kotlin.reflect.KClass
+            """.trimIndent()
+
+        assertThat(ImportOrderingRule().lint(formattedImports, userData)).isEmpty()
+        assertThat(ImportOrderingRule().format(formattedImports, userData)).isEqualTo(formattedImports)
+    }
 }

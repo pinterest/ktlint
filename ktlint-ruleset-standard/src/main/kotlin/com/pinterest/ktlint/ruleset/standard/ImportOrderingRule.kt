@@ -93,8 +93,8 @@ class ImportOrderingRule : Rule("import-ordering") {
                     .filter { it.psi !is PsiWhiteSpace } // sorter expects KtImportDirective, whitespaces are inserted afterwards
                     .map { it.psi as KtImportDirective }
                     .sortedWith(importSorter)
+                    .distinctBy { if (it.aliasName != null) it.text.substringBefore(it.aliasName!!) else it.text } // distinguish by import path w/o aliases
                     .map { it.node } // transform back to ASTNode in order to operate over its method (addChild)
-                    .distinctBy { it.text.substringBefore(" as") } // distinguish by import path w/o aliases
 
                 // insert blank lines wherever needed
                 // traverse the list using fold to have previous and current element and decide if the blank line is needed in between
