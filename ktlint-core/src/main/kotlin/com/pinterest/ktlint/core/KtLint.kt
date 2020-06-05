@@ -2,6 +2,8 @@ package com.pinterest.ktlint.core
 
 import com.pinterest.ktlint.core.ast.prevLeaf
 import com.pinterest.ktlint.core.internal.EditorConfigLoader
+import java.nio.file.FileSystems
+import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.ArrayList
 import java.util.HashSet
@@ -50,7 +52,7 @@ object KtLint {
     private val psiFileFactory: PsiFileFactory
     private val nullSuppression = { _: Int, _: String, _: Boolean -> false }
 
-    private val editorConfigLoader = EditorConfigLoader()
+    private val editorConfigLoader = EditorConfigLoader(FileSystems.getDefault())
 
     /**
      * @param fileName path of file to lint/format
@@ -71,7 +73,15 @@ object KtLint {
         val script: Boolean = false,
         val editorConfigPath: String? = null,
         val debug: Boolean = false
-    )
+    ) {
+        internal val normalizedFilePath: Path? get() = if (fileName == STDIN_FILE || fileName == null) {
+            null
+        } else {
+            Paths.get(fileName)
+        }
+
+        internal val isStdIn: Boolean get() = fileName == STDIN_FILE
+    }
 
     init {
         // do not print anything to the stderr when lexer is unable to match input
@@ -141,7 +151,8 @@ object KtLint {
         val rootNode = psiFile.node
         // Passed-in userData overrides .editorconfig
         val mergedUserData = editorConfigLoader.loadPropertiesForFile(
-            params.fileName?.let { Paths.get(it) },
+            params.normalizedFilePath,
+            params.isStdIn,
             params.editorConfigPath?.let { Paths.get(it) },
             params.debug
         ) + params.userData
@@ -322,7 +333,8 @@ object KtLint {
         val rootNode = psiFile.node
         // Passed-in userData overrides .editorconfig
         val mergedUserData = editorConfigLoader.loadPropertiesForFile(
-            params.fileName?.let { Paths.get(it) },
+            params.normalizedFilePath,
+            params.isStdIn,
             params.editorConfigPath?.let { Paths.get(it) },
             params.debug
         ) + params.userData

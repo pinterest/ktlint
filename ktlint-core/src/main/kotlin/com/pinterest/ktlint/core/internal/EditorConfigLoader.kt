@@ -1,9 +1,8 @@
 package com.pinterest.ktlint.core.internal
 
-import com.pinterest.ktlint.core.KtLint.STDIN_FILE
 import java.nio.charset.StandardCharsets
+import java.nio.file.FileSystem
 import java.nio.file.Path
-import java.nio.file.Paths
 import org.ec4j.core.EditorConfigLoader
 import org.ec4j.core.Resource
 import org.ec4j.core.ResourcePropertiesService
@@ -13,7 +12,9 @@ import org.ec4j.core.ResourcePropertiesService
  *
  * Contains internal in-memory cache to speedup lookup.
  */
-class EditorConfigLoader {
+class EditorConfigLoader(
+    private val fs: FileSystem
+) {
     private val cache = ThreadSafeEditorConfigCache()
     private val editorConfigLoader = EditorConfigLoader.default_()
     private val propService = ResourcePropertiesService.builder()
@@ -25,7 +26,9 @@ class EditorConfigLoader {
      * Loads applicable properties from `.editorconfig`s for given file.
      *
      * @param filePath path to file that would be checked.
-     * Could end with [STDIN_FILE] to indicate that _stdin_ would be checked
+     * @param isStdIn indicates that checked content comes from input.
+     * Setting this to `true` overrides [filePath] and uses `.kt` pattern to load properties
+     * from current folder `.editorconfig` files.
      * @param alternativeEditorConfig alternative to current [filePath] location where `.editorconfig` files should be
      * looked up
      * @param debug pass `true` to enable some additional debug output
@@ -36,23 +39,26 @@ class EditorConfigLoader {
      */
     fun loadPropertiesForFile(
         filePath: Path?,
+        isStdIn: Boolean = false,
         alternativeEditorConfig: Path? = null,
         debug: Boolean = false
     ): Map<String, String> {
-        if (filePath == null || SUPPORTED_FILES.none { filePath.toString().endsWith(it) }) {
+        if (!isStdIn &&
+            (filePath == null || SUPPORTED_FILES.none { filePath.toString().endsWith(it) })
+        ) {
             return emptyMap()
         }
 
         val normalizedFilePath = when {
-            filePath.endsWith(STDIN_FILE) ->
-                Paths
-                    .get(".")
+            isStdIn ->
+                fs
+                    .getPath(".")
                     .toAbsolutePath()
                     .resolve("stdin${SUPPORTED_FILES.first()}")
             alternativeEditorConfig != null ->
                 alternativeEditorConfig
                     .toAbsolutePath()
-                    .resolve("${filePath.last()}")
+                    .resolve("${filePath!!.last()}")
             else -> filePath
         }
 
@@ -65,7 +71,7 @@ class EditorConfigLoader {
             .properties
             .mapValues { it.value.sourceValue }
             .run {
-                if (!filePath.endsWith(STDIN_FILE)) {
+                if (!isStdIn) {
                     plus(FILE_PATH_PROPERTY to filePath.toString())
                 } else {
                     this
@@ -87,8 +93,7 @@ class EditorConfigLoader {
          */
         internal val SUPPORTED_FILES = arrayOf(
             ".kt",
-            ".kts",
-            STDIN_FILE
+            ".kts"
         )
     }
 }
