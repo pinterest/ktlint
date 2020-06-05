@@ -42,6 +42,7 @@ import com.pinterest.ktlint.core.ast.ElementType.REGULAR_STRING_PART
 import com.pinterest.ktlint.core.ast.ElementType.RPAR
 import com.pinterest.ktlint.core.ast.ElementType.SAFE_ACCESS
 import com.pinterest.ktlint.core.ast.ElementType.SAFE_ACCESS_EXPRESSION
+import com.pinterest.ktlint.core.ast.ElementType.SHORT_STRING_TEMPLATE_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.STRING_TEMPLATE
 import com.pinterest.ktlint.core.ast.ElementType.SUPER_TYPE_CALL_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.SUPER_TYPE_ENTRY
@@ -770,6 +771,7 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                                 sb.append(text)
                             }
                             LONG_STRING_TEMPLATE_ENTRY -> sb.append("${'$'}{}")
+                            SHORT_STRING_TEMPLATE_ENTRY -> sb.append("${'$'}")
                             else -> sb
                         }
                     }
@@ -778,40 +780,41 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                     .map { it.indentLength() }
                     .min() ?: 0
             val expectedPrefixLength = expectedIndent * editorConfig.indentSize
-            if (prefixLength != expectedPrefixLength) {
-                for (child in children) {
-                    if (child.isPrecededByLFStringTemplateEntry()) {
-                        when (child.elementType) {
-                            LITERAL_STRING_TEMPLATE_ENTRY -> {
-                                val v = child.text
-                                if (v != "\n") {
-                                    val indentLength = v.indentLength()
-                                    val expectedIndentLength = indentLength - prefixLength + expectedPrefixLength
-                                    if (indentLength != expectedIndentLength) {
-                                        reindentStringTemplateEntry(
-                                            child,
-                                            autoCorrect,
-                                            emit,
-                                            indentLength,
-                                            expectedIndentLength
-                                        )
-                                    }
-                                }
-                            }
-                            LONG_STRING_TEMPLATE_ENTRY -> {
-                                if (expectedPrefixLength != 0) {
-                                    preindentStringTemplateEntry(
-                                        child.firstChildNode,
-                                        autoCorrect,
-                                        emit,
-                                        expectedPrefixLength
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            // TODO: uncomment, once it's clear how to indent stuff within string templates
+//            if (prefixLength != expectedPrefixLength) {
+//                for (child in children) {
+//                    if (child.isPrecededByLFStringTemplateEntry()) {
+//                        when (child.elementType) {
+//                            LITERAL_STRING_TEMPLATE_ENTRY -> {
+//                                val v = child.text
+//                                if (v != "\n") {
+//                                    val indentLength = v.indentLength()
+//                                    val expectedIndentLength = indentLength - prefixLength + expectedPrefixLength
+//                                    if (indentLength != expectedIndentLength) {
+//                                        reindentStringTemplateEntry(
+//                                            child,
+//                                            autoCorrect,
+//                                            emit,
+//                                            indentLength,
+//                                            expectedIndentLength
+//                                        )
+//                                    }
+//                                }
+//                            }
+//                            LONG_STRING_TEMPLATE_ENTRY, SHORT_STRING_TEMPLATE_ENTRY -> {
+//                                if (expectedPrefixLength != 0) {
+//                                    preindentStringTemplateEntry(
+//                                        child.firstChildNode,
+//                                        autoCorrect,
+//                                        emit,
+//                                        expectedPrefixLength
+//                                    )
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//            }
             val closingQuote = children.find { it.elementType == CLOSING_QUOTE }!!
             if (closingQuote.treePrev.text == "\n") {
                 // rewriting
