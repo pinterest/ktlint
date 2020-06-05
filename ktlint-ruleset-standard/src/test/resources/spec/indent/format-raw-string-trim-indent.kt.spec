@@ -1,4 +1,9 @@
 fun f() {
+    val y = 5
+    val x =
+        """
+            $y
+        """.trimIndent()
 println("""${true}""".trimIndent())
 println("""
 """.trimIndent())

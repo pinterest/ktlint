@@ -1,4 +1,9 @@
 fun f() {
+    val y = 5
+    val x =
+        """
+            $y
+        """.trimIndent()
     println("""${true}""".trimIndent())
     println(
         """
@@ -6,63 +11,63 @@ fun f() {
     )
     println(
         """
-        ${true}
+    ${true}
 
-            ${true}
+        ${true}
         """.trimIndent()
     )
     println(
         """
-        ${true}
+${true}
 
-            ${true}
+    ${true}
         """.trimIndent()
     )
     println(
         """
+    text
+
         text
-
-            text
         """.trimIndent().toByteArray()
     )
     println(
         """
+    text
+
         text
-
-            text
         """.trimIndent()
     )
     println(
         """
-            text
+    text
 
-                text
-        _
+        text
+_
         """.trimIndent()
     )
     println(
         """
-        text ""
+    text ""
 
-            text
+        text
         """.trimIndent(),
         ""
     )
     format(
         """
-        class A {
-            fun f(@Annotation
-                  a: Any,
-                  @Annotation([
-                      "v1",
-                      "v2"
-                  ])
-                  b: Any,
-                  c: Any =
-                      false,
-                  @Annotation d: Any) {
+            class A {
+                fun f(@Annotation
+                      a: Any,
+                      @Annotation([
+                          "v1",
+                          "v2"
+                      ])
+                      b: Any,
+                      c: Any =
+                          false,
+                      @Annotation d: Any) {
+                }
             }
-        }
         """.trimIndent()
     )
     write(
