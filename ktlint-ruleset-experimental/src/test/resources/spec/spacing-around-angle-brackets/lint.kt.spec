@@ -10,6 +10,8 @@ public class AngleTest< B : String  > {
     var a = 'str'
 }
 
+fun <T> compare(other: T) {}
+
 // expect
 // 2:14:Unexpected spacing after "<"
 // 3:25:Unexpected spacing before ">"

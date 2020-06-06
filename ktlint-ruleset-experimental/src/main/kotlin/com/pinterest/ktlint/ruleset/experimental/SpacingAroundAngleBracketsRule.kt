@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.ruleset.experimental
 
 import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.ast.ElementType.FUN_KEYWORD
 import com.pinterest.ktlint.core.ast.ElementType.TYPE_ARGUMENT_LIST
 import com.pinterest.ktlint.core.ast.ElementType.TYPE_PARAMETER_LIST
 import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
@@ -10,7 +11,7 @@ import com.pinterest.ktlint.core.ast.prevLeaf
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 
-class SpacingAroundAngleBracketsRule : Rule("angle-brackets-rule") {
+class SpacingAroundAngleBracketsRule : Rule("spacing-around-angle-brackets") {
 
     private fun String.trimBeforeLastLine() = this.substring(this.lastIndexOf('\n'))
 
@@ -22,12 +23,15 @@ class SpacingAroundAngleBracketsRule : Rule("angle-brackets-rule") {
         if (node.elementType.let { it == TYPE_PARAMETER_LIST || it == TYPE_ARGUMENT_LIST }) {
             val openingBracket = node.firstChildNode
             if (openingBracket != null) {
-                // Check for rogue spacing before an opening bracket:  Map <String, Int>
+                // Check for rogue spacing before an opening bracket, e.g. Map <String, Int>
                 val beforeLeftAngle = openingBracket.prevLeaf()
                 if (beforeLeftAngle?.elementType == WHITE_SPACE) {
-                    emit(beforeLeftAngle.startOffset, "Unexpected spacing before \"<\"", true)
-                    if (autoCorrect) {
-                        beforeLeftAngle.treeParent.removeChild(beforeLeftAngle)
+                    // Ignore when the whitespace is preceded by "fun", e.g. fun <T> func(arg: T) {}
+                    if (beforeLeftAngle.prevLeaf()?.elementType != FUN_KEYWORD) {
+                        emit(beforeLeftAngle.startOffset, "Unexpected spacing before \"<\"", true)
+                        if (autoCorrect) {
+                            beforeLeftAngle.treeParent.removeChild(beforeLeftAngle)
+                        }
                     }
                 }
 

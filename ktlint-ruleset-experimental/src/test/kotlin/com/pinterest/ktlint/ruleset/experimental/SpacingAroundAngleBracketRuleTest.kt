@@ -9,15 +9,15 @@ class SpacingAroundAngleBracketRuleTest {
 
     @Test
     fun testLint() {
-        assertThat(SpacingAroundAngleBracketsRule().diffFileLint("spec/angle-bracket-spacing/lint.kt.spec")).isEmpty()
+        assertThat(SpacingAroundAngleBracketsRule().diffFileLint("spec/spacing-around-angle-brackets/lint.kt.spec")).isEmpty()
     }
 
     @Test
     fun testFormat() {
         assertThat(
             SpacingAroundAngleBracketsRule().diffFileFormat(
-                "spec/angle-bracket-spacing/format.kt.spec",
-                "spec/angle-bracket-spacing/format-expected.kt.spec"
+                "spec/spacing-around-angle-brackets/format.kt.spec",
+                "spec/spacing-around-angle-brackets/format-expected.kt.spec"
             )
         ).isEmpty()
     }
