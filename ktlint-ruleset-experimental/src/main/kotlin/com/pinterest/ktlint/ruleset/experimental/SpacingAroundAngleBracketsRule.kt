@@ -1,51 +1,84 @@
 package com.pinterest.ktlint.ruleset.experimental
 
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.ast.ElementType.GT
-import com.pinterest.ktlint.core.ast.ElementType.LT
 import com.pinterest.ktlint.core.ast.ElementType.TYPE_ARGUMENT_LIST
+import com.pinterest.ktlint.core.ast.ElementType.TYPE_PARAMETER_LIST
 import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
+import com.pinterest.ktlint.core.ast.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.core.ast.nextLeaf
 import com.pinterest.ktlint.core.ast.prevLeaf
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
+import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 
 class SpacingAroundAngleBracketsRule : Rule("angle-brackets-rule") {
+
+    private fun String.trimBeforeLastLine() = this.substring(this.lastIndexOf('\n'))
 
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        if (node.elementType == TYPE_ARGUMENT_LIST) {
-            val openingBracketChild = node.nextLeaf { it.elementType == LT }
-            if (openingBracketChild != null) {
+        if (node.elementType.let { it == TYPE_PARAMETER_LIST || it == TYPE_ARGUMENT_LIST }) {
+            val openingBracket = node.firstChildNode
+            if (openingBracket != null) {
                 // Check for rogue spacing before an opening bracket:  Map <String, Int>
-                val beforeAngleBracket = openingBracketChild.prevLeaf()
-                if (beforeAngleBracket != null && beforeAngleBracket.elementType == WHITE_SPACE) {
-                    emit(beforeAngleBracket.startOffset, "Unexpected spacing before \"<\"", true)
+                val beforeLeftAngle = openingBracket.prevLeaf()
+                if (beforeLeftAngle?.elementType == WHITE_SPACE) {
+                    emit(beforeLeftAngle.startOffset, "Unexpected spacing before \"<\"", true)
                     if (autoCorrect) {
-                        beforeAngleBracket.treeParent.removeChild(beforeAngleBracket)
+                        beforeLeftAngle.treeParent.removeChild(beforeLeftAngle)
                     }
                 }
 
-                // Check for rogue spacing after an opening bracket:  Map< String, Int>
-                val afterAngleBracket = openingBracketChild.nextLeaf()
-                if (afterAngleBracket != null && afterAngleBracket.elementType == WHITE_SPACE) {
-                    emit(afterAngleBracket.startOffset, "Unexpected spacing after \"<\"", true)
-                    if (autoCorrect) {
-                        afterAngleBracket.treeParent.removeChild(afterAngleBracket)
+                // Check for rogue spacing after an opening bracket
+                val afterLeftAngle = openingBracket.nextLeaf()
+                if (afterLeftAngle?.elementType == WHITE_SPACE) {
+                    if (afterLeftAngle.isWhiteSpaceWithoutNewline()) {
+                        // when spacing does not include any new lines, e.g. Map< String, Int>
+                        emit(afterLeftAngle.startOffset, "Unexpected spacing after \"<\"", true)
+                        if (autoCorrect) {
+                            afterLeftAngle.treeParent.removeChild(afterLeftAngle)
+                        }
+                    } else {
+                        // when spacing contains at least one new line, e.g.
+                        // SomeGenericType<[whitespace]
+                        //
+                        //      String, Int, String>
+                        // gets converted to
+                        // SomeGenericType<
+                        //      String, Int, String>
+                        val newLineWithIndent = afterLeftAngle.text.trimBeforeLastLine()
+                        if (autoCorrect) {
+                            (afterLeftAngle as LeafElement).rawReplaceWithText(newLineWithIndent)
+                        }
                     }
                 }
             }
 
-            // Check for rogue spacing before a closing bracket:  Map<String, Int >
-            val closingBracket = node.nextLeaf { it.elementType == GT }
+            val closingBracket = node.lastChildNode
             if (closingBracket != null) {
-                val beforeBracket = closingBracket.prevLeaf()
-                if (beforeBracket != null && beforeBracket.elementType == WHITE_SPACE) {
-                    emit(beforeBracket.startOffset, "Unexpected spacing before \">\"", true)
-                    if (autoCorrect) {
-                        beforeBracket.treeParent.removeChild(beforeBracket)
+                val beforeRightAngle = closingBracket.prevLeaf()
+                // Check for rogue spacing before a closing bracket
+                if (beforeRightAngle?.elementType == WHITE_SPACE) {
+                    if (beforeRightAngle.isWhiteSpaceWithoutNewline()) {
+                        // when spacing does not include any new lines, e.g. Map<String, Int >
+                        emit(beforeRightAngle.startOffset, "Unexpected spacing before \">\"", true)
+                        if (autoCorrect) {
+                            beforeRightAngle.treeParent.removeChild(beforeRightAngle)
+                        }
+                    } else {
+                        // when spacing contains at least one new line, e.g.
+                        // SomeGenericType<String, Int, String[whitespace]
+                        //
+                        //      >
+                        // gets converted to
+                        // SomeGenericType<String, Int, String
+                        //      >
+                        val newLineWithIndent = beforeRightAngle.text.trimBeforeLastLine()
+                        if (autoCorrect) {
+                            (beforeRightAngle as LeafElement).rawReplaceWithText(newLineWithIndent)
+                        }
                     }
                 }
             }
