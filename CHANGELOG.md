@@ -2,10 +2,14 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [0.37.1] - 2020-06-08
+
+Minor release to fix some bugs in the 0.37.0 release.
 
 ### Fixed
-- Invalid path exception error on windows machines when loading properties from .editorconfig ([#761](https://github.com/pinterest/ktlint/issues/761))
+- Invalid path exception error on Windows machines when loading properties from .editorconfig ([#761](https://github.com/pinterest/ktlint/issues/761))
+- Imports with `as` no longer removed ([#761](https://github.com/pinterest/ktlint/issues/766))
+- The contents of raw strings are no longer modified by the indent rule ([#682](https://github.com/pinterest/ktlint/issues/682))
 
 ## [0.37.0] - 2020-06-02
 
@@ -690,6 +694,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.37.1]: https://github.com/pinterest/ktlint/compare/0.37.0...0.37.1
 [0.37.0]: https://github.com/pinterest/ktlint/compare/0.36.0...0.37.0
 [0.36.0]: https://github.com/pinterest/ktlint/compare/0.35.0...0.36.0
 [0.35.0]: https://github.com/pinterest/ktlint/compare/0.34.2...0.35.0
