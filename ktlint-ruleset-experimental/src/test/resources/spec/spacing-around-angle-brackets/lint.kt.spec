@@ -6,11 +6,7 @@ fun main() {
   var nested: Map<Int, List <   String >    > = mapOf()
 }
 
-public class AngleTest< B : String  > {
-    var a = 'str'
-}
-
-fun <T> compare(other: T) {}
+public class AngleTest< B : String  > {}
 
 // expect
 // 2:14:Unexpected spacing after "<"

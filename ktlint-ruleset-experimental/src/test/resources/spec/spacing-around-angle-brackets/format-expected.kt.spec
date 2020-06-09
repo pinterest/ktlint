@@ -18,15 +18,10 @@ fun main() {
     Int,
     List<String>
     > = mapOf()
-
-  // Multiple spacing would be fixed by another rule
-  fun    <T> compare(other: T) {}
 }
 
 // TYPE_PARAMETER_LIST
-public class AngleTest<B : String> {
-    var a = 'str'
-}
+public class AngleTest<B : String> {}
 
 public class AngleTest<
     B : String,

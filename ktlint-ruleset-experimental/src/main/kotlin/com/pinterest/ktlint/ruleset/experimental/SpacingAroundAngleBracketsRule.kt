@@ -4,6 +4,8 @@ import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.FUN_KEYWORD
 import com.pinterest.ktlint.core.ast.ElementType.TYPE_ARGUMENT_LIST
 import com.pinterest.ktlint.core.ast.ElementType.TYPE_PARAMETER_LIST
+import com.pinterest.ktlint.core.ast.ElementType.VAL_KEYWORD
+import com.pinterest.ktlint.core.ast.ElementType.VAR_KEYWORD
 import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.core.ast.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.core.ast.nextLeaf
@@ -12,7 +14,6 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 
 class SpacingAroundAngleBracketsRule : Rule("spacing-around-angle-brackets") {
-
     private fun String.trimBeforeLastLine() = this.substring(this.lastIndexOf('\n'))
 
     override fun visit(
@@ -26,8 +27,8 @@ class SpacingAroundAngleBracketsRule : Rule("spacing-around-angle-brackets") {
                 // Check for rogue spacing before an opening bracket, e.g. Map <String, Int>
                 val beforeLeftAngle = openingBracket.prevLeaf()
                 if (beforeLeftAngle?.elementType == WHITE_SPACE) {
-                    // Ignore when the whitespace is preceded by "fun", e.g. fun <T> func(arg: T) {}
-                    if (beforeLeftAngle.prevLeaf()?.elementType != FUN_KEYWORD) {
+                    // Ignore when the whitespace is preceded by certain keywords, e.g. fun <T> func(arg: T) {}
+                    if (!typesOkWithPrecedingWhitespace.contains(beforeLeftAngle.prevLeaf()?.elementType)) {
                         emit(beforeLeftAngle.startOffset, "Unexpected spacing before \"<\"", true)
                         if (autoCorrect) {
                             beforeLeftAngle.treeParent.removeChild(beforeLeftAngle)
@@ -87,5 +88,9 @@ class SpacingAroundAngleBracketsRule : Rule("spacing-around-angle-brackets") {
                 }
             }
         }
+    }
+
+    companion object {
+        private val typesOkWithPrecedingWhitespace = setOf(VAL_KEYWORD, VAR_KEYWORD, FUN_KEYWORD)
     }
 }
