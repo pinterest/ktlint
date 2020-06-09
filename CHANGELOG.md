@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+
+### Added
+- Experimental SpacingAroundAngleBracketsRule ([#769](https://github.com/pinterest/ktlint/pull/769))
+- Checksum generation for executable Jar ([#695](https://github.com/pinterest/ktlint/issues/695))
+
 ## [0.37.1] - 2020-06-08
 
 Minor release to fix some bugs in the 0.37.0 release.
