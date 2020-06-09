@@ -2,6 +2,7 @@ plugins {
   id 'org.jetbrains.kotlin.jvm'
   id 'com.vanniktech.maven.publish'
   id 'com.github.johnrengelman.shadow' version '5.0.0'
+  id 'org.gradle.crypto.checksum' version '1.1.0'
 }
 
 jar {
@@ -54,4 +55,18 @@ tasks.register("shadowJarExecutable", DefaultTask.class) {
     }
     execFile.setExecutable(true, false)
   }
+  finalizedBy tasks.named("shadowJarExecutableChecksum")
+}
+
+import org.gradle.crypto.checksum.Checksum
+
+tasks.register("shadowJarExecutableChecksum", Checksum.class) {
+  description = "Generates MD5 checksum for ktlint executable"
+  group = "Distribution"
+
+  def dir = new File(buildDir, "run")
+  files = files { dir.listFiles() }
+  outputDir = dir // put the checksums in the same folder with the executable itself
+
+  algorithm = Checksum.Algorithm.MD5
 }
