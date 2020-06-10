@@ -1024,6 +1024,50 @@ class AnnotationRuleTest {
     }
 
     @Test
+    fun `lint there should not be empty lines between multiple annotations`() {
+        val code =
+            """
+            @JvmField @JvmStatic
+
+            fun foo() = Unit
+
+            """.trimIndent()
+
+        assertThat(
+            AnnotationRule().format(code)
+        ).isEqualTo(
+            """
+            @JvmField @JvmStatic
+            fun foo() = Unit
+
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun `lint there should not be empty lines between multiple annotations on multiple lines`() {
+        val code =
+            """
+            @JvmField
+            @JvmStatic
+
+            fun foo() = Unit
+
+            """.trimIndent()
+
+        assertThat(
+            AnnotationRule().format(code)
+        ).isEqualTo(
+            """
+            @JvmField
+            @JvmStatic
+            fun foo() = Unit
+
+            """.trimIndent()
+        )
+    }
+
+    @Test
     fun `lint there should not be empty lines between an annotation and object autocorrected multiple annotations`() {
         val code =
             """
