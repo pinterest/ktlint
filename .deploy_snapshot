@@ -1,0 +1,28 @@
+#!/bin/bash -e
+
+# publish usual snapshot
+./gradlew clean uploadArchives --no-daemon --no-parallel
+
+# kotlin eap version
+KOTLIN_EAP_VERSION=$(grep "^KOTLIN_EAP_VERSION" gradle.properties | cut -d'=' -f2-)
+
+if [ -z "$KOTLIN_EAP_VERSION" ]; then
+  echo "KOTLIN_EAP_VERSION is not set or empty"
+  exit 0
+fi
+
+# capture old version name to write it back after the snapshot is published
+VERSION_NAME=$(grep "^VERSION_NAME" gradle.properties | cut -d'=' -f2-)
+VERSION_NUMBER=$(echo $VERSION_NAME | cut -f1 -d-)
+
+# define a new version name for the snapshot by adding "kotlin-EAP_VERSION"
+EAP_VERSION_NAME="$VERSION_NUMBER-kotlin-$KOTLIN_EAP_VERSION-SNAPSHOT"
+
+# overwrite actual version name in gradle.properties, so uploadArchives task uses it
+sed -i -e "/^VERSION_NAME/s/=.*$/=$EAP_VERSION_NAME/" gradle.properties
+
+# publish a snapshot compiled against latest kotlin eap version and with respective version name
+./gradlew -PKOTLIN_VERSION=${KOTLIN_EAP_VERSION} clean uploadArchives --no-daemon --no-parallel
+
+# rewrite back the original version name
+sed -i -e "/^VERSION_NAME/s/=.*$/=$VERSION_NAME/" gradle.properties

@@ -13,7 +13,7 @@ script:
   - |
     if [[ $TRAVIS_REPO_SLUG == "pinterest/ktlint" && $TRAVIS_BRANCH == "master" && $TRAVIS_PULL_REQUEST == "false" ]]; then
       # Gradle
-      ./gradlew clean uploadArchives --no-daemon --no-parallel
+      ./.deploy_snapshot
     else
       # Gradle
       ./gradlew clean build ktlint
