@@ -8,13 +8,16 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Experimental SpacingAroundAngleBracketsRule ([#769](https://github.com/pinterest/ktlint/pull/769))
 - Checksum generation for executable Jar ([#695](https://github.com/pinterest/ktlint/issues/695))
 
+### Fixed
+- Imports with aliases no longer removed ([#766](https://github.com/pinterest/ktlint/issues/766))
+
 ## [0.37.1] - 2020-06-08
 
 Minor release to fix some bugs in the 0.37.0 release.
 
 ### Fixed
 - Invalid path exception error on Windows machines when loading properties from .editorconfig ([#761](https://github.com/pinterest/ktlint/issues/761))
-- Imports with `as` no longer removed ([#761](https://github.com/pinterest/ktlint/issues/766))
+- Imports with `as` no longer removed ([#766](https://github.com/pinterest/ktlint/issues/766))
 - The contents of raw strings are no longer modified by the indent rule ([#682](https://github.com/pinterest/ktlint/issues/682))
 
 ## [0.37.0] - 2020-06-02
