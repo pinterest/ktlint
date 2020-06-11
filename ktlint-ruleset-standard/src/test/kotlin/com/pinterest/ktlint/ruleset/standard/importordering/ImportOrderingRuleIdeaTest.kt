@@ -276,4 +276,16 @@ class ImportOrderingRuleIdeaTest {
         assertThat(ImportOrderingRule().lint(formattedImports, userData)).isEmpty()
         assertThat(ImportOrderingRule().format(formattedImports, userData)).isEqualTo(formattedImports)
     }
+
+    @Test
+    fun `formats aliases correctly`() {
+        val formattedImports =
+            """
+            import android.view.ViewGroup.LayoutParams.MATCH_PARENT as MATCH
+            import android.view.ViewGroup.LayoutParams.WRAP_CONTENT as WRAP
+            """.trimIndent()
+
+        assertThat(ImportOrderingRule().lint(formattedImports, userData)).isEmpty()
+        assertThat(ImportOrderingRule().format(formattedImports, userData)).isEqualTo(formattedImports)
+    }
 }
