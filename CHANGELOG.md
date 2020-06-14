@@ -10,6 +10,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 - Imports with aliases no longer removed ([#766](https://github.com/pinterest/ktlint/issues/766))
+- `provideDelegate` imports are not marked as unused anymore ([#669](https://github.com/pinterest/ktlint/issues/669))
 
 ## [0.37.1] - 2020-06-08
 

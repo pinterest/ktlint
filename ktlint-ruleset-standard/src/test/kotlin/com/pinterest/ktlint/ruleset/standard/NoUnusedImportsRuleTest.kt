@@ -305,6 +305,7 @@ class NoUnusedImportsRuleTest {
             NoUnusedImportsRule().lint(
                 """
                 import org.gradle.kotlin.dsl.provideDelegate
+                import com.github.ajalt.clikt.parameters.groups.provideDelegate
 
                 fun main() {
                 }
@@ -312,8 +313,26 @@ class NoUnusedImportsRuleTest {
             )
         ).isEqualTo(
             listOf(
-                LintError(1, 1, "no-unused-imports", "Unused import")
+                LintError(1, 1, "no-unused-imports", "Unused import"),
+                LintError(2, 1, "no-unused-imports", "Unused import")
             )
         )
+    }
+
+    // https://github.com/pinterest/ktlint/issues/669
+    @Test
+    fun `provideDelegate is allowed for any import path`() {
+        assertThat(
+            NoUnusedImportsRule().lint(
+                """
+                import com.github.ajalt.clikt.parameters.groups.provideDelegate
+
+                fun main() {
+                    private val old by argument("OLD", help = "Old input file.")
+                      .path(exists = true, folderOkay = false, readable = true, fileSystem = inputFs)
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
     }
 }
