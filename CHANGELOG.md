@@ -8,6 +8,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Experimental SpacingAroundAngleBracketsRule ([#769](https://github.com/pinterest/ktlint/pull/769))
 - Checksum generation for executable Jar ([#695](https://github.com/pinterest/ktlint/issues/695))
 
+### Changed
+- Update Gradle to 6.5 version
+
 ### Fixed
 - Imports with aliases no longer removed ([#766](https://github.com/pinterest/ktlint/issues/766))
 
