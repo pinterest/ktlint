@@ -1,11 +1,10 @@
 plugins {
-  id 'org.jetbrains.kotlin.jvm' version '1.3.70' apply false
-  id 'com.vanniktech.maven.publish' version '0.8.0' apply false
-  id 'com.github.breadmoirai.github-release' version '2.2.12'
+  id 'org.jetbrains.kotlin.jvm' apply false
+  id 'com.github.breadmoirai.github-release'
 }
 
 ext.versions = [
-  'kotlin': '1.3.70',
+  'kotlin': gradle.ext.isKotlinDev ? '1.4-M2' : '1.3.70',
   'gradle': '6.5'
 ]
 
@@ -22,6 +21,10 @@ ext.deps = [
   'assertj'       : 'org.assertj:assertj-core:3.12.2',
   'jimfs'         : 'com.google.jimfs:jimfs:1.1'
 ]
+
+if (gradle.ext.isKotlinDev) {
+  project.properties.put("VERSION_NAME", "0.38.0-kotlin-dev-SNAPSHOT")
+}
 
 configurations {
   ktlint
@@ -41,6 +44,12 @@ task ktlint(type: JavaExec, group: LifecycleBasePlugin.VERIFICATION_GROUP) {
 allprojects {
   repositories {
     mavenCentral()
+    gradlePluginPortal()
+
+    if (gradle.ext.isKotlinDev) {
+      maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
+      maven { url 'https://kotlin.bintray.com/kotlinx' }
+    }
   }
 
   tasks.withType(JavaCompile) {
