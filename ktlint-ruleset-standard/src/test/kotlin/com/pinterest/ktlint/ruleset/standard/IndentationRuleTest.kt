@@ -427,4 +427,34 @@ internal class IndentationRuleTest {
             """.trimIndent()
         assertThat(IndentationRule().format(code)).isEqualTo(code)
     }
+
+    @Test
+    fun `lint safe-called wrapped trailing lambda is allowed`() {
+        assertThat(
+            IndentationRule().lint(
+                """
+                val foo = bar
+                    ?.filter { number ->
+                        number == 0
+                    }?.map { evenNumber ->
+                        evenNumber * evenNumber
+                    }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `format safe-called wrapped trailing lambda is allowed`() {
+        val code =
+            """
+            val foo = bar
+                ?.filter { number ->
+                    number == 0
+                }?.map { evenNumber ->
+                    evenNumber * evenNumber
+                }
+            """.trimIndent()
+        assertThat(IndentationRule().format(code)).isEqualTo(code)
+    }
 }
