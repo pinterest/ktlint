@@ -222,6 +222,34 @@ class ParameterListWrappingRuleTest {
     }
 
     @Test
+    fun testFormatArgumentsWithNestedCalls() {
+        assertThat(
+            ParameterListWrappingRule().format(
+                """
+                    val x = test(
+                        one("a", "b",
+                        "c"),
+                        "Two", "Three", "Four"
+                    )
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            """
+                val x = test(
+                    one(
+                        "a",
+                        "b",
+                        "c"
+                    ),
+                    "Two",
+                    "Three",
+                    "Four"
+                )
+            """.trimIndent()
+        )
+    }
+
+    @Test
     fun testLintArgumentListWhenMaxLineLengthExceeded() {
         assertThat(
             ParameterListWrappingRule().lint(
