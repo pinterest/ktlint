@@ -8,6 +8,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Experimental SpacingAroundAngleBracketsRule ([#769](https://github.com/pinterest/ktlint/pull/769))
 - Checksum generation for executable Jar ([#695](https://github.com/pinterest/ktlint/issues/695))
 
+
+## [0.37.2] - 2020-06-16
+
+Minor release to fix further bugs in `ImportOrderingRule`.
+
 ### Fixed
 - Imports with aliases no longer removed ([#766](https://github.com/pinterest/ktlint/issues/766))
 
@@ -703,6 +708,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.37.2]: https://github.com/pinterest/ktlint/compare/0.37.1...0.37.2
 [0.37.1]: https://github.com/pinterest/ktlint/compare/0.37.0...0.37.1
 [0.37.0]: https://github.com/pinterest/ktlint/compare/0.36.0...0.37.0
 [0.36.0]: https://github.com/pinterest/ktlint/compare/0.35.0...0.36.0
