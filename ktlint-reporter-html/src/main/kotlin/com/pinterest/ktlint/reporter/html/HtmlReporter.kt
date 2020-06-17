@@ -48,14 +48,14 @@ class HtmlReporter(private val out: PrintStream) : Reporter {
         html {
             head {
                 cssLink("https://fonts.googleapis.com/css?family=Source+Code+Pro")
-                text("<style>\n")
-                text("body {\n")
-                text("    font-family: 'Source Code Pro', monospace;\n")
-                text("}\n")
-                text("h3 {\n")
-                text("    font-size: 12pt;\n")
+                text("<style>${System.lineSeparator()}")
+                text("body {${System.lineSeparator()}")
+                text("    font-family: 'Source Code Pro', monospace;${System.lineSeparator()}")
+                text("}${System.lineSeparator()}")
+                text("h3 {${System.lineSeparator()}")
+                text("    font-size: 12pt;${System.lineSeparator()}")
                 text("}")
-                text("</style>\n")
+                text("</style>${System.lineSeparator()}")
             }
             body {
                 if (!acc.isEmpty()) {
