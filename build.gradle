@@ -6,7 +6,7 @@ plugins {
 
 ext.versions = [
   'kotlin': '1.3.70',
-  'gradle': '5.6.2'
+  'gradle': '6.5'
 ]
 
 ext.deps = [
@@ -40,7 +40,7 @@ task ktlint(type: JavaExec, group: LifecycleBasePlugin.VERIFICATION_GROUP) {
 
 allprojects {
   repositories {
-    gradlePluginPortal()
+    mavenCentral()
   }
 
   tasks.withType(JavaCompile) {
@@ -76,16 +76,35 @@ String getGithubToken() {
   }
 }
 
+// Explicitly adding dependency on "shadowJarExecutable" as Gradle does not it set via "releaseAssets" property
+tasks.named("githubRelease") {
+  dependsOn { project(":ktlint").tasks.named("shadowJarExecutable") }
+}
+
 githubRelease {
   token getGithubToken()
   owner "pinterest"
   repo "ktlint"
+  tagName project.properties['VERSION_NAME']
+  releaseName project.properties['VERSION_NAME']
+  releaseAssets project.files({
+    // "shadowJarExecutableChecksum" task does not declare checksum files
+    // as output, only the whole output directory. As it uses the same directory
+    // as "shadowJarExecutable" - just pass all the files from that directory
+    project(":ktlint").tasks.named("shadowJarExecutable").get()
+      .outputs
+      .files
+      .singleFile
+      .parentFile
+      .listFiles()
+  })
   overwrite true
   dryRun false
   body {
-    def changelog = project.file("CHANGELOG.md").text
+    String changelog = project.file("CHANGELOG.md").text
     changelog = changelog.substring(changelog.indexOf("## "))
-    changelog.substring(0, changelog.indexOf("## ["))
+    // 1 in indexOf here to skip first "## [" occurence
+    changelog.substring(0, changelog.indexOf("## [", 1))
   }
 }
 

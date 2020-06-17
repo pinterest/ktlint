@@ -44,10 +44,10 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
         "getValue", "setValue"
     )
 
-    private val conditionalWhitelist = mapOf<String, (node: ASTNode) -> Boolean>(
+    private val conditionalWhitelist = mapOf<(String) -> Boolean, (node: ASTNode) -> Boolean>(
         Pair(
             // Ignore provideDelegate if there is a `by` anywhere in the file
-            "org.gradle.kotlin.dsl.provideDelegate",
+            { importPath -> importPath.endsWith("provideDelegate") },
             { rootNode ->
                 var hasByKeyword = false
                 rootNode.visit { child ->
@@ -102,7 +102,9 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
                     importDirective.delete()
                 }
             } else if (name != null && !ref.contains(name) && !operatorSet.contains(name) && !name.isComponentN() &&
-                conditionalWhitelist[importPath]?.invoke(rootNode!!) != true
+                conditionalWhitelist
+                    .filterKeys { selector -> selector(importPath) }
+                    .none { (_, condition) -> condition(rootNode!!) }
             ) {
                 emit(node.startOffset, "Unused import", true)
                 if (autoCorrect) {

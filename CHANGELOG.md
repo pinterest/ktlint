@@ -7,10 +7,22 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - Experimental SpacingAroundAngleBracketsRule ([#769](https://github.com/pinterest/ktlint/pull/769))
 - Checksum generation for executable Jar ([#695](https://github.com/pinterest/ktlint/issues/695))
+- Enable Gradle dependency verification
+
+### Fixed
+- Safe-called wrapped trailing lambdas indented correctly ([#776](https://github.com/pinterest/ktlint/issues/776))
+- `provideDelegate` imports are not marked as unused anymore ([#669](https://github.com/pinterest/ktlint/issues/669))
+
+### Changed
+- Update Gradle to 6.5 version
+
+
+## [0.37.2] - 2020-06-16
+
+Minor release to fix further bugs in `ImportOrderingRule`.
 
 ### Fixed
 - Imports with aliases no longer removed ([#766](https://github.com/pinterest/ktlint/issues/766))
-- Safe-called wrapped trailing lambdas indented correctly ([#776](https://github.com/pinterest/ktlint/issues/776))
 
 ## [0.37.1] - 2020-06-08
 
@@ -704,6 +716,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.37.2]: https://github.com/pinterest/ktlint/compare/0.37.1...0.37.2
 [0.37.1]: https://github.com/pinterest/ktlint/compare/0.37.0...0.37.1
 [0.37.0]: https://github.com/pinterest/ktlint/compare/0.36.0...0.37.0
 [0.36.0]: https://github.com/pinterest/ktlint/compare/0.35.0...0.36.0

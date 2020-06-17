@@ -1,3 +1,5 @@
+import org.gradle.crypto.checksum.Checksum
+
 plugins {
   id 'org.jetbrains.kotlin.jvm'
   id 'com.vanniktech.maven.publish'
@@ -40,7 +42,7 @@ dependencies {
 
 // Implements https://github.com/brianm/really-executable-jars-maven-plugin maven plugin behaviour.
 // To check details how it works, see http://skife.org/java/unix/2011/06/20/really_executable_jars.html.
-tasks.register("shadowJarExecutable", DefaultTask.class) {
+def shadowJarExecutableTask = tasks.register("shadowJarExecutable", DefaultTask.class) {
   description = "Creates self-executable file, that runs generated shadow jar"
   group = "Distribution"
 
@@ -58,15 +60,13 @@ tasks.register("shadowJarExecutable", DefaultTask.class) {
   finalizedBy tasks.named("shadowJarExecutableChecksum")
 }
 
-import org.gradle.crypto.checksum.Checksum
-
 tasks.register("shadowJarExecutableChecksum", Checksum.class) {
   description = "Generates MD5 checksum for ktlint executable"
   group = "Distribution"
 
-  def dir = new File(buildDir, "run")
-  files = files { dir.listFiles() }
-  outputDir = dir // put the checksums in the same folder with the executable itself
+  files = shadowJarExecutableTask.get().outputs.files
+  // put the checksums in the same folder with the executable itself
+  outputDir = shadowJarExecutableTask.get().outputs.files.singleFile.parentFile
 
   algorithm = Checksum.Algorithm.MD5
 }
