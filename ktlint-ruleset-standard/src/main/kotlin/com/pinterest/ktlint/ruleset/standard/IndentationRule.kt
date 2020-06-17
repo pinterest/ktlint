@@ -627,7 +627,9 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
     }
 
     private fun adjustExpectedIndentInsideQualifiedExpression(n: ASTNode, ctx: IndentContext) {
-        val p = n.parent({ it.treeParent.elementType != DOT_QUALIFIED_EXPRESSION }) ?: return
+        val p = n.parent({
+            it.treeParent.elementType != DOT_QUALIFIED_EXPRESSION && it.treeParent.elementType != SAFE_ACCESS_EXPRESSION
+        }) ?: return
         val nextSibling = n.treeNext
         if (!ctx.ignored.contains(p) && nextSibling != null) {
             expectedIndent++
