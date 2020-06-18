@@ -11,6 +11,7 @@ import com.pinterest.ktlint.core.ast.isPartOfComment
 import com.pinterest.ktlint.core.ast.isWhiteSpace
 import com.pinterest.ktlint.core.ast.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.core.ast.lineNumber
+import com.pinterest.ktlint.core.ast.nextLeaf
 import com.pinterest.ktlint.core.ast.nextSibling
 import com.pinterest.ktlint.core.ast.prevSibling
 import com.pinterest.ktlint.core.ast.upsertWhitespaceBeforeMe
@@ -171,6 +172,15 @@ class AnnotationRule : Rule("annotation") {
                     removeExtraLineBreaks(node)
                 }
             }
+        } else if (whiteSpaces.isNotEmpty() && !node.text.contains("@file")) {
+            // Check to make sure there are multi breaks between annotations
+            if (whiteSpaces.any { psi -> psi.textToCharArray().filter { it == '\n' }.count() > 1 }) {
+                val psi = node.psi
+                emit(psi.endOffset - 1, fileAnnotationsLineBreaks, true)
+                if (autoCorrect) {
+                    removeIntraLineBreaks(node, annotations.last())
+                }
+            }
         }
     }
 
@@ -213,17 +223,43 @@ class AnnotationRule : Rule("annotation") {
         val next = node.nextSibling {
             it.isWhiteSpaceWithNewline()
         } as? LeafPsiElement
-        // Replace the extra white space with a single break
-        val text = next?.text
-        val firstIndex = (text?.indexOf("\n") ?: 0) + 1
-        val replacementText = text?.substring(0, firstIndex) +
-            text?.substringAfter("\n")?.replace("\n", "")
+        if (next != null) {
+            rawReplaceExtraLineBreaks(next)
+        }
+    }
 
-        next?.rawReplaceWithText(replacementText)
+    private fun rawReplaceExtraLineBreaks(leaf: LeafPsiElement) {
+        // Replace the extra white space with a single break
+        val text = leaf.text
+        val firstIndex = (text.indexOf("\n") ?: 0) + 1
+        val replacementText = text.substring(0, firstIndex) +
+            text.substringAfter("\n").replace("\n", "")
+
+        leaf.rawReplaceWithText(replacementText)
     }
 
     private fun doesNotEndWithAComment(whiteSpaces: List<PsiWhiteSpace>): Boolean {
         val lastNode = whiteSpaces.lastOrNull()?.nextLeaf()
         return lastNode !is PsiComment || lastNode.nextLeaf()?.textContains('\n') == false
+    }
+
+    private fun removeIntraLineBreaks(
+        node: ASTNode,
+        last: KtAnnotationEntry
+    ) {
+        val txt = node.text
+        val lastTxt = last.text
+        // Pull the next before raw replace or it will blow up
+        val lNext = node.nextLeaf()
+        if (node is PsiWhiteSpaceImpl){
+            if (txt.toCharArray().count { it == '\n' } > 1 ) {
+                rawReplaceExtraLineBreaks(node)
+            }
+        }
+
+        val lTxt = lNext?.text
+        if (lNext != null && !last.text.endsWith(lNext.text)) {
+            removeIntraLineBreaks(lNext, last)
+        }
     }
 }
