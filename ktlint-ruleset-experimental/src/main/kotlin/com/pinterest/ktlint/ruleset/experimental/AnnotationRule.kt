@@ -172,7 +172,8 @@ class AnnotationRule : Rule("annotation") {
                     removeExtraLineBreaks(node)
                 }
             }
-        } else if (whiteSpaces.isNotEmpty() && !node.text.contains("@file")) {
+        }
+        if (whiteSpaces.isNotEmpty() && annotations.size > 1 && !node.text.contains("@file")) {
             // Check to make sure there are multi breaks between annotations
             if (whiteSpaces.any { psi -> psi.textToCharArray().filter { it == '\n' }.count() > 1 }) {
                 val psi = node.psi
