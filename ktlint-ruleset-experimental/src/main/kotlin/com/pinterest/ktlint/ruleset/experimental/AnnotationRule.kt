@@ -252,8 +252,8 @@ class AnnotationRule : Rule("annotation") {
         val lastTxt = last.text
         // Pull the next before raw replace or it will blow up
         val lNext = node.nextLeaf()
-        if (node is PsiWhiteSpaceImpl){
-            if (txt.toCharArray().count { it == '\n' } > 1 ) {
+        if (node is PsiWhiteSpaceImpl) {
+            if (txt.toCharArray().count { it == '\n' } > 1) {
                 rawReplaceExtraLineBreaks(node)
             }
         }
