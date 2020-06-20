@@ -15,6 +15,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 - Update Gradle to 6.5 version
+- Update ec4j to 0.2.2 version. Now it should report path to `.editorconfig` file on failed parsing 
+and allow empty `.editorconfig` files.
 
 
 ## [0.37.2] - 2020-06-16
