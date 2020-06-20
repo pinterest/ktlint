@@ -18,6 +18,10 @@ val o = object : TypeReference<HashMap<String, String>>() {}
 
 fun main() {}
 
+class C3 {
+    companion object {}
+}
+
 // expect
 // 1:10:Unnecessary block ("{}")
 // 2:28:Unnecessary block ("{}")

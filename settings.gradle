@@ -1,8 +1,19 @@
-include ":ktlint-core"
-include ':ktlint-test'
-include ':ktlint-ruleset-standard'
-include ':ktlint-ruleset-experimental'
-include ':ktlint-reporter-plain'
-include ':ktlint-reporter-json'
+pluginManagement {
+  repositories {
+    mavenCentral()
+    gradlePluginPortal()
+  }
+}
+
+rootProject.name = 'ktlint'
+
+include ':ktlint'
+include ':ktlint-core'
 include ':ktlint-reporter-checkstyle'
-include ":ktlint"
+include ':ktlint-reporter-json'
+include ':ktlint-reporter-html'
+include ':ktlint-reporter-plain'
+include ':ktlint-ruleset-experimental'
+include ':ktlint-ruleset-standard'
+include ':ktlint-ruleset-template'
+include ':ktlint-test'

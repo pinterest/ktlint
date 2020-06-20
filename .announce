@@ -6,8 +6,17 @@ if [ "$GITHUB_TOKEN" == "" ]; then exit 1; fi
 # project.version
 if [ "$VERSION" == "" ]; then exit 1; fi
 
-PREVIOUS_VERSION=$(cat CHANGELOG.md | grep -oP "## \[\d+[.]\d+[.]\d+\]" | awk '{gsub(/\[|\]/,"",$2); print $2}' | awk 'NR == 2')
-if [ "$VERSION" == "$PREVIOUS_VERSION" ]; then exit 1; fi
+if [ "$1" = "-y" ]; then
+  AUTOACCEPT=true
+else
+  AUTOACCEPT=false
+fi
+
+PREVIOUS_VERSION=$(cat CHANGELOG.md | grep -E "## \[\d+[.]\d+[.]\d+\]" | awk '{gsub(/\[|\]/,"",$2); print $2}' | awk 'NR == 2')
+if [ "$VERSION" == "$PREVIOUS_VERSION" ]; then
+  echo "VERSION $VERSION equal to PREVIOUS_VERSION $PREVIOUS_VERSION"
+  exit 1
+fi
 
 echo "Announcing $PREVIOUS_VERSION -> $VERSION"
 
@@ -22,11 +31,13 @@ escape_for_sed() { echo $1 | sed -e 's/[]\/$*.^|[]/\\&/g'; }
 
 # update readme.md
 
-sed -i "s/$(escape_for_sed $PREVIOUS_VERSION)/$(escape_for_sed $VERSION)/g" README.md
+sed -i "" "s/$(escape_for_sed $PREVIOUS_VERSION)/$(escape_for_sed $VERSION)/g" README.md
 git --no-pager diff README.md
 
 # ask for user confirmation
-read -p "commit & push (y/n)? " -n 1 -r; echo; if [[ ! $REPLY =~ ^[Yy]$ ]]; then exit 1; fi
+if [[ "$AUTOACCEPT" = false ]]; then
+  read -p "commit & push (y/n)? " -n 1 -r; echo; if [[ ! $REPLY =~ ^[Yy]$ ]]; then exit 1; fi
+fi
 
 git commit -m "$COMMIT_MESSAGE" README.md && git push origin master
 
@@ -35,10 +46,12 @@ git commit -m "$COMMIT_MESSAGE" README.md && git push origin master
 CHECKOUT_DIR=$(mktemp -d /tmp/ktlint.github.io.XXXXXX)
 git clone https://${GITHUB_TOKEN}@github.com/ktlint/ktlint.github.io.git $CHECKOUT_DIR
 
-sed -i "s/$(escape_for_sed $PREVIOUS_VERSION)/$(escape_for_sed $VERSION)/g" $CHECKOUT_DIR/index.html
+sed -i "" "s/$(escape_for_sed $PREVIOUS_VERSION)/$(escape_for_sed $VERSION)/g" $CHECKOUT_DIR/index.html
 (cd $CHECKOUT_DIR && git --no-pager diff index.html)
 
 # ask for user confirmation
-read -p "commit & push (y/n)? " -n 1 -r; echo; if [[ ! $REPLY =~ ^[Yy]$ ]]; then exit 1; fi
+if [[ "$AUTOACCEPT" = false ]]; then
+  read -p "commit & push (y/n)? " -n 1 -r; echo; if [[ ! $REPLY =~ ^[Yy]$ ]]; then exit 1; fi
+fi
 
 (cd $CHECKOUT_DIR && git commit -m "$COMMIT_MESSAGE" index.html && git push origin master)

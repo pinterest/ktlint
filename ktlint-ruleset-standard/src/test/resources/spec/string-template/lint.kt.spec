@@ -15,10 +15,39 @@ fun main() {
 
     println("${h["x-forwarded-proto"] ?: "http"}")
     println("${if (diff > 0) "expanded" else if (diff < 0) "shrank" else "changed"}")
+
+    @Suppress("RemoveCurlyBracesFromTemplate")
+    println("${s0}")
+    @Suppress("RemoveCurlyBracesFromTemplate", "Unused")
+    println("${s0}")
+    @Suppress("RemoveCurlyBracesFromTemplate")
+    val t = "${s0}"
 }
 
 class B(val k: String) {
     override fun toString(): String = "${super.toString()}, ${super.hashCode().toString()}, k=$k"
+
+    @Suppress("RemoveCurlyBracesFromTemplate")
+    val a
+        get() = "${s0}"
+}
+
+@Suppress("RemoveCurlyBracesFromTemplate")
+class C {
+    override fun toString(): String = "${s0}"
+}
+
+// Ensure that suppression scope is as wide as it should be
+class D {
+    @Suppress("RemoveCurlyBracesFromTemplate")
+    override fun toString(): String = "${s0}"
+
+    fun test() = "${s0}"
+}
+
+@SuppressWarnings("RemoveCurlyBracesFromTemplate")
+class E {
+    override fun toString(): String = "${s0}"
 }
 
 // expect
@@ -26,4 +55,5 @@ class B(val k: String) {
 // 3:28:Redundant "toString()" call in string template
 // 6:15:Redundant curly braces
 // 7:15:Redundant curly braces
-// 21:79:Redundant "toString()" call in string template
+// 28:79:Redundant "toString()" call in string template
+// 45:20:Redundant curly braces

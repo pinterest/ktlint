@@ -1,50 +1,72 @@
+import org.gradle.crypto.checksum.Checksum
+
 plugins {
-  id "org.jetbrains.kotlin.jvm"
-  id "application"
-  // applied after mainClassName per https://github.com/johnrengelman/shadow/issues/336
-  id "com.github.johnrengelman.shadow" version "4.0.2" apply false
+  id 'org.jetbrains.kotlin.jvm'
+  id 'com.vanniktech.maven.publish'
+  id 'com.github.johnrengelman.shadow' version '5.0.0'
+  id 'org.gradle.crypto.checksum' version '1.1.0'
 }
 
-apply plugin: 'com.github.johnrengelman.shadow'
+jar {
+  manifest {
+    attributes 'Main-Class': 'com.pinterest.ktlint.Main'
+    attributes 'Implementation-Version': project.property('VERSION_NAME')
+  }
+}
 
 shadowJar {
-  mainClassName = 'com.github.shyiko.ktlint.Main'
-  mergeServiceFiles {
-    include 'META-INF/services/com.github.shyiko.ktlint.core.*'
-  }
+  mergeServiceFiles()
+}
+
+artifacts {
+  archives shadowJar
 }
 
 dependencies {
-  compile project(":ktlint-core")
-  compile project(":ktlint-reporter-checkstyle")
-  compile project(":ktlint-reporter-json")
-  compile project(":ktlint-reporter-plain")
-  compile project(":ktlint-ruleset-experimental")
-  compile project(":ktlint-ruleset-standard")
-  compile project(":ktlint-test")
-  compile libraries.kotlin_stdlib
-  compile libraries.klob
-  compile libraries.aether_api
-  compile libraries.aether_spi
-  compile libraries.aether_util
-  compile libraries.aether_impl
-  compile libraries.aether_connector_basic
-  compile libraries.aether_transport_file
-  compile libraries.aether_transport_http
-  compile libraries.slf4j_nop
-  compile libraries.maven_aether_provider
-  compile libraries.picocli
+  implementation project(':ktlint-core')
+  implementation project(':ktlint-reporter-checkstyle')
+  implementation project(':ktlint-reporter-json')
+  implementation project(':ktlint-reporter-html')
+  implementation project(':ktlint-reporter-plain')
+  implementation project(':ktlint-ruleset-experimental')
+  implementation project(':ktlint-ruleset-standard')
+  implementation project(':ktlint-test')
+  implementation deps.kotlin.stdlib
+  implementation deps.kotlin.compiler
+  implementation deps.klob
+  implementation deps.picocli
 
-  testCompile libraries.testng
-  testCompile libraries.assertj_core
-  testCompile libraries.jimfs
+  testImplementation deps.junit
+  testImplementation deps.assertj
 }
 
-compileKotlin {
-  sourceCompatibility = JavaVersion.VERSION_1_8
-  targetCompatibility = JavaVersion.VERSION_1_8
+// Implements https://github.com/brianm/really-executable-jars-maven-plugin maven plugin behaviour.
+// To check details how it works, see http://skife.org/java/unix/2011/06/20/really_executable_jars.html.
+def shadowJarExecutableTask = tasks.register("shadowJarExecutable", DefaultTask.class) {
+  description = "Creates self-executable file, that runs generated shadow jar"
+  group = "Distribution"
 
-  kotlinOptions {
-    jvmTarget = "1.8"
+  inputs.files tasks.named("shadowJar")
+  outputs.file "$buildDir/run/ktlint"
+
+  doLast {
+    File execFile = outputs.files.singleFile
+    execFile.withOutputStream {
+      it.write "#!/bin/sh\n\nexec java -Xmx512m -jar \"\$0\" \"\$@\"\n\n".bytes
+      it.write inputs.files.singleFile.bytes
+    }
+    execFile.setExecutable(true, false)
   }
+  finalizedBy tasks.named("shadowJarExecutableChecksum")
+}
+
+tasks.register("shadowJarExecutableChecksum", Checksum.class) {
+  description = "Generates MD5 checksum for ktlint executable"
+  group = "Distribution"
+
+  files = shadowJarExecutableTask.get().outputs.files
+  // put the checksums in the same folder with the executable itself
+  outputDir = shadowJarExecutableTask.get().outputs.files.singleFile.parentFile
+
+  algorithm = Checksum.Algorithm.MD5
 }

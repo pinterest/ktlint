@@ -1,9 +1,12 @@
 plugins {
-  id "org.jetbrains.kotlin.jvm"
+  id 'org.jetbrains.kotlin.jvm'
+  id 'com.vanniktech.maven.publish'
 }
 
 dependencies {
-  compile project(':ktlint-core')
-  compile libraries.kotlin_stdlib
-  compile libraries.assertj_core
+  implementation project(':ktlint-core')
+  implementation deps.kotlin.stdlib
+
+  implementation deps.assertj
+  implementation deps.junit
 }

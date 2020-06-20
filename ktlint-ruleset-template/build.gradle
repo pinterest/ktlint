@@ -1,87 +1,72 @@
-buildscript {
-    ext.kotlin_version = '1.3.21'
-    repositories {
-        mavenCentral()
-        maven { url 'https://repo.spring.io/plugins-release' }
-    }
-    dependencies {
-        classpath 'org.springframework.build.gradle:propdeps-plugin:0.0.7'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'org.junit.platform:junit-platform-gradle-plugin:1.0.0'
-    }
+plugins {
+  id 'org.jetbrains.kotlin.jvm'
+  id 'java-library'
+  id 'maven'
 }
-
-apply plugin: 'java'
-apply plugin: 'maven'
-apply plugin: 'propdeps'
-apply plugin: 'propdeps-maven'
-apply plugin: 'kotlin'
-apply plugin: 'org.junit.platform.gradle.plugin'
 
 group = 'com.github.username'
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
-
-repositories {
-    jcenter()
-}
-
 task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
+  classifier = 'sources'
+  from sourceSets.main.allSource
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
+  classifier = 'javadoc'
+  from javadoc.destinationDir
 }
 
 artifacts {
-    archives sourcesJar
-    archives javadocJar
+  archives sourcesJar
+  archives javadocJar
 }
 
 configurations {
-    ktlint
+  ktlint
 }
 
 dependencies {
-    compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+  compileOnly project(':ktlint-core')
+  compileOnly deps.kotlin.stdlib
 
-    provided 'com.github.shyiko.ktlint:ktlint-core:0.31.0'
+  testImplementation project(':ktlint-core')
+  testImplementation project(':ktlint-test')
+  testImplementation deps.kotlin.stdlib
+  testImplementation deps.assertj
+  testImplementation('org.jetbrains.spek:spek-junit-platform-engine:1.1.5') {
+    exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib'
+    exclude group: 'org.jetbrains.kotlin', module: 'kotlin-reflect'
+  }
+  testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
+  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.1.0'
 
-    testCompile 'org.assertj:assertj-core:3.5.2'
-    testCompile 'com.github.shyiko.ktlint:ktlint-test:0.31.0'
-    testCompile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
-    testCompile('org.jetbrains.spek:spek-junit-platform-engine:1.1.5') {
-        exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib'
-        exclude group: 'org.jetbrains.kotlin', module: 'kotlin-reflect'
-    }
+  ktlint project(':ktlint')
+}
 
-    ktlint 'com.github.shyiko:ktlint:0.31.0'
+test {
+  useJUnitPlatform()
 }
 
 task ktlint(type: JavaExec, dependsOn: classes) {
-    main = 'com.github.shyiko.ktlint.Main'
-    // adding compiled classes to the classpath so that ktlint would validate project's sources
-    // using its own ruleset (in other words to dogfood)
-    classpath = configurations.ktlint + sourceSets.main.output
-    args '--debug', 'src/**/*.kt'
+  main = 'com.pinterest.ktlint.Main'
+  // adding compiled classes to the classpath so that ktlint would validate project's sources
+  // using its own ruleset (in other words to dogfood)
+  classpath = configurations.ktlint + sourceSets.main.output
+  args '--debug', 'src/**/*.kt'
 }
 
 check.dependsOn ktlint
 
 install {
-    repositories.mavenInstaller {
-        pom.project {
-            licenses {
-                license {
-                    name 'The Apache Software License, Version 2.0'
-                    url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    distribution 'repo'
-                }
-            }
+  repositories.mavenInstaller {
+    pom.project {
+      licenses {
+        license {
+          name 'The Apache Software License, Version 2.0'
+          url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+          distribution 'repo'
         }
+      }
     }
+  }
 }
