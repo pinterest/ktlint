@@ -113,7 +113,7 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
                                 }
                             }
                             if (paramInnerIndentAdjustment != 0 &&
-                                child.elementType == VALUE_PARAMETER
+                                isParameterOrArgument
                             ) {
                                 child.visit { n ->
                                     if (n.elementType == WHITE_SPACE && n.textContains('\n')) {
