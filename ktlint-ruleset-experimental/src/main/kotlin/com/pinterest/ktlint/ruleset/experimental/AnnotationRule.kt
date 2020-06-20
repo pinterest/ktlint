@@ -165,7 +165,7 @@ class AnnotationRule : Rule("annotation") {
             val diff = nextLineNumber - lineNumber
             // Ensure declaration is not on the same line, there is a line break in between, and it is not an
             // annotation we explicitly want to have a line break between
-            if (lineNumber != nextLineNumber && diff > 1 && !node.text.contains("@file")) {
+            if (diff > 1 && node.elementType != FILE_ANNOTATION_LIST) {
                 val psi = node.psi
                 emit(psi.endOffset - 1, fileAnnotationsLineBreaks, true)
                 if (autoCorrect) {
@@ -173,7 +173,7 @@ class AnnotationRule : Rule("annotation") {
                 }
             }
         }
-        if (whiteSpaces.isNotEmpty() && annotations.size > 1 && !node.text.contains("@file")) {
+        if (whiteSpaces.isNotEmpty() && annotations.size > 1 && node.elementType != FILE_ANNOTATION_LIST) {
             // Check to make sure there are multi breaks between annotations
             if (whiteSpaces.any { psi -> psi.textToCharArray().filter { it == '\n' }.count() > 1 }) {
                 val psi = node.psi
@@ -232,7 +232,7 @@ class AnnotationRule : Rule("annotation") {
     private fun rawReplaceExtraLineBreaks(leaf: LeafPsiElement) {
         // Replace the extra white space with a single break
         val text = leaf.text
-        val firstIndex = (text.indexOf("\n") ?: 0) + 1
+        val firstIndex = text.indexOf("\n") + 1
         val replacementText = text.substring(0, firstIndex) +
             text.substringAfter("\n").replace("\n", "")
 
@@ -249,7 +249,6 @@ class AnnotationRule : Rule("annotation") {
         last: KtAnnotationEntry
     ) {
         val txt = node.text
-        val lastTxt = last.text
         // Pull the next before raw replace or it will blow up
         val lNext = node.nextLeaf()
         if (node is PsiWhiteSpaceImpl) {
@@ -258,7 +257,6 @@ class AnnotationRule : Rule("annotation") {
             }
         }
 
-        val lTxt = lNext?.text
         if (lNext != null && !last.text.endsWith(lNext.text)) {
             removeIntraLineBreaks(lNext, last)
         }
