@@ -2,6 +2,7 @@ package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.ast.ElementType.COLLECTION_LITERAL_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.FUNCTION_LITERAL
 import com.pinterest.ktlint.core.ast.ElementType.LPAR
 import com.pinterest.ktlint.core.ast.ElementType.RPAR
@@ -117,13 +118,25 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
                             ) {
                                 child.visit { n ->
                                     if (n.elementType == WHITE_SPACE && n.textContains('\n')) {
+                                        val isInCollectionLiteral = n.treeParent?.elementType == COLLECTION_LITERAL_EXPRESSION
+
+                                        // If we're inside a collection literal, let's recalculate the adjustment
+                                        // because the items inside the collection should not be subject to the same
+                                        // indentation as the brackets.
+                                        val adjustment = if (isInCollectionLiteral) {
+                                            val expectedPosition = intendedIndent.length + indentSize
+                                            expectedPosition - child.column
+                                        } else {
+                                            paramInnerIndentAdjustment
+                                        }
+
                                         val split = n.text.split("\n")
                                         (n as LeafElement).rawReplaceWithText(
                                             split.joinToString("\n") {
-                                                if (paramInnerIndentAdjustment > 0) {
-                                                    it + " ".repeat(paramInnerIndentAdjustment)
+                                                if (adjustment > 0) {
+                                                    it + " ".repeat(adjustment)
                                                 } else {
-                                                    it.substring(0, Math.max(it.length + paramInnerIndentAdjustment, 0))
+                                                    it.substring(0, Math.max(it.length + adjustment, 0))
                                                 }
                                             }
                                         )

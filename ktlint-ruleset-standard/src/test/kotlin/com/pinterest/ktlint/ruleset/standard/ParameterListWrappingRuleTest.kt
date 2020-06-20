@@ -412,6 +412,49 @@ class ParameterListWrappingRuleTest {
     }
 
     @Test
+    fun testFormatPreservesIndentWithAnnotationsOnMultiLine() {
+        assertThat(
+            ParameterListWrappingRule().format(
+                """
+            class A {
+                fun f(@Annotation
+                      a: Any,
+                    @Annotation([
+                        "v1", 
+                        "v2"
+                    ])
+                    b: Any,
+                    c: Any =
+                        false,
+                    @Annotation d: Any) {
+                }
+            }
+            """.trimIndent()
+            )
+        ).isEqualTo(
+            """
+            class A {
+                fun f(
+                    @Annotation
+                    a: Any,
+                    @Annotation(
+                        [
+                            "v1",
+                            "v2"
+                        ]
+                    )
+                    b: Any,
+                    c: Any =
+                        false,
+                    @Annotation d: Any
+                ) {
+                }
+            }
+            """.trimIndent()
+        )
+    }
+
+    @Test
     fun testFormatCorrectsRPARIndentIfNeeded() {
         assertThat(
             ParameterListWrappingRule().format(
