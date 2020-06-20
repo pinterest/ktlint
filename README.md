@@ -318,8 +318,8 @@ val ktlintFormat by tasks.creating(JavaExec::class) {
     args = listOf("-F", "src/**/*.kt")
 }
 
-tasks{
-    preBuild{
+tasks {
+    preBuild {
         dependsOn(ktlintFormat)
     }
 }
