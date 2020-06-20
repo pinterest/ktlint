@@ -377,17 +377,14 @@ class ParameterListWrappingRuleTest {
     }
 
     @Test
-    fun testFormatPreservesIndentWithAnnotations() {
+    fun testFormatPreservesIndentWithAnnotationsOnSingleLine() {
         assertThat(
             ParameterListWrappingRule().format(
                 """
                 class A {
                     fun f(@Annotation
                           a: Any,
-                          @Annotation([
-                              "v1",
-                              "v2"
-                          ])
+                          @Annotation(["v1", "v2"])
                           b: Any,
                           c: Any =
                               false,
@@ -402,12 +399,7 @@ class ParameterListWrappingRuleTest {
                 fun f(
                     @Annotation
                     a: Any,
-                    @Annotation(
-                        [
-                        "v1",
-                        "v2"
-                    ]
-                    )
+                    @Annotation(["v1", "v2"])
                     b: Any,
                     c: Any =
                         false,
