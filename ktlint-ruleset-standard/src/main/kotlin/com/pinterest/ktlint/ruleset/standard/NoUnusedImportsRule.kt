@@ -2,6 +2,7 @@ package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.BY_KEYWORD
+import com.pinterest.ktlint.core.ast.ElementType.DOT_QUALIFIED_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.IMPORT_DIRECTIVE
 import com.pinterest.ktlint.core.ast.ElementType.OPERATION_REFERENCE
 import com.pinterest.ktlint.core.ast.ElementType.PACKAGE_DIRECTIVE
@@ -10,6 +11,7 @@ import com.pinterest.ktlint.core.ast.isPartOf
 import com.pinterest.ktlint.core.ast.isRoot
 import com.pinterest.ktlint.core.ast.visit
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
+import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
 import org.jetbrains.kotlin.kdoc.lexer.KDocTokens
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocLink
 import org.jetbrains.kotlin.psi.KtImportDirective
@@ -62,6 +64,7 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
     )
 
     private val ref = mutableSetOf<String>()
+    private val imports = mutableSetOf<String>()
     private var packageName = ""
     private var rootNode: ASTNode? = null
 
@@ -74,16 +77,25 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
             rootNode = node
             ref.clear() // rule can potentially be executed more than once (when formatting)
             ref.add("*")
+            imports.clear()
+            var parentExpression: String? = null
             node.visit { vnode ->
                 val psi = vnode.psi
                 val type = vnode.elementType
+                val text = vnode.text
+                val parentImport = checkIfExpressionHasParentImport(text, type)
+                parentExpression = if (parentImport) text.substringBeforeLast("(") else parentExpression
                 if (type == KDocTokens.MARKDOWN_LINK && psi is KDocLink) {
                     val linkText = psi.getLinkText().replace("`", "")
                     ref.add(linkText.split('.').first())
                 } else if ((type == REFERENCE_EXPRESSION || type == OPERATION_REFERENCE) &&
                     !vnode.isPartOf(IMPORT_DIRECTIVE)
                 ) {
-                    ref.add(vnode.text.trim('`'))
+                    ref.add(text.trim('`'))
+                    // If redundant import is present, it is filtered from the import list
+                    parentExpression?.let { imports.removeIf { imp -> imp.endsWith(it) } }
+                } else if (type == IMPORT_DIRECTIVE) {
+                    buildNonRedundantImports(vnode.psi as KtImportDirective)
                 }
             }
         } else if (node.elementType == PACKAGE_DIRECTIVE) {
@@ -101,7 +113,9 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
                 if (autoCorrect) {
                     importDirective.delete()
                 }
-            } else if (name != null && !ref.contains(name) && !operatorSet.contains(name) && !name.isComponentN() &&
+            } else if (name != null && (!ref.contains(name) || !isAValidImport(importPath)) &&
+                !operatorSet.contains(name) &&
+                !name.isComponentN() &&
                 conditionalWhitelist
                     .filterKeys { selector -> selector(importPath) }
                     .none { (_, condition) -> condition(rootNode!!) }
@@ -112,6 +126,44 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
                 }
             }
         }
+    }
+
+    // Builds a list of imports. Takes care of having aliases in case it is assigned to imports
+    private fun buildNonRedundantImports(import: KtImportDirective) {
+        if (import.alias != null) {
+            imports += import.importPath!!.pathStr.replace("`", "").trim()
+            imports += import.aliasName!!.trim()
+        } else {
+            imports += import.importPath!!.pathStr.trim()
+        }
+    }
+
+    // Checks if any static method call is present in code with the parent import present in imports list
+    private fun checkIfExpressionHasParentImport(text: String, type: IElementType): Boolean {
+        val containsMethodCall = text.split(".").last().contains("(")
+        return type == DOT_QUALIFIED_EXPRESSION && containsMethodCall && checkIfParentImportExists(text.substringBeforeLast("("))
+    }
+
+    // Contains list of all imports and checks if given import is present
+    private fun checkIfParentImportExists(text: String): Boolean {
+        val staticImports = imports.filter { it.endsWith(text) }
+        staticImports.forEach { import ->
+            var count = 0
+            imports.forEach {
+                val startsWith = it.startsWith(import.substringBefore(text))
+                if (startsWith) count += 1
+            }
+            // Parent import and static import both are present
+            if (count > 1) {
+                return true
+            }
+        }
+        return false
+    }
+
+    // Check if the import being checked is present in the filtered import list
+    private fun isAValidImport(importPath: String): Boolean {
+        return imports.contains(importPath)
     }
 
     private fun String.isComponentN() = componentNRegex.matches(this)
