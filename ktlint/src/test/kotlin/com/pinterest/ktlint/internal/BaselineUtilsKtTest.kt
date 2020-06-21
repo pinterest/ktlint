@@ -25,12 +25,14 @@ class BaselineUtilsKtTest {
             detail = ""
         )
 
-        val baseline: InputStream = ByteArrayInputStream("""
-            <file name="$filename">
-            		<error line="${errorOne.line}" column="${errorOne.col}" source="${errorOne.ruleId}" />
-                    <error line="${errorTwo.line}" column="${errorTwo.col}" source="${errorTwo.ruleId}" />
-            	</file>
-        """.toByteArray())
+        val baseline: InputStream = ByteArrayInputStream(
+            """
+                <file name="$filename">
+                        <error line="${errorOne.line}" column="${errorOne.col}" source="${errorOne.ruleId}" />
+                        <error line="${errorTwo.line}" column="${errorTwo.col}" source="${errorTwo.ruleId}" />
+                    </file>
+            """.toByteArray()
+        )
 
         val baselineFiles = parseBaseline(baseline)
 
