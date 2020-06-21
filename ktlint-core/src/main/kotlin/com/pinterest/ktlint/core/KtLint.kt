@@ -1,14 +1,12 @@
 package com.pinterest.ktlint.core
 
 import com.pinterest.ktlint.core.ast.prevLeaf
-import com.pinterest.ktlint.core.internal.EditorConfigInternal
-import java.io.File
+import com.pinterest.ktlint.core.internal.EditorConfigLoader
+import java.nio.file.FileSystems
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.ArrayList
 import java.util.HashSet
-import java.util.concurrent.ConcurrentHashMap
-import org.jetbrains.kotlin.backend.common.onlyIf
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
@@ -19,7 +17,7 @@ import org.jetbrains.kotlin.com.intellij.openapi.Disposable
 import org.jetbrains.kotlin.com.intellij.openapi.diagnostic.DefaultLogger
 import org.jetbrains.kotlin.com.intellij.openapi.diagnostic.Logger as DiagnosticLogger
 import org.jetbrains.kotlin.com.intellij.openapi.extensions.ExtensionPoint
-import org.jetbrains.kotlin.com.intellij.openapi.extensions.Extensions.getArea
+import org.jetbrains.kotlin.com.intellij.openapi.extensions.Extensions.getRootArea
 import org.jetbrains.kotlin.com.intellij.openapi.util.Key
 import org.jetbrains.kotlin.com.intellij.openapi.util.UserDataHolderBase
 import org.jetbrains.kotlin.com.intellij.pom.PomModel
@@ -35,7 +33,11 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.TreeCopyHandler
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.idea.KotlinLanguage
+import org.jetbrains.kotlin.psi.KtAnnotated
+import org.jetbrains.kotlin.psi.KtAnnotationEntry
 import org.jetbrains.kotlin.psi.KtFile
+import org.jetbrains.kotlin.psi.psiUtil.endOffset
+import org.jetbrains.kotlin.psi.psiUtil.startOffset
 import sun.reflect.ReflectionFactory
 
 object KtLint {
@@ -44,10 +46,13 @@ object KtLint {
     val ANDROID_USER_DATA_KEY = Key<Boolean>("ANDROID")
     val FILE_PATH_USER_DATA_KEY = Key<String>("FILE_PATH")
     val DISABLED_RULES = Key<Set<String>>("DISABLED_RULES")
+    private const val UTF8_BOM = "\uFEFF"
     const val STDIN_FILE = "<stdin>"
 
     private val psiFileFactory: PsiFileFactory
     private val nullSuppression = { _: Int, _: String, _: Boolean -> false }
+
+    private val editorConfigLoader = EditorConfigLoader(FileSystems.getDefault())
 
     /**
      * @param fileName path of file to lint/format
@@ -68,7 +73,15 @@ object KtLint {
         val script: Boolean = false,
         val editorConfigPath: String? = null,
         val debug: Boolean = false
-    )
+    ) {
+        internal val normalizedFilePath: Path? get() = if (fileName == STDIN_FILE || fileName == null) {
+            null
+        } else {
+            Paths.get(fileName)
+        }
+
+        internal val isStdIn: Boolean get() = fileName == STDIN_FILE
+    }
 
     init {
         // do not print anything to the stderr when lexer is unable to match input
@@ -109,7 +122,7 @@ object KtLint {
         }
         val extensionPoint = "org.jetbrains.kotlin.com.intellij.treeCopyHandler"
         val extensionClassName = TreeCopyHandler::class.java.name!!
-        for (area in arrayOf(getArea(project), getArea(null))) {
+        for (area in arrayOf(project.extensionArea, getRootArea())) {
             if (!area.hasExtensionPoint(extensionPoint)) {
                 area.registerExtensionPoint(extensionPoint, extensionClassName, ExtensionPoint.Kind.INTERFACE)
             }
@@ -126,7 +139,7 @@ object KtLint {
      * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
      */
     fun lint(params: Params) {
-        val normalizedText = params.text.replace("\r\n", "\n").replace("\r", "\n")
+        val normalizedText = normalizeText(params.text)
         val positionByOffset = calculateLineColByOffset(normalizedText)
         val psiFileName = if (params.script) "file.kts" else "file.kt"
         val psiFile = psiFileFactory.createFileFromText(psiFileName, KotlinLanguage.INSTANCE, normalizedText) as KtFile
@@ -137,7 +150,12 @@ object KtLint {
         }
         val rootNode = psiFile.node
         // Passed-in userData overrides .editorconfig
-        val mergedUserData = userDataResolver(params.editorConfigPath, params.debug)(params.fileName) + params.userData
+        val mergedUserData = editorConfigLoader.loadPropertiesForFile(
+            params.normalizedFilePath,
+            params.isStdIn,
+            params.editorConfigPath?.let { Paths.get(it) },
+            params.debug
+        ) + params.userData
         injectUserData(rootNode, mergedUserData)
         val isSuppressed = calculateSuppressedRegions(rootNode)
         val errors = mutableListOf<LintError>()
@@ -165,56 +183,11 @@ object KtLint {
             .forEach { e -> params.cb(e, false) }
     }
 
-    private fun userDataResolver(editorConfigPath: String?, debug: Boolean): (String?) -> Map<String, String> {
-        if (editorConfigPath != null) {
-            val userData = (
-                EditorConfigInternal.of(File(editorConfigPath).canonicalPath)
-                    ?.onlyIf({ debug }) { printEditorConfigChain(it) }
-                    ?: emptyMap<String, String>()
-                )
-            return fun (fileName: String?) = if (fileName != null) {
-                userData + ("file_path" to fileName)
-            } else {
-                emptyMap()
-            }
-        }
-        val workDir = File(".").canonicalPath
-        val workdirUserData = lazy {
-            (
-                EditorConfigInternal.of(workDir)
-                    ?.onlyIf({ debug }) { printEditorConfigChain(it) }
-                    ?: emptyMap<String, String>()
-                )
-        }
-        val editorConfig = EditorConfigInternal.cached()
-        val editorConfigSet = ConcurrentHashMap<Path, Boolean>()
-        return fun (fileName: String?): Map<String, String> {
-            if (fileName == null) {
-                return emptyMap()
-            }
-
-            if (fileName == STDIN_FILE) {
-                return workdirUserData.value
-            }
-            return (
-                editorConfig.of(Paths.get(fileName).parent)
-                    ?.onlyIf({ debug }) {
-                        printEditorConfigChain(it) {
-                            editorConfigSet.put(it.path, true) != true
-                        }
-                    }
-                    ?: emptyMap<String, String>()
-                ) + ("file_path" to fileName)
-        }
-    }
-
-    private fun printEditorConfigChain(ec: EditorConfigInternal, predicate: (EditorConfigInternal) -> Boolean = { true }) {
-        for (lec in generateSequence(ec) { it.parent }.takeWhile(predicate)) {
-            System.err.println(
-                "[DEBUG] Discovered .editorconfig (${lec.path.parent.toFile().path})" +
-                    " {${lec.entries.joinToString(", ")}}"
-            )
-        }
+    fun normalizeText(text: String): String {
+        return text
+            .replace("\r\n", "\n")
+            .replace("\r", "\n")
+            .replaceFirst(UTF8_BOM, "")
     }
 
     private fun injectUserData(node: ASTNode, userData: Map<String, String>) {
@@ -230,7 +203,10 @@ object KtLint {
         node.putUserData(FILE_PATH_USER_DATA_KEY, userData["file_path"])
         node.putUserData(EDITOR_CONFIG_USER_DATA_KEY, EditorConfig.fromMap(editorConfigMap - "android" - "file_path"))
         node.putUserData(ANDROID_USER_DATA_KEY, android)
-        node.putUserData(DISABLED_RULES, userData["disabled_rules"]?.split(",")?.toSet() ?: emptySet())
+        node.putUserData(
+            DISABLED_RULES,
+            userData["disabled_rules"]?.split(",")?.map { it.trim() }?.toSet() ?: emptySet()
+        )
     }
 
     private fun visitor(
@@ -302,7 +278,7 @@ object KtLint {
         return rootNode.getUserData(DISABLED_RULES)?.contains(fqRuleId) == false
     }
 
-    private fun calculateLineColByOffset(text: String): (offset: Int) -> Pair<Int, Int> {
+    fun calculateLineColByOffset(text: String): (offset: Int) -> Pair<Int, Int> {
         var i = -1
         val e = text.length
         val arr = ArrayList<Int>()
@@ -344,7 +320,8 @@ object KtLint {
      * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
      */
     fun format(params: Params): String {
-        val normalizedText = params.text.replace("\r\n", "\n").replace("\r", "\n")
+        val hasUTF8BOM = params.text.startsWith(UTF8_BOM)
+        val normalizedText = normalizeText(params.text)
         val positionByOffset = calculateLineColByOffset(normalizedText)
         val psiFileName = if (params.script) "file.kts" else "file.kt"
         val psiFile = psiFileFactory.createFileFromText(psiFileName, KotlinLanguage.INSTANCE, normalizedText) as KtFile
@@ -355,7 +332,12 @@ object KtLint {
         }
         val rootNode = psiFile.node
         // Passed-in userData overrides .editorconfig
-        val mergedUserData = userDataResolver(params.editorConfigPath, params.debug)(params.fileName) + params.userData
+        val mergedUserData = editorConfigLoader.loadPropertiesForFile(
+            params.normalizedFilePath,
+            params.isStdIn,
+            params.editorConfigPath?.let { Paths.get(it) },
+            params.debug
+        ) + params.userData
         injectUserData(rootNode, mergedUserData)
         var isSuppressed = calculateSuppressedRegions(rootNode)
         var tripped = false
@@ -407,7 +389,20 @@ object KtLint {
                 .sortedWith(Comparator { (l), (r) -> if (l.line != r.line) l.line - r.line else l.col - r.col })
                 .forEach { (e, corrected) -> params.cb(e, corrected) }
         }
-        return if (mutated) rootNode.text.replace("\n", determineLineSeparator(params.text, params.userData)) else params.text
+
+        if (!mutated) {
+            return params.text
+        }
+
+        return if (hasUTF8BOM) UTF8_BOM else "" + // Restore UTF8 BOM if it was present
+            rootNode.text.replace("\n", determineLineSeparator(params.text, params.userData))
+    }
+
+    /**
+     * Reduce memory usage of all internal caches.
+     */
+    fun trimMemory() {
+        editorConfigLoader.trimMemory()
     }
 
     private fun determineLineSeparator(fileContent: String, userData: Map<String, String>): String {
@@ -463,6 +458,14 @@ object KtLint {
                                 }
                         }
                     }
+                    // Extract all Suppress annotations and create SuppressionHints
+                    val psi = node.psi
+                    if (psi is KtAnnotated) {
+                        createSuppressionHintFromAnnotations(psi, suppressAnnotations, suppressAnnotationRuleMap)
+                            ?.let {
+                                result.add(it)
+                            }
+                    }
                 }
                 result.addAll(
                     open.map {
@@ -487,6 +490,42 @@ object KtLint {
                 comment.replace(Regex("\\s"), " ").replace(" {2,}", " ").split(" ")
 
             private fun <T> List<T>.tail() = this.subList(1, this.size)
+
+            private val suppressAnnotationRuleMap = mapOf(
+                "RemoveCurlyBracesFromTemplate" to "string-template"
+            )
+
+            private val suppressAnnotations = setOf("Suppress", "SuppressWarnings")
+
+            /**
+             * Creates [SuppressionHint] from annotations of given [psi]
+             * Returns null if no [targetAnnotations] present or no mapping exists
+             * between annotations' values and ktlint rules
+             */
+            private fun createSuppressionHintFromAnnotations(
+                psi: KtAnnotated,
+                targetAnnotations: Collection<String>,
+                annotationValueToRuleMapping: Map<String, String>
+            ): SuppressionHint? {
+
+                return psi.annotationEntries
+                    .filter {
+                        it.calleeExpression?.constructorReferenceExpression
+                            ?.getReferencedName() in targetAnnotations
+                    }.flatMap(KtAnnotationEntry::getValueArguments)
+                    .mapNotNull { it.getArgumentExpression()?.text?.removeSurrounding("\"") }
+                    .mapNotNull(annotationValueToRuleMapping::get)
+                    .let { suppressedRules ->
+                        if (suppressedRules.isNotEmpty()) {
+                            SuppressionHint(
+                                IntRange(psi.startOffset, psi.endOffset),
+                                suppressedRules.toSet()
+                            )
+                        } else {
+                            null
+                        }
+                    }
+            }
         }
     }
 

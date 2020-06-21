@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.core
 
+import com.pinterest.ktlint.core.internal.IdNamingPolicy
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
 
@@ -16,7 +17,7 @@ import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
 abstract class Rule(val id: String) {
 
     init {
-        require(id.matches(Regex("[a-z]+([-][a-z]+)*"))) { "id must match [a-z]+([-][a-z]+)*" }
+        IdNamingPolicy.enforceNaming(id)
     }
 
     /**

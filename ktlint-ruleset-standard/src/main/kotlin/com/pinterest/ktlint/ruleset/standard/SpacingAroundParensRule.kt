@@ -1,7 +1,11 @@
 package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.ast.ElementType.BLOCK_COMMENT
+import com.pinterest.ktlint.core.ast.ElementType.EOL_COMMENT
+import com.pinterest.ktlint.core.ast.ElementType.FUNCTION_TYPE
 import com.pinterest.ktlint.core.ast.ElementType.IDENTIFIER
+import com.pinterest.ktlint.core.ast.ElementType.KDOC_START
 import com.pinterest.ktlint.core.ast.ElementType.LPAR
 import com.pinterest.ktlint.core.ast.ElementType.RPAR
 import com.pinterest.ktlint.core.ast.ElementType.SUPER_KEYWORD
@@ -30,22 +34,24 @@ class SpacingAroundParensRule : Rule("paren-spacing") {
             val spacingBefore = if (node.elementType == LPAR) {
                 prevLeaf is PsiWhiteSpace && !prevLeaf.textContains('\n') &&
                     (
-                        prevLeaf.prevLeaf()?.elementType == IDENTIFIER ||
+                        prevLeaf.prevLeaf()?.elementType == IDENTIFIER &&
+                            // val foo: @Composable () -> Unit
+                            node.treeParent?.treeParent?.elementType != FUNCTION_TYPE ||
                             // Super keyword needs special-casing
                             prevLeaf.prevLeaf()?.elementType == SUPER_KEYWORD
-                        ) && (
-                    node.treeParent?.elementType == VALUE_PARAMETER_LIST ||
-                        node.treeParent?.elementType == VALUE_ARGUMENT_LIST
-                    )
+                        ) &&
+                    (
+                        node.treeParent?.elementType == VALUE_PARAMETER_LIST ||
+                            node.treeParent?.elementType == VALUE_ARGUMENT_LIST
+                        )
             } else {
                 prevLeaf is PsiWhiteSpace && !prevLeaf.textContains('\n') &&
                     prevLeaf.prevLeaf()?.elementType != LPAR
             }
             val spacingAfter = if (node.elementType == LPAR) {
-                nextLeaf is PsiWhiteSpace && (
-                    !nextLeaf.textContains('\n') ||
-                        nextLeaf.nextLeaf()?.elementType == RPAR
-                    )
+                nextLeaf is PsiWhiteSpace &&
+                    (!nextLeaf.textContains('\n') || nextLeaf.nextLeaf()?.elementType == RPAR) &&
+                    !nextLeaf.isNextLeafAComment()
             } else {
                 nextLeaf is PsiWhiteSpace && !nextLeaf.textContains('\n') &&
                     nextLeaf.nextLeaf()?.elementType == RPAR
@@ -72,5 +78,10 @@ class SpacingAroundParensRule : Rule("paren-spacing") {
                 }
             }
         }
+    }
+
+    private fun ASTNode.isNextLeafAComment(): Boolean {
+        val commentTypes = setOf(EOL_COMMENT, BLOCK_COMMENT, KDOC_START)
+        return nextLeaf()?.elementType in commentTypes
     }
 }

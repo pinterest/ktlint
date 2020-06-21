@@ -4,8 +4,10 @@ plugins {
 }
 
 dependencies {
+  api deps.kotlin.compiler
+
   implementation deps.kotlin.stdlib
-  implementation deps.kotlin.compiler
+  implementation deps.ec4j
 
   testImplementation deps.junit
   testImplementation deps.assertj

@@ -23,4 +23,44 @@ class NoMultipleSpacesRuleTest {
         assertThat(NoMultipleSpacesRule().format("fun main() { x(1,3);  x(1, 3)\n  \n  }"))
             .isEqualTo("fun main() { x(1,3); x(1, 3)\n  \n  }")
     }
+
+    @Test
+    fun `lint multiple spaces in kdoc allowed`() {
+        assertThat(
+            NoMultipleSpacesRule().lint(
+                """
+                /**
+                 * Gets Blabla from user.
+                 *
+                 * @param blabls12      1234
+                 * @param blabla123     6789
+                 * @param blabla        5678
+                 * @param longparam345  4567890
+                 * @param userId        567890
+                 * @return the user profile
+                 *
+                 */
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `format multiple spaces in kdoc allowed`() {
+        val code =
+            """
+            /**
+            * Gets Blabla from user.
+            *
+            * @param blabls12      1234
+            * @param blabla123     6789
+            * @param blabla        5678
+            * @param longparam345  4567890
+            * @param userId        567890
+            * @return the user profile
+            *
+            */
+            """.trimIndent()
+        assertThat(NoMultipleSpacesRule().format(code)).isEqualTo(code)
+    }
 }

@@ -1,12 +1,16 @@
+import org.gradle.crypto.checksum.Checksum
+
 plugins {
   id 'org.jetbrains.kotlin.jvm'
   id 'com.vanniktech.maven.publish'
   id 'com.github.johnrengelman.shadow' version '5.0.0'
+  id 'org.gradle.crypto.checksum' version '1.1.0'
 }
 
 jar {
   manifest {
     attributes 'Main-Class': 'com.pinterest.ktlint.Main'
+    attributes 'Implementation-Version': project.property('VERSION_NAME')
   }
 }
 
@@ -22,6 +26,7 @@ dependencies {
   implementation project(':ktlint-core')
   implementation project(':ktlint-reporter-checkstyle')
   implementation project(':ktlint-reporter-json')
+  implementation project(':ktlint-reporter-html')
   implementation project(':ktlint-reporter-plain')
   implementation project(':ktlint-ruleset-experimental')
   implementation project(':ktlint-ruleset-standard')
@@ -29,16 +34,6 @@ dependencies {
   implementation deps.kotlin.stdlib
   implementation deps.kotlin.compiler
   implementation deps.klob
-  implementation deps.aether.api
-  implementation deps.aether.spi
-  implementation deps.aether.util
-  implementation deps.aether.impl
-  implementation deps.aether.connector.basic
-  implementation deps.aether.transport.file
-  implementation deps.aether.transport.http
-  implementation deps.guava
-  implementation deps.slf4j
-  implementation deps.aetherProvider
   implementation deps.picocli
 
   testImplementation deps.junit
@@ -47,7 +42,7 @@ dependencies {
 
 // Implements https://github.com/brianm/really-executable-jars-maven-plugin maven plugin behaviour.
 // To check details how it works, see http://skife.org/java/unix/2011/06/20/really_executable_jars.html.
-tasks.register("shadowJarExecutable", DefaultTask.class) {
+def shadowJarExecutableTask = tasks.register("shadowJarExecutable", DefaultTask.class) {
   description = "Creates self-executable file, that runs generated shadow jar"
   group = "Distribution"
 
@@ -62,4 +57,16 @@ tasks.register("shadowJarExecutable", DefaultTask.class) {
     }
     execFile.setExecutable(true, false)
   }
+  finalizedBy tasks.named("shadowJarExecutableChecksum")
+}
+
+tasks.register("shadowJarExecutableChecksum", Checksum.class) {
+  description = "Generates MD5 checksum for ktlint executable"
+  group = "Distribution"
+
+  files = shadowJarExecutableTask.get().outputs.files
+  // put the checksums in the same folder with the executable itself
+  outputDir = shadowJarExecutableTask.get().outputs.files.singleFile.parentFile
+
+  algorithm = Checksum.Algorithm.MD5
 }

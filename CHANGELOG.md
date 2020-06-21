@@ -2,6 +2,136 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+
+### Added
+- Experimental SpacingAroundAngleBracketsRule ([#769](https://github.com/pinterest/ktlint/pull/769))
+- Checksum generation for executable Jar ([#695](https://github.com/pinterest/ktlint/issues/695))
+- Enable Gradle dependency verification
+
+### Fixed
+- Safe-called wrapped trailing lambdas indented correctly ([#776](https://github.com/pinterest/ktlint/issues/776))
+- `provideDelegate` imports are not marked as unused anymore ([#669](https://github.com/pinterest/ktlint/issues/669))
+- Set continuation indent to 4 in IDE integration codestyle ([#775](https://github.com/pinterest/ktlint/issues/775)) 
+
+### Changed
+- Update Gradle to 6.5 version
+- Update ec4j to 0.2.2 version. Now it should report path to `.editorconfig` file on failed parsing 
+and allow empty `.editorconfig` files.
+
+
+## [0.37.2] - 2020-06-16
+
+Minor release to fix further bugs in `ImportOrderingRule`.
+
+### Fixed
+- Imports with aliases no longer removed ([#766](https://github.com/pinterest/ktlint/issues/766))
+
+## [0.37.1] - 2020-06-08
+
+Minor release to fix some bugs in the 0.37.0 release.
+
+### Fixed
+- Invalid path exception error on Windows machines when loading properties from .editorconfig ([#761](https://github.com/pinterest/ktlint/issues/761))
+- Imports with `as` no longer removed ([#766](https://github.com/pinterest/ktlint/issues/766))
+- The contents of raw strings are no longer modified by the indent rule ([#682](https://github.com/pinterest/ktlint/issues/682))
+
+## [0.37.0] - 2020-06-02
+
+Thank you to [Tapchicoma](https://github.com/Tapchicoma) and [romtsn](https://github.com/romtsn) for all their hard work on this release!
+
+### Added
+- Gradle wrapper validation ([#684](https://github.com/pinterest/ktlint/pull/684))
+- Experimental `SpacingAroundDoubleColon` rule ([#722](https://github.com/pinterest/ktlint/pull/722)]
+- Experimental `SpacingBetweenDeclarationsWithCommentsRule` and `SpacingBetweenDeclarationsWithAnnotationsRule`. Fixes ([#721]https://github.com/pinterest/ktlint/issues/721)
+- `kotlin_imports_layout` config for `.editorconfig` file so that import ordering is configurable. Fixes ([#527](https://github.com/pinterest/ktlint/issues/527))
+
+
+### Changed
+- Kotlin was updated to 1.3.70 version
+- Loading properties from `.editorconfig` was fully delegated to ec4j library. This fixes ability to override
+properties for specific files/directories ([#742](https://github.com/pinterest/ktlint/issues/742))
+- Promote experimental "indent" rule to standard one, old standard "indent" rule is removed 
+- Functions to calculate line/column are now public so they can be used by 3rd party tools ([#725](https://github.com/pinterest/ktlint/pull/725))
+- `AnnotationRule` now handles file annotations as well ([#714](https://github.com/pinterest/ktlint/pull/714))
+
+### Fixed
+- Ignore keywords in KDoc comments ([#671](https://github.com/pinterest/ktlint/issues/671))
+- Allow multiple spaces in KDoc comments ([#706](https://github.com/pinterest/ktlint/issues/706))
+- Trailing comment no longer reported as incorrect indentation ([#710](https://github.com/pinterest/ktlint/issues/710)]
+- Annotated function types no longer reported as an error ([#737](https://github.com/pinterest/ktlint/issues/737))
+- `FinalNewlineRule` no longer reports error for empty files ([#723](https://github.com/pinterest/ktlint/issues/723))
+- EOL comments will no longer cause `AnnotationRule` to report an error ([#736](https://github.com/pinterest/ktlint/issues/736))
+- Formatter will no longer break class declaration with trailing comment ([#728](https://github.com/pinterest/ktlint/issues/728))
+- Formatting for single line if/else statements ([#174](https://github.com/pinterest/ktlint/issues/174))
+- Exception in `NoLineBreakBeforeAssignmentRule` ([#693](https://github.com/pinterest/ktlint/issues/693))
+
+
+### Removed
+- Removed Maven; builds all run under Gradle ([#445](https://github.com/pinterest/ktlint/issues/445))
+- Old standard `IndentRule`
+
+## [0.36.0] - 2019-12-03
+
+### Added
+- HTML reporter ([#641](https://github.com/pinterest/ktlint/pull/641))
+- Experimental rule to lint enum entry names ([#638](https://github.com/pinterest/ktlint/pull/638))
+- `@Suppress("RemoveCurlyBracesFromTemplate")` now respected ([#263](https://github.com/pinterest/ktlint/pull/263))
+
+### Upgraded
+- Gradle version to 5.6.2 ([#616](https://github.com/pinterest/ktlint/pull/616))
+- Kotlin to 1.3.60 ([#658](https://github.com/pinterest/ktlint/pull/658))
+
+### Fixed
+- `.git` directory now discovered instead of hardcoded ([#623](https://github.com/pinterest/ktlint/pull/623))
+- Several bugs with the experimental annotation rule ([#628](https://github.com/pinterest/ktlint/pull/628)) ([#642](https://github.com/pinterest/ktlint/pull/642)) ([#654](https://github.com/pinterest/ktlint/pull/654)) ([#624](https://github.com/pinterest/ktlint/pull/624))
+- Allow newline after lambda return type ([#643](https://github.com/pinterest/ktlint/pull/643))
+- Allow empty first line in a function that returns an anonymous object ([#655](https://github.com/pinterest/ktlint/pull/655))
+- Indentation with lambda argument ([#627](https://github.com/pinterest/ktlint/pull/627))
+- ktlint can now lint UTF-8 files with BOM ([#630](https://github.com/pinterest/ktlint/pull/630)
+- Indentation with newline before return type ([#663](https://github.com/pinterest/ktlint/pull/663))
+- Build/tests on Windows ([#640](https://github.com/pinterest/ktlint/pull/640))
+- Allow whitespace after `(` followed by a comment ([#664](https://github.com/pinterest/ktlint/pull/664))
+
+## [0.35.0] - 2019-10-12
+
+### Added
+- Support for specifying color for output via `--color-name` command line flag. ([#585](https://github.com/pinterest/ktlint/pull/585))
+- Support for custom rulesets and providers on Java 9+ ([#573](https://github.com/pinterest/ktlint/pull/573))
+
+### Deprecated
+- `--apply-to-idea` flag; use `applyToIDEA` subcommand instead ([#554](https://github.com/pinterest/ktlint/pull/554))
+- `--apply-to-idea-project` flag; use `applyToIDEAProject` subcommand instead ([#593](https://github.com/pinterest/ktlint/pull/593))
+- `0.0.0-SNAPSHOT` builds; snapshot builds are now versioned, e.g. 0.35.0-SNAPSHOT ([#588](https://github.com/pinterest/ktlint/pull/588))
+  - Note: When using the new snapshot builds, you may need to add an explicit dependency on `kotlin-compiler-embeddable` to your ruleset project.
+
+### Removed
+- Support for loading 3rd party rulesets via Maven ([#566](https://github.com/pinterest/ktlint/pull/566))
+
+### Upgraded
+- Kotlin version to 1.3.50 ([#565](https://github.com/pinterest/ktlint/pull/565)) ([#611](https://github.com/pinterest/ktlint/pull/611))
+
+### Fixed
+- Bugs with spacing in experimental `AnnotationRule` ([#552](https://github.com/pinterest/ktlint/pull/552)) ([#601](https://github.com/pinterest/ktlint/pull/601/)
+- Brackets would be removed from empty companion object ([#600](https://github.com/pinterest/ktlint/pull/600/))
+- Bugs with experimental `IndentationRule` ([#597](https://github.com/pinterest/ktlint/pull/597/)) ([#599](https://github.com/pinterest/ktlint/pull/599/))
+- Erroneous space between `}` and `]` ([#596](https://github.com/pinterest/ktlint/pull/596))
+- Spacing around multiplication sign in lambdas ([#598](https://github.com/pinterest/ktlint/pull/598))
+- `--version` output with gradle-built JAR ([#613](https://github.com/pinterest/ktlint/issues/613))
+
+## [0.34.2] - 2019-07-22
+
+Minor bugfix release for 0.34.0. (Note: 0.34.1 deprecated/deleted due to regression in disabled_flags .editorconfig support.)
+
+### Added
+- Support for globally disabling rules via `--disabled_rules` command line flag. ([#534](https://github.com/pinterest/ktlint/pull/534))
+
+### Fixed
+- Regression with `--stdin` flag for `printAST` command ([#528](https://github.com/pinterest/ktlint/issues/528))
+- Regressions with `NoUnusedImports` rule ([#531](https://github.com/pinterest/ktlint/issues/531), [#526](https://github.com/pinterest/ktlint/issues/526))
+  - Note: this re-introduces [#405](https://github.com/pinterest/ktlint/issues/405)
+- Indentation for enums with multi-line initializers ([#518](https://github.com/pinterest/ktlint/issues/518))
+
 ## [0.34.0] - 2019-07-15
 
 ### Added
@@ -589,59 +719,65 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
-[0.34.0]: https://github.com/shyiko/ktlint/compare/0.33.0...0.34.0
-[0.33.0]: https://github.com/shyiko/ktlint/compare/0.32.0...0.33.0
-[0.32.0]: https://github.com/shyiko/ktlint/compare/0.31.0...0.32.0
-[0.31.0]: https://github.com/shyiko/ktlint/compare/0.30.0...0.31.0
-[0.30.0]: https://github.com/shyiko/ktlint/compare/0.29.0...0.30.0
-[0.29.0]: https://github.com/shyiko/ktlint/compare/0.28.0...0.29.0
-[0.28.0]: https://github.com/shyiko/ktlint/compare/0.27.0...0.28.0
-[0.27.0]: https://github.com/shyiko/ktlint/compare/0.26.0...0.27.0
-[0.26.0]: https://github.com/shyiko/ktlint/compare/0.25.1...0.26.0
-[0.25.1]: https://github.com/shyiko/ktlint/compare/0.25.0...0.25.1
-[0.25.0]: https://github.com/shyiko/ktlint/compare/0.24.0...0.25.0
-[0.24.0]: https://github.com/shyiko/ktlint/compare/0.23.1...0.24.0
-[0.23.1]: https://github.com/shyiko/ktlint/compare/0.23.0...0.23.1
-[0.23.0]: https://github.com/shyiko/ktlint/compare/0.22.0...0.23.0
-[0.22.0]: https://github.com/shyiko/ktlint/compare/0.21.0...0.22.0
-[0.21.0]: https://github.com/shyiko/ktlint/compare/0.20.0...0.21.0
-[0.20.0]: https://github.com/shyiko/ktlint/compare/0.19.0...0.20.0
-[0.19.0]: https://github.com/shyiko/ktlint/compare/0.18.0...0.19.0
-[0.18.0]: https://github.com/shyiko/ktlint/compare/0.17.1...0.18.0
-[0.17.1]: https://github.com/shyiko/ktlint/compare/0.17.0...0.17.1
-[0.17.0]: https://github.com/shyiko/ktlint/compare/0.16.1...0.17.0
-[0.16.1]: https://github.com/shyiko/ktlint/compare/0.16.0...0.16.1
-[0.16.0]: https://github.com/shyiko/ktlint/compare/0.15.1...0.16.0
-[0.15.1]: https://github.com/shyiko/ktlint/compare/0.15.0...0.15.1
-[0.15.0]: https://github.com/shyiko/ktlint/compare/0.14.0...0.15.0
-[0.14.0]: https://github.com/shyiko/ktlint/compare/0.13.0...0.14.0
-[0.13.0]: https://github.com/shyiko/ktlint/compare/0.12.1...0.13.0
-[0.12.1]: https://github.com/shyiko/ktlint/compare/0.12.0...0.12.1
-[0.12.0]: https://github.com/shyiko/ktlint/compare/0.11.1...0.12.0
-[0.11.1]: https://github.com/shyiko/ktlint/compare/0.11.0...0.11.1
-[0.11.0]: https://github.com/shyiko/ktlint/compare/0.10.1...0.11.0
-[0.10.2]: https://github.com/shyiko/ktlint/compare/0.10.1...0.10.2
-[0.10.1]: https://github.com/shyiko/ktlint/compare/0.10.0...0.10.1
-[0.10.0]: https://github.com/shyiko/ktlint/compare/0.9.2...0.10.0
-[0.9.2]: https://github.com/shyiko/ktlint/compare/0.9.1...0.9.2
-[0.9.1]: https://github.com/shyiko/ktlint/compare/0.9.0...0.9.1
-[0.9.0]: https://github.com/shyiko/ktlint/compare/0.8.3...0.9.0
-[0.8.3]: https://github.com/shyiko/ktlint/compare/0.8.2...0.8.3
-[0.8.2]: https://github.com/shyiko/ktlint/compare/0.8.1...0.8.2
-[0.8.1]: https://github.com/shyiko/ktlint/compare/0.8.0...0.8.1
-[0.8.0]: https://github.com/shyiko/ktlint/compare/0.7.1...0.8.0
-[0.7.1]: https://github.com/shyiko/ktlint/compare/0.7.0...0.7.1
-[0.7.0]: https://github.com/shyiko/ktlint/compare/0.6.2...0.7.0
-[0.6.2]: https://github.com/shyiko/ktlint/compare/0.6.1...0.6.2
-[0.6.1]: https://github.com/shyiko/ktlint/compare/0.6.0...0.6.1
-[0.6.0]: https://github.com/shyiko/ktlint/compare/0.5.1...0.6.0
-[0.5.1]: https://github.com/shyiko/ktlint/compare/0.5.0...0.5.1
-[0.5.0]: https://github.com/shyiko/ktlint/compare/0.4.0...0.5.0
-[0.4.0]: https://github.com/shyiko/ktlint/compare/0.3.1...0.4.0
-[0.3.1]: https://github.com/shyiko/ktlint/compare/0.3.0...0.3.1
-[0.3.0]: https://github.com/shyiko/ktlint/compare/0.2.2...0.3.0
-[0.2.2]: https://github.com/shyiko/ktlint/compare/0.2.1...0.2.2
-[0.2.1]: https://github.com/shyiko/ktlint/compare/0.2.0...0.2.1
-[0.2.0]: https://github.com/shyiko/ktlint/compare/0.1.2...0.2.0
-[0.1.2]: https://github.com/shyiko/ktlint/compare/0.1.1...0.1.2
-[0.1.1]: https://github.com/shyiko/ktlint/compare/0.1.0...0.1.1
+[0.37.2]: https://github.com/pinterest/ktlint/compare/0.37.1...0.37.2
+[0.37.1]: https://github.com/pinterest/ktlint/compare/0.37.0...0.37.1
+[0.37.0]: https://github.com/pinterest/ktlint/compare/0.36.0...0.37.0
+[0.36.0]: https://github.com/pinterest/ktlint/compare/0.35.0...0.36.0
+[0.35.0]: https://github.com/pinterest/ktlint/compare/0.34.2...0.35.0
+[0.34.2]: https://github.com/pinterest/ktlint/compare/0.33.0...0.34.2
+[0.34.0]: https://github.com/pinterest/ktlint/compare/0.33.0...0.34.0
+[0.33.0]: https://github.com/pinterest/ktlint/compare/0.32.0...0.33.0
+[0.32.0]: https://github.com/pinterest/ktlint/compare/0.31.0...0.32.0
+[0.31.0]: https://github.com/pinterest/ktlint/compare/0.30.0...0.31.0
+[0.30.0]: https://github.com/pinterest/ktlint/compare/0.29.0...0.30.0
+[0.29.0]: https://github.com/pinterest/ktlint/compare/0.28.0...0.29.0
+[0.28.0]: https://github.com/pinterest/ktlint/compare/0.27.0...0.28.0
+[0.27.0]: https://github.com/pinterest/ktlint/compare/0.26.0...0.27.0
+[0.26.0]: https://github.com/pinterest/ktlint/compare/0.25.1...0.26.0
+[0.25.1]: https://github.com/pinterest/ktlint/compare/0.25.0...0.25.1
+[0.25.0]: https://github.com/pinterest/ktlint/compare/0.24.0...0.25.0
+[0.24.0]: https://github.com/pinterest/ktlint/compare/0.23.1...0.24.0
+[0.23.1]: https://github.com/pinterest/ktlint/compare/0.23.0...0.23.1
+[0.23.0]: https://github.com/pinterest/ktlint/compare/0.22.0...0.23.0
+[0.22.0]: https://github.com/pinterest/ktlint/compare/0.21.0...0.22.0
+[0.21.0]: https://github.com/pinterest/ktlint/compare/0.20.0...0.21.0
+[0.20.0]: https://github.com/pinterest/ktlint/compare/0.19.0...0.20.0
+[0.19.0]: https://github.com/pinterest/ktlint/compare/0.18.0...0.19.0
+[0.18.0]: https://github.com/pinterest/ktlint/compare/0.17.1...0.18.0
+[0.17.1]: https://github.com/pinterest/ktlint/compare/0.17.0...0.17.1
+[0.17.0]: https://github.com/pinterest/ktlint/compare/0.16.1...0.17.0
+[0.16.1]: https://github.com/pinterest/ktlint/compare/0.16.0...0.16.1
+[0.16.0]: https://github.com/pinterest/ktlint/compare/0.15.1...0.16.0
+[0.15.1]: https://github.com/pinterest/ktlint/compare/0.15.0...0.15.1
+[0.15.0]: https://github.com/pinterest/ktlint/compare/0.14.0...0.15.0
+[0.14.0]: https://github.com/pinterest/ktlint/compare/0.13.0...0.14.0
+[0.13.0]: https://github.com/pinterest/ktlint/compare/0.12.1...0.13.0
+[0.12.1]: https://github.com/pinterest/ktlint/compare/0.12.0...0.12.1
+[0.12.0]: https://github.com/pinterest/ktlint/compare/0.11.1...0.12.0
+[0.11.1]: https://github.com/pinterest/ktlint/compare/0.11.0...0.11.1
+[0.11.0]: https://github.com/pinterest/ktlint/compare/0.10.1...0.11.0
+[0.10.2]: https://github.com/pinterest/ktlint/compare/0.10.1...0.10.2
+[0.10.1]: https://github.com/pinterest/ktlint/compare/0.10.0...0.10.1
+[0.10.0]: https://github.com/pinterest/ktlint/compare/0.9.2...0.10.0
+[0.9.2]: https://github.com/pinterest/ktlint/compare/0.9.1...0.9.2
+[0.9.1]: https://github.com/pinterest/ktlint/compare/0.9.0...0.9.1
+[0.9.0]: https://github.com/pinterest/ktlint/compare/0.8.3...0.9.0
+[0.8.3]: https://github.com/pinterest/ktlint/compare/0.8.2...0.8.3
+[0.8.2]: https://github.com/pinterest/ktlint/compare/0.8.1...0.8.2
+[0.8.1]: https://github.com/pinterest/ktlint/compare/0.8.0...0.8.1
+[0.8.0]: https://github.com/pinterest/ktlint/compare/0.7.1...0.8.0
+[0.7.1]: https://github.com/pinterest/ktlint/compare/0.7.0...0.7.1
+[0.7.0]: https://github.com/pinterest/ktlint/compare/0.6.2...0.7.0
+[0.6.2]: https://github.com/pinterest/ktlint/compare/0.6.1...0.6.2
+[0.6.1]: https://github.com/pinterest/ktlint/compare/0.6.0...0.6.1
+[0.6.0]: https://github.com/pinterest/ktlint/compare/0.5.1...0.6.0
+[0.5.1]: https://github.com/pinterest/ktlint/compare/0.5.0...0.5.1
+[0.5.0]: https://github.com/pinterest/ktlint/compare/0.4.0...0.5.0
+[0.4.0]: https://github.com/pinterest/ktlint/compare/0.3.1...0.4.0
+[0.3.1]: https://github.com/pinterest/ktlint/compare/0.3.0...0.3.1
+[0.3.0]: https://github.com/pinterest/ktlint/compare/0.2.2...0.3.0
+[0.2.2]: https://github.com/pinterest/ktlint/compare/0.2.1...0.2.2
+[0.2.1]: https://github.com/pinterest/ktlint/compare/0.2.0...0.2.1
+[0.2.0]: https://github.com/pinterest/ktlint/compare/0.1.2...0.2.0
+[0.1.2]: https://github.com/pinterest/ktlint/compare/0.1.1...0.1.2
+[0.1.1]: https://github.com/pinterest/ktlint/compare/0.1.0...0.1.1

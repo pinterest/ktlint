@@ -13,9 +13,15 @@ insert_final_newline = true
 [*.{java,kt,kts,scala,rs,xml,kt.spec,kts.spec}]
 indent_size = 4
 
+[*.{kt,kts}]
+kotlin_imports_layout=ascii
+
 [{Makefile,*.go}]
 indent_style = tab
 indent_size = 4
 
 [*.md]
 trim_trailing_whitespace = false
+
+[gradle/verification-metadata.xml]
+indent_size = 3

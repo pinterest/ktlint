@@ -14,7 +14,7 @@
 <a href="https://kotlinlang.org/">Kotlin</a> linter in spirit of <a href="https://github.com/feross/standard">feross/standard</a> (JavaScript) and <a href="https://golang.org/cmd/gofmt/">gofmt</a> (Go).  
 </p>
 
-Features:
+## Features
 - **No configuration.**[*](https://github.com/pinterest/ktlint#how-do-i-globally-disable-a-rule) Which means no decisions to make, nothing to argue about and no special files to manage.   
 While this might sound extreme, keep in mind that `ktlint` tries to capture (reflect) **official code style**[*](https://github.com/pinterest/ktlint/issues/284#issuecomment-425177186) from [kotlinlang.org](https://kotlinlang.org/docs/reference/coding-conventions.html) and [Android Kotlin Style Guide](https://android.github.io/kotlin-guides/style.html)
 (+ [we respect your .editorconfig](#editorconfig) and support additional [ruleset](#creating-a-ruleset)|s).
@@ -29,8 +29,7 @@ It's also [easy to create your own](#creating-a-reporter).
 
 ## Standard rules
 
-- 4 spaces for indentation  
-(unless a different `indent_size` value is set in .editorconfig (see [EditorConfig](#editorconfig) section for more))
+- Indentation formatting - respects `.editorconfig` `indent_size` with no continuation indent (see [EditorConfig](#editorconfig) section for more)
 - No semicolons (unless used to separate multiple statements on the same line)
 - No unused `import`s
 - No consecutive blank lines
@@ -49,16 +48,19 @@ It's also [easy to create your own](#creating-a-reporter).
 - Consistent spacing after keywords, commas; around colons, curly braces, parens, infix operators, comments, etc
 - Newline at the end of each file (enabled by default)
 (set `insert_final_newline=false` in .editorconfig to disable (see [EditorConfig](#editorconfig) section for more)).
-- Imports ordered in alphabetic order with no spaces between major groups
+- Imports ordered consistently (see [Custom ktlint EditorConfig properties](#custom-ktlint-specific-editorconfig-properties) for more)
 
 ## Experimental rules
 New rules will be added into the [experimental ruleset](https://github.com/pinterest/ktlint/tree/master/ktlint-ruleset-experimental), which can be enabled
 by passing the `--experimental` flag to `ktlint`.
 
-- Indentation formatting - respects `.editorconfig` `indent_size` with no continuation indent
-- Annotation formatting - multiple annotations should be on a separate line than the annotated declaration; annotations with parameters should each be on separate lines
+- Annotation formatting - multiple annotations should be on a separate line than the annotated declaration; annotations with parameters should each be on separate lines; annotations should be followed by a space; declarations with annotations should be separated by a blank line
+- Comment space formatting - declarations with comments should be separated by a blank line
 - No underscores in package names
 - Braces required for multiline if/else statements
+- Enum entry names should be uppercase underscore-separated names
+- No spaces around `::`
+
 
 ## EditorConfig
 
@@ -75,13 +77,40 @@ insert_final_newline=true
 max_line_length=off
 ```
 
-### Custom EditorConfig properties
+### Custom Ktlint specific EditorConfig properties
 
 ```ini
 # Comma-separated list of rules to disable (Since 0.34.0)
 # Note that rules in any ruleset other than the standard ruleset will need to be prefixed 
 # by the ruleset identifier.
 disabled_rules=no-wildcard-imports,experimental:annotation,my-custom-ruleset:my-custom-rule
+
+# Defines the imports layout. There are predefined layouts like "ascii" or "idea", as well as a custom layout.
+# The predefined layouts are temporary and will be deprecated in the future, once Kotlin plugin supports EditorConfig property for imports layout.
+# The custom layout can be composed by the following symbols:
+# "*" - wildcard. There must be at least one entry of a single wildcard to match all other imports. Matches anything after a specified symbol/import as well.
+# "|" - blank line. Supports only single blank lines between imports. No blank line is allowed in the beginning or end of the layout.
+# "^" - alias import, e.g. "^android.*" will match all android alias imports, "^*" will match all other alias imports.
+# import paths - these can be full paths, e.g. "java.util.List" as well as wildcard paths, e.g. "kotlin.*"
+# Examples:
+kotlin_imports_layout=ascii # alphabetical with capital letters before lower case letters (e.g. Z before a), no blank lines
+kotlin_imports_layout=idea # default IntelliJ IDEA style, same as "ascii", but with "java", "javax", "kotlin" and alias imports in the end of the imports list
+kotlin_imports_layout=android.*,|,^org.junit.*,kotlin.io.Closeable,|,*,^* # custom imports layout
+# Alternatively ij_kotlin_imports_layout name can be used, in order to set an imports layout for both ktlint and IDEA via a single property
+# Note: this is not yet implemented on IDEA side, so it only takes effect for ktlint
+ij_kotlin_imports_layout=*
+```
+
+### Overriding Editorconfig properties for specific directories
+
+You could [override](https://editorconfig.org/#file-format-details) properties for specific directories inside your project:
+```ini
+[*.{kt,kts}]
+disabled_rules=import-ordering
+
+# Note that in this case 'import-ordering' rule will be active and 'indent' will be disabled
+[api/*.{kt,kts}]
+disabled_rules=indent
 ```
 
 ## Installation
@@ -89,7 +118,7 @@ disabled_rules=no-wildcard-imports,experimental:annotation,my-custom-ruleset:my-
 > Skip all the way to the "Integration" section if you don't plan to use `ktlint`'s command line interface.
 
 ```sh
-curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.34.0/ktlint &&
+curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.37.2/ktlint &&
   chmod a+x ktlint &&
   sudo mv ktlint /usr/local/bin/
 ```
@@ -110,10 +139,11 @@ Usually simple `http_proxy=http://proxy-server:port https_proxy=http://proxy-ser
 ```bash
 # check the style of all Kotlin files inside the current dir (recursively)
 # (hidden folders will be skipped)
-$ ktlint --color
+$ ktlint --color [--color-name="RED"]
   src/main/kotlin/Main.kt:10:10: Unused import
   
-# check only certain locations (prepend ! to negate the pattern) 
+# check only certain locations (prepend ! to negate the pattern,
+# Ktlint uses .gitignore pattern style syntax)
 $ ktlint "src/**/*.kt" "!src/**/*Test.kt"
 
 # auto-correct style violations
@@ -184,7 +214,7 @@ $ ktlint installGitPreCommitHook
         <dependency>
             <groupId>com.pinterest</groupId>
             <artifactId>ktlint</artifactId>
-            <version>0.34.0</version>
+            <version>0.37.2</version>
         </dependency>
         <!-- additional 3rd party ruleset(s) can be specified here -->
     </dependencies>
@@ -211,7 +241,7 @@ supports different kotlin plugins and Gradle build caching.
 - [jeremymailen/kotlinter-gradle](https://github.com/jeremymailen/kotlinter-gradle)  
 Gradle plugin featuring incremental build support, file reports, and `*.kts` source support.
 
-You might also want to take a look at [diffplug/spotless](https://github.com/diffplug/spotless/tree/master/plugin-gradle#applying-ktlint-to-kotlin-files) which has a built-in support for ktlint. In addition to linting/formatting kotlin code it allows you to keep license headers, markdown documentation, etc. in check.
+You might also want to take a look at [diffplug/spotless](https://github.com/diffplug/spotless/tree/master/plugin-gradle#applying-ktlint-to-kotlin-files) or [autostyle/autostyle](https://github.com/autostyle/autostyle/tree/master/plugin-gradle#applying-ktlint-to-kotlin-files) that have a built-in support for ktlint. In addition to linting/formatting kotlin code it allows you to keep license headers, markdown documentation, etc. in check.
 
 #### (without a plugin)
 
@@ -221,7 +251,7 @@ You might also want to take a look at [diffplug/spotless](https://github.com/dif
 // kotlin-gradle-plugin must be applied for configuration below to work
 // (see https://kotlinlang.org/docs/reference/using-gradle.html)
 
-apply plugin: &quot;java&quot;
+apply plugin: 'java'
 
 repositories {
     jcenter()
@@ -232,7 +262,7 @@ configurations {
 }
 
 dependencies {
-    ktlint "com.pinterest:ktlint:0.34.0"
+    ktlint "com.pinterest:ktlint:0.37.2"
     // additional 3rd party ruleset(s) can be specified here
     // just add them to the classpath (e.g. ktlint 'groupId:artifactId:version') and 
     // ktlint will pick them up
@@ -262,6 +292,43 @@ To run formatter - `gradle ktlintFormat`.
 
 See [Making your Gradle tasks incremental](https://proandroiddev.com/making-your-gradle-tasks-incremental-7f26e4ef09c3) by [Niklas Baudy](https://github.com/vanniktech) on how to make tasks above incremental. 
 
+
+#### (without a plugin) for Gradle Kotlin DSL (build.gradle.kts)
+
+> build.gradle.kts
+
+```kotlin
+val ktlint by configurations.creating
+
+dependencies {
+    ktlint("com.pinterest:ktlint:0.37.2")
+    // ktlint(project(":custom-ktlint-ruleset")) // in case of custom ruleset
+}
+
+val outputDir = "${project.buildDir}/reports/ktlint/"
+val inputFiles = project.fileTree(mapOf("dir" to "src", "include" to "**/*.kt"))
+
+val ktlintCheck by tasks.creating(JavaExec::class) {
+    inputs.files(inputFiles)
+    outputs.dir(outputDir)
+
+    description = "Check Kotlin code style."
+    classpath = ktlint
+    main = "com.pinterest.ktlint.Main"
+    args = listOf("src/**/*.kt")
+}
+
+val ktlintFormat by tasks.creating(JavaExec::class) {
+    inputs.files(inputFiles)
+    outputs.dir(outputDir)
+
+    description = "Fix Kotlin code style deviations."
+    classpath = ktlint
+    main = "com.pinterest.ktlint.Main"
+    args = listOf("-F", "src/**/*.kt")
+}
+```
+
 #### ... with [IntelliJ IDEA](https://www.jetbrains.com/idea/)
 
 > While this is not strictly necessary it makes Intellij IDEA's built-in formatter produce 100% ktlint-compatible 
@@ -272,12 +339,23 @@ See [Making your Gradle tasks incremental](https://proandroiddev.com/making-your
 > (inside project's root directory)  
 
 ```sh
-ktlint --apply-to-idea-project
+ktlint applyToIDEAProject
 # or if you want to be compliant with Android Kotlin Style Guide
-ktlint --apply-to-idea-project --android 
+ktlint --android applyToIDEAProject
 ```
 
 ##### Option #2
+
+Apply to all IDEA projects:
+```sh
+ktlint applyToIDEA
+```
+Or if you want to use android specific code style:
+```sh
+ktlint --android applyToIDEA
+```
+
+##### Option #3
 
 Go to <kbd>File</kbd> -> <kbd>Settings...</kbd> -> <kbd>Editor</kbd>
 - <kbd>General</kbd> -> <kbd>Auto Import</kbd>
@@ -313,7 +391,7 @@ See [w0rp/ale](https://github.com/w0rp/ale).
 
 > See also [Writing your first ktlint rule](https://medium.com/@vanniktech/writing-your-first-ktlint-rule-5a1707f4ca5b) by [Niklas Baudy](https://github.com/vanniktech). 
 
-In a nutshell: "ruleset" is a JAR containing one or more [Rule](ktlint-core/src/main/kotlin/com/pinterest/ktlint/core/Rule.kt)s gathered together in a [RuleSet](ktlint-core/src/main/kotlin/com/github/shyiko/ktlint/core/RuleSet.kt). `ktlint` is relying on 
+In a nutshell: "ruleset" is a JAR containing one or more [Rule](ktlint-core/src/main/kotlin/com/pinterest/ktlint/core/Rule.kt)s gathered together in a [RuleSet](ktlint-core/src/main/kotlin/com/pinterest/ktlint/core/RuleSet.kt). `ktlint` is relying on 
 [ServiceLoader](https://docs.oracle.com/javase/8/docs/api/java/util/ServiceLoader.html) to discover all available "RuleSet"s
 on the classpath (as a ruleset author, all you need to do is to include a `META-INF/services/com.pinterest.ktlint.core.RuleSetProvider` file 
 containing a fully qualified name of your [RuleSetProvider](ktlint-core/src/main/kotlin/com/pinterest/ktlint/core/RuleSetProvider.kt) implementation).    
@@ -380,7 +458,7 @@ Loading custom (3rd party) reporter via built-in maven dependency resolver is de
 see https://github.com/pinterest/ktlint/issues/451.
 
 Third-party:
-* [mcassiano/ktlint-html-reporter](https://github.com/mcassiano/ktlint-html-reporter)
+* [kryanod/ktlint-junit-reporter](https://github.com/kryanod/ktlint-junit-reporter)
 
 ## Badge
 
@@ -434,6 +512,8 @@ import package.* // ktlint-disable
 ### How do I globally disable a rule?
 See the [EditorConfig section](https://github.com/pinterest/ktlint#editorconfig) for details on how to use the `disabled_rules` property.
 
+You may also pass a list of disabled rules via the `--disabled_rules` command line flag. It has the same syntax as the EditorConfig property.
+
 ## Development
 
 > Make sure to read [CONTRIBUTING.md](CONTRIBUTING.md).
@@ -450,9 +530,9 @@ To run `ktlint` - right-click on `ktlint/src/main/kotlin/com/pinterest/ktlint/Ma
 
 #### Access to the latest `master` snapshot
 
-Whenever a commit is added to the `master` branch `0.0.0-SNAPSHOT` is automatically uploaded to [Sonatype's snapshots repository](https://oss.sonatype.org/content/repositories/snapshots/com/pinterest/ktlint/).
+Whenever a commit is added to the `master` branch a snapshot build is automatically uploaded to [Sonatype's snapshots repository](https://oss.sonatype.org/content/repositories/snapshots/com/pinterest/ktlint/).
 If you are eager to try upcoming changes (that might or might not be included in the next stable release) you can do 
-so by changing version of ktlint to `0.0.0-SNAPSHOT` + adding a repo: 
+so by changing version of ktlint to `<latest-version>-SNAPSHOT` + adding a repo: 
 
 ##### Maven
 

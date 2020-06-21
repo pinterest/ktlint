@@ -50,6 +50,14 @@ class SpacingAroundCurlyRuleTest {
                     LintError(2, 37, "curly-spacing", "Unexpected space after \"}\"")
                 )
             )
+        assertThat(SpacingAroundCurlyRule().lint("fun main() { map[1 + list.count { it != true }] = 1 }"))
+            .isEmpty()
+        assertThat(SpacingAroundCurlyRule().lint("fun main() { map[1 + list.count { it != true } ] = 1 }"))
+            .isEqualTo(
+                listOf(
+                    LintError(1, 46, "curly-spacing", "Unexpected space after \"}\"")
+                )
+            )
     }
 
     @Test
@@ -109,6 +117,7 @@ class SpacingAroundCurlyRuleTest {
                     )
                     val f =
                         { true }
+                    map[1 + list.count { it != true } ] = 1
                 }
                 class A { private val shouldEjectBlock = block@ { (pathProgress ?: return@block false) >= 0.85 } }
                 """.trimIndent()
@@ -152,6 +161,7 @@ class SpacingAroundCurlyRuleTest {
                 )
                 val f =
                     { true }
+                map[1 + list.count { it != true }] = 1
             }
             class A { private val shouldEjectBlock = block@{ (pathProgress ?: return@block false) >= 0.85 } }
             """.trimIndent()
@@ -173,6 +183,78 @@ class SpacingAroundCurlyRuleTest {
             """
             fun foo(): String {
                 return "foo"
+            }
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun `lint new line after lambda return type passes`() {
+        assertThat(
+            SpacingAroundCurlyRule().lint(
+                """
+                fun magicNumber1(): () -> Int = { 37 }
+                fun magicNumber2(): () -> Int =
+                    { 42 }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `format new line after lambda return type passes`() {
+        assertThat(
+            SpacingAroundCurlyRule().format(
+                """
+                fun magicNumber1(): () -> Int = { 37 }
+                fun magicNumber2(): () -> Int =
+                    { 42 }
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            """
+            fun magicNumber1(): () -> Int = { 37 }
+            fun magicNumber2(): () -> Int =
+                { 42 }
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun `eol comment placed after curly brace`() {
+        assertThat(
+            SpacingAroundCurlyRule().format(
+                """
+                class MyClass()// a comment
+                {
+                    val x = 0
+                }
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            """
+            class MyClass() { // a comment
+                val x = 0
+            }
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun `eol comment with preceding whitespace placed after curly brace`() {
+        assertThat(
+            SpacingAroundCurlyRule().format(
+                """
+                class MyClass() // a comment
+                {
+                    val x = 0
+                }
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            """
+            class MyClass() { // a comment
+                val x = 0
             }
             """.trimIndent()
         )
