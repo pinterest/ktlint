@@ -95,7 +95,7 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
                     // If redundant import is present, it is filtered from the import list
                     parentExpression?.let { imports.removeIf { imp -> imp.endsWith(it) } }
                 } else if (type == IMPORT_DIRECTIVE) {
-                    buildNonRedundantImports(text)
+                    buildNonRedundantImports(vnode.psi as KtImportDirective)
                 }
             }
         } else if (node.elementType == PACKAGE_DIRECTIVE) {
@@ -129,14 +129,12 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
     }
 
     // Builds a list of imports. Takes care of having aliases in case it is assigned to imports
-    private fun buildNonRedundantImports(text: String) {
-        val aliasKeyword = " as "
-        val element = text.split("import").last().trim()
-        if (element.contains(aliasKeyword)) {
-            val importSplit = element.split(aliasKeyword)
-            imports.addAll(listOf(importSplit.first().replace("`", "").trim(), importSplit.last().trim()))
+    private fun buildNonRedundantImports(import: KtImportDirective) {
+        if (import.alias != null) {
+            imports += import.importPath!!.pathStr.replace("`", "").trim()
+            imports += import.aliasName!!.trim()
         } else {
-            imports.add(element)
+            imports += import.importPath!!.pathStr.trim()
         }
     }
 
