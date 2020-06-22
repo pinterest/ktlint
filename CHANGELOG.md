@@ -13,6 +13,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Safe-called wrapped trailing lambdas indented correctly ([#776](https://github.com/pinterest/ktlint/issues/776))
 - `provideDelegate` imports are not marked as unused anymore ([#669](https://github.com/pinterest/ktlint/issues/669))
 - Set continuation indent to 4 in IDE integration codestyle ([#775](https://github.com/pinterest/ktlint/issues/775)) 
+- No empty lines between annotation and annotated target ([#688](https://github.com/pinterest/ktlint/issues/688))
+- Unused imports reported correctly ([#526](https://github.com/pinterest/ktlint/issues/526)) ([#405](https://github.com/pinterest/ktlint/issues/405))
 
 ### Changed
 - Update Gradle to 6.5 version
