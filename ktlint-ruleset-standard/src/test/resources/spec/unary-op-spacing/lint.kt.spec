@@ -14,6 +14,10 @@ fun main() {
     var b = false
     b = ! b
     ! b
+
+    var c = - /* comment */ (1 + 1)
+    c = /* comment */- 1
+    c = - 1/* comment */ + 1
 }
 
 // expect
@@ -25,3 +29,5 @@ fun main() {
 // +12:6:Unexpected spacing in -  i
 // +15:10:Unexpected spacing in ! b
 // +16:6:Unexpected spacing in ! b
+// +19:23:Unexpected spacing in - 1
+// +20:10:Unexpected spacing in - 1

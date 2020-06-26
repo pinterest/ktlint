@@ -24,4 +24,9 @@ fun main() {
         f += -1 + 2 + - 3 - 4 + (-4)
     }
 
+    val el = node.psi.findElementAt(offset + line.length - 1) !!.node
+
+    var c = - /* comment */ (1 + 1)
+    c = /* comment */- 1
+    c = - 1/* comment */ + 1
 }
