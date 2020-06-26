@@ -251,6 +251,113 @@ class MultiLineIfElseRuleTest {
         )
     }
 
+    @Test
+    fun testWithEmptyLineBeforeIfExpression() {
+        val ifElseWithoutCurlyBrace =
+            """
+            fun test(): Int {
+                val b = foo()
+
+                if (b)
+                    return 1
+                else
+                    return 2
+            }
+            """.trimIndent()
+        assertThat(format(ifElseWithoutCurlyBrace)).isEqualTo(
+            """
+            fun test(): Int {
+                val b = foo()
+
+                if (b) {
+                    return 1
+                } else {
+                    return 2
+                }
+            }
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun testInReturnExpression() {
+        val ifElseWithoutCurlyBrace =
+            """
+            fun test(i: Int, j: Int): Int {
+                return if (i == 1)
+                    if (j == 1)
+                        1
+                    else
+                        2
+                else if (i == 2)
+                    if (j == 1)
+                        3
+                    else
+                        4
+                else
+                    if (j == 1)
+                        5
+                    else
+                        6
+            }
+            """.trimIndent()
+        assertThat(format(ifElseWithoutCurlyBrace)).isEqualTo(
+            """
+            fun test(i: Int, j: Int): Int {
+                return if (i == 1) {
+                    if (j == 1) {
+                        1
+                    } else {
+                        2
+                    }
+                } else if (i == 2) {
+                    if (j == 1) {
+                        3
+                    } else {
+                        4
+                    }
+                } else {
+                    if (j == 1) {
+                        5
+                    } else {
+                        6
+                    }
+                }
+            }
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun testInLambdaExpression() {
+        val ifElseWithoutCurlyBrace =
+            """
+            fun test(s: String?): Int {
+                val i = s.let {
+                    if (it == "")
+                        1
+                    else
+                        2
+                } ?: 0
+                return i
+            }
+            """.trimIndent()
+        assertThat(format(ifElseWithoutCurlyBrace)).isEqualTo(
+            """
+            fun test(s: String?): Int {
+                val i = s.let {
+                    if (it == "") {
+                        1
+                    } else {
+                        2
+                    }
+                } ?: 0
+                return i
+            }
+            """.trimIndent()
+        )
+    }
+
     private fun assertOK(kotlinScript: String) {
         assertThat(format(kotlinScript)).isEqualTo(kotlinScript)
         assertThat(lint(kotlinScript)).isEqualTo(emptyList<LintError>())
