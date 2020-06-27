@@ -16,6 +16,7 @@ class NoWildcardImportsRuleTest {
                 import a.b.c.*
                 import a.b
                 import kotlinx.android.synthetic.main.layout_name.*
+                import foo.bar.`**`
                 """.trimIndent()
             )
         ).isEqualTo(
