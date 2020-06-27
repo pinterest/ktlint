@@ -166,4 +166,23 @@ class SpacingAroundKeywordRuleTest {
             )
         ).isEmpty()
     }
+
+    @Test
+    fun elseAfterWhenBrace() {
+        assertThat(
+            SpacingAroundKeywordRule().lint(
+                """
+                fun test(b: Boolean, s: String): Int {
+                    return if (b)
+                        when (s) {
+                            "A" -> 1
+                            "B" -> 2
+                            else -> 3
+                        }
+                    else 4
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
 }
