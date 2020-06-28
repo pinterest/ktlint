@@ -23,10 +23,11 @@ class SpacingInUnaryExpressionRule : Rule("unary-op-spacing") {
             if (children.any { it.isPartOfComment() }) return
 
             val whiteSpace = children.firstOrNull { it.isWhiteSpace() } ?: return
+            emit(whiteSpace.startOffset, "Unexpected spacing in ${node.text.replace("\n", "\\n")}", true)
+
             if (autoCorrect) {
                 node.removeChild(whiteSpace)
             }
-            emit(whiteSpace.startOffset, "Unexpected spacing in ${node.text.replace("\n", "\\n")}", true)
         }
     }
 }
