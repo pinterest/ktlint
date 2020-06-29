@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard
 
+import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.ELSE_KEYWORD
 import com.pinterest.ktlint.core.ast.ElementType.IF_KEYWORD
@@ -15,6 +16,7 @@ class NoLineBreakAfterElseRule : Rule("no-line-break-after-else") {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
+        params: KtLint.Params,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         if (node is PsiWhiteSpace &&

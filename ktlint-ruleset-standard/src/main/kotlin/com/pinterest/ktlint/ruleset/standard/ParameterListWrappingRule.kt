@@ -26,6 +26,7 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
+        params: KtLint.Params,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         if (node.isRoot()) {

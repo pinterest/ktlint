@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.experimental
 
+import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.FILE
 import com.pinterest.ktlint.core.ast.ElementType.MODIFIER_LIST
@@ -20,6 +21,7 @@ class SpacingBetweenDeclarationsWithAnnotationsRule : Rule("spacing-between-decl
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
+        params: KtLint.Params,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         if (node.elementType == MODIFIER_LIST && node.hasAnnotationsAsChildren()) {

@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard
 
+import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.EQ
 import com.pinterest.ktlint.core.ast.ElementType.REGULAR_STRING_PART
@@ -9,7 +10,12 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
 class NoLineBreakBeforeAssignmentRule : Rule("no-line-break-before-assignment") {
 
-    override fun visit(node: ASTNode, autoCorrect: Boolean, emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
+    override fun visit(
+        node: ASTNode,
+        autoCorrect: Boolean,
+        params: KtLint.Params,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+    ) {
         if (node.elementType == EQ) {
             val prevElement = node.treePrev?.psi
             if (prevElement is PsiWhiteSpace && prevElement.text.contains("\n")) {

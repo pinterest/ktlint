@@ -16,6 +16,7 @@ class ErrorSuppressionTest {
             override fun visit(
                 node: ASTNode,
                 autoCorrect: Boolean,
+                params: KtLint.Params,
                 emit: (offset: Int, errorMessage: String, corrected: Boolean) -> Unit
             ) {
                 if (node is LeafPsiElement && node.textMatches("*") && node.isPartOf(ElementType.IMPORT_DIRECTIVE)) {

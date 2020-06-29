@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.test
 
+import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType
 import com.pinterest.ktlint.core.ast.isRoot
@@ -32,6 +33,7 @@ class DumpAST @JvmOverloads constructor(
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
+        params: KtLint.Params,
         emit: (offset: Int, errorMessage: String, corrected: Boolean) -> Unit
     ) {
         if (node.isRoot()) {

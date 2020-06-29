@@ -164,7 +164,7 @@ object KtLint {
             // (not just because not all nodes are leaves but because rules are free to emit (and fix!) errors at any position)
             if (!isSuppressed(node.startOffset, fqRuleId, node === rootNode)) {
                 try {
-                    rule.visit(node, false) { offset, errorMessage, canBeAutoCorrected ->
+                    rule.visit(node, false, params) { offset, errorMessage, canBeAutoCorrected ->
                         // https://github.com/shyiko/ktlint/issues/158#issuecomment-462728189
                         if (node.startOffset != offset && isSuppressed(offset, fqRuleId, node === rootNode)) {
                             return@visit
@@ -348,7 +348,7 @@ object KtLint {
                 // (not just because not all nodes are leaves but because rules are free to emit (and fix!) errors at any position)
                 if (!isSuppressed(node.startOffset, fqRuleId, node === rootNode)) {
                     try {
-                        rule.visit(node, true) { _, _, canBeAutoCorrected ->
+                        rule.visit(node, true, params) { _, _, canBeAutoCorrected ->
                             tripped = true
                             if (canBeAutoCorrected) {
                                 mutated = true
@@ -371,7 +371,7 @@ object KtLint {
                 // (not just because not all nodes are leaves but because rules are free to emit (and fix!) errors at any position)
                 if (!isSuppressed(node.startOffset, fqRuleId, node === rootNode)) {
                     try {
-                        rule.visit(node, false) { offset, errorMessage, canBeAutoCorrected ->
+                        rule.visit(node, false, params) { offset, errorMessage, canBeAutoCorrected ->
                             // https://github.com/shyiko/ktlint/issues/158#issuecomment-462728189
                             if (node.startOffset != offset && isSuppressed(offset, fqRuleId, node === rootNode)) {
                                 return@visit

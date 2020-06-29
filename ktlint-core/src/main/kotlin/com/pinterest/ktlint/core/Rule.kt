@@ -30,6 +30,7 @@ abstract class Rule(val id: String) {
     abstract fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
+        params: KtLint.Params,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     )
 

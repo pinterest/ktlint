@@ -22,6 +22,7 @@ class MaxLineLengthRule : Rule("max-line-length"), Rule.Modifier.Last {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
+        params: KtLint.Params,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         if (node.isRoot()) {

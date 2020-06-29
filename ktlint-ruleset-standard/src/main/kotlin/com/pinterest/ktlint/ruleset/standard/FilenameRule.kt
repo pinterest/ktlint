@@ -38,6 +38,7 @@ class FilenameRule : Rule("filename"), Rule.Modifier.RestrictToRoot {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
+        params: KtLint.Params,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         val filePath = node.getUserData(KtLint.FILE_PATH_USER_DATA_KEY)

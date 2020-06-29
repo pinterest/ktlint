@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.experimental
 
+import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.PACKAGE_DIRECTIVE
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -14,6 +15,7 @@ class PackageNameRule : Rule("package-name") {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
+        params: KtLint.Params,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         if (node.elementType == PACKAGE_DIRECTIVE) {

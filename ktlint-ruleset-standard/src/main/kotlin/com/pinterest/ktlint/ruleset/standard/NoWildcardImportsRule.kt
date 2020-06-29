@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard
 
+import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.IMPORT_DIRECTIVE
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -10,6 +11,7 @@ class NoWildcardImportsRule : Rule("no-wildcard-imports") {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
+        params: KtLint.Params,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         if (node.elementType == IMPORT_DIRECTIVE) {

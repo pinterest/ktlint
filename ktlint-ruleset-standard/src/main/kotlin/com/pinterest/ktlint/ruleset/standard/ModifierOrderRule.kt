@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard
 
+import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.ABSTRACT_KEYWORD
 import com.pinterest.ktlint.core.ast.ElementType.ACTUAL_KEYWORD
@@ -62,6 +63,7 @@ class ModifierOrderRule : Rule("modifier-order") {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
+        params: KtLint.Params,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         if (node.psi is KtDeclarationModifierList) {
