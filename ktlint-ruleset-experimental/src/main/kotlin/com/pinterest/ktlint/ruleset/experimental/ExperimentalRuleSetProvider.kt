@@ -15,6 +15,7 @@ class ExperimentalRuleSetProvider : RuleSetProvider {
         SpacingAroundDoubleColonRule(),
         SpacingBetweenDeclarationsWithCommentsRule(),
         SpacingBetweenDeclarationsWithAnnotationsRule(),
-        SpacingAroundAngleBracketsRule()
+        SpacingAroundAngleBracketsRule(),
+        SpacingAroundUnaryOperatorRule()
     )
 }

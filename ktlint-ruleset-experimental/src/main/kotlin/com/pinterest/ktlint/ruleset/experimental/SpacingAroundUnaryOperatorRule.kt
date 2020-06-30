@@ -1,4 +1,4 @@
-package com.pinterest.ktlint.ruleset.standard
+package com.pinterest.ktlint.ruleset.experimental
 
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType
@@ -7,7 +7,12 @@ import com.pinterest.ktlint.core.ast.isPartOfComment
 import com.pinterest.ktlint.core.ast.isWhiteSpace
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
-class SpacingInUnaryExpressionRule : Rule("unary-op-spacing") {
+/**
+ * Ensures there are no spaces around unary operators
+ *
+ * @see [Kotlin Style Guide](https://kotlinlang.org/docs/reference/coding-conventions.html#horizontal-whitespace)
+ */
+class SpacingAroundUnaryOperatorRule : Rule("unary-op-spacing") {
 
     override fun visit(
         node: ASTNode,

@@ -36,7 +36,6 @@ class StandardRuleSetProvider : RuleSetProvider {
         SpacingAroundOperatorsRule(),
         SpacingAroundParensRule(),
         SpacingAroundRangeOperatorRule(),
-        SpacingInUnaryExpressionRule(),
         StringTemplateRule()
     )
 }
