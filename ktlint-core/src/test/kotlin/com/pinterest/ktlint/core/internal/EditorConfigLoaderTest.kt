@@ -180,6 +180,29 @@ internal class EditorConfigLoaderTest {
     }
 
     @Test
+    fun `Should parse unset values`() {
+        val projectDir = "/project"
+        @Language("EditorConfig") val editorconfigFile =
+            """
+            [*.{kt,kts}]
+            indent_size = unset
+            """.trimIndent()
+        tempFileSystem.writeEditorConfigFile(projectDir, editorconfigFile)
+
+        val lintFile = tempFileSystem.normalizedPath(projectDir).resolve("test.kt")
+        val parsedEditorConfig = editorConfigLoader.loadPropertiesForFile(lintFile)
+
+        assertThat(parsedEditorConfig).isNotEmpty
+        assertThat(parsedEditorConfig).isEqualTo(
+            mapOf(
+                "indent_size" to "unset",
+                "tab_width" to "unset",
+                EditorConfigLoader.FILE_PATH_PROPERTY to lintFile.toString()
+            )
+        )
+    }
+
+    @Test
     fun `Should parse list with spaces after comma`() {
         val projectDir = "/project"
         @Language("EditorConfig") val editorconfigFile =

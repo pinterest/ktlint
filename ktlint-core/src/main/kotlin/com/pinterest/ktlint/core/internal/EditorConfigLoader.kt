@@ -18,6 +18,7 @@ class EditorConfigLoader(
     private val cache = ThreadSafeEditorConfigCache()
     private val editorConfigLoader = EditorConfigLoader.default_()
     private val propService = ResourcePropertiesService.builder()
+        .keepUnset(true)
         .cache(cache)
         .loader(editorConfigLoader)
         .build()
@@ -69,7 +70,9 @@ class EditorConfigLoader(
                 Resource.Resources.ofPath(normalizedFilePath, StandardCharsets.UTF_8)
             )
             .properties
-            .mapValues { it.value.sourceValue }
+            .mapValues {
+                if (it.value.isUnset) "unset" else it.value.sourceValue
+            }
             .run {
                 if (!isStdIn) {
                     plus(FILE_PATH_PROPERTY to filePath.toString())
