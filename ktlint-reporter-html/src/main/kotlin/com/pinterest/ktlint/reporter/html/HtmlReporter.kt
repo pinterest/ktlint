@@ -129,7 +129,7 @@ class HtmlReporter(private val out: PrintStream) : Reporter {
 
     private fun item(value: String) {
         out.print("<li>")
-        text(value)
+        text(value.escapeHTMLAttrValue())
         out.println("</li>")
     }
 
@@ -144,4 +144,8 @@ class HtmlReporter(private val out: PrintStream) : Reporter {
         body()
         out.println("</p>")
     }
+
+    private fun String.escapeHTMLAttrValue() =
+        this.replace("&", "&amp;").replace("\"", "&quot;").replace("'", "&apos;")
+            .replace("<", "&lt;").replace(">", "&gt;")
 }
