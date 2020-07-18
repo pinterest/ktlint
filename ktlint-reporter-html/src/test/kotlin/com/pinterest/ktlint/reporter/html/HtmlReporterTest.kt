@@ -148,4 +148,52 @@ h3 {
         val expected = String(out.toByteArray())
         assertEquals(actual, expected)
     }
+
+    @Test
+    fun shouldRenderIssuesAndEscapeSpecialHtmlSymbolsWhen_LintProblemsFound() {
+        val out = ByteArrayOutputStream()
+        val reporter = HtmlReporter(PrintStream(out, true))
+
+        reporter.onLintError(
+            "/file1.kt",
+            LintError(1, 1, "rule-1", "Error message contains a generic type like List<Int> (cannot be auto-corrected)"),
+            false
+        )
+
+        reporter.onLintError(
+            "/file1.kt",
+            LintError(2, 1, "rule-2", "Error message contains special html symbols like a<b>c\"d'e&f (cannot be auto-corrected)"),
+            false
+        )
+
+        reporter.afterAll()
+
+        val actual =
+            """<html>
+<head>
+<link href="https://fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" />
+<style>
+body {
+    font-family: 'Source Code Pro', monospace;
+}
+h3 {
+    font-size: 12pt;
+}</style>
+</head>
+<body>
+<h1>Overview</h1>
+<p>Issues found: 2</p>
+<p>Issues corrected: 0</p>
+<h3>/file1.kt</h3>
+<ul>
+<li>(1, 1): Error message contains a generic type like List&lt;Int&gt; (cannot be auto-corrected)  (rule-1)</li>
+<li>(2, 1): Error message contains special html symbols like a&lt;b&gt;c&quot;d&apos;e&amp;f (cannot be auto-corrected)  (rule-2)</li>
+</ul>
+</body>
+</html>
+""".trimStart().replace("\n", System.lineSeparator())
+
+        val expected = String(out.toByteArray())
+        assertEquals(actual, expected)
+    }
 }
