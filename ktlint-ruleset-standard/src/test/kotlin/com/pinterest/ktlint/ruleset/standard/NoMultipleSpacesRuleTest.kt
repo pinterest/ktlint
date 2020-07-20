@@ -63,4 +63,14 @@ class NoMultipleSpacesRuleTest {
             """.trimIndent()
         assertThat(NoMultipleSpacesRule().format(code)).isEqualTo(code)
     }
+
+    @Test
+    fun `test multiple spaces in the beginning of the file`() {
+        assertThat(NoMultipleSpacesRule().lint("  package my.company.android"))
+            .isEqualTo(
+                listOf(
+                    LintError(1, 2, "no-multi-spaces", "Unnecessary space(s)")
+                )
+            )
+    }
 }
