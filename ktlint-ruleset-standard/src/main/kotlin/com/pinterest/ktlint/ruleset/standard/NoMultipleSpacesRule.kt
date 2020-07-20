@@ -18,21 +18,12 @@ class NoMultipleSpacesRule : Rule("no-multi-spaces") {
             // allow multiple spaces in KDoc in case of KDOC_TAG for alignment, e.g.
             // @param foo      stuff
             // @param foobar   stuff2
-            !isKdocMarkdownNode(node)
+            !(node.treePrev?.elementType == KDOC_MARKDOWN_LINK && node.treeParent?.elementType == KDOC_TAG)
         ) {
             emit(node.startOffset + 1, "Unnecessary space(s)", true)
             if (autoCorrect) {
                 (node as LeafPsiElement).rawReplaceWithText(" ")
             }
-        }
-    }
-
-    private fun isKdocMarkdownNode(node: ASTNode): Boolean {
-        return when {
-            node.treePrev != null -> {
-                node.treePrev.elementType == KDOC_MARKDOWN_LINK && node.treeParent.elementType == KDOC_TAG
-            }
-            else -> false
         }
     }
 }
