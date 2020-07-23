@@ -2,7 +2,7 @@ import org.gradle.crypto.checksum.Checksum
 
 plugins {
   id 'org.jetbrains.kotlin.jvm'
-  id 'com.vanniktech.maven.publish'
+  id 'ktlint-publication'
   id 'com.github.johnrengelman.shadow'
   id 'org.gradle.crypto.checksum'
 }

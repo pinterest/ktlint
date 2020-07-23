@@ -4,7 +4,7 @@ plugins {
 }
 
 ext.versions = [
-  'kotlin': gradle.ext.isKotlinDev ? '1.4-M2' : '1.3.70',
+  'kotlin': gradle.ext.isKotlinDev ? '1.4-M3' : '1.3.70',
   'gradle': '6.5'
 ]
 
@@ -23,7 +23,9 @@ ext.deps = [
 ]
 
 if (gradle.ext.isKotlinDev) {
-  project.properties.put("VERSION_NAME", "0.38.0-kotlin-dev-SNAPSHOT")
+  allprojects { p ->
+    p.ext."VERSION_NAME" = "0.38.0-kotlin-dev-SNAPSHOT"
+  }
 }
 
 configurations {

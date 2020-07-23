@@ -1,0 +1,91 @@
+import java.net.URI
+import org.jetbrains.dokka.gradle.DokkaTask
+
+plugins {
+    `java-library`
+    `maven-publish`
+    signing
+    id("org.jetbrains.dokka")
+}
+
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
+val dokkaJavadocTask = tasks.register<DokkaTask>("dokkaJavadoc") {
+    outputFormat = "javadoc"
+    outputDirectory = "$buildDir/javadoc"
+}
+
+tasks.named<Jar>("javadocJar") {
+    dependsOn(dokkaJavadocTask)
+    archiveClassifier.set("javadoc")
+    from(dokkaJavadocTask)
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = project.property("GROUP") as String?
+            artifactId = project.property("POM_ARTIFACT_ID") as String?
+            version = project.property("VERSION_NAME") as String?
+
+            pom {
+                name.set(project.property("POM_NAME") as String?)
+                description.set(project.property("POM_DESCRIPTION") as String?)
+                url.set(project.property("POM_URL") as String?)
+                licenses {
+                    license {
+                        name.set(project.property("POM_LICENSE_NAME") as String?)
+                        url.set(project.property("POM_LICENSE_URL") as String?)
+                        distribution.set("repo")
+                    }
+                }
+                developers {
+                    developer {
+                        id.set(project.property("POM_DEVELOPER_ID") as String?)
+                        name.set(project.property("POM_DEVELOPER_NAME") as String?)
+                    }
+                }
+                scm {
+                    url.set(project.property("POM_SCM_URL") as String?)
+                    connection.set(project.property("POM_SCM_CONNECTION") as String?)
+                    developerConnection.set(project.property("POM_SCM_DEV_CONNECTION") as String?)
+                }
+            }
+
+            from(components["java"])
+        }
+    }
+
+    repositories {
+        maven {
+            val releasesRepoUrl = URI.create("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
+            val snapshotsRepoUrl = URI.create("https://oss.sonatype.org/content/repositories/snapshots/")
+            name = "mavenCentral"
+            url = if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl
+        }
+
+        maven {
+            // Enables checksums when publishing to mavenLocal()
+            name = "MavenLocalTest"
+            url = mavenLocal().url
+        }
+    }
+}
+
+/**
+ * Following signing parameters must be configured in `$HOME/.gradle/gradle.properties`:
+ * ```
+ * signing.keyId=12345678
+ * signing.password=some_password
+ * signing.secretKeyRingFile=/Users/yourusername/.gnupg/secring.gpg
+ * ```
+ */
+signing {
+    sign(publishing.publications["maven"])
+    setRequired({
+        !gradle.startParameter.taskNames.any { it.contains("ToMavenLocal") }
+    })
+}
