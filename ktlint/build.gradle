@@ -18,8 +18,8 @@ shadowJar {
   mergeServiceFiles()
 }
 
-artifacts {
-  archives shadowJar
+publishing.publications.named("maven").configure {
+  artifact(shadowJar)
 }
 
 dependencies {
