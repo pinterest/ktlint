@@ -66,12 +66,6 @@ publishing {
             name = "mavenCentral"
             url = if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl
         }
-
-        maven {
-            // Enables checksums when publishing to mavenLocal()
-            name = "MavenLocalTest"
-            url = mavenLocal().url
-        }
     }
 }
 
