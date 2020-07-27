@@ -123,11 +123,11 @@ githubRelease {
 def announceTask = tasks.register("announceRelease", Exec.class) { announceTask ->
   group = "Help"
   description = "Runs .announce script"
-  subprojects { subproject ->
-    subproject.tasks.named("uploadArchives") { task ->
-      announceTask.dependsOn ":${subproject.name}:${task.name}"
+  subprojects
+    .findAll { !it.name.contains("ktlint-ruleset-template") }
+    .each { subproject ->
+      announceTask.dependsOn subproject.tasks.named("publishMavenPublicationToMavenCentralRepository")
     }
-  }
 
   commandLine './.announce', '-y'
   environment VERSION: "${project.'VERSION_NAME'}"
