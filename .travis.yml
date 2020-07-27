@@ -13,10 +13,16 @@ script:
   - |
     if [[ $TRAVIS_REPO_SLUG == "pinterest/ktlint" && $TRAVIS_BRANCH == "master" && $TRAVIS_PULL_REQUEST == "false" ]]; then
       # Gradle
-      ./gradlew clean uploadArchives --no-daemon --no-parallel
+      ./gradlew clean publishMavenPublicationToMavenCentralRepository --no-daemon --no-parallel
+      # Publishing kotlin dev snapshots if no git tag is present
+      if [[ -z $TRAVIS_TAG ]]; then
+        ./gradlew -PkotlinDev clean publishMavenPublicationToMavenCentralRepository --no-deamon --no-parallel
+      fi
     else
-      # Gradle
+      # Gradle with release Kotlin version
       ./gradlew clean build ktlint
+      # Gradle with Kotlin dev version
+      ./gradlew -PkotlinDev clean build ktlint
     fi
 
 before_cache:
