@@ -16,6 +16,7 @@ import com.pinterest.ktlint.core.ast.isRoot
 import com.pinterest.ktlint.core.ast.prevLeaf
 import com.pinterest.ktlint.core.ast.visit
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
+import kotlin.math.max
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
@@ -133,10 +134,10 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
                                         val split = n.text.split("\n")
                                         (n as LeafElement).rawReplaceWithText(
                                             split.joinToString("\n") {
-                                                if (adjustment > 0) {
-                                                    it + " ".repeat(adjustment)
-                                                } else {
-                                                    it.substring(0, Math.max(it.length + adjustment, 0))
+                                                when {
+                                                    it.isEmpty() -> it
+                                                    adjustment > 0 -> it + " ".repeat(adjustment)
+                                                    else -> it.substring(0, max(it.length + adjustment, 0))
                                                 }
                                             }
                                         )
