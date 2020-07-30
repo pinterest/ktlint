@@ -350,6 +350,130 @@ class ParameterListWrappingRuleTest {
     }
 
     @Test
+    fun testLambdaArgumentsAreIgnored() {
+        assertThat(
+            ParameterListWrappingRule().lint(
+                """
+                abstract class A(init: String.() -> Int)
+                class B : A({
+                    toInt()
+                })
+
+                fun test(a: Any, b: (Any) -> Any) {
+                    test(a = "1", b = {
+                        it.toString()
+                    })
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun testFormatWithLambdaArguments() {
+        assertThat(
+            ParameterListWrappingRule().format(
+                """
+                abstract class A(init: String.() -> Int)
+                class B : A({
+                    toInt()
+                })
+
+                fun test(a: Any, b: (Any) -> Any) {
+                    test(
+                        a = "1", b = {
+                        it.toString()
+                    })
+                }
+
+                fun test(a: Any, b: (Any) -> Any, c: Any) {
+                    test(a = "1", b = {
+                        it.toString()
+                    }, c = 123)
+                }
+
+                fun test(a: Any, b: (Any) -> Any, c: Any) {
+                    test(a = "1", b = {
+                        it.toString()
+                    },
+                    c = 123)
+                }
+
+                fun test(a: Any, b: (Any) -> Any, c: Any) {
+                    test("1",
+                        { val x = it.toString(); x }, 123)
+                }
+
+                fun test(a: Any, b: (Any) -> Any, c: Any) {
+                    test(
+                        "1",
+                        {
+                            f(1,
+                                { "stuff" }, 3)
+                        },
+                        123
+                    )
+                }
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            """
+            abstract class A(init: String.() -> Int)
+            class B : A({
+                toInt()
+            })
+
+            fun test(a: Any, b: (Any) -> Any) {
+                test(
+                    a = "1",
+                    b = {
+                        it.toString()
+                    }
+                )
+            }
+
+            fun test(a: Any, b: (Any) -> Any, c: Any) {
+                test(a = "1", b = {
+                    it.toString()
+                }, c = 123)
+            }
+
+            fun test(a: Any, b: (Any) -> Any, c: Any) {
+                test(
+                    a = "1",
+                    b = {
+                        it.toString()
+                    },
+                    c = 123
+                )
+            }
+
+            fun test(a: Any, b: (Any) -> Any, c: Any) {
+                test(
+                    "1",
+                    { val x = it.toString(); x },
+                    123
+                )
+            }
+
+            fun test(a: Any, b: (Any) -> Any, c: Any) {
+                test(
+                    "1",
+                    {
+                        f(
+                            1,
+                            { "stuff" },
+                            3
+                        )
+                    },
+                    123
+                )
+            }
+            """.trimIndent()
+        )
+    }
+
+    @Test
     fun testFormatPreservesIndent() {
         assertThat(
             ParameterListWrappingRule().format(

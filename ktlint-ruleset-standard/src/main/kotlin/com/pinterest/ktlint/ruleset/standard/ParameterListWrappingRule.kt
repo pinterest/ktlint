@@ -4,6 +4,7 @@ import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.COLLECTION_LITERAL_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.FUNCTION_LITERAL
+import com.pinterest.ktlint.core.ast.ElementType.LAMBDA_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.LPAR
 import com.pinterest.ktlint.core.ast.ElementType.RPAR
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_ARGUMENT
@@ -53,7 +54,7 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
             // - maxLineLength exceeded (and separating parameters with \n would actually help)
             // in addition, "(" and ")" must be on separates line if any of the parameters are (otherwise on the same)
             val putParametersOnSeparateLines =
-                node.textContains('\n') ||
+                node.textContainsIgnoringLambda('\n') ||
                     // max_line_length exceeded
                     maxLineLength > -1 && (node.column - 1 + node.textLength) > maxLineLength
             if (putParametersOnSeparateLines) {
@@ -119,12 +120,13 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
                             ) {
                                 child.visit { n ->
                                     if (n.elementType == WHITE_SPACE && n.textContains('\n')) {
-                                        val isInCollectionLiteral = n.treeParent?.elementType == COLLECTION_LITERAL_EXPRESSION
+                                        val isInCollectionOrFunctionLiteral =
+                                            n.treeParent?.elementType == COLLECTION_LITERAL_EXPRESSION || n.treeParent?.elementType == FUNCTION_LITERAL
 
                                         // If we're inside a collection literal, let's recalculate the adjustment
                                         // because the items inside the collection should not be subject to the same
                                         // indentation as the brackets.
-                                        val adjustment = if (isInCollectionLiteral) {
+                                        val adjustment = if (isInCollectionOrFunctionLiteral) {
                                             val expectedPosition = intendedIndent.length + indentSize
                                             expectedPosition - child.column
                                         } else {
@@ -186,5 +188,12 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
             leaf = leaf.prevLeaf()
         }
         return ""
+    }
+
+    private fun ASTNode.textContainsIgnoringLambda(char: Char): Boolean {
+        return children()
+            .flatMap { if (it.elementType == VALUE_ARGUMENT) it.children() else sequenceOf(it) }
+            .filter { it.elementType != LAMBDA_EXPRESSION }
+            .any { it.textContains(char) }
     }
 }
