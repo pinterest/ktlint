@@ -16,8 +16,8 @@ import com.pinterest.ktlint.core.ast.children
 import com.pinterest.ktlint.core.ast.isRoot
 import com.pinterest.ktlint.core.ast.prevLeaf
 import com.pinterest.ktlint.core.ast.visit
-import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import kotlin.math.max
+import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
@@ -42,7 +42,9 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
         if (indentSize <= 0) {
             return
         }
-        val isParameterOrArgumentList = (node.elementType == VALUE_PARAMETER_LIST || node.elementType == VALUE_ARGUMENT_LIST)
+        val isParameterOrArgumentList = node.elementType == VALUE_PARAMETER_LIST ||
+            // skip if number of arguments is big (we assume it with a magic number of 8)
+            (node.elementType == VALUE_ARGUMENT_LIST && node.children().filter { it.elementType == VALUE_ARGUMENT }.toList().size <= 8)
         if (isParameterOrArgumentList &&
             // skip when there are no parameters
             node.firstChildNode?.treeNext?.elementType != RPAR &&

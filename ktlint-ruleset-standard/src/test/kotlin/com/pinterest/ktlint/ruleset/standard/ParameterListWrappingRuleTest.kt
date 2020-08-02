@@ -789,4 +789,18 @@ class ParameterListWrappingRuleTest {
             """.trimIndent()
         )
     }
+
+    @Test
+    fun testLintVarargIsIgnored() {
+        assertThat(
+            ParameterListWrappingRule().lint(
+                """
+                private val tokenSet = TokenSet.create(
+                    MUL, PLUS, MINUS, DIV, PERC, LT, GT, LTEQ, GTEQ, EQEQEQ, EXCLEQEQEQ, EQEQ,
+                    EXCLEQ, ANDAND, OROR, ELVIS, EQ, MULTEQ, DIVEQ, PERCEQ, PLUSEQ, MINUSEQ, ARROW
+                )
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
 }
