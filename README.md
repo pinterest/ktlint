@@ -118,7 +118,7 @@ disabled_rules=indent
 > Skip all the way to the "Integration" section if you don't plan to use `ktlint`'s command line interface.
 
 ```sh
-curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.37.1/ktlint &&
+curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.37.2/ktlint &&
   chmod a+x ktlint &&
   sudo mv ktlint /usr/local/bin/
 ```
@@ -214,7 +214,7 @@ $ ktlint installGitPreCommitHook
         <dependency>
             <groupId>com.pinterest</groupId>
             <artifactId>ktlint</artifactId>
-            <version>0.37.1</version>
+            <version>0.37.2</version>
         </dependency>
         <!-- additional 3rd party ruleset(s) can be specified here -->
     </dependencies>
@@ -262,7 +262,7 @@ configurations {
 }
 
 dependencies {
-    ktlint "com.pinterest:ktlint:0.37.1"
+    ktlint "com.pinterest:ktlint:0.37.2"
     // additional 3rd party ruleset(s) can be specified here
     // just add them to the classpath (e.g. ktlint 'groupId:artifactId:version') and 
     // ktlint will pick them up
@@ -291,6 +291,43 @@ To check code style - `gradle ktlint` (it's also bound to `gradle check`).
 To run formatter - `gradle ktlintFormat`.
 
 See [Making your Gradle tasks incremental](https://proandroiddev.com/making-your-gradle-tasks-incremental-7f26e4ef09c3) by [Niklas Baudy](https://github.com/vanniktech) on how to make tasks above incremental. 
+
+
+#### (without a plugin) for Gradle Kotlin DSL (build.gradle.kts)
+
+> build.gradle.kts
+
+```kotlin
+val ktlint by configurations.creating
+
+dependencies {
+    ktlint("com.pinterest:ktlint:0.37.2")
+    // ktlint(project(":custom-ktlint-ruleset")) // in case of custom ruleset
+}
+
+val outputDir = "${project.buildDir}/reports/ktlint/"
+val inputFiles = project.fileTree(mapOf("dir" to "src", "include" to "**/*.kt"))
+
+val ktlintCheck by tasks.creating(JavaExec::class) {
+    inputs.files(inputFiles)
+    outputs.dir(outputDir)
+
+    description = "Check Kotlin code style."
+    classpath = ktlint
+    main = "com.pinterest.ktlint.Main"
+    args = listOf("src/**/*.kt")
+}
+
+val ktlintFormat by tasks.creating(JavaExec::class) {
+    inputs.files(inputFiles)
+    outputs.dir(outputDir)
+
+    description = "Fix Kotlin code style deviations."
+    classpath = ktlint
+    main = "com.pinterest.ktlint.Main"
+    args = listOf("-F", "src/**/*.kt")
+}
+```
 
 #### ... with [IntelliJ IDEA](https://www.jetbrains.com/idea/)
 

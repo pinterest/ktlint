@@ -7,6 +7,27 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - Experimental SpacingAroundAngleBracketsRule ([#769](https://github.com/pinterest/ktlint/pull/769))
 - Checksum generation for executable Jar ([#695](https://github.com/pinterest/ktlint/issues/695))
+- Enable Gradle dependency verification
+
+### Fixed
+- Safe-called wrapped trailing lambdas indented correctly ([#776](https://github.com/pinterest/ktlint/issues/776))
+- `provideDelegate` imports are not marked as unused anymore ([#669](https://github.com/pinterest/ktlint/issues/669))
+- Set continuation indent to 4 in IDE integration codestyle ([#775](https://github.com/pinterest/ktlint/issues/775)) 
+- No empty lines between annotation and annotated target ([#688](https://github.com/pinterest/ktlint/issues/688))
+- Unused imports reported correctly ([#526](https://github.com/pinterest/ktlint/issues/526)) ([#405](https://github.com/pinterest/ktlint/issues/405))
+- No false empty lines inserted in multiline if-else block ([#793](https://github.com/pinterest/ktlint/issues/793))
+- No-wildcard-imports properly handles custom infix function with asterisk ([#799](https://github.com/pinterest/ktlint/issues/799))
+- Do not require else to be in the same line of a right brace if the right brace is not part of the if statement ([#756](https://github.com/pinterest/ktlint/issues/756))
+
+### Changed
+- Update Gradle to 6.5 version
+- Update ec4j to 0.2.2 version. Now it should report path to `.editorconfig` file on failed parsing 
+and allow empty `.editorconfig` files.
+
+
+## [0.37.2] - 2020-06-16
+
+Minor release to fix further bugs in `ImportOrderingRule`.
 
 ### Fixed
 - Imports with aliases no longer removed ([#766](https://github.com/pinterest/ktlint/issues/766))
@@ -703,6 +724,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.37.2]: https://github.com/pinterest/ktlint/compare/0.37.1...0.37.2
 [0.37.1]: https://github.com/pinterest/ktlint/compare/0.37.0...0.37.1
 [0.37.0]: https://github.com/pinterest/ktlint/compare/0.36.0...0.37.0
 [0.36.0]: https://github.com/pinterest/ktlint/compare/0.35.0...0.36.0

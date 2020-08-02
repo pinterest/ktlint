@@ -14,8 +14,8 @@ class NoWildcardImportsRule : Rule("no-wildcard-imports") {
     ) {
         if (node.elementType == IMPORT_DIRECTIVE) {
             val importDirective = node.psi as KtImportDirective
-            val path = importDirective.importPath?.pathStr
-            if (path != null && !path.startsWith("kotlinx.android.synthetic") && path.contains('*')) {
+            val path = importDirective.importPath
+            if (path != null && path.isAllUnder && !path.pathStr.startsWith("kotlinx.android.synthetic")) {
                 emit(node.startOffset, "Wildcard import", false)
             }
         }

@@ -23,6 +23,7 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet.create
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocName
+import org.jetbrains.kotlin.psi.KtBlockExpression
 import org.jetbrains.kotlin.psi.KtPropertyAccessor
 import org.jetbrains.kotlin.psi.KtWhenEntry
 
@@ -62,21 +63,12 @@ class SpacingAroundKeywordRule : Rule("keyword-spacing") {
                 if (
                     prevLeaf?.elementType == WHITE_SPACE &&
                     prevLeaf.textContains('\n') &&
-                    (node.elementType != ELSE_KEYWORD || node.parent !is KtWhenEntry)
+                    (node.elementType != ELSE_KEYWORD || node.parent !is KtWhenEntry) &&
+                    prevLeaf.prevLeaf()?.takeIf { it.elementType == RBRACE }?.treeParent is KtBlockExpression
                 ) {
-                    val presumablyCurly = prevLeaf.prevLeaf()
-                    if (presumablyCurly != null &&
-                        presumablyCurly.elementType == RBRACE &&
-                        (
-                            node.elementType != ELSE_KEYWORD ||
-                                // `if (...) v.let { } else` case
-                                presumablyCurly.treeParent?.treeParent?.treeParent == node.treeParent
-                            )
-                    ) {
-                        emit(node.startOffset, "Unexpected newline before \"${node.text}\"", true)
-                        if (autoCorrect) {
-                            (prevLeaf as LeafElement).rawReplaceWithText(" ")
-                        }
+                    emit(node.startOffset, "Unexpected newline before \"${node.text}\"", true)
+                    if (autoCorrect) {
+                        (prevLeaf as LeafElement).rawReplaceWithText(" ")
                     }
                 }
             }

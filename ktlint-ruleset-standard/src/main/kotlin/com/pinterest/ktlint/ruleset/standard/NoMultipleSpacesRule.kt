@@ -18,7 +18,7 @@ class NoMultipleSpacesRule : Rule("no-multi-spaces") {
             // allow multiple spaces in KDoc in case of KDOC_TAG for alignment, e.g.
             // @param foo      stuff
             // @param foobar   stuff2
-            !(node.treePrev.elementType == KDOC_MARKDOWN_LINK && node.treeParent.elementType == KDOC_TAG)
+            !(node.treePrev?.elementType == KDOC_MARKDOWN_LINK && node.treeParent?.elementType == KDOC_TAG)
         ) {
             emit(node.startOffset + 1, "Unnecessary space(s)", true)
             if (autoCorrect) {

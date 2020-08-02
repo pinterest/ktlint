@@ -272,6 +272,131 @@ class NoUnusedImportsRuleTest {
     }
 
     @Test
+    fun testParentPackImport() {
+        assertThat(
+            NoUnusedImportsRule().lint(
+                """
+                import org.mockito.Mockito
+                import org.mockito.Mockito.withSettings
+                fun foo() {
+                        Mockito.mock(String::class.java, Mockito.withSettings().defaultAnswer {  })
+                    }
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(2, 1, "no-unused-imports", "Unused import")
+            )
+        )
+    }
+
+    @Test
+    fun testParentPackImportWithPackageNamePresent() {
+        assertThat(
+            NoUnusedImportsRule().lint(
+                """
+                package org.tw.project
+                import org.mockito.Mockito
+                import org.mockito.Mockito.withSettings
+                fun foo() {
+                        Mockito.mock(String::class.java, Mockito.withSettings().defaultAnswer {  })
+                    }
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(3, 1, "no-unused-imports", "Unused import")
+            )
+        )
+    }
+
+    @Test
+    fun testParentPackImportWithImportNameHavingNoParentImport() {
+        assertThat(
+            NoUnusedImportsRule().lint(
+                """
+                import org.assertj.core.util.diff.DiffUtils.diff
+                import org.assertj.core.util.diff.DiffUtils.generateUnifiedDiff
+                fun foo() {
+                val a = diff(2)
+                val diff = generateUnifiedDiff(1)
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun testParentImportWithStaticVariable() {
+        assertThat(
+            NoUnusedImportsRule().lint(
+                """
+                import org.repository.RepositoryPolicy
+                import org.repository.RepositoryPolicy.CHECKSUM_POLICY_IGNORE
+                fun main() {
+                        RepositoryPolicy(
+                        false, "trial",
+                        CHECKSUM_POLICY_IGNORE
+                    )
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun testParentImportWithStaticVariableImportAndParentImportUnused() {
+        assertThat(
+            NoUnusedImportsRule().lint(
+                """
+                import org.repository.RepositoryPolicy
+                import org.repository.RepositoryPolicy.CHECKSUM_POLICY_IGNORE
+                fun main() {
+                       val a = CHECKSUM_POLICY_IGNORE
+                }
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(1, 1, "no-unused-imports", "Unused import")
+            )
+        )
+    }
+
+    @Test
+    fun testFormatWhenParentImportWithStaticVariableAndMethod() {
+        assertThat(
+            NoUnusedImportsRule().format(
+                """
+                package org.tw.project
+                import org.repository.RepositoryPolicy
+                import org.repository.RepositoryPolicy.CHECKSUM_POLICY_IGNORE
+                import org.mockito.Mockito
+                import org.mockito.Mockito.withSettings
+                fun foo() {
+                        Mockito.mock(String::class.java, Mockito.withSettings().defaultAnswer {  })
+                }
+                fun main() {
+                       val a = CHECKSUM_POLICY_IGNORE
+                }
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            """
+            package org.tw.project
+            import org.repository.RepositoryPolicy.CHECKSUM_POLICY_IGNORE
+            import org.mockito.Mockito
+            fun foo() {
+                    Mockito.mock(String::class.java, Mockito.withSettings().defaultAnswer {  })
+            }
+            fun main() {
+                   val a = CHECKSUM_POLICY_IGNORE
+            }
+            """.trimIndent()
+        )
+    }
+
+    @Test
     fun `provideDelegate is allowed if there is a by keyword`() {
         assertThat(
             NoUnusedImportsRule().lint(
@@ -305,6 +430,7 @@ class NoUnusedImportsRuleTest {
             NoUnusedImportsRule().lint(
                 """
                 import org.gradle.kotlin.dsl.provideDelegate
+                import com.github.ajalt.clikt.parameters.groups.provideDelegate
 
                 fun main() {
                 }
@@ -312,8 +438,124 @@ class NoUnusedImportsRuleTest {
             )
         ).isEqualTo(
             listOf(
-                LintError(1, 1, "no-unused-imports", "Unused import")
+                LintError(1, 1, "no-unused-imports", "Unused import"),
+                LintError(2, 1, "no-unused-imports", "Unused import")
             )
         )
+    }
+
+    // https://github.com/pinterest/ktlint/issues/669
+    @Test
+    fun `provideDelegate is allowed for any import path`() {
+        assertThat(
+            NoUnusedImportsRule().lint(
+                """
+                import com.github.ajalt.clikt.parameters.groups.provideDelegate
+
+                fun main() {
+                    private val old by argument("OLD", help = "Old input file.")
+                      .path(exists = true, folderOkay = false, readable = true, fileSystem = inputFs)
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun shouldNotReportUnusedWhenStaticImportIsFromAnotherPackage() {
+        assertThat(
+            NoUnusedImportsRule().lint(
+                """
+                package com.foo
+
+                import android.text.Spannable
+                import androidx.core.text.toSpannable
+
+                fun foo(text: String): Spannable {
+                    return text.toSpannable()
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `should import alias after as and not when as is present in package name`() {
+        assertThat(
+            NoUnusedImportsRule().lint(
+                """
+                package com.fastcompany.foo
+
+                import com.fastcompany.common.Awesome as CommonAsset
+                import com.company.common.alias as CommonAsset
+
+                class SomeConfig {
+
+                    fun fooFunction() = CommonAsset()
+                }
+
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `should import alias after as and not when as is present in package ending name`() {
+        assertThat(
+            NoUnusedImportsRule().lint(
+                """
+                import com.company.common.alias as CommonAsset
+
+                class SomeConfig {
+
+                    fun fooFunction() = CommonAsset()
+                }
+
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `if import path contains "import" word - does not report issues`() {
+        assertThat(
+            NoUnusedImportsRule().lint(
+                """
+                import com.pinterest.ktlint.ruleset.standard.internal.importordering.PatternEntry
+                import com.pinterest.ktlint.ruleset.standard.internal.importordering.parseImportsLayout
+                import org.assertj.core.api.Assertions.assertThat
+                import org.junit.Test
+
+                class ImportLayoutParserTest {
+
+                    @Test(expected = IllegalArgumentException::class)
+                    fun `blank lines in the beginning and end of import list are not allowed`() {
+                        parseImportsLayout("|,*,|")
+                    }
+
+                    @Test(expected = IllegalArgumentException::class)
+                    fun `pattern without single wildcard is not allowed`() {
+                        parseImportsLayout("java.util.List")
+                    }
+
+                    @Test
+                    fun `parses correctly`() {
+                        val expected = listOf(
+                            PatternEntry("android", withSubpackages = true, hasAlias = false),
+                            PatternEntry.BLANK_LINE_ENTRY,
+                            PatternEntry("org.junit", withSubpackages = true, hasAlias = false),
+                            PatternEntry.BLANK_LINE_ENTRY,
+                            PatternEntry("android", withSubpackages = true, hasAlias = true),
+                            PatternEntry.ALL_OTHER_IMPORTS_ENTRY,
+                            PatternEntry.ALL_OTHER_ALIAS_IMPORTS_ENTRY
+                        )
+                        val actual = parseImportsLayout("android.*,|,org.junit.*,|,^android.*,*,^*")
+
+                        assertThat(actual).isEqualTo(expected)
+                    }
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
     }
 }
