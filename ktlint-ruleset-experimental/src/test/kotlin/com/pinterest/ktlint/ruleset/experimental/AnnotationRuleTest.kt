@@ -111,7 +111,9 @@ class AnnotationRuleTest {
             )
         ).containsExactly(
             LintError(
-                2, 5, "annotation",
+                2,
+                5,
+                "annotation",
                 AnnotationRule.multipleAnnotationsOnSameLineAsAnnotatedConstructErrorMessage
             )
         )
@@ -184,7 +186,10 @@ class AnnotationRuleTest {
             )
         ).containsExactly(
             LintError(
-                2, 28, "annotation", "Missing spacing after @SomeAnnotation(\"value\")"
+                2,
+                28,
+                "annotation",
+                "Missing spacing after @SomeAnnotation(\"value\")"
             )
         )
     }
@@ -204,7 +209,9 @@ class AnnotationRuleTest {
             )
         ).containsExactly(
             LintError(
-                2, 5, "annotation",
+                2,
+                5,
+                "annotation",
                 AnnotationRule.annotationsWithParametersAreNotOnSeparateLinesErrorMessage
             )
         )
@@ -250,11 +257,15 @@ class AnnotationRuleTest {
             )
         ).containsExactly(
             LintError(
-                1, 1, "annotation",
+                1,
+                1,
+                "annotation",
                 AnnotationRule.multipleAnnotationsOnSameLineAsAnnotatedConstructErrorMessage
             ),
             LintError(
-                1, 1, "annotation",
+                1,
+                1,
+                "annotation",
                 AnnotationRule.annotationsWithParametersAreNotOnSeparateLinesErrorMessage
             )
         )
@@ -328,11 +339,15 @@ class AnnotationRuleTest {
             )
         ).containsExactly(
             LintError(
-                2, 5, "annotation",
+                2,
+                5,
+                "annotation",
                 AnnotationRule.multipleAnnotationsOnSameLineAsAnnotatedConstructErrorMessage
             ),
             LintError(
-                2, 5, "annotation",
+                2,
+                5,
+                "annotation",
                 AnnotationRule.annotationsWithParametersAreNotOnSeparateLinesErrorMessage
             )
         )

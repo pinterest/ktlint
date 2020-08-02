@@ -82,13 +82,15 @@ object IntellijIDEAIntegration {
                 Glob.from("IntelliJIdea*", "IdeaIC*", "AndroidStudio*")
                     .iterate(
                         Paths.get(home, "Library", "Preferences"),
-                        Glob.IterationOption.SKIP_CHILDREN, Glob.IterationOption.DIRECTORY
+                        Glob.IterationOption.SKIP_CHILDREN,
+                        Glob.IterationOption.DIRECTORY
                     ).asSequence() +
                     // linux/windows
                     Glob.from(".IntelliJIdea*/config", ".IdeaIC*/config", ".AndroidStudio*/config")
                         .iterate(
                             Paths.get(home),
-                            Glob.IterationOption.SKIP_CHILDREN, Glob.IterationOption.DIRECTORY
+                            Glob.IterationOption.SKIP_CHILDREN,
+                            Glob.IterationOption.DIRECTORY
                         ).asSequence()
             (
                 paths.flatMap { dir ->
@@ -177,7 +179,8 @@ object IntellijIDEAIntegration {
         val xpath = XPathFactory.newInstance().newXPath()
         var cis = xpath.evaluate(
             "//component[@name='CodeInsightSettings']",
-            doc, XPathConstants.NODE
+            doc,
+            XPathConstants.NODE
         ) as Element?
         if (cis == null) {
             cis = doc.createElement("component")
@@ -186,7 +189,8 @@ object IntellijIDEAIntegration {
         }
         var oiotf = xpath.evaluate(
             "//option[@name='OPTIMIZE_IMPORTS_ON_THE_FLY']",
-            cis, XPathConstants.NODE
+            cis,
+            XPathConstants.NODE
         ) as Element?
         if (oiotf == null) {
             oiotf = doc.createElement("option")
@@ -215,7 +219,8 @@ object IntellijIDEAIntegration {
         val xpath = XPathFactory.newInstance().newXPath()
         var cis = xpath.evaluate(
             "//component[@name='CodeInsightWorkspaceSettings']",
-            doc, XPathConstants.NODE
+            doc,
+            XPathConstants.NODE
         ) as Element?
         if (cis == null) {
             cis = doc.createElement("component")
@@ -224,7 +229,8 @@ object IntellijIDEAIntegration {
         }
         var oiotf = xpath.evaluate(
             "//option[@name='optimizeImportsOnTheFly']",
-            cis, XPathConstants.NODE
+            cis,
+            XPathConstants.NODE
         ) as Element?
         if (oiotf == null) {
             oiotf = doc.createElement("option")

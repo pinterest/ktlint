@@ -28,7 +28,8 @@ class SpacingBetweenDeclarationsWithCommentsRule : Rule("spacing-between-declara
                 if (node.parent.prevSibling is PsiWhiteSpace && node.parent.prevSibling.text == "\n") {
                     emit(
                         node.startOffset,
-                        "Declarations and declarations with comments should have an empty space between.", true
+                        "Declarations and declarations with comments should have an empty space between.",
+                        true
                     )
                     if (autoCorrect) {
                         (node.parent.prevSibling.node as LeafPsiElement).rawReplaceWithText("\n\n")

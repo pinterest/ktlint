@@ -31,7 +31,8 @@ class SpacingBetweenDeclarationsWithAnnotationsRule : Rule("spacing-between-decl
                 if (node.psi.parent.prevSibling is PsiWhiteSpace && node.psi.parent.prevSibling.text == "\n") {
                     emit(
                         node.startOffset,
-                        "Declarations and declarations with annotations should have an empty space between.", true
+                        "Declarations and declarations with annotations should have an empty space between.",
+                        true
                     )
                     if (autoCorrect) {
                         (node.psi.parent.prevSibling.node as LeafPsiElement).rawReplaceWithText("\n\n")
