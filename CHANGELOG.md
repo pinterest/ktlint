@@ -8,7 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Experimental SpacingAroundAngleBracketsRule ([#769](https://github.com/pinterest/ktlint/pull/769))
 - Checksum generation for executable Jar ([#695](https://github.com/pinterest/ktlint/issues/695))
 - Enable Gradle dependency verification
-- Publish snapshots built against kotlin development versions
+- Publish snapshots built against kotlin development versions (1.4.0-rc)
 
 ### Fixed
 - Safe-called wrapped trailing lambdas indented correctly ([#776](https://github.com/pinterest/ktlint/issues/776))
