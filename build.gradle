@@ -24,7 +24,8 @@ ext.deps = [
 
 if (gradle.ext.isKotlinDev) {
   allprojects { p ->
-    p.ext."VERSION_NAME" = "0.38.0-kotlin-dev-SNAPSHOT"
+    String definedVersion = p.ext."VERSION_NAME".minus("-SNAPSHOT")
+    p.ext."VERSION_NAME" = "$definedVersion-kotlin-dev-SNAPSHOT".toString()
   }
 }
 
