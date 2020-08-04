@@ -8,20 +8,26 @@ plugins {
     id("org.jetbrains.dokka")
 }
 
+// Disabling dokka on Java 10+ versions
+// See https://github.com/Kotlin/dokka/issues/294
+val shouldEnableJavadoc = JavaVersion.current() <= JavaVersion.VERSION_1_9
+
 java {
     withSourcesJar()
-    withJavadocJar()
+    if (shouldEnableJavadoc) withJavadocJar()
 }
 
-val dokkaJavadocTask = tasks.register<DokkaTask>("dokkaJavadoc") {
-    outputFormat = "javadoc"
-    outputDirectory = "$buildDir/javadoc"
-}
+if (shouldEnableJavadoc) {
+    val dokkaJavadocTask = tasks.register<DokkaTask>("dokkaJavadoc") {
+        outputFormat = "javadoc"
+        outputDirectory = "$buildDir/javadoc"
+    }
 
-tasks.named<Jar>("javadocJar") {
-    dependsOn(dokkaJavadocTask)
-    archiveClassifier.set("javadoc")
-    from(dokkaJavadocTask)
+    tasks.named<Jar>("javadocJar") {
+        dependsOn(dokkaJavadocTask)
+        archiveClassifier.set("javadoc")
+        from(dokkaJavadocTask)
+    }
 }
 
 publishing {
