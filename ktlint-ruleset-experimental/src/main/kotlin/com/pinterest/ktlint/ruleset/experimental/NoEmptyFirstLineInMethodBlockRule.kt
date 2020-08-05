@@ -25,7 +25,8 @@ class NoEmptyFirstLineInMethodBlockRule : Rule("no-empty-first-line-in-method-bl
             if (split.size > 2) {
                 emit(
                     node.startOffset + 1,
-                    "First line in a method block should not be empty", true
+                    "First line in a method block should not be empty",
+                    true
                 )
                 if (autoCorrect) {
                     (node as LeafPsiElement).rawReplaceWithText("${split.first()}\n${split.last()}")

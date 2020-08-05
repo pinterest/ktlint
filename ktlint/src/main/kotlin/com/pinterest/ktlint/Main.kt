@@ -437,7 +437,9 @@ class KtlintCommandLine {
         when (e) {
             is ParseException ->
                 LintError(
-                    e.line, e.col, "",
+                    e.line,
+                    e.col,
+                    "",
                     "Not a valid Kotlin file (${e.message?.toLowerCase()})"
                 )
             is RuleExecutionException -> {
@@ -446,7 +448,9 @@ class KtlintCommandLine {
                     e.printStackTrace(System.err)
                 }
                 LintError(
-                    e.line, e.col, "",
+                    e.line,
+                    e.col,
+                    "",
                     "Internal Error (${e.ruleId}). " +
                         "Please create a ticket at https://github.com/pinterest/ktlint/issues " +
                         "(if possible, provide the source code that triggered an error)"

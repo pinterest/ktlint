@@ -27,7 +27,8 @@ class EnumEntryNameCaseRule : Rule("enum-entry-name-case") {
             if (!name.startsWithUpperCase()) {
                 emit(
                     node.startOffset,
-                    ERROR_MESSAGE, false
+                    ERROR_MESSAGE,
+                    false
                 )
 
                 if (autoCorrect) correct(enumEntry, name)
@@ -37,7 +38,8 @@ class EnumEntryNameCaseRule : Rule("enum-entry-name-case") {
             else if (name.contains("_") && name.containsLowerCase()) {
                 emit(
                     node.startOffset,
-                    ERROR_MESSAGE, false
+                    ERROR_MESSAGE,
+                    false
                 )
 
                 if (autoCorrect) correct(enumEntry, name)

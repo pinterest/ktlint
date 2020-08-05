@@ -15,7 +15,9 @@ class JsonReporterTest {
         reporter.onLintError(
             "/one-fixed-and-one-not.kt",
             LintError(
-                1, 1, "rule-1",
+                1,
+                1,
+                "rule-1",
                 "<\"&'>"
             ),
             false
@@ -23,7 +25,9 @@ class JsonReporterTest {
         reporter.onLintError(
             "/one-fixed-and-one-not.kt",
             LintError(
-                2, 1, "rule-2",
+                2,
+                1,
+                "rule-2",
                 "And if you see my friend"
             ),
             true
@@ -32,7 +36,9 @@ class JsonReporterTest {
         reporter.onLintError(
             "/two-not-fixed.kt",
             LintError(
-                1, 10, "rule-1",
+                1,
+                10,
+                "rule-1",
                 "I thought I would again"
             ),
             false
@@ -40,7 +46,9 @@ class JsonReporterTest {
         reporter.onLintError(
             "/two-not-fixed.kt",
             LintError(
-                2, 20, "rule-2",
+                2,
+                20,
+                "rule-2",
                 "A single thin straight line"
             ),
             false
@@ -49,7 +57,9 @@ class JsonReporterTest {
         reporter.onLintError(
             "/all-corrected.kt",
             LintError(
-                1, 1, "rule-1",
+                1,
+                1,
+                "rule-1",
                 "I thought we had more time"
             ),
             true
