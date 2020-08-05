@@ -2,9 +2,9 @@ import org.gradle.crypto.checksum.Checksum
 
 plugins {
   id 'org.jetbrains.kotlin.jvm'
-  id 'com.vanniktech.maven.publish'
-  id 'com.github.johnrengelman.shadow' version '5.0.0'
-  id 'org.gradle.crypto.checksum' version '1.1.0'
+  id 'ktlint-publication'
+  id 'com.github.johnrengelman.shadow'
+  id 'org.gradle.crypto.checksum'
 }
 
 jar {
@@ -18,8 +18,8 @@ shadowJar {
   mergeServiceFiles()
 }
 
-artifacts {
-  archives shadowJar
+publishing.publications.named("maven").configure {
+  artifact(shadowJar)
 }
 
 dependencies {

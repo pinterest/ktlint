@@ -561,6 +561,11 @@ repositories {
 }
 ```
 
+##### Kotlin development version snapshot
+
+Additionally, project publishes snapshots build against latest kotlin development version. To use them, change version
+of ktlint to `<latest-version>-kotlin-dev-SNAPSHOT`.
+
 ## Legal
 
 This project is not affiliated with nor endorsed by JetBrains.  
