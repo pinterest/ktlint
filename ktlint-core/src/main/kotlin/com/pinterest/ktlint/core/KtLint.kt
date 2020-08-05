@@ -96,7 +96,8 @@ object KtLint {
         compilerConfiguration.put(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY, MessageCollector.NONE)
         val project = KotlinCoreEnvironment.createForProduction(
             Disposable {},
-            compilerConfiguration, EnvironmentConfigFiles.JVM_CONFIG_FILES
+            compilerConfiguration,
+            EnvironmentConfigFiles.JVM_CONFIG_FILES
         ).project
         // everything below (up to PsiFileFactory.getInstance(...)) is to get AST mutations (`ktlint -F ...`) working
         // otherwise it's not needed
@@ -113,7 +114,8 @@ object KtLint {
                     // (check constructor signature and compare it to the source)
                     // (org.jetbrains.kotlin:kotlin-compiler-embeddable:1.0.3)
                     val constructor = ReflectionFactory.getReflectionFactory().newConstructorForSerialization(
-                        aspect, Any::class.java.getDeclaredConstructor(*arrayOfNulls<Class<*>>(0))
+                        aspect,
+                        Any::class.java.getDeclaredConstructor(*arrayOfNulls<Class<*>>(0))
                     )
                     return constructor.newInstance(*emptyArray()) as T
                 }
