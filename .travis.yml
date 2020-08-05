@@ -16,7 +16,7 @@ script:
       ./gradlew clean publishMavenPublicationToMavenCentralRepository --no-daemon --no-parallel
       # Publishing kotlin dev snapshots if no git tag is present
       if [[ -z $TRAVIS_TAG ]]; then
-        ./gradlew -PkotlinDev clean publishMavenPublicationToMavenCentralRepository --no-deamon --no-parallel
+        ./gradlew -PkotlinDev clean publishMavenPublicationToMavenCentralRepository --no-daemon --no-parallel
       fi
     else
       # Gradle with release Kotlin version
