@@ -86,6 +86,6 @@ publishing {
 signing {
     sign(publishing.publications["maven"])
     setRequired({
-        !gradle.startParameter.taskNames.any { it.contains("ToMavenLocal") }
+        version.toString().endsWith("SNAPSHOT")
     })
 }
