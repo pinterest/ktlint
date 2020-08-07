@@ -190,7 +190,7 @@ $ ktlint installGitPreCommitHook
                     <arg value="--reporter=plain"/>
                     <arg value="--reporter=checkstyle,output=${project.build.directory}/ktlint.xml"/>
                     -->
-                    <!-- see https://github.com/shyiko/ktlint#usage for more -->                    
+                    <!-- see https://github.com/pinterest/ktlint#usage for more -->                    
                 </java>
             </target>
             </configuration>
