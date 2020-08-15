@@ -30,6 +30,11 @@ if (shouldEnableJavadoc) {
     }
 }
 
+project.version = project.property("VERSION_NAME")
+    ?: throw GradleException("Project version property is missing")
+project.group = project.property("GROUP")
+    ?: throw GradleException("Project group property is missing")
+
 publishing {
     publications {
         create<MavenPublication>("maven") {
@@ -86,6 +91,6 @@ publishing {
 signing {
     sign(publishing.publications["maven"])
     setRequired({
-        version.toString().endsWith("SNAPSHOT")
+        !version.toString().endsWith("SNAPSHOT")
     })
 }
