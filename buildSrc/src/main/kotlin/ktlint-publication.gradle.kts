@@ -76,6 +76,13 @@ publishing {
             val snapshotsRepoUrl = URI.create("https://oss.sonatype.org/content/repositories/snapshots/")
             name = "mavenCentral"
             url = if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl
+
+            credentials {
+                username = project.findProperty("SONATYPE_NEXUS_USERNAME")?.toString()
+                    ?: System.getenv("SONATYPE_NEXUS_USERNAME")
+                password = project.findProperty("SONATYPE_NEXUS_USERNAME")?.toString()
+                    ?: System.getenv("SONATYPE_NEXUS_USERNAME")
+            }
         }
     }
 }
