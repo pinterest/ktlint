@@ -2,15 +2,24 @@ pluginManagement {
   repositories {
     mavenCentral()
     gradlePluginPortal()
-
-    plugins {
-      def kotlinVersion = '1.4.0'
-      id 'org.jetbrains.kotlin.jvm' version kotlinVersion
-      id 'com.github.breadmoirai.github-release' version '2.2.12'
-      id 'com.github.johnrengelman.shadow' version '6.0.0'
-      id 'org.gradle.crypto.checksum' version '1.2.0'
+    if (settings.hasProperty('kotlinDev')) {
+      maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
     }
   }
+
+  plugins {
+    def kotlinVersion = settings.hasProperty("kotlinDev") ? '1.4.0-rc' : '1.4.0'
+    id 'org.jetbrains.kotlin.jvm' version kotlinVersion
+    id 'com.github.breadmoirai.github-release' version '2.2.12'
+    id 'com.github.johnrengelman.shadow' version '6.0.0'
+    id 'org.gradle.crypto.checksum' version '1.2.0'
+  }
+}
+
+// Pass '-PkotlinDev' to command line to enable kotlin-in-development version
+gradle.ext.isKotlinDev = settings.hasProperty("kotlinDev")
+if (gradle.ext.isKotlinDev) {
+  logger.warn("Enabling kotlin dev version")
 }
 
 rootProject.name = 'ktlint'
