@@ -146,6 +146,12 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
 
     // Contains list of all imports and checks if given import is present
     private fun checkIfParentImportExists(text: String): Boolean {
+        // Only check static imports; identified if they start with a capital letter indicating a
+        // class name rather than a sub-package
+        if (text.isNotEmpty() && text[0] !in 'A'..'Z') {
+            return false
+        }
+
         val staticImports = imports.filter { it.endsWith(text) }
         staticImports.forEach { import ->
             var count = 0
