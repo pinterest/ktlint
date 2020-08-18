@@ -1,11 +1,11 @@
 plugins {
-  id 'org.jetbrains.kotlin.jvm' apply false
+  id "org.jetbrains.kotlin.jvm" apply false
   id 'com.github.breadmoirai.github-release'
 }
 
 ext.versions = [
-  'kotlin': gradle.ext.isKotlinDev ? '1.4.0-rc' : '1.3.70',
-  'gradle': '6.5'
+  'kotlin': '1.4.0',
+  'gradle': '6.6'
 ]
 
 ext.deps = [
@@ -21,13 +21,6 @@ ext.deps = [
   'assertj'       : 'org.assertj:assertj-core:3.12.2',
   'jimfs'         : 'com.google.jimfs:jimfs:1.1'
 ]
-
-if (gradle.ext.isKotlinDev) {
-  allprojects { p ->
-    String definedVersion = p.ext."VERSION_NAME".minus("-SNAPSHOT")
-    p.ext."VERSION_NAME" = "$definedVersion-kotlin-dev-SNAPSHOT".toString()
-  }
-}
 
 configurations {
   ktlint
@@ -48,10 +41,6 @@ allprojects {
   repositories {
     mavenCentral()
     gradlePluginPortal()
-
-    if (gradle.ext.isKotlinDev) {
-      maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
-    }
   }
 
   tasks.withType(JavaCompile) {
@@ -80,6 +69,7 @@ tasks.withType(Wrapper.class).configureEach {
 // Deployment tasks
 String getGithubToken() {
   if (project.hasProperty("servers.github.privKey")) {
+    println(project.'servers.github.privKey')
     return project.'servers.github.privKey'
   } else {
     logger.warn("No github token specified")
