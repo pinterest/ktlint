@@ -80,8 +80,8 @@ publishing {
             credentials {
                 username = project.findProperty("SONATYPE_NEXUS_USERNAME")?.toString()
                     ?: System.getenv("SONATYPE_NEXUS_USERNAME")
-                password = project.findProperty("SONATYPE_NEXUS_USERNAME")?.toString()
-                    ?: System.getenv("SONATYPE_NEXUS_USERNAME")
+                password = project.findProperty("SONATYPE_NEXUS_PASSWORD")?.toString()
+                    ?: System.getenv("SONATYPE_NEXUS_PASSWORD")
             }
         }
     }
