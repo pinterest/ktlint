@@ -676,11 +676,9 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
 
     private fun adjustExpectedIndentInFrontOfControlBlock(n: ASTNode, ctx: IndentContext) {
         val nextSibling = n.treeNext
-        if (nextSibling.nextCodeLeaf()?.elementType !in lTokenSet) {
-            expectedIndent++
-            debug { "++in_front(${nextSibling.elementType}) -> $expectedIndent" }
-            ctx.exitAdjBy(nextSibling, -1)
-        }
+        expectedIndent++
+        debug { "++in_front(${nextSibling.elementType}) -> $expectedIndent" }
+        ctx.exitAdjBy(nextSibling, -1)
     }
 
     private fun adjustExpectedIndentInFrontOfPropertyAccessor(n: ASTNode, ctx: IndentContext) {

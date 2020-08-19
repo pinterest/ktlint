@@ -20,6 +20,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - No false empty lines inserted in multiline if-else block ([#793](https://github.com/pinterest/ktlint/issues/793))
 - No-wildcard-imports properly handles custom infix function with asterisk ([#799](https://github.com/pinterest/ktlint/issues/799))
 - Do not require else to be in the same line of a right brace if the right brace is not part of the if statement ([#756](https://github.com/pinterest/ktlint/issues/756))
+- Brace-less if-else bodies starting with parens indented correctly ([#829](https://github.com/pinterest/ktlint/issues/829))
 
 ### Changed
 - Update Gradle to 6.5 version

@@ -457,4 +457,32 @@ internal class IndentationRuleTest {
             """.trimIndent()
         assertThat(IndentationRule().format(code)).isEqualTo(code)
     }
+
+    @Test
+    fun `lint block started with parens after if is allowed`() {
+        val code =
+            """
+            fun test() {
+                if (true)
+                    (1).toString()
+                else
+                    2.toString()
+            }
+            """.trimIndent()
+        assertThat(IndentationRule().lint(code)).isEmpty()
+    }
+
+    @Test
+    fun `format block started with parens after if is allowed`() {
+        val code =
+            """
+            fun test() {
+                if (true)
+                    (1).toString()
+                else
+                    2.toString()
+            }
+            """.trimIndent()
+        assertThat(IndentationRule().format(code)).isEqualTo(code)
+    }
 }
