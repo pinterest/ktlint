@@ -9,7 +9,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Checksum generation for executable Jar ([#695](https://github.com/pinterest/ktlint/issues/695))
 - Enable Gradle dependency verification
 - `parameter-list-wrapping` rule now also considers function arguments while wrapping ([#620](https://github.com/pinterest/ktlint/issues/620))
-- Publish snapshots built against kotlin development versions (1.4.0-rc)
+- Publish snapshots built against kotlin development versions
 
 ### Fixed
 - Safe-called wrapped trailing lambdas indented correctly ([#776](https://github.com/pinterest/ktlint/issues/776))
@@ -27,6 +27,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Update Gradle to 6.6 version
 - Update ec4j to 0.2.2 version. Now it should report path to `.editorconfig` file on failed parsing 
 and allow empty `.editorconfig` files.
+- Update Kotlin to 1.4.0 version ([#830](https://github.com/pinterest/ktlint/issues/830))
 
 
 ## [0.37.2] - 2020-06-16
