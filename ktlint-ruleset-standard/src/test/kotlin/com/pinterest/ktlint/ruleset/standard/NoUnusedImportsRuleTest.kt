@@ -553,6 +553,24 @@ class NoUnusedImportsRuleTest {
 
                         assertThat(actual).isEqualTo(expected)
                     }
+                    }
+                """.trimIndent()
+            ).isEmpty()
+        )
+    }
+
+    @Test
+    fun `only redundant static imports should be removed`() {
+        assertThat(
+            NoUnusedImportsRule().lint(
+                """
+                import com.foo.psi.abc
+                import com.foo.psi.findAnnotation
+
+                fun main() {
+                    val psi = getPsi()
+                    psi.abc()
+                    val bar = psi.findAnnotation(SOME_CONSTANT)
                 }
                 """.trimIndent()
             )
