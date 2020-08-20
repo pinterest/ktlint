@@ -5,7 +5,8 @@ plugins {
 
 ext.versions = [
   'kotlin': gradle.ext.isKotlinDev ? '1.4.0-rc' : '1.3.70',
-  'gradle': '6.5'
+  'gradle': '6.6',
+  'gradle-sha256': 'e6f83508f0970452f56197f610d13c5f593baaf43c0e3c6a571e5967be754025'
 ]
 
 ext.deps = [
@@ -138,4 +139,10 @@ tasks.register("publishNewRelease", DefaultTask.class) {
   group = "Help"
   description = "Triggers uploading new archives and publish announcements"
   dependsOn(announceTask, tasks.named("githubRelease"))
+}
+
+tasks.withType(Wrapper).configureEach {
+  gradleVersion = versions.'gradle'
+  distributionSha256Sum = versions.'gradle-sha256'
+  distributionType = Wrapper.DistributionType.BIN
 }
