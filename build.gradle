@@ -4,7 +4,7 @@ plugins {
 }
 
 ext.versions = [
-  'kotlin': gradle.ext.isKotlinDev ? '1.4.0-rc' : '1.3.70',
+  'kotlin': gradle.ext.isKotlinDev ? '1.4.10-rc-345' : '1.4.0',
   'gradle': '6.6',
   'gradle-sha256': 'e6f83508f0970452f56197f610d13c5f593baaf43c0e3c6a571e5967be754025'
 ]
@@ -52,6 +52,7 @@ allprojects {
 
     if (gradle.ext.isKotlinDev) {
       maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
+      maven { url 'https://dl.bintray.com/kotlin/kotlin-dev' }
     }
   }
 
