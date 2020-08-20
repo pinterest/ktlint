@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.EditorConfig
+import com.pinterest.ktlint.core.EditorConfig.IndentStyle
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.ANNOTATION
@@ -92,7 +93,6 @@ import org.jetbrains.kotlin.psi.KtSuperTypeList
  * - 2st pass - correct indentation
  *
  * Current limitations:
- * - indent_style=tab not supported.
  * - "all or nothing" (currently, rule can only be disabled for an entire file)
  */
 class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
@@ -134,7 +134,7 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         val editorConfig = node.getUserData(KtLint.EDITOR_CONFIG_USER_DATA_KEY)!!
-        if (editorConfig.indentStyle == EditorConfig.IndentStyle.TAB || editorConfig.indentSize <= 1) {
+        if (editorConfig.indentSize <= 1) {
             return
         }
         reset()
@@ -1014,20 +1014,44 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
             node.nextCodeSibling()?.elementType == PROPERTY_ACCESSOR && node.treeParent.findChildByType(EQ)?.nextLeaf().isWhiteSpaceWithNewline() -> -1
             else -> 0
         }
-        // indentation with all \t replaced
+        // indentation with incorrect characters replaced
         val normalizedNodeIndent =
-            if (nodeIndent.contains('\t')) {
-                emit(
-                    node.startOffset + text.length - nodeIndent.length,
-                    "Unexpected Tab character(s)",
-                    true
-                )
-                nodeIndent.replace("\t", " ".repeat(editorConfig.tabWidth))
-            } else {
-                nodeIndent
+            when (editorConfig.indentStyle) {
+                IndentStyle.SPACE -> {
+                    if ('\t' in nodeIndent) {
+                        emit(
+                            node.startOffset + text.length - nodeIndent.length,
+                            "Unexpected tab character(s)",
+                            true
+                        )
+                        nodeIndent.replace("\t", " ".repeat(editorConfig.tabWidth))
+                    } else {
+                        nodeIndent
+                    }
+                }
+                IndentStyle.TAB -> {
+                    if (' ' in nodeIndent) {
+                        emit(
+                            node.startOffset + text.length - nodeIndent.length,
+                            "Unexpected space character(s)",
+                            true
+                        )
+                        // First normalize the indent to spaces using the tab width.
+                        val asSpaces = nodeIndent.replace("\t", " ".repeat(editorConfig.tabWidth))
+                        // Then divide that space-based indent into tabs.
+                        "\t".repeat(asSpaces.length / editorConfig.tabWidth)
+                    } else {
+                        nodeIndent
+                    }
+                }
+            }
+        val indentLength =
+            when (editorConfig.indentStyle) {
+                IndentStyle.SPACE -> editorConfig.indentSize
+                IndentStyle.TAB -> 1
             }
         val expectedIndentLength =
-            adjustedExpectedIndent * editorConfig.indentSize +
+            adjustedExpectedIndent * indentLength +
                 // +1 space before * in `/**\n *\n */`
                 if (comment?.elementType == KDOC && nextLeafElementType != KDOC_START) 1 else 0
         if (normalizedNodeIndent.length != expectedIndentLength) {
@@ -1041,9 +1065,13 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                     "changed indentation to $expectedIndentLength (from ${normalizedNodeIndent.length})"
             }
             if (autoCorrect) {
+                val indent = when (editorConfig.indentStyle) {
+                    IndentStyle.SPACE -> " "
+                    IndentStyle.TAB -> "\t"
+                }
                 (node as LeafPsiElement).rawReplaceWithText(
                     text.substringBeforeLast("\n") + "\n" +
-                        " ".repeat(expectedIndentLength)
+                        indent.repeat(expectedIndentLength)
                 )
             }
         }
