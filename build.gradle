@@ -71,6 +71,17 @@ allprojects {
   }
 }
 
+subprojects { subProject ->
+  // Do not enabling explicit api for cli project
+  if (subProject.name != "ktlint") {
+    subProject.plugins.withId("org.jetbrains.kotlin.jvm") {
+      subProject.extensions.configure("kotlin") { ext ->
+        ext.explicitApi = 'warning'
+      }
+    }
+  }
+}
+
 /**
  * Configures "wrapper" task to use specific Gradle version and distribution type.
  */
