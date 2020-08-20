@@ -485,4 +485,35 @@ internal class IndentationRuleTest {
             """.trimIndent()
         assertThat(IndentationRule().format(code)).isEqualTo(code)
     }
+
+    // https://github.com/pinterest/ktlint/issues/796
+    @Test
+    fun `lint if-condition with multiline call expression is indented properly`() {
+        val code =
+            """
+            private val gpsRegion =
+                if (permissionHandler.isPermissionGranted(
+                        context, Manifest.permission.ACCESS_FINE_LOCATION
+                    )
+                ) {
+                    // stuff
+                }
+            """.trimIndent()
+        assertThat(IndentationRule().lint(code)).isEmpty()
+    }
+
+    @Test
+    fun `format if-condition with multiline call expression is indented properly`() {
+        val code =
+            """
+            private val gpsRegion =
+                if (permissionHandler.isPermissionGranted(
+                        context, Manifest.permission.ACCESS_FINE_LOCATION
+                    )
+                ) {
+                    // stuff
+                }
+            """.trimIndent()
+        assertThat(IndentationRule().format(code)).isEqualTo(code)
+    }
 }
