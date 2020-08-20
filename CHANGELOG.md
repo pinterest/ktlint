@@ -24,7 +24,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - If-condition with multiline call expression inside indented correctly ([#796](https://github.com/pinterest/ktlint/issues/796))
 
 ### Changed
-- Update Gradle to 6.5 version
+- Update Gradle to 6.6 version
 - Update ec4j to 0.2.2 version. Now it should report path to `.editorconfig` file on failed parsing 
 and allow empty `.editorconfig` files.
 
