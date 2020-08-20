@@ -26,12 +26,13 @@ script:
     fi
 
 before_cache:
-  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
-  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+  - find $HOME/.gradle -name "*.lock" -type f -delete
+  - find $HOME/.gradle -name "gc.properties" -type f -delete
 
+# See https://docs.gradle.org/6.6/userguide/dependency_resolution.html#sub:cache_copy
 cache:
   directories:
-    - $HOME/.gradle/caches/
+    - $HOME/.gradle/caches/modules-2/
     - $HOME/.gradle/wrapper/
 
 env:
