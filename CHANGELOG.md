@@ -4,12 +4,19 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+- 
+
+## [0.38.0] - 2020-08-21
+
+New release with Kotlin 1.4.0 support and several enhancements and bugfixes.
+
 ### Added
 - Experimental SpacingAroundAngleBracketsRule ([#769](https://github.com/pinterest/ktlint/pull/769))
 - Checksum generation for executable Jar ([#695](https://github.com/pinterest/ktlint/issues/695))
 - Enable Gradle dependency verification
 - `parameter-list-wrapping` rule now also considers function arguments while wrapping ([#620](https://github.com/pinterest/ktlint/issues/620))
 - Publish snapshots built against kotlin development versions
+- Initial support for tab-based indentation ([#128](https://github.com/pinterest/ktlint/issues/128))
 
 ### Fixed
 - Safe-called wrapped trailing lambdas indented correctly ([#776](https://github.com/pinterest/ktlint/issues/776))
@@ -729,6 +736,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.38.0]: https://github.com/pinterest/ktlint/compare/0.37.2...0.38.0
 [0.37.2]: https://github.com/pinterest/ktlint/compare/0.37.1...0.37.2
 [0.37.1]: https://github.com/pinterest/ktlint/compare/0.37.0...0.37.1
 [0.37.0]: https://github.com/pinterest/ktlint/compare/0.36.0...0.37.0
