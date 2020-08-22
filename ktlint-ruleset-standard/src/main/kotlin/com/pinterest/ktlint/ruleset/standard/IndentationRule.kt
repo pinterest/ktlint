@@ -167,7 +167,6 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                 LPAR, LBRACE, LBRACKET -> rearrangeBlock(n, autoCorrect, emit) // TODO: LT
                 SUPER_TYPE_LIST -> rearrangeSuperTypeList(n, autoCorrect, emit)
                 VALUE_PARAMETER_LIST, VALUE_ARGUMENT_LIST -> rearrangeValueList(n, autoCorrect, emit)
-                EQ -> rearrangeEq(n, autoCorrect, emit)
                 ARROW -> rearrangeArrow(n, autoCorrect, emit)
                 WHITE_SPACE -> line += n.text.count { it == '\n' }
             }
@@ -326,25 +325,6 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                 }
             }
         }
-    }
-
-    private fun rearrangeEq(
-        node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
-    ) {
-        // force """ to be on a separate line
-        if (!node.nextCodeLeaf().isRawString()) {
-            return
-        }
-        val nextCodeLeaf = node.nextCodeLeaf()!!
-        if (!nextCodeLeaf.prevLeaf().isWhiteSpaceWithNewline()) {
-            requireNewlineAfterLeaf(node, autoCorrect, emit)
-        }
-    }
-
-    private fun ASTNode?.isRawString(): Boolean {
-        return this?.elementType == OPEN_QUOTE && this.text == "\"\"\""
     }
 
     private fun mustBeFollowedByNewline(node: ASTNode): Boolean {
