@@ -803,4 +803,26 @@ class ParameterListWrappingRuleTest {
             )
         ).isEmpty()
     }
+
+    // https://github.com/pinterest/ktlint/issues/680
+    @Test
+    fun `multiline type parameter list in function signature - indented correctly`() {
+        val code =
+            """
+            object TestCase {
+                inline fun <
+                    T1,
+                    T2,
+                    T3> create(
+                    t1: T1,
+                    t2: T2,
+                    t3: T3
+                ) {
+                    // do things
+                }
+            }
+            """.trimIndent()
+        assertThat(ParameterListWrappingRule().lint(code)).isEmpty()
+        assertThat(ParameterListWrappingRule().format(code)).isEqualTo(code)
+    }
 }
