@@ -2,9 +2,12 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## [0.38.1] - 2020-08-24
 
-- 
+Minor release to support projects using mixed 1.3/1.4 Kotlin versions (e.g. Gradle plugins)
+
+### Changed
+- Compile with `apiLevel = 1.3`
 
 ## [0.38.0] - 2020-08-21
 
@@ -736,6 +739,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.38.1]: https://github.com/pinterest/ktlint/compare/0.38.0...0.38.1
 [0.38.0]: https://github.com/pinterest/ktlint/compare/0.37.2...0.38.0
 [0.37.2]: https://github.com/pinterest/ktlint/compare/0.37.1...0.37.2
 [0.37.1]: https://github.com/pinterest/ktlint/compare/0.37.0...0.37.1
