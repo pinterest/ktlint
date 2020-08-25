@@ -2,6 +2,7 @@ package com.pinterest.ktlint.core
 
 import com.pinterest.ktlint.core.ast.prevLeaf
 import com.pinterest.ktlint.core.internal.EditorConfigLoader
+import com.pinterest.ktlint.core.internal.buildPositionInTextLocator
 import com.pinterest.ktlint.core.internal.initPsiFileFactory
 import java.nio.file.FileSystems
 import java.nio.file.Path
@@ -73,12 +74,12 @@ object KtLint {
      */
     fun lint(params: Params) {
         val normalizedText = normalizeText(params.text)
-        val positionByOffset = calculateLineColByOffset(normalizedText)
+        val positionInTextLocator = buildPositionInTextLocator(normalizedText)
         val psiFileName = if (params.script) "file.kts" else "file.kt"
         val psiFile = psiFileFactory.createFileFromText(psiFileName, KotlinLanguage.INSTANCE, normalizedText) as KtFile
         val errorElement = psiFile.findErrorElement()
         if (errorElement != null) {
-            val (line, col) = positionByOffset(errorElement.textOffset)
+            val (line, col) = positionInTextLocator(errorElement.textOffset)
             throw ParseException(line, col, errorElement.errorDescription)
         }
         val rootNode = psiFile.node
@@ -102,11 +103,11 @@ object KtLint {
                         if (node.startOffset != offset && isSuppressed(offset, fqRuleId, node === rootNode)) {
                             return@visit
                         }
-                        val (line, col) = positionByOffset(offset)
+                        val (line, col) = positionInTextLocator(offset)
                         errors.add(LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected))
                     }
                 } catch (e: Exception) {
-                    val (line, col) = positionByOffset(node.startOffset)
+                    val (line, col) = positionInTextLocator(node.startOffset)
                     throw RuleExecutionException(line, col, fqRuleId, e)
                 }
             }
@@ -211,25 +212,14 @@ object KtLint {
         return rootNode.getUserData(DISABLED_RULES)?.contains(fqRuleId) == false
     }
 
-    fun calculateLineColByOffset(text: String): (offset: Int) -> Pair<Int, Int> {
-        var i = -1
-        val e = text.length
-        val arr = ArrayList<Int>()
-        do {
-            arr.add(i + 1)
-            i = text.indexOf('\n', i + 1)
-        } while (i != -1)
-        arr.add(e + if (arr.last() == e) 1 else 0)
-        val segmentTree = SegmentTree(arr.toTypedArray())
-        return { offset ->
-            val line = segmentTree.indexOf(offset)
-            if (line != -1) {
-                val col = offset - segmentTree.get(line).left
-                line + 1 to col + 1
-            } else {
-                1 to 1
-            }
-        }
+    @Deprecated(
+        message = "Should not be a part of public api. Will be removed in future release.",
+        level = DeprecationLevel.WARNING
+    )
+    public fun calculateLineColByOffset(
+        text: String
+    ): (offset: Int) -> Pair<Int, Int> {
+        return buildPositionInTextLocator(text)
     }
 
     private fun calculateSuppressedRegions(rootNode: ASTNode) =
@@ -255,12 +245,12 @@ object KtLint {
     fun format(params: Params): String {
         val hasUTF8BOM = params.text.startsWith(UTF8_BOM)
         val normalizedText = normalizeText(params.text)
-        val positionByOffset = calculateLineColByOffset(normalizedText)
+        val positionInTextLocator = buildPositionInTextLocator(normalizedText)
         val psiFileName = if (params.script) "file.kts" else "file.kt"
         val psiFile = psiFileFactory.createFileFromText(psiFileName, KotlinLanguage.INSTANCE, normalizedText) as KtFile
         val errorElement = psiFile.findErrorElement()
         if (errorElement != null) {
-            val (line, col) = positionByOffset(errorElement.textOffset)
+            val (line, col) = positionInTextLocator(errorElement.textOffset)
             throw ParseException(line, col, errorElement.errorDescription)
         }
         val rootNode = psiFile.node
@@ -309,11 +299,11 @@ object KtLint {
                             if (node.startOffset != offset && isSuppressed(offset, fqRuleId, node === rootNode)) {
                                 return@visit
                             }
-                            val (line, col) = positionByOffset(offset)
+                            val (line, col) = positionInTextLocator(offset)
                             errors.add(Pair(LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected), false))
                         }
                     } catch (e: Exception) {
-                        val (line, col) = positionByOffset(node.startOffset)
+                        val (line, col) = positionInTextLocator(node.startOffset)
                         throw RuleExecutionException(line, col, fqRuleId, e)
                     }
                 }
@@ -461,32 +451,6 @@ object KtLint {
             }
         }
     }
-
-    private class SegmentTree {
-
-        private val segments: List<Segment>
-
-        constructor(sortedArray: Array<Int>) {
-            require(sortedArray.size > 1) { "At least two data points are required" }
-            sortedArray.reduce { r, v -> require(r <= v) { "Data points are not sorted (ASC)" }; v }
-            segments = sortedArray.take(sortedArray.size - 1)
-                .mapIndexed { i: Int, v: Int -> Segment(v, sortedArray[i + 1] - 1) }
-        }
-
-        fun get(i: Int): Segment = segments[i]
-        fun indexOf(v: Int): Int = binarySearch(v, 0, this.segments.size - 1)
-
-        private fun binarySearch(v: Int, l: Int, r: Int): Int = when {
-            l > r -> -1
-            else -> {
-                val i = l + (r - l) / 2
-                val s = segments[i]
-                if (v < s.left) binarySearch(v, l, i - 1) else (if (s.right < v) binarySearch(v, i + 1, r) else i)
-            }
-        }
-    }
-
-    private data class Segment(val left: Int, val right: Int)
 
     private fun PsiElement.findErrorElement(): PsiErrorElement? {
         if (this is PsiErrorElement) {

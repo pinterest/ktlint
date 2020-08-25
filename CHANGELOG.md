@@ -10,6 +10,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 - `Ktlint` object internal code cleanup
+- Deprecate some of public methods in `Ktlint` object that should not be exposed as public api
 
 ## [0.38.1] - 2020-08-24
 Minor release to support projects using mixed 1.3/1.4 Kotlin versions (e.g. Gradle plugins)
