@@ -7,6 +7,7 @@ import com.pinterest.ktlint.core.ast.ElementType.FUNCTION_LITERAL
 import com.pinterest.ktlint.core.ast.ElementType.LAMBDA_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.LPAR
 import com.pinterest.ktlint.core.ast.ElementType.RPAR
+import com.pinterest.ktlint.core.ast.ElementType.TYPE_PARAMETER_LIST
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_ARGUMENT
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_ARGUMENT_LIST
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER
@@ -14,6 +15,7 @@ import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.core.ast.children
 import com.pinterest.ktlint.core.ast.isRoot
+import com.pinterest.ktlint.core.ast.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.core.ast.prevLeaf
 import com.pinterest.ktlint.core.ast.visit
 import kotlin.math.max
@@ -60,12 +62,29 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
                     // max_line_length exceeded
                     maxLineLength > -1 && (node.column - 1 + node.textLength) > maxLineLength
             if (putParametersOnSeparateLines) {
+                // IDEA quirk:
+                // fun <
+                //     T,
+                //     R> test(
+                //     param1: T
+                //     param2: R
+                // )
+                // instead of
+                // fun <
+                //     T,
+                //     R> test(
+                //         param1: T
+                //         param2: R
+                //     )
+                val adjustedIndent = if (node.hasTypeParameterListInFront()) indentSize else 0
+
                 // aiming for
                 // ... LPAR
                 // <line indent + indentSize> VALUE_PARAMETER...
                 // <line indent> RPAR
-                val indent = "\n" + node.lineIndent()
-                val paramIndent = indent + " ".repeat(indentSize) // single indent as recommended by Jetbrains/Google
+                val lineIndent = node.lineIndent()
+                val indent = "\n" + lineIndent.substring(0, (lineIndent.length - adjustedIndent).coerceAtLeast(0))
+                val paramIndent = indent + " ".repeat(indentSize)
                 nextChild@ for (child in node.children()) {
                     when (child.elementType) {
                         LPAR -> {
@@ -117,9 +136,7 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
                                     node.addChild(PsiWhiteSpaceImpl(intendedIndent), child)
                                 }
                             }
-                            if (paramInnerIndentAdjustment != 0 &&
-                                isParameterOrArgument
-                            ) {
+                            if (paramInnerIndentAdjustment != 0 && isParameterOrArgument) {
                                 child.visit { n ->
                                     if (n.elementType == WHITE_SPACE && n.textContains('\n')) {
                                         val isInCollectionOrFunctionLiteral =
@@ -198,4 +215,10 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
             .filter { it.elementType != LAMBDA_EXPRESSION }
             .any { it.textContains(char) }
     }
+
+    private fun ASTNode.hasTypeParameterListInFront(): Boolean =
+        treeParent.children()
+            .firstOrNull { it.elementType == TYPE_PARAMETER_LIST }
+            ?.children()
+            ?.any { it.isWhiteSpaceWithNewline() } == true
 }
