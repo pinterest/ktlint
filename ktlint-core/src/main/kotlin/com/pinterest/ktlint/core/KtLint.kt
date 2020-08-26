@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.core
 
 import com.pinterest.ktlint.core.ast.prevLeaf
+import com.pinterest.ktlint.core.ast.visit
 import com.pinterest.ktlint.core.internal.EditorConfigLoader
 import com.pinterest.ktlint.core.internal.buildPositionInTextLocator
 import com.pinterest.ktlint.core.internal.initPsiFileFactory
@@ -463,10 +464,5 @@ object KtLint {
             }
         }
         return null
-    }
-
-    private fun ASTNode.visit(cb: (node: ASTNode) -> Unit) {
-        cb(this)
-        this.getChildren(null).forEach { it.visit(cb) }
     }
 }
