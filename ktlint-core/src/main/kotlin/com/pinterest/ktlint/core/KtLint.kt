@@ -109,7 +109,11 @@ object KtLint {
             .forEach { e -> params.cb(e, false) }
     }
 
-    fun normalizeText(text: String): String {
+    @Deprecated(
+        message = "Should not be a part of public api. Will be removed in future release.",
+        level = DeprecationLevel.WARNING
+    )
+    public fun normalizeText(text: String): String {
         return text
             .replace("\r\n", "\n")
             .replace("\r", "\n")
