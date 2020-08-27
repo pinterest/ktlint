@@ -17,14 +17,14 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiFileFactory
 import org.jetbrains.kotlin.idea.KotlinLanguage
 import org.jetbrains.kotlin.psi.KtFile
 
-object KtLint {
+public object KtLint {
 
-    val EDITOR_CONFIG_USER_DATA_KEY = Key<EditorConfig>("EDITOR_CONFIG")
-    val ANDROID_USER_DATA_KEY = Key<Boolean>("ANDROID")
-    val FILE_PATH_USER_DATA_KEY = Key<String>("FILE_PATH")
-    val DISABLED_RULES = Key<Set<String>>("DISABLED_RULES")
+    public val EDITOR_CONFIG_USER_DATA_KEY: Key<EditorConfig> = Key<EditorConfig>("EDITOR_CONFIG")
+    public val ANDROID_USER_DATA_KEY: Key<Boolean> = Key<Boolean>("ANDROID")
+    public val FILE_PATH_USER_DATA_KEY: Key<String> = Key<String>("FILE_PATH")
+    public val DISABLED_RULES: Key<Set<String>> = Key<Set<String>>("DISABLED_RULES")
     private const val UTF8_BOM = "\uFEFF"
-    const val STDIN_FILE = "<stdin>"
+    public const val STDIN_FILE: String = "<stdin>"
 
     private val psiFileFactory: PsiFileFactory = initPsiFileFactory()
     private val editorConfigLoader = EditorConfigLoader(FileSystems.getDefault())
@@ -39,7 +39,7 @@ object KtLint {
      * @param editorConfigPath optional path of the .editorconfig file (otherwise will use working directory)
      * @param debug True if invoked with the --debug flag
      */
-    data class Params(
+    public data class Params(
         val fileName: String? = null,
         val text: String,
         val ruleSets: Iterable<RuleSet>,
@@ -64,7 +64,7 @@ object KtLint {
      * @throws ParseException if text is not a valid Kotlin code
      * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
      */
-    fun lint(params: Params) {
+    public fun lint(params: Params) {
         val normalizedText = normalizeText(params.text)
         val positionInTextLocator = buildPositionInTextLocator(normalizedText)
         val psiFileName = if (params.script) "file.kts" else "file.kt"
@@ -224,7 +224,7 @@ object KtLint {
      * @throws ParseException if text is not a valid Kotlin code
      * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
      */
-    fun format(params: Params): String {
+    public fun format(params: Params): String {
         val hasUTF8BOM = params.text.startsWith(UTF8_BOM)
         val normalizedText = normalizeText(params.text)
         val positionInTextLocator = buildPositionInTextLocator(normalizedText)
@@ -306,7 +306,7 @@ object KtLint {
     /**
      * Reduce memory usage of all internal caches.
      */
-    fun trimMemory() {
+    public fun trimMemory() {
         editorConfigLoader.trimMemory()
     }
 
