@@ -1,27 +1,28 @@
 package com.pinterest.ktlint.core.internal
 
+import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.api.EditorConfigProperties
+import com.pinterest.ktlint.core.api.FeatureInAlphaState
+import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import java.nio.charset.StandardCharsets
 import java.nio.file.FileSystem
 import java.nio.file.Path
 import org.ec4j.core.EditorConfigLoader
+import org.ec4j.core.PropertyTypeRegistry
 import org.ec4j.core.Resource
 import org.ec4j.core.ResourcePropertiesService
+import org.ec4j.core.model.Version
 
 /**
  * Loads default `.editorconfig` and ktlint specific properties for files.
  *
  * Contains internal in-memory cache to speedup lookup.
  */
+@OptIn(FeatureInAlphaState::class)
 class EditorConfigLoader(
     private val fs: FileSystem
 ) {
     private val cache = ThreadSafeEditorConfigCache()
-    private val editorConfigLoader = EditorConfigLoader.default_()
-    private val propService = ResourcePropertiesService.builder()
-        .keepUnset(true)
-        .cache(cache)
-        .loader(editorConfigLoader)
-        .build()
 
     /**
      * Loads applicable properties from `.editorconfig`s for given file.
@@ -32,6 +33,7 @@ class EditorConfigLoader(
      * from current folder `.editorconfig` files.
      * @param alternativeEditorConfig alternative to current [filePath] location where `.editorconfig` files should be
      * looked up
+     * @param rules set of [Rule]s linting the file
      * @param debug pass `true` to enable some additional debug output
      *
      * @return all possible loaded properties applicable to given file.
@@ -42,13 +44,16 @@ class EditorConfigLoader(
         filePath: Path?,
         isStdIn: Boolean = false,
         alternativeEditorConfig: Path? = null,
+        rules: Set<Rule>,
         debug: Boolean = false
-    ): Map<String, String> {
+    ): EditorConfigProperties {
         if (!isStdIn &&
             (filePath == null || SUPPORTED_FILES.none { filePath.toString().endsWith(it) })
         ) {
             return emptyMap()
         }
+
+        val propService = createLoaderService(rules)
 
         val normalizedFilePath = when {
             isStdIn ->
@@ -70,26 +75,16 @@ class EditorConfigLoader(
                 Resource.Resources.ofPath(normalizedFilePath, StandardCharsets.UTF_8)
             )
             .properties
-            .mapValues {
-                if (it.value.isUnset) "unset" else it.value.sourceValue
-            }
             .also {
                 if (debug) {
                     val editorConfigValues = it
                         .map { entry ->
-                            "${entry.key}: ${entry.value}"
+                            "${entry.key}: ${entry.value.sourceValue}"
                         }
                         .joinToString(
                             separator = ", "
                         )
                     println("Loaded .editorconfig: [$editorConfigValues]")
-                }
-            }
-            .run {
-                if (!isStdIn) {
-                    plus(FILE_PATH_PROPERTY to filePath.toString())
-                } else {
-                    this
                 }
             }
     }
@@ -101,6 +96,28 @@ class EditorConfigLoader(
         cache.clear()
     }
 
+    private fun createLoaderService(
+        rules: Set<Rule>
+    ): ResourcePropertiesService {
+        val propertyTypeRegistry = PropertyTypeRegistry.builder()
+            .defaults()
+            .apply {
+                rules
+                    .filterIsInstance<UsesEditorConfigProperties>()
+                    .flatMap(UsesEditorConfigProperties::editorconfigProperties)
+                    .forEach { prop ->
+                        type(prop.type)
+                    }
+            }
+            .build()
+        val editorConfigLoader = EditorConfigLoader.of(Version.CURRENT, propertyTypeRegistry)
+        return ResourcePropertiesService.builder()
+            .keepUnset(true)
+            .cache(cache)
+            .loader(editorConfigLoader)
+            .build()
+    }
+
     companion object {
         internal const val FILE_PATH_PROPERTY = "file_path"
         /**
@@ -110,5 +127,34 @@ class EditorConfigLoader(
             ".kt",
             ".kts"
         )
+
+        /**
+         * Converts loaded [editorConfigProperties] values to string representation.
+         *
+         * @param filePath added under [FILE_PATH_PROPERTY] key
+         * @param isStdIn indicate that input is from std-in and [filePath] should not be added to the map
+         *
+         * @return converted [editorConfigProperties]
+         */
+        fun EditorConfigProperties.convertToRawValues(
+            filePath: Path?,
+            isStdIn: Boolean = false
+        ): Map<String, String> {
+            return if (isEmpty()) {
+                emptyMap()
+            } else {
+                this
+                    .mapValues {
+                        if (it.value.isUnset) "unset" else it.value.sourceValue
+                    }
+                    .run {
+                        if (!isStdIn) {
+                            plus(FILE_PATH_PROPERTY to filePath.toString())
+                        } else {
+                            this
+                        }
+                    }
+            }
+        }
     }
 }

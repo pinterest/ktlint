@@ -2,17 +2,24 @@ package com.pinterest.ktlint.core.internal
 
 import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
+import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.api.FeatureInAlphaState
+import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
+import com.pinterest.ktlint.core.internal.EditorConfigLoader.Companion.convertToRawValues
 import java.nio.file.FileSystem
 import java.nio.file.Files
 import java.nio.file.Path
 import org.assertj.core.api.Assertions.assertThat
 import org.intellij.lang.annotations.Language
+import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.junit.After
 import org.junit.Test
 
+@OptIn(FeatureInAlphaState::class)
 internal class EditorConfigLoaderTest {
     private val tempFileSystem = Jimfs.newFileSystem(Configuration.forCurrentPlatform())
     private val editorConfigLoader = EditorConfigLoader(tempFileSystem)
+    private val rules = setOf(TestRule())
 
     private fun FileSystem.normalizedPath(path: String): Path {
         val root = rootDirectories.joinToString(separator = "/")
@@ -66,10 +73,11 @@ internal class EditorConfigLoaderTest {
             tempFileSystem.writeEditorConfigFile(projectDir, editorConfigFileContent)
 
             val lintFile = tempFileSystem.normalizedPath(projectDir).resolve("test.kt")
-            val editorConfig = editorConfigLoader.loadPropertiesForFile(lintFile)
+            val editorConfig = editorConfigLoader.loadPropertiesForFile(lintFile, rules = rules)
+            val parsedEditorConfig = editorConfig.convertToRawValues(lintFile)
 
-            assertThat(editorConfig).isNotEmpty
-            assertThat(editorConfig)
+            assertThat(parsedEditorConfig).isNotEmpty
+            assertThat(parsedEditorConfig)
                 .overridingErrorMessage(
                     "Expected \n%s\nto yield indent_size = 2",
                     editorConfigFileContent
@@ -121,7 +129,8 @@ internal class EditorConfigLoaderTest {
         )
 
         val lintFileSubdirectory = tempFileSystem.normalizedPath(project1Subdirectory).resolve("test.kt")
-        var parsedEditorConfig = editorConfigLoader.loadPropertiesForFile(lintFileSubdirectory)
+        var editorConfigProperties = editorConfigLoader.loadPropertiesForFile(lintFileSubdirectory, rules = rules)
+        var parsedEditorConfig = editorConfigProperties.convertToRawValues(lintFileSubdirectory)
 
         assertThat(parsedEditorConfig).isEqualTo(
             mapOf(
@@ -133,7 +142,8 @@ internal class EditorConfigLoaderTest {
         )
 
         val lintFileMainDir = tempFileSystem.normalizedPath(project1Dir).resolve("test.kts")
-        parsedEditorConfig = editorConfigLoader.loadPropertiesForFile(lintFileMainDir)
+        editorConfigProperties = editorConfigLoader.loadPropertiesForFile(lintFileMainDir, rules = rules)
+        parsedEditorConfig = editorConfigProperties.convertToRawValues(lintFileMainDir)
 
         assertThat(parsedEditorConfig).isEqualTo(
             mapOf(
@@ -145,7 +155,8 @@ internal class EditorConfigLoaderTest {
         )
 
         val lintFileRoot = tempFileSystem.normalizedPath(rootDir).resolve("test.kt")
-        parsedEditorConfig = editorConfigLoader.loadPropertiesForFile(lintFileRoot)
+        editorConfigProperties = editorConfigLoader.loadPropertiesForFile(lintFileRoot, rules = rules)
+        parsedEditorConfig = editorConfigProperties.convertToRawValues(lintFileRoot)
 
         assertThat(parsedEditorConfig).isEqualTo(
             mapOf(
@@ -167,7 +178,8 @@ internal class EditorConfigLoaderTest {
         tempFileSystem.writeEditorConfigFile(projectDir, editorconfigFile)
 
         val lintFile = tempFileSystem.normalizedPath(projectDir).resolve("test.kt")
-        val parsedEditorConfig = editorConfigLoader.loadPropertiesForFile(lintFile)
+        val editorConfigProperties = editorConfigLoader.loadPropertiesForFile(lintFile, rules = rules)
+        val parsedEditorConfig = editorConfigProperties.convertToRawValues(lintFile)
 
         assertThat(parsedEditorConfig).isNotEmpty
         assertThat(parsedEditorConfig).isEqualTo(
@@ -190,7 +202,8 @@ internal class EditorConfigLoaderTest {
         tempFileSystem.writeEditorConfigFile(projectDir, editorconfigFile)
 
         val lintFile = tempFileSystem.normalizedPath(projectDir).resolve("test.kt")
-        val parsedEditorConfig = editorConfigLoader.loadPropertiesForFile(lintFile)
+        val editorConfigProperties = editorConfigLoader.loadPropertiesForFile(lintFile, rules = rules)
+        val parsedEditorConfig = editorConfigProperties.convertToRawValues(lintFile)
 
         assertThat(parsedEditorConfig).isNotEmpty
         assertThat(parsedEditorConfig).isEqualTo(
@@ -213,7 +226,8 @@ internal class EditorConfigLoaderTest {
         tempFileSystem.writeEditorConfigFile(projectDir, editorconfigFile)
         val lintFile = tempFileSystem.normalizedPath(projectDir).resolve("test.kts")
 
-        val parsedEditorConfig = editorConfigLoader.loadPropertiesForFile(lintFile)
+        val editorConfigProperties = editorConfigLoader.loadPropertiesForFile(lintFile, rules = rules)
+        val parsedEditorConfig = editorConfigProperties.convertToRawValues(lintFile)
 
         assertThat(parsedEditorConfig).isNotEmpty
         assertThat(parsedEditorConfig).isEqualTo(
@@ -226,7 +240,7 @@ internal class EditorConfigLoaderTest {
 
     @Test
     fun `Should return emtpy map on null file path`() {
-        val parsedEditorConfig = editorConfigLoader.loadPropertiesForFile(null)
+        val parsedEditorConfig = editorConfigLoader.loadPropertiesForFile(null, rules = rules)
 
         assertThat(parsedEditorConfig).isEmpty()
     }
@@ -236,7 +250,8 @@ internal class EditorConfigLoaderTest {
         val projectDir = "/project"
         val lintFile = tempFileSystem.normalizedPath(projectDir).resolve("test.txt")
 
-        val parsedEditorConfig = editorConfigLoader.loadPropertiesForFile(lintFile)
+        val editorConfigProperties = editorConfigLoader.loadPropertiesForFile(lintFile, rules = rules)
+        val parsedEditorConfig = editorConfigProperties.convertToRawValues(lintFile)
 
         assertThat(parsedEditorConfig).isEmpty()
     }
@@ -251,7 +266,16 @@ internal class EditorConfigLoaderTest {
             """.trimIndent()
         tempFileSystem.writeEditorConfigFile(".", editorconfigFile)
 
-        val parsedEditorConfig = editorConfigLoader.loadPropertiesForFile(null, isStdIn = true, debug = true)
+        val editorConfigProperties = editorConfigLoader.loadPropertiesForFile(
+            filePath = null,
+            isStdIn = true,
+            rules = rules,
+            debug = true,
+        )
+        val parsedEditorConfig = editorConfigProperties.convertToRawValues(
+            null,
+            true
+        )
 
         assertThat(parsedEditorConfig).isNotEmpty
         assertThat(parsedEditorConfig).doesNotContainKey(EditorConfigLoader.FILE_PATH_PROPERTY)
@@ -300,10 +324,12 @@ internal class EditorConfigLoaderTest {
         )
 
         val lintFile = tempFileSystem.normalizedPath(mainProjectDir).resolve("test.kt")
-        val parsedEditorConfig = editorConfigLoader.loadPropertiesForFile(
+        val editorConfigProperties = editorConfigLoader.loadPropertiesForFile(
             filePath = lintFile,
-            alternativeEditorConfig = tempFileSystem.normalizedPath(anotherDir).resolve(".editorconfig")
+            alternativeEditorConfig = tempFileSystem.normalizedPath(anotherDir).resolve(".editorconfig"),
+            rules = rules
         )
+        val parsedEditorConfig = editorConfigProperties.convertToRawValues(lintFile)
 
         assertThat(parsedEditorConfig).isNotEmpty
         assertThat(parsedEditorConfig).isEqualTo(
@@ -333,7 +359,8 @@ internal class EditorConfigLoaderTest {
         val lintFile = tempFileSystem.normalizedPath(projectDir).resolve("api").resolve("test.kt")
         Files.createDirectories(lintFile)
 
-        val parsedEditorConfig = editorConfigLoader.loadPropertiesForFile(lintFile, debug = true)
+        val editorConfigProperties = editorConfigLoader.loadPropertiesForFile(lintFile, debug = true, rules = rules)
+        val parsedEditorConfig = editorConfigProperties.convertToRawValues(lintFile)
 
         assertThat(parsedEditorConfig).isNotEmpty
         assertThat(parsedEditorConfig).isEqualTo(
@@ -343,5 +370,15 @@ internal class EditorConfigLoaderTest {
                 EditorConfigLoader.FILE_PATH_PROPERTY to lintFile.toString()
             )
         )
+    }
+
+    private class TestRule : Rule("editorconfig-test"), UsesEditorConfigProperties {
+        override val editorconfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = emptyList()
+
+        override fun visit(
+            node: ASTNode,
+            autoCorrect: Boolean,
+            emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        ) = TODO("Not yet implemented")
     }
 }
