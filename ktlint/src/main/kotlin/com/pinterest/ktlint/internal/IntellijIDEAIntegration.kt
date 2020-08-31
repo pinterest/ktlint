@@ -78,13 +78,20 @@ object IntellijIDEAIntegration {
             if (indentSize == 4) "" else "-is$indentSize"
             }"
             val paths =
-                // macOS
+                // macOS for 2019.3.x and below
                 Glob.from("IntelliJIdea*", "IdeaIC*", "AndroidStudio*")
                     .iterate(
                         Paths.get(home, "Library", "Preferences"),
                         Glob.IterationOption.SKIP_CHILDREN,
                         Glob.IterationOption.DIRECTORY
                     ).asSequence() +
+                    // macOS for 2020.1.x and above
+                    Glob.from("IntelliJIdea*", "IdeaIC*", "AndroidStudio*")
+                        .iterate(
+                            Paths.get(home, "Library", "Application Support", "JetBrains"),
+                            Glob.IterationOption.SKIP_CHILDREN,
+                            Glob.IterationOption.DIRECTORY
+                        ).asSequence() +
                     // linux/windows
                     Glob.from(".IntelliJIdea*/config", ".IdeaIC*/config", ".AndroidStudio*/config")
                         .iterate(
