@@ -1183,4 +1183,42 @@ class AnnotationRuleTest {
             """.trimIndent()
         )
     }
+
+    @Test
+    fun `lint there should not be an error on multiple lines assertion while additional formatting ongoing`() {
+        val code =
+            """
+            package a.b.c
+
+            class Test {
+                fun bloop() {
+                    asdfadsf(asdfadsf, asdfasdf, asdfasdfasdfads,
+                    asdfasdf, asdfasdf, asdfasdf)
+                }
+
+                @Blah
+                val test: Int
+            }
+
+            """.trimIndent()
+
+        assertThat(
+            AnnotationRule().format(code)
+        ).isEqualTo(
+            """
+            package a.b.c
+
+            class Test {
+                fun bloop() {
+                    asdfadsf(asdfadsf, asdfasdf, asdfasdfasdfads,
+                    asdfasdf, asdfasdf, asdfasdf)
+                }
+
+                @Blah
+                val test: Int
+            }
+
+            """.trimIndent()
+        )
+    }
 }
