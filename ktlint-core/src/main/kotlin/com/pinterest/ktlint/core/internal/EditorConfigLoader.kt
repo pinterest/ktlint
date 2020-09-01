@@ -73,6 +73,18 @@ class EditorConfigLoader(
             .mapValues {
                 if (it.value.isUnset) "unset" else it.value.sourceValue
             }
+            .also {
+                if (debug) {
+                    val editorConfigValues = it
+                        .map { entry ->
+                            "${entry.key}: ${entry.value}"
+                        }
+                        .joinToString(
+                            separator = ", "
+                        )
+                    println("Loaded .editorconfig: [$editorConfigValues]")
+                }
+            }
             .run {
                 if (!isStdIn) {
                     plus(FILE_PATH_PROPERTY to filePath.toString())
