@@ -12,7 +12,7 @@ class MultiLineAnnotationRuleTest {
     @Test
     fun `lint no empty lines between an annotation and object`() {
         assertThat(
-            AnnotationRule().lint(
+            MultiLineAnnotationRule().lint(
                 """
                 @JvmField
                 fun foo() {}
@@ -25,7 +25,7 @@ class MultiLineAnnotationRuleTest {
     @Test
     fun `lint there should not be empty lines between an annotation and object`() {
         assertThat(
-            AnnotationRule().lint(
+            MultiLineAnnotationRule().lint(
                 """
                 @JvmField
 
@@ -35,7 +35,7 @@ class MultiLineAnnotationRuleTest {
             )
         ).isEqualTo(
             listOf(
-                LintError(1, 9, "annotation", fileAnnotationsLineBreaks)
+                LintError(1, 9, "multi-line-annotation", fileAnnotationsLineBreaks)
             )
         )
     }
@@ -51,7 +51,7 @@ class MultiLineAnnotationRuleTest {
             """.trimIndent()
 
         assertThat(
-            AnnotationRule().format(code)
+            MultiLineAnnotationRule().format(code)
         ).isEqualTo(
             """
             @JvmField
@@ -75,7 +75,7 @@ class MultiLineAnnotationRuleTest {
             """.trimIndent()
 
         assertThat(
-            AnnotationRule().format(code)
+            MultiLineAnnotationRule().format(code)
         ).isEqualTo(
             """
             @JvmField
@@ -101,7 +101,7 @@ class MultiLineAnnotationRuleTest {
             """.trimIndent()
 
         assertThat(
-            AnnotationRule().format(code)
+            MultiLineAnnotationRule().format(code)
         ).isEqualTo(
             """
             @JvmField
@@ -120,7 +120,7 @@ class MultiLineAnnotationRuleTest {
             """.trimIndent()
 
         assertThat(
-            AnnotationRule().format(code)
+            MultiLineAnnotationRule().format(code)
         ).isEqualTo(
             """
             @JvmField fun foo() {}
@@ -140,7 +140,7 @@ class MultiLineAnnotationRuleTest {
             """.trimIndent()
 
         assertThat(
-            AnnotationRule().format(code)
+            MultiLineAnnotationRule().format(code)
         ).isEqualTo(
             """
             @JvmField @JvmStatic
@@ -162,7 +162,7 @@ class MultiLineAnnotationRuleTest {
             """.trimIndent()
 
         assertThat(
-            AnnotationRule().format(code)
+            MultiLineAnnotationRule().format(code)
         ).isEqualTo(
             """
             @JvmField
@@ -186,13 +186,12 @@ class MultiLineAnnotationRuleTest {
             """.trimIndent()
 
         assertThat(
-            AnnotationRule().format(code)
+            MultiLineAnnotationRule().format(code)
         ).isEqualTo(
             """
             @JvmField
             @JvmName
-            @JvmStatic
-            fun foo() = Unit
+            @JvmStatic fun foo() = Unit
 
             """.trimIndent()
         )
@@ -215,7 +214,7 @@ class MultiLineAnnotationRuleTest {
             """.trimIndent()
 
         assertThat(
-            AnnotationRule().format(code)
+            MultiLineAnnotationRule().format(code)
         ).isEqualTo(
             """
             @JvmField
@@ -244,7 +243,7 @@ class MultiLineAnnotationRuleTest {
             """.trimIndent()
 
         assertThat(
-            AnnotationRule().format(code)
+            MultiLineAnnotationRule().format(code)
         ).isEqualTo(
             """
             @JvmField
@@ -276,7 +275,7 @@ class MultiLineAnnotationRuleTest {
             """.trimIndent()
 
         assertThat(
-            AnnotationRule().format(code)
+            MultiLineAnnotationRule().format(code)
         ).isEqualTo(
             """
             package a.b.c
