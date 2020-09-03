@@ -1,11 +1,15 @@
 package com.pinterest.ktlint.ruleset.experimental
 
+import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.ruleset.experimental.MultiLineAnnotationRule.Companion.fileAnnotationsLineBreaks
 import com.pinterest.ktlint.test.format
 import com.pinterest.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
+import java.util.ArrayList
+import java.util.concurrent.Executors
+import java.util.concurrent.FutureTask
 
 class MultiLineAnnotationRuleTest {
 
@@ -273,8 +277,8 @@ class MultiLineAnnotationRuleTest {
             }
 
             """.trimIndent()
-
         assertThat(
+
             MultiLineAnnotationRule().format(code)
         ).isEqualTo(
             """
@@ -292,5 +296,35 @@ class MultiLineAnnotationRuleTest {
 
             """.trimIndent()
         )
+    }
+
+    @Test
+    fun `lint there should not be an error on multiline assertion while additional formatting ongoing from file`() {
+        val code =
+            """
+            package a.b.c
+
+            class Test {
+                fun bloop() {
+                    asdfadsf(asdfadsf, asdfasdf, asdfasdfasdfads,
+                    asdfasdf, asdfasdf, asdfasdf)
+                }
+
+                @Blah
+                val test: Int
+            }
+
+            """.trimIndent()
+        assertThat(ArrayList<LintError>().apply {
+            KtLint.lint(
+                KtLint.Params(
+                    text = code,
+                    ruleSets = mutableListOf(
+                        ExperimentalRuleSetProvider().get()
+                    ),
+                    cb = { e, _ -> add(e) }
+                )
+            )
+        }).isEmpty()
     }
 }
