@@ -5,11 +5,9 @@ import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.ruleset.experimental.MultiLineAnnotationRule.Companion.fileAnnotationsLineBreaks
 import com.pinterest.ktlint.test.format
 import com.pinterest.ktlint.test.lint
+import java.util.ArrayList
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
-import java.util.ArrayList
-import java.util.concurrent.Executors
-import java.util.concurrent.FutureTask
 
 class MultiLineAnnotationRuleTest {
 
@@ -315,16 +313,18 @@ class MultiLineAnnotationRuleTest {
             }
 
             """.trimIndent()
-        assertThat(ArrayList<LintError>().apply {
-            KtLint.lint(
-                KtLint.Params(
-                    text = code,
-                    ruleSets = mutableListOf(
-                        ExperimentalRuleSetProvider().get()
-                    ),
-                    cb = { e, _ -> add(e) }
+        assertThat(
+            ArrayList<LintError>().apply {
+                KtLint.lint(
+                    KtLint.Params(
+                        text = code,
+                        ruleSets = mutableListOf(
+                            ExperimentalRuleSetProvider().get()
+                        ),
+                        cb = { e, _ -> add(e) }
+                    )
                 )
-            )
-        }).isEmpty()
+            }
+        ).isEmpty()
     }
 }

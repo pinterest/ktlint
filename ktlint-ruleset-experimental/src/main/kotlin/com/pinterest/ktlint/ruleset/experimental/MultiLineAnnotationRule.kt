@@ -140,7 +140,6 @@ class MultiLineAnnotationRule : Rule("multi-line-annotation") {
         leaf.rawReplaceWithText(replacementText)
     }
 
-
     private fun removeIntraLineBreaks(
         node: ASTNode,
         last: KtAnnotationEntry
