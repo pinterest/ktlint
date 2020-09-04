@@ -10,9 +10,14 @@ import com.pinterest.ktlint.core.ast.prevCodeLeaf
 import com.pinterest.ktlint.core.ast.prevLeaf
 import com.pinterest.ktlint.core.ast.upsertWhitespaceAfterMe
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
+import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
+import org.jetbrains.kotlin.kdoc.psi.api.KDoc
+import org.jetbrains.kotlin.lexer.KtTokens
+import org.jetbrains.kotlin.psi.KtAnnotationEntry
 import org.jetbrains.kotlin.psi.KtEnumEntry
+import org.jetbrains.kotlin.psi.psiUtil.getStrictParentOfType
 
 class NoSemicolonsRule : Rule("no-semi") {
 
@@ -53,10 +58,14 @@ class NoSemicolonsRule : Rule("no-semi") {
 
     private fun doesNotRequirePreSemi(nextLeaf: ASTNode?): Boolean {
         if (nextLeaf is PsiWhiteSpace) {
-            val nextNextLeaf = nextLeaf.nextLeaf()
+            val nextNextLeaf = nextLeaf.nextLeaf {
+                val psi = it.psi
+                it !is PsiWhiteSpace && it !is PsiComment && psi.getStrictParentOfType<KDoc>() == null &&
+                    psi.getStrictParentOfType<KtAnnotationEntry>() == null
+            }
             return (
                 nextNextLeaf == null || // \s+ and then eof
-                    nextLeaf.textContains('\n') && nextNextLeaf.text != "{"
+                    nextLeaf.textContains('\n') && nextNextLeaf.elementType != KtTokens.LBRACE
                 )
         }
         return nextLeaf == null /* eof */

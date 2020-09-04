@@ -116,4 +116,58 @@ class NoSemicolonsRuleTest {
             )
         ).isEmpty()
     }
+
+    @Test
+    fun testSemicolonAllowedBeforeAnnotationAndLambda() {
+        assertThat(
+            NoSemicolonsRule().lint(
+                """
+                annotation class Ann
+                val f: () -> String = run {
+                    listOf(1).map {
+                        it + it
+                    };
+                    @Ann
+                    { "" }
+                }
+                """
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun testSemicolonAllowedBeforeCommentAndLambda() {
+        assertThat(
+            NoSemicolonsRule().lint(
+                """
+                val f: () -> String = run {
+                    listOf(1).map {
+                        it + it
+                    };
+                    // comment
+                    { "" }
+                }
+                """
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun testSemicolonAllowedBeforeKDocAndLambda() {
+        assertThat(
+            NoSemicolonsRule().lint(
+                """
+                val f: () -> String = run {
+                    listOf(1).map {
+                        it + it
+                    };
+                    /**
+                     * kdoc
+                     */
+                    { "" }
+                }
+                """
+            )
+        ).isEmpty()
+    }
 }
