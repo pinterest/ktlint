@@ -1,14 +1,7 @@
 package com.pinterest.ktlint.ruleset.experimental
 
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.ast.ElementType
-import com.pinterest.ktlint.core.ast.isPartOf
-import com.pinterest.ktlint.core.ast.isPartOfComment
-import com.pinterest.ktlint.core.ast.isWhiteSpace
-import com.pinterest.ktlint.core.ast.isWhiteSpaceWithNewline
-import com.pinterest.ktlint.core.ast.lineNumber
-import com.pinterest.ktlint.core.ast.nextLeaf
-import com.pinterest.ktlint.core.ast.nextSibling
+import com.pinterest.ktlint.core.ast.*
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
@@ -59,13 +52,11 @@ class MultiLineAnnotationRule : Rule("multi-line-annotation") {
             .take(annotations.size)
             .toList()
 
-        // Check to make sure no trailing line breaks between annotation and object
-        val lineNumber = node.lineNumber()
         val next = node.nextSiblingWithAtLeastOneOf(
             {
                 !it.isWhiteSpace() &&
                     it.textLength > 0 &&
-                    !(it.isPartOfComment() && it.lineNumber() == lineNumber) &&
+                    !(it.isPartOfComment() /* && it.lineNumber() == lineNumber*/) &&
                     !it.isPartOf(ElementType.FILE_ANNOTATION_LIST)
             },
             {
@@ -74,17 +65,11 @@ class MultiLineAnnotationRule : Rule("multi-line-annotation") {
                 s.indexOf("\n") != s.lastIndexOf("\n")
             }
         )
-        val nextLineNumber = next?.lineNumber()
-        if (lineNumber != null && nextLineNumber != null) {
-            val diff = nextLineNumber - lineNumber
-            // Ensure declaration is not on the same line, there is a line break in between, and it is not an
-            // annotation we explicitly want to have a line break between
-            if (diff > 1 && node.elementType != ElementType.FILE_ANNOTATION_LIST) {
-                val psi = node.psi
-                emit(psi.endOffset - 1, fileAnnotationsLineBreaks, true)
-                if (autoCorrect) {
-                    removeExtraLineBreaks(node)
-                }
+        if (node.elementType != ElementType.FILE_ANNOTATION_LIST) {
+            val psi = node.psi
+            emit(psi.endOffset - 1, fileAnnotationsLineBreaks, true)
+            if (autoCorrect) {
+                removeExtraLineBreaks(node)
             }
         }
         if (whiteSpaces.isNotEmpty() && annotations.size > 1 && node.elementType != ElementType.FILE_ANNOTATION_LIST) {

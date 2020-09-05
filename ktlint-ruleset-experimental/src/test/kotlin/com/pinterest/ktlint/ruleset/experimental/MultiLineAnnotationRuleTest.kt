@@ -276,7 +276,6 @@ class MultiLineAnnotationRuleTest {
 
             """.trimIndent()
         assertThat(
-
             MultiLineAnnotationRule().format(code)
         ).isEqualTo(
             """
