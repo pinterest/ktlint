@@ -1,7 +1,13 @@
 package com.pinterest.ktlint.ruleset.experimental
 
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.ast.*
+import com.pinterest.ktlint.core.ast.ElementType
+import com.pinterest.ktlint.core.ast.isPartOf
+import com.pinterest.ktlint.core.ast.isPartOfComment
+import com.pinterest.ktlint.core.ast.isWhiteSpace
+import com.pinterest.ktlint.core.ast.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.core.ast.nextLeaf
+import com.pinterest.ktlint.core.ast.nextSibling
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
@@ -65,11 +71,13 @@ class MultiLineAnnotationRule : Rule("multi-line-annotation") {
                 s.indexOf("\n") != s.lastIndexOf("\n")
             }
         )
-        if (node.elementType != ElementType.FILE_ANNOTATION_LIST) {
-            val psi = node.psi
-            emit(psi.endOffset - 1, fileAnnotationsLineBreaks, true)
-            if (autoCorrect) {
-                removeExtraLineBreaks(node)
+        if (next != null) {
+            if (node.elementType != ElementType.FILE_ANNOTATION_LIST) {
+                val psi = node.psi
+                emit(psi.endOffset - 1, fileAnnotationsLineBreaks, true)
+                if (autoCorrect) {
+                    removeExtraLineBreaks(node)
+                }
             }
         }
         if (whiteSpaces.isNotEmpty() && annotations.size > 1 && node.elementType != ElementType.FILE_ANNOTATION_LIST) {
