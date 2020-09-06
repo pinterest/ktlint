@@ -317,6 +317,46 @@ internal class EditorConfigLoaderTest {
     }
 
     @Test
+    fun `Should load properties from alternative editorconfig on stdin input`() {
+        val rootDir = "/projects"
+        val anotherDir = "$rootDir/project-2-dir"
+
+        //language=EditorConfig
+        tempFileSystem.writeEditorConfigFile(
+            rootDir,
+            """
+            root = true
+            [*]
+            end_of_line = lf
+            """.trimIndent()
+        )
+
+        //language=EditorConfig
+        tempFileSystem.writeEditorConfigFile(
+            anotherDir,
+            """
+            [*]
+            indent_size = 2
+            """.trimIndent()
+        )
+
+        val parsedEditorConfig = editorConfigLoader.loadPropertiesForFile(
+            filePath = null,
+            alternativeEditorConfig = tempFileSystem.normalizedPath(anotherDir).resolve(".editorconfig"),
+            isStdIn = true
+        )
+
+        assertThat(parsedEditorConfig).isNotEmpty
+        assertThat(parsedEditorConfig).isEqualTo(
+            mapOf(
+                "end_of_line" to "lf",
+                "indent_size" to "2",
+                "tab_width" to "2"
+            )
+        )
+    }
+
+    @Test
     fun `Should support editorconfig globs when loading properties for file specified under such glob`() {
         val projectDir = "/project"
         @Language("EditorConfig") val editorconfigFile =
