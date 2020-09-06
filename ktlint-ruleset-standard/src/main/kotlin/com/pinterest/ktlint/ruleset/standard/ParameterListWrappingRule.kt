@@ -10,8 +10,10 @@ import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.core.ast.children
+import com.pinterest.ktlint.core.ast.column
 import com.pinterest.ktlint.core.ast.isRoot
 import com.pinterest.ktlint.core.ast.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.core.ast.lineIndent
 import com.pinterest.ktlint.core.ast.prevLeaf
 import com.pinterest.ktlint.core.ast.visit
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -150,21 +152,6 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
         }
     }
 
-    private val ASTNode.column: Int
-        get() {
-            var leaf = this.prevLeaf()
-            var offsetToTheLeft = 0
-            while (leaf != null) {
-                if (leaf.elementType == WHITE_SPACE && leaf.textContains('\n')) {
-                    offsetToTheLeft += leaf.textLength - 1 - leaf.text.lastIndexOf('\n')
-                    break
-                }
-                offsetToTheLeft += leaf.textLength
-                leaf = leaf.prevLeaf()
-            }
-            return offsetToTheLeft + 1
-        }
-
     private fun errorMessage(node: ASTNode) =
         when (node.elementType) {
             LPAR -> """Unnecessary newline before "(""""
@@ -173,17 +160,6 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
             RPAR -> """Missing newline before ")""""
             else -> throw UnsupportedOperationException()
         }
-
-    private fun ASTNode.lineIndent(): String {
-        var leaf = this.prevLeaf()
-        while (leaf != null) {
-            if (leaf.elementType == WHITE_SPACE && leaf.textContains('\n')) {
-                return leaf.text.substring(leaf.text.lastIndexOf('\n') + 1)
-            }
-            leaf = leaf.prevLeaf()
-        }
-        return ""
-    }
 
     private fun ASTNode.hasTypeParameterListInFront(): Boolean =
         treeParent.children()
