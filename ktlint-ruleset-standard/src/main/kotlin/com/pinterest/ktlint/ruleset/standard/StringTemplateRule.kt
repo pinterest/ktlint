@@ -9,6 +9,10 @@ import com.pinterest.ktlint.core.ast.ElementType.LONG_STRING_TEMPLATE_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.SUPER_EXPRESSION
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
+import org.jetbrains.kotlin.psi.KtBlockStringTemplateEntry
+import org.jetbrains.kotlin.psi.KtDotQualifiedExpression
+import org.jetbrains.kotlin.psi.KtNameReferenceExpression
+import org.jetbrains.kotlin.psi.KtThisExpression
 
 class StringTemplateRule : Rule("string-template") {
 
@@ -30,6 +34,7 @@ class StringTemplateRule : Rule("string-template") {
             }
 */
         if (elementType == LONG_STRING_TEMPLATE_ENTRY) {
+            var entryExpression = (node.psi as? KtBlockStringTemplateEntry)?.expression
             val entryStart = node.firstChildNode
             val dotQualifiedExpression = entryStart.treeNext
             if (dotQualifiedExpression?.elementType == DOT_QUALIFIED_EXPRESSION) {
@@ -41,6 +46,7 @@ class StringTemplateRule : Rule("string-template") {
                 ) {
                     emit(dot.startOffset, "Redundant \"toString()\" call in string template", true)
                     if (autoCorrect) {
+                        entryExpression = (entryExpression as? KtDotQualifiedExpression)?.receiverExpression
                         node.removeChild(dot)
                         node.removeChild(callExpression)
                     }
@@ -48,6 +54,7 @@ class StringTemplateRule : Rule("string-template") {
             }
             if (node.text.startsWith("${'$'}{") &&
                 node.text.let { it.substring(2, it.length - 1) }.all { it.isPartOfIdentifier() } &&
+                (entryExpression is KtNameReferenceExpression || entryExpression is KtThisExpression) &&
                 node.treeNext.let { nextSibling ->
                     nextSibling.elementType == CLOSING_QUOTE ||
                         (

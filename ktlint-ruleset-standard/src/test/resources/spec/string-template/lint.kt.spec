@@ -50,6 +50,16 @@ class E {
     override fun toString(): String = "${s0}"
 }
 
+class F {
+    fun keyword() {
+        println("${this}")
+        println("${this@F}")
+        println("${null}")
+        println("${true}")
+        println("${false}")
+    }
+}
+
 // expect
 // 2:29:Redundant "toString()" call in string template
 // 3:28:Redundant "toString()" call in string template
@@ -57,3 +67,4 @@ class E {
 // 7:15:Redundant curly braces
 // 28:79:Redundant "toString()" call in string template
 // 45:20:Redundant curly braces
+// 55:19:Redundant curly braces
