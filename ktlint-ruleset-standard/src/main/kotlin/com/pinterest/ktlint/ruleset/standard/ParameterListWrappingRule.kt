@@ -2,14 +2,10 @@ package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.ast.ElementType.COLLECTION_LITERAL_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.FUNCTION_LITERAL
-import com.pinterest.ktlint.core.ast.ElementType.LAMBDA_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.LPAR
 import com.pinterest.ktlint.core.ast.ElementType.RPAR
 import com.pinterest.ktlint.core.ast.ElementType.TYPE_PARAMETER_LIST
-import com.pinterest.ktlint.core.ast.ElementType.VALUE_ARGUMENT
-import com.pinterest.ktlint.core.ast.ElementType.VALUE_ARGUMENT_LIST
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
@@ -18,12 +14,12 @@ import com.pinterest.ktlint.core.ast.isRoot
 import com.pinterest.ktlint.core.ast.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.core.ast.prevLeaf
 import com.pinterest.ktlint.core.ast.visit
-import kotlin.math.max
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
+import kotlin.math.max
 
 class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
 
@@ -44,10 +40,7 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
         if (indentSize <= 0) {
             return
         }
-        val isParameterOrArgumentList = node.elementType == VALUE_PARAMETER_LIST ||
-            // skip if number of arguments is big (we assume it with a magic number of 8)
-            (node.elementType == VALUE_ARGUMENT_LIST && node.children().filter { it.elementType == VALUE_ARGUMENT }.toList().size <= 8)
-        if (isParameterOrArgumentList &&
+        if (node.elementType == VALUE_PARAMETER_LIST &&
             // skip when there are no parameters
             node.firstChildNode?.treeNext?.elementType != RPAR &&
             // skip lambda parameters
@@ -58,7 +51,7 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
             // - maxLineLength exceeded (and separating parameters with \n would actually help)
             // in addition, "(" and ")" must be on separates line if any of the parameters are (otherwise on the same)
             val putParametersOnSeparateLines =
-                node.textContainsIgnoringLambda('\n') ||
+                node.textContains('\n') ||
                     // max_line_length exceeded
                     maxLineLength > -1 && (node.column - 1 + node.textLength) > maxLineLength
             if (putParametersOnSeparateLines) {
@@ -97,12 +90,10 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
                             }
                         }
                         VALUE_PARAMETER,
-                        VALUE_ARGUMENT,
                         RPAR -> {
                             var paramInnerIndentAdjustment = 0
                             val prevLeaf = child.prevLeaf()
-                            val isParameterOrArgument = child.elementType == VALUE_PARAMETER || child.elementType == VALUE_ARGUMENT
-                            val intendedIndent = if (isParameterOrArgument) {
+                            val intendedIndent = if (child.elementType == VALUE_PARAMETER) {
                                 paramIndent
                             } else {
                                 indent
@@ -136,29 +127,16 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
                                     node.addChild(PsiWhiteSpaceImpl(intendedIndent), child)
                                 }
                             }
-                            if (paramInnerIndentAdjustment != 0 && isParameterOrArgument) {
+                            if (paramInnerIndentAdjustment != 0 && child.elementType == VALUE_PARAMETER) {
                                 child.visit { n ->
                                     if (n.elementType == WHITE_SPACE && n.textContains('\n')) {
-                                        val isInCollectionOrFunctionLiteral =
-                                            n.treeParent?.elementType == COLLECTION_LITERAL_EXPRESSION || n.treeParent?.elementType == FUNCTION_LITERAL
-
-                                        // If we're inside a collection literal, let's recalculate the adjustment
-                                        // because the items inside the collection should not be subject to the same
-                                        // indentation as the brackets.
-                                        val adjustment = if (isInCollectionOrFunctionLiteral) {
-                                            val expectedPosition = intendedIndent.length + indentSize
-                                            expectedPosition - child.column
-                                        } else {
-                                            paramInnerIndentAdjustment
-                                        }
-
                                         val split = n.text.split("\n")
                                         (n as LeafElement).rawReplaceWithText(
                                             split.joinToString("\n") {
-                                                when {
-                                                    it.isEmpty() -> it
-                                                    adjustment > 0 -> it + " ".repeat(adjustment)
-                                                    else -> it.substring(0, max(it.length + adjustment, 0))
+                                                if (paramInnerIndentAdjustment > 0) {
+                                                    it + " ".repeat(paramInnerIndentAdjustment)
+                                                } else {
+                                                    it.substring(0, max(it.length + paramInnerIndentAdjustment, 0))
                                                 }
                                             }
                                         )
@@ -192,8 +170,6 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
             LPAR -> """Unnecessary newline before "(""""
             VALUE_PARAMETER ->
                 "Parameter should be on a separate line (unless all parameters can fit a single line)"
-            VALUE_ARGUMENT ->
-                "Argument should be on a separate line (unless all arguments can fit a single line)"
             RPAR -> """Missing newline before ")""""
             else -> throw UnsupportedOperationException()
         }
@@ -207,13 +183,6 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
             leaf = leaf.prevLeaf()
         }
         return ""
-    }
-
-    private fun ASTNode.textContainsIgnoringLambda(char: Char): Boolean {
-        return children()
-            .flatMap { if (it.elementType == VALUE_ARGUMENT) it.children() else sequenceOf(it) }
-            .filter { it.elementType != LAMBDA_EXPRESSION }
-            .any { it.textContains(char) }
     }
 
     private fun ASTNode.hasTypeParameterListInFront(): Boolean =
