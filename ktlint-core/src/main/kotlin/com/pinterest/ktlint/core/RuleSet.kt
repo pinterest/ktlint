@@ -6,7 +6,7 @@ import com.pinterest.ktlint.core.internal.IdNamingPolicy
  * A group of [Rule]s discoverable through [RuleSetProvider].
  * @see RuleSetProvider
  */
-class RuleSet(
+open class RuleSet(
     val id: String,
     vararg val rules: Rule
 ) : Iterable<Rule> {
