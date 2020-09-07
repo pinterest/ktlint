@@ -593,4 +593,21 @@ class NoUnusedImportsRuleTest {
             )
         ).isEmpty()
     }
+
+    @Test
+    fun `only redundant static java function imports should be removed`() {
+        assertThat(
+            NoUnusedImportsRule().lint(
+                """
+                import com.google.cloud.bigtable.data.v2.models.Mutation
+                import com.google.cloud.bigtable.data.v2.models.Row
+                import com.google.cloud.bigtable.data.v2.models.RowMutation.create
+
+                fun test(row: Row) {
+                    create("string", "string", Mutation.create())
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
 }

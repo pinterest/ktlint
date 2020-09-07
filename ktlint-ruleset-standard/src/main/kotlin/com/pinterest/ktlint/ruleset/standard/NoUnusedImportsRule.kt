@@ -50,7 +50,7 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
     private val conditionalWhitelist = mapOf<(String) -> Boolean, (node: ASTNode) -> Boolean>(
         Pair(
             // Ignore provideDelegate if there is a `by` anywhere in the file
-            { importPath -> importPath.endsWith("provideDelegate") },
+            { importPath -> importPath.endsWith(".provideDelegate") },
             { rootNode ->
                 var hasByKeyword = false
                 rootNode.visit { child ->
@@ -103,7 +103,7 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
             val directCalls = ref.filter { !it.inDotQualifiedExpression }.map { it.text }
             parentExpressions.forEach { parent ->
                 imports.removeIf { imp ->
-                    imp.endsWith(parent) && directCalls.none { imp.endsWith(it) }
+                    imp.endsWith(".$parent") && directCalls.none { imp.endsWith(".$it") }
                 }
             }
         } else if (node.elementType == PACKAGE_DIRECTIVE) {
@@ -160,12 +160,10 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
             return false
         }
 
-        val staticImports = imports.filter { it.endsWith(text) }
+        val staticImports = imports.filter { it.endsWith(".$text") }
         staticImports.forEach { import ->
-            var count = 0
-            imports.forEach {
-                val startsWith = it.startsWith(import.substringBefore(text))
-                if (startsWith) count += 1
+            val count = imports.count {
+                it.startsWith(import.substringBefore(text))
             }
             // Parent import and static import both are present
             if (count > 1) {
