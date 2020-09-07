@@ -12,6 +12,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Do not enforce raw strings opening quote to be on a separate line ([#711](https://github.com/pinterest/ktlint/issues/711))
 - False negative with multiline type parameter list in function signature for `parameter-list-wrapping`([#680](https://github.com/pinterest/ktlint/issues/680))
 - Alternative `.editorconfig` path is ignored on stdin input ([#869](https://github.com/pinterest/ktlint/issues/869))
+- False positive with semicolons before annotations/comments/kdoc ([#825](https://github.com/pinterest/ktlint/issues/825))
+- Do not report when string-template expression is a keyword ([#883](https://github.com/pinterest/ktlint/issues/883))
+- False positive for subclass imports in `no-unused-imports` ([#845](https://github.com/pinterest/ktlint/issues/845))
+- False positive for static java function imports in `no-unused-imports` ([#872](https://github.com/pinterest/ktlint/issues/872))
 
 ### Changed
 - `Ktlint` object internal code cleanup
