@@ -8,6 +8,7 @@ class ExperimentalRuleSetProvider : RuleSetProvider {
     override fun get(): RuleSet = RuleSet(
         "experimental",
         AnnotationRule(),
+        ArgumentListWrappingRule(),
         MultiLineIfElseRule(),
         NoEmptyFirstLineInMethodBlockRule(),
         PackageNameRule(),
