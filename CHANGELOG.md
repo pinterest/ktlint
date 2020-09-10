@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - Add new applyToIDEA location for IDEA 2020.1.x and above on MacOs
 - Debug output: print loaded .editorconfig content
+- Extract 'argument-list-wrapping' rule into experimental ruleset
 
 ### Fixed
 - Do not enforce raw strings opening quote to be on a separate line ([#711](https://github.com/pinterest/ktlint/issues/711))
@@ -20,6 +21,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - `Ktlint` object internal code cleanup
 - Deprecate some of public methods in `Ktlint` object that should not be exposed as public api
+- Update Kotlin to 1.4.10 version
+- Make `RuleSet` class open so it can be inherited
 
 ## [0.38.1] - 2020-08-24
 Minor release to support projects using mixed 1.3/1.4 Kotlin versions (e.g. Gradle plugins)
