@@ -324,6 +324,8 @@ class AnnotationSpacingRuleTest {
                     )
                 )
             }
-        ).isEmpty()
+        ).allMatch {
+            it.ruleId == "experimental:argument-list-wrapping"
+        }
     }
 }
