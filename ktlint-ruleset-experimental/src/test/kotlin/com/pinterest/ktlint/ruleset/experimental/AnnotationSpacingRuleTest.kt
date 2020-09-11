@@ -2,19 +2,19 @@ package com.pinterest.ktlint.ruleset.experimental
 
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.LintError
-import com.pinterest.ktlint.ruleset.experimental.MultiLineAnnotationRule.Companion.fileAnnotationsLineBreaks
+import com.pinterest.ktlint.ruleset.experimental.AnnotationSpacingRule.Companion.fileAnnotationsLineBreaks
 import com.pinterest.ktlint.test.format
 import com.pinterest.ktlint.test.lint
 import java.util.ArrayList
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
-class MultiLineAnnotationRuleTest {
+class AnnotationSpacingRuleTest {
 
     @Test
     fun `lint no empty lines between an annotation and object`() {
         assertThat(
-            MultiLineAnnotationRule().lint(
+            AnnotationSpacingRule().lint(
                 """
                 @JvmField
                 fun foo() {}
@@ -27,7 +27,7 @@ class MultiLineAnnotationRuleTest {
     @Test
     fun `lint there should not be empty lines between an annotation and object`() {
         assertThat(
-            MultiLineAnnotationRule().lint(
+            AnnotationSpacingRule().lint(
                 """
                 @JvmField
 
@@ -37,7 +37,7 @@ class MultiLineAnnotationRuleTest {
             )
         ).isEqualTo(
             listOf(
-                LintError(1, 9, "multi-line-annotation", fileAnnotationsLineBreaks)
+                LintError(1, 9, "annotation-spacing", fileAnnotationsLineBreaks)
             )
         )
     }
@@ -53,7 +53,7 @@ class MultiLineAnnotationRuleTest {
             """.trimIndent()
 
         assertThat(
-            MultiLineAnnotationRule().format(code)
+            AnnotationSpacingRule().format(code)
         ).isEqualTo(
             """
             @JvmField
@@ -77,7 +77,7 @@ class MultiLineAnnotationRuleTest {
             """.trimIndent()
 
         assertThat(
-            MultiLineAnnotationRule().format(code)
+            AnnotationSpacingRule().format(code)
         ).isEqualTo(
             """
             @JvmField
@@ -103,7 +103,7 @@ class MultiLineAnnotationRuleTest {
             """.trimIndent()
 
         assertThat(
-            MultiLineAnnotationRule().format(code)
+            AnnotationSpacingRule().format(code)
         ).isEqualTo(
             """
             @JvmField
@@ -122,7 +122,7 @@ class MultiLineAnnotationRuleTest {
             """.trimIndent()
 
         assertThat(
-            MultiLineAnnotationRule().format(code)
+            AnnotationSpacingRule().format(code)
         ).isEqualTo(
             """
             @JvmField fun foo() {}
@@ -142,7 +142,7 @@ class MultiLineAnnotationRuleTest {
             """.trimIndent()
 
         assertThat(
-            MultiLineAnnotationRule().format(code)
+            AnnotationSpacingRule().format(code)
         ).isEqualTo(
             """
             @JvmField @JvmStatic
@@ -164,7 +164,7 @@ class MultiLineAnnotationRuleTest {
             """.trimIndent()
 
         assertThat(
-            MultiLineAnnotationRule().format(code)
+            AnnotationSpacingRule().format(code)
         ).isEqualTo(
             """
             @JvmField
@@ -188,7 +188,7 @@ class MultiLineAnnotationRuleTest {
             """.trimIndent()
 
         assertThat(
-            MultiLineAnnotationRule().format(code)
+            AnnotationSpacingRule().format(code)
         ).isEqualTo(
             """
             @JvmField
@@ -216,7 +216,7 @@ class MultiLineAnnotationRuleTest {
             """.trimIndent()
 
         assertThat(
-            MultiLineAnnotationRule().format(code)
+            AnnotationSpacingRule().format(code)
         ).isEqualTo(
             """
             @JvmField
@@ -245,7 +245,7 @@ class MultiLineAnnotationRuleTest {
             """.trimIndent()
 
         assertThat(
-            MultiLineAnnotationRule().format(code)
+            AnnotationSpacingRule().format(code)
         ).isEqualTo(
             """
             @JvmField
@@ -276,7 +276,7 @@ class MultiLineAnnotationRuleTest {
 
             """.trimIndent()
         assertThat(
-            MultiLineAnnotationRule().format(code)
+            AnnotationSpacingRule().format(code)
         ).isEqualTo(
             """
             package a.b.c

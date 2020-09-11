@@ -21,7 +21,7 @@ import org.jetbrains.kotlin.psi.psiUtil.endOffset
  *
  * https://kotlinlang.org/docs/reference/coding-conventions.html#annotation-formatting
  */
-class MultiLineAnnotationRule : Rule("multi-line-annotation") {
+class AnnotationSpacingRule : Rule("annotation-spacing") {
 
     companion object {
         const val fileAnnotationsLineBreaks =

@@ -30,7 +30,7 @@ import org.jetbrains.kotlin.psi.psiUtil.nextLeaf
  *
  * https://kotlinlang.org/docs/reference/coding-conventions.html#annotation-formatting
  *
- * @see [MultiLineAnnotationRule] for white space rules. Moved since
+ * @see [AnnotationSpacingRule] for white space rules. Moved since
  */
 class AnnotationRule : Rule("annotation") {
 
