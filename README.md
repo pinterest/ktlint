@@ -127,7 +127,9 @@ curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.38.1/ktlint &
   sudo mv ktlint /usr/local/bin/
 ```
 
-... or just download `ktlint` from the [releases](https://github.com/pinterest/ktlint/releases) page  (`ktlint.asc` contains PGP signature which you can verify with `curl -sS https://keybase.io/pinterestandroid/pgp_keys.asc | gpg --import && gpg --verify ktlint.asc`).  
+... or just download `ktlint` from the [releases](https://github.com/pinterest/ktlint/releases) page
+
+* (Temporarily broken, see [#895](https://github.com/pinterest/ktlint/issues/895)) `ktlint.asc` contains PGP signature which you can verify with `curl -sS https://keybase.io/pinterestandroid/pgp_keys.asc | gpg --import && gpg --verify ktlint.asc`  
 
 On macOS ([or Linux](http://linuxbrew.sh/)) you can also use [brew](https://brew.sh/) - `brew install ktlint`.
 
