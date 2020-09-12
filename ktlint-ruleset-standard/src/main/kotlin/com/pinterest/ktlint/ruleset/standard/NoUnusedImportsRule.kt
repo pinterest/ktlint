@@ -12,9 +12,12 @@ import com.pinterest.ktlint.core.ast.isRoot
 import com.pinterest.ktlint.core.ast.parent
 import com.pinterest.ktlint.core.ast.visit
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
+import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
 import org.jetbrains.kotlin.kdoc.lexer.KDocTokens
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocLink
+import org.jetbrains.kotlin.psi.KtCallExpression
+import org.jetbrains.kotlin.psi.KtDotQualifiedExpression
 import org.jetbrains.kotlin.psi.KtImportDirective
 import org.jetbrains.kotlin.psi.KtPackageDirective
 
@@ -95,7 +98,7 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
                 } else if ((type == REFERENCE_EXPRESSION || type == OPERATION_REFERENCE) &&
                     !vnode.isPartOf(IMPORT_DIRECTIVE)
                 ) {
-                    ref.add(Reference(text.trim('`'), vnode.parent(DOT_QUALIFIED_EXPRESSION, true) != null))
+                    ref.add(Reference(text.trim('`'), psi.parentDotQualifiedExpression() != null))
                 } else if (type == IMPORT_DIRECTIVE) {
                     buildNonRedundantImports(vnode.psi as KtImportDirective)
                 }
@@ -179,4 +182,9 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
     }
 
     private fun String.isComponentN() = componentNRegex.matches(this)
+
+    private fun PsiElement.parentDotQualifiedExpression(): KtDotQualifiedExpression? {
+        val callOrThis = (parent as? KtCallExpression)?.takeIf { it.calleeExpression == this } ?: this
+        return (callOrThis.parent as? KtDotQualifiedExpression)?.takeIf { it.selectorExpression == callOrThis }
+    }
 }
