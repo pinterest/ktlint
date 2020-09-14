@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# project.version
+if [ "$VERSION" == "" ]; then exit 1; fi
+
+brew update
+shasum -a 256 ./ktlint/build/run/ktlint | awk -v new_version="$VERSION" '{system(sprintf("brew bump-formula-pr --url=\"https://github.com/pinterest/ktlint/releases/download/%s/ktlint\" --sha256=\"%s\"", new_version, $1))}'
