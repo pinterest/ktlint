@@ -29,38 +29,41 @@ It's also [easy to create your own](#creating-a-reporter).
 
 ## Standard rules
 
-- Indentation formatting - respects `.editorconfig` `indent_size` with no continuation indent (see [EditorConfig](#editorconfig) section for more)
-- No semicolons (unless used to separate multiple statements on the same line)
-- No unused `import`s
-- No consecutive blank lines
-- No blank lines before `}`
-- No trailing whitespaces
-- No `Unit` returns (`fun fn {}` instead of `fun fn: Unit {}`)
-- No empty (`{}`) class bodies
-- No spaces around range (`..`) operator
-- No newline before (binary) `+` & `-`, `*`, `/`, `%`, `&&`, `||` 
-- No wildcard `import`s
-- When wrapping chained calls `.`, `?.` and `?:` should be placed on the next line
-- When a line is broken at an assignment (`=`) operator the break comes after the symbol
+- Indentation formatting - respects `.editorconfig` `indent_size` with no continuation indent (see [EditorConfig](#editorconfig) section for more) (id: `indent`)
+- No semicolons (unless used to separate multiple statements on the same line) (id: `no-semi`)
+- No unused `import`s (id: `no-unused-imports`)
+- No consecutive blank lines (id: `no-consecutive-blank-lines`)
+- No blank lines before `}` (id: `no-blank-line-before-rbrace`)
+- No trailing whitespaces (id: `no-trailing-spaces`)
+- No `Unit` returns (`fun fn {}` instead of `fun fn: Unit {}`) (id: `no-unit-return`)
+- No empty (`{}`) class bodies (id: `no-empty-class-body`)
+- No wildcard `import`s (id: `no-wildcard-imports`)
+- When wrapping chained calls `.`, `?.` and `?:` should be placed on the next line (id: `chain-wrapping`)
+- When a line is broken at an assignment (`=`) operator the break comes after the symbol (id: `no-line-break-before-assignment`)
 - When class/function signature doesn't fit on a single line, each parameter must be on a separate line
-- Consistent string templates (`$v` instead of `${v}`, `${p.v}` instead of `${p.v.toString()}`)
-- Consistent order of modifiers
-- Consistent spacing after keywords, commas; around colons, curly braces, parens, infix operators, comments, etc
-- Newline at the end of each file (enabled by default)
-(set `insert_final_newline=false` in .editorconfig to disable (see [EditorConfig](#editorconfig) section for more)).
-- Imports ordered consistently (see [Custom ktlint EditorConfig properties](#custom-ktlint-specific-editorconfig-properties) for more)
+- Consistent string templates (`$v` instead of `${v}`, `${p.v}` instead of `${p.v.toString()}`) (id: `string-template`)
+- Consistent order of modifiers (id: `modifier-order`)
+- Consistent spacing after keywords, commas; around colons, curly braces, parens, infix operators, comments, range operators, etc (ids: `colon-spacing`, `comma-spacing`, `curly-spacing`, `dot-spacing`, `double-colon-spacing`, `keyword-spacing`, `op-spacing`, `paren-spacing`, `range-spacing`)
+- Newline at the end of each file (enabled by default) 
+(set `insert_final_newline=false` in .editorconfig to disable (see [EditorConfig](#editorconfig) section for more)). (id: `final-newline`)
+- Imports ordered consistently (see [Custom ktlint EditorConfig properties](#custom-ktlint-specific-editorconfig-properties) for more) (id: `import-ordering`)
 
 ## Experimental rules
 New rules will be added into the [experimental ruleset](https://github.com/pinterest/ktlint/tree/master/ktlint-ruleset-experimental), which can be enabled
 by passing the `--experimental` flag to `ktlint`.
 
-- Annotation formatting - multiple annotations should be on a separate line than the annotated declaration; annotations with parameters should each be on separate lines; annotations should be followed by a space; declarations with annotations should be separated by a blank line
-- Comment space formatting - declarations with comments should be separated by a blank line
-- No underscores in package names
-- Braces required for multiline if/else statements
-- Enum entry names should be uppercase underscore-separated names
-- No spaces around `::`
-- No spaces around angle brackets
+- Annotation formatting - multiple annotations should be on a separate line than the annotated declaration; annotations with parameters should each be on separate lines; annotations should be followed by a space (id: `experimental:annotation`)
+- Annotations should be separated by the annotated declaration by a single line break (id: `experimental:annotation-spacing`)
+- Argument list wrapping (id: `experimental:argument-list-wrapping`)
+- Enum entry names should be uppercase underscore-separated names (id: `experimental:enum-entry-name-case`)
+- Braces required for multiline if/else statements (id: `experimental:multiline-if-else`)
+- No leading empty lines in method blocks (id: `experimental:no-empty-first-line-in-method-block`)
+- No underscores in package names (id: `experimental:package-name`)
+- No spaces around angle brackets (id: `experimental:spacing-around-angle-brackets`)
+- No spaces around `::` (id: `experimental:double-colon-spacing`)
+- No spaces around unary operators (id: `experimental:unary-op-spacing`)
+- Declarations with annotations should be separated by a blank line (id: `experimental:spacing-between-declarations-with-annotations`)
+- Declarations with comments should be separated by a blank line (id: `experimental:spacing-between-declarations-with-comments`)
 
 
 ## EditorConfig
@@ -124,7 +127,11 @@ curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.38.1/ktlint &
   sudo mv ktlint /usr/local/bin/
 ```
 
-... or just download `ktlint` from the [releases](https://github.com/pinterest/ktlint/releases) page  (`ktlint.asc` contains PGP signature which you can verify with `curl -sS https://keybase.io/pinterestandroid/pgp_keys.asc | gpg --import && gpg --verify ktlint.asc`).  
+... or just download `ktlint` from the [releases](https://github.com/pinterest/ktlint/releases) page
+
+* `ktlint.asc` contains PGP signature which you can verify with:
+  * (Releases up through 0.31.0) `curl -sS https://keybase.io/shyiko/pgp_keys.asc | gpg --import && gpg --verify ktlint.asc`
+  * (Releases from 0.32.0 on) `curl -sS https://keybase.io/ktlint/pgp_keys.asc | gpg --import && gpg --verify ktlint.asc`
 
 On macOS ([or Linux](http://linuxbrew.sh/)) you can also use [brew](https://brew.sh/) - `brew install ktlint`.
 
