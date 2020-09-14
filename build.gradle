@@ -144,7 +144,7 @@ def announceTask = tasks.register("announceRelease", Exec.class) { announceTask 
       announceTask.dependsOn subproject.tasks.named("publishMavenPublicationToMavenCentralRepository")
     }
 
-  commandLine './.announce'
+  commandLine './.announce', '-y'
   environment VERSION: "${project.'VERSION_NAME'}"
   environment GITHUB_TOKEN: "${getGithubToken()}"
 }
