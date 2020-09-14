@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## [0.39.0] - 2020-09-14
 
 ### Added
 - Add new applyToIDEA location for IDEA 2020.1.x and above on MacOs
@@ -764,6 +764,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.39.0]: https://github.com/pinterest/ktlint/compare/0.38.1...0.39.0
 [0.38.1]: https://github.com/pinterest/ktlint/compare/0.38.0...0.38.1
 [0.38.0]: https://github.com/pinterest/ktlint/compare/0.37.2...0.38.0
 [0.37.2]: https://github.com/pinterest/ktlint/compare/0.37.1...0.37.2
