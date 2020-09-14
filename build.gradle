@@ -119,7 +119,8 @@ githubRelease {
     project(":ktlint").tasks.named("shadowJarExecutable").get()
       .outputs
       .files
-      .singleFile
+      .getFiles()
+      .first()
       .parentFile
       .listFiles()
   })
