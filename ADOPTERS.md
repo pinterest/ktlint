@@ -9,6 +9,7 @@ adds your information to this file.
 - [Duolingo](https://www.duolingo.com/)
 - [Ellation](http://www.ellation.com/)
 - [Faithlife](https://faithlife.com/about)
+- [Flickr](https://flickr.com)
 - [Freeletics](https://www.freeletics.com)
 - [Gradle](https://gradle.org)
 - [M1 Finance](https://www.m1finance.com/)
