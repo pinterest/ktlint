@@ -20,6 +20,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - False positive for static java function imports in `no-unused-imports` ([#872](https://github.com/pinterest/ktlint/issues/872))
 - Missing signature for KtLint CLI artifact published to Github release ([#895](https://github.com/pinterest/ktlint/issues/895))
 - Crash in annotation rule ([#868](https://github.com/pinterest/ktlint/issues/868))
+- False-positive unused import violation ([#902](https://github.com/pinterest/ktlint/issues/902))
 
 ### Changed
 - `Ktlint` object internal code cleanup
