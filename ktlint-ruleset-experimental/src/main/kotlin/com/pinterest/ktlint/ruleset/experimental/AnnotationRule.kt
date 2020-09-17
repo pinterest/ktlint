@@ -18,6 +18,7 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
+import org.jetbrains.kotlin.descriptors.annotations.AnnotationUseSiteTarget
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
 import org.jetbrains.kotlin.psi.psiUtil.children
 import org.jetbrains.kotlin.psi.psiUtil.endOffset
@@ -105,7 +106,8 @@ class AnnotationRule : Rule("annotation") {
                 doesNotEndWithAComment(whiteSpaces) &&
                 node.treeParent.elementType != VALUE_PARAMETER && // fun fn(@Ann("blah") a: String)
                 node.treeParent.elementType != VALUE_ARGUMENT && // fn(@Ann("blah") "42")
-                !node.isPartOf(TYPE_ARGUMENT_LIST) // val property: Map<@Ann("blah") String, Int>
+                !node.isPartOf(TYPE_ARGUMENT_LIST) && // val property: Map<@Ann("blah") String, Int>
+                annotations.none { it.useSiteTarget?.getAnnotationUseSiteTarget() == AnnotationUseSiteTarget.RECEIVER }
         if (annotationsWithParametersAreNotOnSeparateLines) {
             emit(
                 annotations.first().node.startOffset,
