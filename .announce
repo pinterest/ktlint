@@ -39,7 +39,12 @@ if [[ "$AUTOACCEPT" = false ]]; then
   read -p "commit & push (y/n)? " -n 1 -r; echo; if [[ ! $REPLY =~ ^[Yy]$ ]]; then exit 1; fi
 fi
 
-git commit -m "$COMMIT_MESSAGE" README.md && git push origin master
+BRANCH="$VERSION-update-refs"
+
+# Make a separate branch because master branch is protected
+git checkout --track origin/master -b $BRANCH && git commit -m "$COMMIT_MESSAGE" README.md && git push origin $BRANCH
+
+open "https://github.com/pinterest/ktlint/compare/$BRANCH?expand=1"
 
 # update ktlint.github.io
 

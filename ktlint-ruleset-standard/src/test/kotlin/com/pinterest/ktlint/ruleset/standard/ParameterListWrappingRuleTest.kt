@@ -182,93 +182,6 @@ class ParameterListWrappingRuleTest {
     }
 
     @Test
-    fun testLintArgumentInconsistency() {
-        assertThat(
-            ParameterListWrappingRule().lint(
-                """
-                    val x = f(
-                        a,
-                        b, c
-                    )
-                """.trimIndent()
-            )
-        ).isEqualTo(
-            listOf(
-                LintError(3, 8, "parameter-list-wrapping", "Argument should be on a separate line (unless all arguments can fit a single line)")
-            )
-        )
-    }
-
-    @Test
-    fun testFormatArgumentInconsistency() {
-        assertThat(
-            ParameterListWrappingRule().format(
-                """
-                    val x = f(
-                        a,
-                        b, c
-                    )
-                """.trimIndent()
-            )
-        ).isEqualTo(
-            """
-                val x = f(
-                    a,
-                    b,
-                    c
-                )
-            """.trimIndent()
-        )
-    }
-
-    @Test
-    fun testFormatArgumentsWithNestedCalls() {
-        assertThat(
-            ParameterListWrappingRule().format(
-                """
-                    val x = test(
-                        one("a", "b",
-                        "c"),
-                        "Two", "Three", "Four"
-                    )
-                """.trimIndent()
-            )
-        ).isEqualTo(
-            """
-                val x = test(
-                    one(
-                        "a",
-                        "b",
-                        "c"
-                    ),
-                    "Two",
-                    "Three",
-                    "Four"
-                )
-            """.trimIndent()
-        )
-    }
-
-    @Test
-    fun testLintArgumentListWhenMaxLineLengthExceeded() {
-        assertThat(
-            ParameterListWrappingRule().lint(
-                """
-                    val x = f(a, b, c)
-                """.trimIndent(),
-                userData = mapOf("max_line_length" to "10")
-            )
-        ).isEqualTo(
-            listOf(
-                LintError(1, 11, "parameter-list-wrapping", "Argument should be on a separate line (unless all arguments can fit a single line)"),
-                LintError(1, 14, "parameter-list-wrapping", "Argument should be on a separate line (unless all arguments can fit a single line)"),
-                LintError(1, 17, "parameter-list-wrapping", "Argument should be on a separate line (unless all arguments can fit a single line)"),
-                LintError(1, 18, "parameter-list-wrapping", """Missing newline before ")"""")
-            )
-        )
-    }
-
-    @Test
     fun testLintFunctionParameterListWhenMaxLineLengthExceeded() {
         assertThat(
             ParameterListWrappingRule().lint(
@@ -350,130 +263,6 @@ class ParameterListWrappingRuleTest {
     }
 
     @Test
-    fun testLambdaArgumentsAreIgnored() {
-        assertThat(
-            ParameterListWrappingRule().lint(
-                """
-                abstract class A(init: String.() -> Int)
-                class B : A({
-                    toInt()
-                })
-
-                fun test(a: Any, b: (Any) -> Any) {
-                    test(a = "1", b = {
-                        it.toString()
-                    })
-                }
-                """.trimIndent()
-            )
-        ).isEmpty()
-    }
-
-    @Test
-    fun testFormatWithLambdaArguments() {
-        assertThat(
-            ParameterListWrappingRule().format(
-                """
-                abstract class A(init: String.() -> Int)
-                class B : A({
-                    toInt()
-                })
-
-                fun test(a: Any, b: (Any) -> Any) {
-                    test(
-                        a = "1", b = {
-                        it.toString()
-                    })
-                }
-
-                fun test(a: Any, b: (Any) -> Any, c: Any) {
-                    test(a = "1", b = {
-                        it.toString()
-                    }, c = 123)
-                }
-
-                fun test(a: Any, b: (Any) -> Any, c: Any) {
-                    test(a = "1", b = {
-                        it.toString()
-                    },
-                    c = 123)
-                }
-
-                fun test(a: Any, b: (Any) -> Any, c: Any) {
-                    test("1",
-                        { val x = it.toString(); x }, 123)
-                }
-
-                fun test(a: Any, b: (Any) -> Any, c: Any) {
-                    test(
-                        "1",
-                        {
-                            f(1,
-                                { "stuff" }, 3)
-                        },
-                        123
-                    )
-                }
-                """.trimIndent()
-            )
-        ).isEqualTo(
-            """
-            abstract class A(init: String.() -> Int)
-            class B : A({
-                toInt()
-            })
-
-            fun test(a: Any, b: (Any) -> Any) {
-                test(
-                    a = "1",
-                    b = {
-                        it.toString()
-                    }
-                )
-            }
-
-            fun test(a: Any, b: (Any) -> Any, c: Any) {
-                test(a = "1", b = {
-                    it.toString()
-                }, c = 123)
-            }
-
-            fun test(a: Any, b: (Any) -> Any, c: Any) {
-                test(
-                    a = "1",
-                    b = {
-                        it.toString()
-                    },
-                    c = 123
-                )
-            }
-
-            fun test(a: Any, b: (Any) -> Any, c: Any) {
-                test(
-                    "1",
-                    { val x = it.toString(); x },
-                    123
-                )
-            }
-
-            fun test(a: Any, b: (Any) -> Any, c: Any) {
-                test(
-                    "1",
-                    {
-                        f(
-                            1,
-                            { "stuff" },
-                            3
-                        )
-                    },
-                    123
-                )
-            }
-            """.trimIndent()
-        )
-    }
-
-    @Test
     fun testFormatPreservesIndent() {
         assertThat(
             ParameterListWrappingRule().format(
@@ -501,14 +290,17 @@ class ParameterListWrappingRuleTest {
     }
 
     @Test
-    fun testFormatPreservesIndentWithAnnotationsOnSingleLine() {
+    fun testFormatPreservesIndentWithAnnotations() {
         assertThat(
             ParameterListWrappingRule().format(
                 """
                 class A {
                     fun f(@Annotation
                           a: Any,
-                          @Annotation(["v1", "v2"])
+                          @Annotation([
+                              "v1",
+                              "v2"
+                          ])
                           b: Any,
                           c: Any =
                               false,
@@ -523,50 +315,10 @@ class ParameterListWrappingRuleTest {
                 fun f(
                     @Annotation
                     a: Any,
-                    @Annotation(["v1", "v2"])
-                    b: Any,
-                    c: Any =
-                        false,
-                    @Annotation d: Any
-                ) {
-                }
-            }
-            """.trimIndent()
-        )
-    }
-
-    @Test
-    fun testFormatPreservesIndentWithAnnotationsOnMultiLine() {
-        assertThat(
-            ParameterListWrappingRule().format(
-                """
-                class A {
-                    fun f(@Annotation
-                          a: Any,
-                        @Annotation([
-                            "v1",
-                            "v2"
-                        ])
-                        b: Any,
-                        c: Any =
-                            false,
-                        @Annotation d: Any) {
-                    }
-                }
-                """.trimIndent()
-            )
-        ).isEqualTo(
-            """
-            class A {
-                fun f(
-                    @Annotation
-                    a: Any,
-                    @Annotation(
-                        [
-                            "v1",
-                            "v2"
-                        ]
-                    )
+                    @Annotation([
+                        "v1",
+                        "v2"
+                    ])
                     b: Any,
                     c: Any =
                         false,
@@ -788,20 +540,6 @@ class ParameterListWrappingRuleTest {
             )
             """.trimIndent()
         )
-    }
-
-    @Test
-    fun testLintVarargIsIgnored() {
-        assertThat(
-            ParameterListWrappingRule().lint(
-                """
-                private val tokenSet = TokenSet.create(
-                    MUL, PLUS, MINUS, DIV, PERC, LT, GT, LTEQ, GTEQ, EQEQEQ, EXCLEQEQEQ, EQEQ,
-                    EXCLEQ, ANDAND, OROR, ELVIS, EQ, MULTEQ, DIVEQ, PERCEQ, PLUSEQ, MINUSEQ, ARROW
-                )
-                """.trimIndent()
-            )
-        ).isEmpty()
     }
 
     // https://github.com/pinterest/ktlint/issues/680

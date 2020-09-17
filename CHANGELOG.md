@@ -5,17 +5,42 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## Unreleased
 
 ### Added
+- Initial implementation IDE integration via '.editorconfig' based on rules default values ([#701](https://github.com/pinterest/ktlint/issues/701))
+
+### Fixed
+- ?
+
+### Changed
+- ?
+
+### Removed
+- ?
+
+## [0.39.0] - 2020-09-14
+
+### Added
 - Add new applyToIDEA location for IDEA 2020.1.x and above on MacOs
 - Debug output: print loaded .editorconfig content
-- Initial implementation IDE integration via '.editorconfig' based on rules default values ([#701](https://github.com/pinterest/ktlint/issues/701))
+- Extract `argument-list-wrapping` rule into experimental ruleset
+- Split `annotation-spacing` into separate experimental rule
 
 ### Fixed
 - Do not enforce raw strings opening quote to be on a separate line ([#711](https://github.com/pinterest/ktlint/issues/711))
 - False negative with multiline type parameter list in function signature for `parameter-list-wrapping`([#680](https://github.com/pinterest/ktlint/issues/680))
+- Alternative `.editorconfig` path is ignored on stdin input ([#869](https://github.com/pinterest/ktlint/issues/869))
+- False positive with semicolons before annotations/comments/kdoc ([#825](https://github.com/pinterest/ktlint/issues/825))
+- Do not report when string-template expression is a keyword ([#883](https://github.com/pinterest/ktlint/issues/883))
+- False positive for subclass imports in `no-unused-imports` ([#845](https://github.com/pinterest/ktlint/issues/845))
+- False positive for static java function imports in `no-unused-imports` ([#872](https://github.com/pinterest/ktlint/issues/872))
+- Missing signature for KtLint CLI artifact published to Github release ([#895](https://github.com/pinterest/ktlint/issues/895))
+- Crash in annotation rule ([#868](https://github.com/pinterest/ktlint/issues/868))
+- False-positive unused import violation ([#902](https://github.com/pinterest/ktlint/issues/902))
 
 ### Changed
 - `Ktlint` object internal code cleanup
 - Deprecate some of public methods in `Ktlint` object that should not be exposed as public api
+- Update Kotlin to 1.4.10 version
+- Make `RuleSet` class open so it can be inherited
 
 ## [0.38.1] - 2020-08-24
 Minor release to support projects using mixed 1.3/1.4 Kotlin versions (e.g. Gradle plugins)
@@ -753,6 +778,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.39.0]: https://github.com/pinterest/ktlint/compare/0.38.1...0.39.0
 [0.38.1]: https://github.com/pinterest/ktlint/compare/0.38.0...0.38.1
 [0.38.0]: https://github.com/pinterest/ktlint/compare/0.37.2...0.38.0
 [0.37.2]: https://github.com/pinterest/ktlint/compare/0.37.1...0.37.2

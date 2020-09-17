@@ -7,7 +7,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
 class NoUnusedImportsRuleTest {
-
     @Test
     fun testLint() {
         assertThat(
@@ -571,6 +570,63 @@ class NoUnusedImportsRuleTest {
                     val psi = getPsi()
                     psi.abc()
                     val bar = psi.findAnnotation(SOME_CONSTANT)
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `only redundant sealed sub class imports should be removed`() {
+        assertThat(
+            NoUnusedImportsRule().lint(
+                """
+                import com.foo.psi.Sealed
+                import com.foo.psi.Sealed.SubClass
+
+                fun main() {
+                    listOf<Sealed>()
+                    Sealed.SubClass()
+                    SubClass()
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `only redundant sealed sub class imports should be removed 2`() {
+        assertThat(
+            NoUnusedImportsRule().lint(
+                """
+                import com.zak.result.Result.Expected
+                import com.zak.result.Result.Unexpected
+                import org.assertj.core.api.Assertions.assertThat
+
+                fun test() {
+                    assertThat(Result.just(1)).isEqualTo(Expected(1))
+                    assertThat(Result.just(1)).isEqualTo(Result.Expected(1))
+
+                    val ex = Exception()
+                    assertThat(Result.raise(exception)).isEqualTo(Unexpected(ex))
+                    assertThat(Result.raise(exception)).isEqualTo(Result.Unexpected(exception))
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `only redundant static java function imports should be removed`() {
+        assertThat(
+            NoUnusedImportsRule().lint(
+                """
+                import com.google.cloud.bigtable.data.v2.models.Mutation
+                import com.google.cloud.bigtable.data.v2.models.Row
+                import com.google.cloud.bigtable.data.v2.models.RowMutation.create
+
+                fun test(row: Row) {
+                    create("string", "string", Mutation.create())
                 }
                 """.trimIndent()
             )

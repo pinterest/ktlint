@@ -233,3 +233,29 @@ fun ASTNode.visit(enter: (node: ASTNode) -> Unit, exit: (node: ASTNode) -> Unit)
 
 fun ASTNode.lineNumber(): Int? =
     this.psi.containingFile?.viewProvider?.document?.getLineNumber(this.startOffset)?.let { it + 1 }
+
+val ASTNode.column: Int
+    get() {
+        var leaf = this.prevLeaf()
+        var offsetToTheLeft = 0
+        while (leaf != null) {
+            if (leaf.elementType == WHITE_SPACE && leaf.textContains('\n')) {
+                offsetToTheLeft += leaf.textLength - 1 - leaf.text.lastIndexOf('\n')
+                break
+            }
+            offsetToTheLeft += leaf.textLength
+            leaf = leaf.prevLeaf()
+        }
+        return offsetToTheLeft + 1
+    }
+
+fun ASTNode.lineIndent(): String {
+    var leaf = this.prevLeaf()
+    while (leaf != null) {
+        if (leaf.elementType == WHITE_SPACE && leaf.textContains('\n')) {
+            return leaf.text.substring(leaf.text.lastIndexOf('\n') + 1)
+        }
+        leaf = leaf.prevLeaf()
+    }
+    return ""
+}

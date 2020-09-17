@@ -5,6 +5,7 @@ plugins {
   id 'ktlint-publication'
   id 'com.github.johnrengelman.shadow'
   id 'org.gradle.crypto.checksum'
+  id 'signing'
 }
 
 jar {
@@ -47,15 +48,21 @@ def shadowJarExecutableTask = tasks.register("shadowJarExecutable", DefaultTask.
   group = "Distribution"
 
   inputs.files tasks.named("shadowJar")
-  outputs.file "$buildDir/run/ktlint"
+  outputs.files("$buildDir/run/ktlint")
+  if (!version.toString().endsWith("SNAPSHOT")) {
+    outputs.files("$buildDir/run/ktlint.asc")
+  }
 
   doLast {
-    File execFile = outputs.files.singleFile
+    File execFile = outputs.files.getFiles().first()
     execFile.withOutputStream {
       it.write "#!/bin/sh\n\nexec java -Xmx512m -jar \"\$0\" \"\$@\"\n\n".bytes
       it.write inputs.files.singleFile.bytes
     }
     execFile.setExecutable(true, false)
+    if (!version.toString().endsWith("SNAPSHOT")) {
+      signing.sign(execFile)
+    }
   }
   finalizedBy tasks.named("shadowJarExecutableChecksum")
 }
@@ -66,7 +73,7 @@ tasks.register("shadowJarExecutableChecksum", Checksum.class) {
 
   files = shadowJarExecutableTask.get().outputs.files
   // put the checksums in the same folder with the executable itself
-  outputDir = shadowJarExecutableTask.get().outputs.files.singleFile.parentFile
+  outputDir = shadowJarExecutableTask.get().outputs.files.getFiles().first().parentFile
 
   algorithm = Checksum.Algorithm.MD5
 }

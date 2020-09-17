@@ -9,11 +9,15 @@ import com.pinterest.ktlint.core.ast.ElementType.PACKAGE_DIRECTIVE
 import com.pinterest.ktlint.core.ast.ElementType.REFERENCE_EXPRESSION
 import com.pinterest.ktlint.core.ast.isPartOf
 import com.pinterest.ktlint.core.ast.isRoot
+import com.pinterest.ktlint.core.ast.parent
 import com.pinterest.ktlint.core.ast.visit
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
+import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
 import org.jetbrains.kotlin.kdoc.lexer.KDocTokens
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocLink
+import org.jetbrains.kotlin.psi.KtCallExpression
+import org.jetbrains.kotlin.psi.KtDotQualifiedExpression
 import org.jetbrains.kotlin.psi.KtImportDirective
 import org.jetbrains.kotlin.psi.KtPackageDirective
 
@@ -49,7 +53,7 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
     private val conditionalWhitelist = mapOf<(String) -> Boolean, (node: ASTNode) -> Boolean>(
         Pair(
             // Ignore provideDelegate if there is a `by` anywhere in the file
-            { importPath -> importPath.endsWith("provideDelegate") },
+            { importPath -> importPath.endsWith(".provideDelegate") },
             { rootNode ->
                 var hasByKeyword = false
                 rootNode.visit { child ->
@@ -63,7 +67,9 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
         )
     )
 
-    private val ref = mutableSetOf<String>()
+    private data class Reference(val text: String, val inDotQualifiedExpression: Boolean)
+    private val ref = mutableSetOf<Reference>()
+    private val parentExpressions = mutableSetOf<String>()
     private val imports = mutableSetOf<String>()
     private var packageName = ""
     private var rootNode: ASTNode? = null
@@ -76,26 +82,31 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
         if (node.isRoot()) {
             rootNode = node
             ref.clear() // rule can potentially be executed more than once (when formatting)
-            ref.add("*")
+            ref.add(Reference("*", false))
+            parentExpressions.clear()
             imports.clear()
-            var parentExpression: String? = null
             node.visit { vnode ->
                 val psi = vnode.psi
                 val type = vnode.elementType
                 val text = vnode.text
-                val parentImport = checkIfExpressionHasParentImport(text, type)
-                parentExpression = if (parentImport) text.substringBeforeLast("(") else parentExpression
+                if (checkIfExpressionHasParentImport(text, type)) {
+                    parentExpressions.add(text.substringBeforeLast("("))
+                }
                 if (type == KDocTokens.MARKDOWN_LINK && psi is KDocLink) {
                     val linkText = psi.getLinkText().replace("`", "")
-                    ref.add(linkText.split('.').first())
+                    ref.add(Reference(linkText.split('.').first(), false))
                 } else if ((type == REFERENCE_EXPRESSION || type == OPERATION_REFERENCE) &&
                     !vnode.isPartOf(IMPORT_DIRECTIVE)
                 ) {
-                    ref.add(text.trim('`'))
-                    // If redundant import is present, it is filtered from the import list
-                    parentExpression?.let { imports.removeIf { imp -> imp.endsWith(it) } }
+                    ref.add(Reference(text.trim('`'), psi.parentDotQualifiedExpression() != null))
                 } else if (type == IMPORT_DIRECTIVE) {
                     buildNonRedundantImports(vnode.psi as KtImportDirective)
+                }
+            }
+            val directCalls = ref.filter { !it.inDotQualifiedExpression }.map { it.text }
+            parentExpressions.forEach { parent ->
+                imports.removeIf { imp ->
+                    imp.endsWith(".$parent") && directCalls.none { imp.endsWith(".$it") }
                 }
             }
         } else if (node.elementType == PACKAGE_DIRECTIVE) {
@@ -113,7 +124,7 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
                 if (autoCorrect) {
                     importDirective.delete()
                 }
-            } else if (name != null && (!ref.contains(name) || !isAValidImport(importPath)) &&
+            } else if (name != null && (!ref.map { it.text }.contains(name) || !isAValidImport(importPath)) &&
                 !operatorSet.contains(name) &&
                 !name.isComponentN() &&
                 conditionalWhitelist
@@ -152,12 +163,10 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
             return false
         }
 
-        val staticImports = imports.filter { it.endsWith(text) }
+        val staticImports = imports.filter { it.endsWith(".$text") }
         staticImports.forEach { import ->
-            var count = 0
-            imports.forEach {
-                val startsWith = it.startsWith(import.substringBefore(text))
-                if (startsWith) count += 1
+            val count = imports.count {
+                it.startsWith(import.substringBefore(text))
             }
             // Parent import and static import both are present
             if (count > 1) {
@@ -173,4 +182,9 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
     }
 
     private fun String.isComponentN() = componentNRegex.matches(this)
+
+    private fun PsiElement.parentDotQualifiedExpression(): KtDotQualifiedExpression? {
+        val callOrThis = (parent as? KtCallExpression)?.takeIf { it.calleeExpression == this } ?: this
+        return (callOrThis.parent as? KtDotQualifiedExpression)?.takeIf { it.selectorExpression == callOrThis }
+    }
 }
