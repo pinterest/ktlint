@@ -1,69 +1,115 @@
 package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.LintError
+import com.pinterest.ktlint.core.api.FeatureInAlphaState
+import com.pinterest.ktlint.ruleset.standard.FinalNewlineRule.Companion.insertNewLineProperty
+import com.pinterest.ktlint.test.EditorConfigTestRule
 import com.pinterest.ktlint.test.format
 import com.pinterest.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.Rule
 import org.junit.Test
+import java.io.File
 
+@OptIn(FeatureInAlphaState::class)
 class FinalNewlineRuleTest {
 
+    @get:Rule
+    val editorConfigTestRule = EditorConfigTestRule()
+    private val finalNewLineRule = FinalNewlineRule()
+
     @Test
-    fun testLint() {
-        // neither true nor false
-        assertThat(FinalNewlineRule().lint("fun name() {\n}")).isEqualTo(
-            listOf(
-                LintError(1, 1, "final-newline", "File must end with a newline (\\n)")
-            )
-        )
-        assertThat(FinalNewlineRule().lint("fun name() {\n}\n")).isEmpty()
-        // true
+    fun `Lint should ignore empty file`() {
         assertThat(
-            FinalNewlineRule().lint(
-                "",
-                mapOf("insert_final_newline" to "true")
-            )
+            finalNewLineRule.lint("")
         ).isEmpty()
+    }
+
+    @Test
+    fun `Lint should by default fail on missing new line`() {
         assertThat(
-            FinalNewlineRule().lint(
-                "fun name() {\n}",
-                mapOf("insert_final_newline" to "true")
+            finalNewLineRule.lint(
+                """
+                fun name() {
+                }
+                """.trimIndent()
             )
         ).isEqualTo(
             listOf(
                 LintError(1, 1, "final-newline", "File must end with a newline (\\n)")
             )
         )
+    }
+
+    @Test
+    fun `Lint should succeed by default when final newline is present`() {
         assertThat(
-            FinalNewlineRule().lint(
-                "fun name() {\n}\n",
-                mapOf("insert_final_newline" to "true")
+            finalNewLineRule.lint(
+                """
+                fun name() {
+                }
+
+                """.trimIndent()
             )
         ).isEmpty()
+    }
+
+    @Test
+    fun `Should ignore several empty final lines for scripts`() {
         assertThat(
-            FinalNewlineRule().lint(
-                "fun main() {\n}\n\n\n",
-                mapOf("insert_final_newline" to "true"),
-                script = true
+            finalNewLineRule.lint(
+                script = true,
+                text =
+                """
+                fun main() {
+                }
+
+
+
+                """.trimIndent()
             )
         ).isEmpty()
-        // false
+    }
+
+    @Test
+    fun `Should ignore empty file when final new line is disabled`() {
+        val testFile = disableFinalNewLine()
+
         assertThat(
-            FinalNewlineRule().lint(
-                "",
-                mapOf("insert_final_newline" to "false")
+            finalNewLineRule.lint(
+                testFile.absolutePath,
+                ""
             )
         ).isEmpty()
+    }
+
+    @Test
+    fun `Should ignore missing final new line when it is disabled`() {
+        val testFile = disableFinalNewLine()
+
         assertThat(
-            FinalNewlineRule().lint(
-                "fun name() {\n}",
-                mapOf("insert_final_newline" to "false")
+            finalNewLineRule.lint(
+                testFile.absolutePath,
+                """
+                fun name() {
+                }
+                """.trimIndent()
             )
         ).isEmpty()
+    }
+
+    @Test
+    fun `Should fail check if new-line is disabled, but file contains it`() {
+        val testFile = disableFinalNewLine()
+
         assertThat(
-            FinalNewlineRule().lint(
-                "fun name() {\n}\n",
-                mapOf("insert_final_newline" to "false")
+            finalNewLineRule.lint(
+                testFile.absolutePath,
+                """
+                fun name() {
+                }
+
+                """.trimIndent()
             )
         ).isEqualTo(
             listOf(
@@ -73,22 +119,46 @@ class FinalNewlineRuleTest {
     }
 
     @Test
-    fun testFormat() {
+    fun `Should add final new line on format`() {
         assertThat(
-            FinalNewlineRule().format(
-                "fun name() {\n}",
-                mapOf("insert_final_newline" to "true")
+            finalNewLineRule.format(
+                """
+                fun name() {
+                }
+                """.trimIndent()
             )
         ).isEqualTo(
-            "fun name() {\n}\n"
-        )
-        assertThat(
-            FinalNewlineRule().format(
-                "fun name() {\n}\n",
-                mapOf("insert_final_newline" to "false")
-            )
-        ).isEqualTo(
-            "fun name() {\n}"
+            """
+            fun name() {
+            }
+
+            """.trimIndent()
         )
     }
+
+    @Test
+    fun `Should remove final new line on format when it is disabled`() {
+        val testFile = disableFinalNewLine()
+
+        assertThat(
+            finalNewLineRule.format(
+                testFile.absolutePath,
+                """
+                fun name() {
+                }
+
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            """
+            fun name() {
+            }
+            """.trimIndent()
+        )
+    }
+
+    private fun disableFinalNewLine(): File = editorConfigTestRule
+        .writeToEditorConfig(
+            mapOf(insertNewLineProperty.type to false.toString())
+        )
 }

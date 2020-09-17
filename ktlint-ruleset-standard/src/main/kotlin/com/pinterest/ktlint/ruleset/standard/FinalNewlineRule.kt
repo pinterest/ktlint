@@ -17,11 +17,6 @@ public class FinalNewlineRule :
     Rule.Modifier.RestrictToRoot,
     UsesEditorConfigProperties {
 
-    private val insertNewLineProperty = UsesEditorConfigProperties.EditorConfigProperty(
-        type = PropertyType.insert_final_newline,
-        defaultValue = true
-    )
-
     override val editorconfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
         insertNewLineProperty
     )
@@ -57,4 +52,11 @@ public class FinalNewlineRule :
 
     private tailrec fun lastChildNodeOf(node: ASTNode): ASTNode? =
         if (node.lastChildNode == null) node else lastChildNodeOf(node.lastChildNode)
+
+    internal companion object {
+        internal val insertNewLineProperty = UsesEditorConfigProperties.EditorConfigProperty(
+            type = PropertyType.insert_final_newline,
+            defaultValue = true
+        )
+    }
 }
