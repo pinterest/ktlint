@@ -20,6 +20,7 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationUseSiteTarget
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
+import org.jetbrains.kotlin.psi.KtScript
 import org.jetbrains.kotlin.psi.psiUtil.children
 import org.jetbrains.kotlin.psi.psiUtil.endOffset
 import org.jetbrains.kotlin.psi.psiUtil.getNextSiblingIgnoringWhitespaceAndComments
@@ -123,8 +124,11 @@ class AnnotationRule : Rule("annotation") {
 
         if (node.elementType == FILE_ANNOTATION_LIST) {
             val lineNumber = node.lineNumber()
-            val next = node.nextSibling {
-                !it.isWhiteSpace() && it.textLength > 0 && !(it.isPartOfComment() && it.lineNumber() == lineNumber)
+            val next = node.nextSibling { it.textLength > 0 }?.let { next ->
+                val psi = next.psi
+                ((psi as? KtScript)?.blockExpression?.firstChildNode ?: next).nextSibling {
+                    !it.isWhiteSpace() && !(it.isPartOfComment() && it.lineNumber() == lineNumber)
+                }
             }
             val nextLineNumber = next?.lineNumber()
             if (lineNumber != null && nextLineNumber != null) {
