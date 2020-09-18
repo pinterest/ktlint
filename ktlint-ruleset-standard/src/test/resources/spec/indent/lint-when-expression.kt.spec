@@ -19,6 +19,23 @@ fun main() {
             else -> 2 + 3
         }
     }
+    val v3 = when (1) {
+        1 -> if (true) {
+            2
+        } else {
+            3
+        }
+        else -> 0
+    }
+
+    val v4 = when (1) {
+        1 -> 1.let {
+            it + 1
+        }.let {
+            it + 1
+        }
+        else -> 0
+    }
 }
 
 // expect

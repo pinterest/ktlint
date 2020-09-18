@@ -347,8 +347,7 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
         if (lToken != null && lToken.elementType in lTokenSet) {
             val rElementType = matchingRToken[lToken.elementType]
             val rToken = lToken.nextSibling { it.elementType == rElementType }
-            val lf = rToken?.nextLeaf { it.isWhiteSpaceWithNewline() }
-            return lf?.parent({ it == p }) == null
+            return rToken?.treeParent == lToken.treeParent
         }
         if (nextCodeSibling?.textContains('\n') == false) {
             return true
