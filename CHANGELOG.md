@@ -2,6 +2,20 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+
+### Added
+- Initial implementation IDE integration via '.editorconfig' based on rules default values ([#701](https://github.com/pinterest/ktlint/issues/701))
+
+### Fixed
+- ?
+
+### Changed
+- ?
+
+### Removed
+- ?
+
 ## [0.39.0] - 2020-09-14
 
 ### Added

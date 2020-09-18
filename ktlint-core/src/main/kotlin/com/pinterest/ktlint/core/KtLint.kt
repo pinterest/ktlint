@@ -1,7 +1,11 @@
 package com.pinterest.ktlint.core
 
+import com.pinterest.ktlint.core.api.EditorConfigProperties
+import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.ast.visit
+import com.pinterest.ktlint.core.internal.EditorConfigGenerator
 import com.pinterest.ktlint.core.internal.EditorConfigLoader
+import com.pinterest.ktlint.core.internal.EditorConfigLoader.Companion.convertToRawValues
 import com.pinterest.ktlint.core.internal.LineAndColumn
 import com.pinterest.ktlint.core.internal.SuppressionLocator
 import com.pinterest.ktlint.core.internal.buildPositionInTextLocator
@@ -25,12 +29,17 @@ public object KtLint {
     public val EDITOR_CONFIG_USER_DATA_KEY: Key<EditorConfig> = Key<EditorConfig>("EDITOR_CONFIG")
     public val ANDROID_USER_DATA_KEY: Key<Boolean> = Key<Boolean>("ANDROID")
     public val FILE_PATH_USER_DATA_KEY: Key<String> = Key<String>("FILE_PATH")
+    public val EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY: Key<EditorConfigProperties> =
+        Key<EditorConfigProperties>("EDITOR_CONFIG_PROPERTIES")
     public val DISABLED_RULES: Key<Set<String>> = Key<Set<String>>("DISABLED_RULES")
     private const val UTF8_BOM = "\uFEFF"
     public const val STDIN_FILE: String = "<stdin>"
 
     private val psiFileFactory: PsiFileFactory = initPsiFileFactory()
     private val editorConfigLoader = EditorConfigLoader(FileSystems.getDefault())
+
+    @OptIn(FeatureInAlphaState::class)
+    private val editorConfigGenerator = EditorConfigGenerator(editorConfigLoader)
 
     /**
      * @param fileName path of file to lint/format
@@ -59,6 +68,12 @@ public object KtLint {
         }
 
         internal val isStdIn: Boolean get() = fileName == STDIN_FILE
+
+        internal val rules: Set<Rule> get() = ruleSets
+            .flatMap {
+                it.rules.toList()
+            }
+            .toSet()
     }
 
     /**
@@ -121,14 +136,21 @@ public object KtLint {
 
         val rootNode = psiFile.node
 
-        // Passed-in userData overrides .editorconfig
-        val mergedUserData = editorConfigLoader.loadPropertiesForFile(
+        val editorConfigProperties = editorConfigLoader.loadPropertiesForFile(
             params.normalizedFilePath,
             params.isStdIn,
             params.editorConfigPath?.let { Paths.get(it) },
+            params.rules,
             params.debug
+        )
+
+        // Passed-in userData overrides .editorconfig
+        val mergedUserData = editorConfigProperties.convertToRawValues(
+            params.normalizedFilePath,
+            params.isStdIn
         ) + params.userData
-        injectUserData(rootNode, mergedUserData)
+
+        injectUserData(rootNode, editorConfigProperties, mergedUserData)
 
         val suppressedRegionLocator = buildSuppressedRegionsLocator(rootNode)
 
@@ -150,7 +172,11 @@ public object KtLint {
             .replaceFirst(UTF8_BOM, "")
     }
 
-    private fun injectUserData(node: ASTNode, userData: Map<String, String>) {
+    private fun injectUserData(
+        node: ASTNode,
+        editorConfigProperties: EditorConfigProperties,
+        userData: Map<String, String>
+    ) {
         val android = userData["android"]?.toBoolean() ?: false
         val editorConfigMap =
             if (android &&
@@ -162,6 +188,7 @@ public object KtLint {
             }
         node.putUserData(FILE_PATH_USER_DATA_KEY, userData["file_path"])
         node.putUserData(EDITOR_CONFIG_USER_DATA_KEY, EditorConfig.fromMap(editorConfigMap - "android" - "file_path"))
+        node.putUserData(EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY, editorConfigProperties)
         node.putUserData(ANDROID_USER_DATA_KEY, android)
         node.putUserData(
             DISABLED_RULES,
@@ -334,6 +361,36 @@ public object KtLint {
      */
     public fun trimMemory() {
         editorConfigLoader.trimMemory()
+    }
+
+    /**
+     * Generates Kotlin `.editorconfig` file section content based on [Params.ruleSets].
+     *
+     * Method loads merged `.editorconfig` content from [Params.fileName] path,
+     * and then, by querying rules from [Params.ruleSets] for missing properties default values,
+     * generates Kotlin section (default is `[*.{kt,kts}]`) new content.
+     *
+     * Rule should implement [UsesEditorConfigProperties] interface to support this.
+     *
+     * @return Kotlin section editorconfig content. For example:
+     * ```properties
+     * final-newline=true
+     * indent-size=4
+     * ```
+     */
+    @FeatureInAlphaState
+    public fun generateKotlinEditorConfigSection(
+        params: Params
+    ): String {
+        val filePath = params.normalizedFilePath
+        requireNotNull(filePath) {
+            "Please pass path to existing Kotlin file"
+        }
+        return editorConfigGenerator.generateEditorconfig(
+            filePath,
+            params.rules,
+            params.debug
+        )
     }
 
     private fun determineLineSeparator(fileContent: String, userData: Map<String, String>): String {

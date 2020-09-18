@@ -2,12 +2,24 @@ package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.api.EditorConfigProperties
+import com.pinterest.ktlint.core.api.FeatureInAlphaState
+import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.isRoot
+import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 
-class FinalNewlineRule : Rule("final-newline"), Rule.Modifier.RestrictToRoot {
+@OptIn(FeatureInAlphaState::class)
+public class FinalNewlineRule :
+    Rule("final-newline"),
+    Rule.Modifier.RestrictToRoot,
+    UsesEditorConfigProperties {
+
+    override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
+        insertNewLineProperty
+    )
 
     override fun visit(
         node: ASTNode,
@@ -16,8 +28,9 @@ class FinalNewlineRule : Rule("final-newline"), Rule.Modifier.RestrictToRoot {
     ) {
         if (node.isRoot()) {
             if (node.textLength == 0) return
-            val editorConfig = node.getUserData(KtLint.EDITOR_CONFIG_USER_DATA_KEY)!!
-            val insertFinalNewline = editorConfig.insertFinalNewline
+            val editorConfigProperties: EditorConfigProperties =
+                node.getUserData(KtLint.EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY)!!
+            val insertFinalNewline = editorConfigProperties.getEditorConfigValue(insertNewLineProperty)
             val lastNode = lastChildNodeOf(node)
             if (insertFinalNewline) {
                 if (lastNode !is PsiWhiteSpace || !lastNode.textContains('\n')) {
@@ -39,4 +52,11 @@ class FinalNewlineRule : Rule("final-newline"), Rule.Modifier.RestrictToRoot {
 
     private tailrec fun lastChildNodeOf(node: ASTNode): ASTNode? =
         if (node.lastChildNode == null) node else lastChildNodeOf(node.lastChildNode)
+
+    internal companion object {
+        internal val insertNewLineProperty = UsesEditorConfigProperties.EditorConfigProperty(
+            type = PropertyType.insert_final_newline,
+            defaultValue = true
+        )
+    }
 }

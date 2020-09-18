@@ -2,6 +2,7 @@ package com.pinterest.ktlint.internal
 
 import com.github.shyiko.klob.Glob
 import com.pinterest.ktlint.core.internal.EditorConfigLoader
+import com.pinterest.ktlint.core.internal.EditorConfigLoader.Companion.convertToRawValues
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.IOException
@@ -28,8 +29,12 @@ object IntellijIDEAIntegration {
         if (!Files.isDirectory(workDir.resolve(".idea"))) {
             throw ProjectNotFoundException()
         }
-        val editorConfig: Map<String, String> = EditorConfigLoader(FileSystems.getDefault())
-            .loadPropertiesForFile(null, isStdIn = true)
+        val editorConfigProperties = EditorConfigLoader(FileSystems.getDefault())
+            .loadPropertiesForFile(null, isStdIn = true, rules = emptySet())
+        val editorConfig: Map<String, String> = editorConfigProperties.convertToRawValues(
+            null,
+            isStdIn = true
+        )
         val indentSize = editorConfig["indent_size"]?.toIntOrNull() ?: 4
         val continuationIndentSize = editorConfig["continuation_indent_size"]?.toIntOrNull() ?: 4
         val updates = if (local) {

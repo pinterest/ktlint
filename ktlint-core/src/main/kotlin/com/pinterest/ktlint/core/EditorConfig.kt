@@ -13,8 +13,12 @@ interface EditorConfig {
     val indentSize: Int
     val tabWidth: Int
     val maxLineLength: Int
+    @Deprecated(
+        message = "Not used anymore by rules, please use 'insert_final_newline' directly via get()"
+    )
     val insertFinalNewline: Boolean
-    fun get(key: String): String?
+
+    operator fun get(key: String): String?
 
     companion object {
         fun fromMap(map: Map<String, String>): EditorConfig {

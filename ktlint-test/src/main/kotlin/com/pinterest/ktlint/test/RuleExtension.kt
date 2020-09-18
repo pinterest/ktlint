@@ -8,11 +8,23 @@ import java.util.ArrayList
 import org.assertj.core.util.diff.DiffUtils.diff
 import org.assertj.core.util.diff.DiffUtils.generateUnifiedDiff
 
-fun Rule.lint(text: String, userData: Map<String, String> = emptyMap(), script: Boolean = false): List<LintError> {
+public fun Rule.lint(
+    text: String,
+    userData: Map<String, String> = emptyMap(),
+    script: Boolean = false
+): List<LintError> = lint(null, text, userData, script)
+
+public fun Rule.lint(
+    lintedFilePath: String?,
+    text: String,
+    userData: Map<String, String> = emptyMap(),
+    script: Boolean = false
+): List<LintError> {
     val res = ArrayList<LintError>()
     val debug = debugAST()
     KtLint.lint(
         KtLint.Params(
+            fileName = lintedFilePath,
             text = text,
             ruleSets = (if (debug) listOf(RuleSet("debug", DumpAST())) else emptyList()) +
                 listOf(RuleSet("standard", this@lint)),
@@ -29,26 +41,35 @@ fun Rule.lint(text: String, userData: Map<String, String> = emptyMap(), script: 
     return res
 }
 
-fun Rule.format(
+public fun Rule.format(
     text: String,
     userData: Map<String, String> = emptyMap(),
     cb: (e: LintError, corrected: Boolean) -> Unit = { _, _ -> },
     script: Boolean = false
-): String {
-    return KtLint.format(
-        KtLint.Params(
-            text = text,
-            ruleSets = (if (debugAST()) listOf(RuleSet("debug", DumpAST())) else emptyList()) +
-                listOf(RuleSet("standard", this@format)),
-            userData = userData,
-            script = script,
-            cb = cb
-        )
+): String = format(null, text, userData, cb, script)
 
+public fun Rule.format(
+    lintedFilePath: String?,
+    text: String,
+    userData: Map<String, String> = emptyMap(),
+    cb: (e: LintError, corrected: Boolean) -> Unit = { _, _ -> },
+    script: Boolean = false
+): String = KtLint.format(
+    KtLint.Params(
+        fileName = lintedFilePath,
+        text = text,
+        ruleSets = (if (debugAST()) listOf(RuleSet("debug", DumpAST())) else emptyList()) +
+            listOf(RuleSet("standard", this@format)),
+        userData = userData,
+        script = script,
+        cb = cb
     )
-}
+)
 
-fun Rule.diffFileLint(path: String, userData: Map<String, String> = emptyMap()): String {
+public fun Rule.diffFileLint(
+    path: String,
+    userData: Map<String, String> = emptyMap()
+): String {
     val resourceText = getResourceAsText(path).replace("\r\n", "\n")
     val dividerIndex = resourceText.lastIndexOf("\n// expect\n")
     if (dividerIndex == -1) {
@@ -87,7 +108,7 @@ fun Rule.diffFileLint(path: String, userData: Map<String, String> = emptyMap()):
     return if (diff.isEmpty()) "" else diff
 }
 
-fun Rule.diffFileFormat(
+public fun Rule.diffFileFormat(
     srcPath: String,
     expectedPath: String,
     userData: Map<String, String> = emptyMap()
