@@ -6,10 +6,10 @@ import com.pinterest.ktlint.ruleset.standard.FinalNewlineRule.Companion.insertNe
 import com.pinterest.ktlint.test.EditorConfigTestRule
 import com.pinterest.ktlint.test.format
 import com.pinterest.ktlint.test.lint
+import java.io.File
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Rule
 import org.junit.Test
-import java.io.File
 
 @OptIn(FeatureInAlphaState::class)
 class FinalNewlineRuleTest {
@@ -60,13 +60,13 @@ class FinalNewlineRuleTest {
             finalNewLineRule.lint(
                 script = true,
                 text =
-                """
-                fun main() {
-                }
+                    """
+                    fun main() {
+                    }
 
 
 
-                """.trimIndent()
+                    """.trimIndent()
             )
         ).isEmpty()
     }
