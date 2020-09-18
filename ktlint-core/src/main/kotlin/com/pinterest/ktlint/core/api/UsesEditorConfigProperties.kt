@@ -16,7 +16,7 @@ import org.ec4j.core.model.PropertyType
  *
  * In the best case rule should only use one property.
  *
- * See [com.pinterest.ktlint.core.KtLint.generateKotlinEditorconfigSection] documentation how to generate
+ * See [com.pinterest.ktlint.core.KtLint.generateKotlinEditorConfigSection] documentation how to generate
  * `.editorconfig` based on [com.pinterest.ktlint.core.Rule]s with this interface implementations.
  */
 @FeatureInAlphaState
@@ -25,7 +25,7 @@ public interface UsesEditorConfigProperties {
     /**
      * Provide a list of code style editorconfig properties, that rule uses in linting.
      */
-    public val editorconfigProperties: List<EditorConfigProperty<*>>
+    public val editorConfigProperties: List<EditorConfigProperty<*>>
 
     /**
      * Get the value of [EditorConfigProperty] based on loaded [EditorConfigProperties] content.

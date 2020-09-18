@@ -415,7 +415,7 @@ internal class EditorConfigLoaderTest {
     }
 
     private class TestRule : Rule("editorconfig-test"), UsesEditorConfigProperties {
-        override val editorconfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = emptyList()
+        override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = emptyList()
 
         override fun visit(
             node: ASTNode,

@@ -39,7 +39,7 @@ public object KtLint {
     private val editorConfigLoader = EditorConfigLoader(FileSystems.getDefault())
 
     @OptIn(FeatureInAlphaState::class)
-    private val editorconfigGenerator = EditorConfigGenerator(editorConfigLoader)
+    private val editorConfigGenerator = EditorConfigGenerator(editorConfigLoader)
 
     /**
      * @param fileName path of file to lint/format
@@ -379,14 +379,14 @@ public object KtLint {
      * ```
      */
     @FeatureInAlphaState
-    public fun generateKotlinEditorconfigSection(
+    public fun generateKotlinEditorConfigSection(
         params: Params
     ): String {
         val filePath = params.normalizedFilePath
         requireNotNull(filePath) {
             "Please pass path to existing Kotlin file"
         }
-        return editorconfigGenerator.generateEditorconfig(
+        return editorConfigGenerator.generateEditorconfig(
             filePath,
             params.rules,
             params.debug

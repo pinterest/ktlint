@@ -106,7 +106,7 @@ class EditorConfigLoader(
             .apply {
                 rules
                     .filterIsInstance<UsesEditorConfigProperties>()
-                    .flatMap(UsesEditorConfigProperties::editorconfigProperties)
+                    .flatMap(UsesEditorConfigProperties::editorConfigProperties)
                     .forEach { prop ->
                         type(prop.type)
                     }

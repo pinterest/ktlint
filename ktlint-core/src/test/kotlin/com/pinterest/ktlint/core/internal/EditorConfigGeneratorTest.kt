@@ -17,7 +17,7 @@ import org.junit.Test
 internal class EditorConfigGeneratorTest {
     private val tempFileSystem = Jimfs.newFileSystem(Configuration.forCurrentPlatform())
     private val editorConfigLoader = EditorConfigLoader(tempFileSystem)
-    private val editorconfigGenerator = EditorConfigGenerator(editorConfigLoader)
+    private val editorConfigGenerator = EditorConfigGenerator(editorConfigLoader)
 
     private val rootDir = "/project"
     private val rules = setOf(TestRule())
@@ -31,13 +31,13 @@ internal class EditorConfigGeneratorTest {
             """.trimIndent()
         )
 
-        val generatedEditorconfig = editorconfigGenerator.generateEditorconfig(
+        val generatedEditorConfig = editorConfigGenerator.generateEditorconfig(
             filePath = tempFileSystem.normalizedPath(rootDir).resolve("test.kt"),
             rules = rules,
         )
 
-        assertThat(generatedEditorconfig.lines()).doesNotContainAnyElementsOf(listOf("root = true"))
-        assertThat(generatedEditorconfig.lines()).contains(
+        assertThat(generatedEditorConfig.lines()).doesNotContainAnyElementsOf(listOf("root = true"))
+        assertThat(generatedEditorConfig.lines()).contains(
             "${TestRule.PROP_1_NUM} = ${TestRule.PROP_1_DEFAULT}",
             "${TestRule.PROP_2_BOOL} = ${TestRule.PROP_2_DEFAULT}"
         )
@@ -56,13 +56,13 @@ internal class EditorConfigGeneratorTest {
             """.trimIndent()
         )
 
-        val generatedEditorconfig = editorconfigGenerator.generateEditorconfig(
+        val generatedEditorConfig = editorConfigGenerator.generateEditorconfig(
             filePath = tempFileSystem.normalizedPath(rootDir).resolve("test.kt"),
             rules = rules
         )
 
-        assertThat(generatedEditorconfig.lines()).doesNotContainAnyElementsOf(listOf("root = true"))
-        assertThat(generatedEditorconfig.lines()).contains(
+        assertThat(generatedEditorConfig.lines()).doesNotContainAnyElementsOf(listOf("root = true"))
+        assertThat(generatedEditorConfig.lines()).contains(
             "${TestRule.PROP_1_NUM} = ${TestRule.PROP_1_DEFAULT}",
             "${TestRule.PROP_2_BOOL} = false"
         )
@@ -79,16 +79,16 @@ internal class EditorConfigGeneratorTest {
             """.trimIndent()
         )
 
-        val generatedEditorconfig = editorconfigGenerator.generateEditorconfig(
+        val generatedEditorConfig = editorConfigGenerator.generateEditorconfig(
             filePath = tempFileSystem.normalizedPath(rootDir).resolve("test.kt"),
             rules = rules
         )
 
-        assertThat(generatedEditorconfig.lines()).doesNotContainAnyElementsOf(listOf("root = true"))
-        assertThat(generatedEditorconfig.lines()).contains(
+        assertThat(generatedEditorConfig.lines()).doesNotContainAnyElementsOf(listOf("root = true"))
+        assertThat(generatedEditorConfig.lines()).contains(
             "${TestRule.PROP_1_NUM} = ${TestRule.PROP_1_DEFAULT}"
         )
-        assertThat(generatedEditorconfig.lines()).doesNotContain(
+        assertThat(generatedEditorConfig.lines()).doesNotContain(
             "${TestRule.PROP_2_BOOL} = false"
         )
     }
@@ -107,7 +107,7 @@ internal class EditorConfigGeneratorTest {
     }
 
     private class TestRule : Rule("test-id"), UsesEditorConfigProperties {
-        override val editorconfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
+        override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
             UsesEditorConfigProperties.EditorConfigProperty(
                 type = PropertyType(
                     PROP_1_NUM,

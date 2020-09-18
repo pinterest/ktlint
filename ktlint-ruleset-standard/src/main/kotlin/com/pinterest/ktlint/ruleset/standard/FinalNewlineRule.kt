@@ -17,7 +17,7 @@ public class FinalNewlineRule :
     Rule.Modifier.RestrictToRoot,
     UsesEditorConfigProperties {
 
-    override val editorconfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
+    override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
         insertNewLineProperty
     )
 

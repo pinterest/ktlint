@@ -41,7 +41,7 @@ internal class EditorConfigGenerator(
             .fold(mutableMapOf<String, String?>()) { acc, rule ->
                 if (rule is UsesEditorConfigProperties) {
                     if (debug) println("Checking properties for '${rule.id}' rule")
-                    rule.editorconfigProperties.forEach { prop ->
+                    rule.editorConfigProperties.forEach { prop ->
                         if (debug) println("Setting '${prop.type.name}' property value")
                         acc[prop.type.name] = with(rule) { editorConfig.getEditorConfigValue(prop).toString() }
                     }
