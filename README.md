@@ -117,6 +117,12 @@ disabled_rules=import-ordering
 disabled_rules=indent
 ```
 
+## Online demo
+In case you would like to see how `ktlint` works and you are not able (or do not want) to install it -
+ try it's [**online demo**](https://ktlint-demo.herokuapp.com/) first.
+With this demo you are able to see how powerful `ktlint` is with standard or custom rule sets.
+ In case you will need help or would like to see sources you can visit [it's repository](https://github.com/akuleshov7/diKTat-demo)
+
 ## Installation
 
 > Skip all the way to the "Integration" section if you don't plan to use `ktlint`'s command line interface.
