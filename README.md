@@ -118,10 +118,9 @@ disabled_rules=indent
 ```
 
 ## Online demo
-In case you would like to see how `ktlint` works and you are not able (or do not want) to install it -
- try it's [**online demo**](https://ktlint-demo.herokuapp.com/) first.
-With this demo you are able to see how powerful `ktlint` is with standard or custom rule sets.
- In case you will need help or would like to see sources you can visit [it's repository](https://github.com/akuleshov7/diKTat-demo)
+You can try `ktlint` online [here](https://ktlint-demo.herokuapp.com/) using the standard or a custom ruleset without installing it to your PC. \
+To contribute or get more info, please visit the [GitHub repository](https://github.com/akuleshov7/diKTat-demo).
+
 
 ## Installation
 
