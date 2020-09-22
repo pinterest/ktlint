@@ -11,16 +11,18 @@ import com.pinterest.ktlint.core.RuleExecutionException
 import com.pinterest.ktlint.core.RuleSetProvider
 import com.pinterest.ktlint.internal.ApplyToIDEAGloballySubCommand
 import com.pinterest.ktlint.internal.ApplyToIDEAProjectSubCommand
+import com.pinterest.ktlint.internal.GenerateEditorConfigSubCommand
 import com.pinterest.ktlint.internal.GitPreCommitHookSubCommand
 import com.pinterest.ktlint.internal.GitPrePushHookSubCommand
 import com.pinterest.ktlint.internal.KtlintVersionProvider
 import com.pinterest.ktlint.internal.PrintASTSubCommand
-import com.pinterest.ktlint.internal.expandTilde
 import com.pinterest.ktlint.internal.fileSequence
 import com.pinterest.ktlint.internal.formatFile
 import com.pinterest.ktlint.internal.lintFile
+import com.pinterest.ktlint.internal.loadRulesets
 import com.pinterest.ktlint.internal.location
 import com.pinterest.ktlint.internal.printHelpOrVersionUsage
+import com.pinterest.ktlint.internal.toFilesURIList
 import com.pinterest.ktlint.reporter.plain.internal.Color
 import java.io.File
 import java.io.IOException
@@ -52,6 +54,7 @@ fun main(args: Array<String>) {
         .addSubcommand(PrintASTSubCommand.COMMAND_NAME, PrintASTSubCommand())
         .addSubcommand(ApplyToIDEAGloballySubCommand.COMMAND_NAME, ApplyToIDEAGloballySubCommand())
         .addSubcommand(ApplyToIDEAProjectSubCommand.COMMAND_NAME, ApplyToIDEAProjectSubCommand())
+        .addSubcommand(GenerateEditorConfigSubCommand.COMMAND_NAME, GenerateEditorConfigSubCommand())
     val parseResult = commandLine.parseArgs(*args)
 
     commandLine.printHelpOrVersionUsage()
@@ -73,6 +76,7 @@ fun handleSubCommand(
         is PrintASTSubCommand -> subCommand.run()
         is ApplyToIDEAGloballySubCommand -> subCommand.run()
         is ApplyToIDEAProjectSubCommand -> subCommand.run()
+        is GenerateEditorConfigSubCommand -> subCommand.run()
         else -> commandLine.usage(System.out, CommandLine.Help.Ansi.OFF)
     }
 }
@@ -181,7 +185,7 @@ class KtlintCommandLine {
         names = ["--ruleset", "-R"],
         description = ["A path to a JAR file containing additional ruleset(s)"]
     )
-    private var rulesets = ArrayList<String>()
+    var rulesets = ArrayList<String>()
 
     @Option(
         names = ["--stdin"],
@@ -205,7 +209,7 @@ class KtlintCommandLine {
         names = ["--experimental"],
         description = ["Enabled experimental rules (ktlint-ruleset-experimental)"]
     )
-    private var experimental: Boolean = false
+    var experimental: Boolean = false
 
     @Parameters(hidden = true)
     private var patterns = ArrayList<String>()
@@ -219,7 +223,7 @@ class KtlintCommandLine {
 
         val start = System.currentTimeMillis()
 
-        val ruleSetProviders = loadRulesets(rulesets)
+        val ruleSetProviders = rulesets.loadRulesets(experimental, debug)
         val reporter = loadReporter()
         val userData = listOfNotNull(
             "android" to android.toString(),
@@ -541,26 +545,6 @@ class KtlintCommandLine {
         }
     }
 
-    private fun loadRulesets(externalRulesetsJarPaths: List<String>) = ServiceLoader
-        .load(
-            RuleSetProvider::class.java,
-            URLClassLoader(externalRulesetsJarPaths.toFilesURIList().toTypedArray())
-        )
-        .associateBy {
-            val key = it.get().id
-            // standard should go first
-            if (key == "standard") "\u0000$key" else key
-        }
-        .filterKeys { experimental || it != "experimental" }
-        .toSortedMap()
-        .also {
-            if (debug) {
-                it.forEach { entry ->
-                    println("[DEBUG] Discovered ruleset with \"${entry.key}\" id.")
-                }
-            }
-        }
-
     private fun loadReporters(externalReportersJarPaths: List<String>) = ServiceLoader
         .load(
             ReporterProvider::class.java,
@@ -574,15 +558,6 @@ class KtlintCommandLine {
                 }
             }
         }
-
-    private fun List<String>.toFilesURIList() = map {
-        val jarFile = File(expandTilde(it))
-        if (!jarFile.exists()) {
-            println("Error: $it does not exist")
-            exitProcess(1)
-        }
-        jarFile.toURI().toURL()
-    }
 
     private data class LintErrorWithCorrectionInfo(
         val err: LintError,
