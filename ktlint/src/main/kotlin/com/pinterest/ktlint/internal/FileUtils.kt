@@ -7,6 +7,7 @@ import com.pinterest.ktlint.core.RuleSet
 import java.io.File
 import java.nio.file.Path
 import java.nio.file.Paths
+import kotlin.system.exitProcess
 
 internal val workDir: String = File(".").canonicalPath
 
@@ -28,9 +29,23 @@ internal fun List<String>.fileSequence(): Sequence<File> {
         .map(Path::toFile)
 }
 
+/**
+ * List of paths to Java `jar` files.
+ */
+internal typealias JarFiles = List<String>
+
+internal fun JarFiles.toFilesURIList() = map {
+    val jarFile = File(expandTilde(it))
+    if (!jarFile.exists()) {
+        println("Error: $it does not exist")
+        exitProcess(1)
+    }
+    jarFile.toURI().toURL()
+}
+
 // a complete solution would be to implement https://www.gnu.org/software/bash/manual/html_node/Tilde-Expansion.html
 // this implementation takes care only of the most commonly used case (~/)
-internal fun expandTilde(path: String): String = path.replaceFirst(Regex("^~"), System.getProperty("user.home"))
+private fun expandTilde(path: String): String = path.replaceFirst(Regex("^~"), System.getProperty("user.home"))
 
 internal fun File.location(
     relative: Boolean
