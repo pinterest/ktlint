@@ -20,7 +20,9 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.psi.KtContainerNode
+import org.jetbrains.kotlin.psi.KtDoWhileExpression
 import org.jetbrains.kotlin.psi.KtIfExpression
+import org.jetbrains.kotlin.psi.KtWhileExpression
 import org.jetbrains.kotlin.psi.psiUtil.getStrictParentOfType
 
 /**
@@ -214,7 +216,10 @@ class ArgumentListWrappingRule : Rule("argument-list-wrapping") {
 
     private fun ASTNode.isOnSameLineAsIfKeyword(): Boolean {
         val containerNode = psi.getStrictParentOfType<KtContainerNode>() ?: return false
-        val ifExpression = containerNode.parent as? KtIfExpression ?: return false
-        return ifExpression.node.lineNumber() == lineNumber()
+        return when (val parent = containerNode.parent) {
+            is KtIfExpression, is KtWhileExpression -> parent.node
+            is KtDoWhileExpression -> parent.whileKeyword?.node
+            else -> null
+        }?.lineNumber() == lineNumber()
     }
 }
