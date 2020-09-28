@@ -52,14 +52,14 @@ class ArgumentListWrappingRule : Rule("argument-list-wrapping") {
             // skip lambda arguments
             node.treeParent?.elementType != ElementType.FUNCTION_LITERAL &&
             // skip if number of arguments is big (we assume it with a magic number of 8)
-            node.children().filter { it.elementType == ElementType.VALUE_ARGUMENT }.toList().size <= 8
+            node.children().count { it.elementType == ElementType.VALUE_ARGUMENT } <= 8
         ) {
             // each argument should be on a separate line if
             // - at least one of the arguments is
             // - maxLineLength exceeded (and separating arguments with \n would actually help)
             // in addition, "(" and ")" must be on separates line if any of the arguments are (otherwise on the same)
             val putArgumentsOnSeparateLines =
-                node.textContainsIgnoringLambda('\n') ||
+                node.children().any { it.isWhiteSpaceWithNewline() } ||
                     // max_line_length exceeded
                     maxLineLength > -1 && (node.column - 1 + node.textLength) > maxLineLength
             if (putArgumentsOnSeparateLines) {
@@ -180,13 +180,6 @@ class ArgumentListWrappingRule : Rule("argument-list-wrapping") {
             ElementType.RPAR -> """Missing newline before ")""""
             else -> throw UnsupportedOperationException()
         }
-
-    private fun ASTNode.textContainsIgnoringLambda(char: Char): Boolean {
-        return children()
-            .flatMap { if (it.elementType == ElementType.VALUE_ARGUMENT) it.children() else sequenceOf(it) }
-            .filter { it.elementType != ElementType.LAMBDA_EXPRESSION }
-            .any { it.textContains(char) }
-    }
 
     private fun ASTNode.hasTypeParameterListInFront(): Boolean =
         treeParent.children()

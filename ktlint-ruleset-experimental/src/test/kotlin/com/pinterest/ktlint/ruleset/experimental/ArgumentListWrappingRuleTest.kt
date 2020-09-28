@@ -136,6 +136,37 @@ class ArgumentListWrappingRuleTest {
     }
 
     @Test
+    fun testLambdaArgumentsAreIgnored2() {
+        assertThat(
+            ArgumentListWrappingRule().lint(
+                """
+                fun main() {
+                    foo(bar.apply {
+                        // stuff
+                    })
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun testLambdaArgumentsAreIgnored3() {
+        assertThat(
+            ArgumentListWrappingRule().lint(
+                """
+                fun main() {
+                    println(Runnable {
+                        println("hello")
+                        println("world")
+                    })
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
     fun testFormatWithLambdaArguments() {
         assertThat(
             ArgumentListWrappingRule().format(
@@ -254,9 +285,9 @@ class ArgumentListWrappingRuleTest {
     }
 
     @Test
-    fun testFormatPreservesIndentWithAnnotationsOnMultiLine() {
+    fun testLintPreservesIndentWithAnnotationsOnMultiLine() {
         assertThat(
-            ArgumentListWrappingRule().format(
+            ArgumentListWrappingRule().lint(
                 """
                 class A {
                     fun f(@Annotation
@@ -275,26 +306,6 @@ class ArgumentListWrappingRuleTest {
                 }
                 """.trimIndent()
             )
-        ).isEqualTo(
-            """
-            class A {
-                fun f(@Annotation
-                    a: Any,
-                    @Annotation(
-                        [
-                            "v1",
-                            "v2"
-                        ]
-                    )
-                    b: Any,
-                    c: Any =
-                        false,
-                    @Annotation d: Any,
-                    @SingleLineAnnotation([1, 2])
-                    e: Any) {
-                }
-            }
-            """.trimIndent()
-        )
+        ).isEmpty()
     }
 }
