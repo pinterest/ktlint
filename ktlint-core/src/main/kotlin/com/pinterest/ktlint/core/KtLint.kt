@@ -172,12 +172,14 @@ public object KtLint {
             .replaceFirst(UTF8_BOM, "")
     }
 
+    private val Map<String, String>.isAndroidCodeStyle get() = get("android")?.toBoolean() ?: false
+
     private fun injectUserData(
         node: ASTNode,
         editorConfigProperties: EditorConfigProperties,
         userData: Map<String, String>
     ) {
-        val android = userData["android"]?.toBoolean() ?: false
+        val android = userData.isAndroidCodeStyle
         val editorConfigMap =
             if (android &&
                 userData["max_line_length"].let { it?.toLowerCase() != "off" && it?.toIntOrNull() == null }
@@ -389,6 +391,7 @@ public object KtLint {
         return editorConfigGenerator.generateEditorconfig(
             filePath,
             params.rules,
+            params.userData.isAndroidCodeStyle,
             params.debug
         )
     }

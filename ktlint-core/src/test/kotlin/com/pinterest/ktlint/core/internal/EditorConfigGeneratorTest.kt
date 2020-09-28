@@ -44,6 +44,20 @@ internal class EditorConfigGeneratorTest {
     }
 
     @Test
+    fun `Should use default Android code style value if value is missing and android code style is active`() {
+        val generatedEditorConfig = editorConfigGenerator.generateEditorconfig(
+            filePath = tempFileSystem.normalizedPath(rootDir).resolve("test.kt"),
+            rules = rules,
+            isAndroidCodeStyle = true
+        )
+
+        assertThat(generatedEditorConfig.lines()).contains(
+            "${TestRule.PROP_1_NUM} = ${TestRule.PROP_1_DEFAULT_ANDROID}",
+            "${TestRule.PROP_2_BOOL} = ${TestRule.PROP_2_DEFAULT_ANDROID}"
+        )
+    }
+
+    @Test
     fun `Should not modify existing editorconfig property`() {
         tempFileSystem.writeEditorConfigFile(
             rootDir,
@@ -115,7 +129,8 @@ internal class EditorConfigGeneratorTest {
                     PropertyType.PropertyValueParser.POSITIVE_INT_VALUE_PARSER,
                     setOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "0")
                 ),
-                defaultValue = PROP_1_DEFAULT
+                defaultValue = PROP_1_DEFAULT,
+                defaultAndroidValue = PROP_1_DEFAULT_ANDROID
             ),
             UsesEditorConfigProperties.EditorConfigProperty(
                 type = PropertyType(
@@ -124,7 +139,8 @@ internal class EditorConfigGeneratorTest {
                     PropertyType.PropertyValueParser.BOOLEAN_VALUE_PARSER,
                     setOf("true", "false")
                 ),
-                defaultValue = PROP_2_DEFAULT
+                defaultValue = PROP_2_DEFAULT,
+                defaultAndroidValue = PROP_2_DEFAULT_ANDROID
             )
         )
 
@@ -139,8 +155,10 @@ internal class EditorConfigGeneratorTest {
         companion object {
             const val PROP_1_NUM = "kotlin_test_if_else_num"
             const val PROP_1_DEFAULT = 10
+            const val PROP_1_DEFAULT_ANDROID = 11
             const val PROP_2_BOOL = "insert_final_newline"
             const val PROP_2_DEFAULT = true
+            const val PROP_2_DEFAULT_ANDROID = false
         }
     }
 }
