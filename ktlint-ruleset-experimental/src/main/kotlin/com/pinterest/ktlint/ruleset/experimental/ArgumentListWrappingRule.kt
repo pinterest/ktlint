@@ -5,7 +5,9 @@ import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType
 import com.pinterest.ktlint.core.ast.children
 import com.pinterest.ktlint.core.ast.column
+import com.pinterest.ktlint.core.ast.isPartOfComment
 import com.pinterest.ktlint.core.ast.isRoot
+import com.pinterest.ktlint.core.ast.isWhiteSpace
 import com.pinterest.ktlint.core.ast.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.core.ast.lineIndent
 import com.pinterest.ktlint.core.ast.prevLeaf
@@ -100,7 +102,7 @@ class ArgumentListWrappingRule : Rule("argument-list-wrapping") {
                         ElementType.VALUE_ARGUMENT,
                         ElementType.RPAR -> {
                             var argumentInnerIndentAdjustment = 0
-                            val prevLeaf = child.prevLeaf()
+                            val prevLeaf = child.prevWhiteSpaceWithNewLine() ?: child.prevLeaf()
                             val intendedIndent = if (child.elementType == ElementType.VALUE_ARGUMENT) {
                                 paramIndent
                             } else {
@@ -193,4 +195,15 @@ class ArgumentListWrappingRule : Rule("argument-list-wrapping") {
             .firstOrNull { it.elementType == ElementType.TYPE_PARAMETER_LIST }
             ?.children()
             ?.any { it.isWhiteSpaceWithNewline() } == true
+
+    private fun ASTNode.prevWhiteSpaceWithNewLine(): ASTNode? {
+        var prev = prevLeaf()
+        while (prev != null && (prev.isWhiteSpace() || prev.isPartOfComment())) {
+            if (prev.isWhiteSpaceWithNewline()) {
+                return prev
+            }
+            prev = prev.prevLeaf()
+        }
+        return null
+    }
 }

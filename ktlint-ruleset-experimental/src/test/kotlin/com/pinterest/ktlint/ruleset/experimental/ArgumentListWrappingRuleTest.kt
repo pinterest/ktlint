@@ -297,4 +297,21 @@ class ArgumentListWrappingRuleTest {
             """.trimIndent()
         )
     }
+
+    @Test
+    fun testLintArgumentAfterBlockComment() {
+        assertThat(
+            ArgumentListWrappingRule().lint(
+                """
+                fun main() {
+                    someMethod(
+                        /* firstName= */ "John",
+                        /* lastName= */ "Doe",
+                        /* age= */ 30
+                    )
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
 }
