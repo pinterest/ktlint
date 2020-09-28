@@ -54,7 +54,7 @@ class ArgumentListWrappingRule : Rule("argument-list-wrapping") {
             // skip lambda arguments
             node.treeParent?.elementType != ElementType.FUNCTION_LITERAL &&
             // skip if number of arguments is big (we assume it with a magic number of 8)
-            node.children().filter { it.elementType == ElementType.VALUE_ARGUMENT }.toList().size <= 8
+            node.children().count { it.elementType == ElementType.VALUE_ARGUMENT } <= 8
         ) {
             // each argument should be on a separate line if
             // - at least one of the arguments is
@@ -184,10 +184,12 @@ class ArgumentListWrappingRule : Rule("argument-list-wrapping") {
         }
 
     private fun ASTNode.textContainsIgnoringLambda(char: Char): Boolean {
-        return children()
-            .flatMap { if (it.elementType == ElementType.VALUE_ARGUMENT) it.children() else sequenceOf(it) }
-            .filter { it.elementType != ElementType.LAMBDA_EXPRESSION }
-            .any { it.textContains(char) }
+        return children().any { child ->
+            val elementType = child.elementType
+            elementType == ElementType.WHITE_SPACE && child.textContains(char) ||
+                elementType == ElementType.COLLECTION_LITERAL_EXPRESSION && child.textContains(char) ||
+                elementType == ElementType.VALUE_ARGUMENT && child.children().any { it.textContainsIgnoringLambda(char) }
+        }
     }
 
     private fun ASTNode.hasTypeParameterListInFront(): Boolean =

@@ -136,6 +136,37 @@ class ArgumentListWrappingRuleTest {
     }
 
     @Test
+    fun testLambdaArgumentsAreIgnored2() {
+        assertThat(
+            ArgumentListWrappingRule().lint(
+                """
+                fun main() {
+                    foo(bar.apply {
+                        // stuff
+                    })
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun testLambdaArgumentsAreIgnored3() {
+        assertThat(
+            ArgumentListWrappingRule().lint(
+                """
+                fun main() {
+                    println(Runnable {
+                        println("hello")
+                        println("world")
+                    })
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
     fun testFormatWithLambdaArguments() {
         assertThat(
             ArgumentListWrappingRule().format(
