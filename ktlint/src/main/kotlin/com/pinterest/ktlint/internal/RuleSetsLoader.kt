@@ -9,13 +9,13 @@ import java.util.ServiceLoader
  *
  * @return map of ruleset ids to ruleset providers
  */
-internal fun List<String>.loadRulesets(
+internal fun JarFiles.loadRulesets(
     loadExperimental: Boolean,
     debug: Boolean
 ) = ServiceLoader
     .load(
         RuleSetProvider::class.java,
-        URLClassLoader(this.toFilesURIList().toTypedArray())
+        URLClassLoader(toFilesURIList().toTypedArray())
     )
     .associateBy {
         val key = it.get().id

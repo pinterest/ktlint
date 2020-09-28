@@ -29,7 +29,12 @@ internal fun List<String>.fileSequence(): Sequence<File> {
         .map(Path::toFile)
 }
 
-internal fun List<String>.toFilesURIList() = map {
+/**
+ * List of paths to Java `jar` files.
+ */
+internal typealias JarFiles = List<String>
+
+internal fun JarFiles.toFilesURIList() = map {
     val jarFile = File(expandTilde(it))
     if (!jarFile.exists()) {
         println("Error: $it does not exist")

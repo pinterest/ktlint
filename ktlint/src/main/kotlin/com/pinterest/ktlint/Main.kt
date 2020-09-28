@@ -14,6 +14,7 @@ import com.pinterest.ktlint.internal.ApplyToIDEAProjectSubCommand
 import com.pinterest.ktlint.internal.GenerateEditorConfigSubCommand
 import com.pinterest.ktlint.internal.GitPreCommitHookSubCommand
 import com.pinterest.ktlint.internal.GitPrePushHookSubCommand
+import com.pinterest.ktlint.internal.JarFiles
 import com.pinterest.ktlint.internal.KtlintVersionProvider
 import com.pinterest.ktlint.internal.PrintASTSubCommand
 import com.pinterest.ktlint.internal.fileSequence
@@ -179,13 +180,13 @@ class KtlintCommandLine {
                 "To use a third-party reporter specify a path to a JAR file on the filesystem."
         ]
     )
-    private var reporters = ArrayList<String>()
+    private var reporters: JarFiles = ArrayList<String>()
 
     @Option(
         names = ["--ruleset", "-R"],
         description = ["A path to a JAR file containing additional ruleset(s)"]
     )
-    var rulesets = ArrayList<String>()
+    var rulesets: JarFiles = ArrayList<String>()
 
     @Option(
         names = ["--stdin"],
