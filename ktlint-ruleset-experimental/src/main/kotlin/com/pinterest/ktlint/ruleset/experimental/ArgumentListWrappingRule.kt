@@ -59,7 +59,7 @@ class ArgumentListWrappingRule : Rule("argument-list-wrapping") {
             // - maxLineLength exceeded (and separating arguments with \n would actually help)
             // in addition, "(" and ")" must be on separates line if any of the arguments are (otherwise on the same)
             val putArgumentsOnSeparateLines =
-                node.children().any { it.isWhiteSpaceWithNewline() } ||
+                node.textContainsIgnoringLambda('\n') ||
                     // max_line_length exceeded
                     maxLineLength > -1 && (node.column - 1 + node.textLength) > maxLineLength
             if (putArgumentsOnSeparateLines) {
@@ -180,6 +180,15 @@ class ArgumentListWrappingRule : Rule("argument-list-wrapping") {
             ElementType.RPAR -> """Missing newline before ")""""
             else -> throw UnsupportedOperationException()
         }
+
+    private fun ASTNode.textContainsIgnoringLambda(char: Char): Boolean {
+        return children().any { child ->
+            val elementType = child.elementType
+            elementType == ElementType.WHITE_SPACE && child.textContains(char) ||
+                elementType == ElementType.COLLECTION_LITERAL_EXPRESSION && child.textContains(char) ||
+                elementType == ElementType.VALUE_ARGUMENT && child.children().any { it.textContainsIgnoringLambda(char) }
+        }
+    }
 
     private fun ASTNode.hasTypeParameterListInFront(): Boolean =
         treeParent.children()

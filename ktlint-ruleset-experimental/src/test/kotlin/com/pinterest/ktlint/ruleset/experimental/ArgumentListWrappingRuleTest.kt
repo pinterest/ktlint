@@ -285,9 +285,9 @@ class ArgumentListWrappingRuleTest {
     }
 
     @Test
-    fun testLintPreservesIndentWithAnnotationsOnMultiLine() {
+    fun testFormatPreservesIndentWithAnnotationsOnMultiLine() {
         assertThat(
-            ArgumentListWrappingRule().lint(
+            ArgumentListWrappingRule().format(
                 """
                 class A {
                     fun f(@Annotation
@@ -306,6 +306,26 @@ class ArgumentListWrappingRuleTest {
                 }
                 """.trimIndent()
             )
-        ).isEmpty()
+        ).isEqualTo(
+            """
+            class A {
+                fun f(@Annotation
+                    a: Any,
+                    @Annotation(
+                        [
+                            "v1",
+                            "v2"
+                        ]
+                    )
+                    b: Any,
+                    c: Any =
+                        false,
+                    @Annotation d: Any,
+                    @SingleLineAnnotation([1, 2])
+                    e: Any) {
+                }
+            }
+            """.trimIndent()
+        )
     }
 }
