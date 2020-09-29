@@ -9,7 +9,14 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - CLI subcommand `generateEditorConfig` to generate '.editorconfig' content for Kotlin files ([#701](https://github.com/pinterest/ktlint/issues/701))
 
 ### Fixed
-- ?
+- Do not report when semicolon is before annotation/comment/kdoc and lambda ([#825](https://github.com/pinterest/ktlint/issues/825))
+- Fix false positive when import directive has backticks and alias ([#910](https://github.com/pinterest/ktlint/issues/910))
+- `@receiver` annotations with parameters are not required to be on a separate line ([#885](https://github.com/pinterest/ktlint/issues/885))
+- Fix false positive "File annotations should be separated from file contents with a blank line" in kts files ([#914](https://github.com/pinterest/ktlint/issues/914))
+- Fix false positive `Missing newline after "->"` when `when` entry has a nested if/else block ([#901](https://github.com/pinterest/ktlint/issues/901))
+- Allow an inline block comment in `argument-list-wrapping` ([#926](https://github.com/pinterest/ktlint/issues/926))
+- Fix false positive for line-breaks inside lambdas in `argument-list-wrapping` ([#861](https://github.com/pinterest/ktlint/issues/861)) ([#870](https://github.com/pinterest/ktlint/issues/870))
+- Fix wrong indentation inside an if-condition in `argument-list-wrapping` ([#854](https://github.com/pinterest/ktlint/issues/854)) ([#864](https://github.com/pinterest/ktlint/issues/864))
 
 ### Changed
 - ?
