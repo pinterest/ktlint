@@ -30,8 +30,13 @@ public interface UsesEditorConfigProperties {
     /**
      * Get the value of [EditorConfigProperty] based on loaded [EditorConfigProperties] content.
      */
-    public fun <T> EditorConfigProperties.getEditorConfigValue(property: EditorConfigProperty<T>): T {
-        return get(property.type.name)?.getValueAs() ?: property.defaultValue
+    public fun <T> EditorConfigProperties.getEditorConfigValue(
+        property: EditorConfigProperty<T>,
+        isAndroidCodeStyle: Boolean = false
+    ): T {
+        return get(property.type.name)
+            ?.getValueAs()
+            ?: if (isAndroidCodeStyle) property.defaultAndroidValue else property.defaultValue
     }
 
     /**
@@ -39,10 +44,13 @@ public interface UsesEditorConfigProperties {
      *
      * @param type type of property. Could be one of default ones (see [PropertyType.STANDARD_TYPES]) or custom one.
      * @param defaultValue default value for property if it does not exist in loaded properties.
+     * @param defaultAndroidValue default value for android codestyle. You should set different value only when it
+     * differs from [defaultValue].
      */
     public data class EditorConfigProperty<T>(
         public val type: PropertyType<T>,
-        public val defaultValue: T
+        public val defaultValue: T,
+        public val defaultAndroidValue: T = defaultValue
     )
 }
 

@@ -29,6 +29,7 @@ internal class EditorConfigGenerator(
     fun generateEditorconfig(
         filePath: Path,
         rules: Set<Rule>,
+        isAndroidCodeStyle: Boolean = false,
         debug: Boolean = false
     ): String {
         val editorConfig: Map<String, Property> = editorConfigLoader.loadPropertiesForFile(
@@ -43,7 +44,12 @@ internal class EditorConfigGenerator(
                     if (debug) println("Checking properties for '${rule.id}' rule")
                     rule.editorConfigProperties.forEach { prop ->
                         if (debug) println("Setting '${prop.type.name}' property value")
-                        acc[prop.type.name] = with(rule) { editorConfig.getEditorConfigValue(prop).toString() }
+                        acc[prop.type.name] = with(rule) {
+                            editorConfig.getEditorConfigValue(
+                                prop,
+                                isAndroidCodeStyle
+                            ).toString()
+                        }
                     }
                 }
 

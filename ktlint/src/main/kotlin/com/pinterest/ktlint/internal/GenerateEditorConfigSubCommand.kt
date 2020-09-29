@@ -35,6 +35,9 @@ class GenerateEditorConfigSubCommand : Runnable {
                         ktlintCommand.debug
                     )
                     .map { it.value.get() },
+                userData = mapOf(
+                    "android" to ktlintCommand.android.toString()
+                ),
                 debug = ktlintCommand.debug,
                 cb = { _, _ -> Unit }
             )
