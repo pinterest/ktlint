@@ -10,6 +10,7 @@ import com.pinterest.ktlint.core.ast.isRoot
 import com.pinterest.ktlint.core.ast.isWhiteSpace
 import com.pinterest.ktlint.core.ast.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.core.ast.lineIndent
+import com.pinterest.ktlint.core.ast.lineNumber
 import com.pinterest.ktlint.core.ast.prevLeaf
 import com.pinterest.ktlint.core.ast.visit
 import kotlin.math.max
@@ -18,6 +19,11 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
+import org.jetbrains.kotlin.psi.KtContainerNode
+import org.jetbrains.kotlin.psi.KtDoWhileExpression
+import org.jetbrains.kotlin.psi.KtIfExpression
+import org.jetbrains.kotlin.psi.KtWhileExpression
+import org.jetbrains.kotlin.psi.psiUtil.getStrictParentOfType
 
 /**
  * https://kotlinlang.org/docs/reference/coding-conventions.html#method-call-formatting
@@ -86,7 +92,8 @@ class ArgumentListWrappingRule : Rule("argument-list-wrapping") {
                 // <line indent + indentSize> VALUE_ARGUMENT...
                 // <line indent> RPAR
                 val lineIndent = node.lineIndent()
-                val indent = "\n" + lineIndent.substring(0, (lineIndent.length - adjustedIndent).coerceAtLeast(0))
+                val indent = ("\n" + lineIndent.substring(0, (lineIndent.length - adjustedIndent).coerceAtLeast(0)))
+                    .let { if (node.isOnSameLineAsIfKeyword()) it + " ".repeat(indentSize) else it }
                 val paramIndent = indent + " ".repeat(indentSize)
                 nextChild@ for (child in node.children()) {
                     when (child.elementType) {
@@ -207,5 +214,14 @@ class ArgumentListWrappingRule : Rule("argument-list-wrapping") {
             prev = prev.prevLeaf()
         }
         return null
+    }
+
+    private fun ASTNode.isOnSameLineAsIfKeyword(): Boolean {
+        val containerNode = psi.getStrictParentOfType<KtContainerNode>() ?: return false
+        return when (val parent = containerNode.parent) {
+            is KtIfExpression, is KtWhileExpression -> parent.node
+            is KtDoWhileExpression -> parent.whileKeyword?.node
+            else -> null
+        }?.lineNumber() == lineNumber()
     }
 }

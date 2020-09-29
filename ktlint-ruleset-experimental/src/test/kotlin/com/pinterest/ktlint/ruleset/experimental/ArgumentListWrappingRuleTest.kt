@@ -345,4 +345,112 @@ class ArgumentListWrappingRuleTest {
             )
         ).isEmpty()
     }
+
+    @Test
+    fun testLintInIfCondition() {
+        assertThat(
+            ArgumentListWrappingRule().lint(
+                """
+                fun test(param1: Int, param2: Int) {
+                    if (listOfNotNull(
+                            param1
+                        ).isEmpty()
+                    ) {
+                        println(1)
+                    } else if (listOfNotNull(
+                            param2
+                        ).isEmpty()
+                    ) {
+                        println(2)
+                    }
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun testLintInIfCondition2() {
+        assertThat(
+            ArgumentListWrappingRule().lint(
+                """
+                fun test(param1: Int, param2: Int) {
+                    if (
+                        listOfNotNull(
+                            param1
+                        ).isEmpty()
+                    ) {
+                        println(1)
+                    } else if (
+                        listOfNotNull(
+                            param2
+                        ).isEmpty()
+                    ) {
+                        println(2)
+                    }
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun testLintInWhenCondition() {
+        assertThat(
+            ArgumentListWrappingRule().lint(
+                """
+                fun foo(i: Int) = true
+
+                fun test(i: Int) {
+                    when (foo(
+                        i
+                    )) {
+                        true -> println(1)
+                        false -> println(2)
+                    }
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun testLintInWhileCondition() {
+        assertThat(
+            ArgumentListWrappingRule().lint(
+                """
+                fun foo(i: Int) = true
+
+                fun test(i: Int) {
+                    while (foo(
+                            i
+                        )
+                    ) {
+                        println()
+                    }
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun testLintInDoWhileCondition() {
+        assertThat(
+            ArgumentListWrappingRule().lint(
+                """
+                fun foo(i: Int) = true
+
+                fun test(i: Int) {
+                    do {
+                        println()
+                    } while (foo(
+                            i
+                        )
+                    )
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
 }
