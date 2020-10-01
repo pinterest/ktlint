@@ -453,4 +453,53 @@ class ArgumentListWrappingRuleTest {
             )
         ).isEmpty()
     }
+
+    @Test
+    fun `test lint column is correctly calculated for string templates`() {
+        assertThat(
+            ArgumentListWrappingRule().lint(
+                """
+                class Test {
+
+                  fun someMethod(str: String) = Unit
+
+                  val someString = someMethod(
+                      ""${'"'}
+                      longtext longtext longtext longtext longtext longtext longtext longtext
+                      longtext longtext longtext longtext longtext longtext longtext longtext
+                      longtext longtext longtext longtext longtext longtext longtext longtext
+                      longtext longtext longtext longtext longtext longtext longtext longtext
+                      longtext longtext longtext longtext longtext longtext longtext longtext
+                      ""${'"'}.trimIndent('|')
+                  )
+
+                  val someString2 = someMethod(""${'"'}stuff""${'"'})
+                }
+
+                fun foo() {
+                    function("arg1", "arg2") {
+                        ""${'"'}
+                        WORDS
+                        WORDS c.property = ${"interpolation".length}
+                        ${'$'}{FUNCTION_2(TestClassA::startDateTime, descending = true)}
+                        ""${'"'}
+                    }
+                }
+
+                fun bar() {
+                    json(
+                        ""${'"'}
+                        {
+                            "array": [
+                                ${'$'}{function(arg1, arg2, arg3)}
+                            ]
+                        }
+                        ""${'"'}.trimIndent()
+                    )
+                }
+                """.trimIndent(),
+                userData = mapOf("max_line_length" to "100")
+            )
+        ).isEmpty()
+    }
 }

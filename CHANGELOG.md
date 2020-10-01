@@ -17,6 +17,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Allow an inline block comment in `argument-list-wrapping` ([#926](https://github.com/pinterest/ktlint/issues/926))
 - Fix false positive for line-breaks inside lambdas in `argument-list-wrapping` ([#861](https://github.com/pinterest/ktlint/issues/861)) ([#870](https://github.com/pinterest/ktlint/issues/870))
 - Fix wrong indentation inside an if-condition in `argument-list-wrapping` ([#854](https://github.com/pinterest/ktlint/issues/854)) ([#864](https://github.com/pinterest/ktlint/issues/864))
+- Fix false positive for method after string template in `argument-list-wrapping` ([#842](https://github.com/pinterest/ktlint/issues/842)) ([#859](https://github.com/pinterest/ktlint/issues/859))
 
 ### Changed
 - ?

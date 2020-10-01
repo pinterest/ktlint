@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.core.ast
 
+import com.pinterest.ktlint.core.ast.ElementType.REGULAR_STRING_PART
 import com.pinterest.ktlint.core.ast.ElementType.STRING_TEMPLATE
 import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
 import kotlin.reflect.KClass
@@ -239,7 +240,7 @@ val ASTNode.column: Int
         var leaf = this.prevLeaf()
         var offsetToTheLeft = 0
         while (leaf != null) {
-            if (leaf.elementType == WHITE_SPACE && leaf.textContains('\n')) {
+            if ((leaf.elementType == WHITE_SPACE || leaf.elementType == REGULAR_STRING_PART) && leaf.textContains('\n')) {
                 offsetToTheLeft += leaf.textLength - 1 - leaf.text.lastIndexOf('\n')
                 break
             }
