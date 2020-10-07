@@ -1,12 +1,16 @@
 package com.pinterest.ktlint.ruleset.standard.importordering
 
 import com.pinterest.ktlint.core.LintError
+import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.ruleset.standard.ImportOrderingRule
+import com.pinterest.ktlint.test.EditorConfigTestRule
 import com.pinterest.ktlint.test.format
 import com.pinterest.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.Rule
 import org.junit.Test
 
+@OptIn(FeatureInAlphaState::class)
 class ImportOrderingRuleCustomTest {
 
     companion object {
@@ -20,10 +24,13 @@ class ImportOrderingRuleCustomTest {
         )
     }
 
+    @get:Rule
+    val editorConfigTestRule = EditorConfigTestRule()
+
+    private val rule = ImportOrderingRule()
+
     @Test
     fun `empty line between imports and aliases - ok`() {
-        val emptyLineBeforeAliasPattern = mapOf("kotlin_imports_layout" to "*,|,^*")
-
         val formattedImports =
             """
             import android.app.Activity
@@ -36,14 +43,18 @@ class ImportOrderingRuleCustomTest {
             import androidx.fragment.app.Fragment as F
             """.trimIndent()
 
-        assertThat(ImportOrderingRule().lint(formattedImports, emptyLineBeforeAliasPattern)).isEmpty()
-        assertThat(ImportOrderingRule().format(formattedImports, emptyLineBeforeAliasPattern)).isEqualTo(formattedImports)
+        val testFile = writeCustomImportsOrderingConfig("*,|,^*")
+
+        assertThat(
+            rule.lint(testFile, formattedImports)
+        ).isEmpty()
+        assertThat(
+            rule.format(testFile, formattedImports)
+        ).isEqualTo(formattedImports)
     }
 
     @Test
     fun `empty line between imports and aliases - no empty line`() {
-        val emptyLineBeforeAliasPattern = mapOf("kotlin_imports_layout" to "*,|,^*")
-
         val imports =
             """
             import android.app.Activity
@@ -67,14 +78,18 @@ class ImportOrderingRuleCustomTest {
             import androidx.fragment.app.Fragment as F
             """.trimIndent()
 
-        assertThat(ImportOrderingRule().lint(imports, emptyLineBeforeAliasPattern)).isEqualTo(expectedErrors)
-        assertThat(ImportOrderingRule().format(imports, emptyLineBeforeAliasPattern)).isEqualTo(formattedImports)
+        val testFile = writeCustomImportsOrderingConfig("*,|,^*")
+
+        assertThat(
+            rule.lint(testFile, imports)
+        ).isEqualTo(expectedErrors)
+        assertThat(
+            rule.format(testFile, imports)
+        ).isEqualTo(formattedImports)
     }
 
     @Test
     fun `empty line between imports and aliases - wrong order`() {
-        val emptyLineBeforeAliasPattern = mapOf("kotlin_imports_layout" to "*,|,^*")
-
         val imports =
             """
             import android.app.Activity
@@ -101,14 +116,18 @@ class ImportOrderingRuleCustomTest {
             import androidx.fragment.app.Fragment as F
             """.trimIndent()
 
-        assertThat(ImportOrderingRule().lint(imports, emptyLineBeforeAliasPattern)).isEqualTo(expectedErrors)
-        assertThat(ImportOrderingRule().format(imports, emptyLineBeforeAliasPattern)).isEqualTo(formattedImports)
+        val testFile = writeCustomImportsOrderingConfig("*,|,^*")
+
+        assertThat(
+            rule.lint(testFile, imports)
+        ).isEqualTo(expectedErrors)
+        assertThat(
+            rule.format(testFile, imports)
+        ).isEqualTo(formattedImports)
     }
 
     @Test
     fun `default idea java pattern - ok`() {
-        val defaultIdeaJavaPattern = mapOf("kotlin_imports_layout" to "android.*,|,org.junit.*,|,net.*,|,org.*,|,java.*,|,com.*,|,javax.*,|,*")
-
         val formattedImports =
             """
             import android.app.Activity
@@ -126,13 +145,20 @@ class ImportOrderingRuleCustomTest {
             import kotlin.io.Closeable
             """.trimIndent()
 
-        assertThat(ImportOrderingRule().lint(formattedImports, defaultIdeaJavaPattern)).isEmpty()
-        assertThat(ImportOrderingRule().format(formattedImports, defaultIdeaJavaPattern)).isEqualTo(formattedImports)
+        val testFile = writeCustomImportsOrderingConfig(
+            "android.*,|,org.junit.*,|,net.*,|,org.*,|,java.*,|,com.*,|,javax.*,|,*"
+        )
+
+        assertThat(
+            rule.lint(testFile, formattedImports)
+        ).isEmpty()
+        assertThat(
+            rule.format(testFile, formattedImports)
+        ).isEqualTo(formattedImports)
     }
 
     @Test
     fun `default idea java pattern - wrong order`() {
-        val defaultIdeaJavaPattern = mapOf("kotlin_imports_layout" to "android.*,|,org.junit.*,|,net.*,|,org.*,|,java.*,|,com.*,|,javax.*,|,*")
 
         val imports =
             """
@@ -168,13 +194,20 @@ class ImportOrderingRuleCustomTest {
             import kotlin.io.Closeable
             """.trimIndent()
 
-        assertThat(ImportOrderingRule().lint(imports, defaultIdeaJavaPattern)).isEqualTo(expectedErrors)
-        assertThat(ImportOrderingRule().format(imports, defaultIdeaJavaPattern)).isEqualTo(formattedImports)
+        val testFile = writeCustomImportsOrderingConfig(
+            "android.*,|,org.junit.*,|,net.*,|,org.*,|,java.*,|,com.*,|,javax.*,|,*"
+        )
+
+        assertThat(
+            rule.lint(testFile, imports)
+        ).isEqualTo(expectedErrors)
+        assertThat(
+            rule.format(testFile, imports)
+        ).isEqualTo(formattedImports)
     }
 
     @Test
     fun `multiple empty lines - ignored`() {
-        val multipleEmptyLinesPattern = mapOf("kotlin_imports_layout" to "java.*,|,|,|,kotlin.*,*")
 
         val formattedImports =
             """
@@ -186,13 +219,20 @@ class ImportOrderingRuleCustomTest {
             import android.view.View
             """.trimIndent()
 
-        assertThat(ImportOrderingRule().lint(formattedImports, multipleEmptyLinesPattern)).isEmpty()
-        assertThat(ImportOrderingRule().format(formattedImports, multipleEmptyLinesPattern)).isEqualTo(formattedImports)
+        val testFile = writeCustomImportsOrderingConfig(
+            "java.*,|,|,|,kotlin.*,*"
+        )
+
+        assertThat(
+            rule.lint(testFile, formattedImports)
+        ).isEmpty()
+        assertThat(
+            rule.format(testFile, formattedImports)
+        ).isEqualTo(formattedImports)
     }
 
     @Test
     fun `multiple empty lines - transformed into one`() {
-        val multipleEmptyLinesPattern = mapOf("kotlin_imports_layout" to "java.*,|,|,|,kotlin.*,*")
 
         val imports =
             """
@@ -216,13 +256,20 @@ class ImportOrderingRuleCustomTest {
             import android.view.View
             """.trimIndent()
 
-        assertThat(ImportOrderingRule().lint(imports, multipleEmptyLinesPattern)).isEqualTo(expectedErrors)
-        assertThat(ImportOrderingRule().format(imports, multipleEmptyLinesPattern)).isEqualTo(formattedImports)
+        val testFile = writeCustomImportsOrderingConfig(
+            "java.*,|,|,|,kotlin.*,*"
+        )
+
+        assertThat(
+            rule.lint(testFile, imports)
+        ).isEqualTo(expectedErrors)
+        assertThat(
+            rule.format(testFile, imports)
+        ).isEqualTo(formattedImports)
     }
 
     @Test
     fun `alias pattern - ok`() {
-        val aliasPattern = mapOf("kotlin_imports_layout" to "^kotlin.*,^android.*,android.*,|,*,^*")
 
         val formattedImports =
             """
@@ -234,13 +281,20 @@ class ImportOrderingRuleCustomTest {
             import java.util.List as L
             """.trimIndent()
 
-        assertThat(ImportOrderingRule().lint(formattedImports, aliasPattern)).isEmpty()
-        assertThat(ImportOrderingRule().format(formattedImports, aliasPattern)).isEqualTo(formattedImports)
+        val testFile = writeCustomImportsOrderingConfig(
+            "^kotlin.*,^android.*,android.*,|,*,^*"
+        )
+
+        assertThat(
+            rule.lint(testFile, formattedImports)
+        ).isEmpty()
+        assertThat(
+            rule.format(testFile, formattedImports)
+        ).isEqualTo(formattedImports)
     }
 
     @Test
     fun `alias pattern - wrong order`() {
-        val aliasPattern = mapOf("kotlin_imports_layout" to "^kotlin.*,^android.*,android.*,|,*,^*")
 
         val imports =
             """
@@ -261,13 +315,20 @@ class ImportOrderingRuleCustomTest {
             import java.util.List as L
             """.trimIndent()
 
-        assertThat(ImportOrderingRule().lint(imports, aliasPattern)).isEqualTo(expectedErrors)
-        assertThat(ImportOrderingRule().format(imports, aliasPattern)).isEqualTo(formattedImports)
+        val testFile = writeCustomImportsOrderingConfig(
+            "^kotlin.*,^android.*,android.*,|,*,^*"
+        )
+
+        assertThat(
+            rule.lint(testFile, imports)
+        ).isEqualTo(expectedErrors)
+        assertThat(
+            rule.format(testFile, imports)
+        ).isEqualTo(formattedImports)
     }
 
     @Test
     fun `full path pattern - ok`() {
-        val fullPathPattern = mapOf("kotlin_imports_layout" to "kotlin.io.Closeable,kotlin.*,*")
 
         val formattedImports =
             """
@@ -278,13 +339,20 @@ class ImportOrderingRuleCustomTest {
             import java.util.List
             """.trimIndent()
 
-        assertThat(ImportOrderingRule().lint(formattedImports, fullPathPattern)).isEmpty()
-        assertThat(ImportOrderingRule().format(formattedImports, fullPathPattern)).isEqualTo(formattedImports)
+        val testFile = writeCustomImportsOrderingConfig(
+            "kotlin.io.Closeable,kotlin.*,*"
+        )
+
+        assertThat(
+            rule.lint(testFile, formattedImports)
+        ).isEmpty()
+        assertThat(
+            rule.format(testFile, formattedImports)
+        ).isEqualTo(formattedImports)
     }
 
     @Test
     fun `full path pattern - wrong order`() {
-        val fullPathPattern = mapOf("kotlin_imports_layout" to "kotlin.io.Closeable,kotlin.*,*")
 
         val imports =
             """
@@ -305,7 +373,25 @@ class ImportOrderingRuleCustomTest {
             import java.util.List
             """.trimIndent()
 
-        assertThat(ImportOrderingRule().lint(imports, fullPathPattern)).isEqualTo(expectedErrors)
-        assertThat(ImportOrderingRule().format(imports, fullPathPattern)).isEqualTo(formattedImports)
+        val testFile = writeCustomImportsOrderingConfig(
+            "kotlin.io.Closeable,kotlin.*,*"
+        )
+
+        assertThat(
+            rule.lint(testFile, imports)
+        ).isEqualTo(expectedErrors)
+        assertThat(
+            rule.format(testFile, imports)
+        ).isEqualTo(formattedImports)
     }
+
+    private fun writeCustomImportsOrderingConfig(
+        importsLayout: String
+    ) = editorConfigTestRule
+        .writeToEditorConfig(
+            mapOf(
+                ImportOrderingRule.ideaImportsLayoutProperty.type to importsLayout
+            )
+        )
+        .absolutePath
 }

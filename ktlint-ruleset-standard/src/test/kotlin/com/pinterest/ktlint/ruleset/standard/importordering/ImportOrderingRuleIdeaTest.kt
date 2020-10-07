@@ -1,17 +1,19 @@
 package com.pinterest.ktlint.ruleset.standard.importordering
 
 import com.pinterest.ktlint.core.LintError
+import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.ruleset.standard.ImportOrderingRule
+import com.pinterest.ktlint.test.EditorConfigTestRule
 import com.pinterest.ktlint.test.format
 import com.pinterest.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.Rule
 import org.junit.Test
 
+@OptIn(FeatureInAlphaState::class)
 class ImportOrderingRuleIdeaTest {
 
     companion object {
-        private val userData = mapOf("kotlin_imports_layout" to "idea")
-
         private val expectedErrors = listOf(
             LintError(
                 1,
@@ -21,6 +23,11 @@ class ImportOrderingRuleIdeaTest {
             )
         )
     }
+
+    @get:Rule
+    val editorConfigTestRule = EditorConfigTestRule()
+
+    private val rule = ImportOrderingRule()
 
     @Test
     fun testFormat() {
@@ -38,8 +45,14 @@ class ImportOrderingRuleIdeaTest {
             import b.C
             """.trimIndent()
 
-        assertThat(ImportOrderingRule().lint(imports, userData)).isEqualTo(expectedErrors)
-        assertThat(ImportOrderingRule().format(imports, userData)).isEqualTo(formattedImports)
+        val testFile = writeIdeaImportsOrderingConfig()
+
+        assertThat(
+            rule.lint(testFile, imports)
+        ).isEqualTo(expectedErrors)
+        assertThat(
+            rule.format(testFile, imports)
+        ).isEqualTo(formattedImports)
     }
 
     @Test
@@ -59,8 +72,14 @@ class ImportOrderingRuleIdeaTest {
             import androidx.fragment.app.Fragment as F
             """.trimIndent()
 
-        assertThat(ImportOrderingRule().lint(formattedImports, userData)).isEmpty()
-        assertThat(ImportOrderingRule().format(formattedImports, userData)).isEqualTo(formattedImports)
+        val testFile = writeIdeaImportsOrderingConfig()
+
+        assertThat(
+            rule.lint(testFile, formattedImports)
+        ).isEmpty()
+        assertThat(
+            rule.format(testFile, formattedImports)
+        ).isEqualTo(formattedImports)
     }
 
     @Test
@@ -95,8 +114,14 @@ class ImportOrderingRuleIdeaTest {
             import androidx.fragment.app.Fragment as F
             """.trimIndent()
 
-        assertThat(ImportOrderingRule().lint(imports, userData)).isEqualTo(expectedErrors)
-        assertThat(ImportOrderingRule().format(imports, userData)).isEqualTo(formattedImports)
+        val testFile = writeIdeaImportsOrderingConfig()
+
+        assertThat(
+            rule.lint(testFile, imports)
+        ).isEqualTo(expectedErrors)
+        assertThat(
+            rule.format(testFile, imports)
+        ).isEqualTo(formattedImports)
     }
 
     @Test
@@ -117,8 +142,14 @@ class ImportOrderingRuleIdeaTest {
             import android.content.Context as Ctx1
             """.trimIndent()
 
-        assertThat(ImportOrderingRule().lint(imports, userData)).isEqualTo(expectedErrors)
-        assertThat(ImportOrderingRule().format(imports, userData)).isEqualTo(formattedImports)
+        val testFile = writeIdeaImportsOrderingConfig()
+
+        assertThat(
+            rule.lint(testFile, imports)
+        ).isEqualTo(expectedErrors)
+        assertThat(
+            rule.format(testFile, imports)
+        ).isEqualTo(formattedImports)
     }
 
     @Test
@@ -160,8 +191,14 @@ class ImportOrderingRuleIdeaTest {
             import androidx.fragment.app.Fragment as F
             """.trimIndent()
 
-        assertThat(ImportOrderingRule().lint(imports, userData)).isEqualTo(expectedErrors)
-        assertThat(ImportOrderingRule().format(imports, userData)).isEqualTo(formattedImports)
+        val testFile = writeIdeaImportsOrderingConfig()
+
+        assertThat(
+            rule.lint(testFile, imports)
+        ).isEqualTo(expectedErrors)
+        assertThat(
+            rule.format(testFile, imports)
+        ).isEqualTo(formattedImports)
     }
 
     @Test
@@ -202,8 +239,14 @@ class ImportOrderingRuleIdeaTest {
             import androidx.fragment.app.Fragment as F
             """.trimIndent()
 
-        assertThat(ImportOrderingRule().lint(imports, userData)).isEqualTo(expectedErrors)
-        assertThat(ImportOrderingRule().format(imports, userData)).isEqualTo(formattedImports)
+        val testFile = writeIdeaImportsOrderingConfig()
+
+        assertThat(
+            rule.lint(testFile, imports)
+        ).isEqualTo(expectedErrors)
+        assertThat(
+            rule.format(testFile, imports)
+        ).isEqualTo(formattedImports)
     }
 
     @Test
@@ -238,8 +281,14 @@ class ImportOrderingRuleIdeaTest {
             import androidx.fragment.app.Fragment as F // comment 3
             """.trimIndent()
 
-        assertThat(ImportOrderingRule().lint(imports, userData)).isEqualTo(expectedErrors)
-        assertThat(ImportOrderingRule().format(imports, userData)).isEqualTo(formattedImports)
+        val testFile = writeIdeaImportsOrderingConfig()
+
+        assertThat(
+            rule.lint(testFile, imports)
+        ).isEqualTo(expectedErrors)
+        assertThat(
+            rule.format(testFile, imports)
+        ).isEqualTo(formattedImports)
     }
 
     @Test
@@ -273,8 +322,14 @@ class ImportOrderingRuleIdeaTest {
             import kotlin.reflect.KClass
             """.trimIndent()
 
-        assertThat(ImportOrderingRule().lint(formattedImports, userData)).isEmpty()
-        assertThat(ImportOrderingRule().format(formattedImports, userData)).isEqualTo(formattedImports)
+        val testFile = writeIdeaImportsOrderingConfig()
+
+        assertThat(
+            rule.lint(testFile, formattedImports)
+        ).isEmpty()
+        assertThat(
+            rule.format(testFile, formattedImports)
+        ).isEqualTo(formattedImports)
     }
 
     @Test
@@ -285,7 +340,21 @@ class ImportOrderingRuleIdeaTest {
             import android.view.ViewGroup.LayoutParams.WRAP_CONTENT as WRAP
             """.trimIndent()
 
-        assertThat(ImportOrderingRule().lint(formattedImports, userData)).isEmpty()
-        assertThat(ImportOrderingRule().format(formattedImports, userData)).isEqualTo(formattedImports)
+        val testFile = writeIdeaImportsOrderingConfig()
+
+        assertThat(
+            rule.lint(testFile, formattedImports)
+        ).isEmpty()
+        assertThat(
+            rule.format(testFile, formattedImports)
+        ).isEqualTo(formattedImports)
     }
+
+    private fun writeIdeaImportsOrderingConfig() = editorConfigTestRule
+        .writeToEditorConfig(
+            mapOf(
+                ImportOrderingRule.ideaImportsLayoutProperty.type to "idea"
+            )
+        )
+        .absolutePath
 }

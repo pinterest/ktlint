@@ -6,7 +6,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 - Initial implementation IDE integration via '.editorconfig' based on rules default values ([#701](https://github.com/pinterest/ktlint/issues/701))
-- CLI subcommand `generateEditorConfig` to generate '.editorconfig' content for Kotlin files ([#701](https://github.com/pinterest/ktlint/issues/701))
+- CLI subcommand `generateEditorConfig` to generate '.editorconfig' content for Kotlin files ([#701](https://github.com/pinterest/ktlint/issues/701)) 
 
 ### Fixed
 - Do not report when semicolon is before annotation/comment/kdoc and lambda ([#825](https://github.com/pinterest/ktlint/issues/825))
@@ -20,7 +20,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fix false positive for method after string template in `argument-list-wrapping` ([#842](https://github.com/pinterest/ktlint/issues/842)) ([#859](https://github.com/pinterest/ktlint/issues/859))
 
 ### Changed
-- ?
+- 'import-ordering' now supports `.editorconfig' default value generation ([#701](https://github.com/pinterest/ktlint/issues/701))
 
 ### Removed
 - ?
