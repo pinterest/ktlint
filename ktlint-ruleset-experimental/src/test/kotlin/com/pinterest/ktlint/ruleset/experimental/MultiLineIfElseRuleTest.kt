@@ -358,6 +358,64 @@ class MultiLineIfElseRuleTest {
         )
     }
 
+    @Test
+    fun testWithEolComments() {
+        val actual = format(
+            """
+            fun test() {
+                val s = if (x > 0)
+                // comment1
+                    "a"
+                else
+                // comment2
+                    "b"
+            }
+            """.trimIndent()
+        )
+        assertThat(actual).isEqualTo(
+            """
+            fun test() {
+                val s = if (x > 0) {
+                // comment1
+                    "a"
+                } else {
+                // comment2
+                    "b"
+                }
+            }
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun testWithEolComments2() {
+        val actual = format(
+            """
+            fun test() {
+                val s = if (x > 0)
+                    // comment1
+                    "a" // comment2
+                else
+                    // comment3
+                    "b" // comment4
+            }
+            """.trimIndent()
+        )
+        assertThat(actual).isEqualTo(
+            """
+            fun test() {
+                val s = if (x > 0) {
+                    // comment1
+                    "a" // comment2
+                } else {
+                    // comment3
+                    "b" // comment4
+                }
+            }
+            """.trimIndent()
+        )
+    }
+
     private fun assertOK(kotlinScript: String) {
         assertThat(format(kotlinScript)).isEqualTo(kotlinScript)
         assertThat(lint(kotlinScript)).isEqualTo(emptyList<LintError>())
