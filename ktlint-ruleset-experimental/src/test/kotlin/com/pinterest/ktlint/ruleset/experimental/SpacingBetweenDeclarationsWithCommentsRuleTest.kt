@@ -119,13 +119,13 @@ class SpacingBetweenDeclarationsWithCommentsRuleTest {
              * Doc 1
              */
             fun one() = 1
-            
+
             /**
              * Doc 2
              */
             fun two() = 2
             fun three() = 42
-            
+
             // comment
             fun four() = 44
             """.trimIndent(),
@@ -144,6 +144,81 @@ class SpacingBetweenDeclarationsWithCommentsRuleTest {
                 fun four() = 44
                 """.trimIndent()
             )
+        )
+    }
+
+    @Test
+    fun `not a declaration comment`() {
+        assertThat(
+            SpacingBetweenDeclarationsWithCommentsRule().lint(
+                """
+                fun function() {
+                    with(binding) {
+                        loginButton.setOnClickListener {
+                //            comment
+                            showScreen()
+                        }
+                    }
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `not a comment between declarations`() {
+        assertThat(
+            SpacingBetweenDeclarationsWithCommentsRule().lint(
+                """
+                class C {
+                    fun test() {
+                        println()
+                        // comment1
+                        fun one() = 1
+                    }
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `declarations in class`() {
+        val actual = SpacingBetweenDeclarationsWithCommentsRule().format(
+            """
+            class C {
+                /**
+                 * Doc 1
+                 */
+                fun one() = 1
+                /**
+                 * Doc 2
+                 */
+                fun two() = 2
+                fun three() = 42
+                // comment
+                fun four() = 44
+            }
+            """.trimIndent()
+        )
+        assertThat(actual).isEqualTo(
+            """
+            class C {
+                /**
+                 * Doc 1
+                 */
+                fun one() = 1
+
+                /**
+                 * Doc 2
+                 */
+                fun two() = 2
+                fun three() = 42
+
+                // comment
+                fun four() = 44
+            }
+            """.trimIndent()
         )
     }
 }
