@@ -198,11 +198,6 @@ $ ktlint installGitPreCommitHook
                 <java taskname="ktlint" dir="${basedir}" fork="true" failonerror="true"
                     classpathref="maven.plugin.classpath" classname="com.pinterest.ktlint.Main">
                     <arg value="src/**/*.kt"/>
-                    <!-- to generate report in checkstyle format prepend following args: -->
-                    <!-- 
-                    <arg value="--reporter=plain"/>
-                    <arg value="--reporter=checkstyle,output=${project.build.directory}/ktlint.xml"/>
-                    -->
                     <!-- see https://github.com/pinterest/ktlint#usage for more -->                    
                 </java>
             </target>
