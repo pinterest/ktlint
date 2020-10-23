@@ -398,6 +398,10 @@ See [whirm/flycheck-kotlin](https://github.com/whirm/flycheck-kotlin).
 
 See [w0rp/ale](https://github.com/w0rp/ale).
 
+#### ... with Continuous Integration (Github Actions, Circle CI...)
+
+See [Mega-Linter](https://github.com/nvuillam/mega-linter#readme).
+
 > Integrated with something else? Send a PR.
 
 ## Creating a ruleset
