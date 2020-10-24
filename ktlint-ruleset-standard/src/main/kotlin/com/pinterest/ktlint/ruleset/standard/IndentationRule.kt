@@ -574,7 +574,7 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                                         adjustExpectedIndentAfterColon(n, ctx)
                                     prevLeaf?.elementType == LPAR &&
                                         p.elementType == VALUE_ARGUMENT_LIST &&
-                                        p.isPartOf(CONDITION) ->
+                                        p.parent(CONDITION)?.takeIf { !it.prevLeaf().isWhiteSpaceWithNewline() } != null ->
                                         // if (condition(
                                         //         params
                                         //     )
