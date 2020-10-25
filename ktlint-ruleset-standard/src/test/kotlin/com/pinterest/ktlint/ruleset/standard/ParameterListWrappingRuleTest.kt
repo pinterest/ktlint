@@ -577,8 +577,6 @@ class ParameterListWrappingRuleTest {
                     private val tracked: Boolean,
                     private val sourceInformation: String?
                 )
-                // https://github.com/pinterest/ktlint/issues/938
-
                 """.trimIndent()
             )
         ).isEmpty()
