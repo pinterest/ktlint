@@ -563,4 +563,24 @@ class ParameterListWrappingRuleTest {
         assertThat(ParameterListWrappingRule().lint(code)).isEmpty()
         assertThat(ParameterListWrappingRule().format(code)).isEqualTo(code)
     }
+
+    // https://github.com/pinterest/ktlint/issues/921
+    @Test
+    fun `correctly indent primary constructor parameters when class has multiline type parameter`() {
+        assertThat(
+            ParameterListWrappingRule().lint(
+                """
+                class ComposableLambda<
+                    P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15, P16,
+                    P17, P18, R>(
+                    val key: Int,
+                    private val tracked: Boolean,
+                    private val sourceInformation: String?
+                )
+                // https://github.com/pinterest/ktlint/issues/938
+
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
 }

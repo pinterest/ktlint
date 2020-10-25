@@ -4,6 +4,7 @@ import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.FUNCTION_LITERAL
 import com.pinterest.ktlint.core.ast.ElementType.LPAR
+import com.pinterest.ktlint.core.ast.ElementType.PRIMARY_CONSTRUCTOR
 import com.pinterest.ktlint.core.ast.ElementType.RPAR
 import com.pinterest.ktlint.core.ast.ElementType.TYPE_PARAMETER_LIST
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER
@@ -15,6 +16,7 @@ import com.pinterest.ktlint.core.ast.isRoot
 import com.pinterest.ktlint.core.ast.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.core.ast.lineIndent
 import com.pinterest.ktlint.core.ast.prevLeaf
+import com.pinterest.ktlint.core.ast.prevSibling
 import com.pinterest.ktlint.core.ast.visit
 import kotlin.math.max
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -161,9 +163,13 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
             else -> throw UnsupportedOperationException()
         }
 
-    private fun ASTNode.hasTypeParameterListInFront(): Boolean =
-        treeParent.children()
-            .firstOrNull { it.elementType == TYPE_PARAMETER_LIST }
-            ?.children()
-            ?.any { it.isWhiteSpaceWithNewline() } == true
+    private fun ASTNode.hasTypeParameterListInFront(): Boolean {
+        val parent = this.treeParent
+        val typeParameterList = if (parent.elementType == PRIMARY_CONSTRUCTOR) {
+            parent.prevSibling { it.elementType == TYPE_PARAMETER_LIST }
+        } else {
+            parent.children().firstOrNull { it.elementType == TYPE_PARAMETER_LIST }
+        } ?: return false
+        return typeParameterList.children().any { it.isWhiteSpaceWithNewline() }
+    }
 }
