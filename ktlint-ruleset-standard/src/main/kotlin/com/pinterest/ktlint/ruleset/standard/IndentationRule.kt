@@ -10,6 +10,7 @@ import com.pinterest.ktlint.core.ast.ElementType.BINARY_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.BINARY_WITH_TYPE
 import com.pinterest.ktlint.core.ast.ElementType.BLOCK_COMMENT
 import com.pinterest.ktlint.core.ast.ElementType.BODY
+import com.pinterest.ktlint.core.ast.ElementType.BY_KEYWORD
 import com.pinterest.ktlint.core.ast.ElementType.CALL_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.CLOSING_QUOTE
 import com.pinterest.ktlint.core.ast.ElementType.COLON
@@ -981,6 +982,14 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                 node.treeParent?.elementType.let { it == TYPE_PARAMETER_LIST || it == TYPE_ARGUMENT_LIST } ->
                 0
             nextLeafElementType in rTokenSet -> -1
+            // IDEA quirk:
+            // val i: Int
+            //     by lazy { 1 }
+            // instead of expected
+            // val i: Int
+            // by lazy { 1 }
+            nextLeafElementType == BY_KEYWORD ->
+                1
             // IDEA quirk:
             // var value: DataClass =
             //     DataClass("too long line")

@@ -613,4 +613,16 @@ internal class IndentationRuleTest {
             )
         ).isEmpty()
     }
+
+    @Test
+    fun `lint property delegate is indented properly`() {
+        assertThat(
+            IndentationRule().lint(
+                """
+                val i: Int
+                    by lazy { 1 }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
 }
