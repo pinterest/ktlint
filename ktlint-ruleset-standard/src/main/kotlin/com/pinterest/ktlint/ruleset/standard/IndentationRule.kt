@@ -16,6 +16,7 @@ import com.pinterest.ktlint.core.ast.ElementType.CLOSING_QUOTE
 import com.pinterest.ktlint.core.ast.ElementType.COLON
 import com.pinterest.ktlint.core.ast.ElementType.COMMA
 import com.pinterest.ktlint.core.ast.ElementType.CONDITION
+import com.pinterest.ktlint.core.ast.ElementType.DELEGATED_SUPER_TYPE_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.DOT
 import com.pinterest.ktlint.core.ast.ElementType.DOT_QUALIFIED_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.ELSE
@@ -488,26 +489,6 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                         // class A :
                         //     SUPER_TYPE_LIST
                         adjustExpectedIndentInsideSuperTypeList(n)
-                    SUPER_TYPE_CALL_ENTRY -> {
-                        // IDEA quirk:
-                        //
-                        // class A : B({
-                        //     f() {}
-                        // }),
-                        //     C({
-                        //         f() {}
-                        //     })
-                        //
-                        // instead of expected
-                        //
-                        // class A : B({
-                        //         f() {}
-                        //     }),
-                        //     C({
-                        //         f() {}
-                        //     })
-                        adjustExpectedIndentInsideSuperTypeCall(n, ctx)
-                    }
                     STRING_TEMPLATE ->
                         indentStringTemplate(n, autoCorrect, emit, editorConfig)
                     DOT_QUALIFIED_EXPRESSION, SAFE_ACCESS_EXPRESSION, BINARY_EXPRESSION, BINARY_WITH_TYPE -> {
@@ -682,30 +663,15 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
     }
 
     private fun adjustExpectedIndentInsideSuperTypeList(n: ASTNode) {
+        if (!n.treePrev.isWhiteSpaceWithNewline() && n.children().none { it.isWhiteSpaceWithNewline() }) return
         expectedIndent++
         debug { "++inside(${n.elementType}) -> $expectedIndent" }
     }
 
     private fun adjustExpectedIndentAfterSuperTypeList(n: ASTNode) {
+        if (!n.treePrev.isWhiteSpaceWithNewline() && n.children().none { it.isWhiteSpaceWithNewline() }) return
         expectedIndent--
         debug { "--after(${n.elementType}) -> $expectedIndent" }
-    }
-
-    private fun adjustExpectedIndentInsideSuperTypeCall(n: ASTNode, ctx: IndentContext) {
-        // Don't adjust indents for initializer lists
-        if (n.treeParent?.elementType != SUPER_TYPE_LIST) {
-            return
-        }
-
-        if (
-            // n.treePrev == null &&
-            // n.treeParent.elementType == SUPER_TYPE_LIST &&
-            n.prevLeaf()?.textContains('\n') == false
-        ) {
-            expectedIndent--
-            debug { "--inside(${n.elementType}) -> $expectedIndent" }
-            ctx.exitAdjBy(n, 1)
-        }
     }
 
     private fun adjustExpectedIndentAfterEq(n: ASTNode, ctx: IndentContext) {
@@ -989,7 +955,7 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
             // val i: Int
             // by lazy { 1 }
             nextLeafElementType == BY_KEYWORD ->
-                1
+                if (node.isPartOf(DELEGATED_SUPER_TYPE_ENTRY)) 0 else 1
             // IDEA quirk:
             // var value: DataClass =
             //     DataClass("too long line")
