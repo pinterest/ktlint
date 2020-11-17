@@ -4,7 +4,7 @@ import com.pinterest.ktlint.KtlintCommandLine
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.ParseException
 import com.pinterest.ktlint.core.RuleSet
-import com.pinterest.ktlint.test.DumpAST
+import com.pinterest.ruleset.test.DumpASTRule
 import java.io.File
 import picocli.CommandLine
 
@@ -37,7 +37,7 @@ internal class PrintASTSubCommand : Runnable {
 
     private val astRuleSet by lazy(LazyThreadSafetyMode.NONE) {
         listOf(
-            RuleSet("debug", DumpAST(System.out, ktlintCommand.color))
+            RuleSet("debug", DumpASTRule(System.out, ktlintCommand.color))
         )
     }
 
