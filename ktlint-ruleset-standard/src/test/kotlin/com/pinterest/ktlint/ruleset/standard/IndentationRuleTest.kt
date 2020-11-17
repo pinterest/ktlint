@@ -705,4 +705,25 @@ internal class IndentationRuleTest {
             )
         ).isEmpty()
     }
+
+    @Test
+    fun `lint delegation 5`() {
+        assertThat(
+            IndentationRule().lint(
+                """
+                interface Foo
+
+                class Bar(a: Int, b: Int, c: Int) : Foo
+
+                class Test5 {
+                    companion object : Foo by Bar(
+                        a = 1,
+                        b = 2,
+                        c = 3
+                    )
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
 }
