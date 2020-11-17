@@ -60,13 +60,13 @@ class FinalNewlineRuleTest {
             finalNewLineRule.lint(
                 script = true,
                 text =
-                    """
-                    fun main() {
-                    }
+                """
+                fun main() {
+                }
 
 
 
-                    """.trimIndent()
+                """.trimIndent()
             )
         ).isEmpty()
     }

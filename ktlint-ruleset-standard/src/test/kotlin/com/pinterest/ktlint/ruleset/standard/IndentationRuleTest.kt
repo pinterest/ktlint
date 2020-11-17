@@ -726,4 +726,40 @@ internal class IndentationRuleTest {
             )
         ).isEmpty()
     }
+
+    @Test
+    fun `lint named argument`() {
+        assertThat(
+            IndentationRule().lint(
+                """
+                data class D(val a: Int, val b: Int, val c: Int)
+
+                fun test() {
+                    val d = D(
+                        a = 1,
+                        b =
+                        2,
+                        c = 3
+                    )
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `lint default parameter`() {
+        assertThat(
+            IndentationRule().lint(
+                """
+                data class D(
+                    val a: Int = 1,
+                    val b: Int =
+                        2,
+                    val c: Int = 3
+                )
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
 }
