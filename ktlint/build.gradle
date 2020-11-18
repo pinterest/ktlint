@@ -32,7 +32,7 @@ dependencies {
   implementation project(':ktlint-reporter-plain')
   implementation project(':ktlint-ruleset-experimental')
   implementation project(':ktlint-ruleset-standard')
-  implementation project(':ktlint-test')
+  implementation project(':ktlint-ruleset-test')
   implementation deps.kotlin.stdlib
   implementation deps.kotlin.compiler
   implementation deps.klob

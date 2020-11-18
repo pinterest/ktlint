@@ -5,9 +5,5 @@ plugins {
 
 dependencies {
   api project(':ktlint-core')
-  api project(':ktlint-ruleset-test')
   implementation deps.kotlin.stdlib
-
-  implementation deps.assertj
-  implementation deps.junit
 }
