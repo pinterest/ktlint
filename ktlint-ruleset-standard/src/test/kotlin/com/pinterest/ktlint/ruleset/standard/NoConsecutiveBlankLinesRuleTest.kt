@@ -65,7 +65,6 @@ class NoConsecutiveBlankLinesRuleTest {
         )
     }
 
-
     @Test
     fun testLintAfterPackageName() {
         assertThat(
@@ -79,7 +78,7 @@ class NoConsecutiveBlankLinesRuleTest {
             )
         ).isEmpty()
     }
-    
+
     @Test
     fun testLintInString() {
         assertThat(
