@@ -4,7 +4,9 @@ import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.KDOC_TEXT
 import com.pinterest.ktlint.core.ast.ElementType.OBJECT_KEYWORD
 import com.pinterest.ktlint.core.ast.isPartOf
+import com.pinterest.ktlint.core.ast.isPartOfComment
 import com.pinterest.ktlint.core.ast.isPartOfString
+import com.pinterest.ktlint.core.ast.isWhiteSpace
 import com.pinterest.ktlint.core.ast.nextLeaf
 import com.pinterest.ktlint.core.ast.prevCodeLeaf
 import com.pinterest.ktlint.core.ast.prevLeaf
@@ -16,6 +18,8 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.kdoc.psi.api.KDoc
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
+import org.jetbrains.kotlin.psi.KtClass
+import org.jetbrains.kotlin.psi.KtClassBody
 import org.jetbrains.kotlin.psi.KtEnumEntry
 import org.jetbrains.kotlin.psi.psiUtil.getStrictParentOfType
 
@@ -29,9 +33,7 @@ class NoSemicolonsRule : Rule("no-semi") {
         if (node.elementType == KDOC_TEXT) {
             return
         }
-        if (node is LeafPsiElement && node.textMatches(";") && !node.isPartOfString() &&
-            !node.isPartOf(KtEnumEntry::class)
-        ) {
+        if (node is LeafPsiElement && node.textMatches(";") && !node.isPartOfString() && !node.isPartOfEnumEntry()) {
             val nextLeaf = node.nextLeaf()
             if (doesNotRequirePreSemi(nextLeaf)) {
                 if (node.prevCodeLeaf()?.elementType == OBJECT_KEYWORD) {
@@ -69,5 +71,15 @@ class NoSemicolonsRule : Rule("no-semi") {
                 )
         }
         return nextLeaf == null /* eof */
+    }
+
+    private fun ASTNode.isPartOfEnumEntry(): Boolean {
+        if (isPartOf(KtEnumEntry::class)) return true
+        val lBrace = prevLeaf { !it.isWhiteSpace() && !it.isPartOfComment() }
+            ?.takeIf { it.elementType == KtTokens.LBRACE }
+            ?: return false
+        val classBody = lBrace.treeParent?.psi as? KtClassBody ?: return false
+        if (classBody.children.isEmpty()) return false
+        return (classBody.parent as? KtClass)?.isEnum() == true
     }
 }

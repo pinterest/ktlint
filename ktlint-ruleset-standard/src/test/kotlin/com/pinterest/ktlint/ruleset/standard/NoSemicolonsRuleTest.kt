@@ -170,4 +170,64 @@ class NoSemicolonsRuleTest {
             )
         ).isEmpty()
     }
+
+    @Test
+    fun testEnumEntrySemicolon() {
+        assertThat(
+            NoSemicolonsRule().lint(
+                """
+                enum class Test {
+                    A;
+                }
+                """
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun testEnumEntrySemicolon2() {
+        assertThat(
+            NoSemicolonsRule().lint(
+                """
+                enum class Test {
+                    A;
+                    val member = 1
+                }
+                """
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun testEnumEntrySemicolon3() {
+        assertThat(
+            NoSemicolonsRule().lint(
+                """
+                enum class Test {
+                    // comment
+                    ;
+                    val member = 1
+                }
+                """
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun testEnumEntrySemicolon4() {
+        assertThat(
+            NoSemicolonsRule().lint(
+                """
+                enum class Test {
+                    // comment
+                    ;
+                }
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(3, 5, "no-semi", "Unnecessary semicolon")
+            )
+        )
+    }
 }
