@@ -17,12 +17,15 @@ import com.pinterest.ktlint.internal.GitPrePushHookSubCommand
 import com.pinterest.ktlint.internal.JarFiles
 import com.pinterest.ktlint.internal.KtlintVersionProvider
 import com.pinterest.ktlint.internal.PrintASTSubCommand
+import com.pinterest.ktlint.internal.containsLintError
 import com.pinterest.ktlint.internal.fileSequence
 import com.pinterest.ktlint.internal.formatFile
 import com.pinterest.ktlint.internal.lintFile
+import com.pinterest.ktlint.internal.loadBaseline
 import com.pinterest.ktlint.internal.loadRulesets
 import com.pinterest.ktlint.internal.location
 import com.pinterest.ktlint.internal.printHelpOrVersionUsage
+import com.pinterest.ktlint.internal.relativeRoute
 import com.pinterest.ktlint.internal.toFilesURIList
 import com.pinterest.ktlint.reporter.plain.internal.Color
 import java.io.File
@@ -212,6 +215,12 @@ class KtlintCommandLine {
     )
     var experimental: Boolean = false
 
+    @Option(
+        names = ["--baseline"],
+        description = ["Defines a baseline file to check against"]
+    )
+    private var baseline: String = ""
+
     @Parameters(hidden = true)
     private var patterns = ArrayList<String>()
 
@@ -224,8 +233,14 @@ class KtlintCommandLine {
 
         val start = System.currentTimeMillis()
 
+        val baselineResults = loadBaseline(baseline)
         val ruleSetProviders = rulesets.loadRulesets(experimental, debug)
-        val reporter = loadReporter()
+        var reporter = loadReporter()
+        if (baselineResults.baselineGenerationNeeded) {
+            val baselineReporter = ReporterTemplate("baseline", null, emptyMap(), baseline)
+            val reporterProviderById = loadReporters(emptyList())
+            reporter = Reporter.from(reporter, baselineReporter.toReporter(reporterProviderById))
+        }
         val userData = listOfNotNull(
             "android" to android.toString(),
             if (disabledRules.isNotBlank()) "disabled_rules" to disabledRules else null
@@ -235,7 +250,7 @@ class KtlintCommandLine {
         if (stdin) {
             lintStdin(ruleSetProviders, userData, reporter)
         } else {
-            lintFiles(ruleSetProviders, userData, reporter)
+            lintFiles(ruleSetProviders, userData, baselineResults.baselineRules, reporter)
         }
         reporter.afterAll()
         if (debug) {
@@ -253,6 +268,7 @@ class KtlintCommandLine {
     private fun lintFiles(
         ruleSetProviders: Map<String, RuleSetProvider>,
         userData: Map<String, String>,
+        baseline: Map<String, List<LintError>>?,
         reporter: Reporter
     ) {
         patterns.fileSequence()
@@ -263,7 +279,8 @@ class KtlintCommandLine {
                         file.path,
                         file.readText(),
                         ruleSetProviders,
-                        userData
+                        userData,
+                        baseline?.get(file.relativeRoute)
                     )
                 }
             }
@@ -281,7 +298,8 @@ class KtlintCommandLine {
                 KtLint.STDIN_FILE,
                 String(System.`in`.readBytes()),
                 ruleSetProviders,
-                userData
+                userData,
+                null
             ),
             reporter
         )
@@ -324,7 +342,8 @@ class KtlintCommandLine {
         fileName: String,
         fileContent: String,
         ruleSetProviders: Map<String, RuleSetProvider>,
-        userData: Map<String, String>
+        userData: Map<String, String>,
+        baselineErrors: List<LintError>?
     ): List<LintErrorWithCorrectionInfo> {
         if (debug) {
             val fileLocation = if (fileName != KtLint.STDIN_FILE) File(fileName).location(relative) else fileName
@@ -342,8 +361,10 @@ class KtlintCommandLine {
                     debug
                 ) { err, corrected ->
                     if (!corrected) {
-                        result.add(LintErrorWithCorrectionInfo(err, corrected))
-                        tripped.set(true)
+                        if (baselineErrors == null || !baselineErrors.containsLintError(err)) {
+                            result.add(LintErrorWithCorrectionInfo(err, corrected))
+                            tripped.set(true)
+                        }
                     }
                 }
             } catch (e: Exception) {
@@ -368,8 +389,10 @@ class KtlintCommandLine {
                     editorConfigPath,
                     debug
                 ) { err ->
-                    result.add(LintErrorWithCorrectionInfo(err, false))
-                    tripped.set(true)
+                    if (baselineErrors == null || !baselineErrors.containsLintError(err)) {
+                        result.add(LintErrorWithCorrectionInfo(err, false))
+                        tripped.set(true)
+                    }
                 }
             } catch (e: Exception) {
                 result.add(LintErrorWithCorrectionInfo(e.toLintError(), false))

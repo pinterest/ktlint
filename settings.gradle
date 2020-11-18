@@ -27,6 +27,7 @@ rootProject.name = 'ktlint'
 
 include ':ktlint'
 include ':ktlint-core'
+include ':ktlint-reporter-baseline'
 include ':ktlint-reporter-checkstyle'
 include ':ktlint-reporter-json'
 include ':ktlint-reporter-html'
