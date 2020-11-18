@@ -625,4 +625,105 @@ internal class IndentationRuleTest {
             )
         ).isEmpty()
     }
+
+    @Test
+    fun `lint delegation 1`() {
+        assertThat(
+            IndentationRule().lint(
+                """
+                interface Foo
+
+                class Bar(a: Int, b: Int, c: Int) : Foo
+
+                class Test1 : Foo by Bar(
+                    a = 1,
+                    b = 2,
+                    c = 3
+                )
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `lint delegation 2`() {
+        assertThat(
+            IndentationRule().lint(
+                """
+                interface Foo
+
+                class Bar(a: Int, b: Int, c: Int) : Foo
+
+                class Test2 : Foo
+                by Bar(
+                    a = 1,
+                    b = 2,
+                    c = 3
+                )
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `lint delegation 3`() {
+        assertThat(
+            IndentationRule().lint(
+                """
+                interface Foo
+
+                class Bar(a: Int, b: Int, c: Int) : Foo
+
+                class Test3 :
+                    Foo by Bar(
+                        a = 1,
+                        b = 2,
+                        c = 3
+                    )
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `lint delegation 4`() {
+        assertThat(
+            IndentationRule().lint(
+                """
+                interface Foo
+
+                class Bar(a: Int, b: Int, c: Int) : Foo
+
+                class Test4 :
+                    Foo
+                    by Bar(
+                        a = 1,
+                        b = 2,
+                        c = 3
+                    )
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `lint delegation 5`() {
+        assertThat(
+            IndentationRule().lint(
+                """
+                interface Foo
+
+                class Bar(a: Int, b: Int, c: Int) : Foo
+
+                class Test5 {
+                    companion object : Foo by Bar(
+                        a = 1,
+                        b = 2,
+                        c = 3
+                    )
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
 }
