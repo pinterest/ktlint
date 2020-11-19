@@ -594,4 +594,21 @@ class ParameterListWrappingRuleTest {
             )
         ).isEmpty()
     }
+
+    @Test
+    fun `multiline type argument list in function signature`() {
+        assertThat(
+            ParameterListWrappingRule().lint(
+                """
+                class Foo<A, B, C>
+
+                fun Foo<String, Boolean,
+                    Int>.bar(
+                    i: Int
+                ) = apply {
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
 }
