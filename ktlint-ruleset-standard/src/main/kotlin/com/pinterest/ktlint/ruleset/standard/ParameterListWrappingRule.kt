@@ -24,6 +24,8 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
+import org.jetbrains.kotlin.psi.KtTypeArgumentList
+import org.jetbrains.kotlin.psi.psiUtil.collectDescendantsOfType
 
 class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
 
@@ -169,7 +171,10 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
             parent.prevSibling { it.elementType == TYPE_PARAMETER_LIST }
         } else {
             parent.children().firstOrNull { it.elementType == TYPE_PARAMETER_LIST }
-        } ?: return false
-        return typeParameterList.children().any { it.isWhiteSpaceWithNewline() }
+        }
+        val typeListNode = typeParameterList
+            ?: parent.psi.collectDescendantsOfType<KtTypeArgumentList>().firstOrNull()?.node
+            ?: return false
+        return typeListNode.children().any { it.isWhiteSpaceWithNewline() }
     }
 }
