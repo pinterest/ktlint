@@ -540,7 +540,7 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                                         // class C :
                                         //     SUPER_TYPE_LIST
                                         adjustExpectedIndentInFrontOfSuperTypeList(n, ctx)
-                                    prevLeaf?.elementType == EQ ->
+                                    prevLeaf?.elementType == EQ && p.elementType != VALUE_ARGUMENT ->
                                         // v =
                                         //     value
                                         adjustExpectedIndentAfterEq(n, ctx)
