@@ -66,6 +66,20 @@ class NoConsecutiveBlankLinesRuleTest {
     }
 
     @Test
+    fun testLintAfterPackageName() {
+        assertThat(
+            NoConsecutiveBlankLinesRule().lint(
+                """
+                package com.test
+                
+                fun main() {
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
     fun testLintInString() {
         assertThat(
             NoConsecutiveBlankLinesRule().lint(
