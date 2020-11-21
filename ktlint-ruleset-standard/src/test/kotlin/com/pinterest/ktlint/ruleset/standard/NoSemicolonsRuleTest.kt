@@ -230,4 +230,60 @@ class NoSemicolonsRuleTest {
             )
         )
     }
+
+    @Test
+    fun testForWithEmptyBody() {
+        assertThat(
+            NoSemicolonsRule().lint(
+                """
+                fun test(list: List<Int>) {
+                    for (i in list);
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun testWhileWithEmptyBody() {
+        assertThat(
+            NoSemicolonsRule().lint(
+                """
+                fun test() {
+                    while (true);
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun testDoWhileWithEmptyBody() {
+        assertThat(
+            NoSemicolonsRule().lint(
+                """
+                fun test() {
+                    do while (true);
+                }
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(2, 20, "no-semi", "Unnecessary semicolon")
+            )
+        )
+    }
+
+    @Test
+    fun testIfWithEmptyBranch() {
+        assertThat(
+            NoSemicolonsRule().lint(
+                """
+                fun testIf() {
+                    if (true);
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
 }
