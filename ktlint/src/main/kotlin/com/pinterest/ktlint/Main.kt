@@ -148,6 +148,12 @@ class KtlintCommandLine {
     var debug: Boolean = false
 
     @Option(
+        names = ["--disable-standard-rules"],
+        description = ["Turn off standard set of rules (default: false). Useful for custom rulesets."]
+    )
+    var isStandardRuleSetDisabled: Boolean = false
+
+    @Option(
         names = ["--disabled_rules"],
         description = ["Comma-separated list of rules to globally disable"]
     )
@@ -234,7 +240,7 @@ class KtlintCommandLine {
         val start = System.currentTimeMillis()
 
         val baselineResults = loadBaseline(baseline)
-        val ruleSetProviders = rulesets.loadRulesets(experimental, debug)
+        val ruleSetProviders = rulesets.loadRulesets(experimental, debug, isStandardRuleSetDisabled)
         var reporter = loadReporter()
         if (baselineResults.baselineGenerationNeeded) {
             val baselineReporter = ReporterTemplate("baseline", null, emptyMap(), baseline)
