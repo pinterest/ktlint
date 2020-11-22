@@ -97,4 +97,76 @@ class NoLineBreakBeforeAssignmentRuleTest {
             """.trimIndent()
         )
     }
+
+    @Test
+    fun `test assignment with comment 1`() {
+        assertThat(
+            NoLineBreakBeforeAssignmentRule().format(
+                """
+                fun sum(a: Int, b: Int): Int
+                    // comment
+                    = a + b
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            """
+            fun sum(a: Int, b: Int): Int =
+                // comment
+                a + b
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun `test assignment with comment 2`() {
+        assertThat(
+            NoLineBreakBeforeAssignmentRule().format(
+                """
+                fun sum(a: Int, b: Int): Int
+                    // comment
+                    =a + b
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            """
+            fun sum(a: Int, b: Int): Int =
+                // comment
+                a + b
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun `test assignment with comment 3`() {
+        assertThat(
+            NoLineBreakBeforeAssignmentRule().format(
+                """
+                fun sum(a: Int, b: Int): Int // comment
+                    = a + b
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            """
+            fun sum(a: Int, b: Int): Int = // comment
+                a + b
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun `test assignment with comment 4`() {
+        assertThat(
+            NoLineBreakBeforeAssignmentRule().format(
+                """
+                fun sum(a: Int, b: Int): Int// comment
+                    = a + b
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            """
+            fun sum(a: Int, b: Int): Int = // comment
+                a + b
+            """.trimIndent()
+        )
+    }
 }
