@@ -377,9 +377,9 @@ ktlint --android applyToIDEA
 
 Go to <kbd>File</kbd> -> <kbd>Settings...</kbd> -> <kbd>Editor</kbd>
 - <kbd>General</kbd> -> <kbd>Auto Import</kbd>
-  - check `Optimize imports on the fly (for current project)`.
+  - check `Kotlin` / `Optimize imports on the fly (for current project)`.
 - <kbd>Code Style</kbd> -> <kbd>Kotlin</kbd>
-  - <kbd>Set from...</kbd> -> <kbd>Predefined style</kbd> -> <kbd>Kotlin style guide</kbd> (Kotlin plugin 1.2.20+).
+  - <kbd>Set from...</kbd> on the right -> (<kbd>Predefined style</kbd>) -> <kbd>Kotlin style guide</kbd> (Kotlin plugin 1.2.20+).
   - open <kbd>Code Generation</kbd> tab
     - uncheck `Line comment at first column`;
     - select `Add a space at comment start`.
@@ -389,11 +389,11 @@ Go to <kbd>File</kbd> -> <kbd>Settings...</kbd> -> <kbd>Editor</kbd>
   - open <kbd>Blank Lines</kbd> tab
     - change `Keep Maximum Blank Lines` / `In declarations` & `In code` to 1 and `Before '}'` to 0.
   - (optional but recommended) open <kbd>Wrapping and Braces</kbd> tab
-    - uncheck `Method declaration parameters` / `Align when multiline`.     
+    - uncheck `Function declaration parameters` (OR `Methods declartion parameters` for older version) / `Align when multiline`.
   - (optional but recommended) open <kbd>Tabs and Indents</kbd> tab
     - change `Continuation indent` to the same value as `Indent` (4 by default).   
 - <kbd>Inspections</kbd> 
-  - change `Severity` level of `Unused import directive` and `Redundant semicolon` to `ERROR`.
+  - change `Severity` level of `Unused import directive` and `Redundant semicolon` under `Kotlin` -> `Redundant constructs` to `ERROR`.
 
 #### ... with [GNU Emacs](https://www.gnu.org/software/emacs/)
 
