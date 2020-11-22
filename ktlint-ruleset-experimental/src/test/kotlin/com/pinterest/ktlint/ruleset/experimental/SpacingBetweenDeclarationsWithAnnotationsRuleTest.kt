@@ -97,12 +97,12 @@ class SpacingBetweenDeclarationsWithAnnotationsRuleTest {
             """
             @Annotation1
             fun one() = 1
-            
+
             @Annotation1
             @Annotation2
             fun two() = 2
             fun three() = 42
-            
+
             @Annotation1
             fun four() = 44
             """.trimIndent(),
@@ -119,5 +119,99 @@ class SpacingBetweenDeclarationsWithAnnotationsRuleTest {
                 """.trimIndent()
             )
         )
+    }
+
+    @Test
+    fun `missing space before primary constructor`() {
+        Assertions.assertThat(
+            SpacingBetweenDeclarationsWithAnnotationsRule().lint(
+                """
+                annotation class E
+
+                private class A
+                @E
+                constructor(a: Int)
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `missing space before function parameter`() {
+        Assertions.assertThat(
+            SpacingBetweenDeclarationsWithAnnotationsRule().lint(
+                """
+                annotation class E
+
+                fun foo(
+                    a: String,
+                    @E
+                    b: String
+                ) = 1
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `missing space before member function`() {
+        Assertions.assertThat(
+            SpacingBetweenDeclarationsWithAnnotationsRule().lint(
+                """
+                annotation class E
+
+                class C {
+                    fun foo() = 1
+                    @E
+                    fun bar() = 2
+                }
+                """.trimIndent()
+            )
+        ).hasSize(1)
+    }
+
+    @Test
+    fun `format missing space before member function`() {
+        assertEquals(
+            """
+            annotation class E
+
+            class C {
+                fun foo() = 1
+
+                @E
+                fun bar() = 2
+            }
+            """.trimIndent(),
+            SpacingBetweenDeclarationsWithAnnotationsRule().format(
+                """
+                annotation class E
+
+                class C {
+                    fun foo() = 1
+                    @E
+                    fun bar() = 2
+                }
+                """.trimIndent()
+            )
+        )
+    }
+
+    @Test
+    fun `two new lines before member function`() {
+        Assertions.assertThat(
+            SpacingBetweenDeclarationsWithAnnotationsRule().lint(
+                """
+                annotation class E
+                class C {
+                    fun foo() = 1
+
+
+                    @E
+                    fun bar() = 2
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
     }
 }
