@@ -60,15 +60,22 @@ class SpacingAroundKeywordRule : Rule("keyword-spacing") {
             }
             if (noLFBeforeSet.contains(node.elementType)) {
                 val prevLeaf = node.prevLeaf()
+                val isElseKeyword = node.elementType == ELSE_KEYWORD
                 if (
                     prevLeaf?.elementType == WHITE_SPACE &&
                     prevLeaf.textContains('\n') &&
-                    (node.elementType != ELSE_KEYWORD || node.parent !is KtWhenEntry) &&
-                    prevLeaf.prevLeaf()?.takeIf { it.elementType == RBRACE }?.treeParent is KtBlockExpression
+                    (!isElseKeyword || node.parent !is KtWhenEntry)
                 ) {
-                    emit(node.startOffset, "Unexpected newline before \"${node.text}\"", true)
-                    if (autoCorrect) {
-                        (prevLeaf as LeafElement).rawReplaceWithText(" ")
+                    val rBrace = prevLeaf.prevLeaf()?.takeIf { it.elementType == RBRACE }
+                    val parentOfRBrace = rBrace?.treeParent
+                    if (
+                        parentOfRBrace is KtBlockExpression &&
+                        (!isElseKeyword || parentOfRBrace.treeParent?.treeParent == node.treeParent)
+                    ) {
+                        emit(node.startOffset, "Unexpected newline before \"${node.text}\"", true)
+                        if (autoCorrect) {
+                            (prevLeaf as LeafElement).rawReplaceWithText(" ")
+                        }
                     }
                 }
             }
