@@ -185,4 +185,23 @@ class SpacingAroundKeywordRuleTest {
             )
         ).isEmpty()
     }
+
+    @Test
+    fun elseAfterTryCatchBlock() {
+        assertThat(
+            SpacingAroundKeywordRule().lint(
+                """
+                fun test(foo: Boolean) {
+                    if (foo != false)
+                        try {
+                            foo2()
+                        } catch (e: Throwable) {
+                            throw e
+                        }
+                    else foo
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
 }
