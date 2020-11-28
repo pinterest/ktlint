@@ -80,10 +80,12 @@ class NoSemicolonsRule : Rule("no-semi") {
 
     private fun doesNotRequirePostSemi(prevLeaf: ASTNode?): Boolean {
         if (prevLeaf?.elementType == OBJECT_KEYWORD) {
+            // https://github.com/pinterest/ktlint/issues/281
             return false
         }
         val parent = prevLeaf?.treeParent?.psi
         if (parent is KtLoopExpression && parent !is KtDoWhileExpression && parent.body == null) {
+            // https://github.com/pinterest/ktlint/issues/955
             return false
         }
         if (parent is KtIfExpression && parent.then == null) {
