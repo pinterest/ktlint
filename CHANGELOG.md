@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - Initial implementation IDE integration via '.editorconfig' based on rules default values ([#701](https://github.com/pinterest/ktlint/issues/701))
 - CLI subcommand `generateEditorConfig` to generate '.editorconfig' content for Kotlin files ([#701](https://github.com/pinterest/ktlint/issues/701)) 
+- A new capability to generate baseline and run ktlint against it with `--baseline` cli option ([#707](https://github.com/pinterest/ktlint/pull/707))
 
 ### Fixed
 - Do not report when semicolon is before annotation/comment/kdoc and lambda ([#825](https://github.com/pinterest/ktlint/issues/825))
@@ -17,7 +18,20 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Allow an inline block comment in `argument-list-wrapping` ([#926](https://github.com/pinterest/ktlint/issues/926))
 - Fix false positive for line-breaks inside lambdas in `argument-list-wrapping` ([#861](https://github.com/pinterest/ktlint/issues/861)) ([#870](https://github.com/pinterest/ktlint/issues/870))
 - Fix wrong indentation inside an if-condition in `argument-list-wrapping` ([#854](https://github.com/pinterest/ktlint/issues/854)) ([#864](https://github.com/pinterest/ktlint/issues/864))
-- Fix false positive for method after string template in `argument-list-wrapping` ([#842](https://github.com/pinterest/ktlint/issues/842)) ([#859](https://github.com/pinterest/ktlint/issues/859))
+- Fix false positive for method after string template in `argument-list-wrapping` ([#842](https://github.com/pinterest/ktlint/issues/842)) ([#859](https://github.com/pinterest/ktlint/issues/859   ))
+- Fix false positive when a comment is not between declarations in `spacing-between-declarations-with-comments`([#865](https://github.com/pinterest/ktlint/issues/865))
+- Fix formatting with comments (`multiline-if-else`) ([#944](https://github.com/pinterest/ktlint/issues/944))
+- Do not insert unnecessary spacings inside multiline if-else condition (`indent`) ([#871](https://github.com/pinterest/ktlint/issues/871)) ([#900](https://github.com/pinterest/ktlint/issues/900))
+- Correctly indent primary constructor parameters when class has multiline type parameter (`parameter-list-wrapping`) ([#921](https://github.com/pinterest/ktlint/issues/921)) ([#938](https://github.com/pinterest/ktlint/issues/938))
+- Correctly indent property delegates (`indent`) ([#939](https://github.com/pinterest/ktlint/issues/939))
+- Fix false positive for semicolon between empty enum entry and member (`no-semicolons`) ([#957](https://github.com/pinterest/ktlint/issues/957))
+- Fix wrong indentation for class delegates (`indent`) ([#960](https://github.com/pinterest/ktlint/issues/960)) ([#963](https://github.com/pinterest/ktlint/issues/963))
+- Fix wrong indentation in named arguments (`indent`) ([#964](https://github.com/pinterest/ktlint/issues/964))
+- Fix wrong indentation when a function has multiline type arguments (`parameter-list-wrapping`) ([#965](https://github.com/pinterest/ktlint/issues/965))
+- Fix false positive for `spacing-between-declarations-with-annotations` ([#970](https://github.com/pinterest/ktlint/issues/970))
+- Fix ParseException when an assigment contains comments (`no-line-break-before-assignment`) ([#956](https://github.com/pinterest/ktlint/issues/956))
+- Fix false positive when right brace is after a try-catch block (`spacing-around-keyword`) ([#978](https://github.com/pinterest/ktlint/issues/978))
+- Fix false positive for control flow with empty body (`no-semicolons`) ([#955](https://github.com/pinterest/ktlint/issues/955))
 
 ### Changed
 - 'import-ordering' now supports `.editorconfig' default value generation ([#701](https://github.com/pinterest/ktlint/issues/701))
