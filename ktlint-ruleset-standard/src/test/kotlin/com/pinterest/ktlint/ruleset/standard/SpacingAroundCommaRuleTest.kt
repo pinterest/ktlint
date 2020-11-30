@@ -95,4 +95,15 @@ class SpacingAroundCommaRuleTest {
             """.trimIndent()
         )
     }
+
+    @Test
+    fun testCommaBeforeRightParenthesis() {
+        assertThat(
+            SpacingAroundCommaRule().lint(
+                """
+                @file:Suppress("unused", "UNUSED_PARAMETER", "UNUSED_VARIABLE",)
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
 }

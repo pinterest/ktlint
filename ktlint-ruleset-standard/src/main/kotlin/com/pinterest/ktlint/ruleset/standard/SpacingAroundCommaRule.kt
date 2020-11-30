@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.ast.ElementType.RPAR
 import com.pinterest.ktlint.core.ast.isPartOfString
 import com.pinterest.ktlint.core.ast.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.core.ast.nextLeaf
@@ -41,7 +42,8 @@ class SpacingAroundCommaRule : Rule("comma-spacing") {
                     }
                 }
             }
-            if (node.nextLeaf() !is PsiWhiteSpace) {
+            val nextLeaf = node.nextLeaf()
+            if (nextLeaf !is PsiWhiteSpace && nextLeaf?.elementType != RPAR) {
                 emit(node.startOffset + 1, "Missing spacing after \"${node.text}\"", true)
                 if (autoCorrect) {
                     node.upsertWhitespaceAfterMe(" ")
