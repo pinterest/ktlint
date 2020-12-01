@@ -780,4 +780,3 @@ internal class IndentationRuleTest {
         ).isEmpty()
     }
 }
-
