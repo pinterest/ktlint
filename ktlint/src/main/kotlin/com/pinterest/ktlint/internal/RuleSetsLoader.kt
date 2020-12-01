@@ -12,7 +12,7 @@ import java.util.ServiceLoader
 internal fun JarFiles.loadRulesets(
     loadExperimental: Boolean,
     debug: Boolean,
-    isStandardRuleSetDisabled: Boolean
+    disabledRules: String
 ) = ServiceLoader
     .load(
         RuleSetProvider::class.java,
@@ -24,7 +24,7 @@ internal fun JarFiles.loadRulesets(
         if (key == "standard") "\u0000$key" else key
     }
     .filterKeys { loadExperimental || it != "experimental" }
-    .filterKeys { !(isStandardRuleSetDisabled && it == "\u0000standard") }
+    .filterKeys { !(disabledRules.isStandardRuleSetDisabled() && it == "\u0000standard") }
     .toSortedMap()
     .also {
         if (debug) {
@@ -33,3 +33,7 @@ internal fun JarFiles.loadRulesets(
             }
         }
     }
+
+
+private fun String.isStandardRuleSetDisabled()  =
+    this.split(",").map { it.trim() }.toSet().contains("standard")
