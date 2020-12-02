@@ -634,7 +634,7 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
             if (
                 nextSibling?.elementType.let {
                     it == BINARY_EXPRESSION || it == BINARY_WITH_TYPE
-                }
+                } && nextSibling.firstChildNode.elementType != CALL_EXPRESSION
             ) {
                 ctx.localAdj = -1
                 debug { "--inside(${nextSibling.elementType}) -> $expectedIndent" }
