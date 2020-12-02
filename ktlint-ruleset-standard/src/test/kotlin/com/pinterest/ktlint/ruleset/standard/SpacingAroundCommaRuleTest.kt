@@ -106,4 +106,30 @@ class SpacingAroundCommaRuleTest {
             )
         ).isEmpty()
     }
+
+    @Test
+    fun testCommaBeforeRightBracket() {
+        assertThat(
+            SpacingAroundCommaRule().lint(
+                """
+                @file:Suppress(["unused", "UNUSED_PARAMETER", "UNUSED_VARIABLE",])
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun testCommaBeforeRightAngle() {
+        assertThat(
+            SpacingAroundCommaRule().lint(
+                """
+                fun <T, R,> test() = Unit
+
+                fun foo() {
+                    test<Int, Double,>()
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
 }

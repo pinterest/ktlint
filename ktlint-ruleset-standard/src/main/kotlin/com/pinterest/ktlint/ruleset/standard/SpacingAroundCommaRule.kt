@@ -1,6 +1,8 @@
 package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.ast.ElementType.GT
+import com.pinterest.ktlint.core.ast.ElementType.RBRACKET
 import com.pinterest.ktlint.core.ast.ElementType.RPAR
 import com.pinterest.ktlint.core.ast.isPartOfString
 import com.pinterest.ktlint.core.ast.isWhiteSpaceWithNewline
@@ -13,8 +15,11 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
+import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 
 class SpacingAroundCommaRule : Rule("comma-spacing") {
+
+    private val rTokenSet = TokenSet.create(RPAR, RBRACKET, GT)
 
     override fun visit(
         node: ASTNode,
@@ -43,7 +48,7 @@ class SpacingAroundCommaRule : Rule("comma-spacing") {
                 }
             }
             val nextLeaf = node.nextLeaf()
-            if (nextLeaf !is PsiWhiteSpace && nextLeaf?.elementType != RPAR) {
+            if (nextLeaf !is PsiWhiteSpace && nextLeaf?.elementType !in rTokenSet) {
                 emit(node.startOffset + 1, "Missing spacing after \"${node.text}\"", true)
                 if (autoCorrect) {
                     node.upsertWhitespaceAfterMe(" ")
