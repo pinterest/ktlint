@@ -32,6 +32,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fix ParseException when an assigment contains comments (`no-line-break-before-assignment`) ([#956](https://github.com/pinterest/ktlint/issues/956))
 - Fix false positive when right brace is after a try-catch block (`spacing-around-keyword`) ([#978](https://github.com/pinterest/ktlint/issues/978))
 - Fix false positive for control flow with empty body (`no-semicolons`) ([#955](https://github.com/pinterest/ktlint/issues/955))
+- Fix incorrect indentation for multi-line call expressions in conditions (`indent`) ([#959](https://github.com/pinterest/ktlint/issues/959))
 - Fix false positive for trailing comma before right parentheses|bracket|angle (`spacing-around-comma`) ([#975](https://github.com/pinterest/ktlint/issues/975))
 
 ### Changed

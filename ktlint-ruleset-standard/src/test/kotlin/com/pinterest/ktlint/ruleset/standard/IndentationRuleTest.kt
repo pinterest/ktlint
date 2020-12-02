@@ -762,4 +762,21 @@ internal class IndentationRuleTest {
             )
         ).isEmpty()
     }
+
+    // https://github.com/pinterest/ktlint/issues/959
+    @Test
+    fun `lint conditions with multi-line call expressions indented properly`() {
+        assertThat(
+            IndentationRule().lint(
+                """
+                fun test() {
+                    val result = true &&
+                        minOf(
+                            1, 2
+                        ) == 2
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
 }
