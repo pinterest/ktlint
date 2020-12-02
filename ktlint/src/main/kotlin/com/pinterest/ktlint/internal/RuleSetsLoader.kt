@@ -34,6 +34,5 @@ internal fun JarFiles.loadRulesets(
         }
     }
 
-
-private fun String.isStandardRuleSetDisabled()  =
+private fun String.isStandardRuleSetDisabled() =
     this.split(",").map { it.trim() }.toSet().contains("standard")

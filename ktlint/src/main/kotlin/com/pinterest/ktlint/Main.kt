@@ -149,8 +149,10 @@ class KtlintCommandLine {
 
     @Option(
         names = ["--disabled_rules"],
-        description = ["Comma-separated list of rules to globally disable." +
-            " To disable standard ktlint rule-set use --disabled_rules=standard"]
+        description = [
+            "Comma-separated list of rules to globally disable." +
+            " To disable standard ktlint rule-set use --disabled_rules=standard"
+        ]
     )
     var disabledRules: String = ""
 
