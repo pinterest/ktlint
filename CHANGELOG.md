@@ -39,7 +39,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - 'import-ordering' now supports `.editorconfig' default value generation ([#701](https://github.com/pinterest/ktlint/issues/701))
 - Update Gradle to `6.7.1` version
-- Update Kotlin to `1.4.20` version
 
 ### Removed
 - ?
