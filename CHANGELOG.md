@@ -2,6 +2,15 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+### Added
+
+### Fixed
+
+### Changed
+
+### Removed
+
 ## [0.40.0] - 2020-12-04
 
 Special thanks to [t-kameyama](https://github.com/t-kameyama) for the huge number of bugfixes in this release! 
