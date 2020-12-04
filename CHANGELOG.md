@@ -2,7 +2,9 @@
 All notable changes to this project will be documented in this file.  
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## [0.40.0] - 2020-12-04
+
+Special thanks to [t-kameyama](https://github.com/t-kameyama) for the huge number of bugfixes in this release! 
 
 ### Added
 - Initial implementation IDE integration via '.editorconfig' based on rules default values ([#701](https://github.com/pinterest/ktlint/issues/701))
@@ -39,9 +41,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - 'import-ordering' now supports `.editorconfig' default value generation ([#701](https://github.com/pinterest/ktlint/issues/701))
 - Update Gradle to `6.7.1` version
-
-### Removed
-- ?
 
 ## [0.39.0] - 2020-09-14
 
@@ -805,6 +804,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.40.0]: https://github.com/pinterest/ktlint/compare/0.39.0...0.40.0
 [0.39.0]: https://github.com/pinterest/ktlint/compare/0.38.1...0.39.0
 [0.38.1]: https://github.com/pinterest/ktlint/compare/0.38.0...0.38.1
 [0.38.0]: https://github.com/pinterest/ktlint/compare/0.37.2...0.38.0
