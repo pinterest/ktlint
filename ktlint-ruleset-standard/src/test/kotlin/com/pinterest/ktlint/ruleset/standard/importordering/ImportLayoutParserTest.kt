@@ -28,7 +28,7 @@ class ImportLayoutParserTest {
             PatternEntry.ALL_OTHER_IMPORTS_ENTRY,
             PatternEntry.ALL_OTHER_ALIAS_IMPORTS_ENTRY
         )
-        val actual = parseImportsLayout("android.*,|,org.junit.*,|,^android.*,*,^*")
+        val actual = parseImportsLayout("android.*,|,org.junit.*,|,^android.*,*,^")
 
         assertThat(actual).isEqualTo(expected)
     }

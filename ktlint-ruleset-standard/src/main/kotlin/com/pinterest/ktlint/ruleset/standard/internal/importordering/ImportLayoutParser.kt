@@ -2,7 +2,7 @@ package com.pinterest.ktlint.ruleset.standard.internal.importordering
 
 internal const val BLANK_LINE_CHAR = "|"
 internal const val WILDCARD_CHAR = "*"
-internal const val ALIAS_CHAR = "^" // TODO: replace with a proper char, once implemented on IDEA's side
+internal const val ALIAS_CHAR = "^"
 
 /**
  * Adopted from https://github.com/JetBrains/intellij-community/blob/70fd799e94246f2c0fe924763ed892765c0dff9a/java/java-impl/src/com/intellij/psi/codeStyle/JavaPackageEntryTableAccessor.java#L25
@@ -32,8 +32,10 @@ internal fun parseImportsLayout(importsLayout: String): List<PatternEntry> {
             if (import.endsWith(WILDCARD_CHAR)) {
                 withSubpackages = true
             }
-            return@map if (import == WILDCARD_CHAR) {
-                if (hasAlias) PatternEntry.ALL_OTHER_ALIAS_IMPORTS_ENTRY else PatternEntry.ALL_OTHER_IMPORTS_ENTRY
+            return@map if (import == WILDCARD_CHAR) { // *
+                PatternEntry.ALL_OTHER_IMPORTS_ENTRY
+            } else if (import.isEmpty() && hasAlias) { // ^
+                PatternEntry.ALL_OTHER_ALIAS_IMPORTS_ENTRY
             } else {
                 PatternEntry(import, withSubpackages, hasAlias)
             }

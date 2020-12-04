@@ -33,17 +33,17 @@ class ImportOrderingRuleCustomTest {
     fun `empty line between imports and aliases - ok`() {
         val formattedImports =
             """
+            import android.content.Context as Ctx
+            import androidx.fragment.app.Fragment as F
+
             import android.app.Activity
             import android.view.View
             import android.view.ViewGroup
             import java.util.List
             import kotlin.concurrent.Thread
-
-            import android.content.Context as Ctx
-            import androidx.fragment.app.Fragment as F
             """.trimIndent()
 
-        val testFile = writeCustomImportsOrderingConfig("*,|,^*")
+        val testFile = writeCustomImportsOrderingConfig("^,|,*")
 
         assertThat(
             rule.lint(testFile, formattedImports)
@@ -78,7 +78,7 @@ class ImportOrderingRuleCustomTest {
             import androidx.fragment.app.Fragment as F
             """.trimIndent()
 
-        val testFile = writeCustomImportsOrderingConfig("*,|,^*")
+        val testFile = writeCustomImportsOrderingConfig("*,|,^")
 
         assertThat(
             rule.lint(testFile, imports)
@@ -106,17 +106,17 @@ class ImportOrderingRuleCustomTest {
 
         val formattedImports =
             """
+            import android.content.Context as Ctx
+            import androidx.fragment.app.Fragment as F
+
             import android.app.Activity
             import android.view.View
             import android.view.ViewGroup
             import java.util.List
             import kotlin.concurrent.Thread
-
-            import android.content.Context as Ctx
-            import androidx.fragment.app.Fragment as F
             """.trimIndent()
 
-        val testFile = writeCustomImportsOrderingConfig("*,|,^*")
+        val testFile = writeCustomImportsOrderingConfig("^,|,*")
 
         assertThat(
             rule.lint(testFile, imports)
@@ -282,7 +282,7 @@ class ImportOrderingRuleCustomTest {
             """.trimIndent()
 
         val testFile = writeCustomImportsOrderingConfig(
-            "^kotlin.*,^android.*,android.*,|,*,^*"
+            "^kotlin.*,^android.*,android.*,|,*,^"
         )
 
         assertThat(
@@ -311,12 +311,12 @@ class ImportOrderingRuleCustomTest {
             import android.view.View as V
             import android.app.Activity
 
-            import kotlin.concurrent.Thread
             import java.util.List as L
+            import kotlin.concurrent.Thread
             """.trimIndent()
 
         val testFile = writeCustomImportsOrderingConfig(
-            "^kotlin.*,^android.*,android.*,|,*,^*"
+            "^kotlin.*,^android.*,android.*,|,^,*"
         )
 
         assertThat(
