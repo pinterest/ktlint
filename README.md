@@ -94,12 +94,12 @@ disabled_rules=no-wildcard-imports,experimental:annotation,my-custom-ruleset:my-
 # The custom layout can be composed by the following symbols:
 # "*" - wildcard. There must be at least one entry of a single wildcard to match all other imports. Matches anything after a specified symbol/import as well.
 # "|" - blank line. Supports only single blank lines between imports. No blank line is allowed in the beginning or end of the layout.
-# "^" - alias import, e.g. "^android.*" will match all android alias imports, "^*" will match all other alias imports.
+# "^" - alias import, e.g. "^android.*" will match all android alias imports, "^" will match all other alias imports.
 # import paths - these can be full paths, e.g. "java.util.List" as well as wildcard paths, e.g. "kotlin.*"
 # Examples:
 kotlin_imports_layout=ascii # alphabetical with capital letters before lower case letters (e.g. Z before a), no blank lines
 kotlin_imports_layout=idea # default IntelliJ IDEA style, same as "ascii", but with "java", "javax", "kotlin" and alias imports in the end of the imports list
-kotlin_imports_layout=android.*,|,^org.junit.*,kotlin.io.Closeable,|,*,^* # custom imports layout
+kotlin_imports_layout=android.*,|,^org.junit.*,kotlin.io.Closeable,|,*,^ # custom imports layout
 # Alternatively ij_kotlin_imports_layout name can be used, in order to set an imports layout for both ktlint and IDEA via a single property
 # Note: this is not yet implemented on IDEA side, so it only takes effect for ktlint
 ij_kotlin_imports_layout=*
