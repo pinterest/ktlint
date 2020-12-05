@@ -5,7 +5,7 @@
 </h1>
 
 <p align="center">
-<a href="https://travis-ci.org/pinterest/ktlint"><img src="https://travis-ci.org/pinterest/ktlint.svg?branch=master" alt="Build Status"></a>
+<a href="https://github.com/pinterest/ktlint/actions?query=workflow%3A%22Snapshot+Publish%22"><img src="https://github.com/pinterest/ktlint/workflows/Snapshot%20Publish/badge.svg" alt="Build status"></a>
 <a href="https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.pinterest%22%20AND%20a%3A%22ktlint%22"><img src="https://img.shields.io/maven-central/v/com.pinterest/ktlint.svg" alt="Maven Central"></a>
 <a href="https://ktlint.github.io/"><img src="https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg" alt="ktlint"></a>
 </p>
