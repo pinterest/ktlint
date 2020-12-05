@@ -19,14 +19,14 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Publish snapshot to Maven
+        if: ${{ github.repository == 'pinterest/ktlint' }}
         run: ./gradlew clean publishMavenPublicationToMavenCentralRepository --no-daemon --no-parallel
         env:
           SONATYPE_NEXUS_USERNAME: ${{ secrets.SONATYPE_NEXUS_USERNAME }}
           SONATYPE_NEXUS_PASSWORD: ${{ secrets.SONATYPE_NEXUS_PASSWORD }}
-        if: ${{ github.repository }} == 'pinterest/ktlint'
       - name: Publish Kotlin-dev snapshot to Maven
+        if: ${{ github.repository == 'pinterest/ktlint' }}
         run: ./gradlew -PkotlinDev clean publishMavenPublicationToMavenCentralRepository --no-daemon --no-parallel
         env:
           SONATYPE_NEXUS_USERNAME: ${{ secrets.SONATYPE_NEXUS_USERNAME }}
           SONATYPE_NEXUS_PASSWORD: ${{ secrets.SONATYPE_NEXUS_PASSWORD }}
-        if: ${{ github.repository }} == 'pinterest/ktlint'
