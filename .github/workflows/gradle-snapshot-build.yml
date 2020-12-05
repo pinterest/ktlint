@@ -1,0 +1,32 @@
+name: Snapshot Publish
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: [ 8 ]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Java ${{ matrix.java }}
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ matrix.java }}
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      - name: Publish snapshot to Maven
+        if: ${{ github.repository == 'pinterest/ktlint' }}
+        run: ./gradlew clean publishMavenPublicationToMavenCentralRepository --no-daemon --no-parallel
+        env:
+          SONATYPE_NEXUS_USERNAME: ${{ secrets.SONATYPE_NEXUS_USERNAME }}
+          SONATYPE_NEXUS_PASSWORD: ${{ secrets.SONATYPE_NEXUS_PASSWORD }}
+      - name: Publish Kotlin-dev snapshot to Maven
+        if: ${{ github.repository == 'pinterest/ktlint' }}
+        run: ./gradlew -PkotlinDev clean publishMavenPublicationToMavenCentralRepository --no-daemon --no-parallel
+        env:
+          SONATYPE_NEXUS_USERNAME: ${{ secrets.SONATYPE_NEXUS_USERNAME }}
+          SONATYPE_NEXUS_PASSWORD: ${{ secrets.SONATYPE_NEXUS_PASSWORD }}
