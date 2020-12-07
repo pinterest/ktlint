@@ -14,21 +14,22 @@ class ImportLayoutParserTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun `pattern without single wildcard is not allowed`() {
-        parseImportsLayout("java.util.List")
+        parseImportsLayout("java.util.List.*")
     }
 
     @Test
     fun `parses correctly`() {
         val expected = listOf(
-            PatternEntry("android", withSubpackages = true, hasAlias = false),
+            PatternEntry("android.*", withSubpackages = true, hasAlias = false),
             PatternEntry.BLANK_LINE_ENTRY,
-            PatternEntry("org.junit", withSubpackages = true, hasAlias = false),
+            PatternEntry("org.junit.*", withSubpackages = true, hasAlias = false),
             PatternEntry.BLANK_LINE_ENTRY,
-            PatternEntry("android", withSubpackages = true, hasAlias = true),
+            PatternEntry("android.*", withSubpackages = true, hasAlias = true),
             PatternEntry.ALL_OTHER_IMPORTS_ENTRY,
+            PatternEntry("kotlin.io.Closeable.*", withSubpackages = false, hasAlias = false),
             PatternEntry.ALL_OTHER_ALIAS_IMPORTS_ENTRY
         )
-        val actual = parseImportsLayout("android.*,|,org.junit.*,|,^android.*,*,^")
+        val actual = parseImportsLayout("android.**,|,org.junit.**,|,^android.**,*,kotlin.io.Closeable.*,^")
 
         assertThat(actual).isEqualTo(expected)
     }
