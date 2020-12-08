@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 
 ### Changed
+- Update Gradle shadow plugin to `6.1.0` version
 
 ### Removed
 
