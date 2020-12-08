@@ -12,25 +12,18 @@ import kotlin.system.exitProcess
 internal val workDir: String = File(".").canonicalPath
 
 internal fun List<String>.fileSequence(): Sequence<File> {
-    val kotlinFiles: Sequence<Path> = if (isEmpty()) {
+    val glob = if (isEmpty()) {
         Glob.from("**/*.kt", "**/*.kts")
-            .iterate(
-                Paths.get(workDir),
-                Glob.IterationOption.SKIP_HIDDEN
-            )
-            .asSequence()
     } else {
-        // Converting List<String> to Array<String> and passing it to Glob.from(patterns) skips some files
-        // See https://github.com/pinterest/ktlint/issues/942
-        map {
-            Glob.from(expandTilde(it))
-                .iterate(Paths.get(workDir))
-        }
-            .asSequence()
-            .flatMap { it.asSequence() }
+        Glob.from(*map(::expandTilde).toTypedArray())
     }
 
-    return kotlinFiles
+    return glob
+        .iterate(
+            Paths.get(workDir),
+            Glob.IterationOption.SKIP_HIDDEN
+        )
+        .asSequence()
         .map(Path::toFile)
 }
 
