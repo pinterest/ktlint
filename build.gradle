@@ -14,7 +14,7 @@ ext.deps = [
     'stdlib'  : "org.jetbrains.kotlin:kotlin-stdlib:${versions.kotlin}",
     'compiler': "org.jetbrains.kotlin:kotlin-compiler-embeddable:${versions.kotlin}"
   ],
-  'klob'          : 'com.github.shyiko.klob:klob:0.2.1',
+  'klob'          : 'io.codetactics.klob:klob:0.2.1',
   ec4j            : 'org.ec4j.core:ec4j-core:0.2.2',
   'picocli'       : 'info.picocli:picocli:3.9.6',
   // Testing libraries
