@@ -71,7 +71,7 @@ class NoConsecutiveBlankLinesRuleTest {
             NoConsecutiveBlankLinesRule().lint(
                 """
                 package com.test
-                
+
                 fun main() {
                 }
                 """.trimIndent()
@@ -149,5 +149,62 @@ class NoConsecutiveBlankLinesRuleTest {
         assertThat(NoConsecutiveBlankLinesRule().format("class A\n\n\n")).isEqualTo("class A\n")
         assertThat(NoConsecutiveBlankLinesRule().format("class A\n\n")).isEqualTo("class A\n")
         assertThat(NoConsecutiveBlankLinesRule().format("class A\n")).isEqualTo("class A\n")
+    }
+
+    @Test
+    fun `test two line breaks between class name and primary constructor`() {
+        assertThat(
+            NoConsecutiveBlankLinesRule().format(
+                """
+                class A
+
+                constructor(a: Int)
+
+                class B
+
+                private constructor(b: Int)
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            """
+            class A
+            constructor(a: Int)
+
+            class B
+            private constructor(b: Int)
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun `test three line breaks between class name and primary constructor`() {
+        assertThat(
+            NoConsecutiveBlankLinesRule().format(
+                """
+                class A
+
+
+                constructor(a: Int)
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            """
+            class A
+            constructor(a: Int)
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun `test two line breaks between comment and primary constructor`() {
+        assertThat(
+            NoConsecutiveBlankLinesRule().lint(
+                """
+                class A // comment
+
+                constructor(a: Int)
+                """.trimIndent()
+            )
+        ).isEmpty()
     }
 }
