@@ -779,4 +779,27 @@ internal class IndentationRuleTest {
             )
         ).isEmpty()
     }
+
+    // https://github.com/pinterest/ktlint/issues/1003
+    @Test
+    fun `lint multiple interfaces`() {
+        assertThat(
+            IndentationRule().lint(
+                """
+                abstract class Parent(a: Int, b: Int)
+
+                interface Parent2
+
+                class Child(
+                    a: Int,
+                    b: Int
+                ) : Parent(
+                    a,
+                    b
+                ),
+                    Parent2
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
 }
