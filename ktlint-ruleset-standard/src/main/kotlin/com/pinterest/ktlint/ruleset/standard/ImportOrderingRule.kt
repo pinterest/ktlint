@@ -25,12 +25,13 @@ import org.jetbrains.kotlin.psi.KtImportDirective
  * * custom - defined by the following set of tokens. Tokens can be combined together in a group, groups/tokens must be comma separated:
  *  * "*" - wildcard symbol, can be used as follows:
  *      1. Single, meaning matching any import (<all other imports> in IDEA)
- *      2. After an import path, e.g. "java.*" or "kotlin.io.*"
+ *      2. After an import path, e.g. "java.*" or "kotlin.io.Closeable.*"
+ *      3. Doubled after an import path, e.g. "java.**" or "kotlin.io.**", meaning "with subpackages"
  *  * "|" - blank line symbol. Only supported single blank lines between imports. Multiple blank lines will be ignored. Blank lines are not allowed outside of import list.
  *  * "^" - alias symbol, can be used as follows:
  *      1. In front of an import path, meaning matching all alias imports from this path, e.g. "^android.*"
  *      2. Alone, meaning matching any alias import - "^" (<all other alias imports> in IDEA)
- *  * import paths - these can be full paths, e.g. "java.util.List" as well as wildcard paths, e.g. "kotlin.*"
+ *  * import paths - these can be full paths, e.g. "java.util.List.*" as well as wildcard paths meaning "with subpackages", e.g. "kotlin.**"
  *
  * In case the custom property is not provided, the rule defaults to "ascii" style in case of "android" flag supplied, or to "idea" otherwise.
  */
@@ -64,7 +65,7 @@ public class ImportOrderingRule :
          *
          * https://github.com/JetBrains/kotlin/blob/ffdab473e28d0d872136b910eb2e0f4beea2e19c/idea/formatter/src/org/jetbrains/kotlin/idea/core/formatter/KotlinCodeStyleSettings.java#L87-L91
          */
-        private val IDEA_PATTERN = parseImportsLayout("*,java.*,javax.*,kotlin.*,^")
+        private val IDEA_PATTERN = parseImportsLayout("*,java.**,javax.**,kotlin.**,^")
 
         private const val IDEA_ERROR_MESSAGE = "Imports must be ordered in lexicographic order without any empty lines in-between " +
             "with \"java\", \"javax\", \"kotlin\" and aliases in the end"

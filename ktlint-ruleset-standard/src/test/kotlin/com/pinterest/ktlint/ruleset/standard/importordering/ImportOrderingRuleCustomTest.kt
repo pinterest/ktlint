@@ -146,7 +146,7 @@ class ImportOrderingRuleCustomTest {
             """.trimIndent()
 
         val testFile = writeCustomImportsOrderingConfig(
-            "android.*,|,org.junit.*,|,net.*,|,org.*,|,java.*,|,com.*,|,javax.*,|,*"
+            "android.**,|,org.junit.**,|,net.**,|,org.**,|,java.**,|,com.**,|,javax.**,|,*"
         )
 
         assertThat(
@@ -195,7 +195,7 @@ class ImportOrderingRuleCustomTest {
             """.trimIndent()
 
         val testFile = writeCustomImportsOrderingConfig(
-            "android.*,|,org.junit.*,|,net.*,|,org.*,|,java.*,|,com.*,|,javax.*,|,*"
+            "android.**,|,org.junit.**,|,net.**,|,org.**,|,java.**,|,com.**,|,javax.**,|,*"
         )
 
         assertThat(
@@ -220,7 +220,7 @@ class ImportOrderingRuleCustomTest {
             """.trimIndent()
 
         val testFile = writeCustomImportsOrderingConfig(
-            "java.*,|,|,|,kotlin.*,*"
+            "java.**,|,|,|,kotlin.**,*"
         )
 
         assertThat(
@@ -257,7 +257,7 @@ class ImportOrderingRuleCustomTest {
             """.trimIndent()
 
         val testFile = writeCustomImportsOrderingConfig(
-            "java.*,|,|,|,kotlin.*,*"
+            "java.**,|,|,|,kotlin.**,*"
         )
 
         assertThat(
@@ -282,7 +282,7 @@ class ImportOrderingRuleCustomTest {
             """.trimIndent()
 
         val testFile = writeCustomImportsOrderingConfig(
-            "^kotlin.*,^android.*,android.*,|,*,^"
+            "^kotlin.**,^android.**,android.**,|,*,^"
         )
 
         assertThat(
@@ -316,7 +316,7 @@ class ImportOrderingRuleCustomTest {
             """.trimIndent()
 
         val testFile = writeCustomImportsOrderingConfig(
-            "^kotlin.*,^android.*,android.*,|,^,*"
+            "^kotlin.**,^android.**,android.**,|,^,*"
         )
 
         assertThat(
@@ -340,7 +340,7 @@ class ImportOrderingRuleCustomTest {
             """.trimIndent()
 
         val testFile = writeCustomImportsOrderingConfig(
-            "kotlin.io.Closeable,kotlin.*,*"
+            "kotlin.io.Closeable.*,kotlin.**,*"
         )
 
         assertThat(
@@ -374,7 +374,7 @@ class ImportOrderingRuleCustomTest {
             """.trimIndent()
 
         val testFile = writeCustomImportsOrderingConfig(
-            "kotlin.io.Closeable,kotlin.*,*"
+            "kotlin.io.Closeable.*,kotlin.**,*"
         )
 
         assertThat(

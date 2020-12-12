@@ -5,7 +5,7 @@ internal const val WILDCARD_CHAR = "*"
 internal const val ALIAS_CHAR = "^"
 
 /**
- * Adopted from https://github.com/JetBrains/intellij-community/blob/70fd799e94246f2c0fe924763ed892765c0dff9a/java/java-impl/src/com/intellij/psi/codeStyle/JavaPackageEntryTableAccessor.java#L25
+ * Adapted from https://github.com/JetBrains/intellij-kotlin/blob/73b5a484198f02518c9ece2fb453d27cead680fb/idea/src/org/jetbrains/kotlin/idea/formatter/KotlinPackageEntryTableAccessor.kt#L27-L43
  */
 internal fun parseImportsLayout(importsLayout: String): List<PatternEntry> {
     val importsList = importsLayout.split(",").onEach { it.trim() }
@@ -29,7 +29,8 @@ internal fun parseImportsLayout(importsLayout: String): List<PatternEntry> {
                 import = import.substring(1).trim()
                 hasAlias = true
             }
-            if (import.endsWith(WILDCARD_CHAR)) {
+            if (import.endsWith(WILDCARD_CHAR + WILDCARD_CHAR)) { // java.**
+                import = import.substringBeforeLast(WILDCARD_CHAR)
                 withSubpackages = true
             }
             return@map if (import == WILDCARD_CHAR) { // *
