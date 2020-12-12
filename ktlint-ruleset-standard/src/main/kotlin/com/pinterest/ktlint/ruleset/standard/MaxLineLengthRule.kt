@@ -5,10 +5,12 @@ import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType
 import com.pinterest.ktlint.core.ast.isPartOf
 import com.pinterest.ktlint.core.ast.isRoot
+import com.pinterest.ktlint.core.ast.nextLeaf
 import com.pinterest.ktlint.core.ast.parent
 import com.pinterest.ktlint.core.ast.prevCodeSibling
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
+import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.kdoc.psi.api.KDoc
 import org.jetbrains.kotlin.psi.KtImportDirective
@@ -31,12 +33,11 @@ class MaxLineLengthRule : Rule("max-line-length"), Rule.Modifier.Last {
                 return
             }
             val errorOffset = arrayListOf<Int>()
-            val text = node.text
-            val lines = text.split("\n")
-            var offset = 0
-            for (line in lines) {
-                if (line.length > maxLineLength) {
-                    val el = node.psi.findElementAt(offset + line.length - 1)!!.node
+            node
+                .getElementsPerLine()
+                .filter { it.lengthExcludingTokensBetweenBackticks() > maxLineLength }
+                .forEach() { parsedLine ->
+                    val el = parsedLine.elements.last()
                     if (!el.isPartOf(KDoc::class) && !el.isPartOfRawMultiLineString()) {
                         if (!el.isPartOf(PsiComment::class)) {
                             if (!el.isPartOf(KtPackageDirective::class) && !el.isPartOf(KtImportDirective::class)) {
@@ -45,27 +46,25 @@ class MaxLineLengthRule : Rule("max-line-length"), Rule.Modifier.Last {
                                 // node spanning the same offset is 'visit'ed
                                 // (for ktlint-disable directive to have effect (when applied))
                                 // this will be rectified in the upcoming release(s)
-                                errorOffset.add(offset)
+                                errorOffset.add(parsedLine.offset)
                             }
                         } else {
                             // Allow ktlint-disable comments to exceed max line length
                             if (!el.text.startsWith("// ktlint-disable")) {
                                 // if comment is the only thing on the line - fine, otherwise emit an error
                                 val prevLeaf = el.prevCodeSibling()
-                                if (prevLeaf != null && prevLeaf.startOffset >= offset) {
+                                if (prevLeaf != null && prevLeaf.startOffset >= parsedLine.offset) {
                                     // fixme:
                                     // normally we would emit here but due to API limitations we need to hold off until
                                     // node spanning the same offset is 'visit'ed
                                     // (for ktlint-disable directive to have effect (when applied))
                                     // this will be rectified in the upcoming release(s)
-                                    errorOffset.add(offset)
+                                    errorOffset.add(parsedLine.offset)
                                 }
                             }
                         }
                     }
                 }
-                offset += line.length + 1
-            }
             rangeTree = RangeTree(errorOffset)
         } else if (!rangeTree.isEmpty() && node.psi is LeafPsiElement) {
             rangeTree
@@ -79,6 +78,44 @@ class MaxLineLengthRule : Rule("max-line-length"), Rule.Modifier.Last {
     private fun ASTNode.isPartOfRawMultiLineString() =
         parent(ElementType.STRING_TEMPLATE, strict = false)
             ?.let { it.firstChildNode.text == "\"\"\"" && it.textContains('\n') } == true
+}
+
+private fun ASTNode.getElementsPerLine(): List<ParsedLine> {
+    val parsedLines = mutableListOf<ParsedLine>()
+    val lines = text.split("\n")
+    var offset = 0
+    for (line in lines) {
+        val elements = mutableListOf<ASTNode>()
+        var el = psi.findElementAt(offset)?.node
+        while (el != null && el.startOffset < offset + line.length) {
+            elements.add(el)
+            el = el.nextLeaf()
+        }
+        parsedLines.add(ParsedLine(line, offset, elements))
+        offset += line.length + 1 // +1 for the newline which is stripped due to the splitting of the lines
+    }
+    return parsedLines
+}
+
+private data class ParsedLine(
+    val line: String,
+    val offset: Int,
+    val elements: List<ASTNode>
+) {
+    fun lengthExcludingTokensBetweenBackticks(): Int {
+        return line.length - totalLengthBacktickedElements()
+    }
+
+    private fun totalLengthBacktickedElements(): Int {
+        return elements
+            .filterIsInstance(PsiElement::class.java)
+            .filter { it.text.matches(isValueBetweenBackticks) }
+            .sumBy(PsiElement::getTextLength)
+    }
+
+    private companion object {
+        val isValueBetweenBackticks = Regex("`.*`")
+    }
 }
 
 class RangeTree(seq: List<Int> = emptyList()) {

@@ -39,6 +39,46 @@ class MaxLineLengthRuleTest {
     }
 
     @Test
+    fun testErrorSuppressionOnTokensBetweenBackticks() {
+        assertThat(
+            MaxLineLengthRule().lint(
+                """
+                @Test
+                fun `Some too long test description between backticks`() {
+                    println("teeeeeeeeeeeeeeeeeeeeeeeext")
+                }
+                """.trimIndent(),
+                userData = mapOf("max_line_length" to "40")
+            )
+        ).isEqualTo(
+            listOf(
+                // Note that no error was generated on line 2 with the long fun name but on another line
+                LintError(3, 1, "max-line-length", "Exceeded max line length (40)")
+            )
+        )
+    }
+
+    @Test
+    fun testReportLongLinesAfterExcludingTokensBetweenBackticks() {
+        assertThat(
+            MaxLineLengthRule().lint(
+                """
+                @ParameterizedTest
+                fun `Some too long test description between backticks`(looooooooongParameterName: String) {
+                    println("teeeeeeeeext")
+                }
+                """.trimIndent(),
+                userData = mapOf("max_line_length" to "40")
+            )
+        ).isEqualTo(
+            listOf(
+                // Note that no error was generated on line 2 with the long fun name
+                LintError(2, 1, "max-line-length", "Exceeded max line length (40)")
+            )
+        )
+    }
+
+    @Test
     fun testLintOff() {
         assertThat(
             MaxLineLengthRule().diffFileLint(
