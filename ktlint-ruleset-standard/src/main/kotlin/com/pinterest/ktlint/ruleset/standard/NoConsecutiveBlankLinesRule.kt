@@ -1,6 +1,9 @@
 package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.ast.ElementType.CLASS
+import com.pinterest.ktlint.core.ast.ElementType.IDENTIFIER
+import com.pinterest.ktlint.core.ast.ElementType.PRIMARY_CONSTRUCTOR
 import com.pinterest.ktlint.core.ast.nextLeaf
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
@@ -20,12 +23,21 @@ class NoConsecutiveBlankLinesRule : Rule("no-consecutive-blank-lines") {
                 return
             }
             val eof = node.nextLeaf() == null
-            if (lfcount > 2 || eof) {
+            val prevNode = node.treePrev
+            val betweenClassAndPrimaryConstructor = prevNode.elementType == IDENTIFIER &&
+                prevNode.treeParent.elementType == CLASS &&
+                node.treeNext.elementType == PRIMARY_CONSTRUCTOR
+            if (lfcount > 2 || eof || betweenClassAndPrimaryConstructor) {
                 val split = text.split("\n")
                 emit(node.startOffset + split[0].length + split[1].length + 2, "Needless blank line(s)", true)
                 if (autoCorrect) {
-                    (node as LeafPsiElement)
-                        .rawReplaceWithText("${split.first()}\n${if (eof) "" else "\n"}${split.last()}")
+                    val newText = buildString {
+                        append(split.first())
+                        append("\n")
+                        if (!eof && !betweenClassAndPrimaryConstructor) append("\n")
+                        append(split.last())
+                    }
+                    (node as LeafPsiElement).rawReplaceWithText(newText)
                 }
             }
         }
