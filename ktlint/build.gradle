@@ -19,10 +19,6 @@ shadowJar {
   mergeServiceFiles()
 }
 
-publishing.publications.named("maven").configure {
-  artifact(shadowJar)
-}
-
 dependencies {
   implementation project(':ktlint-core')
   implementation project(':ktlint-reporter-baseline')
