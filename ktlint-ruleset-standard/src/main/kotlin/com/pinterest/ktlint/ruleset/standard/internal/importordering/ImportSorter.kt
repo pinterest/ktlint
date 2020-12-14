@@ -8,9 +8,9 @@ import org.jetbrains.kotlin.resolve.ImportPath
  *
  * Adopted from https://github.com/JetBrains/kotlin/blob/a270ee094c4d7b9520e0898a242bb6ce4dfcad7b/idea/src/org/jetbrains/kotlin/idea/util/ImportPathComparator.kt#L15
  */
-internal class ImportSorter(
-    val patterns: List<PatternEntry>
-) : Comparator<KtImportDirective> {
+internal class ImportSorter(importsLayout: String) : Comparator<KtImportDirective> {
+
+    val patterns: List<PatternEntry> = parseImportsLayout(importsLayout)
 
     override fun compare(import1: KtImportDirective, import2: KtImportDirective): Int {
         val importPath1 = import1.importPath!!
