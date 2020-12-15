@@ -11,6 +11,7 @@ import com.pinterest.ktlint.ruleset.standard.ImportOrderingRule.Companion.ASCII_
 import com.pinterest.ktlint.ruleset.standard.ImportOrderingRule.Companion.IDEA_PATTERN
 import com.pinterest.ktlint.ruleset.standard.internal.importordering.ImportSorter
 import com.pinterest.ktlint.ruleset.standard.internal.importordering.PatternEntry
+import com.pinterest.ktlint.ruleset.standard.internal.importordering.parseImportsLayout
 import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
@@ -39,7 +40,7 @@ public class ImportOrderingRule :
     Rule("import-ordering"),
     UsesEditorConfigProperties {
 
-    private lateinit var importsLayout: String
+    private lateinit var importsLayout: List<PatternEntry>
     private lateinit var importSorter: ImportSorter
 
     public companion object {
@@ -54,7 +55,7 @@ public class ImportOrderingRule :
          *
          * https://developer.android.com/kotlin/style-guide#import_statements
          */
-        private const val ASCII_PATTERN = "*"
+        private val ASCII_PATTERN = parseImportsLayout("*")
 
         /**
          * Default IntelliJ IDEA style: Alphabetical with capital letters before lower case letters (e.g. Z before a),
@@ -64,7 +65,7 @@ public class ImportOrderingRule :
          *
          * https://github.com/JetBrains/kotlin/blob/ffdab473e28d0d872136b910eb2e0f4beea2e19c/idea/formatter/src/org/jetbrains/kotlin/idea/core/formatter/KotlinCodeStyleSettings.java#L87-L91
          */
-        private const val IDEA_PATTERN = "*,java.**,javax.**,kotlin.**,^"
+        private val IDEA_PATTERN = parseImportsLayout("*,java.**,javax.**,kotlin.**,^")
 
         private const val IDEA_ERROR_MESSAGE = "Imports must be ordered in lexicographic order without any empty lines in-between " +
             "with \"java\", \"javax\", \"kotlin\" and aliases in the end"
@@ -76,7 +77,7 @@ public class ImportOrderingRule :
             ASCII_PATTERN to ASCII_ERROR_MESSAGE
         )
 
-        private val editorConfigPropertyParser: (String, String?) -> PropertyType.PropertyValue<String> =
+        private val editorConfigPropertyParser: (String, String?) -> PropertyType.PropertyValue<List<PatternEntry>> =
             { _, value ->
                 when {
                     value.isNullOrBlank() -> PropertyType.PropertyValue.invalid(
@@ -91,15 +92,22 @@ public class ImportOrderingRule :
                         value,
                         ASCII_PATTERN
                     )
-                    else -> PropertyType.PropertyValue.valid(
-                        value,
-                        value
-                    )
+                    else -> try {
+                        PropertyType.PropertyValue.valid(
+                            value,
+                            parseImportsLayout(value)
+                        )
+                    } catch (e: IllegalArgumentException) {
+                        PropertyType.PropertyValue.invalid(
+                            value,
+                            "Unexpected imports layout: $value"
+                        )
+                    }
                 }
             }
 
         internal val ktlintCustomImportsLayoutProperty =
-            UsesEditorConfigProperties.EditorConfigProperty<String>(
+            UsesEditorConfigProperties.EditorConfigProperty<List<PatternEntry>>(
                 type = PropertyType(
                     KTLINT_CUSTOM_IMPORTS_LAYOUT_PROPERTY_NAME,
                     PROPERTY_DESCRIPTION,
@@ -110,7 +118,7 @@ public class ImportOrderingRule :
             )
 
         internal val ideaImportsLayoutProperty =
-            UsesEditorConfigProperties.EditorConfigProperty<String>(
+            UsesEditorConfigProperties.EditorConfigProperty<List<PatternEntry>>(
                 type = PropertyType(
                     IDEA_IMPORTS_LAYOUT_PROPERTY_NAME,
                     PROPERTY_DESCRIPTION,
@@ -208,7 +216,7 @@ public class ImportOrderingRule :
 
     private fun EditorConfigProperties.resolveImportsLayout(
         android: Boolean
-    ): String = if (containsKey(KTLINT_CUSTOM_IMPORTS_LAYOUT_PROPERTY_NAME)) {
+    ): List<PatternEntry> = if (containsKey(KTLINT_CUSTOM_IMPORTS_LAYOUT_PROPERTY_NAME)) {
         getEditorConfigValue(ktlintCustomImportsLayoutProperty, android)
     } else {
         getEditorConfigValue(ideaImportsLayoutProperty, android)
