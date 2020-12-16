@@ -31,10 +31,7 @@ object IntellijIDEAIntegration {
         }
         val editorConfigProperties = EditorConfigLoader(FileSystems.getDefault())
             .loadPropertiesForFile(null, isStdIn = true, rules = emptySet())
-        val editorConfig: Map<String, String> = editorConfigProperties.convertToRawValues(
-            null,
-            isStdIn = true
-        )
+        val editorConfig: Map<String, String> = editorConfigProperties.convertToRawValues()
         val indentSize = editorConfig["indent_size"]?.toIntOrNull() ?: 4
         val continuationIndentSize = editorConfig["continuation_indent_size"]?.toIntOrNull() ?: 4
         val updates = if (local) {
