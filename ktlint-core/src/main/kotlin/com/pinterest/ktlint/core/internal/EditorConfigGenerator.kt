@@ -45,10 +45,10 @@ internal class EditorConfigGenerator(
                     rule.editorConfigProperties.forEach { prop ->
                         if (debug) println("Setting '${prop.type.name}' property value")
                         acc[prop.type.name] = with(rule) {
-                            editorConfig.getEditorConfigValue(
+                            editorConfig.writeEditorConfigProperty(
                                 prop,
                                 isAndroidCodeStyle
-                            ).toString()
+                            )
                         }
                     }
                 }

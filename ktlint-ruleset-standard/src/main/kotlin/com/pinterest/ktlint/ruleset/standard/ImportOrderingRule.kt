@@ -80,13 +80,9 @@ public class ImportOrderingRule :
         private val editorConfigPropertyParser: (String, String?) -> PropertyType.PropertyValue<List<PatternEntry>> =
             { _, value ->
                 when {
-                    value == null -> PropertyType.PropertyValue.invalid(
+                    value.isNullOrBlank() -> PropertyType.PropertyValue.invalid(
                         value,
-                        "Null is not supported for import layout"
-                    )
-                    value.isBlank() -> PropertyType.PropertyValue.valid(
-                        value,
-                        emptyList()
+                        "Import layout must contain at least one entry of a wildcard symbol (*)"
                     )
                     value == "idea" -> PropertyType.PropertyValue.valid(
                         value,
@@ -118,7 +114,8 @@ public class ImportOrderingRule :
                     editorConfigPropertyParser
                 ),
                 defaultValue = IDEA_PATTERN,
-                defaultAndroidValue = ASCII_PATTERN
+                defaultAndroidValue = ASCII_PATTERN,
+                propertyWriter = { it.joinToString(separator = ",") }
             )
 
         internal val ideaImportsLayoutProperty =
@@ -129,7 +126,8 @@ public class ImportOrderingRule :
                     editorConfigPropertyParser
                 ),
                 defaultValue = IDEA_PATTERN,
-                defaultAndroidValue = ASCII_PATTERN
+                defaultAndroidValue = ASCII_PATTERN,
+                propertyWriter = { it.joinToString(separator = ",") }
             )
     }
 
@@ -220,13 +218,10 @@ public class ImportOrderingRule :
 
     private fun EditorConfigProperties.resolveImportsLayout(
         android: Boolean
-    ): List<PatternEntry> = when {
-        containsKey(KTLINT_CUSTOM_IMPORTS_LAYOUT_PROPERTY_NAME) ->
-            getValue(KTLINT_CUSTOM_IMPORTS_LAYOUT_PROPERTY_NAME).getValueAs()
-        containsKey(IDEA_IMPORTS_LAYOUT_PROPERTY_NAME) ->
-            getValue(IDEA_IMPORTS_LAYOUT_PROPERTY_NAME).getValueAs()
-        else ->
-            if (android) ideaImportsLayoutProperty.defaultAndroidValue else ideaImportsLayoutProperty.defaultValue
+    ): List<PatternEntry> = if (containsKey(KTLINT_CUSTOM_IMPORTS_LAYOUT_PROPERTY_NAME)) {
+        getEditorConfigValue(ktlintCustomImportsLayoutProperty, android)
+    } else {
+        getEditorConfigValue(ideaImportsLayoutProperty, android)
     }
 
     private fun importsAreEqual(actual: List<ASTNode>, expected: List<ASTNode>): Boolean {

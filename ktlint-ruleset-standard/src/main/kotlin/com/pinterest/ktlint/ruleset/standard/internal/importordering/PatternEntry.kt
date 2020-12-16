@@ -42,7 +42,11 @@ internal class PatternEntry(
         return entry.packageName.count { it == '.' } < packageName.count { it == '.' }
     }
 
-    override fun toString(): String = packageName
+    override fun toString(): String = when (this) {
+        ALL_OTHER_IMPORTS_ENTRY -> WILDCARD_CHAR
+        ALL_OTHER_ALIAS_IMPORTS_ENTRY -> ALIAS_CHAR
+        else -> "$packageName.$WILDCARD_CHAR" + if (withSubpackages) WILDCARD_CHAR else ""
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -67,6 +71,6 @@ internal class PatternEntry(
     companion object {
         val BLANK_LINE_ENTRY = PatternEntry(BLANK_LINE_CHAR, withSubpackages = true, hasAlias = false)
         val ALL_OTHER_IMPORTS_ENTRY = PatternEntry(WILDCARD_CHAR, withSubpackages = true, hasAlias = false)
-        val ALL_OTHER_ALIAS_IMPORTS_ENTRY = PatternEntry((ALIAS_CHAR + WILDCARD_CHAR), withSubpackages = true, hasAlias = true)
+        val ALL_OTHER_ALIAS_IMPORTS_ENTRY = PatternEntry(ALIAS_CHAR, withSubpackages = true, hasAlias = true)
     }
 }
