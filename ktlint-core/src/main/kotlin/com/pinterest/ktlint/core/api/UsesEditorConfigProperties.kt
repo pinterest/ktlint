@@ -40,17 +40,31 @@ public interface UsesEditorConfigProperties {
     }
 
     /**
+     * Write the string representation of [EditorConfigProperty]
+     */
+    public fun <T> EditorConfigProperties.writeEditorConfigProperty(
+        property: EditorConfigProperty<T>,
+        isAndroidCodeStyle: Boolean
+    ): String {
+        return property.propertyWriter(getEditorConfigValue(property, isAndroidCodeStyle))
+    }
+
+    /**
      * Supported `.editorconfig` property.
      *
      * @param type type of property. Could be one of default ones (see [PropertyType.STANDARD_TYPES]) or custom one.
      * @param defaultValue default value for property if it does not exist in loaded properties.
      * @param defaultAndroidValue default value for android codestyle. You should set different value only when it
      * differs from [defaultValue].
+     * @param propertyWriter custom function that represents [T] as String. Defaults to the standard `toString()` call.
+     * You should override the default implementation in case you need a different behavior than the standard `toString()`
+     * (e.g. for collections joinToString() is more applicable).
      */
     public data class EditorConfigProperty<T>(
         public val type: PropertyType<T>,
         public val defaultValue: T,
-        public val defaultAndroidValue: T = defaultValue
+        public val defaultAndroidValue: T = defaultValue,
+        public val propertyWriter: (T) -> String = { it.toString() }
     )
 }
 
