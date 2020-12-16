@@ -121,7 +121,6 @@ class EditorConfigLoader(
     }
 
     companion object {
-        internal const val FILE_PATH_PROPERTY = "file_path"
         /**
          * List of file extensions, editorconfig lookup will be performed.
          */
@@ -131,31 +130,17 @@ class EditorConfigLoader(
         )
 
         /**
-         * Converts loaded [editorConfigProperties] values to string representation.
+         * Converts loaded [EditorConfigProperties] values into string representation.
          *
-         * @param filePath added under [FILE_PATH_PROPERTY] key
-         * @param isStdIn indicate that input is from std-in and [filePath] should not be added to the map
-         *
-         * @return converted [editorConfigProperties]
+         * @return map of key as string and value as string property representation
          */
-        fun EditorConfigProperties.convertToRawValues(
-            filePath: Path?,
-            isStdIn: Boolean = false
-        ): Map<String, String> {
+        fun EditorConfigProperties.convertToRawValues(): Map<String, String> {
             return if (isEmpty()) {
                 emptyMap()
             } else {
-                this
-                    .mapValues {
-                        if (it.value.isUnset) "unset" else it.value.sourceValue
-                    }
-                    .run {
-                        if (!isStdIn) {
-                            plus(FILE_PATH_PROPERTY to filePath.toString())
-                        } else {
-                            this
-                        }
-                    }
+                mapValues {
+                    if (it.value.isUnset) "unset" else it.value.sourceValue
+                }
             }
         }
     }
