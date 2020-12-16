@@ -114,7 +114,8 @@ public class ImportOrderingRule :
                     editorConfigPropertyParser
                 ),
                 defaultValue = IDEA_PATTERN,
-                defaultAndroidValue = ASCII_PATTERN
+                defaultAndroidValue = ASCII_PATTERN,
+                propertyWriter = { it.joinToString(separator = ",") }
             )
 
         internal val ideaImportsLayoutProperty =
@@ -125,7 +126,8 @@ public class ImportOrderingRule :
                     editorConfigPropertyParser
                 ),
                 defaultValue = IDEA_PATTERN,
-                defaultAndroidValue = ASCII_PATTERN
+                defaultAndroidValue = ASCII_PATTERN,
+                propertyWriter = { it.joinToString(separator = ",") }
             )
     }
 
