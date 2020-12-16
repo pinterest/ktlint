@@ -74,7 +74,7 @@ internal class EditorConfigLoaderTest {
 
             val lintFile = tempFileSystem.normalizedPath(projectDir).resolve("test.kt")
             val editorConfig = editorConfigLoader.loadPropertiesForFile(lintFile, rules = rules)
-            val parsedEditorConfig = editorConfig.convertToRawValues(lintFile)
+            val parsedEditorConfig = editorConfig.convertToRawValues()
 
             assertThat(parsedEditorConfig).isNotEmpty
             assertThat(parsedEditorConfig)
@@ -86,7 +86,6 @@ internal class EditorConfigLoaderTest {
                     mapOf(
                         "indent_size" to "2",
                         "tab_width" to "2",
-                        EditorConfigLoader.FILE_PATH_PROPERTY to lintFile.toString()
                     )
                 )
         }
@@ -130,38 +129,35 @@ internal class EditorConfigLoaderTest {
 
         val lintFileSubdirectory = tempFileSystem.normalizedPath(project1Subdirectory).resolve("test.kt")
         var editorConfigProperties = editorConfigLoader.loadPropertiesForFile(lintFileSubdirectory, rules = rules)
-        var parsedEditorConfig = editorConfigProperties.convertToRawValues(lintFileSubdirectory)
+        var parsedEditorConfig = editorConfigProperties.convertToRawValues()
 
         assertThat(parsedEditorConfig).isEqualTo(
             mapOf(
                 "indent_size" to "2",
                 "tab_width" to "2",
                 "indent_style" to "space",
-                EditorConfigLoader.FILE_PATH_PROPERTY to lintFileSubdirectory.toString()
             )
         )
 
         val lintFileMainDir = tempFileSystem.normalizedPath(project1Dir).resolve("test.kts")
         editorConfigProperties = editorConfigLoader.loadPropertiesForFile(lintFileMainDir, rules = rules)
-        parsedEditorConfig = editorConfigProperties.convertToRawValues(lintFileMainDir)
+        parsedEditorConfig = editorConfigProperties.convertToRawValues()
 
         assertThat(parsedEditorConfig).isEqualTo(
             mapOf(
                 "indent_size" to "4",
                 "tab_width" to "4",
                 "indent_style" to "space",
-                EditorConfigLoader.FILE_PATH_PROPERTY to lintFileMainDir.toString()
             )
         )
 
         val lintFileRoot = tempFileSystem.normalizedPath(rootDir).resolve("test.kt")
         editorConfigProperties = editorConfigLoader.loadPropertiesForFile(lintFileRoot, rules = rules)
-        parsedEditorConfig = editorConfigProperties.convertToRawValues(lintFileRoot)
+        parsedEditorConfig = editorConfigProperties.convertToRawValues()
 
         assertThat(parsedEditorConfig).isEqualTo(
             mapOf(
                 "end_of_line" to "lf",
-                EditorConfigLoader.FILE_PATH_PROPERTY to lintFileRoot.toString()
             )
         )
     }
@@ -179,14 +175,13 @@ internal class EditorConfigLoaderTest {
 
         val lintFile = tempFileSystem.normalizedPath(projectDir).resolve("test.kt")
         val editorConfigProperties = editorConfigLoader.loadPropertiesForFile(lintFile, rules = rules)
-        val parsedEditorConfig = editorConfigProperties.convertToRawValues(lintFile)
+        val parsedEditorConfig = editorConfigProperties.convertToRawValues()
 
         assertThat(parsedEditorConfig).isNotEmpty
         assertThat(parsedEditorConfig).isEqualTo(
             mapOf(
                 "insert_final_newline" to "true",
                 "disabled_rules" to "import-ordering",
-                EditorConfigLoader.FILE_PATH_PROPERTY to lintFile.toString()
             )
         )
     }
@@ -203,14 +198,13 @@ internal class EditorConfigLoaderTest {
 
         val lintFile = tempFileSystem.normalizedPath(projectDir).resolve("test.kt")
         val editorConfigProperties = editorConfigLoader.loadPropertiesForFile(lintFile, rules = rules)
-        val parsedEditorConfig = editorConfigProperties.convertToRawValues(lintFile)
+        val parsedEditorConfig = editorConfigProperties.convertToRawValues()
 
         assertThat(parsedEditorConfig).isNotEmpty
         assertThat(parsedEditorConfig).isEqualTo(
             mapOf(
                 "indent_size" to "unset",
                 "tab_width" to "unset",
-                EditorConfigLoader.FILE_PATH_PROPERTY to lintFile.toString()
             )
         )
     }
@@ -227,13 +221,12 @@ internal class EditorConfigLoaderTest {
         val lintFile = tempFileSystem.normalizedPath(projectDir).resolve("test.kts")
 
         val editorConfigProperties = editorConfigLoader.loadPropertiesForFile(lintFile, rules = rules)
-        val parsedEditorConfig = editorConfigProperties.convertToRawValues(lintFile)
+        val parsedEditorConfig = editorConfigProperties.convertToRawValues()
 
         assertThat(parsedEditorConfig).isNotEmpty
         assertThat(parsedEditorConfig).isEqualTo(
             mapOf(
                 "disabled_rules" to "import-ordering, no-wildcard-imports",
-                EditorConfigLoader.FILE_PATH_PROPERTY to lintFile.toString()
             )
         )
     }
@@ -251,7 +244,7 @@ internal class EditorConfigLoaderTest {
         val lintFile = tempFileSystem.normalizedPath(projectDir).resolve("test.txt")
 
         val editorConfigProperties = editorConfigLoader.loadPropertiesForFile(lintFile, rules = rules)
-        val parsedEditorConfig = editorConfigProperties.convertToRawValues(lintFile)
+        val parsedEditorConfig = editorConfigProperties.convertToRawValues()
 
         assertThat(parsedEditorConfig).isEmpty()
     }
@@ -272,13 +265,9 @@ internal class EditorConfigLoaderTest {
             rules = rules,
             debug = true,
         )
-        val parsedEditorConfig = editorConfigProperties.convertToRawValues(
-            null,
-            true
-        )
+        val parsedEditorConfig = editorConfigProperties.convertToRawValues()
 
         assertThat(parsedEditorConfig).isNotEmpty
-        assertThat(parsedEditorConfig).doesNotContainKey(EditorConfigLoader.FILE_PATH_PROPERTY)
         assertThat(parsedEditorConfig).isEqualTo(
             mapOf(
                 "insert_final_newline" to "true",
@@ -329,13 +318,12 @@ internal class EditorConfigLoaderTest {
             alternativeEditorConfig = tempFileSystem.normalizedPath(anotherDir).resolve(".editorconfig"),
             rules = rules
         )
-        val parsedEditorConfig = editorConfigProperties.convertToRawValues(lintFile)
+        val parsedEditorConfig = editorConfigProperties.convertToRawValues()
 
         assertThat(parsedEditorConfig).isNotEmpty
         assertThat(parsedEditorConfig).isEqualTo(
             mapOf(
                 "end_of_line" to "lf",
-                EditorConfigLoader.FILE_PATH_PROPERTY to lintFile.toString(),
                 "indent_size" to "2",
                 "tab_width" to "2"
             )
@@ -372,7 +360,7 @@ internal class EditorConfigLoaderTest {
             isStdIn = true,
             rules = rules
         )
-        val parsedEditorConfig = editorConfigProperties.convertToRawValues(null, true)
+        val parsedEditorConfig = editorConfigProperties.convertToRawValues()
 
         assertThat(parsedEditorConfig).isNotEmpty
         assertThat(parsedEditorConfig).isEqualTo(
@@ -402,14 +390,13 @@ internal class EditorConfigLoaderTest {
         Files.createDirectories(lintFile)
 
         val editorConfigProperties = editorConfigLoader.loadPropertiesForFile(lintFile, debug = true, rules = rules)
-        val parsedEditorConfig = editorConfigProperties.convertToRawValues(lintFile)
+        val parsedEditorConfig = editorConfigProperties.convertToRawValues()
 
         assertThat(parsedEditorConfig).isNotEmpty
         assertThat(parsedEditorConfig).isEqualTo(
             mapOf(
                 "insert_final_newline" to "true",
                 "disabled_rules" to "class-must-be-internal",
-                EditorConfigLoader.FILE_PATH_PROPERTY to lintFile.toString()
             )
         )
     }
@@ -421,6 +408,8 @@ internal class EditorConfigLoaderTest {
             node: ASTNode,
             autoCorrect: Boolean,
             emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
-        ) = TODO("Not yet implemented")
+        ) {
+            throw NotImplementedError()
+        }
     }
 }
