@@ -6,9 +6,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 ### Fixed
+- EditorConfig generation for `import-ordering` ([#1011](https://github.com/pinterest/ktlint/pull/1011))
 
 ### Changed
 - Update Gradle shadow plugin to `6.1.0` version
+- Deprecated custom `kotlin_imports_layout` EditorConfig property. Please use `ij_kotlin_imports_layout` to ensure 
+  that the Kotlin IDE plugin and ktlint use same imports layout
+- Deprecated `idea` and `ascii` shortcuts as the `ij_kotlin_imports_layout` property does not support those. 
+  Please check README on how to achieve those with patterns.
+- Updated how a pattern "with subpackages" and "all other alias imports" are represented to align with Kotlin plugin.([998](https://github.com/pinterest/ktlint/pull/998))
 
 ### Removed
 
