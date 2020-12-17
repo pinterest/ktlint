@@ -368,6 +368,9 @@ val ktlintFormat by tasks.creating(JavaExec::class) {
 
 ##### Option #1 (recommended)
 
+To change the code style config files in a single IDEA project
+
+Run ktlint executable with the appropriate flag:
 > (inside project's root directory)  
 
 ```sh
@@ -378,7 +381,9 @@ ktlint --android applyToIDEAProject
 
 ##### Option #2
 
-Apply to all IDEA projects:
+To change the code style config files for all IDEA projects
+
+Run ktlint executable with the appropriate flag:
 ```sh
 ktlint applyToIDEA
 ```
