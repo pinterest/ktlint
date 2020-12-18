@@ -728,6 +728,32 @@ internal class IndentationRuleTest {
     }
 
     @Test
+    fun `lint delegation 6`() {
+        assertThat(
+            IndentationRule().lint(
+                """
+                data class Shortcut(val id: String, val url: String)
+
+                object Someclass : List<Shortcut> by listOf(
+                    Shortcut(
+                        id = "1",
+                        url = "url"
+                    ),
+                    Shortcut(
+                        id = "2",
+                        url = "asd"
+                    ),
+                    Shortcut(
+                        id = "3",
+                        url = "TV"
+                    )
+                )
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
     fun `lint named argument`() {
         assertThat(
             IndentationRule().lint(
