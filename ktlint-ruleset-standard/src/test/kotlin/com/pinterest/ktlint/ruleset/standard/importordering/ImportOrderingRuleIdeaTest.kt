@@ -353,7 +353,7 @@ class ImportOrderingRuleIdeaTest {
     private fun writeIdeaImportsOrderingConfig() = editorConfigTestRule
         .writeToEditorConfig(
             mapOf(
-                ImportOrderingRule.ideaImportsLayoutProperty.type to "idea"
+                ImportOrderingRule.ideaImportsLayoutProperty.type to "*,java.**,javax.**,kotlin.**,^"
             )
         )
         .absolutePath
