@@ -10,11 +10,19 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 - Update Gradle shadow plugin to `6.1.0` version
+- Incorrect indentation with multiple interfaces ([#1003](https://github.com/pinterest/ktlint/issues/1003))
+- Empty line before primary constructor is not reported and formatted-out ([#1004](https://github.com/pinterest/ktlint/issues/1004))
+- Fix '.editorconfig' generation for "import-ordering" rule ([#1011](https://github.com/pinterest/ktlint/issues/1004))
+- Fix "filename" rule will not work when '.editorconfig' file is not found ([#997](https://github.com/pinterest/ktlint/issues/1004))
+
+### Changed
+- Update Gradle shadow plugin to `6.1.0` version
+- Align with Kotlin plugin on how alias pattern is represented for imports layout rule ([#753](https://github.com/pinterest/ktlint/issues/753))
+- Align with Kotlin plugin on how subpackages are represented ([#753](https://github.com/pinterest/ktlint/issues/753))
 - Deprecated custom `kotlin_imports_layout` EditorConfig property. Please use `ij_kotlin_imports_layout` to ensure 
-  that the Kotlin IDE plugin and ktlint use same imports layout
+  that the Kotlin IDE plugin and ktlint use same imports layout ([#753](https://github.com/pinterest/ktlint/issues/753))
 - Deprecated `idea` and `ascii` shortcuts as the `ij_kotlin_imports_layout` property does not support those. 
-  Please check README on how to achieve those with patterns.
-- Updated how a pattern "with subpackages" and "all other alias imports" are represented to align with Kotlin plugin.([998](https://github.com/pinterest/ktlint/pull/998))
+  Please check README on how to achieve those with patterns ([#753](https://github.com/pinterest/ktlint/issues/753))
 
 ### Removed
 

@@ -69,7 +69,7 @@ class ArgumentListWrappingRule : Rule("argument-list-wrapping") {
             val putArgumentsOnSeparateLines =
                 node.textContainsIgnoringLambda('\n') ||
                     // max_line_length exceeded
-                    maxLineLength > -1 && (node.column - 1 + node.textLength) > maxLineLength
+                    maxLineLength > -1 && (node.column - 1 + node.textLength) > maxLineLength && !node.textContains('\n')
             if (putArgumentsOnSeparateLines) {
                 // IDEA quirk:
                 // generic<
