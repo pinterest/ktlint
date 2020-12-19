@@ -5,6 +5,7 @@
 </h1>
 
 <p align="center">
+<a href="https://kotlinlang.slack.com/messages/CKS3XG0LS"><img src="https://img.shields.io/badge/slack-@kotlinlang/ktlint-yellow.svg?logo=slack" alt="Join the chat at https://kotlinlang.slack.com"/></a>
 <a href="https://github.com/pinterest/ktlint/actions?query=workflow%3A%22Snapshot+Publish%22"><img src="https://github.com/pinterest/ktlint/workflows/Snapshot%20Publish/badge.svg" alt="Build status"></a>
 <a href="https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.pinterest%22%20AND%20a%3A%22ktlint%22"><img src="https://img.shields.io/maven-central/v/com.pinterest/ktlint.svg" alt="Maven Central"></a>
 <a href="https://ktlint.github.io/"><img src="https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg" alt="ktlint"></a>
@@ -90,20 +91,15 @@ max_line_length=off
 disabled_rules=no-wildcard-imports,experimental:annotation,my-custom-ruleset:my-custom-rule
 experimental_rules=multiline-if-else,annotation
 
-# Defines the imports layout. There are predefined layouts like "ascii" or "idea", as well as a custom layout.
-# The predefined layouts are temporary and will be deprecated in the future, once Kotlin plugin supports EditorConfig property for imports layout.
-# The custom layout can be composed by the following symbols:
+# Defines the imports layout. The layout can be composed by the following symbols:
 # "*" - wildcard. There must be at least one entry of a single wildcard to match all other imports. Matches anything after a specified symbol/import as well.
 # "|" - blank line. Supports only single blank lines between imports. No blank line is allowed in the beginning or end of the layout.
 # "^" - alias import, e.g. "^android.*" will match all android alias imports, "^" will match all other alias imports.
 # import paths - these can be full paths, e.g. "java.util.List.*" as well as wildcard paths, e.g. "kotlin.**"
-# Examples:
-kotlin_imports_layout=ascii # alphabetical with capital letters before lower case letters (e.g. Z before a), no blank lines
-kotlin_imports_layout=idea # default IntelliJ IDEA style, same as "ascii", but with "java", "javax", "kotlin" and alias imports in the end of the imports list
-kotlin_imports_layout=android.**,|,^org.junit.**,kotlin.io.Closeable.*,|,**,^ # custom imports layout
-# Alternatively ij_kotlin_imports_layout name can be used, in order to set an imports layout for both ktlint and IDEA via a single property
-# Note: this is not yet implemented on IDEA side, so it only takes effect for ktlint
-ij_kotlin_imports_layout=*
+# Examples (we use ij_kotlin_imports_layout to set an imports layout for both ktlint and IDEA via a single property):
+ij_kotlin_imports_layout=* # alphabetical with capital letters before lower case letters (e.g. Z before a), no blank lines
+ij_kotlin_imports_layout=*,java.**,javax.**,kotlin.**,^ # default IntelliJ IDEA style, same as alphabetical, but with "java", "javax", "kotlin" and alias imports in the end of the imports list
+ij_kotlin_imports_layout=android.**,|,^org.junit.**,kotlin.io.Closeable.*,|,*,^ # custom imports layout
 ```
 
 ### Overriding Editorconfig properties for specific directories
@@ -355,6 +351,9 @@ val ktlintFormat by tasks.creating(JavaExec::class) {
 
 ##### Option #1 (recommended)
 
+To change the code style config files in a single IDEA project
+
+Run ktlint executable with the appropriate flag:
 > (inside project's root directory)  
 
 ```sh
@@ -365,7 +364,9 @@ ktlint --android applyToIDEAProject
 
 ##### Option #2
 
-Apply to all IDEA projects:
+To change the code style config files for all IDEA projects
+
+Run ktlint executable with the appropriate flag:
 ```sh
 ktlint applyToIDEA
 ```

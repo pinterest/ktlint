@@ -167,6 +167,32 @@ class ArgumentListWrappingRuleTest {
     }
 
     @Test
+    fun testLambdaArgumentsAreIgnoredWithMaxLineLength() {
+        assertThat(
+            ArgumentListWrappingRule().lint(
+                """
+                abstract class A(init: String.() -> Int)
+                class B : A({
+                    toInt()
+                    toInt()
+                    toInt()
+                    toInt()
+                    toInt()
+                    toInt()
+                })
+
+                fun test(a: Any, b: (Any) -> Any) {
+                    test(a = "1", b = {
+                        it.toString()
+                    })
+                }
+                """.trimIndent(),
+                userData = mapOf("max_line_length" to "80")
+            )
+        ).isEmpty()
+    }
+
+    @Test
     fun testFormatWithLambdaArguments() {
         assertThat(
             ArgumentListWrappingRule().format(

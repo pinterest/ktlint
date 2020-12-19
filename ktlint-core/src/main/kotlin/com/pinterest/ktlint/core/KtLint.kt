@@ -29,6 +29,7 @@ public object KtLint {
     public val EDITOR_CONFIG_USER_DATA_KEY: Key<EditorConfig> = Key<EditorConfig>("EDITOR_CONFIG")
     public val ANDROID_USER_DATA_KEY: Key<Boolean> = Key<Boolean>("ANDROID")
     public val FILE_PATH_USER_DATA_KEY: Key<String> = Key<String>("FILE_PATH")
+    private const val FILE_PATH_PROPERTY = "file_path"
     public val EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY: Key<EditorConfigProperties> =
         Key<EditorConfigProperties>("EDITOR_CONFIG_PROPERTIES")
     public val DISABLED_RULES: Key<Set<String>> = Key<Set<String>>("DISABLED_RULES")
@@ -146,10 +147,15 @@ public object KtLint {
         )
 
         // Passed-in userData overrides .editorconfig
-        val mergedUserData = editorConfigProperties.convertToRawValues(
-            params.normalizedFilePath,
-            params.isStdIn
-        ) + params.userData
+        val mergedUserData = editorConfigProperties
+            .convertToRawValues() + params.userData
+            .run {
+                if (!params.isStdIn) {
+                    plus(FILE_PATH_PROPERTY to params.normalizedFilePath.toString())
+                } else {
+                    this
+                }
+            }
 
         injectUserData(rootNode, editorConfigProperties, mergedUserData)
 
@@ -189,7 +195,7 @@ public object KtLint {
             } else {
                 userData
             }
-        node.putUserData(FILE_PATH_USER_DATA_KEY, userData["file_path"])
+        node.putUserData(FILE_PATH_USER_DATA_KEY, userData[FILE_PATH_PROPERTY])
         node.putUserData(EDITOR_CONFIG_USER_DATA_KEY, EditorConfig.fromMap(editorConfigMap - "android" - "file_path"))
         node.putUserData(EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY, editorConfigProperties)
         node.putUserData(ANDROID_USER_DATA_KEY, android)

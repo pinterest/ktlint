@@ -297,7 +297,7 @@ class ImportOrderingRuleAsciiTest {
     private fun writeAsciiImportsOrderingConfig() = editorConfigTestRule
         .writeToEditorConfig(
             mapOf(
-                ImportOrderingRule.ideaImportsLayoutProperty.type to "ascii"
+                ImportOrderingRule.ideaImportsLayoutProperty.type to "*"
             )
         )
         .absolutePath

@@ -25,6 +25,7 @@ class FilenameRuleTest {
         ) {
             assertThat(
                 FilenameRule().lint(
+                    "/some/path/A.kt",
                     """
                     /*
                      * license
@@ -35,7 +36,6 @@ class FilenameRuleTest {
                     $src
                     //
                     """.trimIndent(),
-                    fileName("/some/path/A.kt")
                 )
             ).isEmpty()
         }
@@ -56,6 +56,7 @@ class FilenameRuleTest {
         ) {
             assertThat(
                 FilenameRule().lint(
+                    "/some/path/B.kt",
                     """
                     /*
                      * license
@@ -66,7 +67,6 @@ class FilenameRuleTest {
                     ${src.key}
                     //
                     """.trimIndent(),
-                    fileName("/some/path/B.kt")
                 )
             ).isEqualTo(
                 listOf(
@@ -80,12 +80,12 @@ class FilenameRuleTest {
     fun testFileWithoutTopLevelDeclarations() {
         assertThat(
             FilenameRule().lint(
+                "A.kt",
                 """
                 /*
                  * copyright
                  */
                 """.trimIndent(),
-                fileName("A.kt")
             )
         ).isEmpty()
     }
@@ -94,11 +94,11 @@ class FilenameRuleTest {
     fun testMultipleTopLevelClasses() {
         assertThat(
             FilenameRule().lint(
+                "A.kt",
                 """
                 class B
                 class C
                 """.trimIndent(),
-                fileName("A.kt")
             )
         ).isEmpty()
     }
@@ -107,13 +107,13 @@ class FilenameRuleTest {
     fun testMultipleNonTopLevelClasses() {
         assertThat(
             FilenameRule().lint(
+                "A.kt",
                 """
                 class B {
                     class C
                     class D
                 }
                 """.trimIndent(),
-                fileName("A.kt")
             )
         ).isEqualTo(
             listOf(
@@ -126,10 +126,10 @@ class FilenameRuleTest {
     fun testCaseSensitiveMatching() {
         assertThat(
             FilenameRule().lint(
+                "woohoo.kt",
                 """
                 interface Woohoo
                 """.trimIndent(),
-                fileName("woohoo.kt")
             )
         ).isEqualTo(
             listOf(
@@ -142,10 +142,10 @@ class FilenameRuleTest {
     fun testCaseEscapedClassNames() {
         assertThat(
             FilenameRule().lint(
+                "B.kt",
                 """
                 class `A`
                 """.trimIndent(),
-                fileName("B.kt")
             )
         ).isEqualTo(
             listOf(
@@ -158,13 +158,11 @@ class FilenameRuleTest {
     fun testIgnoreKotlinScriptFiles() {
         assertThat(
             FilenameRule().lint(
+                "A.kts",
                 """
                 class B
                 """.trimIndent(),
-                fileName("A.kts")
             )
         ).isEmpty()
     }
-
-    private fun fileName(fileName: String) = mapOf("file_path" to fileName)
 }

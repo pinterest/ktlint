@@ -19,9 +19,9 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.psi.KtImportDirective
 
 /**
- * Import ordering is configured via EditorConfig's custom property `kotlin_imports_layout`. Supported values:
- * * "idea" - default IntelliJ IDEA's order, see [IDEA_PATTERN]
- * * "ascii" - alphabetical order as recommended in Android's Kotlin style guide, see [ASCII_PATTERN]
+ * Import ordering is configured via EditorConfig's property `ij_kotlin_imports_layout`, so the Kotlin IDE plugin also recongizes it. Supported values:
+ * * "*,java.**,javax.**,kotlin.**,^" - default IntelliJ IDEA's order, see [IDEA_PATTERN]
+ * * "*" - alphabetical order as recommended in Android's Kotlin style guide, see [ASCII_PATTERN]
  * * custom - defined by the following set of tokens. Tokens can be combined together in a group, groups/tokens must be comma separated:
  *  * "*" - wildcard symbol, can be used as follows:
  *      1. Single, meaning matching any import (<all other imports> in IDEA)
@@ -33,7 +33,7 @@ import org.jetbrains.kotlin.psi.KtImportDirective
  *      2. Alone, meaning matching any alias import - "^" (<all other alias imports> in IDEA)
  *  * import paths - these can be full paths, e.g. "java.util.List.*" as well as wildcard paths meaning "with subpackages", e.g. "kotlin.**"
  *
- * In case the custom property is not provided, the rule defaults to "ascii" style in case of "android" flag supplied, or to "idea" otherwise.
+ * In case the custom property is not provided, the rule defaults to alphabetical order in case of "android" flag supplied, or to idea otherwise.
  */
 @OptIn(FeatureInAlphaState::class)
 public class ImportOrderingRule :
@@ -80,22 +80,30 @@ public class ImportOrderingRule :
         private val editorConfigPropertyParser: (String, String?) -> PropertyType.PropertyValue<List<PatternEntry>> =
             { _, value ->
                 when {
-                    value == null -> PropertyType.PropertyValue.invalid(
+                    value.isNullOrBlank() -> PropertyType.PropertyValue.invalid(
                         value,
-                        "Null is not supported for import layout"
+                        "Import layout must contain at least one entry of a wildcard symbol (*)"
                     )
-                    value.isBlank() -> PropertyType.PropertyValue.valid(
-                        value,
-                        emptyList()
-                    )
-                    value == "idea" -> PropertyType.PropertyValue.valid(
-                        value,
-                        IDEA_PATTERN
-                    )
-                    value == "ascii" -> PropertyType.PropertyValue.valid(
-                        value,
-                        ASCII_PATTERN
-                    )
+                    value == "idea" -> {
+                        println(
+                            "[WARNING] `idea` is deprecated! Please use `*,java.**,javax.**,kotlin.**,^` instead" +
+                                " to ensure that the Kotlin IDE plugin recognizes the value"
+                        )
+                        PropertyType.PropertyValue.valid(
+                            value,
+                            IDEA_PATTERN
+                        )
+                    }
+                    value == "ascii" -> {
+                        println(
+                            "[WARNING] `ascii` is deprecated! Please use `*` instead" +
+                                " to ensure that the Kotlin IDE plugin recognizes the value"
+                        )
+                        PropertyType.PropertyValue.valid(
+                            value,
+                            ASCII_PATTERN
+                        )
+                    }
                     else -> try {
                         PropertyType.PropertyValue.valid(
                             value,
@@ -110,6 +118,7 @@ public class ImportOrderingRule :
                 }
             }
 
+        @Deprecated("This custom property is deprecated in favor of IDEA's default ideaImportsLayoutProperty")
         internal val ktlintCustomImportsLayoutProperty =
             UsesEditorConfigProperties.EditorConfigProperty<List<PatternEntry>>(
                 type = PropertyType(
@@ -118,7 +127,8 @@ public class ImportOrderingRule :
                     editorConfigPropertyParser
                 ),
                 defaultValue = IDEA_PATTERN,
-                defaultAndroidValue = ASCII_PATTERN
+                defaultAndroidValue = ASCII_PATTERN,
+                propertyWriter = { it.joinToString(separator = ",") }
             )
 
         internal val ideaImportsLayoutProperty =
@@ -129,7 +139,8 @@ public class ImportOrderingRule :
                     editorConfigPropertyParser
                 ),
                 defaultValue = IDEA_PATTERN,
-                defaultAndroidValue = ASCII_PATTERN
+                defaultAndroidValue = ASCII_PATTERN,
+                propertyWriter = { it.joinToString(separator = ",") }
             )
     }
 
@@ -220,13 +231,14 @@ public class ImportOrderingRule :
 
     private fun EditorConfigProperties.resolveImportsLayout(
         android: Boolean
-    ): List<PatternEntry> = when {
-        containsKey(KTLINT_CUSTOM_IMPORTS_LAYOUT_PROPERTY_NAME) ->
-            getValue(KTLINT_CUSTOM_IMPORTS_LAYOUT_PROPERTY_NAME).getValueAs()
-        containsKey(IDEA_IMPORTS_LAYOUT_PROPERTY_NAME) ->
-            getValue(IDEA_IMPORTS_LAYOUT_PROPERTY_NAME).getValueAs()
-        else ->
-            if (android) ideaImportsLayoutProperty.defaultAndroidValue else ideaImportsLayoutProperty.defaultValue
+    ): List<PatternEntry> = if (containsKey(KTLINT_CUSTOM_IMPORTS_LAYOUT_PROPERTY_NAME)) {
+        println(
+            "[WARNING] `kotlin_imports_layout` is deprecated! Please use `ij_kotlin_imports_layout` to ensure" +
+                " that the Kotlin IDE plugin and ktlint use same imports layout"
+        )
+        getEditorConfigValue(ktlintCustomImportsLayoutProperty, android)
+    } else {
+        getEditorConfigValue(ideaImportsLayoutProperty, android)
     }
 
     private fun importsAreEqual(actual: List<ASTNode>, expected: List<ASTNode>): Boolean {
