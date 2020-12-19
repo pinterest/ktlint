@@ -13,6 +13,7 @@ interface EditorConfig {
     val indentSize: Int
     val tabWidth: Int
     val maxLineLength: Int
+    val ignoreBackTickedIdentifier: Boolean
     @Deprecated(
         message = "Not used anymore by rules, please use 'insert_final_newline' directly via get()"
     )
@@ -32,12 +33,14 @@ interface EditorConfig {
             val tabWidth = map["indent_size"]?.toIntOrNull()
             val maxLineLength = map["max_line_length"]?.toIntOrNull() ?: -1
             val insertFinalNewline = map["insert_final_newline"]?.toBoolean() ?: true
+            val ignoreBackTickedIdentifier = map["ignore_back_ticked_identifier"]?.toBoolean() ?: false
             return object : EditorConfig {
                 override val indentStyle = indentStyle
                 override val indentSize = indentSize
                 override val tabWidth = tabWidth ?: indentSize
                 override val maxLineLength = maxLineLength
                 override val insertFinalNewline = insertFinalNewline
+                override val ignoreBackTickedIdentifier = ignoreBackTickedIdentifier
                 override fun get(key: String): String? = map[key]
             }
         }

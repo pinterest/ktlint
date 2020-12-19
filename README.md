@@ -117,6 +117,20 @@ disabled_rules=import-ordering
 disabled_rules=indent
 ```
 
+### Overriding Editorconfig properties for unit testing
+
+According to the [Kotlin coding conventions](https://kotlinlang.org/docs/reference/coding-conventions.html#names-for-test-methods)
+it is acceptable to write method names as natural language. As such descriptions tend to be longer than normal method
+names, it is possible to ignore such method names when validation the maximum line length. It is advised though, to
+limit this behavior to tests only.
+```ini
+[**/test/**.kt]
+# According to https://kotlinlang.org/docs/reference/coding-conventions.html#names-for-test-methods it is acceptable to write method names
+# in natural language. When using natural language, the description tends to be longer. Allow lines containing an identifier between
+# backticks to be longer than the maximum line length.
+ignore_back_ticked_identifier=true
+```
+
 ## Online demo
 You can try `ktlint` online [here](https://ktlint-demo.herokuapp.com/) using the standard or a custom ruleset without installing it to your PC. \
 To contribute or get more info, please visit the [GitHub repository](https://github.com/akuleshov7/diKTat-demo).

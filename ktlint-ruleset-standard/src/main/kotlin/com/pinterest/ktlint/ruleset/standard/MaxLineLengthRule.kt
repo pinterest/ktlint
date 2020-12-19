@@ -35,7 +35,7 @@ class MaxLineLengthRule : Rule("max-line-length"), Rule.Modifier.Last {
             val errorOffset = arrayListOf<Int>()
             node
                 .getElementsPerLine()
-                .filter { it.lengthExcludingTokensBetweenBackticks() > maxLineLength }
+                .filter { it.lineLength(editorConfig.ignoreBackTickedIdentifier) > maxLineLength }
                 .forEach() { parsedLine ->
                     val el = parsedLine.elements.last()
                     if (!el.isPartOf(KDoc::class) && !el.isPartOfRawMultiLineString()) {
@@ -102,8 +102,12 @@ private data class ParsedLine(
     val offset: Int,
     val elements: List<ASTNode>
 ) {
-    fun lengthExcludingTokensBetweenBackticks(): Int {
-        return line.length - totalLengthBacktickedElements()
+    fun lineLength(ignoreBackTickedIdentifier: Boolean): Int {
+        return if (ignoreBackTickedIdentifier) {
+            line.length - totalLengthBacktickedElements()
+        } else {
+            line.length
+        }
     }
 
     private fun totalLengthBacktickedElements(): Int {

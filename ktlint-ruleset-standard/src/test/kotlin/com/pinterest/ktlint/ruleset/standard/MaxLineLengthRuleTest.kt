@@ -48,7 +48,10 @@ class MaxLineLengthRuleTest {
                     println("teeeeeeeeeeeeeeeeeeeeeeeext")
                 }
                 """.trimIndent(),
-                userData = mapOf("max_line_length" to "40")
+                userData = mapOf(
+                    "max_line_length" to "40",
+                    "ignore_back_ticked_identifier" to "true"
+                )
             )
         ).isEqualTo(
             listOf(
