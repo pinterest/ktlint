@@ -802,4 +802,25 @@ internal class IndentationRuleTest {
             )
         ).isEmpty()
     }
+
+    // https://github.com/pinterest/ktlint/issues/918
+    @Test
+    fun `lint newline after type reference in functions`() {
+        assertThat(
+            IndentationRule().lint(
+                """
+                override fun actionProcessor():
+                    ObservableTransformer<in SomeVeryVeryLongNameOverHereAction, out SomeVeryVeryLongNameOverHereResult> =
+                    ObservableTransformer { actions ->
+                        // ...
+                    }
+
+                fun generateGooooooooooooooooogle():
+                    Gooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooogle {
+                    return Gooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooogle()
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
 }
