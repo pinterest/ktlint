@@ -7,6 +7,7 @@ import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType
 import com.pinterest.ktlint.core.ast.isRoot
+import com.pinterest.ktlint.core.ast.isWhiteSpace
 import com.pinterest.ktlint.ruleset.standard.ImportOrderingRule.Companion.ASCII_PATTERN
 import com.pinterest.ktlint.ruleset.standard.ImportOrderingRule.Companion.IDEA_PATTERN
 import com.pinterest.ktlint.ruleset.standard.internal.importordering.ImportSorter
@@ -193,7 +194,7 @@ public class ImportOrderingRule :
                             break
                         }
                     }
-                    if (hasBlankLines) {
+                    if (hasBlankLines && sortedImportsWithSpaces.isNotEmpty()) {
                         sortedImportsWithSpaces += PsiWhiteSpaceImpl("\n\n")
                     }
                     sortedImportsWithSpaces += current
@@ -216,7 +217,9 @@ public class ImportOrderingRule :
                     if (autoCorrect && canAutoCorrect) {
                         node.removeRange(node.firstChildNode, node.lastChildNode.treeNext)
                         sortedImportsWithSpaces.reduce { current, next ->
-                            node.addChild(current, null)
+                            if (!(current.isWhiteSpace() && node.firstChildNode == null)) {
+                                node.addChild(current, null)
+                            }
                             if (current !is PsiWhiteSpace && next !is PsiWhiteSpace) {
                                 node.addChild(PsiWhiteSpaceImpl("\n"), null)
                             }

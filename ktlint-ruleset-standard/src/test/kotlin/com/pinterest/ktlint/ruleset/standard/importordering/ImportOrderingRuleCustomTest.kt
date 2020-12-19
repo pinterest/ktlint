@@ -385,6 +385,38 @@ class ImportOrderingRuleCustomTest {
         ).isEqualTo(formattedImports)
     }
 
+    @Test
+    fun `Empty import groups before the wildcard group should not result in consecutive empty lines`() {
+
+        val imports =
+            """
+            import com.group2.b
+            import com.group2.a
+            import com.group1.b
+            import com.group1.a
+            """.trimIndent()
+
+        val formattedImports =
+            """
+            import com.group1.a
+            import com.group1.b
+
+            import com.group2.a
+            import com.group2.b
+            """.trimIndent()
+
+        val testFile = writeCustomImportsOrderingConfig(
+            "empty.group1.**,|,empty.group2.**,|,*,|,com.group1.**,|,com.group2.**"
+        )
+
+        assertThat(
+            rule.lint(testFile, imports)
+        ).isEqualTo(expectedErrors)
+        assertThat(
+            rule.format(testFile, imports)
+        ).isEqualTo(formattedImports)
+    }
+
     private fun writeCustomImportsOrderingConfig(
         importsLayout: String
     ) = editorConfigTestRule
