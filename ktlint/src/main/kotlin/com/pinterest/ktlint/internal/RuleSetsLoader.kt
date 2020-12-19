@@ -23,7 +23,7 @@ internal fun JarFiles.loadRulesets(
         // standard should go first
         if (key == "standard") "\u0000$key" else key
     }
-    .filterKeys { it != "experimental" || !enabledExperimentalRules.isNullOrEmpty()}
+    .filterKeys { it != "experimental" || !enabledExperimentalRules.isNullOrEmpty() }
     .filterKeys { !(disabledRules.isStandardRuleSetDisabled() && it == "\u0000standard") }
     .toSortedMap()
     .also {
