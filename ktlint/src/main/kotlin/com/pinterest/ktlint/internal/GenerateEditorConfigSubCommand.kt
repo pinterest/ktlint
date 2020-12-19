@@ -31,9 +31,9 @@ class GenerateEditorConfigSubCommand : Runnable {
                 text = "",
                 ruleSets = ktlintCommand.rulesets
                     .loadRulesets(
-                        ktlintCommand.experimental,
                         ktlintCommand.debug,
-                        ktlintCommand.disabledRules
+                        ktlintCommand.disabledRules,
+                        ktlintCommand.experimentalRules
                     )
                     .map { it.value.get() },
                 userData = mapOf(

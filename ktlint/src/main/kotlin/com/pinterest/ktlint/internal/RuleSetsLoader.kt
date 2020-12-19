@@ -10,9 +10,9 @@ import java.util.ServiceLoader
  * @return map of ruleset ids to ruleset providers
  */
 internal fun JarFiles.loadRulesets(
-    loadExperimental: Boolean,
     debug: Boolean,
-    disabledRules: String
+    disabledRules: String,
+    enabledExperimentalRules: String
 ) = ServiceLoader
     .load(
         RuleSetProvider::class.java,
@@ -23,7 +23,7 @@ internal fun JarFiles.loadRulesets(
         // standard should go first
         if (key == "standard") "\u0000$key" else key
     }
-    .filterKeys { loadExperimental || it != "experimental" }
+    .filterKeys { it != "experimental" || !enabledExperimentalRules.isNullOrEmpty()}
     .filterKeys { !(disabledRules.isStandardRuleSetDisabled() && it == "\u0000standard") }
     .toSortedMap()
     .also {

@@ -174,6 +174,7 @@ internal class EditorConfigLoaderTest {
             [*.{kt,kts}]
             insert_final_newline = true
             disabled_rules = import-ordering
+            experimental_rules = annotation
             """.trimIndent()
         tempFileSystem.writeEditorConfigFile(projectDir, editorconfigFile)
 
@@ -186,6 +187,7 @@ internal class EditorConfigLoaderTest {
             mapOf(
                 "insert_final_newline" to "true",
                 "disabled_rules" to "import-ordering",
+                "experimental_rules" to "annotation",
                 EditorConfigLoader.FILE_PATH_PROPERTY to lintFile.toString()
             )
         )
@@ -222,6 +224,7 @@ internal class EditorConfigLoaderTest {
             """
             [*.{kt,kts}]
             disabled_rules=import-ordering, no-wildcard-imports
+            experimental_rules=annotation, multiline-if-else
             """.trimIndent()
         tempFileSystem.writeEditorConfigFile(projectDir, editorconfigFile)
         val lintFile = tempFileSystem.normalizedPath(projectDir).resolve("test.kts")
@@ -233,6 +236,7 @@ internal class EditorConfigLoaderTest {
         assertThat(parsedEditorConfig).isEqualTo(
             mapOf(
                 "disabled_rules" to "import-ordering, no-wildcard-imports",
+                "experimental_rules" to "annotation, multiline-if-else",
                 EditorConfigLoader.FILE_PATH_PROPERTY to lintFile.toString()
             )
         )
@@ -263,6 +267,7 @@ internal class EditorConfigLoaderTest {
             [*.{kt,kts}]
             insert_final_newline = true
             disabled_rules = import-ordering
+            experimental_rules = annotation
             """.trimIndent()
         tempFileSystem.writeEditorConfigFile(".", editorconfigFile)
 
@@ -282,7 +287,8 @@ internal class EditorConfigLoaderTest {
         assertThat(parsedEditorConfig).isEqualTo(
             mapOf(
                 "insert_final_newline" to "true",
-                "disabled_rules" to "import-ordering"
+                "disabled_rules" to "import-ordering",
+                "experimental_rules" to "annotation"
             )
         )
     }
@@ -392,9 +398,11 @@ internal class EditorConfigLoaderTest {
             [*.{kt,kts}]
             insert_final_newline = true
             disabled_rules = import-ordering
+            experimental_rules = annotation
 
             [api/*.{kt,kts}]
             disabled_rules = class-must-be-internal
+            experimental_rules = multiline-if-else
             """.trimIndent()
         tempFileSystem.writeEditorConfigFile(projectDir, editorconfigFile)
 
@@ -409,6 +417,7 @@ internal class EditorConfigLoaderTest {
             mapOf(
                 "insert_final_newline" to "true",
                 "disabled_rules" to "class-must-be-internal",
+                "experimental_rules" to "multiline-if-else",
                 EditorConfigLoader.FILE_PATH_PROPERTY to lintFile.toString()
             )
         )

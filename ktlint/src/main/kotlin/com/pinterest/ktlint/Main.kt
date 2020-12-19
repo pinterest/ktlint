@@ -219,6 +219,15 @@ class KtlintCommandLine {
     var experimental: Boolean = false
 
     @Option(
+        names = ["--experimental_rules"],
+        description = [
+            "Comma-separated list of experimental rules to globally enable." +
+                " To enable all experimental rules use --experimental"
+        ]
+    )
+    var experimentalRules: String = ""
+
+    @Option(
         names = ["--baseline"],
         description = ["Defines a baseline file to check against"]
     )
@@ -237,7 +246,10 @@ class KtlintCommandLine {
         val start = System.currentTimeMillis()
 
         val baselineResults = loadBaseline(baseline)
-        val ruleSetProviders = rulesets.loadRulesets(experimental, debug, disabledRules)
+        if (experimental) {
+            experimentalRules = "all"
+        }
+        val ruleSetProviders = rulesets.loadRulesets(debug, disabledRules, experimentalRules)
         var reporter = loadReporter()
         if (baselineResults.baselineGenerationNeeded) {
             val baselineReporter = ReporterTemplate("baseline", null, emptyMap(), baseline)
@@ -246,7 +258,8 @@ class KtlintCommandLine {
         }
         val userData = listOfNotNull(
             "android" to android.toString(),
-            if (disabledRules.isNotBlank()) "disabled_rules" to disabledRules else null
+            if (disabledRules.isNotBlank()) "disabled_rules" to disabledRules else null,
+            if (experimentalRules.isNotBlank()) "experimental_rules" to experimentalRules else null
         ).toMap()
 
         reporter.beforeAll()

@@ -88,6 +88,7 @@ max_line_length=off
 # Note that rules in any ruleset other than the standard ruleset will need to be prefixed 
 # by the ruleset identifier.
 disabled_rules=no-wildcard-imports,experimental:annotation,my-custom-ruleset:my-custom-rule
+experimental_rules=multiline-if-else,annotation
 
 # Defines the imports layout. There are predefined layouts like "ascii" or "idea", as well as a custom layout.
 # The predefined layouts are temporary and will be deprecated in the future, once Kotlin plugin supports EditorConfig property for imports layout.
@@ -531,6 +532,13 @@ import package.* // ktlint-disable
 See the [EditorConfig section](https://github.com/pinterest/ktlint#editorconfig) for details on how to use the `disabled_rules` property.
 
 You may also pass a list of disabled rules via the `--disabled_rules` command line flag. It has the same syntax as the EditorConfig property.
+
+### How do I globally enable an experimental rule?
+Experimental rules are not enabled by default.
+
+See the [EditorConfig section](https://github.com/pinterest/ktlint#editorconfig) for details on how to use the `experimental_rules` property.
+
+You may also pass a list of enabled experimental rules via the `--experimental_rules` command line flag. It has the same syntax as the EditorConfig property.
 
 ## Development
 

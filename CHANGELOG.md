@@ -4,6 +4,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 ### Added
+- Support for globally enabling experimental rules via `--experimental_rules` command line flag.
+- Support for globally enabling experimental rules via custom `experimental_rules` property in `.editorconfig`
 
 ### Fixed
 

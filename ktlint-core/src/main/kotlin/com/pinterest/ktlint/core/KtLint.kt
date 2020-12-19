@@ -32,6 +32,7 @@ public object KtLint {
     public val EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY: Key<EditorConfigProperties> =
         Key<EditorConfigProperties>("EDITOR_CONFIG_PROPERTIES")
     public val DISABLED_RULES: Key<Set<String>> = Key<Set<String>>("DISABLED_RULES")
+    private val EXPERIMENTAL_RULES: Key<Set<String>> = Key<Set<String>>("EXPERIMENTAL_RULES")
     private const val UTF8_BOM = "\uFEFF"
     public const val STDIN_FILE: String = "<stdin>"
 
@@ -196,13 +197,17 @@ public object KtLint {
             DISABLED_RULES,
             userData["disabled_rules"]?.split(",")?.map { it.trim() }?.toSet() ?: emptySet()
         )
+        node.putUserData(
+            EXPERIMENTAL_RULES,
+            userData["experimental_rules"]?.split(",")?.map { it.trim() }?.toSet() ?: emptySet()
+        )
     }
 
     private fun visitor(
         rootNode: ASTNode,
         ruleSets: Iterable<RuleSet>,
         concurrent: Boolean = true,
-        filter: (rootNode: ASTNode, fqRuleId: String) -> Boolean = this::filterDisabledRules
+        filter: (rootNode: ASTNode, ruleSet: RuleSet, fqRuleId: String) -> Boolean = this::isEnabledRule
 
     ): ((node: ASTNode, rule: Rule, fqRuleId: String) -> Unit) -> Unit {
         val fqrsRestrictedToRoot = mutableListOf<Pair<String, Rule>>()
@@ -213,7 +218,7 @@ public object KtLint {
             val prefix = if (ruleSet.id === "standard") "" else "${ruleSet.id}:"
             for (rule in ruleSet) {
                 val fqRuleId = "$prefix${rule.id}"
-                if (!filter(rootNode, fqRuleId)) {
+                if (!filter(rootNode, ruleSet, fqRuleId)) {
                     continue
                 }
                 val fqr = fqRuleId to rule
@@ -263,9 +268,30 @@ public object KtLint {
         }
     }
 
-    private fun filterDisabledRules(rootNode: ASTNode, fqRuleId: String): Boolean {
-        return rootNode.getUserData(DISABLED_RULES)?.contains(fqRuleId) == false
+    private fun isEnabledRule(rootNode: ASTNode, ruleSet: RuleSet, fqRuleId: String): Boolean {
+        return if (ruleSet.id == "experimental" && hasEnabledExperimentalRules(rootNode)) {
+            isEnabledExperimentalRule(rootNode, fqRuleId)
+        } else {
+            isNotDisabledRule(rootNode, fqRuleId)
+        }
     }
+
+    private fun hasEnabledExperimentalRules(rootNode: ASTNode) =
+        !rootNode.getUserData(EXPERIMENTAL_RULES).isNullOrEmpty()
+
+    private fun isNotDisabledRule(
+        rootNode: ASTNode,
+        fqRuleId: String
+    ) = rootNode.getUserData(DISABLED_RULES)?.contains(fqRuleId) == false
+
+    private fun isEnabledExperimentalRule(
+        rootNode: ASTNode,
+        fqRuleId: String
+    ) = rootNode.getUserData(EXPERIMENTAL_RULES)
+        .orEmpty()
+        .let {
+            it.contains("all") || it.contains(fqRuleId.removePrefix("experimental:"))
+        }
 
     @Deprecated(
         message = "Should not be a part of public api. Will be removed in future release.",
