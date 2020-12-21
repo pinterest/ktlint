@@ -71,7 +71,7 @@ class StringTemplateRule : Rule("string-template") {
                 if (autoCorrect) {
                     val leftCurlyBraceNode = node.findChildByType(LONG_TEMPLATE_ENTRY_START)
                     val rightCurlyBraceNode = node.findChildByType(LONG_TEMPLATE_ENTRY_END)
-                    if (node.children().count() == 3 && leftCurlyBraceNode != null && rightCurlyBraceNode != null) {
+                    if (leftCurlyBraceNode != null && rightCurlyBraceNode != null) {
                         node.removeChild(leftCurlyBraceNode)
                         node.removeChild(rightCurlyBraceNode)
                         val remainingNode = node.firstChildNode
