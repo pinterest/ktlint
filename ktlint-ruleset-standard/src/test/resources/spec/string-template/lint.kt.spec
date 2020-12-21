@@ -1,5 +1,6 @@
 fun main() {
     println("${String::class.toString()}")
+    println("${hello.toString()}")
     println("""${Int::class.toString()}""")
     println("$s0")
     println("""$s1""")
@@ -62,9 +63,10 @@ class F {
 
 // expect
 // 2:29:Redundant "toString()" call in string template
-// 3:28:Redundant "toString()" call in string template
-// 6:15:Redundant curly braces
+// 3:21:Redundant "toString()" call in string template
+// 4:28:Redundant "toString()" call in string template
 // 7:15:Redundant curly braces
-// 28:79:Redundant "toString()" call in string template
-// 45:20:Redundant curly braces
-// 55:19:Redundant curly braces
+// 8:15:Redundant curly braces
+// 29:79:Redundant "toString()" call in string template
+// 46:20:Redundant curly braces
+// 56:19:Redundant curly braces
