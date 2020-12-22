@@ -528,4 +528,47 @@ class ArgumentListWrappingRuleTest {
             )
         ).isEmpty()
     }
+
+    @Test
+    fun `lint argument list after multiline dot qualified expression`() {
+        assertThat(
+            ArgumentListWrappingRule().lint(
+                """
+                class Logging(mode: Any, appInstanceIdentity: String, org: String)
+
+                class StateManager {
+                    var firebaseLogger: Logging? = null
+                }
+
+                private fun replaceLogger(deviceId: String, orgName: String) {
+                    val stateManager: StateManager = StateManager()
+                    stateManager
+                        .firebaseLogger(
+                        mode = 0,
+                        appInstanceIdentity = deviceId,
+                        org = orgName
+                    )
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `lint argument list after multiline type argument list`() {
+        assertThat(
+            ArgumentListWrappingRule().lint(
+                """
+                fun test() {
+                    generic<
+                        Int,
+                        Int>(
+                        1,
+                        2
+                    )
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
 }

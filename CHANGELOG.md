@@ -12,6 +12,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fix "filename" rule will not work when '.editorconfig' file is not found ([#997](https://github.com/pinterest/ktlint/issues/1004))
 - EditorConfig generation for `import-ordering` ([#1011](https://github.com/pinterest/ktlint/pull/1011))
 - Internal error (`no-unused-imports`) ([#996](https://github.com/pinterest/ktlint/issues/996))
+- Fix false positive when argument list is after multiline dot-qualified expression (`argument-list-wrapping`) ([#893](https://github.com/pinterest/ktlint/issues/893))
 
 ### Changed
 - Update Gradle shadow plugin to `6.1.0` version
