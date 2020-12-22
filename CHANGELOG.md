@@ -8,8 +8,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 - Incorrect indentation with multiple interfaces ([#1003](https://github.com/pinterest/ktlint/issues/1003))
 - Empty line before primary constructor is not reported and formatted-out ([#1004](https://github.com/pinterest/ktlint/issues/1004))
-- Fix '.editorconfig' generation for "import-ordering" rule ([#1011](https://github.com/pinterest/ktlint/issues/1011))
-- Fix "filename" rule will not work when '.editorconfig' file is not found ([#997](https://github.com/pinterest/ktlint/issues/997))
+- Fix '.editorconfig' generation for "import-ordering" rule ([#1011](https://github.com/pinterest/ktlint/issues/1004))
+- Fix "filename" rule will not work when '.editorconfig' file is not found ([#997](https://github.com/pinterest/ktlint/issues/1004))
+- EditorConfig generation for `import-ordering` ([#1011](https://github.com/pinterest/ktlint/pull/1011))
+- Internal error (`no-unused-imports`) ([#996](https://github.com/pinterest/ktlint/issues/996))
+- Fix false positive when argument list is after multiline dot-qualified expression (`argument-list-wrapping`) ([#893](https://github.com/pinterest/ktlint/issues/893))
 - Fix indentation for function types after a newline (`indent`) ([#918](https://github.com/pinterest/ktlint/issues/918))
 
 ### Changed
@@ -48,7 +51,7 @@ Special thanks to [t-kameyama](https://github.com/t-kameyama) for the huge numbe
 - Correctly indent primary constructor parameters when class has multiline type parameter (`parameter-list-wrapping`) ([#921](https://github.com/pinterest/ktlint/issues/921)) ([#938](https://github.com/pinterest/ktlint/issues/938))
 - Correctly indent property delegates (`indent`) ([#939](https://github.com/pinterest/ktlint/issues/939))
 - Fix false positive for semicolon between empty enum entry and member (`no-semicolons`) ([#957](https://github.com/pinterest/ktlint/issues/957))
-- Fix wrong indentation for class delegates (`indent`) ([#960](https://github.com/pinterest/ktlint/issues/960)) ([#963](https://github.com/pinterest/ktlint/issues/963))
+- Fix wrong indentation for class delegates (`indent`) ([#960](https://github.com/pinterest/ktlint/issues/960)) ([#963](https://github.com/pinterest/ktlint/issues/963)) ([#877](https://github.com/pinterest/ktlint/issues/877))
 - Fix wrong indentation in named arguments (`indent`) ([#964](https://github.com/pinterest/ktlint/issues/964))
 - Fix wrong indentation when a function has multiline type arguments (`parameter-list-wrapping`) ([#965](https://github.com/pinterest/ktlint/issues/965))
 - Fix false positive for `spacing-between-declarations-with-annotations` ([#970](https://github.com/pinterest/ktlint/issues/970))

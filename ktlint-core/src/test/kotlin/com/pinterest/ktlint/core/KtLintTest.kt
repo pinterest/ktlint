@@ -42,4 +42,37 @@ class KtLintTest {
         )
         assertThat(bus).isEqualTo(listOf("file:a", "file:b", "file:c", "b", "c", "file:d"))
     }
+
+    @Test
+    fun testFormatUnicodeBom() {
+        val code = getResourceAsText("spec/format-unicode-bom.kt.spec")
+
+        val actual = KtLint.format(
+            KtLint.Params(
+                text = code,
+                ruleSets = listOf(
+                    RuleSet("standard", DummyRule())
+                ),
+                cb = { _, _ -> }
+            )
+        )
+
+        assertThat(actual).isEqualTo(code)
+    }
 }
+
+class DummyRule : Rule("dummy-rule") {
+    override fun visit(
+        node: ASTNode,
+        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+    ) {
+        // The rule does not need to do anything except emit
+        emit(node.startOffset, "Dummy rule", true)
+    }
+}
+
+private fun getResourceAsText(path: String) =
+    (ClassLoader.getSystemClassLoader().getResourceAsStream(path) ?: throw RuntimeException("$path not found"))
+        .bufferedReader()
+        .readText()

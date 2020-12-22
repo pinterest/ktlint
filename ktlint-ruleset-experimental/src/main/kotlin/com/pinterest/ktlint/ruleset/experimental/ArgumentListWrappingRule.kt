@@ -3,8 +3,11 @@ package com.pinterest.ktlint.ruleset.experimental
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType
+import com.pinterest.ktlint.core.ast.ElementType.DOT_QUALIFIED_EXPRESSION
+import com.pinterest.ktlint.core.ast.ElementType.TYPE_ARGUMENT_LIST
 import com.pinterest.ktlint.core.ast.children
 import com.pinterest.ktlint.core.ast.column
+import com.pinterest.ktlint.core.ast.isPartOf
 import com.pinterest.ktlint.core.ast.isPartOfComment
 import com.pinterest.ktlint.core.ast.isRoot
 import com.pinterest.ktlint.core.ast.isWhiteSpace
@@ -71,21 +74,38 @@ class ArgumentListWrappingRule : Rule("argument-list-wrapping") {
                     // max_line_length exceeded
                     maxLineLength > -1 && (node.column - 1 + node.textLength) > maxLineLength && !node.textContains('\n')
             if (putArgumentsOnSeparateLines) {
-                // IDEA quirk:
-                // generic<
-                //     T,
-                //     R>(
-                //     1,
-                //     2
-                // )
-                // instead of
-                // generic<
-                //     T,
-                //     R>(
-                //         1,
-                //         2
-                //     )
-                val adjustedIndent = if (node.hasTypeParameterListInFront()) indentSize else 0
+                val prevWhitespaceWithNewline = node.prevLeaf { it.isWhiteSpaceWithNewline() }
+                val adjustedIndent = when {
+                    // IDEA quirk:
+                    // generic<
+                    //     T,
+                    //     R>(
+                    //     1,
+                    //     2
+                    // )
+                    // instead of
+                    // generic<
+                    //     T,
+                    //     R>(
+                    //         1,
+                    //         2
+                    //     )
+                    prevWhitespaceWithNewline?.isPartOf(TYPE_ARGUMENT_LIST) == true -> indentSize
+                    // IDEA quirk:
+                    // foo
+                    //     .bar(
+                    //     1,
+                    //     2
+                    // )
+                    // instead of
+                    // foo
+                    //     .bar(
+                    //         1,
+                    //         2
+                    //     )
+                    prevWhitespaceWithNewline?.isPartOf(DOT_QUALIFIED_EXPRESSION) == true -> indentSize
+                    else -> 0
+                }
 
                 // aiming for
                 // ... LPAR
@@ -198,12 +218,6 @@ class ArgumentListWrappingRule : Rule("argument-list-wrapping") {
                 elementType == ElementType.VALUE_ARGUMENT && child.children().any { it.textContainsIgnoringLambda(char) }
         }
     }
-
-    private fun ASTNode.hasTypeParameterListInFront(): Boolean =
-        treeParent.children()
-            .firstOrNull { it.elementType == ElementType.TYPE_PARAMETER_LIST }
-            ?.children()
-            ?.any { it.isWhiteSpaceWithNewline() } == true
 
     private fun ASTNode.prevWhiteSpaceWithNewLine(): ASTNode? {
         var prev = prevLeaf()

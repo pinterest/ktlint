@@ -6,6 +6,9 @@ import com.pinterest.ktlint.core.ast.ElementType.DOT
 import com.pinterest.ktlint.core.ast.ElementType.DOT_QUALIFIED_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.LITERAL_STRING_TEMPLATE_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.LONG_STRING_TEMPLATE_ENTRY
+import com.pinterest.ktlint.core.ast.ElementType.LONG_TEMPLATE_ENTRY_END
+import com.pinterest.ktlint.core.ast.ElementType.LONG_TEMPLATE_ENTRY_START
+import com.pinterest.ktlint.core.ast.ElementType.REGULAR_STRING_PART
 import com.pinterest.ktlint.core.ast.ElementType.SUPER_EXPRESSION
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
@@ -65,9 +68,19 @@ class StringTemplateRule : Rule("string-template") {
             ) {
                 emit(node.treePrev.startOffset + 2, "Redundant curly braces", true)
                 if (autoCorrect) {
-                    // fixme: a proper way would be to downcast to SHORT_STRING_TEMPLATE_ENTRY
-                    (node.firstChildNode as LeafPsiElement).rawReplaceWithText("$") // entry start
-                    (node.lastChildNode as LeafPsiElement).rawReplaceWithText("") // entry end
+                    val leftCurlyBraceNode = node.findChildByType(LONG_TEMPLATE_ENTRY_START)
+                    val rightCurlyBraceNode = node.findChildByType(LONG_TEMPLATE_ENTRY_END)
+                    if (leftCurlyBraceNode != null && rightCurlyBraceNode != null) {
+                        node.removeChild(leftCurlyBraceNode)
+                        node.removeChild(rightCurlyBraceNode)
+                        val remainingNode = node.firstChildNode
+                        val newNode = if (remainingNode.elementType == DOT_QUALIFIED_EXPRESSION) {
+                            LeafPsiElement(REGULAR_STRING_PART, "\$${remainingNode.text}")
+                        } else {
+                            LeafPsiElement(remainingNode.elementType, "\$${remainingNode.text}")
+                        }
+                        node.replaceChild(node.firstChildNode, newNode)
+                    }
                 }
             }
         }
