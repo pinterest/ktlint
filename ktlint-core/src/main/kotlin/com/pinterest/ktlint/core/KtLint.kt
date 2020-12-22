@@ -357,11 +357,15 @@ public object KtLint {
             return params.text
         }
 
-        return if (hasUTF8BOM) UTF8_BOM else "" + // Restore UTF8 BOM if it was present
-            preparedCode
-                .rootNode
-                .text
-                .replace("\n", determineLineSeparator(params.text, params.userData))
+        val code = preparedCode
+            .rootNode
+            .text
+            .replace("\n", determineLineSeparator(params.text, params.userData))
+        return if (hasUTF8BOM) {
+            UTF8_BOM + code
+        } else {
+            code
+        }
     }
 
     /**
