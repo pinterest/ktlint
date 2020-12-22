@@ -406,6 +406,10 @@ See [w0rp/ale](https://github.com/w0rp/ale).
 
 > Integrated with something else? Send a PR.
 
+#### ... with Continuous Integration (Github Actions, Circle CI...)
+
+See [Mega-Linter](https://nvuillam.github.io/mega-linter/): 70+ linters aggregated in a single tool for CI, including **ktlint** activated out of the box
+
 ## Creating a ruleset
 
 > See also [Writing your first ktlint rule](https://medium.com/@vanniktech/writing-your-first-ktlint-rule-5a1707f4ca5b) by [Niklas Baudy](https://github.com/vanniktech). 
