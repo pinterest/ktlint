@@ -23,6 +23,7 @@ import com.pinterest.ktlint.core.ast.ElementType.ELSE
 import com.pinterest.ktlint.core.ast.ElementType.ELVIS
 import com.pinterest.ktlint.core.ast.ElementType.EOL_COMMENT
 import com.pinterest.ktlint.core.ast.ElementType.EQ
+import com.pinterest.ktlint.core.ast.ElementType.FUN
 import com.pinterest.ktlint.core.ast.ElementType.FUNCTION_LITERAL
 import com.pinterest.ktlint.core.ast.ElementType.GT
 import com.pinterest.ktlint.core.ast.ElementType.KDOC
@@ -725,7 +726,12 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
     private fun adjustExpectedIndentAfterColon(n: ASTNode, ctx: IndentContext) {
         expectedIndent++
         debug { "++after(COLON) -> $expectedIndent" }
-        ctx.exitAdjBy(n.treeParent, -1)
+        if (n.isPartOf(FUN)) {
+            val returnType = n.nextCodeSibling()
+            ctx.exitAdjBy(returnType!!, -1)
+        } else {
+            ctx.exitAdjBy(n.treeParent, -1)
+        }
     }
 
     private fun adjustExpectedIndentAfterLparInsideCondition(n: ASTNode, ctx: IndentContext) {
