@@ -13,6 +13,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - EditorConfig generation for `import-ordering` ([#1011](https://github.com/pinterest/ktlint/pull/1011))
 - Internal error (`no-unused-imports`) ([#996](https://github.com/pinterest/ktlint/issues/996))
 - Fix false positive when argument list is after multiline dot-qualified expression (`argument-list-wrapping`) ([#893](https://github.com/pinterest/ktlint/issues/893))
+- Fix indentation for function types after a newline (`indent`) ([#918](https://github.com/pinterest/ktlint/issues/918))
 
 ### Changed
 - Update Gradle shadow plugin to `6.1.0` version
