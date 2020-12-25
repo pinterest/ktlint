@@ -344,6 +344,32 @@ internal class IndentationRuleTest {
     }
 
     @Test
+    fun testUnexpectedTabCharacterForLinesAtCorrectIndentationLevel() {
+        val ktScript = "" +
+            "class Foo {\n" +
+            "\tfun doBar() {\n" +
+            "\t\t\tprintln(\"test\")\n" +
+            "\t}\n" +
+            "}\n"
+        assertThat(IndentationRule().lint(ktScript)).isEqualTo(
+            listOf(
+                LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected tab character(s)"),
+                LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected tab character(s)"),
+                LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected indentation (12) (should be 8)"),
+                LintError(line = 4, col = 1, ruleId = "indent", detail = "Unexpected tab character(s)")
+            )
+        )
+        assertThat(IndentationRule().format(ktScript))
+            .isEqualTo(
+                "class Foo {\n" +
+                    "    fun doBar() {\n" +
+                    "        println(\"test\")\n" +
+                    "    }\n" +
+                    "}\n"
+            )
+    }
+
+    @Test
     fun testUnexpectedTabCharacterWithCustomIndentSize() {
         val ktScript = "fun main() {\n\t\treturn 0\n\t}"
         assertThat(IndentationRule().lint(ktScript, mapOf("indent_size" to "2"))).isEqualTo(
