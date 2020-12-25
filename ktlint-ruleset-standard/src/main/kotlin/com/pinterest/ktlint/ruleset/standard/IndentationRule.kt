@@ -1054,7 +1054,9 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                 (if (!autoCorrect) "would have " else "") +
                     "changed indentation to $expectedIndentLength (from ${normalizedNodeIndent.length})"
             }
-            if (autoCorrect) {
+        }
+        if (autoCorrect) {
+            if (nodeIndent != normalizedNodeIndent || normalizedNodeIndent.length != expectedIndentLength) {
                 val indent = when (editorConfig.indentStyle) {
                     IndentStyle.SPACE -> " "
                     IndentStyle.TAB -> "\t"
