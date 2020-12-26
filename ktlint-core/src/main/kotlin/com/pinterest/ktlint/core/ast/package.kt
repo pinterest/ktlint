@@ -260,3 +260,29 @@ fun ASTNode.lineIndent(): String {
     }
     return ""
 }
+
+/**
+ *  Print content of a node and the element type of the node, its parent and its direct children. Utility is meant to
+ *  be used during development only. Please do not remove.
+ */
+@Suppress("unused")
+fun ASTNode.logStructure(): ASTNode =
+    also {
+        println("Processing ${text.replace("\n", "\\n")} : Type $elementType with parent ${treeParent?.elementType} ")
+        children()
+            .toList()
+            .map {
+                println("  ${it.text.replace("\n", "\\n")} : Type ${it.elementType}")
+            }
+    }
+
+/**
+ *  Assert the element type of the node
+ */
+@Suppress("unused")
+fun ASTNode.assertElementType(vararg elementTypes: IElementType): ASTNode =
+    also {
+        assert(elementTypes.contains(this.elementType)) {
+            "Expected element of types $elementType but received ${this.elementType}"
+        }
+    }
