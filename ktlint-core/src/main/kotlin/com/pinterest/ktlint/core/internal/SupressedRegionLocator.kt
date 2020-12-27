@@ -1,7 +1,6 @@
 package com.pinterest.ktlint.core.internal
 
 import com.pinterest.ktlint.core.ast.ElementType
-import com.pinterest.ktlint.core.ast.logStructure
 import com.pinterest.ktlint.core.ast.visit
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
