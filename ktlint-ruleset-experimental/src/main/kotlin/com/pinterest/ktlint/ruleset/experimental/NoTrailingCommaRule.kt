@@ -1,34 +1,74 @@
 package com.pinterest.ktlint.ruleset.experimental
 
+import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.api.FeatureInAlphaState
+import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType
 import com.pinterest.ktlint.core.ast.assertElementType
 import com.pinterest.ktlint.core.ast.children
-import com.pinterest.ktlint.core.ast.logStructure
+import com.pinterest.ktlint.core.ast.isRoot
 import com.pinterest.ktlint.core.ast.prevLeaf
+import kotlin.properties.Delegates
+import org.ec4j.core.model.PropertyType
+import org.ec4j.core.model.PropertyType.PropertyValueParser
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.psi.psiUtil.endOffset
 
-class NoTrailingCommaRule : Rule("no-trailing-comma") {
+@OptIn(FeatureInAlphaState::class)
+class NoTrailingCommaRule :
+    Rule("no-trailing-comma"),
+    UsesEditorConfigProperties {
+
+    private var allowTrailingComma by Delegates.notNull<Boolean>()
+    private var allowTrailingCommaOnCallSite by Delegates.notNull<Boolean>()
+
+    override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
+        ijKotlinAllowTrailingCommaEditorConfigProperty,
+        ijKotlinAllowTrailingCommaOnCallSiteEditorConfigProperty,
+    )
 
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        when (node.elementType) {
-            ElementType.COLLECTION_LITERAL_EXPRESSION -> visitCollectionLiteralExpression(node, emit, autoCorrect)
-            ElementType.DESTRUCTURING_DECLARATION -> visitDestructuringDeclaration(node, emit, autoCorrect)
-            ElementType.FUNCTION_LITERAL -> visitFunctionLiteral(node, emit, autoCorrect)
-            ElementType.FUNCTION_TYPE -> visitFunctionType(node, emit, autoCorrect)
-            ElementType.INDICES -> visitIndices(node, emit, autoCorrect)
-            ElementType.TYPE_ARGUMENT_LIST -> visitTypeList(node, emit, autoCorrect)
-            ElementType.TYPE_PARAMETER_LIST -> visitTypeList(node, emit, autoCorrect)
-            ElementType.VALUE_ARGUMENT_LIST -> visitValueList(node, emit, autoCorrect)
-            ElementType.VALUE_PARAMETER_LIST -> visitValueList(node, emit, autoCorrect)
-            ElementType.WHEN_ENTRY -> visitWhenEntry(node, emit, autoCorrect)
-            else -> Unit
+        if (node.isRoot()) {
+            getEditorConfigValues(node)
+            return
         }
+
+        // Keep processing of element types in sync with Intellij Kotlin formatting settings.
+        // https://github.com/JetBrains/intellij-kotlin/blob/master/formatter/src/org/jetbrains/kotlin/idea/formatter/trailingComma/util.kt
+        if (!allowTrailingComma) {
+            when (node.elementType) {
+                ElementType.DESTRUCTURING_DECLARATION -> visitDestructuringDeclaration(node, emit, autoCorrect)
+                ElementType.FUNCTION_LITERAL -> visitFunctionLiteral(node, emit, autoCorrect)
+                ElementType.FUNCTION_TYPE -> visitFunctionType(node, emit, autoCorrect)
+                ElementType.TYPE_PARAMETER_LIST -> visitTypeList(node, emit, autoCorrect)
+                ElementType.VALUE_PARAMETER_LIST -> visitValueList(node, emit, autoCorrect)
+                ElementType.WHEN_ENTRY -> visitWhenEntry(node, emit, autoCorrect)
+                else -> Unit
+            }
+        }
+        if (!allowTrailingCommaOnCallSite) {
+            when (node.elementType) {
+                ElementType.COLLECTION_LITERAL_EXPRESSION -> visitCollectionLiteralExpression(node, emit, autoCorrect)
+                ElementType.INDICES -> visitIndices(node, emit, autoCorrect)
+                ElementType.TYPE_ARGUMENT_LIST -> visitTypeList(node, emit, autoCorrect)
+                ElementType.VALUE_ARGUMENT_LIST -> visitValueList(node, emit, autoCorrect)
+                else -> Unit
+            }
+        }
+    }
+
+    private fun getEditorConfigValues(node: ASTNode) {
+        val android = node.getUserData(KtLint.ANDROID_USER_DATA_KEY) ?: false
+        val editorConfig = node.getUserData(KtLint.EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY)!!
+        allowTrailingComma =
+            editorConfig.getEditorConfigValue(ijKotlinAllowTrailingCommaEditorConfigProperty, android)
+        allowTrailingCommaOnCallSite =
+            editorConfig.getEditorConfigValue(ijKotlinAllowTrailingCommaOnCallSiteEditorConfigProperty, android)
     }
 
     private fun visitCollectionLiteralExpression(
@@ -172,4 +212,49 @@ class NoTrailingCommaRule : Rule("no-trailing-comma") {
         elementType == ElementType.WHITE_SPACE ||
             elementType == ElementType.EOL_COMMENT ||
             elementType == ElementType.BLOCK_COMMENT
+
+    internal companion object {
+        /** A parser for kotlin boolean values `true` and `false`  */
+        private var KOTLIN_BOOLEAN_VALUE_PARSER: PropertyValueParser<Boolean> =
+            PropertyValueParser { name, value ->
+                when {
+                    value == null -> PropertyType.PropertyValue.invalid(
+                        null,
+                        "Property '$name' expects a boolean; found: null"
+                    )
+                    value.equals("true", ignoreCase = true) -> PropertyType.PropertyValue.valid(value, true)
+                    value.equals("false", ignoreCase = true) -> PropertyType.PropertyValue.valid(value, false)
+                    else -> PropertyType.PropertyValue.invalid(
+                        value,
+                        "Property '$name' expects a boolean. The parsed '$value' is not a boolean."
+                    )
+                }
+            }
+
+        internal val ijKotlinAllowTrailingCommaEditorConfigProperty =
+            UsesEditorConfigProperties.EditorConfigProperty<Boolean>(
+                type = PropertyType(
+                    "ij_kotlin_allow_trailing_comma",
+                    "ij_kotlin_allow_trailing_comma description",
+                    KOTLIN_BOOLEAN_VALUE_PARSER,
+                    setOf("true", "false")
+                ),
+                defaultValue = false,
+                defaultAndroidValue = false,
+                propertyWriter = { it.toString() }
+            )
+
+        internal val ijKotlinAllowTrailingCommaOnCallSiteEditorConfigProperty =
+            UsesEditorConfigProperties.EditorConfigProperty<Boolean>(
+                type = PropertyType(
+                    "ij_kotlin_allow_trailing_comma_on_call_site",
+                    "ij_kotlin_allow_trailing_comma_on_call_site description",
+                    KOTLIN_BOOLEAN_VALUE_PARSER,
+                    setOf("true", "false")
+                ),
+                defaultValue = false,
+                defaultAndroidValue = false,
+                propertyWriter = { it.toString() }
+            )
+    }
 }
