@@ -384,4 +384,56 @@ class NoTrailingCommaRuleTest {
         assertThat(NoTrailingCommaRule().format(code))
             .isEqualTo(autoCorrectedCode)
     }
+
+    @Test
+    fun testFormatIsCorrectWithX() {
+        val code =
+            """
+            annotation class Annotation(val params: IntArray)
+
+            @Annotation([1, 2,])
+            val foo1: Int = 0
+
+            @Annotation([
+                1,
+                2, // The comma before the comment should be removed without removing the comment itself
+            ])
+            val foo2: Int = 0
+
+            @Annotation([
+                1,
+                2, /* The comma before the comment should be removed without removing the comment itself */
+            ])
+            val foo3: Int = 0
+            """.trimIndent()
+        val autoCorrectedCode =
+            """
+            annotation class Annotation(val params: IntArray)
+
+            @Annotation([1, 2])
+            val foo1: Int = 0
+
+            @Annotation([
+                1,
+                2 // The comma before the comment should be removed without removing the comment itself
+            ])
+            val foo2: Int = 0
+
+            @Annotation([
+                1,
+                2 /* The comma before the comment should be removed without removing the comment itself */
+            ])
+            val foo3: Int = 0
+            """.trimIndent()
+
+        assertThat(NoTrailingCommaRule().lint(code)).isEqualTo(
+            listOf(
+                LintError(line = 3, col = 18, ruleId = "no-trailing-comma", detail = "Trailing comma is redundant"),
+                LintError(line = 8, col = 6, ruleId = "no-trailing-comma", detail = "Trailing comma is redundant"),
+                LintError(line = 14, col = 6, ruleId = "no-trailing-comma", detail = "Trailing comma is redundant"),
+            )
+        )
+        assertThat(NoTrailingCommaRule().format(code))
+            .isEqualTo(autoCorrectedCode)
+    }
 }

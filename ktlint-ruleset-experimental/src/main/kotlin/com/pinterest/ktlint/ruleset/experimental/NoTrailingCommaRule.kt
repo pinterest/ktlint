@@ -4,6 +4,7 @@ import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType
 import com.pinterest.ktlint.core.ast.assertElementType
 import com.pinterest.ktlint.core.ast.children
+import com.pinterest.ktlint.core.ast.logStructure
 import com.pinterest.ktlint.core.ast.prevLeaf
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.psi.psiUtil.endOffset
@@ -16,11 +17,7 @@ class NoTrailingCommaRule : Rule("no-trailing-comma") {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         when (node.elementType) {
-            ElementType.COLLECTION_LITERAL_EXPRESSION ->
-                // TODO: According to https://github.com/JetBrains/intellij-kotlin/blob/master/formatter/src/org/jetbrains/kotlin/idea/formatter/trailingComma/util.kt
-                //  it is possible to have a trailing comma with this type of element. Need an example before it can
-                //  be implemented
-                Unit
+            ElementType.COLLECTION_LITERAL_EXPRESSION -> visitCollectionLiteralExpression(node, emit, autoCorrect)
             ElementType.DESTRUCTURING_DECLARATION -> visitDestructuringDeclaration(node, emit, autoCorrect)
             ElementType.FUNCTION_LITERAL -> visitFunctionLiteral(node, emit, autoCorrect)
             ElementType.FUNCTION_TYPE -> visitFunctionType(node, emit, autoCorrect)
@@ -32,6 +29,19 @@ class NoTrailingCommaRule : Rule("no-trailing-comma") {
             ElementType.WHEN_ENTRY -> visitWhenEntry(node, emit, autoCorrect)
             else -> Unit
         }
+    }
+
+    private fun visitCollectionLiteralExpression(
+        node: ASTNode,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        autoCorrect: Boolean
+    ) {
+        val inspectNode = node
+            .assertElementType(ElementType.COLLECTION_LITERAL_EXPRESSION)
+            .children()
+            .last { it.elementType == ElementType.RBRACKET }
+            .prevLeaf()
+        node.reportAndOrCorrectTrailingCommaNodeBefore(inspectNode, emit, autoCorrect)
     }
 
     private fun visitDestructuringDeclaration(
