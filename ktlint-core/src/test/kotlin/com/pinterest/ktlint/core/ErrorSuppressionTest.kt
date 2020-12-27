@@ -10,29 +10,71 @@ import org.junit.Test
 
 class ErrorSuppressionTest {
 
-    @Test
-    fun testErrorSuppression() {
-        class NoWildcardImportsRule : Rule("no-wildcard-imports") {
-            override fun visit(
-                node: ASTNode,
-                autoCorrect: Boolean,
-                emit: (offset: Int, errorMessage: String, corrected: Boolean) -> Unit
-            ) {
-                if (node is LeafPsiElement && node.textMatches("*") && node.isPartOf(ElementType.IMPORT_DIRECTIVE)) {
-                    emit(node.startOffset, "Wildcard import", false)
-                }
+    class NoWildcardImportsRule : Rule("no-wildcard-imports") {
+        override fun visit(
+            node: ASTNode,
+            autoCorrect: Boolean,
+            emit: (offset: Int, errorMessage: String, corrected: Boolean) -> Unit
+        ) {
+            if (node is LeafPsiElement && node.textMatches("*") && node.isPartOf(ElementType.IMPORT_DIRECTIVE)) {
+                emit(node.startOffset, "Wildcard import", false)
             }
         }
-        fun lint(text: String) =
-            ArrayList<LintError>().apply {
-                KtLint.lint(
-                    KtLint.Params(
-                        text = text,
-                        ruleSets = listOf(RuleSet("standard", NoWildcardImportsRule())),
-                        cb = { e, _ -> add(e) }
-                    )
+    }
+
+    fun lint(text: String) =
+        ArrayList<LintError>().apply {
+            KtLint.lint(
+                KtLint.Params(
+                    text = text,
+                    ruleSets = listOf(RuleSet("standard", NoWildcardImportsRule())),
+                    cb = { e, _ -> add(e) }
                 )
-            }
+            )
+        }
+
+    @Test
+    fun testErrorSuppressionDisableAllOnPackage() {
+        assertThat(
+            lint(
+                """
+                package com.pinterest.ktlint // ktlint-disable
+
+                import a.* // Should not trigger an error due to ktlin-disable directive on package
+
+                /* ktlint-enable */
+                import b.* // will trigger an error
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(6, 10, "no-wildcard-imports", "Wildcard import")
+            )
+        )
+    }
+
+    @Test
+    fun testErrorSuppressionDisableRuleOnPackage() {
+        assertThat(
+            lint(
+                """
+                package com.pinterest.ktlint // ktlint-disable no-wildcard-imports
+
+                import a.* // Should not trigger an error due to ktlin-disable directive on package
+
+                /* ktlint-enable no-wildcard-imports */
+                import b.* // will trigger an error
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(6, 10, "no-wildcard-imports", "Wildcard import")
+            )
+        )
+    }
+
+    @Test
+    fun testErrorSuppressionDisableAllOnImport() {
         assertThat(
             lint(
                 """
@@ -45,6 +87,10 @@ class ErrorSuppressionTest {
                 LintError(2, 10, "no-wildcard-imports", "Wildcard import")
             )
         )
+    }
+
+    @Test
+    fun testErrorSuppressionDisableRuleOnImport() {
         assertThat(
             lint(
                 """
@@ -57,6 +103,10 @@ class ErrorSuppressionTest {
                 LintError(2, 10, "no-wildcard-imports", "Wildcard import")
             )
         )
+    }
+
+    @Test
+    fun testErrorSuppressionDisableAllInBlock() {
         assertThat(
             lint(
                 """
@@ -72,6 +122,10 @@ class ErrorSuppressionTest {
                 LintError(5, 10, "no-wildcard-imports", "Wildcard import")
             )
         )
+    }
+
+    @Test
+    fun testErrorSuppressionDisableRuleInBlock() {
         assertThat(
             lint(
                 """

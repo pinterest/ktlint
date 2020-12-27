@@ -1,13 +1,17 @@
 package com.pinterest.ktlint.core.internal
 
-import com.pinterest.ktlint.core.ast.prevLeaf
+import com.pinterest.ktlint.core.ast.ElementType
+import com.pinterest.ktlint.core.ast.logStructure
 import com.pinterest.ktlint.core.ast.visit
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
+import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.psi.KtAnnotated
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
 import org.jetbrains.kotlin.psi.psiUtil.endOffset
+import org.jetbrains.kotlin.psi.psiUtil.prevLeaf
+import org.jetbrains.kotlin.psi.psiUtil.prevLeafs
 import org.jetbrains.kotlin.psi.psiUtil.startOffset
 
 /**
@@ -73,32 +77,19 @@ private fun collect(
             val text = node.getText()
             if (text.startsWith("//")) {
                 val commentText = text.removePrefix("//").trim()
-                parseHintArgs(commentText, "ktlint-disable")?.let { args ->
-                    val lineStart = (
-                        node.prevLeaf { it is PsiWhiteSpace && it.textContains('\n') } as
-                            PsiWhiteSpace?
-                        )?.let { it.node.startOffset + it.text.lastIndexOf('\n') + 1 } ?: 0
-                    result.add(SuppressionHint(IntRange(lineStart, node.startOffset), HashSet(args)))
+                if (node.isDisabledOnPackageStatement()) {
+                    node.createBlockDisableSuppressionHint(commentText)
+                        ?.let { suppressionHint -> open.add(suppressionHint) }
+                } else {
+                    node.createLineDisableSupressionHint(commentText)
+                        ?.let { suppressionHint -> result.add(suppressionHint) }
                 }
             } else {
                 val commentText = text.removePrefix("/*").removeSuffix("*/").trim()
-                parseHintArgs(commentText, "ktlint-disable")?.apply {
-                    open.add(SuppressionHint(IntRange(node.startOffset, node.startOffset), HashSet(this)))
-                }
-                    ?: parseHintArgs(commentText, "ktlint-enable")?.apply {
-                        // match open hint
-                        val disabledRules = HashSet(this)
-                        val openHintIndex = open.indexOfLast { it.disabledRules == disabledRules }
-                        if (openHintIndex != -1) {
-                            val openingHint = open.removeAt(openHintIndex)
-                            result.add(
-                                SuppressionHint(
-                                    IntRange(openingHint.range.first, node.startOffset),
-                                    disabledRules
-                                )
-                            )
-                        }
-                    }
+                node.createBlockDisableSuppressionHint(commentText)
+                    ?.let { suppressionHint -> open.add(suppressionHint) }
+                node.createBlockEnableSuppressionHint(commentText, open)
+                    ?.let { suppressionHint -> result.add(suppressionHint) }
             }
         }
         // Extract all Suppress annotations and create SuppressionHints
@@ -118,15 +109,50 @@ private fun collect(
     return result
 }
 
+private fun PsiElement.isDisabledOnPackageStatement(): Boolean =
+    prevLeafs.any { it.node.elementType == ElementType.PACKAGE_KEYWORD }
+
+private fun PsiElement.createLineDisableSupressionHint(commentText: String): SuppressionHint? {
+    return parseHintArgs(commentText, "ktlint-disable")
+        ?.let { hints ->
+            val rangeStartOffset = (
+                prevLeaf { it is PsiWhiteSpace && it.textContains('\n') } as
+                    PsiWhiteSpace?
+                )?.let { it.node.startOffset + it.text.lastIndexOf('\n') + 1 } ?: 0
+            SuppressionHint(IntRange(rangeStartOffset, startOffset), hints)
+        }
+}
+
+private fun PsiElement.createBlockDisableSuppressionHint(commentText: String): SuppressionHint? {
+    return parseHintArgs(commentText, "ktlint-disable")
+        ?.let { hints -> SuppressionHint(IntRange(node.startOffset, node.startOffset), hints) }
+}
+
+private fun PsiElement.createBlockEnableSuppressionHint(commentText: String, open: java.util.ArrayList<SuppressionHint>): SuppressionHint? {
+    return parseHintArgs(commentText, "ktlint-enable")?.let { hints ->
+        // match open hint
+        val openHintIndex = open.indexOfLast { it.disabledRules == hints }
+        if (openHintIndex != -1) {
+            val openingHint = open.removeAt(openHintIndex)
+            SuppressionHint(
+                IntRange(openingHint.range.first, node.startOffset),
+                hints
+            )
+        } else {
+            null
+        }
+    }
+}
+
 private fun parseHintArgs(
     commentText: String,
     key: String
-): List<String>? {
+): HashSet<String>? {
     if (commentText.startsWith(key)) {
         val parsedComment = splitCommentBySpace(commentText)
         // assert exact match
         if (parsedComment[0] == key) {
-            return parsedComment.tail()
+            return HashSet(parsedComment.tail())
         }
     }
     return null
