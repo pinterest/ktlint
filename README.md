@@ -82,6 +82,13 @@ insert_final_newline=true
 max_line_length=off
 ```
 
+### IntelliJ IDEA `.editorconfig` autoformat issue
+
+Unfortunately [IntelliJ IDEA](https://www.jetbrains.com/idea/) has `.editorconfig` [autoformat issue](https://youtrack.jetbrains.com/issue/IDEA-242506) 
+that adds additional space into glob statements.
+For example, `[*{kt,kts}]` is formatted into `[*{kt, kts}]` ([original ktlint issue](https://github.com/pinterest/ktlint/issues/762)).
+Such behaviour violates `.editorconfig` [specification](https://github.com/editorconfig/editorconfig/issues/148) and leads to ignoring this section when ktlint is parsing it.
+
 ### Custom Ktlint specific EditorConfig properties
 
 ```ini
