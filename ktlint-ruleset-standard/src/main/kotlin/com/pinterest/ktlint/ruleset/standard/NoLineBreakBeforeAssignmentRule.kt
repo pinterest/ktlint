@@ -9,6 +9,7 @@ import com.pinterest.ktlint.core.ast.prevCodeSibling
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
+import org.jetbrains.kotlin.psi.KtPsiFactory
 import org.jetbrains.kotlin.psi.psiUtil.siblings
 
 class NoLineBreakBeforeAssignmentRule : Rule("no-line-break-before-assignment") {
@@ -23,13 +24,14 @@ class NoLineBreakBeforeAssignmentRule : Rule("no-line-break-before-assignment") 
             if (hasLineBreakBeforeAssignment == true) {
                 emit(node.startOffset, "Line break before assignment is not allowed", true)
                 if (autoCorrect) {
-                    val next = prevCodeSibling.treeNext
-                    val newText = buildString {
-                        append(" =")
-                        if (next !is PsiWhiteSpace) append(" ")
-                        append(next.text)
+                    val prevPsi = prevCodeSibling.psi
+                    val parentPsi = prevPsi.parent
+                    val psiFactory = KtPsiFactory(prevPsi)
+                    if (prevPsi.nextSibling !is PsiWhiteSpace) {
+                        parentPsi.addAfter(psiFactory.createWhiteSpace(), prevPsi)
                     }
-                    (next as? LeafPsiElement)?.rawReplaceWithText(newText)
+                    parentPsi.addAfter(psiFactory.createEQ(), prevPsi)
+                    parentPsi.addAfter(psiFactory.createWhiteSpace(), prevPsi)
                     (node as? LeafPsiElement)?.delete()
                 }
             }
