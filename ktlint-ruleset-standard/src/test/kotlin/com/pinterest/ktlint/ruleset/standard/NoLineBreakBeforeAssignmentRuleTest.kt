@@ -188,32 +188,4 @@ class NoLineBreakBeforeAssignmentRuleTest {
             """.trimIndent()
         )
     }
-
-    // https://github.com/pinterest/ktlint/issues/1039
-    @Test
-    fun `test default arguments with standard rule set`() {
-        val code = """
-            fun test(b: Boolean?
-            = null): Int = 3
-
-        """.trimIndent()
-
-        val actual = KtLint.format(
-            KtLint.Params(
-                text = code,
-                ruleSets = listOf(StandardRuleSetProvider().get()),
-                cb = { _, _ -> }
-            )
-        )
-
-        assertThat(actual).isEqualTo(
-            """
-            fun test(
-                b: Boolean? =
-                    null
-            ): Int = 3
-
-            """.trimIndent()
-        )
-    }
 }
