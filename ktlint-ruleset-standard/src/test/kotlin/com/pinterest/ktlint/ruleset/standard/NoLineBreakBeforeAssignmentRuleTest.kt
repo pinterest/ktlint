@@ -169,4 +169,22 @@ class NoLineBreakBeforeAssignmentRuleTest {
             """.trimIndent()
         )
     }
+
+    // https://github.com/pinterest/ktlint/issues/1039
+    @Test
+    fun `test default arguments`() {
+        assertThat(
+            NoLineBreakBeforeAssignmentRule().format(
+                """
+                fun test(b: Boolean?
+                = null): Int = 3
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            """
+            fun test(b: Boolean? =
+            null): Int = 3
+            """.trimIndent()
+        )
+    }
 }
