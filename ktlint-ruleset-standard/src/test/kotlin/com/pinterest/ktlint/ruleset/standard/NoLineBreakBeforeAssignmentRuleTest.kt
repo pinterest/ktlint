@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard
 
+import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.test.format
 import com.pinterest.ktlint.test.lint
@@ -166,6 +167,52 @@ class NoLineBreakBeforeAssignmentRuleTest {
             """
             fun sum(a: Int, b: Int): Int = // comment
                 a + b
+            """.trimIndent()
+        )
+    }
+
+    // https://github.com/pinterest/ktlint/issues/1039
+    @Test
+    fun `test default arguments`() {
+        assertThat(
+            NoLineBreakBeforeAssignmentRule().format(
+                """
+                fun test(b: Boolean?
+                = null): Int = 3
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            """
+            fun test(b: Boolean? =
+            null): Int = 3
+            """.trimIndent()
+        )
+    }
+
+    // https://github.com/pinterest/ktlint/issues/1039
+    @Test
+    fun `test default arguments with standard rule set`() {
+        val code = """
+            fun test(b: Boolean?
+            = null): Int = 3
+
+        """.trimIndent()
+
+        val actual = KtLint.format(
+            KtLint.Params(
+                text = code,
+                ruleSets = listOf(StandardRuleSetProvider().get()),
+                cb = { _, _ -> }
+            )
+        )
+
+        assertThat(actual).isEqualTo(
+            """
+            fun test(
+                b: Boolean? =
+                    null
+            ): Int = 3
+
             """.trimIndent()
         )
     }
