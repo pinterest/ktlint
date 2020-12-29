@@ -1,6 +1,5 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.test.format
 import com.pinterest.ktlint.test.lint
