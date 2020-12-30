@@ -2,19 +2,18 @@ package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.CLOSING_QUOTE
-import com.pinterest.ktlint.core.ast.ElementType.DOT
 import com.pinterest.ktlint.core.ast.ElementType.DOT_QUALIFIED_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.LITERAL_STRING_TEMPLATE_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.LONG_STRING_TEMPLATE_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.LONG_TEMPLATE_ENTRY_END
 import com.pinterest.ktlint.core.ast.ElementType.LONG_TEMPLATE_ENTRY_START
 import com.pinterest.ktlint.core.ast.ElementType.REGULAR_STRING_PART
-import com.pinterest.ktlint.core.ast.ElementType.SUPER_EXPRESSION
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.psi.KtBlockStringTemplateEntry
 import org.jetbrains.kotlin.psi.KtDotQualifiedExpression
 import org.jetbrains.kotlin.psi.KtNameReferenceExpression
+import org.jetbrains.kotlin.psi.KtSuperExpression
 import org.jetbrains.kotlin.psi.KtThisExpression
 
 class StringTemplateRule : Rule("string-template") {
@@ -38,20 +37,17 @@ class StringTemplateRule : Rule("string-template") {
 */
         if (elementType == LONG_STRING_TEMPLATE_ENTRY) {
             var entryExpression = (node.psi as? KtBlockStringTemplateEntry)?.expression
-            val entryStart = node.firstChildNode
-            val dotQualifiedExpression = entryStart.treeNext
-            if (dotQualifiedExpression?.elementType == DOT_QUALIFIED_EXPRESSION) {
-                val callExpression = dotQualifiedExpression.lastChildNode
-                val dot = callExpression.treePrev
-                if (dot?.elementType == DOT &&
-                    callExpression.text == "toString()" &&
-                    dotQualifiedExpression.firstChildNode?.elementType != SUPER_EXPRESSION
-                ) {
-                    emit(dot.startOffset, "Redundant \"toString()\" call in string template", true)
+            if (entryExpression is KtDotQualifiedExpression) {
+                val receiver = entryExpression.receiverExpression
+                if (entryExpression.selectorExpression?.text == "toString()" && receiver !is KtSuperExpression) {
+                    emit(
+                        entryExpression.operationTokenNode.startOffset,
+                        "Redundant \"toString()\" call in string template",
+                        true
+                    )
                     if (autoCorrect) {
-                        entryExpression = (entryExpression as? KtDotQualifiedExpression)?.receiverExpression
-                        node.removeChild(dot)
-                        node.removeChild(callExpression)
+                        entryExpression.replace(receiver)
+                        entryExpression = receiver
                     }
                 }
             }
