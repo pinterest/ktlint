@@ -942,7 +942,7 @@ class AnnotationRuleTest {
             @file:Suppress("UnstableApiUsage")
             pluginManagement {
             }
-        """.trimIndent()
+            """.trimIndent()
         assertThat(AnnotationRule().lint(code, script = true)).isEqualTo(
             listOf(
                 LintError(1, 34, "annotation", AnnotationRule.fileAnnotationsShouldBeSeparated)
@@ -957,7 +957,7 @@ class AnnotationRuleTest {
 
             pluginManagement {
             }
-        """.trimIndent()
+            """.trimIndent()
         assertThat(AnnotationRule().lint(code, script = true)).isEmpty()
     }
 

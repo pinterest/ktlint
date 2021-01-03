@@ -110,24 +110,24 @@ class SpacingAroundKeywordRuleTest {
         assertThat(
             SpacingAroundKeywordRule().format(
                 """
-            var x: String
-			    get () {
-				    return ""
-			    }
-			    private set (value) {
-				    x = value
-			    }
-            """.trimIndent()
+                var x: String
+                    get () {
+                        return ""
+                    }
+                    private set (value) {
+                        x = value
+                    }
+                """.trimIndent()
             )
         ).isEqualTo(
             """
             var x: String
-			    get() {
-				    return ""
-			    }
-			    private set(value) {
-				    x = value
-			    }
+                get() {
+                    return ""
+                }
+                private set(value) {
+                    x = value
+                }
             """.trimIndent()
         )
     }

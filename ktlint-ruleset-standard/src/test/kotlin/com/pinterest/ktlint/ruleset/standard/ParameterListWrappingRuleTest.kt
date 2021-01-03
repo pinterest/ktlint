@@ -168,10 +168,10 @@ class ParameterListWrappingRuleTest {
         assertThat(
             ParameterListWrappingRule().lint(
                 """
-                    fun f(
-                        a: Any,
-                        b: Any, c: Any
-                    )
+                fun f(
+                    a: Any,
+                    b: Any, c: Any
+                )
                 """.trimIndent()
             )
         ).isEqualTo(
