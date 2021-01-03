@@ -37,8 +37,8 @@ _""".trimIndent())
     text ""
 
         text
-    """.trimIndent(),
         ""
+    """.trimIndent()
     )
     format(
                 """
@@ -62,7 +62,7 @@ _""".trimIndent())
         [*]
         end_of_line = lf
     """.trimIndent().toByteArray())
-            SpacingAroundKeywordRule().format( // string below is tab-indented
+            SpacingAroundKeywordRule().format( // string below is indented with tabs and spaces and will not changed
                 """
             var x: String
 			    get () {
@@ -77,13 +77,13 @@ _""".trimIndent())
 
 class C {
     val CONFIG_COMPACT = """
-        {
-        }
+            {
+            }
         """.trimIndent()
     val CONFIG_COMPACT = // comment
         """
-        {
-        }
+            {
+            }
         """.trimIndent()
 
     fun getBazelWorkspaceContent(blueprint: BazelWorkspaceBlueprint) =

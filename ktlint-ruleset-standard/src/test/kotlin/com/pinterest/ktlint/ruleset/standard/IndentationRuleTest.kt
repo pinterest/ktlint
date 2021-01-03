@@ -571,6 +571,314 @@ internal class IndentationRuleTest {
     }
 
     @Test
+    fun `format new line before opening quotes multiline string as parameter`() {
+        val code =
+            """
+            fun foo() {
+                println($MULTILINE_STRING_QUOTE
+                    line1
+                        line2
+                $MULTILINE_STRING_QUOTE.trimIndent())
+            }
+            """.trimIndent()
+        val expectedCode =
+            """
+            fun foo() {
+                println(
+                    $MULTILINE_STRING_QUOTE
+                    line1
+                        line2
+                    $MULTILINE_STRING_QUOTE.trimIndent()
+                )
+            }
+            """.trimIndent()
+        assertThat(
+            IndentationRule().lint(code)
+        ).isEqualTo(
+            listOf(
+                LintError(line = 2, col = 13, ruleId = "indent", detail = """Missing newline after "(""""),
+                LintError(line = 5, col = 1, ruleId = "indent", detail = "Unexpected indentation (4) (should be 8)"),
+                LintError(line = 5, col = 20, ruleId = "indent", detail = """Missing newline before ")""""),
+            )
+        )
+        assertThat(IndentationRule().format(code)).isEqualTo(expectedCode)
+    }
+
+    @Test
+    fun `format new line before closing quotes multiline string when not blank`() {
+        val code =
+            """
+            fun foo() {
+                println($MULTILINE_STRING_QUOTE
+                    line1
+                line2$MULTILINE_STRING_QUOTE.trimIndent())
+            }
+            """.trimIndent()
+        val expectedCode =
+            """
+            fun foo() {
+                println(
+                    $MULTILINE_STRING_QUOTE
+                        line1
+                    line2
+                    $MULTILINE_STRING_QUOTE.trimIndent()
+                )
+            }
+            """.trimIndent()
+        assertThat(
+            IndentationRule().lint(code)
+        ).isEqualTo(
+            listOf(
+                LintError(line = 2, col = 13, ruleId = "indent", detail = "Missing newline after \"(\""),
+                LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected indent of multiline string"),
+                LintError(line = 4, col = 1, ruleId = "indent", detail = "Unexpected indent of multiline string"),
+                LintError(line = 4, col = 10, ruleId = "indent", detail = "Missing newline before \"\"\""),
+                LintError(line = 4, col = 25, ruleId = "indent", detail = "Missing newline before \")\""),
+            )
+        )
+        assertThat(IndentationRule().format(code)).isEqualTo(expectedCode)
+    }
+
+    @Test
+    fun `format multiline string containing quotation marks`() {
+        val code =
+            """
+            fun foo() {
+                println(
+                    $MULTILINE_STRING_QUOTE
+                text ""
+
+                     text
+                     ""
+                $MULTILINE_STRING_QUOTE.trimIndent()
+                )
+            }
+            """.trimIndent()
+        val expectedCode =
+            """
+            fun foo() {
+                println(
+                    $MULTILINE_STRING_QUOTE
+                    text ""
+
+                         text
+                         ""
+                    $MULTILINE_STRING_QUOTE.trimIndent()
+                )
+            }
+            """.trimIndent()
+        assertThat(
+            IndentationRule().lint(code)
+        ).isEqualTo(
+            listOf(
+                LintError(line = 4, col = 1, ruleId = "indent", detail = "Unexpected indent of multiline string"),
+                LintError(line = 6, col = 1, ruleId = "indent", detail = "Unexpected indent of multiline string"),
+                LintError(line = 7, col = 1, ruleId = "indent", detail = "Unexpected indent of multiline string"),
+                LintError(line = 8, col = 1, ruleId = "indent", detail = "Unexpected indent of multiline string"),
+                LintError(line = 8, col = 1, ruleId = "indent", detail = "Unexpected indentation (4) (should be 8)"),
+            )
+        )
+        assertThat(IndentationRule().format(code)).isEqualTo(expectedCode)
+    }
+
+    @Test
+    fun `format multiline string containing a template string as the first non blank element on the line`() {
+        // Escape '${true}' as '${"$"}{true}' to prevent evaluation before actually processing the multiline sting
+        val code =
+            """
+            fun foo() {
+            println($MULTILINE_STRING_QUOTE
+            ${"$"}{true}
+
+                ${"$"}{true}
+            $MULTILINE_STRING_QUOTE.trimIndent())
+            }
+            """.trimIndent()
+        val expectedCode =
+            """
+            fun foo() {
+                println(
+                    $MULTILINE_STRING_QUOTE
+                    ${"$"}{true}
+
+                        ${"$"}{true}
+                    $MULTILINE_STRING_QUOTE.trimIndent()
+                )
+            }
+            """.trimIndent()
+        assertThat(
+            IndentationRule().lint(code)
+        ).isEqualTo(
+            listOf(
+                LintError(2, 1, "indent", "Unexpected indentation (0) (should be 4)"),
+                LintError(2, 9, "indent", "Missing newline after \"(\""),
+                LintError(3, 1, "indent", "Unexpected indent of multiline string"),
+                LintError(5, 1, "indent", "Unexpected indent of multiline string"),
+                LintError(5, 5, "indent", "Unexpected indent of multiline string"),
+                LintError(6, 1, "indent", "Unexpected indentation (0) (should be 8)"),
+                LintError(6, 16, "indent", "Missing newline before \")\"")
+            )
+        )
+        assertThat(IndentationRule().format(code)).isEqualTo(expectedCode)
+    }
+
+    @Test
+    fun `format variable with multiline string value`() {
+        val code =
+            """
+            val foo1 = $MULTILINE_STRING_QUOTE
+                    line1
+                $MULTILINE_STRING_QUOTE.trimIndent()
+            val foo2 =
+                $MULTILINE_STRING_QUOTE
+                    line2
+                $MULTILINE_STRING_QUOTE.trimIndent()
+            val foo3 = // comment
+                $MULTILINE_STRING_QUOTE
+                    line3
+                $MULTILINE_STRING_QUOTE.trimIndent()
+            """.trimIndent()
+        // TODO: What is the proper way to indent a multi line string value?
+        //     val foo =
+        //        """
+        //        line1
+        //        line2
+        //        """
+        //  or
+        //     val foo = """
+        //        line1
+        //        line2
+        //        """
+        //  or
+        //     val foo = """
+        //     line1
+        //     line2
+        //     """
+        //  or
+        //     val foo = """
+        //        line1
+        //        line2
+        //     """
+        // First option would be most in line with function parameter. Second option is also acceptable. Third option
+        // (previous behavior) is not logical as there is no continuation kind of indent visible. Last option is not in
+        // sync with function parameter.
+        val expectedCode =
+            """
+            val foo1 = $MULTILINE_STRING_QUOTE
+                line1
+                $MULTILINE_STRING_QUOTE.trimIndent()
+            val foo2 =
+                $MULTILINE_STRING_QUOTE
+                line2
+                $MULTILINE_STRING_QUOTE.trimIndent()
+            val foo3 = // comment
+                $MULTILINE_STRING_QUOTE
+                line3
+                $MULTILINE_STRING_QUOTE.trimIndent()
+            """.trimIndent()
+        assertThat(
+            IndentationRule().lint(code)
+        ).isEqualTo(
+            listOf(
+                LintError(2, 1, "indent", "Unexpected indent of multiline string"),
+                LintError(3, 1, "indent", "Unexpected indent of multiline string"),
+                LintError(6, 1, "indent", "Unexpected indent of multiline string"),
+                LintError(7, 1, "indent", "Unexpected indent of multiline string"),
+                LintError(10, 1, "indent", "Unexpected indent of multiline string"),
+                LintError(11, 1, "indent", "Unexpected indent of multiline string"),
+            )
+        )
+        assertThat(IndentationRule().format(code)).isEqualTo(expectedCode)
+    }
+
+    @Test
+    fun `format variable in class with multiline string value`() {
+        val code =
+            """
+            class C {
+                val CONFIG_COMPACT1 = $MULTILINE_STRING_QUOTE
+                        {
+                        }
+                    $MULTILINE_STRING_QUOTE.trimIndent()
+                val CONFIG_COMPACT2 = // comment
+                    $MULTILINE_STRING_QUOTE
+                        {
+                        }
+                    $MULTILINE_STRING_QUOTE.trimIndent()
+            }
+            """.trimIndent()
+        val expectedCode =
+            """
+            class C {
+                val CONFIG_COMPACT1 = $MULTILINE_STRING_QUOTE
+                    {
+                    }
+                    $MULTILINE_STRING_QUOTE.trimIndent()
+                val CONFIG_COMPACT2 = // comment
+                    $MULTILINE_STRING_QUOTE
+                    {
+                    }
+                    $MULTILINE_STRING_QUOTE.trimIndent()
+            }
+            """.trimIndent()
+        assertThat(
+            IndentationRule().lint(code)
+        ).isEqualTo(
+            listOf(
+                LintError(3, 1, "indent", "Unexpected indent of multiline string"),
+                LintError(4, 1, "indent", "Unexpected indent of multiline string"),
+                LintError(5, 1, "indent", "Unexpected indent of multiline string"),
+                LintError(8, 1, "indent", "Unexpected indent of multiline string"),
+                LintError(9, 1, "indent", "Unexpected indent of multiline string"),
+                LintError(10, 1, "indent", "Unexpected indent of multiline string")
+            )
+        )
+        assertThat(IndentationRule().format(code)).isEqualTo(expectedCode)
+    }
+
+    @Test
+    fun `issue 575 - format multiline string with tabs after the margin is indented properly`() {
+        val code =
+            """
+            val str =
+                $MULTILINE_STRING_QUOTE
+                ${TAB}Tab at the beginning of this line but after the indentation margin
+                Tab${TAB}in the middle of this string
+                Tab at the end of this line.$TAB
+                $MULTILINE_STRING_QUOTE.trimIndent()
+            """.trimIndent()
+        assertThat(IndentationRule().lint(code)).isEmpty()
+        assertThat(IndentationRule().format(code)).isEqualTo(code)
+    }
+
+    @Test
+    fun `issue 575 - lint multiline string with mixed indentation characters, can not be autocorrected`() {
+        val code =
+            """
+                val foo = $MULTILINE_STRING_QUOTE
+                      line1
+                {TAB} line2
+                    $MULTILINE_STRING_QUOTE.trimIndent()
+                """
+                .trimIndent()
+                .replace("{TAB}", "\t")
+                .replace("{SPACE}", " ")
+        assertThat(
+            IndentationRule().lint(code)
+        ).isEqualTo(
+            listOf(
+                LintError(
+                    line = 1,
+                    col = 11,
+                    ruleId = "indent",
+                    detail = "Indentation of multiline string should not contain both tab(s) and space(s)"
+                ),
+            )
+        )
+        assertThat(IndentationRule().format(code)).isEqualTo(code)
+    }
+
+    @Test
     fun `lint if-condition with line break and multiline call expression is indented properly`() {
         assertThat(
             IndentationRule().lint(
@@ -848,5 +1156,10 @@ internal class IndentationRuleTest {
                 """.trimIndent()
             )
         ).isEmpty()
+    }
+
+    private companion object {
+        const val MULTILINE_STRING_QUOTE = "${'"'}${'"'}${'"'}"
+        const val TAB = "${'\t'}"
     }
 }

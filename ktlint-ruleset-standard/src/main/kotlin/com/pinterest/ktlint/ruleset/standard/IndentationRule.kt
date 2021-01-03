@@ -39,6 +39,7 @@ import com.pinterest.ktlint.core.ast.ElementType.OBJECT_LITERAL
 import com.pinterest.ktlint.core.ast.ElementType.OPEN_QUOTE
 import com.pinterest.ktlint.core.ast.ElementType.OPERATION_REFERENCE
 import com.pinterest.ktlint.core.ast.ElementType.PARENTHESIZED
+import com.pinterest.ktlint.core.ast.ElementType.PROPERTY
 import com.pinterest.ktlint.core.ast.ElementType.PROPERTY_ACCESSOR
 import com.pinterest.ktlint.core.ast.ElementType.RBRACE
 import com.pinterest.ktlint.core.ast.ElementType.RBRACKET
@@ -78,7 +79,6 @@ import com.pinterest.ktlint.core.ast.prevSibling
 import com.pinterest.ktlint.core.ast.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.core.ast.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.core.ast.visit
-import java.lang.StringBuilder
 import java.util.Deque
 import java.util.LinkedList
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -510,8 +510,15 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                         //     })
                         adjustExpectedIndentInsideSuperTypeCall(n, ctx)
                     }
-                    STRING_TEMPLATE ->
-                        indentStringTemplate(n, autoCorrect, emit, editorConfig)
+                    STRING_TEMPLATE -> {
+                        if (n.isPropertyValueAssignment() && n.isNotPrecededByNewlineOrEndOfLineComment()) {
+                            expectedIndent++
+                            indentStringTemplate(n, autoCorrect, emit, editorConfig)
+                            expectedIndent--
+                        } else {
+                            indentStringTemplate(n, autoCorrect, emit, editorConfig)
+                        }
+                    }
                     DOT_QUALIFIED_EXPRESSION, SAFE_ACCESS_EXPRESSION, BINARY_EXPRESSION, BINARY_WITH_TYPE -> {
                         val prevBlockLine = ctx.blockOpeningLineStack.peek() ?: -1
                         if (prevBlockLine == line) {
@@ -748,69 +755,130 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
     ) {
         val psi = node.psi as KtStringTemplateExpression
         if (psi.isMultiLine() && psi.isFollowedByTrimIndent()) {
+            if (node.containsMixedIndentationCharacters()) {
+                // It can not be determined with certainty how mixed indentation characters should be interpreted.
+                // The trimIndent function handles tabs and spaces equally (one tabs equals one space) while the user
+                // might expect that the tab size in the indentation is more than one space.
+                emit(
+                    node.startOffset,
+                    "Indentation of multiline string should not contain both tab(s) and space(s)",
+                    false
+                )
+                return
+            }
+
             val children = node.children()
-            val prefixLength =
-                children
-                    .fold(StringBuilder()) { sb, child ->
-                        when (child.elementType) {
-                            LITERAL_STRING_TEMPLATE_ENTRY -> {
-                                val text = child.text
-                                // bail if indentation contains Tab
-                                for (c in text) {
-                                    if (c == '\t') {
-                                        return // bail
+            val prefixLength = children
+                .filterNot { it.elementType == OPEN_QUOTE }
+                .filterNot { it.elementType == CLOSING_QUOTE }
+                .filter { it.prevLeaf()?.text == "\n" }
+                .filterNot { it.text == "\n" }
+                .filterNot { it.text.isBlank() && it.nextCodeSibling()?.elementType == CLOSING_QUOTE }
+                .map { it.text.indentLength() }
+                .min() ?: 0
+
+            val expectedPrefixLength = expectedIndent * editorConfig.indentSize
+            children
+                .forEach {
+                    if (it.isStringTemplateEntry() &&
+                        it.isFirstNonBlankElementOnLine()
+                    ) {
+                        val firstElementOnSameLine = it.getFirstElementOnSameLine()
+                        val splitString = firstElementOnSameLine.text.splitIndentAt(expectedPrefixLength)
+                        when (editorConfig.indentStyle) {
+                            IndentStyle.SPACE -> {
+                                if (prefixLength != expectedPrefixLength) {
+                                    emit(
+                                        it.startOffset,
+                                        "Unexpected indent of multiline string",
+                                        true
+                                    )
+                                    if (autoCorrect) {
+                                        (firstElementOnSameLine as LeafPsiElement).rawReplaceWithText(
+                                            " ".repeat(expectedPrefixLength) + splitString.content
+                                        )
                                     }
-                                    if (!c.isWhitespace()) {
-                                        break
-                                    }
+                                } else {
+                                    it
                                 }
-                                sb.append(text)
                             }
-                            LONG_STRING_TEMPLATE_ENTRY -> sb.append("${'$'}{}")
-                            SHORT_STRING_TEMPLATE_ENTRY -> sb.append("${'$'}")
-                            else -> sb
+                            IndentStyle.TAB -> {
+                                throw UnsupportedOperationException("to be implemented")
+                            }
+                        }
+                    } else if (
+                        it.elementType == LITERAL_STRING_TEMPLATE_ENTRY &&
+                        it.prevLeaf()?.text == "\n" &&
+                        it.text != "\n"
+                    ) {
+                        val splitString = it.text.splitIndentAt(prefixLength)
+                        when (editorConfig.indentStyle) {
+                            IndentStyle.SPACE -> {
+                                if (splitString.indent.contains("\t")) {
+                                    val offsetFirstTab = splitString.indent.indexOfFirst('\t')
+                                    emit(
+                                        it.startOffset + offsetFirstTab,
+                                        "Unexpected tab character(s) in indent of multiline string",
+                                        true
+                                    )
+                                    if (autoCorrect) {
+                                        (it.firstChildNode as LeafPsiElement).rawReplaceWithText(
+                                            " ".repeat(expectedPrefixLength) + splitString.content
+                                        )
+                                    }
+                                } else if (prefixLength != expectedPrefixLength) {
+                                    emit(
+                                        it.startOffset,
+                                        "Unexpected indent of multiline string",
+                                        true
+                                    )
+                                    if (autoCorrect) {
+                                        (it.firstChildNode as LeafPsiElement).rawReplaceWithText(
+                                            " ".repeat(expectedPrefixLength) + splitString.content
+                                        )
+                                    }
+                                } else {
+                                    it
+                                }
+                            }
+                            IndentStyle.TAB -> {
+                                if (splitString.indent.contains(" ")) {
+                                    val offsetFirstTab = splitString.indent.indexOfFirst(' ')
+                                    emit(
+                                        it.startOffset + offsetFirstTab,
+                                        "Unexpected space character(s) in indent of multiline string",
+                                        true
+                                    )
+                                    // First normalize the indent to spaces using the tab width.
+                                    val asSpaces = it.text.replace("\t", " ".repeat(editorConfig.tabWidth))
+                                    // Then divide that space-based indent into tabs.
+                                    if (autoCorrect) {
+                                        // TODO TEST
+                                        // TODO TEST
+                                        // TODO TEST
+                                        // TODO TEST
+
+//                                        (it.firstChildNode as LeafPsiElement).rawReplaceWithText(
+//                                            " ".repeat(prefixLength) + splitString.content
+//                                        )
+
+                                        "\t".repeat(asSpaces.length / editorConfig.tabWidth)
+//                                        (it as LeafPsiElement).rawReplaceWithText(
+//                                            it.text.replace("\t", " ".repeat(editorConfig.tabWidth)))
+
+                                        // TODO TEST
+                                        // TODO TEST
+                                        // TODO TEST
+                                        // TODO TEST
+                                    }
+                                } else {
+                                    it
+                                }
+                            }
                         }
                     }
-                    .split('\n')
-                    .filter(String::isNotBlank)
-                    .map { it.indentLength() }
-                    .min() ?: 0
-            val expectedPrefixLength = expectedIndent * editorConfig.indentSize
-            // TODO: uncomment, once it's clear how to indent stuff within string templates
-//            if (prefixLength != expectedPrefixLength) {
-//                for (child in children) {
-//                    if (child.isPrecededByLFStringTemplateEntry()) {
-//                        when (child.elementType) {
-//                            LITERAL_STRING_TEMPLATE_ENTRY -> {
-//                                val v = child.text
-//                                if (v != "\n") {
-//                                    val indentLength = v.indentLength()
-//                                    val expectedIndentLength = indentLength - prefixLength + expectedPrefixLength
-//                                    if (indentLength != expectedIndentLength) {
-//                                        reindentStringTemplateEntry(
-//                                            child,
-//                                            autoCorrect,
-//                                            emit,
-//                                            indentLength,
-//                                            expectedIndentLength
-//                                        )
-//                                    }
-//                                }
-//                            }
-//                            LONG_STRING_TEMPLATE_ENTRY, SHORT_STRING_TEMPLATE_ENTRY -> {
-//                                if (expectedPrefixLength != 0) {
-//                                    preindentStringTemplateEntry(
-//                                        child.firstChildNode,
-//                                        autoCorrect,
-//                                        emit,
-//                                        expectedPrefixLength
-//                                    )
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//            }
+                }
+
             val closingQuote = children.find { it.elementType == CLOSING_QUOTE }!!
             if (closingQuote.treePrev.text == "\n") {
                 // rewriting
@@ -1059,9 +1127,14 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                     IndentStyle.SPACE -> " "
                     IndentStyle.TAB -> "\t"
                 }
+                val prefix = if (text.contains("\n")) {
+                    text.substringBeforeLast("\n") + "\n"
+                } else {
+                    // Prevent insert of new line in case original text does not contain a new line
+                    ""
+                }
                 (node as LeafPsiElement).rawReplaceWithText(
-                    text.substringBeforeLast("\n") + "\n" +
-                        indent.repeat(expectedIndentLength)
+                    prefix + indent.repeat(expectedIndentLength)
                 )
             }
         }
@@ -1082,4 +1155,80 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
     //       T2 : SubType...
     private fun ASTNode.isPartOfTypeConstraint() =
         isPartOf(TYPE_CONSTRAINT_LIST) || nextLeaf()?.elementType == WHERE_KEYWORD
+
+    private fun ASTNode.containsMixedIndentationCharacters(): Boolean {
+        assert((this.psi as KtStringTemplateExpression).isMultiLine())
+        val nonBlankLines = this
+            .text
+            .split("\n")
+            .filterNot { it.startsWith("\"\"\"") }
+            .filterNot { it.endsWith("\"\"\"") }
+            .filterNot { it.isBlank() }
+        val prefixLength = nonBlankLines
+            .map { it.indentLength() }
+            .min() ?: 0
+        val distinctIndentCharacters = nonBlankLines
+            .joinToString { it.splitIndentAt(prefixLength).indent }
+            .toCharArray()
+            .filter { it == '\t' || it == ' ' }
+            .distinct()
+            .count()
+        return distinctIndentCharacters > 1
+    }
 }
+
+private fun ASTNode.isPropertyValueAssignment() =
+    prevCodeLeaf()?.elementType == EQ && prevCodeLeaf()?.treeParent?.elementType == PROPERTY
+
+private fun ASTNode.isNotPrecededByNewlineOrEndOfLineComment() =
+    prevLeaf().isWhiteSpaceWithoutNewline() && prevCodeLeaf()?.elementType != EOL_COMMENT
+
+private fun ASTNode.isStringTemplateEntry() =
+    elementType == LONG_STRING_TEMPLATE_ENTRY || elementType == SHORT_STRING_TEMPLATE_ENTRY
+
+private fun ASTNode.isFirstNonBlankElementOnLine(): Boolean {
+    var node: ASTNode? = getFirstElementOnSameLine()
+    while (node != null && node != this && node.text.isWhitespace()) {
+        node = node.nextLeaf()
+    }
+    return node != this
+}
+
+private fun String.isWhitespace() =
+    none { !it.isWhitespace() }
+
+private fun ASTNode.getFirstElementOnSameLine(): ASTNode {
+    val firstLeafOnLine = prevLeaf { it.text == "\n" }
+    return if (firstLeafOnLine == null) {
+        this
+    } else {
+        firstLeafOnLine.nextLeaf(includeEmpty = true) ?: this
+    }
+}
+
+data class SplitString(
+    val indent: String,
+    val content: String
+)
+
+/**
+ * Creates the split string at the given index or at the first non white space character before that index.
+ */
+private fun String.splitIndentAt(index: Int): SplitString {
+    assert(index >= 0)
+    val firstNonWhitespaceIndex = indexOfFirst { !it.isWhitespace() }.let {
+        if (it == -1) {
+            this.length
+        } else {
+            it
+        }
+    }
+    val safeIndex = kotlin.math.min(firstNonWhitespaceIndex, index)
+    return SplitString(
+        indent = this.take(safeIndex),
+        content = this.substring(safeIndex)
+    )
+}
+
+private fun String.indexOfFirst(char: Char) =
+    indexOfFirst { it == char }

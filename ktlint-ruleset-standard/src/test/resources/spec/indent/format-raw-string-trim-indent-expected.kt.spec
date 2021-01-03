@@ -2,7 +2,7 @@ fun f() {
     val y = 5
     val x =
         """
-            $y
+        $y
         """.trimIndent()
     println("""${true}""".trimIndent())
     println(
@@ -11,63 +11,63 @@ fun f() {
     )
     println(
         """
-    ${true}
-
         ${true}
+
+            ${true}
         """.trimIndent()
     )
     println(
         """
-${true}
+        ${true}
 
-    ${true}
+            ${true}
         """.trimIndent()
     )
     println(
         """
-    text
-
         text
+
+            text
         """.trimIndent().toByteArray()
     )
     println(
         """
-    text
-
         text
+
+            text
         """.trimIndent()
     )
     println(
         """
-    text
+            text
 
-        text
-_
+                text
+        _
         """.trimIndent()
     )
     println(
         """
-    text ""
+        text ""
 
-        text
-        """.trimIndent(),
-        ""
+            text
+            ""
+        """.trimIndent()
     )
     format(
         """
-            class A {
-                fun f(@Annotation
-                      a: Any,
-                      @Annotation([
-                          "v1",
-                          "v2"
-                      ])
-                      b: Any,
-                      c: Any =
-                          false,
-                      @Annotation d: Any) {
-                }
+        class A {
+            fun f(@Annotation
+                  a: Any,
+                  @Annotation([
+                      "v1",
+                      "v2"
+                  ])
+                  b: Any,
+                  c: Any =
+                      false,
+                  @Annotation d: Any) {
             }
+        }
         """.trimIndent()
     )
     write(
@@ -78,7 +78,7 @@ _
         end_of_line = lf
         """.trimIndent().toByteArray()
     )
-    SpacingAroundKeywordRule().format( // string below is tab-indented
+    SpacingAroundKeywordRule().format( // string below is indented with tabs and spaces and will not changed
         """
             var x: String
 			    get () {
@@ -95,7 +95,7 @@ class C {
     val CONFIG_COMPACT = """
         {
         }
-    """.trimIndent()
+        """.trimIndent()
     val CONFIG_COMPACT = // comment
         """
         {
