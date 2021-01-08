@@ -1,11 +1,13 @@
 package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.LintError
+import com.pinterest.ktlint.test.assertThatFileFormat
 import com.pinterest.ktlint.test.diffFileFormat
 import com.pinterest.ktlint.test.diffFileLint
 import com.pinterest.ktlint.test.format
 import com.pinterest.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.Ignore
 import org.junit.Test
 
 internal class IndentationRuleTest {
@@ -16,7 +18,7 @@ internal class IndentationRuleTest {
     }
 
     @Test
-    fun testFormat() {
+    fun `format unindented input`() {
         assertThat(
             IndentationRule().diffFileFormat(
                 "spec/indent/format.kt.spec",
@@ -26,12 +28,12 @@ internal class IndentationRuleTest {
     }
 
     @Test
-    fun testFormatTabs() {
+    fun `format unindented input with tabs`() {
         assertThat(
             IndentationRule().diffFileFormat(
                 "spec/indent/format.kt.spec",
                 "spec/indent/format-expected-tabs.kt.spec",
-                mapOf("indent_style" to "tab")
+                INDENT_STYLE_TABS
             )
         ).isEmpty()
     }
@@ -84,7 +86,7 @@ internal class IndentationRuleTest {
                 |		set(v: String) { x = v }
                 |}
                 |""".trimMargin(),
-                mapOf("indent_style" to "tab")
+                INDENT_STYLE_TABS
             )
         ).isEqualTo(
             listOf(
@@ -115,7 +117,7 @@ internal class IndentationRuleTest {
     }
 
     @Test
-    fun testFormatKDoc() {
+    fun `format KDoc`() {
         assertThat(
             IndentationRule().diffFileFormat(
                 "spec/indent/format-kdoc.kt.spec",
@@ -125,8 +127,37 @@ internal class IndentationRuleTest {
     }
 
     @Test
+    fun `format KDoc with Tabs`() {
+        IndentationRule().assertThatFileFormat(
+            "spec/indent/format-kdoc.kt.spec",
+            "spec/indent/format-kdoc-expected-tabs.kt.spec",
+            INDENT_STYLE_TABS
+        )
+    }
+
+    @Test
     fun testLintComment() {
         assertThat(IndentationRule().diffFileLint("spec/indent/lint-comment.kt.spec")).isEmpty()
+    }
+
+    @Test
+    fun `lint KDoc comment`() {
+        val code = """
+        class Foo {
+              /**
+                *
+                 */
+            fun foo() {}
+        }
+        """.trimIndent()
+        assertThat(IndentationRule().lint(code))
+            .isEqualTo(
+                listOf(
+                    LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected indentation (6) (should be 4)"),
+                    LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected indentation (8) (should be 5)"),
+                    LintError(line = 4, col = 1, ruleId = "indent", detail = "Unexpected indentation (9) (should be 5)"),
+                )
+            )
     }
 
     @Test
@@ -140,7 +171,7 @@ internal class IndentationRuleTest {
     }
 
     @Test
-    fun testFormatPropertyAccessor() {
+    fun `format property accessor`() {
         assertThat(
             IndentationRule().diffFileFormat(
                 "spec/indent/format-property-accessor.kt.spec",
@@ -150,11 +181,31 @@ internal class IndentationRuleTest {
     }
 
     @Test
-    fun testFormatRawStringTrimIndent() {
+    fun `format property accessor with tabs`() {
+        IndentationRule().assertThatFileFormat(
+            "spec/indent/format-property-accessor.kt.spec",
+            "spec/indent/format-property-accessor-expected-tabs.kt.spec",
+            INDENT_STYLE_TABS
+        )
+    }
+
+    @Test
+    fun `format raw string followed by trim indent`() {
         assertThat(
             IndentationRule().diffFileFormat(
                 "spec/indent/format-raw-string-trim-indent.kt.spec",
                 "spec/indent/format-raw-string-trim-indent-expected.kt.spec"
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `format raw string followed by trim indent with tabs`() {
+        assertThat(
+            IndentationRule().diffFileFormat(
+                "spec/indent/format-raw-string-trim-indent.kt.spec",
+                "spec/indent/format-raw-string-trim-indent-expected-tabs.kt.spec",
+                INDENT_STYLE_TABS
             )
         ).isEmpty()
     }
@@ -170,7 +221,7 @@ internal class IndentationRuleTest {
     }
 
     @Test
-    fun testFormatSuperType() {
+    fun `format SuperType`() {
         assertThat(
             IndentationRule().diffFileFormat(
                 "spec/indent/format-supertype.kt.spec",
@@ -180,11 +231,42 @@ internal class IndentationRuleTest {
     }
 
     @Test
+    fun `format SuperType with tabs`() {
+        assertThat(
+            IndentationRule().diffFileFormat(
+                "spec/indent/format-supertype.kt.spec",
+                "spec/indent/format-supertype-expected-tabs.kt.spec",
+                INDENT_STYLE_TABS
+            )
+        ).isEmpty()
+    }
+
+    @Test
     fun testLintFirstLine() {
-        assertThat(IndentationRule().lint("  // comment")).hasSize(1)
-        assertThat(IndentationRule().lint("  // comment", script = true)).hasSize(1)
-        assertThat(IndentationRule().lint("  \n  // comment")).hasSize(1)
-        assertThat(IndentationRule().lint("  \n  // comment", script = true)).hasSize(1)
+        assertThat(IndentationRule().lint("  // comment"))
+            .isEqualTo(
+                listOf(
+                    LintError(line = 1, col = 1, ruleId = "indent", detail = "Unexpected indentation (2) (should be 0)"),
+                )
+            )
+        assertThat(IndentationRule().lint("  // comment", script = true))
+            .isEqualTo(
+                listOf(
+                    LintError(line = 1, col = 1, ruleId = "indent", detail = "Unexpected indentation (2) (should be 0)"),
+                )
+            )
+        assertThat(IndentationRule().lint("  \n  // comment"))
+            .isEqualTo(
+                listOf(
+                    LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected indentation (2) (should be 0)"),
+                )
+            )
+        assertThat(IndentationRule().lint("  \n  // comment", script = true))
+            .isEqualTo(
+                listOf(
+                    LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected indentation (2) (should be 0)"),
+                )
+            )
     }
 
     @Test
@@ -193,11 +275,22 @@ internal class IndentationRuleTest {
     }
 
     @Test
-    fun testFormatBinaryExpression() {
+    fun `test format Binary Expression`() {
         assertThat(
             IndentationRule().diffFileFormat(
                 "spec/indent/format-binary-expression.kt.spec",
                 "spec/indent/format-binary-expression-expected.kt.spec"
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `test format Binary Expression with tabs`() {
+        assertThat(
+            IndentationRule().diffFileFormat(
+                "spec/indent/format-binary-expression.kt.spec",
+                "spec/indent/format-binary-expression-expected-tabs.kt.spec",
+                INDENT_STYLE_TABS
             )
         ).isEmpty()
     }
@@ -218,11 +311,22 @@ internal class IndentationRuleTest {
     }
 
     @Test
-    fun testFormatDotQualifiedExpression() {
+    fun `format DotQualifiedExpression`() {
         assertThat(
             IndentationRule().diffFileFormat(
                 "spec/indent/format-dot-qualified-expression.kt.spec",
                 "spec/indent/format-dot-qualified-expression-expected.kt.spec"
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `format DotQualifiedExpression with tabs`() {
+        assertThat(
+            IndentationRule().diffFileFormat(
+                "spec/indent/format-dot-qualified-expression.kt.spec",
+                "spec/indent/format-dot-qualified-expression-expected-tabs.kt.spec",
+                INDENT_STYLE_TABS
             )
         ).isEmpty()
     }
@@ -238,7 +342,18 @@ internal class IndentationRuleTest {
     }
 
     @Test
-    fun testFormatArrow() {
+    fun testFormatMultilineStringTabs() {
+        assertThat(
+            IndentationRule().diffFileFormat(
+                "spec/indent/format-multiline-string.kt.spec",
+                "spec/indent/format-multiline-string-expected-tabs.kt.spec",
+                INDENT_STYLE_TABS
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `format Arrow`() {
         assertThat(
             IndentationRule().diffFileFormat(
                 "spec/indent/format-arrow.kt.spec",
@@ -248,7 +363,18 @@ internal class IndentationRuleTest {
     }
 
     @Test
-    fun testFormatEq() {
+    fun `format Arrow with tabs`() {
+        assertThat(
+            IndentationRule().diffFileFormat(
+                "spec/indent/format-arrow.kt.spec",
+                "spec/indent/format-arrow-expected-tabs.kt.spec",
+                INDENT_STYLE_TABS
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `format Eq`() {
         assertThat(
             IndentationRule().diffFileFormat(
                 "spec/indent/format-eq.kt.spec",
@@ -258,7 +384,18 @@ internal class IndentationRuleTest {
     }
 
     @Test
-    fun testFormatParameterList() {
+    fun `format Eq with tabs`() {
+        assertThat(
+            IndentationRule().diffFileFormat(
+                "spec/indent/format-eq.kt.spec",
+                "spec/indent/format-eq-expected-tabs.kt.spec",
+                INDENT_STYLE_TABS
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `format ParameterList`() {
         assertThat(
             IndentationRule().diffFileFormat(
                 "spec/indent/format-parameter-list.kt.spec",
@@ -268,11 +405,33 @@ internal class IndentationRuleTest {
     }
 
     @Test
-    fun testFormatArgumentList() {
+    fun `format ParameterList with tabs`() {
+        assertThat(
+            IndentationRule().diffFileFormat(
+                "spec/indent/format-parameter-list.kt.spec",
+                "spec/indent/format-parameter-list-expected-tabs.kt.spec",
+                INDENT_STYLE_TABS
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `format ArgumentList`() {
         assertThat(
             IndentationRule().diffFileFormat(
                 "spec/indent/format-argument-list.kt.spec",
                 "spec/indent/format-argument-list-expected.kt.spec"
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `format ArgumentList with tabs`() {
+        assertThat(
+            IndentationRule().diffFileFormat(
+                "spec/indent/format-argument-list.kt.spec",
+                "spec/indent/format-argument-list-expected-tabs.kt.spec",
+                INDENT_STYLE_TABS
             )
         ).isEmpty()
     }
@@ -317,45 +476,64 @@ internal class IndentationRuleTest {
 
     @Test
     fun testUnexpectedSpaceCharacter() {
-        val ktScript = "fun main() {\n    return 0\n  }"
-        assertThat(IndentationRule().lint(ktScript, mapOf("indent_style" to "tab"))).isEqualTo(
+        val code = """
+            fun main() {
+                return 0
+              }
+            """.trimIndent()
+        val expectedCode = """
+            fun main() {
+            ${TAB}return 0
+            }
+            """.trimIndent()
+        assertThat(IndentationRule().lint(code, INDENT_STYLE_TABS)).isEqualTo(
             listOf(
-                LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected space character(s)"),
-                LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected space character(s)")
+                LintError(2, 1, "indent", "Unexpected 'space' character(s) in indentation"),
+                LintError(3, 1, "indent", "Unexpected 'space' character(s) in indentation"),
             )
         )
-        assertThat(IndentationRule().format(ktScript))
-            .isEqualTo("fun main() {\n    return 0\n}")
+        assertThat(IndentationRule().format(code, INDENT_STYLE_TABS)).isEqualTo(expectedCode)
     }
 
     @Test
     fun testUnexpectedTabCharacter() {
-        val ktScript = "fun main() {\n\t\treturn 0\n\t}"
-        assertThat(IndentationRule().lint(ktScript)).isEqualTo(
+        val code = """
+            fun main() {
+            ${TAB}return 0
+            }
+            """.trimIndent()
+        val expectedCode = """
+            fun main() {
+                return 0
+            }
+            """.trimIndent()
+        assertThat(IndentationRule().lint(code)).isEqualTo(
             listOf(
-                LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected tab character(s)"),
-                LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected indentation (8) (should be 4)"),
-                LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected tab character(s)"),
-                LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected indentation (4) (should be 0)")
+                LintError(2, 1, "indent", "Unexpected 'tab' character(s) in indentation"),
             )
         )
-        assertThat(IndentationRule().format(ktScript))
-            .isEqualTo("fun main() {\n    return 0\n}")
+        assertThat(IndentationRule().format(code)).isEqualTo(expectedCode)
     }
 
     @Test
     fun testUnexpectedTabCharacterWithCustomIndentSize() {
-        val ktScript = "fun main() {\n\t\treturn 0\n\t}"
-        assertThat(IndentationRule().lint(ktScript, mapOf("indent_size" to "2"))).isEqualTo(
+        val code = """
+            fun main() {
+            ${TAB}${TAB}return 0
+            ${TAB}}
+            """.trimIndent()
+        val expectedCode = """
+            fun main() {
+              return 0
+            }
+            """.trimIndent()
+        assertThat(IndentationRule().lint(code, mapOf("indent_size" to "2"))).isEqualTo(
             listOf(
-                LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected tab character(s)"),
-                LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected indentation (4) (should be 2)"),
-                LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected tab character(s)"),
-                LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected indentation (2) (should be 0)")
+                LintError(2, 1, "indent", "Unexpected 'tab' character(s) in indentation"),
+                LintError(3, 1, "indent", "Unexpected 'tab' character(s) in indentation"),
             )
         )
-        assertThat(IndentationRule().format(ktScript, mapOf("indent_size" to "2")))
-            .isEqualTo("fun main() {\n  return 0\n}")
+        assertThat(IndentationRule().format(code, mapOf("indent_size" to "2"))).isEqualTo(expectedCode)
     }
 
     @Test
@@ -376,24 +554,61 @@ internal class IndentationRuleTest {
         ).isEmpty()
     }
 
+    @Ignore  // Code fix needed
     @Test
-    fun `no indentation after lambda arrow`() {
+    fun `lint multiline comment`() {
+        val code = """
+          /*
+        *
+             */
+        """.trimIndent()
+        assertThat(IndentationRule().lint(code))
+            .isEqualTo(
+                listOf(
+                    LintError(line = 1, col = 1, ruleId = "indent", detail = "Unexpected indentation (2) (should be 0)"),
+                )
+            )
+    }
+
+
+    @Ignore // Code fix needed
+    @Test
+    fun `no new line before lambda arrow`() {
         assertThat(
             IndentationRule().lint(
                 """
                 fun bar() {
-                    foo.func {
-                        param1, param2 ->
-                            doSomething()
-                            doSomething2()
-                    }
+                    Pair("val1", "val2")
+                        .let {
+                            (first, second) ->
+                                first + second
+                        }
                 }
                 """.trimIndent()
             )
         ).isEqualTo(
             listOf(
-                LintError(line = 4, col = 1, ruleId = "indent", detail = "Unexpected indentation (12) (should be 8)"),
-                LintError(line = 5, col = 1, ruleId = "indent", detail = "Unexpected indentation (12) (should be 8)")
+                LintError(line = 3, col = 34, ruleId = "indent", detail = "Unexpected indentation (16) (should be 12)"),
+            )
+        )
+    }
+
+    @Test
+    fun `incorrect indentation after lambda arrow`() {
+        assertThat(
+            IndentationRule().lint(
+                """
+                fun bar() {
+                    Pair("val1", "val2")
+                        .let { (first, second) ->
+                                first + second
+                        }
+                }
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(line = 4, col = 1, ruleId = "indent", detail = "Unexpected indentation (16) (should be 12)"),
             )
         )
     }
@@ -575,10 +790,10 @@ internal class IndentationRuleTest {
         val code =
             """
             fun foo() {
-                println($MULTILINE_STRING_QUOTE
-                    line1
-                        line2
-                $MULTILINE_STRING_QUOTE.trimIndent())
+              println($MULTILINE_STRING_QUOTE
+                line1
+                    line2
+                    $MULTILINE_STRING_QUOTE.trimIndent())
             }
             """.trimIndent()
         val expectedCode =
@@ -592,16 +807,30 @@ internal class IndentationRuleTest {
                 )
             }
             """.trimIndent()
+        val expectedCodeTabs =
+            """
+            fun foo() {
+            ${TAB}println(
+            ${TAB}${TAB}$MULTILINE_STRING_QUOTE
+            ${TAB}${TAB}line1
+            ${TAB}${TAB}    line2
+            ${TAB}${TAB}$MULTILINE_STRING_QUOTE.trimIndent()
+            ${TAB})
+            }
+            """.trimIndent()
         assertThat(
             IndentationRule().lint(code)
         ).isEqualTo(
             listOf(
-                LintError(line = 2, col = 13, ruleId = "indent", detail = """Missing newline after "(""""),
-                LintError(line = 5, col = 1, ruleId = "indent", detail = "Unexpected indentation (4) (should be 8)"),
-                LintError(line = 5, col = 20, ruleId = "indent", detail = """Missing newline before ")""""),
+                LintError(2, 1, ruleId="indent", detail="Unexpected indentation (2) (should be 4)"),
+                LintError(2, 11, ruleId="indent", detail="Missing newline after \"(\""),
+                LintError(3, 1, ruleId="indent", detail="Unexpected indent of multiline string"),
+                LintError(4, 1, ruleId="indent", detail="Unexpected indent of multiline string"),
+                LintError(5, 24, ruleId="indent", detail="Missing newline before \")\""),
             )
         )
         assertThat(IndentationRule().format(code)).isEqualTo(expectedCode)
+        assertThat(IndentationRule().format(code, INDENT_STYLE_TABS)).isEqualTo(expectedCodeTabs)
     }
 
     @Test
@@ -640,6 +869,39 @@ internal class IndentationRuleTest {
     }
 
     @Test
+    fun `format empty multiline string from spaces to tabs`() {
+        val code =
+            """
+            fun foo() {
+                println(
+                    $MULTILINE_STRING_QUOTE
+                $MULTILINE_STRING_QUOTE.trimIndent()
+                )
+            }
+            """.trimIndent()
+        val expectedCodeTabs =
+            """
+            fun foo() {
+            ${TAB}println(
+            ${TAB}${TAB}$MULTILINE_STRING_QUOTE
+            ${TAB}${TAB}$MULTILINE_STRING_QUOTE.trimIndent()
+            ${TAB})
+            }
+            """.trimIndent()
+        assertThat(
+            IndentationRule().lint(code, INDENT_STYLE_TABS)
+        ).isEqualTo(
+            listOf(
+                LintError(line=2, col=1, ruleId="indent", detail="Unexpected 'space' character(s) in indentation"),
+                LintError(line=3, col=1, ruleId="indent", detail="Unexpected 'space' character(s) in indentation"),
+                LintError(line=4, col=1, ruleId="indent", detail="Unexpected 'space' character(s) in margin of multiline string"),
+                LintError(line=5, col=1, ruleId="indent", detail="Unexpected 'space' character(s) in indentation"),
+            )
+        )
+        assertThat(IndentationRule().format(code, INDENT_STYLE_TABS)).isEqualTo(expectedCodeTabs)
+    }
+
+    @Test
     fun `format multiline string containing quotation marks`() {
         val code =
             """
@@ -675,7 +937,6 @@ internal class IndentationRuleTest {
                 LintError(line = 6, col = 1, ruleId = "indent", detail = "Unexpected indent of multiline string"),
                 LintError(line = 7, col = 1, ruleId = "indent", detail = "Unexpected indent of multiline string"),
                 LintError(line = 8, col = 1, ruleId = "indent", detail = "Unexpected indent of multiline string"),
-                LintError(line = 8, col = 1, ruleId = "indent", detail = "Unexpected indentation (4) (should be 8)"),
             )
         )
         assertThat(IndentationRule().format(code)).isEqualTo(expectedCode)
@@ -714,8 +975,7 @@ internal class IndentationRuleTest {
                 LintError(2, 9, "indent", "Missing newline after \"(\""),
                 LintError(3, 1, "indent", "Unexpected indent of multiline string"),
                 LintError(5, 1, "indent", "Unexpected indent of multiline string"),
-                LintError(5, 5, "indent", "Unexpected indent of multiline string"),
-                LintError(6, 1, "indent", "Unexpected indentation (0) (should be 8)"),
+                LintError(6, 1, "indent", "Unexpected indent of multiline string"),
                 LintError(6, 16, "indent", "Missing newline before \")\"")
             )
         )
@@ -738,6 +998,7 @@ internal class IndentationRuleTest {
                     line3
                 $MULTILINE_STRING_QUOTE.trimIndent()
             """.trimIndent()
+        /*
         // TODO: What is the proper way to indent a multi line string value?
         //     val foo =
         //        """
@@ -762,6 +1023,7 @@ internal class IndentationRuleTest {
         // First option would be most in line with function parameter. Second option is also acceptable. Third option
         // (previous behavior) is not logical as there is no continuation kind of indent visible. Last option is not in
         // sync with function parameter.
+        */
         val expectedCode =
             """
             val foo1 = $MULTILINE_STRING_QUOTE
@@ -781,11 +1043,8 @@ internal class IndentationRuleTest {
         ).isEqualTo(
             listOf(
                 LintError(2, 1, "indent", "Unexpected indent of multiline string"),
-                LintError(3, 1, "indent", "Unexpected indent of multiline string"),
                 LintError(6, 1, "indent", "Unexpected indent of multiline string"),
-                LintError(7, 1, "indent", "Unexpected indent of multiline string"),
                 LintError(10, 1, "indent", "Unexpected indent of multiline string"),
-                LintError(11, 1, "indent", "Unexpected indent of multiline string"),
             )
         )
         assertThat(IndentationRule().format(code)).isEqualTo(expectedCode)
@@ -827,10 +1086,35 @@ internal class IndentationRuleTest {
             listOf(
                 LintError(3, 1, "indent", "Unexpected indent of multiline string"),
                 LintError(4, 1, "indent", "Unexpected indent of multiline string"),
-                LintError(5, 1, "indent", "Unexpected indent of multiline string"),
                 LintError(8, 1, "indent", "Unexpected indent of multiline string"),
                 LintError(9, 1, "indent", "Unexpected indent of multiline string"),
-                LintError(10, 1, "indent", "Unexpected indent of multiline string")
+            )
+        )
+        assertThat(IndentationRule().format(code)).isEqualTo(expectedCode)
+    }
+
+    @Test
+    fun `issue 575 - format multiline string with tabs only in indentation margin`() {
+        val code =
+            """
+            val str =
+                $MULTILINE_STRING_QUOTE
+            ${TAB}line1
+            ${TAB}${TAB}line2
+                $MULTILINE_STRING_QUOTE.trimIndent()
+            """.trimIndent()
+        val expectedCode =
+            """
+            val str =
+                $MULTILINE_STRING_QUOTE
+                line1
+                ${TAB}line2
+                $MULTILINE_STRING_QUOTE.trimIndent()
+            """.trimIndent()
+        assertThat(IndentationRule().lint(code)).isEqualTo(
+            listOf(
+                LintError(3, 1, "indent", "Unexpected 'tab' character(s) in margin of multiline string"),
+                LintError(4, 1, "indent", "Unexpected 'tab' character(s) in margin of multiline string"),
             )
         )
         assertThat(IndentationRule().format(code)).isEqualTo(expectedCode)
@@ -1161,5 +1445,7 @@ internal class IndentationRuleTest {
     private companion object {
         const val MULTILINE_STRING_QUOTE = "${'"'}${'"'}${'"'}"
         const val TAB = "${'\t'}"
+
+        val INDENT_STYLE_TABS = mapOf("indent_style" to "tab")
     }
 }

@@ -62,7 +62,7 @@ _""".trimIndent())
         [*]
         end_of_line = lf
     """.trimIndent().toByteArray())
-            SpacingAroundKeywordRule().format( // string below is indented with tabs and spaces and will not changed
+            SpacingAroundKeywordRule().format( // string below is indented with tabs and spaces and will not be changed
                 """
             var x: String
 			    get () {
