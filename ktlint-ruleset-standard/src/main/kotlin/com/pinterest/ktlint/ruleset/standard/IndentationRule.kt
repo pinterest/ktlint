@@ -839,17 +839,17 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
             val expectedPrefixLength = expectedIndent * editorConfig.indentSize
             children
                 .forEach {
-                    if (
-                        (it.elementType == LITERAL_STRING_TEMPLATE_ENTRY ||
-                            it.isStringTemplateEntry() ||
-                            it.elementType == CLOSING_QUOTE) &&
-                        it.prevLeaf()?.text == "\n" &&
-                        it.text != "\n"
+                    if (it.prevLeaf()?.text == "\n" &&
+                        (
+                            it.isLiteralStringTemplateEntry() ||
+                                it.isVariableStringTemplateEntry() ||
+                                it.isClosingQuote()
+                            )
                     ) {
                         val (actualIndent, actualContent) =
                             if (it.isIndentBeforeClosingQuote()) {
                                 it.text.splitIndentAt(it.text.length)
-                            } else if (it.isStringTemplateEntry() && it.isFirstNonBlankElementOnLine()) {
+                            } else if (it.isVariableStringTemplateEntry() && it.isFirstNonBlankElementOnLine()) {
                                 it.getFirstElementOnSameLine().text.splitIndentAt(expectedPrefixLength)
                             } else {
                                 it.text.splitIndentAt(prefixLength)
@@ -876,9 +876,8 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                             if (autoCorrect) {
                                 if (it.firstChildNode == null) {
                                     (it as LeafPsiElement).rawInsertBeforeMe(
-                                        LeafPsiElement(REGULAR_STRING_PART,  expectedIndentation)
+                                        LeafPsiElement(REGULAR_STRING_PART, expectedIndentation)
                                     )
-
                                 } else {
                                     (it.firstChildNode as LeafPsiElement).rawReplaceWithText(
                                         expectedIndentation + actualContent
@@ -1093,8 +1092,14 @@ private fun ASTNode.isPropertyValueAssignment() =
 private fun ASTNode.isNotPrecededByNewlineOrEndOfLineComment() =
     prevLeaf().isWhiteSpaceWithoutNewline() && prevCodeLeaf()?.elementType != EOL_COMMENT
 
-private fun ASTNode.isStringTemplateEntry() =
+private fun ASTNode.isLiteralStringTemplateEntry() =
+    elementType == LITERAL_STRING_TEMPLATE_ENTRY && text != "\n"
+
+private fun ASTNode.isVariableStringTemplateEntry() =
     elementType == LONG_STRING_TEMPLATE_ENTRY || elementType == SHORT_STRING_TEMPLATE_ENTRY
+
+private fun ASTNode.isClosingQuote() =
+    elementType == CLOSING_QUOTE
 
 private fun ASTNode.isFirstNonBlankElementOnLine(): Boolean {
     var node: ASTNode? = getFirstElementOnSameLine()
@@ -1166,4 +1171,3 @@ private fun String.splitAtLast(char: Char, excludeSplitChar: Boolean = false): T
             }
         }
 }
-

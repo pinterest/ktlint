@@ -143,13 +143,13 @@ internal class IndentationRuleTest {
     @Test
     fun `lint KDoc comment`() {
         val code = """
-        class Foo {
-              /**
-                *
-                 */
-            fun foo() {}
-        }
-        """.trimIndent()
+            class Foo {
+                  /**
+                    *
+                     */
+                fun foo() {}
+            }
+            """.trimIndent()
         assertThat(IndentationRule().lint(code))
             .isEqualTo(
                 listOf(
@@ -520,7 +520,7 @@ internal class IndentationRuleTest {
         val code = """
             fun main() {
             ${TAB}${TAB}return 0
-            ${TAB}}
+            $TAB}
             """.trimIndent()
         val expectedCode = """
             fun main() {
@@ -554,14 +554,14 @@ internal class IndentationRuleTest {
         ).isEmpty()
     }
 
-    @Ignore  // Code fix needed
+    @Ignore // Code fix needed
     @Test
     fun `lint multiline comment`() {
         val code = """
-          /*
-        *
-             */
-        """.trimIndent()
+              /*
+            *
+                 */
+            """.trimIndent()
         assertThat(IndentationRule().lint(code))
             .isEqualTo(
                 listOf(
@@ -569,7 +569,6 @@ internal class IndentationRuleTest {
                 )
             )
     }
-
 
     @Ignore // Code fix needed
     @Test
@@ -807,7 +806,7 @@ internal class IndentationRuleTest {
                 )
             }
             """.trimIndent()
-        val expectedCodeTabs =
+        @Suppress("RemoveCurlyBracesFromTemplate") val expectedCodeTabs =
             """
             fun foo() {
             ${TAB}println(
@@ -822,11 +821,11 @@ internal class IndentationRuleTest {
             IndentationRule().lint(code)
         ).isEqualTo(
             listOf(
-                LintError(2, 1, ruleId="indent", detail="Unexpected indentation (2) (should be 4)"),
-                LintError(2, 11, ruleId="indent", detail="Missing newline after \"(\""),
-                LintError(3, 1, ruleId="indent", detail="Unexpected indent of multiline string"),
-                LintError(4, 1, ruleId="indent", detail="Unexpected indent of multiline string"),
-                LintError(5, 24, ruleId="indent", detail="Missing newline before \")\""),
+                LintError(2, 1, "indent", "Unexpected indentation (2) (should be 4)"),
+                LintError(2, 11, "indent", "Missing newline after \"(\""),
+                LintError(3, 1, "indent", "Unexpected indent of multiline string"),
+                LintError(4, 1, "indent", "Unexpected indent of multiline string"),
+                LintError(5, 24, "indent", "Missing newline before \")\""),
             )
         )
         assertThat(IndentationRule().format(code)).isEqualTo(expectedCode)
@@ -879,7 +878,7 @@ internal class IndentationRuleTest {
                 )
             }
             """.trimIndent()
-        val expectedCodeTabs =
+        @Suppress("RemoveCurlyBracesFromTemplate") val expectedCodeTabs =
             """
             fun foo() {
             ${TAB}println(
@@ -892,10 +891,10 @@ internal class IndentationRuleTest {
             IndentationRule().lint(code, INDENT_STYLE_TABS)
         ).isEqualTo(
             listOf(
-                LintError(line=2, col=1, ruleId="indent", detail="Unexpected 'space' character(s) in indentation"),
-                LintError(line=3, col=1, ruleId="indent", detail="Unexpected 'space' character(s) in indentation"),
-                LintError(line=4, col=1, ruleId="indent", detail="Unexpected 'space' character(s) in margin of multiline string"),
-                LintError(line=5, col=1, ruleId="indent", detail="Unexpected 'space' character(s) in indentation"),
+                LintError(2, 1, "indent", "Unexpected 'space' character(s) in indentation"),
+                LintError(3, 1, "indent", "Unexpected 'space' character(s) in indentation"),
+                LintError(4, 1, "indent", "Unexpected 'space' character(s) in margin of multiline string"),
+                LintError(5, 1, "indent", "Unexpected 'space' character(s) in indentation"),
             )
         )
         assertThat(IndentationRule().format(code, INDENT_STYLE_TABS)).isEqualTo(expectedCodeTabs)
