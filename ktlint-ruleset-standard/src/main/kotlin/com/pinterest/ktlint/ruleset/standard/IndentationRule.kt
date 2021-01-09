@@ -846,7 +846,7 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                         it.prevLeaf()?.text == "\n" &&
                         it.text != "\n"
                     ) {
-                        val splitString =
+                        val (actualIndent, actualContent) =
                             if (it.isIndentBeforeClosingQuote()) {
                                 it.text.splitIndentAt(it.text.length)
                             } else if (it.isStringTemplateEntry() && it.isFirstNonBlankElementOnLine()) {
@@ -855,8 +855,8 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                                 it.text.splitIndentAt(prefixLength)
                             }
                         val (wrongIndentChar, wrongIndentDescription) = editorConfig.wrongIndentChar()
-                        if (splitString.indent.contains(wrongIndentChar)) {
-                            val offsetFirstWrongIndentChar = splitString.indent.indexOfFirst(wrongIndentChar)
+                        if (actualIndent.contains(wrongIndentChar)) {
+                            val offsetFirstWrongIndentChar = actualIndent.indexOfFirst(wrongIndentChar)
                             emit(
                                 it.startOffset + offsetFirstWrongIndentChar,
                                 "Unexpected '$wrongIndentDescription' character(s) in margin of multiline string",
@@ -864,10 +864,10 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                             )
                             if (autoCorrect) {
                                 (it.firstChildNode as LeafPsiElement).rawReplaceWithText(
-                                    expectedIndentation + splitString.content
+                                    expectedIndentation + actualContent
                                 )
                             }
-                        } else if (splitString.indent != expectedIndentation) {
+                        } else if (actualIndent != expectedIndentation) {
                             emit(
                                 it.startOffset,
                                 "Unexpected indent of multiline string",
@@ -881,7 +881,7 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
 
                                 } else {
                                     (it.firstChildNode as LeafPsiElement).rawReplaceWithText(
-                                        expectedIndentation + splitString.content
+                                        expectedIndentation + actualContent
                                     )
                                 }
                             }
@@ -1062,7 +1062,9 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
             .map { it.indentLength() }
             .min() ?: 0
         val distinctIndentCharacters = nonBlankLines
-            .joinToString(separator = "") { it.splitIndentAt(prefixLength).indent }
+            .joinToString(separator = "") {
+                it.splitIndentAt(prefixLength).first
+            }
             .toCharArray()
             .filter { it == '\t' || it == ' ' }
             .distinct()
@@ -1115,16 +1117,13 @@ private fun ASTNode.getFirstElementOnSameLine(): ASTNode {
     }
 }
 
-data class SplitString(
-    val indent: String,
-    val content: String
-)
-
 /**
- * Creates the split string at the given index or at the first non white space character before that index.
+ * Splits the string at the given index or at the first non white space character before that index. The returned pair
+ * consists of the indentation and the second part contains the remainder. Note that the second part still can start
+ * with whitespace characters in case the original strings starts with more white space characters than the requested
+ * split index.
  */
-// TODO replace splitString with splitAtLast
-private fun String.splitIndentAt(index: Int): SplitString {
+private fun String.splitIndentAt(index: Int): Pair<String, String> {
     assert(index >= 0)
     val firstNonWhitespaceIndex = indexOfFirst { !it.isWhitespace() }.let {
         if (it == -1) {
@@ -1134,9 +1133,9 @@ private fun String.splitIndentAt(index: Int): SplitString {
         }
     }
     val safeIndex = kotlin.math.min(firstNonWhitespaceIndex, index)
-    return SplitString(
-        indent = this.take(safeIndex),
-        content = this.substring(safeIndex)
+    return Pair(
+        first = this.take(safeIndex),
+        second = this.substring(safeIndex)
     )
 }
 
