@@ -1066,7 +1066,6 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                 it.splitIndentAt(prefixLength).first
             }
             .toCharArray()
-            .filter { it == '\t' || it == ' ' }
             .distinct()
             .count()
         return distinctIndentCharacters > 1
