@@ -885,63 +885,11 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                                     )
                                 }
                             }
-                        } else {
-                            it
                         }
                     }
                 }
         }
     }
-
-    private fun preindentStringTemplateEntry(
-        node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        expectedIndentLength: Int
-    ) {
-        emit(
-            node.startOffset,
-            "Unexpected indentation (0) (should be $expectedIndentLength)",
-            true
-        )
-        if (autoCorrect) {
-            (node as LeafPsiElement).rawInsertBeforeMe(
-                LeafPsiElement(REGULAR_STRING_PART, " ".repeat(expectedIndentLength))
-            )
-        }
-        debug {
-            (if (!autoCorrect) "would have " else "") +
-                "changed indentation before ${node.text} to $expectedIndentLength (from 0)"
-        }
-    }
-
-    private fun reindentStringTemplateEntry(
-        node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        indentLength: Int,
-        expectedIndentLevel: Int,
-        editorConfig: EditorConfig
-    ) {
-        val expectedIndentLength = expectedIndentLevel * editorConfig.indentSize
-        emit(
-            node.startOffset,
-            "Unexpected indentation ($indentLength) (should be $expectedIndentLength)",
-            true
-        )
-        if (autoCorrect) {
-            (node.firstChildNode as LeafPsiElement).rawReplaceWithText(
-                editorConfig.repeatIndent(expectedIndentLevel) + node.text.substring(indentLength)
-            )
-        }
-        debug {
-            (if (!autoCorrect) "would have " else "") +
-                "changed indentation to $expectedIndentLength (from $indentLength)"
-        }
-    }
-
-    private fun ASTNode.isPrecededByLFStringTemplateEntry() =
-        treePrev?.let { it.elementType == LITERAL_STRING_TEMPLATE_ENTRY && it.text == "\n" } == true
 
     private fun KtStringTemplateExpression.isMultiLine(): Boolean {
         for (child in node.children()) {
