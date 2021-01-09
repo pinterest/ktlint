@@ -938,11 +938,12 @@ class AnnotationRuleTest {
 
     @Test
     fun `lint file annotations should be separated with a blank line in script 1`() {
-        val code = """
+        val code =
+            """
             @file:Suppress("UnstableApiUsage")
             pluginManagement {
             }
-        """.trimIndent()
+            """.trimIndent()
         assertThat(AnnotationRule().lint(code, script = true)).isEqualTo(
             listOf(
                 LintError(1, 34, "annotation", AnnotationRule.fileAnnotationsShouldBeSeparated)
@@ -952,12 +953,13 @@ class AnnotationRuleTest {
 
     @Test
     fun `lint file annotations should be separated with a blank line in script 2`() {
-        val code = """
+        val code =
+            """
             @file:Suppress("UnstableApiUsage")
 
             pluginManagement {
             }
-        """.trimIndent()
+            """.trimIndent()
         assertThat(AnnotationRule().lint(code, script = true)).isEmpty()
     }
 
