@@ -1,5 +1,11 @@
 package com.pinterest.ktlint.ruleset.standard // ktlint-disable
 
+TODO: Rename file to IndentationRuleTrimIndentTest.kt once it is possible to disable the lint check on this file. This
+ file contains several lines that do not meet the criteria of the indentation rule in order. This is required to
+ validate the behavior of the trimIndent function in cases where an unusual identation is used.
+ Although all tests works, the build currently fails on the lint checking. See pull request
+ https://github.com/pinterest/ktlint/pull/1038
+
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
