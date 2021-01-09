@@ -37,8 +37,8 @@ _""".trimIndent())
     text ""
 
         text
-    """.trimIndent(),
         ""
+    """.trimIndent()
     )
     format(
                 """
@@ -62,7 +62,9 @@ _""".trimIndent())
         [*]
         end_of_line = lf
     """.trimIndent().toByteArray())
-            SpacingAroundKeywordRule().format( // string below is tab-indented
+            SpacingAroundKeywordRule().format(
+                // string below is indented with tabs and spaces should and should therefore not be autocorrected as this can
+                // not been done reliable. This will be fixed in a separate PR.
                 """
             var x: String
 			    get () {

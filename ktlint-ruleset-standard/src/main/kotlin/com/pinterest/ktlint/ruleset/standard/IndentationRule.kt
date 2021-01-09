@@ -78,7 +78,6 @@ import com.pinterest.ktlint.core.ast.prevSibling
 import com.pinterest.ktlint.core.ast.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.core.ast.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.core.ast.visit
-import java.lang.StringBuilder
 import java.util.Deque
 import java.util.LinkedList
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -748,85 +747,81 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
     ) {
         val psi = node.psi as KtStringTemplateExpression
         if (psi.isMultiLine() && psi.isFollowedByTrimIndent()) {
-            val children = node.children()
-            val prefixLength =
-                children
-                    .fold(StringBuilder()) { sb, child ->
-                        when (child.elementType) {
-                            LITERAL_STRING_TEMPLATE_ENTRY -> {
-                                val text = child.text
-                                // bail if indentation contains Tab
-                                for (c in text) {
-                                    if (c == '\t') {
-                                        return // bail
-                                    }
-                                    if (!c.isWhitespace()) {
-                                        break
-                                    }
-                                }
-                                sb.append(text)
+            // Get the max prefix length that all line in the multiline string have in common. All whitespace character
+            // are counted as one single position. Note that the way of counting should be in sync with the way this is
+            // done by the trimIndent function.
+            val prefixLength = node.children()
+                .filterNot { it.elementType == OPEN_QUOTE }
+                .filterNot { it.elementType == CLOSING_QUOTE }
+                .filter { it.prevLeaf()?.text == "\n" }
+                .filterNot { it.text == "\n" }
+                .let { indents ->
+                    val indentsExceptBlankIndentBeforeClosingQuote = indents
+                        .filterNot { it.isIndentBeforeClosingQuote() }
+                    if (indentsExceptBlankIndentBeforeClosingQuote.count() > 0) {
+                        indentsExceptBlankIndentBeforeClosingQuote
+                    } else {
+                        indents
+                    }
+                }
+                .map { it.text.indentLength() }
+                .min() ?: 0
+
+            val expectedIndentation = editorConfig.repeatIndent(expectedIndent)
+            val expectedPrefixLength = expectedIndent * editorConfig.indentSize
+            node.children()
+                .forEach {
+                    if (it.prevLeaf()?.text == "\n" &&
+                        (
+                            it.isLiteralStringTemplateEntry() ||
+                                it.isVariableStringTemplateEntry() ||
+                                it.isClosingQuote()
+                            )
+                    ) {
+                        val (actualIndent, actualContent) =
+                            if (it.isIndentBeforeClosingQuote()) {
+                                it.text.splitIndentAt(it.text.length)
+                            } else if (it.isVariableStringTemplateEntry() && it.isFirstNonBlankElementOnLine()) {
+                                it.getFirstElementOnSameLine().text.splitIndentAt(expectedPrefixLength)
+                            } else {
+                                it.text.splitIndentAt(prefixLength)
                             }
-                            LONG_STRING_TEMPLATE_ENTRY -> sb.append("${'$'}{}")
-                            SHORT_STRING_TEMPLATE_ENTRY -> sb.append("${'$'}")
-                            else -> sb
+                        val (wrongIndentChar, wrongIndentDescription) = editorConfig.wrongIndentChar()
+                        if (actualIndent.contains(wrongIndentChar)) {
+                            val offsetFirstWrongIndentChar = actualIndent.indexOfFirst(wrongIndentChar)
+                            emit(
+                                it.startOffset + offsetFirstWrongIndentChar,
+                                "Unexpected '$wrongIndentDescription' character(s) in margin of multiline string",
+                                true
+                            )
+                            if (autoCorrect) {
+                                (it.firstChildNode as LeafPsiElement).rawReplaceWithText(
+                                    expectedIndentation + actualContent
+                                )
+                            }
+                        } else if (actualIndent != expectedIndentation) {
+                            emit(
+                                it.startOffset,
+                                "Unexpected indent of multiline string",
+                                true
+                            )
+                            if (autoCorrect) {
+                                if (it.firstChildNode == null) {
+                                    (it as LeafPsiElement).rawInsertBeforeMe(
+                                        LeafPsiElement(REGULAR_STRING_PART, expectedIndentation)
+                                    )
+                                } else {
+                                    (it.firstChildNode as LeafPsiElement).rawReplaceWithText(
+                                        expectedIndentation + actualContent
+                                    )
+                                }
+                            }
                         }
                     }
-                    .split('\n')
-                    .filter(String::isNotBlank)
-                    .map { it.indentLength() }
-                    .min() ?: 0
-            val expectedPrefixLength = expectedIndent * editorConfig.indentSize
-            // TODO: uncomment, once it's clear how to indent stuff within string templates
-//            if (prefixLength != expectedPrefixLength) {
-//                for (child in children) {
-//                    if (child.isPrecededByLFStringTemplateEntry()) {
-//                        when (child.elementType) {
-//                            LITERAL_STRING_TEMPLATE_ENTRY -> {
-//                                val v = child.text
-//                                if (v != "\n") {
-//                                    val indentLength = v.indentLength()
-//                                    val expectedIndentLength = indentLength - prefixLength + expectedPrefixLength
-//                                    if (indentLength != expectedIndentLength) {
-//                                        reindentStringTemplateEntry(
-//                                            child,
-//                                            autoCorrect,
-//                                            emit,
-//                                            indentLength,
-//                                            expectedIndentLength
-//                                        )
-//                                    }
-//                                }
-//                            }
-//                            LONG_STRING_TEMPLATE_ENTRY, SHORT_STRING_TEMPLATE_ENTRY -> {
-//                                if (expectedPrefixLength != 0) {
-//                                    preindentStringTemplateEntry(
-//                                        child.firstChildNode,
-//                                        autoCorrect,
-//                                        emit,
-//                                        expectedPrefixLength
-//                                    )
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-            val closingQuote = children.find { it.elementType == CLOSING_QUOTE }!!
-            if (closingQuote.treePrev.text == "\n") {
-                // rewriting
-                // (
-                //     """
-                // """.trimIndent()
-                // )
-                // to
-                // (
-                //     """
-                //     """.trimIndent()
-                // )
-                if (expectedPrefixLength != 0) {
-                    preindentStringTemplateEntry(closingQuote, autoCorrect, emit, expectedPrefixLength)
                 }
-            } else if (!closingQuote.treePrev.text.isBlank()) {
+
+            val closingQuote = node.children().find { it.elementType == CLOSING_QUOTE }!!
+            if (!closingQuote.treePrev.text.isBlank()) {
                 // rewriting
                 // """
                 //     text
@@ -852,63 +847,9 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                     (if (!autoCorrect) "would have " else "") +
                         "inserted newline before (closing) \"\"\""
                 }
-            } else { // preceded by blank LITERAL_STRING_TEMPLATE_ENTRY
-                val child = closingQuote.treePrev
-                val indentLength = child.text.length
-                if (indentLength != expectedPrefixLength) {
-                    reindentStringTemplateEntry(child, autoCorrect, emit, indentLength, expectedPrefixLength)
-                }
             }
         }
     }
-
-    private fun preindentStringTemplateEntry(
-        node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        expectedIndentLength: Int
-    ) {
-        emit(
-            node.startOffset,
-            "Unexpected indentation (0) (should be $expectedIndentLength)",
-            true
-        )
-        if (autoCorrect) {
-            (node as LeafPsiElement).rawInsertBeforeMe(
-                LeafPsiElement(REGULAR_STRING_PART, " ".repeat(expectedIndentLength))
-            )
-        }
-        debug {
-            (if (!autoCorrect) "would have " else "") +
-                "changed indentation before ${node.text} to $expectedIndentLength (from 0)"
-        }
-    }
-
-    private fun reindentStringTemplateEntry(
-        node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        indentLength: Int,
-        expectedIndentLength: Int
-    ) {
-        emit(
-            node.startOffset,
-            "Unexpected indentation ($indentLength) (should be $expectedIndentLength)",
-            true
-        )
-        if (autoCorrect) {
-            (node.firstChildNode as LeafPsiElement).rawReplaceWithText(
-                " ".repeat(expectedIndentLength) + node.text.substring(indentLength)
-            )
-        }
-        debug {
-            (if (!autoCorrect) "would have " else "") +
-                "changed indentation to $expectedIndentLength (from $indentLength)"
-        }
-    }
-
-    private fun ASTNode.isPrecededByLFStringTemplateEntry() =
-        treePrev?.let { it.elementType == LITERAL_STRING_TEMPLATE_ENTRY && it.text == "\n" } == true
 
     private fun KtStringTemplateExpression.isMultiLine(): Boolean {
         for (child in node.children()) {
@@ -1085,3 +1026,72 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
     private fun ASTNode.isPartOfTypeConstraint() =
         isPartOf(TYPE_CONSTRAINT_LIST) || nextLeaf()?.elementType == WHERE_KEYWORD
 }
+
+private fun ASTNode.isIndentBeforeClosingQuote() =
+    text.isBlank() && nextCodeSibling()?.elementType == CLOSING_QUOTE
+
+private fun EditorConfig.repeatIndent(indentLevel: Int) =
+    when (indentStyle) {
+        IndentStyle.SPACE -> " ".repeat(indentLevel * indentSize)
+        IndentStyle.TAB -> "\t".repeat(indentLevel)
+    }
+
+private fun EditorConfig.wrongIndentChar(): Pair<Char, String> =
+    when (indentStyle) {
+        IndentStyle.SPACE -> Pair('\t', "tab")
+        IndentStyle.TAB -> Pair(' ', "space")
+    }
+
+private fun ASTNode.isLiteralStringTemplateEntry() =
+    elementType == LITERAL_STRING_TEMPLATE_ENTRY && text != "\n"
+
+private fun ASTNode.isVariableStringTemplateEntry() =
+    elementType == LONG_STRING_TEMPLATE_ENTRY || elementType == SHORT_STRING_TEMPLATE_ENTRY
+
+private fun ASTNode.isClosingQuote() =
+    elementType == CLOSING_QUOTE
+
+private fun ASTNode.isFirstNonBlankElementOnLine(): Boolean {
+    var node: ASTNode? = getFirstElementOnSameLine()
+    while (node != null && node != this && node.text.isWhitespace()) {
+        node = node.nextLeaf()
+    }
+    return node != this
+}
+
+private fun String.isWhitespace() =
+    none { !it.isWhitespace() }
+
+private fun ASTNode.getFirstElementOnSameLine(): ASTNode {
+    val firstLeafOnLine = prevLeaf { it.text == "\n" }
+    return if (firstLeafOnLine == null) {
+        this
+    } else {
+        firstLeafOnLine.nextLeaf(includeEmpty = true) ?: this
+    }
+}
+
+/**
+ * Splits the string at the given index or at the first non white space character before that index. The returned pair
+ * consists of the indentation and the second part contains the remainder. Note that the second part still can start
+ * with whitespace characters in case the original strings starts with more white space characters than the requested
+ * split index.
+ */
+private fun String.splitIndentAt(index: Int): Pair<String, String> {
+    assert(index >= 0)
+    val firstNonWhitespaceIndex = indexOfFirst { !it.isWhitespace() }.let {
+        if (it == -1) {
+            this.length
+        } else {
+            it
+        }
+    }
+    val safeIndex = kotlin.math.min(firstNonWhitespaceIndex, index)
+    return Pair(
+        first = this.take(safeIndex),
+        second = this.substring(safeIndex)
+    )
+}
+
+private fun String.indexOfFirst(char: Char) =
+    indexOfFirst { it == char }
