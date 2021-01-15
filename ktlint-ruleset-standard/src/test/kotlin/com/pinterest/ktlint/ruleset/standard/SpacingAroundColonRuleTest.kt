@@ -248,14 +248,48 @@ class SpacingAroundColonRuleTest {
             class X :
                 Y,
                 Z
-            class A // comment
-                : B
-            class A /*
+            class A : // comment
+                B
+            class A : /*
 
             */
-                : B
+                B
             val xmlFormatter:
                 String = ""
+            """.trimIndent()
+        )
+    }
+
+    // https://github.com/pinterest/ktlint/issues/1057
+    @Test
+    fun testLintWithEolComment() {
+        assertThat(
+            SpacingAroundColonRule().lint(
+                """
+                val x // comment
+                    : Int = 1
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(1, 17, "colon-spacing", "Unexpected newline before \":\""),
+            )
+        )
+    }
+
+    @Test
+    fun testFormatWithEolComment() {
+        assertThat(
+            SpacingAroundColonRule().format(
+                """
+                val x // comment
+                    : Int = 1
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            """
+                val x: // comment
+                    Int = 1
             """.trimIndent()
         )
     }
