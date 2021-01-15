@@ -6,7 +6,9 @@ import com.pinterest.ktlint.core.ast.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.core.ast.isPartOf
 import com.pinterest.ktlint.core.ast.isPartOfComment
 import com.pinterest.ktlint.core.ast.isPartOfString
+import com.pinterest.ktlint.core.ast.isWhiteSpace
 import com.pinterest.ktlint.core.ast.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.core.ast.nextLeaf
 import com.pinterest.ktlint.core.ast.prevLeaf
 import com.pinterest.ktlint.core.ast.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.core.ast.upsertWhitespaceBeforeMe
@@ -17,6 +19,7 @@ import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.jetbrains.kotlin.psi.KtConstructor
 import org.jetbrains.kotlin.psi.KtTypeConstraint
 import org.jetbrains.kotlin.psi.KtTypeParameterList
+import org.jetbrains.kotlin.psi.psiUtil.prevLeafs
 
 class SpacingAroundColonRule : Rule("colon-spacing") {
 
@@ -36,24 +39,31 @@ class SpacingAroundColonRule : Rule("colon-spacing") {
                     node.parent !is KtTypeConstraint && // where T : S
                     node.parent?.parent !is KtTypeParameterList
             val prevLeaf = node.prevLeaf()
-            if (prevLeaf != null &&
-                prevLeaf.isWhiteSpaceWithNewline() &&
-                // FIXME: relocate : so that it would be in front of comment
-                // (see SpacingAroundColonRuleTest.testFormatEOF & ChainWrappingRule)
-                prevLeaf.prevLeaf()?.isPartOfComment() != true
-            ) {
+            if (prevLeaf != null && prevLeaf.isWhiteSpaceWithNewline()) {
                 emit(prevLeaf.startOffset, "Unexpected newline before \":\"", true)
-                val text = prevLeaf.text
                 if (autoCorrect) {
-                    if (removeSpacingBefore) {
-                        prevLeaf.treeParent.removeChild(prevLeaf)
+                    if (prevLeaf.prevLeaf()?.isPartOfComment() == true) {
+                        val nextLeaf = node.nextLeaf()
+                        val prevNonCodeLeaves =
+                            node.prevLeafs.takeWhile { it.node.isWhiteSpace() || it.node.isPartOfComment() }.toList()
+                        prevNonCodeLeaves.reversed().forEach {
+                            node.treeParent.addChild(it.node, nextLeaf)
+                        }
+                        if (nextLeaf != null && nextLeaf.isWhiteSpace()) {
+                            node.treeParent.removeChild(nextLeaf)
+                        }
                     } else {
-                        (prevLeaf as LeafPsiElement).rawReplaceWithText(" ")
+                        val text = prevLeaf.text
+                        if (removeSpacingBefore) {
+                            prevLeaf.treeParent.removeChild(prevLeaf)
+                        } else {
+                            (prevLeaf as LeafPsiElement).rawReplaceWithText(" ")
+                        }
+                        node.upsertWhitespaceAfterMe(text)
                     }
-                    node.upsertWhitespaceAfterMe(text)
                 }
             }
-            if (node.prevSibling is PsiWhiteSpace && removeSpacingBefore) {
+            if (node.prevSibling is PsiWhiteSpace && removeSpacingBefore && !prevLeaf.isWhiteSpaceWithNewline()) {
                 emit(node.startOffset, "Unexpected spacing before \":\"", true)
                 if (autoCorrect) {
                     node.prevSibling.node.treeParent.removeChild(node.prevSibling.node)
