@@ -421,6 +421,24 @@ class ArgumentListWrappingRuleTest {
     }
 
     @Test
+    fun testLintAfterElse() {
+        assertThat(
+            ArgumentListWrappingRule().lint(
+                """
+                fun foo(i: Int, j: Int) = 1
+
+                fun test() {
+                    val x = if (true) 1 else foo(
+                        2,
+                        3
+                    )
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
     fun testLintInWhenCondition() {
         assertThat(
             ArgumentListWrappingRule().lint(
