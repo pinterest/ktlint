@@ -4,6 +4,7 @@ import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType
 import com.pinterest.ktlint.core.ast.ElementType.DOT_QUALIFIED_EXPRESSION
+import com.pinterest.ktlint.core.ast.ElementType.ELSE
 import com.pinterest.ktlint.core.ast.ElementType.TYPE_ARGUMENT_LIST
 import com.pinterest.ktlint.core.ast.children
 import com.pinterest.ktlint.core.ast.column
@@ -113,7 +114,7 @@ class ArgumentListWrappingRule : Rule("argument-list-wrapping") {
                 // <line indent> RPAR
                 val lineIndent = node.lineIndent()
                 val indent = ("\n" + lineIndent.substring(0, (lineIndent.length - adjustedIndent).coerceAtLeast(0)))
-                    .let { if (node.isOnSameLineAsIfKeyword()) it + " ".repeat(indentSize) else it }
+                    .let { if (node.isOnSameLineAsControlFlowKeyword()) it + " ".repeat(indentSize) else it }
                 val paramIndent = indent + " ".repeat(indentSize)
                 nextChild@ for (child in node.children()) {
                     when (child.elementType) {
@@ -230,8 +231,9 @@ class ArgumentListWrappingRule : Rule("argument-list-wrapping") {
         return null
     }
 
-    private fun ASTNode.isOnSameLineAsIfKeyword(): Boolean {
+    private fun ASTNode.isOnSameLineAsControlFlowKeyword(): Boolean {
         val containerNode = psi.getStrictParentOfType<KtContainerNode>() ?: return false
+        if (containerNode.node.elementType == ELSE) return false
         return when (val parent = containerNode.parent) {
             is KtIfExpression, is KtWhileExpression -> parent.node
             is KtDoWhileExpression -> parent.whileKeyword?.node
