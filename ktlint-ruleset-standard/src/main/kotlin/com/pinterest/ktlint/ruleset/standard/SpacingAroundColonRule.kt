@@ -3,6 +3,7 @@ package com.pinterest.ktlint.ruleset.standard
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.ANNOTATION
 import com.pinterest.ktlint.core.ast.ElementType.ANNOTATION_ENTRY
+import com.pinterest.ktlint.core.ast.ElementType.EQ
 import com.pinterest.ktlint.core.ast.isPartOf
 import com.pinterest.ktlint.core.ast.isPartOfComment
 import com.pinterest.ktlint.core.ast.isPartOfString
@@ -15,11 +16,15 @@ import com.pinterest.ktlint.core.ast.upsertWhitespaceBeforeMe
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
+import org.jetbrains.kotlin.psi.KtBlockExpression
 import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.jetbrains.kotlin.psi.KtConstructor
+import org.jetbrains.kotlin.psi.KtNamedFunction
+import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.psi.KtTypeConstraint
 import org.jetbrains.kotlin.psi.KtTypeParameterList
-import org.jetbrains.kotlin.psi.psiUtil.prevLeafs
+import org.jetbrains.kotlin.psi.psiUtil.siblings
+import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 
 class SpacingAroundColonRule : Rule("colon-spacing") {
 
@@ -42,24 +47,44 @@ class SpacingAroundColonRule : Rule("colon-spacing") {
             if (prevLeaf != null && prevLeaf.isWhiteSpaceWithNewline()) {
                 emit(prevLeaf.startOffset, "Unexpected newline before \":\"", true)
                 if (autoCorrect) {
-                    if (prevLeaf.prevLeaf()?.isPartOfComment() == true) {
-                        val nextLeaf = node.nextLeaf()
-                        val prevNonCodeLeaves =
-                            node.prevLeafs.takeWhile { it.node.isWhiteSpace() || it.node.isPartOfComment() }.toList()
-                        prevNonCodeLeaves.reversed().forEach {
-                            node.treeParent.addChild(it.node, nextLeaf)
+                    val parent = node.parent
+                    val prevNonCodeElements = node.siblings(forward = false, withItself = false)
+                        .takeWhile { it.node.isWhiteSpace() || it.node.isPartOfComment() }.toList()
+                    when {
+                        parent is KtProperty || parent is KtNamedFunction -> {
+                            val equalsSignElement = node.siblings(forward = true, withItself = false)
+                                .firstOrNull { it.node.elementType == EQ }
+                            if (equalsSignElement != null) {
+                                equalsSignElement.nextSibling?.takeIf { it.node.isWhiteSpace() }?.delete()
+                                prevNonCodeElements.forEach { parent.addAfter(it, equalsSignElement) }
+                            }
+                            val blockElement = node.siblings(forward = true, withItself = false)
+                                .firstIsInstanceOrNull<KtBlockExpression>()
+                            if (blockElement != null) {
+                                prevNonCodeElements
+                                    .let { if (it.first().node.isWhiteSpace()) it.drop(1) else it }
+                                    .forEach { blockElement.addAfter(it, blockElement.lBrace) }
+                            }
+                            parent.deleteChildRange(prevNonCodeElements.last(), prevNonCodeElements.first())
                         }
-                        if (nextLeaf != null && nextLeaf.isWhiteSpace()) {
-                            node.treeParent.removeChild(nextLeaf)
+                        prevLeaf.prevLeaf()?.isPartOfComment() == true -> {
+                            val nextLeaf = node.nextLeaf()
+                            prevNonCodeElements.reversed().forEach {
+                                node.treeParent.addChild(it.node, nextLeaf)
+                            }
+                            if (nextLeaf != null && nextLeaf.isWhiteSpace()) {
+                                node.treeParent.removeChild(nextLeaf)
+                            }
                         }
-                    } else {
-                        val text = prevLeaf.text
-                        if (removeSpacingBefore) {
-                            prevLeaf.treeParent.removeChild(prevLeaf)
-                        } else {
-                            (prevLeaf as LeafPsiElement).rawReplaceWithText(" ")
+                        else -> {
+                            val text = prevLeaf.text
+                            if (removeSpacingBefore) {
+                                prevLeaf.treeParent.removeChild(prevLeaf)
+                            } else {
+                                (prevLeaf as LeafPsiElement).rawReplaceWithText(" ")
+                            }
+                            node.upsertWhitespaceAfterMe(text)
                         }
-                        node.upsertWhitespaceAfterMe(text)
                     }
                 }
             }
