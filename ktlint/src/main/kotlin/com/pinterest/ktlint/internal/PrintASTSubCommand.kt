@@ -6,6 +6,7 @@ import com.pinterest.ktlint.core.ParseException
 import com.pinterest.ktlint.core.RuleSet
 import com.pinterest.ruleset.test.DumpASTRule
 import java.io.File
+import java.nio.file.FileSystems
 import picocli.CommandLine
 
 @CommandLine.Command(
@@ -47,9 +48,12 @@ internal class PrintASTSubCommand : Runnable {
         if (stdin) {
             printAST(KtLint.STDIN_FILE, String(System.`in`.readBytes()))
         } else {
-            for (file in patterns.fileSequence()) {
-                printAST(file.path, file.readText())
-            }
+            FileSystems.getDefault()
+                .fileSequence(patterns)
+                .map { it.toFile() }
+                .forEach {
+                    printAST(it.path, it.readText())
+                }
         }
     }
 

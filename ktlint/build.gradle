@@ -35,6 +35,7 @@ dependencies {
 
   testImplementation deps.junit
   testImplementation deps.assertj
+  testImplementation deps.jimfs
 }
 
 // Implements https://github.com/brianm/really-executable-jars-maven-plugin maven plugin behaviour.

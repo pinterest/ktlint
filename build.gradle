@@ -41,7 +41,7 @@ task ktlint(type: JavaExec, group: LifecycleBasePlugin.VERIFICATION_GROUP) {
   description = "Check Kotlin code style."
   classpath = configurations.ktlint
   main = 'com.pinterest.ktlint.Main'
-  args '*/src/**/*.kt', '--baseline=ktlint-baseline.xml'
+  args '**/src/**/*.kt', '--baseline=ktlint-baseline.xml'
 }
 
 allprojects {

@@ -22,6 +22,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fix IndexOutOfBoundsException in `argument-list-wrapping-rule` formatting file with many corrections ([#1081](https://github.com/pinterest/ktlint/issues/1081))
 - Fix formatting in arguments (`multiline-if-else`) ([#1079](https://github.com/pinterest/ktlint/issues/1079))
 - Fix experimental:annotation-spacing-rule autocorrection with comments
+- Migrate from klob dependency and fix negated globs passed to CLI are no longer worked ([#999](https://github.com/pinterest/ktlint/issues/999))
+  **Breaking**: absolute paths globs will no longer work, check updated README
 
 ### Changed
 - Update Gradle shadow plugin to `6.1.0` version
