@@ -248,14 +248,158 @@ class SpacingAroundColonRuleTest {
             class X :
                 Y,
                 Z
-            class A // comment
-                : B
-            class A /*
+            class A : // comment
+                B
+            class A : /*
 
             */
-                : B
-            val xmlFormatter:
-                String = ""
+                B
+            val xmlFormatter: String =
+                ""
+            """.trimIndent()
+        )
+    }
+
+    // https://github.com/pinterest/ktlint/issues/1057
+    @Test
+    fun testLintNewLineBeforeColon() {
+        assertThat(
+            SpacingAroundColonRule().lint(
+                """
+                fun test() {
+                    val v1
+                        : Int = 1
+
+                    val v2 // comment
+                        : Int = 1
+
+                    val v3
+                        // comment
+                        : Int = 1
+
+                    fun f1()
+                        : Int = 1
+
+                    fun f2() // comment
+                        : Int = 1
+
+                    fun f3()
+                        // comment
+                        : Int = 1
+
+                    fun g1()
+                        : Int {
+                        return 1
+                    }
+
+                    fun g2() // comment
+                        : Int {
+                        return 1
+                    }
+
+                    fun g3()
+                        // comment
+                        : Int {
+                        return 1
+                    }
+                }
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(2, 11, "colon-spacing", "Unexpected newline before \":\""),
+                LintError(5, 22, "colon-spacing", "Unexpected newline before \":\""),
+                LintError(9, 19, "colon-spacing", "Unexpected newline before \":\""),
+                LintError(12, 13, "colon-spacing", "Unexpected newline before \":\""),
+                LintError(15, 24, "colon-spacing", "Unexpected newline before \":\""),
+                LintError(19, 19, "colon-spacing", "Unexpected newline before \":\""),
+                LintError(22, 13, "colon-spacing", "Unexpected newline before \":\""),
+                LintError(27, 24, "colon-spacing", "Unexpected newline before \":\""),
+                LintError(33, 19, "colon-spacing", "Unexpected newline before \":\""),
+            )
+        )
+    }
+
+    @Test
+    fun testFormatNewLineBeforeColon() {
+        assertThat(
+            SpacingAroundColonRule().format(
+                """
+                fun test() {
+                    val v1
+                        : Int = 1
+
+                    val v2 // comment
+                        : Int = 1
+
+                    val v3
+                        // comment
+                        : Int = 1
+
+                    fun f1()
+                        : Int = 1
+
+                    fun f2() // comment
+                        : Int = 1
+
+                    fun f3()
+                        // comment
+                        : Int = 1
+
+                    fun g1()
+                        : Int {
+                        return 1
+                    }
+
+                    fun g2() // comment
+                        : Int {
+                        return 1
+                    }
+
+                    fun g3()
+                        // comment
+                        : Int {
+                        return 1
+                    }
+                }
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            """
+            fun test() {
+                val v1: Int =
+                    1
+
+                val v2: Int = // comment
+                    1
+
+                val v3: Int =
+                    // comment
+                    1
+
+                fun f1(): Int =
+                    1
+
+                fun f2(): Int = // comment
+                    1
+
+                fun f3(): Int =
+                    // comment
+                    1
+
+                fun g1(): Int {
+                    return 1
+                }
+
+                fun g2(): Int { // comment
+                    return 1
+                }
+
+                fun g3(): Int {
+                    // comment
+                    return 1
+                }
+            }
             """.trimIndent()
         )
     }
