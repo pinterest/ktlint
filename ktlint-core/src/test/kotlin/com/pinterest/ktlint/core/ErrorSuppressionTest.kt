@@ -34,46 +34,6 @@ class ErrorSuppressionTest {
         }
 
     @Test
-    fun testErrorSuppressionDisableAllOnPackage() {
-        assertThat(
-            lint(
-                """
-                package com.pinterest.ktlint // ktlint-disable
-
-                import a.* // Should not trigger an error due to ktlin-disable directive on package
-
-                /* ktlint-enable */
-                import b.* // will trigger an error
-                """.trimIndent()
-            )
-        ).isEqualTo(
-            listOf(
-                LintError(6, 10, "no-wildcard-imports", "Wildcard import")
-            )
-        )
-    }
-
-    @Test
-    fun testErrorSuppressionDisableRuleOnPackage() {
-        assertThat(
-            lint(
-                """
-                package com.pinterest.ktlint // ktlint-disable no-wildcard-imports
-
-                import a.* // Should not trigger an error due to ktlin-disable directive on package
-
-                /* ktlint-enable no-wildcard-imports */
-                import b.* // will trigger an error
-                """.trimIndent()
-            )
-        ).isEqualTo(
-            listOf(
-                LintError(6, 10, "no-wildcard-imports", "Wildcard import")
-            )
-        )
-    }
-
-    @Test
     fun testErrorSuppressionDisableAllOnImport() {
         assertThat(
             lint(

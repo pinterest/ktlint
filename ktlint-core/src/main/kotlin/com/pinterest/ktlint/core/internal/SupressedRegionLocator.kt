@@ -68,14 +68,8 @@ private fun collect(
             val text = node.getText()
             if (text.startsWith("//")) {
                 val commentText = text.removePrefix("//").trim()
-                if (node.isDisabledOnPackageStatement()) {
-                    parseHintArgs(commentText, "ktlint-disable")
-                        ?.let { hints -> SuppressionHint(IntRange(0, Int.MAX_VALUE), hints) }
-                        ?.let { suppressionHint -> open.add(suppressionHint) }
-                } else {
-                    node.createLineDisableSupressionHint(commentText)
-                        ?.let { suppressionHint -> result.add(suppressionHint) }
-                }
+                node.createLineDisableSupressionHint(commentText)
+                    ?.let { suppressionHint -> result.add(suppressionHint) }
             } else {
                 val commentText = text.removePrefix("/*").removeSuffix("*/").trim()
                 node.createBlockDisableSuppressionHint(commentText)
