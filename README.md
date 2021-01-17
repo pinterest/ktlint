@@ -511,22 +511,38 @@ See [Creating A Ruleset](#creating-a-ruleset).
 to produce the correct result (please report any such instances using [GitHub Issues](https://github.com/pinterest/ktlint/issues)).
 
 To disable a specific rule you'll need to turn on the verbose mode (`ktlint --verbose ...`). At the end of each line
-you'll see an error code. Use it as an argument for `ktlint-disable` directive (shown below).  
+you'll see the id of the rule. This id can be used as an argument for `ktlint-disable` directive (shown below).  
 
+A specific rule can be disabled for one specific line by adding the `ktlint-disable` directive, and the rule id as 
+follows:
 ```kotlin
-import package.* // ktlint-disable no-wildcard-imports
+import com.example.mypackage.* // ktlint-disable no-wildcard-imports
+```
 
+A rule can be disabled for a block of statements by adding the `ktlint-disable` directive, and the rule id as follows:
+```
 /* ktlint-disable no-wildcard-imports */
-import package.a.*
-import package.b.*
+import com.example.mypackage1.*
+import com.example.mypackage2.*
 /* ktlint-enable no-wildcard-imports */
 ```
+Note: the `ktlint-enable` directive above can be omitted in case the rule should be disabled for the remainder of the 
+file.
 
-To disable all checks:
+
+It is also possible to disable all checks for one single line, or a block of lines by not specifying the rule id after 
+the `ktlint-disable` directive:
 
 ```kotlin
-import package.* // ktlint-disable
+import com.example.mypackage.* // ktlint-disable
+
+/* ktlint-disable */
+import com.example.mypackage1.*
+import com.example.mypackage2.*
+/* ktlint-enable */
 ```
+Note: the `ktlint-enable` directive above can be omitted in case all rules should be disabled for the remainder of the 
+file.
 
 ### How do I globally disable a rule?
 See the [EditorConfig section](https://github.com/pinterest/ktlint#editorconfig) for details on how to use the `disabled_rules` property.
