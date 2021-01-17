@@ -39,20 +39,12 @@ internal fun buildSuppressedRegionsLocator(
     return if (hintsList.isEmpty()) {
         noSuppression
     } else { offset, ruleId, isRoot ->
-        if (isRoot) {
-            val h = hintsList[0]
-            h.range.last == 0 && (
-                h.disabledRules.isEmpty() ||
-                    h.disabledRules.contains(ruleId)
-                )
-        } else {
-            hintsList.any { hint ->
-                (
-                    hint.disabledRules.isEmpty() ||
-                        hint.disabledRules.contains(ruleId)
-                    ) &&
-                    hint.range.contains(offset)
-            }
+        hintsList.any { hint ->
+            (
+                hint.disabledRules.isEmpty() ||
+                    hint.disabledRules.contains(ruleId)
+                ) &&
+                hint.range.contains(offset)
         }
     }
 }
@@ -77,7 +69,8 @@ private fun collect(
             if (text.startsWith("//")) {
                 val commentText = text.removePrefix("//").trim()
                 if (node.isDisabledOnPackageStatement()) {
-                    node.createBlockDisableSuppressionHint(commentText)
+                    parseHintArgs(commentText, "ktlint-disable")
+                        ?.let { hints -> SuppressionHint(IntRange(0, Int.MAX_VALUE), hints) }
                         ?.let { suppressionHint -> open.add(suppressionHint) }
                 } else {
                     node.createLineDisableSupressionHint(commentText)
@@ -124,7 +117,7 @@ private fun PsiElement.createLineDisableSupressionHint(commentText: String): Sup
 
 private fun PsiElement.createBlockDisableSuppressionHint(commentText: String): SuppressionHint? {
     return parseHintArgs(commentText, "ktlint-disable")
-        ?.let { hints -> SuppressionHint(IntRange(node.startOffset, node.startOffset), hints) }
+        ?.let { hints -> SuppressionHint(IntRange(node.startOffset, Int.MAX_VALUE), hints) }
 }
 
 private fun PsiElement.createBlockEnableSuppressionHint(commentText: String, open: java.util.ArrayList<SuppressionHint>): SuppressionHint? {

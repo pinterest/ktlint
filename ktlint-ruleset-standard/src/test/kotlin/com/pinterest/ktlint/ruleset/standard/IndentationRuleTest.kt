@@ -849,4 +849,30 @@ internal class IndentationRuleTest {
             )
         ).isEmpty()
     }
+
+    // Explicitly test disabling this rule as the code hierarchy is changed when new elements need to be inserted for
+    // certain indentation fixes.
+    @Test
+    fun `lint can be suppressed on incorrectly indented lines`() {
+        val code =
+            """
+            class Foo {
+            // Next lines should not fail due to EOL comment containing suppression
+            val bar1 = "bar" // ktlint-disable
+            val bar2 = "bar" // ktlint-disable indent
+
+            /* ktlint-disable */
+            val bar3 = "bar" // Should not fail due to block comment above
+
+            /* ktlint-enable */
+            val bar5 = "bar" // Should fail
+            }
+            """.trimIndent()
+
+        assertThat(IndentationRule().lint(code)).isEqualTo(
+            listOf(
+                LintError(line = 10, col = 1, ruleId = "indent", detail = "Unexpected indentation (0) (should be 4)"),
+            )
+        )
+    }
 }
