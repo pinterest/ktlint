@@ -16,12 +16,12 @@ import org.jetbrains.kotlin.psi.psiUtil.startOffset
 /**
  * Detects if given `ruleId` at given `offset` is suppressed.
  */
-internal typealias SuppressionLocator = (offset: Int, ruleId: String, isRoot: Boolean) -> Boolean
+internal typealias SuppressionLocator = (offset: Int, ruleId: String) -> Boolean
 
 /**
  * No suppression is detected. Always returns `false`.
  */
-internal val noSuppression: SuppressionLocator = { _, _, _ -> false }
+internal val noSuppression: SuppressionLocator = { _, _ -> false }
 
 private val suppressAnnotationRuleMap = mapOf(
     "RemoveCurlyBracesFromTemplate" to "string-template"
@@ -38,7 +38,7 @@ internal fun buildSuppressedRegionsLocator(
     val hintsList = collect(rootNode)
     return if (hintsList.isEmpty()) {
         noSuppression
-    } else { offset, ruleId, isRoot ->
+    } else { offset: Int, ruleId: String ->
         hintsList.any { hint ->
             (
                 hint.disabledRules.isEmpty() ||

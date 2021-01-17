@@ -98,13 +98,13 @@ public object KtLint {
             // fixme: enforcing suppression based on node.startOffset is wrong
             // (not just because not all nodes are leaves but because rules are free to emit (and fix!) errors at any position)
             if (
-                !preparedCode.suppressedRegionLocator(node.startOffset, fqRuleId, node === preparedCode.rootNode)
+                !preparedCode.suppressedRegionLocator(node.startOffset, fqRuleId)
             ) {
                 try {
                     rule.visit(node, false) { offset, errorMessage, canBeAutoCorrected ->
                         // https://github.com/shyiko/ktlint/issues/158#issuecomment-462728189
                         if (node.startOffset != offset &&
-                            preparedCode.suppressedRegionLocator(offset, fqRuleId, node === preparedCode.rootNode)
+                            preparedCode.suppressedRegionLocator(offset, fqRuleId)
                         ) {
                             return@visit
                         }
@@ -313,7 +313,7 @@ public object KtLint {
                 // fixme: enforcing suppression based on node.startOffset is wrong
                 // (not just because not all nodes are leaves but because rules are free to emit (and fix!) errors at any position)
                 if (
-                    !preparedCode.suppressedRegionLocator(node.startOffset, fqRuleId, node === preparedCode.rootNode)
+                    !preparedCode.suppressedRegionLocator(node.startOffset, fqRuleId)
                 ) {
                     try {
                         rule.visit(node, true) { _, _, canBeAutoCorrected ->
@@ -346,14 +346,14 @@ public object KtLint {
                 // fixme: enforcing suppression based on node.startOffset is wrong
                 // (not just because not all nodes are leaves but because rules are free to emit (and fix!) errors at any position)
                 if (
-                    !preparedCode.suppressedRegionLocator(node.startOffset, fqRuleId, node === preparedCode.rootNode)
+                    !preparedCode.suppressedRegionLocator(node.startOffset, fqRuleId)
                 ) {
                     try {
                         rule.visit(node, false) { offset, errorMessage, canBeAutoCorrected ->
                             // https://github.com/shyiko/ktlint/issues/158#issuecomment-462728189
                             if (
                                 node.startOffset != offset &&
-                                preparedCode.suppressedRegionLocator(offset, fqRuleId, node === preparedCode.rootNode)
+                                preparedCode.suppressedRegionLocator(offset, fqRuleId)
                             ) {
                                 return@visit
                             }
