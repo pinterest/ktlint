@@ -37,10 +37,18 @@ import org.jetbrains.kotlin.psi.psiUtil.getStrictParentOfType
  * - maxLineLength exceeded (and separating arguments with \n would actually help)
  * in addition, "(" and ")" must be on separates line if any of the arguments are (otherwise on the same)
  */
-class ArgumentListWrappingRule : Rule("argument-list-wrapping") {
+class ArgumentListWrappingRule :
+    Rule("argument-list-wrapping"),
+    Rule.Modifier.InitializeRoot {
 
     private var indentSize = -1
     private var maxLineLength = -1
+
+    override fun initializeRoot(node: ASTNode) {
+        val editorConfig = node.getUserData(KtLint.EDITOR_CONFIG_USER_DATA_KEY)!!
+        indentSize = editorConfig.indentSize
+        maxLineLength = editorConfig.maxLineLength
+    }
 
     override fun visit(
         node: ASTNode,
@@ -48,9 +56,6 @@ class ArgumentListWrappingRule : Rule("argument-list-wrapping") {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         if (node.isRoot()) {
-            val editorConfig = node.getUserData(KtLint.EDITOR_CONFIG_USER_DATA_KEY)!!
-            indentSize = editorConfig.indentSize
-            maxLineLength = editorConfig.maxLineLength
             return
         }
         if (indentSize <= 0) {

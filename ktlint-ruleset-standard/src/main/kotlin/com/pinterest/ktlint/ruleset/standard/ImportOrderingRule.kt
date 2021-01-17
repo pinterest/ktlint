@@ -38,6 +38,7 @@ import org.jetbrains.kotlin.psi.KtImportDirective
 @OptIn(FeatureInAlphaState::class)
 public class ImportOrderingRule :
     Rule("import-ordering"),
+    Rule.Modifier.InitializeRoot,
     UsesEditorConfigProperties {
 
     private lateinit var importsLayout: List<PatternEntry>
@@ -149,19 +150,21 @@ public class ImportOrderingRule :
         ideaImportsLayoutProperty,
     )
 
+    override fun initializeRoot(node: ASTNode) {
+        val android = node.getUserData(KtLint.ANDROID_USER_DATA_KEY) ?: false
+        val editorConfig = node.getUserData(KtLint.EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY)!!
+        importsLayout = editorConfig.resolveImportsLayout(android)
+        importSorter = ImportSorter(importsLayout)
+    }
+
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         if (node.isRoot()) {
-            val android = node.getUserData(KtLint.ANDROID_USER_DATA_KEY) ?: false
-            val editorConfig = node.getUserData(KtLint.EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY)!!
-            importsLayout = editorConfig.resolveImportsLayout(android)
-            importSorter = ImportSorter(importsLayout)
             return
         }
-
         if (node.elementType == ElementType.IMPORT_LIST) {
             val children = node.getChildren(null)
             if (children.isNotEmpty()) {

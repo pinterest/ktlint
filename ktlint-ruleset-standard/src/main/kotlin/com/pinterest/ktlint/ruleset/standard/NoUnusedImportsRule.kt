@@ -20,7 +20,9 @@ import org.jetbrains.kotlin.psi.KtDotQualifiedExpression
 import org.jetbrains.kotlin.psi.KtImportDirective
 import org.jetbrains.kotlin.psi.KtPackageDirective
 
-class NoUnusedImportsRule : Rule("no-unused-imports") {
+class NoUnusedImportsRule :
+    Rule("no-unused-imports"),
+    Rule.Modifier.InitializeRoot {
 
     private val componentNRegex = Regex("^component\\d+$")
 
@@ -73,17 +75,20 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
     private var packageName = ""
     private var rootNode: ASTNode? = null
 
+    override fun initializeRoot(node: ASTNode) {
+        rootNode = node
+        ref.clear() // rule can potentially be executed more than once (when formatting)
+        ref.add(Reference("*", false))
+        parentExpressions.clear()
+        imports.clear()
+    }
+
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         if (node.isRoot()) {
-            rootNode = node
-            ref.clear() // rule can potentially be executed more than once (when formatting)
-            ref.add(Reference("*", false))
-            parentExpressions.clear()
-            imports.clear()
             node.visit { vnode ->
                 val psi = vnode.psi
                 val type = vnode.elementType

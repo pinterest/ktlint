@@ -14,32 +14,44 @@ import org.jetbrains.kotlin.kdoc.psi.api.KDoc
 import org.jetbrains.kotlin.psi.KtImportDirective
 import org.jetbrains.kotlin.psi.KtPackageDirective
 
-class MaxLineLengthRule : Rule("max-line-length"), Rule.Modifier.Last {
+class MaxLineLengthRule :
+    Rule("max-line-length"),
+    Rule.Modifier.InitializeRoot,
+    Rule.Modifier.Last {
 
     private var maxLineLength: Int = -1
     private var rangeTree = RangeTree()
 
-    override fun visit(
-        node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
-    ) {
-        if (node.isRoot()) {
-            val editorConfig = node.getUserData(KtLint.EDITOR_CONFIG_USER_DATA_KEY)!!
-            maxLineLength = editorConfig.maxLineLength
-            if (maxLineLength <= 0) {
-                return
-            }
-            val errorOffset = arrayListOf<Int>()
-            val text = node.text
-            val lines = text.split("\n")
-            var offset = 0
-            for (line in lines) {
-                if (line.length > maxLineLength) {
-                    val el = node.psi.findElementAt(offset + line.length - 1)!!.node
-                    if (!el.isPartOf(KDoc::class) && !el.isPartOfRawMultiLineString()) {
-                        if (!el.isPartOf(PsiComment::class)) {
-                            if (!el.isPartOf(KtPackageDirective::class) && !el.isPartOf(KtImportDirective::class)) {
+    override fun initializeRoot(node: ASTNode) {
+        val editorConfig = node.getUserData(KtLint.EDITOR_CONFIG_USER_DATA_KEY)!!
+        maxLineLength = editorConfig.maxLineLength
+
+        if (maxLineLength <= 0) {
+            return
+        }
+        val errorOffset = arrayListOf<Int>()
+        val text = node.text
+        val lines = text.split("\n")
+        var offset = 0
+        for (line in lines) {
+            if (line.length > maxLineLength) {
+                val el = node.psi.findElementAt(offset + line.length - 1)!!.node
+                if (!el.isPartOf(KDoc::class) && !el.isPartOfRawMultiLineString()) {
+                    if (!el.isPartOf(PsiComment::class)) {
+                        if (!el.isPartOf(KtPackageDirective::class) && !el.isPartOf(KtImportDirective::class)) {
+                            // fixme:
+                            // normally we would emit here but due to API limitations we need to hold off until
+                            // node spanning the same offset is 'visit'ed
+                            // (for ktlint-disable directive to have effect (when applied))
+                            // this will be rectified in the upcoming release(s)
+                            errorOffset.add(offset)
+                        }
+                    } else {
+                        // Allow ktlint-disable comments to exceed max line length
+                        if (!el.text.startsWith("// ktlint-disable")) {
+                            // if comment is the only thing on the line - fine, otherwise emit an error
+                            val prevLeaf = el.prevCodeSibling()
+                            if (prevLeaf != null && prevLeaf.startOffset >= offset) {
                                 // fixme:
                                 // normally we would emit here but due to API limitations we need to hold off until
                                 // node spanning the same offset is 'visit'ed
@@ -47,27 +59,24 @@ class MaxLineLengthRule : Rule("max-line-length"), Rule.Modifier.Last {
                                 // this will be rectified in the upcoming release(s)
                                 errorOffset.add(offset)
                             }
-                        } else {
-                            // Allow ktlint-disable comments to exceed max line length
-                            if (!el.text.startsWith("// ktlint-disable")) {
-                                // if comment is the only thing on the line - fine, otherwise emit an error
-                                val prevLeaf = el.prevCodeSibling()
-                                if (prevLeaf != null && prevLeaf.startOffset >= offset) {
-                                    // fixme:
-                                    // normally we would emit here but due to API limitations we need to hold off until
-                                    // node spanning the same offset is 'visit'ed
-                                    // (for ktlint-disable directive to have effect (when applied))
-                                    // this will be rectified in the upcoming release(s)
-                                    errorOffset.add(offset)
-                                }
-                            }
                         }
                     }
                 }
-                offset += line.length + 1
             }
-            rangeTree = RangeTree(errorOffset)
-        } else if (!rangeTree.isEmpty() && node.psi is LeafPsiElement) {
+            offset += line.length + 1
+        }
+        rangeTree = RangeTree(errorOffset)
+    }
+
+    override fun visit(
+        node: ASTNode,
+        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+    ) {
+        if (node.isRoot()) {
+            return
+        }
+        if (!rangeTree.isEmpty() && node.psi is LeafPsiElement) {
             rangeTree
                 .query(node.startOffset, node.startOffset + node.textLength)
                 .forEach { offset ->

@@ -2,6 +2,7 @@ package com.pinterest.ktlint.core
 
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
+import com.pinterest.ktlint.core.ast.isRoot
 import com.pinterest.ktlint.core.ast.visit
 import com.pinterest.ktlint.core.internal.EditorConfigGenerator
 import com.pinterest.ktlint.core.internal.EditorConfigLoader
@@ -88,6 +89,12 @@ public object KtLint {
         val errors = mutableListOf<LintError>()
 
         visitor(preparedCode.rootNode, params.ruleSets).invoke { node, rule, fqRuleId ->
+            if (node.isRoot() && rule is Rule.Modifier.InitializeRoot) {
+                // In case the rule has a root initializer then it should always be called regardless whether offset 0
+                // of the file is suppressed by a ktlint-disable directive.
+                rule.initializeRoot(node)
+            }
+
             // fixme: enforcing suppression based on node.startOffset is wrong
             // (not just because not all nodes are leaves but because rules are free to emit (and fix!) errors at any position)
             if (
@@ -297,6 +304,12 @@ public object KtLint {
         var mutated = false
         visitor(preparedCode.rootNode, params.ruleSets, concurrent = false)
             .invoke { node, rule, fqRuleId ->
+                if (node.isRoot() && rule is Rule.Modifier.InitializeRoot) {
+                    // In case the rule has a root initializer then it should always be called regardless whether offset
+                    // 0 of the file is suppressed by a ktlint-disable directive.
+                    rule.initializeRoot(node)
+                }
+
                 // fixme: enforcing suppression based on node.startOffset is wrong
                 // (not just because not all nodes are leaves but because rules are free to emit (and fix!) errors at any position)
                 if (
@@ -324,6 +337,12 @@ public object KtLint {
         if (tripped) {
             val errors = mutableListOf<Pair<LintError, Boolean>>()
             visitor(preparedCode.rootNode, params.ruleSets).invoke { node, rule, fqRuleId ->
+                if (node.isRoot() && rule is Rule.Modifier.InitializeRoot) {
+                    // In case the rule has a root initializer then it should always be called regardless whether offset 0
+                    // of the file is suppressed by a ktlint-disable directive.
+                    rule.initializeRoot(node)
+                }
+
                 // fixme: enforcing suppression based on node.startOffset is wrong
                 // (not just because not all nodes are leaves but because rules are free to emit (and fix!) errors at any position)
                 if (

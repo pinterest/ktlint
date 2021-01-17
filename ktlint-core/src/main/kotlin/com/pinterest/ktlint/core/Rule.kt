@@ -47,5 +47,13 @@ abstract class Rule(val id: String) {
          */
         interface RestrictToRootLast : RestrictToRoot
         interface Last
+        /**
+         * Any rule implementing this interface will be given the root ([FileASTNode]) node so that the rule is
+         * guaranteed to be initialized even in case the first line of the file contains a ktlint-disable directive
+         * for the rule.
+         */
+        interface InitializeRoot {
+            fun initializeRoot(node: ASTNode)
+        }
     }
 }

@@ -2,7 +2,6 @@ package com.pinterest.ruleset.test
 
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType
-import com.pinterest.ktlint.core.ast.isRoot
 import com.pinterest.ktlint.core.ast.lastChildLeafOrSelf
 import com.pinterest.ktlint.core.ast.lineNumber
 import com.pinterest.ruleset.test.internal.Color
@@ -15,7 +14,8 @@ import org.jetbrains.kotlin.lexer.KtTokens
 public class DumpASTRule @JvmOverloads constructor(
     private val out: PrintStream = System.err,
     private val color: Boolean = false
-) : Rule("dump") {
+) : Rule("dump"),
+    Rule.Modifier.InitializeRoot {
 
     private companion object {
         val elementTypeSet = ElementType::class.members.map { it.name }.toSet()
@@ -24,17 +24,18 @@ public class DumpASTRule @JvmOverloads constructor(
     private var lineNumberColumnLength: Int = 0
     private var lastNode: ASTNode? = null
 
+    override fun initializeRoot(node: ASTNode) {
+        lineNumberColumnLength =
+            (node.lastChildLeafOrSelf().lineNumber() ?: 1)
+                .let { var v = it; var c = 0; while (v > 0) { c++; v /= 10 }; c }
+        lastNode = node.lastChildLeafOrSelf()
+    }
+
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, corrected: Boolean) -> Unit
     ) {
-        if (node.isRoot()) {
-            lineNumberColumnLength =
-                (node.lastChildLeafOrSelf().lineNumber() ?: 1)
-                    .let { var v = it; var c = 0; while (v > 0) { c++; v /= 10 }; c }
-            lastNode = node.lastChildLeafOrSelf()
-        }
         var level = -1
         var parent: ASTNode? = node
         do {

@@ -27,10 +27,18 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.psi.KtTypeArgumentList
 import org.jetbrains.kotlin.psi.psiUtil.collectDescendantsOfType
 
-class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
+class ParameterListWrappingRule :
+    Rule("parameter-list-wrapping"),
+    Rule.Modifier.InitializeRoot {
 
     private var indentSize = -1
     private var maxLineLength = -1
+
+    override fun initializeRoot(node: ASTNode) {
+        val editorConfig = node.getUserData(KtLint.EDITOR_CONFIG_USER_DATA_KEY)!!
+        indentSize = editorConfig.indentSize
+        maxLineLength = editorConfig.maxLineLength
+    }
 
     override fun visit(
         node: ASTNode,
@@ -38,9 +46,6 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         if (node.isRoot()) {
-            val editorConfig = node.getUserData(KtLint.EDITOR_CONFIG_USER_DATA_KEY)!!
-            indentSize = editorConfig.indentSize
-            maxLineLength = editorConfig.maxLineLength
             return
         }
         if (indentSize <= 0) {
