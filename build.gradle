@@ -4,7 +4,7 @@ plugins {
 }
 
 ext.versions = [
-  'kotlin': gradle.ext.isKotlinDev ? "1.4.30-M1" : "1.4.10",
+  'kotlin': gradle.ext.isKotlinDev ? "1.4.30-RC" : "1.4.10",
   'gradle': '6.6',
   'gradle-sha256': 'e6f83508f0970452f56197f610d13c5f593baaf43c0e3c6a571e5967be754025'
 ]
