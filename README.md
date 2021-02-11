@@ -155,7 +155,7 @@ curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.40.0/ktlint &
   * (Releases up through 0.31.0) `curl -sS https://keybase.io/shyiko/pgp_keys.asc | gpg --import && gpg --verify ktlint.asc`
   * (Releases from 0.32.0 on) `curl -sS https://keybase.io/ktlint/pgp_keys.asc | gpg --import && gpg --verify ktlint.asc`
 
-On macOS ([or Linux](http://linuxbrew.sh/)) you can also use [brew](https://brew.sh/) - `brew install ktlint`.
+On macOS ([or Linux](http://linuxbrew.sh/)) you can also use [brew](https://brew.sh/) - `brew install ktlint` - or [MacPorts](https://www.macports.org/) - `port install ktlint`.
 
 > If you don't have curl installed - replace `curl -sL` with `wget -qO-`.
 
