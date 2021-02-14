@@ -218,7 +218,7 @@ class NoTrailingCommaRule :
             "ij_kotlin_allow_trailing_comma",
             "ij_kotlin_allow_trailing_comma description",
             PropertyValueParser.BOOLEAN_VALUE_PARSER,
-            mutableSetOf("true", "false")
+            setOf("true", "false")
         )
 
         internal val ijKotlinAllowTrailingCommaEditorConfigProperty =
@@ -233,7 +233,7 @@ class NoTrailingCommaRule :
             "ij_kotlin_allow_trailing_comma_on_call_site",
             "ij_kotlin_allow_trailing_comma_on_call_site description",
             PropertyValueParser.BOOLEAN_VALUE_PARSER,
-            mutableSetOf("true", "false")
+            setOf("true", "false")
         )
         internal val ijKotlinAllowTrailingCommaOnCallSiteEditorConfigProperty =
             UsesEditorConfigProperties.EditorConfigProperty(
