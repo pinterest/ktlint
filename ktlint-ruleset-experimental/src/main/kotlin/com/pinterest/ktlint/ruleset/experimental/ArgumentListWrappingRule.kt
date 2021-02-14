@@ -14,7 +14,6 @@ import com.pinterest.ktlint.core.ast.isRoot
 import com.pinterest.ktlint.core.ast.isWhiteSpace
 import com.pinterest.ktlint.core.ast.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.core.ast.lineIndent
-import com.pinterest.ktlint.core.ast.lineNumber
 import com.pinterest.ktlint.core.ast.prevLeaf
 import com.pinterest.ktlint.core.ast.visit
 import kotlin.math.max
@@ -234,10 +233,18 @@ class ArgumentListWrappingRule : Rule("argument-list-wrapping") {
     private fun ASTNode.isOnSameLineAsControlFlowKeyword(): Boolean {
         val containerNode = psi.getStrictParentOfType<KtContainerNode>() ?: return false
         if (containerNode.node.elementType == ELSE) return false
-        return when (val parent = containerNode.parent) {
-            is KtIfExpression, is KtWhileExpression -> parent.node
+        val controlFlowKeyword = when (val parent = containerNode.parent) {
+            is KtIfExpression -> parent.ifKeyword.node
+            is KtWhileExpression -> parent.firstChild.node
             is KtDoWhileExpression -> parent.whileKeyword?.node
             else -> null
-        }?.lineNumber() == lineNumber()
+        } ?: return false
+
+        var prevLeaf = prevLeaf() ?: return false
+        while (prevLeaf != controlFlowKeyword) {
+            if (prevLeaf.isWhiteSpaceWithNewline()) return false
+            prevLeaf = prevLeaf.prevLeaf() ?: return false
+        }
+        return true
     }
 }

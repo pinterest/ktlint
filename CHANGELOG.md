@@ -19,6 +19,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fix false positives when declaration has tail comments (`spacing-between-declarations-with-comments`) ([#1053](https://github.com/pinterest/ktlint/issues/1053))
 - Fix false positive after `else` keyword (`argument-list-wrapping`) ([#1047](https://github.com/pinterest/ktlint/issues/1047))
 - Fix formatting with comments (`colon-spacing`) ([#1057](https://github.com/pinterest/ktlint/issues/1057))
+- Fix IndexOutOfBoundsException in `argument-list-wrapping-rule` formatting file with many corrections ([#1081](https://github.com/pinterest/ktlint/issues/1081))
 
 ### Changed
 - Update Gradle shadow plugin to `6.1.0` version
