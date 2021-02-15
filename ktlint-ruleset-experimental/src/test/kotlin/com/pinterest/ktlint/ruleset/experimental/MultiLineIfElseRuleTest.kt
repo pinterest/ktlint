@@ -416,6 +416,38 @@ class MultiLineIfElseRuleTest {
         )
     }
 
+    // https://github.com/pinterest/ktlint/issues/1079
+    @Test
+    fun testInArgument() {
+        val actual = format(
+            """
+            fun foo(x: Int, y: Int, z: Int) {}
+            fun test(a: Int, b: Int, c: Int, d: Int, bar: Boolean) {
+                foo(
+                    a,
+                    if (bar) b else
+                        c,
+                    d
+                )
+            }
+            """.trimIndent()
+        )
+        assertThat(actual).isEqualTo(
+            """
+            fun foo(x: Int, y: Int, z: Int) {}
+            fun test(a: Int, b: Int, c: Int, d: Int, bar: Boolean) {
+                foo(
+                    a,
+                    if (bar) b else {
+                        c
+                    },
+                    d
+                )
+            }
+            """.trimIndent()
+        )
+    }
+
     private fun assertOK(kotlinScript: String) {
         assertThat(format(kotlinScript)).isEqualTo(kotlinScript)
         assertThat(lint(kotlinScript)).isEqualTo(emptyList<LintError>())
