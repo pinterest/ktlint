@@ -3,13 +3,12 @@ pluginManagement {
     mavenCentral()
     gradlePluginPortal()
     if (settings.hasProperty('kotlinDev')) {
-      maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
-      maven { url 'https://dl.bintray.com/kotlin/kotlin-dev' }
+      maven { url 'https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev/' }
     }
   }
 
   plugins {
-    def kotlinVersion = settings.hasProperty("kotlinDev") ? "1.4.30-RC" : "1.4.30"
+    def kotlinVersion = settings.hasProperty("kotlinDev") ? "1.5.0-M2-187" : "1.4.30"
     id 'org.jetbrains.kotlin.jvm' version kotlinVersion
     id 'com.github.breadmoirai.github-release' version '2.2.12'
     id 'com.github.johnrengelman.shadow' version '6.1.0'
