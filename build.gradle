@@ -4,7 +4,7 @@ plugins {
 }
 
 ext.versions = [
-  'kotlin': gradle.ext.isKotlinDev ? "1.4.30-RC" : "1.4.30",
+  'kotlin': gradle.ext.isKotlinDev ? "1.5.0-M2-187" : "1.4.30",
   'gradle': '6.8.1',
   'gradle-sha256': 'fd591a34af7385730970399f473afabdb8b28d57fd97d6625c388d090039d6fd'
 ]
@@ -50,8 +50,7 @@ allprojects {
     gradlePluginPortal()
 
     if (gradle.ext.isKotlinDev) {
-      maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
-      maven { url 'https://dl.bintray.com/kotlin/kotlin-dev' }
+      maven { url 'https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev/' }
     }
   }
 
