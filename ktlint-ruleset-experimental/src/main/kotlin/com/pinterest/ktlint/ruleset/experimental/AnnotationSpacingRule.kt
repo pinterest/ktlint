@@ -123,9 +123,6 @@ class AnnotationSpacingRule : Rule("annotation-spacing") {
         return null
     }
 
-    private fun ASTNode?.isWhiteSpaceWithMultipleNewlines() =
-        this != null && elementType == ElementType.WHITE_SPACE && text.contains("\n\n")
-
     private fun removeExtraLineBreaks(node: ASTNode) {
         val next = node.nextSibling {
             it.isWhiteSpaceWithNewline()
