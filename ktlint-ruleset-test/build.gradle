@@ -5,5 +5,4 @@ plugins {
 
 dependencies {
   api project(':ktlint-core')
-  implementation deps.kotlin.stdlib
 }
