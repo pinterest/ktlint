@@ -111,16 +111,16 @@ public object KtLint {
                     }
                 } catch (e: Exception) {
                     val (line, col) = preparedCode.positionInTextLocator(node.startOffset)
+                    kotlinPsiFileFactory.releasePsiFileFactory()
                     throw RuleExecutionException(line, col, fqRuleId, e)
                 }
             }
         }
 
+        kotlinPsiFileFactory.releasePsiFileFactory()
         errors
             .sortedWith { l, r -> if (l.line != r.line) l.line - r.line else l.col - r.col }
             .forEach { e -> params.cb(e, false) }
-
-        kotlinPsiFileFactory.releasePsiFileFactory()
     }
 
     private fun prepareCodeForLinting(
@@ -324,6 +324,7 @@ public object KtLint {
                             }
                         }
                     } catch (e: Exception) {
+                        kotlinPsiFileFactory.releasePsiFileFactory()
                         // line/col cannot be reliably mapped as exception might originate from a node not present
                         // in the original AST
                         throw RuleExecutionException(0, 0, fqRuleId, e)
@@ -352,6 +353,7 @@ public object KtLint {
                         }
                     } catch (e: Exception) {
                         val (line, col) = preparedCode.positionInTextLocator(node.startOffset)
+                        kotlinPsiFileFactory.releasePsiFileFactory()
                         throw RuleExecutionException(line, col, fqRuleId, e)
                     }
                 }
@@ -363,6 +365,7 @@ public object KtLint {
         }
 
         if (!mutated) {
+            kotlinPsiFileFactory.releasePsiFileFactory()
             return params.text
         }
 

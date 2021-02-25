@@ -34,18 +34,16 @@ internal class KotlinPsiFileFactory {
     private val acquireCounter = AtomicInteger(0)
     private val initializerLock = Any()
 
-    internal fun acquirePsiFileFactory(isFromCli: Boolean): PsiFileFactory {
+    internal fun acquirePsiFileFactory(isFromCli: Boolean): PsiFileFactory = synchronized(initializerLock) {
         acquireCounter.incrementAndGet()
-        return psiFileFactory ?: synchronized(initializerLock) {
-            initializePsiFileFactory(isFromCli).also {
-                psiFileFactory = it
-            }
+        return psiFileFactory ?: initializePsiFileFactory(isFromCli).also {
+            psiFileFactory = it
         }
     }
 
-    internal fun releasePsiFileFactory() {
+    internal fun releasePsiFileFactory() = synchronized(initializerLock) {
         val acquiredCount = acquireCounter.decrementAndGet()
-        if (acquiredCount == 0) synchronized(initializerLock) {
+        if (acquiredCount == 0) {
             tempFiles?.toFile()?.deleteRecursively()
             tempFiles = null
             psiFileFactory = null
