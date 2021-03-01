@@ -150,32 +150,42 @@ On macOS ([or Linux](http://linuxbrew.sh/)) you can also use [brew](https://brew
 [wget](https://www.gnu.org/software/wget/manual/wget.html#Proxies) manpage. 
 Usually simple `http_proxy=http://proxy-server:port https_proxy=http://proxy-server:port curl -sL ...` is enough. 
 
-## Usage
+## Command line usage
 
 ```bash
-# check the style of all Kotlin files inside the current dir (recursively)
-# (hidden folders will be skipped)
-$ ktlint --color [--color-name="RED"]
-  src/main/kotlin/Main.kt:10:10: Unused import
-  
-# check only certain locations (prepend ! to negate the pattern,
-# Ktlint uses .gitignore pattern style syntax)
-$ ktlint "src/**/*.kt" "!src/**/*Test.kt"
+# Get help about all available commands
+$ ktlint --help
 
-# auto-correct style violations
-# (if some errors cannot be fixed automatically they will be printed to stderr) 
+# Check the style of all Kotlin files (ending with '.kt' or '.kts') inside the current dir (recursively).
+# Hidden folders will be skipped.
+$ ktlint
+  
+# Check only certain locations starting from the current directory.
+#
+# Prepend ! to negate the pattern, KtLint uses .gitignore pattern style syntax.
+# Globs are applied starting from the last one.
+#
+# Hidden folders will be skipped.
+# Check all '.kt' files in 'src/' directory, but ignore files ending with 'Test.kt':
+ktlint "src/**/*.kt" "!src/**/*Test.kt"
+# Check all '.kt' files in 'src/' directory, but ignore 'generated' directory and its subdirectories:
+ktlint "src/**/*.kt" "!src/**/generated/**"
+
+# Auto-correct style violations.
+# If some errors cannot be fixed automatically they will be printed to stderr. 
 $ ktlint -F "src/**/*.kt"
 
-# print style violations grouped by file
+# Print style violations grouped by file.
 $ ktlint --reporter=plain?group_by_file
-# print style violations as usual + create report in checkstyle format 
+
+# Print style violations as usual + create report in checkstyle format, specifying report location. 
 $ ktlint --reporter=plain --reporter=checkstyle,output=ktlint-report-in-checkstyle-format.xml
 
-# check against a baseline file
+# Check against a baseline file.
 $ ktlint --baseline=ktlint-baseline.xml
 
-# install git hook to automatically check files for style violations on commit
-# Run "ktlint installGitPrePushHook" if you wish to run ktlint on push instead
+# Install git hook to automatically check files for style violations on commit.
+# Run "ktlint installGitPrePushHook" if you wish to run ktlint on push instead.
 $ ktlint installGitPreCommitHook
 ```
 
