@@ -287,7 +287,7 @@ You might also want to take a look at [diffplug/spotless](https://github.com/dif
 apply plugin: 'java'
 
 repositories {
-    jcenter()
+    mavenCentral()
 }
 
 configurations {
