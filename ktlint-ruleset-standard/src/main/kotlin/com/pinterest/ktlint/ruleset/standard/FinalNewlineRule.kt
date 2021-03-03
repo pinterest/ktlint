@@ -53,10 +53,11 @@ public class FinalNewlineRule :
     private tailrec fun lastChildNodeOf(node: ASTNode): ASTNode? =
         if (node.lastChildNode == null) node else lastChildNodeOf(node.lastChildNode)
 
-    internal companion object {
-        internal val insertNewLineProperty = UsesEditorConfigProperties.EditorConfigProperty(
-            type = PropertyType.insert_final_newline,
-            defaultValue = true
-        )
+    public companion object {
+        public val insertNewLineProperty: UsesEditorConfigProperties.EditorConfigProperty<Boolean> =
+            UsesEditorConfigProperties.EditorConfigProperty(
+                type = PropertyType.insert_final_newline,
+                defaultValue = true
+            )
     }
 }
