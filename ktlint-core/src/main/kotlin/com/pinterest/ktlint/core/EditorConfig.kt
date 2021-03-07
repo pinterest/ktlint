@@ -13,6 +13,7 @@ interface EditorConfig {
     val indentSize: Int
     val tabWidth: Int
     val maxLineLength: Int
+
     @Deprecated(
         message = "Not used anymore by rules, please use 'insert_final_newline' directly via get()"
     )

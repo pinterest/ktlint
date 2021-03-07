@@ -106,6 +106,12 @@ disabled_rules=no-wildcard-imports,experimental:annotation,my-custom-ruleset:my-
 ij_kotlin_imports_layout=* # alphabetical with capital letters before lower case letters (e.g. Z before a), no blank lines
 ij_kotlin_imports_layout=*,java.**,javax.**,kotlin.**,^ # default IntelliJ IDEA style, same as alphabetical, but with "java", "javax", "kotlin" and alias imports in the end of the imports list
 ij_kotlin_imports_layout=android.**,|,^org.junit.**,kotlin.io.Closeable.*,|,*,^ # custom imports layout
+
+# According to https://kotlinlang.org/docs/reference/coding-conventions.html#names-for-test-methods it is acceptable to write method names
+# in natural language. When using natural language, the description tends to be longer. Allow lines containing an identifier between
+# backticks to be longer than the maximum line length. (Since 0.41.0)
+[**/test/**.kt]
+ktlint_ignore_back_ticked_identifier=true
 ```
 
 ### Overriding Editorconfig properties for specific directories
