@@ -33,7 +33,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   that the Kotlin IDE plugin and ktlint use same imports layout ([#753](https://github.com/pinterest/ktlint/issues/753))
 - Deprecated `idea` and `ascii` shortcuts as the `ij_kotlin_imports_layout` property does not support those. 
   Please check README on how to achieve those with patterns ([#753](https://github.com/pinterest/ktlint/issues/753))
-- Update Gradle to `6.8.1` version
+- Update Gradle to `6.8.3` version
 - Update Kotlin to `1.4.31` version. Fixes [#1063](https://github.com/pinterest/ktlint/issues/1063).
 
 ### Removed
