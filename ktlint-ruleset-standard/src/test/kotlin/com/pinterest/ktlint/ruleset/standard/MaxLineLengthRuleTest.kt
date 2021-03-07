@@ -1,12 +1,20 @@
 package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.LintError
+import com.pinterest.ktlint.core.api.FeatureInAlphaState
+import com.pinterest.ktlint.test.EditorConfigTestRule
 import com.pinterest.ktlint.test.diffFileLint
 import com.pinterest.ktlint.test.lint
+import java.io.File
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.Rule
 import org.junit.Test
 
+@OptIn(FeatureInAlphaState::class)
 class MaxLineLengthRuleTest {
+
+    @get:Rule
+    val editorConfigTestRule = EditorConfigTestRule()
 
     @Test
     fun testLint() {
@@ -40,8 +48,11 @@ class MaxLineLengthRuleTest {
 
     @Test
     fun testErrorSuppressionOnTokensBetweenBackticks() {
+        val testFile = ignoreBacktickedIdentifier()
+
         assertThat(
             MaxLineLengthRule().lint(
+                testFile.absolutePath,
                 """
                 @Test
                 fun `Some too long test description between backticks`() {
@@ -49,8 +60,7 @@ class MaxLineLengthRuleTest {
                 }
                 """.trimIndent(),
                 userData = mapOf(
-                    "max_line_length" to "40",
-                    "ignore_back_ticked_identifier" to "true"
+                    "max_line_length" to "40"
                 )
             )
         ).isEqualTo(
@@ -104,4 +114,10 @@ class MaxLineLengthRuleTest {
         assertThat(RangeTree((5 until 10).asSequence().toList()).query(10, 15).toString()).isEqualTo("[]")
         assertThat(RangeTree(listOf(1, 5, 10)).query(3, 4).toString()).isEqualTo("[]")
     }
+
+
+    private fun ignoreBacktickedIdentifier(): File = editorConfigTestRule
+        .writeToEditorConfig(
+            mapOf(MaxLineLengthRule.ignoreBackTickedIdentifierProperty.type to true.toString())
+        )
 }

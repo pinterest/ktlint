@@ -2,12 +2,16 @@ package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.api.EditorConfigProperties
+import com.pinterest.ktlint.core.api.FeatureInAlphaState
+import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType
 import com.pinterest.ktlint.core.ast.isPartOf
 import com.pinterest.ktlint.core.ast.isRoot
 import com.pinterest.ktlint.core.ast.nextLeaf
 import com.pinterest.ktlint.core.ast.parent
 import com.pinterest.ktlint.core.ast.prevCodeSibling
+import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
@@ -16,7 +20,15 @@ import org.jetbrains.kotlin.kdoc.psi.api.KDoc
 import org.jetbrains.kotlin.psi.KtImportDirective
 import org.jetbrains.kotlin.psi.KtPackageDirective
 
-class MaxLineLengthRule : Rule("max-line-length"), Rule.Modifier.Last {
+@OptIn(FeatureInAlphaState::class)
+class MaxLineLengthRule :
+    Rule("max-line-length"),
+    Rule.Modifier.Last,
+    UsesEditorConfigProperties {
+
+    override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
+        ignoreBackTickedIdentifierProperty
+    )
 
     private var maxLineLength: Int = -1
     private var rangeTree = RangeTree()
@@ -28,6 +40,9 @@ class MaxLineLengthRule : Rule("max-line-length"), Rule.Modifier.Last {
     ) {
         if (node.isRoot()) {
             val editorConfig = node.getUserData(KtLint.EDITOR_CONFIG_USER_DATA_KEY)!!
+            val editorConfigProperties: EditorConfigProperties =
+                node.getUserData(KtLint.EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY)!!
+            val ignoreBackTickedIdentifier = editorConfigProperties.getEditorConfigValue(ignoreBackTickedIdentifierProperty)
             maxLineLength = editorConfig.maxLineLength
             if (maxLineLength <= 0) {
                 return
@@ -35,8 +50,8 @@ class MaxLineLengthRule : Rule("max-line-length"), Rule.Modifier.Last {
             val errorOffset = arrayListOf<Int>()
             node
                 .getElementsPerLine()
-                .filter { it.lineLength(editorConfig.ignoreBackTickedIdentifier) > maxLineLength }
-                .forEach() { parsedLine ->
+                .filter { it.lineLength(ignoreBackTickedIdentifier) > maxLineLength }
+                .forEach { parsedLine ->
                     val el = parsedLine.elements.last()
                     if (!el.isPartOf(KDoc::class) && !el.isPartOfRawMultiLineString()) {
                         if (!el.isPartOf(PsiComment::class)) {
@@ -78,6 +93,21 @@ class MaxLineLengthRule : Rule("max-line-length"), Rule.Modifier.Last {
     private fun ASTNode.isPartOfRawMultiLineString() =
         parent(ElementType.STRING_TEMPLATE, strict = false)
             ?.let { it.firstChildNode.text == "\"\"\"" && it.textContains('\n') } == true
+
+    public companion object {
+        internal const val KTLINT_IGNORE_BACKTICKED_IDENTIFIER_NAME = "ktlint_ignore_back_ticked_identifier"
+        private const val PROPERTY_DESCRIPTION = "Defines whether the backticked identifier (``) should be ignored"
+
+        public val ignoreBackTickedIdentifierProperty: UsesEditorConfigProperties.EditorConfigProperty<Boolean> =
+            UsesEditorConfigProperties.EditorConfigProperty(
+                type = PropertyType(
+                    /* name = */ KTLINT_IGNORE_BACKTICKED_IDENTIFIER_NAME,
+                    /* description = */ PROPERTY_DESCRIPTION,
+                    /* parser = */ PropertyType.PropertyValueParser.BOOLEAN_VALUE_PARSER
+                ),
+                defaultValue = false
+            )
+    }
 }
 
 private fun ASTNode.getElementsPerLine(): List<ParsedLine> {
