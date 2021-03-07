@@ -115,7 +115,6 @@ class MaxLineLengthRuleTest {
         assertThat(RangeTree(listOf(1, 5, 10)).query(3, 4).toString()).isEqualTo("[]")
     }
 
-
     private fun ignoreBacktickedIdentifier(): File = editorConfigTestRule
         .writeToEditorConfig(
             mapOf(MaxLineLengthRule.ignoreBackTickedIdentifierProperty.type to true.toString())
