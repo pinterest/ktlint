@@ -85,7 +85,6 @@ class MaxLineLengthRuleTest {
             )
         ).isEqualTo(
             listOf(
-                // Note that no error was generated on line 2 with the long fun name
                 LintError(2, 1, "max-line-length", "Exceeded max line length (40)")
             )
         )
