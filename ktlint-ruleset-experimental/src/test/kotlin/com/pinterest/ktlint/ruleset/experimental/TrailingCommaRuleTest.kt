@@ -11,7 +11,7 @@ import org.junit.Rule
 import org.junit.Test
 
 @FeatureInAlphaState
-class NoTrailingCommaRuleTest {
+class TrailingCommaRuleTest {
     @get:Rule
     val editorConfigTestRule = EditorConfigTestRule()
 
@@ -35,8 +35,8 @@ class NoTrailingCommaRuleTest {
 
         val editorConfigFilePath = writeEditorConfigFile(ALLOW_TRAILING_COMMA_ON_CALL_SITE).absolutePath
 
-        assertThat(NoTrailingCommaRule().lint(editorConfigFilePath, code)).isEmpty()
-        assertThat(NoTrailingCommaRule().format(editorConfigFilePath, code)).isEqualTo(code)
+        assertThat(TrailingCommaRule().lint(editorConfigFilePath, code)).isEmpty()
+        assertThat(TrailingCommaRule().format(editorConfigFilePath, code)).isEqualTo(code)
     }
 
     @Test
@@ -65,8 +65,8 @@ class NoTrailingCommaRuleTest {
 
         val editorConfigFilePath = writeEditorConfigFile(ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE).absolutePath
 
-        assertThat(NoTrailingCommaRule().lint(editorConfigFilePath, code)).isEmpty()
-        assertThat(NoTrailingCommaRule().format(editorConfigFilePath, code)).isEqualTo(code)
+        assertThat(TrailingCommaRule().lint(editorConfigFilePath, code)).isEmpty()
+        assertThat(TrailingCommaRule().format(editorConfigFilePath, code)).isEqualTo(code)
     }
 
     @Test
@@ -98,14 +98,14 @@ class NoTrailingCommaRuleTest {
 
         val editorConfigFilePath = writeEditorConfigFile(DO_NOT_ALLOW_TRAILING_COMMA_ON_CALL_SITE).absolutePath
 
-        assertThat(NoTrailingCommaRule().lint(editorConfigFilePath, code)).isEqualTo(
+        assertThat(TrailingCommaRule().lint(editorConfigFilePath, code)).isEqualTo(
             listOf(
-                LintError(line = 1, col = 28, ruleId = "no-trailing-comma", detail = "Trailing comma is redundant"),
-                LintError(line = 4, col = 8, ruleId = "no-trailing-comma", detail = "Trailing comma is redundant"),
-                LintError(line = 8, col = 8, ruleId = "no-trailing-comma", detail = "Trailing comma is redundant"),
+                LintError(line = 1, col = 28, ruleId = "trailing-comma", detail = "Trailing comma is redundant"),
+                LintError(line = 4, col = 8, ruleId = "trailing-comma", detail = "Trailing comma is redundant"),
+                LintError(line = 8, col = 8, ruleId = "trailing-comma", detail = "Trailing comma is redundant"),
             )
         )
-        assertThat(NoTrailingCommaRule().format(editorConfigFilePath, code))
+        assertThat(TrailingCommaRule().format(editorConfigFilePath, code))
             .isEqualTo(autoCorrectedCode)
     }
 
@@ -134,14 +134,14 @@ class NoTrailingCommaRuleTest {
 
         val editorConfigFilePath = writeEditorConfigFile(DO_NOT_ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE).absolutePath
 
-        assertThat(NoTrailingCommaRule().lint(editorConfigFilePath, code)).isEqualTo(
+        assertThat(TrailingCommaRule().lint(editorConfigFilePath, code)).isEqualTo(
             listOf(
-                LintError(line = 1, col = 29, ruleId = "no-trailing-comma", detail = "Trailing comma is redundant"),
-                LintError(line = 3, col = 16, ruleId = "no-trailing-comma", detail = "Trailing comma is redundant"),
-                LintError(line = 6, col = 16, ruleId = "no-trailing-comma", detail = "Trailing comma is redundant"),
+                LintError(line = 1, col = 29, ruleId = "trailing-comma", detail = "Trailing comma is redundant"),
+                LintError(line = 3, col = 16, ruleId = "trailing-comma", detail = "Trailing comma is redundant"),
+                LintError(line = 6, col = 16, ruleId = "trailing-comma", detail = "Trailing comma is redundant"),
             )
         )
-        assertThat(NoTrailingCommaRule().format(editorConfigFilePath, code))
+        assertThat(TrailingCommaRule().format(editorConfigFilePath, code))
             .isEqualTo(autoCorrectedCode)
     }
 
@@ -174,14 +174,14 @@ class NoTrailingCommaRuleTest {
 
         val editorConfigFilePath = writeEditorConfigFile(DO_NOT_ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE).absolutePath
 
-        assertThat(NoTrailingCommaRule().lint(editorConfigFilePath, code)).isEqualTo(
+        assertThat(TrailingCommaRule().lint(editorConfigFilePath, code)).isEqualTo(
             listOf(
-                LintError(line = 1, col = 16, ruleId = "no-trailing-comma", detail = "Trailing comma is redundant"),
-                LintError(line = 4, col = 6, ruleId = "no-trailing-comma", detail = "Trailing comma is redundant"),
-                LintError(line = 8, col = 6, ruleId = "no-trailing-comma", detail = "Trailing comma is redundant"),
+                LintError(line = 1, col = 16, ruleId = "trailing-comma", detail = "Trailing comma is redundant"),
+                LintError(line = 4, col = 6, ruleId = "trailing-comma", detail = "Trailing comma is redundant"),
+                LintError(line = 8, col = 6, ruleId = "trailing-comma", detail = "Trailing comma is redundant"),
             )
         )
-        assertThat(NoTrailingCommaRule().format(editorConfigFilePath, code))
+        assertThat(TrailingCommaRule().format(editorConfigFilePath, code))
             .isEqualTo(autoCorrectedCode)
     }
 
@@ -210,14 +210,14 @@ class NoTrailingCommaRuleTest {
 
         val editorConfigFilePath = writeEditorConfigFile(DO_NOT_ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE).absolutePath
 
-        assertThat(NoTrailingCommaRule().lint(editorConfigFilePath, code)).isEqualTo(
+        assertThat(TrailingCommaRule().lint(editorConfigFilePath, code)).isEqualTo(
             listOf(
-                LintError(line = 2, col = 9, ruleId = "no-trailing-comma", detail = "Trailing comma is redundant"),
-                LintError(line = 3, col = 9, ruleId = "no-trailing-comma", detail = "Trailing comma is redundant"),
-                LintError(line = 5, col = 9, ruleId = "no-trailing-comma", detail = "Trailing comma is redundant"),
+                LintError(line = 2, col = 9, ruleId = "trailing-comma", detail = "Trailing comma is redundant"),
+                LintError(line = 3, col = 9, ruleId = "trailing-comma", detail = "Trailing comma is redundant"),
+                LintError(line = 5, col = 9, ruleId = "trailing-comma", detail = "Trailing comma is redundant"),
             )
         )
-        assertThat(NoTrailingCommaRule().format(editorConfigFilePath, code))
+        assertThat(TrailingCommaRule().format(editorConfigFilePath, code))
             .isEqualTo(autoCorrectedCode)
     }
 
@@ -258,14 +258,14 @@ class NoTrailingCommaRuleTest {
 
         val editorConfigFilePath = writeEditorConfigFile(DO_NOT_ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE).absolutePath
 
-        assertThat(NoTrailingCommaRule().lint(editorConfigFilePath, code)).isEqualTo(
+        assertThat(TrailingCommaRule().lint(editorConfigFilePath, code)).isEqualTo(
             listOf(
-                LintError(line = 4, col = 14, ruleId = "no-trailing-comma", detail = "Trailing comma is redundant"),
-                LintError(line = 7, col = 10, ruleId = "no-trailing-comma", detail = "Trailing comma is redundant"),
-                LintError(line = 11, col = 10, ruleId = "no-trailing-comma", detail = "Trailing comma is redundant"),
+                LintError(line = 4, col = 14, ruleId = "trailing-comma", detail = "Trailing comma is redundant"),
+                LintError(line = 7, col = 10, ruleId = "trailing-comma", detail = "Trailing comma is redundant"),
+                LintError(line = 11, col = 10, ruleId = "trailing-comma", detail = "Trailing comma is redundant"),
             )
         )
-        assertThat(NoTrailingCommaRule().format(editorConfigFilePath, code))
+        assertThat(TrailingCommaRule().format(editorConfigFilePath, code))
             .isEqualTo(autoCorrectedCode)
     }
 
@@ -298,14 +298,14 @@ class NoTrailingCommaRuleTest {
 
         val editorConfigFilePath = writeEditorConfigFile(DO_NOT_ALLOW_TRAILING_COMMA_ON_CALL_SITE).absolutePath
 
-        assertThat(NoTrailingCommaRule().lint(editorConfigFilePath, code)).isEqualTo(
+        assertThat(TrailingCommaRule().lint(editorConfigFilePath, code)).isEqualTo(
             listOf(
-                LintError(line = 1, col = 21, ruleId = "no-trailing-comma", detail = "Trailing comma is redundant"),
-                LintError(line = 4, col = 6, ruleId = "no-trailing-comma", detail = "Trailing comma is redundant"),
-                LintError(line = 8, col = 6, ruleId = "no-trailing-comma", detail = "Trailing comma is redundant"),
+                LintError(line = 1, col = 21, ruleId = "trailing-comma", detail = "Trailing comma is redundant"),
+                LintError(line = 4, col = 6, ruleId = "trailing-comma", detail = "Trailing comma is redundant"),
+                LintError(line = 8, col = 6, ruleId = "trailing-comma", detail = "Trailing comma is redundant"),
             )
         )
-        assertThat(NoTrailingCommaRule().format(editorConfigFilePath, code))
+        assertThat(TrailingCommaRule().format(editorConfigFilePath, code))
             .isEqualTo(autoCorrectedCode)
     }
 
@@ -338,14 +338,14 @@ class NoTrailingCommaRuleTest {
 
         val editorConfigFilePath = writeEditorConfigFile(DO_NOT_ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE).absolutePath
 
-        assertThat(NoTrailingCommaRule().lint(editorConfigFilePath, code)).isEqualTo(
+        assertThat(TrailingCommaRule().lint(editorConfigFilePath, code)).isEqualTo(
             listOf(
-                LintError(line = 1, col = 23, ruleId = "no-trailing-comma", detail = "Trailing comma is redundant"),
-                LintError(line = 4, col = 8, ruleId = "no-trailing-comma", detail = "Trailing comma is redundant"),
-                LintError(line = 8, col = 8, ruleId = "no-trailing-comma", detail = "Trailing comma is redundant"),
+                LintError(line = 1, col = 23, ruleId = "trailing-comma", detail = "Trailing comma is redundant"),
+                LintError(line = 4, col = 8, ruleId = "trailing-comma", detail = "Trailing comma is redundant"),
+                LintError(line = 8, col = 8, ruleId = "trailing-comma", detail = "Trailing comma is redundant"),
             )
         )
-        assertThat(NoTrailingCommaRule().format(editorConfigFilePath, code))
+        assertThat(TrailingCommaRule().format(editorConfigFilePath, code))
             .isEqualTo(autoCorrectedCode)
     }
 
@@ -382,14 +382,14 @@ class NoTrailingCommaRuleTest {
 
         val editorConfigFilePath = writeEditorConfigFile(DO_NOT_ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE).absolutePath
 
-        assertThat(NoTrailingCommaRule().lint(editorConfigFilePath, code)).isEqualTo(
+        assertThat(TrailingCommaRule().lint(editorConfigFilePath, code)).isEqualTo(
             listOf(
-                LintError(line = 1, col = 44, ruleId = "no-trailing-comma", detail = "Trailing comma is redundant"),
-                LintError(line = 4, col = 8, ruleId = "no-trailing-comma", detail = "Trailing comma is redundant"),
-                LintError(line = 9, col = 8, ruleId = "no-trailing-comma", detail = "Trailing comma is redundant"),
+                LintError(line = 1, col = 44, ruleId = "trailing-comma", detail = "Trailing comma is redundant"),
+                LintError(line = 4, col = 8, ruleId = "trailing-comma", detail = "Trailing comma is redundant"),
+                LintError(line = 9, col = 8, ruleId = "trailing-comma", detail = "Trailing comma is redundant"),
             )
         )
-        assertThat(NoTrailingCommaRule().format(editorConfigFilePath, code))
+        assertThat(TrailingCommaRule().format(editorConfigFilePath, code))
             .isEqualTo(autoCorrectedCode)
     }
 
@@ -418,14 +418,14 @@ class NoTrailingCommaRuleTest {
 
         val editorConfigFilePath = writeEditorConfigFile(DO_NOT_ALLOW_TRAILING_COMMA_ON_CALL_SITE).absolutePath
 
-        assertThat(NoTrailingCommaRule().lint(editorConfigFilePath, code)).isEqualTo(
+        assertThat(TrailingCommaRule().lint(editorConfigFilePath, code)).isEqualTo(
             listOf(
-                LintError(line = 1, col = 23, ruleId = "no-trailing-comma", detail = "Trailing comma is redundant"),
-                LintError(line = 3, col = 11, ruleId = "no-trailing-comma", detail = "Trailing comma is redundant"),
-                LintError(line = 6, col = 11, ruleId = "no-trailing-comma", detail = "Trailing comma is redundant"),
+                LintError(line = 1, col = 23, ruleId = "trailing-comma", detail = "Trailing comma is redundant"),
+                LintError(line = 3, col = 11, ruleId = "trailing-comma", detail = "Trailing comma is redundant"),
+                LintError(line = 6, col = 11, ruleId = "trailing-comma", detail = "Trailing comma is redundant"),
             )
         )
-        assertThat(NoTrailingCommaRule().format(editorConfigFilePath, code))
+        assertThat(TrailingCommaRule().format(editorConfigFilePath, code))
             .isEqualTo(autoCorrectedCode)
     }
 
@@ -456,14 +456,14 @@ class NoTrailingCommaRuleTest {
 
         val editorConfigFilePath = writeEditorConfigFile(DO_NOT_ALLOW_TRAILING_COMMA_ON_CALL_SITE).absolutePath
 
-        assertThat(NoTrailingCommaRule().lint(editorConfigFilePath, code)).isEqualTo(
+        assertThat(TrailingCommaRule().lint(editorConfigFilePath, code)).isEqualTo(
             listOf(
-                LintError(line = 2, col = 17, ruleId = "no-trailing-comma", detail = "Trailing comma is redundant"),
-                LintError(line = 4, col = 6, ruleId = "no-trailing-comma", detail = "Trailing comma is redundant"),
-                LintError(line = 7, col = 6, ruleId = "no-trailing-comma", detail = "Trailing comma is redundant"),
+                LintError(line = 2, col = 17, ruleId = "trailing-comma", detail = "Trailing comma is redundant"),
+                LintError(line = 4, col = 6, ruleId = "trailing-comma", detail = "Trailing comma is redundant"),
+                LintError(line = 7, col = 6, ruleId = "trailing-comma", detail = "Trailing comma is redundant"),
             )
         )
-        assertThat(NoTrailingCommaRule().format(editorConfigFilePath, code))
+        assertThat(TrailingCommaRule().format(editorConfigFilePath, code))
             .isEqualTo(autoCorrectedCode)
     }
 
@@ -510,14 +510,14 @@ class NoTrailingCommaRuleTest {
 
         val editorConfigFilePath = writeEditorConfigFile(DO_NOT_ALLOW_TRAILING_COMMA_ON_CALL_SITE).absolutePath
 
-        assertThat(NoTrailingCommaRule().lint(editorConfigFilePath, code)).isEqualTo(
+        assertThat(TrailingCommaRule().lint(editorConfigFilePath, code)).isEqualTo(
             listOf(
-                LintError(line = 3, col = 18, ruleId = "no-trailing-comma", detail = "Trailing comma is redundant"),
-                LintError(line = 8, col = 6, ruleId = "no-trailing-comma", detail = "Trailing comma is redundant"),
-                LintError(line = 14, col = 6, ruleId = "no-trailing-comma", detail = "Trailing comma is redundant"),
+                LintError(line = 3, col = 18, ruleId = "trailing-comma", detail = "Trailing comma is redundant"),
+                LintError(line = 8, col = 6, ruleId = "trailing-comma", detail = "Trailing comma is redundant"),
+                LintError(line = 14, col = 6, ruleId = "trailing-comma", detail = "Trailing comma is redundant"),
             )
         )
-        assertThat(NoTrailingCommaRule().format(editorConfigFilePath, code))
+        assertThat(TrailingCommaRule().format(editorConfigFilePath, code))
             .isEqualTo(autoCorrectedCode)
     }
 
@@ -527,10 +527,10 @@ class NoTrailingCommaRuleTest {
         )
 
     private companion object {
-        val ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE = NoTrailingCommaRule.ijKotlinAllowTrailingCommaEditorConfigProperty.type to true.toString()
-        val DO_NOT_ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE = NoTrailingCommaRule.ijKotlinAllowTrailingCommaEditorConfigProperty.type to false.toString()
+        val ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE = TrailingCommaRule.ijKotlinAllowTrailingCommaEditorConfigProperty.type to true.toString()
+        val DO_NOT_ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE = TrailingCommaRule.ijKotlinAllowTrailingCommaEditorConfigProperty.type to false.toString()
 
-        val ALLOW_TRAILING_COMMA_ON_CALL_SITE = NoTrailingCommaRule.ijKotlinAllowTrailingCommaOnCallSiteEditorConfigProperty.type to true.toString()
-        val DO_NOT_ALLOW_TRAILING_COMMA_ON_CALL_SITE = NoTrailingCommaRule.ijKotlinAllowTrailingCommaOnCallSiteEditorConfigProperty.type to false.toString()
+        val ALLOW_TRAILING_COMMA_ON_CALL_SITE = TrailingCommaRule.ijKotlinAllowTrailingCommaOnCallSiteEditorConfigProperty.type to true.toString()
+        val DO_NOT_ALLOW_TRAILING_COMMA_ON_CALL_SITE = TrailingCommaRule.ijKotlinAllowTrailingCommaOnCallSiteEditorConfigProperty.type to false.toString()
     }
 }

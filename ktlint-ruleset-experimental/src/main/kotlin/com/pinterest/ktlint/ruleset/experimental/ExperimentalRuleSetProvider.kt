@@ -11,7 +11,7 @@ public class ExperimentalRuleSetProvider : RuleSetProvider {
         ArgumentListWrappingRule(),
         MultiLineIfElseRule(),
         NoEmptyFirstLineInMethodBlockRule(),
-        NoTrailingCommaRule(),
+        TrailingCommaRule(),
         PackageNameRule(),
         EnumEntryNameCaseRule(),
         SpacingAroundDoubleColonRule(),

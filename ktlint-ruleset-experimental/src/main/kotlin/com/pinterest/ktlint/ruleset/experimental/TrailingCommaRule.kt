@@ -16,8 +16,8 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.psi.psiUtil.endOffset
 
 @OptIn(FeatureInAlphaState::class)
-class NoTrailingCommaRule :
-    Rule("no-trailing-comma"),
+class TrailingCommaRule :
+    Rule("trailing-comma"),
     UsesEditorConfigProperties {
 
     private var allowTrailingComma by Delegates.notNull<Boolean>()
