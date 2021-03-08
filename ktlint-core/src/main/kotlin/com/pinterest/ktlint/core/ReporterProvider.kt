@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.core
 
 import java.io.PrintStream
+import java.io.Serializable
 
 /**
  * `ktlint` uses [ServiceLoader](http://docs.oracle.com/javase/6/docs/api/java/util/ServiceLoader.html) to
@@ -8,7 +9,7 @@ import java.io.PrintStream
  * `META-INF/services/com.pinterest.ktlint.core.ReporterProvider`
  * (see `ktlint-reporter-plain/src/main/resources` for an example).
  */
-interface ReporterProvider {
-    val id: String
-    fun get(out: PrintStream, opt: Map<String, String>): Reporter
+public interface ReporterProvider : Serializable {
+    public val id: String
+    public fun get(out: PrintStream, opt: Map<String, String>): Reporter
 }
