@@ -7,10 +7,10 @@ import org.jetbrains.kotlin.resolve.ImportPath
  *
  * Adopted from https://github.com/JetBrains/kotlin/blob/ffdab473e28d0d872136b910eb2e0f4beea2e19c/idea/formatter/src/org/jetbrains/kotlin/idea/core/formatter/KotlinPackageEntry.kt#L10
  */
-internal class PatternEntry(
+public class PatternEntry(
     packageName: String,
-    val withSubpackages: Boolean,
-    val hasAlias: Boolean
+    public val withSubpackages: Boolean,
+    public val hasAlias: Boolean
 ) {
 
     private val packageName = packageName.removeSuffix(".*")
@@ -28,7 +28,7 @@ internal class PatternEntry(
         return false
     }
 
-    fun isBetterMatchForPackageThan(entry: PatternEntry?, import: ImportPath): Boolean {
+    internal fun isBetterMatchForPackageThan(entry: PatternEntry?, import: ImportPath): Boolean {
         if (hasAlias != import.hasAlias() || !matchesPackageName(import.pathStr)) return false
         if (entry == null) return true
 
@@ -68,9 +68,26 @@ internal class PatternEntry(
         return result
     }
 
-    companion object {
-        val BLANK_LINE_ENTRY = PatternEntry(BLANK_LINE_CHAR, withSubpackages = true, hasAlias = false)
-        val ALL_OTHER_IMPORTS_ENTRY = PatternEntry(WILDCARD_CHAR, withSubpackages = true, hasAlias = false)
-        val ALL_OTHER_ALIAS_IMPORTS_ENTRY = PatternEntry(ALIAS_CHAR, withSubpackages = true, hasAlias = true)
+    public companion object {
+        public val BLANK_LINE_ENTRY: PatternEntry =
+            PatternEntry(
+                BLANK_LINE_CHAR,
+                withSubpackages = true,
+                hasAlias = false
+            )
+
+        public val ALL_OTHER_IMPORTS_ENTRY: PatternEntry =
+            PatternEntry(
+                WILDCARD_CHAR,
+                withSubpackages = true,
+                hasAlias = false
+            )
+
+        public val ALL_OTHER_ALIAS_IMPORTS_ENTRY: PatternEntry =
+            PatternEntry(
+                ALIAS_CHAR,
+                withSubpackages = true,
+                hasAlias = true
+            )
     }
 }

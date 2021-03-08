@@ -10,4 +10,5 @@ dependencies {
   testImplementation deps.junit
   testImplementation deps.assertj
   testImplementation deps.jimfs
+  testImplementation project(":ktlint-ruleset-standard")
 }

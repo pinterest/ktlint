@@ -5,7 +5,11 @@ package com.pinterest.ktlint.core.api
     level = RequiresOptIn.Level.ERROR
 )
 @Retention(AnnotationRetention.BINARY)
-@Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
+@Target(
+    AnnotationTarget.CLASS,
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.TYPEALIAS,
+)
 public annotation class FeatureInAlphaState
 
 @RequiresOptIn(
@@ -13,5 +17,9 @@ public annotation class FeatureInAlphaState
     level = RequiresOptIn.Level.WARNING
 )
 @Retention(AnnotationRetention.BINARY)
-@Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
+@Target(
+    AnnotationTarget.CLASS,
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.TYPEALIAS,
+)
 public annotation class FeatureInBetaState
