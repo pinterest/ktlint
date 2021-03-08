@@ -9,14 +9,16 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
-class NoConsecutiveBlankLinesRule : Rule("no-consecutive-blank-lines") {
+public class NoConsecutiveBlankLinesRule : Rule("no-consecutive-blank-lines") {
 
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        if (node is PsiWhiteSpace) {
+        if (node is PsiWhiteSpace &&
+            node.prevSibling != null
+        ) {
             val text = node.getText()
             val lfcount = text.count { it == '\n' }
             if (lfcount < 2) {
