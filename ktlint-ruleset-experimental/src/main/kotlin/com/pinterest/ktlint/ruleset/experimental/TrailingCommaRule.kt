@@ -16,7 +16,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.psi.psiUtil.endOffset
 
 @OptIn(FeatureInAlphaState::class)
-class TrailingCommaRule :
+public class TrailingCommaRule :
     Rule("trailing-comma"),
     UsesEditorConfigProperties {
 
@@ -24,8 +24,8 @@ class TrailingCommaRule :
     private var allowTrailingCommaOnCallSite by Delegates.notNull<Boolean>()
 
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
-        ijKotlinAllowTrailingCommaEditorConfigProperty,
-        ijKotlinAllowTrailingCommaOnCallSiteEditorConfigProperty,
+        allowTrailingCommaProperty,
+        allowTrailingCommaOnCallSiteProperty,
     )
 
     override fun visit(
@@ -63,12 +63,9 @@ class TrailingCommaRule :
     }
 
     private fun getEditorConfigValues(node: ASTNode) {
-        val android = node.getUserData(KtLint.ANDROID_USER_DATA_KEY) ?: false
         val editorConfig = node.getUserData(KtLint.EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY)!!
-        allowTrailingComma =
-            editorConfig.getEditorConfigValue(ijKotlinAllowTrailingCommaEditorConfigProperty, android)
-        allowTrailingCommaOnCallSite =
-            editorConfig.getEditorConfigValue(ijKotlinAllowTrailingCommaOnCallSiteEditorConfigProperty, android)
+        allowTrailingComma = editorConfig.getEditorConfigValue(allowTrailingCommaProperty)
+        allowTrailingCommaOnCallSite = editorConfig.getEditorConfigValue(allowTrailingCommaOnCallSiteProperty)
     }
 
     private fun visitCollectionLiteralExpression(
@@ -213,34 +210,39 @@ class TrailingCommaRule :
             elementType == ElementType.EOL_COMMENT ||
             elementType == ElementType.BLOCK_COMMENT
 
-    internal companion object {
-        private val allowTrailingCommaPropertyType: PropertyType<Boolean> = PropertyType.LowerCasingPropertyType(
-            "ij_kotlin_allow_trailing_comma",
-            "ij_kotlin_allow_trailing_comma description",
-            PropertyValueParser.BOOLEAN_VALUE_PARSER,
-            setOf("true", "false")
-        )
+    public companion object {
+        internal const val ALLOW_TRAILING_COMMA_NAME = "ij_kotlin_allow_trailing_comma"
+        private const val ALLOW_TRAILING_COMMA_DESCRIPTION = "Defines whether a trailing comma (or no trailing comma)" +
+            "should be enforced on the defining side," +
+            "e.g. parameter-list, type-argument-list, lambda-value-parameters, enum-entries, etc."
 
-        internal val ijKotlinAllowTrailingCommaEditorConfigProperty =
+        private val BOOLEAN_VALUES_SET = setOf("true", "false")
+
+        public val allowTrailingCommaProperty: UsesEditorConfigProperties.EditorConfigProperty<Boolean> =
             UsesEditorConfigProperties.EditorConfigProperty(
-                type = allowTrailingCommaPropertyType,
-                defaultValue = false,
-                defaultAndroidValue = false,
-                propertyWriter = { it.toString() }
+                type = PropertyType.LowerCasingPropertyType(
+                    ALLOW_TRAILING_COMMA_NAME,
+                    ALLOW_TRAILING_COMMA_DESCRIPTION,
+                    PropertyValueParser.BOOLEAN_VALUE_PARSER,
+                    BOOLEAN_VALUES_SET
+                ),
+                defaultValue = false
             )
 
-        private val allowTrailingCommaOnCallSitePropertyType: PropertyType<Boolean> = PropertyType.LowerCasingPropertyType(
-            "ij_kotlin_allow_trailing_comma_on_call_site",
-            "ij_kotlin_allow_trailing_comma_on_call_site description",
-            PropertyValueParser.BOOLEAN_VALUE_PARSER,
-            setOf("true", "false")
-        )
-        internal val ijKotlinAllowTrailingCommaOnCallSiteEditorConfigProperty =
+        internal const val ALLOW_TRAILING_COMMA_ON_CALL_SITE_NAME = "ij_kotlin_allow_trailing_comma_on_call_site"
+        private const val ALLOW_TRAILING_COMMA_ON_CALL_SITE_DESCRIPTION = "Defines whether a trailing comma (or no trailing comma)" +
+            "should be enforced on the calling side," +
+            "e.g. argument-list, when-entries, lambda-arguments, indices, etc."
+
+        public val allowTrailingCommaOnCallSiteProperty: UsesEditorConfigProperties.EditorConfigProperty<Boolean> =
             UsesEditorConfigProperties.EditorConfigProperty(
-                type = allowTrailingCommaOnCallSitePropertyType,
-                defaultValue = false,
-                defaultAndroidValue = false,
-                propertyWriter = { it.toString() }
+                type = PropertyType.LowerCasingPropertyType(
+                    ALLOW_TRAILING_COMMA_ON_CALL_SITE_NAME,
+                    ALLOW_TRAILING_COMMA_ON_CALL_SITE_DESCRIPTION,
+                    PropertyValueParser.BOOLEAN_VALUE_PARSER,
+                    BOOLEAN_VALUES_SET
+                ),
+                defaultValue = false
             )
     }
 }
