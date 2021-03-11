@@ -27,6 +27,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fix experimental:annotation-spacing-rule autocorrection with comments
 - Migrate from klob dependency and fix negated globs passed to CLI are no longer worked ([#999](https://github.com/pinterest/ktlint/issues/999))
   **Breaking**: absolute paths globs will no longer work, check updated README
+- Remove needless blank lines in dot qualified expression ([#1077](https://github.com/pinterest/ktlint/issues/1077))
 
 ### Changed
 - Update Gradle shadow plugin to `6.1.0` version
