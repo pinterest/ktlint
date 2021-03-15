@@ -1,4 +1,4 @@
-package com.pinterest.ktlint.internal
+package com.pinterest.ktlint.core.internal
 
 import com.pinterest.ktlint.core.LintError
 import java.io.File
@@ -16,7 +16,9 @@ import org.xml.sax.SAXException
  * @param baselineFilePath the path to the xml baseline file
  * @return a [CurrentBaseline] with the file details
  */
-internal fun loadBaseline(baselineFilePath: String): CurrentBaseline {
+public fun loadBaseline(
+    baselineFilePath: String
+): CurrentBaseline {
     if (baselineFilePath.isBlank()) {
         return CurrentBaseline(null, false)
     }
@@ -92,9 +94,9 @@ private fun parseBaselineErrorsByFile(element: Element): MutableList<LintError> 
     return errors
 }
 
-internal class CurrentBaseline(
-    val baselineRules: Map<String, List<LintError>>?,
-    val baselineGenerationNeeded: Boolean
+public class CurrentBaseline(
+    public val baselineRules: Map<String, List<LintError>>?,
+    public val baselineGenerationNeeded: Boolean
 )
 
 /**
@@ -102,7 +104,7 @@ internal class CurrentBaseline(
  * as the `checkstyle` reporter formats the details string and hence the comparison
  * normally fails
  */
-internal fun List<LintError>.containsLintError(error: LintError): Boolean {
+public fun List<LintError>.containsLintError(error: LintError): Boolean {
     return firstOrNull { lintError ->
         lintError.col == error.col &&
             lintError.line == error.line &&
@@ -114,7 +116,7 @@ internal fun List<LintError>.containsLintError(error: LintError): Boolean {
  * Gets the relative route of the file for baselines
  * Also adjusts the slashes for uniformity between file systems
  */
-internal val File.relativeRoute: String
+public val File.relativeRoute: String
     get() {
         val rootPath = Paths.get("").toAbsolutePath()
         val filePath = this.toPath()
