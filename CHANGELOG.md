@@ -4,6 +4,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 ### Added
+- SARIF output support ([#1102](https://github.com/pinterest/ktlint/issues/1102))
 ### Fixed
 ### Changed
 ### Removed
