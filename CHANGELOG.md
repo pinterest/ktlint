@@ -4,10 +4,22 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 ### Added
-- New `ktlint_ignore_back_ticked_identifier` EditorConfig option for `max-line-length` rule to ignore long method names inside backticks 
+### Fixed
+### Changed
+### Removed
+
+## [0.41.0] - 2021-03-16
+
+**Note:** This release contains breaking changes to globs passed to ktlint via the command line. See ([#999](https://github.com/pinterest/ktlint/issues/999)) and the [README](https://github.com/pinterest/ktlint/blob/master/README.md#command-line-usage).
+
+Thank you to [t-kameyama](https://github.com/t-kameyama) and [paul-dingemans](https://github.com/paul-dingemans) for your contributions to this release!
+
+### Added
+- New `ktlint_ignore_back_ticked_identifier` EditorConfig option for `max-line-length` rule to ignore long method names inside backticks
   (primarily used in tests) ([#1007](https://github.com/pinterest/ktlint/issues/1007))
 - Allow to add/replace loaded `.editorconfig` values via `ExperimentalParams#editorConfigOverride` ([#1016](https://github.com/pinterest/ktlint/issues/1003))
 - `ReporterProvider`, `LintError`, `RuleSetProvider` now implement `Serializable` interface
+
 ### Fixed
 - Incorrect indentation with multiple interfaces ([#1003](https://github.com/pinterest/ktlint/issues/1003))
 - Empty line before primary constructor is not reported and formatted-out ([#1004](https://github.com/pinterest/ktlint/issues/1004))
@@ -27,7 +39,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fix experimental:annotation-spacing-rule autocorrection with comments
 - Migrate from klob dependency and fix negated globs passed to CLI are no longer worked ([#999](https://github.com/pinterest/ktlint/issues/999))
   **Breaking**: absolute paths globs will no longer work, check updated README
-
+  
 ### Changed
 - Update Gradle shadow plugin to `6.1.0` version
 - Align with Kotlin plugin on how alias pattern is represented for imports layout rule ([#753](https://github.com/pinterest/ktlint/issues/753))
@@ -38,8 +50,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   Please check README on how to achieve those with patterns ([#753](https://github.com/pinterest/ktlint/issues/753))
 - Update Gradle to `6.8.3` version
 - Update Kotlin to `1.4.31` version. Fixes [#1063](https://github.com/pinterest/ktlint/issues/1063).
-
-### Removed
 
 ## [0.40.0] - 2020-12-04
 
@@ -843,6 +853,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.41.0]: https://github.com/pinterest/ktlint/compare/0.39.0...0.41.0
 [0.40.0]: https://github.com/pinterest/ktlint/compare/0.39.0...0.40.0
 [0.39.0]: https://github.com/pinterest/ktlint/compare/0.38.1...0.39.0
 [0.38.1]: https://github.com/pinterest/ktlint/compare/0.38.0...0.38.1
