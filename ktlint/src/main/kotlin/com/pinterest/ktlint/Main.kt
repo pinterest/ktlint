@@ -9,6 +9,9 @@ import com.pinterest.ktlint.core.Reporter
 import com.pinterest.ktlint.core.ReporterProvider
 import com.pinterest.ktlint.core.RuleExecutionException
 import com.pinterest.ktlint.core.RuleSetProvider
+import com.pinterest.ktlint.core.internal.containsLintError
+import com.pinterest.ktlint.core.internal.loadBaseline
+import com.pinterest.ktlint.core.internal.relativeRoute
 import com.pinterest.ktlint.internal.ApplyToIDEAGloballySubCommand
 import com.pinterest.ktlint.internal.ApplyToIDEAProjectSubCommand
 import com.pinterest.ktlint.internal.GenerateEditorConfigSubCommand
@@ -17,15 +20,12 @@ import com.pinterest.ktlint.internal.GitPrePushHookSubCommand
 import com.pinterest.ktlint.internal.JarFiles
 import com.pinterest.ktlint.internal.KtlintVersionProvider
 import com.pinterest.ktlint.internal.PrintASTSubCommand
-import com.pinterest.ktlint.internal.containsLintError
 import com.pinterest.ktlint.internal.fileSequence
 import com.pinterest.ktlint.internal.formatFile
 import com.pinterest.ktlint.internal.lintFile
-import com.pinterest.ktlint.internal.loadBaseline
 import com.pinterest.ktlint.internal.loadRulesets
 import com.pinterest.ktlint.internal.location
 import com.pinterest.ktlint.internal.printHelpOrVersionUsage
-import com.pinterest.ktlint.internal.relativeRoute
 import com.pinterest.ktlint.internal.toFilesURIList
 import com.pinterest.ktlint.reporter.plain.internal.Color
 import java.io.File
