@@ -9,7 +9,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Fixed
 
 ### Changed
-
+- Detect FilenameRule is not compliant with PascalCase convention ([#1004](https://github.com/pinterest/ktlint/pull/1117))
+ 
 ### Removed
 
 ## [0.45.0] - 2022-03-18
@@ -46,7 +47,7 @@ This section is applicable when providing rules that depend on one or more value
 
 ### Changed
 - Print the rule id always in the PlainReporter ([#1121](https://github.com/pinterest/ktlint/issues/1121))
-- All wrapping logic is moved from the `indent` rule to the new rule `wrapping` (as part of the `standard` ruleset). In case you currently have disabled the `indent` rule, you may want to reconsider whether this is still necessary or that you also want to disable the new `wrapping` rule to keep the status quo. Both rules can be run independent of each other. ([#835](https://github.com/pinterest/ktlint/issues/835))
+
 
 ### Removed
 
@@ -104,7 +105,7 @@ Please welcome [paul-dingemans](https://github.com/paul-dingemans) as an officia
 - Do not check for `.idea` folder presence when using `applyToIDEA` globally ([#1186](https://github.com/pinterest/ktlint/issues/1186))
 - Remove spaces before primary constructor (`paren-spacing`) ([#1207](https://github.com/pinterest/ktlint/issues/1207))
 - Fix false positive for delegated properties with a lambda argument (`indent`) ([#1210](https://github.com/pinterest/ktlint/issues/1210))
-- (REVERTED in Ktlint 0.45.0) Remove unnecessary wildcard imports (`no-unused-imports`) ([#1256](https://github.com/pinterest/ktlint/issues/1256))
+- Remove unnecessary wildcard imports (`no-unused-imports`) ([#1256](https://github.com/pinterest/ktlint/issues/1256))
 - Fix indentation of KDoc comment when using tab indentation style (`indent`) ([#850](https://github.com/pinterest/ktlint/issues/850))
 ### Changed
 - Support absolute paths for globs ([#1131](https://github.com/pinterest/ktlint/issues/1131))
@@ -1000,7 +1001,6 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
-[0.45.0]: https://github.com/pinterest/ktlint/compare/0.44.0...0.45.0
 [0.44.0]: https://github.com/pinterest/ktlint/compare/0.43.2...0.44.0
 [0.43.2]: https://github.com/pinterest/ktlint/compare/0.43.0...0.43.2
 [0.43.0]: https://github.com/pinterest/ktlint/compare/0.42.1...0.43.0
