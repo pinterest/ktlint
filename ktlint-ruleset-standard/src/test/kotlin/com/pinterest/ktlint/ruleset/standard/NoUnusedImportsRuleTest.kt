@@ -193,6 +193,89 @@ class NoUnusedImportsRuleTest {
     }
 
     @Test
+    fun testRepeatedImport() {
+        assertThat(
+            NoUnusedImportsRule().lint(
+                """
+
+
+                import org.repository.RepositoryPolicy
+                import org.repository.any
+                import org.repository.all
+                import org.repository.any
+                fun main() {
+                        RepositoryPolicy(
+                        any(false), all("trial")
+                    )
+                }
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(6, 1, "no-unused-imports", "Unused import")
+            )
+        )
+    }
+
+    @Test
+    fun testRepeatedImportTwice() {
+        assertThat(
+            NoUnusedImportsRule().lint(
+                """
+
+
+                import org.repository.RepositoryPolicy
+                import org.repository.any
+                import org.repository.all
+                import org.repository.any
+                import org.repository.any
+                fun main() {
+                        RepositoryPolicy(
+                        any(false), all("trial")
+                                            )
+                }
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(6, 1, "no-unused-imports", "Unused import"),
+                LintError(7, 1, "no-unused-imports", "Unused import")
+
+            )
+        )
+    }
+
+    @Test
+    fun testRepeatedImportsWithDistinctIncidences() {
+        assertThat(
+            NoUnusedImportsRule().lint(
+                """
+
+
+                import org.repository.RepositoryPolicy
+                import org.repository.any
+                import org.repository.all
+                import org.repository.many
+                import org.repository.any
+                import org.repository.none
+                import org.repository.all
+                fun main() {
+                        RepositoryPolicy(
+                        any(false), all("trial"), many("hello"), none("goodbye")
+                    )
+                }
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(7, 1, "no-unused-imports", "Unused import"),
+                LintError(9, 1, "no-unused-imports", "Unused import")
+            )
+        )
+    }
+
+
+    @Test
     fun testFormat() {
         assertThat(
             NoUnusedImportsRule().format(
