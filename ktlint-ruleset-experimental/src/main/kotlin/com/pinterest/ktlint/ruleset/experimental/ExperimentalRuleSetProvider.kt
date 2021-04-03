@@ -2,6 +2,7 @@ package com.pinterest.ktlint.ruleset.experimental
 
 import com.pinterest.ktlint.core.RuleSet
 import com.pinterest.ktlint.core.RuleSetProvider
+import com.pinterest.ktlint.ruleset.experimental.trailingcomma.TrailingCommaRule
 
 public class ExperimentalRuleSetProvider : RuleSetProvider {
 
