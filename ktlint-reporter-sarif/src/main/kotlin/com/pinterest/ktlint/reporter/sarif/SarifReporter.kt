@@ -51,7 +51,6 @@ public class SarifReporter(private val out: PrintStream) : Reporter {
                                 ArtifactLocation(
                                     uri = File(file).relativeTo(workingDirectory).path,
                                     uriBaseID = SRCROOT
-
                                 )
                             } ?: ArtifactLocation(
                                 uri = file
