@@ -74,7 +74,6 @@ public class SarifReporter(private val out: PrintStream) : Reporter {
                         driver = ToolComponent(
                             downloadURI = "https://github.com/pinterest/ktlint/releases/tag/$version",
                             fullName = "ktlint",
-                            guid = "7e96e861-6db7-44ea-a1e4-56bb4554ffe9",
                             informationURI = "https://github.com/pinterest/ktlint/",
                             language = "en",
                             name = "ktlint",

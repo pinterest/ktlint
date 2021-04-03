@@ -119,7 +119,6 @@
         "driver": {
           "downloadUri": "https://github.com/pinterest/ktlint/releases/tag/null",
           "fullName": "ktlint",
-          "guid": "7e96e861-6db7-44ea-a1e4-56bb4554ffe9",
           "informationUri": "https://github.com/pinterest/ktlint/",
           "language": "en",
           "name": "ktlint",
