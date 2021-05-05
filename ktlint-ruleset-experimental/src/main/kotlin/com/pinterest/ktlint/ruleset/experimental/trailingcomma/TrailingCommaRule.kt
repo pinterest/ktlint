@@ -7,9 +7,8 @@ import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType
 import com.pinterest.ktlint.core.ast.assertElementType
 import com.pinterest.ktlint.core.ast.children
-import com.pinterest.ktlint.core.ast.containsLineBreakInChild
+import com.pinterest.ktlint.core.ast.containsLineBreakInRange
 import com.pinterest.ktlint.core.ast.isRoot
-import com.pinterest.ktlint.core.ast.lineCount
 import com.pinterest.ktlint.core.ast.prevCodeLeaf
 import com.pinterest.ktlint.core.ast.prevLeaf
 import kotlin.properties.Delegates
@@ -18,18 +17,21 @@ import org.ec4j.core.model.PropertyType.PropertyValueParser
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
+import org.jetbrains.kotlin.psi.KtCollectionLiteralExpression
 import org.jetbrains.kotlin.psi.KtDestructuringDeclaration
 import org.jetbrains.kotlin.psi.KtFunctionLiteral
 import org.jetbrains.kotlin.psi.KtPsiFactory
+import org.jetbrains.kotlin.psi.KtValueArgumentList
 import org.jetbrains.kotlin.psi.KtWhenEntry
 import org.jetbrains.kotlin.psi.KtWhenExpression
-import org.jetbrains.kotlin.psi.psiUtil.endOffset
-import org.jetbrains.kotlin.psi.psiUtil.startOffset
+import org.jetbrains.kotlin.psi.psiUtil.anyDescendantOfType
+import org.jetbrains.kotlin.psi.psiUtil.collectDescendantsOfType
 import org.jetbrains.kotlin.utils.addToStdlib.cast
 
 @OptIn(FeatureInAlphaState::class)
 public class TrailingCommaRule :
     Rule("trailing-comma"),
+    Rule.Modifier.Last, // runs last to ensure that the linebreaks are already inserted by the indent and other rules
     UsesEditorConfigProperties {
 
     private var allowTrailingComma by Delegates.notNull<Boolean>()
@@ -37,13 +39,13 @@ public class TrailingCommaRule :
 
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
         allowTrailingCommaProperty,
-        allowTrailingCommaOnCallSiteProperty,
+        allowTrailingCommaOnCallSiteProperty
     )
 
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         if (node.isRoot()) {
             getEditorConfigValues(node)
@@ -55,7 +57,6 @@ public class TrailingCommaRule :
         when (node.elementType) {
             ElementType.DESTRUCTURING_DECLARATION -> visitDestructuringDeclaration(node, emit, autoCorrect)
             ElementType.FUNCTION_LITERAL -> visitFunctionLiteral(node, emit, autoCorrect)
-            ElementType.FUNCTION_TYPE -> visitFunctionType(node, emit, autoCorrect)
             ElementType.TYPE_PARAMETER_LIST -> visitTypeList(node, emit, autoCorrect)
             ElementType.VALUE_PARAMETER_LIST -> visitValueList(node, emit, autoCorrect)
             ElementType.WHEN_ENTRY -> visitWhenEntry(node, emit, autoCorrect)
@@ -79,7 +80,7 @@ public class TrailingCommaRule :
     private fun visitCollectionLiteralExpression(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean,
+        autoCorrect: Boolean
     ) {
         val inspectNode = node
             .assertElementType(ElementType.COLLECTION_LITERAL_EXPRESSION)
@@ -91,7 +92,7 @@ public class TrailingCommaRule :
     private fun visitDestructuringDeclaration(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean,
+        autoCorrect: Boolean
     ) {
         val inspectNode = node
             .assertElementType(ElementType.DESTRUCTURING_DECLARATION)
@@ -103,7 +104,7 @@ public class TrailingCommaRule :
     private fun visitFunctionLiteral(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean,
+        autoCorrect: Boolean
     ) {
         val inspectNode = node
             .assertElementType(ElementType.FUNCTION_LITERAL)
@@ -114,24 +115,10 @@ public class TrailingCommaRule :
         node.reportAndCorrectTrailingCommaNodeBefore(inspectNode, emit, autoCorrect)
     }
 
-    private fun visitFunctionType(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean,
-    ) {
-        val inspectNode = node
-            .assertElementType(ElementType.FUNCTION_TYPE)
-            .firstChildNode
-            .assertElementType(ElementType.VALUE_PARAMETER_LIST)
-            .children()
-            .last()
-        node.reportAndCorrectTrailingCommaNodeBefore(inspectNode, emit, autoCorrect)
-    }
-
     private fun visitIndices(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean,
+        autoCorrect: Boolean
     ) {
         val inspectNode = node
             .assertElementType(ElementType.INDICES)
@@ -143,11 +130,9 @@ public class TrailingCommaRule :
     private fun visitValueList(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean,
+        autoCorrect: Boolean
     ) {
-        if (node.treeParent.elementType != ElementType.FUNCTION_LITERAL &&
-            node.treeParent.elementType != ElementType.FUNCTION_TYPE
-        ) {
+        if (node.treeParent.elementType != ElementType.FUNCTION_LITERAL) {
             val inspectNode = node
                 .assertElementType(ElementType.VALUE_ARGUMENT_LIST, ElementType.VALUE_PARAMETER_LIST)
                 .children()
@@ -159,7 +144,7 @@ public class TrailingCommaRule :
     private fun visitTypeList(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean,
+        autoCorrect: Boolean
     ) {
         val inspectNode = node
             .assertElementType(ElementType.TYPE_ARGUMENT_LIST, ElementType.TYPE_PARAMETER_LIST)
@@ -171,7 +156,7 @@ public class TrailingCommaRule :
     private fun visitWhenEntry(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean,
+        autoCorrect: Boolean
     ) {
         val psi = node.psi
         require(psi is KtWhenEntry)
@@ -189,7 +174,7 @@ public class TrailingCommaRule :
     private fun ASTNode.reportAndCorrectTrailingCommaNodeBefore(
         inspectNode: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean,
+        autoCorrect: Boolean
     ) {
         val prevLeaf = inspectNode.prevLeaf()
         val trailingCommaNode = prevLeaf.findPreviousTrailingCommaNodeOrNull()
@@ -198,14 +183,14 @@ public class TrailingCommaRule :
             else -> if (trailingCommaNode != null) TrailingCommaState.REDUNDANT else TrailingCommaState.NOT_EXISTS
         }
         val isTrailingCommaAllowed = when (elementType) {
-            in typesOnDeclarationSite -> allowTrailingComma
-            in typesOnCallSite -> allowTrailingCommaOnCallSite
+            in TYPES_ON_DECLARATION_SITE -> allowTrailingComma
+            in TYPES_ON_CALL_SITE -> allowTrailingCommaOnCallSite
             else -> false
         }
         when (trailingCommaState) {
             TrailingCommaState.EXISTS -> if (!isTrailingCommaAllowed) {
                 emit(
-                    trailingCommaNode!!.psi.startOffset,
+                    trailingCommaNode!!.startOffset,
                     "Unnecessary trailing comma before \"${inspectNode.text}\"",
                     true
                 )
@@ -214,17 +199,15 @@ public class TrailingCommaRule :
                 }
             }
             TrailingCommaState.MISSING -> if (isTrailingCommaAllowed) {
-                val prevNode = inspectNode.prevCodeLeaf()
+                val prevNode = inspectNode.prevCodeLeaf()!!
                 emit(
-                    prevNode!!.startOffset,
+                    prevNode.startOffset + prevNode.textLength,
                     "Missing trailing comma before \"${inspectNode.text}\"",
                     true
                 )
                 if (autoCorrect) {
                     val comma = KtPsiFactory(prevNode.psi).createComma()
-                    this.psi.addAfter(comma, prevNode.psi)
-//                    (prevNode as LeafPsiElement).rawInsertAfterMe(PsiWhiteSpace)
-//                    this.replaceChild(prevNode, LeafPsiElement(ElementType.COMMA, ","))
+                    prevNode.psi.parent.addAfter(comma, prevNode.psi)
                 }
             }
             TrailingCommaState.REDUNDANT -> {
@@ -255,32 +238,18 @@ public class TrailingCommaRule :
 
     private fun isMultiline(element: PsiElement): Boolean = when {
         element.parent is KtFunctionLiteral -> isMultiline(element.parent)
-
-        element is KtFunctionLiteral -> element.isMultiline(
-            startOffsetGetter = { valueParameterList?.startOffset },
-            endOffsetGetter = { arrow?.endOffset },
-        )
-
-        element is KtWhenEntry -> element.isMultiline(
-            startOffsetGetter = { startOffset },
-            endOffsetGetter = { arrow?.endOffset },
-        )
-
-        element is KtDestructuringDeclaration -> element.isMultiline(
-            startOffsetGetter = { lPar?.startOffset },
-            endOffsetGetter = { rPar?.endOffset },
-        )
-
-        else -> element.lineCount > 1
-    }
-
-    private fun <T : PsiElement> T.isMultiline(
-        startOffsetGetter: T.() -> Int?,
-        endOffsetGetter: T.() -> Int?,
-    ): Boolean {
-        val startOffset = startOffsetGetter() ?: startOffset
-        val endOffset = endOffsetGetter() ?: endOffset
-        return containsLineBreakInChild(startOffset, endOffset)
+        element is KtFunctionLiteral -> containsLineBreakInRange(element.valueParameterList!!, element.arrow!!)
+        element is KtWhenEntry -> containsLineBreakInRange(element.firstChild, element.arrow!!)
+        element is KtDestructuringDeclaration -> containsLineBreakInRange(element.lPar!!, element.rPar!!)
+        element is KtValueArgumentList && element.anyDescendantOfType<KtCollectionLiteralExpression>() -> {
+            // special handling for collection literal
+            // @Annotation([
+            //    "something",
+            // )]
+            val lastChild = element.collectDescendantsOfType<KtCollectionLiteralExpression>().last()
+            containsLineBreakInRange(element.rightParenthesis!!, lastChild.rightBracket!!)
+        }
+        else -> element.textContains('\n')
     }
 
     private fun ASTNode.isIgnorable(): Boolean =
@@ -289,7 +258,8 @@ public class TrailingCommaRule :
             elementType == ElementType.BLOCK_COMMENT
 
     public companion object {
-        private val typesOnDeclarationSite = TokenSet.create(
+
+        private val TYPES_ON_DECLARATION_SITE = TokenSet.create(
             ElementType.DESTRUCTURING_DECLARATION,
             ElementType.FUNCTION_LITERAL,
             ElementType.FUNCTION_TYPE,
@@ -298,7 +268,7 @@ public class TrailingCommaRule :
             ElementType.WHEN_ENTRY
         )
 
-        private val typesOnCallSite = TokenSet.create(
+        private val TYPES_ON_CALL_SITE = TokenSet.create(
             ElementType.COLLECTION_LITERAL_EXPRESSION,
             ElementType.INDICES,
             ElementType.TYPE_ARGUMENT_LIST,

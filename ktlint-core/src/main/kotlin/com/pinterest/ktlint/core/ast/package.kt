@@ -5,17 +5,12 @@ import com.pinterest.ktlint.core.ast.ElementType.STRING_TEMPLATE
 import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
 import kotlin.reflect.KClass
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.openapi.util.TextRange
-import org.jetbrains.kotlin.com.intellij.openapi.util.text.StringUtil
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
-import org.jetbrains.kotlin.com.intellij.psi.PsiDocumentManager
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
-import org.jetbrains.kotlin.psi.psiUtil.endOffset
 import org.jetbrains.kotlin.psi.psiUtil.siblings
-import org.jetbrains.kotlin.psi.psiUtil.startOffset
 
 fun ASTNode.nextLeaf(includeEmpty: Boolean = false, skipSubtree: Boolean = false): ASTNode? {
     var n = if (skipSubtree) this.lastChildLeafOrSelf().nextLeafAny() else this.nextLeafAny()
@@ -299,29 +294,7 @@ fun ASTNode.assertElementType(vararg elementTypes: IElementType): ASTNode =
         }
     }
 
-/**
- * From https://github.com/JetBrains/intellij-kotlin/blob/d7a56b0bcaad0992feb8a52d64ef279e725ab65c/formatter/src/org/jetbrains/kotlin/idea/util/FormatterUtil.kt
- */
-public val PsiElement.lineCount: Int
-    get() {
-        val spaceRange = textRange ?: TextRange.EMPTY_RANGE
-        return getLineCountByDocument(spaceRange.startOffset, spaceRange.endOffset)
-            ?: StringUtil.getLineBreakCount(text ?: error("Cannot count number of lines")) + 1
-    }
-
-public fun PsiElement.getLineCountByDocument(startOffset: Int, endOffset: Int): Int? {
-    val doc = containingFile?.viewProvider?.document ?: return null
-    if (endOffset > doc.textLength || startOffset >= endOffset) return null
-
-    val startLine = doc.getLineNumber(startOffset)
-    val endLine = doc.getLineNumber(endOffset)
-
-    return endLine - startLine + 1
-}
-
-public fun PsiElement.containsLineBreakInChild(globalStartOffset: Int, globalEndOffset: Int): Boolean =
-    getLineCountByDocument(globalStartOffset, globalEndOffset)?.let { it > 1 }
-        ?: firstChild.siblings(forward = true, withItself = true)
-            .dropWhile { it.startOffset < globalStartOffset }
-            .takeWhile { it.endOffset <= globalEndOffset }
-            .any { it.textContains('\n') || it.textContains('\r') }
+public fun containsLineBreakInRange(from: PsiElement, to: PsiElement): Boolean =
+    from.siblings(forward = true, withItself = true)
+        .takeWhile { !it.isEquivalentTo(to) }
+        .any { it.textContains('\n') }
