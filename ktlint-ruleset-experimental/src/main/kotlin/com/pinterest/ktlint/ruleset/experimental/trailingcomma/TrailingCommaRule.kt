@@ -5,7 +5,6 @@ import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType
-import com.pinterest.ktlint.core.ast.assertElementType
 import com.pinterest.ktlint.core.ast.children
 import com.pinterest.ktlint.core.ast.containsLineBreakInRange
 import com.pinterest.ktlint.core.ast.isRoot
@@ -83,7 +82,6 @@ public class TrailingCommaRule :
         autoCorrect: Boolean
     ) {
         val inspectNode = node
-            .assertElementType(ElementType.COLLECTION_LITERAL_EXPRESSION)
             .children()
             .last { it.elementType == ElementType.RBRACKET }
         node.reportAndCorrectTrailingCommaNodeBefore(inspectNode, emit, autoCorrect)
@@ -95,7 +93,6 @@ public class TrailingCommaRule :
         autoCorrect: Boolean
     ) {
         val inspectNode = node
-            .assertElementType(ElementType.DESTRUCTURING_DECLARATION)
             .children()
             .last { it.elementType == ElementType.RPAR }
         node.reportAndCorrectTrailingCommaNodeBefore(inspectNode, emit, autoCorrect)
@@ -107,7 +104,6 @@ public class TrailingCommaRule :
         autoCorrect: Boolean
     ) {
         val inspectNode = node
-            .assertElementType(ElementType.FUNCTION_LITERAL)
             .children()
             .lastOrNull { it.elementType == ElementType.ARROW }
             ?: // lambda w/o an arrow -> no arguments -> no commas
@@ -121,7 +117,6 @@ public class TrailingCommaRule :
         autoCorrect: Boolean
     ) {
         val inspectNode = node
-            .assertElementType(ElementType.INDICES)
             .children()
             .last { it.elementType == ElementType.RBRACKET }
         node.reportAndCorrectTrailingCommaNodeBefore(inspectNode, emit, autoCorrect)
@@ -134,7 +129,6 @@ public class TrailingCommaRule :
     ) {
         if (node.treeParent.elementType != ElementType.FUNCTION_LITERAL) {
             val inspectNode = node
-                .assertElementType(ElementType.VALUE_ARGUMENT_LIST, ElementType.VALUE_PARAMETER_LIST)
                 .children()
                 .last { it.elementType == ElementType.RPAR }
             node.reportAndCorrectTrailingCommaNodeBefore(inspectNode, emit, autoCorrect)
@@ -147,7 +141,6 @@ public class TrailingCommaRule :
         autoCorrect: Boolean
     ) {
         val inspectNode = node
-            .assertElementType(ElementType.TYPE_ARGUMENT_LIST, ElementType.TYPE_PARAMETER_LIST)
             .children()
             .first { it.elementType == ElementType.GT }
         node.reportAndCorrectTrailingCommaNodeBefore(inspectNode, emit, autoCorrect)

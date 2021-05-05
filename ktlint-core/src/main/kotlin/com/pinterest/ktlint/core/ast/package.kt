@@ -283,17 +283,6 @@ fun ASTNode.logStructure(): ASTNode =
 private fun String.replaceTabAndNewline(): String =
     replace("\t", "\\t").replace("\n", "\\n")
 
-/**
- *  Assert the element type of the node
- */
-@Suppress("unused")
-fun ASTNode.assertElementType(vararg elementTypes: IElementType): ASTNode =
-    also {
-        assert(elementTypes.contains(this.elementType)) {
-            "Expected element of types $elementType but received ${this.elementType}"
-        }
-    }
-
 public fun containsLineBreakInRange(from: PsiElement, to: PsiElement): Boolean =
     from.siblings(forward = true, withItself = true)
         .takeWhile { !it.isEquivalentTo(to) }
