@@ -27,7 +27,8 @@ class MaxLineLengthRule :
     UsesEditorConfigProperties {
 
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
-        ignoreBackTickedIdentifierProperty
+        ignoreBackTickedIdentifierProperty,
+        ignoreSingleLineRawStringProperty
     )
 
     private var maxLineLength: Int = -1
@@ -43,6 +44,7 @@ class MaxLineLengthRule :
             val editorConfigProperties: EditorConfigProperties =
                 node.getUserData(KtLint.EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY)!!
             val ignoreBackTickedIdentifier = editorConfigProperties.getEditorConfigValue(ignoreBackTickedIdentifierProperty)
+            val ignoreSingleLineRawString = editorConfigProperties.getEditorConfigValue(ignoreSingleLineRawStringProperty)
             maxLineLength = editorConfig.maxLineLength
             if (maxLineLength <= 0) {
                 return
@@ -53,7 +55,7 @@ class MaxLineLengthRule :
                 .filter { it.lineLength(ignoreBackTickedIdentifier) > maxLineLength }
                 .forEach { parsedLine ->
                     val el = parsedLine.elements.last()
-                    if (!el.isPartOf(KDoc::class) && !el.isPartOfRawMultiLineString()) {
+                    if (!el.isPartOf(KDoc::class) && !el.isPartOfRawMultiLineString(ignoreSingleLineRawString)) {
                         if (!el.isPartOf(PsiComment::class)) {
                             if (!el.isPartOf(KtPackageDirective::class) && !el.isPartOf(KtImportDirective::class)) {
                                 // fixme:
@@ -90,19 +92,33 @@ class MaxLineLengthRule :
         }
     }
 
-    private fun ASTNode.isPartOfRawMultiLineString() =
+    private fun ASTNode.isPartOfRawMultiLineString(ignoreSingleLineRawString: Boolean) =
         parent(ElementType.STRING_TEMPLATE, strict = false)
-            ?.let { it.firstChildNode.text == "\"\"\"" && it.textContains('\n') } == true
+            ?.let { it.firstChildNode.text == "\"\"\"" && (ignoreSingleLineRawString || it.textContains('\n')) } == true
 
     public companion object {
         internal const val KTLINT_IGNORE_BACKTICKED_IDENTIFIER_NAME = "ktlint_ignore_back_ticked_identifier"
-        private const val PROPERTY_DESCRIPTION = "Defines whether the backticked identifier (``) should be ignored"
+        private const val BACKTICKED_PROPERTY_DESCRIPTION = "Defines whether the backticked identifier (``) should be ignored"
 
         public val ignoreBackTickedIdentifierProperty: UsesEditorConfigProperties.EditorConfigProperty<Boolean> =
             UsesEditorConfigProperties.EditorConfigProperty(
                 type = PropertyType.LowerCasingPropertyType(
                     /* name = */ KTLINT_IGNORE_BACKTICKED_IDENTIFIER_NAME,
-                    /* description = */ PROPERTY_DESCRIPTION,
+                    /* description = */ BACKTICKED_PROPERTY_DESCRIPTION,
+                    /* parser = */ PropertyType.PropertyValueParser.BOOLEAN_VALUE_PARSER,
+                    /* possibleValues = */ true.toString(), false.toString()
+                ),
+                defaultValue = false
+            )
+
+        internal const val KTLINT_IGNORE_SINGLE_LINE_RAW_STRING_NAME = "ktlint_ignore_single_line_raw_string"
+        private const val SINGLE_LINE_PROPERTY_DESCRIPTION = "Defines whether the single line raw string (\"\"\") should be ignored"
+
+        public val ignoreSingleLineRawStringProperty: UsesEditorConfigProperties.EditorConfigProperty<Boolean> =
+            UsesEditorConfigProperties.EditorConfigProperty(
+                type = PropertyType.LowerCasingPropertyType(
+                    /* name = */ KTLINT_IGNORE_SINGLE_LINE_RAW_STRING_NAME,
+                    /* description = */ SINGLE_LINE_PROPERTY_DESCRIPTION,
                     /* parser = */ PropertyType.PropertyValueParser.BOOLEAN_VALUE_PARSER,
                     /* possibleValues = */ true.toString(), false.toString()
                 ),

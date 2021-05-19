@@ -91,6 +91,41 @@ class MaxLineLengthRuleTest {
     }
 
     @Test
+    fun testErrorSuppressionOnSingleLineRawString() {
+        val testFile = ignoreSingleLineRawString()
+
+        assertThat(
+            MaxLineLengthRule().lint(
+                testFile.absolutePath,
+                """
+                fun main() {
+                    val longRawString = ${"\"\"\""}this is a very very very very long long raw string on a single line${"\"\"\""}
+                }
+                """.trimIndent(),
+                userData = mapOf("max_line_length" to "40")
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun testReportLongLinesAfterExcludingSingleLineRawString() {
+        assertThat(
+            MaxLineLengthRule().lint(
+                """
+                fun main() {
+                    val longRawString = ${"\"\"\""}this is a very very very very long long raw string on a single line${"\"\"\""}
+                }
+                """.trimIndent(),
+                userData = mapOf("max_line_length" to "40")
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(2, 1, "max-line-length", "Exceeded max line length (40)")
+            )
+        )
+    }
+
+    @Test
     fun testLintOff() {
         assertThat(
             MaxLineLengthRule().diffFileLint(
@@ -117,5 +152,10 @@ class MaxLineLengthRuleTest {
     private fun ignoreBacktickedIdentifier(): File = editorConfigTestRule
         .writeToEditorConfig(
             mapOf(MaxLineLengthRule.ignoreBackTickedIdentifierProperty.type to true.toString())
+        )
+
+    private fun ignoreSingleLineRawString(): File = editorConfigTestRule
+        .writeToEditorConfig(
+            mapOf(MaxLineLengthRule.ignoreSingleLineRawStringProperty.type to true.toString())
         )
 }
