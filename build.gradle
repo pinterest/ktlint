@@ -1,6 +1,7 @@
 plugins {
   id 'org.jetbrains.kotlin.jvm' apply false
   id 'com.github.breadmoirai.github-release'
+  id 'dev.zacsweers.kgp-150-leak-patcher'
 }
 
 ext.versions = [
