@@ -1,3 +1,4 @@
+import gradle.kotlin.dsl.accessors._f23ede02d58ac0a86f9389458f16ca8c.dokkaJavadoc
 import java.net.URI
 import org.jetbrains.dokka.gradle.DokkaTask
 
@@ -8,26 +9,19 @@ plugins {
     id("org.jetbrains.dokka")
 }
 
-// Disabling dokka on Java 10+ versions
-// See https://github.com/Kotlin/dokka/issues/294
-val shouldEnableJavadoc = JavaVersion.current() <= JavaVersion.VERSION_1_9
-
 java {
     withSourcesJar()
-    if (shouldEnableJavadoc) withJavadocJar()
+    withJavadocJar()
 }
 
-if (shouldEnableJavadoc) {
-    val dokkaJavadocTask = tasks.register<DokkaTask>("dokkaJavadoc") {
-        outputFormat = "javadoc"
-        outputDirectory = "$buildDir/javadoc"
-    }
+tasks.dokkaJavadoc.configure {
+    outputDirectory.set(buildDir.resolve("javadoc"))
+}
 
-    tasks.named<Jar>("javadocJar") {
-        dependsOn(dokkaJavadocTask)
-        archiveClassifier.set("javadoc")
-        from(dokkaJavadocTask)
-    }
+tasks.named<Jar>("javadocJar") {
+    dependsOn(tasks.dokkaJavadoc)
+    archiveClassifier.set("javadoc")
+    from(tasks.dokkaJavadoc)
 }
 
 project.version = project.property("VERSION_NAME")
