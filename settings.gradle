@@ -5,7 +5,7 @@ pluginManagement {
   }
 
   plugins {
-    def kotlinVersion = settings.hasProperty("kotlinDev") ? "1.5.0-M1" : "1.4.31"
+    def kotlinVersion = settings.hasProperty("kotlinDev") ? "1.5.10-888" : "1.5.0"
     id 'org.jetbrains.kotlin.jvm' version kotlinVersion
     id 'com.github.breadmoirai.github-release' version '2.2.12'
     id 'com.github.johnrengelman.shadow' version '6.1.0'

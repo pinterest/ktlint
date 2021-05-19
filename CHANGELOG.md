@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 ### Changed
 - Updated to dokka 1.4.32 ([#1148](https://github.com/pinterest/ktlint/pull/1148))
+- Updated to Kotlin 1.5.0
 ### Removed
 
 ## [0.41.0] - 2021-03-16
