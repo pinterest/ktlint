@@ -36,6 +36,7 @@
          </trusted-key>
          <trusted-key id="7faa0f2206de228f0db01ad741321490758aad6f" group="org.codehaus.groovy"/>
          <trusted-key id="8756c4f765c9ac3cb6b85d62379ce192d401ab61"> <!-- Old Bintray key -->
+            <trusting group="^org[.]jetbrains($|([.].*))" regex="true"/>
             <trusting group="info.picocli"/>
             <trusting group="org.jetbrains.intellij.deps"/>
             <trusting group="org.jetbrains.kotlinx"/>
