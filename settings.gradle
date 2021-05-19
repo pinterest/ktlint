@@ -10,6 +10,7 @@ pluginManagement {
     id 'com.github.breadmoirai.github-release' version '2.2.12'
     id 'com.github.johnrengelman.shadow' version '6.1.0'
     id 'org.gradle.crypto.checksum' version '1.1.0'
+    id 'dev.zacsweers.kgp-150-leak-patcher' version '1.1.0' // https://youtrack.jetbrains.com/issue/KT-46368
   }
 }
 
