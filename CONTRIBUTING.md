@@ -62,7 +62,7 @@ New core rules will be added first to the experimental ruleset before being roll
 Project has enabled [Gradle dependencies verification](https://docs.gradle.org/6.2/userguide/dependency_verification.html).
 On adding/updating any dependency, ensure that you've added dependency provided checksum/signature to `gradle/verification-metadata.xml` file.
 
-## Using koltin development versions
+## Using kotlin development versions
 
 Add following flag - `-PkotlinDev` to enable kotlin development version.
 
