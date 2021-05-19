@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - SARIF output support ([#1102](https://github.com/pinterest/ktlint/issues/1102))
 ### Fixed
 ### Changed
+- Updated to dokka 1.4.32 ([#1148](https://github.com/pinterest/ktlint/pull/1148))
 ### Removed
 
 ## [0.41.0] - 2021-03-16
