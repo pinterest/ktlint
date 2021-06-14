@@ -8,7 +8,7 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [windows-latest]
         java: [ 8, 11 ]
     runs-on: ${{ matrix.os }}
     steps:
@@ -20,7 +20,7 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Build with release Kotlin version
-      run: ./gradlew clean build ktlint
+      run: ./gradlew --stacktrace clean build ktlint
     - name: Upload artifacts
       uses: actions/upload-artifact@v2
       if: failure()
@@ -29,4 +29,4 @@ jobs:
         path: '**/build/**/dependency-verification-report.html'
         if-no-files-found: warn
     - name: Build with dev Kotlin version
-      run: ./gradlew -PkotlinDev clean build ktlint
+      run: ./gradlew --stacktrace -PkotlinDev clean build ktlint
