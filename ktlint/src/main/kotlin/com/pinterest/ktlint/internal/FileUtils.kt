@@ -8,6 +8,7 @@ import java.io.File
 import java.nio.file.FileSystem
 import java.nio.file.FileVisitResult
 import java.nio.file.Files
+import java.nio.file.InvalidPathException
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.SimpleFileVisitor
@@ -25,7 +26,13 @@ internal fun FileSystem.fileSequence(
 
     val result = mutableListOf<Path>()
 
-    val (existingFiles, actualGlobs) = globs.partition { Files.isRegularFile(rootDir.resolve(it)) }
+    val (existingFiles, actualGlobs) = globs.partition {
+        try {
+            Files.isRegularFile(rootDir.resolve(it))
+        } catch (e: InvalidPathException) {
+            false
+        }
+    }
     existingFiles.mapTo(result) { rootDir.resolve(it) }
 
     // Return early and don't traverse the file system if all the input globs are absolute paths
