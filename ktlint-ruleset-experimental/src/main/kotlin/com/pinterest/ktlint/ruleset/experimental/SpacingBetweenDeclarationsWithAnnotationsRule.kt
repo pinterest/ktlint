@@ -24,7 +24,7 @@ class SpacingBetweenDeclarationsWithAnnotationsRule : Rule("spacing-between-decl
             val declaration = node.psi.parent as? KtDeclaration
             val prevDeclaration =
                 declaration?.getPrevSiblingIgnoringWhitespaceAndComments(withItself = false) as? KtDeclaration
-            val prevWhiteSpace = declaration?.prevSibling as? PsiWhiteSpace
+            val prevWhiteSpace = prevDeclaration?.nextSibling as? PsiWhiteSpace
             if (declaration != null && prevDeclaration != null && prevWhiteSpace?.text?.count { it == '\n' } == 1) {
                 emit(
                     node.startOffset,
