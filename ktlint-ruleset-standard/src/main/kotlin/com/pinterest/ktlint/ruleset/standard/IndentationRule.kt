@@ -87,6 +87,7 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 import org.jetbrains.kotlin.psi.KtStringTemplateExpression
 import org.jetbrains.kotlin.psi.KtSuperTypeList
+import org.jetbrains.kotlin.psi.psiUtil.leaves
 
 /**
  * ktlint's rule that checks & corrects indentation.
@@ -471,6 +472,14 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                         val prevBlockLine = ctx.blockOpeningLineStack.peek() ?: -1
                         if (prevBlockLine != blockLine) {
                             expectedIndent--
+                            val byKeywordOnSameLine = n.pairedLeftBrace()
+                                ?.leaves(forward = false)
+                                ?.takeWhile { !it.isWhiteSpaceWithNewline() }
+                                ?.firstOrNull { it.elementType == BY_KEYWORD }
+                            if (byKeywordOnSameLine != null &&
+                                byKeywordOnSameLine.prevLeaf()?.isWhiteSpaceWithNewline() == true &&
+                                !byKeywordOnSameLine.isPartOf(DELEGATED_SUPER_TYPE_ENTRY)
+                            ) expectedIndent--
                             debug { "--${n.text} -> $expectedIndent" }
                         }
                     }
@@ -991,7 +1000,12 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
             // val i: Int
             // by lazy { 1 }
             nextLeafElementType == BY_KEYWORD ->
-                if (node.isPartOf(DELEGATED_SUPER_TYPE_ENTRY)) 0 else 1
+                if (node.isPartOf(DELEGATED_SUPER_TYPE_ENTRY)) {
+                    0
+                } else {
+                    expectedIndent++
+                    1
+                }
             // IDEA quirk:
             // var value: DataClass =
             //     DataClass("too long line")
@@ -1084,4 +1098,17 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
     //       T2 : SubType...
     private fun ASTNode.isPartOfTypeConstraint() =
         isPartOf(TYPE_CONSTRAINT_LIST) || nextLeaf()?.elementType == WHERE_KEYWORD
+
+    private fun ASTNode.pairedLeftBrace(): ASTNode? {
+        if (elementType != RBRACE) return null
+        var node: ASTNode? = prevLeaf()
+        while (node != null) {
+            node = when (node.elementType) {
+                LBRACE -> return node
+                RBRACE -> node.treeParent
+                else -> node.prevLeaf()
+            }
+        }
+        return null
+    }
 }
