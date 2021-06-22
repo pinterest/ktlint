@@ -425,4 +425,17 @@ class AnnotationSpacingRuleTest {
             """.trimIndent()
         )
     }
+
+    @Test
+    fun `lint eol comment on the same line as the annotation`() {
+        assertThat(
+            AnnotationSpacingRule().lint(
+                """
+                @SuppressWarnings // foo
+                fun bar() {
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
 }

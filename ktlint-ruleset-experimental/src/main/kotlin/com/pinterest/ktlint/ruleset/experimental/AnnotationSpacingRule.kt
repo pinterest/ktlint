@@ -16,6 +16,7 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
 import org.jetbrains.kotlin.psi.psiUtil.children
 import org.jetbrains.kotlin.psi.psiUtil.endOffset
+import org.jetbrains.kotlin.psi.psiUtil.leaves
 
 /**
  * Ensures annotations occur immediately prior to the annotated construct
@@ -74,6 +75,10 @@ class AnnotationSpacingRule : Rule("annotation-spacing") {
             }
         )
         if (next != null) {
+            if (next.isPartOf(ElementType.EOL_COMMENT) &&
+                next.leaves(forward = false).takeWhile { it.isWhiteSpace() }.none { "\n" in it.text }
+            ) return
+
             if (node.elementType != ElementType.FILE_ANNOTATION_LIST) {
                 val psi = node.psi
                 emit(psi.endOffset - 1, ERROR_MESSAGE, true)
