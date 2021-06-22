@@ -7,7 +7,11 @@
       <verify-metadata>true</verify-metadata>
       <verify-signatures>true</verify-signatures>
       <key-servers>
-         <key-server uri="hkp://keys.gnupg.net"/>
+          <key-server uri="https://keys.openpgp.org"/>
+          <key-server uri="https://keyserver.ubuntu.com"/>
+          <!-- key server below is added from the https://sks-keyservers.net pool that is not working anymore -->
+          <!-- remove it when it will be possible -->
+          <key-server uri="hkp://sks.pgpkeys.eu"/>
       </key-servers>
       <trusted-artifacts>
          <trust file=".*-javadoc[.]jar" regex="true"/>
