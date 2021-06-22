@@ -16,6 +16,24 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: ${{ matrix.java }}
+      - name: Restore Gradle caches
+        uses: actions/cache@v1
+        with:
+          path: |
+            ~/.gradle/caches/modules-2
+            ~/.gradle/caches/files-2.1
+            ~/.gradle/caches/metadata-2.96
+          key: ${{ runner.os }}-gradle-cache-${{ hashFiles('**/*.gradle.kts') }}-${{ hashFiles('**/*.gradle') }}-${{ hashFiles('**/gradle.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-cache-
+      - name: Restore Gradle wrapper
+        uses: actions/cache@v1
+        with:
+          path: |
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('**/gradlew') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-wrapper-
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Publish snapshot to Maven
