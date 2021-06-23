@@ -438,4 +438,58 @@ class AnnotationSpacingRuleTest {
             )
         ).isEmpty()
     }
+
+    @Test
+    fun `format eol comment on the same line as the annotation`() {
+        val code =
+            """
+                @SuppressWarnings // foo
+
+                fun bar() {
+                }
+            """.trimIndent()
+        assertThat(
+            AnnotationSpacingRule().format(code)
+        ).isEqualTo(
+            """
+                @SuppressWarnings // foo
+                fun bar() {
+                }
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun `format eol comment on the same line as the annotation 2`() {
+        val code =
+            """
+                @SuppressWarnings // foo
+                // bar
+                fun bar() {
+                }
+            """.trimIndent()
+        assertThat(
+            AnnotationSpacingRule().format(code)
+        ).isEqualTo(
+            """
+                // bar
+                @SuppressWarnings // foo
+                fun bar() {
+                }
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun `lint block comment on the same line as the annotation`() {
+        assertThat(
+            AnnotationSpacingRule().lint(
+                """
+                @SuppressWarnings /* foo */
+                fun bar() {
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
 }
