@@ -16,8 +16,8 @@ class EnumEntryNameCaseRuleTest {
             enum class FirstEnum {
                 ENUM_ENTRY
             }
-            enum class SecondEnum {
-                EnumEntry
+            enum class NetworkInfo {
+                WiFi, Mobile
             }
             """.trimIndent()
 
@@ -26,33 +26,30 @@ class EnumEntryNameCaseRuleTest {
     }
 
     @Test
-    @Ignore("https://github.com/pinterest/ktlint/pull/638#issuecomment-558119749")
-    fun testFormat() {
-        val unformatted =
-            """
-            enum class FirstEnum {
-                enumEntry
-            }
-            enum class SecondEnum {
-                enum_entry
-            }
-            """.trimIndent()
+    fun `invalid formats should trigger lint errors`() {
         val formatted =
             """
             enum class FirstEnum {
-                ENUMENTRY
-            }
-            enum class SecondEnum {
-                ENUM_ENTRY
+                helloWorld,
+                ALMOST_xVALID
             }
             """.trimIndent()
-
-        assertThat(EnumEntryNameCaseRule().lint(unformatted)).isEqualTo(
-            listOf(
-                LintError(2, 5, "enum-entry-name-case", EnumEntryNameCaseRule.ERROR_MESSAGE),
-                LintError(5, 5, "enum-entry-name-case", EnumEntryNameCaseRule.ERROR_MESSAGE)
+        assertThat(EnumEntryNameCaseRule().lint(formatted))
+            .isEqualTo(
+                listOf(
+                    LintError(
+                        2,
+                        5,
+                        "enum-entry-name-case",
+                        EnumEntryNameCaseRule.ERROR_MESSAGE
+                    ),
+                    LintError(
+                        3,
+                        5,
+                        "enum-entry-name-case",
+                        EnumEntryNameCaseRule.ERROR_MESSAGE
+                    ),
+                )
             )
-        )
-        assertThat(EnumEntryNameCaseRule().format(unformatted)).isEqualTo(formatted)
     }
 }
