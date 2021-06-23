@@ -6,6 +6,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - SARIF output support ([#1102](https://github.com/pinterest/ktlint/issues/1102))
 ### Fixed
+- Remove needless blank lines in dot qualified expression ([#1077](https://github.com/pinterest/ktlint/issues/1077))
 - Fix false positives for SpacingBetweenDeclarationsWithAnnotationsRule ([#1125](https://github.com/pinterest/ktlint/issues/1125))
 - Fix false positive with eol comment (`annotation-spacing`) ([#1124](https://github.com/pinterest/ktlint/issues/1124))
 - Fix KtLint dependency variant selection ([#1114](https://github.com/pinterest/ktlint/issues/1114))
@@ -44,7 +45,7 @@ Thank you to [t-kameyama](https://github.com/t-kameyama) and [paul-dingemans](ht
 - Fix experimental:annotation-spacing-rule autocorrection with comments
 - Migrate from klob dependency and fix negated globs passed to CLI are no longer worked ([#999](https://github.com/pinterest/ktlint/issues/999))
   **Breaking**: absolute paths globs will no longer work, check updated README
-  
+
 ### Changed
 - Update Gradle shadow plugin to `6.1.0` version
 - Align with Kotlin plugin on how alias pattern is represented for imports layout rule ([#753](https://github.com/pinterest/ktlint/issues/753))

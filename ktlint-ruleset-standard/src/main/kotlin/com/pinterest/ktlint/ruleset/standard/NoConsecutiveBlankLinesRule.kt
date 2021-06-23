@@ -2,6 +2,7 @@ package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.CLASS
+import com.pinterest.ktlint.core.ast.ElementType.DOT_QUALIFIED_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.IDENTIFIER
 import com.pinterest.ktlint.core.ast.ElementType.PRIMARY_CONSTRUCTOR
 import com.pinterest.ktlint.core.ast.nextLeaf
@@ -29,14 +30,15 @@ public class NoConsecutiveBlankLinesRule : Rule("no-consecutive-blank-lines") {
             val betweenClassAndPrimaryConstructor = prevNode.elementType == IDENTIFIER &&
                 prevNode.treeParent.elementType == CLASS &&
                 node.treeNext.elementType == PRIMARY_CONSTRUCTOR
-            if (lfcount > 2 || eof || betweenClassAndPrimaryConstructor) {
+            val inDotQualifiedExpression = node.treeParent.elementType == DOT_QUALIFIED_EXPRESSION && lfcount > 1
+            if (lfcount > 2 || eof || betweenClassAndPrimaryConstructor || inDotQualifiedExpression) {
                 val split = text.split("\n")
                 emit(node.startOffset + split[0].length + split[1].length + 2, "Needless blank line(s)", true)
                 if (autoCorrect) {
                     val newText = buildString {
                         append(split.first())
                         append("\n")
-                        if (!eof && !betweenClassAndPrimaryConstructor) append("\n")
+                        if (!eof && !betweenClassAndPrimaryConstructor && !inDotQualifiedExpression) append("\n")
                         append(split.last())
                     }
                     (node as LeafPsiElement).rawReplaceWithText(newText)

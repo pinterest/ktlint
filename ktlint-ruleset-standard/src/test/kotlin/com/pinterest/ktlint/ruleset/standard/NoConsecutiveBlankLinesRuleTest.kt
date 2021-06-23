@@ -223,4 +223,27 @@ class NoConsecutiveBlankLinesRuleTest {
             )
         ).isEmpty()
     }
+
+    @Test
+    fun `should remove line in dot qualified expression`() {
+        assertThat(
+            NoConsecutiveBlankLinesRule().format(
+                """
+                fun foo(inputText: String) {
+                    inputText
+
+
+                        .toLowerCase()
+                }
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            """
+            fun foo(inputText: String) {
+                inputText
+                    .toLowerCase()
+            }
+            """.trimIndent()
+        )
+    }
 }
