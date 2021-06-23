@@ -187,7 +187,7 @@ class KtlintCommandLine {
     @Option(
         names = ["--reporter"],
         description = [
-            "A reporter to use (built-in: plain (default), plain?group_by_file, json, checkstyle, html). " +
+            "A reporter to use (built-in: plain (default), plain?group_by_file, json, sarif, checkstyle, html). " +
                 "To use a third-party reporter specify a path to a JAR file on the filesystem via ',artifact=' option. " +
                 "To override reporter output, use ',output=' option."
         ]
