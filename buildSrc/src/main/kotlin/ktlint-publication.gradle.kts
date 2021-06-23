@@ -92,7 +92,7 @@ publishing {
 signing {
     // Uncomment following line to use gpg-agent for signing
     // See https://docs.gradle.org/current/userguide/signing_plugin.html#sec:using_gpg_agent how to configure it
-    //useGpgCmd()
+    // useGpgCmd()
 
     sign(publishing.publications["maven"])
     setRequired({
