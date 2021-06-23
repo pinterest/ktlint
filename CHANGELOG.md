@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 - Fix false positives for SpacingBetweenDeclarationsWithAnnotationsRule ([#1125](https://github.com/pinterest/ktlint/issues/1125))
 - Fix false positive with eol comment (`annotation-spacing`) ([#1124](https://github.com/pinterest/ktlint/issues/1124))
+- Fix KtLint dependency variant selection ([#1114](https://github.com/pinterest/ktlint/issues/1114))
 ### Changed
 - Updated to dokka 1.4.32 ([#1148](https://github.com/pinterest/ktlint/pull/1148))
 ### Removed
