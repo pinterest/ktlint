@@ -214,4 +214,40 @@ class SpacingBetweenDeclarationsWithAnnotationsRuleTest {
             )
         ).isEmpty()
     }
+
+    @Test
+    fun `missing space after comment with previous member function should do nothing`() {
+        Assertions.assertThat(
+            SpacingBetweenDeclarationsWithAnnotationsRule().lint(
+                """
+                annotation class E
+                class C {
+                    fun foo() = 1
+
+                    // Hello
+                    @E
+                    fun bar() = 2
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `missing space after comment with previous variable should do nothing`() {
+        Assertions.assertThat(
+            SpacingBetweenDeclarationsWithAnnotationsRule().lint(
+                """
+                fun foo() {
+
+                    val a = 1
+
+                    // hello
+                    @Foo
+                    val b = 2
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
 }

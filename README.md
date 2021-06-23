@@ -148,6 +148,7 @@ curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.41.0/ktlint &
   * (Releases from 0.32.0 on) `curl -sS https://keybase.io/ktlint/pgp_keys.asc | gpg --import && gpg --verify ktlint.asc`
 
 On macOS ([or Linux](http://linuxbrew.sh/)) you can also use [brew](https://brew.sh/) - `brew install ktlint` - or [MacPorts](https://www.macports.org/) - `port install ktlint`.
+On Arch Linux, you can install [ktlint](https://aur.archlinux.org/packages/ktlint/) <sup>AUR</sup>.
 
 > If you don't have curl installed - replace `curl -sL` with `wget -qO-`.
 
