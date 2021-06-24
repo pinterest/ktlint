@@ -12,6 +12,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fix KtLint dependency variant selection ([#1114](https://github.com/pinterest/ktlint/issues/1114))
 ### Changed
 - Updated to dokka 1.4.32 ([#1148](https://github.com/pinterest/ktlint/pull/1148))
+- Updated Kotlin to 1.5.20 version
 ### Removed
 
 ## [0.41.0] - 2021-03-16
