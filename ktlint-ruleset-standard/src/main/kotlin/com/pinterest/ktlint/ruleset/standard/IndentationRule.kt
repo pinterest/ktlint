@@ -84,6 +84,7 @@ import java.util.LinkedList
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
+import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 import org.jetbrains.kotlin.psi.KtStringTemplateExpression
 import org.jetbrains.kotlin.psi.KtSuperTypeList
@@ -189,9 +190,11 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
         var firstArg: ASTNode? = null
         // matching ), ] or }
         val r = node.nextSibling {
-            newlineInBetween = newlineInBetween || it.textContains('\n')
+            val isValueArgument = it.elementType == VALUE_ARGUMENT
+            val hasLineBreak = if (isValueArgument) it.hasLineBreak(LAMBDA_EXPRESSION, FUN) else it.hasLineBreak()
+            newlineInBetween = newlineInBetween || hasLineBreak
             parameterListInBetween = parameterListInBetween || it.elementType == VALUE_PARAMETER_LIST
-            if (it.elementType == VALUE_ARGUMENT) {
+            if (isValueArgument) {
                 numberOfArgs++
                 firstArg = it
             }
@@ -291,10 +294,12 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         for (c in node.children()) {
-            if (
-                (c.elementType == VALUE_PARAMETER || c.elementType == VALUE_ARGUMENT || c.elementType == ANNOTATION) &&
-                c.textContains('\n')
-            ) {
+            val hasLineBreak = when (c.elementType) {
+                VALUE_ARGUMENT -> c.hasLineBreak(LAMBDA_EXPRESSION, FUN)
+                VALUE_PARAMETER, ANNOTATION -> c.hasLineBreak()
+                else -> false
+            }
+            if (hasLineBreak) {
                 // rearrange
                 //
                 // a, b, value(
@@ -460,7 +465,8 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                     LPAR, LBRACE, LBRACKET -> {
                         // ({[ should increase expectedIndent by 1
                         val prevBlockLine = ctx.blockOpeningLineStack.peek() ?: -1
-                        if (prevBlockLine != line) {
+                        val leftBrace = n.takeIf { it.elementType == LBRACE }
+                        if (prevBlockLine != line && !leftBrace.isAfterLambdaArgumentOnSameLine()) {
                             expectedIndent++
                             debug { "++${n.text} -> $expectedIndent" }
                         }
@@ -470,12 +476,10 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                         // ]}) should decrease expectedIndent by 1
                         val blockLine = ctx.blockOpeningLineStack.pop()
                         val prevBlockLine = ctx.blockOpeningLineStack.peek() ?: -1
-                        if (prevBlockLine != blockLine) {
+                        val pairedLeftBrace = n.pairedLeftBrace()
+                        if (prevBlockLine != blockLine && !pairedLeftBrace.isAfterLambdaArgumentOnSameLine()) {
                             expectedIndent--
-                            val byKeywordOnSameLine = n.pairedLeftBrace()
-                                ?.leaves(forward = false)
-                                ?.takeWhile { !it.isWhiteSpaceWithNewline() }
-                                ?.firstOrNull { it.elementType == BY_KEYWORD }
+                            val byKeywordOnSameLine = pairedLeftBrace?.prevLeafOnSameLine(BY_KEYWORD)
                             if (byKeywordOnSameLine != null &&
                                 byKeywordOnSameLine.prevLeaf()?.isWhiteSpaceWithNewline() == true &&
                                 !byKeywordOnSameLine.isPartOf(DELEGATED_SUPER_TYPE_ENTRY)
@@ -1110,5 +1114,25 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
             }
         }
         return null
+    }
+
+    private fun ASTNode.prevLeafOnSameLine(prevLeafType: IElementType): ASTNode? {
+        return leaves(forward = false)
+            .takeWhile { !it.isWhiteSpaceWithNewline() }
+            .firstOrNull { it.elementType == prevLeafType }
+    }
+
+    private fun ASTNode?.isAfterLambdaArgumentOnSameLine(): Boolean {
+        return this?.prevLeafOnSameLine(RBRACE)?.nextCodeLeaf()?.treeParent?.elementType == VALUE_ARGUMENT_LIST
+    }
+
+    private fun ASTNode.hasLineBreak(vararg ignoreElementTypes: IElementType): Boolean {
+        if (isWhiteSpaceWithNewline()) return true
+        return if (ignoreElementTypes.isEmpty()) {
+            textContains('\n')
+        } else {
+            elementType !in ignoreElementTypes &&
+                children().any { c -> c.textContains('\n') && c.elementType !in ignoreElementTypes }
+        }
     }
 }
