@@ -5,7 +5,7 @@ pluginManagement {
   }
 
   plugins {
-    def kotlinVersion = settings.hasProperty("kotlinDev") ? "1.5.0-M1" : "1.4.31"
+    def kotlinVersion = settings.hasProperty("kotlinDev") ? "1.5.20" : "1.5.20"
     id 'org.jetbrains.kotlin.jvm' version kotlinVersion
     id 'com.github.breadmoirai.github-release' version '2.2.12'
     id 'com.github.johnrengelman.shadow' version '6.1.0'
@@ -26,6 +26,7 @@ include ':ktlint-core'
 include ':ktlint-reporter-baseline'
 include ':ktlint-reporter-checkstyle'
 include ':ktlint-reporter-json'
+include ':ktlint-reporter-sarif'
 include ':ktlint-reporter-html'
 include ':ktlint-reporter-plain'
 include ':ktlint-ruleset-experimental'

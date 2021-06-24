@@ -1,0 +1,18 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm'
+    id 'ktlint-publication'
+}
+
+dependencies {
+    implementation project(':ktlint-core')
+    implementation deps.sarif4k
+
+    testImplementation deps.junit
+    testImplementation deps.assertj
+}
+
+jar {
+    manifest {
+        attributes 'Implementation-Version': project.property('VERSION_NAME')
+    }
+}

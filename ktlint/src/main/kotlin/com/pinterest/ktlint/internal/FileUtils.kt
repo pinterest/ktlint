@@ -8,6 +8,7 @@ import java.io.File
 import java.nio.file.FileSystem
 import java.nio.file.FileVisitResult
 import java.nio.file.Files
+import java.nio.file.InvalidPathException
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.SimpleFileVisitor
@@ -23,28 +24,44 @@ internal fun FileSystem.fileSequence(
 ): Sequence<Path> {
     checkGlobsContainAbsolutePath(globs)
 
-    val pathMatchers = if (globs.isEmpty()) {
+    val result = mutableListOf<Path>()
+
+    val (existingFiles, actualGlobs) = globs.partition {
+        try {
+            Files.isRegularFile(rootDir.resolve(it))
+        } catch (e: InvalidPathException) {
+            // Windows throws an exception when you pass a glob to Path#resolve.
+            false
+        }
+    }
+    existingFiles.mapTo(result) { rootDir.resolve(it) }
+
+    // Return early and don't traverse the file system if all the input globs are absolute paths
+    if (result.isNotEmpty() && actualGlobs.isEmpty()) {
+        return result.asSequence()
+    }
+
+    val pathMatchers = if (actualGlobs.isEmpty()) {
         setOf(
             getPathMatcher("glob:**$globSeparator*.kt"),
             getPathMatcher("glob:**$globSeparator*.kts")
         )
     } else {
-        globs
+        actualGlobs
             .filterNot { it.startsWith("!") }
             .map {
                 getPathMatcher(it.toGlob(rootDir))
             }
     }
 
-    val negatedPathMatchers = if (globs.isEmpty()) {
+    val negatedPathMatchers = if (actualGlobs.isEmpty()) {
         emptySet()
     } else {
-        globs
+        actualGlobs
             .filter { it.startsWith("!") }
             .map { getPathMatcher(it.removePrefix("!").toGlob(rootDir)) }
     }
 
-    val result = mutableListOf<Path>()
     Files.walkFileTree(
         rootDir,
         object : SimpleFileVisitor<Path>() {
