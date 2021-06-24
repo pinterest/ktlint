@@ -647,6 +647,45 @@ internal class IndentationRuleTest {
                 """
                 val i: Int
                     by lazy { 1 }
+
+                val j = 0
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `lint property delegate is indented properly 2`() {
+        assertThat(
+            IndentationRule().lint(
+                """
+                val i: Int
+                    by lazy {
+                        "".let {
+                            println(it)
+                        }
+                        1
+                    }
+
+                val j = 0
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `lint property delegate is indented properly 3`() {
+        assertThat(
+            IndentationRule().lint(
+                """
+                val i: Int by lazy {
+                    "".let {
+                        println(it)
+                    }
+                    1
+                }
+
+                val j = 0
                 """.trimIndent()
             )
         ).isEmpty()
