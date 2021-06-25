@@ -914,4 +914,65 @@ internal class IndentationRuleTest {
             )
         ).isEmpty()
     }
+
+    // https://github.com/pinterest/ktlint/issues/764
+    @Test
+    fun `lint value argument list with lambda`() {
+        assertThat(
+            IndentationRule().lint(
+                """
+                fun test(i: Int, f: (Int) -> Unit) {
+                    f(i)
+                }
+
+                fun main() {
+                    test(1, f = {
+                        println(it)
+                    })
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `lint value argument list with two lambdas`() {
+        assertThat(
+            IndentationRule().lint(
+                """
+                fun test(f: () -> Unit, g: () -> Unit) {
+                    f()
+                    g()
+                }
+
+                fun main() {
+                    test({
+                        println(1)
+                    }, {
+                        println(2)
+                    })
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `lint value argument list with anonymous function`() {
+        assertThat(
+            IndentationRule().lint(
+                """
+                fun test(i: Int, f: (Int) -> Unit) {
+                    f(i)
+                }
+
+                fun main() {
+                    test(1, fun(it: Int) {
+                        println(it)
+                    })
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
 }
