@@ -684,4 +684,22 @@ class ArgumentListWrappingRuleTest {
             """.trimIndent()
         )
     }
+
+    // https://github.com/pinterest/ktlint/issues/1112
+    @Test
+    fun `lint argument list in lambda in dot qualified expression`() {
+        assertThat(
+            ArgumentListWrappingRule().lint(
+                """
+                fun main() {
+                    listOf(1, 2, 3).map {
+                        println(
+                            it
+                        )
+                    }
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
 }
