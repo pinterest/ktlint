@@ -12,6 +12,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fix KtLint dependency variant selection ([#1114](https://github.com/pinterest/ktlint/issues/1114))
 - Fix false positive with 'by lazy {}' (`indent`) ([#1162](https://github.com/pinterest/ktlint/issues/1162))
 - Fix false positive with value argument list has lambda (`indent`) ([#764](https://github.com/pinterest/ktlint/issues/764))
+- Fix false positive in lambda in dot qualified expression (`argument-list-wrapping`) ([#1112](https://github.com/pinterest/ktlint/issues/1112))
 ### Changed
 - Updated to dokka 1.4.32 ([#1148](https://github.com/pinterest/ktlint/pull/1148))
 - Updated Kotlin to 1.5.20 version
