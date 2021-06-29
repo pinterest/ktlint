@@ -975,4 +975,25 @@ internal class IndentationRuleTest {
             )
         ).isEmpty()
     }
+
+    // https://github.com/pinterest/ktlint/issues/1165
+    @Test
+    fun `lint multiline expression with elvis operator in assignment`() {
+        assertThat(
+            IndentationRule().lint(
+                """
+                fun test() {
+                    val a: String = ""
+
+                    val someTest: Int?
+
+                    someTest =
+                        a
+                            .toIntOrNull()
+                            ?: 1
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
 }

@@ -666,9 +666,10 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
             }
             val nextSibling = n.treeNext
             if (
-                nextSibling?.elementType.let {
-                    it == BINARY_EXPRESSION || it == BINARY_WITH_TYPE
-                } && nextSibling.firstChildNode.elementType != CALL_EXPRESSION
+                nextSibling?.elementType.let { it == BINARY_EXPRESSION || it == BINARY_WITH_TYPE } &&
+                nextSibling.children().firstOrNull { it.elementType == OPERATION_REFERENCE }
+                    ?.firstChildNode?.elementType != ELVIS &&
+                nextSibling.firstChildNode.elementType != CALL_EXPRESSION
             ) {
                 ctx.localAdj = -1
                 debug { "--inside(${nextSibling.elementType}) -> $expectedIndent" }
