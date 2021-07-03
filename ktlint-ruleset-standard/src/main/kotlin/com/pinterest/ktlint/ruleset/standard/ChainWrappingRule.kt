@@ -16,7 +16,6 @@ import com.pinterest.ktlint.core.ast.ElementType.PERC
 import com.pinterest.ktlint.core.ast.ElementType.PLUS
 import com.pinterest.ktlint.core.ast.ElementType.PREFIX_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.SAFE_ACCESS
-import com.pinterest.ktlint.core.ast.ElementType.WHEN_CONDITION_WITH_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.core.ast.isPartOfComment
 import com.pinterest.ktlint.core.ast.isWhiteSpaceWithNewline
@@ -88,9 +87,7 @@ class ChainWrappingRule : Rule("chain-wrapping") {
                 // fn(*typedArray<...>()) case
                 (elementType != MUL || !prevLeaf.isPartOfSpread()) &&
                 // unary +/-
-                (!prefixTokens.contains(elementType) || !node.isInPrefixPosition()) &&
-                // LeafPsiElement->KtOperationReferenceExpression->KtPrefixExpression->KtWhenConditionWithExpression
-                !node.isPartOfWhenCondition()
+                (!prefixTokens.contains(elementType) || !node.isInPrefixPosition())
             ) {
                 emit(node.startOffset, "Line must not begin with \"${node.text}\"", true)
                 if (autoCorrect) {
@@ -127,9 +124,6 @@ class ChainWrappingRule : Rule("chain-wrapping") {
 
     private fun ASTNode.isInPrefixPosition() =
         treeParent?.treeParent?.elementType == PREFIX_EXPRESSION
-
-    private fun ASTNode.isPartOfWhenCondition() =
-        treeParent?.treeParent?.treeParent?.elementType == WHEN_CONDITION_WITH_EXPRESSION
 
     private fun ASTNode.isElvisOperatorAndComment(): Boolean {
         return elementType == ELVIS &&
