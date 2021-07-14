@@ -4,4 +4,7 @@ if [ ! -f $JAR ]; then
     exit 1;
 fi
 
-java -jar $JAR
+base_dir=$(pwd);
+cd $1;
+shift;
+java -jar $base_dir/$JAR  $@;
