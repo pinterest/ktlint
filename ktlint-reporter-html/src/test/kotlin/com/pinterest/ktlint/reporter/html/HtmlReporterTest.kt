@@ -43,6 +43,7 @@ class HtmlReporterTest {
 <html>
 <head>
 <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" />
+<meta http-equiv="Content-Type" Content="text/html; Charset=UTF-8">
 <style>
 body {
     font-family: 'Source Code Pro', monospace;
@@ -78,6 +79,7 @@ h3 {
             """<html>
 <head>
 <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" />
+<meta http-equiv="Content-Type" Content="text/html; Charset=UTF-8">
 <style>
 body {
     font-family: 'Source Code Pro', monospace;
@@ -125,6 +127,7 @@ h3 {
             """<html>
 <head>
 <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" />
+<meta http-equiv="Content-Type" Content="text/html; Charset=UTF-8">
 <style>
 body {
     font-family: 'Source Code Pro', monospace;
@@ -172,6 +175,7 @@ h3 {
             """<html>
 <head>
 <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" />
+<meta http-equiv="Content-Type" Content="text/html; Charset=UTF-8">
 <style>
 body {
     font-family: 'Source Code Pro', monospace;

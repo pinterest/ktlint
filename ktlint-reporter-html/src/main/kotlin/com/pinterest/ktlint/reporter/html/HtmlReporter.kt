@@ -48,6 +48,7 @@ class HtmlReporter(private val out: PrintStream) : Reporter {
         html {
             head {
                 cssLink("https://fonts.googleapis.com/css?family=Source+Code+Pro")
+                text("<meta http-equiv=\"Content-Type\" Content=\"text/html; Charset=UTF-8\">${System.lineSeparator()}")
                 text("<style>${System.lineSeparator()}")
                 text("body {${System.lineSeparator()}")
                 text("    font-family: 'Source Code Pro', monospace;${System.lineSeparator()}")
