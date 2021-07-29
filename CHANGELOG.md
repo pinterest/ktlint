@@ -3,8 +3,30 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
+
+### Added
+
+### Fixed
+
+### Changed
+
+### Removed
+
+## [0.42.0] - 2021-07-29
+
+Thank you to the following contributors for this release:
+- [abbenyyyyyy](https://github.com/abbenyyyyyy)
+- [carloscsanz](https://github.com/carloscsanz)
+- [chao2zhang](https://github.com/chao2zhang)
+- [ganadist](https://github.com/ganadist)
+- [insiderser](https://github.com/insiderser)
+- [paul-dingemans](https://github.com/paul-dingemans)
+- [rciovati](https://github.com/rciovati)
+- [t-kameyama](https://github.com/t-kameyama)
+
 ### Added
 - SARIF output support ([#1102](https://github.com/pinterest/ktlint/issues/1102))
+
 ### Fixed
 - Remove needless blank lines in dot qualified expression ([#1077](https://github.com/pinterest/ktlint/issues/1077))
 - Fix false positives for SpacingBetweenDeclarationsWithAnnotationsRule ([#1125](https://github.com/pinterest/ktlint/issues/1125))
@@ -18,10 +40,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fix false positive with elvis operator and comment (`chain-wrapping`) ([#1055](https://github.com/pinterest/ktlint/issues/1055))
 - Fix false negative in when conditions (`chain-wrapping`) ([#1130](https://github.com/pinterest/ktlint/issues/1130))
 - Fix the Html reporter Chinese garbled ([#1140](https://github.com/pinterest/ktlint/issues/1140))
+- Performance regression introduced in 0.41.0 ([#1135](https://github.com/pinterest/ktlint/issues/1135))
+
 ### Changed
 - Updated to dokka 1.4.32 ([#1148](https://github.com/pinterest/ktlint/pull/1148))
 - Updated Kotlin to 1.5.20 version
-### Removed
 
 ## [0.41.0] - 2021-03-16
 
@@ -868,6 +891,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.42.0]: https://github.com/pinterest/ktlint/compare/0.39.0...0.42.0
 [0.41.0]: https://github.com/pinterest/ktlint/compare/0.39.0...0.41.0
 [0.40.0]: https://github.com/pinterest/ktlint/compare/0.39.0...0.40.0
 [0.39.0]: https://github.com/pinterest/ktlint/compare/0.38.1...0.39.0
