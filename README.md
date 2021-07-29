@@ -109,7 +109,7 @@ ij_kotlin_imports_layout=android.**,|,^org.junit.**,kotlin.io.Closeable.*,|,*,^ 
 
 # According to https://kotlinlang.org/docs/reference/coding-conventions.html#names-for-test-methods it is acceptable to write method names
 # in natural language. When using natural language, the description tends to be longer. Allow lines containing an identifier between
-# backticks to be longer than the maximum line length. (Since 0.41.0)
+# backticks to be longer than the maximum line length. (Since 0.42.0)
 [**/test/**.kt]
 ktlint_ignore_back_ticked_identifier=true
 ```
@@ -136,7 +136,7 @@ To contribute or get more info, please visit the [GitHub repository](https://git
 > Skip all the way to the "Integration" section if you don't plan to use `ktlint`'s command line interface.
 
 ```sh
-curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.41.0/ktlint &&
+curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.42.0/ktlint &&
   chmod a+x ktlint &&
   sudo mv ktlint /usr/local/bin/
 ```
@@ -250,7 +250,7 @@ $ ktlint installGitPreCommitHook
         <dependency>
             <groupId>com.pinterest</groupId>
             <artifactId>ktlint</artifactId>
-            <version>0.41.0</version>
+            <version>0.42.0</version>
         </dependency>
         <!-- additional 3rd party ruleset(s) can be specified here -->
     </dependencies>
@@ -298,7 +298,7 @@ configurations {
 }
 
 dependencies {
-    ktlint("com.pinterest:ktlint:0.41.0") {
+    ktlint("com.pinterest:ktlint:0.42.0") {
         attributes {
             attribute(Bundling.BUNDLING_ATTRIBUTE, getObjects().named(Bundling, Bundling.EXTERNAL))
         }
@@ -343,7 +343,7 @@ See [Making your Gradle tasks incremental](https://proandroiddev.com/making-your
 val ktlint by configurations.creating
 
 dependencies {
-    ktlint("com.pinterest:ktlint:0.41.0") {
+    ktlint("com.pinterest:ktlint:0.42.0") {
         attributes {
             attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.EXTERNAL))
         }
