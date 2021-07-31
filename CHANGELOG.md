@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 ### Fixed
+- Fix false positive with lambda argument in super type entry (`indent`) ([#1188](https://github.com/pinterest/ktlint/issues/1188))
 
 ### Changed
 
