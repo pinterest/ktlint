@@ -421,6 +421,24 @@ class ArgumentListWrappingRuleTest {
     }
 
     @Test
+    fun testLintAfterElse() {
+        assertThat(
+            ArgumentListWrappingRule().lint(
+                """
+                fun foo(i: Int, j: Int) = 1
+
+                fun test() {
+                    val x = if (true) 1 else foo(
+                        2,
+                        3
+                    )
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
     fun testLintInWhenCondition() {
         assertThat(
             ArgumentListWrappingRule().lint(
@@ -566,6 +584,119 @@ class ArgumentListWrappingRuleTest {
                         1,
                         2
                     )
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    // https://github.com/pinterest/ktlint/issues/1081
+    @Test
+    fun testManyCorrections() {
+        assertThat(
+            ArgumentListWrappingRule().format(
+                """
+                package com.foo
+
+                class MyClass() {
+                    private fun doSomething() {
+                        if (d == 0 || e == 0f) {
+                            c.ee(hh, d, d, yy)
+                        } else {
+                            foo.blah()
+                            val dr = t - u
+                            val xx = -gg(dr) * rr(2f * d, dr.hh)
+                            foo.bar(
+                                dd,
+                                g - d
+                            )
+                            foo.baz(
+                                a.b, a.c - d
+                            )
+                            foo.biz(
+                                a.b, a.c - d,
+                                a.b, a.c,
+                                a.b + d, a.c
+                            )
+                            foo.baz(
+                                a.x - d, a.c
+                            )
+                            foo.biz(
+                                a.x - d, a.c,
+                                a.x, a.c,
+                                a.x, a.c - d
+                            )
+                            foo.baz(
+                                a.x, a.j + d
+                            )
+                        }
+                    }
+                }
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            """
+            package com.foo
+
+            class MyClass() {
+                private fun doSomething() {
+                    if (d == 0 || e == 0f) {
+                        c.ee(hh, d, d, yy)
+                    } else {
+                        foo.blah()
+                        val dr = t - u
+                        val xx = -gg(dr) * rr(2f * d, dr.hh)
+                        foo.bar(
+                            dd,
+                            g - d
+                        )
+                        foo.baz(
+                            a.b,
+                            a.c - d
+                        )
+                        foo.biz(
+                            a.b,
+                            a.c - d,
+                            a.b,
+                            a.c,
+                            a.b + d,
+                            a.c
+                        )
+                        foo.baz(
+                            a.x - d,
+                            a.c
+                        )
+                        foo.biz(
+                            a.x - d,
+                            a.c,
+                            a.x,
+                            a.c,
+                            a.x,
+                            a.c - d
+                        )
+                        foo.baz(
+                            a.x,
+                            a.j + d
+                        )
+                    }
+                }
+            }
+            """.trimIndent()
+        )
+    }
+
+    // https://github.com/pinterest/ktlint/issues/1112
+    @Test
+    fun `lint argument list in lambda in dot qualified expression`() {
+        assertThat(
+            ArgumentListWrappingRule().lint(
+                """
+                fun main() {
+                    listOf(1, 2, 3).map {
+                        println(
+                            it
+                        )
+                    }
                 }
                 """.trimIndent()
             )

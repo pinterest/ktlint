@@ -52,6 +52,9 @@ public interface UsesEditorConfigProperties {
     /**
      * Supported `.editorconfig` property.
      *
+     * [Rule] preferably should expose it with `public` visibility in `companion object`,
+     * so it will be possible to add/replace via [com.pinterest.ktlint.core.KtLint.Params].
+     *
      * @param type type of property. Could be one of default ones (see [PropertyType.STANDARD_TYPES]) or custom one.
      * @param defaultValue default value for property if it does not exist in loaded properties.
      * @param defaultAndroidValue default value for android codestyle. You should set different value only when it

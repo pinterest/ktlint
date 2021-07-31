@@ -6,8 +6,10 @@ import com.pinterest.ktlint.core.ast.isPartOf
 import com.pinterest.ktlint.core.ast.isPartOfComment
 import com.pinterest.ktlint.core.ast.isWhiteSpace
 import com.pinterest.ktlint.core.ast.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.core.ast.nextCodeSibling
 import com.pinterest.ktlint.core.ast.nextLeaf
 import com.pinterest.ktlint.core.ast.nextSibling
+import com.pinterest.ktlint.core.ast.prevSibling
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
@@ -15,17 +17,17 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
 import org.jetbrains.kotlin.psi.psiUtil.children
 import org.jetbrains.kotlin.psi.psiUtil.endOffset
+import org.jetbrains.kotlin.psi.psiUtil.leaves
 
 /**
- * Ensures there are not multiple line breaks between annotations and declarations.
+ * Ensures annotations occur immediately prior to the annotated construct
  *
  * https://kotlinlang.org/docs/reference/coding-conventions.html#annotation-formatting
  */
 class AnnotationSpacingRule : Rule("annotation-spacing") {
 
     companion object {
-        const val fileAnnotationsLineBreaks =
-            "There should not be empty lines between an annotation and the object that it's annotating"
+        const val ERROR_MESSAGE = "Annotations should occur immediately before the annotated construct"
     }
 
     override fun visit(
@@ -62,21 +64,49 @@ class AnnotationSpacingRule : Rule("annotation-spacing") {
             {
                 !it.isWhiteSpace() &&
                     it.textLength > 0 &&
-                    !(it.isPartOfComment() /* && it.lineNumber() == lineNumber*/) &&
-                    !it.isPartOf(ElementType.FILE_ANNOTATION_LIST)
+                    !it.isPartOf(ElementType.FILE_ANNOTATION_LIST) &&
+                    !it.isCommentOnSameLineAsPrevLeaf()
             },
             {
-                val s = it.text
-                // Ensure at least one occurrence of two line breaks
-                s.indexOf("\n") != s.lastIndexOf("\n")
+                // Disallow multiple white spaces as well as comments
+                if (it.psi is PsiWhiteSpace) {
+                    val s = it.text
+                    // Ensure at least one occurrence of two line breaks
+                    s.indexOf("\n") != s.lastIndexOf("\n")
+                } else it.isPartOfComment() && !it.isCommentOnSameLineAsPrevLeaf()
             }
         )
         if (next != null) {
             if (node.elementType != ElementType.FILE_ANNOTATION_LIST) {
                 val psi = node.psi
-                emit(psi.endOffset - 1, fileAnnotationsLineBreaks, true)
+                emit(psi.endOffset - 1, ERROR_MESSAGE, true)
                 if (autoCorrect) {
-                    removeExtraLineBreaks(node)
+                    // Special-case autocorrection when the annotation is separated from the annotated construct
+                    // by a comment: we need to swap the order of the comment and the annotation
+                    if (next.isPartOfComment()) {
+                        // Remove the annotation and the following whitespace
+                        val eolComment = node.nextSibling { it.isCommentOnSameLineAsPrevLeaf() }
+                        if (eolComment != null) {
+                            eolComment.prevSibling { it.isWhiteSpace() }?.let { it.treeParent.removeChild(it) }
+                            eolComment.nextSibling { it.isWhiteSpace() }?.let { it.treeParent.removeChild(it) }
+                            eolComment.treeParent?.removeChild(eolComment)
+                        } else {
+                            node.nextSibling { it.isWhiteSpace() }?.let { it.treeParent?.removeChild(it) }
+                        }
+                        node.treeParent.removeChild(node)
+
+                        // Insert the annotation prior to the annotated construct
+                        val beforeAnchor = next.nextCodeSibling()
+                        val treeParent = next.treeParent
+                        treeParent.addChild(node, beforeAnchor)
+                        if (eolComment != null) {
+                            treeParent.addChild(PsiWhiteSpaceImpl(" "), beforeAnchor)
+                            treeParent.addChild(eolComment, beforeAnchor)
+                        }
+                        treeParent.addChild(PsiWhiteSpaceImpl("\n"), beforeAnchor)
+                    } else {
+                        removeExtraLineBreaks(node)
+                    }
                 }
             }
         }
@@ -84,7 +114,7 @@ class AnnotationSpacingRule : Rule("annotation-spacing") {
             // Check to make sure there are multi breaks between annotations
             if (whiteSpaces.any { psi -> psi.textToCharArray().filter { it == '\n' }.count() > 1 }) {
                 val psi = node.psi
-                emit(psi.endOffset - 1, fileAnnotationsLineBreaks, true)
+                emit(psi.endOffset - 1, ERROR_MESSAGE, true)
                 if (autoCorrect) {
                     removeIntraLineBreaks(node, annotations.last())
                 }
@@ -150,4 +180,7 @@ class AnnotationSpacingRule : Rule("annotation-spacing") {
             removeIntraLineBreaks(lNext, last)
         }
     }
+
+    private fun ASTNode.isCommentOnSameLineAsPrevLeaf() =
+        isPartOfComment() && leaves(forward = false).takeWhile { it.isWhiteSpace() }.none { "\n" in it.text }
 }

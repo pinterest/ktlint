@@ -900,6 +900,45 @@ internal class IndentationRuleTest {
                 """
                 val i: Int
                     by lazy { 1 }
+
+                val j = 0
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `lint property delegate is indented properly 2`() {
+        assertThat(
+            IndentationRule().lint(
+                """
+                val i: Int
+                    by lazy {
+                        "".let {
+                            println(it)
+                        }
+                        1
+                    }
+
+                val j = 0
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `lint property delegate is indented properly 3`() {
+        assertThat(
+            IndentationRule().lint(
+                """
+                val i: Int by lazy {
+                    "".let {
+                        println(it)
+                    }
+                    1
+                }
+
+                val j = 0
                 """.trimIndent()
             )
         ).isEmpty()
@@ -1123,6 +1162,88 @@ internal class IndentationRuleTest {
                 fun generateGooooooooooooooooogle():
                     Gooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooogle {
                     return Gooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooogle()
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    // https://github.com/pinterest/ktlint/issues/764
+    @Test
+    fun `lint value argument list with lambda`() {
+        assertThat(
+            IndentationRule().lint(
+                """
+                fun test(i: Int, f: (Int) -> Unit) {
+                    f(i)
+                }
+
+                fun main() {
+                    test(1, f = {
+                        println(it)
+                    })
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `lint value argument list with two lambdas`() {
+        assertThat(
+            IndentationRule().lint(
+                """
+                fun test(f: () -> Unit, g: () -> Unit) {
+                    f()
+                    g()
+                }
+
+                fun main() {
+                    test({
+                        println(1)
+                    }, {
+                        println(2)
+                    })
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `lint value argument list with anonymous function`() {
+        assertThat(
+            IndentationRule().lint(
+                """
+                fun test(i: Int, f: (Int) -> Unit) {
+                    f(i)
+                }
+
+                fun main() {
+                    test(1, fun(it: Int) {
+                        println(it)
+                    })
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    // https://github.com/pinterest/ktlint/issues/1165
+    @Test
+    fun `lint multiline expression with elvis operator in assignment`() {
+        assertThat(
+            IndentationRule().lint(
+                """
+                fun test() {
+                    val a: String = ""
+
+                    val someTest: Int?
+
+                    someTest =
+                        a
+                            .toIntOrNull()
+                            ?: 1
                 }
                 """.trimIndent()
             )

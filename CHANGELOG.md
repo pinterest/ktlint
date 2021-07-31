@@ -3,7 +3,60 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
+
 ### Added
+
+### Fixed
+
+### Changed
+
+### Removed
+
+## [0.42.0] - 2021-07-29
+
+Thank you to the following contributors for this release:
+- [abbenyyyyyy](https://github.com/abbenyyyyyy)
+- [carloscsanz](https://github.com/carloscsanz)
+- [chao2zhang](https://github.com/chao2zhang)
+- [ganadist](https://github.com/ganadist)
+- [insiderser](https://github.com/insiderser)
+- [paul-dingemans](https://github.com/paul-dingemans)
+- [rciovati](https://github.com/rciovati)
+- [t-kameyama](https://github.com/t-kameyama)
+
+### Added
+- SARIF output support ([#1102](https://github.com/pinterest/ktlint/issues/1102))
+
+### Fixed
+- Remove needless blank lines in dot qualified expression ([#1077](https://github.com/pinterest/ktlint/issues/1077))
+- Fix false positives for SpacingBetweenDeclarationsWithAnnotationsRule ([#1125](https://github.com/pinterest/ktlint/issues/1125))
+- Fix false positive with eol comment (`annotation-spacing`) ([#1124](https://github.com/pinterest/ktlint/issues/1124))
+- Fix KtLint dependency variant selection ([#1114](https://github.com/pinterest/ktlint/issues/1114))
+- Fix false positive with 'by lazy {}' (`indent`) ([#1162](https://github.com/pinterest/ktlint/issues/1162))
+- Fix false positive with value argument list has lambda (`indent`) ([#764](https://github.com/pinterest/ktlint/issues/764))
+- Fix false positive in lambda in dot qualified expression (`argument-list-wrapping`) ([#1112](https://github.com/pinterest/ktlint/issues/1112))
+- Fix false positive with multiline expression with elvis operator in assignment (`indent`) ([#1165](https://github.com/pinterest/ktlint/issues/1165))
+- Ignore backticks in imports for ordering purposes (`import-ordering`) ([#1106](https://github.com/pinterest/ktlint/issues/1106))
+- Fix false positive with elvis operator and comment (`chain-wrapping`) ([#1055](https://github.com/pinterest/ktlint/issues/1055))
+- Fix false negative in when conditions (`chain-wrapping`) ([#1130](https://github.com/pinterest/ktlint/issues/1130))
+- Fix the Html reporter Chinese garbled ([#1140](https://github.com/pinterest/ktlint/issues/1140))
+- Performance regression introduced in 0.41.0 ([#1135](https://github.com/pinterest/ktlint/issues/1135))
+
+### Changed
+- Updated to dokka 1.4.32 ([#1148](https://github.com/pinterest/ktlint/pull/1148))
+- Updated Kotlin to 1.5.20 version
+
+## [0.41.0] - 2021-03-16
+
+**Note:** This release contains breaking changes to globs passed to ktlint via the command line. See ([#999](https://github.com/pinterest/ktlint/issues/999)) and the [README](https://github.com/pinterest/ktlint/blob/master/README.md#command-line-usage).
+
+Thank you to [t-kameyama](https://github.com/t-kameyama) and [paul-dingemans](https://github.com/paul-dingemans) for your contributions to this release!
+
+### Added
+- New `ktlint_ignore_back_ticked_identifier` EditorConfig option for `max-line-length` rule to ignore long method names inside backticks
+  (primarily used in tests) ([#1007](https://github.com/pinterest/ktlint/issues/1007))
+- Allow to add/replace loaded `.editorconfig` values via `ExperimentalParams#editorConfigOverride` ([#1016](https://github.com/pinterest/ktlint/issues/1003))
+- `ReporterProvider`, `LintError`, `RuleSetProvider` now implement `Serializable` interface
 
 ### Fixed
 - Incorrect indentation with multiple interfaces ([#1003](https://github.com/pinterest/ktlint/issues/1003))
@@ -16,6 +69,14 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fix indentation for function types after a newline (`indent`) ([#918](https://github.com/pinterest/ktlint/issues/918))
 - Don't remove the equals sign for a default argument (`no-line-break-before-assignment`) ([#1039](https://github.com/pinterest/ktlint/issues/1039))
 - Fix internal error in `no-unused-imports` ([#1040](https://github.com/pinterest/ktlint/issues/1040))
+- Fix false positives when declaration has tail comments (`spacing-between-declarations-with-comments`) ([#1053](https://github.com/pinterest/ktlint/issues/1053))
+- Fix false positive after `else` keyword (`argument-list-wrapping`) ([#1047](https://github.com/pinterest/ktlint/issues/1047))
+- Fix formatting with comments (`colon-spacing`) ([#1057](https://github.com/pinterest/ktlint/issues/1057))
+- Fix IndexOutOfBoundsException in `argument-list-wrapping-rule` formatting file with many corrections ([#1081](https://github.com/pinterest/ktlint/issues/1081))
+- Fix formatting in arguments (`multiline-if-else`) ([#1079](https://github.com/pinterest/ktlint/issues/1079))
+- Fix experimental:annotation-spacing-rule autocorrection with comments
+- Migrate from klob dependency and fix negated globs passed to CLI are no longer worked ([#999](https://github.com/pinterest/ktlint/issues/999))
+  **Breaking**: absolute paths globs will no longer work, check updated README
 
 ### Changed
 - Update Gradle shadow plugin to `6.1.0` version
@@ -25,8 +86,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   that the Kotlin IDE plugin and ktlint use same imports layout ([#753](https://github.com/pinterest/ktlint/issues/753))
 - Deprecated `idea` and `ascii` shortcuts as the `ij_kotlin_imports_layout` property does not support those. 
   Please check README on how to achieve those with patterns ([#753](https://github.com/pinterest/ktlint/issues/753))
-
-### Removed
+- Update Gradle to `6.8.3` version
+- Update Kotlin to `1.4.31` version. Fixes [#1063](https://github.com/pinterest/ktlint/issues/1063).
 
 ## [0.40.0] - 2020-12-04
 
@@ -830,6 +891,8 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.42.0]: https://github.com/pinterest/ktlint/compare/0.39.0...0.42.0
+[0.41.0]: https://github.com/pinterest/ktlint/compare/0.39.0...0.41.0
 [0.40.0]: https://github.com/pinterest/ktlint/compare/0.39.0...0.40.0
 [0.39.0]: https://github.com/pinterest/ktlint/compare/0.38.1...0.39.0
 [0.38.1]: https://github.com/pinterest/ktlint/compare/0.38.0...0.38.1

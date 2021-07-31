@@ -2,19 +2,22 @@ package com.pinterest.ktlint.core
 
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
+import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.visit
 import com.pinterest.ktlint.core.internal.EditorConfigGenerator
 import com.pinterest.ktlint.core.internal.EditorConfigLoader
 import com.pinterest.ktlint.core.internal.EditorConfigLoader.Companion.convertToRawValues
+import com.pinterest.ktlint.core.internal.EditorConfigOverridesMap
+import com.pinterest.ktlint.core.internal.KotlinPsiFileFactory
 import com.pinterest.ktlint.core.internal.LineAndColumn
 import com.pinterest.ktlint.core.internal.SuppressionLocator
 import com.pinterest.ktlint.core.internal.buildPositionInTextLocator
 import com.pinterest.ktlint.core.internal.buildSuppressedRegionsLocator
-import com.pinterest.ktlint.core.internal.initPsiFileFactory
 import com.pinterest.ktlint.core.internal.noSuppression
 import java.nio.file.FileSystems
 import java.nio.file.Path
 import java.nio.file.Paths
+import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
 import org.jetbrains.kotlin.com.intellij.openapi.util.Key
@@ -36,7 +39,7 @@ public object KtLint {
     private const val UTF8_BOM = "\uFEFF"
     public const val STDIN_FILE: String = "<stdin>"
 
-    private val psiFileFactory: PsiFileFactory = initPsiFileFactory()
+    private val kotlinPsiFileFactory = KotlinPsiFileFactory()
     private val editorConfigLoader = EditorConfigLoader(FileSystems.getDefault())
 
     @OptIn(FeatureInAlphaState::class)
@@ -60,7 +63,41 @@ public object KtLint {
         val cb: (e: LintError, corrected: Boolean) -> Unit,
         val script: Boolean = false,
         val editorConfigPath: String? = null,
-        val debug: Boolean = false
+        val debug: Boolean = false,
+    )
+
+    /**
+     * @param fileName path of file to lint/format
+     * @param text Contents of file to lint/format
+     * @param ruleSets a collection of "RuleSet"s used to validate source
+     * @param userData Map of user options
+     * @param cb callback invoked for each lint error
+     * @param script true if this is a Kotlin script file
+     * @param editorConfigPath optional path of the .editorconfig file (otherwise will use working directory)
+     * @param debug True if invoked with the --debug flag
+     * @param editorConfigOverride should contain entries to add/replace from loaded `.editorconfig` files.
+     *
+     * For possible keys check related [Rule]s that implements [UsesEditorConfigProperties] interface.
+     *
+     * For values use `PropertyType.PropertyValue.valid("override", <expected type>)` approach.
+     * It is also possible to set value into "unset" state by using [PropertyType.PropertyValue.UNSET].
+     *
+     * @param isInvokedFromCli **For internal use only**: indicates that linting was invoked from KtLint CLI tool.
+     * Enables some internals workarounds for Kotlin Compiler initialization.
+     * Usually you don't need to use it and most probably it will be removed in one of next versions.
+     */
+    @FeatureInAlphaState
+    public data class ExperimentalParams(
+        val fileName: String? = null,
+        val text: String,
+        val ruleSets: Iterable<RuleSet>,
+        val userData: Map<String, String> = emptyMap(),
+        val cb: (e: LintError, corrected: Boolean) -> Unit,
+        val script: Boolean = false,
+        val editorConfigPath: String? = null,
+        val debug: Boolean = false,
+        val editorConfigOverride: EditorConfigOverridesMap = emptyMap(),
+        val isInvokedFromCli: Boolean = false,
     ) {
         internal val normalizedFilePath: Path? get() = if (fileName == STDIN_FILE || fileName == null) {
             null
@@ -77,14 +114,40 @@ public object KtLint {
             .toSet()
     }
 
+    @OptIn(FeatureInAlphaState::class)
+    private fun toExperimentalParams(params: Params): ExperimentalParams =
+        ExperimentalParams(
+            fileName = params.fileName,
+            text = params.text,
+            ruleSets = params.ruleSets,
+            userData = params.userData,
+            cb = params.cb,
+            script = params.script,
+            editorConfigPath = params.editorConfigPath,
+            debug = params.debug
+        )
+
     /**
      * Check source for lint errors.
      *
      * @throws ParseException if text is not a valid Kotlin code
      * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
      */
+    @OptIn(FeatureInAlphaState::class)
     public fun lint(params: Params) {
-        val preparedCode = prepareCodeForLinting(params)
+        lint(toExperimentalParams(params))
+    }
+
+    /**
+     * Check source for lint errors.
+     *
+     * @throws ParseException if text is not a valid Kotlin code
+     * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
+     */
+    @FeatureInAlphaState
+    public fun lint(params: ExperimentalParams) {
+        val psiFileFactory = kotlinPsiFileFactory.acquirePsiFileFactory(params.isInvokedFromCli)
+        val preparedCode = prepareCodeForLinting(psiFileFactory, params)
         val errors = mutableListOf<LintError>()
 
         visitor(preparedCode.rootNode, params.ruleSets).invoke { node, rule, fqRuleId ->
@@ -106,18 +169,22 @@ public object KtLint {
                     }
                 } catch (e: Exception) {
                     val (line, col) = preparedCode.positionInTextLocator(node.startOffset)
+                    kotlinPsiFileFactory.releasePsiFileFactory()
                     throw RuleExecutionException(line, col, fqRuleId, e)
                 }
             }
         }
 
+        kotlinPsiFileFactory.releasePsiFileFactory()
         errors
             .sortedWith { l, r -> if (l.line != r.line) l.line - r.line else l.col - r.col }
             .forEach { e -> params.cb(e, false) }
     }
 
+    @OptIn(FeatureInAlphaState::class)
     private fun prepareCodeForLinting(
-        params: Params
+        psiFileFactory: PsiFileFactory,
+        params: ExperimentalParams
     ): PreparedCode {
         val normalizedText = normalizeText(params.text)
         val positionInTextLocator = buildPositionInTextLocator(normalizedText)
@@ -142,6 +209,7 @@ public object KtLint {
             params.isStdIn,
             params.editorConfigPath?.let { Paths.get(it) },
             params.rules,
+            params.editorConfigOverride,
             params.debug
         )
 
@@ -289,9 +357,26 @@ public object KtLint {
      * @throws ParseException if text is not a valid Kotlin code
      * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
      */
-    public fun format(params: Params): String {
+    @OptIn(FeatureInAlphaState::class)
+    public fun format(params: Params): String = format(toExperimentalParams(params))
+
+    /**
+     * Fix style violations.
+     *
+     * @throws ParseException if text is not a valid Kotlin code
+     * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
+     */
+    /**
+     * Fix style violations.
+     *
+     * @throws ParseException if text is not a valid Kotlin code
+     * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
+     */
+    @FeatureInAlphaState
+    public fun format(params: ExperimentalParams): String {
         val hasUTF8BOM = params.text.startsWith(UTF8_BOM)
-        val preparedCode = prepareCodeForLinting(params)
+        val psiFileFactory = kotlinPsiFileFactory.acquirePsiFileFactory(params.isInvokedFromCli)
+        val preparedCode = prepareCodeForLinting(psiFileFactory, params)
 
         var tripped = false
         var mutated = false
@@ -315,6 +400,7 @@ public object KtLint {
                             }
                         }
                     } catch (e: Exception) {
+                        kotlinPsiFileFactory.releasePsiFileFactory()
                         // line/col cannot be reliably mapped as exception might originate from a node not present
                         // in the original AST
                         throw RuleExecutionException(0, 0, fqRuleId, e)
@@ -343,6 +429,7 @@ public object KtLint {
                         }
                     } catch (e: Exception) {
                         val (line, col) = preparedCode.positionInTextLocator(node.startOffset)
+                        kotlinPsiFileFactory.releasePsiFileFactory()
                         throw RuleExecutionException(line, col, fqRuleId, e)
                     }
                 }
@@ -354,6 +441,7 @@ public object KtLint {
         }
 
         if (!mutated) {
+            kotlinPsiFileFactory.releasePsiFileFactory()
             return params.text
         }
 
@@ -361,6 +449,8 @@ public object KtLint {
             .rootNode
             .text
             .replace("\n", determineLineSeparator(params.text, params.userData))
+
+        kotlinPsiFileFactory.releasePsiFileFactory()
         return if (hasUTF8BOM) {
             UTF8_BOM + code
         } else {
@@ -392,7 +482,7 @@ public object KtLint {
      */
     @FeatureInAlphaState
     public fun generateKotlinEditorConfigSection(
-        params: Params
+        params: ExperimentalParams
     ): String {
         val filePath = params.normalizedFilePath
         requireNotNull(filePath) {

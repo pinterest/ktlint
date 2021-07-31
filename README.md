@@ -106,6 +106,12 @@ disabled_rules=no-wildcard-imports,experimental:annotation,my-custom-ruleset:my-
 ij_kotlin_imports_layout=* # alphabetical with capital letters before lower case letters (e.g. Z before a), no blank lines
 ij_kotlin_imports_layout=*,java.**,javax.**,kotlin.**,^ # default IntelliJ IDEA style, same as alphabetical, but with "java", "javax", "kotlin" and alias imports in the end of the imports list
 ij_kotlin_imports_layout=android.**,|,^org.junit.**,kotlin.io.Closeable.*,|,*,^ # custom imports layout
+
+# According to https://kotlinlang.org/docs/reference/coding-conventions.html#names-for-test-methods it is acceptable to write method names
+# in natural language. When using natural language, the description tends to be longer. Allow lines containing an identifier between
+# backticks to be longer than the maximum line length. (Since 0.41.0)
+[**/test/**.kt]
+ktlint_ignore_back_ticked_identifier=true
 ```
 
 ### Overriding Editorconfig properties for specific directories
@@ -130,7 +136,7 @@ To contribute or get more info, please visit the [GitHub repository](https://git
 > Skip all the way to the "Integration" section if you don't plan to use `ktlint`'s command line interface.
 
 ```sh
-curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.40.0/ktlint &&
+curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.42.0/ktlint &&
   chmod a+x ktlint &&
   sudo mv ktlint /usr/local/bin/
 ```
@@ -141,7 +147,8 @@ curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.40.0/ktlint &
   * (Releases up through 0.31.0) `curl -sS https://keybase.io/shyiko/pgp_keys.asc | gpg --import && gpg --verify ktlint.asc`
   * (Releases from 0.32.0 on) `curl -sS https://keybase.io/ktlint/pgp_keys.asc | gpg --import && gpg --verify ktlint.asc`
 
-On macOS ([or Linux](http://linuxbrew.sh/)) you can also use [brew](https://brew.sh/) - `brew install ktlint`.
+On macOS ([or Linux](http://linuxbrew.sh/)) you can also use [brew](https://brew.sh/) - `brew install ktlint` - or [MacPorts](https://www.macports.org/) - `port install ktlint`.
+On Arch Linux, you can install [ktlint](https://aur.archlinux.org/packages/ktlint/) <sup>AUR</sup>.
 
 > If you don't have curl installed - replace `curl -sL` with `wget -qO-`.
 
@@ -150,32 +157,42 @@ On macOS ([or Linux](http://linuxbrew.sh/)) you can also use [brew](https://brew
 [wget](https://www.gnu.org/software/wget/manual/wget.html#Proxies) manpage. 
 Usually simple `http_proxy=http://proxy-server:port https_proxy=http://proxy-server:port curl -sL ...` is enough. 
 
-## Usage
+## Command line usage
 
 ```bash
-# check the style of all Kotlin files inside the current dir (recursively)
-# (hidden folders will be skipped)
-$ ktlint --color [--color-name="RED"]
-  src/main/kotlin/Main.kt:10:10: Unused import
-  
-# check only certain locations (prepend ! to negate the pattern,
-# Ktlint uses .gitignore pattern style syntax)
-$ ktlint "src/**/*.kt" "!src/**/*Test.kt"
+# Get help about all available commands
+$ ktlint --help
 
-# auto-correct style violations
-# (if some errors cannot be fixed automatically they will be printed to stderr) 
+# Check the style of all Kotlin files (ending with '.kt' or '.kts') inside the current dir (recursively).
+# Hidden folders will be skipped.
+$ ktlint
+  
+# Check only certain locations starting from the current directory.
+#
+# Prepend ! to negate the pattern, KtLint uses .gitignore pattern style syntax.
+# Globs are applied starting from the last one.
+#
+# Hidden folders will be skipped.
+# Check all '.kt' files in 'src/' directory, but ignore files ending with 'Test.kt':
+ktlint "src/**/*.kt" "!src/**/*Test.kt"
+# Check all '.kt' files in 'src/' directory, but ignore 'generated' directory and its subdirectories:
+ktlint "src/**/*.kt" "!src/**/generated/**"
+
+# Auto-correct style violations.
+# If some errors cannot be fixed automatically they will be printed to stderr. 
 $ ktlint -F "src/**/*.kt"
 
-# print style violations grouped by file
+# Print style violations grouped by file.
 $ ktlint --reporter=plain?group_by_file
-# print style violations as usual + create report in checkstyle format 
+
+# Print style violations as usual + create report in checkstyle format, specifying report location. 
 $ ktlint --reporter=plain --reporter=checkstyle,output=ktlint-report-in-checkstyle-format.xml
 
-# check against a baseline file
+# Check against a baseline file.
 $ ktlint --baseline=ktlint-baseline.xml
 
-# install git hook to automatically check files for style violations on commit
-# Run "ktlint installGitPrePushHook" if you wish to run ktlint on push instead
+# Install git hook to automatically check files for style violations on commit.
+# Run "ktlint installGitPrePushHook" if you wish to run ktlint on push instead.
 $ ktlint installGitPreCommitHook
 ```
 
@@ -233,7 +250,7 @@ $ ktlint installGitPreCommitHook
         <dependency>
             <groupId>com.pinterest</groupId>
             <artifactId>ktlint</artifactId>
-            <version>0.40.0</version>
+            <version>0.42.0</version>
         </dependency>
         <!-- additional 3rd party ruleset(s) can be specified here -->
     </dependencies>
@@ -273,7 +290,7 @@ You might also want to take a look at [diffplug/spotless](https://github.com/dif
 apply plugin: 'java'
 
 repositories {
-    jcenter()
+    mavenCentral()
 }
 
 configurations {
@@ -281,7 +298,11 @@ configurations {
 }
 
 dependencies {
-    ktlint "com.pinterest:ktlint:0.40.0"
+    ktlint("com.pinterest:ktlint:0.42.0") {
+        attributes {
+            attribute(Bundling.BUNDLING_ATTRIBUTE, getObjects().named(Bundling, Bundling.EXTERNAL))
+        }
+    }
     // additional 3rd party ruleset(s) can be specified here
     // just add them to the classpath (e.g. ktlint 'groupId:artifactId:version') and 
     // ktlint will pick them up
@@ -322,7 +343,11 @@ See [Making your Gradle tasks incremental](https://proandroiddev.com/making-your
 val ktlint by configurations.creating
 
 dependencies {
-    ktlint("com.pinterest:ktlint:0.40.0")
+    ktlint("com.pinterest:ktlint:0.42.0") {
+        attributes {
+            attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.EXTERNAL))
+        }
+    }
     // ktlint(project(":custom-ktlint-ruleset")) // in case of custom ruleset
 }
 

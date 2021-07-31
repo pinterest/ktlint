@@ -4,6 +4,7 @@ import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType
 import com.pinterest.ktlint.core.ast.ElementType.DOT_QUALIFIED_EXPRESSION
+import com.pinterest.ktlint.core.ast.ElementType.ELSE
 import com.pinterest.ktlint.core.ast.ElementType.TYPE_ARGUMENT_LIST
 import com.pinterest.ktlint.core.ast.children
 import com.pinterest.ktlint.core.ast.column
@@ -13,7 +14,7 @@ import com.pinterest.ktlint.core.ast.isRoot
 import com.pinterest.ktlint.core.ast.isWhiteSpace
 import com.pinterest.ktlint.core.ast.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.core.ast.lineIndent
-import com.pinterest.ktlint.core.ast.lineNumber
+import com.pinterest.ktlint.core.ast.parent
 import com.pinterest.ktlint.core.ast.prevLeaf
 import com.pinterest.ktlint.core.ast.visit
 import kotlin.math.max
@@ -103,7 +104,8 @@ class ArgumentListWrappingRule : Rule("argument-list-wrapping") {
                     //         1,
                     //         2
                     //     )
-                    prevWhitespaceWithNewline?.isPartOf(DOT_QUALIFIED_EXPRESSION) == true -> indentSize
+                    prevWhitespaceWithNewline?.parent(DOT_QUALIFIED_EXPRESSION)
+                        ?.let { it.lastChildNode == node.parent(ElementType.CALL_EXPRESSION) } == true -> indentSize
                     else -> 0
                 }
 
@@ -113,7 +115,7 @@ class ArgumentListWrappingRule : Rule("argument-list-wrapping") {
                 // <line indent> RPAR
                 val lineIndent = node.lineIndent()
                 val indent = ("\n" + lineIndent.substring(0, (lineIndent.length - adjustedIndent).coerceAtLeast(0)))
-                    .let { if (node.isOnSameLineAsIfKeyword()) it + " ".repeat(indentSize) else it }
+                    .let { if (node.isOnSameLineAsControlFlowKeyword()) it + " ".repeat(indentSize) else it }
                 val paramIndent = indent + " ".repeat(indentSize)
                 nextChild@ for (child in node.children()) {
                     when (child.elementType) {
@@ -230,12 +232,21 @@ class ArgumentListWrappingRule : Rule("argument-list-wrapping") {
         return null
     }
 
-    private fun ASTNode.isOnSameLineAsIfKeyword(): Boolean {
+    private fun ASTNode.isOnSameLineAsControlFlowKeyword(): Boolean {
         val containerNode = psi.getStrictParentOfType<KtContainerNode>() ?: return false
-        return when (val parent = containerNode.parent) {
-            is KtIfExpression, is KtWhileExpression -> parent.node
+        if (containerNode.node.elementType == ELSE) return false
+        val controlFlowKeyword = when (val parent = containerNode.parent) {
+            is KtIfExpression -> parent.ifKeyword.node
+            is KtWhileExpression -> parent.firstChild.node
             is KtDoWhileExpression -> parent.whileKeyword?.node
             else -> null
-        }?.lineNumber() == lineNumber()
+        } ?: return false
+
+        var prevLeaf = prevLeaf() ?: return false
+        while (prevLeaf != controlFlowKeyword) {
+            if (prevLeaf.isWhiteSpaceWithNewline()) return false
+            prevLeaf = prevLeaf.prevLeaf() ?: return false
+        }
+        return true
     }
 }

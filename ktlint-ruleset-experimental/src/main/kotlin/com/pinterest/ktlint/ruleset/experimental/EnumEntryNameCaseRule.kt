@@ -5,10 +5,11 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.CompositeElement
 import org.jetbrains.kotlin.psi.KtEnumEntry
 
-class EnumEntryNameCaseRule : Rule("enum-entry-name-case") {
+public class EnumEntryNameCaseRule : Rule("enum-entry-name-case") {
 
-    companion object {
+    internal companion object {
         const val ERROR_MESSAGE = "Enum entry name should be uppercase underscore-separated names like \"ENUM_ENTRY\" or upper camel-case like \"EnumEntry\""
+        val regex = Regex("[A-Z]([A-Za-z\\d]*|[A-Z_\\d]*)")
     }
 
     override fun visit(
@@ -22,40 +23,12 @@ class EnumEntryNameCaseRule : Rule("enum-entry-name-case") {
         val enumEntry = node.psi as? KtEnumEntry ?: return
         val name = enumEntry.name ?: return
 
-        if (name.containsLowerCase()) {
-            // In case of lower camel case like "enumName", or all lower case like "enumname"
-            if (!name.startsWithUpperCase()) {
-                emit(
-                    node.startOffset,
-                    ERROR_MESSAGE,
-                    false
-                )
-
-                if (autoCorrect) correct(enumEntry, name)
-            }
-
-            // In case of lower case with underscore like "enum_name"
-            else if (name.contains("_") && name.containsLowerCase()) {
-                emit(
-                    node.startOffset,
-                    ERROR_MESSAGE,
-                    false
-                )
-
-                if (autoCorrect) correct(enumEntry, name)
-            }
+        if (!name.matches(regex)) {
+            emit(
+                node.startOffset,
+                ERROR_MESSAGE,
+                false
+            )
         }
-    }
-
-    private fun correct(enumEntry: KtEnumEntry, originalName: String) {
-        enumEntry.setName(originalName.toUpperCase())
-    }
-
-    private fun String.startsWithUpperCase(): Boolean {
-        return this.isNotEmpty() && this[0].isUpperCase()
-    }
-
-    private fun String.containsLowerCase(): Boolean {
-        return this.any { it.isLowerCase() }
     }
 }

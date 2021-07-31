@@ -6,10 +6,12 @@ import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.internal.EditorConfigLoader.Companion.convertToRawValues
+import com.pinterest.ktlint.ruleset.standard.FinalNewlineRule
 import java.nio.file.FileSystem
 import java.nio.file.Files
 import java.nio.file.Path
 import org.assertj.core.api.Assertions.assertThat
+import org.ec4j.core.model.PropertyType
 import org.intellij.lang.annotations.Language
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.junit.After
@@ -397,6 +399,65 @@ internal class EditorConfigLoaderTest {
             mapOf(
                 "insert_final_newline" to "true",
                 "disabled_rules" to "class-must-be-internal",
+            )
+        )
+    }
+
+    @Test
+    fun `Should add property from override`() {
+        val projectDir = "/project"
+        @Language("EditorConfig") val editorconfigFile =
+            """
+            [*.{kt,kts}]
+            disabled_rules=import-ordering, no-wildcard-imports
+            """.trimIndent()
+        tempFileSystem.writeEditorConfigFile(projectDir, editorconfigFile)
+
+        val lintFile = tempFileSystem.normalizedPath(projectDir).resolve("test.kts")
+
+        val editorConfigProperties = editorConfigLoader.loadPropertiesForFile(
+            lintFile,
+            rules = rules.plus(FinalNewlineRule()),
+            loadedValuesOverride = mapOf(
+                FinalNewlineRule.insertNewLineProperty to PropertyType.PropertyValue.valid("true", true)
+            )
+        )
+        val parsedEditorConfig = editorConfigProperties.convertToRawValues()
+
+        assertThat(parsedEditorConfig).isNotEmpty
+        assertThat(parsedEditorConfig).isEqualTo(
+            mapOf(
+                "disabled_rules" to "import-ordering, no-wildcard-imports",
+                "insert_final_newline" to "true"
+            )
+        )
+    }
+
+    @Test
+    fun `Should replace property from override`() {
+        val projectDir = "/project"
+        @Language("EditorConfig") val editorconfigFile =
+            """
+            [*.{kt,kts}]
+            insert_final_newline = true
+            """.trimIndent()
+        tempFileSystem.writeEditorConfigFile(projectDir, editorconfigFile)
+
+        val lintFile = tempFileSystem.normalizedPath(projectDir).resolve("test.kts")
+
+        val editorConfigProperties = editorConfigLoader.loadPropertiesForFile(
+            lintFile,
+            rules = rules.plus(FinalNewlineRule()),
+            loadedValuesOverride = mapOf(
+                FinalNewlineRule.insertNewLineProperty to PropertyType.PropertyValue.valid("false", false)
+            )
+        )
+        val parsedEditorConfig = editorConfigProperties.convertToRawValues()
+
+        assertThat(parsedEditorConfig).isNotEmpty
+        assertThat(parsedEditorConfig).isEqualTo(
+            mapOf(
+                "insert_final_newline" to "false"
             )
         )
     }

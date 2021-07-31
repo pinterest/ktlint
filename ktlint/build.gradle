@@ -26,16 +26,17 @@ dependencies {
   implementation project(':ktlint-reporter-json')
   implementation project(':ktlint-reporter-html')
   implementation project(':ktlint-reporter-plain')
+  implementation project(':ktlint-reporter-sarif')
   implementation project(':ktlint-ruleset-experimental')
   implementation project(':ktlint-ruleset-standard')
   implementation project(':ktlint-ruleset-test')
-  implementation deps.kotlin.stdlib
   implementation deps.kotlin.compiler
   implementation deps.klob
   implementation deps.picocli
 
   testImplementation deps.junit
   testImplementation deps.assertj
+  testImplementation deps.jimfs
 }
 
 // Implements https://github.com/brianm/really-executable-jars-maven-plugin maven plugin behaviour.

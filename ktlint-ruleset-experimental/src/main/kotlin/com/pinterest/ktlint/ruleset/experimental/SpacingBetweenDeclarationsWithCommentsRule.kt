@@ -11,6 +11,7 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.psiUtil.getPrevSiblingIgnoringWhitespaceAndComments
+import org.jetbrains.kotlin.psi.psiUtil.startOffset
 
 /**
  * @see https://youtrack.jetbrains.com/issue/KT-35088
@@ -24,7 +25,8 @@ class SpacingBetweenDeclarationsWithCommentsRule : Rule("spacing-between-declara
     ) {
         if (node is PsiComment) {
             val declaration = node.parent as? KtDeclaration ?: return
-            if (declaration.getPrevSiblingIgnoringWhitespaceAndComments() !is KtDeclaration) return
+            val isTailComment = node.startOffset > declaration.startOffset
+            if (isTailComment || declaration.getPrevSiblingIgnoringWhitespaceAndComments() !is KtDeclaration) return
 
             val prevSibling = declaration.node.prevSibling { it.elementType != WHITE_SPACE }
             if (prevSibling != null &&

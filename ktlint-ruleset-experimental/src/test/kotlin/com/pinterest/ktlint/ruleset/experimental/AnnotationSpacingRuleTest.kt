@@ -2,7 +2,6 @@ package com.pinterest.ktlint.ruleset.experimental
 
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.LintError
-import com.pinterest.ktlint.ruleset.experimental.AnnotationSpacingRule.Companion.fileAnnotationsLineBreaks
 import com.pinterest.ktlint.test.format
 import com.pinterest.ktlint.test.lint
 import java.util.ArrayList
@@ -37,7 +36,7 @@ class AnnotationSpacingRuleTest {
             )
         ).isEqualTo(
             listOf(
-                LintError(1, 9, "annotation-spacing", fileAnnotationsLineBreaks)
+                LintError(1, 9, "annotation-spacing", AnnotationSpacingRule.ERROR_MESSAGE)
             )
         )
     }
@@ -327,5 +326,170 @@ class AnnotationSpacingRuleTest {
         ).allMatch {
             it.ruleId == "experimental:argument-list-wrapping"
         }
+    }
+
+    @Test
+    fun `annotations should not be separated by comments from the annotated construct`() {
+        val code =
+            """
+                @Suppress("DEPRECATION") @Hello
+                /**
+                 * block comment
+                 */
+                class Foo {
+                }
+            """.trimIndent()
+        assertThat(
+            AnnotationSpacingRule().lint(code)
+        ).isEqualTo(
+            listOf(
+                LintError(1, 31, "annotation-spacing", AnnotationSpacingRule.ERROR_MESSAGE)
+            )
+        )
+    }
+
+    @Test
+    fun `annotations should be moved after comments`() {
+        val code =
+            """
+                @Suppress("DEPRECATION") @Hello
+                /**
+                 * block comment
+                 */
+                class Foo {
+                }
+            """.trimIndent()
+        assertThat(
+            AnnotationSpacingRule().format(code)
+        ).isEqualTo(
+            """
+                /**
+                 * block comment
+                 */
+                @Suppress("DEPRECATION") @Hello
+                class Foo {
+                }
+            """.trimIndent()
+        )
+
+        val codeEOL =
+            """
+                @Suppress("DEPRECATION") @Hello
+                // hello
+                class Foo {
+                }
+            """.trimIndent()
+        assertThat(
+            AnnotationSpacingRule().format(codeEOL)
+        ).isEqualTo(
+            """
+                // hello
+                @Suppress("DEPRECATION") @Hello
+                class Foo {
+                }
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun `preceding whitespaces are preserved`() {
+        val code =
+            """
+                package a.b.c
+
+                val hello = 5
+
+
+                @Suppress("DEPRECATION") @Hello
+                /**
+                 * block comment
+                 */
+                class Foo {
+                }
+            """.trimIndent()
+        assertThat(
+            AnnotationSpacingRule().format(code)
+        ).isEqualTo(
+            """
+                package a.b.c
+
+                val hello = 5
+
+
+                /**
+                 * block comment
+                 */
+                @Suppress("DEPRECATION") @Hello
+                class Foo {
+                }
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun `lint eol comment on the same line as the annotation`() {
+        assertThat(
+            AnnotationSpacingRule().lint(
+                """
+                @SuppressWarnings // foo
+                fun bar() {
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `format eol comment on the same line as the annotation`() {
+        val code =
+            """
+                @SuppressWarnings // foo
+
+                fun bar() {
+                }
+            """.trimIndent()
+        assertThat(
+            AnnotationSpacingRule().format(code)
+        ).isEqualTo(
+            """
+                @SuppressWarnings // foo
+                fun bar() {
+                }
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun `format eol comment on the same line as the annotation 2`() {
+        val code =
+            """
+                @SuppressWarnings // foo
+                // bar
+                fun bar() {
+                }
+            """.trimIndent()
+        assertThat(
+            AnnotationSpacingRule().format(code)
+        ).isEqualTo(
+            """
+                // bar
+                @SuppressWarnings // foo
+                fun bar() {
+                }
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun `lint block comment on the same line as the annotation`() {
+        assertThat(
+            AnnotationSpacingRule().lint(
+                """
+                @SuppressWarnings /* foo */
+                fun bar() {
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
     }
 }

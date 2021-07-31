@@ -131,7 +131,7 @@ public class ImportOrderingRule :
                 propertyWriter = { it.joinToString(separator = ",") }
             )
 
-        internal val ideaImportsLayoutProperty =
+        public val ideaImportsLayoutProperty: UsesEditorConfigProperties.EditorConfigProperty<List<PatternEntry>> =
             UsesEditorConfigProperties.EditorConfigProperty<List<PatternEntry>>(
                 type = PropertyType(
                     IDEA_IMPORTS_LAYOUT_PROPERTY_NAME,

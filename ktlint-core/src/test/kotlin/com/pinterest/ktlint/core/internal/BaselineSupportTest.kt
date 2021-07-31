@@ -1,4 +1,4 @@
-package com.pinterest.ktlint.internal
+package com.pinterest.ktlint.core.internal
 
 import com.pinterest.ktlint.core.LintError
 import java.io.ByteArrayInputStream
@@ -7,7 +7,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-class BaselineUtilsKtTest {
+class BaselineSupportTest {
 
     @Test
     fun testParseBaselineFile() {

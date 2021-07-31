@@ -207,4 +207,43 @@ class NoConsecutiveBlankLinesRuleTest {
             )
         ).isEmpty()
     }
+
+    @Test
+    fun `should not raise NPE on linting Kotlin script file`() {
+        assertThat(
+            NoConsecutiveBlankLinesRule().lint(
+                """
+                import java.net.URI
+
+                plugins {
+                    `java-library`
+                }
+                """.trimIndent(),
+                script = true
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `should remove line in dot qualified expression`() {
+        assertThat(
+            NoConsecutiveBlankLinesRule().format(
+                """
+                fun foo(inputText: String) {
+                    inputText
+
+
+                        .toLowerCase()
+                }
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            """
+            fun foo(inputText: String) {
+                inputText
+                    .toLowerCase()
+            }
+            """.trimIndent()
+        )
+    }
 }

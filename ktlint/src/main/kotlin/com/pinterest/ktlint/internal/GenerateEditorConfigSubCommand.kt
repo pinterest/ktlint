@@ -26,7 +26,7 @@ class GenerateEditorConfigSubCommand : Runnable {
 
         // For now we are using CLI invocation dir as path to load existing '.editorconfig'
         val generatedEditorConfig = KtLint.generateKotlinEditorConfigSection(
-            KtLint.Params(
+            KtLint.ExperimentalParams(
                 fileName = "./test.kt",
                 text = "",
                 ruleSets = ktlintCommand.rulesets

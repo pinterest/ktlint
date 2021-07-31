@@ -9,6 +9,9 @@ import com.pinterest.ktlint.core.Reporter
 import com.pinterest.ktlint.core.ReporterProvider
 import com.pinterest.ktlint.core.RuleExecutionException
 import com.pinterest.ktlint.core.RuleSetProvider
+import com.pinterest.ktlint.core.internal.containsLintError
+import com.pinterest.ktlint.core.internal.loadBaseline
+import com.pinterest.ktlint.core.internal.relativeRoute
 import com.pinterest.ktlint.internal.ApplyToIDEAGloballySubCommand
 import com.pinterest.ktlint.internal.ApplyToIDEAProjectSubCommand
 import com.pinterest.ktlint.internal.GenerateEditorConfigSubCommand
@@ -17,15 +20,12 @@ import com.pinterest.ktlint.internal.GitPrePushHookSubCommand
 import com.pinterest.ktlint.internal.JarFiles
 import com.pinterest.ktlint.internal.KtlintVersionProvider
 import com.pinterest.ktlint.internal.PrintASTSubCommand
-import com.pinterest.ktlint.internal.containsLintError
 import com.pinterest.ktlint.internal.fileSequence
 import com.pinterest.ktlint.internal.formatFile
 import com.pinterest.ktlint.internal.lintFile
-import com.pinterest.ktlint.internal.loadBaseline
 import com.pinterest.ktlint.internal.loadRulesets
 import com.pinterest.ktlint.internal.location
 import com.pinterest.ktlint.internal.printHelpOrVersionUsage
-import com.pinterest.ktlint.internal.relativeRoute
 import com.pinterest.ktlint.internal.toFilesURIList
 import com.pinterest.ktlint.reporter.plain.internal.Color
 import java.io.File
@@ -33,6 +33,7 @@ import java.io.IOException
 import java.io.PrintStream
 import java.net.URLClassLoader
 import java.net.URLDecoder
+import java.nio.file.FileSystems
 import java.util.ArrayList
 import java.util.LinkedHashMap
 import java.util.ServiceLoader
@@ -87,34 +88,38 @@ fun handleSubCommand(
 
 @Command(
     headerHeading =
-"""An anti-bikeshedding Kotlin linter with built-in formatter
+"""
+An anti-bikeshedding Kotlin linter with built-in formatter.
 (https://github.com/pinterest/ktlint).
 
 Usage:
   ktlint <flags> [patterns]
-  java -jar ktlint <flags> [patterns]
+  java -jar ktlint.jar <flags> [patterns]
 
 Examples:
-  # check the style of all Kotlin files inside the current dir (recursively)
-  # (hidden folders will be skipped)
+  # Check the style of all Kotlin files (ending with '.kt' or '.kts') inside the current dir (recursively).
+  #
+  # Hidden folders will be skipped.
   ktlint
 
-  # check only certain locations (prepend ! to negate the pattern,
-  # Ktlint uses .gitignore pattern style syntax)
+  # Check only certain locations starting from the current directory.
+  #
+  # Prepend ! to negate the pattern, KtLint uses .gitignore pattern style syntax.
+  # Globs are applied starting from the last one.
+  #
+  # Hidden folders will be skipped.
+  # Check all '.kt' files in 'src/' directory, but ignore files ending with 'Test.kt':
   ktlint "src/**/*.kt" "!src/**/*Test.kt"
+  # Check all '.kt' files in 'src/' directory, but ignore 'generated' directory and its subdirectories:
+  ktlint "src/**/*.kt" "!src/**/generated/**"
 
-  # auto-correct style violations
+  # Auto-correct style violations.
   ktlint -F "src/**/*.kt"
 
-  # custom reporter
-  ktlint --reporter=plain?group_by_file
-  # multiple reporters can be specified like this
-  ktlint --reporter=plain \
-    --reporter=checkstyle,output=ktlint-checkstyle-report.xml
-  # 3rd-party reporter
-  ktlint --reporter=csv,artifact=com.github.user:repo:master-SNAPSHOT
-
-Flags:""",
+  # Using custom reporter jar and overriding report location
+  ktlint --reporter=csv,artifact=/path/to/reporter/csv.jar,output=my-custom-report.csv
+Flags:
+""",
     synopsisHeading = "",
     customSynopsis = [""],
     sortOptions = false,
@@ -182,8 +187,9 @@ class KtlintCommandLine {
     @Option(
         names = ["--reporter"],
         description = [
-            "A reporter to use (built-in: plain (default), plain?group_by_file, json, checkstyle, html). " +
-                "To use a third-party reporter specify a path to a JAR file on the filesystem."
+            "A reporter to use (built-in: plain (default), plain?group_by_file, json, sarif, checkstyle, html). " +
+                "To use a third-party reporter specify a path to a JAR file on the filesystem via ',artifact=' option. " +
+                "To override reporter output, use ',output=' option."
         ]
     )
     private var reporters: JarFiles = ArrayList<String>()
@@ -274,7 +280,9 @@ class KtlintCommandLine {
         baseline: Map<String, List<LintError>>?,
         reporter: Reporter
     ) {
-        patterns.fileSequence()
+        FileSystems.getDefault()
+            .fileSequence(patterns)
+            .map { it.toFile() }
             .takeWhile { errorNumber.get() < limit }
             .map { file ->
                 Callable {

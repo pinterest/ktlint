@@ -11,7 +11,17 @@ import org.ec4j.core.EditorConfigLoader
 import org.ec4j.core.PropertyTypeRegistry
 import org.ec4j.core.Resource
 import org.ec4j.core.ResourcePropertiesService
+import org.ec4j.core.model.Property
+import org.ec4j.core.model.PropertyType
 import org.ec4j.core.model.Version
+
+/**
+ * Map contains [UsesEditorConfigProperties.EditorConfigProperty] and related
+ * [PropertyType.PropertyValue] entries to add/replace loaded from `.editorconfig` files values.
+ */
+@FeatureInAlphaState
+public typealias EditorConfigOverridesMap =
+    Map<UsesEditorConfigProperties.EditorConfigProperty<*>, PropertyType.PropertyValue<*>>
 
 /**
  * Loads default `.editorconfig` and ktlint specific properties for files.
@@ -19,7 +29,7 @@ import org.ec4j.core.model.Version
  * Contains internal in-memory cache to speedup lookup.
  */
 @OptIn(FeatureInAlphaState::class)
-class EditorConfigLoader(
+public class EditorConfigLoader(
     private val fs: FileSystem
 ) {
     private val cache = ThreadSafeEditorConfigCache()
@@ -34,17 +44,19 @@ class EditorConfigLoader(
      * @param alternativeEditorConfig alternative to current [filePath] location where `.editorconfig` files should be
      * looked up
      * @param rules set of [Rule]s linting the file
+     * @param loadedValuesOverride map of values to add/replace values that were loaded from `.editorconfig` files
      * @param debug pass `true` to enable some additional debug output
      *
      * @return all possible loaded properties applicable to given file.
      * In case file extensions is not one of [SUPPORTED_FILES] or [filePath] is `null`
      * method will immediately return empty map.
      */
-    fun loadPropertiesForFile(
+    public fun loadPropertiesForFile(
         filePath: Path?,
         isStdIn: Boolean = false,
         alternativeEditorConfig: Path? = null,
         rules: Set<Rule>,
+        loadedValuesOverride: EditorConfigOverridesMap = emptyMap(),
         debug: Boolean = false
     ): EditorConfigProperties {
         if (!isStdIn &&
@@ -77,6 +89,15 @@ class EditorConfigLoader(
                 Resource.Resources.ofPath(normalizedFilePath, StandardCharsets.UTF_8)
             )
             .properties
+            .also { loaded ->
+                loadedValuesOverride.forEach {
+                    loaded[it.key.type.name] = Property.builder()
+                        .name(it.key.type.name)
+                        .type(it.key.type)
+                        .value(it.value)
+                        .build()
+                }
+            }
             .also {
                 if (debug) {
                     val editorConfigValues = it
@@ -94,7 +115,7 @@ class EditorConfigLoader(
     /**
      * Trims used in-memory cache.
      */
-    fun trimMemory() {
+    public fun trimMemory() {
         cache.clear()
     }
 
@@ -120,7 +141,7 @@ class EditorConfigLoader(
             .build()
     }
 
-    companion object {
+    public companion object {
         /**
          * List of file extensions, editorconfig lookup will be performed.
          */
@@ -134,7 +155,7 @@ class EditorConfigLoader(
          *
          * @return map of key as string and value as string property representation
          */
-        fun EditorConfigProperties.convertToRawValues(): Map<String, String> {
+        public fun EditorConfigProperties.convertToRawValues(): Map<String, String> {
             return if (isEmpty()) {
                 emptyMap()
             } else {
