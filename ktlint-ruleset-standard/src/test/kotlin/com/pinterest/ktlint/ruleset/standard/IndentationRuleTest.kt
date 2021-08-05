@@ -1015,6 +1015,23 @@ internal class IndentationRuleTest {
         ).isEmpty()
     }
 
+    @Test
+    fun `lint value argument list with lambda in super type entry`() {
+        assertThat(
+            IndentationRule().lint(
+                """
+                class A : B({
+                    1
+                }) {
+                    val a = 1
+                }
+
+                open class B(f: () -> Int)
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
     // https://github.com/pinterest/ktlint/issues/1165
     @Test
     fun `lint multiline expression with elvis operator in assignment`() {
