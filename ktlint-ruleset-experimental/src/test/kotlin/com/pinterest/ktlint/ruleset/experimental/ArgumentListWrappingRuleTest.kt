@@ -552,12 +552,6 @@ class ArgumentListWrappingRuleTest {
         assertThat(
             ArgumentListWrappingRule().lint(
                 """
-                class Logging(mode: Any, appInstanceIdentity: String, org: String)
-
-                class StateManager {
-                    var firebaseLogger: Logging? = null
-                }
-
                 private fun replaceLogger(deviceId: String, orgName: String) {
                     val stateManager: StateManager = StateManager()
                     stateManager
@@ -567,6 +561,47 @@ class ArgumentListWrappingRuleTest {
                             org = orgName
                         )
                     }
+                """.trimIndent()
+            )
+        ).isEmpty()
+
+        assertThat(
+            ArgumentListWrappingRule().lint(
+                """
+                class MyClass {
+                    private fun initCoilOkHttp() {
+                        Coil.setImageLoader(
+                            ImageLoader.Builder(this)
+                                .crossfade(true)
+                                .okHttpClient(
+                                    okHttpClient.newBuilder()
+                                        .cache(CoilUtils.createDefaultCache(this))
+                                        .build()
+                                )
+                                .build()
+                        )
+                    }
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `lint argument list after dot qualified expression with assignment`() {
+        assertThat(
+            ArgumentListWrappingRule().lint(
+                """
+                private fun replaceLogger(deviceId: String, orgName: String) {
+                    stateManager
+                        .firebaseLogger = Logging(
+                        mode = if (BuildConfig.DEBUG) Logging.Companion.LogDestination.DEV else Logging.Companion.LogDestination.PROD,
+                        appInstanceIdentity = deviceId,
+                        org = orgName
+                    )
+                    stateManager.firebaseLogger.tellTheCloudAboutMe()
+                    customisation.attachToFirebase(stateManager.firebaseLogger.appCloudPrefix)
+                }
                 """.trimIndent()
             )
         ).isEmpty()
