@@ -5,10 +5,8 @@ import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType
 import com.pinterest.ktlint.core.ast.ElementType.DOT_QUALIFIED_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.ELSE
-import com.pinterest.ktlint.core.ast.ElementType.TYPE_ARGUMENT_LIST
 import com.pinterest.ktlint.core.ast.children
 import com.pinterest.ktlint.core.ast.column
-import com.pinterest.ktlint.core.ast.isPartOf
 import com.pinterest.ktlint.core.ast.isPartOfComment
 import com.pinterest.ktlint.core.ast.isRoot
 import com.pinterest.ktlint.core.ast.isWhiteSpace
@@ -91,7 +89,7 @@ class ArgumentListWrappingRule : Rule("argument-list-wrapping") {
                     //         1,
                     //         2
                     //     )
-                    prevWhitespaceWithNewline?.isPartOf(TYPE_ARGUMENT_LIST) == true -> indentSize
+                    node.hasTypeParameterListInFront() -> indentSize
                     // IDEA quirk:
                     // foo
                     //     .bar(
@@ -220,6 +218,12 @@ class ArgumentListWrappingRule : Rule("argument-list-wrapping") {
                 elementType == ElementType.VALUE_ARGUMENT && child.children().any { it.textContainsIgnoringLambda(char) }
         }
     }
+
+    private fun ASTNode.hasTypeParameterListInFront(): Boolean =
+        treeParent.children()
+            .firstOrNull { it.elementType == ElementType.TYPE_PARAMETER_LIST }
+            ?.children()
+            ?.any { it.isWhiteSpaceWithNewline() } == true
 
     private fun ASTNode.prevWhiteSpaceWithNewLine(): ASTNode? {
         var prev = prevLeaf()

@@ -562,11 +562,11 @@ class ArgumentListWrappingRuleTest {
                     val stateManager: StateManager = StateManager()
                     stateManager
                         .firebaseLogger(
-                        mode = 0,
-                        appInstanceIdentity = deviceId,
-                        org = orgName
-                    )
-                }
+                            mode = 0,
+                            appInstanceIdentity = deviceId,
+                            org = orgName
+                        )
+                    }
                 """.trimIndent()
             )
         ).isEmpty()
