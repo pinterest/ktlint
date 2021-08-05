@@ -294,6 +294,29 @@ class ImportOrderingRuleAsciiTest {
         ).isEqualTo(formattedImports)
     }
 
+    @Test
+    fun `backticks should be ignored in imports`() {
+        val imports =
+            """
+            import org.mockito.Mockito.`when`
+            import org.mockito.Mockito.verify
+            """.trimIndent()
+
+        val formattedImports =
+            """
+            import org.mockito.Mockito.verify
+            import org.mockito.Mockito.`when`
+            """.trimIndent()
+        val testFile = writeAsciiImportsOrderingConfig()
+
+        assertThat(
+            rule.lint(testFile, imports)
+        ).isEqualTo(expectedErrors())
+        assertThat(
+            rule.format(testFile, imports)
+        ).isEqualTo(formattedImports)
+    }
+
     private fun writeAsciiImportsOrderingConfig() = editorConfigTestRule
         .writeToEditorConfig(
             mapOf(

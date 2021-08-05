@@ -14,6 +14,7 @@ import com.pinterest.ktlint.core.ast.isRoot
 import com.pinterest.ktlint.core.ast.isWhiteSpace
 import com.pinterest.ktlint.core.ast.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.core.ast.lineIndent
+import com.pinterest.ktlint.core.ast.parent
 import com.pinterest.ktlint.core.ast.prevLeaf
 import com.pinterest.ktlint.core.ast.visit
 import kotlin.math.max
@@ -103,7 +104,8 @@ class ArgumentListWrappingRule : Rule("argument-list-wrapping") {
                     //         1,
                     //         2
                     //     )
-                    prevWhitespaceWithNewline?.isPartOf(DOT_QUALIFIED_EXPRESSION) == true -> indentSize
+                    prevWhitespaceWithNewline?.parent(DOT_QUALIFIED_EXPRESSION)
+                        ?.let { it.lastChildNode == node.parent(ElementType.CALL_EXPRESSION) } == true -> indentSize
                     else -> 0
                 }
 
