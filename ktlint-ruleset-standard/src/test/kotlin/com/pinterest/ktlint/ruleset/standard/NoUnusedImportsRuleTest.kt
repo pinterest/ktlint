@@ -274,7 +274,6 @@ class NoUnusedImportsRuleTest {
         )
     }
 
-
     @Test
     fun testFormat() {
         assertThat(
