@@ -283,15 +283,15 @@ class NoUnusedImportsRuleTest {
             )
         ).isEqualTo(
             """
-                import org.repository.RepositoryPolicy
-                import org.repository.any
-                import org.repository.all
-                fun main() {
-                        RepositoryPolicy(
-                        any(false), all("trial")
-                                            )
-                }
-                """.trimIndent()
+            import org.repository.RepositoryPolicy
+            import org.repository.any
+            import org.repository.all
+            fun main() {
+                    RepositoryPolicy(
+                    any(false), all("trial")
+                                        )
+            }
+            """.trimIndent()
         )
     }
 
@@ -339,18 +339,18 @@ class NoUnusedImportsRuleTest {
                 """.trimIndent()
             )
         ).isEqualTo(
-                """
-                import org.repository.RepositoryPolicy
-                import org.repository.any
-                import org.repository.all
-                import org.repository.many
-                import org.repository.none
-                fun main() {
-                        RepositoryPolicy(
-                        any(false), all("trial"), many("hello"), none("goodbye")
-                    )
-                }
-                """.trimIndent()
+            """
+            import org.repository.RepositoryPolicy
+            import org.repository.any
+            import org.repository.all
+            import org.repository.many
+            import org.repository.none
+            fun main() {
+                    RepositoryPolicy(
+                    any(false), all("trial"), many("hello"), none("goodbye")
+                )
+            }
+            """.trimIndent()
         )
     }
 
