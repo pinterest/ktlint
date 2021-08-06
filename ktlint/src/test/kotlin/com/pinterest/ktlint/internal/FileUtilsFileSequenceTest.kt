@@ -175,7 +175,7 @@ internal class FileUtilsFileSequenceTest {
 
         val glob = tempFileSystem.toGlob(
             "~/project/src/main/kotlin/One.kt",
-            Path.of(rootDir)
+            File(rootDir).toPath()
         )
         val homeDir = System.getProperty("user.home")
         assertThat(glob).isEqualTo(
