@@ -86,6 +86,7 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
             ref.add(Reference("*", false))
             parentExpressions.clear()
             imports.clear()
+            usedImportPaths.clear()
             node.visit { vnode ->
                 val psi = vnode.psi
                 val type = vnode.elementType
@@ -103,9 +104,13 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
                 } else if (type == IMPORT_DIRECTIVE) {
                     val importPath = (vnode.psi as KtImportDirective).importPath!!
                     if (!usedImportPaths.add(importPath)) {
-                        emit(vnode.startOffset, "Unused import", false)
+                        emit(vnode.startOffset, "Unused import", true)
+                        if (autoCorrect) {
+                            vnode.psi.delete()
+                        }
+                    } else {
+                        imports += importPath.pathStr.removeBackticks().trim()
                     }
-                    imports += importPath.pathStr.removeBackticks().trim()
                 }
             }
             val directCalls = ref.filter { !it.inDotQualifiedExpression }.map { it.text }
