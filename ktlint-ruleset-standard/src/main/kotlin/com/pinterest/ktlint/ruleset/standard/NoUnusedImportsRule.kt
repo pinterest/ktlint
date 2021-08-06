@@ -19,6 +19,7 @@ import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtDotQualifiedExpression
 import org.jetbrains.kotlin.psi.KtImportDirective
 import org.jetbrains.kotlin.psi.KtPackageDirective
+import org.jetbrains.kotlin.resolve.ImportPath
 
 class NoUnusedImportsRule : Rule("no-unused-imports") {
 
