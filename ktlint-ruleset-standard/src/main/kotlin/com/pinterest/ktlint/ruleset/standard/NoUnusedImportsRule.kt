@@ -19,6 +19,7 @@ import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtDotQualifiedExpression
 import org.jetbrains.kotlin.psi.KtImportDirective
 import org.jetbrains.kotlin.psi.KtPackageDirective
+import org.jetbrains.kotlin.resolve.ImportPath
 
 class NoUnusedImportsRule : Rule("no-unused-imports") {
 
@@ -70,6 +71,7 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
     private val ref = mutableSetOf<Reference>()
     private val parentExpressions = mutableSetOf<String>()
     private val imports = mutableSetOf<String>()
+    private val usedImportPaths = mutableSetOf<ImportPath>()
     private var packageName = ""
     private var rootNode: ASTNode? = null
 
@@ -84,6 +86,7 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
             ref.add(Reference("*", false))
             parentExpressions.clear()
             imports.clear()
+            usedImportPaths.clear()
             node.visit { vnode ->
                 val psi = vnode.psi
                 val type = vnode.elementType
@@ -99,7 +102,15 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
                 ) {
                     ref.add(Reference(text.removeBackticks(), psi.parentDotQualifiedExpression() != null))
                 } else if (type == IMPORT_DIRECTIVE) {
-                    imports += (vnode.psi as KtImportDirective).importPath!!.pathStr.removeBackticks().trim()
+                    val importPath = (vnode.psi as KtImportDirective).importPath!!
+                    if (!usedImportPaths.add(importPath)) {
+                        emit(vnode.startOffset, "Unused import", true)
+                        if (autoCorrect) {
+                            vnode.psi.delete()
+                        }
+                    } else {
+                        imports += importPath.pathStr.removeBackticks().trim()
+                    }
                 }
             }
             val directCalls = ref.filter { !it.inDotQualifiedExpression }.map { it.text }
