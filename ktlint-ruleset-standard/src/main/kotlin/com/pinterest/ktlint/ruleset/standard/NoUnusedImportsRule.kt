@@ -19,7 +19,6 @@ import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtDotQualifiedExpression
 import org.jetbrains.kotlin.psi.KtImportDirective
 import org.jetbrains.kotlin.psi.KtPackageDirective
-import org.jetbrains.kotlin.resolve.ImportPath
 
 class NoUnusedImportsRule : Rule("no-unused-imports") {
 
@@ -71,7 +70,6 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
     private val ref = mutableSetOf<Reference>()
     private val parentExpressions = mutableSetOf<String>()
     private val imports = mutableSetOf<String>()
-    private val usedImportPaths = mutableSetOf<ImportPath>()
     private var packageName = ""
     private var rootNode: ASTNode? = null
 
