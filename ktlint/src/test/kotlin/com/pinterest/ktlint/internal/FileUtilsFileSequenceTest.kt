@@ -6,8 +6,9 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.fail
+import org.hamcrest.CoreMatchers
 import org.junit.After
+import org.junit.Assume
 import org.junit.Before
 import org.junit.Test
 
@@ -123,26 +124,67 @@ internal class FileUtilsFileSequenceTest {
     }
 
     @Test
-    fun `Should fail the search when glob contain absolute path`() {
-        val globs = listOf(
-            "src/main/kotlin/One.kt".normalizeGlob(),
-            "!${rootDir}project1/src/main/kotlin/example/Two.kt".normalizeGlob()
+    fun `Should support unescaped slashes for Windows`() {
+        Assume.assumeThat(System.getProperty("os.name").toLowerCase(), CoreMatchers.startsWith("windows"))
+
+        val foundFiles = getFiles(
+            listOf(
+                "project1\\src\\**\\*.kt".normalizeGlob(),
+                "!project1\\src\\**\\example\\*.kt".normalizeGlob()
+            )
         )
 
-        try {
-            getFiles(
-                patterns = globs
-            )
-            fail("No exception was thrown!")
-        } catch (e: IllegalArgumentException) {
-            assertThat(e.message).contains(
-                globs.last().removePrefix("!")
-            )
-        }
+        assertThat(foundFiles).hasSize(1)
+        assertThat(foundFiles).containsAll(project1Files.subList(3, 4))
+    }
+
+    @Test
+    fun `Should support absolute paths`() {
+        val globs = listOf(
+            "src/main/kotlin/One.kt".normalizeGlob(),
+            "${rootDir}project1/src/main/kotlin/example/Two.kt".normalizeGlob()
+        )
+
+        val files = getFiles(
+            patterns = globs,
+            rootDir = tempFileSystem.getPath("${rootDir}project1".normalizePath())
+        )
+        assertThat(files).containsExactlyElementsOf(
+            project1Files.subList(3, 5)
+        )
+    }
+
+    @Test
+    fun `Should support globs containing absolute paths`() {
+        val globs = listOf(
+            "${rootDir}project1/src/**/*.kt".normalizeGlob()
+        )
+
+        val files = getFiles(
+            patterns = globs,
+            rootDir = tempFileSystem.getPath("${rootDir}project1".normalizePath())
+        )
+        assertThat(files).containsExactlyElementsOf(
+            project1Files.subList(3, 5)
+        )
+    }
+
+    @Test
+    fun `transforming globs with leading tilde`() {
+        Assume.assumeThat(System.getProperty("os.name").toLowerCase(), CoreMatchers.startsWith("linux"))
+
+        val glob = tempFileSystem.toGlob(
+            "~/project/src/main/kotlin/One.kt",
+            File(rootDir).toPath()
+        )
+        val homeDir = System.getProperty("user.home")
+        assertThat(glob).isEqualTo(
+            "glob:$homeDir/project/src/main/kotlin/One.kt"
+        )
     }
 
     private fun String.normalizePath() = replace('/', File.separatorChar)
-    private fun String.normalizeGlob(): String = replace("/", globSeparator)
+    private fun String.normalizeGlob(): String = replace("/", rawGlobSeparator)
 
     private fun List<String>.createFiles() = forEach {
         val filePath = tempFileSystem.getPath(it)
@@ -158,4 +200,12 @@ internal class FileUtilsFileSequenceTest {
         .fileSequence(patterns, rootDir)
         .map { it.toString() }
         .toList()
+}
+
+internal val rawGlobSeparator: String get() {
+    val os = System.getProperty("os.name")
+    return when {
+        os.startsWith("windows", ignoreCase = true) -> "\\"
+        else -> "/"
+    }
 }

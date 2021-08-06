@@ -7,6 +7,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 ### Fixed
+
+### Changed
+- Support absolute paths for globs ([#1131](https://github.com/pinterest/ktlint/issues/1131))
 - Fix regression from 0.41 with argument list wrapping after dot qualified expression (`argument-list-wrapping`)([#1159](https://github.com/pinterest/ktlint/issues/1159))
 
 ### Removed
