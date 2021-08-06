@@ -5,10 +5,12 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.PrintStream
 import org.junit.Assert.assertEquals
+import org.junit.Ignore
 import org.junit.Test
 
 class SarifReporterTest {
 
+    @Ignore("https://github.com/pinterest/ktlint/issues/1191")
     @Test
     fun testReportGeneration() {
         val workingDirectory = System.getProperty("user.home").sanitize()
