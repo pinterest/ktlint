@@ -70,6 +70,7 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
     private val ref = mutableSetOf<Reference>()
     private val parentExpressions = mutableSetOf<String>()
     private val imports = mutableSetOf<String>()
+    private val usedImportPaths = mutableSetOf<ImportPath>()
     private var packageName = ""
     private var rootNode: ASTNode? = null
 
