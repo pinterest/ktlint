@@ -110,7 +110,7 @@ internal fun FileSystem.toGlob(
         expandTilde(pattern)
     }
 
-    val fullPath =  if (isGlobAbsolutePath(pattern)) {
+    val fullPath = if (isGlobAbsolutePath(expandedPath)) {
         expandedPath
     } else {
         val rootDirPath = rootDir

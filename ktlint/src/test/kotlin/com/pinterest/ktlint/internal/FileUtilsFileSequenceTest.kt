@@ -179,7 +179,7 @@ internal class FileUtilsFileSequenceTest {
         )
         val homeDir = System.getProperty("user.home")
         assertThat(glob).isEqualTo(
-            "$homeDir/project/src/main/kotlin/One.kt"
+            "glob:$homeDir/project/src/main/kotlin/One.kt"
         )
     }
 
