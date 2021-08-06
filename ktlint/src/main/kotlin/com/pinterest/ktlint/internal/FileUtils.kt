@@ -22,8 +22,6 @@ internal fun FileSystem.fileSequence(
     globs: List<String>,
     rootDir: Path = Paths.get(".").toAbsolutePath().normalize()
 ): Sequence<Path> {
-    checkGlobsContainAbsolutePath(globs)
-
     val result = mutableListOf<Path>()
 
     val (existingFiles, actualGlobs) = globs.partition {
@@ -50,7 +48,7 @@ internal fun FileSystem.fileSequence(
         actualGlobs
             .filterNot { it.startsWith("!") }
             .map {
-                getPathMatcher(it.toGlob(rootDir))
+                getPathMatcher(toGlob(it, rootDir))
             }
     }
 
@@ -59,7 +57,9 @@ internal fun FileSystem.fileSequence(
     } else {
         actualGlobs
             .filter { it.startsWith("!") }
-            .map { getPathMatcher(it.removePrefix("!").toGlob(rootDir)) }
+            .map {
+                getPathMatcher(toGlob(it.removePrefix("!"), rootDir))
+            }
     }
 
     Files.walkFileTree(
@@ -93,37 +93,40 @@ internal fun FileSystem.fileSequence(
     return result.asSequence()
 }
 
-private fun FileSystem.checkGlobsContainAbsolutePath(globs: List<String>) {
+private fun FileSystem.isGlobAbsolutePath(glob: String): Boolean {
     val rootDirs = rootDirectories.map { it.toString() }
-    globs
-        .map { it.removePrefix("!") }
-        .filter { glob ->
-            rootDirs.any { glob.startsWith(it) }
-        }
-        .run {
-            if (isNotEmpty()) {
-                throw IllegalArgumentException(
-                    "KtLint does not support absolute path in globs:\n${joinToString(separator = "\n")}"
-                )
-            }
-        }
+    return rootDirs.any { glob.removePrefix("!").startsWith(it) }
 }
 
-private fun String.toGlob(
+internal fun FileSystem.toGlob(
+    pattern: String,
     rootDir: Path
 ): String {
-    val expandedPath = expandTilde(this)
-    val rootDirPath = rootDir
-        .toAbsolutePath()
-        .toString()
-        .run {
-            val normalizedPath = if (!endsWith(File.separator)) "$this${File.separator}" else this
-            normalizedPath.replace(File.separator, globSeparator)
-        }
-    return "glob:$rootDirPath$expandedPath"
+    val os = System.getProperty("os.name")
+    val expandedPath = if (os.startsWith("windows", true)) {
+        // Windows sometimes inserts `~` into paths when using short directory names notation, e.g. `C:\Users\USERNA~1\Documents
+        pattern
+    } else {
+        expandTilde(pattern)
+    }
+
+    val fullPath =  if (isGlobAbsolutePath(pattern)) {
+        expandedPath
+    } else {
+        val rootDirPath = rootDir
+            .toAbsolutePath()
+            .toString()
+            .run {
+                val normalizedPath = if (!endsWith(File.separator)) "$this${File.separator}" else this
+                normalizedPath
+            }
+        "$rootDirPath$expandedPath"
+    }
+        .replace(File.separator, globSeparator)
+    return "glob:$fullPath"
 }
 
-internal val globSeparator: String get() {
+private val globSeparator: String get() {
     val os = System.getProperty("os.name")
     return when {
         os.startsWith("windows", ignoreCase = true) -> "\\\\"
