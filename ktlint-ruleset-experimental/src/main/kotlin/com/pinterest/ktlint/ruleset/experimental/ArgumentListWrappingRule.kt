@@ -3,18 +3,14 @@ package com.pinterest.ktlint.ruleset.experimental
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType
-import com.pinterest.ktlint.core.ast.ElementType.DOT_QUALIFIED_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.ELSE
-import com.pinterest.ktlint.core.ast.ElementType.TYPE_ARGUMENT_LIST
 import com.pinterest.ktlint.core.ast.children
 import com.pinterest.ktlint.core.ast.column
-import com.pinterest.ktlint.core.ast.isPartOf
 import com.pinterest.ktlint.core.ast.isPartOfComment
 import com.pinterest.ktlint.core.ast.isRoot
 import com.pinterest.ktlint.core.ast.isWhiteSpace
 import com.pinterest.ktlint.core.ast.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.core.ast.lineIndent
-import com.pinterest.ktlint.core.ast.parent
 import com.pinterest.ktlint.core.ast.prevLeaf
 import com.pinterest.ktlint.core.ast.visit
 import kotlin.math.max
@@ -75,7 +71,6 @@ class ArgumentListWrappingRule : Rule("argument-list-wrapping") {
                     // max_line_length exceeded
                     maxLineLength > -1 && (node.column - 1 + node.textLength) > maxLineLength && !node.textContains('\n')
             if (putArgumentsOnSeparateLines) {
-                val prevWhitespaceWithNewline = node.prevLeaf { it.isWhiteSpaceWithNewline() }
                 val adjustedIndent = when {
                     // IDEA quirk:
                     // generic<
@@ -91,21 +86,20 @@ class ArgumentListWrappingRule : Rule("argument-list-wrapping") {
                     //         1,
                     //         2
                     //     )
-                    prevWhitespaceWithNewline?.isPartOf(TYPE_ARGUMENT_LIST) == true -> indentSize
+                    node.hasTypeArgumentListInFront() -> indentSize
                     // IDEA quirk:
                     // foo
-                    //     .bar(
+                    //     .bar = Baz(
                     //     1,
                     //     2
                     // )
                     // instead of
                     // foo
-                    //     .bar(
+                    //     .bar = Baz(
                     //         1,
                     //         2
                     //     )
-                    prevWhitespaceWithNewline?.parent(DOT_QUALIFIED_EXPRESSION)
-                        ?.let { it.lastChildNode == node.parent(ElementType.CALL_EXPRESSION) } == true -> indentSize
+                    node.isPartOfDotQualifiedAssignmentExpression() -> indentSize
                     else -> 0
                 }
 
@@ -155,10 +149,10 @@ class ArgumentListWrappingRule : Rule("argument-list-wrapping") {
                                     emit(child.startOffset, errorMessage(child), true)
                                 }
                                 if (autoCorrect) {
-                                    val adjustedIndent =
+                                    val finalIndent =
                                         (if (cut > -1) spacing.substring(0, cut) else "") + intendedIndent
-                                    argumentInnerIndentAdjustment = adjustedIndent.length - prevLeaf.getTextLength()
-                                    (prevLeaf as LeafPsiElement).rawReplaceWithText(adjustedIndent)
+                                    argumentInnerIndentAdjustment = finalIndent.length - prevLeaf.getTextLength()
+                                    (prevLeaf as LeafPsiElement).rawReplaceWithText(finalIndent)
                                 }
                             } else {
                                 emit(child.startOffset, errorMessage(child), true)
@@ -220,6 +214,16 @@ class ArgumentListWrappingRule : Rule("argument-list-wrapping") {
                 elementType == ElementType.VALUE_ARGUMENT && child.children().any { it.textContainsIgnoringLambda(char) }
         }
     }
+
+    private fun ASTNode.hasTypeArgumentListInFront(): Boolean =
+        treeParent.children()
+            .firstOrNull { it.elementType == ElementType.TYPE_ARGUMENT_LIST }
+            ?.children()
+            ?.any { it.isWhiteSpaceWithNewline() } == true
+
+    private fun ASTNode.isPartOfDotQualifiedAssignmentExpression(): Boolean =
+        treeParent?.treeParent?.elementType == ElementType.BINARY_EXPRESSION &&
+            treeParent?.treeParent?.children()?.find { it.elementType == ElementType.DOT_QUALIFIED_EXPRESSION } != null
 
     private fun ASTNode.prevWhiteSpaceWithNewLine(): ASTNode? {
         var prev = prevLeaf()
