@@ -2,6 +2,15 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+
+### Added
+
+### Fixed
+- Fix regression from 0.41 with argument list wrapping after dot qualified expression (`argument-list-wrapping`)([#1159](https://github.com/pinterest/ktlint/issues/1159))
+
+### Removed
+
 ## [0.42.1] - 2021-08-06
 
 Dot release to fix regressions in `indent` rule introduced in 0.42.0 release. Thanks to [t-kameyama](https://github.com/t-kameyama) for the fixes!
@@ -9,7 +18,6 @@ Dot release to fix regressions in `indent` rule introduced in 0.42.0 release. Th
 ### Fixed
 - Fix false positive with delegated properties (`indent`) ([#1189](https://github.com/pinterest/ktlint/issues/1189))
 - Fix false positive with lambda argument in super type entry (`indent`) ([#1188](https://github.com/pinterest/ktlint/issues/1188))
-- Fix regression from 0.41 with argument list wrapping after dot qualified expression (`argument-list-wrapping`)([#1159](https://github.com/pinterest/ktlint/issues/1159))
 
 ## [0.42.0] - 2021-07-29
 
