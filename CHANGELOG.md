@@ -1,5 +1,5 @@
 # Changelog
-All notable changes to this project will be documented in this file.  
+All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
@@ -894,8 +894,8 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
-[0.42.0]: https://github.com/pinterest/ktlint/compare/0.39.0...0.42.0
-[0.41.0]: https://github.com/pinterest/ktlint/compare/0.39.0...0.41.0
+[0.42.0]: https://github.com/pinterest/ktlint/compare/0.41.0...0.42.0
+[0.41.0]: https://github.com/pinterest/ktlint/compare/0.40.0...0.41.0
 [0.40.0]: https://github.com/pinterest/ktlint/compare/0.39.0...0.40.0
 [0.39.0]: https://github.com/pinterest/ktlint/compare/0.38.1...0.39.0
 [0.38.1]: https://github.com/pinterest/ktlint/compare/0.38.0...0.38.1
