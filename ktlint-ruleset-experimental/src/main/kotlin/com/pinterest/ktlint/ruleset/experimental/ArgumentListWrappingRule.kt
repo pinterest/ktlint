@@ -89,17 +89,17 @@ class ArgumentListWrappingRule : Rule("argument-list-wrapping") {
                     node.hasTypeArgumentListInFront() -> indentSize
                     // IDEA quirk:
                     // foo
-                    //     .bar == Baz(
+                    //     .bar = Baz(
                     //     1,
                     //     2
                     // )
                     // instead of
                     // foo
-                    //     .bar == Baz(
+                    //     .bar = Baz(
                     //         1,
                     //         2
                     //     )
-                    node.isPartOfAssignmentExpression() -> indentSize
+                    node.isPartOfDotQualifiedAssignmentExpression() -> indentSize
                     else -> 0
                 }
 
@@ -221,8 +221,9 @@ class ArgumentListWrappingRule : Rule("argument-list-wrapping") {
             ?.children()
             ?.any { it.isWhiteSpaceWithNewline() } == true
 
-    private fun ASTNode.isPartOfAssignmentExpression(): Boolean =
-        treeParent?.treeParent?.elementType == ElementType.BINARY_EXPRESSION
+    private fun ASTNode.isPartOfDotQualifiedAssignmentExpression(): Boolean =
+        treeParent?.treeParent?.elementType == ElementType.BINARY_EXPRESSION &&
+            treeParent?.treeParent?.children()?.find { it.elementType == ElementType.DOT_QUALIFIED_EXPRESSION } != null
 
     private fun ASTNode.prevWhiteSpaceWithNewLine(): ASTNode? {
         var prev = prevLeaf()
