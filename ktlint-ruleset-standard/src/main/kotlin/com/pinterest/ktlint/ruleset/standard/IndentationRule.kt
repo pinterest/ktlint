@@ -1130,8 +1130,9 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
     }
 
     private fun ASTNode?.isAfterLambdaArgumentOnSameLine(): Boolean {
-        val prevComma = this?.prevLeafOnSameLine(RBRACE)?.nextCodeLeaf()?.takeIf { it.elementType == COMMA }
-        return prevComma?.treeParent?.elementType == VALUE_ARGUMENT_LIST
+        if (this == null) return false
+        val prevComma = prevLeafOnSameLine(RBRACE)?.nextCodeLeaf()?.takeIf { it.elementType == COMMA } ?: return false
+        return prevComma.parent(VALUE_ARGUMENT_LIST) == parent(VALUE_ARGUMENT_LIST)
     }
 
     private fun ASTNode.hasLineBreak(vararg ignoreElementTypes: IElementType): Boolean {

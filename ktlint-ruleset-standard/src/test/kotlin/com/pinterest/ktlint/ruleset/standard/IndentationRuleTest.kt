@@ -1032,6 +1032,22 @@ internal class IndentationRuleTest {
         ).isEmpty()
     }
 
+    // https://github.com/pinterest/ktlint/issues/1202
+    @Test
+    fun `lint lambda argument and call chain`() {
+        assertThat(
+            IndentationRule().lint(
+                """
+                class Foo {
+                    fun bar() {
+                        val foo = bar.associateBy({ item -> item.toString() }, ::someFunction).toMap()
+                    }
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
     // https://github.com/pinterest/ktlint/issues/1165
     @Test
     fun `lint multiline expression with elvis operator in assignment`() {
