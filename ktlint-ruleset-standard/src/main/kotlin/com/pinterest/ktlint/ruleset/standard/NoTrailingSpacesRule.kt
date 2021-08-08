@@ -3,6 +3,7 @@ package com.pinterest.ktlint.ruleset.standard
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.nextLeaf
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
+import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
@@ -13,36 +14,35 @@ class NoTrailingSpacesRule : Rule("no-trailing-spaces") {
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        if (node is PsiWhiteSpace) {
-            val lines = node.getText().split("\n")
-            if (lines.size > 1) {
-                val violated = checkForTrailingSpaces(lines.head(), node.startOffset, emit)
-                if (violated && autoCorrect) {
-                    (node as LeafPsiElement).rawReplaceWithText("\n".repeat(lines.size - 1) + lines.last())
+        if (node is PsiWhiteSpace || node is PsiComment) {
+            val lines = node.text.split("\n")
+            var violated = false
+            var violationOffset = node.startOffset
+            lines
+                .head()
+                .forEach { line ->
+                    if (line.hasTrailingSpace()) {
+                        emit(violationOffset, "Trailing space(s)", true)
+                        violated = true
+                    }
+                    violationOffset += line.length + 1
                 }
-            } else if (node.nextLeaf() == null /* eof */) {
-                val violated = checkForTrailingSpaces(lines, node.startOffset, emit)
-                if (violated && autoCorrect) {
-                    (node as LeafPsiElement).rawReplaceWithText("\n".repeat(lines.size - 1))
+            when {
+                node is PsiWhiteSpace && node.nextLeaf() != null ->
+                    // Ignore the last line as it contains the indentation of the next element
+                    Unit
+                lines.last().hasTrailingSpace() -> {
+                    emit(violationOffset, "Trailing space(s)", true)
+                    violated = true
                 }
+            }
+            if (violated && autoCorrect) {
+                val modifiedLines = lines.joinToString(separator = "\n") { it.trimEnd() }
+                (node as LeafPsiElement).rawReplaceWithText(modifiedLines)
             }
         }
     }
 
-    private fun checkForTrailingSpaces(
-        lines: List<String>,
-        offset: Int,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
-    ): Boolean {
-        var violated = false
-        var violationOffset = offset
-        lines.forEach { line ->
-            if (!line.isEmpty()) {
-                emit(violationOffset, "Trailing space(s)", true)
-                violated = true
-            }
-            violationOffset += line.length + 1
-        }
-        return violated
-    }
+    private fun String.hasTrailingSpace() =
+        takeLast(1) == " "
 }

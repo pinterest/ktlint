@@ -24,4 +24,45 @@ class NoTrailingSpacesRuleTest {
         assertThat(NoTrailingSpacesRule().format("fun main() {\n    val a = 1 \n  \n \n} "))
             .isEqualTo("fun main() {\n    val a = 1\n\n\n}")
     }
+
+    @Test
+    fun `lint trailing spaces inside block comments`() {
+        val code =
+            """
+            /*${" "}
+             * Some comment${" "}
+             */
+            """.trimIndent()
+
+        val actual = NoTrailingSpacesRule().lint(code)
+
+        assertThat(actual)
+            .isEqualTo(
+                listOf(
+                    LintError(1, 1, "no-trailing-spaces", "Trailing space(s)"),
+                    LintError(2, 1, "no-trailing-spaces", "Trailing space(s)")
+                )
+            )
+    }
+
+    @Test
+    fun `format trailing spaces inside block comments`() {
+        val code =
+            """
+            /*${" "}
+             * Some comment${" "}
+             */
+            """.trimIndent()
+
+        val actual = NoTrailingSpacesRule().format(code)
+
+        assertThat(actual)
+            .isEqualTo(
+                """
+                /*
+                 * Some comment
+                 */
+                """.trimIndent()
+            )
+    }
 }

@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - New `trailing-comma` rule ([#709](https://github.com/pinterest/ktlint/issues/709)) (prior art by [paul-dingemans](https://github.com/paul-dingemans))
 ### Fixed
 - Fix false positive with lambda argument and call chain (`indent`) ([#1202](https://github.com/pinterest/ktlint/issues/1202))
+- Fix trailing spaces not formatted inside block comments (`no-trailing-spaces`) ([#1197](https://github.com/pinterest/ktlint/issues/1197))
 
 ### Changed
 - Support absolute paths for globs ([#1131](https://github.com/pinterest/ktlint/issues/1131))
