@@ -30,7 +30,8 @@ import org.jetbrains.kotlin.utils.addToStdlib.cast
 @OptIn(FeatureInAlphaState::class)
 public class TrailingCommaRule :
     Rule("trailing-comma"),
-    Rule.Modifier.Last, // runs last to ensure that the linebreaks are already inserted by the indent and other rules
+    // runs last to ensure that the linebreaks are already inserted by the indent and other rules
+    Rule.Modifier.Last,
     UsesEditorConfigProperties {
 
     private var allowTrailingComma by Delegates.notNull<Boolean>()
