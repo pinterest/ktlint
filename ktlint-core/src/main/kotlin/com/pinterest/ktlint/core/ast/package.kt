@@ -10,6 +10,7 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
+import org.jetbrains.kotlin.psi.psiUtil.siblings
 
 fun ASTNode.nextLeaf(includeEmpty: Boolean = false, skipSubtree: Boolean = false): ASTNode? {
     var n = if (skipSubtree) this.lastChildLeafOrSelf().nextLeafAny() else this.nextLeafAny()
@@ -187,8 +188,10 @@ fun ASTNode.isPartOfString() =
 
 fun ASTNode?.isWhiteSpace() =
     this != null && elementType == WHITE_SPACE
+
 fun ASTNode?.isWhiteSpaceWithNewline() =
     this != null && elementType == WHITE_SPACE && textContains('\n')
+
 fun ASTNode?.isWhiteSpaceWithoutNewline() =
     this != null && elementType == WHITE_SPACE && !textContains('\n')
 
@@ -210,6 +213,7 @@ fun LeafElement.upsertWhitespaceBeforeMe(text: String): LeafElement {
         }
     }
 }
+
 fun LeafElement.upsertWhitespaceAfterMe(text: String): LeafElement {
     val s = treeNext
     return if (s != null && s.elementType == WHITE_SPACE) {
@@ -260,3 +264,26 @@ fun ASTNode.lineIndent(): String {
     }
     return ""
 }
+
+/**
+ *  Print content of a node and the element type of the node, its parent and its direct children. Utility is meant to
+ *  be used during development only. Please do not remove.
+ */
+@Suppress("unused")
+fun ASTNode.logStructure(): ASTNode =
+    also {
+        println("Processing ${text.replaceTabAndNewline()} : Type $elementType with parent ${treeParent?.elementType} ")
+        children()
+            .toList()
+            .map {
+                println("  ${it.text.replaceTabAndNewline()} : Type ${it.elementType}")
+            }
+    }
+
+private fun String.replaceTabAndNewline(): String =
+    replace("\t", "\\t").replace("\n", "\\n")
+
+public fun containsLineBreakInRange(from: PsiElement, to: PsiElement): Boolean =
+    from.siblings(forward = true, withItself = true)
+        .takeWhile { !it.isEquivalentTo(to) }
+        .any { it.textContains('\n') }
