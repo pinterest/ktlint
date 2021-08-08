@@ -945,6 +945,45 @@ internal class IndentationRuleTest {
     }
 
     @Test
+    fun `lint property delegate is indented properly 4`() {
+        assertThat(
+            IndentationRule().lint(
+                """
+                fun lazyList() = lazy { mutableListOf<String>() }
+
+                class Test {
+                    val list: List<String>
+                        by lazyList()
+
+                    val aVar = 0
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `lint property delegate is indented properly 5`() {
+        assertThat(
+            IndentationRule().lint(
+                """
+                fun lazyList(a: Int, b: Int) = lazy { mutableListOf<String>() }
+
+                class Test {
+                    val list: List<String>
+                        by lazyList(
+                            1,
+                            2
+                        )
+
+                    val aVar = 0
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
     fun `lint delegation 1`() {
         assertThat(
             IndentationRule().lint(
@@ -1224,6 +1263,23 @@ internal class IndentationRuleTest {
                         println(it)
                     })
                 }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `lint value argument list with lambda in super type entry`() {
+        assertThat(
+            IndentationRule().lint(
+                """
+                class A : B({
+                    1
+                }) {
+                    val a = 1
+                }
+
+                open class B(f: () -> Int)
                 """.trimIndent()
             )
         ).isEmpty()

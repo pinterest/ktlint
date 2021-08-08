@@ -552,20 +552,55 @@ class ArgumentListWrappingRuleTest {
         assertThat(
             ArgumentListWrappingRule().lint(
                 """
-                class Logging(mode: Any, appInstanceIdentity: String, org: String)
-
-                class StateManager {
-                    var firebaseLogger: Logging? = null
-                }
-
                 private fun replaceLogger(deviceId: String, orgName: String) {
                     val stateManager: StateManager = StateManager()
                     stateManager
                         .firebaseLogger(
-                        mode = 0,
+                            mode = 0,
+                            appInstanceIdentity = deviceId,
+                            org = orgName
+                        )
+                    }
+                """.trimIndent()
+            )
+        ).isEmpty()
+
+        assertThat(
+            ArgumentListWrappingRule().lint(
+                """
+                class MyClass {
+                    private fun initCoilOkHttp() {
+                        Coil.setImageLoader(
+                            ImageLoader.Builder(this)
+                                .crossfade(true)
+                                .okHttpClient(
+                                    okHttpClient.newBuilder()
+                                        .cache(CoilUtils.createDefaultCache(this))
+                                        .build()
+                                )
+                                .build()
+                        )
+                    }
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `lint argument list after dot qualified expression with assignment`() {
+        assertThat(
+            ArgumentListWrappingRule().lint(
+                """
+                private fun replaceLogger(deviceId: String, orgName: String) {
+                    stateManager
+                        .firebaseLogger = Logging(
+                        mode = if (BuildConfig.DEBUG) Logging.Companion.LogDestination.DEV else Logging.Companion.LogDestination.PROD,
                         appInstanceIdentity = deviceId,
                         org = orgName
                     )
+                    stateManager.firebaseLogger.tellTheCloudAboutMe()
+                    customisation.attachToFirebase(stateManager.firebaseLogger.appCloudPrefix)
                 }
                 """.trimIndent()
             )
@@ -695,6 +730,31 @@ class ArgumentListWrappingRuleTest {
                     listOf(1, 2, 3).map {
                         println(
                             it
+                        )
+                    }
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `lint parameter list with assignment and no dot qualified expression`() {
+        assertThat(
+            ArgumentListWrappingRule().lint(
+                """
+                fun foo() {
+                    tasks.test {
+                        systemProperties = mutableMapOf(
+                            "junit.jupiter.displayname.generator.default" to
+                                "org.junit.jupiter.api.DisplayNameGenerator\${'$'}ReplaceUnderscores",
+
+                            "junit.jupiter.execution.parallel.enabled" to
+                                doParallelTesting.toString() as Any,
+                            "junit.jupiter.execution.parallel.mode.default" to
+                                "concurrent",
+                            "junit.jupiter.execution.parallel.mode.classes.default" to
+                                "concurrent"
                         )
                     }
                 }

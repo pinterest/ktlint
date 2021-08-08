@@ -475,10 +475,10 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                         // ]}) should decrease expectedIndent by 1
                         val blockLine = ctx.blockOpeningLineStack.pop()
                         val prevBlockLine = ctx.blockOpeningLineStack.peek() ?: -1
-                        val pairedLeftBrace = n.pairedLeftBrace()
-                        if (prevBlockLine != blockLine && !pairedLeftBrace.isAfterLambdaArgumentOnSameLine()) {
+                        val pairedLeft = n.pairedLeft()
+                        if (prevBlockLine != blockLine && !pairedLeft.isAfterLambdaArgumentOnSameLine()) {
                             expectedIndent--
-                            val byKeywordOnSameLine = pairedLeftBrace?.prevLeafOnSameLine(BY_KEYWORD)
+                            val byKeywordOnSameLine = pairedLeft?.prevLeafOnSameLine(BY_KEYWORD)
                             if (byKeywordOnSameLine != null &&
                                 byKeywordOnSameLine.prevLeaf()?.isWhiteSpaceWithNewline() == true &&
                                 !byKeywordOnSameLine.isPartOf(DELEGATED_SUPER_TYPE_ENTRY)
@@ -1045,13 +1045,19 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
     private fun ASTNode.isPartOfTypeConstraint() =
         isPartOf(TYPE_CONSTRAINT_LIST) || nextLeaf()?.elementType == WHERE_KEYWORD
 
-    private fun ASTNode.pairedLeftBrace(): ASTNode? {
-        if (elementType != RBRACE) return null
+    private fun ASTNode.pairedLeft(): ASTNode? {
+        val rightType = elementType
+        val leftType = when (rightType) {
+            RPAR -> LPAR
+            RBRACE -> LBRACE
+            RBRACKET -> LBRACKET
+            else -> return null
+        }
         var node: ASTNode? = prevLeaf()
         while (node != null) {
             node = when (node.elementType) {
-                LBRACE -> return node
-                RBRACE -> node.treeParent
+                leftType -> return node
+                rightType -> node.treeParent
                 else -> node.prevLeaf()
             }
         }
@@ -1065,7 +1071,8 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
     }
 
     private fun ASTNode?.isAfterLambdaArgumentOnSameLine(): Boolean {
-        return this?.prevLeafOnSameLine(RBRACE)?.nextCodeLeaf()?.treeParent?.elementType == VALUE_ARGUMENT_LIST
+        val prevComma = this?.prevLeafOnSameLine(RBRACE)?.nextCodeLeaf()?.takeIf { it.elementType == COMMA }
+        return prevComma?.treeParent?.elementType == VALUE_ARGUMENT_LIST
     }
 
     private fun ASTNode.hasLineBreak(vararg ignoreElementTypes: IElementType): Boolean {

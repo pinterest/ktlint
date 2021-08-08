@@ -193,6 +193,168 @@ class NoUnusedImportsRuleTest {
     }
 
     @Test
+    fun testRepeatedImport() {
+        assertThat(
+            NoUnusedImportsRule().lint(
+                """
+                import org.repository.RepositoryPolicy
+                import org.repository.any
+                import org.repository.all
+                import org.repository.any
+                fun main() {
+                        RepositoryPolicy(
+                        any(false), all("trial")
+                    )
+                }
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(4, 1, "no-unused-imports", "Unused import")
+            )
+        )
+
+        assertThat(
+            NoUnusedImportsRule().format(
+                """
+                import org.repository.RepositoryPolicy
+                import org.repository.any
+                import org.repository.all
+                import org.repository.any
+                fun main() {
+                        RepositoryPolicy(
+                        any(false), all("trial")
+                    )
+                }
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            """
+            import org.repository.RepositoryPolicy
+            import org.repository.any
+            import org.repository.all
+            fun main() {
+                    RepositoryPolicy(
+                    any(false), all("trial")
+                )
+            }
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun testRepeatedImportTwice() {
+        assertThat(
+            NoUnusedImportsRule().lint(
+                """
+                import org.repository.RepositoryPolicy
+                import org.repository.any
+                import org.repository.all
+                import org.repository.any
+                import org.repository.any
+                fun main() {
+                        RepositoryPolicy(
+                        any(false), all("trial")
+                                            )
+                }
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(4, 1, "no-unused-imports", "Unused import"),
+                LintError(5, 1, "no-unused-imports", "Unused import")
+            )
+        )
+
+        assertThat(
+            NoUnusedImportsRule().format(
+                """
+                import org.repository.RepositoryPolicy
+                import org.repository.any
+                import org.repository.all
+                import org.repository.any
+                import org.repository.any
+                fun main() {
+                        RepositoryPolicy(
+                        any(false), all("trial")
+                                            )
+                }
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            """
+            import org.repository.RepositoryPolicy
+            import org.repository.any
+            import org.repository.all
+            fun main() {
+                    RepositoryPolicy(
+                    any(false), all("trial")
+                                        )
+            }
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun testRepeatedImportsWithDistinctIncidences() {
+        assertThat(
+            NoUnusedImportsRule().lint(
+                """
+                import org.repository.RepositoryPolicy
+                import org.repository.any
+                import org.repository.all
+                import org.repository.many
+                import org.repository.any
+                import org.repository.none
+                import org.repository.all
+                fun main() {
+                        RepositoryPolicy(
+                        any(false), all("trial"), many("hello"), none("goodbye")
+                    )
+                }
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(5, 1, "no-unused-imports", "Unused import"),
+                LintError(7, 1, "no-unused-imports", "Unused import")
+            )
+        )
+
+        assertThat(
+            NoUnusedImportsRule().format(
+                """
+                import org.repository.RepositoryPolicy
+                import org.repository.any
+                import org.repository.all
+                import org.repository.many
+                import org.repository.any
+                import org.repository.none
+                import org.repository.all
+                fun main() {
+                        RepositoryPolicy(
+                        any(false), all("trial"), many("hello"), none("goodbye")
+                    )
+                }
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            """
+            import org.repository.RepositoryPolicy
+            import org.repository.any
+            import org.repository.all
+            import org.repository.many
+            import org.repository.none
+            fun main() {
+                    RepositoryPolicy(
+                    any(false), all("trial"), many("hello"), none("goodbye")
+                )
+            }
+            """.trimIndent()
+        )
+    }
+
+    @Test
     fun testFormat() {
         assertThat(
             NoUnusedImportsRule().format(
@@ -642,6 +804,36 @@ class NoUnusedImportsRuleTest {
 
                 class Consumer(producer1: Producer1<String>) {
                     val x = 1
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `repeated invocations on the same rule instance should work`() {
+        val rule = NoUnusedImportsRule()
+        assertThat(
+            rule.lint(
+                """
+                import foo.bar
+
+                fun main() {
+                    bar()
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+
+        assertThat(
+            rule.lint(
+                """
+                import foo.bar
+                import foo.baz
+
+                fun main() {
+                    bar()
+                    baz()
                 }
                 """.trimIndent()
             )

@@ -1,5 +1,5 @@
 # Changelog
-All notable changes to this project will be documented in this file.  
+All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
@@ -9,8 +9,18 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 
 ### Changed
+- Support absolute paths for globs ([#1131](https://github.com/pinterest/ktlint/issues/1131))
+- Fix regression from 0.41 with argument list wrapping after dot qualified expression (`argument-list-wrapping`)([#1159](https://github.com/pinterest/ktlint/issues/1159))
 
 ### Removed
+
+## [0.42.1] - 2021-08-06
+
+Dot release to fix regressions in `indent` rule introduced in 0.42.0 release. Thanks to [t-kameyama](https://github.com/t-kameyama) for the fixes!
+
+### Fixed
+- Fix false positive with delegated properties (`indent`) ([#1189](https://github.com/pinterest/ktlint/issues/1189))
+- Fix false positive with lambda argument in super type entry (`indent`) ([#1188](https://github.com/pinterest/ktlint/issues/1188))
 
 ## [0.42.0] - 2021-07-29
 
@@ -891,8 +901,9 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
-[0.42.0]: https://github.com/pinterest/ktlint/compare/0.39.0...0.42.0
-[0.41.0]: https://github.com/pinterest/ktlint/compare/0.39.0...0.41.0
+[0.42.1]: https://github.com/pinterest/ktlint/compare/0.42.0...0.42.1
+[0.42.0]: https://github.com/pinterest/ktlint/compare/0.41.0...0.42.0
+[0.41.0]: https://github.com/pinterest/ktlint/compare/0.40.0...0.41.0
 [0.40.0]: https://github.com/pinterest/ktlint/compare/0.39.0...0.40.0
 [0.39.0]: https://github.com/pinterest/ktlint/compare/0.38.1...0.39.0
 [0.38.1]: https://github.com/pinterest/ktlint/compare/0.38.0...0.38.1
