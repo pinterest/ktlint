@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard
 
+import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.test.diffFileFormat
 import com.pinterest.ktlint.test.diffFileLint
 import com.pinterest.ktlint.test.format
@@ -88,5 +89,40 @@ class SpacingAroundParensRuleTest {
             val typeParameter2: (@Foo() () -> Unit) -> Unit = { { } }
             """.trimIndent()
         assertThat(SpacingAroundParensRule().format(code)).isEqualTo(code)
+    }
+
+    @Test
+    fun `lint trailing spaces after constructor`() {
+        val code =
+            """
+            class SomeClass constructor ()
+
+            """.trimIndent()
+
+        val actual = SpacingAroundParensRule().lint(code)
+
+        assertThat(actual)
+            .isEqualTo(
+                listOf(
+                    LintError(1, 28, "paren-spacing", """Unexpected spacing before "(""""),
+                )
+            )
+    }
+
+    @Test
+    fun `format trailing spaces after constructor`() {
+        val code =
+            """
+            class SomeClass constructor ()
+            """.trimIndent()
+
+        val actual = SpacingAroundParensRule().format(code)
+
+        assertThat(actual)
+            .isEqualTo(
+                """
+                class SomeClass constructor()
+                """.trimIndent()
+            )
     }
 }

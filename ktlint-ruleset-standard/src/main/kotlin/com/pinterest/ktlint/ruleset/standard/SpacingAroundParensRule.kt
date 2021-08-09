@@ -7,6 +7,7 @@ import com.pinterest.ktlint.core.ast.ElementType.FUNCTION_TYPE
 import com.pinterest.ktlint.core.ast.ElementType.IDENTIFIER
 import com.pinterest.ktlint.core.ast.ElementType.KDOC_START
 import com.pinterest.ktlint.core.ast.ElementType.LPAR
+import com.pinterest.ktlint.core.ast.ElementType.PRIMARY_CONSTRUCTOR
 import com.pinterest.ktlint.core.ast.ElementType.RPAR
 import com.pinterest.ktlint.core.ast.ElementType.SUPER_KEYWORD
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_ARGUMENT_LIST
@@ -38,7 +39,8 @@ class SpacingAroundParensRule : Rule("paren-spacing") {
                             // val foo: @Composable () -> Unit
                             node.treeParent?.treeParent?.elementType != FUNCTION_TYPE ||
                             // Super keyword needs special-casing
-                            prevLeaf.prevLeaf()?.elementType == SUPER_KEYWORD
+                            prevLeaf.prevLeaf()?.elementType == SUPER_KEYWORD ||
+                            prevLeaf.prevLeaf()?.treeParent?.elementType == PRIMARY_CONSTRUCTOR
                         ) &&
                     (
                         node.treeParent?.elementType == VALUE_PARAMETER_LIST ||
