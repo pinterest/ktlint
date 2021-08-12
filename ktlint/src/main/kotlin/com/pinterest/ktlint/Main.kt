@@ -492,7 +492,8 @@ class KtlintCommandLine {
                     "",
                     "Internal Error (${e.ruleId}). " +
                         "Please create a ticket at https://github.com/pinterest/ktlint/issues " +
-                        "(if possible, provide the source code that triggered an error)"
+                        "(if possible, please re-run with the --debug flag to get the stacktrace " +
+                        "and provide the source code that triggered an error)"
                 )
             }
             else -> throw e
