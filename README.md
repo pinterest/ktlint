@@ -20,7 +20,7 @@
 While this might sound extreme, keep in mind that `ktlint` tries to capture (reflect) **official code style**[*](https://github.com/pinterest/ktlint/issues/284#issuecomment-425177186) from [kotlinlang.org](https://kotlinlang.org/docs/reference/coding-conventions.html) and [Android Kotlin Style Guide](https://android.github.io/kotlin-guides/style.html)
 (+ [we respect your .editorconfig](#editorconfig) and support additional [ruleset](#creating-a-ruleset)|s).
 - **Built-in formatter.** So that you wouldn't have to fix all style violations by hand.
-- **Customizable output.** `plain` (+ `plain?group_by_file`), `json` and `checkstyle` reporters are available out-of-the-box. 
+- **Customizable output.** `plain` (+ `plain?group_by_file`), `json`, `html`, and `checkstyle` reporters are available out-of-the-box. 
 It's also [easy to create your own](#creating-a-reporter).
 - **A single executable jar with all dependencies included.**
 
@@ -45,7 +45,7 @@ It's also [easy to create your own](#creating-a-reporter).
 - Consistent string templates (`$v` instead of `${v}`, `${p.v}` instead of `${p.v.toString()}`) (id: `string-template`)
 - Consistent order of modifiers (id: `modifier-order`)
 - Consistent spacing after keywords, commas; around colons, curly braces, parens, infix operators, comments, range operators, etc (ids: `colon-spacing`, `comma-spacing`, `curly-spacing`, `dot-spacing`, `double-colon-spacing`, `keyword-spacing`, `op-spacing`, `paren-spacing`, `range-spacing`)
-- Newline at the end of each file (enabled by default) 
+- Newline at the end of each file (enabled by default)
 (set `insert_final_newline=false` in .editorconfig to disable (see [EditorConfig](#editorconfig) section for more)). (id: `final-newline`)
 - Imports ordered consistently (see [Custom ktlint EditorConfig properties](#custom-ktlint-specific-editorconfig-properties) for more) (id: `import-ordering`)
 
@@ -84,7 +84,7 @@ max_line_length=off
 
 ### IntelliJ IDEA `.editorconfig` autoformat issue
 
-Unfortunately [IntelliJ IDEA](https://www.jetbrains.com/idea/) has `.editorconfig` [autoformat issue](https://youtrack.jetbrains.com/issue/IDEA-242506) 
+Unfortunately [IntelliJ IDEA](https://www.jetbrains.com/idea/) has `.editorconfig` [autoformat issue](https://youtrack.jetbrains.com/issue/IDEA-242506)
 that adds additional space into glob statements.
 For example, `[*{kt,kts}]` is formatted into `[*{kt, kts}]` ([original ktlint issue](https://github.com/pinterest/ktlint/issues/762)).
 Such behaviour violates `.editorconfig` [specification](https://github.com/editorconfig/editorconfig/issues/148) and leads to ignoring this section when ktlint is parsing it.
@@ -93,7 +93,7 @@ Such behaviour violates `.editorconfig` [specification](https://github.com/edito
 
 ```ini
 # Comma-separated list of rules to disable (Since 0.34.0)
-# Note that rules in any ruleset other than the standard ruleset will need to be prefixed 
+# Note that rules in any ruleset other than the standard ruleset will need to be prefixed
 # by the ruleset identifier.
 disabled_rules=no-wildcard-imports,experimental:annotation,my-custom-ruleset:my-custom-rule
 
@@ -153,9 +153,9 @@ On Arch Linux, you can install [ktlint](https://aur.archlinux.org/packages/ktlin
 > If you don't have curl installed - replace `curl -sL` with `wget -qO-`.
 
 > If you are behind a proxy see -
-[curl](https://curl.haxx.se/docs/manpage.html#ENVIRONMENT) / 
-[wget](https://www.gnu.org/software/wget/manual/wget.html#Proxies) manpage. 
-Usually simple `http_proxy=http://proxy-server:port https_proxy=http://proxy-server:port curl -sL ...` is enough. 
+[curl](https://curl.haxx.se/docs/manpage.html#ENVIRONMENT) /
+[wget](https://www.gnu.org/software/wget/manual/wget.html#Proxies) manpage.
+Usually simple `http_proxy=http://proxy-server:port https_proxy=http://proxy-server:port curl -sL ...` is enough.
 
 ## Command line usage
 
@@ -166,7 +166,7 @@ $ ktlint --help
 # Check the style of all Kotlin files (ending with '.kt' or '.kts') inside the current dir (recursively).
 # Hidden folders will be skipped.
 $ ktlint
-  
+
 # Check only certain locations starting from the current directory.
 #
 # Prepend ! to negate the pattern, KtLint uses .gitignore pattern style syntax.
@@ -179,13 +179,13 @@ ktlint "src/**/*.kt" "!src/**/*Test.kt"
 ktlint "src/**/*.kt" "!src/**/generated/**"
 
 # Auto-correct style violations.
-# If some errors cannot be fixed automatically they will be printed to stderr. 
+# If some errors cannot be fixed automatically they will be printed to stderr.
 $ ktlint -F "src/**/*.kt"
 
 # Print style violations grouped by file.
 $ ktlint --reporter=plain?group_by_file
 
-# Print style violations as usual + create report in checkstyle format, specifying report location. 
+# Print style violations as usual + create report in checkstyle format, specifying report location.
 $ ktlint --reporter=plain --reporter=checkstyle,output=ktlint-report-in-checkstyle-format.xml
 
 # Check against a baseline file.
@@ -196,11 +196,11 @@ $ ktlint --baseline=ktlint-baseline.xml
 $ ktlint installGitPreCommitHook
 ```
 
-> on Windows you'll have to use `java -jar ktlint ...`. 
+> on Windows you'll have to use `java -jar ktlint ...`.
 
 `ktlint --help` for more.
 
-### Integration 
+### Integration
 
 #### ... with [Maven](https://github.com/shyiko/mvnw)
 
@@ -222,7 +222,7 @@ $ ktlint installGitPreCommitHook
                     classpathref="maven.plugin.classpath" classname="com.pinterest.ktlint.Main">
                     <arg value="src/**/*.kt"/>
                     <!-- to generate report in checkstyle format prepend following args: -->
-                    <!-- 
+                    <!--
                     <arg value="--reporter=plain"/>
                     <arg value="--reporter=checkstyle,output=${project.build.directory}/ktlint.xml"/>
                     -->
@@ -263,7 +263,7 @@ $ ktlint installGitPreCommitHook
 To check code style - `mvn antrun:run@ktlint` (it's also bound to `mvn verify`).  
 To run formatter - `mvn antrun:run@ktlint-format`.   
 
-**Another option** is to use a dedicated Maven plugin - [gantsign/ktlint-maven-plugin](https://github.com/gantsign/ktlint-maven-plugin). 
+**Another option** is to use a dedicated Maven plugin - [gantsign/ktlint-maven-plugin](https://github.com/gantsign/ktlint-maven-plugin).
 
 #### ... with [Gradle](https://gradle.org/)
 
@@ -304,7 +304,7 @@ dependencies {
         }
     }
     // additional 3rd party ruleset(s) can be specified here
-    // just add them to the classpath (e.g. ktlint 'groupId:artifactId:version') and 
+    // just add them to the classpath (e.g. ktlint 'groupId:artifactId:version') and
     // ktlint will pick them up
 }
 
@@ -332,7 +332,7 @@ task ktlintFormat(type: JavaExec, group: "formatting") {
 To check code style - `gradle ktlint` (it's also bound to `gradle check`).  
 To run formatter - `gradle ktlintFormat`.
 
-See [Making your Gradle tasks incremental](https://proandroiddev.com/making-your-gradle-tasks-incremental-7f26e4ef09c3) by [Niklas Baudy](https://github.com/vanniktech) on how to make tasks above incremental. 
+See [Making your Gradle tasks incremental](https://proandroiddev.com/making-your-gradle-tasks-incremental-7f26e4ef09c3) by [Niklas Baudy](https://github.com/vanniktech) on how to make tasks above incremental.
 
 
 #### (without a plugin) for Gradle Kotlin DSL (build.gradle.kts)
@@ -377,8 +377,8 @@ val ktlintFormat by tasks.creating(JavaExec::class) {
 
 #### ... with [IntelliJ IDEA](https://www.jetbrains.com/idea/)
 
-> While this is not strictly necessary it makes Intellij IDEA's built-in formatter produce 100% ktlint-compatible 
- code. 
+> While this is not strictly necessary it makes Intellij IDEA's built-in formatter produce 100% ktlint-compatible
+ code.
 
 ##### Option #1 (recommended)
 
@@ -425,7 +425,7 @@ Go to <kbd>File</kbd> -> <kbd>Settings...</kbd> -> <kbd>Editor</kbd>
     - uncheck `Function declaration parameters` (OR `Methods declartion parameters` for older version) / `Align when multiline`.
   - (optional but recommended) open <kbd>Tabs and Indents</kbd> tab
     - change `Continuation indent` to the same value as `Indent` (4 by default).   
-- <kbd>Inspections</kbd> 
+- <kbd>Inspections</kbd>
   - change `Severity` level of `Unused import directive` and `Redundant semicolon` under `Kotlin` -> `Redundant constructs` to `ERROR`.
 
 #### ... with [GNU Emacs](https://www.gnu.org/software/emacs/)
@@ -444,11 +444,11 @@ See [Mega-Linter](https://nvuillam.github.io/mega-linter/): 70+ linters aggregat
 
 ## Creating a ruleset
 
-> See also [Writing your first ktlint rule](https://medium.com/@vanniktech/writing-your-first-ktlint-rule-5a1707f4ca5b) by [Niklas Baudy](https://github.com/vanniktech). 
+> See also [Writing your first ktlint rule](https://medium.com/@vanniktech/writing-your-first-ktlint-rule-5a1707f4ca5b) by [Niklas Baudy](https://github.com/vanniktech).
 
-In a nutshell: "ruleset" is a JAR containing one or more [Rule](ktlint-core/src/main/kotlin/com/pinterest/ktlint/core/Rule.kt)s gathered together in a [RuleSet](ktlint-core/src/main/kotlin/com/pinterest/ktlint/core/RuleSet.kt). `ktlint` is relying on 
+In a nutshell: "ruleset" is a JAR containing one or more [Rule](ktlint-core/src/main/kotlin/com/pinterest/ktlint/core/Rule.kt)s gathered together in a [RuleSet](ktlint-core/src/main/kotlin/com/pinterest/ktlint/core/RuleSet.kt). `ktlint` is relying on
 [ServiceLoader](https://docs.oracle.com/javase/8/docs/api/java/util/ServiceLoader.html) to discover all available "RuleSet"s
-on the classpath (as a ruleset author, all you need to do is to include a `META-INF/services/com.pinterest.ktlint.core.RuleSetProvider` file 
+on the classpath (as a ruleset author, all you need to do is to include a `META-INF/services/com.pinterest.ktlint.core.RuleSetProvider` file
 containing a fully qualified name of your [RuleSetProvider](ktlint-core/src/main/kotlin/com/pinterest/ktlint/core/RuleSetProvider.kt) implementation).    
 
 Once packaged in a JAR <sup>[e.g. via `./gradlew build`](https://github.com/pinterest/ktlint/issues/300#issuecomment-432408753)</sup> you can load it with
@@ -461,15 +461,15 @@ $ ktlint -R /path/to/custom/rulseset.jar "src/test/**/*.kt"
 Loading custom (3rd party) ruleset via built-in maven dependency resolver is deprecated,
 see https://github.com/pinterest/ktlint/issues/451.
 
-A complete sample project (with tests and build files) is included in this repo under the [ktlint-ruleset-template](ktlint-ruleset-template) directory 
-(make sure to check [NoVarRuleTest](ktlint-ruleset-template/src/test/kotlin/yourpkgname/NoVarRuleTest.kt) as it contains some useful information). 
+A complete sample project (with tests and build files) is included in this repo under the [ktlint-ruleset-template](ktlint-ruleset-template) directory
+(make sure to check [NoVarRuleTest](ktlint-ruleset-template/src/test/kotlin/yourpkgname/NoVarRuleTest.kt) as it contains some useful information).
 
 #### AST
 
 While writing/debugging [Rule](ktlint-core/src/main/kotlin/com/pinterest/ktlint/core/Rule.kt)s it's often helpful to have an AST
 printed out to see the structure rules have to work with. ktlint >= 0.15.0 has a `printAST` subcommand (or `--print-ast` flag for ktlint < 0.34.0) specifically for this purpose
 (usage: `ktlint --color printAST <file>`).
-An example of the output is shown below. 
+An example of the output is shown below.
 
 ```sh
 $ printf "fun main() {}" | ktlint --color printAST --stdin
@@ -483,7 +483,7 @@ $ printf "fun main() {}" | ktlint --color printAST --stdin
 1:         ~.c.i.p.impl.source.tree.LeafPsiElement (~.lexer.KtKeywordToken.fun) "fun"
 1:         ~.c.i.p.impl.source.tree.PsiWhiteSpaceImpl (~.c.i.p.tree.IElementType.WHITE_SPACE) " "
 1:         ~.c.i.p.impl.source.tree.LeafPsiElement (~.lexer.KtToken.IDENTIFIER) "main"
-1:         ~.psi.KtParameterList 
+1:         ~.psi.KtParameterList
   (~.psi.stubs.elements.KtPlaceHolderStubElementType.VALUE_PARAMETER_LIST)
 1:           ~.c.i.p.impl.source.tree.LeafPsiElement (~.lexer.KtSingleValueToken.LPAR) "("
 1:           ~.c.i.p.impl.source.tree.LeafPsiElement (~.lexer.KtSingleValueToken.RPAR) ")"
@@ -494,15 +494,15 @@ $ printf "fun main() {}" | ktlint --color printAST --stdin
 
    format: <line_number:> <node.psi::class> (<node.elementType>) "<node.text>"
    legend: ~ = org.jetbrains.kotlin, c.i.p = com.intellij.psi
-   
+
 ```
 
 ## Creating a reporter
 
-Take a look at [ktlint-reporter-plain](ktlint-reporter-plain). 
+Take a look at [ktlint-reporter-plain](ktlint-reporter-plain).
 
-In short, all you need to do is to implement a 
-[Reporter](ktlint-core/src/main/kotlin/com/pinterest/ktlint/core/Reporter.kt) and make it available by registering 
+In short, all you need to do is to implement a
+[Reporter](ktlint-core/src/main/kotlin/com/pinterest/ktlint/core/Reporter.kt) and make it available by registering
 a custom [ReporterProvider](ktlint-core/src/main/kotlin/com/pinterest/ktlint/core/ReporterProvider.kt) using
 `META-INF/services/com.pinterest.ktlint.core.ReporterProvider`. Pack all of that into a JAR and you're done.
 
@@ -586,8 +586,8 @@ To run `ktlint` - right-click on `ktlint/src/main/kotlin/com/pinterest/ktlint/Ma
 #### Access to the latest `master` snapshot
 
 Whenever a commit is added to the `master` branch a snapshot build is automatically uploaded to [Sonatype's snapshots repository](https://oss.sonatype.org/content/repositories/snapshots/com/pinterest/ktlint/).
-If you are eager to try upcoming changes (that might or might not be included in the next stable release) you can do 
-so by changing version of ktlint to `<latest-version>-SNAPSHOT` + adding a repo: 
+If you are eager to try upcoming changes (that might or might not be included in the next stable release) you can do
+so by changing version of ktlint to `<latest-version>-SNAPSHOT` + adding a repo:
 
 ##### Maven
 
