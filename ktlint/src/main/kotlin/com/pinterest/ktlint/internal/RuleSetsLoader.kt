@@ -54,7 +54,6 @@ internal fun JarFiles.loadRulesets(
                           - Does the resource file contain the fully qualified class name of the class implementing the RuleSetProvider interface?
                 """.trimIndent() // ktlint-disable string-template
             )
-            exitProcess(2)
         }
     }
 
