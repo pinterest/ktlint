@@ -3,7 +3,6 @@ package com.pinterest.ktlint.internal
 import com.pinterest.ktlint.core.RuleSetProvider
 import java.net.URLClassLoader
 import java.util.ServiceLoader
-import kotlin.system.exitProcess
 
 /**
  * Load given list of paths to rulesets jars into map of ruleset providers.
