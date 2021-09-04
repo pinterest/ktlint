@@ -29,7 +29,7 @@ class GenerateEditorConfigSubCommand : Runnable {
             KtLint.ExperimentalParams(
                 fileName = "./test.kt",
                 text = "",
-                ruleSets = ktlintCommand.rulesets
+                ruleSets = ktlintCommand.rulesetJarFiles
                     .loadRulesets(
                         ktlintCommand.experimental,
                         ktlintCommand.debug,

@@ -4,6 +4,7 @@ import com.pinterest.ktlint.core.EditorConfig
 import com.pinterest.ktlint.core.EditorConfig.IndentStyle
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.RunAfterRule
 import com.pinterest.ktlint.core.ast.ElementType.ANNOTATION
 import com.pinterest.ktlint.core.ast.ElementType.ARROW
 import com.pinterest.ktlint.core.ast.ElementType.BINARY_EXPRESSION
