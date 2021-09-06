@@ -18,13 +18,9 @@ internal fun JarFiles.loadRulesets(
         RuleSetProvider::class.java,
         URLClassLoader(toFilesURIList().toTypedArray())
     )
-    .associateBy {
-        val key = it.get().id
-        // standard should go first
-        if (key == "standard") "\u0000$key" else key
-    }
+    .associateBy { it.get().id }
     .filterKeys { loadExperimental || it != "experimental" }
-    .filterKeys { !(disabledRules.isStandardRuleSetDisabled() && it == "\u0000standard") }
+    .filterKeys { !(disabledRules.isStandardRuleSetDisabled() && it == "standard") }
     .toSortedMap()
     .also {
         if (debug) {

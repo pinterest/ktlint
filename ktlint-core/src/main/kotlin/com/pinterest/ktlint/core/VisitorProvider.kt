@@ -14,36 +14,49 @@ public class VisitorProvider(
 ) {
     private val ruleReferences: List<RuleReference> =
         ruleSets
-            .flatMap { ruleSet ->
-                ruleSet
-                    .rules
-                    .map { rule ->
-                        RuleReference(
-                            ruleId = rule.id,
-                            ruleSetId = ruleSet.id,
-                            ruleReferenceGroup = rule.toRuleReferenceGroup()
-                        )
+            .flatMap { it.toRuleReferences() }
+            .sortedWith(
+                // The order of the rule sets loaded and the order of the rules inside the rule sets is replaced with
+                // a custom order which so that each invocation of KtLint uses the exact same rule ordering.
+                compareBy<RuleReference> {
+                    when (it.ruleSetId) {
+                        "standard" -> 0
+                        "experimental" -> 1
+                        else -> 2
                     }
-            }.also {
+                }.thenBy { it.ruleId }
+            )
+            .also {
                 if (debug) {
-                    println("[DEBUG]Rules will be executed in order below:")
-                    println("         - Rules with Rule.Modifier.RestrictToRoot: ${it.print(RESTRICT_TO_ROOT)}")
-                    println("         - Rules without Rule.Modifier: ${it.print(NORMAL)}")
-                    println("         - Rules with Rule.Modifier.RestrictToRootLast: ${it.print(RESTRICT_TO_ROOT_LAST)}")
-                    println("         - Rules with Rule.Modifier.Last: ${it.print(LAST)}")
+                    println("[DEBUG] Rules will be executed in order below:")
+                    println("          - Rules with Rule.Modifier.RestrictToRoot: ${it.print(RESTRICT_TO_ROOT)}")
+                    println("          - Rules without Rule.Modifier: ${it.print(NORMAL)}")
+                    println("          - Rules with Rule.Modifier.RestrictToRootLast: ${it.print(RESTRICT_TO_ROOT_LAST)}")
+                    println("          - Rules with Rule.Modifier.Last: ${it.print(LAST)}")
                 }
             }
 
+    private fun RuleSet.toRuleReferences() =
+        rules.map { it.toRuleReference(id) }
+
+    private fun Rule.toRuleReference(ruleSetId: String) =
+        RuleReference(
+            ruleId = id,
+            ruleSetId = ruleSetId,
+            ruleReferenceGroup = toRuleReferenceGroup()
+        )
+
+    private fun Rule.toRuleReferenceGroup(): RuleReferenceGroup =
+        when (this) {
+            is Rule.Modifier.Last -> LAST
+            is Rule.Modifier.RestrictToRootLast -> RESTRICT_TO_ROOT_LAST
+            is Rule.Modifier.RestrictToRoot -> RESTRICT_TO_ROOT
+            else -> NORMAL
+        }
+
     private fun List<RuleReference>.print(ruleReferenceGroup: RuleReferenceGroup): String =
         filter { it.ruleReferenceGroup == ruleReferenceGroup }
-            .joinToString { "\n             - ${it.ruleSetId}:${it.ruleId}" }
-
-    private fun Rule.toRuleReferenceGroup() = when (this) {
-        is Rule.Modifier.Last -> LAST
-        is Rule.Modifier.RestrictToRootLast -> RESTRICT_TO_ROOT_LAST
-        is Rule.Modifier.RestrictToRoot -> RESTRICT_TO_ROOT
-        else -> NORMAL
-    }
+            .joinToString { "\n              - ${it.ruleSetId}:${it.ruleId}" }
 
     internal fun visitor(
         ruleSets: Iterable<RuleSet>,
