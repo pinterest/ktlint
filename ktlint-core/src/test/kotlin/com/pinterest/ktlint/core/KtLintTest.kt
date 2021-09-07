@@ -31,10 +31,14 @@ class KtLintTest {
                 ruleSets = listOf(
                     RuleSet(
                         "standard",
-                        object : R(bus, "e"), Rule.Modifier.Last {},
-                        object : R(bus, "d"), Rule.Modifier.RestrictToRootLast {},
+                        @RunAsLateAsPossible
+                        object : R(bus, "e") {},
+                        @RunOnRootNodeOnly
+                        @RunAsLateAsPossible
+                        object : R(bus, "d") {},
                         R(bus, "b"),
-                        object : R(bus, "a"), Rule.Modifier.RestrictToRoot {},
+                        @RunOnRootNodeOnly
+                        object : R(bus, "a") {},
                         R(bus, "c")
                     )
                 ),

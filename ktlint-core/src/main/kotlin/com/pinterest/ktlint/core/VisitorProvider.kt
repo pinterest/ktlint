@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.core
 
 import com.pinterest.ktlint.core.ast.visit
+import kotlin.reflect.KClass
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 public class VisitorProvider(
@@ -51,24 +52,60 @@ public class VisitorProvider(
         RuleReference(
             ruleId = id,
             ruleSetId = ruleSetId,
-            runOnRootNodeOnly = toRunsOnRootNodeOnly(),
-            runAsLateAsPossible = toRunsAsLateAsPossible()
+            runOnRootNodeOnly = toRunsOnRootNodeOnly(ruleSetId),
+            runAsLateAsPossible = toRunsAsLateAsPossible(ruleSetId)
         )
 
-    private fun Rule.toRunsOnRootNodeOnly(): Boolean {
+    private fun Rule.toRunsOnRootNodeOnly(ruleSetId: String): Boolean {
+        if (isAnnotatedWith { it is RunOnRootNodeOnly }) {
+            return true
+        }
+
         return when (this) {
-            is Rule.Modifier.RestrictToRootLast -> true
-            is Rule.Modifier.RestrictToRoot -> true
+            is Rule.Modifier.RestrictToRootLast -> {
+                printWarningDeprecatedInterface(ruleSetId, Rule.Modifier.RestrictToRootLast::class)
+                true
+            }
+            is Rule.Modifier.RestrictToRoot -> {
+                printWarningDeprecatedInterface(ruleSetId, Rule.Modifier.RestrictToRoot::class)
+                true
+            }
             else -> false
         }
     }
 
-    private fun Rule.toRunsAsLateAsPossible(): Boolean {
+    private fun Rule.toRunsAsLateAsPossible(ruleSetId: String): Boolean {
+        if (isAnnotatedWith { it is RunAsLateAsPossible }) {
+            return true
+        }
+
         return when (this) {
-            is Rule.Modifier.Last -> true
-            is Rule.Modifier.RestrictToRootLast -> true
+            is Rule.Modifier.Last -> {
+                printWarningDeprecatedInterface(ruleSetId, Rule.Modifier.Last::class)
+                true
+            }
+            is Rule.Modifier.RestrictToRootLast -> {
+                printWarningDeprecatedInterface(ruleSetId, Rule.Modifier.RestrictToRootLast::class)
+                true
+            }
             else -> false
         }
+    }
+
+    private fun Rule.isAnnotatedWith(predicate: (Annotation) -> Boolean) =
+        this::class
+            .annotations
+            .any(predicate)
+
+    private fun Rule.printWarningDeprecatedInterface(
+        ruleSetId: String,
+        kClass: KClass<*>
+    ) {
+        println(
+            "[WARN] Rule with id '$ruleSetId:$id' is marked with interface '${kClass.qualifiedName}'. This interface " +
+                "is deprecated and marked for deletion in a future version of ktlint. Contact the maintainer of " +
+                "the ruleset '$ruleSetId' to fix this rule."
+        )
     }
 
     internal fun visitor(

@@ -5,6 +5,8 @@ import com.pinterest.ktlint.core.EditorConfig.IndentStyle
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.RunAfterRule
+import com.pinterest.ktlint.core.RunAsLateAsPossible
+import com.pinterest.ktlint.core.RunOnRootNodeOnly
 import com.pinterest.ktlint.core.ast.ElementType.ANNOTATION
 import com.pinterest.ktlint.core.ast.ElementType.ARROW
 import com.pinterest.ktlint.core.ast.ElementType.BINARY_EXPRESSION
@@ -101,7 +103,9 @@ import org.jetbrains.kotlin.psi.psiUtil.leaves
  * Current limitations:
  * - "all or nothing" (currently, rule can only be disabled for an entire file)
  */
-class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
+@RunOnRootNodeOnly
+@RunAsLateAsPossible
+class IndentationRule : Rule("indent") {
 
     private companion object {
         // run `KTLINT_DEBUG=experimental/indent ktlint ...` to enable debug output

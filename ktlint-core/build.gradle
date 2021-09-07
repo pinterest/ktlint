@@ -5,6 +5,7 @@ plugins {
 
 dependencies {
   api deps.kotlin.compiler
+  api deps.kotlinreflect
   api deps.ec4j
 
   testImplementation deps.junit

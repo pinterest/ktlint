@@ -2,7 +2,6 @@ package com.pinterest.ktlint.core
 
 import com.pinterest.ktlint.core.internal.IdNamingPolicy
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
 
 /**
  * A rule contract.
@@ -34,18 +33,20 @@ abstract class Rule(val id: String) {
     )
 
     object Modifier {
-        /**
-         * Any rule implementing this interface will be given root ([FileASTNode]) node only
-         * (in other words, [visit] will be called on [FileASTNode] but not on [FileASTNode] children).
-         */
+        @Deprecated(
+            message = "Marked for deletion in a future version. Annotate the rule with @RunOnRootNodeOnly.",
+            level = DeprecationLevel.WARNING
+        )
         interface RestrictToRoot
-        /**
-         * Marker interface to indicate that rule must be executed after all other rules (order among multiple
-         * [RestrictToRootLast] rules is not defined and should be assumed to be random).
-         *
-         * Note that [RestrictToRootLast] implements [RestrictToRoot].
-         */
+        @Deprecated(
+            message = "Marked for deletion in a future version. Annotate the rule with @RunOnRootNodeOnly and @RunAsLateAsPossible.",
+            level = DeprecationLevel.WARNING
+        )
         interface RestrictToRootLast : RestrictToRoot
+        @Deprecated(
+            message = "Marked for deletion in a future version. Annotate the rule with @RunAsLateAsPossible.",
+            level = DeprecationLevel.WARNING
+        )
         interface Last
     }
 }

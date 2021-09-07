@@ -2,6 +2,7 @@ package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.RunAsLateAsPossible
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
@@ -21,9 +22,12 @@ import org.jetbrains.kotlin.psi.KtImportDirective
 import org.jetbrains.kotlin.psi.KtPackageDirective
 
 @OptIn(FeatureInAlphaState::class)
+// Should run after all other rules with might increase the line length
+// TODO: Currently this condition is not entirely met. This rule is part of the experimental rule set which also contains
+//  the trailing-comma rule which runs after this rule.
+@RunAsLateAsPossible
 class MaxLineLengthRule :
     Rule("max-line-length"),
-    Rule.Modifier.Last,
     UsesEditorConfigProperties {
 
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
