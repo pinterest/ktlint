@@ -31,6 +31,7 @@ class KtLintTest {
                 ruleSets = listOf(
                     RuleSet(
                         "standard",
+                        object : R(bus, "e"), Rule.Modifier.Last {},
                         object : R(bus, "d"), Rule.Modifier.RestrictToRootLast {},
                         R(bus, "b"),
                         object : R(bus, "a"), Rule.Modifier.RestrictToRoot {},
@@ -40,7 +41,7 @@ class KtLintTest {
                 cb = { _, _ -> }
             )
         )
-        assertThat(bus).isEqualTo(listOf("file:a", "file:b", "file:c", "b", "c", "file:d"))
+        assertThat(bus).isEqualTo(listOf("file:a", "file:b", "file:c", "file:d", "file:e", "b", "c", "e"))
     }
 
     @Test

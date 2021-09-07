@@ -1,11 +1,6 @@
 package com.pinterest.ktlint.core
 
-import com.pinterest.ktlint.core.RuleReferenceGroup.LAST
-import com.pinterest.ktlint.core.RuleReferenceGroup.NORMAL
-import com.pinterest.ktlint.core.RuleReferenceGroup.RESTRICT_TO_ROOT
-import com.pinterest.ktlint.core.RuleReferenceGroup.RESTRICT_TO_ROOT_LAST
 import com.pinterest.ktlint.core.ast.visit
-import java.lang.UnsupportedOperationException
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 public class VisitorProvider(
@@ -16,9 +11,22 @@ public class VisitorProvider(
         ruleSets
             .flatMap { it.toRuleReferences() }
             .sortedWith(
-                // The order of the rule sets loaded and the order of the rules inside the rule sets is replaced with
-                // a custom order which so that each invocation of KtLint uses the exact same rule ordering.
+                // The sort order below should guarantee a stable order of the rule between multiple invocations of
+                // KtLint given the same set of input parameters. There should be no dependency on ordered data coming
+                // from outside of this class.
                 compareBy<RuleReference> {
+                    if (it.runAsLateAsPossible) {
+                        1
+                    } else {
+                        0
+                    }
+                }.thenBy {
+                    if (it.runOnRootNodeOnly) {
+                        0
+                    } else {
+                        1
+                    }
+                }.thenBy {
                     when (it.ruleSetId) {
                         "standard" -> 0
                         "experimental" -> 1
@@ -26,13 +34,13 @@ public class VisitorProvider(
                     }
                 }.thenBy { it.ruleId }
             )
-            .also {
+            .also { ruleReferences ->
                 if (debug) {
-                    println("[DEBUG] Rules will be executed in order below:")
-                    println("          - Rules with Rule.Modifier.RestrictToRoot: ${it.print(RESTRICT_TO_ROOT)}")
-                    println("          - Rules without Rule.Modifier: ${it.print(NORMAL)}")
-                    println("          - Rules with Rule.Modifier.RestrictToRootLast: ${it.print(RESTRICT_TO_ROOT_LAST)}")
-                    println("          - Rules with Rule.Modifier.Last: ${it.print(LAST)}")
+                    ruleReferences
+                        .joinToString(prefix = "[DEBUG] Rules will be executed in order below:") {
+                            "\n           - ${it.ruleSetId}:${it.ruleId}"
+                        }
+                        .let { println(it) }
                 }
             }
 
@@ -43,27 +51,43 @@ public class VisitorProvider(
         RuleReference(
             ruleId = id,
             ruleSetId = ruleSetId,
-            ruleReferenceGroup = toRuleReferenceGroup()
+            runOnRootNodeOnly = toRunsOnRootNodeOnly(),
+            runAsLateAsPossible = toRunsAsLateAsPossible()
         )
 
-    private fun Rule.toRuleReferenceGroup(): RuleReferenceGroup =
-        when (this) {
-            is Rule.Modifier.Last -> LAST
-            is Rule.Modifier.RestrictToRootLast -> RESTRICT_TO_ROOT_LAST
-            is Rule.Modifier.RestrictToRoot -> RESTRICT_TO_ROOT
-            else -> NORMAL
+    private fun Rule.toRunsOnRootNodeOnly(): Boolean {
+        return when (this) {
+            is Rule.Modifier.RestrictToRootLast -> true
+            is Rule.Modifier.RestrictToRoot -> true
+            else -> false
         }
+    }
 
-    private fun List<RuleReference>.print(ruleReferenceGroup: RuleReferenceGroup): String =
-        filter { it.ruleReferenceGroup == ruleReferenceGroup }
-            .joinToString { "\n              - ${it.ruleSetId}:${it.ruleId}" }
+    private fun Rule.toRunsAsLateAsPossible(): Boolean {
+        return when (this) {
+            is Rule.Modifier.Last -> true
+            is Rule.Modifier.RestrictToRootLast -> true
+            else -> false
+        }
+    }
 
     internal fun visitor(
         ruleSets: Iterable<RuleSet>,
         rootNode: ASTNode,
         concurrent: Boolean = true
     ): ((node: ASTNode, rule: Rule, fqRuleId: String) -> Unit) -> Unit {
-        val rules = ruleSets
+        return if (concurrent) {
+            concurrentVisitor(ruleSets, rootNode)
+        } else {
+            sequentialVisitor(ruleSets, rootNode)
+        }
+    }
+
+    private fun concurrentVisitor(
+        ruleSets: Iterable<RuleSet>,
+        rootNode: ASTNode,
+    ): ((node: ASTNode, rule: Rule, fqRuleId: String) -> Unit) -> Unit {
+        val enabledRules = ruleSets
             .flatMap { ruleSet ->
                 ruleSet
                     .rules
@@ -71,63 +95,45 @@ public class VisitorProvider(
                     .map { rule -> "${ruleSet.id}:${rule.id}" to rule }
             }.toMap()
         return { visit ->
-            rules.processSequential(rootNode, RESTRICT_TO_ROOT, visit)
-            if (concurrent) {
-                rules.processConcurrent(rootNode, NORMAL, visit)
-            } else {
-                rules.processSequential(rootNode, NORMAL, visit)
-            }
-            rules.processSequential(rootNode, RESTRICT_TO_ROOT_LAST, visit)
-            if (concurrent) {
-                rules.processConcurrent(rootNode, LAST, visit)
-            } else {
-                rules.processSequential(rootNode, LAST, visit)
+            rootNode.visit { node ->
+                ruleReferences
+                    .forEach { ruleReference ->
+                        if (node == rootNode || !ruleReference.runOnRootNodeOnly) {
+                            enabledRules["${ruleReference.ruleSetId}:${ruleReference.ruleId}"]
+                                ?.let { rule ->
+                                    visit(node, rule, ruleReference.toId())
+                                }
+                        }
+                    }
             }
         }
     }
 
-    private fun Map<String, Rule>.processSequential(
+    private fun sequentialVisitor(
+        ruleSets: Iterable<RuleSet>,
         rootNode: ASTNode,
-        ruleReferenceGroup: RuleReferenceGroup,
-        visit: (node: ASTNode, rule: Rule, fqRuleId: String) -> Unit
-    ) =
-        when (ruleReferenceGroup) {
-            RESTRICT_TO_ROOT, RESTRICT_TO_ROOT_LAST ->
-                filterBy(ruleReferenceGroup)
-                    .forEach { (ruleId, rule) -> visit(rootNode, rule, ruleId) }
-            NORMAL, LAST ->
-                filterBy(ruleReferenceGroup)
-                    .forEach { (ruleId, rule) ->
-                        rootNode.visit { node -> visit(node, rule, ruleId) }
-                    }
-        }
-
-    private fun Map<String, Rule>.processConcurrent(
-        rootNode: ASTNode,
-        ruleReferenceGroup: RuleReferenceGroup,
-        visit: (node: ASTNode, rule: Rule, fqRuleId: String) -> Unit
-    ) =
-        when (ruleReferenceGroup) {
-            RESTRICT_TO_ROOT, RESTRICT_TO_ROOT_LAST ->
-                throw UnsupportedOperationException(
-                    "Concurrent processing for reference group '$ruleReferenceGroup' is not supported"
-                )
-            NORMAL, LAST ->
-                rootNode.visit { node ->
-                    this
-                        .filterBy(ruleReferenceGroup)
-                        .forEach { (ruleId, rule) -> visit(node, rule, ruleId) }
+    ): ((node: ASTNode, rule: Rule, fqRuleId: String) -> Unit) -> Unit {
+        val enabledRules = ruleSets
+            .flatMap { ruleSet ->
+                ruleSet
+                    .rules
+                    .filter { rule -> isNotDisabled(rootNode, ruleSet.id, rule.id) }
+                    .map { rule -> "${ruleSet.id}:${rule.id}" to rule }
+            }.toMap()
+        return { visit ->
+            ruleReferences
+                .forEach { ruleReference ->
+                    enabledRules["${ruleReference.ruleSetId}:${ruleReference.ruleId}"]
+                        ?.let { rule ->
+                            if (ruleReference.runOnRootNodeOnly) {
+                                visit(rootNode, rule, ruleReference.toId())
+                            } else {
+                                rootNode.visit { node -> visit(node, rule, ruleReference.toId()) }
+                            }
+                        }
                 }
         }
-
-    private fun Map<String, Rule>.filterBy(
-        ruleReferenceGroup: RuleReferenceGroup
-    ): List<Pair<String, Rule>> =
-        ruleReferences
-            .filter { it.ruleReferenceGroup == ruleReferenceGroup }
-            .map { Pair(it.toId(), findByReference(it)) }
-            .filter { it.second != null }
-            .map { it.first to it.second!! }
+    }
 
     private fun RuleReference.toId() =
         if (ruleSetId == "standard") {
@@ -148,20 +154,11 @@ public class VisitorProvider(
             .orEmpty()
             .none { it in ruleIds }
     }
-
-    private fun Map<String, Rule>.findByReference(ruleReference: RuleReference): Rule? =
-        this["${ruleReference.ruleSetId}:${ruleReference.ruleId}"]
 }
 
 private data class RuleReference(
     val ruleId: String,
     val ruleSetId: String,
-    val ruleReferenceGroup: RuleReferenceGroup
+    val runOnRootNodeOnly: Boolean,
+    val runAsLateAsPossible: Boolean
 )
-
-private enum class RuleReferenceGroup {
-    LAST,
-    RESTRICT_TO_ROOT_LAST,
-    RESTRICT_TO_ROOT,
-    NORMAL
-}
