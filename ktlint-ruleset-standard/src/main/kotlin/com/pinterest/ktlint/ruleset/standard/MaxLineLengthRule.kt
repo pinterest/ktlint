@@ -2,6 +2,7 @@ package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.RunAfterRule
 import com.pinterest.ktlint.core.RunAsLateAsPossible
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
@@ -22,9 +23,13 @@ import org.jetbrains.kotlin.psi.KtImportDirective
 import org.jetbrains.kotlin.psi.KtPackageDirective
 
 @OptIn(FeatureInAlphaState::class)
-// Should run after all other rules with might increase the line length
-// TODO: Currently this condition is not entirely met. This rule is part of the experimental rule set which also contains
-//  the trailing-comma rule which runs after this rule.
+@RunAfterRule(
+    // Should run after all other rules. Each time a rule annotated with @RunAsLateAsPossible is added, it needs to be
+    // checked that this rule still runs after that new rule or that it won't be affected by that rule.
+    ruleId = "experimental:trailing-comma",
+    loadOnlyWhenOtherRuleIsLoaded = false,
+    runOnlyWhenOtherRuleIsEnabled = false
+)
 @RunAsLateAsPossible
 class MaxLineLengthRule :
     Rule("max-line-length"),

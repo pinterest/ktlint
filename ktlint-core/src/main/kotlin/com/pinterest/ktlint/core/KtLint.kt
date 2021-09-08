@@ -152,6 +152,8 @@ public object KtLint {
      * @throws ParseException if text is not a valid Kotlin code
      * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
      */
+    // TODO: Shouldn't this method be moved to module ktlint-test as it is called from unit tests only? It will be a
+    //  breaking change for custom rule set implementations.
     @FeatureInAlphaState
     public fun lint(
         params: ExperimentalParams,
@@ -301,6 +303,8 @@ public object KtLint {
      * @throws ParseException if text is not a valid Kotlin code
      * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
      */
+    // TODO: Shouldn't this method be moved to module ktlint-test as it is called from unit tests only? It will be a
+    //  breaking change for custom rule set implementations.
     @OptIn(FeatureInAlphaState::class)
     public fun format(params: Params): String {
         val toExperimentalParams = toExperimentalParams(params)
@@ -309,7 +313,8 @@ public object KtLint {
             toExperimentalParams.ruleSets,
             VisitorProvider(
                 ruleSets = toExperimentalParams.ruleSets,
-                debug = toExperimentalParams.debug
+                debug = toExperimentalParams.debug,
+                isUnitTestContext = true
             )
         )
     }

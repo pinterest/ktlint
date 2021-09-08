@@ -2,6 +2,7 @@ package com.pinterest.ktlint.ruleset.experimental.trailingcomma
 
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.RunAfterRule
 import com.pinterest.ktlint.core.RunAsLateAsPossible
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
@@ -29,9 +30,12 @@ import org.jetbrains.kotlin.psi.psiUtil.collectDescendantsOfType
 import org.jetbrains.kotlin.utils.addToStdlib.cast
 
 @OptIn(FeatureInAlphaState::class)
-// runs last to ensure that the linebreaks are already inserted by the indent and other rules
-// TODO: Currently this condition is met only because the indent rule implements Rule.Modifier.RestrictToRootLast and
-//  therefore runs before this rule. It would be better to make this explicit.
+// Run rule only in case the indent rule has run
+@RunAfterRule(
+    ruleId = "standard:indent",
+    loadOnlyWhenOtherRuleIsLoaded = true,
+    runOnlyWhenOtherRuleIsEnabled = true
+)
 @RunAsLateAsPossible
 public class TrailingCommaRule :
     Rule("trailing-comma"),

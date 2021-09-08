@@ -4,7 +4,6 @@ import com.pinterest.ktlint.core.EditorConfig
 import com.pinterest.ktlint.core.EditorConfig.IndentStyle
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.RunAfterRule
 import com.pinterest.ktlint.core.RunAsLateAsPossible
 import com.pinterest.ktlint.core.RunOnRootNodeOnly
 import com.pinterest.ktlint.core.ast.ElementType.ANNOTATION
@@ -81,7 +80,6 @@ import com.pinterest.ktlint.core.ast.prevSibling
 import com.pinterest.ktlint.core.ast.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.core.ast.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.core.ast.visit
-import java.lang.StringBuilder
 import java.util.Deque
 import java.util.LinkedList
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
