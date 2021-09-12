@@ -11,6 +11,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - Fix trailing spaces not formatted inside block comments (`no-trailing-spaces`) ([#1197](https://github.com/pinterest/ktlint/issues/1197))
 - Do not check for `.idea` folder presence when using `applyToIDEA` globally ([#1186](https://github.com/pinterest/ktlint/issues/1186))
 - Remove spaces before primary constructor (`paren-spacing`) ([#1207](https://github.com/pinterest/ktlint/issues/1207))
+- Fix false positive for delegated properties with a lambda argument (`indent`) ([#1210](https://github.com/pinterest/ktlint/issues/1210))
 
 ### Changed
 - Support absolute paths for globs ([#1131](https://github.com/pinterest/ktlint/issues/1131))

@@ -65,6 +65,7 @@ import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.core.ast.children
 import com.pinterest.ktlint.core.ast.isPartOf
 import com.pinterest.ktlint.core.ast.isPartOfComment
+import com.pinterest.ktlint.core.ast.isWhiteSpace
 import com.pinterest.ktlint.core.ast.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.core.ast.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.core.ast.nextCodeLeaf
@@ -482,7 +483,7 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                             val byKeywordOnSameLine = pairedLeft?.prevLeafOnSameLine(BY_KEYWORD)
                             if (byKeywordOnSameLine != null &&
                                 byKeywordOnSameLine.prevLeaf()?.isWhiteSpaceWithNewline() == true &&
-                                !byKeywordOnSameLine.isPartOf(DELEGATED_SUPER_TYPE_ENTRY)
+                                n.leavesOnSameLine(forward = true).all { it.isWhiteSpace() || it.isPartOfComment() }
                             ) expectedIndent--
                             debug { "--${n.text} -> $expectedIndent" }
                         }
@@ -1123,11 +1124,11 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
         return null
     }
 
-    private fun ASTNode.prevLeafOnSameLine(prevLeafType: IElementType): ASTNode? {
-        return leaves(forward = false)
-            .takeWhile { !it.isWhiteSpaceWithNewline() }
-            .firstOrNull { it.elementType == prevLeafType }
-    }
+    private fun ASTNode.leavesOnSameLine(forward: Boolean): Sequence<ASTNode> =
+        leaves(forward = forward).takeWhile { !it.isWhiteSpaceWithNewline() }
+
+    private fun ASTNode.prevLeafOnSameLine(prevLeafType: IElementType): ASTNode? =
+        leavesOnSameLine(forward = false).firstOrNull { it.elementType == prevLeafType }
 
     private fun ASTNode?.isAfterLambdaArgumentOnSameLine(): Boolean {
         if (this == null) return false
