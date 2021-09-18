@@ -1,6 +1,4 @@
-import gradle.kotlin.dsl.accessors._f23ede02d58ac0a86f9389458f16ca8c.dokkaJavadoc
 import java.net.URI
-import org.jetbrains.dokka.gradle.DokkaTask
 
 plugins {
     `java-library`
