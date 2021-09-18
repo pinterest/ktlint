@@ -2,7 +2,6 @@ package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.RunOnRootNodeOnly
 import com.pinterest.ktlint.core.ast.ElementType.BLOCK_COMMENT
 import com.pinterest.ktlint.core.ast.ElementType.CLASS
 import com.pinterest.ktlint.core.ast.ElementType.EOL_COMMENT
@@ -23,8 +22,12 @@ import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
 /**
  * If there is only one top level class/object/typealias in a given file, then its name should match the file's name.
  */
-@RunOnRootNodeOnly
-class FilenameRule : Rule("filename") {
+class FilenameRule : Rule(
+    id = "filename",
+    visitorModifiers = setOf(
+        VisitorModifier.RunOnRootNodeOnly
+    )
+) {
 
     private val ignoreSet = setOf<IElementType>(
         FILE_ANNOTATION_LIST,

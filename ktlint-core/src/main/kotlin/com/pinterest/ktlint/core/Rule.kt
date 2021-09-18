@@ -10,11 +10,15 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
  * (provided [RuleSetProvider] creates a new instance on each `get()` call).
  *
  * @param id must be unique within the ruleset
+ * @param visitorModifiers: set of modifiers of the visitor. Preferably a rule has no modifiers at all, meaning that it
+ * is completely independent of all other rules.
  *
  * @see RuleSet
  */
-abstract class Rule(val id: String) {
-
+abstract class Rule(
+    val id: String,
+    public val visitorModifiers: Set<VisitorModifier> = emptySet()
+) {
     init {
         IdNamingPolicy.enforceNaming(id)
     }
@@ -34,19 +38,44 @@ abstract class Rule(val id: String) {
 
     object Modifier {
         @Deprecated(
-            message = "Marked for deletion in a future version. Annotate the rule with @RunOnRootNodeOnly.",
+            message = "Marked for deletion in a future version. Add 'VisitorModifier.RunOnRootNodeOnly' to the rule.",
             level = DeprecationLevel.WARNING
         )
         interface RestrictToRoot
+
         @Deprecated(
-            message = "Marked for deletion in a future version. Annotate the rule with @RunOnRootNodeOnly and @RunAsLateAsPossible.",
+            message = "Marked for deletion in a future version. Add 'VisitorModifier.RunOnRootNodeOnly' and 'VisitorModifier.RunAsLateAsPossible' to the rule.",
             level = DeprecationLevel.WARNING
         )
         interface RestrictToRootLast : RestrictToRoot
+
         @Deprecated(
-            message = "Marked for deletion in a future version. Annotate the rule with @RunAsLateAsPossible.",
+            message = "Marked for deletion in a future version. Add 'VisitorModifier.RunAsLateAsPossible' to the rule.",
             level = DeprecationLevel.WARNING
         )
         interface Last
+    }
+
+    sealed class VisitorModifier {
+
+        data class RunAfterRule(
+            /**
+             * Qualified ruleId in format "ruleSetId:ruleId". For a rule in the standard rule set it suffices to specify
+             * the ruleId only.
+             */
+            val ruleId: String,
+            /**
+             * The annotated rule will only be loaded in case the other rule is loaded as well.
+             */
+            val loadOnlyWhenOtherRuleIsLoaded: Boolean = false,
+            /**
+             * The annotated rule will only be run in case the other rule is enabled.
+             */
+            val runOnlyWhenOtherRuleIsEnabled: Boolean = false
+        ) : VisitorModifier()
+
+        object RunAsLateAsPossible : VisitorModifier()
+
+        object RunOnRootNodeOnly : VisitorModifier()
     }
 }

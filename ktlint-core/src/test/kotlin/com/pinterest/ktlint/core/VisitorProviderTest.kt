@@ -283,23 +283,35 @@ class VisitorProviderTest {
             testVisitorProvider(
                 RuleSet(
                     CUSTOM_RULE_SET_A,
-                    @RunAfterRule("$CUSTOM_RULE_SET_A:$RULE_A")
-                    object : NormalRule(RULE_A) {},
+                    object : R(
+                        id = RULE_A,
+                        visitorModifier = VisitorModifier.RunAfterRule("$CUSTOM_RULE_SET_A:$RULE_A")
+                    ) {},
                 )
             )
-        }.withMessage("Rule with id '$CUSTOM_RULE_SET_A:$RULE_A' is annotated with '@RunAfterRule' but it is not referring to another rule but to the rule itself. A rule can not run after itself. This should be fixed by the maintainer of the rule.")
+        }.withMessage(
+            "Rule with id '$CUSTOM_RULE_SET_A:$RULE_A' has a visitor modifier of type 'RunAfterRule' but it is not " +
+                "referring to another rule but to the rule itself. A rule can not run after itself. This should be " +
+                "fixed by the maintainer of the rule."
+        )
     }
 
     @Test
     fun `A rule annotated with run after rule for a rule in the same rule set runs after that rule and override the alphabetical sort order`() {
         val actual = testVisitorProvider(
-            @RunAfterRule(RULE_C)
-            object : NormalRule(RULE_A) {},
+            object : R(
+                id = RULE_A,
+                visitorModifier = VisitorModifier.RunAfterRule("$RULE_C")
+            ) {},
             NormalRule(RULE_B),
-            @RunAfterRule(RULE_B)
-            object : NormalRule(RULE_D) {},
-            @RunAfterRule(RULE_B)
-            object : NormalRule(RULE_C) {},
+            object : R(
+                id = RULE_D,
+                visitorModifier = VisitorModifier.RunAfterRule("$RULE_B")
+            ) {},
+            object : R(
+                id = RULE_C,
+                visitorModifier = VisitorModifier.RunAfterRule("$RULE_B")
+            ) {},
         ).filterFileNodes()
 
         assertThat(actual).containsExactly(
@@ -318,15 +330,21 @@ class VisitorProviderTest {
             RuleSet(
                 STANDARD,
                 NormalRule(RULE_B),
-                @RunAfterRule(RULE_B)
-                object : NormalRule(RULE_D) {},
-                @RunAfterRule(RULE_B)
-                object : NormalRule(RULE_C) {},
+                object : R(
+                    id = RULE_D,
+                    visitorModifier = VisitorModifier.RunAfterRule("$RULE_B")
+                ) {},
+                object : R(
+                    id = RULE_C,
+                    visitorModifier = VisitorModifier.RunAfterRule("$RULE_B")
+                ) {}
             ),
             RuleSet(
                 EXPERIMENTAL,
-                @RunAfterRule(RULE_C)
-                object : NormalRule(RULE_A) {},
+                object : R(
+                    id = RULE_A,
+                    visitorModifier = VisitorModifier.RunAfterRule("$RULE_C")
+                ) {}
             ),
         ).filterFileNodes()
 
@@ -342,11 +360,13 @@ class VisitorProviderTest {
     fun `A rule annotated with run after rule which has to be loaded throws an exception in case isUnitTestContext is disabled`() {
         assertThatIllegalStateException().isThrownBy {
             testVisitorProvider(
-                @RunAfterRule(
-                    ruleId = "not-loaded-rule",
-                    loadOnlyWhenOtherRuleIsLoaded = true
-                )
-                object : NormalRule(RULE_A) {},
+                object : R(
+                    id = RULE_A,
+                    visitorModifier = VisitorModifier.RunAfterRule(
+                        ruleId = "not-loaded-rule",
+                        loadOnlyWhenOtherRuleIsLoaded = true
+                    )
+                ) {},
                 isUnitTestContext = false
             )
         }.withMessage("No runnable rules found. Please ensure that at least one is enabled.")
@@ -355,8 +375,10 @@ class VisitorProviderTest {
     @Test
     fun `A rule annotated with run after rule of a rule which has to be loaded will still be ignored in case isUnitTestContext is enabled`() {
         val actual = testVisitorProvider(
-            @RunAfterRule("not-loaded-rule")
-            object : NormalRule(RULE_A) {},
+            object : R(
+                id = RULE_A,
+                visitorModifier = VisitorModifier.RunAfterRule("not-loaded-rule")
+            ) {},
             isUnitTestContext = true,
         ).filterFileNodes()
 
@@ -368,8 +390,10 @@ class VisitorProviderTest {
     @Test
     fun `A rule annotated with run after rule of a rule which does not have to be loaded will be ignored in case isUnitTestContext is disabled`() {
         val actual = testVisitorProvider(
-            @RunAfterRule("not-loaded-rule")
-            object : NormalRule(RULE_A) {},
+            object : R(
+                id = RULE_A,
+                visitorModifier = VisitorModifier.RunAfterRule("not-loaded-rule")
+            ) {},
             isUnitTestContext = false,
         ).filterFileNodes()
 
@@ -384,15 +408,21 @@ class VisitorProviderTest {
             testVisitorProvider(
                 RuleSet(
                     STANDARD,
-                    @RunAfterRule(RULE_B)
-                    object : NormalRule(RULE_A) {},
-                    @RunAfterRule("$EXPERIMENTAL:$RULE_C")
-                    object : NormalRule(RULE_B) {},
+                    object : R(
+                        id = RULE_A,
+                        visitorModifier = VisitorModifier.RunAfterRule(RULE_B)
+                    ) {},
+                    object : R(
+                        id = RULE_B,
+                        visitorModifier = VisitorModifier.RunAfterRule("$EXPERIMENTAL:$RULE_C")
+                    ) {},
                 ),
                 RuleSet(
                     EXPERIMENTAL,
-                    @RunAfterRule(RULE_A)
-                    object : NormalRule(RULE_C) {},
+                    object : R(
+                        id = RULE_C,
+                        visitorModifier = VisitorModifier.RunAfterRule(RULE_A)
+                    ) {},
                 ),
             )
         }.withMessage(
@@ -411,18 +441,24 @@ class VisitorProviderTest {
             testVisitorProvider(
                 RuleSet(
                     STANDARD,
-                    @RunAfterRule("$CUSTOM_RULE_SET_B:$RULE_B")
-                    object : NormalRule(RULE_C) {},
+                    object : R(
+                        id = RULE_C,
+                        visitorModifier = VisitorModifier.RunAfterRule("$CUSTOM_RULE_SET_B:$RULE_B")
+                    ) {},
                 ),
                 RuleSet(
                     CUSTOM_RULE_SET_B,
-                    @RunAfterRule("$CUSTOM_RULE_SET_A:$RULE_A")
-                    object : NormalRule(RULE_B) {},
+                    object : R(
+                        id = RULE_B,
+                        visitorModifier = VisitorModifier.RunAfterRule("$CUSTOM_RULE_SET_A:$RULE_A")
+                    ) {},
                 ),
                 RuleSet(
                     CUSTOM_RULE_SET_A,
-                    @RunAfterRule("$STANDARD:$RULE_C")
-                    object : NormalRule(RULE_A) {},
+                    object : R(
+                        id = RULE_A,
+                        visitorModifier = VisitorModifier.RunAfterRule("$STANDARD:$RULE_C")
+                    ) {},
                 ),
             )
         }.withMessage(
@@ -478,11 +514,13 @@ class VisitorProviderTest {
     fun `When no runnable rules are found for the root node, the visit function on the root node is not executed`() {
         val actual = testVisitorProvider(
             NormalRule(SOME_DISABLED_RULE_IN_STANDARD_RULE_SET),
-            @RunAfterRule(
-                ruleId = SOME_DISABLED_RULE_IN_STANDARD_RULE_SET,
-                runOnlyWhenOtherRuleIsEnabled = true,
-            )
-            object : NormalRule(RULE_A) {},
+            object : R(
+                id = RULE_A,
+                visitorModifier = VisitorModifier.RunAfterRule(
+                    ruleId = SOME_DISABLED_RULE_IN_STANDARD_RULE_SET,
+                    runOnlyWhenOtherRuleIsEnabled = true,
+                )
+            ) {},
         )
 
         assertThat(actual).isNull()
@@ -612,17 +650,34 @@ class VisitorProviderTest {
 
     open class NormalRule(id: String) : R(id)
 
-    @RunOnRootNodeOnly
-    class RootNodeOnlyRule(id: String) : R(id)
+    class RootNodeOnlyRule(id: String) : R(
+        id = id,
+        visitorModifiers = setOf(
+            VisitorModifier.RunOnRootNodeOnly,
+        ),
+    )
 
-    @RunAsLateAsPossible
-    class RunAsLateAsPossibleRule(id: String) : R(id)
+    class RunAsLateAsPossibleRule(id: String) : R(
+        id = id,
+        visitorModifiers = setOf(
+            VisitorModifier.RunAsLateAsPossible,
+        ),
+    )
 
-    @RunOnRootNodeOnly
-    @RunAsLateAsPossible
-    class RunAsLateAsPossibleOnRootNodeOnlyRule(id: String) : R(id)
+    class RunAsLateAsPossibleOnRootNodeOnlyRule(id: String) : R(
+        id = id,
+        visitorModifiers = setOf(
+            VisitorModifier.RunOnRootNodeOnly,
+            VisitorModifier.RunAsLateAsPossible,
+        ),
+    )
 
-    open class R(id: String) : Rule(id) {
+    open class R(
+        id: String,
+        visitorModifiers: Set<VisitorModifier> = emptySet()
+    ) : Rule(id, visitorModifiers) {
+        constructor(id: String, visitorModifier: VisitorModifier) : this(id, setOf(visitorModifier))
+
         override fun visit(
             node: ASTNode,
             autoCorrect: Boolean,

@@ -38,16 +38,16 @@ public class VisitorProvider(
         val ruleReferencesToBeSkipped =
             ruleReferences
                 .filter { ruleReference ->
-                    ruleReference.runAfter != null &&
-                        ruleReference.runAfter.runOnlyWhenOtherRuleIsEnabled &&
-                        enabledRules[ruleReference.runAfter.ruleId.toQualifiedRuleId()] == null
+                    ruleReference.runAfterRule != null &&
+                        ruleReference.runAfterRule.runOnlyWhenOtherRuleIsEnabled &&
+                        enabledRules[ruleReference.runAfterRule.ruleId.toQualifiedRuleId()] == null
                 }
         if (debug && ruleReferencesToBeSkipped.isNotEmpty()) {
             ruleReferencesToBeSkipped
                 .forEach {
                     println(
                         "[DEBUG] Skipping rule with id '${it.toQualifiedRuleId()}'. This rule has to run after rule with " +
-                            "id '${it.runAfter?.ruleId?.toQualifiedRuleId()}' and will not run in case that rule is " +
+                            "id '${it.runAfterRule?.ruleId?.toQualifiedRuleId()}' and will not run in case that rule is " +
                             "disabled."
                     )
                 }
@@ -170,11 +170,11 @@ private class VisitorProviderInitializer(
             ruleSetId = ruleSetId,
             runOnRootNodeOnly = toRunsOnRootNodeOnly(ruleSetId),
             runAsLateAsPossible = toRunsAsLateAsPossible(ruleSetId),
-            runAfter = toRunAfter(ruleSetId)
+            runAfterRule = toRunAfter(ruleSetId)
         )
 
     private fun Rule.toRunsOnRootNodeOnly(ruleSetId: String): Boolean {
-        if (isAnnotatedWith { it is RunOnRootNodeOnly }) {
+        if (visitorModifiers.contains(Rule.VisitorModifier.RunOnRootNodeOnly)) {
             return true
         }
 
@@ -192,7 +192,7 @@ private class VisitorProviderInitializer(
     }
 
     private fun Rule.toRunsAsLateAsPossible(ruleSetId: String): Boolean {
-        if (isAnnotatedWith { it is RunAsLateAsPossible }) {
+        if (visitorModifiers.contains(Rule.VisitorModifier.RunAsLateAsPossible)) {
             return true
         }
 
@@ -209,30 +209,24 @@ private class VisitorProviderInitializer(
         }
     }
 
-    private fun Rule.toRunAfter(ruleSetId: String): RunAfter? =
-        this::class
-            .annotations
-            .find { it is RunAfterRule }
+    private fun Rule.toRunAfter(ruleSetId: String): Rule.VisitorModifier.RunAfterRule? =
+        this
+            .visitorModifiers
+            .find { it is Rule.VisitorModifier.RunAfterRule }
             ?.let {
-                val runAfterRuleAnnotation = it as RunAfterRule
+                val runAfterRuleVisitorModifier = it as Rule.VisitorModifier.RunAfterRule
                 val qualifiedRuleId = toQualifiedRuleId(ruleSetId, this.id)
-                val afterRuleId = runAfterRuleAnnotation.ruleId.toQualifiedRuleId()
-                check(qualifiedRuleId != afterRuleId) {
-                    "Rule with id '$qualifiedRuleId' is annotated with '@${RunAfterRule::class.simpleName}' but it " +
-                        "is not referring to another rule but to the rule itself. A rule can not run after itself. " +
-                        "This should be fixed by the maintainer of the rule."
+                val qualifiedAfterRuleId = runAfterRuleVisitorModifier.ruleId.toQualifiedRuleId()
+                check(qualifiedRuleId != qualifiedAfterRuleId) {
+                    "Rule with id '$qualifiedRuleId' has a visitor modifier of type " +
+                        "'${Rule.VisitorModifier.RunAfterRule::class.simpleName}' but it is not referring to another " +
+                        "rule but to the rule itself. A rule can not run after itself. This should be fixed by the " +
+                        "maintainer of the rule."
                 }
-                RunAfter(
-                    ruleId = afterRuleId,
-                    loadOnlyWhenOtherRuleIsLoaded = runAfterRuleAnnotation.loadOnlyWhenOtherRuleIsLoaded,
-                    runOnlyWhenOtherRuleIsEnabled = runAfterRuleAnnotation.runOnlyWhenOtherRuleIsEnabled
+                runAfterRuleVisitorModifier.copy(
+                    ruleId = qualifiedAfterRuleId
                 )
             }
-
-    private fun Rule.isAnnotatedWith(predicate: (Annotation) -> Boolean) =
-        this::class
-            .annotations
-            .any(predicate)
 
     private fun Rule.printWarningDeprecatedInterface(
         ruleSetId: String,
@@ -281,20 +275,20 @@ private class VisitorProviderInitializer(
         while (ruleReferencesIterator.hasNext()) {
             val ruleReference = ruleReferencesIterator.next()
 
-            if (ruleReference.runAfter != null && isUnitTestContext) {
+            if (ruleReference.runAfterRule != null && isUnitTestContext) {
                 // When running unit tests,the RunAfterRule annotation is ignored. The code provided in the unit should
                 // be formatted as if the rule on which it depends was already applied. In this way the unit test can be
                 // restricted to one single rule instead of having to take into account all other rules on which it
                 // might depend.
-                newRuleReferences.add(ruleReference.copy(runAfter = null))
-            } else if (ruleReference.runAfter != null && newRuleReferences.none { rule -> rule.runsAfter(ruleReference) }) {
+                newRuleReferences.add(ruleReference.copy(runAfterRule = null))
+            } else if (ruleReference.runAfterRule != null && newRuleReferences.none { rule -> rule.runsAfter(ruleReference) }) {
                 // The RunAfterRule refers to a rule which is not yet added to the new list of rule references.
                 if (this.none { it.runsAfter(ruleReference) }) {
                     // The RunAfterRule refers to a rule which is not loaded at all.
-                    if (ruleReference.runAfter.loadOnlyWhenOtherRuleIsLoaded) {
+                    if (ruleReference.runAfterRule.loadOnlyWhenOtherRuleIsLoaded) {
                         println(
                             "[WARN] Skipping rule with id '${ruleReference.toQualifiedRuleId()}' as it requires " +
-                                "that the rule with id '${ruleReference.runAfter.ruleId}' is loaded. However, no " +
+                                "that the rule with id '${ruleReference.runAfterRule.ruleId}' is loaded. However, no " +
                                 "rule with this id is loaded."
                         )
                         continue
@@ -302,13 +296,13 @@ private class VisitorProviderInitializer(
                         if (debug) {
                             println(
                                 "[DEBUG] Rule with id '${ruleReference.toQualifiedRuleId()}' should run after the " +
-                                    "rule with id '${ruleReference.runAfter.ruleId}'. However, the latter rule is " +
+                                    "rule with id '${ruleReference.runAfterRule.ruleId}'. However, the latter rule is " +
                                     "not loaded and is allowed to be ignored. For best results, it is advised load " +
                                     "the rule."
                             )
                         }
                         // As it is not required that the rule is loaded, the runAfter condition is ignored.
-                        newRuleReferences.add(ruleReference.copy(runAfter = null))
+                        newRuleReferences.add(ruleReference.copy(runAfterRule = null))
                     }
                 } else {
                     // This rule can not yet be processed as it should run after another rule which is not yet added to
@@ -347,7 +341,7 @@ private class VisitorProviderInitializer(
                 }
             val separator = "\n  - "
             blockedRuleReferences.joinToString(prefix = prefix + separator, separator = separator) {
-                "Rule with id '${it.toQualifiedRuleId()}' should run after rule with id '${it.runAfter?.ruleId}'"
+                "Rule with id '${it.toQualifiedRuleId()}' should run after rule with id '${it.runAfterRule?.ruleId}'"
             }
         }
         check(newRuleReferences.isNotEmpty()) {
@@ -358,13 +352,13 @@ private class VisitorProviderInitializer(
 
     private fun List<RuleReference>.findRulesBlockedBy(qualifiedRuleId: String): List<RuleReference> {
         return this
-            .filter { it.runAfter?.ruleId == qualifiedRuleId }
+            .filter { it.runAfterRule?.ruleId == qualifiedRuleId }
             .map { listOf(it) + this.findRulesBlockedBy(it.toQualifiedRuleId()) }
             .flatten()
     }
 
     private fun RuleReference.runsAfter(ruleReference: RuleReference) =
-        ruleReference.runAfter?.ruleId == toQualifiedRuleId()
+        ruleReference.runAfterRule?.ruleId == toQualifiedRuleId()
 }
 
 private data class RuleReference(
@@ -372,7 +366,7 @@ private data class RuleReference(
     val ruleSetId: String,
     val runOnRootNodeOnly: Boolean,
     val runAsLateAsPossible: Boolean,
-    val runAfter: RunAfter?
+    val runAfterRule: Rule.VisitorModifier.RunAfterRule?
 )
 
 private data class RunAfter(

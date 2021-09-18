@@ -9,7 +9,11 @@ class KtLintTest {
 
     @Test
     fun testRuleExecutionOrder() {
-        open class R(private val bus: MutableList<String>, id: String) : Rule(id) {
+        open class R(
+            private val bus: MutableList<String>,
+            id: String,
+            visitorModifiers: Set<VisitorModifier> = emptySet()
+        ) : Rule(id, visitorModifiers) {
             private var done = false
             override fun visit(
                 node: ASTNode,
@@ -31,15 +35,34 @@ class KtLintTest {
                 ruleSets = listOf(
                     RuleSet(
                         "standard",
-                        @RunAsLateAsPossible
-                        object : R(bus, "e") {},
-                        @RunOnRootNodeOnly
-                        @RunAsLateAsPossible
-                        object : R(bus, "d") {},
-                        R(bus, "b"),
-                        @RunOnRootNodeOnly
-                        object : R(bus, "a") {},
-                        R(bus, "c")
+                        object : R(
+                            bus = bus,
+                            id = "e",
+                            visitorModifiers = setOf(VisitorModifier.RunAsLateAsPossible)
+                        ) {},
+                        object : R(
+                            bus = bus,
+                            id = "d",
+                            visitorModifiers = setOf(
+                                VisitorModifier.RunOnRootNodeOnly,
+                                VisitorModifier.RunAsLateAsPossible
+                            )
+                        ) {},
+                        R(
+                            bus = bus,
+                            id = "b"
+                        ),
+                        object : R(
+                            bus = bus,
+                            id = "a",
+                            visitorModifiers = setOf(
+                                VisitorModifier.RunOnRootNodeOnly
+                            )
+                        ) {},
+                        R(
+                            bus = bus,
+                            id = "c"
+                        )
                     )
                 ),
                 cb = { _, _ -> }

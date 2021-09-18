@@ -2,7 +2,6 @@ package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.RunOnRootNodeOnly
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
@@ -13,9 +12,13 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 
 @OptIn(FeatureInAlphaState::class)
-@RunOnRootNodeOnly
 public class FinalNewlineRule :
-    Rule("final-newline"),
+    Rule(
+        id = "final-newline",
+        visitorModifiers = setOf(
+            VisitorModifier.RunOnRootNodeOnly
+        )
+    ),
     UsesEditorConfigProperties {
 
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
