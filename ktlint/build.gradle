@@ -40,7 +40,7 @@ dependencies {
 }
 
 // Implements https://github.com/brianm/really-executable-jars-maven-plugin maven plugin behaviour.
-// To check details how it works, see http://skife.org/java/unix/2011/06/20/really_executable_jars.html.
+// To check details how it works, see https://skife.org/java/unix/2011/06/20/really_executable_jars.html.
 def shadowJarExecutableTask = tasks.register("shadowJarExecutable", DefaultTask.class) {
   description = "Creates self-executable file, that runs generated shadow jar"
   group = "Distribution"

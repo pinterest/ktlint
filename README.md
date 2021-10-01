@@ -69,7 +69,7 @@ by passing the `--experimental` flag to `ktlint`.
 
 ## EditorConfig
 
-ktlint recognizes the following [.editorconfig](http://editorconfig.org/) properties (provided they are specified under `[*.{kt,kts}]`):  
+ktlint recognizes the following [.editorconfig](https://editorconfig.org/) properties (provided they are specified under `[*.{kt,kts}]`):  
 (values shown below are the defaults and do not need to be specified explicitly)
 ```ini
 [*.{kt,kts}]
@@ -147,7 +147,7 @@ curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.42.1/ktlint &
   * (Releases up through 0.31.0) `curl -sS https://keybase.io/shyiko/pgp_keys.asc | gpg --import && gpg --verify ktlint.asc`
   * (Releases from 0.32.0 on) `curl -sS https://keybase.io/ktlint/pgp_keys.asc | gpg --import && gpg --verify ktlint.asc`
 
-On macOS ([or Linux](http://linuxbrew.sh/)) you can also use [brew](https://brew.sh/) - `brew install ktlint` - or [MacPorts](https://www.macports.org/) - `port install ktlint`.
+On macOS ([or Linux](https://docs.brew.sh/Homebrew-on-Linux)) you can also use [brew](https://brew.sh/) - `brew install ktlint` - or [MacPorts](https://www.macports.org/) - `port install ktlint`.
 On Arch Linux, you can install [ktlint](https://aur.archlinux.org/packages/ktlint/) <sup>AUR</sup>.
 
 > If you don't have curl installed - replace `curl -sL` with `wget -qO-`.
@@ -533,7 +533,7 @@ Spending time on configuration (& maintenance down the road) of hundred-line lon
 
 By using ktlint you put the importance of code clarity and community conventions over personal preferences. This makes things easier for people reading your code as well as frees you from having to document & explain what style potential contributor(s) have to follow.
 
-ktlint is a single binary with both linter & formatter included. All you need is to drop it in (no need to get [overwhelmed](https://en.wikipedia.org/wiki/Decision_fatigue) while choosing among [dozens of code style options](http://checkstyle.sourceforge.net/checks.html)).
+ktlint is a single binary with both linter & formatter included. All you need is to drop it in (no need to get [overwhelmed](https://en.wikipedia.org/wiki/Decision_fatigue) while choosing among [dozens of code style options](https://checkstyle.sourceforge.net/checks.html)).
 
 ### Can I have my own rules on top of ktlint?
 

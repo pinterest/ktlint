@@ -1,6 +1,6 @@
 # Changelog
 All notable changes to this project will be documented in this file.
-This project adheres to [Semantic Versioning](http://semver.org/).
+This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
@@ -797,7 +797,7 @@ respectively (`--ruleset-*` will be removed in 1.0.0).
 
 ### Added
 
-- [.editorconfig](http://editorconfig.org/) support (right now only `indent_size` is honored and only if it's 
+- [.editorconfig](https://editorconfig.org/) support (right now only `indent_size` is honored and only if it's 
 set in `[*{kt,kts}]` section).
 - Support for vertically aligned comments (see [NoMultipleSpacesRuleTest.kt](ktlint-ruleset-standard/src/test/kotlin/com/github/shyiko/ktlint/ruleset/standard/NoMultipleSpacesRuleTest.kt)).
 

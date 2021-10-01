@@ -1,7 +1,7 @@
 package com.pinterest.ktlint.core
 
 /**
- * @see [EditorConfig](http://editorconfig.org/)
+ * @see [EditorConfig](https://editorconfig.org/)
  *
  * This class is injected into the user data, so it is available to rules via [KtLint.EDITOR_CONFIG_USER_DATA_KEY]
  */
