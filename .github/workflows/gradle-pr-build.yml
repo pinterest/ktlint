@@ -19,7 +19,7 @@ jobs:
         distribution: 'zulu'
         java-version: ${{ matrix.java }}
     - name: Restore Gradle caches
-      uses: actions/cache@v1
+      uses: actions/cache@v2
       with:
         path: |
           ~/.gradle/caches/modules-2
@@ -29,7 +29,7 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-gradle-cache-
     - name: Restore Gradle wrapper
-      uses: actions/cache@v1
+      uses: actions/cache@v2
       with:
         path: |
           ~/.gradle/wrapper
