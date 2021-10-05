@@ -440,7 +440,7 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
     private class IndentContext {
         private val exitAdj = mutableMapOf<ASTNode, Int>()
         val ignored = mutableSetOf<ASTNode>()
-        val blockOpeningLineStack: Deque<Int> = LinkedList<Int>()
+        val blockOpeningLineStack: Deque<Int> = LinkedList()
         var localAdj: Int = 0
         fun exitAdjBy(node: ASTNode, change: Int) {
             exitAdj.compute(node) { _, v -> (v ?: 0) + change }
@@ -841,7 +841,7 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                 if (expectedPrefixLength != 0) {
                     preindentStringTemplateEntry(closingQuote, autoCorrect, emit, expectedPrefixLength)
                 }
-            } else if (!closingQuote.treePrev.text.isBlank()) {
+            } else if (closingQuote.treePrev.text.isNotBlank()) {
                 // rewriting
                 // """
                 //     text

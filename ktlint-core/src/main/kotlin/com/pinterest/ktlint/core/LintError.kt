@@ -21,9 +21,7 @@ public data class LintError(
     // not included in equals/hashCode for backward-compatibility with ktlint < 0.25.0
     // subject to change in 1.0.0
     var canBeAutoCorrected: Boolean = false
-        private set(value) {
-            field = value
-        }
+        private set
 
     public constructor(
         line: Int,

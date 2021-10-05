@@ -291,10 +291,10 @@ public object KtLint {
                     continue
                 }
                 val fqr = fqRuleId to rule
-                when {
-                    rule is Rule.Modifier.Last -> fqrsExpectedToBeExecutedLast.add(fqr)
-                    rule is Rule.Modifier.RestrictToRootLast -> fqrsExpectedToBeExecutedLastOnRoot.add(fqr)
-                    rule is Rule.Modifier.RestrictToRoot -> fqrsRestrictedToRoot.add(fqr)
+                when (rule) {
+                    is Rule.Modifier.Last -> fqrsExpectedToBeExecutedLast.add(fqr)
+                    is Rule.Modifier.RestrictToRootLast -> fqrsExpectedToBeExecutedLastOnRoot.add(fqr)
+                    is Rule.Modifier.RestrictToRoot -> fqrsRestrictedToRoot.add(fqr)
                     else -> fqrs.add(fqr)
                 }
             }
@@ -319,7 +319,7 @@ public object KtLint {
             for ((fqRuleId, rule) in fqrsExpectedToBeExecutedLastOnRoot) {
                 visit(rootNode, rule, fqRuleId)
             }
-            if (!fqrsExpectedToBeExecutedLast.isEmpty()) {
+            if (fqrsExpectedToBeExecutedLast.isNotEmpty()) {
                 if (concurrent) {
                     rootNode.visit { node ->
                         for ((fqRuleId, rule) in fqrsExpectedToBeExecutedLast) {

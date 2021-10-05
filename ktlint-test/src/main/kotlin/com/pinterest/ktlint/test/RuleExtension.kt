@@ -105,7 +105,7 @@ public fun Rule.diffFileLint(
             diff(expected.map(str), actual.map(str)),
             expected.size + actual.size
         ).joinToString("\n")
-    return if (diff.isEmpty()) "" else diff
+    return diff.ifEmpty { "" }
 }
 
 public fun Rule.diffFileFormat(
@@ -118,7 +118,7 @@ public fun Rule.diffFileFormat(
     val diff =
         generateUnifiedDiff(expectedPath, "output", expected, diff(expected, actual), expected.size + actual.size)
             .joinToString("\n")
-    return if (diff.isEmpty()) "" else diff
+    return diff.ifEmpty { "" }
 }
 
 private fun getResourceAsText(path: String) =
