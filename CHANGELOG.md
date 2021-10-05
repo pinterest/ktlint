@@ -17,7 +17,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - Support absolute paths for globs ([#1131](https://github.com/pinterest/ktlint/issues/1131))
 - Fix regression from 0.41 with argument list wrapping after dot qualified expression (`argument-list-wrapping`)([#1159](https://github.com/pinterest/ktlint/issues/1159))
 - Update Gradle to `7.2` version
-- Update Gradle shadow plugin to `7.0` version
+- Update Gradle shadow plugin to `7.1` version
 
 ### Removed
 

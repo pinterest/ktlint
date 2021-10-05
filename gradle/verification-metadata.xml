@@ -1,23 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<verification-metadata
-   xmlns="https://schema.gradle.org/dependency-verification"
-   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-   xsi:schemaLocation="https://schema.gradle.org/dependency-verification https://schema.gradle.org/dependency-verification/dependency-verification-1.0.xsd">
+<verification-metadata xmlns="https://schema.gradle.org/dependency-verification" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://schema.gradle.org/dependency-verification https://schema.gradle.org/dependency-verification/dependency-verification-1.1.xsd">
    <configuration>
       <verify-metadata>true</verify-metadata>
       <verify-signatures>true</verify-signatures>
       <key-servers>
-          <key-server uri="https://keys.openpgp.org"/>
-          <key-server uri="https://keyserver.ubuntu.com"/>
-          <!-- key server below is added from the https://sks-keyservers.net pool that is not working anymore -->
-          <!-- remove it when it will be possible -->
-          <key-server uri="hkp://sks.pgpkeys.eu"/>
+         <key-server uri="https://keys.openpgp.org"/>
+         <key-server uri="https://keyserver.ubuntu.com"/>
+         <key-server uri="hkp://sks.pgpkeys.eu"/>
       </key-servers>
       <trusted-artifacts>
          <trust file=".*-javadoc[.]jar" regex="true"/>
          <trust file=".*-sources[.]jar" regex="true"/>
       </trusted-artifacts>
       <trusted-keys>
+         <trusted-key id="050a37a2e0577f4baa095b52602ec18d20c4661c">
+            <trusting group="io.github.x-stream"/>
+            <trusting group="com.thoughtworks.xstream"/>
+         </trusted-key>
          <trusted-key id="160a7a9cf46221a56b06ad64461a804f2609fd89" group="com.github.shyiko.klob" name="klob" version="0.2.1"/>
          <trusted-key id="184454fad8697760f3e00d2e4a51a45b944ffd51" group="org.apache.tika"/>
          <trusted-key id="190d5a957ff22273e601f7a7c92c5fec70161c62" group="org.apache" name="apache" version="18"/>
@@ -27,6 +26,7 @@
             <trusting group="de.undercouch" name="gradle-download-task" version="4.0.2"/>
             <trusting group="de.undercouch" name="gradle-download-task" version="4.1.1"/>
          </trusted-key>
+         <trusted-key id="2db4f1ef0fa761ecc4ea935c86fdc7e2a11262cb" group="commons-io" name="commons-io" version="2.11.0"/>
          <trusted-key id="2e3a1affe42b5f53af19f780bcf4173966770193" group="org.jetbrains" name="annotations" version="13.0"/>
          <trusted-key id="2e92113263fc31c74ccbaab20e91c2de43b72bb1" group="org.ec4j.core"/>
          <trusted-key id="31fae244a81d64507b47182e1b2718089ce964b8" group="com.thoughtworks.qdox" name="qdox" version="1.12.1"/>
@@ -50,7 +50,10 @@
             <trusting group="^com[.]fasterxml($|([.].*))" regex="true"/>
          </trusted-key>
          <trusted-key id="67497e9d680ce8e95bd6b8f85ad66315fc018797" group="com.beust" name="jcommander" version="1.72"/>
-         <trusted-key id="694621a7227d8d5289699830abe9f3126bb741c1" group="^com[.]google($|([.].*))" regex="true"/>
+         <trusted-key id="694621a7227d8d5289699830abe9f3126bb741c1">
+            <trusting group="^com[.]google($|([.].*))" regex="true"/>
+            <trusting group="com.google.guava"/>
+         </trusted-key>
          <trusted-key id="6dd3b8c64ef75253beb2c53ad908a43fb7ec07ac">
             <trusting group="com.sun.activation"/>
             <trusting group="jakarta.activation"/>
@@ -62,6 +65,7 @@
          </trusted-key>
          <trusted-key id="7615ad56144df2376f49d98b1669c4bb543e0445" group="com.google.errorprone"/>
          <trusted-key id="7616eb882daf57a11477aaf559a252fb1199d873" group="com.google.code.findbugs" name="jsr305" version="3.0.2"/>
+         <trusted-key id="79156e0351af8604de9b186b09a79e1e15a04694" group="org.vafer" name="jdependency" version="2.7.0"/>
          <trusted-key id="7faa0f2206de228f0db01ad741321490758aad6f" group="org.codehaus.groovy"/>
          <trusted-key id="8569c95cadc508b09fe90f3002216ed811210daa" group="io.github.detekt.sarif4k" name="sarif4k" version="0.0.1"/>
          <trusted-key id="8756c4f765c9ac3cb6b85d62379ce192d401ab61">
@@ -91,6 +95,7 @@
          <trusted-key id="cd5464315f0b98c77e6e8ecd9daadc1c9fcc82d0">
             <trusting group="commons-cli"/>
             <trusting group="commons-io"/>
+            <trusting group="commons-cli" name="commons-cli" version="1.4"/>
          </trusted-key>
          <trusted-key id="ce8075a251547bee249bc151a2115ae15f6b8b72" group="^org[.]apache($|([.].*))" regex="true"/>
          <trusted-key id="d196a5e3e70732eeb2e5007f1861c322c56014b2">
@@ -102,6 +107,7 @@
          <trusted-key id="e62231331bca7e1f292c9b88c1b12a5d99c0729d" group="org.jetbrains"/>
          <trusted-key id="e7dc75fc24fb3c8dfe8086ad3d5839a2262cbbfb" group="org.jetbrains.kotlinx"/>
          <trusted-key id="ea23db1360d9029481e7f2efecdfea3cb4493b94" group="jline" name="jline" version="2.14.6"/>
+         <trusted-key id="f254b35617dc255d9344bcfa873a8e86b4372146" group="org.codehaus.plexus" name="plexus-utils" version="3.4.1"/>
          <trusted-key id="f3184bcd55f4d016e30d4c9bf42e87f9665015c9">
             <trusting group="org.jsoup"/>
             <trusting group="org.jsoup" name="jsoup" version="1.13.1"/>
@@ -113,6 +119,7 @@
             <trusting group="org.junit.platform"/>
             <trusting group="org.junit.jupiter"/>
             <trusting group="junit"/>
+            <trusting group="org.junit"/>
          </trusted-key>
       </trusted-keys>
    </configuration>
@@ -206,6 +213,14 @@
             <sha256 value="2f6ad7b0aa7f2d6bc9c4c296fcd3be6dc7436e349b9a9d42e1ef7541fc4520cf" origin="Generated by Gradle"/>
          </artifact>
       </component>
+      <component group="com.github.ben-manes" name="gradle-versions-plugin" version="0.39.0">
+         <artifact name="gradle-versions-plugin-0.39.0.jar">
+            <sha256 value="7ed3cfa8cbce340688010e001fe5e98501f8d29a5d7c713e88bd0258919b614d" origin="Generated by Gradle because artifact wasn't signed"/>
+         </artifact>
+         <artifact name="gradle-versions-plugin-0.39.0.module">
+            <sha256 value="d34a42415b5c67fe66bcb6ddb86e0a058f29ecc99ab17989c364c614ebf82925" origin="Generated by Gradle because artifact wasn't signed"/>
+         </artifact>
+      </component>
       <component group="com.github.breadmoirai" name="github-release" version="2.2.12">
          <artifact name="github-release-2.2.12.jar">
             <sha256 value="4432bfd7b1a606760aa9d584fc3aa0254bd1b61f51dd5eff038c64d2f9b89782" origin="Generated by Gradle because artifact wasn't signed"/>
@@ -227,17 +242,14 @@
             <sha256 value="32001db2443b339dd21f5b79ff29d1ade722d1ba080c214bde819f0f72d1604d" origin="Generated by Gradle"/>
          </artifact>
       </component>
-      <component group="gradle.plugin.com.github.jengelman.gradle.plugins" name="shadow" version="7.0.0">
-         <artifact name="shadow-7.0.0.jar">
-            <sha256 value="8e7b12a0a2c2d170884a860679a019bab60b63bc99ebfa0db0897d249d86f345" origin="Generated by Gradle"/>
-         </artifact>
-         <artifact name="shadow-7.0.0.pom">
-            <sha256 value="6812f26f6d81eccced5411603475cb3a92594fa48077c75eb08d05165ebbf475" origin="Generated by Gradle"/>
-         </artifact>
-      </component>
       <component group="com.github.johnrengelman.shadow" name="com.github.johnrengelman.shadow.gradle.plugin" version="7.0.0">
          <artifact name="com.github.johnrengelman.shadow.gradle.plugin-7.0.0.pom">
             <sha256 value="424b7d1343be0e521eec422c1e16b6be6b28042512673e4aa8499c5038e1a509" origin="Generated by Gradle"/>
+         </artifact>
+      </component>
+      <component group="com.github.johnrengelman.shadow" name="com.github.johnrengelman.shadow.gradle.plugin" version="7.1.0">
+         <artifact name="com.github.johnrengelman.shadow.gradle.plugin-7.1.0.pom">
+            <sha256 value="9a1e21ca03830d795eabfb8a6c02ce33842ebc23c677ec6aa99e745b514f2ade" origin="Generated by Gradle because artifact wasn't signed"/>
          </artifact>
       </component>
       <component group="com.github.shyiko.klob" name="klob" version="0.2.1">
@@ -396,6 +408,22 @@
             <sha256 value="0161c5a76ef500bcfe727e95e34974c0482ad87793d821876bf3fa95704c1407" origin="Generated by Gradle"/>
          </artifact>
       </component>
+      <component group="gradle.plugin.com.github.jengelman.gradle.plugins" name="shadow" version="7.0.0">
+         <artifact name="shadow-7.0.0.jar">
+            <sha256 value="8e7b12a0a2c2d170884a860679a019bab60b63bc99ebfa0db0897d249d86f345" origin="Generated by Gradle"/>
+         </artifact>
+         <artifact name="shadow-7.0.0.pom">
+            <sha256 value="6812f26f6d81eccced5411603475cb3a92594fa48077c75eb08d05165ebbf475" origin="Generated by Gradle"/>
+         </artifact>
+      </component>
+      <component group="gradle.plugin.com.github.johnrengelman" name="shadow" version="7.1.0">
+         <artifact name="shadow-7.1.0.jar">
+            <sha256 value="05aaf8a221b06c6792ee19996193e8947ef3bf7225ea758e518b32c283710890" origin="Generated by Gradle because artifact wasn't signed"/>
+         </artifact>
+         <artifact name="shadow-7.1.0.pom">
+            <sha256 value="abbb73eac1cf4b247fc016e6ca885a7da163364fefc980c80af8d3cbe8d14902" origin="Generated by Gradle because artifact wasn't signed"/>
+         </artifact>
+      </component>
       <component group="gradle.plugin.com.vanniktech" name="gradle-maven-publish-plugin" version="0.8.0">
          <artifact name="gradle-maven-publish-plugin-0.8.0.jar">
             <sha256 value="9a61ceef14d2a2203d7727649d44f0a596bd5bad15c0bb31542a21e9fe5cc416" origin="Generated by Gradle because artifact wasn't signed"/>
@@ -511,6 +539,11 @@
             <sha256 value="af10c108da014f17cafac7b52b2b4b5a3a1c18265fa2af97a325d9143537b380" origin="Generated by Gradle"/>
          </artifact>
       </component>
+      <component group="org.apache" name="apache" version="23">
+         <artifact name="apache-23.pom">
+            <pgp value="fa77dcfef2ee6eb2debedd2c012579464d01c06a"/>
+         </artifact>
+      </component>
       <component group="org.apache" name="apache" version="4">
          <artifact name="apache-4.pom">
             <pgp value="6e13156c0ee653f0b984663ab95bbd3fa43c4492"/>
@@ -565,6 +598,11 @@
             <sha256 value="d7bcdd3ab0ff55edbe1b96d06f06dac2135ec63b5a7c32cef3a436b49c9eee27" origin="Generated by Gradle"/>
          </artifact>
       </component>
+      <component group="org.apache.ant" name="ant-parent" version="1.10.11">
+         <artifact name="ant-parent-1.10.11.pom">
+            <sha256 value="57a0532682f30fa307416a225929d5710acda72d7b25ee08caf98dc82cd35db6" origin="Generated by Gradle"/>
+         </artifact>
+      </component>
       <component group="org.apache.ant" name="ant-parent" version="1.9.13">
          <artifact name="ant-parent-1.9.13.pom">
             <sha256 value="3081f43b0d41345e193184222f5536fb6505cac372550ef0fea469e292cd80ad" origin="Generated by Gradle"/>
@@ -586,6 +624,11 @@
             <sha256 value="cd313494c670b483ec256972af1698b330e598f807002354eb765479f604b09c" origin="Generated by Gradle"/>
          </artifact>
       </component>
+      <component group="org.apache.commons" name="commons-parent" version="52">
+         <artifact name="commons-parent-52.pom">
+            <pgp value="b6e73d84ea4fcc47166087253faad2cd5ecbb314"/>
+         </artifact>
+      </component>
       <component group="org.apache.commons" name="commons-parent" version="7">
          <artifact name="commons-parent-7.pom">
             <pgp value="d196a5e3e70732eeb2e5007f1861c322c56014b2"/>
@@ -596,6 +639,11 @@
          <artifact name="logging-parent-1.pom">
             <pgp value="9d0a56aaa0d60e0c0c7dccc0b4c70893b62babe8"/>
             <sha256 value="34b2bf4f531a809168961672ff419d1abf96725b8dfe52980f00c8c4eb134bd6" origin="Generated by Gradle"/>
+         </artifact>
+      </component>
+      <component group="org.apache.logging" name="logging-parent" version="3">
+         <artifact name="logging-parent-3.pom">
+            <pgp value="9d0a56aaa0d60e0c0c7dccc0b4c70893b62babe8"/>
          </artifact>
       </component>
       <component group="org.apache.logging.log4j" name="log4j" version="2.11.0">
@@ -868,6 +916,11 @@
             <sha256 value="0a1b692d7fcc90d6a45dae2e50f4660d48f7a44504f174aa60ef34fbe1327f6a" origin="Generated by Gradle"/>
          </artifact>
       </component>
+      <component group="org.codehaus.plexus" name="plexus" version="8">
+         <artifact name="plexus-8.pom">
+            <pgp value="fa77dcfef2ee6eb2debedd2c012579464d01c06a"/>
+         </artifact>
+      </component>
       <component group="org.codehaus.plexus" name="plexus-utils" version="3.0.24">
          <artifact name="plexus-utils-3.0.24.jar">
             <sha256 value="83ee748b12d06afb0ad4050a591132b3e8025fbb1990f1ed002e8b73293e69b4" origin="Generated by Gradle"/>
@@ -925,20 +978,20 @@
             <sha256 value="3934a3cb58f40350cbac32e403fa9b5810c7ad5160c6324abe1a90cea839beaf" origin="Generated by Gradle because artifact wasn't signed"/>
          </artifact>
       </component>
-      <component group="org.gradle.kotlin" name="gradle-kotlin-dsl-plugins" version="2.1.6">
-         <artifact name="gradle-kotlin-dsl-plugins-2.1.6.jar">
-            <sha256 value="dc047fc80d86d8abc436c0d482c7d40377606e617a13290e4333322c3f4be0cd" origin="Generated by Gradle"/>
-         </artifact>
-         <artifact name="gradle-kotlin-dsl-plugins-2.1.6.module">
-            <sha256 value="dcb73a9cc67ce771603ae3da407b2bfeb94809f104f8e9f160eb2e1d36b3d098" origin="Generated by Gradle"/>
-         </artifact>
-      </component>
       <component group="org.gradle.kotlin" name="gradle-kotlin-dsl-plugins" version="1.4.9">
          <artifact name="gradle-kotlin-dsl-plugins-1.4.9.jar">
             <sha256 value="f4e33bcad51373112211214bc697845a09b18c98a55b809208a111c43cf84518" origin="Generated by Gradle because artifact wasn't signed"/>
          </artifact>
          <artifact name="gradle-kotlin-dsl-plugins-1.4.9.pom">
             <sha256 value="4b4b16e7262fdde7198f56f791093f45730c14690348a7df369e8b97e85b1cdc" origin="Generated by Gradle because artifact wasn't signed"/>
+         </artifact>
+      </component>
+      <component group="org.gradle.kotlin" name="gradle-kotlin-dsl-plugins" version="2.1.6">
+         <artifact name="gradle-kotlin-dsl-plugins-2.1.6.jar">
+            <sha256 value="dc047fc80d86d8abc436c0d482c7d40377606e617a13290e4333322c3f4be0cd" origin="Generated by Gradle"/>
+         </artifact>
+         <artifact name="gradle-kotlin-dsl-plugins-2.1.6.module">
+            <sha256 value="dcb73a9cc67ce771603ae3da407b2bfeb94809f104f8e9f160eb2e1d36b3d098" origin="Generated by Gradle"/>
          </artifact>
       </component>
       <component group="org.gradle.kotlin" name="plugins" version="1.3.6">
@@ -954,14 +1007,14 @@
             <sha256 value="74a54eb154e18b54fc69ac03ab8d186f3ba293b976eca8b336566248ea2633b4" origin="Generated by Gradle"/>
          </artifact>
       </component>
-      <component group="org.gradle.kotlin.kotlin-dsl" name="org.gradle.kotlin.kotlin-dsl.gradle.plugin" version="2.1.6">
-         <artifact name="org.gradle.kotlin.kotlin-dsl.gradle.plugin-2.1.6.pom">
-            <sha256 value="572125e4c117e91c135ba6a60ba26124aabb67c62ea3a709045ad621d6ddf9c7" origin="Generated by Gradle"/>
-         </artifact>
-      </component>
       <component group="org.gradle.kotlin.kotlin-dsl" name="org.gradle.kotlin.kotlin-dsl.gradle.plugin" version="1.4.9">
          <artifact name="org.gradle.kotlin.kotlin-dsl.gradle.plugin-1.4.9.pom">
             <sha256 value="65e5554f499ed7febe043f2739aa771bc9b9885cd251528fc48c516fea30d0a0" origin="Generated by Gradle because artifact wasn't signed"/>
+         </artifact>
+      </component>
+      <component group="org.gradle.kotlin.kotlin-dsl" name="org.gradle.kotlin.kotlin-dsl.gradle.plugin" version="2.1.6">
+         <artifact name="org.gradle.kotlin.kotlin-dsl.gradle.plugin-2.1.6.pom">
+            <sha256 value="572125e4c117e91c135ba6a60ba26124aabb67c62ea3a709045ad621d6ddf9c7" origin="Generated by Gradle"/>
          </artifact>
       </component>
       <component group="org.hamcrest" name="hamcrest-core" version="1.3">
@@ -1802,6 +1855,14 @@
          </artifact>
          <artifact name="zt-exec-1.10.pom">
             <sha256 value="0224aa669d96a307fcd0181d0f2a8ec4ad6e8133c66f075f4f2a8fb1faae10d2" origin="Generated by Gradle"/>
+         </artifact>
+      </component>
+      <component group="xmlpull" name="xmlpull" version="1.1.3.1">
+         <artifact name="xmlpull-1.1.3.1.jar">
+            <sha256 value="34e08ee62116071cbb69c0ed70d15a7a5b208d62798c59f2120bb8929324cb63" origin="Generated by Gradle because artifact wasn't signed"/>
+         </artifact>
+         <artifact name="xmlpull-1.1.3.1.pom">
+            <sha256 value="8f10ffd8df0d3e9819c8cc8402709c6b248bc53a954ef6e45470d9ae3a5735fb" origin="Generated by Gradle because artifact wasn't signed"/>
          </artifact>
       </component>
    </components>
