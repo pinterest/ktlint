@@ -71,7 +71,7 @@ class HtmlReporter(private val out: PrintStream) : Reporter {
                         text("Issues corrected: $correctedCount")
                     }
 
-                    acc.forEach { file: String, errors: MutableList<LintError> ->
+                    acc.forEach { (file: String, errors: MutableList<LintError>) ->
                         h3 { text(file) }
                         ul {
                             errors.forEach { (line, col, ruleId, detail) ->

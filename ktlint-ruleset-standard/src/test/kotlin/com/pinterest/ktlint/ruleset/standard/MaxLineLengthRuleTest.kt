@@ -103,14 +103,14 @@ class MaxLineLengthRuleTest {
     @Test
     fun testRangeSearch() {
         for (i in 0 until 10) {
-            assertThat(RangeTree((0..i).asSequence().toList()).query(Int.MIN_VALUE, Int.MAX_VALUE).toString())
-                .isEqualTo((0..i).asSequence().toList().toString())
+            assertThat(RangeTree((0..i).toList()).query(Int.MIN_VALUE, Int.MAX_VALUE).toString())
+                .isEqualTo((0..i).toList().toString())
         }
         assertThat(RangeTree(emptyList()).query(1, 5).toString()).isEqualTo("[]")
-        assertThat(RangeTree((5 until 10).asSequence().toList()).query(1, 5).toString()).isEqualTo("[]")
-        assertThat(RangeTree((5 until 10).asSequence().toList()).query(3, 7).toString()).isEqualTo("[5, 6]")
-        assertThat(RangeTree((5 until 10).asSequence().toList()).query(7, 12).toString()).isEqualTo("[7, 8, 9]")
-        assertThat(RangeTree((5 until 10).asSequence().toList()).query(10, 15).toString()).isEqualTo("[]")
+        assertThat(RangeTree((5 until 10).toList()).query(1, 5).toString()).isEqualTo("[]")
+        assertThat(RangeTree((5 until 10).toList()).query(3, 7).toString()).isEqualTo("[5, 6]")
+        assertThat(RangeTree((5 until 10).toList()).query(7, 12).toString()).isEqualTo("[7, 8, 9]")
+        assertThat(RangeTree((5 until 10).toList()).query(10, 15).toString()).isEqualTo("[]")
         assertThat(RangeTree(listOf(1, 5, 10)).query(3, 4).toString()).isEqualTo("[]")
     }
 
