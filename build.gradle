@@ -15,12 +15,12 @@ ext.deps = [
   ],
   'klob'          : 'com.github.shyiko.klob:klob:0.2.1',
   ec4j            : 'org.ec4j.core:ec4j-core:0.3.0',
-  'picocli'       : 'info.picocli:picocli:3.9.6',
+  'picocli'       : 'info.picocli:picocli:4.6.1',
   // Testing libraries
-  'junit'         : 'junit:junit:4.13.1',
-  'assertj'       : 'org.assertj:assertj-core:3.12.2',
+  'junit'         : 'junit:junit:4.13.2',
+  'assertj'       : 'org.assertj:assertj-core:3.21.0',
   'sarif4k'       : 'io.github.detekt.sarif4k:sarif4k:0.0.1',
-  'jimfs'         : 'com.google.jimfs:jimfs:1.1'
+  'jimfs'         : 'com.google.jimfs:jimfs:1.2'
 ]
 
 if (gradle.ext.isKotlinDev) {

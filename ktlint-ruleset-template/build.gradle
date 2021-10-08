@@ -31,12 +31,12 @@ dependencies {
   testImplementation project(':ktlint-core')
   testImplementation project(':ktlint-test')
   testImplementation deps.assertj
-  testImplementation('org.jetbrains.spek:spek-junit-platform-engine:1.1.5') {
+  testImplementation('org.jetbrains.spek:spek-junit-platform-engine:1.2.1') {
     exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib'
     exclude group: 'org.jetbrains.kotlin', module: 'kotlin-reflect'
   }
-  testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
-  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.1.0'
+  testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
 
   ktlint project(':ktlint')
 }
