@@ -18,6 +18,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - Fix regression from 0.41 with argument list wrapping after dot qualified expression (`argument-list-wrapping`)([#1159](https://github.com/pinterest/ktlint/issues/1159))
 - Update Gradle to `7.2` version
 - Update Gradle shadow plugin to `7.1` version
+- Update Kotlin version to `1.5.31` version. Default Kotlin API version was changed to `1.4`!
 
 ### Removed
 

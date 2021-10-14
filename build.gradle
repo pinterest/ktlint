@@ -4,7 +4,7 @@ plugins {
 }
 
 ext.versions = [
-  'kotlin': gradle.ext.isKotlinDev ? "1.5.30-RC" : "1.5.20",
+  'kotlin': gradle.ext.isKotlinDev ? "1.6.0-RC" : "1.5.31",
   'gradle': '7.2',
   'gradle-sha256': 'f581709a9c35e9cb92e16f585d2c4bc99b2b1a5f85d2badbd3dc6bff59e1e6dd'
 ]
@@ -51,21 +51,20 @@ allprojects {
     gradlePluginPortal()
   }
 
-  tasks.withType(JavaCompile) {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+  tasks.withType(JavaCompile).configureEach {
+    it.sourceCompatibility = JavaVersion.VERSION_1_8
+    it.targetCompatibility = JavaVersion.VERSION_1_8
   }
 
-  tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+  tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+    it.sourceCompatibility = JavaVersion.VERSION_1_8
+    it.targetCompatibility = JavaVersion.VERSION_1_8
 
-    kotlinOptions {
+    it.kotlinOptions {
       jvmTarget = '1.8'
-      apiVersion = '1.3'
-      useIR = true
+      apiVersion = '1.4'
 
-      freeCompilerArgs = ["-Xopt-in=kotlin.RequiresOptIn"]
+      freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
     }
   }
 }
