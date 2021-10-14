@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.internal
 
 import com.github.shyiko.klob.Glob
+import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.internal.EditorConfigLoader
 import com.pinterest.ktlint.core.internal.EditorConfigLoader.Companion.convertToRawValues
 import java.io.ByteArrayInputStream
@@ -25,6 +26,7 @@ object IntellijIDEAIntegration {
 
     @Suppress("UNUSED_PARAMETER")
     @Throws(IOException::class)
+    @OptIn(FeatureInAlphaState::class)
     fun apply(workDir: Path, dryRun: Boolean, android: Boolean = false, local: Boolean = false): Array<Path> {
         val editorConfigProperties = EditorConfigLoader(FileSystems.getDefault())
             .loadPropertiesForFile(null, isStdIn = true, rules = emptySet())
