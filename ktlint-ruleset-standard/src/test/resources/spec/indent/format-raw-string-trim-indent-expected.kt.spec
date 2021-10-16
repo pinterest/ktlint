@@ -2,7 +2,7 @@ fun f() {
     val y = 5
     val x =
         """
-        $y
+            $y
         """.trimIndent()
     println("""${true}""".trimIndent())
     println(
@@ -11,63 +11,63 @@ fun f() {
     )
     println(
         """
-        ${true}
+    ${true}
 
-            ${true}
+        ${true}
         """.trimIndent()
     )
     println(
         """
-        ${true}
+${true}
 
-            ${true}
+    ${true}
         """.trimIndent()
     )
     println(
         """
+    text
+
         text
-
-            text
         """.trimIndent().toByteArray()
     )
     println(
         """
+    text
+
         text
-
-            text
         """.trimIndent()
     )
     println(
         """
-            text
+    text
 
-                text
-        _
+        text
+_
         """.trimIndent()
     )
     println(
         """
-        text ""
+    text ""
 
-            text
-            ""
+        text
+        ""
         """.trimIndent()
     )
     format(
         """
-        class A {
-            fun f(@Annotation
-                  a: Any,
-                  @Annotation([
-                      "v1",
-                      "v2"
-                  ])
-                  b: Any,
-                  c: Any =
-                      false,
-                  @Annotation d: Any) {
+            class A {
+                fun f(@Annotation
+                      a: Any,
+                      @Annotation([
+                          "v1",
+                          "v2"
+                      ])
+                      b: Any,
+                      c: Any =
+                          false,
+                      @Annotation d: Any) {
+                }
             }
-        }
         """.trimIndent()
     )
     write(
@@ -78,25 +78,12 @@ fun f() {
         end_of_line = lf
         """.trimIndent().toByteArray()
     )
-    SpacingAroundKeywordRule().format(
-        // string below is indented with tabs and spaces should and should therefore not be autocorrected as this can
-        // not been done reliable. This will be fixed in a separate PR.
-        """
-             var x: String
-        get () {
-         return ""
-        }
-        private set (value) {
-         x = value
-        }
-        """.trimIndent()
-    )
 }
 
 class C {
     val CONFIG_COMPACT = """
-    {
-    }
+        {
+        }
     """.trimIndent()
     val CONFIG_COMPACT = // comment
         """

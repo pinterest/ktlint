@@ -762,9 +762,6 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
     ) {
         val psi = node.psi as KtStringTemplateExpression
         if (psi.isMultiLine() && psi.isFollowedByTrimIndent()) {
-            // Get the max prefix length that all line in the multiline string have in common. All whitespace character
-            // are counted as one single position. Note that the way of counting should be in sync with the way this is
-            // done by the trimIndent function.
             val prefixLength = node.children()
                 .filterNot { it.elementType == OPEN_QUOTE }
                 .filterNot { it.elementType == CLOSING_QUOTE }
@@ -814,10 +811,12 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                                     expectedIndentation + actualContent
                                 )
                             }
-                        } else if (actualIndent != expectedIndentation) {
+                        } else if (actualIndent != expectedIndentation && it.isIndentBeforeClosingQuote()) {
+                            // It is a deliberate choice not to fix the indents inside the string literal except the line which only contains
+                            // the closing quotes.
                             emit(
                                 it.startOffset,
-                                "Unexpected indent of multiline string",
+                                "Unexpected indent of multiline string", // TODO: Change to "Unexpected indent of multiline string closing quotes"???
                                 true
                             )
                             if (autoCorrect) {
@@ -1089,7 +1088,7 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
 }
 
 private fun ASTNode.isIndentBeforeClosingQuote() =
-    text.isBlank() && nextCodeSibling()?.elementType == CLOSING_QUOTE
+    elementType == CLOSING_QUOTE || (text.isBlank() && nextCodeSibling()?.elementType == CLOSING_QUOTE)
 
 private fun EditorConfig.repeatIndent(indentLevel: Int) =
     when (indentStyle) {

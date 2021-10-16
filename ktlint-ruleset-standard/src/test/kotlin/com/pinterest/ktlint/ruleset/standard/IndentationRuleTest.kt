@@ -6,7 +6,6 @@ import com.pinterest.ktlint.test.diffFileLint
 import com.pinterest.ktlint.test.format
 import com.pinterest.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Ignore
 import org.junit.Test
 
 internal class IndentationRuleTest {
@@ -620,9 +619,9 @@ internal class IndentationRuleTest {
         val code =
             """
             fun foo() {
-              println($MULTILINE_STRING_QUOTE
-                line1
-                    line2
+                println($MULTILINE_STRING_QUOTE
+                    line1
+                        line2
                     $MULTILINE_STRING_QUOTE.trimIndent())
             }
             """.trimIndent()
@@ -652,10 +651,7 @@ internal class IndentationRuleTest {
             IndentationRule().lint(code)
         ).isEqualTo(
             listOf(
-                LintError(2, 1, "indent", "Unexpected indentation (2) (should be 4)"),
-                LintError(2, 11, "indent", "Missing newline after \"(\""),
-                LintError(3, 1, "indent", "Unexpected indent of multiline string"),
-                LintError(4, 1, "indent", "Unexpected indent of multiline string"),
+                LintError(2, 13, "indent", "Missing newline after \"(\""),
                 LintError(5, 24, "indent", "Missing newline before \")\""),
             )
         )
@@ -664,35 +660,30 @@ internal class IndentationRuleTest {
     }
 
     @Test
-    fun `format new line before closing quotes multiline string when not blank`() {
+    fun `format multiline string assignment to variable with opening quotes on same line as declaration`() {
         val code =
             """
             fun foo() {
-                println($MULTILINE_STRING_QUOTE
-                    line1
-                line2$MULTILINE_STRING_QUOTE.trimIndent())
+                val bar = $MULTILINE_STRING_QUOTE
+                          line1
+                              line2
+                          $MULTILINE_STRING_QUOTE.trimIndent()
             }
             """.trimIndent()
         val expectedCode =
             """
             fun foo() {
-                println(
-                    $MULTILINE_STRING_QUOTE
-                        line1
-                    line2
-                    $MULTILINE_STRING_QUOTE.trimIndent()
-                )
+                val bar = $MULTILINE_STRING_QUOTE
+                          line1
+                              line2
+                $MULTILINE_STRING_QUOTE.trimIndent()
             }
             """.trimIndent()
         assertThat(
             IndentationRule().lint(code)
         ).isEqualTo(
             listOf(
-                LintError(line = 2, col = 13, ruleId = "indent", detail = "Missing newline after \"(\""),
-                LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected indent of multiline string"),
-                LintError(line = 4, col = 1, ruleId = "indent", detail = "Unexpected indent of multiline string"),
-                LintError(line = 4, col = 10, ruleId = "indent", detail = "Missing newline before \"\"\""),
-                LintError(line = 4, col = 25, ruleId = "indent", detail = "Missing newline before \")\""),
+                LintError(5, 1, "indent", "Unexpected indent of multiline string"),
             )
         )
         assertThat(IndentationRule().format(code)).isEqualTo(expectedCode)
@@ -703,14 +694,12 @@ internal class IndentationRuleTest {
         val code =
             """
             fun foo() {
-                println(
-                    $MULTILINE_STRING_QUOTE
-                text ""
+                println($MULTILINE_STRING_QUOTE
+                    text ""
 
-                     text
-                     ""
-                $MULTILINE_STRING_QUOTE.trimIndent()
-                )
+                         text
+                         ""
+                $MULTILINE_STRING_QUOTE.trimIndent())
             }
             """.trimIndent()
         val expectedCode =
@@ -730,10 +719,9 @@ internal class IndentationRuleTest {
             IndentationRule().lint(code)
         ).isEqualTo(
             listOf(
-                LintError(line = 4, col = 1, ruleId = "indent", detail = "Unexpected indent of multiline string"),
-                LintError(line = 6, col = 1, ruleId = "indent", detail = "Unexpected indent of multiline string"),
+                LintError(line = 2, col = 13, ruleId = "indent", detail = "Missing newline after \"(\""),
                 LintError(line = 7, col = 1, ruleId = "indent", detail = "Unexpected indent of multiline string"),
-                LintError(line = 8, col = 1, ruleId = "indent", detail = "Unexpected indent of multiline string"),
+                LintError(line = 7, col = 20, ruleId = "indent", detail = "Missing newline before \")\""),
             )
         )
         assertThat(IndentationRule().format(code)).isEqualTo(expectedCode)
@@ -745,11 +733,11 @@ internal class IndentationRuleTest {
         val code =
             """
             fun foo() {
-            println($MULTILINE_STRING_QUOTE
-            ${"$"}{true}
+                println($MULTILINE_STRING_QUOTE
+                    ${"$"}{true}
 
-                ${"$"}{true}
-            $MULTILINE_STRING_QUOTE.trimIndent())
+                        ${"$"}{true}
+                $MULTILINE_STRING_QUOTE.trimIndent())
             }
             """.trimIndent()
         val expectedCode =
@@ -768,39 +756,9 @@ internal class IndentationRuleTest {
             IndentationRule().lint(code)
         ).isEqualTo(
             listOf(
-                LintError(2, 1, "indent", "Unexpected indentation (0) (should be 4)"),
-                LintError(2, 9, "indent", "Missing newline after \"(\""),
-                LintError(3, 1, "indent", "Unexpected indent of multiline string"),
-                LintError(5, 1, "indent", "Unexpected indent of multiline string"),
-                LintError(6, 1, "indent", "Unexpected indent of multiline string"),
-                LintError(6, 16, "indent", "Missing newline before \")\"")
-            )
-        )
-        assertThat(IndentationRule().format(code)).isEqualTo(expectedCode)
-    }
-
-    @Test
-    fun `issue 575 - format multiline string with tabs only in indentation margin`() {
-        val code =
-            """
-            val str =
-                $MULTILINE_STRING_QUOTE
-            ${TAB}line1
-            ${TAB}${TAB}line2
-                $MULTILINE_STRING_QUOTE.trimIndent()
-            """.trimIndent()
-        val expectedCode =
-            """
-            val str =
-                $MULTILINE_STRING_QUOTE
-                line1
-                ${TAB}line2
-                $MULTILINE_STRING_QUOTE.trimIndent()
-            """.trimIndent()
-        assertThat(IndentationRule().lint(code)).isEqualTo(
-            listOf(
-                LintError(3, 1, "indent", "Unexpected 'tab' character(s) in margin of multiline string"),
-                LintError(4, 1, "indent", "Unexpected 'tab' character(s) in margin of multiline string"),
+                LintError(line = 2, col = 13, ruleId = "indent", detail = "Missing newline after \"(\""),
+                LintError(line = 6, col = 1, ruleId = "indent", detail = "Unexpected indent of multiline string"),
+                LintError(line = 6, col = 20, ruleId = "indent", detail = "Missing newline before \")\""),
             )
         )
         assertThat(IndentationRule().format(code)).isEqualTo(expectedCode)
@@ -818,34 +776,6 @@ internal class IndentationRuleTest {
                 $MULTILINE_STRING_QUOTE.trimIndent()
             """.trimIndent()
         assertThat(IndentationRule().lint(code)).isEmpty()
-        assertThat(IndentationRule().format(code)).isEqualTo(code)
-    }
-
-    @Ignore
-    @Test
-    fun `issue 575 - lint multiline string with mixed indentation characters, can not be autocorrected`() {
-        val code =
-            """
-                val foo = $MULTILINE_STRING_QUOTE
-                      line1
-                {TAB} line2
-                    $MULTILINE_STRING_QUOTE.trimIndent()
-                """
-                .trimIndent()
-                .replace("{TAB}", "\t")
-                .replace("{SPACE}", " ")
-        assertThat(
-            IndentationRule().lint(code)
-        ).isEqualTo(
-            listOf(
-                LintError(
-                    line = 1,
-                    col = 11,
-                    ruleId = "indent",
-                    detail = "Indentation of multiline string should not contain both tab(s) and space(s)"
-                ),
-            )
-        )
         assertThat(IndentationRule().format(code)).isEqualTo(code)
     }
 

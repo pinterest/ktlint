@@ -78,17 +78,6 @@ fun f() {
 		end_of_line = lf
 		""".trimIndent().toByteArray()
 	)
-	SpacingAroundKeywordRule().format( // string below is indented with tabs and spaces and will not be changed
-		"""
-            var x: String
-			    get () {
-				    return ""
-			    }
-			    private set (value) {
-				    x = value
-			    }
-            """.trimIndent()
-	)
 }
 
 class C {
@@ -104,8 +93,8 @@ class C {
 
 	fun getBazelWorkspaceContent(blueprint: BazelWorkspaceBlueprint) =
 		"""${Target(
-			"android_sdk_repository",
-			listOf(StringAttribute("name", "androidsdk"))
+			       "android_sdk_repository",
+		    	    listOf(StringAttribute("name", "androidsdk"))
 		)}
 
 ${Comment("Google Maven Repository")}
