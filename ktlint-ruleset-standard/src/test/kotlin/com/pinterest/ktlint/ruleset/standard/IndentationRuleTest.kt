@@ -683,7 +683,7 @@ internal class IndentationRuleTest {
             IndentationRule().lint(code)
         ).isEqualTo(
             listOf(
-                LintError(5, 1, "indent", "Unexpected indent of multiline string"),
+                LintError(5, 1, "indent", "Unexpected indent of multiline string closing quotes"),
             )
         )
         assertThat(IndentationRule().format(code)).isEqualTo(expectedCode)
@@ -720,7 +720,7 @@ internal class IndentationRuleTest {
         ).isEqualTo(
             listOf(
                 LintError(line = 2, col = 13, ruleId = "indent", detail = "Missing newline after \"(\""),
-                LintError(line = 7, col = 1, ruleId = "indent", detail = "Unexpected indent of multiline string"),
+                LintError(line = 7, col = 1, ruleId = "indent", detail = "Unexpected indent of multiline string closing quotes"),
                 LintError(line = 7, col = 20, ruleId = "indent", detail = "Missing newline before \")\""),
             )
         )
@@ -757,7 +757,7 @@ internal class IndentationRuleTest {
         ).isEqualTo(
             listOf(
                 LintError(line = 2, col = 13, ruleId = "indent", detail = "Missing newline after \"(\""),
-                LintError(line = 6, col = 1, ruleId = "indent", detail = "Unexpected indent of multiline string"),
+                LintError(line = 6, col = 1, ruleId = "indent", detail = "Unexpected indent of multiline string closing quotes"),
                 LintError(line = 6, col = 20, ruleId = "indent", detail = "Missing newline before \")\""),
             )
         )

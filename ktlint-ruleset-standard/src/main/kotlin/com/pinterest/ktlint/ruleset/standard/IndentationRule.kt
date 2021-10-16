@@ -816,7 +816,7 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                             // the closing quotes.
                             emit(
                                 it.startOffset,
-                                "Unexpected indent of multiline string", // TODO: Change to "Unexpected indent of multiline string closing quotes"???
+                                "Unexpected indent of multiline string closing quotes",
                                 true
                             )
                             if (autoCorrect) {
