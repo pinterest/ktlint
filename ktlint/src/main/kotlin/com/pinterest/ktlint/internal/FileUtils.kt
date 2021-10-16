@@ -180,8 +180,7 @@ internal fun lintFile(
             cb = { e, _ ->
                 lintErrorCallback(e)
             },
-            debug = debug,
-            isInvokedFromCli = true
+            debug = debug
         )
     )
 }
@@ -208,7 +207,6 @@ internal fun formatFile(
             script = !fileName.endsWith(".kt", ignoreCase = true),
             editorConfigPath = editorConfigPath,
             cb = cb,
-            debug = debug,
-            isInvokedFromCli = true
+            debug = debug
         )
     )

@@ -414,7 +414,7 @@ class KtlintCommandLine {
     }
 
     private fun loadReporter(): Reporter {
-        val configuredReporters = if (reporters.isEmpty()) listOf("plain") else reporters
+        val configuredReporters = reporters.ifEmpty { listOf("plain") }
 
         val tpls = configuredReporters
             .map { reporter ->
@@ -492,7 +492,8 @@ class KtlintCommandLine {
                     "",
                     "Internal Error (${e.ruleId}). " +
                         "Please create a ticket at https://github.com/pinterest/ktlint/issues " +
-                        "(if possible, provide the source code that triggered an error)"
+                        "(if possible, please re-run with the --debug flag to get the stacktrace " +
+                        "and provide the source code that triggered an error)"
                 )
             }
             else -> throw e
@@ -504,7 +505,7 @@ class KtlintCommandLine {
     private fun parseQuery(query: String) =
         query.split("&")
             .fold(LinkedHashMap<String, String>()) { map, s ->
-                if (!s.isEmpty()) {
+                if (s.isNotEmpty()) {
                     s.split("=", limit = 2).let { e ->
                         map.put(
                             e[0],

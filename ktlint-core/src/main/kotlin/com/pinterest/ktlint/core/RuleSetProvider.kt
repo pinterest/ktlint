@@ -3,7 +3,7 @@ package com.pinterest.ktlint.core
 import java.io.Serializable
 
 /**
- * `ktlint` uses [ServiceLoader](http://docs.oracle.com/javase/6/docs/api/java/util/ServiceLoader.html) to
+ * `ktlint` uses [ServiceLoader](https://docs.oracle.com/javase/6/docs/api/java/util/ServiceLoader.html) to
  * discover all available `RuleSetProvider`s on the classpath and so each `RuleSetProvider` must be registered using
  * `META-INF/services/com.pinterest.ktlint.core.RuleSetProvider`
  * (see `ktlint-ruleset-standard/src/main/resources` for an example).

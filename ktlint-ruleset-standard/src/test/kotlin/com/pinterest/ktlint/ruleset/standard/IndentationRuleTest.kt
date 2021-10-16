@@ -983,6 +983,25 @@ internal class IndentationRuleTest {
         ).isEmpty()
     }
 
+    // https://github.com/pinterest/ktlint/issues/1210
+    @Test
+    fun `lint delegated properties with a lambda argument`() {
+        assertThat(
+            IndentationRule().lint(
+                """
+                import kotlin.properties.Delegates
+
+                class Test {
+                    private var test
+                        by Delegates.vetoable("") { _, old, new ->
+                            true
+                        }
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
     @Test
     fun `lint delegation 1`() {
         assertThat(
@@ -1280,6 +1299,22 @@ internal class IndentationRuleTest {
                 }
 
                 open class B(f: () -> Int)
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    // https://github.com/pinterest/ktlint/issues/1202
+    @Test
+    fun `lint lambda argument and call chain`() {
+        assertThat(
+            IndentationRule().lint(
+                """
+                class Foo {
+                    fun bar() {
+                        val foo = bar.associateBy({ item -> item.toString() }, ::someFunction).toMap()
+                    }
+                }
                 """.trimIndent()
             )
         ).isEmpty()

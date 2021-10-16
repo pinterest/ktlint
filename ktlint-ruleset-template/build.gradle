@@ -1,7 +1,7 @@
 plugins {
   id 'org.jetbrains.kotlin.jvm'
   id 'java-library'
-  id 'maven'
+  id 'maven-publish'
 }
 
 group = 'com.github.username'
@@ -55,14 +55,18 @@ task ktlint(type: JavaExec, dependsOn: classes) {
 
 check.dependsOn ktlint
 
-install {
-  repositories.mavenInstaller {
-    pom.project {
-      licenses {
-        license {
-          name 'The Apache Software License, Version 2.0'
-          url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-          distribution 'repo'
+afterEvaluate {
+  publishing {
+    publications {
+      mavenJava(MavenPublication) {
+        pom {
+          licenses {
+            license {
+              name = 'The Apache Software License, Version 2.0'
+              url = 'https://www.apache.org/licenses/LICENSE-2.0.txt'
+              distribution = 'repo'
+            }
+          }
         }
       }
     }

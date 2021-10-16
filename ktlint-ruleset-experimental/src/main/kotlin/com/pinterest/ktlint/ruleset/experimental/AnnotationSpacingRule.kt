@@ -112,7 +112,7 @@ class AnnotationSpacingRule : Rule("annotation-spacing") {
         }
         if (whiteSpaces.isNotEmpty() && annotations.size > 1 && node.elementType != ElementType.FILE_ANNOTATION_LIST) {
             // Check to make sure there are multi breaks between annotations
-            if (whiteSpaces.any { psi -> psi.textToCharArray().filter { it == '\n' }.count() > 1 }) {
+            if (whiteSpaces.any { psi -> psi.textToCharArray().count { it == '\n' } > 1 }) {
                 val psi = node.psi
                 emit(psi.endOffset - 1, ERROR_MESSAGE, true)
                 if (autoCorrect) {

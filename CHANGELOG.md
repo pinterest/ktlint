@@ -1,16 +1,24 @@
 # Changelog
 All notable changes to this project will be documented in this file.
-This project adheres to [Semantic Versioning](http://semver.org/).
+This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
 ### Added
-
+- New `trailing-comma` rule ([#709](https://github.com/pinterest/ktlint/issues/709)) (prior art by [paul-dingemans](https://github.com/paul-dingemans))
 ### Fixed
+- Fix false positive with lambda argument and call chain (`indent`) ([#1202](https://github.com/pinterest/ktlint/issues/1202))
+- Fix trailing spaces not formatted inside block comments (`no-trailing-spaces`) ([#1197](https://github.com/pinterest/ktlint/issues/1197))
+- Do not check for `.idea` folder presence when using `applyToIDEA` globally ([#1186](https://github.com/pinterest/ktlint/issues/1186))
+- Remove spaces before primary constructor (`paren-spacing`) ([#1207](https://github.com/pinterest/ktlint/issues/1207))
+- Fix false positive for delegated properties with a lambda argument (`indent`) ([#1210](https://github.com/pinterest/ktlint/issues/1210))
 
 ### Changed
 - Support absolute paths for globs ([#1131](https://github.com/pinterest/ktlint/issues/1131))
 - Fix regression from 0.41 with argument list wrapping after dot qualified expression (`argument-list-wrapping`)([#1159](https://github.com/pinterest/ktlint/issues/1159))
+- Update Gradle to `7.2` version
+- Update Gradle shadow plugin to `7.1` version
+- Update Kotlin version to `1.5.31` version. Default Kotlin API version was changed to `1.4`!
 
 ### Removed
 
@@ -792,7 +800,7 @@ respectively (`--ruleset-*` will be removed in 1.0.0).
 
 ### Added
 
-- [.editorconfig](http://editorconfig.org/) support (right now only `indent_size` is honored and only if it's 
+- [.editorconfig](https://editorconfig.org/) support (right now only `indent_size` is honored and only if it's 
 set in `[*{kt,kts}]` section).
 - Support for vertically aligned comments (see [NoMultipleSpacesRuleTest.kt](ktlint-ruleset-standard/src/test/kotlin/com/github/shyiko/ktlint/ruleset/standard/NoMultipleSpacesRuleTest.kt)).
 

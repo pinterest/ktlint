@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.internal
 
 import com.github.shyiko.klob.Glob
+import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.internal.EditorConfigLoader
 import com.pinterest.ktlint.core.internal.EditorConfigLoader.Companion.convertToRawValues
 import java.io.ByteArrayInputStream
@@ -25,16 +26,17 @@ object IntellijIDEAIntegration {
 
     @Suppress("UNUSED_PARAMETER")
     @Throws(IOException::class)
+    @OptIn(FeatureInAlphaState::class)
     fun apply(workDir: Path, dryRun: Boolean, android: Boolean = false, local: Boolean = false): Array<Path> {
-        if (!Files.isDirectory(workDir.resolve(".idea"))) {
-            throw ProjectNotFoundException()
-        }
         val editorConfigProperties = EditorConfigLoader(FileSystems.getDefault())
             .loadPropertiesForFile(null, isStdIn = true, rules = emptySet())
         val editorConfig: Map<String, String> = editorConfigProperties.convertToRawValues()
         val indentSize = editorConfig["indent_size"]?.toIntOrNull() ?: 4
         val continuationIndentSize = editorConfig["continuation_indent_size"]?.toIntOrNull() ?: 4
         val updates = if (local) {
+            if (!Files.isDirectory(workDir.resolve(".idea"))) {
+                throw ProjectNotFoundException()
+            }
             listOf(
                 Paths.get(workDir.toString(), ".idea", "codeStyles", "codeStyleConfig.xml") to
                     overwriteWithResource("/project-config/.idea/codeStyles/codeStyleConfig.xml"),
