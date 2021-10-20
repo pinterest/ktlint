@@ -3,7 +3,7 @@ package com.pinterest.ktlint.core
 import com.pinterest.ktlint.core.ast.ElementType.FILE
 import com.pinterest.ktlint.core.ast.ElementType.IMPORT_LIST
 import com.pinterest.ktlint.core.ast.ElementType.PACKAGE_DIRECTIVE
-import com.pinterest.ktlint.core.internal.KotlinPsiFileFactory
+import com.pinterest.ktlint.core.internal.initPsiFileFactory
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatIllegalStateException
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -622,18 +622,16 @@ class VisitorProviderTest {
         const val SOME_DISABLED_RULE_IN_CUSTOM_RULE_SET_A = "some-disabled-rule-custom-rule-set-a"
 
         fun initRootAstNode(): ASTNode {
-            KotlinPsiFileFactory().apply {
-                val psiFile = acquirePsiFileFactory(false)
-                    .createFileFromText(
-                        "unit-test.kt",
-                        KotlinLanguage.INSTANCE,
-                        // An empty file results in three ASTNodes which are all empty:
-                        //   - kotlin.FILE (root node)
-                        //       - PACKAGE_DIRECTIVE
-                        //       - IMPORT_LIST
-                        ""
-                    ) as KtFile
-                releasePsiFileFactory()
+            initPsiFileFactory().apply {
+                val psiFile = createFileFromText(
+                    "unit-test.kt",
+                    KotlinLanguage.INSTANCE,
+                    // An empty file results in three ASTNodes which are all empty:
+                    //   - kotlin.FILE (root node)
+                    //       - PACKAGE_DIRECTIVE
+                    //       - IMPORT_LIST
+                    ""
+                ) as KtFile
                 return psiFile.node.apply {
                     putUserData(
                         KtLint.DISABLED_RULES,

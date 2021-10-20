@@ -17,7 +17,6 @@ import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.core.ast.prevCodeSibling
 import java.nio.file.Paths
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
 
 /**
  * If there is only one top level class/object/typealias in a given file, then its name should match the file's name.
@@ -29,7 +28,7 @@ class FilenameRule : Rule(
     )
 ) {
 
-    private val ignoreSet = setOf<IElementType>(
+    private val ignoreSet = setOf(
         FILE_ANNOTATION_LIST,
         PACKAGE_DIRECTIVE,
         IMPORT_LIST,

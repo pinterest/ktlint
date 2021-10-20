@@ -182,8 +182,7 @@ internal fun lintFile(
             cb = { e, _ ->
                 lintErrorCallback(e)
             },
-            debug = debug,
-            isInvokedFromCli = true
+            debug = debug
         ),
         visitorProvider
     )
@@ -211,8 +210,7 @@ internal fun formatFile(
         script = !fileName.endsWith(".kt", ignoreCase = true),
         editorConfigPath = editorConfigPath,
         cb = cb,
-        debug = debug,
-        isInvokedFromCli = true
+        debug = debug
     )
     return KtLint.format(
         params,

@@ -40,7 +40,7 @@ class GenerateEditorConfigSubCommand : Runnable {
                     "android" to ktlintCommand.android.toString()
                 ),
                 debug = ktlintCommand.debug,
-                cb = { _, _ -> Unit }
+                cb = { _, _ -> }
             )
         )
 

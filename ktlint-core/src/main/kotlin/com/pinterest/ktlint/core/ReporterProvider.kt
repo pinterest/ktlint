@@ -4,7 +4,7 @@ import java.io.PrintStream
 import java.io.Serializable
 
 /**
- * `ktlint` uses [ServiceLoader](http://docs.oracle.com/javase/6/docs/api/java/util/ServiceLoader.html) to
+ * `ktlint` uses [ServiceLoader](https://docs.oracle.com/javase/6/docs/api/java/util/ServiceLoader.html) to
  * discover all available [ReporterProvider]s on the classpath and so each [ReporterProvider] must be registered using
  * `META-INF/services/com.pinterest.ktlint.core.ReporterProvider`
  * (see `ktlint-reporter-plain/src/main/resources` for an example).
