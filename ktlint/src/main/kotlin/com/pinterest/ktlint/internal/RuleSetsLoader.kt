@@ -43,14 +43,14 @@ internal fun JarFiles.loadRulesets(
         if (expectedNumberOfCustomRuleSetsToBeLoaded != actualNumberOfCustomRuleSetsLoaded) {
             System.err.println(
                 """
-                [ERROR] Number of custom rule sets loaded does not match the expected number of rule sets to be loaded.
-                        Expected to load $expectedNumberOfCustomRuleSetsToBeLoaded custom rule set(s) for rules: ${this.joinToString()}
-                        Actually loaded $actualNumberOfCustomRuleSetsLoaded custom rule set(s) with names: ${customRuleSetsLoaded.joinToString() }
-                        One or more of the specified jars does not provide the custom rule set correctly. Check following:
-                          - Does the jar contain an implementation of the RuleSetProvider interface?
-                          - Does the jar contain a resource file with name "com.pinterest.ktlint.core.RuleSetProvider"?
-                          - Is the resource file located in directory "src/main/resources/META-INF/services"?
-                          - Does the resource file contain the fully qualified class name of the class implementing the RuleSetProvider interface?
+                [WARNING] Number of custom rule sets loaded does not match the expected number of rule sets to be loaded.
+                          Expected to load $expectedNumberOfCustomRuleSetsToBeLoaded custom rule set(s) for rules: ${this.joinToString()}
+                          Actually loaded $actualNumberOfCustomRuleSetsLoaded custom rule set(s) with names: ${customRuleSetsLoaded.joinToString() }
+                          One or more of the specified jars does not provide the custom rule set correctly. Check following:
+                            - Does the jar contain an implementation of the RuleSetProvider interface?
+                            - Does the jar contain a resource file with name "com.pinterest.ktlint.core.RuleSetProvider"?
+                            - Is the resource file located in directory "src/main/resources/META-INF/services"?
+                            - Does the resource file contain the fully qualified class name of the class implementing the RuleSetProvider interface?
                 """.trimIndent() // ktlint-disable string-template
             )
         }
