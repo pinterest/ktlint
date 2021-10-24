@@ -839,4 +839,25 @@ class NoUnusedImportsRuleTest {
             )
         ).isEmpty()
     }
+
+    @Test
+    fun `Issue 1256 - remove wildcard import when not used`() {
+        val rule = NoUnusedImportsRule()
+        assertThat(
+            rule.lint(
+                """
+                import abc.*
+                import def.*
+                import def.Something
+
+                fun foo() = def.Something()
+                """.trimIndent()
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(1, 1, "no-unused-imports", "Unnecessary import"),
+                LintError(2, 1, "no-unused-imports", "Unnecessary import")
+            )
+        )
+    }
 }
