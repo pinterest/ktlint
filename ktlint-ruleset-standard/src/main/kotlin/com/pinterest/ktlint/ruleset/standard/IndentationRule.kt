@@ -39,6 +39,7 @@ import com.pinterest.ktlint.core.ast.ElementType.OBJECT_LITERAL
 import com.pinterest.ktlint.core.ast.ElementType.OPEN_QUOTE
 import com.pinterest.ktlint.core.ast.ElementType.OPERATION_REFERENCE
 import com.pinterest.ktlint.core.ast.ElementType.PARENTHESIZED
+import com.pinterest.ktlint.core.ast.ElementType.PROPERTY
 import com.pinterest.ktlint.core.ast.ElementType.PROPERTY_ACCESSOR
 import com.pinterest.ktlint.core.ast.ElementType.RBRACE
 import com.pinterest.ktlint.core.ast.ElementType.RBRACKET
@@ -559,8 +560,15 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                         //     })
                         adjustExpectedIndentInsideSuperTypeCall(n, ctx)
                     }
-                    STRING_TEMPLATE ->
-                        indentStringTemplate(n, autoCorrect, emit, editorConfig)
+                    STRING_TEMPLATE -> {
+                        if (n.isPropertyValueAssignment() && n.isNotPrecededByNewlineOrEndOfLineComment()) {
+                            expectedIndent++
+                            indentStringTemplate(n, autoCorrect, emit, editorConfig)
+                            expectedIndent--
+                        } else {
+                            indentStringTemplate(n, autoCorrect, emit, editorConfig)
+                        }
+                    }
                     DOT_QUALIFIED_EXPRESSION, SAFE_ACCESS_EXPRESSION, BINARY_EXPRESSION, BINARY_WITH_TYPE -> {
                         val prevBlockLine = ctx.blockOpeningLineStack.peek() ?: -1
                         if (prevBlockLine == line) {
@@ -1092,6 +1100,12 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                 children().any { c -> c.textContains('\n') && c.elementType !in ignoreElementTypes }
         }
     }
+
+    private fun ASTNode.isPropertyValueAssignment() =
+        prevCodeLeaf()?.elementType == EQ && prevCodeLeaf()?.treeParent?.elementType == PROPERTY
+
+    private fun ASTNode.isNotPrecededByNewlineOrEndOfLineComment() =
+        prevLeaf().isWhiteSpaceWithoutNewline() && prevCodeLeaf()?.elementType != EOL_COMMENT
 }
 
 private fun ASTNode.isIndentBeforeClosingQuote() =

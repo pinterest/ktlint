@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.LintError
+import com.pinterest.ktlint.test.assertThatFileFormat
 import com.pinterest.ktlint.test.diffFileFormat
 import com.pinterest.ktlint.test.diffFileLint
 import com.pinterest.ktlint.test.format
@@ -151,6 +152,10 @@ internal class IndentationRuleTest {
 
     @Test
     fun testFormatRawStringTrimIndent() {
+        IndentationRule().assertThatFileFormat(
+            "spec/indent/format-raw-string-trim-indent.kt.spec",
+            "spec/indent/format-raw-string-trim-indent-expected.kt.spec"
+        )
         assertThat(
             IndentationRule().diffFileFormat(
                 "spec/indent/format-raw-string-trim-indent.kt.spec",
@@ -676,7 +681,7 @@ internal class IndentationRuleTest {
                 val bar = $MULTILINE_STRING_QUOTE
                           line1
                               line2
-                $MULTILINE_STRING_QUOTE.trimIndent()
+                    $MULTILINE_STRING_QUOTE.trimIndent()
             }
             """.trimIndent()
         assertThat(
@@ -1269,6 +1274,97 @@ internal class IndentationRuleTest {
                 """.trimIndent()
             )
         ).isEmpty()
+    }
+
+    @Test
+    fun `format variable with multiline string value`() {
+        val code =
+            """
+            val foo1 = $MULTILINE_STRING_QUOTE
+                    line1
+                $MULTILINE_STRING_QUOTE.trimIndent()
+            val foo2 =
+                $MULTILINE_STRING_QUOTE
+                    line2
+                $MULTILINE_STRING_QUOTE.trimIndent()
+            val foo3 = // comment
+                $MULTILINE_STRING_QUOTE
+                    line3
+                $MULTILINE_STRING_QUOTE.trimIndent()
+            """.trimIndent()
+        /*
+        // TODO: What is the proper way to place the opening and closing quotes of a multi line string value? Note that
+        //  the actual content of the multi line string is never been changed as required by ktlint maintainers
+        //     val foo =
+        //        """
+        //        line1
+        //        line2
+        //        """
+        //  or
+        //     val foo = """
+        //        line1
+        //        line2
+        //        """
+        //  or
+        //     val foo = """
+        //     line1
+        //     line2
+        //     """
+        //  or
+        //     val foo = """
+        //        line1
+        //        line2
+        //     """
+        // First option would be most in line with function parameter. Second option is also acceptable. Third option
+        // (previous behavior) is not logical as there is no continuation kind of indent visible. Last option is not in
+        // sync with function parameter.
+        */
+        assertThat(
+            IndentationRule().lint(code)
+        ).isEmpty()
+        assertThat(IndentationRule().format(code)).isEqualTo(code)
+    }
+
+    @Test
+    fun `format variable in class with multiline string value`() {
+        val code =
+            """
+            class C {
+                val CONFIG_COMPACT1 = $MULTILINE_STRING_QUOTE
+                        {
+                        }
+                        $MULTILINE_STRING_QUOTE.trimIndent()
+                val CONFIG_COMPACT2 = // comment
+                        $MULTILINE_STRING_QUOTE
+                        {
+                        }
+                        $MULTILINE_STRING_QUOTE.trimIndent()
+            }
+            """.trimIndent()
+        val expectedCode =
+            """
+            class C {
+                val CONFIG_COMPACT1 = $MULTILINE_STRING_QUOTE
+                        {
+                        }
+                    $MULTILINE_STRING_QUOTE.trimIndent()
+                val CONFIG_COMPACT2 = // comment
+                    $MULTILINE_STRING_QUOTE
+                        {
+                        }
+                    $MULTILINE_STRING_QUOTE.trimIndent()
+            }
+            """.trimIndent()
+        assertThat(
+            IndentationRule().lint(code)
+        ).isEqualTo(
+            listOf(
+                LintError(5, 1, "indent", "Unexpected indent of multiline string closing quotes"),
+                LintError(7, 1, "indent", "Unexpected indentation (12) (should be 8)"),
+                LintError(10, 1, "indent", "Unexpected indent of multiline string closing quotes"),
+            )
+        )
+        assertThat(IndentationRule().format(code)).isEqualTo(expectedCode)
     }
 
     private companion object {
