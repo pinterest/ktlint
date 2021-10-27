@@ -174,6 +174,7 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                 VALUE_PARAMETER_LIST, VALUE_ARGUMENT_LIST -> rearrangeValueList(n, autoCorrect, emit)
                 ARROW -> rearrangeArrow(n, autoCorrect, emit)
                 WHITE_SPACE -> line += n.text.count { it == '\n' }
+                CLOSING_QUOTE -> rearrangeClosingQuote(n, autoCorrect, emit)
             }
         }
     }
@@ -331,6 +332,41 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                     nextSibling.treeNext?.treeNext?.psi !is PsiComment
                 ) {
                     requireNewlineAfterLeaf(nextSibling, autoCorrect, emit)
+                }
+            }
+        }
+    }
+
+    private fun rearrangeClosingQuote(
+        n: ASTNode,
+        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+    ) {
+        val treeParent = n.treeParent
+        if (treeParent.elementType == STRING_TEMPLATE) {
+            val treeParentPsi = treeParent.psi as KtStringTemplateExpression
+            if (treeParentPsi.isMultiLine() && treeParentPsi.isFollowedByTrimIndent() && n.treePrev.text.isNotBlank()) {
+                // rewriting
+                // """
+                //     text
+                // _""".trimIndent()
+                // to
+                // """
+                //     text
+                // _
+                // """.trimIndent()
+                emit(
+                    n.startOffset,
+                    "Missing newline before \"\"\"",
+                    true
+                )
+                if (autoCorrect) {
+                    n as LeafPsiElement
+                    n.rawInsertBeforeMe(LeafPsiElement(REGULAR_STRING_PART, "\n"))
+                }
+                debug {
+                    (if (!autoCorrect) "would have " else "") +
+                        "inserted newline before (closing) \"\"\""
                 }
             }
         }
@@ -833,35 +869,6 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                         }
                     }
                 }
-
-            val closingQuote = node.children().find { it.elementType == CLOSING_QUOTE }!!
-            if (closingQuote.treePrev.text.isNotBlank()) {
-                // rewriting
-                // """
-                //     text
-                // _""".trimIndent()
-                // to
-                // """
-                //     text
-                // _
-                // """.trimIndent()
-                emit(
-                    closingQuote.startOffset,
-                    "Missing newline before \"\"\"",
-                    true
-                )
-                if (autoCorrect) {
-                    closingQuote as LeafPsiElement
-                    closingQuote.rawInsertBeforeMe(LeafPsiElement(REGULAR_STRING_PART, "\n"))
-                    closingQuote.rawInsertBeforeMe(
-                        LeafPsiElement(REGULAR_STRING_PART, " ".repeat(expectedPrefixLength))
-                    )
-                }
-                debug {
-                    (if (!autoCorrect) "would have " else "") +
-                        "inserted newline before (closing) \"\"\""
-                }
-            }
         }
     }
 
