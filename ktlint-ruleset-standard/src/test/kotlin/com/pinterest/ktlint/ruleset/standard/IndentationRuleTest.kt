@@ -83,7 +83,7 @@ internal class IndentationRuleTest {
                 |		get() = ""
                 |		set(v: String) { x = v }
                 |}
-                |""".trimMargin(),
+                """.trimMargin(),
                 INDENT_STYLE_TABS
             )
         ).isEqualTo(
@@ -1294,6 +1294,57 @@ internal class IndentationRuleTest {
             )
         )
         assertThat(IndentationRule().format(code)).isEqualTo(code)
+    }
+
+    @Test
+    fun `multi line string at start of line`() {
+        val code =
+            """
+            fun foo() =
+            $MULTILINE_STRING_QUOTE
+            some text
+            $MULTILINE_STRING_QUOTE
+            """.trimIndent()
+        assertThat(IndentationRule().lint(code)).isEmpty()
+        assertThat(IndentationRule().format(code)).isEqualTo(code)
+    }
+
+    @Test
+    fun `Issue 1127 - multiline string in parameter list`() {
+        val code =
+            """
+            interface UserRepository : JpaRepository<User, UUID> {
+                @Query($MULTILINE_STRING_QUOTE
+                    select u from User u
+                    inner join Organization o on u.organization = o
+                    where o = :organization
+                $MULTILINE_STRING_QUOTE)
+                fun findByOrganization(organization: Organization, pageable: Pageable): Page<User>
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            interface UserRepository : JpaRepository<User, UUID> {
+                @Query(
+                    $MULTILINE_STRING_QUOTE
+                    select u from User u
+                    inner join Organization o on u.organization = o
+                    where o = :organization
+                    $MULTILINE_STRING_QUOTE
+                )
+                fun findByOrganization(organization: Organization, pageable: Pageable): Page<User>
+            }
+            """.trimIndent()
+        assertThat(
+            IndentationRule().lint(code)
+        ).isEqualTo(
+            listOf(
+                LintError(line = 2, col = 12, ruleId = "indent", detail = "Missing newline after \"(\""),
+                LintError(line = 6, col = 1, ruleId = "indent", detail = "Unexpected indent of multiline string closing quotes"),
+                LintError(line = 6, col = 7, ruleId = "indent", detail = "Missing newline before \")\""),
+            )
+        )
+        assertThat(IndentationRule().format(code)).isEqualTo(formattedCode)
     }
 
     private companion object {
