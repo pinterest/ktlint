@@ -1275,12 +1275,11 @@ internal class IndentationRuleTest {
     fun `multiline string with mixed indentation characters, can not be autocorrected`() {
         val code =
             """
-                val foo = $MULTILINE_STRING_QUOTE
-                      line1
-                ${TAB}line2
-                    $MULTILINE_STRING_QUOTE.trimIndent()
-                """
-                .trimIndent()
+            val foo = $MULTILINE_STRING_QUOTE
+                  line1
+            ${TAB}line2
+                $MULTILINE_STRING_QUOTE.trimIndent()
+            """.trimIndent()
         assertThat(
             IndentationRule().lint(code)
         ).isEqualTo(
