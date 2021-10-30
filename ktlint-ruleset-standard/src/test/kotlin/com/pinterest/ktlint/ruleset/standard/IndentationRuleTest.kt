@@ -1367,6 +1367,31 @@ internal class IndentationRuleTest {
         assertThat(IndentationRule().format(code)).isEqualTo(expectedCode)
     }
 
+    @Test
+    fun `multiline string with mixed indentation characters, can not be autocorrected`() {
+        val code =
+            """
+                val foo = $MULTILINE_STRING_QUOTE
+                      line1
+                ${TAB}line2
+                    $MULTILINE_STRING_QUOTE.trimIndent()
+                """
+                .trimIndent()
+        assertThat(
+            IndentationRule().lint(code)
+        ).isEqualTo(
+            listOf(
+                LintError(
+                    line = 1,
+                    col = 11,
+                    ruleId = "indent",
+                    detail = "Indentation of multiline string should not contain both tab(s) and space(s)"
+                ),
+            )
+        )
+        assertThat(IndentationRule().format(code)).isEqualTo(code)
+    }
+
     private companion object {
         const val MULTILINE_STRING_QUOTE = "${'"'}${'"'}${'"'}"
         const val TAB = "${'\t'}"

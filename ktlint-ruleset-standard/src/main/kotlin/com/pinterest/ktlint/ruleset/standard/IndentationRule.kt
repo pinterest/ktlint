@@ -806,6 +806,18 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
     ) {
         val psi = node.psi as KtStringTemplateExpression
         if (psi.isMultiLine() && psi.isFollowedByTrimIndent()) {
+            if (node.containsMixedIndentationCharacters()) {
+                // It can not be determined with certainty how mixed indentation characters should be interpreted.
+                // The trimIndent function handles tabs and spaces equally (one tabs equals one space) while the user
+                // might expect that the tab size in the indentation is more than one space.
+                emit(
+                    node.startOffset,
+                    "Indentation of multiline string should not contain both tab(s) and space(s)",
+                    false
+                )
+                return
+            }
+
             val prefixLength = node.children()
                 .filterNot { it.elementType == OPEN_QUOTE }
                 .filterNot { it.elementType == CLOSING_QUOTE }
@@ -1106,6 +1118,27 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
 
     private fun ASTNode.isNotPrecededByNewlineOrEndOfLineComment() =
         prevLeaf().isWhiteSpaceWithoutNewline() && prevCodeLeaf()?.elementType != EOL_COMMENT
+
+    private fun ASTNode.containsMixedIndentationCharacters(): Boolean {
+        assert((this.psi as KtStringTemplateExpression).isMultiLine())
+        val nonBlankLines = this
+            .text
+            .split("\n")
+            .filterNot { it.startsWith("\"\"\"") }
+            .filterNot { it.endsWith("\"\"\"") }
+            .filterNot { it.isBlank() }
+        val prefixLength = nonBlankLines
+            .map { it.indentLength() }
+            .min() ?: 0
+        val distinctIndentCharacters = nonBlankLines
+            .joinToString(separator = "") {
+                it.splitIndentAt(prefixLength).first
+            }
+            .toCharArray()
+            .distinct()
+            .count()
+        return distinctIndentCharacters > 1
+    }
 }
 
 private fun ASTNode.isIndentBeforeClosingQuote() =
