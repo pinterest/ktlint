@@ -673,16 +673,6 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
         if (!ctx.ignored.contains(p) && nextSibling != null) {
             expectedIndent++
             debug { "++inside(${p.elementType}) -> $expectedIndent" }
-            val siblingType = nextSibling.elementType
-            val e = if (
-                siblingType == DOT ||
-                siblingType == SAFE_ACCESS ||
-                siblingType == ELVIS
-            ) {
-                nextSibling.treeNext
-            } else {
-                nextSibling
-            }
             ctx.ignored.add(p)
             ctx.exitAdjBy(p, -1)
         }
