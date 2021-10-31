@@ -68,38 +68,37 @@ class JsonReporterTest {
         assertThat(String(out.toByteArray())).isEqualTo(
             """
             [
-            {TAB}{
-            {TAB}{TAB}"file": "/one-fixed-and-one-not.kt",
-            {TAB}{TAB}"errors": [
-            {TAB}{TAB}{TAB}{
-            {TAB}{TAB}{TAB}{TAB}"line": 1,
-            {TAB}{TAB}{TAB}{TAB}"column": 1,
-            {TAB}{TAB}{TAB}{TAB}"message": "<\"&'>",
-            {TAB}{TAB}{TAB}{TAB}"rule": "rule-1"
-            {TAB}{TAB}{TAB}}
-            {TAB}{TAB}]
-            {TAB}},
-            {TAB}{
-            {TAB}{TAB}"file": "/two-not-fixed.kt",
-            {TAB}{TAB}"errors": [
-            {TAB}{TAB}{TAB}{
-            {TAB}{TAB}{TAB}{TAB}"line": 1,
-            {TAB}{TAB}{TAB}{TAB}"column": 10,
-            {TAB}{TAB}{TAB}{TAB}"message": "I thought I would again",
-            {TAB}{TAB}{TAB}{TAB}"rule": "rule-1"
-            {TAB}{TAB}{TAB}},
-            {TAB}{TAB}{TAB}{
-            {TAB}{TAB}{TAB}{TAB}"line": 2,
-            {TAB}{TAB}{TAB}{TAB}"column": 20,
-            {TAB}{TAB}{TAB}{TAB}"message": "A single thin straight line",
-            {TAB}{TAB}{TAB}{TAB}"rule": "rule-2"
-            {TAB}{TAB}{TAB}}
-            {TAB}{TAB}]
-            {TAB}}
+                {
+                    "file": "/one-fixed-and-one-not.kt",
+                    "errors": [
+                        {
+                            "line": 1,
+                            "column": 1,
+                            "message": "<\"&'>",
+                            "rule": "rule-1"
+                        }
+                    ]
+                },
+                {
+                    "file": "/two-not-fixed.kt",
+                    "errors": [
+                        {
+                            "line": 1,
+                            "column": 10,
+                            "message": "I thought I would again",
+                            "rule": "rule-1"
+                        },
+                        {
+                            "line": 2,
+                            "column": 20,
+                            "message": "A single thin straight line",
+                            "rule": "rule-2"
+                        }
+                    ]
+                }
             ]
 
             """.trimIndent()
-                .replace("{TAB}", "\t")
                 .replace("\n", System.lineSeparator())
         )
     }
@@ -113,21 +112,20 @@ class JsonReporterTest {
         assertThat(String(out.toByteArray())).isEqualTo(
             """
             [
-            {TAB}{
-            {TAB}{TAB}"file": "src\\main\\all\\corrected.kt",
-            {TAB}{TAB}"errors": [
-            {TAB}{TAB}{TAB}{
-            {TAB}{TAB}{TAB}{TAB}"line": 4,
-            {TAB}{TAB}{TAB}{TAB}"column": 7,
-            {TAB}{TAB}{TAB}{TAB}"message": "\\n\n\r\t\"",
-            {TAB}{TAB}{TAB}{TAB}"rule": "rule-7"
-            {TAB}{TAB}{TAB}}
-            {TAB}{TAB}]
-            {TAB}}
+                {
+                    "file": "src\\main\\all\\corrected.kt",
+                    "errors": [
+                        {
+                            "line": 4,
+                            "column": 7,
+                            "message": "\\n\n\r\t\"",
+                            "rule": "rule-7"
+                        }
+                    ]
+                }
             ]
 
             """.trimIndent()
-                .replace("{TAB}", "\t")
                 .replace("\n", System.lineSeparator())
         )
     }
