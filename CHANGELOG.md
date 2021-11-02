@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## Unreleased
+## [0.43.0] - 2021-11-02
 
 ### Added
 - New `trailing-comma` rule ([#709](https://github.com/pinterest/ktlint/issues/709)) (prior art by [paul-dingemans](https://github.com/paul-dingemans))
@@ -20,8 +20,6 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - Update Gradle to `7.2` version
 - Update Gradle shadow plugin to `7.1` version
 - Update Kotlin version to `1.5.31` version. Default Kotlin API version was changed to `1.4`!
-
-### Removed
 
 ## [0.42.1] - 2021-08-06
 
@@ -910,6 +908,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.43.0]: https://github.com/pinterest/ktlint/compare/0.42.1...0.43.0
 [0.42.1]: https://github.com/pinterest/ktlint/compare/0.42.0...0.42.1
 [0.42.0]: https://github.com/pinterest/ktlint/compare/0.41.0...0.42.0
 [0.41.0]: https://github.com/pinterest/ktlint/compare/0.40.0...0.41.0
