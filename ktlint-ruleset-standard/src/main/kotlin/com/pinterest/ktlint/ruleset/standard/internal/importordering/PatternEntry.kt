@@ -22,10 +22,16 @@ public class PatternEntry(
         if (otherPackageName.startsWith(packageName)) {
             if (otherPackageName.length == packageName.length) return true
             if (withSubpackages) {
-                if (otherPackageName[packageName.length] == '.') return true
+                if (otherPackageName[packageName.length] == '.') {
+                    return true
+                }
             }
         }
         return false
+    }
+
+    internal fun matches(import: ImportPath): Boolean {
+        return matchesPackageName(import.pathStr.removeSuffix(".*"))
     }
 
     internal fun isBetterMatchForPackageThan(entry: PatternEntry?, import: ImportPath): Boolean {

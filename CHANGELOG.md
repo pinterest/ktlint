@@ -5,12 +5,15 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## Unreleased
 
 ### Added
+- Recognize `ij_kotlin_packages_to_use_import_on_demand` configuration in editorconfig to be able to allow certain wildcard imports.
+
+This is to make developing with libraries like ktor or kotlin-react more pleasant. These libraries rely heavily on extension functions, which in turn adds a lot of imports.
+
 
 ### Fixed
 
 ### Changed
 - Print the rule id always in the PlainReporter ([#1121](https://github.com/pinterest/ktlint/issues/1121))
-
 
 ### Removed
 

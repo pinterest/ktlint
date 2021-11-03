@@ -134,6 +134,12 @@ ij_kotlin_imports_layout=android.**,|,^org.junit.**,kotlin.io.Closeable.*,|,*,^ 
 # backticks to be longer than the maximum line length. (Since 0.41.0)
 [**/test/**.kt]
 ktlint_ignore_back_ticked_identifier=true
+
+# Comma-separated list of allowed wildcard imports that will override the no-wildcard-imports rule.
+# This can be used for allowing wildcard imports from libraries like Ktor where extension functions are used in a way that creates a lot of imports.
+# "**" applies to package and all subpackages
+ij_kotlin_packages_to_use_import_on_demand=java.util.* # allow java.util.* as wildcard import
+ij_kotlin_packages_to_use_import_on_demand=io.ktor.** # allow wildcard import from io.ktor.* and all subpackages 
 ```
 
 ### Overriding Editorconfig properties for specific directories
