@@ -34,7 +34,7 @@ import org.jetbrains.kotlin.psi.psiUtil.getStrictParentOfType
  * - maxLineLength exceeded (and separating arguments with \n would actually help)
  * in addition, "(" and ")" must be on separates line if any of the arguments are (otherwise on the same)
  */
-class ArgumentListWrappingRule : Rule("argument-list-wrapping") {
+public class ArgumentListWrappingRule : Rule("argument-list-wrapping") {
 
     private var indentSize = -1
     private var maxLineLength = -1

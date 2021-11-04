@@ -22,7 +22,7 @@ import org.jetbrains.kotlin.psi.KtPackageDirective
 import org.jetbrains.kotlin.resolve.ImportPath
 import org.jetbrains.kotlin.util.removeSuffixIfPresent
 
-class NoUnusedImportsRule : Rule("no-unused-imports") {
+public class NoUnusedImportsRule : Rule("no-unused-imports") {
 
     private val componentNRegex = Regex("^component\\d+$")
 

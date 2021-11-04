@@ -12,7 +12,7 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
 import org.jetbrains.kotlin.psi.psiUtil.siblings
 
-fun ASTNode.nextLeaf(includeEmpty: Boolean = false, skipSubtree: Boolean = false): ASTNode? {
+public fun ASTNode.nextLeaf(includeEmpty: Boolean = false, skipSubtree: Boolean = false): ASTNode? {
     var n = if (skipSubtree) this.lastChildLeafOrSelf().nextLeafAny() else this.nextLeafAny()
     if (!includeEmpty) {
         while (n != null && n.textLength == 0) {
@@ -22,7 +22,7 @@ fun ASTNode.nextLeaf(includeEmpty: Boolean = false, skipSubtree: Boolean = false
     return n
 }
 
-fun ASTNode.nextLeaf(p: (ASTNode) -> Boolean): ASTNode? {
+public fun ASTNode.nextLeaf(p: (ASTNode) -> Boolean): ASTNode? {
     var n = this.nextLeafAny()
     while (n != null && !p(n)) {
         n = n.nextLeafAny()
@@ -49,7 +49,7 @@ private fun ASTNode.nextLeafStrict(): ASTNode? {
     return treeParent?.nextLeafStrict()
 }
 
-fun ASTNode.firstChildLeafOrSelf(): ASTNode {
+public fun ASTNode.firstChildLeafOrSelf(): ASTNode {
     var n = this
     if (n.firstChildNode != null) {
         do {
@@ -60,7 +60,7 @@ fun ASTNode.firstChildLeafOrSelf(): ASTNode {
     return n
 }
 
-fun ASTNode.prevLeaf(includeEmpty: Boolean = false): ASTNode? {
+public fun ASTNode.prevLeaf(includeEmpty: Boolean = false): ASTNode? {
     var n = this.prevLeafAny()
     if (!includeEmpty) {
         while (n != null && n.textLength == 0) {
@@ -70,7 +70,7 @@ fun ASTNode.prevLeaf(includeEmpty: Boolean = false): ASTNode? {
     return n
 }
 
-fun ASTNode.prevLeaf(p: (ASTNode) -> Boolean): ASTNode? {
+public fun ASTNode.prevLeaf(p: (ASTNode) -> Boolean): ASTNode? {
     var n = this.prevLeafAny()
     while (n != null && !p(n)) {
         n = n.prevLeafAny()
@@ -86,7 +86,7 @@ private fun ASTNode.prevLeafAny(): ASTNode? {
     return treeParent?.prevLeafAny()
 }
 
-fun ASTNode.lastChildLeafOrSelf(): ASTNode {
+public fun ASTNode.lastChildLeafOrSelf(): ASTNode {
     var n = this
     if (n.lastChildNode != null) {
         do {
@@ -97,7 +97,7 @@ fun ASTNode.lastChildLeafOrSelf(): ASTNode {
     return n
 }
 
-fun ASTNode.prevCodeLeaf(includeEmpty: Boolean = false): ASTNode? {
+public fun ASTNode.prevCodeLeaf(includeEmpty: Boolean = false): ASTNode? {
     var n = prevLeaf(includeEmpty)
     while (n != null && (n.elementType == WHITE_SPACE || n.isPartOfComment())) {
         n = n.prevLeaf(includeEmpty)
@@ -105,7 +105,7 @@ fun ASTNode.prevCodeLeaf(includeEmpty: Boolean = false): ASTNode? {
     return n
 }
 
-fun ASTNode.nextCodeLeaf(includeEmpty: Boolean = false, skipSubtree: Boolean = false): ASTNode? {
+public fun ASTNode.nextCodeLeaf(includeEmpty: Boolean = false, skipSubtree: Boolean = false): ASTNode? {
     var n = nextLeaf(includeEmpty, skipSubtree)
     while (n != null && (n.elementType == WHITE_SPACE || n.isPartOfComment())) {
         n = n.nextLeaf(includeEmpty, skipSubtree)
@@ -113,10 +113,10 @@ fun ASTNode.nextCodeLeaf(includeEmpty: Boolean = false, skipSubtree: Boolean = f
     return n
 }
 
-fun ASTNode.prevCodeSibling(): ASTNode? =
+public fun ASTNode.prevCodeSibling(): ASTNode? =
     prevSibling { it.elementType != WHITE_SPACE && !it.isPartOfComment() }
 
-inline fun ASTNode.prevSibling(p: (ASTNode) -> Boolean): ASTNode? {
+public inline fun ASTNode.prevSibling(p: (ASTNode) -> Boolean): ASTNode? {
     var n = this.treePrev
     while (n != null) {
         if (p(n)) {
@@ -127,10 +127,10 @@ inline fun ASTNode.prevSibling(p: (ASTNode) -> Boolean): ASTNode? {
     return null
 }
 
-fun ASTNode.nextCodeSibling(): ASTNode? =
+public fun ASTNode.nextCodeSibling(): ASTNode? =
     nextSibling { it.elementType != WHITE_SPACE && !it.isPartOfComment() }
 
-inline fun ASTNode.nextSibling(p: (ASTNode) -> Boolean): ASTNode? {
+public inline fun ASTNode.nextSibling(p: (ASTNode) -> Boolean): ASTNode? {
     var n = this.treeNext
     while (n != null) {
         if (p(n)) {
@@ -144,7 +144,7 @@ inline fun ASTNode.nextSibling(p: (ASTNode) -> Boolean): ASTNode? {
 /**
  * @param elementType [ElementType].*
  */
-fun ASTNode.parent(elementType: IElementType, strict: Boolean = true): ASTNode? {
+public fun ASTNode.parent(elementType: IElementType, strict: Boolean = true): ASTNode? {
     var n: ASTNode? = if (strict) this.treeParent else this
     while (n != null) {
         if (n.elementType == elementType) {
@@ -155,7 +155,7 @@ fun ASTNode.parent(elementType: IElementType, strict: Boolean = true): ASTNode? 
     return null
 }
 
-fun ASTNode.parent(p: (ASTNode) -> Boolean, strict: Boolean = true): ASTNode? {
+public fun ASTNode.parent(p: (ASTNode) -> Boolean, strict: Boolean = true): ASTNode? {
     var n: ASTNode? = if (strict) this.treeParent else this
     while (n != null) {
         if (p(n)) {
@@ -169,10 +169,10 @@ fun ASTNode.parent(p: (ASTNode) -> Boolean, strict: Boolean = true): ASTNode? {
 /**
  * @param elementType [ElementType].*
  */
-fun ASTNode.isPartOf(elementType: IElementType) =
+public fun ASTNode.isPartOf(elementType: IElementType): Boolean =
     parent(elementType, strict = false) != null
 
-fun ASTNode.isPartOf(klass: KClass<out PsiElement>): Boolean {
+public fun ASTNode.isPartOf(klass: KClass<out PsiElement>): Boolean {
     var n: ASTNode? = this
     while (n != null) {
         if (klass.java.isInstance(n.psi)) {
@@ -183,27 +183,27 @@ fun ASTNode.isPartOf(klass: KClass<out PsiElement>): Boolean {
     return false
 }
 
-fun ASTNode.isPartOfString() =
+public fun ASTNode.isPartOfString(): Boolean =
     parent(STRING_TEMPLATE, strict = false) != null
 
-fun ASTNode?.isWhiteSpace() =
+public fun ASTNode?.isWhiteSpace(): Boolean =
     this != null && elementType == WHITE_SPACE
 
-fun ASTNode?.isWhiteSpaceWithNewline() =
+public fun ASTNode?.isWhiteSpaceWithNewline(): Boolean =
     this != null && elementType == WHITE_SPACE && textContains('\n')
 
-fun ASTNode?.isWhiteSpaceWithoutNewline() =
+public fun ASTNode?.isWhiteSpaceWithoutNewline(): Boolean =
     this != null && elementType == WHITE_SPACE && !textContains('\n')
 
-fun ASTNode.isRoot() = elementType == ElementType.FILE
-fun ASTNode.isLeaf() = firstChildNode == null
+public fun ASTNode.isRoot(): Boolean = elementType == ElementType.FILE
+public fun ASTNode.isLeaf(): Boolean = firstChildNode == null
 
-fun ASTNode.isPartOfComment() = parent({ it.psi is PsiComment }, strict = false) != null
+public fun ASTNode.isPartOfComment(): Boolean = parent({ it.psi is PsiComment }, strict = false) != null
 
-fun ASTNode.children() =
+public fun ASTNode.children(): Sequence<ASTNode> =
     generateSequence(firstChildNode) { node -> node.treeNext }
 
-fun LeafElement.upsertWhitespaceBeforeMe(text: String): LeafElement {
+public fun LeafElement.upsertWhitespaceBeforeMe(text: String): LeafElement {
     val s = treePrev
     return if (s != null && s.elementType == WHITE_SPACE) {
         (s.psi as LeafElement).rawReplaceWithText(text)
@@ -214,7 +214,7 @@ fun LeafElement.upsertWhitespaceBeforeMe(text: String): LeafElement {
     }
 }
 
-fun LeafElement.upsertWhitespaceAfterMe(text: String): LeafElement {
+public fun LeafElement.upsertWhitespaceAfterMe(text: String): LeafElement {
     val s = treeNext
     return if (s != null && s.elementType == WHITE_SPACE) {
         (s.psi as LeafElement).rawReplaceWithText(text)
@@ -225,21 +225,21 @@ fun LeafElement.upsertWhitespaceAfterMe(text: String): LeafElement {
     }
 }
 
-fun ASTNode.visit(enter: (node: ASTNode) -> Unit) {
+public fun ASTNode.visit(enter: (node: ASTNode) -> Unit) {
     enter(this)
     this.getChildren(null).forEach { it.visit(enter) }
 }
 
-fun ASTNode.visit(enter: (node: ASTNode) -> Unit, exit: (node: ASTNode) -> Unit) {
+public fun ASTNode.visit(enter: (node: ASTNode) -> Unit, exit: (node: ASTNode) -> Unit) {
     enter(this)
     this.getChildren(null).forEach { it.visit(enter, exit) }
     exit(this)
 }
 
-fun ASTNode.lineNumber(): Int? =
+public fun ASTNode.lineNumber(): Int? =
     this.psi.containingFile?.viewProvider?.document?.getLineNumber(this.startOffset)?.let { it + 1 }
 
-val ASTNode.column: Int
+public val ASTNode.column: Int
     get() {
         var leaf = this.prevLeaf()
         var offsetToTheLeft = 0
@@ -254,7 +254,7 @@ val ASTNode.column: Int
         return offsetToTheLeft + 1
     }
 
-fun ASTNode.lineIndent(): String {
+public fun ASTNode.lineIndent(): String {
     var leaf = this.prevLeaf()
     while (leaf != null) {
         if (leaf.elementType == WHITE_SPACE && leaf.textContains('\n')) {
@@ -270,7 +270,7 @@ fun ASTNode.lineIndent(): String {
  *  be used during development only. Please do not remove.
  */
 @Suppress("unused")
-fun ASTNode.logStructure(): ASTNode =
+public fun ASTNode.logStructure(): ASTNode =
     also {
         println("Processing ${text.replaceTabAndNewline()} : Type $elementType with parent ${treeParent?.elementType} ")
         children()

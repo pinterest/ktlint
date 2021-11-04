@@ -13,7 +13,7 @@ import org.jetbrains.kotlin.psi.psiUtil.getPrevSiblingIgnoringWhitespaceAndComme
 /**
  * @see https://youtrack.jetbrains.com/issue/KT-35106
  */
-class SpacingBetweenDeclarationsWithAnnotationsRule : Rule("spacing-between-declarations-with-annotations") {
+public class SpacingBetweenDeclarationsWithAnnotationsRule : Rule("spacing-between-declarations-with-annotations") {
 
     override fun visit(
         node: ASTNode,

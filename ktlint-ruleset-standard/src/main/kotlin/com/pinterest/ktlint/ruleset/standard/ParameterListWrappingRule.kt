@@ -27,7 +27,7 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.psi.KtTypeArgumentList
 import org.jetbrains.kotlin.psi.psiUtil.collectDescendantsOfType
 
-class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
+public class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
 
     private var indentSize = -1
     private var maxLineLength = -1

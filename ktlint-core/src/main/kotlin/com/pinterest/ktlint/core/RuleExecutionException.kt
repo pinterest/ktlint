@@ -5,5 +5,5 @@ package com.pinterest.ktlint.core
  * @param col column number (one-based)
  * @param ruleId rule id (prepended with "&lt;ruleSetId&gt;:" in case of non-standard ruleset)
  */
-class RuleExecutionException(val line: Int, val col: Int, val ruleId: String, cause: Throwable) :
+public class RuleExecutionException(public val line: Int, public val col: Int, public val ruleId: String, cause: Throwable) :
     RuntimeException(cause)

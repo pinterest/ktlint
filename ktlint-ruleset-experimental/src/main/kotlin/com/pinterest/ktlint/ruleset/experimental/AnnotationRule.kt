@@ -34,14 +34,14 @@ import org.jetbrains.kotlin.psi.psiUtil.nextLeaf
  *
  * @see [AnnotationSpacingRule] for white space rules. Moved since
  */
-class AnnotationRule : Rule("annotation") {
+public class AnnotationRule : Rule("annotation") {
 
-    companion object {
-        const val multipleAnnotationsOnSameLineAsAnnotatedConstructErrorMessage =
+    public companion object {
+        public const val multipleAnnotationsOnSameLineAsAnnotatedConstructErrorMessage: String =
             "Multiple annotations should not be placed on the same line as the annotated construct"
-        const val annotationsWithParametersAreNotOnSeparateLinesErrorMessage =
+        public const val annotationsWithParametersAreNotOnSeparateLinesErrorMessage: String =
             "Annotations with parameters should all be placed on separate lines prior to the annotated construct"
-        const val fileAnnotationsShouldBeSeparated =
+        public const val fileAnnotationsShouldBeSeparated: String =
             "File annotations should be separated from file contents with a blank line"
     }
 

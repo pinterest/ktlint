@@ -22,7 +22,7 @@ import org.jetbrains.kotlin.psi.psiUtil.leaves
  *
  * TODO: if, for, when branch, do, while
  */
-class MultiLineIfElseRule : Rule("multiline-if-else") {
+public class MultiLineIfElseRule : Rule("multiline-if-else") {
 
     override fun visit(
         node: ASTNode,

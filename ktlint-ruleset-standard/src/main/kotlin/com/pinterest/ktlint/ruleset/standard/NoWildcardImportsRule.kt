@@ -5,7 +5,7 @@ import com.pinterest.ktlint.core.ast.ElementType.IMPORT_DIRECTIVE
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.psi.KtImportDirective
 
-class NoWildcardImportsRule : Rule("no-wildcard-imports") {
+public class NoWildcardImportsRule : Rule("no-wildcard-imports") {
 
     override fun visit(
         node: ASTNode,

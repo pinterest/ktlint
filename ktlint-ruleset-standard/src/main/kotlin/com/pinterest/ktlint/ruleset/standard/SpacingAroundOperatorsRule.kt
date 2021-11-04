@@ -43,7 +43,7 @@ import org.jetbrains.kotlin.psi.KtPrefixExpression
 import org.jetbrains.kotlin.psi.KtSuperExpression
 import org.jetbrains.kotlin.psi.KtTypeArgumentList
 
-class SpacingAroundOperatorsRule : Rule("op-spacing") {
+public class SpacingAroundOperatorsRule : Rule("op-spacing") {
 
     private val tokenSet = TokenSet.create(
         MUL, PLUS, MINUS, DIV, PERC, LT, GT, LTEQ, GTEQ, EQEQEQ, EXCLEQEQEQ, EQEQ,

@@ -5,24 +5,24 @@ package com.pinterest.ktlint.core
  *
  * This class is injected into the user data, so it is available to rules via [KtLint.EDITOR_CONFIG_USER_DATA_KEY]
  */
-interface EditorConfig {
+public interface EditorConfig {
 
-    enum class IndentStyle { SPACE, TAB }
+    public enum class IndentStyle { SPACE, TAB }
 
-    val indentStyle: IndentStyle
-    val indentSize: Int
-    val tabWidth: Int
-    val maxLineLength: Int
+    public val indentStyle: IndentStyle
+    public val indentSize: Int
+    public val tabWidth: Int
+    public val maxLineLength: Int
 
     @Deprecated(
         message = "Not used anymore by rules, please use 'insert_final_newline' directly via get()"
     )
-    val insertFinalNewline: Boolean
+    public val insertFinalNewline: Boolean
 
-    operator fun get(key: String): String?
+    public operator fun get(key: String): String?
 
-    companion object {
-        fun fromMap(map: Map<String, String>): EditorConfig {
+    public companion object {
+        public fun fromMap(map: Map<String, String>): EditorConfig {
             val indentStyle = when {
                 map["indent_style"]?.toLowerCase() == "tab" -> IndentStyle.TAB
                 else -> IndentStyle.SPACE

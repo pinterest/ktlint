@@ -9,7 +9,7 @@ import org.jetbrains.kotlin.psi.KtPackageDirective
  * @see [Kotlin Style Guide](https://kotlinlang.org/docs/reference/coding-conventions.html#naming-rules)
  * @see [Android Style Guide](https://android.github.io/kotlin-guides/style.html#package-names)
  */
-class PackageNameRule : Rule("package-name") {
+public class PackageNameRule : Rule("package-name") {
 
     override fun visit(
         node: ASTNode,

@@ -3,9 +3,9 @@ package com.pinterest.ktlint.reporter.plain.internal
 /**
  * Stripped down version of https://github.com/ziggy42/kolor (ziggy42/kolor#6).
  */
-fun String.color(foreground: Color) = "\u001B[${foreground.code}m$this\u001B[0m"
+public fun String.color(foreground: Color): String = "\u001B[${foreground.code}m$this\u001B[0m"
 
-enum class Color(val code: Int) {
+public enum class Color(public val code: Int) {
     BLACK(30),
     RED(31),
     GREEN(32),

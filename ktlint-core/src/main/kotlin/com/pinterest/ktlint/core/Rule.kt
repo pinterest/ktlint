@@ -14,7 +14,7 @@ import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
  *
  * @see RuleSet
  */
-abstract class Rule(val id: String) {
+public abstract class Rule(public val id: String) {
 
     init {
         IdNamingPolicy.enforceNaming(id)
@@ -27,25 +27,25 @@ abstract class Rule(val id: String) {
      * @param autoCorrect indicates whether rule should attempt auto-correction
      * @param emit a way for rule to notify about a violation (lint error)
      */
-    abstract fun visit(
+    public abstract fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     )
 
-    object Modifier {
+    public object Modifier {
         /**
          * Any rule implementing this interface will be given root ([FileASTNode]) node only
          * (in other words, [visit] will be called on [FileASTNode] but not on [FileASTNode] children).
          */
-        interface RestrictToRoot
+        public interface RestrictToRoot
         /**
          * Marker interface to indicate that rule must be executed after all other rules (order among multiple
          * [RestrictToRootLast] rules is not defined and should be assumed to be random).
          *
          * Note that [RestrictToRootLast] implements [RestrictToRoot].
          */
-        interface RestrictToRootLast : RestrictToRoot
-        interface Last
+        public interface RestrictToRootLast : RestrictToRoot
+        public interface Last
     }
 }

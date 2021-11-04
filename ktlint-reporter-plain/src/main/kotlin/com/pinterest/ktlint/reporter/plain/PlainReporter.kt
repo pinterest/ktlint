@@ -9,13 +9,13 @@ import java.io.PrintStream
 import java.util.ArrayList
 import java.util.concurrent.ConcurrentHashMap
 
-class PlainReporter(
-    val out: PrintStream,
-    val verbose: Boolean = false,
-    val groupByFile: Boolean = false,
-    val shouldColorOutput: Boolean = false,
-    val outputColor: Color = Color.DARK_GRAY,
-    val pad: Boolean = false
+public class PlainReporter(
+    public val out: PrintStream,
+    public val verbose: Boolean = false,
+    public val groupByFile: Boolean = false,
+    public val shouldColorOutput: Boolean = false,
+    public val outputColor: Color = Color.DARK_GRAY,
+    public val pad: Boolean = false
 ) : Reporter {
 
     private val acc = ConcurrentHashMap<String, MutableList<LintError>>()

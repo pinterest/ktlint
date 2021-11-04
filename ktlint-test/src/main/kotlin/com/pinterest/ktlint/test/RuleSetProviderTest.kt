@@ -5,13 +5,13 @@ import java.io.File
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
-open class RuleSetProviderTest(
+public open class RuleSetProviderTest(
     private val rulesetClass: Class<out RuleSetProvider>,
     private val packageName: String
 ) {
 
     @Test
-    fun checkAllRulesProvided() {
+    public fun checkAllRulesProvided() {
         val srcLocation = rulesetClass.protectionDomain.codeSource.location.path
         val rulesDir = File(srcLocation + packageName.replace(".", "/"))
         val packageRules = rulesDir.listFiles()

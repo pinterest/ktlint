@@ -6,4 +6,4 @@ package com.github.shyiko.ktlint.core
  * Keep the RuleSetProvider in the old package so that we can detect it and throw an error.
  */
 @Deprecated("RuleSetProvider has moved to com.pinterest.ktlint.core")
-interface RuleSetProvider
+public interface RuleSetProvider

@@ -21,7 +21,7 @@ import org.jetbrains.kotlin.psi.KtImportDirective
 import org.jetbrains.kotlin.psi.KtPackageDirective
 
 @OptIn(FeatureInAlphaState::class)
-class MaxLineLengthRule :
+public class MaxLineLengthRule :
     Rule("max-line-length"),
     Rule.Modifier.Last,
     UsesEditorConfigProperties {
@@ -153,7 +153,7 @@ private data class ParsedLine(
     }
 }
 
-class RangeTree(seq: List<Int> = emptyList()) {
+public class RangeTree(seq: List<Int> = emptyList()) {
 
     private var emptyArrayView = ArrayView(0, 0)
     private var arr: IntArray = seq.toIntArray()
@@ -166,7 +166,7 @@ class RangeTree(seq: List<Int> = emptyList()) {
 
     // runtime: O(log(n)+k), where k is number of matching points
     // space: O(1)
-    fun query(vmin: Int, vmax: Int): RangeTree.ArrayView {
+    public fun query(vmin: Int, vmax: Int): RangeTree.ArrayView {
         var r = arr.size - 1
         if (r == -1 || vmax < arr[0] || arr[r] < vmin) {
             return emptyArrayView
@@ -199,20 +199,20 @@ class RangeTree(seq: List<Int> = emptyList()) {
         return ArrayView(l, k)
     }
 
-    fun isEmpty() = arr.isEmpty()
+    public fun isEmpty(): Boolean = arr.isEmpty()
 
-    inner class ArrayView(private var l: Int, private val r: Int) {
+    public inner class ArrayView(private var l: Int, private val r: Int) {
 
-        val size: Int = r - l
+        public val size: Int = r - l
 
-        fun get(i: Int): Int {
+        public fun get(i: Int): Int {
             if (i < 0 || i >= size) {
                 throw IndexOutOfBoundsException()
             }
             return arr[l + i]
         }
 
-        inline fun forEach(cb: (v: Int) -> Unit) {
+        public inline fun forEach(cb: (v: Int) -> Unit) {
             var i = 0
             while (i < size) {
                 cb(get(i++))
