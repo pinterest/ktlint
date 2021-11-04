@@ -16,7 +16,7 @@ internal class IndentationRuleTest {
     }
 
     @Test
-    fun testFormat() {
+    fun `format unindented input`() {
         assertThat(
             IndentationRule().diffFileFormat(
                 "spec/indent/format.kt.spec",
@@ -26,12 +26,12 @@ internal class IndentationRuleTest {
     }
 
     @Test
-    fun testFormatTabs() {
+    fun `format unindented input with tabs`() {
         assertThat(
             IndentationRule().diffFileFormat(
                 "spec/indent/format.kt.spec",
                 "spec/indent/format-expected-tabs.kt.spec",
-                mapOf("indent_style" to "tab")
+                INDENT_STYLE_TABS
             )
         ).isEmpty()
     }
@@ -66,7 +66,7 @@ internal class IndentationRuleTest {
     }
 
     @Test
-    fun testLintIndentTab() {
+    fun `lint IndentTab with tabs`() {
         assertThat(
             IndentationRule().lint(
                 """
@@ -84,7 +84,7 @@ internal class IndentationRuleTest {
                 |		set(v: String) { x = v }
                 |}
                 |""".trimMargin(),
-                mapOf("indent_style" to "tab")
+                INDENT_STYLE_TABS
             )
         ).isEqualTo(
             listOf(
@@ -181,10 +181,30 @@ internal class IndentationRuleTest {
 
     @Test
     fun testLintFirstLine() {
-        assertThat(IndentationRule().lint("  // comment")).hasSize(1)
-        assertThat(IndentationRule().lint("  // comment", script = true)).hasSize(1)
-        assertThat(IndentationRule().lint("  \n  // comment")).hasSize(1)
-        assertThat(IndentationRule().lint("  \n  // comment", script = true)).hasSize(1)
+        assertThat(IndentationRule().lint("  // comment"))
+            .isEqualTo(
+                listOf(
+                    LintError(line = 1, col = 1, ruleId = "indent", detail = "Unexpected indentation (2) (should be 0)"),
+                )
+            )
+        assertThat(IndentationRule().lint("  // comment", script = true))
+            .isEqualTo(
+                listOf(
+                    LintError(line = 1, col = 1, ruleId = "indent", detail = "Unexpected indentation (2) (should be 0)"),
+                )
+            )
+        assertThat(IndentationRule().lint("  \n  // comment"))
+            .isEqualTo(
+                listOf(
+                    LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected indentation (2) (should be 0)"),
+                )
+            )
+        assertThat(IndentationRule().lint("  \n  // comment", script = true))
+            .isEqualTo(
+                listOf(
+                    LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected indentation (2) (should be 0)"),
+                )
+            )
     }
 
     @Test
@@ -403,23 +423,21 @@ internal class IndentationRuleTest {
     }
 
     @Test
-    fun `no indentation after lambda arrow`() {
+    fun `incorrect indentation after lambda arrow`() {
         assertThat(
             IndentationRule().lint(
                 """
                 fun bar() {
-                    foo.func {
-                        param1, param2 ->
-                            doSomething()
-                            doSomething2()
-                    }
+                    Pair("val1", "val2")
+                        .let { (first, second) ->
+                                first + second
+                        }
                 }
                 """.trimIndent()
             )
         ).isEqualTo(
             listOf(
-                LintError(line = 4, col = 1, ruleId = "indent", detail = "Unexpected indentation (12) (should be 8)"),
-                LintError(line = 5, col = 1, ruleId = "indent", detail = "Unexpected indentation (12) (should be 8)")
+                LintError(line = 4, col = 1, ruleId = "indent", detail = "Unexpected indentation (16) (should be 12)"),
             )
         )
     }
@@ -593,6 +611,171 @@ internal class IndentationRuleTest {
                     // stuff
                 }
             """.trimIndent()
+        assertThat(IndentationRule().format(code)).isEqualTo(code)
+    }
+
+    @Test
+    fun `format new line before opening quotes multiline string as parameter`() {
+        val code =
+            """
+            fun foo() {
+                println($MULTILINE_STRING_QUOTE
+                    line1
+                        line2
+                    $MULTILINE_STRING_QUOTE.trimIndent())
+            }
+            """.trimIndent()
+        val expectedCode =
+            """
+            fun foo() {
+                println(
+                    $MULTILINE_STRING_QUOTE
+                    line1
+                        line2
+                    $MULTILINE_STRING_QUOTE.trimIndent()
+                )
+            }
+            """.trimIndent()
+        @Suppress("RemoveCurlyBracesFromTemplate") val expectedCodeTabs =
+            """
+            fun foo() {
+            ${TAB}println(
+            ${TAB}${TAB}$MULTILINE_STRING_QUOTE
+            ${TAB}${TAB}line1
+            ${TAB}${TAB}    line2
+            ${TAB}${TAB}$MULTILINE_STRING_QUOTE.trimIndent()
+            ${TAB})
+            }
+            """.trimIndent()
+        assertThat(
+            IndentationRule().lint(code)
+        ).isEqualTo(
+            listOf(
+                LintError(2, 13, "indent", "Missing newline after \"(\""),
+                LintError(5, 24, "indent", "Missing newline before \")\""),
+            )
+        )
+        assertThat(IndentationRule().format(code)).isEqualTo(expectedCode)
+        assertThat(IndentationRule().format(code, INDENT_STYLE_TABS)).isEqualTo(expectedCodeTabs)
+    }
+
+    @Test
+    fun `format multiline string assignment to variable with opening quotes on same line as declaration`() {
+        val code =
+            """
+            fun foo() {
+                val bar = $MULTILINE_STRING_QUOTE
+                          line1
+                              line2
+                          $MULTILINE_STRING_QUOTE.trimIndent()
+            }
+            """.trimIndent()
+        val expectedCode =
+            """
+            fun foo() {
+                val bar = $MULTILINE_STRING_QUOTE
+                          line1
+                              line2
+                $MULTILINE_STRING_QUOTE.trimIndent()
+            }
+            """.trimIndent()
+        assertThat(
+            IndentationRule().lint(code)
+        ).isEqualTo(
+            listOf(
+                LintError(5, 1, "indent", "Unexpected indent of multiline string closing quotes"),
+            )
+        )
+        assertThat(IndentationRule().format(code)).isEqualTo(expectedCode)
+    }
+
+    @Test
+    fun `format multiline string containing quotation marks`() {
+        val code =
+            """
+            fun foo() {
+                println($MULTILINE_STRING_QUOTE
+                    text ""
+
+                         text
+                         ""
+                $MULTILINE_STRING_QUOTE.trimIndent())
+            }
+            """.trimIndent()
+        val expectedCode =
+            """
+            fun foo() {
+                println(
+                    $MULTILINE_STRING_QUOTE
+                    text ""
+
+                         text
+                         ""
+                    $MULTILINE_STRING_QUOTE.trimIndent()
+                )
+            }
+            """.trimIndent()
+        assertThat(
+            IndentationRule().lint(code)
+        ).isEqualTo(
+            listOf(
+                LintError(line = 2, col = 13, ruleId = "indent", detail = "Missing newline after \"(\""),
+                LintError(line = 7, col = 1, ruleId = "indent", detail = "Unexpected indent of multiline string closing quotes"),
+                LintError(line = 7, col = 20, ruleId = "indent", detail = "Missing newline before \")\""),
+            )
+        )
+        assertThat(IndentationRule().format(code)).isEqualTo(expectedCode)
+    }
+
+    @Test
+    fun `format multiline string containing a template string as the first non blank element on the line`() {
+        // Escape '${true}' as '${"$"}{true}' to prevent evaluation before actually processing the multiline sting
+        val code =
+            """
+            fun foo() {
+                println($MULTILINE_STRING_QUOTE
+                    ${"$"}{true}
+
+                        ${"$"}{true}
+                $MULTILINE_STRING_QUOTE.trimIndent())
+            }
+            """.trimIndent()
+        val expectedCode =
+            """
+            fun foo() {
+                println(
+                    $MULTILINE_STRING_QUOTE
+                    ${"$"}{true}
+
+                        ${"$"}{true}
+                    $MULTILINE_STRING_QUOTE.trimIndent()
+                )
+            }
+            """.trimIndent()
+        assertThat(
+            IndentationRule().lint(code)
+        ).isEqualTo(
+            listOf(
+                LintError(line = 2, col = 13, ruleId = "indent", detail = "Missing newline after \"(\""),
+                LintError(line = 6, col = 1, ruleId = "indent", detail = "Unexpected indent of multiline string closing quotes"),
+                LintError(line = 6, col = 20, ruleId = "indent", detail = "Missing newline before \")\""),
+            )
+        )
+        assertThat(IndentationRule().format(code)).isEqualTo(expectedCode)
+    }
+
+    @Test
+    fun `issue 575 - format multiline string with tabs after the margin is indented properly`() {
+        val code =
+            """
+            val str =
+                $MULTILINE_STRING_QUOTE
+                ${TAB}Tab at the beginning of this line but after the indentation margin
+                Tab${TAB}in the middle of this string
+                Tab at the end of this line.$TAB
+                $MULTILINE_STRING_QUOTE.trimIndent()
+            """.trimIndent()
+        assertThat(IndentationRule().lint(code)).isEmpty()
         assertThat(IndentationRule().format(code)).isEqualTo(code)
     }
 
@@ -1086,5 +1269,84 @@ internal class IndentationRuleTest {
                 """.trimIndent()
             )
         ).isEmpty()
+    }
+
+    @Test
+    fun `multiline string with mixed indentation characters, can not be autocorrected`() {
+        val code =
+            """
+                val foo = $MULTILINE_STRING_QUOTE
+                      line1
+                ${TAB}line2
+                    $MULTILINE_STRING_QUOTE.trimIndent()
+                """
+                .trimIndent()
+        assertThat(
+            IndentationRule().lint(code)
+        ).isEqualTo(
+            listOf(
+                LintError(
+                    line = 1,
+                    col = 11,
+                    ruleId = "indent",
+                    detail = "Indentation of multiline string should not contain both tab(s) and space(s)"
+                ),
+            )
+        )
+        assertThat(IndentationRule().format(code)).isEqualTo(code)
+    }
+
+    @Test
+    fun `format kdoc`() {
+        @Suppress("RemoveCurlyBracesFromTemplate")
+        val code =
+            """
+            /**
+             * some function1
+             */
+            fun someFunction1() {
+                return Unit
+            }
+
+            class SomeClass {
+                /**
+                 * some function2
+                 */
+                fun someFunction2() {
+                    return Unit
+                }
+            }
+            """.trimIndent()
+        @Suppress("RemoveCurlyBracesFromTemplate")
+        val codeTabs =
+            """
+            /**
+             * some function1
+             */
+            fun someFunction1() {
+            ${TAB}return Unit
+            }
+
+            class SomeClass {
+            ${TAB}/**
+            ${TAB} * some function2
+            ${TAB} */
+            ${TAB}fun someFunction2() {
+            ${TAB}${TAB}return Unit
+            ${TAB}}
+            }
+            """.trimIndent()
+        assertThat(IndentationRule().lint(code)).isEmpty()
+        assertThat(IndentationRule().format(code)).isEqualTo(code)
+
+        assertThat(IndentationRule().lint(codeTabs, INDENT_STYLE_TABS)).isEmpty()
+        assertThat(IndentationRule().format(codeTabs, INDENT_STYLE_TABS)).isEqualTo(codeTabs)
+    }
+
+    private companion object {
+        const val MULTILINE_STRING_QUOTE = "${'"'}${'"'}${'"'}"
+        const val TAB = "${'\t'}"
+
+        val INDENT_STYLE_TABS = mapOf("indent_style" to "tab")
     }
 }

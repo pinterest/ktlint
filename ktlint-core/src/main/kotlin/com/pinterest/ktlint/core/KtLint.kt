@@ -8,11 +8,11 @@ import com.pinterest.ktlint.core.internal.EditorConfigGenerator
 import com.pinterest.ktlint.core.internal.EditorConfigLoader
 import com.pinterest.ktlint.core.internal.EditorConfigLoader.Companion.convertToRawValues
 import com.pinterest.ktlint.core.internal.EditorConfigOverridesMap
-import com.pinterest.ktlint.core.internal.KotlinPsiFileFactory
 import com.pinterest.ktlint.core.internal.LineAndColumn
 import com.pinterest.ktlint.core.internal.SuppressionLocator
 import com.pinterest.ktlint.core.internal.buildPositionInTextLocator
 import com.pinterest.ktlint.core.internal.buildSuppressedRegionsLocator
+import com.pinterest.ktlint.core.internal.initPsiFileFactory
 import com.pinterest.ktlint.core.internal.noSuppression
 import java.nio.file.FileSystems
 import java.nio.file.Path
@@ -39,7 +39,7 @@ public object KtLint {
     private const val UTF8_BOM = "\uFEFF"
     public const val STDIN_FILE: String = "<stdin>"
 
-    private val kotlinPsiFileFactory = KotlinPsiFileFactory()
+    private val psiFileFactory: PsiFileFactory = initPsiFileFactory()
     private val editorConfigLoader = EditorConfigLoader(FileSystems.getDefault())
 
     @OptIn(FeatureInAlphaState::class)
@@ -81,10 +81,6 @@ public object KtLint {
      *
      * For values use `PropertyType.PropertyValue.valid("override", <expected type>)` approach.
      * It is also possible to set value into "unset" state by using [PropertyType.PropertyValue.UNSET].
-     *
-     * @param isInvokedFromCli **For internal use only**: indicates that linting was invoked from KtLint CLI tool.
-     * Enables some internals workarounds for Kotlin Compiler initialization.
-     * Usually you don't need to use it and most probably it will be removed in one of next versions.
      */
     @FeatureInAlphaState
     public data class ExperimentalParams(
@@ -96,8 +92,7 @@ public object KtLint {
         val script: Boolean = false,
         val editorConfigPath: String? = null,
         val debug: Boolean = false,
-        val editorConfigOverride: EditorConfigOverridesMap = emptyMap(),
-        val isInvokedFromCli: Boolean = false,
+        val editorConfigOverride: EditorConfigOverridesMap = emptyMap()
     ) {
         internal val normalizedFilePath: Path? get() = if (fileName == STDIN_FILE || fileName == null) {
             null
@@ -146,8 +141,7 @@ public object KtLint {
      */
     @FeatureInAlphaState
     public fun lint(params: ExperimentalParams) {
-        val psiFileFactory = kotlinPsiFileFactory.acquirePsiFileFactory(params.isInvokedFromCli)
-        val preparedCode = prepareCodeForLinting(psiFileFactory, params)
+        val preparedCode = prepareCodeForLinting(params)
         val errors = mutableListOf<LintError>()
 
         visitor(preparedCode.rootNode, params.ruleSets).invoke { node, rule, fqRuleId ->
@@ -169,13 +163,11 @@ public object KtLint {
                     }
                 } catch (e: Exception) {
                     val (line, col) = preparedCode.positionInTextLocator(node.startOffset)
-                    kotlinPsiFileFactory.releasePsiFileFactory()
                     throw RuleExecutionException(line, col, fqRuleId, e)
                 }
             }
         }
 
-        kotlinPsiFileFactory.releasePsiFileFactory()
         errors
             .sortedWith { l, r -> if (l.line != r.line) l.line - r.line else l.col - r.col }
             .forEach { e -> params.cb(e, false) }
@@ -183,7 +175,6 @@ public object KtLint {
 
     @OptIn(FeatureInAlphaState::class)
     private fun prepareCodeForLinting(
-        psiFileFactory: PsiFileFactory,
         params: ExperimentalParams
     ): PreparedCode {
         val normalizedText = normalizeText(params.text)
@@ -291,10 +282,10 @@ public object KtLint {
                     continue
                 }
                 val fqr = fqRuleId to rule
-                when {
-                    rule is Rule.Modifier.Last -> fqrsExpectedToBeExecutedLast.add(fqr)
-                    rule is Rule.Modifier.RestrictToRootLast -> fqrsExpectedToBeExecutedLastOnRoot.add(fqr)
-                    rule is Rule.Modifier.RestrictToRoot -> fqrsRestrictedToRoot.add(fqr)
+                when (rule) {
+                    is Rule.Modifier.Last -> fqrsExpectedToBeExecutedLast.add(fqr)
+                    is Rule.Modifier.RestrictToRootLast -> fqrsExpectedToBeExecutedLastOnRoot.add(fqr)
+                    is Rule.Modifier.RestrictToRoot -> fqrsRestrictedToRoot.add(fqr)
                     else -> fqrs.add(fqr)
                 }
             }
@@ -319,7 +310,7 @@ public object KtLint {
             for ((fqRuleId, rule) in fqrsExpectedToBeExecutedLastOnRoot) {
                 visit(rootNode, rule, fqRuleId)
             }
-            if (!fqrsExpectedToBeExecutedLast.isEmpty()) {
+            if (fqrsExpectedToBeExecutedLast.isNotEmpty()) {
                 if (concurrent) {
                     rootNode.visit { node ->
                         for ((fqRuleId, rule) in fqrsExpectedToBeExecutedLast) {
@@ -375,8 +366,7 @@ public object KtLint {
     @FeatureInAlphaState
     public fun format(params: ExperimentalParams): String {
         val hasUTF8BOM = params.text.startsWith(UTF8_BOM)
-        val psiFileFactory = kotlinPsiFileFactory.acquirePsiFileFactory(params.isInvokedFromCli)
-        val preparedCode = prepareCodeForLinting(psiFileFactory, params)
+        val preparedCode = prepareCodeForLinting(params)
 
         var tripped = false
         var mutated = false
@@ -400,7 +390,6 @@ public object KtLint {
                             }
                         }
                     } catch (e: Exception) {
-                        kotlinPsiFileFactory.releasePsiFileFactory()
                         // line/col cannot be reliably mapped as exception might originate from a node not present
                         // in the original AST
                         throw RuleExecutionException(0, 0, fqRuleId, e)
@@ -429,7 +418,6 @@ public object KtLint {
                         }
                     } catch (e: Exception) {
                         val (line, col) = preparedCode.positionInTextLocator(node.startOffset)
-                        kotlinPsiFileFactory.releasePsiFileFactory()
                         throw RuleExecutionException(line, col, fqRuleId, e)
                     }
                 }
@@ -441,7 +429,6 @@ public object KtLint {
         }
 
         if (!mutated) {
-            kotlinPsiFileFactory.releasePsiFileFactory()
             return params.text
         }
 
@@ -449,8 +436,6 @@ public object KtLint {
             .rootNode
             .text
             .replace("\n", determineLineSeparator(params.text, params.userData))
-
-        kotlinPsiFileFactory.releasePsiFileFactory()
         return if (hasUTF8BOM) {
             UTF8_BOM + code
         } else {

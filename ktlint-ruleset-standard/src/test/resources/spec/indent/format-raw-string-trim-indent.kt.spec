@@ -37,8 +37,8 @@ _""".trimIndent())
     text ""
 
         text
-    """.trimIndent(),
         ""
+    """.trimIndent()
     )
     format(
                 """
@@ -62,17 +62,6 @@ _""".trimIndent())
         [*]
         end_of_line = lf
     """.trimIndent().toByteArray())
-            SpacingAroundKeywordRule().format( // string below is tab-indented
-                """
-            var x: String
-			    get () {
-				    return ""
-			    }
-			    private set (value) {
-				    x = value
-			    }
-            """.trimIndent()
-            )
 }
 
 class C {
