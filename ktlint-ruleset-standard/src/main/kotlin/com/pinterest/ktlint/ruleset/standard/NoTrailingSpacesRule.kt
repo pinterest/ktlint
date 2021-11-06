@@ -1,11 +1,14 @@
 package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
+import com.pinterest.ktlint.core.ast.isPartOfComment
 import com.pinterest.ktlint.core.ast.nextLeaf
+import com.pinterest.ktlint.core.ast.parent
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
+import org.jetbrains.kotlin.kdoc.psi.api.KDoc
 
 class NoTrailingSpacesRule : Rule("no-trailing-spaces") {
 
@@ -14,7 +17,14 @@ class NoTrailingSpacesRule : Rule("no-trailing-spaces") {
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        if (node is PsiWhiteSpace || node is PsiComment) {
+        if (node.isPartOfKDoc()) {
+            if (node.elementType == WHITE_SPACE && node.hasTrailingSpacesBeforeNewline()) {
+                emit(node.startOffset, "Trailing space(s)", true)
+                if (autoCorrect) {
+                    node.removeTrailingSpacesBeforeNewline()
+                }
+            }
+        } else if (node.elementType == WHITE_SPACE || node.isPartOfComment()) {
             val lines = node.text.split("\n")
             var violated = false
             var violationOffset = node.startOffset
@@ -41,6 +51,21 @@ class NoTrailingSpacesRule : Rule("no-trailing-spaces") {
                 (node as LeafPsiElement).rawReplaceWithText(modifiedLines)
             }
         }
+    }
+
+    private fun ASTNode.isPartOfKDoc() = parent({ it.psi is KDoc }, strict = false) != null
+
+    private fun ASTNode.hasTrailingSpacesBeforeNewline() =
+        text.contains(
+            regex = Regex("\\s+\\n")
+        )
+
+    private fun ASTNode.removeTrailingSpacesBeforeNewline() {
+        val newText = text.replace(
+            regex = Regex("\\s+\\n"),
+            replacement = "\n"
+        )
+        (this as LeafPsiElement).replaceWithText(newText)
     }
 
     private fun String.hasTrailingSpace() =

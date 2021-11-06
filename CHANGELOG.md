@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [TO BE DETERMINED]
+
+### Fixed
+- ClassCastException using ktlintFormat on class with KDoc in version 0.43.0 (`no-trailing-spaces`) ([#1270](https://github.com/pinterest/ktlint/issues/1270)
+
 ## [0.43.0] - 2021-11-02
 
 ### Added

@@ -65,4 +65,52 @@ class NoTrailingSpacesRuleTest {
                 """.trimIndent()
             )
     }
+
+    @Test
+    fun `trailing spaces inside KDoc`() {
+        val code =
+            """
+            /**${" "}
+             * Some comment${" "}
+             *${" "}
+             */
+            class Foo {
+                /**${" "}${" "}
+                 * Some comment${" "}${" "}
+                 *${" "}${" "}
+                 */
+                fun bar() = "foobar"
+            }
+            """.trimIndent()
+        val codeExpected =
+            """
+            /**
+             * Some comment
+             *
+             */
+            class Foo {
+                /**
+                 * Some comment
+                 *
+                 */
+                fun bar() = "foobar"
+            }
+            """.trimIndent()
+
+        assertThat(
+            NoTrailingSpacesRule().format(code)
+        ).isEqualTo(codeExpected)
+        assertThat(
+            NoTrailingSpacesRule().lint(code)
+        ).isEqualTo(
+            listOf(
+                LintError(1, 4, "no-trailing-spaces", "Trailing space(s)"),
+                LintError(2, 16, "no-trailing-spaces", "Trailing space(s)"),
+                LintError(3, 3, "no-trailing-spaces", "Trailing space(s)"),
+                LintError(6, 8, "no-trailing-spaces", "Trailing space(s)"),
+                LintError(7, 20, "no-trailing-spaces", "Trailing space(s)"),
+                LintError(8, 7, "no-trailing-spaces", "Trailing space(s)"),
+            )
+        )
+    }
 }
