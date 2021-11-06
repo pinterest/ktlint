@@ -26,23 +26,41 @@ class NoTrailingSpacesRuleTest {
     }
 
     @Test
-    fun `lint trailing spaces inside block comments`() {
+    fun `trailing spaces inside line comments`() {
         val code =
             """
-            /*${" "}
-             * Some comment${" "}
-             */
+            //${" "}
+            // Some comment${" "}
+            class Foo {
+                //${" "}${" "}
+                // Some comment${" "}${" "}
+                fun bar() = "foobar"
+            }
+            """.trimIndent()
+        val expectedCode =
+            """
+            //
+            // Some comment
+            class Foo {
+                //
+                // Some comment
+                fun bar() = "foobar"
+            }
             """.trimIndent()
 
-        val actual = NoTrailingSpacesRule().lint(code)
-
-        assertThat(actual)
-            .isEqualTo(
-                listOf(
-                    LintError(1, 1, "no-trailing-spaces", "Trailing space(s)"),
-                    LintError(2, 1, "no-trailing-spaces", "Trailing space(s)")
-                )
+        assertThat(
+            NoTrailingSpacesRule().format(code)
+        ).isEqualTo(expectedCode)
+        assertThat(
+            NoTrailingSpacesRule().lint(code)
+        ).isEqualTo(
+            listOf(
+                LintError(1, 3, "no-trailing-spaces", "Trailing space(s)"),
+                LintError(2, 16, "no-trailing-spaces", "Trailing space(s)"),
+                LintError(4, 7, "no-trailing-spaces", "Trailing space(s)"),
+                LintError(5, 20, "no-trailing-spaces", "Trailing space(s)")
             )
+        )
     }
 
     @Test
@@ -52,18 +70,39 @@ class NoTrailingSpacesRuleTest {
             /*${" "}
              * Some comment${" "}
              */
+            class Foo {
+                /*${" "}${" "}
+                 * Some comment${" "}${" "}
+                 */
+                fun bar() = "foobar"
+            }
             """.trimIndent()
-
-        val actual = NoTrailingSpacesRule().format(code)
-
-        assertThat(actual)
-            .isEqualTo(
-                """
+        val expectedCode =
+            """
+            /*
+             * Some comment
+             */
+            class Foo {
                 /*
                  * Some comment
                  */
-                """.trimIndent()
+                fun bar() = "foobar"
+            }
+            """.trimIndent()
+
+        assertThat(
+            NoTrailingSpacesRule().format(code)
+        ).isEqualTo(expectedCode)
+        assertThat(
+            NoTrailingSpacesRule().lint(code)
+        ).isEqualTo(
+            listOf(
+                LintError(1, 3, "no-trailing-spaces", "Trailing space(s)"),
+                LintError(2, 16, "no-trailing-spaces", "Trailing space(s)"),
+                LintError(5, 7, "no-trailing-spaces", "Trailing space(s)"),
+                LintError(6, 20, "no-trailing-spaces", "Trailing space(s)")
             )
+        )
     }
 
     @Test

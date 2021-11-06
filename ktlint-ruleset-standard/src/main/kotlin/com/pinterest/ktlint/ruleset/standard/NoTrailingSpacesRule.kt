@@ -32,7 +32,8 @@ class NoTrailingSpacesRule : Rule("no-trailing-spaces") {
                 .head()
                 .forEach { line ->
                     if (line.hasTrailingSpace()) {
-                        emit(violationOffset, "Trailing space(s)", true)
+                        val firstTrailingSpaceOffset = violationOffset + line.trimEnd().length
+                        emit(firstTrailingSpaceOffset, "Trailing space(s)", true)
                         violated = true
                     }
                     violationOffset += line.length + 1
@@ -42,7 +43,8 @@ class NoTrailingSpacesRule : Rule("no-trailing-spaces") {
                     // Ignore the last line as it contains the indentation of the next element
                     Unit
                 lines.last().hasTrailingSpace() -> {
-                    emit(violationOffset, "Trailing space(s)", true)
+                    val firstTrailingSpaceOffset = violationOffset + lines.last().trimEnd().length
+                    emit(firstTrailingSpaceOffset, "Trailing space(s)", true)
                     violated = true
                 }
             }
