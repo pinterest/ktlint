@@ -21,7 +21,6 @@ class ParameterListWrappingRuleTest {
             listOf(
                 LintError(1, 14, "parameter-list-wrapping", "Parameter should be on a separate line (unless all parameters can fit a single line)"),
                 LintError(1, 30, "parameter-list-wrapping", "Parameter should be on a separate line (unless all parameters can fit a single line)"),
-                LintError(2, 14, "parameter-list-wrapping", "Unexpected indentation (expected 4, actual 13)"),
                 LintError(2, 28, "parameter-list-wrapping", """Missing newline before ")"""")
             )
         )
@@ -156,8 +155,6 @@ class ParameterListWrappingRuleTest {
         ).isEqualTo(
             listOf(
                 LintError(1, 7, "parameter-list-wrapping", "Parameter should be on a separate line (unless all parameters can fit a single line)"),
-                LintError(2, 7, "parameter-list-wrapping", "Unexpected indentation (expected 4, actual 6)"),
-                LintError(3, 7, "parameter-list-wrapping", "Unexpected indentation (expected 4, actual 6)"),
                 LintError(3, 13, "parameter-list-wrapping", """Missing newline before ")"""")
             )
         )
@@ -447,11 +444,7 @@ class ParameterListWrappingRuleTest {
                 )
                 """.trimIndent()
             )
-        ).isEqualTo(
-            listOf(
-                LintError(6, 4, "parameter-list-wrapping", "Unexpected indentation (expected 4, actual 3)")
-            )
-        )
+        ).isEmpty()
     }
 
     @Test
