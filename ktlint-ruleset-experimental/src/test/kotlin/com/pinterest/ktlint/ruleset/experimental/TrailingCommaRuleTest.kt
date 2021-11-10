@@ -908,6 +908,26 @@ class TrailingCommaRuleTest {
             .isEqualTo(autoCorrectedCode)
     }
 
+    @Test
+    fun `Trailing comma is not added for property setter`() {
+        val code =
+            """
+            class Test {
+              var foo = Bar()
+                set(value) {
+                }
+            }
+            """.trimIndent()
+
+        val editorConfigFilePath = writeEditorConfigFile(
+            ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE, ALLOW_TRAILING_COMMA_ON_CALL_SITE
+        ).absolutePath
+
+        assertThat(TrailingCommaRule().lint(editorConfigFilePath, code)).isEmpty()
+        assertThat(TrailingCommaRule().format(editorConfigFilePath, code))
+            .isEqualTo(code)
+    }
+
     private fun writeEditorConfigFile(vararg editorConfigProperties: Pair<PropertyType<Boolean>, String>) = editorConfigTestRule
         .writeToEditorConfig(
             mapOf(*editorConfigProperties)
