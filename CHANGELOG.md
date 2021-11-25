@@ -9,6 +9,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Fixed
 
 ### Changed
+- Update Kotlin version to `1.6.0` release
 
 ### Removed
 
