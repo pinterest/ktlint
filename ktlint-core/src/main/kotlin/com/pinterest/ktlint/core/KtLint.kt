@@ -8,11 +8,11 @@ import com.pinterest.ktlint.core.internal.EditorConfigGenerator
 import com.pinterest.ktlint.core.internal.EditorConfigLoader
 import com.pinterest.ktlint.core.internal.EditorConfigLoader.Companion.convertToRawValues
 import com.pinterest.ktlint.core.internal.EditorConfigOverridesMap
+import com.pinterest.ktlint.core.internal.KotlinPsiFileFactoryProvider
 import com.pinterest.ktlint.core.internal.LineAndColumn
 import com.pinterest.ktlint.core.internal.SuppressionLocator
 import com.pinterest.ktlint.core.internal.buildPositionInTextLocator
 import com.pinterest.ktlint.core.internal.buildSuppressedRegionsLocator
-import com.pinterest.ktlint.core.internal.initPsiFileFactory
 import com.pinterest.ktlint.core.internal.noSuppression
 import java.nio.file.FileSystems
 import java.nio.file.Path
@@ -39,7 +39,7 @@ public object KtLint {
     private const val UTF8_BOM = "\uFEFF"
     public const val STDIN_FILE: String = "<stdin>"
 
-    private val psiFileFactory: PsiFileFactory = initPsiFileFactory()
+    private val kotlinPsiFileFactoryProvider = KotlinPsiFileFactoryProvider()
     private val editorConfigLoader = EditorConfigLoader(FileSystems.getDefault())
 
     @OptIn(FeatureInAlphaState::class)
@@ -81,6 +81,10 @@ public object KtLint {
      *
      * For values use `PropertyType.PropertyValue.valid("override", <expected type>)` approach.
      * It is also possible to set value into "unset" state by using [PropertyType.PropertyValue.UNSET].
+     *
+     * @param isInvokedFromCli **For internal use only**: indicates that linting was invoked from KtLint CLI tool.
+     * Enables some internals workarounds for Kotlin Compiler initialization.
+     * Usually you don't need to use it and most probably it will be removed in one of next versions.
      */
     @FeatureInAlphaState
     public data class ExperimentalParams(
@@ -92,7 +96,8 @@ public object KtLint {
         val script: Boolean = false,
         val editorConfigPath: String? = null,
         val debug: Boolean = false,
-        val editorConfigOverride: EditorConfigOverridesMap = emptyMap()
+        val editorConfigOverride: EditorConfigOverridesMap = emptyMap(),
+        val isInvokedFromCli: Boolean = false,
     ) {
         internal val normalizedFilePath: Path? get() = if (fileName == STDIN_FILE || fileName == null) {
             null
@@ -141,7 +146,8 @@ public object KtLint {
      */
     @FeatureInAlphaState
     public fun lint(params: ExperimentalParams) {
-        val preparedCode = prepareCodeForLinting(params)
+        val psiFileFactory = kotlinPsiFileFactoryProvider.getKotlinPsiFileFactory(params.isInvokedFromCli)
+        val preparedCode = prepareCodeForLinting(psiFileFactory, params)
         val errors = mutableListOf<LintError>()
 
         visitor(preparedCode.rootNode, params.ruleSets).invoke { node, rule, fqRuleId ->
@@ -175,6 +181,7 @@ public object KtLint {
 
     @OptIn(FeatureInAlphaState::class)
     private fun prepareCodeForLinting(
+        psiFileFactory: PsiFileFactory,
         params: ExperimentalParams
     ): PreparedCode {
         val normalizedText = normalizeText(params.text)
@@ -366,7 +373,8 @@ public object KtLint {
     @FeatureInAlphaState
     public fun format(params: ExperimentalParams): String {
         val hasUTF8BOM = params.text.startsWith(UTF8_BOM)
-        val preparedCode = prepareCodeForLinting(params)
+        val psiFileFactory = kotlinPsiFileFactoryProvider.getKotlinPsiFileFactory(params.isInvokedFromCli)
+        val preparedCode = prepareCodeForLinting(psiFileFactory, params)
 
         var tripped = false
         var mutated = false
