@@ -611,4 +611,86 @@ class ParameterListWrappingRuleTest {
             )
         ).isEmpty()
     }
+
+    @Test
+    fun testLintClassParameterListWhenIndentStyleIsTab() {
+        assertThat(
+            ParameterListWrappingRule().lint(
+                """
+                class ClassA(
+                ${TAB}paramA: String,
+                ${TAB}paramB: String,
+                ${TAB}paramC: String
+                )
+                """.trimIndent(), INDENT_STYLE_TABS
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun testLintClassParameterListWhenIndentStyleIsTabAndWrongIndent() {
+        assertThat(
+            ParameterListWrappingRule().lint(
+                """
+                class ClassA(
+                    paramA: String,
+                    paramB: String,
+                    paramC: String
+                )
+                """.trimIndent(), INDENT_STYLE_TABS
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(2, 5, "parameter-list-wrapping", "Unexpected indentation (expected 1, actual 4)"),
+                LintError(3, 5, "parameter-list-wrapping", "Unexpected indentation (expected 1, actual 4)"),
+                LintError(4, 5, "parameter-list-wrapping", "Unexpected indentation (expected 1, actual 4)"),
+            )
+        )
+    }
+
+    @Test
+    fun testLintClassParameterListWhenIndentStyleIsTabWithNestedIndent() {
+        assertThat(
+            ParameterListWrappingRule().lint(
+                """
+                class ClassA() {
+                ${TAB}fun foo(
+                ${TAB}${TAB}paramA: String,
+                ${TAB}${TAB}paramB: String,
+                ${TAB}${TAB}paramC: String
+                ${TAB})
+                }
+                """.trimIndent(), INDENT_STYLE_TABS
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun testLintClassParameterListWhenIndentStyleIsTabWithNestedIndentAndWrongIndent() {
+        assertThat(
+            ParameterListWrappingRule().lint(
+                """
+                class ClassA() {
+                ${TAB}fun foo(
+                ${TAB}    paramA: String,
+                ${TAB}    paramB: String,
+                ${TAB}    paramC: String
+                ${TAB})
+                }
+                """.trimIndent(), INDENT_STYLE_TABS
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(3, 6, "parameter-list-wrapping", "Unexpected indentation (expected 2, actual 5)"),
+                LintError(4, 6, "parameter-list-wrapping", "Unexpected indentation (expected 2, actual 5)"),
+                LintError(5, 6, "parameter-list-wrapping", "Unexpected indentation (expected 2, actual 5)"),
+            )
+        )
+    }
+
+    private companion object {
+        const val TAB = "${'\t'}"
+
+        val INDENT_STYLE_TABS = mapOf("indent_style" to "tab")
+    }
 }

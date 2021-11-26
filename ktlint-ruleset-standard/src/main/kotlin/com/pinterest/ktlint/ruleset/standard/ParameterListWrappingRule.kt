@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard
 
+import com.pinterest.ktlint.core.EditorConfig
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.FUNCTION_LITERAL
@@ -31,6 +32,7 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
 
     private var indentSize = -1
     private var maxLineLength = -1
+    private var indentCharacter = " "
 
     override fun visit(
         node: ASTNode,
@@ -39,7 +41,13 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
     ) {
         if (node.isRoot()) {
             val editorConfig = node.getUserData(KtLint.EDITOR_CONFIG_USER_DATA_KEY)!!
-            indentSize = editorConfig.indentSize
+            if (editorConfig.indentStyle == EditorConfig.IndentStyle.TAB) {
+                indentCharacter = "\t"
+                indentSize = 1
+            } else {
+                indentCharacter = " "
+                indentSize = editorConfig.indentSize
+            }
             maxLineLength = editorConfig.maxLineLength
             return
         }
@@ -83,7 +91,7 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
                 // <line indent> RPAR
                 val lineIndent = node.lineIndent()
                 val indent = "\n" + lineIndent.substring(0, (lineIndent.length - adjustedIndent).coerceAtLeast(0))
-                val paramIndent = indent + " ".repeat(indentSize)
+                val paramIndent = indent + indentCharacter.repeat(indentSize)
                 nextChild@ for (child in node.children()) {
                     when (child.elementType) {
                         LPAR -> {
