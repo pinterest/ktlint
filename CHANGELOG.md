@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 - KtLint CLI 0.43 doesn't work with JDK 1.8 ([#1271](https://github.com/pinterest/ktlint/issues/1271))
+- Do not remove import which is used as markdown link in KDoc only ([#1282](https://github.com/pinterest/ktlint/issues/1282))
 
 ### Changed
 - Update Kotlin version to `1.6.0` release
