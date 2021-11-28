@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 - KtLint CLI 0.43 doesn't work with JDK 1.8 ([#1271](https://github.com/pinterest/ktlint/issues/1271))
+- Fix indentation of function literal ([#1247](https://github.com/pinterest/ktlint/issues/1247))
 
 ### Changed
 - Update Kotlin version to `1.6.0` release
