@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.experimental
 
+import com.pinterest.ktlint.core.EditorConfig
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType
@@ -38,6 +39,7 @@ class ArgumentListWrappingRule : Rule("argument-list-wrapping") {
 
     private var indentSize = -1
     private var maxLineLength = -1
+    private var indentCharacter = " "
 
     override fun visit(
         node: ASTNode,
@@ -46,7 +48,13 @@ class ArgumentListWrappingRule : Rule("argument-list-wrapping") {
     ) {
         if (node.isRoot()) {
             val editorConfig = node.getUserData(KtLint.EDITOR_CONFIG_USER_DATA_KEY)!!
-            indentSize = editorConfig.indentSize
+            if (editorConfig.indentStyle == EditorConfig.IndentStyle.TAB) {
+                indentCharacter = "\t"
+                indentSize = 1
+            } else {
+                indentCharacter = " "
+                indentSize = editorConfig.indentSize
+            }
             maxLineLength = editorConfig.maxLineLength
             return
         }
@@ -109,8 +117,8 @@ class ArgumentListWrappingRule : Rule("argument-list-wrapping") {
                 // <line indent> RPAR
                 val lineIndent = node.lineIndent()
                 val indent = ("\n" + lineIndent.substring(0, (lineIndent.length - adjustedIndent).coerceAtLeast(0)))
-                    .let { if (node.isOnSameLineAsControlFlowKeyword()) it + " ".repeat(indentSize) else it }
-                val paramIndent = indent + " ".repeat(indentSize)
+                    .let { if (node.isOnSameLineAsControlFlowKeyword()) it + indentCharacter.repeat(indentSize) else it }
+                val paramIndent = indent + indentCharacter.repeat(indentSize)
                 nextChild@ for (child in node.children()) {
                     when (child.elementType) {
                         ElementType.LPAR -> {

@@ -762,4 +762,57 @@ class ArgumentListWrappingRuleTest {
             )
         ).isEmpty()
     }
+
+    @Test
+    fun `ling argument list indented with tabs`() {
+        assertThat(
+            ArgumentListWrappingRule().lint(
+                """
+                class MyClass {
+                ${TAB}private fun initCoilOkHttp() {
+                ${TAB}${TAB}foo.biz(
+                ${TAB}${TAB}${TAB}a.x - d,
+                ${TAB}${TAB}${TAB}a.c,
+                ${TAB}${TAB}${TAB}a.x,
+                ${TAB}${TAB}${TAB}a.c,
+                ${TAB}${TAB}${TAB}a.x,
+                ${TAB}${TAB}${TAB}a.c - d
+                ${TAB}${TAB})
+                ${TAB}}
+                }
+                """.trimIndent(), INDENT_STYLE_TABS
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `ling argument list indented with tabs wrong indent`() {
+        assertThat(
+            ArgumentListWrappingRule().lint(
+                """
+                class MyClass {
+                ${TAB}private fun initCoilOkHttp() {
+                ${TAB}${TAB}foo.biz(
+                ${TAB}${TAB}a.x - d,
+                ${TAB}${TAB}    a.c,
+                ${TAB}${TAB}${TAB}a.x,
+                ${TAB}${TAB}${TAB}a.c,
+                ${TAB}${TAB}${TAB}a.x,
+                ${TAB}${TAB}${TAB}a.c - d
+                ${TAB}${TAB})
+                ${TAB}}
+                }
+                """.trimIndent(), INDENT_STYLE_TABS
+            )
+        ).isEqualTo(listOf(
+            LintError(4, 3, "argument-list-wrapping", "Unexpected indentation (expected 3, actual 2)"),
+            LintError(5, 7, "argument-list-wrapping", "Unexpected indentation (expected 3, actual 6)"),
+        ))
+    }
+
+    private companion object {
+        const val TAB = "${'\t'}"
+
+        val INDENT_STYLE_TABS = mapOf("indent_style" to "tab")
+    }
 }
