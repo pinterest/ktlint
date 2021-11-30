@@ -8,8 +8,10 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 - ClassCastException using ktlintFormat on class with KDoc in version 0.43.0 (`no-trailing-spaces`) ([#1270](https://github.com/pinterest/ktlint/issues/1270)
-
+- KtLint CLI 0.43 doesn't work with JDK 1.8 ([#1271](https://github.com/pinterest/ktlint/issues/1271))
+- Fix false positive in rule spacing-between-declarations-with-annotations ([#1281] (https://github.com/pinterest/ktlint/issues/1281))
 ### Changed
+- Update Kotlin version to `1.6.0` release
 
 ### Removed
 
