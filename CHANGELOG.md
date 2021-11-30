@@ -13,6 +13,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Changed
 - Update Kotlin version to `1.6.0` release
 - Add separate tasks to run tests on JDK 11 - "testOnJdk11"
+- Update Dokka to `1.6.0` release
 
 ### Removed
 
