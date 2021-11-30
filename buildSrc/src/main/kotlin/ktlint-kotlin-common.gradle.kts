@@ -28,3 +28,5 @@ tasks
             freeCompilerArgs += listOf("-Xopt-in=kotlin.RequiresOptIn")
         }
     }
+
+addJdk11Tests()

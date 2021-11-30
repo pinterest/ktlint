@@ -576,7 +576,7 @@ You may also pass a list of disabled rules via the `--disabled_rules` command li
 
 ```sh
 git clone https://github.com/pinterest/ktlint && cd ktlint
-./mvnw # shows how to build, test, run, etc. project
+./gradlew tasks # shows how to build, test, run, etc. project
 ```
 
 > To open ktlint in Intellij IDEA:  
