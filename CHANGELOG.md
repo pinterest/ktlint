@@ -5,15 +5,23 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## Unreleased
 
 ### Added
+- Use Gradle JVM toolchain with language version 8 to compile the project
 
 ### Fixed
-- KtLint CLI 0.43 doesn't work with JDK 1.8 ([#1271](https://github.com/pinterest/ktlint/issues/1271))
 - Fix indentation of function literal ([#1247](https://github.com/pinterest/ktlint/issues/1247))
+- Fix false positive in rule spacing-between-declarations-with-annotations ([#1281](https://github.com/pinterest/ktlint/issues/1281))
 
 ### Changed
 - Update Kotlin version to `1.6.0` release
+- Add separate tasks to run tests on JDK 11 - "testOnJdk11"
+- Update Dokka to `1.6.0` release
 
 ### Removed
+
+## [0.43.2] - 2021-12-01
+
+### Fixed
+- KtLint CLI 0.43 doesn't work with JDK 1.8 ([#1271](https://github.com/pinterest/ktlint/issues/1271))
 
 ## [0.43.0] - 2021-11-02
 
@@ -921,6 +929,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.43.2]: https://github.com/pinterest/ktlint/compare/0.43.0...0.43.2
 [0.43.0]: https://github.com/pinterest/ktlint/compare/0.42.1...0.43.0
 [0.42.1]: https://github.com/pinterest/ktlint/compare/0.42.0...0.42.1
 [0.42.0]: https://github.com/pinterest/ktlint/compare/0.41.0...0.42.0
