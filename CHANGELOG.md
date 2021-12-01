@@ -5,6 +5,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## Unreleased
 
 ### Added
+- Use Gradle JVM toolchain with language version 8 to compile the project
 
 ### Fixed
 - KtLint CLI 0.43 doesn't work with JDK 1.8 ([#1271](https://github.com/pinterest/ktlint/issues/1271))
@@ -12,6 +13,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - 
 ### Changed
 - Update Kotlin version to `1.6.0` release
+- Add separate tasks to run tests on JDK 11 - "testOnJdk11"
+- Update Dokka to `1.6.0` release
 
 ### Removed
 
