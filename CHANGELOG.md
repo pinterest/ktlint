@@ -2,16 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## Unreleased
-
-### Added
+## [0.43.2] - 2021-12-01
 
 ### Fixed
 - KtLint CLI 0.43 doesn't work with JDK 1.8 ([#1271](https://github.com/pinterest/ktlint/issues/1271))
-
-### Changed
-
-### Removed
 
 ## [0.43.0] - 2021-11-02
 
@@ -919,6 +913,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.43.2]: https://github.com/pinterest/ktlint/compare/0.43.0...0.43.2
 [0.43.0]: https://github.com/pinterest/ktlint/compare/0.42.1...0.43.0
 [0.42.1]: https://github.com/pinterest/ktlint/compare/0.42.0...0.42.1
 [0.42.0]: https://github.com/pinterest/ktlint/compare/0.41.0...0.42.0
