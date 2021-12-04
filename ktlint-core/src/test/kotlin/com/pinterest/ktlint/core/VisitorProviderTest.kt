@@ -622,7 +622,7 @@ class VisitorProviderTest {
         const val SOME_DISABLED_RULE_IN_CUSTOM_RULE_SET_A = "some-disabled-rule-custom-rule-set-a"
 
         fun initRootAstNode(): ASTNode {
-            initPsiFileFactory().apply {
+            initPsiFileFactory(false).apply {
                 val psiFile = createFileFromText(
                     "unit-test.kt",
                     KotlinLanguage.INSTANCE,

@@ -13,10 +13,10 @@ class ArgumentListWrappingRuleTest {
         assertThat(
             ArgumentListWrappingRule().lint(
                 """
-                    val x = f(
-                        a,
-                        b, c
-                    )
+                val x = f(
+                    a,
+                    b, c
+                )
                 """.trimIndent()
             )
         ).isEqualTo(
@@ -36,19 +36,19 @@ class ArgumentListWrappingRuleTest {
         assertThat(
             ArgumentListWrappingRule().format(
                 """
-                    val x = f(
-                        a,
-                        b, c
-                    )
+                val x = f(
+                    a,
+                    b, c
+                )
                 """.trimIndent()
             )
         ).isEqualTo(
             """
-                val x = f(
-                    a,
-                    b,
-                    c
-                )
+            val x = f(
+                a,
+                b,
+                c
+            )
             """.trimIndent()
         )
     }
@@ -58,25 +58,25 @@ class ArgumentListWrappingRuleTest {
         assertThat(
             ArgumentListWrappingRule().format(
                 """
-                    val x = test(
-                        one("a", "b",
-                        "c"),
-                        "Two", "Three", "Four"
-                    )
+                val x = test(
+                    one("a", "b",
+                    "c"),
+                    "Two", "Three", "Four"
+                )
                 """.trimIndent()
             )
         ).isEqualTo(
             """
-                val x = test(
-                    one(
-                        "a",
-                        "b",
-                        "c"
-                    ),
-                    "Two",
-                    "Three",
-                    "Four"
-                )
+            val x = test(
+                one(
+                    "a",
+                    "b",
+                    "c"
+                ),
+                "Two",
+                "Three",
+                "Four"
+            )
             """.trimIndent()
         )
     }
@@ -86,7 +86,7 @@ class ArgumentListWrappingRuleTest {
         assertThat(
             ArgumentListWrappingRule().lint(
                 """
-                    val x = f(a, b, c)
+                val x = f(a, b, c)
                 """.trimIndent(),
                 userData = mapOf("max_line_length" to "10")
             )

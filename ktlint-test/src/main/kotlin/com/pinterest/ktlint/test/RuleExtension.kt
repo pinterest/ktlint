@@ -5,6 +5,7 @@ import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.RuleSet
 import java.util.ArrayList
+import org.assertj.core.api.Assertions
 import org.assertj.core.util.diff.DiffUtils.diff
 import org.assertj.core.util.diff.DiffUtils.generateUnifiedDiff
 
@@ -119,6 +120,30 @@ public fun Rule.diffFileFormat(
         generateUnifiedDiff(expectedPath, "output", expected, diff(expected, actual), expected.size + actual.size)
             .joinToString("\n")
     return diff.ifEmpty { "" }
+}
+
+/**
+ * Alternative to [diffFileFormat]. Depending on your personal favor it might be more insightful whenever a test is
+ * failing. Currently it is offered as utility so it can be used during development.
+ *
+ * To be used as:
+ *
+ *     @Test
+ *     fun testFormatRawStringTrimIndent() {
+ *         IndentationRule().assertThatFileFormat(
+ *             "spec/indent/format-raw-string-trim-indent.kt.spec",
+ *             "spec/indent/format-raw-string-trim-indent-expected.kt.spec"
+ *         )
+ *     }
+ */
+public fun Rule.assertThatFileFormat(
+    srcPath: String,
+    expectedPath: String,
+    userData: Map<String, String> = emptyMap()
+) {
+    val actual = format(getResourceAsText(srcPath), userData, script = true).split('\n')
+    val expected = getResourceAsText(expectedPath).split('\n')
+    Assertions.assertThat(actual).isEqualTo(expected)
 }
 
 private fun getResourceAsText(path: String) =

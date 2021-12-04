@@ -332,12 +332,12 @@ class AnnotationSpacingRuleTest {
     fun `annotations should not be separated by comments from the annotated construct`() {
         val code =
             """
-                @Suppress("DEPRECATION") @Hello
-                /**
-                 * block comment
-                 */
-                class Foo {
-                }
+            @Suppress("DEPRECATION") @Hello
+            /**
+             * block comment
+             */
+            class Foo {
+            }
             """.trimIndent()
         assertThat(
             AnnotationSpacingRule().lint(code)
@@ -352,41 +352,41 @@ class AnnotationSpacingRuleTest {
     fun `annotations should be moved after comments`() {
         val code =
             """
-                @Suppress("DEPRECATION") @Hello
-                /**
-                 * block comment
-                 */
-                class Foo {
-                }
+            @Suppress("DEPRECATION") @Hello
+            /**
+             * block comment
+             */
+            class Foo {
+            }
             """.trimIndent()
         assertThat(
             AnnotationSpacingRule().format(code)
         ).isEqualTo(
             """
-                /**
-                 * block comment
-                 */
-                @Suppress("DEPRECATION") @Hello
-                class Foo {
-                }
+            /**
+             * block comment
+             */
+            @Suppress("DEPRECATION") @Hello
+            class Foo {
+            }
             """.trimIndent()
         )
 
         val codeEOL =
             """
-                @Suppress("DEPRECATION") @Hello
-                // hello
-                class Foo {
-                }
+            @Suppress("DEPRECATION") @Hello
+            // hello
+            class Foo {
+            }
             """.trimIndent()
         assertThat(
             AnnotationSpacingRule().format(codeEOL)
         ).isEqualTo(
             """
-                // hello
-                @Suppress("DEPRECATION") @Hello
-                class Foo {
-                }
+            // hello
+            @Suppress("DEPRECATION") @Hello
+            class Foo {
+            }
             """.trimIndent()
         )
     }
@@ -395,33 +395,33 @@ class AnnotationSpacingRuleTest {
     fun `preceding whitespaces are preserved`() {
         val code =
             """
-                package a.b.c
+            package a.b.c
 
-                val hello = 5
+            val hello = 5
 
 
-                @Suppress("DEPRECATION") @Hello
-                /**
-                 * block comment
-                 */
-                class Foo {
-                }
+            @Suppress("DEPRECATION") @Hello
+            /**
+             * block comment
+             */
+            class Foo {
+            }
             """.trimIndent()
         assertThat(
             AnnotationSpacingRule().format(code)
         ).isEqualTo(
             """
-                package a.b.c
+            package a.b.c
 
-                val hello = 5
+            val hello = 5
 
 
-                /**
-                 * block comment
-                 */
-                @Suppress("DEPRECATION") @Hello
-                class Foo {
-                }
+            /**
+             * block comment
+             */
+            @Suppress("DEPRECATION") @Hello
+            class Foo {
+            }
             """.trimIndent()
         )
     }
@@ -443,18 +443,18 @@ class AnnotationSpacingRuleTest {
     fun `format eol comment on the same line as the annotation`() {
         val code =
             """
-                @SuppressWarnings // foo
+            @SuppressWarnings // foo
 
-                fun bar() {
-                }
+            fun bar() {
+            }
             """.trimIndent()
         assertThat(
             AnnotationSpacingRule().format(code)
         ).isEqualTo(
             """
-                @SuppressWarnings // foo
-                fun bar() {
-                }
+            @SuppressWarnings // foo
+            fun bar() {
+            }
             """.trimIndent()
         )
     }
@@ -463,19 +463,19 @@ class AnnotationSpacingRuleTest {
     fun `format eol comment on the same line as the annotation 2`() {
         val code =
             """
-                @SuppressWarnings // foo
-                // bar
-                fun bar() {
-                }
+            @SuppressWarnings // foo
+            // bar
+            fun bar() {
+            }
             """.trimIndent()
         assertThat(
             AnnotationSpacingRule().format(code)
         ).isEqualTo(
             """
-                // bar
-                @SuppressWarnings // foo
-                fun bar() {
-                }
+            // bar
+            @SuppressWarnings // foo
+            fun bar() {
+            }
             """.trimIndent()
         )
     }
