@@ -165,28 +165,28 @@ public class ImportOrderingRule :
         if (node.elementType == ElementType.IMPORT_LIST) {
             val children = node.getChildren(null)
             if (children.isNotEmpty()) {
-                val imports = children.filter {
-                    it.elementType == ElementType.IMPORT_DIRECTIVE ||
-                        it.psi is PsiWhiteSpace && it.textLength > 1 // also collect empty lines, that are represented as "\n\n"
-                }
-
-                val autoCorrectDuplicateImports = imports
-                    .filter { it.psi !is PsiWhiteSpace }
-                    .groupingBy { it.text }
-                    .eachCount()
-                    .filterValues { it > 1 }
-                    .keys
-                    .map {
-                        emit(
-                            node.startOffset,
-                            "Duplicate '$it' found",
-                            true
-                        )
-                    }.any()
-                val deduplicatedImports = imports.distinctBy { it.text } // distinguish by import path including alias
+                // Get unique imports and blank lines
+                var autoCorrectDuplicateImports = false
+                val imports = mutableListOf<ASTNode>()
+                children
+                    .filter {
+                        it.elementType == ElementType.IMPORT_DIRECTIVE ||
+                            it.psi is PsiWhiteSpace && it.textLength > 1 // also collect empty lines, that are represented as "\n\n"
+                    }.map { current ->
+                        if (current.psi is PsiWhiteSpace || imports.none { it.text == current.text }) {
+                            imports += current
+                        } else {
+                            emit(
+                                current.startOffset,
+                                "Duplicate '${current.text}' found",
+                                true
+                            )
+                            autoCorrectDuplicateImports = true
+                        }
+                    }
 
                 val hasComments = children.find { it.elementType == ElementType.BLOCK_COMMENT || it.elementType == ElementType.EOL_COMMENT } != null
-                val sortedImports = deduplicatedImports
+                val sortedImports = imports
                     .asSequence()
                     .filter { it.psi !is PsiWhiteSpace } // sorter expects KtImportDirective, whitespaces are inserted afterwards
                     .map { it.psi as KtImportDirective }
@@ -225,7 +225,7 @@ public class ImportOrderingRule :
                     )
                 } else {
                     val autoCorrectWhitespace = hasTooMuchWhitespace(children) && !isCustomLayout()
-                    val autoCorrectSortOrder = !importsAreEqual(deduplicatedImports, sortedImportsWithSpaces)
+                    val autoCorrectSortOrder = !importsAreEqual(imports, sortedImportsWithSpaces)
                     if (autoCorrectSortOrder || autoCorrectWhitespace) {
                         emit(
                             node.startOffset,

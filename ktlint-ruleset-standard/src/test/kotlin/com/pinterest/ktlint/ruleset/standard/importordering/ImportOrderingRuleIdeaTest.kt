@@ -149,8 +149,8 @@ class ImportOrderingRuleIdeaTest {
         assertThat(
             rule.lint(testFile, imports)
         ).containsExactly(
-            LintError(1, 1, "import-ordering", "Duplicate 'import android.view.View' found"),
-            LintError(1, 1, "import-ordering", "Duplicate 'import android.content.Context as Ctx1' found")
+            LintError(3, 1, "import-ordering", "Duplicate 'import android.view.View' found"),
+            LintError(6, 1, "import-ordering", "Duplicate 'import android.content.Context as Ctx1' found")
         )
         assertThat(
             rule.format(testFile, imports)
@@ -380,7 +380,7 @@ class ImportOrderingRuleIdeaTest {
         assertThat(
             rule.lint(testFile, imports)
         ).containsExactly(
-            LintError(1, 1, "import-ordering", "Duplicate 'import foo.Bar as Bar2' found")
+            LintError(3, 1, "import-ordering", "Duplicate 'import foo.Bar as Bar2' found")
         )
         assertThat(
             rule.format(testFile, imports)
