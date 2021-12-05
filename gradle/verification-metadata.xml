@@ -128,6 +128,8 @@
             <trusting group="org.junit.jupiter"/>
             <trusting group="junit"/>
             <trusting group="org.junit"/>
+            <trusting group="org.junit.vintage"/>
+            <trusting group="org.apiguardian"/>
          </trusted-key>
       </trusted-keys>
    </configuration>
