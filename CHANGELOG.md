@@ -6,6 +6,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 - Use Gradle JVM toolchain with language version 8 to compile the project
+- Basic tests for CLI ([#540](https://github.com/pinterest/ktlint/issues/540))
 
 ### Fixed
 - Fix false positive in rule spacing-between-declarations-with-annotations ([#1281](https://github.com/pinterest/ktlint/issues/1281))
