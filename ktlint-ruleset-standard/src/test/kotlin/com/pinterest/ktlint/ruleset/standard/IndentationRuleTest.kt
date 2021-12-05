@@ -1346,6 +1346,53 @@ internal class IndentationRuleTest {
         assertThat(IndentationRule().format(code)).isEqualTo(formattedCode)
     }
 
+    @Test
+    fun `format kdoc`() {
+        @Suppress("RemoveCurlyBracesFromTemplate")
+        val code =
+            """
+            /**
+             * some function1
+             */
+            fun someFunction1() {
+                return Unit
+            }
+
+            class SomeClass {
+                /**
+                 * some function2
+                 */
+                fun someFunction2() {
+                    return Unit
+                }
+            }
+            """.trimIndent()
+        @Suppress("RemoveCurlyBracesFromTemplate")
+        val codeTabs =
+            """
+            /**
+             * some function1
+             */
+            fun someFunction1() {
+            ${TAB}return Unit
+            }
+
+            class SomeClass {
+            ${TAB}/**
+            ${TAB} * some function2
+            ${TAB} */
+            ${TAB}fun someFunction2() {
+            ${TAB}${TAB}return Unit
+            ${TAB}}
+            }
+            """.trimIndent()
+        assertThat(IndentationRule().lint(code)).isEmpty()
+        assertThat(IndentationRule().format(code)).isEqualTo(code)
+
+        assertThat(IndentationRule().lint(codeTabs, INDENT_STYLE_TABS)).isEmpty()
+        assertThat(IndentationRule().format(codeTabs, INDENT_STYLE_TABS)).isEqualTo(codeTabs)
+    }
+
     private companion object {
         const val MULTILINE_STRING_QUOTE = "${'"'}${'"'}${'"'}"
         const val TAB = "${'\t'}"

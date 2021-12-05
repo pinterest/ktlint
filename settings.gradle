@@ -5,18 +5,10 @@ pluginManagement {
   }
 
   plugins {
-    def kotlinVersion = settings.hasProperty("kotlinDev") ? "1.6.0-RC" : "1.5.31"
-    id 'org.jetbrains.kotlin.jvm' version kotlinVersion
     id 'com.github.breadmoirai.github-release' version '2.2.12'
     id 'com.github.johnrengelman.shadow' version '7.1.0'
     id 'org.gradle.crypto.checksum' version '1.1.0'
   }
-}
-
-// Pass '-PkotlinDev' to command line to enable kotlin-in-development version
-gradle.ext.isKotlinDev = settings.hasProperty("kotlinDev")
-if (gradle.ext.isKotlinDev) {
-  logger.warn("Enabling kotlin dev version")
 }
 
 rootProject.name = 'ktlint'

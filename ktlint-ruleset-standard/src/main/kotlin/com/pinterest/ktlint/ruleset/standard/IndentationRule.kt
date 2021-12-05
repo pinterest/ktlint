@@ -17,7 +17,6 @@ import com.pinterest.ktlint.core.ast.ElementType.COLON
 import com.pinterest.ktlint.core.ast.ElementType.COMMA
 import com.pinterest.ktlint.core.ast.ElementType.CONDITION
 import com.pinterest.ktlint.core.ast.ElementType.DELEGATED_SUPER_TYPE_ENTRY
-import com.pinterest.ktlint.core.ast.ElementType.DOT
 import com.pinterest.ktlint.core.ast.ElementType.DOT_QUALIFIED_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.ELSE
 import com.pinterest.ktlint.core.ast.ElementType.ELVIS
@@ -27,6 +26,8 @@ import com.pinterest.ktlint.core.ast.ElementType.FUN
 import com.pinterest.ktlint.core.ast.ElementType.FUNCTION_LITERAL
 import com.pinterest.ktlint.core.ast.ElementType.GT
 import com.pinterest.ktlint.core.ast.ElementType.KDOC
+import com.pinterest.ktlint.core.ast.ElementType.KDOC_END
+import com.pinterest.ktlint.core.ast.ElementType.KDOC_LEADING_ASTERISK
 import com.pinterest.ktlint.core.ast.ElementType.KDOC_START
 import com.pinterest.ktlint.core.ast.ElementType.LAMBDA_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.LBRACE
@@ -44,7 +45,6 @@ import com.pinterest.ktlint.core.ast.ElementType.RBRACE
 import com.pinterest.ktlint.core.ast.ElementType.RBRACKET
 import com.pinterest.ktlint.core.ast.ElementType.REGULAR_STRING_PART
 import com.pinterest.ktlint.core.ast.ElementType.RPAR
-import com.pinterest.ktlint.core.ast.ElementType.SAFE_ACCESS
 import com.pinterest.ktlint.core.ast.ElementType.SAFE_ACCESS_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.SHORT_STRING_TEMPLATE_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.STRING_TEMPLATE
@@ -673,16 +673,6 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
         if (!ctx.ignored.contains(p) && nextSibling != null) {
             expectedIndent++
             debug { "++inside(${p.elementType}) -> $expectedIndent" }
-            val siblingType = nextSibling.elementType
-            val e = if (
-                siblingType == DOT ||
-                siblingType == SAFE_ACCESS ||
-                siblingType == ELVIS
-            ) {
-                nextSibling.treeNext
-            } else {
-                nextSibling
-            }
             ctx.ignored.add(p)
             ctx.exitAdjBy(p, -1)
         }
@@ -1002,7 +992,14 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                     }
                 }
                 IndentStyle.TAB -> {
-                    if (' ' in nodeIndent) {
+                    val isKdocIndent = node.isKDocIndent()
+                    val indentWithoutKdocIndent =
+                        if (isKdocIndent) {
+                            nodeIndent.removeSuffix(" ")
+                        } else {
+                            nodeIndent
+                        }
+                    if (' ' in indentWithoutKdocIndent) {
                         emit(
                             node.startOffset + text.length - nodeIndent.length,
                             "Unexpected space character(s)",
@@ -1011,7 +1008,13 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                         // First normalize the indent to spaces using the tab width.
                         val asSpaces = nodeIndent.replace("\t", " ".repeat(editorConfig.tabWidth))
                         // Then divide that space-based indent into tabs.
-                        "\t".repeat(asSpaces.length / editorConfig.tabWidth)
+                        "\t".repeat(asSpaces.length / editorConfig.tabWidth) +
+                            // Re-add the kdoc indent when it was present before
+                            if (isKdocIndent) {
+                                " "
+                            } else {
+                                ""
+                            }
                     } else {
                         nodeIndent
                     }
@@ -1129,6 +1132,15 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
         return distinctIndentCharacters > 1
     }
 }
+
+private fun ASTNode.isKDocIndent() =
+    if (text.lastOrNull() == ' ') {
+        // The indentation of a KDoc comment contains a space as the last character regardless of the indentation style
+        // (tabs or spaces) except for the starting line of the KDoc comment
+        nextLeaf()?.elementType == KDOC_LEADING_ASTERISK || nextLeaf()?.elementType == KDOC_END
+    } else {
+        false
+    }
 
 private fun ASTNode.isIndentBeforeClosingQuote() =
     elementType == CLOSING_QUOTE || (text.isBlank() && nextCodeSibling()?.elementType == CLOSING_QUOTE)

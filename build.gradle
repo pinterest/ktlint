@@ -4,14 +4,13 @@ plugins {
 }
 
 ext.versions = [
-  'kotlin': gradle.ext.isKotlinDev ? "1.6.0-RC" : "1.5.31",
   'gradle': '7.2',
   'gradle-sha256': 'f581709a9c35e9cb92e16f585d2c4bc99b2b1a5f85d2badbd3dc6bff59e1e6dd'
 ]
 
 ext.deps = [
   'kotlin'        : [
-    'compiler': "org.jetbrains.kotlin:kotlin-compiler-embeddable:${versions.kotlin}"
+    'compiler': "org.jetbrains.kotlin:kotlin-compiler-embeddable"
   ],
   'klob'          : 'com.github.shyiko.klob:klob:0.2.1',
   ec4j            : 'org.ec4j.core:ec4j-core:0.3.0',
@@ -23,7 +22,11 @@ ext.deps = [
   'jimfs'         : 'com.google.jimfs:jimfs:1.1'
 ]
 
-if (gradle.ext.isKotlinDev) {
+repositories {
+  mavenCentral()
+}
+
+if (project.hasProperty('isKotlinDev')) {
   allprojects { p ->
     String definedVersion = p.ext."VERSION_NAME".minus("-SNAPSHOT")
     p.ext."VERSION_NAME" = "$definedVersion-kotlin-dev-SNAPSHOT".toString()
@@ -43,41 +46,6 @@ task ktlint(type: JavaExec, group: LifecycleBasePlugin.VERIFICATION_GROUP) {
   classpath = configurations.ktlint
   main = 'com.pinterest.ktlint.Main'
   args '**/src/**/*.kt', '--baseline=ktlint-baseline.xml', '--verbose'
-}
-
-allprojects {
-  repositories {
-    mavenCentral()
-    gradlePluginPortal()
-  }
-
-  tasks.withType(JavaCompile).configureEach {
-    it.sourceCompatibility = JavaVersion.VERSION_1_8
-    it.targetCompatibility = JavaVersion.VERSION_1_8
-  }
-
-  tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
-    it.sourceCompatibility = JavaVersion.VERSION_1_8
-    it.targetCompatibility = JavaVersion.VERSION_1_8
-
-    it.kotlinOptions {
-      jvmTarget = '1.8'
-      apiVersion = '1.4'
-
-      freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
-    }
-  }
-}
-
-subprojects { subProject ->
-  // Do not enabling explicit api for cli project
-  if (subProject.name != "ktlint") {
-    subProject.plugins.withId("org.jetbrains.kotlin.jvm") {
-      subProject.extensions.configure("kotlin") { ext ->
-        ext.explicitApi = 'warning'
-      }
-    }
-  }
 }
 
 /**

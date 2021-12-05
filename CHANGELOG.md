@@ -5,6 +5,26 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## Unreleased
 
 ### Added
+- Use Gradle JVM toolchain with language version 8 to compile the project
+
+### Fixed
+- Fix false positive in rule spacing-between-declarations-with-annotations ([#1281](https://github.com/pinterest/ktlint/issues/1281))
+
+### Changed
+- Update Kotlin version to `1.6.0` release
+- Add separate tasks to run tests on JDK 11 - "testOnJdk11"
+- Update Dokka to `1.6.0` release
+
+### Removed
+
+## [0.43.2] - 2021-12-01
+
+### Fixed
+- KtLint CLI 0.43 doesn't work with JDK 1.8 ([#1271](https://github.com/pinterest/ktlint/issues/1271))
+
+## [0.43.0] - 2021-11-02
+
+### Added
 - New `trailing-comma` rule ([#709](https://github.com/pinterest/ktlint/issues/709)) (prior art by [paul-dingemans](https://github.com/paul-dingemans))
 ### Fixed
 - Fix false positive with lambda argument and call chain (`indent`) ([#1202](https://github.com/pinterest/ktlint/issues/1202))
@@ -13,14 +33,13 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - Remove spaces before primary constructor (`paren-spacing`) ([#1207](https://github.com/pinterest/ktlint/issues/1207))
 - Fix false positive for delegated properties with a lambda argument (`indent`) ([#1210](https://github.com/pinterest/ktlint/issues/1210))
 - Remove unnecessary wildcard imports (`no-unused-imports`) ([#1256](https://github.com/pinterest/ktlint/issues/1256))
+- Fix indentation of KDoc comment when using tab indentation style (`indent`) ([#850](https://github.com/pinterest/ktlint/issues/850))
 ### Changed
 - Support absolute paths for globs ([#1131](https://github.com/pinterest/ktlint/issues/1131))
 - Fix regression from 0.41 with argument list wrapping after dot qualified expression (`argument-list-wrapping`)([#1159](https://github.com/pinterest/ktlint/issues/1159))
 - Update Gradle to `7.2` version
 - Update Gradle shadow plugin to `7.1` version
 - Update Kotlin version to `1.5.31` version. Default Kotlin API version was changed to `1.4`!
-
-### Removed
 
 ## [0.42.1] - 2021-08-06
 
@@ -909,6 +928,8 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.43.2]: https://github.com/pinterest/ktlint/compare/0.43.0...0.43.2
+[0.43.0]: https://github.com/pinterest/ktlint/compare/0.42.1...0.43.0
 [0.42.1]: https://github.com/pinterest/ktlint/compare/0.42.0...0.42.1
 [0.42.0]: https://github.com/pinterest/ktlint/compare/0.41.0...0.42.0
 [0.41.0]: https://github.com/pinterest/ktlint/compare/0.40.0...0.41.0
