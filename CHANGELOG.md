@@ -9,6 +9,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 - Fix false positive in rule spacing-between-declarations-with-annotations ([#1281](https://github.com/pinterest/ktlint/issues/1281))
+- Do not remove trailing comma in annotation ([#1297](https://github.com/pinterest/ktlint/issues/1297))
 
 ### Changed
 - Update Kotlin version to `1.6.0` release
