@@ -1,8 +1,8 @@
 import org.gradle.crypto.checksum.Checksum
 
 plugins {
-  id 'org.jetbrains.kotlin.jvm'
   id 'ktlint-publication'
+  id 'ktlint-kotlin-common'
   id 'com.github.johnrengelman.shadow'
   id 'org.gradle.crypto.checksum'
   id 'signing'
