@@ -15,7 +15,7 @@ indent_size = 4
 
 [*.{kt,kts}]
 ij_kotlin_imports_layout=*
-disabled_rules=experimental:trailing-comma,experimental:spacing-between-declarations-with-annotations,experimental:argument-list-wrapping,experimental:annotation,experimental:no-empty-first-line-in-method-block
+disabled_rules=experimental:trailing-comma,experimental:spacing-between-declarations-with-annotations,experimental:argument-list-wrapping,experimental:annotation
 
 [{Makefile,*.go}]
 indent_style = tab
