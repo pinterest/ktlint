@@ -952,23 +952,42 @@ internal class IndentationRuleTest {
     }
 
     @Test
-    fun `lint delegation 2`() {
-        assertThat(
-            IndentationRule().lint(
-                """
-                interface Foo
+    fun `lint and format delegation 2`() {
+        val code =
+            """
+            interface Foo
 
-                class Bar(a: Int, b: Int, c: Int) : Foo
+            class Bar(a: Int, b: Int, c: Int) : Foo
 
-                class Test2 : Foo
+            class Test2 : Foo
+            by Bar(
+                a = 1,
+                b = 2,
+                c = 3
+            )
+            """.trimIndent()
+        val formattedCode =
+            """
+            interface Foo
+
+            class Bar(a: Int, b: Int, c: Int) : Foo
+
+            class Test2 : Foo
                 by Bar(
                     a = 1,
                     b = 2,
                     c = 3
                 )
-                """.trimIndent()
-            )
-        ).isEmpty()
+            """.trimIndent()
+
+        assertThat(IndentationRule().lint(code)).containsExactly(
+            LintError(6, 1, "indent", "Unexpected indentation (0) (should be 4)"),
+            LintError(7, 1, "indent", "Unexpected indentation (4) (should be 8)"),
+            LintError(8, 1, "indent", "Unexpected indentation (4) (should be 8)"),
+            LintError(9, 1, "indent", "Unexpected indentation (4) (should be 8)"),
+            LintError(10, 1, "indent", "Unexpected indentation (0) (should be 4)"),
+        )
+        assertThat(IndentationRule().format(code)).isEqualTo(formattedCode)
     }
 
     @Test
@@ -1341,6 +1360,24 @@ internal class IndentationRuleTest {
 
         assertThat(IndentationRule().lint(codeTabs, INDENT_STYLE_TABS)).isEmpty()
         assertThat(IndentationRule().format(codeTabs, INDENT_STYLE_TABS)).isEqualTo(codeTabs)
+    }
+
+    @Test
+    fun `Issue 1210 - format by`() {
+        val code =
+            """
+            object ApplicationComponentFactory : ApplicationComponent.Factory
+            by DaggerApplicationComponent.factory()
+            """.trimIndent()
+        val formattedCode =
+            """
+            object ApplicationComponentFactory : ApplicationComponent.Factory
+                by DaggerApplicationComponent.factory()
+            """.trimIndent()
+//        assertThat(IndentationRule().lint(code)).containsExactly(
+//            LintError(2, 1, "indent", "Unexpected indentation (0) (should be 4)")
+//        )
+        assertThat(IndentationRule().format(code)).isEqualTo(formattedCode)
     }
 
     private companion object {

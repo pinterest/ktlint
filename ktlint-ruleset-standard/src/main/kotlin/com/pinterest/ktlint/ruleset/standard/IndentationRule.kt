@@ -955,13 +955,14 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
             // instead of expected
             // val i: Int
             // by lazy { 1 }
-            nextLeafElementType == BY_KEYWORD ->
-                if (node.isPartOf(DELEGATED_SUPER_TYPE_ENTRY)) {
+            nextLeafElementType == BY_KEYWORD -> {
+                if (node.isPartOf(DELEGATED_SUPER_TYPE_ENTRY) && node.text != "\n") {
                     0
                 } else {
                     expectedIndent++
                     1
                 }
+            }
             // IDEA quirk:
             // var value: DataClass =
             //     DataClass("too long line")
