@@ -33,14 +33,14 @@ class BaselineTests {
         System.setOut(ps)
 
         try {
-            main(arrayOf("src/test/resources/TestBaselineFile.kt"))
+            main(arrayOf("src/test/resources/TestBaselineFile._kt"))
         } catch (e: ExitException) {
             // handle System.exit
         }
 
         val output = String(stream.toByteArray())
-        assertTrue(output.contains(".*:1:24: Unnecessary block".toRegex()))
-        assertTrue(output.contains(".*:2:1: Unexpected blank line\\(s\\) before \"}\"".toRegex()))
+        assertTrue(output.contains(".*:3:24: Unnecessary block".toRegex()))
+        assertTrue(output.contains(".*:4:1: Unexpected blank line\\(s\\) before \"}\"".toRegex()))
     }
 
     @Test
@@ -50,14 +50,14 @@ class BaselineTests {
         System.setOut(ps)
 
         try {
-            main(arrayOf("src/test/resources/TestBaselineFile.kt", "--baseline=src/test/resources/test-baseline.xml"))
+            main(arrayOf("src/test/resources/TestBaselineFile._kt", "--baseline=src/test/resources/test-baseline.xml"))
         } catch (e: ExitException) {
             // handle System.exit
         }
 
         val output = String(stream.toByteArray())
-        assertFalse(output.contains(".*:1:24: Unnecessary block".toRegex()))
-        assertFalse(output.contains(".*:2:1: Unexpected blank line\\(s\\) before \"}\"".toRegex()))
+        assertFalse(output.contains(".*:3:24: Unnecessary block".toRegex()))
+        assertFalse(output.contains(".*:4:1: Unexpected blank line\\(s\\) before \"}\"".toRegex()))
     }
 
     @Test
@@ -67,14 +67,14 @@ class BaselineTests {
         System.setOut(ps)
 
         try {
-            main(arrayOf("src/test/resources/TestBaselineExtraErrorFile.kt", "--baseline=src/test/resources/test-baseline.xml"))
+            main(arrayOf("src/test/resources/TestBaselineExtraErrorFile._kt", "--baseline=src/test/resources/test-baseline.xml"))
         } catch (e: ExitException) {
             // handle System.exit
         }
 
         val output = String(stream.toByteArray())
-        assertFalse(output.contains(".*:1:24: Unnecessary block".toRegex()))
-        assertTrue(output.contains(".*:2:1: Unexpected blank line\\(s\\) before \"}\"".toRegex()))
+        assertFalse(output.contains(".*:3:24: Unnecessary block".toRegex()))
+        assertTrue(output.contains(".*:4:1: Unexpected blank line\\(s\\) before \"}\"".toRegex()))
     }
 
     private class ExitException(val status: Int) : SecurityException("Should not exit in tests")
