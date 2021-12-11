@@ -167,7 +167,8 @@ internal class EditorConfigLoaderTest {
     @Test
     fun `Should parse assignment with spaces`() {
         val projectDir = "/project"
-        @Language("EditorConfig") val editorconfigFile =
+        @Language("EditorConfig")
+        val editorconfigFile =
             """
             [*.{kt,kts}]
             insert_final_newline = true
@@ -191,7 +192,8 @@ internal class EditorConfigLoaderTest {
     @Test
     fun `Should parse unset values`() {
         val projectDir = "/project"
-        @Language("EditorConfig") val editorconfigFile =
+        @Language("EditorConfig")
+        val editorconfigFile =
             """
             [*.{kt,kts}]
             indent_size = unset
@@ -214,7 +216,8 @@ internal class EditorConfigLoaderTest {
     @Test
     fun `Should parse list with spaces after comma`() {
         val projectDir = "/project"
-        @Language("EditorConfig") val editorconfigFile =
+        @Language("EditorConfig")
+        val editorconfigFile =
             """
             [*.{kt,kts}]
             disabled_rules=import-ordering, no-wildcard-imports
@@ -253,7 +256,8 @@ internal class EditorConfigLoaderTest {
 
     @Test
     fun `Should return properties for stdin from current directory`() {
-        @Language("EditorConfig") val editorconfigFile =
+        @Language("EditorConfig")
+        val editorconfigFile =
             """
             [*.{kt,kts}]
             insert_final_newline = true
@@ -377,7 +381,8 @@ internal class EditorConfigLoaderTest {
     @Test
     fun `Should support editorconfig globs when loading properties for file specified under such glob`() {
         val projectDir = "/project"
-        @Language("EditorConfig") val editorconfigFile =
+        @Language("EditorConfig")
+        val editorconfigFile =
             """
             [*.{kt,kts}]
             insert_final_newline = true
@@ -406,7 +411,8 @@ internal class EditorConfigLoaderTest {
     @Test
     fun `Should add property from override`() {
         val projectDir = "/project"
-        @Language("EditorConfig") val editorconfigFile =
+        @Language("EditorConfig")
+        val editorconfigFile =
             """
             [*.{kt,kts}]
             disabled_rules=import-ordering, no-wildcard-imports
@@ -436,7 +442,8 @@ internal class EditorConfigLoaderTest {
     @Test
     fun `Should replace property from override`() {
         val projectDir = "/project"
-        @Language("EditorConfig") val editorconfigFile =
+        @Language("EditorConfig")
+        val editorconfigFile =
             """
             [*.{kt,kts}]
             insert_final_newline = true

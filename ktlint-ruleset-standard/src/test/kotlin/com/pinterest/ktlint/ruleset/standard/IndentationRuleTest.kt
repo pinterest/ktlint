@@ -636,7 +636,8 @@ internal class IndentationRuleTest {
                 )
             }
             """.trimIndent()
-        @Suppress("RemoveCurlyBracesFromTemplate") val expectedCodeTabs =
+        @Suppress("RemoveCurlyBracesFromTemplate")
+        val expectedCodeTabs =
             """
             fun foo() {
             ${TAB}println(
