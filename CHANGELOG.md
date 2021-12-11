@@ -10,6 +10,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Fixed
 - Fix false positive in rule spacing-between-declarations-with-annotations ([#1281](https://github.com/pinterest/ktlint/issues/1281))
 - Fix NoSuchElementException for property accessor (`trailing-comma`) ([#1280](https://github.com/pinterest/ktlint/issues/1280))
+- Fix indentation of secondary constructor (`indent`) ([#1222](https://github.com/pinterest/ktlint/issues/1222))
 
 ### Changed
 - Update Kotlin version to `1.6.0` release

@@ -1343,6 +1343,66 @@ internal class IndentationRuleTest {
         assertThat(IndentationRule().format(codeTabs, INDENT_STYLE_TABS)).isEqualTo(codeTabs)
     }
 
+    @Test
+    fun `Issue 1222 - format secondary constructor`() {
+        val code =
+            """
+            class Issue1222 {
+                constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) :
+                    super(context, attrs, defStyleAttr, defStyleRes) {
+                    init(attrs, defStyleAttr, defStyleRes)
+                }
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            class Issue1222 {
+                constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) :
+                        super(context, attrs, defStyleAttr, defStyleRes) {
+                    init(attrs, defStyleAttr, defStyleRes)
+                }
+            }
+            """.trimIndent()
+        assertThat(IndentationRule().lint(code))
+            .containsExactly(
+                LintError(3, 1, "indent", "Unexpected indentation (8) (should be 12)"),
+            )
+        assertThat(IndentationRule().format(code)).isEqualTo(formattedCode)
+    }
+
+    @Test
+    fun `Issue 1222 - format class constructor, parameter of super invocations are indented`() {
+        val code =
+            """
+            class Issue1222 {
+                constructor(string1: String, string2: String2) :
+                    super(
+                    string1, string2
+                    ) {
+                    // do something
+                }
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            class Issue1222 {
+                constructor(string1: String, string2: String2) :
+                        super(
+                            string1, string2
+                        ) {
+                    // do something
+                }
+            }
+            """.trimIndent()
+        assertThat(IndentationRule().lint(code))
+            .containsExactly(
+                LintError(3, 1, "indent", "Unexpected indentation (8) (should be 12)"),
+                LintError(4, 1, "indent", "Unexpected indentation (8) (should be 16)"),
+                LintError(5, 1, "indent", "Unexpected indentation (8) (should be 12)"),
+            )
+        assertThat(IndentationRule().format(code)).isEqualTo(formattedCode)
+    }
+
     private companion object {
         const val MULTILINE_STRING_QUOTE = "${'"'}${'"'}${'"'}"
         const val TAB = "${'\t'}"
