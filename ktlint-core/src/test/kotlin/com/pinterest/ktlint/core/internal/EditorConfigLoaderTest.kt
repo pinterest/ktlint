@@ -87,7 +87,7 @@ internal class EditorConfigLoaderTest {
                 .isEqualTo(
                     mapOf(
                         "indent_size" to "2",
-                        "tab_width" to "2",
+                        "tab_width" to "2"
                     )
                 )
         }
@@ -137,7 +137,7 @@ internal class EditorConfigLoaderTest {
             mapOf(
                 "indent_size" to "2",
                 "tab_width" to "2",
-                "indent_style" to "space",
+                "indent_style" to "space"
             )
         )
 
@@ -149,7 +149,7 @@ internal class EditorConfigLoaderTest {
             mapOf(
                 "indent_size" to "4",
                 "tab_width" to "4",
-                "indent_style" to "space",
+                "indent_style" to "space"
             )
         )
 
@@ -159,7 +159,7 @@ internal class EditorConfigLoaderTest {
 
         assertThat(parsedEditorConfig).isEqualTo(
             mapOf(
-                "end_of_line" to "lf",
+                "end_of_line" to "lf"
             )
         )
     }
@@ -185,7 +185,7 @@ internal class EditorConfigLoaderTest {
         assertThat(parsedEditorConfig).isEqualTo(
             mapOf(
                 "insert_final_newline" to "true",
-                "disabled_rules" to "import-ordering",
+                "disabled_rules" to "import-ordering"
             )
         )
     }
@@ -210,7 +210,7 @@ internal class EditorConfigLoaderTest {
         assertThat(parsedEditorConfig).isEqualTo(
             mapOf(
                 "indent_size" to "unset",
-                "tab_width" to "unset",
+                "tab_width" to "unset"
             )
         )
     }
@@ -234,7 +234,7 @@ internal class EditorConfigLoaderTest {
         assertThat(parsedEditorConfig).isNotEmpty
         assertThat(parsedEditorConfig).isEqualTo(
             mapOf(
-                "disabled_rules" to "import-ordering, no-wildcard-imports",
+                "disabled_rules" to "import-ordering, no-wildcard-imports"
             )
         )
     }
@@ -272,7 +272,7 @@ internal class EditorConfigLoaderTest {
             filePath = null,
             isStdIn = true,
             rules = rules,
-            debug = true,
+            debug = true
         )
         val parsedEditorConfig = editorConfigProperties.convertToRawValues()
 
@@ -407,7 +407,7 @@ internal class EditorConfigLoaderTest {
         assertThat(parsedEditorConfig).isEqualTo(
             mapOf(
                 "insert_final_newline" to "true",
-                "disabled_rules" to "class-must-be-internal",
+                "disabled_rules" to "class-must-be-internal"
             )
         )
     }

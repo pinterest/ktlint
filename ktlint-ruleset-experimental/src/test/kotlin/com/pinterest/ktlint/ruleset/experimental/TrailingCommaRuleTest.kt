@@ -198,7 +198,7 @@ class TrailingCommaRuleTest {
             listOf(
                 LintError(line = 1, col = 28, ruleId = "trailing-comma", detail = "Unnecessary trailing comma before \")\""),
                 LintError(line = 4, col = 8, ruleId = "trailing-comma", detail = "Unnecessary trailing comma before \")\""),
-                LintError(line = 8, col = 8, ruleId = "trailing-comma", detail = "Unnecessary trailing comma before \")\""),
+                LintError(line = 8, col = 8, ruleId = "trailing-comma", detail = "Unnecessary trailing comma before \")\"")
             )
         )
         assertThat(TrailingCommaRule().format(editorConfigFilePath, code))
@@ -273,7 +273,7 @@ class TrailingCommaRuleTest {
             listOf(
                 LintError(line = 1, col = 29, ruleId = "trailing-comma", detail = "Unnecessary trailing comma before \")\""),
                 LintError(line = 3, col = 16, ruleId = "trailing-comma", detail = "Unnecessary trailing comma before \")\""),
-                LintError(line = 6, col = 16, ruleId = "trailing-comma", detail = "Unnecessary trailing comma before \")\""),
+                LintError(line = 6, col = 16, ruleId = "trailing-comma", detail = "Unnecessary trailing comma before \")\"")
             )
         )
         assertThat(TrailingCommaRule().format(editorConfigFilePath, code))
@@ -387,7 +387,7 @@ class TrailingCommaRuleTest {
         assertThat(TrailingCommaRule().lint(editorConfigFilePath, code)).isEqualTo(
             listOf(
                 LintError(line = 4, col = 6, ruleId = "trailing-comma", detail = "Missing trailing comma before \">\""),
-                LintError(line = 8, col = 6, ruleId = "trailing-comma", detail = "Missing trailing comma before \">\""),
+                LintError(line = 8, col = 6, ruleId = "trailing-comma", detail = "Missing trailing comma before \">\"")
             )
         )
         assertThat(TrailingCommaRule().format(editorConfigFilePath, code))
@@ -427,7 +427,7 @@ class TrailingCommaRuleTest {
             listOf(
                 LintError(line = 2, col = 9, ruleId = "trailing-comma", detail = "Unnecessary trailing comma before \"->\""),
                 LintError(line = 3, col = 9, ruleId = "trailing-comma", detail = "Unnecessary trailing comma before \"->\""),
-                LintError(line = 6, col = 6, ruleId = "trailing-comma", detail = "Unnecessary trailing comma before \"->\""),
+                LintError(line = 6, col = 6, ruleId = "trailing-comma", detail = "Unnecessary trailing comma before \"->\"")
             )
         )
         assertThat(TrailingCommaRule().format(editorConfigFilePath, code))

@@ -63,7 +63,7 @@ public object KtLint {
         val cb: (e: LintError, corrected: Boolean) -> Unit,
         val script: Boolean = false,
         val editorConfigPath: String? = null,
-        val debug: Boolean = false,
+        val debug: Boolean = false
     )
 
     /**
@@ -97,7 +97,7 @@ public object KtLint {
         val editorConfigPath: String? = null,
         val debug: Boolean = false,
         val editorConfigOverride: EditorConfigOverridesMap = emptyMap(),
-        val isInvokedFromCli: Boolean = false,
+        val isInvokedFromCli: Boolean = false
     ) {
         internal val normalizedFilePath: Path? get() = if (fileName == STDIN_FILE || fileName == null) {
             null
