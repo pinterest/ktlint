@@ -82,7 +82,7 @@ public class EditorConfigLoader(
             else -> filePath
         }
 
-        if (debug) println("Resolving .editorconfig files for $normalizedFilePath file path")
+        if (debug) System.err.println("Resolving .editorconfig files for $normalizedFilePath file path")
 
         return propService
             .queryProperties(
@@ -107,7 +107,7 @@ public class EditorConfigLoader(
                         .joinToString(
                             separator = ", "
                         )
-                    println("Loaded .editorconfig: [$editorConfigValues]")
+                    System.err.println("Loaded .editorconfig: [$editorConfigValues]")
                 }
             }
     }

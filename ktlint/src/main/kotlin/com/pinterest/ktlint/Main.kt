@@ -590,7 +590,7 @@ class KtlintCommandLine {
         .also {
             if (debug) {
                 it.forEach { entry ->
-                    println("[DEBUG] Discovered reporter with \"${entry.key}\" id.")
+                    System.err.println("[DEBUG] Discovered reporter with \"${entry.key}\" id.")
                 }
             }
         }

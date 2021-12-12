@@ -14,7 +14,7 @@ class ApplyToIDEACommandHelper(
             val workDir = Paths.get(".")
 
             if (!forceApply && !getUserAcceptanceToUpdateFiles(workDir)) {
-                println("Update canceled.")
+                System.err.println("Update canceled.")
                 exitProcess(1)
             }
 
@@ -25,7 +25,7 @@ class ApplyToIDEACommandHelper(
                 applyToProject
             )
         } catch (e: IntellijIDEAIntegration.ProjectNotFoundException) {
-            println(".idea directory not found. Are you sure you are inside project root directory?")
+            System.err.println(".idea directory not found. Are you sure you are inside project root directory?")
             exitProcess(1)
         }
 

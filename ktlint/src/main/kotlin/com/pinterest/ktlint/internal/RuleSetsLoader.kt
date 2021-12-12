@@ -29,7 +29,7 @@ internal fun JarFiles.loadRulesets(
     .also { ruleSetMap ->
         if (debug) {
             ruleSetMap.forEach { entry ->
-                println("[DEBUG] Discovered ruleset with \"${entry.key}\" id.")
+                System.err.println("[DEBUG] Discovered ruleset with \"${entry.key}\" id.")
             }
         }
 

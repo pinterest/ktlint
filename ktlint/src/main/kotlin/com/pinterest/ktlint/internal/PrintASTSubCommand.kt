@@ -67,7 +67,7 @@ internal class PrintASTSubCommand : Runnable {
             } else {
                 "stdin"
             }
-            println("[DEBUG] Analyzing $fileLocation")
+            System.err.println("[DEBUG] Analyzing $fileLocation")
         }
 
         try {

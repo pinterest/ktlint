@@ -85,7 +85,7 @@ public class ImportOrderingRule :
                         "Import layout must contain at least one entry of a wildcard symbol (*)"
                     )
                     value == "idea" -> {
-                        println(
+                        System.err.println(
                             "[WARNING] `idea` is deprecated! Please use `*,java.**,javax.**,kotlin.**,^` instead" +
                                 " to ensure that the Kotlin IDE plugin recognizes the value"
                         )
@@ -95,7 +95,7 @@ public class ImportOrderingRule :
                         )
                     }
                     value == "ascii" -> {
-                        println(
+                        System.err.println(
                             "[WARNING] `ascii` is deprecated! Please use `*` instead" +
                                 " to ensure that the Kotlin IDE plugin recognizes the value"
                         )
@@ -232,7 +232,7 @@ public class ImportOrderingRule :
     private fun EditorConfigProperties.resolveImportsLayout(
         android: Boolean
     ): List<PatternEntry> = if (containsKey(KTLINT_CUSTOM_IMPORTS_LAYOUT_PROPERTY_NAME)) {
-        println(
+        System.err.println(
             "[WARNING] `kotlin_imports_layout` is deprecated! Please use `ij_kotlin_imports_layout` to ensure" +
                 " that the Kotlin IDE plugin and ktlint use same imports layout"
         )

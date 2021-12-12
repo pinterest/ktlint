@@ -272,11 +272,11 @@ fun ASTNode.lineIndent(): String {
 @Suppress("unused")
 fun ASTNode.logStructure(): ASTNode =
     also {
-        println("Processing ${text.replaceTabAndNewline()} : Type $elementType with parent ${treeParent?.elementType} ")
+        System.err.println("Processing ${text.replaceTabAndNewline()} : Type $elementType with parent ${treeParent?.elementType} ")
         children()
             .toList()
             .map {
-                println("  ${it.text.replaceTabAndNewline()} : Type ${it.elementType}")
+                System.err.println("  ${it.text.replaceTabAndNewline()} : Type ${it.elementType}")
             }
     }
 
