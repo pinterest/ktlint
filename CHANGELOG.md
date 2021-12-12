@@ -8,8 +8,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - Use Gradle JVM toolchain with language version 8 to compile the project
 
 ### Fixed
-- Fix false positive in rule spacing-between-declarations-with-annotations ([#1281] (https://github.com/pinterest/ktlint/issues/1281))
-- KtLint CLI 0.43 doesn't work with JDK 1.8 ([#1271](https://github.com/pinterest/ktlint/issues/1271))
+- Fix false positive in rule spacing-between-declarations-with-annotations ([#1281](https://github.com/pinterest/ktlint/issues/1281))
+- Fix NoSuchElementException for property accessor (`trailing-comma`) ([#1280](https://github.com/pinterest/ktlint/issues/1280))
+- Fix ClassCastException using ktlintFormat on class with KDoc (`no-trailing-spaces`) ([#1270](https://github.com/pinterest/ktlint/issues/1270)
 
 ### Changed
 - Update Kotlin version to `1.6.0` release
