@@ -20,7 +20,7 @@ ij_kotlin_imports_layout=*
 # ktlint code base itself.
 # For now, the experimental:argument-list-wrapping still needs to be disabled as it fails the build due to false
 # positives. See https://github.com/pinterest/ktlint/pull/1284
-disabled_rules=experimental:trailing-comma,experimental:spacing-between-declarations-with-annotations,experimental:argument-list-wrapping
+disabled_rules=experimental:trailing-comma,experimental:argument-list-wrapping
 
 [{Makefile,*.go}]
 indent_style = tab

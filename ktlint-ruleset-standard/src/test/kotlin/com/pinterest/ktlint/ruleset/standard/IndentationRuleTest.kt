@@ -636,6 +636,7 @@ internal class IndentationRuleTest {
                 )
             }
             """.trimIndent()
+
         @Suppress("RemoveCurlyBracesFromTemplate")
         val expectedCodeTabs =
             """
@@ -1318,6 +1319,7 @@ internal class IndentationRuleTest {
                 }
             }
             """.trimIndent()
+
         @Suppress("RemoveCurlyBracesFromTemplate")
         val codeTabs =
             """

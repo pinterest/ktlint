@@ -364,12 +364,6 @@ public object KtLint {
      * @throws ParseException if text is not a valid Kotlin code
      * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
      */
-    /**
-     * Fix style violations.
-     *
-     * @throws ParseException if text is not a valid Kotlin code
-     * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
-     */
     @FeatureInAlphaState
     public fun format(params: ExperimentalParams): String {
         val hasUTF8BOM = params.text.startsWith(UTF8_BOM)
