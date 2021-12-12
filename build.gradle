@@ -52,7 +52,7 @@ task ktlint_experimental(type: JavaExec, group: LifecycleBasePlugin.VERIFICATION
   description = "Check Kotlin code style with experimental rules."
   classpath = configurations.ktlint
   main = 'com.pinterest.ktlint.Main'
-  args '**/src/**/*.kt', '--verbose', '--experimental','-F'
+  args '**/src/**/*.kt', '--verbose', '--experimental'
 }
 
 /**
