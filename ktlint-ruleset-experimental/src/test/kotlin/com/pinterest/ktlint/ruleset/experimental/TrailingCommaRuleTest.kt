@@ -920,7 +920,8 @@ class TrailingCommaRuleTest {
             """.trimIndent()
 
         val editorConfigFilePath = writeEditorConfigFile(
-            ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE, ALLOW_TRAILING_COMMA_ON_CALL_SITE
+            ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE,
+            ALLOW_TRAILING_COMMA_ON_CALL_SITE
         ).absolutePath
 
         assertThat(TrailingCommaRule().lint(editorConfigFilePath, code)).isEmpty()
