@@ -125,7 +125,8 @@ class NoUnusedImportsRuleTest {
                  * [DRef] DRef2
                  * [O.method]
                  * [p.PDRef] p.PDRef2
-                 * [PDRef3](p.DRef3) p.PDRef4 PDRef5
+                 * [PDRef3](p.DRef3) p.PDRef4 PDRef5 Note that [PDRef3](p.DRef3) is not recognized as markdown link because of "](" and
+                 *    of such "p.DRef3" is marked as unused import
                  * [] text
                  */
                 fun main() {}
@@ -133,7 +134,6 @@ class NoUnusedImportsRuleTest {
             )
         ).isEqualTo(
             listOf(
-                LintError(4, 1, "no-unused-imports", "Unused import"),
                 LintError(5, 1, "no-unused-imports", "Unused import"),
                 LintError(6, 1, "no-unused-imports", "Unused import"),
                 LintError(7, 1, "no-unused-imports", "Unused import"),
@@ -411,7 +411,8 @@ class NoUnusedImportsRuleTest {
                 /**
                  * [DRef] DRef2
                  * [p.PDRef] p.PDRef2
-                 * [PDRef3](p.DRef3) p.PDRef4 PDRef5
+                 * [PDRef3](p.DRef3) p.PDRef4 PDRef5 Note that [PDRef3](p.DRef3) is not recognized as markdown link because of "](" and
+                 *    of such "p.DRef3" is marked as unused import
                  */
                 fun main() {}
                 """.trimIndent()
@@ -421,11 +422,13 @@ class NoUnusedImportsRuleTest {
             package kdoc
 
             import DRef
+            import p.PDRef
 
             /**
              * [DRef] DRef2
              * [p.PDRef] p.PDRef2
-             * [PDRef3](p.DRef3) p.PDRef4 PDRef5
+             * [PDRef3](p.DRef3) p.PDRef4 PDRef5 Note that [PDRef3](p.DRef3) is not recognized as markdown link because of "](" and
+             *    of such "p.DRef3" is marked as unused import
              */
             fun main() {}
             """.trimIndent()
@@ -859,5 +862,22 @@ class NoUnusedImportsRuleTest {
                 LintError(2, 1, "no-unused-imports", "Unnecessary import")
             )
         )
+    }
+
+    @Test
+    fun `Issue 1282 - do not remove import when used in kdoc only`() {
+        val rule = NoUnusedImportsRule()
+        assertThat(
+            rule.lint(
+                """
+                import some.pkg.returnSelf
+
+                /**
+                 * Do not forget that you can also return string via [String.returnSelf]
+                 */
+                fun test() {}
+                """.trimIndent()
+            )
+        ).isEmpty()
     }
 }
