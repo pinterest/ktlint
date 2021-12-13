@@ -1349,7 +1349,7 @@ internal class IndentationRuleTest {
             """
             class Issue1222 {
                 constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) :
-                    super(context, attrs, defStyleAttr, defStyleRes) {
+                        super(context, attrs, defStyleAttr, defStyleRes) {
                     init(attrs, defStyleAttr, defStyleRes)
                 }
             }
@@ -1358,14 +1358,14 @@ internal class IndentationRuleTest {
             """
             class Issue1222 {
                 constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) :
-                        super(context, attrs, defStyleAttr, defStyleRes) {
+                    super(context, attrs, defStyleAttr, defStyleRes) {
                     init(attrs, defStyleAttr, defStyleRes)
                 }
             }
             """.trimIndent()
         assertThat(IndentationRule().lint(code))
             .containsExactly(
-                LintError(3, 1, "indent", "Unexpected indentation (8) (should be 12)"),
+                LintError(3, 1, "indent", "Unexpected indentation (12) (should be 8)"),
             )
         assertThat(IndentationRule().format(code)).isEqualTo(formattedCode)
     }
@@ -1387,18 +1387,16 @@ internal class IndentationRuleTest {
             """
             class Issue1222 {
                 constructor(string1: String, string2: String2) :
-                        super(
-                            string1, string2
-                        ) {
+                    super(
+                        string1, string2
+                    ) {
                     // do something
                 }
             }
             """.trimIndent()
         assertThat(IndentationRule().lint(code))
             .containsExactly(
-                LintError(3, 1, "indent", "Unexpected indentation (8) (should be 12)"),
-                LintError(4, 1, "indent", "Unexpected indentation (8) (should be 16)"),
-                LintError(5, 1, "indent", "Unexpected indentation (8) (should be 12)"),
+                LintError(4, 1, "indent", "Unexpected indentation (8) (should be 12)"),
             )
         assertThat(IndentationRule().format(code)).isEqualTo(formattedCode)
     }

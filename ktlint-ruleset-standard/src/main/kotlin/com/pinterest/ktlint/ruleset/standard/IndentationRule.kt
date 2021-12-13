@@ -774,10 +774,10 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                 ctx.exitAdjBy(returnType!!, -1)
             }
             n.treeParent.isPartOf(SECONDARY_CONSTRUCTOR) -> {
-                expectedIndent += 2
+                expectedIndent++
                 debug { "++after(COLON IN CONSTRUCTOR) -> $expectedIndent" }
-                val returnType = n.nextCodeSibling()
-                ctx.exitAdjBy(returnType!!, -2)
+                val nextCodeSibling = n.nextCodeSibling()
+                ctx.exitAdjBy(nextCodeSibling!!, -1)
             }
             else -> {
                 expectedIndent++
