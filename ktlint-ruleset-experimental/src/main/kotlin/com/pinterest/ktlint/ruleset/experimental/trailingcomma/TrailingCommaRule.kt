@@ -129,10 +129,12 @@ public class TrailingCommaRule :
         autoCorrect: Boolean
     ) {
         if (node.treeParent.elementType != ElementType.FUNCTION_LITERAL) {
-            val inspectNode = node
+            node
                 .children()
-                .last { it.elementType == ElementType.RPAR }
-            node.reportAndCorrectTrailingCommaNodeBefore(inspectNode, emit, autoCorrect)
+                .lastOrNull { it.elementType == ElementType.RPAR }
+                ?.let {
+                    node.reportAndCorrectTrailingCommaNodeBefore(it, emit, autoCorrect)
+                }
         }
     }
 
