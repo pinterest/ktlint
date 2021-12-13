@@ -42,17 +42,12 @@ dependencies {
 }
 
 task ktlint(type: JavaExec, group: LifecycleBasePlugin.VERIFICATION_GROUP) {
-  description = "Check Kotlin code style."
+  description = "Check Kotlin code style including experimental rules."
   classpath = configurations.ktlint
   main = 'com.pinterest.ktlint.Main'
-  args '**/src/**/*.kt', '--baseline=ktlint-baseline.xml', '--verbose'
-}
-
-task ktlint_experimental(type: JavaExec, group: LifecycleBasePlugin.VERIFICATION_GROUP) {
-  description = "Check Kotlin code style with experimental rules."
-  classpath = configurations.ktlint
-  main = 'com.pinterest.ktlint.Main'
-  args '**/src/**/*.kt', '--verbose', '--experimental'
+  // Experimental rules run by default run on the ktlint code base itself. Experimental rules should not be released if
+  // we are not pleased ourselves with the results on the ktlint code base.
+  args '**/src/**/*.kt', '--baseline=ktlint/src/test/resources/ktlint-test-baseline.xml', '--experimental', '--verbose'
 }
 
 /**
