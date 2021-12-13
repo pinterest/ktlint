@@ -98,6 +98,7 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
                 if (type == KDocTokens.MARKDOWN_LINK && psi is KDocLink) {
                     val linkText = psi.getLinkText().removeBackticksAndWildcards()
                     ref.add(Reference(linkText.split('.').first(), false))
+                    ref.add(Reference(linkText.split('.').last(), false))
                 } else if ((type == REFERENCE_EXPRESSION || type == OPERATION_REFERENCE) &&
                     !vnode.isPartOf(IMPORT_DIRECTIVE)
                 ) {
