@@ -10,7 +10,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Fixed
 - Fix false positive in rule spacing-between-declarations-with-annotations ([#1281](https://github.com/pinterest/ktlint/issues/1281))
 - Fix NoSuchElementException for property accessor (`trailing-comma`) ([#1280](https://github.com/pinterest/ktlint/issues/1280))
-- Fix ClassCastException using ktlintFormat on class with KDoc (`no-trailing-spaces`) ([#1270](https://github.com/pinterest/ktlint/issues/1270)
+- Fix ClassCastException using ktlintFormat on class with KDoc (`no-trailing-spaces`) ([#1270](https://github.com/pinterest/ktlint/issues/1270))
+- Do not remove trailing comma in annotation ([#1297](https://github.com/pinterest/ktlint/issues/1297))
 
 ### Changed
 - Update Kotlin version to `1.6.0` release
