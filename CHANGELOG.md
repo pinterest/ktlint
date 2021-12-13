@@ -9,8 +9,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 - Fix false positive in rule spacing-between-declarations-with-annotations ([#1281](https://github.com/pinterest/ktlint/issues/1281))
-- KtLint CLI 0.43 doesn't work with JDK 1.8 ([#1271](https://github.com/pinterest/ktlint/issues/1271))
-- Do not remove import which is used as markdown link in KDoc only ([#1282](https://github.com/pinterest/ktlint/issues/1282))
+- Fix NoSuchElementException for property accessor (`trailing-comma`) ([#1280](https://github.com/pinterest/ktlint/issues/1280))
+- Fix ClassCastException using ktlintFormat on class with KDoc (`no-trailing-spaces`) ([#1270](https://github.com/pinterest/ktlint/issues/1270)
+- Do not remove import which is used as markdown link in KDoc only (`no-unused-imports`) ([#1282](https://github.com/pinterest/ktlint/issues/1282))
 
 ### Changed
 - Update Kotlin version to `1.6.0` release
