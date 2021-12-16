@@ -85,6 +85,7 @@
          </trusted-key>
          <trusted-key id="906e5e684729c006267ddd4b105de36038d8c6c5" group="org.codehaus.plexus" name="plexus-utils" version="3.0.24"/>
          <trusted-key id="98465301a4939c0279f2e847d89d05374952262b" group="org.jetbrains.dokka"/>
+         <trusted-key id="9d0a56aaa0d60e0c0c7dccc0b4c70893b62babe8" group="^org[.]apache[.]logging($|([.].*))" regex="true"/>
          <trusted-key id="9e84765a7aa3e3d3d5598a408e3f0de7ae354651" group="^com[.]squareup($|([.].*))" regex="true"/>
          <trusted-key id="a5bd02b93e7a40482eb1d66a5f69ad087600b22c" group="org.ow2.asm"/>
          <trusted-key id="a778fde933a96dda827840d8e2b3d84202b812d9" group="org.assertj"/>
