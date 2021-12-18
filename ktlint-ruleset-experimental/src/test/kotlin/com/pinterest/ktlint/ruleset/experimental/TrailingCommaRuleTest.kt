@@ -928,7 +928,7 @@ class TrailingCommaRuleTest {
                 LintError(line = 14, col = 6, ruleId = "trailing-comma", detail = "Missing trailing comma before \"]\""),
                 LintError(line = 21, col = 10, ruleId = "trailing-comma", detail = "Missing trailing comma before \"]\""),
                 LintError(line = 25, col = 10, ruleId = "trailing-comma", detail = "Missing trailing comma before \"]\""),
-                LintError(line = 26, col = 6, ruleId = "trailing-comma", detail = "Missing trailing comma before \")\""),
+                LintError(line = 26, col = 6, ruleId = "trailing-comma", detail = "Missing trailing comma before \")\"")
             )
         )
         assertThat(TrailingCommaRule().format(editorConfigFilePath, code))

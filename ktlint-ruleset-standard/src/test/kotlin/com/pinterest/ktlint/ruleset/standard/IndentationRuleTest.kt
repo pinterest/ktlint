@@ -1368,7 +1368,7 @@ internal class IndentationRuleTest {
             """.trimIndent()
         assertThat(IndentationRule().lint(code))
             .containsExactly(
-                LintError(3, 1, "indent", "Unexpected indentation (12) (should be 8)"),
+                LintError(3, 1, "indent", "Unexpected indentation (12) (should be 8)")
             )
         assertThat(IndentationRule().format(code)).isEqualTo(formattedCode)
     }
@@ -1399,7 +1399,7 @@ internal class IndentationRuleTest {
             """.trimIndent()
         assertThat(IndentationRule().lint(code))
             .containsExactly(
-                LintError(4, 1, "indent", "Unexpected indentation (8) (should be 12)"),
+                LintError(4, 1, "indent", "Unexpected indentation (8) (should be 12)")
             )
         assertThat(IndentationRule().format(code)).isEqualTo(formattedCode)
     }
