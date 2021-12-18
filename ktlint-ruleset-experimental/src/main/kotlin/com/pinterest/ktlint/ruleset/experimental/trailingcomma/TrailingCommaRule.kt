@@ -129,10 +129,12 @@ public class TrailingCommaRule :
         autoCorrect: Boolean
     ) {
         if (node.treeParent.elementType != ElementType.FUNCTION_LITERAL) {
-            val inspectNode = node
+            node
                 .children()
-                .last { it.elementType == ElementType.RPAR }
-            node.reportAndCorrectTrailingCommaNodeBefore(inspectNode, emit, autoCorrect)
+                .lastOrNull { it.elementType == ElementType.RPAR }
+                ?.let {
+                    node.reportAndCorrectTrailingCommaNodeBefore(it, emit, autoCorrect)
+                }
         }
     }
 
@@ -235,11 +237,11 @@ public class TrailingCommaRule :
         element is KtFunctionLiteral -> containsLineBreakInRange(element.valueParameterList!!, element.arrow!!)
         element is KtWhenEntry -> containsLineBreakInRange(element.firstChild, element.arrow!!)
         element is KtDestructuringDeclaration -> containsLineBreakInRange(element.lPar!!, element.rPar!!)
-        element is KtValueArgumentList && element.anyDescendantOfType<KtCollectionLiteralExpression>() -> {
+        element is KtValueArgumentList && element.children.size == 1 && element.anyDescendantOfType<KtCollectionLiteralExpression>() -> {
             // special handling for collection literal
             // @Annotation([
             //    "something",
-            // )]
+            // ])
             val lastChild = element.collectDescendantsOfType<KtCollectionLiteralExpression>().last()
             containsLineBreakInRange(element.rightParenthesis!!, lastChild.rightBracket!!)
         }

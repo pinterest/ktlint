@@ -7,16 +7,13 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        java: [ 8 ]
     steps:
       - uses: actions/checkout@v2
-      - name: Set up Java ${{ matrix.java }}
+      - name: Set up Java 8
         uses: actions/setup-java@v2
         with:
           distribution: 'zulu'
-          java-version: ${{ matrix.java }}
+          java-version: 8
       - name: Restore Gradle caches
         uses: actions/cache@v2
         with:
@@ -24,6 +21,7 @@ jobs:
             ~/.gradle/caches/modules-2
             ~/.gradle/caches/files-2.1
             ~/.gradle/caches/metadata-2.96
+            ~/.gradle/jdks
           key: ${{ runner.os }}-gradle-cache-${{ hashFiles('**/*.gradle.kts') }}-${{ hashFiles('**/*.gradle') }}-${{ hashFiles('**/gradle.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-cache-
