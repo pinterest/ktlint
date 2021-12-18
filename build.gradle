@@ -1,6 +1,7 @@
 plugins {
   id 'org.jetbrains.kotlin.jvm' apply false
   id 'com.github.breadmoirai.github-release'
+//  id 'nebula.lint' version '17.5.0'
 }
 
 ext.versions = [
