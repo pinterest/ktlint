@@ -30,7 +30,7 @@ dependencies {
 
   testImplementation project(':ktlint-core')
   testImplementation project(':ktlint-test')
-  testImplementation deps.assertj
+  testImplementation libs.assertj
   testImplementation('org.jetbrains.spek:spek-junit-platform-engine:1.1.5') {
     exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib'
     exclude group: 'org.jetbrains.kotlin', module: 'kotlin-reflect'

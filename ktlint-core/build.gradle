@@ -4,11 +4,11 @@ plugins {
 }
 
 dependencies {
-  api deps.kotlin.compiler
-  api deps.ec4j
+  api libs.kotlin.compiler
+  api libs.ec4j
 
-  testImplementation deps.junit
-  testImplementation deps.assertj
-  testImplementation deps.jimfs
+  testImplementation libs.junit
+  testImplementation libs.assertj
+  testImplementation libs.jimfs
   testImplementation project(":ktlint-ruleset-standard")
 }

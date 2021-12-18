@@ -7,6 +7,6 @@ dependencies {
   implementation project(':ktlint-core')
 
   testImplementation project(':ktlint-test')
-  testImplementation deps.junit
-  testImplementation deps.assertj
+  testImplementation libs.junit
+  testImplementation libs.assertj
 }

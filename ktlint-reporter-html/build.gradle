@@ -6,6 +6,6 @@ plugins {
 dependencies {
   implementation project(':ktlint-core')
 
-  testImplementation deps.junit
-  testImplementation deps.assertj
+  testImplementation libs.junit
+  testImplementation libs.assertj
 }
