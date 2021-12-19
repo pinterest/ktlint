@@ -139,17 +139,13 @@ class ArgumentListWrappingRule : Rule("argument-list-wrapping") {
                                     if (childIndent == intendedIndent) {
                                         continue@nextChild
                                     }
-                                    // Do not emit a warning about incorrect indentation. Final indentation is
-                                    // determined by the indent rule. Displaying, possibly conflicting warnings about
-                                    // the exact indenting position is really confusing for the user.
-                                } else {
-                                    emit(child.startOffset, errorMessage(child), true)
                                 }
+                                emit(child.startOffset, errorMessage(child), true)
                                 if (autoCorrect) {
-                                    // Although no warning is displayed about incorrect indentation, an attempt is
-                                    // made to fix it. Note that in autoCorrect mode the indent rule, if enabled, will
-                                    // run after this rule and might fix it to the final indentation. But if the rule
-                                    // is disabled then the indent is kept.
+                                    // The indentation is purely based on the previous leaf only. Note that in
+                                    // autoCorrect mode the indent rule, if enabled, runs after this rule and determines
+                                    // the final indentation. But if the indent rule is disabled then the indent of this
+                                    // rule is kept.
                                     val originalIndent = if (cut > -1) spacing.substring(0, cut) else ""
                                     val finalIndent = originalIndent + intendedIndent
                                     argumentInnerIndentAdjustment = finalIndent.length - prevLeaf.getTextLength()

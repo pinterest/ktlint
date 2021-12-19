@@ -112,12 +112,8 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
                                     if (childIndent == intendedIndent) {
                                         continue@nextChild
                                     }
-                                    // Do not emit a warning about incorrect indentation. Final indentation is
-                                    // determined by the indent rule. Displaying, possibly conflicting warnings about
-                                    // the exact indenting position is really confusing for the user.
-                                } else {
-                                    emit(child.startOffset, errorMessage(child), true)
                                 }
+                                emit(child.startOffset, errorMessage(child), true)
                                 if (autoCorrect) {
                                     // Although no warning is displayed about incorrect indentation, an attempt is
                                     // made to fix it. Note that in autoCorrect mode the indent rule, if enabled, will
