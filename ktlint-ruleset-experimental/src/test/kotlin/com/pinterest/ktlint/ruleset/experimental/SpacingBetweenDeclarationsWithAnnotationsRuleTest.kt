@@ -234,7 +234,7 @@ class SpacingBetweenDeclarationsWithAnnotationsRuleTest {
     }
 
     @Test
-    fun `missing space after comment with previous variable should do nothing`() {
+    fun `No blank line is required between comment and an annotated declaration`() {
         Assertions.assertThat(
             SpacingBetweenDeclarationsWithAnnotationsRule().lint(
                 """
@@ -245,6 +245,29 @@ class SpacingBetweenDeclarationsWithAnnotationsRuleTest {
                     // hello
                     @Foo
                     val b = 2
+                }
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `Issue 1281 - No blank line is required between comment and an annotated declaration when previous declaration end with a comment`() {
+        Assertions.assertThat(
+            SpacingBetweenDeclarationsWithAnnotationsRule().lint(
+                """
+                class KotlinPluginTest {
+                    // tag::setUp[]
+                    @BeforeEach
+                    fun setUp() {
+                    }
+                    // end::setUp[]
+
+                    // tag::testQuery[]
+                    @Test
+                        fun testFindById() {
+                    }
+                    // end::testQuery[]
                 }
                 """.trimIndent()
             )

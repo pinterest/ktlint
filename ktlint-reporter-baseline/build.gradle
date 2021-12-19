@@ -1,6 +1,6 @@
 plugins {
-  id 'org.jetbrains.kotlin.jvm'
   id 'ktlint-publication'
+  id 'ktlint-kotlin-common'
 }
 
 dependencies {
