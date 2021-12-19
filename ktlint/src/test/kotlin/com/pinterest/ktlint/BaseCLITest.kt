@@ -8,6 +8,7 @@ import java.nio.file.Paths
 import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
 import java.util.concurrent.TimeUnit
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.io.TempDir
 
 abstract class BaseCLITest {
@@ -16,13 +17,22 @@ abstract class BaseCLITest {
     @TempDir
     private lateinit var tempDir: Path
 
+    /**
+     * Run ktlint CLI in a separate process. All files in directory [testProjectName] are copied to a temporary
+     * directory. Paths in the [arguments] that refer to files in directory [testProjectName] need to be prefixed with
+     * the placeholder [BASE_DIR_PLACEHOLDER] to obtain a fully qualified path. During the test execution this
+     * placeholder is replaces with the actual directory name that is created for that unit test.
+     */
     fun runKtLintCliProcess(
         testProjectName: String,
         arguments: List<String> = emptyList(),
         executionAssertions: ExecutionResult.() -> Unit
     ) {
         val projectPath = prepareTestProject(testProjectName)
-        val ktlintCommand = "$ktlintCli ${arguments.joinToString()}"
+        val ktlintCommand =
+            arguments.joinToString(prefix = "$ktlintCli ", separator = " ") {
+                it.replace(BASE_DIR_PLACEHOLDER, tempDir.toString())
+            }
         // Forking in a new shell process, so 'ktlint' will pickup new 'PATH' env variable value
         val pb = ProcessBuilder("/bin/sh", "-c", ktlintCommand)
         pb.directory(projectPath.toAbsolutePath().toFile())
@@ -80,21 +90,29 @@ abstract class BaseCLITest {
         val testProject: Path
     ) {
         fun assertNormalExitCode() {
-            assert(exitCode == 0) {
-                "Execution was not finished normally: $exitCode"
-            }
+            assertThat(exitCode)
+                .withFailMessage(
+                    "Expected process to exit with exitCode 0, but was $exitCode."
+                        .followedByIndentedList(
+                            listOf(
+                                "RESULTS OF STDOUT:".followedByIndentedList(normalOutput, 2),
+                                "RESULTS OF STDERR:".followedByIndentedList(errorOutput, 2)
+                            )
+                        )
+                ).isEqualTo(0)
         }
 
         fun assertErrorExitCode() {
-            assert(exitCode == 1) {
-                "Execution was finished without error: $exitCode"
-            }
+            assertThat(exitCode)
+                .withFailMessage("Execution was expected to finish with error. However, exitCode is $exitCode")
+                .isNotEqualTo(0)
         }
 
         fun assertErrorOutputIsEmpty() {
-            assert(errorOutput.isEmpty()) {
-                "Error output contains following lines:\n${errorOutput.joinToString(separator = "\n")}"
-            }
+            assertThat(errorOutput.isEmpty())
+                .withFailMessage(
+                    "Expected error output to be empty but was:".followedByIndentedList(errorOutput)
+                ).isTrue
         }
 
         fun assertSourceFileWasFormatted(
@@ -112,5 +130,13 @@ abstract class BaseCLITest {
     companion object {
         private const val WAIT_TIME_SEC = 3L
         val testProjectsPath: Path = Paths.get("src", "test", "resources", "cli")
+        const val BASE_DIR_PLACEHOLDER = "__TEMP_DIR__"
     }
 }
+
+private fun String.followedByIndentedList(lines: List<String>, indentLevel: Int = 1): String =
+    lines
+        .ifEmpty { listOf("<empty>") }
+        .joinToString(prefix = "$this\n", separator = "\n") {
+            "    ".repeat(indentLevel).plus(it)
+        }
