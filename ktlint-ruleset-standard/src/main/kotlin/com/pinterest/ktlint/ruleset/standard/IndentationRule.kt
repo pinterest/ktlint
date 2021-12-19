@@ -47,6 +47,7 @@ import com.pinterest.ktlint.core.ast.ElementType.RBRACKET
 import com.pinterest.ktlint.core.ast.ElementType.REGULAR_STRING_PART
 import com.pinterest.ktlint.core.ast.ElementType.RPAR
 import com.pinterest.ktlint.core.ast.ElementType.SAFE_ACCESS_EXPRESSION
+import com.pinterest.ktlint.core.ast.ElementType.SECONDARY_CONSTRUCTOR
 import com.pinterest.ktlint.core.ast.ElementType.SHORT_STRING_TEMPLATE_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.STRING_TEMPLATE
 import com.pinterest.ktlint.core.ast.ElementType.SUPER_TYPE_CALL_ENTRY
@@ -777,13 +778,24 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
     }
 
     private fun adjustExpectedIndentAfterColon(n: ASTNode, ctx: IndentContext) {
-        expectedIndent++
-        debug { "++after(COLON) -> $expectedIndent" }
-        if (n.isPartOf(FUN)) {
-            val returnType = n.nextCodeSibling()
-            ctx.exitAdjBy(returnType!!, -1)
-        } else {
-            ctx.exitAdjBy(n.treeParent, -1)
+        when {
+            n.isPartOf(FUN) -> {
+                expectedIndent++
+                debug { "++after(COLON IN FUN) -> $expectedIndent" }
+                val returnType = n.nextCodeSibling()
+                ctx.exitAdjBy(returnType!!, -1)
+            }
+            n.treeParent.isPartOf(SECONDARY_CONSTRUCTOR) -> {
+                expectedIndent++
+                debug { "++after(COLON IN CONSTRUCTOR) -> $expectedIndent" }
+                val nextCodeSibling = n.nextCodeSibling()
+                ctx.exitAdjBy(nextCodeSibling!!, -1)
+            }
+            else -> {
+                expectedIndent++
+                debug { "++after(COLON) -> $expectedIndent" }
+                ctx.exitAdjBy(n.treeParent, -1)
+            }
         }
     }
 
