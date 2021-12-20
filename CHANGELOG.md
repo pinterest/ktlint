@@ -25,6 +25,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - Add separate tasks to run tests on JDK 11 - "testOnJdk11"
 - Update Dokka to `1.6.0` release
 - Update shadow plugin to `7.1.1` release
+- `parameter-list-wrapping` and `argument-list-wrapping` no longer warn about incorrect indentation. This is part of ongoing work to move all indentation correction into the `indent` rule.
 
 ### Removed
 
