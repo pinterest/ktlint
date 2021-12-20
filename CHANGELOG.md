@@ -18,6 +18,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - Fix false positive indentation (`parameter-list-wrapping`) ([#1267](https://github.com/pinterest/ktlint/issues/1267))
 - Fix false positive indentation (`parameter-list-wrapping`) ([#1119](https://github.com/pinterest/ktlint/issues/1119))
 - Fix false positive indentation (`argument-list-wrapping`) ([#1045](https://github.com/pinterest/ktlint/issues/1045))
+- Fix alignment of arrow when trailing comma is missing in when entry (`trailing-comma`) ([#1312](https://github.com/pinterest/ktlint/issues/1312))
 
 ### Changed
 - Update Kotlin version to `1.6.0` release
