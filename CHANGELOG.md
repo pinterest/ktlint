@@ -9,12 +9,14 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - Basic tests for CLI ([#540](https://github.com/pinterest/ktlint/issues/540))
 
 ### Fixed
+- Fix indentation of function literal ([#1247](https://github.com/pinterest/ktlint/issues/1247))
 - Fix false positive in rule spacing-between-declarations-with-annotations ([#1281](https://github.com/pinterest/ktlint/issues/1281))
 - Fix NoSuchElementException for property accessor (`trailing-comma`) ([#1280](https://github.com/pinterest/ktlint/issues/1280))
 - Fix ClassCastException using ktlintFormat on class with KDoc (`no-trailing-spaces`) ([#1270](https://github.com/pinterest/ktlint/issues/1270))
 - Do not remove trailing comma in annotation ([#1297](https://github.com/pinterest/ktlint/issues/1297))
 - Do not remove import which is used as markdown link in KDoc only (`no-unused-imports`) ([#1282](https://github.com/pinterest/ktlint/issues/1282))
 - Fix indentation of secondary constructor (`indent`) ([#1222](https://github.com/pinterest/ktlint/issues/1222))
+- Fix alignment of arrow when trailing comma is missing in when entry (`trailing-comma`) ([#1312](https://github.com/pinterest/ktlint/issues/1312))
 - Fix indent of delegated super type entry (`indent`) ([#1210](https://github.com/pinterest/ktlint/issues/1210))
 
 ### Changed

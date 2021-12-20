@@ -1003,6 +1003,45 @@ class TrailingCommaRuleTest {
             .isEqualTo(code)
     }
 
+    @Test
+    fun `Issue 1312 - multiple element in when clause and trailing comma required then force lambda arrow to next line`() {
+        val code =
+            """
+            fun foo(bar: Int): String = when(bar) {
+                1, 2 -> "a"
+                3,
+                4 -> "b"
+                5,
+                6-> "c"
+                else -> "d"
+            }
+            """.trimIndent()
+        val autoCorrectedCode =
+            """
+            fun foo(bar: Int): String = when(bar) {
+                1, 2 -> "a"
+                3,
+                4,
+                -> "b"
+                5,
+                6,
+                -> "c"
+                else -> "d"
+            }
+            """.trimIndent()
+
+        val editorConfigFilePath = writeEditorConfigFile(ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE).absolutePath
+
+        assertThat(TrailingCommaRule().lint(editorConfigFilePath, code)).isEqualTo(
+            listOf(
+                LintError(line = 4, col = 6, ruleId = "trailing-comma", detail = "Missing trailing comma and newline before \"->\""),
+                LintError(line = 6, col = 6, ruleId = "trailing-comma", detail = "Missing trailing comma and newline before \"->\"")
+            )
+        )
+        assertThat(TrailingCommaRule().format(editorConfigFilePath, code))
+            .isEqualTo(autoCorrectedCode)
+    }
+
     private fun writeEditorConfigFile(vararg editorConfigProperties: Pair<PropertyType<Boolean>, String>) = editorConfigTestRule
         .writeToEditorConfig(
             mapOf(*editorConfigProperties)
