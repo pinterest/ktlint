@@ -518,12 +518,16 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                         val pairedLeft = n.pairedLeft()
                         if (prevBlockLine != blockLine && !pairedLeft.isAfterLambdaArgumentOnSameLine()) {
                             expectedIndent--
+                            debug { "--on(${n.elementType}) -> $expectedIndent" }
+
                             val byKeywordOnSameLine = pairedLeft?.prevLeafOnSameLine(BY_KEYWORD)
                             if (byKeywordOnSameLine != null &&
                                 byKeywordOnSameLine.prevLeaf()?.isWhiteSpaceWithNewline() == true &&
                                 n.leavesOnSameLine(forward = true).all { it.isWhiteSpace() || it.isPartOfComment() }
-                            ) expectedIndent--
-                            debug { "--${n.text} -> $expectedIndent" }
+                            ) {
+                                expectedIndent--
+                                debug { "--on same line as by keyword ${n.text} -> $expectedIndent" }
+                            }
                         }
                     }
                     LT ->
@@ -641,6 +645,7 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                                 visitWhiteSpace(n, autoCorrect, emit, editorConfig)
                                 if (ctx.localAdj != 0) {
                                     expectedIndent += ctx.localAdj
+                                    debug { "++${ctx.localAdj} on whitespace containing new line (${n.elementType}) -> $expectedIndent" }
                                     ctx.localAdj = 0
                                 }
                             } else if (n.isPartOf(KDOC)) {
@@ -734,8 +739,15 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
     }
 
     private fun adjustExpectedIndentAfterSuperTypeList(n: ASTNode) {
-        expectedIndent--
-        debug { "--after(${n.elementType}) -> $expectedIndent" }
+        val byKeywordLeaf = n
+            .findChildByType(DELEGATED_SUPER_TYPE_ENTRY)
+            ?.findChildByType(BY_KEYWORD)
+        if (n.prevLeaf()?.textContains('\n') == true && byKeywordLeaf?.prevLeaf().isWhiteSpaceWithNewline()) {
+            Unit
+        } else {
+            expectedIndent--
+            debug { "--after(${n.elementType}) -> $expectedIndent" }
+        }
     }
 
     private fun adjustExpectedIndentInsideSuperTypeCall(n: ASTNode, ctx: IndentContext) {
@@ -997,13 +1009,17 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
             // instead of expected
             // val i: Int
             // by lazy { 1 }
-            nextLeafElementType == BY_KEYWORD ->
-                if (node.isPartOf(DELEGATED_SUPER_TYPE_ENTRY)) {
+            nextLeafElementType == BY_KEYWORD -> {
+                if (node.isPartOf(DELEGATED_SUPER_TYPE_ENTRY) &&
+                    node.treeParent.prevLeaf()?.textContains('\n') == true
+                ) {
                     0
                 } else {
                     expectedIndent++
+                    debug { "++whitespace followed by BY keyword -> $expectedIndent" }
                     1
                 }
+            }
             // IDEA quirk:
             // var value: DataClass =
             //     DataClass("too long line")
