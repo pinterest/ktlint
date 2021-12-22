@@ -955,10 +955,6 @@ internal class IndentationRuleTest {
     fun `lint and format delegation 2`() {
         val code =
             """
-            interface Foo
-
-            class Bar(a: Int, b: Int, c: Int) : Foo
-
             class Test2 : Foo
             by Bar(
                 a = 1,
@@ -966,28 +962,8 @@ internal class IndentationRuleTest {
                 c = 3
             )
             """.trimIndent()
-        val formattedCode =
-            """
-            interface Foo
-
-            class Bar(a: Int, b: Int, c: Int) : Foo
-
-            class Test2 : Foo
-                by Bar(
-                    a = 1,
-                    b = 2,
-                    c = 3
-                )
-            """.trimIndent()
-
-        assertThat(IndentationRule().lint(code)).containsExactly(
-            LintError(6, 1, "indent", "Unexpected indentation (0) (should be 4)"),
-            LintError(7, 1, "indent", "Unexpected indentation (4) (should be 8)"),
-            LintError(8, 1, "indent", "Unexpected indentation (4) (should be 8)"),
-            LintError(9, 1, "indent", "Unexpected indentation (4) (should be 8)"),
-            LintError(10, 1, "indent", "Unexpected indentation (0) (should be 4)"),
-        )
-        assertThat(IndentationRule().format(code)).isEqualTo(formattedCode)
+        assertThat(IndentationRule().format(code)).isEqualTo(code)
+        assertThat(IndentationRule().lint(code)).isEmpty()
     }
 
     @Test
@@ -1582,30 +1558,6 @@ internal class IndentationRuleTest {
             object ApplicationComponentFactory : ApplicationComponent.Factory
             by DaggerApplicationComponent.factory()
             """.trimIndent()
-        val formattedCode =
-            """
-            object ApplicationComponentFactory : ApplicationComponent.Factory
-                by DaggerApplicationComponent.factory()
-            """.trimIndent()
-        assertThat(IndentationRule().lint(code)).containsExactly(
-            LintError(2, 1, "indent", "Unexpected indentation (0) (should be 4)")
-        )
-        assertThat(IndentationRule().format(code)).isEqualTo(formattedCode)
-    }
-
-    @Test
-    fun `Issue 1210 - format of statements after supertype delegated entry 1`() {
-        val code =
-            """
-            object Issue1210 : ApplicationComponent.Factory
-                by DaggerApplicationComponent.factory()
-
-            // The next line ensures that the fix regarding the expectedIndex due to alignment of "by" keyword in
-            // class above, is still in place. Without this fix, the expectedIndex would hold a negative value,
-            // resulting in the formatting to crash on the next line.
-            val bar = 1
-            """.trimIndent()
-
         assertThat(IndentationRule().lint(code)).isEmpty()
         assertThat(IndentationRule().format(code)).isEqualTo(code)
     }

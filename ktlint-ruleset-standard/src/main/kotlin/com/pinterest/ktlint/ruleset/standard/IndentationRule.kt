@@ -26,6 +26,7 @@ import com.pinterest.ktlint.core.ast.ElementType.EQ
 import com.pinterest.ktlint.core.ast.ElementType.FUN
 import com.pinterest.ktlint.core.ast.ElementType.FUNCTION_LITERAL
 import com.pinterest.ktlint.core.ast.ElementType.GT
+import com.pinterest.ktlint.core.ast.ElementType.IDENTIFIER
 import com.pinterest.ktlint.core.ast.ElementType.KDOC
 import com.pinterest.ktlint.core.ast.ElementType.KDOC_END
 import com.pinterest.ktlint.core.ast.ElementType.KDOC_LEADING_ASTERISK
@@ -163,6 +164,11 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
         Companion.debug { "phase: indentation" }
         // step 2: correct indentation
         indent(node, autoCorrect, emit, editorConfig)
+
+        // The expectedIndent should never be negative. If so, it is very likely that ktlint crashes at runtime when
+        // autocorrecting is executed while no error occurs with linting only. Such errors often are not found in unit
+        // tests, as the examples are way more simple than realistic code.
+        assert(expectedIndent >= 0)
     }
 
     private fun rearrange(
@@ -742,7 +748,13 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
         val byKeywordLeaf = n
             .findChildByType(DELEGATED_SUPER_TYPE_ENTRY)
             ?.findChildByType(BY_KEYWORD)
-        if (n.prevLeaf()?.textContains('\n') == true && byKeywordLeaf?.prevLeaf().isWhiteSpaceWithNewline()) {
+        if (n.prevLeaf()?.textContains('\n') == true &&
+            byKeywordLeaf?.prevLeaf().isWhiteSpaceWithNewline()
+        ) {
+            Unit
+        } else if (byKeywordLeaf?.prevLeaf()?.textContains('\n') == true &&
+            byKeywordLeaf.prevLeaf()?.treeParent?.nextLeaf()?.elementType == IDENTIFIER
+        ) {
             Unit
         } else {
             expectedIndent--
@@ -1012,6 +1024,10 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
             nextLeafElementType == BY_KEYWORD -> {
                 if (node.isPartOf(DELEGATED_SUPER_TYPE_ENTRY) &&
                     node.treeParent.prevLeaf()?.textContains('\n') == true
+                ) {
+                    0
+                } else if (node.isPartOf(DELEGATED_SUPER_TYPE_ENTRY) &&
+                    node.treeParent.nextLeaf()?.elementType == IDENTIFIER
                 ) {
                     0
                 } else {
