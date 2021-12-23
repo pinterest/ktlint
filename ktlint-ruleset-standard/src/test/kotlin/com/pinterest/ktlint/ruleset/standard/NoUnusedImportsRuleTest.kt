@@ -878,7 +878,8 @@ class NoUnusedImportsRuleTest {
         assertThat(NoUnusedImportsRule().format(code)).isEqualTo(code)
     }
 
-  fun `Issue 1282 - do not remove import when used in kdoc only`() {
+    @Test
+    fun `Issue 1282 - do not remove import when used in kdoc only`() {
         val rule = NoUnusedImportsRule()
         assertThat(
             rule.lint(
