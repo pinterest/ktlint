@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Added
 - Use Gradle JVM toolchain with language version 8 to compile the project
 - Basic tests for CLI ([#540](https://github.com/pinterest/ktlint/issues/540))
+- Add experimental rule for unnecessary parentheses in function call followed by lambda ([#1068](https://github.com/pinterest/ktlint/issues/1068))
 
 ### Fixed
 - Fix indentation of function literal ([#1247](https://github.com/pinterest/ktlint/issues/1247))
