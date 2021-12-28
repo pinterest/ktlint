@@ -1,8 +1,12 @@
 package com.pinterest.ktlint.internal
 
+import com.pinterest.ktlint.core.initKtLintKLogger
 import java.io.File
 import java.io.IOException
 import kotlin.system.exitProcess
+import mu.KotlinLogging
+
+private val logger = KotlinLogging.logger {}.initKtLintKLogger()
 
 object GitHookInstaller {
     fun installGitHook(
@@ -12,7 +16,7 @@ object GitHookInstaller {
         val gitHooksDir = try {
             resolveGitHooksDir()
         } catch (e: IOException) {
-            System.err.println(e.message)
+            logger.error { e.message }
             exitProcess(1)
         }
 
@@ -25,7 +29,7 @@ object GitHookInstaller {
 
         gitHookFile.writeBytes(hookContent)
         gitHookFile.setExecutable(true)
-        println(".git/hooks/$gitHookName installed")
+        logger.info { ".git/hooks/$gitHookName installed" }
     }
 
     @Throws(IOException::class)
@@ -67,7 +71,7 @@ object GitHookInstaller {
             !actualHookContent.contentEquals(expectedHookContent)
         ) {
             val backupFile = hooksDir.resolve("$gitHookName.ktlint-backup.${actualHookContent.hex}")
-            println(".git/hooks/$gitHookName -> $backupFile")
+            logger.info { ".git/hooks/$gitHookName -> $backupFile" }
             hookFile.copyTo(backupFile, overwrite = true)
         }
     }

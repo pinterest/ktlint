@@ -4,10 +4,14 @@ import com.pinterest.ktlint.KtlintCommandLine
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.ParseException
 import com.pinterest.ktlint.core.RuleSet
+import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ruleset.test.DumpASTRule
 import java.io.File
 import java.nio.file.FileSystems
+import mu.KotlinLogging
 import picocli.CommandLine
+
+private val logger = KotlinLogging.logger {}.initKtLintKLogger()
 
 @CommandLine.Command(
     description = [
@@ -61,13 +65,12 @@ internal class PrintASTSubCommand : Runnable {
         fileName: String,
         fileContent: String
     ) {
-        if (ktlintCommand.debug) {
-            val fileLocation = if (fileName != KtLint.STDIN_FILE) {
+        logger.debug {
+            "Analyzing " + if (fileName != KtLint.STDIN_FILE) {
                 File(fileName).location(ktlintCommand.relative)
             } else {
                 "stdin"
             }
-            println("[DEBUG] Analyzing $fileLocation")
         }
 
         try {

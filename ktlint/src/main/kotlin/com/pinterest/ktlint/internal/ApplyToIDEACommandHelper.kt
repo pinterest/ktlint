@@ -1,8 +1,12 @@
 package com.pinterest.ktlint.internal
 
+import com.pinterest.ktlint.core.initKtLintKLogger
 import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.system.exitProcess
+import mu.KotlinLogging
+
+private val logger = KotlinLogging.logger {}.initKtLintKLogger()
 
 class ApplyToIDEACommandHelper(
     private val applyToProject: Boolean,
@@ -14,7 +18,7 @@ class ApplyToIDEACommandHelper(
             val workDir = Paths.get(".")
 
             if (!forceApply && !getUserAcceptanceToUpdateFiles(workDir)) {
-                println("Update canceled.")
+                logger.error { "Update canceled." }
                 exitProcess(1)
             }
 
@@ -25,17 +29,17 @@ class ApplyToIDEACommandHelper(
                 applyToProject
             )
         } catch (e: IntellijIDEAIntegration.ProjectNotFoundException) {
-            println(".idea directory not found. Are you sure you are inside project root directory?")
+            logger.error { ".idea directory not found. Are you sure you are inside project root directory?" }
             exitProcess(1)
         }
 
-        println(
+        logger.info {
             """
             |Updated.
             |Please restart your IDE.
             |If you experience any issues please report them at https://github.com/pinterest/ktlint/issues.
             """.trimMargin()
-        )
+        }
     }
 
     private fun getUserAcceptanceToUpdateFiles(workDir: Path): Boolean {
@@ -45,7 +49,7 @@ class ApplyToIDEACommandHelper(
             isAndroidCodeStyle,
             applyToProject
         )
-        println(
+        logger.info {
             """
             |The following files are going to be updated:
             |${fileList.joinToString(prefix = "\t", separator = "\n\t")}
@@ -53,7 +57,7 @@ class ApplyToIDEACommandHelper(
             |Do you wish to proceed? [y/n]
             |(in future, use -y flag if you wish to skip confirmation)
             """.trimMargin()
-        )
+        }
 
         val userInput = generateSequence { readLine() }
             .filter { it.trim().isNotBlank() }

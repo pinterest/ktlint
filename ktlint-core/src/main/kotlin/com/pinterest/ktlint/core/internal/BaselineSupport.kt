@@ -1,14 +1,18 @@
 package com.pinterest.ktlint.core.internal
 
 import com.pinterest.ktlint.core.LintError
+import com.pinterest.ktlint.core.initKtLintKLogger
 import java.io.File
 import java.io.IOException
 import java.io.InputStream
 import java.nio.file.Paths
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.parsers.ParserConfigurationException
+import mu.KotlinLogging
 import org.w3c.dom.Element
 import org.xml.sax.SAXException
+
+private val logger = KotlinLogging.logger {}.initKtLintKLogger()
 
 /**
  * Loads the baseline file if one is provided.
@@ -31,13 +35,13 @@ public fun loadBaseline(
             baselineRules = parseBaseline(baselineFile.inputStream())
             baselineGenerationNeeded = false
         } catch (e: IOException) {
-            System.err.println("Unable to parse baseline file: $baselineFilePath")
+            logger.error { "Unable to parse baseline file: $baselineFilePath" }
             baselineGenerationNeeded = true
         } catch (e: ParserConfigurationException) {
-            System.err.println("Unable to parse baseline file: $baselineFilePath")
+            logger.error { "Unable to parse baseline file: $baselineFilePath" }
             baselineGenerationNeeded = true
         } catch (e: SAXException) {
-            System.err.println("Unable to parse baseline file: $baselineFilePath")
+            logger.error { "Unable to parse baseline file: $baselineFilePath" }
             baselineGenerationNeeded = true
         }
     }

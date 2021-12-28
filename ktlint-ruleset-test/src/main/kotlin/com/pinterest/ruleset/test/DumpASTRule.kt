@@ -30,9 +30,10 @@ public class DumpASTRule @JvmOverloads constructor(
         emit: (offset: Int, errorMessage: String, corrected: Boolean) -> Unit
     ) {
         if (node.isRoot()) {
-            lineNumberColumnLength =
-                (node.lastChildLeafOrSelf().lineNumber() ?: 1)
-                    .let { var v = it; var c = 0; while (v > 0) { c++; v /= 10 }; c }
+            lineNumberColumnLength = node
+                .lastChildLeafOrSelf()
+                .lineNumberOrUnknown()
+                .length
             lastNode = node.lastChildLeafOrSelf()
         }
         var level = -1
@@ -44,11 +45,9 @@ public class DumpASTRule @JvmOverloads constructor(
 
         out.println(
             (
-                node.lineNumber()
-                    ?.let { String.format("%${lineNumberColumnLength}s: ", it).dim() }
-                    // should only happen when autoCorrect=true and other rules mutate AST
-                    // in a way that changes text length
-                    ?: String.format("%${lineNumberColumnLength}s: ", "?").dim()
+                node
+                    .lineNumberOrUnknown()
+                    .let { String.format("%${lineNumberColumnLength}s: ", it).dim() }
                 ) +
                 "  ".repeat(level).dim() +
                 colorClassName(node.psi.className) +
@@ -61,12 +60,29 @@ public class DumpASTRule @JvmOverloads constructor(
                 " ".repeat(lineNumberColumnLength) +
                     "  format: <line_number:> <node.psi::class> (<node.elementType>) \"<node.text>\"".dim()
             )
+            if (node.lineNumberOrUnknown() == "Unknown") {
+                out.println(
+                    " ".repeat(lineNumberColumnLength) +
+                        "          line_number 'Unknown' is caused by mutations in the AST during formatting".dim()
+                )
+            }
             out.println(
                 " ".repeat(lineNumberColumnLength) +
                     "  legend: ~ = org.jetbrains.kotlin, c.i.p = com.intellij.psi".dim()
             )
             out.println()
         }
+    }
+
+    private fun ASTNode.lineNumberOrUnknown(): String {
+        val lineNumber = try {
+            lineNumber().toString()
+        } catch (e: IndexOutOfBoundsException) {
+            // Due to autocorrect mutations in the AST it can happen that the node's offset becomes invalid. As a result
+            // the line number can not be determined.
+            null
+        }
+        return lineNumber ?: "Unknown"
     }
 
     private fun elementTypeClassName(elementType: IElementType): String {

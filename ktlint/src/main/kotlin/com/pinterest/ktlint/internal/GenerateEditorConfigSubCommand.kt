@@ -3,7 +3,11 @@ package com.pinterest.ktlint.internal
 import com.pinterest.ktlint.KtlintCommandLine
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
+import com.pinterest.ktlint.core.initKtLintKLogger
+import mu.KotlinLogging
 import picocli.CommandLine
+
+private val logger = KotlinLogging.logger {}.initKtLintKLogger()
 
 @CommandLine.Command(
     description = [
@@ -45,14 +49,11 @@ class GenerateEditorConfigSubCommand : Runnable {
         )
 
         if (generatedEditorConfig.isNotBlank()) {
-            println(
-                """
-                [*.{kt,kts}]
-                $generatedEditorConfig
-                """.trimIndent()
-            )
+            // Do not print to logging on purpose. Output below is intended to be copied to ".editofconfig". Users
+            // should not be confused with logging markers.
+            println("[*.{kt,kts}]\n$generatedEditorConfig")
         } else {
-            println("Nothing to add to .editorconfig file")
+            logger.info { "Nothing to add to .editorconfig file" }
         }
     }
 

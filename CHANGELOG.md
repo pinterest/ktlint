@@ -24,6 +24,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - Add separate tasks to run tests on JDK 11 - "testOnJdk11"
 - Update Dokka to `1.6.0` release
 - Update shadow plugin to `7.1.1` release
+- Add Kotlin-logging backed by logback as logging framework ([#589](https://github.com/pinterest/ktlint/issues/589))
 
 ### Removed
 
