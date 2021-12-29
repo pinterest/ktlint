@@ -65,6 +65,7 @@ by passing the `--experimental` flag to `ktlint`.
 - No spaces around unary operators (id: `experimental:unary-op-spacing`)
 - Declarations with annotations should be separated by a blank line (id: `experimental:spacing-between-declarations-with-annotations`)
 - Declarations with comments should be separated by a blank line (id: `experimental:spacing-between-declarations-with-comments`)
+- In a multiline function signature the return type should be placed on the same line as the closing parenthesis (id: `experimental:function-return-type-wrapping`)
 
 
 ## EditorConfig

@@ -20,6 +20,7 @@ public class ExperimentalRuleSetProvider : RuleSetProvider {
         SpacingBetweenDeclarationsWithAnnotationsRule(),
         SpacingAroundAngleBracketsRule(),
         SpacingAroundUnaryOperatorRule(),
-        AnnotationSpacingRule()
+        AnnotationSpacingRule(),
+        FunctionReturnTypeWrappingRule()
     )
 }
