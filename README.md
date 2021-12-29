@@ -408,6 +408,51 @@ ktlint --android applyToIDEA
 
 ##### Option #3
 
+To change the code style config with `.editorconfig`
+
+Add the following .editorconfig properties on project
+
+```ini
+[{*.kt,*.kts}]
+
+## `Set from...` on the right -> (`Predefined style`) -> `Kotlin style guide` (Kotlin plugin 1.2.20+).
+ij_kotlin_code_style_defaults = KOTLIN_OFFICIAL
+
+## open `Code Generation` tab
+# uncheck `Line comment at first column`;
+ij_kotlin_line_comment_at_first_column = false
+# select `Add a space at comment start`
+ij_kotlin_line_comment_add_space = true
+
+## open `Imports tab`
+# select `Use single name import` (all of them);
+ij_kotlin_name_count_to_use_star_import = 2147483647
+ij_kotlin_name_count_to_use_star_import_for_members = 2147483647
+
+## open `Wrapping and Braces` tab
+# change `Keep Maximum Blank Lines` / `In declarations` & `In code` to 1
+ij_kotlin_keep_blank_lines_in_declarations = 1
+ij_kotlin_keep_blank_lines_in_code = 1
+# and `Before '}'` to 0
+ij_kotlin_keep_blank_lines_before_right_brace = 0
+
+## (optional but recommended) open `Wrapping and Braces` tab
+# uncheck `Function declaration parameters` / `Align when multiline`.
+ij_kotlin_align_multiline_parameters = false
+
+## (optional but recommended) open `Tabs and Indents` tab
+# change `Continuation indent` to the same value as `Indent` (4 by default)
+ij_continuation_indent_size = 4
+
+## Android specific rules
+# Other: Insert imports for nested classes -> false
+ij_kotlin_import_nested_classes = false
+# Import Layout: import all other imports, then import all alias imports
+ij_kotlin_imports_layout = *,^
+```
+
+##### Option #4
+
 Go to <kbd>File</kbd> -> <kbd>Settings...</kbd> -> <kbd>Editor</kbd>
 - <kbd>General</kbd> -> <kbd>Auto Import</kbd>
   - check `Kotlin` / `Optimize imports on the fly (for current project)`.
