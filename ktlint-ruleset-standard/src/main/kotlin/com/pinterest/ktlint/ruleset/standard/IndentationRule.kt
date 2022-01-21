@@ -751,15 +751,15 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
         if (n.prevLeaf()?.textContains('\n') == true &&
             byKeywordLeaf?.prevLeaf().isWhiteSpaceWithNewline()
         ) {
-            Unit
-        } else if (byKeywordLeaf?.prevLeaf()?.textContains('\n') == true &&
+            return
+        } 
+        if (byKeywordLeaf?.prevLeaf()?.textContains('\n') == true &&
             byKeywordLeaf.prevLeaf()?.treeParent?.nextLeaf()?.elementType == IDENTIFIER
         ) {
-            Unit
-        } else {
-            expectedIndent--
-            debug { "--after(${n.elementType}) -> $expectedIndent" }
+            return
         }
+        expectedIndent--
+        debug { "--after(${n.elementType}) -> $expectedIndent" }
     }
 
     private fun adjustExpectedIndentInsideSuperTypeCall(n: ASTNode, ctx: IndentContext) {
