@@ -39,6 +39,7 @@ abstract class Rule(val id: String) {
          * (in other words, [visit] will be called on [FileASTNode] but not on [FileASTNode] children).
          */
         interface RestrictToRoot
+
         /**
          * Marker interface to indicate that rule must be executed after all other rules (order among multiple
          * [RestrictToRootLast] rules is not defined and should be assumed to be random).

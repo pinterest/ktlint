@@ -47,7 +47,7 @@ class EnumEntryNameCaseRuleTest {
                         5,
                         "enum-entry-name-case",
                         EnumEntryNameCaseRule.ERROR_MESSAGE
-                    ),
+                    )
                 )
             )
     }
