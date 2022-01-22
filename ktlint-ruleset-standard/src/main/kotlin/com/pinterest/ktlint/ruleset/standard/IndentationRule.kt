@@ -17,7 +17,6 @@ import com.pinterest.ktlint.core.ast.ElementType.COLON
 import com.pinterest.ktlint.core.ast.ElementType.COMMA
 import com.pinterest.ktlint.core.ast.ElementType.CONDITION
 import com.pinterest.ktlint.core.ast.ElementType.DELEGATED_SUPER_TYPE_ENTRY
-import com.pinterest.ktlint.core.ast.ElementType.DOT
 import com.pinterest.ktlint.core.ast.ElementType.DOT_QUALIFIED_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.ELSE
 import com.pinterest.ktlint.core.ast.ElementType.ELVIS
@@ -354,7 +353,7 @@ class IndentationRule : Rule(
         val treeParent = n.treeParent
         if (treeParent.elementType == STRING_TEMPLATE) {
             val treeParentPsi = treeParent.psi as KtStringTemplateExpression
-            if (treeParentPsi.isMultiLine() && treeParentPsi.isFollowedByTrimIndent() && n.treePrev.text.isNotBlank()) {
+            if (treeParentPsi.isMultiLine() && n.treePrev.text.isNotBlank()) {
                 // rewriting
                 // """
                 //     text
@@ -848,7 +847,7 @@ class IndentationRule : Rule(
         editorConfig: EditorConfig
     ) {
         val psi = node.psi as KtStringTemplateExpression
-        if (psi.isMultiLine() && psi.isFollowedByTrimIndent()) {
+        if (psi.isMultiLine()) {
             if (node.containsMixedIndentationCharacters()) {
                 // It can not be determined with certainty how mixed indentation characters should be interpreted.
                 // The trimIndent function handles tabs and spaces equally (one tabs equals one space) while the user
@@ -878,8 +877,15 @@ class IndentationRule : Rule(
                 .map { it.text.indentLength() }
                 .min() ?: 0
 
-            val expectedIndentation = editorConfig.repeatIndent(expectedIndent)
-            val expectedPrefixLength = expectedIndent * editorConfig.indentSize
+            val correctedExpectedIndent = if (node.prevLeaf()?.text == "\n") {
+                // In case the opening quotes are placed at the start of the line, then expect all lines inside the
+                // string literal and the closing quotes to have no indent as well.
+                0
+            } else {
+                expectedIndent
+            }
+            val expectedIndentation = editorConfig.repeatIndent(correctedExpectedIndent)
+            val expectedPrefixLength = correctedExpectedIndent * editorConfig.indentSize
             node.children()
                 .forEach {
                     if (it.prevLeaf()?.text == "\n" &&
@@ -946,10 +952,6 @@ class IndentationRule : Rule(
         }
         return false
     }
-
-    private fun KtStringTemplateExpression.isFollowedByTrimIndent() =
-        this.node.nextSibling { it.elementType != DOT }
-            .let { it?.elementType == CALL_EXPRESSION && it.text == "trimIndent()" }
 
     private fun String.indentLength() =
         indexOfFirst { !it.isWhitespace() }.let { if (it == -1) length else it }

@@ -44,17 +44,18 @@ class BaselineReporterTest {
         reporter.afterAll()
         assertThat(String(out.toByteArray())).isEqualTo(
             """
-<?xml version="1.0" encoding="utf-8"?>
-<baseline version="1.0">
-	<file name="one-fixed-and-one-not.kt">
-		<error line="1" column="1" source="rule-1" />
-	</file>
-	<file name="two-not-fixed.kt">
-		<error line="1" column="10" source="rule-1" />
-		<error line="2" column="20" source="rule-2" />
-	</file>
-</baseline>
-""".trimStart().replace("\n", System.lineSeparator())
+            <?xml version="1.0" encoding="utf-8"?>
+            <baseline version="1.0">
+                <file name="one-fixed-and-one-not.kt">
+                    <error line="1" column="1" source="rule-1" />
+                </file>
+                <file name="two-not-fixed.kt">
+                    <error line="1" column="10" source="rule-1" />
+                    <error line="2" column="20" source="rule-2" />
+                </file>
+            </baseline>
+
+            """.trimIndent().replace("\n", System.lineSeparator())
         )
     }
 }
