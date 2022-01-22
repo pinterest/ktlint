@@ -73,7 +73,7 @@ class BaselineTests {
         }
 
         val output = String(stream.toByteArray())
-        assertFalse(output.contains(".*:1:24: Unnecessary block".toRegex()))
+        assertFalse(output.contains(".*:1:34: Unnecessary block".toRegex()))
         assertTrue(output.contains(".*:2:1: Unexpected blank line\\(s\\) before \"}\"".toRegex()))
     }
 

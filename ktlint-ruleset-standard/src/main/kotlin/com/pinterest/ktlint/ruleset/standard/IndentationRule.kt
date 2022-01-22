@@ -17,7 +17,6 @@ import com.pinterest.ktlint.core.ast.ElementType.COLON
 import com.pinterest.ktlint.core.ast.ElementType.COMMA
 import com.pinterest.ktlint.core.ast.ElementType.CONDITION
 import com.pinterest.ktlint.core.ast.ElementType.DELEGATED_SUPER_TYPE_ENTRY
-import com.pinterest.ktlint.core.ast.ElementType.DOT
 import com.pinterest.ktlint.core.ast.ElementType.DOT_QUALIFIED_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.ELSE
 import com.pinterest.ktlint.core.ast.ElementType.ELVIS
@@ -76,6 +75,7 @@ import com.pinterest.ktlint.core.ast.nextLeaf
 import com.pinterest.ktlint.core.ast.nextSibling
 import com.pinterest.ktlint.core.ast.parent
 import com.pinterest.ktlint.core.ast.prevCodeLeaf
+import com.pinterest.ktlint.core.ast.prevCodeSibling
 import com.pinterest.ktlint.core.ast.prevLeaf
 import com.pinterest.ktlint.core.ast.prevSibling
 import com.pinterest.ktlint.core.ast.upsertWhitespaceAfterMe
@@ -102,7 +102,13 @@ import org.jetbrains.kotlin.psi.psiUtil.leaves
  * Current limitations:
  * - "all or nothing" (currently, rule can only be disabled for an entire file)
  */
-class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
+class IndentationRule : Rule(
+    id = "indent",
+    visitorModifiers = setOf(
+        VisitorModifier.RunOnRootNodeOnly,
+        VisitorModifier.RunAsLateAsPossible
+    )
+) {
 
     private companion object {
         // run `KTLINT_DEBUG=experimental/indent ktlint ...` to enable debug output
@@ -347,7 +353,7 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
         val treeParent = n.treeParent
         if (treeParent.elementType == STRING_TEMPLATE) {
             val treeParentPsi = treeParent.psi as KtStringTemplateExpression
-            if (treeParentPsi.isMultiLine() && treeParentPsi.isFollowedByTrimIndent() && n.treePrev.text.isNotBlank()) {
+            if (treeParentPsi.isMultiLine() && n.treePrev.text.isNotBlank()) {
                 // rewriting
                 // """
                 //     text
@@ -517,12 +523,16 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                         val pairedLeft = n.pairedLeft()
                         if (prevBlockLine != blockLine && !pairedLeft.isAfterLambdaArgumentOnSameLine()) {
                             expectedIndent--
+                            debug { "--on(${n.elementType}) -> $expectedIndent" }
+
                             val byKeywordOnSameLine = pairedLeft?.prevLeafOnSameLine(BY_KEYWORD)
                             if (byKeywordOnSameLine != null &&
                                 byKeywordOnSameLine.prevLeaf()?.isWhiteSpaceWithNewline() == true &&
                                 n.leavesOnSameLine(forward = true).all { it.isWhiteSpace() || it.isPartOfComment() }
-                            ) expectedIndent--
-                            debug { "--${n.text} -> $expectedIndent" }
+                            ) {
+                                expectedIndent--
+                                debug { "--on same line as by keyword ${n.text} -> $expectedIndent" }
+                            }
                         }
                     }
                     LT ->
@@ -569,6 +579,8 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                             ctx.ignored.add(n)
                         }
                     }
+                    FUNCTION_LITERAL ->
+                        adjustExpectedIndentInFunctionLiteral(n, ctx)
                     WHITE_SPACE ->
                         if (n.textContains('\n')) {
                             if (
@@ -638,6 +650,7 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                                 visitWhiteSpace(n, autoCorrect, emit, editorConfig)
                                 if (ctx.localAdj != 0) {
                                     expectedIndent += ctx.localAdj
+                                    debug { "++${ctx.localAdj} on whitespace containing new line (${n.elementType}) -> $expectedIndent" }
                                     ctx.localAdj = 0
                                 }
                             } else if (n.isPartOf(KDOC)) {
@@ -731,8 +744,15 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
     }
 
     private fun adjustExpectedIndentAfterSuperTypeList(n: ASTNode) {
-        expectedIndent--
-        debug { "--after(${n.elementType}) -> $expectedIndent" }
+        val byKeywordLeaf = n
+            .findChildByType(DELEGATED_SUPER_TYPE_ENTRY)
+            ?.findChildByType(BY_KEYWORD)
+        if (n.prevLeaf()?.textContains('\n') == true && byKeywordLeaf?.prevLeaf().isWhiteSpaceWithNewline()) {
+            Unit
+        } else {
+            expectedIndent--
+            debug { "--after(${n.elementType}) -> $expectedIndent" }
+        }
     }
 
     private fun adjustExpectedIndentInsideSuperTypeCall(n: ASTNode, ctx: IndentContext) {
@@ -793,6 +813,33 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
         ctx.exitAdjBy(n.treeParent, -1)
     }
 
+    private fun adjustExpectedIndentInFunctionLiteral(n: ASTNode, ctx: IndentContext) {
+        require(n.elementType == FUNCTION_LITERAL)
+
+        var countNonWhiteSpaceElementsBeforeArrow = 0
+        var arrowNode: ASTNode? = null
+        var hasWhiteSpaceWithNewLine = false
+        val iterator = n.children().iterator()
+        while (iterator.hasNext()) {
+            val child = iterator.next()
+            if (child.elementType == ARROW) {
+                arrowNode = child
+                break
+            }
+            if (child.elementType == WHITE_SPACE) {
+                hasWhiteSpaceWithNewLine = hasWhiteSpaceWithNewLine || child.text.contains("\n")
+            } else {
+                countNonWhiteSpaceElementsBeforeArrow++
+            }
+        }
+
+        if (arrowNode != null && hasWhiteSpaceWithNewLine) {
+            expectedIndent++
+            debug { "++after(FUNCTION_LITERAL) -> $expectedIndent" }
+            ctx.exitAdjBy(arrowNode.prevCodeSibling()!!, -1)
+        }
+    }
+
     private fun indentStringTemplate(
         node: ASTNode,
         autoCorrect: Boolean,
@@ -800,7 +847,7 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
         editorConfig: EditorConfig
     ) {
         val psi = node.psi as KtStringTemplateExpression
-        if (psi.isMultiLine() && psi.isFollowedByTrimIndent()) {
+        if (psi.isMultiLine()) {
             if (node.containsMixedIndentationCharacters()) {
                 // It can not be determined with certainty how mixed indentation characters should be interpreted.
                 // The trimIndent function handles tabs and spaces equally (one tabs equals one space) while the user
@@ -830,8 +877,15 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                 .map { it.text.indentLength() }
                 .min() ?: 0
 
-            val expectedIndentation = editorConfig.repeatIndent(expectedIndent)
-            val expectedPrefixLength = expectedIndent * editorConfig.indentSize
+            val correctedExpectedIndent = if (node.prevLeaf()?.text == "\n") {
+                // In case the opening quotes are placed at the start of the line, then expect all lines inside the
+                // string literal and the closing quotes to have no indent as well.
+                0
+            } else {
+                expectedIndent
+            }
+            val expectedIndentation = editorConfig.repeatIndent(correctedExpectedIndent)
+            val expectedPrefixLength = correctedExpectedIndent * editorConfig.indentSize
             node.children()
                 .forEach {
                     if (it.prevLeaf()?.text == "\n" &&
@@ -899,10 +953,6 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
         return false
     }
 
-    private fun KtStringTemplateExpression.isFollowedByTrimIndent() =
-        this.node.nextSibling { it.elementType != DOT }
-            .let { it?.elementType == CALL_EXPRESSION && it.text == "trimIndent()" }
-
     private fun String.indentLength() =
         indexOfFirst { !it.isWhitespace() }.let { if (it == -1) length else it }
 
@@ -967,13 +1017,17 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
             // instead of expected
             // val i: Int
             // by lazy { 1 }
-            nextLeafElementType == BY_KEYWORD ->
-                if (node.isPartOf(DELEGATED_SUPER_TYPE_ENTRY)) {
+            nextLeafElementType == BY_KEYWORD -> {
+                if (node.isPartOf(DELEGATED_SUPER_TYPE_ENTRY) &&
+                    node.treeParent.prevLeaf()?.textContains('\n') == true
+                ) {
                     0
                 } else {
                     expectedIndent++
+                    debug { "++whitespace followed by BY keyword -> $expectedIndent" }
                     1
                 }
+            }
             // IDEA quirk:
             // var value: DataClass =
             //     DataClass("too long line")

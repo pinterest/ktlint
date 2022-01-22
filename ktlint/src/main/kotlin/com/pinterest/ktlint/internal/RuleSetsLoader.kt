@@ -34,12 +34,10 @@ internal fun JarFiles.loadRulesets(
         // Remove duplicate rule set providers (each url loaded contains all rulesets provided by ktlint)
         .distinct()
         .associateBy {
-            val key = it.get().id
-            // standard should go first
-            if (key == "standard") "\u0000$key" else key
-        }
+             it.get().id }
+
         .filterKeys { loadExperimental || it != "experimental" }
-        .filterKeys { !(disabledRules.isStandardRuleSetDisabled() && it == "\u0000standard") }
+        .filterKeys { !(disabledRules.isStandardRuleSetDisabled() && it == "standard") }
         .toSortedMap()
 }
 

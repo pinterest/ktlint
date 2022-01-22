@@ -66,34 +66,34 @@ class ModifierOrderRuleTest {
         assertThat(
             ModifierOrderRule().format(
                 """
-            abstract @Deprecated open class A { // open is here for test purposes only, otherwise it's redundant
-                open protected val v = ""
-                open suspend internal fun f(v: Any): Any = ""
-                lateinit public var lv: String
-                tailrec abstract fun findFixPoint(x: Double = 1.0): Double
-            }
-
-            class B : A() {
-                override public val v = ""
-                suspend override fun f(v: Any): Any = ""
-                tailrec override fun findFixPoint(x: Double): Double
-                    = if (x == Math.cos(x)) x else findFixPoint(Math.cos(x))
-                override @Annotation fun getSomething() = ""
-                suspend @Annotation override public @Woohoo(data = "woohoo") fun doSomething() = ""
-                @A
-                @B(v = [
-                    "foo",
-                    "baz",
-                    "bar"
-                ])
-                @C
-                suspend public fun returnsSomething() = ""
-
-                companion object {
-                   const internal val V = ""
+                abstract @Deprecated open class A { // open is here for test purposes only, otherwise it's redundant
+                    open protected val v = ""
+                    open suspend internal fun f(v: Any): Any = ""
+                    lateinit public var lv: String
+                    tailrec abstract fun findFixPoint(x: Double = 1.0): Double
                 }
-            }
-            """
+
+                class B : A() {
+                    override public val v = ""
+                    suspend override fun f(v: Any): Any = ""
+                    tailrec override fun findFixPoint(x: Double): Double
+                        = if (x == Math.cos(x)) x else findFixPoint(Math.cos(x))
+                    override @Annotation fun getSomething() = ""
+                    suspend @Annotation override public @Woohoo(data = "woohoo") fun doSomething() = ""
+                    @A
+                    @B(v = [
+                        "foo",
+                        "baz",
+                        "bar"
+                    ])
+                    @C
+                    suspend public fun returnsSomething() = ""
+
+                    companion object {
+                       const internal val V = ""
+                    }
+                }
+                """.trimIndent()
             )
         ).isEqualTo(
             """
@@ -124,7 +124,7 @@ class ModifierOrderRuleTest {
                    internal const val V = ""
                 }
             }
-            """
+            """.trimIndent()
         )
     }
 }
