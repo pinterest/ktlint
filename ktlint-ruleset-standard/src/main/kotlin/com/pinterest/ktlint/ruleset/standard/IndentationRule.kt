@@ -103,7 +103,13 @@ import org.jetbrains.kotlin.psi.psiUtil.leaves
  * Current limitations:
  * - "all or nothing" (currently, rule can only be disabled for an entire file)
  */
-class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
+class IndentationRule : Rule(
+    id = "indent",
+    visitorModifiers = setOf(
+        VisitorModifier.RunOnRootNodeOnly,
+        VisitorModifier.RunAsLateAsPossible
+    )
+) {
 
     private companion object {
         // run `KTLINT_DEBUG=experimental/indent ktlint ...` to enable debug output

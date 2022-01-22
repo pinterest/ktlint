@@ -21,7 +21,12 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 /**
  * If there is only one top level class/object/typealias in a given file, then its name should match the file's name.
  */
-class FilenameRule : Rule("filename"), Rule.Modifier.RestrictToRoot {
+class FilenameRule : Rule(
+    id = "filename",
+    visitorModifiers = setOf(
+        VisitorModifier.RunOnRootNodeOnly
+    )
+) {
 
     private val ignoreSet = setOf(
         FILE_ANNOTATION_LIST,
