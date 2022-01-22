@@ -33,9 +33,7 @@ internal fun JarFiles.loadRulesets(
         }
         // Remove duplicate rule set providers (each url loaded contains all rulesets provided by ktlint)
         .distinct()
-        .associateBy {
-             it.get().id }
-
+        .associateBy { it.get().id }
         .filterKeys { loadExperimental || it != "experimental" }
         .filterKeys { !(disabledRules.isStandardRuleSetDisabled() && it == "standard") }
         .toSortedMap()
