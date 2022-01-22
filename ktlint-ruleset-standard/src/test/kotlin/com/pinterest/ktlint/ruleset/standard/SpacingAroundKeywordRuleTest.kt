@@ -137,18 +137,18 @@ class SpacingAroundKeywordRuleTest {
         assertThat(
             SpacingAroundKeywordRule().lint(
                 """
-        var setterVisibility: String = "abc"
-            private set
-        var setterWithAnnotation: Any? = null
-            @Inject set
-        var setterOnNextLine: String
-            private set
-            (value) { setterOnNextLine = value}
-            """
+                var setterVisibility: String = "abc"
+                    private set
+                var setterWithAnnotation: Any? = null
+                    @Inject set
+                var setterOnNextLine: String
+                    private set
+                    (value) { setterOnNextLine = value}
+                """.trimIndent()
             )
         ).isEqualTo(
             listOf(
-                LintError(7, 21, "keyword-spacing", "Unexpected spacing after \"set\"")
+                LintError(6, 13, "keyword-spacing", "Unexpected spacing after \"set\"")
             )
         )
     }

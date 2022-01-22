@@ -67,37 +67,39 @@ class JsonReporterTest {
         reporter.afterAll()
         assertThat(String(out.toByteArray())).isEqualTo(
             """
-[
-	{
-		"file": "/one-fixed-and-one-not.kt",
-		"errors": [
-			{
-				"line": 1,
-				"column": 1,
-				"message": "<\"&'>",
-				"rule": "rule-1"
-			}
-		]
-	},
-	{
-		"file": "/two-not-fixed.kt",
-		"errors": [
-			{
-				"line": 1,
-				"column": 10,
-				"message": "I thought I would again",
-				"rule": "rule-1"
-			},
-			{
-				"line": 2,
-				"column": 20,
-				"message": "A single thin straight line",
-				"rule": "rule-2"
-			}
-		]
-	}
-]
-""".trimStart().replace("\n", System.lineSeparator())
+            [
+                {
+                    "file": "/one-fixed-and-one-not.kt",
+                    "errors": [
+                        {
+                            "line": 1,
+                            "column": 1,
+                            "message": "<\"&'>",
+                            "rule": "rule-1"
+                        }
+                    ]
+                },
+                {
+                    "file": "/two-not-fixed.kt",
+                    "errors": [
+                        {
+                            "line": 1,
+                            "column": 10,
+                            "message": "I thought I would again",
+                            "rule": "rule-1"
+                        },
+                        {
+                            "line": 2,
+                            "column": 20,
+                            "message": "A single thin straight line",
+                            "rule": "rule-2"
+                        }
+                    ]
+                }
+            ]
+
+            """.trimIndent()
+                .replace("\n", System.lineSeparator())
         )
     }
 
@@ -109,20 +111,22 @@ class JsonReporterTest {
         reporter.afterAll()
         assertThat(String(out.toByteArray())).isEqualTo(
             """
-[
-	{
-		"file": "src\\main\\all\\corrected.kt",
-		"errors": [
-			{
-				"line": 4,
-				"column": 7,
-				"message": "\\n\n\r\t\"",
-				"rule": "rule-7"
-			}
-		]
-	}
-]
-""".trimStart().replace("\n", System.lineSeparator())
+            [
+                {
+                    "file": "src\\main\\all\\corrected.kt",
+                    "errors": [
+                        {
+                            "line": 4,
+                            "column": 7,
+                            "message": "\\n\n\r\t\"",
+                            "rule": "rule-7"
+                        }
+                    ]
+                }
+            ]
+
+            """.trimIndent()
+                .replace("\n", System.lineSeparator())
         )
     }
 }
