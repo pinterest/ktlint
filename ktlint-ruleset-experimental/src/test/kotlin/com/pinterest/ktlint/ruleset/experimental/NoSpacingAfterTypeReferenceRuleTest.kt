@@ -24,7 +24,7 @@ class NoSpacingAfterTypeReferenceRuleTest {
             FunctionTypeReferenceSpacingRule().lint(code)
         ).containsExactly(
             LintError(1, 11, "function-type-reference-spacing", "Unexpected whitespace"),
-            LintError(2, 11, "function-type-reference-spacing", "Unexpected whitespace"),
+            LintError(2, 11, "function-type-reference-spacing", "Unexpected whitespace")
         )
         Assertions.assertThat(
             FunctionTypeReferenceSpacingRule().format(code)
@@ -48,7 +48,7 @@ class NoSpacingAfterTypeReferenceRuleTest {
             FunctionTypeReferenceSpacingRule().lint(code)
         ).containsExactly(
             LintError(1, 11, "function-type-reference-spacing", "Unexpected whitespace"),
-            LintError(2, 11, "function-type-reference-spacing", "Unexpected whitespace"),
+            LintError(2, 11, "function-type-reference-spacing", "Unexpected whitespace")
         )
         Assertions.assertThat(
             FunctionTypeReferenceSpacingRule().format(code)
@@ -72,7 +72,7 @@ class NoSpacingAfterTypeReferenceRuleTest {
             FunctionTypeReferenceSpacingRule().lint(code)
         ).containsExactly(
             LintError(1, 12, "function-type-reference-spacing", "Unexpected whitespace"),
-            LintError(2, 12, "function-type-reference-spacing", "Unexpected whitespace"),
+            LintError(2, 12, "function-type-reference-spacing", "Unexpected whitespace")
         )
         Assertions.assertThat(
             FunctionTypeReferenceSpacingRule().format(code)
