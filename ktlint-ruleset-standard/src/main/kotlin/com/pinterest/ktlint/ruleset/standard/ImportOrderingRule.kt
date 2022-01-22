@@ -146,7 +146,7 @@ public class ImportOrderingRule :
 
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
         ktlintCustomImportsLayoutProperty,
-        ideaImportsLayoutProperty,
+        ideaImportsLayoutProperty
     )
 
     override fun visit(

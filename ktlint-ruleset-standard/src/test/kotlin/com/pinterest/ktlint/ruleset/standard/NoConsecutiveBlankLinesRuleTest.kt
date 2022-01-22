@@ -12,14 +12,16 @@ class NoConsecutiveBlankLinesRuleTest {
     fun testLintInDeclarations() {
         assertThat(
             NoConsecutiveBlankLinesRule().lint(
-                """fun a() {
+                """
+                fun a() {
 
-            }
+                }
 
 
-            fun b() {
+                fun b() {
 
-            }"""
+                }
+                """.trimIndent()
             )
         ).isEqualTo(
             listOf(
@@ -32,13 +34,15 @@ class NoConsecutiveBlankLinesRuleTest {
     fun testLintInCode() {
         assertThat(
             NoConsecutiveBlankLinesRule().lint(
-                """fun main() {
+                """
+                fun main() {
                 fun a()
                 fun b()
 
 
                 fun c()
-            }"""
+                }
+                """.trimIndent()
             )
         ).isEqualTo(
             listOf(
@@ -93,15 +97,15 @@ class NoConsecutiveBlankLinesRuleTest {
         assertThat(
             NoConsecutiveBlankLinesRule().format(
                 """
-            fun a() {
+                fun a() {
 
-            }
+                }
 
 
-            fun b() {
+                fun b() {
 
-            }
-            """
+                }
+                """.trimIndent()
             )
         ).isEqualTo(
             """
@@ -112,7 +116,7 @@ class NoConsecutiveBlankLinesRuleTest {
             fun b() {
 
             }
-            """
+            """.trimIndent()
         )
     }
 
@@ -121,15 +125,15 @@ class NoConsecutiveBlankLinesRuleTest {
         assertThat(
             NoConsecutiveBlankLinesRule().format(
                 """
-            fun main() {
-                fun a()
-                fun b()
+                fun main() {
+                    fun a()
+                    fun b()
 
 
-                fun c()
+                    fun c()
 
-            }
-            """
+                }
+                """.trimIndent()
             )
         ).isEqualTo(
             """
@@ -140,7 +144,7 @@ class NoConsecutiveBlankLinesRuleTest {
                 fun c()
 
             }
-            """
+            """.trimIndent()
         )
     }
 

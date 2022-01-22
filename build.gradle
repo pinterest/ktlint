@@ -46,10 +46,14 @@ dependencies {
 }
 
 task ktlint(type: JavaExec, group: LifecycleBasePlugin.VERIFICATION_GROUP) {
-  description = "Check Kotlin code style."
+  description = "Check Kotlin code style including experimental rules."
   classpath = configurations.ktlint
   main = 'com.pinterest.ktlint.Main'
-  args '**/src/**/*.kt', '!**/resources/cli/**', '--baseline=ktlint-baseline.xml', '--verbose'
+  // Experimental rules run by default run on the ktlint code base itself. Experimental rules should not be released if
+  // we are not pleased ourselves with the results on the ktlint code base.
+  // Sources in "ktlint/src/test/resources" are excluded as those source contain lint errors that have to be detected by
+  // unit tests and should not be reported/fixed.
+  args '**/src/**/*.kt', '!ktlint/src/test/resources/**', '--baseline=ktlint/src/test/resources/test-baseline.xml', '--experimental', '--verbose'
 }
 
 /**

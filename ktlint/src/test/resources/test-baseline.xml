@@ -5,6 +5,6 @@
         <error line="2" column="1" source="no-blank-line-before-rbrace" />
     </file>
     <file name="src/test/resources/TestBaselineExtraErrorFile.kt">
-        <error line="1" column="24" source="no-empty-class-body" />
+        <error line="1" column="34" source="no-empty-class-body" />
     </file>
 </baseline>

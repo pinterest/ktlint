@@ -70,10 +70,11 @@ class PlainReporterTest {
         )
         assertThat(String(out.toByteArray())).isEqualTo(
             """
-/one-fixed-and-one-not.kt:1:1: <"&'>
-/two-not-fixed.kt:1:10: I thought I would again
-/two-not-fixed.kt:2:20: A single thin straight line
-""".trimStart().replace("\n", System.lineSeparator())
+            /one-fixed-and-one-not.kt:1:1: <"&'>
+            /two-not-fixed.kt:1:10: I thought I would again
+            /two-not-fixed.kt:2:20: A single thin straight line
+
+            """.trimIndent().replace("\n", System.lineSeparator())
         )
     }
 
@@ -173,12 +174,13 @@ class PlainReporterTest {
         reporter.after("/all-corrected.kt")
         assertThat(String(out.toByteArray())).isEqualTo(
             """
-/one-fixed-and-one-not.kt
-  1:1 <"&'>
-/two-not-fixed.kt
-  1:10 I thought I would again
-  2:20 A single thin straight line
-""".trimStart().replace("\n", System.lineSeparator())
+            /one-fixed-and-one-not.kt
+              1:1 <"&'>
+            /two-not-fixed.kt
+              1:10 I thought I would again
+              2:20 A single thin straight line
+
+            """.trimIndent().replace("\n", System.lineSeparator())
         )
     }
 }
