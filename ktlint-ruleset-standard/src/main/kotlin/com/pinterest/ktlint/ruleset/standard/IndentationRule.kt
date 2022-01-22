@@ -757,7 +757,7 @@ class IndentationRule : Rule(
             byKeywordLeaf?.prevLeaf().isWhiteSpaceWithNewline()
         ) {
             return
-        } 
+        }
         if (byKeywordLeaf?.prevLeaf()?.textContains('\n') == true &&
             byKeywordLeaf.prevLeaf()?.treeParent?.nextLeaf()?.elementType == IDENTIFIER
         ) {
