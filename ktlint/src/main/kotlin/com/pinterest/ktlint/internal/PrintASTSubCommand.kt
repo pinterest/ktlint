@@ -48,7 +48,7 @@ internal class PrintASTSubCommand : Runnable {
 
         val visitorProvider = VisitorProvider(
             ruleSets = astRuleSet,
-            debug = ktlintCommand.debug,
+            debug = ktlintCommand.debug
         )
         if (stdin) {
             printAST(visitorProvider, KtLint.STDIN_FILE, String(System.`in`.readBytes()))

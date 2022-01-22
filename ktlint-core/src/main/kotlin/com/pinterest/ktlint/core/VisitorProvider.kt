@@ -69,7 +69,7 @@ public class VisitorProvider(
     private fun concurrentVisitor(
         enabledRules: Map<String, Rule>,
         ruleReferences: List<RuleReference>,
-        rootNode: ASTNode,
+        rootNode: ASTNode
     ): ((node: ASTNode, rule: Rule, fqRuleId: String) -> Unit) -> Unit {
         return { visit ->
             rootNode.visit { node ->
@@ -89,7 +89,7 @@ public class VisitorProvider(
     private fun sequentialVisitor(
         enabledRules: Map<String, Rule>,
         ruleReferences: List<RuleReference>,
-        rootNode: ASTNode,
+        rootNode: ASTNode
     ): ((node: ASTNode, rule: Rule, fqRuleId: String) -> Unit) -> Unit {
         return { visit ->
             ruleReferences

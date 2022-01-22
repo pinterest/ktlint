@@ -16,13 +16,13 @@ class VisitorProviderTest {
     @Test
     fun `A normal rule visits all nodes`() {
         val actual = testVisitorProvider(
-            NormalRule(NORMAL_RULE),
+            NormalRule(NORMAL_RULE)
         )
 
         assertThat(actual).containsExactly(
             Visit(NORMAL_RULE, FILE),
             Visit(NORMAL_RULE, PACKAGE_DIRECTIVE),
-            Visit(NORMAL_RULE, IMPORT_LIST),
+            Visit(NORMAL_RULE, IMPORT_LIST)
         )
     }
 
@@ -30,12 +30,12 @@ class VisitorProviderTest {
     fun `Multiple normal rules in the same rule set are run in alphabetical order`() {
         val actual = testVisitorProvider(
             NormalRule(RULE_B),
-            NormalRule(RULE_A),
+            NormalRule(RULE_A)
         ).filterFileNodes()
 
         assertThat(actual).containsExactly(
             Visit(RULE_A),
-            Visit(RULE_B),
+            Visit(RULE_B)
         )
     }
 
@@ -47,23 +47,23 @@ class VisitorProviderTest {
             RuleSet(
                 EXPERIMENTAL,
                 NormalRule(RULE_B),
-                NormalRule(RULE_A),
+                NormalRule(RULE_A)
             ),
             RuleSet(
                 customRuleSetA,
                 NormalRule(RULE_B),
-                NormalRule(RULE_A),
+                NormalRule(RULE_A)
             ),
             RuleSet(
                 STANDARD,
                 NormalRule(RULE_B),
-                NormalRule(RULE_A),
+                NormalRule(RULE_A)
             ),
             RuleSet(
                 customRuleSetB,
                 NormalRule(RULE_B),
-                NormalRule(RULE_A),
-            ),
+                NormalRule(RULE_A)
+            )
         ).filterFileNodes()
 
         assertThat(actual).containsExactly(
@@ -75,18 +75,18 @@ class VisitorProviderTest {
             Visit(customRuleSetA, RULE_A),
             Visit(customRuleSetB, RULE_A),
             Visit(customRuleSetA, RULE_B),
-            Visit(customRuleSetB, RULE_B),
+            Visit(customRuleSetB, RULE_B)
         )
     }
 
     @Test
     fun `A root only rule only visits the FILE node only`() {
         val actual = testVisitorProvider(
-            RootNodeOnlyRule(ROOT_NODE_ONLY_RULE),
+            RootNodeOnlyRule(ROOT_NODE_ONLY_RULE)
         )
 
         assertThat(actual).containsExactly(
-            Visit(ROOT_NODE_ONLY_RULE),
+            Visit(ROOT_NODE_ONLY_RULE)
         )
     }
 
@@ -94,12 +94,12 @@ class VisitorProviderTest {
     fun `Root only rule is run before non-root-only rule`() {
         val actual = testVisitorProvider(
             RootNodeOnlyRule(ROOT_NODE_ONLY_RULE),
-            NormalRule(NORMAL_RULE),
+            NormalRule(NORMAL_RULE)
         ).filterFileNodes()
 
         assertThat(actual).containsExactly(
             Visit(ROOT_NODE_ONLY_RULE),
-            Visit(NORMAL_RULE),
+            Visit(NORMAL_RULE)
         )
     }
 
@@ -111,23 +111,23 @@ class VisitorProviderTest {
             RuleSet(
                 EXPERIMENTAL,
                 RootNodeOnlyRule(RULE_B),
-                RootNodeOnlyRule(RULE_A),
+                RootNodeOnlyRule(RULE_A)
             ),
             RuleSet(
                 customRuleSetA,
                 RootNodeOnlyRule(RULE_B),
-                RootNodeOnlyRule(RULE_A),
+                RootNodeOnlyRule(RULE_A)
             ),
             RuleSet(
                 STANDARD,
                 RootNodeOnlyRule(RULE_B),
-                RootNodeOnlyRule(RULE_A),
+                RootNodeOnlyRule(RULE_A)
             ),
             RuleSet(
                 customRuleSetB,
                 RootNodeOnlyRule(RULE_B),
-                RootNodeOnlyRule(RULE_A),
-            ),
+                RootNodeOnlyRule(RULE_A)
+            )
         ).filterFileNodes()
 
         assertThat(actual).containsExactly(
@@ -139,20 +139,20 @@ class VisitorProviderTest {
             Visit(customRuleSetA, RULE_A),
             Visit(customRuleSetB, RULE_A),
             Visit(customRuleSetA, RULE_B),
-            Visit(customRuleSetB, RULE_B),
+            Visit(customRuleSetB, RULE_B)
         )
     }
 
     @Test
     fun `A run as late as possible rule visits all nodes`() {
         val actual = testVisitorProvider(
-            RunAsLateAsPossibleRule(RUN_AS_LATE_AS_POSSIBLE_RULE),
+            RunAsLateAsPossibleRule(RUN_AS_LATE_AS_POSSIBLE_RULE)
         )
 
         assertThat(actual).containsExactly(
             Visit(RUN_AS_LATE_AS_POSSIBLE_RULE, FILE),
             Visit(RUN_AS_LATE_AS_POSSIBLE_RULE, PACKAGE_DIRECTIVE),
-            Visit(RUN_AS_LATE_AS_POSSIBLE_RULE, IMPORT_LIST),
+            Visit(RUN_AS_LATE_AS_POSSIBLE_RULE, IMPORT_LIST)
         )
     }
 
@@ -161,13 +161,13 @@ class VisitorProviderTest {
         val actual = testVisitorProvider(
             NormalRule(RULE_C),
             RunAsLateAsPossibleRule(RULE_A),
-            NormalRule(RULE_B),
+            NormalRule(RULE_B)
         ).filterFileNodes()
 
         assertThat(actual).containsExactly(
             Visit(RULE_B),
             Visit(RULE_C),
-            Visit(RULE_A),
+            Visit(RULE_A)
         )
     }
 
@@ -179,23 +179,23 @@ class VisitorProviderTest {
             RuleSet(
                 EXPERIMENTAL,
                 RunAsLateAsPossibleRule(RULE_B),
-                RunAsLateAsPossibleRule(RULE_A),
+                RunAsLateAsPossibleRule(RULE_A)
             ),
             RuleSet(
                 customRuleSetA,
                 RunAsLateAsPossibleRule(RULE_B),
-                RunAsLateAsPossibleRule(RULE_A),
+                RunAsLateAsPossibleRule(RULE_A)
             ),
             RuleSet(
                 STANDARD,
                 RunAsLateAsPossibleRule(RULE_B),
-                RunAsLateAsPossibleRule(RULE_A),
+                RunAsLateAsPossibleRule(RULE_A)
             ),
             RuleSet(
                 customRuleSetB,
                 RunAsLateAsPossibleRule(RULE_B),
-                RunAsLateAsPossibleRule(RULE_A),
-            ),
+                RunAsLateAsPossibleRule(RULE_A)
+            )
         ).filterFileNodes()
 
         assertThat(actual).containsExactly(
@@ -207,18 +207,18 @@ class VisitorProviderTest {
             Visit(customRuleSetA, RULE_A),
             Visit(customRuleSetB, RULE_A),
             Visit(customRuleSetA, RULE_B),
-            Visit(customRuleSetB, RULE_B),
+            Visit(customRuleSetB, RULE_B)
         )
     }
 
     @Test
     fun `A run as late as possible on root node only rule visits the root node only`() {
         val actual = testVisitorProvider(
-            RunAsLateAsPossibleOnRootNodeOnlyRule(RUN_AS_LATE_AS_POSSIBLE_RULE),
+            RunAsLateAsPossibleOnRootNodeOnlyRule(RUN_AS_LATE_AS_POSSIBLE_RULE)
         )
 
         assertThat(actual).containsExactly(
-            Visit(RUN_AS_LATE_AS_POSSIBLE_RULE, FILE),
+            Visit(RUN_AS_LATE_AS_POSSIBLE_RULE, FILE)
         )
     }
 
@@ -227,13 +227,13 @@ class VisitorProviderTest {
         val actual = testVisitorProvider(
             NormalRule(RULE_C),
             RunAsLateAsPossibleOnRootNodeOnlyRule(RULE_A),
-            NormalRule(RULE_B),
+            NormalRule(RULE_B)
         ).filterFileNodes()
 
         assertThat(actual).containsExactly(
             Visit(RULE_B),
             Visit(RULE_C),
-            Visit(RULE_A),
+            Visit(RULE_A)
         )
     }
 
@@ -245,23 +245,23 @@ class VisitorProviderTest {
             RuleSet(
                 EXPERIMENTAL,
                 RunAsLateAsPossibleOnRootNodeOnlyRule(RULE_B),
-                RunAsLateAsPossibleOnRootNodeOnlyRule(RULE_A),
+                RunAsLateAsPossibleOnRootNodeOnlyRule(RULE_A)
             ),
             RuleSet(
                 customRuleSetA,
                 RunAsLateAsPossibleOnRootNodeOnlyRule(RULE_B),
-                RunAsLateAsPossibleOnRootNodeOnlyRule(RULE_A),
+                RunAsLateAsPossibleOnRootNodeOnlyRule(RULE_A)
             ),
             RuleSet(
                 STANDARD,
                 RunAsLateAsPossibleOnRootNodeOnlyRule(RULE_B),
-                RunAsLateAsPossibleOnRootNodeOnlyRule(RULE_A),
+                RunAsLateAsPossibleOnRootNodeOnlyRule(RULE_A)
             ),
             RuleSet(
                 customRuleSetB,
                 RunAsLateAsPossibleOnRootNodeOnlyRule(RULE_B),
-                RunAsLateAsPossibleOnRootNodeOnlyRule(RULE_A),
-            ),
+                RunAsLateAsPossibleOnRootNodeOnlyRule(RULE_A)
+            )
         ).filterFileNodes()
 
         assertThat(actual).containsExactly(
@@ -273,7 +273,7 @@ class VisitorProviderTest {
             Visit(customRuleSetA, RULE_A),
             Visit(customRuleSetB, RULE_A),
             Visit(customRuleSetA, RULE_B),
-            Visit(customRuleSetB, RULE_B),
+            Visit(customRuleSetB, RULE_B)
         )
     }
 
@@ -286,7 +286,7 @@ class VisitorProviderTest {
                     object : R(
                         id = RULE_A,
                         visitorModifier = VisitorModifier.RunAfterRule("$CUSTOM_RULE_SET_A:$RULE_A")
-                    ) {},
+                    ) {}
                 )
             )
         }.withMessage(
@@ -311,7 +311,7 @@ class VisitorProviderTest {
             object : R(
                 id = RULE_C,
                 visitorModifier = VisitorModifier.RunAfterRule("$RULE_B")
-            ) {},
+            ) {}
         ).filterFileNodes()
 
         assertThat(actual).containsExactly(
@@ -320,7 +320,7 @@ class VisitorProviderTest {
             Visit(RULE_A),
             // Although RULE_D like RULE_C depends on RULE_B it still comes after RULE_A because that rules according to
             // the default sort order comes before rule D
-            Visit(RULE_D),
+            Visit(RULE_D)
         )
     }
 
@@ -345,14 +345,14 @@ class VisitorProviderTest {
                     id = RULE_A,
                     visitorModifier = VisitorModifier.RunAfterRule("$RULE_C")
                 ) {}
-            ),
+            )
         ).filterFileNodes()
 
         assertThat(actual).containsExactly(
             Visit(RULE_B),
             Visit(RULE_C),
             Visit(RULE_D),
-            Visit(EXPERIMENTAL, RULE_A),
+            Visit(EXPERIMENTAL, RULE_A)
         )
     }
 
@@ -379,11 +379,11 @@ class VisitorProviderTest {
                 id = RULE_A,
                 visitorModifier = VisitorModifier.RunAfterRule("not-loaded-rule")
             ) {},
-            isUnitTestContext = true,
+            isUnitTestContext = true
         ).filterFileNodes()
 
         assertThat(actual).containsExactly(
-            Visit(RULE_A),
+            Visit(RULE_A)
         )
     }
 
@@ -394,11 +394,11 @@ class VisitorProviderTest {
                 id = RULE_A,
                 visitorModifier = VisitorModifier.RunAfterRule("not-loaded-rule")
             ) {},
-            isUnitTestContext = false,
+            isUnitTestContext = false
         ).filterFileNodes()
 
         assertThat(actual).containsExactly(
-            Visit(RULE_A),
+            Visit(RULE_A)
         )
     }
 
@@ -415,15 +415,15 @@ class VisitorProviderTest {
                     object : R(
                         id = RULE_B,
                         visitorModifier = VisitorModifier.RunAfterRule("$EXPERIMENTAL:$RULE_C")
-                    ) {},
+                    ) {}
                 ),
                 RuleSet(
                     EXPERIMENTAL,
                     object : R(
                         id = RULE_C,
                         visitorModifier = VisitorModifier.RunAfterRule(RULE_A)
-                    ) {},
-                ),
+                    ) {}
+                )
             )
         }.withMessage(
             """
@@ -444,22 +444,22 @@ class VisitorProviderTest {
                     object : R(
                         id = RULE_C,
                         visitorModifier = VisitorModifier.RunAfterRule("$CUSTOM_RULE_SET_B:$RULE_B")
-                    ) {},
+                    ) {}
                 ),
                 RuleSet(
                     CUSTOM_RULE_SET_B,
                     object : R(
                         id = RULE_B,
                         visitorModifier = VisitorModifier.RunAfterRule("$CUSTOM_RULE_SET_A:$RULE_A")
-                    ) {},
+                    ) {}
                 ),
                 RuleSet(
                     CUSTOM_RULE_SET_A,
                     object : R(
                         id = RULE_A,
                         visitorModifier = VisitorModifier.RunAfterRule("$STANDARD:$RULE_C")
-                    ) {},
-                ),
+                    ) {}
+                )
             )
         }.withMessage(
             """
@@ -477,24 +477,24 @@ class VisitorProviderTest {
             RuleSet(
                 STANDARD,
                 NormalRule(RULE_A),
-                NormalRule(SOME_DISABLED_RULE_IN_STANDARD_RULE_SET),
+                NormalRule(SOME_DISABLED_RULE_IN_STANDARD_RULE_SET)
             ),
             RuleSet(
                 EXPERIMENTAL,
                 NormalRule(RULE_B),
-                NormalRule(SOME_DISABLED_RULE_IN_EXPERIMENTAL_RULE_SET),
+                NormalRule(SOME_DISABLED_RULE_IN_EXPERIMENTAL_RULE_SET)
             ),
             RuleSet(
                 CUSTOM_RULE_SET_A,
                 NormalRule(RULE_C),
-                NormalRule(SOME_DISABLED_RULE_IN_CUSTOM_RULE_SET_A),
-            ),
+                NormalRule(SOME_DISABLED_RULE_IN_CUSTOM_RULE_SET_A)
+            )
         ).filterFileNodes()
 
         assertThat(actual).containsExactly(
             Visit(RULE_A),
             Visit(EXPERIMENTAL, RULE_B),
-            Visit(CUSTOM_RULE_SET_A, RULE_C),
+            Visit(CUSTOM_RULE_SET_A, RULE_C)
         )
     }
 
@@ -503,8 +503,8 @@ class VisitorProviderTest {
         val actual = testVisitorProvider(
             RuleSet(
                 STANDARD,
-                NormalRule(SOME_DISABLED_RULE_IN_STANDARD_RULE_SET),
-            ),
+                NormalRule(SOME_DISABLED_RULE_IN_STANDARD_RULE_SET)
+            )
         )
 
         assertThat(actual).isNull()
@@ -518,9 +518,9 @@ class VisitorProviderTest {
                 id = RULE_A,
                 visitorModifier = VisitorModifier.RunAfterRule(
                     ruleId = SOME_DISABLED_RULE_IN_STANDARD_RULE_SET,
-                    runOnlyWhenOtherRuleIsEnabled = true,
+                    runOnlyWhenOtherRuleIsEnabled = true
                 )
-            ) {},
+            ) {}
         )
 
         assertThat(actual).isNull()
@@ -540,7 +540,7 @@ class VisitorProviderTest {
             Visit(RULE_A, PACKAGE_DIRECTIVE),
             Visit(RULE_B, PACKAGE_DIRECTIVE),
             Visit(RULE_A, IMPORT_LIST),
-            Visit(RULE_B, IMPORT_LIST),
+            Visit(RULE_B, IMPORT_LIST)
         )
     }
 
@@ -651,23 +651,23 @@ class VisitorProviderTest {
     class RootNodeOnlyRule(id: String) : R(
         id = id,
         visitorModifiers = setOf(
-            VisitorModifier.RunOnRootNodeOnly,
-        ),
+            VisitorModifier.RunOnRootNodeOnly
+        )
     )
 
     class RunAsLateAsPossibleRule(id: String) : R(
         id = id,
         visitorModifiers = setOf(
-            VisitorModifier.RunAsLateAsPossible,
-        ),
+            VisitorModifier.RunAsLateAsPossible
+        )
     )
 
     class RunAsLateAsPossibleOnRootNodeOnlyRule(id: String) : R(
         id = id,
         visitorModifiers = setOf(
             VisitorModifier.RunOnRootNodeOnly,
-            VisitorModifier.RunAsLateAsPossible,
-        ),
+            VisitorModifier.RunAsLateAsPossible
+        )
     )
 
     open class R(
@@ -689,7 +689,7 @@ class VisitorProviderTest {
 
     private data class Visit(
         val shortenedQualifiedRuleId: String,
-        val elementType: IElementType = FILE,
+        val elementType: IElementType = FILE
     ) {
         constructor(
             ruleSetId: String,
