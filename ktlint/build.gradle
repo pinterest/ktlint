@@ -35,8 +35,12 @@ dependencies {
   implementation deps.picocli
 
   testImplementation deps.junit
+  testImplementation deps.junit5Api
   testImplementation deps.assertj
   testImplementation deps.jimfs
+
+  testRuntimeOnly deps.junit5Jupiter
+  testRuntimeOnly deps.junit5Vintage
 }
 
 // Implements https://github.com/brianm/really-executable-jars-maven-plugin maven plugin behaviour.
@@ -74,4 +78,20 @@ tasks.register("shadowJarExecutableChecksum", Checksum.class) {
   outputDir = shadowJarExecutableTask.get().outputs.files.getFiles().first().parentFile
 
   algorithm = Checksum.Algorithm.MD5
+}
+
+tasks.withType(Test).configureEach {
+  it.dependsOn(shadowJarExecutableTask)
+  it.useJUnitPlatform()
+
+  doFirst {
+    it.systemProperty(
+      "ktlint-cli",
+      shadowJarExecutableTask.get().outputs.files.find { it.name == "ktlint" }.absolutePath
+    )
+    it.systemProperty(
+      "ktlint-version",
+      version
+    )
+  }
 }

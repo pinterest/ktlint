@@ -15,6 +15,7 @@ import org.ec4j.core.model.PropertyType
 import org.ec4j.core.model.PropertyType.PropertyValueParser
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
+import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 import org.jetbrains.kotlin.psi.KtCollectionLiteralExpression
 import org.jetbrains.kotlin.psi.KtDestructuringDeclaration
@@ -25,13 +26,22 @@ import org.jetbrains.kotlin.psi.KtWhenEntry
 import org.jetbrains.kotlin.psi.KtWhenExpression
 import org.jetbrains.kotlin.psi.psiUtil.anyDescendantOfType
 import org.jetbrains.kotlin.psi.psiUtil.collectDescendantsOfType
+import org.jetbrains.kotlin.psi.psiUtil.prevLeaf
 import org.jetbrains.kotlin.utils.addToStdlib.cast
 
 @OptIn(FeatureInAlphaState::class)
 public class TrailingCommaRule :
-    Rule("trailing-comma"),
-    // runs last to ensure that the linebreaks are already inserted by the indent and other rules
-    Rule.Modifier.Last,
+    Rule(
+        id = "trailing-comma",
+        visitorModifiers = setOf(
+            VisitorModifier.RunAfterRule(
+                ruleId = "standard:indent",
+                loadOnlyWhenOtherRuleIsLoaded = true,
+                runOnlyWhenOtherRuleIsEnabled = true
+            ),
+            VisitorModifier.RunAsLateAsPossible
+        )
+    ),
     UsesEditorConfigProperties {
 
     private var allowTrailingComma by Delegates.notNull<Boolean>()
@@ -129,10 +139,12 @@ public class TrailingCommaRule :
         autoCorrect: Boolean
     ) {
         if (node.treeParent.elementType != ElementType.FUNCTION_LITERAL) {
-            val inspectNode = node
+            node
                 .children()
-                .last { it.elementType == ElementType.RPAR }
-            node.reportAndCorrectTrailingCommaNodeBefore(inspectNode, emit, autoCorrect)
+                .lastOrNull { it.elementType == ElementType.RPAR }
+                ?.let {
+                    node.reportAndCorrectTrailingCommaNodeBefore(it, emit, autoCorrect)
+                }
         }
     }
 
@@ -193,13 +205,33 @@ public class TrailingCommaRule :
                 }
             }
             TrailingCommaState.MISSING -> if (isTrailingCommaAllowed) {
+                val addNewLineBeforeArrowInWhenEntry = addNewLineBeforeArrowInWhen()
                 val prevNode = inspectNode.prevCodeLeaf()!!
-                emit(
-                    prevNode.startOffset + prevNode.textLength,
-                    "Missing trailing comma before \"${inspectNode.text}\"",
-                    true
-                )
+                if (addNewLineBeforeArrowInWhenEntry) {
+                    emit(
+                        prevNode.startOffset + prevNode.textLength,
+                        "Missing trailing comma and newline before \"${inspectNode.text}\"",
+                        true
+                    )
+                } else {
+                    emit(
+                        prevNode.startOffset + prevNode.textLength,
+                        "Missing trailing comma before \"${inspectNode.text}\"",
+                        true
+                    )
+                }
                 if (autoCorrect) {
+                    if (addNewLineBeforeArrowInWhenEntry) {
+                        val parentIndent = (prevNode.psi.parent.prevLeaf() as? PsiWhiteSpace)?.text ?: "\n"
+                        val leafBeforeArrow = (psi as KtWhenEntry).arrow?.prevLeaf()
+                        if (leafBeforeArrow != null && leafBeforeArrow is PsiWhiteSpace) {
+                            val newLine = KtPsiFactory(prevNode.psi).createWhiteSpace(parentIndent)
+                            leafBeforeArrow.replace(newLine)
+                        } else {
+                            val newLine = KtPsiFactory(prevNode.psi).createWhiteSpace(parentIndent)
+                            prevNode.psi.parent.addAfter(newLine, prevNode.psi)
+                        }
+                    }
                     val comma = KtPsiFactory(prevNode.psi).createComma()
                     prevNode.psi.parent.addAfter(comma, prevNode.psi)
                 }
@@ -218,6 +250,14 @@ public class TrailingCommaRule :
         }
     }
 
+    private fun ASTNode.addNewLineBeforeArrowInWhen() =
+        if (psi is KtWhenEntry) {
+            val leafBeforeArrow = (psi as KtWhenEntry).arrow?.prevLeaf()
+            !(leafBeforeArrow is PsiWhiteSpace && leafBeforeArrow.textContains('\n'))
+        } else {
+            false
+        }
+
     private fun ASTNode?.findPreviousTrailingCommaNodeOrNull(): ASTNode? {
         var node = this
         while (node?.isIgnorable() == true) {
@@ -235,11 +275,11 @@ public class TrailingCommaRule :
         element is KtFunctionLiteral -> containsLineBreakInRange(element.valueParameterList!!, element.arrow!!)
         element is KtWhenEntry -> containsLineBreakInRange(element.firstChild, element.arrow!!)
         element is KtDestructuringDeclaration -> containsLineBreakInRange(element.lPar!!, element.rPar!!)
-        element is KtValueArgumentList && element.anyDescendantOfType<KtCollectionLiteralExpression>() -> {
+        element is KtValueArgumentList && element.children.size == 1 && element.anyDescendantOfType<KtCollectionLiteralExpression>() -> {
             // special handling for collection literal
             // @Annotation([
             //    "something",
-            // )]
+            // ])
             val lastChild = element.collectDescendantsOfType<KtCollectionLiteralExpression>().last()
             containsLineBreakInRange(element.rightParenthesis!!, lastChild.rightBracket!!)
         }

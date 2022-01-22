@@ -13,8 +13,12 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 
 @OptIn(FeatureInAlphaState::class)
 public class FinalNewlineRule :
-    Rule("final-newline"),
-    Rule.Modifier.RestrictToRoot,
+    Rule(
+        id = "final-newline",
+        visitorModifiers = setOf(
+            VisitorModifier.RunOnRootNodeOnly
+        )
+    ),
     UsesEditorConfigProperties {
 
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
