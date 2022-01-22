@@ -47,6 +47,7 @@ import com.pinterest.ktlint.core.ast.ElementType.RBRACKET
 import com.pinterest.ktlint.core.ast.ElementType.REGULAR_STRING_PART
 import com.pinterest.ktlint.core.ast.ElementType.RPAR
 import com.pinterest.ktlint.core.ast.ElementType.SAFE_ACCESS_EXPRESSION
+import com.pinterest.ktlint.core.ast.ElementType.SECONDARY_CONSTRUCTOR
 import com.pinterest.ktlint.core.ast.ElementType.SHORT_STRING_TEMPLATE_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.STRING_TEMPLATE
 import com.pinterest.ktlint.core.ast.ElementType.SUPER_TYPE_CALL_ENTRY
@@ -75,6 +76,7 @@ import com.pinterest.ktlint.core.ast.nextLeaf
 import com.pinterest.ktlint.core.ast.nextSibling
 import com.pinterest.ktlint.core.ast.parent
 import com.pinterest.ktlint.core.ast.prevCodeLeaf
+import com.pinterest.ktlint.core.ast.prevCodeSibling
 import com.pinterest.ktlint.core.ast.prevLeaf
 import com.pinterest.ktlint.core.ast.prevSibling
 import com.pinterest.ktlint.core.ast.upsertWhitespaceAfterMe
@@ -522,12 +524,16 @@ class IndentationRule : Rule(
                         val pairedLeft = n.pairedLeft()
                         if (prevBlockLine != blockLine && !pairedLeft.isAfterLambdaArgumentOnSameLine()) {
                             expectedIndent--
+                            debug { "--on(${n.elementType}) -> $expectedIndent" }
+
                             val byKeywordOnSameLine = pairedLeft?.prevLeafOnSameLine(BY_KEYWORD)
                             if (byKeywordOnSameLine != null &&
                                 byKeywordOnSameLine.prevLeaf()?.isWhiteSpaceWithNewline() == true &&
                                 n.leavesOnSameLine(forward = true).all { it.isWhiteSpace() || it.isPartOfComment() }
-                            ) expectedIndent--
-                            debug { "--${n.text} -> $expectedIndent" }
+                            ) {
+                                expectedIndent--
+                                debug { "--on same line as by keyword ${n.text} -> $expectedIndent" }
+                            }
                         }
                     }
                     LT ->
@@ -574,6 +580,8 @@ class IndentationRule : Rule(
                             ctx.ignored.add(n)
                         }
                     }
+                    FUNCTION_LITERAL ->
+                        adjustExpectedIndentInFunctionLiteral(n, ctx)
                     WHITE_SPACE ->
                         if (n.textContains('\n')) {
                             if (
@@ -643,6 +651,7 @@ class IndentationRule : Rule(
                                 visitWhiteSpace(n, autoCorrect, emit, editorConfig)
                                 if (ctx.localAdj != 0) {
                                     expectedIndent += ctx.localAdj
+                                    debug { "++${ctx.localAdj} on whitespace containing new line (${n.elementType}) -> $expectedIndent" }
                                     ctx.localAdj = 0
                                 }
                             } else if (n.isPartOf(KDOC)) {
@@ -736,8 +745,15 @@ class IndentationRule : Rule(
     }
 
     private fun adjustExpectedIndentAfterSuperTypeList(n: ASTNode) {
-        expectedIndent--
-        debug { "--after(${n.elementType}) -> $expectedIndent" }
+        val byKeywordLeaf = n
+            .findChildByType(DELEGATED_SUPER_TYPE_ENTRY)
+            ?.findChildByType(BY_KEYWORD)
+        if (n.prevLeaf()?.textContains('\n') == true && byKeywordLeaf?.prevLeaf().isWhiteSpaceWithNewline()) {
+            Unit
+        } else {
+            expectedIndent--
+            debug { "--after(${n.elementType}) -> $expectedIndent" }
+        }
     }
 
     private fun adjustExpectedIndentInsideSuperTypeCall(n: ASTNode, ctx: IndentContext) {
@@ -771,13 +787,24 @@ class IndentationRule : Rule(
     }
 
     private fun adjustExpectedIndentAfterColon(n: ASTNode, ctx: IndentContext) {
-        expectedIndent++
-        debug { "++after(COLON) -> $expectedIndent" }
-        if (n.isPartOf(FUN)) {
-            val returnType = n.nextCodeSibling()
-            ctx.exitAdjBy(returnType!!, -1)
-        } else {
-            ctx.exitAdjBy(n.treeParent, -1)
+        when {
+            n.isPartOf(FUN) -> {
+                expectedIndent++
+                debug { "++after(COLON IN FUN) -> $expectedIndent" }
+                val returnType = n.nextCodeSibling()
+                ctx.exitAdjBy(returnType!!, -1)
+            }
+            n.treeParent.isPartOf(SECONDARY_CONSTRUCTOR) -> {
+                expectedIndent++
+                debug { "++after(COLON IN CONSTRUCTOR) -> $expectedIndent" }
+                val nextCodeSibling = n.nextCodeSibling()
+                ctx.exitAdjBy(nextCodeSibling!!, -1)
+            }
+            else -> {
+                expectedIndent++
+                debug { "++after(COLON) -> $expectedIndent" }
+                ctx.exitAdjBy(n.treeParent, -1)
+            }
         }
     }
 
@@ -785,6 +812,33 @@ class IndentationRule : Rule(
         expectedIndent++
         debug { "++inside(CONDITION) -> $expectedIndent" }
         ctx.exitAdjBy(n.treeParent, -1)
+    }
+
+    private fun adjustExpectedIndentInFunctionLiteral(n: ASTNode, ctx: IndentContext) {
+        require(n.elementType == FUNCTION_LITERAL)
+
+        var countNonWhiteSpaceElementsBeforeArrow = 0
+        var arrowNode: ASTNode? = null
+        var hasWhiteSpaceWithNewLine = false
+        val iterator = n.children().iterator()
+        while (iterator.hasNext()) {
+            val child = iterator.next()
+            if (child.elementType == ARROW) {
+                arrowNode = child
+                break
+            }
+            if (child.elementType == WHITE_SPACE) {
+                hasWhiteSpaceWithNewLine = hasWhiteSpaceWithNewLine || child.text.contains("\n")
+            } else {
+                countNonWhiteSpaceElementsBeforeArrow++
+            }
+        }
+
+        if (arrowNode != null && hasWhiteSpaceWithNewLine) {
+            expectedIndent++
+            debug { "++after(FUNCTION_LITERAL) -> $expectedIndent" }
+            ctx.exitAdjBy(arrowNode.prevCodeSibling()!!, -1)
+        }
     }
 
     private fun indentStringTemplate(
@@ -961,13 +1015,17 @@ class IndentationRule : Rule(
             // instead of expected
             // val i: Int
             // by lazy { 1 }
-            nextLeafElementType == BY_KEYWORD ->
-                if (node.isPartOf(DELEGATED_SUPER_TYPE_ENTRY)) {
+            nextLeafElementType == BY_KEYWORD -> {
+                if (node.isPartOf(DELEGATED_SUPER_TYPE_ENTRY) &&
+                    node.treeParent.prevLeaf()?.textContains('\n') == true
+                ) {
                     0
                 } else {
                     expectedIndent++
+                    debug { "++whitespace followed by BY keyword -> $expectedIndent" }
                     1
                 }
+            }
             // IDEA quirk:
             // var value: DataClass =
             //     DataClass("too long line")

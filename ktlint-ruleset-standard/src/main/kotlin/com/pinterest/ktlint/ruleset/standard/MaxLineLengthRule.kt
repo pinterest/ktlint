@@ -116,7 +116,8 @@ class MaxLineLengthRule :
                     /* name = */ KTLINT_IGNORE_BACKTICKED_IDENTIFIER_NAME,
                     /* description = */ PROPERTY_DESCRIPTION,
                     /* parser = */ PropertyType.PropertyValueParser.BOOLEAN_VALUE_PARSER,
-                    /* possibleValues = */ true.toString(), false.toString()
+                    /* possibleValues = */ true.toString(),
+                    false.toString()
                 ),
                 defaultValue = false
             )

@@ -33,7 +33,7 @@ internal class EditorConfigGeneratorTest {
 
         val generatedEditorConfig = editorConfigGenerator.generateEditorconfig(
             filePath = tempFileSystem.normalizedPath(rootDir).resolve("test.kt"),
-            rules = rules,
+            rules = rules
         )
 
         assertThat(generatedEditorConfig.lines()).doesNotContainAnyElementsOf(listOf("root = true"))
