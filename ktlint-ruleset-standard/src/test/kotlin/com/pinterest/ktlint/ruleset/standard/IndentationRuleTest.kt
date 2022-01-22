@@ -987,7 +987,7 @@ internal class IndentationRuleTest {
             LintError(7, 1, "indent", "Unexpected indentation (4) (should be 8)"),
             LintError(8, 1, "indent", "Unexpected indentation (4) (should be 8)"),
             LintError(9, 1, "indent", "Unexpected indentation (4) (should be 8)"),
-            LintError(10, 1, "indent", "Unexpected indentation (0) (should be 4)"),
+            LintError(10, 1, "indent", "Unexpected indentation (0) (should be 4)")
         )
         assertThat(IndentationRule().format(code)).isEqualTo(formattedCode)
     }
@@ -1488,7 +1488,7 @@ internal class IndentationRuleTest {
             LintError(9, 1, "indent", "Unexpected indentation (4) (should be 8)"),
             LintError(15, 1, "indent", "Unexpected indentation (4) (should be 8)"),
             LintError(21, 1, "indent", "Unexpected indentation (4) (should be 8)"),
-            LintError(22, 1, "indent", "Unexpected indentation (4) (should be 8)"),
+            LintError(22, 1, "indent", "Unexpected indentation (4) (should be 8)")
         )
     }
 
@@ -1528,7 +1528,7 @@ internal class IndentationRuleTest {
         assertThat(IndentationRule().lint(code)).containsExactly(
             LintError(2, 1, "indent", "Unexpected indentation (4) (should be 8)"),
             LintError(8, 1, "indent", "Unexpected indentation (4) (should be 8)"),
-            LintError(9, 1, "indent", "Unexpected indentation (4) (should be 8)"),
+            LintError(9, 1, "indent", "Unexpected indentation (4) (should be 8)")
         )
     }
 
@@ -1574,7 +1574,7 @@ internal class IndentationRuleTest {
             LintError(3, 1, "indent", "Unexpected indentation (4) (should be 8)"),
             LintError(9, 1, "indent", "Unexpected indentation (4) (should be 8)"),
             LintError(10, 1, "indent", "Unexpected indentation (4) (should be 8)"),
-            LintError(11, 1, "indent", "Unexpected indentation (4) (should be 8)"),
+            LintError(11, 1, "indent", "Unexpected indentation (4) (should be 8)")
         )
     }
 
