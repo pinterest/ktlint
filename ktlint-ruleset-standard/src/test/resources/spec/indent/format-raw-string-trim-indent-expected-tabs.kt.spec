@@ -92,7 +92,8 @@ class C {
 		""".trimIndent()
 
 	fun getBazelWorkspaceContent(blueprint: BazelWorkspaceBlueprint) =
-		"""${Target(
+		"""
+		${Target(
 			       "android_sdk_repository",
 		    	    listOf(StringAttribute("name", "androidsdk"))
 		)}
@@ -110,6 +111,6 @@ ${Target(
 		)}
 ${LoadStatement("@gmaven_rules//:gmaven.bzl", listOf("gmaven_rules"))}
 ${Target("gmaven_rules", listOf())}
-"""
+        """
 
 }

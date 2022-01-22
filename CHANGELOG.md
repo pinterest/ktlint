@@ -18,11 +18,13 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - Fix indentation of secondary constructor (`indent`) ([#1222](https://github.com/pinterest/ktlint/issues/1222))
 - Fix alignment of arrow when trailing comma is missing in when entry (`trailing-comma`) ([#1312](https://github.com/pinterest/ktlint/issues/1312))
 - Fix indent of delegated super type entry (`indent`) ([#1210](https://github.com/pinterest/ktlint/issues/1210))
+- Improve indentation of closing quotes of a multiline raw string literal (`indent`) ([#1262](https://github.com/pinterest/ktlint/pull/1262))
 
 ### Changed
 - Update Kotlin version to `1.6.0` release
 - Add separate tasks to run tests on JDK 11 - "testOnJdk11"
 - Update Dokka to `1.6.0` release
+- Apply ktlint experimental rules on the ktlint code base itself.
 - Update shadow plugin to `7.1.1` release
 
 ### Removed

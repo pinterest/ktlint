@@ -60,7 +60,6 @@ class HtmlReporter(private val out: PrintStream) : Reporter {
             }
             body {
                 if (!acc.isEmpty()) {
-
                     h1 { text("Overview") }
 
                     paragraph {

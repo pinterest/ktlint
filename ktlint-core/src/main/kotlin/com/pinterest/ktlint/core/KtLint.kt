@@ -3,7 +3,6 @@ package com.pinterest.ktlint.core
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
-import com.pinterest.ktlint.core.ast.visit
 import com.pinterest.ktlint.core.internal.EditorConfigGenerator
 import com.pinterest.ktlint.core.internal.EditorConfigLoader
 import com.pinterest.ktlint.core.internal.EditorConfigLoader.Companion.convertToRawValues
@@ -63,7 +62,7 @@ public object KtLint {
         val cb: (e: LintError, corrected: Boolean) -> Unit,
         val script: Boolean = false,
         val editorConfigPath: String? = null,
-        val debug: Boolean = false,
+        val debug: Boolean = false
     )
 
     /**
@@ -97,7 +96,7 @@ public object KtLint {
         val editorConfigPath: String? = null,
         val debug: Boolean = false,
         val editorConfigOverride: EditorConfigOverridesMap = emptyMap(),
-        val isInvokedFromCli: Boolean = false,
+        val isInvokedFromCli: Boolean = false
     ) {
         internal val normalizedFilePath: Path? get() = if (fileName == STDIN_FILE || fileName == null) {
             null
@@ -133,9 +132,18 @@ public object KtLint {
      * @throws ParseException if text is not a valid Kotlin code
      * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
      */
+    // TODO: Shouldn't this method be moved to module ktlint-test as it is called from unit tests only? It will be a
+    //  breaking change for custom rule set implementations.
     @OptIn(FeatureInAlphaState::class)
     public fun lint(params: Params) {
-        lint(toExperimentalParams(params))
+        lint(
+            toExperimentalParams(params),
+            VisitorProvider(
+                ruleSets = params.ruleSets,
+                debug = params.debug,
+                isUnitTestContext = true
+            )
+        )
     }
 
     /**
@@ -144,35 +152,43 @@ public object KtLint {
      * @throws ParseException if text is not a valid Kotlin code
      * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
      */
+    // TODO: Shouldn't this method be moved to module ktlint-test as it is called from unit tests only? It will be a
+    //  breaking change for custom rule set implementations.
     @FeatureInAlphaState
-    public fun lint(params: ExperimentalParams) {
+    public fun lint(
+        params: ExperimentalParams,
+        visitorProvider: VisitorProvider
+    ) {
         val psiFileFactory = kotlinPsiFileFactoryProvider.getKotlinPsiFileFactory(params.isInvokedFromCli)
         val preparedCode = prepareCodeForLinting(psiFileFactory, params)
         val errors = mutableListOf<LintError>()
 
-        visitor(preparedCode.rootNode, params.ruleSets).invoke { node, rule, fqRuleId ->
-            // fixme: enforcing suppression based on node.startOffset is wrong
-            // (not just because not all nodes are leaves but because rules are free to emit (and fix!) errors at any position)
-            if (
-                !preparedCode.suppressedRegionLocator(node.startOffset, fqRuleId, node === preparedCode.rootNode)
-            ) {
-                try {
-                    rule.visit(node, false) { offset, errorMessage, canBeAutoCorrected ->
-                        // https://github.com/shyiko/ktlint/issues/158#issuecomment-462728189
-                        if (node.startOffset != offset &&
-                            preparedCode.suppressedRegionLocator(offset, fqRuleId, node === preparedCode.rootNode)
-                        ) {
-                            return@visit
+        visitorProvider
+            .visitor(params.ruleSets, preparedCode.rootNode)
+            .invoke { node, rule, fqRuleId ->
+                // fixme: enforcing suppression based on node.startOffset is wrong
+                // (not just because not all nodes are leaves but because rules are free to emit (and fix!) errors at any position)
+                if (
+                    !preparedCode.suppressedRegionLocator(node.startOffset, fqRuleId, node === preparedCode.rootNode)
+                ) {
+                    try {
+                        rule.visit(node, false) { offset, errorMessage, canBeAutoCorrected ->
+                            // https://github.com/shyiko/ktlint/issues/158#issuecomment-462728189
+                            if (node.startOffset != offset &&
+                                preparedCode.suppressedRegionLocator(offset, fqRuleId, node === preparedCode.rootNode)
+                            ) {
+                                return@visit
+                            }
+                            val (line, col) = preparedCode.positionInTextLocator(offset)
+                            errors.add(LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected))
                         }
-                        val (line, col) = preparedCode.positionInTextLocator(offset)
-                        errors.add(LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected))
+                    } catch (e: Exception) {
+                        val (line, col) = preparedCode.positionInTextLocator(node.startOffset)
+
+                        throw RuleExecutionException(line, col, fqRuleId, e)
                     }
-                } catch (e: Exception) {
-                    val (line, col) = preparedCode.positionInTextLocator(node.startOffset)
-                    throw RuleExecutionException(line, col, fqRuleId, e)
                 }
             }
-        }
 
         errors
             .sortedWith { l, r -> if (l.line != r.line) l.line - r.line else l.col - r.col }
@@ -270,75 +286,6 @@ public object KtLint {
         )
     }
 
-    private fun visitor(
-        rootNode: ASTNode,
-        ruleSets: Iterable<RuleSet>,
-        concurrent: Boolean = true,
-        filter: (rootNode: ASTNode, fqRuleId: String) -> Boolean = this::filterDisabledRules
-
-    ): ((node: ASTNode, rule: Rule, fqRuleId: String) -> Unit) -> Unit {
-        val fqrsRestrictedToRoot = mutableListOf<Pair<String, Rule>>()
-        val fqrs = mutableListOf<Pair<String, Rule>>()
-        val fqrsExpectedToBeExecutedLastOnRoot = mutableListOf<Pair<String, Rule>>()
-        val fqrsExpectedToBeExecutedLast = mutableListOf<Pair<String, Rule>>()
-        for (ruleSet in ruleSets) {
-            val prefix = if (ruleSet.id === "standard") "" else "${ruleSet.id}:"
-            for (rule in ruleSet) {
-                val fqRuleId = "$prefix${rule.id}"
-                if (!filter(rootNode, fqRuleId)) {
-                    continue
-                }
-                val fqr = fqRuleId to rule
-                when (rule) {
-                    is Rule.Modifier.Last -> fqrsExpectedToBeExecutedLast.add(fqr)
-                    is Rule.Modifier.RestrictToRootLast -> fqrsExpectedToBeExecutedLastOnRoot.add(fqr)
-                    is Rule.Modifier.RestrictToRoot -> fqrsRestrictedToRoot.add(fqr)
-                    else -> fqrs.add(fqr)
-                }
-            }
-        }
-        return { visit ->
-            for ((fqRuleId, rule) in fqrsRestrictedToRoot) {
-                visit(rootNode, rule, fqRuleId)
-            }
-            if (concurrent) {
-                rootNode.visit { node ->
-                    for ((fqRuleId, rule) in fqrs) {
-                        visit(node, rule, fqRuleId)
-                    }
-                }
-            } else {
-                for ((fqRuleId, rule) in fqrs) {
-                    rootNode.visit { node ->
-                        visit(node, rule, fqRuleId)
-                    }
-                }
-            }
-            for ((fqRuleId, rule) in fqrsExpectedToBeExecutedLastOnRoot) {
-                visit(rootNode, rule, fqRuleId)
-            }
-            if (fqrsExpectedToBeExecutedLast.isNotEmpty()) {
-                if (concurrent) {
-                    rootNode.visit { node ->
-                        for ((fqRuleId, rule) in fqrsExpectedToBeExecutedLast) {
-                            visit(node, rule, fqRuleId)
-                        }
-                    }
-                } else {
-                    for ((fqRuleId, rule) in fqrsExpectedToBeExecutedLast) {
-                        rootNode.visit { node ->
-                            visit(node, rule, fqRuleId)
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private fun filterDisabledRules(rootNode: ASTNode, fqRuleId: String): Boolean {
-        return rootNode.getUserData(DISABLED_RULES)?.contains(fqRuleId) == false
-    }
-
     @Deprecated(
         message = "Should not be a part of public api. Will be removed in future release.",
         level = DeprecationLevel.WARNING
@@ -355,15 +302,22 @@ public object KtLint {
      * @throws ParseException if text is not a valid Kotlin code
      * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
      */
+    // TODO: Shouldn't this method be moved to module ktlint-test as it is called from unit tests only? It will be a
+    //  breaking change for custom rule set implementations.
     @OptIn(FeatureInAlphaState::class)
-    public fun format(params: Params): String = format(toExperimentalParams(params))
+    public fun format(params: Params): String {
+        val toExperimentalParams = toExperimentalParams(params)
+        return format(
+            toExperimentalParams,
+            toExperimentalParams.ruleSets,
+            VisitorProvider(
+                ruleSets = toExperimentalParams.ruleSets,
+                debug = toExperimentalParams.debug,
+                isUnitTestContext = true
+            )
+        )
+    }
 
-    /**
-     * Fix style violations.
-     *
-     * @throws ParseException if text is not a valid Kotlin code
-     * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
-     */
     /**
      * Fix style violations.
      *
@@ -371,15 +325,23 @@ public object KtLint {
      * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
      */
     @FeatureInAlphaState
-    public fun format(params: ExperimentalParams): String {
+    public fun format(
+        params: ExperimentalParams,
+        ruleSets: Iterable<RuleSet>,
+        visitorProvider: VisitorProvider
+    ): String {
         val hasUTF8BOM = params.text.startsWith(UTF8_BOM)
         val psiFileFactory = kotlinPsiFileFactoryProvider.getKotlinPsiFileFactory(params.isInvokedFromCli)
         val preparedCode = prepareCodeForLinting(psiFileFactory, params)
 
         var tripped = false
         var mutated = false
-        visitor(preparedCode.rootNode, params.ruleSets, concurrent = false)
-            .invoke { node, rule, fqRuleId ->
+        visitorProvider
+            .visitor(
+                ruleSets,
+                preparedCode.rootNode,
+                concurrent = false
+            ).invoke { node, rule, fqRuleId ->
                 // fixme: enforcing suppression based on node.startOffset is wrong
                 // (not just because not all nodes are leaves but because rules are free to emit (and fix!) errors at any position)
                 if (
@@ -406,30 +368,46 @@ public object KtLint {
             }
         if (tripped) {
             val errors = mutableListOf<Pair<LintError, Boolean>>()
-            visitor(preparedCode.rootNode, params.ruleSets).invoke { node, rule, fqRuleId ->
-                // fixme: enforcing suppression based on node.startOffset is wrong
-                // (not just because not all nodes are leaves but because rules are free to emit (and fix!) errors at any position)
-                if (
-                    !preparedCode.suppressedRegionLocator(node.startOffset, fqRuleId, node === preparedCode.rootNode)
-                ) {
-                    try {
-                        rule.visit(node, false) { offset, errorMessage, canBeAutoCorrected ->
-                            // https://github.com/shyiko/ktlint/issues/158#issuecomment-462728189
-                            if (
-                                node.startOffset != offset &&
-                                preparedCode.suppressedRegionLocator(offset, fqRuleId, node === preparedCode.rootNode)
-                            ) {
-                                return@visit
+            visitorProvider
+                .visitor(ruleSets, preparedCode.rootNode)
+                .invoke { node, rule, fqRuleId ->
+                    // fixme: enforcing suppression based on node.startOffset is wrong
+                    // (not just because not all nodes are leaves but because rules are free to emit (and fix!) errors at any position)
+                    if (
+                        !preparedCode.suppressedRegionLocator(
+                            node.startOffset,
+                            fqRuleId,
+                            node === preparedCode.rootNode
+                        )
+                    ) {
+                        try {
+                            rule.visit(node, false) { offset, errorMessage, canBeAutoCorrected ->
+                                // https://github.com/shyiko/ktlint/issues/158#issuecomment-462728189
+                                if (
+                                    node.startOffset != offset &&
+                                    preparedCode.suppressedRegionLocator(
+                                        offset,
+                                        fqRuleId,
+                                        node === preparedCode.rootNode
+                                    )
+                                ) {
+                                    return@visit
+                                }
+                                val (line, col) = preparedCode.positionInTextLocator(offset)
+                                errors.add(
+                                    Pair(
+                                        LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected),
+                                        false
+                                    )
+                                )
                             }
-                            val (line, col) = preparedCode.positionInTextLocator(offset)
-                            errors.add(Pair(LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected), false))
+                        } catch (e: Exception) {
+                            val (line, col) = preparedCode.positionInTextLocator(node.startOffset)
+
+                            throw RuleExecutionException(line, col, fqRuleId, e)
                         }
-                    } catch (e: Exception) {
-                        val (line, col) = preparedCode.positionInTextLocator(node.startOffset)
-                        throw RuleExecutionException(line, col, fqRuleId, e)
                     }
                 }
-            }
 
             errors
                 .sortedWith { (l), (r) -> if (l.line != r.line) l.line - r.line else l.col - r.col }
