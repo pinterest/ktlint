@@ -11,18 +11,22 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Fixed
 - Fix indentation of function literal ([#1247](https://github.com/pinterest/ktlint/issues/1247))
 - Fix false positive in rule spacing-between-declarations-with-annotations ([#1281](https://github.com/pinterest/ktlint/issues/1281))
+- Do not remove imports for same class when different alias is used ([#1243](https://github.com/pinterest/ktlint/issues/1243))
 - Fix NoSuchElementException for property accessor (`trailing-comma`) ([#1280](https://github.com/pinterest/ktlint/issues/1280))
 - Fix ClassCastException using ktlintFormat on class with KDoc (`no-trailing-spaces`) ([#1270](https://github.com/pinterest/ktlint/issues/1270))
 - Do not remove trailing comma in annotation ([#1297](https://github.com/pinterest/ktlint/issues/1297))
 - Do not remove import which is used as markdown link in KDoc only (`no-unused-imports`) ([#1282](https://github.com/pinterest/ktlint/issues/1282))
 - Fix indentation of secondary constructor (`indent`) ([#1222](https://github.com/pinterest/ktlint/issues/1222))
+- Custom gradle tasks with custom ruleset results in warning ([#1269](https://github.com/pinterest/ktlint/issues/1269))
 - Fix alignment of arrow when trailing comma is missing in when entry (`trailing-comma`) ([#1312](https://github.com/pinterest/ktlint/issues/1312))
 - Fix indent of delegated super type entry (`indent`) ([#1210](https://github.com/pinterest/ktlint/issues/1210))
+- Improve indentation of closing quotes of a multiline raw string literal (`indent`) ([#1262](https://github.com/pinterest/ktlint/pull/1262))
 
 ### Changed
 - Update Kotlin version to `1.6.0` release
 - Add separate tasks to run tests on JDK 11 - "testOnJdk11"
 - Update Dokka to `1.6.0` release
+- Apply ktlint experimental rules on the ktlint code base itself.
 - Update shadow plugin to `7.1.1` release
 - Add Kotlin-logging backed by logback as logging framework ([#589](https://github.com/pinterest/ktlint/issues/589))
 

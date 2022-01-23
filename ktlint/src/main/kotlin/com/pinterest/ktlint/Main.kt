@@ -9,8 +9,10 @@ import com.pinterest.ktlint.core.ParseException
 import com.pinterest.ktlint.core.Reporter
 import com.pinterest.ktlint.core.ReporterProvider
 import com.pinterest.ktlint.core.RuleExecutionException
+import com.pinterest.ktlint.core.RuleSet
 import com.pinterest.ktlint.core.RuleSetProvider
 import com.pinterest.ktlint.core.initKtLintKLogger
+import com.pinterest.ktlint.core.VisitorProvider
 import com.pinterest.ktlint.core.internal.containsLintError
 import com.pinterest.ktlint.core.internal.loadBaseline
 import com.pinterest.ktlint.core.internal.relativeRoute
@@ -208,7 +210,7 @@ class KtlintCommandLine {
         names = ["--ruleset", "-R"],
         description = ["A path to a JAR file containing additional ruleset(s)"]
     )
-    var rulesets: JarFiles = ArrayList<String>()
+    var rulesetJarFiles: JarFiles = ArrayList<String>()
 
     @Option(
         names = ["--stdin"],
@@ -259,7 +261,7 @@ class KtlintCommandLine {
         val start = System.currentTimeMillis()
 
         val baselineResults = loadBaseline(baseline)
-        val ruleSetProviders = rulesets.loadRulesets(experimental, debug, disabledRules)
+        val ruleSetProviders = rulesetJarFiles.loadRulesets(experimental, debug, disabledRules)
         var reporter = loadReporter()
         if (baselineResults.baselineGenerationNeeded) {
             val baselineReporter = ReporterTemplate("baseline", null, emptyMap(), baseline)
@@ -272,10 +274,18 @@ class KtlintCommandLine {
         ).toMap()
 
         reporter.beforeAll()
+        val ruleSets = ruleSetProviders.map { it.value.get() }
+        val visitorProvider = VisitorProvider(ruleSets, debug)
         if (stdin) {
-            lintStdin(ruleSetProviders, userData, reporter)
+            lintStdin(ruleSetProviders, visitorProvider, userData, reporter)
         } else {
-            lintFiles(ruleSetProviders, userData, baselineResults.baselineRules, reporter)
+            lintFiles(
+                ruleSetProviders,
+                visitorProvider,
+                userData,
+                baselineResults.baselineRules,
+                reporter
+            )
         }
         reporter.afterAll()
         logger.debug { "${System.currentTimeMillis() - start}ms / $fileNumber file(s) / $errorNumber error(s)" }
@@ -286,6 +296,7 @@ class KtlintCommandLine {
 
     private fun lintFiles(
         ruleSetProviders: Map<String, RuleSetProvider>,
+        visitorProvider: VisitorProvider,
         userData: Map<String, String>,
         baseline: Map<String, List<LintError>>?,
         reporter: Reporter
@@ -295,13 +306,15 @@ class KtlintCommandLine {
             .map { it.toFile() }
             .takeWhile { errorNumber.get() < limit }
             .map { file ->
+                val ruleSets = ruleSetProviders.map { it.value.get() }
                 Callable {
                     file to process(
                         file.path,
                         file.readText(),
-                        ruleSetProviders,
                         userData,
-                        baseline?.get(file.relativeRoute)
+                        baseline?.get(file.relativeRoute),
+                        ruleSets,
+                        visitorProvider
                     )
                 }
             }
@@ -310,6 +323,7 @@ class KtlintCommandLine {
 
     private fun lintStdin(
         ruleSetProviders: Map<String, RuleSetProvider>,
+        visitorProvider: VisitorProvider,
         userData: Map<String, String>,
         reporter: Reporter
     ) {
@@ -318,9 +332,10 @@ class KtlintCommandLine {
             process(
                 KtLint.STDIN_FILE,
                 String(System.`in`.readBytes()),
-                ruleSetProviders,
                 userData,
-                null
+                null,
+                ruleSetProviders.map { it.value.get() },
+                visitorProvider
             ),
             reporter
         )
@@ -366,9 +381,10 @@ class KtlintCommandLine {
     private fun process(
         fileName: String,
         fileContent: String,
-        ruleSetProviders: Map<String, RuleSetProvider>,
         userData: Map<String, String>,
-        baselineErrors: List<LintError>?
+        baselineErrors: List<LintError>?,
+        ruleSets: Iterable<RuleSet>,
+        visitorProvider: VisitorProvider
     ): List<LintErrorWithCorrectionInfo> {
         logger.debug {
             val fileLocation = if (fileName != KtLint.STDIN_FILE) File(fileName).location(relative) else fileName
@@ -380,18 +396,20 @@ class KtlintCommandLine {
                 formatFile(
                     fileName,
                     fileContent,
-                    ruleSetProviders.map { it.value.get() },
+                    ruleSets,
                     userData,
                     editorConfigPath,
-                    debug
-                ) { err, corrected ->
-                    if (!corrected) {
-                        if (baselineErrors == null || !baselineErrors.containsLintError(err)) {
-                            result.add(LintErrorWithCorrectionInfo(err, corrected))
-                            tripped.set(true)
+                    debug,
+                    { err, corrected ->
+                        if (!corrected) {
+                            if (baselineErrors == null || !baselineErrors.containsLintError(err)) {
+                                result.add(LintErrorWithCorrectionInfo(err, corrected))
+                                tripped.set(true)
+                            }
                         }
-                    }
-                }
+                    },
+                    visitorProvider
+                )
             } catch (e: Exception) {
                 result.add(LintErrorWithCorrectionInfo(e.toLintError(), false))
                 tripped.set(true)
@@ -409,7 +427,8 @@ class KtlintCommandLine {
                 lintFile(
                     fileName,
                     fileContent,
-                    ruleSetProviders.map { it.value.get() },
+                    ruleSets,
+                    visitorProvider,
                     userData,
                     editorConfigPath,
                     debug

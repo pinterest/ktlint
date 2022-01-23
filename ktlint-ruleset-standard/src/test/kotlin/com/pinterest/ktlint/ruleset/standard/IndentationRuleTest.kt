@@ -83,7 +83,7 @@ internal class IndentationRuleTest {
                 |		get() = ""
                 |		set(v: String) { x = v }
                 |}
-                |""".trimMargin(),
+                """.trimMargin(),
                 INDENT_STYLE_TABS
             )
         ).isEqualTo(
@@ -184,25 +184,25 @@ internal class IndentationRuleTest {
         assertThat(IndentationRule().lint("  // comment"))
             .isEqualTo(
                 listOf(
-                    LintError(line = 1, col = 1, ruleId = "indent", detail = "Unexpected indentation (2) (should be 0)"),
+                    LintError(line = 1, col = 1, ruleId = "indent", detail = "Unexpected indentation (2) (should be 0)")
                 )
             )
         assertThat(IndentationRule().lint("  // comment", script = true))
             .isEqualTo(
                 listOf(
-                    LintError(line = 1, col = 1, ruleId = "indent", detail = "Unexpected indentation (2) (should be 0)"),
+                    LintError(line = 1, col = 1, ruleId = "indent", detail = "Unexpected indentation (2) (should be 0)")
                 )
             )
         assertThat(IndentationRule().lint("  \n  // comment"))
             .isEqualTo(
                 listOf(
-                    LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected indentation (2) (should be 0)"),
+                    LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected indentation (2) (should be 0)")
                 )
             )
         assertThat(IndentationRule().lint("  \n  // comment", script = true))
             .isEqualTo(
                 listOf(
-                    LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected indentation (2) (should be 0)"),
+                    LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected indentation (2) (should be 0)")
                 )
             )
     }
@@ -437,7 +437,7 @@ internal class IndentationRuleTest {
             )
         ).isEqualTo(
             listOf(
-                LintError(line = 4, col = 1, ruleId = "indent", detail = "Unexpected indentation (16) (should be 12)"),
+                LintError(line = 4, col = 1, ruleId = "indent", detail = "Unexpected indentation (16) (should be 12)")
             )
         )
     }
@@ -636,7 +636,9 @@ internal class IndentationRuleTest {
                 )
             }
             """.trimIndent()
-        @Suppress("RemoveCurlyBracesFromTemplate") val expectedCodeTabs =
+
+        @Suppress("RemoveCurlyBracesFromTemplate")
+        val expectedCodeTabs =
             """
             fun foo() {
             ${TAB}println(
@@ -652,7 +654,7 @@ internal class IndentationRuleTest {
         ).isEqualTo(
             listOf(
                 LintError(2, 13, "indent", "Missing newline after \"(\""),
-                LintError(5, 24, "indent", "Missing newline before \")\""),
+                LintError(5, 24, "indent", "Missing newline before \")\"")
             )
         )
         assertThat(IndentationRule().format(code)).isEqualTo(expectedCode)
@@ -683,7 +685,7 @@ internal class IndentationRuleTest {
             IndentationRule().lint(code)
         ).isEqualTo(
             listOf(
-                LintError(5, 1, "indent", "Unexpected indent of multiline string closing quotes"),
+                LintError(5, 1, "indent", "Unexpected indent of multiline string closing quotes")
             )
         )
         assertThat(IndentationRule().format(code)).isEqualTo(expectedCode)
@@ -721,7 +723,7 @@ internal class IndentationRuleTest {
             listOf(
                 LintError(line = 2, col = 13, ruleId = "indent", detail = "Missing newline after \"(\""),
                 LintError(line = 7, col = 1, ruleId = "indent", detail = "Unexpected indent of multiline string closing quotes"),
-                LintError(line = 7, col = 20, ruleId = "indent", detail = "Missing newline before \")\""),
+                LintError(line = 7, col = 20, ruleId = "indent", detail = "Missing newline before \")\"")
             )
         )
         assertThat(IndentationRule().format(code)).isEqualTo(expectedCode)
@@ -758,7 +760,7 @@ internal class IndentationRuleTest {
             listOf(
                 LintError(line = 2, col = 13, ruleId = "indent", detail = "Missing newline after \"(\""),
                 LintError(line = 6, col = 1, ruleId = "indent", detail = "Unexpected indent of multiline string closing quotes"),
-                LintError(line = 6, col = 20, ruleId = "indent", detail = "Missing newline before \")\""),
+                LintError(line = 6, col = 20, ruleId = "indent", detail = "Missing newline before \")\"")
             )
         )
         assertThat(IndentationRule().format(code)).isEqualTo(expectedCode)
@@ -955,10 +957,6 @@ internal class IndentationRuleTest {
     fun `lint and format delegation 2`() {
         val code =
             """
-            interface Foo
-
-            class Bar(a: Int, b: Int, c: Int) : Foo
-
             class Test2 : Foo
             by Bar(
                 a = 1,
@@ -966,28 +964,8 @@ internal class IndentationRuleTest {
                 c = 3
             )
             """.trimIndent()
-        val formattedCode =
-            """
-            interface Foo
-
-            class Bar(a: Int, b: Int, c: Int) : Foo
-
-            class Test2 : Foo
-                by Bar(
-                    a = 1,
-                    b = 2,
-                    c = 3
-                )
-            """.trimIndent()
-
-        assertThat(IndentationRule().lint(code)).containsExactly(
-            LintError(6, 1, "indent", "Unexpected indentation (0) (should be 4)"),
-            LintError(7, 1, "indent", "Unexpected indentation (4) (should be 8)"),
-            LintError(8, 1, "indent", "Unexpected indentation (4) (should be 8)"),
-            LintError(9, 1, "indent", "Unexpected indentation (4) (should be 8)"),
-            LintError(10, 1, "indent", "Unexpected indentation (0) (should be 4)"),
-        )
-        assertThat(IndentationRule().format(code)).isEqualTo(formattedCode)
+        assertThat(IndentationRule().format(code)).isEqualTo(code)
+        assertThat(IndentationRule().lint(code)).isEmpty()
     }
 
     @Test
@@ -1294,12 +1272,11 @@ internal class IndentationRuleTest {
     fun `multiline string with mixed indentation characters, can not be autocorrected`() {
         val code =
             """
-                val foo = $MULTILINE_STRING_QUOTE
-                      line1
-                ${TAB}line2
-                    $MULTILINE_STRING_QUOTE.trimIndent()
-                """
-                .trimIndent()
+            val foo = $MULTILINE_STRING_QUOTE
+                  line1
+            ${TAB}line2
+                $MULTILINE_STRING_QUOTE.trimIndent()
+            """.trimIndent()
         assertThat(
             IndentationRule().lint(code)
         ).isEqualTo(
@@ -1309,10 +1286,61 @@ internal class IndentationRuleTest {
                     col = 11,
                     ruleId = "indent",
                     detail = "Indentation of multiline string should not contain both tab(s) and space(s)"
-                ),
+                )
             )
         )
         assertThat(IndentationRule().format(code)).isEqualTo(code)
+    }
+
+    @Test
+    fun `multi line string at start of line`() {
+        val code =
+            """
+            fun foo() =
+            $MULTILINE_STRING_QUOTE
+            some text
+            $MULTILINE_STRING_QUOTE
+            """.trimIndent()
+        assertThat(IndentationRule().lint(code)).isEmpty()
+        assertThat(IndentationRule().format(code)).isEqualTo(code)
+    }
+
+    @Test
+    fun `Issue 1127 - multiline string in parameter list`() {
+        val code =
+            """
+            interface UserRepository : JpaRepository<User, UUID> {
+                @Query($MULTILINE_STRING_QUOTE
+                    select u from User u
+                    inner join Organization o on u.organization = o
+                    where o = :organization
+                $MULTILINE_STRING_QUOTE)
+                fun findByOrganization(organization: Organization, pageable: Pageable): Page<User>
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            interface UserRepository : JpaRepository<User, UUID> {
+                @Query(
+                    $MULTILINE_STRING_QUOTE
+                    select u from User u
+                    inner join Organization o on u.organization = o
+                    where o = :organization
+                    $MULTILINE_STRING_QUOTE
+                )
+                fun findByOrganization(organization: Organization, pageable: Pageable): Page<User>
+            }
+            """.trimIndent()
+        assertThat(
+            IndentationRule().lint(code)
+        ).isEqualTo(
+            listOf(
+                LintError(line = 2, col = 12, ruleId = "indent", detail = "Missing newline after \"(\""),
+                LintError(line = 6, col = 1, ruleId = "indent", detail = "Unexpected indent of multiline string closing quotes"),
+                LintError(line = 6, col = 7, ruleId = "indent", detail = "Missing newline before \")\"")
+            )
+        )
+        assertThat(IndentationRule().format(code)).isEqualTo(formattedCode)
     }
 
     @Test
@@ -1336,6 +1364,7 @@ internal class IndentationRuleTest {
                 }
             }
             """.trimIndent()
+
         @Suppress("RemoveCurlyBracesFromTemplate")
         val codeTabs =
             """
@@ -1384,7 +1413,7 @@ internal class IndentationRuleTest {
             """.trimIndent()
         assertThat(IndentationRule().lint(code))
             .containsExactly(
-                LintError(3, 1, "indent", "Unexpected indentation (12) (should be 8)"),
+                LintError(3, 1, "indent", "Unexpected indentation (12) (should be 8)")
             )
         assertThat(IndentationRule().format(code)).isEqualTo(formattedCode)
     }
@@ -1415,7 +1444,7 @@ internal class IndentationRuleTest {
             """.trimIndent()
         assertThat(IndentationRule().lint(code))
             .containsExactly(
-                LintError(4, 1, "indent", "Unexpected indentation (8) (should be 12)"),
+                LintError(4, 1, "indent", "Unexpected indentation (8) (should be 12)")
             )
         assertThat(IndentationRule().format(code)).isEqualTo(formattedCode)
     }
@@ -1485,7 +1514,7 @@ internal class IndentationRuleTest {
             LintError(9, 1, "indent", "Unexpected indentation (4) (should be 8)"),
             LintError(15, 1, "indent", "Unexpected indentation (4) (should be 8)"),
             LintError(21, 1, "indent", "Unexpected indentation (4) (should be 8)"),
-            LintError(22, 1, "indent", "Unexpected indentation (4) (should be 8)"),
+            LintError(22, 1, "indent", "Unexpected indentation (4) (should be 8)")
         )
     }
 
@@ -1525,7 +1554,7 @@ internal class IndentationRuleTest {
         assertThat(IndentationRule().lint(code)).containsExactly(
             LintError(2, 1, "indent", "Unexpected indentation (4) (should be 8)"),
             LintError(8, 1, "indent", "Unexpected indentation (4) (should be 8)"),
-            LintError(9, 1, "indent", "Unexpected indentation (4) (should be 8)"),
+            LintError(9, 1, "indent", "Unexpected indentation (4) (should be 8)")
         )
     }
 
@@ -1571,7 +1600,7 @@ internal class IndentationRuleTest {
             LintError(3, 1, "indent", "Unexpected indentation (4) (should be 8)"),
             LintError(9, 1, "indent", "Unexpected indentation (4) (should be 8)"),
             LintError(10, 1, "indent", "Unexpected indentation (4) (should be 8)"),
-            LintError(11, 1, "indent", "Unexpected indentation (4) (should be 8)"),
+            LintError(11, 1, "indent", "Unexpected indentation (4) (should be 8)")
         )
     }
 
@@ -1582,30 +1611,6 @@ internal class IndentationRuleTest {
             object ApplicationComponentFactory : ApplicationComponent.Factory
             by DaggerApplicationComponent.factory()
             """.trimIndent()
-        val formattedCode =
-            """
-            object ApplicationComponentFactory : ApplicationComponent.Factory
-                by DaggerApplicationComponent.factory()
-            """.trimIndent()
-        assertThat(IndentationRule().lint(code)).containsExactly(
-            LintError(2, 1, "indent", "Unexpected indentation (0) (should be 4)")
-        )
-        assertThat(IndentationRule().format(code)).isEqualTo(formattedCode)
-    }
-
-    @Test
-    fun `Issue 1210 - format of statements after supertype delegated entry 1`() {
-        val code =
-            """
-            object Issue1210 : ApplicationComponent.Factory
-                by DaggerApplicationComponent.factory()
-
-            // The next line ensures that the fix regarding the expectedIndex due to alignment of "by" keyword in
-            // class above, is still in place. Without this fix, the expectedIndex would hold a negative value,
-            // resulting in the formatting to crash on the next line.
-            val bar = 1
-            """.trimIndent()
-
         assertThat(IndentationRule().lint(code)).isEmpty()
         assertThat(IndentationRule().format(code)).isEqualTo(code)
     }

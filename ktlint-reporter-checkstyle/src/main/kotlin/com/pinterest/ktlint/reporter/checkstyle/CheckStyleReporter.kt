@@ -20,15 +20,15 @@ class CheckStyleReporter(val out: PrintStream) : Reporter {
         out.println("""<?xml version="1.0" encoding="utf-8"?>""")
         out.println("""<checkstyle version="8.0">""")
         for ((file, errList) in acc.entries.sortedBy { it.key }) {
-            out.println("""	<file name="${file.escapeXMLAttrValue()}">""")
+            out.println("""    <file name="${file.escapeXMLAttrValue()}">""")
             for ((line, col, ruleId, detail) in errList) {
                 out.println(
-                    """		<error line="$line" column="$col" severity="error" message="${
+                    """        <error line="$line" column="$col" severity="error" message="${
                     detail.escapeXMLAttrValue()
                     }" source="$ruleId" />"""
                 )
             }
-            out.println("""	</file>""")
+            out.println("""    </file>""")
         }
         out.println("""</checkstyle>""")
     }

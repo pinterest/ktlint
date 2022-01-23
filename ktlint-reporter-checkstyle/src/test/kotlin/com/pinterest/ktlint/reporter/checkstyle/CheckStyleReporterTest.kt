@@ -67,17 +67,19 @@ class CheckStyleReporterTest {
         reporter.afterAll()
         assertThat(String(out.toByteArray())).isEqualTo(
             """
-<?xml version="1.0" encoding="utf-8"?>
-<checkstyle version="8.0">
-	<file name="/one-fixed-and-one-not.kt">
-		<error line="1" column="1" severity="error" message="&lt;&quot;&amp;&apos;&gt;" source="rule-1" />
-	</file>
-	<file name="/two-not-fixed.kt">
-		<error line="1" column="10" severity="error" message="I thought I would again" source="rule-1" />
-		<error line="2" column="20" severity="error" message="A single thin straight line" source="rule-2" />
-	</file>
-</checkstyle>
-""".trimStart().replace("\n", System.lineSeparator())
+            <?xml version="1.0" encoding="utf-8"?>
+            <checkstyle version="8.0">
+                <file name="/one-fixed-and-one-not.kt">
+                    <error line="1" column="1" severity="error" message="&lt;&quot;&amp;&apos;&gt;" source="rule-1" />
+                </file>
+                <file name="/two-not-fixed.kt">
+                    <error line="1" column="10" severity="error" message="I thought I would again" source="rule-1" />
+                    <error line="2" column="20" severity="error" message="A single thin straight line" source="rule-2" />
+                </file>
+            </checkstyle>
+
+            """.trimIndent()
+                .replace("\n", System.lineSeparator())
         )
     }
 }

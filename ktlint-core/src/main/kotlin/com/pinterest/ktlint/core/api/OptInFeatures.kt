@@ -8,7 +8,7 @@ package com.pinterest.ktlint.core.api
 @Target(
     AnnotationTarget.CLASS,
     AnnotationTarget.FUNCTION,
-    AnnotationTarget.TYPEALIAS,
+    AnnotationTarget.TYPEALIAS
 )
 public annotation class FeatureInAlphaState
 
@@ -20,6 +20,6 @@ public annotation class FeatureInAlphaState
 @Target(
     AnnotationTarget.CLASS,
     AnnotationTarget.FUNCTION,
-    AnnotationTarget.TYPEALIAS,
+    AnnotationTarget.TYPEALIAS
 )
 public annotation class FeatureInBetaState

@@ -49,7 +49,7 @@ class SimpleCLITest : BaseCLITest() {
             "no-code-style-error"
         ) {
             assertNormalExitCode()
-            assertErrorOutputIsEmpty()
+            // assertErrorOutputIsEmpty() // TODO Re-add once PR #1279 is merged
         }
     }
 

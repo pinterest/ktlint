@@ -17,7 +17,6 @@ import com.pinterest.ktlint.core.ast.ElementType.COLON
 import com.pinterest.ktlint.core.ast.ElementType.COMMA
 import com.pinterest.ktlint.core.ast.ElementType.CONDITION
 import com.pinterest.ktlint.core.ast.ElementType.DELEGATED_SUPER_TYPE_ENTRY
-import com.pinterest.ktlint.core.ast.ElementType.DOT
 import com.pinterest.ktlint.core.ast.ElementType.DOT_QUALIFIED_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.ELSE
 import com.pinterest.ktlint.core.ast.ElementType.ELVIS
@@ -26,6 +25,7 @@ import com.pinterest.ktlint.core.ast.ElementType.EQ
 import com.pinterest.ktlint.core.ast.ElementType.FUN
 import com.pinterest.ktlint.core.ast.ElementType.FUNCTION_LITERAL
 import com.pinterest.ktlint.core.ast.ElementType.GT
+import com.pinterest.ktlint.core.ast.ElementType.IDENTIFIER
 import com.pinterest.ktlint.core.ast.ElementType.KDOC
 import com.pinterest.ktlint.core.ast.ElementType.KDOC_END
 import com.pinterest.ktlint.core.ast.ElementType.KDOC_LEADING_ASTERISK
@@ -107,7 +107,13 @@ private val logger = KotlinLogging.logger {}.initKtLintKLogger()
  * Current limitations:
  * - "all or nothing" (currently, rule can only be disabled for an entire file)
  */
-class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
+class IndentationRule : Rule(
+    id = "indent",
+    visitorModifiers = setOf(
+        VisitorModifier.RunOnRootNodeOnly,
+        VisitorModifier.RunAsLateAsPossible
+    )
+) {
 
     private companion object {
         private val lTokenSet = TokenSet.create(LPAR, LBRACE, LBRACKET, LT)
@@ -157,6 +163,11 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
         logger.trace { "phase: indentation" }
         // step 2: correct indentation
         indent(node, autoCorrect, emit, editorConfig)
+
+        // The expectedIndent should never be negative. If so, it is very likely that ktlint crashes at runtime when
+        // autocorrecting is executed while no error occurs with linting only. Such errors often are not found in unit
+        // tests, as the examples are way more simple than realistic code.
+        assert(expectedIndent >= 0)
     }
 
     private fun rearrange(
@@ -342,7 +353,7 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
         val treeParent = n.treeParent
         if (treeParent.elementType == STRING_TEMPLATE) {
             val treeParentPsi = treeParent.psi as KtStringTemplateExpression
-            if (treeParentPsi.isMultiLine() && treeParentPsi.isFollowedByTrimIndent() && n.treePrev.text.isNotBlank()) {
+            if (treeParentPsi.isMultiLine() && n.treePrev.text.isNotBlank()) {
                 // rewriting
                 // """
                 //     text
@@ -733,12 +744,18 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
         val byKeywordLeaf = n
             .findChildByType(DELEGATED_SUPER_TYPE_ENTRY)
             ?.findChildByType(BY_KEYWORD)
-        if (n.prevLeaf()?.textContains('\n') == true && byKeywordLeaf?.prevLeaf().isWhiteSpaceWithNewline()) {
-            Unit
-        } else {
-            expectedIndent--
-            logger.trace { "$line: --after(${n.elementType}) -> $expectedIndent" }
+        if (n.prevLeaf()?.textContains('\n') == true &&
+            byKeywordLeaf?.prevLeaf().isWhiteSpaceWithNewline()
+        ) {
+            return
         }
+        if (byKeywordLeaf?.prevLeaf()?.textContains('\n') == true &&
+            byKeywordLeaf.prevLeaf()?.treeParent?.nextLeaf()?.elementType == IDENTIFIER
+        ) {
+            return
+        }
+        expectedIndent--
+        logger.trace { "$line: --after(${n.elementType}) -> $expectedIndent" }
     }
 
     private fun adjustExpectedIndentInsideSuperTypeCall(n: ASTNode, ctx: IndentContext) {
@@ -833,7 +850,7 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
         editorConfig: EditorConfig
     ) {
         val psi = node.psi as KtStringTemplateExpression
-        if (psi.isMultiLine() && psi.isFollowedByTrimIndent()) {
+        if (psi.isMultiLine()) {
             if (node.containsMixedIndentationCharacters()) {
                 // It can not be determined with certainty how mixed indentation characters should be interpreted.
                 // The trimIndent function handles tabs and spaces equally (one tabs equals one space) while the user
@@ -863,8 +880,15 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
                 .map { it.text.indentLength() }
                 .min() ?: 0
 
-            val expectedIndentation = editorConfig.repeatIndent(expectedIndent)
-            val expectedPrefixLength = expectedIndent * editorConfig.indentSize
+            val correctedExpectedIndent = if (node.prevLeaf()?.text == "\n") {
+                // In case the opening quotes are placed at the start of the line, then expect all lines inside the
+                // string literal and the closing quotes to have no indent as well.
+                0
+            } else {
+                expectedIndent
+            }
+            val expectedIndentation = editorConfig.repeatIndent(correctedExpectedIndent)
+            val expectedPrefixLength = correctedExpectedIndent * editorConfig.indentSize
             node.children()
                 .forEach {
                     if (it.prevLeaf()?.text == "\n" &&
@@ -931,10 +955,6 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
         }
         return false
     }
-
-    private fun KtStringTemplateExpression.isFollowedByTrimIndent() =
-        this.node.nextSibling { it.elementType != DOT }
-            .let { it?.elementType == CALL_EXPRESSION && it.text == "trimIndent()" }
 
     private fun String.indentLength() =
         indexOfFirst { !it.isWhitespace() }.let { if (it == -1) length else it }
@@ -1003,6 +1023,10 @@ class IndentationRule : Rule("indent"), Rule.Modifier.RestrictToRootLast {
             nextLeafElementType == BY_KEYWORD -> {
                 if (node.isPartOf(DELEGATED_SUPER_TYPE_ENTRY) &&
                     node.treeParent.prevLeaf()?.textContains('\n') == true
+                ) {
+                    0
+                } else if (node.isPartOf(DELEGATED_SUPER_TYPE_ENTRY) &&
+                    node.treeParent.nextLeaf()?.elementType == IDENTIFIER
                 ) {
                     0
                 } else {

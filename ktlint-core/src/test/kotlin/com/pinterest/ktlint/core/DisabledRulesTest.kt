@@ -7,21 +7,8 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.junit.Test
 
 class DisabledRulesTest {
-
     @Test
-    fun testDisabledRule() {
-        class NoVarRule : Rule("no-var") {
-            override fun visit(
-                node: ASTNode,
-                autoCorrect: Boolean,
-                emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
-            ) {
-                if (node.elementType == ElementType.VAR_KEYWORD) {
-                    emit(node.startOffset, "Unexpected var, use val instead", false)
-                }
-            }
-        }
-
+    fun `Given some code and a enabled standard rule resulting in a violation then the violation is reported`() {
         assertThat(
             ArrayList<LintError>().apply {
                 KtLint.lint(
@@ -37,7 +24,10 @@ class DisabledRulesTest {
                 LintError(1, 1, "no-var", "Unexpected var, use val instead")
             )
         )
+    }
 
+    @Test
+    fun `Given some code and a disabled standard rule then no violation is reported`() {
         assertThat(
             ArrayList<LintError>().apply {
                 KtLint.lint(
@@ -50,7 +40,10 @@ class DisabledRulesTest {
                 )
             }
         ).isEmpty()
+    }
 
+    @Test
+    fun `Given some code and a disabled experimental rule then no violation is reported`() {
         assertThat(
             ArrayList<LintError>().apply {
                 KtLint.lint(
@@ -63,5 +56,17 @@ class DisabledRulesTest {
                 )
             }
         ).isEmpty()
+    }
+
+    class NoVarRule : Rule("no-var") {
+        override fun visit(
+            node: ASTNode,
+            autoCorrect: Boolean,
+            emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        ) {
+            if (node.elementType == ElementType.VAR_KEYWORD) {
+                emit(node.startOffset, "Unexpected var, use val instead", false)
+            }
+        }
     }
 }
