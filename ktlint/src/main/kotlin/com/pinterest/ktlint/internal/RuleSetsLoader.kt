@@ -7,7 +7,7 @@ import java.util.ServiceLoader
 import java.util.SortedMap
 
 /**
- * Load given list of paths to rulesets jars into map of ruleset providers.
+ * Load given list of paths to ruleset jars into map of ruleset providers.
  *
  * @return map of ruleset ids to ruleset providers
  */
