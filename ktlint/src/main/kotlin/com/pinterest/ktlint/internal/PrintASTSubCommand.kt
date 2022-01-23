@@ -4,8 +4,8 @@ import com.pinterest.ktlint.KtlintCommandLine
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.ParseException
 import com.pinterest.ktlint.core.RuleSet
-import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ktlint.core.VisitorProvider
+import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ruleset.test.DumpASTRule
 import java.io.File
 import java.nio.file.FileSystems
