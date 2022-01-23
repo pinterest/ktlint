@@ -25,6 +25,7 @@ import com.pinterest.ktlint.core.ast.ElementType.EQ
 import com.pinterest.ktlint.core.ast.ElementType.FUN
 import com.pinterest.ktlint.core.ast.ElementType.FUNCTION_LITERAL
 import com.pinterest.ktlint.core.ast.ElementType.GT
+import com.pinterest.ktlint.core.ast.ElementType.IDENTIFIER
 import com.pinterest.ktlint.core.ast.ElementType.KDOC
 import com.pinterest.ktlint.core.ast.ElementType.KDOC_END
 import com.pinterest.ktlint.core.ast.ElementType.KDOC_LEADING_ASTERISK
@@ -168,6 +169,11 @@ class IndentationRule : Rule(
         Companion.debug { "phase: indentation" }
         // step 2: correct indentation
         indent(node, autoCorrect, emit, editorConfig)
+
+        // The expectedIndent should never be negative. If so, it is very likely that ktlint crashes at runtime when
+        // autocorrecting is executed while no error occurs with linting only. Such errors often are not found in unit
+        // tests, as the examples are way more simple than realistic code.
+        assert(expectedIndent >= 0)
     }
 
     private fun rearrange(
@@ -747,12 +753,18 @@ class IndentationRule : Rule(
         val byKeywordLeaf = n
             .findChildByType(DELEGATED_SUPER_TYPE_ENTRY)
             ?.findChildByType(BY_KEYWORD)
-        if (n.prevLeaf()?.textContains('\n') == true && byKeywordLeaf?.prevLeaf().isWhiteSpaceWithNewline()) {
-            Unit
-        } else {
-            expectedIndent--
-            debug { "--after(${n.elementType}) -> $expectedIndent" }
+        if (n.prevLeaf()?.textContains('\n') == true &&
+            byKeywordLeaf?.prevLeaf().isWhiteSpaceWithNewline()
+        ) {
+            return
         }
+        if (byKeywordLeaf?.prevLeaf()?.textContains('\n') == true &&
+            byKeywordLeaf.prevLeaf()?.treeParent?.nextLeaf()?.elementType == IDENTIFIER
+        ) {
+            return
+        }
+        expectedIndent--
+        debug { "--after(${n.elementType}) -> $expectedIndent" }
     }
 
     private fun adjustExpectedIndentInsideSuperTypeCall(n: ASTNode, ctx: IndentContext) {
@@ -1020,6 +1032,10 @@ class IndentationRule : Rule(
             nextLeafElementType == BY_KEYWORD -> {
                 if (node.isPartOf(DELEGATED_SUPER_TYPE_ENTRY) &&
                     node.treeParent.prevLeaf()?.textContains('\n') == true
+                ) {
+                    0
+                } else if (node.isPartOf(DELEGATED_SUPER_TYPE_ENTRY) &&
+                    node.treeParent.nextLeaf()?.elementType == IDENTIFIER
                 ) {
                     0
                 } else {
