@@ -110,9 +110,9 @@ class ImportOrderingRuleAsciiTest {
     fun testFormatDuplicate() {
         val imports =
             """
-            import android.view.ViewGroup
             import android.view.View
             import android.view.ViewGroup
+            import android.view.View
             """.trimIndent()
 
         val formattedImports =
@@ -125,7 +125,9 @@ class ImportOrderingRuleAsciiTest {
 
         assertThat(
             rule.lint(testFile, imports)
-        ).isEqualTo(expectedErrors())
+        ).containsExactly(
+            LintError(3, 1, "import-ordering", "Duplicate 'import android.view.View' found")
+        )
         assertThat(
             rule.format(testFile, imports)
         ).isEqualTo(formattedImports)

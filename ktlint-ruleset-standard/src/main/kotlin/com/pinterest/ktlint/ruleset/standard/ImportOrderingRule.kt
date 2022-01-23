@@ -165,17 +165,32 @@ public class ImportOrderingRule :
         if (node.elementType == ElementType.IMPORT_LIST) {
             val children = node.getChildren(null)
             if (children.isNotEmpty()) {
-                val imports = children.filter {
-                    it.elementType == ElementType.IMPORT_DIRECTIVE ||
-                        it.psi is PsiWhiteSpace && it.textLength > 1 // also collect empty lines, that are represented as "\n\n"
-                }
+                // Get unique imports and blank lines
+                var autoCorrectDuplicateImports = false
+                val imports = mutableListOf<ASTNode>()
+                children
+                    .filter {
+                        it.elementType == ElementType.IMPORT_DIRECTIVE ||
+                            it.psi is PsiWhiteSpace && it.textLength > 1 // also collect empty lines, that are represented as "\n\n"
+                    }.map { current ->
+                        if (current.psi is PsiWhiteSpace || imports.none { it.text == current.text }) {
+                            imports += current
+                        } else {
+                            emit(
+                                current.startOffset,
+                                "Duplicate '${current.text}' found",
+                                true
+                            )
+                            autoCorrectDuplicateImports = true
+                        }
+                    }
+
                 val hasComments = children.find { it.elementType == ElementType.BLOCK_COMMENT || it.elementType == ElementType.EOL_COMMENT } != null
                 val sortedImports = imports
                     .asSequence()
                     .filter { it.psi !is PsiWhiteSpace } // sorter expects KtImportDirective, whitespaces are inserted afterwards
                     .map { it.psi as KtImportDirective }
                     .sortedWith(importSorter)
-                    .distinctBy { if (it.aliasName != null) it.text.substringBeforeLast(it.aliasName!!) else it.text } // distinguish by import path w/o aliases
                     .map { it.node } // transform back to ASTNode in order to operate over its method (addChild)
 
                 // insert blank lines wherever needed
@@ -201,19 +216,24 @@ public class ImportOrderingRule :
                     return@fold current
                 }
 
-                val canAutoCorrect = !hasComments
-                if (!importsAreEqual(imports, sortedImportsWithSpaces) || (hasTooMuchWhitespace(children) && !isCustomLayout())) {
-                    val additionalMessage = if (!canAutoCorrect) {
-                        " -- no autocorrection due to comments in the import list"
-                    } else {
-                        ""
-                    }
+                if (hasComments) {
                     emit(
                         node.startOffset,
-                        "${errorMessages.getOrDefault(importsLayout, CUSTOM_ERROR_MESSAGE)}$additionalMessage",
-                        canAutoCorrect
+                        errorMessages.getOrDefault(importsLayout, CUSTOM_ERROR_MESSAGE) +
+                            " -- no autocorrection due to comments in the import list",
+                        false
                     )
-                    if (autoCorrect && canAutoCorrect) {
+                } else {
+                    val autoCorrectWhitespace = hasTooMuchWhitespace(children) && !isCustomLayout()
+                    val autoCorrectSortOrder = !importsAreEqual(imports, sortedImportsWithSpaces)
+                    if (autoCorrectSortOrder || autoCorrectWhitespace) {
+                        emit(
+                            node.startOffset,
+                            errorMessages.getOrDefault(importsLayout, CUSTOM_ERROR_MESSAGE),
+                            true
+                        )
+                    }
+                    if (autoCorrect && (autoCorrectDuplicateImports || autoCorrectSortOrder || autoCorrectWhitespace)) {
                         node.removeRange(node.firstChildNode, node.lastChildNode.treeNext)
                         sortedImportsWithSpaces.reduce { current, next ->
                             node.addChild(current, null)
