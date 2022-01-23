@@ -38,7 +38,6 @@ class UnnecessaryParenthesesBeforeTrailingLambdaRule : Rule("unnecessary-parenth
     private fun ASTNode.isEmptyArgumentList(): Boolean =
         elementType == VALUE_ARGUMENT_LIST &&
             children()
-                .filterNot { it.elementType == LPAR }
-                .filterNot { it.elementType == RPAR }
+                .filterNot { it.elementType == LPAR || it.elementType == RPAR }
                 .none()
 }
