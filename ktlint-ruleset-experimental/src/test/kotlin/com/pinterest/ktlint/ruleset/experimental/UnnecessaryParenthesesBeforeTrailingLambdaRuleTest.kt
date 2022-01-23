@@ -6,8 +6,8 @@ import com.pinterest.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
-class UnnecessaryParenthesesRuleTest {
-    private val unnecessaryParenthesesRule = UnnecessaryParenthesesRule()
+class UnnecessaryParenthesesBeforeTrailingLambdaRuleTest {
+    private val unnecessaryParenthesesRule = UnnecessaryParenthesesBeforeTrailingLambdaRule()
 
     @Test
     fun `Remove unnecessary parentheses in function call followed by lambda`() {
@@ -23,7 +23,7 @@ class UnnecessaryParenthesesRuleTest {
             """.trimIndent()
         assertThat(unnecessaryParenthesesRule.format(code)).isEqualTo(formattedCode)
         assertThat(unnecessaryParenthesesRule.lint(code)).containsExactly(
-            LintError(2, 24, "unnecessary-parentheses", "Empty parentheses in function call followed by lambda are unnecessary")
+            LintError(2, 24, "unnecessary-parentheses-before-trailing-lambda", "Empty parentheses in function call followed by lambda are unnecessary")
         )
     }
 }

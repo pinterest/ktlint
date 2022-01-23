@@ -11,7 +11,10 @@ import com.pinterest.ktlint.core.ast.isPartOf
 import com.pinterest.ktlint.core.ast.nextCodeSibling
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
-class UnnecessaryParenthesesRule : Rule("unnecessary-parentheses") {
+/**
+ * Ensures there are no unnecessary parentheses before a trailing lambda.
+ */
+class UnnecessaryParenthesesBeforeTrailingLambdaRule : Rule("unnecessary-parentheses-before-trailing-lambda") {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
