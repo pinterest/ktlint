@@ -101,7 +101,7 @@ public class EditorConfigLoader(
                 }
             }
             .also {
-                logger.debug {
+                logger.trace {
                     it
                         .map { entry -> "${entry.key}: ${entry.value.sourceValue}" }
                         .joinToString(

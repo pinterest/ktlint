@@ -386,7 +386,7 @@ class KtlintCommandLine {
         ruleSets: Iterable<RuleSet>,
         visitorProvider: VisitorProvider
     ): List<LintErrorWithCorrectionInfo> {
-        logger.debug {
+        logger.trace {
             val fileLocation = if (fileName != KtLint.STDIN_FILE) File(fileName).location(relative) else fileName
             "Checking $fileLocation"
         }
