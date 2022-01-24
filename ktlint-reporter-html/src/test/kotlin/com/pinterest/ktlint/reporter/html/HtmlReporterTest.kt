@@ -40,23 +40,24 @@ class HtmlReporterTest {
 
         val actual =
             """
-<html>
-<head>
-<link href="https://fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" />
-<meta http-equiv="Content-Type" Content="text/html; Charset=UTF-8">
-<style>
-body {
-    font-family: 'Source Code Pro', monospace;
-}
-h3 {
-    font-size: 12pt;
-}</style>
-</head>
-<body>
-<p>Congratulations, no issues found!</p>
-</body>
-</html>
-""".trimStart().replace("\n", System.lineSeparator())
+            <html>
+            <head>
+            <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" />
+            <meta http-equiv="Content-Type" Content="text/html; Charset=UTF-8">
+            <style>
+            body {
+                font-family: 'Source Code Pro', monospace;
+            }
+            h3 {
+                font-size: 12pt;
+            }</style>
+            </head>
+            <body>
+            <p>Congratulations, no issues found!</p>
+            </body>
+            </html>
+
+            """.trimIndent().replace("\n", System.lineSeparator())
 
         val expected = String(out.toByteArray())
         assertEquals(actual, expected)
@@ -76,29 +77,31 @@ h3 {
         reporter.afterAll()
 
         val actual =
-            """<html>
-<head>
-<link href="https://fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" />
-<meta http-equiv="Content-Type" Content="text/html; Charset=UTF-8">
-<style>
-body {
-    font-family: 'Source Code Pro', monospace;
-}
-h3 {
-    font-size: 12pt;
-}</style>
-</head>
-<body>
-<h1>Overview</h1>
-<p>Issues found: 1</p>
-<p>Issues corrected: 0</p>
-<h3>/file1.kt</h3>
-<ul>
-<li>(1, 1): rule-1 broken  (rule-1)</li>
-</ul>
-</body>
-</html>
-""".trimStart().replace("\n", System.lineSeparator())
+            """
+            <html>
+            <head>
+            <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" />
+            <meta http-equiv="Content-Type" Content="text/html; Charset=UTF-8">
+            <style>
+            body {
+                font-family: 'Source Code Pro', monospace;
+            }
+            h3 {
+                font-size: 12pt;
+            }</style>
+            </head>
+            <body>
+            <h1>Overview</h1>
+            <p>Issues found: 1</p>
+            <p>Issues corrected: 0</p>
+            <h3>/file1.kt</h3>
+            <ul>
+            <li>(1, 1): rule-1 broken  (rule-1)</li>
+            </ul>
+            </body>
+            </html>
+
+            """.trimIndent().replace("\n", System.lineSeparator())
 
         val expected = String(out.toByteArray())
         assertEquals(actual, expected)
@@ -124,29 +127,31 @@ h3 {
         reporter.afterAll()
 
         val actual =
-            """<html>
-<head>
-<link href="https://fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" />
-<meta http-equiv="Content-Type" Content="text/html; Charset=UTF-8">
-<style>
-body {
-    font-family: 'Source Code Pro', monospace;
-}
-h3 {
-    font-size: 12pt;
-}</style>
-</head>
-<body>
-<h1>Overview</h1>
-<p>Issues found: 1</p>
-<p>Issues corrected: 1</p>
-<h3>/file1.kt</h3>
-<ul>
-<li>(1, 1): rule-1 broken  (rule-1)</li>
-</ul>
-</body>
-</html>
-""".trimStart().replace("\n", System.lineSeparator())
+            """
+            <html>
+            <head>
+            <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" />
+            <meta http-equiv="Content-Type" Content="text/html; Charset=UTF-8">
+            <style>
+            body {
+                font-family: 'Source Code Pro', monospace;
+            }
+            h3 {
+                font-size: 12pt;
+            }</style>
+            </head>
+            <body>
+            <h1>Overview</h1>
+            <p>Issues found: 1</p>
+            <p>Issues corrected: 1</p>
+            <h3>/file1.kt</h3>
+            <ul>
+            <li>(1, 1): rule-1 broken  (rule-1)</li>
+            </ul>
+            </body>
+            </html>
+
+            """.trimIndent().replace("\n", System.lineSeparator())
 
         val expected = String(out.toByteArray())
         assertEquals(actual, expected)
@@ -172,30 +177,32 @@ h3 {
         reporter.afterAll()
 
         val actual =
-            """<html>
-<head>
-<link href="https://fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" />
-<meta http-equiv="Content-Type" Content="text/html; Charset=UTF-8">
-<style>
-body {
-    font-family: 'Source Code Pro', monospace;
-}
-h3 {
-    font-size: 12pt;
-}</style>
-</head>
-<body>
-<h1>Overview</h1>
-<p>Issues found: 2</p>
-<p>Issues corrected: 0</p>
-<h3>/file1.kt</h3>
-<ul>
-<li>(1, 1): Error message contains a generic type like List&lt;Int&gt; (cannot be auto-corrected)  (rule-1)</li>
-<li>(2, 1): Error message contains special html symbols like a&lt;b&gt;c&quot;d&apos;e&amp;f (cannot be auto-corrected)  (rule-2)</li>
-</ul>
-</body>
-</html>
-""".trimStart().replace("\n", System.lineSeparator())
+            """
+            <html>
+            <head>
+            <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" />
+            <meta http-equiv="Content-Type" Content="text/html; Charset=UTF-8">
+            <style>
+            body {
+                font-family: 'Source Code Pro', monospace;
+            }
+            h3 {
+                font-size: 12pt;
+            }</style>
+            </head>
+            <body>
+            <h1>Overview</h1>
+            <p>Issues found: 2</p>
+            <p>Issues corrected: 0</p>
+            <h3>/file1.kt</h3>
+            <ul>
+            <li>(1, 1): Error message contains a generic type like List&lt;Int&gt; (cannot be auto-corrected)  (rule-1)</li>
+            <li>(2, 1): Error message contains special html symbols like a&lt;b&gt;c&quot;d&apos;e&amp;f (cannot be auto-corrected)  (rule-2)</li>
+            </ul>
+            </body>
+            </html>
+
+            """.trimIndent().replace("\n", System.lineSeparator())
 
         val expected = String(out.toByteArray())
         assertEquals(actual, expected)

@@ -8,7 +8,7 @@ fun f0() {
     println("""${true}""")
     println(
         """
-"""
+        """
     )
     f(
         """${
@@ -17,7 +17,8 @@ fun f0() {
     text
 _${
         true
-        }""",
+        }
+        """,
         """text"""
     )
 }

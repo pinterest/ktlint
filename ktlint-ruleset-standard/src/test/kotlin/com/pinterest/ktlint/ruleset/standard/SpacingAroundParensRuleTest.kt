@@ -104,7 +104,7 @@ class SpacingAroundParensRuleTest {
         assertThat(actual)
             .isEqualTo(
                 listOf(
-                    LintError(1, 28, "paren-spacing", """Unexpected spacing before "(""""),
+                    LintError(1, 28, "paren-spacing", """Unexpected spacing before "("""")
                 )
             )
     }

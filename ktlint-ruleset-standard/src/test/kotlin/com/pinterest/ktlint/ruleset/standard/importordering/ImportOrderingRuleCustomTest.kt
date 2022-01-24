@@ -159,7 +159,6 @@ class ImportOrderingRuleCustomTest {
 
     @Test
     fun `default idea java pattern - wrong order`() {
-
         val imports =
             """
             import android.app.Activity
@@ -208,7 +207,6 @@ class ImportOrderingRuleCustomTest {
 
     @Test
     fun `multiple empty lines - ignored`() {
-
         val formattedImports =
             """
             import java.util.List
@@ -233,7 +231,6 @@ class ImportOrderingRuleCustomTest {
 
     @Test
     fun `multiple empty lines - transformed into one`() {
-
         val imports =
             """
             import java.util.List
@@ -270,7 +267,6 @@ class ImportOrderingRuleCustomTest {
 
     @Test
     fun `alias pattern - ok`() {
-
         val formattedImports =
             """
             import kotlin.io.Closeable as C
@@ -295,7 +291,6 @@ class ImportOrderingRuleCustomTest {
 
     @Test
     fun `alias pattern - wrong order`() {
-
         val imports =
             """
             import android.app.Activity
@@ -329,7 +324,6 @@ class ImportOrderingRuleCustomTest {
 
     @Test
     fun `full path pattern - ok`() {
-
         val formattedImports =
             """
             import kotlin.io.Closeable
@@ -353,7 +347,6 @@ class ImportOrderingRuleCustomTest {
 
     @Test
     fun `full path pattern - wrong order`() {
-
         val imports =
             """
             import android.app.Activity

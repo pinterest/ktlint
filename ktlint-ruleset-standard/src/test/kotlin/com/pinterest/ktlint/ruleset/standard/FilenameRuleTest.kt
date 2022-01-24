@@ -35,7 +35,7 @@ class FilenameRuleTest {
                     import y.Z
                     $src
                     //
-                    """.trimIndent(),
+                    """.trimIndent()
                 )
             ).isEmpty()
         }
@@ -66,7 +66,7 @@ class FilenameRuleTest {
                     import y.Z
                     ${src.key}
                     //
-                    """.trimIndent(),
+                    """.trimIndent()
                 )
             ).isEqualTo(
                 listOf(
@@ -85,7 +85,7 @@ class FilenameRuleTest {
                 /*
                  * copyright
                  */
-                """.trimIndent(),
+                """.trimIndent()
             )
         ).isEmpty()
     }
@@ -98,7 +98,7 @@ class FilenameRuleTest {
                 """
                 class B
                 class C
-                """.trimIndent(),
+                """.trimIndent()
             )
         ).isEmpty()
     }
@@ -113,7 +113,7 @@ class FilenameRuleTest {
                     class C
                     class D
                 }
-                """.trimIndent(),
+                """.trimIndent()
             )
         ).isEqualTo(
             listOf(
@@ -129,7 +129,7 @@ class FilenameRuleTest {
                 "woohoo.kt",
                 """
                 interface Woohoo
-                """.trimIndent(),
+                """.trimIndent()
             )
         ).isEqualTo(
             listOf(
@@ -145,7 +145,7 @@ class FilenameRuleTest {
                 "B.kt",
                 """
                 class `A`
-                """.trimIndent(),
+                """.trimIndent()
             )
         ).isEqualTo(
             listOf(
@@ -161,7 +161,7 @@ class FilenameRuleTest {
                 "A.kts",
                 """
                 class B
-                """.trimIndent(),
+                """.trimIndent()
             )
         ).isEmpty()
     }
