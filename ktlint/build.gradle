@@ -58,7 +58,7 @@ def shadowJarExecutableTask = tasks.register("shadowJarExecutable", DefaultTask.
   doLast {
     File execFile = outputs.files.getFiles().first()
     execFile.withOutputStream {
-      it.write "#!/bin/sh\n\nexec java -Xmx512m -jar \"\$0\" \"\$@\"\n\n".bytes
+      it.write "#!/bin/sh\n\nexec java --add-opens java.base/java.lang=ALL-UNNAMED -Xmx512m -jar \"\$0\" \"\$@\"\n\n".bytes
       it.write inputs.files.singleFile.bytes
     }
     execFile.setExecutable(true, false)
