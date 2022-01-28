@@ -16,7 +16,7 @@ import org.jetbrains.kotlin.utils.addToStdlib.ifTrue
 
 private val logger = KotlinLogging.logger {}.initKtLintKLogger()
 
-private fun Rule.toRuleSets(): List<RuleSet> {
+private fun List<Rule>.toRuleSets(): List<RuleSet> {
     val dumpAstRuleSet = System
         .getenv(KTLINT_UNIT_TEST_DUMP_AST)
         .orEmpty()
@@ -32,7 +32,16 @@ private fun Rule.toRuleSets(): List<RuleSet> {
                 )
             )
         }
-    return listOfNotNull(dumpAstRuleSet, RuleSet("standard", this))
+    return listOfNotNull(
+        dumpAstRuleSet,
+        RuleSet(
+            // RuleSet id is always set to "standard" as this has the side effect that the ruleset id will
+            // be excluded from the ruleId in the LintError which makes the unit tests of the experimental
+            // rules easier to maintain as they will not contain the reference to the ruleset id.
+            "standard",
+            *toTypedArray()
+        )
+    )
 }
 
 public fun Rule.lint(
@@ -41,7 +50,29 @@ public fun Rule.lint(
     script: Boolean = false
 ): List<LintError> = lint(null, text, userData, script)
 
+/**
+ * Runs lint for a list of rules on a piece of code. Rules should be specified in exact order as they will be executed
+ * by the production code. Its primary usage is testing rules which are closely related like wrapping and indent rules.
+ */
+public fun List<Rule>.lint(
+    text: String,
+    userData: Map<String, String> = emptyMap(),
+    script: Boolean = false
+): List<LintError> = lint(null, text, userData, script)
+
 public fun Rule.lint(
+    lintedFilePath: String?,
+    text: String,
+    userData: Map<String, String> = emptyMap(),
+    script: Boolean = false
+): List<LintError> =
+    listOf(this).lint(lintedFilePath, text, userData, script)
+
+/**
+ * Runs lint for a list of rules on a piece of code. Rules should be specified in exact order as they will be executed
+ * by the production code. Its primary usage is testing rules which are closely related like wrapping and indent rules.
+ */
+public fun List<Rule>.lint(
     lintedFilePath: String?,
     text: String,
     userData: Map<String, String> = emptyMap(),
@@ -68,22 +99,48 @@ public fun Rule.format(
     script: Boolean = false
 ): String = format(null, text, userData, cb, script)
 
+/**
+ * Runs format for a list of rules on a piece of code. Rules should be specified in exact order as they will be executed
+ * by the production code.  Its primary usage is testing rules which are closely related like wrapping and indent rules.
+ */
+public fun List<Rule>.format(
+    text: String,
+    userData: Map<String, String> = emptyMap(),
+    cb: (e: LintError, corrected: Boolean) -> Unit = { _, _ -> },
+    script: Boolean = false
+): String = format(null, text, userData, cb, script)
+
 public fun Rule.format(
     lintedFilePath: String?,
     text: String,
     userData: Map<String, String> = emptyMap(),
     cb: (e: LintError, corrected: Boolean) -> Unit = { _, _ -> },
     script: Boolean = false
-): String = KtLint.format(
-    KtLint.Params(
-        fileName = lintedFilePath,
-        text = text,
-        ruleSets = this.toRuleSets(),
-        userData = userData,
-        script = script,
-        cb = cb
+): String = listOf(this).format(lintedFilePath, text, userData, cb, script)
+
+/**
+ * Runs format for a list of rules on a piece of code. Rules should be specified in exact order as they will be executed
+ * by the production code.  Its primary usage is testing rules which are closely related like wrapping and indent rules.
+ */
+public fun List<Rule>.format(
+    lintedFilePath: String?,
+    text: String,
+    userData: Map<String, String> = emptyMap(),
+    cb: (e: LintError, corrected: Boolean) -> Unit = { _, _ -> },
+    script: Boolean = false
+): String {
+    val rules = this.toTypedArray()
+    return KtLint.format(
+        KtLint.Params(
+            fileName = lintedFilePath,
+            text = text,
+            ruleSets = this.toRuleSets(),
+            userData = userData,
+            script = script,
+            cb = cb
+        )
     )
-)
+}
 
 public fun Rule.diffFileLint(
     path: String,
