@@ -15,9 +15,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - Do not remove trailing comma in annotation ([#1297](https://github.com/pinterest/ktlint/issues/1297))
 - Do not remove import which is used as markdown link in KDoc only (`no-unused-imports`) ([#1282](https://github.com/pinterest/ktlint/issues/1282))
 - Fix indentation of secondary constructor (`indent`) ([#1222](https://github.com/pinterest/ktlint/issues/1222))
-- Fix false positive indentation (`parameter-list-wrapping`) ([#1267](https://github.com/pinterest/ktlint/issues/1267))
-- Fix false positive indentation (`parameter-list-wrapping`) ([#1119](https://github.com/pinterest/ktlint/issues/1119))
-- Fix false positive indentation (`argument-list-wrapping`) ([#1045](https://github.com/pinterest/ktlint/issues/1045))
+- Fix false positive indentation (`parameter-list-wrapping`) ([#897](https://github.com/pinterest/ktlint/issues/897), [#1045](https://github.com/pinterest/ktlint/issues/1045), [#1119](https://github.com/pinterest/ktlint/issues/1119), [#1255](https://github.com/pinterest/ktlint/issues/1255), [#1267](https://github.com/pinterest/ktlint/issues/1267), [#1319](https://github.com/pinterest/ktlint/issues/1319), [#1320](https://github.com/pinterest/ktlint/issues/1320), [#1337](https://github.com/pinterest/ktlint/issues/1337)
+
 - Fix alignment of arrow when trailing comma is missing in when entry (`trailing-comma`) ([#1312](https://github.com/pinterest/ktlint/issues/1312))
 
 ### Changed
