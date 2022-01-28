@@ -125,14 +125,15 @@ class ImportOrderingRuleIdeaTest {
     }
 
     @Test
-    fun testFormatDuplicate() {
+    fun `remove duplicate class imports unless they have distinct aliases`() {
         val imports =
             """
-            import android.view.ViewGroup
             import android.view.View
             import android.view.ViewGroup
+            import android.view.View
             import android.content.Context as Ctx1
             import android.content.Context as Ctx2
+            import android.content.Context as Ctx1
             """.trimIndent()
 
         val formattedImports =
@@ -140,13 +141,17 @@ class ImportOrderingRuleIdeaTest {
             import android.view.View
             import android.view.ViewGroup
             import android.content.Context as Ctx1
+            import android.content.Context as Ctx2
             """.trimIndent()
 
         val testFile = writeIdeaImportsOrderingConfig()
 
         assertThat(
             rule.lint(testFile, imports)
-        ).isEqualTo(expectedErrors)
+        ).containsExactly(
+            LintError(3, 1, "import-ordering", "Duplicate 'import android.view.View' found"),
+            LintError(6, 1, "import-ordering", "Duplicate 'import android.content.Context as Ctx1' found")
+        )
         assertThat(
             rule.format(testFile, imports)
         ).isEqualTo(formattedImports)
@@ -347,6 +352,38 @@ class ImportOrderingRuleIdeaTest {
         ).isEmpty()
         assertThat(
             rule.format(testFile, formattedImports)
+        ).isEqualTo(formattedImports)
+    }
+
+    @Test
+    fun `Issue 1243 - Format should not remove imports when having a distinct alias`() {
+        val imports =
+            """
+            import foo.Bar as Bar1
+            import foo.Bar as Bar2
+            import foo.Bar as Bar2
+
+            val bar1 = Bar1()
+            val bar2 = Bar2()
+            """.trimIndent()
+        val formattedImports =
+            """
+            import foo.Bar as Bar1
+            import foo.Bar as Bar2
+
+            val bar1 = Bar1()
+            val bar2 = Bar2()
+            """.trimIndent()
+
+        val testFile = writeIdeaImportsOrderingConfig()
+
+        assertThat(
+            rule.lint(testFile, imports)
+        ).containsExactly(
+            LintError(3, 1, "import-ordering", "Duplicate 'import foo.Bar as Bar2' found")
+        )
+        assertThat(
+            rule.format(testFile, imports)
         ).isEqualTo(formattedImports)
     }
 

@@ -28,7 +28,7 @@ fun main() {
         2 -> true
     }
     foo.func {
-        param1, param2 ->
+            param1, param2 ->
         doSomething()
         doSomething2()
     }

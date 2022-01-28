@@ -315,7 +315,7 @@ class SpacingAroundColonRuleTest {
                 LintError(19, 19, "colon-spacing", "Unexpected newline before \":\""),
                 LintError(22, 13, "colon-spacing", "Unexpected newline before \":\""),
                 LintError(27, 24, "colon-spacing", "Unexpected newline before \":\""),
-                LintError(33, 19, "colon-spacing", "Unexpected newline before \":\""),
+                LintError(33, 19, "colon-spacing", "Unexpected newline before \":\"")
             )
         )
     }

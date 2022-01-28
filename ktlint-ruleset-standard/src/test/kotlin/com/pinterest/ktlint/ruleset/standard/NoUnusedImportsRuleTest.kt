@@ -865,6 +865,20 @@ class NoUnusedImportsRuleTest {
     }
 
     @Test
+    fun `Issue 1243 - Format should not remove import`() {
+        val code =
+            """
+            import foo.Bar as Bar1
+            import foo.Bar as Bar2
+
+            val bar1 = Bar1()
+            val bar2 = Bar2()
+            """.trimIndent()
+        assertThat(NoUnusedImportsRule().lint(code)).isEmpty()
+        assertThat(NoUnusedImportsRule().format(code)).isEqualTo(code)
+    }
+
+    @Test
     fun `Issue 1282 - do not remove import when used in kdoc only`() {
         val rule = NoUnusedImportsRule()
         assertThat(

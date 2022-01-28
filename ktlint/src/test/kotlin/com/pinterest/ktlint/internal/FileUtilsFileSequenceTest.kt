@@ -24,7 +24,7 @@ internal class FileUtilsFileSequenceTest {
         "${rootDir}project1/build.gradle.kts",
         "${rootDir}project1/src/scripts/someScript.kts",
         "${rootDir}project1/src/main/kotlin/One.kt",
-        "${rootDir}project1/src/main/kotlin/example/Two.kt",
+        "${rootDir}project1/src/main/kotlin/example/Two.kt"
     ).map { it.normalizePath() }
 
     private val project2Files = listOf(

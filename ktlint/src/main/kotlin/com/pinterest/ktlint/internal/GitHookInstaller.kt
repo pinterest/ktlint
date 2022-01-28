@@ -25,7 +25,12 @@ object GitHookInstaller {
 
         gitHookFile.writeBytes(hookContent)
         gitHookFile.setExecutable(true)
-        println(".git/hooks/$gitHookName installed")
+        println(
+            """
+            .git/hooks/$gitHookName is installed. Be aware that this hook assumes to find ktlint on the PATH. Either
+            ensure that ktlint is actually added to the path or expand the ktlint command in the hook with the path.
+            """.trimIndent()
+        )
     }
 
     @Throws(IOException::class)
