@@ -7,33 +7,54 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
 class ParameterListWrappingRuleTest {
+    private val rules = listOf(
+        ParameterListWrappingRule(),
+        // In case a parameter is already wrapped to a separate line but is indented incorrectly then this indent will
+        // only be corrected by the IndentationRule. The IndentationRule is executed in relevant tests for clarity.
+        IndentationRule()
+    )
 
     @Test
-    fun testLintClassParameterList() {
-        assertThat(
-            ParameterListWrappingRule().lint(
-                """
-                class ClassA(paramA: String, paramB: String,
-                             paramC: String)
-                """.trimIndent()
+    fun `Given a class with parameters on multiple lines then put each parameter and closing parenthesis on a separate line`() {
+        val code =
+            """
+            class ClassA(paramA: String, paramB: String,
+                         paramC: String)
+            """.trimIndent()
+        val formattedCode =
+            """
+            class ClassA(
+                paramA: String,
+                paramB: String,
+                paramC: String
             )
-        ).isEqualTo(
-            listOf(
-                LintError(1, 14, "parameter-list-wrapping", "Parameter should be on a separate line (unless all parameters can fit a single line)"),
-                LintError(1, 30, "parameter-list-wrapping", "Parameter should be on a separate line (unless all parameters can fit a single line)"),
-                LintError(2, 14, "parameter-list-wrapping", "Parameter should be on a separate line (unless all parameters can fit a single line)"),
-                LintError(2, 28, "parameter-list-wrapping", """Missing newline before ")"""")
-            )
+            """.trimIndent()
+        assertThat(rules.lint(code)).contains(
+            LintError(1, 14, "parameter-list-wrapping", "Parameter should be on a separate line (unless all parameters can fit a single line)"),
+            LintError(1, 30, "parameter-list-wrapping", "Parameter should be on a separate line (unless all parameters can fit a single line)"),
+            LintError(2, 1, "indent", "Unexpected indentation (13) (should be 4)"),
+            LintError(2, 28, "parameter-list-wrapping", """Missing newline before ")"""")
         )
+        assertThat(rules.format(code)).isEqualTo(formattedCode)
     }
 
     @Test
-    fun testLintClassParameterListWhenMaxLineLengthExceeded() {
+    fun `Given a single line class header which exceeds the maximum line length`() {
+        val code =
+            """
+            class ClassA(paramA: String, paramB: String, paramC: String)
+            """.trimIndent()
+        val formattedCode =
+            """
+            class ClassA(
+                paramA: String,
+                paramB: String,
+                paramC: String
+            )
+            """.trimIndent()
         assertThat(
             ParameterListWrappingRule().lint(
-                """
-                class ClassA(paramA: String, paramB: String, paramC: String)
-                """.trimIndent(),
+                code,
                 userData = mapOf("max_line_length" to "10")
             )
         ).isEqualTo(
@@ -44,74 +65,41 @@ class ParameterListWrappingRuleTest {
                 LintError(1, 60, "parameter-list-wrapping", """Missing newline before ")"""")
             )
         )
-        // corner case
-        assertThat(
-            ParameterListWrappingRule().lint(
-                """
-                class ClassA(paramA: String)
-                 class ClassA(paramA: String)
-                class ClassA(paramA: String)
-                """.trimIndent(),
-                userData = mapOf("max_line_length" to "28")
-            )
-        ).isEqualTo(
-            listOf(
-                LintError(2, 15, "parameter-list-wrapping", "Parameter should be on a separate line (unless all parameters can fit a single line)"),
-                LintError(2, 29, "parameter-list-wrapping", "Missing newline before \")\"")
-            )
-        )
-    }
-
-    @Test
-    fun testLintClassParameterListWhenMaxLineLengthExceededAndNoParameters() {
-        assertThat(
-            ParameterListWrappingRule().lint(
-                """
-                class ClassAWithALongName()
-                """.trimIndent(),
-                userData = mapOf("max_line_length" to "10")
-            )
-        ).doesNotContain(
-            LintError(1, 27, "parameter-list-wrapping", """Missing newline before ")"""")
-        )
-    }
-
-    @Test
-    fun testLintClassParameterListValid() {
-        assertThat(
-            ParameterListWrappingRule().lint(
-                """
-                class ClassA(paramA: String, paramB: String, paramC: String)
-                """.trimIndent()
-            )
-        ).isEmpty()
-    }
-
-    @Test
-    fun testLintClassParameterListValidMultiLine() {
-        assertThat(
-            ParameterListWrappingRule().lint(
-                """
-                class ClassA(
-                    paramA: String,
-                    paramB: String,
-                    paramC: String
-                )
-                """.trimIndent()
-            )
-        ).isEmpty()
-    }
-
-    @Test
-    fun testFormatClassParameterList() {
         assertThat(
             ParameterListWrappingRule().format(
-                """
-                class ClassA(paramA: String, paramB: String,
-                             paramC: String)
-                """.trimIndent()
+                code,
+                userData = mapOf("max_line_length" to "10")
             )
-        ).isEqualTo(
+        ).isEqualTo(formattedCode)
+    }
+
+    @Test
+    fun `Given a class header with a very long name and without parameters which exceeds the maximum line length then do not change the class header`() {
+        val code =
+            """
+            class ClassAWithALongName()
+            """.trimIndent()
+        assertThat(
+            ParameterListWrappingRule().lint(
+                code,
+                userData = mapOf("max_line_length" to "10")
+            )
+        ).isEmpty()
+        assertThat(ParameterListWrappingRule().format(code)).isEqualTo(code)
+    }
+
+    @Test
+    fun `Given a single line class header with parameters which is formatted correctly then do not change the class header`() {
+        val code =
+            """
+            class ClassA(paramA: String, paramB: String, paramC: String)
+            """.trimIndent()
+        assertThat(ParameterListWrappingRule().lint(code)).isEmpty()
+    }
+
+    @Test
+    fun `Given a multiline class header with parameters which is formatted correctly then do not change the class header`() {
+        val code =
             """
             class ClassA(
                 paramA: String,
@@ -119,76 +107,69 @@ class ParameterListWrappingRuleTest {
                 paramC: String
             )
             """.trimIndent()
-        )
+        assertThat(ParameterListWrappingRule().lint(code)).isEmpty()
     }
 
     @Test
-    fun testFormatClassParameterListWhenMaxLineLengthExceeded() {
-        assertThat(
-            ParameterListWrappingRule().format(
-                """
-                class ClassA(paramA: String, paramB: String, paramC: String)
-                """.trimIndent(),
-                userData = mapOf("max_line_length" to "10")
-            )
-        ).isEqualTo(
+    fun `Given a multiline function with parameters then start each parameter and closing parenthesis on a separate line`() {
+        val code =
             """
-            class ClassA(
-                paramA: String,
-                paramB: String,
-                paramC: String
+            fun f(a: Any,
+                  b: Any,
+                  c: Any) {
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun f(
+                a: Any,
+                b: Any,
+                c: Any
+            ) {
+            }
+            """.trimIndent()
+        assertThat(rules.lint(code)).contains(
+            LintError(1, 7, "parameter-list-wrapping", "Parameter should be on a separate line (unless all parameters can fit a single line)"),
+            LintError(2, 1, "indent", "Unexpected indentation (6) (should be 4)"),
+            LintError(2, 1, "indent", "Unexpected indentation (6) (should be 4)"),
+            LintError(3, 13, "parameter-list-wrapping", """Missing newline before ")"""")
+        )
+        assertThat(rules.format(code)).isEqualTo(formattedCode)
+    }
+
+    @Test
+    fun `Given a multiline function with parameters wheren some parameters are on the same line then start each parameter and closing parenthesis on a separate line`() {
+        val code =
+            """
+            fun f(
+                a: Any,
+                b: Any, c: Any
             )
             """.trimIndent()
+        assertThat(ParameterListWrappingRule().lint(code)).containsExactly(
+            LintError(3, 13, "parameter-list-wrapping", "Parameter should be on a separate line (unless all parameters can fit a single line)")
         )
     }
 
     @Test
-    fun testLintFunctionParameterList() {
+    fun `Given a single line function which exceeds the maximum line length then start each parameter and the closing parenthesis on a separate line`() {
+        val code =
+            """
+            fun f(a: Any, b: Any, c: Any) {
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun f(
+                a: Any,
+                b: Any,
+                c: Any
+            ) {
+            }
+            """.trimIndent()
         assertThat(
             ParameterListWrappingRule().lint(
-                """
-                fun f(a: Any,
-                      b: Any,
-                      c: Any) {
-                }
-                """.trimIndent()
-            )
-        ).isEqualTo(
-            listOf(
-                LintError(1, 7, "parameter-list-wrapping", "Parameter should be on a separate line (unless all parameters can fit a single line)"),
-                LintError(2, 7, "parameter-list-wrapping", "Parameter should be on a separate line (unless all parameters can fit a single line)"),
-                LintError(3, 7, "parameter-list-wrapping", "Parameter should be on a separate line (unless all parameters can fit a single line)"),
-                LintError(3, 13, "parameter-list-wrapping", """Missing newline before ")"""")
-            )
-        )
-    }
-
-    @Test
-    fun testLintFunctionParameterInconsistency() {
-        assertThat(
-            ParameterListWrappingRule().lint(
-                """
-                fun f(
-                    a: Any,
-                    b: Any, c: Any
-                )
-                """.trimIndent()
-            )
-        ).isEqualTo(
-            listOf(
-                LintError(3, 13, "parameter-list-wrapping", "Parameter should be on a separate line (unless all parameters can fit a single line)")
-            )
-        )
-    }
-
-    @Test
-    fun testLintFunctionParameterListWhenMaxLineLengthExceeded() {
-        assertThat(
-            ParameterListWrappingRule().lint(
-                """
-                fun f(a: Any, b: Any, c: Any) {
-                }
-                """.trimIndent(),
+                code,
                 userData = mapOf("max_line_length" to "10")
             )
         ).isEqualTo(
@@ -199,152 +180,80 @@ class ParameterListWrappingRuleTest {
                 LintError(1, 29, "parameter-list-wrapping", """Missing newline before ")"""")
             )
         )
-    }
-
-    @Test
-    fun testFormatFunctionParameterList() {
         assertThat(
             ParameterListWrappingRule().format(
-                """
-                fun f(a: Any,
-                      b: Any,
-                      c: Any) {
-                }
-                """.trimIndent()
-            )
-        ).isEqualTo(
-            """
-            fun f(
-                a: Any,
-                b: Any,
-                c: Any
-            ) {
-            }
-            """.trimIndent()
-        )
-    }
-
-    @Test
-    fun testFormatFunctionParameterListWhenMaxLineLengthExceeded() {
-        assertThat(
-            ParameterListWrappingRule().format(
-                """
-                fun f(a: Any, b: Any, c: Any) {
-                }
-                """.trimIndent(),
+                code,
                 userData = mapOf("max_line_length" to "10")
             )
-        ).isEqualTo(
+        ).isEqualTo(formattedCode)
+    }
+
+    @Test
+    fun `Given a function with lambda parameters then do not reformat`() {
+        val code =
             """
-            fun f(
-                a: Any,
-                b: Any,
-                c: Any
-            ) {
-            }
+            val fieldExample =
+                  LongNameClass { paramA,
+                                  paramB,
+                                  paramC ->
+                      ClassB(paramA, paramB, paramC)
+                  }
             """.trimIndent()
-        )
+        assertThat(ParameterListWrappingRule().lint(code)).isEmpty()
     }
 
     @Test
-    fun testLambdaParametersAreIgnored() {
-        assertThat(
-            ParameterListWrappingRule().lint(
-                """
-                val fieldExample =
-                      LongNameClass { paramA,
-                                      paramB,
-                                      paramC ->
-                          ClassB(paramA, paramB, paramC)
-                      }
-                """.trimIndent()
-            )
-        ).isEmpty()
-    }
-
-    @Test
-    fun testFormatPreservesIndent() {
-        assertThat(
-            ParameterListWrappingRule().format(
-                """
-                class A {
-                    fun f(a: Any,
-                          b: Any,
-                          c: Any) {
-                    }
-                }
-                """.trimIndent()
-            )
-        ).isEqualTo(
+    fun `Given a function with annotated parameters then start each parameter on a separate line but preserve spacing between annotation and parameter name`() {
+        val code =
             """
             class A {
-                fun f(
-                    a: Any,
-                    b: Any,
-                    c: Any
-                ) {
+                fun f(@Annotation
+                      a: Any,
+                      b: Any,
+                      @Annotation
+                      c: Any, @Annotation d: Any) {
                 }
             }
             """.trimIndent()
-        )
-    }
-
-    @Test
-    fun testFormatPreservesIndentWithAnnotations() {
-        assertThat(
-            ParameterListWrappingRule().format(
-                """
-                class A {
-                    fun f(@Annotation
-                          a: Any,
-                          @Annotation([
-                              "v1",
-                              "v2"
-                          ])
-                          b: Any,
-                          c: Any =
-                              false,
-                          @Annotation d: Any) {
-                    }
-                }
-                """.trimIndent()
-            )
-        ).isEqualTo(
+        val formattedCode =
             """
             class A {
                 fun f(
                     @Annotation
                     a: Any,
-                    @Annotation([
-                        "v1",
-                        "v2"
-                    ])
                     b: Any,
-                    c: Any =
-                        false,
+                    @Annotation
+                    c: Any,
                     @Annotation d: Any
                 ) {
                 }
             }
             """.trimIndent()
+        assertThat(rules.lint(code)).contains(
+            LintError(2, 11, "parameter-list-wrapping", "Parameter should be on a separate line (unless all parameters can fit a single line)"),
+            LintError(3, 1, "indent", "Unexpected indentation (10) (should be 8)"),
+            LintError(4, 1, "indent", "Unexpected indentation (10) (should be 8)"),
+            LintError(5, 1, "indent", "Unexpected indentation (10) (should be 8)"),
+            LintError(6, 1, "indent", "Unexpected indentation (10) (should be 8)"),
+            LintError(6, 19, "parameter-list-wrapping", "Parameter should be on a separate line (unless all parameters can fit a single line)"),
+            LintError(6, 37, "parameter-list-wrapping", """Missing newline before ")"""")
         )
+        assertThat(rules.format(code)).isEqualTo(formattedCode)
     }
 
     @Test
-    fun testFormatCorrectsRPARIndentIfNeeded() {
-        assertThat(
-            ParameterListWrappingRule().format(
-                """
-                class A {
-                    fun f(a: Any,
-                          b: Any,
-                          c: Any
-                       ) {
-                    }
+    fun `Given a multiline function signature with each parameter, except first, and closing parenthesis on separate lines then reformat properly`() {
+        val code =
+            """
+            class A {
+                fun f(a: Any,
+                      b: Any,
+                      c: Any
+                   ) {
                 }
-                """.trimIndent()
-            )
-        ).isEqualTo(
+            }
+            """.trimIndent()
+        val formattedCode =
             """
             class A {
                 fun f(
@@ -355,23 +264,26 @@ class ParameterListWrappingRuleTest {
                 }
             }
             """.trimIndent()
+        assertThat(rules.lint(code)).contains(
+            LintError(2, 11, "parameter-list-wrapping", "Parameter should be on a separate line (unless all parameters can fit a single line)"),
+            LintError(3, 1, "indent", "Unexpected indentation (10) (should be 8)"),
+            LintError(4, 1, "indent", "Unexpected indentation (10) (should be 8)"),
+            LintError(5, 1, "indent", "Unexpected indentation (7) (should be 4)")
         )
+        assertThat(rules.format(code)).isEqualTo(formattedCode)
     }
 
     @Test
-    fun testFormatNestedDeclarations() {
-        assertThat(
-            ParameterListWrappingRule().format(
-                """
-                fun visit(
-                    node: ASTNode,
-                        autoCorrect: Boolean,
-                    emit: (offset: Int, errorMessage: String,
-                    canBeAutoCorrected: Boolean) -> Unit
-                ) {}
-                """.trimIndent()
-            )
-        ).isEqualTo(
+    fun `Given a multiline function with nested declarations then format each parameter and closing parenthesis on a separate line`() {
+        val code =
+            """
+            fun visit(
+                node: ASTNode,
+                    autoCorrect: Boolean,
+                emit: (offset: Int, errorMessage: String,
+                canBeAutoCorrected: Boolean) -> Unit) {}
+            """.trimIndent()
+        val formattedCode =
             """
             fun visit(
                 node: ASTNode,
@@ -383,46 +295,46 @@ class ParameterListWrappingRuleTest {
                 ) -> Unit
             ) {}
             """.trimIndent()
+        assertThat(rules.lint(code)).contains(
+            LintError(3, 1, "indent", "Unexpected indentation (8) (should be 4)"),
+            LintError(4, 12, "parameter-list-wrapping", "Parameter should be on a separate line (unless all parameters can fit a single line)"),
+            LintError(4, 25, "parameter-list-wrapping", "Parameter should be on a separate line (unless all parameters can fit a single line)"),
+            LintError(5, 1, "indent", "Unexpected indentation (4) (should be 8)"),
+            LintError(5, 32, "parameter-list-wrapping", """Missing newline before ")""""),
+            LintError(5, 41, "parameter-list-wrapping", """Missing newline before ")"""")
         )
+        assertThat(rules.format(code)).isEqualTo(formattedCode)
     }
 
     @Test
-    fun testFormatNestedDeclarationsWhenMaxLineLengthExceeded() {
+    fun `Given a single line function with nested declarations which exceeds the maximum line length then format each parameter and closing parenthesis on a separate line`() {
+        val code =
+            """
+            fun visit(node: ASTNode, autoCorrect: Boolean, emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {}
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun visit(
+                node: ASTNode,
+                autoCorrect: Boolean,
+                emit: (
+                    offset: Int,
+                    errorMessage: String,
+                    canBeAutoCorrected: Boolean
+                ) -> Unit
+            ) {}
+            """.trimIndent()
         assertThat(
             ParameterListWrappingRule().format(
-                """
-                fun visit(node: ASTNode, autoCorrect: Boolean, emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {}
-                """.trimIndent(),
+                code,
                 userData = mapOf("max_line_length" to "10")
             )
-        ).isEqualTo(
-            """
-            fun visit(
-                node: ASTNode,
-                autoCorrect: Boolean,
-                emit: (
-                    offset: Int,
-                    errorMessage: String,
-                    canBeAutoCorrected: Boolean
-                ) -> Unit
-            ) {}
-            """.trimIndent()
-        )
+        ).isEqualTo(formattedCode)
     }
 
     @Test
-    fun testFormatNestedDeclarationsValid() {
-        assertThat(
-            ParameterListWrappingRule().format(
-                """
-                fun visit(
-                    node: ASTNode,
-                    autoCorrect: Boolean,
-                    emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
-                ) {}
-                """.trimIndent()
-            )
-        ).isEqualTo(
+    fun `Given a function with nested declarations which is formatted correct then do not change the function signature`() {
+        val code =
             """
             fun visit(
                 node: ASTNode,
@@ -430,108 +342,63 @@ class ParameterListWrappingRuleTest {
                 emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
             ) {}
             """.trimIndent()
-        )
+        assertThat(ParameterListWrappingRule().lint(code)).isEmpty()
+        assertThat(ParameterListWrappingRule().format(code)).isEqualTo(code)
     }
 
     @Test
     fun testCommentsAreIgnored() {
-        assertThat(
-            ParameterListWrappingRule().lint(
-                """
-                data class A(
-                   /*
-                    * comment
-                    */
-                   //
-                   var v: String
-                )
-                """.trimIndent()
-            )
-        ).isEqualTo(
-            listOf(
-                LintError(6, 4, "parameter-list-wrapping", "Parameter should be on a separate line (unless all parameters can fit a single line)")
-            )
-        )
-    }
-
-    @Test
-    fun testLintClassDanglingLeftParen() {
-        assertThat(
-            ParameterListWrappingRule().lint(
-                """
-                class ClassA
-                (
-                    paramA: String,
-                    paramB: String,
-                    paramC: String
-                )
-                """.trimIndent()
-            )
-        ).isEqualTo(
-            listOf(
-                LintError(2, 1, "parameter-list-wrapping", """Unnecessary newline before "("""")
-            )
-        )
-    }
-
-    @Test
-    fun testLintFunctionDanglingLeftParen() {
-        assertThat(
-            ParameterListWrappingRule().lint(
-                """
-                fun doSomething
-                (
-                    paramA: String,
-                    paramB: String,
-                    paramC: String
-                )
-                """.trimIndent()
-            )
-        ).isEqualTo(
-            listOf(
-                LintError(2, 1, "parameter-list-wrapping", """Unnecessary newline before "("""")
-            )
-        )
-    }
-
-    @Test
-    fun testFormatClassDanglingLeftParen() {
-        assertThat(
-            ParameterListWrappingRule().format(
-                """
-                class ClassA constructor
-                (
-                    paramA: String,
-                    paramB: String,
-                    paramC: String
-                )
-                """.trimIndent()
-            )
-        ).isEqualTo(
+        val code =
             """
-            class ClassA constructor(
+            data class A(
+               /*
+                * comment
+                */
+               //
+               var v: String
+            )
+            """.trimIndent()
+        assertThat(ParameterListWrappingRule().lint(code)).isEmpty()
+        assertThat(ParameterListWrappingRule().format(code)).isEqualTo(code)
+    }
+
+    @Test
+    fun `Given a class declaration with a dangling opening parenthesis`() {
+        val code =
+            """
+            class ClassA
+            (
                 paramA: String,
                 paramB: String,
                 paramC: String
             )
             """.trimIndent()
+        val formattedCode =
+            """
+            class ClassA(
+                paramA: String,
+                paramB: String,
+                paramC: String
+            )
+            """.trimIndent()
+        assertThat(ParameterListWrappingRule().lint(code)).containsExactly(
+            LintError(2, 1, "parameter-list-wrapping", """Unnecessary newline before "("""")
         )
+        assertThat(ParameterListWrappingRule().format(code)).isEqualTo(formattedCode)
     }
 
     @Test
-    fun testFormatFunctionDanglingLeftParen() {
-        assertThat(
-            ParameterListWrappingRule().format(
-                """
-                fun doSomething
-                (
-                    paramA: String,
-                    paramB: String,
-                    paramC: String
-                )
-                """.trimIndent()
+    fun `Given a function declaration with a dangling opening parenthesis`() {
+        val code =
+            """
+            fun doSomething
+            (
+                paramA: String,
+                paramB: String,
+                paramC: String
             )
-        ).isEqualTo(
+            """.trimIndent()
+        val formattedCode =
             """
             fun doSomething(
                 paramA: String,
@@ -539,12 +406,14 @@ class ParameterListWrappingRuleTest {
                 paramC: String
             )
             """.trimIndent()
+        assertThat(ParameterListWrappingRule().lint(code)).containsExactly(
+            LintError(2, 1, "parameter-list-wrapping", """Unnecessary newline before "("""")
         )
+        assertThat(ParameterListWrappingRule().format(code)).isEqualTo(formattedCode)
     }
 
-    // https://github.com/pinterest/ktlint/issues/680
     @Test
-    fun `multiline type parameter list in function signature - indented correctly`() {
+    fun `Issue 680 - multiline type parameter list in function signature - indented correctly`() {
         val code =
             """
             object TestCase {
@@ -565,50 +434,46 @@ class ParameterListWrappingRuleTest {
     }
 
     @Test
-    fun `correctly indent primary constructor parameters when class has multiline type parameter`() {
-        assertThat(
-            ParameterListWrappingRule().lint(
-                """
-                // https://github.com/pinterest/ktlint/issues/921
-                class ComposableLambda<
-                    P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15, P16,
-                    P17, P18, R>(
-                    val key: Int,
-                    private val tracked: Boolean,
-                    private val sourceInformation: String?
-                )
-                // https://github.com/pinterest/ktlint/issues/938
-                class GenericTypeWithALongLongALong1
-                class GenericTypeWithALongLongALong2
-                class GenericTypeWithALongLongALong3
-                class ViewModelWithALongLongLongLongLongLongLongLongName3<
-                    A : GenericTypeWithALongLongALong1,
-                    B : GenericTypeWithALongLongALong2,
-                    C : GenericTypeWithALongLongALong3
-                    > constructor(
-                    parameterWithLongLongLongLongLongLongLongLongNameA: A,
-                    parameterWithLongLongLongLongLongLongLongLongNameB: B,
-                    parameterWithLongLongLongLongLongLongLongLongNameC: C
-                )
-                """.trimIndent()
+    fun `Given a class with a multiline type parameter which is indented correctly then do not reformat`() {
+        val code =
+            """
+            // https://github.com/pinterest/ktlint/issues/921
+            class ComposableLambda<
+                P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15, P16,
+                P17, P18, R>(
+                val key: Int,
+                private val tracked: Boolean,
+                private val sourceInformation: String?
             )
-        ).isEmpty()
+            // https://github.com/pinterest/ktlint/issues/938
+            class GenericTypeWithALongLongALong1
+            class GenericTypeWithALongLongALong2
+            class GenericTypeWithALongLongALong3
+            class ViewModelWithALongLongLongLongLongLongLongLongName3<
+                A : GenericTypeWithALongLongALong1,
+                B : GenericTypeWithALongLongALong2,
+                C : GenericTypeWithALongLongALong3
+                > constructor(
+                parameterWithLongLongLongLongLongLongLongLongNameA: A,
+                parameterWithLongLongLongLongLongLongLongLongNameB: B,
+                parameterWithLongLongLongLongLongLongLongLongNameC: C
+            )
+            """.trimIndent()
+        assertThat(ParameterListWrappingRule().lint(code)).isEmpty()
     }
 
     @Test
     fun `multiline type argument list in function signature`() {
-        assertThat(
-            ParameterListWrappingRule().lint(
-                """
-                class Foo<A, B, C>
+        val code =
+            """
+            class Foo<A, B, C>
 
-                fun Foo<String, Boolean,
-                    Int>.bar(
-                    i: Int
-                ) = apply {
-                }
-                """.trimIndent()
-            )
-        ).isEmpty()
+            fun Foo<String, Boolean,
+                Int>.bar(
+                i: Int
+            ) = apply {
+            }
+            """.trimIndent()
+        assertThat(ParameterListWrappingRule().lint(code)).isEmpty()
     }
 }

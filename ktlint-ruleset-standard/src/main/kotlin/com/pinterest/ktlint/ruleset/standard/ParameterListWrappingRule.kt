@@ -105,26 +105,24 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
                                 indent
                             }
                             if (prevLeaf is PsiWhiteSpace) {
-                                val spacing = prevLeaf.getText()
-                                val cut = spacing.lastIndexOf("\n")
-                                if (cut > -1) {
-                                    val childIndent = spacing.substring(cut)
-                                    if (childIndent == intendedIndent) {
-                                        continue@nextChild
+                                if (prevLeaf.getText().contains("\n")) {
+                                    // The current child is already wrapped to a new line. Checking and fixing the
+                                    // correct size of the indent is the responsibility of the IndentationRule.
+                                    continue@nextChild
+                                } else {
+                                    // The current child needs to be wrapped to a newline.
+                                    emit(child.startOffset, errorMessage(child), true)
+                                    if (autoCorrect) {
+                                        // The indentation is purely based on the previous leaf only. Note that in
+                                        // autoCorrect mode the indent rule, if enabled, runs after this rule and
+                                        // determines the final indentation. But if the indent rule is disabled then the
+                                        // indent of this rule is kept.
+                                        paramInnerIndentAdjustment = intendedIndent.length - prevLeaf.getTextLength()
+                                        (prevLeaf as LeafPsiElement).rawReplaceWithText(intendedIndent)
                                     }
                                 }
-                                emit(child.startOffset, errorMessage(child), true)
-                                if (autoCorrect) {
-                                    // Although no warning is displayed about incorrect indentation, an attempt is
-                                    // made to fix it. Note that in autoCorrect mode the indent rule, if enabled, will
-                                    // run after this rule and might fix it to the final indentation. But if the rule
-                                    // is disabled then the indent is kept.
-                                    val originalIndent = if (cut > -1) spacing.substring(0, cut) else ""
-                                    val adjustedIndent = originalIndent + intendedIndent
-                                    paramInnerIndentAdjustment = adjustedIndent.length - prevLeaf.getTextLength()
-                                    (prevLeaf as LeafPsiElement).rawReplaceWithText(adjustedIndent)
-                                }
                             } else {
+                                // Insert a new whitespace element in order to wrap the current child to a new line.
                                 emit(child.startOffset, errorMessage(child), true)
                                 if (autoCorrect) {
                                     paramInnerIndentAdjustment = intendedIndent.length - child.column
