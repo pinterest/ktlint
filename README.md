@@ -408,6 +408,38 @@ ktlint --android applyToIDEA
 
 ##### Option #3
 
+To change the code style config with `.editorconfig`
+
+Add the following .editorconfig properties on project
+
+```ini
+[{*.kt,*.kts}]
+ij_kotlin_code_style_defaults = KOTLIN_OFFICIAL
+
+ij_kotlin_line_comment_at_first_column = false
+ij_kotlin_line_comment_add_space = true
+
+# These options can keep to use single name import
+ij_kotlin_name_count_to_use_star_import = 2147483647
+ij_kotlin_name_count_to_use_star_import_for_members = 2147483647
+
+ij_kotlin_keep_blank_lines_in_declarations = 1
+ij_kotlin_keep_blank_lines_in_code = 1
+ij_kotlin_keep_blank_lines_before_right_brace = 0
+
+# optional but recommended
+ij_kotlin_align_multiline_parameters = false
+
+# optional but recommended
+ij_continuation_indent_size = 4
+
+# Android specific rules
+ij_kotlin_import_nested_classes = false
+ij_kotlin_imports_layout = *,^
+```
+
+##### Option #4
+
 Go to <kbd>File</kbd> -> <kbd>Settings...</kbd> -> <kbd>Editor</kbd>
 - <kbd>General</kbd> -> <kbd>Auto Import</kbd>
   - check `Kotlin` / `Optimize imports on the fly (for current project)`.
