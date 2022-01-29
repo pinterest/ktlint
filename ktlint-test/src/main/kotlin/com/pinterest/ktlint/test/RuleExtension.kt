@@ -1,12 +1,48 @@
 package com.pinterest.ktlint.test
 
+import com.pinterest.ktlint.core.KTLINT_UNIT_TEST_DUMP_AST
+import com.pinterest.ktlint.core.KTLINT_UNIT_TEST_ON_PROPERTY
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.RuleSet
+import com.pinterest.ktlint.core.initKtLintKLogger
+import com.pinterest.ruleset.test.DumpASTRule
+import mu.KotlinLogging
 import org.assertj.core.api.Assertions
 import org.assertj.core.util.diff.DiffUtils.diff
 import org.assertj.core.util.diff.DiffUtils.generateUnifiedDiff
+import org.jetbrains.kotlin.utils.addToStdlib.ifTrue
+
+private val logger = KotlinLogging.logger {}.initKtLintKLogger()
+
+private fun List<Rule>.toRuleSets(): List<RuleSet> {
+    val dumpAstRuleSet = System
+        .getenv(KTLINT_UNIT_TEST_DUMP_AST)
+        .orEmpty()
+        .equals(KTLINT_UNIT_TEST_ON_PROPERTY, ignoreCase = true)
+        .ifTrue {
+            logger.info { "Dump AST of code before processing as System environment variable $KTLINT_UNIT_TEST_DUMP_AST is set to 'on'" }
+            RuleSet(
+                "debug",
+                DumpASTRule(
+                    // Write to STDOUT. The focus in a failed unit test should first go to the error in the rule that is
+                    // to be tested and not to the AST,
+                    out = System.out
+                )
+            )
+        }
+    return listOfNotNull(
+        dumpAstRuleSet,
+        RuleSet(
+            // RuleSet id is always set to "standard" as this has the side effect that the ruleset id will
+            // be excluded from the ruleId in the LintError which makes the unit tests of the experimental
+            // rules easier to maintain as they will not contain the reference to the ruleset id.
+            "standard",
+            *toTypedArray()
+        )
+    )
+}
 
 public fun Rule.lint(
     text: String,
@@ -43,30 +79,14 @@ public fun List<Rule>.lint(
     script: Boolean = false
 ): List<LintError> {
     val res = ArrayList<LintError>()
-    val debug = debugAST()
-    val rules = this.toTypedArray()
     KtLint.lint(
         KtLint.Params(
             fileName = lintedFilePath,
             text = text,
-            ruleSets = (if (debug) listOf(RuleSet("debug", DumpAST())) else emptyList()) +
-                listOf(
-                    RuleSet(
-                        // RuleSet id is always set to "standard" as this has the side effect that the ruleset id will
-                        // be excluded from the ruleId in the LintError which makes the unit tests of the experimental
-                        // rules easier to maintain as they will not contain the reference to the ruleset id.
-                        "standard",
-                        *rules
-                    )
-                ),
+            ruleSets = this.toRuleSets(),
             userData = userData,
             script = script,
-            cb = { e, _ ->
-                if (debug) {
-                    System.err.println("^^ lint error")
-                }
-                res.add(e)
-            }
+            cb = { e, _ -> res.add(e) }
         )
     )
     return res
@@ -114,8 +134,7 @@ public fun List<Rule>.format(
         KtLint.Params(
             fileName = lintedFilePath,
             text = text,
-            ruleSets = (if (debugAST()) listOf(RuleSet("debug", DumpAST())) else emptyList()) +
-                listOf(RuleSet("standard", *rules)),
+            ruleSets = this.toRuleSets(),
             userData = userData,
             script = script,
             cb = cb

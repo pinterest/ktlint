@@ -4,6 +4,7 @@ package com.pinterest.ktlint
 
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.LintError
+import com.pinterest.ktlint.core.LogLevel
 import com.pinterest.ktlint.core.ParseException
 import com.pinterest.ktlint.core.Reporter
 import com.pinterest.ktlint.core.ReporterProvider
@@ -11,9 +12,11 @@ import com.pinterest.ktlint.core.RuleExecutionException
 import com.pinterest.ktlint.core.RuleSet
 import com.pinterest.ktlint.core.RuleSetProvider
 import com.pinterest.ktlint.core.VisitorProvider
+import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ktlint.core.internal.containsLintError
 import com.pinterest.ktlint.core.internal.loadBaseline
 import com.pinterest.ktlint.core.internal.relativeRoute
+import com.pinterest.ktlint.core.logLevel
 import com.pinterest.ktlint.internal.ApplyToIDEAGloballySubCommand
 import com.pinterest.ktlint.internal.ApplyToIDEAProjectSubCommand
 import com.pinterest.ktlint.internal.GenerateEditorConfigSubCommand
@@ -36,8 +39,6 @@ import java.io.PrintStream
 import java.net.URLClassLoader
 import java.net.URLDecoder
 import java.nio.file.FileSystems
-import java.util.ArrayList
-import java.util.LinkedHashMap
 import java.util.ServiceLoader
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.Callable
@@ -48,10 +49,13 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.concurrent.thread
 import kotlin.system.exitProcess
+import mu.KotlinLogging
 import picocli.CommandLine
 import picocli.CommandLine.Command
 import picocli.CommandLine.Option
 import picocli.CommandLine.Parameters
+
+private val logger = KotlinLogging.logger {}.initKtLintKLogger()
 
 fun main(args: Array<String>) {
     val ktlintCommand = KtlintCommandLine()
@@ -155,6 +159,12 @@ class KtlintCommandLine {
     var debug: Boolean = false
 
     @Option(
+        names = ["--trace"],
+        description = ["Turn on trace output"]
+    )
+    var trace: Boolean = false
+
+    @Option(
         names = ["--disabled_rules"],
         description = [
             "Comma-separated list of rules to globally disable." +
@@ -240,6 +250,12 @@ class KtlintCommandLine {
     private val errorNumber = AtomicInteger()
 
     fun run() {
+        logLevel = when {
+            trace -> LogLevel.TRACE
+            debug -> LogLevel.DEBUG
+            else -> LogLevel.INFO
+        }
+
         failOnOldRulesetProviderUsage()
 
         val start = System.currentTimeMillis()
@@ -272,13 +288,7 @@ class KtlintCommandLine {
             )
         }
         reporter.afterAll()
-        if (debug) {
-            System.err.println(
-                "[DEBUG] ${
-                System.currentTimeMillis() - start
-                }ms / $fileNumber file(s) / $errorNumber error(s)"
-            )
-        }
+        logger.debug { "${System.currentTimeMillis() - start}ms / $fileNumber file(s) / $errorNumber error(s)" }
         if (tripped.get()) {
             exitProcess(1)
         }
@@ -337,9 +347,13 @@ class KtlintCommandLine {
     @Suppress("Deprecation")
     private fun failOnOldRulesetProviderUsage() {
         if (ServiceLoader.load(com.github.shyiko.ktlint.core.RuleSetProvider::class.java).any()) {
-            System.err.println("[ERROR] Cannot load custom ruleset!")
-            System.err.println("[ERROR] RuleSetProvider has moved to com.pinterest.ktlint.core.")
-            System.err.println("[ERROR] Please rename META-INF/services/com.github.shyiko.ktlint.core.RuleSetProvider to META-INF/services/com.pinterest.ktlint.core.RuleSetProvider")
+            logger.error {
+                """
+                Cannot load custom ruleset!")
+                RuleSetProvider has moved to com.pinterest.ktlint.core.")
+                Please rename META-INF/services/com.github.shyiko.ktlint.core.RuleSetProvider to META-INF/services/com.pinterest.ktlint.core.RuleSetProvider")
+                """.trimIndent()
+            }
             exitProcess(1)
         }
     }
@@ -372,9 +386,9 @@ class KtlintCommandLine {
         ruleSets: Iterable<RuleSet>,
         visitorProvider: VisitorProvider
     ): List<LintErrorWithCorrectionInfo> {
-        if (debug) {
+        logger.trace {
             val fileLocation = if (fileName != KtLint.STDIN_FILE) File(fileName).location(relative) else fileName
-            System.err.println("[DEBUG] Checking $fileLocation")
+            "Checking $fileLocation"
         }
         val result = ArrayList<LintErrorWithCorrectionInfo>()
         if (format) {
@@ -456,18 +470,16 @@ class KtlintCommandLine {
     ): Reporter {
         val reporterProvider = reporterProviderById[id]
         if (reporterProvider == null) {
-            System.err.println(
-                "Error: reporter \"$id\" wasn't found (available: ${
+            logger.error {
+                "reporter \"$id\" wasn't found (available: ${
                 reporterProviderById.keys.sorted().joinToString(",")
                 })"
-            )
+            }
             exitProcess(1)
         }
-        if (debug) {
-            System.err.println(
-                "[DEBUG] Initializing \"$id\" reporter with $config" +
-                    (output?.let { ", output=$it" } ?: "")
-            )
+        logger.debug {
+            "Initializing \"$id\" reporter with $config" +
+                (output?.let { ", output=$it" } ?: "")
         }
         val stream = if (output != null) {
             File(output).parentFile?.mkdirsOrFail(); PrintStream(output, "UTF-8")
@@ -481,7 +493,9 @@ class KtlintCommandLine {
                             stream.close()
                             if (tripped.get()) {
                                 val outputLocation = File(output).absoluteFile.location(relative)
-                                System.err.println("\"$id\" report written to $outputLocation")
+                                logger.info {
+                                    "\"$id\" report written to $outputLocation"
+                                }
                             }
                         }
                     }
@@ -501,10 +515,7 @@ class KtlintCommandLine {
                     "Not a valid Kotlin file (${e.message?.toLowerCase()})"
                 )
             is RuleExecutionException -> {
-                if (debug) {
-                    System.err.println("[DEBUG] Internal Error (${e.ruleId})")
-                    e.printStackTrace(System.err)
-                }
+                logger.debug("Internal Error (${e.ruleId})", e)
                 LintError(
                     e.line,
                     e.col,
@@ -606,12 +617,8 @@ class KtlintCommandLine {
             URLClassLoader(externalReportersJarPaths.toFilesURIList().toTypedArray())
         )
         .associateBy { it.id }
-        .also {
-            if (debug) {
-                it.forEach { entry ->
-                    println("[DEBUG] Discovered reporter with \"${entry.key}\" id.")
-                }
-            }
+        .onEach { entry ->
+            logger.debug { "Discovered reporter with \"${entry.key}\" id." }
         }
 
     private data class LintErrorWithCorrectionInfo(

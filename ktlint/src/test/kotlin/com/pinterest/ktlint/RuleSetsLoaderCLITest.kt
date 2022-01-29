@@ -16,23 +16,29 @@ class RuleSetsLoaderCLITest : BaseCLITest() {
             listOf("-R $BASE_DIR_PLACEHOLDER/custom-ruleset/ktlint-ruleset-template.jar")
         ) {
             assertNormalExitCode()
-            assertErrorOutputIsEmpty()
+
+            assertThat(normalOutput)
+                .noneMatch {
+                    it.matches(
+                        Regex(".* WARN .* JAR .* provided as command line argument, does not contain a custom ruleset provider.")
+                    )
+                }
         }
     }
 
     @Test
     fun `Display warning when the provided custom ruleset does not contains a ruleset provider`() {
-        val invalidJarFile = "custom-ruleset/ktlint-ruleset-experimental.jar"
+        val jarWithoutRulesetProvider = "custom-ruleset/ktlint-reporter-html.jar"
         runKtLintCliProcess(
             "custom-ruleset",
-            listOf("-R", "$BASE_DIR_PLACEHOLDER/$invalidJarFile")
+            listOf("-R", "$BASE_DIR_PLACEHOLDER/$jarWithoutRulesetProvider")
         ) {
             assertNormalExitCode()
 
-            assertThat(errorOutput)
+            assertThat(normalOutput)
                 .anyMatch {
                     it.matches(
-                        Regex("\\[WARNING] JAR .*$invalidJarFile, provided as command line argument, does not contain a custom ruleset provider.")
+                        Regex(".* WARN .* JAR .*$jarWithoutRulesetProvider, provided as command line argument, does not contain a custom ruleset provider.")
                     )
                 }
         }

@@ -30,6 +30,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - Update Dokka to `1.6.0` release
 - Apply ktlint experimental rules on the ktlint code base itself.
 - Update shadow plugin to `7.1.1` release
+- Add Kotlin-logging backed by logback as logging framework ([#589](https://github.com/pinterest/ktlint/issues/589))
 
 ### Removed
 
