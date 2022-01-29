@@ -4,9 +4,11 @@ import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
+import com.pinterest.ktlint.core.initKtLintKLogger
 import java.nio.charset.StandardCharsets
 import java.nio.file.FileSystem
 import java.nio.file.Path
+import mu.KotlinLogging
 import org.ec4j.core.EditorConfigLoader
 import org.ec4j.core.PropertyTypeRegistry
 import org.ec4j.core.Resource
@@ -14,6 +16,8 @@ import org.ec4j.core.ResourcePropertiesService
 import org.ec4j.core.model.Property
 import org.ec4j.core.model.PropertyType
 import org.ec4j.core.model.Version
+
+private val logger = KotlinLogging.logger {}.initKtLintKLogger()
 
 /**
  * Map contains [UsesEditorConfigProperties.EditorConfigProperty] and related
@@ -82,8 +86,6 @@ public class EditorConfigLoader(
             else -> filePath
         }
 
-        if (debug) println("Resolving .editorconfig files for $normalizedFilePath file path")
-
         return propService
             .queryProperties(
                 Resource.Resources.ofPath(normalizedFilePath, StandardCharsets.UTF_8)
@@ -99,15 +101,13 @@ public class EditorConfigLoader(
                 }
             }
             .also {
-                if (debug) {
-                    val editorConfigValues = it
-                        .map { entry ->
-                            "${entry.key}: ${entry.value.sourceValue}"
-                        }
+                logger.trace {
+                    it
+                        .map { entry -> "${entry.key}: ${entry.value.sourceValue}" }
                         .joinToString(
+                            prefix = "Resolving .editorconfig files for $normalizedFilePath file path:\n\t",
                             separator = ", "
                         )
-                    println("Loaded .editorconfig: [$editorConfigValues]")
                 }
             }
     }

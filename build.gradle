@@ -1,6 +1,7 @@
 plugins {
   id 'org.jetbrains.kotlin.jvm' apply false
   id 'com.github.breadmoirai.github-release'
+//  id 'nebula.lint' version '17.5.0'
 }
 
 ext.versions = [
@@ -15,6 +16,9 @@ ext.deps = [
   'klob'          : 'com.github.shyiko.klob:klob:0.2.1',
   ec4j            : 'org.ec4j.core:ec4j-core:0.3.0',
   'picocli'       : 'info.picocli:picocli:3.9.6',
+  'logging'       : 'io.github.microutils:kotlin-logging-jvm:2.1.21',
+  // Use logback-classic as the logger for kotlin-logging / slf4j as it allow changing the log level at runtime.
+  'logback'       : 'ch.qos.logback:logback-classic:1.2.9',
   // Testing libraries
   'junit'         : 'junit:junit:4.13.1',
   'junit5Api'     : 'org.junit.jupiter:junit-jupiter-api:5.8.2',

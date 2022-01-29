@@ -7,16 +7,20 @@ import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType
 import com.pinterest.ktlint.core.ast.isRoot
+import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ktlint.ruleset.standard.ImportOrderingRule.Companion.ASCII_PATTERN
 import com.pinterest.ktlint.ruleset.standard.ImportOrderingRule.Companion.IDEA_PATTERN
 import com.pinterest.ktlint.ruleset.standard.internal.importordering.ImportSorter
 import com.pinterest.ktlint.ruleset.standard.internal.importordering.PatternEntry
 import com.pinterest.ktlint.ruleset.standard.internal.importordering.parseImportsLayout
+import mu.KotlinLogging
 import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.psi.KtImportDirective
+
+private val logger = KotlinLogging.logger {}.initKtLintKLogger()
 
 /**
  * Import ordering is configured via EditorConfig's property `ij_kotlin_imports_layout`, so the Kotlin IDE plugin also recongizes it. Supported values:
@@ -85,20 +89,14 @@ public class ImportOrderingRule :
                         "Import layout must contain at least one entry of a wildcard symbol (*)"
                     )
                     value == "idea" -> {
-                        println(
-                            "[WARNING] `idea` is deprecated! Please use `*,java.**,javax.**,kotlin.**,^` instead" +
-                                " to ensure that the Kotlin IDE plugin recognizes the value"
-                        )
+                        logger.warn { "`idea` is deprecated! Please use `*,java.**,javax.**,kotlin.**,^` instead to ensure that the Kotlin IDE plugin recognizes the value" }
                         PropertyType.PropertyValue.valid(
                             value,
                             IDEA_PATTERN
                         )
                     }
                     value == "ascii" -> {
-                        println(
-                            "[WARNING] `ascii` is deprecated! Please use `*` instead" +
-                                " to ensure that the Kotlin IDE plugin recognizes the value"
-                        )
+                        logger.warn { "`ascii` is deprecated! Please use `*` instead to ensure that the Kotlin IDE plugin recognizes the value" }
                         PropertyType.PropertyValue.valid(
                             value,
                             ASCII_PATTERN
@@ -165,17 +163,32 @@ public class ImportOrderingRule :
         if (node.elementType == ElementType.IMPORT_LIST) {
             val children = node.getChildren(null)
             if (children.isNotEmpty()) {
-                val imports = children.filter {
-                    it.elementType == ElementType.IMPORT_DIRECTIVE ||
-                        it.psi is PsiWhiteSpace && it.textLength > 1 // also collect empty lines, that are represented as "\n\n"
-                }
+                // Get unique imports and blank lines
+                var autoCorrectDuplicateImports = false
+                val imports = mutableListOf<ASTNode>()
+                children
+                    .filter {
+                        it.elementType == ElementType.IMPORT_DIRECTIVE ||
+                            it.psi is PsiWhiteSpace && it.textLength > 1 // also collect empty lines, that are represented as "\n\n"
+                    }.map { current ->
+                        if (current.psi is PsiWhiteSpace || imports.none { it.text == current.text }) {
+                            imports += current
+                        } else {
+                            emit(
+                                current.startOffset,
+                                "Duplicate '${current.text}' found",
+                                true
+                            )
+                            autoCorrectDuplicateImports = true
+                        }
+                    }
+
                 val hasComments = children.find { it.elementType == ElementType.BLOCK_COMMENT || it.elementType == ElementType.EOL_COMMENT } != null
                 val sortedImports = imports
                     .asSequence()
                     .filter { it.psi !is PsiWhiteSpace } // sorter expects KtImportDirective, whitespaces are inserted afterwards
                     .map { it.psi as KtImportDirective }
                     .sortedWith(importSorter)
-                    .distinctBy { if (it.aliasName != null) it.text.substringBeforeLast(it.aliasName!!) else it.text } // distinguish by import path w/o aliases
                     .map { it.node } // transform back to ASTNode in order to operate over its method (addChild)
 
                 // insert blank lines wherever needed
@@ -201,19 +214,24 @@ public class ImportOrderingRule :
                     return@fold current
                 }
 
-                val canAutoCorrect = !hasComments
-                if (!importsAreEqual(imports, sortedImportsWithSpaces) || (hasTooMuchWhitespace(children) && !isCustomLayout())) {
-                    val additionalMessage = if (!canAutoCorrect) {
-                        " -- no autocorrection due to comments in the import list"
-                    } else {
-                        ""
-                    }
+                if (hasComments) {
                     emit(
                         node.startOffset,
-                        "${errorMessages.getOrDefault(importsLayout, CUSTOM_ERROR_MESSAGE)}$additionalMessage",
-                        canAutoCorrect
+                        errorMessages.getOrDefault(importsLayout, CUSTOM_ERROR_MESSAGE) +
+                            " -- no autocorrection due to comments in the import list",
+                        false
                     )
-                    if (autoCorrect && canAutoCorrect) {
+                } else {
+                    val autoCorrectWhitespace = hasTooMuchWhitespace(children) && !isCustomLayout()
+                    val autoCorrectSortOrder = !importsAreEqual(imports, sortedImportsWithSpaces)
+                    if (autoCorrectSortOrder || autoCorrectWhitespace) {
+                        emit(
+                            node.startOffset,
+                            errorMessages.getOrDefault(importsLayout, CUSTOM_ERROR_MESSAGE),
+                            true
+                        )
+                    }
+                    if (autoCorrect && (autoCorrectDuplicateImports || autoCorrectSortOrder || autoCorrectWhitespace)) {
                         node.removeRange(node.firstChildNode, node.lastChildNode.treeNext)
                         sortedImportsWithSpaces.reduce { current, next ->
                             node.addChild(current, null)
@@ -232,10 +250,7 @@ public class ImportOrderingRule :
     private fun EditorConfigProperties.resolveImportsLayout(
         android: Boolean
     ): List<PatternEntry> = if (containsKey(KTLINT_CUSTOM_IMPORTS_LAYOUT_PROPERTY_NAME)) {
-        println(
-            "[WARNING] `kotlin_imports_layout` is deprecated! Please use `ij_kotlin_imports_layout` to ensure" +
-                " that the Kotlin IDE plugin and ktlint use same imports layout"
-        )
+        logger.warn { "`kotlin_imports_layout` is deprecated! Please use `ij_kotlin_imports_layout` to ensure that the Kotlin IDE plugin and ktlint use same imports layout" }
         getEditorConfigValue(ktlintCustomImportsLayoutProperty, android)
     } else {
         getEditorConfigValue(ideaImportsLayoutProperty, android)

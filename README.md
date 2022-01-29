@@ -377,27 +377,25 @@ val ktlintFormat by tasks.creating(JavaExec::class) {
 
 #### ... with [IntelliJ IDEA](https://www.jetbrains.com/idea/)
 
-> While this is not strictly necessary it makes Intellij IDEA's built-in formatter produce 100% ktlint-compatible 
- code. 
+> It is recommended to align the settings of IntelliJ IDEA's built-in formatter with ktlint. This reduces the chance that code which is formatted by ktlint conflicts with formatting by the IntelliJ IDEA built-in formatter.  
 
-##### Option #1 (recommended)
+Choose any of options below to align the formatting settings of IntelliJ IDEA.
 
-To change the code style config files in a single IDEA project
-
-Run ktlint executable with the appropriate flag:
-> (inside project's root directory)  
+##### Update code style of single project via ktlint (recommended)
+Use ktlint to change the code style of a single project with any of the commands below.
+```sh
+# Run command below from root directory of project
+ktlint applyToIDEAProject
+```
+Or if you want to use android specific code style:
 
 ```sh
-ktlint applyToIDEAProject
-# or if you want to be compliant with Android Kotlin Style Guide
+# Run command below from root directory of project
 ktlint --android applyToIDEAProject
 ```
 
-##### Option #2
-
-To change the code style config files for all IDEA projects
-
-Run ktlint executable with the appropriate flag:
+##### Update global code style for all projects via ktlint
+Use ktlint to change the code style of all projects with any of the commands below.
 ```sh
 ktlint applyToIDEA
 ```
@@ -406,7 +404,36 @@ Or if you want to use android specific code style:
 ktlint --android applyToIDEA
 ```
 
-##### Option #3
+##### Manually update `.editorconfig`
+
+Create or update the code style config with `.editorconfig` by setting properties below:
+```ini
+[{*.kt,*.kts}]
+ij_kotlin_code_style_defaults = KOTLIN_OFFICIAL
+
+ij_kotlin_line_comment_at_first_column = false
+ij_kotlin_line_comment_add_space = true
+
+# These options can keep to use single name import
+ij_kotlin_name_count_to_use_star_import = 2147483647
+ij_kotlin_name_count_to_use_star_import_for_members = 2147483647
+
+ij_kotlin_keep_blank_lines_in_declarations = 1
+ij_kotlin_keep_blank_lines_in_code = 1
+ij_kotlin_keep_blank_lines_before_right_brace = 0
+
+# optional but recommended
+ij_kotlin_align_multiline_parameters = false
+
+# optional but recommended
+ij_continuation_indent_size = 4
+
+# Android specific rules
+ij_kotlin_import_nested_classes = false
+ij_kotlin_imports_layout = *,^
+```
+
+##### Manually update the IntelliJ IDEA preferences
 
 Go to <kbd>File</kbd> -> <kbd>Settings...</kbd> -> <kbd>Editor</kbd>
 - <kbd>General</kbd> -> <kbd>Auto Import</kbd>
