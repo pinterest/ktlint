@@ -136,7 +136,7 @@ To contribute or get more info, please visit the [GitHub repository](https://git
 > Skip all the way to the "Integration" section if you don't plan to use `ktlint`'s command line interface.
 
 ```sh
-curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.43.0/ktlint &&
+curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.43.2/ktlint &&
   chmod a+x ktlint &&
   sudo mv ktlint /usr/local/bin/
 ```
