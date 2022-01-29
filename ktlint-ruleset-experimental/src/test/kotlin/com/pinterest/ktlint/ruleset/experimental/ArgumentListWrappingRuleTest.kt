@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.ruleset.experimental
 
 import com.pinterest.ktlint.core.LintError
+import com.pinterest.ktlint.ruleset.standard.IndentationRule
 import com.pinterest.ktlint.test.format
 import com.pinterest.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
@@ -60,7 +61,7 @@ class ArgumentListWrappingRuleTest {
                 """
                 val x = test(
                     one("a", "b",
-                    "c"),
+                    "c" /* indent will be fixed by indent rule */),
                     "Two", "Three", "Four"
                 )
                 """.trimIndent()
@@ -71,7 +72,7 @@ class ArgumentListWrappingRuleTest {
                 one(
                     "a",
                     "b",
-                    "c"
+                "c" /* indent will be fixed by indent rule */
                 ),
                 "Two",
                 "Three",
@@ -193,7 +194,7 @@ class ArgumentListWrappingRuleTest {
     }
 
     @Test
-    fun testFormatWithLambdaArguments() {
+    fun `Given parameters with lambda which can be fixed by the parameter list wrapping rule solely`() {
         assertThat(
             ArgumentListWrappingRule().format(
                 """
@@ -213,13 +214,6 @@ class ArgumentListWrappingRuleTest {
                     test(a = "1", b = {
                         it.toString()
                     }, c = 123)
-                }
-
-                fun test(a: Any, b: (Any) -> Any, c: Any) {
-                    test(a = "1", b = {
-                        it.toString()
-                    },
-                    c = 123)
                 }
 
                 fun test(a: Any, b: (Any) -> Any, c: Any) {
@@ -263,16 +257,6 @@ class ArgumentListWrappingRuleTest {
 
             fun test(a: Any, b: (Any) -> Any, c: Any) {
                 test(
-                    a = "1",
-                    b = {
-                        it.toString()
-                    },
-                    c = 123
-                )
-            }
-
-            fun test(a: Any, b: (Any) -> Any, c: Any) {
-                test(
                     "1",
                     { val x = it.toString(); x },
                     123
@@ -294,6 +278,45 @@ class ArgumentListWrappingRuleTest {
             }
             """.trimIndent()
         )
+    }
+
+    @Test
+    fun `Given a parameter with a lambda which does already start on a new line but is incorrectly indented`() {
+        val code =
+            """
+            fun test(a: Any, b: (Any) -> Any, c: Any) {
+                test(a = "1", b = {
+                    it.toString()
+                },
+                c = 123)
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun test(a: Any, b: (Any) -> Any, c: Any) {
+                test(
+                    a = "1",
+                    b = {
+                        it.toString()
+                    },
+                    c = 123
+                )
+            }
+            """.trimIndent()
+        val rules = listOf(
+            ArgumentListWrappingRule(),
+            // The incorrect indent of parameter "c" can and should not be correct by the argument-list-wrapping
+            // rule as it already starts on a separate line. It is the responsibility of the indent rule to fix that
+            // indent.
+            IndentationRule()
+        )
+        assertThat(rules.lint(code)).contains(
+            LintError(2, 10, "argument-list-wrapping", "Argument should be on a separate line (unless all arguments can fit a single line)"),
+            LintError(2, 19, "argument-list-wrapping", "Argument should be on a separate line (unless all arguments can fit a single line)"),
+            LintError(5, 1, "indent", "Unexpected indentation (4) (should be 8)"),
+            LintError(5, 12, "argument-list-wrapping", "Missing newline before \")\"")
+        )
+        assertThat(rules.format(code)).isEqualTo(formattedCode)
     }
 
     @Test
