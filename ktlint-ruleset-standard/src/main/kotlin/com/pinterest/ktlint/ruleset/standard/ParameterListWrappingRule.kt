@@ -51,11 +51,49 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
         if (indentConfig.disabled) {
             return
         }
+
+        node
+            .takeIf { it.elementType == NULLABLE_TYPE }
+            ?.takeUnless {
+                // skip when max line length not set or does not exceed max line length
+                maxLineLength <= 0 || (node.column - 1 + node.textLength) <= maxLineLength
+            }?.findChildByType(FUNCTION_TYPE)
+            ?.findChildByType(VALUE_PARAMETER_LIST)
+            ?.takeIf { it.findChildByType(VALUE_PARAMETER) != null }
+            ?.takeUnless { it.textContains('\n') }
+            ?.let {
+                node
+                    .children()
+                    .forEach {
+                        when (it.elementType) {
+                            LPAR -> {
+                                emit(
+                                    it.startOffset,
+                                    "Parameter of nullable type should be on a separate line (unless the type fits on a single line)",
+                                    true
+                                )
+                                if (autoCorrect) {
+                                    (it as LeafElement).upsertWhitespaceAfterMe("\n${indentConfig.indent}")
+                                }
+                            }
+                            RPAR -> {
+                                emit(it.startOffset, errorMessage(it), true)
+                                if (autoCorrect) {
+                                    (it as LeafElement).upsertWhitespaceBeforeMe("\n")
+                                }
+                            }
+                        }
+                    }
+            }
+
         if (node.elementType == VALUE_PARAMETER_LIST &&
             // skip when there are no parameters
             node.firstChildNode?.treeNext?.elementType != RPAR &&
             // skip lambda parameters
-            node.treeParent?.elementType != FUNCTION_LITERAL
+            node.treeParent?.elementType != FUNCTION_LITERAL &&
+            // skip when function type is wrapped in a nullable type [which was already when processing the nullable
+            // type node itself.
+            !(node.treeParent.elementType == FUNCTION_TYPE && node.treeParent?.treeParent?.elementType == NULLABLE_TYPE)
         ) {
             // each parameter should be on a separate line if
             // - at least one of the parameters is
