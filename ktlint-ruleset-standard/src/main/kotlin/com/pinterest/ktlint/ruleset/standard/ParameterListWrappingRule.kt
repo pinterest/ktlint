@@ -1,9 +1,13 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.core.KtLint
+import com.pinterest.ktlint.core.EditorConfig.Companion.loadEditorConfig
+import com.pinterest.ktlint.core.EditorConfig.Companion.loadIndentConfig
+import com.pinterest.ktlint.core.IndentConfig
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.FUNCTION_LITERAL
+import com.pinterest.ktlint.core.ast.ElementType.FUNCTION_TYPE
 import com.pinterest.ktlint.core.ast.ElementType.LPAR
+import com.pinterest.ktlint.core.ast.ElementType.NULLABLE_TYPE
 import com.pinterest.ktlint.core.ast.ElementType.PRIMARY_CONSTRUCTOR
 import com.pinterest.ktlint.core.ast.ElementType.RPAR
 import com.pinterest.ktlint.core.ast.ElementType.TYPE_PARAMETER_LIST
@@ -17,6 +21,8 @@ import com.pinterest.ktlint.core.ast.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.core.ast.lineIndent
 import com.pinterest.ktlint.core.ast.prevLeaf
 import com.pinterest.ktlint.core.ast.prevSibling
+import com.pinterest.ktlint.core.ast.upsertWhitespaceAfterMe
+import com.pinterest.ktlint.core.ast.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.core.ast.visit
 import kotlin.math.max
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -28,8 +34,7 @@ import org.jetbrains.kotlin.psi.KtTypeArgumentList
 import org.jetbrains.kotlin.psi.psiUtil.collectDescendantsOfType
 
 class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
-
-    private var indentSize = -1
+    private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
     private var maxLineLength = -1
 
     override fun visit(
@@ -38,12 +43,12 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         if (node.isRoot()) {
-            val editorConfig = node.getUserData(KtLint.EDITOR_CONFIG_USER_DATA_KEY)!!
-            indentSize = editorConfig.indentSize
+            val editorConfig = node.loadEditorConfig()
+            indentConfig = editorConfig.loadIndentConfig()
             maxLineLength = editorConfig.maxLineLength
             return
         }
-        if (indentSize <= 0) {
+        if (indentConfig.disabled) {
             return
         }
         if (node.elementType == VALUE_PARAMETER_LIST &&
@@ -59,31 +64,31 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
             val putParametersOnSeparateLines =
                 node.textContains('\n') ||
                     // max_line_length exceeded
-                    maxLineLength > -1 && (node.column - 1 + node.textLength) > maxLineLength
+                    maxLineLength > -1 && (node.column - 1 + node.textLength) > maxLineLength && !node.textContains('\n')
             if (putParametersOnSeparateLines) {
-                // IDEA quirk:
-                // fun <
-                //     T,
-                //     R> test(
-                //     param1: T
-                //     param2: R
-                // )
-                // instead of
-                // fun <
-                //     T,
-                //     R> test(
-                //         param1: T
-                //         param2: R
-                //     )
-                val adjustedIndent = if (node.hasTypeParameterListInFront()) indentSize else 0
+                val currentIndentLevel = indentConfig.indentLevelFrom(node.lineIndent())
+                val newIndentLevel =
+                    when {
+                        // IDEA quirk:
+                        // fun <
+                        //     T,
+                        //     R> test(
+                        //     param1: T
+                        //     param2: R
+                        // )
+                        // instead of
+                        // fun <
+                        //     T,
+                        //     R> test(
+                        //         param1: T
+                        //         param2: R
+                        //     )
+                        currentIndentLevel > 0 && node.hasTypeParameterListInFront() -> currentIndentLevel - 1
 
-                // aiming for
-                // ... LPAR
-                // <line indent + indentSize> VALUE_PARAMETER...
-                // <line indent> RPAR
-                val lineIndent = node.lineIndent()
-                val indent = "\n" + lineIndent.substring(0, (lineIndent.length - adjustedIndent).coerceAtLeast(0))
-                val paramIndent = indent + " ".repeat(indentSize)
+                        else -> currentIndentLevel
+                    }
+                val indent = "\n" + indentConfig.indent.repeat(newIndentLevel)
+
                 nextChild@ for (child in node.children()) {
                     when (child.elementType) {
                         LPAR -> {
@@ -98,12 +103,18 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
                         VALUE_PARAMETER,
                         RPAR -> {
                             var paramInnerIndentAdjustment = 0
-                            val prevLeaf = child.prevLeaf()
+
+                            // aiming for
+                            // ... LPAR
+                            // <line indent + indentSize> VALUE_PARAMETER...
+                            // <line indent> RPAR
                             val intendedIndent = if (child.elementType == VALUE_PARAMETER) {
-                                paramIndent
+                                indent + indentConfig.indent
                             } else {
                                 indent
                             }
+
+                            val prevLeaf = child.prevLeaf()
                             if (prevLeaf is PsiWhiteSpace) {
                                 if (prevLeaf.getText().contains("\n")) {
                                     // The current child is already wrapped to a new line. Checking and fixing the
