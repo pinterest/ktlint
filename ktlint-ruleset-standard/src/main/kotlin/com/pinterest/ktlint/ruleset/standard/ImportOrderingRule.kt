@@ -7,16 +7,20 @@ import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType
 import com.pinterest.ktlint.core.ast.isRoot
+import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ktlint.ruleset.standard.ImportOrderingRule.Companion.ASCII_PATTERN
 import com.pinterest.ktlint.ruleset.standard.ImportOrderingRule.Companion.IDEA_PATTERN
 import com.pinterest.ktlint.ruleset.standard.internal.importordering.ImportSorter
 import com.pinterest.ktlint.ruleset.standard.internal.importordering.PatternEntry
 import com.pinterest.ktlint.ruleset.standard.internal.importordering.parseImportsLayout
+import mu.KotlinLogging
 import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.psi.KtImportDirective
+
+private val logger = KotlinLogging.logger {}.initKtLintKLogger()
 
 /**
  * Import ordering is configured via EditorConfig's property `ij_kotlin_imports_layout`, so the Kotlin IDE plugin also recongizes it. Supported values:
@@ -85,20 +89,14 @@ public class ImportOrderingRule :
                         "Import layout must contain at least one entry of a wildcard symbol (*)"
                     )
                     value == "idea" -> {
-                        println(
-                            "[WARNING] `idea` is deprecated! Please use `*,java.**,javax.**,kotlin.**,^` instead" +
-                                " to ensure that the Kotlin IDE plugin recognizes the value"
-                        )
+                        logger.warn { "`idea` is deprecated! Please use `*,java.**,javax.**,kotlin.**,^` instead to ensure that the Kotlin IDE plugin recognizes the value" }
                         PropertyType.PropertyValue.valid(
                             value,
                             IDEA_PATTERN
                         )
                     }
                     value == "ascii" -> {
-                        println(
-                            "[WARNING] `ascii` is deprecated! Please use `*` instead" +
-                                " to ensure that the Kotlin IDE plugin recognizes the value"
-                        )
+                        logger.warn { "`ascii` is deprecated! Please use `*` instead to ensure that the Kotlin IDE plugin recognizes the value" }
                         PropertyType.PropertyValue.valid(
                             value,
                             ASCII_PATTERN
@@ -252,10 +250,7 @@ public class ImportOrderingRule :
     private fun EditorConfigProperties.resolveImportsLayout(
         android: Boolean
     ): List<PatternEntry> = if (containsKey(KTLINT_CUSTOM_IMPORTS_LAYOUT_PROPERTY_NAME)) {
-        println(
-            "[WARNING] `kotlin_imports_layout` is deprecated! Please use `ij_kotlin_imports_layout` to ensure" +
-                " that the Kotlin IDE plugin and ktlint use same imports layout"
-        )
+        logger.warn { "`kotlin_imports_layout` is deprecated! Please use `ij_kotlin_imports_layout` to ensure that the Kotlin IDE plugin and ktlint use same imports layout" }
         getEditorConfigValue(ktlintCustomImportsLayoutProperty, android)
     } else {
         getEditorConfigValue(ideaImportsLayoutProperty, android)

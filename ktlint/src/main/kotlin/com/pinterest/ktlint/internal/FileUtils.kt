@@ -5,6 +5,7 @@ import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.RuleSet
 import com.pinterest.ktlint.core.VisitorProvider
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
+import com.pinterest.ktlint.core.initKtLintKLogger
 import java.io.File
 import java.nio.file.FileSystem
 import java.nio.file.FileVisitResult
@@ -15,6 +16,9 @@ import java.nio.file.Paths
 import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
 import kotlin.system.exitProcess
+import mu.KotlinLogging
+
+private val logger = KotlinLogging.logger {}.initKtLintKLogger()
 
 internal val workDir: String = File(".").canonicalPath
 private val tildeRegex = Regex("^(!)?~")
@@ -143,7 +147,7 @@ internal typealias JarFiles = List<String>
 internal fun JarFiles.toFilesURIList() = map {
     val jarFile = File(expandTilde(it))
     if (!jarFile.exists()) {
-        println("Error: $it does not exist")
+        logger.error { "File $it does not exist" }
         exitProcess(1)
     }
     jarFile.toURI().toURL()

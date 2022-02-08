@@ -132,29 +132,24 @@ class ArgumentListWrappingRule : Rule("argument-list-wrapping") {
                                 indent
                             }
                             if (prevLeaf is PsiWhiteSpace) {
-                                val spacing = prevLeaf.getText()
-                                val cut = spacing.lastIndexOf("\n")
-                                if (cut > -1) {
-                                    val childIndent = spacing.substring(cut)
-                                    if (childIndent == intendedIndent) {
-                                        continue@nextChild
-                                    }
-                                    emit(
-                                        child.startOffset,
-                                        "Unexpected indentation" +
-                                            " (expected ${intendedIndent.length - 1}, actual ${childIndent.length - 1})",
-                                        true
-                                    )
+                                if (prevLeaf.getText().contains("\n")) {
+                                    // The current child is already wrapped to a new line. Checking and fixing the
+                                    // correct size of the indent is the responsibility of the IndentationRule.
+                                    continue@nextChild
                                 } else {
+                                    // The current child needs to be wrapped to a newline.
                                     emit(child.startOffset, errorMessage(child), true)
-                                }
-                                if (autoCorrect) {
-                                    val finalIndent =
-                                        (if (cut > -1) spacing.substring(0, cut) else "") + intendedIndent
-                                    argumentInnerIndentAdjustment = finalIndent.length - prevLeaf.getTextLength()
-                                    (prevLeaf as LeafPsiElement).rawReplaceWithText(finalIndent)
+                                    if (autoCorrect) {
+                                        // The indentation is purely based on the previous leaf only. Note that in
+                                        // autoCorrect mode the indent rule, if enabled, runs after this rule and
+                                        // determines the final indentation. But if the indent rule is disabled then the
+                                        // indent of this rule is kept.
+                                        argumentInnerIndentAdjustment = intendedIndent.length - prevLeaf.getTextLength()
+                                        (prevLeaf as LeafPsiElement).rawReplaceWithText(intendedIndent)
+                                    }
                                 }
                             } else {
+                                // Insert a new whitespace element in order to wrap the current child to a new line.
                                 emit(child.startOffset, errorMessage(child), true)
                                 if (autoCorrect) {
                                     argumentInnerIndentAdjustment = intendedIndent.length - child.column

@@ -1,10 +1,14 @@
 package com.pinterest.ktlint.internal
 
 import com.pinterest.ktlint.core.RuleSetProvider
+import com.pinterest.ktlint.core.initKtLintKLogger
 import java.net.URL
 import java.net.URLClassLoader
 import java.util.ServiceLoader
 import java.util.SortedMap
+import mu.KotlinLogging
+
+private val logger = KotlinLogging.logger {}.initKtLintKLogger()
 
 /**
  * Load given list of paths to ruleset jars into map of ruleset providers.
@@ -44,7 +48,7 @@ private fun getRuleSetProvidersByUrl(
     debug: Boolean
 ): Pair<URL?, List<RuleSetProvider>> {
     if (url != null && debug) {
-        println("[DEBUG] JAR ruleset provided with path \"${url.path}\"")
+        logger.debug { "JAR ruleset provided with path \"${url.path}\"" }
     }
     val ruleSetProviders = ServiceLoader.load(
         RuleSetProvider::class.java,
@@ -63,16 +67,16 @@ private fun reportWhenMissingCustomRuleSetProvider(
             .filterNot { it.get().id == "experimental" }
             .any()
     if (!hasCustomRuleSetProviders) {
-        System.err.println(
+        logger.warn {
             """
-            [WARNING] JAR ${url.path}, provided as command line argument, does not contain a custom ruleset provider.
-                      Check following:
-                        - Does the jar contain an implementation of the RuleSetProvider interface?
-                        - Does the jar contain a resource file with name "com.pinterest.ktlint.core.RuleSetProvider"?
-                        - Is the resource file located in directory "src/main/resources/META-INF/services"?
-                        - Does the resource file contain the fully qualified class name of the class implementing the RuleSetProvider interface?
+            JAR ${url.path}, provided as command line argument, does not contain a custom ruleset provider.
+                Check following:
+                  - Does the jar contain an implementation of the RuleSetProvider interface?
+                  - Does the jar contain a resource file with name "com.pinterest.ktlint.core.RuleSetProvider"?
+                  - Is the resource file located in directory "src/main/resources/META-INF/services"?
+                  - Does the resource file contain the fully qualified class name of the class implementing the RuleSetProvider interface?
             """.trimIndent() // ktlint-disable string-template
-        )
+        }
     }
 }
 
