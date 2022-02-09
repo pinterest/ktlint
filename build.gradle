@@ -59,14 +59,6 @@ task ktlint(type: JavaExec, group: LifecycleBasePlugin.VERIFICATION_GROUP) {
   args '**/src/**/*.kt', '!ktlint/src/test/resources/**', '--baseline=ktlint/src/test/resources/test-baseline.xml', '--experimental', '--verbose'
 }
 
-/**
- * Configures "wrapper" task to use specific Gradle version and distribution type.
- */
-tasks.withType(Wrapper.class).configureEach {
-  gradleVersion = versions.gradle
-  distributionType = Wrapper.DistributionType.BIN
-}
-
 // Deployment tasks
 String getGithubToken() {
   if (project.hasProperty("servers.github.privKey")) {
