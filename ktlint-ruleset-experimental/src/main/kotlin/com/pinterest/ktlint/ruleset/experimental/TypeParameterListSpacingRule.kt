@@ -25,39 +25,60 @@ public class TypeParameterListSpacingRule : Rule("type-parameter-list-spacing") 
         }
 
         if (node.treeParent.elementType == CLASS) {
-            // No white space expected between class name and parameter list
-            //     class Bar <T>
-            node
-                .prevSibling { true }
-                ?.takeIf { it.elementType == WHITE_SPACE }
-                ?.let { noWhitespaceExpected(it, autoCorrect, emit) }
-
-            // No white space expected between parameter type list and the constructor except when followed by compound
-            // constructor
-            //     class Bar<T> (...)
-            node
-                .nextSibling { true }
-                ?.takeIf { it.elementType == WHITE_SPACE && it.nextCodeSibling()?.elementType == PRIMARY_CONSTRUCTOR }
-                ?.let { whiteSpace ->
-                    if (whiteSpace.nextCodeSibling()?.findChildByType(CONSTRUCTOR_KEYWORD) != null) {
-                        //    class Bar<T> constructor(...)
-                        //    class Bar<T> actual constructor(...)
-                        //    class Bar<T> @SomeAnnotation constructor(...)
-                        singleWhiteSpaceExpected(whiteSpace, autoCorrect, emit)
-                    } else {
-                        noWhitespaceExpected(whiteSpace, autoCorrect, emit)
-                    }
-                }
-
-            // No white space expected between parameter type list and class body when constructor is missing
-            //    class Bar<T> {
-            node
-                .nextSibling { true }
-                ?.takeIf { it.elementType == WHITE_SPACE && it.nextCodeSibling()?.elementType == CLASS_BODY }
-                ?.let { singleWhiteSpaceExpected(it, autoCorrect, emit) }
+            visitClassDeclaration(node, autoCorrect, emit)
         } else {
-            visitWhiteSpaceRelatedToFunction(node, autoCorrect, emit)
+            visitFunctionDeclaration(node, autoCorrect, emit)
         }
+    }
+
+    private fun visitClassDeclaration(
+        node: ASTNode,
+        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+    ) {
+        // No white space expected between class name and parameter list
+        //     class Bar <T>
+        node
+            .prevSibling { true }
+            ?.takeIf { it.elementType == WHITE_SPACE }
+            ?.let { noWhitespaceExpected(it, autoCorrect, emit) }
+
+        // No white space expected between parameter type list and the constructor except when followed by compound
+        // constructor
+        //     class Bar<T> (...)
+        node
+            .nextSibling { true }
+            ?.takeIf { it.elementType == WHITE_SPACE && it.nextCodeSibling()?.elementType == PRIMARY_CONSTRUCTOR }
+            ?.let { whiteSpace ->
+                if (whiteSpace.nextCodeSibling()?.findChildByType(CONSTRUCTOR_KEYWORD) != null) {
+                    //    class Bar<T> constructor(...)
+                    //    class Bar<T> actual constructor(...)
+                    //    class Bar<T> @SomeAnnotation constructor(...)
+                    singleWhiteSpaceExpected(whiteSpace, autoCorrect, emit)
+                } else {
+                    noWhitespaceExpected(whiteSpace, autoCorrect, emit)
+                }
+            }
+
+        // No white space expected between parameter type list and class body when constructor is missing
+        //    class Bar<T> {
+        node
+            .nextSibling { true }
+            ?.takeIf { it.elementType == WHITE_SPACE && it.nextCodeSibling()?.elementType == CLASS_BODY }
+            ?.let { singleWhiteSpaceExpected(it, autoCorrect, emit) }
+    }
+
+    private fun visitFunctionDeclaration(
+        node: ASTNode,
+        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+    ) {
+        node
+            .nextSibling { true }
+            ?.takeUnless { it.elementType == WHITE_SPACE && it.text == " " }
+            ?.let { node ->
+                singleWhiteSpaceExpected(node, autoCorrect, emit)
+            }
     }
 
     private fun noWhitespaceExpected(
@@ -109,18 +130,5 @@ public class TypeParameterListSpacingRule : Rule("type-parameter-list-spacing") 
                 }
             }
         }
-    }
-
-    private fun visitWhiteSpaceRelatedToFunction(
-        node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
-    ) {
-        node
-            .nextSibling { true }
-            ?.takeUnless { it.elementType == WHITE_SPACE && it.text == " " }
-            ?.let { node ->
-                singleWhiteSpaceExpected(node, autoCorrect, emit)
-            }
     }
 }
