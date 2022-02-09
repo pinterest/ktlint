@@ -5,13 +5,11 @@ import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.jvm.toolchain.JavaToolchainService
 import org.gradle.kotlin.dsl.register
 
-const val testsOnJDK11TaskName: String = "testOnJdk11"
-
 val Project.javaToolchains: JavaToolchainService
     get() = (this as ExtensionAware).extensions.getByName("javaToolchains") as JavaToolchainService
 
 fun Project.addJdk11Tests() {
-    val testTask = tasks.register<Test>(testsOnJDK11TaskName) {
+    val testTask = tasks.register<Test>("testOnJdk11") {
         javaLauncher.set(
             javaToolchains.launcherFor {
                 languageVersion.set(JavaLanguageVersion.of(11))
