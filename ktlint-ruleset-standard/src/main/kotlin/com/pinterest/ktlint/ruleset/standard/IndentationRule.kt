@@ -82,8 +82,10 @@ import com.pinterest.ktlint.core.ast.prevSibling
 import com.pinterest.ktlint.core.ast.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.core.ast.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.core.ast.visit
+import com.pinterest.ktlint.core.initKtLintKLogger
 import java.util.Deque
 import java.util.LinkedList
+import mu.KotlinLogging
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
@@ -92,6 +94,8 @@ import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 import org.jetbrains.kotlin.psi.KtStringTemplateExpression
 import org.jetbrains.kotlin.psi.KtSuperTypeList
 import org.jetbrains.kotlin.psi.psiUtil.leaves
+
+private val logger = KotlinLogging.logger {}.initKtLintKLogger()
 
 /**
  * ktlint's rule that checks & corrects indentation.
@@ -112,16 +116,6 @@ class IndentationRule : Rule(
 ) {
 
     private companion object {
-        // run `KTLINT_DEBUG=experimental/indent ktlint ...` to enable debug output
-        private val debugMode =
-            (System.getenv("KTLINT_DEBUG") ?: "").split(",").contains("experimental/indent")
-
-        private inline fun debug(msg: () -> String) {
-            if (debugMode) {
-                System.err.println("[DEBUG] indent: ${msg()}")
-            }
-        }
-
         private val lTokenSet = TokenSet.create(LPAR, LBRACE, LBRACKET, LT)
         private val rTokenSet = TokenSet.create(RPAR, RBRACE, RBRACKET, GT)
         private val matchingRToken =
@@ -138,10 +132,6 @@ class IndentationRule : Rule(
         expectedIndent = 0
     }
 
-    private inline fun debug(msg: () -> String) {
-        Companion.debug { "$line: " + msg() }
-    }
-
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
@@ -152,7 +142,7 @@ class IndentationRule : Rule(
             return
         }
         reset()
-        Companion.debug { "phase: rearrangement (auto correction ${if (autoCorrect) "on" else "off"})" }
+        logger.trace { "phase: rearrangement (auto correction ${if (autoCorrect) "on" else "off"})" }
         // step 1: insert newlines (if/where needed)
         var emitted = false
         rearrange(node, autoCorrect) { offset, errorMessage, canBeAutoCorrected ->
@@ -160,13 +150,17 @@ class IndentationRule : Rule(
             emit(offset, errorMessage, canBeAutoCorrected)
         }
         if (emitted && autoCorrect) {
-            Companion.debug {
+            logger.trace {
                 "indenting:\n" +
-                    node.text.split("\n").mapIndexed { i, v -> "\t${i + 1}: $v" }.joinToString("\n")
+                    node
+                        .text
+                        .split("\n")
+                        .mapIndexed { i, v -> "\t${i + 1}: $v" }
+                        .joinToString("\n")
             }
         }
         reset()
-        Companion.debug { "phase: indentation" }
+        logger.trace { "phase: indentation" }
         // step 2: correct indentation
         indent(node, autoCorrect, emit, editorConfig)
 
@@ -378,10 +372,7 @@ class IndentationRule : Rule(
                     n as LeafPsiElement
                     n.rawInsertBeforeMe(LeafPsiElement(REGULAR_STRING_PART, "\n"))
                 }
-                debug {
-                    (if (!autoCorrect) "would have " else "") +
-                        "inserted newline before (closing) \"\"\""
-                }
+                logger.trace { "$line: " + (if (!autoCorrect) "would have " else "") + "inserted newline before (closing) \"\"\"" }
             }
         }
     }
@@ -464,7 +455,7 @@ class IndentationRule : Rule(
             """Missing newline before "${node.text}"""",
             true
         )
-        debug { (if (!autoCorrect) "would have " else "") + "inserted newline before ${node.text}" }
+        logger.trace { "$line: " + ((if (!autoCorrect) "would have " else "") + "inserted newline before ${node.text}") }
         if (autoCorrect) {
             (node.psi as LeafPsiElement).upsertWhitespaceBeforeMe("\n ")
         }
@@ -480,7 +471,7 @@ class IndentationRule : Rule(
             """Missing newline after "${node.text}"""",
             true
         )
-        debug { (if (!autoCorrect) "would have " else "") + "inserted newline after ${node.text}" }
+        logger.trace { "$line: " + (if (!autoCorrect) "would have " else "") + "inserted newline after ${node.text}" }
         if (autoCorrect) {
             (node.psi as LeafPsiElement).upsertWhitespaceAfterMe("\n ")
         }
@@ -518,7 +509,7 @@ class IndentationRule : Rule(
                         val leftBrace = n.takeIf { it.elementType == LBRACE }
                         if (prevBlockLine != line && !leftBrace.isAfterLambdaArgumentOnSameLine()) {
                             expectedIndent++
-                            debug { "++${n.text} -> $expectedIndent" }
+                            logger.trace { "$line: ++${n.text} -> $expectedIndent" }
                         }
                         ctx.blockOpeningLineStack.push(line)
                     }
@@ -529,7 +520,7 @@ class IndentationRule : Rule(
                         val pairedLeft = n.pairedLeft()
                         if (prevBlockLine != blockLine && !pairedLeft.isAfterLambdaArgumentOnSameLine()) {
                             expectedIndent--
-                            debug { "--on(${n.elementType}) -> $expectedIndent" }
+                            logger.trace { "$line: --on(${n.elementType}) -> $expectedIndent" }
 
                             val byKeywordOnSameLine = pairedLeft?.prevLeafOnSameLine(BY_KEYWORD)
                             if (byKeywordOnSameLine != null &&
@@ -537,7 +528,7 @@ class IndentationRule : Rule(
                                 n.leavesOnSameLine(forward = true).all { it.isWhiteSpace() || it.isPartOfComment() }
                             ) {
                                 expectedIndent--
-                                debug { "--on same line as by keyword ${n.text} -> $expectedIndent" }
+                                logger.trace { "$line: --on same line as by keyword ${n.text} -> $expectedIndent" }
                             }
                         }
                     }
@@ -545,13 +536,13 @@ class IndentationRule : Rule(
                         // <T>
                         if (n.treeParent.elementType.let { it == TYPE_PARAMETER_LIST || it == TYPE_ARGUMENT_LIST }) {
                             expectedIndent++
-                            debug { "++${n.text} -> $expectedIndent" }
+                            logger.trace { "$line: ++${n.text} -> $expectedIndent" }
                         }
                     GT ->
                         // <T>
                         if (n.treeParent.elementType.let { it == TYPE_PARAMETER_LIST || it == TYPE_ARGUMENT_LIST }) {
                             expectedIndent--
-                            debug { "--${n.text} -> $expectedIndent" }
+                            logger.trace { "$line: --${n.text} -> $expectedIndent" }
                         }
                     SUPER_TYPE_LIST ->
                         // class A :
@@ -656,7 +647,7 @@ class IndentationRule : Rule(
                                 visitWhiteSpace(n, autoCorrect, emit, editorConfig)
                                 if (ctx.localAdj != 0) {
                                     expectedIndent += ctx.localAdj
-                                    debug { "++${ctx.localAdj} on whitespace containing new line (${n.elementType}) -> $expectedIndent" }
+                                    logger.trace { "$line: ++${ctx.localAdj} on whitespace containing new line (${n.elementType}) -> $expectedIndent" }
                                     ctx.localAdj = 0
                                 }
                             } else if (n.isPartOf(KDOC)) {
@@ -665,8 +656,8 @@ class IndentationRule : Rule(
                             line += n.text.count { it == '\n' }
                         }
                     EOL_COMMENT ->
-                        if (debugMode && n.text == "// ktlint-debug-print-expected-indent") {
-                            debug { "expected indent: $expectedIndent" }
+                        if (n.text == "// ktlint-debug-print-expected-indent") {
+                            logger.trace { "$line: expected indent: $expectedIndent" }
                         }
                 }
             },
@@ -680,7 +671,7 @@ class IndentationRule : Rule(
                 val adj = ctx.clearExitAdj(n)
                 if (adj != null) {
                     expectedIndent += adj
-                    debug { "adjusted ${n.elementType} by $adj -> $expectedIndent" }
+                    logger.trace { "$line: adjusted ${n.elementType} by $adj -> $expectedIndent" }
                 }
             }
         )
@@ -693,7 +684,7 @@ class IndentationRule : Rule(
         val nextSibling = n.treeNext
         if (!ctx.ignored.contains(p) && nextSibling != null) {
             expectedIndent++
-            debug { "++inside(${p.elementType}) -> $expectedIndent" }
+            logger.trace { "$line: ++inside(${p.elementType}) -> $expectedIndent" }
             ctx.ignored.add(p)
             ctx.exitAdjBy(p, -1)
         }
@@ -704,7 +695,7 @@ class IndentationRule : Rule(
             val p = n.treeParent
             if (!ctx.ignored.contains(p)) {
                 expectedIndent++
-                debug { "++inside(${p.elementType}) -> $expectedIndent" }
+                logger.trace { "$line: ++inside(${p.elementType}) -> $expectedIndent" }
                 val rOperand = n.nextSibling { sibling ->
                     sibling.elementType != OPERATION_REFERENCE &&
                         sibling.elementType != WHITE_SPACE
@@ -719,7 +710,7 @@ class IndentationRule : Rule(
                 nextSibling.firstChildNode.elementType != CALL_EXPRESSION
             ) {
                 ctx.localAdj = -1
-                debug { "--inside(${nextSibling.elementType}) -> $expectedIndent" }
+                logger.trace { "$line: --inside(${nextSibling.elementType}) -> $expectedIndent" }
                 ctx.exitAdjBy(p, 1)
             }
         }
@@ -728,25 +719,25 @@ class IndentationRule : Rule(
     private fun adjustExpectedIndentInFrontOfControlBlock(n: ASTNode, ctx: IndentContext) {
         val nextSibling = n.treeNext
         expectedIndent++
-        debug { "++in_front(${nextSibling.elementType}) -> $expectedIndent" }
+        logger.trace { "$line: ++in_front(${nextSibling.elementType}) -> $expectedIndent" }
         ctx.exitAdjBy(nextSibling, -1)
     }
 
     private fun adjustExpectedIndentInFrontOfPropertyAccessor(n: ASTNode, ctx: IndentContext) {
         expectedIndent++
-        debug { "++in_front(${n.treeNext.elementType}) -> $expectedIndent" }
+        logger.trace { "$line: ++in_front(${n.treeNext.elementType}) -> $expectedIndent" }
         ctx.exitAdjBy(n.treeNext, -1)
     }
 
     private fun adjustExpectedIndentInFrontOfSuperTypeList(n: ASTNode, ctx: IndentContext) {
         expectedIndent++
-        debug { "++in_front(${n.treeNext.elementType}) -> $expectedIndent" }
+        logger.trace { "$line: ++in_front(${n.treeNext.elementType}) -> $expectedIndent" }
         ctx.localAdj = -1
     }
 
     private fun adjustExpectedIndentInsideSuperTypeList(n: ASTNode) {
         expectedIndent++
-        debug { "++inside(${n.elementType}) -> $expectedIndent" }
+        logger.trace { "$line: ++inside(${n.elementType}) -> $expectedIndent" }
     }
 
     private fun adjustExpectedIndentAfterSuperTypeList(n: ASTNode) {
@@ -764,7 +755,7 @@ class IndentationRule : Rule(
             return
         }
         expectedIndent--
-        debug { "--after(${n.elementType}) -> $expectedIndent" }
+        logger.trace { "$line: --after(${n.elementType}) -> $expectedIndent" }
     }
 
     private fun adjustExpectedIndentInsideSuperTypeCall(n: ASTNode, ctx: IndentContext) {
@@ -774,14 +765,14 @@ class IndentationRule : Rule(
         }
         if (n.prevLeaf()?.textContains('\n') == false) {
             expectedIndent--
-            debug { "--inside(${n.elementType}) -> $expectedIndent" }
+            logger.trace { "$line: --inside(${n.elementType}) -> $expectedIndent" }
             ctx.exitAdjBy(n, 1)
         }
     }
 
     private fun adjustExpectedIndentAfterEq(n: ASTNode, ctx: IndentContext) {
         expectedIndent++
-        debug { "++after(EQ) -> $expectedIndent" }
+        logger.trace { "$line: ++after(EQ) -> $expectedIndent" }
         ctx.exitAdjBy(n.treeParent, -1)
     }
 
@@ -791,7 +782,7 @@ class IndentationRule : Rule(
             val prevBlockLine = ctx.blockOpeningLineStack.peek() ?: -1
             if (prevBlockLine != line) {
                 expectedIndent++
-                debug { "++after(ARROW) -> $expectedIndent" }
+                logger.trace { "$line: ++after(ARROW) -> $expectedIndent" }
                 ctx.exitAdjBy(n.treeParent, -1)
             }
         }
@@ -801,19 +792,19 @@ class IndentationRule : Rule(
         when {
             n.isPartOf(FUN) -> {
                 expectedIndent++
-                debug { "++after(COLON IN FUN) -> $expectedIndent" }
+                logger.trace { "$line: ++after(COLON IN FUN) -> $expectedIndent" }
                 val returnType = n.nextCodeSibling()
                 ctx.exitAdjBy(returnType!!, -1)
             }
             n.treeParent.isPartOf(SECONDARY_CONSTRUCTOR) -> {
                 expectedIndent++
-                debug { "++after(COLON IN CONSTRUCTOR) -> $expectedIndent" }
+                logger.trace { "$line: ++after(COLON IN CONSTRUCTOR) -> $expectedIndent" }
                 val nextCodeSibling = n.nextCodeSibling()
                 ctx.exitAdjBy(nextCodeSibling!!, -1)
             }
             else -> {
                 expectedIndent++
-                debug { "++after(COLON) -> $expectedIndent" }
+                logger.trace { "$line: ++after(COLON) -> $expectedIndent" }
                 ctx.exitAdjBy(n.treeParent, -1)
             }
         }
@@ -821,7 +812,7 @@ class IndentationRule : Rule(
 
     private fun adjustExpectedIndentAfterLparInsideCondition(n: ASTNode, ctx: IndentContext) {
         expectedIndent++
-        debug { "++inside(CONDITION) -> $expectedIndent" }
+        logger.trace { "$line: ++inside(CONDITION) -> $expectedIndent" }
         ctx.exitAdjBy(n.treeParent, -1)
     }
 
@@ -847,7 +838,7 @@ class IndentationRule : Rule(
 
         if (arrowNode != null && hasWhiteSpaceWithNewLine) {
             expectedIndent++
-            debug { "++after(FUNCTION_LITERAL) -> $expectedIndent" }
+            logger.trace { "$line: ++after(FUNCTION_LITERAL) -> $expectedIndent" }
             ctx.exitAdjBy(arrowNode.prevCodeSibling()!!, -1)
         }
     }
@@ -1040,7 +1031,7 @@ class IndentationRule : Rule(
                     0
                 } else {
                     expectedIndent++
-                    debug { "++whitespace followed by BY keyword -> $expectedIndent" }
+                    logger.trace { "$line: ++whitespace followed by BY keyword -> $expectedIndent" }
                     1
                 }
             }
@@ -1115,9 +1106,8 @@ class IndentationRule : Rule(
                 "Unexpected indentation (${normalizedNodeIndent.length}) (should be $expectedIndentLength)",
                 true
             )
-            debug {
-                (if (!autoCorrect) "would have " else "") +
-                    "changed indentation to $expectedIndentLength (from ${normalizedNodeIndent.length})"
+            logger.trace {
+                "$line: " + (if (!autoCorrect) "would have " else "") + "changed indentation to $expectedIndentLength (from ${normalizedNodeIndent.length})"
             }
         }
         if (autoCorrect) {
