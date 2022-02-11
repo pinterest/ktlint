@@ -20,5 +20,3 @@ include ':ktlint-ruleset-standard'
 include ':ktlint-ruleset-template'
 include ':ktlint-ruleset-test'
 include ':ktlint-test'
-
-enableFeaturePreview("VERSION_CATALOGS")

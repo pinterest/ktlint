@@ -1,6 +1,6 @@
 [versions]
-gradle = "7.2"
-gradleSha256 = "f581709a9c35e9cb92e16f585d2c4bc99b2b1a5f85d2badbd3dc6bff59e1e6dd"
+gradle = "7.4"
+gradleSha256 = "8cc27038d5dbd815759851ba53e70cf62e481b87494cc97cfd97982ada5ba634"
 kotlin = "1.6.0"
 junit5 = "5.8.2"
 
@@ -22,3 +22,6 @@ junit5Vintage = { module = "org.junit.vintage:junit-vintage-engine", version.ref
 assertj = { module = "org.assertj:assertj-core", version = "3.12.2" }
 sarif4k = { module = "io.github.detekt.sarif4k:sarif4k", version = "0.0.1" }
 jimfs = { module = "com.google.jimfs:jimfs", version = "1.1" }
+logging = { module = "io.github.microutils:kotlin-logging-jvm", version = "2.1.21" }
+# Use logback-classic as the logger for kotlin-logging / slf4j as it allow changing the log level at runtime.
+logback = { module = "ch.qos.logback:logback-classic", version = "1.2.9" }
