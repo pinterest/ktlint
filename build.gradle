@@ -5,8 +5,8 @@ plugins {
 }
 
 ext.versions = [
-  'gradle': '7.2',
-  'gradle-sha256': 'f581709a9c35e9cb92e16f585d2c4bc99b2b1a5f85d2badbd3dc6bff59e1e6dd'
+  'gradle': '7.4',
+  'gradle-sha256': '8cc27038d5dbd815759851ba53e70cf62e481b87494cc97cfd97982ada5ba634'
 ]
 
 ext.deps = [
@@ -57,14 +57,6 @@ task ktlint(type: JavaExec, group: LifecycleBasePlugin.VERIFICATION_GROUP) {
   // Sources in "ktlint/src/test/resources" are excluded as those source contain lint errors that have to be detected by
   // unit tests and should not be reported/fixed.
   args '**/src/**/*.kt', '!ktlint/src/test/resources/**', '--baseline=ktlint/src/test/resources/test-baseline.xml', '--experimental', '--verbose'
-}
-
-/**
- * Configures "wrapper" task to use specific Gradle version and distribution type.
- */
-tasks.withType(Wrapper.class).configureEach {
-  gradleVersion = versions.gradle
-  distributionType = Wrapper.DistributionType.BIN
 }
 
 // Deployment tasks
