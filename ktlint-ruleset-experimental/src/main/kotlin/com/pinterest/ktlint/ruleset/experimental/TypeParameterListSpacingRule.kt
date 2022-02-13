@@ -4,16 +4,23 @@ import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.CLASS
 import com.pinterest.ktlint.core.ast.ElementType.CLASS_BODY
 import com.pinterest.ktlint.core.ast.ElementType.CONSTRUCTOR_KEYWORD
+import com.pinterest.ktlint.core.ast.ElementType.GT
+import com.pinterest.ktlint.core.ast.ElementType.LT
 import com.pinterest.ktlint.core.ast.ElementType.PRIMARY_CONSTRUCTOR
 import com.pinterest.ktlint.core.ast.ElementType.TYPE_PARAMETER_LIST
 import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.core.ast.nextCodeSibling
+import com.pinterest.ktlint.core.ast.nextLeaf
 import com.pinterest.ktlint.core.ast.nextSibling
+import com.pinterest.ktlint.core.ast.prevLeaf
 import com.pinterest.ktlint.core.ast.prevSibling
 import com.pinterest.ktlint.core.ast.upsertWhitespaceBeforeMe
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
+/**
+ * Lints and formats the spacing before and after the angle brackets of a type parameter list.
+ */
 public class TypeParameterListSpacingRule : Rule("type-parameter-list-spacing") {
     override fun visit(
         node: ASTNode,
@@ -29,6 +36,7 @@ public class TypeParameterListSpacingRule : Rule("type-parameter-list-spacing") 
         } else {
             visitFunctionDeclaration(node, autoCorrect, emit)
         }
+        visitInsideTypeParameterList(node, autoCorrect, emit)
     }
 
     private fun visitClassDeclaration(
@@ -51,10 +59,11 @@ public class TypeParameterListSpacingRule : Rule("type-parameter-list-spacing") 
             ?.takeIf { it.elementType == WHITE_SPACE && it.nextCodeSibling()?.elementType == PRIMARY_CONSTRUCTOR }
             ?.let { whiteSpace ->
                 if (whiteSpace.nextCodeSibling()?.findChildByType(CONSTRUCTOR_KEYWORD) != null) {
+                    // Single space expect before (modifier list of) constructor
                     //    class Bar<T> constructor(...)
                     //    class Bar<T> actual constructor(...)
                     //    class Bar<T> @SomeAnnotation constructor(...)
-                    singleWhiteSpaceExpected(whiteSpace, autoCorrect, emit)
+                    singleSpaceExpected(whiteSpace, autoCorrect, emit)
                 } else {
                     noWhitespaceExpected(whiteSpace, autoCorrect, emit)
                 }
@@ -65,7 +74,7 @@ public class TypeParameterListSpacingRule : Rule("type-parameter-list-spacing") 
         node
             .nextSibling { true }
             ?.takeIf { it.elementType == WHITE_SPACE && it.nextCodeSibling()?.elementType == CLASS_BODY }
-            ?.let { singleWhiteSpaceExpected(it, autoCorrect, emit) }
+            ?.let { singleSpaceExpected(it, autoCorrect, emit) }
     }
 
     private fun visitFunctionDeclaration(
@@ -73,12 +82,45 @@ public class TypeParameterListSpacingRule : Rule("type-parameter-list-spacing") 
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
+        // Single space expected before type parameter list of function
+        //    fun<T> foo(...)
         node
-            .nextSibling { true }
-            ?.takeUnless { it.elementType == WHITE_SPACE && it.text == " " }
-            ?.let { node ->
-                singleWhiteSpaceExpected(node, autoCorrect, emit)
+            .prevLeaf(includeEmpty = true)
+            ?.let { prevLeaf ->
+                if (prevLeaf.elementType == WHITE_SPACE) {
+                    singleSpaceExpected(prevLeaf, autoCorrect, emit)
+                } else {
+                    singleSpaceExpected(node.firstChildNode, autoCorrect, emit)
+                }
             }
+
+        // Single space expected after type parameter list of function
+        //   fun <T>foo(...)
+        //   fun <T>List<T>foo(...)
+        node
+            .lastChildNode
+            .nextLeaf(includeEmpty = true)
+            ?.let { nextSibling ->
+                singleSpaceExpected(nextSibling, autoCorrect, emit)
+            }
+    }
+
+    private fun visitInsideTypeParameterList(
+        node: ASTNode,
+        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+    ) {
+        node
+            .findChildByType(LT)
+            ?.nextSibling { true }
+            ?.takeIf { it.elementType == WHITE_SPACE }
+            ?.let { noWhitespaceExpected(it, autoCorrect, emit) }
+
+        node
+            .findChildByType(GT)
+            ?.prevSibling { true }
+            ?.takeIf { it.elementType == WHITE_SPACE }
+            ?.let { noWhitespaceExpected(it, autoCorrect, emit) }
     }
 
     private fun noWhitespaceExpected(
@@ -98,7 +140,7 @@ public class TypeParameterListSpacingRule : Rule("type-parameter-list-spacing") 
         }
     }
 
-    private fun singleWhiteSpaceExpected(
+    private fun singleSpaceExpected(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit

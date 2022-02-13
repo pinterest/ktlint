@@ -24,33 +24,94 @@ class TypeParameterListSpacingRuleTest {
     */
 
     @Test
-    fun `Given a type parameter list not followed by whitespace then add a single white space`() {
+    fun `Given a type parameter list in a function declaration not preceded or followed by a space then add a single white space`() {
         val code =
             """
-            fun <T>foo(t: T) = "some-result"
+            fun<T> foo1(t: T) = "some-result"
+            fun <T>foo2(t: T) = "some-result"
+            fun<T>foo3(t: T) = "some-result"
             """.trimIndent()
         val formattedCode =
             """
-            fun <T> foo(t: T) = "some-result"
+            fun <T> foo1(t: T) = "some-result"
+            fun <T> foo2(t: T) = "some-result"
+            fun <T> foo3(t: T) = "some-result"
             """.trimIndent()
         assertThat(TypeParameterListSpacingRule().lint(code)).containsExactly(
-            LintError(1, 8, "type-parameter-list-spacing", "Expected a single space")
+            LintError(1, 4, "type-parameter-list-spacing", "Expected a single space"),
+            LintError(2, 8, "type-parameter-list-spacing", "Expected a single space"),
+            LintError(3, 4, "type-parameter-list-spacing", "Expected a single space"),
+            LintError(3, 7, "type-parameter-list-spacing", "Expected a single space")
         )
         assertThat(TypeParameterListSpacingRule().format(code)).isEqualTo(formattedCode)
     }
 
     @Test
-    fun `Given a type parameter list followed by multiple spaces then the redundant spaces are removed`() {
+    fun `Given a type parameter list in a function declaration preceded or followed by too many spaces then the redundant spaces are removed`() {
         val code =
             """
-            fun <T>  foo(t: T) = "some-result"
+            fun  <T> foo1(t: T) = "some-result"
+            fun <T>  foo2(t: T) = "some-result"
+            fun  <T>  foo3(t: T) = "some-result"
             """.trimIndent()
         val formattedCode =
             """
-            fun <T> foo(t: T) = "some-result"
+            fun <T> foo1(t: T) = "some-result"
+            fun <T> foo2(t: T) = "some-result"
+            fun <T> foo3(t: T) = "some-result"
             """.trimIndent()
         assertThat(TypeParameterListSpacingRule().lint(code)).containsExactly(
-            LintError(1, 8, "type-parameter-list-spacing", "Expected a single space")
+            LintError(1, 4, "type-parameter-list-spacing", "Expected a single space"),
+            LintError(2, 8, "type-parameter-list-spacing", "Expected a single space"),
+            LintError(3, 4, "type-parameter-list-spacing", "Expected a single space"),
+            LintError(3, 9, "type-parameter-list-spacing", "Expected a single space")
+        )
+        assertThat(TypeParameterListSpacingRule().format(code)).isEqualTo(formattedCode)
+    }
+
+    @Test
+    fun `Given a type parameter list in a function declaration preceded or followed by a newline then replace with a single space`() {
+        val code =
+            """
+            fun
+            <T> foo1(t: T) = "some-result"
+            fun <T>
+            foo2(t: T) = "some-result"
+            fun
+            <T>
+            foo3(t: T) = "some-result"
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun <T> foo1(t: T) = "some-result"
+            fun <T> foo2(t: T) = "some-result"
+            fun <T> foo3(t: T) = "some-result"
+            """.trimIndent()
+        assertThat(TypeParameterListSpacingRule().lint(code)).containsExactly(
+            LintError(1, 4, "type-parameter-list-spacing", "Expected a single space instead of newline"),
+            LintError(3, 8, "type-parameter-list-spacing", "Expected a single space instead of newline"),
+            LintError(5, 4, "type-parameter-list-spacing", "Expected a single space instead of newline"),
+            LintError(6, 4, "type-parameter-list-spacing", "Expected a single space instead of newline")
+        )
+        assertThat(TypeParameterListSpacingRule().format(code)).isEqualTo(formattedCode)
+    }
+
+    @Test
+    fun `Given a function with a type parameter list and type reference not separated by space then add the missing space`() {
+        val code =
+            """
+            fun main() {
+                fun <T>List<T>.head() {}
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun main() {
+                fun <T> List<T>.head() {}
+            }
+            """.trimIndent()
+        assertThat(TypeParameterListSpacingRule().lint(code)).containsExactly(
+            LintError(2, 12, "type-parameter-list-spacing", "Expected a single space")
         )
         assertThat(TypeParameterListSpacingRule().format(code)).isEqualTo(formattedCode)
     }
@@ -207,6 +268,44 @@ class TypeParameterListSpacingRuleTest {
         assertThat(TypeParameterListSpacingRule().lint(code)).containsExactly(
             LintError(1, 10, "type-parameter-list-spacing", "No whitespace expected at this position"),
             LintError(1, 14, "type-parameter-list-spacing", "No whitespace expected at this position")
+        )
+        assertThat(TypeParameterListSpacingRule().format(code)).isEqualTo(formattedCode)
+    }
+
+    @Test
+    fun `Give a type parameter list containing a space after the opening angle bracket then remove it`() {
+        val code =
+            """
+            fun < T> foo(): T {}
+            class Bar< T>(val t: T)
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun <T> foo(): T {}
+            class Bar<T>(val t: T)
+            """.trimIndent()
+        assertThat(TypeParameterListSpacingRule().lint(code)).containsExactly(
+            LintError(1, 6, "type-parameter-list-spacing", "No whitespace expected at this position"),
+            LintError(2, 11, "type-parameter-list-spacing", "No whitespace expected at this position")
+        )
+        assertThat(TypeParameterListSpacingRule().format(code)).isEqualTo(formattedCode)
+    }
+
+    @Test
+    fun `Give a type parameter list containing a space before the closing angle bracket then remove it`() {
+        val code =
+            """
+            fun <T > foo(): T {}
+            class Bar<T >(val t: T)
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun <T> foo(): T {}
+            class Bar<T>(val t: T)
+            """.trimIndent()
+        assertThat(TypeParameterListSpacingRule().lint(code)).containsExactly(
+            LintError(1, 7, "type-parameter-list-spacing", "No whitespace expected at this position"),
+            LintError(2, 12, "type-parameter-list-spacing", "No whitespace expected at this position")
         )
         assertThat(TypeParameterListSpacingRule().format(code)).isEqualTo(formattedCode)
     }
