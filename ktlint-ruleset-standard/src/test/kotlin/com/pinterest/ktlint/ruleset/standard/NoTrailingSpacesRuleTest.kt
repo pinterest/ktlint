@@ -152,4 +152,45 @@ class NoTrailingSpacesRuleTest {
             )
         )
     }
+
+    @Test
+    fun `Issue 1334 - trailing spaces should not delete indent of the next line`() {
+        val code =
+            """
+            class Foo {
+                // something
+            ${"    "}
+                /**
+                 * Some KDoc
+                 */
+                val bar: String
+            ${"    "}
+                val foo = "foo"
+            }
+            """.trimIndent()
+        val codeExpected =
+            """
+            class Foo {
+                // something
+
+                /**
+                 * Some KDoc
+                 */
+                val bar: String
+
+                val foo = "foo"
+            }
+            """.trimIndent()
+        assertThat(
+            NoTrailingSpacesRule().format(code)
+        ).isEqualTo(codeExpected)
+        assertThat(
+            NoTrailingSpacesRule().lint(code)
+        ).isEqualTo(
+            listOf(
+                LintError(3, 1, "no-trailing-spaces", "Trailing space(s)"),
+                LintError(8, 1, "no-trailing-spaces", "Trailing space(s)")
+            )
+        )
+    }
 }

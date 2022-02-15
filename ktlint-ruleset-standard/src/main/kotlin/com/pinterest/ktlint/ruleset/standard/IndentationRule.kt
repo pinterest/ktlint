@@ -86,6 +86,9 @@ import com.pinterest.ktlint.core.ast.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.core.ast.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.core.ast.visit
 import com.pinterest.ktlint.core.initKtLintKLogger
+import com.pinterest.ktlint.ruleset.standard.IndentationRule.IndentContext.Block
+import com.pinterest.ktlint.ruleset.standard.IndentationRule.IndentContext.Block.BlockIndentationType.REGULAR
+import com.pinterest.ktlint.ruleset.standard.IndentationRule.IndentContext.Block.BlockIndentationType.SAME_AS_PREVIOUS_BLOCK
 import java.util.Deque
 import java.util.LinkedList
 import mu.KotlinLogging
@@ -487,13 +490,39 @@ class IndentationRule : Rule(
     private class IndentContext {
         private val exitAdj = mutableMapOf<ASTNode, Int>()
         val ignored = mutableSetOf<ASTNode>()
-        val blockOpeningLineStack: Deque<Int> = LinkedList()
+        val blockStack: Deque<Block> = LinkedList()
         var localAdj: Int = 0
+
         fun exitAdjBy(node: ASTNode, change: Int) {
             exitAdj.compute(node) { _, v -> (v ?: 0) + change }
         }
+
         fun clearExitAdj(node: ASTNode): Int? =
             exitAdj.remove(node)
+
+        data class Block(
+            // Element type used for opening the block
+            val openingElementType: IElementType,
+            // Line at which the block is opened
+            val line: Int,
+            // Type of indentation to be used for the block
+            val blockIndentationType: BlockIndentationType
+        ) {
+            enum class BlockIndentationType {
+                /**
+                 * Indent the body of the block one level deeper by increasing the expected indentation level with 1.
+                 * Decrease the expected indentation level just before the closing element of the block.
+                 */
+                REGULAR,
+
+                /**
+                 * Keep the indent of the body of the block identical to the indent of the previous block, so do not change
+                 * the expected indentation level. The indentation of the closing element has to be decreased one level
+                 * without altering the expected indentation level.
+                 */
+                SAME_AS_PREVIOUS_BLOCK
+            }
+        }
     }
 
     private fun indent(
@@ -511,31 +540,79 @@ class IndentationRule : Rule(
                 when (n.elementType) {
                     LPAR, LBRACE, LBRACKET -> {
                         // ({[ should increase expectedIndent by 1
-                        val prevBlockLine = ctx.blockOpeningLineStack.peek() ?: -1
-                        val leftBrace = n.takeIf { it.elementType == LBRACE }
-                        if (prevBlockLine != line && !leftBrace.isAfterLambdaArgumentOnSameLine()) {
-                            expectedIndent++
-                            logger.trace { "$line: ++${n.text} -> $expectedIndent" }
+                        val prevBlock = ctx.blockStack.peek()
+                        when {
+                            n.isClosedOnSameLine() -> {
+                                logger.trace {
+                                    "$line: block starting with ${n.text} is opened and closed on the same line, " +
+                                        "expected indent is kept unchanged -> $expectedIndent"
+                                }
+                                ctx.blockStack.push(
+                                    Block(n.elementType, line, SAME_AS_PREVIOUS_BLOCK)
+                                )
+                            }
+                            n.isAfterValueParameterOnSameLine() -> {
+                                logger.trace {
+                                    "$line: block starting with ${n.text} starts on same line as the previous value " +
+                                        "parameter value ended, expected indent is kept unchanged -> $expectedIndent"
+                                }
+                                ctx.blockStack.push(
+                                    Block(n.elementType, line, SAME_AS_PREVIOUS_BLOCK)
+                                )
+                            }
+                            prevBlock != null && line == prevBlock.line -> {
+                                logger.trace {
+                                    "$line: block starting with ${n.text} starts on same line as the previous block, " +
+                                        "expected indent is kept unchanged -> $expectedIndent"
+                                }
+                                ctx.blockStack.push(
+                                    Block(n.elementType, line, SAME_AS_PREVIOUS_BLOCK)
+                                )
+                            }
+                            else -> {
+                                expectedIndent++
+                                logger.trace { "$line: block starting with ${n.text} -> Increase to $expectedIndent" }
+                                ctx.blockStack.push(
+                                    Block(n.elementType, line, REGULAR)
+                                )
+                            }
                         }
-                        ctx.blockOpeningLineStack.push(line)
+                        logger.trace {
+                            ctx.blockStack.iterator().asSequence().toList()
+                                .joinToString(
+                                    separator = "\n\t",
+                                    prefix = "Stack (newest first) after pushing new element:\n\t"
+                                )
+                        }
                     }
                     RPAR, RBRACE, RBRACKET -> {
                         // ]}) should decrease expectedIndent by 1
-                        val blockLine = ctx.blockOpeningLineStack.pop()
-                        val prevBlockLine = ctx.blockOpeningLineStack.peek() ?: -1
-                        val pairedLeft = n.pairedLeft()
-                        if (prevBlockLine != blockLine && !pairedLeft.isAfterLambdaArgumentOnSameLine()) {
-                            expectedIndent--
-                            logger.trace { "$line: --on(${n.elementType}) -> $expectedIndent" }
-
-                            val byKeywordOnSameLine = pairedLeft?.prevLeafOnSameLine(BY_KEYWORD)
-                            if (byKeywordOnSameLine != null &&
-                                byKeywordOnSameLine.prevLeaf()?.isWhiteSpaceWithNewline() == true &&
-                                n.leavesOnSameLine(forward = true).all { it.isWhiteSpace() || it.isPartOfComment() }
-                            ) {
-                                expectedIndent--
-                                logger.trace { "$line: --on same line as by keyword ${n.text} -> $expectedIndent" }
+                        logger.trace {
+                            ctx.blockStack.iterator().asSequence().toList()
+                                .joinToString(
+                                    separator = "\n\t",
+                                    prefix = "Stack before popping newest element from top of stack:\n\t"
+                                )
+                        }
+                        val block = ctx.blockStack.pop()
+                        when (block.blockIndentationType) {
+                            SAME_AS_PREVIOUS_BLOCK -> {
+                                logger.trace { "$line: block closed with ${n.elementType}. BlockIndentationType ${block.blockIndentationType} -> keep indent unchanged at $expectedIndent" }
                             }
+                            REGULAR -> {
+                                expectedIndent--
+                                logger.trace { "$line: block closed with ${n.elementType}.  -> Decrease indent to $expectedIndent" }
+                            }
+                        }
+
+                        val pairedLeft = n.pairedLeft()
+                        val byKeywordOnSameLine = pairedLeft.prevLeafOnSameLine(BY_KEYWORD)
+                        if (byKeywordOnSameLine != null &&
+                            byKeywordOnSameLine.prevLeaf()?.isWhiteSpaceWithNewline() == true &&
+                            n.leavesOnSameLine(forward = true).all { it.isWhiteSpace() || it.isPartOfComment() }
+                        ) {
+                            expectedIndent--
+                            logger.trace { "$line: --on same line as by keyword ${n.text} -> $expectedIndent" }
                         }
                     }
                     LT ->
@@ -577,8 +654,8 @@ class IndentationRule : Rule(
                     STRING_TEMPLATE ->
                         indentStringTemplate(n, autoCorrect, emit, editorConfig)
                     DOT_QUALIFIED_EXPRESSION, SAFE_ACCESS_EXPRESSION, BINARY_EXPRESSION, BINARY_WITH_TYPE -> {
-                        val prevBlockLine = ctx.blockOpeningLineStack.peek() ?: -1
-                        if (prevBlockLine == line) {
+                        val prevBlock = ctx.blockStack.peek()
+                        if (prevBlock != null && prevBlock.line == line) {
                             ctx.ignored.add(n)
                         }
                     }
@@ -785,8 +862,8 @@ class IndentationRule : Rule(
     private fun adjustExpectedIndentAfterArrow(n: ASTNode, ctx: IndentContext) {
         // Only adjust indents for arrows inside of when statements. Lambda arrows should not increase indent.
         if (n.treeParent?.elementType == WHEN_ENTRY) {
-            val prevBlockLine = ctx.blockOpeningLineStack.peek() ?: -1
-            if (prevBlockLine != line) {
+            val prevBlock = ctx.blockStack.peek()
+            if (prevBlock == null || line != prevBlock.line) {
                 expectedIndent++
                 logger.trace { "$line: ++after(ARROW) -> $expectedIndent" }
                 ctx.exitAdjBy(n.treeParent, -1)
@@ -1131,23 +1208,18 @@ class IndentationRule : Rule(
     private fun ASTNode.isPartOfTypeConstraint() =
         isPartOf(TYPE_CONSTRAINT_LIST) || nextLeaf()?.elementType == WHERE_KEYWORD
 
-    private fun ASTNode.pairedLeft(): ASTNode? {
-        val rightType = elementType
-        val leftType = when (rightType) {
+    private fun ASTNode.pairedLeft(): ASTNode {
+        val leftType = when (elementType) {
             RPAR -> LPAR
             RBRACE -> LBRACE
             RBRACKET -> LBRACKET
-            else -> return null
+            else -> null
         }
-        var node: ASTNode? = prevLeaf()
-        while (node != null) {
-            node = when (node.elementType) {
-                leftType -> return node
-                rightType -> node.treeParent
-                else -> node.prevLeaf()
-            }
-        }
-        return null
+        requireNotNull(leftType) { "Element type '$leftType' not allowed" }
+
+        val pairedLeft = treeParent.findChildByType(leftType)
+        checkNotNull(pairedLeft) { "Can not find the '$leftType' element in same parent" }
+        return pairedLeft
     }
 
     private fun ASTNode.leavesOnSameLine(forward: Boolean): Sequence<ASTNode> =
@@ -1156,10 +1228,34 @@ class IndentationRule : Rule(
     private fun ASTNode.prevLeafOnSameLine(prevLeafType: IElementType): ASTNode? =
         leavesOnSameLine(forward = false).firstOrNull { it.elementType == prevLeafType }
 
-    private fun ASTNode?.isAfterLambdaArgumentOnSameLine(): Boolean {
-        if (this == null) return false
-        val prevComma = prevLeafOnSameLine(RBRACE)?.nextCodeLeaf()?.takeIf { it.elementType == COMMA } ?: return false
-        return prevComma.parent(VALUE_ARGUMENT_LIST) == parent(VALUE_ARGUMENT_LIST)
+    private fun ASTNode.isAfterValueParameterOnSameLine(): Boolean {
+        // Expect the current node to be the start of a block
+        require(elementType == LPAR || elementType == LBRACE || elementType == LBRACKET)
+
+        // Check if the block is the first code element of a value parameter
+        this
+            .prevCodeLeaf()
+            ?.nextCodeSibling()
+            ?.takeIf { it.elementType == VALUE_ARGUMENT }
+            ?.let { valueArgument ->
+                if (valueArgument == valueArgument.treeParent.findChildByType(VALUE_ARGUMENT)) {
+                    // This is the first value argument in the list, so by definition it is not *after* another value argument
+                    return false
+                }
+
+                valueArgument
+                    .leaves(forward = false)
+                    .takeWhile { it.isWhiteSpaceWithoutNewline() || it.elementType != VALUE_ARGUMENT }
+                    .firstOrNull()
+                    ?.let {
+                        if (it.isWhiteSpaceWithoutNewline() || it.elementType == VALUE_ARGUMENT) {
+                            // No newline has been found between the current value argument and the previous value argument
+                            return true
+                        }
+                    }
+            }
+
+        return false
     }
 
     private fun ASTNode.hasLineBreak(vararg ignoreElementTypes: IElementType): Boolean {
@@ -1191,6 +1287,18 @@ class IndentationRule : Rule(
             .distinct()
             .count()
         return distinctIndentCharacters > 1
+    }
+
+    private fun ASTNode.isClosedOnSameLine(): Boolean {
+        val closingElementType = matchingRToken[elementType]
+        var cur: ASTNode? = this
+        while (cur != null && cur != closingElementType) {
+            if (cur.text.contains("\n")) {
+                return false
+            }
+            cur = cur.nextSibling { true }
+        }
+        return true
     }
 }
 

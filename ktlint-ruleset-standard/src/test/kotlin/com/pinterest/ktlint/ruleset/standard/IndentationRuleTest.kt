@@ -1641,6 +1641,79 @@ internal class IndentationRuleTest {
         assertThat(IndentationRule().format(code)).isEqualTo(code)
     }
 
+    @Test
+    fun `Issue 1330 - Function with lambda parameter having a default value is allowed on a single line`() {
+        val code =
+            """
+            fun func(lambdaArg: Unit.() -> Unit = {}, secondArg: Int) {
+                println()
+            }
+            fun func(lambdaArg: Unit.(a: String) -> Unit = { it -> it.toUpperCaseAsciiOnly() }, secondArg: Int) {
+                println()
+            }
+            """.trimIndent()
+        assertThat(IndentationRule().lint(code)).isEmpty()
+        assertThat(IndentationRule().format(code)).isEqualTo(code)
+    }
+
+    @Test
+    fun `Function with multiple lambda parameters can be formatted differently`() {
+        val code =
+            """
+            // https://github.com/pinterest/ktlint/issues/764#issuecomment-646822853
+            val foo1 = println({
+                bar()
+            }, {
+                bar()
+            })
+            // Other formats which should be allowed as well
+            val foo2 = println(
+                {
+                    bar()
+                },
+                { bar() }
+            )
+            val foo3 = println(
+                // Some comment
+                {
+                    bar()
+                },
+                // Some comment
+                { bar() }
+            )
+            val foo4 = println(
+                /* Some comment */
+                {
+                    bar()
+                },
+                /* Some comment */
+                { bar() }
+            )
+            val foo5 = println(
+                { bar() },
+                { bar() }
+            )
+            val foo6 = println(
+                // Some comment
+                { bar() },
+                // Some comment
+                { bar() }
+            )
+            val foo7 = println(
+                /* Some comment */
+                { bar() },
+                /* Some comment */
+                { bar() }
+            )
+            val foo8 = println(
+                { bar() }, { bar() }
+            )
+            val foo9 = println({ bar() }, { bar()})
+            """.trimIndent()
+        assertThat(IndentationRule().lint(code)).isEmpty()
+        assertThat(IndentationRule().format(code)).isEqualTo(code)
+    }
+
     private companion object {
         const val MULTILINE_STRING_QUOTE = "${'"'}${'"'}${'"'}"
         const val TAB = "${'\t'}"
