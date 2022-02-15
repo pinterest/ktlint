@@ -192,7 +192,6 @@ Special thanks to [t-kameyama](https://github.com/t-kameyama) for the huge numbe
 - 'import-ordering' now supports `.editorconfig' default value generation ([#701](https://github.com/pinterest/ktlint/issues/701))
 - Update Gradle to `6.7.1` version
 
-
 ## [0.39.0] - 2020-09-14
 
 ### Added
