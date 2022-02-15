@@ -2,7 +2,9 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## Unreleased
+## [0.44.0] - 2022-02-15
+
+Please welcome [paul-dingemans](https://github.com/paul-dingemans) as an official maintainer of ktlint!
 
 ### Added
 - Use Gradle JVM toolchain with language version 8 to compile the project
@@ -189,6 +191,7 @@ Special thanks to [t-kameyama](https://github.com/t-kameyama) for the huge numbe
 ### Changed
 - 'import-ordering' now supports `.editorconfig' default value generation ([#701](https://github.com/pinterest/ktlint/issues/701))
 - Update Gradle to `6.7.1` version
+
 
 ## [0.39.0] - 2020-09-14
 
@@ -952,6 +955,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.44.0]: https://github.com/pinterest/ktlint/compare/0.43.2...0.44.0
 [0.43.2]: https://github.com/pinterest/ktlint/compare/0.43.0...0.43.2
 [0.43.0]: https://github.com/pinterest/ktlint/compare/0.42.1...0.43.0
 [0.42.1]: https://github.com/pinterest/ktlint/compare/0.42.0...0.42.1
