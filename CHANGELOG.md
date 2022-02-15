@@ -2,7 +2,9 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## Unreleased
+## [0.44.0] - 2022-02-15
+
+Please welcome [paul-dingemans](https://github.com/paul-dingemans) as an official maintainer of ktlint!
 
 ### Added
 - Use Gradle JVM toolchain with language version 8 to compile the project
@@ -38,8 +40,6 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - Update shadow plugin to `7.1.1` release
 - Add Kotlin-logging backed by logback as logging framework ([#589](https://github.com/pinterest/ktlint/issues/589))
 - Update Gradle to `7.4` version
-
-### Removed
 
 ## [0.43.2] - 2021-12-01
 
@@ -952,6 +952,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.44.0]: https://github.com/pinterest/ktlint/compare/0.43.2...0.44.0
 [0.43.2]: https://github.com/pinterest/ktlint/compare/0.43.0...0.43.2
 [0.43.0]: https://github.com/pinterest/ktlint/compare/0.42.1...0.43.0
 [0.42.1]: https://github.com/pinterest/ktlint/compare/0.42.0...0.42.1
