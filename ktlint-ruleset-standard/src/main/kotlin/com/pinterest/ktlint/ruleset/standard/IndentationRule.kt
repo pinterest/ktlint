@@ -1,8 +1,11 @@
 package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.EditorConfig
-import com.pinterest.ktlint.core.EditorConfig.IndentStyle
-import com.pinterest.ktlint.core.KtLint
+import com.pinterest.ktlint.core.EditorConfig.Companion.loadEditorConfig
+import com.pinterest.ktlint.core.EditorConfig.Companion.loadIndentConfig
+import com.pinterest.ktlint.core.IndentConfig
+import com.pinterest.ktlint.core.IndentConfig.IndentStyle.SPACE
+import com.pinterest.ktlint.core.IndentConfig.IndentStyle.TAB
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.ANNOTATION
 import com.pinterest.ktlint.core.ast.ElementType.ARROW
@@ -135,13 +138,17 @@ class IndentationRule : Rule(
         expectedIndent = 0
     }
 
+    private var editorConfig = EditorConfig.UNINITIALIZED
+    private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
+
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        val editorConfig = node.getUserData(KtLint.EDITOR_CONFIG_USER_DATA_KEY)!!
-        if (editorConfig.indentSize <= 1) {
+        editorConfig = node.loadEditorConfig()
+        indentConfig = editorConfig.loadIndentConfig()
+        if (indentConfig.disabled) {
             return
         }
         reset()
@@ -165,7 +172,7 @@ class IndentationRule : Rule(
         reset()
         logger.trace { "phase: indentation" }
         // step 2: correct indentation
-        indent(node, autoCorrect, emit, editorConfig)
+        indent(node, autoCorrect, emit)
 
         // The expectedIndent should never be negative. If so, it is very likely that ktlint crashes at runtime when
         // autocorrecting is executed while no error occurs with linting only. Such errors often are not found in unit
@@ -521,8 +528,7 @@ class IndentationRule : Rule(
     private fun indent(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        editorConfig: EditorConfig
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         val firstNotEmptyLeaf = node.nextLeaf()
         if (firstNotEmptyLeaf?.let { it.elementType == WHITE_SPACE && !it.textContains('\n') } == true) {
@@ -964,8 +970,8 @@ class IndentationRule : Rule(
             } else {
                 expectedIndent
             }
-            val expectedIndentation = editorConfig.repeatIndent(correctedExpectedIndent)
-            val expectedPrefixLength = correctedExpectedIndent * editorConfig.indentSize
+            val expectedIndentation = indentConfig.indent.repeat(correctedExpectedIndent)
+            val expectedPrefixLength = correctedExpectedIndent * indentConfig.indent.length
             node.children()
                 .forEach {
                     if (it.prevLeaf()?.text == "\n" &&
@@ -983,12 +989,11 @@ class IndentationRule : Rule(
                             } else {
                                 it.text.splitIndentAt(prefixLength)
                             }
-                        val (wrongIndentChar, wrongIndentDescription) = editorConfig.wrongIndentChar()
-                        if (actualIndent.contains(wrongIndentChar)) {
-                            val offsetFirstWrongIndentChar = actualIndent.indexOfFirst(wrongIndentChar)
+                        if (indentConfig.containsUnexpectedIndentChar(actualIndent)) {
+                            val offsetFirstWrongIndentChar = indentConfig.indexOfFirstUnexpectedIndentChar(actualIndent)
                             emit(
                                 it.startOffset + offsetFirstWrongIndentChar,
-                                "Unexpected '$wrongIndentDescription' character(s) in margin of multiline string",
+                                "Unexpected '${indentConfig.unexpectedIndentCharDescription}' character(s) in margin of multiline string",
                                 true
                             )
                             if (autoCorrect) {
@@ -1126,23 +1131,23 @@ class IndentationRule : Rule(
         }
         // indentation with incorrect characters replaced
         val normalizedNodeIndent =
-            when (editorConfig.indentStyle) {
-                IndentStyle.SPACE -> {
+            when (indentConfig.indentStyle) {
+                SPACE -> {
                     if ('\t' in nodeIndent) {
                         emit(
                             node.startOffset + text.length - nodeIndent.length,
                             "Unexpected tab character(s)",
                             true
                         )
-                        nodeIndent.replace("\t", " ".repeat(editorConfig.tabWidth))
+                        indentConfig.toNormalizedIndent(nodeIndent)
                     } else {
                         nodeIndent
                     }
                 }
-                IndentStyle.TAB -> {
+                TAB -> {
                     val isKdocIndent = node.isKDocIndent()
                     val indentWithoutKdocIndent =
-                        if (isKdocIndent) {
+                        if (node.isKDocIndent()) {
                             nodeIndent.removeSuffix(" ")
                         } else {
                             nodeIndent
@@ -1153,10 +1158,7 @@ class IndentationRule : Rule(
                             "Unexpected space character(s)",
                             true
                         )
-                        // First normalize the indent to spaces using the tab width.
-                        val asSpaces = nodeIndent.replace("\t", " ".repeat(editorConfig.tabWidth))
-                        // Then divide that space-based indent into tabs.
-                        "\t".repeat(asSpaces.length / editorConfig.tabWidth) +
+                        indentConfig.toNormalizedIndent(indentWithoutKdocIndent) +
                             // Re-add the kdoc indent when it was present before
                             if (isKdocIndent) {
                                 " "
@@ -1168,34 +1170,23 @@ class IndentationRule : Rule(
                     }
                 }
             }
-        val indentLength =
-            when (editorConfig.indentStyle) {
-                IndentStyle.SPACE -> editorConfig.indentSize
-                IndentStyle.TAB -> 1
-            }
-        val expectedIndentLength =
-            adjustedExpectedIndent * indentLength +
-                // +1 space before * in `/**\n *\n */`
-                if (comment?.elementType == KDOC && nextLeafElementType != KDOC_START) 1 else 0
-        if (normalizedNodeIndent.length != expectedIndentLength) {
+        val expectedIndent = indentConfig.indent.repeat(adjustedExpectedIndent) +
+            // +1 space before * in `/**\n *\n */`
+            if (comment?.elementType == KDOC && nextLeafElementType != KDOC_START) " " else ""
+        if (normalizedNodeIndent != expectedIndent) {
             emit(
                 node.startOffset + text.length - nodeIndent.length,
-                "Unexpected indentation (${normalizedNodeIndent.length}) (should be $expectedIndentLength)",
+                "Unexpected indentation (${normalizedNodeIndent.length}) (should be ${expectedIndent.length})",
                 true
             )
             logger.trace {
-                "$line: " + (if (!autoCorrect) "would have " else "") + "changed indentation to $expectedIndentLength (from ${normalizedNodeIndent.length})"
+                "$line: " + (if (!autoCorrect) "would have " else "") + "changed indentation to ${expectedIndent.length} (from ${normalizedNodeIndent.length})"
             }
         }
         if (autoCorrect) {
-            if (nodeIndent != normalizedNodeIndent || normalizedNodeIndent.length != expectedIndentLength) {
-                val indent = when (editorConfig.indentStyle) {
-                    IndentStyle.SPACE -> " "
-                    IndentStyle.TAB -> "\t"
-                }
+            if (nodeIndent != normalizedNodeIndent || normalizedNodeIndent != expectedIndent) {
                 (node as LeafPsiElement).rawReplaceWithText(
-                    text.substringBeforeLast("\n") + "\n" +
-                        indent.repeat(expectedIndentLength)
+                    text.substringBeforeLast("\n") + "\n" + expectedIndent
                 )
             }
         }
@@ -1323,18 +1314,6 @@ private fun ASTNode.isKDocIndent() =
 private fun ASTNode.isIndentBeforeClosingQuote() =
     elementType == CLOSING_QUOTE || (text.isBlank() && nextCodeSibling()?.elementType == CLOSING_QUOTE)
 
-private fun EditorConfig.repeatIndent(indentLevel: Int) =
-    when (indentStyle) {
-        IndentStyle.SPACE -> " ".repeat(indentLevel * indentSize)
-        IndentStyle.TAB -> "\t".repeat(indentLevel)
-    }
-
-private fun EditorConfig.wrongIndentChar(): Pair<Char, String> =
-    when (indentStyle) {
-        IndentStyle.SPACE -> Pair('\t', "tab")
-        IndentStyle.TAB -> Pair(' ', "space")
-    }
-
 private fun ASTNode.isLiteralStringTemplateEntry() =
     elementType == LITERAL_STRING_TEMPLATE_ENTRY && text != "\n"
 
@@ -1385,6 +1364,3 @@ private fun String.splitIndentAt(index: Int): Pair<String, String> {
         second = this.substring(safeIndex)
     )
 }
-
-private fun String.indexOfFirst(char: Char) =
-    indexOfFirst { it == char }

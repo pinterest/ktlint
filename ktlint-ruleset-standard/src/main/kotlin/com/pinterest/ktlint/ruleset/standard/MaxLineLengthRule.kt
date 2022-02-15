@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard
 
+import com.pinterest.ktlint.core.EditorConfig.Companion.loadEditorConfig
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.EditorConfigProperties
@@ -51,11 +52,11 @@ class MaxLineLengthRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         if (node.isRoot()) {
-            val editorConfig = node.getUserData(KtLint.EDITOR_CONFIG_USER_DATA_KEY)!!
             val editorConfigProperties: EditorConfigProperties =
                 node.getUserData(KtLint.EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY)!!
-            val ignoreBackTickedIdentifier = editorConfigProperties.getEditorConfigValue(ignoreBackTickedIdentifierProperty)
-            maxLineLength = editorConfig.maxLineLength
+            val ignoreBackTickedIdentifier =
+                editorConfigProperties.getEditorConfigValue(ignoreBackTickedIdentifierProperty)
+            maxLineLength = node.loadEditorConfig().maxLineLength
             if (maxLineLength <= 0) {
                 return
             }
