@@ -2,6 +2,16 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+### Added
+
+### Fixed
+
+### Changed
+
+### Removed
+
 ## [0.44.0] - 2022-02-15
 
 Please welcome [paul-dingemans](https://github.com/paul-dingemans) as an official maintainer of ktlint!
