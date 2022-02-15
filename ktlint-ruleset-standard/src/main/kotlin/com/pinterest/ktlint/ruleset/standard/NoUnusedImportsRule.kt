@@ -3,6 +3,7 @@ package com.pinterest.ktlint.ruleset.standard
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.BY_KEYWORD
 import com.pinterest.ktlint.core.ast.ElementType.DOT_QUALIFIED_EXPRESSION
+import com.pinterest.ktlint.core.ast.ElementType.IDENTIFIER
 import com.pinterest.ktlint.core.ast.ElementType.IMPORT_DIRECTIVE
 import com.pinterest.ktlint.core.ast.ElementType.OPERATION_REFERENCE
 import com.pinterest.ktlint.core.ast.ElementType.PACKAGE_DIRECTIVE
@@ -12,6 +13,7 @@ import com.pinterest.ktlint.core.ast.isRoot
 import com.pinterest.ktlint.core.ast.visit
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
+import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.CompositeElement
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
 import org.jetbrains.kotlin.kdoc.lexer.KDocTokens
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocLink
@@ -102,7 +104,17 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
                 } else if ((type == REFERENCE_EXPRESSION || type == OPERATION_REFERENCE) &&
                     !vnode.isPartOf(IMPORT_DIRECTIVE)
                 ) {
-                    ref.add(Reference(text.removeBackticksAndWildcards(), psi.parentDotQualifiedExpression() != null))
+                    val identifier = if (vnode is CompositeElement) {
+                        vnode.findChildByType(IDENTIFIER)
+                    } else {
+                        vnode
+                    }
+                    identifier
+                        ?.let { identifier.text }
+                        ?.takeIf { it.isNotBlank() }
+                        ?.let {
+                            ref.add(Reference(it.removeBackticksAndWildcards(), psi.parentDotQualifiedExpression() != null))
+                        }
                 } else if (type == IMPORT_DIRECTIVE) {
                     val importPath = (vnode.psi as KtImportDirective).importPath!!
                     if (!usedImportPaths.add(importPath)) {

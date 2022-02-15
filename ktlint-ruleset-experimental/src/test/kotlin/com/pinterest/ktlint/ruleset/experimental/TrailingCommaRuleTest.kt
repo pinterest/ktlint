@@ -3,11 +3,13 @@ package com.pinterest.ktlint.ruleset.experimental
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.ruleset.experimental.trailingcomma.TrailingCommaRule
+import com.pinterest.ktlint.ruleset.standard.NoUnusedImportsRule
 import com.pinterest.ktlint.test.EditorConfigTestRule
 import com.pinterest.ktlint.test.format
 import com.pinterest.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
 import org.ec4j.core.model.PropertyType
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
@@ -1041,6 +1043,64 @@ class TrailingCommaRuleTest {
         )
         assertThat(TrailingCommaRule().format(editorConfigFilePath, code))
             .isEqualTo(autoCorrectedCode)
+    }
+
+    @Test
+    fun `Trailing comma and unused imports do not affect each other`() {
+        val code =
+            """
+            package com.pinterest.ktlint
+            import com.pinterest.ktlint.enum.Enum
+            import com.pinterest.ktlint.enum.EnumThree
+            import com.pinterest.ktlint.enum.EnumTwo
+            data class TrailingCommaTest(
+                val foo: String,
+                val bar: Enum,
+                val bar2: EnumTwo,
+                val bar3: EnumThree
+            )
+            """.trimIndent()
+        val formattedCode =
+            """
+            package com.pinterest.ktlint
+            import com.pinterest.ktlint.enum.Enum
+            import com.pinterest.ktlint.enum.EnumThree
+            import com.pinterest.ktlint.enum.EnumTwo
+            data class TrailingCommaTest(
+                val foo: String,
+                val bar: Enum,
+                val bar2: EnumTwo,
+                val bar3: EnumThree,
+            )
+            """.trimIndent()
+
+        val editorConfigFilePath = writeEditorConfigFile(
+            ALLOW_TRAILING_COMMA_ON_CALL_SITE,
+            ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE
+        ).absolutePath
+        val rules = listOf(TrailingCommaRule(), NoUnusedImportsRule())
+        assertThat(rules.lint(editorConfigFilePath, code)).containsExactly(
+            LintError(9, 24, "trailing-comma", "Missing trailing comma before \")\"")
+        )
+        assertThat(rules.format(editorConfigFilePath, code)).isEqualTo(formattedCode)
+
+        // When running format mode, the rules are first executed in parallel to find linting errors. In this process,
+        // no unused import are found because the trailing comma is not yet added to variable "bar3". Then in the next
+        // stage the rules are run consecutively. Now the trailing comma rule is adding a trailing comma after the type
+        // of variable "bar3". When the no-unused-import rule runs after the trailing-comma rule, it was incorrectly
+        // seen as part of the type of variable "bar3" and a reference "EnumThree," (with the trailing comma was added)
+        // which in turn resulted in not recognizing that the import of EnumThree actually was used.
+        val afterFormatLintErrors = ArrayList<LintError>()
+        val formatResult = rules.format(editorConfigFilePath, code, cb = { e, _ -> afterFormatLintErrors.add(e) })
+        assertThat(afterFormatLintErrors).isEmpty()
+        assertThat(formatResult).isEqualTo(formattedCode)
+    }
+
+    @Test
+    fun assertTrue() {
+        val ktlintOutput = "Some unused import"
+
+        assertTrue(ktlintOutput.contains("unused import"))
     }
 
     private fun writeEditorConfigFile(vararg editorConfigProperties: Pair<PropertyType<Boolean>, String>) = editorConfigTestRule
