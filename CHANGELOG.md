@@ -41,8 +41,6 @@ Please welcome [paul-dingemans](https://github.com/paul-dingemans) as an officia
 - Add Kotlin-logging backed by logback as logging framework ([#589](https://github.com/pinterest/ktlint/issues/589))
 - Update Gradle to `7.4` version
 
-### Removed
-
 ## [0.43.2] - 2021-12-01
 
 ### Fixed
