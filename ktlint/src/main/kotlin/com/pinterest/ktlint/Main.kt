@@ -368,7 +368,7 @@ class KtlintCommandLine {
         errorNumber.addAndGet(errListLimit)
 
         reporter.before(fileName)
-        errList.head(errListLimit).forEach { (err, corrected) ->
+        errList.take(errListLimit).forEach { (err, corrected) ->
             reporter.onLintError(
                 fileName,
                 if (!err.canBeAutoCorrected) err.copy(detail = err.detail + " (cannot be auto-corrected)") else err,
@@ -529,8 +529,6 @@ class KtlintCommandLine {
             else -> throw e
         }
     }
-
-    private fun <T> List<T>.head(limit: Int) = if (limit == size) this else this.subList(0, limit)
 
     private fun parseQuery(query: String) =
         query.split("&")

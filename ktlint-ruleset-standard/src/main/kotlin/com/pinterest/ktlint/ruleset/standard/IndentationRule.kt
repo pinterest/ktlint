@@ -283,7 +283,7 @@ class IndentationRule : Rule(
             // class A : B, C, D({
             // })
             !(
-                entries.head().all { it.elementType == SUPER_TYPE_ENTRY } &&
+                entries.dropLast(1).all { it.elementType == SUPER_TYPE_ENTRY } &&
                     entries.last().elementType == SUPER_TYPE_CALL_ENTRY
                 )
         ) {
