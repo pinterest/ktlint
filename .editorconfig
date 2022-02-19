@@ -24,10 +24,6 @@ disabled_rules=experimental:argument-list-wrapping
 ij_kotlin_allow_trailing_comma=false
 ij_kotlin_allow_trailing_comma_on_call_site=false
 
-[{Makefile,*.go}]
-indent_style = tab
-indent_size = 4
-
 [*.md]
 trim_trailing_whitespace = false
 
