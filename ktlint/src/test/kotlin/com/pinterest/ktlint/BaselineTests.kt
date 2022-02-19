@@ -21,7 +21,7 @@ class BaselineTests {
 
             override fun checkExit(status: Int) {
                 super.checkExit(status)
-                throw ExitException(status)
+                throw ExitException()
             }
         })
     }
@@ -77,5 +77,5 @@ class BaselineTests {
         assertTrue(output.contains(".*:2:1: Unexpected blank line\\(s\\) before \"}\"".toRegex()))
     }
 
-    private class ExitException(val status: Int) : SecurityException("Should not exit in tests")
+    private class ExitException : SecurityException("Should not exit in tests")
 }
