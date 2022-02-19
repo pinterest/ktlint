@@ -961,7 +961,7 @@ class IndentationRule : Rule(
                     }
                 }
                 .map { it.text.indentLength() }
-                .min() ?: 0
+                .minOrNull() ?: 0
 
             val correctedExpectedIndent = if (node.prevLeaf()?.text == "\n") {
                 // In case the opening quotes are placed at the start of the line, then expect all lines inside the
@@ -1278,7 +1278,7 @@ class IndentationRule : Rule(
             .filterNot { it.isBlank() }
         val prefixLength = nonBlankLines
             .map { it.indentLength() }
-            .min() ?: 0
+            .minOrNull() ?: 0
         val distinctIndentCharacters = nonBlankLines
             .joinToString(separator = "") {
                 it.splitIndentAt(prefixLength).first
