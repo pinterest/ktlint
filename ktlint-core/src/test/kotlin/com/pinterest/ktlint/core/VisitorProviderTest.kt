@@ -301,16 +301,16 @@ class VisitorProviderTest {
         val actual = testVisitorProvider(
             object : R(
                 id = RULE_A,
-                visitorModifier = VisitorModifier.RunAfterRule("$RULE_C")
+                visitorModifier = VisitorModifier.RunAfterRule(RULE_C)
             ) {},
             NormalRule(RULE_B),
             object : R(
                 id = RULE_D,
-                visitorModifier = VisitorModifier.RunAfterRule("$RULE_B")
+                visitorModifier = VisitorModifier.RunAfterRule(RULE_B)
             ) {},
             object : R(
                 id = RULE_C,
-                visitorModifier = VisitorModifier.RunAfterRule("$RULE_B")
+                visitorModifier = VisitorModifier.RunAfterRule(RULE_B)
             ) {}
         ).filterFileNodes()
 
@@ -332,18 +332,18 @@ class VisitorProviderTest {
                 NormalRule(RULE_B),
                 object : R(
                     id = RULE_D,
-                    visitorModifier = VisitorModifier.RunAfterRule("$RULE_B")
+                    visitorModifier = VisitorModifier.RunAfterRule(RULE_B)
                 ) {},
                 object : R(
                     id = RULE_C,
-                    visitorModifier = VisitorModifier.RunAfterRule("$RULE_B")
+                    visitorModifier = VisitorModifier.RunAfterRule(RULE_B)
                 ) {}
             ),
             RuleSet(
                 EXPERIMENTAL,
                 object : R(
                     id = RULE_A,
-                    visitorModifier = VisitorModifier.RunAfterRule("$RULE_C")
+                    visitorModifier = VisitorModifier.RunAfterRule(RULE_C)
                 ) {}
             )
         ).filterFileNodes()
