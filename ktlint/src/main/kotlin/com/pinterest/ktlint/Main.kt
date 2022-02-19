@@ -204,13 +204,13 @@ class KtlintCommandLine {
                 "To override reporter output, use ',output=' option."
         ]
     )
-    private var reporters: JarFiles = ArrayList<String>()
+    private var reporters: JarFiles = ArrayList()
 
     @Option(
         names = ["--ruleset", "-R"],
         description = ["A path to a JAR file containing additional ruleset(s)"]
     )
-    var rulesetJarFiles: JarFiles = ArrayList<String>()
+    var rulesetJarFiles: JarFiles = ArrayList()
 
     @Option(
         names = ["--stdin"],
