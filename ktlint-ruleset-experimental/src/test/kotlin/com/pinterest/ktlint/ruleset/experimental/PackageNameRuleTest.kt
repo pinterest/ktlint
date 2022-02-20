@@ -55,7 +55,13 @@ class PackageNameRuleTest {
         mapOf("file_path" to Paths.get(URI.create("file:///$fileName")).toString())
 
     private fun assertOK(ktScript: String, fileName: String) {
-        assertThat(PackageNameRule().lint(ktScript, fileName(fileName))).isEmpty()
+        assertThat(
+            PackageNameRule()
+                .lint(
+                    ktScript,
+                    fileName(fileName)
+                )
+        ).isEmpty()
     }
 
     private fun assertNOK(ktScript: String, fileName: String, lintErrors: List<LintError>) {

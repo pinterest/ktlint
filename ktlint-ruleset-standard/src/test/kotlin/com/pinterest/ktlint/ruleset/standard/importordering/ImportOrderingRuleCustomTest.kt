@@ -3,30 +3,14 @@ package com.pinterest.ktlint.ruleset.standard.importordering
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.ruleset.standard.ImportOrderingRule
-import com.pinterest.ktlint.test.EditorConfigTestRule
+import com.pinterest.ktlint.test.EditorConfigOverride
 import com.pinterest.ktlint.test.format
 import com.pinterest.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Rule
 import org.junit.Test
 
 @OptIn(FeatureInAlphaState::class)
 class ImportOrderingRuleCustomTest {
-
-    companion object {
-        private val expectedErrors = listOf(
-            LintError(
-                1,
-                1,
-                "import-ordering",
-                "Imports must be ordered according to the pattern specified in .editorconfig"
-            )
-        )
-    }
-
-    @get:Rule
-    val editorConfigTestRule = EditorConfigTestRule()
-
     private val rule = ImportOrderingRule()
 
     @Test
@@ -43,13 +27,13 @@ class ImportOrderingRuleCustomTest {
             import kotlin.concurrent.Thread
             """.trimIndent()
 
-        val testFile = writeCustomImportsOrderingConfig("^,|,*")
+        val editorConfigOverride = getCustomImportOrderEditorConfigOverride("^,|,*")
 
         assertThat(
-            rule.lint(testFile, formattedImports)
+            rule.lint(formattedImports, editorConfigOverride)
         ).isEmpty()
         assertThat(
-            rule.format(testFile, formattedImports)
+            rule.format(formattedImports, editorConfigOverride)
         ).isEqualTo(formattedImports)
     }
 
@@ -78,13 +62,13 @@ class ImportOrderingRuleCustomTest {
             import androidx.fragment.app.Fragment as F
             """.trimIndent()
 
-        val testFile = writeCustomImportsOrderingConfig("*,|,^")
+        val editorConfigOverride = getCustomImportOrderEditorConfigOverride("*,|,^")
 
         assertThat(
-            rule.lint(testFile, imports)
+            rule.lint(imports, editorConfigOverride)
         ).isEqualTo(expectedErrors)
         assertThat(
-            rule.format(testFile, imports)
+            rule.format(imports, editorConfigOverride)
         ).isEqualTo(formattedImports)
     }
 
@@ -116,13 +100,13 @@ class ImportOrderingRuleCustomTest {
             import kotlin.concurrent.Thread
             """.trimIndent()
 
-        val testFile = writeCustomImportsOrderingConfig("^,|,*")
+        val editorConfigOverride = getCustomImportOrderEditorConfigOverride("^,|,*")
 
         assertThat(
-            rule.lint(testFile, imports)
+            rule.lint(imports, editorConfigOverride)
         ).isEqualTo(expectedErrors)
         assertThat(
-            rule.format(testFile, imports)
+            rule.format(imports, editorConfigOverride)
         ).isEqualTo(formattedImports)
     }
 
@@ -145,15 +129,15 @@ class ImportOrderingRuleCustomTest {
             import kotlin.io.Closeable
             """.trimIndent()
 
-        val testFile = writeCustomImportsOrderingConfig(
+        val editorConfigOverride = getCustomImportOrderEditorConfigOverride(
             "android.**,|,org.junit.**,|,net.**,|,org.**,|,java.**,|,com.**,|,javax.**,|,*"
         )
 
         assertThat(
-            rule.lint(testFile, formattedImports)
+            rule.lint(formattedImports, editorConfigOverride)
         ).isEmpty()
         assertThat(
-            rule.format(testFile, formattedImports)
+            rule.format(formattedImports, editorConfigOverride)
         ).isEqualTo(formattedImports)
     }
 
@@ -193,15 +177,15 @@ class ImportOrderingRuleCustomTest {
             import kotlin.io.Closeable
             """.trimIndent()
 
-        val testFile = writeCustomImportsOrderingConfig(
+        val editorConfigOverride = getCustomImportOrderEditorConfigOverride(
             "android.**,|,org.junit.**,|,net.**,|,org.**,|,java.**,|,com.**,|,javax.**,|,*"
         )
 
         assertThat(
-            rule.lint(testFile, imports)
+            rule.lint(imports, editorConfigOverride)
         ).isEqualTo(expectedErrors)
         assertThat(
-            rule.format(testFile, imports)
+            rule.format(imports, editorConfigOverride)
         ).isEqualTo(formattedImports)
     }
 
@@ -217,15 +201,15 @@ class ImportOrderingRuleCustomTest {
             import android.view.View
             """.trimIndent()
 
-        val testFile = writeCustomImportsOrderingConfig(
+        val editorConfigOverride = getCustomImportOrderEditorConfigOverride(
             "java.**,|,|,|,kotlin.**,*"
         )
 
         assertThat(
-            rule.lint(testFile, formattedImports)
+            rule.lint(formattedImports, editorConfigOverride)
         ).isEmpty()
         assertThat(
-            rule.format(testFile, formattedImports)
+            rule.format(formattedImports, editorConfigOverride)
         ).isEqualTo(formattedImports)
     }
 
@@ -253,15 +237,15 @@ class ImportOrderingRuleCustomTest {
             import android.view.View
             """.trimIndent()
 
-        val testFile = writeCustomImportsOrderingConfig(
+        val editorConfigOverride = getCustomImportOrderEditorConfigOverride(
             "java.**,|,|,|,kotlin.**,*"
         )
 
         assertThat(
-            rule.lint(testFile, imports)
+            rule.lint(imports, editorConfigOverride)
         ).isEqualTo(expectedErrors)
         assertThat(
-            rule.format(testFile, imports)
+            rule.format(imports, editorConfigOverride)
         ).isEqualTo(formattedImports)
     }
 
@@ -277,15 +261,15 @@ class ImportOrderingRuleCustomTest {
             import java.util.List as L
             """.trimIndent()
 
-        val testFile = writeCustomImportsOrderingConfig(
+        val editorConfigOverride = getCustomImportOrderEditorConfigOverride(
             "^kotlin.**,^android.**,android.**,|,*,^"
         )
 
         assertThat(
-            rule.lint(testFile, formattedImports)
+            rule.lint(formattedImports, editorConfigOverride)
         ).isEmpty()
         assertThat(
-            rule.format(testFile, formattedImports)
+            rule.format(formattedImports, editorConfigOverride)
         ).isEqualTo(formattedImports)
     }
 
@@ -310,15 +294,15 @@ class ImportOrderingRuleCustomTest {
             import kotlin.concurrent.Thread
             """.trimIndent()
 
-        val testFile = writeCustomImportsOrderingConfig(
+        val editorConfigOverride = getCustomImportOrderEditorConfigOverride(
             "^kotlin.**,^android.**,android.**,|,^,*"
         )
 
         assertThat(
-            rule.lint(testFile, imports)
+            rule.lint(imports, editorConfigOverride)
         ).isEqualTo(expectedErrors)
         assertThat(
-            rule.format(testFile, imports)
+            rule.format(imports, editorConfigOverride)
         ).isEqualTo(formattedImports)
     }
 
@@ -333,15 +317,15 @@ class ImportOrderingRuleCustomTest {
             import java.util.List
             """.trimIndent()
 
-        val testFile = writeCustomImportsOrderingConfig(
+        val editorConfigOverride = getCustomImportOrderEditorConfigOverride(
             "kotlin.io.Closeable.*,kotlin.**,*"
         )
 
         assertThat(
-            rule.lint(testFile, formattedImports)
+            rule.lint(formattedImports, editorConfigOverride)
         ).isEmpty()
         assertThat(
-            rule.format(testFile, formattedImports)
+            rule.format(formattedImports, editorConfigOverride)
         ).isEqualTo(formattedImports)
     }
 
@@ -366,25 +350,32 @@ class ImportOrderingRuleCustomTest {
             import java.util.List
             """.trimIndent()
 
-        val testFile = writeCustomImportsOrderingConfig(
+        val editorConfigOverride = getCustomImportOrderEditorConfigOverride(
             "kotlin.io.Closeable.*,kotlin.**,*"
         )
 
         assertThat(
-            rule.lint(testFile, imports)
+            rule.lint(imports, editorConfigOverride)
         ).isEqualTo(expectedErrors)
         assertThat(
-            rule.format(testFile, imports)
+            rule.format(imports, editorConfigOverride)
         ).isEqualTo(formattedImports)
     }
 
-    private fun writeCustomImportsOrderingConfig(
+    private fun getCustomImportOrderEditorConfigOverride(
         importsLayout: String
-    ) = editorConfigTestRule
-        .writeToEditorConfig(
-            mapOf(
-                ImportOrderingRule.ideaImportsLayoutProperty.type to importsLayout
+    ) = EditorConfigOverride.from(
+        ImportOrderingRule.ideaImportsLayoutProperty to importsLayout
+    )
+
+    companion object {
+        private val expectedErrors = listOf(
+            LintError(
+                1,
+                1,
+                "import-ordering",
+                "Imports must be ordered according to the pattern specified in .editorconfig"
             )
         )
-        .absolutePath
+    }
 }

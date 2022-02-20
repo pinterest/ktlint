@@ -1,15 +1,20 @@
 package com.pinterest.ktlint.ruleset.standard
 
+import com.pinterest.ktlint.core.EditorConfig.Companion.indentSizeProperty
+import com.pinterest.ktlint.core.EditorConfig.Companion.indentStyleProperty
 import com.pinterest.ktlint.core.LintError
+import com.pinterest.ktlint.core.api.FeatureInAlphaState
+import com.pinterest.ktlint.test.EditorConfigOverride
 import com.pinterest.ktlint.test.diffFileFormat
 import com.pinterest.ktlint.test.diffFileLint
 import com.pinterest.ktlint.test.format
 import com.pinterest.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
+import org.ec4j.core.model.PropertyType
 import org.junit.Test
 
+@FeatureInAlphaState
 internal class IndentationRuleTest {
-
     @Test
     fun testLint() {
         assertThat(IndentationRule().diffFileLint("spec/indent/lint.kt.spec")).isEmpty()
@@ -55,7 +60,7 @@ internal class IndentationRuleTest {
                     set(v: String) { x = v }
                 }
                 """.trimIndent(),
-                mapOf("indent_size" to "2")
+                EditorConfigOverride.from(indentSizeProperty to 2)
             )
         ).isEqualTo(
             listOf(
@@ -104,7 +109,7 @@ internal class IndentationRuleTest {
                     println(v)
                 }
                 """.trimIndent(),
-                mapOf("indent_size" to "unset")
+                EditorConfigOverride.from(indentSizeProperty to "unset")
             )
         ).isEmpty()
     }
@@ -338,7 +343,9 @@ internal class IndentationRuleTest {
     @Test
     fun testUnexpectedSpaceCharacter() {
         val ktScript = "fun main() {\n    return 0\n  }"
-        assertThat(IndentationRule().lint(ktScript, mapOf("indent_style" to "tab"))).isEqualTo(
+        assertThat(
+            IndentationRule().lint(ktScript, INDENT_STYLE_TABS)
+        ).isEqualTo(
             listOf(
                 LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected space character(s)"),
                 LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected space character(s)")
@@ -392,7 +399,13 @@ internal class IndentationRuleTest {
     @Test
     fun testUnexpectedTabCharacterWithCustomIndentSize() {
         val ktScript = "fun main() {\n\t\treturn 0\n\t}"
-        assertThat(IndentationRule().lint(ktScript, mapOf("indent_size" to "2"))).isEqualTo(
+        assertThat(
+            IndentationRule()
+                .lint(
+                    ktScript,
+                    EditorConfigOverride.from(indentSizeProperty to 2)
+                )
+        ).isEqualTo(
             listOf(
                 LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected tab character(s)"),
                 LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected indentation (4) (should be 2)"),
@@ -400,8 +413,13 @@ internal class IndentationRuleTest {
                 LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected indentation (2) (should be 0)")
             )
         )
-        assertThat(IndentationRule().format(ktScript, mapOf("indent_size" to "2")))
-            .isEqualTo("fun main() {\n  return 0\n}")
+        assertThat(
+            IndentationRule()
+                .format(
+                    ktScript,
+                    EditorConfigOverride.from(indentSizeProperty to 2)
+                )
+        ).isEqualTo("fun main() {\n  return 0\n}")
     }
 
     @Test
@@ -1718,6 +1736,8 @@ internal class IndentationRuleTest {
         const val MULTILINE_STRING_QUOTE = "${'"'}${'"'}${'"'}"
         const val TAB = "${'\t'}"
 
-        val INDENT_STYLE_TABS = mapOf("indent_style" to "tab")
+        val INDENT_STYLE_TABS = EditorConfigOverride.from(
+            indentStyleProperty to PropertyType.IndentStyleValue.tab
+        )
     }
 }
