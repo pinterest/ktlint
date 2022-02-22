@@ -14,7 +14,7 @@ class PlainReporterProviderTest {
             PlainReporterProvider().get(
                 out = PrintStream(out, true),
                 opt = mapOf()
-            ) as PlainReporter
+            )
 
             fail("Expected IllegalArgumentException.")
         } catch (iae: IllegalArgumentException) {
@@ -30,7 +30,7 @@ class PlainReporterProviderTest {
             PlainReporterProvider().get(
                 out = PrintStream(out, true),
                 opt = mapOf("color_name" to "")
-            ) as PlainReporter
+            )
 
             fail("Expected IllegalArgumentException.")
         } catch (iae: IllegalArgumentException) {
@@ -45,7 +45,7 @@ class PlainReporterProviderTest {
         val plainReporter = PlainReporterProvider().get(
             out = PrintStream(out, true),
             opt = mapOf("color_name" to "RED")
-        ) as PlainReporter
+        )
 
         assertEquals(Color.RED, plainReporter.outputColor)
     }
@@ -56,7 +56,7 @@ class PlainReporterProviderTest {
             PlainReporterProvider().get(
                 out = PrintStream(out, true),
                 opt = mapOf("colo_namer" to "GARBAGE_INPUT")
-            ) as PlainReporter
+            )
 
             fail("Expected IllegalArgumentException.")
         } catch (iae: IllegalArgumentException) {
