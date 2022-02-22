@@ -466,7 +466,7 @@ class KtlintCommandLine {
     }
 
     private fun ReporterTemplate.toReporter(
-        reporterProviderById: Map<String, ReporterProvider>
+        reporterProviderById: Map<String, ReporterProvider<*>>
     ): Reporter {
         val reporterProvider = reporterProviderById[id]
         if (reporterProvider == null) {
