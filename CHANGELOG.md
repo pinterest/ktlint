@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Added
 
 ### Fixed
+- Do not remove trailing comma after a parameter of type array in an annotation (experimental:trailing-comma) ([#1379](https://github.com/pinterest/ktlint/issues/1379))
 
 ### Changed
 
