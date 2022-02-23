@@ -26,6 +26,7 @@ import org.jetbrains.kotlin.psi.KtWhenEntry
 import org.jetbrains.kotlin.psi.KtWhenExpression
 import org.jetbrains.kotlin.psi.psiUtil.anyDescendantOfType
 import org.jetbrains.kotlin.psi.psiUtil.collectDescendantsOfType
+import org.jetbrains.kotlin.psi.psiUtil.nextLeaf
 import org.jetbrains.kotlin.psi.psiUtil.prevLeaf
 import org.jetbrains.kotlin.utils.addToStdlib.cast
 
@@ -236,7 +237,7 @@ public class TrailingCommaRule :
                     prevNode.psi.parent.addAfter(comma, prevNode.psi)
                 }
             }
-            TrailingCommaState.REDUNDANT -> {
+            TrailingCommaState.REDUNDANT -> { //if (!isTrailingCommaAllowed) {
                 emit(
                     trailingCommaNode!!.startOffset,
                     "Unnecessary trailing comma before \"${inspectNode.text}\"",
@@ -281,9 +282,20 @@ public class TrailingCommaRule :
             //    "something",
             // ])
             val lastChild = element.collectDescendantsOfType<KtCollectionLiteralExpression>().last()
-            containsLineBreakInRange(element.rightParenthesis!!, lastChild.rightBracket!!)
+            containsLineBreakInLeafsRange(lastChild.rightBracket!!, element.rightParenthesis!!)
         }
         else -> element.textContains('\n')
+    }
+
+    private fun containsLineBreakInLeafsRange(from: PsiElement, to: PsiElement): Boolean {
+        var leaf: PsiElement? = from
+        while (leaf != null && !leaf.isEquivalentTo(to)) {
+            if (leaf.textContains('\n')) {
+                return true
+            }
+            leaf = leaf.nextLeaf(skipEmptyElements = false)
+        }
+        return leaf?.textContains('\n') ?: false
     }
 
     private fun ASTNode.isIgnorable(): Boolean =

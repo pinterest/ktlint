@@ -9,7 +9,6 @@ import com.pinterest.ktlint.test.format
 import com.pinterest.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
 import org.ec4j.core.model.PropertyType
-import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
@@ -1097,10 +1096,28 @@ class TrailingCommaRuleTest {
     }
 
     @Test
-    fun assertTrue() {
-        val ktlintOutput = "Some unused import"
+    fun `Issue 1379 - Trailing comma is allowed after array in annotation`() {
+        val code =
+            """
+            import kotlin.reflect.KClass
 
-        assertTrue(ktlintOutput.contains("unused import"))
+            @Foo(
+                values = [
+                    Foo::class,
+                    Foo::class,
+                ],
+            )
+            annotation class Foo(val values: Array<KClass<*>>)
+            """.trimIndent()
+
+        val editorConfigFilePath = writeEditorConfigFile(
+            ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE,
+            ALLOW_TRAILING_COMMA_ON_CALL_SITE
+        ).absolutePath
+
+        assertThat(TrailingCommaRule().lint(editorConfigFilePath, code)).isEmpty()
+        assertThat(TrailingCommaRule().format(editorConfigFilePath, code))
+            .isEqualTo(code)
     }
 
     private fun writeEditorConfigFile(vararg editorConfigProperties: Pair<PropertyType<Boolean>, String>) = editorConfigTestRule
