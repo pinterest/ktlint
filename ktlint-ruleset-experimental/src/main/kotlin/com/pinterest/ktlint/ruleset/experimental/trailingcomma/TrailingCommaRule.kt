@@ -237,7 +237,7 @@ public class TrailingCommaRule :
                     prevNode.psi.parent.addAfter(comma, prevNode.psi)
                 }
             }
-            TrailingCommaState.REDUNDANT -> { //if (!isTrailingCommaAllowed) {
+            TrailingCommaState.REDUNDANT -> {
                 emit(
                     trailingCommaNode!!.startOffset,
                     "Unnecessary trailing comma before \"${inspectNode.text}\"",
