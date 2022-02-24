@@ -18,7 +18,14 @@ class NoTrailingSpacesRule : Rule("no-trailing-spaces") {
     ) {
         if (node.isPartOfKDoc()) {
             if (node.elementType == WHITE_SPACE && node.hasTrailingSpacesBeforeNewline()) {
-                emit(node.startOffset, "Trailing space(s)", true)
+                val offsetOfSpaceBeforeNewlineInText = node.text.indexOf(" \n")
+                val offsetOfFirstSpaceBeforeNewlineInText =
+                    node
+                        .text
+                        .take(offsetOfSpaceBeforeNewlineInText)
+                        .dropLastWhile { it == ' ' }
+                        .length
+                emit(node.startOffset + offsetOfFirstSpaceBeforeNewlineInText, "Trailing space(s)", true)
                 if (autoCorrect) {
                     node.removeTrailingSpacesBeforeNewline()
                 }
@@ -57,13 +64,11 @@ class NoTrailingSpacesRule : Rule("no-trailing-spaces") {
     private fun ASTNode.isPartOfKDoc() = parent({ it.psi is KDoc }, strict = false) != null
 
     private fun ASTNode.hasTrailingSpacesBeforeNewline() =
-        text.contains(
-            regex = Regex("\\s+\\n")
-        )
+        text.contains(SPACE_OR_TAB_BEFORE_NEWLINE_REGEX)
 
     private fun ASTNode.removeTrailingSpacesBeforeNewline() {
         val newText = text.replace(
-            regex = Regex("\\s+\\n"),
+            regex = SPACE_OR_TAB_BEFORE_NEWLINE_REGEX,
             replacement = "\n"
         )
         (this as LeafPsiElement).replaceWithText(newText)
@@ -71,4 +76,8 @@ class NoTrailingSpacesRule : Rule("no-trailing-spaces") {
 
     private fun String.hasTrailingSpace() =
         takeLast(1) == " "
+
+    private companion object {
+        val SPACE_OR_TAB_BEFORE_NEWLINE_REGEX = Regex("[ ]+\\n")
+    }
 }
