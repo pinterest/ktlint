@@ -1,5 +1,3 @@
-package test
-
 fun main() {
 
 
