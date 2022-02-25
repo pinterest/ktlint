@@ -1314,7 +1314,7 @@ internal class IndentationRuleTest {
                     select u from User u
                     inner join Organization o on u.organization = o
                     where o = :organization
-                $MULTILINE_STRING_QUOTE)
+                $MULTILINE_STRING_QUOTE.trimIndent())
                 fun findByOrganization(organization: Organization, pageable: Pageable): Page<User>
             }
             """.trimIndent()
@@ -1326,7 +1326,7 @@ internal class IndentationRuleTest {
                     select u from User u
                     inner join Organization o on u.organization = o
                     where o = :organization
-                    $MULTILINE_STRING_QUOTE
+                    $MULTILINE_STRING_QUOTE.trimIndent()
                 )
                 fun findByOrganization(organization: Organization, pageable: Pageable): Page<User>
             }
@@ -1337,7 +1337,7 @@ internal class IndentationRuleTest {
             listOf(
                 LintError(line = 2, col = 12, ruleId = "indent", detail = "Missing newline after \"(\""),
                 LintError(line = 6, col = 1, ruleId = "indent", detail = "Unexpected indent of multiline string closing quotes"),
-                LintError(line = 6, col = 7, ruleId = "indent", detail = "Missing newline before \")\"")
+                LintError(line = 6, col = 20, ruleId = "indent", detail = "Missing newline before \")\"")
             )
         )
         assertThat(IndentationRule().format(code)).isEqualTo(formattedCode)
@@ -1712,6 +1712,55 @@ internal class IndentationRuleTest {
             """.trimIndent()
         assertThat(IndentationRule().lint(code)).isEmpty()
         assertThat(IndentationRule().format(code)).isEqualTo(code)
+    }
+
+    @Test
+    fun `Issue 1375 - Do not format raw string literal when not followed by trimIndent or trimMargin`() {
+        val code =
+            """
+            val someCodeBlock = $MULTILINE_STRING_QUOTE
+              foo()$MULTILINE_STRING_QUOTE
+            """.trimIndent()
+        assertThat(IndentationRule().lint(code)).isEmpty()
+        assertThat(IndentationRule().format(code)).isEqualTo(code)
+    }
+
+    @Test
+    fun `Issue 1375 - Format raw string literal when followed by trimIndent`() {
+        val code =
+            """
+            val someCodeBlock = $MULTILINE_STRING_QUOTE
+              foo()$MULTILINE_STRING_QUOTE.trimIndent()
+            """.trimIndent()
+        val formattedCode =
+            """
+            val someCodeBlock = $MULTILINE_STRING_QUOTE
+              foo()
+            $MULTILINE_STRING_QUOTE.trimIndent()
+            """.trimIndent()
+        assertThat(IndentationRule().lint(code)).containsExactly(
+            LintError(2, 8, "indent", "Missing newline before \"\"\"")
+        )
+        assertThat(IndentationRule().format(code)).isEqualTo(formattedCode)
+    }
+
+    @Test
+    fun `Issue 1375 - Format raw string literal when followed by trimMargin`() {
+        val code =
+            """
+            val someCodeBlock = $MULTILINE_STRING_QUOTE
+              foo()$MULTILINE_STRING_QUOTE.trimMargin()
+            """.trimIndent()
+        val formattedCode =
+            """
+            val someCodeBlock = $MULTILINE_STRING_QUOTE
+              foo()
+            $MULTILINE_STRING_QUOTE.trimMargin()
+            """.trimIndent()
+        assertThat(IndentationRule().lint(code)).containsExactly(
+            LintError(2, 8, "indent", "Missing newline before \"\"\"")
+        )
+        assertThat(IndentationRule().format(code)).isEqualTo(formattedCode)
     }
 
     private companion object {

@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Added
 
 ### Fixed
+- Do not indent raw string literals that are not followed by either trimIndent() or trimMargin() (`indent`) ([#1375](https://github.com/pinterest/ktlint/issues/1375))
 
 ### Changed
 
