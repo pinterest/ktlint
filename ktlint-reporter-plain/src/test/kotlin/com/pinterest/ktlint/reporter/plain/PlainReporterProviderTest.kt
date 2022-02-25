@@ -12,7 +12,7 @@ class PlainReporterProviderTest {
         val plainReporter = PlainReporterProvider().get(
             out = PrintStream(out, true),
             opt = mapOf("color_name" to "RED")
-        ) as PlainReporter
+        )
 
         assertThat(plainReporter).isNotNull
     }
@@ -25,7 +25,7 @@ class PlainReporterProviderTest {
                     .get(
                         out = PrintStream(out, true),
                         opt = mapOf()
-                    ) as PlainReporter
+                    )
             }.withMessage("Invalid color parameter.")
     }
 
@@ -37,7 +37,7 @@ class PlainReporterProviderTest {
                     .get(
                         out = PrintStream(out, true),
                         opt = mapOf("color_name" to "")
-                    ) as PlainReporter
+                    )
             }.withMessage("Invalid color parameter.")
     }
 
@@ -49,7 +49,7 @@ class PlainReporterProviderTest {
                     .get(
                         out = PrintStream(out, true),
                         opt = mapOf("color_name" to "GARBAGE_INPUT")
-                    ) as PlainReporter
+                    )
             }.withMessage("Invalid color parameter.")
     }
 }
