@@ -9,6 +9,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Fixed
 
 ### Changed
+- Print the rule id always in the PlainReporter ([#1121](https://github.com/pinterest/ktlint/issues/1121))
+
 
 ### Removed
 
