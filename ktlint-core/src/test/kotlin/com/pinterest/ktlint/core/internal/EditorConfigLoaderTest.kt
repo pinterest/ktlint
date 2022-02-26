@@ -3,6 +3,7 @@ package com.pinterest.ktlint.core.internal
 import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
 import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.insertNewLineProperty
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.internal.EditorConfigLoader.Companion.convertToRawValues
@@ -246,7 +247,7 @@ internal class EditorConfigLoaderTest {
             filePath = null,
             rules = rules,
             loadedValuesOverride = mapOf(
-                FinalNewlineRule.insertNewLineProperty to PropertyType.PropertyValue.valid("true", true)
+                insertNewLineProperty to PropertyType.PropertyValue.valid("true", true)
             )
         )
 
@@ -261,7 +262,7 @@ internal class EditorConfigLoaderTest {
             filePath = null,
             rules = rules,
             loadedValuesOverride = mapOf(
-                FinalNewlineRule.insertNewLineProperty to PropertyType.PropertyValue.valid("true", true)
+                insertNewLineProperty to PropertyType.PropertyValue.valid("true", true)
             )
         )
 
@@ -443,7 +444,7 @@ internal class EditorConfigLoaderTest {
             lintFile,
             rules = rules.plus(FinalNewlineRule()),
             loadedValuesOverride = mapOf(
-                FinalNewlineRule.insertNewLineProperty to PropertyType.PropertyValue.valid("true", true)
+                insertNewLineProperty to PropertyType.PropertyValue.valid("true", true)
             )
         )
         val parsedEditorConfig = editorConfigProperties.convertToRawValues()
@@ -475,7 +476,7 @@ internal class EditorConfigLoaderTest {
             lintFile,
             rules = rules.plus(FinalNewlineRule()),
             loadedValuesOverride = mapOf(
-                FinalNewlineRule.insertNewLineProperty to PropertyType.PropertyValue.valid("false", false)
+                insertNewLineProperty to PropertyType.PropertyValue.valid("false", false)
             )
         )
         val parsedEditorConfig = editorConfigProperties.convertToRawValues()
@@ -498,13 +499,5 @@ internal class EditorConfigLoaderTest {
         ) {
             throw NotImplementedError()
         }
-    }
-
-    private companion object {
-        val SOME_EDITOR_CONFIG_PROPERTY = FinalNewlineRule.insertNewLineProperty
-        const val SOME_EDITOR_CONFIG_PROPERTY_VALUE = true
-        val SOME_EDITOR_CONFIG_OVERRIDE = mapOf(
-            SOME_EDITOR_CONFIG_PROPERTY to PropertyType.PropertyValue.valid("true", SOME_EDITOR_CONFIG_PROPERTY_VALUE)
-        )
     }
 }

@@ -1,12 +1,13 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.core.EditorConfig
-import com.pinterest.ktlint.core.EditorConfig.Companion.loadEditorConfig
-import com.pinterest.ktlint.core.EditorConfig.Companion.loadIndentConfig
 import com.pinterest.ktlint.core.IndentConfig
 import com.pinterest.ktlint.core.IndentConfig.IndentStyle.SPACE
 import com.pinterest.ktlint.core.IndentConfig.IndentStyle.TAB
 import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentSizeProperty
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentStyleProperty
+import com.pinterest.ktlint.core.api.FeatureInAlphaState
+import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType.ANNOTATION
 import com.pinterest.ktlint.core.ast.ElementType.ARROW
 import com.pinterest.ktlint.core.ast.ElementType.BINARY_EXPRESSION
@@ -113,13 +114,22 @@ private val logger = KotlinLogging.logger {}.initKtLintKLogger()
  * Current limitations:
  * - "all or nothing" (currently, rule can only be disabled for an entire file)
  */
-class IndentationRule : Rule(
-    id = "indent",
-    visitorModifiers = setOf(
-        VisitorModifier.RunOnRootNodeOnly,
-        VisitorModifier.RunAsLateAsPossible
-    )
-) {
+@OptIn(FeatureInAlphaState::class)
+class IndentationRule :
+    Rule(
+        id = "indent",
+        visitorModifiers = setOf(
+            VisitorModifier.RunOnRootNodeOnly,
+            VisitorModifier.RunAsLateAsPossible
+        )
+    ),
+    UsesEditorConfigProperties {
+
+    override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> =
+        listOf(
+            indentSizeProperty,
+            indentStyleProperty
+        )
 
     private companion object {
         private val lTokenSet = TokenSet.create(LPAR, LBRACE, LBRACKET, LT)
@@ -138,7 +148,6 @@ class IndentationRule : Rule(
         expectedIndent = 0
     }
 
-    private var editorConfig = EditorConfig.UNINITIALIZED
     private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
 
     override fun visit(
@@ -146,8 +155,10 @@ class IndentationRule : Rule(
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        editorConfig = node.loadEditorConfig()
-        indentConfig = editorConfig.loadIndentConfig()
+        indentConfig = IndentConfig(
+            indentStyle = node.getEditorConfigValue(indentStyleProperty),
+            tabWidth = node.getEditorConfigValue(indentSizeProperty)
+        )
         if (indentConfig.disabled) {
             return
         }
@@ -393,7 +404,6 @@ class IndentationRule : Rule(
         //     find matching rToken
         //     return true if there is no newline after the rToken
         // return false
-        val p = node.treeParent
         val nextCodeSibling = node.nextCodeSibling() // e.g. BINARY_EXPRESSION
         var lToken = nextCodeSibling?.nextLeaf { it.isWhiteSpaceWithNewline() }?.prevCodeLeaf()
         if (lToken != null && lToken.elementType !in lTokenSet) {
