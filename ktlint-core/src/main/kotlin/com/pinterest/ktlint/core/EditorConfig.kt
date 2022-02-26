@@ -2,6 +2,9 @@ package com.pinterest.ktlint.core
 
 import com.pinterest.ktlint.core.EditorConfig.IndentStyle.SPACE
 import com.pinterest.ktlint.core.EditorConfig.IndentStyle.TAB
+import com.pinterest.ktlint.core.api.FeatureInAlphaState
+import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
+import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 /**
@@ -92,5 +95,19 @@ interface EditorConfig {
 
             inner class EditorConfigNotInitializedException : RuntimeException("EditorConfig is not yet initialized")
         }
+
+        @OptIn(FeatureInAlphaState::class)
+        public val indentStyleProperty: UsesEditorConfigProperties.EditorConfigProperty<PropertyType.IndentStyleValue> =
+            UsesEditorConfigProperties.EditorConfigProperty(
+                type = PropertyType.indent_style,
+                defaultValue = PropertyType.IndentStyleValue.space
+            )
+
+        @OptIn(FeatureInAlphaState::class)
+        public val indentSizeProperty: UsesEditorConfigProperties.EditorConfigProperty<Int> =
+            UsesEditorConfigProperties.EditorConfigProperty(
+                type = PropertyType.indent_size,
+                defaultValue = IndentConfig.DEFAULT_INDENT_CONFIG.tabWidth
+            )
     }
 }

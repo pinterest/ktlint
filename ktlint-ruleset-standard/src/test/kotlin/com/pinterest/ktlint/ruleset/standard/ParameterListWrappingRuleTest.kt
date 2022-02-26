@@ -1,11 +1,14 @@
 package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.LintError
+import com.pinterest.ktlint.core.api.FeatureInAlphaState
+import com.pinterest.ktlint.test.EditorConfigOverride
 import com.pinterest.ktlint.test.format
 import com.pinterest.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
+@OptIn(FeatureInAlphaState::class)
 class ParameterListWrappingRuleTest {
     private val rules = listOf(
         ParameterListWrappingRule(),
@@ -55,7 +58,7 @@ class ParameterListWrappingRuleTest {
         assertThat(
             ParameterListWrappingRule().lint(
                 code,
-                userData = mapOf("max_line_length" to "10")
+                EditorConfigOverride.from(MaxLineLengthRule.maxLineLengthProperty to 10)
             )
         ).isEqualTo(
             listOf(
@@ -68,7 +71,7 @@ class ParameterListWrappingRuleTest {
         assertThat(
             ParameterListWrappingRule().format(
                 code,
-                userData = mapOf("max_line_length" to "10")
+                EditorConfigOverride.from(MaxLineLengthRule.maxLineLengthProperty to 10)
             )
         ).isEqualTo(formattedCode)
     }
@@ -82,7 +85,7 @@ class ParameterListWrappingRuleTest {
         assertThat(
             ParameterListWrappingRule().lint(
                 code,
-                userData = mapOf("max_line_length" to "10")
+                EditorConfigOverride.from(MaxLineLengthRule.maxLineLengthProperty to 10)
             )
         ).isEmpty()
         assertThat(ParameterListWrappingRule().format(code)).isEqualTo(code)
@@ -170,7 +173,7 @@ class ParameterListWrappingRuleTest {
         assertThat(
             ParameterListWrappingRule().lint(
                 code,
-                userData = mapOf("max_line_length" to "10")
+                EditorConfigOverride.from(MaxLineLengthRule.maxLineLengthProperty to 10)
             )
         ).isEqualTo(
             listOf(
@@ -183,7 +186,7 @@ class ParameterListWrappingRuleTest {
         assertThat(
             ParameterListWrappingRule().format(
                 code,
-                userData = mapOf("max_line_length" to "10")
+                EditorConfigOverride.from(MaxLineLengthRule.maxLineLengthProperty to 10)
             )
         ).isEqualTo(formattedCode)
     }
@@ -327,7 +330,7 @@ class ParameterListWrappingRuleTest {
         assertThat(
             ParameterListWrappingRule().format(
                 code,
-                userData = mapOf("max_line_length" to "10")
+                EditorConfigOverride.from(MaxLineLengthRule.maxLineLengthProperty to 10)
             )
         ).isEqualTo(formattedCode)
     }
@@ -492,12 +495,17 @@ class ParameterListWrappingRuleTest {
         assertThat(
             ParameterListWrappingRule().lint(
                 code,
-                userData = mapOf("max_line_length" to "80")
+                EditorConfigOverride.from(MaxLineLengthRule.maxLineLengthProperty to 80)
             )
         ).containsExactly(
             LintError(1, 22, "parameter-list-wrapping", "Parameter of nullable type should be on a separate line (unless the type fits on a single line)"),
             LintError(1, 95, "parameter-list-wrapping", """Missing newline before ")"""")
         )
-        assertThat(ParameterListWrappingRule().format(code, userData = mapOf("max_line_length" to "80"))).isEqualTo(formattedCode)
+        assertThat(
+            ParameterListWrappingRule().format(
+                code,
+                EditorConfigOverride.from(MaxLineLengthRule.maxLineLengthProperty to 80)
+            )
+        ).isEqualTo(formattedCode)
     }
 }

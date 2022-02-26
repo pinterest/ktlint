@@ -3,30 +3,14 @@ package com.pinterest.ktlint.ruleset.standard.importordering
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.ruleset.standard.ImportOrderingRule
-import com.pinterest.ktlint.test.EditorConfigTestRule
+import com.pinterest.ktlint.test.EditorConfigOverride
 import com.pinterest.ktlint.test.format
 import com.pinterest.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Rule
 import org.junit.Test
 
 @OptIn(FeatureInAlphaState::class)
 class ImportOrderingRuleIdeaTest {
-
-    companion object {
-        private val expectedErrors = listOf(
-            LintError(
-                1,
-                1,
-                "import-ordering",
-                "Imports must be ordered in lexicographic order without any empty lines in-between with \"java\", \"javax\", \"kotlin\" and aliases in the end"
-            )
-        )
-    }
-
-    @get:Rule
-    val editorConfigTestRule = EditorConfigTestRule()
-
     private val rule = ImportOrderingRule()
 
     @Test
@@ -45,13 +29,11 @@ class ImportOrderingRuleIdeaTest {
             import b.C
             """.trimIndent()
 
-        val testFile = writeIdeaImportsOrderingConfig()
-
         assertThat(
-            rule.lint(testFile, imports)
+            rule.lint(imports, IDEA_DEFAULT_IMPORT_ORDERING)
         ).isEqualTo(expectedErrors)
         assertThat(
-            rule.format(testFile, imports)
+            rule.format(imports, IDEA_DEFAULT_IMPORT_ORDERING)
         ).isEqualTo(formattedImports)
     }
 
@@ -72,13 +54,11 @@ class ImportOrderingRuleIdeaTest {
             import androidx.fragment.app.Fragment as F
             """.trimIndent()
 
-        val testFile = writeIdeaImportsOrderingConfig()
-
         assertThat(
-            rule.lint(testFile, formattedImports)
+            rule.lint(formattedImports, IDEA_DEFAULT_IMPORT_ORDERING)
         ).isEmpty()
         assertThat(
-            rule.format(testFile, formattedImports)
+            rule.format(formattedImports, IDEA_DEFAULT_IMPORT_ORDERING)
         ).isEqualTo(formattedImports)
     }
 
@@ -114,13 +94,11 @@ class ImportOrderingRuleIdeaTest {
             import androidx.fragment.app.Fragment as F
             """.trimIndent()
 
-        val testFile = writeIdeaImportsOrderingConfig()
-
         assertThat(
-            rule.lint(testFile, imports)
+            rule.lint(imports, IDEA_DEFAULT_IMPORT_ORDERING)
         ).isEqualTo(expectedErrors)
         assertThat(
-            rule.format(testFile, imports)
+            rule.format(imports, IDEA_DEFAULT_IMPORT_ORDERING)
         ).isEqualTo(formattedImports)
     }
 
@@ -144,16 +122,14 @@ class ImportOrderingRuleIdeaTest {
             import android.content.Context as Ctx2
             """.trimIndent()
 
-        val testFile = writeIdeaImportsOrderingConfig()
-
         assertThat(
-            rule.lint(testFile, imports)
+            rule.lint(imports, IDEA_DEFAULT_IMPORT_ORDERING)
         ).containsExactly(
             LintError(3, 1, "import-ordering", "Duplicate 'import android.view.View' found"),
             LintError(6, 1, "import-ordering", "Duplicate 'import android.content.Context as Ctx1' found")
         )
         assertThat(
-            rule.format(testFile, imports)
+            rule.format(imports, IDEA_DEFAULT_IMPORT_ORDERING)
         ).isEqualTo(formattedImports)
     }
 
@@ -196,13 +172,11 @@ class ImportOrderingRuleIdeaTest {
             import androidx.fragment.app.Fragment as F
             """.trimIndent()
 
-        val testFile = writeIdeaImportsOrderingConfig()
-
         assertThat(
-            rule.lint(testFile, imports)
+            rule.lint(imports, IDEA_DEFAULT_IMPORT_ORDERING)
         ).isEqualTo(expectedErrors)
         assertThat(
-            rule.format(testFile, imports)
+            rule.format(imports, IDEA_DEFAULT_IMPORT_ORDERING)
         ).isEqualTo(formattedImports)
     }
 
@@ -244,13 +218,11 @@ class ImportOrderingRuleIdeaTest {
             import androidx.fragment.app.Fragment as F
             """.trimIndent()
 
-        val testFile = writeIdeaImportsOrderingConfig()
-
         assertThat(
-            rule.lint(testFile, imports)
+            rule.lint(imports, IDEA_DEFAULT_IMPORT_ORDERING)
         ).isEqualTo(expectedErrors)
         assertThat(
-            rule.format(testFile, imports)
+            rule.format(imports, IDEA_DEFAULT_IMPORT_ORDERING)
         ).isEqualTo(formattedImports)
     }
 
@@ -286,13 +258,11 @@ class ImportOrderingRuleIdeaTest {
             import androidx.fragment.app.Fragment as F // comment 3
             """.trimIndent()
 
-        val testFile = writeIdeaImportsOrderingConfig()
-
         assertThat(
-            rule.lint(testFile, imports)
+            rule.lint(imports, IDEA_DEFAULT_IMPORT_ORDERING)
         ).isEqualTo(expectedErrors)
         assertThat(
-            rule.format(testFile, imports)
+            rule.format(imports, IDEA_DEFAULT_IMPORT_ORDERING)
         ).isEqualTo(formattedImports)
     }
 
@@ -327,13 +297,11 @@ class ImportOrderingRuleIdeaTest {
             import kotlin.reflect.KClass
             """.trimIndent()
 
-        val testFile = writeIdeaImportsOrderingConfig()
-
         assertThat(
-            rule.lint(testFile, formattedImports)
+            rule.lint(formattedImports, IDEA_DEFAULT_IMPORT_ORDERING)
         ).isEmpty()
         assertThat(
-            rule.format(testFile, formattedImports)
+            rule.format(formattedImports, IDEA_DEFAULT_IMPORT_ORDERING)
         ).isEqualTo(formattedImports)
     }
 
@@ -345,13 +313,11 @@ class ImportOrderingRuleIdeaTest {
             import android.view.ViewGroup.LayoutParams.WRAP_CONTENT as WRAP
             """.trimIndent()
 
-        val testFile = writeIdeaImportsOrderingConfig()
-
         assertThat(
-            rule.lint(testFile, formattedImports)
+            rule.lint(formattedImports, IDEA_DEFAULT_IMPORT_ORDERING)
         ).isEmpty()
         assertThat(
-            rule.format(testFile, formattedImports)
+            rule.format(formattedImports, IDEA_DEFAULT_IMPORT_ORDERING)
         ).isEqualTo(formattedImports)
     }
 
@@ -375,23 +341,28 @@ class ImportOrderingRuleIdeaTest {
             val bar2 = Bar2()
             """.trimIndent()
 
-        val testFile = writeIdeaImportsOrderingConfig()
-
         assertThat(
-            rule.lint(testFile, imports)
+            rule.lint(imports, IDEA_DEFAULT_IMPORT_ORDERING)
         ).containsExactly(
             LintError(3, 1, "import-ordering", "Duplicate 'import foo.Bar as Bar2' found")
         )
         assertThat(
-            rule.format(testFile, imports)
+            rule.format(imports, IDEA_DEFAULT_IMPORT_ORDERING)
         ).isEqualTo(formattedImports)
     }
 
-    private fun writeIdeaImportsOrderingConfig() = editorConfigTestRule
-        .writeToEditorConfig(
-            mapOf(
-                ImportOrderingRule.ideaImportsLayoutProperty.type to "*,java.**,javax.**,kotlin.**,^"
+    private companion object {
+        val expectedErrors = listOf(
+            LintError(
+                1,
+                1,
+                "import-ordering",
+                "Imports must be ordered in lexicographic order without any empty lines in-between with \"java\", \"javax\", \"kotlin\" and aliases in the end"
             )
         )
-        .absolutePath
+
+        val IDEA_DEFAULT_IMPORT_ORDERING = EditorConfigOverride.from(
+            ImportOrderingRule.ideaImportsLayoutProperty to "*,java.**,javax.**,kotlin.**,^"
+        )
+    }
 }
