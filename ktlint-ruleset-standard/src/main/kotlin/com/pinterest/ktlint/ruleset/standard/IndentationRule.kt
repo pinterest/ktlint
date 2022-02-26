@@ -532,7 +532,7 @@ class IndentationRule : Rule(
     ) {
         val firstNotEmptyLeaf = node.nextLeaf()
         if (firstNotEmptyLeaf?.let { it.elementType == WHITE_SPACE && !it.textContains('\n') } == true) {
-            visitWhiteSpace(firstNotEmptyLeaf, autoCorrect, emit, editorConfig)
+            visitWhiteSpace(firstNotEmptyLeaf, autoCorrect, emit)
         }
         val ctx = IndentContext()
         node.visit(
@@ -652,7 +652,7 @@ class IndentationRule : Rule(
                         adjustExpectedIndentInsideSuperTypeCall(n, ctx)
                     }
                     STRING_TEMPLATE ->
-                        indentStringTemplate(n, autoCorrect, emit, editorConfig)
+                        indentStringTemplate(n, autoCorrect, emit)
                     DOT_QUALIFIED_EXPRESSION, SAFE_ACCESS_EXPRESSION, BINARY_EXPRESSION, BINARY_WITH_TYPE -> {
                         val prevBlock = ctx.blockStack.peek()
                         if (prevBlock != null && prevBlock.line == line) {
@@ -727,14 +727,14 @@ class IndentationRule : Rule(
                                         // )
                                         adjustExpectedIndentAfterLparInsideCondition(n, ctx)
                                 }
-                                visitWhiteSpace(n, autoCorrect, emit, editorConfig)
+                                visitWhiteSpace(n, autoCorrect, emit)
                                 if (ctx.localAdj != 0) {
                                     expectedIndent += ctx.localAdj
                                     logger.trace { "$line: ++${ctx.localAdj} on whitespace containing new line (${n.elementType}) -> $expectedIndent" }
                                     ctx.localAdj = 0
                                 }
                             } else if (n.isPartOf(KDOC)) {
-                                visitWhiteSpace(n, autoCorrect, emit, editorConfig)
+                                visitWhiteSpace(n, autoCorrect, emit)
                             }
                             line += n.text.count { it == '\n' }
                         }
@@ -929,8 +929,7 @@ class IndentationRule : Rule(
     private fun indentStringTemplate(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        editorConfig: EditorConfig
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         val psi = node.psi as KtStringTemplateExpression
         if (psi.isMultiLine()) {
@@ -1044,8 +1043,7 @@ class IndentationRule : Rule(
     private fun visitWhiteSpace(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        editorConfig: EditorConfig
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         val text = node.text
         val nodeIndent = text.substringAfterLast("\n")
