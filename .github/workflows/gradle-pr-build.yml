@@ -5,6 +5,12 @@ on:
     branches: [ master ]
 
 jobs:
+  validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: gradle/wrapper-validation-action@v1
+
   build:
     strategy:
       matrix:
