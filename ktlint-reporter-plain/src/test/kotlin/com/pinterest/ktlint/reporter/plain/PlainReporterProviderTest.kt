@@ -1,68 +1,55 @@
 package com.pinterest.ktlint.reporter.plain
 
-import com.pinterest.ktlint.reporter.plain.internal.Color
 import java.io.PrintStream
 import java.lang.System.out
-import org.junit.Assert.assertEquals
-import org.junit.Assert.fail
+import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.Test
 
 class PlainReporterProviderTest {
     @Test
-    fun testNoColorNameProvided() {
-        try {
-            PlainReporterProvider().get(
-                out = PrintStream(out, true),
-                opt = mapOf()
-            ) as PlainReporter
-
-            fail("Expected IllegalArgumentException.")
-        } catch (iae: IllegalArgumentException) {
-            // Expected case
-        } catch (e: Exception) {
-            fail("Expected IllegalArgumentException but was: $e")
-        }
-    }
-
-    @Test
-    fun testEmptyColorNameProvided() {
-        try {
-            PlainReporterProvider().get(
-                out = PrintStream(out, true),
-                opt = mapOf("color_name" to "")
-            ) as PlainReporter
-
-            fail("Expected IllegalArgumentException.")
-        } catch (iae: IllegalArgumentException) {
-            // Expected case
-        } catch (e: Exception) {
-            fail("Expected IllegalArgumentException but was: $e")
-        }
-    }
-
-    @Test
-    fun testValidColorNameProvided() {
+    fun `Given that a valid color name is provided then the plain reporter provider is created without exception`() {
         val plainReporter = PlainReporterProvider().get(
             out = PrintStream(out, true),
             opt = mapOf("color_name" to "RED")
-        ) as PlainReporter
+        )
 
-        assertEquals(Color.RED, plainReporter.outputColor)
+        assertThat(plainReporter).isNotNull
     }
 
     @Test
-    fun testInvalidColorNameProvided() {
-        try {
-            PlainReporterProvider().get(
-                out = PrintStream(out, true),
-                opt = mapOf("colo_namer" to "GARBAGE_INPUT")
-            ) as PlainReporter
+    fun `Given that the color_name attribute name is not provided then throw an IllegalArgumentException`() {
+        assertThatExceptionOfType(IllegalArgumentException::class.java)
+            .isThrownBy {
+                PlainReporterProvider()
+                    .get(
+                        out = PrintStream(out, true),
+                        opt = mapOf()
+                    )
+            }.withMessage("Invalid color parameter.")
+    }
 
-            fail("Expected IllegalArgumentException.")
-        } catch (iae: IllegalArgumentException) {
-            // Expected case
-        } catch (e: Exception) {
-            fail("Expected IllegalArgumentException but was: $e")
-        }
+    @Test
+    fun `Given that the color_name attribute name is empty then throw an IllegalArgumentException`() {
+        assertThatExceptionOfType(IllegalArgumentException::class.java)
+            .isThrownBy {
+                PlainReporterProvider()
+                    .get(
+                        out = PrintStream(out, true),
+                        opt = mapOf("color_name" to "")
+                    )
+            }.withMessage("Invalid color parameter.")
+    }
+
+    @Test
+    fun `Given that an invalid color name is provided then the plain reporter provider throws an IllegalArgumentException`() {
+        assertThatExceptionOfType(IllegalArgumentException::class.java)
+            .isThrownBy {
+                PlainReporterProvider()
+                    .get(
+                        out = PrintStream(out, true),
+                        opt = mapOf("color_name" to "GARBAGE_INPUT")
+                    )
+            }.withMessage("Invalid color parameter.")
     }
 }

@@ -1,8 +1,11 @@
 package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.EditorConfig
-import com.pinterest.ktlint.core.EditorConfig.IndentStyle
-import com.pinterest.ktlint.core.KtLint
+import com.pinterest.ktlint.core.EditorConfig.Companion.loadEditorConfig
+import com.pinterest.ktlint.core.EditorConfig.Companion.loadIndentConfig
+import com.pinterest.ktlint.core.IndentConfig
+import com.pinterest.ktlint.core.IndentConfig.IndentStyle.SPACE
+import com.pinterest.ktlint.core.IndentConfig.IndentStyle.TAB
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.ANNOTATION
 import com.pinterest.ktlint.core.ast.ElementType.ARROW
@@ -83,6 +86,9 @@ import com.pinterest.ktlint.core.ast.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.core.ast.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.core.ast.visit
 import com.pinterest.ktlint.core.initKtLintKLogger
+import com.pinterest.ktlint.ruleset.standard.IndentationRule.IndentContext.Block
+import com.pinterest.ktlint.ruleset.standard.IndentationRule.IndentContext.Block.BlockIndentationType.REGULAR
+import com.pinterest.ktlint.ruleset.standard.IndentationRule.IndentContext.Block.BlockIndentationType.SAME_AS_PREVIOUS_BLOCK
 import java.util.Deque
 import java.util.LinkedList
 import mu.KotlinLogging
@@ -132,13 +138,17 @@ class IndentationRule : Rule(
         expectedIndent = 0
     }
 
+    private var editorConfig = EditorConfig.UNINITIALIZED
+    private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
+
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        val editorConfig = node.getUserData(KtLint.EDITOR_CONFIG_USER_DATA_KEY)!!
-        if (editorConfig.indentSize <= 1) {
+        editorConfig = node.loadEditorConfig()
+        indentConfig = editorConfig.loadIndentConfig()
+        if (indentConfig.disabled) {
             return
         }
         reset()
@@ -162,7 +172,7 @@ class IndentationRule : Rule(
         reset()
         logger.trace { "phase: indentation" }
         // step 2: correct indentation
-        indent(node, autoCorrect, emit, editorConfig)
+        indent(node, autoCorrect, emit)
 
         // The expectedIndent should never be negative. If so, it is very likely that ktlint crashes at runtime when
         // autocorrecting is executed while no error occurs with linting only. Such errors often are not found in unit
@@ -273,7 +283,7 @@ class IndentationRule : Rule(
             // class A : B, C, D({
             // })
             !(
-                entries.head().all { it.elementType == SUPER_TYPE_ENTRY } &&
+                entries.dropLast(1).all { it.elementType == SUPER_TYPE_ENTRY } &&
                     entries.last().elementType == SUPER_TYPE_CALL_ENTRY
                 )
         ) {
@@ -480,24 +490,49 @@ class IndentationRule : Rule(
     private class IndentContext {
         private val exitAdj = mutableMapOf<ASTNode, Int>()
         val ignored = mutableSetOf<ASTNode>()
-        val blockOpeningLineStack: Deque<Int> = LinkedList()
+        val blockStack: Deque<Block> = LinkedList()
         var localAdj: Int = 0
+
         fun exitAdjBy(node: ASTNode, change: Int) {
             exitAdj.compute(node) { _, v -> (v ?: 0) + change }
         }
+
         fun clearExitAdj(node: ASTNode): Int? =
             exitAdj.remove(node)
+
+        data class Block(
+            // Element type used for opening the block
+            val openingElementType: IElementType,
+            // Line at which the block is opened
+            val line: Int,
+            // Type of indentation to be used for the block
+            val blockIndentationType: BlockIndentationType
+        ) {
+            enum class BlockIndentationType {
+                /**
+                 * Indent the body of the block one level deeper by increasing the expected indentation level with 1.
+                 * Decrease the expected indentation level just before the closing element of the block.
+                 */
+                REGULAR,
+
+                /**
+                 * Keep the indent of the body of the block identical to the indent of the previous block, so do not change
+                 * the expected indentation level. The indentation of the closing element has to be decreased one level
+                 * without altering the expected indentation level.
+                 */
+                SAME_AS_PREVIOUS_BLOCK
+            }
+        }
     }
 
     private fun indent(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        editorConfig: EditorConfig
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         val firstNotEmptyLeaf = node.nextLeaf()
         if (firstNotEmptyLeaf?.let { it.elementType == WHITE_SPACE && !it.textContains('\n') } == true) {
-            visitWhiteSpace(firstNotEmptyLeaf, autoCorrect, emit, editorConfig)
+            visitWhiteSpace(firstNotEmptyLeaf, autoCorrect, emit)
         }
         val ctx = IndentContext()
         node.visit(
@@ -505,31 +540,79 @@ class IndentationRule : Rule(
                 when (n.elementType) {
                     LPAR, LBRACE, LBRACKET -> {
                         // ({[ should increase expectedIndent by 1
-                        val prevBlockLine = ctx.blockOpeningLineStack.peek() ?: -1
-                        val leftBrace = n.takeIf { it.elementType == LBRACE }
-                        if (prevBlockLine != line && !leftBrace.isAfterLambdaArgumentOnSameLine()) {
-                            expectedIndent++
-                            logger.trace { "$line: ++${n.text} -> $expectedIndent" }
+                        val prevBlock = ctx.blockStack.peek()
+                        when {
+                            n.isClosedOnSameLine() -> {
+                                logger.trace {
+                                    "$line: block starting with ${n.text} is opened and closed on the same line, " +
+                                        "expected indent is kept unchanged -> $expectedIndent"
+                                }
+                                ctx.blockStack.push(
+                                    Block(n.elementType, line, SAME_AS_PREVIOUS_BLOCK)
+                                )
+                            }
+                            n.isAfterValueParameterOnSameLine() -> {
+                                logger.trace {
+                                    "$line: block starting with ${n.text} starts on same line as the previous value " +
+                                        "parameter value ended, expected indent is kept unchanged -> $expectedIndent"
+                                }
+                                ctx.blockStack.push(
+                                    Block(n.elementType, line, SAME_AS_PREVIOUS_BLOCK)
+                                )
+                            }
+                            prevBlock != null && line == prevBlock.line -> {
+                                logger.trace {
+                                    "$line: block starting with ${n.text} starts on same line as the previous block, " +
+                                        "expected indent is kept unchanged -> $expectedIndent"
+                                }
+                                ctx.blockStack.push(
+                                    Block(n.elementType, line, SAME_AS_PREVIOUS_BLOCK)
+                                )
+                            }
+                            else -> {
+                                expectedIndent++
+                                logger.trace { "$line: block starting with ${n.text} -> Increase to $expectedIndent" }
+                                ctx.blockStack.push(
+                                    Block(n.elementType, line, REGULAR)
+                                )
+                            }
                         }
-                        ctx.blockOpeningLineStack.push(line)
+                        logger.trace {
+                            ctx.blockStack.iterator().asSequence().toList()
+                                .joinToString(
+                                    separator = "\n\t",
+                                    prefix = "Stack (newest first) after pushing new element:\n\t"
+                                )
+                        }
                     }
                     RPAR, RBRACE, RBRACKET -> {
                         // ]}) should decrease expectedIndent by 1
-                        val blockLine = ctx.blockOpeningLineStack.pop()
-                        val prevBlockLine = ctx.blockOpeningLineStack.peek() ?: -1
-                        val pairedLeft = n.pairedLeft()
-                        if (prevBlockLine != blockLine && !pairedLeft.isAfterLambdaArgumentOnSameLine()) {
-                            expectedIndent--
-                            logger.trace { "$line: --on(${n.elementType}) -> $expectedIndent" }
-
-                            val byKeywordOnSameLine = pairedLeft?.prevLeafOnSameLine(BY_KEYWORD)
-                            if (byKeywordOnSameLine != null &&
-                                byKeywordOnSameLine.prevLeaf()?.isWhiteSpaceWithNewline() == true &&
-                                n.leavesOnSameLine(forward = true).all { it.isWhiteSpace() || it.isPartOfComment() }
-                            ) {
-                                expectedIndent--
-                                logger.trace { "$line: --on same line as by keyword ${n.text} -> $expectedIndent" }
+                        logger.trace {
+                            ctx.blockStack.iterator().asSequence().toList()
+                                .joinToString(
+                                    separator = "\n\t",
+                                    prefix = "Stack before popping newest element from top of stack:\n\t"
+                                )
+                        }
+                        val block = ctx.blockStack.pop()
+                        when (block.blockIndentationType) {
+                            SAME_AS_PREVIOUS_BLOCK -> {
+                                logger.trace { "$line: block closed with ${n.elementType}. BlockIndentationType ${block.blockIndentationType} -> keep indent unchanged at $expectedIndent" }
                             }
+                            REGULAR -> {
+                                expectedIndent--
+                                logger.trace { "$line: block closed with ${n.elementType}.  -> Decrease indent to $expectedIndent" }
+                            }
+                        }
+
+                        val pairedLeft = n.pairedLeft()
+                        val byKeywordOnSameLine = pairedLeft.prevLeafOnSameLine(BY_KEYWORD)
+                        if (byKeywordOnSameLine != null &&
+                            byKeywordOnSameLine.prevLeaf()?.isWhiteSpaceWithNewline() == true &&
+                            n.leavesOnSameLine(forward = true).all { it.isWhiteSpace() || it.isPartOfComment() }
+                        ) {
+                            expectedIndent--
+                            logger.trace { "$line: --on same line as by keyword ${n.text} -> $expectedIndent" }
                         }
                     }
                     LT ->
@@ -569,10 +652,10 @@ class IndentationRule : Rule(
                         adjustExpectedIndentInsideSuperTypeCall(n, ctx)
                     }
                     STRING_TEMPLATE ->
-                        indentStringTemplate(n, autoCorrect, emit, editorConfig)
+                        indentStringTemplate(n, autoCorrect, emit)
                     DOT_QUALIFIED_EXPRESSION, SAFE_ACCESS_EXPRESSION, BINARY_EXPRESSION, BINARY_WITH_TYPE -> {
-                        val prevBlockLine = ctx.blockOpeningLineStack.peek() ?: -1
-                        if (prevBlockLine == line) {
+                        val prevBlock = ctx.blockStack.peek()
+                        if (prevBlock != null && prevBlock.line == line) {
                             ctx.ignored.add(n)
                         }
                     }
@@ -644,14 +727,14 @@ class IndentationRule : Rule(
                                         // )
                                         adjustExpectedIndentAfterLparInsideCondition(n, ctx)
                                 }
-                                visitWhiteSpace(n, autoCorrect, emit, editorConfig)
+                                visitWhiteSpace(n, autoCorrect, emit)
                                 if (ctx.localAdj != 0) {
                                     expectedIndent += ctx.localAdj
                                     logger.trace { "$line: ++${ctx.localAdj} on whitespace containing new line (${n.elementType}) -> $expectedIndent" }
                                     ctx.localAdj = 0
                                 }
                             } else if (n.isPartOf(KDOC)) {
-                                visitWhiteSpace(n, autoCorrect, emit, editorConfig)
+                                visitWhiteSpace(n, autoCorrect, emit)
                             }
                             line += n.text.count { it == '\n' }
                         }
@@ -779,8 +862,8 @@ class IndentationRule : Rule(
     private fun adjustExpectedIndentAfterArrow(n: ASTNode, ctx: IndentContext) {
         // Only adjust indents for arrows inside of when statements. Lambda arrows should not increase indent.
         if (n.treeParent?.elementType == WHEN_ENTRY) {
-            val prevBlockLine = ctx.blockOpeningLineStack.peek() ?: -1
-            if (prevBlockLine != line) {
+            val prevBlock = ctx.blockStack.peek()
+            if (prevBlock == null || line != prevBlock.line) {
                 expectedIndent++
                 logger.trace { "$line: ++after(ARROW) -> $expectedIndent" }
                 ctx.exitAdjBy(n.treeParent, -1)
@@ -846,8 +929,7 @@ class IndentationRule : Rule(
     private fun indentStringTemplate(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        editorConfig: EditorConfig
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         val psi = node.psi as KtStringTemplateExpression
         if (psi.isMultiLine()) {
@@ -878,7 +960,7 @@ class IndentationRule : Rule(
                     }
                 }
                 .map { it.text.indentLength() }
-                .min() ?: 0
+                .minOrNull() ?: 0
 
             val correctedExpectedIndent = if (node.prevLeaf()?.text == "\n") {
                 // In case the opening quotes are placed at the start of the line, then expect all lines inside the
@@ -887,8 +969,8 @@ class IndentationRule : Rule(
             } else {
                 expectedIndent
             }
-            val expectedIndentation = editorConfig.repeatIndent(correctedExpectedIndent)
-            val expectedPrefixLength = correctedExpectedIndent * editorConfig.indentSize
+            val expectedIndentation = indentConfig.indent.repeat(correctedExpectedIndent)
+            val expectedPrefixLength = correctedExpectedIndent * indentConfig.indent.length
             node.children()
                 .forEach {
                     if (it.prevLeaf()?.text == "\n" &&
@@ -906,12 +988,11 @@ class IndentationRule : Rule(
                             } else {
                                 it.text.splitIndentAt(prefixLength)
                             }
-                        val (wrongIndentChar, wrongIndentDescription) = editorConfig.wrongIndentChar()
-                        if (actualIndent.contains(wrongIndentChar)) {
-                            val offsetFirstWrongIndentChar = actualIndent.indexOfFirst(wrongIndentChar)
+                        if (indentConfig.containsUnexpectedIndentChar(actualIndent)) {
+                            val offsetFirstWrongIndentChar = indentConfig.indexOfFirstUnexpectedIndentChar(actualIndent)
                             emit(
                                 it.startOffset + offsetFirstWrongIndentChar,
-                                "Unexpected '$wrongIndentDescription' character(s) in margin of multiline string",
+                                "Unexpected '${indentConfig.unexpectedIndentCharDescription}' character(s) in margin of multiline string",
                                 true
                             )
                             if (autoCorrect) {
@@ -962,8 +1043,7 @@ class IndentationRule : Rule(
     private fun visitWhiteSpace(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        editorConfig: EditorConfig
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         val text = node.text
         val nodeIndent = text.substringAfterLast("\n")
@@ -1049,23 +1129,23 @@ class IndentationRule : Rule(
         }
         // indentation with incorrect characters replaced
         val normalizedNodeIndent =
-            when (editorConfig.indentStyle) {
-                IndentStyle.SPACE -> {
+            when (indentConfig.indentStyle) {
+                SPACE -> {
                     if ('\t' in nodeIndent) {
                         emit(
                             node.startOffset + text.length - nodeIndent.length,
                             "Unexpected tab character(s)",
                             true
                         )
-                        nodeIndent.replace("\t", " ".repeat(editorConfig.tabWidth))
+                        indentConfig.toNormalizedIndent(nodeIndent)
                     } else {
                         nodeIndent
                     }
                 }
-                IndentStyle.TAB -> {
+                TAB -> {
                     val isKdocIndent = node.isKDocIndent()
                     val indentWithoutKdocIndent =
-                        if (isKdocIndent) {
+                        if (node.isKDocIndent()) {
                             nodeIndent.removeSuffix(" ")
                         } else {
                             nodeIndent
@@ -1076,10 +1156,7 @@ class IndentationRule : Rule(
                             "Unexpected space character(s)",
                             true
                         )
-                        // First normalize the indent to spaces using the tab width.
-                        val asSpaces = nodeIndent.replace("\t", " ".repeat(editorConfig.tabWidth))
-                        // Then divide that space-based indent into tabs.
-                        "\t".repeat(asSpaces.length / editorConfig.tabWidth) +
+                        indentConfig.toNormalizedIndent(indentWithoutKdocIndent) +
                             // Re-add the kdoc indent when it was present before
                             if (isKdocIndent) {
                                 " "
@@ -1091,34 +1168,23 @@ class IndentationRule : Rule(
                     }
                 }
             }
-        val indentLength =
-            when (editorConfig.indentStyle) {
-                IndentStyle.SPACE -> editorConfig.indentSize
-                IndentStyle.TAB -> 1
-            }
-        val expectedIndentLength =
-            adjustedExpectedIndent * indentLength +
-                // +1 space before * in `/**\n *\n */`
-                if (comment?.elementType == KDOC && nextLeafElementType != KDOC_START) 1 else 0
-        if (normalizedNodeIndent.length != expectedIndentLength) {
+        val expectedIndent = indentConfig.indent.repeat(adjustedExpectedIndent) +
+            // +1 space before * in `/**\n *\n */`
+            if (comment?.elementType == KDOC && nextLeafElementType != KDOC_START) " " else ""
+        if (normalizedNodeIndent != expectedIndent) {
             emit(
                 node.startOffset + text.length - nodeIndent.length,
-                "Unexpected indentation (${normalizedNodeIndent.length}) (should be $expectedIndentLength)",
+                "Unexpected indentation (${normalizedNodeIndent.length}) (should be ${expectedIndent.length})",
                 true
             )
             logger.trace {
-                "$line: " + (if (!autoCorrect) "would have " else "") + "changed indentation to $expectedIndentLength (from ${normalizedNodeIndent.length})"
+                "$line: " + (if (!autoCorrect) "would have " else "") + "changed indentation to ${expectedIndent.length} (from ${normalizedNodeIndent.length})"
             }
         }
         if (autoCorrect) {
-            if (nodeIndent != normalizedNodeIndent || normalizedNodeIndent.length != expectedIndentLength) {
-                val indent = when (editorConfig.indentStyle) {
-                    IndentStyle.SPACE -> " "
-                    IndentStyle.TAB -> "\t"
-                }
+            if (nodeIndent != normalizedNodeIndent || normalizedNodeIndent != expectedIndent) {
                 (node as LeafPsiElement).rawReplaceWithText(
-                    text.substringBeforeLast("\n") + "\n" +
-                        indent.repeat(expectedIndentLength)
+                    text.substringBeforeLast("\n") + "\n" + expectedIndent
                 )
             }
         }
@@ -1140,23 +1206,18 @@ class IndentationRule : Rule(
     private fun ASTNode.isPartOfTypeConstraint() =
         isPartOf(TYPE_CONSTRAINT_LIST) || nextLeaf()?.elementType == WHERE_KEYWORD
 
-    private fun ASTNode.pairedLeft(): ASTNode? {
-        val rightType = elementType
-        val leftType = when (rightType) {
+    private fun ASTNode.pairedLeft(): ASTNode {
+        val leftType = when (elementType) {
             RPAR -> LPAR
             RBRACE -> LBRACE
             RBRACKET -> LBRACKET
-            else -> return null
+            else -> null
         }
-        var node: ASTNode? = prevLeaf()
-        while (node != null) {
-            node = when (node.elementType) {
-                leftType -> return node
-                rightType -> node.treeParent
-                else -> node.prevLeaf()
-            }
-        }
-        return null
+        requireNotNull(leftType) { "Element type '$leftType' not allowed" }
+
+        val pairedLeft = treeParent.findChildByType(leftType)
+        checkNotNull(pairedLeft) { "Can not find the '$leftType' element in same parent" }
+        return pairedLeft
     }
 
     private fun ASTNode.leavesOnSameLine(forward: Boolean): Sequence<ASTNode> =
@@ -1165,10 +1226,34 @@ class IndentationRule : Rule(
     private fun ASTNode.prevLeafOnSameLine(prevLeafType: IElementType): ASTNode? =
         leavesOnSameLine(forward = false).firstOrNull { it.elementType == prevLeafType }
 
-    private fun ASTNode?.isAfterLambdaArgumentOnSameLine(): Boolean {
-        if (this == null) return false
-        val prevComma = prevLeafOnSameLine(RBRACE)?.nextCodeLeaf()?.takeIf { it.elementType == COMMA } ?: return false
-        return prevComma.parent(VALUE_ARGUMENT_LIST) == parent(VALUE_ARGUMENT_LIST)
+    private fun ASTNode.isAfterValueParameterOnSameLine(): Boolean {
+        // Expect the current node to be the start of a block
+        require(elementType == LPAR || elementType == LBRACE || elementType == LBRACKET)
+
+        // Check if the block is the first code element of a value parameter
+        this
+            .prevCodeLeaf()
+            ?.nextCodeSibling()
+            ?.takeIf { it.elementType == VALUE_ARGUMENT }
+            ?.let { valueArgument ->
+                if (valueArgument == valueArgument.treeParent.findChildByType(VALUE_ARGUMENT)) {
+                    // This is the first value argument in the list, so by definition it is not *after* another value argument
+                    return false
+                }
+
+                valueArgument
+                    .leaves(forward = false)
+                    .takeWhile { it.isWhiteSpaceWithoutNewline() || it.elementType != VALUE_ARGUMENT }
+                    .firstOrNull()
+                    ?.let {
+                        if (it.isWhiteSpaceWithoutNewline() || it.elementType == VALUE_ARGUMENT) {
+                            // No newline has been found between the current value argument and the previous value argument
+                            return true
+                        }
+                    }
+            }
+
+        return false
     }
 
     private fun ASTNode.hasLineBreak(vararg ignoreElementTypes: IElementType): Boolean {
@@ -1191,7 +1276,7 @@ class IndentationRule : Rule(
             .filterNot { it.isBlank() }
         val prefixLength = nonBlankLines
             .map { it.indentLength() }
-            .min() ?: 0
+            .minOrNull() ?: 0
         val distinctIndentCharacters = nonBlankLines
             .joinToString(separator = "") {
                 it.splitIndentAt(prefixLength).first
@@ -1200,6 +1285,18 @@ class IndentationRule : Rule(
             .distinct()
             .count()
         return distinctIndentCharacters > 1
+    }
+
+    private fun ASTNode.isClosedOnSameLine(): Boolean {
+        val closingElementType = matchingRToken[elementType]
+        var cur: ASTNode? = this
+        while (cur != null && cur != closingElementType) {
+            if (cur.text.contains("\n")) {
+                return false
+            }
+            cur = cur.nextSibling { true }
+        }
+        return true
     }
 }
 
@@ -1214,18 +1311,6 @@ private fun ASTNode.isKDocIndent() =
 
 private fun ASTNode.isIndentBeforeClosingQuote() =
     elementType == CLOSING_QUOTE || (text.isBlank() && nextCodeSibling()?.elementType == CLOSING_QUOTE)
-
-private fun EditorConfig.repeatIndent(indentLevel: Int) =
-    when (indentStyle) {
-        IndentStyle.SPACE -> " ".repeat(indentLevel * indentSize)
-        IndentStyle.TAB -> "\t".repeat(indentLevel)
-    }
-
-private fun EditorConfig.wrongIndentChar(): Pair<Char, String> =
-    when (indentStyle) {
-        IndentStyle.SPACE -> Pair('\t', "tab")
-        IndentStyle.TAB -> Pair(' ', "space")
-    }
 
 private fun ASTNode.isLiteralStringTemplateEntry() =
     elementType == LITERAL_STRING_TEMPLATE_ENTRY && text != "\n"
@@ -1277,6 +1362,3 @@ private fun String.splitIndentAt(index: Int): Pair<String, String> {
         second = this.substring(safeIndex)
     )
 }
-
-private fun String.indexOfFirst(char: Char) =
-    indexOfFirst { it == char }
