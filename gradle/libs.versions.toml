@@ -7,21 +7,20 @@ junit5 = "5.8.2"
 [plugins]
 githubRelease = { id = "com.github.breadmoirai.github-release", version = "2.2.12" }
 checksum = { id = "org.gradle.crypto.checksum", version = "1.1.0" }
-dokka = { id = "org.jetbrains.dokka", version = "1.6.0" }
 shadow = { id = "com.github.johnrengelman.shadow", version = "7.1.1" }
 
 [libraries]
 kotlin-compiler = { module = "org.jetbrains.kotlin:kotlin-compiler-embeddable", version.ref = "kotlin" }
-klob = { module = "com.github.shyiko.klob:klob", version = "0.2.1" }
-ec4j = { module = "org.ec4j.core:ec4j-core", version = "0.3.0" }
-picocli = { module = "info.picocli:picocli", version = "3.9.6" }
-junit = { module = "junit:junit", version = "4.13.2" }
-junit5Api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit5" }
-junit5Jupiter = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit5" }
-junit5Vintage = { module = "org.junit.vintage:junit-vintage-engine", version.ref = "junit5" }
-assertj = { module = "org.assertj:assertj-core", version = "3.12.2" }
-sarif4k = { module = "io.github.detekt.sarif4k:sarif4k", version = "0.0.1" }
-jimfs = { module = "com.google.jimfs:jimfs", version = "1.1" }
-logging = { module = "io.github.microutils:kotlin-logging-jvm", version = "2.1.21" }
+klob = "com.github.shyiko.klob:klob:0.2.1"
+ec4j = "org.ec4j.core:ec4j-core:0.3.0"
+picocli = "info.picocli:picocli:3.9.6"
+junit = "junit:junit:4.13.2"
+junit5-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit5" }
+junit5-jupiter = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit5" }
+junit5-vintage = { module = "org.junit.vintage:junit-vintage-engine", version.ref = "junit5" }
+assertj = "org.assertj:assertj-core:3.12.2"
+sarif4k = "io.github.detekt.sarif4k:sarif4k:0.0.1"
+jimfs = "com.google.jimfs:jimfs:1.1"
+logging = "io.github.microutils:kotlin-logging-jvm:2.1.21"
 # Use logback-classic as the logger for kotlin-logging / slf4j as it allow changing the log level at runtime.
-logback = { module = "ch.qos.logback:logback-classic", version = "1.2.9" }
+logback = "ch.qos.logback:logback-classic:1.2.9"

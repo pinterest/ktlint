@@ -35,12 +35,12 @@ dependencies {
   implementation libs.picocli
 
   testImplementation libs.junit
-  testImplementation libs.junit5Api
+  testImplementation libs.junit5.api
   testImplementation libs.assertj
   testImplementation libs.jimfs
 
-  testRuntimeOnly libs.junit5Jupiter
-  testRuntimeOnly libs.junit5Vintage
+  testRuntimeOnly libs.junit5.jupiter
+  testRuntimeOnly libs.junit5.vintage
 }
 
 // Implements https://github.com/brianm/really-executable-jars-maven-plugin maven plugin behaviour.
