@@ -31,8 +31,8 @@ dependencies {
   testImplementation project(':ktlint-core')
   testImplementation project(':ktlint-test')
   testImplementation libs.assertj
-  testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
-  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.1.0'
+  testImplementation libs.junit5Jupiter
+  testImplementation libs.junit5Api
 
   ktlint project(':ktlint')
 }
