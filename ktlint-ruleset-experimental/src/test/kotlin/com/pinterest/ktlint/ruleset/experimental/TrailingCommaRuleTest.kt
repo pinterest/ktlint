@@ -8,8 +8,7 @@ import com.pinterest.ktlint.test.EditorConfigOverride
 import com.pinterest.ktlint.test.format
 import com.pinterest.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 @OptIn(FeatureInAlphaState::class)
 class TrailingCommaRuleTest {
@@ -1032,13 +1031,6 @@ class TrailingCommaRuleTest {
             rules.format(code, ALLOW_TRAILING_COMMA, cb = { e, _ -> afterFormatLintErrors.add(e) })
         assertThat(afterFormatLintErrors).isEmpty()
         assertThat(formatResult).isEqualTo(formattedCode)
-    }
-
-    @Test
-    fun assertTrue() {
-        val ktlintOutput = "Some unused import"
-
-        assertTrue(ktlintOutput.contains("unused import"))
     }
 
     private companion object {
