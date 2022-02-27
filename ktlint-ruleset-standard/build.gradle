@@ -8,6 +8,13 @@ dependencies {
   implementation deps.logging
 
   testImplementation project(':ktlint-test')
-  testImplementation deps.junit
+
+  testImplementation(deps.junit5) {
+    because 'allows to write and run Jupiter tests'
+  }
   testImplementation deps.assertj
+}
+
+test {
+  useJUnitPlatform()
 }

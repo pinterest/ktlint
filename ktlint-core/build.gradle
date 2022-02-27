@@ -9,8 +9,16 @@ dependencies {
   api deps.logging
   api deps.logback
 
-  testImplementation deps.junit
+  // Standard ruleset is required for EditConfigLoaderTest only
+  testImplementation project(":ktlint-ruleset-standard")
+
+  testImplementation(deps.junit5) {
+    because 'allows to write and run Jupiter tests'
+  }
   testImplementation deps.assertj
   testImplementation deps.jimfs
-  testImplementation project(":ktlint-ruleset-standard")
+}
+
+test {
+  useJUnitPlatform()
 }

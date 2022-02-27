@@ -26,15 +26,17 @@ configurations {
 }
 
 dependencies {
+  ktlint project(':ktlint')
+
   compileOnly project(':ktlint-core')
 
   testImplementation project(':ktlint-core')
   testImplementation project(':ktlint-test')
-  testImplementation deps.assertj
-  testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
-  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.1.0'
 
-  ktlint project(':ktlint')
+  testImplementation(deps.junit5) {
+    because 'allows to write and run Jupiter tests'
+  }
+  testImplementation deps.assertj
 }
 
 test {

@@ -7,6 +7,12 @@ dependencies {
   api project(':ktlint-core')
   api project(':ktlint-ruleset-test')
 
+  implementation(deps.junit5) {
+    because 'allows to write and run Jupiter tests'
+  }
   implementation deps.assertj
-  implementation deps.junit
+}
+
+test {
+  useJUnitPlatform()
 }
