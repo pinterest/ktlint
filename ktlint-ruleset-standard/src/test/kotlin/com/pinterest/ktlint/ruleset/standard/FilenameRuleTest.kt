@@ -10,7 +10,7 @@ class FilenameRuleTest {
     fun testParsingAllTopLevelDeclarations() {
         data class Item(val src: String, val type: String, val typeName: String, val fileName: String)
 
-        for (item in listOf(
+        listOf(
             Item("class AClass", "Class", "AClass", "AClass"),
             Item("class `AClass`", "Class", "`AClass`", "AClass"),
             Item("interface AInterface", "Class", "AInterface", "AInterface"),
@@ -36,102 +36,137 @@ class FilenameRuleTest {
             Item("fun `kotlin.Int`.aFun() = false", "Extension function", "aFun", "aFun"),
             Item(
                 """
-               public val propA: Int
+                public val propA: Int
                    get() = 5
-               """, "Property", "propA", "propA"
+                """,
+                "Property",
+                "propA",
+                "propA"
             ),
             Item(
                 """
-               public val `propB`: Int
+                public val `propB`: Int
                    get() = 5
-               """, "Property", "`propB`", "propB"
+                """,
+                "Property",
+                "`propB`",
+                "propB"
             ),
             Item(
                 """
-               public var propC: Int = 10
-                   get() = 5
-                   set(value) {
-                       println(value)
-                       field = value
-                   }
-               """, "Property", "propC", "propC"
-            ),
-            Item(
-                """
-               public var `propD`: Int = 10
+                public var propC: Int = 10
                    get() = 5
                    set(value) {
                        println(value)
                        field = value
                    }
-               """, "Property", "`propD`", "propD"
+                """,
+                "Property",
+                "propC",
+                "propC"
             ),
             Item(
                 """
-               public val Int.propE: Int
+                public var `propD`: Int = 10
+                   get() = 5
+                   set(value) {
+                       println(value)
+                       field = value
+                   }
+                """,
+                "Property",
+                "`propD`",
+                "propD"
+            ),
+            Item(
+                """
+                public val Int.propE: Int
                    get() = this * 5
-               """, "Extension property", "propE", "propE"
+                """,
+                "Extension property",
+                "propE",
+                "propE"
             ),
             Item(
                 """
-               public val Int.`propF`: Int
+                public val Int.`propF`: Int
                    get() = this * 5
-               """, "Extension property", "`propF`", "propF"
+                """,
+                "Extension property",
+                "`propF`",
+                "propF"
             ),
             Item(
                 """
-               public val `Int`.propG: Int
+                public val `Int`.propG: Int
                    get() = this * 5
-               """, "Extension property", "propG", "propG"
+                """,
+                "Extension property",
+                "propG",
+                "propG"
             ),
             Item(
                 """
-               public var Int.propH: Int
+                public var Int.propH: Int
                    get() = this * 5
                    set(value) {
                        println(this * value)
                    }
-               """, "Extension property", "propH", "propH"
+                """,
+                "Extension property",
+                "propH",
+                "propH"
             ),
             Item(
                 """
-               public var Int.`propI`: Int
+                public var Int.`propI`: Int
                    get() = this * 5
                    set(value) {
                        println(this * value)
                    }
-               """, "Extension property", "`propI`", "propI"
+                """,
+                "Extension property",
+                "`propI`",
+                "propI"
             ),
             Item(
                 """
-               public var `Int`.propJ: Int
+                public var `Int`.propJ: Int
                    get() = this * 5
                    set(value) {
                        println(this * value)
                    }
-               """, "Extension property", "propJ", "propJ"
+                """,
+                "Extension property",
+                "propJ",
+                "propJ"
             ),
             Item(
                 """
-               public val <T : Number> T.propK: Int
+                public val <T : Number> T.propK: Int
                    get() = this * 5
-               """, "Extension property", "propK", "propK"
+                """,
+                "Extension property",
+                "propK",
+                "propK"
             ),
             Item(
                 """
-               public var <T : Number> T.propL: Int
+                public var <T : Number> T.propL: Int
                    get() = this * 5
                    set(value) {
                        println(this * value)
                    }
-               """, "Extension property", "propL", "propL"
+                """,
+                "Extension property",
+                "propL",
+                "propL"
             ),
             Item("typealias NodeSet = Set<Network.Node>", "Typealias", "NodeSet", "NodeSet"),
             Item("typealias FileTable<K> = MutableMap<K, MutableList<File>>", "Typealias", "FileTable", "FileTable"),
             Item("typealias MyHandler = (Int, String, Any) -> Unit", "Typealias", "MyHandler", "MyHandler"),
             Item("typealias Predicate<T> = (T) -> Boolean", "Typealias", "Predicate", "Predicate")
-        )) {
-            val (src, type, typeName, fileName) = item
+        ).forEach { (src, type, typeName, fileName) ->
             assertThat(
                 FilenameRule().lint(
                     "/some/path/A.kt",
@@ -156,8 +191,7 @@ class FilenameRuleTest {
 
     @Test
     fun testMatchingSingleClassName() {
-        for (
-        src in listOf(
+        listOf(
             "class A",
             "class `A`",
             "data class A(val v: Int)",
@@ -168,8 +202,7 @@ class FilenameRuleTest {
             "typealias A = Set<Network.Node>",
             // >1 declaration case
             "class B\nfun A.f() {}"
-        )
-        ) {
+        ).forEach { src ->
             assertThat(
                 FilenameRule().lint(
                     "/some/path/A.kt",
@@ -190,8 +223,7 @@ class FilenameRuleTest {
 
     @Test
     fun testNonMatchingSingleClassName() {
-        for (
-        src in mapOf(
+        mapOf(
             "class A" to "Class",
             "data class A(val v: Int)" to "Class",
             "sealed class A" to "Class",
@@ -199,8 +231,7 @@ class FilenameRuleTest {
             "object A" to "Object",
             "enum class A {A}" to "Class",
             "typealias A = Set<Network.Node>" to "Typealias"
-        )
-        ) {
+        ).forEach { (src, type) ->
             assertThat(
                 FilenameRule().lint(
                     "/some/path/B.kt",
@@ -211,13 +242,13 @@ class FilenameRuleTest {
                     @file:JvmName("Foo")
                     package x
                     import y.Z
-                    ${src.key}
+                    $src
                     //
                     """.trimIndent()
                 )
             ).isEqualTo(
                 listOf(
-                    LintError(1, 1, "filename", "${src.value} A should be declared in a file named A.kt")
+                    LintError(1, 1, "filename", "$type A should be declared in a file named A.kt")
                 )
             )
         }
@@ -252,8 +283,7 @@ class FilenameRuleTest {
 
     @Test
     fun testNonMatchingMultipleElementsWithNonPascalCaseFilename() {
-        for (
-        src in listOf(
+        listOf(
             "class A",
             "class `A`",
             "data class A(val v: Int)",
@@ -263,15 +293,14 @@ class FilenameRuleTest {
             "enum class A {A}",
             "typealias A = Set<Network.Node>",
             "fun A.f() {}"
-        )
-        ) {
+        ).forEach { src ->
             assertThat(
                 FilenameRule().lint(
                     "foo.kt",
                     """
                     class Bar
                     $src
-                    """.trimIndent(),
+                    """.trimIndent()
                 )
             ).isEqualTo(
                 listOf(
@@ -283,29 +312,28 @@ class FilenameRuleTest {
 
     @Test
     fun testMatchingReceiverFilenameWithMultipleElements() {
-        for (src in listOf(
+        listOf(
             """
-                fun A.f1() {}
-                fun A.f2() {}
+            fun A.f1() {}
+            fun A.f2() {}
             """.trimIndent(),
             """
-                public val A.propG: Int
-                   get() = this * 5
+            public val A.propG: Int
+               get() = this * 5
 
-                public var A.propH: Int
-                   get() = this * 5
-                   set(value) {
-                       println(this * value)
-                   }
+            public var A.propH: Int
+               get() = this * 5
+               set(value) {
+                   println(this * value)
+               }
             """.trimIndent()
-        )
-        ) {
+        ).forEach { src ->
             assertThat(
                 FilenameRule().lint(
                     "A.kt",
                     """
                     $src
-                    """.trimIndent(),
+                    """.trimIndent()
                 )
             ).isEmpty()
         }
@@ -313,35 +341,34 @@ class FilenameRuleTest {
 
     @Test
     fun testMatchingReceiverFilenameWithMultipleElementsButWithDifferentElement() {
-        for (src in listOf(
+        listOf(
             """
-                fun A.f1() {}
-                fun A.f2() {}
+            fun A.f1() {}
+            fun A.f2() {}
             """.trimIndent(),
             """
-                public val A.propG: Int
-                   get() = this * 5
+            public val A.propG: Int
+               get() = this * 5
 
-                public var A.propH: Int
-                   get() = this * 5
-                   set(value) {
-                       println(this * value)
-                   }
+            public var A.propH: Int
+               get() = this * 5
+               set(value) {
+                   println(this * value)
+               }
             """.trimIndent(),
             """
-                fun A.f1() {}
-                public val A.propG: Int
-                   get() = this * 5
+            fun A.f1() {}
+            public val A.propG: Int
+               get() = this * 5
             """.trimIndent()
-        )
-        ) {
+        ).forEach { src ->
             assertThat(
                 FilenameRule().lint(
                     "non-matching-file-name.kt",
                     """
                         data class Foo(val value: String)
                         $src
-                    """.trimIndent(),
+                    """.trimIndent()
                 )
             ).isEqualTo(
                 listOf(
@@ -353,34 +380,33 @@ class FilenameRuleTest {
 
     @Test
     fun testNonMatchingReceiverFilenameWithMultipleElements() {
-        for (src in listOf(
+        listOf(
             """
-                fun A.f1() {}
-                fun A.f2() {}
+            fun A.f1() {}
+            fun A.f2() {}
             """.trimIndent(),
             """
-                public val A.propG: Int
-                   get() = this * 5
+            public val A.propG: Int
+               get() = this * 5
 
-                public var A.propH: Int
-                   get() = this * 5
-                   set(value) {
-                       println(this * value)
-                   }
+            public var A.propH: Int
+               get() = this * 5
+               set(value) {
+                   println(this * value)
+               }
             """.trimIndent(),
             """
-                fun A.f1() {}
-                public val A.propG: Int
-                   get() = this * 5
+            fun A.f1() {}
+            public val A.propG: Int
+               get() = this * 5
             """.trimIndent()
-        )
-        ) {
+        ).forEach { src ->
             assertThat(
                 FilenameRule().lint(
                     "foo.kt",
                     """
                     $src
-                    """.trimIndent(),
+                    """.trimIndent()
                 )
             ).isEqualTo(
                 listOf(
@@ -392,8 +418,7 @@ class FilenameRuleTest {
 
     @Test
     fun testMultipleElementsWithNonPascalCaseFilename() {
-        for (
-        src in listOf(
+        listOf(
             "class A",
             "class `A`",
             "data class A(val v: Int)",
@@ -403,15 +428,14 @@ class FilenameRuleTest {
             "enum class A {A}",
             "typealias A = Set<Network.Node>",
             "fun A.f() {}"
-        )
-        ) {
+        ).forEach { src ->
             assertThat(
                 FilenameRule().lint(
                     "Foo.kt",
                     """
                     class Bar
                     $src
-                    """.trimIndent(),
+                    """.trimIndent()
                 )
             ).isEmpty()
         }
@@ -419,8 +443,7 @@ class FilenameRuleTest {
 
     @Test
     fun testMultipleElementsInPackageKtFile() {
-        for (
-        src in listOf(
+        listOf(
             "class A",
             "class `A`",
             "data class A(val v: Int)",
@@ -430,15 +453,14 @@ class FilenameRuleTest {
             "enum class A {A}",
             "typealias A = Set<Network.Node>",
             "fun A.f() {}"
-        )
-        ) {
+        ).forEach { src ->
             assertThat(
                 FilenameRule().lint(
                     "package.kt",
                     """
                     class Bar
                     $src
-                    """.trimIndent(),
+                    """.trimIndent()
                 )
             ).isEmpty()
         }
