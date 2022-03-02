@@ -5,8 +5,9 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
+  publish:
     runs-on: ubuntu-latest
+    if: github.repository == 'pinterest/ktlint'
     steps:
       - uses: actions/checkout@v2
       - name: Set up Java 8
@@ -15,7 +16,6 @@ jobs:
           distribution: 'zulu'
           java-version: 8
       - name: Publish snapshot to Maven
-        if: ${{ github.repository == 'pinterest/ktlint' }}
         uses: gradle/gradle-build-action@v2
         with:
           arguments: clean publishMavenPublicationToMavenCentralRepository --no-daemon --no-parallel
@@ -23,7 +23,6 @@ jobs:
           SONATYPE_NEXUS_USERNAME: ${{ secrets.SONATYPE_NEXUS_USERNAME }}
           SONATYPE_NEXUS_PASSWORD: ${{ secrets.SONATYPE_NEXUS_PASSWORD }}
       - name: Publish Kotlin-dev snapshot to Maven
-        if: ${{ github.repository == 'pinterest/ktlint' }}
         uses: gradle/gradle-build-action@v2
         with:
           arguments: -PkotlinDev clean publishMavenPublicationToMavenCentralRepository --no-daemon --no-parallel
