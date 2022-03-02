@@ -17,29 +17,10 @@ jobs:
       with:
         distribution: 'zulu'
         java-version: 8
-    - name: Restore Gradle caches
-      uses: actions/cache@v2
-      with:
-        path: |
-          ~/.gradle/caches/modules-2
-          ~/.gradle/caches/files-2.1
-          ~/.gradle/caches/metadata-2.96
-          ~/.gradle/jdks
-        key: ${{ runner.os }}-gradle-cache-${{ hashFiles('**/*.gradle.kts') }}-${{ hashFiles('**/*.gradle') }}-${{ hashFiles('**/gradle.properties') }}
-        restore-keys: |
-          ${{ runner.os }}-gradle-cache-
-    - name: Restore Gradle wrapper
-      uses: actions/cache@v2
-      with:
-        path: |
-          ~/.gradle/wrapper
-        key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('**/gradlew') }}
-        restore-keys: |
-          ${{ runner.os }}-gradle-wrapper-
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
     - name: Build with release Kotlin version
-      run: ./gradlew clean build ktlint
+      uses: gradle/gradle-build-action@v2
+      with:
+        arguments: clean build ktlint
     - name: Upload dependency verification report
       uses: actions/upload-artifact@v2
       if: failure()
@@ -55,4 +36,6 @@ jobs:
         path: '**/tests/**/*.html'
         if-no-files-found: warn
     - name: Build with dev Kotlin version
-      run: ./gradlew -PkotlinDev clean build ktlint
+      uses: gradle/gradle-build-action@v2
+      with:
+        arguments: -PkotlinDev clean build ktlint
