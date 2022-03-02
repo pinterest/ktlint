@@ -8,34 +8,34 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ ubuntu-latest, windows-latest ]
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Java 8
-      uses: actions/setup-java@v2
-      with:
-        distribution: 'zulu'
-        java-version: 8
-    - name: Build with release Kotlin version
-      uses: gradle/gradle-build-action@v2
-      with:
-        arguments: clean build ktlint
-    - name: Upload dependency verification report
-      uses: actions/upload-artifact@v2
-      if: failure()
-      with:
-        name: Build artifacts
-        path: '**/build/**/dependency-verification-report.html'
-        if-no-files-found: warn
-    - name: Upload test results
-      uses: actions/upload-artifact@v2
-      if: failure()
-      with:
-        name: Test artifacts
-        path: '**/tests/**/*.html'
-        if-no-files-found: warn
-    - name: Build with dev Kotlin version
-      uses: gradle/gradle-build-action@v2
-      with:
-        arguments: -PkotlinDev clean build ktlint
+      - uses: actions/checkout@v2
+      - name: Set up Java 8
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'zulu'
+          java-version: 8
+      - name: Build with release Kotlin version
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: clean build ktlint
+      - name: Upload dependency verification report
+        uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: Build artifacts
+          path: '**/build/**/dependency-verification-report.html'
+          if-no-files-found: warn
+      - name: Upload test results
+        uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: Test artifacts
+          path: '**/tests/**/*.html'
+          if-no-files-found: warn
+      - name: Build with dev Kotlin version
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: -PkotlinDev clean build ktlint
