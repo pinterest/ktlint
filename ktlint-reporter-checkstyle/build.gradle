@@ -6,12 +6,6 @@ plugins {
 dependencies {
   implementation project(':ktlint-core')
 
-  testImplementation(deps.junit5) {
-    because 'allows to write and run Jupiter tests'
-  }
+  testImplementation deps.junit5
   testImplementation deps.assertj
-}
-
-test {
-  useJUnitPlatform()
 }

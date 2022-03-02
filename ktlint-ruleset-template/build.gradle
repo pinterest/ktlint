@@ -32,10 +32,7 @@ dependencies {
 
   testImplementation project(':ktlint-core')
   testImplementation project(':ktlint-test')
-
-  testImplementation(deps.junit5) {
-    because 'allows to write and run Jupiter tests'
-  }
+  testImplementation deps.junit5
   testImplementation deps.assertj
 }
 

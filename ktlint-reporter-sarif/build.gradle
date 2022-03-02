@@ -7,14 +7,8 @@ dependencies {
     implementation project(':ktlint-core')
     implementation deps.sarif4k
 
-  testImplementation(deps.junit5) {
-    because 'allows to write and run Jupiter tests'
-  }
-  testImplementation deps.assertj
-}
-
-test {
-  useJUnitPlatform()
+    testImplementation deps.junit5
+    testImplementation deps.assertj
 }
 
 jar {

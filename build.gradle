@@ -30,10 +30,16 @@ repositories {
   mavenCentral()
 }
 
-if (project.hasProperty('isKotlinDev')) {
-  allprojects { p ->
+def isKotlinDev = project.hasProperty('isKotlinDev')
+
+allprojects { p ->
+  if (isKotlinDev) {
     String definedVersion = p.ext."VERSION_NAME".minus("-SNAPSHOT")
     p.ext."VERSION_NAME" = "$definedVersion-kotlin-dev-SNAPSHOT".toString()
+  }
+
+  tasks.withType(Test).configureEach {
+    it.useJUnitPlatform()
   }
 }
 
