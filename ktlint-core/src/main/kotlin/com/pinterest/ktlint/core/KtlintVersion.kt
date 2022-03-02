@@ -10,7 +10,11 @@ import java.util.jar.Manifest
  * (note that version reported by the fallback might not be null if META-INF/MANIFEST.MF is
  * loaded from another JAR on the classpath (e.g. if META-INF/MANIFEST.MF wasn't created as part of the build))
  */
-public fun <T> getKtlintVersion(javaClass: Class<T>): String? = javaClass.`package`.implementationVersion
-    ?: javaClass.getResourceAsStream("/META-INF/MANIFEST.MF")?.run {
-        Manifest(this).mainAttributes.getValue("Implementation-Version")
-    }
+public fun <T> ktlintVersion(javaClass: Class<T>): String? =
+    javaClass.`package`.implementationVersion ?: getManifestVersion(javaClass)
+
+private fun <T> getManifestVersion(javaClass: Class<T>) =
+    javaClass.getResourceAsStream("/META-INF/MANIFEST.MF")
+        ?.run {
+            Manifest(this).mainAttributes.getValue("Implementation-Version")
+        }

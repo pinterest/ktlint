@@ -2,7 +2,7 @@ package com.pinterest.ktlint.reporter.sarif
 
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.Reporter
-import com.pinterest.ktlint.core.getKtlintVersion
+import com.pinterest.ktlint.core.ktlintVersion
 import io.github.detekt.sarif4k.ArtifactLocation
 import io.github.detekt.sarif4k.Level
 import io.github.detekt.sarif4k.Location
@@ -64,7 +64,7 @@ public class SarifReporter(private val out: PrintStream) : Reporter {
     }
 
     override fun afterAll() {
-        val version = getKtlintVersion(SarifReporter::class.java)
+        val version = ktlintVersion(SarifReporter::class.java)
         val sarifSchema210 = SarifSchema210(
             schema = "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
             version = Version.The210,
