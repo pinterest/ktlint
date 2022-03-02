@@ -29,13 +29,12 @@ import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
  *
  * **See Also:** [Kotlin lang documentation](https://kotlinlang.org/docs/coding-conventions.html#source-file-names)
  */
-class FilenameRule : Rule(
+public class FilenameRule : Rule(
     id = "filename",
     visitorModifiers = setOf(
         VisitorModifier.RunOnRootNodeOnly
     )
 ) {
-
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
@@ -110,96 +109,36 @@ class FilenameRule : Rule(
             .filter { topLevelDeclarationSet.contains(it.elementType) }
             .map {
                 when (it.elementType) {
-                    CLASS -> parseClass(it)
-                    OBJECT_DECLARATION -> parseObject(it)
-                    FUN -> parseFun(it)
-                    PROPERTY -> parseProperty(it)
-                    TYPEALIAS -> parseTypeAlias(it)
+                    CLASS ->
+                        it.createTopLevelDeclarationElement("Class")
+                    OBJECT_DECLARATION ->
+                        it.createTopLevelDeclarationElement("Object")
+                    FUN ->
+                        it.createTopLevelDeclarationElementWithReceiver("Extension function")
+                            ?: it.createTopLevelDeclarationElement("Function")
+                    PROPERTY ->
+                        it.createTopLevelDeclarationElementWithReceiver("Extension property")
+                            ?: it.createTopLevelDeclarationElement("Property")
+                    TYPEALIAS ->
+                        it.createTopLevelDeclarationElement("Typealias")
                     else -> error("Unsupported top-level type ${it.elementType}")
                 }
             }
             .toList()
     }
 
-    private fun parseClass(node: ASTNode): ClassElement = createElement(node, ::ClassElement)
+    private open class TopLevelDeclarationElement(
+        open val type: String,
+        open val name: String,
+        open val escapedName: String
+    )
 
-    private fun parseObject(node: ASTNode): ObjectElement = createElement(node, ::ObjectElement)
-
-    private fun parseFun(node: ASTNode): TopLevelDeclarationElement =
-        createElementOrElementWithReceiver(node, ::FunElement, ::ExtensionFunElement)
-
-    private fun parseProperty(node: ASTNode): TopLevelDeclarationElement =
-        createElementOrElementWithReceiver(node, ::PropertyElement, ::ExtensionPropertyElement)
-
-    private fun parseTypeAlias(node: ASTNode): TypeAliasElement = createElement(node, ::TypeAliasElement)
-
-    private sealed interface TopLevelDeclarationElement {
-        val type: String
-        val name: String
-        val escapedName: String
-    }
-
-    private sealed interface TopLevelDeclarationWithReceiverElement : TopLevelDeclarationElement {
+    private class TopLevelDeclarationWithReceiverElement(
+        override val type: String,
+        override val name: String,
+        override val escapedName: String,
         val receiverTypeName: String
-    }
-
-    private data class ClassElement(
-        override val name: String,
-        override val escapedName: String
-    ) : TopLevelDeclarationElement {
-        override val type: String
-            get() = "Class"
-    }
-
-    private data class ObjectElement(
-        override val name: String,
-        override val escapedName: String
-    ) : TopLevelDeclarationElement {
-        override val type: String
-            get() = "Object"
-    }
-
-    private data class FunElement(
-        override val name: String,
-        override val escapedName: String
-    ) : TopLevelDeclarationElement {
-        override val type: String
-            get() = "Function"
-    }
-
-    private data class ExtensionFunElement(
-        override val receiverTypeName: String,
-        override val name: String,
-        override val escapedName: String
-    ) : TopLevelDeclarationWithReceiverElement {
-        override val type: String
-            get() = "Extension function"
-    }
-
-    private data class PropertyElement(
-        override val name: String,
-        override val escapedName: String
-    ) : TopLevelDeclarationElement {
-        override val type: String
-            get() = "Property"
-    }
-
-    private data class ExtensionPropertyElement(
-        override val receiverTypeName: String,
-        override val name: String,
-        override val escapedName: String
-    ) : TopLevelDeclarationWithReceiverElement {
-        override val type: String
-            get() = "Extension property"
-    }
-
-    private data class TypeAliasElement(
-        override val name: String,
-        override val escapedName: String
-    ) : TopLevelDeclarationElement {
-        override val type: String
-            get() = "Typealias"
-    }
+    ) : TopLevelDeclarationElement(type, name, escapedName)
 
     private companion object {
         private val topLevelDeclarationSet = setOf(
@@ -214,30 +153,27 @@ class FilenameRule : Rule(
 
         private fun ASTNode.name() = text.removeSurrounding("`")
 
-        private fun <T : TopLevelDeclarationElement> createElement(
-            node: ASTNode,
-            creator: (String, String) -> T
-        ): T {
-            val id = node.findChildByType(IDENTIFIER) ?: error("Unable to find identifier in $node")
-            return creator(id.name(), id.text)
+        private fun ASTNode.createTopLevelDeclarationElement(
+            type: String
+        ): TopLevelDeclarationElement {
+            val id = findChildByType(IDENTIFIER) ?: error("Unable to find identifier in $this")
+            return TopLevelDeclarationElement(type, id.name(), id.text)
         }
 
-        private fun <T : TopLevelDeclarationElement> createElementOrElementWithReceiver(
-            node: ASTNode,
-            creator: (String, String) -> T,
-            creatorWithReceiver: (String, String, String) -> T
-        ): TopLevelDeclarationElement {
-            val id = node.findChildByType(IDENTIFIER) ?: error("Unable to find identifier in $node")
+        private fun ASTNode.createTopLevelDeclarationElementWithReceiver(
+            type: String
+        ): TopLevelDeclarationWithReceiverElement? {
+            val id = findChildByType(IDENTIFIER) ?: error("Unable to find identifier in $this")
             val prevCodeSibling = id.prevCodeSibling()
             return if (prevCodeSibling?.elementType == DOT) {
                 val receiverType = prevCodeSibling.prevCodeSibling()
                 if (receiverType?.elementType == TYPE_REFERENCE) {
-                    creatorWithReceiver(receiverType.name(), id.name(), id.text)
+                    TopLevelDeclarationWithReceiverElement(type, id.name(), id.text, receiverType.name())
                 } else {
-                    error("Unable to find Extension type-receiver at $node")
+                    error("Unable to find Extension type-receiver at $this")
                 }
             } else {
-                creator(id.name(), id.text)
+                return null
             }
         }
     }
