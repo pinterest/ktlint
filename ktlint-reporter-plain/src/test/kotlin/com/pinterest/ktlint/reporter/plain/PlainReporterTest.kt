@@ -7,11 +7,9 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.PrintStream
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Assert.assertEquals
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class PlainReporterTest {
-
     @Test
     fun testReportGeneration() {
         val out = ByteArrayOutputStream()
@@ -97,11 +95,10 @@ class PlainReporterTest {
             ),
             false
         )
-
         val outputString = String(out.toByteArray())
 
-        // We don't expect class name, or first line to be colored
-        val expectedOutput =
+        assertThat(outputString).isEqualTo(
+            // We don't expect class name, or first line to be colored
             File.separator.color(outputColor) +
                 "one-fixed-and-one-not.kt" +
                 ":".color(outputColor) +
@@ -110,8 +107,7 @@ class PlainReporterTest {
                 " <\"&'> " +
                 "(rule-1)".color(outputColor) +
                 System.lineSeparator()
-
-        assertEquals(expectedOutput, outputString)
+        )
     }
 
     @Test

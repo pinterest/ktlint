@@ -3,7 +3,7 @@ package com.pinterest.ktlint.ruleset.experimental
 import com.pinterest.ktlint.test.diffFileFormat
 import com.pinterest.ktlint.test.diffFileLint
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class SpacingAroundUnaryOperatorRuleTest {
 

@@ -11,7 +11,7 @@ import java.nio.file.Path
 import org.assertj.core.api.Assertions.assertThat
 import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 @OptIn(FeatureInAlphaState::class)
 internal class EditorConfigGeneratorTest {

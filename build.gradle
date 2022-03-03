@@ -20,10 +20,7 @@ ext.deps = [
   // Use logback-classic as the logger for kotlin-logging / slf4j as it allow changing the log level at runtime.
   'logback'       : 'ch.qos.logback:logback-classic:1.2.9',
   // Testing libraries
-  'junit'         : 'junit:junit:4.13.1',
-  'junit5Api'     : 'org.junit.jupiter:junit-jupiter-api:5.8.2',
-  'junit5Jupiter' : 'org.junit.jupiter:junit-jupiter-engine:5.8.2',
-  'junit5Vintage' : 'org.junit.vintage:junit-vintage-engine:5.8.2',
+  'junit5'        : 'org.junit.jupiter:junit-jupiter:5.8.2',
   'assertj'       : 'org.assertj:assertj-core:3.12.2',
   'sarif4k'       : 'io.github.detekt.sarif4k:sarif4k:0.0.1',
   'jimfs'         : 'com.google.jimfs:jimfs:1.1'
@@ -33,10 +30,16 @@ repositories {
   mavenCentral()
 }
 
-if (project.hasProperty('isKotlinDev')) {
-  allprojects { p ->
+def isKotlinDev = project.hasProperty('isKotlinDev')
+
+allprojects { p ->
+  if (isKotlinDev) {
     String definedVersion = p.ext."VERSION_NAME".minus("-SNAPSHOT")
     p.ext."VERSION_NAME" = "$definedVersion-kotlin-dev-SNAPSHOT".toString()
+  }
+
+  tasks.withType(Test).configureEach {
+    it.useJUnitPlatform()
   }
 }
 

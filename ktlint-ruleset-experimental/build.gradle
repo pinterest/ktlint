@@ -8,6 +8,6 @@ dependencies {
 
   testImplementation project(':ktlint-test')
   testImplementation project(':ktlint-ruleset-standard')
-  testImplementation deps.junit
+  testImplementation deps.junit5
   testImplementation deps.assertj
 }

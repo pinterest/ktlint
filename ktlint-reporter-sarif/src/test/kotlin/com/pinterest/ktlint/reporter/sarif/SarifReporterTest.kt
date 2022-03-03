@@ -4,13 +4,12 @@ import com.pinterest.ktlint.core.LintError
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.PrintStream
-import org.junit.Assert.assertEquals
-import org.junit.Ignore
-import org.junit.Test
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Disabled
+import org.junit.jupiter.api.Test
 
 class SarifReporterTest {
-
-    @Ignore("https://github.com/pinterest/ktlint/issues/1191")
+    @Disabled("https://github.com/pinterest/ktlint/issues/1191")
     @Test
     fun testReportGeneration() {
         val workingDirectory = System.getProperty("user.home").sanitize()
@@ -49,6 +48,6 @@ class SarifReporterTest {
             .readText()
             .replace("{WORKINDG_DIR}", workingDirectory)
             .replace("\\s".toRegex(), "")
-        assertEquals("actual = $actual, expected = $expected", expected, actual)
+        assertThat(actual).isEqualTo(expected)
     }
 }

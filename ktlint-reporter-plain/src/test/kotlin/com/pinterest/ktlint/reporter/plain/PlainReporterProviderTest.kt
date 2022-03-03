@@ -4,7 +4,7 @@ import java.io.PrintStream
 import java.lang.System.out
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class PlainReporterProviderTest {
     @Test
