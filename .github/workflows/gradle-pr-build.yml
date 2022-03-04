@@ -22,14 +22,14 @@ jobs:
         with:
           arguments: clean build ktlint
       - name: Upload dependency verification report
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: Build artifacts
           path: '**/build/**/dependency-verification-report.html'
           if-no-files-found: warn
       - name: Upload test results
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: Test artifacts
