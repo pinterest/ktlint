@@ -65,7 +65,7 @@ class BlockCommentInitialStarTest {
     }
 
     @Test
-    fun `Given function contain a block comment for which the initial stars of the block comment are not aligned then reformat`() {
+    fun `Given a function that contains a block comment for which the initial stars of the block comment are not aligned then reformat`() {
         val code =
             """
             fun foo() {

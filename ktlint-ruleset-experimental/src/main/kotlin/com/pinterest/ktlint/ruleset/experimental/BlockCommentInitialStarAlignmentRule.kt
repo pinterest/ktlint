@@ -47,7 +47,7 @@ class BlockCommentInitialStarAlignmentRule :
                 offset += line.length + 1
             }
             if (autoCorrect) {
-                val newText = modifiedLines.joinToString(separator = System.lineSeparator())
+                val newText = modifiedLines.joinToString(separator = "\n")
                 if (node.text != newText) {
                     (node as LeafElement).rawReplaceWithText(newText)
                 }
