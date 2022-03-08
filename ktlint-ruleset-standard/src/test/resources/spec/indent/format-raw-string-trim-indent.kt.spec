@@ -27,11 +27,6 @@ println("""
 
         text
  """.trimIndent())
-println("""
-    text
-
-        text
-_""".trimIndent())
     println(
         """
     text ""
