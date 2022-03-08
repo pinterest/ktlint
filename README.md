@@ -57,7 +57,7 @@ It's also [easy to create your own](#creating-a-reporter).
 - `no-trailing-spaces`: No trailing whitespaces
 - `no-unit-return`: No `Unit` returns (`fun fn {}` instead of `fun fn: Unit {}`)
 - `no-unused-imports`: No unused `import`s
-- `no-wildcard-imports`: No wildcard `import`s
+- `no-wildcard-imports`: No wildcard `import`s expect imports listed in `.editorconfig` property `ij_kotlin_packages_to_use_import_on_demand`
 - `parameter-list-wrapping`: When class/function signature doesn't fit on a single line, each parameter must be on a separate line
 - `string-template`: Consistent string templates (`$v` instead of `${v}`, `${p.v}` instead of `${p.v.toString()}`)
 
