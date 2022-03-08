@@ -23,9 +23,6 @@ fun f() {
         //
     }
 
-    val tokenSet = TokenSet.create(FOR_KEYWORD, IF_KEYWORD, ELSE_KEYWORD, WHILE_KEYWORD, DO_KEYWORD,
-        TRY_KEYWORD, CATCH_KEYWORD, FINALLY_KEYWORD, WHEN_KEYWORD)
-
     val x = when (1) {
         else -> ""
     }

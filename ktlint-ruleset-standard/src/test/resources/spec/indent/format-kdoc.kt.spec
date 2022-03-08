@@ -14,4 +14,5 @@ data class BuildSystemConfig(
          * org.gradle.parallel=true
          * org.gradle.caching=true
          */
-        var properties: Map<String, String>?)
+        var properties: Map<String, String>?
+)

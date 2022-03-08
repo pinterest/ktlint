@@ -8,10 +8,6 @@ public class A1 :
     Appendable {
 }
 
-public class A2 : Comparable<*>,
-    Appendable {
-}
-
 public class A3 :
     T<
         K,
@@ -20,6 +16,5 @@ public class A3 :
 }
 
 // expect
-// 2:1:Unexpected indentation (0) (should be 4)
-// 3:1:Unexpected indentation (8) (should be 4)
-// 11:18:Missing newline after ":"
+// 2:1:indent:Unexpected indentation (0) (should be 4)
+// 3:1:indent:Unexpected indentation (8) (should be 4)

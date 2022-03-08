@@ -7,11 +7,9 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.PrintStream
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Assert.assertEquals
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class PlainReporterTest {
-
     @Test
     fun testReportGeneration() {
         val out = ByteArrayOutputStream()
@@ -70,9 +68,9 @@ class PlainReporterTest {
         )
         assertThat(String(out.toByteArray())).isEqualTo(
             """
-            /one-fixed-and-one-not.kt:1:1: <"&'>
-            /two-not-fixed.kt:1:10: I thought I would again
-            /two-not-fixed.kt:2:20: A single thin straight line
+            /one-fixed-and-one-not.kt:1:1: <"&'> (rule-1)
+            /two-not-fixed.kt:1:10: I thought I would again (rule-1)
+            /two-not-fixed.kt:2:20: A single thin straight line (rule-2)
 
             """.trimIndent().replace("\n", System.lineSeparator())
         )
@@ -97,20 +95,19 @@ class PlainReporterTest {
             ),
             false
         )
-
         val outputString = String(out.toByteArray())
 
-        // We don't expect class name, or first line to be colored
-        val expectedOutput =
+        assertThat(outputString).isEqualTo(
+            // We don't expect class name, or first line to be colored
             File.separator.color(outputColor) +
                 "one-fixed-and-one-not.kt" +
                 ":".color(outputColor) +
                 "1" +
                 ":1:".color(outputColor) +
-                " <\"&'>" +
+                " <\"&'> " +
+                "(rule-1)".color(outputColor) +
                 System.lineSeparator()
-
-        assertEquals(expectedOutput, outputString)
+        )
     }
 
     @Test

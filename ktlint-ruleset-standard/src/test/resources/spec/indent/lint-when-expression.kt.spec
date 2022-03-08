@@ -5,8 +5,6 @@ fun main() {
         2 -> false
         3 ->
         true
-        4 -> false ||
-            true
         else -> {
             true
         }
@@ -39,5 +37,4 @@ fun main() {
 }
 
 // expect
-// 7:1:Unexpected indentation (8) (should be 12)
-// 8:12:Missing newline after "->"
+// 7:1:indent:Unexpected indentation (8) (should be 12)
