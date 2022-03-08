@@ -204,13 +204,13 @@ class KtlintCommandLine {
                 "To override reporter output, use ',output=' option."
         ]
     )
-    private var reporters: JarFiles = ArrayList<String>()
+    private var reporters: JarFiles = ArrayList()
 
     @Option(
         names = ["--ruleset", "-R"],
         description = ["A path to a JAR file containing additional ruleset(s)"]
     )
-    var rulesetJarFiles: JarFiles = ArrayList<String>()
+    var rulesetJarFiles: JarFiles = ArrayList()
 
     @Option(
         names = ["--stdin"],
@@ -368,7 +368,7 @@ class KtlintCommandLine {
         errorNumber.addAndGet(errListLimit)
 
         reporter.before(fileName)
-        errList.head(errListLimit).forEach { (err, corrected) ->
+        errList.take(errListLimit).forEach { (err, corrected) ->
             reporter.onLintError(
                 fileName,
                 if (!err.canBeAutoCorrected) err.copy(detail = err.detail + " (cannot be auto-corrected)") else err,
@@ -466,7 +466,7 @@ class KtlintCommandLine {
     }
 
     private fun ReporterTemplate.toReporter(
-        reporterProviderById: Map<String, ReporterProvider>
+        reporterProviderById: Map<String, ReporterProvider<*>>
     ): Reporter {
         val reporterProvider = reporterProviderById[id]
         if (reporterProvider == null) {
@@ -529,8 +529,6 @@ class KtlintCommandLine {
             else -> throw e
         }
     }
-
-    private fun <T> List<T>.head(limit: Int) = if (limit == size) this else this.subList(0, limit)
 
     private fun parseQuery(query: String) =
         query.split("&")

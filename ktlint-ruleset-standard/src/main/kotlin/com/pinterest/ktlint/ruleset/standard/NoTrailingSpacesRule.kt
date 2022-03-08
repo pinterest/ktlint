@@ -1,17 +1,16 @@
 package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.ast.ElementType.EOL_COMMENT
 import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.core.ast.isPartOfComment
 import com.pinterest.ktlint.core.ast.nextLeaf
 import com.pinterest.ktlint.core.ast.parent
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.kdoc.psi.api.KDoc
 
 class NoTrailingSpacesRule : Rule("no-trailing-spaces") {
-
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
@@ -28,29 +27,29 @@ class NoTrailingSpacesRule : Rule("no-trailing-spaces") {
             val lines = node.text.split("\n")
             var violated = false
             var violationOffset = node.startOffset
-            lines
-                .head()
-                .forEach { line ->
-                    if (line.hasTrailingSpace()) {
-                        val firstTrailingSpaceOffset = violationOffset + line.trimEnd().length
-                        emit(firstTrailingSpaceOffset, "Trailing space(s)", true)
-                        violated = true
+
+            val modifiedLines =
+                lines
+                    .mapIndexed { index, line ->
+                        val modifiedLine = when {
+                            node.elementType != EOL_COMMENT && index == lines.size - 1 && node.nextLeaf() != null ->
+                                // Do not change the last line as it contains the indentation of the next element except
+                                // when it is an EOL comment which may also not contain trailing spaces
+                                line
+                            line.hasTrailingSpace() -> {
+                                val modifiedLine = line.trimEnd()
+                                val firstTrailingSpaceOffset = violationOffset + modifiedLine.length
+                                emit(firstTrailingSpaceOffset, "Trailing space(s)", true)
+                                violated = true
+                                modifiedLine
+                            }
+                            else -> line
+                        }
+                        violationOffset += line.length + 1
+                        modifiedLine
                     }
-                    violationOffset += line.length + 1
-                }
-            when {
-                node is PsiWhiteSpace && node.nextLeaf() != null ->
-                    // Ignore the last line as it contains the indentation of the next element
-                    Unit
-                lines.last().hasTrailingSpace() -> {
-                    val firstTrailingSpaceOffset = violationOffset + lines.last().trimEnd().length
-                    emit(firstTrailingSpaceOffset, "Trailing space(s)", true)
-                    violated = true
-                }
-            }
             if (violated && autoCorrect) {
-                val modifiedLines = lines.joinToString(separator = "\n") { it.trimEnd() }
-                (node as LeafPsiElement).rawReplaceWithText(modifiedLines)
+                (node as LeafPsiElement).rawReplaceWithText(modifiedLines.joinToString(separator = "\n"))
             }
         }
     }

@@ -3,7 +3,7 @@ package com.pinterest.ktlint.ruleset.standard
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class NoWildcardImportsRuleTest {
 

@@ -9,7 +9,7 @@ import java.io.Serializable
  * `META-INF/services/com.pinterest.ktlint.core.ReporterProvider`
  * (see `ktlint-reporter-plain/src/main/resources` for an example).
  */
-public interface ReporterProvider : Serializable {
+public interface ReporterProvider<T : Reporter> : Serializable {
     public val id: String
-    public fun get(out: PrintStream, opt: Map<String, String>): Reporter
+    public fun get(out: PrintStream, opt: Map<String, String>): T
 }

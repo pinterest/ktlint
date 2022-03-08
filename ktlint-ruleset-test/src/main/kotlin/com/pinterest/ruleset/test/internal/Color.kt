@@ -5,6 +5,7 @@ package com.pinterest.ruleset.test.internal
  */
 internal fun String.color(foreground: Color) = "\u001B[${foreground.code}m$this\u001B[0m"
 
+@Suppress("unused")
 internal enum class Color(val code: Int) {
     BLACK(30),
     RED(31), GREEN(32), YELLOW(33), BLUE(34), MAGENTA(35), CYAN(36),
