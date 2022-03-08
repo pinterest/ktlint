@@ -4,7 +4,7 @@ import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.test.format
 import com.pinterest.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class NoTrailingSpacesRuleTest {
 
@@ -149,6 +149,47 @@ class NoTrailingSpacesRuleTest {
                 LintError(6, 8, "no-trailing-spaces", "Trailing space(s)"),
                 LintError(7, 20, "no-trailing-spaces", "Trailing space(s)"),
                 LintError(8, 7, "no-trailing-spaces", "Trailing space(s)")
+            )
+        )
+    }
+
+    @Test
+    fun `Issue 1334 - trailing spaces should not delete indent of the next line`() {
+        val code =
+            """
+            class Foo {
+                // something
+            ${"    "}
+                /**
+                 * Some KDoc
+                 */
+                val bar: String
+            ${"    "}
+                val foo = "foo"
+            }
+            """.trimIndent()
+        val codeExpected =
+            """
+            class Foo {
+                // something
+
+                /**
+                 * Some KDoc
+                 */
+                val bar: String
+
+                val foo = "foo"
+            }
+            """.trimIndent()
+        assertThat(
+            NoTrailingSpacesRule().format(code)
+        ).isEqualTo(codeExpected)
+        assertThat(
+            NoTrailingSpacesRule().lint(code)
+        ).isEqualTo(
+            listOf(
+                LintError(3, 1, "no-trailing-spaces", "Trailing space(s)"),
+                LintError(8, 1, "no-trailing-spaces", "Trailing space(s)")
             )
         )
     }

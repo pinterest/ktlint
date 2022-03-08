@@ -18,15 +18,8 @@ ij_kotlin_imports_layout=*
 # Ideally, no experimental rule should be disabled. Ktlint should follow the dogfooding principle. This means that an
 # experimental rule should only be added to the master branch no sooner than that this rule has been applied on the
 # ktlint code base itself.
-# For now, the experimental:argument-list-wrapping still needs to be disabled as it fails the build due to false
-# positives. See https://github.com/pinterest/ktlint/pull/1284
-disabled_rules=experimental:argument-list-wrapping
 ij_kotlin_allow_trailing_comma=false
 ij_kotlin_allow_trailing_comma_on_call_site=false
-
-[{Makefile,*.go}]
-indent_style = tab
-indent_size = 4
 
 [*.md]
 trim_trailing_whitespace = false

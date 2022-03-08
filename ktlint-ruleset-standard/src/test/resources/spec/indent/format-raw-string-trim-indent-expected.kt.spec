@@ -39,14 +39,6 @@ ${true}
     )
     println(
         """
-    text
-
-        text
-_
-        """.trimIndent()
-    )
-    println(
-        """
     text ""
 
         text

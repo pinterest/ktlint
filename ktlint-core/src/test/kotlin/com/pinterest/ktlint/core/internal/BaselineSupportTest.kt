@@ -3,12 +3,10 @@ package com.pinterest.ktlint.core.internal
 import com.pinterest.ktlint.core.LintError
 import java.io.ByteArrayInputStream
 import java.io.InputStream
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
 
 class BaselineSupportTest {
-
     @Test
     fun testParseBaselineFile() {
         val filename = "TestBaselineFile.kt"
@@ -36,9 +34,10 @@ class BaselineSupportTest {
 
         val baselineFiles = parseBaseline(baseline)
 
-        assertTrue(baselineFiles.containsKey(filename))
-        assertEquals(2, baselineFiles[filename]?.size)
-        assertTrue(true == baselineFiles[filename]?.containsLintError(errorOne))
-        assertTrue(true == baselineFiles[filename]?.containsLintError(errorTwo))
+        assertThat(baselineFiles).containsKey(filename)
+        val lintErrors = baselineFiles[filename]
+        assertThat(lintErrors).hasSize(2)
+        assertThat(lintErrors?.containsLintError(errorOne))
+        assertThat(lintErrors?.containsLintError(errorTwo))
     }
 }

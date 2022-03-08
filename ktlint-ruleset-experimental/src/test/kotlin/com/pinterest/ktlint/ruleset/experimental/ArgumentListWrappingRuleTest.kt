@@ -1,14 +1,17 @@
 package com.pinterest.ktlint.ruleset.experimental
 
 import com.pinterest.ktlint.core.LintError
+import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.ruleset.standard.IndentationRule
+import com.pinterest.ktlint.ruleset.standard.MaxLineLengthRule.Companion.maxLineLengthProperty
+import com.pinterest.ktlint.test.EditorConfigOverride
 import com.pinterest.ktlint.test.format
 import com.pinterest.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
+@FeatureInAlphaState
 class ArgumentListWrappingRuleTest {
-
     @Test
     fun testLintArgumentInconsistency() {
         assertThat(
@@ -89,7 +92,7 @@ class ArgumentListWrappingRuleTest {
                 """
                 val x = f(a, b, c)
                 """.trimIndent(),
-                userData = mapOf("max_line_length" to "10")
+                EditorConfigOverride.from(maxLineLengthProperty to 10)
             )
         ).isEqualTo(
             listOf(
@@ -188,7 +191,7 @@ class ArgumentListWrappingRuleTest {
                     })
                 }
                 """.trimIndent(),
-                userData = mapOf("max_line_length" to "80")
+                EditorConfigOverride.from(maxLineLengthProperty to 80)
             )
         ).isEmpty()
     }
@@ -565,7 +568,7 @@ class ArgumentListWrappingRuleTest {
                     )
                 }
                 """.trimIndent(),
-                userData = mapOf("max_line_length" to "100")
+                EditorConfigOverride.from(maxLineLengthProperty to 100)
             )
         ).isEmpty()
     }

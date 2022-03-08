@@ -3,30 +3,14 @@ package com.pinterest.ktlint.ruleset.standard.importordering
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.ruleset.standard.ImportOrderingRule
-import com.pinterest.ktlint.test.EditorConfigTestRule
+import com.pinterest.ktlint.test.EditorConfigOverride
 import com.pinterest.ktlint.test.format
 import com.pinterest.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Rule
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 @OptIn(FeatureInAlphaState::class)
 class ImportOrderingRuleAsciiTest {
-
-    companion object {
-        private fun expectedErrors(additionalMessage: String = "") = listOf(
-            LintError(
-                1,
-                1,
-                "import-ordering",
-                "Imports must be ordered in lexicographic order without any empty lines in-between$additionalMessage"
-            )
-        )
-    }
-
-    @get:Rule
-    val editorConfigTestRule = EditorConfigTestRule()
-
     private val rule = ImportOrderingRule()
 
     @Test
@@ -45,13 +29,11 @@ class ImportOrderingRuleAsciiTest {
             import b.C
             """.trimIndent()
 
-        val testFile = writeAsciiImportsOrderingConfig()
-
         assertThat(
-            rule.lint(testFile, imports)
+            rule.lint(imports, ASCII_IMPORT_ORDERING)
         ).isEqualTo(expectedErrors())
         assertThat(
-            rule.format(testFile, imports)
+            rule.format(imports, ASCII_IMPORT_ORDERING)
         ).isEqualTo(formattedImports)
     }
 
@@ -66,13 +48,11 @@ class ImportOrderingRuleAsciiTest {
             import kotlin.concurrent.Thread
             """.trimIndent()
 
-        val testFile = writeAsciiImportsOrderingConfig()
-
         assertThat(
-            rule.lint(testFile, formattedImports)
+            rule.lint(formattedImports, ASCII_IMPORT_ORDERING)
         ).isEmpty()
         assertThat(
-            rule.format(testFile, formattedImports)
+            rule.format(formattedImports, ASCII_IMPORT_ORDERING)
         ).isEqualTo(formattedImports)
     }
 
@@ -96,13 +76,11 @@ class ImportOrderingRuleAsciiTest {
             import kotlin.concurrent.Thread
             """.trimIndent()
 
-        val testFile = writeAsciiImportsOrderingConfig()
-
         assertThat(
-            rule.lint(testFile, imports)
+            rule.lint(imports, ASCII_IMPORT_ORDERING)
         ).isEqualTo(expectedErrors())
         assertThat(
-            rule.format(testFile, imports)
+            rule.format(imports, ASCII_IMPORT_ORDERING)
         ).isEqualTo(formattedImports)
     }
 
@@ -121,15 +99,13 @@ class ImportOrderingRuleAsciiTest {
             import android.view.ViewGroup
             """.trimIndent()
 
-        val testFile = writeAsciiImportsOrderingConfig()
-
         assertThat(
-            rule.lint(testFile, imports)
+            rule.lint(imports, ASCII_IMPORT_ORDERING)
         ).containsExactly(
             LintError(3, 1, "import-ordering", "Duplicate 'import android.view.View' found")
         )
         assertThat(
-            rule.format(testFile, imports)
+            rule.format(imports, ASCII_IMPORT_ORDERING)
         ).isEqualTo(formattedImports)
     }
 
@@ -157,13 +133,11 @@ class ImportOrderingRuleAsciiTest {
             import kotlin.concurrent.Thread
             """.trimIndent()
 
-        val testFile = writeAsciiImportsOrderingConfig()
-
         assertThat(
-            rule.lint(testFile, imports)
+            rule.lint(imports, ASCII_IMPORT_ORDERING)
         ).isEqualTo(expectedErrors())
         assertThat(
-            rule.format(testFile, imports)
+            rule.format(imports, ASCII_IMPORT_ORDERING)
         ).isEqualTo(formattedImports)
     }
 
@@ -190,13 +164,11 @@ class ImportOrderingRuleAsciiTest {
             import kotlin.concurrent.Thread
             """.trimIndent()
 
-        val testFile = writeAsciiImportsOrderingConfig()
-
         assertThat(
-            rule.lint(testFile, imports)
+            rule.lint(imports, ASCII_IMPORT_ORDERING)
         ).isEqualTo(expectedErrors())
         assertThat(
-            rule.format(testFile, imports)
+            rule.format(imports, ASCII_IMPORT_ORDERING)
         ).isEqualTo(formattedImports)
     }
 
@@ -216,13 +188,11 @@ class ImportOrderingRuleAsciiTest {
             import android.view.ViewGroup
             """.trimIndent()
 
-        val testFile = writeAsciiImportsOrderingConfig()
-
         assertThat(
-            rule.lint(testFile, imports)
+            rule.lint(imports, ASCII_IMPORT_ORDERING)
         ).isEqualTo(expectedErrors())
         assertThat(
-            rule.format(testFile, imports)
+            rule.format(imports, ASCII_IMPORT_ORDERING)
         ).isEqualTo(formattedImports)
     }
 
@@ -236,13 +206,11 @@ class ImportOrderingRuleAsciiTest {
             import android.view.ViewGroup
             """.trimIndent()
 
-        val testFile = writeAsciiImportsOrderingConfig()
-
         assertThat(
-            rule.lint(testFile, imports)
+            rule.lint(imports, ASCII_IMPORT_ORDERING)
         ).isEqualTo(expectedErrors(" -- no autocorrection due to comments in the import list"))
         assertThat(
-            rule.format(testFile, imports)
+            rule.format(imports, ASCII_IMPORT_ORDERING)
         ).isEqualTo(imports)
     }
 
@@ -256,13 +224,11 @@ class ImportOrderingRuleAsciiTest {
             import android.view.ViewGroup
             """.trimIndent()
 
-        val testFile = writeAsciiImportsOrderingConfig()
-
         assertThat(
-            rule.lint(testFile, imports)
+            rule.lint(imports, ASCII_IMPORT_ORDERING)
         ).isEqualTo(expectedErrors(" -- no autocorrection due to comments in the import list"))
         assertThat(
-            rule.format(testFile, imports)
+            rule.format(imports, ASCII_IMPORT_ORDERING)
         ).isEqualTo(imports)
     }
 
@@ -286,13 +252,11 @@ class ImportOrderingRuleAsciiTest {
             import kotlin.concurrent.Thread
             """.trimIndent()
 
-        val testFile = writeAsciiImportsOrderingConfig()
-
         assertThat(
-            rule.lint(testFile, imports)
+            rule.lint(imports, ASCII_IMPORT_ORDERING)
         ).isEqualTo(expectedErrors())
         assertThat(
-            rule.format(testFile, imports)
+            rule.format(imports, ASCII_IMPORT_ORDERING)
         ).isEqualTo(formattedImports)
     }
 
@@ -309,21 +273,27 @@ class ImportOrderingRuleAsciiTest {
             import org.mockito.Mockito.verify
             import org.mockito.Mockito.`when`
             """.trimIndent()
-        val testFile = writeAsciiImportsOrderingConfig()
 
         assertThat(
-            rule.lint(testFile, imports)
+            rule.lint(imports, ASCII_IMPORT_ORDERING)
         ).isEqualTo(expectedErrors())
         assertThat(
-            rule.format(testFile, imports)
+            rule.format(imports, ASCII_IMPORT_ORDERING)
         ).isEqualTo(formattedImports)
     }
 
-    private fun writeAsciiImportsOrderingConfig() = editorConfigTestRule
-        .writeToEditorConfig(
-            mapOf(
-                ImportOrderingRule.ideaImportsLayoutProperty.type to "*"
+    private companion object {
+        fun expectedErrors(additionalMessage: String = "") = listOf(
+            LintError(
+                1,
+                1,
+                "import-ordering",
+                "Imports must be ordered in lexicographic order without any empty lines in-between$additionalMessage"
             )
         )
-        .absolutePath
+
+        val ASCII_IMPORT_ORDERING = EditorConfigOverride.from(
+            ImportOrderingRule.ideaImportsLayoutProperty to "*"
+        )
+    }
 }
