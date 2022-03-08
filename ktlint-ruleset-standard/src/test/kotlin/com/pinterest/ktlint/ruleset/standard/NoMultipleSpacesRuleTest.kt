@@ -7,70 +7,84 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 class NoMultipleSpacesRuleTest {
-
     @Test
-    fun testLint() {
-        assertThat(NoMultipleSpacesRule().lint("fun main() { x(1,3);  x(1, 3)\n  \n  }"))
+    fun `Given a whitespace element not being an indent containing multiple spaces then replace it with a single space`() {
+        val code =
+            """
+            fun main() {
+                x(1,${SPACE}${SPACE}3)
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun main() {
+                x(1,${SPACE}3)
+            }
+            """.trimIndent()
+        assertThat(NoMultipleSpacesRule().lint(code))
             .isEqualTo(
                 listOf(
-                    LintError(1, 22, "no-multi-spaces", "Unnecessary space(s)")
+                    LintError(2, 10, "no-multi-spaces", "Unnecessary long whitespace")
                 )
             )
+        assertThat(NoMultipleSpacesRule().format(code)).isEqualTo(formattedCode)
     }
 
     @Test
-    fun testFormat() {
-        assertThat(NoMultipleSpacesRule().format("fun main() { x(1,3);  x(1, 3)\n  \n  }"))
-            .isEqualTo("fun main() { x(1,3); x(1, 3)\n  \n  }")
+    fun `Given a whitespace element containing multiple tabs then replace it with a single space`() {
+        val code =
+            """
+            fun main() {
+                x(1,${TAB}${TAB}3)
+                val fooBar = "Foo${TAB}${TAB}Bar"
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun main() {
+                x(1,${SPACE}3)
+                val fooBar = "Foo${TAB}${TAB}Bar"
+            }
+            """.trimIndent()
+        assertThat(NoMultipleSpacesRule().lint(code))
+            .isEqualTo(
+                listOf(
+                    LintError(2, 10, "no-multi-spaces", "Unnecessary long whitespace")
+                )
+            )
+        assertThat(NoMultipleSpacesRule().format(code)).isEqualTo(formattedCode)
     }
 
     @Test
     fun `lint multiple spaces in kdoc allowed`() {
-        assertThat(
-            NoMultipleSpacesRule().lint(
-                """
-                /**
-                 * Gets Blabla from user.
-                 *
-                 * @param blabls12      1234
-                 * @param blabla123     6789
-                 * @param blabla        5678
-                 * @param longparam345  4567890
-                 * @param userId        567890
-                 * @return the user profile
-                 *
-                 */
-                """.trimIndent()
-            )
-        ).isEmpty()
-    }
-
-    @Test
-    fun `format multiple spaces in kdoc allowed`() {
         val code =
             """
             /**
-            * Gets Blabla from user.
-            *
-            * @param blabls12      1234
-            * @param blabla123     6789
-            * @param blabla        5678
-            * @param longparam345  4567890
-            * @param userId        567890
-            * @return the user profile
-            *
-            */
+             * Gets Blabla from user.
+             *
+             * @param blabls12      1234
+             * @param blabla123     6789
+             * @param blabla        5678
+             * @param longparam345  4567890
+             * @param userId        567890
+             * @return the user profile
+             *
+             */
             """.trimIndent()
+        assertThat(NoMultipleSpacesRule().lint(code)).isEmpty()
         assertThat(NoMultipleSpacesRule().format(code)).isEqualTo(code)
     }
 
     @Test
     fun `test multiple spaces in the beginning of the file`() {
-        assertThat(NoMultipleSpacesRule().lint("  package my.company.android"))
-            .isEqualTo(
-                listOf(
-                    LintError(1, 2, "no-multi-spaces", "Unnecessary space(s)")
-                )
-            )
+        val code = "  package my.company.android"
+        assertThat(NoMultipleSpacesRule().lint(code)).containsExactly(
+            LintError(1, 2, "no-multi-spaces", "Unnecessary long whitespace")
+        )
+    }
+
+    private companion object {
+        const val SPACE = " "
+        const val TAB = "\t"
     }
 }
