@@ -76,18 +76,21 @@ New rules will be added into the [experimental ruleset](https://github.com/pinte
 by passing the `--experimental` flag to `ktlint`.
 
 - `experimental:annotation`: Annotation formatting - multiple annotations should be on a separate line than the annotated declaration; annotations with parameters should each be on separate lines; annotations should be followed by a space
-- ``experimental:annotation-spacing``: Annotations should be separated by the annotated declaration by a single line break
 - `experimental:argument-list-wrapping`: Argument list wrapping
 - `experimental:enum-entry-name-case`: Enum entry names should be uppercase underscore-separated names
 - `experimental:multiline-if-else`: Braces required for multiline if/else statements
 - `experimental:no-empty-first-line-in-method-block`: No leading empty lines in method blocks
 - `experimental:package-name`: No underscores in package names
-- `experimental:spacing-around-angle-brackets`: No spaces around angle brackets
-- `experimental:double-colon-spacing`: No spaces around `::`
 - `experimental:unary-op-spacing`: No spaces around unary operators
+- `experimental:unnecessary-parentheses-before-trailing-lambda`: An empty parentheses block before a lambda is redundant. For example `some-string".count() { it == '-' }`
+
+### Spacing
+- `experimental:annotation-spacing`: Annotations should be separated by the annotated declaration by a single line break
+- `experimental:double-colon-spacing`: No spaces around `::`
+- `experimental:function-type-reference-spacing`: Consistent spacing in the type reference before a function
+- `experimental:spacing-around-angle-brackets`: No spaces around angle brackets
 - `experimental:spacing-between-declarations-with-annotations`: Declarations with annotations should be separated by a blank line
 - `experimental:spacing-between-declarations-with-comments`: Declarations with comments should be separated by a blank line
-- `experimental:unnecessary-parentheses-before-trailing-lambda`: An empty parentheses block before a lambda is redundant. For example `some-string".count() { it == '-' }`
 
 ## EditorConfig
 
