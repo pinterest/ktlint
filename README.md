@@ -57,7 +57,7 @@ It's also [easy to create your own](#creating-a-reporter).
 - `no-trailing-spaces`: No trailing whitespaces
 - `no-unit-return`: No `Unit` returns (`fun fn {}` instead of `fun fn: Unit {}`)
 - `no-unused-imports`: No unused `import`s
-- `no-wildcard-imports`: No wildcard `import`s
+- `no-wildcard-imports`: No wildcard `import`s expect imports listed in `.editorconfig` property `ij_kotlin_packages_to_use_import_on_demand`
 - `parameter-list-wrapping`: When class/function signature doesn't fit on a single line, each parameter must be on a separate line
 - `string-template`: Consistent string templates (`$v` instead of `${v}`, `${p.v}` instead of `${p.v.toString()}`)
 
@@ -134,6 +134,12 @@ ij_kotlin_imports_layout=android.**,|,^org.junit.**,kotlin.io.Closeable.*,|,*,^ 
 # backticks to be longer than the maximum line length. (Since 0.41.0)
 [**/test/**.kt]
 ktlint_ignore_back_ticked_identifier=true
+
+# Comma-separated list of allowed wildcard imports that will override the no-wildcard-imports rule.
+# This can be used for allowing wildcard imports from libraries like Ktor where extension functions are used in a way that creates a lot of imports.
+# "**" applies to package and all subpackages
+ij_kotlin_packages_to_use_import_on_demand=java.util.* # allow java.util.* as wildcard import
+ij_kotlin_packages_to_use_import_on_demand=io.ktor.** # allow wildcard import from io.ktor.* and all subpackages 
 ```
 
 ### Overriding Editorconfig properties for specific directories
