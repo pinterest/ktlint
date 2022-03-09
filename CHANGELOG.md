@@ -23,8 +23,10 @@ Please welcome [paul-dingemans](https://github.com/paul-dingemans) as an officia
 ### Added
 - Use Gradle JVM toolchain with language version 8 to compile the project
 - Basic tests for CLI ([#540](https://github.com/pinterest/ktlint/issues/540))
+- Add experimental rule for unexpected spaces in a type reference before a function identifier (`function-type-reference-spacing`) ([#1341](https://github.com/pinterest/ktlint/issues/1341))
 - Add experimental rule for unnecessary parentheses in function call followed by lambda ([#1068](https://github.com/pinterest/ktlint/issues/1068))
 - Add rule to check spacing after fun keyword (`fun-keyword-spacing`) ([#1362](https://github.com/pinterest/ktlint/pull/1362))
+- Add experimental rules for unnecessary spacing between modifiers in and after the last modifier in a modifier list ([#1361](https://github.com/pinterest/ktlint/pull/1361))   
 
 ### Fixed
 - Fix indentation of function literal ([#1247](https://github.com/pinterest/ktlint/issues/1247))
