@@ -3,39 +3,39 @@ package com.pinterest.ktlint.test
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import java.io.File
 import org.ec4j.core.model.PropertyType
-import org.junit.rules.TemporaryFolder
 
-/**
- * Helper [org.junit.rules.TestRule] allows to write `.editorconfig` file content
- * for test case.
- */
+@Deprecated(
+    message = "Marked for removal in Ktlint 0.46. See KDoc on method call for more information."
+)
 @FeatureInAlphaState
-public class EditorConfigTestRule : TemporaryFolder() {
+public class EditorConfigTestRule {
 
+    @Deprecated(
+        message = "Implementation has been removed as it depended on a JUnit 4 implementation which no longer is " +
+            "being used by Ktlint.",
+        replaceWith = ReplaceWith(""),
+        level = DeprecationLevel.ERROR
+    )
     /**
-     * Write new `.editorconfig` file.
-     *
-     * @param content map of `.editorconfig` [PropertyType] to expected value `String` representation
-     * to write under `[*.{kt,kts}] block
-     * @param lintedFileExtension linted file extension, default is `.kt`
-     * @return pass returned fake lint file path to `KtLint`,
-     * so written `.editorconfig` will be picked up for linting
+     * Unit tests should not use the filesystem if that can be avoided. Unit tests that depend on an `.editorconfig`
+     * property should now be written as follows:
+     * ```
+     * MaxLineLengthRule().lint(
+     *     "some-code",
+     *     EditorConfigOverride.from(
+     *         maxLineLengthProperty to 40,
+     *         ignoreBackTickedIdentifierProperty to true
+     *     )
+     * )
+     * ```
+     * All helper methods in [com.pinterest.ktlint.test.RuleExtensionKt] class now support the EditorConfigOverride
+     * values. Please, be aware that this class also contains a lot of deprecated methods which you should not use
+     * either.
      */
     public fun writeToEditorConfig(
         content: Map<PropertyType<*>, String>,
         lintedFileExtension: String = ".kt"
     ): File {
-        val editorConfigFile = File(root, ".editorconfig")
-        editorConfigFile.writeText(
-            "[*.{kt,kts}]${System.lineSeparator()}"
-                .plus(
-                    content
-                        .map { entry ->
-                            "${entry.key.name} = ${entry.value}"
-                        }
-                        .joinToString(System.lineSeparator())
-                )
-        )
-        return File(editorConfigFile.parent, "test$lintedFileExtension")
+        throw UnsupportedOperationException("This functionality has been removed. See deprecation notice and KDoc.")
     }
 }

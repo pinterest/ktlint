@@ -34,13 +34,10 @@ dependencies {
   implementation deps.klob
   implementation deps.picocli
 
-  testImplementation deps.junit
-  testImplementation deps.junit5Api
+
+  testImplementation deps.junit5
   testImplementation deps.assertj
   testImplementation deps.jimfs
-
-  testRuntimeOnly deps.junit5Jupiter
-  testRuntimeOnly deps.junit5Vintage
 }
 
 // Implements https://github.com/brianm/really-executable-jars-maven-plugin maven plugin behaviour.

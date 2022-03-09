@@ -36,11 +36,11 @@ fun main() {
 fun get(key: String): String?
 
 // expect
-// 2:36:Line must not end with "."
-// 3:33:Line must not end with "."
-// 5:19:Line must not end with "?:"
-// 7:18:Line must not end with "?."
-// 12:9:Line must not begin with "&&"
-// 14:9:Line must not begin with "&&"
-// 16:9:Line must not begin with "/"
-// 22:9:Line must not begin with "+"
+// 2:36:chain-wrapping:Line must not end with "."
+// 3:33:chain-wrapping:Line must not end with "."
+// 5:19:chain-wrapping:Line must not end with "?:"
+// 7:18:chain-wrapping:Line must not end with "?."
+// 12:9:chain-wrapping:Line must not begin with "&&"
+// 14:9:chain-wrapping:Line must not begin with "&&"
+// 16:9:chain-wrapping:Line must not begin with "/"
+// 22:9:chain-wrapping:Line must not begin with "+"

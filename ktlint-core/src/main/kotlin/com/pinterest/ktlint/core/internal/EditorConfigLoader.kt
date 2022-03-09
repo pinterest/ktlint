@@ -66,7 +66,14 @@ public class EditorConfigLoader(
         if (!isStdIn &&
             (filePath == null || SUPPORTED_FILES.none { filePath.toString().endsWith(it) })
         ) {
-            return emptyMap()
+            return loadedValuesOverride
+                .map { (property, value) ->
+                    property.type.name to Property.builder()
+                        .name(property.type.name)
+                        .type(property.type)
+                        .value(value)
+                        .build()
+                }.toMap()
         }
 
         val propService = createLoaderService(rules)

@@ -3,13 +3,12 @@ package com.pinterest.ktlint.test
 import com.pinterest.ktlint.core.RuleSetProvider
 import java.io.File
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 open class RuleSetProviderTest(
     private val rulesetClass: Class<out RuleSetProvider>,
     private val packageName: String
 ) {
-
     @Test
     fun checkAllRulesProvided() {
         val srcLocation = rulesetClass.protectionDomain.codeSource.location.path

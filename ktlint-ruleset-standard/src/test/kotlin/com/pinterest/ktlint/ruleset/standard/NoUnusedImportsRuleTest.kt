@@ -4,7 +4,7 @@ import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.test.format
 import com.pinterest.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class NoUnusedImportsRuleTest {
     @Test
@@ -688,7 +688,7 @@ class NoUnusedImportsRuleTest {
                 import com.pinterest.ktlint.ruleset.standard.internal.importordering.PatternEntry
                 import com.pinterest.ktlint.ruleset.standard.internal.importordering.parseImportsLayout
                 import org.assertj.core.api.Assertions.assertThat
-                import org.junit.Test
+                import org.junit.jupiter.api.Test
 
                 class ImportLayoutParserTest {
 
