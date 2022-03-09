@@ -27,11 +27,10 @@ package com.pinterest.ktlint.reporter.html
 import com.pinterest.ktlint.core.LintError
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
-import org.junit.Assert.assertEquals
-import org.junit.Test
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
 
 class HtmlReporterTest {
-
     @Test
     fun shouldRenderEmptyReportWhen_NoIssuesFound() {
         val out = ByteArrayOutputStream()
@@ -59,8 +58,7 @@ class HtmlReporterTest {
 
             """.trimIndent().replace("\n", System.lineSeparator())
 
-        val expected = String(out.toByteArray())
-        assertEquals(actual, expected)
+        assertThat(actual).isEqualTo(String(out.toByteArray()))
     }
 
     @Test
@@ -103,8 +101,7 @@ class HtmlReporterTest {
 
             """.trimIndent().replace("\n", System.lineSeparator())
 
-        val expected = String(out.toByteArray())
-        assertEquals(actual, expected)
+        assertThat(actual).isEqualTo(String(out.toByteArray()))
     }
 
     @Test
@@ -153,8 +150,7 @@ class HtmlReporterTest {
 
             """.trimIndent().replace("\n", System.lineSeparator())
 
-        val expected = String(out.toByteArray())
-        assertEquals(actual, expected)
+        assertThat(actual).isEqualTo(String(out.toByteArray()))
     }
 
     @Test
@@ -204,7 +200,6 @@ class HtmlReporterTest {
 
             """.trimIndent().replace("\n", System.lineSeparator())
 
-        val expected = String(out.toByteArray())
-        assertEquals(actual, expected)
+        assertThat(actual).isEqualTo(String(out.toByteArray()))
     }
 }

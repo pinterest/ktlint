@@ -8,6 +8,6 @@ dependencies {
   implementation deps.logging
 
   testImplementation project(':ktlint-test')
-  testImplementation deps.junit
+  testImplementation deps.junit5
   testImplementation deps.assertj
 }

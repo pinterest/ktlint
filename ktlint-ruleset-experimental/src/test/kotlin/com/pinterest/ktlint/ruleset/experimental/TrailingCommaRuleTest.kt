@@ -3,19 +3,15 @@ package com.pinterest.ktlint.ruleset.experimental
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.ruleset.experimental.trailingcomma.TrailingCommaRule
-import com.pinterest.ktlint.test.EditorConfigTestRule
+import com.pinterest.ktlint.ruleset.standard.NoUnusedImportsRule
+import com.pinterest.ktlint.test.EditorConfigOverride
 import com.pinterest.ktlint.test.format
 import com.pinterest.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
-import org.ec4j.core.model.PropertyType
-import org.junit.Rule
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 @OptIn(FeatureInAlphaState::class)
 class TrailingCommaRuleTest {
-    @get:Rule
-    val editorConfigTestRule = EditorConfigTestRule()
-
     @Test
     fun testTrailingCommaOnCallSiteIsRedundant() {
         val code =
@@ -34,9 +30,7 @@ class TrailingCommaRuleTest {
             val foo5: Int = 0
             """.trimIndent()
 
-        val editorConfigFilePath = writeEditorConfigFile(ALLOW_TRAILING_COMMA_ON_CALL_SITE).absolutePath
-
-        assertThat(TrailingCommaRule().lint(editorConfigFilePath, code)).isEqualTo(
+        assertThat(TrailingCommaRule().lint(code, ALLOW_TRAILING_COMMA_ON_CALL_SITE)).isEqualTo(
             listOf(
                 LintError(line = 1, col = 27, ruleId = "trailing-comma", detail = "Unnecessary trailing comma before \")\""),
                 LintError(line = 3, col = 21, ruleId = "trailing-comma", detail = "Unnecessary trailing comma before \")\""),
@@ -45,7 +39,7 @@ class TrailingCommaRuleTest {
                 LintError(line = 11, col = 12, ruleId = "trailing-comma", detail = "Unnecessary trailing comma before \"]\"")
             )
         )
-        assertThat(TrailingCommaRule().format(editorConfigFilePath, code)).isEqualTo(
+        assertThat(TrailingCommaRule().format(code, ALLOW_TRAILING_COMMA_ON_CALL_SITE)).isEqualTo(
             """
             val foo1 = listOf("a", "b")
 
@@ -87,9 +81,7 @@ class TrailingCommaRuleTest {
             val foo6: (Int, Int,) -> Int = { foo, bar, -> foo * bar }
             """.trimIndent()
 
-        val editorConfigFilePath = writeEditorConfigFile(ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE).absolutePath
-
-        assertThat(TrailingCommaRule().lint(editorConfigFilePath, code)).isEqualTo(
+        assertThat(TrailingCommaRule().lint(code, ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE)).isEqualTo(
             listOf(
                 LintError(line = 1, col = 29, ruleId = "trailing-comma", detail = "Unnecessary trailing comma before \")\""),
                 LintError(line = 3, col = 16, ruleId = "trailing-comma", detail = "Unnecessary trailing comma before \">\""),
@@ -100,7 +92,7 @@ class TrailingCommaRuleTest {
                 LintError(line = 18, col = 42, ruleId = "trailing-comma", detail = "Unnecessary trailing comma before \"->\"")
             )
         )
-        assertThat(TrailingCommaRule().format(editorConfigFilePath, code)).isEqualTo(
+        assertThat(TrailingCommaRule().format(code, ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE)).isEqualTo(
             """
             data class Foo1(val bar: Int)
 
@@ -149,12 +141,7 @@ class TrailingCommaRuleTest {
             }
             """.trimIndent()
 
-        val editorConfigFilePath = writeEditorConfigFile(
-            ALLOW_TRAILING_COMMA_ON_CALL_SITE,
-            ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE
-        ).absolutePath
-
-        assertThat(TrailingCommaRule().lint(editorConfigFilePath, code)).isEqualTo(
+        assertThat(TrailingCommaRule().lint(code, ALLOW_TRAILING_COMMA)).isEqualTo(
             listOf(
                 LintError(line = 4, col = 29, ruleId = "trailing-comma", detail = "Missing trailing comma before \")\""),
                 LintError(line = 6, col = 13, ruleId = "trailing-comma", detail = "Missing trailing comma before \")\""),
@@ -192,16 +179,14 @@ class TrailingCommaRuleTest {
             )
             """.trimIndent()
 
-        val editorConfigFilePath = writeEditorConfigFile(DO_NOT_ALLOW_TRAILING_COMMA_ON_CALL_SITE).absolutePath
-
-        assertThat(TrailingCommaRule().lint(editorConfigFilePath, code)).isEqualTo(
+        assertThat(TrailingCommaRule().lint(code, DO_NOT_ALLOW_TRAILING_COMMA_ON_CALL_SITE)).isEqualTo(
             listOf(
                 LintError(line = 1, col = 28, ruleId = "trailing-comma", detail = "Unnecessary trailing comma before \")\""),
                 LintError(line = 4, col = 8, ruleId = "trailing-comma", detail = "Unnecessary trailing comma before \")\""),
                 LintError(line = 8, col = 8, ruleId = "trailing-comma", detail = "Unnecessary trailing comma before \")\"")
             )
         )
-        assertThat(TrailingCommaRule().format(editorConfigFilePath, code))
+        assertThat(TrailingCommaRule().format(code, DO_NOT_ALLOW_TRAILING_COMMA_ON_CALL_SITE))
             .isEqualTo(autoCorrectedCode)
     }
 
@@ -232,15 +217,13 @@ class TrailingCommaRuleTest {
             )
             """.trimIndent()
 
-        val editorConfigFilePath = writeEditorConfigFile(ALLOW_TRAILING_COMMA_ON_CALL_SITE).absolutePath
-
-        assertThat(TrailingCommaRule().lint(editorConfigFilePath, code)).isEqualTo(
+        assertThat(TrailingCommaRule().lint(code, ALLOW_TRAILING_COMMA_ON_CALL_SITE)).isEqualTo(
             listOf(
                 LintError(line = 4, col = 8, ruleId = "trailing-comma", detail = "Missing trailing comma before \")\""),
                 LintError(line = 8, col = 8, ruleId = "trailing-comma", detail = "Missing trailing comma before \")\"")
             )
         )
-        assertThat(TrailingCommaRule().format(editorConfigFilePath, code))
+        assertThat(TrailingCommaRule().format(code, ALLOW_TRAILING_COMMA_ON_CALL_SITE))
             .isEqualTo(autoCorrectedCode)
     }
 
@@ -267,16 +250,14 @@ class TrailingCommaRuleTest {
             )
             """.trimIndent()
 
-        val editorConfigFilePath = writeEditorConfigFile(DO_NOT_ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE).absolutePath
-
-        assertThat(TrailingCommaRule().lint(editorConfigFilePath, code)).isEqualTo(
+        assertThat(TrailingCommaRule().lint(code, DO_NOT_ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE)).isEqualTo(
             listOf(
                 LintError(line = 1, col = 29, ruleId = "trailing-comma", detail = "Unnecessary trailing comma before \")\""),
                 LintError(line = 3, col = 16, ruleId = "trailing-comma", detail = "Unnecessary trailing comma before \")\""),
                 LintError(line = 6, col = 16, ruleId = "trailing-comma", detail = "Unnecessary trailing comma before \")\"")
             )
         )
-        assertThat(TrailingCommaRule().format(editorConfigFilePath, code))
+        assertThat(TrailingCommaRule().format(code, DO_NOT_ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE))
             .isEqualTo(autoCorrectedCode)
     }
 
@@ -303,15 +284,13 @@ class TrailingCommaRuleTest {
             )
             """.trimIndent()
 
-        val editorConfigFilePath = writeEditorConfigFile(ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE).absolutePath
-
-        assertThat(TrailingCommaRule().lint(editorConfigFilePath, code)).isEqualTo(
+        assertThat(TrailingCommaRule().lint(code, ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE)).isEqualTo(
             listOf(
                 LintError(line = 3, col = 16, ruleId = "trailing-comma", detail = "Missing trailing comma before \")\""),
                 LintError(line = 6, col = 16, ruleId = "trailing-comma", detail = "Missing trailing comma before \")\"")
             )
         )
-        assertThat(TrailingCommaRule().format(editorConfigFilePath, code))
+        assertThat(TrailingCommaRule().format(code, ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE))
             .isEqualTo(autoCorrectedCode)
     }
 
@@ -342,16 +321,14 @@ class TrailingCommaRuleTest {
             > {}
             """.trimIndent()
 
-        val editorConfigFilePath = writeEditorConfigFile(DO_NOT_ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE).absolutePath
-
-        assertThat(TrailingCommaRule().lint(editorConfigFilePath, code)).isEqualTo(
+        assertThat(TrailingCommaRule().lint(code, DO_NOT_ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE)).isEqualTo(
             listOf(
                 LintError(line = 1, col = 16, ruleId = "trailing-comma", detail = "Unnecessary trailing comma before \">\""),
                 LintError(line = 4, col = 6, ruleId = "trailing-comma", detail = "Unnecessary trailing comma before \">\""),
                 LintError(line = 8, col = 6, ruleId = "trailing-comma", detail = "Unnecessary trailing comma before \">\"")
             )
         )
-        assertThat(TrailingCommaRule().format(editorConfigFilePath, code))
+        assertThat(TrailingCommaRule().format(code, DO_NOT_ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE))
             .isEqualTo(autoCorrectedCode)
     }
 
@@ -382,15 +359,13 @@ class TrailingCommaRuleTest {
             > {}
             """.trimIndent()
 
-        val editorConfigFilePath = writeEditorConfigFile(ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE).absolutePath
-
-        assertThat(TrailingCommaRule().lint(editorConfigFilePath, code)).isEqualTo(
+        assertThat(TrailingCommaRule().lint(code, ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE)).isEqualTo(
             listOf(
                 LintError(line = 4, col = 6, ruleId = "trailing-comma", detail = "Missing trailing comma before \">\""),
                 LintError(line = 8, col = 6, ruleId = "trailing-comma", detail = "Missing trailing comma before \">\"")
             )
         )
-        assertThat(TrailingCommaRule().format(editorConfigFilePath, code))
+        assertThat(TrailingCommaRule().format(code, ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE))
             .isEqualTo(autoCorrectedCode)
     }
 
@@ -421,16 +396,14 @@ class TrailingCommaRuleTest {
             }
             """.trimIndent()
 
-        val editorConfigFilePath = writeEditorConfigFile(DO_NOT_ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE).absolutePath
-
-        assertThat(TrailingCommaRule().lint(editorConfigFilePath, code)).isEqualTo(
+        assertThat(TrailingCommaRule().lint(code, DO_NOT_ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE)).isEqualTo(
             listOf(
                 LintError(line = 2, col = 9, ruleId = "trailing-comma", detail = "Unnecessary trailing comma before \"->\""),
                 LintError(line = 3, col = 9, ruleId = "trailing-comma", detail = "Unnecessary trailing comma before \"->\""),
                 LintError(line = 6, col = 6, ruleId = "trailing-comma", detail = "Unnecessary trailing comma before \"->\"")
             )
         )
-        assertThat(TrailingCommaRule().format(editorConfigFilePath, code))
+        assertThat(TrailingCommaRule().format(code, DO_NOT_ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE))
             .isEqualTo(autoCorrectedCode)
     }
 
@@ -461,15 +434,13 @@ class TrailingCommaRuleTest {
             }
             """.trimIndent()
 
-        val editorConfigFilePath = writeEditorConfigFile(ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE).absolutePath
-
-        assertThat(TrailingCommaRule().lint(editorConfigFilePath, code)).isEqualTo(
+        assertThat(TrailingCommaRule().lint(code, ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE)).isEqualTo(
             listOf(
                 LintError(line = 3, col = 9, ruleId = "trailing-comma", detail = "Missing trailing comma before \"->\""),
                 LintError(line = 6, col = 6, ruleId = "trailing-comma", detail = "Missing trailing comma before \"->\"")
             )
         )
-        assertThat(TrailingCommaRule().format(editorConfigFilePath, code))
+        assertThat(TrailingCommaRule().format(code, ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE))
             .isEqualTo(autoCorrectedCode)
     }
 
@@ -508,16 +479,14 @@ class TrailingCommaRuleTest {
             }
             """.trimIndent()
 
-        val editorConfigFilePath = writeEditorConfigFile(DO_NOT_ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE).absolutePath
-
-        assertThat(TrailingCommaRule().lint(editorConfigFilePath, code)).isEqualTo(
+        assertThat(TrailingCommaRule().lint(code, DO_NOT_ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE)).isEqualTo(
             listOf(
                 LintError(line = 4, col = 14, ruleId = "trailing-comma", detail = "Unnecessary trailing comma before \")\""),
                 LintError(line = 7, col = 10, ruleId = "trailing-comma", detail = "Unnecessary trailing comma before \")\""),
                 LintError(line = 11, col = 10, ruleId = "trailing-comma", detail = "Unnecessary trailing comma before \")\"")
             )
         )
-        assertThat(TrailingCommaRule().format(editorConfigFilePath, code))
+        assertThat(TrailingCommaRule().format(code, DO_NOT_ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE))
             .isEqualTo(autoCorrectedCode)
     }
 
@@ -556,15 +525,13 @@ class TrailingCommaRuleTest {
             }
             """.trimIndent()
 
-        val editorConfigFilePath = writeEditorConfigFile(ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE).absolutePath
-
-        assertThat(TrailingCommaRule().lint(editorConfigFilePath, code)).isEqualTo(
+        assertThat(TrailingCommaRule().lint(code, ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE)).isEqualTo(
             listOf(
                 LintError(line = 7, col = 10, ruleId = "trailing-comma", detail = "Missing trailing comma before \")\""),
                 LintError(line = 11, col = 10, ruleId = "trailing-comma", detail = "Missing trailing comma before \")\"")
             )
         )
-        assertThat(TrailingCommaRule().format(editorConfigFilePath, code))
+        assertThat(TrailingCommaRule().format(code, ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE))
             .isEqualTo(autoCorrectedCode)
     }
 
@@ -599,16 +566,14 @@ class TrailingCommaRuleTest {
             }
             """.trimIndent()
 
-        val editorConfigFilePath = writeEditorConfigFile(DO_NOT_ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE).absolutePath
-
-        assertThat(TrailingCommaRule().lint(editorConfigFilePath, code)).isEqualTo(
+        assertThat(TrailingCommaRule().lint(code, DO_NOT_ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE)).isEqualTo(
             listOf(
                 LintError(line = 1, col = 44, ruleId = "trailing-comma", detail = "Unnecessary trailing comma before \"->\""),
                 LintError(line = 4, col = 8, ruleId = "trailing-comma", detail = "Unnecessary trailing comma before \"->\""),
                 LintError(line = 9, col = 8, ruleId = "trailing-comma", detail = "Unnecessary trailing comma before \"->\"")
             )
         )
-        assertThat(TrailingCommaRule().format(editorConfigFilePath, code))
+        assertThat(TrailingCommaRule().format(code, DO_NOT_ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE))
             .isEqualTo(autoCorrectedCode)
     }
 
@@ -643,15 +608,13 @@ class TrailingCommaRuleTest {
             }
             """.trimIndent()
 
-        val editorConfigFilePath = writeEditorConfigFile(ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE).absolutePath
-
-        assertThat(TrailingCommaRule().lint(editorConfigFilePath, code)).isEqualTo(
+        assertThat(TrailingCommaRule().lint(code, ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE)).isEqualTo(
             listOf(
                 LintError(line = 4, col = 8, ruleId = "trailing-comma", detail = "Missing trailing comma before \"->\""),
                 LintError(line = 9, col = 8, ruleId = "trailing-comma", detail = "Missing trailing comma before \"->\"")
             )
         )
-        assertThat(TrailingCommaRule().format(editorConfigFilePath, code))
+        assertThat(TrailingCommaRule().format(code, ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE))
             .isEqualTo(autoCorrectedCode)
     }
 
@@ -678,16 +641,14 @@ class TrailingCommaRuleTest {
             > = emptyList()
             """.trimIndent()
 
-        val editorConfigFilePath = writeEditorConfigFile(DO_NOT_ALLOW_TRAILING_COMMA_ON_CALL_SITE).absolutePath
-
-        assertThat(TrailingCommaRule().lint(editorConfigFilePath, code)).isEqualTo(
+        assertThat(TrailingCommaRule().lint(code, DO_NOT_ALLOW_TRAILING_COMMA_ON_CALL_SITE)).isEqualTo(
             listOf(
                 LintError(line = 1, col = 23, ruleId = "trailing-comma", detail = "Unnecessary trailing comma before \">\""),
                 LintError(line = 3, col = 11, ruleId = "trailing-comma", detail = "Unnecessary trailing comma before \">\""),
                 LintError(line = 6, col = 11, ruleId = "trailing-comma", detail = "Unnecessary trailing comma before \">\"")
             )
         )
-        assertThat(TrailingCommaRule().format(editorConfigFilePath, code))
+        assertThat(TrailingCommaRule().format(code, DO_NOT_ALLOW_TRAILING_COMMA_ON_CALL_SITE))
             .isEqualTo(autoCorrectedCode)
     }
 
@@ -714,15 +675,13 @@ class TrailingCommaRuleTest {
             > = emptyList()
             """.trimIndent()
 
-        val editorConfigFilePath = writeEditorConfigFile(ALLOW_TRAILING_COMMA_ON_CALL_SITE).absolutePath
-
-        assertThat(TrailingCommaRule().lint(editorConfigFilePath, code)).isEqualTo(
+        assertThat(TrailingCommaRule().lint(code, ALLOW_TRAILING_COMMA_ON_CALL_SITE)).isEqualTo(
             listOf(
                 LintError(line = 3, col = 11, ruleId = "trailing-comma", detail = "Missing trailing comma before \">\""),
                 LintError(line = 6, col = 11, ruleId = "trailing-comma", detail = "Missing trailing comma before \">\"")
             )
         )
-        assertThat(TrailingCommaRule().format(editorConfigFilePath, code))
+        assertThat(TrailingCommaRule().format(code, ALLOW_TRAILING_COMMA_ON_CALL_SITE))
             .isEqualTo(autoCorrectedCode)
     }
 
@@ -751,16 +710,14 @@ class TrailingCommaRuleTest {
             ]
             """.trimIndent()
 
-        val editorConfigFilePath = writeEditorConfigFile(DO_NOT_ALLOW_TRAILING_COMMA_ON_CALL_SITE).absolutePath
-
-        assertThat(TrailingCommaRule().lint(editorConfigFilePath, code)).isEqualTo(
+        assertThat(TrailingCommaRule().lint(code, DO_NOT_ALLOW_TRAILING_COMMA_ON_CALL_SITE)).isEqualTo(
             listOf(
                 LintError(line = 2, col = 17, ruleId = "trailing-comma", detail = "Unnecessary trailing comma before \"]\""),
                 LintError(line = 4, col = 6, ruleId = "trailing-comma", detail = "Unnecessary trailing comma before \"]\""),
                 LintError(line = 7, col = 6, ruleId = "trailing-comma", detail = "Unnecessary trailing comma before \"]\"")
             )
         )
-        assertThat(TrailingCommaRule().format(editorConfigFilePath, code))
+        assertThat(TrailingCommaRule().format(code, DO_NOT_ALLOW_TRAILING_COMMA_ON_CALL_SITE))
             .isEqualTo(autoCorrectedCode)
     }
 
@@ -789,15 +746,13 @@ class TrailingCommaRuleTest {
             ]
             """.trimIndent()
 
-        val editorConfigFilePath = writeEditorConfigFile(ALLOW_TRAILING_COMMA_ON_CALL_SITE).absolutePath
-
-        assertThat(TrailingCommaRule().lint(editorConfigFilePath, code)).isEqualTo(
+        assertThat(TrailingCommaRule().lint(code, ALLOW_TRAILING_COMMA_ON_CALL_SITE)).isEqualTo(
             listOf(
                 LintError(line = 4, col = 6, ruleId = "trailing-comma", detail = "Missing trailing comma before \"]\""),
                 LintError(line = 7, col = 6, ruleId = "trailing-comma", detail = "Missing trailing comma before \"]\"")
             )
         )
-        assertThat(TrailingCommaRule().format(editorConfigFilePath, code))
+        assertThat(TrailingCommaRule().format(code, ALLOW_TRAILING_COMMA_ON_CALL_SITE))
             .isEqualTo(autoCorrectedCode)
     }
 
@@ -842,16 +797,14 @@ class TrailingCommaRuleTest {
             val foo3: Int = 0
             """.trimIndent()
 
-        val editorConfigFilePath = writeEditorConfigFile(DO_NOT_ALLOW_TRAILING_COMMA_ON_CALL_SITE).absolutePath
-
-        assertThat(TrailingCommaRule().lint(editorConfigFilePath, code)).isEqualTo(
+        assertThat(TrailingCommaRule().lint(code, DO_NOT_ALLOW_TRAILING_COMMA_ON_CALL_SITE)).isEqualTo(
             listOf(
                 LintError(line = 3, col = 18, ruleId = "trailing-comma", detail = "Unnecessary trailing comma before \"]\""),
                 LintError(line = 8, col = 6, ruleId = "trailing-comma", detail = "Unnecessary trailing comma before \"]\""),
                 LintError(line = 14, col = 6, ruleId = "trailing-comma", detail = "Unnecessary trailing comma before \"]\"")
             )
         )
-        assertThat(TrailingCommaRule().format(editorConfigFilePath, code))
+        assertThat(TrailingCommaRule().format(code, DO_NOT_ALLOW_TRAILING_COMMA_ON_CALL_SITE))
             .isEqualTo(autoCorrectedCode)
     }
 
@@ -920,9 +873,7 @@ class TrailingCommaRuleTest {
             val foo4: Int = 0
             """.trimIndent()
 
-        val editorConfigFilePath = writeEditorConfigFile(ALLOW_TRAILING_COMMA_ON_CALL_SITE).absolutePath
-
-        assertThat(TrailingCommaRule().lint(editorConfigFilePath, code)).isEqualTo(
+        assertThat(TrailingCommaRule().lint(code, ALLOW_TRAILING_COMMA_ON_CALL_SITE)).isEqualTo(
             listOf(
                 LintError(line = 8, col = 6, ruleId = "trailing-comma", detail = "Missing trailing comma before \"]\""),
                 LintError(line = 14, col = 6, ruleId = "trailing-comma", detail = "Missing trailing comma before \"]\""),
@@ -931,7 +882,7 @@ class TrailingCommaRuleTest {
                 LintError(line = 26, col = 6, ruleId = "trailing-comma", detail = "Missing trailing comma before \")\"")
             )
         )
-        assertThat(TrailingCommaRule().format(editorConfigFilePath, code))
+        assertThat(TrailingCommaRule().format(code, ALLOW_TRAILING_COMMA_ON_CALL_SITE))
             .isEqualTo(autoCorrectedCode)
     }
 
@@ -971,15 +922,13 @@ class TrailingCommaRuleTest {
             )
             val fooBar = null
             """.trimIndent()
-        val editorConfigFilePath = writeEditorConfigFile(ALLOW_TRAILING_COMMA_ON_CALL_SITE).absolutePath
-
-        assertThat(TrailingCommaRule().lint(editorConfigFilePath, code)).isEqualTo(
+        assertThat(TrailingCommaRule().lint(code, ALLOW_TRAILING_COMMA_ON_CALL_SITE)).isEqualTo(
             listOf(
                 LintError(line = 9, col = 16, ruleId = "trailing-comma", detail = "Missing trailing comma before \"]\""),
                 LintError(line = 12, col = 19, ruleId = "trailing-comma", detail = "Missing trailing comma before \")\"")
             )
         )
-        assertThat(TrailingCommaRule().format(editorConfigFilePath, code))
+        assertThat(TrailingCommaRule().format(code, ALLOW_TRAILING_COMMA_ON_CALL_SITE))
             .isEqualTo(formattedCode)
     }
 
@@ -994,13 +943,8 @@ class TrailingCommaRuleTest {
             }
             """.trimIndent()
 
-        val editorConfigFilePath = writeEditorConfigFile(
-            ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE,
-            ALLOW_TRAILING_COMMA_ON_CALL_SITE
-        ).absolutePath
-
-        assertThat(TrailingCommaRule().lint(editorConfigFilePath, code)).isEmpty()
-        assertThat(TrailingCommaRule().format(editorConfigFilePath, code))
+        assertThat(TrailingCommaRule().lint(code, ALLOW_TRAILING_COMMA)).isEmpty()
+        assertThat(TrailingCommaRule().format(code, ALLOW_TRAILING_COMMA))
             .isEqualTo(code)
     }
 
@@ -1031,28 +975,79 @@ class TrailingCommaRuleTest {
             }
             """.trimIndent()
 
-        val editorConfigFilePath = writeEditorConfigFile(ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE).absolutePath
-
-        assertThat(TrailingCommaRule().lint(editorConfigFilePath, code)).isEqualTo(
+        assertThat(TrailingCommaRule().lint(code, ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE)).isEqualTo(
             listOf(
                 LintError(line = 4, col = 6, ruleId = "trailing-comma", detail = "Missing trailing comma and newline before \"->\""),
                 LintError(line = 6, col = 6, ruleId = "trailing-comma", detail = "Missing trailing comma and newline before \"->\"")
             )
         )
-        assertThat(TrailingCommaRule().format(editorConfigFilePath, code))
+        assertThat(TrailingCommaRule().format(code, ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE))
             .isEqualTo(autoCorrectedCode)
     }
 
-    private fun writeEditorConfigFile(vararg editorConfigProperties: Pair<PropertyType<Boolean>, String>) = editorConfigTestRule
-        .writeToEditorConfig(
-            mapOf(*editorConfigProperties)
+    @Test
+    fun `Trailing comma and unused imports do not affect each other`() {
+        val code =
+            """
+            package com.pinterest.ktlint
+            import com.pinterest.ktlint.enum.Enum
+            import com.pinterest.ktlint.enum.EnumThree
+            import com.pinterest.ktlint.enum.EnumTwo
+            data class TrailingCommaTest(
+                val foo: String,
+                val bar: Enum,
+                val bar2: EnumTwo,
+                val bar3: EnumThree
+            )
+            """.trimIndent()
+        val formattedCode =
+            """
+            package com.pinterest.ktlint
+            import com.pinterest.ktlint.enum.Enum
+            import com.pinterest.ktlint.enum.EnumThree
+            import com.pinterest.ktlint.enum.EnumTwo
+            data class TrailingCommaTest(
+                val foo: String,
+                val bar: Enum,
+                val bar2: EnumTwo,
+                val bar3: EnumThree,
+            )
+            """.trimIndent()
+
+        val rules = listOf(TrailingCommaRule(), NoUnusedImportsRule())
+        assertThat(rules.lint(code, ALLOW_TRAILING_COMMA)).containsExactly(
+            LintError(9, 24, "trailing-comma", "Missing trailing comma before \")\"")
         )
+        assertThat(rules.format(code, ALLOW_TRAILING_COMMA)).isEqualTo(formattedCode)
+
+        // When running format mode, the rules are first executed in parallel to find linting errors. In this process,
+        // no unused import are found because the trailing comma is not yet added to variable "bar3". Then in the next
+        // stage the rules are run consecutively. Now the trailing comma rule is adding a trailing comma after the type
+        // of variable "bar3". When the no-unused-import rule runs after the trailing-comma rule, it was incorrectly
+        // seen as part of the type of variable "bar3" and a reference "EnumThree," (with the trailing comma was added)
+        // which in turn resulted in not recognizing that the import of EnumThree actually was used.
+        val afterFormatLintErrors = ArrayList<LintError>()
+        val formatResult =
+            rules.format(code, ALLOW_TRAILING_COMMA, cb = { e, _ -> afterFormatLintErrors.add(e) })
+        assertThat(afterFormatLintErrors).isEmpty()
+        assertThat(formatResult).isEqualTo(formattedCode)
+    }
 
     private companion object {
-        val ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE = TrailingCommaRule.allowTrailingCommaProperty.type to true.toString()
-        val DO_NOT_ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE = TrailingCommaRule.allowTrailingCommaProperty.type to false.toString()
+        val ALLOW_TRAILING_COMMA =
+            EditorConfigOverride.from(
+                TrailingCommaRule.allowTrailingCommaProperty to true,
+                TrailingCommaRule.allowTrailingCommaOnCallSiteProperty to true
+            )
 
-        val ALLOW_TRAILING_COMMA_ON_CALL_SITE = TrailingCommaRule.allowTrailingCommaOnCallSiteProperty.type to true.toString()
-        val DO_NOT_ALLOW_TRAILING_COMMA_ON_CALL_SITE = TrailingCommaRule.allowTrailingCommaOnCallSiteProperty.type to false.toString()
+        val ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE =
+            EditorConfigOverride.from(TrailingCommaRule.allowTrailingCommaProperty to true)
+        val DO_NOT_ALLOW_TRAILING_COMMA_ON_DECLARATION_SITE =
+            EditorConfigOverride.from(TrailingCommaRule.allowTrailingCommaProperty to false)
+
+        val ALLOW_TRAILING_COMMA_ON_CALL_SITE =
+            EditorConfigOverride.from(TrailingCommaRule.allowTrailingCommaOnCallSiteProperty to true)
+        val DO_NOT_ALLOW_TRAILING_COMMA_ON_CALL_SITE =
+            EditorConfigOverride.from(TrailingCommaRule.allowTrailingCommaOnCallSiteProperty to false)
     }
 }

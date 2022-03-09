@@ -5,45 +5,27 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
+  publish:
     runs-on: ubuntu-latest
+    if: github.repository == 'pinterest/ktlint'
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up Java 8
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
           java-version: 8
-      - name: Restore Gradle caches
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.gradle/caches/modules-2
-            ~/.gradle/caches/files-2.1
-            ~/.gradle/caches/metadata-2.96
-            ~/.gradle/jdks
-          key: ${{ runner.os }}-gradle-cache-${{ hashFiles('**/*.gradle.kts') }}-${{ hashFiles('**/*.gradle') }}-${{ hashFiles('**/gradle.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-cache-
-      - name: Restore Gradle wrapper
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('**/gradlew') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-wrapper-
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
       - name: Publish snapshot to Maven
-        if: ${{ github.repository == 'pinterest/ktlint' }}
-        run: ./gradlew clean publishMavenPublicationToMavenCentralRepository --no-daemon --no-parallel
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: clean publishMavenPublicationToMavenCentralRepository --no-daemon --no-parallel
         env:
           SONATYPE_NEXUS_USERNAME: ${{ secrets.SONATYPE_NEXUS_USERNAME }}
           SONATYPE_NEXUS_PASSWORD: ${{ secrets.SONATYPE_NEXUS_PASSWORD }}
       - name: Publish Kotlin-dev snapshot to Maven
-        if: ${{ github.repository == 'pinterest/ktlint' }}
-        run: ./gradlew -PkotlinDev clean publishMavenPublicationToMavenCentralRepository --no-daemon --no-parallel
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: -PkotlinDev clean publishMavenPublicationToMavenCentralRepository --no-daemon --no-parallel
         env:
           SONATYPE_NEXUS_USERNAME: ${{ secrets.SONATYPE_NEXUS_USERNAME }}
           SONATYPE_NEXUS_PASSWORD: ${{ secrets.SONATYPE_NEXUS_PASSWORD }}

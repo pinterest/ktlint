@@ -1,16 +1,12 @@
 fun f() {
-    x(paths.flatMap { dir ->
+    val x =
+    paths.flatMap { dir ->
         "hello"
     } + f0(
         "there"
     ) + f1(
         "sssss"
-    ))
-
-    y(""
-        + ""
-        + f2("" // IDEA quirk (ignored)
-    ))
+    )
 
     val x =
         "a" to
@@ -31,10 +27,13 @@ fun f() {
 }
 
 object Y {
-    @Option(names = arrayOf("--install-git-pre-commit-hook"), description = arrayOf(
+    @Option(
+    names = arrayOf("--install-git-pre-commit-hook"),
+    description = arrayOf(
         "A" +
         "B"
-    ))
+    )
+    )
     private val DEPRECATED_FLAGS = mapOf(
         "--ruleset-repository" to
             "--repository" +
