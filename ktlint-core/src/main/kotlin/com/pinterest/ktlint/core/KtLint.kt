@@ -27,8 +27,12 @@ import org.jetbrains.kotlin.idea.KotlinLanguage
 import org.jetbrains.kotlin.psi.KtFile
 
 public object KtLint {
-
+    @Deprecated(
+        message = "Marked for removal in Ktlint 0.46.",
+        replaceWith = ReplaceWith("EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY")
+    )
     public val EDITOR_CONFIG_USER_DATA_KEY: Key<EditorConfig> = Key<EditorConfig>("EDITOR_CONFIG")
+
     public val ANDROID_USER_DATA_KEY: Key<Boolean> = Key<Boolean>("ANDROID")
     public val FILE_PATH_USER_DATA_KEY: Key<String> = Key<String>("FILE_PATH")
     private const val FILE_PATH_PROPERTY = "file_path"
@@ -134,13 +138,21 @@ public object KtLint {
      */
     // TODO: Shouldn't this method be moved to module ktlint-test as it is called from unit tests only? It will be a
     //  breaking change for custom rule set implementations.
+    @Deprecated(
+        message = "Marked for removal in Ktlint 0.46. Convert userData to EditorConfigOverride.",
+        replaceWith = ReplaceWith("lint(toExperimentalParams(params))")
+    )
     @OptIn(FeatureInAlphaState::class)
-    public fun lint(params: Params) {
+    public fun lint(params: Params) =
+        lint(toExperimentalParams(params))
+
+    @OptIn(FeatureInAlphaState::class)
+    public fun lint(experimentalParams: ExperimentalParams) {
         lint(
-            toExperimentalParams(params),
+            experimentalParams,
             VisitorProvider(
-                ruleSets = params.ruleSets,
-                debug = params.debug,
+                ruleSets = experimentalParams.ruleSets,
+                debug = experimentalParams.debug,
                 isUnitTestContext = true
             )
         )
@@ -305,14 +317,17 @@ public object KtLint {
     // TODO: Shouldn't this method be moved to module ktlint-test as it is called from unit tests only? It will be a
     //  breaking change for custom rule set implementations.
     @OptIn(FeatureInAlphaState::class)
-    public fun format(params: Params): String {
-        val toExperimentalParams = toExperimentalParams(params)
+    public fun format(params: Params): String =
+        format(toExperimentalParams(params))
+
+    @OptIn(FeatureInAlphaState::class)
+    public fun format(experimentalParams: ExperimentalParams): String {
         return format(
-            toExperimentalParams,
-            toExperimentalParams.ruleSets,
+            experimentalParams,
+            experimentalParams.ruleSets,
             VisitorProvider(
-                ruleSets = toExperimentalParams.ruleSets,
-                debug = toExperimentalParams.debug,
+                ruleSets = experimentalParams.ruleSets,
+                debug = experimentalParams.debug,
                 isUnitTestContext = true
             )
         )
