@@ -77,6 +77,7 @@ by passing the `--experimental` flag to `ktlint`.
 
 - `experimental:annotation`: Annotation formatting - multiple annotations should be on a separate line than the annotated declaration; annotations with parameters should each be on separate lines; annotations should be followed by a space
 - `experimental:argument-list-wrapping`: Argument list wrapping
+- `experimental:discouraged-comment-location`: Detect discouraged comment locations (no autocorrect)
 - `experimental:enum-entry-name-case`: Enum entry names should be uppercase underscore-separated names
 - `experimental:multiline-if-else`: Braces required for multiline if/else statements
 - `experimental:no-empty-first-line-in-method-block`: No leading empty lines in method blocks
