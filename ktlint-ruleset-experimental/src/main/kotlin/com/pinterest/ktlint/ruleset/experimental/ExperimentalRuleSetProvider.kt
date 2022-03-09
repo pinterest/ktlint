@@ -21,7 +21,8 @@ public class ExperimentalRuleSetProvider : RuleSetProvider {
         SpacingAroundAngleBracketsRule(),
         SpacingAroundUnaryOperatorRule(),
         AnnotationSpacingRule(),
+        UnnecessaryParenthesesBeforeTrailingLambdaRule(),
         FunctionTypeReferenceSpacingRule(),
-        UnnecessaryParenthesesBeforeTrailingLambdaRule()
+        ModifierListSpacingRule()
     )
 }
