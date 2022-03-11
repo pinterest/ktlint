@@ -3,8 +3,8 @@ import org.gradle.crypto.checksum.Checksum
 plugins {
   id 'ktlint-publication'
   id 'ktlint-kotlin-common'
-  id 'com.github.johnrengelman.shadow'
-  id 'org.gradle.crypto.checksum'
+  alias(libs.plugins.shadow)
+  alias(libs.plugins.checksum)
   id 'signing'
 }
 
@@ -30,14 +30,14 @@ dependencies {
   implementation projects.ktlintRulesetExperimental
   implementation projects.ktlintRulesetStandard
   implementation projects.ktlintRulesetTest
-  implementation deps.kotlin.compiler
-  implementation deps.klob
-  implementation deps.picocli
+  implementation libs.kotlin.compiler
+  implementation libs.klob
+  implementation libs.picocli
 
 
-  testImplementation deps.junit5
-  testImplementation deps.assertj
-  testImplementation deps.jimfs
+  testImplementation libs.junit5
+  testImplementation libs.assertj
+  testImplementation libs.jimfs
 }
 
 // Implements https://github.com/brianm/really-executable-jars-maven-plugin maven plugin behaviour.

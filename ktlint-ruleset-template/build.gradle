@@ -32,8 +32,8 @@ dependencies {
 
   testImplementation projects.ktlintCore
   testImplementation projects.ktlintTest
-  testImplementation deps.junit5
-  testImplementation deps.assertj
+  testImplementation libs.junit5
+  testImplementation libs.assertj
 }
 
 test {
