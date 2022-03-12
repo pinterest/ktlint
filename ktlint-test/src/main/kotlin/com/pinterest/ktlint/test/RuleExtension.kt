@@ -365,6 +365,10 @@ public fun List<Rule>.format(
 
 public fun Rule.diffFileLint(
     path: String
+): String = listOf(this).diffFileLint(path, emptyMap())
+
+public fun List<Rule>.diffFileLint(
+    path: String
 ): String = diffFileLint(path, emptyMap())
 
 @Suppress("DeprecatedCallableAddReplaceWith")
@@ -373,7 +377,7 @@ public fun Rule.diffFileLint(
         "specify these properties via parameter 'EditorConfigOverride.'",
     level = DeprecationLevel.WARNING
 )
-public fun Rule.diffFileLint(
+public fun List<Rule>.diffFileLint(
     path: String,
     userData: Map<String, String> = emptyMap()
 ): String {
@@ -387,22 +391,29 @@ public fun Rule.diffFileLint(
         if (line.isBlank() || line == "// expect") {
             null
         } else {
-            line.trimMargin("// ").split(':', limit = 3).let { expectation ->
-                if (expectation.size != 3) {
-                    throw RuntimeException("$path expectation must be a triple <line>:<column>:<message>")
+            line.trimMargin("// ").split(':', limit = 4).let { expectation ->
+                if (this.size > 1 && expectation.size != 4) {
+                    throw RuntimeException("$path expectation must be a quartet <line>:<column>:<rule>:<message> because diffFileLint is running on multiple rules")
+                    // " (<message> is not allowed to contain \":\")")
+                } else if (expectation.size < 3 || expectation.size > 4) {
+                    throw RuntimeException("$path expectation must be a triple <line>:<column>:<message> or quartet <line>:<column>:<rule>:<message>")
                     // " (<message> is not allowed to contain \":\")")
                 }
-                val message = expectation[2]
+                val message = expectation.last()
                 val detail = message.removeSuffix(" (cannot be auto-corrected)")
-                LintError(expectation[0].toInt(), expectation[1].toInt(), id, detail, message == detail)
+                val ruleId = if (expectation.size == 4) {
+                    expectation[2]
+                } else {
+                    this.first().id
+                }
+                LintError(expectation[0].toInt(), expectation[1].toInt(), ruleId, detail, message == detail)
             }
         }
     }
     val actual = lint(input, userData, script = true)
     val str = { err: LintError ->
-        val ruleId = if (err.ruleId != id) " (${err.ruleId})" else ""
         val correctionStatus = if (!err.canBeAutoCorrected) " (cannot be auto-corrected)" else ""
-        "${err.line}:${err.col}:${err.detail}$ruleId$correctionStatus"
+        "${err.line}:${err.col}:${err.detail}${err.ruleId}$correctionStatus"
     }
     val diff =
         generateUnifiedDiff(
@@ -467,6 +478,11 @@ public fun Rule.diffFileLint(
 public fun Rule.diffFileFormat(
     srcPath: String,
     expectedPath: String
+): String = listOf(this).diffFileFormat(srcPath, expectedPath, emptyMap())
+
+public fun List<Rule>.diffFileFormat(
+    srcPath: String,
+    expectedPath: String
 ): String = diffFileFormat(srcPath, expectedPath, emptyMap())
 
 @Suppress("DeprecatedCallableAddReplaceWith")
@@ -475,7 +491,7 @@ public fun Rule.diffFileFormat(
         "specify these properties via parameter 'EditorConfigOverride.'",
     level = DeprecationLevel.WARNING
 )
-public fun Rule.diffFileFormat(
+public fun List<Rule>.diffFileFormat(
     srcPath: String,
     expectedPath: String,
     userData: Map<String, String> = emptyMap()
@@ -493,8 +509,15 @@ public fun Rule.diffFileFormat(
     srcPath: String,
     expectedPath: String,
     editorConfigOverride: EditorConfigOverride = EditorConfigOverride.emptyEditorConfigOverride
+): String = listOf(this).diffFileFormat(srcPath, expectedPath, editorConfigOverride)
+
+@FeatureInAlphaState
+public fun List<Rule>.diffFileFormat(
+    srcPath: String,
+    expectedPath: String,
+    editorConfigOverride: EditorConfigOverride = EditorConfigOverride.emptyEditorConfigOverride
 ): String {
-    val actual = listOf(this).format(
+    val actual = format(
         lintedFilePath = null,
         text = getResourceAsText(srcPath),
         editorConfigOverride = editorConfigOverride,

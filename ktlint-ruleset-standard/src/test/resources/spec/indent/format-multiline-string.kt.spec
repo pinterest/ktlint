@@ -6,11 +6,13 @@ fun f0() {
 println("""${true}""")
 println("""
 """)
+println("""
+""".trimIndent())
     f("""${
 true
     }
     text
 _${
 true
-    }""", """text""")
+    }""".trimIndent(), """text""")
 }

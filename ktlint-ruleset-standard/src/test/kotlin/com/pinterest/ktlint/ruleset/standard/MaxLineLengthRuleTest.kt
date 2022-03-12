@@ -8,7 +8,7 @@ import com.pinterest.ktlint.test.EditorConfigOverride
 import com.pinterest.ktlint.test.diffFileLint
 import com.pinterest.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 @OptIn(FeatureInAlphaState::class)
 class MaxLineLengthRuleTest {

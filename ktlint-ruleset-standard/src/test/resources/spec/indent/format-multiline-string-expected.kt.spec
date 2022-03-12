@@ -8,7 +8,11 @@ fun f0() {
     println("""${true}""")
     println(
         """
+"""
+    )
+    println(
         """
+        """.trimIndent()
     )
     f(
         """${
@@ -18,7 +22,7 @@ fun f0() {
 _${
         true
         }
-        """,
+        """.trimIndent(),
         """text"""
     )
 }

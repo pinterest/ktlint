@@ -3,15 +3,13 @@ package com.pinterest.ktlint
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 import java.security.Permission
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
-import org.junit.Before
-import org.junit.Test
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 
 class BaselineTests {
-
-    @Before
-    fun setup() {
+    @BeforeEach
+    internal fun setUp() {
         System.setSecurityManager(object : SecurityManager() {
             override fun checkPermission(perm: Permission?) { // allow anything.
             }
@@ -39,8 +37,8 @@ class BaselineTests {
         }
 
         val output = String(stream.toByteArray())
-        assertTrue(output.contains(".*:1:24: Unnecessary block".toRegex()))
-        assertTrue(output.contains(".*:2:1: Unexpected blank line\\(s\\) before \"}\"".toRegex()))
+        assertThat(output).contains(":1:24: Unnecessary block")
+        assertThat(output).contains(":2:1: Unexpected blank line(s) before \"}\"")
     }
 
     @Test
@@ -56,8 +54,8 @@ class BaselineTests {
         }
 
         val output = String(stream.toByteArray())
-        assertFalse(output.contains(".*:1:24: Unnecessary block".toRegex()))
-        assertFalse(output.contains(".*:2:1: Unexpected blank line\\(s\\) before \"}\"".toRegex()))
+        assertThat(output).doesNotContain(":1:24: Unnecessary block")
+        assertThat(output).doesNotContain(":2:1: Unexpected blank line(s) before \"}\"")
     }
 
     @Test
@@ -73,8 +71,8 @@ class BaselineTests {
         }
 
         val output = String(stream.toByteArray())
-        assertFalse(output.contains(".*:1:34: Unnecessary block".toRegex()))
-        assertTrue(output.contains(".*:2:1: Unexpected blank line\\(s\\) before \"}\"".toRegex()))
+        assertThat(output).doesNotContain(":1:34: Unnecessary block")
+        assertThat(output).contains(":2:1: Unexpected blank line(s) before \"}\"")
     }
 
     private class ExitException : SecurityException("Should not exit in tests")

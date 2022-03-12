@@ -5,7 +5,7 @@ import com.pinterest.ktlint.test.lint
 import java.net.URI
 import java.nio.file.Paths
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class PackageNameRuleTest {
 

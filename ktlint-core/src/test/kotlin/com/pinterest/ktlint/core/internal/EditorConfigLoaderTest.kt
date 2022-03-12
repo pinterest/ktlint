@@ -16,8 +16,8 @@ import org.assertj.core.api.Assertions.entry
 import org.ec4j.core.model.PropertyType
 import org.intellij.lang.annotations.Language
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.junit.After
-import org.junit.Test
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Test
 
 @OptIn(FeatureInAlphaState::class)
 internal class EditorConfigLoaderTest {
@@ -38,7 +38,7 @@ internal class EditorConfigLoaderTest {
         Files.write(normalizedPath("$filePath/.editorconfig"), content.toByteArray())
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         tempFileSystem.close()
     }

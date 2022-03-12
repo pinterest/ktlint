@@ -4,7 +4,7 @@ import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.test.format
 import com.pinterest.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class NoTrailingSpacesRuleTest {
 
@@ -191,6 +191,54 @@ class NoTrailingSpacesRuleTest {
                 LintError(3, 1, "no-trailing-spaces", "Trailing space(s)"),
                 LintError(8, 1, "no-trailing-spaces", "Trailing space(s)")
             )
+        )
+    }
+
+    @Test
+    fun `Issue 1376 - trailing spaces should not delete blank line inside kdoc`() {
+        val code =
+            """
+            /**
+             Paragraph 1 which should be followed by a blank line.
+
+
+             Paragraph 2 which should have a blank line before it.
+             */
+            class MyClass
+            """.trimIndent()
+        assertThat(NoTrailingSpacesRule().lint(code)).isEmpty()
+        assertThat(NoTrailingSpacesRule().format(code)).isEqualTo(code)
+    }
+
+    @Test
+    fun `Issue 1376 - trailing spaces should be removed from blank line inside kdoc`() {
+        val code =
+            """
+            /**
+             Paragraph 1 which should be followed by a blank line.
+             ${"    "}
+             ${"    "}
+             Paragraph 2 which should have a blank line before it.
+             */
+            class MyClass
+            """.trimIndent()
+        val formattedCode =
+            """
+            /**
+             Paragraph 1 which should be followed by a blank line.
+
+
+             Paragraph 2 which should have a blank line before it.
+             */
+            class MyClass
+            """.trimIndent()
+        assertThat(
+            NoTrailingSpacesRule().format(code)
+        ).isEqualTo(formattedCode)
+        assertThat(
+            NoTrailingSpacesRule().lint(code)
+        ).containsExactly(
+            LintError(3, 1, "no-trailing-spaces", "Trailing space(s)")
         )
     }
 }
