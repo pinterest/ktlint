@@ -22,7 +22,6 @@ import org.jetbrains.kotlin.psi.KtDotQualifiedExpression
 import org.jetbrains.kotlin.psi.KtImportDirective
 import org.jetbrains.kotlin.psi.KtPackageDirective
 import org.jetbrains.kotlin.resolve.ImportPath
-import org.jetbrains.kotlin.util.removeSuffixIfPresent
 
 class NoUnusedImportsRule : Rule("no-unused-imports") {
 
@@ -98,7 +97,7 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
                     parentExpressions.add(text.substringBeforeLast("("))
                 }
                 if (type == KDocTokens.MARKDOWN_LINK && psi is KDocLink) {
-                    val linkText = psi.getLinkText().removeBackticksAndWildcards()
+                    val linkText = psi.getLinkText().removeBackticks()
                     ref.add(Reference(linkText.split('.').first(), false))
                     ref.add(Reference(linkText.split('.').last(), false))
                 } else if ((type == REFERENCE_EXPRESSION || type == OPERATION_REFERENCE) &&
@@ -113,7 +112,7 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
                         ?.let { identifier.text }
                         ?.takeIf { it.isNotBlank() }
                         ?.let {
-                            ref.add(Reference(it.removeBackticksAndWildcards(), psi.parentDotQualifiedExpression() != null))
+                            ref.add(Reference(it.removeBackticks(), psi.parentDotQualifiedExpression() != null))
                         }
                 } else if (type == IMPORT_DIRECTIVE) {
                     val importPath = (vnode.psi as KtImportDirective).importPath!!
@@ -123,7 +122,7 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
                             vnode.psi.delete()
                         }
                     } else {
-                        imports += importPath.pathStr.removeBackticksAndWildcards().trim()
+                        imports += importPath.pathStr.removeBackticks().trim()
                     }
                 }
             }
@@ -138,8 +137,8 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
             packageName = packageDirective.qualifiedName
         } else if (node.elementType == IMPORT_DIRECTIVE) {
             val importDirective = node.psi as KtImportDirective
-            val name = importDirective.importPath?.importedName?.asString()?.removeBackticksAndWildcards()
-            val importPath = importDirective.importPath?.pathStr?.removeBackticksAndWildcards()!!
+            val name = importDirective.importPath?.importedName?.asString()?.removeBackticks()
+            val importPath = importDirective.importPath?.pathStr?.removeBackticks()!!
             if (importDirective.aliasName == null &&
                 (packageName.isEmpty() || importPath.startsWith("$packageName.")) &&
                 importPath.substring(packageName.length + 1).indexOf('.') == -1
@@ -202,5 +201,5 @@ class NoUnusedImportsRule : Rule("no-unused-imports") {
         return (callOrThis.parent as? KtDotQualifiedExpression)?.takeIf { it.selectorExpression == callOrThis }
     }
 
-    private fun String.removeBackticksAndWildcards() = replace("`", "").removeSuffixIfPresent(".*")
+    private fun String.removeBackticks() = replace("`", "")
 }
