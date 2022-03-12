@@ -1,8 +1,8 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.core.EditorConfig.Companion.indentSizeProperty
-import com.pinterest.ktlint.core.EditorConfig.Companion.indentStyleProperty
 import com.pinterest.ktlint.core.LintError
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentSizeProperty
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentStyleProperty
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.test.EditorConfigOverride
 import com.pinterest.ktlint.test.diffFileFormat

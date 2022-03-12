@@ -1,8 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.api.EditorConfigProperties
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.maxLineLengthProperty
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType
@@ -12,7 +11,6 @@ import com.pinterest.ktlint.core.ast.nextLeaf
 import com.pinterest.ktlint.core.ast.parent
 import com.pinterest.ktlint.core.ast.prevCodeSibling
 import org.ec4j.core.model.PropertyType
-import org.ec4j.core.model.PropertyType.max_line_length
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
@@ -53,11 +51,8 @@ class MaxLineLengthRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         if (node.isRoot()) {
-            val editorConfigProperties: EditorConfigProperties =
-                node.getUserData(KtLint.EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY)!!
-            val ignoreBackTickedIdentifier =
-                editorConfigProperties.getEditorConfigValue(ignoreBackTickedIdentifierProperty)
-            maxLineLength = editorConfigProperties.getEditorConfigValue(maxLineLengthProperty)
+            val ignoreBackTickedIdentifier = node.getEditorConfigValue(ignoreBackTickedIdentifierProperty)
+            maxLineLength = node.getEditorConfigValue(maxLineLengthProperty)
             if (maxLineLength <= 0) {
                 return
             }
@@ -111,11 +106,6 @@ class MaxLineLengthRule :
     public companion object {
         internal const val KTLINT_IGNORE_BACKTICKED_IDENTIFIER_NAME = "ktlint_ignore_back_ticked_identifier"
         private const val PROPERTY_DESCRIPTION = "Defines whether the backticked identifier (``) should be ignored"
-
-        public val maxLineLengthProperty = UsesEditorConfigProperties.EditorConfigProperty(
-            type = max_line_length,
-            defaultValue = -1
-        )
 
         public val ignoreBackTickedIdentifierProperty: UsesEditorConfigProperties.EditorConfigProperty<Boolean> =
             UsesEditorConfigProperties.EditorConfigProperty(
