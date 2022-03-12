@@ -4,6 +4,7 @@ import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.test.format
 import com.pinterest.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
 class NoUnusedImportsRuleTest {
@@ -843,6 +844,10 @@ class NoUnusedImportsRuleTest {
         ).isEmpty()
     }
 
+    // Solution for #1256 has been reverted as it can lead to removal of imports which are actually used (see test for
+    // #1277). For now, there seems to be no reliable way to determine whether the wildcard import is actually used or
+    // not.
+    @Disabled
     @Test
     fun `Issue 1256 - remove wildcard import when not used`() {
         val rule = NoUnusedImportsRule()
@@ -890,6 +895,22 @@ class NoUnusedImportsRuleTest {
                  * Do not forget that you can also return string via [String.returnSelf]
                  */
                 fun test() {}
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun `Issue 1277 - Wildcard import should not be removed because it can not be reliable be determined whether it is used`() {
+        val rule = NoUnusedImportsRule()
+        assertThat(
+            rule.lint(
+                """
+                import test.*
+
+                fun main() {
+                    Test() // defined in package test
+                }
                 """.trimIndent()
             )
         ).isEmpty()
