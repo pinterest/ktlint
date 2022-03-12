@@ -18,6 +18,7 @@ import com.pinterest.ktlint.core.ast.ElementType.CLOSING_QUOTE
 import com.pinterest.ktlint.core.ast.ElementType.COLON
 import com.pinterest.ktlint.core.ast.ElementType.CONDITION
 import com.pinterest.ktlint.core.ast.ElementType.DELEGATED_SUPER_TYPE_ENTRY
+import com.pinterest.ktlint.core.ast.ElementType.DOT
 import com.pinterest.ktlint.core.ast.ElementType.DOT_QUALIFIED_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.ELSE
 import com.pinterest.ktlint.core.ast.ElementType.ELVIS
@@ -587,98 +588,102 @@ public class IndentationRule : Rule(
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        val psi = node.psi as KtStringTemplateExpression
-        if (psi.isMultiLine()) {
-            if (node.containsMixedIndentationCharacters()) {
-                // It can not be determined with certainty how mixed indentation characters should be interpreted.
-                // The trimIndent function handles tabs and spaces equally (one tabs equals one space) while the user
-                // might expect that the tab size in the indentation is more than one space.
-                emit(
-                    node.startOffset,
-                    "Indentation of multiline string should not contain both tab(s) and space(s)",
-                    false
-                )
-                return
-            }
-
-            val prefixLength = node.children()
-                .filterNot { it.elementType == OPEN_QUOTE }
-                .filterNot { it.elementType == CLOSING_QUOTE }
-                .filter { it.prevLeaf()?.text == "\n" }
-                .filterNot { it.text == "\n" }
-                .let { indents ->
-                    val indentsExceptBlankIndentBeforeClosingQuote = indents
-                        .filterNot { it.isIndentBeforeClosingQuote() }
-                    if (indentsExceptBlankIndentBeforeClosingQuote.count() > 0) {
-                        indentsExceptBlankIndentBeforeClosingQuote
-                    } else {
-                        indents
-                    }
+        node
+            .let { it.psi as KtStringTemplateExpression }
+            .takeIf { it.isFollowedByTrimIndent() || it.isFollowedByTrimMargin() }
+            ?.takeIf { it.isMultiLine() }
+            ?.let {
+                if (node.containsMixedIndentationCharacters()) {
+                    // It can not be determined with certainty how mixed indentation characters should be interpreted.
+                    // The trimIndent function handles tabs and spaces equally (one tabs equals one space) while the user
+                    // might expect that the tab size in the indentation is more than one space.
+                    emit(
+                        node.startOffset,
+                        "Indentation of multiline string should not contain both tab(s) and space(s)",
+                        false
+                    )
+                    return
                 }
-                .map { it.text.indentLength() }
-                .minOrNull() ?: 0
 
-            val correctedExpectedIndent = if (node.prevLeaf()?.text == "\n") {
-                // In case the opening quotes are placed at the start of the line, then expect all lines inside the
-                // string literal and the closing quotes to have no indent as well.
-                0
-            } else {
-                expectedIndent
-            }
-            val expectedIndentation = indentConfig.indent.repeat(correctedExpectedIndent)
-            val expectedPrefixLength = correctedExpectedIndent * indentConfig.indent.length
-            node.children()
-                .forEach {
-                    if (it.prevLeaf()?.text == "\n" &&
-                        (
-                            it.isLiteralStringTemplateEntry() ||
-                                it.isVariableStringTemplateEntry() ||
-                                it.isClosingQuote()
-                            )
-                    ) {
-                        val (actualIndent, actualContent) =
-                            if (it.isIndentBeforeClosingQuote()) {
-                                it.text.splitIndentAt(it.text.length)
-                            } else if (it.isVariableStringTemplateEntry() && it.isFirstNonBlankElementOnLine()) {
-                                it.getFirstElementOnSameLine().text.splitIndentAt(expectedPrefixLength)
-                            } else {
-                                it.text.splitIndentAt(prefixLength)
-                            }
-                        if (indentConfig.containsUnexpectedIndentChar(actualIndent)) {
-                            val offsetFirstWrongIndentChar = indentConfig.indexOfFirstUnexpectedIndentChar(actualIndent)
-                            emit(
-                                it.startOffset + offsetFirstWrongIndentChar,
-                                "Unexpected '${indentConfig.unexpectedIndentCharDescription}' character(s) in margin of multiline string",
-                                true
-                            )
-                            if (autoCorrect) {
-                                (it.firstChildNode as LeafPsiElement).rawReplaceWithText(
-                                    expectedIndentation + actualContent
+                val prefixLength = node.children()
+                    .filterNot { it.elementType == OPEN_QUOTE }
+                    .filterNot { it.elementType == CLOSING_QUOTE }
+                    .filter { it.prevLeaf()?.text == "\n" }
+                    .filterNot { it.text == "\n" }
+                    .let { indents ->
+                        val indentsExceptBlankIndentBeforeClosingQuote = indents
+                            .filterNot { it.isIndentBeforeClosingQuote() }
+                        if (indentsExceptBlankIndentBeforeClosingQuote.count() > 0) {
+                            indentsExceptBlankIndentBeforeClosingQuote
+                        } else {
+                            indents
+                        }
+                    }
+                    .map { it.text.indentLength() }
+                    .minOrNull() ?: 0
+
+                val correctedExpectedIndent = if (node.prevLeaf()?.text == "\n") {
+                    // In case the opening quotes are placed at the start of the line, then expect all lines inside the
+                    // string literal and the closing quotes to have no indent as well.
+                    0
+                } else {
+                    expectedIndent
+                }
+                val expectedIndentation = indentConfig.indent.repeat(correctedExpectedIndent)
+                val expectedPrefixLength = correctedExpectedIndent * indentConfig.indent.length
+                node.children()
+                    .forEach {
+                        if (it.prevLeaf()?.text == "\n" &&
+                            (
+                                it.isLiteralStringTemplateEntry() ||
+                                    it.isVariableStringTemplateEntry() ||
+                                    it.isClosingQuote()
                                 )
-                            }
-                        } else if (actualIndent != expectedIndentation && it.isIndentBeforeClosingQuote()) {
-                            // It is a deliberate choice not to fix the indents inside the string literal except the line which only contains
-                            // the closing quotes.
-                            emit(
-                                it.startOffset,
-                                "Unexpected indent of multiline string closing quotes",
-                                true
-                            )
-                            if (autoCorrect) {
-                                if (it.firstChildNode == null) {
-                                    (it as LeafPsiElement).rawInsertBeforeMe(
-                                        LeafPsiElement(REGULAR_STRING_PART, expectedIndentation)
-                                    )
+                        ) {
+                            val (actualIndent, actualContent) =
+                                if (it.isIndentBeforeClosingQuote()) {
+                                    it.text.splitIndentAt(it.text.length)
+                                } else if (it.isVariableStringTemplateEntry() && it.isFirstNonBlankElementOnLine()) {
+                                    it.getFirstElementOnSameLine().text.splitIndentAt(expectedPrefixLength)
                                 } else {
+                                    it.text.splitIndentAt(prefixLength)
+                                }
+                            if (indentConfig.containsUnexpectedIndentChar(actualIndent)) {
+                                val offsetFirstWrongIndentChar =
+                                    indentConfig.indexOfFirstUnexpectedIndentChar(actualIndent)
+                                emit(
+                                    it.startOffset + offsetFirstWrongIndentChar,
+                                    "Unexpected '${indentConfig.unexpectedIndentCharDescription}' character(s) in margin of multiline string",
+                                    true
+                                )
+                                if (autoCorrect) {
                                     (it.firstChildNode as LeafPsiElement).rawReplaceWithText(
                                         expectedIndentation + actualContent
                                     )
                                 }
+                            } else if (actualIndent != expectedIndentation && it.isIndentBeforeClosingQuote()) {
+                                // It is a deliberate choice not to fix the indents inside the string literal except the line which only contains
+                                // the closing quotes.
+                                emit(
+                                    it.startOffset,
+                                    "Unexpected indent of multiline string closing quotes",
+                                    true
+                                )
+                                if (autoCorrect) {
+                                    if (it.firstChildNode == null) {
+                                        (it as LeafPsiElement).rawInsertBeforeMe(
+                                            LeafPsiElement(REGULAR_STRING_PART, expectedIndentation)
+                                        )
+                                    } else {
+                                        (it.firstChildNode as LeafPsiElement).rawReplaceWithText(
+                                            expectedIndentation + actualContent
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
-                }
-        }
+            }
     }
 
     private fun KtStringTemplateExpression.isMultiLine(): Boolean {
@@ -1008,3 +1013,11 @@ private fun String.splitIndentAt(index: Int): Pair<String, String> {
         second = this.substring(safeIndex)
     )
 }
+
+private fun KtStringTemplateExpression.isFollowedByTrimIndent() = isFollowedBy("trimIndent()")
+
+private fun KtStringTemplateExpression.isFollowedByTrimMargin() = isFollowedBy("trimMargin()")
+
+private fun KtStringTemplateExpression.isFollowedBy(callExpressionName: String) =
+    this.node.nextSibling { it.elementType != DOT }
+        .let { it?.elementType == CALL_EXPRESSION && it.text == callExpressionName }

@@ -6,9 +6,11 @@ import com.pinterest.ktlint.core.IndentConfig
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.ANNOTATION
 import com.pinterest.ktlint.core.ast.ElementType.ARROW
+import com.pinterest.ktlint.core.ast.ElementType.CALL_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.CLOSING_QUOTE
 import com.pinterest.ktlint.core.ast.ElementType.COMMA
 import com.pinterest.ktlint.core.ast.ElementType.CONDITION
+import com.pinterest.ktlint.core.ast.ElementType.DOT
 import com.pinterest.ktlint.core.ast.ElementType.FUN
 import com.pinterest.ktlint.core.ast.ElementType.FUNCTION_LITERAL
 import com.pinterest.ktlint.core.ast.ElementType.GT
@@ -269,14 +271,18 @@ public class WrappingRule : Rule(
     }
 
     private fun rearrangeClosingQuote(
-        n: ASTNode,
+        node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        val treeParent = n.treeParent
-        if (treeParent.elementType == STRING_TEMPLATE) {
-            val treeParentPsi = treeParent.psi as KtStringTemplateExpression
-            if (treeParentPsi.isMultiLine() && n.treePrev.text.isNotBlank()) {
+        node
+            .treeParent
+            .takeIf { it.elementType == STRING_TEMPLATE }
+            ?.let { it.psi as KtStringTemplateExpression }
+            ?.takeIf { it.isMultiLine() }
+            ?.takeIf { it.isFollowedByTrimIndent() || it.isFollowedByTrimMargin() }
+            ?.takeIf { node.treePrev.text.isNotBlank() }
+            ?.let {
                 // rewriting
                 // """
                 //     text
@@ -287,29 +293,16 @@ public class WrappingRule : Rule(
                 // _
                 // """.trimIndent()
                 emit(
-                    n.startOffset,
+                    node.startOffset,
                     "Missing newline before \"\"\"",
                     true
                 )
                 if (autoCorrect) {
-                    val newIndent =
-                        treeParent.lineIndent() +
-                            if (n.elementType == CLOSING_QUOTE) {
-                                ""
-                            } else {
-                                indentConfig.indent
-                            }
-                    n as LeafPsiElement
-                    n.rawInsertBeforeMe(
-                        LeafPsiElement(
-                            REGULAR_STRING_PART,
-                            "\n" + newIndent
-                        )
-                    )
+                    node as LeafPsiElement
+                    node.rawInsertBeforeMe(LeafPsiElement(REGULAR_STRING_PART, "\n"))
                 }
                 logger.trace { "$line: " + (if (!autoCorrect) "would have " else "") + "inserted newline before (closing) \"\"\"" }
             }
-        }
     }
 
     private fun mustBeFollowedByNewline(node: ASTNode): Boolean {
@@ -436,4 +429,12 @@ public class WrappingRule : Rule(
                 children().any { c -> c.textContains('\n') && c.elementType !in ignoreElementTypes }
         }
     }
+
+    private fun KtStringTemplateExpression.isFollowedByTrimIndent() = isFollowedBy("trimIndent()")
+
+    private fun KtStringTemplateExpression.isFollowedByTrimMargin() = isFollowedBy("trimMargin()")
+
+    private fun KtStringTemplateExpression.isFollowedBy(callExpressionName: String) =
+        this.node.nextSibling { it.elementType != DOT }
+            .let { it?.elementType == CALL_EXPRESSION && it.text == callExpressionName }
 }
