@@ -1,9 +1,12 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.core.EditorConfig.Companion.loadEditorConfig
-import com.pinterest.ktlint.core.EditorConfig.Companion.loadIndentConfig
 import com.pinterest.ktlint.core.IndentConfig
 import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentSizeProperty
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentStyleProperty
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.maxLineLengthProperty
+import com.pinterest.ktlint.core.api.FeatureInAlphaState
+import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType.FUNCTION_LITERAL
 import com.pinterest.ktlint.core.ast.ElementType.FUNCTION_TYPE
 import com.pinterest.ktlint.core.ast.ElementType.LPAR
@@ -33,7 +36,17 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.psi.KtTypeArgumentList
 import org.jetbrains.kotlin.psi.psiUtil.collectDescendantsOfType
 
-class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
+@OptIn(FeatureInAlphaState::class)
+class ParameterListWrappingRule :
+    Rule("parameter-list-wrapping"),
+    UsesEditorConfigProperties {
+    override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> =
+        listOf(
+            indentSizeProperty,
+            indentStyleProperty,
+            maxLineLengthProperty
+        )
+
     private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
     private var maxLineLength = -1
 
@@ -43,9 +56,11 @@ class ParameterListWrappingRule : Rule("parameter-list-wrapping") {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         if (node.isRoot()) {
-            val editorConfig = node.loadEditorConfig()
-            indentConfig = editorConfig.loadIndentConfig()
-            maxLineLength = editorConfig.maxLineLength
+            indentConfig = IndentConfig(
+                indentStyle = node.getEditorConfigValue(indentStyleProperty),
+                tabWidth = node.getEditorConfigValue(indentSizeProperty)
+            )
+            maxLineLength = node.getEditorConfigValue(maxLineLengthProperty)
             return
         }
         if (indentConfig.disabled) {

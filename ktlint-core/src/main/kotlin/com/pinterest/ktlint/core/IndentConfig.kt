@@ -2,6 +2,7 @@ package com.pinterest.ktlint.core
 
 import com.pinterest.ktlint.core.IndentConfig.IndentStyle.SPACE
 import com.pinterest.ktlint.core.IndentConfig.IndentStyle.TAB
+import org.ec4j.core.model.PropertyType
 
 public data class IndentConfig(
     val indentStyle: IndentStyle,
@@ -9,14 +10,61 @@ public data class IndentConfig(
     /**
      * The number of spaces that is equivalent to one tab
      */
-    val tabWidth: Int,
-
-    /**
-     * When disabled, rules may not enforce any indentation related changes regardless of other settings in this
-     * configuration.
-     */
-    val disabled: Boolean = false
+    val tabWidth: Int
 ) {
+    /**
+     * To use the [IndentConfig] in a rule, the following needs to be done:
+     * 1. Implement interface [UsesEditorConfigProperties] on the rule
+     * 2. Register the used or properties
+     *    ```
+     *    override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> =
+     *        listOf(indentSizeProperty, indentStyleProperty)
+     *    ```
+     * 3. Initialize the IndentConfig
+     *    ```
+     *    indentConfig = IndentConfig(
+     *        indentStyle = node.getEditorConfigValue(indentStyleProperty),
+     *        tabWidth = node.getEditorConfigValue(indentSizeProperty)
+     *    )
+     *    ```
+     */
+    public constructor(
+        indentStyle: PropertyType.IndentStyleValue,
+
+        /**
+         * The number of spaces that is equivalent to one tab
+         */
+        tabWidth: Int
+    ) : this(
+        indentStyle = when (indentStyle) {
+            PropertyType.IndentStyleValue.tab -> TAB
+            PropertyType.IndentStyleValue.space -> SPACE
+        },
+        tabWidth = tabWidth
+    )
+
+    @Deprecated(message = "Marked for removal in Ktlint 0.46.")
+    public constructor(
+        indentStyle: EditorConfig.IndentStyle,
+
+        /**
+         * The number of spaces that is equivalent to one tab
+         */
+        tabWidth: Int,
+
+        /**
+         * Property is ignored (starting from ktlint 0.45). Specify a tabWidth <= 0 to disable the indent.
+         */
+        @Suppress("UNUSED_PARAMETER")
+        disabled: Boolean = false
+    ) : this(
+        indentStyle = when (indentStyle) {
+            EditorConfig.IndentStyle.TAB -> TAB
+            EditorConfig.IndentStyle.SPACE -> SPACE
+        },
+        tabWidth = tabWidth
+    )
+
     public enum class IndentStyle { SPACE, TAB }
 
     private val indentChar =
@@ -30,6 +78,13 @@ public data class IndentConfig(
             TAB -> ' '
             SPACE -> '\t'
         }
+
+    /**
+     * When disabled, rules may not enforce any indentation related changes regardless of other settings in this
+     * configuration.
+     */
+    public val disabled: Boolean
+        get() = tabWidth <= 0
 
     /**
      * Normalized indent of 1 level deep. Representation is either in spaces or a single tab depending on the
@@ -110,8 +165,7 @@ public data class IndentConfig(
 
         public val DEFAULT_INDENT_CONFIG: IndentConfig = IndentConfig(
             indentStyle = SPACE,
-            tabWidth = 4,
-            disabled = false
+            tabWidth = 4
         )
     }
 }
