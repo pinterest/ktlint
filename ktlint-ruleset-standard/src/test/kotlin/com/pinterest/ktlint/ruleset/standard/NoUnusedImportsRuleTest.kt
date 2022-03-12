@@ -915,4 +915,24 @@ class NoUnusedImportsRuleTest {
             )
         ).isEmpty()
     }
+
+    @Test
+    fun `Issue 1393 - Wildcard import should not be removed because it can not be reliable be determined whether it is used`() {
+        val rule = NoUnusedImportsRule()
+        assertThat(
+            rule.lint(
+                """
+                package com.example
+
+                import com.example.Outer.*
+
+                class Outer {
+                    class Inner
+                }
+
+                val foo = Inner()
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
 }
