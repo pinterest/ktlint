@@ -178,14 +178,14 @@ object IntellijIDEAIntegration {
 
     private fun enableOptimizeImportsOnTheFly(arr: ByteArray): ByteArray {
         /*
-        <application>
-          <component name="CodeInsightSettings">
-            <option name="OPTIMIZE_IMPORTS_ON_THE_FLY" value="true" />
-            ...
-          </component>
-          ...
-        </application>
-        */
+         * <application>
+         *   <component name="CodeInsightSettings">
+         *     <option name="OPTIMIZE_IMPORTS_ON_THE_FLY" value="true" />
+         *     ...
+         *   </component>
+         *   ...
+         * </application>
+         */
         val doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(ByteArrayInputStream(arr))
         val xpath = XPathFactory.newInstance().newXPath()
         var cis = xpath.evaluate(
@@ -218,14 +218,14 @@ object IntellijIDEAIntegration {
 
     private fun enableOptimizeImportsOnTheFlyInsideWorkspace(arr: ByteArray): ByteArray {
         /*
-        <project>
-          <component name="CodeInsightWorkspaceSettings">
-            <option name="optimizeImportsOnTheFly" value="false" />
-            ...
-          </component>
-          ...
-        </project>
-        */
+         * <project>
+         *   <component name="CodeInsightWorkspaceSettings">
+         *     <option name="optimizeImportsOnTheFly" value="false" />
+         *     ...
+         *   </component>
+         *   ...
+         * </project>
+         */
         val doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(ByteArrayInputStream(arr))
         val xpath = XPathFactory.newInstance().newXPath()
         var cis = xpath.evaluate(
