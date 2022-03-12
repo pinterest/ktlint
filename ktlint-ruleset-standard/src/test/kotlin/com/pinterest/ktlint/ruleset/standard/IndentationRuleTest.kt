@@ -1271,7 +1271,7 @@ internal class IndentationRuleTest {
     }
 
     @Test
-    fun `Issue 1127 - multiline string in parameter list`() {
+    fun `Issue 1127 - multiline string followed by trimIndent in parameter list`() {
         val code =
             """
             interface UserRepository : JpaRepository<User, UUID> {
@@ -1279,7 +1279,7 @@ internal class IndentationRuleTest {
                     select u from User u
                     inner join Organization o on u.organization = o
                     where o = :organization
-                $MULTILINE_STRING_QUOTE)
+                $MULTILINE_STRING_QUOTE.trimIndent())
                 fun findByOrganization(organization: Organization, pageable: Pageable): Page<User>
             }
             """.trimIndent()
@@ -1291,7 +1291,7 @@ internal class IndentationRuleTest {
                     select u from User u
                     inner join Organization o on u.organization = o
                     where o = :organization
-                    $MULTILINE_STRING_QUOTE
+                    $MULTILINE_STRING_QUOTE.trimIndent()
                 )
                 fun findByOrganization(organization: Organization, pageable: Pageable): Page<User>
             }
@@ -1302,7 +1302,7 @@ internal class IndentationRuleTest {
             listOf(
                 LintError(line = 2, col = 12, ruleId = "wrapping", detail = "Missing newline after \"(\""),
                 LintError(line = 6, col = 1, ruleId = "indent", detail = "Unexpected indent of multiline string closing quotes"),
-                LintError(line = 6, col = 7, ruleId = "wrapping", detail = "Missing newline before \")\"")
+                LintError(line = 6, col = 20, ruleId = "wrapping", detail = "Missing newline before \")\"")
             )
         )
         assertThat(wrappingAndIndentRule.format(code)).isEqualTo(formattedCode)

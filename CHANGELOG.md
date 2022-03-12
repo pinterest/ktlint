@@ -11,6 +11,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - Fix lint message to "Unnecessary long whitespace" (`no-multi-spaces`) ([#1394](https://github.com/pinterest/ktlint/issues/1394))
 - Do not remove trailing comma after a parameter of type array in an annotation (experimental:trailing-comma) ([#1379](https://github.com/pinterest/ktlint/issues/1379))
 - Do not delete blank lines in KDoc (no-trailing-spaces) ([#1376](https://github.com/pinterest/ktlint/issues/1376))
+- Do not indent raw string literals that are not followed by either trimIndent() or trimMargin() (`indent`) ([#1375](https://github.com/pinterest/ktlint/issues/1375))
 
 ### Changed
 - Print the rule id always in the PlainReporter ([#1121](https://github.com/pinterest/ktlint/issues/1121))

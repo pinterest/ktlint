@@ -953,23 +953,23 @@ internal class WrappingRuleTest {
             """
             fun foo() =
                 $MULTILINE_STRING_QUOTE
-                some text$MULTILINE_STRING_QUOTE
+                some text$MULTILINE_STRING_QUOTE.trimIndent()
             """.trimIndent()
         val formattedCode =
             """
             fun foo() =
                 $MULTILINE_STRING_QUOTE
                 some text
-                $MULTILINE_STRING_QUOTE
+                $MULTILINE_STRING_QUOTE.trimIndent()
             """.trimIndent()
-        assertThat(WrappingRule().lint(code)).containsExactly(
+        assertThat(wrappingAndIndentRule.lint(code)).containsExactly(
             LintError(3, 14, "wrapping", "Missing newline before \"\"\"")
         )
-        assertThat(WrappingRule().format(code)).isEqualTo(formattedCode)
+        assertThat(wrappingAndIndentRule.format(code)).isEqualTo(formattedCode)
     }
 
     @Test
-    fun `Issue 1127 - multiline string in parameter list`() {
+    fun `Issue 1127 - multiline string followed by trimIndent in parameter list`() {
         val code =
             """
             interface UserRepository : JpaRepository<User, UUID> {
@@ -977,7 +977,7 @@ internal class WrappingRuleTest {
                     select u from User u
                     inner join Organization o on u.organization = o
                     where o = :organization
-                    $MULTILINE_STRING_QUOTE)
+                    $MULTILINE_STRING_QUOTE.trimIndent())
                 fun findByOrganization(organization: Organization, pageable: Pageable): Page<User>
             }
             """.trimIndent()
@@ -989,7 +989,7 @@ internal class WrappingRuleTest {
                     select u from User u
                     inner join Organization o on u.organization = o
                     where o = :organization
-                    $MULTILINE_STRING_QUOTE
+                    $MULTILINE_STRING_QUOTE.trimIndent()
                 )
                 fun findByOrganization(organization: Organization, pageable: Pageable): Page<User>
             }
@@ -999,7 +999,7 @@ internal class WrappingRuleTest {
         ).isEqualTo(
             listOf(
                 LintError(line = 2, col = 12, ruleId = "wrapping", detail = "Missing newline after \"(\""),
-                LintError(line = 6, col = 11, ruleId = "wrapping", detail = "Missing newline before \")\"")
+                LintError(line = 6, col = 24, ruleId = "wrapping", detail = "Missing newline before \")\"")
             )
         )
         assertThat(WrappingRule().format(code)).isEqualTo(formattedCode)
@@ -1359,10 +1359,59 @@ internal class WrappingRuleTest {
                 )
             }
             """.trimIndent()
-        assertThat(WrappingRule().lint(code)).containsExactly(
+        assertThat(wrappingAndIndentRule.lint(code)).containsExactly(
             LintError(2, 13, "wrapping", "Missing newline after \"(\""),
             LintError(6, 2, "wrapping", "Missing newline before \"\"\""),
             LintError(6, 17, "wrapping", "Missing newline before \")\"")
+        )
+        assertThat(wrappingAndIndentRule.format(code)).isEqualTo(formattedCode)
+    }
+
+    @Test
+    fun `Issue 1375 - Do not wrap raw string literal when not followed by trimIndent or trimMargin`() {
+        val code =
+            """
+            val someCodeBlock = $MULTILINE_STRING_QUOTE
+              foo()$MULTILINE_STRING_QUOTE
+            """.trimIndent()
+        assertThat(WrappingRule().lint(code)).isEmpty()
+        assertThat(WrappingRule().format(code)).isEqualTo(code)
+    }
+
+    @Test
+    fun `Issue 1375 - Wrap raw string literal when followed by trimIndent`() {
+        val code =
+            """
+            val someCodeBlock = $MULTILINE_STRING_QUOTE
+              foo()$MULTILINE_STRING_QUOTE.trimIndent()
+            """.trimIndent()
+        val formattedCode =
+            """
+            val someCodeBlock = $MULTILINE_STRING_QUOTE
+              foo()
+            $MULTILINE_STRING_QUOTE.trimIndent()
+            """.trimIndent()
+        assertThat(WrappingRule().lint(code)).containsExactly(
+            LintError(2, 8, "wrapping", "Missing newline before \"\"\"")
+        )
+        assertThat(WrappingRule().format(code)).isEqualTo(formattedCode)
+    }
+
+    @Test
+    fun `Issue 1375 - Wrap raw string literal when followed by trimMargin`() {
+        val code =
+            """
+            val someCodeBlock = $MULTILINE_STRING_QUOTE
+              foo()$MULTILINE_STRING_QUOTE.trimMargin()
+            """.trimIndent()
+        val formattedCode =
+            """
+            val someCodeBlock = $MULTILINE_STRING_QUOTE
+              foo()
+            $MULTILINE_STRING_QUOTE.trimMargin()
+            """.trimIndent()
+        assertThat(WrappingRule().lint(code)).containsExactly(
+            LintError(2, 8, "wrapping", "Missing newline before \"\"\"")
         )
         assertThat(WrappingRule().format(code)).isEqualTo(formattedCode)
     }
