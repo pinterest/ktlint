@@ -31,6 +31,7 @@ public object KtLint {
         message = "Marked for removal in Ktlint 0.46.",
         replaceWith = ReplaceWith("EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY")
     )
+    // TODO: when removing, then also remove method "EditorConfigProperties.toUserData"
     public val EDITOR_CONFIG_USER_DATA_KEY: Key<EditorConfig> = Key<EditorConfig>("EDITOR_CONFIG")
 
     public val ANDROID_USER_DATA_KEY: Key<Boolean> = Key<Boolean>("ANDROID")
@@ -239,9 +240,7 @@ public object KtLint {
             params.debug
         )
 
-        // Passed-in userData overrides .editorconfig
-        val mergedUserData = editorConfigProperties
-            .convertToRawValues() + params.userData
+        val mergedUserData = editorConfigProperties.toUserData() + params.userData
             .run {
                 if (!params.isStdIn) {
                     plus(FILE_PATH_PROPERTY to params.normalizedFilePath.toString())
@@ -260,6 +259,9 @@ public object KtLint {
             suppressedRegionLocator
         )
     }
+
+    @Deprecated("Remove in Ktlint 0.46 when deleting EDITOR_CONFIG_USER_DATA_KEY.")
+    private fun EditorConfigProperties.toUserData() = convertToRawValues()
 
     @Deprecated(
         message = "Should not be a part of public api. Will be removed in future release.",
@@ -280,16 +282,8 @@ public object KtLint {
         userData: Map<String, String>
     ) {
         val android = userData.isAndroidCodeStyle
-        val editorConfigMap =
-            if (android &&
-                userData["max_line_length"].let { it?.toLowerCase() != "off" && it?.toIntOrNull() == null }
-            ) {
-                userData + mapOf("max_line_length" to "100")
-            } else {
-                userData
-            }
         node.putUserData(FILE_PATH_USER_DATA_KEY, userData[FILE_PATH_PROPERTY])
-        node.putUserData(EDITOR_CONFIG_USER_DATA_KEY, EditorConfig.fromMap(editorConfigMap - "android" - "file_path"))
+        node.putUserData(EDITOR_CONFIG_USER_DATA_KEY, EditorConfig.fromMap(userData - "android" - "file_path"))
         node.putUserData(EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY, editorConfigProperties)
         node.putUserData(ANDROID_USER_DATA_KEY, android)
         node.putUserData(

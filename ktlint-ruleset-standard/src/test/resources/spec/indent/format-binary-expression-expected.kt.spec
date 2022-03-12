@@ -1,5 +1,5 @@
 fun f() {
-    x(
+    val x =
         paths.flatMap { dir ->
             "hello"
         } + f0(
@@ -7,15 +7,6 @@ fun f() {
         ) + f1(
             "sssss"
         )
-    )
-
-    y(
-        ""
-            + ""
-            + f2(
-                "" // IDEA quirk (ignored)
-            )
-    )
 
     val x =
         "a" to

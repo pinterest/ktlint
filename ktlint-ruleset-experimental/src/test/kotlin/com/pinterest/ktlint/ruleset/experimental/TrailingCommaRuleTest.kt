@@ -1033,6 +1033,26 @@ class TrailingCommaRuleTest {
         assertThat(formatResult).isEqualTo(formattedCode)
     }
 
+    @Test
+    fun `Issue 1379 - Trailing comma is allowed after array in annotation`() {
+        val code =
+            """
+            import kotlin.reflect.KClass
+
+            @Foo(
+                values = [
+                    Foo::class,
+                    Foo::class,
+                ],
+            )
+            annotation class Foo(val values: Array<KClass<*>>)
+            """.trimIndent()
+
+        assertThat(TrailingCommaRule().lint(code, ALLOW_TRAILING_COMMA)).isEmpty()
+        assertThat(TrailingCommaRule().format(code, ALLOW_TRAILING_COMMA))
+            .isEqualTo(code)
+    }
+
     private companion object {
         val ALLOW_TRAILING_COMMA =
             EditorConfigOverride.from(

@@ -39,14 +39,6 @@ ${true}
     )
     println(
         """
-    text
-
-        text
-_
-        """.trimIndent()
-    )
-    println(
-        """
     text ""
 
         text
@@ -110,6 +102,6 @@ ${Target(
         )}
 ${LoadStatement("@gmaven_rules//:gmaven.bzl", listOf("gmaven_rules"))}
 ${Target("gmaven_rules", listOf())}
-        """
+"""
 
 }

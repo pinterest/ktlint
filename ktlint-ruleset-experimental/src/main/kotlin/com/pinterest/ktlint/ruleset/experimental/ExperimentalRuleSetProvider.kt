@@ -22,6 +22,10 @@ public class ExperimentalRuleSetProvider : RuleSetProvider {
         SpacingAroundUnaryOperatorRule(),
         AnnotationSpacingRule(),
         UnnecessaryParenthesesBeforeTrailingLambdaRule(),
-        BlockCommentInitialStarAlignmentRule()
+        BlockCommentInitialStarAlignmentRule(),
+        DiscouragedCommentLocationRule(),
+        FunKeywordSpacingRule(),
+        FunctionTypeReferenceSpacingRule(),
+        ModifierListSpacingRule()
     )
 }
