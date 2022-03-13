@@ -93,6 +93,7 @@ by passing the `--experimental` flag to `ktlint`.
 - `experimental:spacing-around-angle-brackets`: No spaces around angle brackets
 - `experimental:spacing-between-declarations-with-annotations`: Declarations with annotations should be separated by a blank line
 - `experimental:spacing-between-declarations-with-comments`: Declarations with comments should be separated by a blank line
+- `experimental:type-parameter-list-spacing`: Spacing after a type parameter list in function and class declarations
 - `experimental:unary-op-spacing`: No spaces around unary operators
 
 ### Wrapping

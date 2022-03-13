@@ -7,6 +7,7 @@ import kotlin.reflect.KClass
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
+import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.CompositeElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
@@ -182,6 +183,12 @@ fun ASTNode.isPartOf(klass: KClass<out PsiElement>): Boolean {
     }
     return false
 }
+
+public fun ASTNode.isPartOfCompositeElementOfType(iElementType: IElementType) =
+    parent(findCompositeElementOfType(iElementType))?.elementType == iElementType
+
+public fun findCompositeElementOfType(iElementType: IElementType): (ASTNode) -> Boolean =
+    { it.elementType == iElementType || it !is CompositeElement }
 
 fun ASTNode.isPartOfString() =
     parent(STRING_TEMPLATE, strict = false) != null
