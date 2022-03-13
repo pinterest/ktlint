@@ -15,6 +15,8 @@ This section is applicable when providing rules that depend on one or more value
 ### Added
 - New experimental rule for aligning the initial stars in a block comment when present (`experimental:block-comment-initial-star-alignment` ([#297](https://github.com/pinterest/ktlint/issues/297))
 - Respect `.editorconfig` property `ij_kotlin_packages_to_use_import_on_demand` (`no-wildcard-imports`) ([#1272](https://github.com/pinterest/ktlint/pull/1272))
+- Add new experimental rules for wrapping of block comment (`comment-wrapping`) ([#todo](https://github.com/pinterest/ktlint/pull/todo))
+- Add new experimental rules for wrapping of KDoc comment (`kdoc-wrapping`) ([#todo](https://github.com/pinterest/ktlint/pull/todo))
 
 ### Fixed
 - Fix lint message to "Unnecessary long whitespace" (`no-multi-spaces`) ([#1394](https://github.com/pinterest/ktlint/issues/1394))
