@@ -25,6 +25,8 @@ public class ExperimentalRuleSetProvider : RuleSetProvider {
         DiscouragedCommentLocationRule(),
         FunKeywordSpacingRule(),
         FunctionTypeReferenceSpacingRule(),
-        ModifierListSpacingRule()
+        ModifierListSpacingRule(),
+        CommentWrappingRule(),
+        KdocWrappingRule()
     )
 }
