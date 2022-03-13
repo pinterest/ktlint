@@ -55,16 +55,22 @@ internal fun initPsiFileFactory(isFromCli: Boolean): PsiFileFactory {
     }
 
     val disposable = Disposer.newDisposable()
+    try {
+        val project = KotlinCoreEnvironment.createForProduction(
+            disposable,
+            compilerConfiguration,
+            EnvironmentConfigFiles.JVM_CONFIG_FILES
+        ).project as MockProject
 
-    val project = KotlinCoreEnvironment.createForProduction(
-        disposable,
-        compilerConfiguration,
-        EnvironmentConfigFiles.JVM_CONFIG_FILES
-    ).project as MockProject
+        project.enableASTMutations()
 
-    project.enableASTMutations()
-
-    return PsiFileFactory.getInstance(project)
+        return PsiFileFactory.getInstance(project)
+    } finally {
+        // Dispose explicitly to (possibly) prevent memory leak
+        // https://discuss.kotlinlang.org/t/memory-leak-in-kotlincoreenvironment-and-kotlintojvmbytecodecompiler/21950
+        // https://youtrack.jetbrains.com/issue/KT-47044
+        disposable.dispose()
+    }
 }
 
 /**
