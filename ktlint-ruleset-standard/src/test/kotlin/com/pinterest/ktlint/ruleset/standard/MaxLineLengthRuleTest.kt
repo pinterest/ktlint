@@ -4,6 +4,7 @@ import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.maxLineLengthProperty
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.ruleset.standard.MaxLineLengthRule.Companion.ignoreBackTickedIdentifierProperty
+import com.pinterest.ktlint.ruleset.standard.MaxLineLengthRule.Companion.ignoreStringProperty
 import com.pinterest.ktlint.test.EditorConfigOverride
 import com.pinterest.ktlint.test.diffFileLint
 import com.pinterest.ktlint.test.lint
@@ -82,6 +83,93 @@ class MaxLineLengthRuleTest {
                 LintError(2, 1, "max-line-length", "Exceeded max line length (40)")
             )
         )
+    }
+
+    @Test
+    fun testErrorSuppressionOnString() {
+        assertThat(
+            MaxLineLengthRule().lint(
+                """
+                fun main() {
+                    val longString = "this is a very very very very long long string on a single line"
+                }
+                """.trimIndent(),
+                EditorConfigOverride.from(
+                    maxLineLengthProperty to 40,
+                    ignoreStringProperty to true
+                )
+            )
+        ).isEmpty()
+    }
+
+    @Test
+    fun testReportLongLinesAfterIgnoringStringWhenNotLastToken() {
+        assertThat(
+            MaxLineLengthRule().lint(
+                """
+                @Annotation(
+                    "this is a very very very very long long string on a single line"
+                )
+                fun test1(
+                    arg: String = "this is a very very very very long long string on a single line"
+                ) {
+                    val longString = "this is a very very very very long long string on a single line"
+                }
+
+                @Annotation("this is a very very very very long long string on a single line")
+                fun test2(arg: String = "this is a very very very very long long string on a single line") {
+                    val longString = "this is a very very very very long long string on a single line" // With a comment
+                }
+                """.trimIndent(),
+                EditorConfigOverride.from(
+                    maxLineLengthProperty to 40,
+                    ignoreStringProperty to true
+                )
+            )
+        ).isEqualTo(
+            listOf(
+                // Note that no error was generated on lines 2, 5 and 7 as the String was the last token of the lines
+                LintError(10, 1, "max-line-length", "Exceeded max line length (40)"),
+                LintError(11, 1, "max-line-length", "Exceeded max line length (40)"),
+                LintError(12, 1, "max-line-length", "Exceeded max line length (40)"),
+            )
+        )
+    }
+
+    @Test
+    fun testReportLongLinesAfterExcludingString() {
+        assertThat(
+            MaxLineLengthRule().lint(
+                """
+                fun main() {
+                    val longString = "this is a very very very very long long string on a single line"
+                }
+                """.trimIndent(),
+                EditorConfigOverride.from(maxLineLengthProperty to 40)
+            )
+        ).isEqualTo(
+            listOf(
+                LintError(2, 1, "max-line-length", "Exceeded max line length (40)")
+            )
+        )
+    }
+
+    @Test
+    fun testErrorSuppressionOnTokensBetweenBackticksAndString() {
+        assertThat(
+            MaxLineLengthRule().lint(
+                """
+                fun main() {
+                    val `backTickedProperty` = "some very very very very long string on a single line"
+                }
+                """.trimIndent(),
+                EditorConfigOverride.from(
+                    maxLineLengthProperty to 40,
+                    ignoreBackTickedIdentifierProperty to true,
+                    ignoreStringProperty to true,
+                )
+            )
+        ).isEmpty()
     }
 
     @Test

@@ -6,6 +6,7 @@ import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType
 import com.pinterest.ktlint.core.ast.isPartOf
+import com.pinterest.ktlint.core.ast.isPartOfString
 import com.pinterest.ktlint.core.ast.isRoot
 import com.pinterest.ktlint.core.ast.nextLeaf
 import com.pinterest.ktlint.core.ast.parent
@@ -39,7 +40,8 @@ class MaxLineLengthRule :
 
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
         maxLineLengthProperty,
-        ignoreBackTickedIdentifierProperty
+        ignoreBackTickedIdentifierProperty,
+        ignoreStringProperty,
     )
 
     private var maxLineLength: Int = maxLineLengthProperty.defaultValue
@@ -52,6 +54,7 @@ class MaxLineLengthRule :
     ) {
         if (node.isRoot()) {
             val ignoreBackTickedIdentifier = node.getEditorConfigValue(ignoreBackTickedIdentifierProperty)
+            val ignoreString = node.getEditorConfigValue(ignoreStringProperty)
             maxLineLength = node.getEditorConfigValue(maxLineLengthProperty)
             if (maxLineLength <= 0) {
                 return
@@ -59,7 +62,7 @@ class MaxLineLengthRule :
             val errorOffset = arrayListOf<Int>()
             node
                 .getElementsPerLine()
-                .filter { it.lineLength(ignoreBackTickedIdentifier) > maxLineLength }
+                .filter { it.lineLength(ignoreBackTickedIdentifier, ignoreString) > maxLineLength }
                 .forEach { parsedLine ->
                     val el = parsedLine.elements.last()
                     if (!el.isPartOf(KDoc::class) && !el.isPartOfRawMultiLineString()) {
@@ -105,15 +108,29 @@ class MaxLineLengthRule :
 
     public companion object {
         internal const val KTLINT_IGNORE_BACKTICKED_IDENTIFIER_NAME = "ktlint_ignore_back_ticked_identifier"
-        private const val PROPERTY_DESCRIPTION = "Defines whether the backticked identifier (``) should be ignored"
+        private const val IGNORE_BACKTICKED_PROPERTY_DESCRIPTION = "Defines whether the backticked identifier (``) should be ignored"
 
         public val ignoreBackTickedIdentifierProperty: UsesEditorConfigProperties.EditorConfigProperty<Boolean> =
             UsesEditorConfigProperties.EditorConfigProperty(
                 type = PropertyType.LowerCasingPropertyType(
-                    KTLINT_IGNORE_BACKTICKED_IDENTIFIER_NAME,
-                    PROPERTY_DESCRIPTION,
-                    PropertyType.PropertyValueParser.BOOLEAN_VALUE_PARSER,
-                    setOf(true.toString(), false.toString())
+                    /* name = */ KTLINT_IGNORE_BACKTICKED_IDENTIFIER_NAME,
+                    /* description = */ IGNORE_BACKTICKED_PROPERTY_DESCRIPTION,
+                    /* parser = */ PropertyType.PropertyValueParser.BOOLEAN_VALUE_PARSER,
+                    /* ...possibleValues = */ true.toString(), false.toString()
+                ),
+                defaultValue = false
+            )
+
+        internal const val KTLINT_IGNORE_STRING_NAME = "ktlint_ignore_string"
+        private const val IGNORE_STRING_PROPERTY_DESCRIPTION = "Defines whether the string should be ignored"
+
+        public val ignoreStringProperty: UsesEditorConfigProperties.EditorConfigProperty<Boolean> =
+            UsesEditorConfigProperties.EditorConfigProperty(
+                type = PropertyType.LowerCasingPropertyType(
+                    /* name = */ KTLINT_IGNORE_STRING_NAME,
+                    /* description = */ IGNORE_STRING_PROPERTY_DESCRIPTION,
+                    /* parser = */ PropertyType.PropertyValueParser.BOOLEAN_VALUE_PARSER,
+                    /* ...possibleValues = */ true.toString(), false.toString()
                 ),
                 defaultValue = false
             )
@@ -142,12 +159,19 @@ private data class ParsedLine(
     val offset: Int,
     val elements: List<ASTNode>
 ) {
-    fun lineLength(ignoreBackTickedIdentifier: Boolean): Int {
-        return if (ignoreBackTickedIdentifier) {
-            line.length - totalLengthBacktickedElements()
-        } else {
-            line.length
-        }
+    fun lineLength(ignoreBackTickedIdentifier: Boolean, ignoreString: Boolean): Int {
+        return line.length
+            .minus(if (ignoreBackTickedIdentifier) totalLengthBacktickedElements() else 0)
+            .minus(if (ignoreString) totalLengthStringElements() else 0)
+    }
+
+    private fun totalLengthStringElements(): Int {
+        return elements
+            .lastOrNull()
+            ?.takeIf { it.isPartOfString() }
+            ?.treeParent
+            ?.textLength
+            ?: 0
     }
 
     private fun totalLengthBacktickedElements(): Int {
