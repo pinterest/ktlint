@@ -75,7 +75,7 @@ class NoSemicolonsRule : Rule("no-semi") {
                     nextLeaf.textContains('\n') && nextNextLeaf.elementType != KtTokens.LBRACE
                 )
         }
-        return nextLeaf == null /* eof */
+        return nextLeaf == null // eof
     }
 
     private fun doesNotRequirePostSemi(prevLeaf: ASTNode?): Boolean {
