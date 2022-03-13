@@ -110,11 +110,10 @@ class MaxLineLengthRule :
         public val ignoreBackTickedIdentifierProperty: UsesEditorConfigProperties.EditorConfigProperty<Boolean> =
             UsesEditorConfigProperties.EditorConfigProperty(
                 type = PropertyType.LowerCasingPropertyType(
-                    /* name = */ KTLINT_IGNORE_BACKTICKED_IDENTIFIER_NAME,
-                    /* description = */ PROPERTY_DESCRIPTION,
-                    /* parser = */ PropertyType.PropertyValueParser.BOOLEAN_VALUE_PARSER,
-                    /* possibleValues = */ true.toString(),
-                    false.toString()
+                    KTLINT_IGNORE_BACKTICKED_IDENTIFIER_NAME,
+                    PROPERTY_DESCRIPTION,
+                    PropertyType.PropertyValueParser.BOOLEAN_VALUE_PARSER,
+                    setOf(true.toString(), false.toString())
                 ),
                 defaultValue = false
             )
