@@ -4,10 +4,9 @@ import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.test.format
 import com.pinterest.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class TypeParameterListSpacingRuleTest {
-    /* Enable once https://github.com/pinterest/ktlint/pull/1365 is merged
     @Test
     fun `Given a type parameter list followed by a comment then it can be ignored as it will be handled by the discouraged-comment-location rule`() {
         val code =
@@ -21,7 +20,6 @@ class TypeParameterListSpacingRuleTest {
             LintError(1, 9, "discouraged-comment-location", "No comment expected at this location")
         )
     }
-    */
 
     @Test
     fun `Given a type parameter list in a function declaration not preceded or followed by a space then add a single white space`() {
