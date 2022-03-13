@@ -6,7 +6,7 @@ import com.pinterest.ktlint.test.lint
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
 
-class NoSpacingAfterTypeReferenceRuleTest {
+class FunctionTypeReferenceSpacingRuleTest {
     @Test
     fun `Given a function signature with whitespace after a non nullable type reference of an extension function then remove this whitespace`() {
         val code =
