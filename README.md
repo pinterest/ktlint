@@ -76,14 +76,12 @@ New rules will be added into the [experimental ruleset](https://github.com/pinte
 by passing the `--experimental` flag to `ktlint`.
 
 - `experimental:annotation`: Annotation formatting - multiple annotations should be on a separate line than the annotated declaration; annotations with parameters should each be on separate lines; annotations should be followed by a space
-- `experimental:argument-list-wrapping`: Argument list wrapping
 - `experimental:block-comment-initial-star-alignment`: Lines in a block comment which (exclusive the indentation) start with a `*` should have this `*` aligned with the `*` in the opening of the block comment.
 - `experimental:discouraged-comment-location`: Detect discouraged comment locations (no autocorrect)
 - `experimental:enum-entry-name-case`: Enum entry names should be uppercase underscore-separated names
 - `experimental:multiline-if-else`: Braces required for multiline if/else statements
 - `experimental:no-empty-first-line-in-method-block`: No leading empty lines in method blocks
 - `experimental:package-name`: No underscores in package names
-- `experimental:unary-op-spacing`: No spaces around unary operators
 - `experimental:unnecessary-parentheses-before-trailing-lambda`: An empty parentheses block before a lambda is redundant. For example `some-string".count() { it == '-' }`
 
 ### Spacing
@@ -95,6 +93,12 @@ by passing the `--experimental` flag to `ktlint`.
 - `experimental:spacing-around-angle-brackets`: No spaces around angle brackets
 - `experimental:spacing-between-declarations-with-annotations`: Declarations with annotations should be separated by a blank line
 - `experimental:spacing-between-declarations-with-comments`: Declarations with comments should be separated by a blank line
+- `experimental:unary-op-spacing`: No spaces around unary operators
+
+### Wrapping
+- `experimental:argument-list-wrapping`: Argument list wrapping
+- `experimental:comment-wrapping`: A block comment should start and end on a line that does not contain any other element. A block comment should not be used as end of line comment.
+- `experimental:kdoc-wrapping`: A KDoc comment should start and end on a line that does not contain any other element.
 
 ## EditorConfig
 
