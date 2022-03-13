@@ -1,15 +1,12 @@
 package com.pinterest.ktlint.ruleset.experimental
 
-import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.test.format
 import com.pinterest.ktlint.test.lint
-import java.util.ArrayList
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 class AnnotationSpacingRuleTest {
-
     @Test
     fun `lint no empty lines between an annotation and object`() {
         assertThat(
@@ -17,7 +14,6 @@ class AnnotationSpacingRuleTest {
                 """
                 @JvmField
                 fun foo() {}
-
                 """.trimIndent()
             )
         ).isEmpty()
@@ -31,7 +27,6 @@ class AnnotationSpacingRuleTest {
                 @JvmField
 
                 fun foo() {}
-
                 """.trimIndent()
             )
         ).isEqualTo(
@@ -48,7 +43,6 @@ class AnnotationSpacingRuleTest {
             @JvmField
 
             fun foo() {}
-
             """.trimIndent()
 
         assertThat(
@@ -57,7 +51,6 @@ class AnnotationSpacingRuleTest {
             """
             @JvmField
             fun foo() {}
-
             """.trimIndent()
         )
     }
@@ -72,7 +65,6 @@ class AnnotationSpacingRuleTest {
               @JvmStatic
               val r = A()
             }
-
             """.trimIndent()
 
         assertThat(
@@ -84,7 +76,6 @@ class AnnotationSpacingRuleTest {
               @JvmStatic
               val r = A()
             }
-
             """.trimIndent()
         )
     }
@@ -98,7 +89,6 @@ class AnnotationSpacingRuleTest {
 
 
             fun foo() {}
-
             """.trimIndent()
 
         assertThat(
@@ -107,7 +97,6 @@ class AnnotationSpacingRuleTest {
             """
             @JvmField
             fun foo() {}
-
             """.trimIndent()
         )
     }
@@ -117,7 +106,6 @@ class AnnotationSpacingRuleTest {
         val code =
             """
             @JvmField fun foo() {}
-
             """.trimIndent()
 
         assertThat(
@@ -125,7 +113,6 @@ class AnnotationSpacingRuleTest {
         ).isEqualTo(
             """
             @JvmField fun foo() {}
-
             """.trimIndent()
         )
     }
@@ -137,7 +124,6 @@ class AnnotationSpacingRuleTest {
             @JvmField @JvmStatic
 
             fun foo() = Unit
-
             """.trimIndent()
 
         assertThat(
@@ -146,7 +132,6 @@ class AnnotationSpacingRuleTest {
             """
             @JvmField @JvmStatic
             fun foo() = Unit
-
             """.trimIndent()
         )
     }
@@ -159,7 +144,6 @@ class AnnotationSpacingRuleTest {
             @JvmStatic
 
             fun foo() = Unit
-
             """.trimIndent()
 
         assertThat(
@@ -169,7 +153,6 @@ class AnnotationSpacingRuleTest {
             @JvmField
             @JvmStatic
             fun foo() = Unit
-
             """.trimIndent()
         )
     }
@@ -183,7 +166,6 @@ class AnnotationSpacingRuleTest {
             @JvmName
 
             @JvmStatic fun foo() = Unit
-
             """.trimIndent()
 
         assertThat(
@@ -193,7 +175,6 @@ class AnnotationSpacingRuleTest {
             @JvmField
             @JvmName
             @JvmStatic fun foo() = Unit
-
             """.trimIndent()
         )
     }
@@ -211,7 +192,6 @@ class AnnotationSpacingRuleTest {
 
 
             fun foo() = Unit
-
             """.trimIndent()
 
         assertThat(
@@ -222,7 +202,6 @@ class AnnotationSpacingRuleTest {
             @JvmName
             @JvmStatic
             fun foo() = Unit
-
             """.trimIndent()
         )
     }
@@ -240,7 +219,6 @@ class AnnotationSpacingRuleTest {
 
               val foo = Foo()
             }
-
             """.trimIndent()
 
         assertThat(
@@ -252,80 +230,8 @@ class AnnotationSpacingRuleTest {
               @JvmStatic
               val foo = Foo()
             }
-
             """.trimIndent()
         )
-    }
-
-    @Test
-    fun `lint there should not be an error on multiple lines assertion while additional formatting ongoing`() {
-        val code =
-            """
-            package a.b.c
-
-            class Test {
-                fun bloop() {
-                    asdfadsf(asdfadsf, asdfasdf, asdfasdfasdfads,
-                    asdfasdf, asdfasdf, asdfasdf)
-                }
-
-                @Blah
-                val test: Int
-            }
-
-            """.trimIndent()
-        assertThat(
-            AnnotationSpacingRule().format(code)
-        ).isEqualTo(
-            """
-            package a.b.c
-
-            class Test {
-                fun bloop() {
-                    asdfadsf(asdfadsf, asdfasdf, asdfasdfasdfads,
-                    asdfasdf, asdfasdf, asdfasdf)
-                }
-
-                @Blah
-                val test: Int
-            }
-
-            """.trimIndent()
-        )
-    }
-
-    @Test
-    fun `lint there should not be an error on multiline assertion while additional formatting ongoing from file`() {
-        val code =
-            """
-            package a.b.c
-
-            class Test {
-                fun bloop() {
-                    asdfadsf(asdfadsf, asdfasdf, asdfasdfasdfads,
-                    asdfasdf, asdfasdf, asdfasdf)
-                }
-
-                @Blah
-                val test: Int
-            }
-
-            """.trimIndent()
-        assertThat(
-            ArrayList<LintError>().apply {
-                KtLint.lint(
-                    KtLint.Params(
-                        text = code,
-                        ruleSets = mutableListOf(
-                            ExperimentalRuleSetProvider().get()
-                        ),
-                        cb = { e, _ -> add(e) }
-                    )
-                )
-            }
-        ).allMatch {
-            it.ruleId == "experimental:argument-list-wrapping"
-        }
     }
 
     @Test

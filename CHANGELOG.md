@@ -2,7 +2,21 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## Unreleased
+## Unreleased (0.46.0)
+
+### API Changes & RuleSet providers
+
+### Added
+- Add experimental rule for unexpected spacing between function name and opening parenthesis (`spacing-between-function-name-and-opening-parenthesis`) ([#1341](https://github.com/pinterest/ktlint/issues/1341))
+
+### Fixed
+
+### Changed
+
+### Removed
+
+
+## Unreleased (0.45.0)
 
 ### API Changes & RuleSet providers
 
