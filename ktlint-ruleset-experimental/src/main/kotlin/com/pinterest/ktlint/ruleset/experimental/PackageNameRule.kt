@@ -21,15 +21,7 @@ class PackageNameRule : Rule("package-name") {
             if (qualifiedName.isEmpty()) {
                 return
             }
-            // https://github.com/shyiko/ktlint/issues/280
-/*
-            val filePath = node.psi.containingFile.node.getUserData(KtLint.FILE_PATH_USER_DATA_KEY) ?: return
-            val fileDir = filePath.substringBeforeLast(File.separatorChar)
-                .replace('.', File.separatorChar) // kotlinc a/b.c/d/E.kt produces a/b/c/d/E.class
-            if (!fileDir.endsWith(File.separatorChar + qualifiedName.replace('.', File.separatorChar))) {
-                emit(node.startOffset, "Package directive doesn't match file location", false)
-            }
-*/
+
             if (qualifiedName.contains('_')) {
                 emit(node.startOffset, "Package name must not contain underscore", false)
                 // "package name must be in lowercase" is violated by too many to projects in the wild to forbid

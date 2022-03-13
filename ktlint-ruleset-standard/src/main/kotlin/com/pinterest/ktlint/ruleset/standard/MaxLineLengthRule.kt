@@ -1,8 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.api.EditorConfigProperties
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.maxLineLengthProperty
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType
@@ -39,10 +38,11 @@ class MaxLineLengthRule :
     UsesEditorConfigProperties {
 
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
+        maxLineLengthProperty,
         ignoreBackTickedIdentifierProperty
     )
 
-    private var maxLineLength: Int = -1
+    private var maxLineLength: Int = maxLineLengthProperty.defaultValue
     private var rangeTree = RangeTree()
 
     override fun visit(
@@ -51,11 +51,8 @@ class MaxLineLengthRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         if (node.isRoot()) {
-            val editorConfig = node.getUserData(KtLint.EDITOR_CONFIG_USER_DATA_KEY)!!
-            val editorConfigProperties: EditorConfigProperties =
-                node.getUserData(KtLint.EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY)!!
-            val ignoreBackTickedIdentifier = editorConfigProperties.getEditorConfigValue(ignoreBackTickedIdentifierProperty)
-            maxLineLength = editorConfig.maxLineLength
+            val ignoreBackTickedIdentifier = node.getEditorConfigValue(ignoreBackTickedIdentifierProperty)
+            maxLineLength = node.getEditorConfigValue(maxLineLengthProperty)
             if (maxLineLength <= 0) {
                 return
             }
@@ -113,11 +110,10 @@ class MaxLineLengthRule :
         public val ignoreBackTickedIdentifierProperty: UsesEditorConfigProperties.EditorConfigProperty<Boolean> =
             UsesEditorConfigProperties.EditorConfigProperty(
                 type = PropertyType.LowerCasingPropertyType(
-                    /* name = */ KTLINT_IGNORE_BACKTICKED_IDENTIFIER_NAME,
-                    /* description = */ PROPERTY_DESCRIPTION,
-                    /* parser = */ PropertyType.PropertyValueParser.BOOLEAN_VALUE_PARSER,
-                    /* possibleValues = */ true.toString(),
-                    false.toString()
+                    KTLINT_IGNORE_BACKTICKED_IDENTIFIER_NAME,
+                    PROPERTY_DESCRIPTION,
+                    PropertyType.PropertyValueParser.BOOLEAN_VALUE_PARSER,
+                    setOf(true.toString(), false.toString())
                 ),
                 defaultValue = false
             )

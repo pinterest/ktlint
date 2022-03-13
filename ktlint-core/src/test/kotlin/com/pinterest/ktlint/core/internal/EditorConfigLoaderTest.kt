@@ -3,6 +3,7 @@ package com.pinterest.ktlint.core.internal
 import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
 import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.insertNewLineProperty
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.internal.EditorConfigLoader.Companion.convertToRawValues
@@ -11,11 +12,12 @@ import java.nio.file.FileSystem
 import java.nio.file.Files
 import java.nio.file.Path
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.entry
 import org.ec4j.core.model.PropertyType
 import org.intellij.lang.annotations.Language
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.junit.After
-import org.junit.Test
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Test
 
 @OptIn(FeatureInAlphaState::class)
 internal class EditorConfigLoaderTest {
@@ -36,7 +38,7 @@ internal class EditorConfigLoaderTest {
         Files.write(normalizedPath("$filePath/.editorconfig"), content.toByteArray())
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         tempFileSystem.close()
     }
@@ -240,21 +242,33 @@ internal class EditorConfigLoaderTest {
     }
 
     @Test
-    fun `Should return emtpy map on null file path`() {
-        val parsedEditorConfig = editorConfigLoader.loadPropertiesForFile(null, rules = rules)
+    fun `Should return the override properties only on null file path`() {
+        val parsedEditorConfig = editorConfigLoader.loadPropertiesForFile(
+            filePath = null,
+            rules = rules,
+            loadedValuesOverride = mapOf(
+                insertNewLineProperty to PropertyType.PropertyValue.valid("true", true)
+            )
+        )
 
-        assertThat(parsedEditorConfig).isEmpty()
+        assertThat(parsedEditorConfig.convertToRawValues()).containsExactly(
+            entry("insert_final_newline", "true")
+        )
     }
 
     @Test
-    fun `Should return empty map for non supported file`() {
-        val projectDir = "/project"
-        val lintFile = tempFileSystem.normalizedPath(projectDir).resolve("test.txt")
+    fun `Should return the override properties only non supported file`() {
+        val parsedEditorConfig = editorConfigLoader.loadPropertiesForFile(
+            filePath = null,
+            rules = rules,
+            loadedValuesOverride = mapOf(
+                insertNewLineProperty to PropertyType.PropertyValue.valid("true", true)
+            )
+        )
 
-        val editorConfigProperties = editorConfigLoader.loadPropertiesForFile(lintFile, rules = rules)
-        val parsedEditorConfig = editorConfigProperties.convertToRawValues()
-
-        assertThat(parsedEditorConfig).isEmpty()
+        assertThat(parsedEditorConfig.convertToRawValues()).containsExactly(
+            entry("insert_final_newline", "true")
+        )
     }
 
     @Test
@@ -430,7 +444,7 @@ internal class EditorConfigLoaderTest {
             lintFile,
             rules = rules.plus(FinalNewlineRule()),
             loadedValuesOverride = mapOf(
-                FinalNewlineRule.insertNewLineProperty to PropertyType.PropertyValue.valid("true", true)
+                insertNewLineProperty to PropertyType.PropertyValue.valid("true", true)
             )
         )
         val parsedEditorConfig = editorConfigProperties.convertToRawValues()
@@ -462,7 +476,7 @@ internal class EditorConfigLoaderTest {
             lintFile,
             rules = rules.plus(FinalNewlineRule()),
             loadedValuesOverride = mapOf(
-                FinalNewlineRule.insertNewLineProperty to PropertyType.PropertyValue.valid("false", false)
+                insertNewLineProperty to PropertyType.PropertyValue.valid("false", false)
             )
         )
         val parsedEditorConfig = editorConfigProperties.convertToRawValues()

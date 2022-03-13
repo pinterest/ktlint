@@ -23,6 +23,13 @@ public class ExperimentalRuleSetProvider : RuleSetProvider {
         AnnotationSpacingRule(),
         UnnecessaryParenthesesBeforeTrailingLambdaRule(),
         TypeParameterListSpacingRule(),
-        TypeArgumentListSpacingRule()
+        TypeArgumentListSpacingRule(),
+        BlockCommentInitialStarAlignmentRule(),
+        DiscouragedCommentLocationRule(),
+        FunKeywordSpacingRule(),
+        FunctionTypeReferenceSpacingRule(),
+        ModifierListSpacingRule(),
+        CommentWrappingRule(),
+        KdocWrappingRule()
     )
 }

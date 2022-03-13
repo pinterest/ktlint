@@ -3,18 +3,22 @@ package com.pinterest.ktlint.ruleset.standard.importordering
 import com.pinterest.ktlint.ruleset.standard.internal.importordering.PatternEntry
 import com.pinterest.ktlint.ruleset.standard.internal.importordering.parseImportsLayout
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test
+import org.assertj.core.api.Assertions.assertThatThrownBy
+import org.junit.jupiter.api.Test
 
 class ImportLayoutParserTest {
-
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun `blank lines in the beginning and end of import list are not allowed`() {
-        parseImportsLayout("|,*,|")
+        assertThatThrownBy {
+            parseImportsLayout("|,*,|")
+        }.isInstanceOf(IllegalArgumentException::class.java)
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun `pattern without single wildcard is not allowed`() {
-        parseImportsLayout("java.util.List.*")
+        assertThatThrownBy {
+            parseImportsLayout("java.util.List.*")
+        }.isInstanceOf(IllegalArgumentException::class.java)
     }
 
     @Test

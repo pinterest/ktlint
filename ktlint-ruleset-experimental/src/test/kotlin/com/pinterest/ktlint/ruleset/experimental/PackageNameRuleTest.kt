@@ -5,8 +5,7 @@ import com.pinterest.ktlint.test.lint
 import java.net.URI
 import java.nio.file.Paths
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Ignore
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class PackageNameRuleTest {
 
@@ -23,15 +22,6 @@ class PackageNameRuleTest {
     @Test
     fun testOKWithDotInDirectoryName() {
         assertOK("package a.b.c.d\nclass A{}", "/var/tmp/a/b.c/d/A.kt")
-    }
-
-    @Ignore
-    fun testNOK() {
-        assertNOK(
-            "package hoge.fuga",
-            "/hoge/moge/A.kt",
-            listOf(LintError(1, 1, "package-name", "Package directive doesn't match file location"))
-        )
     }
 
     @Test
@@ -55,7 +45,13 @@ class PackageNameRuleTest {
         mapOf("file_path" to Paths.get(URI.create("file:///$fileName")).toString())
 
     private fun assertOK(ktScript: String, fileName: String) {
-        assertThat(PackageNameRule().lint(ktScript, fileName(fileName))).isEmpty()
+        assertThat(
+            PackageNameRule()
+                .lint(
+                    ktScript,
+                    fileName(fileName)
+                )
+        ).isEmpty()
     }
 
     private fun assertNOK(ktScript: String, fileName: String, lintErrors: List<LintError>) {

@@ -30,42 +30,76 @@ It's also [easy to create your own](#creating-a-reporter).
 
 ## Standard rules
 
-- Indentation formatting - respects `.editorconfig` `indent_size` with no continuation indent (see [EditorConfig](#editorconfig) section for more) (id: `indent`)
-- No semicolons (unless used to separate multiple statements on the same line) (id: `no-semi`)
-- No unused `import`s (id: `no-unused-imports`)
-- No consecutive blank lines (id: `no-consecutive-blank-lines`)
-- No blank lines before `}` (id: `no-blank-line-before-rbrace`)
-- No trailing whitespaces (id: `no-trailing-spaces`)
-- No `Unit` returns (`fun fn {}` instead of `fun fn: Unit {}`) (id: `no-unit-return`)
-- No empty (`{}`) class bodies (id: `no-empty-class-body`)
-- No wildcard `import`s (id: `no-wildcard-imports`)
-- When wrapping chained calls `.`, `?.` and `?:` should be placed on the next line (id: `chain-wrapping`)
-- When a line is broken at an assignment (`=`) operator the break comes after the symbol (id: `no-line-break-before-assignment`)
-- When class/function signature doesn't fit on a single line, each parameter must be on a separate line
-- Consistent string templates (`$v` instead of `${v}`, `${p.v}` instead of `${p.v.toString()}`) (id: `string-template`)
-- Consistent order of modifiers (id: `modifier-order`)
-- Consistent spacing after keywords, commas; around colons, curly braces, parens, infix operators, comments, range operators, etc (ids: `colon-spacing`, `comma-spacing`, `curly-spacing`, `dot-spacing`, `double-colon-spacing`, `keyword-spacing`, `op-spacing`, `paren-spacing`, `range-spacing`)
-- Newline at the end of each file (enabled by default) 
-(set `insert_final_newline=false` in .editorconfig to disable (see [EditorConfig](#editorconfig) section for more)). (id: `final-newline`)
-- Imports ordered consistently (see [Custom ktlint EditorConfig properties](#custom-ktlint-specific-editorconfig-properties) for more) (id: `import-ordering`)
+- `chain-wrapping`: When wrapping chained calls `.`, `?.` and `?:` should be placed on the next line
+- `comment-spacing`: The end of line comment sign `//` should be preceded and followed by exactly a space
+- `filename`: Files containing only one toplevel domain should be named according to that element.
+- `final-newline`: Newline at the end of each file (enabled by default)
+  (set `insert_final_newline=false` in .editorconfig to disable (see [EditorConfig](#editorconfig) section for more)).
+- `import-ordering`: Imports ordered consistently (see [Custom ktlint EditorConfig properties](#custom-ktlint-specific-editorconfig-properties) for more)
+- `indent`: Indentation formatting - respects `.editorconfig` `indent_size` with no continuation indent (see [EditorConfig](#editorconfig) section for more)
+- `max-line-length`: Ensures that lines do not exceed the given length of `.editoconfig` property `max_line_length` (see [EditorConfig](#editorconfig) section for more). This rule does not apply in a number of situations. For example, in the case a line exceeds the maximum line length due to and comment that disables ktlint rules than that comment is being ignored when validating the length of the line. The `.editorconfig` property `ktlint_ignore_back_ticked_identifier` can be set to ignore identifiers which are enclosed in backticks, which for example is very useful when you want to allow longer names for unit tests.  
+- `modifier-order`: Consistent order of modifiers
+- `no-blank-line-before-rbrace`: No blank lines before `}` 
+- `no-consecutive-blank-lines`: No consecutive blank lines
+- `no-empty-class-body`: No empty (`{}`) class bodies
+- `no-line-break-after-else`: Disallows line breaks after the else keyword if that could lead to confusion, for example:
+    ```kotlin
+    if (conditionA()) {
+        doSomething()
+    } else
+    if (conditionB()) {
+        doAnotherThing()
+    }
+    ```
+- `no-line-break-before-assignment`: When a line is broken at an assignment (`=`) operator the break comes after the symbol
+- `no-multi-spaces`: Except in indentation and in KDoc's it is not allowed to have multiple consecutive spaces
+- `no-semi`: No semicolons (unless used to separate multiple statements on the same line)
+- `no-trailing-spaces`: No trailing whitespaces
+- `no-unit-return`: No `Unit` returns (`fun fn {}` instead of `fun fn: Unit {}`)
+- `no-unused-imports`: No unused `import`s
+- `no-wildcard-imports`: No wildcard `import`s expect imports listed in `.editorconfig` property `ij_kotlin_packages_to_use_import_on_demand`
+- `parameter-list-wrapping`: When class/function signature doesn't fit on a single line, each parameter must be on a separate line
+- `string-template`: Consistent string templates (`$v` instead of `${v}`, `${p.v}` instead of `${p.v.toString()}`)
+
+### Spacing
+- `colon-spacing`: Consistent spacing around colon
+- `comma-spacing`: Consistent spacing around comma
+- `curly-spacing`: Consistent spacing around curly braces
+- `dot-spacing`: Consistent spacing around dots
+- `keyword-spacing`: Consistent spacing around keywords
+- `op-spacing`: Consistent spacing around operators
+- `paren-spacing`: Consistent spacing around parenthesis
+- `range-spacing`: Consistent spacing around range operators
 
 ## Experimental rules
 New rules will be added into the [experimental ruleset](https://github.com/pinterest/ktlint/tree/master/ktlint-ruleset-experimental), which can be enabled
 by passing the `--experimental` flag to `ktlint`.
 
-- Annotation formatting - multiple annotations should be on a separate line than the annotated declaration; annotations with parameters should each be on separate lines; annotations should be followed by a space (id: `experimental:annotation`)
-- Annotations should be separated by the annotated declaration by a single line break (id: `experimental:annotation-spacing`)
-- Argument list wrapping (id: `experimental:argument-list-wrapping`)
-- Enum entry names should be uppercase underscore-separated names (id: `experimental:enum-entry-name-case`)
-- Braces required for multiline if/else statements (id: `experimental:multiline-if-else`)
-- No leading empty lines in method blocks (id: `experimental:no-empty-first-line-in-method-block`)
-- No underscores in package names (id: `experimental:package-name`)
-- No spaces around angle brackets (id: `experimental:spacing-around-angle-brackets`)
-- No spaces around `::` (id: `experimental:double-colon-spacing`)
-- No spaces around unary operators (id: `experimental:unary-op-spacing`)
-- Declarations with annotations should be separated by a blank line (id: `experimental:spacing-between-declarations-with-annotations`)
-- Declarations with comments should be separated by a blank line (id: `experimental:spacing-between-declarations-with-comments`)
-- Spacing after a type parameter list in function and class declarations (`type-parameter-list-spacing`)
+- `experimental:annotation`: Annotation formatting - multiple annotations should be on a separate line than the annotated declaration; annotations with parameters should each be on separate lines; annotations should be followed by a space
+- `experimental:block-comment-initial-star-alignment`: Lines in a block comment which (exclusive the indentation) start with a `*` should have this `*` aligned with the `*` in the opening of the block comment.
+- `experimental:discouraged-comment-location`: Detect discouraged comment locations (no autocorrect)
+- `experimental:enum-entry-name-case`: Enum entry names should be uppercase underscore-separated names
+- `experimental:multiline-if-else`: Braces required for multiline if/else statements
+- `experimental:no-empty-first-line-in-method-block`: No leading empty lines in method blocks
+- `experimental:package-name`: No underscores in package names
+- `experimental:unnecessary-parentheses-before-trailing-lambda`: An empty parentheses block before a lambda is redundant. For example `some-string".count() { it == '-' }`
+
+### Spacing
+- `experimental:annotation-spacing`: Annotations should be separated by the annotated declaration by a single line break
+- `experimental:double-colon-spacing`: No spaces around `::`
+- `experimental:fun-keyword-spacing`: Consistent spacing after the fun keyword
+- `experimental:function-type-reference-spacing`: Consistent spacing in the type reference before a function
+- `experimental:modifier-list-spacing`: Consistent spacing between modifiers in and after the last modifier in a modifier list
+- `experimental:spacing-around-angle-brackets`: No spaces around angle brackets
+- `experimental:spacing-between-declarations-with-annotations`: Declarations with annotations should be separated by a blank line
+- `experimental:spacing-between-declarations-with-comments`: Declarations with comments should be separated by a blank line
+- `experimental:type-parameter-list-spacing`: Spacing after a type parameter list in function and class declarations
+- `experimental:unary-op-spacing`: No spaces around unary operators
+
+### Wrapping
+- `experimental:argument-list-wrapping`: Argument list wrapping
+- `experimental:comment-wrapping`: A block comment should start and end on a line that does not contain any other element. A block comment should not be used as end of line comment.
+- `experimental:kdoc-wrapping`: A KDoc comment should start and end on a line that does not contain any other element.
 
 ## EditorConfig
 
@@ -112,6 +146,12 @@ ij_kotlin_imports_layout=android.**,|,^org.junit.**,kotlin.io.Closeable.*,|,*,^ 
 # backticks to be longer than the maximum line length. (Since 0.41.0)
 [**/test/**.kt]
 ktlint_ignore_back_ticked_identifier=true
+
+# Comma-separated list of allowed wildcard imports that will override the no-wildcard-imports rule.
+# This can be used for allowing wildcard imports from libraries like Ktor where extension functions are used in a way that creates a lot of imports.
+# "**" applies to package and all subpackages
+ij_kotlin_packages_to_use_import_on_demand=java.util.* # allow java.util.* as wildcard import
+ij_kotlin_packages_to_use_import_on_demand=io.ktor.** # allow wildcard import from io.ktor.* and all subpackages 
 ```
 
 ### Overriding Editorconfig properties for specific directories
@@ -136,7 +176,7 @@ To contribute or get more info, please visit the [GitHub repository](https://git
 > Skip all the way to the "Integration" section if you don't plan to use `ktlint`'s command line interface.
 
 ```sh
-curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.43.2/ktlint &&
+curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.44.0/ktlint &&
   chmod a+x ktlint &&
   sudo mv ktlint /usr/local/bin/
 ```
@@ -250,7 +290,7 @@ $ ktlint installGitPreCommitHook
         <dependency>
             <groupId>com.pinterest</groupId>
             <artifactId>ktlint</artifactId>
-            <version>0.43.2</version>
+            <version>0.44.0</version>
         </dependency>
         <!-- additional 3rd party ruleset(s) can be specified here -->
     </dependencies>
@@ -298,7 +338,7 @@ configurations {
 }
 
 dependencies {
-    ktlint("com.pinterest:ktlint:0.43.2") {
+    ktlint("com.pinterest:ktlint:0.44.0") {
         attributes {
             attribute(Bundling.BUNDLING_ATTRIBUTE, getObjects().named(Bundling, Bundling.EXTERNAL))
         }
@@ -343,7 +383,7 @@ See [Making your Gradle tasks incremental](https://proandroiddev.com/making-your
 val ktlint by configurations.creating
 
 dependencies {
-    ktlint("com.pinterest:ktlint:0.43.2") {
+    ktlint("com.pinterest:ktlint:0.44.0") {
         attributes {
             attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.EXTERNAL))
         }

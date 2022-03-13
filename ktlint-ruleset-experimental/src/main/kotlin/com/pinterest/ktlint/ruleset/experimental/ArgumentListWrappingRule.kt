@@ -1,7 +1,12 @@
 package com.pinterest.ktlint.ruleset.experimental
 
-import com.pinterest.ktlint.core.KtLint
+import com.pinterest.ktlint.core.IndentConfig
 import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentSizeProperty
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentStyleProperty
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.maxLineLengthProperty
+import com.pinterest.ktlint.core.api.FeatureInAlphaState
+import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType
 import com.pinterest.ktlint.core.ast.ElementType.ELSE
 import com.pinterest.ktlint.core.ast.children
@@ -34,10 +39,19 @@ import org.jetbrains.kotlin.psi.psiUtil.getStrictParentOfType
  * - maxLineLength exceeded (and separating arguments with \n would actually help)
  * in addition, "(" and ")" must be on separates line if any of the arguments are (otherwise on the same)
  */
-class ArgumentListWrappingRule : Rule("argument-list-wrapping") {
-
-    private var indentSize = -1
+@OptIn(FeatureInAlphaState::class)
+class ArgumentListWrappingRule :
+    Rule("argument-list-wrapping"),
+    UsesEditorConfigProperties {
+    private var editorConfigIndent = IndentConfig.DEFAULT_INDENT_CONFIG
     private var maxLineLength = -1
+
+    override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> =
+        listOf(
+            indentSizeProperty,
+            indentStyleProperty,
+            maxLineLengthProperty
+        )
 
     override fun visit(
         node: ASTNode,
@@ -45,12 +59,14 @@ class ArgumentListWrappingRule : Rule("argument-list-wrapping") {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         if (node.isRoot()) {
-            val editorConfig = node.getUserData(KtLint.EDITOR_CONFIG_USER_DATA_KEY)!!
-            indentSize = editorConfig.indentSize
-            maxLineLength = editorConfig.maxLineLength
+            editorConfigIndent = IndentConfig(
+                indentStyle = node.getEditorConfigValue(indentStyleProperty),
+                tabWidth = node.getEditorConfigValue(indentSizeProperty)
+            )
+            maxLineLength = node.getEditorConfigValue(maxLineLengthProperty)
             return
         }
-        if (indentSize <= 0) {
+        if (editorConfigIndent.disabled) {
             return
         }
 
@@ -71,46 +87,49 @@ class ArgumentListWrappingRule : Rule("argument-list-wrapping") {
                     // max_line_length exceeded
                     maxLineLength > -1 && (node.column - 1 + node.textLength) > maxLineLength && !node.textContains('\n')
             if (putArgumentsOnSeparateLines) {
-                val adjustedIndent = when {
-                    // IDEA quirk:
-                    // generic<
-                    //     T,
-                    //     R>(
-                    //     1,
-                    //     2
-                    // )
-                    // instead of
-                    // generic<
-                    //     T,
-                    //     R>(
-                    //         1,
-                    //         2
-                    //     )
-                    node.hasTypeArgumentListInFront() -> indentSize
-                    // IDEA quirk:
-                    // foo
-                    //     .bar = Baz(
-                    //     1,
-                    //     2
-                    // )
-                    // instead of
-                    // foo
-                    //     .bar = Baz(
-                    //         1,
-                    //         2
-                    //     )
-                    node.isPartOfDotQualifiedAssignmentExpression() -> indentSize
-                    else -> 0
-                }
+                val currentIndentLevel = editorConfigIndent.indentLevelFrom(node.lineIndent())
+                val newIndentLevel =
+                    when {
+                        // IDEA quirk:
+                        // generic<
+                        //     T,
+                        //     R>(
+                        //     1,
+                        //     2
+                        // )
+                        // instead of
+                        // generic<
+                        //     T,
+                        //     R>(
+                        //         1,
+                        //         2
+                        //     )
+                        currentIndentLevel > 0 && node.hasTypeArgumentListInFront() -> currentIndentLevel - 1
 
-                // aiming for
-                // ... LPAR
-                // <line indent + indentSize> VALUE_ARGUMENT...
-                // <line indent> RPAR
-                val lineIndent = node.lineIndent()
-                val indent = ("\n" + lineIndent.substring(0, (lineIndent.length - adjustedIndent).coerceAtLeast(0)))
-                    .let { if (node.isOnSameLineAsControlFlowKeyword()) it + " ".repeat(indentSize) else it }
-                val paramIndent = indent + " ".repeat(indentSize)
+                        // IDEA quirk:
+                        // foo
+                        //     .bar = Baz(
+                        //     1,
+                        //     2
+                        // )
+                        // instead of
+                        // foo
+                        //     .bar = Baz(
+                        //         1,
+                        //         2
+                        //     )
+                        currentIndentLevel > 0 && node.isPartOfDotQualifiedAssignmentExpression() -> currentIndentLevel - 1
+
+                        else -> currentIndentLevel
+                    }.let {
+                        if (node.isOnSameLineAsControlFlowKeyword()) {
+                            it + 1
+                        } else {
+                            it
+                        }
+                    }
+                val indent = "\n" + editorConfigIndent.indent.repeat(newIndentLevel)
+
                 nextChild@ for (child in node.children()) {
                     when (child.elementType) {
                         ElementType.LPAR -> {
@@ -125,12 +144,18 @@ class ArgumentListWrappingRule : Rule("argument-list-wrapping") {
                         ElementType.VALUE_ARGUMENT,
                         ElementType.RPAR -> {
                             var argumentInnerIndentAdjustment = 0
-                            val prevLeaf = child.prevWhiteSpaceWithNewLine() ?: child.prevLeaf()
+
+                            // aiming for
+                            // ... LPAR
+                            // <line indent + indentSize> VALUE_PARAMETER...
+                            // <line indent> RPAR
                             val intendedIndent = if (child.elementType == ElementType.VALUE_ARGUMENT) {
-                                paramIndent
+                                indent + editorConfigIndent.indent
                             } else {
                                 indent
                             }
+
+                            val prevLeaf = child.prevWhiteSpaceWithNewLine() ?: child.prevLeaf()
                             if (prevLeaf is PsiWhiteSpace) {
                                 if (prevLeaf.getText().contains("\n")) {
                                     // The current child is already wrapped to a new line. Checking and fixing the
@@ -166,7 +191,7 @@ class ArgumentListWrappingRule : Rule("argument-list-wrapping") {
                                         // because the items inside the collection should not be subject to the same
                                         // indentation as the brackets.
                                         val adjustment = if (isInCollectionOrFunctionLiteral) {
-                                            val expectedPosition = intendedIndent.length + indentSize
+                                            val expectedPosition = intendedIndent.length + editorConfigIndent.indent.length
                                             expectedPosition - child.column
                                         } else {
                                             argumentInnerIndentAdjustment

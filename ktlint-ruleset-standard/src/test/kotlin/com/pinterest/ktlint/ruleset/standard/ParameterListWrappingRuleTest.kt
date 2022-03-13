@@ -1,13 +1,18 @@
 package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.LintError
+import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.maxLineLengthProperty
+import com.pinterest.ktlint.core.api.FeatureInAlphaState
+import com.pinterest.ktlint.test.EditorConfigOverride
 import com.pinterest.ktlint.test.format
 import com.pinterest.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
+@FeatureInAlphaState
 class ParameterListWrappingRuleTest {
-    private val rules = listOf(
+    private val rules: List<Rule> = listOf(
         ParameterListWrappingRule(),
         // In case a parameter is already wrapped to a separate line but is indented incorrectly then this indent will
         // only be corrected by the IndentationRule. The IndentationRule is executed in relevant tests for clarity.
@@ -55,7 +60,7 @@ class ParameterListWrappingRuleTest {
         assertThat(
             ParameterListWrappingRule().lint(
                 code,
-                userData = mapOf("max_line_length" to "10")
+                EditorConfigOverride.from(maxLineLengthProperty to 10)
             )
         ).isEqualTo(
             listOf(
@@ -68,7 +73,7 @@ class ParameterListWrappingRuleTest {
         assertThat(
             ParameterListWrappingRule().format(
                 code,
-                userData = mapOf("max_line_length" to "10")
+                EditorConfigOverride.from(maxLineLengthProperty to 10)
             )
         ).isEqualTo(formattedCode)
     }
@@ -82,7 +87,7 @@ class ParameterListWrappingRuleTest {
         assertThat(
             ParameterListWrappingRule().lint(
                 code,
-                userData = mapOf("max_line_length" to "10")
+                EditorConfigOverride.from(maxLineLengthProperty to 10)
             )
         ).isEmpty()
         assertThat(ParameterListWrappingRule().format(code)).isEqualTo(code)
@@ -170,7 +175,7 @@ class ParameterListWrappingRuleTest {
         assertThat(
             ParameterListWrappingRule().lint(
                 code,
-                userData = mapOf("max_line_length" to "10")
+                EditorConfigOverride.from(maxLineLengthProperty to 10)
             )
         ).isEqualTo(
             listOf(
@@ -183,7 +188,7 @@ class ParameterListWrappingRuleTest {
         assertThat(
             ParameterListWrappingRule().format(
                 code,
-                userData = mapOf("max_line_length" to "10")
+                EditorConfigOverride.from(maxLineLengthProperty to 10)
             )
         ).isEqualTo(formattedCode)
     }
@@ -327,7 +332,7 @@ class ParameterListWrappingRuleTest {
         assertThat(
             ParameterListWrappingRule().format(
                 code,
-                userData = mapOf("max_line_length" to "10")
+                EditorConfigOverride.from(maxLineLengthProperty to 10)
             )
         ).isEqualTo(formattedCode)
     }
@@ -475,5 +480,34 @@ class ParameterListWrappingRuleTest {
             }
             """.trimIndent()
         assertThat(ParameterListWrappingRule().lint(code)).isEmpty()
+    }
+
+    @Test
+    fun `Issue 1255 - Given a variable declaration for nullable function type which exceeds the max-line-length then wrap the function type to a new line`() {
+        val code =
+            """
+            var changesListener: ((width: Double?, depth: Double?, length: Double?, area: Double?) -> Unit)? = null
+            """.trimIndent()
+        val formattedCode =
+            """
+            var changesListener: (
+                (width: Double?, depth: Double?, length: Double?, area: Double?) -> Unit
+            )? = null
+            """.trimIndent()
+        assertThat(
+            ParameterListWrappingRule().lint(
+                code,
+                EditorConfigOverride.from(maxLineLengthProperty to 80)
+            )
+        ).containsExactly(
+            LintError(1, 22, "parameter-list-wrapping", "Parameter of nullable type should be on a separate line (unless the type fits on a single line)"),
+            LintError(1, 95, "parameter-list-wrapping", """Missing newline before ")"""")
+        )
+        assertThat(
+            ParameterListWrappingRule().format(
+                code,
+                EditorConfigOverride.from(maxLineLengthProperty to 80)
+            )
+        ).isEqualTo(formattedCode)
     }
 }

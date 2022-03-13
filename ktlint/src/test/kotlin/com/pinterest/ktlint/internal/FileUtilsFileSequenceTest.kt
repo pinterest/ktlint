@@ -6,11 +6,10 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 import org.assertj.core.api.Assertions.assertThat
-import org.hamcrest.CoreMatchers
-import org.junit.After
-import org.junit.Assume
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assumptions.assumeTrue
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 
 /**
  * Tests for [fileSequence] method.
@@ -32,13 +31,13 @@ internal class FileUtilsFileSequenceTest {
         "${rootDir}project2/src/main/java/Three.kt"
     ).map { it.normalizePath() }
 
-    @Before
-    fun setUp() {
+    @BeforeEach
+    internal fun setUp() {
         project1Files.createFiles()
     }
 
-    @After
-    fun tearDown() {
+    @AfterEach
+    internal fun tearDown() {
         tempFileSystem.close()
     }
 
@@ -125,7 +124,7 @@ internal class FileUtilsFileSequenceTest {
 
     @Test
     fun `Should support unescaped slashes for Windows`() {
-        Assume.assumeThat(System.getProperty("os.name").toLowerCase(), CoreMatchers.startsWith("windows"))
+        assumeTrue(System.getProperty("os.name").toLowerCase().startsWith("windows"))
 
         val foundFiles = getFiles(
             listOf(
@@ -171,7 +170,7 @@ internal class FileUtilsFileSequenceTest {
 
     @Test
     fun `transforming globs with leading tilde`() {
-        Assume.assumeThat(System.getProperty("os.name").toLowerCase(), CoreMatchers.startsWith("linux"))
+        assumeTrue(System.getProperty("os.name").toLowerCase().startsWith("linux"))
 
         val glob = tempFileSystem.toGlob(
             "~/project/src/main/kotlin/One.kt",

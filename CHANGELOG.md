@@ -4,11 +4,46 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+### API Changes & RuleSet providers
+
+If you are not an API user nor a RuleSet provider, then you can safely skip this section. Otherwise, please read below carefully and upgrade your usage of ktlint. In this and coming releases, we are changing and adapting important parts of our API in order to increase maintainability and flexibility for future changes. Please avoid skipping a releases as that will make it harder to migrate.
+
+#### Retrieving ".editorconfig" property value
+
+This section is applicable when providing rules that depend on one or more values of ".editorconfig" properties. Property values should no longer be retrieved via *EditConfig* or directly via `userData[EDITOR_CONFIG_USER_DATA_KEY]`. Property values should now only be retrieved using method `ASTNode.getEditorConfigValue(editorConfigProperty)` of interface `UsesEditorConfigProperties` which is provided in this release. Starting from next release after the current release, the *EditConfig* and/or `userData[EDITOR_CONFIG_USER_DATA_KEY]` may be removed without further notice which will break your API or rule. To prevent disruption of your end user, you should migrate a.s.a.p.
+
+### Added
+- New experimental rule for aligning the initial stars in a block comment when present (`experimental:block-comment-initial-star-alignment` ([#297](https://github.com/pinterest/ktlint/issues/297))
+- Respect `.editorconfig` property `ij_kotlin_packages_to_use_import_on_demand` (`no-wildcard-imports`) ([#1272](https://github.com/pinterest/ktlint/pull/1272))
+- Add new experimental rules for wrapping of block comment (`comment-wrapping`) ([#1403](https://github.com/pinterest/ktlint/pull/1403))
+- Add new experimental rules for wrapping of KDoc comment (`kdoc-wrapping`) ([#1403](https://github.com/pinterest/ktlint/pull/1403))
+
+### Fixed
+- Fix lint message to "Unnecessary long whitespace" (`no-multi-spaces`) ([#1394](https://github.com/pinterest/ktlint/issues/1394))
+- Do not remove trailing comma after a parameter of type array in an annotation (experimental:trailing-comma) ([#1379](https://github.com/pinterest/ktlint/issues/1379))
+- Do not delete blank lines in KDoc (no-trailing-spaces) ([#1376](https://github.com/pinterest/ktlint/issues/1376))
+- Do not indent raw string literals that are not followed by either trimIndent() or trimMargin() (`indent`) ([#1375](https://github.com/pinterest/ktlint/issues/1375))
+- Revert remove unnecessary wildcard imports as introduced in Ktlint 0.43.0 (`no-unused-imports`) ([#1277](https://github.com/pinterest/ktlint/issues/1277)), ([#1393](https://github.com/pinterest/ktlint/issues/1393)), ([#1256](https://github.com/pinterest/ktlint/issues/1256))
+
+### Changed
+- Print the rule id always in the PlainReporter ([#1121](https://github.com/pinterest/ktlint/issues/1121))
+- All wrapping logic is moved from the `indent` rule to the new rule `wrapping` (as part of the `standard` ruleset). In case you currently have disabled the `indent` rule, you may want to reconsider whether this is still necessary or that you also want to disable the new `wrapping` rule to keep the status quo. Both rules can be run independent of each other. ([#835](https://github.com/pinterest/ktlint/issues/835))
+
+### Removed
+
+## [0.44.0] - 2022-02-15
+
+Please welcome [paul-dingemans](https://github.com/paul-dingemans) as an official maintainer of ktlint!
+
 ### Added
 - Use Gradle JVM toolchain with language version 8 to compile the project
 - Basic tests for CLI ([#540](https://github.com/pinterest/ktlint/issues/540))
+- Add experimental rule for unexpected spaces in a type reference before a function identifier (`function-type-reference-spacing`) ([#1341](https://github.com/pinterest/ktlint/issues/1341))
 - Add experimental rule for unnecessary parentheses in function call followed by lambda ([#1068](https://github.com/pinterest/ktlint/issues/1068))
 - Add experimental rule for incorrect spacing after a type parameter list (`type-parameter-list-spacing`) ([#1366](https://github.com/pinterest/ktlint/pull/1366))
+- Add experimental rule to detect discouraged comment locations (`discouraged-comment-location`) ([#1365](https://github.com/pinterest/ktlint/pull/1365))
+- Add rule to check spacing after fun keyword (`fun-keyword-spacing`) ([#1362](https://github.com/pinterest/ktlint/pull/1362))
+- Add experimental rules for unnecessary spacing between modifiers in and after the last modifier in a modifier list ([#1361](https://github.com/pinterest/ktlint/pull/1361))   
 
 ### Fixed
 - Fix indentation of function literal ([#1247](https://github.com/pinterest/ktlint/issues/1247))
@@ -24,8 +59,12 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - Fix indent of delegated super type entry (`indent`) ([#1210](https://github.com/pinterest/ktlint/issues/1210))
 - Improve indentation of closing quotes of a multiline raw string literal (`indent`) ([#1262](https://github.com/pinterest/ktlint/pull/1262))
 - Trailing space should not lead to delete of indent of next line (`no-trailing-spaces`) ([#1334](https://github.com/pinterest/ktlint/pull/1334))
-- Fix false positive indentation (`parameter-list-wrapping`, `argument-list-wrapping`) ([#897](https://github.com/pinterest/ktlint/issues/897), [#1045](https://github.com/pinterest/ktlint/issues/1045), [#1119](https://github.com/pinterest/ktlint/issues/1119), [#1255](https://github.com/pinterest/ktlint/issues/1255), [#1267](https://github.com/pinterest/ktlint/issues/1267), [#1319](https://github.com/pinterest/ktlint/issues/1319), [#1320](https://github.com/pinterest/ktlint/issues/1320), [#1337](https://github.com/pinterest/ktlint/issues/1337)
+- Force a single line function type inside a nullable type to a separate line when the max line length is exceeded (`parameter-list-wrapping`) ([#1255](https://github.com/pinterest/ktlint/issues/1255))
+- A single line function with a parameter having a lambda as default argument does not throw error (`indent`) ([#1330](https://github.com/pinterest/ktlint/issues/1330))
 - Fix executable jar on Java 16+ ([#1195](https://github.com/pinterest/ktlint/issues/1195)) 
+- Fix false positive unused import after autocorrecting a trailing comma ([#1367](https://github.com/pinterest/ktlint/issues/1367)) 
+- Fix false positive indentation (`parameter-list-wrapping`, `argument-list-wrapping`) ([#897](https://github.com/pinterest/ktlint/issues/897), [#1045](https://github.com/pinterest/ktlint/issues/1045), [#1119](https://github.com/pinterest/ktlint/issues/1119), [#1255](https://github.com/pinterest/ktlint/issues/1255), [#1267](https://github.com/pinterest/ktlint/issues/1267), [#1319](https://github.com/pinterest/ktlint/issues/1319), [#1320](https://github.com/pinterest/ktlint/issues/1320), [#1337](https://github.com/pinterest/ktlint/issues/1337)
+- Force a single line function type inside a nullable type to a separate line when the max line length is exceeded (`parameter-list-wrapping`) ([#1255](https://github.com/pinterest/ktlint/issues/1255))
 
 ### Changed
 - Update Kotlin version to `1.6.0` release
@@ -35,8 +74,6 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - Update shadow plugin to `7.1.1` release
 - Add Kotlin-logging backed by logback as logging framework ([#589](https://github.com/pinterest/ktlint/issues/589))
 - Update Gradle to `7.4` version
-
-### Removed
 
 ## [0.43.2] - 2021-12-01
 
@@ -53,7 +90,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - Do not check for `.idea` folder presence when using `applyToIDEA` globally ([#1186](https://github.com/pinterest/ktlint/issues/1186))
 - Remove spaces before primary constructor (`paren-spacing`) ([#1207](https://github.com/pinterest/ktlint/issues/1207))
 - Fix false positive for delegated properties with a lambda argument (`indent`) ([#1210](https://github.com/pinterest/ktlint/issues/1210))
-- Remove unnecessary wildcard imports (`no-unused-imports`) ([#1256](https://github.com/pinterest/ktlint/issues/1256))
+- (REVERTED in Ktlint 0.45.0) Remove unnecessary wildcard imports (`no-unused-imports`) ([#1256](https://github.com/pinterest/ktlint/issues/1256))
 - Fix indentation of KDoc comment when using tab indentation style (`indent`) ([#850](https://github.com/pinterest/ktlint/issues/850))
 ### Changed
 - Support absolute paths for globs ([#1131](https://github.com/pinterest/ktlint/issues/1131))
@@ -949,6 +986,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.44.0]: https://github.com/pinterest/ktlint/compare/0.43.2...0.44.0
 [0.43.2]: https://github.com/pinterest/ktlint/compare/0.43.0...0.43.2
 [0.43.0]: https://github.com/pinterest/ktlint/compare/0.42.1...0.43.0
 [0.42.1]: https://github.com/pinterest/ktlint/compare/0.42.0...0.42.1
