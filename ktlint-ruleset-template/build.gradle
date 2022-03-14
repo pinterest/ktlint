@@ -26,7 +26,7 @@ configurations {
 }
 
 dependencies {
-  ktlint project(':ktlint')
+  ktlint projects.ktlint
 
   compileOnly project(':ktlint-core')
 

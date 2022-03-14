@@ -48,7 +48,7 @@ configurations {
 }
 
 dependencies {
-  ktlint project(':ktlint')
+  ktlint projects.ktlint
 }
 
 task ktlint(type: JavaExec, group: LifecycleBasePlugin.VERIFICATION_GROUP) {
@@ -74,7 +74,7 @@ String getGithubToken() {
 
 // Explicitly adding dependency on "shadowJarExecutable" as Gradle does not it set via "releaseAssets" property
 tasks.named("githubRelease") {
-  dependsOn { project(":ktlint").tasks.named("shadowJarExecutable") }
+  dependsOn { projects.ktlint.dependencyProject.tasks.named("shadowJarExecutable") }
 }
 
 githubRelease {
@@ -87,7 +87,7 @@ githubRelease {
     // "shadowJarExecutableChecksum" task does not declare checksum files
     // as output, only the whole output directory. As it uses the same directory
     // as "shadowJarExecutable" - just pass all the files from that directory
-    project(":ktlint").tasks.named("shadowJarExecutable").get()
+    projects.ktlint.dependencyProject.tasks.named("shadowJarExecutable").get()
       .outputs
       .files
       .getFiles()
