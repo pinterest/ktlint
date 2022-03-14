@@ -11,7 +11,7 @@ pluginManagement {
   }
 }
 
-rootProject.name = 'ktlint'
+rootProject.name = 'ktlint-root'
 
 include ':ktlint'
 include ':ktlint-core'
