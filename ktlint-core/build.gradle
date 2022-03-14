@@ -10,7 +10,7 @@ dependencies {
   api deps.logback
 
   // Standard ruleset is required for EditConfigLoaderTest only
-  testImplementation project(":ktlint-ruleset-standard")
+  testImplementation projects.ktlintRulesetStandard
   testImplementation deps.junit5
   testImplementation deps.assertj
   testImplementation deps.jimfs

@@ -21,14 +21,14 @@ shadowJar {
 
 dependencies {
   implementation projects.ktlintCore
-  implementation project(':ktlint-reporter-baseline')
-  implementation project(':ktlint-reporter-checkstyle')
-  implementation project(':ktlint-reporter-json')
-  implementation project(':ktlint-reporter-html')
-  implementation project(':ktlint-reporter-plain')
-  implementation project(':ktlint-reporter-sarif')
-  implementation project(':ktlint-ruleset-experimental')
-  implementation project(':ktlint-ruleset-standard')
+  implementation projects.ktlintReporterBaseline
+  implementation projects.ktlintReporterCheckstyle
+  implementation projects.ktlintReporterJson
+  implementation projects.ktlintReporterHtml
+  implementation projects.ktlintReporterPlain
+  implementation projects.ktlintReporterSarif
+  implementation projects.ktlintRulesetExperimental
+  implementation projects.ktlintRulesetStandard
   implementation projects.ktlintRulesetTest
   implementation deps.kotlin.compiler
   implementation deps.klob
