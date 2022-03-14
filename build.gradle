@@ -6,10 +6,6 @@ plugins {
 //  id 'nebula.lint' version '17.5.0'
 }
 
-repositories {
-  mavenCentral()
-}
-
 def isKotlinDev = project.hasProperty('isKotlinDev')
 
 allprojects { p ->

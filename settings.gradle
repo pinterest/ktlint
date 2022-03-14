@@ -5,6 +5,12 @@ pluginManagement {
   }
 }
 
+dependencyResolutionManagement {
+  repositories {
+    mavenCentral()
+  }
+}
+
 rootProject.name = 'ktlint-root'
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
