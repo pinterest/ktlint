@@ -20,7 +20,7 @@ shadowJar {
 }
 
 dependencies {
-  implementation project(':ktlint-core')
+  implementation projects.ktlintCore
   implementation project(':ktlint-reporter-baseline')
   implementation project(':ktlint-reporter-checkstyle')
   implementation project(':ktlint-reporter-json')

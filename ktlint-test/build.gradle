@@ -4,7 +4,7 @@ plugins {
 }
 
 dependencies {
-  api project(':ktlint-core')
+  api projects.ktlintCore
   api project(':ktlint-ruleset-test')
 
   implementation deps.junit5
