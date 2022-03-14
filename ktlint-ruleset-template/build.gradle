@@ -31,7 +31,7 @@ dependencies {
   compileOnly projects.ktlintCore
 
   testImplementation projects.ktlintCore
-  testImplementation project(':ktlint-test')
+  testImplementation projects.ktlintTest
   testImplementation deps.junit5
   testImplementation deps.assertj
 }

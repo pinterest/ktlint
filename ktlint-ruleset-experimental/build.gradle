@@ -6,7 +6,7 @@ plugins {
 dependencies {
   implementation projects.ktlintCore
 
-  testImplementation project(':ktlint-test')
+  testImplementation projects.ktlintTest
   testImplementation project(':ktlint-ruleset-standard')
   testImplementation deps.junit5
   testImplementation deps.assertj

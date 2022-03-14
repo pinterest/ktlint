@@ -7,7 +7,7 @@ dependencies {
   implementation projects.ktlintCore
   implementation deps.logging
 
-  testImplementation project(':ktlint-test')
+  testImplementation projects.ktlintTest
   testImplementation deps.junit5
   testImplementation deps.assertj
 }
