@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.ruleset.experimental
 
 import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.ast.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.COLON
 import com.pinterest.ktlint.core.ast.ElementType.COMMA
 import com.pinterest.ktlint.core.ast.ElementType.MODIFIER_LIST
@@ -118,10 +119,23 @@ public class ParameterListSpacingRule : Rule("parameter-list-spacing") {
         node
             .children()
             .filter { it.elementType == WHITE_SPACE }
-            .filter { it.isIndent() || it.isNotSingleSpace() }
             // Store elements in list before changing them as otherwise only the first whitespace is being changed
             .toList()
-            .forEach { replaceWithSingleSpace(it, emit, autoCorrect) }
+            .forEach { visitWhiteSpaceAfterModifier(it, emit, autoCorrect) }
+    }
+
+    private fun visitWhiteSpaceAfterModifier(
+        node: ASTNode,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        autoCorrect: Boolean
+    ) {
+        node
+            .takeUnless {
+                // Ignore when the modifier is an annotation which is placed on a separate line
+                it.isIndent() && it.getPrecedingModifier()?.elementType == ANNOTATION_ENTRY
+            }
+            ?.takeIf { it.isNotSingleSpace() }
+            ?.let { replaceWithSingleSpace(it, emit, autoCorrect) }
     }
 
     private fun removeWhiteSpaceBetweenModifierListAndParameterIdentifier(
@@ -133,11 +147,7 @@ public class ParameterListSpacingRule : Rule("parameter-list-spacing") {
         node
             .nextSibling { true }
             ?.takeIf { it.elementType == WHITE_SPACE }
-            ?.let { whiteSpaceAfterModifierList ->
-                if (whiteSpaceAfterModifierList.text != " ") {
-                    replaceWithSingleSpace(whiteSpaceAfterModifierList, emit, autoCorrect)
-                }
-            }
+            ?.let { visitWhiteSpaceAfterModifier(it, emit, autoCorrect) }
     }
 
     private fun removeWhiteSpaceBetweenParameterIdentifierAndColon(
@@ -216,5 +226,17 @@ public class ParameterListSpacingRule : Rule("parameter-list-spacing") {
         if (autoCorrect) {
             (node as LeafPsiElement).replaceWithText(" ")
         }
+    }
+
+    private fun ASTNode.getPrecedingModifier(): ASTNode? {
+        return prevCodeSibling()
+            ?.let { prevCodeSibling ->
+                if (prevCodeSibling.elementType == MODIFIER_LIST) {
+                    prevCodeSibling.lastChildNode
+                } else {
+                    require(prevCodeSibling.treeParent.elementType == MODIFIER_LIST)
+                    prevCodeSibling
+                }
+            }
     }
 }

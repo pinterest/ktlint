@@ -299,6 +299,20 @@ class ParameterListSpacingRuleTest {
     }
 
     @Test
+    fun `Given a function signature with an annotated parameter and annotations separated by newlines then do not reformat`() {
+        val code =
+            """
+            fun foo(
+                @Bar1(value = "bar1")
+                @Bar2(value = "bar2")
+                a: Any
+            ) = "some-result"
+            """.trimIndent()
+        assertThat(ParameterListSpacingRule().lint(code)).isEmpty()
+        assertThat(ParameterListSpacingRule().format(code)).isEqualTo(code)
+    }
+
+    @Test
     fun `Given a function signature with multiple parameters and at least one space before the comma separating the parameters then reformat`() {
         val code =
             """
