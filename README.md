@@ -82,6 +82,7 @@ by passing the `--experimental` flag to `ktlint`.
 - `experimental:multiline-if-else`: Braces required for multiline if/else statements
 - `experimental:no-empty-first-line-in-method-block`: No leading empty lines in method blocks
 - `experimental:package-name`: No underscores in package names
+- `experimental:parameter-list-spacing`: Consistent spacing inside the parameter list
 - `experimental:unnecessary-parentheses-before-trailing-lambda`: An empty parentheses block before a lambda is redundant. For example `some-string".count() { it == '-' }`
 
 ### Spacing
