@@ -7,7 +7,7 @@ import org.jetbrains.kotlin.utils.addToStdlib.ifTrue
 
 public enum class LogLevel { TRACE, DEBUG, INFO }
 
-public var logLevel: LogLevel? = null
+public var logLevel: LogLevel = LogLevel.INFO
 
 @Deprecated("Environment variable is replace by new variables below")
 private const val KTLINT_DEBUG = "KTLINT_DEBUG"
@@ -35,8 +35,10 @@ public fun KLogger.initKtLintKLogger(): KLogger =
                 logger.trace { "Enable TRACE logging as System environment variable $KTLINT_UNIT_TEST_TRACE is set to 'on'" }
                 logLevel = LogLevel.TRACE
             }
-        if (logLevel == LogLevel.TRACE) {
-            (logger.underlyingLogger as Logger).level = Level.TRACE
+        (logger.underlyingLogger as Logger).level = when (logLevel) {
+            LogLevel.INFO -> Level.INFO
+            LogLevel.DEBUG -> Level.DEBUG
+            LogLevel.TRACE -> Level.TRACE
         }
 
         System
