@@ -49,13 +49,14 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.concurrent.thread
 import kotlin.system.exitProcess
+import mu.KLogger
 import mu.KotlinLogging
 import picocli.CommandLine
 import picocli.CommandLine.Command
 import picocli.CommandLine.Option
 import picocli.CommandLine.Parameters
 
-private val logger = KotlinLogging.logger {}.initKtLintKLogger()
+private lateinit var logger: KLogger
 
 fun main(args: Array<String>) {
     val ktlintCommand = KtlintCommandLine()
@@ -250,11 +251,15 @@ class KtlintCommandLine {
     private val errorNumber = AtomicInteger()
 
     fun run() {
+        if (verbose) {
+            debug = true
+        }
         logLevel = when {
             trace -> LogLevel.TRACE
             debug -> LogLevel.DEBUG
             else -> LogLevel.INFO
         }
+        logger = KotlinLogging.logger {}.initKtLintKLogger()
 
         failOnOldRulesetProviderUsage()
 
