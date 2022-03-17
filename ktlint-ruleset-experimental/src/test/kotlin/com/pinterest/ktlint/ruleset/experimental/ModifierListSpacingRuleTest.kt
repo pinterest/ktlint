@@ -62,6 +62,20 @@ class ModifierListSpacingRuleTest {
     }
 
     @Test
+    fun `Issue 1414 - Given a function with an annotation array omn a separate line then do not reformat`() {
+        val code =
+            """
+            @Throws(RuntimeException::class)
+            @[One Two Three]
+            fun foo(): String {
+                return "foo"
+            }
+            """.trimIndent()
+        assertThat(ModifierListSpacingRule().lint(code)).isEmpty()
+        assertThat(ModifierListSpacingRule().format(code)).isEqualTo(code)
+    }
+
+    @Test
     fun `Given a modifier list followed by multiple space then remove the redundant spaces`() {
         val code =
             """
