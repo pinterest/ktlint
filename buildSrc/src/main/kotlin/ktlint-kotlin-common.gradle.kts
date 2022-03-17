@@ -29,4 +29,4 @@ tasks
         }
     }
 
-addJdk11Tests()
+addAdditionalJdkVersionTests()
