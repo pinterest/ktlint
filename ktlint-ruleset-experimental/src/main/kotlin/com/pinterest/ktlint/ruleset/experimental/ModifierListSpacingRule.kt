@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.ruleset.experimental
 
 import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.ast.ElementType.ANNOTATION
 import com.pinterest.ktlint.core.ast.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
@@ -44,19 +45,12 @@ public class ModifierListSpacingRule : Rule("modifier-list-spacing") {
             ?.takeUnless {
                 // Regardless of element type, a single white space is always ok and does not need to be checked.
                 it.text == " "
-            }
-            ?.takeUnless {
-                // An annotation entry followed by a single newline (and possibly an indent for the next line) is
-                // always ok and does not need further checking.
-                it.elementType == ANNOTATION_ENTRY && it.text.trimEnd(' ', '\t') == "\n"
-            }
-            ?.takeUnless {
+            }?.takeUnless {
                 // A single newline after a comment is always ok and does not need further checking.
                 it.text.trim(' ', '\t').contains('\n') && it.prevLeaf()?.isPartOfComment() == true
-            }
-            ?.let { whitespace ->
-                if (node.elementType == ANNOTATION_ENTRY ||
-                    (node.elementType == MODIFIER_LIST && node.lastChildNode?.elementType == ANNOTATION_ENTRY)
+            }?.let { whitespace ->
+                if (node.isAnnotationElement() ||
+                    (node.elementType == MODIFIER_LIST && node.lastChildNode.isAnnotationElement())
                 ) {
                     val expectedWhiteSpace = if (whitespace.textContains('\n')) {
                         "\n" + node.lineIndent()
@@ -85,4 +79,7 @@ public class ModifierListSpacingRule : Rule("modifier-list-spacing") {
                 }
             }
     }
+
+    private fun ASTNode?.isAnnotationElement() =
+        this != null && (elementType == ANNOTATION || elementType == ANNOTATION_ENTRY)
 }
