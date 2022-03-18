@@ -11,7 +11,9 @@ pluginManagement {
   }
 }
 
-rootProject.name = 'ktlint'
+rootProject.name = 'ktlint-root'
+
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 include ':ktlint'
 include ':ktlint-core'

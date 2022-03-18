@@ -4,7 +4,7 @@ plugins {
 }
 
 dependencies {
-    implementation project(':ktlint-core')
+    implementation projects.ktlintCore
     implementation deps.sarif4k
 
     testImplementation deps.junit5

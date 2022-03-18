@@ -26,12 +26,12 @@ configurations {
 }
 
 dependencies {
-  ktlint project(':ktlint')
+  ktlint projects.ktlint
 
-  compileOnly project(':ktlint-core')
+  compileOnly projects.ktlintCore
 
-  testImplementation project(':ktlint-core')
-  testImplementation project(':ktlint-test')
+  testImplementation projects.ktlintCore
+  testImplementation projects.ktlintTest
   testImplementation deps.junit5
   testImplementation deps.assertj
 }
