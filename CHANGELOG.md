@@ -2,6 +2,16 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+### Added
+
+### Fixed
+
+### Changed
+
+### Removed
+
 ## [0.45.0] - 2022-03-18
 
 ### API Changes & RuleSet providers
