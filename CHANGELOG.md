@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## Unreleased
+## [0.45.0] - 2022-03-18
 
 ### API Changes & RuleSet providers
 
@@ -990,6 +990,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.45.0]: https://github.com/pinterest/ktlint/compare/0.44.0...0.45.0
 [0.44.0]: https://github.com/pinterest/ktlint/compare/0.43.2...0.44.0
 [0.43.2]: https://github.com/pinterest/ktlint/compare/0.43.0...0.43.2
 [0.43.0]: https://github.com/pinterest/ktlint/compare/0.42.1...0.43.0
