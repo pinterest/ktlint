@@ -2,9 +2,10 @@
 
 package com.pinterest.ktlint
 
+import ch.qos.logback.classic.Level
+import ch.qos.logback.classic.Logger
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.LintError
-import com.pinterest.ktlint.core.LogLevel
 import com.pinterest.ktlint.core.ParseException
 import com.pinterest.ktlint.core.Reporter
 import com.pinterest.ktlint.core.ReporterProvider
@@ -16,7 +17,7 @@ import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ktlint.core.internal.containsLintError
 import com.pinterest.ktlint.core.internal.loadBaseline
 import com.pinterest.ktlint.core.internal.relativeRoute
-import com.pinterest.ktlint.core.logLevel
+import com.pinterest.ktlint.core.loggerModifier
 import com.pinterest.ktlint.internal.ApplyToIDEAGloballySubCommand
 import com.pinterest.ktlint.internal.ApplyToIDEAProjectSubCommand
 import com.pinterest.ktlint.internal.GenerateEditorConfigSubCommand
@@ -254,11 +255,8 @@ class KtlintCommandLine {
         if (verbose) {
             debug = true
         }
-        logLevel = when {
-            trace -> LogLevel.TRACE
-            debug -> LogLevel.DEBUG
-            else -> LogLevel.INFO
-        }
+
+        configureLogging()
         logger = KotlinLogging.logger {}.initKtLintKLogger()
 
         failOnOldRulesetProviderUsage()
@@ -296,6 +294,16 @@ class KtlintCommandLine {
         logger.debug { "${System.currentTimeMillis() - start}ms / $fileNumber file(s) / $errorNumber error(s)" }
         if (tripped.get()) {
             exitProcess(1)
+        }
+    }
+
+    private fun configureLogging() {
+        loggerModifier = { kLogger ->
+            (kLogger.underlyingLogger as Logger).level = when {
+                trace -> Level.TRACE
+                debug -> Level.DEBUG
+                else -> Level.INFO
+            }
         }
     }
 

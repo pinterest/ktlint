@@ -137,6 +137,9 @@
             <trusting group="org.opentest4j"/>
             <trusting group="^org[.]junit($|([.].*))" regex="true"/>
          </trusted-key>
+         <trusted-key id="37d75e23e6b6a6c573c9ae6fdfbf27530b637783">
+            <trusting group="org.codehaus.janino" />
+         </trusted-key>
       </trusted-keys>
    </configuration>
    <components>

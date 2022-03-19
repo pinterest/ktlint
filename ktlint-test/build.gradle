@@ -6,6 +6,7 @@ plugins {
 dependencies {
   api projects.ktlintCore
   api projects.ktlintRulesetTest
+  api projects.ktlintTestLogging
 
   implementation deps.junit5
   implementation deps.assertj

@@ -1,7 +1,5 @@
 package com.pinterest.ktlint.test
 
-import com.pinterest.ktlint.core.KTLINT_UNIT_TEST_DUMP_AST
-import com.pinterest.ktlint.core.KTLINT_UNIT_TEST_ON_PROPERTY
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.Rule
@@ -16,6 +14,14 @@ import org.assertj.core.util.diff.DiffUtils.generateUnifiedDiff
 import org.jetbrains.kotlin.utils.addToStdlib.ifTrue
 
 private val logger = KotlinLogging.logger {}.initKtLintKLogger()
+
+// Via command line parameters "--trace" and "--print-ast" the end user of ktlint can change the logging behavior. As
+// unit tests are not invoked via the main ktlint runtime, those command line parameters can not be used to change the
+// logging behavior while running the unit tests. Instead, the environment variables below can be used by ktlint
+// developers to change the logging behavior. Note, when set the environment variables also affect the runtinme of
+// ktlint. As of that the name of the variables start with KTLINT_UNIT_TEST to clarify the intent.
+public const val KTLINT_UNIT_TEST_DUMP_AST = "KTLINT_UNIT_TEST_DUMP_AST"
+public const val KTLINT_UNIT_TEST_ON_PROPERTY = "ON"
 
 private fun List<Rule>.toRuleSets(): List<RuleSet> {
     val dumpAstRuleSet = System
