@@ -88,6 +88,7 @@ by passing the `--experimental` flag to `ktlint`.
 - `experimental:annotation-spacing`: Annotations should be separated by the annotated declaration by a single line break
 - `experimental:double-colon-spacing`: No spaces around `::`
 - `experimental:fun-keyword-spacing`: Consistent spacing after the fun keyword
+- `experimental:function-start-of-body-spacing`: Consistent spacing before start of function body
 - `experimental:function-type-reference-spacing`: Consistent spacing in the type reference before a function
 - `experimental:modifier-list-spacing`: Consistent spacing between modifiers in and after the last modifier in a modifier list
 - `experimental:spacing-around-angle-brackets`: No spaces around angle brackets
