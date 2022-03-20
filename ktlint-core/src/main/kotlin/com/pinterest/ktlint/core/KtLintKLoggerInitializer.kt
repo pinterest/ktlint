@@ -12,8 +12,26 @@ public const val KTLINT_UNIT_TEST_DUMP_AST = "KTLINT_UNIT_TEST_DUMP_AST"
 public const val KTLINT_UNIT_TEST_ON_PROPERTY = "ON"
 
 /**
- * Initializes the logger. Optionally the logger can be modified using the [loggerModifier].
+ * Default modifier for the KLogger of new instances of classes calling [initKtLintKLogger]. Classes for which
+ * [initKtLintKLogger] has been called before setting this variable will not be changed. Also note, that this modifier
+ * can only be set once.
+ */
+public lateinit var defaultLoggerModifier: (KLogger) -> Unit
+
+/**
+ * Initializes the logger with the [defaultLoggerModifier] when set.
+ */
+public fun KLogger.initKtLintKLogger(): KLogger {
+    return if (::defaultLoggerModifier.isInitialized) {
+        apply { defaultLoggerModifier(this) }
+    } else {
+        this
+    }
+}
+
+/**
+ * Initializes the logger with the [loggerModifier].
  */
 public fun KLogger.initKtLintKLogger(
-    loggerModifier: (KLogger) -> Unit = { _ -> }
+    loggerModifier: (KLogger) -> Unit
 ): KLogger = apply { loggerModifier(this) }
