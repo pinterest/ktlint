@@ -1,7 +1,5 @@
 package com.pinterest.ktlint.test
 
-import com.pinterest.ktlint.core.KTLINT_UNIT_TEST_DUMP_AST
-import com.pinterest.ktlint.core.KTLINT_UNIT_TEST_ON_PROPERTY
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.Rule
@@ -15,7 +13,34 @@ import org.assertj.core.util.diff.DiffUtils.diff
 import org.assertj.core.util.diff.DiffUtils.generateUnifiedDiff
 import org.jetbrains.kotlin.utils.addToStdlib.ifTrue
 
-private val logger = KotlinLogging.logger {}.initKtLintKLogger()
+private val logger =
+    KotlinLogging
+        .logger {}
+        .initKtLintKLogger { logger ->
+            if (!logger.isTraceEnabled || !logger.isDebugEnabled) {
+                logger.info {
+                    """
+                    Additional information can be printed during running of unit tests, by setting one or more of environment variables below:
+                        $KTLINT_UNIT_TEST_TRACE=[on|off]
+                        $KTLINT_UNIT_TEST_DUMP_AST=[on|off]
+                    """.trimIndent()
+                }
+            }
+        }
+
+// Via command line parameter "--trace" the end user of ktlint can change the logging behavior. As unit tests are not
+// invoked via the main ktlint runtime, this command line parameter can not be used to change the logging behavior while
+// running the unit tests. Instead, the environment variable below can be set by ktlint developers to change the logging
+// behavior.
+// Keep value in sync with value in 'logback-test.xml' source in module 'ktlint-test-logging'
+private const val KTLINT_UNIT_TEST_TRACE = "KTLINT_UNIT_TEST_TRACE"
+
+// Via command line parameter "--print-ast" the end user of ktlint can change the logging behavior. As unit tests are
+// not invoked via the main ktlint runtime, this command line parameter can not be used to change the logging behavior
+// while running the unit tests. Instead, the environment variable below can be used by ktlint developers to change the
+// logging behavior.
+private const val KTLINT_UNIT_TEST_DUMP_AST = "KTLINT_UNIT_TEST_DUMP_AST"
+private const val KTLINT_UNIT_TEST_ON_PROPERTY = "ON"
 
 private fun List<Rule>.toRuleSets(): List<RuleSet> {
     val dumpAstRuleSet = System

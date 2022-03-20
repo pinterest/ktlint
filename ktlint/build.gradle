@@ -33,6 +33,7 @@ dependencies {
   implementation libs.kotlin.compiler
   implementation libs.klob
   implementation libs.picocli
+  implementation libs.logback
 
 
   testImplementation libs.junit5

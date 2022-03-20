@@ -2,9 +2,10 @@
 
 package com.pinterest.ktlint
 
+import ch.qos.logback.classic.Level
+import ch.qos.logback.classic.Logger
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.LintError
-import com.pinterest.ktlint.core.LogLevel
 import com.pinterest.ktlint.core.ParseException
 import com.pinterest.ktlint.core.Reporter
 import com.pinterest.ktlint.core.ReporterProvider
@@ -16,7 +17,6 @@ import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ktlint.core.internal.containsLintError
 import com.pinterest.ktlint.core.internal.loadBaseline
 import com.pinterest.ktlint.core.internal.relativeRoute
-import com.pinterest.ktlint.core.logLevel
 import com.pinterest.ktlint.internal.ApplyToIDEAGloballySubCommand
 import com.pinterest.ktlint.internal.ApplyToIDEAProjectSubCommand
 import com.pinterest.ktlint.internal.GenerateEditorConfigSubCommand
@@ -254,12 +254,7 @@ class KtlintCommandLine {
         if (verbose) {
             debug = true
         }
-        logLevel = when {
-            trace -> LogLevel.TRACE
-            debug -> LogLevel.DEBUG
-            else -> LogLevel.INFO
-        }
-        logger = KotlinLogging.logger {}.initKtLintKLogger()
+        logger = configureLogger()
 
         failOnOldRulesetProviderUsage()
 
@@ -298,6 +293,17 @@ class KtlintCommandLine {
             exitProcess(1)
         }
     }
+
+    private fun configureLogger() =
+        KotlinLogging
+            .logger {}
+            .initKtLintKLogger { logger ->
+                (logger.underlyingLogger as Logger).level = when {
+                    trace -> Level.TRACE
+                    debug -> Level.DEBUG
+                    else -> Level.INFO
+                }
+            }
 
     private fun lintFiles(
         ruleSetProviders: Map<String, RuleSetProvider>,
@@ -461,7 +467,11 @@ class KtlintCommandLine {
                 ReporterTemplate(
                     reporterId,
                     split.lastOrNull { it.startsWith("artifact=") }?.let { it.split("=")[1] },
-                    mapOf("verbose" to verbose.toString(), "color" to color.toString(), "color_name" to colorName) + parseQuery(rawReporterConfig),
+                    mapOf(
+                        "verbose" to verbose.toString(),
+                        "color" to color.toString(),
+                        "color_name" to colorName
+                    ) + parseQuery(rawReporterConfig),
                     split.lastOrNull { it.startsWith("output=") }?.let { it.split("=")[1] }
                 )
             }
@@ -583,11 +593,25 @@ class KtlintCommandLine {
         numberOfThreads: Int = Runtime.getRuntime().availableProcessors()
     ) {
         val pill = object : Future<T> {
-            override fun isDone(): Boolean { throw UnsupportedOperationException() }
-            override fun get(timeout: Long, unit: TimeUnit): T { throw UnsupportedOperationException() }
-            override fun get(): T { throw UnsupportedOperationException() }
-            override fun cancel(mayInterruptIfRunning: Boolean): Boolean { throw UnsupportedOperationException() }
-            override fun isCancelled(): Boolean { throw UnsupportedOperationException() }
+            override fun isDone(): Boolean {
+                throw UnsupportedOperationException()
+            }
+
+            override fun get(timeout: Long, unit: TimeUnit): T {
+                throw UnsupportedOperationException()
+            }
+
+            override fun get(): T {
+                throw UnsupportedOperationException()
+            }
+
+            override fun cancel(mayInterruptIfRunning: Boolean): Boolean {
+                throw UnsupportedOperationException()
+            }
+
+            override fun isCancelled(): Boolean {
+                throw UnsupportedOperationException()
+            }
         }
         val q = ArrayBlockingQueue<Future<T>>(numberOfThreads)
         val producer = thread(start = true) {
