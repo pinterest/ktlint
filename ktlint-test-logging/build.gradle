@@ -1,0 +1,9 @@
+plugins {
+  id 'ktlint-kotlin-common'
+  id 'ktlint-publication'
+}
+
+dependencies {
+  api deps.logback
+  api deps.janino
+}

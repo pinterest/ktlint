@@ -7,10 +7,10 @@ dependencies {
   api deps.kotlin.compiler
   api deps.ec4j
   api deps.logging
-  api deps.logback
 
   // Standard ruleset is required for EditConfigLoaderTest only
   testImplementation projects.ktlintRulesetStandard
+  testImplementation projects.ktlintTestLogging
   testImplementation deps.junit5
   testImplementation deps.assertj
   testImplementation deps.jimfs
