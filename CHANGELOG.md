@@ -5,6 +5,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## Unreleased
 
 ### Added
+- Add experimental rule for unexpected spaces in a nullable type (`nullable-type-spacing`) ([#1341](https://github.com/pinterest/ktlint/issues/1341))
 
 ### Fixed
 - Remove logback dependency from ktlint-core module ([#1421](https://github.com/pinterest/ktlint/issues/1421))
