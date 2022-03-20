@@ -13,6 +13,7 @@ import com.pinterest.ktlint.core.RuleExecutionException
 import com.pinterest.ktlint.core.RuleSet
 import com.pinterest.ktlint.core.RuleSetProvider
 import com.pinterest.ktlint.core.VisitorProvider
+import com.pinterest.ktlint.core.defaultLoggerModifier
 import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ktlint.core.internal.containsLintError
 import com.pinterest.ktlint.core.internal.loadBaseline
@@ -254,7 +255,14 @@ class KtlintCommandLine {
         if (verbose) {
             debug = true
         }
-        logger = configureLogger()
+        defaultLoggerModifier = { logger ->
+            (logger.underlyingLogger as Logger).level = when {
+                trace -> Level.TRACE
+                debug -> Level.DEBUG
+                else -> Level.INFO
+            }
+        }
+        logger = KotlinLogging.logger {}.initKtLintKLogger()
 
         failOnOldRulesetProviderUsage()
 
@@ -293,17 +301,6 @@ class KtlintCommandLine {
             exitProcess(1)
         }
     }
-
-    private fun configureLogger() =
-        KotlinLogging
-            .logger {}
-            .initKtLintKLogger { logger ->
-                (logger.underlyingLogger as Logger).level = when {
-                    trace -> Level.TRACE
-                    debug -> Level.DEBUG
-                    else -> Level.INFO
-                }
-            }
 
     private fun lintFiles(
         ruleSetProviders: Map<String, RuleSetProvider>,
