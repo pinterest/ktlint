@@ -6,6 +6,7 @@ import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.RuleSet
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.initKtLintKLogger
+import com.pinterest.ktlint.core.setDefaultLoggerModifier
 import com.pinterest.ruleset.test.DumpASTRule
 import mu.KotlinLogging
 import org.assertj.core.api.Assertions.assertThat
@@ -16,7 +17,7 @@ import org.jetbrains.kotlin.utils.addToStdlib.ifTrue
 private val logger =
     KotlinLogging
         .logger {}
-        .initKtLintKLogger { logger ->
+        .setDefaultLoggerModifier { logger ->
             if (!logger.isTraceEnabled || !logger.isDebugEnabled) {
                 logger.info {
                     """
@@ -26,7 +27,7 @@ private val logger =
                     """.trimIndent()
                 }
             }
-        }
+        }.initKtLintKLogger()
 
 // Via command line parameter "--trace" the end user of ktlint can change the logging behavior. As unit tests are not
 // invoked via the main ktlint runtime, this command line parameter can not be used to change the logging behavior while
