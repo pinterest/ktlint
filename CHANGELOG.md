@@ -2,6 +2,16 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+### Added
+
+### Fixed
+
+### Changed
+
+### Removed
+
 ## [0.45.1] - 2022-03-21
 
 Minor release to fix a breaking issue with `ktlint` API consumers
