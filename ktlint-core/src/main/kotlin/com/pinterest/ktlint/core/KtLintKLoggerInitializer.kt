@@ -12,26 +12,41 @@ public const val KTLINT_UNIT_TEST_DUMP_AST = "KTLINT_UNIT_TEST_DUMP_AST"
 public const val KTLINT_UNIT_TEST_ON_PROPERTY = "ON"
 
 /**
- * Default modifier for the KLogger of new instances of classes calling [initKtLintKLogger]. Classes for which
- * [initKtLintKLogger] has been called before setting this variable will not be changed. Also note, that this modifier
- * can only be set once.
+ * Default modifier for the KLogger. It can be set only once via [setDefaultLoggerModifier] but it should be set before
+ * the first invocation of [initKtLintKLogger].
  */
-public lateinit var defaultLoggerModifier: (KLogger) -> Unit
+private var defaultLoggerModifier: ((KLogger) -> Unit)? = null
 
 /**
- * Initializes the logger with the [defaultLoggerModifier] when set.
+ * Set the [defaultLoggerModifier]. Note that it can only be set once. It should be set before the first invocation to
+ * [initKtLintKLogger].
  */
-public fun KLogger.initKtLintKLogger(): KLogger {
-    return if (::defaultLoggerModifier.isInitialized) {
-        apply { defaultLoggerModifier(this) }
-    } else {
-        this
+public fun KLogger.setDefaultLoggerModifier(
+    loggerModifier: (KLogger) -> Unit
+): KLogger {
+    if (defaultLoggerModifier != null) {
+        warn {
+            """
+            The defaultLoggerModifier has been set before and might already have been applied when initializing
+            Loggers. Loggers which will be initialized after resetting the defaultLoggerModifier will be initialized
+            with the new value. This might result in unpredictable behavior. Except for in unit tests, it is
+            recommended to ensure to call this function only once.
+            """.trimIndent()
+        }
     }
+    defaultLoggerModifier = loggerModifier
+    return this
 }
 
 /**
- * Initializes the logger with the [loggerModifier].
+ * Initializes the logger with the [defaultLoggerModifier].
  */
-public fun KLogger.initKtLintKLogger(
-    loggerModifier: (KLogger) -> Unit
-): KLogger = apply { loggerModifier(this) }
+public fun KLogger.initKtLintKLogger(): KLogger {
+    if (defaultLoggerModifier == null) {
+        // Initialize the defaultLoggerModifier on the first invocation of initKtlintLogger when it is not yet set.
+        // In this way it can be ensured that all loggers are initialized with the exact same logger modifier.
+        defaultLoggerModifier = { _ -> }
+    }
+
+    return apply { defaultLoggerModifier?.invoke(this) }
+}
