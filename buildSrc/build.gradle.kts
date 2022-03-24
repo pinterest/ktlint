@@ -17,7 +17,7 @@ val kotlinVersion = if (project.hasProperty("kotlinDev")) {
     logger.warn("Enabling kotlin dev version!")
     "1.6.20-RC2"
 } else {
-    "1.6.0"
+    "1.6.10"
 }
 
 dependencies {
