@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Added
 
 ### Fixed
+- Fix check of spacing in the receiver type of an anonymous function ([#1440](https://github.com/pinterest/ktlint/issues/1440))
 
 ### Changed
 * Set Kotlin development version to `1.6.20-RC2` and Kotlin version to `1.6.10`.
