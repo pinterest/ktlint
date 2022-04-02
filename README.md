@@ -37,7 +37,7 @@ It's also [easy to create your own](#creating-a-reporter).
   (set `insert_final_newline=false` in .editorconfig to disable (see [EditorConfig](#editorconfig) section for more)).
 - `import-ordering`: Imports ordered consistently (see [Custom ktlint EditorConfig properties](#custom-ktlint-specific-editorconfig-properties) for more)
 - `indent`: Indentation formatting - respects `.editorconfig` `indent_size` with no continuation indent (see [EditorConfig](#editorconfig) section for more)
-- `max-line-length`: Ensures that lines do not exceed the given length of `.editoconfig` property `max_line_length` (see [EditorConfig](#editorconfig) section for more). This rule does not apply in a number of situations. For example, in the case a line exceeds the maximum line length due to and comment that disables ktlint rules than that comment is being ignored when validating the length of the line. The `.editorconfig` property `ktlint_ignore_back_ticked_identifier` can be set to ignore identifiers which are enclosed in backticks, which for example is very useful when you want to allow longer names for unit tests.  
+- `max-line-length`: Ensures that lines do not exceed the given length of `.editorconfig` property `max_line_length` (see [EditorConfig](#editorconfig) section for more). This rule does not apply in a number of situations. For example, in the case a line exceeds the maximum line length due to and comment that disables ktlint rules than that comment is being ignored when validating the length of the line. The `.editorconfig` property `ktlint_ignore_back_ticked_identifier` can be set to ignore identifiers which are enclosed in backticks, which for example is very useful when you want to allow longer names for unit tests.  
 - `modifier-order`: Consistent order of modifiers
 - `no-blank-line-before-rbrace`: No blank lines before `}` 
 - `no-consecutive-blank-lines`: No consecutive blank lines
@@ -176,7 +176,7 @@ To contribute or get more info, please visit the [GitHub repository](https://git
 > Skip all the way to the "Integration" section if you don't plan to use `ktlint`'s command line interface.
 
 ```sh
-curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.45.0/ktlint &&
+curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.45.1/ktlint &&
   chmod a+x ktlint &&
   sudo mv ktlint /usr/local/bin/
 ```
@@ -290,7 +290,7 @@ $ ktlint installGitPreCommitHook
         <dependency>
             <groupId>com.pinterest</groupId>
             <artifactId>ktlint</artifactId>
-            <version>0.45.0</version>
+            <version>0.45.1</version>
         </dependency>
         <!-- additional 3rd party ruleset(s) can be specified here -->
     </dependencies>
@@ -338,7 +338,7 @@ configurations {
 }
 
 dependencies {
-    ktlint("com.pinterest:ktlint:0.45.0") {
+    ktlint("com.pinterest:ktlint:0.45.1") {
         attributes {
             attribute(Bundling.BUNDLING_ATTRIBUTE, getObjects().named(Bundling, Bundling.EXTERNAL))
         }
@@ -383,7 +383,7 @@ See [Making your Gradle tasks incremental](https://proandroiddev.com/making-your
 val ktlint by configurations.creating
 
 dependencies {
-    ktlint("com.pinterest:ktlint:0.45.0") {
+    ktlint("com.pinterest:ktlint:0.45.1") {
         attributes {
             attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.EXTERNAL))
         }
