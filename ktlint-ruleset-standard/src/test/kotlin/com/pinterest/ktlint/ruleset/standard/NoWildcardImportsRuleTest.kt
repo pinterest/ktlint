@@ -1,9 +1,9 @@
 package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.LintError
+import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.ruleset.standard.NoWildcardImportsRule.Companion.packagesToUseImportOnDemandProperty
-import com.pinterest.ktlint.test.EditorConfigOverride
 import com.pinterest.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
