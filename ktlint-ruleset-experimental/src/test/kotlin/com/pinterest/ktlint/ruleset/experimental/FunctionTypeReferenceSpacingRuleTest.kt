@@ -92,4 +92,54 @@ class FunctionTypeReferenceSpacingRuleTest {
             FunctionTypeReferenceSpacingRule().format(code)
         ).isEqualTo(code)
     }
+
+    @Test
+    fun `Issue 1440 - Given an anonymous function without receiver type then do not reformat`() {
+        val code =
+            """
+            val anonymousFunction = fun(foo: Boolean): String? = if (foo) "Test string" else null
+            """.trimIndent()
+        Assertions.assertThat(
+            FunctionTypeReferenceSpacingRule().lint(code)
+        ).isEmpty()
+        Assertions.assertThat(
+            FunctionTypeReferenceSpacingRule().format(code)
+        ).isEqualTo(code)
+    }
+
+    @Test
+    fun `Given an anonymous function with receiver type then do not reformat`() {
+        val code =
+            """
+            val anonymousFunction = fun Boolean.(): String? = if (this) "Test string" else null
+            """.trimIndent()
+        Assertions.assertThat(
+            FunctionTypeReferenceSpacingRule().lint(code)
+        ).isEmpty()
+        Assertions.assertThat(
+            FunctionTypeReferenceSpacingRule().format(code)
+        ).isEqualTo(code)
+    }
+
+    @Test
+    fun `Given an anonymous function with receiver type followed by an unexpected space then do reformat`() {
+        val code =
+            """
+            val anonymousFunction = fun Boolean ? . (): String? = this?.let { "Test string" }
+            """.trimIndent()
+        val formattedCode =
+            """
+            val anonymousFunction = fun Boolean?.(): String? = this?.let { "Test string" }
+            """.trimIndent()
+        Assertions.assertThat(
+            FunctionTypeReferenceSpacingRule().lint(code)
+        ).containsExactly(
+            LintError(1, 36, "function-type-reference-spacing", "Unexpected whitespace"),
+            LintError(1, 38, "function-type-reference-spacing", "Unexpected whitespace"),
+            LintError(1, 40, "function-type-reference-spacing", "Unexpected whitespace")
+        )
+        Assertions.assertThat(
+            FunctionTypeReferenceSpacingRule().format(code)
+        ).isEqualTo(formattedCode)
+    }
 }
