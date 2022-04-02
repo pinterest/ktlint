@@ -9,7 +9,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Fixed
 
 ### Changed
-* Set Kotlin development version to `1.6.20-RC2` and Kotlin version to `1.6.10`.
+* Set Kotlin development version to `1.6.20` and Kotlin version to `1.6.20`.
 
 ### Removed
 
