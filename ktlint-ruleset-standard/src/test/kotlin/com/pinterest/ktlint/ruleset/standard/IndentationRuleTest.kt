@@ -5,16 +5,22 @@ import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentSizePro
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentStyleProperty
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.test.EditorConfigOverride
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
 import com.pinterest.ktlint.test.diffFileFormat
 import com.pinterest.ktlint.test.diffFileLint
-import com.pinterest.ktlint.test.format
-import com.pinterest.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
 import org.ec4j.core.model.PropertyType
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 
+@Suppress("RemoveCurlyBracesFromTemplate")
 @FeatureInAlphaState
 internal class IndentationRuleTest {
+    val indentationRuleAssertThat = IndentationRule().assertThat()
+    val wrappingAndIndentationRuleAssertThat = listOf(WrappingRule(), IndentationRule()).assertThat()
+
     @Test
     fun testLint() {
         assertThat(IndentationRule().diffFileLint("spec/indent/lint.kt.spec")).isEmpty()
@@ -42,76 +48,69 @@ internal class IndentationRuleTest {
     }
 
     @Test
-    fun testLintIndentSize2() {
-        assertThat(
-            IndentationRule().lint(
-                """
-                fun main() {
-                   val v = ""
-                    println(v)
-                }
-                fun main() {
-                  val v = ""
-                  println(v)
-                }
-                class A {
-                  var x: String
-                    get() = ""
-                    set(v: String) { x = v }
-                }
-                """.trimIndent(),
-                EditorConfigOverride.from(indentSizeProperty to 2)
-            )
-        ).isEqualTo(
-            listOf(
+    fun `Given that the indent size is set to 2 spaces and the code is properly indented the do not return lint errors`() {
+        val code =
+            """
+            fun main() {
+               val v = ""
+                println(v)
+            }
+            fun main() {
+              val v = ""
+              println(v)
+            }
+            class A {
+              var x: String
+                get() = ""
+                set(v: String) { x = v }
+            }
+            """.trimIndent()
+        indentationRuleAssertThat(code)
+            .withEditorConfigOverride(indentSizeProperty to 2)
+            .hasLintErrors(
                 LintError(2, 1, "indent", "Unexpected indentation (3) (should be 2)"),
                 LintError(3, 1, "indent", "Unexpected indentation (4) (should be 2)")
             )
-        )
     }
 
     @Test
-    fun `lint IndentTab with tabs`() {
-        assertThat(
-            IndentationRule().lint(
-                """
-                |fun main() {
-                |val v = ""
-                |		println(v)
-                |}
-                |fun main() {
-                |	val v = ""
-                |	println(v)
-                |}
-                |class A {
-                |	var x: String
-                |		get() = ""
-                |		set(v: String) { x = v }
-                |}
-                """.trimMargin(),
-                INDENT_STYLE_TABS
-            )
-        ).isEqualTo(
-            listOf(
+    fun `Given that the indent style is set to tabs and the code is properly indented then do not return lint errors`() {
+        val code =
+            """
+            fun main() {
+            val v = ""
+            ${TAB}${TAB}println(v)
+            }
+            fun main() {
+            ${TAB}val v = ""
+            ${TAB}println(v)
+            }
+            class A {
+            ${TAB}var x: String
+            ${TAB}${TAB}get() = ""
+            ${TAB}${TAB}set(v: String) { x = v }
+            }
+            """.trimIndent()
+        indentationRuleAssertThat(code)
+            .withEditorConfigOverride(INDENT_STYLE_TAB)
+            .hasLintErrors(
                 LintError(2, 1, "indent", "Unexpected indentation (0) (should be 1)"),
                 LintError(3, 1, "indent", "Unexpected indentation (2) (should be 1)")
             )
-        )
     }
 
     @Test
-    fun testLintIndentSizeUnset() {
-        assertThat(
-            IndentationRule().lint(
-                """
-                fun main() {
-                   val v = ""
-                    println(v)
-                }
-                """.trimIndent(),
-                EditorConfigOverride.from(indentSizeProperty to "unset")
-            )
-        ).isEmpty()
+    fun `Given that the indent size property is not set`() {
+        val code =
+            """
+            fun main() {
+               val v = ""
+                println(v)
+            }
+            """.trimIndent()
+        indentationRuleAssertThat(code)
+            .withEditorConfigOverride(indentSizeProperty to "unset")
+            .hasNoLintErrors()
     }
 
     @Test
@@ -185,32 +184,37 @@ internal class IndentationRuleTest {
         ).isEmpty()
     }
 
-    @Test
-    fun testLintFirstLine() {
-        assertThat(IndentationRule().lint("  // comment"))
-            .isEqualTo(
-                listOf(
-                    LintError(line = 1, col = 1, ruleId = "indent", detail = "Unexpected indentation (2) (should be 0)")
+    @Nested
+    inner class TestLintFirstLine {
+        @ParameterizedTest(name = "As Kotlin script: {0}")
+        @ValueSource(booleans = [true, false])
+        fun `Given a file with indented code on the first line then report unexpected indentation on first line`(asKotlinScript: Boolean) {
+            val code =
+                """
+                |${SPACE}${SPACE}// comment
+                """.trimMargin()
+            indentationRuleAssertThat(code)
+                .asKotlinScript(asKotlinScript)
+                .hasLintErrors(
+                    LintError(1, 1, "indent", "Unexpected indentation (2) (should be 0)")
                 )
-            )
-        assertThat(IndentationRule().lint("  // comment", script = true))
-            .isEqualTo(
-                listOf(
-                    LintError(line = 1, col = 1, ruleId = "indent", detail = "Unexpected indentation (2) (should be 0)")
+        }
+
+        @ParameterizedTest(name = "As Kotlin script: {0}")
+        @ValueSource(booleans = [true, false])
+        fun `Given a file with blanks only on the first line then do not report unexpected indentation for that first line`(asKotlinScript: Boolean) {
+            val code =
+                """
+                |${SPACE}${SPACE}
+                |${SPACE}${SPACE}// comment
+                """.trimMargin()
+            indentationRuleAssertThat(code)
+                .asKotlinScript(asKotlinScript)
+                .hasLintErrors(
+                    // Note that no LintError is created for the first line as it does not contain any code
+                    LintError(2, 1, "indent", "Unexpected indentation (2) (should be 0)")
                 )
-            )
-        assertThat(IndentationRule().lint("  \n  // comment"))
-            .isEqualTo(
-                listOf(
-                    LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected indentation (2) (should be 0)")
-                )
-            )
-        assertThat(IndentationRule().lint("  \n  // comment", script = true))
-            .isEqualTo(
-                listOf(
-                    LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected indentation (2) (should be 0)")
-                )
-            )
+        }
     }
 
     @Test
@@ -297,203 +301,209 @@ internal class IndentationRuleTest {
     }
 
     @Test // "https://github.com/shyiko/ktlint/issues/180"
-    fun testLintWhereClause() {
-        assertThat(
-            IndentationRule().lint(
-                """
-                class BiAdapter<C : RecyclerView.ViewHolder, V1 : C, V2 : C, out A1, out A2>(
-                    val adapter1: A1,
-                    val adapter2: A2
-                ) : RecyclerView.Adapter<C>()
-                    where A1 : RecyclerView.Adapter<V1>, A1 : ComposableAdapter.ViewTypeProvider,
-                          A2 : RecyclerView.Adapter<V2>, A2 : ComposableAdapter.ViewTypeProvider {
-                }
-                """.trimIndent()
-            )
-        ).isEmpty()
+    fun `Given a class declaration using the WHERE keyword`() {
+        val code =
+            """
+            class BiAdapter<C : RecyclerView.ViewHolder, V1 : C, V2 : C, out A1, out A2>(
+                val adapter1: A1,
+                val adapter2: A2
+            ) : RecyclerView.Adapter<C>()
+                where A1 : RecyclerView.Adapter<V1>, A1 : ComposableAdapter.ViewTypeProvider,
+                      A2 : RecyclerView.Adapter<V2>, A2 : ComposableAdapter.ViewTypeProvider {
+            }
+            """.trimIndent()
+        indentationRuleAssertThat(code).hasNoLintErrors()
     }
 
     @Test // "https://github.com/pinterest/ktlint/issues/433"
-    fun testLintParameterListWithComments() {
-        assertThat(
-            IndentationRule().lint(
-                """
-                fun main() {
-                    foo(
-                        /*param1=*/param1,
-                        /*param2=*/param2
-                    )
+    fun `Given a parameter list in which parameters are prefixed with a comment block`() {
+        val code =
+            """
+            fun main() {
+                foo(
+                    /*param1=*/param1,
+                    /*param2=*/param2
+                )
 
-                    foo(
-                        /*param1=*/ param1,
-                        /*param2=*/ param2
-                    )
-                }
-                """.trimIndent()
-            )
-        ).isEmpty()
+                foo(
+                    /*param1=*/ param1,
+                    /*param2=*/ param2
+                )
+            }
+            """.trimIndent()
+        indentationRuleAssertThat(code).hasNoLintErrors()
     }
 
     @Test
-    fun testUnexpectedSpaceCharacter() {
-        val ktScript = "fun main() {\n    return 0\n  }"
-        assertThat(
-            IndentationRule().lint(ktScript, INDENT_STYLE_TABS)
-        ).isEqualTo(
-            listOf(
+    fun `Given code with unexpected SPACE characters in the indentation`() {
+        val code =
+            """
+            fun main() {
+                return 0
+              }
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun main() {
+            ${TAB}return 0
+            }
+            """.trimIndent()
+        indentationRuleAssertThat(code)
+            .withEditorConfigOverride(INDENT_STYLE_TAB)
+            .hasLintErrors(
                 LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected space character(s)"),
                 LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected space character(s)")
-            )
-        )
-        assertThat(IndentationRule().format(ktScript))
-            .isEqualTo("fun main() {\n    return 0\n}")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
-    fun testUnexpectedTabCharacter() {
-        val ktScript = "fun main() {\n\t\treturn 0\n\t}"
-        assertThat(IndentationRule().lint(ktScript)).isEqualTo(
-            listOf(
+    fun `Given code with unexpected TAB characters in the indentation`() {
+        val code =
+            """
+            fun main() {
+            ${TAB}${TAB}return 0
+            ${TAB}}
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun main() {
+                return 0
+            }
+            """.trimIndent()
+        indentationRuleAssertThat(code)
+            .hasLintErrors(
                 LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected tab character(s)"),
                 LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected indentation (8) (should be 4)"),
                 LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected tab character(s)"),
                 LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected indentation (4) (should be 0)")
-            )
-        )
-        assertThat(IndentationRule().format(ktScript))
-            .isEqualTo("fun main() {\n    return 0\n}")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
-    fun testUnexpectedTabCharacterForLinesAtCorrectIndentationLevel() {
-        val ktScript = "" +
-            "class Foo {\n" +
-            "\tfun doBar() {\n" +
-            "\t\t\tprintln(\"test\")\n" +
-            "\t}\n" +
-            "}\n"
-        assertThat(IndentationRule().lint(ktScript)).isEqualTo(
-            listOf(
-                LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected tab character(s)"),
-                LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected tab character(s)"),
-                LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected indentation (12) (should be 8)"),
-                LintError(line = 4, col = 1, ruleId = "indent", detail = "Unexpected tab character(s)")
-            )
-        )
-        assertThat(IndentationRule().format(ktScript))
-            .isEqualTo(
-                "class Foo {\n" +
-                    "    fun doBar() {\n" +
-                    "        println(\"test\")\n" +
-                    "    }\n" +
-                    "}\n"
-            )
-    }
-
-    @Test
-    fun testUnexpectedTabCharacterWithCustomIndentSize() {
-        val ktScript = "fun main() {\n\t\treturn 0\n\t}"
-        assertThat(
-            IndentationRule()
-                .lint(
-                    ktScript,
-                    EditorConfigOverride.from(indentSizeProperty to 2)
-                )
-        ).isEqualTo(
-            listOf(
-                LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected tab character(s)"),
-                LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected indentation (4) (should be 2)"),
-                LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected tab character(s)"),
-                LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected indentation (2) (should be 0)")
-            )
-        )
-        assertThat(
-            IndentationRule()
-                .format(
-                    ktScript,
-                    EditorConfigOverride.from(indentSizeProperty to 2)
-                )
-        ).isEqualTo("fun main() {\n  return 0\n}")
-    }
-
-    @Test
-    fun testLintNewlineAfterEqAllowed() {
-        assertThat(
-            IndentationRule().lint(
-                // Previously the IndentationRule would force the line break after the `=`. Verify that it is
-                // still allowed.
-                """
-                private fun getImplementationVersion() =
-                    javaClass.`package`.implementationVersion
-                        ?: javaClass.getResourceAsStream("/META-INF/MANIFEST.MF")
-                            ?.let { stream ->
-                                Manifest(stream).mainAttributes.getValue("Implementation-Version")
-                            }
-                """.trimIndent()
-            )
-        ).isEmpty()
-    }
-
-    @Test
-    fun `incorrect indentation after lambda arrow`() {
-        assertThat(
-            IndentationRule().lint(
-                """
-                fun bar() {
-                    Pair("val1", "val2")
-                        .let { (first, second) ->
-                                first + second
-                        }
+    fun `Given code indented with TABS at the correct level while it should be indented with SPACES`() {
+        val code =
+            """
+            class Foo {
+            ${TAB}fun doBar() {
+            ${TAB}${TAB}println("test")
+            ${TAB}}
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            class Foo {
+                fun doBar() {
+                    println("test")
                 }
-                """.trimIndent()
-            )
-        ).isEqualTo(
-            listOf(
-                LintError(line = 4, col = 1, ruleId = "indent", detail = "Unexpected indentation (16) (should be 12)")
-            )
-        )
+            }
+            """.trimIndent()
+        indentationRuleAssertThat(code)
+            .hasLintErrors(
+                LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected tab character(s)"),
+                LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected tab character(s)"),
+                LintError(line = 4, col = 1, ruleId = "indent", detail = "Unexpected tab character(s)")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
-    fun `lint indentation new line before return type`() {
-        assertThat(
-            IndentationRule().lint(
-                """
-                abstract fun doPerformSomeOperation(param: ALongParameter):
-                    SomeLongInterface<ALongParameter.InnerClass, SomeOtherClass>
-                val s:
-                    String = ""
-                fun process(
-                    fileName:
-                        String
-                ): List<Output>
-                """.trimIndent()
-            )
-        ).isEmpty()
+    fun `Given code which is correctly indented with TABS while a custom indent size of 2 SPACES should be used`() {
+        val code =
+            """
+            class Foo {
+            ${TAB}fun main() {
+            ${TAB}${TAB}return 0
+            ${TAB}}
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            class Foo {
+              fun main() {
+                return 0
+              }
+            }
+            """.trimIndent()
+        indentationRuleAssertThat(code)
+            .withEditorConfigOverride(indentSizeProperty to 2)
+            .hasLintErrors(
+                LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected tab character(s)"),
+                LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected tab character(s)"),
+                LintError(line = 4, col = 1, ruleId = "indent", detail = "Unexpected tab character(s)")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
-    fun `format indentation new line before return type`() {
-        assertThat(
-            IndentationRule().format(
-                """
-                abstract fun doPerformSomeOperation(param: ALongParameter):
-                SomeLongInterface<ALongParameter.InnerClass, SomeOtherClass>
+    fun `Given a function declaration with a new line after the equality sign then do no return any lint errors`() {
+        val code =
+            """
+            private fun getImplementationVersion() =
+                javaClass.`package`.implementationVersion
+                    ?: javaClass.getResourceAsStream("/META-INF/MANIFEST.MF")
+                        ?.let { stream ->
+                            Manifest(stream).mainAttributes.getValue("Implementation-Version")
+                        }
+            """.trimIndent()
+        indentationRuleAssertThat(code).hasNoLintErrors()
+    }
 
-                val s:
-                        String = ""
+    @Test
+    fun `Given a lambda with incorrect indentation after lambda arrow`() {
+        val code =
+            """
+            fun bar() {
+                Pair("val1", "val2")
+                    .let { (first, second) ->
+                            first + second
+                    }
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun bar() {
+                Pair("val1", "val2")
+                    .let { (first, second) ->
+                        first + second
+                    }
+            }
+            """.trimIndent()
+        indentationRuleAssertThat(code)
+            .hasLintErrors(
+                LintError(4, 1, "indent", "Unexpected indentation (16) (should be 12)")
+            ).isFormattedAs(formattedCode)
+    }
 
-                fun process(
-                    fileName:
-                        String
-                ): List<Output>
-                """.trimIndent()
-            )
-        ).isEqualTo(
+    @Test
+    fun `Given a function declaration with the return type incorrectly indented at new line`() {
+        val code =
+            """
+            abstract fun doPerformSomeOperation(param: ALongParameter):
+            SomeLongInterface<ALongParameter.InnerClass, SomeOtherClass>
+            """.trimIndent()
+        val formattedCode =
             """
             abstract fun doPerformSomeOperation(param: ALongParameter):
                 SomeLongInterface<ALongParameter.InnerClass, SomeOtherClass>
+            """.trimIndent()
+        indentationRuleAssertThat(code)
+            .hasLintErrors(
+                LintError(2, 1, "indent", "Unexpected indentation (0) (should be 4)")
+            ).isFormattedAs(formattedCode)
+    }
 
+    @Test
+    fun `Given a variable declaration with type incorrectly indented on a new line`() {
+        val code =
+            """
+            val s:
+                    String = ""
+
+            fun process(
+                fileName:
+                String
+            ): List<Output>
+            """.trimIndent()
+        val formattedCode =
+            """
             val s:
                 String = ""
 
@@ -502,28 +512,15 @@ internal class IndentationRuleTest {
                     String
             ): List<Output>
             """.trimIndent()
-        )
+        indentationRuleAssertThat(code)
+            .hasLintErrors(
+                LintError(2, 1, "indent", "Unexpected indentation (8) (should be 4)"),
+                LintError(6, 1, "indent", "Unexpected indentation (4) (should be 8)")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
-    fun `lint trailing comment in multiline parameter is allowed`() {
-        assertThat(
-            IndentationRule().lint(
-                """
-                fun foo(param: Foo, other: String) {
-                    foo(
-                        param = param
-                            .copy(foo = ""), // A comment
-                        other = ""
-                    )
-                }
-                """.trimIndent()
-            )
-        ).isEmpty()
-    }
-
-    @Test
-    fun `format trailing comment in multiline parameter is allowed`() {
+    fun `Given some code with an EOL comment in a multiline parameter then do not return lint errors`() {
         val code =
             """
             fun foo(param: Foo, other: String) {
@@ -534,27 +531,11 @@ internal class IndentationRuleTest {
                 )
             }
             """.trimIndent()
-        assertThat(IndentationRule().format(code)).isEqualTo(code)
+        indentationRuleAssertThat(code).hasNoLintErrors()
     }
 
     @Test
-    fun `lint safe-called wrapped trailing lambda is allowed`() {
-        assertThat(
-            IndentationRule().lint(
-                """
-                val foo = bar
-                    ?.filter { number ->
-                        number == 0
-                    }?.map { evenNumber ->
-                        evenNumber * evenNumber
-                    }
-                """.trimIndent()
-            )
-        ).isEmpty()
-    }
-
-    @Test
-    fun `format safe-called wrapped trailing lambda is allowed`() {
+    fun `Given a safe-called lambda then do not return lint errors`() {
         val code =
             """
             val foo = bar
@@ -564,11 +545,11 @@ internal class IndentationRuleTest {
                     evenNumber * evenNumber
                 }
             """.trimIndent()
-        assertThat(IndentationRule().format(code)).isEqualTo(code)
+        indentationRuleAssertThat(code).hasNoLintErrors()
     }
 
     @Test
-    fun `lint block started with parens after if is allowed`() {
+    fun `Given a statement (not wrapped in a block) after an if then do no return lint errors`() {
         val code =
             """
             fun test() {
@@ -578,26 +559,11 @@ internal class IndentationRuleTest {
                     2.toString()
             }
             """.trimIndent()
-        assertThat(IndentationRule().lint(code)).isEmpty()
+        indentationRuleAssertThat(code).hasNoLintErrors()
     }
 
     @Test
-    fun `format block started with parens after if is allowed`() {
-        val code =
-            """
-            fun test() {
-                if (true)
-                    (1).toString()
-                else
-                    2.toString()
-            }
-            """.trimIndent()
-        assertThat(IndentationRule().format(code)).isEqualTo(code)
-    }
-
-    // https://github.com/pinterest/ktlint/issues/796
-    @Test
-    fun `lint if-condition with multiline call expression is indented properly`() {
+    fun `Issue 796 - Given an if-condition with multiline call expression which is indented properly then do no return lint errors`() {
         val code =
             """
             private val gpsRegion =
@@ -608,26 +574,11 @@ internal class IndentationRuleTest {
                     // stuff
                 }
             """.trimIndent()
-        assertThat(IndentationRule().lint(code)).isEmpty()
+        indentationRuleAssertThat(code).hasNoLintErrors()
     }
 
     @Test
-    fun `format if-condition with multiline call expression is indented properly`() {
-        val code =
-            """
-            private val gpsRegion =
-                if (permissionHandler.isPermissionGranted(
-                        context, Manifest.permission.ACCESS_FINE_LOCATION
-                    )
-                ) {
-                    // stuff
-                }
-            """.trimIndent()
-        assertThat(IndentationRule().format(code)).isEqualTo(code)
-    }
-
-    @Test
-    fun `format multiline string assignment to variable with opening quotes on same line as declaration`() {
+    fun `Given a multiline string assignment to variable with opening quotes on same line as declaration`() {
         val code =
             """
             fun foo() {
@@ -637,7 +588,7 @@ internal class IndentationRuleTest {
                           $MULTILINE_STRING_QUOTE.trimIndent()
             }
             """.trimIndent()
-        val expectedCode =
+        val formattedCode =
             """
             fun foo() {
                 val bar = $MULTILINE_STRING_QUOTE
@@ -646,18 +597,14 @@ internal class IndentationRuleTest {
                 $MULTILINE_STRING_QUOTE.trimIndent()
             }
             """.trimIndent()
-        assertThat(
-            IndentationRule().lint(code)
-        ).isEqualTo(
-            listOf(
+        indentationRuleAssertThat(code)
+            .hasLintErrors(
                 LintError(5, 1, "indent", "Unexpected indent of multiline string closing quotes")
-            )
-        )
-        assertThat(IndentationRule().format(code)).isEqualTo(expectedCode)
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
-    fun `format multiline string containing quotation marks`() {
+    fun `Given a multiline string containing quotation marks for which the closing quotes are not correctly indented`() {
         val code =
             """
             fun foo() {
@@ -671,7 +618,7 @@ internal class IndentationRuleTest {
                 )
             }
             """.trimIndent()
-        val expectedCode =
+        val formattedCode =
             """
             fun foo() {
                 println(
@@ -684,14 +631,10 @@ internal class IndentationRuleTest {
                 )
             }
             """.trimIndent()
-        assertThat(
-            IndentationRule().lint(code)
-        ).isEqualTo(
-            listOf(
-                LintError(line = 8, col = 1, ruleId = "indent", detail = "Unexpected indent of multiline string closing quotes")
-            )
-        )
-        assertThat(IndentationRule().format(code)).isEqualTo(expectedCode)
+        indentationRuleAssertThat(code)
+            .hasLintErrors(
+                LintError(8, 1, "indent", "Unexpected indent of multiline string closing quotes")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -709,7 +652,7 @@ internal class IndentationRuleTest {
                 )
             }
             """.trimIndent()
-        val expectedCode =
+        val formattedCode =
             """
             fun foo() {
                 println(
@@ -721,18 +664,14 @@ internal class IndentationRuleTest {
                 )
             }
             """.trimIndent()
-        assertThat(
-            IndentationRule().lint(code)
-        ).isEqualTo(
-            listOf(
-                LintError(line = 7, col = 1, ruleId = "indent", detail = "Unexpected indent of multiline string closing quotes")
-            )
-        )
-        assertThat(IndentationRule().format(code)).isEqualTo(expectedCode)
+        indentationRuleAssertThat(code)
+            .hasLintErrors(
+                LintError(7, 1, "indent", "Unexpected indent of multiline string closing quotes")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
-    fun `issue 575 - format multiline string with tabs after the margin is indented properly`() {
+    fun `Issue 575 - Given a multiline string which is properly indented but does contain tabs after the margin then do not return lint errors`() {
         val code =
             """
             val str =
@@ -742,72 +681,68 @@ internal class IndentationRuleTest {
                 Tab at the end of this line.$TAB
                 $MULTILINE_STRING_QUOTE.trimIndent()
             """.trimIndent()
-        assertThat(IndentationRule().lint(code)).isEmpty()
-        assertThat(IndentationRule().format(code)).isEqualTo(code)
+        indentationRuleAssertThat(code).hasNoLintErrors()
     }
 
     @Test
-    fun `lint if-condition with line break and multiline call expression is indented properly`() {
-        assertThat(
-            IndentationRule().lint(
-                """
-                // https://github.com/pinterest/ktlint/issues/871
-                fun function(param1: Int, param2: Int, param3: Int?): Boolean {
-                    return if (
-                        listOf(
-                            param1,
-                            param2,
-                            param3
-                        ).none { it != null }
+    fun `Given an if-condition with line break and multiline call expression which is indented properly then do not return lint errors`() {
+        val code =
+            """
+            // https://github.com/pinterest/ktlint/issues/871
+            fun function(param1: Int, param2: Int, param3: Int?): Boolean {
+                return if (
+                    listOf(
+                        param1,
+                        param2,
+                        param3
+                    ).none { it != null }
+                ) {
+                    true
+                } else {
+                    false
+                }
+            }
+
+            // https://github.com/pinterest/ktlint/issues/900
+            enum class Letter(val value: String) {
+                A("a"),
+                B("b");
+            }
+            fun broken(key: String): Letter {
+                for (letter in Letter.values()) {
+                    if (
+                        letter.value
+                            .equals(
+                                key,
+                                ignoreCase = true
+                            )
                     ) {
-                        true
-                    } else {
-                        false
+                        return letter
                     }
                 }
-
-                // https://github.com/pinterest/ktlint/issues/900
-                enum class Letter(val value: String) {
-                    A("a"),
-                    B("b");
-                }
-                fun broken(key: String): Letter {
-                    for (letter in Letter.values()) {
-                        if (
-                            letter.value
-                                .equals(
-                                    key,
-                                    ignoreCase = true
-                                )
-                        ) {
-                            return letter
-                        }
-                    }
-                    return Letter.B
-                }
-                """.trimIndent()
-            )
-        ).isEmpty()
+                return Letter.B
+            }
+            """.trimIndent()
+        indentationRuleAssertThat(code).hasNoLintErrors()
     }
 
-    @Test
-    fun `lint property delegate is indented properly`() {
-        assertThat(
-            IndentationRule().lint(
+    @Nested
+    inner class PropertyDelegate {
+        @Test
+        fun `Property delegate is indented properly 1`() {
+            val code =
                 """
                 val i: Int
                     by lazy { 1 }
 
                 val j = 0
                 """.trimIndent()
-            )
-        ).isEmpty()
-    }
+            indentationRuleAssertThat(code).hasNoLintErrors()
+        }
 
-    @Test
-    fun `lint property delegate is indented properly 2`() {
-        assertThat(
-            IndentationRule().lint(
+        @Test
+        fun `Property delegate is indented properly 2`() {
+            val code =
                 """
                 val i: Int
                     by lazy {
@@ -819,14 +754,12 @@ internal class IndentationRuleTest {
 
                 val j = 0
                 """.trimIndent()
-            )
-        ).isEmpty()
-    }
+            indentationRuleAssertThat(code).hasNoLintErrors()
+        }
 
-    @Test
-    fun `lint property delegate is indented properly 3`() {
-        assertThat(
-            IndentationRule().lint(
+        @Test
+        fun `Property delegate is indented properly 3`() {
+            val code =
                 """
                 val i: Int by lazy {
                     "".let {
@@ -837,14 +770,12 @@ internal class IndentationRuleTest {
 
                 val j = 0
                 """.trimIndent()
-            )
-        ).isEmpty()
-    }
+            indentationRuleAssertThat(code).hasNoLintErrors()
+        }
 
-    @Test
-    fun `lint property delegate is indented properly 4`() {
-        assertThat(
-            IndentationRule().lint(
+        @Test
+        fun `Property delegate is indented properly 4`() {
+            val code =
                 """
                 fun lazyList() = lazy { mutableListOf<String>() }
 
@@ -855,14 +786,12 @@ internal class IndentationRuleTest {
                     val aVar = 0
                 }
                 """.trimIndent()
-            )
-        ).isEmpty()
-    }
+            indentationRuleAssertThat(code).hasNoLintErrors()
+        }
 
-    @Test
-    fun `lint property delegate is indented properly 5`() {
-        assertThat(
-            IndentationRule().lint(
+        @Test
+        fun `Property delegate is indented properly 5`() {
+            val code =
                 """
                 fun lazyList(a: Int, b: Int) = lazy { mutableListOf<String>() }
 
@@ -876,33 +805,31 @@ internal class IndentationRuleTest {
                     val aVar = 0
                 }
                 """.trimIndent()
-            )
-        ).isEmpty()
-    }
-
-    // https://github.com/pinterest/ktlint/issues/1210
-    @Test
-    fun `lint delegated properties with a lambda argument`() {
-        assertThat(
-            IndentationRule().lint(
-                """
-                import kotlin.properties.Delegates
-
-                class Test {
-                    private var test
-                        by Delegates.vetoable("") { _, old, new ->
-                            true
-                        }
-                }
-                """.trimIndent()
-            )
-        ).isEmpty()
+            indentationRuleAssertThat(code).hasNoLintErrors()
+        }
     }
 
     @Test
-    fun `lint delegation 1`() {
-        assertThat(
-            IndentationRule().lint(
+    fun `Issue 1210 - lint delegated properties with a lambda argument`() {
+        val code =
+            """
+            import kotlin.properties.Delegates
+
+            class Test {
+                private var test
+                    by Delegates.vetoable("") { _, old, new ->
+                        true
+                    }
+            }
+            """.trimIndent()
+        indentationRuleAssertThat(code).hasNoLintErrors()
+    }
+
+    @Nested
+    inner class Delegation {
+        @Test
+        fun `Delegation 1`() {
+            val code =
                 """
                 interface Foo
 
@@ -914,29 +841,26 @@ internal class IndentationRuleTest {
                     c = 3
                 )
                 """.trimIndent()
-            )
-        ).isEmpty()
-    }
+            indentationRuleAssertThat(code).hasNoLintErrors()
+        }
 
-    @Test
-    fun `lint and format delegation 2`() {
-        val code =
-            """
-            class Test2 : Foo
-            by Bar(
-                a = 1,
-                b = 2,
-                c = 3
-            )
-            """.trimIndent()
-        assertThat(IndentationRule().format(code)).isEqualTo(code)
-        assertThat(IndentationRule().lint(code)).isEmpty()
-    }
+        @Test
+        fun `Delegation 2`() {
+            val code =
+                """
+                class Test2 : Foo
+                by Bar(
+                    a = 1,
+                    b = 2,
+                    c = 3
+                )
+                """.trimIndent()
+            indentationRuleAssertThat(code).hasNoLintErrors()
+        }
 
-    @Test
-    fun `lint delegation 3`() {
-        assertThat(
-            IndentationRule().lint(
+        @Test
+        fun `Delegation 3`() {
+            val code =
                 """
                 interface Foo
 
@@ -949,14 +873,12 @@ internal class IndentationRuleTest {
                         c = 3
                     )
                 """.trimIndent()
-            )
-        ).isEmpty()
-    }
+            indentationRuleAssertThat(code).hasNoLintErrors()
+        }
 
-    @Test
-    fun `lint delegation 4`() {
-        assertThat(
-            IndentationRule().lint(
+        @Test
+        fun `Delegation 4`() {
+            val code =
                 """
                 interface Foo
 
@@ -970,14 +892,12 @@ internal class IndentationRuleTest {
                         c = 3
                     )
                 """.trimIndent()
-            )
-        ).isEmpty()
-    }
+            indentationRuleAssertThat(code).hasNoLintErrors()
+        }
 
-    @Test
-    fun `lint delegation 5`() {
-        assertThat(
-            IndentationRule().lint(
+        @Test
+        fun `Delegation 5`() {
+            val code =
                 """
                 interface Foo
 
@@ -991,14 +911,12 @@ internal class IndentationRuleTest {
                     )
                 }
                 """.trimIndent()
-            )
-        ).isEmpty()
-    }
+            indentationRuleAssertThat(code).hasNoLintErrors()
+        }
 
-    @Test
-    fun `lint delegation 6`() {
-        assertThat(
-            IndentationRule().lint(
+        @Test
+        fun `Delegation 6`() {
+            val code =
                 """
                 data class Shortcut(val id: String, val url: String)
 
@@ -1017,224 +935,196 @@ internal class IndentationRuleTest {
                     )
                 )
                 """.trimIndent()
-            )
-        ).isEmpty()
+            indentationRuleAssertThat(code).hasNoLintErrors()
+        }
     }
 
     @Test
-    fun `lint named argument`() {
-        assertThat(
-            IndentationRule().lint(
-                """
-                data class D(val a: Int, val b: Int, val c: Int)
+    fun `Given a named argument`() {
+        val code =
+            """
+            data class D(val a: Int, val b: Int, val c: Int)
 
-                fun test() {
-                    val d = D(
-                        a = 1,
-                        b =
-                        2,
-                        c = 3
-                    )
-                }
-                """.trimIndent()
-            )
-        ).isEmpty()
-    }
-
-    @Test
-    fun `lint default parameter`() {
-        assertThat(
-            IndentationRule().lint(
-                """
-                data class D(
-                    val a: Int = 1,
-                    val b: Int =
-                        2,
-                    val c: Int = 3
+            fun test() {
+                val d = D(
+                    a = 1,
+                    b =
+                    2,
+                    c = 3
                 )
-                """.trimIndent()
-            )
-        ).isEmpty()
-    }
-
-    // https://github.com/pinterest/ktlint/issues/959
-    @Test
-    fun `lint conditions with multi-line call expressions indented properly`() {
-        assertThat(
-            IndentationRule().lint(
-                """
-                fun test() {
-                    val result = true &&
-                        minOf(
-                            1, 2
-                        ) == 2
-                }
-                """.trimIndent()
-            )
-        ).isEmpty()
-    }
-
-    // https://github.com/pinterest/ktlint/issues/1003
-    @Test
-    fun `lint multiple interfaces`() {
-        assertThat(
-            IndentationRule().lint(
-                """
-                abstract class Parent(a: Int, b: Int)
-
-                interface Parent2
-
-                class Child(
-                    a: Int,
-                    b: Int
-                ) : Parent(
-                    a,
-                    b
-                ),
-                    Parent2
-                """.trimIndent()
-            )
-        ).isEmpty()
-    }
-
-    // https://github.com/pinterest/ktlint/issues/918
-    @Test
-    fun `lint newline after type reference in functions`() {
-        assertThat(
-            IndentationRule().lint(
-                """
-                override fun actionProcessor():
-                    ObservableTransformer<in SomeVeryVeryLongNameOverHereAction, out SomeVeryVeryLongNameOverHereResult> =
-                    ObservableTransformer { actions ->
-                        // ...
-                    }
-
-                fun generateGooooooooooooooooogle():
-                    Gooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooogle {
-                    return Gooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooogle()
-                }
-                """.trimIndent()
-            )
-        ).isEmpty()
-    }
-
-    // https://github.com/pinterest/ktlint/issues/764
-    @Test
-    fun `lint value argument list with lambda`() {
-        assertThat(
-            IndentationRule().lint(
-                """
-                fun test(i: Int, f: (Int) -> Unit) {
-                    f(i)
-                }
-
-                fun main() {
-                    test(1, f = {
-                        println(it)
-                    })
-                }
-                """.trimIndent()
-            )
-        ).isEmpty()
+            }
+            """.trimIndent()
+        indentationRuleAssertThat(code).hasNoLintErrors()
     }
 
     @Test
-    fun `lint value argument list with two lambdas`() {
-        assertThat(
-            IndentationRule().lint(
-                """
-                fun test(f: () -> Unit, g: () -> Unit) {
-                    f()
-                    g()
-                }
-
-                fun main() {
-                    test({
-                        println(1)
-                    }, {
-                        println(2)
-                    })
-                }
-                """.trimIndent()
+    fun `Given a default parameter`() {
+        val code =
+            """
+            data class D(
+                val a: Int = 1,
+                val b: Int =
+                    2,
+                val c: Int = 3
             )
-        ).isEmpty()
+            """.trimIndent()
+        indentationRuleAssertThat(code).hasNoLintErrors()
     }
 
     @Test
-    fun `lint value argument list with anonymous function`() {
-        assertThat(
-            IndentationRule().lint(
-                """
-                fun test(i: Int, f: (Int) -> Unit) {
-                    f(i)
-                }
-
-                fun main() {
-                    test(1, fun(it: Int) {
-                        println(it)
-                    })
-                }
-                """.trimIndent()
-            )
-        ).isEmpty()
+    fun `Issue 959 - Given conditions with multi-line call expressions indented properly`() {
+        val code =
+            """
+            fun test() {
+                val result = true &&
+                    minOf(
+                        1, 2
+                    ) == 2
+            }
+            """.trimIndent()
+        indentationRuleAssertThat(code).hasNoLintErrors()
     }
 
     @Test
-    fun `lint value argument list with lambda in super type entry`() {
-        assertThat(
-            IndentationRule().lint(
-                """
-                class A : B({
-                    1
-                }) {
-                    val a = 1
-                }
+    fun `Issue 1003 - Given multiple interfaces`() {
+        val code =
+            """
+            abstract class Parent(a: Int, b: Int)
 
-                open class B(f: () -> Int)
-                """.trimIndent()
-            )
-        ).isEmpty()
-    }
+            interface Parent2
 
-    // https://github.com/pinterest/ktlint/issues/1202
-    @Test
-    fun `lint lambda argument and call chain`() {
-        assertThat(
-            IndentationRule().lint(
-                """
-                class Foo {
-                    fun bar() {
-                        val foo = bar.associateBy({ item -> item.toString() }, ::someFunction).toMap()
-                    }
-                }
-                """.trimIndent()
-            )
-        ).isEmpty()
-    }
-
-    // https://github.com/pinterest/ktlint/issues/1165
-    @Test
-    fun `lint multiline expression with elvis operator in assignment`() {
-        assertThat(
-            IndentationRule().lint(
-                """
-                fun test() {
-                    val a: String = ""
-
-                    val someTest: Int?
-
-                    someTest =
-                        a
-                            .toIntOrNull()
-                            ?: 1
-                }
-                """.trimIndent()
-            )
-        ).isEmpty()
+            class Child(
+                a: Int,
+                b: Int
+            ) : Parent(
+                a,
+                b
+            ),
+                Parent2
+            """.trimIndent()
+        indentationRuleAssertThat(code).hasNoLintErrors()
     }
 
     @Test
-    fun `multiline string with mixed indentation characters, can not be autocorrected`() {
+    fun `Issue 918 - Given newline after type reference in functions`() {
+        val code =
+            """
+            override fun actionProcessor():
+                ObservableTransformer<in SomeVeryVeryLongNameOverHereAction, out SomeVeryVeryLongNameOverHereResult> =
+                ObservableTransformer { actions ->
+                    // ...
+                }
+
+            fun generateGooooooooooooooooogle():
+                Gooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooogle {
+                return Gooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooogle()
+            }
+            """.trimIndent()
+        indentationRuleAssertThat(code).hasNoLintErrors()
+    }
+
+    @Test
+    fun `Issue 764 - Given value argument list with lambda`() {
+        val code =
+            """
+            fun test(i: Int, f: (Int) -> Unit) {
+                f(i)
+            }
+
+            fun main() {
+                test(1, f = {
+                    println(it)
+                })
+            }
+            """.trimIndent()
+        indentationRuleAssertThat(code).hasNoLintErrors()
+    }
+
+    @Test
+    fun `Given value argument list with two lambdas`() {
+        val code =
+            """
+            fun test(f: () -> Unit, g: () -> Unit) {
+                f()
+                g()
+            }
+
+            fun main() {
+                test({
+                    println(1)
+                }, {
+                    println(2)
+                })
+            }
+            """.trimIndent()
+        indentationRuleAssertThat(code).hasNoLintErrors()
+    }
+
+    @Test
+    fun `Given a value argument list with anonymous function`() {
+        val code =
+            """
+            fun test(i: Int, f: (Int) -> Unit) {
+                f(i)
+            }
+
+            fun main() {
+                test(1, fun(it: Int) {
+                    println(it)
+                })
+            }
+            """.trimIndent()
+        indentationRuleAssertThat(code).hasNoLintErrors()
+    }
+
+    @Test
+    fun `Given a value argument list with lambda in super type entry`() {
+        val code =
+            """
+            class A : B({
+                1
+            }) {
+                val a = 1
+            }
+
+            open class B(f: () -> Int)
+            """.trimIndent()
+        indentationRuleAssertThat(code).hasNoLintErrors()
+    }
+
+    @Test
+    fun `Issue 1202 - lint lambda argument and call chain`() {
+        val code =
+            """
+            class Foo {
+                fun bar() {
+                    val foo = bar.associateBy({ item -> item.toString() }, ::someFunction).toMap()
+                }
+            }
+            """.trimIndent()
+        indentationRuleAssertThat(code).hasNoLintErrors()
+    }
+
+    @Test
+    fun `Issue 1165 - lint multiline expression with elvis operator in assignment`() {
+        val code =
+            """
+            fun test() {
+                val a: String = ""
+
+                val someTest: Int?
+
+                someTest =
+                    a
+                        .toIntOrNull()
+                        ?: 1
+            }
+            """.trimIndent()
+        indentationRuleAssertThat(code).hasNoLintErrors()
+    }
+
+    @Test
+    fun `Given a multiline string with mixed indentation characters, can not be autocorrected`() {
         val code =
             """
             val foo = $MULTILINE_STRING_QUOTE
@@ -1242,23 +1132,14 @@ internal class IndentationRuleTest {
             ${TAB}line2
                 $MULTILINE_STRING_QUOTE.trimIndent()
             """.trimIndent()
-        assertThat(
-            IndentationRule().lint(code)
-        ).isEqualTo(
-            listOf(
-                LintError(
-                    line = 1,
-                    col = 11,
-                    ruleId = "indent",
-                    detail = "Indentation of multiline string should not contain both tab(s) and space(s)"
-                )
+        indentationRuleAssertThat(code)
+            .hasLintErrorsAfterFormatting(
+                LintError(1, 11, "indent", "Indentation of multiline string should not contain both tab(s) and space(s)")
             )
-        )
-        assertThat(IndentationRule().format(code)).isEqualTo(code)
     }
 
     @Test
-    fun `multi line string at start of line`() {
+    fun `Give a multiline string at start of line`() {
         val code =
             """
             fun foo() =
@@ -1266,12 +1147,11 @@ internal class IndentationRuleTest {
             some text
             $MULTILINE_STRING_QUOTE
             """.trimIndent()
-        assertThat(IndentationRule().lint(code)).isEmpty()
-        assertThat(IndentationRule().format(code)).isEqualTo(code)
+        indentationRuleAssertThat(code).hasNoLintErrors()
     }
 
     @Test
-    fun `Issue 1127 - multiline string followed by trimIndent in parameter list`() {
+    fun `Issue 1127 - Given a multiline string followed by trimIndent in parameter list`() {
         val code =
             """
             interface UserRepository : JpaRepository<User, UUID> {
@@ -1296,21 +1176,16 @@ internal class IndentationRuleTest {
                 fun findByOrganization(organization: Organization, pageable: Pageable): Page<User>
             }
             """.trimIndent()
-        assertThat(
-            wrappingAndIndentRule.lint(code)
-        ).isEqualTo(
-            listOf(
-                LintError(line = 2, col = 12, ruleId = "wrapping", detail = "Missing newline after \"(\""),
-                LintError(line = 6, col = 1, ruleId = "indent", detail = "Unexpected indent of multiline string closing quotes"),
-                LintError(line = 6, col = 20, ruleId = "wrapping", detail = "Missing newline before \")\"")
-            )
-        )
-        assertThat(wrappingAndIndentRule.format(code)).isEqualTo(formattedCode)
+        wrappingAndIndentationRuleAssertThat(code)
+            .hasLintErrors(
+                LintError(2, 12, "wrapping", "Missing newline after \"(\""),
+                LintError(6, 1, "indent", "Unexpected indent of multiline string closing quotes"),
+                LintError(6, 20, "wrapping", "Missing newline before \")\"")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
-    fun `format kdoc`() {
-        @Suppress("RemoveCurlyBracesFromTemplate")
+    fun `Given some kdoc and SPACE indent style`() {
         val code =
             """
             /**
@@ -1329,9 +1204,12 @@ internal class IndentationRuleTest {
                 }
             }
             """.trimIndent()
+        indentationRuleAssertThat(code).hasNoLintErrors()
+    }
 
-        @Suppress("RemoveCurlyBracesFromTemplate")
-        val codeTabs =
+    @Test
+    fun `Given some kdoc and TAB indent style`() {
+        val code =
             """
             /**
              * some function1
@@ -1349,15 +1227,13 @@ internal class IndentationRuleTest {
             ${TAB}}
             }
             """.trimIndent()
-        assertThat(IndentationRule().lint(code)).isEmpty()
-        assertThat(IndentationRule().format(code)).isEqualTo(code)
-
-        assertThat(IndentationRule().lint(codeTabs, INDENT_STYLE_TABS)).isEmpty()
-        assertThat(IndentationRule().format(codeTabs, INDENT_STYLE_TABS)).isEqualTo(codeTabs)
+        indentationRuleAssertThat(code)
+            .withEditorConfigOverride(INDENT_STYLE_TAB)
+            .hasNoLintErrors()
     }
 
     @Test
-    fun `Issue 1222 - format secondary constructor`() {
+    fun `Issue 1222 - Given a class with a secondary constructor`() {
         val code =
             """
             class Issue1222 {
@@ -1376,15 +1252,14 @@ internal class IndentationRuleTest {
                 }
             }
             """.trimIndent()
-        assertThat(IndentationRule().lint(code))
-            .containsExactly(
+        indentationRuleAssertThat(code)
+            .hasLintErrors(
                 LintError(3, 1, "indent", "Unexpected indentation (12) (should be 8)")
-            )
-        assertThat(IndentationRule().format(code)).isEqualTo(formattedCode)
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
-    fun `Issue 1222 - format class constructor, parameter of super invocations are indented`() {
+    fun `Issue 1222 - Given a class constructor, parameter of super invocations are indented`() {
         val code =
             """
             class Issue1222 {
@@ -1407,15 +1282,14 @@ internal class IndentationRuleTest {
                 }
             }
             """.trimIndent()
-        assertThat(IndentationRule().lint(code))
-            .containsExactly(
+        indentationRuleAssertThat(code)
+            .hasLintErrors(
                 LintError(4, 1, "indent", "Unexpected indentation (8) (should be 12)")
-            )
-        assertThat(IndentationRule().format(code)).isEqualTo(formattedCode)
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
-    fun `Formats function literal with comment before the parameter list`() {
+    fun `Given a function literal with comment before the parameter list`() {
         val code =
             """
             val foo1: (String) -> String = { // Some comment which should not be moved to the next line when formatting
@@ -1444,7 +1318,7 @@ internal class IndentationRuleTest {
                 // does something with string
             }
             """.trimIndent()
-        val expectedCode =
+        val formattedCode =
             """
             val foo1: (String) -> String = { // Some comment which should not be moved to the next line when formatting
                     s: String
@@ -1472,19 +1346,19 @@ internal class IndentationRuleTest {
                 // does something with string
             }
             """.trimIndent()
-        assertThat(IndentationRule().format(code)).isEqualTo(expectedCode)
-        assertThat(IndentationRule().lint(code)).containsExactly(
-            LintError(2, 1, "indent", "Unexpected indentation (4) (should be 8)"),
-            LintError(8, 1, "indent", "Unexpected indentation (4) (should be 8)"),
-            LintError(9, 1, "indent", "Unexpected indentation (4) (should be 8)"),
-            LintError(15, 1, "indent", "Unexpected indentation (4) (should be 8)"),
-            LintError(21, 1, "indent", "Unexpected indentation (4) (should be 8)"),
-            LintError(22, 1, "indent", "Unexpected indentation (4) (should be 8)")
-        )
+        indentationRuleAssertThat(code)
+            .hasLintErrors(
+                LintError(2, 1, "indent", "Unexpected indentation (4) (should be 8)"),
+                LintError(8, 1, "indent", "Unexpected indentation (4) (should be 8)"),
+                LintError(9, 1, "indent", "Unexpected indentation (4) (should be 8)"),
+                LintError(15, 1, "indent", "Unexpected indentation (4) (should be 8)"),
+                LintError(21, 1, "indent", "Unexpected indentation (4) (should be 8)"),
+                LintError(22, 1, "indent", "Unexpected indentation (4) (should be 8)")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
-    fun `issue 1247 - Formats function literal with single value parameter`() {
+    fun `Issue 1247 - Given a function literal with single value parameter`() {
         val code =
             """
             val foo1: (String) -> String = {
@@ -1500,7 +1374,7 @@ internal class IndentationRuleTest {
                 // does something with string
             }
             """.trimIndent()
-        val expectedCode =
+        val formattedCode =
             """
             val foo1: (String) -> String = {
                     s: String
@@ -1515,16 +1389,16 @@ internal class IndentationRuleTest {
                 // does something with string
             }
             """.trimIndent()
-        assertThat(IndentationRule().format(code)).isEqualTo(expectedCode)
-        assertThat(IndentationRule().lint(code)).containsExactly(
-            LintError(2, 1, "indent", "Unexpected indentation (4) (should be 8)"),
-            LintError(8, 1, "indent", "Unexpected indentation (4) (should be 8)"),
-            LintError(9, 1, "indent", "Unexpected indentation (4) (should be 8)")
-        )
+        indentationRuleAssertThat(code)
+            .hasLintErrors(
+                LintError(2, 1, "indent", "Unexpected indentation (4) (should be 8)"),
+                LintError(8, 1, "indent", "Unexpected indentation (4) (should be 8)"),
+                LintError(9, 1, "indent", "Unexpected indentation (4) (should be 8)")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
-    fun `issue 1247 - Formats function literal with multiple value parameters`() {
+    fun `Issue 1247 - Formats function literal with multiple value parameters`() {
         val code =
             """
             val foo1: (String, String) -> String = {
@@ -1542,7 +1416,7 @@ internal class IndentationRuleTest {
                 // does something with strings
             }
             """.trimIndent()
-        val expectedCode =
+        val formattedCode =
             """
             val foo1: (String, String) -> String = {
                     s1: String,
@@ -1559,29 +1433,28 @@ internal class IndentationRuleTest {
                 // does something with strings
             }
             """.trimIndent()
-        assertThat(IndentationRule().format(code)).isEqualTo(expectedCode)
-        assertThat(IndentationRule().lint(code)).containsExactly(
-            LintError(2, 1, "indent", "Unexpected indentation (4) (should be 8)"),
-            LintError(3, 1, "indent", "Unexpected indentation (4) (should be 8)"),
-            LintError(9, 1, "indent", "Unexpected indentation (4) (should be 8)"),
-            LintError(10, 1, "indent", "Unexpected indentation (4) (should be 8)"),
-            LintError(11, 1, "indent", "Unexpected indentation (4) (should be 8)")
-        )
+        indentationRuleAssertThat(code)
+            .hasLintErrors(
+                LintError(2, 1, "indent", "Unexpected indentation (4) (should be 8)"),
+                LintError(3, 1, "indent", "Unexpected indentation (4) (should be 8)"),
+                LintError(9, 1, "indent", "Unexpected indentation (4) (should be 8)"),
+                LintError(10, 1, "indent", "Unexpected indentation (4) (should be 8)"),
+                LintError(11, 1, "indent", "Unexpected indentation (4) (should be 8)")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
-    fun `Issue 1210 - format supertype delegate`() {
+    fun `Issue 1210 - Given a supertype delegate`() {
         val code =
             """
             object ApplicationComponentFactory : ApplicationComponent.Factory
             by DaggerApplicationComponent.factory()
             """.trimIndent()
-        assertThat(IndentationRule().lint(code)).isEmpty()
-        assertThat(IndentationRule().format(code)).isEqualTo(code)
+        indentationRuleAssertThat(code).hasNoLintErrors()
     }
 
     @Test
-    fun `Issue 1210 - format of statements after supertype delegated entry 2`() {
+    fun `Issue 1210 - Given some statements after supertype delegated entry 2`() {
         val code =
             """
             interface Foo
@@ -1601,13 +1474,11 @@ internal class IndentationRuleTest {
             // resulting in the formatting to crash on the next line.
             val bar = 1
             """.trimIndent()
-
-        assertThat(IndentationRule().lint(code)).isEmpty()
-        assertThat(IndentationRule().format(code)).isEqualTo(code)
+        indentationRuleAssertThat(code).hasNoLintErrors()
     }
 
     @Test
-    fun `Issue 1330 - Function with lambda parameter having a default value is allowed on a single line`() {
+    fun `Issue 1330 - Given a function with a lambda parameter having a default value is allowed on a single line`() {
         val code =
             """
             fun func(lambdaArg: Unit.() -> Unit = {}, secondArg: Int) {
@@ -1617,12 +1488,11 @@ internal class IndentationRuleTest {
                 println()
             }
             """.trimIndent()
-        assertThat(IndentationRule().lint(code)).isEmpty()
-        assertThat(IndentationRule().format(code)).isEqualTo(code)
+        indentationRuleAssertThat(code).hasNoLintErrors()
     }
 
     @Test
-    fun `Function with multiple lambda parameters can be formatted differently`() {
+    fun `Given a function with multiple lambda parameters can be formatted differently`() {
         val code =
             """
             // https://github.com/pinterest/ktlint/issues/764#issuecomment-646822853
@@ -1675,8 +1545,7 @@ internal class IndentationRuleTest {
             )
             val foo9 = println({ bar() }, { bar()})
             """.trimIndent()
-        assertThat(IndentationRule().lint(code)).isEmpty()
-        assertThat(IndentationRule().format(code)).isEqualTo(code)
+        indentationRuleAssertThat(code).hasNoLintErrors()
     }
 
     @Test
@@ -1689,25 +1558,15 @@ internal class IndentationRuleTest {
                     "" // IDEA quirk (ignored)
                 )
             """.trimIndent()
-        assertThat(IndentationRule().lint(code)).isEmpty()
-        assertThat(IndentationRule().format(code)).isEqualTo(code)
-    }
-
-    fun foo() {
-        println(
-            """
-    text
-
-    text
-    _
-            """.trimIndent()
-        )
+        indentationRuleAssertThat(code).hasNoLintErrors()
     }
 
     private companion object {
         const val MULTILINE_STRING_QUOTE = "${'"'}${'"'}${'"'}"
         const val TAB = "${'\t'}"
+        const val SPACE = "${' '}"
 
+        val INDENT_STYLE_TAB = indentStyleProperty to PropertyType.IndentStyleValue.tab
         val INDENT_STYLE_TABS = EditorConfigOverride.from(
             indentStyleProperty to PropertyType.IndentStyleValue.tab
         )
