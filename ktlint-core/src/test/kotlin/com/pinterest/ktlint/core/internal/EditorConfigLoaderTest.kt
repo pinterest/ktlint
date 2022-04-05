@@ -4,6 +4,7 @@ import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.insertNewLineProperty
+import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.internal.EditorConfigLoader.Companion.convertToRawValues
@@ -13,7 +14,6 @@ import java.nio.file.Files
 import java.nio.file.Path
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.entry
-import org.ec4j.core.model.PropertyType
 import org.intellij.lang.annotations.Language
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.junit.jupiter.api.AfterEach
@@ -246,9 +246,7 @@ internal class EditorConfigLoaderTest {
         val parsedEditorConfig = editorConfigLoader.loadPropertiesForFile(
             filePath = null,
             rules = rules,
-            loadedValuesOverride = mapOf(
-                insertNewLineProperty to PropertyType.PropertyValue.valid("true", true)
-            )
+            editorConfigOverride = EditorConfigOverride.from(insertNewLineProperty to "true")
         )
 
         assertThat(parsedEditorConfig.convertToRawValues()).containsExactly(
@@ -261,9 +259,7 @@ internal class EditorConfigLoaderTest {
         val parsedEditorConfig = editorConfigLoader.loadPropertiesForFile(
             filePath = null,
             rules = rules,
-            loadedValuesOverride = mapOf(
-                insertNewLineProperty to PropertyType.PropertyValue.valid("true", true)
-            )
+            editorConfigOverride = EditorConfigOverride.from(insertNewLineProperty to "true")
         )
 
         assertThat(parsedEditorConfig.convertToRawValues()).containsExactly(
@@ -443,9 +439,7 @@ internal class EditorConfigLoaderTest {
         val editorConfigProperties = editorConfigLoader.loadPropertiesForFile(
             lintFile,
             rules = rules.plus(FinalNewlineRule()),
-            loadedValuesOverride = mapOf(
-                insertNewLineProperty to PropertyType.PropertyValue.valid("true", true)
-            )
+            editorConfigOverride = EditorConfigOverride.from(insertNewLineProperty to "true")
         )
         val parsedEditorConfig = editorConfigProperties.convertToRawValues()
 
@@ -475,9 +469,7 @@ internal class EditorConfigLoaderTest {
         val editorConfigProperties = editorConfigLoader.loadPropertiesForFile(
             lintFile,
             rules = rules.plus(FinalNewlineRule()),
-            loadedValuesOverride = mapOf(
-                insertNewLineProperty to PropertyType.PropertyValue.valid("false", false)
-            )
+            editorConfigOverride = EditorConfigOverride.from(insertNewLineProperty to "false")
         )
         val parsedEditorConfig = editorConfigProperties.convertToRawValues()
 

@@ -1,12 +1,14 @@
 package com.pinterest.ktlint.core
 
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties
+import com.pinterest.ktlint.core.api.EditorConfigOverride
+import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.emptyEditorConfigOverride
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.internal.EditorConfigGenerator
 import com.pinterest.ktlint.core.internal.EditorConfigLoader
 import com.pinterest.ktlint.core.internal.EditorConfigLoader.Companion.convertToRawValues
-import com.pinterest.ktlint.core.internal.EditorConfigOverridesMap
 import com.pinterest.ktlint.core.internal.KotlinPsiFileFactoryProvider
 import com.pinterest.ktlint.core.internal.LineAndColumn
 import com.pinterest.ktlint.core.internal.SuppressionLocator
@@ -59,6 +61,10 @@ public object KtLint {
      * @param editorConfigPath optional path of the .editorconfig file (otherwise will use working directory)
      * @param debug True if invoked with the --debug flag
      */
+    @Deprecated(
+        message = "Marked for removal in Ktlint 0.46.",
+        replaceWith = ReplaceWith("ExperimentalParams")
+    )
     public data class Params(
         val fileName: String? = null,
         val text: String,
@@ -74,7 +80,7 @@ public object KtLint {
      * @param fileName path of file to lint/format
      * @param text Contents of file to lint/format
      * @param ruleSets a collection of "RuleSet"s used to validate source
-     * @param userData Map of user options
+     * @param userData Map of user options. Should not be used for overrides of properties set in '.editorconfig'.
      * @param cb callback invoked for each lint error
      * @param script true if this is a Kotlin script file
      * @param editorConfigPath optional path of the .editorconfig file (otherwise will use working directory)
@@ -100,9 +106,37 @@ public object KtLint {
         val script: Boolean = false,
         val editorConfigPath: String? = null,
         val debug: Boolean = false,
-        val editorConfigOverride: EditorConfigOverridesMap = emptyMap(),
+        val editorConfigOverride: EditorConfigOverride = emptyEditorConfigOverride,
         val isInvokedFromCli: Boolean = false
     ) {
+        init {
+            // Extract all default and custom ".editorconfig" properties which are defined using the
+            // [UsesEditorConfigProperties] interface of the rule
+            val editorConfigProperties =
+                ruleSets
+                    .asSequence()
+                    .flatten()
+                    .filterIsInstance<UsesEditorConfigProperties>()
+                    .map { it.editorConfigProperties }
+                    .flatten()
+                    .plus(DefaultEditorConfigProperties.defaultEditorConfigProperties)
+                    .map { it.type.name }
+                    .distinct()
+                    .toSet()
+
+            userData
+                .keys
+                .intersect(editorConfigProperties)
+                .let {
+                    check(it.isEmpty()) {
+                        "UserData should not contain '.editorconfig' properties ${it.sorted()}. Such properties " +
+                            "should be passed via the 'ExperimentalParams.editorConfigOverride' field. Note that this is " +
+                            "only required for properties that (potentially) contain a value that differs from the " +
+                            "actual value in the '.editorconfig' file."
+                    }
+                }
+        }
+
         internal val normalizedFilePath: Path? get() = if (fileName == STDIN_FILE || fileName == null) {
             null
         } else {
@@ -118,6 +152,10 @@ public object KtLint {
             .toSet()
     }
 
+    @Deprecated(
+        message = "Marked for removal in Ktlint 0.46.",
+        replaceWith = ReplaceWith("ExperimentalParams")
+    )
     @OptIn(FeatureInAlphaState::class)
     private fun toExperimentalParams(params: Params): ExperimentalParams =
         ExperimentalParams(
@@ -137,10 +175,8 @@ public object KtLint {
      * @throws ParseException if text is not a valid Kotlin code
      * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
      */
-    // TODO: Shouldn't this method be moved to module ktlint-test as it is called from unit tests only? It will be a
-    //  breaking change for custom rule set implementations.
     @Deprecated(
-        message = "Marked for removal in Ktlint 0.46. Convert userData to EditorConfigOverride.",
+        message = "Marked for removal in Ktlint 0.46. Move '.editorconfig' properties from 'Params.userData' to 'ExperimentalParam.editorConfigOverride'.",
         replaceWith = ReplaceWith("lint(toExperimentalParams(params))")
     )
     @OptIn(FeatureInAlphaState::class)
@@ -153,8 +189,7 @@ public object KtLint {
             experimentalParams,
             VisitorProvider(
                 ruleSets = experimentalParams.ruleSets,
-                debug = experimentalParams.debug,
-                isUnitTestContext = true
+                debug = experimentalParams.debug
             )
         )
     }
@@ -165,8 +200,6 @@ public object KtLint {
      * @throws ParseException if text is not a valid Kotlin code
      * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
      */
-    // TODO: Shouldn't this method be moved to module ktlint-test as it is called from unit tests only? It will be a
-    //  breaking change for custom rule set implementations.
     @FeatureInAlphaState
     public fun lint(
         params: ExperimentalParams,
@@ -308,8 +341,10 @@ public object KtLint {
      * @throws ParseException if text is not a valid Kotlin code
      * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
      */
-    // TODO: Shouldn't this method be moved to module ktlint-test as it is called from unit tests only? It will be a
-    //  breaking change for custom rule set implementations.
+    @Deprecated(
+        message = "Marked for removal in Ktlint 0.46. Move '.editorconfig' properties from 'Params.userData' to 'ExperimentalParam.editorConfigOverride'.",
+        replaceWith = ReplaceWith("lint(toExperimentalParams(params))")
+    )
     @OptIn(FeatureInAlphaState::class)
     public fun format(params: Params): String =
         format(toExperimentalParams(params))
@@ -321,8 +356,7 @@ public object KtLint {
             experimentalParams.ruleSets,
             VisitorProvider(
                 ruleSets = experimentalParams.ruleSets,
-                debug = experimentalParams.debug,
-                isUnitTestContext = true
+                debug = experimentalParams.debug
             )
         )
     }
@@ -333,10 +367,26 @@ public object KtLint {
      * @throws ParseException if text is not a valid Kotlin code
      * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
      */
+    @Deprecated(
+        message = "Marked for removal in Ktlint 0.46. Overrides of '.editorconfig' properties no longer should be " +
+            "passed via the 'Params.userData' but via the 'ExperimentalParam.editorConfigOverride' parameter. The " +
+            "ruleSets have to be provided via the 'ExperimentalParams.ruleSets' parameter.",
+        replaceWith = ReplaceWith("format(params, visitorProvider)")
+    )
     @FeatureInAlphaState
     public fun format(
         params: ExperimentalParams,
         ruleSets: Iterable<RuleSet>,
+        visitorProvider: VisitorProvider
+    ): String =
+        format(
+            params.copy(ruleSets = ruleSets),
+            visitorProvider
+        )
+
+    @FeatureInAlphaState
+    public fun format(
+        params: ExperimentalParams,
         visitorProvider: VisitorProvider
     ): String {
         val hasUTF8BOM = params.text.startsWith(UTF8_BOM)
@@ -347,7 +397,7 @@ public object KtLint {
         var mutated = false
         visitorProvider
             .visitor(
-                ruleSets,
+                params.ruleSets,
                 preparedCode.rootNode,
                 concurrent = false
             ).invoke { node, rule, fqRuleId ->
@@ -378,7 +428,7 @@ public object KtLint {
         if (tripped) {
             val errors = mutableListOf<Pair<LintError, Boolean>>()
             visitorProvider
-                .visitor(ruleSets, preparedCode.rootNode)
+                .visitor(params.ruleSets, preparedCode.rootNode)
                 .invoke { node, rule, fqRuleId ->
                     // fixme: enforcing suppression based on node.startOffset is wrong
                     // (not just because not all nodes are leaves but because rules are free to emit (and fix!) errors at any position)
