@@ -5,9 +5,9 @@ plugins {
 
 dependencies {
   implementation projects.ktlintCore
-  implementation deps.logging
+  implementation libs.logging
 
   testImplementation projects.ktlintTest
-  testImplementation deps.junit5
-  testImplementation deps.assertj
+  testImplementation libs.junit5
+  testImplementation libs.assertj
 }
