@@ -2,9 +2,9 @@ package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.maxLineLengthProperty
+import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.ruleset.standard.MaxLineLengthRule.Companion.ignoreBackTickedIdentifierProperty
-import com.pinterest.ktlint.test.EditorConfigOverride
 import com.pinterest.ktlint.test.diffFileLint
 import com.pinterest.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat

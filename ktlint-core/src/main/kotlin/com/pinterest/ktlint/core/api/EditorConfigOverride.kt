@@ -1,14 +1,18 @@
-package com.pinterest.ktlint.test
+package com.pinterest.ktlint.core.api
 
-import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties.EditorConfigProperty
 import org.ec4j.core.model.PropertyType
 
 /**
- * Properties set in [EditorConfigOverride] override values which are loaded from the ".EditorConfig" file. This
- * [EditorConfigOverride] is only to be used in unit tests. From the perspective of the unit test as well as from the
- * perspective of the rule, it is transparent whether an editor config property was loaded from an ".editorconfig" file
- * or from an override.
+ * The [EditorConfigOverride] allows to add or replace properties which are loaded from the ".editorconfig" file. It
+ * serves two purposes.
+ *
+ * Firstly, the [EditorConfigOverride] can be used by API consumers to run a rule with values which are not actually
+ * save to the ".editorconfig" file. When doing so, this should be clearly communicated to their consumers who will
+ * expect the settings in that file to be respected.
+ *
+ * Secondly, the [EditorConfigOverride] is used in unit tests, to test a rule with distinct values of a property without
+ * having to access an ".editorconfig" file from physical storage. This also improves readability of the tests.
  */
 @FeatureInAlphaState
 public class EditorConfigOverride {
@@ -22,8 +26,7 @@ public class EditorConfigOverride {
 
     public companion object {
         /**
-         * Creates EditorConfig properties with value to be used in unit test so that the unit test does not need to
-         * write an .editorconfig file.
+         * Creates the [EditorConfigOverride] based on one or more property-value mappings.
          */
         public fun from(
             vararg properties: Pair<EditorConfigProperty<*>, *>
@@ -40,8 +43,8 @@ public class EditorConfigOverride {
         }
 
         /**
-         * Get the empty EditorConfig properties. As it does not contain any properties, all properties fall back on
-         * their respective default value.
+         * Get the empty [EditorConfigOverride]. As it does not contain any properties, all properties fall back on
+         * their respective default values.
          */
         public val emptyEditorConfigOverride: EditorConfigOverride = EditorConfigOverride()
     }

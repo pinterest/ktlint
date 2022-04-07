@@ -8,6 +8,6 @@ dependencies {
   api projects.ktlintRulesetTest
   api projects.ktlintTestLogging
 
-  implementation deps.junit5
-  implementation deps.assertj
+  implementation libs.junit5
+  implementation libs.assertj
 }

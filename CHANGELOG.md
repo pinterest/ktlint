@@ -2,16 +2,13 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## Unreleased
-
-### Added
+## [0.45.2] - 2022-04-06
 
 ### Fixed
+- Resolve compatibility issues introduced in 0.45.0 and 0.45.1 ([#1434](https://github.com/pinterest/ktlint/issues/1434)). Thanks to [mateuszkwiecinski](https://github.com/mateuszkwiecinski) and [jeremymailen](https://github.com/jeremymailen) for your input on this issue.
 
 ### Changed
 * Set Kotlin development version to `1.6.20` and Kotlin version to `1.6.20`.
-
-### Removed
 
 ## [0.45.1] - 2022-03-21
 
@@ -1008,6 +1005,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.45.2]: https://github.com/pinterest/ktlint/compare/0.45.1...0.45.2
 [0.45.1]: https://github.com/pinterest/ktlint/compare/0.45.0...0.45.1
 [0.45.0]: https://github.com/pinterest/ktlint/compare/0.44.0...0.45.0
 [0.44.0]: https://github.com/pinterest/ktlint/compare/0.43.2...0.44.0

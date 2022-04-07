@@ -4,6 +4,8 @@ import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.RuleSet
+import com.pinterest.ktlint.core.VisitorProvider
+import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ktlint.core.setDefaultLoggerModifier
@@ -218,15 +220,23 @@ public fun List<Rule>.lint(
     script: Boolean = false
 ): List<LintError> {
     val res = ArrayList<LintError>()
+    val experimentalParams = KtLint.ExperimentalParams(
+        fileName = lintedFilePath,
+        text = text,
+        ruleSets = toRuleSets(),
+        editorConfigOverride = editorConfigOverride,
+        userData = userData,
+        script = script,
+        cb = { e, _ -> res.add(e) }
+    )
     KtLint.lint(
-        KtLint.ExperimentalParams(
-            fileName = lintedFilePath,
-            text = text,
-            ruleSets = this.toRuleSets(),
-            editorConfigOverride = editorConfigOverride.properties,
-            userData = userData,
-            script = script,
-            cb = { e, _ -> res.add(e) }
+        experimentalParams,
+        VisitorProvider(
+            ruleSets = experimentalParams.ruleSets,
+            debug = experimentalParams.debug,
+            // When running unit tests, some VisitorModifiers have to be ignored. For example the RunAfterRule modifier
+            // should not be checked, if other that rule can only be tested together with the rule on which it depends.
+            isUnitTestContext = true
         )
     )
     return res
@@ -376,15 +386,23 @@ public fun List<Rule>.format(
     cb: (e: LintError, corrected: Boolean) -> Unit = { _, _ -> },
     script: Boolean = false
 ): String {
+    val experimentalParams = KtLint.ExperimentalParams(
+        fileName = lintedFilePath,
+        text = text,
+        ruleSets = this.toRuleSets(),
+        editorConfigOverride = editorConfigOverride,
+        userData = userData,
+        script = script,
+        cb = cb
+    )
     return KtLint.format(
-        KtLint.ExperimentalParams(
-            fileName = lintedFilePath,
-            text = text,
-            ruleSets = this.toRuleSets(),
-            editorConfigOverride = editorConfigOverride.properties,
-            userData = userData,
-            script = script,
-            cb = cb
+        experimentalParams,
+        VisitorProvider(
+            ruleSets = experimentalParams.ruleSets,
+            debug = experimentalParams.debug,
+            // When running unit tests, some VisitorModifiers have to be ignored. For example the RunAfterRule modifier
+            // should not be checked, if other that rule can only be tested together with the rule on which it depends.
+            isUnitTestContext = true
         )
     )
 }
