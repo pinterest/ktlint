@@ -69,6 +69,11 @@ val shadowJarExecutableTask = tasks.register<DefaultTask>("shadowJarExecutable")
         }
     }
     finalizedBy(tasks["shadowJarExecutableChecksum"])
+
+    // Explicitly adding dependency on "shadowJarExecutable" as Gradle does not it set via "releaseAssets" property
+    rootProject.tasks.named("githubRelease").configure {
+        dependsOn(this)
+    }
 }
 
 tasks.register<Checksum>("shadowJarExecutableChecksum") {
