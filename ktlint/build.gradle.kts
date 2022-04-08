@@ -1,8 +1,8 @@
 import org.gradle.crypto.checksum.Checksum
 
 plugins {
-    id("ktlint-publication")
-    id("ktlint-kotlin-common")
+    `ktlint-publication`
+    `ktlint-kotlin-common`
     alias(libs.plugins.shadow)
     alias(libs.plugins.checksum)
     `signing`
@@ -42,7 +42,7 @@ dependencies {
 
 // Implements https://github.com/brianm/really-executable-jars-maven-plugin maven plugin behaviour.
 // To check details how it works, see https://skife.org/java/unix/2011/06/20/really_executable_jars.html.
-val shadowJarExecutableTask = tasks.register<DefaultTask>("shadowJarExecutable") {
+val shadowJarExecutable by tasks.registering(DefaultTask::class) {
     description = "Creates self-executable file, that runs generated shadow jar"
     group = "Distribution"
 
@@ -69,36 +69,27 @@ val shadowJarExecutableTask = tasks.register<DefaultTask>("shadowJarExecutable")
         }
     }
     finalizedBy(tasks["shadowJarExecutableChecksum"])
-
-    // Explicitly adding dependency on "shadowJarExecutable" as Gradle does not it set via "releaseAssets" property
-    rootProject.tasks.named("githubRelease").configure {
-        dependsOn(this)
-    }
 }
 
 tasks.register<Checksum>("shadowJarExecutableChecksum") {
     description = "Generates MD5 checksum for ktlint executable"
     group = "Distribution"
 
-    files = shadowJarExecutableTask.get().outputs.files
+    files = shadowJarExecutable.get().outputs.files
     // put the checksums in the same folder with the executable itself
-    outputDir = shadowJarExecutableTask.get().outputs.files.files.first().parentFile
+    outputDir = shadowJarExecutable.get().outputs.files.files.first().parentFile
 
     algorithm = Checksum.Algorithm.MD5
 }
 
 tasks.withType<Test>().configureEach {
-    dependsOn(shadowJarExecutableTask)
+    dependsOn(shadowJarExecutable)
     useJUnitPlatform()
 
     doFirst {
         systemProperty(
-            "ktlint-cli",
-            shadowJarExecutableTask.get().outputs.files.first { it.name == "ktlint" }.absolutePath
+            "ktlint-cli", shadowJarExecutable.get().outputs.files.first { it.name == "ktlint" }.absolutePath
         )
-        systemProperty(
-            "ktlint-version",
-            version
-        )
+        systemProperty("ktlint-version", version)
     }
 }

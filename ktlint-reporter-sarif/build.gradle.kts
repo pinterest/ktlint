@@ -1,6 +1,6 @@
 plugins {
-    id("ktlint-kotlin-common")
-    id("ktlint-publication")
+    `ktlint-kotlin-common`
+    `ktlint-publication`
 }
 
 dependencies {
@@ -9,10 +9,4 @@ dependencies {
 
     testImplementation(libs.junit5)
     testImplementation(libs.assertj)
-}
-
-tasks.jar {
-    manifest {
-        attributes("Implementation-Version" to project.property("VERSION_NAME"))
-    }
 }

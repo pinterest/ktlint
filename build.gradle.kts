@@ -1,9 +1,8 @@
 plugins {
-    id("org.jetbrains.kotlin.jvm") apply false
+    id(libs.plugins.kotlin.jvm.get().pluginId) apply false
     alias(libs.plugins.checksum)
     alias(libs.plugins.shadow)
     alias(libs.plugins.githubRelease)
-//  id "nebula.lint" version "17.5.0"
 }
 
 val isKotlinDev = project.hasProperty("isKotlinDev")
@@ -28,7 +27,7 @@ dependencies {
 tasks.register<JavaExec>("ktlint") {
     group = LifecycleBasePlugin.VERIFICATION_GROUP
     description = "Check Kotlin code style including experimental rules."
-    classpath = configurations["ktlint"]
+    classpath = ktlint
     mainClass.set("com.pinterest.ktlint.Main")
     // Experimental rules run by default run on the ktlint code base itself. Experimental rules should not be released if
     // we are not pleased ourselves with the results on the ktlint code base.
@@ -44,21 +43,30 @@ tasks.register<JavaExec>("ktlint") {
 }
 
 // Deployment tasks
-fun getGithubToken(): String {
-    return if (project.hasProperty("servers.github.privKey")) {
-        project.property("servers.github.privKey").toString()
-    } else {
-        logger.warn("No github token specified")
-        ""
-    }
+val githubToken: String = if (project.hasProperty("servers.github.privKey")) {
+    project.property("servers.github.privKey").toString()
+} else {
+    logger.warn("No github token specified")
+    ""
+}
+
+val shadowJarExecutable: TaskProvider<Task> by lazy {
+    projects.ktlint.dependencyProject.tasks.named("shadowJarExecutable")
+}
+
+// Explicitly adding dependency on "shadowJarExecutable" as Gradle does not it set via "releaseAssets" property
+tasks.githubRelease {
+    dependsOn({
+        shadowJarExecutable
+    })
 }
 
 githubRelease {
-    token(getGithubToken())
+    token(githubToken)
     owner("pinterest")
     repo("ktlint")
     tagName(project.property("VERSION_NAME").toString())
-    releaseName(project.properties["VERSION_NAME"].toString())
+    releaseName(project.property("VERSION_NAME").toString())
     releaseAssets(project.files({
         // "shadowJarExecutableChecksum" task does not declare checksum files
         // as output, only the whole output directory. As it uses the same directory
@@ -82,7 +90,7 @@ githubRelease {
 }
 
 // Put "servers.github.privKey" in "$HOME/.gradle/gradle.properties".
-val announceTask = tasks.register<Exec>("announceRelease") {
+val announceRelease by tasks.registering(Exec::class) {
     group = "Help"
     description = "Runs .announce script"
     subprojects.filter { !it.name.contains("ktlint-ruleset-template") }.forEach { subproject ->
@@ -91,10 +99,10 @@ val announceTask = tasks.register<Exec>("announceRelease") {
 
     commandLine("./.announce", "-y")
     environment("VERSION" to "${project.property("VERSION_NAME")}")
-    environment("GITHUB_TOKEN" to getGithubToken())
+    environment("GITHUB_TOKEN" to githubToken)
 }
 
-val homebrewTask = tasks.register<Exec>("homebrewBumpFormula") {
+val homebrewBumpFormula by tasks.registering(Exec::class) {
     group = "Help"
     description = "Runs brew bump-forumula-pr"
     commandLine("./.homebrew")
@@ -105,10 +113,10 @@ val homebrewTask = tasks.register<Exec>("homebrewBumpFormula") {
 tasks.register<DefaultTask>("publishNewRelease") {
     group = "Help"
     description = "Triggers uploading new archives and publish announcements"
-    dependsOn(announceTask, homebrewTask, tasks.named("githubRelease"))
+    dependsOn(announceRelease, homebrewBumpFormula, tasks.named("githubRelease"))
 }
 
-tasks.withType<Wrapper>().configureEach {
+tasks.wrapper {
     gradleVersion = libs.versions.gradle.get()
     distributionSha256Sum = libs.versions.gradleSha256.get()
     distributionType = Wrapper.DistributionType.BIN

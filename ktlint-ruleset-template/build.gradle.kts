@@ -1,20 +1,20 @@
 plugins {
-    id("ktlint-kotlin-common") // replace it with 'org.jetbrains.kotlin.jvm'
+    `ktlint-kotlin-common` // replace it with 'org.jetbrains.kotlin.jvm'
     `java-library`
     `maven-publish`
 }
 
 group = "com.github.username"
 
-val sourcesJar = tasks.register<Jar>("sourcesJar") {
+val sourcesJar by tasks.registering(Jar::class) {
     dependsOn(tasks.classes)
-    classifier = "sources"
+    archiveClassifier.set("sources")
     from(sourceSets.main.get().allSource)
 }
 
-val javadocJar = tasks.register<Jar>("javadocJar") {
+val javadocJar by tasks.registering(Jar::class) {
     dependsOn(tasks.javadoc)
-    classifier = "javadoc"
+    archiveClassifier.set("javadoc")
     from(tasks.javadoc.get().destinationDir)
 }
 
@@ -46,12 +46,10 @@ tasks.register<JavaExec>("ktlint") {
     mainClass.set("com.pinterest.ktlint.Main")
     // adding compiled classes to the classpath so that ktlint would validate project"s sources
     // using its own ruleset (in other words to dogfood)
-    classpath = configurations["ktlint"] + sourceSets.main.get().output
+    classpath = ktlint + sourceSets.main.get().output
     args("--debug", "src/**/*.kt")
-}
-
-tasks.check {
-    dependsOn(tasks["ktlint"])
+}.let {
+    tasks.check.get().dependsOn(it)
 }
 
 afterEvaluate {
