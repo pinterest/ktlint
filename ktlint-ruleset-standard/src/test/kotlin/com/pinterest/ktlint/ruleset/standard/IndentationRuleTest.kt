@@ -6,6 +6,9 @@ import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentStylePr
 import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE
+import com.pinterest.ktlint.test.SPACE
+import com.pinterest.ktlint.test.TAB
 import com.pinterest.ktlint.test.diffFileFormat
 import com.pinterest.ktlint.test.diffFileLint
 import org.assertj.core.api.Assertions.assertThat
@@ -18,8 +21,8 @@ import org.junit.jupiter.params.provider.ValueSource
 @Suppress("RemoveCurlyBracesFromTemplate")
 @FeatureInAlphaState
 internal class IndentationRuleTest {
-    val indentationRuleAssertThat = IndentationRule().assertThat()
-    val wrappingAndIndentationRuleAssertThat = listOf(WrappingRule(), IndentationRule()).assertThat()
+    private val indentationRuleAssertThat = IndentationRule().assertThat()
+    private val wrappingAndIndentationRuleAssertThat = listOf(WrappingRule(), IndentationRule()).assertThat()
 
     @Test
     fun testLint() {
@@ -194,7 +197,6 @@ internal class IndentationRuleTest {
                 |${SPACE}${SPACE}// comment
                 """.trimMargin()
             indentationRuleAssertThat(code)
-                .asKotlinScript(asKotlinScript)
                 .hasLintErrors(
                     LintError(1, 1, "indent", "Unexpected indentation (2) (should be 0)")
                 )
@@ -209,7 +211,6 @@ internal class IndentationRuleTest {
                 |${SPACE}${SPACE}// comment
                 """.trimMargin()
             indentationRuleAssertThat(code)
-                .asKotlinScript(asKotlinScript)
                 .hasLintErrors(
                     // Note that no LintError is created for the first line as it does not contain any code
                     LintError(2, 1, "indent", "Unexpected indentation (2) (should be 0)")
@@ -1562,10 +1563,6 @@ internal class IndentationRuleTest {
     }
 
     private companion object {
-        const val MULTILINE_STRING_QUOTE = "${'"'}${'"'}${'"'}"
-        const val TAB = "${'\t'}"
-        const val SPACE = "${' '}"
-
         val INDENT_STYLE_TAB = indentStyleProperty to PropertyType.IndentStyleValue.tab
         val INDENT_STYLE_TABS = EditorConfigOverride.from(
             indentStyleProperty to PropertyType.IndentStyleValue.tab

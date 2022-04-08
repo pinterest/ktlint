@@ -1,13 +1,15 @@
 package com.pinterest.ktlint.ruleset.standard
 
+import com.pinterest.ktlint.core.LintError
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
 import com.pinterest.ktlint.test.diffFileFormat
 import com.pinterest.ktlint.test.diffFileLint
-import com.pinterest.ktlint.test.format
-import com.pinterest.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 class ChainWrappingRuleTest {
+    private val chainWrappingRuleAssertThat = ChainWrappingRule().assertThat()
+
     @Test
     fun testLint() {
         assertThat(ChainWrappingRule().diffFileLint("spec/chain-wrapping/lint.kt.spec")).isEmpty()
@@ -23,47 +25,41 @@ class ChainWrappingRuleTest {
         ).isEmpty()
     }
 
-    // https://github.com/pinterest/ktlint/issues/1055
     @Test
-    fun `lint elvis operator and comment`() {
-        assertThat(
-            ChainWrappingRule().lint(
-                """
-                fun test(): Int {
-                    val foo = foo()
-                        ?: // Comment
-                        return bar()
-                    return baz()
-                }
+    fun `Issue 1055 - lint elvis operator and comment`() {
+        val code =
+            """
+            fun test(): Int {
+                val foo = foo()
+                    ?: // Comment
+                    return bar()
+                return baz()
+            }
 
-                fun foo(): Int? = null
-                fun bar(): Int = 1
-                fun baz(): Int = 2
-
-                """.trimIndent()
-            )
-        ).isEmpty()
+            fun foo(): Int? = null
+            fun bar(): Int = 1
+            fun baz(): Int = 2
+            """.trimIndent()
+        chainWrappingRuleAssertThat(code).hasNoLintErrors()
     }
 
     // https://github.com/pinterest/ktlint/issues/1130
     @Test
     fun `format when conditions`() {
-        assertThat(
-            ChainWrappingRule().format(
-                """
-                fun test(foo: String?, bar: String?, baz: String?) {
-                    when {
-                        foo != null &&
-                            bar != null
-                            && baz != null -> {
-                        }
-                        else -> {
-                        }
+        val code =
+            """
+            fun test(foo: String?, bar: String?, baz: String?) {
+                when {
+                    foo != null &&
+                        bar != null
+                        && baz != null -> {
+                    }
+                    else -> {
                     }
                 }
-                """.trimIndent()
-            )
-        ).isEqualTo(
+            }
+            """.trimIndent()
+        val formattedCode =
             """
             fun test(foo: String?, bar: String?, baz: String?) {
                 when {
@@ -76,6 +72,9 @@ class ChainWrappingRuleTest {
                 }
             }
             """.trimIndent()
-        )
+        chainWrappingRuleAssertThat(code)
+            .hasLintErrors(
+                LintError(5, 13, "chain-wrapping", "Line must not begin with \"&&\"")
+            ).isFormattedAs(formattedCode)
     }
 }

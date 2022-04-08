@@ -2,9 +2,12 @@ package com.pinterest.ktlint.test
 
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.maxLineLengthProperty
 import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
 import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.Assertions.assertThat
 
@@ -32,30 +35,66 @@ public class KtLintAssertThat(
     private val rules: List<Rule>,
     private val code: String
 ) : AbstractAssert<KtLintAssertThat, String>(code, KtLintAssertThat::class.java) {
-    private var asKotlinScript = false
+    private var filePath: String? = null
+    private var editorConfigProperties = emptySet<Pair<UsesEditorConfigProperties.EditorConfigProperty<*>, *>>()
     private var editorConfigOverride = EditorConfigOverride.emptyEditorConfigOverride
+        get() =
+            if (editorConfigProperties.isEmpty()) {
+                EditorConfigOverride.emptyEditorConfigOverride
+            } else {
+                EditorConfigOverride.from(*editorConfigProperties.toTypedArray())
+            }
 
     /**
-     * Set the [EditorConfigOverride] properties to be used by the rule. The properties can only be set once. This
-     * function can be chained.
+     * Set the [EditorConfigOverride] properties to be used by the rule. This function can be called multiple times.
+     * Properties which have been set before, are silently overwritten with the new vale. This function can be chained.
      */
     public fun withEditorConfigOverride(
         vararg properties: Pair<UsesEditorConfigProperties.EditorConfigProperty<*>, *>
     ): KtLintAssertThat {
-        check(editorConfigOverride == EditorConfigOverride.emptyEditorConfigOverride) {
-            "The EditorConfigOverride Properties may not be altered once they have been set."
-        }
-
-        editorConfigOverride = EditorConfigOverride.from(*properties)
+        editorConfigProperties = editorConfigProperties + properties.toSet()
 
         return this
     }
 
     /**
-     * Handle the code as if it was specified as a Kotlin script ("kts" file). This function can be chained.
+     * Set the [EditorConfigOverride] "max_line_length"property based on the EOL Marker which is places at the first
+     * line of the code sample. If the property has been set before via [withEditorConfigOverride] then that value is
+     * silently overwritten. This function can be chained.
+     *
+     * Example of usage:
+     * ```
+     *  val code =
+     *      """
+     *      // $MAX_LINE_LENGTH_MARKER                   $EOL_CHAR
+     *      val fooooooooooooooo = "fooooooooooooooooooooo"
+     *      """.trimIndent()
+     *  maxLineLengthRuleAssertThat(code)
+     *      .setMaxLineLength()
+     *      .hasLintErrors(
+     *          LintError(2, 1, "max-line-length", "Exceeded max line length (46)")
+     *      )
+     * ```
      */
-    public fun asKotlinScript(asKotlinScript: Boolean = true): KtLintAssertThat {
-        this.asKotlinScript = asKotlinScript
+    @Throws(MissingEolMarker::class)
+    public fun setMaxLineLength(): KtLintAssertThat {
+        code
+            .split("\n")
+            .firstOrNull { it.contains(MAX_LINE_LENGTH_MARKER) && it.endsWith(EOL_CHAR) }
+            ?.indexOf(EOL_CHAR)
+            ?.let { index ->
+                editorConfigProperties =
+                    editorConfigProperties + setOf(maxLineLengthProperty to (index + 1).toString())
+            } ?: throw MissingEolMarker()
+
+        return this
+    }
+
+    /**
+     * Handle the code as if it was specified in file on the given path. This function can be chained.
+     */
+    public fun asFileWithPath(filePath: String): KtLintAssertThat {
+        this.filePath = filePath
         return this
     }
 
@@ -69,7 +108,11 @@ public class KtLintAssertThat(
         hasNoLintErrorsBeforeFormatting()
 
         // Also format the code to be absolutely sure that codes does not get changed
-        val actualFormattedCode = rules.format(code, editorConfigOverride)
+        val actualFormattedCode = rules.format(
+            lintedFilePath = filePath,
+            text = code,
+            editorConfigOverride = editorConfigOverride
+        )
 
         assertThat(actualFormattedCode)
             .describedAs("Code is changed by format while no lint errors were found")
@@ -80,7 +123,11 @@ public class KtLintAssertThat(
      * Asserts that the code does not contain any lint errors before the code is actually formatted.
      */
     public fun hasNoLintErrorsBeforeFormatting() {
-        val actualLintErrors = rules.lint(code, editorConfigOverride)
+        val actualLintErrors = rules.lint(
+            lintedFilePath = filePath,
+            text = code,
+            editorConfigOverride = editorConfigOverride
+        )
 
         assertThat(actualLintErrors).isEmpty()
     }
@@ -100,7 +147,11 @@ public class KtLintAssertThat(
     public fun hasLintErrorsBeforeFormatting(vararg expectedLintErrors: LintError): KtLintAssertThat {
         check(expectedLintErrors.isNotEmpty())
 
-        val actualLintErrors = rules.lint(code, editorConfigOverride)
+        val actualLintErrors = rules.lint(
+            lintedFilePath = filePath,
+            text = code,
+            editorConfigOverride = editorConfigOverride
+        )
 
         assertThat(actualLintErrors)
             .describedAs("Lint errors before formatting")
@@ -165,5 +216,23 @@ public class KtLintAssertThat(
          */
         public fun List<Rule>.assertThat(): (String) -> KtLintAssertThat =
             { code -> KtLintAssertThat(this, code) }
+
+        /**
+         * See [setMaxLineLength] for intended usage.
+         */
+        public const val MAX_LINE_LENGTH_MARKER: String = "Max line length marker:" // Keep length of constant name same as length of value
+
+        /**
+         * See [setMaxLineLength] for intended usage.
+         */
+        public const val EOL_CHAR: Char = '#'
     }
 }
+
+internal class MissingEolMarker : RuntimeException(
+    """
+    The first line of the provide code sample should contain text '$MAX_LINE_LENGTH_MARKER' which is provided by the
+    constant '${::MAX_LINE_LENGTH_MARKER.name}' and ends with the EOL_CHAR'$EOL_CHAR' provided by the constant
+    '${::EOL_CHAR.name}' which indicates the last position that is allowed.
+    """.trimIndent()
+)
