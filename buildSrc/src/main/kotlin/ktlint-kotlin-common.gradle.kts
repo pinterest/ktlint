@@ -22,7 +22,7 @@ kotlin {
 tasks.withType<KotlinCompile>()
     .configureEach {
         kotlinOptions {
-            apiVersion = "1.4"
+            apiVersion = "1.6"
             @Suppress("SuspiciousCollectionReassignment")
             freeCompilerArgs += listOf("-opt-in=kotlin.RequiresOptIn")
         }
