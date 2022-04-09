@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.jetbrains.kotlin.jvm")
+    kotlin("jvm")
 }
 
 repositories {
@@ -19,8 +19,7 @@ kotlin {
     }
 }
 
-tasks
-    .withType<KotlinCompile>()
+tasks.withType<KotlinCompile>()
     .configureEach {
         kotlinOptions {
             apiVersion = "1.4"

@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.githubRelease)
 }
 
-val isKotlinDev = project.hasProperty("isKotlinDev")
+val isKotlinDev: Boolean = project.hasProperty("isKotlinDev")
 
 allprojects {
     if (isKotlinDev) {
@@ -50,8 +50,8 @@ val githubToken: String = if (project.hasProperty("servers.github.privKey")) {
     ""
 }
 
-val shadowJarExecutable: TaskProvider<Task> by lazy {
-    projects.ktlint.dependencyProject.tasks.named("shadowJarExecutable")
+val shadowJarExecutable: Task by lazy {
+    projects.ktlint.dependencyProject.tasks["shadowJarExecutable"]
 }
 
 // Explicitly adding dependency on "shadowJarExecutable" as Gradle does not it set via "releaseAssets" property
@@ -71,13 +71,7 @@ githubRelease {
         // "shadowJarExecutableChecksum" task does not declare checksum files
         // as output, only the whole output directory. As it uses the same directory
         // as "shadowJarExecutable" - just pass all the files from that directory
-        projects.ktlint.dependencyProject.tasks.named("shadowJarExecutable").get()
-            .outputs
-            .files
-            .files
-            .first()
-            .parentFile
-            .listFiles()
+        shadowJarExecutable.outputs.files.files.first().parentFile.listFiles()
     }))
     overwrite(true)
     dryRun(false)
@@ -94,7 +88,7 @@ val announceRelease by tasks.registering(Exec::class) {
     group = "Help"
     description = "Runs .announce script"
     subprojects.filter { !it.name.contains("ktlint-ruleset-template") }.forEach { subproject ->
-        dependsOn(subproject.tasks.named("publishMavenPublicationToMavenCentralRepository"))
+        dependsOn(subproject.tasks["publishMavenPublicationToMavenCentralRepository"])
     }
 
     commandLine("./.announce", "-y")
@@ -107,13 +101,13 @@ val homebrewBumpFormula by tasks.registering(Exec::class) {
     description = "Runs brew bump-forumula-pr"
     commandLine("./.homebrew")
     environment("VERSION" to "${project.property("VERSION_NAME")}")
-    dependsOn(tasks.named("githubRelease"))
+    dependsOn(tasks.githubRelease)
 }
 
 tasks.register<DefaultTask>("publishNewRelease") {
     group = "Help"
     description = "Triggers uploading new archives and publish announcements"
-    dependsOn(announceRelease, homebrewBumpFormula, tasks.named("githubRelease"))
+    dependsOn(announceRelease, homebrewBumpFormula, tasks.githubRelease)
 }
 
 tasks.wrapper {
