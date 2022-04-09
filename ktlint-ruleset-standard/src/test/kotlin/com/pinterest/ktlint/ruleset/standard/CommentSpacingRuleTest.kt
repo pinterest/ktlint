@@ -1,7 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 class CommentSpacingRuleTest {
@@ -21,7 +21,7 @@ class CommentSpacingRuleTest {
             var debugging = false // comment//word
                 // comment
             """.trimIndent()
-        commentSpacingRuleAssertThat(code).hasNoLintErrors()
+        commentSpacingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -53,15 +53,15 @@ class CommentSpacingRuleTest {
                 // comment
             """.trimIndent()
         commentSpacingRuleAssertThat(code)
-            .hasLintErrors(
-                LintError(1, 1, "comment-spacing", "Missing space after //"),
-                LintError(2, 22, "comment-spacing", "Missing space before //"),
-                LintError(3, 23, "comment-spacing", "Missing space after //"),
-                LintError(4, 22, "comment-spacing", "Missing space before //"),
-                LintError(4, 22, "comment-spacing", "Missing space after //"),
-                LintError(6, 24, "comment-spacing", "Missing space before //"),
-                LintError(6, 24, "comment-spacing", "Missing space after //"),
-                LintError(10, 5, "comment-spacing", "Missing space after //")
+            .hasLintViolations(
+                LintViolation(1, 1, "Missing space after //"),
+                LintViolation(2, 22, "Missing space before //"),
+                LintViolation(3, 23, "Missing space after //"),
+                LintViolation(4, 22, "Missing space before //"),
+                LintViolation(4, 22, "Missing space after //"),
+                LintViolation(6, 24, "Missing space before //"),
+                LintViolation(6, 24, "Missing space after //"),
+                LintViolation(10, 5, "Missing space after //")
             ).isFormattedAs(formattedCode)
     }
 }

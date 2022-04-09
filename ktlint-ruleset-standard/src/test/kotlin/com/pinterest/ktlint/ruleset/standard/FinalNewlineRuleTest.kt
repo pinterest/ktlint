@@ -1,9 +1,9 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.insertNewLineProperty
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -19,7 +19,7 @@ class FinalNewlineRuleTest {
         fun `Given an empty file then do not return lint errors`() {
             finalNewlineRuleAssertThat("")
                 .withEditorConfigOverride(FINAL_NEW_LINE_REQUIRED)
-                .hasNoLintErrors()
+                .hasNoLintViolations()
         }
 
         @Test
@@ -37,8 +37,8 @@ class FinalNewlineRuleTest {
                 """.trimIndent()
             finalNewlineRuleAssertThat(code)
                 .withEditorConfigOverride(FINAL_NEW_LINE_REQUIRED)
-                .hasLintErrors(
-                    LintError(1, 1, "final-newline", "File must end with a newline (\\n)")
+                .hasLintViolations(
+                    LintViolation(1, 1, "File must end with a newline (\\n)")
                 ).isFormattedAs(formattedCode)
         }
 
@@ -52,7 +52,7 @@ class FinalNewlineRuleTest {
                 """.trimIndent()
             finalNewlineRuleAssertThat(code)
                 .withEditorConfigOverride(FINAL_NEW_LINE_REQUIRED)
-                .hasNoLintErrors()
+                .hasNoLintViolations()
         }
 
         @Test
@@ -66,7 +66,7 @@ class FinalNewlineRuleTest {
                 """.trimIndent()
             finalNewlineRuleAssertThat(code)
                 .withEditorConfigOverride(FINAL_NEW_LINE_REQUIRED)
-                .hasNoLintErrors()
+                .hasNoLintViolations()
         }
     }
 
@@ -77,7 +77,7 @@ class FinalNewlineRuleTest {
         fun `Given an empty file then do not return lint errors`() {
             finalNewlineRuleAssertThat("")
                 .withEditorConfigOverride(FINAL_NEW_LINE_NOT_REQUIRED)
-                .hasNoLintErrors()
+                .hasNoLintViolations()
         }
 
         @Test
@@ -89,7 +89,7 @@ class FinalNewlineRuleTest {
                 """.trimIndent()
             finalNewlineRuleAssertThat(code)
                 .withEditorConfigOverride(FINAL_NEW_LINE_NOT_REQUIRED)
-                .hasNoLintErrors()
+                .hasNoLintViolations()
         }
 
         @Test
@@ -107,8 +107,8 @@ class FinalNewlineRuleTest {
                 """.trimIndent()
             finalNewlineRuleAssertThat(code)
                 .withEditorConfigOverride(FINAL_NEW_LINE_NOT_REQUIRED)
-                .hasLintErrors(
-                    LintError(2, 2, "final-newline", "Redundant newline (\\n) at the end of file")
+                .hasLintViolations(
+                    LintViolation(2, 2, "Redundant newline (\\n) at the end of file")
                 ).isFormattedAs(formattedCode)
         }
     }

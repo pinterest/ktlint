@@ -1,7 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.LintViolation
 import com.pinterest.ktlint.test.diffFileFormat
 import com.pinterest.ktlint.test.diffFileLint
 import org.assertj.core.api.Assertions.assertThat
@@ -40,7 +40,7 @@ class ChainWrappingRuleTest {
             fun bar(): Int = 1
             fun baz(): Int = 2
             """.trimIndent()
-        chainWrappingRuleAssertThat(code).hasNoLintErrors()
+        chainWrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     // https://github.com/pinterest/ktlint/issues/1130
@@ -73,8 +73,8 @@ class ChainWrappingRuleTest {
             }
             """.trimIndent()
         chainWrappingRuleAssertThat(code)
-            .hasLintErrors(
-                LintError(5, 13, "chain-wrapping", "Line must not begin with \"&&\"")
+            .hasLintViolations(
+                LintViolation(5, 13, "Line must not begin with \"&&\"")
             ).isFormattedAs(formattedCode)
     }
 }

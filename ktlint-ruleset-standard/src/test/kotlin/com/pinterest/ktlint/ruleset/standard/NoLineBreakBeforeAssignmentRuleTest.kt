@@ -2,8 +2,6 @@ package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
 import com.pinterest.ktlint.test.LintViolation
-import com.pinterest.ktlint.test.format
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
@@ -18,7 +16,7 @@ class NoLineBreakBeforeAssignmentRuleTest {
             """
             val valA = ""
             """.trimIndent()
-        noLineBreakBeforeAssignmentRuleAssertThat(code).hasNoLintErrors()
+        noLineBreakBeforeAssignmentRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -28,7 +26,7 @@ class NoLineBreakBeforeAssignmentRuleTest {
             val valA =
                   ""
             """.trimIndent()
-        noLineBreakBeforeAssignmentRuleAssertThat(code).hasNoLintErrors()
+        noLineBreakBeforeAssignmentRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -39,7 +37,7 @@ class NoLineBreakBeforeAssignmentRuleTest {
                   = ""
             """.trimIndent()
         noLineBreakBeforeAssignmentRuleAssertThat(code)
-            .hasLintErrors(
+            .hasLintViolations(
                 LintViolation(2, 7, "Line break before assignment is not allowed")
             )
     }
@@ -57,7 +55,7 @@ class NoLineBreakBeforeAssignmentRuleTest {
                   ""
             """.trimIndent()
         noLineBreakBeforeAssignmentRuleAssertThat(code)
-            .hasLintErrors(
+            .hasLintViolations(
                 LintViolation(2, 7, "Line break before assignment is not allowed")
             ).isFormattedAs(formattedCode)
     }
@@ -75,7 +73,7 @@ class NoLineBreakBeforeAssignmentRuleTest {
                     f()
             """.trimIndent()
         noLineBreakBeforeAssignmentRuleAssertThat(code)
-            .hasLintErrors(
+            .hasLintViolations(
                 // TODO: The error description is not correct
                 LintViolation(2, 9, "Line break before assignment is not allowed")
             ).isFormattedAs(formattedCode)
@@ -98,7 +96,7 @@ class NoLineBreakBeforeAssignmentRuleTest {
                     a + b
                 """.trimIndent()
             noLineBreakBeforeAssignmentRuleAssertThat(code)
-                .hasLintErrors(
+                .hasLintViolations(
                     // TODO: The error description is not correct
                     LintViolation(3, 5, "Line break before assignment is not allowed")
                 ).isFormattedAs(formattedCode)
@@ -121,7 +119,7 @@ class NoLineBreakBeforeAssignmentRuleTest {
                     a + b
                 """.trimIndent()
             noLineBreakBeforeAssignmentRuleAssertThat(code)
-                .hasLintErrors(
+                .hasLintViolations(
                     // TODO: The error description is not correct
                     LintViolation(2, 5, "Line break before assignment is not allowed"),
                     LintViolation(4, 5, "Line break before assignment is not allowed")
@@ -129,7 +127,6 @@ class NoLineBreakBeforeAssignmentRuleTest {
         }
     }
 
-    // https://github.com/pinterest/ktlint/issues/1039
     @Test
     fun `Issue 1039 - Given a function declaration with a parameter having a linebreak before the equals sign of the default value then do return a lint error`() {
         val code =
@@ -143,7 +140,7 @@ class NoLineBreakBeforeAssignmentRuleTest {
             null): Int = 3
             """.trimIndent()
         noLineBreakBeforeAssignmentRuleAssertThat(code)
-            .hasLintErrors(
+            .hasLintViolations(
                 LintViolation(2, 1, "Line break before assignment is not allowed"),
             ).isFormattedAs(formattedCode)
     }

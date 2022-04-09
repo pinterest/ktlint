@@ -1,7 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 class ModifierOrderRuleTest {
@@ -20,8 +20,8 @@ class ModifierOrderRuleTest {
             }
             """.trimIndent()
         modifierOrderRuleAssertThat(code)
-            .hasLintErrors(
-                LintError(1, 1, "modifier-order", "Incorrect modifier order (should be \"@Annotation... open abstract\")")
+            .hasLintViolations(
+                LintViolation(1, 1, "Incorrect modifier order (should be \"@Annotation... open abstract\")")
             ).isFormattedAs(formattedCode)
     }
 
@@ -44,10 +44,10 @@ class ModifierOrderRuleTest {
             }
             """.trimIndent()
         modifierOrderRuleAssertThat(code)
-            .hasLintErrors(
-                LintError(2, 5, "modifier-order", "Incorrect modifier order (should be \"protected open\")"),
-                LintError(3, 5, "modifier-order", "Incorrect modifier order (should be \"internal open suspend\")"),
-                LintError(4, 5, "modifier-order", "Incorrect modifier order (should be \"protected lateinit\")"),
+            .hasLintViolations(
+                LintViolation(2, 5, "Incorrect modifier order (should be \"protected open\")"),
+                LintViolation(3, 5, "Incorrect modifier order (should be \"internal open suspend\")"),
+                LintViolation(4, 5, "Incorrect modifier order (should be \"protected lateinit\")"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -66,8 +66,8 @@ class ModifierOrderRuleTest {
             }
             """.trimIndent()
         modifierOrderRuleAssertThat(code)
-            .hasLintErrors(
-                LintError(2, 5, "modifier-order", "Incorrect modifier order (should be \"protected tailrec\")")
+            .hasLintViolations(
+                LintViolation(2, 5, "Incorrect modifier order (should be \"protected tailrec\")")
             ).isFormattedAs(formattedCode)
     }
 
@@ -94,12 +94,12 @@ class ModifierOrderRuleTest {
             }
             """.trimIndent()
         modifierOrderRuleAssertThat(code)
-            .hasLintErrors(
-                LintError(2, 5, "modifier-order", "Incorrect modifier order (should be \"public override\")"),
-                LintError(3, 5, "modifier-order", "Incorrect modifier order (should be \"override suspend\")"),
-                LintError(4, 5, "modifier-order", "Incorrect modifier order (should be \"override tailrec\")"),
-                LintError(5, 5, "modifier-order", "Incorrect modifier order (should be \"@Annotation... override\")"),
-                LintError(6, 5, "modifier-order", "Incorrect modifier order (should be \"@Annotation... public override suspend\")"),
+            .hasLintViolations(
+                LintViolation(2, 5, "Incorrect modifier order (should be \"public override\")"),
+                LintViolation(3, 5, "Incorrect modifier order (should be \"override suspend\")"),
+                LintViolation(4, 5, "Incorrect modifier order (should be \"override tailrec\")"),
+                LintViolation(5, 5, "Incorrect modifier order (should be \"@Annotation... override\")"),
+                LintViolation(6, 5, "Incorrect modifier order (should be \"@Annotation... public override suspend\")"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -128,8 +128,8 @@ class ModifierOrderRuleTest {
             public suspend fun returnsSomething() = ""
             """.trimIndent()
         modifierOrderRuleAssertThat(code)
-            .hasLintErrors(
-                LintError(1, 1, "modifier-order", "Incorrect modifier order (should be \"@Annotation... public suspend\")"),
+            .hasLintViolations(
+                LintViolation(1, 1, "Incorrect modifier order (should be \"@Annotation... public suspend\")"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -152,8 +152,8 @@ class ModifierOrderRuleTest {
             }
             """.trimIndent()
         modifierOrderRuleAssertThat(code)
-            .hasLintErrors(
-                LintError(3, 8, "modifier-order", "Incorrect modifier order (should be \"internal const\")")
+            .hasLintViolations(
+                LintViolation(3, 8, "Incorrect modifier order (should be \"internal const\")")
             ).isFormattedAs(formattedCode)
     }
 }

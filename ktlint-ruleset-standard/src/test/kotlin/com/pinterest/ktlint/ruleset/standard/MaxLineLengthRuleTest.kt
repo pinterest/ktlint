@@ -1,12 +1,12 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.maxLineLengthProperty
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.ruleset.standard.MaxLineLengthRule.Companion.ignoreBackTickedIdentifierProperty
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.LintViolation
 import com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
@@ -32,10 +32,10 @@ class MaxLineLengthRuleTest {
                 """.trimIndent()
             maxLineLengthRuleAssertThat(code)
                 .setMaxLineLength()
-                .hasLintErrorsAfterFormatting(
-                    LintError(2, 1, "max-line-length", "Exceeded max line length (46)"),
-                    LintError(3, 1, "max-line-length", "Exceeded max line length (46)"),
-                    LintError(5, 1, "max-line-length", "Exceeded max line length (46)")
+                .hasLintViolationsAfterFormatting(
+                    LintViolation(2, 1, "Exceeded max line length (46)"),
+                    LintViolation(3, 1, "Exceeded max line length (46)"),
+                    LintViolation(5, 1, "Exceeded max line length (46)")
                 )
         }
     }
@@ -52,7 +52,7 @@ class MaxLineLengthRuleTest {
                 """.trimIndent()
             maxLineLengthRuleAssertThat(code)
                 .setMaxLineLength()
-                .hasNoLintErrors()
+                .hasNoLintViolations()
         }
 
         @Test
@@ -64,7 +64,7 @@ class MaxLineLengthRuleTest {
                 """.trimIndent()
             maxLineLengthRuleAssertThat(code)
                 .setMaxLineLength()
-                .hasNoLintErrors()
+                .hasNoLintViolations()
         }
 
         @Test
@@ -79,7 +79,7 @@ class MaxLineLengthRuleTest {
                 """.trimIndent()
             maxLineLengthRuleAssertThat(code)
                 .setMaxLineLength()
-                .hasNoLintErrors()
+                .hasNoLintViolations()
         }
 
         @Test
@@ -93,7 +93,7 @@ class MaxLineLengthRuleTest {
                 """.trimIndent()
             maxLineLengthRuleAssertThat(code)
                 .setMaxLineLength()
-                .hasNoLintErrors()
+                .hasNoLintViolations()
         }
 
         @Test
@@ -107,7 +107,7 @@ class MaxLineLengthRuleTest {
                 """.trimIndent()
             maxLineLengthRuleAssertThat(code)
                 .setMaxLineLength()
-                .hasNoLintErrors()
+                .hasNoLintViolations()
         }
     }
 
@@ -122,7 +122,7 @@ class MaxLineLengthRuleTest {
                 """.trimIndent()
             maxLineLengthRuleAssertThat(code)
                 .setMaxLineLength()
-                .hasNoLintErrors()
+                .hasNoLintViolations()
         }
 
         @Test
@@ -141,9 +141,9 @@ class MaxLineLengthRuleTest {
                 """.trimIndent()
             maxLineLengthRuleAssertThat(code)
                 .setMaxLineLength()
-                .hasLintErrors(
-                    LintError(3, 1, "max-line-length", "Exceeded max line length (37)"),
-                    LintError(8, 1, "max-line-length", "Exceeded max line length (37)")
+                .hasLintViolations(
+                    LintViolation(3, 1, "Exceeded max line length (37)"),
+                    LintViolation(8, 1, "Exceeded max line length (37)")
                 )
         }
     }
@@ -163,9 +163,9 @@ class MaxLineLengthRuleTest {
             maxLineLengthRuleAssertThat(code)
                 .setMaxLineLength()
                 .withEditorConfigOverride(ignoreBackTickedIdentifierProperty to true)
-                .hasLintErrors(
+                .hasLintViolations(
                     // Note that no error was generated on line 2 with the long fun name but on another line
-                    LintError(4, 1, "max-line-length", "Exceeded max line length (37)")
+                    LintViolation(4, 1, "Exceeded max line length (37)")
                 )
         }
 
@@ -182,10 +182,10 @@ class MaxLineLengthRuleTest {
             maxLineLengthRuleAssertThat(code)
                 .setMaxLineLength()
                 .withEditorConfigOverride(ignoreBackTickedIdentifierProperty to true)
-                .hasLintErrors(
+                .hasLintViolations(
                     // Note that no error was generated on line 2 with the long fun name but on another line
-                    LintError(3, 1, "max-line-length", "Exceeded max line length (37)"),
-                    LintError(4, 1, "max-line-length", "Exceeded max line length (37)")
+                    LintViolation(3, 1, "Exceeded max line length (37)"),
+                    LintViolation(4, 1, "Exceeded max line length (37)")
                 )
         }
     }
@@ -195,7 +195,7 @@ class MaxLineLengthRuleTest {
         val code = "// some" + " long ".repeat(100) + "comment" // Total length of line is 7 + 600 + 7 = 614 characters
         maxLineLengthRuleAssertThat(code)
             .withEditorConfigOverride(maxLineLengthProperty to "off")
-            .hasNoLintErrors()
+            .hasNoLintViolations()
     }
 
     @Test

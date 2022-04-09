@@ -1,7 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.LintViolation
 import com.pinterest.ktlint.test.diffFileFormat
 import com.pinterest.ktlint.test.format
 import org.assertj.core.api.Assertions.assertThat
@@ -43,19 +43,19 @@ class NoEmptyClassBodyRuleTest {
             object O2
             """.trimIndent()
         noEmptyClassBodyRuleAssertThat(code)
-            .hasLintErrors(
-                LintError(1, 9, "no-empty-class-body", "Unnecessary block (\"{}\")"),
-                LintError(2, 10, "no-empty-class-body", "Unnecessary block (\"{}\")"),
-                LintError(3, 10, "no-empty-class-body", "Unnecessary block (\"{}\")"),
-                LintError(4, 27, "no-empty-class-body", "Unnecessary block (\"{}\")"),
-                LintError(5, 28, "no-empty-class-body", "Unnecessary block (\"{}\")"),
-                LintError(6, 28, "no-empty-class-body", "Unnecessary block (\"{}\")"),
-                LintError(7, 13, "no-empty-class-body", "Unnecessary block (\"{}\")"),
-                LintError(8, 14, "no-empty-class-body", "Unnecessary block (\"{}\")"),
-                LintError(9, 14, "no-empty-class-body", "Unnecessary block (\"{}\")"),
-                LintError(10, 10, "no-empty-class-body", "Unnecessary block (\"{}\")"),
-                LintError(11, 11, "no-empty-class-body", "Unnecessary block (\"{}\")"),
-                LintError(12, 11, "no-empty-class-body", "Unnecessary block (\"{}\")")
+            .hasLintViolations(
+                LintViolation(1, 9, "Unnecessary block (\"{}\")"),
+                LintViolation(2, 10, "Unnecessary block (\"{}\")"),
+                LintViolation(3, 10, "Unnecessary block (\"{}\")"),
+                LintViolation(4, 27, "Unnecessary block (\"{}\")"),
+                LintViolation(5, 28, "Unnecessary block (\"{}\")"),
+                LintViolation(6, 28, "Unnecessary block (\"{}\")"),
+                LintViolation(7, 13, "Unnecessary block (\"{}\")"),
+                LintViolation(8, 14, "Unnecessary block (\"{}\")"),
+                LintViolation(9, 14, "Unnecessary block (\"{}\")"),
+                LintViolation(10, 10, "Unnecessary block (\"{}\")"),
+                LintViolation(11, 11, "Unnecessary block (\"{}\")"),
+                LintViolation(12, 11, "Unnecessary block (\"{}\")")
             ).isFormattedAs(formattedCode)
     }
 
@@ -68,7 +68,7 @@ class NoEmptyClassBodyRuleTest {
             interface I1
             object O1
             """.trimIndent()
-        noEmptyClassBodyRuleAssertThat(code).hasNoLintErrors()
+        noEmptyClassBodyRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -80,7 +80,7 @@ class NoEmptyClassBodyRuleTest {
             interface I2 { /**/ }
             object O2 { /**/ }
             """.trimIndent()
-        noEmptyClassBodyRuleAssertThat(code).hasNoLintErrors()
+        noEmptyClassBodyRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -90,7 +90,7 @@ class NoEmptyClassBodyRuleTest {
             abstract class TypeReference<T>
             val o = object : TypeReference<HashMap<String, String>>() {}
             """.trimIndent()
-        noEmptyClassBodyRuleAssertThat(code).hasNoLintErrors()
+        noEmptyClassBodyRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -99,7 +99,7 @@ class NoEmptyClassBodyRuleTest {
             """
             fun main() {}
             """.trimIndent()
-        noEmptyClassBodyRuleAssertThat(code).hasNoLintErrors()
+        noEmptyClassBodyRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -110,22 +110,6 @@ class NoEmptyClassBodyRuleTest {
                 companion object {}
             }
             """.trimIndent()
-        noEmptyClassBodyRuleAssertThat(code).hasNoLintErrors()
-    }
-
-    @Test
-    fun testFormat() {
-        assertThat(
-            NoEmptyClassBodyRule().diffFileFormat(
-                "spec/no-empty-class-body/format.kt.spec",
-                "spec/no-empty-class-body/format-expected.kt.spec"
-            )
-        ).isEmpty()
-    }
-
-    @Test
-    fun testFormatEmptyClassBodyAtTheEndOfFile() {
-        assertThat(NoEmptyClassBodyRule().format("class A {}\n")).isEqualTo("class A\n")
-        assertThat(NoEmptyClassBodyRule().format("class A {}")).isEqualTo("class A")
+        noEmptyClassBodyRuleAssertThat(code).hasNoLintViolations()
     }
 }

@@ -1,7 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.LintViolation
 import com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE
 import com.pinterest.ktlint.test.format
 import com.pinterest.ktlint.test.lint
@@ -45,11 +45,11 @@ class NoConsecutiveBlankLinesRuleTest {
             fun c()
             """.trimIndent()
         noConsecutiveBlankLinesRuleAssertThat(code)
-            .hasLintErrors(
-                LintError(3, 1, "no-consecutive-blank-lines", "Needless blank line(s)"),
-                LintError(6, 1, "no-consecutive-blank-lines", "Needless blank line(s)"),
-                LintError(9, 1, "no-consecutive-blank-lines", "Needless blank line(s)"),
-                LintError(13, 1, "no-consecutive-blank-lines", "Needless blank line(s)")
+            .hasLintViolations(
+                LintViolation(3, 1, "Needless blank line(s)"),
+                LintViolation(6, 1, "Needless blank line(s)"),
+                LintViolation(9, 1, "Needless blank line(s)"),
+                LintViolation(13, 1, "Needless blank line(s)")
             ).isFormattedAs(formattedCode)
     }
 
@@ -71,8 +71,8 @@ class NoConsecutiveBlankLinesRuleTest {
 
                 """.trimIndent()
             noConsecutiveBlankLinesRuleAssertThat(code)
-                .hasLintErrors(
-                    LintError(4, 1, "no-consecutive-blank-lines", "Needless blank line(s)")
+                .hasLintViolations(
+                    LintViolation(4, 1, "Needless blank line(s)")
                 ).isFormattedAs(formattedCode)
         }
 
@@ -93,8 +93,8 @@ class NoConsecutiveBlankLinesRuleTest {
 
                 """.trimIndent()
             noConsecutiveBlankLinesRuleAssertThat(code)
-                .hasLintErrors(
-                    LintError(4, 1, "no-consecutive-blank-lines", "Needless blank line(s)")
+                .hasLintViolations(
+                    LintViolation(4, 1, "Needless blank line(s)")
                 ).isFormattedAs(formattedCode)
         }
     }
@@ -112,7 +112,7 @@ class NoConsecutiveBlankLinesRuleTest {
                 )
             }
             """.trimIndent()
-        noConsecutiveBlankLinesRuleAssertThat(code).hasNoLintErrors()
+        noConsecutiveBlankLinesRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Nested
@@ -139,11 +139,11 @@ class NoConsecutiveBlankLinesRuleTest {
                 private constructor(b: Int)
                 """.trimIndent()
             noConsecutiveBlankLinesRuleAssertThat(code)
-                .hasLintErrors(
+                .hasLintViolations(
                     // TODO: Line number is incorrect
-                    LintError(3, 1, "no-consecutive-blank-lines", "Needless blank line(s)"),
+                    LintViolation(3, 1, "Needless blank line(s)"),
                     // TODO: Line number is incorrect
-                    LintError(7, 1, "no-consecutive-blank-lines", "Needless blank line(s)")
+                    LintViolation(7, 1, "Needless blank line(s)")
                 ).isFormattedAs(formattedCode)
         }
 
@@ -157,7 +157,7 @@ class NoConsecutiveBlankLinesRuleTest {
                 """.trimIndent()
             noConsecutiveBlankLinesRuleAssertThat(code)
                 // TODO: Check why no error is reported here
-                .hasNoLintErrors()
+                .hasNoLintViolations()
         }
     }
 

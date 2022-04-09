@@ -1,11 +1,11 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentSizeProperty
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentStyleProperty
 import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.LintViolation
 import com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE
 import com.pinterest.ktlint.test.SPACE
 import com.pinterest.ktlint.test.TAB
@@ -70,9 +70,9 @@ internal class IndentationRuleTest {
             """.trimIndent()
         indentationRuleAssertThat(code)
             .withEditorConfigOverride(indentSizeProperty to 2)
-            .hasLintErrors(
-                LintError(2, 1, "indent", "Unexpected indentation (3) (should be 2)"),
-                LintError(3, 1, "indent", "Unexpected indentation (4) (should be 2)")
+            .hasLintViolations(
+                LintViolation(2, 1, "Unexpected indentation (3) (should be 2)"),
+                LintViolation(3, 1, "Unexpected indentation (4) (should be 2)")
             )
     }
 
@@ -96,9 +96,9 @@ internal class IndentationRuleTest {
             """.trimIndent()
         indentationRuleAssertThat(code)
             .withEditorConfigOverride(INDENT_STYLE_TAB)
-            .hasLintErrors(
-                LintError(2, 1, "indent", "Unexpected indentation (0) (should be 1)"),
-                LintError(3, 1, "indent", "Unexpected indentation (2) (should be 1)")
+            .hasLintViolations(
+                LintViolation(2, 1, "Unexpected indentation (0) (should be 1)"),
+                LintViolation(3, 1, "Unexpected indentation (2) (should be 1)")
             )
     }
 
@@ -113,7 +113,7 @@ internal class IndentationRuleTest {
             """.trimIndent()
         indentationRuleAssertThat(code)
             .withEditorConfigOverride(indentSizeProperty to "unset")
-            .hasNoLintErrors()
+            .hasNoLintViolations()
     }
 
     @Test
@@ -197,8 +197,8 @@ internal class IndentationRuleTest {
                 |${SPACE}${SPACE}// comment
                 """.trimMargin()
             indentationRuleAssertThat(code)
-                .hasLintErrors(
-                    LintError(1, 1, "indent", "Unexpected indentation (2) (should be 0)")
+                .hasLintViolations(
+                    LintViolation(1, 1, "Unexpected indentation (2) (should be 0)")
                 )
         }
 
@@ -211,9 +211,9 @@ internal class IndentationRuleTest {
                 |${SPACE}${SPACE}// comment
                 """.trimMargin()
             indentationRuleAssertThat(code)
-                .hasLintErrors(
+                .hasLintViolations(
                     // Note that no LintError is created for the first line as it does not contain any code
-                    LintError(2, 1, "indent", "Unexpected indentation (2) (should be 0)")
+                    LintViolation(2, 1, "Unexpected indentation (2) (should be 0)")
                 )
         }
     }
@@ -313,7 +313,7 @@ internal class IndentationRuleTest {
                       A2 : RecyclerView.Adapter<V2>, A2 : ComposableAdapter.ViewTypeProvider {
             }
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintErrors()
+        indentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test // "https://github.com/pinterest/ktlint/issues/433"
@@ -332,7 +332,7 @@ internal class IndentationRuleTest {
                 )
             }
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintErrors()
+        indentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -351,9 +351,9 @@ internal class IndentationRuleTest {
             """.trimIndent()
         indentationRuleAssertThat(code)
             .withEditorConfigOverride(INDENT_STYLE_TAB)
-            .hasLintErrors(
-                LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected space character(s)"),
-                LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected space character(s)")
+            .hasLintViolations(
+                LintViolation(2, 1, "Unexpected space character(s)"),
+                LintViolation(3, 1, "Unexpected space character(s)")
             ).isFormattedAs(formattedCode)
     }
 
@@ -372,11 +372,11 @@ internal class IndentationRuleTest {
             }
             """.trimIndent()
         indentationRuleAssertThat(code)
-            .hasLintErrors(
-                LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected tab character(s)"),
-                LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected indentation (8) (should be 4)"),
-                LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected tab character(s)"),
-                LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected indentation (4) (should be 0)")
+            .hasLintViolations(
+                LintViolation(2, 1, "Unexpected tab character(s)"),
+                LintViolation(2, 1, "Unexpected indentation (8) (should be 4)"),
+                LintViolation(3, 1, "Unexpected tab character(s)"),
+                LintViolation(3, 1, "Unexpected indentation (4) (should be 0)")
             ).isFormattedAs(formattedCode)
     }
 
@@ -399,10 +399,10 @@ internal class IndentationRuleTest {
             }
             """.trimIndent()
         indentationRuleAssertThat(code)
-            .hasLintErrors(
-                LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected tab character(s)"),
-                LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected tab character(s)"),
-                LintError(line = 4, col = 1, ruleId = "indent", detail = "Unexpected tab character(s)")
+            .hasLintViolations(
+                LintViolation(2, 1, "Unexpected tab character(s)"),
+                LintViolation(3, 1, "Unexpected tab character(s)"),
+                LintViolation(4, 1, "Unexpected tab character(s)")
             ).isFormattedAs(formattedCode)
     }
 
@@ -426,10 +426,10 @@ internal class IndentationRuleTest {
             """.trimIndent()
         indentationRuleAssertThat(code)
             .withEditorConfigOverride(indentSizeProperty to 2)
-            .hasLintErrors(
-                LintError(line = 2, col = 1, ruleId = "indent", detail = "Unexpected tab character(s)"),
-                LintError(line = 3, col = 1, ruleId = "indent", detail = "Unexpected tab character(s)"),
-                LintError(line = 4, col = 1, ruleId = "indent", detail = "Unexpected tab character(s)")
+            .hasLintViolations(
+                LintViolation(2, 1, "Unexpected tab character(s)"),
+                LintViolation(3, 1, "Unexpected tab character(s)"),
+                LintViolation(4, 1, "Unexpected tab character(s)")
             ).isFormattedAs(formattedCode)
     }
 
@@ -444,7 +444,7 @@ internal class IndentationRuleTest {
                             Manifest(stream).mainAttributes.getValue("Implementation-Version")
                         }
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintErrors()
+        indentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -468,8 +468,8 @@ internal class IndentationRuleTest {
             }
             """.trimIndent()
         indentationRuleAssertThat(code)
-            .hasLintErrors(
-                LintError(4, 1, "indent", "Unexpected indentation (16) (should be 12)")
+            .hasLintViolations(
+                LintViolation(4, 1, "Unexpected indentation (16) (should be 12)")
             ).isFormattedAs(formattedCode)
     }
 
@@ -486,8 +486,8 @@ internal class IndentationRuleTest {
                 SomeLongInterface<ALongParameter.InnerClass, SomeOtherClass>
             """.trimIndent()
         indentationRuleAssertThat(code)
-            .hasLintErrors(
-                LintError(2, 1, "indent", "Unexpected indentation (0) (should be 4)")
+            .hasLintViolations(
+                LintViolation(2, 1, "Unexpected indentation (0) (should be 4)")
             ).isFormattedAs(formattedCode)
     }
 
@@ -514,9 +514,9 @@ internal class IndentationRuleTest {
             ): List<Output>
             """.trimIndent()
         indentationRuleAssertThat(code)
-            .hasLintErrors(
-                LintError(2, 1, "indent", "Unexpected indentation (8) (should be 4)"),
-                LintError(6, 1, "indent", "Unexpected indentation (4) (should be 8)")
+            .hasLintViolations(
+                LintViolation(2, 1, "Unexpected indentation (8) (should be 4)"),
+                LintViolation(6, 1, "Unexpected indentation (4) (should be 8)")
             ).isFormattedAs(formattedCode)
     }
 
@@ -532,7 +532,7 @@ internal class IndentationRuleTest {
                 )
             }
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintErrors()
+        indentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -546,7 +546,7 @@ internal class IndentationRuleTest {
                     evenNumber * evenNumber
                 }
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintErrors()
+        indentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -560,7 +560,7 @@ internal class IndentationRuleTest {
                     2.toString()
             }
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintErrors()
+        indentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -575,7 +575,7 @@ internal class IndentationRuleTest {
                     // stuff
                 }
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintErrors()
+        indentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -599,8 +599,8 @@ internal class IndentationRuleTest {
             }
             """.trimIndent()
         indentationRuleAssertThat(code)
-            .hasLintErrors(
-                LintError(5, 1, "indent", "Unexpected indent of multiline string closing quotes")
+            .hasLintViolations(
+                LintViolation(5, 1, "Unexpected indent of multiline string closing quotes")
             ).isFormattedAs(formattedCode)
     }
 
@@ -633,8 +633,8 @@ internal class IndentationRuleTest {
             }
             """.trimIndent()
         indentationRuleAssertThat(code)
-            .hasLintErrors(
-                LintError(8, 1, "indent", "Unexpected indent of multiline string closing quotes")
+            .hasLintViolations(
+                LintViolation(8, 1, "Unexpected indent of multiline string closing quotes")
             ).isFormattedAs(formattedCode)
     }
 
@@ -666,8 +666,8 @@ internal class IndentationRuleTest {
             }
             """.trimIndent()
         indentationRuleAssertThat(code)
-            .hasLintErrors(
-                LintError(7, 1, "indent", "Unexpected indent of multiline string closing quotes")
+            .hasLintViolations(
+                LintViolation(7, 1, "Unexpected indent of multiline string closing quotes")
             ).isFormattedAs(formattedCode)
     }
 
@@ -682,7 +682,7 @@ internal class IndentationRuleTest {
                 Tab at the end of this line.$TAB
                 $MULTILINE_STRING_QUOTE.trimIndent()
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintErrors()
+        indentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -724,7 +724,7 @@ internal class IndentationRuleTest {
                 return Letter.B
             }
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintErrors()
+        indentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Nested
@@ -738,7 +738,7 @@ internal class IndentationRuleTest {
 
                 val j = 0
                 """.trimIndent()
-            indentationRuleAssertThat(code).hasNoLintErrors()
+            indentationRuleAssertThat(code).hasNoLintViolations()
         }
 
         @Test
@@ -755,7 +755,7 @@ internal class IndentationRuleTest {
 
                 val j = 0
                 """.trimIndent()
-            indentationRuleAssertThat(code).hasNoLintErrors()
+            indentationRuleAssertThat(code).hasNoLintViolations()
         }
 
         @Test
@@ -771,7 +771,7 @@ internal class IndentationRuleTest {
 
                 val j = 0
                 """.trimIndent()
-            indentationRuleAssertThat(code).hasNoLintErrors()
+            indentationRuleAssertThat(code).hasNoLintViolations()
         }
 
         @Test
@@ -787,7 +787,7 @@ internal class IndentationRuleTest {
                     val aVar = 0
                 }
                 """.trimIndent()
-            indentationRuleAssertThat(code).hasNoLintErrors()
+            indentationRuleAssertThat(code).hasNoLintViolations()
         }
 
         @Test
@@ -806,7 +806,7 @@ internal class IndentationRuleTest {
                     val aVar = 0
                 }
                 """.trimIndent()
-            indentationRuleAssertThat(code).hasNoLintErrors()
+            indentationRuleAssertThat(code).hasNoLintViolations()
         }
     }
 
@@ -823,7 +823,7 @@ internal class IndentationRuleTest {
                     }
             }
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintErrors()
+        indentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Nested
@@ -842,7 +842,7 @@ internal class IndentationRuleTest {
                     c = 3
                 )
                 """.trimIndent()
-            indentationRuleAssertThat(code).hasNoLintErrors()
+            indentationRuleAssertThat(code).hasNoLintViolations()
         }
 
         @Test
@@ -856,7 +856,7 @@ internal class IndentationRuleTest {
                     c = 3
                 )
                 """.trimIndent()
-            indentationRuleAssertThat(code).hasNoLintErrors()
+            indentationRuleAssertThat(code).hasNoLintViolations()
         }
 
         @Test
@@ -874,7 +874,7 @@ internal class IndentationRuleTest {
                         c = 3
                     )
                 """.trimIndent()
-            indentationRuleAssertThat(code).hasNoLintErrors()
+            indentationRuleAssertThat(code).hasNoLintViolations()
         }
 
         @Test
@@ -893,7 +893,7 @@ internal class IndentationRuleTest {
                         c = 3
                     )
                 """.trimIndent()
-            indentationRuleAssertThat(code).hasNoLintErrors()
+            indentationRuleAssertThat(code).hasNoLintViolations()
         }
 
         @Test
@@ -912,7 +912,7 @@ internal class IndentationRuleTest {
                     )
                 }
                 """.trimIndent()
-            indentationRuleAssertThat(code).hasNoLintErrors()
+            indentationRuleAssertThat(code).hasNoLintViolations()
         }
 
         @Test
@@ -936,7 +936,7 @@ internal class IndentationRuleTest {
                     )
                 )
                 """.trimIndent()
-            indentationRuleAssertThat(code).hasNoLintErrors()
+            indentationRuleAssertThat(code).hasNoLintViolations()
         }
     }
 
@@ -955,7 +955,7 @@ internal class IndentationRuleTest {
                 )
             }
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintErrors()
+        indentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -969,7 +969,7 @@ internal class IndentationRuleTest {
                 val c: Int = 3
             )
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintErrors()
+        indentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -983,7 +983,7 @@ internal class IndentationRuleTest {
                     ) == 2
             }
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintErrors()
+        indentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -1003,7 +1003,7 @@ internal class IndentationRuleTest {
             ),
                 Parent2
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintErrors()
+        indentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -1021,7 +1021,7 @@ internal class IndentationRuleTest {
                 return Gooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooogle()
             }
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintErrors()
+        indentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -1038,7 +1038,7 @@ internal class IndentationRuleTest {
                 })
             }
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintErrors()
+        indentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -1058,7 +1058,7 @@ internal class IndentationRuleTest {
                 })
             }
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintErrors()
+        indentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -1075,7 +1075,7 @@ internal class IndentationRuleTest {
                 })
             }
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintErrors()
+        indentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -1090,7 +1090,7 @@ internal class IndentationRuleTest {
 
             open class B(f: () -> Int)
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintErrors()
+        indentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -1103,7 +1103,7 @@ internal class IndentationRuleTest {
                 }
             }
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintErrors()
+        indentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -1121,7 +1121,7 @@ internal class IndentationRuleTest {
                         ?: 1
             }
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintErrors()
+        indentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -1134,8 +1134,8 @@ internal class IndentationRuleTest {
                 $MULTILINE_STRING_QUOTE.trimIndent()
             """.trimIndent()
         indentationRuleAssertThat(code)
-            .hasLintErrorsAfterFormatting(
-                LintError(1, 11, "indent", "Indentation of multiline string should not contain both tab(s) and space(s)")
+            .hasLintViolationsAfterFormatting(
+                LintViolation(1, 11, "Indentation of multiline string should not contain both tab(s) and space(s)")
             )
     }
 
@@ -1148,7 +1148,7 @@ internal class IndentationRuleTest {
             some text
             $MULTILINE_STRING_QUOTE
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintErrors()
+        indentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -1178,10 +1178,10 @@ internal class IndentationRuleTest {
             }
             """.trimIndent()
         wrappingAndIndentationRuleAssertThat(code)
-            .hasLintErrors(
-                LintError(2, 12, "wrapping", "Missing newline after \"(\""),
-                LintError(6, 1, "indent", "Unexpected indent of multiline string closing quotes"),
-                LintError(6, 20, "wrapping", "Missing newline before \")\"")
+            .hasLintViolations(
+                LintViolation(2, 12, "Missing newline after \"(\"", "wrapping"),
+                LintViolation(6, 1, "Unexpected indent of multiline string closing quotes", "indent"),
+                LintViolation(6, 20, "Missing newline before \")\"", "wrapping")
             ).isFormattedAs(formattedCode)
     }
 
@@ -1205,7 +1205,7 @@ internal class IndentationRuleTest {
                 }
             }
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintErrors()
+        indentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -1230,7 +1230,7 @@ internal class IndentationRuleTest {
             """.trimIndent()
         indentationRuleAssertThat(code)
             .withEditorConfigOverride(INDENT_STYLE_TAB)
-            .hasNoLintErrors()
+            .hasNoLintViolations()
     }
 
     @Test
@@ -1254,8 +1254,8 @@ internal class IndentationRuleTest {
             }
             """.trimIndent()
         indentationRuleAssertThat(code)
-            .hasLintErrors(
-                LintError(3, 1, "indent", "Unexpected indentation (12) (should be 8)")
+            .hasLintViolations(
+                LintViolation(3, 1, "Unexpected indentation (12) (should be 8)")
             ).isFormattedAs(formattedCode)
     }
 
@@ -1284,8 +1284,8 @@ internal class IndentationRuleTest {
             }
             """.trimIndent()
         indentationRuleAssertThat(code)
-            .hasLintErrors(
-                LintError(4, 1, "indent", "Unexpected indentation (8) (should be 12)")
+            .hasLintViolations(
+                LintViolation(4, 1, "Unexpected indentation (8) (should be 12)")
             ).isFormattedAs(formattedCode)
     }
 
@@ -1348,13 +1348,13 @@ internal class IndentationRuleTest {
             }
             """.trimIndent()
         indentationRuleAssertThat(code)
-            .hasLintErrors(
-                LintError(2, 1, "indent", "Unexpected indentation (4) (should be 8)"),
-                LintError(8, 1, "indent", "Unexpected indentation (4) (should be 8)"),
-                LintError(9, 1, "indent", "Unexpected indentation (4) (should be 8)"),
-                LintError(15, 1, "indent", "Unexpected indentation (4) (should be 8)"),
-                LintError(21, 1, "indent", "Unexpected indentation (4) (should be 8)"),
-                LintError(22, 1, "indent", "Unexpected indentation (4) (should be 8)")
+            .hasLintViolations(
+                LintViolation(2, 1, "Unexpected indentation (4) (should be 8)"),
+                LintViolation(8, 1, "Unexpected indentation (4) (should be 8)"),
+                LintViolation(9, 1, "Unexpected indentation (4) (should be 8)"),
+                LintViolation(15, 1, "Unexpected indentation (4) (should be 8)"),
+                LintViolation(21, 1, "Unexpected indentation (4) (should be 8)"),
+                LintViolation(22, 1, "Unexpected indentation (4) (should be 8)")
             ).isFormattedAs(formattedCode)
     }
 
@@ -1391,10 +1391,10 @@ internal class IndentationRuleTest {
             }
             """.trimIndent()
         indentationRuleAssertThat(code)
-            .hasLintErrors(
-                LintError(2, 1, "indent", "Unexpected indentation (4) (should be 8)"),
-                LintError(8, 1, "indent", "Unexpected indentation (4) (should be 8)"),
-                LintError(9, 1, "indent", "Unexpected indentation (4) (should be 8)")
+            .hasLintViolations(
+                LintViolation(2, 1, "Unexpected indentation (4) (should be 8)"),
+                LintViolation(8, 1, "Unexpected indentation (4) (should be 8)"),
+                LintViolation(9, 1, "Unexpected indentation (4) (should be 8)")
             ).isFormattedAs(formattedCode)
     }
 
@@ -1435,12 +1435,12 @@ internal class IndentationRuleTest {
             }
             """.trimIndent()
         indentationRuleAssertThat(code)
-            .hasLintErrors(
-                LintError(2, 1, "indent", "Unexpected indentation (4) (should be 8)"),
-                LintError(3, 1, "indent", "Unexpected indentation (4) (should be 8)"),
-                LintError(9, 1, "indent", "Unexpected indentation (4) (should be 8)"),
-                LintError(10, 1, "indent", "Unexpected indentation (4) (should be 8)"),
-                LintError(11, 1, "indent", "Unexpected indentation (4) (should be 8)")
+            .hasLintViolations(
+                LintViolation(2, 1, "Unexpected indentation (4) (should be 8)"),
+                LintViolation(3, 1, "Unexpected indentation (4) (should be 8)"),
+                LintViolation(9, 1, "Unexpected indentation (4) (should be 8)"),
+                LintViolation(10, 1, "Unexpected indentation (4) (should be 8)"),
+                LintViolation(11, 1, "Unexpected indentation (4) (should be 8)")
             ).isFormattedAs(formattedCode)
     }
 
@@ -1451,7 +1451,7 @@ internal class IndentationRuleTest {
             object ApplicationComponentFactory : ApplicationComponent.Factory
             by DaggerApplicationComponent.factory()
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintErrors()
+        indentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -1475,7 +1475,7 @@ internal class IndentationRuleTest {
             // resulting in the formatting to crash on the next line.
             val bar = 1
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintErrors()
+        indentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -1489,7 +1489,7 @@ internal class IndentationRuleTest {
                 println()
             }
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintErrors()
+        indentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -1546,7 +1546,7 @@ internal class IndentationRuleTest {
             )
             val foo9 = println({ bar() }, { bar()})
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintErrors()
+        indentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -1559,7 +1559,7 @@ internal class IndentationRuleTest {
                     "" // IDEA quirk (ignored)
                 )
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintErrors()
+        indentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     private companion object {

@@ -1,7 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 class NoLineBreakAfterElseRuleTest {
@@ -31,8 +31,8 @@ class NoLineBreakAfterElseRuleTest {
             }
             """.trimIndent()
         noLineBreakAfterElseRuleAssertThat(code)
-            .hasLintErrors(
-                LintError(5, 1, "no-line-break-after-else", "Unexpected line break after \"else\"")
+            .hasLintViolations(
+                LintViolation(5, 1, "Unexpected line break after \"else\"")
             ).isFormattedAs(formattedCode)
     }
 
@@ -48,7 +48,7 @@ class NoLineBreakAfterElseRuleTest {
                 }
             }
             """.trimIndent()
-        noLineBreakAfterElseRuleAssertThat(code).hasNoLintErrors()
+        noLineBreakAfterElseRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -63,7 +63,7 @@ class NoLineBreakAfterElseRuleTest {
                 }
             }
             """.trimIndent()
-        noLineBreakAfterElseRuleAssertThat(code).hasNoLintErrors()
+        noLineBreakAfterElseRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -90,8 +90,8 @@ class NoLineBreakAfterElseRuleTest {
             }
             """.trimIndent()
         noLineBreakAfterElseRuleAssertThat(code)
-            .hasLintErrors(
-                LintError(5, 1, "no-line-break-after-else", "Unexpected line break after \"else\"")
+            .hasLintViolations(
+                LintViolation(5, 1, "Unexpected line break after \"else\"")
             ).isFormattedAs(formattedCode)
     }
 
@@ -114,6 +114,6 @@ class NoLineBreakAfterElseRuleTest {
                 }
             }
             """.trimIndent()
-        noLineBreakAfterElseRuleAssertThat(code).hasNoLintErrors()
+        noLineBreakAfterElseRuleAssertThat(code).hasNoLintViolations()
     }
 }

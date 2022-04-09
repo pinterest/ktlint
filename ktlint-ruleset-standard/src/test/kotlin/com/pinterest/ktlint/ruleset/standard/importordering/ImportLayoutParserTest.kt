@@ -1,7 +1,9 @@
 package com.pinterest.ktlint.ruleset.standard.importordering
 
+import com.pinterest.ktlint.ruleset.standard.ChainWrappingRule
 import com.pinterest.ktlint.ruleset.standard.internal.importordering.PatternEntry
 import com.pinterest.ktlint.ruleset.standard.internal.importordering.parseImportsLayout
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test

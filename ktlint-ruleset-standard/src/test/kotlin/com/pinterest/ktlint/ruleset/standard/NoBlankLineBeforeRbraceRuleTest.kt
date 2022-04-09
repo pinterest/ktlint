@@ -1,7 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.LintViolation
 import com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE
 import org.junit.jupiter.api.Test
 
@@ -29,9 +29,9 @@ class NoBlankLineBeforeRbraceRuleTest {
             }
             """.trimIndent()
         noBlankLineBeforeRbraceRuleAssertThat(code)
-            .hasLintErrors(
-                LintError(3, 1, "no-blank-line-before-rbrace", "Unexpected blank line(s) before \"}\""),
-                LintError(6, 1, "no-blank-line-before-rbrace", "Unexpected blank line(s) before \"}\"")
+            .hasLintViolations(
+                LintViolation(3, 1, "Unexpected blank line(s) before \"}\""),
+                LintViolation(6, 1, "Unexpected blank line(s) before \"}\"")
             ).isFormattedAs(formattedCode)
     }
 
@@ -49,8 +49,8 @@ class NoBlankLineBeforeRbraceRuleTest {
             }
             """.trimIndent()
         noBlankLineBeforeRbraceRuleAssertThat(code)
-            .hasLintErrors(
-                LintError(2, 1, "no-blank-line-before-rbrace", "Unexpected blank line(s) before \"}\"")
+            .hasLintViolations(
+                LintViolation(2, 1, "Unexpected blank line(s) before \"}\"")
             ).isFormattedAs(formattedCode)
     }
 
@@ -68,6 +68,6 @@ class NoBlankLineBeforeRbraceRuleTest {
             }
             """.trimIndent()
         noBlankLineBeforeRbraceRuleAssertThat(code)
-            .hasNoLintErrors()
+            .hasNoLintViolations()
     }
 }

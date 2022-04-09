@@ -23,8 +23,8 @@ import org.assertj.core.api.Assertions.assertThat
  *     val code = .... // Original code to be formatted
  *     val formattedCode = .... // The code as it should be formatted
  *     someRuleAssertThat(code)
- *         .hasLintErrors(
- *             LintError(1, 1, "some-rule-id", "some-error-description")
+ *         .hasLintViolations(
+ *             LintViolation(1, 1, "some-error-description")
  *         ).isFormattedAs(formattedCode)
  * }
  * ```
@@ -41,7 +41,7 @@ public class KtLintAssertThat(
 
     /**
      * Set the [EditorConfigOverride] properties to be used by the rule. This function can be called multiple times.
-     * Properties which have been set before, are silently overwritten with the new vale. This function can be chained.
+     * Properties which have been set before, are silently overwritten with the new vale.
      */
     public fun withEditorConfigOverride(
         vararg properties: Pair<UsesEditorConfigProperties.EditorConfigProperty<*>, *>
@@ -54,7 +54,7 @@ public class KtLintAssertThat(
     /**
      * Set the [EditorConfigOverride] "max_line_length" property based on the EOL Marker which is places at the first
      * line of the code sample. If the property has been set before via [withEditorConfigOverride] then that value is
-     * silently overwritten. This function can be chained.
+     * silently overwritten.
      *
      * Example of usage:
      * ```
@@ -65,8 +65,8 @@ public class KtLintAssertThat(
      *      """.trimIndent()
      *  maxLineLengthRuleAssertThat(code)
      *      .setMaxLineLength()
-     *      .hasLintErrors(
-     *          LintError(2, 1, "max-line-length", "Exceeded max line length (46)")
+     *      .hasLintViolations(
+     *          LintViolation(2, 1, "Exceeded max line length (46)")
      *      )
      * ```
      */
@@ -85,7 +85,7 @@ public class KtLintAssertThat(
     }
 
     /**
-     * Handle the code as if it was specified in file on the given path. This function can be chained.
+     * Handle the code as if it was specified in file on the given path.
      */
     public fun asFileWithPath(filePath: String): KtLintAssertThat {
         this.filePath = filePath
@@ -93,7 +93,7 @@ public class KtLintAssertThat(
     }
 
     /**
-     * Handle the code as Kotlin script (kts). This function can be chained.
+     * Handle the code as Kotlin script (kts).
      */
     public fun asKotlinScript(): KtLintAssertThat {
         this.kotlinScript = true
@@ -101,71 +101,48 @@ public class KtLintAssertThat(
     }
 
     /**
-     * Asserts that the code does not contain any lint errors. This is a sugar coated version of
-     * [hasNoLintErrorsBeforeFormatting]. This function can not be chained.
+     * Asserts that the code does not contain any [LintViolation]s. This is a sugar coated version of
+     * [hasNoLintViolationsBeforeFormatting].
      *
      * Note: When linting succeeds without errors, formatting is also checked.
      */
-    public fun hasNoLintErrors(): Unit = ktLintAssertThatAssertable().hasNoLintErrors()
+    public fun hasNoLintViolations(): Unit = ktLintAssertThatAssertable().hasNoLintViolations()
 
     /**
-     * Asserts that the code does not contain any lint errors before the code is actually formatted.
+     * Asserts that the code does not contain any [LintViolation]s before the code is actually formatted.
      */
-    public fun hasNoLintErrorsBeforeFormatting(): Unit = ktLintAssertThatAssertable().hasNoLintErrorsBeforeFormatting()
+    public fun hasNoLintViolationsBeforeFormatting(): Unit = ktLintAssertThatAssertable().hasNoLintViolationsBeforeFormatting()
 
     /**
-     * Asserts that the code does contain given lint errors. This is a sugar coated version of
-     * [hasNoLintErrorsBeforeFormatting]. This method can be chained with the [isFormattedAs] and/or
-     * [hasLintErrorsAfterFormatting].
+     * Asserts that the code does contain given [LintViolation]s. This is a sugar coated version of
+     * [hasNoLintViolationsBeforeFormatting].
      */
-    public fun hasLintErrors(vararg expectedLintErrors: LintError): KtLintAssertThatAssertable =
-        ktLintAssertThatAssertable().hasLintErrorsBeforeFormatting(*expectedLintErrors)
+    public fun hasLintViolations(vararg expectedErrors: LintViolation): KtLintAssertThatAssertable =
+        ktLintAssertThatAssertable().hasLintViolationsBeforeFormatting(*expectedErrors)
 
     /**
-     * Asserts that the code does contain given lint errors. This is a sugar coated version of
-     * [hasNoLintErrorsBeforeFormatting]. This method can be chained with the [isFormattedAs] and/or
-     * [hasLintErrorsAfterFormatting].
+     * Asserts that the code does not contain any [LintViolation]s before the code is actually formatted.
      */
-    public fun hasLintErrors(vararg expectedErrors: LintViolation): KtLintAssertThatAssertable =
-        ktLintAssertThatAssertable().hasLintErrorsBeforeFormatting(*expectedErrors)
+    public fun hasLintViolationsBeforeFormatting(vararg expectedErrors: LintViolation): KtLintAssertThatAssertable =
+        ktLintAssertThatAssertable().hasLintViolationsBeforeFormatting(*expectedErrors)
 
     /**
-     * Asserts that the code does not contain any lint errors before the code is actually formatted. This method can be
-     * chained with the [isFormattedAs] and/or [hasLintErrorsAfterFormatting].
-     */
-    public fun hasLintErrorsBeforeFormatting(vararg expectedLintErrors: LintError): KtLintAssertThatAssertable =
-        ktLintAssertThatAssertable().hasLintErrorsBeforeFormatting(*expectedLintErrors)
-
-    /**
-     * Asserts that the code does not contain any lint errors before the code is actually formatted. This method can be
-     * chained with the [isFormattedAs] and/or [hasLintErrorsAfterFormatting].
-     */
-    public fun hasLintErrorsBeforeFormatting(vararg expectedErrors: LintViolation): KtLintAssertThatAssertable =
-        ktLintAssertThatAssertable().hasLintErrorsBeforeFormatting(*expectedErrors)
-
-    /**
-     * Asserts that the code is formatted as given. This method can be chained with the [hasLintErrorsAfterFormatting].
+     * Asserts that the code is formatted as given.
      */
     public fun isFormattedAs(formattedCode: String): KtLintAssertThatAssertable =
         ktLintAssertThatAssertable().isFormattedAs(formattedCode)
 
     /**
-     * Asserts that the code does not contain any lint errors after the code has been formatted.
+     * Asserts that the code does not contain any [LintViolation]s after the code has been formatted.
      */
-    public fun hasNoLintErrorsAfterFormatting(): Unit =
-        ktLintAssertThatAssertable().hasNoLintErrorsAfterFormatting()
+    public fun hasNoLintViolationsAfterFormatting(): Unit =
+        ktLintAssertThatAssertable().hasNoLintViolationsAfterFormatting()
 
     /**
-     * Asserts that the code does contain the given lint errors after the code has been formatted.
+     * Asserts that the code does contain the given [LintViolation]s after the code has been formatted.
      */
-    public fun hasLintErrorsAfterFormatting(vararg expectedLintErrors: LintError): Unit =
-        ktLintAssertThatAssertable().hasLintErrorsAfterFormatting(*expectedLintErrors)
-
-    /**
-     * Asserts that the code does contain the given lint errors after the code has been formatted.
-     */
-    public fun hasLintErrorsAfterFormatting(vararg expectedErrors: LintViolation): Unit =
-        ktLintAssertThatAssertable().hasLintErrorsAfterFormatting(*expectedErrors)
+    public fun hasLintViolationsAfterFormatting(vararg expectedErrors: LintViolation): Unit =
+        ktLintAssertThatAssertable().hasLintViolationsAfterFormatting(*expectedErrors)
 
     private fun ktLintAssertThatAssertable(): KtLintAssertThatAssertable =
         if (editorConfigProperties.isEmpty()) {
@@ -226,13 +203,13 @@ public class KtLintAssertThatAssertable(
     private val editorConfigOverride: EditorConfigOverride = EditorConfigOverride.emptyEditorConfigOverride
 ) : AbstractAssert<KtLintAssertThatAssertable, String>(code, KtLintAssertThatAssertable::class.java) {
     /**
-     * Asserts that the code does not contain any lint errors. This is a sugar coated version of
-     * [hasNoLintErrorsBeforeFormatting]. This function can not be chained.
+     * Asserts that the code does not contain any [LintViolation]s. This is a sugar coated version of
+     * [hasNoLintViolationsBeforeFormatting].
      *
      * Note: When linting succeeds without errors, formatting is also checked.
      */
-    public fun hasNoLintErrors() {
-        hasNoLintErrorsBeforeFormatting()
+    public fun hasNoLintViolations() {
+        hasNoLintViolationsBeforeFormatting()
 
         // Also format the code to be absolutely sure that codes does not get changed
         val actualFormattedCode = format()
@@ -243,55 +220,38 @@ public class KtLintAssertThatAssertable(
     }
 
     /**
-     * Asserts that the code does not contain any lint errors before the code is actually formatted.
+     * Asserts that the code does not contain any [LintViolation]s before the code is actually formatted.
      */
-    public fun hasNoLintErrorsBeforeFormatting() {
+    public fun hasNoLintViolationsBeforeFormatting() {
         val actualLintErrors = lint()
 
         assertThat(actualLintErrors).isEmpty()
     }
 
     /**
-     * Asserts that the code does contain given lint errors. This is a sugar coated version of
-     * [hasNoLintErrorsBeforeFormatting]. This method can be chained with the [isFormattedAs] and/or
-     * [hasLintErrorsAfterFormatting].
+     * Asserts that the code does contain given [LintViolation]s. This is a sugar coated version of
+     * [hasNoLintViolationsBeforeFormatting].
      */
-    public fun hasLintErrors(vararg expectedLintErrors: LintError): KtLintAssertThatAssertable =
-        hasLintErrorsBeforeFormatting(*expectedLintErrors)
+    public fun hasLintViolations(vararg expectedErrors: LintViolation): KtLintAssertThatAssertable =
+        hasLintViolationsBeforeFormatting(*expectedErrors)
 
     /**
-     * Asserts that the code does contain given lint errors. This is a sugar coated version of
-     * [hasNoLintErrorsBeforeFormatting]. This method can be chained with the [isFormattedAs] and/or
-     * [hasLintErrorsAfterFormatting].
+     * Asserts that the code does not contain any [LintViolation]s before the code is actually formatted.
      */
-    public fun hasLintErrors(vararg expectedErrors: LintViolation): KtLintAssertThatAssertable =
-        hasLintErrorsBeforeFormatting(*expectedErrors.toLintErrors())
-
-    /**
-     * Asserts that the code does not contain any lint errors before the code is actually formatted. This method can be
-     * chained with the [isFormattedAs] and/or [hasLintErrorsAfterFormatting].
-     */
-    public fun hasLintErrorsBeforeFormatting(vararg expectedLintErrors: LintError): KtLintAssertThatAssertable {
-        check(expectedLintErrors.isNotEmpty())
+    public fun hasLintViolationsBeforeFormatting(vararg expectedErrors: LintViolation): KtLintAssertThatAssertable {
+        check(expectedErrors.isNotEmpty())
 
         val actualLintErrors = lint()
 
         assertThat(actualLintErrors)
             .describedAs("Lint errors before formatting")
-            .containsExactlyInAnyOrder(*expectedLintErrors)
+            .containsExactlyInAnyOrder(*expectedErrors.toLintErrors())
 
         return this
     }
 
     /**
-     * Asserts that the code does not contain any lint errors before the code is actually formatted. This method can be
-     * chained with the [isFormattedAs] and/or [hasLintErrorsAfterFormatting].
-     */
-    public fun hasLintErrorsBeforeFormatting(vararg expectedErrors: LintViolation): KtLintAssertThatAssertable =
-        hasLintErrorsBeforeFormatting(*expectedErrors.toLintErrors())
-
-    /**
-     * Asserts that the code is formatted as given. This method can be chained with the [hasLintErrorsAfterFormatting].
+     * Asserts that the code is formatted as given.
      */
     public fun isFormattedAs(formattedCode: String): KtLintAssertThatAssertable {
         check(formattedCode != code) {
@@ -308,45 +268,42 @@ public class KtLintAssertThatAssertable(
     }
 
     /**
-     * Asserts that the code does not contain any lint errors after the code has been formatted.
+     * Asserts that the code does not contain any [LintViolation]s after the code has been formatted.
      */
-    public fun hasNoLintErrorsAfterFormatting() {
+    public fun hasNoLintViolationsAfterFormatting() {
         val actualLintErrors = lint(runFormatBeforeLint = true)
 
         assertThat(actualLintErrors).isEmpty()
     }
 
     /**
-     * Asserts that the code does contain the given lint errors after the code has been formatted.
+     * Asserts that the code does contain the given [LintViolation]s after the code has been formatted.
      */
-    public fun hasLintErrorsAfterFormatting(vararg expectedLintErrors: LintError) {
-        check(expectedLintErrors.isNotEmpty())
+    public fun hasLintViolationsAfterFormatting(vararg expectedErrors: LintViolation) {
+        check(expectedErrors.isNotEmpty())
 
         val actualLintErrors = lint(runFormatBeforeLint = true)
 
         assertThat(actualLintErrors)
             .describedAs("Lint errors after formatting")
-            .containsExactlyInAnyOrder(*expectedLintErrors)
+            .containsExactlyInAnyOrder(*expectedErrors.toLintErrors())
     }
 
-    /**
-     * Asserts that the code does contain the given lint errors after the code has been formatted.
-     */
-    public fun hasLintErrorsAfterFormatting(vararg expectedErrors: LintViolation): Unit =
-        hasLintErrorsAfterFormatting(*expectedErrors.toLintErrors())
-
     private fun Array<out LintViolation>.toLintErrors(): Array<LintError> {
-        check(rules.count() == 1) {
-            """
-            The short notation class Error can not be used whenever multiple rules are being tested within one assert
-            as the ruleId of the Error can not be determined.
-            """.trimIndent()
+        if (rules.count() == 1) {
+            check(any { it.ruleId == null }) {
+                "Do not specify the rule id in the LintViolation whenever exactly one rule is asserted."
+            }
+        } else {
+            check(none { it.ruleId == null }) {
+                "Whenever multiple rules are being asserted, the rule id of each LintViolation has to be specified."
+            }
         }
         return map {
             LintError(
                 line = it.line,
                 col = it.col,
-                ruleId = rules.first().id,
+                ruleId = it.ruleId ?: rules.first().id,
                 detail = it.detail,
                 canBeAutoCorrected = it.canBeAutoCorrected
             )
