@@ -35,6 +35,8 @@ tasks.register<JavaExec>("ktlint") {
     // unit tests and should not be reported/fixed.
     args(
         "**/src/**/*.kt",
+        "**.kts",
+        "!**/build/**",
         "!ktlint/src/test/resources/**",
         "--baseline=ktlint/src/test/resources/test-baseline.xml",
         "--experimental",
