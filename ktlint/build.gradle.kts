@@ -88,7 +88,8 @@ tasks.withType<Test>().configureEach {
 
     doFirst {
         systemProperty(
-            "ktlint-cli", shadowJarExecutable.get().outputs.files.first { it.name == "ktlint" }.absolutePath
+            "ktlint-cli",
+            shadowJarExecutable.get().outputs.files.first { it.name == "ktlint" }.absolutePath
         )
         systemProperty("ktlint-version", version)
     }
