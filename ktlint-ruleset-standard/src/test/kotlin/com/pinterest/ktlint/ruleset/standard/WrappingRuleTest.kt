@@ -1,11 +1,11 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.core.EditorConfig.Companion.indentSizeProperty
 import com.pinterest.ktlint.core.EditorConfig.Companion.indentStyleProperty
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
-import com.pinterest.ktlint.test.diffFileFormat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.LintViolation
 import com.pinterest.ktlint.test.format
 import com.pinterest.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
@@ -14,86 +14,269 @@ import org.junit.jupiter.api.Test
 
 @FeatureInAlphaState
 internal class WrappingRuleTest {
+    private val wrappingRuleAssertThat = WrappingRule().assertThat()
+
     @Test
-    fun testLintIndentSizeUnset() {
-        assertThat(
-            WrappingRule().lint(
-                """
-                fun main() {
-                   val v = ""
-                    println(v)
+    fun `Given a multiline string containing a string-template as parameter value but then wrap the value to a start and end on separate lines`() {
+        // Interpret "$." in code samples below as "$". It is used here as otherwise the indentation in the code sample
+        // is disapproved when running ktlint on the unit tests during the build process (not that the indent rule can
+        // not be disabled for a block).
+        val code =
+            """
+            fun foo() {
+                println("$.{
+                true
+                }")
+            }
+            """.trimIndent()
+                .replacePlaceholderWithStringTemplate()
+        val formattedCode =
+            """
+            fun foo() {
+                println(
+                    "$.{
+                    true
+                    }"
+                )
+            }
+            """.trimIndent()
+                .replacePlaceholderWithStringTemplate()
+        wrappingRuleAssertThat(code)
+            .addAdditionalFormattingRule(IndentationRule())
+            .hasLintViolations(
+                LintViolation(2, 13, "Missing newline after \"(\""),
+                LintViolation(4, 6, "Missing newline before \")\"")
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given a multiline raw string literal then wrap and indent conditionally`() {
+        val code =
+            """
+            fun foo() {
+                println(${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}
+                ${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE})
+                println(${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}
+                ${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}.trimIndent())
+                println(${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}
+                ${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}.trimMargin())
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun foo() {
+                println(
+                    ${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}
+                ${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}
+                )
+                println(
+                    ${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}
+                    ${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}.trimIndent()
+                )
+                println(
+                    ${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}
+                    ${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}.trimMargin()
+                )
+            }
+            """.trimIndent()
+        wrappingRuleAssertThat(code)
+            .addAdditionalFormattingRule(IndentationRule())
+            .hasLintViolations(
+                LintViolation(2, 13, "Missing newline after \"(\""),
+                LintViolation(3, 7, "Missing newline before \")\""),
+                LintViolation(4, 13, "Missing newline after \"(\""),
+                LintViolation(5, 20, "Missing newline before \")\""),
+                LintViolation(6, 13, "Missing newline after \"(\""),
+                LintViolation(7, 20, "Missing newline before \")\"")
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given some multiline raw string literal contain multiline string templates`() {
+        val code =
+            """
+            fun foo1() {
+                foo2(${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}$.{
+            true
                 }
-                """.trimIndent(),
-                EditorConfigOverride.from(indentSizeProperty to "unset")
-            )
-        ).isEmpty()
+                text
+            _$.{
+            true
+                }${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}.trimIndent(), ${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}text${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE})
+            }
+            """.trimIndent()
+                .replacePlaceholderWithStringTemplate()
+        val formattedCode =
+            """
+            fun foo1() {
+                foo2(
+                    ${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}$.{
+                    true
+                    }
+                text
+            _$.{
+                    true
+                    }
+                    ${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}.trimIndent(),
+                    ${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}text${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}
+                )
+            }
+            """.trimIndent()
+                .replacePlaceholderWithStringTemplate()
+        wrappingRuleAssertThat(code)
+            .addAdditionalFormattingRule(IndentationRule())
+            .hasLintViolations(
+                LintViolation(2, 10, "Missing newline after \"(\""),
+                LintViolation(8, 6, "Missing newline before \"\"\""),
+                LintViolation(8, 23, "Missing newline after \",\""),
+                LintViolation(8, 33, "Missing newline before \")\"")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
-    fun testFormatRawStringTrimIndent() {
-        // TODO: Split into simple unit tests not using diffFileFormat and distinct between indentation and wrapping
-        assertThat(
-            wrappingAndIndentRule.diffFileFormat(
-                "spec/indent/format-raw-string-trim-indent.kt.spec",
-                "spec/indent/format-raw-string-trim-indent-expected.kt.spec"
-            )
-        ).isEmpty()
+    fun `Given a multiline raw string literal as function call parameter but not starting and ending on a separate line`() {
+        val code =
+            """
+            fun foo() {
+            println(${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}
+                text
+
+                    text
+            ${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}.trimIndent().toByteArray())
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun foo() {
+                println(
+                    ${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}
+                text
+
+                    text
+                    ${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}.trimIndent().toByteArray()
+                )
+            }
+            """.trimIndent()
+        wrappingRuleAssertThat(code)
+            .addAdditionalFormattingRule(IndentationRule())
+            .hasLintViolations(
+                LintViolation(2, 9, "Missing newline after \"(\""),
+                LintViolation(6, 30, "Missing newline before \")\"")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
-    fun testFormatSuperType() {
-        assertThat(
-            WrappingRule().diffFileFormat(
-                "spec/wrapping/format-supertype.kt.spec",
-                "spec/wrapping/format-supertype-expected.kt.spec"
-            )
-        ).isEmpty()
+    fun `Given a multiline raw string literal as non-first function call parameter`() {
+        val code =
+            """
+            fun foo() {
+                write(fs.getPath("/projects/.editorconfig"), ${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}
+                    root = true
+                    [*]
+                    end_of_line = lf
+                ${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}.trimIndent().toByteArray())
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun foo() {
+                write(
+                    fs.getPath("/projects/.editorconfig"),
+                    ${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}
+                    root = true
+                    [*]
+                    end_of_line = lf
+                    ${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}.trimIndent().toByteArray()
+                )
+            }
+            """.trimIndent()
+        wrappingRuleAssertThat(code)
+            .addAdditionalFormattingRule(IndentationRule())
+            .hasLintViolations(
+                LintViolation(2, 11, "Missing newline after \"(\""),
+                LintViolation(2, 49, "Missing newline after \",\""),
+                LintViolation(6, 34, "Missing newline before \")\"")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
-    fun testFormatMultilineString() {
-        // TODO: Split into simple unit tests not using diffFileFormat and distinct between indentation and wrapping
-        assertThat(
-            wrappingAndIndentRule.diffFileFormat(
-                "spec/indent/format-multiline-string.kt.spec",
-                "spec/indent/format-multiline-string-expected.kt.spec"
-            )
-        ).isEmpty()
+    fun `Given some parameter lists`() {
+        val code =
+            """
+            class C (val a: Int, val b: Int, val e: (
+            r: Int
+            ) -> Unit, val c: Int, val d: Int) {
+            fun f(a: Int, b: Int, e: (
+            r: Int
+            ) -> Unit, c: Int, d: Int) {}
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            class C (
+                val a: Int, val b: Int,
+                val e: (
+                    r: Int
+                ) -> Unit,
+                val c: Int, val d: Int
+            ) {
+                fun f(
+                    a: Int, b: Int,
+                    e: (
+                        r: Int
+                    ) -> Unit,
+                    c: Int, d: Int
+                ) {}
+            }
+            """.trimIndent()
+        wrappingRuleAssertThat(code)
+            .addAdditionalFormattingRule(IndentationRule())
+            .hasLintViolations(
+                LintViolation(1, 10, "Missing newline after \"(\""),
+                LintViolation(1, 33, "Missing newline after \",\""),
+                LintViolation(3, 11, "Missing newline after \",\""),
+                LintViolation(3, 33, "Missing newline before \")\""),
+                LintViolation(4, 7, "Missing newline after \"(\""),
+                LintViolation(4, 22, "Missing newline after \",\""),
+                LintViolation(6, 11, "Missing newline after \",\""),
+                LintViolation(6, 25, "Missing newline before \")\"")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
-    fun testFormatArrow() {
-        // TODO: Split into simple unit tests not using diffFileFormat and distinct between indentation and wrapping
-        assertThat(
-            wrappingAndIndentRule.diffFileFormat(
-                "spec/indent/format-arrow.kt.spec",
-                "spec/indent/format-arrow-expected.kt.spec"
-            )
-        ).isEmpty()
-    }
+    fun `Given a function call`() {
+        val code =
+            """
+            fun main() {
+                f(a, b, {
+                // body
+                }, c, d)
 
-    @Test
-    fun testFormatParameterList() {
-        // TODO: Parameter and argument list do have a dedicated wrapping rule. This functionality should therefore be
-        //  removed from the generic rule.
-        assertThat(
-            wrappingAndIndentRule.diffFileFormat(
-                "spec/wrapping/format-parameter-list.kt.spec",
-                "spec/wrapping/format-parameter-list-expected.kt.spec"
-            )
-        ).isEmpty()
-    }
+                fn(a,
+                   b,
+                   c)
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun main() {
+                f(a, b, {
+                    // body
+                }, c, d)
 
-    @Test
-    fun testFormatArgumentList() {
-        // TODO: Parameter and argument list do have a dedicated wrapping rule. This functionality should therefore be
-        //  removed from the generic rule.
-        assertThat(
-            wrappingAndIndentRule.diffFileFormat(
-                "spec/wrapping/format-argument-list.kt.spec",
-                "spec/wrapping/format-argument-list-expected.kt.spec"
-            )
-        ).isEmpty()
+                fn(
+                    a,
+                    b,
+                    c
+                )
+            }
+            """.trimIndent()
+        wrappingRuleAssertThat(code)
+            .addAdditionalFormattingRule(IndentationRule())
+            .hasLintViolations(
+                LintViolation(6, 8, "Missing newline after \"(\""),
+                LintViolation(8, 8, "Missing newline before \")\"")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test // "https://github.com/shyiko/ktlint/issues/180"
@@ -1427,3 +1610,7 @@ internal class WrappingRuleTest {
         val wrappingAndIndentRule = listOf(WrappingRule(), IndentationRule())
     }
 }
+
+// Replace the "$." placeholder with an actual "$" so that string "$.{expression}" is transformed to a String template
+// "${expression}".
+private fun String.replacePlaceholderWithStringTemplate() = replace("$.", "${'$'}")

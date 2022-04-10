@@ -1,7 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
-import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 class FilenameRuleTest {
@@ -66,9 +65,7 @@ class FilenameRuleTest {
                 """.trimIndent()
             fileNameRuleAssertThat(code)
                 .asFileWithPath("/some/path/UnexpectedFilename.kt")
-                .hasLintViolations(
-                    LintViolation(1, 1, "${src.value} A should be declared in a file named A.kt")
-                )
+                .hasLintViolationWithoutAutoCorrect(1, 1, "${src.value} A should be declared in a file named A.kt")
         }
     }
 
@@ -108,9 +105,7 @@ class FilenameRuleTest {
             """.trimIndent()
         fileNameRuleAssertThat(code)
             .asFileWithPath("/some/path/A.kt")
-            .hasLintViolations(
-                LintViolation(1, 1, "class B should be declared in a file named B.kt")
-            )
+            .hasLintViolationWithoutAutoCorrect(1, 1, "class B should be declared in a file named B.kt")
     }
 
     @Test
@@ -121,9 +116,7 @@ class FilenameRuleTest {
             """.trimIndent()
         fileNameRuleAssertThat(code)
             .asFileWithPath("woohoo.kt")
-            .hasLintViolations(
-                LintViolation(1, 1, "interface Woohoo should be declared in a file named Woohoo.kt")
-            )
+            .hasLintViolationWithoutAutoCorrect(1, 1, "interface Woohoo should be declared in a file named Woohoo.kt")
     }
 
     @Test
@@ -134,9 +127,7 @@ class FilenameRuleTest {
             """.trimIndent()
         fileNameRuleAssertThat(code)
             .asFileWithPath("B.kt")
-            .hasLintViolations(
-                LintViolation(1, 1, "class `A` should be declared in a file named A.kt")
-            )
+            .hasLintViolationWithoutAutoCorrect(1, 1, "class `A` should be declared in a file named A.kt")
     }
 
     @Test

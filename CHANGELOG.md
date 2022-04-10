@@ -2,6 +2,24 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## To be released
+
+### API Changes & RuleSet providers
+
+If you are not an API user nor a RuleSet provider, then you can safely skip this section. Otherwise, please read below carefully and upgrade your usage of ktlint. In this and coming releases, we are changing and adapting important parts of our API in order to increase maintainability and flexibility for future changes. Please avoid skipping a releases as that will make it harder to migrate.
+
+#### Testing KtLint rules
+
+An AssertJ style API for testing KtLint rules ([#1434](https://github.com/pinterest/ktlint/issues/1434)) has been added. Usage of this API is encouraged in favor of using the old RuleExtension API. For more information, see [KtLintAssertThat API]( https://github.com/pinterest/ktlint/blob/master/ktlint-test/README.MD)
+
+### Added
+
+### Fixed
+
+### Changed
+
+### Removed
+
 ## [0.45.2] - 2022-04-06
 
 ### Fixed

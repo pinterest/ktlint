@@ -71,9 +71,8 @@ class NoConsecutiveBlankLinesRuleTest {
 
                 """.trimIndent()
             noConsecutiveBlankLinesRuleAssertThat(code)
-                .hasLintViolations(
-                    LintViolation(4, 1, "Needless blank line(s)")
-                ).isFormattedAs(formattedCode)
+                .hasLintViolation(4, 1, "Needless blank line(s)")
+                .isFormattedAs(formattedCode)
         }
 
         @Test
@@ -93,9 +92,8 @@ class NoConsecutiveBlankLinesRuleTest {
 
                 """.trimIndent()
             noConsecutiveBlankLinesRuleAssertThat(code)
-                .hasLintViolations(
-                    LintViolation(4, 1, "Needless blank line(s)")
-                ).isFormattedAs(formattedCode)
+                .hasLintViolation(4, 1, "Needless blank line(s)")
+                .isFormattedAs(formattedCode)
         }
     }
 

@@ -1,7 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
-import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 class NoLineBreakAfterElseRuleTest {
@@ -31,9 +30,8 @@ class NoLineBreakAfterElseRuleTest {
             }
             """.trimIndent()
         noLineBreakAfterElseRuleAssertThat(code)
-            .hasLintViolations(
-                LintViolation(5, 1, "Unexpected line break after \"else\"")
-            ).isFormattedAs(formattedCode)
+            .hasLintViolation(5, 1, "Unexpected line break after \"else\"")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -90,9 +88,8 @@ class NoLineBreakAfterElseRuleTest {
             }
             """.trimIndent()
         noLineBreakAfterElseRuleAssertThat(code)
-            .hasLintViolations(
-                LintViolation(5, 1, "Unexpected line break after \"else\"")
-            ).isFormattedAs(formattedCode)
+            .hasLintViolation(5, 1, "Unexpected line break after \"else\"")
+            .isFormattedAs(formattedCode)
     }
 
     @Test

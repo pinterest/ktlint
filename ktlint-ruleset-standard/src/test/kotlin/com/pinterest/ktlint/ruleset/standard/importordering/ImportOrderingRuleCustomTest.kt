@@ -4,7 +4,6 @@ import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.ruleset.standard.ImportOrderingRule
 import com.pinterest.ktlint.ruleset.standard.ImportOrderingRule.Companion.ideaImportsLayoutProperty
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
-import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 @OptIn(FeatureInAlphaState::class)
@@ -54,9 +53,8 @@ class ImportOrderingRuleCustomTest {
             """.trimIndent()
         importOrderingRuleAssertThat(code)
             .withEditorConfigOverride(ideaImportsLayoutProperty to "*,|,^")
-            .hasLintViolations(
-                LintViolation(1, 1, "Imports must be ordered according to the pattern specified in .editorconfig")
-            ).isFormattedAs(formattedCode)
+            .hasLintViolation(1, 1, "Imports must be ordered according to the pattern specified in .editorconfig")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -87,9 +85,8 @@ class ImportOrderingRuleCustomTest {
             """.trimIndent()
         importOrderingRuleAssertThat(code)
             .withEditorConfigOverride(ideaImportsLayoutProperty to "^,|,*")
-            .hasLintViolations(
-                LintViolation(1, 1, "Imports must be ordered according to the pattern specified in .editorconfig")
-            ).isFormattedAs(formattedCode)
+            .hasLintViolation(1, 1, "Imports must be ordered according to the pattern specified in .editorconfig")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -153,9 +150,8 @@ class ImportOrderingRuleCustomTest {
         importOrderingRuleAssertThat(code)
             .withEditorConfigOverride(
                 ideaImportsLayoutProperty to "android.**,|,org.junit.**,|,net.**,|,org.**,|,java.**,|,com.**,|,javax.**,|,*"
-            ).hasLintViolations(
-                LintViolation(1, 1, "Imports must be ordered according to the pattern specified in .editorconfig")
-            ).isFormattedAs(formattedCode)
+            ).hasLintViolation(1, 1, "Imports must be ordered according to the pattern specified in .editorconfig")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -211,9 +207,8 @@ class ImportOrderingRuleCustomTest {
             """.trimIndent()
         importOrderingRuleAssertThat(code)
             .withEditorConfigOverride(ideaImportsLayoutProperty to "^kotlin.**,^android.**,android.**,|,^,*")
-            .hasLintViolations(
-                LintViolation(1, 1, "Imports must be ordered according to the pattern specified in .editorconfig")
-            ).isFormattedAs(formattedCode)
+            .hasLintViolation(1, 1, "Imports must be ordered according to the pattern specified in .editorconfig")
+            .isFormattedAs(formattedCode)
     }
 
     @Test

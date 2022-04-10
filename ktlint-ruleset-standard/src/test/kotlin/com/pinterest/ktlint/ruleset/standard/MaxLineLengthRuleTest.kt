@@ -32,7 +32,7 @@ class MaxLineLengthRuleTest {
                 """.trimIndent()
             maxLineLengthRuleAssertThat(code)
                 .setMaxLineLength()
-                .hasLintViolationsAfterFormatting(
+                .hasLintViolationsWithoutAutoCorrect(
                     LintViolation(2, 1, "Exceeded max line length (46)"),
                     LintViolation(3, 1, "Exceeded max line length (46)"),
                     LintViolation(5, 1, "Exceeded max line length (46)")
@@ -141,7 +141,7 @@ class MaxLineLengthRuleTest {
                 """.trimIndent()
             maxLineLengthRuleAssertThat(code)
                 .setMaxLineLength()
-                .hasLintViolations(
+                .hasLintViolationsWithoutAutoCorrect(
                     LintViolation(3, 1, "Exceeded max line length (37)"),
                     LintViolation(8, 1, "Exceeded max line length (37)")
                 )
@@ -163,10 +163,8 @@ class MaxLineLengthRuleTest {
             maxLineLengthRuleAssertThat(code)
                 .setMaxLineLength()
                 .withEditorConfigOverride(ignoreBackTickedIdentifierProperty to true)
-                .hasLintViolations(
-                    // Note that no error was generated on line 2 with the long fun name but on another line
-                    LintViolation(4, 1, "Exceeded max line length (37)")
-                )
+                // Note that no error was generated on line 2 with the long fun name but on another line
+                .hasLintViolationWithoutAutoCorrect(4, 1, "Exceeded max line length (37)")
         }
 
         @Test
@@ -182,7 +180,7 @@ class MaxLineLengthRuleTest {
             maxLineLengthRuleAssertThat(code)
                 .setMaxLineLength()
                 .withEditorConfigOverride(ignoreBackTickedIdentifierProperty to true)
-                .hasLintViolations(
+                .hasLintViolationsWithoutAutoCorrect(
                     // Note that no error was generated on line 2 with the long fun name but on another line
                     LintViolation(3, 1, "Exceeded max line length (37)"),
                     LintViolation(4, 1, "Exceeded max line length (37)")

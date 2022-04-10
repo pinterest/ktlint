@@ -42,7 +42,11 @@ class ImportOrderingRuleIdeaTest {
             """.trimIndent()
         importOrderingRuleAssertThat(code)
             .withEditorConfigOverride(IDEA_DEFAULT_IMPORT_ORDERING)
-            .hasLintViolations(LINT_VIOLATION_IDEA_DEFAULT_IMPORT_ORDERING)
+            .hasLintViolation(
+                1,
+                1,
+                "Imports must be ordered in lexicographic order without any empty lines in-between with \"java\", \"javax\", \"kotlin\" and aliases in the end"
+            )
             .isFormattedAs(formattedCode)
     }
 
@@ -112,7 +116,11 @@ class ImportOrderingRuleIdeaTest {
             """.trimIndent()
         importOrderingRuleAssertThat(code)
             .withEditorConfigOverride(IDEA_DEFAULT_IMPORT_ORDERING)
-            .hasLintViolations(LINT_VIOLATION_IDEA_DEFAULT_IMPORT_ORDERING)
+            .hasLintViolation(
+                1,
+                1,
+                "Imports must be ordered in lexicographic order without any empty lines in-between with \"java\", \"javax\", \"kotlin\" and aliases in the end"
+            )
             .isFormattedAs(formattedCode)
     }
 
@@ -148,7 +156,11 @@ class ImportOrderingRuleIdeaTest {
             """.trimIndent()
         importOrderingRuleAssertThat(code)
             .withEditorConfigOverride(IDEA_DEFAULT_IMPORT_ORDERING)
-            .hasLintViolations(LINT_VIOLATION_IDEA_DEFAULT_IMPORT_ORDERING)
+            .hasLintViolation(
+                1,
+                1,
+                "Imports must be ordered in lexicographic order without any empty lines in-between with \"java\", \"javax\", \"kotlin\" and aliases in the end"
+            )
             .isFormattedAs(formattedCode)
     }
 
@@ -220,13 +232,11 @@ class ImportOrderingRuleIdeaTest {
             """.trimIndent()
         importOrderingRuleAssertThat(code)
             .withEditorConfigOverride(IDEA_DEFAULT_IMPORT_ORDERING)
-            .hasLintViolations(
-                LintViolation(3, 1, "Duplicate 'import foo.Bar as Bar2' found")
-            ).isFormattedAs(formattedCode)
+            .hasLintViolation(3, 1, "Duplicate 'import foo.Bar as Bar2' found")
+            .isFormattedAs(formattedCode)
     }
 
     private companion object {
-        val LINT_VIOLATION_IDEA_DEFAULT_IMPORT_ORDERING = LintViolation(1, 1, "Imports must be ordered in lexicographic order without any empty lines in-between with \"java\", \"javax\", \"kotlin\" and aliases in the end")
         val IDEA_DEFAULT_IMPORT_ORDERING = ImportOrderingRule.ideaImportsLayoutProperty to "*,java.**,javax.**,kotlin.**,^"
     }
 }

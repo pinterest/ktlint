@@ -3,7 +3,6 @@ package com.pinterest.ktlint.ruleset.standard
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.insertNewLineProperty
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
-import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -37,9 +36,8 @@ class FinalNewlineRuleTest {
                 """.trimIndent()
             finalNewlineRuleAssertThat(code)
                 .withEditorConfigOverride(FINAL_NEW_LINE_REQUIRED)
-                .hasLintViolations(
-                    LintViolation(1, 1, "File must end with a newline (\\n)")
-                ).isFormattedAs(formattedCode)
+                .hasLintViolation(1, 1, "File must end with a newline (\\n)")
+                .isFormattedAs(formattedCode)
         }
 
         @Test
@@ -107,9 +105,8 @@ class FinalNewlineRuleTest {
                 """.trimIndent()
             finalNewlineRuleAssertThat(code)
                 .withEditorConfigOverride(FINAL_NEW_LINE_NOT_REQUIRED)
-                .hasLintViolations(
-                    LintViolation(2, 2, "Redundant newline (\\n) at the end of file")
-                ).isFormattedAs(formattedCode)
+                .hasLintViolation(2, 2, "Redundant newline (\\n) at the end of file")
+                .isFormattedAs(formattedCode)
         }
     }
 

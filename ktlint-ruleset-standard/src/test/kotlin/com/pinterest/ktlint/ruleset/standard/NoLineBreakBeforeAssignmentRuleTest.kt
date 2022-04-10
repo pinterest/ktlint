@@ -30,16 +30,20 @@ class NoLineBreakBeforeAssignmentRuleTest {
     }
 
     @Test
-    fun testLineBreakBeforeAssignmentIsViolation() {
+    fun `Given a variable declaration with a newline before the equals sign`() {
         val code =
             """
             val valA
                   = ""
             """.trimIndent()
+        val formattedCode =
+            """
+            val valA =
+                  ""
+            """.trimIndent()
         noLineBreakBeforeAssignmentRuleAssertThat(code)
-            .hasLintViolations(
-                LintViolation(2, 7, "Line break before assignment is not allowed")
-            )
+            .hasLintViolation(2, 7, "Line break before assignment is not allowed")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -55,9 +59,8 @@ class NoLineBreakBeforeAssignmentRuleTest {
                   ""
             """.trimIndent()
         noLineBreakBeforeAssignmentRuleAssertThat(code)
-            .hasLintViolations(
-                LintViolation(2, 7, "Line break before assignment is not allowed")
-            ).isFormattedAs(formattedCode)
+            .hasLintViolation(2, 7, "Line break before assignment is not allowed")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -73,10 +76,9 @@ class NoLineBreakBeforeAssignmentRuleTest {
                     f()
             """.trimIndent()
         noLineBreakBeforeAssignmentRuleAssertThat(code)
-            .hasLintViolations(
-                // TODO: The error description is not correct
-                LintViolation(2, 9, "Line break before assignment is not allowed")
-            ).isFormattedAs(formattedCode)
+            // TODO: The error description is not correct
+            .hasLintViolation(2, 9, "Line break before assignment is not allowed")
+            .isFormattedAs(formattedCode)
     }
 
     @Nested
@@ -96,10 +98,9 @@ class NoLineBreakBeforeAssignmentRuleTest {
                     a + b
                 """.trimIndent()
             noLineBreakBeforeAssignmentRuleAssertThat(code)
-                .hasLintViolations(
-                    // TODO: The error description is not correct
-                    LintViolation(3, 5, "Line break before assignment is not allowed")
-                ).isFormattedAs(formattedCode)
+                // TODO: The error description is not correct
+                .hasLintViolation(3, 5, "Line break before assignment is not allowed")
+                .isFormattedAs(formattedCode)
         }
 
         @Test
@@ -140,8 +141,7 @@ class NoLineBreakBeforeAssignmentRuleTest {
             null): Int = 3
             """.trimIndent()
         noLineBreakBeforeAssignmentRuleAssertThat(code)
-            .hasLintViolations(
-                LintViolation(2, 1, "Line break before assignment is not allowed"),
-            ).isFormattedAs(formattedCode)
+            .hasLintViolation(2, 1, "Line break before assignment is not allowed")
+            .isFormattedAs(formattedCode)
     }
 }

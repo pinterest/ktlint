@@ -1,43 +1,54 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.core.LintError
-import com.pinterest.ktlint.test.format
-import com.pinterest.ktlint.test.lint
-import org.assertj.core.api.Assertions.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.LintViolation
+import com.pinterest.ktlint.test.SPACE
 import org.junit.jupiter.api.Test
 
 class NoTrailingSpacesRuleTest {
+    private val noTrailingSpacesRuleAssertThat = NoTrailingSpacesRule().assertThat()
 
     @Test
-    fun testLint() {
-        assertThat(NoTrailingSpacesRule().lint("fun main() {\n    val a = 1\n\n \n} "))
-            .isEqualTo(
-                listOf(
-                    LintError(4, 1, "no-trailing-spaces", "Trailing space(s)"),
-                    LintError(5, 2, "no-trailing-spaces", "Trailing space(s)")
-                )
-            )
-    }
-
-    @Test
-    fun testFormat() {
-        assertThat(NoTrailingSpacesRule().format("fun main() {\n    val a = 1 \n  \n \n} "))
-            .isEqualTo("fun main() {\n    val a = 1\n\n\n}")
-    }
-
-    @Test
-    fun `trailing spaces inside line comments`() {
+    fun `Given some statements followed by a trailing space then do return lint errors`() {
         val code =
             """
-            //${" "}
-            // Some comment${" "}
+            fun main() {$SPACE
+                val a = 1$SPACE
+            $SPACE
+                $SPACE
+            }$SPACE
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun main() {
+                val a = 1
+
+
+            }
+            """.trimIndent()
+        noTrailingSpacesRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 13, "Trailing space(s)"),
+                LintViolation(2, 14, "Trailing space(s)"),
+                LintViolation(3, 1, "Trailing space(s)"),
+                LintViolation(4, 1, "Trailing space(s)"),
+                LintViolation(5, 2, "Trailing space(s)")
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given some trailing spaces inside EOL comments then do return lint errors`() {
+        val code =
+            """
+            //$SPACE
+            // Some comment$SPACE
             class Foo {
-                //${" "}${" "}
-                // Some comment${" "}${" "}
+                //$SPACE$SPACE
+                // Some comment$SPACE$SPACE
                 fun bar() = "foobar"
             }
             """.trimIndent()
-        val expectedCode =
+        val formattedCode =
             """
             //
             // Some comment
@@ -47,37 +58,30 @@ class NoTrailingSpacesRuleTest {
                 fun bar() = "foobar"
             }
             """.trimIndent()
-
-        assertThat(
-            NoTrailingSpacesRule().format(code)
-        ).isEqualTo(expectedCode)
-        assertThat(
-            NoTrailingSpacesRule().lint(code)
-        ).isEqualTo(
-            listOf(
-                LintError(1, 3, "no-trailing-spaces", "Trailing space(s)"),
-                LintError(2, 16, "no-trailing-spaces", "Trailing space(s)"),
-                LintError(4, 7, "no-trailing-spaces", "Trailing space(s)"),
-                LintError(5, 20, "no-trailing-spaces", "Trailing space(s)")
-            )
-        )
+        noTrailingSpacesRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 3, "Trailing space(s)"),
+                LintViolation(2, 16, "Trailing space(s)"),
+                LintViolation(4, 7, "Trailing space(s)"),
+                LintViolation(5, 20, "Trailing space(s)")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
-    fun `format trailing spaces inside block comments`() {
+    fun `Given some trailing spaces inside block comments then do return lint errors`() {
         val code =
             """
-            /*${" "}
-             * Some comment${" "}
+            /*$SPACE
+             * Some comment$SPACE
              */
             class Foo {
-                /*${" "}${" "}
-                 * Some comment${" "}${" "}
+                /*$SPACE$SPACE
+                 * Some comment$SPACE$SPACE
                  */
                 fun bar() = "foobar"
             }
             """.trimIndent()
-        val expectedCode =
+        val formattedCode =
             """
             /*
              * Some comment
@@ -89,39 +93,32 @@ class NoTrailingSpacesRuleTest {
                 fun bar() = "foobar"
             }
             """.trimIndent()
-
-        assertThat(
-            NoTrailingSpacesRule().format(code)
-        ).isEqualTo(expectedCode)
-        assertThat(
-            NoTrailingSpacesRule().lint(code)
-        ).isEqualTo(
-            listOf(
-                LintError(1, 3, "no-trailing-spaces", "Trailing space(s)"),
-                LintError(2, 16, "no-trailing-spaces", "Trailing space(s)"),
-                LintError(5, 7, "no-trailing-spaces", "Trailing space(s)"),
-                LintError(6, 20, "no-trailing-spaces", "Trailing space(s)")
-            )
-        )
+        noTrailingSpacesRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 3, "Trailing space(s)"),
+                LintViolation(2, 16, "Trailing space(s)"),
+                LintViolation(5, 7, "Trailing space(s)"),
+                LintViolation(6, 20, "Trailing space(s)")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
-    fun `trailing spaces inside KDoc`() {
+    fun `Given some trailing spaces inside KDoc then do return lint errors`() {
         val code =
             """
-            /**${" "}
-             * Some comment${" "}
-             *${" "}
+            /**$SPACE
+             * Some comment$SPACE
+             *$SPACE
              */
             class Foo {
-                /**${" "}${" "}
-                 * Some comment${" "}${" "}
-                 *${" "}${" "}
+                /**$SPACE$SPACE
+                 * Some comment$SPACE$SPACE
+                 *$SPACE$SPACE
                  */
                 fun bar() = "foobar"
             }
             """.trimIndent()
-        val codeExpected =
+        val formattedCode =
             """
             /**
              * Some comment
@@ -135,22 +132,15 @@ class NoTrailingSpacesRuleTest {
                 fun bar() = "foobar"
             }
             """.trimIndent()
-
-        assertThat(
-            NoTrailingSpacesRule().format(code)
-        ).isEqualTo(codeExpected)
-        assertThat(
-            NoTrailingSpacesRule().lint(code)
-        ).isEqualTo(
-            listOf(
-                LintError(1, 4, "no-trailing-spaces", "Trailing space(s)"),
-                LintError(2, 16, "no-trailing-spaces", "Trailing space(s)"),
-                LintError(3, 3, "no-trailing-spaces", "Trailing space(s)"),
-                LintError(6, 8, "no-trailing-spaces", "Trailing space(s)"),
-                LintError(7, 20, "no-trailing-spaces", "Trailing space(s)"),
-                LintError(8, 7, "no-trailing-spaces", "Trailing space(s)")
-            )
-        )
+        noTrailingSpacesRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 4, "Trailing space(s)"),
+                LintViolation(2, 16, "Trailing space(s)"),
+                LintViolation(3, 3, "Trailing space(s)"),
+                LintViolation(6, 8, "Trailing space(s)"),
+                LintViolation(7, 20, "Trailing space(s)"),
+                LintViolation(8, 7, "Trailing space(s)")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -159,16 +149,16 @@ class NoTrailingSpacesRuleTest {
             """
             class Foo {
                 // something
-            ${"    "}
+            $SPACE
                 /**
                  * Some KDoc
                  */
                 val bar: String
-            ${"    "}
+            $SPACE
                 val foo = "foo"
             }
             """.trimIndent()
-        val codeExpected =
+        val formattedCode =
             """
             class Foo {
                 // something
@@ -181,17 +171,11 @@ class NoTrailingSpacesRuleTest {
                 val foo = "foo"
             }
             """.trimIndent()
-        assertThat(
-            NoTrailingSpacesRule().format(code)
-        ).isEqualTo(codeExpected)
-        assertThat(
-            NoTrailingSpacesRule().lint(code)
-        ).isEqualTo(
-            listOf(
-                LintError(3, 1, "no-trailing-spaces", "Trailing space(s)"),
-                LintError(8, 1, "no-trailing-spaces", "Trailing space(s)")
-            )
-        )
+        noTrailingSpacesRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(3, 1, "Trailing space(s)"),
+                LintViolation(8, 1, "Trailing space(s)")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -206,8 +190,7 @@ class NoTrailingSpacesRuleTest {
              */
             class MyClass
             """.trimIndent()
-        assertThat(NoTrailingSpacesRule().lint(code)).isEmpty()
-        assertThat(NoTrailingSpacesRule().format(code)).isEqualTo(code)
+        noTrailingSpacesRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -216,8 +199,8 @@ class NoTrailingSpacesRuleTest {
             """
             /**
              Paragraph 1 which should be followed by a blank line.
-             ${"    "}
-             ${"    "}
+             $SPACE
+             $SPACE$SPACE
              Paragraph 2 which should have a blank line before it.
              */
             class MyClass
@@ -232,13 +215,8 @@ class NoTrailingSpacesRuleTest {
              */
             class MyClass
             """.trimIndent()
-        assertThat(
-            NoTrailingSpacesRule().format(code)
-        ).isEqualTo(formattedCode)
-        assertThat(
-            NoTrailingSpacesRule().lint(code)
-        ).containsExactly(
-            LintError(3, 1, "no-trailing-spaces", "Trailing space(s)")
-        )
+        noTrailingSpacesRuleAssertThat(code)
+            .hasLintViolation(3, 1, "Trailing space(s)")
+            .isFormattedAs(formattedCode)
     }
 }

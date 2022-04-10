@@ -49,9 +49,8 @@ class NoBlankLineBeforeRbraceRuleTest {
             }
             """.trimIndent()
         noBlankLineBeforeRbraceRuleAssertThat(code)
-            .hasLintViolations(
-                LintViolation(2, 1, "Unexpected blank line(s) before \"}\"")
-            ).isFormattedAs(formattedCode)
+            .hasLintViolation(2, 1, "Unexpected blank line(s) before \"}\"")
+            .isFormattedAs(formattedCode)
     }
 
     @Test

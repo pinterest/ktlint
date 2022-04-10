@@ -1,518 +1,296 @@
 package com.pinterest.ktlint.ruleset.experimental
 
-import com.pinterest.ktlint.core.LintError
-import com.pinterest.ktlint.test.format
-import com.pinterest.ktlint.test.lint
-import org.assertj.core.api.Assertions.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.LintViolation
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class AnnotationRuleTest {
+    private val annotationRuleAssertThat = AnnotationRule().assertThat()
 
     @Test
-    fun `lint single annotation may be placed on line before annotated construct`() {
-        assertThat(
-            AnnotationRule().lint(
-                """
-                @FunctionalInterface class A {
-                    @JvmField
-                    var x: String
-                }
-                """.trimIndent()
-            )
-        ).isEmpty()
-    }
-
-    @Test
-    fun `lint single annotation with parameters ends with a comment`() {
-        assertThat(
-            AnnotationRule().lint(
-                """
-                @Suppress("AnnotationRule") // this is a comment
-                class A
-                """.trimIndent()
-            )
-        ).isEmpty()
-    }
-
-    @Test
-    fun `lint single annotation with parameters on the same line with a comment`() {
-        assertThat(
-            AnnotationRule().lint(
-                """
-                @Suppress("AnnotationRule") /* this is a comment */ class A
-                """.trimIndent()
-            )
-        ).hasSize(1)
-    }
-
-    @Test
-    fun `lint single annotation with parameters on the same line with a comment and many spaces`() {
-        assertThat(
-            AnnotationRule().lint(
-                """
-                @Suppress("AnnotationRule") /* this is a comment */    class A
-                """.trimIndent()
-            )
-        ).hasSize(1)
-    }
-
-    @Test
-    fun `format single annotation may be placed on line before annotated construct`() {
+    fun `Given a single annotation on same line before the annotated construct`() {
         val code =
             """
-            @FunctionalInterface class A {
+            @FunctionalInterface class FooBar {
+                @JvmField var foo: String
+                @Test fun bar() {}
+            }
+            """.trimIndent()
+        annotationRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Given a single annotation on line above the annotated construct`() {
+        val code =
+            """
+            @FunctionalInterface
+            class FooBar {
                 @JvmField
-                var x: String
+                var foo: String
+                @Test
+                fun bar() {}
             }
             """.trimIndent()
-        assertThat(AnnotationRule().format(code)).isEqualTo(code)
+        annotationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
-    fun `lint single annotation may be placed on same line as annotated construct`() {
-        assertThat(
-            AnnotationRule().lint(
-                """
-                @FunctionalInterface class A {
-                    @JvmField var x: String
-
-                    @Test fun myTest() {}
-                }
-                """.trimIndent()
-            )
-        ).isEmpty()
-    }
-
-    @Test
-    fun `format single annotation may be placed on same line as annotated construct`() {
+    fun `Given an annotation with a parameter followed by a EOL comment`() {
         val code =
             """
-            @FunctionalInterface class A {
-                @JvmField var x: String
-
-                @Test fun myTest() {}
+            @Suppress("AnnotationRule") // some comment
+            class FooBar {
+                @Suppress("AnnotationRule") // some comment
+                var foo: String
+                @Suppress("AnnotationRule") // some comment
+                fun bar() {}
             }
             """.trimIndent()
-        assertThat(AnnotationRule().format(code)).isEqualTo(code)
+        annotationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
-    fun `lint multiple annotations should not be placed on same line as annotated construct`() {
-        assertThat(
-            AnnotationRule().lint(
-                """
-                class A {
-                    @JvmField @Volatile var x: String
-
-                    @JvmField @Volatile
-                    var y: String
-                }
-                """.trimIndent()
-            )
-        ).containsExactly(
-            LintError(
-                2,
-                5,
-                "annotation",
-                AnnotationRule.multipleAnnotationsOnSameLineAsAnnotatedConstructErrorMessage
-            )
-        )
-    }
-
-    @Test
-    fun `format multiple annotations should not be placed on same line as annotated construct`() {
-        assertThat(
-            AnnotationRule().format(
-                """
-                class A {
-                    @JvmField @Volatile var x: String
-
-                    @JvmField @Volatile
-                    var y: String
-                }
-                """.trimIndent()
-            )
-        ).isEqualTo(
+    fun `Given an annotation with a parameter on same line as annotation construct (possibly separated by a block comment or KDoc)`() {
+        val code =
             """
-            class A {
-                @JvmField @Volatile
-                var x: String
-
-                @JvmField @Volatile
-                var y: String
+            @Suppress("AnnotationRule") class FooBar1 {
+                @Suppress("AnnotationRule") var foo: String
+                @Suppress("AnnotationRule") fun bar() {}
+            }
+            @Suppress("AnnotationRule") /* some comment */ class FooBar2 {
+                @Suppress("AnnotationRule") /* some comment */ var foo: String
+                @Suppress("AnnotationRule") /* some comment */ fun bar() {}
+            }
+            @Suppress("AnnotationRule") /** some comment */ class FooBar3 {
+                @Suppress("AnnotationRule") /** some comment */ var foo: String
+                @Suppress("AnnotationRule") /** some comment */ fun bar() {}
             }
             """.trimIndent()
-        )
+        val formattedCode =
+            """
+            @Suppress("AnnotationRule")
+            class FooBar1 {
+                @Suppress("AnnotationRule")
+                var foo: String
+                @Suppress("AnnotationRule")
+                fun bar() {}
+            }
+            @Suppress("AnnotationRule")
+            /* some comment */ class FooBar2 {
+                @Suppress("AnnotationRule")
+                /* some comment */ var foo: String
+                @Suppress("AnnotationRule")
+                /* some comment */ fun bar() {}
+            }
+            @Suppress("AnnotationRule")
+            /** some comment */ class FooBar3 {
+                @Suppress("AnnotationRule")
+                /** some comment */ var foo: String
+                @Suppress("AnnotationRule")
+                /** some comment */ fun bar() {}
+            }
+            """.trimIndent()
+        annotationRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 1, "Annotations with parameters should all be placed on separate lines prior to the annotated construct"),
+                LintViolation(2, 5, "Annotations with parameters should all be placed on separate lines prior to the annotated construct"),
+                LintViolation(3, 5, "Annotations with parameters should all be placed on separate lines prior to the annotated construct"),
+                LintViolation(5, 1, "Annotations with parameters should all be placed on separate lines prior to the annotated construct"),
+                LintViolation(6, 5, "Annotations with parameters should all be placed on separate lines prior to the annotated construct"),
+                LintViolation(7, 5, "Annotations with parameters should all be placed on separate lines prior to the annotated construct"),
+                LintViolation(9, 1, "Annotations with parameters should all be placed on separate lines prior to the annotated construct"),
+                LintViolation(10, 5, "Annotations with parameters should all be placed on separate lines prior to the annotated construct"),
+                LintViolation(11, 5, "Annotations with parameters should all be placed on separate lines prior to the annotated construct")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
-    fun `format multiple annotations should not be placed on same line as annotated construct (with no previous whitespace)`() {
-        assertThat(AnnotationRule().format("@JvmField @Volatile var x: String"))
-            .isEqualTo(
-                """
-                @JvmField @Volatile
-                var x: String
-                """.trimIndent()
-            )
+    fun `Given multiple annotations on same line as annotated construct`() {
+        val code =
+            """
+            @Foo @Bar class FooBar {
+                @Foo @Bar var foo: String
+                @Foo @Bar fun bar() {}
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            @Foo @Bar
+            class FooBar {
+                @Foo @Bar
+                var foo: String
+                @Foo @Bar
+                fun bar() {}
+            }
+            """.trimIndent()
+        annotationRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 1, "Multiple annotations should not be placed on the same line as the annotated construct"),
+                LintViolation(2, 5, "Multiple annotations should not be placed on the same line as the annotated construct"),
+                LintViolation(3, 5, "Multiple annotations should not be placed on the same line as the annotated construct")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
-    fun `format multiple annotations should not be placed on same line as annotated construct (with no previous indent)`() {
-        assertThat(
-            AnnotationRule().format(
-                """
-
-                @JvmField @Volatile var x: String
-                """.trimIndent()
+    fun `Given multiple annotations on same line as annotated construct (without indentation)`() {
+        val code =
+            """
+            @JvmField @Volatile var foo: String
+            """.trimIndent()
+        val formattedCode =
+            """
+            @JvmField @Volatile
+            var foo: String
+            """.trimIndent()
+        annotationRuleAssertThat(code)
+            .hasLintViolation(
+                1,
+                1,
+                "Multiple annotations should not be placed on the same line as the annotated construct"
             )
-        ).isEqualTo(
+            .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given multiple annotations on same line as annotated construct (without indentation but preceded by one or more blank line)`() {
+        val code =
+            """
+
+            @JvmField @Volatile var foo: String
+            """.trimIndent()
+        val formattedCode =
             """
 
             @JvmField @Volatile
-            var x: String
+            var foo: String
             """.trimIndent()
-        )
-    }
-
-    @Test
-    fun `lint spacing after annotations`() {
-        assertThat(
-            AnnotationRule().lint(
-                """
-                class A {
-                    @SomeAnnotation("value")val x: String
-                }
-                """.trimIndent()
-            )
-        ).containsExactly(
-            LintError(
+        annotationRuleAssertThat(code)
+            .hasLintViolation(
                 2,
-                28,
-                "annotation",
-                "Missing spacing after @SomeAnnotation(\"value\")"
-            )
-        )
-    }
-
-    @Test
-    fun `lint annotations with params should not be placed on same line before annotated construct`() {
-        assertThat(
-            AnnotationRule().lint(
-                """
-                class A {
-                    @JvmName("xJava") var x: String
-
-                    @JvmName("yJava")
-                    var y: String
-                }
-                """.trimIndent()
-            )
-        ).containsExactly(
-            LintError(
-                2,
-                5,
-                "annotation",
-                AnnotationRule.annotationsWithParametersAreNotOnSeparateLinesErrorMessage
-            )
-        )
-    }
-
-    @Test
-    fun `format annotations with params should not be placed on same line before annotated construct`() {
-        assertThat(
-            AnnotationRule().format(
-                """
-                class A {
-                    @JvmName("xJava") var x: String
-
-                    @JvmName("yJava")
-                    var y: String
-                }
-                """.trimIndent()
-            )
-        ).isEqualTo(
-            """
-            class A {
-                @JvmName("xJava")
-                var x: String
-
-                @JvmName("yJava")
-                var y: String
-            }
-            """.trimIndent()
-        )
-    }
-
-    @Test
-    fun `lint multiple annotations with params should not be placed on same line before annotated construct`() {
-        assertThat(
-            AnnotationRule().lint(
-                """
-                @Retention(SOURCE) @Target(FUNCTION, PROPERTY_SETTER, FIELD) annotation class A
-
-                @Retention(SOURCE)
-                @Target(FUNCTION, PROPERTY_SETTER, FIELD)
-                annotation class B
-                """.trimIndent()
-            )
-        ).containsExactly(
-            LintError(
                 1,
-                1,
-                "annotation",
-                AnnotationRule.multipleAnnotationsOnSameLineAsAnnotatedConstructErrorMessage
-            ),
-            LintError(
-                1,
-                1,
-                "annotation",
-                AnnotationRule.annotationsWithParametersAreNotOnSeparateLinesErrorMessage
+                "Multiple annotations should not be placed on the same line as the annotated construct"
             )
-        )
+            .isFormattedAs(formattedCode)
     }
 
     @Test
-    fun `format multiple annotations with params should not be placed on same line before annotated construct`() {
-        assertThat(
-            AnnotationRule().format(
-                """
-                @Retention(SOURCE) @Target(FUNCTION, PROPERTY_SETTER, FIELD) annotation class A
-
-                @Retention(SOURCE)
-                @Target(FUNCTION, PROPERTY_SETTER, FIELD)
-                annotation class B
-                """.trimIndent()
-            )
-        ).isEqualTo(
-            """
-            @Retention(SOURCE)
-            @Target(FUNCTION, PROPERTY_SETTER, FIELD)
-            annotation class A
-
-            @Retention(SOURCE)
-            @Target(FUNCTION, PROPERTY_SETTER, FIELD)
-            annotation class B
-            """.trimIndent()
-        )
-    }
-
-    @Test
-    fun `lint annotation after keyword`() {
-        assertThat(
-            AnnotationRule().lint(
-                """
-                class A {
-                    private @Test fun myTest() {}
-                }
-                """.trimIndent()
-            )
-        ).isEmpty()
-    }
-
-    @Test
-    fun `format annotation after keyword`() {
+    fun `Given an annotation with a parameter not followed by a space but on same line as annotated construct`() {
         val code =
             """
-            class A {
-                private @Test fun myTest() {}
+            @Suppress("AnnotationRule")class FooBar {
+                @Suppress("AnnotationRule")var foo: String
+                @Suppress("AnnotationRule")fun bar() {}
             }
             """.trimIndent()
-        assertThat(AnnotationRule().format(code)).isEqualTo(code)
+        val formattedCode =
+            """
+            @Suppress("AnnotationRule") class FooBar {
+                @Suppress("AnnotationRule") var foo: String
+                @Suppress("AnnotationRule") fun bar() {}
+            }
+            """.trimIndent()
+        annotationRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 27, "Missing spacing after @Suppress(\"AnnotationRule\")"),
+                LintViolation(2, 31, "Missing spacing after @Suppress(\"AnnotationRule\")"),
+                LintViolation(3, 31, "Missing spacing after @Suppress(\"AnnotationRule\")")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
-    fun `lint multi-line annotation`() {
-        assertThat(
-            AnnotationRule().lint(
-                """
-                class A {
-                    @JvmField @Volatile @Annotation(
-                        enabled = true,
-                        groups = [
-                            "a",
-                            "b",
-                            "c"
-                        ]
-                    ) val a: Any
-                }
-                """.trimIndent()
-            )
-        ).containsExactly(
-            LintError(
-                2,
-                5,
-                "annotation",
-                AnnotationRule.multipleAnnotationsOnSameLineAsAnnotatedConstructErrorMessage
-            ),
-            LintError(
-                2,
-                5,
-                "annotation",
-                AnnotationRule.annotationsWithParametersAreNotOnSeparateLinesErrorMessage
-            )
-        )
-    }
-
-    @Test
-    fun `format multi-line annotation`() {
+    fun `Given a multiline annotation and annotated construct on same line as closing parenthesis of the annotation`() {
         val code =
             """
-            class A {
-                @JvmField @Volatile @Annotation(
-                    enabled = true,
+            class FooBar {
+                @Foo(
                     groups = [
                         "a",
-                        "b",
-                        "c"
+                        "b"
                     ]
-                ) val a: Any
+                ) val bar: Any
             }
             """.trimIndent()
-        assertThat(AnnotationRule().format(code)).isEqualTo(
+        val formattedCode =
             """
-            class A {
-                @JvmField
-                @Volatile
-                @Annotation(
-                    enabled = true,
+            class FooBar {
+                @Foo(
                     groups = [
                         "a",
-                        "b",
-                        "c"
+                        "b"
                     ]
                 )
-                val a: Any
+                val bar: Any
             }
             """.trimIndent()
-        )
+        annotationRuleAssertThat(code)
+            // TODO: Offset and message is not entirely clear
+            .hasLintViolation(
+                2,
+                5,
+                "Annotations with parameters should all be placed on separate lines prior to the annotated construct"
+            )
+            .isFormattedAs(formattedCode)
     }
 
     @Test
-    fun `no annotation present for data class passes`() {
+    fun `Issue 497 - Given a data class`() {
         val code =
             """
-            package com.example.application.a.b
-
-            data class FileModel(val uri: String, val name: String)
+            data class Foo(val bar: String)
             """.trimIndent()
-        assertThat(AnnotationRule().lint(code)).isEmpty()
+        annotationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
-    fun `no annotation present for function override passes`() {
+    fun `Issue 509 - Given a overridden function class`() {
         val code =
             """
-            package com.example.application.a.b
-
             override fun foo()
             """.trimIndent()
-        assertThat(AnnotationRule().lint(code)).isEmpty()
+        annotationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
-    fun `no annotation present succeeds for class`() {
+    fun `Issue 552 - Given multiple blank lines before annotation`() {
         val code =
             """
-            package com.example.application.a
 
-            import android.os.Environment
 
-            class PathProvider {
-                fun gallery(): String = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).path
-            }
+            @JvmField
+            var foo: String
             """.trimIndent()
-        assertThat(AnnotationRule().lint(code)).isEmpty()
+        annotationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
-    fun `multiple newlines preceding annotation`() {
-        val code =
-            """
-            fun foo() {
-
-
-
-
-                @Subscribe(threadMode = ThreadMode.MAIN) fun onEventMainThread(e: ModalContainer.ShowEvent) {
-                    modalContainer?.show(e)
-                }
-            }
-            """.trimIndent()
-        assertThat(
-            AnnotationRule().format(code)
-        ).isEqualTo(
-            """
-            fun foo() {
-
-
-
-
-                @Subscribe(threadMode = ThreadMode.MAIN)
-                fun onEventMainThread(e: ModalContainer.ShowEvent) {
-                    modalContainer?.show(e)
-                }
-            }
-            """.trimIndent()
-        )
-    }
-
-    @Test
-    fun `no error with formatting annotation for primary constructor`() {
+    fun `Issue 628 - Given an annotation before the primary constructor `() {
         val code =
             """
             class Foo @Inject internal constructor()
             """.trimIndent()
-        assertThat(
-            AnnotationRule().format(code)
-        ).isEqualTo(
-            """
-            class Foo @Inject internal constructor()
-            """.trimIndent()
-        )
+        annotationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
-    fun `lint annotations on method parameters may be placed on same line`() {
+    fun `Issue 642 - Given annotations on method parameters on same line as parameter`() {
         val code =
             """
-            interface FooService {
+            fun foo1(
+                @Path("fooId") fooId: String,
+                @Path("bar") bar: String,
+                @Body body: Foo
+            ): Completable
 
-                fun foo1(
-                    @Path("fooId") fooId: String,
-                    @Path("bar") bar: String,
-                    @Body body: Foo
-                ): Completable
+            fun foo2(@Query("include") include: String? = null, @QueryMap fields: Map<String, String> = emptyMap()): Single
 
-                fun foo2(@Query("include") include: String? = null, @QueryMap fields: Map<String, String> = emptyMap()): Single
-
-                fun foo3(@Path("fooId") fooId: String): Completable
-            }
+            fun foo3(@Path("fooId") fooId: String): Completable
             """.trimIndent()
-        assertThat(AnnotationRule().lint(code)).isEmpty()
+        annotationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
-    fun `format annotations on method parameters may be placed on same line`() {
-        val code =
-            """
-            interface FooService {
-
-                fun foo1(
-                    @Path("fooId") fooId: String,
-                    @Path("bar") bar: String,
-                    @Body body: Foo
-                ): Completable
-
-                fun foo2(@Query("include") include: String? = null, @QueryMap fields: Map<String, String> = emptyMap()): Single
-
-                fun foo3(@Path("fooId") fooId: String): Completable
-            }
-            """.trimIndent()
-        assertThat(AnnotationRule().format(code)).isEqualTo(code)
-    }
-
-    @Test
-    fun `lint annotations on constructor parameters may be placed on same line`() {
+    fun `Issue 642 - Given annotations on constructor parameters on same line as parameter`() {
         val code =
             """
             class Foo(@Path("fooId") val fooId: String)
@@ -521,52 +299,24 @@ class AnnotationRuleTest {
                 @NotNull("bar") bar: String
             )
             """.trimIndent()
-        assertThat(AnnotationRule().lint(code)).isEmpty()
+        annotationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
-    fun `format annotations on constructor parameters may be placed on same line`() {
+    fun `Issue 642 - Given annotations on arguments on same line as argument`() {
         val code =
             """
-            class Foo(@Path("fooId") val fooId: String)
-            class Bar(
-                @NotNull("fooId") val fooId: String,
-                @NotNull("bar") bar: String
-            )
-            """.trimIndent()
-        assertThat(AnnotationRule().format(code)).isEqualTo(code)
-    }
-
-    @Test
-    fun `lint annotations on arguments may be placed on same line`() {
-        val code =
-            """
-            fun doSomething() {
-                actuallyDoSomething(
+            val foo =
+                foo(
                     @ExpressionStringAnn("foo") "test",
                     @ExpressionIntAnn("bar") 42
                 )
-            }
             """.trimIndent()
-        assertThat(AnnotationRule().lint(code)).isEmpty()
+        annotationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
-    fun `format annotations on arguments may be placed on same line`() {
-        val code =
-            """
-            fun doSomething() {
-                actuallyDoSomething(
-                    @ExpressionStringAnn("foo") "test",
-                    @ExpressionIntAnn("bar") 42
-                )
-            }
-            """.trimIndent()
-        assertThat(AnnotationRule().format(code)).isEqualTo(code)
-    }
-
-    @Test
-    fun `lint annotations on type arguments may be placed on same line`() {
+    fun `Issue 642 - Given annotations on type arguments on same line as argument`() {
         val code =
             """
             val aProperty: Map<@Ann("test") Int, @JvmSuppressWildcards(true) (String) -> Int?>
@@ -580,61 +330,11 @@ class AnnotationRuleTest {
                 funWithGenericsCall<@JvmSuppressWildcards(true) Int>()
             }
             """.trimIndent()
-        assertThat(AnnotationRule().lint(code)).isEmpty()
+        annotationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
-    fun `format annotations on type arguments may be placed on same line`() {
-        val code =
-            """
-            val aProperty: Map<@Ann("test") Int, @JvmSuppressWildcards(true) (String) -> Int?>
-            val bProperty: Map<
-                @Ann String,
-                @Ann("test") Int,
-                @JvmSuppressWildcards(true) (String) -> Int?
-                >
-
-            fun doSomething() {
-                funWithGenericsCall<@JvmSuppressWildcards(true) Int>()
-            }
-            """.trimIndent()
-        assertThat(AnnotationRule().format(code)).isEqualTo(code)
-    }
-
-    @Test
-    fun `annotation at top of file`() {
-        val code =
-            """
-            @file:JvmName("FooClass") package foo.bar
-            """.trimIndent()
-        assertThat(
-            AnnotationRule().format(code)
-        ).isEqualTo(
-            """
-            @file:JvmName("FooClass")
-
-            package foo.bar
-            """.trimIndent()
-        )
-    }
-
-    @Test
-    fun `lint multiple annotations ends with a comment`() {
-        val code =
-            """
-            annotation class A
-            annotation class B
-
-            @A
-            @B // comment
-            fun test() {
-            }
-            """.trimIndent()
-        assertThat(AnnotationRule().lint(code)).isEmpty()
-    }
-
-    @Test
-    fun `lint multiple annotations ends with a comment 2`() {
+    fun `Issue 740 - Given multiple annotations and ending with a EOL comment before annotated construct`() {
         val code =
             """
             annotation class A
@@ -642,338 +342,137 @@ class AnnotationRuleTest {
 
             @A // comment
             @B
-            fun test() {
-            }
+            fun foo1() {}
+
+            @A
+            @B // comment
+            fun foo2() {}
             """.trimIndent()
-        assertThat(AnnotationRule().lint(code)).isEmpty()
+        annotationRuleAssertThat(code).hasNoLintViolations()
     }
 
-    @Test
-    fun `format file annotations should be separated with a blank line 1`() {
-        assertThat(
-            AnnotationRule().format(
+    @Nested
+    inner class FileAnnotation {
+        @Test
+        fun `Issue 714 - Given a file annotation without parameter on same line as package`() {
+            val code =
                 """
                 @file:JvmName package foo.bar
-
                 """.trimIndent()
-            )
-        ).isEqualTo(
-            """
-            @file:JvmName
-
-            package foo.bar
-
-            """.trimIndent()
-        )
-    }
-
-    @Test
-    fun `format file annotations should be separated with a blank line 2`() {
-        assertThat(
-            AnnotationRule().format(
-                """
-                /*
-                 * Copyright 2000-2020 XXX
-                 */
-
-                @file:JvmName
-                package foo.bar
-
-                """.trimIndent()
-            )
-        ).isEqualTo(
-            """
-            /*
-             * Copyright 2000-2020 XXX
-             */
-
-            @file:JvmName
-
-            package foo.bar
-
-            """.trimIndent()
-        )
-    }
-
-    @Test
-    fun `format file annotations should be separated with a blank line 3`() {
-        assertThat(
-            AnnotationRule().format(
+            val formattedCode =
                 """
                 @file:JvmName
-                fun foo() {}
 
-                """.trimIndent()
-            )
-        ).isEqualTo(
-            """
-            @file:JvmName
-
-            fun foo() {}
-
-            """.trimIndent()
-        )
-    }
-
-    @Test
-    fun `format file annotations should be separated with a blank line 4`() {
-        assertThat(
-            AnnotationRule().format(
-                """
-                @file:JvmName // comment
                 package foo.bar
-
                 """.trimIndent()
-            )
-        ).isEqualTo(
-            """
-            @file:JvmName // comment
+            annotationRuleAssertThat(code)
+                .hasLintViolation(1, 13, "File annotations should be separated from file contents with a blank line")
+                .isFormattedAs(formattedCode)
+        }
 
-            package foo.bar
+        @Test
+        fun `Issue 624 - Given a file annotation with parameter on same line as package`() {
+            val code =
+                """
+                @file:JvmName("FooClass") package foo.bar
+                """.trimIndent()
+            val formattedCode =
+                """
+                @file:JvmName("FooClass")
 
-            """.trimIndent()
-        )
-    }
+                package foo.bar
+                """.trimIndent()
+            annotationRuleAssertThat(code)
+                .hasLintViolations(
+                    LintViolation(1, 1, "Annotations with parameters should all be placed on separate lines prior to the annotated construct"),
+                    LintViolation(1, 25, "File annotations should be separated from file contents with a blank line")
+                ).isFormattedAs(formattedCode)
+        }
 
-    @Test
-    fun `format file annotations should be separated with a blank line 5`() {
-        assertThat(
-            AnnotationRule().format(
+        @Test
+        fun `Issue 714 - Given a file annotation on the line above the package statement but without blank line in between`() {
+            val code =
+                """
+                @file:JvmName
+                package foo.bar
+                """.trimIndent()
+            val formattedCode =
+                """
+                @file:JvmName
+
+                package foo.bar
+                """.trimIndent()
+            annotationRuleAssertThat(code)
+                .hasLintViolation(1, 13, "File annotations should be separated from file contents with a blank line")
+                .isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Issue 714 - Given a file annotation followed by an EOL comment, on the line above the package statement but without blank line in between`() {
+            val code =
+                """
+                @file:JvmName  // comment
+                package foo.bar
+                """.trimIndent()
+            val formattedCode =
+                """
+                @file:JvmName  // comment
+
+                package foo.bar
+                """.trimIndent()
+            annotationRuleAssertThat(code)
+                .hasLintViolation(1, 13, "File annotations should be separated from file contents with a blank line")
+                .isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Issue 714 - Given a file annotation followed by an block comment, on the same line as the package statement`() {
+            val code =
                 """
                 @file:JvmName /* comment */ package foo.bar
-
                 """.trimIndent()
-            )
-        ).isEqualTo(
-            """
-            @file:JvmName /* comment */
-
-            package foo.bar
-
-            """.trimIndent()
-        )
-    }
-
-    @Test
-    fun `format file annotations should be separated with a blank line 6`() {
-        assertThat(
-            AnnotationRule().format(
+            val formattedCode =
                 """
-                @file:JvmName
-                // comment
-                package foo.bar
-
-                """.trimIndent()
-            )
-        ).isEqualTo(
-            """
-            @file:JvmName
-
-            // comment
-            package foo.bar
-
-            """.trimIndent()
-        )
-    }
-
-    @Test
-    fun `lint file annotations should be separated with a blank line 1`() {
-        assertThat(
-            AnnotationRule().lint(
-                """
-                @file:JvmName package foo.bar
-
-                """.trimIndent()
-            )
-        ).isEqualTo(
-            listOf(
-                LintError(1, 13, "annotation", AnnotationRule.fileAnnotationsShouldBeSeparated)
-            )
-        )
-    }
-
-    @Test
-    fun `lint file annotations should be separated with a blank line 2`() {
-        assertThat(
-            AnnotationRule().lint(
-                """
-                /*
-                 * Copyright 2000-2020 XXX
-                 */
-
-                @file:JvmName
-                package foo.bar
-
-                """.trimIndent()
-            )
-        ).isEqualTo(
-            listOf(
-                LintError(5, 13, "annotation", AnnotationRule.fileAnnotationsShouldBeSeparated)
-            )
-        )
-    }
-
-    @Test
-    fun `lint file annotations should be separated with a blank line 3`() {
-        assertThat(
-            AnnotationRule().lint(
-                """
-                @file:JvmName
-                fun foo() {}
-
-                """.trimIndent()
-            )
-        ).isEqualTo(
-            listOf(
-                LintError(1, 13, "annotation", AnnotationRule.fileAnnotationsShouldBeSeparated)
-            )
-        )
-    }
-
-    @Test
-    fun `lint file annotations should be separated with a blank line 4`() {
-        assertThat(
-            AnnotationRule().lint(
-                """
-                @file:JvmName // comment
-                package foo.bar
-
-                """.trimIndent()
-            )
-        ).isEqualTo(
-            listOf(
-                LintError(1, 13, "annotation", AnnotationRule.fileAnnotationsShouldBeSeparated)
-            )
-        )
-    }
-
-    @Test
-    fun `lint file annotations should be separated with a blank line 5`() {
-        assertThat(
-            AnnotationRule().lint(
-                """
-                @file:JvmName /* comment */ package foo.bar
-
-                """.trimIndent()
-            )
-        ).isEqualTo(
-            listOf(
-                LintError(1, 13, "annotation", AnnotationRule.fileAnnotationsShouldBeSeparated)
-            )
-        )
-    }
-
-    @Test
-    fun `lint file annotations should be separated with a blank line 6`() {
-        assertThat(
-            AnnotationRule().lint(
-                """
-                @file:JvmName
-                // comment
-                package foo.bar
-
-                """.trimIndent()
-            )
-        ).isEqualTo(
-            listOf(
-                LintError(1, 13, "annotation", AnnotationRule.fileAnnotationsShouldBeSeparated)
-            )
-        )
-    }
-
-    @Test
-    fun `lint file annotations should be separated with a blank line 7`() {
-        assertThat(
-            AnnotationRule().lint(
-                """
-                @file:JvmName
-
-                """.trimIndent()
-            )
-        ).isEmpty()
-    }
-
-    @Test
-    fun `lint file annotations should be separated with a blank line 8`() {
-        assertThat(
-            AnnotationRule().lint(
-                """
-                @file:JvmName
+                @file:JvmName /* comment */
 
                 package foo.bar
-
                 """.trimIndent()
-            )
-        ).isEmpty()
-    }
+            annotationRuleAssertThat(code)
+                .hasLintViolation(1, 13, "File annotations should be separated from file contents with a blank line")
+                .isFormattedAs(formattedCode)
+        }
 
-    @Test
-    fun `lint file annotations should be separated with a blank line 9`() {
-        assertThat(
-            AnnotationRule().lint(
+        @Test
+        fun `lint file annotations should be separated with a blank line in script 1`() {
+            val code =
                 """
-                @file:JvmName
-
-
-                package foo.bar
-
+                @file:Suppress("UnstableApiUsage")
+                pluginManagement {
+                }
                 """.trimIndent()
-            )
-        ).isEmpty()
-    }
-
-    @Test
-    fun `lint file annotations should be separated with a blank line 10`() {
-        assertThat(
-            AnnotationRule().lint(
+            val formattedCode =
                 """
-                @file:JvmName
+                @file:Suppress("UnstableApiUsage")
 
-                fun foo() {}
-
+                pluginManagement {
+                }
                 """.trimIndent()
-            )
-        ).isEmpty()
+            annotationRuleAssertThat(code)
+                .asKotlinScript()
+                .hasLintViolation(1, 34, "File annotations should be separated from file contents with a blank line")
+                .isFormattedAs(formattedCode)
+        }
     }
 
     @Test
-    fun `lint file annotations should be separated with a blank line in script 1`() {
+    fun `Given a receiver with annotation having a parameter should not be separate line`() {
         val code =
             """
-            @file:Suppress("UnstableApiUsage")
-            pluginManagement {
-            }
+            annotation class Ann(val arg: Int = 0)
+
+            fun @receiver:Ann(1) String.test() {}
+
             """.trimIndent()
-        assertThat(AnnotationRule().lint(code, script = true)).isEqualTo(
-            listOf(
-                LintError(1, 34, "annotation", AnnotationRule.fileAnnotationsShouldBeSeparated)
-            )
-        )
-    }
-
-    @Test
-    fun `lint file annotations should be separated with a blank line in script 2`() {
-        val code =
-            """
-            @file:Suppress("UnstableApiUsage")
-
-            pluginManagement {
-            }
-            """.trimIndent()
-        assertThat(AnnotationRule().lint(code, script = true)).isEmpty()
-    }
-
-    @Test
-    fun `lint receiver target annotation with parameter should not be separated line`() {
-        assertThat(
-            AnnotationRule().lint(
-                """
-                annotation class Ann(val arg: Int = 0)
-
-                fun @receiver:Ann(1) String.test() {}
-
-                """.trimIndent()
-            )
-        ).isEmpty()
+        annotationRuleAssertThat(code).hasNoLintViolations()
     }
 }

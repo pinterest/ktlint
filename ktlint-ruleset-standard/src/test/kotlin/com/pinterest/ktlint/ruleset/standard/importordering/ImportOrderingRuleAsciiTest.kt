@@ -3,7 +3,6 @@ package com.pinterest.ktlint.ruleset.standard.importordering
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.ruleset.standard.ImportOrderingRule
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
-import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 @OptIn(FeatureInAlphaState::class)
@@ -30,9 +29,8 @@ class ImportOrderingRuleAsciiTest {
             """.trimIndent()
         importOrderingRuleAssertThat(code)
             .withEditorConfigOverride(ASCII_IMPORT_ORDERING)
-            .hasLintViolations(
-                LintViolation(1, 1, "Imports must be ordered in lexicographic order without any empty lines in-between")
-            ).isFormattedAs(formattedCode)
+            .hasLintViolation(1, 1, "Imports must be ordered in lexicographic order without any empty lines in-between")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -65,9 +63,8 @@ class ImportOrderingRuleAsciiTest {
             """.trimIndent()
         importOrderingRuleAssertThat(code)
             .withEditorConfigOverride(ASCII_IMPORT_ORDERING)
-            .hasLintViolations(
-                LintViolation(3, 1, "Duplicate 'import android.view.View' found")
-            ).isFormattedAs(formattedCode)
+            .hasLintViolation(3, 1, "Duplicate 'import android.view.View' found")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -93,9 +90,8 @@ class ImportOrderingRuleAsciiTest {
             """.trimIndent()
         importOrderingRuleAssertThat(code)
             .withEditorConfigOverride(ASCII_IMPORT_ORDERING)
-            .hasLintViolations(
-                LintViolation(1, 1, "Imports must be ordered in lexicographic order without any empty lines in-between")
-            ).isFormattedAs(formattedCode)
+            .hasLintViolation(1, 1, "Imports must be ordered in lexicographic order without any empty lines in-between")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -114,9 +110,8 @@ class ImportOrderingRuleAsciiTest {
             """.trimIndent()
         importOrderingRuleAssertThat(code)
             .withEditorConfigOverride(ASCII_IMPORT_ORDERING)
-            .hasLintViolations(
-                LintViolation(1, 1, "Imports must be ordered in lexicographic order without any empty lines in-between")
-            ).isFormattedAs(formattedCode)
+            .hasLintViolation(1, 1, "Imports must be ordered in lexicographic order without any empty lines in-between")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -130,8 +125,10 @@ class ImportOrderingRuleAsciiTest {
             """.trimIndent()
         importOrderingRuleAssertThat(code)
             .withEditorConfigOverride(ASCII_IMPORT_ORDERING)
-            .hasLintViolationsAfterFormatting(
-                LintViolation(1, 1, "Imports must be ordered in lexicographic order without any empty lines in-between -- no autocorrection due to comments in the import list")
+            .hasLintViolationWithoutAutoCorrect(
+                1,
+                1,
+                "Imports must be ordered in lexicographic order without any empty lines in-between -- no autocorrection due to comments in the import list"
             )
     }
 
@@ -146,8 +143,10 @@ class ImportOrderingRuleAsciiTest {
             """.trimIndent()
         importOrderingRuleAssertThat(code)
             .withEditorConfigOverride(ASCII_IMPORT_ORDERING)
-            .hasLintViolationsAfterFormatting(
-                LintViolation(1, 1, "Imports must be ordered in lexicographic order without any empty lines in-between -- no autocorrection due to comments in the import list")
+            .hasLintViolationWithoutAutoCorrect(
+                1,
+                1,
+                "Imports must be ordered in lexicographic order without any empty lines in-between -- no autocorrection due to comments in the import list"
             )
     }
 
@@ -171,9 +170,8 @@ class ImportOrderingRuleAsciiTest {
             """.trimIndent()
         importOrderingRuleAssertThat(code)
             .withEditorConfigOverride(ASCII_IMPORT_ORDERING)
-            .hasLintViolations(
-                LintViolation(1, 1, "Imports must be ordered in lexicographic order without any empty lines in-between")
-            ).isFormattedAs(formattedCode)
+            .hasLintViolation(1, 1, "Imports must be ordered in lexicographic order without any empty lines in-between")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -190,9 +188,8 @@ class ImportOrderingRuleAsciiTest {
             """.trimIndent()
         importOrderingRuleAssertThat(code)
             .withEditorConfigOverride(ASCII_IMPORT_ORDERING)
-            .hasLintViolations(
-                LintViolation(1, 1, "Imports must be ordered in lexicographic order without any empty lines in-between")
-            ).isFormattedAs(formattedCode)
+            .hasLintViolation(1, 1, "Imports must be ordered in lexicographic order without any empty lines in-between")
+            .isFormattedAs(formattedCode)
     }
 
     private companion object {
