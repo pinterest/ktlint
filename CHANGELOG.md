@@ -2,6 +2,17 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+### Added
+
+### Fixed
+
+### Changed
+* Set Kotlin development version to `1.6.21` and Kotlin version to `1.6.21`.
+
+### Removed
+
 ## [0.45.2] - 2022-04-06
 
 ### Fixed
