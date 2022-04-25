@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## To be released
+## Unreleased
 
 ### API Changes & RuleSet providers
 
@@ -10,13 +10,15 @@ If you are not an API user nor a RuleSet provider, then you can safely skip this
 
 #### Testing KtLint rules
 
-An AssertJ style API for testing KtLint rules ([#1434](https://github.com/pinterest/ktlint/issues/1434)) has been added. Usage of this API is encouraged in favor of using the old RuleExtension API. For more information, see [KtLintAssertThat API]( https://github.com/pinterest/ktlint/blob/master/ktlint-test/README.MD)
+An AssertJ style API for testing KtLint rules ([#1444](https://github.com/pinterest/ktlint/issues/1444)) has been added. Usage of this API is encouraged in favor of using the old RuleExtension API. For more information, see [KtLintAssertThat API]( https://github.com/pinterest/ktlint/blob/master/ktlint-test/README.MD)
 
 ### Added
 
 ### Fixed
 
 ### Changed
+
+* Set Kotlin development version to `1.6.21` and Kotlin version to `1.6.21`.
 
 ### Removed
 
