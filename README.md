@@ -582,6 +582,7 @@ see https://github.com/pinterest/ktlint/issues/451.
 Third-party:
 * [kryanod/ktlint-junit-reporter](https://github.com/kryanod/ktlint-junit-reporter)
 * [musichin/ktlint-github-reporter](https://github.com/musichin/ktlint-github-reporter)
+* [tobi2k/ktlint-gitlab-reporter](https://github.com/tobi2k/ktlint-gitlab-reporter)
 
 ## Badge
 
