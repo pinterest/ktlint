@@ -1,12 +1,15 @@
 package com.pinterest.ktlint.ruleset.experimental
 
 import com.pinterest.ktlint.core.LintError
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
 import com.pinterest.ktlint.test.format
 import com.pinterest.ktlint.test.lint
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
 
 class NullableTypeSpacingRuleTest {
+    private val nullableTypeSpacingRuleAssertThat = NullableTypeSpacingRule().assertThat()
+
     @Test
     fun `Given a simple nullable type with a space before the quest then remove this space`() {
         val code =
@@ -33,10 +36,9 @@ class NullableTypeSpacingRuleTest {
             """
             val foo : List<String?> = listOf(null)
             """.trimIndent()
-        Assertions.assertThat(NullableTypeSpacingRule().lint(code)).containsExactly(
-            LintError(1, 22, "nullable-type-spacing", "Unexpected whitespace")
-        )
-        Assertions.assertThat(NullableTypeSpacingRule().format(code)).isEqualTo(formattedCode)
+        nullableTypeSpacingRuleAssertThat(code)
+            .hasLintViolation(1, 22, "Unexpected whitespace")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -49,10 +51,9 @@ class NullableTypeSpacingRuleTest {
             """
             val foo : List<String>? = null
             """.trimIndent()
-        Assertions.assertThat(NullableTypeSpacingRule().lint(code)).containsExactly(
-            LintError(1, 23, "nullable-type-spacing", "Unexpected whitespace")
-        )
-        Assertions.assertThat(NullableTypeSpacingRule().format(code)).isEqualTo(formattedCode)
+        nullableTypeSpacingRuleAssertThat(code)
+            .hasLintViolation(1, 23, "Unexpected whitespace")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -65,10 +66,9 @@ class NullableTypeSpacingRuleTest {
             """
             fun String?.foo() = "some-result"
             """.trimIndent()
-        Assertions.assertThat(NullableTypeSpacingRule().lint(code)).containsExactly(
-            LintError(1, 11, "nullable-type-spacing", "Unexpected whitespace")
-        )
-        Assertions.assertThat(NullableTypeSpacingRule().format(code)).isEqualTo(formattedCode)
+        nullableTypeSpacingRuleAssertThat(code)
+            .hasLintViolation(1, 11, "Unexpected whitespace")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -81,10 +81,9 @@ class NullableTypeSpacingRuleTest {
             """
             fun List<String?>.foo() = "some-result"
             """.trimIndent()
-        Assertions.assertThat(NullableTypeSpacingRule().lint(code)).containsExactly(
-            LintError(1, 16, "nullable-type-spacing", "Unexpected whitespace")
-        )
-        Assertions.assertThat(NullableTypeSpacingRule().format(code)).isEqualTo(formattedCode)
+        nullableTypeSpacingRuleAssertThat(code)
+            .hasLintViolation(1, 16, "Unexpected whitespace")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -97,10 +96,9 @@ class NullableTypeSpacingRuleTest {
             """
             fun foo(string: String?) = "some-result"
             """.trimIndent()
-        Assertions.assertThat(NullableTypeSpacingRule().lint(code)).containsExactly(
-            LintError(1, 23, "nullable-type-spacing", "Unexpected whitespace")
-        )
-        Assertions.assertThat(NullableTypeSpacingRule().format(code)).isEqualTo(formattedCode)
+        nullableTypeSpacingRuleAssertThat(code)
+            .hasLintViolation(1, 23, "Unexpected whitespace")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -113,10 +111,9 @@ class NullableTypeSpacingRuleTest {
             """
             fun foo(string: List<String?>) = "some-result"
             """.trimIndent()
-        Assertions.assertThat(NullableTypeSpacingRule().lint(code)).containsExactly(
-            LintError(1, 28, "nullable-type-spacing", "Unexpected whitespace")
-        )
-        Assertions.assertThat(NullableTypeSpacingRule().format(code)).isEqualTo(formattedCode)
+        nullableTypeSpacingRuleAssertThat(code)
+            .hasLintViolation(1, 28, "Unexpected whitespace")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -129,10 +126,9 @@ class NullableTypeSpacingRuleTest {
             """
             fun foo(): String? = "some-result"
             """.trimIndent()
-        Assertions.assertThat(NullableTypeSpacingRule().lint(code)).containsExactly(
-            LintError(1, 18, "nullable-type-spacing", "Unexpected whitespace")
-        )
-        Assertions.assertThat(NullableTypeSpacingRule().format(code)).isEqualTo(formattedCode)
+        nullableTypeSpacingRuleAssertThat(code)
+            .hasLintViolation(1, 18, "Unexpected whitespace")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -145,10 +141,9 @@ class NullableTypeSpacingRuleTest {
             """
             fun foo(): List<String?> = listOf("some-result", null)
             """.trimIndent()
-        Assertions.assertThat(NullableTypeSpacingRule().lint(code)).containsExactly(
-            LintError(1, 23, "nullable-type-spacing", "Unexpected whitespace")
-        )
-        Assertions.assertThat(NullableTypeSpacingRule().format(code)).isEqualTo(formattedCode)
+        nullableTypeSpacingRuleAssertThat(code)
+            .hasLintViolation(1, 23, "Unexpected whitespace")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -161,9 +156,8 @@ class NullableTypeSpacingRuleTest {
             """
             fun foo(): List<String>? = null
             """.trimIndent()
-        Assertions.assertThat(NullableTypeSpacingRule().lint(code)).containsExactly(
-            LintError(1, 24, "nullable-type-spacing", "Unexpected whitespace")
-        )
-        Assertions.assertThat(NullableTypeSpacingRule().format(code)).isEqualTo(formattedCode)
+        nullableTypeSpacingRuleAssertThat(code)
+            .hasLintViolation(1, 24, "Unexpected whitespace")
+            .isFormattedAs(formattedCode)
     }
 }
