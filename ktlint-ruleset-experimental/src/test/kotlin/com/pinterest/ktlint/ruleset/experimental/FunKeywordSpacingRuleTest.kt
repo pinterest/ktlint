@@ -1,12 +1,11 @@
 package com.pinterest.ktlint.ruleset.experimental
 
-import com.pinterest.ktlint.core.LintError
-import com.pinterest.ktlint.test.format
-import com.pinterest.ktlint.test.lint
-import org.assertj.core.api.Assertions.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
 import org.junit.jupiter.api.Test
 
 class FunKeywordSpacingRuleTest {
+    private val funKeywordSpacingRuleAssertThat = FunKeywordSpacingRule().assertThat()
+
     @Test
     fun `Given a function signature with multiple spaces between the fun keyword and the function name then remove the redundant spaces`() {
         val code =
@@ -17,10 +16,9 @@ class FunKeywordSpacingRuleTest {
             """
             fun foo() = "some-result"
             """.trimIndent()
-        assertThat(FunKeywordSpacingRule().lint(code)).containsExactly(
-            LintError(1, 4, "fun-keyword-spacing", "Single space expected after the fun keyword")
-        )
-        assertThat(FunKeywordSpacingRule().format(code)).isEqualTo(formattedCode)
+        funKeywordSpacingRuleAssertThat(code)
+            .hasLintViolation(1, 4, "Single space expected after the fun keyword")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -34,9 +32,8 @@ class FunKeywordSpacingRuleTest {
             """
             fun foo() = "some-result"
             """.trimIndent()
-        assertThat(FunKeywordSpacingRule().lint(code)).containsExactly(
-            LintError(1, 4, "fun-keyword-spacing", "Single space expected after the fun keyword")
-        )
-        assertThat(FunKeywordSpacingRule().format(code)).isEqualTo(formattedCode)
+        funKeywordSpacingRuleAssertThat(code)
+            .hasLintViolation(1, 4, "Single space expected after the fun keyword")
+            .isFormattedAs(formattedCode)
     }
 }

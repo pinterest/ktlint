@@ -1,21 +1,18 @@
 package com.pinterest.ktlint.ruleset.standard.importordering
 
-import com.pinterest.ktlint.core.LintError
-import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.ruleset.standard.ImportOrderingRule
-import com.pinterest.ktlint.test.format
-import com.pinterest.ktlint.test.lint
-import org.assertj.core.api.Assertions.assertThat
+import com.pinterest.ktlint.ruleset.standard.ImportOrderingRule.Companion.ideaImportsLayoutProperty
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
 import org.junit.jupiter.api.Test
 
 @OptIn(FeatureInAlphaState::class)
 class ImportOrderingRuleCustomTest {
-    private val rule = ImportOrderingRule()
+    private val importOrderingRuleAssertThat = ImportOrderingRule().assertThat()
 
     @Test
-    fun `empty line between imports and aliases - ok`() {
-        val formattedImports =
+    fun `Given some imports with an empty line between imports and aliases as is required then do not return lint errors`() {
+        val code =
             """
             import android.content.Context as Ctx
             import androidx.fragment.app.Fragment as F
@@ -26,20 +23,14 @@ class ImportOrderingRuleCustomTest {
             import java.util.List
             import kotlin.concurrent.Thread
             """.trimIndent()
-
-        val editorConfigOverride = getCustomImportOrderEditorConfigOverride("^,|,*")
-
-        assertThat(
-            rule.lint(formattedImports, editorConfigOverride)
-        ).isEmpty()
-        assertThat(
-            rule.format(formattedImports, editorConfigOverride)
-        ).isEqualTo(formattedImports)
+        importOrderingRuleAssertThat(code)
+            .withEditorConfigOverride(ideaImportsLayoutProperty to "^,|,*")
+            .hasNoLintViolations()
     }
 
     @Test
-    fun `empty line between imports and aliases - no empty line`() {
-        val imports =
+    fun `Given some import without empty line between imports and aliases while this is required then do return a lint error`() {
+        val code =
             """
             import android.app.Activity
             import android.view.View
@@ -49,8 +40,7 @@ class ImportOrderingRuleCustomTest {
             import android.content.Context as Ctx
             import androidx.fragment.app.Fragment as F
             """.trimIndent()
-
-        val formattedImports =
+        val formattedCode =
             """
             import android.app.Activity
             import android.view.View
@@ -61,20 +51,15 @@ class ImportOrderingRuleCustomTest {
             import android.content.Context as Ctx
             import androidx.fragment.app.Fragment as F
             """.trimIndent()
-
-        val editorConfigOverride = getCustomImportOrderEditorConfigOverride("*,|,^")
-
-        assertThat(
-            rule.lint(imports, editorConfigOverride)
-        ).isEqualTo(expectedErrors)
-        assertThat(
-            rule.format(imports, editorConfigOverride)
-        ).isEqualTo(formattedImports)
+        importOrderingRuleAssertThat(code)
+            .withEditorConfigOverride(ideaImportsLayoutProperty to "*,|,^")
+            .hasLintViolation(1, 1, "Imports must be ordered according to the pattern specified in .editorconfig")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
-    fun `empty line between imports and aliases - wrong order`() {
-        val imports =
+    fun `Given some imports incorrectly ordered and with unexpected empty lines then do return lint errors`() {
+        val code =
             """
             import android.app.Activity
             import android.content.Context as Ctx
@@ -87,8 +72,7 @@ class ImportOrderingRuleCustomTest {
             import java.util.List
             import kotlin.concurrent.Thread
             """.trimIndent()
-
-        val formattedImports =
+        val formattedCode =
             """
             import android.content.Context as Ctx
             import androidx.fragment.app.Fragment as F
@@ -99,20 +83,15 @@ class ImportOrderingRuleCustomTest {
             import java.util.List
             import kotlin.concurrent.Thread
             """.trimIndent()
-
-        val editorConfigOverride = getCustomImportOrderEditorConfigOverride("^,|,*")
-
-        assertThat(
-            rule.lint(imports, editorConfigOverride)
-        ).isEqualTo(expectedErrors)
-        assertThat(
-            rule.format(imports, editorConfigOverride)
-        ).isEqualTo(formattedImports)
+        importOrderingRuleAssertThat(code)
+            .withEditorConfigOverride(ideaImportsLayoutProperty to "^,|,*")
+            .hasLintViolation(1, 1, "Imports must be ordered according to the pattern specified in .editorconfig")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
-    fun `default idea java pattern - ok`() {
-        val formattedImports =
+    fun `Given some imports ordered as required then do no return lint errors`() {
+        val code =
             """
             import android.app.Activity
             import android.view.View
@@ -128,22 +107,15 @@ class ImportOrderingRuleCustomTest {
             import kotlin.concurrent.Thread
             import kotlin.io.Closeable
             """.trimIndent()
-
-        val editorConfigOverride = getCustomImportOrderEditorConfigOverride(
-            "android.**,|,org.junit.**,|,net.**,|,org.**,|,java.**,|,com.**,|,javax.**,|,*"
-        )
-
-        assertThat(
-            rule.lint(formattedImports, editorConfigOverride)
-        ).isEmpty()
-        assertThat(
-            rule.format(formattedImports, editorConfigOverride)
-        ).isEqualTo(formattedImports)
+        importOrderingRuleAssertThat(code)
+            .withEditorConfigOverride(
+                ideaImportsLayoutProperty to "android.**,|,org.junit.**,|,net.**,|,org.**,|,java.**,|,com.**,|,javax.**,|,*"
+            ).hasNoLintViolations()
     }
 
     @Test
-    fun `default idea java pattern - wrong order`() {
-        val imports =
+    fun `Given some imports not ordered as required then do return lint errors`() {
+        val code =
             """
             import android.app.Activity
             import android.view.View
@@ -159,8 +131,7 @@ class ImportOrderingRuleCustomTest {
             import java.util.List
             import org.foo.Bar
             """.trimIndent()
-
-        val formattedImports =
+        val formattedCode =
             """
             import android.app.Activity
             import android.view.View
@@ -176,22 +147,16 @@ class ImportOrderingRuleCustomTest {
             import kotlin.concurrent.Thread
             import kotlin.io.Closeable
             """.trimIndent()
-
-        val editorConfigOverride = getCustomImportOrderEditorConfigOverride(
-            "android.**,|,org.junit.**,|,net.**,|,org.**,|,java.**,|,com.**,|,javax.**,|,*"
-        )
-
-        assertThat(
-            rule.lint(imports, editorConfigOverride)
-        ).isEqualTo(expectedErrors)
-        assertThat(
-            rule.format(imports, editorConfigOverride)
-        ).isEqualTo(formattedImports)
+        importOrderingRuleAssertThat(code)
+            .withEditorConfigOverride(
+                ideaImportsLayoutProperty to "android.**,|,org.junit.**,|,net.**,|,org.**,|,java.**,|,com.**,|,javax.**,|,*"
+            ).hasLintViolation(1, 1, "Imports must be ordered according to the pattern specified in .editorconfig")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
-    fun `multiple empty lines - ignored`() {
-        val formattedImports =
+    fun `Given an imports layout with multiple consecutive empty lines then fold to one single empty line`() {
+        val code =
             """
             import java.util.List
 
@@ -200,58 +165,14 @@ class ImportOrderingRuleCustomTest {
             import android.app.Activity
             import android.view.View
             """.trimIndent()
-
-        val editorConfigOverride = getCustomImportOrderEditorConfigOverride(
-            "java.**,|,|,|,kotlin.**,*"
-        )
-
-        assertThat(
-            rule.lint(formattedImports, editorConfigOverride)
-        ).isEmpty()
-        assertThat(
-            rule.format(formattedImports, editorConfigOverride)
-        ).isEqualTo(formattedImports)
+        importOrderingRuleAssertThat(code)
+            .withEditorConfigOverride(ideaImportsLayoutProperty to "java.**,|,|,|,kotlin.**,*")
+            .hasNoLintViolations()
     }
 
     @Test
-    fun `multiple empty lines - transformed into one`() {
-        val imports =
-            """
-            import java.util.List
-
-
-
-            import kotlin.concurrent.Thread
-            import kotlin.io.Closeable
-            import android.app.Activity
-            import android.view.View
-            """.trimIndent()
-
-        val formattedImports =
-            """
-            import java.util.List
-
-            import kotlin.concurrent.Thread
-            import kotlin.io.Closeable
-            import android.app.Activity
-            import android.view.View
-            """.trimIndent()
-
-        val editorConfigOverride = getCustomImportOrderEditorConfigOverride(
-            "java.**,|,|,|,kotlin.**,*"
-        )
-
-        assertThat(
-            rule.lint(imports, editorConfigOverride)
-        ).isEqualTo(expectedErrors)
-        assertThat(
-            rule.format(imports, editorConfigOverride)
-        ).isEqualTo(formattedImports)
-    }
-
-    @Test
-    fun `alias pattern - ok`() {
-        val formattedImports =
+    fun `Given some imports with aliases correctly ordered`() {
+        val code =
             """
             import kotlin.io.Closeable as C
             import android.view.View as V
@@ -260,22 +181,14 @@ class ImportOrderingRuleCustomTest {
             import kotlin.concurrent.Thread
             import java.util.List as L
             """.trimIndent()
-
-        val editorConfigOverride = getCustomImportOrderEditorConfigOverride(
-            "^kotlin.**,^android.**,android.**,|,*,^"
-        )
-
-        assertThat(
-            rule.lint(formattedImports, editorConfigOverride)
-        ).isEmpty()
-        assertThat(
-            rule.format(formattedImports, editorConfigOverride)
-        ).isEqualTo(formattedImports)
+        importOrderingRuleAssertThat(code)
+            .withEditorConfigOverride(ideaImportsLayoutProperty to "^kotlin.**,^android.**,android.**,|,*,^")
+            .hasNoLintViolations()
     }
 
     @Test
-    fun `alias pattern - wrong order`() {
-        val imports =
+    fun `Given some imports with aliases incorrectly ordered`() {
+        val code =
             """
             import android.app.Activity
             import android.view.View as V
@@ -283,8 +196,7 @@ class ImportOrderingRuleCustomTest {
             import kotlin.concurrent.Thread
             import kotlin.io.Closeable as C
             """.trimIndent()
-
-        val formattedImports =
+        val formattedCode =
             """
             import kotlin.io.Closeable as C
             import android.view.View as V
@@ -293,22 +205,15 @@ class ImportOrderingRuleCustomTest {
             import java.util.List as L
             import kotlin.concurrent.Thread
             """.trimIndent()
-
-        val editorConfigOverride = getCustomImportOrderEditorConfigOverride(
-            "^kotlin.**,^android.**,android.**,|,^,*"
-        )
-
-        assertThat(
-            rule.lint(imports, editorConfigOverride)
-        ).isEqualTo(expectedErrors)
-        assertThat(
-            rule.format(imports, editorConfigOverride)
-        ).isEqualTo(formattedImports)
+        importOrderingRuleAssertThat(code)
+            .withEditorConfigOverride(ideaImportsLayoutProperty to "^kotlin.**,^android.**,android.**,|,^,*")
+            .hasLintViolation(1, 1, "Imports must be ordered according to the pattern specified in .editorconfig")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
-    fun `full path pattern - ok`() {
-        val formattedImports =
+    fun `Given some import layout which matches a complete import and imports in correct order`() {
+        val code =
             """
             import kotlin.io.Closeable
             import kotlin.concurrent.Thread
@@ -316,22 +221,14 @@ class ImportOrderingRuleCustomTest {
             import android.view.View
             import java.util.List
             """.trimIndent()
-
-        val editorConfigOverride = getCustomImportOrderEditorConfigOverride(
-            "kotlin.io.Closeable.*,kotlin.**,*"
-        )
-
-        assertThat(
-            rule.lint(formattedImports, editorConfigOverride)
-        ).isEmpty()
-        assertThat(
-            rule.format(formattedImports, editorConfigOverride)
-        ).isEqualTo(formattedImports)
+        importOrderingRuleAssertThat(code)
+            .withEditorConfigOverride(ideaImportsLayoutProperty to "kotlin.io.Closeable.*,kotlin.**,*")
+            .hasNoLintViolations()
     }
 
     @Test
-    fun `full path pattern - wrong order`() {
-        val imports =
+    fun `Given some import layout which matches a complete import and imports in incorrect order`() {
+        val code =
             """
             import android.app.Activity
             import android.view.View
@@ -340,8 +237,7 @@ class ImportOrderingRuleCustomTest {
             import kotlin.concurrent.Thread
             import kotlin.io.Closeable
             """.trimIndent()
-
-        val formattedImports =
+        val formattedCode =
             """
             import kotlin.io.Closeable
             import kotlin.concurrent.Thread
@@ -349,33 +245,8 @@ class ImportOrderingRuleCustomTest {
             import android.view.View
             import java.util.List
             """.trimIndent()
-
-        val editorConfigOverride = getCustomImportOrderEditorConfigOverride(
-            "kotlin.io.Closeable.*,kotlin.**,*"
-        )
-
-        assertThat(
-            rule.lint(imports, editorConfigOverride)
-        ).isEqualTo(expectedErrors)
-        assertThat(
-            rule.format(imports, editorConfigOverride)
-        ).isEqualTo(formattedImports)
-    }
-
-    private fun getCustomImportOrderEditorConfigOverride(
-        importsLayout: String
-    ) = EditorConfigOverride.from(
-        ImportOrderingRule.ideaImportsLayoutProperty to importsLayout
-    )
-
-    companion object {
-        private val expectedErrors = listOf(
-            LintError(
-                1,
-                1,
-                "import-ordering",
-                "Imports must be ordered according to the pattern specified in .editorconfig"
-            )
-        )
+        importOrderingRuleAssertThat(code)
+            .withEditorConfigOverride(ideaImportsLayoutProperty to "kotlin.io.Closeable.*,kotlin.**,*")
+            .isFormattedAs(formattedCode)
     }
 }

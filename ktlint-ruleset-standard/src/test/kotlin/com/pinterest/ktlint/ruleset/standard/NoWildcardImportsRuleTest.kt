@@ -1,17 +1,17 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.core.LintError
-import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.ruleset.standard.NoWildcardImportsRule.Companion.packagesToUseImportOnDemandProperty
-import com.pinterest.ktlint.test.lint
-import org.assertj.core.api.Assertions.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 @FeatureInAlphaState
 class NoWildcardImportsRuleTest {
+    private val noWildcardImportsRuleAssertThat = NoWildcardImportsRule().assertThat()
+
     @DisplayName("Given that .editorconfig property packagesToUseImportOnDemandProperty is not set")
     @Nested
     inner class PackagesToUseImportOnDemandPropertyNotSet {
@@ -19,15 +19,17 @@ class NoWildcardImportsRuleTest {
         fun `Wildcard imports are detected`() {
             val code =
                 """
-                import a.*
-                import a.b.c.*
-                import a.b
+                import a
+                import a.b.*
+                import a.b.c
+                import a.d.*
                 import foo.bar.`**`
                 """.trimIndent()
-            assertThat(NoWildcardImportsRule().lint(code)).containsExactly(
-                LintError(1, 1, "no-wildcard-imports", "Wildcard import"),
-                LintError(2, 1, "no-wildcard-imports", "Wildcard import")
-            )
+            noWildcardImportsRuleAssertThat(code)
+                .hasLintViolationsWithoutAutoCorrect(
+                    LintViolation(2, 1, "Wildcard import"),
+                    LintViolation(4, 1, "Wildcard import")
+                )
         }
 
         @Test
@@ -37,7 +39,7 @@ class NoWildcardImportsRuleTest {
                 import a.b
                 import kotlinx.android.synthetic.main.layout_name.*
                 """.trimIndent()
-            assertThat(NoWildcardImportsRule().lint(code)).isEmpty()
+            noWildcardImportsRuleAssertThat(code).hasNoLintViolations()
         }
     }
 
@@ -53,17 +55,12 @@ class NoWildcardImportsRuleTest {
                 import react.*
                 import react.dom.*
                 """.trimIndent()
-            assertThat(
-                NoWildcardImportsRule().lint(
-                    code,
-                    EditorConfigOverride.from(
-                        packagesToUseImportOnDemandProperty to "unset"
-                    )
+            noWildcardImportsRuleAssertThat(code)
+                .withEditorConfigOverride(packagesToUseImportOnDemandProperty to "unset")
+                .hasLintViolationsWithoutAutoCorrect(
+                    LintViolation(3, 1, "Wildcard import"),
+                    LintViolation(4, 1, "Wildcard import")
                 )
-            ).containsExactly(
-                LintError(3, 1, "no-wildcard-imports", "Wildcard import"),
-                LintError(4, 1, "no-wildcard-imports", "Wildcard import")
-            )
         }
 
         @Test
@@ -75,16 +72,9 @@ class NoWildcardImportsRuleTest {
                 import react.*
                 import react.dom.*
                 """.trimIndent()
-            assertThat(
-                NoWildcardImportsRule().lint(
-                    code,
-                    EditorConfigOverride.from(
-                        packagesToUseImportOnDemandProperty to "react.*,react.dom.*"
-                    )
-                )
-            ).containsExactly(
-                LintError(2, 1, "no-wildcard-imports", "Wildcard import")
-            )
+            noWildcardImportsRuleAssertThat(code)
+                .withEditorConfigOverride(packagesToUseImportOnDemandProperty to "react.*,react.dom.*")
+                .hasLintViolationWithoutAutoCorrect(2, 1, "Wildcard import")
         }
 
         @Test
@@ -96,16 +86,9 @@ class NoWildcardImportsRuleTest {
                 import react.*
                 import react.dom.*
                 """.trimIndent()
-            assertThat(
-                NoWildcardImportsRule().lint(
-                    code,
-                    EditorConfigOverride.from(
-                        packagesToUseImportOnDemandProperty to "react.**"
-                    )
-                )
-            ).containsExactly(
-                LintError(2, 1, "no-wildcard-imports", "Wildcard import")
-            )
+            noWildcardImportsRuleAssertThat(code)
+                .withEditorConfigOverride(packagesToUseImportOnDemandProperty to "react.**")
+                .hasLintViolationWithoutAutoCorrect(2, 1, "Wildcard import")
         }
 
         @Test
@@ -115,16 +98,9 @@ class NoWildcardImportsRuleTest {
                 import a.b
                 import kotlinx.android.synthetic.main.layout_name.*
                 """.trimIndent()
-            assertThat(
-                NoWildcardImportsRule().lint(
-                    code,
-                    EditorConfigOverride.from(
-                        packagesToUseImportOnDemandProperty to ""
-                    )
-                )
-            ).containsExactly(
-                LintError(2, 1, "no-wildcard-imports", "Wildcard import")
-            )
+            noWildcardImportsRuleAssertThat(code)
+                .withEditorConfigOverride(packagesToUseImportOnDemandProperty to "")
+                .hasLintViolationWithoutAutoCorrect(2, 1, "Wildcard import")
         }
     }
 }

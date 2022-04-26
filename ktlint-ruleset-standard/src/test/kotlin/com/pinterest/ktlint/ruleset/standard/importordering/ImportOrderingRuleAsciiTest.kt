@@ -1,45 +1,41 @@
 package com.pinterest.ktlint.ruleset.standard.importordering
 
-import com.pinterest.ktlint.core.LintError
-import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.ruleset.standard.ImportOrderingRule
-import com.pinterest.ktlint.test.format
-import com.pinterest.ktlint.test.lint
-import org.assertj.core.api.Assertions.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
 import org.junit.jupiter.api.Test
 
 @OptIn(FeatureInAlphaState::class)
 class ImportOrderingRuleAsciiTest {
-    private val rule = ImportOrderingRule()
+    private val importOrderingRuleAssertThat = ImportOrderingRule().assertThat()
 
     @Test
-    fun testFormat() {
-        val imports =
+    fun `Given some imports which are sorted incorrectly then do return lint errors`() {
+        val code =
             """
-            import a.A
-            import b.C
-            import a.AB
+            import android.view.ViewGroup
+            import android.view.View
+            import android.app.Activity
+            import kotlin.concurrent.Thread
+            import java.util.List
             """.trimIndent()
-
-        val formattedImports =
+        val formattedCode =
             """
-            import a.A
-            import a.AB
-            import b.C
+            import android.app.Activity
+            import android.view.View
+            import android.view.ViewGroup
+            import java.util.List
+            import kotlin.concurrent.Thread
             """.trimIndent()
-
-        assertThat(
-            rule.lint(imports, ASCII_IMPORT_ORDERING)
-        ).isEqualTo(expectedErrors())
-        assertThat(
-            rule.format(imports, ASCII_IMPORT_ORDERING)
-        ).isEqualTo(formattedImports)
+        importOrderingRuleAssertThat(code)
+            .withEditorConfigOverride(ASCII_IMPORT_ORDERING)
+            .hasLintViolation(1, 1, "Imports must be ordered in lexicographic order without any empty lines in-between")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
-    fun testFormatOk() {
-        val formattedImports =
+    fun `Given imports which are sorted correctly then do not return lint errors`() {
+        val code =
             """
             import android.app.Activity
             import android.view.View
@@ -47,194 +43,116 @@ class ImportOrderingRuleAsciiTest {
             import java.util.List
             import kotlin.concurrent.Thread
             """.trimIndent()
-
-        assertThat(
-            rule.lint(formattedImports, ASCII_IMPORT_ORDERING)
-        ).isEmpty()
-        assertThat(
-            rule.format(formattedImports, ASCII_IMPORT_ORDERING)
-        ).isEqualTo(formattedImports)
+        importOrderingRuleAssertThat(code)
+            .withEditorConfigOverride(ASCII_IMPORT_ORDERING)
+            .hasNoLintViolations()
     }
 
     @Test
-    fun testFormatWrongOrder() {
-        val imports =
+    fun `Given some imports including duplicates then do return a lint error`() {
+        val code =
             """
-            import android.view.ViewGroup
-            import android.view.View
-            import android.app.Activity
-            import kotlin.concurrent.Thread
-            import java.util.List
-            """.trimIndent()
-
-        val formattedImports =
-            """
-            import android.app.Activity
             import android.view.View
             import android.view.ViewGroup
-            import java.util.List
-            import kotlin.concurrent.Thread
+            import android.view.View
             """.trimIndent()
-
-        assertThat(
-            rule.lint(imports, ASCII_IMPORT_ORDERING)
-        ).isEqualTo(expectedErrors())
-        assertThat(
-            rule.format(imports, ASCII_IMPORT_ORDERING)
-        ).isEqualTo(formattedImports)
+        val formattedCode =
+            """
+            import android.view.View
+            import android.view.ViewGroup
+            """.trimIndent()
+        importOrderingRuleAssertThat(code)
+            .withEditorConfigOverride(ASCII_IMPORT_ORDERING)
+            .hasLintViolation(3, 1, "Duplicate 'import android.view.View' found")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
-    fun testFormatDuplicate() {
-        val imports =
+    fun `Given some imports in correct order and containing blank lines then do return a lint error`() {
+        val code =
             """
+            import android.app.Activity
+            import android.view.View
+
+            import android.view.ViewGroup
+            import java.util.List
+
+
+            import kotlin.concurrent.Thread
+            """.trimIndent()
+        val formattedCode =
+            """
+            import android.app.Activity
             import android.view.View
             import android.view.ViewGroup
-            import android.view.View
+            import java.util.List
+            import kotlin.concurrent.Thread
             """.trimIndent()
-
-        val formattedImports =
-            """
-            import android.view.View
-            import android.view.ViewGroup
-            """.trimIndent()
-
-        assertThat(
-            rule.lint(imports, ASCII_IMPORT_ORDERING)
-        ).containsExactly(
-            LintError(3, 1, "import-ordering", "Duplicate 'import android.view.View' found")
-        )
-        assertThat(
-            rule.format(imports, ASCII_IMPORT_ORDERING)
-        ).isEqualTo(formattedImports)
+        importOrderingRuleAssertThat(code)
+            .withEditorConfigOverride(ASCII_IMPORT_ORDERING)
+            .hasLintViolation(1, 1, "Imports must be ordered in lexicographic order without any empty lines in-between")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
-    fun testFormatWrongOrderAndBlankLines() {
-        val imports =
-            """
-            import android.view.ViewGroup
-
-
-            import android.view.View
-            import android.app.Activity
-
-            import kotlin.concurrent.Thread
-
-            import java.util.List
-            """.trimIndent()
-
-        val formattedImports =
-            """
-            import android.app.Activity
-            import android.view.View
-            import android.view.ViewGroup
-            import java.util.List
-            import kotlin.concurrent.Thread
-            """.trimIndent()
-
-        assertThat(
-            rule.lint(imports, ASCII_IMPORT_ORDERING)
-        ).isEqualTo(expectedErrors())
-        assertThat(
-            rule.format(imports, ASCII_IMPORT_ORDERING)
-        ).isEqualTo(formattedImports)
-    }
-
-    @Test
-    fun testFormatBlankLines() {
-        val imports =
-            """
-            import android.app.Activity
-            import android.view.View
-
-            import android.view.ViewGroup
-            import java.util.List
-
-
-            import kotlin.concurrent.Thread
-            """.trimIndent()
-
-        val formattedImports =
-            """
-            import android.app.Activity
-            import android.view.View
-            import android.view.ViewGroup
-            import java.util.List
-            import kotlin.concurrent.Thread
-            """.trimIndent()
-
-        assertThat(
-            rule.lint(imports, ASCII_IMPORT_ORDERING)
-        ).isEqualTo(expectedErrors())
-        assertThat(
-            rule.format(imports, ASCII_IMPORT_ORDERING)
-        ).isEqualTo(formattedImports)
-    }
-
-    @Test
-    fun testFormatImportsWithEOLComments() {
-        val imports =
+    fun `Given some imports having an EOL comment but in incorrect order then retain the comment and do return a lint error`() {
+        val code =
             """
             import android.view.View
             import android.app.Activity // comment
             import android.view.ViewGroup
             """.trimIndent()
-
-        val formattedImports =
+        val formattedCode =
             """
             import android.app.Activity // comment
             import android.view.View
             import android.view.ViewGroup
             """.trimIndent()
-
-        assertThat(
-            rule.lint(imports, ASCII_IMPORT_ORDERING)
-        ).isEqualTo(expectedErrors())
-        assertThat(
-            rule.format(imports, ASCII_IMPORT_ORDERING)
-        ).isEqualTo(formattedImports)
+        importOrderingRuleAssertThat(code)
+            .withEditorConfigOverride(ASCII_IMPORT_ORDERING)
+            .hasLintViolation(1, 1, "Imports must be ordered in lexicographic order without any empty lines in-between")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
-    fun testCannotFormatImportsWithBlockComments() {
-        val imports =
+    fun `Given some imports separated by a block comment then do return a lint error`() {
+        val code =
             """
             import android.view.View
             /* comment */
             import android.app.Activity
             import android.view.ViewGroup
             """.trimIndent()
-
-        assertThat(
-            rule.lint(imports, ASCII_IMPORT_ORDERING)
-        ).isEqualTo(expectedErrors(" -- no autocorrection due to comments in the import list"))
-        assertThat(
-            rule.format(imports, ASCII_IMPORT_ORDERING)
-        ).isEqualTo(imports)
+        importOrderingRuleAssertThat(code)
+            .withEditorConfigOverride(ASCII_IMPORT_ORDERING)
+            .hasLintViolationWithoutAutoCorrect(
+                1,
+                1,
+                "Imports must be ordered in lexicographic order without any empty lines in-between -- no autocorrection due to comments in the import list"
+            )
     }
 
     @Test
-    fun testCannotFormatImportsWithEOLComments() {
-        val imports =
+    fun `Given some imports separated by a EOL comment on a separate line then do return a lint error`() {
+        val code =
             """
             import android.view.View
             // comment
             import android.app.Activity
             import android.view.ViewGroup
             """.trimIndent()
-
-        assertThat(
-            rule.lint(imports, ASCII_IMPORT_ORDERING)
-        ).isEqualTo(expectedErrors(" -- no autocorrection due to comments in the import list"))
-        assertThat(
-            rule.format(imports, ASCII_IMPORT_ORDERING)
-        ).isEqualTo(imports)
+        importOrderingRuleAssertThat(code)
+            .withEditorConfigOverride(ASCII_IMPORT_ORDERING)
+            .hasLintViolationWithoutAutoCorrect(
+                1,
+                1,
+                "Imports must be ordered in lexicographic order without any empty lines in-between -- no autocorrection due to comments in the import list"
+            )
     }
 
     @Test
-    fun testAliasesAreSortedAmongNormalImports() {
-        val imports =
+    fun `Given some imports with aliases then retain them and do return a lint error`() {
+        val code =
             """
             import android.view.ViewGroup as VG
             import android.view.View as V
@@ -242,8 +160,7 @@ class ImportOrderingRuleAsciiTest {
             import kotlin.concurrent.Thread
             import java.util.List as L
             """.trimIndent()
-
-        val formattedImports =
+        val formattedCode =
             """
             import android.app.Activity
             import android.view.View as V
@@ -251,49 +168,31 @@ class ImportOrderingRuleAsciiTest {
             import java.util.List as L
             import kotlin.concurrent.Thread
             """.trimIndent()
-
-        assertThat(
-            rule.lint(imports, ASCII_IMPORT_ORDERING)
-        ).isEqualTo(expectedErrors())
-        assertThat(
-            rule.format(imports, ASCII_IMPORT_ORDERING)
-        ).isEqualTo(formattedImports)
+        importOrderingRuleAssertThat(code)
+            .withEditorConfigOverride(ASCII_IMPORT_ORDERING)
+            .hasLintViolation(1, 1, "Imports must be ordered in lexicographic order without any empty lines in-between")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
-    fun `backticks should be ignored in imports`() {
-        val imports =
+    fun `Given some imports between backticks then ignore the backticks for the sort order`() {
+        val code =
             """
             import org.mockito.Mockito.`when`
             import org.mockito.Mockito.verify
             """.trimIndent()
-
-        val formattedImports =
+        val formattedCode =
             """
             import org.mockito.Mockito.verify
             import org.mockito.Mockito.`when`
             """.trimIndent()
-
-        assertThat(
-            rule.lint(imports, ASCII_IMPORT_ORDERING)
-        ).isEqualTo(expectedErrors())
-        assertThat(
-            rule.format(imports, ASCII_IMPORT_ORDERING)
-        ).isEqualTo(formattedImports)
+        importOrderingRuleAssertThat(code)
+            .withEditorConfigOverride(ASCII_IMPORT_ORDERING)
+            .hasLintViolation(1, 1, "Imports must be ordered in lexicographic order without any empty lines in-between")
+            .isFormattedAs(formattedCode)
     }
 
     private companion object {
-        fun expectedErrors(additionalMessage: String = "") = listOf(
-            LintError(
-                1,
-                1,
-                "import-ordering",
-                "Imports must be ordered in lexicographic order without any empty lines in-between$additionalMessage"
-            )
-        )
-
-        val ASCII_IMPORT_ORDERING = EditorConfigOverride.from(
-            ImportOrderingRule.ideaImportsLayoutProperty to "*"
-        )
+        val ASCII_IMPORT_ORDERING = ImportOrderingRule.ideaImportsLayoutProperty to "*"
     }
 }
