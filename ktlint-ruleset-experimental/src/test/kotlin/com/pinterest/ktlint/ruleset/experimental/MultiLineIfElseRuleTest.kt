@@ -1,167 +1,192 @@
 package com.pinterest.ktlint.ruleset.experimental
 
-import com.pinterest.ktlint.core.LintError
-import com.pinterest.ktlint.test.format
-import com.pinterest.ktlint.test.lint
-import org.assertj.core.api.Assertions.assertThat
+import com.pinterest.ktlint.ruleset.standard.IndentationRule
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 class MultiLineIfElseRuleTest {
+    private val multiLineIfElseRuleAssertThat = MultiLineIfElseRule().assertThat()
 
     @Test
-    fun testSingleLineWithCurlyBraces() {
-        val ifThenWithCurlyBrace = "fun main() { if (true) { return 0 } }"
-        assertOK(ifThenWithCurlyBrace)
-        val ifElseWithCurlBrace = "fun main() { if (true) { return 0 } else {return 1}}"
-        assertOK(ifElseWithCurlBrace)
-    }
-
-    @Test
-    fun testSingleLineWithoutCurlyBraces() {
-        val ifWithoutCurlyBrace = "fun main() { if (true) return 0 }"
-        assertOK(ifWithoutCurlyBrace)
-        val ifElseWithoutCurlyBrace = "fun main() { if (true) return 0 else 1}"
-        assertOK(ifElseWithoutCurlyBrace)
-    }
-
-    @Test
-    fun testMultiLineWithCurlBraces() {
-        val ifWithCurlyBrace = "fun main() { if (true) {\n return 0 } }"
-        assertOK(ifWithCurlyBrace)
-        val ifElseWithCurlyBrace = "fun main() { if (true) {\n return 0 } \n else {\n return 1}}"
-        assertOK(ifElseWithCurlyBrace)
-    }
-
-    @Test
-    fun testMultiLineIfWithoutCurlyBraces() {
-        val ifWithoutCurlyBrace =
+    fun `Given an if-statement with curly braces on single line`() {
+        val code =
             """
-            fun main() {
-                if (true)
-                    return 0
+            fun foo() {
+                if (true) { return 0 }
             }
             """.trimIndent()
-        assertThat(lint(ifWithoutCurlyBrace)).isEqualTo(
-            listOf(
-                LintError(3, 9, "multiline-if-else", "Missing { ... }")
-            )
-        )
-        assertThat(format(ifWithoutCurlyBrace)).isEqualTo(
+        multiLineIfElseRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Given an if-else-statement with curly braces on single line`() {
+        val code =
             """
-            fun main() {
+            val foo = if (true) { return 0 } else {return 1}
+            """.trimIndent()
+        multiLineIfElseRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Given an if-statement without curly braces on single line`() {
+        val code =
+            """
+            fun foo() {
+                if (true) return 0
+            }
+            """.trimIndent()
+        multiLineIfElseRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Given an if-else-statement without curly braces on single line`() {
+        val code =
+            """
+            val foo = if (true) return 0 else return 1
+            """.trimIndent()
+        multiLineIfElseRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Given a multiline if-statement with curly braces`() {
+        val code =
+            """
+            fun foo() {
                 if (true) {
                     return 0
                 }
             }
             """.trimIndent()
-        )
+        multiLineIfElseRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
-    fun testMultiLineIfElseWithoutCurlyBraces() {
-        val ifElseWithoutCurlyBrace =
+    fun `Given a multiline if-else-statement with curly braces`() {
+        val code =
             """
-            fun main() {
-                if (true)
-                    return 0
-                else
-                    return 1
-            }
-            """.trimIndent()
-
-        assertThat(lint(ifElseWithoutCurlyBrace)).isEqualTo(
-            listOf(
-                LintError(3, 9, "multiline-if-else", "Missing { ... }"),
-                LintError(5, 9, "multiline-if-else", "Missing { ... }")
-            )
-        )
-        assertThat(format(ifElseWithoutCurlyBrace)).isEqualTo(
-            """
-            fun main() {
+            val foo =
                 if (true) {
                     return 0
                 } else {
                     return 1
                 }
-            }
             """.trimIndent()
-        )
+        multiLineIfElseRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
-    fun testMultilineCondition() {
-        val ifElseWithoutCurlyBrace =
+    fun `Given a multiline if-statement without curly braces`() {
+        val code =
             """
-            fun main() {
-                if (i2 > 0 &&
-                    i3 < 0
+            fun foo() {
+                if (true)
+                    return 0
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun foo() {
+                if (true) {
+                    return 0
+                }
+            }
+            """.trimIndent()
+        multiLineIfElseRuleAssertThat(code)
+            .hasLintViolation(3, 9, "Missing { ... }")
+            .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given a multiline if-else-statement without curly braces`() {
+        val code =
+            """
+            val foo =
+                if (true)
+                    return 0
+                else
+                    return 1
+            """.trimIndent()
+        val formattedCode =
+            """
+            val foo =
+                if (true) {
+                    return 0
+                } else {
+                    return 1
+                }
+            """.trimIndent()
+        multiLineIfElseRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(3, 9, "Missing { ... }"),
+                LintViolation(5, 9, "Missing { ... }")
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Issue 727 - Given a multiline if-else-statement with multiple conditions without curly braces`() {
+        val code =
+            """
+            val foo =
+                if (false ||
+                    true
                 )
-                    return 2
+                    return 0
                 else
-                    return 3
-            }
+                    return 1
             """.trimIndent()
-
-        assertThat(lint(ifElseWithoutCurlyBrace)).isEqualTo(
-            listOf(
-                LintError(5, 9, "multiline-if-else", "Missing { ... }"),
-                LintError(7, 9, "multiline-if-else", "Missing { ... }")
-            )
-        )
-        assertThat(format(ifElseWithoutCurlyBrace)).isEqualTo(
+        val formattedCode =
             """
-            fun main() {
-                if (i2 > 0 &&
-                    i3 < 0
+            val foo =
+                if (false ||
+                    true
                 ) {
-                    return 2
+                    return 0
                 } else {
-                    return 3
+                    return 1
                 }
-            }
             """.trimIndent()
-        )
+        multiLineIfElseRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(5, 9, "Missing { ... }"),
+                LintViolation(7, 9, "Missing { ... }")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
-    fun testMultiLineIfElseIfElseWithoutCurlyBraces() {
-        val ifElseWithoutCurlyBrace =
+    fun `Issue 727 - Given a multiline if-else-if-statement without curly braces`() {
+        val code =
             """
-            fun main() {
+            val foo =
                 if (true)
                     return 0
                 else if (false)
                     return 1
                 else
-                    return -1
-            }
+                    return 2
             """.trimIndent()
-
-        assertThat(lint(ifElseWithoutCurlyBrace)).isEqualTo(
-            listOf(
-                LintError(3, 9, "multiline-if-else", "Missing { ... }"),
-                LintError(5, 9, "multiline-if-else", "Missing { ... }"),
-                LintError(7, 9, "multiline-if-else", "Missing { ... }")
-            )
-        )
-        assertThat(format(ifElseWithoutCurlyBrace)).isEqualTo(
+        val formattedCode =
             """
-            fun main() {
+            val foo =
                 if (true) {
                     return 0
                 } else if (false) {
                     return 1
                 } else {
-                    return -1
+                    return 2
                 }
-            }
             """.trimIndent()
-        )
+        multiLineIfElseRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(3, 9, "Missing { ... }"),
+                LintViolation(5, 9, "Missing { ... }"),
+                LintViolation(7, 9, "Missing { ... }")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
-    fun testNestedMultiLineIfElse() {
-        val ifElseWithoutCurlyBrace =
+    fun `Issue 727 - Given a deep nested if-else-if-statement without curly braces`() {
+        val code =
             """
             fun main() {
                 if (outerCondition1)
@@ -193,26 +218,7 @@ class MultiLineIfElseRuleTest {
                         return -1
             }
             """.trimIndent()
-
-        assertThat(lint(ifElseWithoutCurlyBrace)).isEqualTo(
-            listOf(
-                LintError(3, 9, "multiline-if-else", "Missing { ... }"),
-                LintError(4, 13, "multiline-if-else", "Missing { ... }"),
-                LintError(5, 17, "multiline-if-else", "Missing { ... }"),
-                LintError(7, 17, "multiline-if-else", "Missing { ... }"),
-                LintError(9, 17, "multiline-if-else", "Missing { ... }"),
-                LintError(11, 17, "multiline-if-else", "Missing { ... }"),
-                LintError(13, 13, "multiline-if-else", "Missing { ... }"),
-                LintError(18, 9, "multiline-if-else", "Missing { ... }"),
-                LintError(19, 13, "multiline-if-else", "Missing { ... }"),
-                LintError(21, 13, "multiline-if-else", "Missing { ... }"),
-                LintError(23, 13, "multiline-if-else", "Missing { ... }"),
-                LintError(25, 9, "multiline-if-else", "Missing { ... }"),
-                LintError(26, 13, "multiline-if-else", "Missing { ... }"),
-                LintError(28, 13, "multiline-if-else", "Missing { ... }")
-            )
-        )
-        assertThat(format(ifElseWithoutCurlyBrace)).isEqualTo(
+        val formattedCode =
             """
             fun main() {
                 if (outerCondition1) {
@@ -248,12 +254,28 @@ class MultiLineIfElseRuleTest {
                 }
             }
             """.trimIndent()
-        )
+        multiLineIfElseRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(3, 9, "Missing { ... }"),
+                LintViolation(4, 13, "Missing { ... }"),
+                LintViolation(5, 17, "Missing { ... }"),
+                LintViolation(7, 17, "Missing { ... }"),
+                LintViolation(9, 17, "Missing { ... }"),
+                LintViolation(11, 17, "Missing { ... }"),
+                LintViolation(13, 13, "Missing { ... }"),
+                LintViolation(18, 9, "Missing { ... }"),
+                LintViolation(19, 13, "Missing { ... }"),
+                LintViolation(21, 13, "Missing { ... }"),
+                LintViolation(23, 13, "Missing { ... }"),
+                LintViolation(25, 9, "Missing { ... }"),
+                LintViolation(26, 13, "Missing { ... }"),
+                LintViolation(28, 13, "Missing { ... }")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
-    fun testWithEmptyLineBeforeIfExpression() {
-        val ifElseWithoutCurlyBrace =
+    fun `Given an if-statement preceded by a blank line then do no add redundant blank lines`() {
+        val code =
             """
             fun test(): Int {
                 val b = foo()
@@ -264,7 +286,7 @@ class MultiLineIfElseRuleTest {
                     return 2
             }
             """.trimIndent()
-        assertThat(format(ifElseWithoutCurlyBrace)).isEqualTo(
+        val formattedCode =
             """
             fun test(): Int {
                 val b = foo()
@@ -276,12 +298,16 @@ class MultiLineIfElseRuleTest {
                 }
             }
             """.trimIndent()
-        )
+        multiLineIfElseRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(5, 9, "Missing { ... }"),
+                LintViolation(7, 9, "Missing { ... }")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
-    fun testInReturnExpression() {
-        val ifElseWithoutCurlyBrace =
+    fun `Given an return-if-statement`() {
+        val code =
             """
             fun test(i: Int, j: Int): Int {
                 return if (i == 1)
@@ -301,7 +327,7 @@ class MultiLineIfElseRuleTest {
                         6
             }
             """.trimIndent()
-        assertThat(format(ifElseWithoutCurlyBrace)).isEqualTo(
+        val formattedCode =
             """
             fun test(i: Int, j: Int): Int {
                 return if (i == 1) {
@@ -325,12 +351,23 @@ class MultiLineIfElseRuleTest {
                 }
             }
             """.trimIndent()
-        )
+        multiLineIfElseRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(3, 9, "Missing { ... }"),
+                LintViolation(4, 13, "Missing { ... }"),
+                LintViolation(6, 13, "Missing { ... }"),
+                LintViolation(8, 9, "Missing { ... }"),
+                LintViolation(9, 13, "Missing { ... }"),
+                LintViolation(11, 13, "Missing { ... }"),
+                LintViolation(13, 9, "Missing { ... }"),
+                LintViolation(14, 13, "Missing { ... }"),
+                LintViolation(16, 13, "Missing { ... }")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
-    fun testInLambdaExpression() {
-        val ifElseWithoutCurlyBrace =
+    fun `Given an if-statement inside a lambda`() {
+        val code =
             """
             fun test(s: String?): Int {
                 val i = s.let {
@@ -342,7 +379,7 @@ class MultiLineIfElseRuleTest {
                 return i
             }
             """.trimIndent()
-        assertThat(format(ifElseWithoutCurlyBrace)).isEqualTo(
+        val formattedCode =
             """
             fun test(s: String?): Int {
                 val i = s.let {
@@ -355,12 +392,16 @@ class MultiLineIfElseRuleTest {
                 return i
             }
             """.trimIndent()
-        )
+        multiLineIfElseRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(4, 13, "Missing { ... }"),
+                LintViolation(6, 13, "Missing { ... }")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
-    fun testWithEolComments() {
-        val actual = format(
+    fun `Issue 945 - Given an if-statement without curly brace and EOL-comments in the branches before actual result of branch`() {
+        val code =
             """
             fun test() {
                 val s = if (x > 0)
@@ -371,55 +412,58 @@ class MultiLineIfElseRuleTest {
                     "b"
             }
             """.trimIndent()
-        )
-        assertThat(actual).isEqualTo(
+        val formattedCode =
             """
             fun test() {
                 val s = if (x > 0) {
-                // comment1
+                    // comment1
                     "a"
                 } else {
-                // comment2
+                    // comment2
                     "b"
                 }
             }
             """.trimIndent()
-        )
+        multiLineIfElseRuleAssertThat(code)
+            .addAdditionalFormattingRule(IndentationRule())
+            .hasLintViolations(
+                LintViolation(4, 9, "Missing { ... }"),
+                LintViolation(7, 9, "Missing { ... }")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
-    fun testWithEolComments2() {
-        val actual = format(
+    fun `Issue 945 - Given an if-statement without curly brace and EOL-comments in the branches on same line as result of branch`() {
+        val code =
             """
             fun test() {
                 val s = if (x > 0)
-                    // comment1
-                    "a" // comment2
+                    "a" // comment1
                 else
-                    // comment3
-                    "b" // comment4
+                    "b" // comment2
             }
             """.trimIndent()
-        )
-        assertThat(actual).isEqualTo(
+        val formattedCode =
             """
             fun test() {
                 val s = if (x > 0) {
-                    // comment1
-                    "a" // comment2
+                    "a" // comment1
                 } else {
-                    // comment3
-                    "b" // comment4
+                    "b" // comment2
                 }
             }
             """.trimIndent()
-        )
+        multiLineIfElseRuleAssertThat(code)
+            .addAdditionalFormattingRule(IndentationRule())
+            .hasLintViolations(
+                LintViolation(3, 9, "Missing { ... }"),
+                LintViolation(5, 9, "Missing { ... }")
+            ).isFormattedAs(formattedCode)
     }
 
-    // https://github.com/pinterest/ktlint/issues/1079
     @Test
-    fun testInArgument() {
-        val actual = format(
+    fun `Issue 1079 - Given an if-statement without curly braces a function call argument`() {
+        val code =
             """
             fun foo(x: Int, y: Int, z: Int) {}
             fun test(a: Int, b: Int, c: Int, d: Int, bar: Boolean) {
@@ -431,8 +475,7 @@ class MultiLineIfElseRuleTest {
                 )
             }
             """.trimIndent()
-        )
-        assertThat(actual).isEqualTo(
+        val formattedCode =
             """
             fun foo(x: Int, y: Int, z: Int) {}
             fun test(a: Int, b: Int, c: Int, d: Int, bar: Boolean) {
@@ -445,19 +488,9 @@ class MultiLineIfElseRuleTest {
                 )
             }
             """.trimIndent()
-        )
-    }
-
-    private fun assertOK(kotlinScript: String) {
-        assertThat(format(kotlinScript)).isEqualTo(kotlinScript)
-        assertThat(lint(kotlinScript)).isEqualTo(emptyList<LintError>())
-    }
-
-    private fun format(kotlinScript: String): String {
-        return MultiLineIfElseRule().format(kotlinScript)
-    }
-
-    private fun lint(kotlinScript: String): List<LintError> {
-        return MultiLineIfElseRule().lint(kotlinScript)
+        multiLineIfElseRuleAssertThat(code)
+            // TODO: It is not consistent that argument "b" is not wrapped in a block while argument "c" is wrapped
+            .hasLintViolation(6, 13, "Missing { ... }")
+            .isFormattedAs(formattedCode)
     }
 }

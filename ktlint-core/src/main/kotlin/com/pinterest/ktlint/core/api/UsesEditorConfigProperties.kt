@@ -200,6 +200,13 @@ public object DefaultEditorConfigProperties {
                 }
             }
         )
+
+    public val defaultEditorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<out Any>> = listOf(
+        indentStyleProperty,
+        indentSizeProperty,
+        insertNewLineProperty,
+        maxLineLengthProperty
+    )
 }
 
 /**
