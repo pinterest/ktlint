@@ -1,51 +1,25 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.core.LintError
-import com.pinterest.ktlint.test.format
-import com.pinterest.ktlint.test.lint
-import org.assertj.core.api.Assertions
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
 import org.junit.jupiter.api.Test
 
 class NoLineBreakAfterElseRuleTest {
+    private val noLineBreakAfterElseRuleAssertThat = NoLineBreakAfterElseRule().assertThat()
 
     @Test
-    fun testViolationForLineBreakBetweenElseAndIf() {
-        Assertions.assertThat(
-            NoLineBreakAfterElseRule().lint(
-                """
-                fun funA() {
-                    if (conditionA()) {
-                        doSomething()
-                    } else
-                    if (conditionB()) {
-                        doAnotherThing()
-                    }
+    fun `Given an else-if with a linebreak between the else and if then do return a lint error`() {
+        val code =
+            """
+            fun funA() {
+                if (conditionA()) {
+                    doSomething()
+                } else
+                if (conditionB()) {
+                    doAnotherThing()
                 }
-                """.trimIndent()
-            )
-        ).isEqualTo(
-            listOf(
-                LintError(5, 1, "no-line-break-after-else", "Unexpected line break after \"else\"")
-            )
-        )
-    }
-
-    @Test
-    fun testFixViolationForLineBreakBetweenElseAndIf() {
-        Assertions.assertThat(
-            NoLineBreakAfterElseRule().format(
-                """
-                fun funA() {
-                    if (conditionA()) {
-                        doSomething()
-                    } else
-                    if (conditionB()) {
-                        doAnotherThing()
-                    }
-                }
-                """.trimIndent()
-            )
-        ).isEqualTo(
+            }
+            """.trimIndent()
+        val formattedCode =
             """
             fun funA() {
                 if (conditionA()) {
@@ -55,91 +29,88 @@ class NoLineBreakAfterElseRuleTest {
                 }
             }
             """.trimIndent()
-        )
+        noLineBreakAfterElseRuleAssertThat(code)
+            .hasLintViolation(5, 1, "Unexpected line break after \"else\"")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
-    fun testValidElseIf() {
-        Assertions.assertThat(
-            NoLineBreakAfterElseRule().lint(
-                """
-                fun funA() {
-                    if (conditionA()) {
-                        doSomething()
-                    } else if (conditionB()) {
-                        doAnotherThing()
-                    }
+    fun `Given a valid if-else-if statement then do not return lint errors`() {
+        val code =
+            """
+            fun funA() {
+                if (conditionA()) {
+                    doSomething()
+                } else if (conditionB()) {
+                    doAnotherThing()
                 }
-                """.trimIndent()
-            )
-        ).isEmpty()
+            }
+            """.trimIndent()
+        noLineBreakAfterElseRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
-    fun testValidSimpleElse() {
-        Assertions.assertThat(
-            NoLineBreakAfterElseRule().lint(
-                """
-                fun funA() {
-                    if (conditionA()) {
-                        doSomething()
-                    } else {
-                        doAnotherThing()
-                    }
+    fun `Given a valid if-else statement then do not return lint errrors`() {
+        val code =
+            """
+            fun funA() {
+                if (conditionA()) {
+                    doSomething()
+                } else {
+                    doAnotherThing()
                 }
-                """.trimIndent()
-            )
-        ).isEmpty()
+            }
+            """.trimIndent()
+        noLineBreakAfterElseRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
-    fun testViolationForLineBreakBetweenElseAndBracket() {
-        Assertions.assertThat(
-            NoLineBreakAfterElseRule().lint(
-                """
-                fun funA() {
-                    if (conditionA()) {
-                        doSomething()
-                    } else
-                    {
-                        doAnotherThing()
-                    }
+    fun `Given a new line between the else and the opening brace of the block then do return a lint error`() {
+        val code =
+            """
+            fun funA() {
+                if (conditionA()) {
+                    doSomething()
+                } else
+                {
+                    doAnotherThing()
                 }
-                """.trimIndent()
-            )
-        ).isEqualTo(
-            listOf(
-                LintError(5, 1, "no-line-break-after-else", "Unexpected line break after \"else\"")
-            )
-        )
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun funA() {
+                if (conditionA()) {
+                    doSomething()
+                } else {
+                    doAnotherThing()
+                }
+            }
+            """.trimIndent()
+        noLineBreakAfterElseRuleAssertThat(code)
+            .hasLintViolation(5, 1, "Unexpected line break after \"else\"")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
-    fun testViolationWhenBracketOmitted() {
-        Assertions.assertThat(
-            NoLineBreakAfterElseRule().lint(
-                """
-                fun funA() {
-                    if (conditionA())
-                        doSomething()
-                    else
-                        doAnotherThing()
+    fun `Given an if-else statement not using blocks around the branch(es) then do not return a lint errors`() {
+        val code =
+            """
+            fun funA() {
+                if (conditionA()) doSomething() else doAnotherThing()
+                if (conditionA())
+                    doSomething()
+                if (conditionA()) {
+                    doSomething()
+                } else
+                    doAnotherThing()
+                if (conditionA())
+                    doSomething()
+                else {
+                    doAnotherThing()
                 }
-                """.trimIndent()
-            )
-        ).isEmpty()
-    }
-
-    @Test
-    fun testValidWhenBracketOmitted() {
-        Assertions.assertThat(
-            NoLineBreakAfterElseRule().lint(
-                """
-                fun funA() {
-                    if (conditionA()) doSomething() else doAnotherThing()
-                }
-                """.trimIndent()
-            )
-        ).isEmpty()
+            }
+            """.trimIndent()
+        noLineBreakAfterElseRuleAssertThat(code).hasNoLintViolations()
     }
 }

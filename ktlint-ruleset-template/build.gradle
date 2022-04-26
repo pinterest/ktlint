@@ -26,22 +26,22 @@ configurations {
 }
 
 dependencies {
-  ktlint project(':ktlint')
+  ktlint projects.ktlint
 
-  compileOnly project(':ktlint-core')
+  compileOnly projects.ktlintCore
 
-  testImplementation project(':ktlint-core')
-  testImplementation project(':ktlint-test')
-  testImplementation deps.junit5
-  testImplementation deps.assertj
+  testImplementation projects.ktlintCore
+  testImplementation projects.ktlintTest
+  testImplementation libs.junit5
+  testImplementation libs.assertj
 }
 
 test {
   useJUnitPlatform()
 }
 
-task ktlint(type: JavaExec, dependsOn: classes) {
-  main = 'com.pinterest.ktlint.Main'
+task ktlint(type: JavaExec, dependsOn: classes, group: LifecycleBasePlugin.VERIFICATION_GROUP) {
+  mainClass.set("com.pinterest.ktlint.Main")
   // adding compiled classes to the classpath so that ktlint would validate project's sources
   // using its own ruleset (in other words to dogfood)
   classpath = configurations.ktlint + sourceSets.main.output

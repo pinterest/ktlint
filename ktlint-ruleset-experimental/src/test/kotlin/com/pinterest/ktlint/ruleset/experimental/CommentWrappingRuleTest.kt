@@ -1,20 +1,19 @@
 package com.pinterest.ktlint.ruleset.experimental
 
-import com.pinterest.ktlint.core.LintError
-import com.pinterest.ktlint.test.format
-import com.pinterest.ktlint.test.lint
-import org.assertj.core.api.Assertions.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 class CommentWrappingRuleTest {
+    private val commentWrappingRuleAssertThat = CommentWrappingRule().assertThat()
+
     @Test
     fun `Given a single line block comment that start starts and end on a separate line then do not reformat`() {
         val code =
             """
             /* Some comment */
             """.trimIndent()
-        assertThat(CommentWrappingRule().lint(code)).isEmpty()
-        assertThat(CommentWrappingRule().format(code)).isEqualTo(code)
+        commentWrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -25,8 +24,7 @@ class CommentWrappingRuleTest {
              * Some comment
              */
             """.trimIndent()
-        assertThat(CommentWrappingRule().lint(code)).isEmpty()
-        assertThat(CommentWrappingRule().format(code)).isEqualTo(code)
+        commentWrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -40,22 +38,22 @@ class CommentWrappingRuleTest {
             """.trimIndent()
         val formattedCode =
             """
-             /* Some comment 1 */
-             val foo1 = "foo1"
-             /* Some comment 2 */
-             val foo2 = "foo2"
-             /* Some comment 3 */
-             fun foo3() = "foo3"
-             /* Some comment 4 */
-             fun foo4() = "foo4"
+            /* Some comment 1 */
+            val foo1 = "foo1"
+            /* Some comment 2 */
+            val foo2 = "foo2"
+            /* Some comment 3 */
+            fun foo3() = "foo3"
+            /* Some comment 4 */
+            fun foo4() = "foo4"
             """.trimIndent()
-        assertThat(CommentWrappingRule().lint(code)).containsExactly(
-            LintError(1, 21, "comment-wrapping", "A block comment may not be followed by any other element on that same line"),
-            LintError(2, 21, "comment-wrapping", "A block comment may not be followed by any other element on that same line"),
-            LintError(3, 21, "comment-wrapping", "A block comment may not be followed by any other element on that same line"),
-            LintError(4, 21, "comment-wrapping", "A block comment may not be followed by any other element on that same line")
-        )
-        assertThat(CommentWrappingRule().format(code)).isEqualTo(formattedCode)
+        commentWrappingRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 21, "A block comment may not be followed by any other element on that same line"),
+                LintViolation(2, 21, "A block comment may not be followed by any other element on that same line"),
+                LintViolation(3, 21, "A block comment may not be followed by any other element on that same line"),
+                LintViolation(4, 21, "A block comment may not be followed by any other element on that same line")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -66,10 +64,8 @@ class CommentWrappingRuleTest {
                              * with a newline
                              */
             """.trimIndent()
-        assertThat(CommentWrappingRule().lint(code)).containsExactly(
-            LintError(1, 17, "comment-wrapping", "A block comment after any other element on the same line must be separated by a new line")
-        )
-        assertThat(CommentWrappingRule().format(code)).isEqualTo(code)
+        commentWrappingRuleAssertThat(code)
+            .hasLintViolationWithoutAutoCorrect(1, 17, "A block comment after any other element on the same line must be separated by a new line")
     }
 
     @Test
@@ -82,10 +78,9 @@ class CommentWrappingRuleTest {
             """
             val foo = "foo" // Some comment
             """.trimIndent()
-        assertThat(CommentWrappingRule().lint(code)).containsExactly(
-            LintError(1, 16, "comment-wrapping", "A single line block comment after a code element on the same line must be replaced with an EOL comment")
-        )
-        assertThat(CommentWrappingRule().format(code)).isEqualTo(formattedCode)
+        commentWrappingRuleAssertThat(code)
+            .hasLintViolation(1, 16, "A single line block comment after a code element on the same line must be replaced with an EOL comment")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -94,10 +89,8 @@ class CommentWrappingRuleTest {
             """
             val foo /* some comment */ = "foo"
             """.trimIndent()
-        assertThat(CommentWrappingRule().lint(code)).containsExactly(
-            LintError(1, 9, "comment-wrapping", "A block comment in between other elements on the same line is disallowed")
-        )
-        assertThat(CommentWrappingRule().format(code)).isEqualTo(code)
+        commentWrappingRuleAssertThat(code)
+            .hasLintViolationWithoutAutoCorrect(1, 9, "A block comment in between other elements on the same line is disallowed")
     }
 
     @Test
@@ -108,10 +101,8 @@ class CommentWrappingRuleTest {
             some comment
             */ = "foo"
             """.trimIndent()
-        assertThat(CommentWrappingRule().lint(code)).containsExactly(
-            LintError(1, 9, "comment-wrapping", "A block comment starting on same line as another element and ending on another line before another element is disallowed")
-        )
-        assertThat(CommentWrappingRule().format(code)).isEqualTo(code)
+        commentWrappingRuleAssertThat(code)
+            .hasLintViolationWithoutAutoCorrect(1, 9, "A block comment starting on same line as another element and ending on another line before another element is disallowed")
     }
 
     @Test
@@ -129,9 +120,7 @@ class CommentWrappingRuleTest {
                 val foo = "foo"
             }
             """.trimIndent()
-        assertThat(CommentWrappingRule().lint(code)).containsExactly(
-            LintError(2, 23, "comment-wrapping", "A block comment may not be followed by any other element on that same line")
-        )
-        assertThat(CommentWrappingRule().format(code)).isEqualTo(formattedCode)
+        commentWrappingRuleAssertThat(code)
+            .hasLintViolation(2, 23, "A block comment may not be followed by any other element on that same line")
     }
 }

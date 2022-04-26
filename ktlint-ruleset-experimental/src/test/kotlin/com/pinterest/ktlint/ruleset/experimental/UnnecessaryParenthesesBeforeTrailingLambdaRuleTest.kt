@@ -1,13 +1,10 @@
 package com.pinterest.ktlint.ruleset.experimental
 
-import com.pinterest.ktlint.core.LintError
-import com.pinterest.ktlint.test.format
-import com.pinterest.ktlint.test.lint
-import org.assertj.core.api.Assertions.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
 import org.junit.jupiter.api.Test
 
 class UnnecessaryParenthesesBeforeTrailingLambdaRuleTest {
-    private val unnecessaryParenthesesRule = UnnecessaryParenthesesBeforeTrailingLambdaRule()
+    private val unnecessaryParenthesesBeforeTrailingLambdaRuleAssertThat = UnnecessaryParenthesesBeforeTrailingLambdaRule().assertThat()
 
     @Test
     fun `Remove unnecessary parentheses in function call followed by lambda`() {
@@ -21,9 +18,8 @@ class UnnecessaryParenthesesBeforeTrailingLambdaRuleTest {
             fun countDash(input: String) =
                 "some-string".count { it == '-' }
             """.trimIndent()
-        assertThat(unnecessaryParenthesesRule.format(code)).isEqualTo(formattedCode)
-        assertThat(unnecessaryParenthesesRule.lint(code)).containsExactly(
-            LintError(2, 24, "unnecessary-parentheses-before-trailing-lambda", "Empty parentheses in function call followed by lambda are unnecessary")
-        )
+        unnecessaryParenthesesBeforeTrailingLambdaRuleAssertThat(code)
+            .hasLintViolation(2, 24, "Empty parentheses in function call followed by lambda are unnecessary")
+            .isFormattedAs(formattedCode)
     }
 }

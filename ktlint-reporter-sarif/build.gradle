@@ -4,11 +4,11 @@ plugins {
 }
 
 dependencies {
-    implementation project(':ktlint-core')
-    implementation deps.sarif4k
+  implementation projects.ktlintCore
+  implementation libs.sarif4k
 
-    testImplementation deps.junit5
-    testImplementation deps.assertj
+  testImplementation libs.junit5
+  testImplementation libs.assertj
 }
 
 jar {

@@ -2,9 +2,10 @@
 
 package com.pinterest.ktlint
 
+import ch.qos.logback.classic.Level
+import ch.qos.logback.classic.Logger
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.LintError
-import com.pinterest.ktlint.core.LogLevel
 import com.pinterest.ktlint.core.ParseException
 import com.pinterest.ktlint.core.Reporter
 import com.pinterest.ktlint.core.ReporterProvider
@@ -16,7 +17,7 @@ import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ktlint.core.internal.containsLintError
 import com.pinterest.ktlint.core.internal.loadBaseline
 import com.pinterest.ktlint.core.internal.relativeRoute
-import com.pinterest.ktlint.core.logLevel
+import com.pinterest.ktlint.core.setDefaultLoggerModifier
 import com.pinterest.ktlint.internal.ApplyToIDEAGloballySubCommand
 import com.pinterest.ktlint.internal.ApplyToIDEAProjectSubCommand
 import com.pinterest.ktlint.internal.GenerateEditorConfigSubCommand
@@ -49,13 +50,14 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.concurrent.thread
 import kotlin.system.exitProcess
+import mu.KLogger
 import mu.KotlinLogging
 import picocli.CommandLine
 import picocli.CommandLine.Command
 import picocli.CommandLine.Option
 import picocli.CommandLine.Parameters
 
-private val logger = KotlinLogging.logger {}.initKtLintKLogger()
+private lateinit var logger: KLogger
 
 fun main(args: Array<String>) {
     val ktlintCommand = KtlintCommandLine()
@@ -250,11 +252,10 @@ class KtlintCommandLine {
     private val errorNumber = AtomicInteger()
 
     fun run() {
-        logLevel = when {
-            trace -> LogLevel.TRACE
-            debug -> LogLevel.DEBUG
-            else -> LogLevel.INFO
+        if (verbose) {
+            debug = true
         }
+        logger = configureLogger()
 
         failOnOldRulesetProviderUsage()
 
@@ -293,6 +294,18 @@ class KtlintCommandLine {
             exitProcess(1)
         }
     }
+
+    private fun configureLogger() =
+        KotlinLogging
+            .logger {}
+            .setDefaultLoggerModifier { logger ->
+                (logger.underlyingLogger as Logger).level = when {
+                    trace -> Level.TRACE
+                    debug -> Level.DEBUG
+                    else -> Level.INFO
+                }
+            }
+            .initKtLintKLogger()
 
     private fun lintFiles(
         ruleSetProviders: Map<String, RuleSetProvider>,
@@ -456,7 +469,11 @@ class KtlintCommandLine {
                 ReporterTemplate(
                     reporterId,
                     split.lastOrNull { it.startsWith("artifact=") }?.let { it.split("=")[1] },
-                    mapOf("verbose" to verbose.toString(), "color" to color.toString(), "color_name" to colorName) + parseQuery(rawReporterConfig),
+                    mapOf(
+                        "verbose" to verbose.toString(),
+                        "color" to color.toString(),
+                        "color_name" to colorName
+                    ) + parseQuery(rawReporterConfig),
                     split.lastOrNull { it.startsWith("output=") }?.let { it.split("=")[1] }
                 )
             }
@@ -578,11 +595,25 @@ class KtlintCommandLine {
         numberOfThreads: Int = Runtime.getRuntime().availableProcessors()
     ) {
         val pill = object : Future<T> {
-            override fun isDone(): Boolean { throw UnsupportedOperationException() }
-            override fun get(timeout: Long, unit: TimeUnit): T { throw UnsupportedOperationException() }
-            override fun get(): T { throw UnsupportedOperationException() }
-            override fun cancel(mayInterruptIfRunning: Boolean): Boolean { throw UnsupportedOperationException() }
-            override fun isCancelled(): Boolean { throw UnsupportedOperationException() }
+            override fun isDone(): Boolean {
+                throw UnsupportedOperationException()
+            }
+
+            override fun get(timeout: Long, unit: TimeUnit): T {
+                throw UnsupportedOperationException()
+            }
+
+            override fun get(): T {
+                throw UnsupportedOperationException()
+            }
+
+            override fun cancel(mayInterruptIfRunning: Boolean): Boolean {
+                throw UnsupportedOperationException()
+            }
+
+            override fun isCancelled(): Boolean {
+                throw UnsupportedOperationException()
+            }
         }
         val q = ArrayBlockingQueue<Future<T>>(numberOfThreads)
         val producer = thread(start = true) {

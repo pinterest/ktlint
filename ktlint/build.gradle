@@ -3,8 +3,8 @@ import org.gradle.crypto.checksum.Checksum
 plugins {
   id 'ktlint-publication'
   id 'ktlint-kotlin-common'
-  id 'com.github.johnrengelman.shadow'
-  id 'org.gradle.crypto.checksum'
+  alias(libs.plugins.shadow)
+  alias(libs.plugins.checksum)
   id 'signing'
 }
 
@@ -20,24 +20,25 @@ shadowJar {
 }
 
 dependencies {
-  implementation project(':ktlint-core')
-  implementation project(':ktlint-reporter-baseline')
-  implementation project(':ktlint-reporter-checkstyle')
-  implementation project(':ktlint-reporter-json')
-  implementation project(':ktlint-reporter-html')
-  implementation project(':ktlint-reporter-plain')
-  implementation project(':ktlint-reporter-sarif')
-  implementation project(':ktlint-ruleset-experimental')
-  implementation project(':ktlint-ruleset-standard')
-  implementation project(':ktlint-ruleset-test')
-  implementation deps.kotlin.compiler
-  implementation deps.klob
-  implementation deps.picocli
+  implementation projects.ktlintCore
+  implementation projects.ktlintReporterBaseline
+  implementation projects.ktlintReporterCheckstyle
+  implementation projects.ktlintReporterJson
+  implementation projects.ktlintReporterHtml
+  implementation projects.ktlintReporterPlain
+  implementation projects.ktlintReporterSarif
+  implementation projects.ktlintRulesetExperimental
+  implementation projects.ktlintRulesetStandard
+  implementation projects.ktlintRulesetTest
+  implementation libs.kotlin.compiler
+  implementation libs.klob
+  implementation libs.picocli
+  implementation libs.logback
 
 
-  testImplementation deps.junit5
-  testImplementation deps.assertj
-  testImplementation deps.jimfs
+  testImplementation libs.junit5
+  testImplementation libs.assertj
+  testImplementation libs.jimfs
 }
 
 // Implements https://github.com/brianm/really-executable-jars-maven-plugin maven plugin behaviour.

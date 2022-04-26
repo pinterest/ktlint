@@ -4,14 +4,14 @@ plugins {
 }
 
 dependencies {
-  api deps.kotlin.compiler
-  api deps.ec4j
-  api deps.logging
-  api deps.logback
+  api libs.kotlin.compiler
+  api libs.ec4j
+  api libs.logging
 
   // Standard ruleset is required for EditConfigLoaderTest only
-  testImplementation project(":ktlint-ruleset-standard")
-  testImplementation deps.junit5
-  testImplementation deps.assertj
-  testImplementation deps.jimfs
+  testImplementation projects.ktlintRulesetStandard
+  testImplementation projects.ktlintTestLogging
+  testImplementation libs.junit5
+  testImplementation libs.assertj
+  testImplementation libs.jimfs
 }

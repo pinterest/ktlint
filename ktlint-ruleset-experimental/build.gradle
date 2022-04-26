@@ -4,10 +4,10 @@ plugins {
 }
 
 dependencies {
-  implementation project(':ktlint-core')
+  implementation projects.ktlintCore
 
-  testImplementation project(':ktlint-test')
-  testImplementation project(':ktlint-ruleset-standard')
-  testImplementation deps.junit5
-  testImplementation deps.assertj
+  testImplementation projects.ktlintTest
+  testImplementation projects.ktlintRulesetStandard
+  testImplementation libs.junit5
+  testImplementation libs.assertj
 }
