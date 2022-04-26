@@ -2,20 +2,46 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## Unreleased (0.46.0)
+## Unreleased
 
 ### API Changes & RuleSet providers
 
+If you are not an API user nor a RuleSet provider, then you can safely skip this section. Otherwise, please read below carefully and upgrade your usage of ktlint. In this and coming releases, we are changing and adapting important parts of our API in order to increase maintainability and flexibility for future changes. Please avoid skipping a releases as that will make it harder to migrate.
+
+#### Testing KtLint rules
+
+An AssertJ style API for testing KtLint rules ([#1444](https://github.com/pinterest/ktlint/issues/1444)) has been added. Usage of this API is encouraged in favor of using the old RuleExtension API. For more information, see [KtLintAssertThat API]( https://github.com/pinterest/ktlint/blob/master/ktlint-test/README.MD)
+
 ### Added
+- Add experimental rule for unexpected spacing between function name and opening parenthesis (`spacing-between-function-name-and-opening-parenthesis`) ([#1341](https://github.com/pinterest/ktlint/issues/1341))
 - Add experimental rule for unexpected spacing in the parameter list (`parameter-list-spacing`) ([#1341](https://github.com/pinterest/ktlint/issues/1341))
+- Do not add a space after the typealias name (`type-parameter-list-spacing`) ([#1435](https://github.com/pinterest/ktlint/issues/1435))
 
 ### Fixed
 
 ### Changed
+* Set Kotlin development version to `1.6.21` and Kotlin version to `1.6.21`.
 
 ### Removed
 
-## Unreleased (0.45.0)
+### Removed
+
+## [0.45.2] - 2022-04-06
+
+### Fixed
+- Resolve compatibility issues introduced in 0.45.0 and 0.45.1 ([#1434](https://github.com/pinterest/ktlint/issues/1434)). Thanks to [mateuszkwiecinski](https://github.com/mateuszkwiecinski) and [jeremymailen](https://github.com/jeremymailen) for your input on this issue.
+
+### Changed
+* Set Kotlin development version to `1.6.20` and Kotlin version to `1.6.20`.
+
+## [0.45.1] - 2022-03-21
+
+Minor release to fix a breaking issue with `ktlint` API consumers
+
+### Fixed
+- Remove logback dependency from ktlint-core module ([#1421](https://github.com/pinterest/ktlint/issues/1421))
+
+## [0.45.0] - 2022-03-18
 
 ### API Changes & RuleSet providers
 
@@ -36,6 +62,7 @@ This section is applicable when providing rules that depend on one or more value
 - Add new experimental rules for wrapping of block comment (`comment-wrapping`) ([#1403](https://github.com/pinterest/ktlint/pull/1403))
 - Add new experimental rules for wrapping of KDoc comment (`kdoc-wrapping`) ([#1403](https://github.com/pinterest/ktlint/pull/1403))
 - Add experimental rule for incorrect spacing after a type parameter list (`type-parameter-list-spacing`) ([#1366](https://github.com/pinterest/ktlint/pull/1366))
+- Expand check task to run tests on JDK 17 - "testOnJdk17"
 
 ### Fixed
 - Fix lint message to "Unnecessary long whitespace" (`no-multi-spaces`) ([#1394](https://github.com/pinterest/ktlint/issues/1394))
@@ -44,6 +71,7 @@ This section is applicable when providing rules that depend on one or more value
 - Do not indent raw string literals that are not followed by either trimIndent() or trimMargin() (`indent`) ([#1375](https://github.com/pinterest/ktlint/issues/1375))
 - Revert remove unnecessary wildcard imports as introduced in Ktlint 0.43.0 (`no-unused-imports`) ([#1277](https://github.com/pinterest/ktlint/issues/1277)), ([#1393](https://github.com/pinterest/ktlint/issues/1393)), ([#1256](https://github.com/pinterest/ktlint/issues/1256))
 - (Possibly) resolve memory leak ([#1216](https://github.com/pinterest/ktlint/issues/1216))
+- Initialize loglevel in Main class after parsing the CLI parameters ([#1412](https://github.com/pinterest/ktlint/issues/1412))
 
 ### Changed
 - Print the rule id always in the PlainReporter ([#1121](https://github.com/pinterest/ktlint/issues/1121))
@@ -1001,6 +1029,9 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.45.2]: https://github.com/pinterest/ktlint/compare/0.45.1...0.45.2
+[0.45.1]: https://github.com/pinterest/ktlint/compare/0.45.0...0.45.1
+[0.45.0]: https://github.com/pinterest/ktlint/compare/0.44.0...0.45.0
 [0.44.0]: https://github.com/pinterest/ktlint/compare/0.43.2...0.44.0
 [0.43.2]: https://github.com/pinterest/ktlint/compare/0.43.0...0.43.2
 [0.43.0]: https://github.com/pinterest/ktlint/compare/0.42.1...0.43.0

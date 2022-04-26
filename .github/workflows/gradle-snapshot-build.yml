@@ -4,28 +4,22 @@ on:
   push:
     branches: [ master ]
 
+env:
+  SONATYPE_NEXUS_USERNAME: ${{ secrets.SONATYPE_NEXUS_USERNAME }}
+  SONATYPE_NEXUS_PASSWORD: ${{ secrets.SONATYPE_NEXUS_PASSWORD }}
+
 jobs:
   publish:
     runs-on: ubuntu-latest
     if: github.repository == 'pinterest/ktlint'
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Java 8
-        uses: actions/setup-java@v3
+      - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
           java-version: 8
+      - uses: gradle/gradle-build-action@v2
       - name: Publish snapshot to Maven
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: clean publishMavenPublicationToMavenCentralRepository --no-daemon --no-parallel
-        env:
-          SONATYPE_NEXUS_USERNAME: ${{ secrets.SONATYPE_NEXUS_USERNAME }}
-          SONATYPE_NEXUS_PASSWORD: ${{ secrets.SONATYPE_NEXUS_PASSWORD }}
+        run: ./gradlew clean publishMavenPublicationToMavenCentralRepository --no-daemon --no-parallel
       - name: Publish Kotlin-dev snapshot to Maven
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: -PkotlinDev clean publishMavenPublicationToMavenCentralRepository --no-daemon --no-parallel
-        env:
-          SONATYPE_NEXUS_USERNAME: ${{ secrets.SONATYPE_NEXUS_USERNAME }}
-          SONATYPE_NEXUS_PASSWORD: ${{ secrets.SONATYPE_NEXUS_PASSWORD }}
+        run: ./gradlew -PkotlinDev clean publishMavenPublicationToMavenCentralRepository --no-daemon --no-parallel

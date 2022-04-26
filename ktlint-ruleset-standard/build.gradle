@@ -4,10 +4,10 @@ plugins {
 }
 
 dependencies {
-  implementation project(':ktlint-core')
-  implementation deps.logging
+  implementation projects.ktlintCore
+  implementation libs.logging
 
-  testImplementation project(':ktlint-test')
-  testImplementation deps.junit5
-  testImplementation deps.assertj
+  testImplementation projects.ktlintTest
+  testImplementation libs.junit5
+  testImplementation libs.assertj
 }

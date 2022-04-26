@@ -328,6 +328,8 @@ public class TrailingCommaRule :
 
         private val BOOLEAN_VALUES_SET = setOf("true", "false")
 
+        // TODO: Rename property to trailingCommaOnDeclarationSite. The word 'allow' is misleading as the comma is
+        //  enforced when the property is enabled and prohibited when disabled.
         public val allowTrailingCommaProperty: UsesEditorConfigProperties.EditorConfigProperty<Boolean> =
             UsesEditorConfigProperties.EditorConfigProperty(
                 type = PropertyType.LowerCasingPropertyType(
@@ -345,6 +347,8 @@ public class TrailingCommaRule :
                 "should be enforced on the calling side," +
                 "e.g. argument-list, when-entries, lambda-arguments, indices, etc."
 
+        // TODO: Rename property to trailingCommaOnCallSite. The word 'allow' is misleading as the comma is
+        //        //  enforced when the property is enabled and prohibited when disabled.
         public val allowTrailingCommaOnCallSiteProperty: UsesEditorConfigProperties.EditorConfigProperty<Boolean> =
             UsesEditorConfigProperties.EditorConfigProperty(
                 type = PropertyType.LowerCasingPropertyType(

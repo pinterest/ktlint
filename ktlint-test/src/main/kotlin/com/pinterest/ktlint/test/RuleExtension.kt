@@ -1,13 +1,14 @@
 package com.pinterest.ktlint.test
 
-import com.pinterest.ktlint.core.KTLINT_UNIT_TEST_DUMP_AST
-import com.pinterest.ktlint.core.KTLINT_UNIT_TEST_ON_PROPERTY
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.RuleSet
+import com.pinterest.ktlint.core.VisitorProvider
+import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.initKtLintKLogger
+import com.pinterest.ktlint.core.setDefaultLoggerModifier
 import com.pinterest.ruleset.test.DumpASTRule
 import mu.KotlinLogging
 import org.assertj.core.api.Assertions.assertThat
@@ -15,7 +16,34 @@ import org.assertj.core.util.diff.DiffUtils.diff
 import org.assertj.core.util.diff.DiffUtils.generateUnifiedDiff
 import org.jetbrains.kotlin.utils.addToStdlib.ifTrue
 
-private val logger = KotlinLogging.logger {}.initKtLintKLogger()
+private val logger =
+    KotlinLogging
+        .logger {}
+        .setDefaultLoggerModifier { logger ->
+            if (!logger.isTraceEnabled || !logger.isDebugEnabled) {
+                logger.info {
+                    """
+                    Additional information can be printed during running of unit tests, by setting one or more of environment variables below:
+                        $KTLINT_UNIT_TEST_TRACE=[on|off]
+                        $KTLINT_UNIT_TEST_DUMP_AST=[on|off]
+                    """.trimIndent()
+                }
+            }
+        }.initKtLintKLogger()
+
+// Via command line parameter "--trace" the end user of ktlint can change the logging behavior. As unit tests are not
+// invoked via the main ktlint runtime, this command line parameter can not be used to change the logging behavior while
+// running the unit tests. Instead, the environment variable below can be set by ktlint developers to change the logging
+// behavior.
+// Keep value in sync with value in 'logback-test.xml' source in module 'ktlint-test-logging'
+private const val KTLINT_UNIT_TEST_TRACE = "KTLINT_UNIT_TEST_TRACE"
+
+// Via command line parameter "--print-ast" the end user of ktlint can change the logging behavior. As unit tests are
+// not invoked via the main ktlint runtime, this command line parameter can not be used to change the logging behavior
+// while running the unit tests. Instead, the environment variable below can be used by ktlint developers to change the
+// logging behavior.
+private const val KTLINT_UNIT_TEST_DUMP_AST = "KTLINT_UNIT_TEST_DUMP_AST"
+private const val KTLINT_UNIT_TEST_ON_PROPERTY = "ON"
 
 private fun List<Rule>.toRuleSets(): List<RuleSet> {
     val dumpAstRuleSet = System
@@ -192,15 +220,23 @@ public fun List<Rule>.lint(
     script: Boolean = false
 ): List<LintError> {
     val res = ArrayList<LintError>()
+    val experimentalParams = KtLint.ExperimentalParams(
+        fileName = lintedFilePath,
+        text = text,
+        ruleSets = toRuleSets(),
+        editorConfigOverride = editorConfigOverride,
+        userData = userData,
+        script = script,
+        cb = { e, _ -> res.add(e) }
+    )
     KtLint.lint(
-        KtLint.ExperimentalParams(
-            fileName = lintedFilePath,
-            text = text,
-            ruleSets = this.toRuleSets(),
-            editorConfigOverride = editorConfigOverride.properties,
-            userData = userData,
-            script = script,
-            cb = { e, _ -> res.add(e) }
+        experimentalParams,
+        VisitorProvider(
+            ruleSets = experimentalParams.ruleSets,
+            debug = experimentalParams.debug,
+            // When running unit tests, some VisitorModifiers have to be ignored. For example the RunAfterRule modifier
+            // should not be checked, if other that rule can only be tested together with the rule on which it depends.
+            isUnitTestContext = true
         )
     )
     return res
@@ -350,15 +386,23 @@ public fun List<Rule>.format(
     cb: (e: LintError, corrected: Boolean) -> Unit = { _, _ -> },
     script: Boolean = false
 ): String {
+    val experimentalParams = KtLint.ExperimentalParams(
+        fileName = lintedFilePath,
+        text = text,
+        ruleSets = this.toRuleSets(),
+        editorConfigOverride = editorConfigOverride,
+        userData = userData,
+        script = script,
+        cb = cb
+    )
     return KtLint.format(
-        KtLint.ExperimentalParams(
-            fileName = lintedFilePath,
-            text = text,
-            ruleSets = this.toRuleSets(),
-            editorConfigOverride = editorConfigOverride.properties,
-            userData = userData,
-            script = script,
-            cb = cb
+        experimentalParams,
+        VisitorProvider(
+            ruleSets = experimentalParams.ruleSets,
+            debug = experimentalParams.debug,
+            // When running unit tests, some VisitorModifiers have to be ignored. For example the RunAfterRule modifier
+            // should not be checked, if other that rule can only be tested together with the rule on which it depends.
+            isUnitTestContext = true
         )
     )
 }
