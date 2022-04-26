@@ -312,10 +312,10 @@ class TypeParameterListSpacingRuleTest {
             """
             typealias Bar<T> = () -> T
             """.trimIndent()
-        assertThat(TypeParameterListSpacingRule().lint(code)).containsExactly(
-            LintError(1, 14, "type-parameter-list-spacing", "No whitespace expected at this position"),
-            LintError(1, 19, "type-parameter-list-spacing", "Expected a single space")
-        )
-        assertThat(TypeParameterListSpacingRule().format(code)).isEqualTo(formattedCode)
+        typeParameterListSpacingRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 14, "No whitespace expected at this position"),
+                LintViolation(1, 19, "Expected a single space")
+            ).isFormattedAs(formattedCode)
     }
 }
