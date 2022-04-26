@@ -4,14 +4,43 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+### API Changes & RuleSet providers
+
+If you are not an API user nor a RuleSet provider, then you can safely skip this section. Otherwise, please read below carefully and upgrade your usage of ktlint. In this and coming releases, we are changing and adapting important parts of our API in order to increase maintainability and flexibility for future changes. Please avoid skipping a releases as that will make it harder to migrate.
+
+#### Testing KtLint rules
+
+An AssertJ style API for testing KtLint rules ([#1444](https://github.com/pinterest/ktlint/issues/1444)) has been added. Usage of this API is encouraged in favor of using the old RuleExtension API. For more information, see [KtLintAssertThat API]( https://github.com/pinterest/ktlint/blob/master/ktlint-test/README.MD)
+
 ### Added
+- Add experimental rule for unexpected spacing between function name and opening parenthesis (`spacing-between-function-name-and-opening-parenthesis`) ([#1341](https://github.com/pinterest/ktlint/issues/1341))
+- Add experimental rule for unexpected spacing in the parameter list (`parameter-list-spacing`) ([#1341](https://github.com/pinterest/ktlint/issues/1341))
 - Add experimental rule for incorrect spacing around the function return type (`function-return-type-spacing`) ([#1341](https://github.com/pinterest/ktlint/pull/1341))
+- Do not add a space after the typealias name (`type-parameter-list-spacing`) ([#1435](https://github.com/pinterest/ktlint/issues/1435))
 
 ### Fixed
 
 ### Changed
+* Set Kotlin development version to `1.6.21` and Kotlin version to `1.6.21`.
 
 ### Removed
+
+### Removed
+
+## [0.45.2] - 2022-04-06
+
+### Fixed
+- Resolve compatibility issues introduced in 0.45.0 and 0.45.1 ([#1434](https://github.com/pinterest/ktlint/issues/1434)). Thanks to [mateuszkwiecinski](https://github.com/mateuszkwiecinski) and [jeremymailen](https://github.com/jeremymailen) for your input on this issue.
+
+### Changed
+* Set Kotlin development version to `1.6.20` and Kotlin version to `1.6.20`.
+
+## [0.45.1] - 2022-03-21
+
+Minor release to fix a breaking issue with `ktlint` API consumers
+
+### Fixed
+- Remove logback dependency from ktlint-core module ([#1421](https://github.com/pinterest/ktlint/issues/1421))
 
 ## [0.45.0] - 2022-03-18
 
@@ -1001,6 +1030,8 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.45.2]: https://github.com/pinterest/ktlint/compare/0.45.1...0.45.2
+[0.45.1]: https://github.com/pinterest/ktlint/compare/0.45.0...0.45.1
 [0.45.0]: https://github.com/pinterest/ktlint/compare/0.44.0...0.45.0
 [0.44.0]: https://github.com/pinterest/ktlint/compare/0.43.2...0.44.0
 [0.43.2]: https://github.com/pinterest/ktlint/compare/0.43.0...0.43.2

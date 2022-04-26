@@ -1,12 +1,12 @@
 package com.pinterest.ktlint.ruleset.experimental
 
-import com.pinterest.ktlint.core.LintError
-import com.pinterest.ktlint.test.format
-import com.pinterest.ktlint.test.lint
-import org.assertj.core.api.Assertions
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 class FunctionTypeReferenceSpacingRuleTest {
+    private val functionTypeReferenceSpacingRuleAssertThat = FunctionTypeReferenceSpacingRule().assertThat()
+
     @Test
     fun `Given a function signature with whitespace after a non nullable type reference of an extension function then remove this whitespace`() {
         val code =
@@ -20,15 +20,11 @@ class FunctionTypeReferenceSpacingRuleTest {
             fun String.foo1() = "some-result"
             fun String.foo2() = "some-result"
             """.trimIndent()
-        Assertions.assertThat(
-            FunctionTypeReferenceSpacingRule().lint(code)
-        ).containsExactly(
-            LintError(1, 11, "function-type-reference-spacing", "Unexpected whitespace"),
-            LintError(2, 11, "function-type-reference-spacing", "Unexpected whitespace")
-        )
-        Assertions.assertThat(
-            FunctionTypeReferenceSpacingRule().format(code)
-        ).isEqualTo(formattedCode)
+        functionTypeReferenceSpacingRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 11, "Unexpected whitespace"),
+                LintViolation(2, 11, "Unexpected whitespace")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -44,15 +40,11 @@ class FunctionTypeReferenceSpacingRuleTest {
             fun String?.foo1() = "some-result"
             fun String?.foo2() = "some-result"
             """.trimIndent()
-        Assertions.assertThat(
-            FunctionTypeReferenceSpacingRule().lint(code)
-        ).containsExactly(
-            LintError(1, 11, "function-type-reference-spacing", "Unexpected whitespace"),
-            LintError(2, 11, "function-type-reference-spacing", "Unexpected whitespace")
-        )
-        Assertions.assertThat(
-            FunctionTypeReferenceSpacingRule().format(code)
-        ).isEqualTo(formattedCode)
+        functionTypeReferenceSpacingRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 11, "Unexpected whitespace"),
+                LintViolation(2, 11, "Unexpected whitespace")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -68,15 +60,11 @@ class FunctionTypeReferenceSpacingRuleTest {
             fun String?.foo1() = "some-result"
             fun String?.foo2() = "some-result"
             """.trimIndent()
-        Assertions.assertThat(
-            FunctionTypeReferenceSpacingRule().lint(code)
-        ).containsExactly(
-            LintError(1, 12, "function-type-reference-spacing", "Unexpected whitespace"),
-            LintError(2, 12, "function-type-reference-spacing", "Unexpected whitespace")
-        )
-        Assertions.assertThat(
-            FunctionTypeReferenceSpacingRule().format(code)
-        ).isEqualTo(formattedCode)
+        functionTypeReferenceSpacingRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 12, "Unexpected whitespace"),
+                LintViolation(2, 12, "Unexpected whitespace")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -85,11 +73,6 @@ class FunctionTypeReferenceSpacingRuleTest {
             """
             fun foo1() = "some-result"
             """.trimIndent()
-        Assertions.assertThat(
-            FunctionTypeReferenceSpacingRule().lint(code)
-        ).isEmpty()
-        Assertions.assertThat(
-            FunctionTypeReferenceSpacingRule().format(code)
-        ).isEqualTo(code)
+        functionTypeReferenceSpacingRuleAssertThat(code).hasNoLintViolations()
     }
 }

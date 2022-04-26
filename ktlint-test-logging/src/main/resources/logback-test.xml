@@ -1,0 +1,22 @@
+<configuration>
+    <if condition='property("KTLINT_UNIT_TEST_TRACE").equalsIgnoreCase("on")'>
+        <then>
+            <property name="level" value="trace" />
+        </then>
+        <else>
+            <property name="level" value="debug" />
+        </else>
+    </if>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- encoders are assigned the type
+             ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
+        <encoder>
+            <!-- Keep logging output of unit test as minimal as possible-->
+            <pattern>[%level] %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="${level}">
+        <appender-ref ref="STDOUT" />
+    </root>
+</configuration>

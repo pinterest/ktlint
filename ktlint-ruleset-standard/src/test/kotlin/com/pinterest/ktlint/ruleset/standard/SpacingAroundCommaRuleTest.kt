@@ -1,54 +1,91 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.core.LintError
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
 import com.pinterest.ktlint.test.format
-import com.pinterest.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 class SpacingAroundCommaRuleTest {
+    private val spacingAroundCommaRuleAssertThat = SpacingAroundCommaRule().assertThat()
 
     @Test
-    fun testLint() {
-        assertThat(SpacingAroundCommaRule().lint("fun main() { x(1,3); x(1, 3); println(\",\") }"))
-            .isEqualTo(
-                listOf(
-                    LintError(1, 18, "comma-spacing", "Missing spacing after \",\"")
-                )
-            )
-        assertThat(
-            SpacingAroundCommaRule().lint(
-                """
-                enum class E {
-                    A, B,C
-                }
-                """.trimIndent()
-            )
-        ).isEqualTo(
-            listOf(
-                LintError(2, 10, "comma-spacing", "Missing spacing after \",\"")
-            )
-        )
-        assertThat(
-            SpacingAroundCommaRule().lint(
-                """
-                some.method(1 , 2)
-                """.trimIndent(),
-                script = true
-            )
-        ).isEqualTo(
-            listOf(
-                LintError(1, 14, "comma-spacing", "Unexpected spacing before \",\"")
-            )
-        )
+    fun `Given some parameter list not having a parameter after the comma`() {
+        val code =
+            """
+            val foo1 = Foo(1,3)
+            val foo2 = Foo(1, 3)
+            """.trimIndent()
+        val formattedCode =
+            """
+            val foo1 = Foo(1, 3)
+            val foo2 = Foo(1, 3)
+            """.trimIndent()
+        spacingAroundCommaRuleAssertThat(code)
+            // TODO: Col offset is not correct
+            .hasLintViolation(1, 18, "Missing spacing after \",\"")
+            .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given some string containing a comma not followed by a space`() {
+        val code =
+            """
+            val foo = "bar1,bar2"
+            """.trimIndent()
+        spacingAroundCommaRuleAssertThat(code)
+            .hasNoLintViolations()
+    }
+
+    @Test
+    fun `Given some enumeration not having a space after each comma`() {
+        val code =
+            """
+            enum class E {
+                A, B,C
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            enum class E {
+                A, B, C
+            }
+            """.trimIndent()
+        spacingAroundCommaRuleAssertThat(code)
+            // TODO: Col offset is not correct
+            .hasLintViolation(2, 10, "Missing spacing after \",\"")
+            .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given some parameter list with an unexpected space before the comma`() {
+        val code =
+            """
+            val foo = Foo(1 , 2)
+            """.trimIndent()
+        val formattedCode =
+            """
+            val foo = Foo(1, 2)
+            """.trimIndent()
+        spacingAroundCommaRuleAssertThat(code)
+            .hasLintViolation(1, 16, "Unexpected spacing before \",\"")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
     fun testFormat() {
-        assertThat(SpacingAroundCommaRule().format("fun main() { x(1,3); x(1, 3) }"))
-            .isEqualTo("fun main() { x(1, 3); x(1, 3) }")
-        assertThat(SpacingAroundCommaRule().format("fun main() { x(1 /* comment */ , 3); x(1 /* comment */, 3) }"))
-            .isEqualTo("fun main() { x(1 /* comment */, 3); x(1 /* comment */, 3) }")
+        val code =
+            """
+            val foo1 = Foo(1 /* comment */ , 3)
+            val foo2 = Foo(1 /* comment */, 3)
+            """.trimIndent()
+        val formattedCode =
+            """
+            val foo1 = Foo(1 /* comment */, 3)
+            val foo2 = Foo(1 /* comment */, 3)
+            """.trimIndent()
+        spacingAroundCommaRuleAssertThat(code)
+            .hasLintViolation(1, 31, "Unexpected spacing before \",\"")
+            .isFormattedAs(formattedCode)
         assertThat(
             SpacingAroundCommaRule().format(
                 """
@@ -97,39 +134,53 @@ class SpacingAroundCommaRuleTest {
     }
 
     @Test
-    fun testCommaBeforeRightParenthesis() {
-        assertThat(
-            SpacingAroundCommaRule().lint(
-                """
-                @file:Suppress("unused", "UNUSED_PARAMETER", "UNUSED_VARIABLE",)
-                """.trimIndent()
-            )
-        ).isEmpty()
+    fun `Given a parameter list with a space between a block comment and the comma`() {
+        val code =
+            """
+            val foo1 = Foo(1 /* comment */ , 3)
+            val foo2 = Foo(1 /* comment */, 3)
+            """.trimIndent()
+        val formattedCode =
+            """
+            val foo1 = Foo(1 /* comment */, 3)
+            val foo2 = Foo(1 /* comment */, 3)
+            """.trimIndent()
+        spacingAroundCommaRuleAssertThat(code)
+            .hasLintViolation(1, 31, "Unexpected spacing before \",\"")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
-    fun testCommaBeforeRightBracket() {
-        assertThat(
-            SpacingAroundCommaRule().lint(
-                """
-                @file:Suppress(["unused", "UNUSED_PARAMETER", "UNUSED_VARIABLE",])
-                """.trimIndent()
-            )
-        ).isEmpty()
+    fun `Given an annotation parameter list with a trailing comma not followed by a space`() {
+        val code =
+            """
+            @file:Suppress("unused", "UNUSED_PARAMETER", "UNUSED_VARIABLE",)
+            """.trimIndent()
+        spacingAroundCommaRuleAssertThat(code)
+            .hasNoLintViolations()
     }
 
     @Test
-    fun testCommaBeforeRightAngle() {
-        assertThat(
-            SpacingAroundCommaRule().lint(
-                """
-                fun <T, R,> test() = Unit
+    fun `Given an annotation parameter array with a trailing comma not followed by a space`() {
+        val code =
+            """
+            @file:Suppress(["unused", "UNUSED_PARAMETER", "UNUSED_VARIABLE",])
+            """.trimIndent()
+        spacingAroundCommaRuleAssertThat(code)
+            .hasNoLintViolations()
+    }
 
-                fun foo() {
-                    test<Int, Double,>()
-                }
-                """.trimIndent()
-            )
-        ).isEmpty()
+    @Test
+    fun `Given a generic type parameter list with a trailing comma not followed by a space`() {
+        val code =
+            """
+            fun <T, R,> test() = Unit
+
+            fun foo() {
+                test<Int, Double,>()
+            }
+            """.trimIndent()
+        spacingAroundCommaRuleAssertThat(code)
+            .hasNoLintViolations()
     }
 }

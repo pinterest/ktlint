@@ -1,164 +1,123 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.core.LintError
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.LintViolation
+import com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE
 import com.pinterest.ktlint.test.format
 import com.pinterest.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class NoConsecutiveBlankLinesRuleTest {
+    private val noConsecutiveBlankLinesRuleAssertThat = NoConsecutiveBlankLinesRule().assertThat()
 
     @Test
-    fun testLintInDeclarations() {
-        assertThat(
-            NoConsecutiveBlankLinesRule().lint(
-                """
-                fun a() {
-
-                }
-
-
-                fun b() {
-
-                }
-                """.trimIndent()
-            )
-        ).isEqualTo(
-            listOf(
-                LintError(5, 1, "no-consecutive-blank-lines", "Needless blank line(s)")
-            )
-        )
-    }
-
-    @Test
-    fun testLintInCode() {
-        assertThat(
-            NoConsecutiveBlankLinesRule().lint(
-                """
-                fun main() {
-                fun a()
-                fun b()
-
-
-                fun c()
-                }
-                """.trimIndent()
-            )
-        ).isEqualTo(
-            listOf(
-                LintError(5, 1, "no-consecutive-blank-lines", "Needless blank line(s)")
-            )
-        )
-    }
-
-    @Test
-    fun testLintAtTheEndOfFile() {
-        assertThat(
-            NoConsecutiveBlankLinesRule().lint(
-                """
-                fun main() {
-                }
-
-
-                """.trimIndent()
-            )
-        ).isEqualTo(
-            listOf(
-                LintError(4, 1, "no-consecutive-blank-lines", "Needless blank line(s)")
-            )
-        )
-    }
-
-    @Test
-    fun testLintAfterPackageName() {
-        assertThat(
-            NoConsecutiveBlankLinesRule().lint(
-                """
-                package com.test
-
-                fun main() {
-                }
-                """.trimIndent()
-            )
-        ).isEmpty()
-    }
-
-    @Test
-    fun testLintInString() {
-        assertThat(
-            NoConsecutiveBlankLinesRule().lint(
-                "fun main() {println(\"\"\"\n\n\n\"\"\")}"
-            )
-        ).isEmpty()
-    }
-
-    @Test
-    fun testFormatInDeclarations() {
-        assertThat(
-            NoConsecutiveBlankLinesRule().format(
-                """
-                fun a() {
-
-                }
-
-
-                fun b() {
-
-                }
-                """.trimIndent()
-            )
-        ).isEqualTo(
+    fun `Given needless blank lines between declarations then do return lint errors`() {
+        val code =
             """
-            fun a() {
+            package com.test
 
-            }
+
+            import com.test.util
+
+
+            val a = "a"
+
 
             fun b() {
-
             }
+
+
+            fun c()
             """.trimIndent()
-        )
+        val formattedCode =
+            """
+            package com.test
+
+            import com.test.util
+
+            val a = "a"
+
+            fun b() {
+            }
+
+            fun c()
+            """.trimIndent()
+        noConsecutiveBlankLinesRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(3, 1, "Needless blank line(s)"),
+                LintViolation(6, 1, "Needless blank line(s)"),
+                LintViolation(9, 1, "Needless blank line(s)"),
+                LintViolation(13, 1, "Needless blank line(s)")
+            ).isFormattedAs(formattedCode)
     }
 
-    @Test
-    fun testFormatInCode() {
-        assertThat(
-            NoConsecutiveBlankLinesRule().format(
+    @Nested
+    inner class BlankLinesAtEndOfFile {
+        @Test
+        fun `Given two blank lines at end of file then do return lint errors`() {
+            val code =
                 """
                 fun main() {
-                    fun a()
-                    fun b()
-
-
-                    fun c()
-
                 }
+
+
                 """.trimIndent()
-            )
-        ).isEqualTo(
+            val formattedCode =
+                """
+                fun main() {
+                }
+
+                """.trimIndent()
+            noConsecutiveBlankLinesRuleAssertThat(code)
+                .hasLintViolation(4, 1, "Needless blank line(s)")
+                .isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Given three or more blank lines at end of file then do return lint errors`() {
+            val code =
+                """
+                fun main() {
+                }
+
+
+
+                """.trimIndent()
+            val formattedCode =
+                """
+                fun main() {
+                }
+
+                """.trimIndent()
+            noConsecutiveBlankLinesRuleAssertThat(code)
+                .hasLintViolation(4, 1, "Needless blank line(s)")
+                .isFormattedAs(formattedCode)
+        }
+    }
+
+    @Test
+    fun `Given a string with multiple blank lines then do no return lint errors`() {
+        val code =
             """
             fun main() {
-                fun a()
-                fun b()
+                println(
+                    $MULTILINE_STRING_QUOTE
 
-                fun c()
 
+                    $MULTILINE_STRING_QUOTE
+                )
             }
             """.trimIndent()
-        )
+        noConsecutiveBlankLinesRuleAssertThat(code).hasNoLintViolations()
     }
 
-    @Test
-    fun testFormatAtTheEndOfFile() {
-        assertThat(NoConsecutiveBlankLinesRule().format("class A\n\n\n")).isEqualTo("class A\n")
-        assertThat(NoConsecutiveBlankLinesRule().format("class A\n\n")).isEqualTo("class A\n")
-        assertThat(NoConsecutiveBlankLinesRule().format("class A\n")).isEqualTo("class A\n")
-    }
-
-    @Test
-    fun `test two line breaks between class name and primary constructor`() {
-        assertThat(
-            NoConsecutiveBlankLinesRule().format(
+    @Nested
+    inner class BlankLinesBetweenClassNameAndPrimaryConstructor {
+        @Test
+        fun `Given one or more blank line between the class name and primary constructor then do return a lint error`() {
+            val code =
                 """
                 class A
 
@@ -166,50 +125,38 @@ class NoConsecutiveBlankLinesRuleTest {
 
                 class B
 
+
                 private constructor(b: Int)
                 """.trimIndent()
-            )
-        ).isEqualTo(
-            """
-            class A
-            constructor(a: Int)
-
-            class B
-            private constructor(b: Int)
-            """.trimIndent()
-        )
-    }
-
-    @Test
-    fun `test three line breaks between class name and primary constructor`() {
-        assertThat(
-            NoConsecutiveBlankLinesRule().format(
+            val formattedCode =
                 """
                 class A
-
-
                 constructor(a: Int)
-                """.trimIndent()
-            )
-        ).isEqualTo(
-            """
-            class A
-            constructor(a: Int)
-            """.trimIndent()
-        )
-    }
 
-    @Test
-    fun `test two line breaks between comment and primary constructor`() {
-        assertThat(
-            NoConsecutiveBlankLinesRule().lint(
+                class B
+                private constructor(b: Int)
+                """.trimIndent()
+            noConsecutiveBlankLinesRuleAssertThat(code)
+                .hasLintViolations(
+                    // TODO: Line number is incorrect
+                    LintViolation(3, 1, "Needless blank line(s)"),
+                    // TODO: Line number is incorrect
+                    LintViolation(7, 1, "Needless blank line(s)")
+                ).isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Given a class followed bij an EOL comment and a blank line before the constructor then do no return a lint error`() {
+            val code =
                 """
                 class A // comment
 
                 constructor(a: Int)
                 """.trimIndent()
-            )
-        ).isEmpty()
+            noConsecutiveBlankLinesRuleAssertThat(code)
+                // TODO: Check why no error is reported here
+                .hasNoLintViolations()
+        }
     }
 
     @Test
