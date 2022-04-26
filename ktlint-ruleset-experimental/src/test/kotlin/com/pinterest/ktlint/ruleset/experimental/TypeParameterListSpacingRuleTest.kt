@@ -307,4 +307,21 @@ class TypeParameterListSpacingRuleTest {
         )
         assertThat(TypeParameterListSpacingRule().format(code)).isEqualTo(formattedCode)
     }
+
+    @Test
+    fun `Given a typealias definition with a type parameter list followed by a parameter list then the redundant spaces are removed`() {
+        val code =
+            """
+            typealias Bar  <T>  = () -> T
+            """.trimIndent()
+        val formattedCode =
+            """
+            typealias Bar<T> = () -> T
+            """.trimIndent()
+        assertThat(TypeParameterListSpacingRule().lint(code)).containsExactly(
+            LintError(1, 14, "type-parameter-list-spacing", "No whitespace expected at this position"),
+            LintError(1, 19, "type-parameter-list-spacing", "Expected a single space")
+        )
+        assertThat(TypeParameterListSpacingRule().format(code)).isEqualTo(formattedCode)
+    }
 }

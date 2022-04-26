@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Added
 
 ### Fixed
+- Do not add a space after the typealias name (`type-parameter-list-spacing`) ([#1435](https://github.com/pinterest/ktlint/issues/1435))
 
 ### Changed
 * Set Kotlin development version to `1.6.21` and Kotlin version to `1.6.21`.
