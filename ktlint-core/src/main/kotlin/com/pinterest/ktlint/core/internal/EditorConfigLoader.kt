@@ -1,6 +1,8 @@
 package com.pinterest.ktlint.core.internal
 
 import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.api.EditorConfigOverride
+import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.emptyEditorConfigOverride
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
@@ -23,6 +25,10 @@ private val logger = KotlinLogging.logger {}.initKtLintKLogger()
  * Map contains [UsesEditorConfigProperties.EditorConfigProperty] and related
  * [PropertyType.PropertyValue] entries to add/replace loaded from `.editorconfig` files values.
  */
+@Deprecated(
+    message = "Marked for removal in KtLint 0.46.",
+    replaceWith = ReplaceWith("EditorConfigOverride")
+)
 @FeatureInAlphaState
 public typealias EditorConfigOverridesMap =
     Map<UsesEditorConfigProperties.EditorConfigProperty<*>, PropertyType.PropertyValue<*>>
@@ -48,7 +54,7 @@ public class EditorConfigLoader(
      * @param alternativeEditorConfig alternative to current [filePath] location where `.editorconfig` files should be
      * looked up
      * @param rules set of [Rule]s linting the file
-     * @param loadedValuesOverride map of values to add/replace values that were loaded from `.editorconfig` files
+     * @param editorConfigOverride map of values to add/replace values that were loaded from `.editorconfig` files
      * @param debug pass `true` to enable some additional debug output
      *
      * @return all possible loaded properties applicable to given file.
@@ -60,13 +66,14 @@ public class EditorConfigLoader(
         isStdIn: Boolean = false,
         alternativeEditorConfig: Path? = null,
         rules: Set<Rule>,
-        loadedValuesOverride: EditorConfigOverridesMap = emptyMap(),
+        editorConfigOverride: EditorConfigOverride = emptyEditorConfigOverride,
         debug: Boolean = false
     ): EditorConfigProperties {
         if (!isStdIn &&
             (filePath == null || SUPPORTED_FILES.none { filePath.toString().endsWith(it) })
         ) {
-            return loadedValuesOverride
+            return editorConfigOverride
+                .properties
                 .map { (property, value) ->
                     property.type.name to Property.builder()
                         .name(property.type.name)
@@ -99,13 +106,15 @@ public class EditorConfigLoader(
             )
             .properties
             .also { loaded ->
-                loadedValuesOverride.forEach {
-                    loaded[it.key.type.name] = Property.builder()
-                        .name(it.key.type.name)
-                        .type(it.key.type)
-                        .value(it.value)
-                        .build()
-                }
+                editorConfigOverride
+                    .properties
+                    .forEach {
+                        loaded[it.key.type.name] = Property.builder()
+                            .name(it.key.type.name)
+                            .type(it.key.type)
+                            .value(it.value)
+                            .build()
+                    }
             }
             .also {
                 logger.trace {

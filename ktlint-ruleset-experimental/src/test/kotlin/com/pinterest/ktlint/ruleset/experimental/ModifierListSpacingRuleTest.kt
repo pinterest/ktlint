@@ -1,12 +1,12 @@
 package com.pinterest.ktlint.ruleset.experimental
 
-import com.pinterest.ktlint.core.LintError
-import com.pinterest.ktlint.test.format
-import com.pinterest.ktlint.test.lint
-import org.assertj.core.api.Assertions.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 class ModifierListSpacingRuleTest {
+    private val modifierListSpacingRuleAssertThat = ModifierListSpacingRule().assertThat()
+
     @Test
     fun `Given a function preceded by multiple modifiers separated by multiple space then remove redundant spaces`() {
         val code =
@@ -23,13 +23,13 @@ class ModifierListSpacingRuleTest {
                 protected abstract suspend fun execute()
             }
             """.trimIndent()
-        assertThat(ModifierListSpacingRule().lint(code)).containsExactly(
-            LintError(1, 9, "modifier-list-spacing", "Single whitespace expected after modifier"),
-            LintError(3, 14, "modifier-list-spacing", "Single whitespace expected after modifier"),
-            LintError(3, 24, "modifier-list-spacing", "Single whitespace expected after modifier"),
-            LintError(3, 33, "modifier-list-spacing", "Single whitespace expected after modifier")
-        )
-        assertThat(ModifierListSpacingRule().format(code)).isEqualTo(formattedCode)
+        modifierListSpacingRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 9, "Single whitespace expected after modifier"),
+                LintViolation(3, 14, "Single whitespace expected after modifier"),
+                LintViolation(3, 24, "Single whitespace expected after modifier"),
+                LintViolation(3, 33, "Single whitespace expected after modifier")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -52,13 +52,13 @@ class ModifierListSpacingRuleTest {
                 protected abstract suspend fun execute()
             }
             """.trimIndent()
-        assertThat(ModifierListSpacingRule().lint(code)).containsExactly(
-            LintError(1, 9, "modifier-list-spacing", "Single whitespace expected after modifier"),
-            LintError(4, 14, "modifier-list-spacing", "Single whitespace expected after modifier"),
-            LintError(5, 13, "modifier-list-spacing", "Single whitespace expected after modifier"),
-            LintError(6, 12, "modifier-list-spacing", "Single whitespace expected after modifier")
-        )
-        assertThat(ModifierListSpacingRule().format(code)).isEqualTo(formattedCode)
+        modifierListSpacingRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 9, "Single whitespace expected after modifier"),
+                LintViolation(4, 14, "Single whitespace expected after modifier"),
+                LintViolation(5, 13, "Single whitespace expected after modifier"),
+                LintViolation(6, 12, "Single whitespace expected after modifier")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -71,8 +71,7 @@ class ModifierListSpacingRuleTest {
                 return "foo"
             }
             """.trimIndent()
-        assertThat(ModifierListSpacingRule().lint(code)).isEmpty()
-        assertThat(ModifierListSpacingRule().format(code)).isEqualTo(code)
+        modifierListSpacingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -92,11 +91,11 @@ class ModifierListSpacingRuleTest {
                 vararg bar
             ) = "some-result"
             """.trimIndent()
-        assertThat(ModifierListSpacingRule().lint(code)).containsExactly(
-            LintError(1, 15, "modifier-list-spacing", "Single whitespace expected after modifier"),
-            LintError(3, 11, "modifier-list-spacing", "Single whitespace expected after modifier")
-        )
-        assertThat(ModifierListSpacingRule().format(code)).isEqualTo(formattedCode)
+        modifierListSpacingRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 15, "Single whitespace expected after modifier"),
+                LintViolation(3, 11, "Single whitespace expected after modifier")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -106,7 +105,7 @@ class ModifierListSpacingRuleTest {
             @Foo1 @Foo2
             class Bar {}
             """.trimIndent()
-        assertThat(ModifierListSpacingRule().format(code)).isEqualTo(code)
+        modifierListSpacingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -119,11 +118,11 @@ class ModifierListSpacingRuleTest {
             """
             @Foo1 @Foo2 class Bar {}
             """.trimIndent()
-        assertThat(ModifierListSpacingRule().lint(code)).containsExactly(
-            LintError(1, 6, "modifier-list-spacing", "Single whitespace or newline expected after annotation"),
-            LintError(1, 13, "modifier-list-spacing", "Single whitespace or newline expected after annotation")
-        )
-        assertThat(ModifierListSpacingRule().format(code)).isEqualTo(formattedCode)
+        modifierListSpacingRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 6, "Single whitespace or newline expected after annotation"),
+                LintViolation(1, 13, "Single whitespace or newline expected after annotation")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -142,11 +141,11 @@ class ModifierListSpacingRuleTest {
             @Foo2
             class Bar {}
             """.trimIndent()
-        assertThat(ModifierListSpacingRule().lint(code)).containsExactly(
-            LintError(1, 6, "modifier-list-spacing", "Single whitespace or newline expected after annotation"),
-            LintError(3, 6, "modifier-list-spacing", "Single whitespace or newline expected after annotation")
-        )
-        assertThat(ModifierListSpacingRule().format(code)).isEqualTo(formattedCode)
+        modifierListSpacingRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 6, "Single whitespace or newline expected after annotation"),
+                LintViolation(3, 6, "Single whitespace or newline expected after annotation")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -157,8 +156,7 @@ class ModifierListSpacingRuleTest {
             @Foo2
             class Bar {}
             """.trimIndent()
-        assertThat(ModifierListSpacingRule().lint(code)).isEmpty()
-        assertThat(ModifierListSpacingRule().format(code)).isEqualTo(code)
+        modifierListSpacingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -173,7 +171,6 @@ class ModifierListSpacingRuleTest {
             @Foo3
             class Bar {}
             """.trimIndent()
-        assertThat(ModifierListSpacingRule().lint(code)).isEmpty()
-        assertThat(ModifierListSpacingRule().format(code)).isEqualTo(code)
+        modifierListSpacingRuleAssertThat(code).hasNoLintViolations()
     }
 }

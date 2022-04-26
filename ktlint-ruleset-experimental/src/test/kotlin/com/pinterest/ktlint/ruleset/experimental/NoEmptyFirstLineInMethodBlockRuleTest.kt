@@ -1,129 +1,83 @@
 package com.pinterest.ktlint.ruleset.experimental
 
-import com.pinterest.ktlint.core.LintError
-import com.pinterest.ktlint.test.format
-import com.pinterest.ktlint.test.lint
-import org.assertj.core.api.Assertions.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 class NoEmptyFirstLineInMethodBlockRuleTest {
+    private val noEmptyFirstLineInMethodBlockRuleAssertThat = NoEmptyFirstLineInMethodBlockRule().assertThat()
 
     @Test
-    fun testFormatIsCorrect() {
+    fun `Given a block in which the first line is not blank`() {
+        val code =
+            """
+            fun bar() {
+               val a = 2
+            }
+            """.trimIndent()
+        noEmptyFirstLineInMethodBlockRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Given a function in which the first line is blank`() {
+        val code =
+            """
+            fun bar() {
+
+               val a = 2
+            }
+            """.trimIndent()
         val formattedFunction =
             """
             fun bar() {
                val a = 2
             }
             """.trimIndent()
-
-        assertThat(NoEmptyFirstLineInMethodBlockRule().lint(formattedFunction)).isEmpty()
-        assertThat(NoEmptyFirstLineInMethodBlockRule().format(formattedFunction)).isEqualTo(formattedFunction)
+        noEmptyFirstLineInMethodBlockRuleAssertThat(code)
+            .hasLintViolation(2, 1, "First line in a method block should not be empty")
+            .isFormattedAs(formattedFunction)
     }
 
     @Test
-    fun testFormatWhenFirstLineIsEmptyInMethod() {
-        val unformattedFunction =
+    fun `Given an if-statement in a function in which the first line is blank`() {
+        val code =
             """
-            fun bar() {
+            fun foo() {
+                if (false) {
 
-               val a = 2
-            }
-            """.trimIndent()
-        val formattedFunction =
-            """
-            fun bar() {
-               val a = 2
-            }
-            """.trimIndent()
+                    1
+                } else if (true) {
 
-        assertThat(NoEmptyFirstLineInMethodBlockRule().lint(unformattedFunction)).isEqualTo(
-            listOf(
-                LintError(2, 1, "no-empty-first-line-in-method-block", "First line in a method block should not be empty")
-            )
-        )
-        assertThat(NoEmptyFirstLineInMethodBlockRule().format(unformattedFunction)).isEqualTo(formattedFunction)
-    }
+                    2
+                } else {
 
-    @Test
-    fun testFormatWhenFirstLineIsEmptyInABlockWithinMethod() {
-        val unformattedFunction =
-            """
-            fun funA() {
-
-                if (conditionA()) {
-
-                    doSomething()
-                } else if (conditionB()) {
-                    doAnotherThing()
+                    3
                 }
             }
             """.trimIndent()
         val formattedFunction =
             """
-            fun funA() {
-                if (conditionA()) {
-                    doSomething()
-                } else if (conditionB()) {
-                    doAnotherThing()
+            fun foo() {
+                if (false) {
+                    1
+                } else if (true) {
+                    2
+                } else {
+                    3
                 }
             }
             """.trimIndent()
-
-        assertThat(NoEmptyFirstLineInMethodBlockRule().lint(unformattedFunction)).isEqualTo(
-            listOf(
-                LintError(2, 1, "no-empty-first-line-in-method-block", "First line in a method block should not be empty"),
-                LintError(4, 1, "no-empty-first-line-in-method-block", "First line in a method block should not be empty")
-            )
-        )
-        assertThat(NoEmptyFirstLineInMethodBlockRule().format(unformattedFunction)).isEqualTo(formattedFunction)
+        noEmptyFirstLineInMethodBlockRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(3, 1, "First line in a method block should not be empty"),
+                LintViolation(6, 1, "First line in a method block should not be empty"),
+                LintViolation(9, 1, "First line in a method block should not be empty")
+            ).isFormattedAs(formattedFunction)
     }
 
     @Test
-    fun testFormatWhenFirstLineIsEmptyOnlyInABlockWithinMethod() {
-        val unformattedFunction =
-            """
-            fun funA() {
-                if (conditionA()) {
-
-                    doSomething()
-                } else if (conditionB()) {
-                    doAnotherThing()
-                }
-            }
-            """.trimIndent()
-        val formattedFunction =
-            """
-            fun funA() {
-                if (conditionA()) {
-                    doSomething()
-                } else if (conditionB()) {
-                    doAnotherThing()
-                }
-            }
-            """.trimIndent()
-
-        assertThat(NoEmptyFirstLineInMethodBlockRule().lint(unformattedFunction)).isEqualTo(
-            listOf(
-                LintError(3, 1, "no-empty-first-line-in-method-block", "First line in a method block should not be empty")
-            )
-        )
-        assertThat(NoEmptyFirstLineInMethodBlockRule().format(unformattedFunction)).isEqualTo(formattedFunction)
-    }
-
-    @Test
-    fun testFormatWhenFirstLineIsEmptyInFunctionButIgnoreAtClassLevel() {
-        val unformattedFunction =
-            """
-            class A {
-
-                fun bar() {
-
-                   val a = 2
-                }
-            }
-            """.trimIndent()
-        val formattedFunction =
+    fun `Given a class declaration starting with an empty line is allowed`() {
+        val code =
             """
             class A {
 
@@ -132,17 +86,11 @@ class NoEmptyFirstLineInMethodBlockRuleTest {
                 }
             }
             """.trimIndent()
-
-        assertThat(NoEmptyFirstLineInMethodBlockRule().lint(unformattedFunction)).isEqualTo(
-            listOf(
-                LintError(4, 1, "no-empty-first-line-in-method-block", "First line in a method block should not be empty")
-            )
-        )
-        assertThat(NoEmptyFirstLineInMethodBlockRule().format(unformattedFunction)).isEqualTo(formattedFunction)
+        noEmptyFirstLineInMethodBlockRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
-    fun `lint empty first line may be placed in function inside anonymous object`() {
+    fun `Issue 655 - Given an anonymous object starting with a blank line is allowed`() {
         val code =
             """
             fun fooBuilder() = object : Foo {
@@ -152,20 +100,6 @@ class NoEmptyFirstLineInMethodBlockRuleTest {
                 }
             }
             """.trimIndent()
-        assertThat(NoEmptyFirstLineInMethodBlockRule().lint(code)).isEmpty()
-    }
-
-    @Test
-    fun `format empty first line may be placed in function inside anonymous object`() {
-        val code =
-            """
-            fun fooBuilder() = object : Foo {
-
-                override fun foo() {
-                    TODO()
-                }
-            }
-            """.trimIndent()
-        assertThat(NoEmptyFirstLineInMethodBlockRule().format(code)).isEqualTo(code)
+        noEmptyFirstLineInMethodBlockRuleAssertThat(code).hasNoLintViolations()
     }
 }
