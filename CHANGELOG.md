@@ -2,21 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## Unreleased (0.46.0)
-
-### API Changes & RuleSet providers
-
-### Added
-- Add experimental rule for unexpected spacing between function name and opening parenthesis (`spacing-between-function-name-and-opening-parenthesis`) ([#1341](https://github.com/pinterest/ktlint/issues/1341))
-
-### Fixed
-
-### Changed
-
-### Removed
-
-
-## Unreleased (0.45.0)
+## Unreleased
 
 ### API Changes & RuleSet providers
 
@@ -27,13 +13,16 @@ If you are not an API user nor a RuleSet provider, then you can safely skip this
 An AssertJ style API for testing KtLint rules ([#1444](https://github.com/pinterest/ktlint/issues/1444)) has been added. Usage of this API is encouraged in favor of using the old RuleExtension API. For more information, see [KtLintAssertThat API]( https://github.com/pinterest/ktlint/blob/master/ktlint-test/README.MD)
 
 ### Added
-
-### Fixed
+- Add experimental rule for unexpected spacing between function name and opening parenthesis (`spacing-between-function-name-and-opening-parenthesis`) ([#1341](https://github.com/pinterest/ktlint/issues/1341))
+- Add experimental rule for unexpected spacing in the parameter list (`parameter-list-spacing`) ([#1341](https://github.com/pinterest/ktlint/issues/1341))
 - Do not add a space after the typealias name (`type-parameter-list-spacing`) ([#1435](https://github.com/pinterest/ktlint/issues/1435))
 
-### Changed
+### Fixed
 
+### Changed
 * Set Kotlin development version to `1.6.21` and Kotlin version to `1.6.21`.
+
+### Removed
 
 ### Removed
 
