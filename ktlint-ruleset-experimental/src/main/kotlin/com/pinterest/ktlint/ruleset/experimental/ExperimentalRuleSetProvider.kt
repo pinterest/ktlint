@@ -31,6 +31,10 @@ public class ExperimentalRuleSetProvider : RuleSetProvider {
         ModifierListSpacingRule(),
         CommentWrappingRule(),
         KdocWrappingRule(),
+        SpacingBetweenFunctionNameAndOpeningParenthesisRule(),
+        ParameterListSpacingRule(),
+        FunctionReturnTypeSpacingRule(),
+        FunctionStartOfBodySpacingRule(),
         NullableTypeSpacingRule()
     )
 }

@@ -1,335 +1,154 @@
 package com.pinterest.ktlint.ruleset.experimental
 
-import com.pinterest.ktlint.core.KtLint
-import com.pinterest.ktlint.core.LintError
-import com.pinterest.ktlint.test.format
-import com.pinterest.ktlint.test.lint
-import java.util.ArrayList
-import org.assertj.core.api.Assertions.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 class AnnotationSpacingRuleTest {
+    private val annotationSpacingRuleAssertThat = AnnotationSpacingRule().assertThat()
 
     @Test
-    fun `lint no empty lines between an annotation and object`() {
-        assertThat(
-            AnnotationSpacingRule().lint(
-                """
-                @JvmField
-                fun foo() {}
+    fun `Given an annotation on the line above the annotated object`() {
+        val code =
+            """
+            @JvmField
+            fun foo() {}
 
-                """.trimIndent()
-            )
-        ).isEmpty()
+            """.trimIndent()
+        annotationSpacingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
-    fun `lint there should not be empty lines between an annotation and object`() {
-        assertThat(
-            AnnotationSpacingRule().lint(
-                """
-                @JvmField
-
-                fun foo() {}
-
-                """.trimIndent()
-            )
-        ).isEqualTo(
-            listOf(
-                LintError(1, 9, "annotation-spacing", AnnotationSpacingRule.ERROR_MESSAGE)
-            )
-        )
-    }
-
-    @Test
-    fun `lint there should not be empty lines between an annotation and object autocorrected`() {
+    fun `Given a blank line between an annotation and the annotated object`() {
         val code =
             """
             @JvmField
 
             fun foo() {}
-
             """.trimIndent()
-
-        assertThat(
-            AnnotationSpacingRule().format(code)
-        ).isEqualTo(
+        val formattedCode =
             """
             @JvmField
             fun foo() {}
-
             """.trimIndent()
-        )
+        annotationSpacingRuleAssertThat(code)
+            .hasLintViolation(1, 9, "Annotations should occur immediately before the annotated construct")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
-    fun `lint there should not be empty lines between an annotation and object autocorrected with control`() {
-        val code =
-            """
-            @JvmField
-
-            fun foo() {
-              @JvmStatic
-              val r = A()
-            }
-
-            """.trimIndent()
-
-        assertThat(
-            AnnotationSpacingRule().format(code)
-        ).isEqualTo(
-            """
-            @JvmField
-            fun foo() {
-              @JvmStatic
-              val r = A()
-            }
-
-            """.trimIndent()
-        )
-    }
-
-    @Test
-    fun `lint there should not be empty lines between an annotation and object autocorrected multiple lines`() {
+    fun `Given multiple blank lines between an annotation and the annotated object`() {
         val code =
             """
             @JvmField
 
 
-
             fun foo() {}
-
             """.trimIndent()
-
-        assertThat(
-            AnnotationSpacingRule().format(code)
-        ).isEqualTo(
+        val formattedCode =
             """
             @JvmField
             fun foo() {}
-
             """.trimIndent()
-        )
+        annotationSpacingRuleAssertThat(code)
+            .hasLintViolation(1, 9, "Annotations should occur immediately before the annotated construct")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
-    fun `lint annotation on the same line remains there`() {
+    fun `Given an annotation on the same line as the annotated construct is not wrapped`() {
         val code =
             """
             @JvmField fun foo() {}
-
             """.trimIndent()
-
-        assertThat(
-            AnnotationSpacingRule().format(code)
-        ).isEqualTo(
-            """
-            @JvmField fun foo() {}
-
-            """.trimIndent()
-        )
+        annotationSpacingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
-    fun `lint there should not be empty lines between multiple annotations`() {
+    fun `Given a blank line between multiple annotations on same line and the annotated object`() {
         val code =
             """
             @JvmField @JvmStatic
 
             fun foo() = Unit
-
             """.trimIndent()
-
-        assertThat(
-            AnnotationSpacingRule().format(code)
-        ).isEqualTo(
+        val formattedCode =
             """
             @JvmField @JvmStatic
             fun foo() = Unit
-
             """.trimIndent()
-        )
+        annotationSpacingRuleAssertThat(code)
+            .hasLintViolations(
+                // TODO: It is not correct that the error is reported twice
+                LintViolation(1, 20, "Annotations should occur immediately before the annotated construct"),
+                LintViolation(1, 20, "Annotations should occur immediately before the annotated construct")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
-    fun `lint there should not be empty lines between multiple annotations on multiple lines`() {
+    fun `Given a blank line between multiple annotations on distinct lines and the annotated object`() {
         val code =
             """
             @JvmField
             @JvmStatic
 
             fun foo() = Unit
-
             """.trimIndent()
-
-        assertThat(
-            AnnotationSpacingRule().format(code)
-        ).isEqualTo(
+        val formattedCode =
             """
             @JvmField
             @JvmStatic
             fun foo() = Unit
-
             """.trimIndent()
-        )
+        annotationSpacingRuleAssertThat(code)
+            .hasLintViolations(
+                // TODO: It is not correct that the error is reported twice
+                LintViolation(2, 10, "Annotations should occur immediately before the annotated construct"),
+                LintViolation(2, 10, "Annotations should occur immediately before the annotated construct")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
-    fun `lint there should not be empty lines between multiple annotations with inline annotation`() {
+    fun `Given a blank line between annotations`() {
         val code =
             """
             @JvmField
 
-            @JvmName
+            @JvmStatic
+            fun foo() = Unit
+            """.trimIndent()
+        val formattedCode =
+            """
+            @JvmField
+            @JvmStatic
+            fun foo() = Unit
+            """.trimIndent()
+        annotationSpacingRuleAssertThat(code)
+            .hasLintViolation(3, 10, "Annotations should occur immediately before the annotated construct")
+            .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given a blank line between an annotation and the last annotation which is on the same line as the annotated construct`() {
+        val code =
+            """
+            @JvmField
 
             @JvmStatic fun foo() = Unit
-
             """.trimIndent()
-
-        assertThat(
-            AnnotationSpacingRule().format(code)
-        ).isEqualTo(
+        val formattedCode =
             """
             @JvmField
-            @JvmName
             @JvmStatic fun foo() = Unit
-
             """.trimIndent()
-        )
+        annotationSpacingRuleAssertThat(code)
+            // TODO: Offset of error is not correct
+            .hasLintViolation(3, 10, "Annotations should occur immediately before the annotated construct")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
-    fun `lint there should not be empty lines between two or more annotations`() {
-        val code =
-            """
-            @JvmField
-
-            @JvmName
-
-
-            @JvmStatic
-
-
-            fun foo() = Unit
-
-            """.trimIndent()
-
-        assertThat(
-            AnnotationSpacingRule().format(code)
-        ).isEqualTo(
-            """
-            @JvmField
-            @JvmName
-            @JvmStatic
-            fun foo() = Unit
-
-            """.trimIndent()
-        )
-    }
-
-    @Test
-    fun `lint there should not be empty lines between an annotation and object autocorrected multiple annotations`() {
-        val code =
-            """
-            @JvmField
-
-
-
-            fun foo() {
-              @JvmStatic
-
-              val foo = Foo()
-            }
-
-            """.trimIndent()
-
-        assertThat(
-            AnnotationSpacingRule().format(code)
-        ).isEqualTo(
-            """
-            @JvmField
-            fun foo() {
-              @JvmStatic
-              val foo = Foo()
-            }
-
-            """.trimIndent()
-        )
-    }
-
-    @Test
-    fun `lint there should not be an error on multiple lines assertion while additional formatting ongoing`() {
-        val code =
-            """
-            package a.b.c
-
-            class Test {
-                fun bloop() {
-                    asdfadsf(asdfadsf, asdfasdf, asdfasdfasdfads,
-                    asdfasdf, asdfasdf, asdfasdf)
-                }
-
-                @Blah
-                val test: Int
-            }
-
-            """.trimIndent()
-        assertThat(
-            AnnotationSpacingRule().format(code)
-        ).isEqualTo(
-            """
-            package a.b.c
-
-            class Test {
-                fun bloop() {
-                    asdfadsf(asdfadsf, asdfasdf, asdfasdfasdfads,
-                    asdfasdf, asdfasdf, asdfasdf)
-                }
-
-                @Blah
-                val test: Int
-            }
-
-            """.trimIndent()
-        )
-    }
-
-    @Test
-    fun `lint there should not be an error on multiline assertion while additional formatting ongoing from file`() {
-        val code =
-            """
-            package a.b.c
-
-            class Test {
-                fun bloop() {
-                    asdfadsf(asdfadsf, asdfasdf, asdfasdfasdfads,
-                    asdfasdf, asdfasdf, asdfasdf)
-                }
-
-                @Blah
-                val test: Int
-            }
-
-            """.trimIndent()
-        assertThat(
-            ArrayList<LintError>().apply {
-                KtLint.lint(
-                    KtLint.Params(
-                        text = code,
-                        ruleSets = mutableListOf(
-                            ExperimentalRuleSetProvider().get()
-                        ),
-                        cb = { e, _ -> add(e) }
-                    )
-                )
-            }
-        ).allMatch {
-            it.ruleId == "experimental:argument-list-wrapping"
-        }
-    }
-
-    @Test
-    fun `annotations should not be separated by comments from the annotated construct`() {
+    fun `Issue 1087 - Given a block comment between an annotation and the annotated construct`() {
         val code =
             """
             @Suppress("DEPRECATION") @Hello
@@ -339,157 +158,92 @@ class AnnotationSpacingRuleTest {
             class Foo {
             }
             """.trimIndent()
-        assertThat(
-            AnnotationSpacingRule().lint(code)
-        ).isEqualTo(
-            listOf(
-                LintError(1, 31, "annotation-spacing", AnnotationSpacingRule.ERROR_MESSAGE)
-            )
-        )
+        val formattedCode =
+            """
+            /**
+             * block comment
+             */
+            @Suppress("DEPRECATION") @Hello
+            class Foo {
+            }
+            """.trimIndent()
+        annotationSpacingRuleAssertThat(code)
+            .hasLintViolation(1, 31, "Annotations should occur immediately before the annotated construct")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
-    fun `annotations should be moved after comments`() {
+    fun `Issue 1087 - Given an EOL comment between an annotation and the annotated construct`() {
         val code =
-            """
-            @Suppress("DEPRECATION") @Hello
-            /**
-             * block comment
-             */
-            class Foo {
-            }
-            """.trimIndent()
-        assertThat(
-            AnnotationSpacingRule().format(code)
-        ).isEqualTo(
-            """
-            /**
-             * block comment
-             */
-            @Suppress("DEPRECATION") @Hello
-            class Foo {
-            }
-            """.trimIndent()
-        )
-
-        val codeEOL =
             """
             @Suppress("DEPRECATION") @Hello
             // hello
             class Foo {
             }
             """.trimIndent()
-        assertThat(
-            AnnotationSpacingRule().format(codeEOL)
-        ).isEqualTo(
+        val formattedCode =
             """
             // hello
             @Suppress("DEPRECATION") @Hello
             class Foo {
             }
             """.trimIndent()
-        )
+        annotationSpacingRuleAssertThat(code)
+            .hasLintViolation(1, 31, "Annotations should occur immediately before the annotated construct")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
-    fun `preceding whitespaces are preserved`() {
+    fun `Given an annotation preceded by multiple blank lines`() {
         val code =
             """
-            package a.b.c
-
-            val hello = 5
 
 
-            @Suppress("DEPRECATION") @Hello
-            /**
-             * block comment
-             */
-            class Foo {
-            }
+            @Suppress("DEPRECATION")
+            val foo = "foo"
             """.trimIndent()
-        assertThat(
-            AnnotationSpacingRule().format(code)
-        ).isEqualTo(
-            """
-            package a.b.c
-
-            val hello = 5
-
-
-            /**
-             * block comment
-             */
-            @Suppress("DEPRECATION") @Hello
-            class Foo {
-            }
-            """.trimIndent()
-        )
+        annotationSpacingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
-    fun `lint eol comment on the same line as the annotation`() {
-        assertThat(
-            AnnotationSpacingRule().lint(
-                """
-                @SuppressWarnings // foo
-                fun bar() {
-                }
-                """.trimIndent()
-            )
-        ).isEmpty()
-    }
-
-    @Test
-    fun `format eol comment on the same line as the annotation`() {
+    fun `Issue 1168 - Given an EOL comment on line above the annotation`() {
         val code =
             """
-            @SuppressWarnings // foo
-
-            fun bar() {
-            }
+            // comment
+            @SuppressWarnings
+            fun foo() {}
             """.trimIndent()
-        assertThat(
-            AnnotationSpacingRule().format(code)
-        ).isEqualTo(
-            """
-            @SuppressWarnings // foo
-            fun bar() {
-            }
-            """.trimIndent()
-        )
+        annotationSpacingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
-    fun `format eol comment on the same line as the annotation 2`() {
+    fun `Issue 1168 - Given an EOL comment on same line as the annotation`() {
         val code =
             """
-            @SuppressWarnings // foo
-            // bar
-            fun bar() {
-            }
+            @SuppressWarnings // comment
+            fun foo() {}
             """.trimIndent()
-        assertThat(
-            AnnotationSpacingRule().format(code)
-        ).isEqualTo(
-            """
-            // bar
-            @SuppressWarnings // foo
-            fun bar() {
-            }
-            """.trimIndent()
-        )
+        annotationSpacingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
-    fun `lint block comment on the same line as the annotation`() {
-        assertThat(
-            AnnotationSpacingRule().lint(
-                """
-                @SuppressWarnings /* foo */
-                fun bar() {
-                }
-                """.trimIndent()
-            )
-        ).isEmpty()
+    fun `Issue 1168 - Given a block comment above the annotation`() {
+        val code =
+            """
+            /* comment */
+            @SuppressWarnings
+            fun foo() {}
+            """.trimIndent()
+        annotationSpacingRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Issue 1168 - Given a block comment on same line as the annotation`() {
+        val code =
+            """
+            @SuppressWarnings /* comment */
+            fun foo() {}
+            """.trimIndent()
+        annotationSpacingRuleAssertThat(code).hasNoLintViolations()
     }
 }

@@ -4,6 +4,6 @@ plugins {
 }
 
 dependencies {
-  api deps.logback
-  api deps.janino
+  api libs.logback
+  api libs.janino
 }

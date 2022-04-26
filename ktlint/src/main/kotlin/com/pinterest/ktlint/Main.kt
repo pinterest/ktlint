@@ -17,6 +17,7 @@ import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ktlint.core.internal.containsLintError
 import com.pinterest.ktlint.core.internal.loadBaseline
 import com.pinterest.ktlint.core.internal.relativeRoute
+import com.pinterest.ktlint.core.setDefaultLoggerModifier
 import com.pinterest.ktlint.internal.ApplyToIDEAGloballySubCommand
 import com.pinterest.ktlint.internal.ApplyToIDEAProjectSubCommand
 import com.pinterest.ktlint.internal.GenerateEditorConfigSubCommand
@@ -297,13 +298,14 @@ class KtlintCommandLine {
     private fun configureLogger() =
         KotlinLogging
             .logger {}
-            .initKtLintKLogger { logger ->
+            .setDefaultLoggerModifier { logger ->
                 (logger.underlyingLogger as Logger).level = when {
                     trace -> Level.TRACE
                     debug -> Level.DEBUG
                     else -> Level.INFO
                 }
             }
+            .initKtLintKLogger()
 
     private fun lintFiles(
         ruleSetProviders: Map<String, RuleSetProvider>,

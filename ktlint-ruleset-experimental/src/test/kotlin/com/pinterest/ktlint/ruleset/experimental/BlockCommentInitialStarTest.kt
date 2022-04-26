@@ -1,12 +1,12 @@
 package com.pinterest.ktlint.ruleset.experimental
 
-import com.pinterest.ktlint.core.LintError
-import com.pinterest.ktlint.test.format
-import com.pinterest.ktlint.test.lint
-import org.assertj.core.api.Assertions.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 class BlockCommentInitialStarTest {
+    private val blockCommentInitialStarAlignmentRuleAssertThat = BlockCommentInitialStarAlignmentRule().assertThat()
+
     @Test
     fun `Given a block comment for which the indentation followed by the star already aligns with the star in the first line of the block comment then do not reformat`() {
         val code =
@@ -15,8 +15,7 @@ class BlockCommentInitialStarTest {
              * This blocked is formatted well.
              */
             """.trimIndent()
-        assertThat(BlockCommentInitialStarAlignmentRule().lint(code)).isEmpty()
-        assertThat(BlockCommentInitialStarAlignmentRule().format(code)).isEqualTo(code)
+        blockCommentInitialStarAlignmentRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -27,8 +26,7 @@ class BlockCommentInitialStarTest {
                       This blocked is formatted well.
              */
             """.trimIndent()
-        assertThat(BlockCommentInitialStarAlignmentRule().lint(code)).isEmpty()
-        assertThat(BlockCommentInitialStarAlignmentRule().format(code)).isEqualTo(code)
+        blockCommentInitialStarAlignmentRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -39,8 +37,7 @@ class BlockCommentInitialStarTest {
                    - This line contains a * but it is not the initial *.
              */
             """.trimIndent()
-        assertThat(BlockCommentInitialStarAlignmentRule().lint(code)).isEmpty()
-        assertThat(BlockCommentInitialStarAlignmentRule().format(code)).isEqualTo(code)
+        blockCommentInitialStarAlignmentRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -57,11 +54,11 @@ class BlockCommentInitialStarTest {
              * This blocked is not formatted well.
              */
             """.trimIndent()
-        assertThat(BlockCommentInitialStarAlignmentRule().lint(code)).containsExactly(
-            LintError(2, 8, "block-comment-initial-star-alignment", "Initial star should be align with start of block comment"),
-            LintError(3, 6, "block-comment-initial-star-alignment", "Initial star should be align with start of block comment")
-        )
-        assertThat(BlockCommentInitialStarAlignmentRule().format(code)).isEqualTo(formattedCode)
+        blockCommentInitialStarAlignmentRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(2, 8, "Initial star should be align with start of block comment"),
+                LintViolation(3, 6, "Initial star should be align with start of block comment")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -84,11 +81,11 @@ class BlockCommentInitialStarTest {
                  */
             }
             """.trimIndent()
-        assertThat(BlockCommentInitialStarAlignmentRule().lint(code)).containsExactly(
-            LintError(3, 12, "block-comment-initial-star-alignment", "Initial star should be align with start of block comment"),
-            LintError(4, 4, "block-comment-initial-star-alignment", "Initial star should be align with start of block comment"),
-            LintError(5, 10, "block-comment-initial-star-alignment", "Initial star should be align with start of block comment")
-        )
-        assertThat(BlockCommentInitialStarAlignmentRule().format(code)).isEqualTo(formattedCode)
+        blockCommentInitialStarAlignmentRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(3, 12, "Initial star should be align with start of block comment"),
+                LintViolation(4, 4, "Initial star should be align with start of block comment"),
+                LintViolation(5, 10, "Initial star should be align with start of block comment")
+            ).isFormattedAs(formattedCode)
     }
 }

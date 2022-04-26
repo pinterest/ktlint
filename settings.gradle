@@ -3,11 +3,11 @@ pluginManagement {
     mavenCentral()
     gradlePluginPortal()
   }
+}
 
-  plugins {
-    id 'com.github.breadmoirai.github-release' version '2.2.12'
-    id 'com.github.johnrengelman.shadow' version '7.1.1'
-    id 'org.gradle.crypto.checksum' version '1.1.0'
+dependencyResolutionManagement {
+  repositories {
+    mavenCentral()
   }
 }
 
