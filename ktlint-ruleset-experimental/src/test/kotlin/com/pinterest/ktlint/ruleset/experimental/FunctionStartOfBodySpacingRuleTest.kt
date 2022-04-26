@@ -1,14 +1,14 @@
 package com.pinterest.ktlint.ruleset.experimental
 
-import com.pinterest.ktlint.core.LintError
-import com.pinterest.ktlint.test.format
-import com.pinterest.ktlint.test.lint
-import org.assertj.core.api.Assertions.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class FunctionStartOfBodySpacingRuleTest {
+    private val functionStartOfBodySpacingRuleAssertThat = FunctionStartOfBodySpacingRule().assertThat()
+
     @Nested
     @DisplayName("Given a function signature followed by an expression body")
     inner class ExpressionBody {
@@ -19,8 +19,7 @@ class FunctionStartOfBodySpacingRuleTest {
                 fun foo() = "some-result"
                 fun bar(): String = "some-result"
                 """.trimIndent()
-            assertThat(FunctionStartOfBodySpacingRule().lint(code)).isEmpty()
-            assertThat(FunctionStartOfBodySpacingRule().format(code)).isEqualTo(code)
+            functionStartOfBodySpacingRuleAssertThat(code).hasNoLintViolations()
         }
 
         @Nested
@@ -38,21 +37,11 @@ class FunctionStartOfBodySpacingRuleTest {
                     fun foo() = "some-result"
                     fun bar(): String = "some-result"
                     """.trimIndent()
-                assertThat(FunctionStartOfBodySpacingRule().lint(code)).containsExactly(
-                    LintError(
-                        1,
-                        10,
-                        "function-start-of-body-spacing",
-                        "Expected a single white space before assignment of expression body"
-                    ),
-                    LintError(
-                        2,
-                        18,
-                        "function-start-of-body-spacing",
-                        "Expected a single white space before assignment of expression body"
-                    )
-                )
-                assertThat(FunctionStartOfBodySpacingRule().format(code)).isEqualTo(formattedCode)
+                functionStartOfBodySpacingRuleAssertThat(code)
+                    .hasLintViolations(
+                        LintViolation(1, 10, "Expected a single white space before assignment of expression body"),
+                        LintViolation(2, 18, "Expected a single white space before assignment of expression body")
+                    ).isFormattedAs(formattedCode)
             }
 
             @Test
@@ -67,11 +56,11 @@ class FunctionStartOfBodySpacingRuleTest {
                     fun foo() = "some-result"
                     fun bar(): String = "some-result"
                     """.trimIndent()
-                assertThat(FunctionStartOfBodySpacingRule().lint(code)).containsExactly(
-                    LintError(1, 10, "function-start-of-body-spacing", "Unexpected whitespace"),
-                    LintError(2, 18, "function-start-of-body-spacing", "Unexpected whitespace")
-                )
-                assertThat(FunctionStartOfBodySpacingRule().format(code)).isEqualTo(formattedCode)
+                functionStartOfBodySpacingRuleAssertThat(code)
+                    .hasLintViolations(
+                        LintViolation(1, 10, "Unexpected whitespace"),
+                        LintViolation(2, 18, "Unexpected whitespace")
+                    ).isFormattedAs(formattedCode)
             }
 
             @Test
@@ -88,11 +77,11 @@ class FunctionStartOfBodySpacingRuleTest {
                     fun foo() = "some-result"
                     fun bar(): String = "some-result"
                     """.trimIndent()
-                assertThat(FunctionStartOfBodySpacingRule().lint(code)).containsExactly(
-                    LintError(1, 10, "function-start-of-body-spacing", "Unexpected whitespace"),
-                    LintError(3, 18, "function-start-of-body-spacing", "Unexpected whitespace")
-                )
-                assertThat(FunctionStartOfBodySpacingRule().format(code)).isEqualTo(formattedCode)
+                functionStartOfBodySpacingRuleAssertThat(code)
+                    .hasLintViolations(
+                        LintViolation(1, 10, "Unexpected whitespace"),
+                        LintViolation(3, 18, "Unexpected whitespace")
+                    ).isFormattedAs(formattedCode)
             }
         }
 
@@ -111,11 +100,11 @@ class FunctionStartOfBodySpacingRuleTest {
                     fun foo() = "some-result"
                     fun bar(): String = "some-result"
                     """.trimIndent()
-                assertThat(FunctionStartOfBodySpacingRule().lint(code)).containsExactly(
-                    LintError(1, 11, "function-start-of-body-spacing", "Expected a single white space between assignment and expression body on same line"),
-                    LintError(2, 19, "function-start-of-body-spacing", "Expected a single white space between assignment and expression body on same line")
-                )
-                assertThat(FunctionStartOfBodySpacingRule().format(code)).isEqualTo(formattedCode)
+                functionStartOfBodySpacingRuleAssertThat(code)
+                    .hasLintViolations(
+                        LintViolation(1, 11, "Expected a single white space between assignment and expression body on same line"),
+                        LintViolation(2, 19, "Expected a single white space between assignment and expression body on same line")
+                    ).isFormattedAs(formattedCode)
             }
 
             @Test
@@ -130,11 +119,11 @@ class FunctionStartOfBodySpacingRuleTest {
                     fun foo() = "some-result"
                     fun bar(): String = "some-result"
                     """.trimIndent()
-                assertThat(FunctionStartOfBodySpacingRule().lint(code)).containsExactly(
-                    LintError(1, 12, "function-start-of-body-spacing", "Unexpected whitespace"),
-                    LintError(2, 20, "function-start-of-body-spacing", "Unexpected whitespace")
-                )
-                assertThat(FunctionStartOfBodySpacingRule().format(code)).isEqualTo(formattedCode)
+                functionStartOfBodySpacingRuleAssertThat(code)
+                    .hasLintViolations(
+                        LintViolation(1, 12, "Unexpected whitespace"),
+                        LintViolation(2, 20, "Unexpected whitespace")
+                    ).isFormattedAs(formattedCode)
             }
 
             @Test
@@ -146,8 +135,7 @@ class FunctionStartOfBodySpacingRuleTest {
                     fun bar(): String =
                         "some-result"
                     """.trimIndent()
-                assertThat(FunctionStartOfBodySpacingRule().lint(code)).isEmpty()
-                assertThat(FunctionStartOfBodySpacingRule().format(code)).isEqualTo(code)
+                functionStartOfBodySpacingRuleAssertThat(code).hasNoLintViolations()
             }
         }
     }
@@ -166,8 +154,7 @@ class FunctionStartOfBodySpacingRuleTest {
                     return "some-result"
                 }
                 """.trimIndent()
-            assertThat(FunctionStartOfBodySpacingRule().lint(code)).isEmpty()
-            assertThat(FunctionStartOfBodySpacingRule().format(code)).isEqualTo(code)
+            functionStartOfBodySpacingRuleAssertThat(code).hasNoLintViolations()
         }
 
         @Test
@@ -190,11 +177,11 @@ class FunctionStartOfBodySpacingRuleTest {
                     return "some-result"
                 }
                 """.trimIndent()
-            assertThat(FunctionStartOfBodySpacingRule().lint(code)).containsExactly(
-                LintError(1, 10, "function-start-of-body-spacing", "Expected a single white space before start of function body"),
-                LintError(4, 18, "function-start-of-body-spacing", "Expected a single white space before start of function body")
-            )
-            assertThat(FunctionStartOfBodySpacingRule().format(code)).isEqualTo(formattedCode)
+            functionStartOfBodySpacingRuleAssertThat(code)
+                .hasLintViolations(
+                    LintViolation(1, 10, "Expected a single white space before start of function body"),
+                    LintViolation(4, 18, "Expected a single white space before start of function body")
+                ).isFormattedAs(formattedCode)
         }
 
         @Test
@@ -217,11 +204,11 @@ class FunctionStartOfBodySpacingRuleTest {
                     return "some-result"
                 }
                 """.trimIndent()
-            assertThat(FunctionStartOfBodySpacingRule().lint(code)).containsExactly(
-                LintError(1, 10, "function-start-of-body-spacing", "Unexpected whitespace"),
-                LintError(4, 18, "function-start-of-body-spacing", "Unexpected whitespace")
-            )
-            assertThat(FunctionStartOfBodySpacingRule().format(code)).isEqualTo(formattedCode)
+            functionStartOfBodySpacingRuleAssertThat(code)
+                .hasLintViolations(
+                    LintViolation(1, 10, "Unexpected whitespace"),
+                    LintViolation(4, 18, "Unexpected whitespace")
+                ).isFormattedAs(formattedCode)
         }
 
         @Test
@@ -246,11 +233,11 @@ class FunctionStartOfBodySpacingRuleTest {
                     return "some-result"
                 }
                 """.trimIndent()
-            assertThat(FunctionStartOfBodySpacingRule().lint(code)).containsExactly(
-                LintError(1, 10, "function-start-of-body-spacing", "Unexpected whitespace"),
-                LintError(5, 18, "function-start-of-body-spacing", "Unexpected whitespace")
-            )
-            assertThat(FunctionStartOfBodySpacingRule().format(code)).isEqualTo(formattedCode)
+            functionStartOfBodySpacingRuleAssertThat(code)
+                .hasLintViolations(
+                    LintViolation(1, 10, "Unexpected whitespace"),
+                    LintViolation(5, 18, "Unexpected whitespace")
+                ).isFormattedAs(formattedCode)
         }
     }
 }
