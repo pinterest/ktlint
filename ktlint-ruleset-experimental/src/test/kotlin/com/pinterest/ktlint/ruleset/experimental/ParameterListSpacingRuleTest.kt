@@ -1,20 +1,19 @@
 package com.pinterest.ktlint.ruleset.experimental
 
-import com.pinterest.ktlint.core.LintError
-import com.pinterest.ktlint.test.format
-import com.pinterest.ktlint.test.lint
-import org.assertj.core.api.Assertions.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 class ParameterListSpacingRuleTest {
+    private val parameterListSpacingRuleAssertThat = ParameterListSpacingRule().assertThat()
+
     @Test
     fun `Given a function signature which does not contain redundant spaces then do no reformat`() {
         val code =
             """
             fun foo(a: Any, vararg b: Any) = "some-result"
             """.trimIndent()
-        assertThat(ParameterListSpacingRule().lint(code)).isEmpty()
-        assertThat(ParameterListSpacingRule().format(code)).isEqualTo(code)
+        parameterListSpacingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -27,10 +26,9 @@ class ParameterListSpacingRuleTest {
             """
             fun foo() = "some-result"
             """.trimIndent()
-        assertThat(ParameterListSpacingRule().lint(code)).containsExactly(
-            LintError(1, 9, "parameter-list-spacing", "Unexpected whitespace")
-        )
-        assertThat(ParameterListSpacingRule().format(code)).isEqualTo(formattedCode)
+        parameterListSpacingRuleAssertThat(code)
+            .hasLintViolation(1, 9, "Unexpected whitespace")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -44,10 +42,9 @@ class ParameterListSpacingRuleTest {
             """
             fun foo() = "some-result"
             """.trimIndent()
-        assertThat(ParameterListSpacingRule().lint(code)).containsExactly(
-            LintError(1, 9, "parameter-list-spacing", "Unexpected whitespace")
-        )
-        assertThat(ParameterListSpacingRule().format(code)).isEqualTo(formattedCode)
+        parameterListSpacingRuleAssertThat(code)
+            .hasLintViolation(1, 9, "Unexpected whitespace")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -60,10 +57,9 @@ class ParameterListSpacingRuleTest {
             """
             fun foo(a: Any) = "some-result"
             """.trimIndent()
-        assertThat(ParameterListSpacingRule().lint(code)).containsExactly(
-            LintError(1, 9, "parameter-list-spacing", "Unexpected whitespace")
-        )
-        assertThat(ParameterListSpacingRule().format(code)).isEqualTo(formattedCode)
+        parameterListSpacingRuleAssertThat(code)
+            .hasLintViolation(1, 9, "Unexpected whitespace")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -74,8 +70,7 @@ class ParameterListSpacingRuleTest {
                 a: Any
             ) = "some-result"
             """.trimIndent()
-        assertThat(ParameterListSpacingRule().lint(code)).isEmpty()
-        assertThat(ParameterListSpacingRule().format(code)).isEqualTo(code)
+        parameterListSpacingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -88,10 +83,9 @@ class ParameterListSpacingRuleTest {
             """
             fun foo(a: Any) = "some-result"
             """.trimIndent()
-        assertThat(ParameterListSpacingRule().lint(code)).containsExactly(
-            LintError(1, 15, "parameter-list-spacing", "Unexpected whitespace")
-        )
-        assertThat(ParameterListSpacingRule().format(code)).isEqualTo(formattedCode)
+        parameterListSpacingRuleAssertThat(code)
+            .hasLintViolation(1, 15, "Unexpected whitespace")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -102,8 +96,7 @@ class ParameterListSpacingRuleTest {
                 a: Any
             ) = "some-result"
             """.trimIndent()
-        assertThat(ParameterListSpacingRule().lint(code)).isEmpty()
-        assertThat(ParameterListSpacingRule().format(code)).isEqualTo(code)
+        parameterListSpacingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -116,10 +109,9 @@ class ParameterListSpacingRuleTest {
             """
             fun foo(a: Any) = "some-result"
             """.trimIndent()
-        assertThat(ParameterListSpacingRule().lint(code)).containsExactly(
-            LintError(1, 10, "parameter-list-spacing", "Unexpected whitespace")
-        )
-        assertThat(ParameterListSpacingRule().format(code)).isEqualTo(formattedCode)
+        parameterListSpacingRuleAssertThat(code)
+            .hasLintViolation(1, 10, "Unexpected whitespace")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -133,10 +125,9 @@ class ParameterListSpacingRuleTest {
             """
             fun foo(a: Any) = "some-result"
             """.trimIndent()
-        assertThat(ParameterListSpacingRule().lint(code)).containsExactly(
-            LintError(1, 10, "parameter-list-spacing", "Unexpected whitespace")
-        )
-        assertThat(ParameterListSpacingRule().format(code)).isEqualTo(formattedCode)
+        parameterListSpacingRuleAssertThat(code)
+            .hasLintViolation(1, 10, "Unexpected whitespace")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -149,10 +140,9 @@ class ParameterListSpacingRuleTest {
             """
             fun foo(a: Any) = "some-result"
             """.trimIndent()
-        assertThat(ParameterListSpacingRule().lint(code)).containsExactly(
-            LintError(1, 10, "parameter-list-spacing", "Whitespace after ':' is missing")
-        )
-        assertThat(ParameterListSpacingRule().format(code)).isEqualTo(formattedCode)
+        parameterListSpacingRuleAssertThat(code)
+            .hasLintViolation(1, 10, "Whitespace after ':' is missing")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -165,10 +155,9 @@ class ParameterListSpacingRuleTest {
             """
             fun foo(a: Any) = "some-result"
             """.trimIndent()
-        assertThat(ParameterListSpacingRule().lint(code)).containsExactly(
-            LintError(1, 11, "parameter-list-spacing", "Expected a single space")
-        )
-        assertThat(ParameterListSpacingRule().format(code)).isEqualTo(formattedCode)
+        parameterListSpacingRuleAssertThat(code)
+            .hasLintViolation(1, 11, "Expected a single space")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -182,10 +171,9 @@ class ParameterListSpacingRuleTest {
             """
             fun foo(a: Any) = "some-result"
             """.trimIndent()
-        assertThat(ParameterListSpacingRule().lint(code)).containsExactly(
-            LintError(1, 11, "parameter-list-spacing", "Expected a single space")
-        )
-        assertThat(ParameterListSpacingRule().format(code)).isEqualTo(formattedCode)
+        parameterListSpacingRuleAssertThat(code)
+            .hasLintViolation(1, 11, "Expected a single space")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -210,12 +198,12 @@ class ParameterListSpacingRuleTest {
                 bar()
             }
             """.trimIndent()
-        assertThat(ParameterListSpacingRule().lint(code)).containsExactly(
-            LintError(1, 16, "parameter-list-spacing", "Expected a single space"),
-            LintError(2, 25, "parameter-list-spacing", "Expected a single space"),
-            LintError(5, 28, "parameter-list-spacing", "Expected a single space")
-        )
-        assertThat(ParameterListSpacingRule().format(code)).isEqualTo(formattedCode)
+        parameterListSpacingRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 16, "Expected a single space"),
+                LintViolation(2, 25, "Expected a single space"),
+                LintViolation(5, 28, "Expected a single space")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -243,12 +231,12 @@ class ParameterListSpacingRuleTest {
                 bar()
             }
             """.trimIndent()
-        assertThat(ParameterListSpacingRule().lint(code)).containsExactly(
-            LintError(1, 16, "parameter-list-spacing", "Expected a single space"),
-            LintError(3, 25, "parameter-list-spacing", "Expected a single space"),
-            LintError(7, 28, "parameter-list-spacing", "Expected a single space")
-        )
-        assertThat(ParameterListSpacingRule().format(code)).isEqualTo(formattedCode)
+        parameterListSpacingRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 16, "Expected a single space"),
+                LintViolation(3, 25, "Expected a single space"),
+                LintViolation(7, 28, "Expected a single space")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -263,12 +251,12 @@ class ParameterListSpacingRuleTest {
             // The code example below not make sense. Its importance is that modifier list can contain multiple elements
             fun foo(vararg noinline crossinline a: Any) = "some-result"
             """.trimIndent()
-        assertThat(ParameterListSpacingRule().lint(code)).containsExactly(
-            LintError(2, 15, "parameter-list-spacing", "Expected a single space"),
-            LintError(2, 25, "parameter-list-spacing", "Expected a single space"),
-            LintError(2, 38, "parameter-list-spacing", "Expected a single space")
-        )
-        assertThat(ParameterListSpacingRule().format(code)).isEqualTo(formattedCode)
+        parameterListSpacingRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(2, 15, "Expected a single space"),
+                LintViolation(2, 25, "Expected a single space"),
+                LintViolation(2, 38, "Expected a single space")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -290,12 +278,12 @@ class ParameterListSpacingRuleTest {
                 vararg noinline crossinline a: Any
             ) = "some-result"
             """.trimIndent()
-        assertThat(ParameterListSpacingRule().lint(code)).containsExactly(
-            LintError(3, 11, "parameter-list-spacing", "Expected a single space"),
-            LintError(4, 13, "parameter-list-spacing", "Expected a single space"),
-            LintError(5, 16, "parameter-list-spacing", "Expected a single space")
-        )
-        assertThat(ParameterListSpacingRule().format(code)).isEqualTo(formattedCode)
+        parameterListSpacingRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(3, 11, "Expected a single space"),
+                LintViolation(4, 13, "Expected a single space"),
+                LintViolation(5, 16, "Expected a single space")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -308,8 +296,7 @@ class ParameterListSpacingRuleTest {
                 a: Any
             ) = "some-result"
             """.trimIndent()
-        assertThat(ParameterListSpacingRule().lint(code)).isEmpty()
-        assertThat(ParameterListSpacingRule().format(code)).isEqualTo(code)
+        parameterListSpacingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -322,10 +309,9 @@ class ParameterListSpacingRuleTest {
             """
             fun foo(a: Any, b: Any) = "some-result"
             """.trimIndent()
-        assertThat(ParameterListSpacingRule().lint(code)).containsExactly(
-            LintError(1, 15, "parameter-list-spacing", "Unexpected whitespace")
-        )
-        assertThat(ParameterListSpacingRule().format(code)).isEqualTo(formattedCode)
+        parameterListSpacingRuleAssertThat(code)
+            .hasLintViolation(1, 15, "Unexpected whitespace")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -339,10 +325,9 @@ class ParameterListSpacingRuleTest {
             """
             fun foo(a: Any, b: Any) = "some-result"
             """.trimIndent()
-        assertThat(ParameterListSpacingRule().lint(code)).containsExactly(
-            LintError(1, 15, "parameter-list-spacing", "Unexpected whitespace")
-        )
-        assertThat(ParameterListSpacingRule().format(code)).isEqualTo(formattedCode)
+        parameterListSpacingRuleAssertThat(code)
+            .hasLintViolation(1, 15, "Unexpected whitespace")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -355,10 +340,9 @@ class ParameterListSpacingRuleTest {
             """
             fun foo(a: Any, b: Any) = "some-result"
             """.trimIndent()
-        assertThat(ParameterListSpacingRule().lint(code)).containsExactly(
-            LintError(1, 15, "parameter-list-spacing", "Whitespace after ',' is missing")
-        )
-        assertThat(ParameterListSpacingRule().format(code)).isEqualTo(formattedCode)
+        parameterListSpacingRuleAssertThat(code)
+            .hasLintViolation(1, 15, "Whitespace after ',' is missing")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -371,10 +355,9 @@ class ParameterListSpacingRuleTest {
             """
             fun foo(a: Any, b: Any) = "some-result"
             """.trimIndent()
-        assertThat(ParameterListSpacingRule().lint(code)).containsExactly(
-            LintError(1, 16, "parameter-list-spacing", "Expected a single space")
-        )
-        assertThat(ParameterListSpacingRule().format(code)).isEqualTo(formattedCode)
+        parameterListSpacingRuleAssertThat(code)
+            .hasLintViolation(1, 16, "Expected a single space")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -386,8 +369,7 @@ class ParameterListSpacingRuleTest {
                 b: Any
             ) = "some-result"
             """.trimIndent() // ktlint-disable string-template
-        assertThat(ParameterListSpacingRule().lint(code)).isEmpty()
-        assertThat(ParameterListSpacingRule().format(code)).isEqualTo(code)
+        parameterListSpacingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -400,7 +382,22 @@ class ParameterListSpacingRuleTest {
             """
             fun foo(c: Any, d: Any, b: Any, vararg a: Any) = "some-result"
             """.trimIndent()
-        assertThat(ParameterListSpacingRule().format(code)).isEqualTo(formattedCode)
+        parameterListSpacingRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 10, "Unexpected whitespace"),
+                LintViolation(1, 11, "Whitespace after ':' is missing"),
+                LintViolation(1, 18, "Unexpected whitespace"),
+                LintViolation(1, 20, "Expected a single space"),
+                LintViolation(1, 27, "Expected a single space"),
+                LintViolation(1, 31, "Unexpected whitespace"),
+                LintViolation(1, 33, "Expected a single space"),
+                LintViolation(1, 38, "Unexpected whitespace"),
+                LintViolation(1, 40, "Expected a single space"),
+                LintViolation(1, 48, "Expected a single space"),
+                LintViolation(1, 51, "Unexpected whitespace"),
+                LintViolation(1, 53, "Expected a single space"),
+                LintViolation(1, 58, "Unexpected whitespace")
+            ).isFormattedAs(formattedCode)
     }
 
     private companion object {
