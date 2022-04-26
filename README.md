@@ -93,6 +93,7 @@ by passing the `--experimental` flag to `ktlint`.
 - `experimental:function-start-of-body-spacing`: Consistent spacing before start of function body
 - `experimental:function-type-reference-spacing`: Consistent spacing in the type reference before a function
 - `experimental:modifier-list-spacing`: Consistent spacing between modifiers in and after the last modifier in a modifier list
+- `experimental:nullable-type-spacing`: No spaces in a nullable type
 - `experimental:spacing-around-angle-brackets`: No spaces around angle brackets
 - `experimental:spacing-between-declarations-with-annotations`: Declarations with annotations should be separated by a blank line
 - `experimental:spacing-between-declarations-with-comments`: Declarations with comments should be separated by a blank line
