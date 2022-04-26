@@ -82,12 +82,7 @@ class FunctionTypeReferenceSpacingRuleTest {
             """
             val anonymousFunction = fun(foo: Boolean): String? = if (foo) "Test string" else null
             """.trimIndent()
-        Assertions.assertThat(
-            FunctionTypeReferenceSpacingRule().lint(code)
-        ).isEmpty()
-        Assertions.assertThat(
-            FunctionTypeReferenceSpacingRule().format(code)
-        ).isEqualTo(code)
+        functionTypeReferenceSpacingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -96,12 +91,7 @@ class FunctionTypeReferenceSpacingRuleTest {
             """
             val anonymousFunction = fun Boolean.(): String? = if (this) "Test string" else null
             """.trimIndent()
-        Assertions.assertThat(
-            FunctionTypeReferenceSpacingRule().lint(code)
-        ).isEmpty()
-        Assertions.assertThat(
-            FunctionTypeReferenceSpacingRule().format(code)
-        ).isEqualTo(code)
+        functionTypeReferenceSpacingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -114,15 +104,11 @@ class FunctionTypeReferenceSpacingRuleTest {
             """
             val anonymousFunction = fun Boolean?.(): String? = this?.let { "Test string" }
             """.trimIndent()
-        Assertions.assertThat(
-            FunctionTypeReferenceSpacingRule().lint(code)
-        ).containsExactly(
-            LintError(1, 36, "function-type-reference-spacing", "Unexpected whitespace"),
-            LintError(1, 38, "function-type-reference-spacing", "Unexpected whitespace"),
-            LintError(1, 40, "function-type-reference-spacing", "Unexpected whitespace")
-        )
-        Assertions.assertThat(
-            FunctionTypeReferenceSpacingRule().format(code)
-        ).isEqualTo(formattedCode)
+        functionTypeReferenceSpacingRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 36, "Unexpected whitespace"),
+                LintViolation(1, 38, "Unexpected whitespace"),
+                LintViolation(1, 40, "Unexpected whitespace")
+            ).isFormattedAs(formattedCode)
     }
 }
