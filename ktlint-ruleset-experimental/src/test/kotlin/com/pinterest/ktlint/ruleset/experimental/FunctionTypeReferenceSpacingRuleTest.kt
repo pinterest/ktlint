@@ -75,4 +75,40 @@ class FunctionTypeReferenceSpacingRuleTest {
             """.trimIndent()
         functionTypeReferenceSpacingRuleAssertThat(code).hasNoLintViolations()
     }
+
+    @Test
+    fun `Issue 1440 - Given an anonymous function without receiver type then do not reformat`() {
+        val code =
+            """
+            val anonymousFunction = fun(foo: Boolean): String? = if (foo) "Test string" else null
+            """.trimIndent()
+        functionTypeReferenceSpacingRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Given an anonymous function with receiver type then do not reformat`() {
+        val code =
+            """
+            val anonymousFunction = fun Boolean.(): String? = if (this) "Test string" else null
+            """.trimIndent()
+        functionTypeReferenceSpacingRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Given an anonymous function with receiver type followed by an unexpected space then do reformat`() {
+        val code =
+            """
+            val anonymousFunction = fun Boolean ? . (): String? = this?.let { "Test string" }
+            """.trimIndent()
+        val formattedCode =
+            """
+            val anonymousFunction = fun Boolean?.(): String? = this?.let { "Test string" }
+            """.trimIndent()
+        functionTypeReferenceSpacingRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 36, "Unexpected whitespace"),
+                LintViolation(1, 38, "Unexpected whitespace"),
+                LintViolation(1, 40, "Unexpected whitespace")
+            ).isFormattedAs(formattedCode)
+    }
 }

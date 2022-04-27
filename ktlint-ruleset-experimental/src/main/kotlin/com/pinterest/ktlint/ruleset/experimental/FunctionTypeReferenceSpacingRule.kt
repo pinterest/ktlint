@@ -2,9 +2,9 @@ package com.pinterest.ktlint.ruleset.experimental
 
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.FUN
-import com.pinterest.ktlint.core.ast.ElementType.IDENTIFIER
 import com.pinterest.ktlint.core.ast.ElementType.NULLABLE_TYPE
 import com.pinterest.ktlint.core.ast.ElementType.TYPE_REFERENCE
+import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.core.ast.nextSibling
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -17,26 +17,26 @@ public class FunctionTypeReferenceSpacingRule : Rule("function-type-reference-sp
     ) {
         if (node.elementType == FUN) {
             node
-                .findTypeReferenceBeforeFunctionIdentifier()
+                .findFunctionReceiverTypeReference()
                 ?.let { typeReference ->
                     typeReference
                         .firstChildNode
                         .takeIf { it.elementType == NULLABLE_TYPE }
                         ?.let { nullableTypeElement ->
-                            visitNodesUntilIdentifier(nullableTypeElement.firstChildNode, emit, autoCorrect)
+                            visitNodesUntilStartOfValueParameterList(nullableTypeElement.firstChildNode, emit, autoCorrect)
                         }
 
                     if (typeReference.elementType != NULLABLE_TYPE) {
-                        visitNodesUntilIdentifier(typeReference, emit, autoCorrect)
+                        visitNodesUntilStartOfValueParameterList(typeReference, emit, autoCorrect)
                     }
                 }
         }
     }
 
-    private fun ASTNode.findTypeReferenceBeforeFunctionIdentifier(): ASTNode? {
+    private fun ASTNode.findFunctionReceiverTypeReference(): ASTNode? {
         require(elementType == FUN)
         var currentNode: ASTNode? = firstChildNode
-        while (currentNode != null && currentNode.elementType != IDENTIFIER) {
+        while (currentNode != null && currentNode.elementType != VALUE_PARAMETER_LIST) {
             if (currentNode.elementType == TYPE_REFERENCE) {
                 return currentNode
             }
@@ -45,13 +45,13 @@ public class FunctionTypeReferenceSpacingRule : Rule("function-type-reference-sp
         return null
     }
 
-    private fun visitNodesUntilIdentifier(
+    private fun visitNodesUntilStartOfValueParameterList(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
         autoCorrect: Boolean
     ) {
         var currentNode: ASTNode? = node
-        while (currentNode != null && currentNode.elementType != IDENTIFIER) {
+        while (currentNode != null && currentNode.elementType != VALUE_PARAMETER_LIST) {
             val nextNode = currentNode.nextSibling { true }
             removeIfNonEmptyWhiteSpace(currentNode, emit, autoCorrect)
             currentNode = nextNode

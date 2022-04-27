@@ -22,6 +22,7 @@ An AssertJ style API for testing KtLint rules ([#1444](https://github.com/pinter
 - Add experimental rule for consistent spacing before the start of the function body (`function-start-of-body-spacing`) ([#1341](https://github.com/pinterest/ktlint/issues/1341))
 
 ### Fixed
+- Fix check of spacing in the receiver type of an anonymous function ([#1440](https://github.com/pinterest/ktlint/issues/1440))
 
 ### Changed
 * Set Kotlin development version to `1.6.21` and Kotlin version to `1.6.21`.
