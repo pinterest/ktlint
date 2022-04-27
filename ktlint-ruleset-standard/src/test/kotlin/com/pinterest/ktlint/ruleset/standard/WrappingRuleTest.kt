@@ -135,6 +135,24 @@ internal class WrappingRuleTest {
     }
 
     @Test
+    fun testLintClassImplementsListWithComments() {
+        assertThat(
+            WrappingRule().lint(
+                """
+                interface ThingOne {}
+                interface ThingTwo {}
+                class BusyClass :
+                    ThingOne, // this comment should be legal
+                    ThingTwo {
+
+                }
+
+                """.trimIndent()
+            )
+        ).isEmpty()
+    }
+
+    @Test
     fun testLintNewlineAfterEqAllowed() {
         assertThat(
             WrappingRule().lint(
