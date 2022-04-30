@@ -102,18 +102,26 @@ public class KtLintAssertThat(
      * Adds a rule to be executed when formatting the code. This can to be used to unit test rules which are best to be
      * tested in conjunction, for example wrapping and indenting. This method can be called multiple times if needed.
      */
-    public fun addAdditionalFormattingRule(rule: Rule): KtLintAssertThat {
-        additionalFormattingRules.add(rule)
+    public fun addAdditionalFormattingRule(vararg rules: Rule): KtLintAssertThat {
+        additionalFormattingRules.addAll(rules)
 
         return this
     }
 
     /**
-     * Asserts that the code does not contain any [LintViolation]s.
+     * Asserts that the code does not contain any [LintViolation]s in the rule associated with the KtLintAssertThat.
      *
      * Note: When linting succeeds without errors, formatting is also checked.
      */
     public fun hasNoLintViolations(): Unit = ktLintAssertThatAssertable().hasNoLintViolations()
+
+    /**
+     * Asserts that the code does not contain any [LintViolation]s except in the additional formatting rules.
+     *
+     * Note: When linting succeeds without errors, formatting is also checked.
+     */
+    public fun hasNoLintViolationsExceptInAdditionalFormattingRules(): KtLintAssertThatAssertable =
+        ktLintAssertThatAssertable().hasNoLintViolationsExceptInAdditionalFormattingRules()
 
     /**
      * Asserts that the code does contain given [LintViolation] which automatically can be corrected. This is a sugar
@@ -218,7 +226,7 @@ public class KtLintAssertThatAssertable(
 ) : AbstractAssert<KtLintAssertThatAssertable, String>(code, KtLintAssertThatAssertable::class.java) {
 
     /**
-     * Asserts that the code does not contain any [LintViolation]s.
+     * Asserts that the code does not contain any [LintViolation]s in the rule associated with the KtLintAssertThat.
      *
      * Note: When linting succeeds without errors, formatting is also checked.
      */
@@ -231,6 +239,27 @@ public class KtLintAssertThatAssertable(
         assertThat(actualFormattedCode)
             .describedAs("Code is changed by format while no lint errors were found")
             .isEqualTo(code)
+    }
+
+    /**
+     * Asserts that the code does not contain any [LintViolation]s except in the additional formatting rules.
+     *
+     * Note that this method can and should be chained with [isFormattedAs] to verify whether the code is correctly
+     * formatted.
+     *
+     * This method can be used when the rule which is associated with the KtLintAssertThat is not violated by the sample
+     * code, but the code is reformatted by the additional formatting rules. In case that rules are dependent on each
+     * other, a unit test cal still verify that code is formatted correctly even when the rule under test is not
+     * violated.
+     */
+    public fun hasNoLintViolationsExceptInAdditionalFormattingRules(): KtLintAssertThatAssertable {
+        check(additionalFormattingRules.isNotEmpty()) {
+            "hasNoLintViolationsExceptInAdditionalFormattingRules can only be used when additional formatting rules have been added"
+        }
+
+        assertThat(lint()).isEmpty()
+
+        return this
     }
 
     /**

@@ -35,6 +35,7 @@ public class ExperimentalRuleSetProvider : RuleSetProvider {
         ParameterListSpacingRule(),
         FunctionReturnTypeSpacingRule(),
         FunctionStartOfBodySpacingRule(),
-        NullableTypeSpacingRule()
+        NullableTypeSpacingRule(),
+        FunctionSignatureRule()
     )
 }

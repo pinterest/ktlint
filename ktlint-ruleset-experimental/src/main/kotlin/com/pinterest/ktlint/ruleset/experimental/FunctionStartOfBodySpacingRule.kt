@@ -114,7 +114,7 @@ public class FunctionStartOfBodySpacingRule : Rule("function-start-of-body-spaci
                             emit(block.startOffset, "Expected a single white space before start of function body", true)
                             if (autoCorrect) {
                                 if (whiteSpaceBeforeExpressionBlock == null) {
-                                    (block.firstChildNode as LeafPsiElement).upsertWhitespaceBeforeMe(" ")
+                                    (block.firstChildNode.prevLeaf(true) as LeafPsiElement).upsertWhitespaceAfterMe(" ")
                                 } else {
                                     (whiteSpaceBeforeExpressionBlock as LeafElement).rawReplaceWithText(" ")
                                 }
