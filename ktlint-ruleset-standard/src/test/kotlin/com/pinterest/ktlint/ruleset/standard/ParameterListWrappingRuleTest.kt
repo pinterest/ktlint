@@ -1,23 +1,24 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.core.LintError
-import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.maxLineLengthProperty
-import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
-import com.pinterest.ktlint.test.format
-import com.pinterest.ktlint.test.lint
-import org.assertj.core.api.Assertions.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 @FeatureInAlphaState
 class ParameterListWrappingRuleTest {
-    private val rules: List<Rule> = listOf(
-        ParameterListWrappingRule(),
-        // In case a parameter is already wrapped to a separate line but is indented incorrectly then this indent will
-        // only be corrected by the IndentationRule. The IndentationRule is executed in relevant tests for clarity.
-        IndentationRule()
-    )
+    private val parameterListWrappingRuleAssertThat =
+        ParameterListWrappingRule()
+            .assertThat(
+                additionalFormattingRules = listOf(
+                    // In case a parameter is wrapped to a separate line by the ParameterListWrappingRule() then its
+                    // indentation might still be incorrect until the IndentationRule has fixed it. Apply the
+                    // IndentationRule format after the ParameterListWrappingRule(), so that the formattedCode in the
+                    /* unit test looks correct. Note that the Lint Violations of the rule are suppressed!.*/
+                    IndentationRule()
+                )
+            )
 
     @Test
     fun `Given a class with parameters on multiple lines then put each parameter and closing parenthesis on a separate line`() {
@@ -34,13 +35,12 @@ class ParameterListWrappingRuleTest {
                 paramC: String
             )
             """.trimIndent()
-        assertThat(rules.lint(code)).contains(
-            LintError(1, 14, "parameter-list-wrapping", "Parameter should be on a separate line (unless all parameters can fit a single line)"),
-            LintError(1, 30, "parameter-list-wrapping", "Parameter should be on a separate line (unless all parameters can fit a single line)"),
-            LintError(2, 1, "indent", "Unexpected indentation (13) (should be 4)"),
-            LintError(2, 28, "parameter-list-wrapping", """Missing newline before ")"""")
-        )
-        assertThat(rules.format(code)).isEqualTo(formattedCode)
+        parameterListWrappingRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 14, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
+                LintViolation(1, 30, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
+                LintViolation(2, 28, """Missing newline before ")"""")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -57,25 +57,14 @@ class ParameterListWrappingRuleTest {
                 paramC: String
             )
             """.trimIndent()
-        assertThat(
-            ParameterListWrappingRule().lint(
-                code,
-                EditorConfigOverride.from(maxLineLengthProperty to 10)
-            )
-        ).isEqualTo(
-            listOf(
-                LintError(1, 14, "parameter-list-wrapping", "Parameter should be on a separate line (unless all parameters can fit a single line)"),
-                LintError(1, 30, "parameter-list-wrapping", "Parameter should be on a separate line (unless all parameters can fit a single line)"),
-                LintError(1, 46, "parameter-list-wrapping", "Parameter should be on a separate line (unless all parameters can fit a single line)"),
-                LintError(1, 60, "parameter-list-wrapping", """Missing newline before ")"""")
-            )
-        )
-        assertThat(
-            ParameterListWrappingRule().format(
-                code,
-                EditorConfigOverride.from(maxLineLengthProperty to 10)
-            )
-        ).isEqualTo(formattedCode)
+        parameterListWrappingRuleAssertThat(code)
+            .withEditorConfigOverride(maxLineLengthProperty to 10)
+            .hasLintViolations(
+                LintViolation(1, 14, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
+                LintViolation(1, 30, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
+                LintViolation(1, 46, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
+                LintViolation(1, 60, """Missing newline before ")"""")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -84,13 +73,9 @@ class ParameterListWrappingRuleTest {
             """
             class ClassAWithALongName()
             """.trimIndent()
-        assertThat(
-            ParameterListWrappingRule().lint(
-                code,
-                EditorConfigOverride.from(maxLineLengthProperty to 10)
-            )
-        ).isEmpty()
-        assertThat(ParameterListWrappingRule().format(code)).isEqualTo(code)
+        parameterListWrappingRuleAssertThat(code)
+            .withEditorConfigOverride(maxLineLengthProperty to 10)
+            .hasNoLintViolations()
     }
 
     @Test
@@ -99,7 +84,7 @@ class ParameterListWrappingRuleTest {
             """
             class ClassA(paramA: String, paramB: String, paramC: String)
             """.trimIndent()
-        assertThat(ParameterListWrappingRule().lint(code)).isEmpty()
+        parameterListWrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -112,7 +97,7 @@ class ParameterListWrappingRuleTest {
                 paramC: String
             )
             """.trimIndent()
-        assertThat(ParameterListWrappingRule().lint(code)).isEmpty()
+        parameterListWrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -133,13 +118,11 @@ class ParameterListWrappingRuleTest {
             ) {
             }
             """.trimIndent()
-        assertThat(rules.lint(code)).contains(
-            LintError(1, 7, "parameter-list-wrapping", "Parameter should be on a separate line (unless all parameters can fit a single line)"),
-            LintError(2, 1, "indent", "Unexpected indentation (6) (should be 4)"),
-            LintError(2, 1, "indent", "Unexpected indentation (6) (should be 4)"),
-            LintError(3, 13, "parameter-list-wrapping", """Missing newline before ")"""")
-        )
-        assertThat(rules.format(code)).isEqualTo(formattedCode)
+        parameterListWrappingRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 7, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
+                LintViolation(3, 13, """Missing newline before ")"""")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -151,9 +134,21 @@ class ParameterListWrappingRuleTest {
                 b: Any, c: Any
             )
             """.trimIndent()
-        assertThat(ParameterListWrappingRule().lint(code)).containsExactly(
-            LintError(3, 13, "parameter-list-wrapping", "Parameter should be on a separate line (unless all parameters can fit a single line)")
-        )
+        val formattedCode =
+            """
+            fun f(
+                a: Any,
+                b: Any,
+                c: Any
+            )
+            """.trimIndent()
+        parameterListWrappingRuleAssertThat(code)
+            .hasLintViolation(
+                3,
+                13,
+                "Parameter should be on a separate line (unless all parameters can fit a single line)"
+            )
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -172,25 +167,14 @@ class ParameterListWrappingRuleTest {
             ) {
             }
             """.trimIndent()
-        assertThat(
-            ParameterListWrappingRule().lint(
-                code,
-                EditorConfigOverride.from(maxLineLengthProperty to 10)
-            )
-        ).isEqualTo(
-            listOf(
-                LintError(1, 7, "parameter-list-wrapping", "Parameter should be on a separate line (unless all parameters can fit a single line)"),
-                LintError(1, 15, "parameter-list-wrapping", "Parameter should be on a separate line (unless all parameters can fit a single line)"),
-                LintError(1, 23, "parameter-list-wrapping", "Parameter should be on a separate line (unless all parameters can fit a single line)"),
-                LintError(1, 29, "parameter-list-wrapping", """Missing newline before ")"""")
-            )
-        )
-        assertThat(
-            ParameterListWrappingRule().format(
-                code,
-                EditorConfigOverride.from(maxLineLengthProperty to 10)
-            )
-        ).isEqualTo(formattedCode)
+        parameterListWrappingRuleAssertThat(code)
+            .withEditorConfigOverride(maxLineLengthProperty to 10)
+            .hasLintViolations(
+                LintViolation(1, 7, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
+                LintViolation(1, 15, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
+                LintViolation(1, 23, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
+                LintViolation(1, 29, """Missing newline before ")"""")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -204,7 +188,7 @@ class ParameterListWrappingRuleTest {
                       ClassB(paramA, paramB, paramC)
                   }
             """.trimIndent()
-        assertThat(ParameterListWrappingRule().lint(code)).isEmpty()
+        parameterListWrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -234,16 +218,13 @@ class ParameterListWrappingRuleTest {
                 }
             }
             """.trimIndent()
-        assertThat(rules.lint(code)).contains(
-            LintError(2, 11, "parameter-list-wrapping", "Parameter should be on a separate line (unless all parameters can fit a single line)"),
-            LintError(3, 1, "indent", "Unexpected indentation (10) (should be 8)"),
-            LintError(4, 1, "indent", "Unexpected indentation (10) (should be 8)"),
-            LintError(5, 1, "indent", "Unexpected indentation (10) (should be 8)"),
-            LintError(6, 1, "indent", "Unexpected indentation (10) (should be 8)"),
-            LintError(6, 19, "parameter-list-wrapping", "Parameter should be on a separate line (unless all parameters can fit a single line)"),
-            LintError(6, 37, "parameter-list-wrapping", """Missing newline before ")"""")
-        )
-        assertThat(rules.format(code)).isEqualTo(formattedCode)
+        parameterListWrappingRuleAssertThat(code)
+            .withEditorConfigOverride(maxLineLengthProperty to 10)
+            .hasLintViolations(
+                LintViolation(2, 11, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
+                LintViolation(6, 19, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
+                LintViolation(6, 37, """Missing newline before ")"""")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -269,13 +250,13 @@ class ParameterListWrappingRuleTest {
                 }
             }
             """.trimIndent()
-        assertThat(rules.lint(code)).contains(
-            LintError(2, 11, "parameter-list-wrapping", "Parameter should be on a separate line (unless all parameters can fit a single line)"),
-            LintError(3, 1, "indent", "Unexpected indentation (10) (should be 8)"),
-            LintError(4, 1, "indent", "Unexpected indentation (10) (should be 8)"),
-            LintError(5, 1, "indent", "Unexpected indentation (7) (should be 4)")
-        )
-        assertThat(rules.format(code)).isEqualTo(formattedCode)
+        parameterListWrappingRuleAssertThat(code)
+            .hasLintViolation(
+                2,
+                11,
+                "Parameter should be on a separate line (unless all parameters can fit a single line)"
+            )
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -300,15 +281,13 @@ class ParameterListWrappingRuleTest {
                 ) -> Unit
             ) {}
             """.trimIndent()
-        assertThat(rules.lint(code)).contains(
-            LintError(3, 1, "indent", "Unexpected indentation (8) (should be 4)"),
-            LintError(4, 12, "parameter-list-wrapping", "Parameter should be on a separate line (unless all parameters can fit a single line)"),
-            LintError(4, 25, "parameter-list-wrapping", "Parameter should be on a separate line (unless all parameters can fit a single line)"),
-            LintError(5, 1, "indent", "Unexpected indentation (4) (should be 8)"),
-            LintError(5, 32, "parameter-list-wrapping", """Missing newline before ")""""),
-            LintError(5, 41, "parameter-list-wrapping", """Missing newline before ")"""")
-        )
-        assertThat(rules.format(code)).isEqualTo(formattedCode)
+        parameterListWrappingRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(4, 12, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
+                LintViolation(4, 25, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
+                LintViolation(5, 32, """Missing newline before ")""""),
+                LintViolation(5, 41, """Missing newline before ")"""")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -329,12 +308,18 @@ class ParameterListWrappingRuleTest {
                 ) -> Unit
             ) {}
             """.trimIndent()
-        assertThat(
-            ParameterListWrappingRule().format(
-                code,
-                EditorConfigOverride.from(maxLineLengthProperty to 10)
-            )
-        ).isEqualTo(formattedCode)
+        parameterListWrappingRuleAssertThat(code)
+            .withEditorConfigOverride(maxLineLengthProperty to 10)
+            .hasLintViolations(
+                LintViolation(1, 11, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
+                LintViolation(1, 26, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
+                LintViolation(1, 48, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
+                LintViolation(1, 55, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
+                LintViolation(1, 68, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
+                LintViolation(1, 90, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
+                LintViolation(1, 117, "Missing newline before \")\""),
+                LintViolation(1, 126, "Missing newline before \")\"")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -347,8 +332,7 @@ class ParameterListWrappingRuleTest {
                 emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
             ) {}
             """.trimIndent()
-        assertThat(ParameterListWrappingRule().lint(code)).isEmpty()
-        assertThat(ParameterListWrappingRule().format(code)).isEqualTo(code)
+        parameterListWrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -363,8 +347,7 @@ class ParameterListWrappingRuleTest {
                var v: String
             )
             """.trimIndent()
-        assertThat(ParameterListWrappingRule().lint(code)).isEmpty()
-        assertThat(ParameterListWrappingRule().format(code)).isEqualTo(code)
+        parameterListWrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -386,10 +369,9 @@ class ParameterListWrappingRuleTest {
                 paramC: String
             )
             """.trimIndent()
-        assertThat(ParameterListWrappingRule().lint(code)).containsExactly(
-            LintError(2, 1, "parameter-list-wrapping", """Unnecessary newline before "("""")
-        )
-        assertThat(ParameterListWrappingRule().format(code)).isEqualTo(formattedCode)
+        parameterListWrappingRuleAssertThat(code)
+            .hasLintViolation(2, 1, """Unnecessary newline before "("""")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -411,10 +393,9 @@ class ParameterListWrappingRuleTest {
                 paramC: String
             )
             """.trimIndent()
-        assertThat(ParameterListWrappingRule().lint(code)).containsExactly(
-            LintError(2, 1, "parameter-list-wrapping", """Unnecessary newline before "("""")
-        )
-        assertThat(ParameterListWrappingRule().format(code)).isEqualTo(formattedCode)
+        parameterListWrappingRuleAssertThat(code)
+            .hasLintViolation(2, 1, """Unnecessary newline before "("""")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -434,8 +415,7 @@ class ParameterListWrappingRuleTest {
                 }
             }
             """.trimIndent()
-        assertThat(ParameterListWrappingRule().lint(code)).isEmpty()
-        assertThat(ParameterListWrappingRule().format(code)).isEqualTo(code)
+        parameterListWrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -464,7 +444,7 @@ class ParameterListWrappingRuleTest {
                 parameterWithLongLongLongLongLongLongLongLongNameC: C
             )
             """.trimIndent()
-        assertThat(ParameterListWrappingRule().lint(code)).isEmpty()
+        parameterListWrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -479,7 +459,7 @@ class ParameterListWrappingRuleTest {
             ) = apply {
             }
             """.trimIndent()
-        assertThat(ParameterListWrappingRule().lint(code)).isEmpty()
+        parameterListWrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -494,20 +474,11 @@ class ParameterListWrappingRuleTest {
                 (width: Double?, depth: Double?, length: Double?, area: Double?) -> Unit
             )? = null
             """.trimIndent()
-        assertThat(
-            ParameterListWrappingRule().lint(
-                code,
-                EditorConfigOverride.from(maxLineLengthProperty to 80)
-            )
-        ).containsExactly(
-            LintError(1, 22, "parameter-list-wrapping", "Parameter of nullable type should be on a separate line (unless the type fits on a single line)"),
-            LintError(1, 95, "parameter-list-wrapping", """Missing newline before ")"""")
-        )
-        assertThat(
-            ParameterListWrappingRule().format(
-                code,
-                EditorConfigOverride.from(maxLineLengthProperty to 80)
-            )
-        ).isEqualTo(formattedCode)
+        parameterListWrappingRuleAssertThat(code)
+            .withEditorConfigOverride(maxLineLengthProperty to 80)
+            .hasLintViolations(
+                LintViolation(1, 22, "Parameter of nullable type should be on a separate line (unless the type fits on a single line)"),
+                LintViolation(1, 95, """Missing newline before ")"""")
+            ).isFormattedAs(formattedCode)
     }
 }

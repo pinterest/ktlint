@@ -1,119 +1,87 @@
 package com.pinterest.ktlint.ruleset.experimental
 
-import com.pinterest.ktlint.core.LintError
-import com.pinterest.ktlint.test.format
-import com.pinterest.ktlint.test.lint
-import org.assertj.core.api.Assertions.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
 import org.junit.jupiter.api.Test
 
 class SpacingBetweenDeclarationsWithAnnotationsRuleTest {
+    private val spacingBetweenDeclarationsWithAnnotationsRuleAssertThat = SpacingBetweenDeclarationsWithAnnotationsRule().assertThat()
+
     @Test
-    fun `annotation at top of file should do nothing`() {
+    fun `Given an annotation at top of file should do nothing`() {
         val code =
             """
             @Foo
             fun a()
             """.trimIndent()
-        assertThat(
-            SpacingBetweenDeclarationsWithAnnotationsRule().lint(code)
-        ).isEmpty()
+        spacingBetweenDeclarationsWithAnnotationsRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
-    fun `multiple annotations should do nothing`() {
+    fun `Given multiple annotations should do nothing`() {
         val code =
             """
             @Foo
             @Bar
             fun a()
             """.trimIndent()
-        assertThat(
-            SpacingBetweenDeclarationsWithAnnotationsRule().lint(code)
-        ).isEmpty()
+        spacingBetweenDeclarationsWithAnnotationsRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
-    fun `missing space after comment should do nothing`() {
+    fun `Given a comment on line above annotation should do nothing`() {
         val code =
             """
-            // hello
+            // some comment
             @Foo
             fun a()
             """.trimIndent()
-        assertThat(
-            SpacingBetweenDeclarationsWithAnnotationsRule().lint(code)
-        ).isEmpty()
+        spacingBetweenDeclarationsWithAnnotationsRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
-    fun `missing space before declaration with annotation should cause error`() {
+    fun `Given no blank line before declaration with annotation`() {
         val code =
             """
             fun a()
             @Foo
             fun b()
-            """.trimIndent()
-        assertThat(
-            SpacingBetweenDeclarationsWithAnnotationsRule().lint(code)
-        ).containsExactly(
-            LintError(
-                2,
-                1,
-                "spacing-between-declarations-with-annotations",
-                "Declarations and declarations with annotations should have an empty space between."
-            )
-        )
-    }
-
-    @Test
-    fun `missing space before declaration with multiple annotations should cause error`() {
-        val code =
-            """
-            fun a()
-            @Foo
-            @Bar
-            fun b()
-            """.trimIndent()
-        assertThat(
-            SpacingBetweenDeclarationsWithAnnotationsRule().lint(code)
-        ).containsExactly(
-            LintError(2, 1, "spacing-between-declarations-with-annotations", "Declarations and declarations with annotations should have an empty space between.")
-        )
-    }
-
-    @Test
-    fun `autoformat should work correctly`() {
-        val code =
-            """
-            @Annotation1
-            fun one() = 1
-            @Annotation1
-            @Annotation2
-            fun two() = 2
-            fun three() = 42
-            @Annotation1
-            fun four() = 44
             """.trimIndent()
         val formattedCode =
             """
-            @Annotation1
-            fun one() = 1
+            fun a()
 
-            @Annotation1
-            @Annotation2
-            fun two() = 2
-            fun three() = 42
-
-            @Annotation1
-            fun four() = 44
+            @Foo
+            fun b()
             """.trimIndent()
-        assertThat(
-            SpacingBetweenDeclarationsWithAnnotationsRule().format(code)
-        ).isEqualTo(formattedCode)
+        spacingBetweenDeclarationsWithAnnotationsRuleAssertThat(code)
+            .hasLintViolation(2, 1, "Declarations and declarations with annotations should have an empty space between.")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
-    fun `missing space before primary constructor`() {
+    fun `Given no blank line before declaration with multiple annotations`() {
+        val code =
+            """
+            fun a()
+            @Foo
+            @Bar
+            fun b()
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun a()
+
+            @Foo
+            @Bar
+            fun b()
+            """.trimIndent()
+        spacingBetweenDeclarationsWithAnnotationsRuleAssertThat(code)
+            .hasLintViolation(2, 1, "Declarations and declarations with annotations should have an empty space between.")
+            .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Issue 971 - Given an annotated primary class constructor without blank line above the annotation`() {
         val code =
             """
             annotation class E
@@ -122,13 +90,11 @@ class SpacingBetweenDeclarationsWithAnnotationsRuleTest {
             @E
             constructor(a: Int)
             """.trimIndent()
-        assertThat(
-            SpacingBetweenDeclarationsWithAnnotationsRule().lint(code)
-        ).isEmpty()
+        spacingBetweenDeclarationsWithAnnotationsRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
-    fun `missing space before function parameter`() {
+    fun `Issue 971 - Given an annotated function parameter without blank line above`() {
         val code =
             """
             annotation class E
@@ -139,30 +105,11 @@ class SpacingBetweenDeclarationsWithAnnotationsRuleTest {
                 b: String
             ) = 1
             """.trimIndent()
-        assertThat(
-            SpacingBetweenDeclarationsWithAnnotationsRule().lint(code)
-        ).isEmpty()
+        spacingBetweenDeclarationsWithAnnotationsRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
-    fun `missing space before member function`() {
-        val code =
-            """
-            annotation class E
-
-            class C {
-                fun foo() = 1
-                @E
-                fun bar() = 2
-            }
-            """.trimIndent()
-        assertThat(
-            SpacingBetweenDeclarationsWithAnnotationsRule().lint(code)
-        ).hasSize(1)
-    }
-
-    @Test
-    fun `format missing space before member function`() {
+    fun `Issue 971 - missing space before member function`() {
         val code =
             """
             annotation class E
@@ -184,13 +131,13 @@ class SpacingBetweenDeclarationsWithAnnotationsRuleTest {
                 fun bar() = 2
             }
             """.trimIndent()
-        assertThat(
-            SpacingBetweenDeclarationsWithAnnotationsRule().format(code)
-        ).isEqualTo(formattedCode)
+        spacingBetweenDeclarationsWithAnnotationsRuleAssertThat(code)
+            .hasLintViolation(5, 5, "Declarations and declarations with annotations should have an empty space between.")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
-    fun `two new lines before member function`() {
+    fun `Given an annotated function preceded by multiple blank lines`() {
         val code =
             """
             annotation class E
@@ -202,13 +149,11 @@ class SpacingBetweenDeclarationsWithAnnotationsRuleTest {
                 fun bar() = 2
             }
             """.trimIndent()
-        assertThat(
-            SpacingBetweenDeclarationsWithAnnotationsRule().lint(code)
-        ).isEmpty()
+        spacingBetweenDeclarationsWithAnnotationsRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
-    fun `missing space after comment with previous member function should do nothing`() {
+    fun `Issue 1126 - Given a comment on line above annotated class member should do nothing`() {
         val code =
             """
             annotation class E
@@ -220,17 +165,14 @@ class SpacingBetweenDeclarationsWithAnnotationsRuleTest {
                 fun bar() = 2
             }
             """.trimIndent()
-        assertThat(
-            SpacingBetweenDeclarationsWithAnnotationsRule().lint(code)
-        ).isEmpty()
+        spacingBetweenDeclarationsWithAnnotationsRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
-    fun `No blank line is required between comment and an annotated declaration`() {
+    fun `Issue 1126 - Given a comment on line above annotated variable in function should do nothing`() {
         val code =
             """
             fun foo() {
-
                 val a = 1
 
                 // hello
@@ -238,13 +180,11 @@ class SpacingBetweenDeclarationsWithAnnotationsRuleTest {
                 val b = 2
             }
             """.trimIndent()
-        assertThat(
-            SpacingBetweenDeclarationsWithAnnotationsRule().lint(code)
-        ).isEmpty()
+        spacingBetweenDeclarationsWithAnnotationsRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
-    fun `Issue 1281 - No blank line is required between comment and an annotated declaration when previous declaration end with a comment`() {
+    fun `Issue 1281 - No blank line is required between comment and an annotated declaration when previous declaration ends with a comment`() {
         val code =
             """
             class KotlinPluginTest {
@@ -261,8 +201,6 @@ class SpacingBetweenDeclarationsWithAnnotationsRuleTest {
                 // end::testQuery[]
             }
             """.trimIndent()
-        assertThat(
-            SpacingBetweenDeclarationsWithAnnotationsRule().lint(code)
-        ).isEmpty()
+        spacingBetweenDeclarationsWithAnnotationsRuleAssertThat(code).hasNoLintViolations()
     }
 }

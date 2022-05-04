@@ -82,17 +82,22 @@ by passing the `--experimental` flag to `ktlint`.
 - `experimental:multiline-if-else`: Braces required for multiline if/else statements
 - `experimental:no-empty-first-line-in-method-block`: No leading empty lines in method blocks
 - `experimental:package-name`: No underscores in package names
+- `experimental:parameter-list-spacing`: Consistent spacing inside the parameter list
 - `experimental:unnecessary-parentheses-before-trailing-lambda`: An empty parentheses block before a lambda is redundant. For example `some-string".count() { it == '-' }`
 
 ### Spacing
 - `experimental:annotation-spacing`: Annotations should be separated by the annotated declaration by a single line break
 - `experimental:double-colon-spacing`: No spaces around `::`
 - `experimental:fun-keyword-spacing`: Consistent spacing after the fun keyword
+- `experimental:function-return-type-spacing`: Consistent spacing around the function return type
+- `experimental:function-start-of-body-spacing`: Consistent spacing before start of function body
 - `experimental:function-type-reference-spacing`: Consistent spacing in the type reference before a function
 - `experimental:modifier-list-spacing`: Consistent spacing between modifiers in and after the last modifier in a modifier list
+- `experimental:nullable-type-spacing`: No spaces in a nullable type
 - `experimental:spacing-around-angle-brackets`: No spaces around angle brackets
 - `experimental:spacing-between-declarations-with-annotations`: Declarations with annotations should be separated by a blank line
 - `experimental:spacing-between-declarations-with-comments`: Declarations with comments should be separated by a blank line
+- `experimental:spacing-between-function-name-and-opening-parenthesis`: Consistent spacing between function name and opening parenthesis
 - `experimental:type-parameter-list-spacing`: Spacing after a type parameter list in function and class declarations
 - `experimental:unary-op-spacing`: No spaces around unary operators
 
@@ -582,6 +587,7 @@ see https://github.com/pinterest/ktlint/issues/451.
 Third-party:
 * [kryanod/ktlint-junit-reporter](https://github.com/kryanod/ktlint-junit-reporter)
 * [musichin/ktlint-github-reporter](https://github.com/musichin/ktlint-github-reporter)
+* [tobi2k/ktlint-gitlab-reporter](https://github.com/tobi2k/ktlint-gitlab-reporter)
 
 ## Badge
 
