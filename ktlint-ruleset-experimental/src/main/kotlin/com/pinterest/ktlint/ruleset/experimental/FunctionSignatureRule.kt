@@ -43,8 +43,7 @@ public class FunctionSignatureRule :
     Rule(
         id = "function-signature",
         visitorModifiers = setOf(
-            // Run after wrapping, spacing and indentation rule
-            VisitorModifier.RunAfterRule("standard:indent"),
+            // Run after wrapping and spacing rules
             VisitorModifier.RunAsLateAsPossible
         )
     ),

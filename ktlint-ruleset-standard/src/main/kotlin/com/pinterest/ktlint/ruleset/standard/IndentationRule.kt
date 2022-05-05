@@ -105,7 +105,12 @@ public class IndentationRule :
         id = "indent",
         visitorModifiers = setOf(
             VisitorModifier.RunOnRootNodeOnly,
-            VisitorModifier.RunAsLateAsPossible
+            VisitorModifier.RunAsLateAsPossible,
+            VisitorModifier.RunAfterRule(
+                ruleId = "experimental:function-signature",
+                loadOnlyWhenOtherRuleIsLoaded = false,
+                runOnlyWhenOtherRuleIsEnabled = false
+            )
         )
     ),
     UsesEditorConfigProperties {
