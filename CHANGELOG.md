@@ -25,7 +25,7 @@ An AssertJ style API for testing KtLint rules ([#1444](https://github.com/pinter
 - Fix check of spacing in the receiver type of an anonymous function ([#1440](https://github.com/pinterest/ktlint/issues/1440))
 
 ### Changed
-* Set Kotlin development version to `1.6.21` and Kotlin version to `1.6.21`.
+* Set Kotlin development version to `1.7.0-Beta` and Kotlin version to `1.6.21`.
 
 ### Removed
 
