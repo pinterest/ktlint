@@ -4,9 +4,12 @@ import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.CLASS
 import com.pinterest.ktlint.core.ast.ElementType.CLASS_BODY
 import com.pinterest.ktlint.core.ast.ElementType.CONSTRUCTOR_KEYWORD
+import com.pinterest.ktlint.core.ast.ElementType.EQ
+import com.pinterest.ktlint.core.ast.ElementType.FUN
 import com.pinterest.ktlint.core.ast.ElementType.GT
 import com.pinterest.ktlint.core.ast.ElementType.LT
 import com.pinterest.ktlint.core.ast.ElementType.PRIMARY_CONSTRUCTOR
+import com.pinterest.ktlint.core.ast.ElementType.TYPEALIAS
 import com.pinterest.ktlint.core.ast.ElementType.TYPE_PARAMETER_LIST
 import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.core.ast.nextCodeSibling
@@ -31,10 +34,10 @@ public class TypeParameterListSpacingRule : Rule("type-parameter-list-spacing") 
             return
         }
 
-        if (node.treeParent.elementType == CLASS) {
-            visitClassDeclaration(node, autoCorrect, emit)
-        } else {
-            visitFunctionDeclaration(node, autoCorrect, emit)
+        when (node.treeParent.elementType) {
+            CLASS -> visitClassDeclaration(node, autoCorrect, emit)
+            TYPEALIAS -> visitTypeAliasDeclaration(node, autoCorrect, emit)
+            FUN -> visitFunctionDeclaration(node, autoCorrect, emit)
         }
         visitInsideTypeParameterList(node, autoCorrect, emit)
     }
@@ -74,6 +77,26 @@ public class TypeParameterListSpacingRule : Rule("type-parameter-list-spacing") 
         node
             .nextSibling { true }
             ?.takeIf { it.elementType == WHITE_SPACE && it.nextCodeSibling()?.elementType == CLASS_BODY }
+            ?.let { singleSpaceExpected(it, autoCorrect, emit) }
+    }
+
+    private fun visitTypeAliasDeclaration(
+        node: ASTNode,
+        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+    ) {
+        // No white space expected between typealias keyword name and parameter list
+        //     typealias Bar <T>
+        node
+            .prevSibling { true }
+            ?.takeIf { it.elementType == WHITE_SPACE }
+            ?.let { noWhitespaceExpected(it, autoCorrect, emit) }
+
+        // No white space expected between parameter type list and equals sign
+        //    typealias Bar<T> = ...
+        node
+            .nextSibling { true }
+            ?.takeIf { it.elementType == WHITE_SPACE && it.nextCodeSibling()?.elementType == EQ }
             ?.let { singleSpaceExpected(it, autoCorrect, emit) }
     }
 

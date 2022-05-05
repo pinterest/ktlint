@@ -1,12 +1,12 @@
 package com.pinterest.ktlint.ruleset.experimental
 
-import com.pinterest.ktlint.core.LintError
-import com.pinterest.ktlint.test.format
-import com.pinterest.ktlint.test.lint
-import org.assertj.core.api.Assertions.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 class TypeParameterListSpacingRuleTest {
+    private val typeParameterListSpacingRuleAssertThat = TypeParameterListSpacingRule().assertThat()
+
     @Test
     fun `Given a type parameter list followed by a comment then it can be ignored as it will be handled by the discouraged-comment-location rule`() {
         val code =
@@ -14,11 +14,7 @@ class TypeParameterListSpacingRuleTest {
             fun <T> // some-comment but it also applies to a block comment or KDoc
             foo1(t: T) = "some-result"
             """.trimIndent()
-        assertThat(
-            listOf(DiscouragedCommentLocationRule(), TypeParameterListSpacingRule()).lint(code)
-        ).containsExactly(
-            LintError(1, 9, "discouraged-comment-location", "No comment expected at this location")
-        )
+        typeParameterListSpacingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -35,13 +31,13 @@ class TypeParameterListSpacingRuleTest {
             fun <T> foo2(t: T) = "some-result"
             fun <T> foo3(t: T) = "some-result"
             """.trimIndent()
-        assertThat(TypeParameterListSpacingRule().lint(code)).containsExactly(
-            LintError(1, 4, "type-parameter-list-spacing", "Expected a single space"),
-            LintError(2, 8, "type-parameter-list-spacing", "Expected a single space"),
-            LintError(3, 4, "type-parameter-list-spacing", "Expected a single space"),
-            LintError(3, 7, "type-parameter-list-spacing", "Expected a single space")
-        )
-        assertThat(TypeParameterListSpacingRule().format(code)).isEqualTo(formattedCode)
+        typeParameterListSpacingRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 4, "Expected a single space"),
+                LintViolation(2, 8, "Expected a single space"),
+                LintViolation(3, 4, "Expected a single space"),
+                LintViolation(3, 7, "Expected a single space")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -58,13 +54,13 @@ class TypeParameterListSpacingRuleTest {
             fun <T> foo2(t: T) = "some-result"
             fun <T> foo3(t: T) = "some-result"
             """.trimIndent()
-        assertThat(TypeParameterListSpacingRule().lint(code)).containsExactly(
-            LintError(1, 4, "type-parameter-list-spacing", "Expected a single space"),
-            LintError(2, 8, "type-parameter-list-spacing", "Expected a single space"),
-            LintError(3, 4, "type-parameter-list-spacing", "Expected a single space"),
-            LintError(3, 9, "type-parameter-list-spacing", "Expected a single space")
-        )
-        assertThat(TypeParameterListSpacingRule().format(code)).isEqualTo(formattedCode)
+        typeParameterListSpacingRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 4, "Expected a single space"),
+                LintViolation(2, 8, "Expected a single space"),
+                LintViolation(3, 4, "Expected a single space"),
+                LintViolation(3, 9, "Expected a single space")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -85,13 +81,13 @@ class TypeParameterListSpacingRuleTest {
             fun <T> foo2(t: T) = "some-result"
             fun <T> foo3(t: T) = "some-result"
             """.trimIndent()
-        assertThat(TypeParameterListSpacingRule().lint(code)).containsExactly(
-            LintError(1, 4, "type-parameter-list-spacing", "Expected a single space instead of newline"),
-            LintError(3, 8, "type-parameter-list-spacing", "Expected a single space instead of newline"),
-            LintError(5, 4, "type-parameter-list-spacing", "Expected a single space instead of newline"),
-            LintError(6, 4, "type-parameter-list-spacing", "Expected a single space instead of newline")
-        )
-        assertThat(TypeParameterListSpacingRule().format(code)).isEqualTo(formattedCode)
+        typeParameterListSpacingRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 4, "Expected a single space instead of newline"),
+                LintViolation(3, 8, "Expected a single space instead of newline"),
+                LintViolation(5, 4, "Expected a single space instead of newline"),
+                LintViolation(6, 4, "Expected a single space instead of newline")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -108,10 +104,9 @@ class TypeParameterListSpacingRuleTest {
                 fun <T> List<T>.head() {}
             }
             """.trimIndent()
-        assertThat(TypeParameterListSpacingRule().lint(code)).containsExactly(
-            LintError(2, 12, "type-parameter-list-spacing", "Expected a single space")
-        )
-        assertThat(TypeParameterListSpacingRule().format(code)).isEqualTo(formattedCode)
+        typeParameterListSpacingRuleAssertThat(code)
+            .hasLintViolation(2, 12, "Expected a single space")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -134,11 +129,11 @@ class TypeParameterListSpacingRuleTest {
                 fun bar(t: T)
             }
             """.trimIndent()
-        assertThat(TypeParameterListSpacingRule().lint(code)).containsExactly(
-            LintError(1, 13, "type-parameter-list-spacing", "Expected a single space"),
-            LintError(4, 17, "type-parameter-list-spacing", "Expected a single space")
-        )
-        assertThat(TypeParameterListSpacingRule().format(code)).isEqualTo(formattedCode)
+        typeParameterListSpacingRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 13, "Expected a single space"),
+                LintViolation(4, 17, "Expected a single space")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -163,11 +158,11 @@ class TypeParameterListSpacingRuleTest {
                 fun bar(t: T)
             }
             """.trimIndent()
-        assertThat(TypeParameterListSpacingRule().lint(code)).containsExactly(
-            LintError(1, 13, "type-parameter-list-spacing", "Expected a single space instead of newline"),
-            LintError(5, 17, "type-parameter-list-spacing", "Expected a single space instead of newline")
-        )
-        assertThat(TypeParameterListSpacingRule().format(code)).isEqualTo(formattedCode)
+        typeParameterListSpacingRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 13, "Expected a single space instead of newline"),
+                LintViolation(5, 17, "Expected a single space instead of newline")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -181,8 +176,7 @@ class TypeParameterListSpacingRuleTest {
             class Foo5<Bar> @FooBar constructor() {}
             class Foo6<Bar> @FooBar internal constructor() {}
             """.trimIndent()
-        assertThat(TypeParameterListSpacingRule().lint(code)).isEmpty()
-        assertThat(TypeParameterListSpacingRule().format(code)).isEqualTo(code)
+        typeParameterListSpacingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -205,15 +199,15 @@ class TypeParameterListSpacingRuleTest {
             class Foo5<Bar> @FooBar constructor() {}
             class Foo6<Bar> @FooBar internal constructor() {}
             """.trimIndent()
-        assertThat(TypeParameterListSpacingRule().lint(code)).containsExactly(
-            LintError(1, 16, "type-parameter-list-spacing", "Expected a single space"),
-            LintError(2, 16, "type-parameter-list-spacing", "Expected a single space"),
-            LintError(3, 16, "type-parameter-list-spacing", "Expected a single space"),
-            LintError(4, 16, "type-parameter-list-spacing", "Expected a single space"),
-            LintError(5, 16, "type-parameter-list-spacing", "Expected a single space"),
-            LintError(6, 16, "type-parameter-list-spacing", "Expected a single space")
-        )
-        assertThat(TypeParameterListSpacingRule().format(code)).isEqualTo(formattedCode)
+        typeParameterListSpacingRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 16, "Expected a single space"),
+                LintViolation(2, 16, "Expected a single space"),
+                LintViolation(3, 16, "Expected a single space"),
+                LintViolation(4, 16, "Expected a single space"),
+                LintViolation(5, 16, "Expected a single space"),
+                LintViolation(6, 16, "Expected a single space")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -242,15 +236,15 @@ class TypeParameterListSpacingRuleTest {
             class Foo5<Bar> @FooBar constructor() {}
             class Foo6<Bar> @FooBar internal constructor() {}
             """.trimIndent()
-        assertThat(TypeParameterListSpacingRule().lint(code)).containsExactly(
-            LintError(1, 16, "type-parameter-list-spacing", "Expected a single space instead of newline"),
-            LintError(3, 16, "type-parameter-list-spacing", "Expected a single space instead of newline"),
-            LintError(5, 16, "type-parameter-list-spacing", "Expected a single space instead of newline"),
-            LintError(7, 16, "type-parameter-list-spacing", "Expected a single space instead of newline"),
-            LintError(9, 16, "type-parameter-list-spacing", "Expected a single space instead of newline"),
-            LintError(11, 16, "type-parameter-list-spacing", "Expected a single space instead of newline")
-        )
-        assertThat(TypeParameterListSpacingRule().format(code)).isEqualTo(formattedCode)
+        typeParameterListSpacingRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 16, "Expected a single space instead of newline"),
+                LintViolation(3, 16, "Expected a single space instead of newline"),
+                LintViolation(5, 16, "Expected a single space instead of newline"),
+                LintViolation(7, 16, "Expected a single space instead of newline"),
+                LintViolation(9, 16, "Expected a single space instead of newline"),
+                LintViolation(11, 16, "Expected a single space instead of newline")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -263,11 +257,11 @@ class TypeParameterListSpacingRuleTest {
             """
             class Bar<T>(val t: T)
             """.trimIndent()
-        assertThat(TypeParameterListSpacingRule().lint(code)).containsExactly(
-            LintError(1, 10, "type-parameter-list-spacing", "No whitespace expected at this position"),
-            LintError(1, 14, "type-parameter-list-spacing", "No whitespace expected at this position")
-        )
-        assertThat(TypeParameterListSpacingRule().format(code)).isEqualTo(formattedCode)
+        typeParameterListSpacingRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 10, "No whitespace expected at this position"),
+                LintViolation(1, 14, "No whitespace expected at this position")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -282,11 +276,11 @@ class TypeParameterListSpacingRuleTest {
             fun <T> foo(): T {}
             class Bar<T>(val t: T)
             """.trimIndent()
-        assertThat(TypeParameterListSpacingRule().lint(code)).containsExactly(
-            LintError(1, 6, "type-parameter-list-spacing", "No whitespace expected at this position"),
-            LintError(2, 11, "type-parameter-list-spacing", "No whitespace expected at this position")
-        )
-        assertThat(TypeParameterListSpacingRule().format(code)).isEqualTo(formattedCode)
+        typeParameterListSpacingRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 6, "No whitespace expected at this position"),
+                LintViolation(2, 11, "No whitespace expected at this position")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -301,10 +295,27 @@ class TypeParameterListSpacingRuleTest {
             fun <T> foo(): T {}
             class Bar<T>(val t: T)
             """.trimIndent()
-        assertThat(TypeParameterListSpacingRule().lint(code)).containsExactly(
-            LintError(1, 7, "type-parameter-list-spacing", "No whitespace expected at this position"),
-            LintError(2, 12, "type-parameter-list-spacing", "No whitespace expected at this position")
-        )
-        assertThat(TypeParameterListSpacingRule().format(code)).isEqualTo(formattedCode)
+        typeParameterListSpacingRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 7, "No whitespace expected at this position"),
+                LintViolation(2, 12, "No whitespace expected at this position")
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given a typealias definition with a type parameter list followed by a parameter list then the redundant spaces are removed`() {
+        val code =
+            """
+            typealias Bar  <T>  = () -> T
+            """.trimIndent()
+        val formattedCode =
+            """
+            typealias Bar<T> = () -> T
+            """.trimIndent()
+        typeParameterListSpacingRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 14, "No whitespace expected at this position"),
+                LintViolation(1, 19, "Expected a single space")
+            ).isFormattedAs(formattedCode)
     }
 }

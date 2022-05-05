@@ -1,127 +1,123 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.core.LintError
-import com.pinterest.ktlint.test.format
-import com.pinterest.ktlint.test.lint
-import org.assertj.core.api.Assertions.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 class SpacingAroundDotRuleTest {
+    private val spacingAroundDotRuleAssertThat = SpacingAroundDotRule().assertThat()
 
     @Test
-    fun testLint() {
-        assertThat(SpacingAroundDotRule().lint("fun String .foo() = \"foo . \""))
-            .isEqualTo(
-                listOf(
-                    LintError(1, 11, "dot-spacing", "Unexpected spacing before \".\"")
-                )
-            )
-
-        assertThat(SpacingAroundDotRule().lint("fun String. foo() = \"foo . \""))
-            .isEqualTo(
-                listOf(
-                    LintError(1, 12, "dot-spacing", "Unexpected spacing after \".\"")
-                )
-            )
-
-        assertThat(SpacingAroundDotRule().lint("fun String . foo() = \"foo . \""))
-            .isEqualTo(
-                listOf(
-                    LintError(1, 11, "dot-spacing", "Unexpected spacing before \".\""),
-                    LintError(1, 13, "dot-spacing", "Unexpected spacing after \".\"")
-                )
-            )
-
-        assertThat(
-            SpacingAroundDotRule().lint(
-                """
-                fun String.foo() {
-                    (2..10).map { it + 1 }
-                        .map { it * 2 }
-                        .toSet()
-                }
-                """.trimIndent()
-            )
-        ).isEmpty()
-
-        assertThat(
-            SpacingAroundDotRule().lint(
-                """
-                fun String.foo() {
-                    (2..10).map { it + 1 }
-                        . map { it * 2 }
-                        .toSet()
-                }
-                """.trimIndent()
-            )
-        ).isEqualTo(
-            listOf(
-                LintError(3, 10, "dot-spacing", "Unexpected spacing after \".\"")
-            )
-        )
-
-        assertThat(
-            SpacingAroundDotRule().lint(
-                """
-                fun String.foo() {
-                    (2..10).map { it + 1 }
-                        // Some comment
-                        . map { it * 2 }
-                        .toSet()
-                }
-                """.trimIndent()
-            )
-        ).isEqualTo(
-            listOf(
-                LintError(4, 10, "dot-spacing", "Unexpected spacing after \".\"")
-            )
-        )
-    }
-
-    @Test
-    fun testLintComment() {
-        assertThat(
-            SpacingAroundDotRule().lint(
-                """
-                fun foo() {
-                    /**.*/
-                    generateSequence(locate(dir)) { seed -> locate(seed.parent.parent) } // seed.parent == .editorconfig dir
-                        .map { it to lazy { load(it) } }
-                }
-                """.trimIndent()
-            )
-        ).isEmpty()
-    }
-
-    @Test
-    fun testFormat() {
-        assertThat(SpacingAroundDotRule().format("fun String .foo() = \"foo . \""))
-            .isEqualTo("fun String.foo() = \"foo . \"")
-
-        assertThat(SpacingAroundDotRule().format("fun String. foo() = \"foo . \""))
-            .isEqualTo("fun String.foo() = \"foo . \"")
-
-        assertThat(SpacingAroundDotRule().format("fun String . foo() = \"foo . \""))
-            .isEqualTo("fun String.foo() = \"foo . \"")
-
-        assertThat(
-            SpacingAroundDotRule().format(
-                """
-                fun String.foo() {
-                    (2..10).map { it + 1 }
-                        . map { it * 2 }
-                        .toSet()
-                }
-                """.trimIndent()
-            )
-        ).isEqualTo(
+    fun `Given an extension function with an unexpected space before the dot`() {
+        val code =
             """
-            fun String.foo() {
-                (2..10).map { it + 1 }
-                    .map { it * 2 }
-                    .toSet()
+            fun String .foo() = "foo . "
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun String.foo() = "foo . "
+            """.trimIndent()
+        spacingAroundDotRuleAssertThat(code)
+            .hasLintViolation(1, 11, "Unexpected spacing before \".\"")
+            .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given an extension function with an unexpected space after the dot`() {
+        val code =
+            """
+            fun String. foo() = "foo . "
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun String.foo() = "foo . "
+            """.trimIndent()
+        spacingAroundDotRuleAssertThat(code)
+            .hasLintViolation(1, 12, "Unexpected spacing after \".\"")
+            .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given an extension function with an unexpected space before and after the dot`() {
+        val code =
+            """
+            fun String . foo() = "foo . "
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun String.foo() = "foo . "
+            """.trimIndent()
+        spacingAroundDotRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 11, "Unexpected spacing before \".\""),
+                LintViolation(1, 13, "Unexpected spacing after \".\"")
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given a range operator with spaces around the operator`() {
+        val code =
+            """
+            val foo1 = (2 .. 10).toSet()
+            val foo2 = (2..10).toSet()
+            """.trimIndent()
+        spacingAroundDotRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Given an unexpected space before the dot in a chained call`() {
+        val code =
+            """
+            val foo = (2..10) .map { it * 2 }.toSet()
+            """.trimIndent()
+        val formattedCode =
+            """
+            val foo = (2..10).map { it * 2 }.toSet()
+            """.trimIndent()
+        spacingAroundDotRuleAssertThat(code)
+            .hasLintViolation(1, 18, "Unexpected spacing before \".\"")
+            .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given an unexpected space after the dot in a chained call`() {
+        val code =
+            """
+            val foo1 = (2 .. 10). map { it * 2 }.toSet()
+            val foo2 = (2 .. 10) // some comment
+                . map { it * 2 }.toSet()
+            val foo3 = (2 .. 10)
+                 // some comment
+                . map { it * 2 }.toSet()
+            """.trimIndent()
+        val formattedCode =
+            """
+            val foo1 = (2 .. 10).map { it * 2 }.toSet()
+            val foo2 = (2 .. 10) // some comment
+                .map { it * 2 }.toSet()
+            val foo3 = (2 .. 10)
+                 // some comment
+                .map { it * 2 }.toSet()
+            """.trimIndent()
+        spacingAroundDotRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 22, "Unexpected spacing after \".\""),
+                LintViolation(3, 6, "Unexpected spacing after \".\""),
+                LintViolation(6, 6, "Unexpected spacing after \".\"")
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given some comments including dots`() {
+        val code =
+            """
+            fun foo() { //
+                /**.*/
+                generateSequence(locate(dir)) { seed -> locate(seed.parent.parent) } // seed.parent == .editorconfig dir
+                    .map { it to lazy { load(it) } }
             }
             """.trimIndent()
-        )
+        spacingAroundDotRuleAssertThat(code)
+            .hasNoLintViolations()
     }
 }

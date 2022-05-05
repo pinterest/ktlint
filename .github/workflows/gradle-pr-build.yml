@@ -2,7 +2,6 @@ name: PR Build
 
 on:
   pull_request:
-    branches: [ master ]
 
 jobs:
   build:
@@ -15,23 +14,16 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: 8
+          java-version: 17
       - uses: gradle/gradle-build-action@v2
       - name: Build with release Kotlin version
         run: ./gradlew clean build ktlint
-      - name: Upload dependency verification report
-        uses: actions/upload-artifact@v3
-        if: failure()
-        with:
-          name: Build artifacts
-          path: '**/build/**/dependency-verification-report.html'
-          if-no-files-found: warn
       - name: Upload test results
         uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: Test artifacts
-          path: '**/tests/**/*.html'
+          path: 'ktlint/build/reports/tests/**'
           if-no-files-found: warn
       - name: Build with dev Kotlin version
         run: ./gradlew -PkotlinDev clean build ktlint

@@ -1,217 +1,108 @@
 package com.pinterest.ktlint.ruleset.experimental
 
-import com.pinterest.ktlint.core.LintError
-import com.pinterest.ktlint.test.format
-import com.pinterest.ktlint.test.lint
-import org.assertj.core.api.Assertions.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
 import org.junit.jupiter.api.Test
 
 class SpacingBetweenDeclarationsWithCommentsRuleTest {
-    @Test
-    fun `comment at top of file should do nothing`() {
-        assertThat(
-            SpacingBetweenDeclarationsWithCommentsRule().lint(
-                """
-                /**
-                 * foo
-                 */
-                fun a()
-                """.trimIndent()
-            )
-        ).isEmpty()
-    }
+    private val spacingBetweenDeclarationsWithCommentsRuleAssertThat = SpacingBetweenDeclarationsWithCommentsRule().assertThat()
 
     @Test
-    fun `multiple comments should do nothing`() {
-        assertThat(
-            SpacingBetweenDeclarationsWithCommentsRule().lint(
-                """
-                /**
-                 * boo
-                 */
-                /**
-                 * foo
-                 */
-                fun a()
-                """.trimIndent()
-            )
-        ).isEmpty()
-
-        assertThat(
-            SpacingBetweenDeclarationsWithCommentsRule().lint(
-                """
-                // bar
-                /**
-                 * foo
-                 */
-                fun a()
-                """.trimIndent()
-            )
-        ).isEmpty()
-
-        // This matches the Kotlin plugin behavior although I sort of think it violates the spirit of the rule.
-        assertThat(
-            SpacingBetweenDeclarationsWithCommentsRule().lint(
-                """
-                fun blah()
-                // foo
-                /**
-                 * Doc 1
-                 */
-                const val bar = 1
-                """.trimIndent()
-            )
-        ).isEmpty()
-    }
-
-    @Test
-    fun `missing space before declaration with kdoc should cause error`() {
+    fun `Given an EOL comment at top of file should do nothing`() {
         val code =
             """
-            fun a()
+            // foo
+            fun foo()
+            """.trimIndent()
+        spacingBetweenDeclarationsWithCommentsRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Given a block comment at top of file should do nothing`() {
+        val code =
+            """
+            /*
+             * foo
+             */
+            fun foo()
+            """.trimIndent()
+        spacingBetweenDeclarationsWithCommentsRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Given a KDoc at top of file should do nothing`() {
+        val code =
+            """
             /**
              * foo
              */
-            fun b()
+            fun foo()
             """.trimIndent()
-        assertThat(
-            SpacingBetweenDeclarationsWithCommentsRule().lint(code)
-        ).containsExactly(
-            LintError(2, 1, "spacing-between-declarations-with-comments", "Declarations and declarations with comments should have an empty space between.")
-        )
+        spacingBetweenDeclarationsWithCommentsRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
-    fun `missing space before declaration with eol comment should cause error`() {
+    fun `Given multiple EOL comments should do nothing`() {
         val code =
             """
-            fun a()
+            // boo
             // foo
-            fun b()
+            fun foo()
             """.trimIndent()
-        assertThat(
-            SpacingBetweenDeclarationsWithCommentsRule().lint(code)
-        ).containsExactly(
-            LintError(2, 1, "spacing-between-declarations-with-comments", "Declarations and declarations with comments should have an empty space between.")
-        )
+        spacingBetweenDeclarationsWithCommentsRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
-    fun `autoformat should work correctly`() {
+    fun `Issue 946 - Given EOL comments not above a declaration should do nothing`() {
         val code =
             """
-            /**
-             * Doc 1
-             */
-            fun one() = 1
-            /**
-             * Doc 2
-             */
-            fun two() = 2
-            fun three() = 42
-            // comment
-            fun four() = 44
-            """.trimIndent()
-        val formattedCode =
-            """
-            /**
-             * Doc 1
-             */
-            fun one() = 1
-
-            /**
-             * Doc 2
-             */
-            fun two() = 2
-            fun three() = 42
-
-            // comment
-            fun four() = 44
-            """.trimIndent()
-        assertThat(
-            SpacingBetweenDeclarationsWithCommentsRule().format(code)
-        ).isEqualTo(formattedCode)
-    }
-
-    @Test
-    fun `not a declaration comment`() {
-        val code =
-            """
-            fun function() {
-                with(binding) {
-                    loginButton.setOnClickListener {
-            //            comment
-                        showScreen()
-                    }
-                }
+            fun foo() {
+                // some comment 1
+                bar()
+                /*
+                 * some comment 2
+                 */
+                bar()
             }
             """.trimIndent()
-        assertThat(
-            SpacingBetweenDeclarationsWithCommentsRule().lint(code)
-        ).isEmpty()
+        spacingBetweenDeclarationsWithCommentsRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
-    fun `not a comment between declarations`() {
+    fun `Issue 946 - Given EOL comment above declarations then precede the comment above the second and later declarations with a blank line`() {
         val code =
             """
             class C {
                 fun test() {
-                    println()
-                    // comment1
-                    fun one() = 1
+                    // comment 1
+                    fun bar1() = 1
+                    /*
+                     * comment 2
+                     */
+                    fun bar2() = 2
                 }
-            }
-            """.trimIndent()
-        assertThat(
-            SpacingBetweenDeclarationsWithCommentsRule().lint(code)
-        ).isEmpty()
-    }
-
-    @Test
-    fun `declarations in class`() {
-        val code =
-            """
-            class C {
-                /**
-                 * Doc 1
-                 */
-                fun one() = 1
-                /**
-                 * Doc 2
-                 */
-                fun two() = 2
-                fun three() = 42
-                // comment
-                fun four() = 44
             }
             """.trimIndent()
         val formattedCode =
             """
             class C {
-                /**
-                 * Doc 1
-                 */
-                fun one() = 1
+                fun test() {
+                    // comment 1
+                    fun bar1() = 1
 
-                /**
-                 * Doc 2
-                 */
-                fun two() = 2
-                fun three() = 42
-
-                // comment
-                fun four() = 44
+                    /*
+                     * comment 2
+                     */
+                    fun bar2() = 2
+                }
             }
             """.trimIndent()
-        assertThat(
-            SpacingBetweenDeclarationsWithCommentsRule().format(code)
-        ).isEqualTo(formattedCode)
+        spacingBetweenDeclarationsWithCommentsRuleAssertThat(code)
+            .hasLintViolation(5, 9, "Declarations and declarations with comments should have an empty space between.")
+            .isFormattedAs(formattedCode)
     }
 
-    // https://github.com/pinterest/ktlint/issues/1053
     @Test
-    fun `declaration has tail comments`() {
+    fun `Issue 1053 - Given declarations with tail comments should not force blank lines when next line contains a declaration`() {
         val code =
             """
             class SampleClass {
@@ -241,8 +132,6 @@ class SpacingBetweenDeclarationsWithCommentsRuleTest {
                 Three, // false positive
             }
             """.trimIndent()
-        assertThat(
-            SpacingBetweenDeclarationsWithCommentsRule().lint(code)
-        ).isEmpty()
+        spacingBetweenDeclarationsWithCommentsRuleAssertThat(code).hasNoLintViolations()
     }
 }
