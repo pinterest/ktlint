@@ -1,10 +1,6 @@
 package com.pinterest.ktlint.ruleset.experimental
 
-import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
-import com.pinterest.ktlint.test.format
-import com.pinterest.ktlint.test.lint
-import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
 
 class NullableTypeSpacingRuleTest {
@@ -20,10 +16,9 @@ class NullableTypeSpacingRuleTest {
             """
             val foo : String? = null
             """.trimIndent()
-        Assertions.assertThat(NullableTypeSpacingRule().lint(code)).containsExactly(
-            LintError(1, 17, "nullable-type-spacing", "Unexpected whitespace")
-        )
-        Assertions.assertThat(NullableTypeSpacingRule().format(code)).isEqualTo(formattedCode)
+        nullableTypeSpacingRuleAssertThat(code)
+            .hasLintViolation(1, 17, "Unexpected whitespace")
+            .isFormattedAs(formattedCode)
     }
 
     @Test

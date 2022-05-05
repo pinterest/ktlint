@@ -10,6 +10,7 @@ import com.pinterest.ktlint.core.ast.containsLineBreakInRange
 import com.pinterest.ktlint.core.ast.isRoot
 import com.pinterest.ktlint.core.ast.prevCodeLeaf
 import com.pinterest.ktlint.core.ast.prevLeaf
+import com.pinterest.ktlint.ruleset.experimental.experimentalRulesetId
 import kotlin.properties.Delegates
 import org.ec4j.core.model.PropertyType
 import org.ec4j.core.model.PropertyType.PropertyValueParser
@@ -33,7 +34,7 @@ import org.jetbrains.kotlin.utils.addToStdlib.cast
 @OptIn(FeatureInAlphaState::class)
 public class TrailingCommaRule :
     Rule(
-        id = "trailing-comma",
+        id = "$experimentalRulesetId:trailing-comma",
         visitorModifiers = setOf(
             VisitorModifier.RunAfterRule(
                 ruleId = "standard:indent",

@@ -14,7 +14,7 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 /**
  * Lints and formats the spacing after the fun keyword
  */
-public class FunctionStartOfBodySpacingRule : Rule("function-start-of-body-spacing") {
+public class FunctionStartOfBodySpacingRule : Rule("$experimentalRulesetId:function-start-of-body-spacing") {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
