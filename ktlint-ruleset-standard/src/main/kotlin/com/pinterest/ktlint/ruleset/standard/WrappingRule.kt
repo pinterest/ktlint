@@ -54,7 +54,6 @@ import com.pinterest.ktlint.core.initKtLintKLogger
 import mu.KotlinLogging
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
-import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
@@ -211,7 +210,10 @@ public class WrappingRule : Rule(
             // put entries on separate lines
             // TODO: group emit()s below with the one above into one (similar to ParameterListWrappingRule)
             for (c in node.children()) {
-                if (c.elementType == COMMA && !c.treeNext.isWhiteSpaceWithNewline() && !(c.nextLeaf() is PsiWhiteSpace && c.nextLeaf()?.nextLeaf()?.isPartOfComment() == true)) {
+                if (c.elementType == COMMA &&
+                    !c.treeNext.isWhiteSpaceWithNewline() &&
+                    !c.isFollowedByCommentOnSameLine()
+                ) {
                     requireNewlineAfterLeaf(
                         nodeAfterWhichNewlineIsRequired = c,
                         autoCorrect = autoCorrect,
@@ -222,6 +224,10 @@ public class WrappingRule : Rule(
             }
         }
     }
+
+    private fun ASTNode.isFollowedByCommentOnSameLine() =
+        nextLeaf { !it.isWhiteSpaceWithoutNewline() }
+            ?.isPartOfComment() == true
 
     private fun rearrangeValueList(
         node: ASTNode,
