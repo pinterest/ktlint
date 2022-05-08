@@ -318,6 +318,38 @@ internal class WrappingRuleTest {
     }
 
     @Test
+    fun `test wrapping rule allows line comment`() {
+        val code =
+            """
+            interface Foo1 {}
+            interface Foo2 {}
+            interface Foo3 {}
+            class Bar :
+                Foo1, // this comment should be legal
+                Foo2,// this comment should be legal
+                Foo3 {
+            }
+            """.trimIndent()
+        wrappingRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `test wrapping rule allows block comment`() {
+        val code =
+            """
+            interface Foo1 {}
+            interface Foo2 {}
+            interface Foo3 {}
+            class Bar :
+                Foo1, /* this comment should be legal */
+                Foo2,/* this comment should be legal */
+                Foo3 {
+            }
+            """.trimIndent()
+        wrappingRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
     fun testLintNewlineAfterEqAllowed() {
         assertThat(
             WrappingRule().lint(

@@ -23,6 +23,7 @@ An AssertJ style API for testing KtLint rules ([#1444](https://github.com/pinter
 
 ### Fixed
 - Fix check of spacing in the receiver type of an anonymous function ([#1440](https://github.com/pinterest/ktlint/issues/1440))
+- Allow comment on same line as super class in class declaration `wrapping` ([#1457](https://github.com/pinterest/ktlint/pull/1457))
 
 ### Changed
 * Set Kotlin development version to `1.7.0-Beta` and Kotlin version to `1.6.21`.
