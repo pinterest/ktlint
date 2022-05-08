@@ -1631,6 +1631,22 @@ internal class WrappingRuleTest {
         assertThat(WrappingRule().format(code)).isEqualTo(formattedCode)
     }
 
+    @Test
+    fun `Issue 1350 - Given a for-statement with a newline in the expression only then do not wrap`() {
+        val code =
+            """
+            fun foo() {
+                for (item in listOf(
+                    "a",
+                    "b"
+                )) {
+                    println(item)
+                }
+            }
+            """.trimIndent()
+        wrappingRuleAssertThat(code).hasNoLintViolations()
+    }
+
     private companion object {
         const val MULTILINE_STRING_QUOTE = "${'"'}${'"'}${'"'}"
         const val TAB = "${'\t'}"

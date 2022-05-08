@@ -4,6 +4,7 @@ import com.pinterest.ktlint.core.EditorConfig.Companion.loadEditorConfig
 import com.pinterest.ktlint.core.EditorConfig.Companion.loadIndentConfig
 import com.pinterest.ktlint.core.IndentConfig
 import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.ast.ElementType
 import com.pinterest.ktlint.core.ast.ElementType.ANNOTATION
 import com.pinterest.ktlint.core.ast.ElementType.ARROW
 import com.pinterest.ktlint.core.ast.ElementType.CALL_EXPRESSION
@@ -143,6 +144,21 @@ public class WrappingRule : Rule(
                     ?.let { it == OBJECT_LITERAL || it == LAMBDA_EXPRESSION } == true
                 )
         ) {
+            return
+        }
+        if (node.isPartOfForLoopConditionWithMultilineExpression()) {
+            // keep:
+            // for (foo in listOf(
+            //     "foo-1",
+            //     "foo-2"
+            // )) { ... }
+            // but reject:
+            // for (
+            //     foo in listOf(
+            //         "foo-1",
+            //         "foo-2"
+            //     )
+            // ) { ... }
             return
         }
         if (!node.nextCodeLeaf()?.prevLeaf {
@@ -444,4 +460,39 @@ public class WrappingRule : Rule(
     private fun KtStringTemplateExpression.isFollowedBy(callExpressionName: String) =
         this.node.nextSibling { it.elementType != DOT }
             .let { it?.elementType == CALL_EXPRESSION && it.text == callExpressionName }
+
+    /**
+     *  Allow for-statement in which only the expression contains a newline:
+     *     for (foo in listOf(
+     *         "foo-1",
+     *         "foo-2"
+     *     )) { ... }
+     * but reject:
+     *     for (
+     *         foo in listOf(
+     *             "foo-1",
+     *             "foo-2"
+     *         )
+     *     ) { ... }
+     */
+    private fun ASTNode.isPartOfForLoopConditionWithMultilineExpression(): Boolean {
+        if (treeParent.elementType != ElementType.FOR) {
+            return false
+        }
+        if (this.elementType != LPAR) {
+            return treeParent.findChildByType(LPAR)!!.isPartOfForLoopConditionWithMultilineExpression()
+        }
+        require(elementType == LPAR) {
+            "Node should be the LPAR of the FOR loop"
+        }
+
+        var node: ASTNode? = this
+        while (node != null && node.elementType != RPAR) {
+            if (node.isWhiteSpaceWithNewline()) {
+                return false
+            }
+            node = node.nextSibling { true }
+        }
+        return true
+    }
 }

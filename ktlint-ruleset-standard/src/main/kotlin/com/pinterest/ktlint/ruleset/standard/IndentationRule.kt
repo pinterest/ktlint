@@ -25,6 +25,7 @@ import com.pinterest.ktlint.core.ast.ElementType.ELSE
 import com.pinterest.ktlint.core.ast.ElementType.ELVIS
 import com.pinterest.ktlint.core.ast.ElementType.EOL_COMMENT
 import com.pinterest.ktlint.core.ast.ElementType.EQ
+import com.pinterest.ktlint.core.ast.ElementType.FOR
 import com.pinterest.ktlint.core.ast.ElementType.FUN
 import com.pinterest.ktlint.core.ast.ElementType.FUNCTION_LITERAL
 import com.pinterest.ktlint.core.ast.ElementType.GT
@@ -238,11 +239,18 @@ public class IndentationRule :
                                 )
                             }
                             else -> {
-                                expectedIndent++
-                                logger.trace { "$line: block starting with ${n.text} -> Increase to $expectedIndent" }
-                                ctx.blockStack.push(
-                                    Block(n.elementType, line, REGULAR)
-                                )
+                                if (n.isPartOfForLoopConditionWithMultilineExpression()) {
+                                    logger.trace { "$line: block starting with ${n.text} -> Keep at $expectedIndent" }
+                                    ctx.blockStack.push(
+                                        Block(n.elementType, line, SAME_AS_PREVIOUS_BLOCK)
+                                    )
+                                } else {
+                                    expectedIndent++
+                                    logger.trace { "$line: block starting with ${n.text} -> Increase to $expectedIndent" }
+                                    ctx.blockStack.push(
+                                        Block(n.elementType, line, REGULAR)
+                                    )
+                                }
                             }
                         }
                         logger.trace {
@@ -765,7 +773,12 @@ public class IndentationRule :
             nextLeafElementType == GT &&
                 node.treeParent?.elementType.let { it == TYPE_PARAMETER_LIST || it == TYPE_ARGUMENT_LIST } ->
                 0
-            nextLeafElementType in rTokenSet -> -1
+            nextLeafElementType in rTokenSet ->
+                if (node.isPartOfForLoopConditionWithMultilineExpression()) {
+                    0
+                } else {
+                    -1
+                }
             // IDEA quirk:
             // val i: Int
             //     by lazy { 1 }
@@ -1032,3 +1045,32 @@ private fun KtStringTemplateExpression.isFollowedByTrimMargin() = isFollowedBy("
 private fun KtStringTemplateExpression.isFollowedBy(callExpressionName: String) =
     this.node.nextSibling { it.elementType != DOT }
         .let { it?.elementType == CALL_EXPRESSION && it.text == callExpressionName }
+
+/**
+ *  A for-loop for which the condition contains a sibling node containing a newline is not correctly formatted by the
+ *  default formatter of IntelliJ IDEA (https://youtrack.jetbrains.com/issue/IDEA-293691/Format-Kotlin-for-loop). When
+ *  using the correct indentation level, it conflicts with the IntelliJ IDEA formatting, so until the aforementioned bug
+ *  is resolved, ktlint will produce the same format as IntelliJ default formatter.
+ */
+private fun ASTNode.isPartOfForLoopConditionWithMultilineExpression(): Boolean {
+    if (treeParent.elementType != FOR) {
+        return false
+    }
+    if (this.elementType != LPAR) {
+        return treeParent.findChildByType(LPAR)!!.isPartOfForLoopConditionWithMultilineExpression()
+    }
+    require(elementType == LPAR) {
+        "Node should be the LPAR of the FOR loop"
+    }
+
+    // Iterate all sibling node until RPAR to check whether the node contains a newline. Note that it does not matter
+    // whether is code sibling contains a newline.
+    var node: ASTNode? = this
+    while (node != null && node.elementType != RPAR) {
+        if (node.isWhiteSpaceWithNewline()) {
+            return true
+        }
+        node = node.nextSibling { true }
+    }
+    return false
+}
