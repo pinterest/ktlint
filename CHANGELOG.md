@@ -25,9 +25,7 @@ An AssertJ style API for testing KtLint rules ([#1444](https://github.com/pinter
 - Fix check of spacing in the receiver type of an anonymous function ([#1440](https://github.com/pinterest/ktlint/issues/1440))
 
 ### Changed
-* Set Kotlin development version to `1.6.21` and Kotlin version to `1.6.21`.
-
-### Removed
+* Set Kotlin development version to `1.7.0-Beta` and Kotlin version to `1.6.21`.
 
 ### Removed
 
@@ -81,8 +79,6 @@ This section is applicable when providing rules that depend on one or more value
 ### Changed
 - Print the rule id always in the PlainReporter ([#1121](https://github.com/pinterest/ktlint/issues/1121))
 - All wrapping logic is moved from the `indent` rule to the new rule `wrapping` (as part of the `standard` ruleset). In case you currently have disabled the `indent` rule, you may want to reconsider whether this is still necessary or that you also want to disable the new `wrapping` rule to keep the status quo. Both rules can be run independent of each other. ([#835](https://github.com/pinterest/ktlint/issues/835))
-
-### Removed
 
 ## [0.44.0] - 2022-02-15
 
