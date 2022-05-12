@@ -475,16 +475,9 @@ public class IndentationRule :
     }
 
     private fun adjustExpectedIndentInFrontOfPropertyAccessor(n: ASTNode, ctx: IndentContext) {
-//        val adj = ctx.clearExitAdj(n.treeParent)
-//        if (adj != null) {
-//            expectedIndent += adj
-//            logger.trace { "$line: ++in_front(${n.treeNext.elementType}) Keep indent at -> $expectedIndent" }
-//            ctx.exitAdjBy(n.treeNext, adj)
-//        } else {
         expectedIndent++
         logger.trace { "$line: ++in_front(${n.treeNext.elementType}) -> $expectedIndent" }
         ctx.exitAdjBy(n.treeNext, -1)
-//        }
     }
 
     private fun adjustExpectedIndentInFrontOfSuperTypeList(n: ASTNode, ctx: IndentContext) {

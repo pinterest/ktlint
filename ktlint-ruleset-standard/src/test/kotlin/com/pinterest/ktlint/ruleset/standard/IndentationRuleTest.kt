@@ -8,6 +8,7 @@ import com.pinterest.ktlint.test.LintViolation
 import com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE
 import com.pinterest.ktlint.test.SPACE
 import com.pinterest.ktlint.test.TAB
+import kotlin.random.Random
 import org.ec4j.core.model.PropertyType
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
@@ -3764,6 +3765,27 @@ internal class IndentationRuleTest {
                             .filterNotNull()
                             .joinToString()
                     }
+                """.trimIndent()
+            indentationRuleAssertThat(code).hasNoLintViolations()
+        }
+    }
+
+    val foo = Any() == true &&
+        Random.nextBoolean().let { boolean ->
+            !boolean
+        } == true
+
+    @DisplayName("Issue 1321 - Lambda inside complex boolean expression")
+    @Nested
+    inner class Issue1321 {
+        @Test
+        fun `Issue 1321 - `() {
+            val code =
+                """
+                val foo = Any() == true &&
+                    Random.nextBoolean().let { boolean ->
+                        !boolean
+                    } == true
                 """.trimIndent()
             indentationRuleAssertThat(code).hasNoLintViolations()
         }
