@@ -198,11 +198,11 @@ public class IndentationRule :
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
+        val ctx = IndentContext()
         val firstNotEmptyLeaf = node.nextLeaf()
         if (firstNotEmptyLeaf?.let { it.elementType == WHITE_SPACE && !it.textContains('\n') } == true) {
-            visitWhiteSpace(firstNotEmptyLeaf, autoCorrect, emit)
+            visitWhiteSpace(firstNotEmptyLeaf, autoCorrect, emit, ctx)
         }
-        val ctx = IndentContext()
         node.visit(
             { n ->
                 when (n.elementType) {
@@ -395,14 +395,14 @@ public class IndentationRule :
                                         // )
                                         adjustExpectedIndentAfterLparInsideCondition(n, ctx)
                                 }
-                                visitWhiteSpace(n, autoCorrect, emit)
+                                visitWhiteSpace(n, autoCorrect, emit, ctx)
                                 if (ctx.localAdj != 0) {
                                     expectedIndent += ctx.localAdj
                                     logger.trace { "$line: ++${ctx.localAdj} on whitespace containing new line (${n.elementType}) -> $expectedIndent" }
                                     ctx.localAdj = 0
                                 }
                             } else if (n.isPartOf(KDOC)) {
-                                visitWhiteSpace(n, autoCorrect, emit)
+                                visitWhiteSpace(n, autoCorrect, emit, ctx)
                             }
                             line += n.text.count { it == '\n' }
                         }
@@ -475,9 +475,16 @@ public class IndentationRule :
     }
 
     private fun adjustExpectedIndentInFrontOfPropertyAccessor(n: ASTNode, ctx: IndentContext) {
+//        val adj = ctx.clearExitAdj(n.treeParent)
+//        if (adj != null) {
+//            expectedIndent += adj
+//            logger.trace { "$line: ++in_front(${n.treeNext.elementType}) Keep indent at -> $expectedIndent" }
+//            ctx.exitAdjBy(n.treeNext, adj)
+//        } else {
         expectedIndent++
         logger.trace { "$line: ++in_front(${n.treeNext.elementType}) -> $expectedIndent" }
         ctx.exitAdjBy(n.treeNext, -1)
+//        }
     }
 
     private fun adjustExpectedIndentInFrontOfSuperTypeList(n: ASTNode, ctx: IndentContext) {
@@ -715,7 +722,8 @@ public class IndentationRule :
     private fun visitWhiteSpace(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        ctx: IndentContext
     ) {
         val text = node.text
         val nodeIndent = text.substringAfterLast("\n")
@@ -796,7 +804,30 @@ public class IndentationRule :
             //  var value: DataClass =
             //      DataClass("too long line")
             //          private set
-            node.nextCodeSibling()?.elementType == PROPERTY_ACCESSOR && node.treeParent.findChildByType(EQ)?.nextLeaf().isWhiteSpaceWithNewline() -> -1
+            node.nextCodeSibling()?.elementType == PROPERTY_ACCESSOR &&
+                node.treeParent.findChildByType(EQ)?.nextLeaf().isWhiteSpaceWithNewline() -> {
+                // Fix the indent of the body block/expression of the setter/getter
+                //  IDEA formatting:
+                //    private var foo: String =
+                //        "foo"
+                //        get() = value
+                //        set(value) {
+                //            field = value
+                //        }
+                //  instead of
+                //    private var foo: String =
+                //        "foo"
+                //        get() = value
+                //        set(value) {
+                //                field = value
+                //            }
+                expectedIndent--
+                val propertyAccessor = node.nextCodeSibling()!!
+                ctx.exitAdjBy(propertyAccessor, 1)
+
+                // Fix the indent before the setter/getter
+                -1
+            }
             else -> 0
         }
         // indentation with incorrect characters replaced

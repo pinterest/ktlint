@@ -10,6 +10,7 @@ import com.pinterest.ktlint.test.SPACE
 import com.pinterest.ktlint.test.TAB
 import org.ec4j.core.model.PropertyType
 import org.junit.jupiter.api.Disabled
+import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -3718,6 +3719,54 @@ internal class IndentationRuleTest {
                 )
             """.trimIndent()
         indentationRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @DisplayName("Issue 1335 - Given a property with an i")
+    @Nested
+    inner class Issue1335 {
+        @Test
+        fun `Issue 1335 Given a property with an initializer on a separate line followed by a getter with a multiline body expression`() {
+            val code =
+                """
+                private val foo: String =
+                    "foo"
+                    get() =
+                        listOf("a", value, "c")
+                            .filterNotNull()
+                            .joinToString()
+                """.trimIndent()
+            indentationRuleAssertThat(code).hasNoLintViolations()
+        }
+
+        @Test
+        fun `Issue 1335 Given a property with an initializer on a separate line followed by a getter with a block body containing a multiline dot qualified expression`() {
+            val code =
+                """
+                private val foo1: String =
+                    "foo"
+                    get() {
+                        return listOf("a", value, "c")
+                            .filterNotNull()
+                            .joinToString()
+                    }
+                """.trimIndent()
+            indentationRuleAssertThat(code).hasNoLintViolations()
+        }
+
+        @Test
+        fun `Issue 1335 - Given a property with an initializer on a separate line followed by a setter with a block body a multiline dot qualified expression`() {
+            val code =
+                """
+                private var foo: String =
+                    "foo"
+                    set(value) {
+                        listOf("a", value, "c")
+                            .filterNotNull()
+                            .joinToString()
+                    }
+                """.trimIndent()
+            indentationRuleAssertThat(code).hasNoLintViolations()
+        }
     }
 
     private companion object {
