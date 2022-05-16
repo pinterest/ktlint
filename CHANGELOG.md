@@ -22,6 +22,7 @@ An AssertJ style API for testing KtLint rules ([#1444](https://github.com/pinter
 - Add experimental rule for consistent spacing before the start of the function body (`function-start-of-body-spacing`) ([#1341](https://github.com/pinterest/ktlint/issues/1341))
 
 ### Fixed
+- Allow a single whitespace line in chained expressions ([#1469](https://github.com/pinterest/ktlint/pull/1469))
 - Fix check of spacing in the receiver type of an anonymous function ([#1440](https://github.com/pinterest/ktlint/issues/1440))
 - Allow comment on same line as super class in class declaration `wrapping` ([#1457](https://github.com/pinterest/ktlint/pull/1457))
 
