@@ -2010,7 +2010,7 @@ internal class IndentationRuleTest {
             """.trimIndent()
                 .replacePlaceholderWithStringTemplate()
         indentationRuleAssertThat(code)
-            .addAdditionalRules(WrappingRule())
+            .addAdditionalFormattingRules(WrappingRule())
             .hasLintViolations(
                 LintViolation(3, 1, "Unexpected indentation (4) (should be 8)"),
                 LintViolation(4, 1, "Unexpected indentation (4) (should be 8)")
@@ -2048,7 +2048,7 @@ internal class IndentationRuleTest {
             }
             """.trimIndent()
         indentationRuleAssertThat(code)
-            .addAdditionalRules(WrappingRule())
+            .addAdditionalFormattingRules(WrappingRule())
             .hasLintViolations(
                 LintViolation(5, 1, "Unexpected indent of multiline string closing quotes"),
                 LintViolation(7, 1, "Unexpected indent of multiline string closing quotes")
@@ -2088,7 +2088,7 @@ internal class IndentationRuleTest {
             """.trimIndent()
                 .replacePlaceholderWithStringTemplate()
         indentationRuleAssertThat(code)
-            .addAdditionalRules(WrappingRule())
+            .addAdditionalFormattingRules(WrappingRule())
             .hasLintViolations(
                 LintViolation(3, 1, "Unexpected indentation (0) (should be 8)"),
                 LintViolation(4, 1, "Unexpected indentation (4) (should be 8)"),
@@ -2669,7 +2669,7 @@ internal class IndentationRuleTest {
                 }
                 """.trimIndent()
             indentationRuleAssertThat(code)
-                .addAdditionalRules(WrappingRule())
+                .addAdditionalFormattingRules(WrappingRule())
                 .hasLintViolations(
                     LintViolation(2, 1, "Unexpected indentation (0) (should be 4)"),
                     LintViolation(6, 1, "Unexpected indent of multiline string closing quotes")
@@ -2730,7 +2730,7 @@ internal class IndentationRuleTest {
                 }
                 """.trimIndent()
             indentationRuleAssertThat(code)
-                .addAdditionalRules(WrappingRule())
+                .addAdditionalFormattingRules(WrappingRule())
                 .hasLintViolation(6, 1, "Unexpected indent of multiline string closing quotes")
                 .isFormattedAs(formattedCode)
         }
@@ -2900,7 +2900,7 @@ internal class IndentationRuleTest {
                 }
                 """.trimIndent()
             indentationRuleAssertThat(code)
-                .addAdditionalRules(WrappingRule())
+                .addAdditionalFormattingRules(WrappingRule())
                 .hasLintViolation(6, 1, "Unexpected indent of multiline string closing quotes")
                 .isFormattedAs(formattedCode)
         }

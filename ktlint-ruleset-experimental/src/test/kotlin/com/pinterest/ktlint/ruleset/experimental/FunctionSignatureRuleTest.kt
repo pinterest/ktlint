@@ -56,7 +56,7 @@ class FunctionSignatureRuleTest {
             """.trimIndent()
         functionSignatureWrappingRuleAssertThat(code)
             .setMaxLineLength()
-            .addAdditionalFormattingRule(FunctionStartOfBodySpacingRule())
+            .addAdditionalFormattingRules(FunctionStartOfBodySpacingRule())
             .hasLintViolation(2, 38, "Expected a single space before body block")
             .isFormattedAs(formattedCode)
     }
@@ -481,7 +481,7 @@ class FunctionSignatureRuleTest {
                 fun f7(): List<String>? = null
                 """.trimIndent()
             functionSignatureWrappingRuleAssertThat(code)
-                .addAdditionalFormattingRule(NullableTypeSpacingRule())
+                .addAdditionalFormattingRules(NullableTypeSpacingRule())
                 .hasNoLintViolationsExceptInAdditionalFormattingRules()
                 .isFormattedAs(formattedCode)
         }
@@ -553,7 +553,7 @@ class FunctionSignatureRuleTest {
                 fun f29(block: (T) -> String) = "some-result"
                 """.trimIndent()
             functionSignatureWrappingRuleAssertThat(code)
-                .addAdditionalFormattingRule(
+                .addAdditionalFormattingRules(
                     NoMultipleSpacesRule(),
                     SpacingAroundAngleBracketsRule(),
                     SpacingAroundParensRule(),
@@ -603,7 +603,7 @@ class FunctionSignatureRuleTest {
                 fun f11(block: (T) -> String) = "some-result"
                 """.trimIndent()
             functionSignatureWrappingRuleAssertThat(code)
-                .addAdditionalFormattingRule(
+                .addAdditionalFormattingRules(
                     TypeParameterListSpacingRule(),
                     FunctionStartOfBodySpacingRule(),
                     FunctionTypeReferenceSpacingRule(),

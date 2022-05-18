@@ -113,8 +113,8 @@ public class KtLintAssertThat(
      * best to be tested in conjunction, for example wrapping and indenting. This method can be called multiple times if
      * needed.
      */
-    public fun addAdditionalFormattingRule(vararg rules: Rule): KtLintAssertThat {
-        additionalFormattingRules.addAll(rules)
+    public fun addAdditionalFormattingRules(vararg rules: Rule): KtLintAssertThat {
+        additionalRules.addAll(rules)
 
         return this
     }
@@ -267,7 +267,7 @@ public class KtLintAssertThatAssertable(
      * violated.
      */
     public fun hasNoLintViolationsExceptInAdditionalFormattingRules(): KtLintAssertThatAssertable {
-        check(additionalFormattingRules.isNotEmpty()) {
+        check(additionalRules.isNotEmpty()) {
             "hasNoLintViolationsExceptInAdditionalFormattingRules can only be used when additional formatting rules have been added"
         }
 

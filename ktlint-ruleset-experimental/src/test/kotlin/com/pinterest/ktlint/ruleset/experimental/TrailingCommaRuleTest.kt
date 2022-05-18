@@ -986,7 +986,7 @@ class TrailingCommaRuleTest {
             // was incorrectly seen as part of the type of variable "bar3" and a reference "EnumThree," (with the
             // trailing comma was added) which in turn resulted in not recognizing that the import of EnumThree actually
             // was used.
-            .addAdditionalRules(NoUnusedImportsRule())
+            .addAdditionalFormattingRules(NoUnusedImportsRule())
             .withEditorConfigOverride(allowTrailingCommaProperty to true)
             .hasLintViolation(9, 24, "Missing trailing comma before \")\"")
             .isFormattedAs(formattedCode)
