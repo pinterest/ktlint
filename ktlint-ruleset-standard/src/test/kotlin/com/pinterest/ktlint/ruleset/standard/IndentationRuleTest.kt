@@ -8,7 +8,6 @@ import com.pinterest.ktlint.test.LintViolation
 import com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE
 import com.pinterest.ktlint.test.SPACE
 import com.pinterest.ktlint.test.TAB
-import kotlin.random.Random
 import org.ec4j.core.model.PropertyType
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
