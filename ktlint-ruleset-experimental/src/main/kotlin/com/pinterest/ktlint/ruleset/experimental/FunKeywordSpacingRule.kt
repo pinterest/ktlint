@@ -10,7 +10,7 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 /**
  * Lints and formats the spacing after the fun keyword
  */
-public class FunKeywordSpacingRule : Rule("fun-keyword-spacing") {
+public class FunKeywordSpacingRule : Rule("$experimentalRulesetId:fun-keyword-spacing") {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,

@@ -22,7 +22,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 /**
  * Lints and formats the spacing before and after the angle brackets of a type argument list.
  */
-public class TypeArgumentListSpacingRule : Rule("type-argument-list-spacing") {
+public class TypeArgumentListSpacingRule : Rule("$experimentalRulesetId:type-argument-list-spacing") {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
