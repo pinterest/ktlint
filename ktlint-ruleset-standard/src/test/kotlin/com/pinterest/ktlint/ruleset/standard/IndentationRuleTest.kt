@@ -3770,27 +3770,6 @@ internal class IndentationRuleTest {
         }
     }
 
-    val foo = Any() == true &&
-        Random.nextBoolean().let { boolean ->
-            !boolean
-        } == true
-
-    @DisplayName("Issue 1321 - Lambda inside complex boolean expression")
-    @Nested
-    inner class Issue1321 {
-        @Test
-        fun `Issue 1321 - `() {
-            val code =
-                """
-                val foo = Any() == true &&
-                    Random.nextBoolean().let { boolean ->
-                        !boolean
-                    } == true
-                """.trimIndent()
-            indentationRuleAssertThat(code).hasNoLintViolations()
-        }
-    }
-
     private companion object {
         val INDENT_STYLE_TAB = indentStyleProperty to PropertyType.IndentStyleValue.tab
     }
