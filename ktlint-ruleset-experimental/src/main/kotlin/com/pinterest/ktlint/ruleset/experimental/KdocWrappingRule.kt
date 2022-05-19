@@ -21,7 +21,7 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
  */
 @OptIn(FeatureInAlphaState::class)
 public class KdocWrappingRule :
-    Rule("kdoc-wrapping"),
+    Rule("$experimentalRulesetId:kdoc-wrapping"),
     UsesEditorConfigProperties {
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> =
         listOf(

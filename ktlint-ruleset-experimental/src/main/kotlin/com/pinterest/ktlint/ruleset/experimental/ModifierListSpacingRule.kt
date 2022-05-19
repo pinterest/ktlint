@@ -17,7 +17,7 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 /**
  * Lint and format the spacing between the modifiers in and after the last modifier in a modifier list.
  */
-public class ModifierListSpacingRule : Rule("modifier-list-spacing") {
+public class ModifierListSpacingRule : Rule("$experimentalRulesetId:modifier-list-spacing") {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,

@@ -14,7 +14,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 /**
  * Ensures there are no unnecessary parentheses before a trailing lambda.
  */
-class UnnecessaryParenthesesBeforeTrailingLambdaRule : Rule("unnecessary-parentheses-before-trailing-lambda") {
+class UnnecessaryParenthesesBeforeTrailingLambdaRule : Rule("$experimentalRulesetId:unnecessary-parentheses-before-trailing-lambda") {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,

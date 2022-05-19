@@ -31,9 +31,19 @@ import org.assertj.core.api.Assertions.assertThat
 @OptIn(FeatureInAlphaState::class)
 @Suppress("MemberVisibilityCanBePrivate")
 public class KtLintAssertThat(
+    /**
+     * The rule which is the subject of the test, e.g. the rule for which the AssertThat is created.
+     */
     private val rule: Rule,
+    /**
+     * The code which is to be linted and formatted.
+     */
     private val code: String,
-    private val additionalFormattingRules: MutableSet<Rule>
+    /**
+     *  The rules which have to be executed in addition to the main rule when linting/formatting the code. Note that
+     *  lint errors for those rules are suppressed.
+     */
+    private val additionalRules: MutableSet<Rule>
 ) {
     private var filePath: String? = null
     private var kotlinScript = false
@@ -99,11 +109,12 @@ public class KtLintAssertThat(
     }
 
     /**
-     * Adds a rule to be executed when formatting the code. This can to be used to unit test rules which are best to be
-     * tested in conjunction, for example wrapping and indenting. This method can be called multiple times if needed.
+     * Adds a rule to be executed when linting/formatting the code. This can to be used to unit test rules which are
+     * best to be tested in conjunction, for example wrapping and indenting. This method can be called multiple times if
+     * needed.
      */
-    public fun addAdditionalFormattingRule(vararg rules: Rule): KtLintAssertThat {
-        additionalFormattingRules.addAll(rules)
+    public fun addAdditionalRules(vararg rules: Rule): KtLintAssertThat {
+        additionalRules.addAll(rules)
 
         return this
     }
@@ -120,8 +131,8 @@ public class KtLintAssertThat(
      *
      * Note: When linting succeeds without errors, formatting is also checked.
      */
-    public fun hasNoLintViolationsExceptInAdditionalFormattingRules(): KtLintAssertThatAssertable =
-        ktLintAssertThatAssertable().hasNoLintViolationsExceptInAdditionalFormattingRules()
+    public fun hasNoLintViolationsExceptInAdditionalRules(): KtLintAssertThatAssertable =
+        ktLintAssertThatAssertable().hasNoLintViolationsExceptInAdditionalRules()
 
     /**
      * Asserts that the code does contain given [LintViolation] which automatically can be corrected. This is a sugar
@@ -172,7 +183,7 @@ public class KtLintAssertThat(
                 filePath = filePath,
                 kotlinScript = kotlinScript,
                 editorConfigOverride = EditorConfigOverride.emptyEditorConfigOverride,
-                additionalFormattingRules = additionalFormattingRules.toList()
+                additionalRules = additionalRules.toList()
             )
         } else {
             KtLintAssertThatAssertable(
@@ -181,20 +192,20 @@ public class KtLintAssertThat(
                 filePath = filePath,
                 kotlinScript = kotlinScript,
                 editorConfigOverride = EditorConfigOverride.from(*editorConfigProperties.toTypedArray()),
-                additionalFormattingRules = additionalFormattingRules.toList()
+                additionalRules = additionalRules.toList()
             )
         }
 
     public companion object {
         /**
          * Creates an assertThat assertion function for a given rule. This assertion function has extensions
-         * specifically for testing KtLint rules. The [additionalFormattingRules] are only executed during the format
+         * specifically for testing KtLint rules. The [additionalRules] are only executed during the format
          * phase of the test. This means that the unit test only has to check the lint violations thrown by the rule for
          * which the assertThat is created. But the code is formatted by both the rule and the
-         * [additionalFormattingRules] in the order as defined by the rule definitions.
+         * [additionalRules] in the order as defined by the rule definitions.
          */
-        public fun Rule.assertThat(additionalFormattingRules: List<Rule> = emptyList()): (String) -> KtLintAssertThat =
-            { code -> KtLintAssertThat(this, code, additionalFormattingRules.toMutableSet()) }
+        public fun Rule.assertThat(vararg additionalRules: Rule): (String) -> KtLintAssertThat =
+            { code -> KtLintAssertThat(this, code, additionalRules.toMutableSet()) }
 
         /**
          * See [setMaxLineLength] for intended usage.
@@ -215,14 +226,17 @@ public class KtLintAssertThat(
  */
 @OptIn(FeatureInAlphaState::class)
 public class KtLintAssertThatAssertable(
-    /** The rule for which the AssertThat is created. */
+    /** The rule which is the subject of the test, e.g. the rule for which the AssertThat is created. */
     private val rule: Rule,
     private val code: String,
     private val filePath: String?,
     private val kotlinScript: Boolean,
     private val editorConfigOverride: EditorConfigOverride = EditorConfigOverride.emptyEditorConfigOverride,
-    /** The rules which have to be executed in addition to the main rule when formatting the code. */
-    private val additionalFormattingRules: List<Rule>
+    /**
+     *  The rules which have to be executed in addition to the main rule when linting/formatting the code. Note that
+     *  lint errors for those rules are suppressed.
+     */
+    private val additionalRules: List<Rule>
 ) : AbstractAssert<KtLintAssertThatAssertable, String>(code, KtLintAssertThatAssertable::class.java) {
 
     /**
@@ -234,7 +248,7 @@ public class KtLintAssertThatAssertable(
         assertThat(lint()).isEmpty()
 
         // Also format the code to be absolutely sure that codes does not get changed
-        val actualFormattedCode = format(ignoreAdditionalRules = true)
+        val actualFormattedCode = format()
 
         assertThat(actualFormattedCode)
             .describedAs("Code is changed by format while no lint errors were found")
@@ -252,9 +266,9 @@ public class KtLintAssertThatAssertable(
      * other, a unit test cal still verify that code is formatted correctly even when the rule under test is not
      * violated.
      */
-    public fun hasNoLintViolationsExceptInAdditionalFormattingRules(): KtLintAssertThatAssertable {
-        check(additionalFormattingRules.isNotEmpty()) {
-            "hasNoLintViolationsExceptInAdditionalFormattingRules can only be used when additional formatting rules have been added"
+    public fun hasNoLintViolationsExceptInAdditionalRules(): KtLintAssertThatAssertable {
+        check(additionalRules.isNotEmpty()) {
+            "hasNoLintViolationsExceptInAdditionalRules can only be used when additional rules have been added"
         }
 
         assertThat(lint()).isEmpty()
@@ -300,7 +314,7 @@ public class KtLintAssertThatAssertable(
             "Use '.hasNoLintErrors()' instead of '.isFormattedAs(<original code>)'"
         }
 
-        val actualFormattedCode = format(false)
+        val actualFormattedCode = format()
 
         assertThat(actualFormattedCode)
             .describedAs("Code is formatted as")
@@ -332,7 +346,7 @@ public class KtLintAssertThatAssertable(
     public fun hasLintViolationsWithoutAutocorrect(vararg expectedLintViolations: LintViolation) {
         check(expectedLintViolations.isNotEmpty())
 
-        val actualLintViolationFields = lint(runFormatBeforeLint = true).toLintViolationsFieldsForCurrentRuleOnly()
+        val actualLintViolationFields = lint().toLintViolationsFieldsForCurrentRuleOnly()
 
         assertThat(actualLintViolationFields)
             .describedAs("Lint errors which can not be automatically corrected")
@@ -361,38 +375,31 @@ public class KtLintAssertThatAssertable(
                 )
             }.toTypedArray()
 
-    private fun lint(runFormatBeforeLint: Boolean = false): List<LintError> {
-        // Lint is only done with the rule for which the assertThat is created. In that way the unit test only has to
-        // check for violations caused by that rule.
+    private fun lint(): List<LintError> {
         return listOf(rule)
+            // Also run the additional rules as the main rule might have a VisitorModifier which requires one or more of
+            // the additional rules to be loaded and enabled as well.
+            .plus(additionalRules)
             .lint(
                 lintedFilePath = filePath,
                 script = kotlinScript,
-                text = if (runFormatBeforeLint) {
-                    format(false)
-                } else {
-                    code
-                },
+                text = code,
                 editorConfigOverride = editorConfigOverride
             )
+            // Remove all lint errors caused by the additional rule so that the unit test is only able to verify the
+            // lint errors caused by the main rule.
+            .filter { it.ruleId == rule.id }
     }
 
-    private fun format(ignoreAdditionalRules: Boolean): String {
-        val formattingRules =
-            if (ignoreAdditionalRules) {
-                listOf(rule)
-            } else {
-                // Formatting is done on the rule for which the assertThat is created plus the additional rules. In this way it
-                // is easier to test code which is formatted by closely related rules (for example wrapping and indent).
-                listOf(rule) + additionalFormattingRules
-            }
-        return formattingRules.format(
-            lintedFilePath = filePath,
-            script = kotlinScript,
-            text = code,
-            editorConfigOverride = editorConfigOverride
-        )
-    }
+    private fun format(): String =
+        listOf(rule)
+            .plus(additionalRules)
+            .format(
+                lintedFilePath = filePath,
+                script = kotlinScript,
+                text = code,
+                editorConfigOverride = editorConfigOverride
+            )
 
     /* Representation of the field of the [LintError] that should be identical. Note that no comparison can be made
      * against the original [LintError] as the [canBeAutoCorrected] flag is excluded from the hashcode.
