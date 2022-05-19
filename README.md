@@ -84,6 +84,7 @@ by passing the `--experimental` flag to `ktlint`.
 - `experimental:package-name`: No underscores in package names
 - `experimental:parameter-list-spacing`: Consistent spacing inside the parameter list
 - `experimental:unnecessary-parentheses-before-trailing-lambda`: An empty parentheses block before a lambda is redundant. For example `some-string".count() { it == '-' }`
+- `function-signature`: rewrites the function signature to a single line when possible (e.g. when not exceeding the `max_line_length` property) or a multiline signature otherwise. In case of function with a body expression, the body expression is placed on the same line as the function signature when not exceeding the `max_line_length` property. Optionally the function signature can be forced to be written as a multiline signature in case the function has more than a specified number of parameters (`.editorconfig' property `ktlint_function_signature_wrapping_rule_always_with_minimum_parameters`)
 
 ### Spacing
 - `experimental:annotation-spacing`: Annotations should be separated by the annotated declaration by a single line break

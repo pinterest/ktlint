@@ -11,13 +11,9 @@ class ParameterListWrappingRuleTest {
     private val parameterListWrappingRuleAssertThat =
         ParameterListWrappingRule()
             .assertThat(
-                additionalFormattingRules = listOf(
-                    // In case a parameter is wrapped to a separate line by the ParameterListWrappingRule() then its
-                    // indentation might still be incorrect until the IndentationRule has fixed it. Apply the
-                    // IndentationRule format after the ParameterListWrappingRule(), so that the formattedCode in the
-                    /* unit test looks correct. Note that the Lint Violations of the rule are suppressed!.*/
-                    IndentationRule()
-                )
+                // Apply the IndentationRule always as additional rule, so that the formattedCode in the unit test looks
+                // correct.
+                IndentationRule()
             )
 
     @Test
@@ -182,13 +178,17 @@ class ParameterListWrappingRuleTest {
         val code =
             """
             val fieldExample =
-                  LongNameClass { paramA,
-                                  paramB,
-                                  paramC ->
-                      ClassB(paramA, paramB, paramC)
-                  }
+                LongNameClass { paramA,
+                                paramB,
+                                paramC ->
+                    ClassB(paramA, paramB, paramC)
+                }
             """.trimIndent()
-        parameterListWrappingRuleAssertThat(code).hasNoLintViolations()
+        val parameterListWrappingRuleWithoutIndentationRule = ParameterListWrappingRule().assertThat()
+        parameterListWrappingRuleWithoutIndentationRule(code).hasNoLintViolations()
+        // IndentationRule does alter the code while the code is accepted by the Default IDEA formatter. So statement
+        // below would fail!
+        // parameterListWrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -340,11 +340,11 @@ class ParameterListWrappingRuleTest {
         val code =
             """
             data class A(
-               /*
-                * comment
-                */
-               //
-               var v: String
+                /*
+                 * comment
+                 */
+                //
+                var v: String
             )
             """.trimIndent()
         parameterListWrappingRuleAssertThat(code).hasNoLintViolations()

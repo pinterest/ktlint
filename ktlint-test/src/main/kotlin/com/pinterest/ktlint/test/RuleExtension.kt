@@ -61,16 +61,10 @@ private fun List<Rule>.toRuleSets(): List<RuleSet> {
                 )
             )
         }
-    return listOfNotNull(
-        dumpAstRuleSet,
-        RuleSet(
-            // RuleSet id is always set to "standard" as this has the side effect that the ruleset id will
-            // be excluded from the ruleId in the LintError which makes the unit tests of the experimental
-            // rules easier to maintain as they will not contain the reference to the ruleset id.
-            "standard",
-            *toTypedArray()
-        )
-    )
+    return this
+        .groupBy { it.id.substringBefore(":", "standard") }
+        .map { (ruleSetId, rules) -> RuleSet(ruleSetId, *rules.toTypedArray()) }
+        .plus(listOfNotNull(dumpAstRuleSet))
 }
 
 /**
@@ -233,10 +227,7 @@ public fun List<Rule>.lint(
         experimentalParams,
         VisitorProvider(
             ruleSets = experimentalParams.ruleSets,
-            debug = experimentalParams.debug,
-            // When running unit tests, some VisitorModifiers have to be ignored. For example the RunAfterRule modifier
-            // should not be checked, if other that rule can only be tested together with the rule on which it depends.
-            isUnitTestContext = true
+            debug = experimentalParams.debug
         )
     )
     return res
@@ -399,10 +390,7 @@ public fun List<Rule>.format(
         experimentalParams,
         VisitorProvider(
             ruleSets = experimentalParams.ruleSets,
-            debug = experimentalParams.debug,
-            // When running unit tests, some VisitorModifiers have to be ignored. For example the RunAfterRule modifier
-            // should not be checked, if other that rule can only be tested together with the rule on which it depends.
-            isUnitTestContext = true
+            debug = experimentalParams.debug
         )
     )
 }

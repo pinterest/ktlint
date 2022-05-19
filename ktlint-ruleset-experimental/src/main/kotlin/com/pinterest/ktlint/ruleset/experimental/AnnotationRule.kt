@@ -34,7 +34,7 @@ import org.jetbrains.kotlin.psi.psiUtil.nextLeaf
  *
  * @see [AnnotationSpacingRule] for white space rules. Moved since
  */
-class AnnotationRule : Rule("annotation") {
+class AnnotationRule : Rule("$experimentalRulesetId:annotation") {
 
     companion object {
         const val multipleAnnotationsOnSameLineAsAnnotatedConstructErrorMessage =
