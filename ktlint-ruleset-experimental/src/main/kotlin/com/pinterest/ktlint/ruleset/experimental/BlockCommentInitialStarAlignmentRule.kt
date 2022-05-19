@@ -11,7 +11,7 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
  */
 class BlockCommentInitialStarAlignmentRule :
     Rule(
-        "block-comment-initial-star-alignment",
+        "$experimentalRulesetId:block-comment-initial-star-alignment",
         visitorModifiers = setOf(
             // The block comment is a node which can contain multiple lines. The indent of the second and later line
             // should be determined based on the indent of the block comment node. This indent is determined by the

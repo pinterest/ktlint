@@ -4,6 +4,7 @@ import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.ruleset.experimental.trailingcomma.TrailingCommaRule
 import com.pinterest.ktlint.ruleset.experimental.trailingcomma.TrailingCommaRule.Companion.allowTrailingCommaOnCallSiteProperty
 import com.pinterest.ktlint.ruleset.experimental.trailingcomma.TrailingCommaRule.Companion.allowTrailingCommaProperty
+import com.pinterest.ktlint.ruleset.standard.IndentationRule
 import com.pinterest.ktlint.ruleset.standard.NoUnusedImportsRule
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
 import com.pinterest.ktlint.test.LintViolation
@@ -11,7 +12,13 @@ import org.junit.jupiter.api.Test
 
 @OptIn(FeatureInAlphaState::class)
 class TrailingCommaRuleTest {
-    private val trailingCommaRuleAssertThat = TrailingCommaRule().assertThat()
+    private val trailingCommaRuleAssertThat =
+        TrailingCommaRule()
+            .assertThat(
+                // Apply the IndentationRule always as additional rule, so that the formattedCode in the unit test looks
+                // correct.
+                IndentationRule()
+            )
 
     @Test
     fun `Given property allow trailing comma on call site is not set then remove trailing comma's`() {
@@ -124,8 +131,8 @@ class TrailingCommaRuleTest {
             ) -> Int = when (x) {
                 1, 2
                 -> {
-                    foo,
-                    bar /* The comma should be inserted before the comment */
+                        foo,
+                        bar /* The comma should be inserted before the comment */
                     ->
                     block(
                         foo * bar,
@@ -146,8 +153,8 @@ class TrailingCommaRuleTest {
             ) -> Int = when (x) {
                 1, 2,
                 -> {
-                    foo,
-                    bar, /* The comma should be inserted before the comment */
+                        foo,
+                        bar, /* The comma should be inserted before the comment */
                     ->
                     block(
                         foo * bar,
@@ -164,7 +171,7 @@ class TrailingCommaRuleTest {
                 LintViolation(4, 29, "Missing trailing comma before \")\""),
                 LintViolation(6, 13, "Missing trailing comma before \")\""),
                 LintViolation(8, 9, "Missing trailing comma before \"->\""),
-                LintViolation(11, 12, "Missing trailing comma before \"->\""),
+                LintViolation(11, 16, "Missing trailing comma before \"->\""),
                 LintViolation(15, 22, "Missing trailing comma before \")\"")
             ).isFormattedAs(formattedCode)
     }
@@ -244,28 +251,28 @@ class TrailingCommaRuleTest {
             """
             data class Foo1(val bar: Int,)
             data class Foo2(
-               val bar: Int, // The comma before the comment should be removed without removing the comment itself
+                val bar: Int, // The comma before the comment should be removed without removing the comment itself
             )
             data class Foo3(
-               val bar: Int, /* The comma before the comment should be removed without removing the comment itself */
+                val bar: Int, /* The comma before the comment should be removed without removing the comment itself */
             )
             """.trimIndent()
         val formattedCode =
             """
             data class Foo1(val bar: Int)
             data class Foo2(
-               val bar: Int // The comma before the comment should be removed without removing the comment itself
+                val bar: Int // The comma before the comment should be removed without removing the comment itself
             )
             data class Foo3(
-               val bar: Int /* The comma before the comment should be removed without removing the comment itself */
+                val bar: Int /* The comma before the comment should be removed without removing the comment itself */
             )
             """.trimIndent()
         trailingCommaRuleAssertThat(code)
             .withEditorConfigOverride(allowTrailingCommaProperty to false)
             .hasLintViolations(
                 LintViolation(1, 29, "Unnecessary trailing comma before \")\""),
-                LintViolation(3, 16, "Unnecessary trailing comma before \")\""),
-                LintViolation(6, 16, "Unnecessary trailing comma before \")\"")
+                LintViolation(3, 17, "Unnecessary trailing comma before \")\""),
+                LintViolation(6, 17, "Unnecessary trailing comma before \")\"")
             ).isFormattedAs(formattedCode)
     }
 
@@ -275,27 +282,27 @@ class TrailingCommaRuleTest {
             """
             data class Foo1(val bar: Int)
             data class Foo2(
-               val bar: Int // The comma should be inserted before the comment
+                val bar: Int // The comma should be inserted before the comment
             )
             data class Foo3(
-               val bar: Int /* The comma should be inserted before the comment */
+                val bar: Int /* The comma should be inserted before the comment */
             )
             """.trimIndent()
         val formattedCode =
             """
             data class Foo1(val bar: Int)
             data class Foo2(
-               val bar: Int, // The comma should be inserted before the comment
+                val bar: Int, // The comma should be inserted before the comment
             )
             data class Foo3(
-               val bar: Int, /* The comma should be inserted before the comment */
+                val bar: Int, /* The comma should be inserted before the comment */
             )
             """.trimIndent()
         trailingCommaRuleAssertThat(code)
             .withEditorConfigOverride(allowTrailingCommaProperty to true)
             .hasLintViolations(
-                LintViolation(3, 16, "Missing trailing comma before \")\""),
-                LintViolation(6, 16, "Missing trailing comma before \")\"")
+                LintViolation(3, 17, "Missing trailing comma before \")\""),
+                LintViolation(6, 17, "Missing trailing comma before \")\"")
             ).isFormattedAs(formattedCode)
     }
 
@@ -307,11 +314,11 @@ class TrailingCommaRuleTest {
             class Foo2<
                 A,
                 B, // The comma before the comment should be removed without removing the comment itself
-            > {}
+                > {}
             class Foo3<
                 A,
                 B, /* The comma before the comment should be removed without removing the comment itself */
-            > {}
+                > {}
             """.trimIndent()
         val formattedCode =
             """
@@ -319,11 +326,11 @@ class TrailingCommaRuleTest {
             class Foo2<
                 A,
                 B // The comma before the comment should be removed without removing the comment itself
-            > {}
+                > {}
             class Foo3<
                 A,
                 B /* The comma before the comment should be removed without removing the comment itself */
-            > {}
+                > {}
             """.trimIndent()
         trailingCommaRuleAssertThat(code)
             .withEditorConfigOverride(allowTrailingCommaProperty to false)
@@ -342,11 +349,11 @@ class TrailingCommaRuleTest {
             class Foo2<
                 A,
                 B // The comma should be inserted before the comment
-            > {}
+                > {}
             class Foo3<
                 A,
                 B /* The comma should be inserted before the comment */
-            > {}
+                > {}
             """.trimIndent()
         val formattedCode =
             """
@@ -354,11 +361,11 @@ class TrailingCommaRuleTest {
             class Foo2<
                 A,
                 B, // The comma should be inserted before the comment
-            > {}
+                > {}
             class Foo3<
                 A,
                 B, /* The comma should be inserted before the comment */
-            > {}
+                > {}
             """.trimIndent()
         trailingCommaRuleAssertThat(code)
             .withEditorConfigOverride(allowTrailingCommaProperty to true)
@@ -528,13 +535,13 @@ class TrailingCommaRuleTest {
             """
             val fooBar1: (Int, Int) -> Int = { foo, bar, -> foo * bar }
             val fooBar2: (Int, Int) -> Int = {
-                foo,
-                bar, // The comma before the comment should be removed without removing the comment itself
+                    foo,
+                    bar, // The comma before the comment should be removed without removing the comment itself
                 -> foo * bar
             }
             val fooBar3: (Int, Int) -> Int = {
-                foo,
-                bar, /* The comma before the comment should be removed without removing the comment itself */
+                    foo,
+                    bar, /* The comma before the comment should be removed without removing the comment itself */
                 -> foo * bar
             }
             """.trimIndent()
@@ -542,13 +549,13 @@ class TrailingCommaRuleTest {
             """
             val fooBar1: (Int, Int) -> Int = { foo, bar -> foo * bar }
             val fooBar2: (Int, Int) -> Int = {
-                foo,
-                bar // The comma before the comment should be removed without removing the comment itself
+                    foo,
+                    bar // The comma before the comment should be removed without removing the comment itself
                 -> foo * bar
             }
             val fooBar3: (Int, Int) -> Int = {
-                foo,
-                bar /* The comma before the comment should be removed without removing the comment itself */
+                    foo,
+                    bar /* The comma before the comment should be removed without removing the comment itself */
                 -> foo * bar
             }
             """.trimIndent()
@@ -556,8 +563,8 @@ class TrailingCommaRuleTest {
             .withEditorConfigOverride(allowTrailingCommaProperty to false)
             .hasLintViolations(
                 LintViolation(1, 44, "Unnecessary trailing comma before \"->\""),
-                LintViolation(4, 8, "Unnecessary trailing comma before \"->\""),
-                LintViolation(9, 8, "Unnecessary trailing comma before \"->\"")
+                LintViolation(4, 12, "Unnecessary trailing comma before \"->\""),
+                LintViolation(9, 12, "Unnecessary trailing comma before \"->\"")
             ).isFormattedAs(formattedCode)
     }
 
@@ -567,13 +574,13 @@ class TrailingCommaRuleTest {
             """
             val fooBar1: (Int, Int) -> Int = { foo, bar -> foo * bar }
             val fooBar2: (Int, Int) -> Int = {
-                foo,
-                bar // The comma should be inserted before the comment
+                    foo,
+                    bar // The comma should be inserted before the comment
                 -> foo * bar
             }
             val fooBar3: (Int, Int) -> Int = {
-                foo,
-                bar /* The comma should be inserted before the comment */
+                    foo,
+                    bar /* The comma should be inserted before the comment */
                 -> foo * bar
             }
             """.trimIndent()
@@ -581,21 +588,21 @@ class TrailingCommaRuleTest {
             """
             val fooBar1: (Int, Int) -> Int = { foo, bar -> foo * bar }
             val fooBar2: (Int, Int) -> Int = {
-                foo,
-                bar, // The comma should be inserted before the comment
+                    foo,
+                    bar, // The comma should be inserted before the comment
                 -> foo * bar
             }
             val fooBar3: (Int, Int) -> Int = {
-                foo,
-                bar, /* The comma should be inserted before the comment */
+                    foo,
+                    bar, /* The comma should be inserted before the comment */
                 -> foo * bar
             }
             """.trimIndent()
         trailingCommaRuleAssertThat(code)
             .withEditorConfigOverride(allowTrailingCommaProperty to true)
             .hasLintViolations(
-                LintViolation(4, 8, "Missing trailing comma before \"->\""),
-                LintViolation(9, 8, "Missing trailing comma before \"->\"")
+                LintViolation(4, 12, "Missing trailing comma before \"->\""),
+                LintViolation(9, 12, "Missing trailing comma before \"->\"")
             ).isFormattedAs(formattedCode)
     }
 
@@ -606,20 +613,20 @@ class TrailingCommaRuleTest {
             val list1: List<String,> = emptyList()
             val list2: List<
                 String, // The comma before the comment should be removed without removing the comment itself
-            > = emptyList()
+                > = emptyList()
             val list3: List<
                 String, /* The comma before the comment should be removed without removing the comment itself */
-            > = emptyList()
+                > = emptyList()
             """.trimIndent()
         val formattedCode =
             """
             val list1: List<String> = emptyList()
             val list2: List<
                 String // The comma before the comment should be removed without removing the comment itself
-            > = emptyList()
+                > = emptyList()
             val list3: List<
                 String /* The comma before the comment should be removed without removing the comment itself */
-            > = emptyList()
+                > = emptyList()
             """.trimIndent()
         trailingCommaRuleAssertThat(code)
             .withEditorConfigOverride(allowTrailingCommaOnCallSiteProperty to false)
@@ -637,20 +644,20 @@ class TrailingCommaRuleTest {
             val list1: List<String> = emptyList()
             val list2: List<
                 String // The comma should be inserted before the comment
-            > = emptyList()
+                > = emptyList()
             val list3: List<
                 String /* The comma should be inserted before the comment */
-            > = emptyList()
+                > = emptyList()
             """.trimIndent()
         val formattedCode =
             """
             val list1: List<String> = emptyList()
             val list2: List<
                 String, // The comma should be inserted before the comment
-            > = emptyList()
+                > = emptyList()
             val list3: List<
                 String, /* The comma should be inserted before the comment */
-            > = emptyList()
+                > = emptyList()
             """.trimIndent()
         trailingCommaRuleAssertThat(code)
             .withEditorConfigOverride(allowTrailingCommaOnCallSiteProperty to true)
@@ -898,9 +905,9 @@ class TrailingCommaRuleTest {
         val code =
             """
             class Test {
-              var foo = Bar()
-                set(value) {
-                }
+                var foo = Bar()
+                    set(value) {
+                    }
             }
             """.trimIndent()
         trailingCommaRuleAssertThat(code)
@@ -979,7 +986,7 @@ class TrailingCommaRuleTest {
             // was incorrectly seen as part of the type of variable "bar3" and a reference "EnumThree," (with the
             // trailing comma was added) which in turn resulted in not recognizing that the import of EnumThree actually
             // was used.
-            .addAdditionalFormattingRule(NoUnusedImportsRule())
+            .addAdditionalRules(NoUnusedImportsRule())
             .withEditorConfigOverride(allowTrailingCommaProperty to true)
             .hasLintViolation(9, 24, "Missing trailing comma before \")\"")
             .isFormattedAs(formattedCode)
