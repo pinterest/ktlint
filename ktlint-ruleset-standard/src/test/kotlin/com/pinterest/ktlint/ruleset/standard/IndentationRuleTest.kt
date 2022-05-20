@@ -3029,6 +3029,50 @@ internal class IndentationRuleTest {
                 """.trimIndent()
             indentationRuleAssertThat(code).hasNoLintViolations()
         }
+
+        @Test
+        fun `Issue 1340 - Given a dot-qualified-expression as delegated property value`() {
+            val code =
+                """
+                class Foo {
+                    private val foo
+                        by option("--myOption")
+                                .int()
+                                    .default(1)
+                }
+                """.trimIndent()
+            val formattedCode =
+                """
+                class Foo {
+                    private val foo
+                        by option("--myOption")
+                            .int()
+                            .default(1)
+                }
+                """.trimIndent()
+            indentationRuleAssertThat(code)
+                .hasLintViolations(
+                    LintViolation(4, 1, "Unexpected indentation (16) (should be 12)"),
+                    LintViolation(5, 1, "Unexpected indentation (20) (should be 12)")
+                )
+                .isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Issue 1340 - Given a dot-qualified-expression wrapped in a block as delegated property value`() {
+            val code =
+                """
+                class MyCliktCommand : CliktCommand() {
+                    private val myOption
+                        by {
+                            option("--myOption")
+                                .int()
+                                .default(1)
+                        }
+                }
+                """.trimIndent()
+            indentationRuleAssertThat(code).hasNoLintViolations()
+        }
     }
 
     @Test

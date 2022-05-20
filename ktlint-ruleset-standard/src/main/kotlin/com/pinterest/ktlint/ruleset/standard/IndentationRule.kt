@@ -44,6 +44,7 @@ import com.pinterest.ktlint.core.ast.ElementType.OPEN_QUOTE
 import com.pinterest.ktlint.core.ast.ElementType.OPERATION_REFERENCE
 import com.pinterest.ktlint.core.ast.ElementType.PARENTHESIZED
 import com.pinterest.ktlint.core.ast.ElementType.PROPERTY_ACCESSOR
+import com.pinterest.ktlint.core.ast.ElementType.PROPERTY_DELEGATE
 import com.pinterest.ktlint.core.ast.ElementType.RBRACE
 import com.pinterest.ktlint.core.ast.ElementType.RBRACKET
 import com.pinterest.ktlint.core.ast.ElementType.REGULAR_STRING_PART
@@ -447,10 +448,17 @@ public class IndentationRule :
         }) ?: return
         val nextSibling = n.treeNext
         if (!ctx.ignored.contains(p) && nextSibling != null) {
-            expectedIndent++
-            logger.trace { "$line: ++inside(${p.elementType}) -> $expectedIndent" }
-            ctx.ignored.add(p)
-            ctx.exitAdjBy(p, -1)
+            if (p.treeParent.elementType == PROPERTY_DELEGATE) {
+                expectedIndent += 2
+                logger.trace { "$line: ++dot-qualified-expression in property delegate -> $expectedIndent" }
+                ctx.ignored.add(p)
+                ctx.exitAdjBy(p, -2)
+            } else {
+                expectedIndent++
+                logger.trace { "$line: ++inside(${p.elementType}) -> $expectedIndent" }
+                ctx.ignored.add(p)
+                ctx.exitAdjBy(p, -1)
+            }
         }
     }
 
