@@ -1,7 +1,7 @@
 [versions]
 gradle = "7.4"
 gradleSha256 = "8cc27038d5dbd815759851ba53e70cf62e481b87494cc97cfd97982ada5ba634"
-kotlin = "1.6.0"
+kotlin = "1.6.21"
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

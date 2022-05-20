@@ -7,6 +7,7 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.psi.KtAnnotated
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
+import org.jetbrains.kotlin.psi.ValueArgument
 import org.jetbrains.kotlin.psi.psiUtil.endOffset
 import org.jetbrains.kotlin.psi.psiUtil.startOffset
 
@@ -24,6 +25,8 @@ private val suppressAnnotationRuleMap = mapOf(
     "RemoveCurlyBracesFromTemplate" to "string-template"
 )
 private val suppressAnnotations = setOf("Suppress", "SuppressWarnings")
+private const val suppresAllKtlintRules = "ktlint-all"
+
 private val commentRegex = Regex("\\s")
 
 /**
@@ -150,24 +153,48 @@ private fun createSuppressionHintFromAnnotations(
     psi: KtAnnotated,
     targetAnnotations: Collection<String>,
     annotationValueToRuleMapping: Map<String, String>
-): SuppressionHint? = psi.annotationEntries
-    .filter {
-        it.calleeExpression
-            ?.constructorReferenceExpression
-            ?.getReferencedName() in targetAnnotations
-    }
-    .flatMap(KtAnnotationEntry::getValueArguments)
-    .mapNotNull {
-        it.getArgumentExpression()?.text?.removeSurrounding("\"")
-    }
-    .mapNotNull(annotationValueToRuleMapping::get)
-    .let { suppressedRules ->
-        if (suppressedRules.isNotEmpty()) {
-            SuppressionHint(
-                IntRange(psi.startOffset, psi.endOffset),
-                suppressedRules.toSet()
-            )
-        } else {
-            null
+): SuppressionHint? =
+    psi
+        .annotationEntries
+        .filter {
+            it.calleeExpression
+                ?.constructorReferenceExpression
+                ?.getReferencedName() in targetAnnotations
+        }.flatMap(KtAnnotationEntry::getValueArguments)
+        .mapNotNull { it.toRuleId(annotationValueToRuleMapping) }
+        .let { suppressedRules ->
+            when {
+                suppressedRules.isEmpty() -> null
+                suppressedRules.contains(suppresAllKtlintRules) ->
+                    SuppressionHint(
+                        IntRange(psi.startOffset, psi.endOffset),
+                        emptySet()
+                    )
+                else ->
+                    SuppressionHint(
+                        IntRange(psi.startOffset, psi.endOffset),
+                        suppressedRules.toSet()
+                    )
+            }
         }
-    }
+
+private fun ValueArgument.toRuleId(annotationValueToRuleMapping: Map<String, String>): String? =
+    getArgumentExpression()
+        ?.text
+        ?.removeSurrounding("\"")
+        ?.let {
+            when {
+                it == "ktlint" -> {
+                    // Disable all rules
+                    suppresAllKtlintRules
+                }
+                it.startsWith("ktlint:") -> {
+                    // Disable specific rule
+                    it.removePrefix("ktlint:")
+                }
+                else -> {
+                    // Disable specific rule if it the annotion value is mapped to a specific rule
+                    annotationValueToRuleMapping.get(it)
+                }
+            }
+        }

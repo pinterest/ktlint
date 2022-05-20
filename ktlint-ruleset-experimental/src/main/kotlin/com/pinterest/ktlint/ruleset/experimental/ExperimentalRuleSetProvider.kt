@@ -4,10 +4,11 @@ import com.pinterest.ktlint.core.RuleSet
 import com.pinterest.ktlint.core.RuleSetProvider
 import com.pinterest.ktlint.ruleset.experimental.trailingcomma.TrailingCommaRule
 
-public class ExperimentalRuleSetProvider : RuleSetProvider {
+public const val experimentalRulesetId = "experimental"
 
+public class ExperimentalRuleSetProvider : RuleSetProvider {
     override fun get(): RuleSet = RuleSet(
-        "experimental",
+        experimentalRulesetId,
         AnnotationRule(),
         ArgumentListWrappingRule(),
         MultiLineIfElseRule(),
@@ -35,6 +36,7 @@ public class ExperimentalRuleSetProvider : RuleSetProvider {
         ParameterListSpacingRule(),
         FunctionReturnTypeSpacingRule(),
         FunctionStartOfBodySpacingRule(),
-        NullableTypeSpacingRule()
+        NullableTypeSpacingRule(),
+        FunctionSignatureRule()
     )
 }
