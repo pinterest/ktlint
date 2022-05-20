@@ -3748,6 +3748,76 @@ internal class IndentationRuleTest {
             ).isFormattedAs(formattedCode)
     }
 
+    @Nested
+    inner class Issue1350 {
+        @Test
+        fun `Issue 1350 - Given a for-loop containing a newline before the declaration then do not indent it to keep it in sync with IntelliJ default formatting`() {
+            val code =
+                """
+                fun foo() {
+                    for (
+                    item in listOf(
+                        "a",
+                        "b"
+                    )) {
+                        println(item)
+                    }
+                }
+                """.trimIndent()
+            indentationRuleAssertThat(code).hasNoLintViolations()
+        }
+
+        @Test
+        fun `Issue 1350 - Given a for-loop containing a newline before the 'in' operator then do not indent it to keep it in sync with IntelliJ default formatting`() {
+            val code =
+                """
+                fun foo() {
+                    for (item
+                    in listOf(
+                        "a",
+                        "b"
+                    )) {
+                        println(item)
+                    }
+                }
+                """.trimIndent()
+            indentationRuleAssertThat(code).hasNoLintViolations()
+        }
+
+        @Test
+        fun `Issue 1350 - Given a for-loop containing a newline before the expression then do not indent it to keep it in sync with IntelliJ default formatting`() {
+            val code =
+                """
+                fun foo() {
+                    for (item in
+                    listOf(
+                        "a",
+                        "b"
+                    )) {
+                        println(item)
+                    }
+                }
+                """.trimIndent()
+            indentationRuleAssertThat(code).hasNoLintViolations()
+        }
+
+        @Test
+        fun `Issue 1350 - Given a for-loop with a multiline expression then indent that expression normally`() {
+            val code =
+                """
+                fun foo() {
+                    for (item in listOf(
+                        "a",
+                        "b"
+                    )) {
+                        println(item)
+                    }
+                }
+                """.trimIndent()
+            indentationRuleAssertThat(code).hasNoLintViolations()
+        }
+    }
+
     private companion object {
         val INDENT_STYLE_TAB = indentStyleProperty to PropertyType.IndentStyleValue.tab
     }
