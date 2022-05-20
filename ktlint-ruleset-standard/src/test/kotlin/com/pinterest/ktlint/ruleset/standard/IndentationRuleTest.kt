@@ -11,7 +11,6 @@ import com.pinterest.ktlint.test.TAB
 import org.ec4j.core.model.PropertyType
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
-import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
