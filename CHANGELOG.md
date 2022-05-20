@@ -30,7 +30,9 @@ An AssertJ style API for testing KtLint rules ([#1444](https://github.com/pinter
 - Fix indentation of property getter/setter when the property has an initializer on a separate line `indent` ([#1335](https://github.com/pinterest/ktlint/issues/1335))
 
 ### Changed
-* Set Kotlin development version to `1.7.0-RC` and Kotlin version to `1.6.21`.
+- Update Kotlin development version to `1.7.0-RC` and Kotlin version to `1.6.21`.
+- Update shadow plugin to `7.1.2` release
+- Update picocli to `4.6.3` release
 
 ### Removed
 
