@@ -42,7 +42,7 @@ internal class WrappingRuleTest {
             """.trimIndent()
                 .replacePlaceholderWithStringTemplate()
         wrappingRuleAssertThat(code)
-            .addAdditionalFormattingRule(IndentationRule())
+            .addAdditionalRules(IndentationRule())
             .hasLintViolations(
                 LintViolation(2, 13, "Missing newline after \"(\""),
                 LintViolation(4, 6, "Missing newline before \")\"")
@@ -80,7 +80,7 @@ internal class WrappingRuleTest {
             }
             """.trimIndent()
         wrappingRuleAssertThat(code)
-            .addAdditionalFormattingRule(IndentationRule())
+            .addAdditionalRules(IndentationRule())
             .hasLintViolations(
                 LintViolation(2, 13, "Missing newline after \"(\""),
                 LintViolation(3, 7, "Missing newline before \")\""),
@@ -124,7 +124,7 @@ internal class WrappingRuleTest {
             """.trimIndent()
                 .replacePlaceholderWithStringTemplate()
         wrappingRuleAssertThat(code)
-            .addAdditionalFormattingRule(IndentationRule())
+            .addAdditionalRules(IndentationRule())
             .hasLintViolations(
                 LintViolation(2, 10, "Missing newline after \"(\""),
                 LintViolation(8, 6, "Missing newline before \"\"\""),
@@ -158,7 +158,7 @@ internal class WrappingRuleTest {
             }
             """.trimIndent()
         wrappingRuleAssertThat(code)
-            .addAdditionalFormattingRule(IndentationRule())
+            .addAdditionalRules(IndentationRule())
             .hasLintViolations(
                 LintViolation(2, 9, "Missing newline after \"(\""),
                 LintViolation(6, 30, "Missing newline before \")\"")
@@ -191,7 +191,7 @@ internal class WrappingRuleTest {
             }
             """.trimIndent()
         wrappingRuleAssertThat(code)
-            .addAdditionalFormattingRule(IndentationRule())
+            .addAdditionalRules(IndentationRule())
             .hasLintViolations(
                 LintViolation(2, 11, "Missing newline after \"(\""),
                 LintViolation(2, 49, "Missing newline after \",\""),
@@ -230,7 +230,7 @@ internal class WrappingRuleTest {
             }
             """.trimIndent()
         wrappingRuleAssertThat(code)
-            .addAdditionalFormattingRule(IndentationRule())
+            .addAdditionalRules(IndentationRule())
             .hasLintViolations(
                 LintViolation(1, 10, "Missing newline after \"(\""),
                 LintViolation(1, 33, "Missing newline after \",\""),
@@ -272,7 +272,7 @@ internal class WrappingRuleTest {
             }
             """.trimIndent()
         wrappingRuleAssertThat(code)
-            .addAdditionalFormattingRule(IndentationRule())
+            .addAdditionalRules(IndentationRule())
             .hasLintViolations(
                 LintViolation(6, 8, "Missing newline after \"(\""),
                 LintViolation(8, 8, "Missing newline before \")\"")
@@ -1629,6 +1629,22 @@ internal class WrappingRuleTest {
             LintError(2, 8, "wrapping", "Missing newline before \"\"\"")
         )
         assertThat(WrappingRule().format(code)).isEqualTo(formattedCode)
+    }
+
+    @Test
+    fun `Issue 1350 - Given a for-statement with a newline in the expression only then do not wrap`() {
+        val code =
+            """
+            fun foo() {
+                for (item in listOf(
+                    "a",
+                    "b"
+                )) {
+                    println(item)
+                }
+            }
+            """.trimIndent()
+        wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     private companion object {

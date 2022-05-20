@@ -60,7 +60,7 @@ class SpacingAroundAngleBracketRuleTest {
                 > = mapOf()
             """.trimIndent()
         spacingAroundAngleBracketsRuleAssertThat(code)
-            .addAdditionalFormattingRule(IndentationRule())
+            .addAdditionalRules(IndentationRule())
             .hasLintViolations(
                 LintViolation(1, 12, "Unexpected spacing after \"<\""),
                 LintViolation(2, 23, "Unexpected spacing before \">\""),
@@ -110,7 +110,7 @@ class SpacingAroundAngleBracketRuleTest {
                 > {}
             """.trimIndent()
         spacingAroundAngleBracketsRuleAssertThat(code)
-            .addAdditionalFormattingRule(IndentationRule())
+            .addAdditionalRules(IndentationRule())
             .hasLintViolations(
                 LintViolation(2, 19, "Unexpected spacing after \"<\""),
                 LintViolation(3, 31, "Unexpected spacing before \">\""),

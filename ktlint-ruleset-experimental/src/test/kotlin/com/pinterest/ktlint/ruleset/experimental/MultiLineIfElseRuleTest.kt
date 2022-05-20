@@ -425,7 +425,7 @@ class MultiLineIfElseRuleTest {
             }
             """.trimIndent()
         multiLineIfElseRuleAssertThat(code)
-            .addAdditionalFormattingRule(IndentationRule())
+            .addAdditionalRules(IndentationRule())
             .hasLintViolations(
                 LintViolation(4, 9, "Missing { ... }"),
                 LintViolation(7, 9, "Missing { ... }")
@@ -454,7 +454,7 @@ class MultiLineIfElseRuleTest {
             }
             """.trimIndent()
         multiLineIfElseRuleAssertThat(code)
-            .addAdditionalFormattingRule(IndentationRule())
+            .addAdditionalRules(IndentationRule())
             .hasLintViolations(
                 LintViolation(3, 9, "Missing { ... }"),
                 LintViolation(5, 9, "Missing { ... }")

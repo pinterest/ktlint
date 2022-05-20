@@ -6,7 +6,7 @@ import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.core.ast.nextSibling
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
-public class SpacingBetweenFunctionNameAndOpeningParenthesisRule : Rule("spacing-between-function-name-and-opening-parenthesis") {
+public class SpacingBetweenFunctionNameAndOpeningParenthesisRule : Rule("$experimentalRulesetId:spacing-between-function-name-and-opening-parenthesis") {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,

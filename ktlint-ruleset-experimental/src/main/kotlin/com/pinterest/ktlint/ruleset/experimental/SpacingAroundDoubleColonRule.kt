@@ -11,8 +11,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
-class SpacingAroundDoubleColonRule : Rule("double-colon-spacing") {
-
+class SpacingAroundDoubleColonRule : Rule("$experimentalRulesetId:double-colon-spacing") {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,

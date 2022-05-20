@@ -350,7 +350,7 @@ class StringTemplateRuleTest {
             }
             """.trimIndent()
         stringTemplateRuleAssertThat(code)
-            .addAdditionalFormattingRule(NoUnusedImportsRule())
+            .addAdditionalRules(NoUnusedImportsRule())
             .hasLintViolation(3, 21, "Redundant \"toString()\" call in string template")
             .isFormattedAs(formattedCode)
     }

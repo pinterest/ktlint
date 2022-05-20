@@ -32,10 +32,7 @@ public class EditorConfigTestRule {
      * values. Please, be aware that this class also contains a lot of deprecated methods which you should not use
      * either.
      */
-    public fun writeToEditorConfig(
-        content: Map<PropertyType<*>, String>,
-        lintedFileExtension: String = ".kt"
-    ): File {
+    public fun writeToEditorConfig(content: Map<PropertyType<*>, String>, lintedFileExtension: String = ".kt"): File {
         throw UnsupportedOperationException("This functionality has been removed. See deprecation notice and KDoc.")
     }
 }

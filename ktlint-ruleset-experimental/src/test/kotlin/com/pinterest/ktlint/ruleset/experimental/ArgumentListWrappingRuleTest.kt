@@ -61,7 +61,7 @@ class ArgumentListWrappingRuleTest {
             )
             """.trimIndent()
         argumentListWrappingRuleAssertThat(code)
-            .addAdditionalFormattingRule(IndentationRule())
+            .addAdditionalRules(IndentationRule())
             .hasLintViolations(
                 LintViolation(2, 9, "Argument should be on a separate line (unless all arguments can fit a single line)"),
                 LintViolation(2, 14, "Argument should be on a separate line (unless all arguments can fit a single line)"),
@@ -281,7 +281,7 @@ class ArgumentListWrappingRuleTest {
             }
             """.trimIndent()
         argumentListWrappingRuleAssertThat(code)
-            .addAdditionalFormattingRule(IndentationRule())
+            .addAdditionalRules(IndentationRule())
             .hasLintViolations(
                 LintViolation(2, 10, "Argument should be on a separate line (unless all arguments can fit a single line)"),
                 LintViolation(2, 19, "Argument should be on a separate line (unless all arguments can fit a single line)"),

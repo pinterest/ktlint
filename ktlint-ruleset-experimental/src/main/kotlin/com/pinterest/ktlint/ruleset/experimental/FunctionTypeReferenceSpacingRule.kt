@@ -9,7 +9,7 @@ import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.core.ast.nextSibling
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
-public class FunctionTypeReferenceSpacingRule : Rule("function-type-reference-spacing") {
+public class FunctionTypeReferenceSpacingRule : Rule("$experimentalRulesetId:function-type-reference-spacing") {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
