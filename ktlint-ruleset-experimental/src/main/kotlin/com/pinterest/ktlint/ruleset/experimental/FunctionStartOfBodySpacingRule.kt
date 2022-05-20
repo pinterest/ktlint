@@ -14,7 +14,7 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 /**
  * Lints and formats the spacing after the fun keyword
  */
-public class FunctionStartOfBodySpacingRule : Rule("function-start-of-body-spacing") {
+public class FunctionStartOfBodySpacingRule : Rule("$experimentalRulesetId:function-start-of-body-spacing") {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
@@ -114,7 +114,7 @@ public class FunctionStartOfBodySpacingRule : Rule("function-start-of-body-spaci
                             emit(block.startOffset, "Expected a single white space before start of function body", true)
                             if (autoCorrect) {
                                 if (whiteSpaceBeforeExpressionBlock == null) {
-                                    (block.firstChildNode as LeafPsiElement).upsertWhitespaceBeforeMe(" ")
+                                    (block.firstChildNode.prevLeaf(true) as LeafPsiElement).upsertWhitespaceAfterMe(" ")
                                 } else {
                                     (whiteSpaceBeforeExpressionBlock as LeafElement).rawReplaceWithText(" ")
                                 }

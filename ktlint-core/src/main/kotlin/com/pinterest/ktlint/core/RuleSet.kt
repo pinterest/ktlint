@@ -12,7 +12,7 @@ open class RuleSet(
 ) : Iterable<Rule> {
 
     init {
-        IdNamingPolicy.enforceNaming(id)
+        IdNamingPolicy.enforceRuleSetIdNaming(id)
         require(rules.isNotEmpty()) { "At least one rule must be provided" }
     }
 

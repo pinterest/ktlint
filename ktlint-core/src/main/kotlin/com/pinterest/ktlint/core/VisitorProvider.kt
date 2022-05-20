@@ -6,11 +6,10 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 public class VisitorProvider(
     ruleSets: Iterable<RuleSet>,
-    private val debug: Boolean,
-    isUnitTestContext: Boolean = false
+    private val debug: Boolean
 ) {
     private val ruleReferences: List<RuleReference> =
-        VisitorProviderInitializer(ruleSets, debug, isUnitTestContext).getRulePreferences()
+        VisitorProviderInitializer(ruleSets, debug).getRulePreferences()
 
     internal fun visitor(
         ruleSets: Iterable<RuleSet>,
@@ -27,7 +26,7 @@ public class VisitorProvider(
                     .rules
                     .filter { rule -> toQualifiedRuleId(ruleSet.id, rule.id) in enabledQualifiedRuleIds }
                     .filter { rule -> isNotDisabled(rootNode, toQualifiedRuleId(ruleSet.id, rule.id)) }
-                    .map { rule -> "${ruleSet.id}:${rule.id}" to rule }
+                    .map { rule -> "${toQualifiedRuleId(ruleSet.id, rule.id)}" to rule }
             }.toMap()
         if (debug && enabledRules.isEmpty()) {
             println(
@@ -130,7 +129,11 @@ private fun toQualifiedRuleId(
     ruleSetId: String,
     ruleId: String
 ) =
-    "$ruleSetId:$ruleId"
+    if (ruleId.startsWith("$ruleSetId:")) {
+        ruleId
+    } else {
+        "$ruleSetId:$ruleId"
+    }
 
 private fun String.toQualifiedRuleId() =
     if (contains(":")) {
@@ -141,8 +144,7 @@ private fun String.toQualifiedRuleId() =
 
 private class VisitorProviderInitializer(
     val ruleSets: Iterable<RuleSet>,
-    val debug: Boolean,
-    val isUnitTestContext: Boolean = false
+    val debug: Boolean
 ) {
     fun getRulePreferences(): List<RuleReference> {
         return ruleSets
@@ -275,13 +277,7 @@ private class VisitorProviderInitializer(
         while (ruleReferencesIterator.hasNext()) {
             val ruleReference = ruleReferencesIterator.next()
 
-            if (ruleReference.runAfterRule != null && isUnitTestContext) {
-                // When running unit tests,the RunAfterRule annotation is ignored. The code provided in the unit should
-                // be formatted as if the rule on which it depends was already applied. In this way the unit test can be
-                // restricted to one single rule instead of having to take into account all other rules on which it
-                // might depend.
-                newRuleReferences.add(ruleReference.copy(runAfterRule = null))
-            } else if (ruleReference.runAfterRule != null && newRuleReferences.none { rule -> rule.runsAfter(ruleReference) }) {
+            if (ruleReference.runAfterRule != null && newRuleReferences.none { rule -> rule.runsAfter(ruleReference) }) {
                 // The RunAfterRule refers to a rule which is not yet added to the new list of rule references.
                 if (this.none { it.runsAfter(ruleReference) }) {
                     // The RunAfterRule refers to a rule which is not loaded at all.

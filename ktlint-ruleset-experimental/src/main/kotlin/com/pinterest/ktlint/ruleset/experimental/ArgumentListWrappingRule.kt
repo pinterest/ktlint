@@ -41,7 +41,7 @@ import org.jetbrains.kotlin.psi.psiUtil.getStrictParentOfType
  */
 @OptIn(FeatureInAlphaState::class)
 class ArgumentListWrappingRule :
-    Rule("argument-list-wrapping"),
+    Rule("$experimentalRulesetId:argument-list-wrapping"),
     UsesEditorConfigProperties {
     private var editorConfigIndent = IndentConfig.DEFAULT_INDENT_CONFIG
     private var maxLineLength = -1

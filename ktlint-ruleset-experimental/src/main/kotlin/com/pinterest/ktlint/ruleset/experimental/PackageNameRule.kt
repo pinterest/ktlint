@@ -5,8 +5,7 @@ import com.pinterest.ktlint.core.ast.ElementType.PACKAGE_DIRECTIVE
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.psi.KtPackageDirective
 
-class PackageNameRule : Rule("package-name") {
-
+class PackageNameRule : Rule("$experimentalRulesetId:package-name") {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
