@@ -62,7 +62,7 @@ object GitHookInstaller {
                 .trim()
 
             File(root).resolve(".git")
-        } catch (ex: IOException) {
+        } catch (_: IOException) {
             File(".git")
         }
 
@@ -80,7 +80,7 @@ object GitHookInstaller {
             .readText()
             .trim()
             .ifEmpty { DEFAULT_GIT_HOOKS_DIR }
-    } catch (ex: IOException) {
+    } catch (_: IOException) {
         DEFAULT_GIT_HOOKS_DIR
     }
 
