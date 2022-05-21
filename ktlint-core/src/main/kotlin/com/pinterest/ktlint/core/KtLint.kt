@@ -27,6 +27,7 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiErrorElement
 import org.jetbrains.kotlin.com.intellij.psi.PsiFileFactory
 import org.jetbrains.kotlin.idea.KotlinLanguage
 import org.jetbrains.kotlin.psi.KtFile
+import java.util.Locale
 
 public object KtLint {
     @Deprecated(
@@ -527,7 +528,7 @@ public object KtLint {
     }
 
     private fun determineLineSeparator(fileContent: String, userData: Map<String, String>): String {
-        val eol = userData["end_of_line"]?.trim()?.toLowerCase()
+        val eol = userData["end_of_line"]?.trim()?.lowercase(Locale.getDefault())
         return when {
             eol == "native" -> System.lineSeparator()
             eol == "crlf" || eol != "lf" && fileContent.lastIndexOf('\r') != -1 -> "\r\n"
