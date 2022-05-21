@@ -366,8 +366,7 @@ class VisitorProviderTest {
                         ruleId = "not-loaded-rule",
                         loadOnlyWhenOtherRuleIsLoaded = true
                     )
-                ) {},
-                isUnitTestContext = false
+                ) {}
             )
         }.withMessage("No runnable rules found. Please ensure that at least one is enabled.")
     }
@@ -378,8 +377,7 @@ class VisitorProviderTest {
             object : R(
                 id = RULE_A,
                 visitorModifier = VisitorModifier.RunAfterRule("not-loaded-rule")
-            ) {},
-            isUnitTestContext = true
+            ) {}
         ).filterFileNodes()
 
         assertThat(actual).containsExactly(
@@ -393,8 +391,7 @@ class VisitorProviderTest {
             object : R(
                 id = RULE_A,
                 visitorModifier = VisitorModifier.RunAfterRule("not-loaded-rule")
-            ) {},
-            isUnitTestContext = false
+            ) {}
         ).filterFileNodes()
 
         assertThat(actual).containsExactly(
@@ -552,7 +549,6 @@ class VisitorProviderTest {
      */
     private fun testVisitorProvider(
         vararg rules: Rule,
-        isUnitTestContext: Boolean? = null,
         concurrent: Boolean? = null
     ): MutableList<Visit>? {
         return testVisitorProvider(
@@ -560,7 +556,6 @@ class VisitorProviderTest {
                 STANDARD,
                 *rules
             ),
-            isUnitTestContext = isUnitTestContext,
             concurrent = concurrent
         )
     }
@@ -573,7 +568,6 @@ class VisitorProviderTest {
      */
     private fun testVisitorProvider(
         vararg ruleSets: RuleSet,
-        isUnitTestContext: Boolean? = null,
         concurrent: Boolean? = null
     ): MutableList<Visit>? {
         val ruleSetList = ruleSets.toList()
