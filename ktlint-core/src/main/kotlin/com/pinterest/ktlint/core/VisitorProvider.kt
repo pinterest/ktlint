@@ -149,7 +149,7 @@ private class VisitorProviderInitializer(
     fun getRulePreferences(): List<RuleReference> {
         return ruleSets
             .flatMap { it.toRuleReferences() }
-            .sortedWith(defaultRuleExecutionOrderComparator())
+            .sortedWith(defaultRuleExecutionOrderComparator)
             .applyRunAfterRuleToRuleExecutionOrder()
             .also { ruleReferences ->
                 if (debug) {
@@ -240,29 +240,6 @@ private class VisitorProviderInitializer(
                 "ruleset '$ruleSetId' to fix this rule."
         )
     }
-
-    private fun defaultRuleExecutionOrderComparator() =
-        // The sort order below should guarantee a stable order of the rule between multiple invocations of KtLint given
-        // the same set of input parameters. There should be no dependency on data ordering outside this class.
-        compareBy<RuleReference> {
-            if (it.runAsLateAsPossible) {
-                1
-            } else {
-                0
-            }
-        }.thenBy {
-            if (it.runOnRootNodeOnly) {
-                0
-            } else {
-                1
-            }
-        }.thenBy {
-            when (it.ruleSetId) {
-                "standard" -> 0
-                "experimental" -> 1
-                else -> 2
-            }
-        }.thenBy { it.ruleId }
 
     private fun List<RuleReference>.applyRunAfterRuleToRuleExecutionOrder(): List<RuleReference> {
         // The new list of rule references retains the order of the original list of rule references as much as
@@ -355,6 +332,31 @@ private class VisitorProviderInitializer(
 
     private fun RuleReference.runsAfter(ruleReference: RuleReference) =
         ruleReference.runAfterRule?.ruleId == toQualifiedRuleId()
+
+    private companion object {
+        val defaultRuleExecutionOrderComparator =
+            // The sort order below should guarantee a stable order of the rule between multiple invocations of KtLint given
+            // the same set of input parameters. There should be no dependency on data ordering outside this class.
+            compareBy<RuleReference> {
+                if (it.runAsLateAsPossible) {
+                    1
+                } else {
+                    0
+                }
+            }.thenBy {
+                if (it.runOnRootNodeOnly) {
+                    0
+                } else {
+                    1
+                }
+            }.thenBy {
+                when (it.ruleSetId) {
+                    "standard" -> 0
+                    "experimental" -> 1
+                    else -> 2
+                }
+            }.thenBy { it.ruleId }
+    }
 }
 
 private data class RuleReference(
