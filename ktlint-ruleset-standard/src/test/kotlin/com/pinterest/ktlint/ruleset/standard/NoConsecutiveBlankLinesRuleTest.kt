@@ -160,18 +160,17 @@ class NoConsecutiveBlankLinesRuleTest {
 
     @Test
     fun `should not raise NPE on linting Kotlin script file`() {
-        assertThat(
-            NoConsecutiveBlankLinesRule().lint(
-                """
-                import java.net.URI
+        val code =
+            """
+            import java.net.URI
 
-                plugins {
-                    `java-library`
-                }
-                """.trimIndent(),
-                script = true
-            )
-        ).isEmpty()
+            plugins {
+                `java-library`
+            }
+            """.trimIndent()
+        noConsecutiveBlankLinesRuleAssertThat(code)
+            .asKotlinScript()
+            .hasNoLintViolations()
     }
 
     @Test

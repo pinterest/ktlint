@@ -5,12 +5,12 @@ import com.google.common.jimfs.Jimfs
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
+import java.util.Locale
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.util.Locale
 
 /**
  * Tests for [fileSequence] method.
