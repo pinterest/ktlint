@@ -1,7 +1,6 @@
 package com.pinterest.ktlint.core
 
 import com.pinterest.ktlint.core.DummyRuleWithCustomEditorConfigProperty.Companion.SOME_CUSTOM_RULE_PROPERTY
-import com.pinterest.ktlint.core.KtLint.EDITOR_CONFIG_USER_DATA_KEY
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.isRoot
@@ -148,33 +147,6 @@ class KtLintTest {
                             "differs from the actual value in the '.editorconfig' file."
                     )
             }
-
-            @Test
-            fun `Given a non empty ruleset and userData not referring any custom or default editor config property then this userData is received in the node`() {
-                var actual: String? = null
-                KtLint.lint(
-                    KtLint.Params(
-                        fileName = "some-filename",
-                        text = "fun main() {}",
-                        ruleSets = listOf(
-                            RuleSet(
-                                "standard",
-                                DummyRule { node ->
-                                    if (node.isRoot()) {
-                                        actual = node.getUserData(EDITOR_CONFIG_USER_DATA_KEY)?.get(SOME_PROPERTY)
-                                    }
-                                }
-                            )
-                        ),
-                        userData = mapOf(SOME_PROPERTY to SOME_PROPERTY_VALUE),
-                        cb = { _, _ -> },
-                        script = false,
-                        editorConfigPath = null,
-                        debug = false
-                    )
-                )
-                assertThat(actual).isEqualTo(SOME_PROPERTY_VALUE)
-            }
         }
 
         @Nested
@@ -304,33 +276,6 @@ class KtLintTest {
                             "Note that this is only required for properties that (potentially) contain a value that " +
                             "differs from the actual value in the '.editorconfig' file."
                     )
-            }
-
-            @Test
-            fun `Given a non empty ruleset and userData not referring any custom or default editor config property then this userData is received in the node`() {
-                var actual: String? = null
-                KtLint.lint(
-                    KtLint.ExperimentalParams(
-                        fileName = "some-filename",
-                        text = "fun main() {}",
-                        ruleSets = listOf(
-                            RuleSet(
-                                "standard",
-                                DummyRule { node ->
-                                    if (node.isRoot()) {
-                                        actual = node.getUserData(EDITOR_CONFIG_USER_DATA_KEY)?.get(SOME_PROPERTY)
-                                    }
-                                }
-                            )
-                        ),
-                        userData = mapOf(SOME_PROPERTY to SOME_PROPERTY_VALUE),
-                        cb = { _, _ -> },
-                        script = false,
-                        editorConfigPath = null,
-                        debug = false
-                    )
-                )
-                assertThat(actual).isEqualTo(SOME_PROPERTY_VALUE)
             }
         }
 
@@ -462,33 +407,6 @@ class KtLintTest {
                             "differs from the actual value in the '.editorconfig' file."
                     )
             }
-
-            @Test
-            fun `Given a non empty ruleset and userData not referring any custom or default editor config property then this userData is received in the node`() {
-                var actual: String? = null
-                KtLint.format(
-                    KtLint.Params(
-                        fileName = "some-filename",
-                        text = "fun main() {}",
-                        ruleSets = listOf(
-                            RuleSet(
-                                "standard",
-                                DummyRule { node ->
-                                    if (node.isRoot()) {
-                                        actual = node.getUserData(EDITOR_CONFIG_USER_DATA_KEY)?.get(SOME_PROPERTY)
-                                    }
-                                }
-                            )
-                        ),
-                        userData = mapOf(SOME_PROPERTY to SOME_PROPERTY_VALUE),
-                        cb = { _, _ -> },
-                        script = false,
-                        editorConfigPath = null,
-                        debug = false
-                    )
-                )
-                assertThat(actual).isEqualTo(SOME_PROPERTY_VALUE)
-            }
         }
 
         @Nested
@@ -618,33 +536,6 @@ class KtLintTest {
                             "Note that this is only required for properties that (potentially) contain a value that " +
                             "differs from the actual value in the '.editorconfig' file."
                     )
-            }
-
-            @Test
-            fun `Given a non empty ruleset and userData not referring any custom or default editor config property then this userData is received in the node`() {
-                var actual: String? = null
-                KtLint.format(
-                    KtLint.ExperimentalParams(
-                        fileName = "some-filename",
-                        text = "fun main() {}",
-                        ruleSets = listOf(
-                            RuleSet(
-                                "standard",
-                                DummyRule { node ->
-                                    if (node.isRoot()) {
-                                        actual = node.getUserData(EDITOR_CONFIG_USER_DATA_KEY)?.get(SOME_PROPERTY)
-                                    }
-                                }
-                            )
-                        ),
-                        userData = mapOf(SOME_PROPERTY to SOME_PROPERTY_VALUE),
-                        cb = { _, _ -> },
-                        script = false,
-                        editorConfigPath = null,
-                        debug = false
-                    )
-                )
-                assertThat(actual).isEqualTo(SOME_PROPERTY_VALUE)
             }
         }
     }

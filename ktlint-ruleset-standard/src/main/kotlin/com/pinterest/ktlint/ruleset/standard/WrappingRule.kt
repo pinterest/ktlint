@@ -1,9 +1,9 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.core.EditorConfig.Companion.loadEditorConfig
-import com.pinterest.ktlint.core.EditorConfig.Companion.loadIndentConfig
 import com.pinterest.ktlint.core.IndentConfig
 import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties
+import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType
 import com.pinterest.ktlint.core.ast.ElementType.ANNOTATION
 import com.pinterest.ktlint.core.ast.ElementType.ARROW
@@ -73,10 +73,18 @@ private val logger = KotlinLogging.logger {}.initKtLintKLogger()
  *   is fixed with respect to indentation of the parent. This is just a simple best effort for the case that the
  *   indentation rule is not run.
  */
-public class WrappingRule : Rule(
-    id = "wrapping",
-    visitorModifiers = setOf(VisitorModifier.RunOnRootNodeOnly)
-) {
+public class WrappingRule :
+    Rule(
+        id = "wrapping",
+        visitorModifiers = setOf(VisitorModifier.RunOnRootNodeOnly)
+    ),
+    UsesEditorConfigProperties {
+    override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> =
+        listOf(
+            DefaultEditorConfigProperties.indentSizeProperty,
+            DefaultEditorConfigProperties.indentStyleProperty
+        )
+
     private companion object {
         private val lTokenSet = TokenSet.create(LPAR, LBRACE, LBRACKET, LT)
         private val rTokenSet = TokenSet.create(RPAR, RBRACE, RBRACKET, GT)
@@ -95,7 +103,10 @@ public class WrappingRule : Rule(
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         line = 1
-        indentConfig = node.loadEditorConfig().loadIndentConfig()
+        indentConfig = IndentConfig(
+            indentStyle = node.getEditorConfigValue(DefaultEditorConfigProperties.indentStyleProperty),
+            tabWidth = node.getEditorConfigValue(DefaultEditorConfigProperties.indentSizeProperty)
+        )
         node.visit { n -> // TODO: Check whether this visit can be removed like other rules. This would disabling the rule for blocks and lines
             when (n.elementType) {
                 LPAR, LBRACE, LBRACKET -> rearrangeBlock(n, autoCorrect, emit) // TODO: LT

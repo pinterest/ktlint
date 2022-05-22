@@ -1,6 +1,5 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.core.EditorConfig.Companion.indentStyleProperty
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentStyleProperty
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
@@ -545,7 +544,7 @@ internal class WrappingRuleTest {
             }
             """.trimIndent()
         wrappingRuleAssertThat(code)
-            .withEditorConfigOverride(indentStyleProperty to tab)
+            .withEditorConfigOverride(DefaultEditorConfigProperties.indentStyleProperty to tab)
             .hasLintViolations(
                 LintViolation(2, 10, "Missing newline after \"(\""),
                 LintViolation(5, 18, "Missing newline before \")\"")
