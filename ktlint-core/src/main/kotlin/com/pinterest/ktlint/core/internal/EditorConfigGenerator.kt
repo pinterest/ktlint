@@ -39,25 +39,20 @@ internal class EditorConfigGenerator(
         )
 
         return rules
-            .fold(mutableMapOf<String, String?>()) { acc, rule ->
-                if (rule is UsesEditorConfigProperties) {
+            .flatMap { rule ->
+                (rule as? UsesEditorConfigProperties)?.let { _ ->
                     if (debug) println("Checking properties for '${rule.id}' rule")
-                    rule.editorConfigProperties.forEach { prop ->
+                    rule.editorConfigProperties.map { prop ->
                         if (debug) println("Setting '${prop.type.name}' property value")
-                        acc[prop.type.name] = with(rule) {
+                        val value = with(rule) {
                             editorConfig.writeEditorConfigProperty(
                                 prop,
                                 isAndroidCodeStyle
                             )
                         }
+                        "${prop.type.name} = $value"
                     }
-                }
-
-                acc
-            }
-            .filterValues { it != null }
-            .map {
-                "${it.key} = ${it.value}"
+                } ?: emptyList()
             }
             .joinToString(separator = System.lineSeparator())
     }
