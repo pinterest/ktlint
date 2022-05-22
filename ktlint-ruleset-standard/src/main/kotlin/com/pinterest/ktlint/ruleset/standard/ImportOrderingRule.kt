@@ -201,8 +201,7 @@ public class ImportOrderingRule :
                 val hasComments = children.any { it.elementType == ElementType.BLOCK_COMMENT || it.elementType == ElementType.EOL_COMMENT }
                 val sortedImports = imports
                     .asSequence()
-                    .filter { it.psi !is PsiWhiteSpace } // sorter expects KtImportDirective, whitespaces are inserted afterwards
-                    .map { it.psi as KtImportDirective }
+                    .mapNotNull { it.psi as? KtImportDirective } // sorter expects KtImportDirective, whitespaces are inserted afterwards
                     .sortedWith(importSorter)
                     .map { it.node } // transform back to ASTNode in order to operate over its method (addChild)
 
