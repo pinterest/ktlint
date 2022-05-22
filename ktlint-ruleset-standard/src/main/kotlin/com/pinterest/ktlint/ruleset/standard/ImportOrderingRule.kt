@@ -147,6 +147,37 @@ public class ImportOrderingRule :
         ideaImportsLayoutProperty
     )
 
+    private fun getUniqueImportsAndBlankLines(
+        children: Array<ASTNode>,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+    ): Pair<Boolean, List<ASTNode>> {
+        var autoCorrectDuplicateImports = false
+        val imports = mutableListOf<ASTNode>()
+        val importTextSet = mutableSetOf<String>()
+
+        children.forEach { current ->
+            val isPsiWhiteSpace = current.psi is PsiWhiteSpace
+
+            if (
+                current.elementType == ElementType.IMPORT_DIRECTIVE ||
+                isPsiWhiteSpace && current.textLength > 1 // also collect empty lines, that are represented as "\n\n"
+            ) {
+                if (isPsiWhiteSpace || importTextSet.add(current.text)) {
+                    imports += current
+                } else {
+                    emit(
+                        current.startOffset,
+                        "Duplicate '${current.text}' found",
+                        true
+                    )
+                    autoCorrectDuplicateImports = true
+                }
+            }
+        }
+
+        return autoCorrectDuplicateImports to imports
+    }
+
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
@@ -164,24 +195,8 @@ public class ImportOrderingRule :
             val children = node.getChildren(null)
             if (children.isNotEmpty()) {
                 // Get unique imports and blank lines
-                var autoCorrectDuplicateImports = false
-                val imports = mutableListOf<ASTNode>()
-                children
-                    .filter {
-                        it.elementType == ElementType.IMPORT_DIRECTIVE ||
-                            it.psi is PsiWhiteSpace && it.textLength > 1 // also collect empty lines, that are represented as "\n\n"
-                    }.map { current ->
-                        if (current.psi is PsiWhiteSpace || imports.none { it.text == current.text }) {
-                            imports += current
-                        } else {
-                            emit(
-                                current.startOffset,
-                                "Duplicate '${current.text}' found",
-                                true
-                            )
-                            autoCorrectDuplicateImports = true
-                        }
-                    }
+                val (autoCorrectDuplicateImports: Boolean, imports: List<ASTNode>) =
+                    getUniqueImportsAndBlankLines(children, emit)
 
                 val hasComments = children.find { it.elementType == ElementType.BLOCK_COMMENT || it.elementType == ElementType.EOL_COMMENT } != null
                 val sortedImports = imports
