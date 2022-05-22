@@ -30,13 +30,6 @@ import org.jetbrains.kotlin.idea.KotlinLanguage
 import org.jetbrains.kotlin.psi.KtFile
 
 public object KtLint {
-    @Deprecated(
-        message = "Marked for removal in Ktlint 0.46.",
-        replaceWith = ReplaceWith("EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY")
-    )
-    // TODO: when removing, then also remove method "EditorConfigProperties.toUserData"
-    public val EDITOR_CONFIG_USER_DATA_KEY: Key<EditorConfig> = Key<EditorConfig>("EDITOR_CONFIG")
-
     public val ANDROID_USER_DATA_KEY: Key<Boolean> = Key<Boolean>("ANDROID")
     public val FILE_PATH_USER_DATA_KEY: Key<String> = Key<String>("FILE_PATH")
     private const val FILE_PATH_PROPERTY = "file_path"
@@ -316,7 +309,6 @@ public object KtLint {
     ) {
         val android = userData.isAndroidCodeStyle
         node.putUserData(FILE_PATH_USER_DATA_KEY, userData[FILE_PATH_PROPERTY])
-        node.putUserData(EDITOR_CONFIG_USER_DATA_KEY, EditorConfig.fromMap(userData - "android" - "file_path"))
         node.putUserData(EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY, editorConfigProperties)
         node.putUserData(ANDROID_USER_DATA_KEY, android)
         node.putUserData(
