@@ -1,6 +1,9 @@
 package com.pinterest.ktlint.ruleset.standard
 
+import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.lint
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 class FilenameRuleTest {
@@ -13,14 +16,14 @@ class FilenameRuleTest {
         listOf(
             Item("class AClass", "Class", "AClass", "AClass"),
             Item("class `AClass`", "Class", "`AClass`", "AClass"),
-            Item("interface AInterface", "Class", "AInterface", "AInterface"),
-            Item("interface `AInterface`", "Class", "`AInterface`", "AInterface"),
+            Item("interface AInterface", "Interface", "AInterface", "AInterface"),
+            Item("interface `AInterface`", "Interface", "`AInterface`", "AInterface"),
             Item("data class ADataClass(val v: Int)", "Class", "ADataClass", "ADataClass"),
             Item("data class `ADataClass`(val v: Int)", "Class", "`ADataClass`", "ADataClass"),
             Item("sealed class ASealedClass", "Class", "ASealedClass", "ASealedClass"),
             Item("sealed class `ASealedClass`", "Class", "`ASealedClass`", "ASealedClass"),
-            Item("sealed interface ASealedInterface", "Class", "ASealedInterface", "ASealedInterface"),
-            Item("sealed interface `ASealedInterface`", "Class", "`ASealedInterface`", "ASealedInterface"),
+            Item("sealed interface ASealedInterface", "Interface", "ASealedInterface", "ASealedInterface"),
+            Item("sealed interface `ASealedInterface`", "Interface", "`ASealedInterface`", "ASealedInterface"),
             Item("enum class AEnum {A}", "Class", "AEnum", "AEnum"),
             Item("enum class `AEnum` {A}", "Class", "`AEnum`", "AEnum"),
             Item("object AObject {}", "Object", "AObject", "AObject"),
@@ -223,13 +226,13 @@ class FilenameRuleTest {
     @Test
     fun testNonMatchingSingleClassName() {
         for (src in mapOf(
-            "class A" to "class",
-            "data class A(val v: Int)" to "class",
-            "sealed class A" to "class",
-            "interface A" to "interface",
-            "object A" to "object",
-            "enum class A {A}" to "class",
-            "typealias A = Set<Network.Node>" to "typealias"
+            "class A" to "Class",
+            "data class A(val v: Int)" to "Class",
+            "sealed class A" to "Class",
+            "interface A" to "Interface",
+            "object A" to "Object",
+            "enum class A {A}" to "Class",
+            "typealias A = Set<Network.Node>" to "Typealias"
         )) {
             val code =
                 """
@@ -469,7 +472,7 @@ class FilenameRuleTest {
             """.trimIndent()
         fileNameRuleAssertThat(code)
             .asFileWithPath("/some/path/A.kt")
-            .hasLintViolationWithoutAutoCorrect(1, 1, "class B should be declared in a file named B.kt")
+            .hasLintViolationWithoutAutoCorrect(1, 1, "Class B should be declared in a file named B.kt")
     }
 
     @Test
@@ -480,7 +483,7 @@ class FilenameRuleTest {
             """.trimIndent()
         fileNameRuleAssertThat(code)
             .asFileWithPath("woohoo.kt")
-            .hasLintViolationWithoutAutoCorrect(1, 1, "interface Woohoo should be declared in a file named Woohoo.kt")
+            .hasLintViolationWithoutAutoCorrect(1, 1, "Interface Woohoo should be declared in a file named Woohoo.kt")
     }
 
     @Test
@@ -491,7 +494,7 @@ class FilenameRuleTest {
             """.trimIndent()
         fileNameRuleAssertThat(code)
             .asFileWithPath("B.kt")
-            .hasLintViolationWithoutAutoCorrect(1, 1, "class `A` should be declared in a file named A.kt")
+            .hasLintViolationWithoutAutoCorrect(1, 1, "Class `A` should be declared in a file named A.kt")
     }
 
     @Test

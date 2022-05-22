@@ -6,6 +6,7 @@ import com.pinterest.ktlint.core.ast.ElementType.CLASS
 import com.pinterest.ktlint.core.ast.ElementType.DOT
 import com.pinterest.ktlint.core.ast.ElementType.FUN
 import com.pinterest.ktlint.core.ast.ElementType.IDENTIFIER
+import com.pinterest.ktlint.core.ast.ElementType.INTERFACE_KEYWORD
 import com.pinterest.ktlint.core.ast.ElementType.OBJECT_DECLARATION
 import com.pinterest.ktlint.core.ast.ElementType.PROPERTY
 import com.pinterest.ktlint.core.ast.ElementType.TYPEALIAS
@@ -110,7 +111,7 @@ public class FilenameRule : Rule(
             .map {
                 when (it.elementType) {
                     CLASS ->
-                        it.createTopLevelDeclarationElement("Class")
+                        it.createTopLevelClassInterfaceElement()
                     OBJECT_DECLARATION ->
                         it.createTopLevelDeclarationElement("Object")
                     FUN ->
@@ -156,8 +157,23 @@ public class FilenameRule : Rule(
         private fun ASTNode.createTopLevelDeclarationElement(
             type: String
         ): TopLevelDeclarationElement {
+            return createTopLevelDeclarationElement(type) { null }
+        }
+
+        private fun ASTNode.createTopLevelDeclarationElement(
+            type: String,
+            typeFinder: (ASTNode) -> String?
+        ): TopLevelDeclarationElement {
             val id = findChildByType(IDENTIFIER) ?: error("Unable to find identifier in $this")
-            return TopLevelDeclarationElement(type, id.name(), id.text)
+            return TopLevelDeclarationElement(typeFinder(this) ?: type, id.name(), id.text)
+        }
+
+        private fun ASTNode.createTopLevelClassInterfaceElement(
+        ): TopLevelDeclarationElement {
+            return createTopLevelDeclarationElement("Class") {
+                val id = findChildByType(IDENTIFIER) ?: error("Unable to find identifier in $this")
+                if (id.prevCodeSibling()?.elementType == INTERFACE_KEYWORD) "Interface" else null
+            }
         }
 
         private fun ASTNode.createTopLevelDeclarationElementWithReceiver(
