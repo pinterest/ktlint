@@ -18,6 +18,7 @@ import com.pinterest.ktlint.core.internal.noSuppression
 import java.nio.file.FileSystems
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.util.Locale
 import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
@@ -27,7 +28,6 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiErrorElement
 import org.jetbrains.kotlin.com.intellij.psi.PsiFileFactory
 import org.jetbrains.kotlin.idea.KotlinLanguage
 import org.jetbrains.kotlin.psi.KtFile
-import java.util.Locale
 
 public object KtLint {
     @Deprecated(
@@ -97,7 +97,6 @@ public object KtLint {
      * Enables some internals workarounds for Kotlin Compiler initialization.
      * Usually you don't need to use it and most probably it will be removed in one of next versions.
      */
-    @FeatureInAlphaState
     public data class ExperimentalParams(
         val fileName: String? = null,
         val text: String,
@@ -385,7 +384,6 @@ public object KtLint {
             visitorProvider
         )
 
-    @FeatureInAlphaState
     public fun format(
         params: ExperimentalParams,
         visitorProvider: VisitorProvider

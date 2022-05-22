@@ -5,9 +5,9 @@ import com.pinterest.ktlint.core.EditorConfig.IndentStyle.TAB
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
+import java.util.Locale
 import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import java.util.Locale
 
 /**
  * @see [EditorConfig](https://editorconfig.org/)

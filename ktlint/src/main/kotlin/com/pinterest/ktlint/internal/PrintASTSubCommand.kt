@@ -9,9 +9,9 @@ import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ruleset.test.DumpASTRule
 import java.io.File
 import java.nio.file.FileSystems
+import java.util.Locale
 import mu.KotlinLogging
 import picocli.CommandLine
-import java.util.Locale
 
 private val logger = KotlinLogging.logger {}.initKtLintKLogger()
 
@@ -90,8 +90,11 @@ internal class PrintASTSubCommand : Runnable {
             )
         } catch (e: Exception) {
             if (e is ParseException) {
-                throw ParseException(e.line, e.col,
-                    "Not a valid Kotlin file (${e.message?.lowercase(Locale.getDefault())})")
+                throw ParseException(
+                    e.line,
+                    e.col,
+                    "Not a valid Kotlin file (${e.message?.lowercase(Locale.getDefault())})"
+                )
             }
             throw e
         }

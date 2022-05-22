@@ -3,9 +3,6 @@ package com.pinterest.ktlint.ruleset.standard
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
 import com.pinterest.ktlint.test.LintViolation
 import com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE
-import com.pinterest.ktlint.test.format
-import com.pinterest.ktlint.test.lint
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
@@ -161,40 +158,39 @@ class NoConsecutiveBlankLinesRuleTest {
 
     @Test
     fun `should not raise NPE on linting Kotlin script file`() {
-        assertThat(
-            NoConsecutiveBlankLinesRule().lint(
-                """
-                import java.net.URI
+        val code =
+            """
+            import java.net.URI
 
-                plugins {
-                    `java-library`
-                }
-                """.trimIndent(),
-                script = true
-            )
-        ).isEmpty()
+            plugins {
+                `java-library`
+            }
+            """.trimIndent()
+        noConsecutiveBlankLinesRuleAssertThat(code)
+            .asKotlinScript()
+            .hasNoLintViolations()
     }
 
     @Test
     fun `should remove line in dot qualified expression`() {
-        assertThat(
-            NoConsecutiveBlankLinesRule().format(
-                """
-                fun foo(inputText: String) {
-                    inputText
+        val code =
+            """
+            fun foo(inputText: String) {
+                inputText
 
 
-                        .toLowerCase()
-                }
-                """.trimIndent()
-            )
-        ).isEqualTo(
+                    .toLowerCase()
+            }
+            """.trimIndent()
+        val formattedCode =
             """
             fun foo(inputText: String) {
                 inputText
                     .toLowerCase()
             }
             """.trimIndent()
-        )
+        noConsecutiveBlankLinesRuleAssertThat(code)
+            .hasLintViolation(4, 1, "Needless blank line(s)")
+            .isFormattedAs(formattedCode)
     }
 }

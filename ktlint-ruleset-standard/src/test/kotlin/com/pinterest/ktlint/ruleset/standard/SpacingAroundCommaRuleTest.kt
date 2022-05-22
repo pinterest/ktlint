@@ -1,8 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
-import com.pinterest.ktlint.test.format
-import org.assertj.core.api.Assertions.assertThat
+import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 class SpacingAroundCommaRuleTest {
@@ -72,33 +71,18 @@ class SpacingAroundCommaRuleTest {
     }
 
     @Test
-    fun testFormat() {
+    fun `Given some parameter list with an unexpected newline before the comma`() {
         val code =
             """
-            val foo1 = Foo(1 /* comment */ , 3)
-            val foo2 = Foo(1 /* comment */, 3)
+            fun fn(
+                arg1: Int ,
+                arg2: Int
+                ,
+
+                arg3: Int
+            ) = Unit
             """.trimIndent()
         val formattedCode =
-            """
-            val foo1 = Foo(1 /* comment */, 3)
-            val foo2 = Foo(1 /* comment */, 3)
-            """.trimIndent()
-        spacingAroundCommaRuleAssertThat(code)
-            .hasLintViolation(1, 31, "Unexpected spacing before \",\"")
-            .isFormattedAs(formattedCode)
-        assertThat(
-            SpacingAroundCommaRule().format(
-                """
-                fun fn(
-                    arg1: Int ,
-                    arg2: Int
-                    ,
-
-                    arg3: Int
-                ) = Unit
-                """.trimIndent()
-            )
-        ).isEqualTo(
             """
             fun fn(
                 arg1: Int,
@@ -107,20 +91,26 @@ class SpacingAroundCommaRuleTest {
                 arg3: Int
             ) = Unit
             """.trimIndent()
-        )
-        assertThat(
-            SpacingAroundCommaRule().format(
-                """
-                fun fn(
-                    arg1: Int ,
-                    arg2: Int // some comment
-                    , arg3: Int
-                    // other comment
-                    , arg4: Int
-                ) = Unit
-                """.trimIndent()
-            )
-        ).isEqualTo(
+        spacingAroundCommaRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(2, 14, "Unexpected spacing before \",\""),
+                LintViolation(3, 14, "Unexpected spacing before \",\"")
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given some parameter list with an EOL comment followed by comma on next line`() {
+        val code =
+            """
+            fun fn(
+                arg1: Int ,
+                arg2: Int // some comment
+                , arg3: Int
+                // other comment
+                , arg4: Int
+            ) = Unit
+            """.trimIndent()
+        val formattedCode =
             """
             fun fn(
                 arg1: Int,
@@ -130,7 +120,12 @@ class SpacingAroundCommaRuleTest {
                 arg4: Int
             ) = Unit
             """.trimIndent()
-        )
+        spacingAroundCommaRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(2, 14, "Unexpected spacing before \",\""),
+                LintViolation(3, 30, "Unexpected spacing before \",\""),
+                LintViolation(5, 21, "Unexpected spacing before \",\"")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
