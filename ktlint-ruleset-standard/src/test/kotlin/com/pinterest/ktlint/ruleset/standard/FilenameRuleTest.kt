@@ -1,11 +1,11 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.core.LintError
-import com.pinterest.ktlint.test.lint
-import org.assertj.core.api.Assertions.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
 import org.junit.jupiter.api.Test
 
 class FilenameRuleTest {
+    private val fileNameRuleAssertThat = FilenameRule().assertThat()
+
     @Test
     fun testParsingAllTopLevelDeclarations() {
         data class Item(val src: String, val type: String, val typeName: String, val fileName: String)
@@ -191,7 +191,7 @@ class FilenameRuleTest {
 
     @Test
     fun testMatchingSingleClassName() {
-        listOf(
+        for (src in listOf(
             "class A",
             "class `A`",
             "data class A(val v: Int)",
@@ -202,83 +202,75 @@ class FilenameRuleTest {
             "typealias A = Set<Network.Node>",
             // >1 declaration case
             "class B\nfun A.f() {}"
-        ).forEach { src ->
-            assertThat(
-                FilenameRule().lint(
-                    "/some/path/A.kt",
-                    """
-                    /*
-                     * license
-                     */
-                    @file:JvmName("Foo")
-                    package x
-                    import y.Z
-                    $src
-                    //
-                    """.trimIndent()
-                )
-            ).isEmpty()
+        )) {
+            val code =
+                """
+                /*
+                 * license
+                 */
+                @file:JvmName("Foo")
+                package x
+                import y.Z
+                $src
+                //
+                """.trimIndent()
+            fileNameRuleAssertThat(code)
+                .asFileWithPath("/some/path/A.kt")
+                .hasNoLintViolations()
         }
     }
 
     @Test
     fun testNonMatchingSingleClassName() {
-        mapOf(
-            "class A" to "Class",
-            "data class A(val v: Int)" to "Class",
-            "sealed class A" to "Class",
-            "interface A" to "Class",
-            "object A" to "Object",
-            "enum class A {A}" to "Class",
-            "typealias A = Set<Network.Node>" to "Typealias"
-        ).forEach { (src, type) ->
-            assertThat(
-                FilenameRule().lint(
-                    "/some/path/B.kt",
-                    """
-                    /*
-                     * license
-                     */
-                    @file:JvmName("Foo")
-                    package x
-                    import y.Z
-                    $src
-                    //
-                    """.trimIndent()
-                )
-            ).isEqualTo(
-                listOf(
-                    LintError(1, 1, "filename", "$type A should be declared in a file named A.kt")
-                )
-            )
+        for (src in mapOf(
+            "class A" to "class",
+            "data class A(val v: Int)" to "class",
+            "sealed class A" to "class",
+            "interface A" to "interface",
+            "object A" to "object",
+            "enum class A {A}" to "class",
+            "typealias A = Set<Network.Node>" to "typealias"
+        )) {
+            val code =
+                """
+                /*
+                 * license
+                 */
+                @file:JvmName("Foo")
+                package x
+                import y.Z
+                ${src.key}
+                //
+                """.trimIndent()
+            fileNameRuleAssertThat(code)
+                .asFileWithPath("/some/path/UnexpectedFilename.kt")
+                .hasLintViolationWithoutAutoCorrect(1, 1, "${src.value} A should be declared in a file named A.kt")
         }
     }
 
     @Test
     fun testFileWithoutTopLevelDeclarations() {
-        assertThat(
-            FilenameRule().lint(
-                "A.kt",
-                """
-                /*
-                 * copyright
-                 */
-                """.trimIndent()
-            )
-        ).isEmpty()
+        val code =
+            """
+            /*
+             * copyright
+             */
+            """.trimIndent()
+        fileNameRuleAssertThat(code)
+            .asFileWithPath("/some/path/A.kt")
+            .hasNoLintViolations()
     }
 
     @Test
     fun testMultipleTopLevelClasses() {
-        assertThat(
-            FilenameRule().lint(
-                "A.kt",
-                """
-                class B
-                class C
-                """.trimIndent()
-            )
-        ).isEmpty()
+        val code =
+            """
+            class B
+            class C
+            """.trimIndent()
+        fileNameRuleAssertThat(code)
+            .asFileWithPath("/some/path/A.kt")
+            .hasNoLintViolations()
     }
 
     @Test
@@ -468,64 +460,48 @@ class FilenameRuleTest {
 
     @Test
     fun testMultipleNonTopLevelClasses() {
-        assertThat(
-            FilenameRule().lint(
-                "A.kt",
-                """
-                class B {
-                    class C
-                    class D
-                }
-                """.trimIndent()
-            )
-        ).isEqualTo(
-            listOf(
-                LintError(1, 1, "filename", "Class B should be declared in a file named B.kt")
-            )
-        )
+        val code =
+            """
+            class B {
+                class C
+                class D
+            }
+            """.trimIndent()
+        fileNameRuleAssertThat(code)
+            .asFileWithPath("/some/path/A.kt")
+            .hasLintViolationWithoutAutoCorrect(1, 1, "class B should be declared in a file named B.kt")
     }
 
     @Test
     fun testCaseSensitiveMatching() {
-        assertThat(
-            FilenameRule().lint(
-                "woohoo.kt",
-                """
-                interface Woohoo
-                """.trimIndent()
-            )
-        ).isEqualTo(
-            listOf(
-                LintError(1, 1, "filename", "Class Woohoo should be declared in a file named Woohoo.kt")
-            )
-        )
+        val code =
+            """
+            interface Woohoo
+            """.trimIndent()
+        fileNameRuleAssertThat(code)
+            .asFileWithPath("woohoo.kt")
+            .hasLintViolationWithoutAutoCorrect(1, 1, "interface Woohoo should be declared in a file named Woohoo.kt")
     }
 
     @Test
     fun testCaseEscapedClassNames() {
-        assertThat(
-            FilenameRule().lint(
-                "B.kt",
-                """
-                class `A`
-                """.trimIndent()
-            )
-        ).isEqualTo(
-            listOf(
-                LintError(1, 1, "filename", "Class `A` should be declared in a file named A.kt")
-            )
-        )
+        val code =
+            """
+            class `A`
+            """.trimIndent()
+        fileNameRuleAssertThat(code)
+            .asFileWithPath("B.kt")
+            .hasLintViolationWithoutAutoCorrect(1, 1, "class `A` should be declared in a file named A.kt")
     }
 
     @Test
     fun testIgnoreKotlinScriptFiles() {
-        assertThat(
-            FilenameRule().lint(
-                "A.kts",
-                """
-                class B
-                """.trimIndent()
-            )
-        ).isEmpty()
+        val code =
+            """
+            class B
+            """.trimIndent()
+        fileNameRuleAssertThat(code)
+            .asFileWithPath("A.kts")
+            .hasNoLintViolations()
     }
 }

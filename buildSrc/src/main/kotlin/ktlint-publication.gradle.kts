@@ -30,31 +30,31 @@ project.group = project.property("GROUP")
 publishing {
     publications {
         create<MavenPublication>("maven") {
-            groupId = project.property("GROUP") as String?
-            artifactId = project.property("POM_ARTIFACT_ID") as String?
-            version = project.property("VERSION_NAME") as String?
+            groupId = project.property("GROUP").toString()
+            artifactId = project.property("POM_ARTIFACT_ID").toString()
+            version = project.property("VERSION_NAME").toString()
 
             pom {
-                name.set(project.property("POM_NAME") as String?)
-                description.set(project.property("POM_DESCRIPTION") as String?)
-                url.set(project.property("POM_URL") as String?)
+                name.set(project.property("POM_NAME").toString())
+                description.set(project.property("POM_DESCRIPTION").toString())
+                url.set(project.property("POM_URL").toString())
                 licenses {
                     license {
-                        name.set(project.property("POM_LICENSE_NAME") as String?)
-                        url.set(project.property("POM_LICENSE_URL") as String?)
+                        name.set(project.property("POM_LICENSE_NAME").toString())
+                        url.set(project.property("POM_LICENSE_URL").toString())
                         distribution.set("repo")
                     }
                 }
                 developers {
                     developer {
-                        id.set(project.property("POM_DEVELOPER_ID") as String?)
-                        name.set(project.property("POM_DEVELOPER_NAME") as String?)
+                        id.set(project.property("POM_DEVELOPER_ID").toString())
+                        name.set(project.property("POM_DEVELOPER_NAME").toString())
                     }
                 }
                 scm {
-                    url.set(project.property("POM_SCM_URL") as String?)
-                    connection.set(project.property("POM_SCM_CONNECTION") as String?)
-                    developerConnection.set(project.property("POM_SCM_DEV_CONNECTION") as String?)
+                    url.set(project.property("POM_SCM_URL").toString())
+                    connection.set(project.property("POM_SCM_CONNECTION").toString())
+                    developerConnection.set(project.property("POM_SCM_DEV_CONNECTION").toString())
                 }
             }
 

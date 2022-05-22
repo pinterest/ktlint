@@ -9,12 +9,11 @@ val Project.javaToolchains: JavaToolchainService
 
 fun Project.addAdditionalJdkVersionTests() {
     // Tests should be run on all supported LTS versions of the JDK. For example, see https://endoflife.date/java
-    addJdkVersionTests("testOnJdk11", 11)
-    addJdkVersionTests("testOnJdk17", 17)
+    arrayOf(8, 11, 17).forEach(::addJdkVersionTests)
 }
 
-private fun Project.addJdkVersionTests(taskName: String, jdkVersion: Int) {
-    val jdkVersionTests = tasks.register<Test>(taskName) {
+private fun Project.addJdkVersionTests(jdkVersion: Int) {
+    val jdkVersionTests = tasks.register<Test>("testOnJdk$jdkVersion") {
         javaLauncher.set(
             javaToolchains.launcherFor {
                 languageVersion.set(JavaLanguageVersion.of(jdkVersion))

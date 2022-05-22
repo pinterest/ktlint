@@ -37,7 +37,7 @@ It's also [easy to create your own](#creating-a-reporter).
   (set `insert_final_newline=false` in .editorconfig to disable (see [EditorConfig](#editorconfig) section for more)).
 - `import-ordering`: Imports ordered consistently (see [Custom ktlint EditorConfig properties](#custom-ktlint-specific-editorconfig-properties) for more)
 - `indent`: Indentation formatting - respects `.editorconfig` `indent_size` with no continuation indent (see [EditorConfig](#editorconfig) section for more)
-- `max-line-length`: Ensures that lines do not exceed the given length of `.editoconfig` property `max_line_length` (see [EditorConfig](#editorconfig) section for more). This rule does not apply in a number of situations. For example, in the case a line exceeds the maximum line length due to and comment that disables ktlint rules than that comment is being ignored when validating the length of the line. The `.editorconfig` property `ktlint_ignore_back_ticked_identifier` can be set to ignore identifiers which are enclosed in backticks, which for example is very useful when you want to allow longer names for unit tests.  
+- `max-line-length`: Ensures that lines do not exceed the given length of `.editorconfig` property `max_line_length` (see [EditorConfig](#editorconfig) section for more). This rule does not apply in a number of situations. For example, in the case a line exceeds the maximum line length due to and comment that disables ktlint rules than that comment is being ignored when validating the length of the line. The `.editorconfig` property `ktlint_ignore_back_ticked_identifier` can be set to ignore identifiers which are enclosed in backticks, which for example is very useful when you want to allow longer names for unit tests.  
 - `modifier-order`: Consistent order of modifiers
 - `no-blank-line-before-rbrace`: No blank lines before `}` 
 - `no-consecutive-blank-lines`: No consecutive blank lines
@@ -82,17 +82,23 @@ by passing the `--experimental` flag to `ktlint`.
 - `experimental:multiline-if-else`: Braces required for multiline if/else statements
 - `experimental:no-empty-first-line-in-method-block`: No leading empty lines in method blocks
 - `experimental:package-name`: No underscores in package names
+- `experimental:parameter-list-spacing`: Consistent spacing inside the parameter list
 - `experimental:unnecessary-parentheses-before-trailing-lambda`: An empty parentheses block before a lambda is redundant. For example `some-string".count() { it == '-' }`
+- `function-signature`: rewrites the function signature to a single line when possible (e.g. when not exceeding the `max_line_length` property) or a multiline signature otherwise. In case of function with a body expression, the body expression is placed on the same line as the function signature when not exceeding the `max_line_length` property. Optionally the function signature can be forced to be written as a multiline signature in case the function has more than a specified number of parameters (`.editorconfig' property `ktlint_function_signature_wrapping_rule_always_with_minimum_parameters`)
 
 ### Spacing
 - `experimental:annotation-spacing`: Annotations should be separated by the annotated declaration by a single line break
 - `experimental:double-colon-spacing`: No spaces around `::`
 - `experimental:fun-keyword-spacing`: Consistent spacing after the fun keyword
+- `experimental:function-return-type-spacing`: Consistent spacing around the function return type
+- `experimental:function-start-of-body-spacing`: Consistent spacing before start of function body
 - `experimental:function-type-reference-spacing`: Consistent spacing in the type reference before a function
 - `experimental:modifier-list-spacing`: Consistent spacing between modifiers in and after the last modifier in a modifier list
+- `experimental:nullable-type-spacing`: No spaces in a nullable type
 - `experimental:spacing-around-angle-brackets`: No spaces around angle brackets
 - `experimental:spacing-between-declarations-with-annotations`: Declarations with annotations should be separated by a blank line
 - `experimental:spacing-between-declarations-with-comments`: Declarations with comments should be separated by a blank line
+- `experimental:spacing-between-function-name-and-opening-parenthesis`: Consistent spacing between function name and opening parenthesis
 - `experimental:type-parameter-list-spacing`: Spacing after a type parameter list in function and class declarations
 - `experimental:unary-op-spacing`: No spaces around unary operators
 
@@ -176,7 +182,7 @@ To contribute or get more info, please visit the [GitHub repository](https://git
 > Skip all the way to the "Integration" section if you don't plan to use `ktlint`'s command line interface.
 
 ```sh
-curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.45.0/ktlint &&
+curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.45.2/ktlint &&
   chmod a+x ktlint &&
   sudo mv ktlint /usr/local/bin/
 ```
@@ -290,7 +296,7 @@ $ ktlint installGitPreCommitHook
         <dependency>
             <groupId>com.pinterest</groupId>
             <artifactId>ktlint</artifactId>
-            <version>0.45.0</version>
+            <version>0.45.2</version>
         </dependency>
         <!-- additional 3rd party ruleset(s) can be specified here -->
     </dependencies>
@@ -338,7 +344,7 @@ configurations {
 }
 
 dependencies {
-    ktlint("com.pinterest:ktlint:0.45.0") {
+    ktlint("com.pinterest:ktlint:0.45.2") {
         attributes {
             attribute(Bundling.BUNDLING_ATTRIBUTE, getObjects().named(Bundling, Bundling.EXTERNAL))
         }
@@ -383,7 +389,7 @@ See [Making your Gradle tasks incremental](https://proandroiddev.com/making-your
 val ktlint by configurations.creating
 
 dependencies {
-    ktlint("com.pinterest:ktlint:0.45.0") {
+    ktlint("com.pinterest:ktlint:0.45.2") {
         attributes {
             attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.EXTERNAL))
         }
@@ -582,6 +588,7 @@ see https://github.com/pinterest/ktlint/issues/451.
 Third-party:
 * [kryanod/ktlint-junit-reporter](https://github.com/kryanod/ktlint-junit-reporter)
 * [musichin/ktlint-github-reporter](https://github.com/musichin/ktlint-github-reporter)
+* [tobi2k/ktlint-gitlab-reporter](https://github.com/tobi2k/ktlint-gitlab-reporter)
 
 ## Badge
 
@@ -609,28 +616,96 @@ Absolutely, "no configuration" doesn't mean "no extensibility". You can add your
 
 See [Creating A Ruleset](#creating-a-ruleset).
 
-### How do I suppress an error for a line/block/file?
+### How do I suppress an errors for a line/block/file?
 
 > This is meant primarily as an escape latch for the rare cases when **ktlint** is not able
 to produce the correct result (please report any such instances using [GitHub Issues](https://github.com/pinterest/ktlint/issues)).
 
-To disable a specific rule you'll need to turn on the verbose mode (`ktlint --verbose ...`). At the end of each line
-you'll see an error code. Use it as an argument for `ktlint-disable` directive (shown below).  
+To disable a specific rule you'll need the rule identifier which is displayed at the end of the lint error. Note that when the rule id is prefixed with a rule set id like `experimental`, you will need to use that fully qualified rule id.
+
+An error can be suppressed using:
+
+* EOL comments
+* Block comments
+* @Suppress annotations
+
+From a consistency perspective seen, it might be best to **not** mix the (EOL/Block) comment style with the annotation style in the same project.
+
+Important notice: some rules like the `indent` rule do not yet support disabling of the rule per line of block.
+
+#### Disabling for one specific line using EOL comment
+
+An error for a specific rule on a specific line can be disabled with an EOL comment on that line:
 
 ```kotlin
 import package.* // ktlint-disable no-wildcard-imports
+```
 
+In case lint errors for different rules on the same line need to be ignored, then specify multiple rule ids (separated by a space):
+
+```kotlin
+import package.* // ktlint-disable no-wildcard-imports other-rule-id
+```
+
+In case all lint errors on a line need to be ignored, then do not specify the rule id at all:
+
+```kotlin
+import package.* // ktlint-disable
+```
+
+#### Disabling for a block of lines using Block comments
+
+An error for a specific rule in a block of lines can be disabled with an block comment like:
+
+```kotlin
 /* ktlint-disable no-wildcard-imports */
 import package.a.*
 import package.b.*
 /* ktlint-enable no-wildcard-imports */
 ```
 
-To disable all checks:
+In case lint errors for different rules in the same block of lines need to be ignored, then specify multiple rule ids (separated by a space):
 
 ```kotlin
-import package.* // ktlint-disable
+/* ktlint-disable no-wildcard-imports other-rule-id */
+import package.a.*
+import package.b.*
+/* ktlint-enable no-wildcard-imports,other-rule-id */
 ```
+
+Note that the `ktlint-enable` directive needs to specify the exact same rule-id's and in the same order as the `ktlint-disable` directive.
+
+In case all lint errors in a block of lines needs to be ignored, then do not specify the rule id at all:
+
+```kotlin
+/* ktlint-disable */
+import package.a.*
+import package.b.*
+/* ktlint-enable */
+```
+
+#### Disabling for a statement using @Suppress
+
+> As of ktlint version 0.46, it is possible to specify any ktlint rule id via the `@Suppress` annotation in order to suppress errors found by that rule. Note that some rules like `indent` still do not support disabling for parts of a file.
+
+An error for a specific rule on a specific line can be disabled with a `@Suppress` annotation:
+
+```kotlin
+@Suppress("ktlint:max-line-length","ktlint:experimental:trailing-comma")
+val foo = listOf(
+    "some really looooooooooooooooong string exceeding the max line length",
+  )
+```
+
+Note that when using `@Suppress` each qualified rule id needs to be prefixed with `ktlint:`.
+
+To suppress the violations of all ktlint rules, use:
+```kotlin
+@Suppress("ktlint")
+val foo = "some really looooooooooooooooong string exceeding the max line length"
+```
+
+Like with other `@Suppress` annotations, it can be placed on targets supported by the annotation.
 
 ### How do I globally disable a rule?
 See the [EditorConfig section](https://github.com/pinterest/ktlint#editorconfig) for details on how to use the `disabled_rules` property.

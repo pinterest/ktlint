@@ -580,10 +580,7 @@ class VisitorProviderTest {
         return VisitorProvider(
             ruleSets = ruleSetList,
             // Enable debug mode as it is helpful when a test fails
-            debug = true,
-            // Although this is a unit test, the isUnitTestContext is disabled by default so that rules marked with
-            // RunAfterRule can be tested as well.
-            isUnitTestContext = isUnitTestContext ?: false
+            debug = true
         ).run {
             var visits: MutableList<Visit>? = null
             visitor(ruleSetList, SOME_ROOT_AST_NODE, concurrent ?: false)

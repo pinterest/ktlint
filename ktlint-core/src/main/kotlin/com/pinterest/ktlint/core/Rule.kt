@@ -9,7 +9,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
  * Implementation **doesn't** have to be thread-safe or stateless
  * (provided [RuleSetProvider] creates a new instance on each `get()` call).
  *
- * @param id must be unique within the ruleset
+ * @param id: For non-standard rules, it is expected that this id consist of the ruleSetId and ruleId, e.g. "some-rule-set-id:some-rule-id"
  * @param visitorModifiers: set of modifiers of the visitor. Preferably a rule has no modifiers at all, meaning that it
  * is completely independent of all other rules.
  *
@@ -20,7 +20,7 @@ abstract class Rule(
     public val visitorModifiers: Set<VisitorModifier> = emptySet()
 ) {
     init {
-        IdNamingPolicy.enforceNaming(id)
+        IdNamingPolicy.enforceRuleIdNaming(id)
     }
 
     /**

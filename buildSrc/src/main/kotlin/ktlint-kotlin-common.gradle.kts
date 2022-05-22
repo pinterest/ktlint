@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.jetbrains.kotlin.jvm")
+    kotlin("jvm")
 }
 
 repositories {
@@ -19,14 +19,11 @@ kotlin {
     }
 }
 
-tasks
-    .withType<KotlinCompile>()
-    .configureEach {
-        kotlinOptions {
-            apiVersion = "1.4"
-            @Suppress("SuspiciousCollectionReassignment")
-            freeCompilerArgs += listOf("-Xopt-in=kotlin.RequiresOptIn")
-        }
+tasks.withType<KotlinCompile>().configureEach {
+    kotlinOptions {
+        @Suppress("SuspiciousCollectionReassignment")
+        freeCompilerArgs += listOf("-opt-in=kotlin.RequiresOptIn")
     }
+}
 
 addAdditionalJdkVersionTests()

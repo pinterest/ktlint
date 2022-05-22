@@ -5,12 +5,7 @@ import com.pinterest.ktlint.core.ast.ElementType.PACKAGE_DIRECTIVE
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.psi.KtPackageDirective
 
-/**
- * @see [Kotlin Style Guide](https://kotlinlang.org/docs/reference/coding-conventions.html#naming-rules)
- * @see [Android Style Guide](https://android.github.io/kotlin-guides/style.html#package-names)
- */
-class PackageNameRule : Rule("package-name") {
-
+class PackageNameRule : Rule("$experimentalRulesetId:package-name") {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
