@@ -24,7 +24,7 @@ private val logger = KotlinLogging.logger {}.initKtLintKLogger()
 
 /**
  * Import ordering is configured via EditorConfig's property `ij_kotlin_imports_layout`, so the Kotlin IDE plugin also recongizes it. Supported values:
- * * "*,java.**,javax.**,kotlin.**,^" - default IntelliJ IDEA's order, see [IDEA_PATTERN]
+ * * "*,java.**,javax.**,kotlin.**,kotlinx.**,^" - default IntelliJ IDEA's order, see [IDEA_PATTERN]
  * * "*" - alphabetical order as recommended in Android's Kotlin style guide, see [ASCII_PATTERN]
  * * custom - defined by the following set of tokens. Tokens can be combined together in a group, groups/tokens must be comma separated:
  *  * "*" - wildcard symbol, can be used as follows:
@@ -63,16 +63,16 @@ public class ImportOrderingRule :
 
         /**
          * Default IntelliJ IDEA style: Alphabetical with capital letters before lower case letters (e.g. Z before a),
-         * except such groups as "java", "javax" and "kotlin" that are placed in the end. Within the groups the alphabetical order is preserved.
+         * except such groups as "java", "javax", "kotlin" and "kotlinx" that are placed in the end. Within the groups the alphabetical order is preserved.
          * Alias imports are placed in a separate group in the end of the list with alphabetical order inside.
          * No blank lines between groups.
          *
          * https://github.com/JetBrains/kotlin/blob/ffdab473e28d0d872136b910eb2e0f4beea2e19c/idea/formatter/src/org/jetbrains/kotlin/idea/core/formatter/KotlinCodeStyleSettings.java#L87-L91
          */
-        private val IDEA_PATTERN = parseImportsLayout("*,java.**,javax.**,kotlin.**,^")
+        private val IDEA_PATTERN = parseImportsLayout("*,java.**,javax.**,kotlin.**,kotlinx.**,^")
 
         private const val IDEA_ERROR_MESSAGE = "Imports must be ordered in lexicographic order without any empty lines in-between " +
-            "with \"java\", \"javax\", \"kotlin\" and aliases in the end"
+            "with \"java\", \"javax\", \"kotlin\", \"kotlinx\" and aliases in the end"
         private const val ASCII_ERROR_MESSAGE = "Imports must be ordered in lexicographic order without any empty lines in-between"
         private const val CUSTOM_ERROR_MESSAGE = "Imports must be ordered according to the pattern specified in .editorconfig"
 
@@ -89,7 +89,7 @@ public class ImportOrderingRule :
                         "Import layout must contain at least one entry of a wildcard symbol (*)"
                     )
                     value == "idea" -> {
-                        logger.warn { "`idea` is deprecated! Please use `*,java.**,javax.**,kotlin.**,^` instead to ensure that the Kotlin IDE plugin recognizes the value" }
+                        logger.warn { "`idea` is deprecated! Please use `*,java.**,javax.**,kotlin.**,kotlinx.**,^` instead to ensure that the Kotlin IDE plugin recognizes the value" }
                         PropertyType.PropertyValue.valid(
                             value,
                             IDEA_PATTERN
