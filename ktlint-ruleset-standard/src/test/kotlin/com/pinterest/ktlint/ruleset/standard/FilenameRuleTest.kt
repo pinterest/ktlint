@@ -405,7 +405,7 @@ class FilenameRuleTest {
                 )
             ).isEqualTo(
                 listOf(
-                    LintError(1, 1, "filename", "All elements with receiver A should be declared in a file named A.kt")
+                    LintError(1, 1, "filename", "File name foo.kt should conform PascalCase")
                 )
             )
         }

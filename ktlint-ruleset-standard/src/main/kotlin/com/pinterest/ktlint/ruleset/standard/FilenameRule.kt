@@ -18,16 +18,14 @@ import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
 
 /**
  * If a Kotlin file contains a single class (potentially with related top-level declarations), its name should be
- * the same as the name of the class, with the .kt extension appended. If a file contains multiple classes,
+ * the same as the name of the class, with the `.kt` extension appended. If a file contains multiple classes,
  * or only top-level declarations, choose a name describing what the file contains, and name the file accordingly.
  * Use upper camel case with an uppercase first letter (also known as Pascal case),
- * for example, ProcessDeclarations.kt.
+ * for example, `ProcessDeclarations.kt`.
  *
  * Exceptions to this rule:
- * * file without .kt extension
- * * file with name package.kt
- * * file containing only top-level declarations on same receiver type ([see Android example](https://github.com/android/android-ktx/blob/51005889235123f41492eaaecde3c623473dfe95/src/main/java/androidx/core/graphics/Path.kt))
- *
+ * * file without `.kt` extension
+ * * file with name `package.kt`
  * **See Also:** [Kotlin lang documentation](https://kotlinlang.org/docs/coding-conventions.html#source-file-names)
  */
 public class FilenameRule : Rule(
@@ -68,28 +66,7 @@ public class FilenameRule : Rule(
                 return
             }
         } else {
-            val receiverDeclarations = declarations.filterIsInstance<TopLevelDeclarationWithReceiverElement>()
-            val allElementsHaveReceiver =
-                receiverDeclarations.size >= 2 && receiverDeclarations.size == declarations.size
-            if (allElementsHaveReceiver) {
-                val allOfSameReceiver = receiverDeclarations.map { it.receiverTypeName }.distinct().size == 1
-                if (allOfSameReceiver) {
-                    // in case of top-level declarations on same receiver type
-                    val element = receiverDeclarations.first()
-                    if (fileName != element.receiverTypeName) {
-                        emit(
-                            0,
-                            "All elements with receiver ${element.receiverTypeName} should be declared in a file named ${element.receiverTypeName}.kt",
-                            false
-                        )
-                        return
-                    }
-                } else {
-                    hasToMatchPascalCase(fileName, emit)
-                }
-            } else {
-                hasToMatchPascalCase(fileName, emit)
-            }
+            hasToMatchPascalCase(fileName, emit)
         }
     }
 
@@ -168,8 +145,7 @@ public class FilenameRule : Rule(
             return TopLevelDeclarationElement(typeFinder(this) ?: type, id.name(), id.text)
         }
 
-        private fun ASTNode.createTopLevelClassInterfaceElement(
-        ): TopLevelDeclarationElement {
+        private fun ASTNode.createTopLevelClassInterfaceElement(): TopLevelDeclarationElement {
             return createTopLevelDeclarationElement("Class") {
                 val id = findChildByType(IDENTIFIER) ?: error("Unable to find identifier in $this")
                 if (id.prevCodeSibling()?.elementType == INTERFACE_KEYWORD) "Interface" else null
