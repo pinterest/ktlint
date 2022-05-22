@@ -198,7 +198,7 @@ public class ImportOrderingRule :
                 val (autoCorrectDuplicateImports: Boolean, imports: List<ASTNode>) =
                     getUniqueImportsAndBlankLines(children, emit)
 
-                val hasComments = children.find { it.elementType == ElementType.BLOCK_COMMENT || it.elementType == ElementType.EOL_COMMENT } != null
+                val hasComments = children.any { it.elementType == ElementType.BLOCK_COMMENT || it.elementType == ElementType.EOL_COMMENT }
                 val sortedImports = imports
                     .asSequence()
                     .filter { it.psi !is PsiWhiteSpace } // sorter expects KtImportDirective, whitespaces are inserted afterwards
