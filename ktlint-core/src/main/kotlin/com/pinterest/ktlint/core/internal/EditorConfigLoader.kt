@@ -16,7 +16,6 @@ import org.ec4j.core.PropertyTypeRegistry
 import org.ec4j.core.Resource
 import org.ec4j.core.ResourcePropertiesService
 import org.ec4j.core.model.Property
-import org.ec4j.core.model.PropertyType
 import org.ec4j.core.model.Version
 
 private val logger = KotlinLogging.logger {}.initKtLintKLogger()

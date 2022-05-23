@@ -4,7 +4,6 @@ import com.pinterest.ktlint.KtlintCommandLine
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.ParseException
 import com.pinterest.ktlint.core.RuleSet
-import com.pinterest.ktlint.core.VisitorProvider
 import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ruleset.test.DumpASTRule
 import java.io.File
@@ -51,24 +50,19 @@ internal class PrintASTSubCommand : Runnable {
     override fun run() {
         commandSpec.commandLine().printHelpOrVersionUsage()
 
-        val visitorProvider = VisitorProvider(
-            ruleSets = astRuleSet,
-            debug = ktlintCommand.debug
-        )
         if (stdin) {
-            printAST(visitorProvider, KtLint.STDIN_FILE, String(System.`in`.readBytes()))
+            printAST(KtLint.STDIN_FILE, String(System.`in`.readBytes()))
         } else {
             FileSystems.getDefault()
                 .fileSequence(patterns)
                 .map { it.toFile() }
                 .forEach {
-                    printAST(visitorProvider, it.path, it.readText())
+                    printAST(it.path, it.readText())
                 }
         }
     }
 
     private fun printAST(
-        visitorProvider: VisitorProvider,
         fileName: String,
         fileContent: String
     ) {
@@ -85,7 +79,6 @@ internal class PrintASTSubCommand : Runnable {
                 fileName = fileName,
                 fileContents = fileContent,
                 ruleSets = astRuleSet,
-                visitorProvider = visitorProvider,
                 debug = ktlintCommand.debug
             )
         } catch (e: Exception) {

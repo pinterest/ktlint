@@ -3,9 +3,9 @@ package com.pinterest.ktlint.core
 import com.pinterest.ktlint.core.ast.ElementType.FILE
 import com.pinterest.ktlint.core.ast.ElementType.IMPORT_LIST
 import com.pinterest.ktlint.core.ast.ElementType.PACKAGE_DIRECTIVE
+import com.pinterest.ktlint.core.internal.VisitorProvider
 import com.pinterest.ktlint.core.internal.initPsiFileFactory
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatIllegalStateException
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
 import org.jetbrains.kotlin.idea.KotlinLanguage
@@ -27,59 +27,6 @@ class VisitorProviderTest {
     }
 
     @Test
-    fun `Multiple normal rules in the same rule set are run in alphabetical order`() {
-        val actual = testVisitorProvider(
-            NormalRule(RULE_B),
-            NormalRule(RULE_A)
-        ).filterFileNodes()
-
-        assertThat(actual).containsExactly(
-            Visit(RULE_A),
-            Visit(RULE_B)
-        )
-    }
-
-    @Test
-    fun `Multiple normal rules in different rule sets are run in alphabetical order but grouped in order standard, experimental and custom`() {
-        val customRuleSetA = "custom-rule-set-a"
-        val customRuleSetB = "custom-rule-set-b"
-        val actual = testVisitorProvider(
-            RuleSet(
-                EXPERIMENTAL,
-                NormalRule(RULE_B),
-                NormalRule(RULE_A)
-            ),
-            RuleSet(
-                customRuleSetA,
-                NormalRule(RULE_B),
-                NormalRule(RULE_A)
-            ),
-            RuleSet(
-                STANDARD,
-                NormalRule(RULE_B),
-                NormalRule(RULE_A)
-            ),
-            RuleSet(
-                customRuleSetB,
-                NormalRule(RULE_B),
-                NormalRule(RULE_A)
-            )
-        ).filterFileNodes()
-
-        assertThat(actual).containsExactly(
-            Visit(RULE_A),
-            Visit(RULE_B),
-            Visit(EXPERIMENTAL, RULE_A),
-            Visit(EXPERIMENTAL, RULE_B),
-            // Rules from custom rule sets are all grouped together
-            Visit(customRuleSetA, RULE_A),
-            Visit(customRuleSetB, RULE_A),
-            Visit(customRuleSetA, RULE_B),
-            Visit(customRuleSetB, RULE_B)
-        )
-    }
-
-    @Test
     fun `A root only rule only visits the FILE node only`() {
         val actual = testVisitorProvider(
             RootNodeOnlyRule(ROOT_NODE_ONLY_RULE)
@@ -87,59 +34,6 @@ class VisitorProviderTest {
 
         assertThat(actual).containsExactly(
             Visit(ROOT_NODE_ONLY_RULE)
-        )
-    }
-
-    @Test
-    fun `Root only rule is run before non-root-only rule`() {
-        val actual = testVisitorProvider(
-            RootNodeOnlyRule(ROOT_NODE_ONLY_RULE),
-            NormalRule(NORMAL_RULE)
-        ).filterFileNodes()
-
-        assertThat(actual).containsExactly(
-            Visit(ROOT_NODE_ONLY_RULE),
-            Visit(NORMAL_RULE)
-        )
-    }
-
-    @Test
-    fun `Multiple root only rules in the same rule set are run in alphabetical order`() {
-        val customRuleSetA = "custom-rule-set-a"
-        val customRuleSetB = "custom-rule-set-b"
-        val actual = testVisitorProvider(
-            RuleSet(
-                EXPERIMENTAL,
-                RootNodeOnlyRule(RULE_B),
-                RootNodeOnlyRule(RULE_A)
-            ),
-            RuleSet(
-                customRuleSetA,
-                RootNodeOnlyRule(RULE_B),
-                RootNodeOnlyRule(RULE_A)
-            ),
-            RuleSet(
-                STANDARD,
-                RootNodeOnlyRule(RULE_B),
-                RootNodeOnlyRule(RULE_A)
-            ),
-            RuleSet(
-                customRuleSetB,
-                RootNodeOnlyRule(RULE_B),
-                RootNodeOnlyRule(RULE_A)
-            )
-        ).filterFileNodes()
-
-        assertThat(actual).containsExactly(
-            Visit(RULE_A),
-            Visit(RULE_B),
-            Visit(EXPERIMENTAL, RULE_A),
-            Visit(EXPERIMENTAL, RULE_B),
-            // Rules from custom rule sets are all grouped together
-            Visit(customRuleSetA, RULE_A),
-            Visit(customRuleSetB, RULE_A),
-            Visit(customRuleSetA, RULE_B),
-            Visit(customRuleSetB, RULE_B)
         )
     }
 
@@ -157,61 +51,6 @@ class VisitorProviderTest {
     }
 
     @Test
-    fun `A run as late as possible rule runs after the rules not marked to run as late as possible`() {
-        val actual = testVisitorProvider(
-            NormalRule(RULE_C),
-            RunAsLateAsPossibleRule(RULE_A),
-            NormalRule(RULE_B)
-        ).filterFileNodes()
-
-        assertThat(actual).containsExactly(
-            Visit(RULE_B),
-            Visit(RULE_C),
-            Visit(RULE_A)
-        )
-    }
-
-    @Test
-    fun `Multiple run as late as possible rules in the same rule set are sorted alphabetically`() {
-        val customRuleSetA = "custom-rule-set-a"
-        val customRuleSetB = "custom-rule-set-b"
-        val actual = testVisitorProvider(
-            RuleSet(
-                EXPERIMENTAL,
-                RunAsLateAsPossibleRule(RULE_B),
-                RunAsLateAsPossibleRule(RULE_A)
-            ),
-            RuleSet(
-                customRuleSetA,
-                RunAsLateAsPossibleRule(RULE_B),
-                RunAsLateAsPossibleRule(RULE_A)
-            ),
-            RuleSet(
-                STANDARD,
-                RunAsLateAsPossibleRule(RULE_B),
-                RunAsLateAsPossibleRule(RULE_A)
-            ),
-            RuleSet(
-                customRuleSetB,
-                RunAsLateAsPossibleRule(RULE_B),
-                RunAsLateAsPossibleRule(RULE_A)
-            )
-        ).filterFileNodes()
-
-        assertThat(actual).containsExactly(
-            Visit(RULE_A),
-            Visit(RULE_B),
-            Visit(EXPERIMENTAL, RULE_A),
-            Visit(EXPERIMENTAL, RULE_B),
-            // Rules from custom rule sets are all grouped together
-            Visit(customRuleSetA, RULE_A),
-            Visit(customRuleSetB, RULE_A),
-            Visit(customRuleSetA, RULE_B),
-            Visit(customRuleSetB, RULE_B)
-        )
-    }
-
-    @Test
     fun `A run as late as possible on root node only rule visits the root node only`() {
         val actual = testVisitorProvider(
             RunAsLateAsPossibleOnRootNodeOnlyRule(RUN_AS_LATE_AS_POSSIBLE_RULE)
@@ -219,252 +58,6 @@ class VisitorProviderTest {
 
         assertThat(actual).containsExactly(
             Visit(RUN_AS_LATE_AS_POSSIBLE_RULE, FILE)
-        )
-    }
-
-    @Test
-    fun `A run as late as possible rule on root node only runs after the rules not marked to run as late as possible`() {
-        val actual = testVisitorProvider(
-            NormalRule(RULE_C),
-            RunAsLateAsPossibleOnRootNodeOnlyRule(RULE_A),
-            NormalRule(RULE_B)
-        ).filterFileNodes()
-
-        assertThat(actual).containsExactly(
-            Visit(RULE_B),
-            Visit(RULE_C),
-            Visit(RULE_A)
-        )
-    }
-
-    @Test
-    fun `Multiple run as late as possible on root node only rules in the same rule set are sorted alphabetically`() {
-        val customRuleSetA = "custom-rule-set-a"
-        val customRuleSetB = "custom-rule-set-b"
-        val actual = testVisitorProvider(
-            RuleSet(
-                EXPERIMENTAL,
-                RunAsLateAsPossibleOnRootNodeOnlyRule(RULE_B),
-                RunAsLateAsPossibleOnRootNodeOnlyRule(RULE_A)
-            ),
-            RuleSet(
-                customRuleSetA,
-                RunAsLateAsPossibleOnRootNodeOnlyRule(RULE_B),
-                RunAsLateAsPossibleOnRootNodeOnlyRule(RULE_A)
-            ),
-            RuleSet(
-                STANDARD,
-                RunAsLateAsPossibleOnRootNodeOnlyRule(RULE_B),
-                RunAsLateAsPossibleOnRootNodeOnlyRule(RULE_A)
-            ),
-            RuleSet(
-                customRuleSetB,
-                RunAsLateAsPossibleOnRootNodeOnlyRule(RULE_B),
-                RunAsLateAsPossibleOnRootNodeOnlyRule(RULE_A)
-            )
-        ).filterFileNodes()
-
-        assertThat(actual).containsExactly(
-            Visit(RULE_A),
-            Visit(RULE_B),
-            Visit(EXPERIMENTAL, RULE_A),
-            Visit(EXPERIMENTAL, RULE_B),
-            // Rules from custom rule sets are all grouped together
-            Visit(customRuleSetA, RULE_A),
-            Visit(customRuleSetB, RULE_A),
-            Visit(customRuleSetA, RULE_B),
-            Visit(customRuleSetB, RULE_B)
-        )
-    }
-
-    @Test
-    fun `A rule annotated with run after rule can not refer to itself`() {
-        assertThatIllegalStateException().isThrownBy {
-            testVisitorProvider(
-                RuleSet(
-                    CUSTOM_RULE_SET_A,
-                    object : R(
-                        id = RULE_A,
-                        visitorModifier = VisitorModifier.RunAfterRule("$CUSTOM_RULE_SET_A:$RULE_A")
-                    ) {}
-                )
-            )
-        }.withMessage(
-            "Rule with id '$CUSTOM_RULE_SET_A:$RULE_A' has a visitor modifier of type 'RunAfterRule' but it is not " +
-                "referring to another rule but to the rule itself. A rule can not run after itself. This should be " +
-                "fixed by the maintainer of the rule."
-        )
-    }
-
-    @Test
-    fun `A rule annotated with run after rule for a rule in the same rule set runs after that rule and override the alphabetical sort order`() {
-        val actual = testVisitorProvider(
-            object : R(
-                id = RULE_A,
-                visitorModifier = VisitorModifier.RunAfterRule(RULE_C)
-            ) {},
-            NormalRule(RULE_B),
-            object : R(
-                id = RULE_D,
-                visitorModifier = VisitorModifier.RunAfterRule(RULE_B)
-            ) {},
-            object : R(
-                id = RULE_C,
-                visitorModifier = VisitorModifier.RunAfterRule(RULE_B)
-            ) {}
-        ).filterFileNodes()
-
-        assertThat(actual).containsExactly(
-            Visit(RULE_B),
-            Visit(RULE_C),
-            Visit(RULE_A),
-            // Although RULE_D like RULE_C depends on RULE_B it still comes after RULE_A because that rules according to
-            // the default sort order comes before rule D
-            Visit(RULE_D)
-        )
-    }
-
-    @Test
-    fun `A rule annotated with run after rule for a rule in the different rule set runs after that rule and override the alphabetical sort order`() {
-        val actual = testVisitorProvider(
-            RuleSet(
-                STANDARD,
-                NormalRule(RULE_B),
-                object : R(
-                    id = RULE_D,
-                    visitorModifier = VisitorModifier.RunAfterRule(RULE_B)
-                ) {},
-                object : R(
-                    id = RULE_C,
-                    visitorModifier = VisitorModifier.RunAfterRule(RULE_B)
-                ) {}
-            ),
-            RuleSet(
-                EXPERIMENTAL,
-                object : R(
-                    id = RULE_A,
-                    visitorModifier = VisitorModifier.RunAfterRule(RULE_C)
-                ) {}
-            )
-        ).filterFileNodes()
-
-        assertThat(actual).containsExactly(
-            Visit(RULE_B),
-            Visit(RULE_C),
-            Visit(RULE_D),
-            Visit(EXPERIMENTAL, RULE_A)
-        )
-    }
-
-    @Test
-    fun `A rule annotated with run after rule which has to be loaded throws an exception in case isUnitTestContext is disabled`() {
-        assertThatIllegalStateException().isThrownBy {
-            testVisitorProvider(
-                object : R(
-                    id = RULE_A,
-                    visitorModifier = VisitorModifier.RunAfterRule(
-                        ruleId = "not-loaded-rule",
-                        loadOnlyWhenOtherRuleIsLoaded = true
-                    )
-                ) {}
-            )
-        }.withMessage("No runnable rules found. Please ensure that at least one is enabled.")
-    }
-
-    @Test
-    fun `A rule annotated with run after rule of a rule which has to be loaded will still be ignored in case isUnitTestContext is enabled`() {
-        val actual = testVisitorProvider(
-            object : R(
-                id = RULE_A,
-                visitorModifier = VisitorModifier.RunAfterRule("not-loaded-rule")
-            ) {}
-        ).filterFileNodes()
-
-        assertThat(actual).containsExactly(
-            Visit(RULE_A)
-        )
-    }
-
-    @Test
-    fun `A rule annotated with run after rule of a rule which does not have to be loaded will be ignored in case isUnitTestContext is disabled`() {
-        val actual = testVisitorProvider(
-            object : R(
-                id = RULE_A,
-                visitorModifier = VisitorModifier.RunAfterRule("not-loaded-rule")
-            ) {}
-        ).filterFileNodes()
-
-        assertThat(actual).containsExactly(
-            Visit(RULE_A)
-        )
-    }
-
-    @Test
-    fun `Rules annotated with run after rule but cyclic depend on each others, no custom rule sets involved, throws an exception`() {
-        assertThatIllegalStateException().isThrownBy {
-            testVisitorProvider(
-                RuleSet(
-                    STANDARD,
-                    object : R(
-                        id = RULE_A,
-                        visitorModifier = VisitorModifier.RunAfterRule(RULE_B)
-                    ) {},
-                    object : R(
-                        id = RULE_B,
-                        visitorModifier = VisitorModifier.RunAfterRule("$EXPERIMENTAL:$RULE_C")
-                    ) {}
-                ),
-                RuleSet(
-                    EXPERIMENTAL,
-                    object : R(
-                        id = RULE_C,
-                        visitorModifier = VisitorModifier.RunAfterRule(RULE_A)
-                    ) {}
-                )
-            )
-        }.withMessage(
-            """
-            Found cyclic dependencies between rules that should run after another rule:
-              - Rule with id '$STANDARD:$RULE_A' should run after rule with id '$STANDARD:$RULE_B'
-              - Rule with id '$STANDARD:$RULE_B' should run after rule with id '$EXPERIMENTAL:$RULE_C'
-              - Rule with id '$EXPERIMENTAL:$RULE_C' should run after rule with id '$STANDARD:$RULE_A'
-            """.trimIndent()
-        )
-    }
-
-    @Test
-    fun `Rules annotated with run after rule but cyclic depend on each others, custom rule sets involved, throws an exception`() {
-        assertThatIllegalStateException().isThrownBy {
-            testVisitorProvider(
-                RuleSet(
-                    STANDARD,
-                    object : R(
-                        id = RULE_C,
-                        visitorModifier = VisitorModifier.RunAfterRule("$CUSTOM_RULE_SET_B:$RULE_B")
-                    ) {}
-                ),
-                RuleSet(
-                    CUSTOM_RULE_SET_B,
-                    object : R(
-                        id = RULE_B,
-                        visitorModifier = VisitorModifier.RunAfterRule("$CUSTOM_RULE_SET_A:$RULE_A")
-                    ) {}
-                ),
-                RuleSet(
-                    CUSTOM_RULE_SET_A,
-                    object : R(
-                        id = RULE_A,
-                        visitorModifier = VisitorModifier.RunAfterRule("$STANDARD:$RULE_C")
-                    ) {}
-                )
-            )
-        }.withMessage(
-            """
-            Found cyclic dependencies between rules that should run after another rule. Please contact the maintainer(s) of the custom rule set(s) [$CUSTOM_RULE_SET_A, $CUSTOM_RULE_SET_B] before creating an issue in the KtLint project. Dependencies:
-              - Rule with id '$STANDARD:$RULE_C' should run after rule with id '$CUSTOM_RULE_SET_B:$RULE_B'
-              - Rule with id '$CUSTOM_RULE_SET_A:$RULE_A' should run after rule with id '$STANDARD:$RULE_C'
-              - Rule with id '$CUSTOM_RULE_SET_B:$RULE_B' should run after rule with id '$CUSTOM_RULE_SET_A:$RULE_A'
-            """.trimIndent()
         )
     }
 
@@ -574,7 +167,10 @@ class VisitorProviderTest {
         return VisitorProvider(
             ruleSets = ruleSetList,
             // Enable debug mode as it is helpful when a test fails
-            debug = true
+            debug = true,
+            // Creates a new VisitorProviderFactory for each unit test to prevent that tests for the exact same set of
+            // ruleIds are influencing each other.
+            recreateRuleSorter = true
         ).run {
             var visits: MutableList<Visit>? = null
             visitor(ruleSetList, SOME_ROOT_AST_NODE, concurrent ?: false)
@@ -599,7 +195,6 @@ class VisitorProviderTest {
         const val STANDARD = "standard"
         const val EXPERIMENTAL = "experimental"
         const val CUSTOM_RULE_SET_A = "custom-rule-set-a"
-        const val CUSTOM_RULE_SET_B = "custom-rule-set-b"
         val SOME_ROOT_AST_NODE = initRootAstNode()
         const val NORMAL_RULE = "normal-rule"
         const val ROOT_NODE_ONLY_RULE = "root-node-only-rule"
@@ -607,7 +202,6 @@ class VisitorProviderTest {
         const val RULE_A = "rule-a"
         const val RULE_B = "rule-b"
         const val RULE_C = "rule-c"
-        const val RULE_D = "rule-d"
         const val SOME_DISABLED_RULE_IN_STANDARD_RULE_SET = "some-disabled-rule-in-standard-rule-set"
         const val SOME_DISABLED_RULE_IN_EXPERIMENTAL_RULE_SET = "some-disabled-rule-in-experimental-rule-set"
         const val SOME_DISABLED_RULE_IN_CUSTOM_RULE_SET_A = "some-disabled-rule-custom-rule-set-a"
