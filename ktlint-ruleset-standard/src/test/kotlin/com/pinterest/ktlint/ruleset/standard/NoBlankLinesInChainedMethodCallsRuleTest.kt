@@ -21,6 +21,14 @@ class NoBlankLinesInChainedMethodCallsRuleTest {
 
         noBlankLinesInChainedMethodCallsRuleAssertThat(code)
             .hasLintViolations(LintViolation(3, 1, "Needless blank line(s)"))
+            .isFormattedAs(
+                """
+                fun foo(inputText: String) {
+                    inputText
+                        .toLowerCase()
+                }
+                """.trimIndent()
+            )
     }
 
     @Test
