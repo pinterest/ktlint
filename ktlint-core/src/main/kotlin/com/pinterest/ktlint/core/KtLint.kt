@@ -49,31 +49,6 @@ public object KtLint {
      * @param fileName path of file to lint/format
      * @param text Contents of file to lint/format
      * @param ruleSets a collection of "RuleSet"s used to validate source
-     * @param userData Map of user options
-     * @param cb callback invoked for each lint error
-     * @param script true if this is a Kotlin script file
-     * @param editorConfigPath optional path of the .editorconfig file (otherwise will use working directory)
-     * @param debug True if invoked with the --debug flag
-     */
-    @Deprecated(
-        message = "Marked for removal in Ktlint 0.46.",
-        replaceWith = ReplaceWith("ExperimentalParams")
-    )
-    public data class Params(
-        val fileName: String? = null,
-        val text: String,
-        val ruleSets: Iterable<RuleSet>,
-        val userData: Map<String, String> = emptyMap(),
-        val cb: (e: LintError, corrected: Boolean) -> Unit,
-        val script: Boolean = false,
-        val editorConfigPath: String? = null,
-        val debug: Boolean = false
-    )
-
-    /**
-     * @param fileName path of file to lint/format
-     * @param text Contents of file to lint/format
-     * @param ruleSets a collection of "RuleSet"s used to validate source
      * @param userData Map of user options. Should not be used for overrides of properties set in '.editorconfig'.
      * @param cb callback invoked for each lint error
      * @param script true if this is a Kotlin script file
@@ -144,23 +119,6 @@ public object KtLint {
             }
             .toSet()
     }
-
-    @Deprecated(
-        message = "Marked for removal in Ktlint 0.46.",
-        replaceWith = ReplaceWith("ExperimentalParams")
-    )
-    @OptIn(FeatureInAlphaState::class)
-    private fun toExperimentalParams(params: Params): ExperimentalParams =
-        ExperimentalParams(
-            fileName = params.fileName,
-            text = params.text,
-            ruleSets = params.ruleSets,
-            userData = params.userData,
-            cb = params.cb,
-            script = params.script,
-            editorConfigPath = params.editorConfigPath,
-            debug = params.debug
-        )
 
     /**
      * Check source for lint errors.
