@@ -333,26 +333,12 @@ public object KtLint {
      * @throws ParseException if text is not a valid Kotlin code
      * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
      */
-    @OptIn(FeatureInAlphaState::class)
-    public fun format(experimentalParams: ExperimentalParams): String {
-        return format(
-            experimentalParams,
-            VisitorProvider(
-                ruleSets = experimentalParams.ruleSets,
-                debug = experimentalParams.debug
-            )
-        )
-    }
-
-    /**
-     * Fix style violations.
-     *
-     * @throws ParseException if text is not a valid Kotlin code
-     * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
-     */
     public fun format(
         params: ExperimentalParams,
-        visitorProvider: VisitorProvider
+        visitorProvider: VisitorProvider = VisitorProvider(
+            ruleSets = params.ruleSets,
+            debug = params.debug
+        )
     ): String {
         val hasUTF8BOM = params.text.startsWith(UTF8_BOM)
         val psiFileFactory = kotlinPsiFileFactoryProvider.getKotlinPsiFileFactory(params.isInvokedFromCli)

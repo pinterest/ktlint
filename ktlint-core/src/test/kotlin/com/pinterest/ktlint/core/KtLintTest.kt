@@ -490,11 +490,6 @@ class KtLintTest {
 
         assertThat(actual).isEqualTo(code)
     }
-
-    private companion object {
-        const val SOME_PROPERTY = "some-property"
-        const val SOME_PROPERTY_VALUE = "some-property-value"
-    }
 }
 
 @OptIn(FeatureInAlphaState::class)

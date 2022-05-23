@@ -112,13 +112,7 @@ public fun List<Rule>.format(
         script = script,
         cb = cb
     )
-    return KtLint.format(
-        experimentalParams,
-        VisitorProvider(
-            ruleSets = experimentalParams.ruleSets,
-            debug = experimentalParams.debug
-        )
-    )
+    return KtLint.format(experimentalParams)
 }
 
 @FeatureInAlphaState
