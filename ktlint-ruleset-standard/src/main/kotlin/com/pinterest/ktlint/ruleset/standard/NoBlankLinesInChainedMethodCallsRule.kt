@@ -15,7 +15,10 @@ public class NoBlankLinesInChainedMethodCallsRule : Rule("no-blank-lines-in-chai
         val isBlankLine = node is PsiWhiteSpace && node.getText().contains("\n\n")
         if (isBlankLine && node.treeParent.elementType == DOT_QUALIFIED_EXPRESSION) {
             emit(node.startOffset + 1, "Needless blank line(s)", true)
-            (node as LeafPsiElement).rawReplaceWithText("\n" + node.getText().split("\n\n")[1])
+
+            if (autoCorrect) {
+                (node as LeafPsiElement).rawReplaceWithText("\n" + node.getText().split("\n\n")[1])
+            }
         }
     }
 }
