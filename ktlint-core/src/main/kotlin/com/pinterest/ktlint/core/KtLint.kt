@@ -168,21 +168,6 @@ public object KtLint {
      * @throws ParseException if text is not a valid Kotlin code
      * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
      */
-    @Deprecated(
-        message = "Marked for removal in Ktlint 0.46. Move '.editorconfig' properties from 'Params.userData' to 'ExperimentalParam.editorConfigOverride'.",
-        replaceWith = ReplaceWith("lint(toExperimentalParams(params))")
-    )
-    @OptIn(FeatureInAlphaState::class)
-    public fun lint(params: Params) =
-        lint(toExperimentalParams(params))
-
-    /**
-     * Check source for lint errors.
-     *
-     * @throws ParseException if text is not a valid Kotlin code
-     * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
-     */
-    @FeatureInAlphaState
     public fun lint(
         params: ExperimentalParams,
         visitorProvider: VisitorProvider = VisitorProvider(
