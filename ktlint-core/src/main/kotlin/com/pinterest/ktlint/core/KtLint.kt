@@ -176,17 +176,6 @@ public object KtLint {
     public fun lint(params: Params) =
         lint(toExperimentalParams(params))
 
-    @OptIn(FeatureInAlphaState::class)
-    public fun lint(experimentalParams: ExperimentalParams) {
-        lint(
-            experimentalParams,
-            VisitorProvider(
-                ruleSets = experimentalParams.ruleSets,
-                debug = experimentalParams.debug
-            )
-        )
-    }
-
     /**
      * Check source for lint errors.
      *
@@ -196,7 +185,10 @@ public object KtLint {
     @FeatureInAlphaState
     public fun lint(
         params: ExperimentalParams,
-        visitorProvider: VisitorProvider
+        visitorProvider: VisitorProvider = VisitorProvider(
+            ruleSets = params.ruleSets,
+            debug = params.debug
+        )
     ) {
         val psiFileFactory = kotlinPsiFileFactoryProvider.getKotlinPsiFileFactory(params.isInvokedFromCli)
         val preparedCode = prepareCodeForLinting(psiFileFactory, params)
