@@ -3,7 +3,6 @@ package com.pinterest.ktlint.internal
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.RuleSet
-import com.pinterest.ktlint.core.VisitorProvider
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.initKtLintKLogger
 import java.io.File
@@ -169,29 +168,25 @@ internal fun lintFile(
     fileName: String,
     fileContents: String,
     ruleSets: Iterable<RuleSet>,
-    visitorProvider: VisitorProvider,
     userData: Map<String, String> = emptyMap(),
     editorConfigPath: String? = null,
     debug: Boolean = false,
     lintErrorCallback: (LintError) -> Unit = {}
-) {
-    KtLint.lint(
-        KtLint.ExperimentalParams(
-            fileName = fileName,
-            text = fileContents,
-            ruleSets = ruleSets,
-            userData = userData,
-            script = !fileName.endsWith(".kt", ignoreCase = true),
-            editorConfigPath = editorConfigPath,
-            cb = { e, _ ->
-                lintErrorCallback(e)
-            },
-            debug = debug,
-            isInvokedFromCli = true
-        ),
-        visitorProvider
+) = KtLint.lint(
+    KtLint.ExperimentalParams(
+        fileName = fileName,
+        text = fileContents,
+        ruleSets = ruleSets,
+        userData = userData,
+        script = !fileName.endsWith(".kt", ignoreCase = true),
+        editorConfigPath = editorConfigPath,
+        cb = { e, _ ->
+            lintErrorCallback(e)
+        },
+        debug = debug,
+        isInvokedFromCli = true
     )
-}
+)
 
 /**
  * Format a kotlin file or script file
@@ -204,22 +199,18 @@ internal fun formatFile(
     userData: Map<String, String>,
     editorConfigPath: String?,
     debug: Boolean,
-    cb: (e: LintError, corrected: Boolean) -> Unit,
-    visitorProvider: VisitorProvider
-): String {
-    val params = KtLint.ExperimentalParams(
-        fileName = fileName,
-        text = fileContents,
-        ruleSets = ruleSets,
-        userData = userData,
-        script = !fileName.endsWith(".kt", ignoreCase = true),
-        editorConfigPath = editorConfigPath,
-        cb = cb,
-        debug = debug,
-        isInvokedFromCli = true
+    cb: (e: LintError, corrected: Boolean) -> Unit
+): String =
+    KtLint.format(
+        KtLint.ExperimentalParams(
+            fileName = fileName,
+            text = fileContents,
+            ruleSets = ruleSets,
+            userData = userData,
+            script = !fileName.endsWith(".kt", ignoreCase = true),
+            editorConfigPath = editorConfigPath,
+            cb = cb,
+            debug = debug,
+            isInvokedFromCli = true
+        )
     )
-    return KtLint.format(
-        params,
-        visitorProvider
-    )
-}

@@ -168,18 +168,12 @@ public object KtLint {
      * @throws ParseException if text is not a valid Kotlin code
      * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
      */
-    public fun lint(
-        params: ExperimentalParams,
-        visitorProvider: VisitorProvider = VisitorProvider(
-            ruleSets = params.ruleSets,
-            debug = params.debug
-        )
-    ) {
+    public fun lint(params: ExperimentalParams) {
         val psiFileFactory = kotlinPsiFileFactoryProvider.getKotlinPsiFileFactory(params.isInvokedFromCli)
         val preparedCode = prepareCodeForLinting(psiFileFactory, params)
         val errors = mutableListOf<LintError>()
 
-        visitorProvider
+        VisitorProvider(params.ruleSets, params.debug)
             .visitor(params.ruleSets, preparedCode.rootNode)
             .invoke { node, rule, fqRuleId ->
                 // fixme: enforcing suppression based on node.startOffset is wrong
@@ -310,19 +304,17 @@ public object KtLint {
      * @throws ParseException if text is not a valid Kotlin code
      * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
      */
-    public fun format(
-        params: ExperimentalParams,
-        visitorProvider: VisitorProvider = VisitorProvider(
-            ruleSets = params.ruleSets,
-            debug = params.debug
-        )
-    ): String {
+    public fun format(params: ExperimentalParams): String {
         val hasUTF8BOM = params.text.startsWith(UTF8_BOM)
         val psiFileFactory = kotlinPsiFileFactoryProvider.getKotlinPsiFileFactory(params.isInvokedFromCli)
         val preparedCode = prepareCodeForLinting(psiFileFactory, params)
 
         var tripped = false
         var mutated = false
+        val visitorProvider = VisitorProvider(
+            ruleSets = params.ruleSets,
+            debug = params.debug
+        )
         visitorProvider
             .visitor(
                 params.ruleSets,

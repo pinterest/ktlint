@@ -4,7 +4,6 @@ import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.RuleSet
-import com.pinterest.ktlint.core.VisitorProvider
 import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.initKtLintKLogger
@@ -86,11 +85,7 @@ public fun List<Rule>.lint(
         cb = { e, _ -> res.add(e) }
     )
     KtLint.lint(
-        experimentalParams,
-        VisitorProvider(
-            ruleSets = experimentalParams.ruleSets,
-            debug = experimentalParams.debug
-        )
+        experimentalParams
     )
     return res
 }
