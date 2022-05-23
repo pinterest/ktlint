@@ -280,136 +280,6 @@ class KtLintTest {
         }
 
         @Nested
-        inner class FormatViaDeprecatedParams {
-            @Test
-            fun `Given that an empty ruleSet is provided than throw an error`() {
-                assertThatThrownBy {
-                    KtLint.format(
-                        KtLint.Params(
-                            fileName = "some-filename",
-                            text = "fun main() {}",
-                            ruleSets = emptyList(),
-                            userData = emptyMap(),
-                            cb = { _, _ -> },
-                            script = false,
-                            editorConfigPath = null,
-                            debug = false
-                        )
-                    )
-                }.isInstanceOf(IllegalStateException::class.java)
-                    .hasMessage("No runnable rules found. Please ensure that at least one is enabled.")
-            }
-
-            @Test
-            fun `Given a non empty ruleset and empty userData then do not throw an error`() {
-                var numberOfRootNodesVisited = 0
-                KtLint.format(
-                    KtLint.Params(
-                        fileName = "some-filename",
-                        text = "fun main() {}",
-                        ruleSets = listOf(
-                            RuleSet(
-                                "standard",
-                                DummyRule { node ->
-                                    if (node.isRoot()) {
-                                        numberOfRootNodesVisited++
-                                    }
-                                }
-                            )
-                        ),
-                        userData = emptyMap(),
-                        cb = { _, _ -> },
-                        script = false,
-                        editorConfigPath = null,
-                        debug = false
-                    )
-                )
-                assertThat(numberOfRootNodesVisited).isEqualTo(1)
-            }
-
-            @Test
-            fun `Given a non empty ruleset and userData that contains one default editor config property then throw an error`() {
-                assertThatThrownBy {
-                    KtLint.format(
-                        KtLint.Params(
-                            fileName = "some-filename",
-                            text = "fun main() {}",
-                            ruleSets = listOf(
-                                RuleSet("standard", DummyRule())
-                            ),
-                            userData = mapOf("max_line_length" to "80"),
-                            cb = { _, _ -> },
-                            script = false,
-                            editorConfigPath = null,
-                            debug = false
-                        )
-                    )
-                }.isInstanceOf(IllegalStateException::class.java)
-                    .hasMessage(
-                        "UserData should not contain '.editorconfig' properties [max_line_length]. Such properties " +
-                            "should be passed via the 'ExperimentalParams.editorConfigOverride' field. Note that " +
-                            "this is only required for properties that (potentially) contain a value that differs " +
-                            "from the actual value in the '.editorconfig' file."
-                    )
-            }
-
-            @Test
-            fun `Given a non empty ruleset and userData that contains multiple default editor config properties then throw an error`() {
-                assertThatThrownBy {
-                    KtLint.format(
-                        KtLint.Params(
-                            fileName = "some-filename",
-                            text = "fun main() {}",
-                            ruleSets = listOf(
-                                RuleSet("standard", DummyRule())
-                            ),
-                            userData = mapOf(
-                                "indent_style" to "space",
-                                "indent_size" to "4"
-                            ),
-                            cb = { _, _ -> },
-                            script = false,
-                            editorConfigPath = null,
-                            debug = false
-                        )
-                    )
-                }.isInstanceOf(IllegalStateException::class.java)
-                    .hasMessage(
-                        "UserData should not contain '.editorconfig' properties [indent_size, indent_style]. Such" +
-                            " properties should be passed via the 'ExperimentalParams.editorConfigOverride' field. " +
-                            "Note that this is only required for properties that (potentially) contain a value that " +
-                            "differs from the actual value in the '.editorconfig' file."
-                    )
-            }
-
-            @Test
-            fun `Given a non empty ruleset and userData that refers to a custom Rule property then do throw an error`() {
-                assertThatThrownBy {
-                    KtLint.format(
-                        KtLint.Params(
-                            fileName = "some-filename",
-                            text = "fun main() {}",
-                            ruleSets = listOf(
-                                RuleSet("standard", DummyRuleWithCustomEditorConfigProperty())
-                            ),
-                            userData = mapOf(SOME_CUSTOM_RULE_PROPERTY to "false"),
-                            cb = { _, _ -> },
-                            script = false,
-                            editorConfigPath = null,
-                            debug = false
-                        )
-                    )
-                }.isInstanceOf(IllegalStateException::class.java)
-                    .hasMessage(
-                        "UserData should not contain '.editorconfig' properties [$SOME_CUSTOM_RULE_PROPERTY]. Such" +
-                            " properties should be passed via the 'ExperimentalParams.editorConfigOverride' field. " +
-                            "Note that this is only required for properties that (potentially) contain a value that " +
-                            "differs from the actual value in the '.editorconfig' file."
-                    )
-            }
-        }
-
-        @Nested
         inner class FormatViaExperimentalParams {
             @Test
             fun `Given that an empty ruleSet is provided than throw an error`() {
@@ -609,7 +479,7 @@ class KtLintTest {
         val code = getResourceAsText("spec/format-unicode-bom.kt.spec")
 
         val actual = KtLint.format(
-            KtLint.Params(
+            KtLint.ExperimentalParams(
                 text = code,
                 ruleSets = listOf(
                     RuleSet("standard", DummyRule())
