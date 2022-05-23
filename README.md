@@ -41,6 +41,7 @@ It's also [easy to create your own](#creating-a-reporter).
 - `modifier-order`: Consistent order of modifiers
 - `no-blank-line-before-rbrace`: No blank lines before `}` 
 - `no-consecutive-blank-lines`: No consecutive blank lines
+- `no-blank-lines-in-chained-method-calls`: No blank lines in chained method expressions
 - `no-empty-class-body`: No empty (`{}`) class bodies
 - `no-line-break-after-else`: Disallows line breaks after the else keyword if that could lead to confusion, for example:
     ```kotlin
