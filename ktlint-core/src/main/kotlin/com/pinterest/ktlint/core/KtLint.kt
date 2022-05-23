@@ -337,7 +337,6 @@ public object KtLint {
     public fun format(experimentalParams: ExperimentalParams): String {
         return format(
             experimentalParams,
-            experimentalParams.ruleSets,
             VisitorProvider(
                 ruleSets = experimentalParams.ruleSets,
                 debug = experimentalParams.debug
@@ -351,23 +350,6 @@ public object KtLint {
      * @throws ParseException if text is not a valid Kotlin code
      * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
      */
-    @Deprecated(
-        message = "Marked for removal in Ktlint 0.46. Overrides of '.editorconfig' properties no longer should be " +
-            "passed via the 'Params.userData' but via the 'ExperimentalParam.editorConfigOverride' parameter. The " +
-            "ruleSets have to be provided via the 'ExperimentalParams.ruleSets' parameter.",
-        replaceWith = ReplaceWith("format(params, visitorProvider)")
-    )
-    @FeatureInAlphaState
-    public fun format(
-        params: ExperimentalParams,
-        ruleSets: Iterable<RuleSet>,
-        visitorProvider: VisitorProvider
-    ): String =
-        format(
-            params.copy(ruleSets = ruleSets),
-            visitorProvider
-        )
-
     public fun format(
         params: ExperimentalParams,
         visitorProvider: VisitorProvider

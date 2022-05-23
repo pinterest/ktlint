@@ -220,7 +220,6 @@ internal fun formatFile(
     )
     return KtLint.format(
         params,
-        ruleSets,
         visitorProvider
     )
 }
