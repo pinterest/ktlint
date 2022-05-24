@@ -8,20 +8,18 @@ class FilenameRuleTest {
 
     @Test
     fun testMatchingSingleClassName() {
-        for (
-            src in listOf(
-                "class A",
-                "class `A`",
-                "data class A(val v: Int)",
-                "sealed class A",
-                "interface A",
-                "object A",
-                "enum class A {A}",
-                "typealias A = Set<Network.Node>",
-                // >1 declaration case
-                "class B\nfun A.f() {}"
-            )
-        ) {
+        for (src in listOf(
+            "class A",
+            "class `A`",
+            "data class A(val v: Int)",
+            "sealed class A",
+            "interface A",
+            "object A",
+            "enum class A {A}",
+            "typealias A = Set<Network.Node>",
+            // >1 declaration case
+            "class B\nfun A.f() {}"
+        )) {
             val code =
                 """
                 /*
@@ -41,17 +39,15 @@ class FilenameRuleTest {
 
     @Test
     fun testNonMatchingSingleClassName() {
-        for (
-            src in mapOf(
-                "class A" to "class",
-                "data class A(val v: Int)" to "class",
-                "sealed class A" to "class",
-                "interface A" to "interface",
-                "object A" to "object",
-                "enum class A {A}" to "class",
-                "typealias A = Set<Network.Node>" to "typealias"
-            )
-        ) {
+        for (src in mapOf(
+            "class A" to "class",
+            "data class A(val v: Int)" to "class",
+            "sealed class A" to "class",
+            "interface A" to "interface",
+            "object A" to "object",
+            "enum class A {A}" to "class",
+            "typealias A = Set<Network.Node>" to "typealias"
+        )) {
             val code =
                 """
                 /*
