@@ -1,11 +1,9 @@
 package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
-import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 class NoBlankLinesInChainedMethodCallsRuleTest {
-
     private val noBlankLinesInChainedMethodCallsRuleAssertThat = NoBlankLinesInChainedMethodCallsRule().assertThat()
 
     @Test
@@ -18,17 +16,16 @@ class NoBlankLinesInChainedMethodCallsRuleTest {
                     .toLowerCase()
             }
             """.trimIndent()
-
+        val formattedCode =
+            """
+            fun foo(inputText: String) {
+                inputText
+                    .toLowerCase()
+            }
+            """.trimIndent()
         noBlankLinesInChainedMethodCallsRuleAssertThat(code)
-            .hasLintViolations(LintViolation(3, 1, "Needless blank line(s)"))
-            .isFormattedAs(
-                """
-                fun foo(inputText: String) {
-                    inputText
-                        .toLowerCase()
-                }
-                """.trimIndent()
-            )
+            .hasLintViolation(3, 1, "Needless blank line(s)")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -41,7 +38,6 @@ class NoBlankLinesInChainedMethodCallsRuleTest {
                 bar()
             }
             """.trimIndent()
-
         noBlankLinesInChainedMethodCallsRuleAssertThat(code).hasNoLintViolations()
     }
 }
