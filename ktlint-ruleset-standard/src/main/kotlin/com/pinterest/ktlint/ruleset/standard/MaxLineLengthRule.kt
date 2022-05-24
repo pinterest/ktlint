@@ -154,7 +154,7 @@ private data class ParsedLine(
         return elements
             .filterIsInstance(PsiElement::class.java)
             .filter { it.text.matches(isValueBetweenBackticks) }
-            .sumBy(PsiElement::getTextLength)
+            .sumOf(PsiElement::getTextLength)
     }
 
     private companion object {

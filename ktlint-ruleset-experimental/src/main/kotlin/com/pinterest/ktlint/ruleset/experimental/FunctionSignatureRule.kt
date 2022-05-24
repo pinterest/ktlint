@@ -201,13 +201,11 @@ public class FunctionSignatureRule :
                 .children()
                 .firstOrNull { it.elementType == VALUE_PARAMETER }
 
-        if (firstParameterInList == null) {
+        whiteSpaceCorrection += if (firstParameterInList == null) {
             // handle empty parameter list
-            whiteSpaceCorrection +=
-                fixWhiteSpacesInEmptyValueParameterList(node, emit, autoCorrect, dryRun)
+            fixWhiteSpacesInEmptyValueParameterList(node, emit, autoCorrect, dryRun)
         } else {
-            whiteSpaceCorrection +=
-                fixWhiteSpacesBeforeFirstParameterInValueParameterList(node, emit, autoCorrect, multiline, dryRun) +
+            fixWhiteSpacesBeforeFirstParameterInValueParameterList(node, emit, autoCorrect, multiline, dryRun) +
                 fixWhiteSpacesBetweenParametersInValueParameterList(node, emit, autoCorrect, multiline, dryRun) +
                 fixWhiteSpaceBeforeClosingParenthesis(node, emit, autoCorrect, multiline, dryRun)
         }

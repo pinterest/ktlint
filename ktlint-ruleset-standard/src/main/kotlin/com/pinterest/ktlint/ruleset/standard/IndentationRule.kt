@@ -986,9 +986,7 @@ public class IndentationRule :
             .filterNot { it.startsWith("\"\"\"") }
             .filterNot { it.endsWith("\"\"\"") }
             .filterNot { it.isBlank() }
-        val prefixLength = nonBlankLines
-            .map { it.indentLength() }
-            .minOrNull() ?: 0
+        val prefixLength = nonBlankLines.minOfOrNull { it.indentLength() } ?: 0
         val distinctIndentCharacters = nonBlankLines
             .joinToString(separator = "") {
                 it.splitIndentAt(prefixLength).first

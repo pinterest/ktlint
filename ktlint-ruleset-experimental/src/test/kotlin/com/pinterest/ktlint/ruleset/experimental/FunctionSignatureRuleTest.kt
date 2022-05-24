@@ -129,7 +129,7 @@ class FunctionSignatureRuleTest {
         val code =
             """
             // No max line length marker!
-            fun f(string: String): String = string.toUpperCase()
+            fun f(string: String): String = string.uppercase(Locale.getDefault())
             """.trimIndent()
         functionSignatureWrappingRuleAssertThat(code).hasNoLintViolations()
     }

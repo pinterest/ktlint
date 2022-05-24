@@ -14,7 +14,6 @@ import org.ec4j.core.model.PropertyType
  * Secondly, the [EditorConfigOverride] is used in unit tests, to test a rule with distinct values of a property without
  * having to access an ".editorconfig" file from physical storage. This also improves readability of the tests.
  */
-@FeatureInAlphaState
 public class EditorConfigOverride {
     private val _properties = mutableMapOf<EditorConfigProperty<*>, PropertyType.PropertyValue<*>>()
 

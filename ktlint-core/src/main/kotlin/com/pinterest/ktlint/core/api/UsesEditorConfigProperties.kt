@@ -26,7 +26,6 @@ private val logger = KotlinLogging.logger {}.initKtLintKLogger()
  * See [com.pinterest.ktlint.core.KtLint.generateKotlinEditorConfigSection] documentation how to generate
  * `.editorconfig` based on [com.pinterest.ktlint.core.Rule]s with this interface implementations.
  */
-@FeatureInAlphaState
 public interface UsesEditorConfigProperties {
 
     /**
@@ -71,7 +70,7 @@ public interface UsesEditorConfigProperties {
                     newValue != property.getValueAs() ->
                         logger.trace {
                             "Value of '.editorconfig' property '${editorConfigProperty.type.name}' is overridden " +
-                                "from '${property?.sourceValue}' to '$newValue'"
+                                "from '${property.sourceValue}' to '$newValue'"
                         }
                 }
                 return newValue
@@ -127,7 +126,7 @@ public interface UsesEditorConfigProperties {
         /**
          * If set, it maps the actual value set for the property, to another valid value for that property. See example
          * below where
-         * ```
+         * ```kotlin
          * propertyMapper = { property, isAndroidCodeStyle ->
          *     when {
          *         property == null ->
@@ -154,7 +153,6 @@ public interface UsesEditorConfigProperties {
 /**
  * Defines KtLint properties which are based on default property types provided by [org.ec4j.core.model.PropertyType].
  */
-@OptIn(FeatureInAlphaState::class)
 public object DefaultEditorConfigProperties {
     public val indentStyleProperty: UsesEditorConfigProperties.EditorConfigProperty<PropertyType.IndentStyleValue> =
         UsesEditorConfigProperties.EditorConfigProperty(

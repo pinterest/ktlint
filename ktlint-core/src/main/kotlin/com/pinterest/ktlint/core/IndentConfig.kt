@@ -43,28 +43,6 @@ public data class IndentConfig(
         tabWidth = tabWidth
     )
 
-    @Deprecated(message = "Marked for removal in Ktlint 0.46.")
-    public constructor(
-        indentStyle: EditorConfig.IndentStyle,
-
-        /**
-         * The number of spaces that is equivalent to one tab
-         */
-        tabWidth: Int,
-
-        /**
-         * Property is ignored (starting from ktlint 0.45). Specify a tabWidth <= 0 to disable the indent.
-         */
-        @Suppress("UNUSED_PARAMETER")
-        disabled: Boolean = false
-    ) : this(
-        indentStyle = when (indentStyle) {
-            EditorConfig.IndentStyle.TAB -> TAB
-            EditorConfig.IndentStyle.SPACE -> SPACE
-        },
-        tabWidth = tabWidth
-    )
-
     public enum class IndentStyle { SPACE, TAB }
 
     private val indentChar =

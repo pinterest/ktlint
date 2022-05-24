@@ -19,8 +19,8 @@ open class RuleSetProviderTest(
             ?: arrayListOf()
 
         val provider = rulesetClass
-        val providerRules = provider.newInstance().get().rules.map { it::class.java.simpleName }
-        val diff = packageRules - providerRules
+        val providerRules = provider.getDeclaredConstructor().newInstance().get().rules.map { it::class.java.simpleName }
+        val diff = packageRules - providerRules.toSet()
         assertThat(diff)
             .withFailMessage("%s is missing to provide the following rules: \n%s", provider.simpleName, diff.joinToString(separator = "\n"))
             .hasSize(0)

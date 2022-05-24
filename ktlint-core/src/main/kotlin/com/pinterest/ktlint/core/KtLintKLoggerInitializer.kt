@@ -2,15 +2,6 @@ package com.pinterest.ktlint.core
 
 import mu.KLogger
 
-@Deprecated(message = "No longer in use for the public API. Constant is marked for removal in Ktlint 0.46.")
-private const val KTLINT_DEBUG = "KTLINT_DEBUG"
-
-@Deprecated(message = "No longer in use for the public API. Constant is marked for removal in Ktlint 0.46.")
-public const val KTLINT_UNIT_TEST_DUMP_AST = "KTLINT_UNIT_TEST_DUMP_AST"
-
-@Deprecated(message = "No longer in use for the public API. Constant is marked for removal in Ktlint 0.46.")
-public const val KTLINT_UNIT_TEST_ON_PROPERTY = "ON"
-
 /**
  * Default modifier for the KLogger. It can be set only once via [setDefaultLoggerModifier] but it should be set before
  * the first invocation of [initKtLintKLogger].

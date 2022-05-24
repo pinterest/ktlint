@@ -40,6 +40,7 @@ import java.io.PrintStream
 import java.net.URLClassLoader
 import java.net.URLDecoder
 import java.nio.file.FileSystems
+import java.util.Locale
 import java.util.ServiceLoader
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.Callable
@@ -276,13 +277,11 @@ class KtlintCommandLine {
 
         reporter.beforeAll()
         val ruleSets = ruleSetProviders.map { it.value.get() }
-        val visitorProvider = VisitorProvider(ruleSets, debug)
         if (stdin) {
-            lintStdin(ruleSetProviders, visitorProvider, userData, reporter)
+            lintStdin(ruleSetProviders, userData, reporter)
         } else {
             lintFiles(
                 ruleSetProviders,
-                visitorProvider,
                 userData,
                 baselineResults.baselineRules,
                 reporter
@@ -309,7 +308,6 @@ class KtlintCommandLine {
 
     private fun lintFiles(
         ruleSetProviders: Map<String, RuleSetProvider>,
-        visitorProvider: VisitorProvider,
         userData: Map<String, String>,
         baseline: Map<String, List<LintError>>?,
         reporter: Reporter
@@ -326,8 +324,7 @@ class KtlintCommandLine {
                         file.readText(),
                         userData,
                         baseline?.get(file.relativeRoute),
-                        ruleSets,
-                        visitorProvider
+                        ruleSets
                     )
                 }
             }
@@ -336,7 +333,6 @@ class KtlintCommandLine {
 
     private fun lintStdin(
         ruleSetProviders: Map<String, RuleSetProvider>,
-        visitorProvider: VisitorProvider,
         userData: Map<String, String>,
         reporter: Reporter
     ) {
@@ -347,8 +343,7 @@ class KtlintCommandLine {
                 String(System.`in`.readBytes()),
                 userData,
                 null,
-                ruleSetProviders.map { it.value.get() },
-                visitorProvider
+                ruleSetProviders.map { it.value.get() }
             ),
             reporter
         )
@@ -396,8 +391,7 @@ class KtlintCommandLine {
         fileContent: String,
         userData: Map<String, String>,
         baselineErrors: List<LintError>?,
-        ruleSets: Iterable<RuleSet>,
-        visitorProvider: VisitorProvider
+        ruleSets: Iterable<RuleSet>
     ): List<LintErrorWithCorrectionInfo> {
         logger.trace {
             val fileLocation = if (fileName != KtLint.STDIN_FILE) File(fileName).location(relative) else fileName
@@ -412,17 +406,15 @@ class KtlintCommandLine {
                     ruleSets,
                     userData,
                     editorConfigPath,
-                    debug,
-                    { err, corrected ->
-                        if (!corrected) {
-                            if (baselineErrors == null || !baselineErrors.containsLintError(err)) {
-                                result.add(LintErrorWithCorrectionInfo(err, corrected))
-                                tripped.set(true)
-                            }
+                    debug
+                ) { err, corrected ->
+                    if (!corrected) {
+                        if (baselineErrors == null || !baselineErrors.containsLintError(err)) {
+                            result.add(LintErrorWithCorrectionInfo(err, corrected))
+                            tripped.set(true)
                         }
-                    },
-                    visitorProvider
-                )
+                    }
+                }
             } catch (e: Exception) {
                 result.add(LintErrorWithCorrectionInfo(e.toLintError(), false))
                 tripped.set(true)
@@ -441,7 +433,6 @@ class KtlintCommandLine {
                     fileName,
                     fileContent,
                     ruleSets,
-                    visitorProvider,
                     userData,
                     editorConfigPath,
                     debug
@@ -529,7 +520,7 @@ class KtlintCommandLine {
                     e.line,
                     e.col,
                     "",
-                    "Not a valid Kotlin file (${e.message?.toLowerCase()})"
+                    "Not a valid Kotlin file (${e.message?.lowercase(Locale.getDefault())})"
                 )
             is RuleExecutionException -> {
                 logger.debug("Internal Error (${e.ruleId})", e)
@@ -574,7 +565,7 @@ class KtlintCommandLine {
      * buffering an entire sequence).
      *
      * Once kotlinx-coroutines are out of "experimental" stage everything below can be replaced with
-     * ```
+     * ```kotlin
      * suspend fun <T> Sequence<Callable<T>>.parallel(...) {
      *     val ctx = newFixedThreadPoolContext(numberOfThreads, "Sequence<Callable<T>>.parallel")
      *     ctx.use {

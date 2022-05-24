@@ -15,7 +15,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
  * handled by default IntelliJ IDEA code formatter. We should put no effort in making and keeping ktlint in sync with
  * such bad code formatting.
  *
- * ```
+ * ```kotlin
  *     fun <T>
  *     // some comment
  *         foo(t: T) = "some-result"

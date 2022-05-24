@@ -26,7 +26,7 @@ public class VisitorProvider(
                     .rules
                     .filter { rule -> toQualifiedRuleId(ruleSet.id, rule.id) in enabledQualifiedRuleIds }
                     .filter { rule -> isNotDisabled(rootNode, toQualifiedRuleId(ruleSet.id, rule.id)) }
-                    .map { rule -> "${toQualifiedRuleId(ruleSet.id, rule.id)}" to rule }
+                    .map { rule -> toQualifiedRuleId(ruleSet.id, rule.id) to rule }
             }.toMap()
         if (debug && enabledRules.isEmpty()) {
             println(
@@ -51,7 +51,7 @@ public class VisitorProvider(
                     )
                 }
         }
-        val ruleReferenceWithoutEntriesToBeSkipped = enabledRuleReferences - ruleReferencesToBeSkipped
+        val ruleReferenceWithoutEntriesToBeSkipped = enabledRuleReferences - ruleReferencesToBeSkipped.toSet()
         if (debug && ruleReferenceWithoutEntriesToBeSkipped.isEmpty()) {
             println(
                 "[DEBUG] Skipping file as no enabled rules are found to be executed"
@@ -317,7 +317,7 @@ private class VisitorProviderInitializer(
             val ruleReferencesToUnblock = blockedRuleReferences.findRulesBlockedBy(ruleReference.toQualifiedRuleId())
             if (ruleReferencesToUnblock.isNotEmpty()) {
                 newRuleReferences.addAll(ruleReferencesToUnblock)
-                blockedRuleReferences.removeAll(ruleReferencesToUnblock)
+                blockedRuleReferences.removeAll(ruleReferencesToUnblock.toSet())
             }
         }
         check(blockedRuleReferences.isEmpty()) {
