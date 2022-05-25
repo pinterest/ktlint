@@ -3,7 +3,6 @@ package com.pinterest.ktlint.ruleset.standard
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
 import com.pinterest.ktlint.test.LintViolation
 import com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE
-import com.pinterest.ktlint.test.format
 import com.pinterest.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
@@ -176,25 +175,41 @@ class NoConsecutiveBlankLinesRuleTest {
     }
 
     @Test
-    fun `should remove line in dot qualified expression`() {
-        assertThat(
-            NoConsecutiveBlankLinesRule().format(
+    fun `Given single blank line in dot qualified expression should not return lint errors`() {
+        val code =
+            """
+            fun foo(inputText: String) {
+                inputText
+
+                    .toLowerCase()
+            }
+            """.trimIndent()
+
+        noConsecutiveBlankLinesRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Given multiple blank line in dot qualified expression should return lint error`() {
+        val code =
+            """
+            fun foo(inputText: String) {
+                inputText
+
+
+                    .toLowerCase()
+            }
+            """.trimIndent()
+
+        noConsecutiveBlankLinesRuleAssertThat(code)
+            .hasLintViolations(LintViolation(4, 1, "Needless blank line(s)"))
+            .isFormattedAs(
                 """
                 fun foo(inputText: String) {
                     inputText
-
 
                         .toLowerCase()
                 }
                 """.trimIndent()
             )
-        ).isEqualTo(
-            """
-            fun foo(inputText: String) {
-                inputText
-                    .toLowerCase()
-            }
-            """.trimIndent()
-        )
     }
 }
