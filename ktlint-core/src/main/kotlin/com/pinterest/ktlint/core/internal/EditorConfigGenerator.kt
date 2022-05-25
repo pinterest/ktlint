@@ -72,6 +72,7 @@ internal class EditorConfigGenerator(
         return potentialEditorConfigSettings
             .map { "${it.key} = ${it.value}" }
             .distinct()
+            .sorted()
             .joinToString(separator = System.lineSeparator())
     }
 

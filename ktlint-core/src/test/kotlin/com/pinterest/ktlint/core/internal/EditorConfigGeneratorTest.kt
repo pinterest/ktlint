@@ -64,13 +64,13 @@ internal class EditorConfigGeneratorTest {
             rules = setOf(
                 object : TestRule("test-rule-two"), UsesEditorConfigProperties {
                     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
-                        EDITOR_CONFIG_PROPERTY_1,
-                        EDITOR_CONFIG_PROPERTY_2
+                        EDITOR_CONFIG_PROPERTY_2,
+                        EDITOR_CONFIG_PROPERTY_1
                     )
                 },
                 object : TestRule("test-rule-two"), UsesEditorConfigProperties {
                     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
-                        EDITOR_CONFIG_PROPERTY_2
+                        EDITOR_CONFIG_PROPERTY_1
                     )
                 }
             )
@@ -115,7 +115,7 @@ internal class EditorConfigGeneratorTest {
             indent_size = 4
 
             [*.{kt,kts}]
-            $PROPERTY_2_NAME = false
+            $PROPERTY_1_NAME = false
             """.trimIndent()
         )
 
@@ -126,8 +126,8 @@ internal class EditorConfigGeneratorTest {
 
         assertThat(generatedEditorConfig.lines()).doesNotContainAnyElementsOf(listOf("root = true"))
         assertThat(generatedEditorConfig.lines()).containsExactly(
-            "$PROPERTY_1_NAME = $PROPERTY_1_DEFAULT_VALUE",
-            "$PROPERTY_2_NAME = false"
+            "$PROPERTY_1_NAME = false",
+            "$PROPERTY_2_NAME = $PROPERTY_2_DEFAULT_VALUE"
         )
     }
 
@@ -138,7 +138,7 @@ internal class EditorConfigGeneratorTest {
             """
             root = true
             indent_size = 4
-            $PROPERTY_2_NAME = false
+            $PROPERTY_1_NAME = false
             """.trimIndent()
         )
 
@@ -149,10 +149,10 @@ internal class EditorConfigGeneratorTest {
 
         assertThat(generatedEditorConfig.lines()).doesNotContainAnyElementsOf(listOf("root = true"))
         assertThat(generatedEditorConfig.lines()).contains(
-            "$PROPERTY_1_NAME = $PROPERTY_1_DEFAULT_VALUE"
+            "$PROPERTY_2_NAME = $PROPERTY_2_DEFAULT_VALUE"
         )
         assertThat(generatedEditorConfig.lines()).doesNotContain(
-            "$PROPERTY_2_NAME = false"
+            "$PROPERTY_1_NAME = false"
         )
     }
 
@@ -171,14 +171,14 @@ internal class EditorConfigGeneratorTest {
 
     private class TestRule1 : TestRule("test-rule-one"), UsesEditorConfigProperties {
         override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
-            EDITOR_CONFIG_PROPERTY_1,
-            EDITOR_CONFIG_PROPERTY_2
+            EDITOR_CONFIG_PROPERTY_2,
+            EDITOR_CONFIG_PROPERTY_1
         )
     }
 
     private class TestRule2 : TestRule("test-rule-two"), UsesEditorConfigProperties {
         override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
-            EDITOR_CONFIG_PROPERTY_2
+            EDITOR_CONFIG_PROPERTY_1
         )
     }
 
@@ -193,12 +193,12 @@ internal class EditorConfigGeneratorTest {
     }
 
     private companion object {
-        const val PROPERTY_1_NAME = "kotlin_test_if_else_num"
-        const val PROPERTY_1_DEFAULT_VALUE = 10
-        const val PROPERTY_1_DEFAULT_VALUE_ANDROID = 11
-        const val PROPERTY_2_NAME = "insert_final_newline"
-        const val PROPERTY_2_DEFAULT_VALUE = true
-        const val PROPERTY_2_DEFAULT_VALUE_ANDROID = false
+        const val PROPERTY_1_NAME = "insert_final_newline"
+        const val PROPERTY_1_DEFAULT_VALUE = true
+        const val PROPERTY_1_DEFAULT_VALUE_ANDROID = false
+        const val PROPERTY_2_NAME = "kotlin_test_if_else_num"
+        const val PROPERTY_2_DEFAULT_VALUE = 10
+        const val PROPERTY_2_DEFAULT_VALUE_ANDROID = 11
         const val PROPERTY_3_NAME = "property-3"
         const val PROPERTY_3_VALUE_A = "default-value-a"
         const val PROPERTY_3_VALUE_B = "default-value-b"
@@ -206,8 +206,8 @@ internal class EditorConfigGeneratorTest {
             type = PropertyType(
                 PROPERTY_1_NAME,
                 "",
-                PropertyType.PropertyValueParser.POSITIVE_INT_VALUE_PARSER,
-                setOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "0")
+                PropertyType.PropertyValueParser.BOOLEAN_VALUE_PARSER,
+                setOf("true", "false")
             ),
             defaultValue = PROPERTY_1_DEFAULT_VALUE,
             defaultAndroidValue = PROPERTY_1_DEFAULT_VALUE_ANDROID
@@ -216,8 +216,8 @@ internal class EditorConfigGeneratorTest {
             type = PropertyType(
                 PROPERTY_2_NAME,
                 "",
-                PropertyType.PropertyValueParser.BOOLEAN_VALUE_PARSER,
-                setOf("true", "false")
+                PropertyType.PropertyValueParser.POSITIVE_INT_VALUE_PARSER,
+                setOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "0")
             ),
             defaultValue = PROPERTY_2_DEFAULT_VALUE,
             defaultAndroidValue = PROPERTY_2_DEFAULT_VALUE_ANDROID
