@@ -158,8 +158,7 @@ public class ImportOrderingRule :
         children.forEach { current ->
             val isPsiWhiteSpace = current.psi is PsiWhiteSpace
 
-            if (
-                current.elementType == ElementType.IMPORT_DIRECTIVE ||
+            if (current.elementType == ElementType.IMPORT_DIRECTIVE ||
                 isPsiWhiteSpace && current.textLength > 1 // also collect empty lines, that are represented as "\n\n"
             ) {
                 if (isPsiWhiteSpace || importTextSet.add(current.text)) {
