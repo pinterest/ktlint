@@ -31,7 +31,7 @@ class BlockCommentInitialStarAlignmentRule :
             val modifiedLines = mutableListOf<String>()
             lines.forEach { line ->
                 val modifiedLine =
-                    secondAndLaterLineCommentRegex
+                    continuationCommentRegex
                         .find(line)
                         ?.let { matchResult ->
                             val (prefix, content) = matchResult.destructured
@@ -56,6 +56,6 @@ class BlockCommentInitialStarAlignmentRule :
     }
 
     private companion object {
-        val secondAndLaterLineCommentRegex = Regex("^([\t ]+\\*)(.*)$")
+        val continuationCommentRegex = Regex("^([\t ]+\\*)(.*)$")
     }
 }
