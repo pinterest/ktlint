@@ -8,6 +8,8 @@ import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger {}.initKtLintKLogger()
 
+private const val DEFAULT_GIT_HOOKS_DIR = "hooks"
+
 object GitHookInstaller {
     fun installGitHook(
         gitHookName: String,
@@ -31,7 +33,7 @@ object GitHookInstaller {
         gitHookFile.setExecutable(true)
         logger.info {
             """
-            .git/hooks/$gitHookName is installed. Be aware that this hook assumes to find ktlint on the PATH. Either
+            ${gitHookFile.path} is installed. Be aware that this hook assumes to find ktlint on the PATH. Either
             ensure that ktlint is actually added to the path or expand the ktlint command in the hook with the path.
             """.trimIndent()
         }
@@ -39,7 +41,19 @@ object GitHookInstaller {
 
     @Throws(IOException::class)
     private fun resolveGitHooksDir(): File {
-        // Try to find the .git directory automatically, falling back to `./.git`
+        val gitDir = getGitDir()
+        val gitHooksDirName = getHooksDirName()
+
+        val hooksDir = gitDir.resolve(gitHooksDirName)
+        if (!hooksDir.exists() && !hooksDir.mkdir()) {
+            throw IOException("Failed to create ${hooksDir.path} folder")
+        }
+
+        return hooksDir
+    }
+
+    // Try to find the .git directory automatically, falling back to `./.git`
+    private fun getGitDir(): File {
         val gitDir = try {
             val root = Runtime.getRuntime().exec("git rev-parse --show-toplevel")
                 .inputStream
@@ -48,7 +62,7 @@ object GitHookInstaller {
                 .trim()
 
             File(root).resolve(".git")
-        } catch (ex: IOException) {
+        } catch (_: IOException) {
             File(".git")
         }
 
@@ -56,12 +70,18 @@ object GitHookInstaller {
             throw IOException(".git directory not found. Are you sure you are inside project directory?")
         }
 
-        val hooksDir = gitDir.resolve("hooks")
-        if (!hooksDir.exists() && !hooksDir.mkdir()) {
-            throw IOException("Failed to create .git/hooks folder")
-        }
+        return gitDir
+    }
 
-        return hooksDir
+    private fun getHooksDirName() = try {
+        Runtime.getRuntime().exec("git config --get core.hooksPath")
+            .inputStream
+            .bufferedReader()
+            .readText()
+            .trim()
+            .ifEmpty { DEFAULT_GIT_HOOKS_DIR }
+    } catch (_: IOException) {
+        DEFAULT_GIT_HOOKS_DIR
     }
 
     private fun backupExistingHook(
@@ -76,7 +96,7 @@ object GitHookInstaller {
             !actualHookContent.contentEquals(expectedHookContent)
         ) {
             val backupFile = hooksDir.resolve("$gitHookName.ktlint-backup.${actualHookContent.hex}")
-            logger.info { ".git/hooks/$gitHookName -> $backupFile" }
+            logger.info { "Existing git hook ${hookFile.path} is copied to ${backupFile.path}" }
             hookFile.copyTo(backupFile, overwrite = true)
         }
     }
