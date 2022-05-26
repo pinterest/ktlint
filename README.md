@@ -40,6 +40,7 @@ It's also [easy to create your own](#creating-a-reporter).
 - `max-line-length`: Ensures that lines do not exceed the given length of `.editorconfig` property `max_line_length` (see [EditorConfig](#editorconfig) section for more). This rule does not apply in a number of situations. For example, in the case a line exceeds the maximum line length due to and comment that disables ktlint rules than that comment is being ignored when validating the length of the line. The `.editorconfig` property `ktlint_ignore_back_ticked_identifier` can be set to ignore identifiers which are enclosed in backticks, which for example is very useful when you want to allow longer names for unit tests.  
 - `modifier-order`: Consistent order of modifiers
 - `no-blank-line-before-rbrace`: No blank lines before `}` 
+- `no-blank-lines-in-chained-method-calls`: No blank lines in chained method expressions
 - `no-consecutive-blank-lines`: No consecutive blank lines
 - `no-empty-class-body`: No empty (`{}`) class bodies
 - `no-line-break-after-else`: Disallows line breaks after the else keyword if that could lead to confusion, for example:

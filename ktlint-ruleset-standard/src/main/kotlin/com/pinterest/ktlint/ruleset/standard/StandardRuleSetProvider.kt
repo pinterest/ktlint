@@ -18,6 +18,7 @@ public class StandardRuleSetProvider : RuleSetProvider {
         ModifierOrderRule(),
         NoBlankLineBeforeRbraceRule(),
         NoConsecutiveBlankLinesRule(),
+        NoBlankLinesInChainedMethodCallsRule(),
         NoEmptyClassBodyRule(),
         NoLineBreakAfterElseRule(),
         NoLineBreakBeforeAssignmentRule(),

@@ -31,7 +31,7 @@ class BlockCommentInitialStarAlignmentRule :
             val modifiedLines = mutableListOf<String>()
             lines.forEach { line ->
                 val modifiedLine =
-                    Regex("^([\t ]+\\*)(.*)$")
+                    continuationCommentRegex
                         .find(line)
                         ?.let { matchResult ->
                             val (prefix, content) = matchResult.destructured
@@ -53,5 +53,9 @@ class BlockCommentInitialStarAlignmentRule :
                 }
             }
         }
+    }
+
+    private companion object {
+        val continuationCommentRegex = Regex("^([\t ]+\\*)(.*)$")
     }
 }

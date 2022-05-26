@@ -20,7 +20,7 @@ internal class EditorConfigGeneratorTest {
     private val editorConfigGenerator = EditorConfigGenerator(editorConfigLoader)
 
     private val rootDir = "/project"
-    private val rules = setOf(TestRule())
+    private val rules = setOf<Rule>(TestRule1())
 
     @Test
     fun `Should use default rule value if property is missing`() {
@@ -37,9 +37,9 @@ internal class EditorConfigGeneratorTest {
         )
 
         assertThat(generatedEditorConfig.lines()).doesNotContainAnyElementsOf(listOf("root = true"))
-        assertThat(generatedEditorConfig.lines()).contains(
-            "${TestRule.PROP_1_NUM} = ${TestRule.PROP_1_DEFAULT}",
-            "${TestRule.PROP_2_BOOL} = ${TestRule.PROP_2_DEFAULT}"
+        assertThat(generatedEditorConfig.lines()).containsExactly(
+            "$PROPERTY_1_NAME = $PROPERTY_1_DEFAULT_VALUE",
+            "$PROPERTY_2_NAME = $PROPERTY_2_DEFAULT_VALUE"
         )
     }
 
@@ -51,9 +51,58 @@ internal class EditorConfigGeneratorTest {
             isAndroidCodeStyle = true
         )
 
-        assertThat(generatedEditorConfig.lines()).contains(
-            "${TestRule.PROP_1_NUM} = ${TestRule.PROP_1_DEFAULT_ANDROID}",
-            "${TestRule.PROP_2_BOOL} = ${TestRule.PROP_2_DEFAULT_ANDROID}"
+        assertThat(generatedEditorConfig.lines()).containsExactly(
+            "$PROPERTY_1_NAME = $PROPERTY_1_DEFAULT_VALUE_ANDROID",
+            "$PROPERTY_2_NAME = $PROPERTY_2_DEFAULT_VALUE_ANDROID"
+        )
+    }
+
+    @Test
+    fun `Given distinct rules that use the same property with the same default value then is should be written only once to the editorconfig file`() {
+        val generatedEditorConfig = editorConfigGenerator.generateEditorconfig(
+            filePath = tempFileSystem.normalizedPath(rootDir).resolve("test.kt"),
+            rules = setOf(
+                object : TestRule("test-rule-two"), UsesEditorConfigProperties {
+                    override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
+                        EDITOR_CONFIG_PROPERTY_2,
+                        EDITOR_CONFIG_PROPERTY_1
+                    )
+                },
+                object : TestRule("test-rule-two"), UsesEditorConfigProperties {
+                    override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
+                        EDITOR_CONFIG_PROPERTY_1
+                    )
+                }
+            )
+        )
+
+        assertThat(generatedEditorConfig.lines()).containsExactly(
+            "$PROPERTY_1_NAME = $PROPERTY_1_DEFAULT_VALUE",
+            "$PROPERTY_2_NAME = $PROPERTY_2_DEFAULT_VALUE"
+        )
+    }
+
+    @Test
+    fun `Given distinct rules that use the same property with different default values then the distinct values should be written to the editorconfig file`() {
+        val generatedEditorConfig = editorConfigGenerator.generateEditorconfig(
+            filePath = tempFileSystem.normalizedPath(rootDir).resolve("test.kt"),
+            rules = setOf(
+                object : TestRule("test-rule-two"), UsesEditorConfigProperties {
+                    override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
+                        EDITOR_CONFIG_PROPERTY_3_WITH_DEFAULT_VALUE_A
+                    )
+                },
+                object : TestRule("test-rule-two"), UsesEditorConfigProperties {
+                    override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
+                        EDITOR_CONFIG_PROPERTY_3_WITH_DEFAULT_VALUE_B
+                    )
+                }
+            )
+        )
+
+        assertThat(generatedEditorConfig.lines()).containsExactly(
+            "$PROPERTY_3_NAME = $PROPERTY_3_VALUE_A",
+            "$PROPERTY_3_NAME = $PROPERTY_3_VALUE_B"
         )
     }
 
@@ -66,7 +115,7 @@ internal class EditorConfigGeneratorTest {
             indent_size = 4
 
             [*.{kt,kts}]
-            ${TestRule.PROP_2_BOOL} = false
+            $PROPERTY_1_NAME = false
             """.trimIndent()
         )
 
@@ -76,9 +125,9 @@ internal class EditorConfigGeneratorTest {
         )
 
         assertThat(generatedEditorConfig.lines()).doesNotContainAnyElementsOf(listOf("root = true"))
-        assertThat(generatedEditorConfig.lines()).contains(
-            "${TestRule.PROP_1_NUM} = ${TestRule.PROP_1_DEFAULT}",
-            "${TestRule.PROP_2_BOOL} = false"
+        assertThat(generatedEditorConfig.lines()).containsExactly(
+            "$PROPERTY_1_NAME = false",
+            "$PROPERTY_2_NAME = $PROPERTY_2_DEFAULT_VALUE"
         )
     }
 
@@ -89,7 +138,7 @@ internal class EditorConfigGeneratorTest {
             """
             root = true
             indent_size = 4
-            ${TestRule.PROP_2_BOOL} = false
+            $PROPERTY_1_NAME = false
             """.trimIndent()
         )
 
@@ -100,10 +149,10 @@ internal class EditorConfigGeneratorTest {
 
         assertThat(generatedEditorConfig.lines()).doesNotContainAnyElementsOf(listOf("root = true"))
         assertThat(generatedEditorConfig.lines()).contains(
-            "${TestRule.PROP_1_NUM} = ${TestRule.PROP_1_DEFAULT}"
+            "$PROPERTY_2_NAME = $PROPERTY_2_DEFAULT_VALUE"
         )
         assertThat(generatedEditorConfig.lines()).doesNotContain(
-            "${TestRule.PROP_2_BOOL} = false"
+            "$PROPERTY_1_NAME = false"
         )
     }
 
@@ -120,30 +169,20 @@ internal class EditorConfigGeneratorTest {
         return getPath("$root$path")
     }
 
-    private class TestRule : Rule("test-id"), UsesEditorConfigProperties {
+    private class TestRule1 : TestRule("test-rule-one"), UsesEditorConfigProperties {
         override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
-            UsesEditorConfigProperties.EditorConfigProperty(
-                type = PropertyType(
-                    PROP_1_NUM,
-                    "",
-                    PropertyType.PropertyValueParser.POSITIVE_INT_VALUE_PARSER,
-                    setOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "0")
-                ),
-                defaultValue = PROP_1_DEFAULT,
-                defaultAndroidValue = PROP_1_DEFAULT_ANDROID
-            ),
-            UsesEditorConfigProperties.EditorConfigProperty(
-                type = PropertyType(
-                    PROP_2_BOOL,
-                    "",
-                    PropertyType.PropertyValueParser.BOOLEAN_VALUE_PARSER,
-                    setOf("true", "false")
-                ),
-                defaultValue = PROP_2_DEFAULT,
-                defaultAndroidValue = PROP_2_DEFAULT_ANDROID
-            )
+            EDITOR_CONFIG_PROPERTY_2,
+            EDITOR_CONFIG_PROPERTY_1
         )
+    }
 
+    private class TestRule2 : TestRule("test-rule-two"), UsesEditorConfigProperties {
+        override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
+            EDITOR_CONFIG_PROPERTY_1
+        )
+    }
+
+    private open class TestRule(ruleId: String) : Rule(ruleId) {
         override fun visit(
             node: ASTNode,
             autoCorrect: Boolean,
@@ -151,14 +190,56 @@ internal class EditorConfigGeneratorTest {
         ) {
             TODO("Not yet implemented")
         }
+    }
 
-        companion object {
-            const val PROP_1_NUM = "kotlin_test_if_else_num"
-            const val PROP_1_DEFAULT = 10
-            const val PROP_1_DEFAULT_ANDROID = 11
-            const val PROP_2_BOOL = "insert_final_newline"
-            const val PROP_2_DEFAULT = true
-            const val PROP_2_DEFAULT_ANDROID = false
-        }
+    private companion object {
+        const val PROPERTY_1_NAME = "insert_final_newline"
+        const val PROPERTY_1_DEFAULT_VALUE = true
+        const val PROPERTY_1_DEFAULT_VALUE_ANDROID = false
+        const val PROPERTY_2_NAME = "kotlin_test_if_else_num"
+        const val PROPERTY_2_DEFAULT_VALUE = 10
+        const val PROPERTY_2_DEFAULT_VALUE_ANDROID = 11
+        const val PROPERTY_3_NAME = "property-3"
+        const val PROPERTY_3_VALUE_A = "default-value-a"
+        const val PROPERTY_3_VALUE_B = "default-value-b"
+        val EDITOR_CONFIG_PROPERTY_1 = UsesEditorConfigProperties.EditorConfigProperty(
+            type = PropertyType(
+                PROPERTY_1_NAME,
+                "",
+                PropertyType.PropertyValueParser.BOOLEAN_VALUE_PARSER,
+                setOf("true", "false")
+            ),
+            defaultValue = PROPERTY_1_DEFAULT_VALUE,
+            defaultAndroidValue = PROPERTY_1_DEFAULT_VALUE_ANDROID
+        )
+        val EDITOR_CONFIG_PROPERTY_2 = UsesEditorConfigProperties.EditorConfigProperty(
+            type = PropertyType(
+                PROPERTY_2_NAME,
+                "",
+                PropertyType.PropertyValueParser.POSITIVE_INT_VALUE_PARSER,
+                setOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "0")
+            ),
+            defaultValue = PROPERTY_2_DEFAULT_VALUE,
+            defaultAndroidValue = PROPERTY_2_DEFAULT_VALUE_ANDROID
+        )
+        val EDITOR_CONFIG_PROPERTY_3_WITH_DEFAULT_VALUE_A = UsesEditorConfigProperties.EditorConfigProperty(
+            type = PropertyType(
+                PROPERTY_3_NAME,
+                "",
+                PropertyType.PropertyValueParser.IDENTITY_VALUE_PARSER,
+                setOf(PROPERTY_3_VALUE_A, PROPERTY_3_VALUE_B)
+            ),
+            defaultValue = PROPERTY_3_VALUE_A
+        )
+        val EDITOR_CONFIG_PROPERTY_3_WITH_DEFAULT_VALUE_B =
+            UsesEditorConfigProperties.EditorConfigProperty(
+                type = PropertyType(
+                    PROPERTY_3_NAME,
+                    "",
+                    PropertyType.PropertyValueParser.IDENTITY_VALUE_PARSER,
+                    setOf(PROPERTY_3_VALUE_A, PROPERTY_3_VALUE_B)
+                ),
+                defaultValue = PROPERTY_3_VALUE_B
+            )
     }
 }
