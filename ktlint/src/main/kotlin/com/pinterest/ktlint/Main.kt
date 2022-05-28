@@ -12,7 +12,6 @@ import com.pinterest.ktlint.core.ReporterProvider
 import com.pinterest.ktlint.core.RuleExecutionException
 import com.pinterest.ktlint.core.RuleSet
 import com.pinterest.ktlint.core.RuleSetProvider
-import com.pinterest.ktlint.core.VisitorProvider
 import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ktlint.core.internal.containsLintError
 import com.pinterest.ktlint.core.internal.loadBaseline
