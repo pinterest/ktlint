@@ -6,20 +6,30 @@ import com.pinterest.ktlint.core.RuleSet
 import com.pinterest.ktlint.core.ast.visit
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
-private val visitorProviderFactory = VisitorProviderFactory()
+/**
+ * The VisitorProvider is created for each file being scanned. As the [RuleSorter] logs the order in which the rules are
+ * executed, a singleton instance of the class is used to prevent that the logs are flooded with duplicate log lines.
+ */
+private val ruleSorter = RuleSorter()
 
 internal class VisitorProvider(
     ruleSets: Iterable<RuleSet>,
     private val debug: Boolean,
-    /** Creates a new VisitorProviderFactory to instantiate the VisitorProvider. */
-    forceNewVisitorProviderFactory: Boolean = false
+    /**
+     * Creates a new [RuleSorter]. Only to be used in unit tests where the same set of rules are used with distinct [Rule.VisitorModifier]s.
+     */
+    recreateRuleSorter: Boolean = false
 ) {
+    /**
+     * The [ruleReferences] is a sorted list of rules based on the [Rule.VisitorModifier] of the rules included in the
+     * list.
+     */
     private val ruleReferences: List<RuleReference> =
-        if (forceNewVisitorProviderFactory) {
-            VisitorProviderFactory()
+        if (recreateRuleSorter) {
+            RuleSorter()
         } else {
-            visitorProviderFactory
-        }.getRuleReferences(ruleSets, debug)
+            ruleSorter
+        }.getSortedRules(ruleSets, debug)
 
     internal fun visitor(
         ruleSets: Iterable<RuleSet>,

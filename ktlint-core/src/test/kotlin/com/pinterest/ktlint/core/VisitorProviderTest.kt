@@ -170,7 +170,7 @@ class VisitorProviderTest {
             debug = true,
             // Creates a new VisitorProviderFactory for each unit test to prevent that tests for the exact same set of
             // ruleIds are influencing each other.
-            forceNewVisitorProviderFactory = true
+            recreateRuleSorter = true
         ).run {
             var visits: MutableList<Visit>? = null
             visitor(ruleSetList, SOME_ROOT_AST_NODE, concurrent ?: false)

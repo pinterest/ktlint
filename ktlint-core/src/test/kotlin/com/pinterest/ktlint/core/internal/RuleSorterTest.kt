@@ -7,12 +7,12 @@ import org.assertj.core.api.Assertions.assertThatIllegalStateException
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.junit.jupiter.api.Test
 
-class VisitorProviderFactoryTest {
+class RuleSorterTest {
     @Test
     fun `Multiple normal rules in the same rule set are run in alphabetical order`() {
         val actual =
-            VisitorProviderFactory()
-                .getRuleReferences(
+            RuleSorter()
+                .getSortedRules(
                     ruleSets = listOf(
                         RuleSet(
                             STANDARD,
@@ -33,8 +33,8 @@ class VisitorProviderFactoryTest {
     @Test
     fun `Multiple normal rules in different rule sets are run in alphabetical order but grouped in order standard, experimental and custom`() {
         val actual =
-            VisitorProviderFactory()
-                .getRuleReferences(
+            RuleSorter()
+                .getSortedRules(
                     ruleSets = listOf(
                         RuleSet(
                             EXPERIMENTAL,
@@ -77,8 +77,8 @@ class VisitorProviderFactoryTest {
     @Test
     fun `Root only rule is run before non-root-only rule`() {
         val actual =
-            VisitorProviderFactory()
-                .getRuleReferences(
+            RuleSorter()
+                .getSortedRules(
                     ruleSets = listOf(
                         RuleSet(
                             STANDARD,
@@ -99,8 +99,8 @@ class VisitorProviderFactoryTest {
     @Test
     fun `Multiple root only rules in the same rule set are run in alphabetical order`() {
         val actual =
-            VisitorProviderFactory()
-                .getRuleReferences(
+            RuleSorter()
+                .getSortedRules(
                     ruleSets = listOf(
                         RuleSet(
                             EXPERIMENTAL,
@@ -143,8 +143,8 @@ class VisitorProviderFactoryTest {
     @Test
     fun `A run as late as possible rule runs after the rules not marked to run as late as possible`() {
         val actual =
-            VisitorProviderFactory()
-                .getRuleReferences(
+            RuleSorter()
+                .getSortedRules(
                     ruleSets = listOf(
                         RuleSet(
                             STANDARD,
@@ -167,8 +167,8 @@ class VisitorProviderFactoryTest {
     @Test
     fun `Multiple run as late as possible rules in the same rule set are sorted alphabetically`() {
         val actual =
-            VisitorProviderFactory()
-                .getRuleReferences(
+            RuleSorter()
+                .getSortedRules(
                     ruleSets = listOf(
 
                         RuleSet(
@@ -212,8 +212,8 @@ class VisitorProviderFactoryTest {
     @Test
     fun `A run as late as possible rule on root node only runs after the rules not marked to run as late as possible`() {
         val actual =
-            VisitorProviderFactory()
-                .getRuleReferences(
+            RuleSorter()
+                .getSortedRules(
                     ruleSets = listOf(
                         RuleSet(
                             STANDARD,
@@ -236,8 +236,8 @@ class VisitorProviderFactoryTest {
     @Test
     fun `Multiple run as late as possible on root node only rules in the same rule set are sorted alphabetically`() {
         val actual =
-            VisitorProviderFactory()
-                .getRuleReferences(
+            RuleSorter()
+                .getSortedRules(
                     ruleSets = listOf(
                         RuleSet(
                             EXPERIMENTAL,
@@ -280,8 +280,8 @@ class VisitorProviderFactoryTest {
     @Test
     fun `A rule annotated with run after rule can not refer to itself`() {
         assertThatIllegalStateException().isThrownBy {
-            VisitorProviderFactory()
-                .getRuleReferences(
+            RuleSorter()
+                .getSortedRules(
                     ruleSets = listOf(
                         RuleSet(
                             CUSTOM_RULE_SET_A,
@@ -303,8 +303,8 @@ class VisitorProviderFactoryTest {
     @Test
     fun `A rule annotated with run after rule for a rule in the same rule set runs after that rule and override the alphabetical sort order`() {
         val actual =
-            VisitorProviderFactory()
-                .getRuleReferences(
+            RuleSorter()
+                .getSortedRules(
                     ruleSets = listOf(
                         RuleSet(
                             STANDARD,
@@ -340,8 +340,8 @@ class VisitorProviderFactoryTest {
     @Test
     fun `A rule annotated with run after rule for a rule in the different rule set runs after that rule and override the alphabetical sort order`() {
         val actual =
-            VisitorProviderFactory()
-                .getRuleReferences(
+            RuleSorter()
+                .getSortedRules(
                     ruleSets = listOf(
                         RuleSet(
                             STANDARD,
@@ -377,8 +377,8 @@ class VisitorProviderFactoryTest {
     @Test
     fun `A rule annotated with run after rule which has to be loaded throws an exception in case that other rule is not loaded`() {
         assertThatIllegalStateException().isThrownBy {
-            VisitorProviderFactory()
-                .getRuleReferences(
+            RuleSorter()
+                .getSortedRules(
                     ruleSets = listOf(
                         RuleSet(
                             STANDARD,
@@ -399,8 +399,8 @@ class VisitorProviderFactoryTest {
     @Test
     fun `A rule annotated with run after rule of a rule which is not required to be loaded will be loaded when that other rule is not loaded`() {
         val actual =
-            VisitorProviderFactory()
-                .getRuleReferences(
+            RuleSorter()
+                .getSortedRules(
                     ruleSets = listOf(
                         RuleSet(
                             STANDARD,
@@ -424,8 +424,8 @@ class VisitorProviderFactoryTest {
     @Test
     fun `Rules annotated with run after rule but cyclic depend on each others, no custom rule sets involved, throws an exception`() {
         assertThatIllegalStateException().isThrownBy {
-            VisitorProviderFactory()
-                .getRuleReferences(
+            RuleSorter()
+                .getSortedRules(
                     ruleSets = listOf(
                         RuleSet(
                             STANDARD,
@@ -461,8 +461,8 @@ class VisitorProviderFactoryTest {
     @Test
     fun `Rules annotated with run after rule but cyclic depend on each others, custom rule sets involved, throws an exception`() {
         assertThatIllegalStateException().isThrownBy {
-            VisitorProviderFactory()
-                .getRuleReferences(
+            RuleSorter()
+                .getSortedRules(
                     ruleSets = listOf(
                         RuleSet(
                             STANDARD,

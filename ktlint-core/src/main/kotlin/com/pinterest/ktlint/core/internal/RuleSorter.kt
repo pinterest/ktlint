@@ -5,14 +5,15 @@ import com.pinterest.ktlint.core.RuleSet
 import kotlin.reflect.KClass
 
 /**
- * Normally, the [VisitorProviderFactory] should be used as a singleton. Only in specific scenario's it might be needed
- * to recreate the class when running unit tests for the same set of rule ids.
+ * Normally, the [RuleSorter] should be used as a singleton as it logs the order in which the rules are executed. Only
+ * in specific unit tests scenario's it might be needed to recreate the class when running unit tests for the same set
+ * of rule ids but having different [Rule.VisitorModifier]s.
  */
-internal class VisitorProviderFactory {
+internal class RuleSorter {
     private val ruleSetsToRuleReferencesMap = mutableMapOf<Int, List<RuleReference>>()
 
     @Synchronized
-    fun getRuleReferences(
+    fun getSortedRules(
         ruleSets: Iterable<RuleSet>,
         debug: Boolean
     ): List<RuleReference> {
@@ -34,7 +35,6 @@ internal class VisitorProviderFactory {
             // ruleReferences as computation is relative expensive but more important because it generates as lot of
             // logging. Only during unit tests it is normal behavior to have a frequent changing list of rule sets.
             .getOrPut(ruleSetsHashCode) {
-                println("Create new VisitorProviderInitializer - $ruleSetsHashCode: $id")
                 ruleSets
                     .flatMap { it.toRuleReferences() }
                     .sortedWith(defaultRuleExecutionOrderComparator())
