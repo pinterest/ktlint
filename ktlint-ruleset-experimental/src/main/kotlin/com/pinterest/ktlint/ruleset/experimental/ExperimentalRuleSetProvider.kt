@@ -8,7 +8,6 @@ public const val experimentalRulesetId = "experimental"
 public class ExperimentalRuleSetProvider : RuleSetProvider {
     override fun get(): RuleSet = RuleSet(
         experimentalRulesetId,
-        ArgumentListWrappingRule(),
         MultiLineIfElseRule(),
         NoEmptyFirstLineInMethodBlockRule(),
         PackageNameRule(),

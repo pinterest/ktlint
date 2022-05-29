@@ -31,6 +31,7 @@ It's also [easy to create your own](#creating-a-reporter).
 ## Standard rules
 
 - `annotation`: Annotation formatting - multiple annotations should be on a separate line than the annotated declaration; annotations with parameters should each be on separate lines; annotations should be followed by a space
+- `argument-list-wrapping`: Argument list wrapping
 - `chain-wrapping`: When wrapping chained calls `.`, `?.` and `?:` should be placed on the next line
 - `comment-spacing`: The end of line comment sign `//` should be preceded and followed by exactly a space
 - `filename`: Files containing only one toplevel domain should be named according to that element.
@@ -104,7 +105,6 @@ by passing the `--experimental` flag to `ktlint`.
 - `experimental:unary-op-spacing`: No spaces around unary operators
 
 ### Wrapping
-- `experimental:argument-list-wrapping`: Argument list wrapping
 - `experimental:comment-wrapping`: A block comment should start and end on a line that does not contain any other element. A block comment should not be used as end of line comment.
 - `experimental:kdoc-wrapping`: A KDoc comment should start and end on a line that does not contain any other element.
 

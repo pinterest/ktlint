@@ -1,4 +1,4 @@
-package com.pinterest.ktlint.ruleset.experimental
+package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.IndentConfig
 import com.pinterest.ktlint.core.Rule
@@ -41,7 +41,7 @@ import org.jetbrains.kotlin.psi.psiUtil.getStrictParentOfType
  */
 @OptIn(FeatureInAlphaState::class)
 class ArgumentListWrappingRule :
-    Rule("$experimentalRulesetId:argument-list-wrapping"),
+    Rule("argument-list-wrapping"),
     UsesEditorConfigProperties {
     private var editorConfigIndent = IndentConfig.DEFAULT_INDENT_CONFIG
     private var maxLineLength = -1

@@ -11,6 +11,7 @@ public class StandardRuleSetProvider : RuleSetProvider {
         "standard",
         AnnotationRule(),
         AnnotationSpacingRule(),
+        ArgumentListWrappingRule(),
         ChainWrappingRule(),
         CommentSpacingRule(),
         FilenameRule(),
