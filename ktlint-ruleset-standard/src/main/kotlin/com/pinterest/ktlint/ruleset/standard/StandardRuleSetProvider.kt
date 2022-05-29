@@ -14,6 +14,7 @@ public class StandardRuleSetProvider : RuleSetProvider {
         ArgumentListWrappingRule(),
         ChainWrappingRule(),
         CommentSpacingRule(),
+        EnumEntryNameCaseRule(),
         FilenameRule(),
         FinalNewlineRule(),
         ImportOrderingRule(),

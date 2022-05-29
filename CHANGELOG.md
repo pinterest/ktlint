@@ -10,6 +10,7 @@ The rules below are promoted from the Experiment ruleset to the Standard ruleset
 * `annotation`
 * `annotation-spacing`
 * `argument-list-wrapping`
+* `enum-entry-name-case`
 * `traling-comma`
 
 Note that as a result of moving the rules that the prefix `experimental:` has to be removed from all references to this rule. Check references in:

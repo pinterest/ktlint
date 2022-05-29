@@ -34,6 +34,7 @@ It's also [easy to create your own](#creating-a-reporter).
 - `argument-list-wrapping`: Argument list wrapping
 - `chain-wrapping`: When wrapping chained calls `.`, `?.` and `?:` should be placed on the next line
 - `comment-spacing`: The end of line comment sign `//` should be preceded and followed by exactly a space
+- `enum-entry-name-case`: Enum entry names should be uppercase underscore-separated names
 - `filename`: Files containing only one toplevel domain should be named according to that element.
 - `final-newline`: Newline at the end of each file (enabled by default)
   (set `insert_final_newline=false` in .editorconfig to disable (see [EditorConfig](#editorconfig) section for more)).
@@ -80,7 +81,6 @@ by passing the `--experimental` flag to `ktlint`.
 
 - `experimental:block-comment-initial-star-alignment`: Lines in a block comment which (exclusive the indentation) start with a `*` should have this `*` aligned with the `*` in the opening of the block comment.
 - `experimental:discouraged-comment-location`: Detect discouraged comment locations (no autocorrect)
-- `experimental:enum-entry-name-case`: Enum entry names should be uppercase underscore-separated names
 - `experimental:multiline-if-else`: Braces required for multiline if/else statements
 - `experimental:no-empty-first-line-in-method-block`: No leading empty lines in method blocks
 - `experimental:package-name`: No underscores in package names
