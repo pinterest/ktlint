@@ -1,4 +1,4 @@
-package com.pinterest.ktlint.ruleset.experimental
+package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType
@@ -24,7 +24,7 @@ import org.jetbrains.kotlin.psi.psiUtil.leaves
  *
  * https://kotlinlang.org/docs/reference/coding-conventions.html#annotation-formatting
  */
-class AnnotationSpacingRule : Rule("$experimentalRulesetId:annotation-spacing") {
+class AnnotationSpacingRule : Rule("annotation-spacing") {
 
     companion object {
         const val ERROR_MESSAGE = "Annotations should occur immediately before the annotated construct"

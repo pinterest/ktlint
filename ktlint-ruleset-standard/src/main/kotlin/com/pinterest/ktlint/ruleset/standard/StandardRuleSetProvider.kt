@@ -10,6 +10,7 @@ public class StandardRuleSetProvider : RuleSetProvider {
     override fun get(): RuleSet = RuleSet(
         "standard",
         AnnotationRule(),
+        AnnotationSpacingRule(),
         ChainWrappingRule(),
         CommentSpacingRule(),
         FilenameRule(),

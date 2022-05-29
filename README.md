@@ -64,7 +64,7 @@ It's also [easy to create your own](#creating-a-reporter).
 - `string-template`: Consistent string templates (`$v` instead of `${v}`, `${p.v}` instead of `${p.v.toString()}`)
 
 ### Spacing
-- `colon-spacing`: Consistent spacing around colon
+- `annotation-spacing`: Annotations should be separated by the- `colon-spacing`: Consistent spacing around colon
 - `comma-spacing`: Consistent spacing around comma
 - `curly-spacing`: Consistent spacing around curly braces
 - `dot-spacing`: Consistent spacing around dots
@@ -88,7 +88,7 @@ by passing the `--experimental` flag to `ktlint`.
 - `function-signature`: rewrites the function signature to a single line when possible (e.g. when not exceeding the `max_line_length` property) or a multiline signature otherwise. In case of function with a body expression, the body expression is placed on the same line as the function signature when not exceeding the `max_line_length` property. Optionally the function signature can be forced to be written as a multiline signature in case the function has more than a specified number of parameters (`.editorconfig' property `ktlint_function_signature_wrapping_rule_always_with_minimum_parameters`)
 
 ### Spacing
-- `experimental:annotation-spacing`: Annotations should be separated by the annotated declaration by a single line break
+ annotated declaration by a single line break
 - `experimental:double-colon-spacing`: No spaces around `::`
 - `experimental:fun-keyword-spacing`: Consistent spacing after the fun keyword
 - `experimental:function-return-type-spacing`: Consistent spacing around the function return type
