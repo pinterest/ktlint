@@ -10,7 +10,7 @@ If you are not an API user nor a RuleSet provider, then you can safely skip this
 
 #### Lint and formatting functions
 
-The lint and formatting changes no longer accept parameters of type `Params` but only `ExperimentalParams`. Your integration with KtLint might break because of that. Based on feedback with ktlint 0.45.x, we now prefer to break at compile time. Please raise an issue, in case you help to convert to the new API.
+The lint and formatting changes no longer accept parameters of type `Params` but only `ExperimentalParams`. Also, the VisitorProvider parameter has been removed. Because of this, your integration with KtLint breaks. Based on feedback with ktlint 0.45.x, we now prefer to break at compile time instead of trying to keep the interface backwards compatible. Please raise an issue, in case you help to convert to the new API.
 
 #### Testing KtLint rules
 
