@@ -75,6 +75,7 @@ It's also [easy to create your own](#creating-a-reporter).
 - `op-spacing`: Consistent spacing around operators
 - `paren-spacing`: Consistent spacing around parenthesis
 - `range-spacing`: Consistent spacing around range operators
+- `spacing-around-angle-brackets`: No spaces around angle brackets
 
 ## Experimental rules
 New rules will be added into the [experimental ruleset](https://github.com/pinterest/ktlint/tree/master/ktlint-ruleset-experimental), which can be enabled
@@ -97,7 +98,6 @@ by passing the `--experimental` flag to `ktlint`.
 - `experimental:function-type-reference-spacing`: Consistent spacing in the type reference before a function
 - `experimental:modifier-list-spacing`: Consistent spacing between modifiers in and after the last modifier in a modifier list
 - `experimental:nullable-type-spacing`: No spaces in a nullable type
-- `experimental:spacing-around-angle-brackets`: No spaces around angle brackets
 - `experimental:spacing-between-declarations-with-annotations`: Declarations with annotations should be separated by a blank line
 - `experimental:spacing-between-declarations-with-comments`: Declarations with comments should be separated by a blank line
 - `experimental:spacing-between-function-name-and-opening-parenthesis`: Consistent spacing between function name and opening parenthesis

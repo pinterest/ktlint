@@ -3,6 +3,7 @@ package com.pinterest.ktlint.ruleset.experimental
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.ruleset.experimental.FunctionSignatureRule.Companion.functionSignatureWrappingMinimumParametersProperty
 import com.pinterest.ktlint.ruleset.standard.NoMultipleSpacesRule
+import com.pinterest.ktlint.ruleset.standard.SpacingAroundAngleBracketsRule
 import com.pinterest.ktlint.ruleset.standard.SpacingAroundColonRule
 import com.pinterest.ktlint.ruleset.standard.SpacingAroundCommaRule
 import com.pinterest.ktlint.ruleset.standard.SpacingAroundDotRule

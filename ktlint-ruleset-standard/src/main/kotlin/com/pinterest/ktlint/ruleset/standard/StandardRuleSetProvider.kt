@@ -35,6 +35,7 @@ public class StandardRuleSetProvider : RuleSetProvider {
         NoWildcardImportsRule(),
         PackageNameRule(),
         ParameterListWrappingRule(),
+        SpacingAroundAngleBracketsRule(),
         SpacingAroundColonRule(),
         SpacingAroundCommaRule(),
         SpacingAroundCurlyRule(),

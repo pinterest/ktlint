@@ -1,4 +1,4 @@
-package com.pinterest.ktlint.ruleset.experimental
+package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.FUN_KEYWORD
@@ -13,7 +13,7 @@ import com.pinterest.ktlint.core.ast.prevLeaf
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 
-class SpacingAroundAngleBracketsRule : Rule("$experimentalRulesetId:spacing-around-angle-brackets") {
+class SpacingAroundAngleBracketsRule : Rule("spacing-around-angle-brackets") {
     private fun String.trimBeforeLastLine() = this.substring(this.lastIndexOf('\n'))
 
     override fun visit(
