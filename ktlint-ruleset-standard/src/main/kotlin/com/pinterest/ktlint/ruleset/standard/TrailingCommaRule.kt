@@ -10,7 +10,6 @@ import com.pinterest.ktlint.core.ast.containsLineBreakInRange
 import com.pinterest.ktlint.core.ast.isRoot
 import com.pinterest.ktlint.core.ast.prevCodeLeaf
 import com.pinterest.ktlint.core.ast.prevLeaf
-import com.pinterest.ktlint.ruleset.experimental.experimentalRulesetId
 import kotlin.properties.Delegates
 import org.ec4j.core.model.PropertyType
 import org.ec4j.core.model.PropertyType.PropertyValueParser
@@ -31,10 +30,33 @@ import org.jetbrains.kotlin.psi.psiUtil.nextLeaf
 import org.jetbrains.kotlin.psi.psiUtil.prevLeaf
 import org.jetbrains.kotlin.utils.addToStdlib.cast
 
+private enum class TrailingCommaState {
+    /**
+     * The trailing comma is needed and exists
+     */
+    EXISTS,
+
+    /**
+     * The trailing comma is needed and doesn't exists
+     */
+    MISSING,
+
+    /**
+     * The trailing comma isn't needed and doesn't exists
+     */
+    NOT_EXISTS,
+
+    /**
+     * The trailing comma isn't needed, but exists
+     */
+    REDUNDANT,
+    ;
+}
+
 @OptIn(FeatureInAlphaState::class)
 public class TrailingCommaRule :
     Rule(
-        id = "$experimentalRulesetId:trailing-comma",
+        id = "trailing-comma",
         visitorModifiers = setOf(
             VisitorModifier.RunAfterRule(
                 ruleId = "standard:indent",

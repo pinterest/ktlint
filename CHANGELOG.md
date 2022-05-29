@@ -4,6 +4,16 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+### Change in rule ids
+
+The rules below are promoted from the Experiment ruleset to the Standard ruleset.
+* `traling-comma`
+
+Note that as a result of moving the rules that the prefix `experimental:` has to be removed from all references to this rule. Check references in:
+* The `.editorconfig` setting `disabled_rules`.
+* KtLint disable and enable directives.
+* The `VisitorModifier.RunAfterRule`.
+
 ### API Changes & RuleSet providers
 
 If you are not an API user nor a RuleSet provider, then you can safely skip this section. Otherwise, please read below carefully and upgrade your usage of ktlint. In this and coming releases, we are changing and adapting important parts of our API in order to increase maintainability and flexibility for future changes. Please avoid skipping a releases as that will make it harder to migrate.
@@ -35,6 +45,7 @@ An AssertJ style API for testing KtLint rules ([#1444](https://github.com/pinter
 - Update Kotlin development version to `1.7.0-RC` and Kotlin version to `1.6.21`.
 - Update shadow plugin to `7.1.2` release
 - Update picocli to `4.6.3` release
+- Promote experimental rules to standard rules set: `trailing-comma`
 
 ### Removed
 
