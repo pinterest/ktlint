@@ -1,11 +1,14 @@
-package com.pinterest.ktlint.ruleset.experimental
+package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.PACKAGE_DIRECTIVE
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.psi.KtPackageDirective
 
-class PackageNameRule : Rule("$experimentalRulesetId:package-name") {
+/**
+ * https://kotlinlang.org/docs/coding-conventions.html#naming-rules
+ */
+class PackageNameRule : Rule("package-name") {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,

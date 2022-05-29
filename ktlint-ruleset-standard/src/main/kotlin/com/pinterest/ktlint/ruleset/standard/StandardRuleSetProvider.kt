@@ -33,6 +33,7 @@ public class StandardRuleSetProvider : RuleSetProvider {
         NoUnitReturnRule(),
         NoUnusedImportsRule(),
         NoWildcardImportsRule(),
+        PackageNameRule(),
         ParameterListWrappingRule(),
         SpacingAroundColonRule(),
         SpacingAroundCommaRule(),

@@ -62,6 +62,7 @@ It's also [easy to create your own](#creating-a-reporter).
 - `no-unit-return`: No `Unit` returns (`fun fn {}` instead of `fun fn: Unit {}`)
 - `no-unused-imports`: No unused `import`s
 - `no-wildcard-imports`: No wildcard `import`s expect imports listed in `.editorconfig` property `ij_kotlin_packages_to_use_import_on_demand`
+- `package-name`: No underscores in package names
 - `parameter-list-wrapping`: When class/function signature doesn't fit on a single line, each parameter must be on a separate line
 - `string-template`: Consistent string templates (`$v` instead of `${v}`, `${p.v}` instead of `${p.v.toString()}`)
 
@@ -83,7 +84,6 @@ by passing the `--experimental` flag to `ktlint`.
 - `experimental:discouraged-comment-location`: Detect discouraged comment locations (no autocorrect)
 - `experimental:multiline-if-else`: Braces required for multiline if/else statements
 - `experimental:no-empty-first-line-in-method-block`: No leading empty lines in method blocks
-- `experimental:package-name`: No underscores in package names
 - `experimental:parameter-list-spacing`: Consistent spacing inside the parameter list
 - `experimental:unnecessary-parentheses-before-trailing-lambda`: An empty parentheses block before a lambda is redundant. For example `some-string".count() { it == '-' }`
 - `function-signature`: rewrites the function signature to a single line when possible (e.g. when not exceeding the `max_line_length` property) or a multiline signature otherwise. In case of function with a body expression, the body expression is placed on the same line as the function signature when not exceeding the `max_line_length` property. Optionally the function signature can be forced to be written as a multiline signature in case the function has more than a specified number of parameters (`.editorconfig' property `ktlint_function_signature_wrapping_rule_always_with_minimum_parameters`)
