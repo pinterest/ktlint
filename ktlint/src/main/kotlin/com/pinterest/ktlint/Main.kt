@@ -40,6 +40,7 @@ import java.io.PrintStream
 import java.net.URLClassLoader
 import java.net.URLDecoder
 import java.nio.file.FileSystems
+import java.util.Locale
 import java.util.ServiceLoader
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.Callable
@@ -529,7 +530,7 @@ class KtlintCommandLine {
                     e.line,
                     e.col,
                     "",
-                    "Not a valid Kotlin file (${e.message?.toLowerCase()})"
+                    "Not a valid Kotlin file (${e.message?.lowercase(Locale.getDefault())})"
                 )
             is RuleExecutionException -> {
                 logger.debug("Internal Error (${e.ruleId})", e)

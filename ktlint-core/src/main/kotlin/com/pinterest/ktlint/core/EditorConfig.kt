@@ -7,6 +7,7 @@ import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
+import java.util.Locale
 
 /**
  * @see [EditorConfig](https://editorconfig.org/)
@@ -55,13 +56,13 @@ interface EditorConfig {
         )
         fun fromMap(map: Map<String, String>): EditorConfig {
             val indentStyle = when {
-                map["indent_style"]?.toLowerCase() == "tab" -> TAB
+                map["indent_style"]?.lowercase(Locale.getDefault()) == "tab" -> TAB
                 else -> SPACE
             }
             val indentSize =
                 map["indent_size"]
                     .let { value ->
-                        if (value?.toLowerCase() == "unset") {
+                        if (value?.lowercase(Locale.getDefault()) == "unset") {
                             -1
                         } else {
                             value?.toIntOrNull() ?: IndentConfig.DEFAULT_INDENT_CONFIG.tabWidth
