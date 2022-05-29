@@ -12,6 +12,7 @@ import com.pinterest.ktlint.core.internal.EditorConfigLoader.Companion.convertTo
 import com.pinterest.ktlint.core.internal.KotlinPsiFileFactoryProvider
 import com.pinterest.ktlint.core.internal.LineAndColumn
 import com.pinterest.ktlint.core.internal.SuppressionLocator
+import com.pinterest.ktlint.core.internal.VisitorProvider
 import com.pinterest.ktlint.core.internal.buildPositionInTextLocator
 import com.pinterest.ktlint.core.internal.buildSuppressedRegionsLocator
 import com.pinterest.ktlint.core.internal.noSuppression

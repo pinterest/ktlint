@@ -1,15 +1,14 @@
-package com.pinterest.ktlint.core
+package com.pinterest.ktlint.core.internal
 
+import com.pinterest.ktlint.core.KtLint
+import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.RuleSet
 import com.pinterest.ktlint.core.ast.visit
-import com.pinterest.ktlint.core.internal.RuleReference
-import com.pinterest.ktlint.core.internal.VisitorProviderFactory
-import com.pinterest.ktlint.core.internal.toQualifiedRuleId
-import com.pinterest.ktlint.core.internal.toShortenedQualifiedRuleId
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 private val visitorProviderFactory = VisitorProviderFactory()
 
-public class VisitorProvider(
+internal class VisitorProvider(
     ruleSets: Iterable<RuleSet>,
     private val debug: Boolean,
     /** Creates a new VisitorProviderFactory to instantiate the VisitorProvider. */
