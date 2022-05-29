@@ -30,6 +30,7 @@ It's also [easy to create your own](#creating-a-reporter).
 
 ## Standard rules
 
+- `annotation`: Annotation formatting - multiple annotations should be on a separate line than the annotated declaration; annotations with parameters should each be on separate lines; annotations should be followed by a space
 - `chain-wrapping`: When wrapping chained calls `.`, `?.` and `?:` should be placed on the next line
 - `comment-spacing`: The end of line comment sign `//` should be preceded and followed by exactly a space
 - `filename`: Files containing only one toplevel domain should be named according to that element.
@@ -76,7 +77,6 @@ It's also [easy to create your own](#creating-a-reporter).
 New rules will be added into the [experimental ruleset](https://github.com/pinterest/ktlint/tree/master/ktlint-ruleset-experimental), which can be enabled
 by passing the `--experimental` flag to `ktlint`.
 
-- `experimental:annotation`: Annotation formatting - multiple annotations should be on a separate line than the annotated declaration; annotations with parameters should each be on separate lines; annotations should be followed by a space
 - `experimental:block-comment-initial-star-alignment`: Lines in a block comment which (exclusive the indentation) start with a `*` should have this `*` aligned with the `*` in the opening of the block comment.
 - `experimental:discouraged-comment-location`: Detect discouraged comment locations (no autocorrect)
 - `experimental:enum-entry-name-case`: Enum entry names should be uppercase underscore-separated names
@@ -136,7 +136,7 @@ Such behaviour violates `.editorconfig` [specification](https://github.com/edito
 # Comma-separated list of rules to disable (Since 0.34.0)
 # Note that rules in any ruleset other than the standard ruleset will need to be prefixed 
 # by the ruleset identifier.
-disabled_rules=no-wildcard-imports,experimental:annotation,my-custom-ruleset:my-custom-rule
+disabled_rules=some-standard-rule,experimental:some-experimental-rule,my-custom-ruleset:my-custom-rule
 
 # Defines the imports layout. The layout can be composed by the following symbols:
 # "*" - wildcard. There must be at least one entry of a single wildcard to match all other imports. Matches anything after a specified symbol/import as well.

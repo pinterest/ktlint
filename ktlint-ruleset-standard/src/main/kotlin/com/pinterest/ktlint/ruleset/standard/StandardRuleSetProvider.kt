@@ -9,6 +9,7 @@ public class StandardRuleSetProvider : RuleSetProvider {
     // Note: some of these rules may be disabled by default. See the default .editorconfig.
     override fun get(): RuleSet = RuleSet(
         "standard",
+        AnnotationRule(),
         ChainWrappingRule(),
         CommentSpacingRule(),
         FilenameRule(),
