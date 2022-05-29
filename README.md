@@ -76,6 +76,7 @@ It's also [easy to create your own](#creating-a-reporter).
 - `paren-spacing`: Consistent spacing around parenthesis
 - `range-spacing`: Consistent spacing around range operators
 - `spacing-around-angle-brackets`: No spaces around angle brackets
+- `double-colon-spacing`: No spaces around `::`
 
 ## Experimental rules
 New rules will be added into the [experimental ruleset](https://github.com/pinterest/ktlint/tree/master/ktlint-ruleset-experimental), which can be enabled
@@ -91,7 +92,6 @@ by passing the `--experimental` flag to `ktlint`.
 
 ### Spacing
  annotated declaration by a single line break
-- `experimental:double-colon-spacing`: No spaces around `::`
 - `experimental:fun-keyword-spacing`: Consistent spacing after the fun keyword
 - `experimental:function-return-type-spacing`: Consistent spacing around the function return type
 - `experimental:function-start-of-body-spacing`: Consistent spacing before start of function body

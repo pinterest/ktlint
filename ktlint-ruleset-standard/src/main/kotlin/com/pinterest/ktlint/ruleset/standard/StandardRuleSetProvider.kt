@@ -40,6 +40,7 @@ public class StandardRuleSetProvider : RuleSetProvider {
         SpacingAroundCommaRule(),
         SpacingAroundCurlyRule(),
         SpacingAroundDotRule(),
+        SpacingAroundDoubleColonRule(),
         SpacingAroundKeywordRule(),
         SpacingAroundOperatorsRule(),
         SpacingAroundParensRule(),
