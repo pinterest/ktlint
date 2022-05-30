@@ -1,11 +1,11 @@
 package yourpkgname
 
-import com.pinterest.ktlint.core.LintError
-import com.pinterest.ktlint.test.lint
-import org.assertj.core.api.Assertions.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
 import org.junit.jupiter.api.Test
 
 class NoVarRuleTest {
+    private val wrappingRuleAssertThat = NoVarRule().assertThat()
+
     @Test
     fun `No var rule`() {
         // whenever KTLINT_DEBUG env variable is set to "ast" or -DktlintDebug=ast is used
@@ -19,7 +19,7 @@ class NoVarRuleTest {
                 var v = "var"
             }
             """.trimIndent()
-        assertThat(NoVarRule().lint(code))
-            .isEqualTo(listOf(LintError(2, 5, "no-var", "Unexpected var, use val instead")))
+        wrappingRuleAssertThat(code)
+            .hasLintViolationWithoutAutoCorrect(2, 5, "Unexpected var, use val instead")
     }
 }

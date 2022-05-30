@@ -26,7 +26,6 @@ private val logger = KotlinLogging.logger {}.initKtLintKLogger()
  * See [com.pinterest.ktlint.core.KtLint.generateKotlinEditorConfigSection] documentation how to generate
  * `.editorconfig` based on [com.pinterest.ktlint.core.Rule]s with this interface implementations.
  */
-@FeatureInAlphaState
 public interface UsesEditorConfigProperties {
 
     /**
@@ -154,7 +153,6 @@ public interface UsesEditorConfigProperties {
 /**
  * Defines KtLint properties which are based on default property types provided by [org.ec4j.core.model.PropertyType].
  */
-@OptIn(FeatureInAlphaState::class)
 public object DefaultEditorConfigProperties {
     public val indentStyleProperty: UsesEditorConfigProperties.EditorConfigProperty<PropertyType.IndentStyleValue> =
         UsesEditorConfigProperties.EditorConfigProperty(

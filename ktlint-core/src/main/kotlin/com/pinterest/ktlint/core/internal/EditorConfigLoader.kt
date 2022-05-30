@@ -16,22 +16,9 @@ import org.ec4j.core.PropertyTypeRegistry
 import org.ec4j.core.Resource
 import org.ec4j.core.ResourcePropertiesService
 import org.ec4j.core.model.Property
-import org.ec4j.core.model.PropertyType
 import org.ec4j.core.model.Version
 
 private val logger = KotlinLogging.logger {}.initKtLintKLogger()
-
-/**
- * Map contains [UsesEditorConfigProperties.EditorConfigProperty] and related
- * [PropertyType.PropertyValue] entries to add/replace loaded from `.editorconfig` files values.
- */
-@Deprecated(
-    message = "Marked for removal in KtLint 0.46.",
-    replaceWith = ReplaceWith("EditorConfigOverride")
-)
-@FeatureInAlphaState
-public typealias EditorConfigOverridesMap =
-    Map<UsesEditorConfigProperties.EditorConfigProperty<*>, PropertyType.PropertyValue<*>>
 
 /**
  * Loads default `.editorconfig` and ktlint specific properties for files.

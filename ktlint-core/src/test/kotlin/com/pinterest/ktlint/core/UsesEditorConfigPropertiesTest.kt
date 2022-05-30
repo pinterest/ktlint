@@ -37,7 +37,7 @@ class UsesEditorConfigPropertiesTest {
     }
 
     @Test
-    fun `Given that editor config property indent_size is set to value "unset" then return -1 as value via the getEditorConfigValue of the node`() {
+    fun `Given that editor config property indent_size is set to value 'unset' then return -1 as value via the getEditorConfigValue of the node`() {
         val testAstNode: ASTNode = DummyHolderElement("some-text")
         testAstNode.putUserData(
             KtLint.EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY,
@@ -79,7 +79,7 @@ class UsesEditorConfigPropertiesTest {
     }
 
     @Test
-    fun `Given that editor config property max_line_length is set to value "off" then return -1 via the getEditorConfigValue of the node`() {
+    fun `Given that editor config property max_line_length is set to value 'off' then return -1 via the getEditorConfigValue of the node`() {
         val testAstNode: ASTNode = DummyHolderElement("some-text")
         testAstNode.putUserData(
             KtLint.EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY,
@@ -94,7 +94,7 @@ class UsesEditorConfigPropertiesTest {
     }
 
     @Test
-    fun `Given that editor config property max_line_length is set to value "unset" for android then return 100 via the getEditorConfigValue of the node`() {
+    fun `Given that editor config property max_line_length is set to value 'unset' for android then return 100 via the getEditorConfigValue of the node`() {
         val testAstNode: ASTNode = DummyHolderElement("some-text")
         testAstNode.putUserData(KtLint.ANDROID_USER_DATA_KEY, true)
         testAstNode.putUserData(
@@ -110,7 +110,7 @@ class UsesEditorConfigPropertiesTest {
     }
 
     @Test
-    fun `Given that editor config property max_line_length is set to value "unset" for non-android then return -1 via the getEditorConfigValue of the node`() {
+    fun `Given that editor config property max_line_length is set to value 'unset' for non-android then return -1 via the getEditorConfigValue of the node`() {
         val testAstNode: ASTNode = DummyHolderElement("some-text")
         testAstNode.putUserData(KtLint.ANDROID_USER_DATA_KEY, false)
         testAstNode.putUserData(
