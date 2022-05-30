@@ -13,6 +13,7 @@ The rules below are promoted from the Experiment ruleset to the Standard ruleset
 * `double-colon-spacing`
 * `enum-entry-name-case`
 * `multiline-if-else`
+* `no-empty-first-line-in-method-block`
 * `package-name`
 * `traling-comma`
 * `spacing-around-angle-brackets`

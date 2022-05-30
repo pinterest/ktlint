@@ -47,6 +47,7 @@ It's also [easy to create your own](#creating-a-reporter).
 - `no-blank-lines-in-chained-method-calls`: No blank lines in chained method expressions
 - `no-consecutive-blank-lines`: No consecutive blank lines
 - `no-empty-class-body`: No empty (`{}`) class bodies
+- `no-empty-first-line-in-method-block`: No leading empty lines in method blocks
 - `no-line-break-after-else`: Disallows line breaks after the else keyword if that could lead to confusion, for example:
     ```kotlin
     if (conditionA()) {
@@ -89,7 +90,6 @@ by passing the `--experimental` flag to `ktlint`.
 
 - `experimental:block-comment-initial-star-alignment`: Lines in a block comment which (exclusive the indentation) start with a `*` should have this `*` aligned with the `*` in the opening of the block comment.
 - `experimental:discouraged-comment-location`: Detect discouraged comment locations (no autocorrect)
-- `experimental:no-empty-first-line-in-method-block`: No leading empty lines in method blocks
 - `experimental:parameter-list-spacing`: Consistent spacing inside the parameter list
 - `experimental:unnecessary-parentheses-before-trailing-lambda`: An empty parentheses block before a lambda is redundant. For example `some-string".count() { it == '-' }`
 - `function-signature`: rewrites the function signature to a single line when possible (e.g. when not exceeding the `max_line_length` property) or a multiline signature otherwise. In case of function with a body expression, the body expression is placed on the same line as the function signature when not exceeding the `max_line_length` property. Optionally the function signature can be forced to be written as a multiline signature in case the function has more than a specified number of parameters (`.editorconfig' property `ktlint_function_signature_wrapping_rule_always_with_minimum_parameters`)
