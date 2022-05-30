@@ -11,7 +11,6 @@ public class ExperimentalRuleSetProvider : RuleSetProvider {
         MultiLineIfElseRule(),
         NoEmptyFirstLineInMethodBlockRule(),
         SpacingBetweenDeclarationsWithCommentsRule(),
-        SpacingBetweenDeclarationsWithAnnotationsRule(),
         UnnecessaryParenthesesBeforeTrailingLambdaRule(),
         TypeParameterListSpacingRule(),
         TypeArgumentListSpacingRule(),
