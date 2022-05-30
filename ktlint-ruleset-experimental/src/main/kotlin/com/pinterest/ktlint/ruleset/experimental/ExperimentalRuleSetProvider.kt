@@ -10,7 +10,6 @@ public class ExperimentalRuleSetProvider : RuleSetProvider {
         experimentalRulesetId,
         MultiLineIfElseRule(),
         NoEmptyFirstLineInMethodBlockRule(),
-        SpacingBetweenDeclarationsWithCommentsRule(),
         UnnecessaryParenthesesBeforeTrailingLambdaRule(),
         TypeParameterListSpacingRule(),
         TypeArgumentListSpacingRule(),

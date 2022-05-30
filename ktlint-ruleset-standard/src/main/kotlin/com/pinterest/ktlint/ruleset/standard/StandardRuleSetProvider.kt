@@ -47,6 +47,7 @@ public class StandardRuleSetProvider : RuleSetProvider {
         SpacingAroundRangeOperatorRule(),
         SpacingAroundUnaryOperatorRule(),
         SpacingBetweenDeclarationsWithAnnotationsRule(),
+        SpacingBetweenDeclarationsWithCommentsRule(),
         StringTemplateRule(),
         TrailingCommaRule(),
         WrappingRule()
