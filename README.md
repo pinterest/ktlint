@@ -69,7 +69,7 @@ It's also [easy to create your own](#creating-a-reporter).
 - `string-template`: Consistent string templates (`$v` instead of `${v}`, `${p.v}` instead of `${p.v.toString()}`)
 
 ### Spacing
-- `annotation-spacing`: Annotations should be separated by the
+- `annotation-spacing`: Annotations should be separated by a single line break
 - `colon-spacing`: Consistent spacing around colon
 - `comma-spacing`: Consistent spacing around comma
 - `curly-spacing`: Consistent spacing around curly braces
@@ -90,18 +90,17 @@ by passing the `--experimental` flag to `ktlint`.
 
 - `experimental:block-comment-initial-star-alignment`: Lines in a block comment which (exclusive the indentation) start with a `*` should have this `*` aligned with the `*` in the opening of the block comment.
 - `experimental:discouraged-comment-location`: Detect discouraged comment locations (no autocorrect)
-- `experimental:parameter-list-spacing`: Consistent spacing inside the parameter list
 - `experimental:unnecessary-parentheses-before-trailing-lambda`: An empty parentheses block before a lambda is redundant. For example `some-string".count() { it == '-' }`
 - `function-signature`: rewrites the function signature to a single line when possible (e.g. when not exceeding the `max_line_length` property) or a multiline signature otherwise. In case of function with a body expression, the body expression is placed on the same line as the function signature when not exceeding the `max_line_length` property. Optionally the function signature can be forced to be written as a multiline signature in case the function has more than a specified number of parameters (`.editorconfig' property `ktlint_function_signature_wrapping_rule_always_with_minimum_parameters`)
 
 ### Spacing
- annotated declaration by a single line break
 - `experimental:fun-keyword-spacing`: Consistent spacing after the fun keyword
 - `experimental:function-return-type-spacing`: Consistent spacing around the function return type
 - `experimental:function-start-of-body-spacing`: Consistent spacing before start of function body
 - `experimental:function-type-reference-spacing`: Consistent spacing in the type reference before a function
 - `experimental:modifier-list-spacing`: Consistent spacing between modifiers in and after the last modifier in a modifier list
 - `experimental:nullable-type-spacing`: No spaces in a nullable type
+- `experimental:parameter-list-spacing`: Consistent spacing inside the parameter list
 - `experimental:spacing-between-function-name-and-opening-parenthesis`: Consistent spacing between function name and opening parenthesis
 - `experimental:type-parameter-list-spacing`: Spacing after a type parameter list in function and class declarations
 
