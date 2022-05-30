@@ -1,4 +1,4 @@
-package com.pinterest.ktlint.ruleset.experimental
+package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.ELSE
@@ -19,11 +19,8 @@ import org.jetbrains.kotlin.psi.psiUtil.leaves
 
 /**
  * https://kotlinlang.org/docs/reference/coding-conventions.html#formatting-control-flow-statements
- *
- * TODO: if, for, when branch, do, while
  */
-class MultiLineIfElseRule : Rule("$experimentalRulesetId:multiline-if-else") {
-
+class MultiLineIfElseRule : Rule("multiline-if-else") {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,

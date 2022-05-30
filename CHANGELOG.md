@@ -12,6 +12,7 @@ The rules below are promoted from the Experiment ruleset to the Standard ruleset
 * `argument-list-wrapping`
 * `double-colon-spacing`
 * `enum-entry-name-case`
+* `multiline-if-else`
 * `package-name`
 * `traling-comma`
 * `spacing-around-angle-brackets`

@@ -42,6 +42,7 @@ It's also [easy to create your own](#creating-a-reporter).
 - `indent`: Indentation formatting - respects `.editorconfig` `indent_size` with no continuation indent (see [EditorConfig](#editorconfig) section for more)
 - `max-line-length`: Ensures that lines do not exceed the given length of `.editorconfig` property `max_line_length` (see [EditorConfig](#editorconfig) section for more). This rule does not apply in a number of situations. For example, in the case a line exceeds the maximum line length due to and comment that disables ktlint rules than that comment is being ignored when validating the length of the line. The `.editorconfig` property `ktlint_ignore_back_ticked_identifier` can be set to ignore identifiers which are enclosed in backticks, which for example is very useful when you want to allow longer names for unit tests.  
 - `modifier-order`: Consistent order of modifiers
+- `multiline-if-else`: Braces required for multiline if/else statements
 - `no-blank-line-before-rbrace`: No blank lines before `}` 
 - `no-blank-lines-in-chained-method-calls`: No blank lines in chained method expressions
 - `no-consecutive-blank-lines`: No consecutive blank lines
@@ -88,7 +89,6 @@ by passing the `--experimental` flag to `ktlint`.
 
 - `experimental:block-comment-initial-star-alignment`: Lines in a block comment which (exclusive the indentation) start with a `*` should have this `*` aligned with the `*` in the opening of the block comment.
 - `experimental:discouraged-comment-location`: Detect discouraged comment locations (no autocorrect)
-- `experimental:multiline-if-else`: Braces required for multiline if/else statements
 - `experimental:no-empty-first-line-in-method-block`: No leading empty lines in method blocks
 - `experimental:parameter-list-spacing`: Consistent spacing inside the parameter list
 - `experimental:unnecessary-parentheses-before-trailing-lambda`: An empty parentheses block before a lambda is redundant. For example `some-string".count() { it == '-' }`

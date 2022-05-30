@@ -21,6 +21,7 @@ public class StandardRuleSetProvider : RuleSetProvider {
         IndentationRule(),
         MaxLineLengthRule(),
         ModifierOrderRule(),
+        MultiLineIfElseRule(),
         NoBlankLineBeforeRbraceRule(),
         NoConsecutiveBlankLinesRule(),
         NoBlankLinesInChainedMethodCallsRule(),
