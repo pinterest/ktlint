@@ -67,16 +67,18 @@ It's also [easy to create your own](#creating-a-reporter).
 - `string-template`: Consistent string templates (`$v` instead of `${v}`, `${p.v}` instead of `${p.v.toString()}`)
 
 ### Spacing
-- `annotation-spacing`: Annotations should be separated by the- `colon-spacing`: Consistent spacing around colon
+- `annotation-spacing`: Annotations should be separated by the
+- `colon-spacing`: Consistent spacing around colon
 - `comma-spacing`: Consistent spacing around comma
 - `curly-spacing`: Consistent spacing around curly braces
 - `dot-spacing`: Consistent spacing around dots
+- `double-colon-spacing`: No spaces around `::`
 - `keyword-spacing`: Consistent spacing around keywords
 - `op-spacing`: Consistent spacing around operators
 - `paren-spacing`: Consistent spacing around parenthesis
 - `range-spacing`: Consistent spacing around range operators
 - `spacing-around-angle-brackets`: No spaces around angle brackets
-- `double-colon-spacing`: No spaces around `::`
+- `unary-op-spacing`: No spaces around unary operators
 
 ## Experimental rules
 New rules will be added into the [experimental ruleset](https://github.com/pinterest/ktlint/tree/master/ktlint-ruleset-experimental), which can be enabled
@@ -102,7 +104,6 @@ by passing the `--experimental` flag to `ktlint`.
 - `experimental:spacing-between-declarations-with-comments`: Declarations with comments should be separated by a blank line
 - `experimental:spacing-between-function-name-and-opening-parenthesis`: Consistent spacing between function name and opening parenthesis
 - `experimental:type-parameter-list-spacing`: Spacing after a type parameter list in function and class declarations
-- `experimental:unary-op-spacing`: No spaces around unary operators
 
 ### Wrapping
 - `experimental:comment-wrapping`: A block comment should start and end on a line that does not contain any other element. A block comment should not be used as end of line comment.

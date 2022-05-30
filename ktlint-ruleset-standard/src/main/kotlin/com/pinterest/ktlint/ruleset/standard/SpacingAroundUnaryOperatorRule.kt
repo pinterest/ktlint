@@ -1,4 +1,4 @@
-package com.pinterest.ktlint.ruleset.experimental
+package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType
@@ -12,7 +12,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
  *
  * @see [Kotlin Style Guide](https://kotlinlang.org/docs/reference/coding-conventions.html#horizontal-whitespace)
  */
-class SpacingAroundUnaryOperatorRule : Rule("$experimentalRulesetId:unary-op-spacing") {
+class SpacingAroundUnaryOperatorRule : Rule("unary-op-spacing") {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
