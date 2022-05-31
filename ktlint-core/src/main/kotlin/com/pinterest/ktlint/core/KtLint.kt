@@ -247,16 +247,6 @@ public object KtLint {
         )
     }
 
-    @Deprecated(
-        message = "Should not be a part of public api. Will be removed in future release.",
-        level = DeprecationLevel.WARNING
-    )
-    public fun calculateLineColByOffset(
-        text: String
-    ): (offset: Int) -> Pair<Int, Int> {
-        return buildPositionInTextLocator(text)
-    }
-
     /**
      * Fix style violations.
      *
