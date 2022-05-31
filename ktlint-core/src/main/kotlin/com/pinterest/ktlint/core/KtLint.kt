@@ -8,7 +8,6 @@ import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.internal.EditorConfigGenerator
 import com.pinterest.ktlint.core.internal.EditorConfigLoader
-import com.pinterest.ktlint.core.internal.EditorConfigLoader.Companion.convertToRawValues
 import com.pinterest.ktlint.core.internal.KotlinPsiFileFactoryProvider
 import com.pinterest.ktlint.core.internal.LineAndColumn
 import com.pinterest.ktlint.core.internal.SuppressionLocator
@@ -196,14 +195,16 @@ public object KtLint {
             params.debug
         )
 
-        val mergedUserData = editorConfigProperties.toUserData() + params.userData
-            .run {
-                if (!params.isStdIn) {
-                    plus(FILE_PATH_PROPERTY to params.normalizedFilePath.toString())
-                } else {
-                    this
+        val mergedUserData =
+            params
+                .userData
+                .run {
+                    if (!params.isStdIn) {
+                        plus(FILE_PATH_PROPERTY to params.normalizedFilePath.toString())
+                    } else {
+                        this
+                    }
                 }
-            }
 
         injectUserData(rootNode, editorConfigProperties, mergedUserData)
 
@@ -215,9 +216,6 @@ public object KtLint {
             suppressedRegionLocator
         )
     }
-
-    @Deprecated("Remove in Ktlint 0.46 when deleting EDITOR_CONFIG_USER_DATA_KEY.")
-    private fun EditorConfigProperties.toUserData() = convertToRawValues()
 
     @Deprecated(
         message = "Should not be a part of public api. Will be removed in future release.",
