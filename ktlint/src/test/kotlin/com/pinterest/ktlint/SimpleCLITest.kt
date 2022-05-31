@@ -69,7 +69,7 @@ class SimpleCLITest : BaseCLITest() {
 
     @DisplayName("Should format without errors")
     @Test
-    internal fun formatWorks() {
+    fun formatWorks() {
         runKtLintCliProcess(
             "too-many-empty-lines",
             listOf("-F")
@@ -78,7 +78,7 @@ class SimpleCLITest : BaseCLITest() {
             // on JDK11+ contains warning about illegal reflective access operation
             // assertErrorOutputIsEmpty()
 
-            assertSourceFileWasFormatted("main.kt")
+            assertSourceFileWasFormatted("Main.kt")
         }
     }
 }
