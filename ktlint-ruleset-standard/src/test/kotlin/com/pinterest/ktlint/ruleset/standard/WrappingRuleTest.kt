@@ -1,15 +1,12 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.core.EditorConfig.Companion.indentStyleProperty
-import com.pinterest.ktlint.core.LintError
-import com.pinterest.ktlint.core.api.EditorConfigOverride
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentStyleProperty
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
 import com.pinterest.ktlint.test.LintViolation
-import com.pinterest.ktlint.test.format
-import com.pinterest.ktlint.test.lint
 import org.assertj.core.api.Assertions.assertThat
-import org.ec4j.core.model.PropertyType
+import org.ec4j.core.model.PropertyType.IndentStyleValue.tab
 import org.junit.jupiter.api.Test
 
 @FeatureInAlphaState
@@ -281,40 +278,36 @@ internal class WrappingRuleTest {
 
     @Test // "https://github.com/shyiko/ktlint/issues/180"
     fun testLintWhereClause() {
-        assertThat(
-            WrappingRule().lint(
-                """
-                class BiAdapter<C : RecyclerView.ViewHolder, V1 : C, V2 : C, out A1, out A2>(
-                    val adapter1: A1,
-                    val adapter2: A2
-                ) : RecyclerView.Adapter<C>()
-                    where A1 : RecyclerView.Adapter<V1>, A1 : ComposableAdapter.ViewTypeProvider,
-                          A2 : RecyclerView.Adapter<V2>, A2 : ComposableAdapter.ViewTypeProvider {
-                }
-                """.trimIndent()
-            )
-        ).isEmpty()
+        val code =
+            """
+            class BiAdapter<C : RecyclerView.ViewHolder, V1 : C, V2 : C, out A1, out A2>(
+                val adapter1: A1,
+                val adapter2: A2
+            ) : RecyclerView.Adapter<C>()
+                where A1 : RecyclerView.Adapter<V1>, A1 : ComposableAdapter.ViewTypeProvider,
+                      A2 : RecyclerView.Adapter<V2>, A2 : ComposableAdapter.ViewTypeProvider {
+            }
+            """.trimIndent()
+        wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test // "https://github.com/pinterest/ktlint/issues/433"
     fun testLintParameterListWithComments() {
-        assertThat(
-            WrappingRule().lint(
-                """
-                fun main() {
-                    foo(
-                        /*param1=*/param1,
-                        /*param2=*/param2
-                    )
+        val code =
+            """
+            fun main() {
+                foo(
+                    /*param1=*/param1,
+                    /*param2=*/param2
+                )
 
-                    foo(
-                        /*param1=*/ param1,
-                        /*param2=*/ param2
-                    )
-                }
-                """.trimIndent()
-            )
-        ).isEmpty()
+                foo(
+                    /*param1=*/ param1,
+                    /*param2=*/ param2
+                )
+            }
+            """.trimIndent()
+        wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -351,55 +344,49 @@ internal class WrappingRuleTest {
 
     @Test
     fun testLintNewlineAfterEqAllowed() {
-        assertThat(
-            WrappingRule().lint(
-                // Previously the IndentationRule would force the line break after the `=`. Verify that it is
-                // still allowed.
-                """
-                private fun getImplementationVersion() =
-                    javaClass.`package`.implementationVersion
-                        ?: javaClass.getResourceAsStream("/META-INF/MANIFEST.MF")
-                            ?.let { stream ->
-                                Manifest(stream).mainAttributes.getValue("Implementation-Version")
-                            }
-                """.trimIndent()
-            )
-        ).isEmpty()
+        // Previously the IndentationRule would force the line break after the `=`. Verify that it is
+        // still allowed.
+        val code =
+            """
+            private fun getImplementationVersion() =
+                javaClass.`package`.implementationVersion
+                    ?: javaClass.getResourceAsStream("/META-INF/MANIFEST.MF")
+                        ?.let { stream ->
+                            Manifest(stream).mainAttributes.getValue("Implementation-Version")
+                        }
+            """.trimIndent()
+        wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
     fun `lint indentation new line before return type`() {
-        assertThat(
-            WrappingRule().lint(
-                """
-                abstract fun doPerformSomeOperation(param: ALongParameter):
-                    SomeLongInterface<ALongParameter.InnerClass, SomeOtherClass>
-                val s:
-                    String = ""
-                fun process(
-                    fileName:
-                        String
-                ): List<Output>
-                """.trimIndent()
-            )
-        ).isEmpty()
+        val code =
+            """
+            abstract fun doPerformSomeOperation(param: ALongParameter):
+                SomeLongInterface<ALongParameter.InnerClass, SomeOtherClass>
+            val s:
+                String = ""
+            fun process(
+                fileName:
+                    String
+            ): List<Output>
+            """.trimIndent()
+        wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
     fun `lint trailing comment in multiline parameter is allowed`() {
-        assertThat(
-            WrappingRule().lint(
-                """
-                fun foo(param: Foo, other: String) {
-                    foo(
-                        param = param
-                            .copy(foo = ""), // A comment
-                        other = ""
-                    )
-                }
-                """.trimIndent()
-            )
-        ).isEmpty()
+        val code =
+            """
+            fun foo(param: Foo, other: String) {
+                foo(
+                    param = param
+                        .copy(foo = ""), // A comment
+                    other = ""
+                )
+            }
+            """.trimIndent()
+        wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -414,23 +401,21 @@ internal class WrappingRuleTest {
                 )
             }
             """.trimIndent()
-        assertThat(WrappingRule().format(code)).isEqualTo(code)
+        wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
     fun `lint safe-called wrapped trailing lambda is allowed`() {
-        assertThat(
-            WrappingRule().lint(
-                """
-                val foo = bar
-                    ?.filter { number ->
-                        number == 0
-                    }?.map { evenNumber ->
-                        evenNumber * evenNumber
-                    }
-                """.trimIndent()
-            )
-        ).isEmpty()
+        val code =
+            """
+            val foo = bar
+                ?.filter { number ->
+                    number == 0
+                }?.map { evenNumber ->
+                    evenNumber * evenNumber
+                }
+            """.trimIndent()
+        wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -444,7 +429,7 @@ internal class WrappingRuleTest {
                     evenNumber * evenNumber
                 }
             """.trimIndent()
-        assertThat(WrappingRule().format(code)).isEqualTo(code)
+        wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -458,7 +443,7 @@ internal class WrappingRuleTest {
                     2.toString()
             }
             """.trimIndent()
-        assertThat(WrappingRule().lint(code)).isEmpty()
+        wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -472,7 +457,7 @@ internal class WrappingRuleTest {
                     2.toString()
             }
             """.trimIndent()
-        assertThat(WrappingRule().format(code)).isEqualTo(code)
+        wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     // https://github.com/pinterest/ktlint/issues/796
@@ -488,7 +473,7 @@ internal class WrappingRuleTest {
                     // stuff
                 }
             """.trimIndent()
-        assertThat(WrappingRule().lint(code)).isEmpty()
+        wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -503,7 +488,7 @@ internal class WrappingRuleTest {
                     // stuff
                 }
             """.trimIndent()
-        assertThat(WrappingRule().format(code)).isEqualTo(code)
+        wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -517,7 +502,7 @@ internal class WrappingRuleTest {
                     $MULTILINE_STRING_QUOTE.trimIndent())
             }
             """.trimIndent()
-        val expectedCode =
+        val formattedCode =
             """
             fun foo() {
                 println(
@@ -528,16 +513,11 @@ internal class WrappingRuleTest {
                 )
             }
             """.trimIndent()
-
-        assertThat(
-            WrappingRule().lint(code)
-        ).isEqualTo(
-            listOf(
-                LintError(2, 13, "wrapping", "Missing newline after \"(\""),
-                LintError(5, 24, "wrapping", "Missing newline before \")\"")
-            )
-        )
-        assertThat(WrappingRule().format(code)).isEqualTo(expectedCode)
+        wrappingRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(2, 13, "Missing newline after \"(\""),
+                LintViolation(5, 24, "Missing newline before \")\"")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -552,7 +532,7 @@ internal class WrappingRuleTest {
             ${TAB}${TAB}$MULTILINE_STRING_QUOTE.trimIndent())
             }
             """.trimIndent()
-        val expectedCode =
+        val formattedCode =
             """
             fun foo() {
             ${TAB}println(
@@ -563,15 +543,12 @@ internal class WrappingRuleTest {
             ${TAB})
             }
             """.trimIndent()
-        assertThat(
-            WrappingRule().lint(code, INDENT_STYLE_TABS)
-        ).isEqualTo(
-            listOf(
-                LintError(2, 10, "wrapping", "Missing newline after \"(\""),
-                LintError(5, 18, "wrapping", "Missing newline before \")\"")
-            )
-        )
-        assertThat(WrappingRule().format(code, INDENT_STYLE_TABS)).isEqualTo(expectedCode)
+        wrappingRuleAssertThat(code)
+            .withEditorConfigOverride(DefaultEditorConfigProperties.indentStyleProperty to tab)
+            .hasLintViolations(
+                LintViolation(2, 10, "Missing newline after \"(\""),
+                LintViolation(5, 18, "Missing newline before \")\"")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -587,7 +564,7 @@ internal class WrappingRuleTest {
                     $MULTILINE_STRING_QUOTE.trimIndent())
             }
             """.trimIndent()
-        val expectedCode =
+        val formattedCode =
             """
             fun foo() {
                 println(
@@ -600,15 +577,11 @@ internal class WrappingRuleTest {
                 )
             }
             """.trimIndent()
-        assertThat(
-            WrappingRule().lint(code)
-        ).isEqualTo(
-            listOf(
-                LintError(line = 2, col = 13, ruleId = "wrapping", detail = "Missing newline after \"(\""),
-                LintError(line = 7, col = 24, ruleId = "wrapping", detail = "Missing newline before \")\"")
-            )
-        )
-        assertThat(WrappingRule().format(code)).isEqualTo(expectedCode)
+        wrappingRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(2, 13, "Missing newline after \"(\""),
+                LintViolation(7, 24, "Missing newline before \")\"")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -624,7 +597,7 @@ internal class WrappingRuleTest {
                     $MULTILINE_STRING_QUOTE.trimIndent())
             }
             """.trimIndent()
-        val expectedCode =
+        val formattedCode =
             """
             fun foo() {
                 println(
@@ -636,15 +609,11 @@ internal class WrappingRuleTest {
                 )
             }
             """.trimIndent()
-        assertThat(
-            WrappingRule().lint(code)
-        ).isEqualTo(
-            listOf(
-                LintError(line = 2, col = 13, ruleId = "wrapping", detail = "Missing newline after \"(\""),
-                LintError(line = 6, col = 24, ruleId = "wrapping", detail = "Missing newline before \")\"")
-            )
-        )
-        assertThat(WrappingRule().format(code)).isEqualTo(expectedCode)
+        wrappingRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(2, 13, "Missing newline after \"(\""),
+                LintViolation(6, 24, "Missing newline before \")\"")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -658,180 +627,163 @@ internal class WrappingRuleTest {
                 Tab at the end of this line.$TAB
                 $MULTILINE_STRING_QUOTE.trimIndent()
             """.trimIndent()
-        assertThat(WrappingRule().lint(code)).isEmpty()
-        assertThat(WrappingRule().format(code)).isEqualTo(code)
+        wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
     fun `lint if-condition with line break and multiline call expression is indented properly`() {
-        assertThat(
-            WrappingRule().lint(
-                """
-                // https://github.com/pinterest/ktlint/issues/871
-                fun function(param1: Int, param2: Int, param3: Int?): Boolean {
-                    return if (
-                        listOf(
-                            param1,
-                            param2,
-                            param3
-                        ).none { it != null }
-                    ) {
-                        true
-                    } else {
-                        false
-                    }
+        val code =
+            """
+            // https://github.com/pinterest/ktlint/issues/871
+            fun function(param1: Int, param2: Int, param3: Int?): Boolean {
+                return if (
+                    listOf(
+                        param1,
+                        param2,
+                        param3
+                    ).none { it != null }
+                ) {
+                    true
+                } else {
+                    false
                 }
+            }
 
-                // https://github.com/pinterest/ktlint/issues/900
-                enum class Letter(val value: String) {
-                    A("a"),
-                    B("b");
-                }
-                fun broken(key: String): Letter {
-                    for (letter in Letter.values()) {
-                        if (
-                            letter.value
-                                .equals(
-                                    key,
-                                    ignoreCase = true
-                                )
-                        ) {
-                            return letter
-                        }
+            // https://github.com/pinterest/ktlint/issues/900
+            enum class Letter(val value: String) {
+                A("a"),
+                B("b");
+            }
+            fun broken(key: String): Letter {
+                for (letter in Letter.values()) {
+                    if (
+                        letter.value
+                            .equals(
+                                key,
+                                ignoreCase = true
+                            )
+                    ) {
+                        return letter
                     }
-                    return Letter.B
                 }
-                """.trimIndent()
-            )
-        ).isEmpty()
+                return Letter.B
+            }
+            """.trimIndent()
+        wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
     fun `lint property delegate is indented properly`() {
-        assertThat(
-            WrappingRule().lint(
-                """
-                val i: Int
-                    by lazy { 1 }
+        val code =
+            """
+            val i: Int
+                by lazy { 1 }
 
-                val j = 0
-                """.trimIndent()
-            )
-        ).isEmpty()
+            val j = 0
+            """.trimIndent()
+        wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
     fun `lint property delegate is indented properly 2`() {
-        assertThat(
-            WrappingRule().lint(
-                """
-                val i: Int
-                    by lazy {
-                        "".let {
-                            println(it)
-                        }
-                        1
-                    }
-
-                val j = 0
-                """.trimIndent()
-            )
-        ).isEmpty()
-    }
-
-    @Test
-    fun `lint property delegate is indented properly 3`() {
-        assertThat(
-            WrappingRule().lint(
-                """
-                val i: Int by lazy {
+        val code =
+            """
+            val i: Int
+                by lazy {
                     "".let {
                         println(it)
                     }
                     1
                 }
 
-                val j = 0
-                """.trimIndent()
-            )
-        ).isEmpty()
+            val j = 0
+            """.trimIndent()
+        wrappingRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `lint property delegate is indented properly 3`() {
+        val code =
+            """
+            val i: Int by lazy {
+                "".let {
+                    println(it)
+                }
+                1
+            }
+
+            val j = 0
+            """.trimIndent()
+        wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
     fun `lint property delegate is indented properly 4`() {
-        assertThat(
-            WrappingRule().lint(
-                """
-                fun lazyList() = lazy { mutableListOf<String>() }
+        val code =
+            """
+            fun lazyList() = lazy { mutableListOf<String>() }
 
-                class Test {
-                    val list: List<String>
-                        by lazyList()
+            class Test {
+                val list: List<String>
+                    by lazyList()
 
-                    val aVar = 0
-                }
-                """.trimIndent()
-            )
-        ).isEmpty()
+                val aVar = 0
+            }
+            """.trimIndent()
+        wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
     fun `lint property delegate is indented properly 5`() {
-        assertThat(
-            WrappingRule().lint(
-                """
-                fun lazyList(a: Int, b: Int) = lazy { mutableListOf<String>() }
+        val code =
+            """
+            fun lazyList(a: Int, b: Int) = lazy { mutableListOf<String>() }
 
-                class Test {
-                    val list: List<String>
-                        by lazyList(
-                            1,
-                            2
-                        )
+            class Test {
+                val list: List<String>
+                    by lazyList(
+                        1,
+                        2
+                    )
 
-                    val aVar = 0
-                }
-                """.trimIndent()
-            )
-        ).isEmpty()
+                val aVar = 0
+            }
+            """.trimIndent()
+        wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     // https://github.com/pinterest/ktlint/issues/1210
     @Test
     fun `lint delegated properties with a lambda argument`() {
-        assertThat(
-            WrappingRule().lint(
-                """
-                import kotlin.properties.Delegates
+        val code =
+            """
+            import kotlin.properties.Delegates
 
-                class Test {
-                    private var test
-                        by Delegates.vetoable("") { _, old, new ->
-                            true
-                        }
-                }
-                """.trimIndent()
-            )
-        ).isEmpty()
+            class Test {
+                private var test
+                    by Delegates.vetoable("") { _, old, new ->
+                        true
+                    }
+            }
+            """.trimIndent()
+        wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
     fun `lint delegation 1`() {
-        assertThat(
-            WrappingRule().lint(
-                """
-                interface Foo
+        val code =
+            """
+            interface Foo
 
-                class Bar(a: Int, b: Int, c: Int) : Foo
+            class Bar(a: Int, b: Int, c: Int) : Foo
 
-                class Test1 : Foo by Bar(
-                    a = 1,
-                    b = 2,
-                    c = 3
-                )
-                """.trimIndent()
+            class Test1 : Foo by Bar(
+                a = 1,
+                b = 2,
+                c = 3
             )
-        ).isEmpty()
+            """.trimIndent()
+        wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -845,308 +797,277 @@ internal class WrappingRuleTest {
                 c = 3
             )
             """.trimIndent()
-        assertThat(WrappingRule().format(code)).isEqualTo(code)
-        assertThat(WrappingRule().lint(code)).isEmpty()
+        wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
     fun `lint delegation 3`() {
-        assertThat(
-            WrappingRule().lint(
-                """
-                interface Foo
+        val code =
+            """
+            interface Foo
 
-                class Bar(a: Int, b: Int, c: Int) : Foo
+            class Bar(a: Int, b: Int, c: Int) : Foo
 
-                class Test3 :
-                    Foo by Bar(
-                        a = 1,
-                        b = 2,
-                        c = 3
-                    )
-                """.trimIndent()
-            )
-        ).isEmpty()
+            class Test3 :
+                Foo by Bar(
+                    a = 1,
+                    b = 2,
+                    c = 3
+                )
+            """.trimIndent()
+        wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
     fun `lint delegation 4`() {
-        assertThat(
-            WrappingRule().lint(
-                """
-                interface Foo
+        val code =
+            """
+            interface Foo
 
-                class Bar(a: Int, b: Int, c: Int) : Foo
+            class Bar(a: Int, b: Int, c: Int) : Foo
 
-                class Test4 :
-                    Foo
-                    by Bar(
-                        a = 1,
-                        b = 2,
-                        c = 3
-                    )
-                """.trimIndent()
-            )
-        ).isEmpty()
+            class Test4 :
+                Foo
+                by Bar(
+                    a = 1,
+                    b = 2,
+                    c = 3
+                )
+            """.trimIndent()
+        wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
     fun `lint delegation 5`() {
-        assertThat(
-            WrappingRule().lint(
-                """
-                interface Foo
+        val code =
+            """
+            interface Foo
 
-                class Bar(a: Int, b: Int, c: Int) : Foo
+            class Bar(a: Int, b: Int, c: Int) : Foo
 
-                class Test5 {
-                    companion object : Foo by Bar(
-                        a = 1,
-                        b = 2,
-                        c = 3
-                    )
-                }
-                """.trimIndent()
-            )
-        ).isEmpty()
+            class Test5 {
+                companion object : Foo by Bar(
+                    a = 1,
+                    b = 2,
+                    c = 3
+                )
+            }
+            """.trimIndent()
+        wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
     fun `lint delegation 6`() {
-        assertThat(
-            WrappingRule().lint(
-                """
-                data class Shortcut(val id: String, val url: String)
+        val code =
+            """
+            data class Shortcut(val id: String, val url: String)
 
-                object Someclass : List<Shortcut> by listOf(
-                    Shortcut(
-                        id = "1",
-                        url = "url"
-                    ),
-                    Shortcut(
-                        id = "2",
-                        url = "asd"
-                    ),
-                    Shortcut(
-                        id = "3",
-                        url = "TV"
-                    )
+            object Someclass : List<Shortcut> by listOf(
+                Shortcut(
+                    id = "1",
+                    url = "url"
+                ),
+                Shortcut(
+                    id = "2",
+                    url = "asd"
+                ),
+                Shortcut(
+                    id = "3",
+                    url = "TV"
                 )
-                """.trimIndent()
             )
-        ).isEmpty()
+            """.trimIndent()
+        wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
     fun `lint named argument`() {
-        assertThat(
-            WrappingRule().lint(
-                """
-                data class D(val a: Int, val b: Int, val c: Int)
+        val code =
+            """
+            data class D(val a: Int, val b: Int, val c: Int)
 
-                fun test() {
-                    val d = D(
-                        a = 1,
-                        b =
-                        2,
-                        c = 3
-                    )
-                }
-                """.trimIndent()
-            )
-        ).isEmpty()
+            fun test() {
+                val d = D(
+                    a = 1,
+                    b =
+                    2,
+                    c = 3
+                )
+            }
+            """.trimIndent()
+        wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
     fun `lint default parameter`() {
-        assertThat(
-            WrappingRule().lint(
-                """
-                data class D(
-                    val a: Int = 1,
-                    val b: Int =
-                        2,
-                    val c: Int = 3
-                )
-                """.trimIndent()
+        val code =
+            """
+            data class D(
+                val a: Int = 1,
+                val b: Int =
+                    2,
+                val c: Int = 3
             )
-        ).isEmpty()
+            """.trimIndent()
+        wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     // https://github.com/pinterest/ktlint/issues/959
     @Test
     fun `lint conditions with multi-line call expressions indented properly`() {
-        assertThat(
-            WrappingRule().lint(
-                """
-                fun test() {
-                    val result = true &&
-                        minOf(
-                            1, 2
-                        ) == 2
-                }
-                """.trimIndent()
-            )
-        ).isEmpty()
+        val code =
+            """
+            fun test() {
+                val result = true &&
+                    minOf(
+                        1, 2
+                    ) == 2
+            }
+            """.trimIndent()
+        wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     // https://github.com/pinterest/ktlint/issues/1003
     @Test
     fun `lint multiple interfaces`() {
-        assertThat(
-            WrappingRule().lint(
-                """
-                abstract class Parent(a: Int, b: Int)
+        val code =
+            """
+            abstract class Parent(a: Int, b: Int)
 
-                interface Parent2
+            interface Parent2
 
-                class Child(
-                    a: Int,
-                    b: Int
-                ) : Parent(
-                    a,
-                    b
-                ),
-                    Parent2
-                """.trimIndent()
-            )
-        ).isEmpty()
+            class Child(
+                a: Int,
+                b: Int
+            ) : Parent(
+                a,
+                b
+            ),
+                Parent2
+            """.trimIndent()
+        wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     // https://github.com/pinterest/ktlint/issues/918
     @Test
     fun `lint newline after type reference in functions`() {
-        assertThat(
-            WrappingRule().lint(
-                """
-                override fun actionProcessor():
-                    ObservableTransformer<in SomeVeryVeryLongNameOverHereAction, out SomeVeryVeryLongNameOverHereResult> =
-                    ObservableTransformer { actions ->
-                        // ...
-                    }
-
-                fun generateGooooooooooooooooogle():
-                    Gooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooogle {
-                    return Gooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooogle()
+        val code =
+            """
+            override fun actionProcessor():
+                ObservableTransformer<in SomeVeryVeryLongNameOverHereAction, out SomeVeryVeryLongNameOverHereResult> =
+                ObservableTransformer { actions ->
+                    // ...
                 }
-                """.trimIndent()
-            )
-        ).isEmpty()
+
+            fun generateGooooooooooooooooogle():
+                Gooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooogle {
+                return Gooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooogle()
+            }
+            """.trimIndent()
+        wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     // https://github.com/pinterest/ktlint/issues/764
     @Test
     fun `lint value argument list with lambda`() {
-        assertThat(
-            WrappingRule().lint(
-                """
-                fun test(i: Int, f: (Int) -> Unit) {
-                    f(i)
-                }
+        val code =
+            """
+            fun test(i: Int, f: (Int) -> Unit) {
+                f(i)
+            }
 
-                fun main() {
-                    test(1, f = {
-                        println(it)
-                    })
-                }
-                """.trimIndent()
-            )
-        ).isEmpty()
+            fun main() {
+                test(1, f = {
+                    println(it)
+                })
+            }
+            """.trimIndent()
+        wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
     fun `lint value argument list with two lambdas`() {
-        assertThat(
-            WrappingRule().lint(
-                """
-                fun test(f: () -> Unit, g: () -> Unit) {
-                    f()
-                    g()
-                }
+        val code =
+            """
+            fun test(f: () -> Unit, g: () -> Unit) {
+                f()
+                g()
+            }
 
-                fun main() {
-                    test({
-                        println(1)
-                    }, {
-                        println(2)
-                    })
-                }
-                """.trimIndent()
-            )
-        ).isEmpty()
+            fun main() {
+                test({
+                    println(1)
+                }, {
+                    println(2)
+                })
+            }
+            """.trimIndent()
+        wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
     fun `lint value argument list with anonymous function`() {
-        assertThat(
-            WrappingRule().lint(
-                """
-                fun test(i: Int, f: (Int) -> Unit) {
-                    f(i)
-                }
+        val code =
+            """
+            fun test(i: Int, f: (Int) -> Unit) {
+                f(i)
+            }
 
-                fun main() {
-                    test(1, fun(it: Int) {
-                        println(it)
-                    })
-                }
-                """.trimIndent()
-            )
-        ).isEmpty()
+            fun main() {
+                test(1, fun(it: Int) {
+                    println(it)
+                })
+            }
+            """.trimIndent()
+        wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
     fun `lint value argument list with lambda in super type entry`() {
-        assertThat(
-            WrappingRule().lint(
-                """
-                class A : B({
-                    1
-                }) {
-                    val a = 1
-                }
+        val code =
+            """
+            class A : B({
+                1
+            }) {
+                val a = 1
+            }
 
-                open class B(f: () -> Int)
-                """.trimIndent()
-            )
-        ).isEmpty()
+            open class B(f: () -> Int)
+            """.trimIndent()
+        wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     // https://github.com/pinterest/ktlint/issues/1202
     @Test
     fun `lint lambda argument and call chain`() {
-        assertThat(
-            WrappingRule().lint(
-                """
-                class Foo {
-                    fun bar() {
-                        val foo = bar.associateBy({ item -> item.toString() }, ::someFunction).toMap()
-                    }
+        val code =
+            """
+            class Foo {
+                fun bar() {
+                    val foo = bar.associateBy({ item -> item.toString() }, ::someFunction).toMap()
                 }
-                """.trimIndent()
-            )
-        ).isEmpty()
+            }
+            """.trimIndent()
+        wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     // https://github.com/pinterest/ktlint/issues/1165
     @Test
     fun `lint multiline expression with elvis operator in assignment`() {
-        assertThat(
-            WrappingRule().lint(
-                """
-                fun test() {
-                    val a: String = ""
+        val code =
+            """
+            fun test() {
+                val a: String = ""
 
-                    val someTest: Int?
+                val someTest: Int?
 
-                    someTest =
-                        a
-                            .toIntOrNull()
-                            ?: 1
-                }
-                """.trimIndent()
-            )
-        ).isEmpty()
+                someTest =
+                    a
+                        .toIntOrNull()
+                        ?: 1
+            }
+            """.trimIndent()
+        wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -1158,8 +1079,7 @@ internal class WrappingRuleTest {
             some text
             $MULTILINE_STRING_QUOTE
             """.trimIndent()
-        assertThat(WrappingRule().lint(code)).isEmpty()
-        assertThat(WrappingRule().format(code)).isEqualTo(code)
+        wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -1177,10 +1097,10 @@ internal class WrappingRuleTest {
                 some text
                 $MULTILINE_STRING_QUOTE.trimIndent()
             """.trimIndent()
-        assertThat(wrappingAndIndentRule.lint(code)).containsExactly(
-            LintError(3, 14, "wrapping", "Missing newline before \"\"\"")
-        )
-        assertThat(wrappingAndIndentRule.format(code)).isEqualTo(formattedCode)
+        wrappingRuleAssertThat(code)
+            .addAdditionalRules(IndentationRule())
+            .hasLintViolation(3, 14, "Missing newline before \"\"\"")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -1209,15 +1129,11 @@ internal class WrappingRuleTest {
                 fun findByOrganization(organization: Organization, pageable: Pageable): Page<User>
             }
             """.trimIndent()
-        assertThat(
-            WrappingRule().lint(code)
-        ).isEqualTo(
-            listOf(
-                LintError(line = 2, col = 12, ruleId = "wrapping", detail = "Missing newline after \"(\""),
-                LintError(line = 6, col = 24, ruleId = "wrapping", detail = "Missing newline before \")\"")
-            )
-        )
-        assertThat(WrappingRule().format(code)).isEqualTo(formattedCode)
+        wrappingRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(2, 12, "Missing newline after \"(\""),
+                LintViolation(6, 24, "Missing newline before \")\"")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -1241,6 +1157,7 @@ internal class WrappingRuleTest {
                 }
             }
             """.trimIndent()
+        wrappingRuleAssertThat(code).hasNoLintViolations()
 
         @Suppress("RemoveCurlyBracesFromTemplate")
         val codeTabs =
@@ -1261,11 +1178,9 @@ internal class WrappingRuleTest {
             ${TAB}}
             }
             """.trimIndent()
-        assertThat(WrappingRule().lint(code)).isEmpty()
-        assertThat(WrappingRule().format(code)).isEqualTo(code)
-
-        assertThat(WrappingRule().lint(codeTabs, INDENT_STYLE_TABS)).isEmpty()
-        assertThat(WrappingRule().format(codeTabs, INDENT_STYLE_TABS)).isEqualTo(codeTabs)
+        wrappingRuleAssertThat(code)
+            .withEditorConfigOverride(DefaultEditorConfigProperties.indentStyleProperty to tab)
+            .hasNoLintViolations()
     }
 
     @Test
@@ -1275,8 +1190,7 @@ internal class WrappingRuleTest {
             object ApplicationComponentFactory : ApplicationComponent.Factory
             by DaggerApplicationComponent.factory()
             """.trimIndent()
-        assertThat(WrappingRule().lint(code)).isEmpty()
-        assertThat(WrappingRule().format(code)).isEqualTo(code)
+        wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -1300,9 +1214,7 @@ internal class WrappingRuleTest {
             // resulting in the formatting to crash on the next line.
             val bar = 1
             """.trimIndent()
-
-        assertThat(WrappingRule().lint(code)).isEmpty()
-        assertThat(WrappingRule().format(code)).isEqualTo(code)
+        wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -1316,8 +1228,7 @@ internal class WrappingRuleTest {
                 println()
             }
             """.trimIndent()
-        assertThat(WrappingRule().lint(code)).isEmpty()
-        assertThat(WrappingRule().format(code)).isEqualTo(code)
+        wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -1374,8 +1285,7 @@ internal class WrappingRuleTest {
             )
             val foo9 = println({ bar() }, { bar()})
             """.trimIndent()
-        assertThat(WrappingRule().lint(code)).isEmpty()
-        assertThat(WrappingRule().format(code)).isEqualTo(code)
+        wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -1385,8 +1295,7 @@ internal class WrappingRuleTest {
             class FooBar : Foo({
             })
             """.trimIndent()
-        assertThat(WrappingRule().lint(code)).isEmpty()
-        assertThat(WrappingRule().format(code)).isEqualTo(code)
+        wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -1396,8 +1305,7 @@ internal class WrappingRuleTest {
             class FooBar : Foo1, Foo2({
             })
             """.trimIndent()
-        assertThat(WrappingRule().lint(code)).isEmpty()
-        assertThat(WrappingRule().format(code)).isEqualTo(code)
+        wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -1415,12 +1323,12 @@ internal class WrappingRuleTest {
                 Bar1,
                 Bar2
             """.trimIndent()
-        assertThat(WrappingRule().lint(code)).containsExactly(
-            LintError(1, 15, "wrapping", "Missing newline after \":\""),
-            LintError(1, 21, "wrapping", "Missing newline after \",\""),
-            LintError(2, 10, "wrapping", "Missing newline after \",\"")
-        )
-        assertThat(WrappingRule().format(code)).isEqualTo(formattedCode)
+        wrappingRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 15, "Missing newline after \":\""),
+                LintViolation(1, 21, "Missing newline after \",\""),
+                LintViolation(2, 10, "Missing newline after \",\"")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -1431,8 +1339,7 @@ internal class WrappingRuleTest {
                 Foo1, Foo2({
             })
             """.trimIndent()
-        assertThat(WrappingRule().lint(code)).isEmpty()
-        assertThat(WrappingRule().format(code)).isEqualTo(code)
+        wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -1451,11 +1358,11 @@ internal class WrappingRuleTest {
                 Bar1,
                 Bar2
             """.trimIndent()
-        assertThat(WrappingRule().lint(code)).containsExactly(
-            LintError(2, 10, "wrapping", "Missing newline after \",\""),
-            LintError(3, 10, "wrapping", "Missing newline after \",\"")
-        )
-        assertThat(WrappingRule().format(code)).isEqualTo(formattedCode)
+        wrappingRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(2, 10, "Missing newline after \",\""),
+                LintViolation(3, 10, "Missing newline after \",\"")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -1491,10 +1398,9 @@ internal class WrappingRuleTest {
                 }
             }
             """.trimIndent()
-        assertThat(WrappingRule().lint(code)).containsExactly(
-            LintError(5, 8, "wrapping", "Missing newline after \"->\"")
-        )
-        assertThat(WrappingRule().format(code)).isEqualTo(formattedCode)
+        wrappingRuleAssertThat(code)
+            .hasLintViolation(5, 8, "Missing newline after \"->\"")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -1515,11 +1421,11 @@ internal class WrappingRuleTest {
                     c
                 )
             """.trimIndent()
-        assertThat(WrappingRule().lint(code)).containsExactly(
-            LintError(2, 9, "wrapping", "Missing newline after \"(\""),
-            LintError(4, 9, "wrapping", "Missing newline before \")\"")
-        )
-        assertThat(WrappingRule().format(code)).isEqualTo(formattedCode)
+        wrappingRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(2, 9, "Missing newline after \"(\""),
+                LintViolation(4, 9, "Missing newline before \")\"")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -1541,12 +1447,12 @@ internal class WrappingRuleTest {
                 )
             )
             """.trimIndent()
-        assertThat(WrappingRule().lint(code)).containsExactly(
-            LintError(1, 18, "wrapping", "Missing newline after \"(\""),
-            LintError(3, 11, "wrapping", "Missing newline after \"(\""),
-            LintError(4, 5, "wrapping", "Missing newline before \")\"")
-        )
-        assertThat(WrappingRule().format(code)).isEqualTo(formattedCode)
+        wrappingRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 18, "Missing newline after \"(\""),
+                LintViolation(3, 11, "Missing newline after \"(\""),
+                LintViolation(4, 5, "Missing newline before \")\"")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -1574,12 +1480,13 @@ internal class WrappingRuleTest {
                 )
             }
             """.trimIndent()
-        assertThat(wrappingAndIndentRule.lint(code)).containsExactly(
-            LintError(2, 13, "wrapping", "Missing newline after \"(\""),
-            LintError(6, 2, "wrapping", "Missing newline before \"\"\""),
-            LintError(6, 17, "wrapping", "Missing newline before \")\"")
-        )
-        assertThat(wrappingAndIndentRule.format(code)).isEqualTo(formattedCode)
+        wrappingRuleAssertThat(code)
+            .addAdditionalRules(IndentationRule())
+            .hasLintViolations(
+                LintViolation(2, 13, "Missing newline after \"(\""),
+                LintViolation(6, 2, "Missing newline before \"\"\""),
+                LintViolation(6, 17, "Missing newline before \")\"")
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -1589,8 +1496,7 @@ internal class WrappingRuleTest {
             val someCodeBlock = $MULTILINE_STRING_QUOTE
               foo()$MULTILINE_STRING_QUOTE
             """.trimIndent()
-        assertThat(WrappingRule().lint(code)).isEmpty()
-        assertThat(WrappingRule().format(code)).isEqualTo(code)
+        wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -1606,10 +1512,9 @@ internal class WrappingRuleTest {
               foo()
             $MULTILINE_STRING_QUOTE.trimIndent()
             """.trimIndent()
-        assertThat(WrappingRule().lint(code)).containsExactly(
-            LintError(2, 8, "wrapping", "Missing newline before \"\"\"")
-        )
-        assertThat(WrappingRule().format(code)).isEqualTo(formattedCode)
+        wrappingRuleAssertThat(code)
+            .hasLintViolation(2, 8, "Missing newline before \"\"\"")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -1625,10 +1530,9 @@ internal class WrappingRuleTest {
               foo()
             $MULTILINE_STRING_QUOTE.trimMargin()
             """.trimIndent()
-        assertThat(WrappingRule().lint(code)).containsExactly(
-            LintError(2, 8, "wrapping", "Missing newline before \"\"\"")
-        )
-        assertThat(WrappingRule().format(code)).isEqualTo(formattedCode)
+        wrappingRuleAssertThat(code)
+            .hasLintViolation(2, 8, "Missing newline before \"\"\"")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -1650,12 +1554,6 @@ internal class WrappingRuleTest {
     private companion object {
         const val MULTILINE_STRING_QUOTE = "${'"'}${'"'}${'"'}"
         const val TAB = "${'\t'}"
-
-        val INDENT_STYLE_TABS = EditorConfigOverride.from(
-            indentStyleProperty to PropertyType.IndentStyleValue.tab
-        )
-
-        val wrappingAndIndentRule = listOf(WrappingRule(), IndentationRule())
     }
 }
 
