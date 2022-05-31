@@ -43,11 +43,14 @@ public class ImportOrderingRule :
     Rule("import-ordering"),
     UsesEditorConfigProperties {
 
+    override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
+        ideaImportsLayoutProperty
+    )
+
     private lateinit var importsLayout: List<PatternEntry>
     private lateinit var importSorter: ImportSorter
 
     public companion object {
-        internal const val KTLINT_CUSTOM_IMPORTS_LAYOUT_PROPERTY_NAME = "kotlin_imports_layout"
         internal const val IDEA_IMPORTS_LAYOUT_PROPERTY_NAME = "ij_kotlin_imports_layout"
         private const val PROPERTY_DESCRIPTION = "Defines imports order layout for Kotlin files"
 
@@ -115,19 +118,6 @@ public class ImportOrderingRule :
                 }
             }
 
-        @Deprecated("This custom property is deprecated in favor of IDEA's default ideaImportsLayoutProperty")
-        internal val ktlintCustomImportsLayoutProperty =
-            UsesEditorConfigProperties.EditorConfigProperty<List<PatternEntry>>(
-                type = PropertyType(
-                    KTLINT_CUSTOM_IMPORTS_LAYOUT_PROPERTY_NAME,
-                    PROPERTY_DESCRIPTION,
-                    editorConfigPropertyParser
-                ),
-                defaultValue = IDEA_PATTERN,
-                defaultAndroidValue = ASCII_PATTERN,
-                propertyWriter = { it.joinToString(separator = ",") }
-            )
-
         public val ideaImportsLayoutProperty: UsesEditorConfigProperties.EditorConfigProperty<List<PatternEntry>> =
             UsesEditorConfigProperties.EditorConfigProperty<List<PatternEntry>>(
                 type = PropertyType(
@@ -140,11 +130,6 @@ public class ImportOrderingRule :
                 propertyWriter = { it.joinToString(separator = ",") }
             )
     }
-
-    override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
-        ktlintCustomImportsLayoutProperty,
-        ideaImportsLayoutProperty
-    )
 
     private fun getUniqueImportsAndBlankLines(
         children: Array<ASTNode>,
