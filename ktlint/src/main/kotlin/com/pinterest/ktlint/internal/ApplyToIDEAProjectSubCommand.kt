@@ -1,6 +1,5 @@
 package com.pinterest.ktlint.internal
 
-import com.pinterest.ktlint.KtlintCommandLine
 import picocli.CommandLine
 
 @CommandLine.Command(

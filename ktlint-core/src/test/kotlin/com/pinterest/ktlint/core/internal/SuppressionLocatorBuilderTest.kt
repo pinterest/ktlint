@@ -12,7 +12,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.junit.jupiter.api.Test
 
 @OptIn(FeatureInAlphaState::class)
-class SuppressedRegionLocatorKtTest {
+class SuppressionLocatorBuilderTest {
     @Test
     fun `Given that NoFooIdentifierRule finds a violation (eg verifying that the test rules actually works)`() {
         val code =

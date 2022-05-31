@@ -11,10 +11,9 @@ import com.pinterest.ktlint.core.internal.EditorConfigLoader
 import com.pinterest.ktlint.core.internal.EditorConfigLoader.Companion.convertToRawValues
 import com.pinterest.ktlint.core.internal.KotlinPsiFileFactoryProvider
 import com.pinterest.ktlint.core.internal.LineAndColumn
+import com.pinterest.ktlint.core.internal.SuppressionLocatorBuilder
 import com.pinterest.ktlint.core.internal.SuppressionLocator
 import com.pinterest.ktlint.core.internal.buildPositionInTextLocator
-import com.pinterest.ktlint.core.internal.buildSuppressedRegionsLocator
-import com.pinterest.ktlint.core.internal.noSuppression
 import java.nio.file.FileSystems
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -284,7 +283,7 @@ public object KtLint {
 
         injectUserData(rootNode, editorConfigProperties, mergedUserData)
 
-        val suppressedRegionLocator = buildSuppressedRegionsLocator(rootNode)
+        val suppressedRegionLocator = SuppressionLocatorBuilder.buildSuppressedRegionsLocator(rootNode)
 
         return PreparedCode(
             rootNode,
@@ -411,8 +410,8 @@ public object KtLint {
                             tripped = true
                             if (canBeAutoCorrected) {
                                 mutated = true
-                                if (preparedCode.suppressedRegionLocator !== noSuppression) {
-                                    preparedCode.suppressedRegionLocator = buildSuppressedRegionsLocator(
+                                if (preparedCode.suppressedRegionLocator !== SuppressionLocatorBuilder.noSuppression) {
+                                    preparedCode.suppressedRegionLocator = SuppressionLocatorBuilder.buildSuppressedRegionsLocator(
                                         preparedCode.rootNode
                                     )
                                 }

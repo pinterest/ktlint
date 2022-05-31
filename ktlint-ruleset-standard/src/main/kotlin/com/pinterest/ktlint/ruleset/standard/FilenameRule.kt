@@ -3,30 +3,25 @@ package com.pinterest.ktlint.ruleset.standard
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.CLASS
-import com.pinterest.ktlint.core.ast.ElementType.DOT
-import com.pinterest.ktlint.core.ast.ElementType.FUN
 import com.pinterest.ktlint.core.ast.ElementType.IDENTIFIER
-import com.pinterest.ktlint.core.ast.ElementType.INTERFACE_KEYWORD
-import com.pinterest.ktlint.core.ast.ElementType.OBJECT_DECLARATION
-import com.pinterest.ktlint.core.ast.ElementType.PROPERTY
-import com.pinterest.ktlint.core.ast.ElementType.TYPEALIAS
-import com.pinterest.ktlint.core.ast.ElementType.TYPE_REFERENCE
-import com.pinterest.ktlint.core.ast.prevCodeSibling
 import java.nio.file.Paths
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
 
 /**
+ * [Kotlin lang documentation](https://kotlinlang.org/docs/coding-conventions.html#source-file-names):
  * If a Kotlin file contains a single class (potentially with related top-level declarations), its name should be
  * the same as the name of the class, with the `.kt` extension appended. If a file contains multiple classes,
  * or only top-level declarations, choose a name describing what the file contains, and name the file accordingly.
  * Use upper camel case with an uppercase first letter (also known as Pascal case),
  * for example, `ProcessDeclarations.kt`.
  *
+ * According to issue https://youtrack.jetbrains.com/issue/KTIJ-21897/Kotlin-coding-convention-file-naming-for-class,
+ * "class" above should be read as any type of class (data class, enum class, sealed class) and interfaces.
+ *
  * Exceptions to this rule:
  * * file without `.kt` extension
  * * file with name `package.kt`
- * **See Also:** [Kotlin lang documentation](https://kotlinlang.org/docs/coding-conventions.html#source-file-names)
  */
 public class FilenameRule : Rule(
     id = "filename",
@@ -53,120 +48,50 @@ public class FilenameRule : Rule(
             return
         }
 
-        val declarations = topLevelDeclarations(node)
-        if (declarations.size == 1) {
-            // we have only one top-level declaration, name should be same as filename
-            val element = declarations.first()
-            if (fileName != element.name) {
-                emit(
-                    0,
-                    "${element.type} ${element.escapedName} should be declared in a file named ${element.name}.kt",
-                    false
-                )
-                return
-            }
+        val topLevelClassNames = topLevelClassNames(node)
+        if (topLevelClassNames.size == 1) {
+            // If the file only contains one top level class, then its filename should be identical to the class name
+            fileName.shouldMatchClassName(topLevelClassNames.first(), emit)
         } else {
-            hasToMatchPascalCase(fileName, emit)
+            fileName.shouldMatchPascalCase(emit)
         }
     }
 
-    private fun hasToMatchPascalCase(
-        fileName: String,
+    private fun topLevelClassNames(fileNode: ASTNode): List<String> {
+        return fileNode
+            .getChildren(null)
+            .filterNotNull()
+            .filter { it.elementType == CLASS }
+            .mapNotNull {
+                it
+                    .findChildByType(IDENTIFIER)
+                    ?.text
+                    ?.removeSurrounding("`")
+            }.toList()
+    }
+
+    private fun String.shouldMatchClassName(
+        className: String,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        if (!pascalCase.matches(fileName)) {
-            emit(0, "File name $fileName.kt should conform PascalCase", false)
+        if (this != className) {
+            emit(
+                0,
+                "File '$this.kt' contains a single class and should be named same after that class '$className.kt'",
+                false
+            )
         }
     }
 
-    // https://kotlinlang.org/docs/reference/grammar.html#topLevelObject
-    // https://kotlinlang.org/docs/reference/grammar.html#declaration
-    private fun topLevelDeclarations(fileNode: ASTNode): List<TopLevelDeclarationElement> {
-        return fileNode.getChildren(null)
-            .filterNotNull()
-            .filter { topLevelDeclarationSet.contains(it.elementType) }
-            .map {
-                when (it.elementType) {
-                    CLASS ->
-                        it.createTopLevelClassInterfaceElement()
-                    OBJECT_DECLARATION ->
-                        it.createTopLevelDeclarationElement("Object")
-                    FUN ->
-                        it.createTopLevelDeclarationElementWithReceiver("Extension function")
-                            ?: it.createTopLevelDeclarationElement("Function")
-                    PROPERTY ->
-                        it.createTopLevelDeclarationElementWithReceiver("Extension property")
-                            ?: it.createTopLevelDeclarationElement("Property")
-                    TYPEALIAS ->
-                        it.createTopLevelDeclarationElement("Typealias")
-                    else -> error("Unsupported top-level type ${it.elementType}")
-                }
-            }
-            .toList()
+    private fun String.shouldMatchPascalCase(
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+    ) {
+        if (!pascalCaseRegEx.matches(this)) {
+            emit(0, "File name '$this.kt' should conform PascalCase", false)
+        }
     }
-
-    private open class TopLevelDeclarationElement(
-        open val type: String,
-        open val name: String,
-        open val escapedName: String
-    )
-
-    private class TopLevelDeclarationWithReceiverElement(
-        override val type: String,
-        override val name: String,
-        override val escapedName: String,
-        val receiverTypeName: String
-    ) : TopLevelDeclarationElement(type, name, escapedName)
 
     private companion object {
-        private val topLevelDeclarationSet = setOf(
-            CLASS,
-            OBJECT_DECLARATION,
-            FUN,
-            PROPERTY,
-            TYPEALIAS
-        )
-
-        private val pascalCase = """^[A-Z][A-Za-z0-9]*$""".toRegex()
-
-        private fun ASTNode.name() = text.removeSurrounding("`")
-
-        private fun ASTNode.createTopLevelDeclarationElement(
-            type: String
-        ): TopLevelDeclarationElement {
-            return createTopLevelDeclarationElement(type) { null }
-        }
-
-        private fun ASTNode.createTopLevelDeclarationElement(
-            type: String,
-            typeFinder: (ASTNode) -> String?
-        ): TopLevelDeclarationElement {
-            val id = findChildByType(IDENTIFIER) ?: error("Unable to find identifier in $this")
-            return TopLevelDeclarationElement(typeFinder(this) ?: type, id.name(), id.text)
-        }
-
-        private fun ASTNode.createTopLevelClassInterfaceElement(): TopLevelDeclarationElement {
-            return createTopLevelDeclarationElement("Class") {
-                val id = findChildByType(IDENTIFIER) ?: error("Unable to find identifier in $this")
-                if (id.prevCodeSibling()?.elementType == INTERFACE_KEYWORD) "Interface" else null
-            }
-        }
-
-        private fun ASTNode.createTopLevelDeclarationElementWithReceiver(
-            type: String
-        ): TopLevelDeclarationWithReceiverElement? {
-            val id = findChildByType(IDENTIFIER) ?: error("Unable to find identifier in $this")
-            val prevCodeSibling = id.prevCodeSibling()
-            return if (prevCodeSibling?.elementType == DOT) {
-                val receiverType = prevCodeSibling.prevCodeSibling()
-                if (receiverType?.elementType == TYPE_REFERENCE) {
-                    TopLevelDeclarationWithReceiverElement(type, id.name(), id.text, receiverType.name())
-                } else {
-                    error("Unable to find Extension type-receiver at $this")
-                }
-            } else {
-                return null
-            }
-        }
+        val pascalCaseRegEx = Regex("""^[A-Z][A-Za-z0-9]*$""")
     }
 }

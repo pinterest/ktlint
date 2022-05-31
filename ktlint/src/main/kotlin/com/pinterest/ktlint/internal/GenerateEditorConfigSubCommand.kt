@@ -1,6 +1,5 @@
 package com.pinterest.ktlint.internal
 
-import com.pinterest.ktlint.KtlintCommandLine
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.initKtLintKLogger
