@@ -43,13 +43,7 @@ public interface UsesEditorConfigProperties {
             .getEditorConfigValue(editorConfigProperty, isAndroidCodeStyle)
     }
 
-    @Deprecated(
-        message = "Prefer to use extension function 'ASTNode.getEditorConfigValue(editorConfigProperty)' as " +
-            "parameter 'isAndroidCodeStyle' can be derived from the ASTNode.",
-        replaceWith = ReplaceWith("this.getEditorConfigValue(editorConfigProperty)")
-    )
-    // TODO: Change access to private after deprecation period is expired.
-    public fun <T> EditorConfigProperties.getEditorConfigValue(
+    private fun <T> EditorConfigProperties.getEditorConfigValue(
         editorConfigProperty: EditorConfigProperty<T>,
         isAndroidCodeStyle: Boolean = false
     ): T {

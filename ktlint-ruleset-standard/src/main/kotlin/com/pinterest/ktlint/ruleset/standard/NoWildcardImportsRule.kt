@@ -27,8 +27,7 @@ public class NoWildcardImportsRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         if (node.isRoot()) {
-            val editorConfig = node.getUserData(KtLint.EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY)!!
-            allowedWildcardImports = editorConfig.getEditorConfigValue(packagesToUseImportOnDemandProperty)
+            allowedWildcardImports = node.getEditorConfigValue(packagesToUseImportOnDemandProperty)
         }
         if (node.elementType == IMPORT_DIRECTIVE) {
             val importDirective = node.psi as KtImportDirective

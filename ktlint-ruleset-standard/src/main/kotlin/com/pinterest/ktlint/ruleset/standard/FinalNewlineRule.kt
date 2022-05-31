@@ -32,9 +32,7 @@ public class FinalNewlineRule :
     ) {
         if (node.isRoot()) {
             if (node.textLength == 0) return
-            val editorConfigProperties: EditorConfigProperties =
-                node.getUserData(KtLint.EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY)!!
-            val insertFinalNewline = editorConfigProperties.getEditorConfigValue(insertNewLineProperty)
+            val insertFinalNewline = node.getEditorConfigValue(insertNewLineProperty)
             val lastNode = lastChildNodeOf(node)
             if (insertFinalNewline) {
                 if (lastNode !is PsiWhiteSpace || !lastNode.textContains('\n')) {

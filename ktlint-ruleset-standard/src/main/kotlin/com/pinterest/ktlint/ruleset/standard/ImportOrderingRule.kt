@@ -2,7 +2,6 @@ package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType
@@ -183,9 +182,7 @@ public class ImportOrderingRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         if (node.isRoot()) {
-            val android = node.getUserData(KtLint.ANDROID_USER_DATA_KEY) ?: false
-            val editorConfig = node.getUserData(KtLint.EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY)!!
-            importsLayout = editorConfig.resolveImportsLayout(android)
+            importsLayout = node.getEditorConfigValue(ideaImportsLayoutProperty)
             importSorter = ImportSorter(importsLayout)
             return
         }
@@ -258,15 +255,6 @@ public class ImportOrderingRule :
                 }
             }
         }
-    }
-
-    private fun EditorConfigProperties.resolveImportsLayout(
-        android: Boolean
-    ): List<PatternEntry> = if (containsKey(KTLINT_CUSTOM_IMPORTS_LAYOUT_PROPERTY_NAME)) {
-        logger.warn { "`kotlin_imports_layout` is deprecated! Please use `ij_kotlin_imports_layout` to ensure that the Kotlin IDE plugin and ktlint use same imports layout" }
-        getEditorConfigValue(ktlintCustomImportsLayoutProperty, android)
-    } else {
-        getEditorConfigValue(ideaImportsLayoutProperty, android)
     }
 
     private fun importsAreEqual(actual: List<ASTNode>, expected: List<ASTNode>): Boolean {
