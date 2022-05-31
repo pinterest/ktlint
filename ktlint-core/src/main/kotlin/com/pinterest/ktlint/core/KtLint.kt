@@ -11,8 +11,8 @@ import com.pinterest.ktlint.core.internal.EditorConfigLoader
 import com.pinterest.ktlint.core.internal.EditorConfigLoader.Companion.convertToRawValues
 import com.pinterest.ktlint.core.internal.KotlinPsiFileFactoryProvider
 import com.pinterest.ktlint.core.internal.LineAndColumn
-import com.pinterest.ktlint.core.internal.SuppressionLocatorBuilder
 import com.pinterest.ktlint.core.internal.SuppressionLocator
+import com.pinterest.ktlint.core.internal.SuppressionLocatorBuilder
 import com.pinterest.ktlint.core.internal.VisitorProvider
 import com.pinterest.ktlint.core.internal.buildPositionInTextLocator
 import java.nio.file.FileSystems
