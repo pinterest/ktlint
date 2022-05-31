@@ -39,7 +39,8 @@ An AssertJ style API for testing KtLint rules ([#1444](https://github.com/pinter
 - Update Kotlin development version to `1.7.0-RC` and Kotlin version to `1.6.21`.
 - Update shadow plugin to `7.1.2` release
 - Update picocli to `4.6.3` release
-
+- Simplified rule `filename`. Only when the file contains a single class (including data class, enum class and sealed class) or a single interface, the file name should be identical to that class/interface. In all other cases the file name should be a descriptive name compliant with the PascalCase convention ([#1004](https://github.com/pinterest/ktlint/pull/1117))
+ 
 ### Removed
 
 ## [0.45.2] - 2022-04-06
@@ -91,7 +92,6 @@ This section is applicable when providing rules that depend on one or more value
 
 ### Changed
 - Print the rule id always in the PlainReporter ([#1121](https://github.com/pinterest/ktlint/issues/1121))
-- All wrapping logic is moved from the `indent` rule to the new rule `wrapping` (as part of the `standard` ruleset). In case you currently have disabled the `indent` rule, you may want to reconsider whether this is still necessary or that you also want to disable the new `wrapping` rule to keep the status quo. Both rules can be run independent of each other. ([#835](https://github.com/pinterest/ktlint/issues/835))
 
 ## [0.44.0] - 2022-02-15
 

@@ -3,6 +3,8 @@ package com.pinterest.ktlint.internal
 import com.pinterest.ktlint.core.initKtLintKLogger
 import java.io.File
 import java.io.IOException
+import java.math.BigInteger
+import java.security.MessageDigest
 import kotlin.system.exitProcess
 import mu.KotlinLogging
 
@@ -95,9 +97,17 @@ object GitHookInstaller {
         if (actualHookContent.isNotEmpty() &&
             !actualHookContent.contentEquals(expectedHookContent)
         ) {
-            val backupFile = hooksDir.resolve("$gitHookName.ktlint-backup.${actualHookContent.hex}")
+            val backupFile = hooksDir.resolve("$gitHookName.ktlint-backup.${actualHookContent.toUniqueId()}")
             logger.info { "Existing git hook ${hookFile.path} is copied to ${backupFile.path}" }
             hookFile.copyTo(backupFile, overwrite = true)
         }
     }
+
+    // Generates a unique id based on the byte array
+    private fun ByteArray.toUniqueId() =
+        MessageDigest
+            .getInstance("SHA-256")
+            .digest(this)
+            .let { BigInteger(it) }
+            .toString(16)
 }

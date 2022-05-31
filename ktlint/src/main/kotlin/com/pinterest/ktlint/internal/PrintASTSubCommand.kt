@@ -1,6 +1,5 @@
 package com.pinterest.ktlint.internal
 
-import com.pinterest.ktlint.KtlintCommandLine
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.ParseException
 import com.pinterest.ktlint.core.RuleSet
