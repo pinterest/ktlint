@@ -2,7 +2,6 @@ package com.pinterest.ktlint.core.internal
 
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.RuleSet
-import kotlin.reflect.KClass
 
 /**
  * Normally, the [RuleSorter] should be used as a singleton as it logs the order in which the rules are executed. Only
@@ -59,46 +58,10 @@ internal class RuleSorter {
         RuleReference(
             ruleId = id,
             ruleSetId = ruleSetId,
-            runOnRootNodeOnly = toRunsOnRootNodeOnly(ruleSetId),
-            runAsLateAsPossible = toRunsAsLateAsPossible(ruleSetId),
+            runOnRootNodeOnly = visitorModifiers.contains(Rule.VisitorModifier.RunOnRootNodeOnly),
+            runAsLateAsPossible = visitorModifiers.contains(Rule.VisitorModifier.RunAsLateAsPossible),
             runAfterRule = toRunAfter(ruleSetId)
         )
-
-    private fun Rule.toRunsOnRootNodeOnly(ruleSetId: String): Boolean {
-        if (visitorModifiers.contains(Rule.VisitorModifier.RunOnRootNodeOnly)) {
-            return true
-        }
-
-        return when (this) {
-            is Rule.Modifier.RestrictToRootLast -> {
-                printWarningDeprecatedInterface(ruleSetId, Rule.Modifier.RestrictToRootLast::class)
-                true
-            }
-            is Rule.Modifier.RestrictToRoot -> {
-                printWarningDeprecatedInterface(ruleSetId, Rule.Modifier.RestrictToRoot::class)
-                true
-            }
-            else -> false
-        }
-    }
-
-    private fun Rule.toRunsAsLateAsPossible(ruleSetId: String): Boolean {
-        if (visitorModifiers.contains(Rule.VisitorModifier.RunAsLateAsPossible)) {
-            return true
-        }
-
-        return when (this) {
-            is Rule.Modifier.Last -> {
-                printWarningDeprecatedInterface(ruleSetId, Rule.Modifier.Last::class)
-                true
-            }
-            is Rule.Modifier.RestrictToRootLast -> {
-                printWarningDeprecatedInterface(ruleSetId, Rule.Modifier.RestrictToRootLast::class)
-                true
-            }
-            else -> false
-        }
-    }
 
     private fun Rule.toRunAfter(ruleSetId: String): Rule.VisitorModifier.RunAfterRule? =
         this
@@ -118,17 +81,6 @@ internal class RuleSorter {
                     ruleId = qualifiedAfterRuleId
                 )
             }
-
-    private fun Rule.printWarningDeprecatedInterface(
-        ruleSetId: String,
-        kClass: KClass<*>
-    ) {
-        println(
-            "[WARN] Rule with id '${toQualifiedRuleId(ruleSetId, id)}' is marked with interface '${kClass.qualifiedName}'. This interface " +
-                "is deprecated and marked for deletion in a future version of ktlint. Contact the maintainer of the " +
-                "ruleset '$ruleSetId' to fix this rule."
-        )
-    }
 
     private fun defaultRuleExecutionOrderComparator() =
         // The sort order below should guarantee a stable order of the rule between multiple invocations of KtLint given
