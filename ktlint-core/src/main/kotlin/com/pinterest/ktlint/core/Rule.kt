@@ -36,26 +36,6 @@ abstract class Rule(
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     )
 
-    object Modifier {
-        @Deprecated(
-            message = "Marked for deletion in a future version. Add 'VisitorModifier.RunOnRootNodeOnly' to the rule.",
-            level = DeprecationLevel.WARNING
-        )
-        interface RestrictToRoot
-
-        @Deprecated(
-            message = "Marked for deletion in a future version. Add 'VisitorModifier.RunOnRootNodeOnly' and 'VisitorModifier.RunAsLateAsPossible' to the rule.",
-            level = DeprecationLevel.WARNING
-        )
-        interface RestrictToRootLast : RestrictToRoot
-
-        @Deprecated(
-            message = "Marked for deletion in a future version. Add 'VisitorModifier.RunAsLateAsPossible' to the rule.",
-            level = DeprecationLevel.WARNING
-        )
-        interface Last
-    }
-
     sealed class VisitorModifier {
 
         data class RunAfterRule(

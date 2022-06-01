@@ -1,8 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType
@@ -44,11 +42,14 @@ public class ImportOrderingRule :
     Rule("import-ordering"),
     UsesEditorConfigProperties {
 
+    override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
+        ideaImportsLayoutProperty
+    )
+
     private lateinit var importsLayout: List<PatternEntry>
     private lateinit var importSorter: ImportSorter
 
     public companion object {
-        internal const val KTLINT_CUSTOM_IMPORTS_LAYOUT_PROPERTY_NAME = "kotlin_imports_layout"
         internal const val IDEA_IMPORTS_LAYOUT_PROPERTY_NAME = "ij_kotlin_imports_layout"
         private const val PROPERTY_DESCRIPTION = "Defines imports order layout for Kotlin files"
 
@@ -116,19 +117,6 @@ public class ImportOrderingRule :
                 }
             }
 
-        @Deprecated("This custom property is deprecated in favor of IDEA's default ideaImportsLayoutProperty")
-        internal val ktlintCustomImportsLayoutProperty =
-            UsesEditorConfigProperties.EditorConfigProperty<List<PatternEntry>>(
-                type = PropertyType(
-                    KTLINT_CUSTOM_IMPORTS_LAYOUT_PROPERTY_NAME,
-                    PROPERTY_DESCRIPTION,
-                    editorConfigPropertyParser
-                ),
-                defaultValue = IDEA_PATTERN,
-                defaultAndroidValue = ASCII_PATTERN,
-                propertyWriter = { it.joinToString(separator = ",") }
-            )
-
         public val ideaImportsLayoutProperty: UsesEditorConfigProperties.EditorConfigProperty<List<PatternEntry>> =
             UsesEditorConfigProperties.EditorConfigProperty<List<PatternEntry>>(
                 type = PropertyType(
@@ -141,11 +129,6 @@ public class ImportOrderingRule :
                 propertyWriter = { it.joinToString(separator = ",") }
             )
     }
-
-    override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
-        ktlintCustomImportsLayoutProperty,
-        ideaImportsLayoutProperty
-    )
 
     private fun getUniqueImportsAndBlankLines(
         children: Array<ASTNode>,
@@ -183,9 +166,7 @@ public class ImportOrderingRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         if (node.isRoot()) {
-            val android = node.getUserData(KtLint.ANDROID_USER_DATA_KEY) ?: false
-            val editorConfig = node.getUserData(KtLint.EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY)!!
-            importsLayout = editorConfig.resolveImportsLayout(android)
+            importsLayout = node.getEditorConfigValue(ideaImportsLayoutProperty)
             importSorter = ImportSorter(importsLayout)
             return
         }
@@ -258,15 +239,6 @@ public class ImportOrderingRule :
                 }
             }
         }
-    }
-
-    private fun EditorConfigProperties.resolveImportsLayout(
-        android: Boolean
-    ): List<PatternEntry> = if (containsKey(KTLINT_CUSTOM_IMPORTS_LAYOUT_PROPERTY_NAME)) {
-        logger.warn { "`kotlin_imports_layout` is deprecated! Please use `ij_kotlin_imports_layout` to ensure that the Kotlin IDE plugin and ktlint use same imports layout" }
-        getEditorConfigValue(ktlintCustomImportsLayoutProperty, android)
-    } else {
-        getEditorConfigValue(ideaImportsLayoutProperty, android)
     }
 
     private fun importsAreEqual(actual: List<ASTNode>, expected: List<ASTNode>): Boolean {
