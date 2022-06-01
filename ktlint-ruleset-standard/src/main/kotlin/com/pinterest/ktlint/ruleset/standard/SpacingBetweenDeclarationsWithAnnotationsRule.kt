@@ -1,4 +1,4 @@
-package com.pinterest.ktlint.ruleset.experimental
+package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.MODIFIER_LIST
@@ -17,7 +17,7 @@ import org.jetbrains.kotlin.psi.psiUtil.prevLeafs
 /**
  * @see https://youtrack.jetbrains.com/issue/KT-35106
  */
-class SpacingBetweenDeclarationsWithAnnotationsRule : Rule("$experimentalRulesetId:spacing-between-declarations-with-annotations") {
+class SpacingBetweenDeclarationsWithAnnotationsRule : Rule("spacing-between-declarations-with-annotations") {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,

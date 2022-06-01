@@ -1,4 +1,4 @@
-package com.pinterest.ktlint.ruleset.experimental
+package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType
@@ -10,7 +10,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
-class NoEmptyFirstLineInMethodBlockRule : Rule("$experimentalRulesetId:no-empty-first-line-in-method-block") {
+class NoEmptyFirstLineInMethodBlockRule : Rule("no-empty-first-line-in-method-block") {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,

@@ -1,4 +1,4 @@
-package com.pinterest.ktlint.ruleset.experimental
+package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.CALLABLE_REFERENCE_EXPRESSION
@@ -11,7 +11,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
-class SpacingAroundDoubleColonRule : Rule("$experimentalRulesetId:double-colon-spacing") {
+class SpacingAroundDoubleColonRule : Rule("double-colon-spacing") {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,

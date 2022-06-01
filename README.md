@@ -30,8 +30,11 @@ It's also [easy to create your own](#creating-a-reporter).
 
 ## Standard rules
 
+- `annotation`: Annotation formatting - multiple annotations should be on a separate line than the annotated declaration; annotations with parameters should each be on separate lines; annotations should be followed by a space
+- `argument-list-wrapping`: Argument list wrapping
 - `chain-wrapping`: When wrapping chained calls `.`, `?.` and `?:` should be placed on the next line
 - `comment-spacing`: The end of line comment sign `//` should be preceded and followed by exactly a space
+- `enum-entry-name-case`: Enum entry names should be uppercase underscore-separated names
 - `filename`: Files containing only one toplevel domain should be named according to that element.
 - `final-newline`: Newline at the end of each file (enabled by default)
   (set `insert_final_newline=false` in .editorconfig to disable (see [EditorConfig](#editorconfig) section for more)).
@@ -39,10 +42,12 @@ It's also [easy to create your own](#creating-a-reporter).
 - `indent`: Indentation formatting - respects `.editorconfig` `indent_size` with no continuation indent (see [EditorConfig](#editorconfig) section for more)
 - `max-line-length`: Ensures that lines do not exceed the given length of `.editorconfig` property `max_line_length` (see [EditorConfig](#editorconfig) section for more). This rule does not apply in a number of situations. For example, in the case a line exceeds the maximum line length due to and comment that disables ktlint rules than that comment is being ignored when validating the length of the line. The `.editorconfig` property `ktlint_ignore_back_ticked_identifier` can be set to ignore identifiers which are enclosed in backticks, which for example is very useful when you want to allow longer names for unit tests.  
 - `modifier-order`: Consistent order of modifiers
+- `multiline-if-else`: Braces required for multiline if/else statements
 - `no-blank-line-before-rbrace`: No blank lines before `}` 
 - `no-blank-lines-in-chained-method-calls`: No blank lines in chained method expressions
 - `no-consecutive-blank-lines`: No consecutive blank lines
 - `no-empty-class-body`: No empty (`{}`) class bodies
+- `no-empty-first-line-in-method-block`: No leading empty lines in method blocks
 - `no-line-break-after-else`: Disallows line breaks after the else keyword if that could lead to confusion, for example:
     ```kotlin
     if (conditionA()) {
@@ -59,52 +64,47 @@ It's also [easy to create your own](#creating-a-reporter).
 - `no-unit-return`: No `Unit` returns (`fun fn {}` instead of `fun fn: Unit {}`)
 - `no-unused-imports`: No unused `import`s
 - `no-wildcard-imports`: No wildcard `import`s expect imports listed in `.editorconfig` property `ij_kotlin_packages_to_use_import_on_demand`
+- `package-name`: No underscores in package names
 - `parameter-list-wrapping`: When class/function signature doesn't fit on a single line, each parameter must be on a separate line
 - `string-template`: Consistent string templates (`$v` instead of `${v}`, `${p.v}` instead of `${p.v.toString()}`)
 
 ### Spacing
+- `annotation-spacing`: Annotations should be separated by a single line break
 - `colon-spacing`: Consistent spacing around colon
 - `comma-spacing`: Consistent spacing around comma
 - `curly-spacing`: Consistent spacing around curly braces
 - `dot-spacing`: Consistent spacing around dots
+- `double-colon-spacing`: No spaces around `::`
 - `keyword-spacing`: Consistent spacing around keywords
 - `op-spacing`: Consistent spacing around operators
 - `paren-spacing`: Consistent spacing around parenthesis
 - `range-spacing`: Consistent spacing around range operators
+- `spacing-around-angle-brackets`: No spaces around angle brackets
+- `spacing-between-declarations-with-annotations`: Declarations with annotations should be separated by a blank line
+- `spacing-between-declarations-with-comments`: Declarations with comments should be separated by a blank line
+- `unary-op-spacing`: No spaces around unary operators
 
 ## Experimental rules
 New rules will be added into the [experimental ruleset](https://github.com/pinterest/ktlint/tree/master/ktlint-ruleset-experimental), which can be enabled
 by passing the `--experimental` flag to `ktlint`.
 
-- `experimental:annotation`: Annotation formatting - multiple annotations should be on a separate line than the annotated declaration; annotations with parameters should each be on separate lines; annotations should be followed by a space
 - `experimental:block-comment-initial-star-alignment`: Lines in a block comment which (exclusive the indentation) start with a `*` should have this `*` aligned with the `*` in the opening of the block comment.
 - `experimental:discouraged-comment-location`: Detect discouraged comment locations (no autocorrect)
-- `experimental:enum-entry-name-case`: Enum entry names should be uppercase underscore-separated names
-- `experimental:multiline-if-else`: Braces required for multiline if/else statements
-- `experimental:no-empty-first-line-in-method-block`: No leading empty lines in method blocks
-- `experimental:package-name`: No underscores in package names
-- `experimental:parameter-list-spacing`: Consistent spacing inside the parameter list
 - `experimental:unnecessary-parentheses-before-trailing-lambda`: An empty parentheses block before a lambda is redundant. For example `some-string".count() { it == '-' }`
 - `function-signature`: rewrites the function signature to a single line when possible (e.g. when not exceeding the `max_line_length` property) or a multiline signature otherwise. In case of function with a body expression, the body expression is placed on the same line as the function signature when not exceeding the `max_line_length` property. Optionally the function signature can be forced to be written as a multiline signature in case the function has more than a specified number of parameters (`.editorconfig' property `ktlint_function_signature_wrapping_rule_always_with_minimum_parameters`)
 
 ### Spacing
-- `experimental:annotation-spacing`: Annotations should be separated by the annotated declaration by a single line break
-- `experimental:double-colon-spacing`: No spaces around `::`
 - `experimental:fun-keyword-spacing`: Consistent spacing after the fun keyword
 - `experimental:function-return-type-spacing`: Consistent spacing around the function return type
 - `experimental:function-start-of-body-spacing`: Consistent spacing before start of function body
 - `experimental:function-type-reference-spacing`: Consistent spacing in the type reference before a function
 - `experimental:modifier-list-spacing`: Consistent spacing between modifiers in and after the last modifier in a modifier list
 - `experimental:nullable-type-spacing`: No spaces in a nullable type
-- `experimental:spacing-around-angle-brackets`: No spaces around angle brackets
-- `experimental:spacing-between-declarations-with-annotations`: Declarations with annotations should be separated by a blank line
-- `experimental:spacing-between-declarations-with-comments`: Declarations with comments should be separated by a blank line
+- `experimental:parameter-list-spacing`: Consistent spacing inside the parameter list
 - `experimental:spacing-between-function-name-and-opening-parenthesis`: Consistent spacing between function name and opening parenthesis
 - `experimental:type-parameter-list-spacing`: Spacing after a type parameter list in function and class declarations
-- `experimental:unary-op-spacing`: No spaces around unary operators
 
 ### Wrapping
-- `experimental:argument-list-wrapping`: Argument list wrapping
 - `experimental:comment-wrapping`: A block comment should start and end on a line that does not contain any other element. A block comment should not be used as end of line comment.
 - `experimental:kdoc-wrapping`: A KDoc comment should start and end on a line that does not contain any other element.
 
@@ -136,7 +136,7 @@ Such behaviour violates `.editorconfig` [specification](https://github.com/edito
 # Comma-separated list of rules to disable (Since 0.34.0)
 # Note that rules in any ruleset other than the standard ruleset will need to be prefixed 
 # by the ruleset identifier.
-disabled_rules=no-wildcard-imports,experimental:annotation,my-custom-ruleset:my-custom-rule
+disabled_rules=some-standard-rule,experimental:some-experimental-rule,my-custom-ruleset:my-custom-rule
 
 # Defines the imports layout. The layout can be composed by the following symbols:
 # "*" - wildcard. There must be at least one entry of a single wildcard to match all other imports. Matches anything after a specified symbol/import as well.

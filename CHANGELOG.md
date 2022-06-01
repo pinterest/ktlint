@@ -4,6 +4,30 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+### Promoting experimental rules to standard 
+
+The rules below are promoted from the `experimental` ruleset to the `standard` ruleset.
+* `annotation`
+* `annotation-spacing`
+* `argument-list-wrapping`
+* `double-colon-spacing`
+* `enum-entry-name-case`
+* `multiline-if-else`
+* `no-empty-first-line-in-method-block`
+* `package-name`
+* `traling-comma`
+* `spacing-around-angle-brackets`
+* `spacing-between-declarations-with-annotations`
+* `spacing-between-declarations-with-comments`
+* `unary-op-spacing`
+
+Note that as a result of moving the rules that the prefix `experimental:` has to be removed from all references to this rule. Check references in:
+* The `.editorconfig` setting `disabled_rules`.
+* KtLint disable and enable directives.
+* The `VisitorModifier.RunAfterRule`.
+
+If your project did not run with the `experimental` ruleset enabled before, you might expect new lint violations to be reported. Please note that rules can be disabled via the the `.editorconfig` in case you do not want the rules to be applied on your project.
+
 ### API Changes & RuleSet providers
 
 If you are not an API user nor a RuleSet provider, then you can safely skip this section. Otherwise, please read below carefully and upgrade your usage of ktlint. In this and coming releases, we are changing and adapting important parts of our API in order to increase maintainability and flexibility for future changes. Please avoid skipping a releases as that will make it harder to migrate.
@@ -40,6 +64,7 @@ An AssertJ style API for testing KtLint rules ([#1444](https://github.com/pinter
 - Update shadow plugin to `7.1.2` release
 - Update picocli to `4.6.3` release
 - Simplified rule `filename`. Only when the file contains a single class (including data class, enum class and sealed class) or a single interface, the file name should be identical to that class/interface. In all other cases the file name should be a descriptive name compliant with the PascalCase convention ([#1004](https://github.com/pinterest/ktlint/pull/1117))
+- Promote experimental rules to standard rules set: `annotation`, `annotation-spacing`, `argument-list-wrapping`, `double-colon-spacing`, `enum-entry-name-case`, `multiline-if-else`, `no-empty-first-line-in-method-block`, `package-name`, `traling-comma`, `spacing-around-angle-brackets`, `spacing-between-declarations-with-annotations`, `spacing-between-declarations-with-comments`, `unary-op-spacing` ([#1481](https://github.com/pinterest/ktlint/pull/1481))
  
 ### Removed
 
@@ -92,6 +117,7 @@ This section is applicable when providing rules that depend on one or more value
 
 ### Changed
 - Print the rule id always in the PlainReporter ([#1121](https://github.com/pinterest/ktlint/issues/1121))
+- All wrapping logic is moved from the `indent` rule to the new rule `wrapping` (as part of the `standard` ruleset). In case you currently have disabled the `indent` rule, you may want to reconsider whether this is still necessary or that you also want to disable the new `wrapping` rule to keep the status quo. Both rules can be run independent of each other. ([#835](https://github.com/pinterest/ktlint/issues/835))
 
 ## [0.44.0] - 2022-02-15
 

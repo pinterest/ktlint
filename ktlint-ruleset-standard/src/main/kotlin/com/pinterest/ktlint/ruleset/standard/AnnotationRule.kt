@@ -1,4 +1,4 @@
-package com.pinterest.ktlint.ruleset.experimental
+package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.FILE_ANNOTATION_LIST
@@ -34,7 +34,7 @@ import org.jetbrains.kotlin.psi.psiUtil.nextLeaf
  *
  * @see [AnnotationSpacingRule] for white space rules. Moved since
  */
-class AnnotationRule : Rule("$experimentalRulesetId:annotation") {
+class AnnotationRule : Rule("annotation") {
 
     companion object {
         const val multipleAnnotationsOnSameLineAsAnnotatedConstructErrorMessage =

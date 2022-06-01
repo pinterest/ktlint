@@ -28,7 +28,7 @@ class MaxLineLengthRule :
                 // This rule should run after all other rules. Each time a rule visitor is modified with
                 // RunAsLateAsPossible, it needs to be checked that this rule still runs after that new rule or that it
                 // won't be affected by that rule.
-                ruleId = "experimental:trailing-comma",
+                ruleId = "trailing-comma",
                 loadOnlyWhenOtherRuleIsLoaded = false,
                 runOnlyWhenOtherRuleIsEnabled = false
             ),
