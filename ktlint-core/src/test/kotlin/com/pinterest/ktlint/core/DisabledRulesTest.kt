@@ -12,7 +12,7 @@ class DisabledRulesTest {
         assertThat(
             ArrayList<LintError>().apply {
                 KtLint.lint(
-                    KtLint.Params(
+                    KtLint.ExperimentalParams(
                         text = "var foo",
                         ruleSets = listOf(RuleSet("standard", NoVarRule())),
                         cb = { e, _ -> add(e) }
@@ -31,7 +31,7 @@ class DisabledRulesTest {
         assertThat(
             ArrayList<LintError>().apply {
                 KtLint.lint(
-                    KtLint.Params(
+                    KtLint.ExperimentalParams(
                         text = "var foo",
                         ruleSets = listOf(RuleSet("standard", NoVarRule())),
                         cb = { e, _ -> add(e) },
@@ -47,7 +47,7 @@ class DisabledRulesTest {
         assertThat(
             ArrayList<LintError>().apply {
                 KtLint.lint(
-                    KtLint.Params(
+                    KtLint.ExperimentalParams(
                         text = "var foo",
                         ruleSets = listOf(RuleSet("experimental", NoVarRule())),
                         cb = { e, _ -> add(e) },

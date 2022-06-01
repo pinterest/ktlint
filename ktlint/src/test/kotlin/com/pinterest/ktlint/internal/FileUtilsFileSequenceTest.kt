@@ -5,6 +5,7 @@ import com.google.common.jimfs.Jimfs
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
+import java.util.Locale
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assumptions.assumeTrue
@@ -124,7 +125,7 @@ internal class FileUtilsFileSequenceTest {
 
     @Test
     fun `Should support unescaped slashes for Windows`() {
-        assumeTrue(System.getProperty("os.name").toLowerCase().startsWith("windows"))
+        assumeTrue(System.getProperty("os.name").lowercase(Locale.getDefault()).startsWith("windows"))
 
         val foundFiles = getFiles(
             listOf(
@@ -170,7 +171,7 @@ internal class FileUtilsFileSequenceTest {
 
     @Test
     fun `transforming globs with leading tilde`() {
-        assumeTrue(System.getProperty("os.name").toLowerCase().startsWith("linux"))
+        assumeTrue(System.getProperty("os.name").lowercase(Locale.getDefault()).startsWith("linux"))
 
         val glob = tempFileSystem.toGlob(
             "~/project/src/main/kotlin/One.kt",

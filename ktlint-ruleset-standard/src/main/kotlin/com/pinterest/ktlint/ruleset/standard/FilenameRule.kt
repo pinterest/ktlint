@@ -2,78 +2,96 @@ package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.ast.ElementType.BLOCK_COMMENT
 import com.pinterest.ktlint.core.ast.ElementType.CLASS
-import com.pinterest.ktlint.core.ast.ElementType.EOL_COMMENT
-import com.pinterest.ktlint.core.ast.ElementType.FILE_ANNOTATION_LIST
 import com.pinterest.ktlint.core.ast.ElementType.IDENTIFIER
-import com.pinterest.ktlint.core.ast.ElementType.IMPORT_LIST
-import com.pinterest.ktlint.core.ast.ElementType.KDOC
-import com.pinterest.ktlint.core.ast.ElementType.OBJECT_DECLARATION
-import com.pinterest.ktlint.core.ast.ElementType.PACKAGE_DIRECTIVE
-import com.pinterest.ktlint.core.ast.ElementType.SHEBANG_COMMENT
-import com.pinterest.ktlint.core.ast.ElementType.TYPEALIAS
-import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
-import com.pinterest.ktlint.core.ast.prevCodeSibling
 import java.nio.file.Paths
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
+import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
 
 /**
- * If there is only one top level class/object/typealias in a given file, then its name should match the file's name.
+ * [Kotlin lang documentation](https://kotlinlang.org/docs/coding-conventions.html#source-file-names):
+ * If a Kotlin file contains a single class (potentially with related top-level declarations), its name should be
+ * the same as the name of the class, with the `.kt` extension appended. If a file contains multiple classes,
+ * or only top-level declarations, choose a name describing what the file contains, and name the file accordingly.
+ * Use upper camel case with an uppercase first letter (also known as Pascal case),
+ * for example, `ProcessDeclarations.kt`.
+ *
+ * According to issue https://youtrack.jetbrains.com/issue/KTIJ-21897/Kotlin-coding-convention-file-naming-for-class,
+ * "class" above should be read as any type of class (data class, enum class, sealed class) and interfaces.
+ *
+ * Exceptions to this rule:
+ * * file without `.kt` extension
+ * * file with name `package.kt`
  */
-class FilenameRule : Rule(
+public class FilenameRule : Rule(
     id = "filename",
     visitorModifiers = setOf(
         VisitorModifier.RunOnRootNodeOnly
     )
 ) {
-
-    private val ignoreSet = setOf(
-        FILE_ANNOTATION_LIST,
-        PACKAGE_DIRECTIVE,
-        IMPORT_LIST,
-        WHITE_SPACE,
-        EOL_COMMENT,
-        BLOCK_COMMENT,
-        KDOC,
-        SHEBANG_COMMENT
-    )
-
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
+        node as FileASTNode? ?: error("node is not ${FileASTNode::class} but ${node::class}")
+
         val filePath = node.getUserData(KtLint.FILE_PATH_USER_DATA_KEY)
         if (filePath?.endsWith(".kt") != true) {
             // ignore all non ".kt" files (including ".kts")
             return
         }
-        var type: String? = null
-        var className: String? = null
-        for (el in node.getChildren(null)) {
-            if (el.elementType == CLASS ||
-                el.elementType == OBJECT_DECLARATION ||
-                el.elementType == TYPEALIAS
-            ) {
-                if (className != null) {
-                    // more than one class/object/typealias present
-                    return
-                }
-                val id = el.findChildByType(IDENTIFIER)
-                type = id?.prevCodeSibling()?.text
-                className = id?.text
-            } else if (!ignoreSet.contains(el.elementType)) {
-                // https://github.com/android/android-ktx/blob/51005889235123f41492eaaecde3c623473dfe95/src/main/java/androidx/core/graphics/Path.kt case
-                return
-            }
+
+        val fileName = Paths.get(filePath).fileName.toString().substringBefore(".")
+        if (fileName == "package") {
+            // ignore package.kt filename
+            return
         }
-        if (className != null) {
-            val unescapedClassName = className.replace("`", "")
-            val name = Paths.get(filePath).fileName.toString().substringBefore(".")
-            if (name != "package" && name != unescapedClassName) {
-                emit(0, "$type $className should be declared in a file named $unescapedClassName.kt", false)
-            }
+
+        val topLevelClassNames = topLevelClassNames(node)
+        if (topLevelClassNames.size == 1) {
+            // If the file only contains one top level class, then its filename should be identical to the class name
+            fileName.shouldMatchClassName(topLevelClassNames.first(), emit)
+        } else {
+            fileName.shouldMatchPascalCase(emit)
         }
+    }
+
+    private fun topLevelClassNames(fileNode: ASTNode): List<String> {
+        return fileNode
+            .getChildren(null)
+            .filterNotNull()
+            .filter { it.elementType == CLASS }
+            .mapNotNull {
+                it
+                    .findChildByType(IDENTIFIER)
+                    ?.text
+                    ?.removeSurrounding("`")
+            }.toList()
+    }
+
+    private fun String.shouldMatchClassName(
+        className: String,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+    ) {
+        if (this != className) {
+            emit(
+                0,
+                "File '$this.kt' contains a single class and should be named same after that class '$className.kt'",
+                false
+            )
+        }
+    }
+
+    private fun String.shouldMatchPascalCase(
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+    ) {
+        if (!pascalCaseRegEx.matches(this)) {
+            emit(0, "File name '$this.kt' should conform PascalCase", false)
+        }
+    }
+
+    private companion object {
+        val pascalCaseRegEx = Regex("""^[A-Z][A-Za-z0-9]*$""")
     }
 }

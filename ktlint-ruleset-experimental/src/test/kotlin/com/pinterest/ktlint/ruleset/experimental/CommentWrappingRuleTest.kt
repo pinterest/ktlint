@@ -122,5 +122,6 @@ class CommentWrappingRuleTest {
             """.trimIndent()
         commentWrappingRuleAssertThat(code)
             .hasLintViolation(2, 23, "A block comment may not be followed by any other element on that same line")
+            .isFormattedAs(formattedCode)
     }
 }

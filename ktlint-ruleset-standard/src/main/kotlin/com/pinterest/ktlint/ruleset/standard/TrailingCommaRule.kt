@@ -1,6 +1,5 @@
 package com.pinterest.ktlint.ruleset.experimental.trailingcomma
 
-import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
@@ -106,9 +105,8 @@ public class TrailingCommaRule :
     }
 
     private fun getEditorConfigValues(node: ASTNode) {
-        val editorConfig = node.getUserData(KtLint.EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY)!!
-        allowTrailingComma = editorConfig.getEditorConfigValue(allowTrailingCommaProperty)
-        allowTrailingCommaOnCallSite = editorConfig.getEditorConfigValue(allowTrailingCommaOnCallSiteProperty)
+        allowTrailingComma = node.getEditorConfigValue(allowTrailingCommaProperty)
+        allowTrailingCommaOnCallSite = node.getEditorConfigValue(allowTrailingCommaOnCallSiteProperty)
     }
 
     private fun visitCollectionLiteralExpression(

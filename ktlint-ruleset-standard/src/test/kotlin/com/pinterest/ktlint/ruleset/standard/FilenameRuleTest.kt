@@ -2,71 +2,36 @@ package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 
 class FilenameRuleTest {
     private val fileNameRuleAssertThat = FilenameRule().assertThat()
 
     @Test
-    fun testMatchingSingleClassName() {
-        for (src in listOf(
-            "class A",
-            "class `A`",
-            "data class A(val v: Int)",
-            "sealed class A",
-            "interface A",
-            "object A",
-            "enum class A {A}",
-            "typealias A = Set<Network.Node>",
-            // >1 declaration case
-            "class B\nfun A.f() {}"
-        )) {
-            val code =
-                """
-                /*
-                 * license
-                 */
-                @file:JvmName("Foo")
-                package x
-                import y.Z
-                $src
-                //
-                """.trimIndent()
-            fileNameRuleAssertThat(code)
-                .asFileWithPath("/some/path/A.kt")
-                .hasNoLintViolations()
-        }
+    fun `Given a kotlin script file then ignore it`() {
+        val code =
+            """
+            class Foo
+            """.trimIndent()
+        fileNameRuleAssertThat(code)
+            .asFileWithPath("/some/path/Bar.kts")
+            .hasNoLintViolations()
     }
 
     @Test
-    fun testNonMatchingSingleClassName() {
-        for (src in mapOf(
-            "class A" to "class",
-            "data class A(val v: Int)" to "class",
-            "sealed class A" to "class",
-            "interface A" to "interface",
-            "object A" to "object",
-            "enum class A {A}" to "class",
-            "typealias A = Set<Network.Node>" to "typealias"
-        )) {
-            val code =
-                """
-                /*
-                 * license
-                 */
-                @file:JvmName("Foo")
-                package x
-                import y.Z
-                ${src.key}
-                //
-                """.trimIndent()
-            fileNameRuleAssertThat(code)
-                .asFileWithPath("/some/path/UnexpectedFilename.kt")
-                .hasLintViolationWithoutAutoCorrect(1, 1, "${src.value} A should be declared in a file named A.kt")
-        }
+    fun `Given a file with name package-dot-kt then ignore the rule for this file`() {
+        val code =
+            """
+            class Foo
+            """.trimIndent()
+        fileNameRuleAssertThat(code)
+            .asFileWithPath("/some/path/package.kt")
+            .hasNoLintViolations()
     }
 
     @Test
-    fun testFileWithoutTopLevelDeclarations() {
+    fun `Given a file without any toplevel declaration then the filename should conform to PascalCase`() {
         val code =
             """
             /*
@@ -74,66 +39,64 @@ class FilenameRuleTest {
              */
             """.trimIndent()
         fileNameRuleAssertThat(code)
-            .asFileWithPath("/some/path/A.kt")
+            .asFileWithPath("/some/path//some/path/FooBar.kt")
             .hasNoLintViolations()
     }
 
     @Test
-    fun testMultipleTopLevelClasses() {
+    fun `Given a file without a toplevel class declaration then the filename should conform to PascalCase`() {
         val code =
             """
-            class B
-            class C
+            val foo = "foo"
             """.trimIndent()
         fileNameRuleAssertThat(code)
-            .asFileWithPath("/some/path/A.kt")
-            .hasNoLintViolations()
+            .asFileWithPath("/some/path/not-pascal-case.kt")
+            .hasLintViolationWithoutAutoCorrect(1, 1, "File name 'not-pascal-case.kt' should conform PascalCase")
     }
 
-    @Test
-    fun testMultipleNonTopLevelClasses() {
-        val code =
-            """
-            class B {
-                class C
-                class D
-            }
-            """.trimIndent()
+    @ParameterizedTest(name = "Class type: {0}, expected result: {1}")
+    @ValueSource(
+        strings = [
+            "class Foo",
+            "class `Foo`",
+            "data class Foo",
+            "data class `Foo`",
+            "enum class Foo",
+            "enum class `Foo`",
+            "sealed class Foo",
+            "sealed class `Foo`",
+            "interface Foo",
+            "interface `Foo`"
+        ]
+    )
+    fun `Given a file containing a single declaration of a class type then the filename should match the class name`(code: String) {
         fileNameRuleAssertThat(code)
-            .asFileWithPath("/some/path/A.kt")
-            .hasLintViolationWithoutAutoCorrect(1, 1, "class B should be declared in a file named B.kt")
+            .asFileWithPath("/some/path/bar.kt")
+            .hasLintViolationWithoutAutoCorrect(1, 1, "File 'bar.kt' contains a single class and should be named same after that class 'Foo.kt'")
     }
 
-    @Test
-    fun testCaseSensitiveMatching() {
+    @ParameterizedTest(name = "Other toplevel declaration: {0}")
+    @ValueSource(
+        strings = [
+            "class Foo",
+            "class `Foo`",
+            "data class Foo(val v: Int)",
+            "sealed class Foo",
+            "interface Foo",
+            "object Foo",
+            "enum class Foo {A}",
+            "typealias Foo = Set<Network.Node>",
+            "fun Foo.f() {}"
+        ]
+    )
+    private fun `Given a file containing one toplevel class declaration and another toplevel declaration`(otherTopLevelDeclaration: String) {
         val code =
             """
-            interface Woohoo
+            class Bar
+            $otherTopLevelDeclaration
             """.trimIndent()
         fileNameRuleAssertThat(code)
-            .asFileWithPath("woohoo.kt")
-            .hasLintViolationWithoutAutoCorrect(1, 1, "interface Woohoo should be declared in a file named Woohoo.kt")
-    }
-
-    @Test
-    fun testCaseEscapedClassNames() {
-        val code =
-            """
-            class `A`
-            """.trimIndent()
-        fileNameRuleAssertThat(code)
-            .asFileWithPath("B.kt")
-            .hasLintViolationWithoutAutoCorrect(1, 1, "class `A` should be declared in a file named A.kt")
-    }
-
-    @Test
-    fun testIgnoreKotlinScriptFiles() {
-        val code =
-            """
-            class B
-            """.trimIndent()
-        fileNameRuleAssertThat(code)
-            .asFileWithPath("A.kts")
-            .hasNoLintViolations()
+            .asFileWithPath("/some/path/SomeDescriptiveName.kt")
+            .hasLintViolationWithoutAutoCorrect(1, 1, "File name 'foo.kt' should conform PascalCase")
     }
 }

@@ -14,12 +14,20 @@ import org.xml.sax.SAXException
 
 private val logger = KotlinLogging.logger {}.initKtLintKLogger()
 
+// TODO: Rename to baseline once the class and methods in this file are no longer in the public API
+@Deprecated("Method will be removed from the public API in KtLint 0.47.0 or later. Please create an issue if you have a valid reason for using it.")
+public class CurrentBaseline(
+    public val baselineRules: Map<String, List<LintError>>?,
+    public val baselineGenerationNeeded: Boolean
+)
+
 /**
  * Loads the baseline file if one is provided.
  *
  * @param baselineFilePath the path to the xml baseline file
  * @return a [CurrentBaseline] with the file details
  */
+@Deprecated("Method will be removed from the public API in KtLint 0.47.0 or later. Please create an issue if you have a valid reason for using it.")
 public fun loadBaseline(
     baselineFilePath: String
 ): CurrentBaseline {
@@ -98,16 +106,12 @@ private fun parseBaselineErrorsByFile(element: Element): MutableList<LintError> 
     return errors
 }
 
-public class CurrentBaseline(
-    public val baselineRules: Map<String, List<LintError>>?,
-    public val baselineGenerationNeeded: Boolean
-)
-
 /**
  * Checks if the list contains the lint error. We cannot use the contains function
  * as the `checkstyle` reporter formats the details string and hence the comparison
  * normally fails
  */
+@Deprecated("Method will be removed from the public API in KtLint 0.47.0 or later. Please create an issue if you have a valid reason for using it.")
 public fun List<LintError>.containsLintError(error: LintError): Boolean {
     return firstOrNull { lintError ->
         lintError.col == error.col &&
@@ -120,6 +124,7 @@ public fun List<LintError>.containsLintError(error: LintError): Boolean {
  * Gets the relative route of the file for baselines
  * Also adjusts the slashes for uniformity between file systems
  */
+@Deprecated("Method will be removed from the public API in KtLint 0.47.0 or later. Please create an issue if you have a valid reason for using it.")
 public val File.relativeRoute: String
     get() {
         val rootPath = Paths.get("").toAbsolutePath()

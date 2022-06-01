@@ -8,6 +8,7 @@ import com.pinterest.ktlint.core.ast.lineNumber
 import com.pinterest.ruleset.test.internal.Color
 import com.pinterest.ruleset.test.internal.color
 import java.io.PrintStream
+import java.util.Locale
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
 import org.jetbrains.kotlin.lexer.KtTokens
@@ -86,7 +87,7 @@ public class DumpASTRule @JvmOverloads constructor(
     }
 
     private fun elementTypeClassName(elementType: IElementType): String {
-        var name = elementType.toString().substringAfterLast(".").toUpperCase()
+        var name = elementType.toString().substringAfterLast(".").uppercase(Locale.getDefault())
         if (name == "FLOAT_CONSTANT" && elementType == KtTokens.FLOAT_LITERAL) {
             // resolve KtNodeTypes.FLOAT_CONSTANT vs KtTokens.FLOAT_LITERAL(FLOAT_CONSTANT) conflict
             name = "FLOAT_LITERAL"

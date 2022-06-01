@@ -26,7 +26,6 @@ private val logger = KotlinLogging.logger {}.initKtLintKLogger()
  * See [com.pinterest.ktlint.core.KtLint.generateKotlinEditorConfigSection] documentation how to generate
  * `.editorconfig` based on [com.pinterest.ktlint.core.Rule]s with this interface implementations.
  */
-@FeatureInAlphaState
 public interface UsesEditorConfigProperties {
 
     /**
@@ -44,13 +43,7 @@ public interface UsesEditorConfigProperties {
             .getEditorConfigValue(editorConfigProperty, isAndroidCodeStyle)
     }
 
-    @Deprecated(
-        message = "Prefer to use extension function 'ASTNode.getEditorConfigValue(editorConfigProperty)' as " +
-            "parameter 'isAndroidCodeStyle' can be derived from the ASTNode.",
-        replaceWith = ReplaceWith("this.getEditorConfigValue(editorConfigProperty)")
-    )
-    // TODO: Change access to private after deprecation period is expired.
-    public fun <T> EditorConfigProperties.getEditorConfigValue(
+    private fun <T> EditorConfigProperties.getEditorConfigValue(
         editorConfigProperty: EditorConfigProperty<T>,
         isAndroidCodeStyle: Boolean = false
     ): T {
@@ -154,7 +147,6 @@ public interface UsesEditorConfigProperties {
 /**
  * Defines KtLint properties which are based on default property types provided by [org.ec4j.core.model.PropertyType].
  */
-@OptIn(FeatureInAlphaState::class)
 public object DefaultEditorConfigProperties {
     public val indentStyleProperty: UsesEditorConfigProperties.EditorConfigProperty<PropertyType.IndentStyleValue> =
         UsesEditorConfigProperties.EditorConfigProperty(
