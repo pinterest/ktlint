@@ -4,9 +4,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
-### Change in rule ids
+### Promoting experimental rules to standard 
 
-The rules below are promoted from the Experiment ruleset to the Standard ruleset.
+The rules below are promoted from the `experimental` ruleset to the `standard` ruleset.
 * `annotation`
 * `annotation-spacing`
 * `argument-list-wrapping`
@@ -25,6 +25,8 @@ Note that as a result of moving the rules that the prefix `experimental:` has to
 * The `.editorconfig` setting `disabled_rules`.
 * KtLint disable and enable directives.
 * The `VisitorModifier.RunAfterRule`.
+
+If your project did not run with the `experimental` ruleset enabled before, you might expect new lint violations to be reported. Please note that rules can be disabled via the the `.editorconfig` in case you do not want the rules to be applied on your project.
 
 ### API Changes & RuleSet providers
 
