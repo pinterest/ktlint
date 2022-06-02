@@ -162,6 +162,7 @@ public object DefaultEditorConfigProperties {
                 when {
                     property == null -> IndentConfig.DEFAULT_INDENT_CONFIG.tabWidth
                     property.isUnset -> -1
+                    property.getValueAs<Int>() == null -> IndentConfig.DEFAULT_INDENT_CONFIG.tabWidth
                     else -> property.getValueAs()
                 }
             }
