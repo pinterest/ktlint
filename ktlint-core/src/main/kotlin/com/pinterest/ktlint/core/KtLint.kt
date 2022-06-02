@@ -4,7 +4,6 @@ import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties
 import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.emptyEditorConfigOverride
 import com.pinterest.ktlint.core.api.EditorConfigProperties
-import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.internal.EditorConfigGenerator
 import com.pinterest.ktlint.core.internal.EditorConfigLoader
@@ -40,9 +39,6 @@ public object KtLint {
 
     private val kotlinPsiFileFactoryProvider = KotlinPsiFileFactoryProvider()
     private val editorConfigLoader = EditorConfigLoader(FileSystems.getDefault())
-
-    @OptIn(FeatureInAlphaState::class)
-    private val editorConfigGenerator = EditorConfigGenerator(editorConfigLoader)
 
     /**
      * @param fileName path of file to lint/format
@@ -374,7 +370,6 @@ public object KtLint {
      * indent-size=4
      * ```
      */
-    @FeatureInAlphaState
     public fun generateKotlinEditorConfigSection(
         params: ExperimentalParams
     ): String {
@@ -382,7 +377,7 @@ public object KtLint {
         requireNotNull(filePath) {
             "Please pass path to existing Kotlin file"
         }
-        return editorConfigGenerator.generateEditorconfig(
+        return EditorConfigGenerator(editorConfigLoader).generateEditorconfig(
             filePath,
             params.rules,
             params.userData.isAndroidCodeStyle,

@@ -1,7 +1,6 @@
 package com.pinterest.ktlint.internal
 
 import com.pinterest.ktlint.core.KtLint
-import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.initKtLintKLogger
 import mu.KotlinLogging
 import picocli.CommandLine
@@ -23,7 +22,6 @@ class GenerateEditorConfigSubCommand : Runnable {
     @CommandLine.Spec
     private lateinit var commandSpec: CommandLine.Model.CommandSpec
 
-    @OptIn(FeatureInAlphaState::class)
     override fun run() {
         commandSpec.commandLine().printHelpOrVersionUsage()
 
