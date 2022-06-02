@@ -52,6 +52,21 @@ class UsesEditorConfigPropertiesTest {
     }
 
     @Test
+    fun `Given that editor config property indent_size is set to value 'tab' then return tabWidth as value via the getEditorConfigValue of the node`() {
+        val testAstNode: ASTNode = DummyHolderElement("some-text")
+        testAstNode.putUserData(
+            KtLint.EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY,
+            createPropertyWithValue(
+                DefaultEditorConfigProperties.indentSizeProperty,
+                "tab"
+            )
+        )
+        val actual = PropertyValueTester().testValue(testAstNode, DefaultEditorConfigProperties.indentSizeProperty)
+
+        assertThat(actual).isEqualTo(IndentConfig.DEFAULT_INDENT_CONFIG.tabWidth)
+    }
+
+    @Test
     fun `Given that editor config property indent_size is not set then return the default tabWidth as value via the getEditorConfigValue of the node`() {
         val testAstNode: ASTNode = DummyHolderElement("some-text")
         testAstNode.putUserData(

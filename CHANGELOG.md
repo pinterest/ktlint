@@ -4,6 +4,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+### Bugfix on the indentSize to accept tab
+Return the tabWith on when the tabWith is set to a string.
+
 ### Promoting experimental rules to standard 
 
 The rules below are promoted from the `experimental` ruleset to the `standard` ruleset.

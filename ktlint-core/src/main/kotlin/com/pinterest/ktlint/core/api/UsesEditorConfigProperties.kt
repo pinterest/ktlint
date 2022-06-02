@@ -160,8 +160,9 @@ public object DefaultEditorConfigProperties {
             defaultValue = IndentConfig.DEFAULT_INDENT_CONFIG.tabWidth,
             propertyMapper = { property, _ ->
                 when {
-                    property?.getValueAs<Int>() == null -> IndentConfig.DEFAULT_INDENT_CONFIG.tabWidth
-                    property.isUnset -> -1
+                    property?.isUnset == true -> -1
+                    property?.getValueAs<Int>() == null ->
+                        IndentConfig.DEFAULT_INDENT_CONFIG.tabWidth
                     else -> property.getValueAs()
                 }
             }
