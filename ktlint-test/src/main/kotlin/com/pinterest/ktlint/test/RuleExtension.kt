@@ -5,14 +5,10 @@ import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.RuleSet
 import com.pinterest.ktlint.core.api.EditorConfigOverride
-import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ktlint.core.setDefaultLoggerModifier
 import com.pinterest.ruleset.test.DumpASTRule
 import mu.KotlinLogging
-import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.util.diff.DiffUtils.diff
-import org.assertj.core.util.diff.DiffUtils.generateUnifiedDiff
 import org.jetbrains.kotlin.utils.addToStdlib.ifTrue
 
 private val logger =
@@ -108,97 +104,3 @@ public fun List<Rule>.format(
     )
     return KtLint.format(experimentalParams)
 }
-
-@FeatureInAlphaState
-public fun Rule.diffFileLint(
-    path: String,
-    // TODO: Set default value once method is no longer annotated with FeatureInAlphaState and function
-    //  diffFileLint(String, Map<String, String>) is removed.
-    editorConfigOverride: EditorConfigOverride
-): String {
-    val resourceText = getResourceAsText(path).replace("\r\n", "\n")
-    val dividerIndex = resourceText.lastIndexOf("\n// expect\n")
-    if (dividerIndex == -1) {
-        throw RuntimeException("$path must contain '// expect' line")
-    }
-    val input = resourceText.substring(0, dividerIndex)
-    val expected = resourceText.substring(dividerIndex + 1).split('\n').mapNotNull { line ->
-        if (line.isBlank() || line == "// expect") {
-            null
-        } else {
-            line.trimMargin("// ").split(':', limit = 3).let { expectation ->
-                if (expectation.size != 3) {
-                    throw RuntimeException("$path expectation must be a triple <line>:<column>:<message>")
-                    // " (<message> is not allowed to contain \":\")")
-                }
-                val message = expectation[2]
-                val detail = message.removeSuffix(" (cannot be auto-corrected)")
-                LintError(expectation[0].toInt(), expectation[1].toInt(), id, detail, message == detail)
-            }
-        }
-    }
-    val actual = listOf(this).lint(
-        text = input,
-        editorConfigOverride = editorConfigOverride,
-        script = true
-    )
-    val str = { err: LintError ->
-        val ruleId = if (err.ruleId != id) " (${err.ruleId})" else ""
-        val correctionStatus = if (!err.canBeAutoCorrected) " (cannot be auto-corrected)" else ""
-        "${err.line}:${err.col}:${err.detail}$ruleId$correctionStatus"
-    }
-    val diff =
-        generateUnifiedDiff(
-            "expected",
-            "actual",
-            expected.map(str),
-            diff(expected.map(str), actual.map(str)),
-            expected.size + actual.size
-        ).joinToString("\n")
-    return diff.ifEmpty { "" }
-}
-
-@FeatureInAlphaState
-public fun Rule.diffFileFormat(
-    srcPath: String,
-    expectedPath: String,
-    editorConfigOverride: EditorConfigOverride = EditorConfigOverride.emptyEditorConfigOverride
-): String = listOf(this).diffFileFormat(srcPath, expectedPath, editorConfigOverride)
-
-@FeatureInAlphaState
-public fun List<Rule>.diffFileFormat(
-    srcPath: String,
-    expectedPath: String,
-    editorConfigOverride: EditorConfigOverride = EditorConfigOverride.emptyEditorConfigOverride
-): String {
-    val actual = format(
-        lintedFilePath = null,
-        text = getResourceAsText(srcPath),
-        editorConfigOverride = editorConfigOverride,
-        script = true
-    ).split('\n')
-    val expected = getResourceAsText(expectedPath).split('\n')
-    val diff =
-        generateUnifiedDiff(expectedPath, "output", expected, diff(expected, actual), expected.size + actual.size)
-            .joinToString("\n")
-    return diff.ifEmpty { "" }
-}
-
-@FeatureInAlphaState
-public fun Rule.assertThatFileFormat(
-    srcPath: String,
-    expectedPath: String,
-    // TODO: Set default value once method is no longer annotated with FeatureInAlphaState and function
-    //  diffFileLint(String, Map<String, String>) is removed.
-    editorConfigOverride: EditorConfigOverride,
-    userData: Map<String, String> = emptyMap()
-) {
-    val actual = listOf(this).format(null, getResourceAsText(srcPath), editorConfigOverride, userData, script = true).split('\n')
-    val expected = getResourceAsText(expectedPath).split('\n')
-    assertThat(actual).isEqualTo(expected)
-}
-
-private fun getResourceAsText(path: String) =
-    (ClassLoader.getSystemClassLoader().getResourceAsStream(path) ?: throw RuntimeException("$path not found"))
-        .bufferedReader()
-        .readText()
