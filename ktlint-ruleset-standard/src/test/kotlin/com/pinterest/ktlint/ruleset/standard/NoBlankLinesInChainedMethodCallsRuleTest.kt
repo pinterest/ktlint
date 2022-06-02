@@ -13,14 +13,14 @@ class NoBlankLinesInChainedMethodCallsRuleTest {
             fun foo(inputText: String) {
                 inputText
 
-                    .toLowerCase()
+                    .lowercase(Locale.getDefault())
             }
             """.trimIndent()
         val formattedCode =
             """
             fun foo(inputText: String) {
                 inputText
-                    .toLowerCase()
+                    .lowercase(Locale.getDefault())
             }
             """.trimIndent()
         noBlankLinesInChainedMethodCallsRuleAssertThat(code)

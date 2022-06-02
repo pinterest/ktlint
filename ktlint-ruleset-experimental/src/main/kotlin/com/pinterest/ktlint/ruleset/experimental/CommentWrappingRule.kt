@@ -2,7 +2,6 @@ package com.pinterest.ktlint.ruleset.experimental
 
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties
-import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType.BLOCK_COMMENT
 import com.pinterest.ktlint.core.ast.ElementType.EOL_COMMENT
@@ -20,7 +19,6 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiCommentImpl
  * Checks external wrapping of block comments. Wrapping inside the comment is not altered. A block comment following
  * another element on the same line is replaced with an EOL comment, if possible.
  */
-@OptIn(FeatureInAlphaState::class)
 public class CommentWrappingRule :
     Rule("$experimentalRulesetId:comment-wrapping"),
     UsesEditorConfigProperties {

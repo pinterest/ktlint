@@ -195,7 +195,7 @@ internal object SuppressionLocatorBuilder {
                     }
                     else -> {
                         // Disable specific rule if it the annotion value is mapped to a specific rule
-                        annotationValueToRuleMapping.get(it)
+                        annotationValueToRuleMapping[it]
                     }
                 }
             }

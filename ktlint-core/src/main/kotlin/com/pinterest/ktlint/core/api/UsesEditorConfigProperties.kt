@@ -64,7 +64,7 @@ public interface UsesEditorConfigProperties {
                     newValue != property.getValueAs() ->
                         logger.trace {
                             "Value of '.editorconfig' property '${editorConfigProperty.type.name}' is overridden " +
-                                "from '${property?.sourceValue}' to '$newValue'"
+                                "from '${property.sourceValue}' to '$newValue'"
                         }
                 }
                 return newValue
@@ -120,7 +120,7 @@ public interface UsesEditorConfigProperties {
         /**
          * If set, it maps the actual value set for the property, to another valid value for that property. See example
          * below where
-         * ```
+         * ```kotlin
          * propertyMapper = { property, isAndroidCodeStyle ->
          *     when {
          *         property == null ->

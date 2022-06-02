@@ -5,7 +5,6 @@ import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentSizeProperty
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentStyleProperty
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.maxLineLengthProperty
-import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.BLOCK
@@ -38,7 +37,6 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.utils.addToStdlib.ifTrue
 
-@OptIn(FeatureInAlphaState::class)
 public class FunctionSignatureRule :
     Rule(
         id = "function-signature",
@@ -201,13 +199,11 @@ public class FunctionSignatureRule :
                 .children()
                 .firstOrNull { it.elementType == VALUE_PARAMETER }
 
-        if (firstParameterInList == null) {
+        whiteSpaceCorrection += if (firstParameterInList == null) {
             // handle empty parameter list
-            whiteSpaceCorrection +=
-                fixWhiteSpacesInEmptyValueParameterList(node, emit, autoCorrect, dryRun)
+            fixWhiteSpacesInEmptyValueParameterList(node, emit, autoCorrect, dryRun)
         } else {
-            whiteSpaceCorrection +=
-                fixWhiteSpacesBeforeFirstParameterInValueParameterList(node, emit, autoCorrect, multiline, dryRun) +
+            fixWhiteSpacesBeforeFirstParameterInValueParameterList(node, emit, autoCorrect, multiline, dryRun) +
                 fixWhiteSpacesBetweenParametersInValueParameterList(node, emit, autoCorrect, multiline, dryRun) +
                 fixWhiteSpaceBeforeClosingParenthesis(node, emit, autoCorrect, multiline, dryRun)
         }

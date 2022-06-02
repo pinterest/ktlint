@@ -2,14 +2,12 @@ package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.insertNewLineProperty
-import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.isRoot
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 
-@OptIn(FeatureInAlphaState::class)
 public class FinalNewlineRule :
     Rule(
         id = "final-newline",

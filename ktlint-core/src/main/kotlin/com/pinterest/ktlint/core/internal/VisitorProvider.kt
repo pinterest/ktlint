@@ -71,7 +71,7 @@ internal class VisitorProvider(
                     )
                 }
         }
-        val ruleReferenceWithoutEntriesToBeSkipped = enabledRuleReferences - ruleReferencesToBeSkipped
+        val ruleReferenceWithoutEntriesToBeSkipped = enabledRuleReferences - ruleReferencesToBeSkipped.toSet()
         if (debug && ruleReferenceWithoutEntriesToBeSkipped.isEmpty()) {
             println(
                 "[DEBUG] Skipping file as no enabled rules are found to be executed"

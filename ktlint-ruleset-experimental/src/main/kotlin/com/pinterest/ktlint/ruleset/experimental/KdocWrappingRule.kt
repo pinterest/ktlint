@@ -2,7 +2,6 @@ package com.pinterest.ktlint.ruleset.experimental
 
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties
-import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType.KDOC
 import com.pinterest.ktlint.core.ast.ElementType.KDOC_END
@@ -19,7 +18,6 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 /**
  * Checks external wrapping of KDoc comment. Wrapping inside the KDoc comment is not altered.
  */
-@OptIn(FeatureInAlphaState::class)
 public class KdocWrappingRule :
     Rule("$experimentalRulesetId:kdoc-wrapping"),
     UsesEditorConfigProperties {

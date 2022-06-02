@@ -1,7 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType.IMPORT_DIRECTIVE
 import com.pinterest.ktlint.core.ast.isRoot
@@ -10,7 +9,6 @@ import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.psi.KtImportDirective
 
-@OptIn(FeatureInAlphaState::class)
 public class NoWildcardImportsRule :
     Rule("no-wildcard-imports"),
     UsesEditorConfigProperties {

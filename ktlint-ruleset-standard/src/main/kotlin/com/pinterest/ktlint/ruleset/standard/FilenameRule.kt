@@ -92,6 +92,6 @@ public class FilenameRule : Rule(
     }
 
     private companion object {
-        val pascalCaseRegEx = Regex("""^[A-Z][A-Za-z0-9]*$""")
+        val pascalCaseRegEx = Regex("""^[A-Z][A-Za-z\d]*$""")
     }
 }

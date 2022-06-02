@@ -3,7 +3,6 @@ package com.pinterest.ktlint.ruleset.experimental
 import com.pinterest.ktlint.ruleset.standard.SpacingAroundUnaryOperatorRule
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
 import com.pinterest.ktlint.test.LintViolation
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 class SpacingAroundUnaryOperatorRuleTest {

@@ -162,7 +162,6 @@ public object KtLint {
             .forEach { e -> params.cb(e, false) }
     }
 
-    @OptIn(FeatureInAlphaState::class)
     private fun prepareCodeForLinting(
         psiFileFactory: PsiFileFactory,
         params: ExperimentalParams
@@ -217,8 +216,7 @@ public object KtLint {
     }
 
     @Deprecated(
-        message = "Should not be a part of public api. Will be removed in future release.",
-        level = DeprecationLevel.WARNING
+        message = "Should not be a part of public api. Will be removed in future release."
     )
     public fun normalizeText(text: String): String {
         return text

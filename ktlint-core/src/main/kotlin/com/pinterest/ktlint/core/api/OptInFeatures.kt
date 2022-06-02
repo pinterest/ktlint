@@ -13,8 +13,7 @@ package com.pinterest.ktlint.core.api
 public annotation class FeatureInAlphaState
 
 @RequiresOptIn(
-    message = "This Ktlint feature is experimental, and may change in the future releases.",
-    level = RequiresOptIn.Level.WARNING
+    message = "This Ktlint feature is experimental, and may change in the future releases."
 )
 @Retention(AnnotationRetention.BINARY)
 @Target(

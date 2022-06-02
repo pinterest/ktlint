@@ -1,12 +1,10 @@
 package com.pinterest.ktlint.ruleset.standard.importordering
 
-import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.ruleset.standard.ImportOrderingRule
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
-@OptIn(FeatureInAlphaState::class)
 class ImportOrderingRuleIdeaTest {
     private val importOrderingRuleAssertThat = ImportOrderingRule().assertThat()
 
