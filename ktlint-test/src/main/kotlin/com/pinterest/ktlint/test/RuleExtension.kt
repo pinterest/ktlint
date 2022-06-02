@@ -66,7 +66,6 @@ private fun List<Rule>.toRuleSets(): List<RuleSet> {
         .plus(listOfNotNull(dumpAstRuleSet))
 }
 
-@FeatureInAlphaState
 public fun List<Rule>.lint(
     lintedFilePath: String? = null,
     text: String,
