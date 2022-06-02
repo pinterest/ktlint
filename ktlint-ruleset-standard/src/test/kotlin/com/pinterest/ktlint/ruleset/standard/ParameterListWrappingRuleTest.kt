@@ -1,12 +1,10 @@
 package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.maxLineLengthProperty
-import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
-@FeatureInAlphaState
 class ParameterListWrappingRuleTest {
     private val parameterListWrappingRuleAssertThat =
         ParameterListWrappingRule()

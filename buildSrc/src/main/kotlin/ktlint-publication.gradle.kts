@@ -81,7 +81,7 @@ publishing {
 
 /**
  * Following signing parameters must be configured in `$HOME/.gradle/gradle.properties`:
- * ```
+ * ```properties
  * signing.keyId=12345678
  * signing.password=some_password
  * signing.secretKeyRingFile=/Users/yourusername/.gnupg/secring.gpg

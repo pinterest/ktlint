@@ -78,6 +78,6 @@ class NoTrailingSpacesRule : Rule("no-trailing-spaces") {
         takeLast(1) == " "
 
     private companion object {
-        val SPACE_OR_TAB_BEFORE_NEWLINE_REGEX = Regex("[ ]+\\n")
+        val SPACE_OR_TAB_BEFORE_NEWLINE_REGEX = Regex(" +\\n")
     }
 }

@@ -5,7 +5,7 @@ plugins {
     `ktlint-kotlin-common`
     alias(libs.plugins.shadow)
     alias(libs.plugins.checksum)
-    `signing`
+    signing
 }
 
 tasks.jar {

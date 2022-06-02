@@ -1,7 +1,6 @@
 package com.pinterest.ktlint.core
 
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties
-import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import org.assertj.core.api.Assertions.assertThat
 import org.ec4j.core.model.Property
@@ -9,7 +8,6 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.DummyHolderElement
 import org.junit.jupiter.api.Test
 
-@OptIn(FeatureInAlphaState::class)
 class UsesEditorConfigPropertiesTest {
     class PropertyValueTester : UsesEditorConfigProperties {
         override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>>

@@ -5,7 +5,6 @@ import com.google.common.jimfs.Jimfs
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.insertNewLineProperty
 import com.pinterest.ktlint.core.api.EditorConfigOverride
-import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.internal.EditorConfigLoader.Companion.convertToRawValues
 import com.pinterest.ktlint.ruleset.standard.FinalNewlineRule
@@ -19,7 +18,6 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 
-@OptIn(FeatureInAlphaState::class)
 internal class EditorConfigLoaderTest {
     private val tempFileSystem = Jimfs.newFileSystem(Configuration.forCurrentPlatform())
     private val editorConfigLoader = EditorConfigLoader(tempFileSystem)

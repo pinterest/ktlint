@@ -4,14 +4,11 @@ import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.RuleSet
-import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.ast.ElementType
-import java.util.ArrayList
 import org.assertj.core.api.Assertions.assertThat
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.junit.jupiter.api.Test
 
-@OptIn(FeatureInAlphaState::class)
 class SuppressionLocatorBuilderTest {
     @Test
     fun `Given that NoFooIdentifierRule finds a violation (eg verifying that the test rules actually works)`() {

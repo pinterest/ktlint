@@ -1,7 +1,6 @@
 package com.pinterest.ktlint.core
 
 import com.pinterest.ktlint.core.DummyRuleWithCustomEditorConfigProperty.Companion.SOME_CUSTOM_RULE_PROPERTY
-import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.isRoot
 import org.assertj.core.api.Assertions.assertThat
@@ -11,7 +10,6 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
-@OptIn(FeatureInAlphaState::class)
 class KtLintTest {
     /**
      * API Consumers directly use the ktlint-core module. Tests in this module should guarantee that the API is kept
@@ -362,7 +360,6 @@ class KtLintTest {
     }
 }
 
-@OptIn(FeatureInAlphaState::class)
 private class DummyRuleWithCustomEditorConfigProperty :
     Rule("dummy-rule-with-custom-editor-config-property"),
     UsesEditorConfigProperties {

@@ -2,7 +2,6 @@ package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentSizeProperty
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentStyleProperty
-import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
 import com.pinterest.ktlint.test.LintViolation
 import com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE
@@ -17,7 +16,6 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 
 @Suppress("RemoveCurlyBracesFromTemplate")
-@FeatureInAlphaState
 internal class IndentationRuleTest {
     private val indentationRuleAssertThat = IndentationRule().assertThat()
 
@@ -458,7 +456,7 @@ internal class IndentationRuleTest {
         val code: String =
             """
             fun foo1(bar: String) =
-            bar.toUpperCase()
+            bar.uppercase(Locale.getDefault())
             .trim()
             .length.also {
             println("done")
@@ -470,7 +468,7 @@ internal class IndentationRuleTest {
             val formattedCode =
                 """
                 fun foo1(bar: String) =
-                    bar.toUpperCase()
+                    bar.uppercase(Locale.getDefault())
                         .trim()
                         .length.also {
                             println("done")
@@ -491,7 +489,7 @@ internal class IndentationRuleTest {
             val formattedCode =
                 """
                 fun foo1(bar: String) =
-                ${TAB}bar.toUpperCase()
+                ${TAB}bar.uppercase(Locale.getDefault())
                 ${TAB}${TAB}.trim()
                 ${TAB}${TAB}.length.also {
                 ${TAB}${TAB}${TAB}println("done")
@@ -1779,16 +1777,6 @@ internal class IndentationRuleTest {
                 LintViolation(6, 1, "Unexpected indentation (0) (should be 8)"),
                 LintViolation(7, 1, "Unexpected indentation (0) (should be 4)")
             ).isFormattedAs(formattedCode)
-    }
-
-    val foo1 = 0 + 1 + when {
-        else -> 2 + 3
-    } + 4
-    val foo2 = when {
-        true -> 0 + 1 + when {
-            else -> 2 + 3
-        } + 4
-        else -> -1
     }
 
     @Test

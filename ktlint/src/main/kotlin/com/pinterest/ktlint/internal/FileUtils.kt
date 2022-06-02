@@ -3,7 +3,6 @@ package com.pinterest.ktlint.internal
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.RuleSet
-import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.initKtLintKLogger
 import java.io.File
 import java.nio.file.FileSystem
@@ -163,7 +162,6 @@ internal fun File.location(
 /**
  * Run lint over common kotlin file or kotlin script file.
  */
-@OptIn(FeatureInAlphaState::class)
 internal fun lintFile(
     fileName: String,
     fileContents: String,
@@ -191,7 +189,6 @@ internal fun lintFile(
 /**
  * Format a kotlin file or script file
  */
-@OptIn(FeatureInAlphaState::class)
 internal fun formatFile(
     fileName: String,
     fileContents: String,

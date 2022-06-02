@@ -1,6 +1,5 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.ruleset.experimental.trailingcomma.TrailingCommaRule
 import com.pinterest.ktlint.ruleset.experimental.trailingcomma.TrailingCommaRule.Companion.allowTrailingCommaOnCallSiteProperty
 import com.pinterest.ktlint.ruleset.experimental.trailingcomma.TrailingCommaRule.Companion.allowTrailingCommaProperty
@@ -8,7 +7,6 @@ import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
-@OptIn(FeatureInAlphaState::class)
 class TrailingCommaRuleTest {
     private val trailingCommaRuleAssertThat =
         TrailingCommaRule()

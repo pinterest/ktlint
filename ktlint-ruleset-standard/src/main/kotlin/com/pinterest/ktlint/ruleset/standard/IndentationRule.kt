@@ -6,7 +6,6 @@ import com.pinterest.ktlint.core.IndentConfig.IndentStyle.TAB
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentSizeProperty
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentStyleProperty
-import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType.ARROW
 import com.pinterest.ktlint.core.ast.ElementType.BINARY_EXPRESSION
@@ -101,7 +100,6 @@ private val logger = KotlinLogging.logger {}.initKtLintKLogger()
  * Current limitations:
  * - "all or nothing" (currently, rule can only be disabled for an entire file)
  */
-@OptIn(FeatureInAlphaState::class)
 public class IndentationRule :
     Rule(
         id = "indent",
@@ -986,9 +984,7 @@ public class IndentationRule :
             .filterNot { it.startsWith("\"\"\"") }
             .filterNot { it.endsWith("\"\"\"") }
             .filterNot { it.isBlank() }
-        val prefixLength = nonBlankLines
-            .map { it.indentLength() }
-            .minOrNull() ?: 0
+        val prefixLength = nonBlankLines.minOfOrNull { it.indentLength() } ?: 0
         val distinctIndentCharacters = nonBlankLines
             .joinToString(separator = "") {
                 it.splitIndentAt(prefixLength).first

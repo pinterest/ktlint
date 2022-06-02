@@ -3,7 +3,6 @@ package com.pinterest.ktlint.core.internal
 import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import java.nio.file.FileSystem
 import java.nio.file.Files
@@ -13,7 +12,6 @@ import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.junit.jupiter.api.Test
 
-@OptIn(FeatureInAlphaState::class)
 internal class EditorConfigGeneratorTest {
     private val tempFileSystem = Jimfs.newFileSystem(Configuration.forCurrentPlatform())
     private val editorConfigLoader = EditorConfigLoader(tempFileSystem)

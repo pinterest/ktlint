@@ -1,13 +1,11 @@
 package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.insertNewLineProperty
-import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
-@OptIn(FeatureInAlphaState::class)
 class FinalNewlineRuleTest {
     private val finalNewlineRuleAssertThat = FinalNewlineRule().assertThat()
 

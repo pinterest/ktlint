@@ -178,7 +178,7 @@ class NoConsecutiveBlankLinesRuleTest {
             fun foo(inputText: String) {
                 inputText
 
-                    .toLowerCase()
+                    .lowercase(Locale.getDefault())
             }
             """.trimIndent()
 
@@ -193,7 +193,7 @@ class NoConsecutiveBlankLinesRuleTest {
                 inputText
 
 
-                    .toLowerCase()
+                    .lowercase(Locale.getDefault())
             }
             """.trimIndent()
 
@@ -204,7 +204,7 @@ class NoConsecutiveBlankLinesRuleTest {
                 fun foo(inputText: String) {
                     inputText
 
-                        .toLowerCase()
+                        .lowercase(Locale.getDefault())
                 }
                 """.trimIndent()
             )

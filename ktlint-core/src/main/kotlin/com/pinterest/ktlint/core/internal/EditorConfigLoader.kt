@@ -4,7 +4,6 @@ import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.emptyEditorConfigOverride
 import com.pinterest.ktlint.core.api.EditorConfigProperties
-import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.initKtLintKLogger
 import java.nio.charset.StandardCharsets
@@ -25,7 +24,6 @@ private val logger = KotlinLogging.logger {}.initKtLintKLogger()
  *
  * Contains internal in-memory cache to speedup lookup.
  */
-@OptIn(FeatureInAlphaState::class)
 public class EditorConfigLoader(
     private val fs: FileSystem
 ) {

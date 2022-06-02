@@ -1,7 +1,6 @@
 package com.pinterest.ktlint.core.internal
 
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.initKtLintKLogger
 import java.nio.file.Path
@@ -15,7 +14,6 @@ private val logger = KotlinLogging.logger {}.initKtLintKLogger()
  *
  * Rule should implement [UsesEditorConfigProperties] interface to support this.
  */
-@FeatureInAlphaState
 internal class EditorConfigGenerator(
     private val editorConfigLoader: EditorConfigLoader
 ) {
