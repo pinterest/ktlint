@@ -1781,13 +1781,6 @@ internal class IndentationRuleTest {
             ).isFormattedAs(formattedCode)
     }
 
-    val foo1 = 0 + 1 + when {
-        else -> 2 + 3
-    } + 4
-    val foo2 = 0 + 1 + when {
-        else -> 2 + 3
-    } + 4
-
     @Test
     fun `Given a when-statement in a list of additions`() {
         val code =
