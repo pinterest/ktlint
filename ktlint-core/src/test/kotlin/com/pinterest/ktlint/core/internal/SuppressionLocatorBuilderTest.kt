@@ -154,7 +154,7 @@ class SuppressionLocatorBuilderTest {
     }
 
     @Test
-    private fun `Given that a NoFooIdentifierRule violation is suppressed with @Suppress for all rules at class level then do not find a violation for that rule in that class`() {
+    fun `Given that a NoFooIdentifierRule violation is suppressed with @Suppress for all rules at class level then do not find a violation for that rule in that class`() {
         val code =
             """
             @Suppress("ktlint")
@@ -165,6 +165,40 @@ class SuppressionLocatorBuilderTest {
 
                 val foo = "foo"
             }
+            """.trimIndent()
+        assertThat(lint(code)).isEmpty()
+    }
+
+    @Test
+    fun `Given that the NoFooIdentifierRule is suppressed in the entire file with @file-colon-Suppress then do not find any NoFooIdentifierRule violation`() {
+        val code =
+            """
+            @file:Suppress("ktlint:no-foo-identifier-standard", "ktlint:custom:no-foo-identifier")
+
+            class Foo {
+                fun foo() {
+                    val fooNotReported = "foo"
+                }
+            }
+
+            val fooNotReported = "foo"
+            """.trimIndent()
+        assertThat(lint(code)).isEmpty()
+    }
+
+    @Test
+    fun `Given that all rules are suppressed in the entire file with @file-colon-Suppress then do not find any violation`() {
+        val code =
+            """
+            @file:Suppress("ktlint")
+
+            class Foo {
+                fun foo() {
+                    val fooNotReported = "foo"
+                }
+            }
+
+            val fooNotReported = "foo"
             """.trimIndent()
         assertThat(lint(code)).isEmpty()
     }
