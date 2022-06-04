@@ -79,8 +79,8 @@ public class TrailingCommaRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         if (node.isRoot()) {
-            getEditorConfigValues(node)
-            return
+            allowTrailingComma = node.getEditorConfigValue(allowTrailingCommaProperty)
+            allowTrailingCommaOnCallSite = node.getEditorConfigValue(allowTrailingCommaOnCallSiteProperty)
         }
 
         // Keep processing of element types in sync with Intellij Kotlin formatting settings.
@@ -100,11 +100,6 @@ public class TrailingCommaRule :
             ElementType.VALUE_ARGUMENT_LIST -> visitValueList(node, emit, autoCorrect)
             else -> Unit
         }
-    }
-
-    private fun getEditorConfigValues(node: ASTNode) {
-        allowTrailingComma = node.getEditorConfigValue(allowTrailingCommaProperty)
-        allowTrailingCommaOnCallSite = node.getEditorConfigValue(allowTrailingCommaOnCallSiteProperty)
     }
 
     private fun visitCollectionLiteralExpression(
