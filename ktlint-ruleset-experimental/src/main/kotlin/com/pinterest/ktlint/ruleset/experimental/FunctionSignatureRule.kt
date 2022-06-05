@@ -136,9 +136,6 @@ public class FunctionSignatureRule :
         return funNode.nextCodeLeaf()
     }
 
-    private fun ASTNode.isStartOfBodyExpression(): Boolean =
-        elementType == EQ && prevSibling { it.elementType == VALUE_PARAMETER_LIST } != null
-
     private fun visitFunctionSignature(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
