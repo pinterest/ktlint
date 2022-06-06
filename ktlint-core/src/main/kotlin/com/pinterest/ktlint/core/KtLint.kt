@@ -33,7 +33,6 @@ public object KtLint {
     private const val FILE_PATH_PROPERTY = "file_path"
     public val EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY: Key<EditorConfigProperties> =
         Key<EditorConfigProperties>("EDITOR_CONFIG_PROPERTIES")
-    public val DISABLED_RULES: Key<Set<String>> = Key<Set<String>>("DISABLED_RULES")
     private const val UTF8_BOM = "\uFEFF"
     public const val STDIN_FILE: String = "<stdin>"
 

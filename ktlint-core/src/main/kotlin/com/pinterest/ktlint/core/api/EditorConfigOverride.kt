@@ -2,7 +2,6 @@ package com.pinterest.ktlint.core.api
 
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties.EditorConfigProperty
 import org.ec4j.core.model.PropertyType
-import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
 /**
  * The [EditorConfigOverride] allows to add or replace properties which are loaded from the ".editorconfig" file. It
@@ -23,19 +22,6 @@ public class EditorConfigOverride {
      */
     public val properties: Map<EditorConfigProperty<*>, PropertyType.PropertyValue<*>>
         get() = _properties.toMap()
-
-    /**
-     * Gets the value of a property. Returns null in case the property is not defined or if the property is defined but
-     * has no value set.
-     */
-    public inline fun <reified T : Any> getValue(editorConfigProperty: EditorConfigProperty<*>): T? =
-        properties[editorConfigProperty]
-            ?.takeUnless { it.isUnset }
-            ?.parsed
-            ?.safeAs<T>()
-
-    public inline fun <reified T : Any> getValueOrDefault(editorConfigProperty: EditorConfigProperty<*>, defaultValue: T): T =
-        getValue(editorConfigProperty) ?: defaultValue
 
     private fun add(property: EditorConfigProperty<*>, value: Any?) =
         _properties.put(property, property.type.parse(value?.toString()))
