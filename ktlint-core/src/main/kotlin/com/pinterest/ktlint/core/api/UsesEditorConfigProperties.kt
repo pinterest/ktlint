@@ -27,9 +27,10 @@ private val logger = KotlinLogging.logger {}.initKtLintKLogger()
  * `.editorconfig` based on [com.pinterest.ktlint.core.Rule]s with this interface implementations.
  */
 public interface UsesEditorConfigProperties {
-
     /**
-     * Provide a list of code style editorconfig properties, that rule uses in linting.
+     * Provide a list of editorconfig properties used by a class (most ofter a [com.pinterest.ktlint.core.Rule].
+     * Retrieval of an editorconfig property is prohibited when the property has not been registered in [editorConfigProperties].
+     * The [editorConfigProperties] is used to generate a complete set of ".editorconfig" properties.
      */
     public val editorConfigProperties: List<EditorConfigProperty<*>>
 
@@ -38,6 +39,9 @@ public interface UsesEditorConfigProperties {
      * [ASTNode].
      */
     public fun <T> ASTNode.getEditorConfigValue(editorConfigProperty: EditorConfigProperty<T>): T {
+        require(editorConfigProperties.contains(editorConfigProperty)) {
+            "EditorConfigProperty '${editorConfigProperty.type.name}' may only be retrieved when it is registered in the editorConfigProperties."
+        }
         val isAndroidCodeStyle = getUserData(KtLint.ANDROID_USER_DATA_KEY) ?: false
         return getUserData(KtLint.EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY)!!
             .getEditorConfigValue(editorConfigProperty, isAndroidCodeStyle)

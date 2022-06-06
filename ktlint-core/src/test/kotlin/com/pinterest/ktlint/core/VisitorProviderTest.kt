@@ -8,6 +8,7 @@ import com.pinterest.ktlint.core.ast.ElementType.PACKAGE_DIRECTIVE
 import com.pinterest.ktlint.core.internal.VisitorProvider
 import com.pinterest.ktlint.core.internal.initPsiFileFactory
 import org.assertj.core.api.Assertions.assertThat
+import org.ec4j.core.model.Property
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
 import org.jetbrains.kotlin.idea.KotlinLanguage
@@ -231,7 +232,24 @@ class VisitorProviderTest {
                     //       - IMPORT_LIST
                     ""
                 ) as KtFile
-                return psiFile.node
+                return psiFile.node.apply {
+                    putUserData(
+                        KtLint.EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY,
+                        mapOf(
+                            "disabled_rules" to
+                                Property.builder()
+                                    .name("disabled_rules")
+                                    .type(disabledRulesProperty.type)
+                                    .value(
+                                        setOf(
+                                            SOME_DISABLED_RULE_IN_STANDARD_RULE_SET,
+                                            "$EXPERIMENTAL:$SOME_DISABLED_RULE_IN_EXPERIMENTAL_RULE_SET",
+                                            "$CUSTOM_RULE_SET_A:$SOME_DISABLED_RULE_IN_CUSTOM_RULE_SET_A"
+                                        ).joinToString(separator = ",")
+                                    ).build()
+                        )
+                    )
+                }
             }
         }
     }

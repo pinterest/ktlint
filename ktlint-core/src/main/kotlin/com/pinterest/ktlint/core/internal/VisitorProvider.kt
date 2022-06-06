@@ -2,11 +2,11 @@ package com.pinterest.ktlint.core.internal
 
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.disabledRulesProperty
+import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
+import com.pinterest.ktlint.core.api.UsesEditorConfigProperties.EditorConfigProperty
 import com.pinterest.ktlint.core.ast.visit
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
 /**
  * The VisitorProvider is created for each file being scanned. As the [RuleSorter] logs the order in which the rules are
@@ -20,7 +20,9 @@ internal class VisitorProvider(
      * Creates a new [RuleSorter]. Only to be used in unit tests where the same set of rules are used with distinct [Rule.VisitorModifier]s.
      */
     recreateRuleSorter: Boolean = false
-) {
+) : UsesEditorConfigProperties {
+    override val editorConfigProperties: List<EditorConfigProperty<*>> = listOf(disabledRulesProperty)
+
     /**
      * The [ruleReferences] is a sorted list of rules based on the [Rule.VisitorModifier] of the rules included in the
      * list.
@@ -126,9 +128,8 @@ internal class VisitorProvider(
     }
 
     private fun isNotDisabled(rootNode: ASTNode, qualifiedRuleId: String): Boolean =
-        params
-            .editorConfigOverride
-            .getValueOrDefault(disabledRulesProperty, "")
+        rootNode
+            .getEditorConfigValue(disabledRulesProperty)
             .split(",")
             .none {
                 // The rule set id in the disabled_rules setting may be omitted for rules in the standard rule set
