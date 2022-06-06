@@ -110,17 +110,105 @@ by passing the `--experimental` flag to `ktlint`.
 
 ## EditorConfig
 
-ktlint recognizes the following [.editorconfig](https://editorconfig.org/) properties (provided they are specified under `[*.{kt,kts}]`):  
-(values shown below are the defaults and do not need to be specified explicitly)
+Ktlint uses a limited set of `.editorconfig` properties for additional configuration. A sensible default value is provided for each property when not explicitly defined. Properties can be overridden, provided they are specified under `[*.{kt,kts}]`. Ktlint uses some properties defined by [.editorconfig](https://editorconfig.org/), IntelliJ IDEA and custom properties.
+
+### Disable rules
+
+By default, no rules are disabled. The property `disabled_rules` holds a comma separated list (without spaces). Rules which are not defined in the `standard` ruleset have to be prefixed.
+
+Example:
 ```ini
 [*.{kt,kts}]
-# possible values: number (e.g. 2), "unset" (makes ktlint ignore indentation completely)  
-indent_size=4
-# true (recommended) / false
-insert_final_newline=true
-# possible values: number (e.g. 120) (package name, imports & comments are ignored), "off"
-# it's automatically set to 100 on `ktlint --android ...` (per Android Kotlin Style Guide)
-max_line_length=off
+disabled_rules = some-standard-rule,experimental:some-experimental-rule,my-custom-ruleset:my-custom-rule
+```
+
+### Trailing comma
+
+Trailing comma's (both on call and declaration site) are disabled (e.g. not allowed) by. When enabling the properties, the trailing becomes mandatory where applicable.
+
+Example:
+```ini
+[*.{kt,kts}]
+ij_kotlin_allow_trailing_comma = false
+ij_kotlin_allow_trailing_comma_on_call_site = false
+```
+
+### Import layouts
+
+By default, the same imports are allowed as in IntelliJ IDEA. The import path can be a full path, e.g. "java.util.List.*" as well as wildcard path, e.g. "kotlin.**".
+
+The layout can be composed by the following symbols:
+*  "*" - wildcard. There must be at least one entry of a single wildcard to match all other imports. Matches anything after a specified symbol/import as well.
+* "|" - blank line. Supports only single blank lines between imports. No blank line is allowed in the beginning or end of the layout.
+* "^" - alias import, e.g. "^android.*" will match all android alias imports, "^" will match all other alias imports.
+
+Examples:
+```kotlin
+ij_kotlin_imports_layout=* # alphabetical with capital letters before lower case letters (e.g. Z before a), no blank lines
+ij_kotlin_imports_layout=*,java.**,javax.**,kotlin.**,^ # default IntelliJ IDEA style, same as alphabetical, but with "java", "javax", "kotlin" and alias imports in the end of the imports list
+ij_kotlin_imports_layout=android.**,|,^org.junit.**,kotlin.io.Closeable.*,|,*,^ # custom imports layout
+```
+
+Wildcard imports can be allowed for specific import paths (Comma-separated list, use "**" as wildcard for package and all subpackages). This setting overrides the no-wildcard-imports rule. This setting is best be used for allowing wildcard imports from libraries like Ktor where extension functions are used in a way that creates a lot of imports.
+
+```ini
+[*.{kt,kts}]
+ij_kotlin_packages_to_use_import_on_demand = java.util.*,kotlinx.android.synthetic.**
+```
+
+### Indent
+
+By default, indenting is done with 4 spaces per indent level.
+
+```ini
+[*.{kt,kts}]
+indent_size = 4 # possible values: number (e.g. 2), "unset" (makes ktlint ignore indentation completely)  
+indent_style = space # or "tab"
+```
+
+### Final newline
+
+By default, a final newline is required at the end of the file.
+
+```ini
+[*.{kt,kts}]
+insert_final_newline = true
+```
+
+### Code style
+
+By default, the `offical` Kotlin code style is applied. Alternatively, the code style can be set to `android`. Note that for the Android code style different default values might be applicable.
+
+```ini
+[*.{kt,kts}]
+ktlint_code_style = official # Or "android"
+```
+
+### Ignore identifiers enclosed in backticks
+
+By default, the identifiers enclosed in backticks are not ignored.
+
+According to https://kotlinlang.org/docs/reference/coding-conventions.html#names-for-test-methods it is acceptable to write method names in natural language. When using natural language, the description tends to be longer. This property allows lines containing an identifier between backticks to be longer than the maximum line length. (Since 0.41.0)
+
+```kotlin
+@Test
+fun `Given a test with a very loooooooooooooooooooooong test description`() {
+    
+}
+```
+
+```ini
+[*.{kt,kts}]
+ktlint_ignore_back_ticked_identifier = false
+```
+
+### Max line length
+
+By default, the maximum line length is not set. The `android` code style sets the max line length to 100 (per Android Kotlin Style Guide).
+
+```ini
+[*.{kt,kts}]
+max_line_length = -1 # Use "off" (or -1) to ignore max line length or a positive number to set max line length
 ```
 
 ### IntelliJ IDEA `.editorconfig` autoformat issue
@@ -129,37 +217,6 @@ Unfortunately [IntelliJ IDEA](https://www.jetbrains.com/idea/) has `.editorconfi
 that adds additional space into glob statements.
 For example, `[*{kt,kts}]` is formatted into `[*{kt, kts}]` ([original ktlint issue](https://github.com/pinterest/ktlint/issues/762)).
 Such behaviour violates `.editorconfig` [specification](https://github.com/editorconfig/editorconfig/issues/148) and leads to ignoring this section when ktlint is parsing it.
-
-### Custom Ktlint specific EditorConfig properties
-
-```ini
-# Comma-separated list of rules to disable (Since 0.34.0)
-# Note that rules in any ruleset other than the standard ruleset will need to be prefixed 
-# by the ruleset identifier.
-disabled_rules=some-standard-rule,experimental:some-experimental-rule,my-custom-ruleset:my-custom-rule
-
-# Defines the imports layout. The layout can be composed by the following symbols:
-# "*" - wildcard. There must be at least one entry of a single wildcard to match all other imports. Matches anything after a specified symbol/import as well.
-# "|" - blank line. Supports only single blank lines between imports. No blank line is allowed in the beginning or end of the layout.
-# "^" - alias import, e.g. "^android.*" will match all android alias imports, "^" will match all other alias imports.
-# import paths - these can be full paths, e.g. "java.util.List.*" as well as wildcard paths, e.g. "kotlin.**"
-# Examples (we use ij_kotlin_imports_layout to set an imports layout for both ktlint and IDEA via a single property):
-ij_kotlin_imports_layout=* # alphabetical with capital letters before lower case letters (e.g. Z before a), no blank lines
-ij_kotlin_imports_layout=*,java.**,javax.**,kotlin.**,^ # default IntelliJ IDEA style, same as alphabetical, but with "java", "javax", "kotlin" and alias imports in the end of the imports list
-ij_kotlin_imports_layout=android.**,|,^org.junit.**,kotlin.io.Closeable.*,|,*,^ # custom imports layout
-
-# According to https://kotlinlang.org/docs/reference/coding-conventions.html#names-for-test-methods it is acceptable to write method names
-# in natural language. When using natural language, the description tends to be longer. Allow lines containing an identifier between
-# backticks to be longer than the maximum line length. (Since 0.41.0)
-[**/test/**.kt]
-ktlint_ignore_back_ticked_identifier=true
-
-# Comma-separated list of allowed wildcard imports that will override the no-wildcard-imports rule.
-# This can be used for allowing wildcard imports from libraries like Ktor where extension functions are used in a way that creates a lot of imports.
-# "**" applies to package and all subpackages
-ij_kotlin_packages_to_use_import_on_demand=java.util.* # allow java.util.* as wildcard import
-ij_kotlin_packages_to_use_import_on_demand=io.ktor.** # allow wildcard import from io.ktor.* and all subpackages 
-```
 
 ### Overriding Editorconfig properties for specific directories
 
