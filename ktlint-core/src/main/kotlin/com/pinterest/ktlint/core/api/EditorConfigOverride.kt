@@ -2,6 +2,7 @@ package com.pinterest.ktlint.core.api
 
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties.EditorConfigProperty
 import org.ec4j.core.model.PropertyType
+import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
 /**
  * The [EditorConfigOverride] allows to add or replace properties which are loaded from the ".editorconfig" file. It
@@ -17,8 +18,24 @@ import org.ec4j.core.model.PropertyType
 public class EditorConfigOverride {
     private val _properties = mutableMapOf<EditorConfigProperty<*>, PropertyType.PropertyValue<*>>()
 
+    /**
+     * Gets a safe copy of the [EditorConfigProperty] set.
+     */
     public val properties: Map<EditorConfigProperty<*>, PropertyType.PropertyValue<*>>
         get() = _properties.toMap()
+
+    /**
+     * Gets the value of a property. Returns null in case the property is not defined or if the property is defined but
+     * has no value set.
+     */
+    public inline fun <reified T : Any> getValue(editorConfigProperty: EditorConfigProperty<*>): T? =
+        properties[editorConfigProperty]
+            ?.takeUnless { it.isUnset }
+            ?.parsed
+            ?.safeAs<T>()
+
+    public inline fun <reified T : Any> getValueOrDefault(editorConfigProperty: EditorConfigProperty<*>, defaultValue: T): T =
+        getValue(editorConfigProperty) ?: defaultValue
 
     private fun add(property: EditorConfigProperty<*>, value: Any?) =
         _properties.put(property, property.type.parse(value?.toString()))
@@ -35,6 +52,27 @@ public class EditorConfigOverride {
             }
             return EditorConfigOverride()
                 .apply {
+                    properties.forEach {
+                        add(it.first, it.second)
+                    }
+                }
+        }
+
+        /**
+         * Creates a copy of [EditorConfigOverride] plus given properties. Given properties overwrite the property in
+         * the original [EditorConfigOverride] silently.
+         */
+        public fun EditorConfigOverride.plus(
+            vararg properties: Pair<EditorConfigProperty<*>, *>
+        ): EditorConfigOverride {
+            require(properties.isNotEmpty()) {
+                "Can not add EditorConfigOverride without properties."
+            }
+            return EditorConfigOverride()
+                .apply {
+                    this@plus._properties.forEach {
+                        add(it.key, it.value)
+                    }
                     properties.forEach {
                         add(it.first, it.second)
                     }

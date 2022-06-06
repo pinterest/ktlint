@@ -1,5 +1,7 @@
 package com.pinterest.ktlint.core
 
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.disabledRulesProperty
+import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.ast.ElementType.FILE
 import com.pinterest.ktlint.core.ast.ElementType.IMPORT_LIST
 import com.pinterest.ktlint.core.ast.ElementType.PACKAGE_DIRECTIVE
@@ -167,8 +169,16 @@ class VisitorProviderTest {
         return VisitorProvider(
             params = KtLint.ExperimentalParams(
                 text = "",
-                cb = { _, _ -> Unit },
+                cb = { _, _ -> },
                 ruleSets = ruleSetList,
+                editorConfigOverride = EditorConfigOverride.from(
+                    disabledRulesProperty to
+                        listOf(
+                            SOME_DISABLED_RULE_IN_STANDARD_RULE_SET,
+                            "$EXPERIMENTAL:$SOME_DISABLED_RULE_IN_EXPERIMENTAL_RULE_SET",
+                            "$CUSTOM_RULE_SET_A:$SOME_DISABLED_RULE_IN_CUSTOM_RULE_SET_A"
+                        ).joinToString(separator = ",")
+                ),
                 // Enable debug mode as it is helpful when a test fails
                 debug = true
             ),
@@ -221,16 +231,7 @@ class VisitorProviderTest {
                     //       - IMPORT_LIST
                     ""
                 ) as KtFile
-                return psiFile.node.apply {
-                    putUserData(
-                        KtLint.DISABLED_RULES,
-                        setOf(
-                            SOME_DISABLED_RULE_IN_STANDARD_RULE_SET,
-                            "$EXPERIMENTAL:$SOME_DISABLED_RULE_IN_EXPERIMENTAL_RULE_SET",
-                            "$CUSTOM_RULE_SET_A:$SOME_DISABLED_RULE_IN_CUSTOM_RULE_SET_A"
-                        )
-                    )
-                }
+                return psiFile.node
             }
         }
     }

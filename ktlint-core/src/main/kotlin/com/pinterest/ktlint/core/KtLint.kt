@@ -232,10 +232,6 @@ public object KtLint {
         node.putUserData(FILE_PATH_USER_DATA_KEY, userData[FILE_PATH_PROPERTY])
         node.putUserData(EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY, editorConfigProperties)
         node.putUserData(ANDROID_USER_DATA_KEY, android)
-        node.putUserData(
-            DISABLED_RULES,
-            userData["disabled_rules"]?.split(",")?.map { it.trim() }?.toSet() ?: emptySet()
-        )
     }
 
     /**

@@ -194,7 +194,19 @@ public object DefaultEditorConfigProperties {
             }
         )
 
+    public val disabledRulesProperty: UsesEditorConfigProperties.EditorConfigProperty<String> =
+        UsesEditorConfigProperties.EditorConfigProperty(
+            type = PropertyType.LowerCasingPropertyType(
+                "disabled_rules",
+                "A comma separated list of rule ids which should not be run. For rules not defined in the 'standard' ruleset, the qualified rule-id should be used.",
+                PropertyType.PropertyValueParser.IDENTITY_VALUE_PARSER,
+                emptySet()
+            ),
+            defaultValue = ""
+        )
+
     public val defaultEditorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<out Any>> = listOf(
+        disabledRulesProperty,
         indentStyleProperty,
         indentSizeProperty,
         insertNewLineProperty,

@@ -2,8 +2,11 @@ package com.pinterest.ktlint.core.internal
 
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.disabledRulesProperty
 import com.pinterest.ktlint.core.ast.visit
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
+import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
 /**
  * The VisitorProvider is created for each file being scanned. As the [RuleSorter] logs the order in which the rules are
@@ -123,9 +126,10 @@ internal class VisitorProvider(
     }
 
     private fun isNotDisabled(rootNode: ASTNode, qualifiedRuleId: String): Boolean =
-        rootNode
-            .getUserData(KtLint.DISABLED_RULES)
-            .orEmpty()
+        params
+            .editorConfigOverride
+            .getValueOrDefault(disabledRulesProperty, "")
+            .split(",")
             .none {
                 // The rule set id in the disabled_rules setting may be omitted for rules in the standard rule set
                 it.toQualifiedRuleId() == qualifiedRuleId
