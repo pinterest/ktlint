@@ -126,8 +126,8 @@ public object KtLint {
         val preparedCode = prepareCodeForLinting(psiFileFactory, params)
         val errors = mutableListOf<LintError>()
 
-        VisitorProvider(params.ruleSets, params.debug)
-            .visitor(params.ruleSets, preparedCode.rootNode)
+        VisitorProvider(params)
+            .visitor(preparedCode.rootNode)
             .invoke { node, rule, fqRuleId ->
                 // fixme: enforcing suppression based on node.startOffset is wrong
                 // (not just because not all nodes are leaves but because rules are free to emit (and fix!) errors at any position)
@@ -251,13 +251,9 @@ public object KtLint {
 
         var tripped = false
         var mutated = false
-        val visitorProvider = VisitorProvider(
-            ruleSets = params.ruleSets,
-            debug = params.debug
-        )
+        val visitorProvider = VisitorProvider(params = params)
         visitorProvider
             .visitor(
-                params.ruleSets,
                 preparedCode.rootNode,
                 concurrent = false
             ).invoke { node, rule, fqRuleId ->
@@ -288,7 +284,7 @@ public object KtLint {
         if (tripped) {
             val errors = mutableListOf<Pair<LintError, Boolean>>()
             visitorProvider
-                .visitor(params.ruleSets, preparedCode.rootNode)
+                .visitor(preparedCode.rootNode)
                 .invoke { node, rule, fqRuleId ->
                     // fixme: enforcing suppression based on node.startOffset is wrong
                     // (not just because not all nodes are leaves but because rules are free to emit (and fix!) errors at any position)
@@ -356,10 +352,10 @@ public object KtLint {
     }
 
     /**
-     * Generates Kotlin `.editorconfig` file section content based on [Params.ruleSets].
+     * Generates Kotlin `.editorconfig` file section content based on [ExperimentalParams].
      *
-     * Method loads merged `.editorconfig` content from [Params.fileName] path,
-     * and then, by querying rules from [Params.ruleSets] for missing properties default values,
+     * Method loads merged `.editorconfig` content from [ExperimentalParams] path,
+     * and then, by querying rules from [ExperimentalParams] for missing properties default values,
      * generates Kotlin section (default is `[*.{kt,kts}]`) new content.
      *
      * Rule should implement [UsesEditorConfigProperties] interface to support this.

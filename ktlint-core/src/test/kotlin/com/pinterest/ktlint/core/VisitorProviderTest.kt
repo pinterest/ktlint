@@ -165,15 +165,19 @@ class VisitorProviderTest {
     ): MutableList<Visit>? {
         val ruleSetList = ruleSets.toList()
         return VisitorProvider(
-            ruleSets = ruleSetList,
-            // Enable debug mode as it is helpful when a test fails
-            debug = true,
+            params = KtLint.ExperimentalParams(
+                text = "",
+                cb = { _, _ -> Unit },
+                ruleSets = ruleSetList,
+                // Enable debug mode as it is helpful when a test fails
+                debug = true
+            ),
             // Creates a new VisitorProviderFactory for each unit test to prevent that tests for the exact same set of
             // ruleIds are influencing each other.
             recreateRuleSorter = true
         ).run {
             var visits: MutableList<Visit>? = null
-            visitor(ruleSetList, SOME_ROOT_AST_NODE, concurrent ?: false)
+            visitor(SOME_ROOT_AST_NODE, concurrent ?: false)
                 .invoke { node, _, fqRuleId ->
                     if (visits == null) {
                         visits = mutableListOf()
