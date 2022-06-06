@@ -41,32 +41,10 @@ internal class EditorConfigGenerator(
             debug = debug
         )
 
-        val potentialEditorConfigSettings = rules
-            .mapNotNull { rule ->
-                if (rule is UsesEditorConfigProperties && rule.editorConfigProperties.isNotEmpty()) {
-                    rule
-                        .editorConfigProperties
-                        .map { property ->
-                            val value = with(rule) {
-                                editorConfig.writeEditorConfigProperty(
-                                    property,
-                                    codeStyle
-                                )
-                            }
-                            logger.debug {
-                                "Rule '${rule.id}' uses property '${property.type.name}' with default value '$value'"
-                            }
-                            ConfigurationSetting(
-                                key = property.type.name,
-                                value = value,
-                                ruleId = rule.id
-                            )
-                        }
-                } else {
-                    null
-                }
-            }.flatten()
-            .also { it.reportSettingsWithMultipleDistinctValues() }
+        val potentialEditorConfigSettings =
+            getConfigurationSettingsForRules(rules, editorConfig, codeStyle)
+                .plus(getConfigurationSettingsForDefaultEditorConfigProperties(editorConfig, codeStyle))
+                .also { it.reportSettingsWithMultipleDistinctValues() }
 
         return potentialEditorConfigSettings
             .map { "${it.key} = ${it.value}" }
@@ -75,13 +53,65 @@ internal class EditorConfigGenerator(
             .joinToString(separator = System.lineSeparator())
     }
 
+    private fun getConfigurationSettingsForRules(
+        rules: Set<Rule>,
+        editorConfig: Map<String, Property>,
+        codeStyle: DefaultEditorConfigProperties.CodeStyleValue
+    ) = rules
+        .mapNotNull { rule ->
+            if (rule is UsesEditorConfigProperties && rule.editorConfigProperties.isNotEmpty()) {
+                rule
+                    .editorConfigProperties
+                    .map { property ->
+                        val value = with(rule) {
+                            editorConfig.writeEditorConfigProperty(
+                                property,
+                                codeStyle
+                            )
+                        }
+                        logger.debug {
+                            "Rule '${rule.id}' uses property '${property.type.name}' with default value '$value'"
+                        }
+                        ConfigurationSetting(
+                            key = property.type.name,
+                            value = value,
+                            usage = "Rule '${rule.id}'"
+                        )
+                    }
+            } else {
+                null
+            }
+        }.flatten()
+
+    private fun getConfigurationSettingsForDefaultEditorConfigProperties(
+        editorConfig: Map<String, Property>,
+        codeStyle: DefaultEditorConfigProperties.CodeStyleValue
+    ) = DefaultEditorConfigProperties
+        .editorConfigProperties
+        .map { editorConfigProperty ->
+            val value = with((DefaultEditorConfigProperties as UsesEditorConfigProperties)) {
+                editorConfig.writeEditorConfigProperty(
+                    editorConfigProperty,
+                    codeStyle
+                )
+            }
+            logger.debug {
+                "Class '${DefaultEditorConfigProperties::class.simpleName}' uses property '${editorConfigProperty.type.name}' with default value '$value'"
+            }
+            ConfigurationSetting(
+                key = editorConfigProperty.type.name,
+                value = value,
+                usage = "Class '${DefaultEditorConfigProperties::class.simpleName}'"
+            )
+        }
+
     private fun List<ConfigurationSetting>.reportSettingsWithMultipleDistinctValues() =
         groupBy { it.key }
             .filter { (_, configurationSettingsGroup) -> configurationSettingsGroup.countDistinctValues() > 1 }
             .forEach {
                 logger.error {
-                    val ruleIds = it.value.joinToString { it.ruleId }
-                    "Property '${it.key}' is used by by multiple rules ($ruleIds) which defines different default values for the property. Check the resulting '.editorcconfig' file carefully."
+                    val usages = it.value.joinToString { it.usage }.toList().sorted()
+                    "Property '${it.key}' has multiple usages ($usages) which defines different default values for the property. Check the resulting '.editorcconfig' file carefully."
                 }
             }
 
@@ -91,6 +121,6 @@ internal class EditorConfigGenerator(
     private data class ConfigurationSetting(
         val key: String,
         val value: String,
-        val ruleId: String
+        val usage: String
     )
 }

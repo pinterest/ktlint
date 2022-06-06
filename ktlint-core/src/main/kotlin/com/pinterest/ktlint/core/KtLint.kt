@@ -79,7 +79,7 @@ public object KtLint {
                     .filterIsInstance<UsesEditorConfigProperties>()
                     .map { it.editorConfigProperties }
                     .flatten()
-                    .plus(DefaultEditorConfigProperties.defaultEditorConfigProperties)
+                    .plus(DefaultEditorConfigProperties.editorConfigProperties)
                     .map { it.type.name }
                     .distinct()
                     .toSet()

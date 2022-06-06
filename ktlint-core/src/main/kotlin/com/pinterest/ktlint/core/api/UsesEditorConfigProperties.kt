@@ -155,7 +155,7 @@ public interface UsesEditorConfigProperties {
 /**
  * Defines KtLint properties which are based on default property types provided by [org.ec4j.core.model.PropertyType].
  */
-public object DefaultEditorConfigProperties {
+public object DefaultEditorConfigProperties : UsesEditorConfigProperties {
     /**
      * Code style to be used while linting and formatting. Note that the [EnumValueParser] requires values to be lowercase.
      */
@@ -174,6 +174,17 @@ public object DefaultEditorConfigProperties {
                 CodeStyleValue.values().map { it.name }.toSet()
             ),
             defaultValue = official
+        )
+
+    public val disabledRulesProperty: UsesEditorConfigProperties.EditorConfigProperty<String> =
+        UsesEditorConfigProperties.EditorConfigProperty(
+            type = PropertyType.LowerCasingPropertyType(
+                "disabled_rules",
+                "A comma separated list of rule ids which should not be run. For rules not defined in the 'standard' ruleset, the qualified rule-id should be used.",
+                PropertyType.PropertyValueParser.IDENTITY_VALUE_PARSER,
+                emptySet()
+            ),
+            defaultValue = ""
         )
 
     public val indentStyleProperty: UsesEditorConfigProperties.EditorConfigProperty<PropertyType.IndentStyleValue> =
@@ -222,18 +233,7 @@ public object DefaultEditorConfigProperties {
             }
         )
 
-    public val disabledRulesProperty: UsesEditorConfigProperties.EditorConfigProperty<String> =
-        UsesEditorConfigProperties.EditorConfigProperty(
-            type = PropertyType.LowerCasingPropertyType(
-                "disabled_rules",
-                "A comma separated list of rule ids which should not be run. For rules not defined in the 'standard' ruleset, the qualified rule-id should be used.",
-                PropertyType.PropertyValueParser.IDENTITY_VALUE_PARSER,
-                emptySet()
-            ),
-            defaultValue = ""
-        )
-
-    public val defaultEditorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<out Any>> = listOf(
+    override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
         codeStyleSetProperty,
         disabledRulesProperty,
         indentStyleProperty,
