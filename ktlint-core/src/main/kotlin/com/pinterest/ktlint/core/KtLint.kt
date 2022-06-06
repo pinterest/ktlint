@@ -19,7 +19,6 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.Locale
 import org.ec4j.core.model.PropertyType
-import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
 import org.jetbrains.kotlin.com.intellij.openapi.util.Key
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
@@ -31,7 +30,6 @@ import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
 public object KtLint {
     public val FILE_PATH_USER_DATA_KEY: Key<String> = Key<String>("FILE_PATH")
-    private const val FILE_PATH_PROPERTY = "file_path"
     public val EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY: Key<EditorConfigProperties> =
         Key<EditorConfigProperties>("EDITOR_CONFIG_PROPERTIES")
     private const val UTF8_BOM = "\uFEFF"
@@ -44,7 +42,7 @@ public object KtLint {
      * @param fileName path of file to lint/format
      * @param text Contents of file to lint/format
      * @param ruleSets a collection of "RuleSet"s used to validate source
-     * @param userData Map of user options. Should not be used for overrides of properties set in '.editorconfig'.
+     * @param userData Map of user options. This field is deprecated and will be removed in a future version.
      * @param cb callback invoked for each lint error
      * @param script true if this is a Kotlin script file
      * @param editorConfigPath optional path of the .editorconfig file (otherwise will use working directory)
@@ -64,7 +62,7 @@ public object KtLint {
         val fileName: String? = null,
         val text: String,
         val ruleSets: Iterable<RuleSet>,
-        val userData: Map<String, String> = emptyMap(),
+        val userData: Map<String, String> = emptyMap(), // TODO: remove in a future version
         val cb: (e: LintError, corrected: Boolean) -> Unit,
         val script: Boolean = false,
         val editorConfigPath: String? = null,
@@ -73,8 +71,7 @@ public object KtLint {
         val isInvokedFromCli: Boolean = false
     ) {
         init {
-            // Extract all default and custom ".editorconfig" properties which are defined using the
-            // [UsesEditorConfigProperties] interface of the rule
+            // Extract all default and custom ".editorconfig" properties which are registered
             val editorConfigProperties =
                 ruleSets
                     .asSequence()
@@ -98,21 +95,34 @@ public object KtLint {
                             "actual value in the '.editorconfig' file."
                     }
                 }
+
+            userData
+                .keys
+                .minus(editorConfigProperties)
+                .let {
+                    check(it.isEmpty()) {
+                        "UserData contains properties ${it.sorted()}. However, userData is deprecated and will be " +
+                            "removed in a future version. Please create an issue that shows how this field is " +
+                            "actively used."
+                    }
+                }
         }
 
-        internal val normalizedFilePath: Path? get() = if (fileName == STDIN_FILE || fileName == null) {
-            null
-        } else {
-            Paths.get(fileName)
-        }
+        internal val normalizedFilePath: Path?
+            get() = if (fileName == STDIN_FILE || fileName == null) {
+                null
+            } else {
+                Paths.get(fileName)
+            }
 
         internal val isStdIn: Boolean get() = fileName == STDIN_FILE
 
-        internal val rules: Set<Rule> get() = ruleSets
-            .flatMap {
-                it.rules.toList()
-            }
-            .toSet()
+        internal val rules: Set<Rule>
+            get() = ruleSets
+                .flatMap {
+                    it.rules.toList()
+                }
+                .toSet()
     }
 
     /**
@@ -189,18 +199,10 @@ public object KtLint {
             params.debug
         )
 
-        val mergedUserData =
-            params
-                .userData
-                .run {
-                    if (!params.isStdIn) {
-                        plus(FILE_PATH_PROPERTY to params.normalizedFilePath.toString())
-                    } else {
-                        this
-                    }
-                }
-
-        injectUserData(rootNode, editorConfigProperties, mergedUserData)
+        if (!params.isStdIn) {
+            rootNode.putUserData(FILE_PATH_USER_DATA_KEY, params.normalizedFilePath.toString())
+        }
+        rootNode.putUserData(EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY, editorConfigProperties)
 
         val suppressedRegionLocator = SuppressionLocatorBuilder.buildSuppressedRegionsLocator(rootNode)
 
@@ -219,17 +221,6 @@ public object KtLint {
             .replace("\r\n", "\n")
             .replace("\r", "\n")
             .replaceFirst(UTF8_BOM, "")
-    }
-
-    private val Map<String, String>.isAndroidCodeStyle get() = get("android")?.toBoolean() ?: false
-
-    private fun injectUserData(
-        node: ASTNode,
-        editorConfigProperties: EditorConfigProperties,
-        userData: Map<String, String>
-    ) {
-        node.putUserData(FILE_PATH_USER_DATA_KEY, userData[FILE_PATH_PROPERTY])
-        node.putUserData(EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY, editorConfigProperties)
     }
 
     /**
@@ -262,9 +253,10 @@ public object KtLint {
                             if (canBeAutoCorrected) {
                                 mutated = true
                                 if (preparedCode.suppressedRegionLocator !== SuppressionLocatorBuilder.noSuppression) {
-                                    preparedCode.suppressedRegionLocator = SuppressionLocatorBuilder.buildSuppressedRegionsLocator(
-                                        preparedCode.rootNode
-                                    )
+                                    preparedCode.suppressedRegionLocator =
+                                        SuppressionLocatorBuilder.buildSuppressedRegionsLocator(
+                                            preparedCode.rootNode
+                                        )
                                 }
                             }
                         }

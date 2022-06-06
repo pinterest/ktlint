@@ -79,8 +79,8 @@ internal class PrintASTSubCommand : Runnable {
                 fileName = fileName,
                 fileContents = fileContent,
                 ruleSets = astRuleSet,
-                debug = ktlintCommand.debug,
-                editorConfigOverride = emptyEditorConfigOverride
+                editorConfigOverride = emptyEditorConfigOverride,
+                debug = ktlintCommand.debug
             )
         } catch (e: Exception) {
             if (e is ParseException) {

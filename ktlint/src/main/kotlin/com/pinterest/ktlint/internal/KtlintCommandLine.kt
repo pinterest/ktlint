@@ -220,7 +220,6 @@ internal class KtlintCommandLine {
             val reporterProviderById = loadReporters(emptyList())
             reporter = Reporter.from(reporter, baselineReporter.toReporter(reporterProviderById))
         }
-        val userData = emptyMap<String, String>() // TODO: Remove
         val editorConfigOverride = EditorConfigOverride.emptyEditorConfigOverride
         if (disabledRules.isNotBlank()) {
             editorConfigOverride.plus(disabledRulesProperty to disabledRules)
@@ -231,11 +230,10 @@ internal class KtlintCommandLine {
 
         reporter.beforeAll()
         if (stdin) {
-            lintStdin(ruleSetProviders, userData, editorConfigOverride, reporter)
+            lintStdin(ruleSetProviders, editorConfigOverride, reporter)
         } else {
             lintFiles(
                 ruleSetProviders,
-                userData,
                 editorConfigOverride,
                 baselineResults.baselineRules,
                 reporter
@@ -262,7 +260,6 @@ internal class KtlintCommandLine {
 
     private fun lintFiles(
         ruleSetProviders: Map<String, RuleSetProvider>,
-        userData: Map<String, String>,
         editorConfigOverride: EditorConfigOverride,
         baseline: Map<String, List<LintError>>?,
         reporter: Reporter
@@ -277,7 +274,6 @@ internal class KtlintCommandLine {
                     file to process(
                         file.path,
                         file.readText(),
-                        userData,
                         editorConfigOverride,
                         baseline?.get(file.relativeRoute),
                         ruleSets
@@ -289,7 +285,6 @@ internal class KtlintCommandLine {
 
     private fun lintStdin(
         ruleSetProviders: Map<String, RuleSetProvider>,
-        userData: Map<String, String>,
         editorConfigOverride: EditorConfigOverride,
         reporter: Reporter
     ) {
@@ -298,7 +293,6 @@ internal class KtlintCommandLine {
             process(
                 KtLint.STDIN_FILE,
                 String(System.`in`.readBytes()),
-                userData,
                 editorConfigOverride,
                 null,
                 ruleSetProviders.map { it.value.get() }
@@ -347,7 +341,6 @@ internal class KtlintCommandLine {
     private fun process(
         fileName: String,
         fileContent: String,
-        userData: Map<String, String>,
         editorConfigOverride: EditorConfigOverride,
         baselineErrors: List<LintError>?,
         ruleSets: Iterable<RuleSet>
@@ -363,7 +356,6 @@ internal class KtlintCommandLine {
                     fileName,
                     fileContent,
                     ruleSets,
-                    userData,
                     editorConfigOverride,
                     editorConfigPath,
                     debug
@@ -393,7 +385,6 @@ internal class KtlintCommandLine {
                     fileName,
                     fileContent,
                     ruleSets,
-                    userData,
                     editorConfigOverride,
                     editorConfigPath,
                     debug

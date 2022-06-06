@@ -1,6 +1,5 @@
 package com.pinterest.ktlint.ruleset.standard.importordering
 
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.CodeStyleValue.android
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.CodeStyleValue.official
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.ruleset.standard.ImportOrderingRule
