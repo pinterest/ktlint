@@ -173,7 +173,8 @@ public object DefaultEditorConfigProperties : UsesEditorConfigProperties {
                 EnumValueParser(CodeStyleValue::class.java),
                 CodeStyleValue.values().map { it.name }.toSet()
             ),
-            defaultValue = official
+            defaultValue = official,
+            defaultAndroidValue = android
         )
 
     public val disabledRulesProperty: UsesEditorConfigProperties.EditorConfigProperty<String> =

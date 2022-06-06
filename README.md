@@ -184,6 +184,15 @@ By default, the `offical` Kotlin code style is applied. Alternatively, the code 
 ktlint_code_style = official # Or "android"
 ```
 
+### Function signature
+
+By default, the number of parameters in a function signature is not relevant when rewriting the function signature. Only the maximum line length determines when a function signature should be written on a single line or with multiple lines. This setting can be used, to force a multiline function signature in case the function contain at least a number of parameters even in case the function signature would fit on a single line.  
+
+```ini
+[*.{kt,kts}]
+ktlint_function_signature_rule_force_multiline_with_at_least_parameters= -1 # -1 to ignore the number of parameters or otherwise a positive number
+```
+
 ### Ignore identifiers enclosed in backticks
 
 By default, the identifiers enclosed in backticks are not ignored.

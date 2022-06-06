@@ -363,7 +363,8 @@ public object KtLint {
             params
                 .editorConfigOverride
                 .properties[codeStyleSetProperty]
-                .safeAs<DefaultEditorConfigProperties.CodeStyleValue>()
+                ?.parsed
+                ?.safeAs<DefaultEditorConfigProperties.CodeStyleValue>()
                 ?: codeStyleSetProperty.defaultValue
         return EditorConfigGenerator(editorConfigLoader).generateEditorconfig(
             filePath,
