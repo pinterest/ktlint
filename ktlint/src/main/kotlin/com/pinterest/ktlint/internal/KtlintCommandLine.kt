@@ -10,7 +10,8 @@ import com.pinterest.ktlint.core.ReporterProvider
 import com.pinterest.ktlint.core.RuleExecutionException
 import com.pinterest.ktlint.core.RuleSet
 import com.pinterest.ktlint.core.RuleSetProvider
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.codeStyleSetProperty
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.disabledRulesProperty
 import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.plus
 import com.pinterest.ktlint.core.initKtLintKLogger
@@ -219,12 +220,13 @@ internal class KtlintCommandLine {
             val reporterProviderById = loadReporters(emptyList())
             reporter = Reporter.from(reporter, baselineReporter.toReporter(reporterProviderById))
         }
-        val userData = listOfNotNull(
-            "android" to android.toString()
-        ).toMap()
+        val userData = emptyMap<String, String>() // TODO: Remove
         val editorConfigOverride = EditorConfigOverride.emptyEditorConfigOverride
         if (disabledRules.isNotBlank()) {
-            editorConfigOverride.plus(DefaultEditorConfigProperties.disabledRulesProperty to disabledRules)
+            editorConfigOverride.plus(disabledRulesProperty to disabledRules)
+        }
+        if (android) {
+            editorConfigOverride.plus(codeStyleSetProperty to android)
         }
 
         reporter.beforeAll()

@@ -1,5 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard.importordering
 
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.CodeStyleValue.android
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.CodeStyleValue.official
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.ruleset.standard.ImportOrderingRule
 import org.assertj.core.api.Assertions.assertThat
@@ -11,7 +13,7 @@ class ImportOrderingEditorconfigTest {
         val properties: EditorConfigProperties = emptyMap()
         val rule = ImportOrderingRule()
         with(rule) {
-            val raw = properties.writeEditorConfigProperty(ImportOrderingRule.ideaImportsLayoutProperty, false)
+            val raw = properties.writeEditorConfigProperty(ImportOrderingRule.ideaImportsLayoutProperty, official)
             assertThat(raw).isEqualTo("*,java.**,javax.**,kotlin.**,^")
         }
     }

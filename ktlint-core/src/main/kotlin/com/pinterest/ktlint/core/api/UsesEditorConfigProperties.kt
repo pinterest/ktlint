@@ -2,10 +2,14 @@ package com.pinterest.ktlint.core.api
 
 import com.pinterest.ktlint.core.IndentConfig
 import com.pinterest.ktlint.core.KtLint
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.CodeStyleValue
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.CodeStyleValue.android
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.CodeStyleValue.official
 import com.pinterest.ktlint.core.initKtLintKLogger
 import mu.KotlinLogging
 import org.ec4j.core.model.Property
 import org.ec4j.core.model.PropertyType
+import org.ec4j.core.model.PropertyType.PropertyValueParser.EnumValueParser
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 private val logger = KotlinLogging.logger {}.initKtLintKLogger()
@@ -42,21 +46,21 @@ public interface UsesEditorConfigProperties {
         require(editorConfigProperties.contains(editorConfigProperty)) {
             "EditorConfigProperty '${editorConfigProperty.type.name}' may only be retrieved when it is registered in the editorConfigProperties."
         }
-        val isAndroidCodeStyle = getUserData(KtLint.ANDROID_USER_DATA_KEY) ?: false
-        return getUserData(KtLint.EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY)!!
-            .getEditorConfigValue(editorConfigProperty, isAndroidCodeStyle)
+        val editorConfigPropertyValues = getUserData(KtLint.EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY)!!
+        val codeStyle = editorConfigPropertyValues.getEditorConfigValue(DefaultEditorConfigProperties.codeStyleSetProperty)
+        return editorConfigPropertyValues.getEditorConfigValue(editorConfigProperty, codeStyle)
     }
 
     private fun <T> EditorConfigProperties.getEditorConfigValue(
         editorConfigProperty: EditorConfigProperty<T>,
-        isAndroidCodeStyle: Boolean = false
+        codeStyleValue: CodeStyleValue = official
     ): T {
         val property = get(editorConfigProperty.type.name)
 
         // If the property value is remapped to a non-null value then return it immediately.
         editorConfigProperty
             .propertyMapper
-            ?.invoke(property, isAndroidCodeStyle)
+            ?.invoke(property, codeStyleValue)
             ?.let { newValue ->
                 when {
                     property == null ->
@@ -76,7 +80,7 @@ public interface UsesEditorConfigProperties {
 
         return property?.getValueAs()
             ?: editorConfigProperty
-                .getDefaultValue(isAndroidCodeStyle)
+                .getDefaultValue(codeStyleValue)
                 .also {
                     logger.trace {
                         "No value of '.editorconfig' property '${editorConfigProperty.type.name}' was found. Value " +
@@ -86,8 +90,8 @@ public interface UsesEditorConfigProperties {
                 }
     }
 
-    private fun <T> EditorConfigProperty<T>.getDefaultValue(isAndroidCodeStyle: Boolean) =
-        if (isAndroidCodeStyle) {
+    private fun <T> EditorConfigProperty<T>.getDefaultValue(codeStyleValue: CodeStyleValue) =
+        if (codeStyleValue == android) {
             defaultAndroidValue
         } else {
             defaultValue
@@ -98,16 +102,16 @@ public interface UsesEditorConfigProperties {
      */
     public fun <T> EditorConfigProperties.writeEditorConfigProperty(
         editorConfigProperty: EditorConfigProperty<T>,
-        isAndroidCodeStyle: Boolean
+        codeStyleValue: CodeStyleValue
     ): String {
-        return editorConfigProperty.propertyWriter(getEditorConfigValue(editorConfigProperty, isAndroidCodeStyle))
+        return editorConfigProperty.propertyWriter(getEditorConfigValue(editorConfigProperty, codeStyleValue))
     }
 
     /**
      * Supported `.editorconfig` property.
      *
      * [Rule] preferably should expose it with `public` visibility in `companion object`,
-     * so it will be possible to add/replace via [com.pinterest.ktlint.core.KtLint.Params].
+     * so it will be possible to add/replace via [com.pinterest.ktlint.core.KtLint.ExperimentalParams].
      *
      * @param type type of property. Could be one of default ones (see [PropertyType.STANDARD_TYPES]) or custom one.
      * @param defaultValue default value for property if it does not exist in loaded properties.
@@ -143,7 +147,7 @@ public interface UsesEditorConfigProperties {
          * In case the lambda returns a null value then, the [defaultValue] or [defaultAndroidValue] will be set as
          * value of the property. The
          */
-        public val propertyMapper: ((Property?, Boolean) -> T?)? = null,
+        public val propertyMapper: ((Property?, CodeStyleValue) -> T?)? = null,
         public val propertyWriter: (T) -> String = { it.toString() }
     )
 }
@@ -152,6 +156,26 @@ public interface UsesEditorConfigProperties {
  * Defines KtLint properties which are based on default property types provided by [org.ec4j.core.model.PropertyType].
  */
 public object DefaultEditorConfigProperties {
+    /**
+     * Code style to be used while linting and formatting. Note that the [EnumValueParser] requires values to be lowercase.
+     */
+    @Suppress("EnumEntryName", "ktlint:experimental:enum-entry-name-case")
+    public enum class CodeStyleValue {
+        android,
+        official;
+    }
+
+    public val codeStyleSetProperty: UsesEditorConfigProperties.EditorConfigProperty<CodeStyleValue> =
+        UsesEditorConfigProperties.EditorConfigProperty(
+            type = PropertyType.LowerCasingPropertyType(
+                "ktlint_code_style",
+                "The code style ('official' or 'android') to be applied. Defaults to 'official' when not set.",
+                EnumValueParser(CodeStyleValue::class.java),
+                CodeStyleValue.values().map { it.name }.toSet()
+            ),
+            defaultValue = official
+        )
+
     public val indentStyleProperty: UsesEditorConfigProperties.EditorConfigProperty<PropertyType.IndentStyleValue> =
         UsesEditorConfigProperties.EditorConfigProperty(
             type = PropertyType.indent_style,
@@ -182,10 +206,10 @@ public object DefaultEditorConfigProperties {
         UsesEditorConfigProperties.EditorConfigProperty(
             type = PropertyType.max_line_length,
             defaultValue = -1,
-            propertyMapper = { property, isAndroidCodeStyle ->
+            propertyMapper = { property, codeStyleValue ->
                 when {
                     property == null || property.isUnset -> {
-                        if (isAndroidCodeStyle) {
+                        if (codeStyleValue == android) {
                             // https://developer.android.com/kotlin/style-guide#line_wrapping
                             100
                         } else {
@@ -210,6 +234,7 @@ public object DefaultEditorConfigProperties {
         )
 
     public val defaultEditorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<out Any>> = listOf(
+        codeStyleSetProperty,
         disabledRulesProperty,
         indentStyleProperty,
         indentSizeProperty,

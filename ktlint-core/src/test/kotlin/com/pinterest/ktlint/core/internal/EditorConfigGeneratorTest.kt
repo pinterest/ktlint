@@ -3,6 +3,8 @@ package com.pinterest.ktlint.core.internal
 import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
 import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.CodeStyleValue.android
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.CodeStyleValue.official
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import java.nio.file.FileSystem
 import java.nio.file.Files
@@ -31,7 +33,8 @@ internal class EditorConfigGeneratorTest {
 
         val generatedEditorConfig = editorConfigGenerator.generateEditorconfig(
             filePath = tempFileSystem.normalizedPath(rootDir).resolve("test.kt"),
-            rules = rules
+            rules = rules,
+            codeStyle = official
         )
 
         assertThat(generatedEditorConfig.lines()).doesNotContainAnyElementsOf(listOf("root = true"))
@@ -46,7 +49,7 @@ internal class EditorConfigGeneratorTest {
         val generatedEditorConfig = editorConfigGenerator.generateEditorconfig(
             filePath = tempFileSystem.normalizedPath(rootDir).resolve("test.kt"),
             rules = rules,
-            isAndroidCodeStyle = true
+            codeStyle = android
         )
 
         assertThat(generatedEditorConfig.lines()).containsExactly(
@@ -71,7 +74,8 @@ internal class EditorConfigGeneratorTest {
                         EDITOR_CONFIG_PROPERTY_1
                     )
                 }
-            )
+            ),
+            codeStyle = official
         )
 
         assertThat(generatedEditorConfig.lines()).containsExactly(
@@ -95,7 +99,8 @@ internal class EditorConfigGeneratorTest {
                         EDITOR_CONFIG_PROPERTY_3_WITH_DEFAULT_VALUE_B
                     )
                 }
-            )
+            ),
+            codeStyle = official
         )
 
         assertThat(generatedEditorConfig.lines()).containsExactly(
@@ -119,7 +124,8 @@ internal class EditorConfigGeneratorTest {
 
         val generatedEditorConfig = editorConfigGenerator.generateEditorconfig(
             filePath = tempFileSystem.normalizedPath(rootDir).resolve("test.kt"),
-            rules = rules
+            rules = rules,
+            codeStyle = official
         )
 
         assertThat(generatedEditorConfig.lines()).doesNotContainAnyElementsOf(listOf("root = true"))
@@ -142,7 +148,8 @@ internal class EditorConfigGeneratorTest {
 
         val generatedEditorConfig = editorConfigGenerator.generateEditorconfig(
             filePath = tempFileSystem.normalizedPath(rootDir).resolve("test.kt"),
-            rules = rules
+            rules = rules,
+            codeStyle = official
         )
 
         assertThat(generatedEditorConfig.lines()).doesNotContainAnyElementsOf(listOf("root = true"))

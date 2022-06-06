@@ -57,6 +57,23 @@ and be supplied via the `ExperimentalParams` as follows:
     )
 ```
 
+Property `Ktlint.ANDROID_USER_DATA_KEY` has been removed. The property value can now be retrieved as follows:
+```kotlin
+        astNode
+            .getEditorConfigValue(DefaultEditorConfigProperties.codeStyleProperty)
+```
+and be supplied via the `ExperimentalParams` as follows:
+```kotlin
+    ExperimentalParams(
+        ...
+        editorConfigOverride =  EditorConfigOverride.from(
+          DefaultEditorConfigProperties.codeStyleProperty to "android" 
+        )
+        ...
+    )
+```
+This property defaults to the `official` Kotlin code style when not set.
+
 #### Testing KtLint rules
 
 An AssertJ style API for testing KtLint rules ([#1444](https://github.com/pinterest/ktlint/issues/1444)) has been added. Usage of this API is encouraged in favor of using the old RuleExtension API. For more information, see [KtLintAssertThat API]( https://github.com/pinterest/ktlint/blob/master/ktlint-test/README.MD)

@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.core.internal
 
 import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.initKtLintKLogger
 import java.nio.file.Path
@@ -18,8 +19,8 @@ internal class EditorConfigGenerator(
     private val editorConfigLoader: EditorConfigLoader
 ) {
     /**
-     * Method loads merged `.editorconfig` content using [com.pinterest.ktlint.core.KtLint.Params.fileName] path,
-     * and then, by querying rules from [com.pinterest.ktlint.core.KtLint.Params.ruleSets]
+     * Method loads merged `.editorconfig` content using [com.pinterest.ktlint.core.KtLint.ExperimentalParams.fileName] path,
+     * and then, by querying rules from [com.pinterest.ktlint.core.KtLint.ExperimentalParams.ruleSets]
      * generates Kotlin section (default is `[*.{kt,kts}]`) content including expected default values.
      *
      * @return Kotlin section editorconfig content. For example:
@@ -31,8 +32,8 @@ internal class EditorConfigGenerator(
     fun generateEditorconfig(
         filePath: Path,
         rules: Set<Rule>,
-        isAndroidCodeStyle: Boolean = false,
-        debug: Boolean = false
+        debug: Boolean = false,
+        codeStyle: DefaultEditorConfigProperties.CodeStyleValue
     ): String {
         val editorConfig: Map<String, Property> = editorConfigLoader.loadPropertiesForFile(
             filePath = filePath,
@@ -49,7 +50,7 @@ internal class EditorConfigGenerator(
                             val value = with(rule) {
                                 editorConfig.writeEditorConfigProperty(
                                     property,
-                                    isAndroidCodeStyle
+                                    codeStyle
                                 )
                             }
                             logger.debug {

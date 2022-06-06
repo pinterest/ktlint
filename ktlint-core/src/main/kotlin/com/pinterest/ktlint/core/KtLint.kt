@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.core
 
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.codeStyleSetProperty
 import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.emptyEditorConfigOverride
 import com.pinterest.ktlint.core.api.EditorConfigProperties
@@ -26,9 +27,9 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiErrorElement
 import org.jetbrains.kotlin.com.intellij.psi.PsiFileFactory
 import org.jetbrains.kotlin.idea.KotlinLanguage
 import org.jetbrains.kotlin.psi.KtFile
+import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
 public object KtLint {
-    public val ANDROID_USER_DATA_KEY: Key<Boolean> = Key<Boolean>("ANDROID")
     public val FILE_PATH_USER_DATA_KEY: Key<String> = Key<String>("FILE_PATH")
     private const val FILE_PATH_PROPERTY = "file_path"
     public val EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY: Key<EditorConfigProperties> =
@@ -227,10 +228,8 @@ public object KtLint {
         editorConfigProperties: EditorConfigProperties,
         userData: Map<String, String>
     ) {
-        val android = userData.isAndroidCodeStyle
         node.putUserData(FILE_PATH_USER_DATA_KEY, userData[FILE_PATH_PROPERTY])
         node.putUserData(EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY, editorConfigProperties)
-        node.putUserData(ANDROID_USER_DATA_KEY, android)
     }
 
     /**
@@ -368,11 +367,17 @@ public object KtLint {
         requireNotNull(filePath) {
             "Please pass path to existing Kotlin file"
         }
+        val codeStyle =
+            params
+                .editorConfigOverride
+                .properties[codeStyleSetProperty]
+                .safeAs<DefaultEditorConfigProperties.CodeStyleValue>()
+                ?: codeStyleSetProperty.defaultValue
         return EditorConfigGenerator(editorConfigLoader).generateEditorconfig(
             filePath,
             params.rules,
-            params.userData.isAndroidCodeStyle,
-            params.debug
+            params.debug,
+            codeStyle
         )
     }
 

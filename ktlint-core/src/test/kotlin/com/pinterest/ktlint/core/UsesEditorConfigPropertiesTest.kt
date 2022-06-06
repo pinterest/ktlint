@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.core
 
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentSizeProperty
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.maxLineLengthProperty
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
@@ -109,13 +110,9 @@ class UsesEditorConfigPropertiesTest {
     @Test
     fun `Given that editor config property max_line_length is set to value 'unset' for android then return 100 via the getEditorConfigValue of the node`() {
         val testAstNode: ASTNode = DummyHolderElement("some-text")
-        testAstNode.putUserData(KtLint.ANDROID_USER_DATA_KEY, true)
         testAstNode.putUserData(
             KtLint.EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY,
-            createPropertyWithValue(
-                maxLineLengthProperty,
-                "unset"
-            )
+            createPropertyWithValue(maxLineLengthProperty, "unset").plus(ANDROID_CODE_STYLE)
         )
         val actual = PropertyValueTester(maxLineLengthProperty).testValue(testAstNode, maxLineLengthProperty)
 
@@ -125,13 +122,9 @@ class UsesEditorConfigPropertiesTest {
     @Test
     fun `Given that editor config property max_line_length is set to value 'unset' for non-android then return -1 via the getEditorConfigValue of the node`() {
         val testAstNode: ASTNode = DummyHolderElement("some-text")
-        testAstNode.putUserData(KtLint.ANDROID_USER_DATA_KEY, false)
         testAstNode.putUserData(
             KtLint.EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY,
-            createPropertyWithValue(
-                maxLineLengthProperty,
-                "unset"
-            )
+            createPropertyWithValue(maxLineLengthProperty, "unset").plus(OFFICIAL_CODE_STYLE)
         )
         val actual = PropertyValueTester(maxLineLengthProperty).testValue(testAstNode, maxLineLengthProperty)
 
@@ -141,10 +134,9 @@ class UsesEditorConfigPropertiesTest {
     @Test
     fun `Given that editor config property max_line_length is not set for android then return 100 via the getEditorConfigValue of the node`() {
         val testAstNode: ASTNode = DummyHolderElement("some-text")
-        testAstNode.putUserData(KtLint.ANDROID_USER_DATA_KEY, true)
         testAstNode.putUserData(
             KtLint.EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY,
-            emptyMap()
+            ANDROID_CODE_STYLE
         )
         val actual = PropertyValueTester(maxLineLengthProperty).testValue(testAstNode, maxLineLengthProperty)
 
@@ -154,28 +146,35 @@ class UsesEditorConfigPropertiesTest {
     @Test
     fun `Given that editor config property max_line_length is not set for non-android then return -1 via the getEditorConfigValue of the node`() {
         val testAstNode: ASTNode = DummyHolderElement("some-text")
-        testAstNode.putUserData(KtLint.ANDROID_USER_DATA_KEY, false)
         testAstNode.putUserData(
             KtLint.EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY,
-            emptyMap()
+            OFFICIAL_CODE_STYLE
         )
         val actual = PropertyValueTester(maxLineLengthProperty).testValue(testAstNode, maxLineLengthProperty)
 
         assertThat(actual).isEqualTo(-1)
     }
 
-    private fun createPropertyWithValue(
-        editorConfigProperty: UsesEditorConfigProperties.EditorConfigProperty<Int>,
-        value: String
-    ) = mapOf(
-        editorConfigProperty.type.name to Property.builder()
-            .name(editorConfigProperty.type.name)
-            .type(editorConfigProperty.type)
-            .value(value)
-            .build()
-    )
-
     private companion object {
         const val SOME_INTEGER_VALUE = 123
+        val ANDROID_CODE_STYLE = createPropertyWithValue(
+            DefaultEditorConfigProperties.codeStyleSetProperty,
+            DefaultEditorConfigProperties.CodeStyleValue.android.name.lowercase()
+        )
+        val OFFICIAL_CODE_STYLE = createPropertyWithValue(
+            DefaultEditorConfigProperties.codeStyleSetProperty,
+            DefaultEditorConfigProperties.CodeStyleValue.official.name.lowercase()
+        )
+
+        private fun <T : Any> createPropertyWithValue(
+            editorConfigProperty: UsesEditorConfigProperties.EditorConfigProperty<T>,
+            value: String
+        ) = mapOf(
+            editorConfigProperty.type.name to Property.builder()
+                .name(editorConfigProperty.type.name)
+                .type(editorConfigProperty.type)
+                .value(value)
+                .build()
+        )
     }
 }
