@@ -39,7 +39,7 @@ import org.jetbrains.kotlin.utils.addToStdlib.ifTrue
 
 public class FunctionSignatureRule :
     Rule(
-        id = "function-signature",
+        id = "$experimentalRulesetId:function-signature",
         visitorModifiers = setOf(
             // Run after wrapping and spacing rules
             VisitorModifier.RunAsLateAsPossible
