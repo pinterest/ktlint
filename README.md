@@ -706,7 +706,13 @@ To suppress the violations of all ktlint rules, use:
 val foo = "some really looooooooooooooooong string exceeding the max line length"
 ```
 
-Like with other `@Suppress` annotations, it can be placed on targets supported by the annotation.
+Like with other `@Suppress` annotations, it can be placed on targets supported by the annotation. As of this it is possible to disable rules in the entire file with:
+```kotlin
+@file:Suppress("ktlint") // Suppressing all rules for the entire file
+// or
+@file:Suppress("ktlint:max-line-length","ktlint:experimental:trailing-comma") // Suppressing specific rules for the entire file
+```
+
 
 ### How do I globally disable a rule?
 See the [EditorConfig section](https://github.com/pinterest/ktlint#editorconfig) for details on how to use the `disabled_rules` property.

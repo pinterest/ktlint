@@ -26,7 +26,7 @@ internal object SuppressionLocatorBuilder {
         "RemoveCurlyBracesFromTemplate" to "string-template"
     )
     private val suppressAnnotations = setOf("Suppress", "SuppressWarnings")
-    private const val suppresAllKtlintRules = "ktlint-all"
+    private const val suppressAllKtlintRules = "ktlint-all"
 
     private val commentRegex = Regex("\\s")
 
@@ -40,21 +40,9 @@ internal object SuppressionLocatorBuilder {
         return if (hintsList.isEmpty()) {
             noSuppression
         } else { offset, ruleId, isRoot ->
-            if (isRoot) {
-                val h = hintsList[0]
-                h.range.last == 0 && (
-                    h.disabledRules.isEmpty() ||
-                        h.disabledRules.contains(ruleId)
-                    )
-            } else {
-                hintsList.any { hint ->
-                    (
-                        hint.disabledRules.isEmpty() ||
-                            hint.disabledRules.contains(ruleId)
-                        ) &&
-                        hint.range.contains(offset)
-                }
-            }
+            hintsList
+                .filter { offset in it.range }
+                .any { hint -> hint.disabledRules.isEmpty() || hint.disabledRules.contains(ruleId) }
         }
     }
 
@@ -166,7 +154,7 @@ internal object SuppressionLocatorBuilder {
             .let { suppressedRules ->
                 when {
                     suppressedRules.isEmpty() -> null
-                    suppressedRules.contains(suppresAllKtlintRules) ->
+                    suppressedRules.contains(suppressAllKtlintRules) ->
                         SuppressionHint(
                             IntRange(psi.startOffset, psi.endOffset),
                             emptySet()
@@ -187,7 +175,7 @@ internal object SuppressionLocatorBuilder {
                 when {
                     it == "ktlint" -> {
                         // Disable all rules
-                        suppresAllKtlintRules
+                        suppressAllKtlintRules
                     }
                     it.startsWith("ktlint:") -> {
                         // Disable specific rule
