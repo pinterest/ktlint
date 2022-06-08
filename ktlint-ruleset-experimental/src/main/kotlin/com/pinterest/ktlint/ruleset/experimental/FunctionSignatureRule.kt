@@ -284,7 +284,7 @@ public class FunctionSignatureRule :
                         }
                         if (autoCorrect && !dryRun) {
                             if (whiteSpaceBeforeIdentifier == null) {
-                                (firstChildOfParameter as LeafElement).upsertWhitespaceBeforeMe(expectedParameterIndent)
+                                (valueParameterList.firstChildNode as LeafElement).upsertWhitespaceAfterMe(expectedParameterIndent)
                             } else {
                                 (whiteSpaceBeforeIdentifier as LeafElement).rawReplaceWithText(
                                     expectedParameterIndent
@@ -684,7 +684,7 @@ public class FunctionSignatureRule :
         multiline,
 
         /**
-         * Force the body expression to start on a separate line always.
+         * Always force the body expression to start on a separate line.
          */
         always;
     }
