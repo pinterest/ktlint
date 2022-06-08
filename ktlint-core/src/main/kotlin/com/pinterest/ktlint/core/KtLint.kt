@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.core
 
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.codeStyleSetProperty
 import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.emptyEditorConfigOverride
 import com.pinterest.ktlint.core.api.EditorConfigProperties
@@ -18,7 +19,6 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.Locale
 import org.ec4j.core.model.PropertyType
-import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
 import org.jetbrains.kotlin.com.intellij.openapi.util.Key
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
@@ -26,14 +26,12 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiErrorElement
 import org.jetbrains.kotlin.com.intellij.psi.PsiFileFactory
 import org.jetbrains.kotlin.idea.KotlinLanguage
 import org.jetbrains.kotlin.psi.KtFile
+import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
 public object KtLint {
-    public val ANDROID_USER_DATA_KEY: Key<Boolean> = Key<Boolean>("ANDROID")
     public val FILE_PATH_USER_DATA_KEY: Key<String> = Key<String>("FILE_PATH")
-    private const val FILE_PATH_PROPERTY = "file_path"
     public val EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY: Key<EditorConfigProperties> =
         Key<EditorConfigProperties>("EDITOR_CONFIG_PROPERTIES")
-    public val DISABLED_RULES: Key<Set<String>> = Key<Set<String>>("DISABLED_RULES")
     private const val UTF8_BOM = "\uFEFF"
     public const val STDIN_FILE: String = "<stdin>"
 
@@ -44,7 +42,7 @@ public object KtLint {
      * @param fileName path of file to lint/format
      * @param text Contents of file to lint/format
      * @param ruleSets a collection of "RuleSet"s used to validate source
-     * @param userData Map of user options. Should not be used for overrides of properties set in '.editorconfig'.
+     * @param userData Map of user options. This field is deprecated and will be removed in a future version.
      * @param cb callback invoked for each lint error
      * @param script true if this is a Kotlin script file
      * @param editorConfigPath optional path of the .editorconfig file (otherwise will use working directory)
@@ -64,7 +62,7 @@ public object KtLint {
         val fileName: String? = null,
         val text: String,
         val ruleSets: Iterable<RuleSet>,
-        val userData: Map<String, String> = emptyMap(),
+        val userData: Map<String, String> = emptyMap(), // TODO: remove in a future version
         val cb: (e: LintError, corrected: Boolean) -> Unit,
         val script: Boolean = false,
         val editorConfigPath: String? = null,
@@ -73,8 +71,7 @@ public object KtLint {
         val isInvokedFromCli: Boolean = false
     ) {
         init {
-            // Extract all default and custom ".editorconfig" properties which are defined using the
-            // [UsesEditorConfigProperties] interface of the rule
+            // Extract all default and custom ".editorconfig" properties which are registered
             val editorConfigProperties =
                 ruleSets
                     .asSequence()
@@ -82,7 +79,7 @@ public object KtLint {
                     .filterIsInstance<UsesEditorConfigProperties>()
                     .map { it.editorConfigProperties }
                     .flatten()
-                    .plus(DefaultEditorConfigProperties.defaultEditorConfigProperties)
+                    .plus(DefaultEditorConfigProperties.editorConfigProperties)
                     .map { it.type.name }
                     .distinct()
                     .toSet()
@@ -98,21 +95,34 @@ public object KtLint {
                             "actual value in the '.editorconfig' file."
                     }
                 }
+
+            userData
+                .keys
+                .minus(editorConfigProperties)
+                .let {
+                    check(it.isEmpty()) {
+                        "UserData contains properties ${it.sorted()}. However, userData is deprecated and will be " +
+                            "removed in a future version. Please create an issue that shows how this field is " +
+                            "actively used."
+                    }
+                }
         }
 
-        internal val normalizedFilePath: Path? get() = if (fileName == STDIN_FILE || fileName == null) {
-            null
-        } else {
-            Paths.get(fileName)
-        }
+        internal val normalizedFilePath: Path?
+            get() = if (fileName == STDIN_FILE || fileName == null) {
+                null
+            } else {
+                Paths.get(fileName)
+            }
 
         internal val isStdIn: Boolean get() = fileName == STDIN_FILE
 
-        internal val rules: Set<Rule> get() = ruleSets
-            .flatMap {
-                it.rules.toList()
-            }
-            .toSet()
+        internal val rules: Set<Rule>
+            get() = ruleSets
+                .flatMap {
+                    it.rules.toList()
+                }
+                .toSet()
     }
 
     /**
@@ -126,8 +136,8 @@ public object KtLint {
         val preparedCode = prepareCodeForLinting(psiFileFactory, params)
         val errors = mutableListOf<LintError>()
 
-        VisitorProvider(params.ruleSets, params.debug)
-            .visitor(params.ruleSets, preparedCode.rootNode)
+        VisitorProvider(params)
+            .visitor(preparedCode.rootNode)
             .invoke { node, rule, fqRuleId ->
                 // fixme: enforcing suppression based on node.startOffset is wrong
                 // (not just because not all nodes are leaves but because rules are free to emit (and fix!) errors at any position)
@@ -189,18 +199,10 @@ public object KtLint {
             params.debug
         )
 
-        val mergedUserData =
-            params
-                .userData
-                .run {
-                    if (!params.isStdIn) {
-                        plus(FILE_PATH_PROPERTY to params.normalizedFilePath.toString())
-                    } else {
-                        this
-                    }
-                }
-
-        injectUserData(rootNode, editorConfigProperties, mergedUserData)
+        if (!params.isStdIn) {
+            rootNode.putUserData(FILE_PATH_USER_DATA_KEY, params.normalizedFilePath.toString())
+        }
+        rootNode.putUserData(EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY, editorConfigProperties)
 
         val suppressedRegionLocator = SuppressionLocatorBuilder.buildSuppressedRegionsLocator(rootNode)
 
@@ -221,23 +223,6 @@ public object KtLint {
             .replaceFirst(UTF8_BOM, "")
     }
 
-    private val Map<String, String>.isAndroidCodeStyle get() = get("android")?.toBoolean() ?: false
-
-    private fun injectUserData(
-        node: ASTNode,
-        editorConfigProperties: EditorConfigProperties,
-        userData: Map<String, String>
-    ) {
-        val android = userData.isAndroidCodeStyle
-        node.putUserData(FILE_PATH_USER_DATA_KEY, userData[FILE_PATH_PROPERTY])
-        node.putUserData(EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY, editorConfigProperties)
-        node.putUserData(ANDROID_USER_DATA_KEY, android)
-        node.putUserData(
-            DISABLED_RULES,
-            userData["disabled_rules"]?.split(",")?.map { it.trim() }?.toSet() ?: emptySet()
-        )
-    }
-
     /**
      * Fix style violations.
      *
@@ -251,13 +236,9 @@ public object KtLint {
 
         var tripped = false
         var mutated = false
-        val visitorProvider = VisitorProvider(
-            ruleSets = params.ruleSets,
-            debug = params.debug
-        )
+        val visitorProvider = VisitorProvider(params = params)
         visitorProvider
             .visitor(
-                params.ruleSets,
                 preparedCode.rootNode,
                 concurrent = false
             ).invoke { node, rule, fqRuleId ->
@@ -272,9 +253,10 @@ public object KtLint {
                             if (canBeAutoCorrected) {
                                 mutated = true
                                 if (preparedCode.suppressedRegionLocator !== SuppressionLocatorBuilder.noSuppression) {
-                                    preparedCode.suppressedRegionLocator = SuppressionLocatorBuilder.buildSuppressedRegionsLocator(
-                                        preparedCode.rootNode
-                                    )
+                                    preparedCode.suppressedRegionLocator =
+                                        SuppressionLocatorBuilder.buildSuppressedRegionsLocator(
+                                            preparedCode.rootNode
+                                        )
                                 }
                             }
                         }
@@ -288,7 +270,7 @@ public object KtLint {
         if (tripped) {
             val errors = mutableListOf<Pair<LintError, Boolean>>()
             visitorProvider
-                .visitor(params.ruleSets, preparedCode.rootNode)
+                .visitor(preparedCode.rootNode)
                 .invoke { node, rule, fqRuleId ->
                     // fixme: enforcing suppression based on node.startOffset is wrong
                     // (not just because not all nodes are leaves but because rules are free to emit (and fix!) errors at any position)
@@ -356,10 +338,10 @@ public object KtLint {
     }
 
     /**
-     * Generates Kotlin `.editorconfig` file section content based on [Params.ruleSets].
+     * Generates Kotlin `.editorconfig` file section content based on [ExperimentalParams].
      *
-     * Method loads merged `.editorconfig` content from [Params.fileName] path,
-     * and then, by querying rules from [Params.ruleSets] for missing properties default values,
+     * Method loads merged `.editorconfig` content from [ExperimentalParams] path,
+     * and then, by querying rules from [ExperimentalParams] for missing properties default values,
      * generates Kotlin section (default is `[*.{kt,kts}]`) new content.
      *
      * Rule should implement [UsesEditorConfigProperties] interface to support this.
@@ -377,11 +359,18 @@ public object KtLint {
         requireNotNull(filePath) {
             "Please pass path to existing Kotlin file"
         }
+        val codeStyle =
+            params
+                .editorConfigOverride
+                .properties[codeStyleSetProperty]
+                ?.parsed
+                ?.safeAs<DefaultEditorConfigProperties.CodeStyleValue>()
+                ?: codeStyleSetProperty.defaultValue
         return EditorConfigGenerator(editorConfigLoader).generateEditorconfig(
             filePath,
             params.rules,
-            params.userData.isAndroidCodeStyle,
-            params.debug
+            params.debug,
+            codeStyle
         )
     }
 

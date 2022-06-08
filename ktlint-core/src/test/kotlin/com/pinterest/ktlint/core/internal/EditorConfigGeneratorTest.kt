@@ -3,6 +3,8 @@ package com.pinterest.ktlint.core.internal
 import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
 import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.CodeStyleValue.android
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.CodeStyleValue.official
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import java.nio.file.FileSystem
 import java.nio.file.Files
@@ -21,6 +23,24 @@ internal class EditorConfigGeneratorTest {
     private val rules = setOf<Rule>(TestRule1())
 
     @Test
+    fun `Should contain the default editor config properties`() {
+        val generatedEditorConfig = editorConfigGenerator.generateEditorconfig(
+            filePath = tempFileSystem.normalizedPath(rootDir).resolve("test.kt"),
+            rules = emptySet(),
+            codeStyle = official
+        )
+
+        assertThat(generatedEditorConfig.lines()).containsExactly(
+            "disabled_rules = ",
+            "indent_size = 4",
+            "indent_style = space",
+            "insert_final_newline = true",
+            "ktlint_code_style = official",
+            "max_line_length = -1"
+        )
+    }
+
+    @Test
     fun `Should use default rule value if property is missing`() {
         tempFileSystem.writeEditorConfigFile(
             rootDir,
@@ -31,11 +51,12 @@ internal class EditorConfigGeneratorTest {
 
         val generatedEditorConfig = editorConfigGenerator.generateEditorconfig(
             filePath = tempFileSystem.normalizedPath(rootDir).resolve("test.kt"),
-            rules = rules
+            rules = rules,
+            codeStyle = official
         )
 
         assertThat(generatedEditorConfig.lines()).doesNotContainAnyElementsOf(listOf("root = true"))
-        assertThat(generatedEditorConfig.lines()).containsExactly(
+        assertThat(generatedEditorConfig.lines()).contains(
             "$PROPERTY_1_NAME = $PROPERTY_1_DEFAULT_VALUE",
             "$PROPERTY_2_NAME = $PROPERTY_2_DEFAULT_VALUE"
         )
@@ -46,10 +67,10 @@ internal class EditorConfigGeneratorTest {
         val generatedEditorConfig = editorConfigGenerator.generateEditorconfig(
             filePath = tempFileSystem.normalizedPath(rootDir).resolve("test.kt"),
             rules = rules,
-            isAndroidCodeStyle = true
+            codeStyle = android
         )
 
-        assertThat(generatedEditorConfig.lines()).containsExactly(
+        assertThat(generatedEditorConfig.lines()).contains(
             "$PROPERTY_1_NAME = $PROPERTY_1_DEFAULT_VALUE_ANDROID",
             "$PROPERTY_2_NAME = $PROPERTY_2_DEFAULT_VALUE_ANDROID"
         )
@@ -71,10 +92,11 @@ internal class EditorConfigGeneratorTest {
                         EDITOR_CONFIG_PROPERTY_1
                     )
                 }
-            )
+            ),
+            codeStyle = official
         )
 
-        assertThat(generatedEditorConfig.lines()).containsExactly(
+        assertThat(generatedEditorConfig.lines()).contains(
             "$PROPERTY_1_NAME = $PROPERTY_1_DEFAULT_VALUE",
             "$PROPERTY_2_NAME = $PROPERTY_2_DEFAULT_VALUE"
         )
@@ -95,10 +117,11 @@ internal class EditorConfigGeneratorTest {
                         EDITOR_CONFIG_PROPERTY_3_WITH_DEFAULT_VALUE_B
                     )
                 }
-            )
+            ),
+            codeStyle = official
         )
 
-        assertThat(generatedEditorConfig.lines()).containsExactly(
+        assertThat(generatedEditorConfig.lines()).contains(
             "$PROPERTY_3_NAME = $PROPERTY_3_VALUE_A",
             "$PROPERTY_3_NAME = $PROPERTY_3_VALUE_B"
         )
@@ -119,11 +142,12 @@ internal class EditorConfigGeneratorTest {
 
         val generatedEditorConfig = editorConfigGenerator.generateEditorconfig(
             filePath = tempFileSystem.normalizedPath(rootDir).resolve("test.kt"),
-            rules = rules
+            rules = rules,
+            codeStyle = official
         )
 
         assertThat(generatedEditorConfig.lines()).doesNotContainAnyElementsOf(listOf("root = true"))
-        assertThat(generatedEditorConfig.lines()).containsExactly(
+        assertThat(generatedEditorConfig.lines()).contains(
             "$PROPERTY_1_NAME = false",
             "$PROPERTY_2_NAME = $PROPERTY_2_DEFAULT_VALUE"
         )
@@ -142,7 +166,8 @@ internal class EditorConfigGeneratorTest {
 
         val generatedEditorConfig = editorConfigGenerator.generateEditorconfig(
             filePath = tempFileSystem.normalizedPath(rootDir).resolve("test.kt"),
-            rules = rules
+            rules = rules,
+            codeStyle = official
         )
 
         assertThat(generatedEditorConfig.lines()).doesNotContainAnyElementsOf(listOf("root = true"))

@@ -1,7 +1,8 @@
 package com.pinterest.ktlint.core
 
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.disabledRulesProperty
+import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.ast.ElementType
-import java.util.ArrayList
 import org.assertj.core.api.Assertions.assertThat
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.junit.jupiter.api.Test
@@ -35,7 +36,7 @@ class DisabledRulesTest {
                         text = "var foo",
                         ruleSets = listOf(RuleSet("standard", NoVarRule())),
                         cb = { e, _ -> add(e) },
-                        userData = mapOf(("disabled_rules" to "no-var"))
+                        editorConfigOverride = EditorConfigOverride.from(disabledRulesProperty to "no-var")
                     )
                 )
             }
@@ -51,7 +52,7 @@ class DisabledRulesTest {
                         text = "var foo",
                         ruleSets = listOf(RuleSet("experimental", NoVarRule())),
                         cb = { e, _ -> add(e) },
-                        userData = mapOf(("disabled_rules" to "experimental:no-var"))
+                        editorConfigOverride = EditorConfigOverride.from(disabledRulesProperty to "experimental:no-var")
                     )
                 )
             }

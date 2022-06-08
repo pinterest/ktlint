@@ -17,6 +17,9 @@ import org.ec4j.core.model.PropertyType
 public class EditorConfigOverride {
     private val _properties = mutableMapOf<EditorConfigProperty<*>, PropertyType.PropertyValue<*>>()
 
+    /**
+     * Gets a safe copy of the [EditorConfigProperty] set.
+     */
     public val properties: Map<EditorConfigProperty<*>, PropertyType.PropertyValue<*>>
         get() = _properties.toMap()
 
@@ -35,6 +38,27 @@ public class EditorConfigOverride {
             }
             return EditorConfigOverride()
                 .apply {
+                    properties.forEach {
+                        add(it.first, it.second)
+                    }
+                }
+        }
+
+        /**
+         * Creates a copy of [EditorConfigOverride] plus given properties. Given properties overwrite the property in
+         * the original [EditorConfigOverride] silently.
+         */
+        public fun EditorConfigOverride.plus(
+            vararg properties: Pair<EditorConfigProperty<*>, *>
+        ): EditorConfigOverride {
+            require(properties.isNotEmpty()) {
+                "Can not add EditorConfigOverride without properties."
+            }
+            return EditorConfigOverride()
+                .apply {
+                    this@plus._properties.forEach {
+                        add(it.key, it.value)
+                    }
                     properties.forEach {
                         add(it.first, it.second)
                     }

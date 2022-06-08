@@ -36,6 +36,44 @@ If you are not an API user nor a RuleSet provider, then you can safely skip this
 
 The lint and formatting changes no longer accept parameters of type `Params` but only `ExperimentalParams`. Also, the VisitorProvider parameter has been removed. Because of this, your integration with KtLint breaks. Based on feedback with ktlint 0.45.x, we now prefer to break at compile time instead of trying to keep the interface backwards compatible. Please raise an issue, in case you help to convert to the new API.
 
+#### Use of ".editorconfig" properties & userData
+
+The interface `UsesEditorConfigProperties` provides method `getEditorConfigValue` to retrieve a named `.editorconfig` property for a given ASTNode. When implementing this interface, the value `editorConfigProperties` needs to be overridden. Previously it was not checked whether a retrieved property was actually recorded in this list. Now, retrieval of unregistered properties results in an exception.
+
+Property `Ktlint.DISABLED` has been removed. The property value can now be retrieved as follows:
+```kotlin
+astNode
+    .getEditorConfigValue(DefaultEditorConfigProperties.disabledRulesProperty)
+    .split(",")
+```
+and be supplied via the `ExperimentalParams` as follows:
+```kotlin
+ExperimentalParams(
+    ...
+    editorConfigOverride =  EditorConfigOverride.from(
+      DefaultEditorConfigProperties.disabledRulesProperty to "some-rule-id,experimental:some-other-rule-id"
+    )
+    ...
+)
+```
+
+Property `Ktlint.ANDROID_USER_DATA_KEY` has been removed. The property value can now be retrieved as follows:
+```kotlin
+astNode
+    .getEditorConfigValue(DefaultEditorConfigProperties.codeStyleProperty)
+```
+and be supplied via the `ExperimentalParams` as follows:
+```kotlin
+ExperimentalParams(
+    ...
+    editorConfigOverride =  EditorConfigOverride.from(
+      DefaultEditorConfigProperties.codeStyleProperty to "android" 
+    )
+    ...
+)
+```
+This property defaults to the `official` Kotlin code style when not set.
+
 #### Testing KtLint rules
 
 An AssertJ style API for testing KtLint rules ([#1444](https://github.com/pinterest/ktlint/issues/1444)) has been added. Usage of this API is encouraged in favor of using the old RuleExtension API. For more information, see [KtLintAssertThat API]( https://github.com/pinterest/ktlint/blob/master/ktlint-test/README.MD)
@@ -68,6 +106,7 @@ An AssertJ style API for testing KtLint rules ([#1444](https://github.com/pinter
 - Update picocli to `4.6.3` release
 - Simplified rule `filename`. Only when the file contains a single class (including data class, enum class and sealed class) or a single interface, the file name should be identical to that class/interface. In all other cases the file name should be a descriptive name compliant with the PascalCase convention ([#1004](https://github.com/pinterest/ktlint/pull/1117))
 - Promote experimental rules to standard rules set: `annotation`, `annotation-spacing`, `argument-list-wrapping`, `double-colon-spacing`, `enum-entry-name-case`, `multiline-if-else`, `no-empty-first-line-in-method-block`, `package-name`, `traling-comma`, `spacing-around-angle-brackets`, `spacing-between-declarations-with-annotations`, `spacing-between-declarations-with-comments`, `unary-op-spacing` ([#1481](https://github.com/pinterest/ktlint/pull/1481))
+- The CLI parameter `--android` can be omitted when the `.editorconfig` property `ktlint_code_style = android` is defined
  
 ### Removed
 

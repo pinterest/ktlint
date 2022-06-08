@@ -3,6 +3,7 @@ package com.pinterest.ktlint.internal
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.RuleSet
+import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.initKtLintKLogger
 import java.io.File
 import java.nio.file.FileSystem
@@ -166,7 +167,7 @@ internal fun lintFile(
     fileName: String,
     fileContents: String,
     ruleSets: Iterable<RuleSet>,
-    userData: Map<String, String> = emptyMap(),
+    editorConfigOverride: EditorConfigOverride,
     editorConfigPath: String? = null,
     debug: Boolean = false,
     lintErrorCallback: (LintError) -> Unit = {}
@@ -175,8 +176,8 @@ internal fun lintFile(
         fileName = fileName,
         text = fileContents,
         ruleSets = ruleSets,
-        userData = userData,
         script = !fileName.endsWith(".kt", ignoreCase = true),
+        editorConfigOverride = editorConfigOverride,
         editorConfigPath = editorConfigPath,
         cb = { e, _ ->
             lintErrorCallback(e)
@@ -193,7 +194,7 @@ internal fun formatFile(
     fileName: String,
     fileContents: String,
     ruleSets: Iterable<RuleSet>,
-    userData: Map<String, String>,
+    editorConfigOverride: EditorConfigOverride,
     editorConfigPath: String?,
     debug: Boolean,
     cb: (e: LintError, corrected: Boolean) -> Unit
@@ -203,8 +204,8 @@ internal fun formatFile(
             fileName = fileName,
             text = fileContents,
             ruleSets = ruleSets,
-            userData = userData,
             script = !fileName.endsWith(".kt", ignoreCase = true),
+            editorConfigOverride = editorConfigOverride,
             editorConfigPath = editorConfigPath,
             cb = cb,
             debug = debug,
