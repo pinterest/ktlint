@@ -3,6 +3,7 @@ package com.pinterest.ktlint.internal
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.ParseException
 import com.pinterest.ktlint.core.RuleSet
+import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.emptyEditorConfigOverride
 import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ruleset.test.DumpASTRule
 import java.io.File
@@ -78,6 +79,7 @@ internal class PrintASTSubCommand : Runnable {
                 fileName = fileName,
                 fileContents = fileContent,
                 ruleSets = astRuleSet,
+                editorConfigOverride = emptyEditorConfigOverride,
                 debug = ktlintCommand.debug
             )
         } catch (e: Exception) {

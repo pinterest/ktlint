@@ -2,7 +2,9 @@ package com.pinterest.ktlint.core.internal
 
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.RuleSet
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.disabledRulesProperty
+import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
+import com.pinterest.ktlint.core.api.UsesEditorConfigProperties.EditorConfigProperty
 import com.pinterest.ktlint.core.ast.visit
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
@@ -13,13 +15,14 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 private val ruleSorter = RuleSorter()
 
 internal class VisitorProvider(
-    ruleSets: Iterable<RuleSet>,
-    private val debug: Boolean,
+    private val params: KtLint.ExperimentalParams,
     /**
      * Creates a new [RuleSorter]. Only to be used in unit tests where the same set of rules are used with distinct [Rule.VisitorModifier]s.
      */
     recreateRuleSorter: Boolean = false
-) {
+) : UsesEditorConfigProperties {
+    override val editorConfigProperties: List<EditorConfigProperty<*>> = listOf(disabledRulesProperty)
+
     /**
      * The [ruleReferences] is a sorted list of rules based on the [Rule.VisitorModifier] of the rules included in the
      * list.
@@ -29,10 +32,9 @@ internal class VisitorProvider(
             RuleSorter()
         } else {
             ruleSorter
-        }.getSortedRules(ruleSets, debug)
+        }.getSortedRules(params.ruleSets, params.debug)
 
     internal fun visitor(
-        ruleSets: Iterable<RuleSet>,
         rootNode: ASTNode,
         concurrent: Boolean = true
     ): ((node: ASTNode, rule: Rule, fqRuleId: String) -> Unit) -> Unit {
@@ -40,7 +42,7 @@ internal class VisitorProvider(
             ruleReferences
                 .filter { ruleReference -> isNotDisabled(rootNode, ruleReference.toQualifiedRuleId()) }
         val enabledQualifiedRuleIds = enabledRuleReferences.map { it.toQualifiedRuleId() }
-        val enabledRules = ruleSets
+        val enabledRules = params.ruleSets
             .flatMap { ruleSet ->
                 ruleSet
                     .rules
@@ -48,7 +50,7 @@ internal class VisitorProvider(
                     .filter { rule -> isNotDisabled(rootNode, toQualifiedRuleId(ruleSet.id, rule.id)) }
                     .map { rule -> toQualifiedRuleId(ruleSet.id, rule.id) to rule }
             }.toMap()
-        if (debug && enabledRules.isEmpty()) {
+        if (params.debug && enabledRules.isEmpty()) {
             println(
                 "[DEBUG] Skipping file as no enabled rules are found to be executed"
             )
@@ -61,7 +63,7 @@ internal class VisitorProvider(
                         ruleReference.runAfterRule.runOnlyWhenOtherRuleIsEnabled &&
                         enabledRules[ruleReference.runAfterRule.ruleId.toQualifiedRuleId()] == null
                 }
-        if (debug && ruleReferencesToBeSkipped.isNotEmpty()) {
+        if (params.debug && ruleReferencesToBeSkipped.isNotEmpty()) {
             ruleReferencesToBeSkipped
                 .forEach {
                     println(
@@ -72,7 +74,7 @@ internal class VisitorProvider(
                 }
         }
         val ruleReferenceWithoutEntriesToBeSkipped = enabledRuleReferences - ruleReferencesToBeSkipped.toSet()
-        if (debug && ruleReferenceWithoutEntriesToBeSkipped.isEmpty()) {
+        if (params.debug && ruleReferenceWithoutEntriesToBeSkipped.isEmpty()) {
             println(
                 "[DEBUG] Skipping file as no enabled rules are found to be executed"
             )
@@ -127,8 +129,8 @@ internal class VisitorProvider(
 
     private fun isNotDisabled(rootNode: ASTNode, qualifiedRuleId: String): Boolean =
         rootNode
-            .getUserData(KtLint.DISABLED_RULES)
-            .orEmpty()
+            .getEditorConfigValue(disabledRulesProperty)
+            .split(",")
             .none {
                 // The rule set id in the disabled_rules setting may be omitted for rules in the standard rule set
                 it.toQualifiedRuleId() == qualifiedRuleId

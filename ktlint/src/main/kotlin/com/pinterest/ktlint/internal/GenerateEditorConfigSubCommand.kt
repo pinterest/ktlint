@@ -1,6 +1,9 @@
 package com.pinterest.ktlint.internal
 
 import com.pinterest.ktlint.core.KtLint
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.codeStyleSetProperty
+import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.initKtLintKLogger
 import mu.KotlinLogging
 import picocli.CommandLine
@@ -37,9 +40,7 @@ class GenerateEditorConfigSubCommand : Runnable {
                         ktlintCommand.disabledRules
                     )
                     .map { it.value.get() },
-                userData = mapOf(
-                    "android" to ktlintCommand.android.toString()
-                ),
+                editorConfigOverride = EditorConfigOverride.from(codeStyleSetProperty to codeStyle()),
                 debug = ktlintCommand.debug,
                 cb = { _, _ -> }
             )
@@ -53,6 +54,13 @@ class GenerateEditorConfigSubCommand : Runnable {
             logger.info { "Nothing to add to .editorconfig file" }
         }
     }
+
+    private fun codeStyle() =
+        if (ktlintCommand.android) {
+            DefaultEditorConfigProperties.CodeStyleValue.android
+        } else {
+            DefaultEditorConfigProperties.CodeStyleValue.official
+        }
 
     companion object {
         internal const val COMMAND_NAME = "generateEditorConfig"

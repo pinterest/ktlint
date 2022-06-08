@@ -10,6 +10,10 @@ import com.pinterest.ktlint.core.ReporterProvider
 import com.pinterest.ktlint.core.RuleExecutionException
 import com.pinterest.ktlint.core.RuleSet
 import com.pinterest.ktlint.core.RuleSetProvider
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.codeStyleSetProperty
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.disabledRulesProperty
+import com.pinterest.ktlint.core.api.EditorConfigOverride
+import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.plus
 import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ktlint.core.internal.containsLintError
 import com.pinterest.ktlint.core.internal.loadBaseline
@@ -216,18 +220,21 @@ internal class KtlintCommandLine {
             val reporterProviderById = loadReporters(emptyList())
             reporter = Reporter.from(reporter, baselineReporter.toReporter(reporterProviderById))
         }
-        val userData = listOfNotNull(
-            "android" to android.toString(),
-            if (disabledRules.isNotBlank()) "disabled_rules" to disabledRules else null
-        ).toMap()
+        val editorConfigOverride = EditorConfigOverride.emptyEditorConfigOverride
+        if (disabledRules.isNotBlank()) {
+            editorConfigOverride.plus(disabledRulesProperty to disabledRules)
+        }
+        if (android) {
+            editorConfigOverride.plus(codeStyleSetProperty to android)
+        }
 
         reporter.beforeAll()
         if (stdin) {
-            lintStdin(ruleSetProviders, userData, reporter)
+            lintStdin(ruleSetProviders, editorConfigOverride, reporter)
         } else {
             lintFiles(
                 ruleSetProviders,
-                userData,
+                editorConfigOverride,
                 baselineResults.baselineRules,
                 reporter
             )
@@ -253,7 +260,7 @@ internal class KtlintCommandLine {
 
     private fun lintFiles(
         ruleSetProviders: Map<String, RuleSetProvider>,
-        userData: Map<String, String>,
+        editorConfigOverride: EditorConfigOverride,
         baseline: Map<String, List<LintError>>?,
         reporter: Reporter
     ) {
@@ -267,7 +274,7 @@ internal class KtlintCommandLine {
                     file to process(
                         file.path,
                         file.readText(),
-                        userData,
+                        editorConfigOverride,
                         baseline?.get(file.relativeRoute),
                         ruleSets
                     )
@@ -278,7 +285,7 @@ internal class KtlintCommandLine {
 
     private fun lintStdin(
         ruleSetProviders: Map<String, RuleSetProvider>,
-        userData: Map<String, String>,
+        editorConfigOverride: EditorConfigOverride,
         reporter: Reporter
     ) {
         report(
@@ -286,7 +293,7 @@ internal class KtlintCommandLine {
             process(
                 KtLint.STDIN_FILE,
                 String(System.`in`.readBytes()),
-                userData,
+                editorConfigOverride,
                 null,
                 ruleSetProviders.map { it.value.get() }
             ),
@@ -334,7 +341,7 @@ internal class KtlintCommandLine {
     private fun process(
         fileName: String,
         fileContent: String,
-        userData: Map<String, String>,
+        editorConfigOverride: EditorConfigOverride,
         baselineErrors: List<LintError>?,
         ruleSets: Iterable<RuleSet>
     ): List<LintErrorWithCorrectionInfo> {
@@ -349,7 +356,7 @@ internal class KtlintCommandLine {
                     fileName,
                     fileContent,
                     ruleSets,
-                    userData,
+                    editorConfigOverride,
                     editorConfigPath,
                     debug
                 ) { err, corrected ->
@@ -378,7 +385,7 @@ internal class KtlintCommandLine {
                     fileName,
                     fileContent,
                     ruleSets,
-                    userData,
+                    editorConfigOverride,
                     editorConfigPath,
                     debug
                 ) { err ->

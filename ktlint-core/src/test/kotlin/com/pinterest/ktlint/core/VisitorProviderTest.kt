@@ -1,11 +1,14 @@
 package com.pinterest.ktlint.core
 
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.disabledRulesProperty
+import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.ast.ElementType.FILE
 import com.pinterest.ktlint.core.ast.ElementType.IMPORT_LIST
 import com.pinterest.ktlint.core.ast.ElementType.PACKAGE_DIRECTIVE
 import com.pinterest.ktlint.core.internal.VisitorProvider
 import com.pinterest.ktlint.core.internal.initPsiFileFactory
 import org.assertj.core.api.Assertions.assertThat
+import org.ec4j.core.model.Property
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
 import org.jetbrains.kotlin.idea.KotlinLanguage
@@ -165,15 +168,27 @@ class VisitorProviderTest {
     ): MutableList<Visit>? {
         val ruleSetList = ruleSets.toList()
         return VisitorProvider(
-            ruleSets = ruleSetList,
-            // Enable debug mode as it is helpful when a test fails
-            debug = true,
+            params = KtLint.ExperimentalParams(
+                text = "",
+                cb = { _, _ -> },
+                ruleSets = ruleSetList,
+                editorConfigOverride = EditorConfigOverride.from(
+                    disabledRulesProperty to
+                        listOf(
+                            SOME_DISABLED_RULE_IN_STANDARD_RULE_SET,
+                            "$EXPERIMENTAL:$SOME_DISABLED_RULE_IN_EXPERIMENTAL_RULE_SET",
+                            "$CUSTOM_RULE_SET_A:$SOME_DISABLED_RULE_IN_CUSTOM_RULE_SET_A"
+                        ).joinToString(separator = ",")
+                ),
+                // Enable debug mode as it is helpful when a test fails
+                debug = true
+            ),
             // Creates a new VisitorProviderFactory for each unit test to prevent that tests for the exact same set of
             // ruleIds are influencing each other.
             recreateRuleSorter = true
         ).run {
             var visits: MutableList<Visit>? = null
-            visitor(ruleSetList, SOME_ROOT_AST_NODE, concurrent ?: false)
+            visitor(SOME_ROOT_AST_NODE, concurrent ?: false)
                 .invoke { node, _, fqRuleId ->
                     if (visits == null) {
                         visits = mutableListOf()
@@ -219,11 +234,19 @@ class VisitorProviderTest {
                 ) as KtFile
                 return psiFile.node.apply {
                     putUserData(
-                        KtLint.DISABLED_RULES,
-                        setOf(
-                            SOME_DISABLED_RULE_IN_STANDARD_RULE_SET,
-                            "$EXPERIMENTAL:$SOME_DISABLED_RULE_IN_EXPERIMENTAL_RULE_SET",
-                            "$CUSTOM_RULE_SET_A:$SOME_DISABLED_RULE_IN_CUSTOM_RULE_SET_A"
+                        KtLint.EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY,
+                        mapOf(
+                            "disabled_rules" to
+                                Property.builder()
+                                    .name("disabled_rules")
+                                    .type(disabledRulesProperty.type)
+                                    .value(
+                                        setOf(
+                                            SOME_DISABLED_RULE_IN_STANDARD_RULE_SET,
+                                            "$EXPERIMENTAL:$SOME_DISABLED_RULE_IN_EXPERIMENTAL_RULE_SET",
+                                            "$CUSTOM_RULE_SET_A:$SOME_DISABLED_RULE_IN_CUSTOM_RULE_SET_A"
+                                        ).joinToString(separator = ",")
+                                    ).build()
                         )
                     )
                 }
