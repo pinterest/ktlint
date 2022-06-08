@@ -165,6 +165,32 @@ class FunctionSignatureRuleTest {
     }
 
     @Test
+    fun `Given a single line function signature and first parameter is annotated and function signature has a length greater than the max line length then reformat to multiline signature`() {
+        val code =
+            """
+            // $MAX_LINE_LENGTH_MARKER        $EOL_CHAR
+            fun f(@Foo a: Any, b: Any, c: Any): String = "some-result"
+            """.trimIndent()
+        val formattedCode =
+            """
+            // $MAX_LINE_LENGTH_MARKER        $EOL_CHAR
+            fun f(
+                @Foo a: Any,
+                b: Any,
+                c: Any
+            ): String = "some-result"
+            """.trimIndent()
+        functionSignatureWrappingRuleAssertThat(code)
+            .setMaxLineLength()
+            .hasLintViolations(
+                LintViolation(2, 7, "Newline expected after opening parenthesis"),
+                LintViolation(2, 20, "Parameter should start on a newline"),
+                LintViolation(2, 28, "Parameter should start on a newline"),
+                LintViolation(2, 34, "Newline expected before closing parenthesis")
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
     fun `Given some function signatures containing at least one comment then do not reformat although the max line length is exceeded`() {
         val code =
             """
