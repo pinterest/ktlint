@@ -31,7 +31,11 @@ import com.pinterest.ktlint.core.ast.prevLeaf
 import com.pinterest.ktlint.core.ast.prevSibling
 import com.pinterest.ktlint.core.ast.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.core.ast.upsertWhitespaceBeforeMe
+import com.pinterest.ktlint.ruleset.experimental.FunctionSignatureRule.FunctionBodyExpressionWrapping.always
+import com.pinterest.ktlint.ruleset.experimental.FunctionSignatureRule.FunctionBodyExpressionWrapping.default
+import com.pinterest.ktlint.ruleset.experimental.FunctionSignatureRule.FunctionBodyExpressionWrapping.multiline
 import org.ec4j.core.model.PropertyType
+import org.ec4j.core.model.PropertyType.PropertyValueParser.EnumValueParser
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
@@ -51,12 +55,14 @@ public class FunctionSignatureRule :
             indentSizeProperty,
             indentStyleProperty,
             maxLineLengthProperty,
-            functionSignatureWrappingMinimumParametersProperty
+            forceMultilineWhenParameterCountGreaterOrEqualThanProperty,
+            functionBodyExpressionWrappingProperty
         )
 
     private var indent: String? = null
     private var maxLineLength = -1
     private var functionSignatureWrappingMinimumParameters = -1
+    private var functionBodyExpressionWrapping = default
 
     override fun visit(
         node: ASTNode,
@@ -64,9 +70,8 @@ public class FunctionSignatureRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         if (node.isRoot()) {
-            functionSignatureWrappingMinimumParameters = node.getEditorConfigValue(
-                functionSignatureWrappingMinimumParametersProperty
-            )
+            functionSignatureWrappingMinimumParameters = node.getEditorConfigValue(forceMultilineWhenParameterCountGreaterOrEqualThanProperty)
+            functionBodyExpressionWrapping = node.getEditorConfigValue(functionBodyExpressionWrappingProperty)
             val indentConfig = IndentConfig(
                 indentStyle = node.getEditorConfigValue(indentStyleProperty),
                 tabWidth = node.getEditorConfigValue(indentSizeProperty)
@@ -135,9 +140,6 @@ public class FunctionSignatureRule :
             }
         return funNode.nextCodeLeaf()
     }
-
-    private fun ASTNode.isStartOfBodyExpression(): Boolean =
-        elementType == EQ && prevSibling { it.elementType == VALUE_PARAMETER_LIST } != null
 
     private fun visitFunctionSignature(
         node: ASTNode,
@@ -502,14 +504,19 @@ public class FunctionSignatureRule :
                     }
                 }
 
-        functionBodyExpression
-            .joinTextToString()
-            .split("\n")
+        val functionBodyExpressionLines =
+            functionBodyExpression
+                .joinTextToString()
+                .split("\n")
+        functionBodyExpressionLines
             .firstOrNull()
             ?.also { firstLineOfBodyExpression ->
-                if (firstLineOfBodyExpression.length + 1 > maxLengthRemainingForFirstLineOfBodyExpression) {
-                    if (whiteSpaceBeforeFunctionBodyExpression == null ||
-                        !whiteSpaceBeforeFunctionBodyExpression.textContains('\n')
+                if (whiteSpaceBeforeFunctionBodyExpression == null ||
+                    !whiteSpaceBeforeFunctionBodyExpression.textContains('\n')
+                ) {
+                    if (firstLineOfBodyExpression.length + 1 > maxLengthRemainingForFirstLineOfBodyExpression ||
+                        (functionBodyExpressionWrapping == multiline && functionBodyExpressionLines.size > 1) ||
+                        functionBodyExpressionWrapping == always
                     ) {
                         emit(
                             functionBodyExpression.first().startOffset,
@@ -525,14 +532,18 @@ public class FunctionSignatureRule :
                             }
                         }
                     }
-                } else if (whiteSpaceBeforeFunctionBodyExpression?.textContains('\n') == true) {
-                    emit(
-                        whiteSpaceBeforeFunctionBodyExpression.startOffset,
-                        "First line of body expression fits on same line as function signature",
-                        true
-                    )
-                    if (autoCorrect) {
-                        (whiteSpaceBeforeFunctionBodyExpression as LeafPsiElement).rawReplaceWithText(" ")
+                } else if (whiteSpaceBeforeFunctionBodyExpression.textContains('\n')) {
+                    if (functionBodyExpressionWrapping == default ||
+                        (functionBodyExpressionWrapping == multiline && functionBodyExpressionLines.size == 1)
+                    ) {
+                        emit(
+                            whiteSpaceBeforeFunctionBodyExpression.startOffset,
+                            "First line of body expression fits on same line as function signature",
+                            true
+                        )
+                        if (autoCorrect) {
+                            (whiteSpaceBeforeFunctionBodyExpression as LeafPsiElement).rawReplaceWithText(" ")
+                        }
                     }
                 }
             }
@@ -627,14 +638,10 @@ public class FunctionSignatureRule :
             ?.prevCodeLeaf()
 
     public companion object {
-        @Suppress("MemberVisibilityCanBePrivate")
-        public const val KTLINT_FUNCTION_SIGNATURE_RULE_FORCE_MULTILINE_WITH_AT_LEAST_PARAMETERS: String =
-            "ktlint_function_signature_rule_force_multiline_with_at_least_parameters"
-
-        public val functionSignatureWrappingMinimumParametersProperty: UsesEditorConfigProperties.EditorConfigProperty<Int> =
+        public val forceMultilineWhenParameterCountGreaterOrEqualThanProperty: UsesEditorConfigProperties.EditorConfigProperty<Int> =
             UsesEditorConfigProperties.EditorConfigProperty(
                 type = PropertyType.LowerCasingPropertyType(
-                    KTLINT_FUNCTION_SIGNATURE_RULE_FORCE_MULTILINE_WITH_AT_LEAST_PARAMETERS,
+                    "ktlint_function_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than",
                     "Force wrapping the parameters of the function signature in case it contains at least the specified " +
                         "number of parameters even in case the entire function signature would fit on a single line. " +
                         "By default this parameter is not enabled.",
@@ -643,5 +650,42 @@ public class FunctionSignatureRule :
                 ),
                 defaultValue = -1
             )
+
+        public val functionBodyExpressionWrappingProperty: UsesEditorConfigProperties.EditorConfigProperty<FunctionBodyExpressionWrapping> =
+            UsesEditorConfigProperties.EditorConfigProperty(
+                type = PropertyType.LowerCasingPropertyType(
+                    "ktlint_function_signature_body_expression_wrapping",
+                    "Determines how to wrap the body of function in case it is an expression. Use 'default' " +
+                        "to wrap the body expression only when the first line of the expression does not fit on the same " +
+                        "line as the function signature. Use 'multiline' to force wrapping of body expressions that " +
+                        "consists of multiple line. Use 'always' to force wrapping of body expression always.",
+                    EnumValueParser(FunctionBodyExpressionWrapping::class.java),
+                    FunctionBodyExpressionWrapping.values().map { it.name }.toSet()
+                ),
+                defaultValue = default
+            )
+    }
+
+    /**
+     * Code style to be used while linting and formatting. Note that the [EnumValueParser] requires values to be lowercase.
+     */
+    @Suppress("EnumEntryName", "ktlint:enum-entry-name-case")
+    public enum class FunctionBodyExpressionWrapping {
+        /**
+         * Keep the first line of the body expression on the same line as the function signature if max line length is
+         * not exceeded.
+         */
+        default,
+
+        /**
+         * Force the body expression to start on a separate line in case it is a multiline expression. A single line
+         * body expression is wrapped only when it does not fit on the same line as the function signature.
+         */
+        multiline,
+
+        /**
+         * Force the body expression to start on a separate line always.
+         */
+        always;
     }
 }
