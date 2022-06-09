@@ -10,7 +10,7 @@ repositories {
 
 kotlin {
     jvmToolchain {
-        (this as JavaToolchainSpec).languageVersion.set(JavaLanguageVersion.of(8))
+        languageVersion.set(JavaLanguageVersion.of(8))
     }
 
     // Do not enable explicit api for cli project
