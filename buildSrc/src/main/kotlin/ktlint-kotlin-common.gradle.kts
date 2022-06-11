@@ -10,7 +10,7 @@ repositories {
 
 kotlin {
     jvmToolchain {
-        (this as JavaToolchainSpec).languageVersion.set(JavaLanguageVersion.of(8))
+        languageVersion.set(JavaLanguageVersion.of(8))
     }
 
     // Do not enable explicit api for cli project
@@ -22,7 +22,7 @@ kotlin {
 tasks.withType<KotlinCompile>().configureEach {
     kotlinOptions {
         @Suppress("SuspiciousCollectionReassignment")
-        freeCompilerArgs += listOf("-opt-in=kotlin.RequiresOptIn")
+        freeCompilerArgs += listOf("-Xuse-k2")
     }
 }
 

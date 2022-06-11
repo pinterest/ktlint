@@ -101,7 +101,7 @@ An AssertJ style API for testing KtLint rules ([#1444](https://github.com/pinter
 
 
 ### Changed
-- Update Kotlin development version to `1.7.0-RC2` and Kotlin version to `1.6.21`.
+- Update Kotlin development version to `1.7.0` and Kotlin version to `1.7.0`.
 - Update shadow plugin to `7.1.2` release
 - Update picocli to `4.6.3` release
 - Simplified rule `filename`. Only when the file contains a single class (including data class, enum class and sealed class) or a single interface, the file name should be identical to that class/interface. In all other cases the file name should be a descriptive name compliant with the PascalCase convention ([#1004](https://github.com/pinterest/ktlint/pull/1117))
