@@ -11,6 +11,7 @@ import com.pinterest.ktlint.ruleset.standard.SpacingAroundParensRule
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
 import com.pinterest.ktlint.test.LintViolation
+import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
@@ -390,6 +391,7 @@ class FunctionSignatureRuleTest {
             ).isFormattedAs(formattedCode)
     }
 
+    @DisplayName("Given a single line function signature having too many parameters then do reformat as multiline signature")
     @Nested
     inner class MinimumNumberOfParameters {
         @Test
@@ -420,6 +422,34 @@ class FunctionSignatureRuleTest {
                     LintViolation(2, 15, "Parameter should start on a newline"),
                     LintViolation(2, 23, "Parameter should start on a newline"),
                     LintViolation(2, 29, "Newline expected before closing parenthesis")
+                ).isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Given a single line function signature and max line length not set but having too many parameters then do reformat as multiline signature`() {
+            val code =
+                """
+                fun f(a: Any, b: Any, c: Any): String {
+                    // body
+                }
+                """.trimIndent()
+            val formattedCode =
+                """
+                fun f(
+                    a: Any,
+                    b: Any,
+                    c: Any
+                ): String {
+                    // body
+                }
+                """.trimIndent()
+            functionSignatureWrappingRuleAssertThat(code)
+                .withEditorConfigOverride(functionSignatureWrappingMinimumParametersProperty to 2)
+                .hasLintViolations(
+                    LintViolation(1, 7, "Newline expected after opening parenthesis"),
+                    LintViolation(1, 15, "Parameter should start on a newline"),
+                    LintViolation(1, 23, "Parameter should start on a newline"),
+                    LintViolation(1, 29, "Newline expected before closing parenthesis")
                 ).isFormattedAs(formattedCode)
         }
     }
@@ -612,6 +642,52 @@ class FunctionSignatureRuleTest {
                 ).hasLintViolation(2, 15, "Single whitespace expected before parameter")
                 .isFormattedAs(formattedCode)
         }
+    }
+
+    @Test
+    fun `Given a function signature with an annotated parameter and the annotation is on the same line as the parameter then reformat it as a single line signature when it fits`() {
+        val code =
+            """
+            // $MAX_LINE_LENGTH_MARKER              $EOL_CHAR
+            fun foo(
+                @Bar bar: String
+            ) = "some-result"
+            """.trimIndent()
+        val formattedCode =
+            """
+            // $MAX_LINE_LENGTH_MARKER              $EOL_CHAR
+            fun foo(@Bar bar: String) = "some-result"
+            """.trimIndent()
+        functionSignatureWrappingRuleAssertThat(code)
+            .setMaxLineLength()
+            .hasLintViolations(
+                LintViolation(3, 5, "No whitespace expected between opening parenthesis and first parameter name"),
+                LintViolation(3, 21, "No whitespace expected between last parameter and closing parenthesis")
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given a function signature with an annotated parameter and the annotation is on a separate line then reformat it as a multiline signature`() {
+        val code =
+            """
+            // $MAX_LINE_LENGTH_MARKER                $EOL_CHAR
+            fun foo(@Bar
+                bar: String) = "some-result"
+            """.trimIndent()
+        val formattedCode =
+            """
+            // $MAX_LINE_LENGTH_MARKER                $EOL_CHAR
+            fun foo(
+                @Bar
+                bar: String
+            ) = "some-result"
+            """.trimIndent()
+        functionSignatureWrappingRuleAssertThat(code)
+            .setMaxLineLength()
+            .hasLintViolations(
+                LintViolation(2, 9, "Newline expected after opening parenthesis"),
+                LintViolation(3, 16, "Newline expected before closing parenthesis")
+            ).isFormattedAs(formattedCode)
     }
 
     private companion object {
