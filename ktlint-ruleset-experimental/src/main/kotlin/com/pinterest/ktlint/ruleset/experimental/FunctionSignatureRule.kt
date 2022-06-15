@@ -568,7 +568,7 @@ public class FunctionSignatureRule :
         ).joinToString(separator = "") { it.text }
         .split("\n")
         .lastOrNull()
-        ?.matches(Regex("\\s*\\) ="))
+        ?.matches(INDENT_WITH_CLOSING_PARENTHESIS)
         ?: false
 
     private fun fixFunctionBodyBlock(
@@ -709,6 +709,8 @@ public class FunctionSignatureRule :
                 ),
                 defaultValue = default
             )
+
+        private val INDENT_WITH_CLOSING_PARENTHESIS = Regex("\\s*\\) =")
     }
 
     /**
