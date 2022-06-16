@@ -236,6 +236,7 @@ public object KtLint {
 
         var tripped = false
         var mutated = false
+        val errors = mutableSetOf<Pair<LintError, Boolean>>()
         val visitorProvider = VisitorProvider(params = params)
         visitorProvider
             .visitor(
@@ -248,7 +249,7 @@ public object KtLint {
                     !preparedCode.suppressedRegionLocator(node.startOffset, fqRuleId, node === preparedCode.rootNode)
                 ) {
                     try {
-                        rule.visit(node, true) { _, _, canBeAutoCorrected ->
+                        rule.visit(node, true) { offset, errorMessage, canBeAutoCorrected ->
                             tripped = true
                             if (canBeAutoCorrected) {
                                 mutated = true
@@ -259,6 +260,15 @@ public object KtLint {
                                         )
                                 }
                             }
+                            val (line, col) = preparedCode.positionInTextLocator(offset)
+                            errors.add(
+                                Pair(
+                                    LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected),
+                                    // It is assumed that a rule that emits that an error can be autocorrected, also
+                                    // does correct the error.
+                                    canBeAutoCorrected
+                                )
+                            )
                         }
                     } catch (e: Exception) {
                         // line/col cannot be reliably mapped as exception might originate from a node not present
@@ -268,7 +278,6 @@ public object KtLint {
                 }
             }
         if (tripped) {
-            val errors = mutableListOf<Pair<LintError, Boolean>>()
             visitorProvider
                 .visitor(preparedCode.rootNode)
                 .invoke { node, rule, fqRuleId ->
@@ -298,6 +307,8 @@ public object KtLint {
                                 errors.add(
                                     Pair(
                                         LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected),
+                                        // It is assumed that a rule only corrects an error after it has emitted an
+                                        // error and indicating that it actually can be autocorrected.
                                         false
                                     )
                                 )
@@ -309,11 +320,11 @@ public object KtLint {
                         }
                     }
                 }
-
-            errors
-                .sortedWith { (l), (r) -> if (l.line != r.line) l.line - r.line else l.col - r.col }
-                .forEach { (e, corrected) -> params.cb(e, corrected) }
         }
+
+        errors
+            .sortedWith { (l), (r) -> if (l.line != r.line) l.line - r.line else l.col - r.col }
+            .forEach { (e, corrected) -> params.cb(e, corrected) }
 
         if (!mutated) {
             return params.text
