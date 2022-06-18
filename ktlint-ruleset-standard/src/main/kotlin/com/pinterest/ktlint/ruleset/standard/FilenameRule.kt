@@ -78,7 +78,10 @@ public class FilenameRule : Rule(
             val topLevelDeclarations = node.topLevelDeclarations()
             if (topLevelDeclarations.size == 1) {
                 val topLevelDeclaration = topLevelDeclarations.first()
-                if (topLevelDeclaration.elementType == OBJECT_DECLARATION || topLevelDeclaration.elementType == TYPEALIAS) {
+                if (topLevelDeclaration.elementType == OBJECT_DECLARATION ||
+                    topLevelDeclaration.elementType == TYPEALIAS ||
+                    topLevelDeclaration.elementType == FUN
+                ) {
                     val pascalCaseIdentifier =
                         topLevelDeclaration
                             .identifier

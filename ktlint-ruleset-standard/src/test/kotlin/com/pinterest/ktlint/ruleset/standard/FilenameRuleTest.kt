@@ -44,7 +44,7 @@ class FilenameRuleTest {
     }
 
     @Test
-    fun `Given a file without a toplevel class declaration then the filename should conform to PascalCase`() {
+    fun `Given a file without a top level class declaration then the filename should conform to PascalCase`() {
         val code =
             """
             /*
@@ -81,10 +81,12 @@ class FilenameRuleTest {
     @ValueSource(
         strings = [
             "object Foo",
-            "typealias Foo = String"
+            "typealias Foo = String",
+            "fun String.foo() = {}",
+            "fun foo() = {}"
         ]
     )
-    fun `Given a file containing one toplevel declaration (object or type alias) then the file should be named after the identifier`(
+    fun `Given a file containing one top level declaration (no class or property) then the file should be named after the identifier`(
         code: String
     ) {
         fileNameRuleAssertThat(code)
@@ -95,12 +97,11 @@ class FilenameRuleTest {
     @ParameterizedTest(name = "Top level declaration: {0}")
     @ValueSource(
         strings = [
-            "fun String.foo() = {}",
-            "fun foo() = {}",
-            "val foo"
+            "val foo",
+            "const val FOO"
         ]
     )
-    fun `Given a file containing one toplevel declaration (not a class type, object or type alias) then the file should be named after the identifier`(
+    fun `Given a file containing one top level property declaration (non-private) then the file should conform to PascalCase`(
         code: String
     ) {
         fileNameRuleAssertThat(code)
@@ -111,12 +112,11 @@ class FilenameRuleTest {
     @ParameterizedTest(name = "Top level declaration: {0}")
     @ValueSource(
         strings = [
-            "fun String.foo() = {}",
-            "fun foo() = {}",
-            "val foo"
+            "val foo",
+            "const val FOO"
         ]
     )
-    fun `Given a file containing a single top level declaration (non-private and not a class) then the file should be named after that top level declaration`(
+    fun `Given a file containing a single top level property declaration (non-private) and one private top level class declaration then the file should conform to PascalCase`(
         topLevelDeclaration: String
     ) {
         val code =
