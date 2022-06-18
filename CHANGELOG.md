@@ -104,7 +104,7 @@ An AssertJ style API for testing KtLint rules ([#1444](https://github.com/pinter
 - Update Kotlin development version to `1.7.0` and Kotlin version to `1.7.0`.
 - Update shadow plugin to `7.1.2` release
 - Update picocli to `4.6.3` release
-- Simplified rule `filename`. Only when the file contains a single class (including data class, enum class and sealed class) or a single interface, the file name should be identical to that class/interface. In all other cases the file name should be a descriptive name compliant with the PascalCase convention ([#1004](https://github.com/pinterest/ktlint/pull/1117))
+- A file containing only one (non private) top level declaration (class, interface, object or type alias) must be named after that declaration. The name also must comply with the Pascal Case convention. The same applies to a file containing one single top level class declaration and one ore more extension functions for that class. `filename` ([#1004](https://github.com/pinterest/ktlint/pull/1117))
 - Promote experimental rules to standard rules set: `annotation`, `annotation-spacing`, `argument-list-wrapping`, `double-colon-spacing`, `enum-entry-name-case`, `multiline-if-else`, `no-empty-first-line-in-method-block`, `package-name`, `traling-comma`, `spacing-around-angle-brackets`, `spacing-between-declarations-with-annotations`, `spacing-between-declarations-with-comments`, `unary-op-spacing` ([#1481](https://github.com/pinterest/ktlint/pull/1481))
 - The CLI parameter `--android` can be omitted when the `.editorconfig` property `ktlint_code_style = android` is defined
  
