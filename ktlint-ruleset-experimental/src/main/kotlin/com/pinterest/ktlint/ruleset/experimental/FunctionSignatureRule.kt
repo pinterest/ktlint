@@ -27,6 +27,7 @@ import com.pinterest.ktlint.core.ast.lineIndent
 import com.pinterest.ktlint.core.ast.nextCodeLeaf
 import com.pinterest.ktlint.core.ast.nextCodeSibling
 import com.pinterest.ktlint.core.ast.nextLeaf
+import com.pinterest.ktlint.core.ast.nextSibling
 import com.pinterest.ktlint.core.ast.prevCodeLeaf
 import com.pinterest.ktlint.core.ast.prevLeaf
 import com.pinterest.ktlint.core.ast.prevSibling
@@ -149,16 +150,13 @@ public class FunctionSignatureRule :
     ) {
         require(node.elementType == FUN)
 
+        val forceMultilineSignature =
+            node.hasMinimumNumberOfParameters() ||
+                node.containsParameterPrecededByAnnotationOnSeparateLine()
         if (isMaxLineLengthSet()) {
-            val actualFunctionSignatureLength = node.getFunctionSignatureLength()
-
-            // Calculate the length of the function signature in case it would be rewritten as single line (and without a
-            // maximum line length). The white space correction will be calculated via a dry run of the actual fix.
-            val singleLineFunctionSignatureLength =
-                actualFunctionSignatureLength +
-                    // Calculate the white space correction in case the signature would be rewritten to a single line
-                    fixWhiteSpacesInValueParameterList(node, emit, autoCorrect, multiline = false, dryRun = true)
-            if (singleLineFunctionSignatureLength > maxLineLength ||
+            val singleLineFunctionSignatureLength = calculateFunctionSignatureLengthAsSingleLineSignature(node, emit, autoCorrect)
+            if (forceMultilineSignature ||
+                singleLineFunctionSignatureLength > maxLineLength ||
                 node.hasMinimumNumberOfParameters()
             ) {
                 fixWhiteSpacesInValueParameterList(node, emit, autoCorrect, multiline = true, dryRun = false)
@@ -177,7 +175,7 @@ public class FunctionSignatureRule :
             val rewriteToSingleLineFunctionSignature = node
                 .functionSignatureNodes()
                 .none { it.textContains('\n') }
-            if (rewriteToSingleLineFunctionSignature) {
+            if (!forceMultilineSignature && rewriteToSingleLineFunctionSignature) {
                 fixWhiteSpacesInValueParameterList(node, emit, autoCorrect, multiline = false, dryRun = false)
             } else {
                 fixWhiteSpacesInValueParameterList(node, emit, autoCorrect, multiline = true, dryRun = false)
@@ -199,6 +197,30 @@ public class FunctionSignatureRule :
 
         return node.lineIndent().length +
             tailNodesOfFunctionSignature.sumOf { it.text.length }
+    }
+
+    private fun ASTNode.containsParameterPrecededByAnnotationOnSeparateLine(): Boolean =
+        findChildByType(VALUE_PARAMETER_LIST)
+            ?.children()
+            .orEmpty()
+            .filter { it.elementType == VALUE_PARAMETER }
+            .mapNotNull {
+                // If the value parameter contains a modifier then this list is followed by a white space
+                it.findChildByType(MODIFIER_LIST)?.nextSibling { true }
+            }.any { it.textContains('\n') }
+
+    private fun calculateFunctionSignatureLengthAsSingleLineSignature(
+        node: ASTNode,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        autoCorrect: Boolean
+    ): Int {
+        val actualFunctionSignatureLength = node.getFunctionSignatureLength()
+
+        // Calculate the length of the function signature in case it would be rewritten as single line (and without a
+        // maximum line length). The white space correction will be calculated via a dry run of the actual fix.
+        return actualFunctionSignatureLength +
+            // Calculate the white space correction in case the signature would be rewritten to a single line
+            fixWhiteSpacesInValueParameterList(node, emit, autoCorrect, multiline = false, dryRun = true)
     }
 
     private fun ASTNode.getFunctionSignatureLength() = lineIndent().length + getFunctionSignatureNodesLength()
@@ -286,8 +308,8 @@ public class FunctionSignatureRule :
                 .children()
                 .first { it.elementType == VALUE_PARAMETER }
 
-        val firstChildOfParameter = firstParameterInList.firstChildNode
-        firstChildOfParameter
+        val firstParameter = firstParameterInList.firstChildNode
+        firstParameter
             ?.prevLeaf()
             ?.takeIf { it.elementType == WHITE_SPACE }
             .let { whiteSpaceBeforeIdentifier ->
@@ -319,7 +341,7 @@ public class FunctionSignatureRule :
                     if (whiteSpaceBeforeIdentifier != null) {
                         if (!dryRun) {
                             emit(
-                                firstChildOfParameter!!.startOffset,
+                                firstParameter!!.startOffset,
                                 "No whitespace expected between opening parenthesis and first parameter name",
                                 true
                             )
