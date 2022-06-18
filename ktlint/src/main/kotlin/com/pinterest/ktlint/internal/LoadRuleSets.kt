@@ -15,7 +15,7 @@ private val logger = KotlinLogging.logger {}.initKtLintKLogger()
  *
  * @return map of ruleset ids to ruleset providers
  */
-internal fun JarFiles.loadRulesets(
+internal fun JarFiles.loadRuleSets(
     loadExperimental: Boolean,
     debug: Boolean,
     disabledRules: String

@@ -48,7 +48,7 @@ internal class PrintASTSubCommand : Runnable {
     }
 
     override fun run() {
-        commandSpec.commandLine().printHelpOrVersionUsage()
+        commandSpec.commandLine().printCommandLineHelpOrVersionUsage()
 
         if (stdin) {
             printAST(KtLint.STDIN_FILE, String(System.`in`.readBytes()))

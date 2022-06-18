@@ -19,7 +19,7 @@ class GitPrePushHookSubCommand : Runnable {
     private lateinit var commandSpec: CommandLine.Model.CommandSpec
 
     override fun run() {
-        commandSpec.commandLine().printHelpOrVersionUsage()
+        commandSpec.commandLine().printCommandLineHelpOrVersionUsage()
 
         GitHookInstaller.installGitHook("pre-push") {
             loadHookContent()

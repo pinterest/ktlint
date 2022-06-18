@@ -26,7 +26,7 @@ class GenerateEditorConfigSubCommand : Runnable {
     private lateinit var commandSpec: CommandLine.Model.CommandSpec
 
     override fun run() {
-        commandSpec.commandLine().printHelpOrVersionUsage()
+        commandSpec.commandLine().printCommandLineHelpOrVersionUsage()
 
         // For now we are using CLI invocation dir as path to load existing '.editorconfig'
         val generatedEditorConfig = KtLint.generateKotlinEditorConfigSection(
@@ -34,7 +34,7 @@ class GenerateEditorConfigSubCommand : Runnable {
                 fileName = "./test.kt",
                 text = "",
                 ruleSets = ktlintCommand.rulesetJarFiles
-                    .loadRulesets(
+                    .loadRuleSets(
                         ktlintCommand.experimental,
                         ktlintCommand.debug,
                         ktlintCommand.disabledRules
