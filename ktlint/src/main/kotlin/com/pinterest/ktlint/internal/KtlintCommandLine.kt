@@ -213,7 +213,7 @@ internal class KtlintCommandLine {
         val start = System.currentTimeMillis()
 
         val baselineResults = loadBaseline(baseline)
-        val ruleSetProviders = rulesetJarFiles.loadRulesets(experimental, debug, disabledRules)
+        val ruleSetProviders = rulesetJarFiles.loadRuleSets(experimental, debug, disabledRules)
         var reporter = loadReporter()
         if (baselineResults.baselineGenerationNeeded) {
             val baselineReporter = ReporterTemplate("baseline", null, emptyMap(), baseline)

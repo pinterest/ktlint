@@ -24,7 +24,7 @@ class ApplyToIDEAGloballySubCommand : Runnable {
     private var forceApply: Boolean = false
 
     override fun run() {
-        commandSpec.commandLine().printHelpOrVersionUsage()
+        commandSpec.commandLine().printCommandLineHelpOrVersionUsage()
 
         ApplyToIDEACommandHelper(
             false,
