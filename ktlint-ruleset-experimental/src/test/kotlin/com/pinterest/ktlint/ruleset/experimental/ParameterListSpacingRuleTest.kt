@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.experimental
 
+import com.pinterest.ktlint.ruleset.standard.CommentSpacingRule
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
@@ -45,6 +46,36 @@ class ParameterListSpacingRuleTest {
         parameterListSpacingRuleAssertThat(code)
             .hasLintViolation(1, 9, "Unexpected whitespace")
             .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given a function signature without parameters but containing an comment (for example to disable a ktlint rule) in the parameter list then do not reformat`() {
+        val code =
+            """
+            data class Foo @JvmOverloads constructor( // ktlint-disable annotation
+            )
+            @JvmOverloads fun foo1( // ktlint-disable annotation
+            )
+            fun foo2(
+                // some comment
+            )
+            fun foo3(
+                /* some comment */
+            )
+            """.trimIndent()
+        parameterListSpacingRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Given a function signature without parameters but containing an EOL comment not preceded by a whitespace then avoid conflict with comment spacing rule`() {
+        val code =
+            """
+            data class Foo @JvmOverloads constructor(// ktlint-disable annotation
+            )
+            """.trimIndent()
+        parameterListSpacingRuleAssertThat(code)
+            .addAdditionalRules(CommentSpacingRule())
+            .hasLintViolationForAdditionalRule(1, 42, "Missing space before //")
     }
 
     @Test

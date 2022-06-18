@@ -5,12 +5,21 @@ import java.io.File
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-open class RuleSetProviderTest(
+public open class RuleSetProviderTest(
     private val rulesetClass: Class<out RuleSetProvider>,
     private val packageName: String
 ) {
+    private val ruleSetProvider =
+        rulesetClass
+            .getDeclaredConstructor()
+            .newInstance()
+    private val rules =
+        ruleSetProvider
+            .get()
+            .rules
+
     @Test
-    fun checkAllRulesProvided() {
+    public fun checkAllRulesInPackageAreProvidedByRuleSetProvider() {
         val srcLocation = rulesetClass.protectionDomain.codeSource.location.path
         val rulesDir = File(srcLocation + packageName.replace(".", "/"))
         val packageRules = rulesDir.listFiles()
@@ -18,11 +27,32 @@ open class RuleSetProviderTest(
             ?.filter { it.endsWith("Rule") }
             ?: arrayListOf()
 
-        val provider = rulesetClass
-        val providerRules = provider.getDeclaredConstructor().newInstance().get().rules.map { it::class.java.simpleName }
-        val diff = packageRules - providerRules.toSet()
-        assertThat(diff)
-            .withFailMessage("%s is missing to provide the following rules: \n%s", provider.simpleName, diff.joinToString(separator = "\n"))
-            .hasSize(0)
+        val providerRules = rules.map { it::class.java.simpleName }
+        val missingRules =
+            packageRules
+                .minus(providerRules.toSet())
+                .joinToString(separator = separator)
+        assertThat(missingRules)
+            .withFailMessage("${ruleSetProvider::class.simpleName} is missing to provide the following rules:${separator}$missingRules")
+            .isEmpty()
+    }
+
+    @Test
+    public fun checkAllRulesArePrefixedWithTheRuleSetId() {
+        val ruleSetId = ruleSetProvider.get().id
+        val rulesWithoutRuleSetId =
+            rules
+                .map { it.id }
+                .filterNot { it.startsWith("$ruleSetId:") || ruleSetId == "standard" }
+                .sorted()
+                .joinToString(separator = separator)
+
+        assertThat(rulesWithoutRuleSetId)
+            .withFailMessage("${ruleSetProvider::class.simpleName} provides rules for which the rule id is not prefixed with '$ruleSetId':${separator}$rulesWithoutRuleSetId")
+            .isEmpty()
+    }
+
+    private companion object {
+        const val separator = "\n\t"
     }
 }

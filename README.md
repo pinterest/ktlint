@@ -25,7 +25,7 @@ It's also [easy to create your own](#creating-a-reporter).
 - **A single executable jar with all dependencies included.**
 
 <p align="center">
-<a href="#installation">Installation</a> | <a href="#usage">Usage</a> | <a href="#integration">Integration</a> with <a href="#-with-maven">Maven</a> / <a href="#-with-gradle">Gradle</a> / <a href="#-with-intellij-idea">IntelliJ IDEA</a> / <a href="#-with-emacs">Emacs</a> / <a href="#-with-continuous-integration">Continuous Integration</a> | Creating <a href="#creating-a-ruleset">a ruleset</a> | <a href="#creating-a-reporter">a reporter</a> | <a href="#badge">Badge</a> | <a href="#faq">FAQ</a>
+<a href="#installation">Installation</a> | <a href="#command-line-usage">Usage</a> | <a href="#integration">Integration</a> with <a href="#-with-maven">Maven</a> / <a href="#-with-gradle">Gradle</a> / <a href="#-with-intellij-idea">IntelliJ IDEA</a> / <a href="#-with-gnu-emacs">Emacs</a> / <a href="#-with-continuous-integration">Continuous Integration</a> | Creating <a href="#creating-a-ruleset">a ruleset</a> | <a href="#creating-a-reporter">a reporter</a> | <a href="#badge">Badge</a> | <a href="#faq">FAQ</a>
 </p>
 
 ## Standard rules
