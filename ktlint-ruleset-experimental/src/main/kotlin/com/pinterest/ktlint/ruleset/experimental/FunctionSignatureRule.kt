@@ -22,6 +22,7 @@ import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.core.ast.children
 import com.pinterest.ktlint.core.ast.isRoot
 import com.pinterest.ktlint.core.ast.isWhiteSpace
+import com.pinterest.ktlint.core.ast.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.core.ast.lineIndent
 import com.pinterest.ktlint.core.ast.nextCodeLeaf
 import com.pinterest.ktlint.core.ast.nextCodeSibling
@@ -161,6 +162,10 @@ public class FunctionSignatureRule :
                 node.hasMinimumNumberOfParameters()
             ) {
                 fixWhiteSpacesInValueParameterList(node, emit, autoCorrect, multiline = true, dryRun = false)
+                // Due to rewriting the function signature, the remaining length on the last line of the multiline
+                // signature needs to be recalculated
+                val lengthOfLastLine = recalculateRemainLengthForFirstLineOfBodyExpression(node)
+                fixFunctionBody(node, emit, autoCorrect, maxLineLength - lengthOfLastLine)
             } else {
                 fixWhiteSpacesInValueParameterList(node, emit, autoCorrect, multiline = false, dryRun = false)
                 fixFunctionBody(node, emit, autoCorrect, maxLineLength - singleLineFunctionSignatureLength)
@@ -178,6 +183,22 @@ public class FunctionSignatureRule :
                 fixWhiteSpacesInValueParameterList(node, emit, autoCorrect, multiline = true, dryRun = false)
             }
         }
+    }
+
+    private fun recalculateRemainLengthForFirstLineOfBodyExpression(node: ASTNode): Int {
+        val closingParenthesis =
+            node
+                .findChildByType(VALUE_PARAMETER_LIST)
+                ?.findChildByType(RPAR)
+        val tailNodesOfFunctionSignature = node
+            .functionSignatureNodes()
+            .childrenBetween(
+                startASTNodePredicate = { it == closingParenthesis },
+                endASTNodePredicate = { false }
+            )
+
+        return node.lineIndent().length +
+            tailNodesOfFunctionSignature.sumOf { it.text.length }
     }
 
     private fun ASTNode.getFunctionSignatureLength() = lineIndent().length + getFunctionSignatureNodesLength()
@@ -452,74 +473,76 @@ public class FunctionSignatureRule :
         autoCorrect: Boolean,
         maxLengthRemainingForFirstLineOfBodyExpression: Int
     ) {
-        val leaves = node.collectLeavesRecursively()
-
-        val lastNodeOfFunctionSignatureWithBodyExpression =
-            node
-                .findChildByType(EQ)
-                ?.nextLeaf(includeEmpty = true)
-        leaves
-            .childrenBetween(
-                startASTNodePredicate = { it == lastNodeOfFunctionSignatureWithBodyExpression },
-                endASTNodePredicate = {
-                    // collect all remaining nodes
-                    false
-                }
-            ).takeIf { it.isNotEmpty() }
-            ?.fixFunctionBodyExpression(node, emit, autoCorrect, maxLengthRemainingForFirstLineOfBodyExpression)
-
-        val lastNodeOfFunctionSignatureWithBlockBody =
-            node
-                .getLastNodeOfFunctionSignatureWithBlockBody()
-                ?.nextLeaf(includeEmpty = true)
-        leaves
-            .childrenBetween(
-                startASTNodePredicate = { it == lastNodeOfFunctionSignatureWithBlockBody },
-                endASTNodePredicate = {
-                    // collect all remaining nodes
-                    false
-                }
-            ).takeIf { it.isNotEmpty() }
-            ?.fixFunctionBodyBlock(emit, autoCorrect)
+        if (node.findChildByType(EQ) == null) {
+            fixFunctionBodyBlock(node, emit, autoCorrect)
+        } else {
+            fixFunctionBodyExpression(node, emit, autoCorrect, maxLengthRemainingForFirstLineOfBodyExpression)
+        }
     }
 
-    private fun List<ASTNode>.fixFunctionBodyExpression(
+    private fun fixFunctionBodyExpression(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
         autoCorrect: Boolean,
         maxLengthRemainingForFirstLineOfBodyExpression: Int
     ) {
-        val (whiteSpaceBeforeFunctionBodyExpression, functionBodyExpression) =
-            this
-                .let {
-                    val whiteSpaceFirst =
-                        it.firstOrNull { first -> first.isWhiteSpace() }
-                    if (whiteSpaceFirst == null) {
-                        Pair(null, it)
-                    } else {
-                        Pair(
-                            it.firstOrNull { first -> first.isWhiteSpace() },
-                            it.drop(1)
-                        )
-                    }
-                }
+        val lastNodeOfFunctionSignatureWithBodyExpression =
+            node
+                .findChildByType(EQ)
+                ?.nextLeaf(includeEmpty = true)
+                ?: return
+        val bodyNodes = node.getFunctionBody(lastNodeOfFunctionSignatureWithBodyExpression)
+        val whiteSpaceBeforeFunctionBodyExpression = bodyNodes.getStartingWhitespaceOrNull()
+        val functionBodyExpressionNodes = bodyNodes.dropWhile { it.isWhiteSpace() }
 
-        val functionBodyExpressionLines =
-            functionBodyExpression
-                .joinTextToString()
-                .split("\n")
+        val functionBodyExpressionLines = functionBodyExpressionNodes
+            .joinTextToString()
+            .split("\n")
         functionBodyExpressionLines
             .firstOrNull()
             ?.also { firstLineOfBodyExpression ->
-                if (whiteSpaceBeforeFunctionBodyExpression == null ||
+                if (whiteSpaceBeforeFunctionBodyExpression.isWhiteSpaceWithNewline()) {
+                    if (functionBodyExpressionWrapping == default ||
+                        (functionBodyExpressionWrapping == multiline && functionBodyExpressionLines.size == 1) ||
+                        node.isMultilineFunctionSignatureWithoutExplicitReturnType(lastNodeOfFunctionSignatureWithBodyExpression)
+                    ) {
+                        emit(
+                            whiteSpaceBeforeFunctionBodyExpression!!.startOffset,
+                            "First line of body expression fits on same line as function signature",
+                            true
+                        )
+                        if (autoCorrect) {
+                            (whiteSpaceBeforeFunctionBodyExpression as LeafPsiElement).rawReplaceWithText(" ")
+                        }
+                    }
+                } else if (whiteSpaceBeforeFunctionBodyExpression == null ||
                     !whiteSpaceBeforeFunctionBodyExpression.textContains('\n')
                 ) {
-                    if (firstLineOfBodyExpression.length + 1 > maxLengthRemainingForFirstLineOfBodyExpression ||
+                    if (node.isMultilineFunctionSignatureWithoutExplicitReturnType(lastNodeOfFunctionSignatureWithBodyExpression) &&
+                        firstLineOfBodyExpression.length + 1 <= maxLengthRemainingForFirstLineOfBodyExpression
+                    ) {
+                        if (whiteSpaceBeforeFunctionBodyExpression == null ||
+                            whiteSpaceBeforeFunctionBodyExpression.text != " "
+                        ) {
+                            emit(
+                                functionBodyExpressionNodes.first().startOffset,
+                                "Single whitespace expected before expression body",
+                                true
+                            )
+                            if (autoCorrect) {
+                                if (whiteSpaceBeforeFunctionBodyExpression != null) {
+                                    (whiteSpaceBeforeFunctionBodyExpression as LeafPsiElement).rawReplaceWithText(" ")
+                                } else {
+                                    (functionBodyExpressionNodes.first() as LeafPsiElement).upsertWhitespaceBeforeMe(" ")
+                                }
+                            }
+                        }
+                    } else if (firstLineOfBodyExpression.length + 1 > maxLengthRemainingForFirstLineOfBodyExpression ||
                         (functionBodyExpressionWrapping == multiline && functionBodyExpressionLines.size > 1) ||
                         functionBodyExpressionWrapping == always
                     ) {
                         emit(
-                            functionBodyExpression.first().startOffset,
+                            functionBodyExpressionNodes.first().startOffset,
                             "Newline expected before expression body",
                             true
                         )
@@ -528,37 +551,40 @@ public class FunctionSignatureRule :
                             if (whiteSpaceBeforeFunctionBodyExpression != null) {
                                 (whiteSpaceBeforeFunctionBodyExpression as LeafPsiElement).rawReplaceWithText(newLineAndIndent)
                             } else {
-                                (functionBodyExpression.first() as LeafPsiElement).upsertWhitespaceBeforeMe(newLineAndIndent)
+                                (functionBodyExpressionNodes.first() as LeafPsiElement).upsertWhitespaceBeforeMe(newLineAndIndent)
                             }
-                        }
-                    }
-                } else if (whiteSpaceBeforeFunctionBodyExpression.textContains('\n')) {
-                    if (functionBodyExpressionWrapping == default ||
-                        (functionBodyExpressionWrapping == multiline && functionBodyExpressionLines.size == 1)
-                    ) {
-                        emit(
-                            whiteSpaceBeforeFunctionBodyExpression.startOffset,
-                            "First line of body expression fits on same line as function signature",
-                            true
-                        )
-                        if (autoCorrect) {
-                            (whiteSpaceBeforeFunctionBodyExpression as LeafPsiElement).rawReplaceWithText(" ")
                         }
                     }
                 }
             }
     }
 
-    private fun List<ASTNode>.fixFunctionBodyBlock(
+    private fun ASTNode.isMultilineFunctionSignatureWithoutExplicitReturnType(
+        lastNodeOfFunctionSignatureWithBodyExpression: ASTNode?
+    ) = functionSignatureNodes()
+        .childrenBetween(
+            startASTNodePredicate = { true },
+            endASTNodePredicate = { it == lastNodeOfFunctionSignatureWithBodyExpression }
+        ).joinToString(separator = "") { it.text }
+        .split("\n")
+        .lastOrNull()
+        ?.matches(INDENT_WITH_CLOSING_PARENTHESIS)
+        ?: false
+
+    private fun fixFunctionBodyBlock(
+        node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
         autoCorrect: Boolean
     ) {
-        val (whiteSpaceBeforeFunctionBodyExpression, functionBodyBlock) =
-            this
-                .firstOrNull()
-                ?.takeIf { first -> first.isWhiteSpace() }
-                ?.let { Pair(it, this.drop(1)) }
-                ?: Pair(null, this)
+        val lastNodeOfFunctionSignatureWithBlockBody =
+            node
+                .getLastNodeOfFunctionSignatureWithBlockBody()
+                ?.nextLeaf(includeEmpty = true)
+                ?: return
+
+        val bodyNodes = node.getFunctionBody(lastNodeOfFunctionSignatureWithBlockBody)
+        val whiteSpaceBeforeFunctionBodyExpression = bodyNodes.getStartingWhitespaceOrNull()
+        val functionBodyBlock = bodyNodes.dropWhile { it.isWhiteSpace() }
 
         functionBodyBlock
             .joinTextToString()
@@ -578,6 +604,25 @@ public class FunctionSignatureRule :
                 }
             }
     }
+
+    private fun ASTNode.getFunctionBody(splitNode: ASTNode?): List<ASTNode> =
+        this
+            .collectLeavesRecursively()
+            .childrenBetween(
+                startASTNodePredicate = { it == splitNode },
+                endASTNodePredicate = {
+                    // collect all remaining nodes
+                    false
+                }
+            )
+
+    private fun List<ASTNode>.getStartingWhitespaceOrNull() =
+        this
+            .firstOrNull()
+            ?.takeIf { first -> first.isWhiteSpace() }
+
+    private fun List<ASTNode>.getBody() =
+        this.dropWhile { it.isWhiteSpace() }
 
     private fun isMaxLineLengthSet() = maxLineLength > -1
 
@@ -664,6 +709,8 @@ public class FunctionSignatureRule :
                 ),
                 defaultValue = default
             )
+
+        private val INDENT_WITH_CLOSING_PARENTHESIS = Regex("\\s*\\) =")
     }
 
     /**
