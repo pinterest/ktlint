@@ -1,6 +1,8 @@
 package com.pinterest.ktlint.ruleset.experimental
 
-import com.pinterest.ktlint.ruleset.experimental.FunctionSignatureRule.Companion.functionSignatureWrappingMinimumParametersProperty
+import com.pinterest.ktlint.ruleset.experimental.FunctionSignatureRule.Companion.forceMultilineWhenParameterCountGreaterOrEqualThanProperty
+import com.pinterest.ktlint.ruleset.experimental.FunctionSignatureRule.Companion.functionBodyExpressionWrappingProperty
+import com.pinterest.ktlint.ruleset.standard.IndentationRule
 import com.pinterest.ktlint.ruleset.standard.NoMultipleSpacesRule
 import com.pinterest.ktlint.ruleset.standard.SpacingAroundAngleBracketsRule
 import com.pinterest.ktlint.ruleset.standard.SpacingAroundColonRule
@@ -11,8 +13,11 @@ import com.pinterest.ktlint.ruleset.standard.SpacingAroundParensRule
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
 import com.pinterest.ktlint.test.LintViolation
+import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EnumSource
 
 class FunctionSignatureRuleTest {
     private val functionSignatureWrappingRuleAssertThat = FunctionSignatureRule().assertThat()
@@ -156,6 +161,32 @@ class FunctionSignatureRuleTest {
                 LintViolation(2, 15, "Parameter should start on a newline"),
                 LintViolation(2, 23, "Parameter should start on a newline"),
                 LintViolation(2, 29, "Newline expected before closing parenthesis")
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given a single line function signature and first parameter is annotated and function signature has a length greater than the max line length then reformat to multiline signature`() {
+        val code =
+            """
+            // $MAX_LINE_LENGTH_MARKER        $EOL_CHAR
+            fun f(@Foo a: Any, b: Any, c: Any): String = "some-result"
+            """.trimIndent()
+        val formattedCode =
+            """
+            // $MAX_LINE_LENGTH_MARKER        $EOL_CHAR
+            fun f(
+                @Foo a: Any,
+                b: Any,
+                c: Any
+            ): String = "some-result"
+            """.trimIndent()
+        functionSignatureWrappingRuleAssertThat(code)
+            .setMaxLineLength()
+            .hasLintViolations(
+                LintViolation(2, 7, "Newline expected after opening parenthesis"),
+                LintViolation(2, 20, "Parameter should start on a newline"),
+                LintViolation(2, 28, "Parameter should start on a newline"),
+                LintViolation(2, 34, "Newline expected before closing parenthesis")
             ).isFormattedAs(formattedCode)
     }
 
@@ -381,11 +412,7 @@ class FunctionSignatureRuleTest {
                 LintViolation(6, 9, "No whitespace expected between opening parenthesis and first parameter name"),
                 LintViolation(7, 9, "Single whitespace expected before parameter"),
                 LintViolation(8, 9, "Single whitespace expected before parameter"),
-                LintViolation(
-                    8,
-                    15,
-                    "No whitespace expected between last parameter and closing parenthesis"
-                ),
+                LintViolation(8, 15, "No whitespace expected between last parameter and closing parenthesis"),
                 LintViolation(9, 9, "Newline expected before expression body")
             ).isFormattedAs(formattedCode)
     }
@@ -414,7 +441,7 @@ class FunctionSignatureRuleTest {
                 """.trimIndent()
             functionSignatureWrappingRuleAssertThat(code)
                 .setMaxLineLength()
-                .withEditorConfigOverride(functionSignatureWrappingMinimumParametersProperty to 2)
+                .withEditorConfigOverride(forceMultilineWhenParameterCountGreaterOrEqualThanProperty to 2)
                 .hasLintViolations(
                     LintViolation(2, 7, "Newline expected after opening parenthesis"),
                     LintViolation(2, 15, "Parameter should start on a newline"),
@@ -461,7 +488,7 @@ class FunctionSignatureRuleTest {
         fun `Given a nullable type with a space before the quest then remove this space`() {
             val code =
                 """
-                fun String${UNEXPECTED_SPACES}?.f1() = "some-result"
+                fun String$UNEXPECTED_SPACES?.f1() = "some-result"
                 fun List<String${UNEXPECTED_SPACES}?>.f2() = "some-result"
                 fun f3(string: String${UNEXPECTED_SPACES}?) = "some-result"
                 fun f4(string: List<String${UNEXPECTED_SPACES}?>) = "some-result"
@@ -612,6 +639,286 @@ class FunctionSignatureRuleTest {
                 ).hasLintViolation(2, 15, "Single whitespace expected before parameter")
                 .isFormattedAs(formattedCode)
         }
+    }
+
+    @Nested
+    @DisplayName("Given a single line function signature followed by a body expression starting on that same line")
+    inner class BodyExpressionOnSameLine {
+        @ParameterizedTest(name = "bodyExpressionWrapping: {0}")
+        @EnumSource(
+            value = FunctionSignatureRule.FunctionBodyExpressionWrapping::class,
+            names = ["default", "multiline"]
+        )
+        fun `Given that the function signature and a single line body expression body fit on the same line then do not reformat function signature or body expression`(
+            bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping
+        ) {
+            val code =
+                """
+                // $MAX_LINE_LENGTH_MARKER                  $EOL_CHAR
+                fun f(a: Any, b: Any): String = "some-result"
+                """.trimIndent()
+            functionSignatureWrappingRuleAssertThat(code)
+                .setMaxLineLength()
+                .withEditorConfigOverride(functionBodyExpressionWrappingProperty to bodyExpressionWrapping)
+                .hasNoLintViolations()
+        }
+
+        @ParameterizedTest(name = "bodyExpressionWrapping: {0}")
+        @EnumSource(
+            value = FunctionSignatureRule.FunctionBodyExpressionWrapping::class,
+            names = ["always"]
+        )
+        fun `Given that the function signature and a single line body expression body fit on the same line then do not reformat function signature but move the body expression to a separate line`(
+            bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping
+        ) {
+            val code =
+                """
+                // $MAX_LINE_LENGTH_MARKER                  $EOL_CHAR
+                fun f(a: Any, b: Any): String = "some-result"
+                """.trimIndent()
+            val formattedCode =
+                """
+                // $MAX_LINE_LENGTH_MARKER                  $EOL_CHAR
+                fun f(a: Any, b: Any): String =
+                    "some-result"
+                """.trimIndent()
+            functionSignatureWrappingRuleAssertThat(code)
+                .setMaxLineLength()
+                .withEditorConfigOverride(functionBodyExpressionWrappingProperty to bodyExpressionWrapping)
+                .addAdditionalRules(IndentationRule())
+                .hasLintViolation(2, 33, "Newline expected before expression body")
+                .isFormattedAs(formattedCode)
+        }
+
+        @ParameterizedTest(name = "bodyExpressionWrapping: {0}")
+        @EnumSource(
+            value = FunctionSignatureRule.FunctionBodyExpressionWrapping::class,
+            names = ["multiline", "always"]
+        )
+        fun `Given that the function signature and first line of a multiline body expression body fit on the same line then do not reformat the function signature but move the body expression to a separate line`(
+            bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping
+        ) {
+            val code =
+                """
+                // $MAX_LINE_LENGTH_MARKER                  $EOL_CHAR
+                fun f(a: Any, b: Any): String = "some-result"
+                    .uppercase()
+                """.trimIndent()
+            val formattedCode =
+                """
+                // $MAX_LINE_LENGTH_MARKER                  $EOL_CHAR
+                fun f(a: Any, b: Any): String =
+                    "some-result"
+                        .uppercase()
+                """.trimIndent()
+            functionSignatureWrappingRuleAssertThat(code)
+                .setMaxLineLength()
+                .withEditorConfigOverride(functionBodyExpressionWrappingProperty to bodyExpressionWrapping)
+                .addAdditionalRules(IndentationRule())
+                .hasLintViolation(2, 33, "Newline expected before expression body")
+                .isFormattedAs(formattedCode)
+        }
+    }
+
+    @Nested
+    @DisplayName("Given a multiline function signature followed by a body expression starting on a separate line")
+    inner class BodyExpressionOnSeparateLine {
+        @ParameterizedTest(name = "bodyExpressionWrapping: {0}")
+        @EnumSource(
+            value = FunctionSignatureRule.FunctionBodyExpressionWrapping::class,
+            names = ["default", "multiline"]
+        )
+        fun `Given that the function signature and a single line body expression body fit on the same line then do reformat as single line signature`(
+            bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping
+        ) {
+            val code =
+                """
+                // $MAX_LINE_LENGTH_MARKER                  $EOL_CHAR
+                fun f(
+                    a: Any,
+                    b: Any
+                ): String =
+                    "some-result"
+                """.trimIndent()
+            val formattedCode =
+                """
+                // $MAX_LINE_LENGTH_MARKER                  $EOL_CHAR
+                fun f(a: Any, b: Any): String = "some-result"
+                """.trimIndent()
+            functionSignatureWrappingRuleAssertThat(code)
+                .setMaxLineLength()
+                .withEditorConfigOverride(functionBodyExpressionWrappingProperty to bodyExpressionWrapping)
+                .addAdditionalRules(IndentationRule())
+                .hasLintViolations(
+                    LintViolation(3, 5, "No whitespace expected between opening parenthesis and first parameter name"),
+                    LintViolation(4, 5, "Single whitespace expected before parameter"),
+                    LintViolation(4, 11, "No whitespace expected between last parameter and closing parenthesis"),
+                    LintViolation(5, 12, "First line of body expression fits on same line as function signature")
+                ).isFormattedAs(formattedCode)
+        }
+
+        @ParameterizedTest(name = "bodyExpressionWrapping: {0}")
+        @EnumSource(
+            value = FunctionSignatureRule.FunctionBodyExpressionWrapping::class,
+            names = ["always"]
+        )
+        fun `Given that the function signature and a single line body expression body fit on the same line then reformat to single line signature but keep body expression on a separate line`(
+            bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping
+        ) {
+            val code =
+                """
+                // $MAX_LINE_LENGTH_MARKER                  $EOL_CHAR
+                fun f(
+                    a: Any,
+                    b: Any
+                ): String =
+                    "some-result"
+                """.trimIndent()
+            val formattedCode =
+                """
+                // $MAX_LINE_LENGTH_MARKER                  $EOL_CHAR
+                fun f(a: Any, b: Any): String =
+                    "some-result"
+                """.trimIndent()
+            functionSignatureWrappingRuleAssertThat(code)
+                .setMaxLineLength()
+                .withEditorConfigOverride(functionBodyExpressionWrappingProperty to bodyExpressionWrapping)
+                .addAdditionalRules(IndentationRule())
+                .hasLintViolations(
+                    LintViolation(3, 5, "No whitespace expected between opening parenthesis and first parameter name"),
+                    LintViolation(4, 5, "Single whitespace expected before parameter"),
+                    LintViolation(4, 11, "No whitespace expected between last parameter and closing parenthesis")
+                ).isFormattedAs(formattedCode)
+        }
+
+        @ParameterizedTest(name = "bodyExpressionWrapping: {0}")
+        @EnumSource(
+            value = FunctionSignatureRule.FunctionBodyExpressionWrapping::class,
+            names = ["default"]
+        )
+        fun `Given that the function signature and first line of a multiline body expression body fit on the same line then do reformat as single line signature`(
+            bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping
+        ) {
+            val code =
+                """
+                // $MAX_LINE_LENGTH_MARKER                  $EOL_CHAR
+                fun f(
+                    a: Any,
+                    b: Any
+                ): String =
+                    "some-result"
+                        .uppercase()
+                """.trimIndent()
+            val formattedCode =
+                """
+                // $MAX_LINE_LENGTH_MARKER                  $EOL_CHAR
+                fun f(a: Any, b: Any): String = "some-result"
+                    .uppercase()
+                """.trimIndent()
+            functionSignatureWrappingRuleAssertThat(code)
+                .setMaxLineLength()
+                .withEditorConfigOverride(functionBodyExpressionWrappingProperty to bodyExpressionWrapping)
+                .addAdditionalRules(IndentationRule())
+                .hasLintViolations(
+                    LintViolation(3, 5, "No whitespace expected between opening parenthesis and first parameter name"),
+                    LintViolation(4, 5, "Single whitespace expected before parameter"),
+                    LintViolation(4, 11, "No whitespace expected between last parameter and closing parenthesis"),
+                    LintViolation(5, 12, "First line of body expression fits on same line as function signature")
+                ).isFormattedAs(formattedCode)
+        }
+
+        @ParameterizedTest(name = "bodyExpressionWrapping: {0}")
+        @EnumSource(
+            value = FunctionSignatureRule.FunctionBodyExpressionWrapping::class,
+            names = ["multiline", "always"]
+        )
+        fun `Given that the function signature and first line of a multiline body expression body fit on the same line then do reformat as single line signature but keep the body expression on a separate line`(
+            bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping
+        ) {
+            val code =
+                """
+                // $MAX_LINE_LENGTH_MARKER                  $EOL_CHAR
+                fun f(
+                    a: Any,
+                    b: Any
+                ): String =
+                    "some-result"
+                        .uppercase()
+                """.trimIndent()
+            val formattedCode =
+                """
+                // $MAX_LINE_LENGTH_MARKER                  $EOL_CHAR
+                fun f(a: Any, b: Any): String =
+                    "some-result"
+                        .uppercase()
+                """.trimIndent()
+            functionSignatureWrappingRuleAssertThat(code)
+                .setMaxLineLength()
+                .withEditorConfigOverride(functionBodyExpressionWrappingProperty to bodyExpressionWrapping)
+                .addAdditionalRules(IndentationRule())
+                .hasLintViolations(
+                    LintViolation(3, 5, "No whitespace expected between opening parenthesis and first parameter name"),
+                    LintViolation(4, 5, "Single whitespace expected before parameter"),
+                    LintViolation(4, 11, "No whitespace expected between last parameter and closing parenthesis")
+                ).isFormattedAs(formattedCode)
+        }
+    }
+
+    @ParameterizedTest(name = "bodyExpressionWrapping: {0}")
+    @EnumSource(
+        value = FunctionSignatureRule.FunctionBodyExpressionWrapping::class
+    )
+    fun `Given a multiline function signature without explicit return type and start of body expression on next line then keep first line of body expression body on the same line as the last line og the function signature`(
+        bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping
+    ) {
+        val code =
+            """
+            // $MAX_LINE_LENGTH_MARKER       $EOL_CHAR
+            fun functionSignatureTooLongForSingleLine(
+                a: Any,
+                b: Any
+            ) =
+                "some-result"
+                    .uppercase()
+            """.trimIndent()
+        val formattedCode =
+            """
+            // $MAX_LINE_LENGTH_MARKER       $EOL_CHAR
+            fun functionSignatureTooLongForSingleLine(
+                a: Any,
+                b: Any
+            ) = "some-result"
+                .uppercase()
+            """.trimIndent()
+        functionSignatureWrappingRuleAssertThat(code)
+            .setMaxLineLength()
+            .withEditorConfigOverride(functionBodyExpressionWrappingProperty to bodyExpressionWrapping)
+            .addAdditionalRules(IndentationRule())
+            .hasLintViolation(5, 4, "First line of body expression fits on same line as function signature")
+            .isFormattedAs(formattedCode)
+    }
+
+    @ParameterizedTest(name = "bodyExpressionWrapping: {0}")
+    @EnumSource(
+        value = FunctionSignatureRule.FunctionBodyExpressionWrapping::class
+    )
+    fun `Given a multiline function signature without explicit return type and start of body expression on same line as last line of function signature then do not reformat`(
+        bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping
+    ) {
+        val code =
+            """
+            // $MAX_LINE_LENGTH_MARKER       $EOL_CHAR
+            fun functionSignatureTooLongForSingleLine(
+                a: Any,
+                b: Any
+            ) = "some-result"
+                .uppercase()
+            """.trimIndent()
+        functionSignatureWrappingRuleAssertThat(code)
+            .setMaxLineLength()
+            .withEditorConfigOverride(functionBodyExpressionWrappingProperty to bodyExpressionWrapping)
+            .addAdditionalRules(IndentationRule())
+            .hasNoLintViolations()
     }
 
     private companion object {
