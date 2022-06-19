@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## Unreleased
+## [0.46.0] - 2022-06-18
 
 ### Promoting experimental rules to standard 
 
@@ -107,8 +107,6 @@ An AssertJ style API for testing KtLint rules ([#1444](https://github.com/pinter
 - A file containing only one (non private) top level declaration (class, interface, object, type alias or function) must be named after that declaration. The name also must comply with the Pascal Case convention. The same applies to a file containing one single top level class declaration and one ore more extension functions for that class. `filename` ([#1004](https://github.com/pinterest/ktlint/pull/1117))
 - Promote experimental rules to standard rules set: `annotation`, `annotation-spacing`, `argument-list-wrapping`, `double-colon-spacing`, `enum-entry-name-case`, `multiline-if-else`, `no-empty-first-line-in-method-block`, `package-name`, `traling-comma`, `spacing-around-angle-brackets`, `spacing-between-declarations-with-annotations`, `spacing-between-declarations-with-comments`, `unary-op-spacing` ([#1481](https://github.com/pinterest/ktlint/pull/1481))
 - The CLI parameter `--android` can be omitted when the `.editorconfig` property `ktlint_code_style = android` is defined
- 
-### Removed
 
 ## [0.45.2] - 2022-04-06
 
@@ -1111,6 +1109,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.46.0]: https://github.com/pinterest/ktlint/compare/0.45.2...0.46.0
 [0.45.2]: https://github.com/pinterest/ktlint/compare/0.45.1...0.45.2
 [0.45.1]: https://github.com/pinterest/ktlint/compare/0.45.0...0.45.1
 [0.45.0]: https://github.com/pinterest/ktlint/compare/0.44.0...0.45.0
