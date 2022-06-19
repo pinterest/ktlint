@@ -19,11 +19,4 @@ kotlin {
     }
 }
 
-tasks.withType<KotlinCompile>().configureEach {
-    kotlinOptions {
-        @Suppress("SuspiciousCollectionReassignment")
-        freeCompilerArgs += listOf("-Xuse-k2")
-    }
-}
-
 addAdditionalJdkVersionTests()
