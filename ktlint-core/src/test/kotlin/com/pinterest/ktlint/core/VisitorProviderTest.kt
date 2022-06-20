@@ -220,6 +220,7 @@ class VisitorProviderTest {
         const val SOME_DISABLED_RULE_IN_STANDARD_RULE_SET = "some-disabled-rule-in-standard-rule-set"
         const val SOME_DISABLED_RULE_IN_EXPERIMENTAL_RULE_SET = "some-disabled-rule-in-experimental-rule-set"
         const val SOME_DISABLED_RULE_IN_CUSTOM_RULE_SET_A = "some-disabled-rule-custom-rule-set-a"
+        const val COMMA_FOLLOWED_BY_SPACE_SEPARATOR = ", "
 
         fun initRootAstNode(): ASTNode {
             initPsiFileFactory(false).apply {
@@ -241,12 +242,14 @@ class VisitorProviderTest {
                                     .name("disabled_rules")
                                     .type(disabledRulesProperty.type)
                                     .value(
+                                        // When IntelliJ IDEA is reformatting the ".editorconfig" file it sometimes add
+                                        // a space after the comma in a comma-separate-list. Below such an unexpected
+                                        // property value is build to ensure that it is handled properly.
                                         buildString {
                                             append("$EXPERIMENTAL:$SOME_DISABLED_RULE_IN_EXPERIMENTAL_RULE_SET")
-                                            append(",")
+                                            append(COMMA_FOLLOWED_BY_SPACE_SEPARATOR)
                                             append("$CUSTOM_RULE_SET_A:$SOME_DISABLED_RULE_IN_CUSTOM_RULE_SET_A")
-                                            // purposely separate with an additional whitespace
-                                            append(", ")
+                                            append(COMMA_FOLLOWED_BY_SPACE_SEPARATOR)
                                             append(SOME_DISABLED_RULE_IN_STANDARD_RULE_SET)
                                         }
                                     ).build()
