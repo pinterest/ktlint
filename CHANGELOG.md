@@ -8,7 +8,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
-* Remove experimental flag `-Xuse-k2` as it forces API Consumers to compile their projects with this same flag ([#1506](https://github.com/pinterest/ktlint/issues/1506)).
+* Remove experimental flag `-Xuse-k2` as it forces API Consumers to compile their projects with this same flag ([#1506](https://github.com/pinterest/ktlint/pull/1506)).
+* Account for separating spaces when parsing the disabled rules ([#1508](https://github.com/pinterest/ktlint/pull/1508)). 
 
 ### Changed
 
