@@ -25,7 +25,7 @@ The rules below are promoted from the `experimental` ruleset to the `standard` r
 * `multiline-if-else`
 * `no-empty-first-line-in-method-block`
 * `package-name`
-* `traling-comma`
+* `trailing-comma`
 * `spacing-around-angle-brackets`
 * `spacing-between-declarations-with-annotations`
 * `spacing-between-declarations-with-comments`
