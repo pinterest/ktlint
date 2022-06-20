@@ -241,11 +241,14 @@ class VisitorProviderTest {
                                     .name("disabled_rules")
                                     .type(disabledRulesProperty.type)
                                     .value(
-                                        setOf(
-                                            SOME_DISABLED_RULE_IN_STANDARD_RULE_SET,
-                                            "$EXPERIMENTAL:$SOME_DISABLED_RULE_IN_EXPERIMENTAL_RULE_SET",
-                                            "$CUSTOM_RULE_SET_A:$SOME_DISABLED_RULE_IN_CUSTOM_RULE_SET_A"
-                                        ).joinToString(separator = ",")
+                                        buildString {
+                                            append("$EXPERIMENTAL:$SOME_DISABLED_RULE_IN_EXPERIMENTAL_RULE_SET")
+                                            append(",")
+                                            append("$CUSTOM_RULE_SET_A:$SOME_DISABLED_RULE_IN_CUSTOM_RULE_SET_A")
+                                            // purposely separate with an additional whitespace
+                                            append(", ")
+                                            append(SOME_DISABLED_RULE_IN_STANDARD_RULE_SET)
+                                        }
                                     ).build()
                         )
                     )
