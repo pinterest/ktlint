@@ -133,6 +133,6 @@ internal class VisitorProvider(
             .split(",")
             .none {
                 // The rule set id in the disabled_rules setting may be omitted for rules in the standard rule set
-                it.toQualifiedRuleId() == qualifiedRuleId
+                it.trim().toQualifiedRuleId() == qualifiedRuleId
             }
 }
