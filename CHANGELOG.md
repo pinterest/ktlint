@@ -2,9 +2,9 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## Unreleased
+## [0.46.1] - 2022-06-21
 
-### Added
+Minor release to address some regressions introduced in 0.46.0
 
 ### Fixed
 
@@ -12,10 +12,6 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 * Account for separating spaces when parsing the disabled rules ([#1508](https://github.com/pinterest/ktlint/pull/1508)). 
 * Do not remove space before a comment in a parameter list ([#1509](https://github.com/pinterest/ktlint/issue/1509)). 
 * A delegate property which starts on the same line as the property declaration should not have an extra indentation `indent` ([#1510](https://github.com/pinterest/ktlint/pull/1510))
-
-### Changed
-
-### Removed
 
 ## [0.46.0] - 2022-06-18
 
@@ -1124,6 +1120,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.46.1]: https://github.com/pinterest/ktlint/compare/0.46.0...0.46.1
 [0.46.0]: https://github.com/pinterest/ktlint/compare/0.45.2...0.46.0
 [0.45.2]: https://github.com/pinterest/ktlint/compare/0.45.1...0.45.2
 [0.45.1]: https://github.com/pinterest/ktlint/compare/0.45.0...0.45.1
