@@ -431,6 +431,23 @@ class ParameterListSpacingRuleTest {
             ).isFormattedAs(formattedCode)
     }
 
+    @Test
+    fun `1509 - Given that a parameter in the list is followed by a comment then do not remove the space before the EOL-comment`() {
+        val code =
+            """
+            data class Foo(
+              private val bar1: Boolean, // Some comment
+              private val bar2: Boolean, /* Some comment */
+              private val bar2: Boolean,
+                   /* Some comment */
+              private val bar3: Boolean, // Some comment
+              private val bar4: Boolean, /* Some comment */
+            )
+            """.trimIndent()
+        parameterListSpacingRuleAssertThat(code)
+            .hasNoLintViolations()
+    }
+
     private companion object {
         const val TOO_MANY_SPACES = "  "
     }
