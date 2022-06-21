@@ -3048,6 +3048,16 @@ internal class IndentationRuleTest {
         }
 
         @Test
+        fun `Issue 1510 - Given a dot-qualified-expression as delegated property value starting on same line as previous code sibling`() {
+            val code =
+                """
+                val locale: Locale by option
+                    .default()
+                """.trimIndent()
+            indentationRuleAssertThat(code).hasNoLintViolations()
+        }
+
+        @Test
         fun `Issue 1340 - Given a dot-qualified-expression wrapped in a block as delegated property value`() {
             val code =
                 """
