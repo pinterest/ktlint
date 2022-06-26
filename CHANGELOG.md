@@ -2,6 +2,18 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+### Added
+
+### Fixed
+
+* Fix cli argument "--disabled_rules" ([#1520](https://github.com/pinterest/ktlint/issue/1520)).
+
+### Changed
+
+### Removed
+
 ## [0.46.1] - 2022-06-21
 
 Minor release to address some regressions introduced in 0.46.0
