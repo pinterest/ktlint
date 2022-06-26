@@ -39,6 +39,7 @@ import kotlin.concurrent.thread
 import kotlin.system.exitProcess
 import mu.KLogger
 import mu.KotlinLogging
+import org.jetbrains.kotlin.utils.addToStdlib.applyIf
 import picocli.CommandLine.Command
 import picocli.CommandLine.Option
 import picocli.CommandLine.Parameters
@@ -220,13 +221,14 @@ internal class KtlintCommandLine {
             val reporterProviderById = loadReporters(emptyList())
             reporter = Reporter.from(reporter, baselineReporter.toReporter(reporterProviderById))
         }
-        val editorConfigOverride = EditorConfigOverride.emptyEditorConfigOverride
-        if (disabledRules.isNotBlank()) {
-            editorConfigOverride.plus(disabledRulesProperty to disabledRules)
-        }
-        if (android) {
-            editorConfigOverride.plus(codeStyleSetProperty to android)
-        }
+        val editorConfigOverride =
+            EditorConfigOverride
+                .emptyEditorConfigOverride
+                .applyIf(disabledRules.isNotBlank()) {
+                    plus(disabledRulesProperty to disabledRules)
+                }.applyIf(android) {
+                    plus(codeStyleSetProperty to android)
+                }
 
         reporter.beforeAll()
         if (stdin) {
