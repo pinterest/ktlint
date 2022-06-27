@@ -12,6 +12,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+* Accept filename which is based on the fully qualified receiver class plus name of an extension function when it is the only top level declaration in a file `filename` ([#1521](https://github.com/pinterest/ktlint/issue/1521)).
+
 ### Removed
 
 ## [0.46.1] - 2022-06-21
