@@ -1,5 +1,6 @@
 package com.pinterest.ktlint
 
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.DisabledOnOs
@@ -8,10 +9,8 @@ import org.junit.jupiter.api.condition.OS
 @DisabledOnOs(OS.WINDOWS)
 @DisplayName("CLI basic checks")
 class SimpleCLITest : BaseCLITest() {
-
-    @DisplayName("Should print help")
     @Test
-    fun shouldOutputHelp() {
+    fun `Given CLI argument --help then return the help output`() {
         runKtLintCliProcess(
             "no-code-style-error",
             listOf("--help")
@@ -25,9 +24,8 @@ class SimpleCLITest : BaseCLITest() {
         }
     }
 
-    @DisplayName("Should print correct version")
     @Test
-    fun shouldCorrectlyPrintVersion() {
+    fun `Given CLI argument --version then return the version information output`() {
         runKtLintCliProcess(
             "no-code-style-error",
             listOf("--version")
@@ -42,9 +40,8 @@ class SimpleCLITest : BaseCLITest() {
         }
     }
 
-    @DisplayName("Should complete lint without errors")
     @Test
-    internal fun lintWithoutErrors() {
+    fun `Given some code without errors then return from lint with normal exit code and no error output`() {
         runKtLintCliProcess(
             "no-code-style-error"
         ) {
@@ -53,9 +50,8 @@ class SimpleCLITest : BaseCLITest() {
         }
     }
 
-    @DisplayName("Should complete lint with error")
     @Test
-    internal fun lintWithError() {
+    fun `Given some code with an error then return from lint with the error exit code and error output`() {
         runKtLintCliProcess(
             "too-many-empty-lines"
         ) {
@@ -67,9 +63,8 @@ class SimpleCLITest : BaseCLITest() {
         }
     }
 
-    @DisplayName("Should format without errors")
     @Test
-    fun formatWorks() {
+    fun `Given some code with an error which can be autocorrected then return from from with the normal exit code`() {
         runKtLintCliProcess(
             "too-many-empty-lines",
             listOf("-F")
@@ -79,6 +74,18 @@ class SimpleCLITest : BaseCLITest() {
             // assertErrorOutputIsEmpty()
 
             assertSourceFileWasFormatted("Main.kt")
+        }
+    }
+
+    @Test
+    fun `Given some code with an error for a rule which is disabled via CLI argument --disabled_rules then return from lint with the normal exit code and without error output`() {
+        runKtLintCliProcess(
+            "too-many-empty-lines",
+            listOf("disabled_rules=no-consecutive-blank-lines")
+        ) {
+            assertNormalExitCode()
+
+            assertThat(normalOutput).doesNotContain("Needless blank line(s)")
         }
     }
 }
