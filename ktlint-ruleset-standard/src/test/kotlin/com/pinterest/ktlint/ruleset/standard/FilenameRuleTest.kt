@@ -82,7 +82,6 @@ class FilenameRuleTest {
         strings = [
             "object Foo",
             "typealias Foo = String",
-            "fun String.foo() = {}",
             "fun foo() = {}"
         ]
     )
@@ -93,6 +92,29 @@ class FilenameRuleTest {
             .asFileWithPath(UNEXPECTED_FILE_NAME)
             .hasLintViolationWithoutAutoCorrect(1, 1, "File '$UNEXPECTED_FILE_NAME' contains a single top level declaration and should be named 'Foo.kt'")
     }
+
+    @Test
+    fun `Issue 1521 - Given a file containing a single toplevel extension function on a standard receiver class defined in another file then allow the file to be named based upon the fully qualified receiver suffixed with the function name`() {
+        val code =
+            """
+            fun String.foo() {}
+            """.trimIndent()
+        fileNameRuleAssertThat(code)
+            .asFileWithPath(UNEXPECTED_FILE_NAME)
+            .hasLintViolationWithoutAutoCorrect(1, 1, "File '$UNEXPECTED_FILE_NAME' contains a single top level declaration and should be named 'Foo.kt' or 'StringFoo.kt'")
+    }
+
+    @Test
+    fun `Issue 1521 - Given a file containing a single toplevel extension function on a custom receiver class defined in another file then allow the file to be named based upon the fully qualified receiver suffixed with the function name`() {
+        val code =
+            """
+            fun Foo.Status.image() {}
+            """.trimIndent()
+        fileNameRuleAssertThat(code)
+            .asFileWithPath(UNEXPECTED_FILE_NAME)
+            .hasLintViolationWithoutAutoCorrect(1, 1, "File '$UNEXPECTED_FILE_NAME' contains a single top level declaration and should be named 'Image.kt' or 'FooStatusImage.kt'")
+    }
+
 
     @ParameterizedTest(name = "Top level declaration: {0}")
     @ValueSource(
