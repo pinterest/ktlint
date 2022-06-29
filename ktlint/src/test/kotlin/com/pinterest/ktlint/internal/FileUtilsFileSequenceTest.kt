@@ -27,11 +27,6 @@ internal class FileUtilsFileSequenceTest {
         "${rootDir}project1/src/main/kotlin/example/Two.kt"
     ).map { it.normalizePath() }
 
-    private val project2Files = listOf(
-        "${rootDir}project2/build.gradle.kts",
-        "${rootDir}project2/src/main/java/Three.kt"
-    ).map { it.normalizePath() }
-
     @BeforeEach
     internal fun setUp() {
         project1Files.createFiles()
@@ -99,17 +94,15 @@ internal class FileUtilsFileSequenceTest {
 
     @Test
     fun `Should return only files for the the current rootDir matching passed patterns`() {
-        project2Files.createFiles()
-
         val foundFiles = getFiles(
             listOf(
                 "**/main/**/*.kt".normalizeGlob()
             ),
-            tempFileSystem.getPath("${rootDir}project2".normalizePath())
+            tempFileSystem.getPath("${rootDir}project1".normalizePath())
         )
 
-        assertThat(foundFiles).hasSize(1)
-        assertThat(foundFiles).containsAll(project2Files.subList(1, 1))
+        assertThat(foundFiles).hasSize(2)
+        assertThat(foundFiles).containsAll(project1Files.subList(3, 5))
     }
 
     @Test
