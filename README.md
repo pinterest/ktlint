@@ -67,6 +67,7 @@ It's also [easy to create your own](#creating-a-reporter).
 - `package-name`: No underscores in package names
 - `parameter-list-wrapping`: When class/function signature doesn't fit on a single line, each parameter must be on a separate line
 - `string-template`: Consistent string templates (`$v` instead of `${v}`, `${p.v}` instead of `${p.v.toString()}`)
+- `trailing-comma`: No trailing commas
 
 ### Spacing
 - `annotation-spacing`: Annotations should be separated by a single line break
