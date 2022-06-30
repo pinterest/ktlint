@@ -16,6 +16,7 @@ import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
 import kotlin.system.exitProcess
 import mu.KotlinLogging
+import org.jetbrains.kotlin.util.prefixIfNot
 
 private val logger = KotlinLogging.logger {}.initKtLintKLogger()
 
@@ -52,7 +53,7 @@ internal fun FileSystem.fileSequence(
         actualGlobs
             .filterNot { it.startsWith("!") }
             .map {
-                getPathMatcher(toGlob(it, rootDir))
+                getPathMatcher(toGlob(it))
             }
     }
 
@@ -62,7 +63,7 @@ internal fun FileSystem.fileSequence(
         actualGlobs
             .filter { it.startsWith("!") }
             .map {
-                getPathMatcher(toGlob(it.removePrefix("!"), rootDir))
+                getPathMatcher(toGlob(it.removePrefix("!")))
             }
     }
 
@@ -102,31 +103,20 @@ private fun FileSystem.isGlobAbsolutePath(glob: String): Boolean {
     return rootDirs.any { glob.removePrefix("!").startsWith(it) }
 }
 
-internal fun FileSystem.toGlob(
-    pattern: String,
-    rootDir: Path
-): String {
+internal fun FileSystem.toGlob(pattern: String): String {
     val os = System.getProperty("os.name")
     val expandedPath = if (os.startsWith("windows", true)) {
         // Windows sometimes inserts `~` into paths when using short directory names notation, e.g. `C:\Users\USERNA~1\Documents
         pattern
     } else {
         expandTilde(pattern)
-    }
+    }.replace(File.separator, globSeparator)
 
     val fullPath = if (isGlobAbsolutePath(expandedPath)) {
         expandedPath
     } else {
-        val rootDirPath = rootDir
-            .toAbsolutePath()
-            .toString()
-            .run {
-                val normalizedPath = if (!endsWith(File.separator)) "$this${File.separator}" else this
-                normalizedPath
-            }
-        "$rootDirPath$expandedPath"
+        expandedPath.prefixIfNot("**$globSeparator")
     }
-        .replace(File.separator, globSeparator)
     return "glob:$fullPath"
 }
 
