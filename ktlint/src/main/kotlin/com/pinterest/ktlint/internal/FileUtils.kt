@@ -26,7 +26,7 @@ private val tildeRegex = Regex("^(!)?~")
 private val os = System.getProperty("os.name")
 private val userHome = System.getProperty("user.home")
 
-private val defaultPatterns = setOf(
+internal val defaultPatterns = setOf(
     "**$globSeparator*.kt",
     "**$globSeparator*.kts"
 )
