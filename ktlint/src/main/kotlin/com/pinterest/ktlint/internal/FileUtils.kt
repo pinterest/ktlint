@@ -23,6 +23,14 @@ private val logger = KotlinLogging.logger {}.initKtLintKLogger()
 internal val workDir: String = File(".").canonicalPath
 private val tildeRegex = Regex("^(!)?~")
 
+private val os = System.getProperty("os.name")
+private val userHome = System.getProperty("user.home")
+
+private val defaultPatterns = setOf(
+    "**$globSeparator*.kt",
+    "**$globSeparator*.kts"
+)
+
 internal fun FileSystem.fileSequence(
     globs: List<String>,
     rootDir: Path = Paths.get(".").toAbsolutePath().normalize()
@@ -45,10 +53,9 @@ internal fun FileSystem.fileSequence(
     }
 
     val pathMatchers = if (actualGlobs.isEmpty()) {
-        setOf(
-            getPathMatcher("glob:**$globSeparator*.kt"),
-            getPathMatcher("glob:**$globSeparator*.kts")
-        )
+        defaultPatterns
+            .map { getPathMatcher("glob:$it") }
+            .toSet()
     } else {
         actualGlobs
             .filterNot { it.startsWith("!") }
@@ -104,7 +111,6 @@ private fun FileSystem.isGlobAbsolutePath(glob: String): Boolean {
 }
 
 internal fun FileSystem.toGlob(pattern: String): String {
-    val os = System.getProperty("os.name")
     val expandedPath = if (os.startsWith("windows", true)) {
         // Windows sometimes inserts `~` into paths when using short directory names notation, e.g. `C:\Users\USERNA~1\Documents
         pattern
@@ -120,13 +126,11 @@ internal fun FileSystem.toGlob(pattern: String): String {
     return "glob:$fullPath"
 }
 
-private val globSeparator: String get() {
-    val os = System.getProperty("os.name")
-    return when {
+private val globSeparator: String get() =
+    when {
         os.startsWith("windows", ignoreCase = true) -> "\\\\"
         else -> "/"
     }
-}
 
 /**
  * List of paths to Java `jar` files.
@@ -144,7 +148,7 @@ internal fun JarFiles.toFilesURIList() = map {
 
 // a complete solution would be to implement https://www.gnu.org/software/bash/manual/html_node/Tilde-Expansion.html
 // this implementation takes care only of the most commonly used case (~/)
-private fun expandTilde(path: String): String = path.replaceFirst(tildeRegex, System.getProperty("user.home"))
+private fun expandTilde(path: String): String = path.replaceFirst(tildeRegex, userHome)
 
 internal fun File.location(
     relative: Boolean
