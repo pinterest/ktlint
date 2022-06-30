@@ -115,6 +115,49 @@ class FilenameRuleTest {
             .hasLintViolationWithoutAutoCorrect(1, 1, "File '$UNEXPECTED_FILE_NAME' contains a single top level declaration and should be named 'Image.kt' or 'FooStatusImage.kt'")
     }
 
+    @Test
+    fun `Issue 1521 - Given a file containing a single toplevel extension function on a custom receiver class defined in another file and the filename equals the qualifier followed by function name then do not report a lint violation`() {
+        val code =
+            """
+            fun Foo.Status.image() {}
+            """.trimIndent()
+        fileNameRuleAssertThat(code)
+            .asFileWithPath("FooStatusImage.kt")
+            .hasNoLintViolations()
+    }
+
+    @Test
+    fun `Issue 1521 - Given a file containing a single toplevel extension function on a nullable custom receiver class defined in another file and the filename equals the qualifier followed by function name then do not report a lint violation`() {
+        val code =
+            """
+            fun Foo.Status?.image() {}
+            """.trimIndent()
+        fileNameRuleAssertThat(code)
+            .asFileWithPath("FooStatusImage.kt")
+            .hasNoLintViolations()
+    }
+
+    @Test
+    fun `Issue 1521 - Given a file containing a single toplevel extension function on a generic custom receiver class defined in another file and the filename equals the qualifier followed by function name then do not report a lint violation`() {
+        val code =
+            """
+            fun List<Foo.Status?>.image() {}
+            """.trimIndent()
+        fileNameRuleAssertThat(code)
+            .asFileWithPath("ListFooStatusImage.kt")
+            .hasNoLintViolations()
+    }
+
+    @Test
+    fun `Issue 1521 - Given a file containing a single toplevel extension function on a custom receiver class defined in another file and the filename equals the function name then do not report a lint violation`() {
+        val code =
+            """
+            fun Foo.Status.image() {}
+            """.trimIndent()
+        fileNameRuleAssertThat(code)
+            .asFileWithPath("Image.kt")
+            .hasNoLintViolations()
+    }
 
     @ParameterizedTest(name = "Top level declaration: {0}")
     @ValueSource(

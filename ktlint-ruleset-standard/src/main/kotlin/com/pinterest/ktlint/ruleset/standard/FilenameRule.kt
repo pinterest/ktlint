@@ -154,7 +154,7 @@ public class FilenameRule : Rule(
                     "File '$this.kt' contains a single top level declaration and should be named '$filename.kt'",
                     false
                 )
-            qualifier != null && this != "$qualifier$filename" ->
+            qualifier != null && this != filename && this != "$qualifier$filename" ->
                 emit(
                     0,
                     "File '$this.kt' contains a single top level declaration and should be named '$filename.kt' or '$qualifier$filename.kt'",
@@ -188,6 +188,9 @@ public class FilenameRule : Rule(
                             .findChildByType(TYPE_REFERENCE)
                             ?.text
                             ?.replace(".", "")
+                            ?.replace("?", "")
+                            ?.replace("<", "")
+                            ?.replace(">", "")
                     TopLevelDeclaration(elementType, it, typeReference)
                 } else {
                     TopLevelDeclaration(elementType, it)
