@@ -3,6 +3,7 @@ package com.pinterest.ktlint.internal
 import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
 import java.io.File
+import java.nio.file.FileSystem
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.Locale
@@ -10,6 +11,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 /**
@@ -19,17 +21,37 @@ internal class FileUtilsFileSequenceTest {
     private val tempFileSystem = Jimfs.newFileSystem(Configuration.forCurrentPlatform())
 
     private val rootDir = tempFileSystem.rootDirectories.first().toString()
-    private val project1Files = listOf(
-        "${rootDir}project1/.git/ignored.kts",
-        "${rootDir}project1/build.gradle.kts",
-        "${rootDir}project1/src/scripts/someScript.kts",
-        "${rootDir}project1/src/main/kotlin/One.kt",
-        "${rootDir}project1/src/main/kotlin/example/Two.kt"
-    ).map { it.normalizePath() }
+    private val javaFileRootDirectory = "${rootDir}Root.java"
+    private val ktFileRootDirectory = "${rootDir}Root.kt"
+    private val ktsFileRootDirectory = "${rootDir}Root.kts"
+    private val javaFileInHiddenDirectory = "${rootDir}project1/.git/Ignored.java"
+    private val ktFileInHiddenDirectory = "${rootDir}project1/.git/Ignored.kt"
+    private val ktsFileInHiddenDirectory = "${rootDir}project1/.git/Ignored.kts"
+    private val javaFileInProjectRootDirectory = "${rootDir}project1/ProjectRoot.java"
+    private val ktFileInProjectRootDirectory = "${rootDir}project1/ProjectRoot.kt"
+    private val ktsFileInProjectRootDirectory = "${rootDir}project1/ProjectRoot.kts"
+    private val ktFile1InProjectSubDirectory = "${rootDir}project1/src/main/kotlin/One.kt"
+    private val ktFile2InProjectSubDirectory = "${rootDir}project1/src/main/kotlin/example/Two.kt"
+    private val ktsFileInProjectSubDirectory = "${rootDir}project1/src/scripts/Script.kts"
+    private val javaFileInProjectSubDirectory = "${rootDir}project1/src/main/java/One.java"
 
     @BeforeEach
     internal fun setUp() {
-        project1Files.createFiles()
+        tempFileSystem.apply {
+            createFile(javaFileRootDirectory)
+            createFile(ktFileRootDirectory)
+            createFile(ktsFileRootDirectory)
+            createFile(javaFileInHiddenDirectory)
+            createFile(ktFileInHiddenDirectory)
+            createFile(ktsFileInHiddenDirectory)
+            createFile(javaFileInProjectRootDirectory)
+            createFile(ktFileInProjectRootDirectory)
+            createFile(ktsFileInProjectRootDirectory)
+            createFile(ktsFileInProjectSubDirectory)
+            createFile(ktFile1InProjectSubDirectory)
+            createFile(ktFile2InProjectSubDirectory)
+            createFile(javaFileInProjectSubDirectory)
+        }
     }
 
     @AfterEach
@@ -38,133 +60,150 @@ internal class FileUtilsFileSequenceTest {
     }
 
     @Test
-    fun `On empty patterns should include all kt and kts files`() {
+    fun `Given no patterns and no workdir then find all kt and kts files in root and all its sub directories except file in hidden directories`() {
         val foundFiles = getFiles()
 
-        assertThat(foundFiles).hasSize(project1Files.size - 1)
-        assertThat(foundFiles).containsAll(project1Files.drop(1))
+        assertThat(foundFiles)
+            .containsExactlyInAnyOrder(
+                ktFileRootDirectory,
+                ktsFileRootDirectory,
+                ktFileInProjectRootDirectory,
+                ktsFileInProjectRootDirectory,
+                ktFile1InProjectSubDirectory,
+                ktFile2InProjectSubDirectory,
+                ktsFileInProjectSubDirectory
+            ).doesNotContain(
+                javaFileInHiddenDirectory,
+                ktFileInHiddenDirectory,
+                ktsFileInHiddenDirectory
+            )
     }
 
     @Test
-    fun `Should ignore hidden dirs on empty patterns`() {
-        val foundFiles = getFiles()
-
-        assertThat(foundFiles).doesNotContain(project1Files.first())
-    }
-
-    @Test
-    fun `Should return only files matching passed pattern`() {
-        val expectedResult = project1Files.drop(1).filter { it.endsWith(".kt") }
+    fun `Given some patterns and no workdir then ignore all files in hidden directories`() {
         val foundFiles = getFiles(
-            listOf(
-                "**/src/**/*.kt".normalizeGlob()
+            patterns = listOf(
+                "project1/**/*.kt".normalizeGlob(),
+                "project1/*.kt".normalizeGlob()
             )
         )
 
-        assertThat(foundFiles).hasSize(expectedResult.size)
-        assertThat(foundFiles).containsAll(expectedResult)
-    }
-
-    @Test
-    fun `Should ignore hidden folders when some pattern is passed`() {
-        val expectedResult = project1Files.drop(1).filter { it.endsWith(".kts") }
-        val foundFiles = getFiles(
-            listOf(
-                "project1/**/*.kts".normalizeGlob(),
-                "project1/*.kts".normalizeGlob()
+        assertThat(foundFiles)
+            .containsExactlyInAnyOrder(
+                ktFileInProjectRootDirectory,
+                ktFile1InProjectSubDirectory,
+                ktFile2InProjectSubDirectory
+            ).doesNotContain(
+                javaFileInHiddenDirectory,
+                ktFileInHiddenDirectory,
+                ktsFileInHiddenDirectory
             )
-        )
-
-        assertThat(foundFiles).hasSize(expectedResult.size)
-        assertThat(foundFiles).containsAll(expectedResult)
     }
 
-    @Test
-    fun `Should ignore files in negated pattern`() {
-        val foundFiles = getFiles(
-            listOf(
-                "project1/src/**/*.kt".normalizeGlob(),
-                "!project1/src/**/example/*.kt".normalizeGlob()
+    @Nested
+    inner class NegatePattern {
+        @Test
+        fun `Given some patterns including a negate pattern and no workdir then select all files except files in the negate pattern`() {
+            val foundFiles = getFiles(
+                patterns = listOf(
+                    "project1/src/**/*.kt".normalizeGlob(),
+                    "!project1/src/**/example/*.kt".normalizeGlob()
+                )
             )
-        )
 
-        assertThat(foundFiles).hasSize(1)
-        assertThat(foundFiles).containsAll(project1Files.subList(3, 4))
+            assertThat(foundFiles)
+                .containsExactlyInAnyOrder(ktFile1InProjectSubDirectory)
+                .doesNotContain(ktFile2InProjectSubDirectory)
+        }
+
+        @Test
+        fun `Given the Windows OS and some unescaped patterns including a negate pattern and no workdir then ignore all files in the negate pattern`() {
+            assumeTrue(
+                System
+                    .getProperty("os.name")
+                    .lowercase(Locale.getDefault())
+                    .startsWith("windows")
+            )
+
+            val foundFiles = getFiles(
+                patterns = listOf(
+                    "project1\\src\\**\\*.kt".normalizeGlob(),
+                    "!project1\\src\\**\\example\\*.kt".normalizeGlob()
+                )
+            )
+
+            assertThat(foundFiles)
+                .containsExactlyInAnyOrder(ktFile1InProjectSubDirectory)
+                .doesNotContain(ktFile2InProjectSubDirectory)
+        }
     }
 
     @Test
-    fun `Should return only files for the the current rootDir matching passed patterns`() {
+    fun `Given a pattern and a workdir then find all files in that workdir and all its sub directories that match the pattern`() {
         val foundFiles = getFiles(
-            listOf(
+            patterns = listOf(
                 "**/main/**/*.kt".normalizeGlob()
             ),
-            tempFileSystem.getPath("${rootDir}project1".normalizePath())
+            rootDir = tempFileSystem.getPath("${rootDir}project1".normalizePath())
         )
 
-        assertThat(foundFiles).hasSize(2)
-        assertThat(foundFiles).containsAll(project1Files.subList(3, 5))
+        assertThat(foundFiles).containsExactlyInAnyOrder(
+            ktFile1InProjectSubDirectory,
+            ktFile2InProjectSubDirectory
+        )
     }
 
     @Test
-    fun `Should treat correctly root path without separator in the end`() {
+    fun `Given an (relative) file path from the workdir then find all files in that workdir and all its sub directories that match the pattern`() {
         val foundFiles = getFiles(
             patterns = listOf("src/main/kotlin/One.kt".normalizeGlob()),
             rootDir = tempFileSystem.getPath("${rootDir}project1".normalizePath())
         )
 
-        assertThat(foundFiles).hasSize(1)
-        assertThat(foundFiles.first()).isEqualTo(project1Files[3])
+        assertThat(foundFiles).containsExactlyInAnyOrder(
+            ktFile1InProjectSubDirectory
+        )
     }
 
     @Test
-    fun `Should support unescaped slashes for Windows`() {
-        assumeTrue(System.getProperty("os.name").lowercase(Locale.getDefault()).startsWith("windows"))
-
+    fun `Given an (absolute) file path and a workdir then find that absolute path and all files in the workdir and all its sub directories that match the pattern`() {
         val foundFiles = getFiles(
-            listOf(
-                "project1\\src\\**\\*.kt".normalizeGlob(),
-                "!project1\\src\\**\\example\\*.kt".normalizeGlob()
-            )
-        )
-
-        assertThat(foundFiles).hasSize(1)
-        assertThat(foundFiles).containsAll(project1Files.subList(3, 4))
-    }
-
-    @Test
-    fun `Should support absolute paths`() {
-        val globs = listOf(
-            "src/main/kotlin/One.kt".normalizeGlob(),
-            "${rootDir}project1/src/main/kotlin/example/Two.kt".normalizeGlob()
-        )
-
-        val files = getFiles(
-            patterns = globs,
+            patterns = listOf(
+                "src/main/kotlin/One.kt".normalizeGlob(),
+                ktFile2InProjectSubDirectory.normalizeGlob()
+            ),
             rootDir = tempFileSystem.getPath("${rootDir}project1".normalizePath())
         )
-        assertThat(files).containsExactlyElementsOf(
-            project1Files.subList(3, 5)
+
+        assertThat(foundFiles).containsExactlyInAnyOrder(
+            ktFile1InProjectSubDirectory,
+            ktFile2InProjectSubDirectory
         )
     }
 
     @Test
-    fun `Should support globs containing absolute paths`() {
-        val globs = listOf(
-            "${rootDir}project1/src/**/*.kt".normalizeGlob()
-        )
-
-        val files = getFiles(
-            patterns = globs,
+    fun `Given a glob containing an (absolute) file path and a workdir then find all files match the pattern`() {
+        val foundFiles = getFiles(
+            patterns = listOf(
+                "${rootDir}project1/src/**/*.kt".normalizeGlob()
+            ),
             rootDir = tempFileSystem.getPath("${rootDir}project1".normalizePath())
         )
-        assertThat(files).containsExactlyElementsOf(
-            project1Files.subList(3, 5)
+
+        assertThat(foundFiles).containsExactlyInAnyOrder(
+            ktFile1InProjectSubDirectory,
+            ktFile2InProjectSubDirectory
         )
     }
 
     @Test
     fun `transforming globs with leading tilde`() {
-        assumeTrue(System.getProperty("os.name").lowercase(Locale.getDefault()).startsWith("linux"))
+        assumeTrue(
+            System
+                .getProperty("os.name")
+                .lowercase(Locale.getDefault())
+                .startsWith("linux")
+        )
 
         val glob = tempFileSystem.toGlob(
             "~/project/src/main/kotlin/One.kt",
@@ -179,8 +218,8 @@ internal class FileUtilsFileSequenceTest {
     private fun String.normalizePath() = replace('/', File.separatorChar)
     private fun String.normalizeGlob(): String = replace("/", rawGlobSeparator)
 
-    private fun List<String>.createFiles() = forEach {
-        val filePath = tempFileSystem.getPath(it)
+    private fun FileSystem.createFile(it: String) {
+        val filePath = getPath(it.normalizePath())
         val fileDir = filePath.parent
         if (!Files.exists(fileDir)) Files.createDirectories(fileDir)
         Files.createFile(filePath)
