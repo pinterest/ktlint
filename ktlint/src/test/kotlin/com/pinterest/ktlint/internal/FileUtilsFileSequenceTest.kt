@@ -11,6 +11,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
@@ -212,6 +213,22 @@ internal class FileUtilsFileSequenceTest {
         val homeDir = System.getProperty("user.home")
         assertThat(glob).isEqualTo(
             "glob:$homeDir/project/src/main/kotlin/One.kt"
+        )
+    }
+
+    @Disabled("ktFile1 is not found as the ** prefix is implemented as a mandatory subdirectory instead of optional")
+    @Test
+    fun `Given a pattern containing '**' and a workdir without subdirectories then find all files in that workdir`() {
+        val foundFiles = getFiles(
+            patterns = listOf(
+                "**/*.kt".normalizeGlob()
+            ),
+            rootDir = tempFileSystem.getPath("${rootDir}project1/src/main/kotlin/".normalizePath())
+        )
+
+        assertThat(foundFiles).containsExactlyInAnyOrder(
+            ktFile1InProjectSubDirectory,
+            ktFile2InProjectSubDirectory
         )
     }
 
