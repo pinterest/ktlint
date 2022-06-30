@@ -166,6 +166,12 @@ Consistent string templates (`$v` instead of `${v}`, `${p.v}` instead of `${p.v.
 
 Rule id: `string-template`
 
+## Trailing comma
+
+Consistent removal (default) or adding of trailing comma's (both on call and declaration site).
+
+Rule id: `trailing-comma`
+
 ## Spacing
 
 ### Annotation spacing
