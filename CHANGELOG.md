@@ -9,6 +9,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Fixed
 
 * Fix cli argument "--disabled_rules" ([#1520](https://github.com/pinterest/ktlint/issue/1520)).
+* Allow usage of letters with diacritics in enum values and filenames (`enum-entry-name-case`, `filename`) ([#1530](https://github.com/pinterest/ktlint/issue/1530)).
 
 ### Changed
 
