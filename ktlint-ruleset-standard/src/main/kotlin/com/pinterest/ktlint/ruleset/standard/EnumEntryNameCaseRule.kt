@@ -1,7 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.ruleset.standard.internal.removeDiacriticsFromLetters
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.CompositeElement
 import org.jetbrains.kotlin.psi.KtEnumEntry
@@ -25,7 +24,7 @@ public class EnumEntryNameCaseRule : Rule("enum-entry-name-case") {
         val enumEntry = node.psi as? KtEnumEntry ?: return
         val name = enumEntry.name ?: return
 
-        if (!name.removeDiacriticsFromLetters().matches(regex)) {
+        if (!name.matches(regex)) {
             emit(
                 node.startOffset,
                 "Enum entry name should be uppercase underscore-separated names like \"ENUM_ENTRY\" or upper camel-case like \"EnumEntry\"",

@@ -238,14 +238,6 @@ class FilenameRuleTest {
             .hasLintViolationWithoutAutoCorrect(1, 1, "File '$UNEXPECTED_FILE_NAME' contains a single class and possibly also extension functions for that class and should be named same after that class 'Foo.kt'")
     }
 
-    @Test
-    fun `Issue 1530 - Given a file which name should match PascalCase then this name may also contain letters with diacritics`() {
-        val code = "// some code"
-        fileNameRuleAssertThat(code)
-            .asFileWithPath("ŸëšThïsĮsÂllòwed.kt")
-            .hasNoLintViolations()
-    }
-
     private companion object {
         const val NON_PASCAL_CASE_NAME = "nonPascalCaseName.kt"
         const val UNEXPECTED_FILE_NAME = "UnexpectedFileName.kt"

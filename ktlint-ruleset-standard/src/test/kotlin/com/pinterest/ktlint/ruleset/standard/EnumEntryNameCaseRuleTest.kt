@@ -61,16 +61,4 @@ class EnumEntryNameCaseRuleTest {
                 LintViolation(4, 5, "Enum entry name should be uppercase underscore-separated names like \"ENUM_ENTRY\" or upper camel-case like \"EnumEntry\"")
             )
     }
-
-    @Test
-    fun `Issue 1530 - Given enum values containing diacritics are allowed`() {
-        val code =
-            """
-            enum class SomeEnum {
-                ŸÈŚ_THÎS_IS_ALLOWED,
-                ŸèśThîsIsAllowed,
-            }
-            """.trimIndent()
-        enumEntryNameCaseRuleAssertThat(code).hasNoLintViolations()
-    }
 }
