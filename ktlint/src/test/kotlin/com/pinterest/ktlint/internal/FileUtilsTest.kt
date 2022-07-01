@@ -21,19 +21,19 @@ internal class FileUtilsFileSequenceTest {
     private val tempFileSystem = Jimfs.newFileSystem(Configuration.forCurrentPlatform())
 
     private val rootDir = tempFileSystem.rootDirectories.first().toString()
-    private val javaFileRootDirectory = "${rootDir}Root.java"
-    private val ktFileRootDirectory = "${rootDir}Root.kt"
-    private val ktsFileRootDirectory = "${rootDir}Root.kts"
-    private val javaFileInHiddenDirectory = "${rootDir}project1/.git/Ignored.java"
-    private val ktFileInHiddenDirectory = "${rootDir}project1/.git/Ignored.kt"
-    private val ktsFileInHiddenDirectory = "${rootDir}project1/.git/Ignored.kts"
-    private val javaFileInProjectRootDirectory = "${rootDir}project1/ProjectRoot.java"
-    private val ktFileInProjectRootDirectory = "${rootDir}project1/ProjectRoot.kt"
-    private val ktsFileInProjectRootDirectory = "${rootDir}project1/ProjectRoot.kts"
-    private val ktFile1InProjectSubDirectory = "${rootDir}project1/src/main/kotlin/One.kt"
-    private val ktFile2InProjectSubDirectory = "${rootDir}project1/src/main/kotlin/example/Two.kt"
-    private val ktsFileInProjectSubDirectory = "${rootDir}project1/src/scripts/Script.kts"
-    private val javaFileInProjectSubDirectory = "${rootDir}project1/src/main/java/One.java"
+    private val javaFileRootDirectory = "${rootDir}Root.java".normalizePath()
+    private val ktFileRootDirectory = "${rootDir}Root.kt".normalizePath()
+    private val ktsFileRootDirectory = "${rootDir}Root.kts".normalizePath()
+    private val javaFileInHiddenDirectory = "${rootDir}project1/.git/Ignored.java".normalizePath()
+    private val ktFileInHiddenDirectory = "${rootDir}project1/.git/Ignored.kt".normalizePath()
+    private val ktsFileInHiddenDirectory = "${rootDir}project1/.git/Ignored.kts".normalizePath()
+    private val javaFileInProjectRootDirectory = "${rootDir}project1/ProjectRoot.java".normalizePath()
+    private val ktFileInProjectRootDirectory = "${rootDir}project1/ProjectRoot.kt".normalizePath()
+    private val ktsFileInProjectRootDirectory = "${rootDir}project1/ProjectRoot.kts".normalizePath()
+    private val ktFile1InProjectSubDirectory = "${rootDir}project1/src/main/kotlin/One.kt".normalizePath()
+    private val ktFile2InProjectSubDirectory = "${rootDir}project1/src/main/kotlin/example/Two.kt".normalizePath()
+    private val ktsFileInProjectSubDirectory = "${rootDir}project1/src/scripts/Script.kts".normalizePath()
+    private val javaFileInProjectSubDirectory = "${rootDir}project1/src/main/java/One.java".normalizePath()
 
     @BeforeEach
     internal fun setUp() {
