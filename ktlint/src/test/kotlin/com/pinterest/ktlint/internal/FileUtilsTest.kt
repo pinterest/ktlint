@@ -215,7 +215,7 @@ internal class FileUtilsFileSequenceTest {
     }
 
     @Test
-    fun `Given a pattern containing '**' and a workdir without subdirectories then find all files in that workdir`() {
+    fun `Given a pattern containing ** and a workdir without subdirectories then find all files in that workdir`() {
         val foundFiles = getFiles(
             patterns = listOf(
                 "**/*.kt".normalizeGlob()
