@@ -11,6 +11,7 @@ import com.pinterest.ktlint.core.ast.ElementType.PROPERTY
 import com.pinterest.ktlint.core.ast.ElementType.TYPEALIAS
 import com.pinterest.ktlint.core.ast.ElementType.TYPE_REFERENCE
 import com.pinterest.ktlint.core.ast.children
+import com.pinterest.ktlint.ruleset.standard.internal.removeDiacriticsFromLetters
 import java.nio.file.Paths
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
@@ -90,7 +91,7 @@ public class FilenameRule : Rule(
                         topLevelDeclaration
                             .qualifier
                             ?.toPascalCase()
-                    fileName.shouldMatchFileName(pascalCaseQualifier, pascalCaseIdentifier, emit)
+                    fileName.shouldMatchIdentifier(pascalCaseQualifier, pascalCaseIdentifier, emit)
                 } else {
                     fileName.shouldMatchPascalCase(emit)
                 }
@@ -142,7 +143,7 @@ public class FilenameRule : Rule(
     private fun String.toPascalCase() =
         replaceFirstChar { it.uppercaseChar() }
 
-    private fun String.shouldMatchFileName(
+    private fun String.shouldMatchIdentifier(
         qualifier: String?,
         filename: String,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
@@ -166,7 +167,7 @@ public class FilenameRule : Rule(
     private fun String.shouldMatchPascalCase(
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        if (!pascalCaseRegEx.matches(this)) {
+        if (!this.removeDiacriticsFromLetters().matches(pascalCaseRegEx)) {
             emit(0, "File name '$this.kt' should conform PascalCase", false)
         }
     }
