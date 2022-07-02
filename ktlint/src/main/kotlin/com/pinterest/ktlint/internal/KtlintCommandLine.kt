@@ -39,6 +39,7 @@ import kotlin.concurrent.thread
 import kotlin.system.exitProcess
 import mu.KLogger
 import mu.KotlinLogging
+import org.jetbrains.kotlin.utils.addToStdlib.applyIf
 import picocli.CommandLine.Command
 import picocli.CommandLine.Option
 import picocli.CommandLine.Parameters
@@ -213,20 +214,21 @@ internal class KtlintCommandLine {
         val start = System.currentTimeMillis()
 
         val baselineResults = loadBaseline(baseline)
-        val ruleSetProviders = rulesetJarFiles.loadRulesets(experimental, debug, disabledRules)
+        val ruleSetProviders = rulesetJarFiles.loadRuleSets(experimental, debug, disabledRules)
         var reporter = loadReporter()
         if (baselineResults.baselineGenerationNeeded) {
             val baselineReporter = ReporterTemplate("baseline", null, emptyMap(), baseline)
             val reporterProviderById = loadReporters(emptyList())
             reporter = Reporter.from(reporter, baselineReporter.toReporter(reporterProviderById))
         }
-        val editorConfigOverride = EditorConfigOverride.emptyEditorConfigOverride
-        if (disabledRules.isNotBlank()) {
-            editorConfigOverride.plus(disabledRulesProperty to disabledRules)
-        }
-        if (android) {
-            editorConfigOverride.plus(codeStyleSetProperty to android)
-        }
+        val editorConfigOverride =
+            EditorConfigOverride
+                .emptyEditorConfigOverride
+                .applyIf(disabledRules.isNotBlank()) {
+                    plus(disabledRulesProperty to disabledRules)
+                }.applyIf(android) {
+                    plus(codeStyleSetProperty to android)
+                }
 
         reporter.beforeAll()
         if (stdin) {
@@ -368,7 +370,7 @@ internal class KtlintCommandLine {
                     }
                 }
             } catch (e: Exception) {
-                result.add(LintErrorWithCorrectionInfo(e.toLintError(), false))
+                result.add(LintErrorWithCorrectionInfo(e.toLintError(fileName), false))
                 tripped.set(true)
                 fileContent // making sure `cat file | ktlint --stdint > file` is (relatively) safe
             }
@@ -395,7 +397,7 @@ internal class KtlintCommandLine {
                     }
                 }
             } catch (e: Exception) {
-                result.add(LintErrorWithCorrectionInfo(e.toLintError(), false))
+                result.add(LintErrorWithCorrectionInfo(e.toLintError(fileName), false))
                 tripped.set(true)
             }
         }
@@ -465,7 +467,7 @@ internal class KtlintCommandLine {
             }
     }
 
-    private fun Exception.toLintError(): LintError = this.let { e ->
+    private fun Exception.toLintError(filename: Any?): LintError = this.let { e ->
         when (e) {
             is ParseException ->
                 LintError(
@@ -475,12 +477,12 @@ internal class KtlintCommandLine {
                     "Not a valid Kotlin file (${e.message?.lowercase(Locale.getDefault())})"
                 )
             is RuleExecutionException -> {
-                logger.debug("Internal Error (${e.ruleId})", e)
+                logger.debug("Internal Error (${e.ruleId}) in file '$filename' at position '${e.line}:${e.col}", e)
                 LintError(
                     e.line,
                     e.col,
                     "",
-                    "Internal Error (${e.ruleId}). " +
+                    "Internal Error (${e.ruleId}) in file '$filename' at position '${e.line}:${e.col}. " +
                         "Please create a ticket at https://github.com/pinterest/ktlint/issues " +
                         "(if possible, please re-run with the --debug flag to get the stacktrace " +
                         "and provide the source code that triggered an error)"

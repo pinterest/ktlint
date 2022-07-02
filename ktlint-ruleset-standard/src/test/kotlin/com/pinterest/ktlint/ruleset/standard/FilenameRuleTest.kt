@@ -31,7 +31,7 @@ class FilenameRuleTest {
     }
 
     @Test
-    fun `Given a file without any toplevel declaration then the filename should conform to PascalCase`() {
+    fun testFileWithoutTopLevelDeclarations() {
         val code =
             """
             /*
@@ -39,19 +39,21 @@ class FilenameRuleTest {
              */
             """.trimIndent()
         fileNameRuleAssertThat(code)
-            .asFileWithPath("/some/path//some/path/FooBar.kt")
+            .asFileWithPath("/some/path/A.kt")
             .hasNoLintViolations()
     }
 
     @Test
-    fun `Given a file without a toplevel class declaration then the filename should conform to PascalCase`() {
+    fun `Given a file without a top level class declaration then the filename should conform to PascalCase`() {
         val code =
             """
-            val foo = "foo"
+            /*
+             * copyright
+             */
             """.trimIndent()
         fileNameRuleAssertThat(code)
-            .asFileWithPath("/some/path/not-pascal-case.kt")
-            .hasLintViolationWithoutAutoCorrect(1, 1, "File name 'not-pascal-case.kt' should conform PascalCase")
+            .asFileWithPath("/some/path/$NON_PASCAL_CASE_NAME")
+            .hasLintViolationWithoutAutoCorrect(1, 1, "File name '$NON_PASCAL_CASE_NAME' should conform PascalCase")
     }
 
     @ParameterizedTest(name = "Class type: {0}, expected result: {1}")
@@ -71,32 +73,108 @@ class FilenameRuleTest {
     )
     fun `Given a file containing a single declaration of a class type then the filename should match the class name`(code: String) {
         fileNameRuleAssertThat(code)
-            .asFileWithPath("/some/path/bar.kt")
-            .hasLintViolationWithoutAutoCorrect(1, 1, "File 'bar.kt' contains a single class and should be named same after that class 'Foo.kt'")
+            .asFileWithPath("/some/path/$UNEXPECTED_FILE_NAME")
+            .hasLintViolationWithoutAutoCorrect(1, 1, "File '$UNEXPECTED_FILE_NAME' contains a single class and possibly also extension functions for that class and should be named same after that class 'Foo.kt'")
     }
 
-    @ParameterizedTest(name = "Other toplevel declaration: {0}")
+    @ParameterizedTest(name = "Top level declaration: {0}")
     @ValueSource(
         strings = [
-            "class Foo",
-            "class `Foo`",
-            "data class Foo(val v: Int)",
-            "sealed class Foo",
-            "interface Foo",
             "object Foo",
-            "enum class Foo {A}",
-            "typealias Foo = Set<Network.Node>",
-            "fun Foo.f() {}"
+            "typealias Foo = String",
+            "fun String.foo() = {}",
+            "fun foo() = {}"
         ]
     )
-    private fun `Given a file containing one toplevel class declaration and another toplevel declaration`(otherTopLevelDeclaration: String) {
+    fun `Given a file containing one top level declaration (no class or property) then the file should be named after the identifier`(
+        code: String
+    ) {
+        fileNameRuleAssertThat(code)
+            .asFileWithPath(UNEXPECTED_FILE_NAME)
+            .hasLintViolationWithoutAutoCorrect(1, 1, "File '$UNEXPECTED_FILE_NAME' contains a single top level declaration and should be named 'Foo.kt'")
+    }
+
+    @ParameterizedTest(name = "Top level declaration: {0}")
+    @ValueSource(
+        strings = [
+            "val foo",
+            "const val FOO"
+        ]
+    )
+    fun `Given a file containing one top level property declaration (non-private) then the file should conform to PascalCase`(
+        code: String
+    ) {
+        fileNameRuleAssertThat(code)
+            .asFileWithPath(NON_PASCAL_CASE_NAME)
+            .hasLintViolationWithoutAutoCorrect(1, 1, "File name '$NON_PASCAL_CASE_NAME' should conform PascalCase")
+    }
+
+    @ParameterizedTest(name = "Top level declaration: {0}")
+    @ValueSource(
+        strings = [
+            "val foo",
+            "const val FOO"
+        ]
+    )
+    fun `Given a file containing a single top level property declaration (non-private) and one private top level class declaration then the file should conform to PascalCase`(
+        topLevelDeclaration: String
+    ) {
         val code =
             """
-            class Bar
+            $topLevelDeclaration
+
+            private class Bar
+            """.trimIndent()
+        fileNameRuleAssertThat(code)
+            .asFileWithPath(NON_PASCAL_CASE_NAME)
+            .hasLintViolationWithoutAutoCorrect(1, 1, "File name '$NON_PASCAL_CASE_NAME' should conform PascalCase")
+    }
+
+    @ParameterizedTest(name = "Other top level declaration: {0}")
+    @ValueSource(
+        strings = [
+            "fun String.bar() = {}",
+            "fun bar() = {}",
+            "object Bar",
+            "typealias Bar = String",
+            "val bar"
+        ]
+    )
+    fun `Given a file containing a single top level class (non-private) and another top level declaration (non-private, not extending that class) then the file should conform to PascalCase notation but does not need to be named after that class`(
+        otherTopLevelDeclaration: String
+    ) {
+        val code =
+            """
+            class Foo
             $otherTopLevelDeclaration
             """.trimIndent()
         fileNameRuleAssertThat(code)
-            .asFileWithPath("/some/path/SomeDescriptiveName.kt")
-            .hasLintViolationWithoutAutoCorrect(1, 1, "File name 'foo.kt' should conform PascalCase")
+            .asFileWithPath(NON_PASCAL_CASE_NAME)
+            .hasLintViolationWithoutAutoCorrect(1, 1, "File name '$NON_PASCAL_CASE_NAME' should conform PascalCase")
+    }
+
+    @ParameterizedTest(name = "Other top level declaration: {0}")
+    @ValueSource(
+        strings = [
+            "fun Foo.foo() = {}",
+            "private object Bar"
+        ]
+    )
+    fun `Given a file containing a single top level class (non-private) and another top level declaration (private and,x xor extending that class) then the file should be named after that class`(
+        otherTopLevelDeclaration: String
+    ) {
+        val code =
+            """
+            class Foo
+            $otherTopLevelDeclaration
+            """.trimIndent()
+        fileNameRuleAssertThat(code)
+            .asFileWithPath(UNEXPECTED_FILE_NAME)
+            .hasLintViolationWithoutAutoCorrect(1, 1, "File '$UNEXPECTED_FILE_NAME' contains a single class and possibly also extension functions for that class and should be named same after that class 'Foo.kt'")
+    }
+
+    private companion object {
+        const val NON_PASCAL_CASE_NAME = "nonPascalCaseName.kt"
+        const val UNEXPECTED_FILE_NAME = "UnexpectedFileName.kt"
     }
 }

@@ -24,7 +24,7 @@ class ApplyToIDEAProjectSubCommand : Runnable {
     private var forceApply: Boolean = false
 
     override fun run() {
-        commandSpec.commandLine().printHelpOrVersionUsage()
+        commandSpec.commandLine().printCommandLineHelpOrVersionUsage()
 
         ApplyToIDEACommandHelper(
             true,

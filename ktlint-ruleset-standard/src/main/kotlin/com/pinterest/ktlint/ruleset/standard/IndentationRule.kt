@@ -69,6 +69,7 @@ import com.pinterest.ktlint.core.ast.isPartOfComment
 import com.pinterest.ktlint.core.ast.isWhiteSpace
 import com.pinterest.ktlint.core.ast.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.core.ast.isWhiteSpaceWithoutNewline
+import com.pinterest.ktlint.core.ast.lineNumber
 import com.pinterest.ktlint.core.ast.nextCodeSibling
 import com.pinterest.ktlint.core.ast.nextLeaf
 import com.pinterest.ktlint.core.ast.nextSibling
@@ -446,7 +447,9 @@ public class IndentationRule :
         }) ?: return
         val nextSibling = n.treeNext
         if (!ctx.ignored.contains(p) && nextSibling != null) {
-            if (p.treeParent.elementType == PROPERTY_DELEGATE) {
+            if (p.treeParent.elementType == PROPERTY_DELEGATE &&
+                p.treeParent?.lineNumber() != p.treeParent.prevCodeSibling()?.lineNumber()
+            ) {
                 expectedIndent += 2
                 logger.trace { "$line: ++dot-qualified-expression in property delegate -> $expectedIndent" }
                 ctx.ignored.add(p)

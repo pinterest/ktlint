@@ -22,16 +22,22 @@ import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.core.ast.children
 import com.pinterest.ktlint.core.ast.isRoot
 import com.pinterest.ktlint.core.ast.isWhiteSpace
+import com.pinterest.ktlint.core.ast.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.core.ast.lineIndent
 import com.pinterest.ktlint.core.ast.nextCodeLeaf
 import com.pinterest.ktlint.core.ast.nextCodeSibling
 import com.pinterest.ktlint.core.ast.nextLeaf
+import com.pinterest.ktlint.core.ast.nextSibling
 import com.pinterest.ktlint.core.ast.prevCodeLeaf
 import com.pinterest.ktlint.core.ast.prevLeaf
 import com.pinterest.ktlint.core.ast.prevSibling
 import com.pinterest.ktlint.core.ast.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.core.ast.upsertWhitespaceBeforeMe
+import com.pinterest.ktlint.ruleset.experimental.FunctionSignatureRule.FunctionBodyExpressionWrapping.always
+import com.pinterest.ktlint.ruleset.experimental.FunctionSignatureRule.FunctionBodyExpressionWrapping.default
+import com.pinterest.ktlint.ruleset.experimental.FunctionSignatureRule.FunctionBodyExpressionWrapping.multiline
 import org.ec4j.core.model.PropertyType
+import org.ec4j.core.model.PropertyType.PropertyValueParser.EnumValueParser
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
@@ -39,7 +45,7 @@ import org.jetbrains.kotlin.utils.addToStdlib.ifTrue
 
 public class FunctionSignatureRule :
     Rule(
-        id = "function-signature",
+        id = "$experimentalRulesetId:function-signature",
         visitorModifiers = setOf(
             // Run after wrapping and spacing rules
             VisitorModifier.RunAsLateAsPossible
@@ -51,12 +57,14 @@ public class FunctionSignatureRule :
             indentSizeProperty,
             indentStyleProperty,
             maxLineLengthProperty,
-            functionSignatureWrappingMinimumParametersProperty
+            forceMultilineWhenParameterCountGreaterOrEqualThanProperty,
+            functionBodyExpressionWrappingProperty
         )
 
     private var indent: String? = null
     private var maxLineLength = -1
     private var functionSignatureWrappingMinimumParameters = -1
+    private var functionBodyExpressionWrapping = default
 
     override fun visit(
         node: ASTNode,
@@ -64,9 +72,8 @@ public class FunctionSignatureRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         if (node.isRoot()) {
-            functionSignatureWrappingMinimumParameters = node.getEditorConfigValue(
-                functionSignatureWrappingMinimumParametersProperty
-            )
+            functionSignatureWrappingMinimumParameters = node.getEditorConfigValue(forceMultilineWhenParameterCountGreaterOrEqualThanProperty)
+            functionBodyExpressionWrapping = node.getEditorConfigValue(functionBodyExpressionWrappingProperty)
             val indentConfig = IndentConfig(
                 indentStyle = node.getEditorConfigValue(indentStyleProperty),
                 tabWidth = node.getEditorConfigValue(indentSizeProperty)
@@ -143,19 +150,20 @@ public class FunctionSignatureRule :
     ) {
         require(node.elementType == FUN)
 
+        val forceMultilineSignature =
+            node.hasMinimumNumberOfParameters() ||
+                node.containsParameterPrecededByAnnotationOnSeparateLine()
         if (isMaxLineLengthSet()) {
-            val actualFunctionSignatureLength = node.getFunctionSignatureLength()
-
-            // Calculate the length of the function signature in case it would be rewritten as single line (and without a
-            // maximum line length). The white space correction will be calculated via a dry run of the actual fix.
-            val singleLineFunctionSignatureLength =
-                actualFunctionSignatureLength +
-                    // Calculate the white space correction in case the signature would be rewritten to a single line
-                    fixWhiteSpacesInValueParameterList(node, emit, autoCorrect, multiline = false, dryRun = true)
-            if (singleLineFunctionSignatureLength > maxLineLength ||
+            val singleLineFunctionSignatureLength = calculateFunctionSignatureLengthAsSingleLineSignature(node, emit, autoCorrect)
+            if (forceMultilineSignature ||
+                singleLineFunctionSignatureLength > maxLineLength ||
                 node.hasMinimumNumberOfParameters()
             ) {
                 fixWhiteSpacesInValueParameterList(node, emit, autoCorrect, multiline = true, dryRun = false)
+                // Due to rewriting the function signature, the remaining length on the last line of the multiline
+                // signature needs to be recalculated
+                val lengthOfLastLine = recalculateRemainLengthForFirstLineOfBodyExpression(node)
+                fixFunctionBody(node, emit, autoCorrect, maxLineLength - lengthOfLastLine)
             } else {
                 fixWhiteSpacesInValueParameterList(node, emit, autoCorrect, multiline = false, dryRun = false)
                 fixFunctionBody(node, emit, autoCorrect, maxLineLength - singleLineFunctionSignatureLength)
@@ -167,12 +175,52 @@ public class FunctionSignatureRule :
             val rewriteToSingleLineFunctionSignature = node
                 .functionSignatureNodes()
                 .none { it.textContains('\n') }
-            if (rewriteToSingleLineFunctionSignature) {
+            if (!forceMultilineSignature && rewriteToSingleLineFunctionSignature) {
                 fixWhiteSpacesInValueParameterList(node, emit, autoCorrect, multiline = false, dryRun = false)
             } else {
                 fixWhiteSpacesInValueParameterList(node, emit, autoCorrect, multiline = true, dryRun = false)
             }
         }
+    }
+
+    private fun recalculateRemainLengthForFirstLineOfBodyExpression(node: ASTNode): Int {
+        val closingParenthesis =
+            node
+                .findChildByType(VALUE_PARAMETER_LIST)
+                ?.findChildByType(RPAR)
+        val tailNodesOfFunctionSignature = node
+            .functionSignatureNodes()
+            .childrenBetween(
+                startASTNodePredicate = { it == closingParenthesis },
+                endASTNodePredicate = { false }
+            )
+
+        return node.lineIndent().length +
+            tailNodesOfFunctionSignature.sumOf { it.text.length }
+    }
+
+    private fun ASTNode.containsParameterPrecededByAnnotationOnSeparateLine(): Boolean =
+        findChildByType(VALUE_PARAMETER_LIST)
+            ?.children()
+            .orEmpty()
+            .filter { it.elementType == VALUE_PARAMETER }
+            .mapNotNull {
+                // If the value parameter contains a modifier then this list is followed by a white space
+                it.findChildByType(MODIFIER_LIST)?.nextSibling { true }
+            }.any { it.textContains('\n') }
+
+    private fun calculateFunctionSignatureLengthAsSingleLineSignature(
+        node: ASTNode,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        autoCorrect: Boolean
+    ): Int {
+        val actualFunctionSignatureLength = node.getFunctionSignatureLength()
+
+        // Calculate the length of the function signature in case it would be rewritten as single line (and without a
+        // maximum line length). The white space correction will be calculated via a dry run of the actual fix.
+        return actualFunctionSignatureLength +
+            // Calculate the white space correction in case the signature would be rewritten to a single line
+            fixWhiteSpacesInValueParameterList(node, emit, autoCorrect, multiline = false, dryRun = true)
     }
 
     private fun ASTNode.getFunctionSignatureLength() = lineIndent().length + getFunctionSignatureNodesLength()
@@ -260,8 +308,8 @@ public class FunctionSignatureRule :
                 .children()
                 .first { it.elementType == VALUE_PARAMETER }
 
-        val firstChildOfParameter = firstParameterInList.firstChildNode
-        firstChildOfParameter
+        val firstParameter = firstParameterInList.firstChildNode
+        firstParameter
             ?.prevLeaf()
             ?.takeIf { it.elementType == WHITE_SPACE }
             .let { whiteSpaceBeforeIdentifier ->
@@ -279,7 +327,7 @@ public class FunctionSignatureRule :
                         }
                         if (autoCorrect && !dryRun) {
                             if (whiteSpaceBeforeIdentifier == null) {
-                                (firstChildOfParameter as LeafElement).upsertWhitespaceBeforeMe(expectedParameterIndent)
+                                (valueParameterList.firstChildNode as LeafElement).upsertWhitespaceAfterMe(expectedParameterIndent)
                             } else {
                                 (whiteSpaceBeforeIdentifier as LeafElement).rawReplaceWithText(
                                     expectedParameterIndent
@@ -293,7 +341,7 @@ public class FunctionSignatureRule :
                     if (whiteSpaceBeforeIdentifier != null) {
                         if (!dryRun) {
                             emit(
-                                firstChildOfParameter!!.startOffset,
+                                firstParameter!!.startOffset,
                                 "No whitespace expected between opening parenthesis and first parameter name",
                                 true
                             )
@@ -447,69 +495,76 @@ public class FunctionSignatureRule :
         autoCorrect: Boolean,
         maxLengthRemainingForFirstLineOfBodyExpression: Int
     ) {
-        val leaves = node.collectLeavesRecursively()
-
-        val lastNodeOfFunctionSignatureWithBodyExpression =
-            node
-                .findChildByType(EQ)
-                ?.nextLeaf(includeEmpty = true)
-        leaves
-            .childrenBetween(
-                startASTNodePredicate = { it == lastNodeOfFunctionSignatureWithBodyExpression },
-                endASTNodePredicate = {
-                    // collect all remaining nodes
-                    false
-                }
-            ).takeIf { it.isNotEmpty() }
-            ?.fixFunctionBodyExpression(node, emit, autoCorrect, maxLengthRemainingForFirstLineOfBodyExpression)
-
-        val lastNodeOfFunctionSignatureWithBlockBody =
-            node
-                .getLastNodeOfFunctionSignatureWithBlockBody()
-                ?.nextLeaf(includeEmpty = true)
-        leaves
-            .childrenBetween(
-                startASTNodePredicate = { it == lastNodeOfFunctionSignatureWithBlockBody },
-                endASTNodePredicate = {
-                    // collect all remaining nodes
-                    false
-                }
-            ).takeIf { it.isNotEmpty() }
-            ?.fixFunctionBodyBlock(emit, autoCorrect)
+        if (node.findChildByType(EQ) == null) {
+            fixFunctionBodyBlock(node, emit, autoCorrect)
+        } else {
+            fixFunctionBodyExpression(node, emit, autoCorrect, maxLengthRemainingForFirstLineOfBodyExpression)
+        }
     }
 
-    private fun List<ASTNode>.fixFunctionBodyExpression(
+    private fun fixFunctionBodyExpression(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
         autoCorrect: Boolean,
         maxLengthRemainingForFirstLineOfBodyExpression: Int
     ) {
-        val (whiteSpaceBeforeFunctionBodyExpression, functionBodyExpression) =
-            this
-                .let {
-                    val whiteSpaceFirst =
-                        it.firstOrNull { first -> first.isWhiteSpace() }
-                    if (whiteSpaceFirst == null) {
-                        Pair(null, it)
-                    } else {
-                        Pair(
-                            it.firstOrNull { first -> first.isWhiteSpace() },
-                            it.drop(1)
-                        )
-                    }
-                }
+        val lastNodeOfFunctionSignatureWithBodyExpression =
+            node
+                .findChildByType(EQ)
+                ?.nextLeaf(includeEmpty = true)
+                ?: return
+        val bodyNodes = node.getFunctionBody(lastNodeOfFunctionSignatureWithBodyExpression)
+        val whiteSpaceBeforeFunctionBodyExpression = bodyNodes.getStartingWhitespaceOrNull()
+        val functionBodyExpressionNodes = bodyNodes.dropWhile { it.isWhiteSpace() }
 
-        functionBodyExpression
+        val functionBodyExpressionLines = functionBodyExpressionNodes
             .joinTextToString()
             .split("\n")
+        functionBodyExpressionLines
             .firstOrNull()
             ?.also { firstLineOfBodyExpression ->
-                if (firstLineOfBodyExpression.length + 1 > maxLengthRemainingForFirstLineOfBodyExpression) {
-                    if (whiteSpaceBeforeFunctionBodyExpression == null ||
-                        !whiteSpaceBeforeFunctionBodyExpression.textContains('\n')
+                if (whiteSpaceBeforeFunctionBodyExpression.isWhiteSpaceWithNewline()) {
+                    if (functionBodyExpressionWrapping == default ||
+                        (functionBodyExpressionWrapping == multiline && functionBodyExpressionLines.size == 1) ||
+                        node.isMultilineFunctionSignatureWithoutExplicitReturnType(lastNodeOfFunctionSignatureWithBodyExpression)
                     ) {
                         emit(
-                            functionBodyExpression.first().startOffset,
+                            whiteSpaceBeforeFunctionBodyExpression!!.startOffset,
+                            "First line of body expression fits on same line as function signature",
+                            true
+                        )
+                        if (autoCorrect) {
+                            (whiteSpaceBeforeFunctionBodyExpression as LeafPsiElement).rawReplaceWithText(" ")
+                        }
+                    }
+                } else if (whiteSpaceBeforeFunctionBodyExpression == null ||
+                    !whiteSpaceBeforeFunctionBodyExpression.textContains('\n')
+                ) {
+                    if (node.isMultilineFunctionSignatureWithoutExplicitReturnType(lastNodeOfFunctionSignatureWithBodyExpression) &&
+                        firstLineOfBodyExpression.length + 1 <= maxLengthRemainingForFirstLineOfBodyExpression
+                    ) {
+                        if (whiteSpaceBeforeFunctionBodyExpression == null ||
+                            whiteSpaceBeforeFunctionBodyExpression.text != " "
+                        ) {
+                            emit(
+                                functionBodyExpressionNodes.first().startOffset,
+                                "Single whitespace expected before expression body",
+                                true
+                            )
+                            if (autoCorrect) {
+                                if (whiteSpaceBeforeFunctionBodyExpression != null) {
+                                    (whiteSpaceBeforeFunctionBodyExpression as LeafPsiElement).rawReplaceWithText(" ")
+                                } else {
+                                    (functionBodyExpressionNodes.first() as LeafPsiElement).upsertWhitespaceBeforeMe(" ")
+                                }
+                            }
+                        }
+                    } else if (firstLineOfBodyExpression.length + 1 > maxLengthRemainingForFirstLineOfBodyExpression ||
+                        (functionBodyExpressionWrapping == multiline && functionBodyExpressionLines.size > 1) ||
+                        functionBodyExpressionWrapping == always
+                    ) {
+                        emit(
+                            functionBodyExpressionNodes.first().startOffset,
                             "Newline expected before expression body",
                             true
                         )
@@ -518,33 +573,40 @@ public class FunctionSignatureRule :
                             if (whiteSpaceBeforeFunctionBodyExpression != null) {
                                 (whiteSpaceBeforeFunctionBodyExpression as LeafPsiElement).rawReplaceWithText(newLineAndIndent)
                             } else {
-                                (functionBodyExpression.first() as LeafPsiElement).upsertWhitespaceBeforeMe(newLineAndIndent)
+                                (functionBodyExpressionNodes.first() as LeafPsiElement).upsertWhitespaceBeforeMe(newLineAndIndent)
                             }
                         }
-                    }
-                } else if (whiteSpaceBeforeFunctionBodyExpression?.textContains('\n') == true) {
-                    emit(
-                        whiteSpaceBeforeFunctionBodyExpression.startOffset,
-                        "First line of body expression fits on same line as function signature",
-                        true
-                    )
-                    if (autoCorrect) {
-                        (whiteSpaceBeforeFunctionBodyExpression as LeafPsiElement).rawReplaceWithText(" ")
                     }
                 }
             }
     }
 
-    private fun List<ASTNode>.fixFunctionBodyBlock(
+    private fun ASTNode.isMultilineFunctionSignatureWithoutExplicitReturnType(
+        lastNodeOfFunctionSignatureWithBodyExpression: ASTNode?
+    ) = functionSignatureNodes()
+        .childrenBetween(
+            startASTNodePredicate = { true },
+            endASTNodePredicate = { it == lastNodeOfFunctionSignatureWithBodyExpression }
+        ).joinToString(separator = "") { it.text }
+        .split("\n")
+        .lastOrNull()
+        ?.matches(INDENT_WITH_CLOSING_PARENTHESIS)
+        ?: false
+
+    private fun fixFunctionBodyBlock(
+        node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
         autoCorrect: Boolean
     ) {
-        val (whiteSpaceBeforeFunctionBodyExpression, functionBodyBlock) =
-            this
-                .firstOrNull()
-                ?.takeIf { first -> first.isWhiteSpace() }
-                ?.let { Pair(it, this.drop(1)) }
-                ?: Pair(null, this)
+        val lastNodeOfFunctionSignatureWithBlockBody =
+            node
+                .getLastNodeOfFunctionSignatureWithBlockBody()
+                ?.nextLeaf(includeEmpty = true)
+                ?: return
+
+        val bodyNodes = node.getFunctionBody(lastNodeOfFunctionSignatureWithBlockBody)
+        val whiteSpaceBeforeFunctionBodyExpression = bodyNodes.getStartingWhitespaceOrNull()
+        val functionBodyBlock = bodyNodes.dropWhile { it.isWhiteSpace() }
 
         functionBodyBlock
             .joinTextToString()
@@ -564,6 +626,25 @@ public class FunctionSignatureRule :
                 }
             }
     }
+
+    private fun ASTNode.getFunctionBody(splitNode: ASTNode?): List<ASTNode> =
+        this
+            .collectLeavesRecursively()
+            .childrenBetween(
+                startASTNodePredicate = { it == splitNode },
+                endASTNodePredicate = {
+                    // collect all remaining nodes
+                    false
+                }
+            )
+
+    private fun List<ASTNode>.getStartingWhitespaceOrNull() =
+        this
+            .firstOrNull()
+            ?.takeIf { first -> first.isWhiteSpace() }
+
+    private fun List<ASTNode>.getBody() =
+        this.dropWhile { it.isWhiteSpace() }
 
     private fun isMaxLineLengthSet() = maxLineLength > -1
 
@@ -624,14 +705,10 @@ public class FunctionSignatureRule :
             ?.prevCodeLeaf()
 
     public companion object {
-        @Suppress("MemberVisibilityCanBePrivate")
-        public const val KTLINT_FUNCTION_SIGNATURE_RULE_FORCE_MULTILINE_WITH_AT_LEAST_PARAMETERS: String =
-            "ktlint_function_signature_rule_force_multiline_with_at_least_parameters"
-
-        public val functionSignatureWrappingMinimumParametersProperty: UsesEditorConfigProperties.EditorConfigProperty<Int> =
+        public val forceMultilineWhenParameterCountGreaterOrEqualThanProperty: UsesEditorConfigProperties.EditorConfigProperty<Int> =
             UsesEditorConfigProperties.EditorConfigProperty(
                 type = PropertyType.LowerCasingPropertyType(
-                    KTLINT_FUNCTION_SIGNATURE_RULE_FORCE_MULTILINE_WITH_AT_LEAST_PARAMETERS,
+                    "ktlint_function_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than",
                     "Force wrapping the parameters of the function signature in case it contains at least the specified " +
                         "number of parameters even in case the entire function signature would fit on a single line. " +
                         "By default this parameter is not enabled.",
@@ -640,5 +717,44 @@ public class FunctionSignatureRule :
                 ),
                 defaultValue = -1
             )
+
+        public val functionBodyExpressionWrappingProperty: UsesEditorConfigProperties.EditorConfigProperty<FunctionBodyExpressionWrapping> =
+            UsesEditorConfigProperties.EditorConfigProperty(
+                type = PropertyType.LowerCasingPropertyType(
+                    "ktlint_function_signature_body_expression_wrapping",
+                    "Determines how to wrap the body of function in case it is an expression. Use 'default' " +
+                        "to wrap the body expression only when the first line of the expression does not fit on the same " +
+                        "line as the function signature. Use 'multiline' to force wrapping of body expressions that " +
+                        "consists of multiple line. Use 'always' to force wrapping of body expression always.",
+                    EnumValueParser(FunctionBodyExpressionWrapping::class.java),
+                    FunctionBodyExpressionWrapping.values().map { it.name }.toSet()
+                ),
+                defaultValue = default
+            )
+
+        private val INDENT_WITH_CLOSING_PARENTHESIS = Regex("\\s*\\) =")
+    }
+
+    /**
+     * Code style to be used while linting and formatting. Note that the [EnumValueParser] requires values to be lowercase.
+     */
+    @Suppress("EnumEntryName", "ktlint:enum-entry-name-case")
+    public enum class FunctionBodyExpressionWrapping {
+        /**
+         * Keep the first line of the body expression on the same line as the function signature if max line length is
+         * not exceeded.
+         */
+        default,
+
+        /**
+         * Force the body expression to start on a separate line in case it is a multiline expression. A single line
+         * body expression is wrapped only when it does not fit on the same line as the function signature.
+         */
+        multiline,
+
+        /**
+         * Always force the body expression to start on a separate line.
+         */
+        always;
     }
 }

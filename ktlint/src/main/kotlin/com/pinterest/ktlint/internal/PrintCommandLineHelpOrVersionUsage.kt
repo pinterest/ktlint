@@ -7,7 +7,7 @@ import picocli.CommandLine
  * Check if user requested either help or version options, if yes - print it
  * and exit process with [exitCode] exit code.
  */
-internal fun CommandLine.printHelpOrVersionUsage(
+internal fun CommandLine.printCommandLineHelpOrVersionUsage(
     exitCode: Int = 0
 ) {
     if (isUsageHelpRequested) {

@@ -25,7 +25,7 @@ It's also [easy to create your own](#creating-a-reporter).
 - **A single executable jar with all dependencies included.**
 
 <p align="center">
-<a href="#installation">Installation</a> | <a href="#usage">Usage</a> | <a href="#integration">Integration</a> with <a href="#-with-maven">Maven</a> / <a href="#-with-gradle">Gradle</a> / <a href="#-with-intellij-idea">IntelliJ IDEA</a> / <a href="#-with-emacs">Emacs</a> / <a href="#-with-continuous-integration">Continuous Integration</a> | Creating <a href="#creating-a-ruleset">a ruleset</a> | <a href="#creating-a-reporter">a reporter</a> | <a href="#badge">Badge</a> | <a href="#faq">FAQ</a>
+<a href="#installation">Installation</a> | <a href="#command-line-usage">Usage</a> | <a href="#integration">Integration</a> with <a href="#-with-maven">Maven</a> / <a href="#-with-gradle">Gradle</a> / <a href="#-with-intellij-idea">IntelliJ IDEA</a> / <a href="#-with-gnu-emacs">Emacs</a> / <a href="#-with-continuous-integration">Continuous Integration</a> | Creating <a href="#creating-a-ruleset">a ruleset</a> | <a href="#creating-a-reporter">a reporter</a> | <a href="#badge">Badge</a> | <a href="#faq">FAQ</a>
 </p>
 
 ## Standard rules
@@ -67,6 +67,7 @@ It's also [easy to create your own](#creating-a-reporter).
 - `package-name`: No underscores in package names
 - `parameter-list-wrapping`: When class/function signature doesn't fit on a single line, each parameter must be on a separate line
 - `string-template`: Consistent string templates (`$v` instead of `${v}`, `${p.v}` instead of `${p.v.toString()}`)
+- `trailing-comma`: Consistent removal (default) or adding of trailing comma's (both on call and declaration site)
 
 ### Spacing
 - `annotation-spacing`: Annotations should be separated by a single line break
@@ -249,7 +250,7 @@ To contribute or get more info, please visit the [GitHub repository](https://git
 > Skip all the way to the "Integration" section if you don't plan to use `ktlint`'s command line interface.
 
 ```sh
-curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.45.2/ktlint &&
+curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.46.1/ktlint &&
   chmod a+x ktlint &&
   sudo mv ktlint /usr/local/bin/
 ```
@@ -363,7 +364,7 @@ $ ktlint installGitPreCommitHook
         <dependency>
             <groupId>com.pinterest</groupId>
             <artifactId>ktlint</artifactId>
-            <version>0.45.2</version>
+            <version>0.46.1</version>
         </dependency>
         <!-- additional 3rd party ruleset(s) can be specified here -->
     </dependencies>
@@ -411,7 +412,7 @@ configurations {
 }
 
 dependencies {
-    ktlint("com.pinterest:ktlint:0.45.2") {
+    ktlint("com.pinterest:ktlint:0.46.1") {
         attributes {
             attribute(Bundling.BUNDLING_ATTRIBUTE, getObjects().named(Bundling, Bundling.EXTERNAL))
         }
@@ -456,7 +457,7 @@ See [Making your Gradle tasks incremental](https://proandroiddev.com/making-your
 val ktlint by configurations.creating
 
 dependencies {
-    ktlint("com.pinterest:ktlint:0.45.2") {
+    ktlint("com.pinterest:ktlint:0.46.1") {
         attributes {
             attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.EXTERNAL))
         }

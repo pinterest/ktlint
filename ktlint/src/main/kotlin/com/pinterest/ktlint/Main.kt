@@ -9,7 +9,7 @@ import com.pinterest.ktlint.internal.GitPreCommitHookSubCommand
 import com.pinterest.ktlint.internal.GitPrePushHookSubCommand
 import com.pinterest.ktlint.internal.KtlintCommandLine
 import com.pinterest.ktlint.internal.PrintASTSubCommand
-import com.pinterest.ktlint.internal.printHelpOrVersionUsage
+import com.pinterest.ktlint.internal.printCommandLineHelpOrVersionUsage
 import picocli.CommandLine
 
 fun main(args: Array<String>) {
@@ -23,7 +23,7 @@ fun main(args: Array<String>) {
         .addSubcommand(GenerateEditorConfigSubCommand.COMMAND_NAME, GenerateEditorConfigSubCommand())
     val parseResult = commandLine.parseArgs(*args)
 
-    commandLine.printHelpOrVersionUsage()
+    commandLine.printCommandLineHelpOrVersionUsage()
 
     if (parseResult.hasSubcommand()) {
         handleSubCommand(commandLine, parseResult)

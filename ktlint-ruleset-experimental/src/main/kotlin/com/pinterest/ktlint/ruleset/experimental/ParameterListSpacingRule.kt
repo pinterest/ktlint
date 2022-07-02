@@ -9,6 +9,7 @@ import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.core.ast.children
+import com.pinterest.ktlint.core.ast.isPartOfComment
 import com.pinterest.ktlint.core.ast.nextCodeSibling
 import com.pinterest.ktlint.core.ast.nextLeaf
 import com.pinterest.ktlint.core.ast.nextSibling
@@ -56,14 +57,24 @@ public class ParameterListSpacingRule : Rule("$experimentalRulesetId:parameter-l
             val el = iterator.next()
             when (el.elementType) {
                 WHITE_SPACE -> {
-                    if (countValueParameters == 0) {
+                    if (countValueParameters == 0 && node.containsNoComments()) {
                         removeUnexpectedWhiteSpace(el, emit, autoCorrect)
                     } else if (valueParameterCount == 0 && el.isNotIndent()) {
-                        // whitespace before first parameter
-                        removeUnexpectedWhiteSpace(el, emit, autoCorrect)
+                        if (node.containsNoComments()) {
+                            // whitespace before first parameter
+                            removeUnexpectedWhiteSpace(el, emit, autoCorrect)
+                        } else {
+                            // Avoid conflict with comment spacing rule which requires a whitespace before the
+                            // EOL-comment
+                        }
                     } else if (valueParameterCount == countValueParameters && el.isNotIndent()) {
-                        // whitespace after the last parameter
-                        removeUnexpectedWhiteSpace(el, emit, autoCorrect)
+                        if (node.containsNoComments()) {
+                            // whitespace after the last parameter
+                            removeUnexpectedWhiteSpace(el, emit, autoCorrect)
+                        } else {
+                            // Avoid conflict with comment spacing rule which requires a whitespace before the
+                            // EOL-comment
+                        }
                     } else if (el.nextCodeSibling()?.elementType == COMMA) {
                         // No whitespace between parameter name and comma allowed
                         removeUnexpectedWhiteSpace(el, emit, autoCorrect)
@@ -89,6 +100,9 @@ public class ParameterListSpacingRule : Rule("$experimentalRulesetId:parameter-l
             }
         }
     }
+
+    private fun ASTNode.containsNoComments() =
+        children().none { it.isPartOfComment() }
 
     private fun visitValueParameter(
         node: ASTNode,
