@@ -6,6 +6,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+* Add `format` reporter. This reporter prints a one-line-summary of the formatting status per file. ([#621](https://github.com/pinterest/ktlint/issue/621)).
+
 ### Fixed
 
 * Fix cli argument "--disabled_rules" ([#1520](https://github.com/pinterest/ktlint/issue/1520)).
