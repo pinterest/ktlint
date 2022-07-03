@@ -129,8 +129,13 @@ private fun FileSystem.toGlob(
         ""
     }
     val pathWithoutNegationPrefix = path.removePrefix(NEGATION_PREFIX)
-    val resolvedPath = rootDir.resolve(pathWithoutNegationPrefix)
-    val expandedGlobs = if (resolvedPath.isDirectory()) {
+    val resolvedPath = try {
+        rootDir.resolve(pathWithoutNegationPrefix)
+    } catch (e: InvalidPathException) {
+        // Windows throws an exception when you pass a glob to Path#resolve.
+        null
+    }
+    val expandedGlobs = if (resolvedPath != null && resolvedPath.isDirectory()) {
         getDefaultPatternsForPath(resolvedPath)
     } else if (isGlobAbsolutePath(pathWithoutNegationPrefix)) {
         listOf(pathWithoutNegationPrefix)
