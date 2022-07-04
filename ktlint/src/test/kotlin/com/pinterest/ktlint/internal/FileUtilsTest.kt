@@ -208,7 +208,7 @@ internal class FileUtilsFileSequenceTest {
             "~/project/src/main/**/*.kt"
         ]
     )
-    fun `Given a non-Windows OS a pattern that starts with a tilde then transform the globs to the user home directory`(
+    fun `Given a non-Windows OS and a pattern that starts with a tilde then transform the globs to the user home directory`(
         pattern: String
     ) {
         val os = System
@@ -217,15 +217,14 @@ internal class FileUtilsFileSequenceTest {
         assumeTrue(os != "windows")
 
         val homeDir = System.getProperty("user.home")
-        tempFileSystem.createFile("$homeDir/project/src/main/kotlin/One.kt")
+        val filePath = "$homeDir/project/src/main/kotlin/One.kt".normalizePath()
+        tempFileSystem.createFile(filePath)
 
         val foundFiles = getFiles(
-            patterns = listOf(pattern)
+            patterns = listOf(pattern.normalizeGlob())
         )
 
-        assertThat(foundFiles).containsExactlyInAnyOrder(
-            "$homeDir/project/src/main/kotlin/One.kt"
-        )
+        assertThat(foundFiles).containsExactlyInAnyOrder(filePath)
     }
 
     @Test
@@ -244,7 +243,7 @@ internal class FileUtilsFileSequenceTest {
     }
 
     @Test
-    fun `Given an (relative) directory path (but not a glob) from the workdir then find all files in that workdir and it subdirectories having the default kotlin extensions`() {
+    fun `Given a (relative) directory path (but not a glob) from the workdir then find all files in that workdir and it subdirectories having the default kotlin extensions`() {
         val foundFiles = getFiles(
             patterns = listOf("src/main/kotlin".normalizeGlob()),
             rootDir = tempFileSystem.getPath("${rootDir}project1".normalizePath())
