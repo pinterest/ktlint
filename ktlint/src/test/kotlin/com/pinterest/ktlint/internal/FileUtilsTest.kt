@@ -13,6 +13,8 @@ import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.DisabledOnOs
+import org.junit.jupiter.api.condition.OS
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 
@@ -198,6 +200,8 @@ internal class FileUtilsFileSequenceTest {
         )
     }
 
+    // Jimfs does not currently support the Windows syntax for an absolute path on the current drive (e.g. "\foo\bar")
+    @DisabledOnOs(OS.WINDOWS)
     @ParameterizedTest(name = "Pattern: {0}")
     @ValueSource(
         strings = [
@@ -211,11 +215,6 @@ internal class FileUtilsFileSequenceTest {
     fun `Given a non-Windows OS and a pattern that starts with a tilde then transform the globs to the user home directory`(
         pattern: String
     ) {
-        val os = System
-            .getProperty("os.name")
-            .lowercase()
-        assumeTrue(os != "windows")
-
         val homeDir = System.getProperty("user.home")
         val filePath = "$homeDir/project/src/main/kotlin/One.kt".normalizePath()
         tempFileSystem.createFile(filePath)
@@ -242,6 +241,8 @@ internal class FileUtilsFileSequenceTest {
         )
     }
 
+    // Jimfs does not currently support the Windows syntax for an absolute path on the current drive (e.g. "\foo\bar")
+    @DisabledOnOs(OS.WINDOWS)
     @Test
     fun `Given a (relative) directory path (but not a glob) from the workdir then find all files in that workdir and it subdirectories having the default kotlin extensions`() {
         val foundFiles = getFiles(
@@ -255,6 +256,27 @@ internal class FileUtilsFileSequenceTest {
         ).doesNotContain(
             javaFileInProjectSubDirectory
         )
+    }
+
+    @Test
+    fun `Given the Windows OS and some unescaped globs including a negate pattern and no workdir then ignore all files in the negate pattern`() {
+        assumeTrue(
+            System
+                .getProperty("os.name")
+                .lowercase(Locale.getDefault())
+                .startsWith("windows")
+        )
+
+        val foundFiles = getFiles(
+            patterns = listOf(
+                "project1\\src\\**\\*.kt".normalizeGlob(),
+                "!project1\\src\\**\\example\\*.kt".normalizeGlob()
+            )
+        )
+
+        assertThat(foundFiles)
+            .containsExactlyInAnyOrder(ktFile1InProjectSubDirectory)
+            .doesNotContain(ktFile2InProjectSubDirectory)
     }
 
     private fun String.normalizePath() = replace('/', File.separatorChar)
