@@ -33,8 +33,6 @@ internal class VisitorProvider(
         } else {
             ruleSorter
         }.getSortedRules(params.ruleSets, params.debug)
-            .filter { it.ruleId == "no-wildcard-imports" }
-//            .take(1)
 
     internal fun visitor(
         rootNode: ASTNode,
