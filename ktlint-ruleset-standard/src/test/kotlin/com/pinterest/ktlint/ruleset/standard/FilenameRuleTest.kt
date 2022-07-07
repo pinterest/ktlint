@@ -242,7 +242,7 @@ class FilenameRuleTest {
     fun `Issue 1530 - Given a file which name should match PascalCase then this name may also contain letters with diacritics`() {
         val code = "// some code"
         fileNameRuleAssertThat(code)
-            .asFileWithPath("ŸëšThïsĮsÂllòwed.kt")
+            .asFileWithPath("ŸëšThïsĮsÂllòwed123.kt")
             .hasNoLintViolations()
     }
 

@@ -67,8 +67,8 @@ class EnumEntryNameCaseRuleTest {
         val code =
             """
             enum class SomeEnum {
-                ŸÈŚ_THÎS_IS_ALLOWED,
-                ŸèśThîsIsAllowed,
+                ŸÈŚ_THÎS_IS_ALLOWED_123,
+                ŸèśThîsIsAllowed123,
             }
             """.trimIndent()
         enumEntryNameCaseRuleAssertThat(code).hasNoLintViolations()

@@ -11,7 +11,7 @@ import com.pinterest.ktlint.core.ast.ElementType.PROPERTY
 import com.pinterest.ktlint.core.ast.ElementType.TYPEALIAS
 import com.pinterest.ktlint.core.ast.ElementType.TYPE_REFERENCE
 import com.pinterest.ktlint.core.ast.children
-import com.pinterest.ktlint.ruleset.standard.internal.removeDiacriticsFromLetters
+import com.pinterest.ktlint.ruleset.standard.internal.regExIgnoringDiacriticsAndStrokesOnLetters
 import java.nio.file.Paths
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
@@ -167,7 +167,7 @@ public class FilenameRule : Rule(
     private fun String.shouldMatchPascalCase(
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        if (!this.removeDiacriticsFromLetters().matches(pascalCaseRegEx)) {
+        if (!this.matches(pascalCaseRegEx)) {
             emit(0, "File name '$this.kt' should conform PascalCase", false)
         }
     }
@@ -199,7 +199,7 @@ public class FilenameRule : Rule(
             }
 
     private companion object {
-        val pascalCaseRegEx = Regex("""^[A-Z][A-Za-z\d]*$""")
+        val pascalCaseRegEx = "^[A-Z][A-Za-z\\d]*$".regExIgnoringDiacriticsAndStrokesOnLetters()
         val NON_CLASS_RELATED_TOP_LEVEL_DECLARATION_TYPES = listOf(OBJECT_DECLARATION, TYPEALIAS, PROPERTY)
     }
 }
