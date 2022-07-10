@@ -92,18 +92,13 @@ internal class VisitorProvider(
                         ShortenedQualifiedRule(ruleReference.toShortenedQualifiedRuleId(), it)
                     }
             }
-        return sequentialVisitor(rules, rootNode)
-    }
-
-    private fun sequentialVisitor(
-        rules: List<ShortenedQualifiedRule>,
-        rootNode: ASTNode
-    ): ((node: ASTNode, rule: Rule, fqRuleId: String) -> Unit) -> Unit = { visit ->
-        rules.forEach {
-            if (it.rule.runsOnRootNodeOnly()) {
-                visit(rootNode, it.rule, it.shortenedQualifiedRuleId)
-            } else {
-                rootNode.visit { node -> visit(node, it.rule, it.shortenedQualifiedRuleId) }
+        return { visit ->
+            rules.forEach {
+                if (it.rule.runsOnRootNodeOnly()) {
+                    visit(rootNode, it.rule, it.shortenedQualifiedRuleId)
+                } else {
+                    rootNode.visit { node -> visit(node, it.rule, it.shortenedQualifiedRuleId) }
+                }
             }
         }
     }
