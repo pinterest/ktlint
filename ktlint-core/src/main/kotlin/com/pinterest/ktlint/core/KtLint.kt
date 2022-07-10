@@ -19,6 +19,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.Locale
 import org.ec4j.core.model.PropertyType
+import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
 import org.jetbrains.kotlin.com.intellij.openapi.util.Key
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
@@ -139,33 +140,48 @@ public object KtLint {
         VisitorProvider(params)
             .visitor(preparedCode.rootNode)
             .invoke { node, rule, fqRuleId ->
-                // fixme: enforcing suppression based on node.startOffset is wrong
-                // (not just because not all nodes are leaves but because rules are free to emit (and fix!) errors at any position)
-                if (
-                    !preparedCode.suppressedRegionLocator(node.startOffset, fqRuleId, node === preparedCode.rootNode)
-                ) {
-                    try {
-                        rule.visit(node, false) { offset, errorMessage, canBeAutoCorrected ->
-                            // https://github.com/shyiko/ktlint/issues/158#issuecomment-462728189
-                            if (node.startOffset != offset &&
-                                preparedCode.suppressedRegionLocator(offset, fqRuleId, node === preparedCode.rootNode)
-                            ) {
-                                return@visit
-                            }
-                            val (line, col) = preparedCode.positionInTextLocator(offset)
-                            errors.add(LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected))
-                        }
-                    } catch (e: Exception) {
-                        val (line, col) = preparedCode.positionInTextLocator(node.startOffset)
-
-                        throw RuleExecutionException(line, col, fqRuleId, e)
-                    }
+                visitNodeWithRule(
+                    preparedCode,
+                    node,
+                    rule,
+                    fqRuleId,
+                    false
+                ) { offset, errorMessage, canBeAutoCorrected ->
+                    val (line, col) = preparedCode.positionInTextLocator(offset)
+                    errors.add(LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected))
                 }
             }
 
         errors
             .sortedWith { l, r -> if (l.line != r.line) l.line - r.line else l.col - r.col }
             .forEach { e -> params.cb(e, false) }
+    }
+
+    private fun visitNodeWithRule(
+        preparedCode: PreparedCode,
+        node: ASTNode,
+        rule: Rule,
+        fqRuleId: String,
+        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+    ) {
+        // https://github.com/shyiko/ktlint/issues/158#issuecomment-462728189
+        // fixme: enforcing suppression based on node.startOffset is wrong (not just because not all nodes are leaves
+        //  but because rules are free to emit (and fix!) errors at any position)
+        if (!preparedCode.suppressedRegionLocator(node.startOffset, fqRuleId, node === preparedCode.rootNode)) {
+            try {
+                rule.visit(node, autoCorrect, emit)
+            } catch (e: Exception) {
+                if (autoCorrect) {
+                    // line/col cannot be reliably mapped as exception might originate from a node not present in the
+                    // original AST
+                    throw RuleExecutionException(0, 0, fqRuleId, e)
+                } else {
+                    val (line, col) = preparedCode.positionInTextLocator(node.startOffset)
+                    throw RuleExecutionException(line, col, fqRuleId, e)
+                }
+            }
+        }
     }
 
     private fun prepareCodeForLinting(
@@ -241,81 +257,45 @@ public object KtLint {
         visitorProvider
             .visitor(preparedCode.rootNode)
             .invoke { node, rule, fqRuleId ->
-                // fixme: enforcing suppression based on node.startOffset is wrong
-                // (not just because not all nodes are leaves but because rules are free to emit (and fix!) errors at any position)
-                if (
-                    !preparedCode.suppressedRegionLocator(node.startOffset, fqRuleId, node === preparedCode.rootNode)
-                ) {
-                    try {
-                        rule.visit(node, true) { offset, errorMessage, canBeAutoCorrected ->
-                            tripped = true
-                            if (canBeAutoCorrected) {
-                                mutated = true
-                                if (preparedCode.suppressedRegionLocator !== SuppressionLocatorBuilder.noSuppression) {
-                                    preparedCode.suppressedRegionLocator =
-                                        SuppressionLocatorBuilder.buildSuppressedRegionsLocator(
-                                            preparedCode.rootNode
-                                        )
-                                }
-                            }
-                            val (line, col) = preparedCode.positionInTextLocator(offset)
-                            errors.add(
-                                Pair(
-                                    LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected),
-                                    // It is assumed that a rule that emits that an error can be autocorrected, also
-                                    // does correct the error.
-                                    canBeAutoCorrected
-                                )
-                            )
-                        }
-                    } catch (e: Exception) {
-                        // line/col cannot be reliably mapped as exception might originate from a node not present
-                        // in the original AST
-                        throw RuleExecutionException(0, 0, fqRuleId, e)
+                val originalCodeNode = node.text
+                visitNodeWithRule(preparedCode, node, rule, fqRuleId, true) { offset, errorMessage, canBeAutoCorrected ->
+                    tripped = true
+                    if (canBeAutoCorrected) {
+                        mutated = true
                     }
                 }
+                if (preparedCode.suppressedRegionLocator !== SuppressionLocatorBuilder.noSuppression &&
+                    originalCodeNode != node.text
+                ) {
+                    preparedCode.suppressedRegionLocator =
+                        SuppressionLocatorBuilder.buildSuppressedRegionsLocator(
+                            preparedCode.rootNode
+                        )
+                }
+                val (line, col) = preparedCode.positionInTextLocator(offset)
+                errors.add(
+                    Pair(
+                        LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected),
+                        // It is assumed that a rule that emits that an error can be autocorrected, also
+                        // does correct the error.
+                        canBeAutoCorrected
+                    )
+                )
             }
         if (tripped) {
             visitorProvider
                 .visitor(preparedCode.rootNode)
                 .invoke { node, rule, fqRuleId ->
-                    // fixme: enforcing suppression based on node.startOffset is wrong
-                    // (not just because not all nodes are leaves but because rules are free to emit (and fix!) errors at any position)
-                    if (
-                        !preparedCode.suppressedRegionLocator(
-                            node.startOffset,
-                            fqRuleId,
-                            node === preparedCode.rootNode
+                    visitNodeWithRule(preparedCode, node, rule, fqRuleId, false) { offset, errorMessage, canBeAutoCorrected ->
+                        val (line, col) = preparedCode.positionInTextLocator(offset)
+                        errors.add(
+                            Pair(
+                                LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected),
+                                // It is assumed that a rule only corrects an error after it has emitted an
+                                // error and indicating that it actually can be autocorrected.
+                                false
+                            )
                         )
-                    ) {
-                        try {
-                            rule.visit(node, false) { offset, errorMessage, canBeAutoCorrected ->
-                                // https://github.com/shyiko/ktlint/issues/158#issuecomment-462728189
-                                if (
-                                    node.startOffset != offset &&
-                                    preparedCode.suppressedRegionLocator(
-                                        offset,
-                                        fqRuleId,
-                                        node === preparedCode.rootNode
-                                    )
-                                ) {
-                                    return@visit
-                                }
-                                val (line, col) = preparedCode.positionInTextLocator(offset)
-                                errors.add(
-                                    Pair(
-                                        LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected),
-                                        // It is assumed that a rule only corrects an error after it has emitted an
-                                        // error and indicating that it actually can be autocorrected.
-                                        false
-                                    )
-                                )
-                            }
-                        } catch (e: Exception) {
-                            val (line, col) = preparedCode.positionInTextLocator(node.startOffset)
-
-                            throw RuleExecutionException(line, col, fqRuleId, e)
-                        }
                     }
                 }
         }
