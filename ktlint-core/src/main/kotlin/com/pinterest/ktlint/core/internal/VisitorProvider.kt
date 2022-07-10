@@ -6,6 +6,8 @@ import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.disabledRules
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties.EditorConfigProperty
 import com.pinterest.ktlint.core.ast.visit
+import com.pinterest.ktlint.core.initKtLintKLogger
+import mu.KotlinLogging
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 /**
@@ -13,6 +15,8 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
  * executed, a singleton instance of the class is used to prevent that the logs are flooded with duplicate log lines.
  */
 private val ruleSorter = RuleSorter()
+
+private val logger = KotlinLogging.logger {}.initKtLintKLogger()
 
 internal class VisitorProvider(
     private val params: KtLint.ExperimentalParams,
@@ -80,50 +84,47 @@ internal class VisitorProvider(
             )
             return { _ -> }
         }
+        val rules = ruleReferences
+            .mapNotNull { ruleReference ->
+                enabledRules[ruleReference.toQualifiedRuleId()]
+                    ?.let {
+                        ShortenedQualifiedRule(ruleReference.toShortenedQualifiedRuleId(), it)
+                    }
+            }
         return if (concurrent) {
-            concurrentVisitor(enabledRules, ruleReferenceWithoutEntriesToBeSkipped, rootNode)
+            concurrentVisitor(rules, rootNode)
         } else {
-            sequentialVisitor(enabledRules, ruleReferenceWithoutEntriesToBeSkipped, rootNode)
+            sequentialVisitor(rules, rootNode)
         }
     }
 
     private fun concurrentVisitor(
-        enabledRules: Map<String, Rule>,
-        ruleReferences: List<RuleReference>,
+        rules: List<ShortenedQualifiedRule>,
         rootNode: ASTNode
     ): ((node: ASTNode, rule: Rule, fqRuleId: String) -> Unit) -> Unit {
         return { visit ->
             rootNode.visit { node ->
-                ruleReferences
-                    .forEach { ruleReference ->
-                        if (node == rootNode || !ruleReference.runOnRootNodeOnly) {
-                            enabledRules[ruleReference.toQualifiedRuleId()]
-                                ?.let { rule ->
-                                    visit(node, rule, ruleReference.toShortenedQualifiedRuleId())
-                                }
-                        }
+                rules.forEach {
+                    if (node == rootNode || !it.rule.runsOnRootNodeOnly()) {
+                        visit(node, it.rule, it.shortenedQualifiedRuleId)
                     }
+                }
             }
         }
     }
 
     private fun sequentialVisitor(
-        enabledRules: Map<String, Rule>,
-        ruleReferences: List<RuleReference>,
+        rules: List<ShortenedQualifiedRule>,
         rootNode: ASTNode
     ): ((node: ASTNode, rule: Rule, fqRuleId: String) -> Unit) -> Unit {
         return { visit ->
-            ruleReferences
-                .forEach { ruleReference ->
-                    enabledRules[ruleReference.toQualifiedRuleId()]
-                        ?.let { rule ->
-                            if (ruleReference.runOnRootNodeOnly) {
-                                visit(rootNode, rule, ruleReference.toShortenedQualifiedRuleId())
-                            } else {
-                                rootNode.visit { node -> visit(node, rule, ruleReference.toShortenedQualifiedRuleId()) }
-                            }
-                        }
+            rules.forEach {
+                if (it.rule.runsOnRootNodeOnly()) {
+                    visit(rootNode, it.rule, it.shortenedQualifiedRuleId)
+                } else {
+                    rootNode.visit { node -> visit(node, it.rule, it.shortenedQualifiedRuleId) }
                 }
+            }
         }
     }
 
@@ -135,4 +136,12 @@ internal class VisitorProvider(
                 // The rule set id in the disabled_rules setting may be omitted for rules in the standard rule set
                 it.toQualifiedRuleId() == qualifiedRuleId
             }
+
+    private fun Rule.runsOnRootNodeOnly() =
+        visitorModifiers.contains(Rule.VisitorModifier.RunOnRootNodeOnly)
+
+    private data class ShortenedQualifiedRule(
+        val shortenedQualifiedRuleId: String,
+        val rule: Rule
+    )
 }
