@@ -125,17 +125,13 @@ class VisitorProviderTest {
      * visit provider has invoked the correct rules in the correct order. Note that the testProvider does not invoke the
      * real visit method of the rule.
      */
-    private fun testVisitorProvider(
-        vararg rules: Rule,
-        concurrent: Boolean? = null
-    ): MutableList<Visit>? {
-        return testVisitorProvider(
+    private fun testVisitorProvider(vararg rules: Rule): MutableList<Visit>? =
+        testVisitorProvider(
             RuleSet(
                 STANDARD,
                 *rules
             )
         )
-    }
 
     /**
      * Create a visitor provider for a given list of rule sets. It returns a list of visits that the provider made
