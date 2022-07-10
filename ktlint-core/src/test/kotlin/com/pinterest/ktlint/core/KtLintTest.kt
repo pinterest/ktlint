@@ -452,7 +452,7 @@ class KtLintTest {
                 cb = { _, _ -> }
             )
         )
-        assertThat(bus).isEqualTo(listOf("file:a", "file:b", "file:c", "file:d", "file:e", "b", "c", "e"))
+        assertThat(bus).isEqualTo(listOf("file:a", "file:b", "b", "file:c", "c", "file:d", "file:e", "e"))
     }
 
     @Test

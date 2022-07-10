@@ -239,10 +239,8 @@ public object KtLint {
         val errors = mutableSetOf<Pair<LintError, Boolean>>()
         val visitorProvider = VisitorProvider(params = params)
         visitorProvider
-            .visitor(
-                preparedCode.rootNode,
-                concurrent = false
-            ).invoke { node, rule, fqRuleId ->
+            .visitor(preparedCode.rootNode)
+            .invoke { node, rule, fqRuleId ->
                 // fixme: enforcing suppression based on node.startOffset is wrong
                 // (not just because not all nodes are leaves but because rules are free to emit (and fix!) errors at any position)
                 if (
