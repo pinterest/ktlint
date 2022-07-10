@@ -119,24 +119,6 @@ class VisitorProviderTest {
         assertThat(actual).isNull()
     }
 
-    @Test
-    fun `Visits all rules on a node concurrently before proceeding to the next node`() {
-        val actual = testVisitorProvider(
-            NormalRule(RULE_A),
-            NormalRule(RULE_B),
-            concurrent = true
-        )
-
-        assertThat(actual).containsExactly(
-            Visit(RULE_A, FILE),
-            Visit(RULE_B, FILE),
-            Visit(RULE_A, PACKAGE_DIRECTIVE),
-            Visit(RULE_B, PACKAGE_DIRECTIVE),
-            Visit(RULE_A, IMPORT_LIST),
-            Visit(RULE_B, IMPORT_LIST)
-        )
-    }
-
     /**
      * Create a visitor provider for a given list of rules in the same rule set (STANDARD). It returns a list of visits
      * that the provider made after it was invoked. The tests of the visitor provider should only focus on whether the
@@ -151,8 +133,7 @@ class VisitorProviderTest {
             RuleSet(
                 STANDARD,
                 *rules
-            ),
-            concurrent = concurrent
+            )
         )
     }
 
@@ -162,10 +143,7 @@ class VisitorProviderTest {
      * invoked the correct rules in the correct order. Note that the testProvider does not invoke the real visit method
      * of the rule.
      */
-    private fun testVisitorProvider(
-        vararg ruleSets: RuleSet,
-        concurrent: Boolean? = null
-    ): MutableList<Visit>? {
+    private fun testVisitorProvider(vararg ruleSets: RuleSet): MutableList<Visit>? {
         val ruleSetList = ruleSets.toList()
         return VisitorProvider(
             params = KtLint.ExperimentalParams(
@@ -188,7 +166,7 @@ class VisitorProviderTest {
             recreateRuleSorter = true
         ).run {
             var visits: MutableList<Visit>? = null
-            visitor(SOME_ROOT_AST_NODE, concurrent ?: false)
+            visitor(SOME_ROOT_AST_NODE)
                 .invoke { node, _, fqRuleId ->
                     if (visits == null) {
                         visits = mutableListOf()

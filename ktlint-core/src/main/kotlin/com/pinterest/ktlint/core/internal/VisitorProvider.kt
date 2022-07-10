@@ -38,10 +38,7 @@ internal class VisitorProvider(
             ruleSorter
         }.getSortedRules(params.ruleSets, params.debug)
 
-    internal fun visitor(
-        rootNode: ASTNode,
-        concurrent: Boolean = true
-    ): ((node: ASTNode, rule: Rule, fqRuleId: String) -> Unit) -> Unit {
+    internal fun visitor(rootNode: ASTNode): ((node: ASTNode, rule: Rule, fqRuleId: String) -> Unit) -> Unit {
         val enabledRuleReferences =
             ruleReferences
                 .filter { ruleReference -> isNotDisabled(rootNode, ruleReference.toQualifiedRuleId()) }
@@ -91,39 +88,18 @@ internal class VisitorProvider(
                         ShortenedQualifiedRule(ruleReference.toShortenedQualifiedRuleId(), it)
                     }
             }
-        return if (concurrent) {
-            concurrentVisitor(rules, rootNode)
-        } else {
-            sequentialVisitor(rules, rootNode)
-        }
-    }
-
-    private fun concurrentVisitor(
-        rules: List<ShortenedQualifiedRule>,
-        rootNode: ASTNode
-    ): ((node: ASTNode, rule: Rule, fqRuleId: String) -> Unit) -> Unit {
-        return { visit ->
-            rootNode.visit { node ->
-                rules.forEach {
-                    if (node == rootNode || !it.rule.runsOnRootNodeOnly()) {
-                        visit(node, it.rule, it.shortenedQualifiedRuleId)
-                    }
-                }
-            }
-        }
+        return sequentialVisitor(rules, rootNode)
     }
 
     private fun sequentialVisitor(
         rules: List<ShortenedQualifiedRule>,
         rootNode: ASTNode
-    ): ((node: ASTNode, rule: Rule, fqRuleId: String) -> Unit) -> Unit {
-        return { visit ->
-            rules.forEach {
-                if (it.rule.runsOnRootNodeOnly()) {
-                    visit(rootNode, it.rule, it.shortenedQualifiedRuleId)
-                } else {
-                    rootNode.visit { node -> visit(node, it.rule, it.shortenedQualifiedRuleId) }
-                }
+    ): ((node: ASTNode, rule: Rule, fqRuleId: String) -> Unit) -> Unit = { visit ->
+        rules.forEach {
+            if (it.rule.runsOnRootNodeOnly()) {
+                visit(rootNode, it.rule, it.shortenedQualifiedRuleId)
+            } else {
+                rootNode.visit { node -> visit(node, it.rule, it.shortenedQualifiedRuleId) }
             }
         }
     }
