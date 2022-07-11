@@ -94,11 +94,7 @@ internal class VisitorProvider(
             }
         return { visit ->
             rules.forEach {
-                if (it.rule.runsOnRootNodeOnly()) {
-                    visit(rootNode, it.rule, it.shortenedQualifiedRuleId)
-                } else {
-                    rootNode.visit { node -> visit(node, it.rule, it.shortenedQualifiedRuleId) }
-                }
+                visit(rootNode, it.rule, it.shortenedQualifiedRuleId)
             }
         }
     }
@@ -111,9 +107,6 @@ internal class VisitorProvider(
                 // The rule set id in the disabled_rules setting may be omitted for rules in the standard rule set
                 it.toQualifiedRuleId() == qualifiedRuleId
             }
-
-    private fun Rule.runsOnRootNodeOnly() =
-        visitorModifiers.contains(Rule.VisitorModifier.RunOnRootNodeOnly)
 
     private data class ShortenedQualifiedRule(
         val shortenedQualifiedRuleId: String,

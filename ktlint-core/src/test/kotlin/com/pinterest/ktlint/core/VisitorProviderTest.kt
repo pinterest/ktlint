@@ -3,8 +3,6 @@ package com.pinterest.ktlint.core
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.disabledRulesProperty
 import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.ast.ElementType.FILE
-import com.pinterest.ktlint.core.ast.ElementType.IMPORT_LIST
-import com.pinterest.ktlint.core.ast.ElementType.PACKAGE_DIRECTIVE
 import com.pinterest.ktlint.core.internal.VisitorProvider
 import com.pinterest.ktlint.core.internal.initPsiFileFactory
 import org.assertj.core.api.Assertions.assertThat
@@ -17,19 +15,6 @@ import org.junit.jupiter.api.Test
 
 class VisitorProviderTest {
     @Test
-    fun `A normal rule visits all nodes`() {
-        val actual = testVisitorProvider(
-            NormalRule(NORMAL_RULE)
-        )
-
-        assertThat(actual).containsExactly(
-            Visit(NORMAL_RULE, FILE),
-            Visit(NORMAL_RULE, PACKAGE_DIRECTIVE),
-            Visit(NORMAL_RULE, IMPORT_LIST)
-        )
-    }
-
-    @Test
     fun `A root only rule only visits the FILE node only`() {
         val actual = testVisitorProvider(
             RootNodeOnlyRule(ROOT_NODE_ONLY_RULE)
@@ -41,15 +26,17 @@ class VisitorProviderTest {
     }
 
     @Test
-    fun `A run as late as possible rule visits all nodes`() {
+    fun `A run-as-late-as-possible-rule runs later than normal rules`() {
         val actual = testVisitorProvider(
-            RunAsLateAsPossibleRule(RUN_AS_LATE_AS_POSSIBLE_RULE)
+            NormalRule(RULE_A),
+            RunAsLateAsPossibleRule(RULE_B),
+            NormalRule(RULE_C)
         )
 
         assertThat(actual).containsExactly(
-            Visit(RUN_AS_LATE_AS_POSSIBLE_RULE, FILE),
-            Visit(RUN_AS_LATE_AS_POSSIBLE_RULE, PACKAGE_DIRECTIVE),
-            Visit(RUN_AS_LATE_AS_POSSIBLE_RULE, IMPORT_LIST)
+            Visit(RULE_A, FILE),
+            Visit(RULE_C, FILE),
+            Visit(RULE_B, FILE)
         )
     }
 
@@ -185,7 +172,6 @@ class VisitorProviderTest {
         const val EXPERIMENTAL = "experimental"
         const val CUSTOM_RULE_SET_A = "custom-rule-set-a"
         val SOME_ROOT_AST_NODE = initRootAstNode()
-        const val NORMAL_RULE = "normal-rule"
         const val ROOT_NODE_ONLY_RULE = "root-node-only-rule"
         const val RUN_AS_LATE_AS_POSSIBLE_RULE = "run-as-late-as-possible-rule"
         const val RULE_A = "rule-a"
