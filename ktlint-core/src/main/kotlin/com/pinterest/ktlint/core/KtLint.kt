@@ -9,35 +9,28 @@ import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.internal.EditorConfigGenerator
 import com.pinterest.ktlint.core.internal.EditorConfigLoader
 import com.pinterest.ktlint.core.internal.KotlinPsiFileFactoryProvider
-import com.pinterest.ktlint.core.internal.LineAndColumn
-import com.pinterest.ktlint.core.internal.SuppressionLocator
+import com.pinterest.ktlint.core.internal.PreparedCode
 import com.pinterest.ktlint.core.internal.SuppressionLocatorBuilder
 import com.pinterest.ktlint.core.internal.VisitorProvider
-import com.pinterest.ktlint.core.internal.buildPositionInTextLocator
+import com.pinterest.ktlint.core.internal.prepareCodeForLinting
 import java.nio.file.FileSystems
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.Locale
 import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
 import org.jetbrains.kotlin.com.intellij.openapi.util.Key
-import org.jetbrains.kotlin.com.intellij.psi.PsiElement
-import org.jetbrains.kotlin.com.intellij.psi.PsiErrorElement
-import org.jetbrains.kotlin.com.intellij.psi.PsiFileFactory
-import org.jetbrains.kotlin.idea.KotlinLanguage
-import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
 public object KtLint {
     public val FILE_PATH_USER_DATA_KEY: Key<String> = Key<String>("FILE_PATH")
     public val EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY: Key<EditorConfigProperties> =
         Key<EditorConfigProperties>("EDITOR_CONFIG_PROPERTIES")
-    private const val UTF8_BOM = "\uFEFF"
+    internal const val UTF8_BOM = "\uFEFF"
     public const val STDIN_FILE: String = "<stdin>"
 
     private val kotlinPsiFileFactoryProvider = KotlinPsiFileFactoryProvider()
-    private val editorConfigLoader = EditorConfigLoader(FileSystems.getDefault())
+    internal val editorConfigLoader = EditorConfigLoader(FileSystems.getDefault())
 
     /**
      * @param fileName path of file to lint/format
@@ -184,61 +177,6 @@ public object KtLint {
         }
     }
 
-    private fun prepareCodeForLinting(
-        psiFileFactory: PsiFileFactory,
-        params: ExperimentalParams
-    ): PreparedCode {
-        val normalizedText = normalizeText(params.text)
-        val positionInTextLocator = buildPositionInTextLocator(normalizedText)
-
-        val psiFileName = if (params.script) "file.kts" else "file.kt"
-        val psiFile = psiFileFactory.createFileFromText(
-            psiFileName,
-            KotlinLanguage.INSTANCE,
-            normalizedText
-        ) as KtFile
-
-        val errorElement = psiFile.findErrorElement()
-        if (errorElement != null) {
-            val (line, col) = positionInTextLocator(errorElement.textOffset)
-            throw ParseException(line, col, errorElement.errorDescription)
-        }
-
-        val rootNode = psiFile.node
-
-        val editorConfigProperties = editorConfigLoader.loadPropertiesForFile(
-            params.normalizedFilePath,
-            params.isStdIn,
-            params.editorConfigPath?.let { Paths.get(it) },
-            params.rules,
-            params.editorConfigOverride,
-            params.debug
-        )
-
-        if (!params.isStdIn) {
-            rootNode.putUserData(FILE_PATH_USER_DATA_KEY, params.normalizedFilePath.toString())
-        }
-        rootNode.putUserData(EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY, editorConfigProperties)
-
-        val suppressedRegionLocator = SuppressionLocatorBuilder.buildSuppressedRegionsLocator(rootNode)
-
-        return PreparedCode(
-            rootNode,
-            positionInTextLocator,
-            suppressedRegionLocator
-        )
-    }
-
-    @Deprecated(
-        message = "Should not be a part of public api. Will be removed in future release."
-    )
-    public fun normalizeText(text: String): String {
-        return text
-            .replace("\r\n", "\n")
-            .replace("\r", "\n")
-            .replaceFirst(UTF8_BOM, "")
-    }
-
     /**
      * Fix style violations.
      *
@@ -360,23 +298,4 @@ public object KtLint {
             else -> "\n"
         }
     }
-
-    private fun PsiElement.findErrorElement(): PsiErrorElement? {
-        if (this is PsiErrorElement) {
-            return this
-        }
-        this.children.forEach { child ->
-            val errorElement = child.findErrorElement()
-            if (errorElement != null) {
-                return errorElement
-            }
-        }
-        return null
-    }
-
-    private class PreparedCode(
-        val rootNode: FileASTNode,
-        val positionInTextLocator: (offset: Int) -> LineAndColumn,
-        var suppressedRegionLocator: SuppressionLocator
-    )
 }
