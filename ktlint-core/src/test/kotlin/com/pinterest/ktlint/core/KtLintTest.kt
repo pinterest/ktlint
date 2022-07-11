@@ -1,6 +1,10 @@
 package com.pinterest.ktlint.core
 
 import com.pinterest.ktlint.core.DummyRuleWithCustomEditorConfigProperty.Companion.SOME_CUSTOM_RULE_PROPERTY
+import com.pinterest.ktlint.core.Rule.VisitorModifier.RunAsLateAsPossible
+import com.pinterest.ktlint.core.Rule.VisitorModifier.RunOnRootNodeOnly
+import com.pinterest.ktlint.core.VisitedNode.VisitNodeType.CHILD
+import com.pinterest.ktlint.core.VisitedNode.VisitNodeType.ROOT
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.isRoot
 import org.assertj.core.api.Assertions.assertThat
@@ -279,59 +283,102 @@ class KtLintTest {
     }
 
     @Test
-    fun testRuleExecutionOrder() {
-        open class R(
-            private val bus: MutableList<String>,
-            id: String,
-            visitorModifiers: Set<VisitorModifier> = emptySet()
-        ) : Rule(id, visitorModifiers) {
-            private var done = false
-            override fun visit(
-                node: ASTNode,
-                autoCorrect: Boolean,
-                emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
-            ) {
-                if (node.isRoot()) {
-                    bus.add("file:$id")
-                } else if (!done) {
-                    bus.add(id)
-                    done = true
-                }
-            }
-        }
-        val bus = mutableListOf<String>()
+    fun `Given a normal rule then execute on root node and child nodes`() {
+        val visitedNodes = mutableListOf<VisitedNode>()
         KtLint.lint(
             KtLint.ExperimentalParams(
                 text = "fun main() {}",
                 ruleSets = listOf(
                     RuleSet(
                         "standard",
-                        object : R(
-                            bus = bus,
+                        SimpleTestRule(
+                            visitedNodes = visitedNodes,
+                            id = "a",
+                            visitorModifiers = setOf()
+                        ),
+                        SimpleTestRule(
+                            visitedNodes = visitedNodes,
+                            id = "b",
+                            visitorModifiers = setOf(RunAsLateAsPossible)
+                        )
+                    )
+                ),
+                cb = { _, _ -> }
+            )
+        )
+        assertThat(visitedNodes).containsExactly(
+            VisitedNode(ROOT, "a"),
+            VisitedNode(CHILD, "a"),
+            VisitedNode(ROOT, "b"),
+            VisitedNode(CHILD, "b")
+        )
+    }
+
+    @Test
+    fun `Given a run-on-root-node-only rule then execute on root node but not on child nodes`() {
+        val visitedNodes = mutableListOf<VisitedNode>()
+        KtLint.lint(
+            KtLint.ExperimentalParams(
+                text = "fun main() {}",
+                ruleSets = listOf(
+                    RuleSet(
+                        "standard",
+                        SimpleTestRule(
+                            visitedNodes = visitedNodes,
+                            id = "a",
+                            visitorModifiers = setOf(RunOnRootNodeOnly)
+                        ),
+                        SimpleTestRule(
+                            visitedNodes = visitedNodes,
+                            id = "b",
+                            visitorModifiers = setOf(RunOnRootNodeOnly, RunAsLateAsPossible)
+                        )
+                    )
+                ),
+                cb = { _, _ -> }
+            )
+        )
+        assertThat(visitedNodes).containsExactly(
+            VisitedNode(ROOT, "a"),
+            VisitedNode(ROOT, "b")
+        )
+    }
+
+    @Test
+    fun `Given multiple rules which have to run in a certain order`() {
+        val visitedNodes = mutableListOf<VisitedNode>()
+        KtLint.lint(
+            KtLint.ExperimentalParams(
+                text = "fun main() {}",
+                ruleSets = listOf(
+                    RuleSet(
+                        "standard",
+                        SimpleTestRule(
+                            visitedNodes = visitedNodes,
                             id = "e",
-                            visitorModifiers = setOf(VisitorModifier.RunAsLateAsPossible)
-                        ) {},
-                        object : R(
-                            bus = bus,
+                            visitorModifiers = setOf(RunAsLateAsPossible)
+                        ),
+                        SimpleTestRule(
+                            visitedNodes = visitedNodes,
                             id = "d",
                             visitorModifiers = setOf(
-                                VisitorModifier.RunOnRootNodeOnly,
-                                VisitorModifier.RunAsLateAsPossible
+                                RunOnRootNodeOnly,
+                                RunAsLateAsPossible
                             )
-                        ) {},
-                        R(
-                            bus = bus,
+                        ),
+                        SimpleTestRule(
+                            visitedNodes = visitedNodes,
                             id = "b"
                         ),
-                        object : R(
-                            bus = bus,
+                        SimpleTestRule(
+                            visitedNodes = visitedNodes,
                             id = "a",
                             visitorModifiers = setOf(
-                                VisitorModifier.RunOnRootNodeOnly
+                                RunOnRootNodeOnly
                             )
-                        ) {},
-                        R(
-                            bus = bus,
+                        ),
+                        SimpleTestRule(
+                            visitedNodes = visitedNodes,
                             id = "c"
                         )
                     )
@@ -339,7 +386,16 @@ class KtLintTest {
                 cb = { _, _ -> }
             )
         )
-        assertThat(bus).isEqualTo(listOf("file:a", "file:b", "b", "file:c", "c", "file:d", "file:e", "e"))
+        assertThat(visitedNodes).containsExactly(
+            VisitedNode(ROOT, "a"),
+            VisitedNode(ROOT, "b"),
+            VisitedNode(CHILD, "b"),
+            VisitedNode(ROOT, "c"),
+            VisitedNode(CHILD, "c"),
+            VisitedNode(ROOT, "d"),
+            VisitedNode(ROOT, "e"),
+            VisitedNode(CHILD, "e")
+        )
     }
 
     @Test
@@ -402,6 +458,35 @@ private open class DummyRule(
     ) {
         block(node)
     }
+}
+
+/**
+ * Collects a maximum of two placeholders for a code sample. The first placeholder represent the root node of the code
+ * sample and is returned as "root:<id>". The placeholder represents *all* other nodes of the code sample and is
+ * represented as "<id>".
+ */
+private open class SimpleTestRule(
+    private val visitedNodes: MutableList<VisitedNode>,
+    id: String,
+    visitorModifiers: Set<VisitorModifier> = emptySet()
+) : Rule(id, visitorModifiers) {
+    private var done = false
+    override fun visit(
+        node: ASTNode,
+        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+    ) {
+        if (node.isRoot()) {
+            visitedNodes.add(VisitedNode(ROOT, id))
+        } else if (!done) {
+            visitedNodes.add(VisitedNode(CHILD, id))
+            done = true
+        }
+    }
+}
+
+private data class VisitedNode(val visitNodeType: VisitNodeType, val id: String) {
+    enum class VisitNodeType { ROOT, CHILD }
 }
 
 private fun getResourceAsText(path: String) =

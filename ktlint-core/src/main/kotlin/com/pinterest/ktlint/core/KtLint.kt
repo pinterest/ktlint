@@ -6,6 +6,7 @@ import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.emptyEditorConfigOverride
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
+import com.pinterest.ktlint.core.ast.visit
 import com.pinterest.ktlint.core.internal.EditorConfigGenerator
 import com.pinterest.ktlint.core.internal.EditorConfigLoader
 import com.pinterest.ktlint.core.internal.PreparedCode
@@ -155,21 +156,34 @@ public object KtLint {
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        // https://github.com/shyiko/ktlint/issues/158#issuecomment-462728189
-        // fixme: enforcing suppression based on node.startOffset is wrong (not just because not all nodes are leaves
-        //  but because rules are free to emit (and fix!) errors at any position)
-        if (!preparedCode.suppressedRegionLocator(node.startOffset, fqRuleId, node === preparedCode.rootNode)) {
-            try {
-                rule.visit(node, autoCorrect, emit)
-            } catch (e: Exception) {
-                if (autoCorrect) {
-                    // line/col cannot be reliably mapped as exception might originate from a node not present in the
-                    // original AST
-                    throw RuleExecutionException(0, 0, fqRuleId, e)
-                } else {
-                    val (line, col) = preparedCode.positionInTextLocator(node.startOffset)
-                    throw RuleExecutionException(line, col, fqRuleId, e)
+        try {
+            if (rule.runsOnRootNodeOnly()) {
+                // https://github.com/shyiko/ktlint/issues/158#issuecomment-462728189
+                // fixme: enforcing suppression based on node.startOffset is wrong (not just because not all nodes are leaves
+                //  but because rules are free to emit (and fix!) errors at any position)
+                if (!preparedCode.suppressedRegionLocator(node.startOffset, fqRuleId, node === preparedCode.rootNode)) {
+                    rule.visit(node, autoCorrect, emit)
                 }
+            } else {
+                node.visit { childNode ->
+                    // https://github.com/shyiko/ktlint/issues/158#issuecomment-462728189
+                    // fixme: enforcing suppression based on node.startOffset is wrong (not just because not all nodes are leaves
+                    //  but because rules are free to emit (and fix!) errors at any position)
+                    if (!preparedCode.suppressedRegionLocator(childNode.startOffset, fqRuleId, childNode === preparedCode.rootNode)) {
+                        rule.visit(childNode, autoCorrect, emit)
+                    } else {
+                        Unit
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            if (autoCorrect) {
+                // line/col cannot be reliably mapped as exception might originate from a node not present in the
+                // original AST
+                throw RuleExecutionException(0, 0, fqRuleId, e)
+            } else {
+                val (line, col) = preparedCode.positionInTextLocator(node.startOffset)
+                throw RuleExecutionException(line, col, fqRuleId, e)
             }
         }
     }
@@ -241,6 +255,9 @@ public object KtLint {
             code
         }
     }
+
+    private fun Rule.runsOnRootNodeOnly() =
+        visitorModifiers.contains(Rule.VisitorModifier.RunOnRootNodeOnly)
 
     /**
      * Reduce memory usage of all internal caches.
