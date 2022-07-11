@@ -2,13 +2,14 @@ package com.pinterest.ktlint.core.internal
 
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.ParseException
+import java.nio.file.Paths
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.PsiErrorElement
-import org.jetbrains.kotlin.com.intellij.psi.PsiFileFactory
 import org.jetbrains.kotlin.idea.KotlinLanguage
 import org.jetbrains.kotlin.psi.KtFile
-import java.nio.file.Paths
+
+private val kotlinPsiFileFactoryProvider = KotlinPsiFileFactoryProvider()
 
 internal class PreparedCode(
     val rootNode: FileASTNode,
@@ -16,10 +17,8 @@ internal class PreparedCode(
     var suppressedRegionLocator: SuppressionLocator
 )
 
-internal fun prepareCodeForLinting(
-    psiFileFactory: PsiFileFactory,
-    params: KtLint.ExperimentalParams
-): PreparedCode {
+internal fun prepareCodeForLinting(params: KtLint.ExperimentalParams): PreparedCode {
+    val psiFileFactory = kotlinPsiFileFactoryProvider.getKotlinPsiFileFactory(params.isInvokedFromCli)
     val normalizedText = normalizeText(params.text)
     val positionInTextLocator = buildPositionInTextLocator(normalizedText)
 

@@ -8,7 +8,6 @@ import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.internal.EditorConfigGenerator
 import com.pinterest.ktlint.core.internal.EditorConfigLoader
-import com.pinterest.ktlint.core.internal.KotlinPsiFileFactoryProvider
 import com.pinterest.ktlint.core.internal.PreparedCode
 import com.pinterest.ktlint.core.internal.SuppressionLocatorBuilder
 import com.pinterest.ktlint.core.internal.VisitorProvider
@@ -29,7 +28,6 @@ public object KtLint {
     internal const val UTF8_BOM = "\uFEFF"
     public const val STDIN_FILE: String = "<stdin>"
 
-    private val kotlinPsiFileFactoryProvider = KotlinPsiFileFactoryProvider()
     internal val editorConfigLoader = EditorConfigLoader(FileSystems.getDefault())
 
     /**
@@ -126,8 +124,7 @@ public object KtLint {
      * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
      */
     public fun lint(params: ExperimentalParams) {
-        val psiFileFactory = kotlinPsiFileFactoryProvider.getKotlinPsiFileFactory(params.isInvokedFromCli)
-        val preparedCode = prepareCodeForLinting(psiFileFactory, params)
+        val preparedCode = prepareCodeForLinting(params)
         val errors = mutableListOf<LintError>()
 
         VisitorProvider(params)
@@ -185,8 +182,7 @@ public object KtLint {
      */
     public fun format(params: ExperimentalParams): String {
         val hasUTF8BOM = params.text.startsWith(UTF8_BOM)
-        val psiFileFactory = kotlinPsiFileFactoryProvider.getKotlinPsiFileFactory(params.isInvokedFromCli)
-        val preparedCode = prepareCodeForLinting(psiFileFactory, params)
+        val preparedCode = prepareCodeForLinting(params)
 
         var tripped = false
         var mutated = false
