@@ -2,13 +2,11 @@ package com.pinterest.ktlint.core
 
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.disabledRulesProperty
 import com.pinterest.ktlint.core.api.EditorConfigOverride
-import com.pinterest.ktlint.core.ast.ElementType.FILE
 import com.pinterest.ktlint.core.internal.VisitorProvider
 import com.pinterest.ktlint.core.internal.initPsiFileFactory
 import org.assertj.core.api.Assertions.assertThat
 import org.ec4j.core.model.Property
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
 import org.jetbrains.kotlin.idea.KotlinLanguage
 import org.jetbrains.kotlin.psi.KtFile
 import org.junit.jupiter.api.Test
@@ -34,9 +32,9 @@ class VisitorProviderTest {
         )
 
         assertThat(actual).containsExactly(
-            Visit(RULE_A, FILE),
-            Visit(RULE_C, FILE),
-            Visit(RULE_B, FILE)
+            Visit(RULE_A),
+            Visit(RULE_C),
+            Visit(RULE_B)
         )
     }
 
@@ -47,7 +45,7 @@ class VisitorProviderTest {
         )
 
         assertThat(actual).containsExactly(
-            Visit(RUN_AS_LATE_AS_POSSIBLE_RULE, FILE)
+            Visit(RUN_AS_LATE_AS_POSSIBLE_RULE)
         )
     }
 
@@ -69,7 +67,7 @@ class VisitorProviderTest {
                 NormalRule(RULE_C),
                 NormalRule(SOME_DISABLED_RULE_IN_CUSTOM_RULE_SET_A)
             )
-        ).filterFileNodes()
+        )
 
         assertThat(actual).containsExactly(
             Visit(RULE_A),
@@ -150,22 +148,15 @@ class VisitorProviderTest {
         ).run {
             var visits: MutableList<Visit>? = null
             visitor(SOME_ROOT_AST_NODE)
-                .invoke { node, _, fqRuleId ->
+                .invoke { _, fqRuleId ->
                     if (visits == null) {
                         visits = mutableListOf()
                     }
-                    visits?.add(Visit(fqRuleId, node.elementType))
+                    visits?.add(Visit(fqRuleId))
                 }
             visits
         }
     }
-
-    /**
-     * When visiting a node with a normal rule, this results in multiple visits. In most tests this would bloat the
-     * assertion needlessly.
-     */
-    private fun List<Visit>?.filterFileNodes(): List<Visit>? =
-        this?.filter { it.elementType == FILE }
 
     private companion object {
         const val STANDARD = "standard"
@@ -261,17 +252,12 @@ class VisitorProviderTest {
         }
     }
 
-    private data class Visit(
-        val shortenedQualifiedRuleId: String,
-        val elementType: IElementType = FILE
-    ) {
+    private data class Visit(val shortenedQualifiedRuleId: String) {
         constructor(
             ruleSetId: String,
-            ruleId: String,
-            elementType: IElementType = FILE
+            ruleId: String
         ) : this(
-            shortenedQualifiedRuleId = "$ruleSetId:$ruleId",
-            elementType = elementType
+            shortenedQualifiedRuleId = "$ruleSetId:$ruleId"
         ) {
             require(!ruleSetId.contains(':')) {
                 "rule set id may not contain the ':' character"

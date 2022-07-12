@@ -130,14 +130,8 @@ public object KtLint {
 
         VisitorProvider(params)
             .visitor(preparedCode.rootNode)
-            .invoke { node, rule, fqRuleId ->
-                visitNodeWithRule(
-                    preparedCode,
-                    node,
-                    rule,
-                    fqRuleId,
-                    false
-                ) { offset, errorMessage, canBeAutoCorrected ->
+            .invoke { rule, fqRuleId ->
+                preparedCode.executeRule(rule, fqRuleId, false) { offset, errorMessage, canBeAutoCorrected ->
                     val (line, col) = preparedCode.positionInTextLocator(offset)
                     errors.add(LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected))
                 }
@@ -148,8 +142,32 @@ public object KtLint {
             .forEach { e -> params.cb(e, false) }
     }
 
-    private fun visitNodeWithRule(
-        preparedCode: PreparedCode,
+    private fun PreparedCode.executeRule(
+        rule: Rule,
+        fqRuleId: String,
+        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+    ) {
+        if (rule.runsOnRootNodeOnly()) {
+            // https://github.com/shyiko/ktlint/issues/158#issuecomment-462728189
+            // fixme: enforcing suppression based on node.startOffset is wrong (not just because not all nodes are leaves
+            //  but because rules are free to emit (and fix!) errors at any position)
+            if (!suppressedRegionLocator(rootNode.startOffset, fqRuleId, true)) {
+                this.executeRuleOnNode(rootNode, rule, fqRuleId, autoCorrect, emit)
+            }
+        } else {
+            rootNode.visit { childNode ->
+                // https://github.com/shyiko/ktlint/issues/158#issuecomment-462728189
+                // fixme: enforcing suppression based on node.startOffset is wrong (not just because not all nodes are leaves
+                //  but because rules are free to emit (and fix!) errors at any position)
+                if (!suppressedRegionLocator(childNode.startOffset, fqRuleId, childNode === rootNode)) {
+                    this.executeRuleOnNode(childNode, rule, fqRuleId, autoCorrect, emit)
+                }
+            }
+        }
+    }
+
+    private fun PreparedCode.executeRuleOnNode(
         node: ASTNode,
         rule: Rule,
         fqRuleId: String,
@@ -157,32 +175,14 @@ public object KtLint {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         try {
-            if (rule.runsOnRootNodeOnly()) {
-                // https://github.com/shyiko/ktlint/issues/158#issuecomment-462728189
-                // fixme: enforcing suppression based on node.startOffset is wrong (not just because not all nodes are leaves
-                //  but because rules are free to emit (and fix!) errors at any position)
-                if (!preparedCode.suppressedRegionLocator(node.startOffset, fqRuleId, node === preparedCode.rootNode)) {
-                    rule.visit(node, autoCorrect, emit)
-                }
-            } else {
-                node.visit { childNode ->
-                    // https://github.com/shyiko/ktlint/issues/158#issuecomment-462728189
-                    // fixme: enforcing suppression based on node.startOffset is wrong (not just because not all nodes are leaves
-                    //  but because rules are free to emit (and fix!) errors at any position)
-                    if (!preparedCode.suppressedRegionLocator(childNode.startOffset, fqRuleId, childNode === preparedCode.rootNode)) {
-                        rule.visit(childNode, autoCorrect, emit)
-                    } else {
-                        Unit
-                    }
-                }
-            }
+            rule.visit(node, autoCorrect, emit)
         } catch (e: Exception) {
             if (autoCorrect) {
                 // line/col cannot be reliably mapped as exception might originate from a node not present in the
                 // original AST
                 throw RuleExecutionException(0, 0, fqRuleId, e)
             } else {
-                val (line, col) = preparedCode.positionInTextLocator(node.startOffset)
+                val (line, col) = positionInTextLocator(node.startOffset)
                 throw RuleExecutionException(line, col, fqRuleId, e)
             }
         }
@@ -203,16 +203,16 @@ public object KtLint {
         val visitorProvider = VisitorProvider(params = params)
         visitorProvider
             .visitor(preparedCode.rootNode)
-            .invoke { node, rule, fqRuleId ->
-                val originalCodeNode = node.text
-                visitNodeWithRule(preparedCode, node, rule, fqRuleId, true) { _, _, canBeAutoCorrected ->
+            .invoke { rule, fqRuleId ->
+                val originalCodeNode = preparedCode.rootNode.text
+                preparedCode.executeRule(rule, fqRuleId, true) { _, _, canBeAutoCorrected ->
                     tripped = true
                     if (canBeAutoCorrected) {
                         mutated = true
                     }
                 }
                 if (preparedCode.suppressedRegionLocator !== SuppressionLocatorBuilder.noSuppression &&
-                    originalCodeNode != node.text
+                    originalCodeNode != preparedCode.rootNode.text
                 ) {
                     preparedCode.suppressedRegionLocator =
                         SuppressionLocatorBuilder.buildSuppressedRegionsLocator(
@@ -224,8 +224,8 @@ public object KtLint {
             val errors = mutableListOf<Pair<LintError, Boolean>>()
             visitorProvider
                 .visitor(preparedCode.rootNode)
-                .invoke { node, rule, fqRuleId ->
-                    visitNodeWithRule(preparedCode, node, rule, fqRuleId, false) { offset, errorMessage, canBeAutoCorrected ->
+                .invoke { rule, fqRuleId ->
+                    preparedCode.executeRule(rule, fqRuleId, false) { offset, errorMessage, canBeAutoCorrected ->
                         val (line, col) = preparedCode.positionInTextLocator(offset)
                         errors.add(
                             Pair(
