@@ -205,20 +205,19 @@ public object KtLint {
         visitorProvider
             .visitor(preparedCode.rootNode)
             .invoke { rule, fqRuleId ->
-                val originalCodeNode = preparedCode.rootNode.text
                 preparedCode.executeRule(rule, fqRuleId, true) { offset, errorMessage, canBeAutoCorrected ->
                     tripped = true
                     if (canBeAutoCorrected) {
                         mutated = true
+                        if (preparedCode.suppressedRegionLocator !== SuppressionLocatorBuilder.noSuppression) {
+                            // Offsets of start and end positions of suppressed regions might have changed due to
+                            // updating the code
+                            preparedCode.suppressedRegionLocator =
+                                SuppressionLocatorBuilder.buildSuppressedRegionsLocator(
+                                    preparedCode.rootNode
+                                )
+                        }
                     }
-                }
-                if (preparedCode.suppressedRegionLocator !== SuppressionLocatorBuilder.noSuppression &&
-                    originalCodeNode != preparedCode.rootNode.text
-                ) {
-                    preparedCode.suppressedRegionLocator =
-                        SuppressionLocatorBuilder.buildSuppressedRegionsLocator(
-                            preparedCode.rootNode
-                        )
                 }
                 val (line, col) = preparedCode.positionInTextLocator(offset)
                 errors.add(
