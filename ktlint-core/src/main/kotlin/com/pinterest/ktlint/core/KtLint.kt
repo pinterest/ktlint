@@ -149,12 +149,7 @@ public object KtLint {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         if (rule.runsOnRootNodeOnly()) {
-            // https://github.com/shyiko/ktlint/issues/158#issuecomment-462728189
-            // fixme: enforcing suppression based on node.startOffset is wrong (not just because not all nodes are leaves
-            //  but because rules are free to emit (and fix!) errors at any position)
-            if (!suppressedRegionLocator(rootNode.startOffset, fqRuleId, true)) {
-                this.executeRuleOnNode(rootNode, rule, fqRuleId, autoCorrect, emit)
-            }
+            this.executeRuleOnNode(rootNode, rule, fqRuleId, autoCorrect, emit)
         } else {
             rootNode.visit { childNode ->
                 // https://github.com/shyiko/ktlint/issues/158#issuecomment-462728189
