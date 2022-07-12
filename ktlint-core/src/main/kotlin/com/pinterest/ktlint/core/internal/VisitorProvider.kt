@@ -38,7 +38,7 @@ internal class VisitorProvider(
             ruleSorter
         }.getSortedRules(params.ruleSets, params.debug)
 
-    internal fun visitor(rootNode: ASTNode): ((node: ASTNode, rule: Rule, fqRuleId: String) -> Unit) -> Unit {
+    internal fun visitor(rootNode: ASTNode): ((rule: Rule, fqRuleId: String) -> Unit) -> Unit {
         val enabledRuleReferences =
             ruleReferences
                 .filter { ruleReference -> isNotDisabled(rootNode, ruleReference.toQualifiedRuleId()) }
@@ -94,7 +94,7 @@ internal class VisitorProvider(
             }
         return { visit ->
             rules.forEach {
-                visit(rootNode, it.rule, it.shortenedQualifiedRuleId)
+                visit(it.rule, it.shortenedQualifiedRuleId)
             }
         }
     }
