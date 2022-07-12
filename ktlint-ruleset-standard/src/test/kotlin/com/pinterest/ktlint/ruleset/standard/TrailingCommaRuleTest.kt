@@ -1021,4 +1021,52 @@ class TrailingCommaRuleTest {
                 LintViolation(7, 6, "Missing trailing comma before \")\"")
             ).isFormattedAs(formattedCode)
     }
+
+    @Test
+    fun `Given that a trailing comma is required then add trailing comma after last enum member`() {
+        val code =
+            """
+            enum class Shape {
+                SQUARE,
+                TRIANGLE
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            enum class Shape {
+                SQUARE,
+                TRIANGLE,
+            }
+            """.trimIndent()
+
+        trailingCommaRuleAssertThat(code)
+            .withEditorConfigOverride(allowTrailingCommaProperty to true)
+            .hasLintViolations(
+                LintViolation(3, 12, "Missing trailing comma before \"}\"") // TODO
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given that a trailing comma is is not allowed then remove comma after last enum member`() {
+        val code =
+            """
+            enum class Shape {
+                SQUARE,
+                TRIANGLE,
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            enum class Shape {
+                SQUARE,
+                TRIANGLE
+            }
+            """.trimIndent()
+
+        trailingCommaRuleAssertThat(code)
+            .withEditorConfigOverride(allowTrailingCommaProperty to true)
+            .hasLintViolations(
+                LintViolation(3, 12, "Unnecessary trailing comma before \"}\"") // TODO
+            ).isFormattedAs(formattedCode)
+    }
 }
