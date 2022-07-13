@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.core
 
+import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.internal.IdNamingPolicy
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
@@ -15,7 +16,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
  *
  * @see RuleSet
  */
-abstract class Rule(
+public open class Rule(
     val id: String,
     public val visitorModifiers: Set<VisitorModifier> = emptySet()
 ) {
@@ -24,17 +25,66 @@ abstract class Rule(
     }
 
     /**
-     * This method is going to be executed for each node in AST (in DFS fashion).
+     * This method is called once before the first node is visited. It can be used to initialize the state of the rule
+     * before processing of nodes starts.
+     */
+    @Suppress("UNUSED_PARAMETER")
+    public open fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {}
+
+    /**
+     * This method is called on a node in AST before visiting the child nodes. This is repeated recursively for the
+     * child nodes resulting in a depth first traversal of the AST.
      *
      * @param node AST node
      * @param autoCorrect indicates whether rule should attempt auto-correction
      * @param emit a way for rule to notify about a violation (lint error)
      */
-    abstract fun visit(
+    public open fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+    ) =
+        /**
+         * For backwards compatibility with ktlint 0.46.x or before, call [visit] when not implemented on node.
+         * Add abstract function modifier and remove function body after removal of deprecated [visit] method to enforce
+         * explicit implementation by rule developer.
+         */
+        visit(node, autoCorrect, emit)
+
+    /**
+     * For backwards compatibility reasons, this method is called by default implementation of [beforeVisitChildNodes].
+     * Existing implementations of the [visit] method should be renamed tp [beforeVisitChildNodes].
+     *
+     * @param node AST node
+     * @param autoCorrect indicates whether rule should attempt auto-correction
+     * @param emit a way for rule to notify about a violation (lint error)
+     */
+    @Deprecated(
+        message = "Marked for deletion in ktlint 0.48.0",
+        replaceWith = ReplaceWith("beforeVisitChildNodes(node, autocorrect, emit")
     )
+    @Suppress("UNUSED_PARAMETER")
+    public open fun visit(
+        node: ASTNode,
+        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+    ) {}
+
+    /**
+     * This method is called on a node in AST after all its child nodes have been visited.
+     */
+    @Suppress("unused", "UNUSED_PARAMETER")
+    public open fun afterVisitChildNodes(
+        node: ASTNode,
+        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+    ) {}
+
+    /**
+     * This method is called once after the last node in the AST is visited. It can be used for teardown of the state
+     * of the rule.
+     */
+    public open fun afterLastNode() {}
 
     sealed class VisitorModifier {
 

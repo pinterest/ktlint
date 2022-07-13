@@ -85,7 +85,7 @@ internal object SuppressionLocatorBuilder {
                                 val openingHint = open.removeAt(openHintIndex)
                                 result.add(
                                     SuppressionHint(
-                                        IntRange(openingHint.range.first, node.startOffset),
+                                        IntRange(openingHint.range.first, node.startOffset - 1),
                                         disabledRules
                                     )
                                 )
