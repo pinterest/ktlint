@@ -6,7 +6,6 @@ import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.emptyEditorConfigOverride
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
-import com.pinterest.ktlint.core.ast.visit
 import com.pinterest.ktlint.core.internal.EditorConfigGenerator
 import com.pinterest.ktlint.core.internal.EditorConfigLoader
 import com.pinterest.ktlint.core.internal.PreparedCode
@@ -148,21 +147,12 @@ public object KtLint {
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        if (rule.runsOnRootNodeOnly()) {
-            this.executeRuleOnNode(rootNode, rule, fqRuleId, autoCorrect, emit)
-        } else {
-            rootNode.visit { childNode ->
-                // https://github.com/shyiko/ktlint/issues/158#issuecomment-462728189
-                // fixme: enforcing suppression based on node.startOffset is wrong (not just because not all nodes are leaves
-                //  but because rules are free to emit (and fix!) errors at any position)
-                if (!suppressedRegionLocator(childNode.startOffset, fqRuleId, childNode === rootNode)) {
-                    this.executeRuleOnNode(childNode, rule, fqRuleId, autoCorrect, emit)
-                }
-            }
-        }
+        rule.beforeFirstNode(rootNode.getUserData(EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY)!!)
+        this.executeRuleOnNodeRecursively(rootNode, rule, fqRuleId, autoCorrect, emit)
+        rule.afterLastNode()
     }
 
-    private fun PreparedCode.executeRuleOnNode(
+    private fun PreparedCode.executeRuleOnNodeRecursively(
         node: ASTNode,
         rule: Rule,
         fqRuleId: String,
@@ -170,7 +160,20 @@ public object KtLint {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         try {
-            rule.visit(node, autoCorrect, emit)
+            rule.beforeVisitChildNodes(node, autoCorrect, emit)
+            if (!rule.runsOnRootNodeOnly()) {
+                node
+                    .getChildren(null)
+                    .forEach { childNode ->
+                        // https://github.com/shyiko/ktlint/issues/158#issuecomment-462728189
+                        // fixme: enforcing suppression based on node.startOffset is wrong (not just because not all nodes are leaves
+                        //  but because rules are free to emit (and fix!) errors at any position)
+                        if (!suppressedRegionLocator(childNode.startOffset, fqRuleId, childNode === rootNode)) {
+                            this.executeRuleOnNodeRecursively(childNode, rule, fqRuleId, autoCorrect, emit)
+                        }
+                    }
+            }
+            rule.afterVisitChildNodes(node, autoCorrect, emit)
         } catch (e: Exception) {
             if (autoCorrect) {
                 // line/col cannot be reliably mapped as exception might originate from a node not present in the

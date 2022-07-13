@@ -6,6 +6,7 @@ import com.pinterest.ktlint.core.IndentConfig.IndentStyle.TAB
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentSizeProperty
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentStyleProperty
+import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType.ARROW
 import com.pinterest.ktlint.core.ast.ElementType.BINARY_EXPRESSION
