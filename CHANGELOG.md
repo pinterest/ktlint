@@ -9,7 +9,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Fixed
 
 * Fix cli argument "--disabled_rules" ([#1520](https://github.com/pinterest/ktlint/issue/1520)).
-* Fix incorrect JV when JAVA_TOOL_OPTIONS is set in env ([#1543](https://github.com/pinterest/ktlint/issues/1543))
+* Fix resolving of Java version when JAVA_TOOL_OPTIONS is set ([#1543](https://github.com/pinterest/ktlint/issues/1543))
 
 ### Changed
 
