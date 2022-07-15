@@ -111,7 +111,6 @@ tasks.register("publishNewRelease", DefaultTask.class) {
 }
 
 tasks.withType(Wrapper).configureEach {
-  gradleVersion = libs.versions.gradle
-  distributionSha256Sum = libs.versions.gradleSha256
-  distributionType = Wrapper.DistributionType.BIN
+  gradleVersion = libs.versions.gradle.get()
+  distributionSha256Sum = libs.versions.gradleSha256.get()
 }

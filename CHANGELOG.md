@@ -12,6 +12,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- Update Gradle to `7.5` version
+
 ### Removed
 
 ## [0.46.1] - 2022-06-21
