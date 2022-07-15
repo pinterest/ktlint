@@ -9,9 +9,9 @@ repositories {
 // Pass '-PkotlinDev' to command line to enable kotlin-in-development version
 val kotlinVersion = if (project.hasProperty("kotlinDev")) {
     logger.warn("Enabling kotlin dev version!")
-    "1.7.0"
+    "1.7.10"
 } else {
-    "1.7.0"
+    "1.7.10"
 }
 
 dependencies {

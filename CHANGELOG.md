@@ -13,6 +13,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Changed
 
 - Update Gradle to `7.5` version
+- Update Kotlin development version to `1.7.10` and Kotlin version to `1.7.10`.
 
 ### Removed
 
