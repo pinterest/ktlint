@@ -14,6 +14,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 - Update Gradle to `7.5` version
 - Update Kotlin development version to `1.7.10` and Kotlin version to `1.7.10`.
+- Update Dokka to `1.7.10` version
 
 ### Removed
 
