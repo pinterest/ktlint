@@ -16,11 +16,8 @@ import com.pinterest.ktlint.core.ast.isWhiteSpace
 import com.pinterest.ktlint.core.ast.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.core.ast.lineIndent
 import com.pinterest.ktlint.core.ast.prevLeaf
-import com.pinterest.ktlint.core.ast.visit
-import kotlin.math.max
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.psi.KtContainerNode
@@ -39,7 +36,7 @@ import org.jetbrains.kotlin.psi.psiUtil.getStrictParentOfType
  * - maxLineLength exceeded (and separating arguments with \n would actually help)
  * in addition, "(" and ")" must be on separates line if any of the arguments are (otherwise on the same)
  */
-class ArgumentListWrappingRule :
+public class ArgumentListWrappingRule :
     Rule("argument-list-wrapping"),
     UsesEditorConfigProperties {
     private var editorConfigIndent = IndentConfig.DEFAULT_INDENT_CONFIG
@@ -167,8 +164,6 @@ class ArgumentListWrappingRule :
             }
             ElementType.VALUE_ARGUMENT,
             ElementType.RPAR -> {
-                var argumentInnerIndentAdjustment = 0
-
                 // aiming for
                 // ... LPAR
                 // <line indent + indentSize> VALUE_PARAMETER...
@@ -193,7 +188,6 @@ class ArgumentListWrappingRule :
                             // autoCorrect mode the indent rule, if enabled, runs after this rule and
                             // determines the final indentation. But if the indent rule is disabled then the
                             // indent of this rule is kept.
-                            argumentInnerIndentAdjustment = intendedIndent.length - prevLeaf.getTextLength()
                             (prevLeaf as LeafPsiElement).rawReplaceWithText(intendedIndent)
                         }
                     }
@@ -201,39 +195,10 @@ class ArgumentListWrappingRule :
                     // Insert a new whitespace element in order to wrap the current child to a new line.
                     emit(child.startOffset, errorMessage(child), true)
                     if (autoCorrect) {
-                        argumentInnerIndentAdjustment = intendedIndent.length - child.column
                         child.treeParent.addChild(PsiWhiteSpaceImpl(intendedIndent), child)
                     }
                 }
-                if (argumentInnerIndentAdjustment != 0 && child.elementType == ElementType.VALUE_ARGUMENT) {
-                    child.visit { n ->
-                        if (n.elementType == ElementType.WHITE_SPACE && n.textContains('\n')) {
-                            val isInCollectionOrFunctionLiteral =
-                                n.treeParent?.elementType == ElementType.COLLECTION_LITERAL_EXPRESSION || n.treeParent?.elementType == ElementType.FUNCTION_LITERAL
-
-                            // If we're inside a collection literal, let's recalculate the adjustment
-                            // because the items inside the collection should not be subject to the same
-                            // indentation as the brackets.
-                            val adjustment = if (isInCollectionOrFunctionLiteral) {
-                                val expectedPosition = intendedIndent.length + editorConfigIndent.indent.length
-                                expectedPosition - child.column
-                            } else {
-                                argumentInnerIndentAdjustment
-                            }
-
-                            val split = n.text.split("\n")
-                            (n as LeafElement).rawReplaceWithText(
-                                split.joinToString("\n") {
-                                    when {
-                                        it.isEmpty() -> it
-                                        adjustment > 0 -> it + " ".repeat(adjustment)
-                                        else -> it.substring(0, max(it.length + adjustment, 0))
-                                    }
-                                }
-                            )
-                        }
-                    }
-                }
+                // Indentation of child nodes need to be fixed by the IndentationRule.
             }
         }
     }
