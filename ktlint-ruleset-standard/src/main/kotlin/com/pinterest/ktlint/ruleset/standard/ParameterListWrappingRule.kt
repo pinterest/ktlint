@@ -15,18 +15,14 @@ import com.pinterest.ktlint.core.ast.ElementType.RPAR
 import com.pinterest.ktlint.core.ast.ElementType.TYPE_PARAMETER_LIST
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER_LIST
-import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.core.ast.children
 import com.pinterest.ktlint.core.ast.column
-import com.pinterest.ktlint.core.ast.isRoot
 import com.pinterest.ktlint.core.ast.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.core.ast.lineIndent
 import com.pinterest.ktlint.core.ast.prevLeaf
 import com.pinterest.ktlint.core.ast.prevSibling
 import com.pinterest.ktlint.core.ast.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.core.ast.upsertWhitespaceBeforeMe
-import com.pinterest.ktlint.core.ast.visit
-import kotlin.math.max
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
@@ -153,8 +149,6 @@ class ParameterListWrappingRule :
                         }
                         VALUE_PARAMETER,
                         RPAR -> {
-                            var paramInnerIndentAdjustment = 0
-
                             // aiming for
                             // ... LPAR
                             // <line indent + indentSize> VALUE_PARAMETER...
@@ -179,7 +173,6 @@ class ParameterListWrappingRule :
                                         // autoCorrect mode the indent rule, if enabled, runs after this rule and
                                         // determines the final indentation. But if the indent rule is disabled then the
                                         // indent of this rule is kept.
-                                        paramInnerIndentAdjustment = intendedIndent.length - prevLeaf.getTextLength()
                                         (prevLeaf as LeafPsiElement).rawReplaceWithText(intendedIndent)
                                     }
                                 }
@@ -187,26 +180,10 @@ class ParameterListWrappingRule :
                                 // Insert a new whitespace element in order to wrap the current child to a new line.
                                 emit(child.startOffset, errorMessage(child), true)
                                 if (autoCorrect) {
-                                    paramInnerIndentAdjustment = intendedIndent.length - child.column
                                     node.addChild(PsiWhiteSpaceImpl(intendedIndent), child)
                                 }
                             }
-                            if (paramInnerIndentAdjustment != 0 && child.elementType == VALUE_PARAMETER) {
-                                child.visit { n ->
-                                    if (n.elementType == WHITE_SPACE && n.textContains('\n')) {
-                                        val split = n.text.split("\n")
-                                        (n as LeafElement).rawReplaceWithText(
-                                            split.joinToString("\n") {
-                                                if (paramInnerIndentAdjustment > 0) {
-                                                    it + " ".repeat(paramInnerIndentAdjustment)
-                                                } else {
-                                                    it.substring(0, max(it.length + paramInnerIndentAdjustment, 0))
-                                                }
-                                            }
-                                        )
-                                    }
-                                }
-                            }
+                            // Indentation of child nodes need to be fixed by the IndentationRule.
                         }
                     }
                 }
