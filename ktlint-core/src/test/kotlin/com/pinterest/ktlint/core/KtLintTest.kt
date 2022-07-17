@@ -1,12 +1,15 @@
 package com.pinterest.ktlint.core
 
+import com.pinterest.ktlint.core.AutoCorrectErrorRule.Companion.STRING_VALUE_AFTER_AUTOCORRECT
 import com.pinterest.ktlint.core.DummyRuleWithCustomEditorConfigProperty.Companion.SOME_CUSTOM_RULE_PROPERTY
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
+import com.pinterest.ktlint.core.ast.ElementType.REGULAR_STRING_PART
 import com.pinterest.ktlint.core.ast.isRoot
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
+import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
@@ -145,6 +148,58 @@ class KtLintTest {
                             "differs from the actual value in the '.editorconfig' file."
                     )
             }
+
+            @Test
+            fun `Given a rule returning an errors which can and can not be autocorrected than that state of the error can be retrieved in the callback`() {
+                val code =
+                    """
+                    val foo = "${AutoCorrectErrorRule.STRING_VALUE_NOT_TO_BE_CORRECTED}"
+                    val bar = "${AutoCorrectErrorRule.STRING_VALUE_TO_BE_AUTOCORRECTED}"
+                    """.trimIndent()
+                val callbacks = mutableListOf<CallbackResult>()
+                KtLint.lint(
+                    KtLint.ExperimentalParams(
+                        text = code,
+                        ruleSets = listOf(
+                            RuleSet("standard", AutoCorrectErrorRule())
+                        ),
+                        userData = emptyMap(),
+                        cb = { e, corrected ->
+                            callbacks.add(
+                                CallbackResult(
+                                    line = e.line,
+                                    col = e.col,
+                                    ruleId = e.ruleId,
+                                    detail = e.detail,
+                                    canBeAutoCorrected = e.canBeAutoCorrected,
+                                    corrected = corrected
+                                )
+                            )
+                        },
+                        script = false,
+                        editorConfigPath = null,
+                        debug = false
+                    )
+                )
+                assertThat(callbacks).containsExactly(
+                    CallbackResult(
+                        line = 1,
+                        col = 12,
+                        ruleId = "auto-correct",
+                        detail = AutoCorrectErrorRule.ERROR_MESSAGE_CAN_NOT_BE_AUTOCORRECTED,
+                        canBeAutoCorrected = false,
+                        corrected = false
+                    ),
+                    CallbackResult(
+                        line = 2,
+                        col = 12,
+                        ruleId = "auto-correct",
+                        detail = AutoCorrectErrorRule.ERROR_MESSAGE_CAN_BE_AUTOCORRECTED,
+                        canBeAutoCorrected = true,
+                        corrected = false
+                    )
+                )
+            }
         }
 
         @Nested
@@ -276,6 +331,64 @@ class KtLintTest {
                     )
             }
         }
+
+        @Test
+        fun `Given a rule returning an errors which can and can not be autocorrected than that state of the error can be retrieved in the callback`() {
+            val code =
+                """
+                val foo = "${AutoCorrectErrorRule.STRING_VALUE_NOT_TO_BE_CORRECTED}"
+                val bar = "${AutoCorrectErrorRule.STRING_VALUE_TO_BE_AUTOCORRECTED}"
+                """.trimIndent()
+            val formattedCode =
+                """
+                val foo = "${AutoCorrectErrorRule.STRING_VALUE_NOT_TO_BE_CORRECTED}"
+                val bar = "$STRING_VALUE_AFTER_AUTOCORRECT"
+                """.trimIndent()
+            val callbacks = mutableListOf<CallbackResult>()
+            val actualFormattedCode = KtLint.format(
+                KtLint.ExperimentalParams(
+                    text = code,
+                    ruleSets = listOf(
+                        RuleSet("standard", AutoCorrectErrorRule())
+                    ),
+                    userData = emptyMap(),
+                    cb = { e, corrected ->
+                        callbacks.add(
+                            CallbackResult(
+                                line = e.line,
+                                col = e.col,
+                                ruleId = e.ruleId,
+                                detail = e.detail,
+                                canBeAutoCorrected = e.canBeAutoCorrected,
+                                corrected = corrected
+                            )
+                        )
+                    },
+                    script = false,
+                    editorConfigPath = null,
+                    debug = false
+                )
+            )
+            assertThat(actualFormattedCode).isEqualTo(formattedCode)
+            assertThat(callbacks).containsExactly(
+                CallbackResult(
+                    line = 1,
+                    col = 12,
+                    ruleId = "auto-correct",
+                    detail = AutoCorrectErrorRule.ERROR_MESSAGE_CAN_NOT_BE_AUTOCORRECTED,
+                    canBeAutoCorrected = false,
+                    corrected = false
+                ),
+                CallbackResult(
+                    line = 2,
+                    col = 12,
+                    ruleId = "auto-correct",
+                    detail = AutoCorrectErrorRule.ERROR_MESSAGE_CAN_BE_AUTOCORRECTED,
+                    canBeAutoCorrected = true,
+                    corrected = true
+                )
+            )
+        }
     }
 
     @Test
@@ -404,7 +517,48 @@ private open class DummyRule(
     }
 }
 
+/**
+ * A dummy rule for testing
+ */
+private class AutoCorrectErrorRule : Rule("auto-correct") {
+    override fun visit(
+        node: ASTNode,
+        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+    ) {
+        if (node.elementType == REGULAR_STRING_PART) {
+            when (node.text) {
+                STRING_VALUE_TO_BE_AUTOCORRECTED -> {
+                    emit(node.startOffset, ERROR_MESSAGE_CAN_BE_AUTOCORRECTED, true)
+                    if (autoCorrect) {
+                        (node as LeafElement).replaceWithText(STRING_VALUE_AFTER_AUTOCORRECT)
+                    }
+                }
+                STRING_VALUE_NOT_TO_BE_CORRECTED ->
+                    emit(node.startOffset, ERROR_MESSAGE_CAN_NOT_BE_AUTOCORRECTED, false)
+            }
+        }
+    }
+
+    companion object {
+        const val STRING_VALUE_TO_BE_AUTOCORRECTED = "string-value-to-be-autocorrected"
+        const val STRING_VALUE_NOT_TO_BE_CORRECTED = "string-value-not-to-be-corrected"
+        const val STRING_VALUE_AFTER_AUTOCORRECT = "string-value-after-autocorrect"
+        const val ERROR_MESSAGE_CAN_BE_AUTOCORRECTED = "This string value is not allowed and can be autocorrected"
+        const val ERROR_MESSAGE_CAN_NOT_BE_AUTOCORRECTED = "This string value is not allowed but can not be autocorrected"
+    }
+}
+
 private fun getResourceAsText(path: String) =
     (ClassLoader.getSystemClassLoader().getResourceAsStream(path) ?: throw RuntimeException("$path not found"))
         .bufferedReader()
         .readText()
+
+private data class CallbackResult(
+    val line: Int,
+    val col: Int,
+    val ruleId: String,
+    val detail: String,
+    val canBeAutoCorrected: Boolean,
+    val corrected: Boolean
+)
