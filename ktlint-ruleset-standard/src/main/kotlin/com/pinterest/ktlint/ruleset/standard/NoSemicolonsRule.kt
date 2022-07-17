@@ -29,7 +29,7 @@ import org.jetbrains.kotlin.psi.psiUtil.getStrictParentOfType
 
 class NoSemicolonsRule : Rule("no-semi") {
 
-    override fun visit(
+    override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit

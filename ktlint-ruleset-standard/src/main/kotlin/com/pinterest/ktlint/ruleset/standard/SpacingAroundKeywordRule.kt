@@ -37,7 +37,7 @@ class SpacingAroundKeywordRule : Rule("keyword-spacing") {
 
     private val keywordsWithoutSpaces = create(GET_KEYWORD, SET_KEYWORD)
 
-    override fun visit(
+    override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit

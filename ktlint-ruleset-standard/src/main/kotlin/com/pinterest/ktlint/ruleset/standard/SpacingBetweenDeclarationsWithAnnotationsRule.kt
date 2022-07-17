@@ -18,7 +18,7 @@ import org.jetbrains.kotlin.psi.psiUtil.prevLeafs
  * @see https://youtrack.jetbrains.com/issue/KT-35106
  */
 class SpacingBetweenDeclarationsWithAnnotationsRule : Rule("spacing-between-declarations-with-annotations") {
-    override fun visit(
+    override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
