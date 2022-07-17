@@ -190,9 +190,6 @@ internal fun lintFile(
 /**
  * Format a kotlin file or script file
  */
-/**
- * Format a kotlin file or script file
- */
 internal fun formatFile(
     fileName: String,
     fileContents: String,
