@@ -59,7 +59,7 @@ class ModifierOrderRule : Rule("modifier-order") {
     )
     private val tokenSet = TokenSet.create(*order)
 
-    override fun visit(
+    override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit

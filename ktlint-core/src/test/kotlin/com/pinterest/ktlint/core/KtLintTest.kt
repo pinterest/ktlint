@@ -617,13 +617,6 @@ private class DummyRuleWithCustomEditorConfigProperty :
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> =
         listOf(someCustomRuleProperty)
 
-    override fun visit(
-        node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
-    ) {
-    }
-
     companion object {
         const val SOME_CUSTOM_RULE_PROPERTY = "some-custom-rule-property"
 
@@ -646,7 +639,7 @@ private class DummyRuleWithCustomEditorConfigProperty :
 private open class DummyRule(
     val block: (node: ASTNode) -> Unit = {}
 ) : Rule("dummy-rule") {
-    override fun visit(
+    override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
@@ -656,7 +649,7 @@ private open class DummyRule(
 }
 
 /**
- * Rule in style up to ktlint 0.46.x in which a rule only has to override method [Rule.visit]. For each invocation to
+ * Rule in style up to ktlint 0.46.x in which a rule only has to override method [Rule.beforeVisitChildNodes]. For each invocation to
  * this method a [RuleExecutionCall] is added to the list of previously calls made.
  */
 private class SimpleTestRuleLegacy(
@@ -664,7 +657,7 @@ private class SimpleTestRuleLegacy(
     id: String,
     visitorModifiers: Set<VisitorModifier> = emptySet()
 ) : Rule(id, visitorModifiers) {
-    override fun visit(
+    override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit

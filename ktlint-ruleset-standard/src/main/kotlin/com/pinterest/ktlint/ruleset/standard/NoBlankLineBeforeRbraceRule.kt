@@ -9,7 +9,7 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
 class NoBlankLineBeforeRbraceRule : Rule("no-blank-line-before-rbrace") {
 
-    override fun visit(
+    override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit

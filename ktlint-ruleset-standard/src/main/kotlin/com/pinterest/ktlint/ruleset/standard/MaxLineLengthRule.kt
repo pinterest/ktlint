@@ -43,7 +43,7 @@ class MaxLineLengthRule :
     private var maxLineLength: Int = maxLineLengthProperty.defaultValue
     private var rangeTree = RangeTree()
 
-    override fun visit(
+    override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
