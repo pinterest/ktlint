@@ -1,34 +1,13 @@
 package com.pinterest.ktlint.core
 
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.disabledRulesProperty
-import com.pinterest.ktlint.core.api.EditorConfigOverride
-import com.pinterest.ktlint.core.ast.ElementType.FILE
-import com.pinterest.ktlint.core.ast.ElementType.IMPORT_LIST
-import com.pinterest.ktlint.core.ast.ElementType.PACKAGE_DIRECTIVE
 import com.pinterest.ktlint.core.internal.VisitorProvider
-import com.pinterest.ktlint.core.internal.initPsiFileFactory
 import org.assertj.core.api.Assertions.assertThat
 import org.ec4j.core.model.Property
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
-import org.jetbrains.kotlin.idea.KotlinLanguage
-import org.jetbrains.kotlin.psi.KtFile
 import org.junit.jupiter.api.Test
 
 class VisitorProviderTest {
-    @Test
-    fun `A normal rule visits all nodes`() {
-        val actual = testVisitorProvider(
-            NormalRule(NORMAL_RULE)
-        )
-
-        assertThat(actual).containsExactly(
-            Visit(NORMAL_RULE, FILE),
-            Visit(NORMAL_RULE, PACKAGE_DIRECTIVE),
-            Visit(NORMAL_RULE, IMPORT_LIST)
-        )
-    }
-
     @Test
     fun `A root only rule only visits the FILE node only`() {
         val actual = testVisitorProvider(
@@ -41,15 +20,17 @@ class VisitorProviderTest {
     }
 
     @Test
-    fun `A run as late as possible rule visits all nodes`() {
+    fun `A run-as-late-as-possible-rule runs later than normal rules`() {
         val actual = testVisitorProvider(
-            RunAsLateAsPossibleRule(RUN_AS_LATE_AS_POSSIBLE_RULE)
+            NormalRule(RULE_A),
+            RunAsLateAsPossibleRule(RULE_B),
+            NormalRule(RULE_C)
         )
 
         assertThat(actual).containsExactly(
-            Visit(RUN_AS_LATE_AS_POSSIBLE_RULE, FILE),
-            Visit(RUN_AS_LATE_AS_POSSIBLE_RULE, PACKAGE_DIRECTIVE),
-            Visit(RUN_AS_LATE_AS_POSSIBLE_RULE, IMPORT_LIST)
+            Visit(RULE_A),
+            Visit(RULE_C),
+            Visit(RULE_B)
         )
     }
 
@@ -60,7 +41,7 @@ class VisitorProviderTest {
         )
 
         assertThat(actual).containsExactly(
-            Visit(RUN_AS_LATE_AS_POSSIBLE_RULE, FILE)
+            Visit(RUN_AS_LATE_AS_POSSIBLE_RULE)
         )
     }
 
@@ -82,7 +63,7 @@ class VisitorProviderTest {
                 NormalRule(RULE_C),
                 NormalRule(SOME_DISABLED_RULE_IN_CUSTOM_RULE_SET_A)
             )
-        ).filterFileNodes()
+        )
 
         assertThat(actual).containsExactly(
             Visit(RULE_A),
@@ -119,42 +100,19 @@ class VisitorProviderTest {
         assertThat(actual).isNull()
     }
 
-    @Test
-    fun `Visits all rules on a node concurrently before proceeding to the next node`() {
-        val actual = testVisitorProvider(
-            NormalRule(RULE_A),
-            NormalRule(RULE_B),
-            concurrent = true
-        )
-
-        assertThat(actual).containsExactly(
-            Visit(RULE_A, FILE),
-            Visit(RULE_B, FILE),
-            Visit(RULE_A, PACKAGE_DIRECTIVE),
-            Visit(RULE_B, PACKAGE_DIRECTIVE),
-            Visit(RULE_A, IMPORT_LIST),
-            Visit(RULE_B, IMPORT_LIST)
-        )
-    }
-
     /**
      * Create a visitor provider for a given list of rules in the same rule set (STANDARD). It returns a list of visits
      * that the provider made after it was invoked. The tests of the visitor provider should only focus on whether the
      * visit provider has invoked the correct rules in the correct order. Note that the testProvider does not invoke the
      * real visit method of the rule.
      */
-    private fun testVisitorProvider(
-        vararg rules: Rule,
-        concurrent: Boolean? = null
-    ): MutableList<Visit>? {
-        return testVisitorProvider(
+    private fun testVisitorProvider(vararg rules: Rule): MutableList<Visit>? =
+        testVisitorProvider(
             RuleSet(
                 STANDARD,
                 *rules
-            ),
-            concurrent = concurrent
+            )
         )
-    }
 
     /**
      * Create a visitor provider for a given list of rule sets. It returns a list of visits that the provider made
@@ -162,24 +120,13 @@ class VisitorProviderTest {
      * invoked the correct rules in the correct order. Note that the testProvider does not invoke the real visit method
      * of the rule.
      */
-    private fun testVisitorProvider(
-        vararg ruleSets: RuleSet,
-        concurrent: Boolean? = null
-    ): MutableList<Visit>? {
+    private fun testVisitorProvider(vararg ruleSets: RuleSet): MutableList<Visit>? {
         val ruleSetList = ruleSets.toList()
         return VisitorProvider(
             params = KtLint.ExperimentalParams(
                 text = "",
                 cb = { _, _ -> },
                 ruleSets = ruleSetList,
-                editorConfigOverride = EditorConfigOverride.from(
-                    disabledRulesProperty to
-                        listOf(
-                            SOME_DISABLED_RULE_IN_STANDARD_RULE_SET,
-                            "$EXPERIMENTAL:$SOME_DISABLED_RULE_IN_EXPERIMENTAL_RULE_SET",
-                            "$CUSTOM_RULE_SET_A:$SOME_DISABLED_RULE_IN_CUSTOM_RULE_SET_A"
-                        ).joinToString(separator = ",")
-                ),
                 // Enable debug mode as it is helpful when a test fails
                 debug = true
             ),
@@ -188,30 +135,38 @@ class VisitorProviderTest {
             recreateRuleSorter = true
         ).run {
             var visits: MutableList<Visit>? = null
-            visitor(SOME_ROOT_AST_NODE, concurrent ?: false)
-                .invoke { node, _, fqRuleId ->
-                    if (visits == null) {
-                        visits = mutableListOf()
-                    }
-                    visits?.add(Visit(fqRuleId, node.elementType))
+            visitor(
+                disabledRulesEditorConfigProperties(
+                    SOME_DISABLED_RULE_IN_STANDARD_RULE_SET,
+                    "$EXPERIMENTAL:$SOME_DISABLED_RULE_IN_EXPERIMENTAL_RULE_SET",
+                    "$CUSTOM_RULE_SET_A:$SOME_DISABLED_RULE_IN_CUSTOM_RULE_SET_A"
+                )
+            ).invoke { _, fqRuleId ->
+                if (visits == null) {
+                    visits = mutableListOf()
                 }
+                visits?.add(Visit(fqRuleId))
+            }
             visits
         }
     }
 
-    /**
-     * When visiting a node with a normal rule, this results in multiple visits. In most tests this would bloat the
-     * assertion needlessly.
-     */
-    private fun List<Visit>?.filterFileNodes(): List<Visit>? =
-        this?.filter { it.elementType == FILE }
+    private fun disabledRulesEditorConfigProperties(vararg ruleIds: String) =
+        with(disabledRulesProperty) {
+            mapOf(
+                type.name to
+                    Property.builder()
+                        .name(type.name)
+                        .type(type)
+                        .value(ruleIds.joinToString(separator = ","))
+                        .build()
+            )
+        }
 
     private companion object {
         const val STANDARD = "standard"
         const val EXPERIMENTAL = "experimental"
         const val CUSTOM_RULE_SET_A = "custom-rule-set-a"
-        val SOME_ROOT_AST_NODE = initRootAstNode()
-        const val NORMAL_RULE = "normal-rule"
         const val ROOT_NODE_ONLY_RULE = "root-node-only-rule"
         const val RUN_AS_LATE_AS_POSSIBLE_RULE = "run-as-late-as-possible-rule"
         const val RULE_A = "rule-a"
@@ -221,43 +176,6 @@ class VisitorProviderTest {
         const val SOME_DISABLED_RULE_IN_EXPERIMENTAL_RULE_SET = "some-disabled-rule-in-experimental-rule-set"
         const val SOME_DISABLED_RULE_IN_CUSTOM_RULE_SET_A = "some-disabled-rule-custom-rule-set-a"
         const val COMMA_FOLLOWED_BY_SPACE_SEPARATOR = ", "
-
-        fun initRootAstNode(): ASTNode {
-            initPsiFileFactory(false).apply {
-                val psiFile = createFileFromText(
-                    "unit-test.kt",
-                    KotlinLanguage.INSTANCE,
-                    // An empty file results in three ASTNodes which are all empty:
-                    //   - kotlin.FILE (root node)
-                    //       - PACKAGE_DIRECTIVE
-                    //       - IMPORT_LIST
-                    ""
-                ) as KtFile
-                return psiFile.node.apply {
-                    putUserData(
-                        KtLint.EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY,
-                        mapOf(
-                            "disabled_rules" to
-                                Property.builder()
-                                    .name("disabled_rules")
-                                    .type(disabledRulesProperty.type)
-                                    .value(
-                                        // When IntelliJ IDEA is reformatting the ".editorconfig" file it sometimes add
-                                        // a space after the comma in a comma-separate-list. Below such an unexpected
-                                        // property value is build to ensure that it is handled properly.
-                                        buildString {
-                                            append("$EXPERIMENTAL:$SOME_DISABLED_RULE_IN_EXPERIMENTAL_RULE_SET")
-                                            append(COMMA_FOLLOWED_BY_SPACE_SEPARATOR)
-                                            append("$CUSTOM_RULE_SET_A:$SOME_DISABLED_RULE_IN_CUSTOM_RULE_SET_A")
-                                            append(COMMA_FOLLOWED_BY_SPACE_SEPARATOR)
-                                            append(SOME_DISABLED_RULE_IN_STANDARD_RULE_SET)
-                                        }
-                                    ).build()
-                        )
-                    )
-                }
-            }
-        }
     }
 
     open class NormalRule(id: String) : R(id)
@@ -290,7 +208,7 @@ class VisitorProviderTest {
     ) : Rule(id, visitorModifiers) {
         constructor(id: String, visitorModifier: VisitorModifier) : this(id, setOf(visitorModifier))
 
-        override fun visit(
+        override fun beforeVisitChildNodes(
             node: ASTNode,
             autoCorrect: Boolean,
             emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
@@ -301,17 +219,12 @@ class VisitorProviderTest {
         }
     }
 
-    private data class Visit(
-        val shortenedQualifiedRuleId: String,
-        val elementType: IElementType = FILE
-    ) {
+    private data class Visit(val shortenedQualifiedRuleId: String) {
         constructor(
             ruleSetId: String,
-            ruleId: String,
-            elementType: IElementType = FILE
+            ruleId: String
         ) : this(
-            shortenedQualifiedRuleId = "$ruleSetId:$ruleId",
-            elementType = elementType
+            shortenedQualifiedRuleId = "$ruleSetId:$ruleId"
         ) {
             require(!ruleSetId.contains(':')) {
                 "rule set id may not contain the ':' character"

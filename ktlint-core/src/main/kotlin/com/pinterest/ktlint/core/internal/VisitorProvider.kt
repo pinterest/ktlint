@@ -3,10 +3,9 @@ package com.pinterest.ktlint.core.internal
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.disabledRulesProperty
+import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties.EditorConfigProperty
-import com.pinterest.ktlint.core.ast.visit
-import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 /**
  * The VisitorProvider is created for each file being scanned. As the [RuleSorter] logs the order in which the rules are
@@ -34,26 +33,25 @@ internal class VisitorProvider(
             ruleSorter
         }.getSortedRules(params.ruleSets, params.debug)
 
-    internal fun visitor(
-        rootNode: ASTNode,
-        concurrent: Boolean = true
-    ): ((node: ASTNode, rule: Rule, fqRuleId: String) -> Unit) -> Unit {
+    internal fun visitor(editorConfigProperties: EditorConfigProperties): ((rule: Rule, fqRuleId: String) -> Unit) -> Unit {
         val enabledRuleReferences =
             ruleReferences
-                .filter { ruleReference -> isNotDisabled(rootNode, ruleReference.toQualifiedRuleId()) }
+                .filter { ruleReference -> isNotDisabled(editorConfigProperties, ruleReference.toQualifiedRuleId()) }
         val enabledQualifiedRuleIds = enabledRuleReferences.map { it.toQualifiedRuleId() }
         val enabledRules = params.ruleSets
             .flatMap { ruleSet ->
                 ruleSet
                     .rules
                     .filter { rule -> toQualifiedRuleId(ruleSet.id, rule.id) in enabledQualifiedRuleIds }
-                    .filter { rule -> isNotDisabled(rootNode, toQualifiedRuleId(ruleSet.id, rule.id)) }
+                    .filter { rule -> isNotDisabled(editorConfigProperties, toQualifiedRuleId(ruleSet.id, rule.id)) }
                     .map { rule -> toQualifiedRuleId(ruleSet.id, rule.id) to rule }
             }.toMap()
-        if (params.debug && enabledRules.isEmpty()) {
-            println(
-                "[DEBUG] Skipping file as no enabled rules are found to be executed"
-            )
+        if (enabledRules.isEmpty()) {
+            if (params.debug && enabledRules.isEmpty()) {
+                println(
+                    "[DEBUG] Skipping file as no enabled rules are found to be executed"
+                )
+            }
             return { _ -> }
         }
         val ruleReferencesToBeSkipped =
@@ -74,65 +72,39 @@ internal class VisitorProvider(
                 }
         }
         val ruleReferenceWithoutEntriesToBeSkipped = enabledRuleReferences - ruleReferencesToBeSkipped.toSet()
-        if (params.debug && ruleReferenceWithoutEntriesToBeSkipped.isEmpty()) {
-            println(
-                "[DEBUG] Skipping file as no enabled rules are found to be executed"
-            )
+        if (ruleReferenceWithoutEntriesToBeSkipped.isEmpty()) {
+            if (params.debug) {
+                println(
+                    "[DEBUG] Skipping file as no enabled rules are found to be executed"
+                )
+            }
             return { _ -> }
         }
-        return if (concurrent) {
-            concurrentVisitor(enabledRules, ruleReferenceWithoutEntriesToBeSkipped, rootNode)
-        } else {
-            sequentialVisitor(enabledRules, ruleReferenceWithoutEntriesToBeSkipped, rootNode)
-        }
-    }
-
-    private fun concurrentVisitor(
-        enabledRules: Map<String, Rule>,
-        ruleReferences: List<RuleReference>,
-        rootNode: ASTNode
-    ): ((node: ASTNode, rule: Rule, fqRuleId: String) -> Unit) -> Unit {
-        return { visit ->
-            rootNode.visit { node ->
-                ruleReferences
-                    .forEach { ruleReference ->
-                        if (node == rootNode || !ruleReference.runOnRootNodeOnly) {
-                            enabledRules[ruleReference.toQualifiedRuleId()]
-                                ?.let { rule ->
-                                    visit(node, rule, ruleReference.toShortenedQualifiedRuleId())
-                                }
-                        }
+        val rules = ruleReferences
+            .mapNotNull { ruleReference ->
+                enabledRules[ruleReference.toQualifiedRuleId()]
+                    ?.let {
+                        ShortenedQualifiedRule(ruleReference.toShortenedQualifiedRuleId(), it)
                     }
+            }
+        return { visit ->
+            rules.forEach {
+                visit(it.rule, it.shortenedQualifiedRuleId)
             }
         }
     }
 
-    private fun sequentialVisitor(
-        enabledRules: Map<String, Rule>,
-        ruleReferences: List<RuleReference>,
-        rootNode: ASTNode
-    ): ((node: ASTNode, rule: Rule, fqRuleId: String) -> Unit) -> Unit {
-        return { visit ->
-            ruleReferences
-                .forEach { ruleReference ->
-                    enabledRules[ruleReference.toQualifiedRuleId()]
-                        ?.let { rule ->
-                            if (ruleReference.runOnRootNodeOnly) {
-                                visit(rootNode, rule, ruleReference.toShortenedQualifiedRuleId())
-                            } else {
-                                rootNode.visit { node -> visit(node, rule, ruleReference.toShortenedQualifiedRuleId()) }
-                            }
-                        }
-                }
-        }
-    }
-
-    private fun isNotDisabled(rootNode: ASTNode, qualifiedRuleId: String): Boolean =
-        rootNode
+    private fun isNotDisabled(editorConfigProperties: EditorConfigProperties, qualifiedRuleId: String): Boolean =
+        editorConfigProperties
             .getEditorConfigValue(disabledRulesProperty)
             .split(",")
             .none {
                 // The rule set id in the disabled_rules setting may be omitted for rules in the standard rule set
                 it.toQualifiedRuleId() == qualifiedRuleId
             }
+
+    private data class ShortenedQualifiedRule(
+        val shortenedQualifiedRuleId: String,
+        val rule: Rule
+    )
 }

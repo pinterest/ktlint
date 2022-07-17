@@ -5,6 +5,7 @@ import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.CodeStyleValue
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.CodeStyleValue.android
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.CodeStyleValue.official
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.codeStyleSetProperty
 import com.pinterest.ktlint.core.initKtLintKLogger
 import mu.KotlinLogging
 import org.ec4j.core.model.Property
@@ -42,18 +43,31 @@ public interface UsesEditorConfigProperties {
      * Get the value of [EditorConfigProperty] based on loaded [EditorConfigProperties] content for the current
      * [ASTNode].
      */
+    public fun <T> EditorConfigProperties.getEditorConfigValue(editorConfigProperty: EditorConfigProperty<T>): T {
+        require(editorConfigProperties.contains(editorConfigProperty)) {
+            "EditorConfigProperty '${editorConfigProperty.type.name}' may only be retrieved when it is registered in the editorConfigProperties."
+        }
+        val codeStyle = getEditorConfigValue(codeStyleSetProperty, official)
+        return getEditorConfigValue(editorConfigProperty, codeStyle)
+    }
+
+    /**
+     * Get the value of [EditorConfigProperty] based on loaded [EditorConfigProperties] content for the current
+     * [ASTNode].
+     */
+    @Deprecated(message = "Marked for deletion in Ktlint 0.48. EditorConfigProperties are now supplied to Rule via call on method beforeFirstNode")
     public fun <T> ASTNode.getEditorConfigValue(editorConfigProperty: EditorConfigProperty<T>): T {
         require(editorConfigProperties.contains(editorConfigProperty)) {
             "EditorConfigProperty '${editorConfigProperty.type.name}' may only be retrieved when it is registered in the editorConfigProperties."
         }
         val editorConfigPropertyValues = getUserData(KtLint.EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY)!!
-        val codeStyle = editorConfigPropertyValues.getEditorConfigValue(DefaultEditorConfigProperties.codeStyleSetProperty)
+        val codeStyle = editorConfigPropertyValues.getEditorConfigValue(codeStyleSetProperty, official)
         return editorConfigPropertyValues.getEditorConfigValue(editorConfigProperty, codeStyle)
     }
 
     private fun <T> EditorConfigProperties.getEditorConfigValue(
         editorConfigProperty: EditorConfigProperty<T>,
-        codeStyleValue: CodeStyleValue = official
+        codeStyleValue: CodeStyleValue
     ): T {
         val property = get(editorConfigProperty.type.name)
 

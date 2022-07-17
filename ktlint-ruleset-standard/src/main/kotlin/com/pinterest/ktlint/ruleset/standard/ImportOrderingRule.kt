@@ -1,9 +1,9 @@
 package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType
-import com.pinterest.ktlint.core.ast.isRoot
 import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ktlint.ruleset.standard.ImportOrderingRule.Companion.ASCII_PATTERN
 import com.pinterest.ktlint.ruleset.standard.ImportOrderingRule.Companion.IDEA_PATTERN
@@ -46,6 +46,134 @@ public class ImportOrderingRule :
 
     private lateinit var importsLayout: List<PatternEntry>
     private lateinit var importSorter: ImportSorter
+
+    override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
+        importsLayout = editorConfigProperties.getEditorConfigValue(ideaImportsLayoutProperty)
+        importSorter = ImportSorter(importsLayout)
+    }
+
+    override fun beforeVisitChildNodes(
+        node: ASTNode,
+        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+    ) {
+        if (node.elementType == ElementType.IMPORT_LIST) {
+            val children = node.getChildren(null)
+            if (children.isNotEmpty()) {
+                // Get unique imports and blank lines
+                val (autoCorrectDuplicateImports: Boolean, imports: List<ASTNode>) =
+                    getUniqueImportsAndBlankLines(children, emit)
+
+                val hasComments = children.any { it.elementType == ElementType.BLOCK_COMMENT || it.elementType == ElementType.EOL_COMMENT }
+                val sortedImports = imports
+                    .asSequence()
+                    .mapNotNull { it.psi as? KtImportDirective } // sorter expects KtImportDirective, whitespaces are inserted afterwards
+                    .sortedWith(importSorter)
+                    .map { it.node } // transform back to ASTNode in order to operate over its method (addChild)
+
+                // insert blank lines wherever needed
+                // traverse the list using fold to have previous and current element and decide if the blank line is needed in between
+                // based on the ImportSorter imported patterns and indexes from the comparator
+                val sortedImportsWithSpaces = mutableListOf<ASTNode>()
+                sortedImports.fold(null as ASTNode?) { prev, current ->
+                    val index1 = if (prev == null) -1 else importSorter.findImportIndex((prev.psi as KtImportDirective).importPath!!)
+                    val index2 = importSorter.findImportIndex((current.psi as KtImportDirective).importPath!!)
+
+                    var hasBlankLines = false
+                    for (i in (index1 + 1) until index2) {
+                        if (importSorter.patterns[i] == PatternEntry.BLANK_LINE_ENTRY) {
+                            hasBlankLines = true
+                            break
+                        }
+                    }
+                    if (hasBlankLines) {
+                        sortedImportsWithSpaces += PsiWhiteSpaceImpl("\n\n")
+                    }
+                    sortedImportsWithSpaces += current
+
+                    return@fold current
+                }
+
+                if (hasComments) {
+                    emit(
+                        node.startOffset,
+                        errorMessages.getOrDefault(importsLayout, CUSTOM_ERROR_MESSAGE) +
+                            " -- no autocorrection due to comments in the import list",
+                        false
+                    )
+                } else {
+                    val autoCorrectWhitespace = hasTooMuchWhitespace(children) && !isCustomLayout()
+                    val autoCorrectSortOrder = !importsAreEqual(imports, sortedImportsWithSpaces)
+                    if (autoCorrectSortOrder || autoCorrectWhitespace) {
+                        emit(
+                            node.startOffset,
+                            errorMessages.getOrDefault(importsLayout, CUSTOM_ERROR_MESSAGE),
+                            true
+                        )
+                    }
+                    if (autoCorrect && (autoCorrectDuplicateImports || autoCorrectSortOrder || autoCorrectWhitespace)) {
+                        node.removeRange(node.firstChildNode, node.lastChildNode.treeNext)
+                        sortedImportsWithSpaces.reduce { current, next ->
+                            node.addChild(current, null)
+                            if (current !is PsiWhiteSpace && next !is PsiWhiteSpace) {
+                                node.addChild(PsiWhiteSpaceImpl("\n"), null)
+                            }
+                            return@reduce next
+                        }
+                        node.addChild(sortedImportsWithSpaces.last(), null)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun getUniqueImportsAndBlankLines(
+        children: Array<ASTNode>,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+    ): Pair<Boolean, List<ASTNode>> {
+        var autoCorrectDuplicateImports = false
+        val imports = mutableListOf<ASTNode>()
+        val importTextSet = mutableSetOf<String>()
+
+        children.forEach { current ->
+            val isPsiWhiteSpace = current.psi is PsiWhiteSpace
+
+            if (current.elementType == ElementType.IMPORT_DIRECTIVE ||
+                isPsiWhiteSpace && current.textLength > 1 // also collect empty lines, that are represented as "\n\n"
+            ) {
+                if (isPsiWhiteSpace || importTextSet.add(current.text)) {
+                    imports += current
+                } else {
+                    emit(
+                        current.startOffset,
+                        "Duplicate '${current.text}' found",
+                        true
+                    )
+                    autoCorrectDuplicateImports = true
+                }
+            }
+        }
+
+        return autoCorrectDuplicateImports to imports
+    }
+
+    private fun importsAreEqual(actual: List<ASTNode>, expected: List<ASTNode>): Boolean {
+        if (actual.size != expected.size) return false
+
+        val combined = actual.zip(expected)
+        return combined.all { (first, second) ->
+            if (first is PsiWhiteSpace && second is PsiWhiteSpace) {
+                return@all (first as PsiWhiteSpace).text == (second as PsiWhiteSpace).text
+            }
+            return@all first == second
+        }
+    }
+
+    private fun isCustomLayout() = importsLayout != IDEA_PATTERN && importsLayout != ASCII_PATTERN
+
+    private fun hasTooMuchWhitespace(nodes: Array<ASTNode>): Boolean {
+        return nodes.any { it is PsiWhiteSpace && (it as PsiWhiteSpace).text != "\n" }
+    }
 
     public companion object {
         internal const val IDEA_IMPORTS_LAYOUT_PROPERTY_NAME = "ij_kotlin_imports_layout"
@@ -126,134 +254,5 @@ public class ImportOrderingRule :
                 defaultAndroidValue = ASCII_PATTERN,
                 propertyWriter = { it.joinToString(separator = ",") }
             )
-    }
-
-    private fun getUniqueImportsAndBlankLines(
-        children: Array<ASTNode>,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
-    ): Pair<Boolean, List<ASTNode>> {
-        var autoCorrectDuplicateImports = false
-        val imports = mutableListOf<ASTNode>()
-        val importTextSet = mutableSetOf<String>()
-
-        children.forEach { current ->
-            val isPsiWhiteSpace = current.psi is PsiWhiteSpace
-
-            if (current.elementType == ElementType.IMPORT_DIRECTIVE ||
-                isPsiWhiteSpace && current.textLength > 1 // also collect empty lines, that are represented as "\n\n"
-            ) {
-                if (isPsiWhiteSpace || importTextSet.add(current.text)) {
-                    imports += current
-                } else {
-                    emit(
-                        current.startOffset,
-                        "Duplicate '${current.text}' found",
-                        true
-                    )
-                    autoCorrectDuplicateImports = true
-                }
-            }
-        }
-
-        return autoCorrectDuplicateImports to imports
-    }
-
-    override fun visit(
-        node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
-    ) {
-        if (node.isRoot()) {
-            importsLayout = node.getEditorConfigValue(ideaImportsLayoutProperty)
-            importSorter = ImportSorter(importsLayout)
-            return
-        }
-
-        if (node.elementType == ElementType.IMPORT_LIST) {
-            val children = node.getChildren(null)
-            if (children.isNotEmpty()) {
-                // Get unique imports and blank lines
-                val (autoCorrectDuplicateImports: Boolean, imports: List<ASTNode>) =
-                    getUniqueImportsAndBlankLines(children, emit)
-
-                val hasComments = children.any { it.elementType == ElementType.BLOCK_COMMENT || it.elementType == ElementType.EOL_COMMENT }
-                val sortedImports = imports
-                    .asSequence()
-                    .mapNotNull { it.psi as? KtImportDirective } // sorter expects KtImportDirective, whitespaces are inserted afterwards
-                    .sortedWith(importSorter)
-                    .map { it.node } // transform back to ASTNode in order to operate over its method (addChild)
-
-                // insert blank lines wherever needed
-                // traverse the list using fold to have previous and current element and decide if the blank line is needed in between
-                // based on the ImportSorter imported patterns and indexes from the comparator
-                val sortedImportsWithSpaces = mutableListOf<ASTNode>()
-                sortedImports.fold(null as ASTNode?) { prev, current ->
-                    val index1 = if (prev == null) -1 else importSorter.findImportIndex((prev.psi as KtImportDirective).importPath!!)
-                    val index2 = importSorter.findImportIndex((current.psi as KtImportDirective).importPath!!)
-
-                    var hasBlankLines = false
-                    for (i in (index1 + 1) until index2) {
-                        if (importSorter.patterns[i] == PatternEntry.BLANK_LINE_ENTRY) {
-                            hasBlankLines = true
-                            break
-                        }
-                    }
-                    if (hasBlankLines) {
-                        sortedImportsWithSpaces += PsiWhiteSpaceImpl("\n\n")
-                    }
-                    sortedImportsWithSpaces += current
-
-                    return@fold current
-                }
-
-                if (hasComments) {
-                    emit(
-                        node.startOffset,
-                        errorMessages.getOrDefault(importsLayout, CUSTOM_ERROR_MESSAGE) +
-                            " -- no autocorrection due to comments in the import list",
-                        false
-                    )
-                } else {
-                    val autoCorrectWhitespace = hasTooMuchWhitespace(children) && !isCustomLayout()
-                    val autoCorrectSortOrder = !importsAreEqual(imports, sortedImportsWithSpaces)
-                    if (autoCorrectSortOrder || autoCorrectWhitespace) {
-                        emit(
-                            node.startOffset,
-                            errorMessages.getOrDefault(importsLayout, CUSTOM_ERROR_MESSAGE),
-                            true
-                        )
-                    }
-                    if (autoCorrect && (autoCorrectDuplicateImports || autoCorrectSortOrder || autoCorrectWhitespace)) {
-                        node.removeRange(node.firstChildNode, node.lastChildNode.treeNext)
-                        sortedImportsWithSpaces.reduce { current, next ->
-                            node.addChild(current, null)
-                            if (current !is PsiWhiteSpace && next !is PsiWhiteSpace) {
-                                node.addChild(PsiWhiteSpaceImpl("\n"), null)
-                            }
-                            return@reduce next
-                        }
-                        node.addChild(sortedImportsWithSpaces.last(), null)
-                    }
-                }
-            }
-        }
-    }
-
-    private fun importsAreEqual(actual: List<ASTNode>, expected: List<ASTNode>): Boolean {
-        if (actual.size != expected.size) return false
-
-        val combined = actual.zip(expected)
-        return combined.all { (first, second) ->
-            if (first is PsiWhiteSpace && second is PsiWhiteSpace) {
-                return@all (first as PsiWhiteSpace).text == (second as PsiWhiteSpace).text
-            }
-            return@all first == second
-        }
-    }
-
-    private fun isCustomLayout() = importsLayout != IDEA_PATTERN && importsLayout != ASCII_PATTERN
-
-    private fun hasTooMuchWhitespace(nodes: Array<ASTNode>): Boolean {
-        return nodes.any { it is PsiWhiteSpace && (it as PsiWhiteSpace).text != "\n" }
     }
 }

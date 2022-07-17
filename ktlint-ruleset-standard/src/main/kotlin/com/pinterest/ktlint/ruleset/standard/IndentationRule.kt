@@ -6,6 +6,7 @@ import com.pinterest.ktlint.core.IndentConfig.IndentStyle.TAB
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentSizeProperty
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentStyleProperty
+import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType.ARROW
 import com.pinterest.ktlint.core.ast.ElementType.BINARY_EXPRESSION
@@ -66,6 +67,7 @@ import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.core.ast.children
 import com.pinterest.ktlint.core.ast.isPartOf
 import com.pinterest.ktlint.core.ast.isPartOfComment
+import com.pinterest.ktlint.core.ast.isRoot
 import com.pinterest.ktlint.core.ast.isWhiteSpace
 import com.pinterest.ktlint.core.ast.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.core.ast.isWhiteSpaceWithoutNewline
@@ -77,7 +79,6 @@ import com.pinterest.ktlint.core.ast.parent
 import com.pinterest.ktlint.core.ast.prevCodeLeaf
 import com.pinterest.ktlint.core.ast.prevCodeSibling
 import com.pinterest.ktlint.core.ast.prevLeaf
-import com.pinterest.ktlint.core.ast.visit
 import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ktlint.ruleset.standard.IndentationRule.IndentContext.Block
 import com.pinterest.ktlint.ruleset.standard.IndentationRule.IndentContext.Block.BlockIndentationType.REGULAR
@@ -95,17 +96,10 @@ import org.jetbrains.kotlin.psi.psiUtil.leaves
 
 private val logger = KotlinLogging.logger {}.initKtLintKLogger()
 
-/**
- * Checks & correct indentation
- *
- * Current limitations:
- * - "all or nothing" (currently, rule can only be disabled for an entire file)
- */
 public class IndentationRule :
     Rule(
         id = "indent",
         visitorModifiers = setOf(
-            VisitorModifier.RunOnRootNodeOnly,
             VisitorModifier.RunAsLateAsPossible,
             VisitorModifier.RunAfterRule(
                 ruleId = "experimental:function-signature",
@@ -120,325 +114,278 @@ public class IndentationRule :
             indentSizeProperty,
             indentStyleProperty
         )
-
-    private companion object {
-        private val lTokenSet = TokenSet.create(LPAR, LBRACE, LBRACKET, LT)
-        private val rTokenSet = TokenSet.create(RPAR, RBRACE, RBRACKET, GT)
-        private val matchingRToken =
-            lTokenSet.types.zip(
-                rTokenSet.types
-            ).toMap()
-    }
+    private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
 
     private var line = 1
     private var expectedIndent = 0 // TODO: merge into IndentContext
 
-    private fun reset() {
-        line = 1
-        expectedIndent = 0
+    private val ctx = IndentContext()
+
+    override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
+        indentConfig = IndentConfig(
+            indentStyle = editorConfigProperties.getEditorConfigValue(indentStyleProperty),
+            tabWidth = editorConfigProperties.getEditorConfigValue(indentSizeProperty)
+        )
     }
 
-    private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
-
-    override fun visit(
+    override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        indentConfig = IndentConfig(
-            indentStyle = node.getEditorConfigValue(indentStyleProperty),
-            tabWidth = node.getEditorConfigValue(indentSizeProperty)
-        )
         if (indentConfig.disabled) {
             return
         }
 
-        reset()
-        indent(node, autoCorrect, emit)
-        // The expectedIndent should never be negative. If so, it is very likely that ktlint crashes at runtime when
-        // autocorrecting is executed while no error occurs with linting only. Such errors often are not found in unit
-        // tests, as the examples are way more simple than realistic code.
-        assert(expectedIndent >= 0)
-    }
-
-    private class IndentContext {
-        private val exitAdj = mutableMapOf<ASTNode, Int>()
-        val ignored = mutableSetOf<ASTNode>()
-        val blockStack: Deque<Block> = LinkedList()
-        var localAdj: Int = 0
-
-        fun exitAdjBy(node: ASTNode, change: Int) {
-            exitAdj.compute(node) { _, v -> (v ?: 0) + change }
-        }
-
-        fun clearExitAdj(node: ASTNode): Int? =
-            exitAdj.remove(node)
-
-        data class Block(
-            // Element type used for opening the block
-            val openingElementType: IElementType,
-            // Line at which the block is opened
-            val line: Int,
-            // Type of indentation to be used for the block
-            val blockIndentationType: BlockIndentationType
-        ) {
-            enum class BlockIndentationType {
-                /**
-                 * Indent the body of the block one level deeper by increasing the expected indentation level with 1.
-                 * Decrease the expected indentation level just before the closing element of the block.
-                 */
-                REGULAR,
-
-                /**
-                 * Keep the indent of the body of the block identical to the indent of the previous block, so do not change
-                 * the expected indentation level. The indentation of the closing element has to be decreased one level
-                 * without altering the expected indentation level.
-                 */
-                SAME_AS_PREVIOUS_BLOCK
+        if (node.isRoot()) {
+            val firstNotEmptyLeaf = node.nextLeaf()
+            if (firstNotEmptyLeaf?.let { it.elementType == WHITE_SPACE && !it.textContains('\n') } == true) {
+                visitWhiteSpace(firstNotEmptyLeaf, autoCorrect, emit, ctx)
             }
         }
+
+        when (node.elementType) {
+            LPAR, LBRACE, LBRACKET -> {
+                // ({[ should increase expectedIndent by 1
+                val prevBlock = ctx.blockStack.peek()
+                when {
+                    node.isClosedOnSameLine() -> {
+                        logger.trace {
+                            "$line: block starting with ${node.text} is opened and closed on the same line, " +
+                                "expected indent is kept unchanged -> $expectedIndent"
+                        }
+                        ctx.blockStack.push(
+                            Block(node.elementType, line, SAME_AS_PREVIOUS_BLOCK)
+                        )
+                    }
+                    node.isAfterValueParameterOnSameLine() -> {
+                        logger.trace {
+                            "$line: block starting with ${node.text} starts on same line as the previous value " +
+                                "parameter value ended, expected indent is kept unchanged -> $expectedIndent"
+                        }
+                        ctx.blockStack.push(
+                            Block(node.elementType, line, SAME_AS_PREVIOUS_BLOCK)
+                        )
+                    }
+                    prevBlock != null && line == prevBlock.line -> {
+                        logger.trace {
+                            "$line: block starting with ${node.text} starts on same line as the previous block, " +
+                                "expected indent is kept unchanged -> $expectedIndent"
+                        }
+                        ctx.blockStack.push(
+                            Block(node.elementType, line, SAME_AS_PREVIOUS_BLOCK)
+                        )
+                    }
+                    else -> {
+                        if (node.isPartOfForLoopConditionWithMultilineExpression()) {
+                            logger.trace { "$line: block starting with ${node.text} -> Keep at $expectedIndent" }
+                            ctx.blockStack.push(
+                                Block(node.elementType, line, SAME_AS_PREVIOUS_BLOCK)
+                            )
+                        } else {
+                            expectedIndent++
+                            logger.trace { "$line: block starting with ${node.text} -> Increase to $expectedIndent" }
+                            ctx.blockStack.push(
+                                Block(node.elementType, line, REGULAR)
+                            )
+                        }
+                    }
+                }
+                logger.trace {
+                    ctx.blockStack.iterator().asSequence().toList()
+                        .joinToString(
+                            separator = "\n\t",
+                            prefix = "Stack (newest first) after pushing new element:\n\t"
+                        )
+                }
+            }
+            RPAR, RBRACE, RBRACKET -> {
+                // ]}) should decrease expectedIndent by 1
+                logger.trace {
+                    ctx.blockStack.iterator().asSequence().toList()
+                        .joinToString(
+                            separator = "\n\t",
+                            prefix = "Stack before popping newest element from top of stack:\n\t"
+                        )
+                }
+                val block = ctx.blockStack.pop()
+                when (block.blockIndentationType) {
+                    SAME_AS_PREVIOUS_BLOCK -> {
+                        logger.trace { "$line: block closed with ${node.elementType}. BlockIndentationType ${block.blockIndentationType} -> keep indent unchanged at $expectedIndent" }
+                    }
+                    REGULAR -> {
+                        expectedIndent--
+                        logger.trace { "$line: block closed with ${node.elementType}.  -> Decrease indent to $expectedIndent" }
+                    }
+                }
+
+                val pairedLeft = node.pairedLeft()
+                val byKeywordOnSameLine = pairedLeft.prevLeafOnSameLine(BY_KEYWORD)
+                if (byKeywordOnSameLine != null &&
+                    byKeywordOnSameLine.prevLeaf()?.isWhiteSpaceWithNewline() == true &&
+                    node.leavesOnSameLine(forward = true).all { it.isWhiteSpace() || it.isPartOfComment() }
+                ) {
+                    expectedIndent--
+                    logger.trace { "$line: --on same line as by keyword ${node.text} -> $expectedIndent" }
+                }
+            }
+            LT ->
+                // <T>
+                if (node.treeParent.elementType.let { it == TYPE_PARAMETER_LIST || it == TYPE_ARGUMENT_LIST }) {
+                    expectedIndent++
+                    logger.trace { "$line: ++${node.text} -> $expectedIndent" }
+                }
+            GT ->
+                // <T>
+                if (node.treeParent.elementType.let { it == TYPE_PARAMETER_LIST || it == TYPE_ARGUMENT_LIST }) {
+                    expectedIndent--
+                    logger.trace { "$line: --${node.text} -> $expectedIndent" }
+                }
+            SUPER_TYPE_LIST ->
+                // class A :
+                //     SUPER_TYPE_LIST
+                adjustExpectedIndentInsideSuperTypeList(node)
+            SUPER_TYPE_CALL_ENTRY, DELEGATED_SUPER_TYPE_ENTRY -> {
+                // IDEA quirk:
+                //
+                // class A : B({
+                //     f() {}
+                // }),
+                //     C({
+                //         f() {}
+                //     })
+                //
+                // instead of expected
+                //
+                // class A : B({
+                //         f() {}
+                //     }),
+                //     C({
+                //         f() {}
+                //     })
+                adjustExpectedIndentInsideSuperTypeCall(node, ctx)
+            }
+            STRING_TEMPLATE ->
+                indentStringTemplate(node, autoCorrect, emit)
+            DOT_QUALIFIED_EXPRESSION, SAFE_ACCESS_EXPRESSION, BINARY_EXPRESSION, BINARY_WITH_TYPE -> {
+                val prevBlock = ctx.blockStack.peek()
+                if (prevBlock != null && prevBlock.line == line) {
+                    ctx.ignored.add(node)
+                }
+            }
+            FUNCTION_LITERAL ->
+                adjustExpectedIndentInFunctionLiteral(node, ctx)
+            WHITE_SPACE ->
+                if (node.textContains('\n')) {
+                    if (
+                        !node.isPartOfComment() &&
+                        !node.isPartOfTypeConstraint() // FIXME IndentationRuleTest.testLintWhereClause not checked
+                    ) {
+                        val p = node.treeParent
+                        val nextSibling = node.treeNext
+                        val prevLeaf = node.prevLeaf { !it.isPartOfComment() && !it.isWhiteSpaceWithoutNewline() }
+                        when {
+                            p.elementType.let {
+                                it == DOT_QUALIFIED_EXPRESSION || it == SAFE_ACCESS_EXPRESSION
+                            } ->
+                                // value
+                                //     .x()
+                                //     .y
+                                adjustExpectedIndentInsideQualifiedExpression(node, ctx)
+                            p.elementType.let {
+                                it == BINARY_EXPRESSION || it == BINARY_WITH_TYPE
+                            } ->
+                                // value
+                                //     + x()
+                                //     + y
+                                adjustExpectedIndentInsideBinaryExpression(node, ctx)
+                            nextSibling?.elementType.let {
+                                it == THEN || it == ELSE || it == BODY
+                            } ->
+                                // if (...)
+                                //     THEN
+                                // else
+                                //     ELSE
+                                // while (...)
+                                //     BODY
+                                adjustExpectedIndentInFrontOfControlBlock(node, ctx)
+                            nextSibling?.elementType == PROPERTY_ACCESSOR ->
+                                // val f: Type =
+                                //     PROPERTY_ACCESSOR get() = ...
+                                //     PROPERTY_ACCESSOR set() = ...
+                                adjustExpectedIndentInFrontOfPropertyAccessor(node, ctx)
+                            nextSibling?.elementType == SUPER_TYPE_LIST ->
+                                // class C :
+                                //     SUPER_TYPE_LIST
+                                adjustExpectedIndentInFrontOfSuperTypeList(node, ctx)
+                            prevLeaf?.elementType == EQ && p.elementType != VALUE_ARGUMENT ->
+                                // v =
+                                //     value
+                                adjustExpectedIndentAfterEq(node, ctx)
+                            prevLeaf?.elementType == ARROW ->
+                                // when {
+                                //    v ->
+                                //        value
+                                // }
+                                adjustExpectedIndentAfterArrow(node, ctx)
+                            prevLeaf?.elementType == COLON ->
+                                // fun fn():
+                                //     Int
+                                adjustExpectedIndentAfterColon(node, ctx)
+                            prevLeaf?.elementType == LPAR &&
+                                p.elementType == VALUE_ARGUMENT_LIST &&
+                                p.parent(CONDITION)?.takeIf { !it.prevLeaf().isWhiteSpaceWithNewline() } != null ->
+                                // if (condition(
+                                //         params
+                                //     )
+                                // )
+                                adjustExpectedIndentAfterLparInsideCondition(node, ctx)
+                        }
+                        visitWhiteSpace(node, autoCorrect, emit, ctx)
+                        if (ctx.localAdj != 0) {
+                            expectedIndent += ctx.localAdj
+                            logger.trace { "$line: ++${ctx.localAdj} on whitespace containing new line (${node.elementType}) -> $expectedIndent" }
+                            ctx.localAdj = 0
+                        }
+                    } else if (node.isPartOf(KDOC)) {
+                        visitWhiteSpace(node, autoCorrect, emit, ctx)
+                    }
+                    line += node.text.count { it == '\n' }
+                }
+            EOL_COMMENT ->
+                if (node.text == "// ktlint-debug-print-expected-indent") {
+                    logger.trace { "$line: expected indent: $expectedIndent" }
+                }
+        }
     }
 
-    private fun indent(
+    override fun afterVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        val ctx = IndentContext()
-        val firstNotEmptyLeaf = node.nextLeaf()
-        if (firstNotEmptyLeaf?.let { it.elementType == WHITE_SPACE && !it.textContains('\n') } == true) {
-            visitWhiteSpace(firstNotEmptyLeaf, autoCorrect, emit, ctx)
+        if (indentConfig.disabled) {
+            return
         }
-        node.visit(
-            { n ->
-                when (n.elementType) {
-                    LPAR, LBRACE, LBRACKET -> {
-                        // ({[ should increase expectedIndent by 1
-                        val prevBlock = ctx.blockStack.peek()
-                        when {
-                            n.isClosedOnSameLine() -> {
-                                logger.trace {
-                                    "$line: block starting with ${n.text} is opened and closed on the same line, " +
-                                        "expected indent is kept unchanged -> $expectedIndent"
-                                }
-                                ctx.blockStack.push(
-                                    Block(n.elementType, line, SAME_AS_PREVIOUS_BLOCK)
-                                )
-                            }
-                            n.isAfterValueParameterOnSameLine() -> {
-                                logger.trace {
-                                    "$line: block starting with ${n.text} starts on same line as the previous value " +
-                                        "parameter value ended, expected indent is kept unchanged -> $expectedIndent"
-                                }
-                                ctx.blockStack.push(
-                                    Block(n.elementType, line, SAME_AS_PREVIOUS_BLOCK)
-                                )
-                            }
-                            prevBlock != null && line == prevBlock.line -> {
-                                logger.trace {
-                                    "$line: block starting with ${n.text} starts on same line as the previous block, " +
-                                        "expected indent is kept unchanged -> $expectedIndent"
-                                }
-                                ctx.blockStack.push(
-                                    Block(n.elementType, line, SAME_AS_PREVIOUS_BLOCK)
-                                )
-                            }
-                            else -> {
-                                if (n.isPartOfForLoopConditionWithMultilineExpression()) {
-                                    logger.trace { "$line: block starting with ${n.text} -> Keep at $expectedIndent" }
-                                    ctx.blockStack.push(
-                                        Block(n.elementType, line, SAME_AS_PREVIOUS_BLOCK)
-                                    )
-                                } else {
-                                    expectedIndent++
-                                    logger.trace { "$line: block starting with ${n.text} -> Increase to $expectedIndent" }
-                                    ctx.blockStack.push(
-                                        Block(n.elementType, line, REGULAR)
-                                    )
-                                }
-                            }
-                        }
-                        logger.trace {
-                            ctx.blockStack.iterator().asSequence().toList()
-                                .joinToString(
-                                    separator = "\n\t",
-                                    prefix = "Stack (newest first) after pushing new element:\n\t"
-                                )
-                        }
-                    }
-                    RPAR, RBRACE, RBRACKET -> {
-                        // ]}) should decrease expectedIndent by 1
-                        logger.trace {
-                            ctx.blockStack.iterator().asSequence().toList()
-                                .joinToString(
-                                    separator = "\n\t",
-                                    prefix = "Stack before popping newest element from top of stack:\n\t"
-                                )
-                        }
-                        val block = ctx.blockStack.pop()
-                        when (block.blockIndentationType) {
-                            SAME_AS_PREVIOUS_BLOCK -> {
-                                logger.trace { "$line: block closed with ${n.elementType}. BlockIndentationType ${block.blockIndentationType} -> keep indent unchanged at $expectedIndent" }
-                            }
-                            REGULAR -> {
-                                expectedIndent--
-                                logger.trace { "$line: block closed with ${n.elementType}.  -> Decrease indent to $expectedIndent" }
-                            }
-                        }
 
-                        val pairedLeft = n.pairedLeft()
-                        val byKeywordOnSameLine = pairedLeft.prevLeafOnSameLine(BY_KEYWORD)
-                        if (byKeywordOnSameLine != null &&
-                            byKeywordOnSameLine.prevLeaf()?.isWhiteSpaceWithNewline() == true &&
-                            n.leavesOnSameLine(forward = true).all { it.isWhiteSpace() || it.isPartOfComment() }
-                        ) {
-                            expectedIndent--
-                            logger.trace { "$line: --on same line as by keyword ${n.text} -> $expectedIndent" }
-                        }
-                    }
-                    LT ->
-                        // <T>
-                        if (n.treeParent.elementType.let { it == TYPE_PARAMETER_LIST || it == TYPE_ARGUMENT_LIST }) {
-                            expectedIndent++
-                            logger.trace { "$line: ++${n.text} -> $expectedIndent" }
-                        }
-                    GT ->
-                        // <T>
-                        if (n.treeParent.elementType.let { it == TYPE_PARAMETER_LIST || it == TYPE_ARGUMENT_LIST }) {
-                            expectedIndent--
-                            logger.trace { "$line: --${n.text} -> $expectedIndent" }
-                        }
-                    SUPER_TYPE_LIST ->
-                        // class A :
-                        //     SUPER_TYPE_LIST
-                        adjustExpectedIndentInsideSuperTypeList(n)
-                    SUPER_TYPE_CALL_ENTRY, DELEGATED_SUPER_TYPE_ENTRY -> {
-                        // IDEA quirk:
-                        //
-                        // class A : B({
-                        //     f() {}
-                        // }),
-                        //     C({
-                        //         f() {}
-                        //     })
-                        //
-                        // instead of expected
-                        //
-                        // class A : B({
-                        //         f() {}
-                        //     }),
-                        //     C({
-                        //         f() {}
-                        //     })
-                        adjustExpectedIndentInsideSuperTypeCall(n, ctx)
-                    }
-                    STRING_TEMPLATE ->
-                        indentStringTemplate(n, autoCorrect, emit)
-                    DOT_QUALIFIED_EXPRESSION, SAFE_ACCESS_EXPRESSION, BINARY_EXPRESSION, BINARY_WITH_TYPE -> {
-                        val prevBlock = ctx.blockStack.peek()
-                        if (prevBlock != null && prevBlock.line == line) {
-                            ctx.ignored.add(n)
-                        }
-                    }
-                    FUNCTION_LITERAL ->
-                        adjustExpectedIndentInFunctionLiteral(n, ctx)
-                    WHITE_SPACE ->
-                        if (n.textContains('\n')) {
-                            if (
-                                !n.isPartOfComment() &&
-                                !n.isPartOfTypeConstraint() // FIXME IndentationRuleTest.testLintWhereClause not checked
-                            ) {
-                                val p = n.treeParent
-                                val nextSibling = n.treeNext
-                                val prevLeaf = n.prevLeaf { !it.isPartOfComment() && !it.isWhiteSpaceWithoutNewline() }
-                                when {
-                                    p.elementType.let {
-                                        it == DOT_QUALIFIED_EXPRESSION || it == SAFE_ACCESS_EXPRESSION
-                                    } ->
-                                        // value
-                                        //     .x()
-                                        //     .y
-                                        adjustExpectedIndentInsideQualifiedExpression(n, ctx)
-                                    p.elementType.let {
-                                        it == BINARY_EXPRESSION || it == BINARY_WITH_TYPE
-                                    } ->
-                                        // value
-                                        //     + x()
-                                        //     + y
-                                        adjustExpectedIndentInsideBinaryExpression(n, ctx)
-                                    nextSibling?.elementType.let {
-                                        it == THEN || it == ELSE || it == BODY
-                                    } ->
-                                        // if (...)
-                                        //     THEN
-                                        // else
-                                        //     ELSE
-                                        // while (...)
-                                        //     BODY
-                                        adjustExpectedIndentInFrontOfControlBlock(n, ctx)
-                                    nextSibling?.elementType == PROPERTY_ACCESSOR ->
-                                        // val f: Type =
-                                        //     PROPERTY_ACCESSOR get() = ...
-                                        //     PROPERTY_ACCESSOR set() = ...
-                                        adjustExpectedIndentInFrontOfPropertyAccessor(n, ctx)
-                                    nextSibling?.elementType == SUPER_TYPE_LIST ->
-                                        // class C :
-                                        //     SUPER_TYPE_LIST
-                                        adjustExpectedIndentInFrontOfSuperTypeList(n, ctx)
-                                    prevLeaf?.elementType == EQ && p.elementType != VALUE_ARGUMENT ->
-                                        // v =
-                                        //     value
-                                        adjustExpectedIndentAfterEq(n, ctx)
-                                    prevLeaf?.elementType == ARROW ->
-                                        // when {
-                                        //    v ->
-                                        //        value
-                                        // }
-                                        adjustExpectedIndentAfterArrow(n, ctx)
-                                    prevLeaf?.elementType == COLON ->
-                                        // fun fn():
-                                        //     Int
-                                        adjustExpectedIndentAfterColon(n, ctx)
-                                    prevLeaf?.elementType == LPAR &&
-                                        p.elementType == VALUE_ARGUMENT_LIST &&
-                                        p.parent(CONDITION)?.takeIf { !it.prevLeaf().isWhiteSpaceWithNewline() } != null ->
-                                        // if (condition(
-                                        //         params
-                                        //     )
-                                        // )
-                                        adjustExpectedIndentAfterLparInsideCondition(n, ctx)
-                                }
-                                visitWhiteSpace(n, autoCorrect, emit, ctx)
-                                if (ctx.localAdj != 0) {
-                                    expectedIndent += ctx.localAdj
-                                    logger.trace { "$line: ++${ctx.localAdj} on whitespace containing new line (${n.elementType}) -> $expectedIndent" }
-                                    ctx.localAdj = 0
-                                }
-                            } else if (n.isPartOf(KDOC)) {
-                                visitWhiteSpace(n, autoCorrect, emit, ctx)
-                            }
-                            line += n.text.count { it == '\n' }
-                        }
-                    EOL_COMMENT ->
-                        if (n.text == "// ktlint-debug-print-expected-indent") {
-                            logger.trace { "$line: expected indent: $expectedIndent" }
-                        }
-                }
-            },
-            { n ->
-                when (n.elementType) {
-                    SUPER_TYPE_LIST ->
-                        adjustExpectedIndentAfterSuperTypeList(n)
-                    DOT_QUALIFIED_EXPRESSION, SAFE_ACCESS_EXPRESSION, BINARY_EXPRESSION, BINARY_WITH_TYPE ->
-                        ctx.ignored.remove(n)
-                }
-                val adj = ctx.clearExitAdj(n)
-                if (adj != null) {
-                    expectedIndent += adj
-                    logger.trace { "$line: adjusted ${n.elementType} by $adj -> $expectedIndent" }
-                }
-            }
-        )
+        when (node.elementType) {
+            SUPER_TYPE_LIST ->
+                adjustExpectedIndentAfterSuperTypeList(node)
+            DOT_QUALIFIED_EXPRESSION, SAFE_ACCESS_EXPRESSION, BINARY_EXPRESSION, BINARY_WITH_TYPE ->
+                ctx.ignored.remove(node)
+        }
+        val adj = ctx.clearExitAdj(node)
+        if (adj != null) {
+            expectedIndent += adj
+            logger.trace { "$line: adjusted ${node.elementType} by $adj -> $expectedIndent" }
+        }
+    }
+
+    override fun afterLastNode() {
+        // The expectedIndent should never be negative. If so, it is very likely that ktlint crashes at runtime when
+        // autocorrecting is executed while no error occurs with linting only. Such errors often are not found in unit
+        // tests, as the examples are way more simple than realistic code.
+        assert(expectedIndent >= 0)
     }
 
     private fun adjustExpectedIndentInsideQualifiedExpression(n: ASTNode, ctx: IndentContext) {
@@ -1008,6 +955,53 @@ public class IndentationRule :
             cur = cur.nextSibling { true }
         }
         return true
+    }
+
+    private class IndentContext {
+        private val exitAdj = mutableMapOf<ASTNode, Int>()
+        val ignored = mutableSetOf<ASTNode>()
+        val blockStack: Deque<Block> = LinkedList()
+        var localAdj: Int = 0
+
+        fun exitAdjBy(node: ASTNode, change: Int) {
+            exitAdj.compute(node) { _, v -> (v ?: 0) + change }
+        }
+
+        fun clearExitAdj(node: ASTNode): Int? =
+            exitAdj.remove(node)
+
+        data class Block(
+            // Element type used for opening the block
+            val openingElementType: IElementType,
+            // Line at which the block is opened
+            val line: Int,
+            // Type of indentation to be used for the block
+            val blockIndentationType: BlockIndentationType
+        ) {
+            enum class BlockIndentationType {
+                /**
+                 * Indent the body of the block one level deeper by increasing the expected indentation level with 1.
+                 * Decrease the expected indentation level just before the closing element of the block.
+                 */
+                REGULAR,
+
+                /**
+                 * Keep the indent of the body of the block identical to the indent of the previous block, so do not change
+                 * the expected indentation level. The indentation of the closing element has to be decreased one level
+                 * without altering the expected indentation level.
+                 */
+                SAME_AS_PREVIOUS_BLOCK
+            }
+        }
+    }
+
+    private companion object {
+        private val lTokenSet = TokenSet.create(LPAR, LBRACE, LBRACKET, LT)
+        private val rTokenSet = TokenSet.create(RPAR, RBRACE, RBRACKET, GT)
+        private val matchingRToken =
+            lTokenSet.types.zip(
+                rTokenSet.types
+            ).toMap()
     }
 }
 

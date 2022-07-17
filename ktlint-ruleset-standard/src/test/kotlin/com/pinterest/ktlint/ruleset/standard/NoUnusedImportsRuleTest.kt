@@ -397,7 +397,9 @@ class NoUnusedImportsRuleTest {
                 package com.example
 
                 import org.mockito.Mockito
+                import org.mockito.Mockito.mock1
                 import org.mockito.Mockito.withSettings
+
                 fun foo() {
                         Mockito.mock(String::class.java, Mockito.withSettings().defaultAnswer {  })
                     }
@@ -407,13 +409,17 @@ class NoUnusedImportsRuleTest {
                 package com.example
 
                 import org.mockito.Mockito
+
                 fun foo() {
                         Mockito.mock(String::class.java, Mockito.withSettings().defaultAnswer {  })
                     }
                 """.trimIndent()
             noUnusedImportsRuleAssertThat(code)
-                .hasLintViolation(4, 1, "Unused import")
-                .isFormattedAs(formattedCode)
+//                .hasLintViolation(4, 1, "Unused import")
+                .hasLintViolations(
+                    LintViolation(4, 1, "Unused import"),
+                    LintViolation(5, 1, "Unused import")
+                ).isFormattedAs(formattedCode)
         }
 
         @Test
