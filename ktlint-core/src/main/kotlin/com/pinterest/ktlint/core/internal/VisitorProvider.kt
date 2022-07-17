@@ -5,9 +5,6 @@ import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.disabledRulesProperty
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties.EditorConfigProperty
-import com.pinterest.ktlint.core.ast.visit
-import com.pinterest.ktlint.core.initKtLintKLogger
-import mu.KotlinLogging
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 /**
@@ -15,8 +12,6 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
  * executed, a singleton instance of the class is used to prevent that the logs are flooded with duplicate log lines.
  */
 private val ruleSorter = RuleSorter()
-
-private val logger = KotlinLogging.logger {}.initKtLintKLogger()
 
 internal class VisitorProvider(
     private val params: KtLint.ExperimentalParams,
