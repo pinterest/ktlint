@@ -2,33 +2,35 @@ package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.insertNewLineProperty
+import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.isRoot
+import kotlin.properties.Delegates
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 
 public class FinalNewlineRule :
-    Rule(
-        id = "final-newline",
-        visitorModifiers = setOf(
-            VisitorModifier.RunOnRootNodeOnly
-        )
-    ),
+    Rule("final-newline"),
     UsesEditorConfigProperties {
 
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
         insertNewLineProperty
     )
 
-    override fun visit(
+    private var insertFinalNewline by Delegates.notNull<Boolean>()
+
+    override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
+        insertFinalNewline = editorConfigProperties.getEditorConfigValue(insertNewLineProperty)
+    }
+
+    override fun afterVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         if (node.isRoot()) {
             if (node.textLength == 0) return
-            val insertFinalNewline = node.getEditorConfigValue(insertNewLineProperty)
             val lastNode = lastChildNodeOf(node)
             if (insertFinalNewline) {
                 if (lastNode !is PsiWhiteSpace || !lastNode.textContains('\n')) {
