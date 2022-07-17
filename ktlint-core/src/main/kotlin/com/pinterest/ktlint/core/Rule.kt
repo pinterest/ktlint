@@ -52,8 +52,10 @@ public open class Rule(
         visit(node, autoCorrect, emit)
 
     /**
-     * For backwards compatibility reasons, this method is called by default implementation of [beforeVisitChildNodes].
-     * Existing implementations of the [visit] method should be renamed tp [beforeVisitChildNodes].
+     * Rules that override method [visit] should rename that method to [beforeVisitChildNodes]. For backwards
+     * compatibility reasons (in KtLint 0.47 only), this method is called via the default implementation of
+     * [beforeVisitChildNodes]. Whenever [beforeVisitChildNodes] is overridden with a custom implementation, this method
+     * will no longer be called.
      *
      * @param node AST node
      * @param autoCorrect indicates whether rule should attempt auto-correction

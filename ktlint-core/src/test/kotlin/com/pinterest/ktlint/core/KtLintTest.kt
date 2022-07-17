@@ -657,7 +657,7 @@ private class SimpleTestRuleLegacy(
     id: String,
     visitorModifiers: Set<VisitorModifier> = emptySet()
 ) : Rule(id, visitorModifiers) {
-    override fun beforeVisitChildNodes(
+    override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
