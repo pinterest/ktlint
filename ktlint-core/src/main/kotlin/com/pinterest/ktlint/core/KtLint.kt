@@ -23,6 +23,7 @@ import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
 public object KtLint {
     public val FILE_PATH_USER_DATA_KEY: Key<String> = Key<String>("FILE_PATH")
+    @Deprecated("Marked for removal in Ktlint 0.48.0")
     public val EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY: Key<EditorConfigProperties> =
         Key<EditorConfigProperties>("EDITOR_CONFIG_PROPERTIES")
     internal const val UTF8_BOM = "\uFEFF"
@@ -128,7 +129,7 @@ public object KtLint {
         val errors = mutableListOf<LintError>()
 
         VisitorProvider(params)
-            .visitor(preparedCode.rootNode)
+            .visitor(preparedCode.editorConfigProperties)
             .invoke { rule, fqRuleId ->
                 preparedCode.executeRule(rule, fqRuleId, false) { offset, errorMessage, canBeAutoCorrected ->
                     val (line, col) = preparedCode.positionInTextLocator(offset)
@@ -147,7 +148,7 @@ public object KtLint {
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        rule.beforeFirstNode(rootNode.getUserData(EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY)!!)
+        rule.beforeFirstNode(editorConfigProperties)
         this.executeRuleOnNodeRecursively(rootNode, rule, fqRuleId, autoCorrect, emit)
         rule.afterLastNode()
     }
@@ -200,7 +201,7 @@ public object KtLint {
         var mutated = false
         val visitorProvider = VisitorProvider(params = params)
         visitorProvider
-            .visitor(preparedCode.rootNode)
+            .visitor(preparedCode.editorConfigProperties)
             .invoke { rule, fqRuleId ->
                 preparedCode.executeRule(rule, fqRuleId, true) { _, _, canBeAutoCorrected ->
                     tripped = true
@@ -220,7 +221,7 @@ public object KtLint {
         if (tripped) {
             val errors = mutableListOf<Pair<LintError, Boolean>>()
             visitorProvider
-                .visitor(preparedCode.rootNode)
+                .visitor(preparedCode.editorConfigProperties)
                 .invoke { rule, fqRuleId ->
                     preparedCode.executeRule(rule, fqRuleId, false) { offset, errorMessage, canBeAutoCorrected ->
                         val (line, col) = preparedCode.positionInTextLocator(offset)

@@ -2,6 +2,7 @@ package com.pinterest.ktlint.core.internal
 
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.ParseException
+import com.pinterest.ktlint.core.api.EditorConfigProperties
 import java.nio.file.Paths
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
@@ -13,6 +14,7 @@ private val kotlinPsiFileFactoryProvider = KotlinPsiFileFactoryProvider()
 
 internal class PreparedCode(
     val rootNode: FileASTNode,
+    val editorConfigProperties: EditorConfigProperties,
     val positionInTextLocator: (offset: Int) -> LineAndColumn,
     var suppressedRegionLocator: SuppressionLocator
 )
@@ -53,12 +55,16 @@ internal fun prepareCodeForLinting(params: KtLint.ExperimentalParams): PreparedC
     if (!params.isStdIn) {
         rootNode.putUserData(KtLint.FILE_PATH_USER_DATA_KEY, params.normalizedFilePath.toString())
     }
+
+    // Keep for backwards compatibility in Ktlint 0.47.0 until ASTNode.getEditorConfigValue in UsesEditorConfigProperties
+    // is removed
     rootNode.putUserData(KtLint.EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY, editorConfigProperties)
 
     val suppressedRegionLocator = SuppressionLocatorBuilder.buildSuppressedRegionsLocator(rootNode)
 
     return PreparedCode(
         rootNode,
+        editorConfigProperties,
         positionInTextLocator,
         suppressedRegionLocator
     )
