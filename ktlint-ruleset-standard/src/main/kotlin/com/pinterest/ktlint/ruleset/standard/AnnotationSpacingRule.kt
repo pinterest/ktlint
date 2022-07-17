@@ -30,7 +30,7 @@ class AnnotationSpacingRule : Rule("annotation-spacing") {
         const val ERROR_MESSAGE = "Annotations should occur immediately before the annotated construct"
     }
 
-    override fun visit(
+    override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit

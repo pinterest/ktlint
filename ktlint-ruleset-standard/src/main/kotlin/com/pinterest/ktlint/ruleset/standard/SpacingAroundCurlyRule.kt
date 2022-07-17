@@ -33,7 +33,7 @@ import org.jetbrains.kotlin.psi.KtLambdaExpression
 
 class SpacingAroundCurlyRule : Rule("curly-spacing") {
 
-    override fun visit(
+    override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit

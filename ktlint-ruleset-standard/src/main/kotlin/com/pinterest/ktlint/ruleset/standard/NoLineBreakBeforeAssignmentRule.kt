@@ -14,7 +14,7 @@ import org.jetbrains.kotlin.psi.psiUtil.siblings
 
 class NoLineBreakBeforeAssignmentRule : Rule("no-line-break-before-assignment") {
 
-    override fun visit(node: ASTNode, autoCorrect: Boolean, emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
+    override fun beforeVisitChildNodes(node: ASTNode, autoCorrect: Boolean, emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
         if (node.elementType == EQ) {
             val prevCodeSibling = node.prevCodeSibling()
             val hasLineBreakBeforeAssignment = prevCodeSibling

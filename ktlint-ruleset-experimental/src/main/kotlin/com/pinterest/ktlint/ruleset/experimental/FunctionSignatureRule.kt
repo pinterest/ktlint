@@ -66,7 +66,7 @@ public class FunctionSignatureRule :
     private var functionSignatureWrappingMinimumParameters = -1
     private var functionBodyExpressionWrapping = default
 
-    override fun visit(
+    override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
