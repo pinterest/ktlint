@@ -9,10 +9,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Fixed
 
 * Fix cli argument "--disabled_rules" ([#1520](https://github.com/pinterest/ktlint/issue/1520)).
+* A file which contains a single top level declaration of type function does not need to be name after the function but only needs to adhere to the PascalCase convention. `filename` ([#1521](https://github.com/pinterest/ktlint/issue/1521)).
 
 ### Changed
-
-* Accept filename which is based on the fully qualified receiver class plus name of an extension function when it is the only top level declaration in a file `filename` ([#1521](https://github.com/pinterest/ktlint/issue/1521)).
 
 ### Removed
 
