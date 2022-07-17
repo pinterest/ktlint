@@ -23,6 +23,7 @@ import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
 public object KtLint {
     public val FILE_PATH_USER_DATA_KEY: Key<String> = Key<String>("FILE_PATH")
+
     @Deprecated("Marked for removal in Ktlint 0.48.0")
     public val EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY: Key<EditorConfigProperties> =
         Key<EditorConfigProperties>("EDITOR_CONFIG_PROPERTIES")
