@@ -1,1 +1,1 @@
-See [Code of conduct](doc/docs/contributing/code-of-conduct.md).
+See [Code of conduct](docs/contributing/code-of-conduct.md).
