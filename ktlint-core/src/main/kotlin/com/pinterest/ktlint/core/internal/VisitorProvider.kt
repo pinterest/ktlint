@@ -3,9 +3,9 @@ package com.pinterest.ktlint.core.internal
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.disabledRulesProperty
+import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties.EditorConfigProperty
-import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 /**
  * The VisitorProvider is created for each file being scanned. As the [RuleSorter] logs the order in which the rules are
@@ -33,17 +33,17 @@ internal class VisitorProvider(
             ruleSorter
         }.getSortedRules(params.ruleSets, params.debug)
 
-    internal fun visitor(rootNode: ASTNode): ((rule: Rule, fqRuleId: String) -> Unit) -> Unit {
+    internal fun visitor(editorConfigProperties: EditorConfigProperties): ((rule: Rule, fqRuleId: String) -> Unit) -> Unit {
         val enabledRuleReferences =
             ruleReferences
-                .filter { ruleReference -> isNotDisabled(rootNode, ruleReference.toQualifiedRuleId()) }
+                .filter { ruleReference -> isNotDisabled(editorConfigProperties, ruleReference.toQualifiedRuleId()) }
         val enabledQualifiedRuleIds = enabledRuleReferences.map { it.toQualifiedRuleId() }
         val enabledRules = params.ruleSets
             .flatMap { ruleSet ->
                 ruleSet
                     .rules
                     .filter { rule -> toQualifiedRuleId(ruleSet.id, rule.id) in enabledQualifiedRuleIds }
-                    .filter { rule -> isNotDisabled(rootNode, toQualifiedRuleId(ruleSet.id, rule.id)) }
+                    .filter { rule -> isNotDisabled(editorConfigProperties, toQualifiedRuleId(ruleSet.id, rule.id)) }
                     .map { rule -> toQualifiedRuleId(ruleSet.id, rule.id) to rule }
             }.toMap()
         if (enabledRules.isEmpty()) {
@@ -94,8 +94,8 @@ internal class VisitorProvider(
         }
     }
 
-    private fun isNotDisabled(rootNode: ASTNode, qualifiedRuleId: String): Boolean =
-        rootNode
+    private fun isNotDisabled(editorConfigProperties: EditorConfigProperties, qualifiedRuleId: String): Boolean =
+        editorConfigProperties
             .getEditorConfigValue(disabledRulesProperty)
             .split(",")
             .none {

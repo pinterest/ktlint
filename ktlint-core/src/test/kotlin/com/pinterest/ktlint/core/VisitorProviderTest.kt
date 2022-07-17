@@ -1,14 +1,10 @@
 package com.pinterest.ktlint.core
 
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.disabledRulesProperty
-import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.internal.VisitorProvider
-import com.pinterest.ktlint.core.internal.initPsiFileFactory
 import org.assertj.core.api.Assertions.assertThat
 import org.ec4j.core.model.Property
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.idea.KotlinLanguage
-import org.jetbrains.kotlin.psi.KtFile
 import org.junit.jupiter.api.Test
 
 class VisitorProviderTest {
@@ -131,14 +127,6 @@ class VisitorProviderTest {
                 text = "",
                 cb = { _, _ -> },
                 ruleSets = ruleSetList,
-                editorConfigOverride = EditorConfigOverride.from(
-                    disabledRulesProperty to
-                        listOf(
-                            SOME_DISABLED_RULE_IN_STANDARD_RULE_SET,
-                            "$EXPERIMENTAL:$SOME_DISABLED_RULE_IN_EXPERIMENTAL_RULE_SET",
-                            "$CUSTOM_RULE_SET_A:$SOME_DISABLED_RULE_IN_CUSTOM_RULE_SET_A"
-                        ).joinToString(separator = ",")
-                ),
                 // Enable debug mode as it is helpful when a test fails
                 debug = true
             ),
@@ -147,22 +135,38 @@ class VisitorProviderTest {
             recreateRuleSorter = true
         ).run {
             var visits: MutableList<Visit>? = null
-            visitor(SOME_ROOT_AST_NODE)
-                .invoke { _, fqRuleId ->
-                    if (visits == null) {
-                        visits = mutableListOf()
-                    }
-                    visits?.add(Visit(fqRuleId))
+            visitor(
+                disabledRulesEditorConfigProperties(
+                    SOME_DISABLED_RULE_IN_STANDARD_RULE_SET,
+                    "$EXPERIMENTAL:$SOME_DISABLED_RULE_IN_EXPERIMENTAL_RULE_SET",
+                    "$CUSTOM_RULE_SET_A:$SOME_DISABLED_RULE_IN_CUSTOM_RULE_SET_A"
+                )
+            ).invoke { _, fqRuleId ->
+                if (visits == null) {
+                    visits = mutableListOf()
                 }
+                visits?.add(Visit(fqRuleId))
+            }
             visits
         }
     }
+
+    private fun disabledRulesEditorConfigProperties(vararg ruleIds: String) =
+        with(disabledRulesProperty) {
+            mapOf(
+                type.name to
+                    Property.builder()
+                        .name(type.name)
+                        .type(type)
+                        .value(ruleIds.joinToString(separator = ","))
+                        .build()
+            )
+        }
 
     private companion object {
         const val STANDARD = "standard"
         const val EXPERIMENTAL = "experimental"
         const val CUSTOM_RULE_SET_A = "custom-rule-set-a"
-        val SOME_ROOT_AST_NODE = initRootAstNode()
         const val ROOT_NODE_ONLY_RULE = "root-node-only-rule"
         const val RUN_AS_LATE_AS_POSSIBLE_RULE = "run-as-late-as-possible-rule"
         const val RULE_A = "rule-a"
@@ -172,43 +176,6 @@ class VisitorProviderTest {
         const val SOME_DISABLED_RULE_IN_EXPERIMENTAL_RULE_SET = "some-disabled-rule-in-experimental-rule-set"
         const val SOME_DISABLED_RULE_IN_CUSTOM_RULE_SET_A = "some-disabled-rule-custom-rule-set-a"
         const val COMMA_FOLLOWED_BY_SPACE_SEPARATOR = ", "
-
-        fun initRootAstNode(): ASTNode {
-            initPsiFileFactory(false).apply {
-                val psiFile = createFileFromText(
-                    "unit-test.kt",
-                    KotlinLanguage.INSTANCE,
-                    // An empty file results in three ASTNodes which are all empty:
-                    //   - kotlin.FILE (root node)
-                    //       - PACKAGE_DIRECTIVE
-                    //       - IMPORT_LIST
-                    ""
-                ) as KtFile
-                return psiFile.node.apply {
-                    putUserData(
-                        KtLint.EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY,
-                        mapOf(
-                            "disabled_rules" to
-                                Property.builder()
-                                    .name("disabled_rules")
-                                    .type(disabledRulesProperty.type)
-                                    .value(
-                                        // When IntelliJ IDEA is reformatting the ".editorconfig" file it sometimes add
-                                        // a space after the comma in a comma-separate-list. Below such an unexpected
-                                        // property value is build to ensure that it is handled properly.
-                                        buildString {
-                                            append("$EXPERIMENTAL:$SOME_DISABLED_RULE_IN_EXPERIMENTAL_RULE_SET")
-                                            append(COMMA_FOLLOWED_BY_SPACE_SEPARATOR)
-                                            append("$CUSTOM_RULE_SET_A:$SOME_DISABLED_RULE_IN_CUSTOM_RULE_SET_A")
-                                            append(COMMA_FOLLOWED_BY_SPACE_SEPARATOR)
-                                            append(SOME_DISABLED_RULE_IN_STANDARD_RULE_SET)
-                                        }
-                                    ).build()
-                        )
-                    )
-                }
-            }
-        }
     }
 
     open class NormalRule(id: String) : R(id)
