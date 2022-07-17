@@ -218,16 +218,16 @@ public object KtLint {
                                 )
                         }
                     }
-                }
-                val (line, col) = preparedCode.positionInTextLocator(offset)
-                errors.add(
-                    Pair(
-                        LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected),
-                        // It is assumed that a rule that emits that an error can be autocorrected, also
-                        // does correct the error.
-                        canBeAutoCorrected
+                    val (line, col) = preparedCode.positionInTextLocator(offset)
+                    errors.add(
+                        Pair(
+                            LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected),
+                            // It is assumed that a rule that emits that an error can be autocorrected, also
+                            // does correct the error.
+                            canBeAutoCorrected
+                        )
                     )
-                )
+                }
             }
         if (tripped) {
             visitorProvider
