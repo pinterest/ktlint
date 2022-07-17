@@ -60,7 +60,7 @@ class DisabledRulesTest {
     }
 
     class NoVarRule : Rule("no-var") {
-        override fun visit(
+        override fun beforeVisitChildNodes(
             node: ASTNode,
             autoCorrect: Boolean,
             emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit

@@ -2,6 +2,7 @@ package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.maxLineLengthProperty
+import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType
 import com.pinterest.ktlint.core.ast.isPartOf
@@ -9,6 +10,7 @@ import com.pinterest.ktlint.core.ast.isRoot
 import com.pinterest.ktlint.core.ast.nextLeaf
 import com.pinterest.ktlint.core.ast.parent
 import com.pinterest.ktlint.core.ast.prevCodeSibling
+import kotlin.properties.Delegates
 import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
@@ -42,18 +44,22 @@ class MaxLineLengthRule :
 
     private var maxLineLength: Int = maxLineLengthProperty.defaultValue
     private var rangeTree = RangeTree()
+    private var ignoreBackTickedIdentifier by Delegates.notNull<Boolean>()
 
-    override fun visit(
+    override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
+        ignoreBackTickedIdentifier = editorConfigProperties.getEditorConfigValue(ignoreBackTickedIdentifierProperty)
+        maxLineLength = editorConfigProperties.getEditorConfigValue(maxLineLengthProperty)
+    }
+
+    override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
+        if (maxLineLength <= 0) {
+            return
+        }
         if (node.isRoot()) {
-            val ignoreBackTickedIdentifier = node.getEditorConfigValue(ignoreBackTickedIdentifierProperty)
-            maxLineLength = node.getEditorConfigValue(maxLineLengthProperty)
-            if (maxLineLength <= 0) {
-                return
-            }
             val errorOffset = arrayListOf<Int>()
             node
                 .getElementsPerLine()
@@ -160,6 +166,7 @@ private data class ParsedLine(
     }
 }
 
+@Deprecated("Marked for removal from public API in ktlint 0.48")
 class RangeTree(seq: List<Int> = emptyList()) {
 
     private var emptyArrayView = ArrayView(0, 0)
@@ -173,6 +180,7 @@ class RangeTree(seq: List<Int> = emptyList()) {
 
     // runtime: O(log(n)+k), where k is number of matching points
     // space: O(1)
+    @Deprecated("Marked for removal from public API in ktlint 0.48")
     fun query(vmin: Int, vmax: Int): RangeTree.ArrayView {
         var r = arr.size - 1
         if (r == -1 || vmax < arr[0] || arr[r] < vmin) {
@@ -206,12 +214,16 @@ class RangeTree(seq: List<Int> = emptyList()) {
         return ArrayView(l, k)
     }
 
+    @Deprecated("Marked for removal from public API in ktlint 0.48")
     fun isEmpty() = arr.isEmpty()
 
+    @Deprecated("Marked for removal from public API in ktlint 0.48")
     inner class ArrayView(private var l: Int, private val r: Int) {
 
+        @Deprecated("Marked for removal from public API in ktlint 0.48")
         val size: Int = r - l
 
+        @Deprecated("Marked for removal from public API in ktlint 0.48")
         fun get(i: Int): Int {
             if (i < 0 || i >= size) {
                 throw IndexOutOfBoundsException()
@@ -219,6 +231,7 @@ class RangeTree(seq: List<Int> = emptyList()) {
             return arr[l + i]
         }
 
+        @Deprecated("Marked for removal from public API in ktlint 0.48")
         inline fun forEach(cb: (v: Int) -> Unit) {
             var i = 0
             while (i < size) {

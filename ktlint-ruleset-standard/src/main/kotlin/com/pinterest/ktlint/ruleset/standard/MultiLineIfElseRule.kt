@@ -21,7 +21,7 @@ import org.jetbrains.kotlin.psi.psiUtil.leaves
  * https://kotlinlang.org/docs/reference/coding-conventions.html#formatting-control-flow-statements
  */
 class MultiLineIfElseRule : Rule("multiline-if-else") {
-    override fun visit(
+    override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit

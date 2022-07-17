@@ -10,7 +10,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 class NoUnitReturnRule : Rule("no-unit-return") {
 
-    override fun visit(
+    override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
