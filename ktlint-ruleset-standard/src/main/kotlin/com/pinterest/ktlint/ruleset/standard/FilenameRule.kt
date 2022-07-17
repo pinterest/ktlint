@@ -11,6 +11,7 @@ import com.pinterest.ktlint.core.ast.ElementType.PROPERTY
 import com.pinterest.ktlint.core.ast.ElementType.TYPEALIAS
 import com.pinterest.ktlint.core.ast.ElementType.TYPE_REFERENCE
 import com.pinterest.ktlint.core.ast.children
+import com.pinterest.ktlint.core.ast.isRoot
 import java.nio.file.Paths
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
@@ -39,59 +40,56 @@ import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
  * - file without `.kt` extension
  * - file with name `package.kt`
  */
-public class FilenameRule : Rule(
-    id = "filename",
-    visitorModifiers = setOf(
-        VisitorModifier.RunOnRootNodeOnly
-    )
-) {
-    override fun visit(
+public class FilenameRule : Rule("filename") {
+    override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        node as FileASTNode? ?: error("node is not ${FileASTNode::class} but ${node::class}")
+        if (node.isRoot()) {
+            node as FileASTNode? ?: error("node is not ${FileASTNode::class} but ${node::class}")
 
-        val filePath = node.getUserData(KtLint.FILE_PATH_USER_DATA_KEY)
-        if (filePath?.endsWith(".kt") != true) {
-            // ignore all non ".kt" files (including ".kts")
-            return
-        }
-
-        val fileName = Paths.get(filePath).fileName.toString().substringBefore(".")
-        if (fileName == "package") {
-            // ignore package.kt filename
-            return
-        }
-
-        val topLevelClassDeclarations = node.topLevelDeclarations(CLASS)
-        if (topLevelClassDeclarations.size == 1) {
-            val topLevelClassDeclaration = topLevelClassDeclarations.first()
-            if (node.hasTopLevelDeclarationNotExtending(topLevelClassDeclaration.identifier)) {
-                fileName.shouldMatchPascalCase(emit)
-            } else {
-                // If the file only contains one (non private) top level class and possibly some extension functions of
-                // that class, then its filename should be identical to the class name.
-                fileName.shouldMatchClassName(topLevelClassDeclaration.identifier, emit)
+            val filePath = node.getUserData(KtLint.FILE_PATH_USER_DATA_KEY)
+            if (filePath?.endsWith(".kt") != true) {
+                // ignore all non ".kt" files (including ".kts")
+                return
             }
-        } else {
-            val topLevelDeclarations = node.topLevelDeclarations()
-            if (topLevelDeclarations.size == 1) {
-                val topLevelDeclaration = topLevelDeclarations.first()
-                if (topLevelDeclaration.elementType == OBJECT_DECLARATION ||
-                    topLevelDeclaration.elementType == TYPEALIAS ||
-                    topLevelDeclaration.elementType == FUN
-                ) {
-                    val pascalCaseIdentifier =
-                        topLevelDeclaration
-                            .identifier
-                            .toPascalCase()
-                    fileName.shouldMatchFileName(pascalCaseIdentifier, emit)
+
+            val fileName = Paths.get(filePath).fileName.toString().substringBefore(".")
+            if (fileName == "package") {
+                // ignore package.kt filename
+                return
+            }
+
+            val topLevelClassDeclarations = node.topLevelDeclarations(CLASS)
+            if (topLevelClassDeclarations.size == 1) {
+                val topLevelClassDeclaration = topLevelClassDeclarations.first()
+                if (node.hasTopLevelDeclarationNotExtending(topLevelClassDeclaration.identifier)) {
+                    fileName.shouldMatchPascalCase(emit)
+                } else {
+                    // If the file only contains one (non private) top level class and possibly some extension functions of
+                    // that class, then its filename should be identical to the class name.
+                    fileName.shouldMatchClassName(topLevelClassDeclaration.identifier, emit)
+                }
+            } else {
+                val topLevelDeclarations = node.topLevelDeclarations()
+                if (topLevelDeclarations.size == 1) {
+                    val topLevelDeclaration = topLevelDeclarations.first()
+                    if (topLevelDeclaration.elementType == OBJECT_DECLARATION ||
+                        topLevelDeclaration.elementType == TYPEALIAS ||
+                        topLevelDeclaration.elementType == FUN
+                    ) {
+                        val pascalCaseIdentifier =
+                            topLevelDeclaration
+                                .identifier
+                                .toPascalCase()
+                        fileName.shouldMatchFileName(pascalCaseIdentifier, emit)
+                    } else {
+                        fileName.shouldMatchPascalCase(emit)
+                    }
                 } else {
                     fileName.shouldMatchPascalCase(emit)
                 }
-            } else {
-                fileName.shouldMatchPascalCase(emit)
             }
         }
     }

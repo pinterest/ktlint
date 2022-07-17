@@ -28,7 +28,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
  * ```
  */
 public class DiscouragedCommentLocationRule : Rule("$experimentalRulesetId:discouraged-comment-location") {
-    override fun visit(
+    override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit

@@ -1,11 +1,11 @@
 package com.pinterest.ktlint.ruleset.experimental.trailingcomma
 
 import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType
 import com.pinterest.ktlint.core.ast.children
 import com.pinterest.ktlint.core.ast.containsLineBreakInRange
-import com.pinterest.ktlint.core.ast.isRoot
 import com.pinterest.ktlint.core.ast.prevCodeLeaf
 import com.pinterest.ktlint.core.ast.prevLeaf
 import kotlin.properties.Delegates
@@ -64,25 +64,24 @@ public class TrailingCommaRule :
         )
     ),
     UsesEditorConfigProperties {
-
-    private var allowTrailingComma by Delegates.notNull<Boolean>()
-    private var allowTrailingCommaOnCallSite by Delegates.notNull<Boolean>()
-
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
         allowTrailingCommaProperty,
         allowTrailingCommaOnCallSiteProperty
     )
 
-    override fun visit(
+    private var allowTrailingComma by Delegates.notNull<Boolean>()
+    private var allowTrailingCommaOnCallSite by Delegates.notNull<Boolean>()
+
+    override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
+        allowTrailingComma = editorConfigProperties.getEditorConfigValue(allowTrailingCommaProperty)
+        allowTrailingCommaOnCallSite = editorConfigProperties.getEditorConfigValue(allowTrailingCommaOnCallSiteProperty)
+    }
+
+    override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        if (node.isRoot()) {
-            allowTrailingComma = node.getEditorConfigValue(allowTrailingCommaProperty)
-            allowTrailingCommaOnCallSite = node.getEditorConfigValue(allowTrailingCommaOnCallSiteProperty)
-        }
-
         // Keep processing of element types in sync with Intellij Kotlin formatting settings.
         // https://github.com/JetBrains/intellij-kotlin/blob/master/formatter/src/org/jetbrains/kotlin/idea/formatter/trailingComma/util.kt
         when (node.elementType) {

@@ -13,7 +13,7 @@ public class EnumEntryNameCaseRule : Rule("enum-entry-name-case") {
         val regex = Regex("[A-Z]([A-Za-z\\d]*|[A-Z_\\d]*)")
     }
 
-    override fun visit(
+    override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit

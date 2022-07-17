@@ -8,35 +8,29 @@ import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.internal.EditorConfigGenerator
 import com.pinterest.ktlint.core.internal.EditorConfigLoader
-import com.pinterest.ktlint.core.internal.KotlinPsiFileFactoryProvider
-import com.pinterest.ktlint.core.internal.LineAndColumn
-import com.pinterest.ktlint.core.internal.SuppressionLocator
+import com.pinterest.ktlint.core.internal.PreparedCode
 import com.pinterest.ktlint.core.internal.SuppressionLocatorBuilder
 import com.pinterest.ktlint.core.internal.VisitorProvider
-import com.pinterest.ktlint.core.internal.buildPositionInTextLocator
+import com.pinterest.ktlint.core.internal.prepareCodeForLinting
 import java.nio.file.FileSystems
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.Locale
 import org.ec4j.core.model.PropertyType
-import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
+import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.openapi.util.Key
-import org.jetbrains.kotlin.com.intellij.psi.PsiElement
-import org.jetbrains.kotlin.com.intellij.psi.PsiErrorElement
-import org.jetbrains.kotlin.com.intellij.psi.PsiFileFactory
-import org.jetbrains.kotlin.idea.KotlinLanguage
-import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
 public object KtLint {
     public val FILE_PATH_USER_DATA_KEY: Key<String> = Key<String>("FILE_PATH")
+
+    @Deprecated("Marked for removal in Ktlint 0.48.0")
     public val EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY: Key<EditorConfigProperties> =
         Key<EditorConfigProperties>("EDITOR_CONFIG_PROPERTIES")
-    private const val UTF8_BOM = "\uFEFF"
+    internal const val UTF8_BOM = "\uFEFF"
     public const val STDIN_FILE: String = "<stdin>"
 
-    private val kotlinPsiFileFactoryProvider = KotlinPsiFileFactoryProvider()
-    private val editorConfigLoader = EditorConfigLoader(FileSystems.getDefault())
+    internal val editorConfigLoader = EditorConfigLoader(FileSystems.getDefault())
 
     /**
      * @param fileName path of file to lint/format
@@ -132,34 +126,15 @@ public object KtLint {
      * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
      */
     public fun lint(params: ExperimentalParams) {
-        val psiFileFactory = kotlinPsiFileFactoryProvider.getKotlinPsiFileFactory(params.isInvokedFromCli)
-        val preparedCode = prepareCodeForLinting(psiFileFactory, params)
+        val preparedCode = prepareCodeForLinting(params)
         val errors = mutableListOf<LintError>()
 
         VisitorProvider(params)
-            .visitor(preparedCode.rootNode)
-            .invoke { node, rule, fqRuleId ->
-                // fixme: enforcing suppression based on node.startOffset is wrong
-                // (not just because not all nodes are leaves but because rules are free to emit (and fix!) errors at any position)
-                if (
-                    !preparedCode.suppressedRegionLocator(node.startOffset, fqRuleId, node === preparedCode.rootNode)
-                ) {
-                    try {
-                        rule.visit(node, false) { offset, errorMessage, canBeAutoCorrected ->
-                            // https://github.com/shyiko/ktlint/issues/158#issuecomment-462728189
-                            if (node.startOffset != offset &&
-                                preparedCode.suppressedRegionLocator(offset, fqRuleId, node === preparedCode.rootNode)
-                            ) {
-                                return@visit
-                            }
-                            val (line, col) = preparedCode.positionInTextLocator(offset)
-                            errors.add(LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected))
-                        }
-                    } catch (e: Exception) {
-                        val (line, col) = preparedCode.positionInTextLocator(node.startOffset)
-
-                        throw RuleExecutionException(line, col, fqRuleId, e)
-                    }
+            .visitor(preparedCode.editorConfigProperties)
+            .invoke { rule, fqRuleId ->
+                preparedCode.executeRule(rule, fqRuleId, false) { offset, errorMessage, canBeAutoCorrected ->
+                    val (line, col) = preparedCode.positionInTextLocator(offset)
+                    errors.add(LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected))
                 }
             }
 
@@ -168,59 +143,49 @@ public object KtLint {
             .forEach { e -> params.cb(e, false) }
     }
 
-    private fun prepareCodeForLinting(
-        psiFileFactory: PsiFileFactory,
-        params: ExperimentalParams
-    ): PreparedCode {
-        val normalizedText = normalizeText(params.text)
-        val positionInTextLocator = buildPositionInTextLocator(normalizedText)
-
-        val psiFileName = if (params.script) "file.kts" else "file.kt"
-        val psiFile = psiFileFactory.createFileFromText(
-            psiFileName,
-            KotlinLanguage.INSTANCE,
-            normalizedText
-        ) as KtFile
-
-        val errorElement = psiFile.findErrorElement()
-        if (errorElement != null) {
-            val (line, col) = positionInTextLocator(errorElement.textOffset)
-            throw ParseException(line, col, errorElement.errorDescription)
-        }
-
-        val rootNode = psiFile.node
-
-        val editorConfigProperties = editorConfigLoader.loadPropertiesForFile(
-            params.normalizedFilePath,
-            params.isStdIn,
-            params.editorConfigPath?.let { Paths.get(it) },
-            params.rules,
-            params.editorConfigOverride,
-            params.debug
-        )
-
-        if (!params.isStdIn) {
-            rootNode.putUserData(FILE_PATH_USER_DATA_KEY, params.normalizedFilePath.toString())
-        }
-        rootNode.putUserData(EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY, editorConfigProperties)
-
-        val suppressedRegionLocator = SuppressionLocatorBuilder.buildSuppressedRegionsLocator(rootNode)
-
-        return PreparedCode(
-            rootNode,
-            positionInTextLocator,
-            suppressedRegionLocator
-        )
+    private fun PreparedCode.executeRule(
+        rule: Rule,
+        fqRuleId: String,
+        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+    ) {
+        rule.beforeFirstNode(editorConfigProperties)
+        this.executeRuleOnNodeRecursively(rootNode, rule, fqRuleId, autoCorrect, emit)
+        rule.afterLastNode()
     }
 
-    @Deprecated(
-        message = "Should not be a part of public api. Will be removed in future release."
-    )
-    public fun normalizeText(text: String): String {
-        return text
-            .replace("\r\n", "\n")
-            .replace("\r", "\n")
-            .replaceFirst(UTF8_BOM, "")
+    private fun PreparedCode.executeRuleOnNodeRecursively(
+        node: ASTNode,
+        rule: Rule,
+        fqRuleId: String,
+        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+    ) {
+        try {
+            rule.beforeVisitChildNodes(node, autoCorrect, emit)
+            if (!rule.runsOnRootNodeOnly()) {
+                node
+                    .getChildren(null)
+                    .forEach { childNode ->
+                        // https://github.com/shyiko/ktlint/issues/158#issuecomment-462728189
+                        // fixme: enforcing suppression based on node.startOffset is wrong (not just because not all nodes are leaves
+                        //  but because rules are free to emit (and fix!) errors at any position)
+                        if (!suppressedRegionLocator(childNode.startOffset, fqRuleId, childNode === rootNode)) {
+                            this.executeRuleOnNodeRecursively(childNode, rule, fqRuleId, autoCorrect, emit)
+                        }
+                    }
+            }
+            rule.afterVisitChildNodes(node, autoCorrect, emit)
+        } catch (e: Exception) {
+            if (autoCorrect) {
+                // line/col cannot be reliably mapped as exception might originate from a node not present in the
+                // original AST
+                throw RuleExecutionException(0, 0, fqRuleId, e)
+            } else {
+                val (line, col) = positionInTextLocator(node.startOffset)
+                throw RuleExecutionException(line, col, fqRuleId, e)
+            }
+        }
     }
 
     /**
@@ -231,93 +196,53 @@ public object KtLint {
      */
     public fun format(params: ExperimentalParams): String {
         val hasUTF8BOM = params.text.startsWith(UTF8_BOM)
-        val psiFileFactory = kotlinPsiFileFactoryProvider.getKotlinPsiFileFactory(params.isInvokedFromCli)
-        val preparedCode = prepareCodeForLinting(psiFileFactory, params)
+        val preparedCode = prepareCodeForLinting(params)
 
         var tripped = false
         var mutated = false
         val errors = mutableSetOf<Pair<LintError, Boolean>>()
         val visitorProvider = VisitorProvider(params = params)
         visitorProvider
-            .visitor(
-                preparedCode.rootNode,
-                concurrent = false
-            ).invoke { node, rule, fqRuleId ->
-                // fixme: enforcing suppression based on node.startOffset is wrong
-                // (not just because not all nodes are leaves but because rules are free to emit (and fix!) errors at any position)
-                if (
-                    !preparedCode.suppressedRegionLocator(node.startOffset, fqRuleId, node === preparedCode.rootNode)
-                ) {
-                    try {
-                        rule.visit(node, true) { offset, errorMessage, canBeAutoCorrected ->
-                            tripped = true
-                            if (canBeAutoCorrected) {
-                                mutated = true
-                                if (preparedCode.suppressedRegionLocator !== SuppressionLocatorBuilder.noSuppression) {
-                                    preparedCode.suppressedRegionLocator =
-                                        SuppressionLocatorBuilder.buildSuppressedRegionsLocator(
-                                            preparedCode.rootNode
-                                        )
-                                }
-                            }
-                            val (line, col) = preparedCode.positionInTextLocator(offset)
-                            errors.add(
-                                Pair(
-                                    LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected),
-                                    // It is assumed that a rule that emits that an error can be autocorrected, also
-                                    // does correct the error.
-                                    canBeAutoCorrected
+            .visitor(preparedCode.editorConfigProperties)
+            .invoke { rule, fqRuleId ->
+                preparedCode.executeRule(rule, fqRuleId, true) { offset, errorMessage, canBeAutoCorrected ->
+                    tripped = true
+                    if (canBeAutoCorrected) {
+                        mutated = true
+                        if (preparedCode.suppressedRegionLocator !== SuppressionLocatorBuilder.noSuppression) {
+                            // Offsets of start and end positions of suppressed regions might have changed due to
+                            // updating the code
+                            preparedCode.suppressedRegionLocator =
+                                SuppressionLocatorBuilder.buildSuppressedRegionsLocator(
+                                    preparedCode.rootNode
                                 )
-                            )
                         }
-                    } catch (e: Exception) {
-                        // line/col cannot be reliably mapped as exception might originate from a node not present
-                        // in the original AST
-                        throw RuleExecutionException(0, 0, fqRuleId, e)
                     }
+                    val (line, col) = preparedCode.positionInTextLocator(offset)
+                    errors.add(
+                        Pair(
+                            LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected),
+                            // It is assumed that a rule that emits that an error can be autocorrected, also
+                            // does correct the error.
+                            canBeAutoCorrected
+                        )
+                    )
                 }
             }
         if (tripped) {
             visitorProvider
-                .visitor(preparedCode.rootNode)
-                .invoke { node, rule, fqRuleId ->
-                    // fixme: enforcing suppression based on node.startOffset is wrong
-                    // (not just because not all nodes are leaves but because rules are free to emit (and fix!) errors at any position)
-                    if (
-                        !preparedCode.suppressedRegionLocator(
-                            node.startOffset,
-                            fqRuleId,
-                            node === preparedCode.rootNode
+                .visitor(preparedCode.editorConfigProperties)
+                .invoke { rule, fqRuleId ->
+                    preparedCode.executeRule(rule, fqRuleId, false) { offset, errorMessage, canBeAutoCorrected ->
+                        val (line, col) = preparedCode.positionInTextLocator(offset)
+                        errors.add(
+                            Pair(
+                                LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected),
+                                // It is assumed that a rule only corrects an error after it has emitted an
+                                // error and indicating that it actually can be autocorrected.
+                                false
+                            )
                         )
-                    ) {
-                        try {
-                            rule.visit(node, false) { offset, errorMessage, canBeAutoCorrected ->
-                                // https://github.com/shyiko/ktlint/issues/158#issuecomment-462728189
-                                if (
-                                    node.startOffset != offset &&
-                                    preparedCode.suppressedRegionLocator(
-                                        offset,
-                                        fqRuleId,
-                                        node === preparedCode.rootNode
-                                    )
-                                ) {
-                                    return@visit
-                                }
-                                val (line, col) = preparedCode.positionInTextLocator(offset)
-                                errors.add(
-                                    Pair(
-                                        LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected),
-                                        // It is assumed that a rule only corrects an error after it has emitted an
-                                        // error and indicating that it actually can be autocorrected.
-                                        false
-                                    )
-                                )
-                            }
-                        } catch (e: Exception) {
-                            val (line, col) = preparedCode.positionInTextLocator(node.startOffset)
-
-                            throw RuleExecutionException(line, col, fqRuleId, e)
-                        }
                     }
                 }
         }
@@ -340,6 +265,9 @@ public object KtLint {
             code
         }
     }
+
+    private fun Rule.runsOnRootNodeOnly() =
+        visitorModifiers.contains(Rule.VisitorModifier.RunOnRootNodeOnly)
 
     /**
      * Reduce memory usage of all internal caches.
@@ -393,23 +321,4 @@ public object KtLint {
             else -> "\n"
         }
     }
-
-    private fun PsiElement.findErrorElement(): PsiErrorElement? {
-        if (this is PsiErrorElement) {
-            return this
-        }
-        this.children.forEach { child ->
-            val errorElement = child.findErrorElement()
-            if (errorElement != null) {
-                return errorElement
-            }
-        }
-        return null
-    }
-
-    private class PreparedCode(
-        val rootNode: FileASTNode,
-        val positionInTextLocator: (offset: Int) -> LineAndColumn,
-        var suppressedRegionLocator: SuppressionLocator
-    )
 }

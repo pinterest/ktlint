@@ -1,7 +1,6 @@
 package com.pinterest.ktlint.core.internal
 
 import com.pinterest.ktlint.core.ast.prevLeaf
-import com.pinterest.ktlint.core.ast.visit
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
@@ -60,7 +59,7 @@ internal object SuppressionLocatorBuilder {
     ): List<SuppressionHint> {
         val result = ArrayList<SuppressionHint>()
         val open = ArrayList<SuppressionHint>()
-        rootNode.visit { node ->
+        rootNode.collect { node ->
             if (node is PsiComment) {
                 val text = node.getText()
                 if (text.startsWith("//")) {
@@ -85,7 +84,7 @@ internal object SuppressionLocatorBuilder {
                                 val openingHint = open.removeAt(openHintIndex)
                                 result.add(
                                     SuppressionHint(
-                                        IntRange(openingHint.range.first, node.startOffset),
+                                        IntRange(openingHint.range.first, node.startOffset - 1),
                                         disabledRules
                                     )
                                 )
@@ -108,6 +107,13 @@ internal object SuppressionLocatorBuilder {
             }
         )
         return result
+    }
+
+    private fun ASTNode.collect(block: (node: ASTNode) -> Unit) {
+        block(this)
+        this
+            .getChildren(null)
+            .forEach { it.collect(block) }
     }
 
     private fun parseHintArgs(
