@@ -346,64 +346,64 @@ class KtLintTest {
                     )
             }
         }
+    }
 
-        @Test
-        fun `Given a rule returning an errors which can and can not be autocorrected than that state of the error can be retrieved in the callback`() {
-            val code =
-                """
-                val foo = "${AutoCorrectErrorRule.STRING_VALUE_NOT_TO_BE_CORRECTED}"
-                val bar = "${AutoCorrectErrorRule.STRING_VALUE_TO_BE_AUTOCORRECTED}"
-                """.trimIndent()
-            val formattedCode =
-                """
-                val foo = "${AutoCorrectErrorRule.STRING_VALUE_NOT_TO_BE_CORRECTED}"
-                val bar = "$STRING_VALUE_AFTER_AUTOCORRECT"
-                """.trimIndent()
-            val callbacks = mutableListOf<CallbackResult>()
-            val actualFormattedCode = KtLint.format(
-                KtLint.ExperimentalParams(
-                    text = code,
-                    ruleSets = listOf(
-                        RuleSet("standard", AutoCorrectErrorRule())
-                    ),
-                    userData = emptyMap(),
-                    cb = { e, corrected ->
-                        callbacks.add(
-                            CallbackResult(
-                                line = e.line,
-                                col = e.col,
-                                ruleId = e.ruleId,
-                                detail = e.detail,
-                                canBeAutoCorrected = e.canBeAutoCorrected,
-                                corrected = corrected
-                            )
-                        )
-                    },
-                    script = false,
-                    editorConfigPath = null,
-                    debug = false
-                )
-            )
-            assertThat(actualFormattedCode).isEqualTo(formattedCode)
-            assertThat(callbacks).containsExactly(
-                CallbackResult(
-                    line = 1,
-                    col = 12,
-                    ruleId = "auto-correct",
-                    detail = AutoCorrectErrorRule.ERROR_MESSAGE_CAN_NOT_BE_AUTOCORRECTED,
-                    canBeAutoCorrected = false,
-                    corrected = false
+    @Test
+    fun `Given a rule returning an errors which can and can not be autocorrected than that state of the error can be retrieved in the callback`() {
+        val code =
+            """
+            val foo = "${AutoCorrectErrorRule.STRING_VALUE_NOT_TO_BE_CORRECTED}"
+            val bar = "${AutoCorrectErrorRule.STRING_VALUE_TO_BE_AUTOCORRECTED}"
+            """.trimIndent()
+        val formattedCode =
+            """
+            val foo = "${AutoCorrectErrorRule.STRING_VALUE_NOT_TO_BE_CORRECTED}"
+            val bar = "$STRING_VALUE_AFTER_AUTOCORRECT"
+            """.trimIndent()
+        val callbacks = mutableListOf<CallbackResult>()
+        val actualFormattedCode = KtLint.format(
+            KtLint.ExperimentalParams(
+                text = code,
+                ruleSets = listOf(
+                    RuleSet("standard", AutoCorrectErrorRule())
                 ),
-                CallbackResult(
-                    line = 2,
-                    col = 12,
-                    ruleId = "auto-correct",
-                    detail = AutoCorrectErrorRule.ERROR_MESSAGE_CAN_BE_AUTOCORRECTED,
-                    canBeAutoCorrected = true,
-                    corrected = true
-                )
+                userData = emptyMap(),
+                cb = { e, corrected ->
+                    callbacks.add(
+                        CallbackResult(
+                            line = e.line,
+                            col = e.col,
+                            ruleId = e.ruleId,
+                            detail = e.detail,
+                            canBeAutoCorrected = e.canBeAutoCorrected,
+                            corrected = corrected
+                        )
+                    )
+                },
+                script = false,
+                editorConfigPath = null,
+                debug = false
             )
-        }
+        )
+        assertThat(actualFormattedCode).isEqualTo(formattedCode)
+        assertThat(callbacks).containsExactly(
+            CallbackResult(
+                line = 1,
+                col = 12,
+                ruleId = "auto-correct",
+                detail = AutoCorrectErrorRule.ERROR_MESSAGE_CAN_NOT_BE_AUTOCORRECTED,
+                canBeAutoCorrected = false,
+                corrected = false
+            ),
+            CallbackResult(
+                line = 2,
+                col = 12,
+                ruleId = "auto-correct",
+                detail = AutoCorrectErrorRule.ERROR_MESSAGE_CAN_BE_AUTOCORRECTED,
+                canBeAutoCorrected = true,
+                corrected = true
+            )
+        )
     }
 
     @DisplayName("Calls to rules defined in ktlint 0.46.x or before")
@@ -427,7 +427,7 @@ class KtLintTest {
                             SimpleTestRuleLegacy(
                                 ruleExecutionCalls = ruleExecutionCalls,
                                 id = "b",
-                                visitorModifiers = setOf(RunAsLateAsPossible)
+                                visitorModifiers = setOf(Rule.VisitorModifier.RunAsLateAsPossible)
                             )
                         )
                     ),
@@ -456,12 +456,15 @@ class KtLintTest {
                             SimpleTestRuleLegacy(
                                 ruleExecutionCalls = ruleExecutionCalls,
                                 id = "a",
-                                visitorModifiers = setOf(RunOnRootNodeOnly)
+                                visitorModifiers = setOf(Rule.VisitorModifier.RunOnRootNodeOnly)
                             ),
                             SimpleTestRuleLegacy(
                                 ruleExecutionCalls = ruleExecutionCalls,
                                 id = "b",
-                                visitorModifiers = setOf(RunOnRootNodeOnly, RunAsLateAsPossible)
+                                visitorModifiers = setOf(
+                                    Rule.VisitorModifier.RunOnRootNodeOnly,
+                                    Rule.VisitorModifier.RunAsLateAsPossible
+                                )
                             )
                         )
                     ),
@@ -487,14 +490,14 @@ class KtLintTest {
                             SimpleTestRuleLegacy(
                                 ruleExecutionCalls = ruleExecutionCalls,
                                 id = "e",
-                                visitorModifiers = setOf(RunAsLateAsPossible)
+                                visitorModifiers = setOf(Rule.VisitorModifier.RunAsLateAsPossible)
                             ),
                             SimpleTestRuleLegacy(
                                 ruleExecutionCalls = ruleExecutionCalls,
                                 id = "d",
                                 visitorModifiers = setOf(
-                                    RunOnRootNodeOnly,
-                                    RunAsLateAsPossible
+                                    Rule.VisitorModifier.RunOnRootNodeOnly,
+                                    Rule.VisitorModifier.RunAsLateAsPossible
                                 )
                             ),
                             SimpleTestRuleLegacy(
@@ -505,7 +508,7 @@ class KtLintTest {
                                 ruleExecutionCalls = ruleExecutionCalls,
                                 id = "a",
                                 visitorModifiers = setOf(
-                                    RunOnRootNodeOnly
+                                    Rule.VisitorModifier.RunOnRootNodeOnly
                                 )
                             ),
                             SimpleTestRuleLegacy(
@@ -554,7 +557,7 @@ class KtLintTest {
                             SimpleTestRule(
                                 ruleExecutionCalls = ruleExecutionCalls,
                                 id = "b",
-                                visitorModifiers = setOf(RunAsLateAsPossible)
+                                visitorModifiers = setOf(Rule.VisitorModifier.RunAsLateAsPossible)
                             )
                         )
                     ),

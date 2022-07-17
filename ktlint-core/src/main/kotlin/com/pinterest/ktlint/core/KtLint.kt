@@ -240,8 +240,6 @@ public object KtLint {
                                 LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected),
                                 // It is assumed that a rule only corrects an error after it has emitted an
                                 // error and indicating that it actually can be autocorrected.
-                                // It is assumed that a rule only corrects an error after it has emitted an
-                                // error and indicating that it actually can be autocorrected.
                                 false
                             )
                         )
