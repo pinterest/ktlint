@@ -86,11 +86,7 @@ public class FilenameRule : Rule(
                         topLevelDeclaration
                             .identifier
                             .toPascalCase()
-                    val pascalCaseQualifier =
-                        topLevelDeclaration
-                            .qualifier
-                            ?.toPascalCase()
-                    fileName.shouldMatchFileName(pascalCaseQualifier, pascalCaseIdentifier, emit)
+                    fileName.shouldMatchFileName(pascalCaseIdentifier, emit)
                 } else {
                     fileName.shouldMatchPascalCase(emit)
                 }
@@ -143,23 +139,15 @@ public class FilenameRule : Rule(
         replaceFirstChar { it.uppercaseChar() }
 
     private fun String.shouldMatchFileName(
-        qualifier: String?,
         filename: String,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        when {
-            qualifier == null && this != filename ->
-                emit(
-                    0,
-                    "File '$this.kt' contains a single top level declaration and should be named '$filename.kt'",
-                    false
-                )
-            qualifier != null && this != "$qualifier$filename" ->
-                emit(
-                    0,
-                    "File '$this.kt' contains a single top level declaration and should be named '$filename.kt' or '$qualifier$filename.kt'",
-                    false
-                )
+        if (this != filename) {
+            emit(
+                0,
+                "File '$this.kt' contains a single top level declaration and should be named '$filename.kt'",
+                false
+            )
         }
     }
 
@@ -173,26 +161,14 @@ public class FilenameRule : Rule(
 
     private data class TopLevelDeclaration(
         val elementType: IElementType,
-        val identifier: String,
-        val qualifier: String? = null
+        val identifier: String
     )
 
     private fun ASTNode.toTopLevelDeclaration(): TopLevelDeclaration? =
         findChildByType(IDENTIFIER)
             ?.text
             ?.removeSurrounding("`")
-            ?.let {
-                if (this.elementType == FUN) {
-                    val typeReference =
-                        this
-                            .findChildByType(TYPE_REFERENCE)
-                            ?.text
-                            ?.replace(".", "")
-                    TopLevelDeclaration(elementType, it, typeReference)
-                } else {
-                    TopLevelDeclaration(elementType, it)
-                }
-            }
+            ?.let { TopLevelDeclaration(elementType, it) }
 
     private companion object {
         val pascalCaseRegEx = Regex("""^[A-Z][A-Za-z\d]*$""")
