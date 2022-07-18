@@ -1,0 +1,77 @@
+site_name: Ktlint
+site_url: https://ktlint.github.io
+
+theme:
+  name: material
+  favicon: assets/images/favicon.ico
+  palette:
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: pink
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: pink
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  icon:
+    repo: material/github
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - search.suggest
+    - search.share
+
+nav:
+  - Home: index.md
+  - Installation:
+    - Overview: install/overview.md
+    - Command line: install/cli.md
+    - Integrations: install/integrations.md
+#    - API: install/api.md  TODO: properly document
+    - Snapshot build: install/snapshot-build.md
+  - Rules:
+    - Standard rules: rules/standard.md
+    - Experimental rules: rules/experimental.md
+    - Configuration: rules/configuration.md
+  - Extensions:
+      - Custom rule set: extensions/custom-rule-set.md
+      - Custom reporter: extensions/custom-reporter.md
+      - Badge: extensions/badge.md
+  - FAQ: faq.md
+  - Contributing:
+      - Overview: contributing/overview.md
+      - Guidelines: contributing/guidelines.md
+      - Code of conduct: contributing/code-of-conduct.md
+
+plugins:
+  - search
+
+repo_url: https://github.com/pinterest/ktlint
+repo_name: pinterest/ktlint
+
+markdown_extensions:
+  - toc:
+      permalink: true
+  - admonition
+  - pymdownx.emoji:
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+      emoji_index: !!python/name:materialx.emoji.twemoji
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true

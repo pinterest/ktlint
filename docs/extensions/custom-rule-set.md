@@ -1,14 +1,14 @@
 !!! Tip
     See [Writing your first ktlint rule](https://medium.com/@vanniktech/writing-your-first-ktlint-rule-5a1707f4ca5b) by [Niklas Baudy](https://github.com/vanniktech).
 
-In a nutshell: a "rule set" is a JAR containing one or more [Rule](ktlint-core/src/main/kotlin/com/pinterest/ktlint/core/Rule.kt)s gathered together in a [RuleSet](ktlint-core/src/main/kotlin/com/pinterest/ktlint/core/RuleSet.kt). `ktlint` is relying on the
+In a nutshell: a "rule set" is a JAR containing one or more [Rule](/ktlint-core/src/main/kotlin/com/pinterest/ktlint/core/Rule.kt)s gathered together in a [RuleSet](/ktlint-core/src/main/kotlin/com/pinterest/ktlint/core/RuleSet.kt). `ktlint` is relying on the
 [ServiceLoader](https://docs.oracle.com/javase/8/docs/api/java/util/ServiceLoader.html) to discover all available "RuleSet"s
 on the classpath (as a ruleset author, all you need to do is to include a `META-INF/services/com.pinterest.ktlint.core.RuleSetProvider` file
-containing a fully qualified name of your [RuleSetProvider](ktlint-core/src/main/kotlin/com/pinterest/ktlint/core/RuleSetProvider.kt) implementation).
+containing a fully qualified name of your [RuleSetProvider](/ktlint-core/src/main/kotlin/com/pinterest/ktlint/core/RuleSetProvider.kt) implementation).
 
 ## ktlint-ruleset-template
 
-A complete sample project (with tests and build files) is included in this repo under the [ktlint-ruleset-template](ktlint-ruleset-template) directory (make sure to check [NoVarRuleTest](ktlint-ruleset-template/src/test/kotlin/yourpkgname/NoVarRuleTest.kt) as it contains some useful information).
+A complete sample project (with tests and build files) is included in this repo under the [ktlint-ruleset-template](ktlint-ruleset-template) directory (make sure to check [NoVarRuleTest](/ktlint-ruleset-template/src/test/kotlin/yourpkgname/NoVarRuleTest.kt) as it contains some useful information).
 
 ```shell title="Building the ktlint-ruleset-template"
 $ cd ktlint-ruleset-template/
@@ -71,7 +71,7 @@ $ ktlint -R build/libs/ktlint-ruleset-template.jar --debug --relative test.kt
 
 ## AST
 
-While writing/debugging [Rule](ktlint-core/src/main/kotlin/com/pinterest/ktlint/core/Rule.kt)s it's often helpful to have an AST
+While writing/debugging [Rule](/ktlint-core/src/main/kotlin/com/pinterest/ktlint/core/Rule.kt)s it's often helpful to have an AST
 printed out to see the structure rules have to work with. ktlint >= 0.15.0 has a `printAST` subcommand (or `--print-ast` flag for ktlint < 0.34.0) specifically for this purpose
 (usage: `ktlint --color printAST <file>`).
 An example of the output is shown below.
