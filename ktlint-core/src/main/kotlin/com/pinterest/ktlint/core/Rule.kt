@@ -5,12 +5,16 @@ import com.pinterest.ktlint.core.internal.IdNamingPolicy
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 /**
- * A rule contract.
+ * The [Rule] contains the life cycle hooks which are needed for the KtLint rule engine.
  *
- * Implementation **doesn't** have to be thread-safe or stateless
- * (provided [RuleSetProvider] creates a new instance on each `get()` call).
+ * Implementation **doesn't** have to be thread-safe or stateless (provided [RuleSetProvider] creates a new instance
+ * on each `get()` call). Currently, this holds true when multiple different files are processed simultaneously. But it
+ * does not hold true when running [KtLint.format] which uses the same instance of the Rule to first run the rule in
+ * autocorrect and then again in non-autocorrect mode. This leaks the state of the first execution (autocorrect) into
+ * the second execution (non-autocorrect).
  *
- * @param id: For non-standard rules, it is expected that this id consist of the ruleSetId and ruleId, e.g. "some-rule-set-id:some-rule-id"
+ * @param id: For non-standard rules, it is expected that this id consist of the ruleSetId and ruleId, e.g.
+ * "some-rule-set-id:some-rule-id"
  * @param visitorModifiers: set of modifiers of the visitor. Preferably a rule has no modifiers at all, meaning that it
  * is completely independent of all other rules.
  *
@@ -20,8 +24,25 @@ public open class Rule(
     val id: String,
     public val visitorModifiers: Set<VisitorModifier> = emptySet()
 ) {
+    private lateinit var traversalState: TraversalState
+
     init {
         IdNamingPolicy.enforceRuleIdNaming(id)
+    }
+
+    /**
+     * Resets the state of the [Rule] class. Each instance of the [Rule] class is supposed to be used only once so that
+     * the rule does not need to be thread-safe and stateless. It is guaranteed that a [Rule] instance is used on
+     * exactly one file. Unfortunately, that same instance is however used twice when running [KtLint.format]. In the
+     * first run the [Rule] instance is used for running in autocorrect mode. If fixes are applied on the file, then
+     * that same instance is reused to process that file once more in non-autocorrect mode. In case the [traversalState]
+     * is changed during the first invocation, it needs to be reset before starting the second invocation.
+     *
+     * Subclasses of the [Rule] should use [beforeFirstNode] to reset the state of the subclass. This method is
+     * intentionally kept internal and closed to prevent it from being used externally or be overridden.
+     */
+    internal fun reset() {
+        traversalState = TraversalState.CONTINUE
     }
 
     /**
@@ -87,6 +108,45 @@ public open class Rule(
      * of the rule.
      */
     public open fun afterLastNode() {}
+
+    /**
+     * Checks whether the next node in the AST is to be traversed. By default, the entire AST is traversed.
+     */
+    internal fun continueTraversal() =
+        traversalState == TraversalState.CONTINUE
+
+    /**
+     * Stops traversal of the AST. Intended usage it to prevent parsing of the remainder of the AST once the goal of the
+     * rule is achieved. For example, if the ".editorconfig" property indent_size is set to 0 or -1 then the indent rule
+     * should be disabled.
+     *
+     * When called in [beforeFirstNode], no AST nodes will be visited. [afterLastNode] is still called.
+     *
+     * When called in [beforeVisitChildNodes], the child nodes of that node will not be visited. [afterVisitChildNodes]
+     * is still called for the node and each of its parent nodes. Other nodes in the AST will not be visited. Finally
+     * [afterLastNode] is called.
+     *
+     * When called in [afterVisitChildNodes] the child nodes of that node are already visited. [afterVisitChildNodes] is
+     * still called for each of its parent nodes. Other nodes in the AST will not be visited. Finally [afterLastNode] is
+     * called.
+     *
+     * Calling in [afterLastNode] has no effect as traversal of the AST has already been completed.
+     */
+    public fun stopTraversalOfAST() {
+        traversalState = TraversalState.STOP
+    }
+
+    private enum class TraversalState {
+        /**
+         * Continue with traversal of the AST.
+         */
+        CONTINUE,
+
+        /**
+         * Stops traversal of yet unvisited nodes in the AST. See [stopTraversalOfAST] for more details.
+         */
+        STOP
+    }
 
     sealed class VisitorModifier {
 

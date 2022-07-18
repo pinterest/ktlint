@@ -149,6 +149,7 @@ public object KtLint {
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
+        rule.reset()
         rule.beforeFirstNode(editorConfigProperties)
         this.executeRuleOnNodeRecursively(rootNode, rule, fqRuleId, autoCorrect, emit)
         rule.afterLastNode()
@@ -161,29 +162,31 @@ public object KtLint {
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        try {
-            rule.beforeVisitChildNodes(node, autoCorrect, emit)
-            if (!rule.runsOnRootNodeOnly()) {
-                node
-                    .getChildren(null)
-                    .forEach { childNode ->
-                        // https://github.com/shyiko/ktlint/issues/158#issuecomment-462728189
-                        // fixme: enforcing suppression based on node.startOffset is wrong (not just because not all nodes are leaves
-                        //  but because rules are free to emit (and fix!) errors at any position)
-                        if (!suppressedRegionLocator(childNode.startOffset, fqRuleId, childNode === rootNode)) {
-                            this.executeRuleOnNodeRecursively(childNode, rule, fqRuleId, autoCorrect, emit)
+        if (rule.continueTraversal()) {
+            try {
+                rule.beforeVisitChildNodes(node, autoCorrect, emit)
+                if (!rule.runsOnRootNodeOnly() && rule.continueTraversal()) {
+                    node
+                        .getChildren(null)
+                        .forEach { childNode ->
+                            // https://github.com/shyiko/ktlint/issues/158#issuecomment-462728189
+                            // fixme: enforcing suppression based on node.startOffset is wrong (not just because not all nodes are leaves
+                            //  but because rules are free to emit (and fix!) errors at any position)
+                            if (!suppressedRegionLocator(childNode.startOffset, fqRuleId, childNode === rootNode)) {
+                                this.executeRuleOnNodeRecursively(childNode, rule, fqRuleId, autoCorrect, emit)
+                            }
                         }
-                    }
-            }
-            rule.afterVisitChildNodes(node, autoCorrect, emit)
-        } catch (e: Exception) {
-            if (autoCorrect) {
-                // line/col cannot be reliably mapped as exception might originate from a node not present in the
-                // original AST
-                throw RuleExecutionException(0, 0, fqRuleId, e)
-            } else {
-                val (line, col) = positionInTextLocator(node.startOffset)
-                throw RuleExecutionException(line, col, fqRuleId, e)
+                }
+                rule.afterVisitChildNodes(node, autoCorrect, emit)
+            } catch (e: Exception) {
+                if (autoCorrect) {
+                    // line/col cannot be reliably mapped as exception might originate from a node not present in the
+                    // original AST
+                    throw RuleExecutionException(0, 0, fqRuleId, e)
+                } else {
+                    val (line, col) = positionInTextLocator(node.startOffset)
+                    throw RuleExecutionException(line, col, fqRuleId, e)
+                }
             }
         }
     }
