@@ -15,6 +15,7 @@ import java.nio.file.Paths
 import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
 import kotlin.system.exitProcess
+import kotlin.system.measureTimeMillis
 import mu.KotlinLogging
 import org.jetbrains.kotlin.util.prefixIfNot
 
@@ -74,33 +75,50 @@ internal fun FileSystem.fileSequence(
             }
     }
 
-    Files.walkFileTree(
-        rootDir,
-        object : SimpleFileVisitor<Path>() {
-            override fun visitFile(
-                filePath: Path,
-                fileAttrs: BasicFileAttributes
-            ): FileVisitResult {
-                if (negatedPathMatchers.none { it.matches(filePath) } &&
-                    pathMatchers.any { it.matches(filePath) }
-                ) {
-                    result.add(filePath)
+    logger.debug {
+        """
+        Start walkFileTree for rootDir: '$rootDir'
+           include:
+        ${pathMatchers.map { "      - $it" }}
+           exlcude:
+        ${negatedPathMatchers.map { "      - $it" }}
+        """.trimIndent()
+    }
+    val duration = measureTimeMillis {
+        Files.walkFileTree(
+            rootDir,
+            object : SimpleFileVisitor<Path>() {
+                override fun visitFile(
+                    filePath: Path,
+                    fileAttrs: BasicFileAttributes
+                ): FileVisitResult {
+                    if (negatedPathMatchers.none { it.matches(filePath) } &&
+                        pathMatchers.any { it.matches(filePath) }
+                    ) {
+                        logger.debug { "- File: $filePath: Include" }
+                        result.add(filePath)
+                    } else {
+                        logger.debug { "- File: $filePath: Ignore" }
+                    }
+                    return FileVisitResult.CONTINUE
                 }
-                return FileVisitResult.CONTINUE
-            }
 
-            override fun preVisitDirectory(
-                dirPath: Path,
-                dirAttr: BasicFileAttributes
-            ): FileVisitResult {
-                return if (Files.isHidden(dirPath)) {
-                    FileVisitResult.SKIP_SUBTREE
-                } else {
-                    FileVisitResult.CONTINUE
+                override fun preVisitDirectory(
+                    dirPath: Path,
+                    dirAttr: BasicFileAttributes
+                ): FileVisitResult {
+                    return if (Files.isHidden(dirPath)) {
+                        logger.debug { "- Dir: $dirPath: Ignore" }
+                        FileVisitResult.SKIP_SUBTREE
+                    } else {
+                        logger.debug { "- Dir: $dirPath: Traverse" }
+                        FileVisitResult.CONTINUE
+                    }
                 }
             }
-        }
-    )
+        )
+    }
+    logger.debug { "Results: include ${result.count()} files in $duration ms" }
 
     return result.asSequence()
 }
