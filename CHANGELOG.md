@@ -32,6 +32,8 @@ The "visit" life cycle hook will be removed in Ktlint 0.48. In KtLint 0.47 the "
 
 ### Changed
 
+* Print an error message and return with non-zero exit code when no files are found that match with the globs ([#629](https://github.com/pinterest/ktlint/issue/629)).
+
 ### Removed
 
 ## [0.46.1] - 2022-06-21
