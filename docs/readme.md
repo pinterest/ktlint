@@ -12,11 +12,7 @@ To build and test documentation on your local development machine, follow steps 
   ```shell
   $ docker pull squidfunk/mkdocs-material
   ```
-* Navigate to root of documentation directory (`ktlint/doc`):
-  ```shell
-  $ cd doc
-  ```
-* Start mkdocs server:
+* Start mkdocs server from root of project (e.g. from same directory where file mkdocs.yml is located) 
   ```shell
   docker run --rm -it -p 8000:8000 -v ${PWD}:/docs squidfunk/mkdocs-material
   ```

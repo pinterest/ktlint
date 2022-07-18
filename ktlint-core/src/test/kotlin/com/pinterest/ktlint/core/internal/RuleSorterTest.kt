@@ -541,7 +541,7 @@ class RuleSorterTest {
     ) : Rule(id, visitorModifiers) {
         constructor(id: String, visitorModifier: VisitorModifier) : this(id, setOf(visitorModifier))
 
-        override fun visit(
+        override fun beforeVisitChildNodes(
             node: ASTNode,
             autoCorrect: Boolean,
             emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit

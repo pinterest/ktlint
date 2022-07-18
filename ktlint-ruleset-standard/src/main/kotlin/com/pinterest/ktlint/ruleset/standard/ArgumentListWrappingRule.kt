@@ -5,28 +5,26 @@ import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentSizeProperty
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentStyleProperty
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.maxLineLengthProperty
+import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType
 import com.pinterest.ktlint.core.ast.ElementType.ELSE
-import com.pinterest.ktlint.core.ast.children
+import com.pinterest.ktlint.core.ast.ElementType.VALUE_ARGUMENT_LIST
 import com.pinterest.ktlint.core.ast.column
 import com.pinterest.ktlint.core.ast.isPartOfComment
-import com.pinterest.ktlint.core.ast.isRoot
 import com.pinterest.ktlint.core.ast.isWhiteSpace
 import com.pinterest.ktlint.core.ast.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.core.ast.lineIndent
 import com.pinterest.ktlint.core.ast.prevLeaf
-import com.pinterest.ktlint.core.ast.visit
-import kotlin.math.max
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.psi.KtContainerNode
 import org.jetbrains.kotlin.psi.KtDoWhileExpression
 import org.jetbrains.kotlin.psi.KtIfExpression
 import org.jetbrains.kotlin.psi.KtWhileExpression
+import org.jetbrains.kotlin.psi.psiUtil.children
 import org.jetbrains.kotlin.psi.psiUtil.getStrictParentOfType
 
 /**
@@ -38,7 +36,7 @@ import org.jetbrains.kotlin.psi.psiUtil.getStrictParentOfType
  * - maxLineLength exceeded (and separating arguments with \n would actually help)
  * in addition, "(" and ")" must be on separates line if any of the arguments are (otherwise on the same)
  */
-class ArgumentListWrappingRule :
+public class ArgumentListWrappingRule :
     Rule("argument-list-wrapping"),
     UsesEditorConfigProperties {
     private var editorConfigIndent = IndentConfig.DEFAULT_INDENT_CONFIG
@@ -51,25 +49,41 @@ class ArgumentListWrappingRule :
             maxLineLengthProperty
         )
 
-    override fun visit(
+    // Keep state of argument list nodes for which the argument needs to be wrapped
+    private val wrapArgumentLists = mutableMapOf<ASTNode, NodeState>()
+
+    // TODO: Eliminate NodeState when it contains only one field?
+    private data class NodeState(val newIndentLevel: Int)
+
+    override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
+        editorConfigIndent = IndentConfig(
+            indentStyle = editorConfigProperties.getEditorConfigValue(indentStyleProperty),
+            tabWidth = editorConfigProperties.getEditorConfigValue(indentSizeProperty)
+        )
+        maxLineLength = editorConfigProperties.getEditorConfigValue(maxLineLengthProperty)
+    }
+
+    override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        if (node.isRoot()) {
-            editorConfigIndent = IndentConfig(
-                indentStyle = node.getEditorConfigValue(indentStyleProperty),
-                tabWidth = node.getEditorConfigValue(indentSizeProperty)
-            )
-            maxLineLength = node.getEditorConfigValue(maxLineLengthProperty)
-            return
-        }
         if (editorConfigIndent.disabled) {
             return
         }
 
-        if (node.elementType == ElementType.VALUE_ARGUMENT_LIST &&
-            // skip when there are no arguments
+        if (node.elementType == VALUE_ARGUMENT_LIST) {
+            if (needToWrapArgumentList(node)) {
+                val newIndentLevel = node.getNewIndentLevel()
+                node
+                    .children()
+                    .forEach { child -> wrapArgumentInList(newIndentLevel, child, emit, autoCorrect) }
+            }
+        }
+    }
+
+    private fun needToWrapArgumentList(node: ASTNode) =
+        if ( // skip when there are no arguments
             node.firstChildNode?.treeNext?.elementType != ElementType.RPAR &&
             // skip lambda arguments
             node.treeParent?.elementType != ElementType.FUNCTION_LITERAL &&
@@ -80,137 +94,111 @@ class ArgumentListWrappingRule :
             // - at least one of the arguments is
             // - maxLineLength exceeded (and separating arguments with \n would actually help)
             // in addition, "(" and ")" must be on separates line if any of the arguments are (otherwise on the same)
-            val putArgumentsOnSeparateLines =
-                node.textContainsIgnoringLambda('\n') ||
-                    // max_line_length exceeded
-                    maxLineLength > -1 && (node.column - 1 + node.textLength) > maxLineLength && !node.textContains('\n')
-            if (putArgumentsOnSeparateLines) {
-                val currentIndentLevel = editorConfigIndent.indentLevelFrom(node.lineIndent())
-                val newIndentLevel =
-                    when {
-                        // IDEA quirk:
-                        // generic<
-                        //     T,
-                        //     R>(
-                        //     1,
-                        //     2
-                        // )
-                        // instead of
-                        // generic<
-                        //     T,
-                        //     R>(
-                        //         1,
-                        //         2
-                        //     )
-                        currentIndentLevel > 0 && node.hasTypeArgumentListInFront() -> currentIndentLevel - 1
+            node.textContainsIgnoringLambda('\n') || node.exceedsMaxLineLength()
+        } else {
+            false
+        }
 
-                        // IDEA quirk:
-                        // foo
-                        //     .bar = Baz(
-                        //     1,
-                        //     2
-                        // )
-                        // instead of
-                        // foo
-                        //     .bar = Baz(
-                        //         1,
-                        //         2
-                        //     )
-                        currentIndentLevel > 0 && node.isPartOfDotQualifiedAssignmentExpression() -> currentIndentLevel - 1
+    private fun ASTNode.exceedsMaxLineLength() =
+        maxLineLength > -1 && (column - 1 + textLength) > maxLineLength && !textContains('\n')
 
-                        else -> currentIndentLevel
-                    }.let {
-                        if (node.isOnSameLineAsControlFlowKeyword()) {
-                            it + 1
-                        } else {
-                            it
-                        }
-                    }
-                val indent = "\n" + editorConfigIndent.indent.repeat(newIndentLevel)
+    private fun ASTNode.getNewIndentLevel(): Int {
+        val currentIndentLevel = editorConfigIndent.indentLevelFrom(lineIndent())
+        return when {
+            // IDEA quirk:
+            // generic<
+            //     T,
+            //     R>(
+            //     1,
+            //     2
+            // )
+            // instead of
+            // generic<
+            //     T,
+            //     R>(
+            //         1,
+            //         2
+            //     )
+            currentIndentLevel > 0 && hasTypeArgumentListInFront() -> currentIndentLevel - 1
 
-                nextChild@ for (child in node.children()) {
-                    when (child.elementType) {
-                        ElementType.LPAR -> {
-                            val prevLeaf = child.prevLeaf()
-                            if (prevLeaf is PsiWhiteSpace && prevLeaf.textContains('\n')) {
-                                emit(child.startOffset, errorMessage(child), true)
-                                if (autoCorrect) {
-                                    prevLeaf.delete()
-                                }
-                            }
-                        }
-                        ElementType.VALUE_ARGUMENT,
-                        ElementType.RPAR -> {
-                            var argumentInnerIndentAdjustment = 0
+            // IDEA quirk:
+            // foo
+            //     .bar = Baz(
+            //     1,
+            //     2
+            // )
+            // instead of
+            // foo
+            //     .bar = Baz(
+            //         1,
+            //         2
+            //     )
+            currentIndentLevel > 0 && isPartOfDotQualifiedAssignmentExpression() -> currentIndentLevel - 1
 
-                            // aiming for
-                            // ... LPAR
-                            // <line indent + indentSize> VALUE_PARAMETER...
-                            // <line indent> RPAR
-                            val intendedIndent = if (child.elementType == ElementType.VALUE_ARGUMENT) {
-                                indent + editorConfigIndent.indent
-                            } else {
-                                indent
-                            }
+            else -> currentIndentLevel
+        }.let {
+            if (isOnSameLineAsControlFlowKeyword()) {
+                it + 1
+            } else {
+                it
+            }
+        }
+    }
 
-                            val prevLeaf = child.prevWhiteSpaceWithNewLine() ?: child.prevLeaf()
-                            if (prevLeaf is PsiWhiteSpace) {
-                                if (prevLeaf.getText().contains("\n")) {
-                                    // The current child is already wrapped to a new line. Checking and fixing the
-                                    // correct size of the indent is the responsibility of the IndentationRule.
-                                    continue@nextChild
-                                } else {
-                                    // The current child needs to be wrapped to a newline.
-                                    emit(child.startOffset, errorMessage(child), true)
-                                    if (autoCorrect) {
-                                        // The indentation is purely based on the previous leaf only. Note that in
-                                        // autoCorrect mode the indent rule, if enabled, runs after this rule and
-                                        // determines the final indentation. But if the indent rule is disabled then the
-                                        // indent of this rule is kept.
-                                        argumentInnerIndentAdjustment = intendedIndent.length - prevLeaf.getTextLength()
-                                        (prevLeaf as LeafPsiElement).rawReplaceWithText(intendedIndent)
-                                    }
-                                }
-                            } else {
-                                // Insert a new whitespace element in order to wrap the current child to a new line.
-                                emit(child.startOffset, errorMessage(child), true)
-                                if (autoCorrect) {
-                                    argumentInnerIndentAdjustment = intendedIndent.length - child.column
-                                    node.addChild(PsiWhiteSpaceImpl(intendedIndent), child)
-                                }
-                            }
-                            if (argumentInnerIndentAdjustment != 0 && child.elementType == ElementType.VALUE_ARGUMENT) {
-                                child.visit { n ->
-                                    if (n.elementType == ElementType.WHITE_SPACE && n.textContains('\n')) {
-                                        val isInCollectionOrFunctionLiteral =
-                                            n.treeParent?.elementType == ElementType.COLLECTION_LITERAL_EXPRESSION || n.treeParent?.elementType == ElementType.FUNCTION_LITERAL
-
-                                        // If we're inside a collection literal, let's recalculate the adjustment
-                                        // because the items inside the collection should not be subject to the same
-                                        // indentation as the brackets.
-                                        val adjustment = if (isInCollectionOrFunctionLiteral) {
-                                            val expectedPosition = intendedIndent.length + editorConfigIndent.indent.length
-                                            expectedPosition - child.column
-                                        } else {
-                                            argumentInnerIndentAdjustment
-                                        }
-
-                                        val split = n.text.split("\n")
-                                        (n as LeafElement).rawReplaceWithText(
-                                            split.joinToString("\n") {
-                                                when {
-                                                    it.isEmpty() -> it
-                                                    adjustment > 0 -> it + " ".repeat(adjustment)
-                                                    else -> it.substring(0, max(it.length + adjustment, 0))
-                                                }
-                                            }
-                                        )
-                                    }
-                                }
-                            }
-                        }
+    private fun wrapArgumentInList(
+        newIndentLevel: Int,
+        child: ASTNode,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        autoCorrect: Boolean
+    ) {
+        val indent = "\n" + editorConfigIndent.indent.repeat(newIndentLevel)
+        when (child.elementType) {
+            ElementType.LPAR -> {
+                val prevLeaf = child.prevLeaf()
+                if (prevLeaf is PsiWhiteSpace && prevLeaf.textContains('\n')) {
+                    emit(child.startOffset, errorMessage(child), true)
+                    if (autoCorrect) {
+                        prevLeaf.delete()
                     }
                 }
+            }
+            ElementType.VALUE_ARGUMENT,
+            ElementType.RPAR -> {
+                // aiming for
+                // ... LPAR
+                // <line indent + indentSize> VALUE_PARAMETER...
+                // <line indent> RPAR
+                val intendedIndent = if (child.elementType == ElementType.VALUE_ARGUMENT) {
+                    indent + editorConfigIndent.indent
+                } else {
+                    indent
+                }
+
+                val prevLeaf = child.prevWhiteSpaceWithNewLine() ?: child.prevLeaf()
+                if (prevLeaf is PsiWhiteSpace) {
+                    if (prevLeaf.getText().contains("\n")) {
+                        // The current child is already wrapped to a new line. Checking and fixing the
+                        // correct size of the indent is the responsibility of the IndentationRule.
+                        return
+                    } else {
+                        // The current child needs to be wrapped to a newline.
+                        emit(child.startOffset, errorMessage(child), true)
+                        if (autoCorrect) {
+                            // The indentation is purely based on the previous leaf only. Note that in
+                            // autoCorrect mode the indent rule, if enabled, runs after this rule and
+                            // determines the final indentation. But if the indent rule is disabled then the
+                            // indent of this rule is kept.
+                            (prevLeaf as LeafPsiElement).rawReplaceWithText(intendedIndent)
+                        }
+                    }
+                } else {
+                    // Insert a new whitespace element in order to wrap the current child to a new line.
+                    emit(child.startOffset, errorMessage(child), true)
+                    if (autoCorrect) {
+                        child.treeParent.addChild(PsiWhiteSpaceImpl(intendedIndent), child)
+                    }
+                }
+                // Indentation of child nodes need to be fixed by the IndentationRule.
             }
         }
     }

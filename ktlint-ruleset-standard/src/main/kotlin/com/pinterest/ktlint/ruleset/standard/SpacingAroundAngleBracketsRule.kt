@@ -16,7 +16,7 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 class SpacingAroundAngleBracketsRule : Rule("spacing-around-angle-brackets") {
     private fun String.trimBeforeLastLine() = this.substring(this.lastIndexOf('\n'))
 
-    override fun visit(
+    override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit

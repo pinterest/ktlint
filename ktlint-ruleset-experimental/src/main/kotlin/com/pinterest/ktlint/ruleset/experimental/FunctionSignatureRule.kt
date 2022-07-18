@@ -5,6 +5,7 @@ import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentSizeProperty
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentStyleProperty
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.maxLineLengthProperty
+import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.BLOCK
@@ -20,7 +21,6 @@ import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.core.ast.children
-import com.pinterest.ktlint.core.ast.isRoot
 import com.pinterest.ktlint.core.ast.isWhiteSpace
 import com.pinterest.ktlint.core.ast.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.core.ast.lineIndent
@@ -66,26 +66,24 @@ public class FunctionSignatureRule :
     private var functionSignatureWrappingMinimumParameters = -1
     private var functionBodyExpressionWrapping = default
 
-    override fun visit(
+    override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
+        with(editorConfigProperties) {
+            functionSignatureWrappingMinimumParameters = getEditorConfigValue(forceMultilineWhenParameterCountGreaterOrEqualThanProperty)
+            functionBodyExpressionWrapping = getEditorConfigValue(functionBodyExpressionWrappingProperty)
+            val indentConfig = IndentConfig(
+                indentStyle = getEditorConfigValue(indentStyleProperty),
+                tabWidth = getEditorConfigValue(indentSizeProperty)
+            )
+            indent = indentConfig.indent
+            maxLineLength = getEditorConfigValue(maxLineLengthProperty)
+        }
+    }
+
+    override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        if (node.isRoot()) {
-            functionSignatureWrappingMinimumParameters = node.getEditorConfigValue(forceMultilineWhenParameterCountGreaterOrEqualThanProperty)
-            functionBodyExpressionWrapping = node.getEditorConfigValue(functionBodyExpressionWrappingProperty)
-            val indentConfig = IndentConfig(
-                indentStyle = node.getEditorConfigValue(indentStyleProperty),
-                tabWidth = node.getEditorConfigValue(indentSizeProperty)
-            )
-            if (indentConfig.disabled) {
-                return
-            }
-            indent = indentConfig.indent
-            maxLineLength = node.getEditorConfigValue(maxLineLengthProperty)
-            return
-        }
-
         if (node.elementType == FUN) {
             node
                 .functionSignatureNodes()
