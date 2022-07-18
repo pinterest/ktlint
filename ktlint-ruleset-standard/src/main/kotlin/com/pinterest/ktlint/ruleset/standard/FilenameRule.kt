@@ -61,33 +61,34 @@ public class FilenameRule : Rule("filename") {
                 return
             }
 
-        val topLevelClassDeclarations = node.topLevelDeclarations(CLASS)
-        if (topLevelClassDeclarations.size == 1) {
-            val topLevelClassDeclaration = topLevelClassDeclarations.first()
-            if (node.hasTopLevelDeclarationNotExtending(topLevelClassDeclaration.identifier)) {
-                fileName.shouldMatchPascalCase(emit)
+            val topLevelClassDeclarations = node.topLevelDeclarations(CLASS)
+            if (topLevelClassDeclarations.size == 1) {
+                val topLevelClassDeclaration = topLevelClassDeclarations.first()
+                if (node.hasTopLevelDeclarationNotExtending(topLevelClassDeclaration.identifier)) {
+                    fileName.shouldMatchPascalCase(emit)
+                } else {
+                    // If the file only contains one (non private) top level class and possibly some extension functions of
+                    // that class, then its filename should be identical to the class name.
+                    fileName.shouldMatchClassName(topLevelClassDeclaration.identifier, emit)
+                }
             } else {
-                // If the file only contains one (non private) top level class and possibly some extension functions of
-                // that class, then its filename should be identical to the class name.
-                fileName.shouldMatchClassName(topLevelClassDeclaration.identifier, emit)
-            }
-        } else {
-            val topLevelDeclarations = node.topLevelDeclarations()
-            if (topLevelDeclarations.size == 1) {
-                val topLevelDeclaration = topLevelDeclarations.first()
-                if (topLevelDeclaration.elementType == OBJECT_DECLARATION ||
-                    topLevelDeclaration.elementType == TYPEALIAS
-                ) {
-                    val pascalCaseIdentifier =
-                        topLevelDeclaration
-                            .identifier
-                            .toPascalCase()
-                    fileName.shouldMatchFileName(pascalCaseIdentifier, emit)
+                val topLevelDeclarations = node.topLevelDeclarations()
+                if (topLevelDeclarations.size == 1) {
+                    val topLevelDeclaration = topLevelDeclarations.first()
+                    if (topLevelDeclaration.elementType == OBJECT_DECLARATION ||
+                        topLevelDeclaration.elementType == TYPEALIAS
+                    ) {
+                        val pascalCaseIdentifier =
+                            topLevelDeclaration
+                                .identifier
+                                .toPascalCase()
+                        fileName.shouldMatchFileName(pascalCaseIdentifier, emit)
+                    } else {
+                        fileName.shouldMatchPascalCase(emit)
+                    }
                 } else {
                     fileName.shouldMatchPascalCase(emit)
                 }
-            } else {
-                fileName.shouldMatchPascalCase(emit)}
             }
         }
     }
