@@ -64,6 +64,20 @@ class SimpleCLITest : BaseCLITest() {
     }
 
     @Test
+    fun `Given some code with an error but a glob which does not select the file`() {
+        runKtLintCliProcess(
+            "too-many-empty-lines",
+            listOf("SomeOtherFile.kt")
+        ) {
+            assertErrorExitCode()
+
+            assert(normalOutput.find { it.contains("No files matched [SomeOtherFile.kt]") } != null) {
+                "Unexpected output:\n${normalOutput.joinToString(separator = "\n")}"
+            }
+        }
+    }
+
+    @Test
     fun `Given some code with an error which can be autocorrected then return from from with the normal exit code`() {
         runKtLintCliProcess(
             "too-many-empty-lines",
@@ -78,14 +92,17 @@ class SimpleCLITest : BaseCLITest() {
     }
 
     @Test
-    fun `Given some code with an error for a rule which is disabled via CLI argument --disabled_rules then return from lint with the normal exit code and without error output`() {
+    fun `Given some code which only contains errors for rules which are disabled via CLI argument --disabled_rules then return from lint with the normal exit code and without error output`() {
         runKtLintCliProcess(
             "too-many-empty-lines",
-            listOf("disabled_rules=no-consecutive-blank-lines")
+            listOf("--disabled_rules=no-consecutive-blank-lines,no-empty-first-line-in-method-block")
         ) {
             assertNormalExitCode()
 
-            assertThat(normalOutput).doesNotContain("Needless blank line(s)")
+            assertThat(normalOutput).doesNotContain(
+                "no-consecutive-blank-lines",
+                "no-empty-first-line-in-method-block"
+            )
         }
     }
 }

@@ -204,7 +204,7 @@ class SuppressionLocatorBuilderTest {
     }
 
     private class NoFooIdentifierRule(id: String) : Rule(id) {
-        override fun visit(
+        override fun beforeVisitChildNodes(
             node: ASTNode,
             autoCorrect: Boolean,
             emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit

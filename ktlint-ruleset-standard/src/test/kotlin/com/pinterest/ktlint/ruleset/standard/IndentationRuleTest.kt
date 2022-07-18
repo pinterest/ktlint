@@ -3909,6 +3909,46 @@ internal class IndentationRuleTest {
         }
     }
 
+    @Nested
+    inner class SuppressionInMiddleOfFile {
+        @Test
+        fun `Issue 631 - Given some code for which indentation is disabled with ktlint-disable-enable-block then do not fix indentation of that block only`() {
+            val code =
+                """
+                val fooWithIndentationFixing1: String =
+                    "foo" +
+                        "bar"
+                // ktlint-disable indent
+                val fooWithIndentationFixingSuppressed: String =
+                    "foo" +
+                    "bar"
+                // ktlint-enable indent
+                val fooWithIndentationFixing2: String =
+                    "foo" +
+                        "bar"
+                """.trimIndent()
+            indentationRuleAssertThat(code).hasNoLintViolations()
+        }
+
+        @Test
+        fun `Issue 631 - Given some code for which indentation is disabled with @Suppress on an element then do not fix indentation of that element only`() {
+            val code =
+                """
+                val fooWithIndentationFixing1: String =
+                    "foo" +
+                        "bar"
+                @Suppress("ktlint:indent")
+                val fooWithIndentationFixingSuppressed: String =
+                    "foo" +
+                    "bar"
+                val fooWithIndentationFixing2: String =
+                    "foo" +
+                        "bar"
+                """.trimIndent()
+            indentationRuleAssertThat(code).hasNoLintViolations()
+        }
+    }
+
     private companion object {
         val INDENT_STYLE_TAB = indentStyleProperty to PropertyType.IndentStyleValue.tab
     }

@@ -482,7 +482,7 @@ internal class EditorConfigLoaderTest {
     private class TestRule : Rule("editorconfig-test"), UsesEditorConfigProperties {
         override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = emptyList()
 
-        override fun visit(
+        override fun beforeVisitChildNodes(
             node: ASTNode,
             autoCorrect: Boolean,
             emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit

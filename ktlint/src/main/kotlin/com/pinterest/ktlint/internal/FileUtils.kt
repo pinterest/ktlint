@@ -17,11 +17,20 @@ import java.nio.file.attribute.BasicFileAttributes
 import kotlin.system.exitProcess
 import kotlin.system.measureTimeMillis
 import mu.KotlinLogging
+import org.jetbrains.kotlin.util.prefixIfNot
 
 private val logger = KotlinLogging.logger {}.initKtLintKLogger()
 
 internal val workDir: String = File(".").canonicalPath
 private val tildeRegex = Regex("^(!)?~")
+
+private val os = System.getProperty("os.name")
+private val userHome = System.getProperty("user.home")
+
+internal val defaultPatterns = setOf(
+    "**$globSeparator*.kt",
+    "**$globSeparator*.kts"
+)
 
 internal fun FileSystem.fileSequence(
     globs: List<String>,
@@ -45,15 +54,14 @@ internal fun FileSystem.fileSequence(
     }
 
     val pathMatchers = if (actualGlobs.isEmpty()) {
-        setOf(
-            getPathMatcher("glob:**$globSeparator*.kt"),
-            getPathMatcher("glob:**$globSeparator*.kts")
-        )
+        defaultPatterns
+            .map { getPathMatcher("glob:$it") }
+            .toSet()
     } else {
         actualGlobs
             .filterNot { it.startsWith("!") }
             .map {
-                getPathMatcher(toGlob(it, rootDir))
+                getPathMatcher(toGlob(it))
             }
     }
 
@@ -63,7 +71,7 @@ internal fun FileSystem.fileSequence(
         actualGlobs
             .filter { it.startsWith("!") }
             .map {
-                getPathMatcher(toGlob(it.removePrefix("!"), rootDir))
+                getPathMatcher(toGlob(it.removePrefix("!")))
             }
     }
 
@@ -120,41 +128,27 @@ private fun FileSystem.isGlobAbsolutePath(glob: String): Boolean {
     return rootDirs.any { glob.removePrefix("!").startsWith(it) }
 }
 
-internal fun FileSystem.toGlob(
-    pattern: String,
-    rootDir: Path
-): String {
-    val os = System.getProperty("os.name")
+internal fun FileSystem.toGlob(pattern: String): String {
     val expandedPath = if (os.startsWith("windows", true)) {
         // Windows sometimes inserts `~` into paths when using short directory names notation, e.g. `C:\Users\USERNA~1\Documents
         pattern
     } else {
         expandTilde(pattern)
-    }
+    }.replace(File.separator, globSeparator)
 
     val fullPath = if (isGlobAbsolutePath(expandedPath)) {
         expandedPath
     } else {
-        val rootDirPath = rootDir
-            .toAbsolutePath()
-            .toString()
-            .run {
-                val normalizedPath = if (!endsWith(File.separator)) "$this${File.separator}" else this
-                normalizedPath
-            }
-        "$rootDirPath$expandedPath"
+        expandedPath.prefixIfNot("**$globSeparator")
     }
-        .replace(File.separator, globSeparator)
     return "glob:$fullPath"
 }
 
-private val globSeparator: String get() {
-    val os = System.getProperty("os.name")
-    return when {
+private val globSeparator: String get() =
+    when {
         os.startsWith("windows", ignoreCase = true) -> "\\\\"
         else -> "/"
     }
-}
 
 /**
  * List of paths to Java `jar` files.
@@ -172,7 +166,7 @@ internal fun JarFiles.toFilesURIList() = map {
 
 // a complete solution would be to implement https://www.gnu.org/software/bash/manual/html_node/Tilde-Expansion.html
 // this implementation takes care only of the most commonly used case (~/)
-private fun expandTilde(path: String): String = path.replaceFirst(tildeRegex, System.getProperty("user.home"))
+private fun expandTilde(path: String): String = path.replaceFirst(tildeRegex, userHome)
 
 internal fun File.location(
     relative: Boolean

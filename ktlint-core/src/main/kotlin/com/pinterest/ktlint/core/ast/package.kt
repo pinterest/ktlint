@@ -232,11 +232,13 @@ fun LeafElement.upsertWhitespaceAfterMe(text: String): LeafElement {
     }
 }
 
+@Deprecated(message = "Marked for removal in Ktlint 0.48. See Ktlint 0.47.0 changelog for more information.")
 fun ASTNode.visit(enter: (node: ASTNode) -> Unit) {
     enter(this)
     this.getChildren(null).forEach { it.visit(enter) }
 }
 
+@Deprecated(message = "Marked for removal in Ktlint 0.48. See Ktlint 0.47.0 changelog for more information.")
 fun ASTNode.visit(enter: (node: ASTNode) -> Unit, exit: (node: ASTNode) -> Unit) {
     enter(this)
     this.getChildren(null).forEach { it.visit(enter, exit) }

@@ -211,6 +211,13 @@ internal class KtlintCommandLine {
 
         failOnOldRulesetProviderUsage()
 
+        // Set default value to patterns only after the logger has been configured to avoid a warning about initializing
+        // the logger multiple times
+        if (patterns.isEmpty()) {
+            logger.info { "Enable default patterns $defaultPatterns" }
+            patterns = ArrayList(defaultPatterns)
+        }
+
         val start = System.currentTimeMillis()
 
         val baselineResults = loadBaseline(baseline)
@@ -242,6 +249,10 @@ internal class KtlintCommandLine {
             )
         }
         reporter.afterAll()
+        if (fileNumber.get() == 0) {
+            logger.error { "No files matched $patterns" }
+            exitProcess(1)
+        }
         logger.debug { "${System.currentTimeMillis() - start}ms / $fileNumber file(s) / $errorNumber error(s)" }
         if (tripped.get()) {
             exitProcess(1)
@@ -281,8 +292,7 @@ internal class KtlintCommandLine {
                         ruleSets
                     )
                 }
-            }
-            .parallel({ (file, errList) -> report(file.location(relative), errList, reporter) })
+            }.parallel({ (file, errList) -> report(file.location(relative), errList, reporter) })
     }
 
     private fun lintStdin(

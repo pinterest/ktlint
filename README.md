@@ -67,6 +67,7 @@ It's also [easy to create your own](#creating-a-reporter).
 - `package-name`: No underscores in package names
 - `parameter-list-wrapping`: When class/function signature doesn't fit on a single line, each parameter must be on a separate line
 - `string-template`: Consistent string templates (`$v` instead of `${v}`, `${p.v}` instead of `${p.v.toString()}`)
+- `trailing-comma`: Consistent removal (default) or adding of trailing comma's (both on call and declaration site)
 
 ### Spacing
 - `annotation-spacing`: Annotations should be separated by a single line break
@@ -586,7 +587,7 @@ See [Mega-Linter](https://nvuillam.github.io/mega-linter/): 70+ linters aggregat
 
 > See also [Writing your first ktlint rule](https://medium.com/@vanniktech/writing-your-first-ktlint-rule-5a1707f4ca5b) by [Niklas Baudy](https://github.com/vanniktech). 
 
-In a nutshell: "ruleset" is a JAR containing one or more [Rule](ktlint-core/src/main/kotlin/com/pinterest/ktlint/core/Rule.kt)s gathered together in a [RuleSet](ktlint-core/src/main/kotlin/com/pinterest/ktlint/core/RuleSet.kt). `ktlint` is relying on 
+In a nutshell: "ruleset" is a JAR containing one or more [Rule](ktlint-core/src/main/kotlin/com/pinterest/ktlint/core/Rule.kt)s gathered together in a [RuleSet](/ktlint-core/src/main/kotlin/com/pinterest/ktlint/core/RuleSet.kt). `ktlint` is relying on 
 [ServiceLoader](https://docs.oracle.com/javase/8/docs/api/java/util/ServiceLoader.html) to discover all available "RuleSet"s
 on the classpath (as a ruleset author, all you need to do is to include a `META-INF/services/com.pinterest.ktlint.core.RuleSetProvider` file 
 containing a fully qualified name of your [RuleSetProvider](ktlint-core/src/main/kotlin/com/pinterest/ktlint/core/RuleSetProvider.kt) implementation).    
