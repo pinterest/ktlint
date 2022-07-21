@@ -15,8 +15,11 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
+import org.jetbrains.kotlin.psi.KtClass
+import org.jetbrains.kotlin.psi.KtClassBody
 import org.jetbrains.kotlin.psi.KtCollectionLiteralExpression
 import org.jetbrains.kotlin.psi.KtDestructuringDeclaration
+import org.jetbrains.kotlin.psi.KtEnumEntry
 import org.jetbrains.kotlin.psi.KtFunctionLiteral
 import org.jetbrains.kotlin.psi.KtPsiFactory
 import org.jetbrains.kotlin.psi.KtValueArgumentList
@@ -91,9 +94,7 @@ public class TrailingCommaRule :
             ElementType.TYPE_PARAMETER_LIST -> visitTypeList(node, emit, autoCorrect)
             ElementType.VALUE_PARAMETER_LIST -> visitValueList(node, emit, autoCorrect)
             ElementType.WHEN_ENTRY -> visitWhenEntry(node, emit, autoCorrect)
-            else -> Unit
-        }
-        when (node.elementType) {
+            ElementType.CLASS -> visitClassEntry(node, emit, autoCorrect)
             ElementType.COLLECTION_LITERAL_EXPRESSION -> visitCollectionLiteralExpression(node, emit, autoCorrect)
             ElementType.INDICES -> visitIndices(node, emit, autoCorrect)
             ElementType.TYPE_ARGUMENT_LIST -> visitTypeList(node, emit, autoCorrect)
@@ -190,6 +191,34 @@ public class TrailingCommaRule :
             .children()
             .first { it.elementType == ElementType.ARROW }
         node.reportAndCorrectTrailingCommaNodeBefore(inspectNode, emit, autoCorrect)
+    }
+
+    private fun visitClassEntry(
+        node: ASTNode,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        autoCorrect: Boolean
+    ) {
+        val psi = node.psi
+        require(psi is KtClass)
+
+        if (psi.isEnum()) {
+            val classBody = node.children().singleOrNull { it.psi is KtClassBody }
+                ?: return // Nothing to do for empty enum class
+
+            val lastRelevantChild = classBody.psi.children.toList().asReversed()
+                .first()
+
+            val fullAST = psi
+            val fullPsi = classBody.psi
+
+            if (lastRelevantChild !is KtEnumEntry) {
+                // Aborting processing since Enum contains more than just constants.
+                return
+            }
+
+            val inspectNode = classBody.lastChildNode
+            node.reportAndCorrectTrailingCommaNodeBefore(inspectNode, emit, autoCorrect)
+        }
     }
 
     private fun ASTNode.reportAndCorrectTrailingCommaNodeBefore(
@@ -325,7 +354,8 @@ public class TrailingCommaRule :
             ElementType.FUNCTION_TYPE,
             ElementType.TYPE_PARAMETER_LIST,
             ElementType.VALUE_PARAMETER_LIST,
-            ElementType.WHEN_ENTRY
+            ElementType.WHEN_ENTRY,
+            ElementType.CLASS
         )
 
         private val TYPES_ON_CALL_SITE = TokenSet.create(
@@ -333,6 +363,11 @@ public class TrailingCommaRule :
             ElementType.INDICES,
             ElementType.TYPE_ARGUMENT_LIST,
             ElementType.VALUE_ARGUMENT_LIST
+        )
+
+        private val ENUM_IGNORED_TYPES = TokenSet.create(
+            ElementType.WHITE_SPACE,
+            ElementType.RBRACE
         )
 
         internal const val ALLOW_TRAILING_COMMA_NAME = "ij_kotlin_allow_trailing_comma"

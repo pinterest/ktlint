@@ -1041,9 +1041,8 @@ class TrailingCommaRuleTest {
 
         trailingCommaRuleAssertThat(code)
             .withEditorConfigOverride(allowTrailingCommaProperty to true)
-            .hasLintViolations(
-                LintViolation(3, 12, "Missing trailing comma before \"}\"") // TODO
-            ).isFormattedAs(formattedCode)
+            .hasLintViolation(3, 13, "Missing trailing comma before \"}\"")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -1064,9 +1063,115 @@ class TrailingCommaRuleTest {
             """.trimIndent()
 
         trailingCommaRuleAssertThat(code)
+            .withEditorConfigOverride(allowTrailingCommaProperty to false)
+            .hasLintViolation(3, 13, "Unnecessary trailing comma before \"}\"")
+            .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given that a trailing comma is not allowed then nothing happens for enums terminated with semicolon`() {
+        val code =
+            """
+            enum class Shape {
+                SQUARE,
+                TRIANGLE;
+
+                fun print() = name()
+            }
+            """.trimIndent()
+
+        trailingCommaRuleAssertThat(code)
+            .withEditorConfigOverride(allowTrailingCommaProperty to false)
+            .hasNoLintViolations()
+    }
+
+    @Test
+    fun `Given that a trailing comma is allowed then nothing happens for enums terminated with semicolon`() {
+        val code =
+            """
+            enum class Shape {
+                SQUARE,
+                TRIANGLE;
+
+                fun print() = name()
+            }
+            """.trimIndent()
+
+        trailingCommaRuleAssertThat(code)
             .withEditorConfigOverride(allowTrailingCommaProperty to true)
-            .hasLintViolations(
-                LintViolation(3, 12, "Unnecessary trailing comma before \"}\"") // TODO
-            ).isFormattedAs(formattedCode)
+            .hasNoLintViolations()
+    }
+
+    @Test
+    fun `Given that a trailing comma is allowed then it is added for complicated enums`() {
+        val code =
+            """
+            interface Printable {
+                fun print(): String
+            }
+
+            enum class Shape : Printable {
+                /*
+                 * Block comment is OK!
+                 */
+                Square {
+                    override fun print() = "■" // EOL Comment should be OK
+                },
+
+                Triangle {
+                    override fun print() = "▲"
+                }
+            }
+            """.trimIndent()
+
+        val formattedCode =
+            """
+            interface Printable {
+                fun print(): String
+            }
+
+            enum class Shape : Printable {
+                /*
+                 * Block comment is OK!
+                 */
+                Square {
+                    override fun print() = "■" // EOL Comment should be OK
+                },
+
+                Triangle {
+                    override fun print() = "▲"
+                },
+            }
+            """.trimIndent()
+
+        trailingCommaRuleAssertThat(code)
+            .withEditorConfigOverride(allowTrailingCommaProperty to true)
+            .hasLintViolation(15, 6, "Missing trailing comma before \"}\"")
+            .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given that a trailing comma is allowed then it is added if enum is already terminated with semi-colon`() {
+        val code =
+            """
+            enum class Shape {
+                SQUARE,
+                TRIANGLE;
+            }
+            """.trimIndent()
+
+        val formattedCode =
+            """
+            enum class Shape {
+                SQUARE,
+                TRIANGLE,
+                ;
+            }
+            """.trimIndent()
+
+        trailingCommaRuleAssertThat(code)
+            .withEditorConfigOverride(allowTrailingCommaProperty to true)
+            .hasLintViolation(3, 14, "Missing trailing comma before \"}\"")
+            .isFormattedAs(formattedCode)
     }
 }
