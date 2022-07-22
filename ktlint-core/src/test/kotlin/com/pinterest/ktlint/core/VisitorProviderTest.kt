@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test
 class VisitorProviderTest {
     @Test
     fun `A root only rule only visits the FILE node only`() {
-        val actual = testVisitorProvider(
+        val actual = testVisitorProviderLegacy(
             RootNodeOnlyRule(ROOT_NODE_ONLY_RULE)
         )
 
@@ -21,7 +21,7 @@ class VisitorProviderTest {
 
     @Test
     fun `A run-as-late-as-possible-rule runs later than normal rules`() {
-        val actual = testVisitorProvider(
+        val actual = testVisitorProviderLegacy(
             NormalRule(RULE_A),
             RunAsLateAsPossibleRule(RULE_B),
             NormalRule(RULE_C)
@@ -36,7 +36,7 @@ class VisitorProviderTest {
 
     @Test
     fun `A run as late as possible on root node only rule visits the root node only`() {
-        val actual = testVisitorProvider(
+        val actual = testVisitorProviderLegacy(
             RunAsLateAsPossibleOnRootNodeOnlyRule(RUN_AS_LATE_AS_POSSIBLE_RULE)
         )
 
@@ -47,7 +47,7 @@ class VisitorProviderTest {
 
     @Test
     fun `Disabled rules in any type of rule set are not executed`() {
-        val actual = testVisitorProvider(
+        val actual = testVisitorProviderLegacy(
             RuleSet(
                 STANDARD,
                 NormalRule(RULE_A),
@@ -55,12 +55,12 @@ class VisitorProviderTest {
             ),
             RuleSet(
                 EXPERIMENTAL,
-                NormalRule(RULE_B),
+                NormalRule("$EXPERIMENTAL:$RULE_B"),
                 NormalRule(SOME_DISABLED_RULE_IN_EXPERIMENTAL_RULE_SET)
             ),
             RuleSet(
                 CUSTOM_RULE_SET_A,
-                NormalRule(RULE_C),
+                NormalRule("$CUSTOM_RULE_SET_A:$RULE_C"),
                 NormalRule(SOME_DISABLED_RULE_IN_CUSTOM_RULE_SET_A)
             )
         )
@@ -74,7 +74,7 @@ class VisitorProviderTest {
 
     @Test
     fun `When no enabled rules are found for the root node, the visit function on the root node is not executed`() {
-        val actual = testVisitorProvider(
+        val actual = testVisitorProviderLegacy(
             RuleSet(
                 STANDARD,
                 NormalRule(SOME_DISABLED_RULE_IN_STANDARD_RULE_SET)
@@ -106,12 +106,68 @@ class VisitorProviderTest {
      * visit provider has invoked the correct rules in the correct order. Note that the testProvider does not invoke the
      * real visit method of the rule.
      */
+    private fun testVisitorProviderLegacy(vararg rules: Rule): MutableList<Visit>? =
+        testVisitorProvider(
+            ruleSets = setOf(
+                RuleSet(
+                    STANDARD,
+                    *rules
+                )
+            ),
+            ruleProviders = emptySet()
+        )
+
+    /**
+     * Create a visitor provider. It returns a list of visits that the provider made after it was invoked. The tests of
+     * the visitor provider should only focus on whether the visit provider has invoked the correct rules in the correct
+     * order. Note that the testProvider does not invoke the real visit method of the rule.
+     */
+    private fun testVisitorProvider(
+        ruleSets: Set<RuleSet>,
+        ruleProviders: Set<RuleProvider>
+    ): MutableList<Visit>? {
+        val ruleSetList = ruleSets.toList()
+        return VisitorProvider(
+            params = KtLint.ExperimentalParams(
+                text = "",
+                cb = { _, _ -> },
+                ruleSets = ruleSetList,
+                ruleProviders = ruleProviders,
+                // Enable debug mode as it is helpful when a test fails
+                debug = true
+            ),
+            // Creates a new VisitorProviderFactory for each unit test to prevent that tests for the exact same set of
+            // ruleIds are influencing each other.
+            recreateRuleSorter = true
+        ).run {
+            var visits: MutableList<Visit>? = null
+            visitor(
+                disabledRulesEditorConfigProperties(
+                    SOME_DISABLED_RULE_IN_STANDARD_RULE_SET,
+                    SOME_DISABLED_RULE_IN_EXPERIMENTAL_RULE_SET,
+                    SOME_DISABLED_RULE_IN_CUSTOM_RULE_SET_A
+                )
+            ).invoke { _, fqRuleId ->
+                if (visits == null) {
+                    visits = mutableListOf()
+                }
+                visits?.add(Visit(fqRuleId))
+            }
+            visits
+        }
+    }
+
+    /**
+     * Create a visitor provider for a given list of rules. It returns a list of visits that the provider made after it
+     * was invoked. The tests of the visitor provider should only focus on whether the visit provider has invoked the
+     * correct rules in the correct order. Note that the testProvider does not invoke the real visit method of the rule.
+     */
     private fun testVisitorProvider(vararg rules: Rule): MutableList<Visit>? =
         testVisitorProvider(
-            RuleSet(
-                STANDARD,
-                *rules
-            )
+            ruleSets = emptySet(),
+            ruleProviders = rules
+                .map { RuleProvider { it } }
+                .toSet()
         )
 
     /**
@@ -120,7 +176,8 @@ class VisitorProviderTest {
      * invoked the correct rules in the correct order. Note that the testProvider does not invoke the real visit method
      * of the rule.
      */
-    private fun testVisitorProvider(vararg ruleSets: RuleSet): MutableList<Visit>? {
+    @Deprecated("Marked for removal in KtLint 0.48")
+    private fun testVisitorProviderLegacy(vararg ruleSets: RuleSet): MutableList<Visit>? {
         val ruleSetList = ruleSets.toList()
         return VisitorProvider(
             params = KtLint.ExperimentalParams(
@@ -138,8 +195,8 @@ class VisitorProviderTest {
             visitor(
                 disabledRulesEditorConfigProperties(
                     SOME_DISABLED_RULE_IN_STANDARD_RULE_SET,
-                    "$EXPERIMENTAL:$SOME_DISABLED_RULE_IN_EXPERIMENTAL_RULE_SET",
-                    "$CUSTOM_RULE_SET_A:$SOME_DISABLED_RULE_IN_CUSTOM_RULE_SET_A"
+                    SOME_DISABLED_RULE_IN_EXPERIMENTAL_RULE_SET,
+                    SOME_DISABLED_RULE_IN_CUSTOM_RULE_SET_A
                 )
             ).invoke { _, fqRuleId ->
                 if (visits == null) {
@@ -173,9 +230,8 @@ class VisitorProviderTest {
         const val RULE_B = "rule-b"
         const val RULE_C = "rule-c"
         const val SOME_DISABLED_RULE_IN_STANDARD_RULE_SET = "some-disabled-rule-in-standard-rule-set"
-        const val SOME_DISABLED_RULE_IN_EXPERIMENTAL_RULE_SET = "some-disabled-rule-in-experimental-rule-set"
-        const val SOME_DISABLED_RULE_IN_CUSTOM_RULE_SET_A = "some-disabled-rule-custom-rule-set-a"
-        const val COMMA_FOLLOWED_BY_SPACE_SEPARATOR = ", "
+        const val SOME_DISABLED_RULE_IN_EXPERIMENTAL_RULE_SET = "$EXPERIMENTAL:some-disabled-rule-in-experimental-rule-set"
+        const val SOME_DISABLED_RULE_IN_CUSTOM_RULE_SET_A = "$CUSTOM_RULE_SET_A:some-disabled-rule-in-custom-rule-set"
     }
 
     open class NormalRule(id: String) : R(id)

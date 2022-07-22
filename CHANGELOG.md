@@ -22,6 +22,93 @@ Optionally, a rule can stop the traversal of the remainder of the AST whenever t
 
 The "visit" life cycle hook will be removed in Ktlint 0.48. In KtLint 0.47 the "visit" life cycle hook will be called *only* when hook "beforeVisitChildNodes" is not overridden. It is recommended to migrate to the new lifecycle hooks in KtLint 0.47. Please create an issue, in case you need additional assistence to implement the new life cycle hooks in your rules.
 
+
+#### Ruleset providing by Custom Rule Set Provider
+
+The KtLint engine needs a more fine-grained control on the instantiation of new Rule instances. Currently, a new instance of a rule can be created only once per file. However, when formatting files the same rule instance is reused for a second processing iteration in case a Lint violation has been autocorrected. By re-using the same rule instance, state of that rule might leak from the first to the second processing iteration.
+
+Providers of custom rule sets have to migrate the custom rule set JAR file. The current RuleSetProvider interface which is implemented in the custom rule set is deprecated and marked for removal in KtLint 0.48. Custom rule sets using the old RuleSetProvider interface will not be run in KtLint 0.48 or above.
+
+For now, it is advised to implement the new RuleSetProviderV2 interface without removing the old RuleSetProvider interface. In this way, KtLint 0.47 and above use the RuleSetProviderV2 interface and ignore the old RuleSetProvider interface completely. KtLint 0.46 and below only use the old RuleSetProvider interface.
+
+Adding the new interface is straight forward, as can be seen below:
+
+```
+// Current implementation
+public class CustomRuleSetProvider : RuleSetProvider {
+    override fun get(): RuleSet = RuleSet(
+        "custom",
+        CustomRule1(),
+        CustomRule2(),
+    )
+}
+
+// New implementation
+public class CustomRuleSetProvider :
+    RuleSetProviderV2(CUSTOM_RULE_SET_ID),
+    RuleSetProvider {
+    override fun get(): RuleSet =
+        RuleSet(
+            CUSTOM_RULE_SET_ID,
+            CustomRule1(),
+            CustomRule2()
+        )
+
+    override fun getRuleProviders(): Set<RuleProvider> =
+        setOf(
+            RuleProvider { CustomRule1() },
+            RuleProvider { CustomRule2() }
+        )
+
+    private companion object {
+        const val CUSTOM_RULE_SET_ID = custom"
+    }
+}
+
+```
+
+Also note that file 'resource/META-INF/services/com.pinterest.ktlint.core.RuleSetProviderV2' needs to be added. In case your custom rule set provider implements both RuleSetProvider and RuleSetProviderV2, the resource directory contains files for both implementation. The content of those files is identical as the interfaces are implemented on the same class.
+
+Once above has been implemented, rules no longer have to clean up their internal state as the KtLint rule engine can request a new instance of the Rule at any time it suspects that the internal state of the Rule is tampered with (e.g. as soon as the Rule instance is used for traversing the AST).
+
+#### Rule set providing by API Consumer
+
+The KtLint engine needs a more fine-grained control on the instantiation of new Rule instances. Currently, a new instance of a rule can be created only once per file. However, when formatting files the same rule instance is reused for a second processing iteration in case a Lint violation has been autocorrected. By re-using the same rule instance, state of that rule might leak from the first to the second processing iteration.
+
+The ExperimentalParams parameter which is used to invoke "KtLint.lint" and "KtLint.format" contains a new parameter "ruleProviders" which will replace the "ruleSets" parameter in KtLint 0.48. Exactly one of those parameters should be a non-empty set. It is preferred that API consumers migrate to using "ruleProviders".
+
+```
+// Old style using "ruleSets"
+KtLint.format(
+    KtLint.ExperimentalParams(
+        ...
+        ruleSets = listOf(
+            RuleSet(
+                "custom",
+                CustomRule1(),
+                CustomRule2()
+            )
+        ),
+        ...
+    )
+)
+
+
+// New style using "ruleProviders"
+KtLint.format(
+    KtLint.ExperimentalParams(
+        ...
+        ruleProviders = setOf(
+            RuleProvider { CustomRule1() },
+            RuleProvider { CustomRule2() }
+        ),
+        cb = { _, _ -> }
+    )
+)
+```
+
+Once above has been implemented, rules no longer have to clean up their internal state as the KtLint rule engine can request a new instance of the Rule at any time it suspects that the internal state of the Rule is tampered with (e.g. as soon as the Rule instance is used for traversing the AST).
+
 #### Format callback
 
 The callback function provided as parameter to the format function is now called for all errors regardless whether the error has been autocorrected. Existing consumers of the format function should now explicitly check the `autocorrected` flag in the callback result and handle it appropriately (in most case this will be ignoring the callback results for which `autocorrected` has value `true`).

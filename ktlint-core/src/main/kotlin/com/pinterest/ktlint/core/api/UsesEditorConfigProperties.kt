@@ -199,7 +199,19 @@ public object DefaultEditorConfigProperties : UsesEditorConfigProperties {
                 PropertyType.PropertyValueParser.IDENTITY_VALUE_PARSER,
                 emptySet()
             ),
-            defaultValue = ""
+            defaultValue = "",
+            propertyMapper = { property, _ ->
+                when {
+                    property?.isUnset == true -> ""
+                    property?.getValueAs<String>() != null -> {
+                        // Remove spaces (most likely they occur only around the comma) as they otherwise will be seen
+                        // as part of the rule-id which is to be disabled. But as the space is not allowed in the id's
+                        // of rule sets and rule ids, they are just removed all.
+                        property.getValueAs<String>().replace(" ", "")
+                    }
+                    else -> property?.getValueAs()
+                }
+            }
         )
 
     public val indentStyleProperty: UsesEditorConfigProperties.EditorConfigProperty<PropertyType.IndentStyleValue> =

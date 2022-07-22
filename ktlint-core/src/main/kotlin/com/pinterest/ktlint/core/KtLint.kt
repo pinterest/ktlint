@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.core
 
+import com.pinterest.ktlint.core.RuleRunner.State.UNUSED
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.codeStyleSetProperty
 import com.pinterest.ktlint.core.api.EditorConfigOverride
@@ -12,6 +13,7 @@ import com.pinterest.ktlint.core.internal.PreparedCode
 import com.pinterest.ktlint.core.internal.SuppressionLocatorBuilder
 import com.pinterest.ktlint.core.internal.VisitorProvider
 import com.pinterest.ktlint.core.internal.prepareCodeForLinting
+import com.pinterest.ktlint.core.internal.toQualifiedRuleId
 import java.nio.file.FileSystems
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -33,29 +35,39 @@ public object KtLint {
     internal val editorConfigLoader = EditorConfigLoader(FileSystems.getDefault())
 
     /**
-     * @param fileName path of file to lint/format
-     * @param text Contents of file to lint/format
-     * @param ruleSets a collection of "RuleSet"s used to validate source
-     * @param userData Map of user options. This field is deprecated and will be removed in a future version.
-     * @param cb callback invoked for each lint error
-     * @param script true if this is a Kotlin script file
-     * @param editorConfigPath optional path of the .editorconfig file (otherwise will use working directory)
-     * @param debug True if invoked with the --debug flag
-     * @param editorConfigOverride should contain entries to add/replace from loaded `.editorconfig` files.
+     * Parameters to invoke [KtLint.lint] and [KtLint.format] API's.
+     *
+     * [fileName] path of file to lint/format
+     * [text] Contents of file to lint/format
+     * [ruleSets] a collection of "RuleSet"s used to validate source. This field is deprecated and will be removed in
+     * KtLint 0.48.
+     * [ruleProviders] a collection of [RuleProvider]s used to create new instances of [Rule]s so that it can keep
+     * internal state and be called thread-safe
+     * [userData] Map of user options. This field is deprecated and will be removed in a future version.
+     * [cb] callback invoked for each lint error
+     * [script] true if this is a Kotlin script file
+     * [editorConfigPath] optional path of the .editorconfig file (otherwise will use working directory)
+     * [debug] True if invoked with the --debug flag
+     * [editorConfigOverride] should contain entries to add/replace from loaded `.editorconfig` files.
      *
      * For possible keys check related [Rule]s that implements [UsesEditorConfigProperties] interface.
      *
      * For values use `PropertyType.PropertyValue.valid("override", <expected type>)` approach.
      * It is also possible to set value into "unset" state by using [PropertyType.PropertyValue.UNSET].
      *
-     * @param isInvokedFromCli **For internal use only**: indicates that linting was invoked from KtLint CLI tool.
+     * [isInvokedFromCli] **For internal use only**: indicates that linting was invoked from KtLint CLI tool.
      * Enables some internals workarounds for Kotlin Compiler initialization.
      * Usually you don't need to use it and most probably it will be removed in one of next versions.
      */
     public data class ExperimentalParams(
         val fileName: String? = null,
         val text: String,
-        val ruleSets: Iterable<RuleSet>,
+        @Deprecated(
+            message = "Marked for removal in KtLint 0.48",
+            replaceWith = ReplaceWith("ruleProviders")
+        )
+        val ruleSets: Iterable<RuleSet> = Iterable { emptySet<RuleSet>().iterator() },
+        val ruleProviders: Set<RuleProvider> = emptySet(),
         val userData: Map<String, String> = emptyMap(), // TODO: remove in a future version
         val cb: (e: LintError, corrected: Boolean) -> Unit,
         val script: Boolean = false,
@@ -65,6 +77,9 @@ public object KtLint {
         val isInvokedFromCli: Boolean = false
     ) {
         init {
+            require(ruleSets.any() xor ruleProviders.any()) {
+                "Provide exactly one of parameters 'ruleSets' or 'ruleProviders'"
+            }
             // Extract all default and custom ".editorconfig" properties which are registered
             val editorConfigProperties =
                 ruleSets
@@ -111,11 +126,21 @@ public object KtLint {
 
         internal val isStdIn: Boolean get() = fileName == STDIN_FILE
 
-        internal val rules: Set<Rule>
-            get() = ruleSets
-                .flatMap {
-                    it.rules.toList()
-                }
+        internal val ruleRunners: Set<RuleRunner> =
+            ruleProviders
+                .map { RuleRunner(it) }
+                .plus(
+                    // TODO: remove when removing the deprecated ruleSets. Also note that for those rules *no* new
+                    //  instances can be created.
+                    ruleSets
+                        .flatMap { it.rules.toList() }
+                        .map { RuleRunner(createStaticRuleProvider(it)) }
+                ).distinctBy { it.ruleId }
+                .toSet()
+
+        internal fun getRules(): Set<Rule> =
+            ruleRunners
+                .map { it.getRule() }
                 .toSet()
     }
 
@@ -310,7 +335,7 @@ public object KtLint {
                 ?: codeStyleSetProperty.defaultValue
         return EditorConfigGenerator(editorConfigLoader).generateEditorconfig(
             filePath,
-            params.rules,
+            params.getRules(),
             params.debug,
             codeStyle
         )
@@ -325,3 +350,92 @@ public object KtLint {
         }
     }
 }
+
+internal class RuleRunner(private val provider: RuleProvider) {
+    private val state = UNUSED
+
+    private var rule = provider.createNewRuleInstance()
+
+    internal val qualifiedRuleId = rule.toQualifiedRuleId()
+    internal val shortenedQualifiedRuleId = qualifiedRuleId.removePrefix("standard:")
+
+    internal val ruleId = rule.id
+    internal val ruleSetId = qualifiedRuleId.substringBefore(':')
+
+    val runOnRootNodeOnly =
+        rule.visitorModifiers.contains(Rule.VisitorModifier.RunOnRootNodeOnly)
+    val runAsLateAsPossible = rule.visitorModifiers.contains(Rule.VisitorModifier.RunAsLateAsPossible)
+    var runAfterRule = setRunAfterRule()
+
+    /**
+     * Gets the [Rule]. If the [Rule] has already been used for traversal of the AST, a new instance of the [Rule] is
+     * provided. This prevents leakage of the state of the Rule between executions.
+     */
+    internal fun getRule(): Rule {
+//        if (state != UNUSED) {
+        rule = provider.createNewRuleInstance()
+//        }
+        return rule
+    }
+
+    private fun setRunAfterRule(): Rule.VisitorModifier.RunAfterRule? =
+        rule
+            .visitorModifiers
+            .find { it is Rule.VisitorModifier.RunAfterRule }
+            ?.let {
+                val runAfterRuleVisitorModifier = it as Rule.VisitorModifier.RunAfterRule
+                val qualifiedAfterRuleId = runAfterRuleVisitorModifier.ruleId.toQualifiedRuleId()
+                check(qualifiedRuleId != qualifiedAfterRuleId) {
+                    // Do not print the fully qualified rule id in the error message as it might not appear in the code
+                    // in case it is a rule from the 'standard' rule set.
+                    "Rule with id '${rule.id}' has a visitor modifier of type " +
+                        "'${Rule.VisitorModifier.RunAfterRule::class.simpleName}' but it is not referring to another " +
+                        "rule but to the rule itself. A rule can not run after itself. This should be fixed by the " +
+                        "maintainer of the rule."
+                }
+                runAfterRuleVisitorModifier.copy(
+                    ruleId = qualifiedAfterRuleId
+                )
+            }
+
+    internal fun clearRunAfterRule() {
+        require(state == UNUSED) {
+            "RunAfterRule can not be cleared when state != UNUSED"
+        }
+        runAfterRule = null
+    }
+
+    internal enum class State {
+        /**
+         * The rule is not yet run. The current Rule instance can be used to retrieve metadata from the Rule but it
+         * should not alter the state
+         */
+        UNUSED,
+
+        /**
+         * Traversal of the AST has started. Once this state has set, the [Rule] instance should be considered "dirty"
+         * as it is not known whether the rule keeps internal state which might have been altered.
+         */
+        START_AST_TRAVERSAL,
+
+        /**
+         * Traversal of the AST has to be or is stopped. The [Rule] instance should be considered "dirty" as it is not
+         * known whether the rule keeps internal state which might have been altered.
+         */
+        STOP_AST_TRAVERSAL
+    }
+}
+
+/**
+ * This provider is added for backward compatibility of KtLint 0.47 so that API consumers can either use
+ * [KtLint.ExperimentalParams.ruleSets] or [KtLint.ExperimentalParams.ruleProviders] per [RuleSetProvider]. This method
+ * created a [RuleProvider] which returns a *static* instance of a rule and should only be used for rules provided via
+ * [KtLint.ExperimentalParams.ruleSets].
+ * * Rules provided by this [RuleProvider] might leak state between the first and second invocation of the rule when
+ * running [KtLint.format]. It is assumed that [Rule] implementations offered by 'KtLint 0.46.x' and custom rule set
+ * providers are not suffering any problems at this moment as this architectural bug exists in KtLint for quite a long
+ * * Note that [KtLint.ExperimentalParams.ruleSets] and this helper method will be removed in KtLint 0.48.
+ */
+@Deprecated(message = "Remove when 'ruleSets' are removed")
+private fun createStaticRuleProvider(rule: Rule) =
+    RuleProvider { rule }

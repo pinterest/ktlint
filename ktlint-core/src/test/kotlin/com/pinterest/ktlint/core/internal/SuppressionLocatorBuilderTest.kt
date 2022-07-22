@@ -224,7 +224,7 @@ class SuppressionLocatorBuilderTest {
                         // The same rule is supplied once a standard rule and once as non-standard rule. Note that the
                         // ruleIds are different.
                         RuleSet(STANDARD_RULE_SET_ID, NoFooIdentifierRule("no-foo-identifier-standard")),
-                        RuleSet(NON_STANDARD_RULE_SET_ID, NoFooIdentifierRule("no-foo-identifier"))
+                        RuleSet(NON_STANDARD_RULE_SET_ID, NoFooIdentifierRule("$NON_STANDARD_RULE_SET_ID:no-foo-identifier"))
                     ),
                     cb = { e, _ -> add(e) }
                 )

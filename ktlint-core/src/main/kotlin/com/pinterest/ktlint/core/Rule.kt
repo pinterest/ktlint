@@ -7,21 +7,23 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 /**
  * The [Rule] contains the life cycle hooks which are needed for the KtLint rule engine.
  *
- * Implementation **doesn't** have to be thread-safe or stateless (provided [RuleSetProvider] creates a new instance
- * on each `get()` call). Currently, this holds true when multiple different files are processed simultaneously. But it
- * does not hold true when running [KtLint.format] which uses the same instance of the Rule to first run the rule in
- * autocorrect and then again in non-autocorrect mode. This leaks the state of the first execution (autocorrect) into
- * the second execution (non-autocorrect).
- *
- * @param id: For non-standard rules, it is expected that this id consist of the ruleSetId and ruleId, e.g.
- * "some-rule-set-id:some-rule-id"
- * @param visitorModifiers: set of modifiers of the visitor. Preferably a rule has no modifiers at all, meaning that it
- * is completely independent of all other rules.
- *
- * @see RuleSet
+ * Implementation **doesn't** have to be thread-safe or stateless (provided that [RuleSetProviderV2] creates a new
+ * instance of the [Rule] when [RuleSetProviderV2.getRuleProviders] has implemented its [RuleProvider] in such a way
+ * that each call to [RuleProvider.createNewRuleInstance] indeed creates a new instance. The KtLint engine never
+ * re-uses a [Rule] instance once is has been used for traversal of the AST of a file.
  */
 public open class Rule(
-    val id: String,
+    /**
+     * Identification of the rule. Except for rules in the "standard" rule set, this id needs to be prefixed with the
+     * identifier of the rule set (e.g. "some-rule-set-id:some-rule-id") to avoid naming conflicts with referring to the
+     * rule (e.g. in [Rule.VisitorModifier.RunAfterRule] and in enable/disable rule suppression directives).
+     */
+    public val id: String,
+
+    /**
+     * Set of modifiers of the visitor. Preferably a rule has no modifiers at all, meaning that it is completely
+     * independent of all other rules.
+     */
     public val visitorModifiers: Set<VisitorModifier> = emptySet()
 ) {
     private lateinit var traversalState: TraversalState
