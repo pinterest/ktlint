@@ -1,0 +1,510 @@
+package com.pinterest.ktlint.ruleset.standard
+
+import com.pinterest.ktlint.ruleset.standard.TrailingCommaOnDeclarationSiteRule.Companion.allowTrailingCommaProperty
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.LintViolation
+import org.junit.jupiter.api.Test
+
+class TrailingCommaOnDeclarationSiteRuleTest {
+
+    private val trailingCommaOnDeclarationSiteRuleAssertThat =
+        TrailingCommaOnDeclarationSiteRule()
+            .assertThat(
+                // Apply the IndentationRule always as additional rule, so that the formattedCode in the unit test looks
+                // correct.
+                IndentationRule()
+            )
+
+    @Test
+    fun `Given property allow trailing comma on declaration site is not set then remove trailing comma's`() {
+        val code =
+            """
+            data class Foo1(val bar: Int,)
+
+            class Foo2<A, B,> {}
+
+            fun foo3(bar: Int): String = when(bar) {
+                1, 2, -> "a"
+                else -> "b"
+            }
+
+            fun foo4() {
+                fun bar(): Pair<Int, Int> = Pair(1, 2)
+
+                val (x, y,) = bar()
+            }
+
+            val foo5: (Int, Int,) -> Int = 42
+
+            val foo6: (Int, Int,) -> Int = { foo, bar, -> foo * bar }
+            """.trimIndent()
+        val formattedCode =
+            """
+            data class Foo1(val bar: Int)
+
+            class Foo2<A, B> {}
+
+            fun foo3(bar: Int): String = when(bar) {
+                1, 2 -> "a"
+                else -> "b"
+            }
+
+            fun foo4() {
+                fun bar(): Pair<Int, Int> = Pair(1, 2)
+
+                val (x, y) = bar()
+            }
+
+            val foo5: (Int, Int) -> Int = 42
+
+            val foo6: (Int, Int) -> Int = { foo, bar -> foo * bar }
+            """.trimIndent()
+        trailingCommaOnDeclarationSiteRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 29, "Unnecessary trailing comma before \")\""),
+                LintViolation(3, 16, "Unnecessary trailing comma before \">\""),
+                LintViolation(6, 9, "Unnecessary trailing comma before \"->\""),
+                LintViolation(13, 14, "Unnecessary trailing comma before \")\""),
+                LintViolation(16, 20, "Unnecessary trailing comma before \")\""),
+                LintViolation(18, 20, "Unnecessary trailing comma before \")\""),
+                LintViolation(18, 42, "Unnecessary trailing comma before \"->\"")
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given that the trailing comma is not allowed on declaration site then remove it from an parameter list when present`() {
+        val code =
+            """
+            data class Foo1(val bar: Int,)
+            data class Foo2(
+                val bar: Int, // The comma before the comment should be removed without removing the comment itself
+            )
+            data class Foo3(
+                val bar: Int, /* The comma before the comment should be removed without removing the comment itself */
+            )
+            """.trimIndent()
+        val formattedCode =
+            """
+            data class Foo1(val bar: Int)
+            data class Foo2(
+                val bar: Int // The comma before the comment should be removed without removing the comment itself
+            )
+            data class Foo3(
+                val bar: Int /* The comma before the comment should be removed without removing the comment itself */
+            )
+            """.trimIndent()
+        trailingCommaOnDeclarationSiteRuleAssertThat(code)
+            .withEditorConfigOverride(allowTrailingCommaProperty to false)
+            .hasLintViolations(
+                LintViolation(1, 29, "Unnecessary trailing comma before \")\""),
+                LintViolation(3, 17, "Unnecessary trailing comma before \")\""),
+                LintViolation(6, 17, "Unnecessary trailing comma before \")\"")
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given that the trailing comma is required on declaration site then add it to the parameter list when missing`() {
+        val code =
+            """
+            data class Foo1(val bar: Int)
+            data class Foo2(
+                val bar: Int // The comma should be inserted before the comment
+            )
+            data class Foo3(
+                val bar: Int /* The comma should be inserted before the comment */
+            )
+            """.trimIndent()
+        val formattedCode =
+            """
+            data class Foo1(val bar: Int)
+            data class Foo2(
+                val bar: Int, // The comma should be inserted before the comment
+            )
+            data class Foo3(
+                val bar: Int, /* The comma should be inserted before the comment */
+            )
+            """.trimIndent()
+        trailingCommaOnDeclarationSiteRuleAssertThat(code)
+            .withEditorConfigOverride(allowTrailingCommaProperty to true)
+            .hasLintViolations(
+                LintViolation(3, 17, "Missing trailing comma before \")\""),
+                LintViolation(6, 17, "Missing trailing comma before \")\"")
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given that the trailing comma is not allowed on declaration site then remove it from an type parameter list when present`() {
+        val code =
+            """
+            class Foo1<A, B,> {}
+            class Foo2<
+                A,
+                B, // The comma before the comment should be removed without removing the comment itself
+                > {}
+            class Foo3<
+                A,
+                B, /* The comma before the comment should be removed without removing the comment itself */
+                > {}
+            """.trimIndent()
+        val formattedCode =
+            """
+            class Foo1<A, B> {}
+            class Foo2<
+                A,
+                B // The comma before the comment should be removed without removing the comment itself
+                > {}
+            class Foo3<
+                A,
+                B /* The comma before the comment should be removed without removing the comment itself */
+                > {}
+            """.trimIndent()
+        trailingCommaOnDeclarationSiteRuleAssertThat(code)
+            .withEditorConfigOverride(allowTrailingCommaProperty to false)
+            .hasLintViolations(
+                LintViolation(1, 16, "Unnecessary trailing comma before \">\""),
+                LintViolation(4, 6, "Unnecessary trailing comma before \">\""),
+                LintViolation(8, 6, "Unnecessary trailing comma before \">\"")
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given that the trailing comma is required on declaration site then add it to the type parameter list when missing`() {
+        val code =
+            """
+            class Foo1<A, B> {}
+            class Foo2<
+                A,
+                B // The comma should be inserted before the comment
+                > {}
+            class Foo3<
+                A,
+                B /* The comma should be inserted before the comment */
+                > {}
+            """.trimIndent()
+        val formattedCode =
+            """
+            class Foo1<A, B> {}
+            class Foo2<
+                A,
+                B, // The comma should be inserted before the comment
+                > {}
+            class Foo3<
+                A,
+                B, /* The comma should be inserted before the comment */
+                > {}
+            """.trimIndent()
+        trailingCommaOnDeclarationSiteRuleAssertThat(code)
+            .withEditorConfigOverride(allowTrailingCommaProperty to true)
+            .hasLintViolations(
+                LintViolation(4, 6, "Missing trailing comma before \">\""),
+                LintViolation(8, 6, "Missing trailing comma before \">\"")
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given that the trailing comma is not allowed on declaration site then remove it from when-condition when present`() {
+        val code =
+            """
+            fun foo(bar: Int): String = when(bar) {
+                1, 2, -> "a"
+                3, 4, // The comma before the comment should be removed without removing the comment itself
+                -> "a"
+                5,
+                6, /* The comma before the comment should be removed without removing the comment itself */
+                -> "a"
+                else -> "b"
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun foo(bar: Int): String = when(bar) {
+                1, 2 -> "a"
+                3, 4 // The comma before the comment should be removed without removing the comment itself
+                -> "a"
+                5,
+                6 /* The comma before the comment should be removed without removing the comment itself */
+                -> "a"
+                else -> "b"
+            }
+            """.trimIndent()
+        trailingCommaOnDeclarationSiteRuleAssertThat(code)
+            .withEditorConfigOverride(allowTrailingCommaProperty to false)
+            .hasLintViolations(
+                LintViolation(2, 9, "Unnecessary trailing comma before \"->\""),
+                LintViolation(3, 9, "Unnecessary trailing comma before \"->\""),
+                LintViolation(6, 6, "Unnecessary trailing comma before \"->\"")
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given that the trailing comma is required on declaration site then add it to the when-condition when missing`() {
+        val code =
+            """
+            fun foo(bar: Int): String = when(bar) {
+                1, 2 -> "a"
+                3, 4 // The comma should be inserted before the comment
+                -> "a"
+                5,
+                6 /* The comma should be inserted before the comment */
+                -> "a"
+                else -> "b"
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun foo(bar: Int): String = when(bar) {
+                1, 2 -> "a"
+                3, 4, // The comma should be inserted before the comment
+                -> "a"
+                5,
+                6, /* The comma should be inserted before the comment */
+                -> "a"
+                else -> "b"
+            }
+            """.trimIndent()
+        trailingCommaOnDeclarationSiteRuleAssertThat(code)
+            .withEditorConfigOverride(allowTrailingCommaProperty to true)
+            .hasLintViolations(
+                LintViolation(3, 9, "Missing trailing comma before \"->\""),
+                LintViolation(6, 6, "Missing trailing comma before \"->\"")
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given that the trailing comma is not allowed on declaration site then remove it from the destructuring declaration when present`() {
+        val code =
+            """
+            fun foo() {
+                fun bar(): Pair<Int, Int> = Pair(1, 2)
+
+                val (x, y,) = bar()
+                val (
+                    x,
+                    y, // The comma before the comment should be removed without removing the comment itself
+                ) = bar()
+                val (
+                    x,
+                    y, /* The comma before the comment should be removed without removing the comment itself */
+                ) = bar()
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun foo() {
+                fun bar(): Pair<Int, Int> = Pair(1, 2)
+
+                val (x, y) = bar()
+                val (
+                    x,
+                    y // The comma before the comment should be removed without removing the comment itself
+                ) = bar()
+                val (
+                    x,
+                    y /* The comma before the comment should be removed without removing the comment itself */
+                ) = bar()
+            }
+            """.trimIndent()
+        trailingCommaOnDeclarationSiteRuleAssertThat(code)
+            .withEditorConfigOverride(allowTrailingCommaProperty to false)
+            .hasLintViolations(
+                LintViolation(4, 14, "Unnecessary trailing comma before \")\""),
+                LintViolation(7, 10, "Unnecessary trailing comma before \")\""),
+                LintViolation(11, 10, "Unnecessary trailing comma before \")\"")
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given that the trailing comma is required on declaration site then add it to the destructuring declaration when missing`() {
+        val code =
+            """
+            fun foo() {
+                fun bar(): Pair<Int, Int> = Pair(1, 2)
+
+                val (x, y) = bar()
+                val (
+                    x,
+                    y // The comma should be inserted before the comment
+                ) = bar()
+                val (
+                    x,
+                    y /* The comma should be inserted before the comment */
+                ) = bar()
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun foo() {
+                fun bar(): Pair<Int, Int> = Pair(1, 2)
+
+                val (x, y) = bar()
+                val (
+                    x,
+                    y, // The comma should be inserted before the comment
+                ) = bar()
+                val (
+                    x,
+                    y, /* The comma should be inserted before the comment */
+                ) = bar()
+            }
+            """.trimIndent()
+        trailingCommaOnDeclarationSiteRuleAssertThat(code)
+            .withEditorConfigOverride(allowTrailingCommaProperty to true)
+            .hasLintViolations(
+                LintViolation(7, 10, "Missing trailing comma before \")\""),
+                LintViolation(11, 10, "Missing trailing comma before \")\"")
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given that the trailing comma is not allowed on declaration site then remove it from the function literal when present`() {
+        val code =
+            """
+            val fooBar1: (Int, Int) -> Int = { foo, bar, -> foo * bar }
+            val fooBar2: (Int, Int) -> Int = {
+                    foo,
+                    bar, // The comma before the comment should be removed without removing the comment itself
+                -> foo * bar
+            }
+            val fooBar3: (Int, Int) -> Int = {
+                    foo,
+                    bar, /* The comma before the comment should be removed without removing the comment itself */
+                -> foo * bar
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            val fooBar1: (Int, Int) -> Int = { foo, bar -> foo * bar }
+            val fooBar2: (Int, Int) -> Int = {
+                    foo,
+                    bar // The comma before the comment should be removed without removing the comment itself
+                -> foo * bar
+            }
+            val fooBar3: (Int, Int) -> Int = {
+                    foo,
+                    bar /* The comma before the comment should be removed without removing the comment itself */
+                -> foo * bar
+            }
+            """.trimIndent()
+        trailingCommaOnDeclarationSiteRuleAssertThat(code)
+            .withEditorConfigOverride(allowTrailingCommaProperty to false)
+            .hasLintViolations(
+                LintViolation(1, 44, "Unnecessary trailing comma before \"->\""),
+                LintViolation(4, 12, "Unnecessary trailing comma before \"->\""),
+                LintViolation(9, 12, "Unnecessary trailing comma before \"->\"")
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given that the trailing comma is required on declaration site then add it to function literal when missing`() {
+        val code =
+            """
+            val fooBar1: (Int, Int) -> Int = { foo, bar -> foo * bar }
+            val fooBar2: (Int, Int) -> Int = {
+                    foo,
+                    bar // The comma should be inserted before the comment
+                -> foo * bar
+            }
+            val fooBar3: (Int, Int) -> Int = {
+                    foo,
+                    bar /* The comma should be inserted before the comment */
+                -> foo * bar
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            val fooBar1: (Int, Int) -> Int = { foo, bar -> foo * bar }
+            val fooBar2: (Int, Int) -> Int = {
+                    foo,
+                    bar, // The comma should be inserted before the comment
+                -> foo * bar
+            }
+            val fooBar3: (Int, Int) -> Int = {
+                    foo,
+                    bar, /* The comma should be inserted before the comment */
+                -> foo * bar
+            }
+            """.trimIndent()
+        trailingCommaOnDeclarationSiteRuleAssertThat(code)
+            .withEditorConfigOverride(allowTrailingCommaProperty to true)
+            .hasLintViolations(
+                LintViolation(4, 12, "Missing trailing comma before \"->\""),
+                LintViolation(9, 12, "Missing trailing comma before \"->\"")
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Issue 1312 - Given that a trailing comma is required on declaration site and multiple elements then force lambda arrow to next line`() {
+        val code =
+            """
+            fun foo(bar: Int): String = when(bar) {
+                1, 2 -> "a"
+                3,
+                4 -> "b"
+                5,
+                6-> "c"
+                else -> "d"
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun foo(bar: Int): String = when(bar) {
+                1, 2 -> "a"
+                3,
+                4,
+                -> "b"
+                5,
+                6,
+                -> "c"
+                else -> "d"
+            }
+            """.trimIndent()
+        trailingCommaOnDeclarationSiteRuleAssertThat(code)
+            .withEditorConfigOverride(allowTrailingCommaProperty to true)
+            .hasLintViolations(
+                LintViolation(4, 6, "Missing trailing comma and newline before \"->\""),
+                LintViolation(6, 6, "Missing trailing comma and newline before \"->\"")
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given that a trailing comma is required on declaration site and unused imports do not affect each other`() {
+        val code =
+            """
+            package com.pinterest.ktlint
+            import com.pinterest.ktlint.enum.Enum
+            import com.pinterest.ktlint.enum.EnumThree
+            import com.pinterest.ktlint.enum.EnumTwo
+            data class TrailingCommaTest(
+                val foo: String,
+                val bar: Enum,
+                val bar2: EnumTwo,
+                val bar3: EnumThree
+            )
+            """.trimIndent()
+        val formattedCode =
+            """
+            package com.pinterest.ktlint
+            import com.pinterest.ktlint.enum.Enum
+            import com.pinterest.ktlint.enum.EnumThree
+            import com.pinterest.ktlint.enum.EnumTwo
+            data class TrailingCommaTest(
+                val foo: String,
+                val bar: Enum,
+                val bar2: EnumTwo,
+                val bar3: EnumThree,
+            )
+            """.trimIndent()
+        trailingCommaOnDeclarationSiteRuleAssertThat(code)
+            // When running format mode, the rules are first executed in parallel to find linting errors. In this
+            // process, no unused import are found because the trailing comma is not yet added to variable "bar3". Then
+            // in the next stage the rules are run consecutively. Now the trailing comma rule is adding a trailing comma
+            // after the type of variable "bar3". When the no-unused-import rule runs after the trailing-comma rule, it
+            // was incorrectly seen as part of the type of variable "bar3" and a reference "EnumThree," (with the
+            // trailing comma was added) which in turn resulted in not recognizing that the import of EnumThree actually
+            // was used.
+            .addAdditionalRules(NoUnusedImportsRule())
+            .withEditorConfigOverride(allowTrailingCommaProperty to true)
+            .hasLintViolation(9, 24, "Missing trailing comma before \")\"")
+            .isFormattedAs(formattedCode)
+    }
+}
