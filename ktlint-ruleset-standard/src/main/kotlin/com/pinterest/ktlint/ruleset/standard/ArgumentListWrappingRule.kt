@@ -39,9 +39,6 @@ import org.jetbrains.kotlin.psi.psiUtil.getStrictParentOfType
 public class ArgumentListWrappingRule :
     Rule("argument-list-wrapping"),
     UsesEditorConfigProperties {
-    private var editorConfigIndent = IndentConfig.DEFAULT_INDENT_CONFIG
-    private var maxLineLength = -1
-
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> =
         listOf(
             indentSizeProperty,
@@ -49,11 +46,9 @@ public class ArgumentListWrappingRule :
             maxLineLengthProperty
         )
 
-    // Keep state of argument list nodes for which the argument needs to be wrapped
-    private val wrapArgumentLists = mutableMapOf<ASTNode, NodeState>()
+    private var editorConfigIndent = IndentConfig.DEFAULT_INDENT_CONFIG
 
-    // TODO: Eliminate NodeState when it contains only one field?
-    private data class NodeState(val newIndentLevel: Int)
+    private var maxLineLength = -1
 
     override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
         editorConfigIndent = IndentConfig(

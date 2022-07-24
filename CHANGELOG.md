@@ -93,7 +93,6 @@ KtLint.format(
     )
 )
 
-
 // New style using "ruleProviders"
 KtLint.format(
     KtLint.ExperimentalParams(
