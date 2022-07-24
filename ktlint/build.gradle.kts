@@ -24,6 +24,7 @@ dependencies {
     implementation(projects.ktlintReporterBaseline)
     implementation(projects.ktlintReporterCheckstyle)
     implementation(projects.ktlintReporterJson)
+    implementation(projects.ktlintReporterFormat)
     implementation(projects.ktlintReporterHtml)
     implementation(projects.ktlintReporterPlain)
     implementation(projects.ktlintReporterSarif)

@@ -31,6 +31,7 @@ include(
     ":ktlint-core",
     ":ktlint-reporter-baseline",
     ":ktlint-reporter-checkstyle",
+    ":ktlint-reporter-format",
     ":ktlint-reporter-json",
     ":ktlint-reporter-sarif",
     ":ktlint-reporter-html",

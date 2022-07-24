@@ -370,9 +370,9 @@ internal class KtlintCommandLine {
                     editorConfigPath,
                     debug
                 ) { err, corrected ->
-                    if (!corrected) {
-                        if (baselineErrors == null || !baselineErrors.containsLintError(err)) {
-                            result.add(LintErrorWithCorrectionInfo(err, corrected))
+                    if (baselineErrors == null || !baselineErrors.containsLintError(err)) {
+                        result.add(LintErrorWithCorrectionInfo(err, corrected))
+                        if (!corrected) {
                             tripped.set(true)
                         }
                     }
@@ -425,7 +425,8 @@ internal class KtlintCommandLine {
                     mapOf(
                         "verbose" to verbose.toString(),
                         "color" to color.toString(),
-                        "color_name" to colorName
+                        "color_name" to colorName,
+                        "format" to format.toString()
                     ) + parseQuery(rawReporterConfig),
                     split.lastOrNull { it.startsWith("output=") }?.let { it.split("=")[1] }
                 )
