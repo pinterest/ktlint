@@ -1,0 +1,1 @@
+This directory contains ruleset jar files. The files are copied from the build directories of the ktlint project (version identifiers have been removed from the names). The V1 version of the RuleSetProvider needs to be copied from KtLint version 0.46.x or before.

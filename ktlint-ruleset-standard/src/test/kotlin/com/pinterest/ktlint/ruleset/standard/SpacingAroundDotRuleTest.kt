@@ -1,11 +1,11 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 class SpacingAroundDotRuleTest {
-    private val spacingAroundDotRuleAssertThat = SpacingAroundDotRule().assertThat()
+    private val spacingAroundDotRuleAssertThat = assertThatRule { SpacingAroundDotRule() }
 
     @Test
     fun `Given an extension function with an unexpected space before the dot`() {

@@ -25,7 +25,7 @@ public class DumpASTRule @JvmOverloads constructor(
     private var lineNumberColumnLength: Int = 0
     private var lastNode: ASTNode? = null
 
-    override fun visit(
+    override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, corrected: Boolean) -> Unit

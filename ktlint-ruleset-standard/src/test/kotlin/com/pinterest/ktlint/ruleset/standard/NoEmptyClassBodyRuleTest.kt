@@ -1,11 +1,11 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 class NoEmptyClassBodyRuleTest {
-    private val noEmptyClassBodyRuleAssertThat = NoEmptyClassBodyRule().assertThat()
+    private val noEmptyClassBodyRuleAssertThat = assertThatRule { NoEmptyClassBodyRule() }
 
     @Test
     fun `Given a class, interface, or object with empty body then do return lint errors`() {

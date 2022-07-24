@@ -2,11 +2,11 @@ package com.pinterest.ktlint.ruleset.standard.importordering
 
 import com.pinterest.ktlint.ruleset.standard.ImportOrderingRule
 import com.pinterest.ktlint.ruleset.standard.ImportOrderingRule.Companion.ideaImportsLayoutProperty
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import org.junit.jupiter.api.Test
 
 class ImportOrderingRuleCustomTest {
-    private val importOrderingRuleAssertThat = ImportOrderingRule().assertThat()
+    private val importOrderingRuleAssertThat = assertThatRule { ImportOrderingRule() }
 
     @Test
     fun `Given some imports with an empty line between imports and aliases as is required then do not return lint errors`() {

@@ -1,13 +1,13 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class NoConsecutiveBlankLinesRuleTest {
-    private val noConsecutiveBlankLinesRuleAssertThat = NoConsecutiveBlankLinesRule().assertThat()
+    private val noConsecutiveBlankLinesRuleAssertThat = assertThatRule { NoConsecutiveBlankLinesRule() }
 
     @Test
     fun `Given needless blank lines between declarations then do return lint errors`() {

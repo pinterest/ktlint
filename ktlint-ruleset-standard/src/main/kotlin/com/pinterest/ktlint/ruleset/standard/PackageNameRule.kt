@@ -9,7 +9,7 @@ import org.jetbrains.kotlin.psi.KtPackageDirective
  * https://kotlinlang.org/docs/coding-conventions.html#naming-rules
  */
 class PackageNameRule : Rule("package-name") {
-    override fun visit(
+    override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit

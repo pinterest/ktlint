@@ -1,13 +1,13 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class NoSemicolonsRuleTest {
-    private val noSemicolonsRuleAssertThat = NoSemicolonsRule().assertThat()
+    private val noSemicolonsRuleAssertThat = assertThatRule { NoSemicolonsRule() }
 
     @Test
     fun `Given a package statement followed by a comma then return a lint error`() {

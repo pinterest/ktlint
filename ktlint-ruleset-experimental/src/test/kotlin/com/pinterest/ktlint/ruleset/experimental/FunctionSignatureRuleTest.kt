@@ -11,7 +11,7 @@ import com.pinterest.ktlint.ruleset.standard.SpacingAroundDotRule
 import com.pinterest.ktlint.ruleset.standard.SpacingAroundOperatorsRule
 import com.pinterest.ktlint.ruleset.standard.SpacingAroundParensRule
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -20,7 +20,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 
 class FunctionSignatureRuleTest {
-    private val functionSignatureWrappingRuleAssertThat = FunctionSignatureRule().assertThat()
+    private val functionSignatureWrappingRuleAssertThat = assertThatRule { FunctionSignatureRule() }
 
     @Test
     fun `Given a single line function signature which is smaller than or equal to the max line length, and the function is followed by a body block, then do no change the signature`() {
@@ -60,7 +60,7 @@ class FunctionSignatureRuleTest {
             """.trimIndent()
         functionSignatureWrappingRuleAssertThat(code)
             .setMaxLineLength()
-            .addAdditionalRules(FunctionStartOfBodySpacingRule())
+            .addAdditionalRuleProvider { FunctionStartOfBodySpacingRule() }
             .hasLintViolation(2, 38, "Expected a single space before body block")
             .isFormattedAs(formattedCode)
     }
@@ -536,7 +536,7 @@ class FunctionSignatureRuleTest {
                 fun f7(): List<String>? = null
                 """.trimIndent()
             functionSignatureWrappingRuleAssertThat(code)
-                .addAdditionalRules(NullableTypeSpacingRule())
+                .addAdditionalRuleProvider { NullableTypeSpacingRule() }
                 .hasNoLintViolationsExceptInAdditionalRules()
                 .isFormattedAs(formattedCode)
         }
@@ -608,13 +608,13 @@ class FunctionSignatureRuleTest {
                 fun f29(block: (T) -> String) = "some-result"
                 """.trimIndent()
             functionSignatureWrappingRuleAssertThat(code)
-                .addAdditionalRules(
-                    NoMultipleSpacesRule(),
-                    SpacingAroundAngleBracketsRule(),
-                    SpacingAroundParensRule(),
-                    SpacingAroundDotRule(),
-                    SpacingAroundCommaRule(),
-                    SpacingAroundColonRule()
+                .addAdditionalRuleProviders(
+                    { NoMultipleSpacesRule() },
+                    { SpacingAroundAngleBracketsRule() },
+                    { SpacingAroundParensRule() },
+                    { SpacingAroundDotRule() },
+                    { SpacingAroundCommaRule() },
+                    { SpacingAroundColonRule() }
                 ).hasLintViolations(
                     LintViolation(3, 10, "No whitespace expected between opening parenthesis and first parameter name"),
                     LintViolation(7, 17, "Single whitespace expected before parameter"),
@@ -658,13 +658,13 @@ class FunctionSignatureRuleTest {
                 fun f11(block: (T) -> String) = "some-result"
                 """.trimIndent()
             functionSignatureWrappingRuleAssertThat(code)
-                .addAdditionalRules(
-                    TypeParameterListSpacingRule(),
-                    FunctionStartOfBodySpacingRule(),
-                    FunctionTypeReferenceSpacingRule(),
-                    SpacingAroundColonRule(),
-                    SpacingAroundCommaRule(),
-                    SpacingAroundOperatorsRule()
+                .addAdditionalRuleProviders(
+                    { TypeParameterListSpacingRule() },
+                    { FunctionStartOfBodySpacingRule() },
+                    { FunctionTypeReferenceSpacingRule() },
+                    { SpacingAroundColonRule() },
+                    { SpacingAroundCommaRule() },
+                    { SpacingAroundOperatorsRule() }
                 ).hasLintViolation(2, 15, "Single whitespace expected before parameter")
                 .isFormattedAs(formattedCode)
         }
@@ -714,7 +714,7 @@ class FunctionSignatureRuleTest {
             functionSignatureWrappingRuleAssertThat(code)
                 .setMaxLineLength()
                 .withEditorConfigOverride(functionBodyExpressionWrappingProperty to bodyExpressionWrapping)
-                .addAdditionalRules(IndentationRule())
+                .addAdditionalRuleProvider { IndentationRule() }
                 .hasLintViolation(2, 33, "Newline expected before expression body")
                 .isFormattedAs(formattedCode)
         }
@@ -724,7 +724,7 @@ class FunctionSignatureRuleTest {
             value = FunctionSignatureRule.FunctionBodyExpressionWrapping::class,
             names = ["multiline", "always"]
         )
-        fun `Given that the function signature and first line of a multiline body expression body fit on the same line then do not reformat the function signature but move the body expression to a separate line`(
+        fun `Given that the function signature and first line of a multiline body expression body fit on the same line then do not reformat the function signature, move the body expression to a separate line`(
             bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping
         ) {
             val code =
@@ -743,7 +743,7 @@ class FunctionSignatureRuleTest {
             functionSignatureWrappingRuleAssertThat(code)
                 .setMaxLineLength()
                 .withEditorConfigOverride(functionBodyExpressionWrappingProperty to bodyExpressionWrapping)
-                .addAdditionalRules(IndentationRule())
+                .addAdditionalRuleProvider { IndentationRule() }
                 .hasLintViolation(2, 33, "Newline expected before expression body")
                 .isFormattedAs(formattedCode)
         }
@@ -777,7 +777,7 @@ class FunctionSignatureRuleTest {
             functionSignatureWrappingRuleAssertThat(code)
                 .setMaxLineLength()
                 .withEditorConfigOverride(functionBodyExpressionWrappingProperty to bodyExpressionWrapping)
-                .addAdditionalRules(IndentationRule())
+                .addAdditionalRuleProvider { IndentationRule() }
                 .hasLintViolations(
                     LintViolation(3, 5, "No whitespace expected between opening parenthesis and first parameter name"),
                     LintViolation(4, 5, "Single whitespace expected before parameter"),
@@ -812,7 +812,7 @@ class FunctionSignatureRuleTest {
             functionSignatureWrappingRuleAssertThat(code)
                 .setMaxLineLength()
                 .withEditorConfigOverride(functionBodyExpressionWrappingProperty to bodyExpressionWrapping)
-                .addAdditionalRules(IndentationRule())
+                .addAdditionalRuleProvider { IndentationRule() }
                 .hasLintViolations(
                     LintViolation(3, 5, "No whitespace expected between opening parenthesis and first parameter name"),
                     LintViolation(4, 5, "Single whitespace expected before parameter"),
@@ -847,7 +847,7 @@ class FunctionSignatureRuleTest {
             functionSignatureWrappingRuleAssertThat(code)
                 .setMaxLineLength()
                 .withEditorConfigOverride(functionBodyExpressionWrappingProperty to bodyExpressionWrapping)
-                .addAdditionalRules(IndentationRule())
+                .addAdditionalRuleProvider { IndentationRule() }
                 .hasLintViolations(
                     LintViolation(3, 5, "No whitespace expected between opening parenthesis and first parameter name"),
                     LintViolation(4, 5, "Single whitespace expected before parameter"),
@@ -861,7 +861,7 @@ class FunctionSignatureRuleTest {
             value = FunctionSignatureRule.FunctionBodyExpressionWrapping::class,
             names = ["multiline", "always"]
         )
-        fun `Given that the function signature and first line of a multiline body expression body fit on the same line then do reformat as single line signature but keep the body expression on a separate line`(
+        fun `Given that the function signature and first line of a multiline body expression body fit on the same line then do reformat as single line signature, keep the body expression on a separate line`(
             bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping
         ) {
             val code =
@@ -884,7 +884,7 @@ class FunctionSignatureRuleTest {
             functionSignatureWrappingRuleAssertThat(code)
                 .setMaxLineLength()
                 .withEditorConfigOverride(functionBodyExpressionWrappingProperty to bodyExpressionWrapping)
-                .addAdditionalRules(IndentationRule())
+                .addAdditionalRuleProvider { IndentationRule() }
                 .hasLintViolations(
                     LintViolation(3, 5, "No whitespace expected between opening parenthesis and first parameter name"),
                     LintViolation(4, 5, "Single whitespace expected before parameter"),
@@ -922,7 +922,7 @@ class FunctionSignatureRuleTest {
         functionSignatureWrappingRuleAssertThat(code)
             .setMaxLineLength()
             .withEditorConfigOverride(functionBodyExpressionWrappingProperty to bodyExpressionWrapping)
-            .addAdditionalRules(IndentationRule())
+            .addAdditionalRuleProvider { IndentationRule() }
             .hasLintViolation(5, 4, "First line of body expression fits on same line as function signature")
             .isFormattedAs(formattedCode)
     }
@@ -946,7 +946,7 @@ class FunctionSignatureRuleTest {
         functionSignatureWrappingRuleAssertThat(code)
             .setMaxLineLength()
             .withEditorConfigOverride(functionBodyExpressionWrappingProperty to bodyExpressionWrapping)
-            .addAdditionalRules(IndentationRule())
+            .addAdditionalRuleProvider { IndentationRule() }
             .hasNoLintViolations()
     }
 

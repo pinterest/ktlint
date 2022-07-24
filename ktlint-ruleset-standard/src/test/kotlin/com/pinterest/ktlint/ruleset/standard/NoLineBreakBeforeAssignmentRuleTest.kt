@@ -1,6 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 const val ruleId = "no-line-break-before-assignment"
 
 class NoLineBreakBeforeAssignmentRuleTest {
-    private val noLineBreakBeforeAssignmentRuleAssertThat = NoLineBreakBeforeAssignmentRule().assertThat()
+    private val noLineBreakBeforeAssignmentRuleAssertThat = assertThatRule { NoLineBreakBeforeAssignmentRule() }
 
     @Test
     fun `Given a single line declaration then do not return a lint error`() {

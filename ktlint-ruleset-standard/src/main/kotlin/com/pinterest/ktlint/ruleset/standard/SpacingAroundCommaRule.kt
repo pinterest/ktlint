@@ -21,7 +21,7 @@ class SpacingAroundCommaRule : Rule("comma-spacing") {
 
     private val rTokenSet = TokenSet.create(RPAR, RBRACKET, GT)
 
-    override fun visit(
+    override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit

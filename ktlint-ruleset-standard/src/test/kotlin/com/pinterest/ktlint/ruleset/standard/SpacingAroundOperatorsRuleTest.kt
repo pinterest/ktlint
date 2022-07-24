@@ -1,6 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -9,7 +9,7 @@ import org.junit.jupiter.params.provider.ValueSource
 
 @Suppress("RemoveCurlyBracesFromTemplate")
 class SpacingAroundOperatorsRuleTest {
-    private val spacingAroundOperatorsRuleAssertThat = SpacingAroundOperatorsRule().assertThat()
+    private val spacingAroundOperatorsRuleAssertThat = assertThatRule { SpacingAroundOperatorsRule() }
 
     @ParameterizedTest(name = "Operator: {0}")
     @ValueSource(

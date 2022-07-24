@@ -84,7 +84,7 @@ internal class FileUtilsFileSequenceTest {
     }
 
     @Test
-    fun `Given some globs and no workdir then ignore all files in hidden directories`() {
+    fun `Given some patterns and no workdir then ignore all files in hidden directories`() {
         val foundFiles = getFiles(
             patterns = listOf(
                 "project1/**/*.kt".normalizeGlob(),
@@ -107,7 +107,7 @@ internal class FileUtilsFileSequenceTest {
     @Nested
     inner class NegatePattern {
         @Test
-        fun `Given some globs including a negate pattern and no workdir then select all files except files in the negate pattern`() {
+        fun `Given some patterns including a negate pattern and no workdir then select all files except files in the negate pattern`() {
             val foundFiles = getFiles(
                 patterns = listOf(
                     "project1/src/**/*.kt".normalizeGlob(),
@@ -121,7 +121,7 @@ internal class FileUtilsFileSequenceTest {
         }
 
         @Test
-        fun `Given the Windows OS and some unescaped globs including a negate pattern and no workdir then ignore all files in the negate pattern`() {
+        fun `Given the Windows OS and some unescaped patterns including a negate pattern and no workdir then ignore all files in the negate pattern`() {
             assumeTrue(
                 System
                     .getProperty("os.name")
@@ -143,7 +143,7 @@ internal class FileUtilsFileSequenceTest {
     }
 
     @Test
-    fun `Given a glob and a workdir then find all files in that workdir and all its sub directories that match the pattern`() {
+    fun `Given a pattern and a workdir then find all files in that workdir and all its sub directories that match the pattern`() {
         val foundFiles = getFiles(
             patterns = listOf(
                 "**/main/**/*.kt".normalizeGlob()

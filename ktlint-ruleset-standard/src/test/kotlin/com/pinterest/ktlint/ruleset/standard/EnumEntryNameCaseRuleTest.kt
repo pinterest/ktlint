@@ -1,11 +1,11 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 class EnumEntryNameCaseRuleTest {
-    private val enumEntryNameCaseRuleAssertThat = EnumEntryNameCaseRule().assertThat()
+    private val enumEntryNameCaseRuleAssertThat = assertThatRule { EnumEntryNameCaseRule() }
 
     @Test
     fun `Given enum values in upper-underscores notation are allowed`() {
@@ -60,5 +60,17 @@ class EnumEntryNameCaseRuleTest {
                 LintViolation(3, 5, "Enum entry name should be uppercase underscore-separated names like \"ENUM_ENTRY\" or upper camel-case like \"EnumEntry\""),
                 LintViolation(4, 5, "Enum entry name should be uppercase underscore-separated names like \"ENUM_ENTRY\" or upper camel-case like \"EnumEntry\"")
             )
+    }
+
+    @Test
+    fun `Issue 1530 - Given enum values containing diacritics are allowed`() {
+        val code =
+            """
+            enum class SomeEnum {
+                ŸÈŚ_THÎS_IS_ALLOWED_123,
+                ŸèśThîsIsAllowed123,
+            }
+            """.trimIndent()
+        enumEntryNameCaseRuleAssertThat(code).hasNoLintViolations()
     }
 }

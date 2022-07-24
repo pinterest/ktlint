@@ -1,12 +1,12 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class AnnotationRuleTest {
-    private val annotationRuleAssertThat = AnnotationRule().assertThat()
+    private val annotationRuleAssertThat = assertThatRule { AnnotationRule() }
 
     @Test
     fun `Given a single annotation on same line before the annotated construct`() {

@@ -1,20 +1,23 @@
 package com.pinterest.ktlint.ruleset.standard
 
+import com.pinterest.ktlint.core.RuleProvider
 import com.pinterest.ktlint.ruleset.experimental.trailingcomma.TrailingCommaRule
 import com.pinterest.ktlint.ruleset.experimental.trailingcomma.TrailingCommaRule.Companion.allowTrailingCommaOnCallSiteProperty
 import com.pinterest.ktlint.ruleset.experimental.trailingcomma.TrailingCommaRule.Companion.allowTrailingCommaProperty
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 class TrailingCommaRuleTest {
     private val trailingCommaRuleAssertThat =
-        TrailingCommaRule()
-            .assertThat(
+        assertThatRule(
+            provider = { TrailingCommaRule() },
+            additionalRuleProviders = setOf(
                 // Apply the IndentationRule always as additional rule, so that the formattedCode in the unit test looks
                 // correct.
-                IndentationRule()
+                RuleProvider { IndentationRule() }
             )
+        )
 
     @Test
     fun `Given property allow trailing comma on call site is not set then remove trailing comma's`() {
@@ -982,7 +985,7 @@ class TrailingCommaRuleTest {
             // was incorrectly seen as part of the type of variable "bar3" and a reference "EnumThree," (with the
             // trailing comma was added) which in turn resulted in not recognizing that the import of EnumThree actually
             // was used.
-            .addAdditionalRules(NoUnusedImportsRule())
+            .addAdditionalRuleProvider { NoUnusedImportsRule() }
             .withEditorConfigOverride(allowTrailingCommaProperty to true)
             .hasLintViolation(9, 24, "Missing trailing comma before \")\"")
             .isFormattedAs(formattedCode)

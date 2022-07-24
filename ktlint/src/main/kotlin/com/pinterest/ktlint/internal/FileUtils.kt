@@ -2,7 +2,7 @@ package com.pinterest.ktlint.internal
 
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.LintError
-import com.pinterest.ktlint.core.RuleSet
+import com.pinterest.ktlint.core.RuleProvider
 import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.initKtLintKLogger
 import java.io.File
@@ -16,6 +16,7 @@ import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
 import kotlin.io.path.isDirectory
 import kotlin.system.exitProcess
+import kotlin.system.measureTimeMillis
 import mu.KotlinLogging
 import org.jetbrains.kotlin.util.prefixIfNot
 
@@ -74,38 +75,53 @@ internal fun FileSystem.fileSequence(
     } else {
         globs
             .filter { it.startsWith(NEGATION_PREFIX) }
-            .map {
-                getPathMatcher(it.removePrefix(NEGATION_PREFIX))
-            }
+            .map { getPathMatcher(it.removePrefix(NEGATION_PREFIX)) }
     }
 
-    Files.walkFileTree(
-        rootDir,
-        object : SimpleFileVisitor<Path>() {
-            override fun visitFile(
-                filePath: Path,
-                fileAttrs: BasicFileAttributes
-            ): FileVisitResult {
-                if (negatedPathMatchers.none { it.matches(filePath) } &&
-                    pathMatchers.any { it.matches(filePath) }
-                ) {
-                    result.add(filePath)
+    logger.debug {
+        """
+        Start walkFileTree for rootDir: '$rootDir'
+           include:
+        ${pathMatchers.map { "      - $it" }}
+           exlcude:
+        ${negatedPathMatchers.map { "      - $it" }}
+        """.trimIndent()
+    }
+    val duration = measureTimeMillis {
+        Files.walkFileTree(
+            rootDir,
+            object : SimpleFileVisitor<Path>() {
+                override fun visitFile(
+                    filePath: Path,
+                    fileAttrs: BasicFileAttributes
+                ): FileVisitResult {
+                    if (negatedPathMatchers.none { it.matches(filePath) } &&
+                        pathMatchers.any { it.matches(filePath) }
+                    ) {
+                        logger.debug { "- File: $filePath: Include" }
+                        result.add(filePath)
+                    } else {
+                        logger.debug { "- File: $filePath: Ignore" }
+                    }
+                    return FileVisitResult.CONTINUE
                 }
-                return FileVisitResult.CONTINUE
-            }
 
-            override fun preVisitDirectory(
-                dirPath: Path,
-                dirAttr: BasicFileAttributes
-            ): FileVisitResult {
-                return if (Files.isHidden(dirPath)) {
-                    FileVisitResult.SKIP_SUBTREE
-                } else {
-                    FileVisitResult.CONTINUE
+                override fun preVisitDirectory(
+                    dirPath: Path,
+                    dirAttr: BasicFileAttributes
+                ): FileVisitResult {
+                    return if (Files.isHidden(dirPath)) {
+                        logger.debug { "- Dir: $dirPath: Ignore" }
+                        FileVisitResult.SKIP_SUBTREE
+                    } else {
+                        logger.debug { "- Dir: $dirPath: Traverse" }
+                        FileVisitResult.CONTINUE
+                    }
                 }
             }
-        }
-    )
+        )
+    }
+    logger.debug { "Results: include ${result.count()} files in $duration ms" }
 
     return result.asSequence()
 }
@@ -198,7 +214,7 @@ internal fun File.location(
 internal fun lintFile(
     fileName: String,
     fileContents: String,
-    ruleSets: Iterable<RuleSet>,
+    ruleProviders: Set<RuleProvider>,
     editorConfigOverride: EditorConfigOverride,
     editorConfigPath: String? = null,
     debug: Boolean = false,
@@ -207,7 +223,7 @@ internal fun lintFile(
     KtLint.ExperimentalParams(
         fileName = fileName,
         text = fileContents,
-        ruleSets = ruleSets,
+        ruleProviders = ruleProviders,
         script = !fileName.endsWith(".kt", ignoreCase = true),
         editorConfigOverride = editorConfigOverride,
         editorConfigPath = editorConfigPath,
@@ -225,7 +241,7 @@ internal fun lintFile(
 internal fun formatFile(
     fileName: String,
     fileContents: String,
-    ruleSets: Iterable<RuleSet>,
+    ruleProviders: Set<RuleProvider>,
     editorConfigOverride: EditorConfigOverride,
     editorConfigPath: String?,
     debug: Boolean,
@@ -235,7 +251,7 @@ internal fun formatFile(
         KtLint.ExperimentalParams(
             fileName = fileName,
             text = fileContents,
-            ruleSets = ruleSets,
+            ruleProviders = ruleProviders,
             script = !fileName.endsWith(".kt", ignoreCase = true),
             editorConfigOverride = editorConfigOverride,
             editorConfigPath = editorConfigPath,

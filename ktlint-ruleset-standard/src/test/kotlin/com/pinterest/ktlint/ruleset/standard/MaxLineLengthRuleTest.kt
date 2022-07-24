@@ -4,7 +4,7 @@ import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.maxLineLength
 import com.pinterest.ktlint.ruleset.standard.MaxLineLengthRule.Companion.ignoreBackTickedIdentifierProperty
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE
 import org.assertj.core.api.Assertions.assertThat
@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class MaxLineLengthRuleTest {
-    private val maxLineLengthRuleAssertThat = MaxLineLengthRule().assertThat()
+    private val maxLineLengthRuleAssertThat = assertThatRule { MaxLineLengthRule() }
 
     @DisplayName("Given code that exceeds the max line length but for which no lint error should be returned")
     @Nested

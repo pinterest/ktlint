@@ -1,11 +1,11 @@
 package com.pinterest.ktlint.ruleset.experimental
 
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 class TypeParameterListSpacingRuleTest {
-    private val typeParameterListSpacingRuleAssertThat = TypeParameterListSpacingRule().assertThat()
+    private val typeParameterListSpacingRuleAssertThat = assertThatRule { TypeParameterListSpacingRule() }
 
     @Test
     fun `Given a type parameter list followed by a comment then it can be ignored as it will be handled by the discouraged-comment-location rule`() {

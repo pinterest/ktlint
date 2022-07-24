@@ -4,8 +4,10 @@ import com.pinterest.ktlint.core.internal.IdNamingPolicy
 
 /**
  * A group of [Rule]s discoverable through [RuleSetProvider].
- * @see RuleSetProvider
+ *
+ * This class becomes redundant when resolving the deprecation of [RuleSetProvider.get].
  */
+@Deprecated("Marked for removal in KtLint 0.48. See KDoc.")
 open class RuleSet(
     val id: String,
     vararg val rules: Rule

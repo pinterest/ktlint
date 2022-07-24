@@ -1,13 +1,13 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class StringTemplateRuleTest {
-    private val stringTemplateRuleAssertThat = StringTemplateRule().assertThat()
+    private val stringTemplateRuleAssertThat = assertThatRule { StringTemplateRule() }
 
     @Test
     fun `Given some redundant toString calls`() {
@@ -350,7 +350,7 @@ class StringTemplateRuleTest {
             }
             """.trimIndent()
         stringTemplateRuleAssertThat(code)
-            .addAdditionalRules(NoUnusedImportsRule())
+            .addAdditionalRuleProvider { NoUnusedImportsRule() }
             .hasLintViolation(3, 21, "Redundant \"toString()\" call in string template")
             .isFormattedAs(formattedCode)
     }

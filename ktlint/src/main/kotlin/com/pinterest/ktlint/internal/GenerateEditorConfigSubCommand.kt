@@ -33,13 +33,13 @@ class GenerateEditorConfigSubCommand : Runnable {
             KtLint.ExperimentalParams(
                 fileName = "./test.kt",
                 text = "",
-                ruleSets = ktlintCommand.rulesetJarFiles
-                    .loadRuleSets(
+                ruleProviders = ktlintCommand
+                    .rulesetJarFiles
+                    .loadRuleProviders(
                         ktlintCommand.experimental,
                         ktlintCommand.debug,
                         ktlintCommand.disabledRules
-                    )
-                    .map { it.value.get() },
+                    ),
                 editorConfigOverride = EditorConfigOverride.from(codeStyleSetProperty to codeStyle()),
                 debug = ktlintCommand.debug,
                 cb = { _, _ -> }
