@@ -108,12 +108,27 @@ public class KtLintAssertThat(
     }
 
     /**
-     * Adds a rule to be executed when linting/formatting the code. This can to be used to unit test rules which are
-     * best to be tested in conjunction, for example wrapping and indenting. This method can be called multiple times if
-     * needed.
+     * Adds a single provider of an additional rule to be executed when linting/formatting the code. This can to be used
+     * to unit test rules which are best to be tested in conjunction with other rules, for example wrapping and
+     * indenting.
+     * Prefer to use [addAdditionalRuleProviders] when adding multiple providers of rules.
      */
-    public fun addAdditionalRules(vararg rules: Rule): KtLintAssertThat {
-        additionalRuleProviders.addAll(rules.map { RuleProvider { it } })
+    public fun addAdditionalRuleProvider(provider: () -> Rule): KtLintAssertThat {
+        additionalRuleProviders.add(RuleProvider(provider))
+
+        return this
+    }
+
+    /**
+     * Adds a single provider of an additional rule to be executed when linting/formatting the code. This can to be used
+     * to unit test rules which are best to be tested in conjunction with other rules, for example wrapping and
+     * indenting.
+     * Prefer to use [addAdditionalRuleProvider] when only a singe provider of a rule is to be added.
+     */
+    public fun addAdditionalRuleProviders(vararg providers: (() -> Rule)): KtLintAssertThat {
+        additionalRuleProviders.addAll(
+            providers.map { RuleProvider(it) }
+        )
 
         return this
     }
@@ -217,16 +232,32 @@ public class KtLintAssertThat(
 
     public companion object {
         /**
-         * Creates an assertThat assertion function for a given rule. This assertion function has extensions
-         * specifically for testing KtLint rules. The rules provided via [additionalRuleProviders] are only executed
-         * during the format phase of the test. This means that the unit test only has to check the lint violations
-         * thrown by the rule for which the assertThat is created. But the code is formatted by both the rule and the
-         * rules provided by [additionalRuleProviders] in the order as defined by the rule definitions.
+         * Creates an assertThat assertion function for the rule provided by [provider]. This assertion function has
+         * extensions specifically for testing KtLint rules.
          */
-        public fun Rule.assertThat(vararg additionalRuleProviders: RuleProvider): (String) -> KtLintAssertThat =
+        public fun assertThatRule(provider: () -> Rule) =
+            RuleProvider { provider() }.assertThat()
+
+        /**
+         * Creates an assertThat assertion function for the rule provided by [provider]. This assertion function has
+         * extensions specifically for testing KtLint rules. The rules provided via [additionalRuleProviders] are only
+         * executed during the format phase of the test. This means that the unit test only has to check the lint
+         * violations thrown by the rule for which the assertThat is created. But the code is formatted by both the rule
+         * and the rules provided by [additionalRuleProviders] in the order as defined by the rule definitions.
+         */
+
+        public fun assertThatRule(
+            provider: () -> Rule,
+            additionalRuleProviders: Set<RuleProvider>
+        ) =
+            RuleProvider { provider() }.assertThat(additionalRuleProviders)
+
+        private fun RuleProvider.assertThat(
+            additionalRuleProviders: Set<RuleProvider> = emptySet()
+        ): (String) -> KtLintAssertThat =
             { code ->
                 KtLintAssertThat(
-                    ruleProvider = RuleProvider { this },
+                    ruleProvider = this,
                     code = code,
                     additionalRuleProviders = additionalRuleProviders.toMutableSet()
                 )

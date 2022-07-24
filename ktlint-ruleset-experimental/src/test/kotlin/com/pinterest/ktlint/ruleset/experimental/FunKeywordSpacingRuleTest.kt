@@ -1,10 +1,10 @@
 package com.pinterest.ktlint.ruleset.experimental
 
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import org.junit.jupiter.api.Test
 
 class FunKeywordSpacingRuleTest {
-    private val funKeywordSpacingRuleAssertThat = FunKeywordSpacingRule().assertThat()
+    private val funKeywordSpacingRuleAssertThat = assertThatRule { FunKeywordSpacingRule() }
 
     @Test
     fun `Given a function signature with multiple spaces between the fun keyword and the function name then remove the redundant spaces`() {

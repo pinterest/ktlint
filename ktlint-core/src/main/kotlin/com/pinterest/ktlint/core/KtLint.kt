@@ -1,6 +1,5 @@
 package com.pinterest.ktlint.core
 
-import com.pinterest.ktlint.core.RuleRunner.State.UNUSED
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.codeStyleSetProperty
 import com.pinterest.ktlint.core.api.EditorConfigOverride
@@ -179,7 +178,7 @@ public object KtLint {
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        rule.reset()
+        rule.startTraversalOfAST()
         rule.beforeFirstNode(editorConfigProperties)
         this.executeRuleOnNodeRecursively(rootNode, rule, fqRuleId, autoCorrect, emit)
         rule.afterLastNode()
@@ -192,10 +191,10 @@ public object KtLint {
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        if (rule.continueTraversal()) {
+        if (rule.shouldContinueTraversalOfAST()) {
             try {
                 rule.beforeVisitChildNodes(node, autoCorrect, emit)
-                if (!rule.runsOnRootNodeOnly() && rule.continueTraversal()) {
+                if (!rule.runsOnRootNodeOnly() && rule.shouldContinueTraversalOfAST()) {
                     node
                         .getChildren(null)
                         .forEach { childNode ->
@@ -357,8 +356,6 @@ public object KtLint {
 }
 
 internal class RuleRunner(private val provider: RuleProvider) {
-    private val state = UNUSED
-
     private var rule = provider.createNewRuleInstance()
 
     internal val qualifiedRuleId = rule.toQualifiedRuleId()
@@ -377,9 +374,9 @@ internal class RuleRunner(private val provider: RuleProvider) {
      * provided. This prevents leakage of the state of the Rule between executions.
      */
     internal fun getRule(): Rule {
-//        if (state != UNUSED) {
-        rule = provider.createNewRuleInstance()
-//        }
+        if (rule.isUsedForTraversalOfAST()) {
+            rule = provider.createNewRuleInstance()
+        }
         return rule
     }
 
@@ -404,30 +401,10 @@ internal class RuleRunner(private val provider: RuleProvider) {
             }
 
     internal fun clearRunAfterRule() {
-        require(state == UNUSED) {
-            "RunAfterRule can not be cleared when state != UNUSED"
+        require(!rule.isUsedForTraversalOfAST()) {
+            "RunAfterRule can not be cleared when rule has already been used for traversal of the AST"
         }
         runAfterRule = null
-    }
-
-    internal enum class State {
-        /**
-         * The rule is not yet run. The current Rule instance can be used to retrieve metadata from the Rule but it
-         * should not alter the state
-         */
-        UNUSED,
-
-        /**
-         * Traversal of the AST has started. Once this state has set, the [Rule] instance should be considered "dirty"
-         * as it is not known whether the rule keeps internal state which might have been altered.
-         */
-        START_AST_TRAVERSAL,
-
-        /**
-         * Traversal of the AST has to be or is stopped. The [Rule] instance should be considered "dirty" as it is not
-         * known whether the rule keeps internal state which might have been altered.
-         */
-        STOP_AST_TRAVERSAL
     }
 }
 

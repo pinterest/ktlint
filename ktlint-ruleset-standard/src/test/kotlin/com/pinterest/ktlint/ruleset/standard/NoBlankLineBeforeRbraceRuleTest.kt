@@ -1,12 +1,12 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE
 import org.junit.jupiter.api.Test
 
 class NoBlankLineBeforeRbraceRuleTest {
-    private val noBlankLineBeforeRbraceRuleAssertThat = NoBlankLineBeforeRbraceRule().assertThat()
+    private val noBlankLineBeforeRbraceRuleAssertThat = assertThatRule { NoBlankLineBeforeRbraceRule() }
 
     @Test
     fun `Given some nested functions with empty line before closing brace then do return lint errors`() {

@@ -1,10 +1,11 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import org.junit.jupiter.api.Test
 
 class SpacingBetweenDeclarationsWithAnnotationsRuleTest {
-    private val spacingBetweenDeclarationsWithAnnotationsRuleAssertThat = SpacingBetweenDeclarationsWithAnnotationsRule().assertThat()
+    private val spacingBetweenDeclarationsWithAnnotationsRuleAssertThat =
+        assertThatRule { SpacingBetweenDeclarationsWithAnnotationsRule() }
 
     @Test
     fun `Given an annotation at top of file should do nothing`() {

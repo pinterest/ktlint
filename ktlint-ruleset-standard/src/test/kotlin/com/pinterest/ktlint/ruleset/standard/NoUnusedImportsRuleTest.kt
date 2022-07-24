@@ -1,13 +1,13 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class NoUnusedImportsRuleTest {
-    private val noUnusedImportsRuleAssertThat = NoUnusedImportsRule().assertThat()
+    private val noUnusedImportsRuleAssertThat = assertThatRule { NoUnusedImportsRule() }
 
     @Disabled("To be fixed")
     @Test

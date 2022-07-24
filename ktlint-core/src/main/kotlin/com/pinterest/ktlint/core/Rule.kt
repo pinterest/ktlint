@@ -26,25 +26,10 @@ public open class Rule(
      */
     public val visitorModifiers: Set<VisitorModifier> = emptySet()
 ) {
-    private lateinit var traversalState: TraversalState
+    private var traversalState = TraversalState.NOT_STARTED
 
     init {
         IdNamingPolicy.enforceRuleIdNaming(id)
-    }
-
-    /**
-     * Resets the state of the [Rule] class. Each instance of the [Rule] class is supposed to be used only once so that
-     * the rule does not need to be thread-safe and stateless. It is guaranteed that a [Rule] instance is used on
-     * exactly one file. Unfortunately, that same instance is however used twice when running [KtLint.format]. In the
-     * first run the [Rule] instance is used for running in autocorrect mode. If fixes are applied on the file, then
-     * that same instance is reused to process that file once more in non-autocorrect mode. In case the [traversalState]
-     * is changed during the first invocation, it needs to be reset before starting the second invocation.
-     *
-     * Subclasses of the [Rule] should use [beforeFirstNode] to reset the state of the subclass. This method is
-     * intentionally kept internal and closed to prevent it from being used externally or be overridden.
-     */
-    internal fun reset() {
-        traversalState = TraversalState.CONTINUE
     }
 
     /**
@@ -112,9 +97,23 @@ public open class Rule(
     public open fun afterLastNode() {}
 
     /**
+     * Checks whether [Rule] instance has not yet being used for traversal of the AST.
+     */
+    internal fun isUsedForTraversalOfAST() =
+        traversalState != TraversalState.NOT_STARTED
+
+    /**
+     * Marks the [Rule] instance as being used for traversal of an AST. From this moment on, this instance of the [Rule]
+     * can not be used to start a new traversal of the same or another AST as the instance might contain state.
+     */
+    internal fun startTraversalOfAST() {
+        traversalState = TraversalState.CONTINUE
+    }
+
+    /**
      * Checks whether the next node in the AST is to be traversed. By default, the entire AST is traversed.
      */
-    internal fun continueTraversal() =
+    internal fun shouldContinueTraversalOfAST() =
         traversalState == TraversalState.CONTINUE
 
     /**
@@ -140,7 +139,13 @@ public open class Rule(
 
     private enum class TraversalState {
         /**
-         * Continue with traversal of the AST.
+         * Traversal of the AST is not started. As no life cycle hooks of the [Rule] have been executed, the [Rule]
+         * instance can not contain state specific for the AST.
+         */
+        NOT_STARTED,
+
+        /**
+         * Traversal of the AST is started and should be continued with next node.
          */
         CONTINUE,
 

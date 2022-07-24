@@ -1,10 +1,10 @@
 package yourpkgname
 
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import org.junit.jupiter.api.Test
 
 class NoVarRuleTest {
-    private val wrappingRuleAssertThat = NoVarRule().assertThat()
+    private val wrappingRuleAssertThat = assertThatRule { NoVarRule() }
 
     @Test
     fun `No var rule`() {

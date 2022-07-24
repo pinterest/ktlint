@@ -1,11 +1,11 @@
 package com.pinterest.ktlint.ruleset.experimental
 
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 class TypeArgumentListSpacingRuleTest {
-    private val typeArgumentListSpacingRuleAssertThat = TypeArgumentListSpacingRule().assertThat()
+    private val typeArgumentListSpacingRuleAssertThat = assertThatRule { TypeArgumentListSpacingRule() }
 
     @Test
     fun `Given a type argument list, containing unexpected spaces, in a function call then remove the redundant spaces`() {
