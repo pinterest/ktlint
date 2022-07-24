@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard
 
+import com.pinterest.ktlint.core.RuleProvider
 import com.pinterest.ktlint.ruleset.experimental.trailingcomma.TrailingCommaRule
 import com.pinterest.ktlint.ruleset.experimental.trailingcomma.TrailingCommaRule.Companion.allowTrailingCommaOnCallSiteProperty
 import com.pinterest.ktlint.ruleset.experimental.trailingcomma.TrailingCommaRule.Companion.allowTrailingCommaProperty
@@ -13,7 +14,7 @@ class TrailingCommaRuleTest {
             .assertThat(
                 // Apply the IndentationRule always as additional rule, so that the formattedCode in the unit test looks
                 // correct.
-                IndentationRule()
+                RuleProvider { IndentationRule() }
             )
 
     @Test

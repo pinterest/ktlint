@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard
 
+import com.pinterest.ktlint.core.RuleProvider
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.maxLineLengthProperty
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
 import com.pinterest.ktlint.test.LintViolation
@@ -7,12 +8,11 @@ import org.junit.jupiter.api.Test
 
 class ParameterListWrappingRuleTest {
     private val parameterListWrappingRuleAssertThat =
-        ParameterListWrappingRule()
-            .assertThat(
-                // Apply the IndentationRule always as additional rule, so that the formattedCode in the unit test looks
-                // correct.
-                IndentationRule()
-            )
+        ParameterListWrappingRule().assertThat(
+            // Apply the IndentationRule always as additional rule, so that the formattedCode in the unit test looks
+            // correct.
+            RuleProvider { IndentationRule() }
+        )
 
     @Test
     fun `Given a class with parameters on multiple lines then put each parameter and closing parenthesis on a separate line`() {

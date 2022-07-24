@@ -69,8 +69,8 @@ class DisabledRulesTest {
                 KtLint.lint(
                     KtLint.ExperimentalParams(
                         text = "var foo",
-                        ruleSets = listOf(
-                            RuleSet("standard", NoVarRule("no-var"))
+                        ruleProviders = setOf(
+                            RuleProvider { NoVarRule("no-var") }
                         ),
                         cb = { e, _ -> add(e) },
                         editorConfigOverride = EditorConfigOverride.from(disabledRulesProperty to "no-var")

@@ -76,15 +76,37 @@ public object KtLint {
         val editorConfigOverride: EditorConfigOverride = emptyEditorConfigOverride,
         val isInvokedFromCli: Boolean = false
     ) {
+        internal val ruleRunners: Set<RuleRunner> =
+            ruleProviders
+                .map { RuleRunner(it) }
+                .plus(
+                    /** Support backward compatibility for API consumers in KtLint 0.47 by changing rule sets to rule
+                     * providers with limitation that for those rules *no* new instances can be created during
+                     * [KtLint.format].
+                     * KtLint CLI already transforms rules provided by external rule providers to real RuleProviders
+                     * for which new instances can be created. The same workaround is not possible for as
+                     * [KtLint.ExperimentalParams.ruleSets] already contain the created [Rule] instance.
+                     */
+                    // TODO: remove when removing the deprecated ruleSets.
+                    ruleSets
+                        .flatMap { it.rules.toList() }
+                        .map { RuleRunner(createStaticRuleProvider(it)) }
+                ).distinctBy { it.ruleId }
+                .toSet()
+
+        internal fun getRules(): Set<Rule> =
+            ruleRunners
+                .map { it.getRule() }
+                .toSet()
+
         init {
             require(ruleSets.any() xor ruleProviders.any()) {
                 "Provide exactly one of parameters 'ruleSets' or 'ruleProviders'"
             }
             // Extract all default and custom ".editorconfig" properties which are registered
             val editorConfigProperties =
-                ruleSets
+                getRules()
                     .asSequence()
-                    .flatten()
                     .filterIsInstance<UsesEditorConfigProperties>()
                     .map { it.editorConfigProperties }
                     .flatten()
@@ -125,23 +147,6 @@ public object KtLint {
             }
 
         internal val isStdIn: Boolean get() = fileName == STDIN_FILE
-
-        internal val ruleRunners: Set<RuleRunner> =
-            ruleProviders
-                .map { RuleRunner(it) }
-                .plus(
-                    // TODO: remove when removing the deprecated ruleSets. Also note that for those rules *no* new
-                    //  instances can be created.
-                    ruleSets
-                        .flatMap { it.rules.toList() }
-                        .map { RuleRunner(createStaticRuleProvider(it)) }
-                ).distinctBy { it.ruleId }
-                .toSet()
-
-        internal fun getRules(): Set<Rule> =
-            ruleRunners
-                .map { it.getRule() }
-                .toSet()
     }
 
     /**

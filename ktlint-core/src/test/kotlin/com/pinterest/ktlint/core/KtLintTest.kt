@@ -248,164 +248,167 @@ class KtLintTest {
                 }
             }
 
-            @Test
-            fun `Given a non empty ruleset and empty userData then do not throw an error`() {
-                var numberOfRootNodesVisited = 0
-                KtLint.lint(
-                    KtLint.ExperimentalParams(
-                        fileName = "some-filename",
-                        text = "fun main() {}",
-                        ruleSets = emptyList(),
-                        ruleProviders = setOf(
-                            RuleProvider {
-                                DummyRule { node ->
-                                    if (node.isRoot()) {
-                                        numberOfRootNodesVisited++
+            @DisplayName("Lint called with rule providers")
+            @Nested
+            inner class LintWithRuleProviders {
+                @Test
+                fun `Given a non empty rule providers and empty userData then do not throw an error`() {
+                    var numberOfRootNodesVisited = 0
+                    KtLint.lint(
+                        KtLint.ExperimentalParams(
+                            fileName = "some-filename",
+                            text = "fun main() {}",
+                            ruleProviders = setOf(
+                                RuleProvider {
+                                    DummyRule { node ->
+                                        if (node.isRoot()) {
+                                            numberOfRootNodesVisited++
+                                        }
                                     }
                                 }
-                            }
-                        ),
-                        userData = emptyMap(),
-                        cb = { _, _ -> },
-                        script = false,
-                        editorConfigPath = null,
-                        debug = false
-                    )
-                )
-                assertThat(numberOfRootNodesVisited).isEqualTo(1)
-            }
-
-            @Test
-            fun `Given a non empty ruleset and userData that contains one default editor config property then throw an error`() {
-                assertThatThrownBy {
-                    KtLint.lint(
-                        KtLint.ExperimentalParams(
-                            fileName = "some-filename",
-                            text = "fun main() {}",
-                            ruleSets = listOf(
-                                RuleSet("standard", DummyRule())
                             ),
-                            userData = mapOf("max_line_length" to "80"),
+                            userData = emptyMap(),
                             cb = { _, _ -> },
                             script = false,
                             editorConfigPath = null,
                             debug = false
                         )
                     )
-                }.isInstanceOf(IllegalStateException::class.java)
-                    .hasMessage(
-                        "UserData should not contain '.editorconfig' properties [max_line_length]. Such properties " +
-                            "should be passed via the 'ExperimentalParams.editorConfigOverride' field. Note that " +
-                            "this is only required for properties that (potentially) contain a value that differs " +
-                            "from the actual value in the '.editorconfig' file."
-                    )
-            }
+                    assertThat(numberOfRootNodesVisited).isEqualTo(1)
+                }
 
-            @Test
-            fun `Given a non empty ruleset and userData that contains multiple default editor config properties then throw an error`() {
-                assertThatThrownBy {
-                    KtLint.lint(
-                        KtLint.ExperimentalParams(
-                            fileName = "some-filename",
-                            text = "fun main() {}",
-                            ruleSets = listOf(
-                                RuleSet("standard", DummyRule())
-                            ),
-                            userData = mapOf(
-                                "indent_style" to "space",
-                                "indent_size" to "4"
-                            ),
-                            cb = { _, _ -> },
-                            script = false,
-                            editorConfigPath = null,
-                            debug = false
-                        )
-                    )
-                }.isInstanceOf(IllegalStateException::class.java)
-                    .hasMessage(
-                        "UserData should not contain '.editorconfig' properties [indent_size, indent_style]. Such" +
-                            " properties should be passed via the 'ExperimentalParams.editorConfigOverride' field. " +
-                            "Note that this is only required for properties that (potentially) contain a value that " +
-                            "differs from the actual value in the '.editorconfig' file."
-                    )
-            }
-
-            @Test
-            fun `Given a non empty ruleset and userData that refers to a custom Rule property then do throw an error`() {
-                assertThatThrownBy {
-                    KtLint.lint(
-                        KtLint.ExperimentalParams(
-                            fileName = "some-filename",
-                            text = "fun main() {}",
-                            ruleSets = listOf(
-                                RuleSet("standard", DummyRuleWithCustomEditorConfigProperty())
-                            ),
-                            userData = mapOf(SOME_CUSTOM_RULE_PROPERTY to "false"),
-                            cb = { _, _ -> },
-                            script = false,
-                            editorConfigPath = null,
-                            debug = false
-                        )
-                    )
-                }.isInstanceOf(IllegalStateException::class.java)
-                    .hasMessage(
-                        "UserData should not contain '.editorconfig' properties [$SOME_CUSTOM_RULE_PROPERTY]. Such" +
-                            " properties should be passed via the 'ExperimentalParams.editorConfigOverride' field. " +
-                            "Note that this is only required for properties that (potentially) contain a value that " +
-                            "differs from the actual value in the '.editorconfig' file."
-                    )
-            }
-
-            @Test
-            fun `Given a rule returning an errors which can and can not be autocorrected than that state of the error can be retrieved in the callback`() {
-                val code =
-                    """
-                    val foo = "${AutoCorrectErrorRule.STRING_VALUE_NOT_TO_BE_CORRECTED}"
-                    val bar = "${AutoCorrectErrorRule.STRING_VALUE_TO_BE_AUTOCORRECTED}"
-                    """.trimIndent()
-                val callbacks = mutableListOf<CallbackResult>()
-                KtLint.lint(
-                    KtLint.ExperimentalParams(
-                        text = code,
-                        ruleSets = listOf(
-                            RuleSet("standard", AutoCorrectErrorRule())
-                        ),
-                        userData = emptyMap(),
-                        cb = { e, corrected ->
-                            callbacks.add(
-                                CallbackResult(
-                                    line = e.line,
-                                    col = e.col,
-                                    ruleId = e.ruleId,
-                                    detail = e.detail,
-                                    canBeAutoCorrected = e.canBeAutoCorrected,
-                                    corrected = corrected
-                                )
+                @Test
+                fun `Given a non empty rule providers and userData that contains one default editor config property then throw an error`() {
+                    assertThatThrownBy {
+                        KtLint.lint(
+                            KtLint.ExperimentalParams(
+                                fileName = "some-filename",
+                                text = "fun main() {}",
+                                ruleProviders = setOf(
+                                    RuleProvider { DummyRule() }
+                                ),
+                                userData = mapOf("max_line_length" to "80"),
+                                cb = { _, _ -> },
+                                script = false,
+                                editorConfigPath = null,
+                                debug = false
                             )
-                        },
-                        script = false,
-                        editorConfigPath = null,
-                        debug = false
+                        )
+                    }.isInstanceOf(IllegalStateException::class.java)
+                        .hasMessage(
+                            "UserData should not contain '.editorconfig' properties [max_line_length]. Such properties " +
+                                "should be passed via the 'ExperimentalParams.editorConfigOverride' field. Note that " +
+                                "this is only required for properties that (potentially) contain a value that differs " +
+                                "from the actual value in the '.editorconfig' file."
+                        )
+                }
+
+                @Test
+                fun `Given a non empty rule providers and userData that contains multiple default editor config properties then throw an error`() {
+                    assertThatThrownBy {
+                        KtLint.lint(
+                            KtLint.ExperimentalParams(
+                                fileName = "some-filename",
+                                text = "fun main() {}",
+                                ruleProviders = setOf(
+                                    RuleProvider { DummyRule() }
+                                ),
+                                userData = mapOf(
+                                    "indent_style" to "space",
+                                    "indent_size" to "4"
+                                ),
+                                cb = { _, _ -> },
+                                script = false,
+                                editorConfigPath = null,
+                                debug = false
+                            )
+                        )
+                    }.isInstanceOf(IllegalStateException::class.java)
+                        .hasMessage(
+                            "UserData should not contain '.editorconfig' properties [indent_size, indent_style]. Such" +
+                                " properties should be passed via the 'ExperimentalParams.editorConfigOverride' field. " +
+                                "Note that this is only required for properties that (potentially) contain a value that " +
+                                "differs from the actual value in the '.editorconfig' file."
+                        )
+                }
+
+                @Test
+                fun `Given a non empty rule providers and userData that refers to a custom Rule property then do throw an error`() {
+                    assertThatThrownBy {
+                        KtLint.lint(
+                            KtLint.ExperimentalParams(
+                                fileName = "some-filename",
+                                text = "fun main() {}",
+                                ruleProviders = setOf(
+                                    RuleProvider { DummyRuleWithCustomEditorConfigProperty() }
+                                ),
+                                userData = mapOf(SOME_CUSTOM_RULE_PROPERTY to "false"),
+                                cb = { _, _ -> },
+                                script = false,
+                                editorConfigPath = null,
+                                debug = false
+                            )
+                        )
+                    }.isInstanceOf(IllegalStateException::class.java)
+                        .hasMessage(
+                            "UserData should not contain '.editorconfig' properties [$SOME_CUSTOM_RULE_PROPERTY]. Such" +
+                                " properties should be passed via the 'ExperimentalParams.editorConfigOverride' field. " +
+                                "Note that this is only required for properties that (potentially) contain a value that " +
+                                "differs from the actual value in the '.editorconfig' file."
+                        )
+                }
+
+                @Test
+                fun `Given a rule returning an errors which can and can not be autocorrected than that state of the error can be retrieved in the callback`() {
+                    val code =
+                        """
+                        val foo = "${AutoCorrectErrorRule.STRING_VALUE_NOT_TO_BE_CORRECTED}"
+                        val bar = "${AutoCorrectErrorRule.STRING_VALUE_TO_BE_AUTOCORRECTED}"
+                        """.trimIndent()
+                    val callbacks = mutableListOf<CallbackResult>()
+                    KtLint.lint(
+                        KtLint.ExperimentalParams(
+                            text = code,
+                            ruleProviders = setOf(
+                                RuleProvider { AutoCorrectErrorRule() }
+                            ),
+                            userData = emptyMap(),
+                            cb = { e, corrected ->
+                                callbacks.add(
+                                    CallbackResult(
+                                        line = e.line,
+                                        col = e.col,
+                                        ruleId = e.ruleId,
+                                        detail = e.detail,
+                                        canBeAutoCorrected = e.canBeAutoCorrected,
+                                        corrected = corrected
+                                    )
+                                )
+                            },
+                            script = false,
+                            editorConfigPath = null,
+                            debug = false
+                        )
                     )
-                )
-                assertThat(callbacks).containsExactly(
-                    CallbackResult(
-                        line = 1,
-                        col = 12,
-                        ruleId = "auto-correct",
-                        detail = AutoCorrectErrorRule.ERROR_MESSAGE_CAN_NOT_BE_AUTOCORRECTED,
-                        canBeAutoCorrected = false,
-                        corrected = false
-                    ),
-                    CallbackResult(
-                        line = 2,
-                        col = 12,
-                        ruleId = "auto-correct",
-                        detail = AutoCorrectErrorRule.ERROR_MESSAGE_CAN_BE_AUTOCORRECTED,
-                        canBeAutoCorrected = true,
-                        corrected = false
+                    assertThat(callbacks).containsExactly(
+                        CallbackResult(
+                            line = 1,
+                            col = 12,
+                            ruleId = "auto-correct",
+                            detail = AutoCorrectErrorRule.ERROR_MESSAGE_CAN_NOT_BE_AUTOCORRECTED,
+                            canBeAutoCorrected = false,
+                            corrected = false
+                        ),
+                        CallbackResult(
+                            line = 2,
+                            col = 12,
+                            ruleId = "auto-correct",
+                            detail = AutoCorrectErrorRule.ERROR_MESSAGE_CAN_BE_AUTOCORRECTED,
+                            canBeAutoCorrected = true,
+                            corrected = false
+                        )
                     )
-                )
+                }
             }
         }
 
@@ -455,176 +458,351 @@ class KtLintTest {
                     .hasMessage("Provide exactly one of parameters 'ruleSets' or 'ruleProviders'")
             }
 
-            @Test
-            fun `Given a non empty ruleset and empty userData then do not throw an error`() {
-                var numberOfRootNodesVisited = 0
-                KtLint.format(
-                    KtLint.ExperimentalParams(
-                        fileName = "some-filename",
-                        text = "fun main() {}",
-                        ruleSets = listOf(
-                            RuleSet(
-                                "standard",
-                                DummyRule { node ->
-                                    if (node.isRoot()) {
-                                        numberOfRootNodesVisited++
+            @DisplayName("Format called with deprecated rule sets parameter instead of rule providers")
+            @Nested
+            @Deprecated("Marked for removal in ktlint 0.48")
+            inner class FormatWithRuleSets {
+                @Test
+                fun `Given a non empty ruleset and empty userData then do not throw an error`() {
+                    var numberOfRootNodesVisited = 0
+                    KtLint.format(
+                        KtLint.ExperimentalParams(
+                            fileName = "some-filename",
+                            text = "fun main() {}",
+                            ruleSets = listOf(
+                                RuleSet(
+                                    "standard",
+                                    DummyRule { node ->
+                                        if (node.isRoot()) {
+                                            numberOfRootNodesVisited++
+                                        }
+                                    }
+                                )
+                            ),
+                            userData = emptyMap(),
+                            cb = { _, _ -> },
+                            script = false,
+                            editorConfigPath = null,
+                            debug = false
+                        )
+                    )
+                    assertThat(numberOfRootNodesVisited).isEqualTo(1)
+                }
+
+                @Test
+                fun `Given a non empty ruleset and userData that contains one default editor config property then throw an error`() {
+                    assertThatThrownBy {
+                        KtLint.format(
+                            KtLint.ExperimentalParams(
+                                fileName = "some-filename",
+                                text = "fun main() {}",
+                                ruleSets = listOf(
+                                    RuleSet("standard", DummyRule())
+                                ),
+                                userData = mapOf("max_line_length" to "80"),
+                                cb = { _, _ -> },
+                                script = false,
+                                editorConfigPath = null,
+                                debug = false
+                            )
+                        )
+                    }.isInstanceOf(IllegalStateException::class.java)
+                        .hasMessage(
+                            "UserData should not contain '.editorconfig' properties [max_line_length]. Such properties " +
+                                "should be passed via the 'ExperimentalParams.editorConfigOverride' field. Note that " +
+                                "this is only required for properties that (potentially) contain a value that differs " +
+                                "from the actual value in the '.editorconfig' file."
+                        )
+                }
+
+                @Test
+                fun `Given a non empty ruleset and userData that contains multiple default editor config properties then throw an error`() {
+                    assertThatThrownBy {
+                        KtLint.format(
+                            KtLint.ExperimentalParams(
+                                fileName = "some-filename",
+                                text = "fun main() {}",
+                                ruleSets = listOf(
+                                    RuleSet("standard", DummyRule())
+                                ),
+                                userData = mapOf(
+                                    "indent_style" to "space",
+                                    "indent_size" to "4"
+                                ),
+                                cb = { _, _ -> },
+                                script = false,
+                                editorConfigPath = null,
+                                debug = false
+                            )
+                        )
+                    }.isInstanceOf(IllegalStateException::class.java)
+                        .hasMessage(
+                            "UserData should not contain '.editorconfig' properties [indent_size, indent_style]. Such" +
+                                " properties should be passed via the 'ExperimentalParams.editorConfigOverride' field. " +
+                                "Note that this is only required for properties that (potentially) contain a value that " +
+                                "differs from the actual value in the '.editorconfig' file."
+                        )
+                }
+
+                @Test
+                fun `Given a non empty ruleset and userData that refers to a custom Rule property then do throw an error`() {
+                    assertThatThrownBy {
+                        KtLint.format(
+                            KtLint.ExperimentalParams(
+                                fileName = "some-filename",
+                                text = "fun main() {}",
+                                ruleSets = listOf(
+                                    RuleSet("standard", DummyRuleWithCustomEditorConfigProperty())
+                                ),
+                                userData = mapOf(SOME_CUSTOM_RULE_PROPERTY to "false"),
+                                cb = { _, _ -> },
+                                script = false,
+                                editorConfigPath = null,
+                                debug = false
+                            )
+                        )
+                    }.isInstanceOf(IllegalStateException::class.java)
+                        .hasMessage(
+                            "UserData should not contain '.editorconfig' properties [$SOME_CUSTOM_RULE_PROPERTY]. Such" +
+                                " properties should be passed via the 'ExperimentalParams.editorConfigOverride' field. " +
+                                "Note that this is only required for properties that (potentially) contain a value that " +
+                                "differs from the actual value in the '.editorconfig' file."
+                        )
+                }
+
+                @Test
+                fun `Given a rule returning an errors which can and can not be autocorrected than that state of the error can be retrieved in the callback`() {
+                    val code =
+                        """
+                        val foo = "${AutoCorrectErrorRule.STRING_VALUE_NOT_TO_BE_CORRECTED}"
+                        val bar = "${AutoCorrectErrorRule.STRING_VALUE_TO_BE_AUTOCORRECTED}"
+                        """.trimIndent()
+                    val formattedCode =
+                        """
+                        val foo = "${AutoCorrectErrorRule.STRING_VALUE_NOT_TO_BE_CORRECTED}"
+                        val bar = "$STRING_VALUE_AFTER_AUTOCORRECT"
+                        """.trimIndent()
+                    val callbacks = mutableListOf<CallbackResult>()
+                    val actualFormattedCode = KtLint.format(
+                        KtLint.ExperimentalParams(
+                            text = code,
+                            ruleSets = listOf(
+                                RuleSet("standard", AutoCorrectErrorRule())
+                            ),
+                            userData = emptyMap(),
+                            cb = { e, corrected ->
+                                callbacks.add(
+                                    CallbackResult(
+                                        line = e.line,
+                                        col = e.col,
+                                        ruleId = e.ruleId,
+                                        detail = e.detail,
+                                        canBeAutoCorrected = e.canBeAutoCorrected,
+                                        corrected = corrected
+                                    )
+                                )
+                            },
+                            script = false,
+                            editorConfigPath = null,
+                            debug = false
+                        )
+                    )
+                    assertThat(actualFormattedCode).isEqualTo(formattedCode)
+                    assertThat(callbacks).containsExactly(
+                        CallbackResult(
+                            line = 1,
+                            col = 12,
+                            ruleId = "auto-correct",
+                            detail = AutoCorrectErrorRule.ERROR_MESSAGE_CAN_NOT_BE_AUTOCORRECTED,
+                            canBeAutoCorrected = false,
+                            corrected = false
+                        ),
+                        CallbackResult(
+                            line = 2,
+                            col = 12,
+                            ruleId = "auto-correct",
+                            detail = AutoCorrectErrorRule.ERROR_MESSAGE_CAN_BE_AUTOCORRECTED,
+                            canBeAutoCorrected = true,
+                            corrected = true
+                        )
+                    )
+                }
+            }
+
+            @DisplayName("Format called with rule providers")
+            @Nested
+            inner class FormatWithRuleProviders {
+                @Test
+                fun `Given a non empty rule providers and empty userData then do not throw an error`() {
+                    var numberOfRootNodesVisited = 0
+                    KtLint.format(
+                        KtLint.ExperimentalParams(
+                            fileName = "some-filename",
+                            text = "fun main() {}",
+                            ruleProviders = setOf(
+                                RuleProvider {
+                                    DummyRule { node ->
+                                        if (node.isRoot()) {
+                                            numberOfRootNodesVisited++
+                                        }
                                     }
                                 }
+                            ),
+                            userData = emptyMap(),
+                            cb = { _, _ -> },
+                            script = false,
+                            editorConfigPath = null,
+                            debug = false
+                        )
+                    )
+                    assertThat(numberOfRootNodesVisited).isEqualTo(1)
+                }
+
+                @Test
+                fun `Given a non empty rule providers and userData that contains one default editor config property then throw an error`() {
+                    assertThatThrownBy {
+                        KtLint.format(
+                            KtLint.ExperimentalParams(
+                                fileName = "some-filename",
+                                text = "fun main() {}",
+                                ruleProviders = setOf(
+                                    RuleProvider { DummyRule() }
+                                ),
+                                userData = mapOf("max_line_length" to "80"),
+                                cb = { _, _ -> },
+                                script = false,
+                                editorConfigPath = null,
+                                debug = false
                             )
+                        )
+                    }.isInstanceOf(IllegalStateException::class.java)
+                        .hasMessage(
+                            "UserData should not contain '.editorconfig' properties [max_line_length]. Such properties " +
+                                "should be passed via the 'ExperimentalParams.editorConfigOverride' field. Note that " +
+                                "this is only required for properties that (potentially) contain a value that differs " +
+                                "from the actual value in the '.editorconfig' file."
+                        )
+                }
+
+                @Test
+                fun `Given a non empty rule providers and userData that contains multiple default editor config properties then throw an error`() {
+                    assertThatThrownBy {
+                        KtLint.format(
+                            KtLint.ExperimentalParams(
+                                fileName = "some-filename",
+                                text = "fun main() {}",
+                                ruleProviders = setOf(
+                                    RuleProvider { DummyRule() }
+                                ),
+                                userData = mapOf(
+                                    "indent_style" to "space",
+                                    "indent_size" to "4"
+                                ),
+                                cb = { _, _ -> },
+                                script = false,
+                                editorConfigPath = null,
+                                debug = false
+                            )
+                        )
+                    }.isInstanceOf(IllegalStateException::class.java)
+                        .hasMessage(
+                            "UserData should not contain '.editorconfig' properties [indent_size, indent_style]. Such" +
+                                " properties should be passed via the 'ExperimentalParams.editorConfigOverride' field. " +
+                                "Note that this is only required for properties that (potentially) contain a value that " +
+                                "differs from the actual value in the '.editorconfig' file."
+                        )
+                }
+
+                @Test
+                fun `Given a non empty rule providers and userData that refers to a custom Rule property then do throw an error`() {
+                    assertThatThrownBy {
+                        KtLint.format(
+                            KtLint.ExperimentalParams(
+                                fileName = "some-filename",
+                                text = "fun main() {}",
+                                ruleProviders = setOf(
+                                    RuleProvider { DummyRuleWithCustomEditorConfigProperty() }
+                                ),
+                                userData = mapOf(SOME_CUSTOM_RULE_PROPERTY to "false"),
+                                cb = { _, _ -> },
+                                script = false,
+                                editorConfigPath = null,
+                                debug = false
+                            )
+                        )
+                    }.isInstanceOf(IllegalStateException::class.java)
+                        .hasMessage(
+                            "UserData should not contain '.editorconfig' properties [$SOME_CUSTOM_RULE_PROPERTY]. Such" +
+                                " properties should be passed via the 'ExperimentalParams.editorConfigOverride' field. " +
+                                "Note that this is only required for properties that (potentially) contain a value that " +
+                                "differs from the actual value in the '.editorconfig' file."
+                        )
+                }
+
+                @Test
+                fun `Given a rule returning an errors which can and can not be autocorrected than that state of the error can be retrieved in the callback`() {
+                    val code =
+                        """
+                        val foo = "${AutoCorrectErrorRule.STRING_VALUE_NOT_TO_BE_CORRECTED}"
+                        val bar = "${AutoCorrectErrorRule.STRING_VALUE_TO_BE_AUTOCORRECTED}"
+                        """.trimIndent()
+                    val formattedCode =
+                        """
+                        val foo = "${AutoCorrectErrorRule.STRING_VALUE_NOT_TO_BE_CORRECTED}"
+                        val bar = "$STRING_VALUE_AFTER_AUTOCORRECT"
+                        """.trimIndent()
+                    val callbacks = mutableListOf<CallbackResult>()
+                    val actualFormattedCode = KtLint.format(
+                        KtLint.ExperimentalParams(
+                            text = code,
+                            ruleProviders = setOf(
+                                RuleProvider { AutoCorrectErrorRule() }
+                            ),
+                            userData = emptyMap(),
+                            cb = { e, corrected ->
+                                callbacks.add(
+                                    CallbackResult(
+                                        line = e.line,
+                                        col = e.col,
+                                        ruleId = e.ruleId,
+                                        detail = e.detail,
+                                        canBeAutoCorrected = e.canBeAutoCorrected,
+                                        corrected = corrected
+                                    )
+                                )
+                            },
+                            script = false,
+                            editorConfigPath = null,
+                            debug = false
+                        )
+                    )
+                    assertThat(actualFormattedCode).isEqualTo(formattedCode)
+                    assertThat(callbacks).containsExactly(
+                        CallbackResult(
+                            line = 1,
+                            col = 12,
+                            ruleId = "auto-correct",
+                            detail = AutoCorrectErrorRule.ERROR_MESSAGE_CAN_NOT_BE_AUTOCORRECTED,
+                            canBeAutoCorrected = false,
+                            corrected = false
                         ),
-                        userData = emptyMap(),
-                        cb = { _, _ -> },
-                        script = false,
-                        editorConfigPath = null,
-                        debug = false
-                    )
-                )
-                assertThat(numberOfRootNodesVisited).isEqualTo(1)
-            }
-
-            @Test
-            fun `Given a non empty ruleset and userData that contains one default editor config property then throw an error`() {
-                assertThatThrownBy {
-                    KtLint.format(
-                        KtLint.ExperimentalParams(
-                            fileName = "some-filename",
-                            text = "fun main() {}",
-                            ruleSets = listOf(
-                                RuleSet("standard", DummyRule())
-                            ),
-                            userData = mapOf("max_line_length" to "80"),
-                            cb = { _, _ -> },
-                            script = false,
-                            editorConfigPath = null,
-                            debug = false
+                        CallbackResult(
+                            line = 2,
+                            col = 12,
+                            ruleId = "auto-correct",
+                            detail = AutoCorrectErrorRule.ERROR_MESSAGE_CAN_BE_AUTOCORRECTED,
+                            canBeAutoCorrected = true,
+                            corrected = true
                         )
                     )
-                }.isInstanceOf(IllegalStateException::class.java)
-                    .hasMessage(
-                        "UserData should not contain '.editorconfig' properties [max_line_length]. Such properties " +
-                            "should be passed via the 'ExperimentalParams.editorConfigOverride' field. Note that " +
-                            "this is only required for properties that (potentially) contain a value that differs " +
-                            "from the actual value in the '.editorconfig' file."
-                    )
-            }
-
-            @Test
-            fun `Given a non empty ruleset and userData that contains multiple default editor config properties then throw an error`() {
-                assertThatThrownBy {
-                    KtLint.format(
-                        KtLint.ExperimentalParams(
-                            fileName = "some-filename",
-                            text = "fun main() {}",
-                            ruleSets = listOf(
-                                RuleSet("standard", DummyRule())
-                            ),
-                            userData = mapOf(
-                                "indent_style" to "space",
-                                "indent_size" to "4"
-                            ),
-                            cb = { _, _ -> },
-                            script = false,
-                            editorConfigPath = null,
-                            debug = false
-                        )
-                    )
-                }.isInstanceOf(IllegalStateException::class.java)
-                    .hasMessage(
-                        "UserData should not contain '.editorconfig' properties [indent_size, indent_style]. Such" +
-                            " properties should be passed via the 'ExperimentalParams.editorConfigOverride' field. " +
-                            "Note that this is only required for properties that (potentially) contain a value that " +
-                            "differs from the actual value in the '.editorconfig' file."
-                    )
-            }
-
-            @Test
-            fun `Given a non empty ruleset and userData that refers to a custom Rule property then do throw an error`() {
-                assertThatThrownBy {
-                    KtLint.format(
-                        KtLint.ExperimentalParams(
-                            fileName = "some-filename",
-                            text = "fun main() {}",
-                            ruleSets = listOf(
-                                RuleSet("standard", DummyRuleWithCustomEditorConfigProperty())
-                            ),
-                            userData = mapOf(SOME_CUSTOM_RULE_PROPERTY to "false"),
-                            cb = { _, _ -> },
-                            script = false,
-                            editorConfigPath = null,
-                            debug = false
-                        )
-                    )
-                }.isInstanceOf(IllegalStateException::class.java)
-                    .hasMessage(
-                        "UserData should not contain '.editorconfig' properties [$SOME_CUSTOM_RULE_PROPERTY]. Such" +
-                            " properties should be passed via the 'ExperimentalParams.editorConfigOverride' field. " +
-                            "Note that this is only required for properties that (potentially) contain a value that " +
-                            "differs from the actual value in the '.editorconfig' file."
-                    )
+                }
             }
         }
     }
 
-    @Test
-    fun `Given a rule returning an errors which can and can not be autocorrected than that state of the error can be retrieved in the callback`() {
-        val code =
-            """
-            val foo = "${AutoCorrectErrorRule.STRING_VALUE_NOT_TO_BE_CORRECTED}"
-            val bar = "${AutoCorrectErrorRule.STRING_VALUE_TO_BE_AUTOCORRECTED}"
-            """.trimIndent()
-        val formattedCode =
-            """
-            val foo = "${AutoCorrectErrorRule.STRING_VALUE_NOT_TO_BE_CORRECTED}"
-            val bar = "$STRING_VALUE_AFTER_AUTOCORRECT"
-            """.trimIndent()
-        val callbacks = mutableListOf<CallbackResult>()
-        val actualFormattedCode = KtLint.format(
-            KtLint.ExperimentalParams(
-                text = code,
-                ruleSets = listOf(
-                    RuleSet("standard", AutoCorrectErrorRule())
-                ),
-                userData = emptyMap(),
-                cb = { e, corrected ->
-                    callbacks.add(
-                        CallbackResult(
-                            line = e.line,
-                            col = e.col,
-                            ruleId = e.ruleId,
-                            detail = e.detail,
-                            canBeAutoCorrected = e.canBeAutoCorrected,
-                            corrected = corrected
-                        )
-                    )
-                },
-                script = false,
-                editorConfigPath = null,
-                debug = false
-            )
-        )
-        assertThat(actualFormattedCode).isEqualTo(formattedCode)
-        assertThat(callbacks).containsExactly(
-            CallbackResult(
-                line = 1,
-                col = 12,
-                ruleId = "auto-correct",
-                detail = AutoCorrectErrorRule.ERROR_MESSAGE_CAN_NOT_BE_AUTOCORRECTED,
-                canBeAutoCorrected = false,
-                corrected = false
-            ),
-            CallbackResult(
-                line = 2,
-                col = 12,
-                ruleId = "auto-correct",
-                detail = AutoCorrectErrorRule.ERROR_MESSAGE_CAN_BE_AUTOCORRECTED,
-                canBeAutoCorrected = true,
-                corrected = true
-            )
-        )
-    }
-
-    @DisplayName("Calls to rules defined in ktlint 0.46.x or before")
+    @DisplayName("Calls to rules using 'visit' life cycle hook")
     @Nested
+    @Deprecated("Marked for deleting in KtLint 0.48 after removal of 'visit' life cycle hook")
     inner class RuleExecutionCallsLegacy {
         @Test
         fun `Given a normal rule then execute on root node and child nodes`() {
@@ -633,20 +811,21 @@ class KtLintTest {
                 KtLint.ExperimentalParams(
                     // An empty file results in nodes with elementTypes FILE, PACKAGE_DIRECTIVE and IMPORT_LIST respectively
                     text = "",
-                    ruleSets = listOf(
-                        RuleSet(
-                            "standard",
+                    ruleProviders = setOf(
+                        RuleProvider {
                             SimpleTestRuleLegacy(
                                 ruleExecutionCalls = ruleExecutionCalls,
                                 id = "a",
                                 visitorModifiers = setOf()
-                            ),
+                            )
+                        },
+                        RuleProvider {
                             SimpleTestRuleLegacy(
                                 ruleExecutionCalls = ruleExecutionCalls,
                                 id = "b",
                                 visitorModifiers = setOf(RunAsLateAsPossible)
                             )
-                        )
+                        }
                     ),
                     cb = { _, _ -> }
                 )
@@ -667,14 +846,15 @@ class KtLintTest {
             KtLint.lint(
                 KtLint.ExperimentalParams(
                     text = "fun main() {}",
-                    ruleSets = listOf(
-                        RuleSet(
-                            "standard",
+                    ruleProviders = setOf(
+                        RuleProvider {
                             SimpleTestRuleLegacy(
                                 ruleExecutionCalls = ruleExecutionCalls,
                                 id = "a",
                                 visitorModifiers = setOf(RunOnRootNodeOnly)
-                            ),
+                            )
+                        },
+                        RuleProvider {
                             SimpleTestRuleLegacy(
                                 ruleExecutionCalls = ruleExecutionCalls,
                                 id = "b",
@@ -683,7 +863,7 @@ class KtLintTest {
                                     RunAsLateAsPossible
                                 )
                             )
-                        )
+                        }
                     ),
                     cb = { _, _ -> }
                 )
@@ -701,14 +881,15 @@ class KtLintTest {
                 KtLint.ExperimentalParams(
                     // An empty file results in nodes with elementTypes FILE, PACKAGE_DIRECTIVE and IMPORT_LIST respectively
                     text = "",
-                    ruleSets = listOf(
-                        RuleSet(
-                            "standard",
+                    ruleProviders = setOf(
+                        RuleProvider {
                             SimpleTestRuleLegacy(
                                 ruleExecutionCalls = ruleExecutionCalls,
                                 id = "e",
                                 visitorModifiers = setOf(RunAsLateAsPossible)
-                            ),
+                            )
+                        },
+                        RuleProvider {
                             SimpleTestRuleLegacy(
                                 ruleExecutionCalls = ruleExecutionCalls,
                                 id = "d",
@@ -716,23 +897,29 @@ class KtLintTest {
                                     RunOnRootNodeOnly,
                                     RunAsLateAsPossible
                                 )
-                            ),
+                            )
+                        },
+                        RuleProvider {
                             SimpleTestRuleLegacy(
                                 ruleExecutionCalls = ruleExecutionCalls,
                                 id = "b"
-                            ),
+                            )
+                        },
+                        RuleProvider {
                             SimpleTestRuleLegacy(
                                 ruleExecutionCalls = ruleExecutionCalls,
                                 id = "a",
                                 visitorModifiers = setOf(
                                     RunOnRootNodeOnly
                                 )
-                            ),
+                            )
+                        },
+                        RuleProvider {
                             SimpleTestRuleLegacy(
                                 ruleExecutionCalls = ruleExecutionCalls,
                                 id = "c"
                             )
-                        )
+                        }
                     ),
                     cb = { _, _ -> }
                 )
@@ -763,20 +950,21 @@ class KtLintTest {
                 KtLint.ExperimentalParams(
                     // An empty file results in nodes with elementTypes FILE, PACKAGE_DIRECTIVE and IMPORT_LIST respectively
                     text = "",
-                    ruleSets = listOf(
-                        RuleSet(
-                            "standard",
+                    ruleProviders = setOf(
+                        RuleProvider {
                             SimpleTestRule(
                                 ruleExecutionCalls = ruleExecutionCalls,
                                 id = "a",
                                 visitorModifiers = setOf()
-                            ),
+                            )
+                        },
+                        RuleProvider {
                             SimpleTestRule(
                                 ruleExecutionCalls = ruleExecutionCalls,
                                 id = "b",
                                 visitorModifiers = setOf(RunAsLateAsPossible)
                             )
-                        )
+                        }
                     ),
                     cb = { _, _ -> }
                 )
@@ -809,20 +997,21 @@ class KtLintTest {
             KtLint.lint(
                 KtLint.ExperimentalParams(
                     text = "fun main() {}",
-                    ruleSets = listOf(
-                        RuleSet(
-                            "standard",
+                    ruleProviders = setOf(
+                        RuleProvider {
                             SimpleTestRule(
                                 ruleExecutionCalls = ruleExecutionCalls,
                                 id = "a",
                                 visitorModifiers = setOf(RunOnRootNodeOnly)
-                            ),
+                            )
+                        },
+                        RuleProvider {
                             SimpleTestRule(
                                 ruleExecutionCalls = ruleExecutionCalls,
                                 id = "b",
                                 visitorModifiers = setOf(RunOnRootNodeOnly, RunAsLateAsPossible)
                             )
-                        )
+                        }
                     ),
                     cb = { _, _ -> }
                 )
@@ -848,14 +1037,15 @@ class KtLintTest {
                 KtLint.ExperimentalParams(
                     // An empty file results in nodes with elementTypes FILE, PACKAGE_DIRECTIVE and IMPORT_LIST respectively
                     text = "",
-                    ruleSets = listOf(
-                        RuleSet(
-                            "standard",
+                    ruleProviders = setOf(
+                        RuleProvider {
                             SimpleTestRule(
                                 ruleExecutionCalls = ruleExecutionCalls,
                                 id = "e",
                                 visitorModifiers = setOf(RunAsLateAsPossible)
-                            ),
+                            )
+                        },
+                        RuleProvider {
                             SimpleTestRule(
                                 ruleExecutionCalls = ruleExecutionCalls,
                                 id = "d",
@@ -863,23 +1053,29 @@ class KtLintTest {
                                     RunOnRootNodeOnly,
                                     RunAsLateAsPossible
                                 )
-                            ),
+                            )
+                        },
+                        RuleProvider {
                             SimpleTestRule(
                                 ruleExecutionCalls = ruleExecutionCalls,
                                 id = "b"
-                            ),
+                            )
+                        },
+                        RuleProvider {
                             SimpleTestRule(
                                 ruleExecutionCalls = ruleExecutionCalls,
                                 id = "a",
                                 visitorModifiers = setOf(
                                     RunOnRootNodeOnly
                                 )
-                            ),
+                            )
+                        },
+                        RuleProvider {
                             SimpleTestRule(
                                 ruleExecutionCalls = ruleExecutionCalls,
                                 id = "c"
                             )
-                        )
+                        }
                     ),
                     cb = { _, _ -> }
                 )
@@ -933,8 +1129,8 @@ class KtLintTest {
         val actual = KtLint.format(
             KtLint.ExperimentalParams(
                 text = code,
-                ruleSets = listOf(
-                    RuleSet("standard", DummyRule())
+                ruleProviders = setOf(
+                    RuleProvider { DummyRule() }
                 ),
                 cb = { _, _ -> }
             )
@@ -951,15 +1147,14 @@ class KtLintTest {
             KtLint.format(
                 KtLint.ExperimentalParams(
                     text = "class Foo",
-                    ruleSets = listOf(
-                        RuleSet(
-                            "standard",
+                    ruleProviders = setOf(
+                        RuleProvider {
                             SimpleTestRule(
                                 id = "stop-traversal",
                                 ruleExecutionCalls = ruleExecutionCalls,
                                 stopTraversalInBeforeFirstNode = true
                             )
-                        )
+                        }
                     ),
                     cb = { _, _ -> }
                 )
@@ -987,9 +1182,8 @@ class KtLintTest {
             KtLint.format(
                 KtLint.ExperimentalParams(
                     text = code,
-                    ruleSets = listOf(
-                        RuleSet(
-                            "standard",
+                    ruleProviders = setOf(
+                        RuleProvider {
                             SimpleTestRule(
                                 id = "stop-traversal",
                                 ruleExecutionCalls = ruleExecutionCalls,
@@ -998,7 +1192,7 @@ class KtLintTest {
                                     node.elementType == CLASS && node.findChildByType(IDENTIFIER)?.text == "Foo"
                                 }
                             )
-                        )
+                        }
                     ),
                     cb = { _, _ -> }
                 )
@@ -1032,9 +1226,8 @@ class KtLintTest {
             KtLint.format(
                 KtLint.ExperimentalParams(
                     text = code,
-                    ruleSets = listOf(
-                        RuleSet(
-                            "standard",
+                    ruleProviders = setOf(
+                        RuleProvider {
                             SimpleTestRule(
                                 id = "stop-traversal",
                                 ruleExecutionCalls = ruleExecutionCalls,
@@ -1043,7 +1236,7 @@ class KtLintTest {
                                     node.elementType == CLASS && node.findChildByType(IDENTIFIER)?.text == "Foo"
                                 }
                             )
-                        )
+                        }
                     ),
                     cb = { _, _ -> }
                 )
@@ -1069,15 +1262,14 @@ class KtLintTest {
             KtLint.format(
                 KtLint.ExperimentalParams(
                     text = "class Foo",
-                    ruleSets = listOf(
-                        RuleSet(
-                            "standard",
+                    ruleProviders = setOf(
+                        RuleProvider {
                             SimpleTestRule(
                                 id = "stop-traversal",
                                 ruleExecutionCalls = ruleExecutionCalls,
                                 stopTraversalInBeforeFirstNode = true
                             )
-                        )
+                        }
                     ),
                     cb = { _, _ -> }
                 )
@@ -1106,7 +1298,7 @@ class KtLintTest {
                         text = "",
                         ruleSets = listOf(
                             RuleSet(
-                                "standard",
+                                "with-state-and-rule-sets",
                                 WithStateRule()
                             )
                         ),

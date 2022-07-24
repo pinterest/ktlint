@@ -2,9 +2,9 @@ package com.pinterest.ktlint.test
 
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.RuleProvider
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.maxLineLengthProperty
 import com.pinterest.ktlint.core.api.EditorConfigOverride
-import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
@@ -28,22 +28,21 @@ import org.assertj.core.api.Assertions.assertThat
  * }
  * ```
  */
-@OptIn(FeatureInAlphaState::class)
 @Suppress("MemberVisibilityCanBePrivate")
 public class KtLintAssertThat(
     /**
-     * The rule which is the subject of the test, e.g. the rule for which the AssertThat is created.
+     * Provider of a rule which is the subject of the test, e.g. the rule for which the AssertThat is created.
      */
-    private val rule: Rule,
+    private val ruleProvider: RuleProvider,
     /**
      * The code which is to be linted and formatted.
      */
     private val code: String,
     /**
-     *  The rules which have to be executed in addition to the main rule when linting/formatting the code. Note that
-     *  lint errors for those rules are suppressed.
+     * Providers of rules which have to be executed in addition to the main rule when linting/formatting the code. Note
+     * that lint errors for those rules are suppressed.
      */
-    private val additionalRules: MutableSet<Rule>
+    private val additionalRuleProviders: MutableSet<RuleProvider>
 ) {
     private var filePath: String? = null
     private var kotlinScript = false
@@ -114,7 +113,7 @@ public class KtLintAssertThat(
      * needed.
      */
     public fun addAdditionalRules(vararg rules: Rule): KtLintAssertThat {
-        additionalRules.addAll(rules)
+        additionalRuleProviders.addAll(rules.map { RuleProvider { it } })
 
         return this
     }
@@ -198,34 +197,40 @@ public class KtLintAssertThat(
     private fun ktLintAssertThatAssertable(): KtLintAssertThatAssertable =
         if (editorConfigProperties.isEmpty()) {
             KtLintAssertThatAssertable(
-                rule = rule,
+                ruleProvider = ruleProvider,
                 code = code,
                 filePath = filePath,
                 kotlinScript = kotlinScript,
                 editorConfigOverride = EditorConfigOverride.emptyEditorConfigOverride,
-                additionalRules = additionalRules.toList()
+                additionalRuleProviders = additionalRuleProviders.toSet()
             )
         } else {
             KtLintAssertThatAssertable(
-                rule = rule,
+                ruleProvider = ruleProvider,
                 code = code,
                 filePath = filePath,
                 kotlinScript = kotlinScript,
                 editorConfigOverride = EditorConfigOverride.from(*editorConfigProperties.toTypedArray()),
-                additionalRules = additionalRules.toList()
+                additionalRuleProviders = additionalRuleProviders.toSet()
             )
         }
 
     public companion object {
         /**
          * Creates an assertThat assertion function for a given rule. This assertion function has extensions
-         * specifically for testing KtLint rules. The [additionalRules] are only executed during the format
-         * phase of the test. This means that the unit test only has to check the lint violations thrown by the rule for
-         * which the assertThat is created. But the code is formatted by both the rule and the
-         * [additionalRules] in the order as defined by the rule definitions.
+         * specifically for testing KtLint rules. The rules provided via [additionalRuleProviders] are only executed
+         * during the format phase of the test. This means that the unit test only has to check the lint violations
+         * thrown by the rule for which the assertThat is created. But the code is formatted by both the rule and the
+         * rules provided by [additionalRuleProviders] in the order as defined by the rule definitions.
          */
-        public fun Rule.assertThat(vararg additionalRules: Rule): (String) -> KtLintAssertThat =
-            { code -> KtLintAssertThat(this, code, additionalRules.toMutableSet()) }
+        public fun Rule.assertThat(vararg additionalRuleProviders: RuleProvider): (String) -> KtLintAssertThat =
+            { code ->
+                KtLintAssertThat(
+                    ruleProvider = RuleProvider { this },
+                    code = code,
+                    additionalRuleProviders = additionalRuleProviders.toMutableSet()
+                )
+            }
 
         /**
          * See [setMaxLineLength] for intended usage.
@@ -244,10 +249,9 @@ public class KtLintAssertThat(
  * [KtLintAssertThatAssertable] which allows no further modifications of the internal state. This guarantees that all
  * assertions operate on the same state.
  */
-@OptIn(FeatureInAlphaState::class)
 public class KtLintAssertThatAssertable(
-    /** The rule which is the subject of the test, e.g. the rule for which the AssertThat is created. */
-    private val rule: Rule,
+    /** The provider of the rule which is the subject of the test, e.g. the rule for which the AssertThat is created. */
+    private val ruleProvider: RuleProvider,
     private val code: String,
     private val filePath: String?,
     private val kotlinScript: Boolean,
@@ -256,8 +260,9 @@ public class KtLintAssertThatAssertable(
      *  The rules which have to be executed in addition to the main rule when linting/formatting the code. Note that
      *  lint errors for those rules are suppressed.
      */
-    private val additionalRules: List<Rule>
+    private val additionalRuleProviders: Set<RuleProvider>
 ) : AbstractAssert<KtLintAssertThatAssertable, String>(code, KtLintAssertThatAssertable::class.java) {
+    private val ruleId = ruleProvider.createNewRuleInstance().id
 
     /**
      * Asserts that the code does not contain any [LintViolation]s caused by the rule associated with the
@@ -288,7 +293,7 @@ public class KtLintAssertThatAssertable(
      * violated.
      */
     public fun hasNoLintViolationsExceptInAdditionalRules(): KtLintAssertThatAssertable {
-        check(additionalRules.isNotEmpty()) {
+        check(additionalRuleProviders.isNotEmpty()) {
             "hasNoLintViolationsExceptInAdditionalRules can only be used when additional rules have been added"
         }
 
@@ -428,10 +433,10 @@ public class KtLintAssertThatAssertable(
     }
 
     private fun List<LintError>.filterAdditionalRulesOnly() =
-        filter { it.ruleId != rule.id }
+        filter { it.ruleId != ruleId }
 
     private fun List<LintError>.filterCurrentRuleOnly() =
-        filter { it.ruleId == rule.id }
+        filter { it.ruleId == ruleId }
 
     private fun List<LintError>.toLintViolationsFields(): Array<LintViolationFields> =
         map {
@@ -444,10 +449,10 @@ public class KtLintAssertThatAssertable(
         }.toTypedArray()
 
     private fun lint(): List<LintError> {
-        return listOf(rule)
+        return setOf(ruleProvider)
             // Also run the additional rules as the main rule might have a VisitorModifier which requires one or more of
             // the additional rules to be loaded and enabled as well.
-            .plus(additionalRules)
+            .plus(additionalRuleProviders)
             .lint(
                 lintedFilePath = filePath,
                 script = kotlinScript,
@@ -457,8 +462,8 @@ public class KtLintAssertThatAssertable(
     }
 
     private fun format(): String =
-        listOf(rule)
-            .plus(additionalRules)
+        setOf(ruleProvider)
+            .plus(additionalRuleProviders)
             .format(
                 lintedFilePath = filePath,
                 script = kotlinScript,
@@ -493,5 +498,4 @@ public data class LintViolation(
     val line: Int,
     val col: Int,
     val detail: String
-//    val canBeAutoCorrected: Boolean = true
 )
