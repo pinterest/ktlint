@@ -106,7 +106,7 @@ When a line is broken at an assignment (`=`) operator the break comes after the 
 
 Rule id: `no-line-break-before-assignment`
 
-## Nu multi spaces
+## No multi spaces
 
 Except in indentation and in KDoc's it is not allowed to have multiple consecutive spaces.
 
@@ -166,11 +166,17 @@ Consistent string templates (`$v` instead of `${v}`, `${p.v}` instead of `${p.v.
 
 Rule id: `string-template`
 
-## Trailing comma
+## Trailing comma on call site
 
-Consistent removal (default) or adding of trailing comma's (both on call and declaration site).
+Consistent removal (default) or adding of trailing comma's on call site.
 
-Rule id: `trailing-comma`
+Rule id: `trailing-comma-on-call-site`
+
+## Trailing comma on declaration site
+
+Consistent removal (default) or adding of trailing comma's on declaration site.
+
+Rule id: `trailing-comma-on-declaration-site`
 
 ## Spacing
 

@@ -129,7 +129,6 @@ public class TrailingCommaOnCallSiteRule :
     }
 
     public companion object {
-
         internal const val ALLOW_TRAILING_COMMA_ON_CALL_SITE_NAME = "ij_kotlin_allow_trailing_comma_on_call_site"
         private const val ALLOW_TRAILING_COMMA_ON_CALL_SITE_DESCRIPTION =
             "Defines whether a trailing comma (or no trailing comma)" +
