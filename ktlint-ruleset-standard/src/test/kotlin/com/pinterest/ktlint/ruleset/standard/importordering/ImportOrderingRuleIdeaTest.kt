@@ -1,12 +1,12 @@
 package com.pinterest.ktlint.ruleset.standard.importordering
 
 import com.pinterest.ktlint.ruleset.standard.ImportOrderingRule
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 class ImportOrderingRuleIdeaTest {
-    private val importOrderingRuleAssertThat = ImportOrderingRule().assertThat()
+    private val importOrderingRuleAssertThat = assertThatRule { ImportOrderingRule() }
 
     @Test
     fun `Given some imports which are sorted incorrectly then do return lint errors`() {

@@ -1,11 +1,11 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 class ModifierOrderRuleTest {
-    private val modifierOrderRuleAssertThat = ModifierOrderRule().assertThat()
+    private val modifierOrderRuleAssertThat = assertThatRule { ModifierOrderRule() }
 
     @Test
     fun `Given class modifiers in incorrect order`() {

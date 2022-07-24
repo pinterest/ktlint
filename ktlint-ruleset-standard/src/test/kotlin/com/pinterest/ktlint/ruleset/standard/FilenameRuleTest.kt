@@ -1,12 +1,12 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 
 class FilenameRuleTest {
-    private val fileNameRuleAssertThat = FilenameRule().assertThat()
+    private val fileNameRuleAssertThat = assertThatRule { FilenameRule() }
 
     @Test
     fun `Given a kotlin script file then ignore it`() {

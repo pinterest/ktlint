@@ -53,12 +53,14 @@ public class FilenameRule : Rule("filename") {
             val filePath = node.getUserData(KtLint.FILE_PATH_USER_DATA_KEY)
             if (filePath?.endsWith(".kt") != true) {
                 // ignore all non ".kt" files (including ".kts")
+                stopTraversalOfAST()
                 return
             }
 
             val fileName = Paths.get(filePath).fileName.toString().substringBefore(".")
             if (fileName == "package") {
                 // ignore package.kt filename
+                stopTraversalOfAST()
                 return
             }
 
@@ -91,6 +93,7 @@ public class FilenameRule : Rule("filename") {
                     fileName.shouldMatchPascalCase(emit)
                 }
             }
+            stopTraversalOfAST()
         }
     }
 

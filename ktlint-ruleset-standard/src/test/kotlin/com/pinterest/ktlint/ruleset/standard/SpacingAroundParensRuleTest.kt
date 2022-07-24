@@ -1,11 +1,11 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 class SpacingAroundParensRuleTest {
-    private val spacingAroundParensRuleAssertThat = SpacingAroundParensRule().assertThat()
+    private val spacingAroundParensRuleAssertThat = assertThatRule { SpacingAroundParensRule() }
 
     @Test
     fun `Issue 369 - Call to super`() {

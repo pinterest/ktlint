@@ -1,10 +1,10 @@
 package com.pinterest.ktlint.ruleset.experimental
 
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import org.junit.jupiter.api.Test
 
 class FunctionReturnTypeSpacingRuleTest {
-    private val functionReturnTypeSpacingRuleAssertThat = FunctionReturnTypeSpacingRule().assertThat()
+    private val functionReturnTypeSpacingRuleAssertThat = assertThatRule { FunctionReturnTypeSpacingRule() }
 
     @Test
     fun `Given a function signature without whitespace between the closing parenthesis and the colon of the return type then do not reformat`() {

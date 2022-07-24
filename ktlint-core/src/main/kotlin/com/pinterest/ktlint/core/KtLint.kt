@@ -12,6 +12,7 @@ import com.pinterest.ktlint.core.internal.PreparedCode
 import com.pinterest.ktlint.core.internal.SuppressionLocatorBuilder
 import com.pinterest.ktlint.core.internal.VisitorProvider
 import com.pinterest.ktlint.core.internal.prepareCodeForLinting
+import com.pinterest.ktlint.core.internal.toQualifiedRuleId
 import java.nio.file.FileSystems
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -33,29 +34,39 @@ public object KtLint {
     internal val editorConfigLoader = EditorConfigLoader(FileSystems.getDefault())
 
     /**
-     * @param fileName path of file to lint/format
-     * @param text Contents of file to lint/format
-     * @param ruleSets a collection of "RuleSet"s used to validate source
-     * @param userData Map of user options. This field is deprecated and will be removed in a future version.
-     * @param cb callback invoked for each lint error
-     * @param script true if this is a Kotlin script file
-     * @param editorConfigPath optional path of the .editorconfig file (otherwise will use working directory)
-     * @param debug True if invoked with the --debug flag
-     * @param editorConfigOverride should contain entries to add/replace from loaded `.editorconfig` files.
+     * Parameters to invoke [KtLint.lint] and [KtLint.format] API's.
+     *
+     * [fileName] path of file to lint/format
+     * [text] Contents of file to lint/format
+     * [ruleSets] a collection of "RuleSet"s used to validate source. This field is deprecated and will be removed in
+     * KtLint 0.48.
+     * [ruleProviders] a collection of [RuleProvider]s used to create new instances of [Rule]s so that it can keep
+     * internal state and be called thread-safe
+     * [userData] Map of user options. This field is deprecated and will be removed in a future version.
+     * [cb] callback invoked for each lint error
+     * [script] true if this is a Kotlin script file
+     * [editorConfigPath] optional path of the .editorconfig file (otherwise will use working directory)
+     * [debug] True if invoked with the --debug flag
+     * [editorConfigOverride] should contain entries to add/replace from loaded `.editorconfig` files.
      *
      * For possible keys check related [Rule]s that implements [UsesEditorConfigProperties] interface.
      *
      * For values use `PropertyType.PropertyValue.valid("override", <expected type>)` approach.
      * It is also possible to set value into "unset" state by using [PropertyType.PropertyValue.UNSET].
      *
-     * @param isInvokedFromCli **For internal use only**: indicates that linting was invoked from KtLint CLI tool.
+     * [isInvokedFromCli] **For internal use only**: indicates that linting was invoked from KtLint CLI tool.
      * Enables some internals workarounds for Kotlin Compiler initialization.
      * Usually you don't need to use it and most probably it will be removed in one of next versions.
      */
     public data class ExperimentalParams(
         val fileName: String? = null,
         val text: String,
-        val ruleSets: Iterable<RuleSet>,
+        @Deprecated(
+            message = "Marked for removal in KtLint 0.48",
+            replaceWith = ReplaceWith("ruleProviders")
+        )
+        val ruleSets: Iterable<RuleSet> = Iterable { emptySet<RuleSet>().iterator() },
+        val ruleProviders: Set<RuleProvider> = emptySet(),
         val userData: Map<String, String> = emptyMap(), // TODO: remove in a future version
         val cb: (e: LintError, corrected: Boolean) -> Unit,
         val script: Boolean = false,
@@ -64,12 +75,37 @@ public object KtLint {
         val editorConfigOverride: EditorConfigOverride = emptyEditorConfigOverride,
         val isInvokedFromCli: Boolean = false
     ) {
+        internal val ruleRunners: Set<RuleRunner> =
+            ruleProviders
+                .map { RuleRunner(it) }
+                .plus(
+                    /** Support backward compatibility for API consumers in KtLint 0.47 by changing rule sets to rule
+                     * providers with limitation that for those rules *no* new instances can be created during
+                     * [KtLint.format].
+                     * KtLint CLI already transforms rules provided by external rule providers to real RuleProviders
+                     * for which new instances can be created. The same workaround is not possible for as
+                     * [KtLint.ExperimentalParams.ruleSets] already contain the created [Rule] instance.
+                     */
+                    // TODO: remove when removing the deprecated ruleSets.
+                    ruleSets
+                        .flatMap { it.rules.toList() }
+                        .map { RuleRunner(createStaticRuleProvider(it)) }
+                ).distinctBy { it.ruleId }
+                .toSet()
+
+        internal fun getRules(): Set<Rule> =
+            ruleRunners
+                .map { it.getRule() }
+                .toSet()
+
         init {
+            require(ruleSets.any() xor ruleProviders.any()) {
+                "Provide exactly one of parameters 'ruleSets' or 'ruleProviders'"
+            }
             // Extract all default and custom ".editorconfig" properties which are registered
             val editorConfigProperties =
-                ruleSets
+                getRules()
                     .asSequence()
-                    .flatten()
                     .filterIsInstance<UsesEditorConfigProperties>()
                     .map { it.editorConfigProperties }
                     .flatten()
@@ -110,13 +146,6 @@ public object KtLint {
             }
 
         internal val isStdIn: Boolean get() = fileName == STDIN_FILE
-
-        internal val rules: Set<Rule>
-            get() = ruleSets
-                .flatMap {
-                    it.rules.toList()
-                }
-                .toSet()
     }
 
     /**
@@ -149,6 +178,7 @@ public object KtLint {
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
+        rule.startTraversalOfAST()
         rule.beforeFirstNode(editorConfigProperties)
         this.executeRuleOnNodeRecursively(rootNode, rule, fqRuleId, autoCorrect, emit)
         rule.afterLastNode()
@@ -161,29 +191,31 @@ public object KtLint {
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        try {
-            rule.beforeVisitChildNodes(node, autoCorrect, emit)
-            if (!rule.runsOnRootNodeOnly()) {
-                node
-                    .getChildren(null)
-                    .forEach { childNode ->
-                        // https://github.com/shyiko/ktlint/issues/158#issuecomment-462728189
-                        // fixme: enforcing suppression based on node.startOffset is wrong (not just because not all nodes are leaves
-                        //  but because rules are free to emit (and fix!) errors at any position)
-                        if (!suppressedRegionLocator(childNode.startOffset, fqRuleId, childNode === rootNode)) {
-                            this.executeRuleOnNodeRecursively(childNode, rule, fqRuleId, autoCorrect, emit)
+        if (rule.shouldContinueTraversalOfAST()) {
+            try {
+                rule.beforeVisitChildNodes(node, autoCorrect, emit)
+                if (!rule.runsOnRootNodeOnly() && rule.shouldContinueTraversalOfAST()) {
+                    node
+                        .getChildren(null)
+                        .forEach { childNode ->
+                            // https://github.com/shyiko/ktlint/issues/158#issuecomment-462728189
+                            // fixme: enforcing suppression based on node.startOffset is wrong (not just because not all nodes are leaves
+                            //  but because rules are free to emit (and fix!) errors at any position)
+                            if (!suppressedRegionLocator(childNode.startOffset, fqRuleId, childNode === rootNode)) {
+                                this.executeRuleOnNodeRecursively(childNode, rule, fqRuleId, autoCorrect, emit)
+                            }
                         }
-                    }
-            }
-            rule.afterVisitChildNodes(node, autoCorrect, emit)
-        } catch (e: Exception) {
-            if (autoCorrect) {
-                // line/col cannot be reliably mapped as exception might originate from a node not present in the
-                // original AST
-                throw RuleExecutionException(0, 0, fqRuleId, e)
-            } else {
-                val (line, col) = positionInTextLocator(node.startOffset)
-                throw RuleExecutionException(line, col, fqRuleId, e)
+                }
+                rule.afterVisitChildNodes(node, autoCorrect, emit)
+            } catch (e: Exception) {
+                if (autoCorrect) {
+                    // line/col cannot be reliably mapped as exception might originate from a node not present in the
+                    // original AST
+                    throw RuleExecutionException(0, 0, fqRuleId, e)
+                } else {
+                    val (line, col) = positionInTextLocator(node.startOffset)
+                    throw RuleExecutionException(line, col, fqRuleId, e)
+                }
             }
         }
     }
@@ -307,7 +339,7 @@ public object KtLint {
                 ?: codeStyleSetProperty.defaultValue
         return EditorConfigGenerator(editorConfigLoader).generateEditorconfig(
             filePath,
-            params.rules,
+            params.getRules(),
             params.debug,
             codeStyle
         )
@@ -322,3 +354,70 @@ public object KtLint {
         }
     }
 }
+
+internal class RuleRunner(private val provider: RuleProvider) {
+    private var rule = provider.createNewRuleInstance()
+
+    internal val qualifiedRuleId = rule.toQualifiedRuleId()
+    internal val shortenedQualifiedRuleId = qualifiedRuleId.removePrefix("standard:")
+
+    internal val ruleId = rule.id
+    internal val ruleSetId = qualifiedRuleId.substringBefore(':')
+
+    val runOnRootNodeOnly =
+        rule.visitorModifiers.contains(Rule.VisitorModifier.RunOnRootNodeOnly)
+    val runAsLateAsPossible = rule.visitorModifiers.contains(Rule.VisitorModifier.RunAsLateAsPossible)
+    var runAfterRule = setRunAfterRule()
+
+    /**
+     * Gets the [Rule]. If the [Rule] has already been used for traversal of the AST, a new instance of the [Rule] is
+     * provided. This prevents leakage of the state of the Rule between executions.
+     */
+    internal fun getRule(): Rule {
+        if (rule.isUsedForTraversalOfAST()) {
+            rule = provider.createNewRuleInstance()
+        }
+        return rule
+    }
+
+    private fun setRunAfterRule(): Rule.VisitorModifier.RunAfterRule? =
+        rule
+            .visitorModifiers
+            .find { it is Rule.VisitorModifier.RunAfterRule }
+            ?.let {
+                val runAfterRuleVisitorModifier = it as Rule.VisitorModifier.RunAfterRule
+                val qualifiedAfterRuleId = runAfterRuleVisitorModifier.ruleId.toQualifiedRuleId()
+                check(qualifiedRuleId != qualifiedAfterRuleId) {
+                    // Do not print the fully qualified rule id in the error message as it might not appear in the code
+                    // in case it is a rule from the 'standard' rule set.
+                    "Rule with id '${rule.id}' has a visitor modifier of type " +
+                        "'${Rule.VisitorModifier.RunAfterRule::class.simpleName}' but it is not referring to another " +
+                        "rule but to the rule itself. A rule can not run after itself. This should be fixed by the " +
+                        "maintainer of the rule."
+                }
+                runAfterRuleVisitorModifier.copy(
+                    ruleId = qualifiedAfterRuleId
+                )
+            }
+
+    internal fun clearRunAfterRule() {
+        require(!rule.isUsedForTraversalOfAST()) {
+            "RunAfterRule can not be cleared when rule has already been used for traversal of the AST"
+        }
+        runAfterRule = null
+    }
+}
+
+/**
+ * This provider is added for backward compatibility of KtLint 0.47 so that API consumers can either use
+ * [KtLint.ExperimentalParams.ruleSets] or [KtLint.ExperimentalParams.ruleProviders] per [RuleSetProvider]. This method
+ * created a [RuleProvider] which returns a *static* instance of a rule and should only be used for rules provided via
+ * [KtLint.ExperimentalParams.ruleSets].
+ * * Rules provided by this [RuleProvider] might leak state between the first and second invocation of the rule when
+ * running [KtLint.format]. It is assumed that [Rule] implementations offered by 'KtLint 0.46.x' and custom rule set
+ * providers are not suffering any problems at this moment as this architectural bug exists in KtLint for quite a long
+ * * Note that [KtLint.ExperimentalParams.ruleSets] and this helper method will be removed in KtLint 0.48.
+ */
+@Deprecated(message = "Remove when 'ruleSets' are removed")
+private fun createStaticRuleProvider(rule: Rule) =
+    RuleProvider { rule }

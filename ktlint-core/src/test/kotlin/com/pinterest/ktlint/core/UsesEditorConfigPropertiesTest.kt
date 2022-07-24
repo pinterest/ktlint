@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.core
 
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.disabledRulesProperty
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentSizeProperty
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.maxLineLengthProperty
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
@@ -143,6 +144,20 @@ class UsesEditorConfigPropertiesTest {
         }
     }
 
+    @Test
+    fun `Given that editor config property disabled_rules is set and has spacing around the comma, then retrieve the list without those spaces'`() {
+        val editorConfigProperties = createEditorConfigPropertiesFrom(
+            disabledRulesProperty,
+            "$RULE_A, $RULE_B,$RULE_C , $RULE_D"
+        )
+
+        val actual = with(EditorConfigPropertiesTester(disabledRulesProperty)) {
+            editorConfigProperties.getEditorConfigValue(disabledRulesProperty)
+        }
+
+        assertThat(actual).isEqualTo("$RULE_A,$RULE_B,$RULE_C,$RULE_D")
+    }
+
     class EditorConfigPropertiesTester<T>(
         editorConfigProperty: UsesEditorConfigProperties.EditorConfigProperty<T>
     ) : UsesEditorConfigProperties {
@@ -150,6 +165,10 @@ class UsesEditorConfigPropertiesTest {
     }
 
     private companion object {
+        const val RULE_A = "rule-a"
+        const val RULE_B = "rule-b"
+        const val RULE_C = "rule-c"
+        const val RULE_D = "rule-d"
         const val SOME_INTEGER_VALUE = 123
         val ANDROID_CODE_STYLE = createEditorConfigPropertiesFrom(
             DefaultEditorConfigProperties.codeStyleSetProperty,

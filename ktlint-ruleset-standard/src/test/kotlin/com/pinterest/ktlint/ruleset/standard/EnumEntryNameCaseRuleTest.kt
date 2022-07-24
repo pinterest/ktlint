@@ -1,11 +1,11 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 class EnumEntryNameCaseRuleTest {
-    private val enumEntryNameCaseRuleAssertThat = EnumEntryNameCaseRule().assertThat()
+    private val enumEntryNameCaseRuleAssertThat = assertThatRule { EnumEntryNameCaseRule() }
 
     @Test
     fun `Given enum values in upper-underscores notation are allowed`() {

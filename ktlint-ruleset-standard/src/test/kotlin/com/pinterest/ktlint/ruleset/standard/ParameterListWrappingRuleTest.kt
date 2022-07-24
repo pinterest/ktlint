@@ -1,18 +1,21 @@
 package com.pinterest.ktlint.ruleset.standard
 
+import com.pinterest.ktlint.core.RuleProvider
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.maxLineLengthProperty
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 class ParameterListWrappingRuleTest {
     private val parameterListWrappingRuleAssertThat =
-        ParameterListWrappingRule()
-            .assertThat(
+        assertThatRule(
+            provider = { ParameterListWrappingRule() },
+            additionalRuleProviders = setOf(
                 // Apply the IndentationRule always as additional rule, so that the formattedCode in the unit test looks
                 // correct.
-                IndentationRule()
+                RuleProvider { IndentationRule() }
             )
+        )
 
     @Test
     fun `Given a class with parameters on multiple lines then put each parameter and closing parenthesis on a separate line`() {
@@ -182,7 +185,7 @@ class ParameterListWrappingRuleTest {
                     ClassB(paramA, paramB, paramC)
                 }
             """.trimIndent()
-        val parameterListWrappingRuleWithoutIndentationRule = ParameterListWrappingRule().assertThat()
+        val parameterListWrappingRuleWithoutIndentationRule = assertThatRule { ParameterListWrappingRule() }
         parameterListWrappingRuleWithoutIndentationRule(code).hasNoLintViolations()
         // IndentationRule does alter the code while the code is accepted by the Default IDEA formatter. So statement
         // below would fail!

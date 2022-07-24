@@ -47,7 +47,7 @@ internal fun prepareCodeForLinting(params: KtLint.ExperimentalParams): PreparedC
         params.normalizedFilePath,
         params.isStdIn,
         params.editorConfigPath?.let { Paths.get(it) },
-        params.rules,
+        params.getRules(),
         params.editorConfigOverride,
         params.debug
     )

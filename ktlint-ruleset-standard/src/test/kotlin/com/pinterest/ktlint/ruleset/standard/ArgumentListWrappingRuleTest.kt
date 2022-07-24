@@ -1,14 +1,14 @@
 package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.maxLineLengthProperty
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class ArgumentListWrappingRuleTest {
-    private val argumentListWrappingRuleAssertThat = ArgumentListWrappingRule().assertThat()
+    private val argumentListWrappingRuleAssertThat = assertThatRule { ArgumentListWrappingRule() }
 
     @Test
     fun `Given a function call and not all arguments are on the same line`() {
@@ -58,7 +58,7 @@ class ArgumentListWrappingRuleTest {
             )
             """.trimIndent()
         argumentListWrappingRuleAssertThat(code)
-            .addAdditionalRules(IndentationRule())
+            .addAdditionalRuleProvider { IndentationRule() }
             .hasLintViolations(
                 LintViolation(2, 9, "Argument should be on a separate line (unless all arguments can fit a single line)"),
                 LintViolation(2, 14, "Argument should be on a separate line (unless all arguments can fit a single line)"),
@@ -197,7 +197,7 @@ class ArgumentListWrappingRuleTest {
                 )
             """.trimIndent()
         argumentListWrappingRuleAssertThat(code)
-            .addAdditionalRules(IndentationRule())
+            .addAdditionalRuleProvider { IndentationRule() }
             .hasLintViolations(
                 LintViolation(3, 18, "Argument should be on a separate line (unless all arguments can fit a single line)"),
                 LintViolation(5, 6, "Missing newline before \")\""),
@@ -279,7 +279,7 @@ class ArgumentListWrappingRuleTest {
             }
             """.trimIndent()
         argumentListWrappingRuleAssertThat(code)
-            .addAdditionalRules(IndentationRule())
+            .addAdditionalRuleProvider { IndentationRule() }
             .hasLintViolations(
                 LintViolation(2, 10, "Argument should be on a separate line (unless all arguments can fit a single line)"),
                 LintViolation(2, 19, "Argument should be on a separate line (unless all arguments can fit a single line)"),
@@ -355,7 +355,7 @@ class ArgumentListWrappingRuleTest {
             }
             """.trimIndent()
         argumentListWrappingRuleAssertThat(code)
-            .addAdditionalRules(IndentationRule())
+            .addAdditionalRuleProvider { IndentationRule() }
             .hasLintViolations(
                 LintViolation(4, 21, "Argument should be on a separate line (unless all arguments can fit a single line)"),
                 LintViolation(7, 10, "Missing newline before \")\"")

@@ -1,12 +1,12 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.SPACE
 import com.pinterest.ktlint.test.TAB
 import org.junit.jupiter.api.Test
 
 class NoMultipleSpacesRuleTest {
-    private val noMultipleSpacesRuleAssertThat = NoMultipleSpacesRule().assertThat()
+    private val noMultipleSpacesRuleAssertThat = assertThatRule { NoMultipleSpacesRule() }
 
     @Test
     fun `Given a whitespace element not being an indent containing multiple spaces then replace it with a single space`() {

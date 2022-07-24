@@ -2,8 +2,7 @@ package com.pinterest.ktlint.test
 
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.LintError
-import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.RuleSet
+import com.pinterest.ktlint.core.RuleProvider
 import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ktlint.core.setDefaultLoggerModifier
@@ -40,29 +39,25 @@ private const val KTLINT_UNIT_TEST_TRACE = "KTLINT_UNIT_TEST_TRACE"
 private const val KTLINT_UNIT_TEST_DUMP_AST = "KTLINT_UNIT_TEST_DUMP_AST"
 private const val KTLINT_UNIT_TEST_ON_PROPERTY = "ON"
 
-private fun List<Rule>.toRuleSets(): List<RuleSet> {
-    val dumpAstRuleSet = System
+private fun Set<RuleProvider>.toRuleProviders(): Set<RuleProvider> {
+    val dumpAstRuleProvider = System
         .getenv(KTLINT_UNIT_TEST_DUMP_AST)
         .orEmpty()
         .equals(KTLINT_UNIT_TEST_ON_PROPERTY, ignoreCase = true)
         .ifTrue {
             logger.info { "Dump AST of code before processing as System environment variable $KTLINT_UNIT_TEST_DUMP_AST is set to 'on'" }
-            RuleSet(
-                "debug",
+            RuleProvider {
                 DumpASTRule(
                     // Write to STDOUT. The focus in a failed unit test should first go to the error in the rule that is
                     // to be tested and not to the AST,
                     out = System.out
                 )
-            )
+            }
         }
-    return this
-        .groupBy { it.id.substringBefore(":", "standard") }
-        .map { (ruleSetId, rules) -> RuleSet(ruleSetId, *rules.toTypedArray()) }
-        .plus(listOfNotNull(dumpAstRuleSet))
+    return this.plus(setOfNotNull(dumpAstRuleProvider))
 }
 
-public fun List<Rule>.lint(
+public fun Set<RuleProvider>.lint(
     lintedFilePath: String? = null,
     text: String,
     editorConfigOverride: EditorConfigOverride = EditorConfigOverride.emptyEditorConfigOverride,
@@ -73,7 +68,7 @@ public fun List<Rule>.lint(
     val experimentalParams = KtLint.ExperimentalParams(
         fileName = lintedFilePath,
         text = text,
-        ruleSets = toRuleSets(),
+        ruleProviders = this.toRuleProviders(),
         editorConfigOverride = editorConfigOverride,
         userData = userData,
         script = script,
@@ -85,7 +80,7 @@ public fun List<Rule>.lint(
     return res
 }
 
-public fun List<Rule>.format(
+public fun Set<RuleProvider>.format(
     lintedFilePath: String?,
     text: String,
     editorConfigOverride: EditorConfigOverride = EditorConfigOverride.emptyEditorConfigOverride,
@@ -96,7 +91,7 @@ public fun List<Rule>.format(
     val experimentalParams = KtLint.ExperimentalParams(
         fileName = lintedFilePath,
         text = text,
-        ruleSets = this.toRuleSets(),
+        ruleProviders = this.toRuleProviders(),
         editorConfigOverride = editorConfigOverride,
         userData = userData,
         script = script,

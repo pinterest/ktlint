@@ -6,6 +6,8 @@ import com.pinterest.ktlint.core.ast.ElementType
 import org.assertj.core.api.Assertions.assertThat
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 
 class DisabledRulesTest {
     @Test
@@ -15,7 +17,9 @@ class DisabledRulesTest {
                 KtLint.lint(
                     KtLint.ExperimentalParams(
                         text = "var foo",
-                        ruleSets = listOf(RuleSet("standard", NoVarRule())),
+                        ruleProviders = setOf(
+                            RuleProvider { NoVarRule("no-var") }
+                        ),
                         cb = { e, _ -> add(e) }
                     )
                 )
@@ -27,6 +31,37 @@ class DisabledRulesTest {
         )
     }
 
+    @ParameterizedTest(name = "RuleId: {0}, Disabled ruleId: {1}")
+    @CsvSource(
+        value = [
+            "no-var,no-var",
+            "no-var,standard:no-var",
+            "standard:no-var,no-var",
+            "standard:no-var,standard:no-var",
+            "experimental:no-var,experimental:no-var",
+            "custom:no-var,custom:no-var"
+        ]
+    )
+    fun `Given some code and a disabled standard rule then no violation is reported`(
+        ruleId: String,
+        disabledRuleId: String
+    ) {
+        assertThat(
+            ArrayList<LintError>().apply {
+                KtLint.lint(
+                    KtLint.ExperimentalParams(
+                        text = "var foo",
+                        ruleProviders = setOf(
+                            RuleProvider { NoVarRule(ruleId) }
+                        ),
+                        cb = { e, _ -> add(e) },
+                        editorConfigOverride = EditorConfigOverride.from(disabledRulesProperty to disabledRuleId)
+                    )
+                )
+            }
+        ).isEmpty()
+    }
+
     @Test
     fun `Given some code and a disabled standard rule then no violation is reported`() {
         assertThat(
@@ -34,7 +69,9 @@ class DisabledRulesTest {
                 KtLint.lint(
                     KtLint.ExperimentalParams(
                         text = "var foo",
-                        ruleSets = listOf(RuleSet("standard", NoVarRule())),
+                        ruleProviders = setOf(
+                            RuleProvider { NoVarRule("no-var") }
+                        ),
                         cb = { e, _ -> add(e) },
                         editorConfigOverride = EditorConfigOverride.from(disabledRulesProperty to "no-var")
                     )
@@ -50,7 +87,9 @@ class DisabledRulesTest {
                 KtLint.lint(
                     KtLint.ExperimentalParams(
                         text = "var foo",
-                        ruleSets = listOf(RuleSet("experimental", NoVarRule())),
+                        ruleProviders = setOf(
+                            RuleProvider { NoVarRule("experimental:no-var") }
+                        ),
                         cb = { e, _ -> add(e) },
                         editorConfigOverride = EditorConfigOverride.from(disabledRulesProperty to "experimental:no-var")
                     )
@@ -59,7 +98,7 @@ class DisabledRulesTest {
         ).isEmpty()
     }
 
-    class NoVarRule : Rule("no-var") {
+    class NoVarRule(id: String) : Rule(id) {
         override fun beforeVisitChildNodes(
             node: ASTNode,
             autoCorrect: Boolean,
