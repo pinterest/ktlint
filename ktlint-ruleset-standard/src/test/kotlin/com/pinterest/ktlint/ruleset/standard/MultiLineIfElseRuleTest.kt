@@ -1,11 +1,11 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 class MultiLineIfElseRuleTest {
-    private val multiLineIfElseRuleAssertThat = MultiLineIfElseRule().assertThat()
+    private val multiLineIfElseRuleAssertThat = assertThatRule { MultiLineIfElseRule() }
 
     @Test
     fun `Given an if-statement with curly braces on single line`() {
@@ -424,7 +424,7 @@ class MultiLineIfElseRuleTest {
             }
             """.trimIndent()
         multiLineIfElseRuleAssertThat(code)
-            .addAdditionalRules(IndentationRule())
+            .addAdditionalRuleProvider { IndentationRule() }
             .hasLintViolations(
                 LintViolation(4, 9, "Missing { ... }"),
                 LintViolation(7, 9, "Missing { ... }")
@@ -453,7 +453,7 @@ class MultiLineIfElseRuleTest {
             }
             """.trimIndent()
         multiLineIfElseRuleAssertThat(code)
-            .addAdditionalRules(IndentationRule())
+            .addAdditionalRuleProvider { IndentationRule() }
             .hasLintViolations(
                 LintViolation(3, 9, "Missing { ... }"),
                 LintViolation(5, 9, "Missing { ... }")

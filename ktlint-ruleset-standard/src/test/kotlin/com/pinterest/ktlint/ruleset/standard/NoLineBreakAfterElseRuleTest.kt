@@ -1,10 +1,10 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import org.junit.jupiter.api.Test
 
 class NoLineBreakAfterElseRuleTest {
-    private val noLineBreakAfterElseRuleAssertThat = NoLineBreakAfterElseRule().assertThat()
+    private val noLineBreakAfterElseRuleAssertThat = assertThatRule { NoLineBreakAfterElseRule() }
 
     @Test
     fun `Given an else-if with a linebreak between the else and if then do return a lint error`() {

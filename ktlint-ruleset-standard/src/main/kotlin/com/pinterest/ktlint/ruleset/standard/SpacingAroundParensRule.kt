@@ -24,7 +24,7 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
  */
 class SpacingAroundParensRule : Rule("paren-spacing") {
 
-    override fun visit(
+    override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit

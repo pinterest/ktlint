@@ -1,11 +1,11 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 class AnnotationSpacingRuleTest {
-    private val annotationSpacingRuleAssertThat = AnnotationSpacingRule().assertThat()
+    private val annotationSpacingRuleAssertThat = assertThatRule { AnnotationSpacingRule() }
 
     @Test
     fun `Given an annotation on the line above the annotated object`() {

@@ -1,10 +1,11 @@
 package com.pinterest.ktlint.ruleset.experimental
 
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat
 import org.junit.jupiter.api.Test
 
 class SpacingBetweenFunctionNameAndOpeningParenthesisRuleTest {
-    private val spacingBetweenFunctionNameAndOpeningParenthesisRuleAssertThat = SpacingBetweenFunctionNameAndOpeningParenthesisRule().assertThat()
+    private val spacingBetweenFunctionNameAndOpeningParenthesisRuleAssertThat =
+        KtLintAssertThat.assertThatRule { SpacingBetweenFunctionNameAndOpeningParenthesisRule() }
 
     @Test
     fun `Given a function signature without whitespace between function name and opening parenthesis then do not reformat`() {

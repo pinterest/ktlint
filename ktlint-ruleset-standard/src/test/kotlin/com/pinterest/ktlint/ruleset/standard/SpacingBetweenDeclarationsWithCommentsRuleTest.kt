@@ -1,10 +1,11 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import org.junit.jupiter.api.Test
 
 class SpacingBetweenDeclarationsWithCommentsRuleTest {
-    private val spacingBetweenDeclarationsWithCommentsRuleAssertThat = SpacingBetweenDeclarationsWithCommentsRule().assertThat()
+    private val spacingBetweenDeclarationsWithCommentsRuleAssertThat =
+        assertThatRule { SpacingBetweenDeclarationsWithCommentsRule() }
 
     @Test
     fun `Given an EOL comment at top of file should do nothing`() {

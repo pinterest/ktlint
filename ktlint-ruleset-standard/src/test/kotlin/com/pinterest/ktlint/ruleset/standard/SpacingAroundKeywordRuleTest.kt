@@ -1,10 +1,10 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import org.junit.jupiter.api.Test
 
 class SpacingAroundKeywordRuleTest {
-    private val spacingAroundKeywordRuleAssertThat = SpacingAroundKeywordRule().assertThat()
+    private val spacingAroundKeywordRuleAssertThat = assertThatRule { SpacingAroundKeywordRule() }
 
     @Test
     fun `Given an if-statement without space after the if`() {

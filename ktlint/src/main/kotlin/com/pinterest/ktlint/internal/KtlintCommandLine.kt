@@ -8,8 +8,7 @@ import com.pinterest.ktlint.core.ParseException
 import com.pinterest.ktlint.core.Reporter
 import com.pinterest.ktlint.core.ReporterProvider
 import com.pinterest.ktlint.core.RuleExecutionException
-import com.pinterest.ktlint.core.RuleSet
-import com.pinterest.ktlint.core.RuleSetProvider
+import com.pinterest.ktlint.core.RuleProvider
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.codeStyleSetProperty
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.disabledRulesProperty
 import com.pinterest.ktlint.core.api.EditorConfigOverride
@@ -211,10 +210,17 @@ internal class KtlintCommandLine {
 
         failOnOldRulesetProviderUsage()
 
+        // Set default value to patterns only after the logger has been configured to avoid a warning about initializing
+        // the logger multiple times
+        if (patterns.isEmpty()) {
+            logger.info { "Enable default patterns $defaultPatterns" }
+            patterns = ArrayList(defaultPatterns)
+        }
+
         val start = System.currentTimeMillis()
 
         val baselineResults = loadBaseline(baseline)
-        val ruleSetProviders = rulesetJarFiles.loadRuleSets(experimental, debug, disabledRules)
+        val ruleProviders = rulesetJarFiles.loadRuleProviders(experimental, debug, disabledRules)
         var reporter = loadReporter()
         if (baselineResults.baselineGenerationNeeded) {
             val baselineReporter = ReporterTemplate("baseline", null, emptyMap(), baseline)
@@ -232,16 +238,20 @@ internal class KtlintCommandLine {
 
         reporter.beforeAll()
         if (stdin) {
-            lintStdin(ruleSetProviders, editorConfigOverride, reporter)
+            lintStdin(ruleProviders, editorConfigOverride, reporter)
         } else {
             lintFiles(
-                ruleSetProviders,
+                ruleProviders,
                 editorConfigOverride,
                 baselineResults.baselineRules,
                 reporter
             )
         }
         reporter.afterAll()
+        if (fileNumber.get() == 0) {
+            logger.error { "No files matched $patterns" }
+            exitProcess(1)
+        }
         logger.debug { "${System.currentTimeMillis() - start}ms / $fileNumber file(s) / $errorNumber error(s)" }
         if (tripped.get()) {
             exitProcess(1)
@@ -261,7 +271,7 @@ internal class KtlintCommandLine {
             .initKtLintKLogger()
 
     private fun lintFiles(
-        ruleSetProviders: Map<String, RuleSetProvider>,
+        ruleProviders: Set<RuleProvider>,
         editorConfigOverride: EditorConfigOverride,
         baseline: Map<String, List<LintError>>?,
         reporter: Reporter
@@ -271,22 +281,20 @@ internal class KtlintCommandLine {
             .map { it.toFile() }
             .takeWhile { errorNumber.get() < limit }
             .map { file ->
-                val ruleSets = ruleSetProviders.map { it.value.get() }
                 Callable {
                     file to process(
                         file.path,
                         file.readText(),
                         editorConfigOverride,
                         baseline?.get(file.relativeRoute),
-                        ruleSets
+                        ruleProviders
                     )
                 }
-            }
-            .parallel({ (file, errList) -> report(file.location(relative), errList, reporter) })
+            }.parallel({ (file, errList) -> report(file.location(relative), errList, reporter) })
     }
 
     private fun lintStdin(
-        ruleSetProviders: Map<String, RuleSetProvider>,
+        ruleProviders: Set<RuleProvider>,
         editorConfigOverride: EditorConfigOverride,
         reporter: Reporter
     ) {
@@ -297,7 +305,7 @@ internal class KtlintCommandLine {
                 String(System.`in`.readBytes()),
                 editorConfigOverride,
                 null,
-                ruleSetProviders.map { it.value.get() }
+                ruleProviders
             ),
             reporter
         )
@@ -345,7 +353,7 @@ internal class KtlintCommandLine {
         fileContent: String,
         editorConfigOverride: EditorConfigOverride,
         baselineErrors: List<LintError>?,
-        ruleSets: Iterable<RuleSet>
+        ruleProviders: Set<RuleProvider>
     ): List<LintErrorWithCorrectionInfo> {
         logger.trace {
             val fileLocation = if (fileName != KtLint.STDIN_FILE) File(fileName).location(relative) else fileName
@@ -357,7 +365,7 @@ internal class KtlintCommandLine {
                 formatFile(
                     fileName,
                     fileContent,
-                    ruleSets,
+                    ruleProviders,
                     editorConfigOverride,
                     editorConfigPath,
                     debug
@@ -386,7 +394,7 @@ internal class KtlintCommandLine {
                 lintFile(
                     fileName,
                     fileContent,
-                    ruleSets,
+                    ruleProviders,
                     editorConfigOverride,
                     editorConfigPath,
                     debug

@@ -1,12 +1,12 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
 class NoUnitReturnRuleTest {
-    private val noUnitReturnRuleAssertThat = NoUnitReturnRule().assertThat()
+    private val noUnitReturnRuleAssertThat = assertThatRule { NoUnitReturnRule() }
 
     @Test
     fun `Given a function that does not have a return type then do no return a lint error`() {

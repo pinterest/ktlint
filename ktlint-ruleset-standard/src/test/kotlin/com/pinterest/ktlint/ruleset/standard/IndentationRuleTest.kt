@@ -2,7 +2,7 @@ package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentSizeProperty
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentStyleProperty
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE
 import com.pinterest.ktlint.test.SPACE
@@ -17,7 +17,7 @@ import org.junit.jupiter.params.provider.ValueSource
 
 @Suppress("RemoveCurlyBracesFromTemplate")
 internal class IndentationRuleTest {
-    private val indentationRuleAssertThat = IndentationRule().assertThat()
+    private val indentationRuleAssertThat = assertThatRule { IndentationRule() }
 
     @Nested
     inner class MultilineValueDeclaration {
@@ -1999,7 +1999,7 @@ internal class IndentationRuleTest {
             """.trimIndent()
                 .replacePlaceholderWithStringTemplate()
         indentationRuleAssertThat(code)
-            .addAdditionalRules(WrappingRule())
+            .addAdditionalRuleProvider { WrappingRule() }
             .hasLintViolations(
                 LintViolation(3, 1, "Unexpected indentation (4) (should be 8)"),
                 LintViolation(4, 1, "Unexpected indentation (4) (should be 8)")
@@ -2037,7 +2037,7 @@ internal class IndentationRuleTest {
             }
             """.trimIndent()
         indentationRuleAssertThat(code)
-            .addAdditionalRules(WrappingRule())
+            .addAdditionalRuleProvider { WrappingRule() }
             .hasLintViolations(
                 LintViolation(5, 1, "Unexpected indent of multiline string closing quotes"),
                 LintViolation(7, 1, "Unexpected indent of multiline string closing quotes")
@@ -2077,7 +2077,7 @@ internal class IndentationRuleTest {
             """.trimIndent()
                 .replacePlaceholderWithStringTemplate()
         indentationRuleAssertThat(code)
-            .addAdditionalRules(WrappingRule())
+            .addAdditionalRuleProvider { WrappingRule() }
             .hasLintViolations(
                 LintViolation(3, 1, "Unexpected indentation (0) (should be 8)"),
                 LintViolation(4, 1, "Unexpected indentation (4) (should be 8)"),
@@ -2658,7 +2658,7 @@ internal class IndentationRuleTest {
                 }
                 """.trimIndent()
             indentationRuleAssertThat(code)
-                .addAdditionalRules(WrappingRule())
+                .addAdditionalRuleProvider { WrappingRule() }
                 .hasLintViolations(
                     LintViolation(2, 1, "Unexpected indentation (0) (should be 4)"),
                     LintViolation(6, 1, "Unexpected indent of multiline string closing quotes")
@@ -2719,7 +2719,7 @@ internal class IndentationRuleTest {
                 }
                 """.trimIndent()
             indentationRuleAssertThat(code)
-                .addAdditionalRules(WrappingRule())
+                .addAdditionalRuleProvider { WrappingRule() }
                 .hasLintViolation(6, 1, "Unexpected indent of multiline string closing quotes")
                 .isFormattedAs(formattedCode)
         }
@@ -2889,7 +2889,7 @@ internal class IndentationRuleTest {
                 }
                 """.trimIndent()
             indentationRuleAssertThat(code)
-                .addAdditionalRules(WrappingRule())
+                .addAdditionalRuleProvider { WrappingRule() }
                 .hasLintViolation(6, 1, "Unexpected indent of multiline string closing quotes")
                 .isFormattedAs(formattedCode)
         }
@@ -3904,6 +3904,46 @@ internal class IndentationRuleTest {
                             .filterNotNull()
                             .joinToString()
                     }
+                """.trimIndent()
+            indentationRuleAssertThat(code).hasNoLintViolations()
+        }
+    }
+
+    @Nested
+    inner class SuppressionInMiddleOfFile {
+        @Test
+        fun `Issue 631 - Given some code for which indentation is disabled with ktlint-disable-enable-block then do not fix indentation of that block only`() {
+            val code =
+                """
+                val fooWithIndentationFixing1: String =
+                    "foo" +
+                        "bar"
+                // ktlint-disable indent
+                val fooWithIndentationFixingSuppressed: String =
+                    "foo" +
+                    "bar"
+                // ktlint-enable indent
+                val fooWithIndentationFixing2: String =
+                    "foo" +
+                        "bar"
+                """.trimIndent()
+            indentationRuleAssertThat(code).hasNoLintViolations()
+        }
+
+        @Test
+        fun `Issue 631 - Given some code for which indentation is disabled with @Suppress on an element then do not fix indentation of that element only`() {
+            val code =
+                """
+                val fooWithIndentationFixing1: String =
+                    "foo" +
+                        "bar"
+                @Suppress("ktlint:indent")
+                val fooWithIndentationFixingSuppressed: String =
+                    "foo" +
+                    "bar"
+                val fooWithIndentationFixing2: String =
+                    "foo" +
+                        "bar"
                 """.trimIndent()
             indentationRuleAssertThat(code).hasNoLintViolations()
         }

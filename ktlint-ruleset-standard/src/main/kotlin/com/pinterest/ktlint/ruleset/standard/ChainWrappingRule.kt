@@ -40,7 +40,7 @@ class ChainWrappingRule : Rule("chain-wrapping") {
     private val nextLineTokens = TokenSet.create(DOT, SAFE_ACCESS, ELVIS)
     private val noSpaceAroundTokens = TokenSet.create(DOT, SAFE_ACCESS)
 
-    override fun visit(
+    override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
