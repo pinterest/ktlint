@@ -46,11 +46,14 @@ public class ParameterListWrappingRule :
     private var maxLineLength = -1
 
     override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
+        maxLineLength = editorConfigProperties.getEditorConfigValue(maxLineLengthProperty)
         indentConfig = IndentConfig(
             indentStyle = editorConfigProperties.getEditorConfigValue(indentStyleProperty),
             tabWidth = editorConfigProperties.getEditorConfigValue(indentSizeProperty)
         )
-        maxLineLength = editorConfigProperties.getEditorConfigValue(maxLineLengthProperty)
+        if (indentConfig.disabled) {
+            stopTraversalOfAST()
+        }
     }
 
     override fun beforeVisitChildNodes(
@@ -58,10 +61,6 @@ public class ParameterListWrappingRule :
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        if (indentConfig.disabled) {
-            return
-        }
-
         when (node.elementType) {
             NULLABLE_TYPE -> wrapNullableType(node, emit, autoCorrect)
             VALUE_PARAMETER_LIST -> {

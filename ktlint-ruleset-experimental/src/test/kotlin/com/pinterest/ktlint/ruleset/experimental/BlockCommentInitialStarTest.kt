@@ -1,11 +1,11 @@
 package com.pinterest.ktlint.ruleset.experimental
 
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 class BlockCommentInitialStarTest {
-    private val blockCommentInitialStarAlignmentRuleAssertThat = BlockCommentInitialStarAlignmentRule().assertThat()
+    private val blockCommentInitialStarAlignmentRuleAssertThat = assertThatRule { BlockCommentInitialStarAlignmentRule() }
 
     @Test
     fun `Given a block comment for which the indentation followed by the star already aligns with the star in the first line of the block comment then do not reformat`() {

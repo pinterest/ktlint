@@ -1,13 +1,13 @@
 package com.pinterest.ktlint.ruleset.experimental
 
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class FunctionStartOfBodySpacingRuleTest {
-    private val functionStartOfBodySpacingRuleAssertThat = FunctionStartOfBodySpacingRule().assertThat()
+    private val functionStartOfBodySpacingRuleAssertThat = assertThatRule { FunctionStartOfBodySpacingRule() }
 
     @Nested
     @DisplayName("Given a function signature followed by an expression body")

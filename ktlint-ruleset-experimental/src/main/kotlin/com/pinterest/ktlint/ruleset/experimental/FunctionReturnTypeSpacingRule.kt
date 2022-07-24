@@ -16,6 +16,7 @@ public class FunctionReturnTypeSpacingRule : Rule("$experimentalRulesetId:functi
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
+        node.firstChildNode
         node
             .takeIf { node.elementType == FUN }
             ?.let { node.findChildByType(COLON) }

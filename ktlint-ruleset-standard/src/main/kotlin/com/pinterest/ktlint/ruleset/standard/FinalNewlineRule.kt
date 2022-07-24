@@ -24,13 +24,16 @@ public class FinalNewlineRule :
         insertFinalNewline = editorConfigProperties.getEditorConfigValue(insertNewLineProperty)
     }
 
-    override fun afterVisitChildNodes(
+    override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         if (node.isRoot()) {
-            if (node.textLength == 0) return
+            if (node.textLength == 0) {
+                stopTraversalOfAST()
+                return
+            }
             val lastNode = lastChildNodeOf(node)
             if (insertFinalNewline) {
                 if (lastNode !is PsiWhiteSpace || !lastNode.textContains('\n')) {
@@ -48,6 +51,7 @@ public class FinalNewlineRule :
                 }
             }
         }
+        stopTraversalOfAST()
     }
 
     private tailrec fun lastChildNodeOf(node: ASTNode): ASTNode? =

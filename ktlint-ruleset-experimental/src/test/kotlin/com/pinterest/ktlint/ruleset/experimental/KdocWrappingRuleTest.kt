@@ -1,11 +1,11 @@
 package com.pinterest.ktlint.ruleset.experimental
 
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 class KdocWrappingRuleTest {
-    private val kdocWrappingRuleAssertThat = KdocWrappingRule().assertThat()
+    private val kdocWrappingRuleAssertThat = assertThatRule { KdocWrappingRule() }
 
     @Test
     fun `Given a single line KDoc comment that start starts and end on a separate line then do not reformat`() {

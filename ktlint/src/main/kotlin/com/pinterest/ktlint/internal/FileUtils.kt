@@ -2,7 +2,7 @@ package com.pinterest.ktlint.internal
 
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.LintError
-import com.pinterest.ktlint.core.RuleSet
+import com.pinterest.ktlint.core.RuleProvider
 import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.initKtLintKLogger
 import java.io.File
@@ -14,6 +14,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
+import kotlin.io.path.isDirectory
 import kotlin.system.exitProcess
 import kotlin.system.measureTimeMillis
 import mu.KotlinLogging
@@ -22,23 +23,27 @@ import org.jetbrains.kotlin.util.prefixIfNot
 private val logger = KotlinLogging.logger {}.initKtLintKLogger()
 
 internal val workDir: String = File(".").canonicalPath
+
 private val tildeRegex = Regex("^(!)?~")
+private const val NEGATION_PREFIX = "!"
 
 private val os = System.getProperty("os.name")
 private val userHome = System.getProperty("user.home")
 
-internal val defaultPatterns = setOf(
-    "**$globSeparator*.kt",
-    "**$globSeparator*.kts"
-)
+private val defaultKotlinFileExtensions = setOf("kt", "kts")
+internal val defaultPatterns = defaultKotlinFileExtensions.map { "**$globSeparator*.$it" }
 
+/**
+ * Transform the [patterns] to a sequence of files. Each element in [patterns] can be a glob, a file or directory path
+ * relative to the [rootDir] or a absolute file or directory path.
+ */
 internal fun FileSystem.fileSequence(
-    globs: List<String>,
+    patterns: List<String>,
     rootDir: Path = Paths.get(".").toAbsolutePath().normalize()
 ): Sequence<Path> {
     val result = mutableListOf<Path>()
 
-    val (existingFiles, actualGlobs) = globs.partition {
+    val (existingFiles, patternsExclusiveExistingFiles) = patterns.partition {
         try {
             Files.isRegularFile(rootDir.resolve(it))
         } catch (e: InvalidPathException) {
@@ -49,30 +54,28 @@ internal fun FileSystem.fileSequence(
     existingFiles.mapTo(result) { rootDir.resolve(it) }
 
     // Return early and don't traverse the file system if all the input globs are absolute paths
-    if (result.isNotEmpty() && actualGlobs.isEmpty()) {
+    if (result.isNotEmpty() && patternsExclusiveExistingFiles.isEmpty()) {
         return result.asSequence()
     }
 
-    val pathMatchers = if (actualGlobs.isEmpty()) {
+    val globs = expand(patternsExclusiveExistingFiles, rootDir)
+
+    val pathMatchers = if (globs.isEmpty()) {
         defaultPatterns
             .map { getPathMatcher("glob:$it") }
             .toSet()
     } else {
-        actualGlobs
-            .filterNot { it.startsWith("!") }
-            .map {
-                getPathMatcher(toGlob(it))
-            }
+        globs
+            .filterNot { it.startsWith(NEGATION_PREFIX) }
+            .map { getPathMatcher(it) }
     }
 
-    val negatedPathMatchers = if (actualGlobs.isEmpty()) {
+    val negatedPathMatchers = if (globs.isEmpty()) {
         emptySet()
     } else {
-        actualGlobs
-            .filter { it.startsWith("!") }
-            .map {
-                getPathMatcher(toGlob(it.removePrefix("!")))
-            }
+        globs
+            .filter { it.startsWith(NEGATION_PREFIX) }
+            .map { getPathMatcher(it.removePrefix(NEGATION_PREFIX)) }
     }
 
     logger.debug {
@@ -123,26 +126,53 @@ internal fun FileSystem.fileSequence(
     return result.asSequence()
 }
 
-private fun FileSystem.isGlobAbsolutePath(glob: String): Boolean {
-    val rootDirs = rootDirectories.map { it.toString() }
-    return rootDirs.any { glob.removePrefix("!").startsWith(it) }
-}
+private fun FileSystem.expand(
+    patterns: List<String>,
+    rootDir: Path
+) =
+    patterns
+        .map { it.expandTildeToFullPath() }
+        .map { it.replace(File.separator, globSeparator) }
+        .flatMap { path -> toGlob(path, rootDir) }
 
-internal fun FileSystem.toGlob(pattern: String): String {
-    val expandedPath = if (os.startsWith("windows", true)) {
-        // Windows sometimes inserts `~` into paths when using short directory names notation, e.g. `C:\Users\USERNA~1\Documents
-        pattern
+private fun FileSystem.toGlob(
+    path: String,
+    rootDir: Path
+): List<String> {
+    val negation = if (path.startsWith(NEGATION_PREFIX)) {
+        NEGATION_PREFIX
     } else {
-        expandTilde(pattern)
-    }.replace(File.separator, globSeparator)
-
-    val fullPath = if (isGlobAbsolutePath(expandedPath)) {
-        expandedPath
-    } else {
-        expandedPath.prefixIfNot("**$globSeparator")
+        ""
     }
-    return "glob:$fullPath"
+    val pathWithoutNegationPrefix = path.removePrefix(NEGATION_PREFIX)
+    val resolvedPath = try {
+        rootDir.resolve(pathWithoutNegationPrefix)
+    } catch (e: InvalidPathException) {
+        // Windows throws an exception when you pass a glob to Path#resolve.
+        null
+    }
+    val expandedGlobs = if (resolvedPath != null && resolvedPath.isDirectory()) {
+        getDefaultPatternsForPath(resolvedPath)
+    } else if (isGlobAbsolutePath(pathWithoutNegationPrefix)) {
+        listOf(pathWithoutNegationPrefix)
+    } else {
+        listOf(pathWithoutNegationPrefix.prefixIfNot("**$globSeparator"))
+    }
+    return expandedGlobs.map { "${negation}glob:$it" }
 }
+
+private fun getDefaultPatternsForPath(path: Path?) = defaultKotlinFileExtensions
+    .flatMap {
+        listOf(
+            "$path$globSeparator*.$it",
+            "$path$globSeparator**$globSeparator*.$it"
+        )
+    }
+
+private fun FileSystem.isGlobAbsolutePath(glob: String) =
+    rootDirectories
+        .map { it.toString() }
+        .any { glob.startsWith(it) }
 
 private val globSeparator: String get() =
     when {
@@ -156,7 +186,7 @@ private val globSeparator: String get() =
 internal typealias JarFiles = List<String>
 
 internal fun JarFiles.toFilesURIList() = map {
-    val jarFile = File(expandTilde(it))
+    val jarFile = File(it.expandTildeToFullPath())
     if (!jarFile.exists()) {
         logger.error { "File $it does not exist" }
         exitProcess(1)
@@ -166,7 +196,13 @@ internal fun JarFiles.toFilesURIList() = map {
 
 // a complete solution would be to implement https://www.gnu.org/software/bash/manual/html_node/Tilde-Expansion.html
 // this implementation takes care only of the most commonly used case (~/)
-private fun expandTilde(path: String): String = path.replaceFirst(tildeRegex, userHome)
+private fun String.expandTildeToFullPath(): String =
+    if (os.startsWith("windows", true)) {
+        // Windows sometimes inserts `~` into paths when using short directory names notation, e.g. `C:\Users\USERNA~1\Documents
+        this
+    } else {
+        replaceFirst(tildeRegex, userHome)
+    }
 
 internal fun File.location(
     relative: Boolean
@@ -178,7 +214,7 @@ internal fun File.location(
 internal fun lintFile(
     fileName: String,
     fileContents: String,
-    ruleSets: Iterable<RuleSet>,
+    ruleProviders: Set<RuleProvider>,
     editorConfigOverride: EditorConfigOverride,
     editorConfigPath: String? = null,
     debug: Boolean = false,
@@ -187,7 +223,7 @@ internal fun lintFile(
     KtLint.ExperimentalParams(
         fileName = fileName,
         text = fileContents,
-        ruleSets = ruleSets,
+        ruleProviders = ruleProviders,
         script = !fileName.endsWith(".kt", ignoreCase = true),
         editorConfigOverride = editorConfigOverride,
         editorConfigPath = editorConfigPath,
@@ -205,7 +241,7 @@ internal fun lintFile(
 internal fun formatFile(
     fileName: String,
     fileContents: String,
-    ruleSets: Iterable<RuleSet>,
+    ruleProviders: Set<RuleProvider>,
     editorConfigOverride: EditorConfigOverride,
     editorConfigPath: String?,
     debug: Boolean,
@@ -215,7 +251,7 @@ internal fun formatFile(
         KtLint.ExperimentalParams(
             fileName = fileName,
             text = fileContents,
-            ruleSets = ruleSets,
+            ruleProviders = ruleProviders,
             script = !fileName.endsWith(".kt", ignoreCase = true),
             editorConfigOverride = editorConfigOverride,
             editorConfigPath = editorConfigPath,

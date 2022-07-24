@@ -1,12 +1,12 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class SpacingAroundCurlyRuleTest {
-    private val spacingAroundCurlyRuleAssertThat = SpacingAroundCurlyRule().assertThat()
+    private val spacingAroundCurlyRuleAssertThat = assertThatRule { SpacingAroundCurlyRule() }
 
     @Test
     fun `Given some function without spaces around the curly braces`() {

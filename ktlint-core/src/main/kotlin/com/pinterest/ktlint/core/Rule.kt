@@ -5,21 +5,29 @@ import com.pinterest.ktlint.core.internal.IdNamingPolicy
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 /**
- * A rule contract.
+ * The [Rule] contains the life cycle hooks which are needed for the KtLint rule engine.
  *
- * Implementation **doesn't** have to be thread-safe or stateless
- * (provided [RuleSetProvider] creates a new instance on each `get()` call).
- *
- * @param id: For non-standard rules, it is expected that this id consist of the ruleSetId and ruleId, e.g. "some-rule-set-id:some-rule-id"
- * @param visitorModifiers: set of modifiers of the visitor. Preferably a rule has no modifiers at all, meaning that it
- * is completely independent of all other rules.
- *
- * @see RuleSet
+ * Implementation **doesn't** have to be thread-safe or stateless (provided that [RuleSetProviderV2] creates a new
+ * instance of the [Rule] when [RuleSetProviderV2.getRuleProviders] has implemented its [RuleProvider] in such a way
+ * that each call to [RuleProvider.createNewRuleInstance] indeed creates a new instance. The KtLint engine never
+ * re-uses a [Rule] instance once is has been used for traversal of the AST of a file.
  */
 public open class Rule(
-    val id: String,
+    /**
+     * Identification of the rule. Except for rules in the "standard" rule set, this id needs to be prefixed with the
+     * identifier of the rule set (e.g. "some-rule-set-id:some-rule-id") to avoid naming conflicts with referring to the
+     * rule (e.g. in [Rule.VisitorModifier.RunAfterRule] and in enable/disable rule suppression directives).
+     */
+    public val id: String,
+
+    /**
+     * Set of modifiers of the visitor. Preferably a rule has no modifiers at all, meaning that it is completely
+     * independent of all other rules.
+     */
     public val visitorModifiers: Set<VisitorModifier> = emptySet()
 ) {
+    private var traversalState = TraversalState.NOT_STARTED
+
     init {
         IdNamingPolicy.enforceRuleIdNaming(id)
     }
@@ -87,6 +95,65 @@ public open class Rule(
      * of the rule.
      */
     public open fun afterLastNode() {}
+
+    /**
+     * Checks whether [Rule] instance has not yet being used for traversal of the AST.
+     */
+    internal fun isUsedForTraversalOfAST() =
+        traversalState != TraversalState.NOT_STARTED
+
+    /**
+     * Marks the [Rule] instance as being used for traversal of an AST. From this moment on, this instance of the [Rule]
+     * can not be used to start a new traversal of the same or another AST as the instance might contain state.
+     */
+    internal fun startTraversalOfAST() {
+        traversalState = TraversalState.CONTINUE
+    }
+
+    /**
+     * Checks whether the next node in the AST is to be traversed. By default, the entire AST is traversed.
+     */
+    internal fun shouldContinueTraversalOfAST() =
+        traversalState == TraversalState.CONTINUE
+
+    /**
+     * Stops traversal of the AST. Intended usage it to prevent parsing of the remainder of the AST once the goal of the
+     * rule is achieved. For example, if the ".editorconfig" property indent_size is set to 0 or -1 then the indent rule
+     * should be disabled.
+     *
+     * When called in [beforeFirstNode], no AST nodes will be visited. [afterLastNode] is still called.
+     *
+     * When called in [beforeVisitChildNodes], the child nodes of that node will not be visited. [afterVisitChildNodes]
+     * is still called for the node and each of its parent nodes. Other nodes in the AST will not be visited. Finally
+     * [afterLastNode] is called.
+     *
+     * When called in [afterVisitChildNodes] the child nodes of that node are already visited. [afterVisitChildNodes] is
+     * still called for each of its parent nodes. Other nodes in the AST will not be visited. Finally [afterLastNode] is
+     * called.
+     *
+     * Calling in [afterLastNode] has no effect as traversal of the AST has already been completed.
+     */
+    public fun stopTraversalOfAST() {
+        traversalState = TraversalState.STOP
+    }
+
+    private enum class TraversalState {
+        /**
+         * Traversal of the AST is not started. As no life cycle hooks of the [Rule] have been executed, the [Rule]
+         * instance can not contain state specific for the AST.
+         */
+        NOT_STARTED,
+
+        /**
+         * Traversal of the AST is started and should be continued with next node.
+         */
+        CONTINUE,
+
+        /**
+         * Stops traversal of yet unvisited nodes in the AST. See [stopTraversalOfAST] for more details.
+         */
+        STOP
+    }
 
     sealed class VisitorModifier {
 

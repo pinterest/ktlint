@@ -1,11 +1,11 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 class SpacingAroundUnaryOperatorRuleTest {
-    private val spacingAroundUnaryOperatorRuleAssertThat = SpacingAroundUnaryOperatorRule().assertThat()
+    private val spacingAroundUnaryOperatorRuleAssertThat = assertThatRule { SpacingAroundUnaryOperatorRule() }
 
     @Test
     fun `Given the '++' operator`() {

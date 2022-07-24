@@ -1,11 +1,11 @@
 package com.pinterest.ktlint.ruleset.experimental
 
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 class FunctionTypeReferenceSpacingRuleTest {
-    private val functionTypeReferenceSpacingRuleAssertThat = FunctionTypeReferenceSpacingRule().assertThat()
+    private val functionTypeReferenceSpacingRuleAssertThat = assertThatRule { FunctionTypeReferenceSpacingRule() }
 
     @Test
     fun `Given a function signature with whitespace after a non nullable type reference of an extension function then remove this whitespace`() {

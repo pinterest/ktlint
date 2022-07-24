@@ -1,7 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType.BY_KEYWORD
 import com.pinterest.ktlint.core.ast.ElementType.DOT_QUALIFIED_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.FILE
@@ -29,21 +28,14 @@ import org.jetbrains.kotlin.resolve.ImportPath
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
 public class NoUnusedImportsRule : Rule("no-unused-imports") {
-    private val ref = mutableSetOf<Reference>()
+    private val ref = mutableSetOf(
+        Reference("*", false)
+    )
     private val parentExpressions = mutableSetOf<String>()
     private val imports = mutableMapOf<ImportPath, ASTNode>()
     private var packageName = ""
     private var rootNode: ASTNode? = null
     private var foundByKeyword = false
-
-    override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
-        // Rule can potentially be executed more than once (when formatting), so clear state first
-        ref.clear()
-        ref.add(Reference("*", false))
-        parentExpressions.clear()
-        imports.clear()
-        foundByKeyword = false
-    }
 
     override fun beforeVisitChildNodes(
         node: ASTNode,

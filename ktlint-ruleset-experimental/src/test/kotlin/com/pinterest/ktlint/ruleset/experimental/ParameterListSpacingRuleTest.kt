@@ -1,12 +1,12 @@
 package com.pinterest.ktlint.ruleset.experimental
 
 import com.pinterest.ktlint.ruleset.standard.CommentSpacingRule
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 class ParameterListSpacingRuleTest {
-    private val parameterListSpacingRuleAssertThat = ParameterListSpacingRule().assertThat()
+    private val parameterListSpacingRuleAssertThat = assertThatRule { ParameterListSpacingRule() }
 
     @Test
     fun `Given a function signature which does not contain redundant spaces then do no reformat`() {
@@ -74,7 +74,7 @@ class ParameterListSpacingRuleTest {
             )
             """.trimIndent()
         parameterListSpacingRuleAssertThat(code)
-            .addAdditionalRules(CommentSpacingRule())
+            .addAdditionalRuleProvider { CommentSpacingRule() }
             .hasLintViolationForAdditionalRule(1, 42, "Missing space before //")
     }
 

@@ -126,6 +126,9 @@ public class IndentationRule :
             indentStyle = editorConfigProperties.getEditorConfigValue(indentStyleProperty),
             tabWidth = editorConfigProperties.getEditorConfigValue(indentSizeProperty)
         )
+        if (indentConfig.disabled) {
+            stopTraversalOfAST()
+        }
     }
 
     override fun beforeVisitChildNodes(
@@ -133,10 +136,6 @@ public class IndentationRule :
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        if (indentConfig.disabled) {
-            return
-        }
-
         if (node.isRoot()) {
             val firstNotEmptyLeaf = node.nextLeaf()
             if (firstNotEmptyLeaf?.let { it.elementType == WHITE_SPACE && !it.textContains('\n') } == true) {
@@ -364,10 +363,6 @@ public class IndentationRule :
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        if (indentConfig.disabled) {
-            return
-        }
-
         when (node.elementType) {
             SUPER_TYPE_LIST ->
                 adjustExpectedIndentAfterSuperTypeList(node)

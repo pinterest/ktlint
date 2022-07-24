@@ -3,7 +3,7 @@ package com.pinterest.ktlint.core.internal
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.RuleSet
+import com.pinterest.ktlint.core.RuleProvider
 import com.pinterest.ktlint.core.ast.ElementType
 import org.assertj.core.api.Assertions.assertThat
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -220,11 +220,11 @@ class SuppressionLocatorBuilderTest {
             KtLint.lint(
                 KtLint.ExperimentalParams(
                     text = code,
-                    ruleSets = listOf(
+                    ruleProviders = setOf(
                         // The same rule is supplied once a standard rule and once as non-standard rule. Note that the
                         // ruleIds are different.
-                        RuleSet(STANDARD_RULE_SET_ID, NoFooIdentifierRule("no-foo-identifier-standard")),
-                        RuleSet(NON_STANDARD_RULE_SET_ID, NoFooIdentifierRule("no-foo-identifier"))
+                        RuleProvider { NoFooIdentifierRule("no-foo-identifier-standard") },
+                        RuleProvider { NoFooIdentifierRule("$NON_STANDARD_RULE_SET_ID:no-foo-identifier") }
                     ),
                     cb = { e, _ -> add(e) }
                 )

@@ -1,11 +1,11 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 class SpacingAroundDoubleColonRuleTest {
-    private val spacingAroundDoubleColonRuleAssertThat = SpacingAroundDoubleColonRule().assertThat()
+    private val spacingAroundDoubleColonRuleAssertThat = assertThatRule { SpacingAroundDoubleColonRule() }
 
     @Test
     fun `Given some variable declarations holding a class literal reference`() {

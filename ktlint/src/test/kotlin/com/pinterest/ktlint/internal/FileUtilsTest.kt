@@ -13,6 +13,10 @@ import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.DisabledOnOs
+import org.junit.jupiter.api.condition.OS
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 
 /**
  * Tests for [fileSequence] method.
@@ -196,26 +200,34 @@ internal class FileUtilsFileSequenceTest {
         )
     }
 
-    @Test
-    fun `transforming globs with leading tilde`() {
-        assumeTrue(
-            System
-                .getProperty("os.name")
-                .lowercase(Locale.getDefault())
-                .startsWith("linux")
+    // Jimfs does not currently support the Windows syntax for an absolute path on the current drive (e.g. "\foo\bar")
+    @DisabledOnOs(OS.WINDOWS)
+    @ParameterizedTest(name = "Pattern: {0}")
+    @ValueSource(
+        strings = [
+            "~/project/src/main/kotlin/One.kt",
+            "~/project/src/main/kotlin/*.kt",
+            "~/project/src/main/kotlin/",
+            "~/project/src/main/kotlin",
+            "~/project/src/main/**/*.kt"
+        ]
+    )
+    fun `Given a non-Windows OS and a pattern that starts with a tilde then transform the globs to the user home directory`(
+        pattern: String
+    ) {
+        val homeDir = System.getProperty("user.home")
+        val filePath = "$homeDir/project/src/main/kotlin/One.kt".normalizePath()
+        tempFileSystem.createFile(filePath)
+
+        val foundFiles = getFiles(
+            patterns = listOf(pattern.normalizeGlob())
         )
 
-        val glob = tempFileSystem.toGlob(
-            "~/project/src/main/kotlin/One.kt"
-        )
-        val homeDir = System.getProperty("user.home")
-        assertThat(glob).isEqualTo(
-            "glob:$homeDir/project/src/main/kotlin/One.kt"
-        )
+        assertThat(foundFiles).containsExactlyInAnyOrder(filePath)
     }
 
     @Test
-    fun `Given a pattern containing ** and a workdir without subdirectories then find all files in that workdir`() {
+    fun `Given a pattern containing a double star and a workdir without subdirectories then find all files in that workdir`() {
         val foundFiles = getFiles(
             patterns = listOf(
                 "**/*.kt".normalizeGlob()
@@ -227,6 +239,44 @@ internal class FileUtilsFileSequenceTest {
             ktFile1InProjectSubDirectory,
             ktFile2InProjectSubDirectory
         )
+    }
+
+    // Jimfs does not currently support the Windows syntax for an absolute path on the current drive (e.g. "\foo\bar")
+    @DisabledOnOs(OS.WINDOWS)
+    @Test
+    fun `Given a (relative) directory path (but not a glob) from the workdir then find all files in that workdir and it subdirectories having the default kotlin extensions`() {
+        val foundFiles = getFiles(
+            patterns = listOf("src/main/kotlin".normalizeGlob()),
+            rootDir = tempFileSystem.getPath("${rootDir}project1".normalizePath())
+        )
+
+        assertThat(foundFiles).containsExactlyInAnyOrder(
+            ktFile1InProjectSubDirectory,
+            ktFile2InProjectSubDirectory
+        ).doesNotContain(
+            javaFileInProjectSubDirectory
+        )
+    }
+
+    @Test
+    fun `Given the Windows OS and some unescaped globs including a negate pattern and no workdir then ignore all files in the negate pattern`() {
+        assumeTrue(
+            System
+                .getProperty("os.name")
+                .lowercase(Locale.getDefault())
+                .startsWith("windows")
+        )
+
+        val foundFiles = getFiles(
+            patterns = listOf(
+                "project1\\src\\**\\*.kt".normalizeGlob(),
+                "!project1\\src\\**\\example\\*.kt".normalizeGlob()
+            )
+        )
+
+        assertThat(foundFiles)
+            .containsExactlyInAnyOrder(ktFile1InProjectSubDirectory)
+            .doesNotContain(ktFile2InProjectSubDirectory)
     }
 
     private fun String.normalizePath() = replace('/', File.separatorChar)

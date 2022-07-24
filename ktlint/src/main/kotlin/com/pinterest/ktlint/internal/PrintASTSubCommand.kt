@@ -2,7 +2,7 @@ package com.pinterest.ktlint.internal
 
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.ParseException
-import com.pinterest.ktlint.core.RuleSet
+import com.pinterest.ktlint.core.RuleProvider
 import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.emptyEditorConfigOverride
 import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ruleset.test.DumpASTRule
@@ -41,12 +41,6 @@ internal class PrintASTSubCommand : Runnable {
     )
     private var stdin: Boolean = false
 
-    private val astRuleSet by lazy(LazyThreadSafetyMode.NONE) {
-        listOf(
-            RuleSet("debug", DumpASTRule(System.out, ktlintCommand.color))
-        )
-    }
-
     override fun run() {
         commandSpec.commandLine().printCommandLineHelpOrVersionUsage()
 
@@ -78,7 +72,9 @@ internal class PrintASTSubCommand : Runnable {
             lintFile(
                 fileName = fileName,
                 fileContents = fileContent,
-                ruleSets = astRuleSet,
+                ruleProviders = setOf(
+                    RuleProvider { DumpASTRule(System.out, ktlintCommand.color) }
+                ),
                 editorConfigOverride = emptyEditorConfigOverride,
                 debug = ktlintCommand.debug
             )

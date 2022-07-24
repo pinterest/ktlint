@@ -1,11 +1,11 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 class SpacingAroundCommaRuleTest {
-    private val spacingAroundCommaRuleAssertThat = SpacingAroundCommaRule().assertThat()
+    private val spacingAroundCommaRuleAssertThat = assertThatRule { SpacingAroundCommaRule() }
 
     @Test
     fun `Given some parameter list not having a parameter after the comma`() {
