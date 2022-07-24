@@ -215,7 +215,7 @@ class RuleRunnerSorterTest {
         )
     }
 
-    @ParameterizedTest(name = "Rule id: {0}, expected result: {1}")
+    @ParameterizedTest(name = "Rule id: {0}")
     @ValueSource(
         strings = [
             RULE_A,

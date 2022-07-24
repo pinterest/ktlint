@@ -211,7 +211,7 @@ internal class EditorConfigGeneratorTest {
             autoCorrect: Boolean,
             emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
         ) {
-            TODO("Not yet implemented")
+            throw UnsupportedOperationException("This method is not expected to be called")
         }
     }
 

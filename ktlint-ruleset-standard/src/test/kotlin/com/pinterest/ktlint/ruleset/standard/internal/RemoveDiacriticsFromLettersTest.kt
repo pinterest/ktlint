@@ -5,7 +5,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 
 class RemoveDiacriticsFromLettersTest {
-    @ParameterizedTest(name = "Original character: {0}, expected result: {1}")
+    @ParameterizedTest(name = "Original character: {0}")
     @ValueSource(
         strings = [
             "àáâäæãåā",

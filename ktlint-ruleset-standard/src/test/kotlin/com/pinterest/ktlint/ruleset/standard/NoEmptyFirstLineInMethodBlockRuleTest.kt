@@ -96,7 +96,7 @@ class NoEmptyFirstLineInMethodBlockRuleTest {
             fun fooBuilder() = object : Foo {
 
                 override fun foo() {
-                    TODO()
+                    bar()
                 }
             }
             """.trimIndent()
