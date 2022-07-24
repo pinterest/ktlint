@@ -58,7 +58,7 @@ A good starting point is to read the help page:
 ktlint --help
 ```
 
-When no arguments are specified, the style of all Kotlin files (ending with '.kt' or '.kts') inside the current dir (recursively) are validated with the rules from the [standard ruleset](https://ktlint.github.io/rules/standard/). Hidden folders will be skipped.
+When no arguments are specified, the style of all Kotlin files (ending with '.kt' or '.kts') inside the current dir (recursively) are validated with the rules from the [standard ruleset](https://pinterest.github.io/ktlint/rules/standard/). Hidden folders will be skipped.
 
 ```shell title="Default validation with standard ruleset"
 ktlint

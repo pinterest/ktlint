@@ -1100,8 +1100,8 @@ path/to/file.kt
 path/to/another-file.kt
   1:10 Unnecessary semicolon.
 ```   
-- [string-template](https://ktlint.github.io/#rule-string-template),  
-[no-empty-class-body](https://ktlint.github.io/#rule-empty-class-body),  
+- [string-template](https://pinterest.github.io/ktlint/rules/standard/#string-template),  
+[no-empty-class-body](https://pinterest.github.io/ktlint/rules/standard/#no-empty-class-bodies),  
 max-line-length ([#47](https://github.com/shyiko/ktlint/issues/47)),  
 final-newline (activated only if `insert_final_newline` is set in `.editorconfig` (under `[*.{kt,kts}]`)) rules.
 - `--limit` CLI option (e.g. use `--limit=10` to limit the number of errors to display).
@@ -1162,8 +1162,8 @@ set in `[*{kt,kts}]` section).
 
 ### Added
 
-- [no-unit-return](https://ktlint.github.io/#rule-unit-return) rule.
-- [modifier-order](https://ktlint.github.io/#rule-modifier-order) rule ([#42](https://github.com/shyiko/ktlint/issues/42)).
+- [no-unit-return](https://pinterest.github.io/ktlint/rules/standard/#no-unit-as-return-type) rule.
+- [modifier-order](https://pinterest.github.io/ktlint/rules/standard/#modifier-order) rule ([#42](https://github.com/shyiko/ktlint/issues/42)).
 - `else/catch/finally` on the same line as `}` check (now part of "keyword-spacing" rule).
 - `ktlint-intellij-idea-integration` binary for easy Intellij IDEA config injection.
 
