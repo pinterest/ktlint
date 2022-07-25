@@ -315,4 +315,3 @@ public class TrailingCommaOnCallSiteRule :
         )
     }
 }
-
