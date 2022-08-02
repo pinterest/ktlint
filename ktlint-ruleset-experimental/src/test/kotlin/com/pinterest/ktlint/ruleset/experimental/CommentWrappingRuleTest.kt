@@ -1,11 +1,11 @@
 package com.pinterest.ktlint.ruleset.experimental
 
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 class CommentWrappingRuleTest {
-    private val commentWrappingRuleAssertThat = CommentWrappingRule().assertThat()
+    private val commentWrappingRuleAssertThat = assertThatRule { CommentWrappingRule() }
 
     @Test
     fun `Given a single line block comment that start starts and end on a separate line then do not reformat`() {
@@ -90,7 +90,11 @@ class CommentWrappingRuleTest {
             val foo /* some comment */ = "foo"
             """.trimIndent()
         commentWrappingRuleAssertThat(code)
-            .hasLintViolationWithoutAutoCorrect(1, 9, "A block comment in between other elements on the same line is disallowed")
+            .hasLintViolationWithoutAutoCorrect(
+                1,
+                9,
+                "A block comment in between other elements on the same line is disallowed"
+            )
     }
 
     @Test

@@ -1,10 +1,10 @@
 package com.pinterest.ktlint.ruleset.experimental
 
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import org.junit.jupiter.api.Test
 
 class DiscouragedCommentLocationTest {
-    private val discouragedCommentLocationRuleAssertThat = DiscouragedCommentLocationRule().assertThat()
+    private val discouragedCommentLocationRuleAssertThat = assertThatRule { DiscouragedCommentLocationRule() }
 
     @Test
     fun `Given an EOL comment after a type parameter then report a discouraged comment location`() {

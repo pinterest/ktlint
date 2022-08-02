@@ -1,10 +1,10 @@
 package com.pinterest.ktlint.ruleset.experimental
 
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import org.junit.jupiter.api.Test
 
 class NullableTypeSpacingRuleTest {
-    private val nullableTypeSpacingRuleAssertThat = NullableTypeSpacingRule().assertThat()
+    private val nullableTypeSpacingRuleAssertThat = assertThatRule { NullableTypeSpacingRule() }
 
     @Test
     fun `Given a simple nullable type with a space before the quest then remove this space`() {

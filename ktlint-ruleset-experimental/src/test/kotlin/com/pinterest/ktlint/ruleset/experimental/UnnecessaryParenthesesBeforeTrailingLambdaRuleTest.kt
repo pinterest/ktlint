@@ -1,10 +1,11 @@
 package com.pinterest.ktlint.ruleset.experimental
 
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import org.junit.jupiter.api.Test
 
 class UnnecessaryParenthesesBeforeTrailingLambdaRuleTest {
-    private val unnecessaryParenthesesBeforeTrailingLambdaRuleAssertThat = UnnecessaryParenthesesBeforeTrailingLambdaRule().assertThat()
+    private val unnecessaryParenthesesBeforeTrailingLambdaRuleAssertThat =
+        assertThatRule { UnnecessaryParenthesesBeforeTrailingLambdaRule() }
 
     @Test
     fun `Remove unnecessary parentheses in function call followed by lambda`() {

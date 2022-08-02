@@ -1,9 +1,9 @@
 package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType.IMPORT_DIRECTIVE
-import com.pinterest.ktlint.core.ast.isRoot
 import com.pinterest.ktlint.ruleset.standard.internal.importordering.PatternEntry
 import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -12,20 +12,21 @@ import org.jetbrains.kotlin.psi.KtImportDirective
 public class NoWildcardImportsRule :
     Rule("no-wildcard-imports"),
     UsesEditorConfigProperties {
-    private var allowedWildcardImports: List<PatternEntry> = emptyList()
-
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
         packagesToUseImportOnDemandProperty
     )
 
-    override fun visit(
+    private lateinit var allowedWildcardImports: List<PatternEntry>
+
+    override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
+        allowedWildcardImports = editorConfigProperties.getEditorConfigValue(packagesToUseImportOnDemandProperty)
+    }
+
+    override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        if (node.isRoot()) {
-            allowedWildcardImports = node.getEditorConfigValue(packagesToUseImportOnDemandProperty)
-        }
         if (node.elementType == IMPORT_DIRECTIVE) {
             val importDirective = node.psi as KtImportDirective
             val path = importDirective.importPath ?: return

@@ -28,7 +28,7 @@ import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 
 class SpacingAroundColonRule : Rule("colon-spacing") {
 
-    override fun visit(
+    override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit

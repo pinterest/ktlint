@@ -4,13 +4,134 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+### API Changes & RuleSet providers
+
+If you are not an API consumer nor a RuleSet provider, then you can safely skip this section. Otherwise, please read below carefully and upgrade your usage of ktlint. In this and coming releases, we are changing and adapting important parts of our API in order to increase maintainability and flexibility for future changes. Please avoid skipping a releases as that will make it harder to migrate.
+
+#### Rule lifecycle hooks / deprecate RunOnRootOnly visitor modifier
+
+Up until ktlint 0.46 the Rule class provided only one life cycle hook. This "visit" hook was called in a depth-first-approach on all nodes in the file. A rule like the IndentationRule used the RunOnRootOnly visitor modifier to call this lifecycle hook for the root node only in combination with an alternative way of traversing the ASTNodes. Downside of this approach was that suppression of the rule on blocks inside a file was not possible ([#631](https://github.com/pinterest/ktlint/issues/631)). More generically, this applied to all rules, applying alternative traversals of the AST.
+
+The Rule class now offers new life cycle hooks:
+* beforeFirstNode: This method is called once before the first node is visited. It can be used to initialize the state of the rule before processing of nodes starts. The ".editorconfig" properties (including overrides) are provided as parameter.
+* beforeVisitChildNodes: This method is called on a node in AST before visiting its child nodes. This is repeated recursively for the child nodes resulting in a depth first traversal of the AST. This method is the equivalent of the "visit" life cycle hooks. However, note that in KtLint 0.48, the UserData of the rootnode no longer provides access to the ".editorconfig" properties. This method can be used to emit Lint Violations and to autocorrect if applicable.
+* afterVisitChildNodes: This method is called on a node in AST after all its child nodes have been visited. This method can be used to emit Lint Violations and to autocorrect if applicable.
+* afterLastNode: This method is called once after the last node in the AST is visited. It can be used for teardown of the state of the rule.
+
+Optionally, a rule can stop the traversal of the remainder of the AST whenever the goal of the rule has been achieved. See KDoc on Rule class for more information.
+
+The "visit" life cycle hook will be removed in Ktlint 0.48. In KtLint 0.47 the "visit" life cycle hook will be called *only* when hook "beforeVisitChildNodes" is not overridden. It is recommended to migrate to the new lifecycle hooks in KtLint 0.47. Please create an issue, in case you need additional assistence to implement the new life cycle hooks in your rules.
+
+
+#### Ruleset providing by Custom Rule Set Provider
+
+The KtLint engine needs a more fine-grained control on the instantiation of new Rule instances. Currently, a new instance of a rule can be created only once per file. However, when formatting files the same rule instance is reused for a second processing iteration in case a Lint violation has been autocorrected. By re-using the same rule instance, state of that rule might leak from the first to the second processing iteration.
+
+Providers of custom rule sets have to migrate the custom rule set JAR file. The current RuleSetProvider interface which is implemented in the custom rule set is deprecated and marked for removal in KtLint 0.48. Custom rule sets using the old RuleSetProvider interface will not be run in KtLint 0.48 or above.
+
+For now, it is advised to implement the new RuleSetProviderV2 interface without removing the old RuleSetProvider interface. In this way, KtLint 0.47 and above use the RuleSetProviderV2 interface and ignore the old RuleSetProvider interface completely. KtLint 0.46 and below only use the old RuleSetProvider interface.
+
+Adding the new interface is straight forward, as can be seen below:
+
+```
+// Current implementation
+public class CustomRuleSetProvider : RuleSetProvider {
+    override fun get(): RuleSet = RuleSet(
+        "custom",
+        CustomRule1(),
+        CustomRule2(),
+    )
+}
+
+// New implementation
+public class CustomRuleSetProvider :
+    RuleSetProviderV2(CUSTOM_RULE_SET_ID),
+    RuleSetProvider {
+    override fun get(): RuleSet =
+        RuleSet(
+            CUSTOM_RULE_SET_ID,
+            CustomRule1(),
+            CustomRule2()
+        )
+
+    override fun getRuleProviders(): Set<RuleProvider> =
+        setOf(
+            RuleProvider { CustomRule1() },
+            RuleProvider { CustomRule2() }
+        )
+
+    private companion object {
+        const val CUSTOM_RULE_SET_ID = custom"
+    }
+}
+
+```
+
+Also note that file 'resource/META-INF/services/com.pinterest.ktlint.core.RuleSetProviderV2' needs to be added. In case your custom rule set provider implements both RuleSetProvider and RuleSetProviderV2, the resource directory contains files for both implementation. The content of those files is identical as the interfaces are implemented on the same class.
+
+Once above has been implemented, rules no longer have to clean up their internal state as the KtLint rule engine can request a new instance of the Rule at any time it suspects that the internal state of the Rule is tampered with (e.g. as soon as the Rule instance is used for traversing the AST).
+
+#### Rule set providing by API Consumer
+
+The KtLint engine needs a more fine-grained control on the instantiation of new Rule instances. Currently, a new instance of a rule can be created only once per file. However, when formatting files the same rule instance is reused for a second processing iteration in case a Lint violation has been autocorrected. By re-using the same rule instance, state of that rule might leak from the first to the second processing iteration.
+
+The ExperimentalParams parameter which is used to invoke "KtLint.lint" and "KtLint.format" contains a new parameter "ruleProviders" which will replace the "ruleSets" parameter in KtLint 0.48. Exactly one of those parameters should be a non-empty set. It is preferred that API consumers migrate to using "ruleProviders".
+
+```
+// Old style using "ruleSets"
+KtLint.format(
+    KtLint.ExperimentalParams(
+        ...
+        ruleSets = listOf(
+            RuleSet(
+                "custom",
+                CustomRule1(),
+                CustomRule2()
+            )
+        ),
+        ...
+    )
+)
+
+// New style using "ruleProviders"
+KtLint.format(
+    KtLint.ExperimentalParams(
+        ...
+        ruleProviders = setOf(
+            RuleProvider { CustomRule1() },
+            RuleProvider { CustomRule2() }
+        ),
+        cb = { _, _ -> }
+    )
+)
+```
+
+Once above has been implemented, rules no longer have to clean up their internal state as the KtLint rule engine can request a new instance of the Rule at any time it suspects that the internal state of the Rule is tampered with (e.g. as soon as the Rule instance is used for traversing the AST).
+
+#### Format callback
+
+The callback function provided as parameter to the format function is now called for all errors regardless whether the error has been autocorrected. Existing consumers of the format function should now explicitly check the `autocorrected` flag in the callback result and handle it appropriately (in most case this will be ignoring the callback results for which `autocorrected` has value `true`).
+
 ### Added
+
+* Add `format` reporter. This reporter prints a one-line-summary of the formatting status per file. ([#621](https://github.com/pinterest/ktlint/issue/621)).
 
 ### Fixed
 
 * Fix cli argument "--disabled_rules" ([#1520](https://github.com/pinterest/ktlint/issue/1520)).
+* A file which contains a single top level declaration of type function does not need to be named after the function but only needs to adhere to the PascalCase convention. `filename` ([#1521](https://github.com/pinterest/ktlint/issue/1521)).
+* Disable/enable IndentationRule on blocks in middle of file. (`indent`) [#631](https://github.com/pinterest/ktlint/issues/631)
+* Allow usage of letters with diacritics in enum values and filenames (`enum-entry-name-case`, `filename`) ([#1530](https://github.com/pinterest/ktlint/issue/1530)).
+* Fix resolving of Java version when JAVA_TOOL_OPTIONS is set ([#1543](https://github.com/pinterest/ktlint/issues/1543))
+* When a glob is specified then ensure that it matches files in the current directory and not only in subdirectories of the current directory ([#1533](https://github.com/pinterest/ktlint/issue/1533)).
+* Execute `ktlint` cli on default kotlin extensions only when an (existing) path to a directory is given. ([#917](https://github.com/pinterest/ktlint/issue/917)).
+* Invoke callback on `format` function for all errors including errors that are autocorrected ([#1491](https://github.com/pinterest/ktlint/issues/1491))
+
 
 ### Changed
+
+* Print an error message and return with non-zero exit code when no files are found that match with the globs ([#629](https://github.com/pinterest/ktlint/issue/629)).
+* Invoke callback on `format` function for all errors including errors that are autocorrected ([#1491](https://github.com/pinterest/ktlint/issues/1491))
 
 ### Removed
 
@@ -979,8 +1100,8 @@ path/to/file.kt
 path/to/another-file.kt
   1:10 Unnecessary semicolon.
 ```   
-- [string-template](https://ktlint.github.io/#rule-string-template),  
-[no-empty-class-body](https://ktlint.github.io/#rule-empty-class-body),  
+- [string-template](https://pinterest.github.io/ktlint/rules/standard/#string-template),  
+[no-empty-class-body](https://pinterest.github.io/ktlint/rules/standard/#no-empty-class-bodies),  
 max-line-length ([#47](https://github.com/shyiko/ktlint/issues/47)),  
 final-newline (activated only if `insert_final_newline` is set in `.editorconfig` (under `[*.{kt,kts}]`)) rules.
 - `--limit` CLI option (e.g. use `--limit=10` to limit the number of errors to display).
@@ -1041,8 +1162,8 @@ set in `[*{kt,kts}]` section).
 
 ### Added
 
-- [no-unit-return](https://ktlint.github.io/#rule-unit-return) rule.
-- [modifier-order](https://ktlint.github.io/#rule-modifier-order) rule ([#42](https://github.com/shyiko/ktlint/issues/42)).
+- [no-unit-return](https://pinterest.github.io/ktlint/rules/standard/#no-unit-as-return-type) rule.
+- [modifier-order](https://pinterest.github.io/ktlint/rules/standard/#modifier-order) rule ([#42](https://github.com/shyiko/ktlint/issues/42)).
 - `else/catch/finally` on the same line as `}` check (now part of "keyword-spacing" rule).
 - `ktlint-intellij-idea-integration` binary for easy Intellij IDEA config injection.
 

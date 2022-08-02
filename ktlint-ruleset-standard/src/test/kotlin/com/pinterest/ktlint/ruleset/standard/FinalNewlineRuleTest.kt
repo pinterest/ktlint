@@ -1,13 +1,13 @@
 package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.insertNewLineProperty
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class FinalNewlineRuleTest {
-    private val finalNewlineRuleAssertThat = FinalNewlineRule().assertThat()
+    private val finalNewlineRuleAssertThat = assertThatRule { FinalNewlineRule() }
 
     @DisplayName("Given that the final new line is required (default)")
     @Nested

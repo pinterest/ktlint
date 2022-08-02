@@ -1,12 +1,12 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class ChainWrappingRuleTest {
-    private val chainWrappingRuleAssertThat = ChainWrappingRule().assertThat()
+    private val chainWrappingRuleAssertThat = assertThatRule { ChainWrappingRule() }
 
     @Test
     fun `Given some method chain which is incorrectly wrapped`() {

@@ -24,6 +24,7 @@ dependencies {
     implementation(projects.ktlintReporterBaseline)
     implementation(projects.ktlintReporterCheckstyle)
     implementation(projects.ktlintReporterJson)
+    implementation(projects.ktlintReporterFormat)
     implementation(projects.ktlintReporterHtml)
     implementation(projects.ktlintReporterPlain)
     implementation(projects.ktlintReporterSarif)
@@ -61,7 +62,7 @@ val shadowJarExecutable by tasks.registering(DefaultTask::class) {
         // Then if that java version is >= 16, we add the --add-opens command
         // X = X=$( [ "$JV" -ge "16" ] && echo "--add-opens java.base/java.lang=ALL-UNNAMED" || echo "")
         // exec java $X -Xmx512m -jar "$0" "$@"
-        execFile.appendText("#!/bin/sh\n\nJV=\$(java -version 2>&1 | head -1 | cut -d'\"' -f2 | sed '/^1\\./s///' | cut -d'.' -f1)\n\nX=\$( [ \"\$JV\" -ge \"16\" ] && echo \"--add-opens java.base/java.lang=ALL-UNNAMED\" || echo \"\")\n\nexec java \$X -Xmx512m -jar \"\$0\" \"\$@\"\n\n")
+        execFile.appendText("#!/bin/sh\n\nJV=\$(java -version 2>&1 | sed -E -n 's/.* version \"([^.-]*).*\".*/\\1/p')\n\nX=\$( [ \"\$JV\" -ge \"16\" ] && echo \"--add-opens java.base/java.lang=ALL-UNNAMED\" || echo \"\")\n\nexec java \$X -Xmx512m -jar \"\$0\" \"\$@\"\n\n")
         execFile.appendBytes(inputs.files.singleFile.readBytes())
         execFile.setExecutable(true, false)
         if (!version.toString().endsWith("SNAPSHOT")) {

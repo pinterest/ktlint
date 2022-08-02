@@ -1,10 +1,11 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import org.junit.jupiter.api.Test
 
 class NoBlankLinesInChainedMethodCallsRuleTest {
-    private val noBlankLinesInChainedMethodCallsRuleAssertThat = NoBlankLinesInChainedMethodCallsRule().assertThat()
+    private val noBlankLinesInChainedMethodCallsRuleAssertThat =
+        assertThatRule { NoBlankLinesInChainedMethodCallsRule() }
 
     @Test
     fun `single blank line in dot qualified expression returns lint error`() {

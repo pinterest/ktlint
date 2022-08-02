@@ -3,6 +3,7 @@ package com.pinterest.ktlint.ruleset.standard
 import com.pinterest.ktlint.core.IndentConfig
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties
+import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType
 import com.pinterest.ktlint.core.ast.ElementType.ANNOTATION
@@ -50,7 +51,6 @@ import com.pinterest.ktlint.core.ast.prevLeaf
 import com.pinterest.ktlint.core.ast.prevSibling
 import com.pinterest.ktlint.core.ast.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.core.ast.upsertWhitespaceBeforeMe
-import com.pinterest.ktlint.core.ast.visit
 import com.pinterest.ktlint.core.initKtLintKLogger
 import mu.KotlinLogging
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -67,17 +67,12 @@ private val logger = KotlinLogging.logger {}.initKtLintKLogger()
  * This rule inserts missing newlines (e.g. between parentheses of a multi-line function call). This logic previously
  * was part of the IndentationRule (phase 1).
  *
- * Current limitations:
- * - "all or nothing" (currently, rule can only be disabled for an entire file)
- * - Whenever a linebreak is inserted, this rules assumes that the parent node it indented correctly. So the indentation
- *   is fixed with respect to indentation of the parent. This is just a simple best effort for the case that the
- *   indentation rule is not run.
+ * Whenever a linebreak is inserted, this rules assumes that the parent node it indented correctly. So the indentation
+ * is fixed with respect to indentation of the parent. This is just a simple best effort for the case that the
+ * indentation rule is not run.
  */
 public class WrappingRule :
-    Rule(
-        id = "wrapping",
-        visitorModifiers = setOf(VisitorModifier.RunOnRootNodeOnly)
-    ),
+    Rule("wrapping"),
     UsesEditorConfigProperties {
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> =
         listOf(
@@ -85,37 +80,29 @@ public class WrappingRule :
             DefaultEditorConfigProperties.indentStyleProperty
         )
 
-    private companion object {
-        private val lTokenSet = TokenSet.create(LPAR, LBRACE, LBRACKET, LT)
-        private val rTokenSet = TokenSet.create(RPAR, RBRACE, RBRACKET, GT)
-        private val matchingRToken =
-            lTokenSet.types.zip(
-                rTokenSet.types
-            ).toMap()
-    }
-
     private var line = 1
     private lateinit var indentConfig: IndentConfig
 
-    override fun visit(
+    override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
+        line = 1
+        indentConfig = IndentConfig(
+            indentStyle = editorConfigProperties.getEditorConfigValue(DefaultEditorConfigProperties.indentStyleProperty),
+            tabWidth = editorConfigProperties.getEditorConfigValue(DefaultEditorConfigProperties.indentSizeProperty)
+        )
+    }
+
+    override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        line = 1
-        indentConfig = IndentConfig(
-            indentStyle = node.getEditorConfigValue(DefaultEditorConfigProperties.indentStyleProperty),
-            tabWidth = node.getEditorConfigValue(DefaultEditorConfigProperties.indentSizeProperty)
-        )
-        node.visit { n -> // TODO: Check whether this visit can be removed like other rules. This would disabling the rule for blocks and lines
-            when (n.elementType) {
-                LPAR, LBRACE, LBRACKET -> rearrangeBlock(n, autoCorrect, emit) // TODO: LT
-                SUPER_TYPE_LIST -> rearrangeSuperTypeList(n, autoCorrect, emit)
-                VALUE_PARAMETER_LIST, VALUE_ARGUMENT_LIST -> rearrangeValueList(n, autoCorrect, emit)
-                ARROW -> rearrangeArrow(n, autoCorrect, emit)
-                WHITE_SPACE -> line += n.text.count { it == '\n' }
-                CLOSING_QUOTE -> rearrangeClosingQuote(n, autoCorrect, emit)
-            }
+        when (node.elementType) {
+            LPAR, LBRACE, LBRACKET -> rearrangeBlock(node, autoCorrect, emit) // TODO: LT
+            SUPER_TYPE_LIST -> rearrangeSuperTypeList(node, autoCorrect, emit)
+            VALUE_PARAMETER_LIST, VALUE_ARGUMENT_LIST -> rearrangeValueList(node, autoCorrect, emit)
+            ARROW -> rearrangeArrow(node, autoCorrect, emit)
+            WHITE_SPACE -> line += node.text.count { it == '\n' }
+            CLOSING_QUOTE -> rearrangeClosingQuote(node, autoCorrect, emit)
         }
     }
 
@@ -505,5 +492,14 @@ public class WrappingRule :
             node = node.nextSibling { true }
         }
         return true
+    }
+
+    private companion object {
+        private val lTokenSet = TokenSet.create(LPAR, LBRACE, LBRACKET, LT)
+        private val rTokenSet = TokenSet.create(RPAR, RBRACE, RBRACKET, GT)
+        private val matchingRToken =
+            lTokenSet.types.zip(
+                rTokenSet.types
+            ).toMap()
     }
 }

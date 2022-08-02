@@ -11,11 +11,12 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 
 public class FunctionReturnTypeSpacingRule : Rule("$experimentalRulesetId:function-return-type-spacing") {
-    override fun visit(
+    override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
+        node.firstChildNode
         node
             .takeIf { node.elementType == FUN }
             ?.let { node.findChildByType(COLON) }

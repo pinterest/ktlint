@@ -1,5 +1,10 @@
 package com.pinterest.ktlint.core.internal
 
+import com.pinterest.ktlint.core.Rule
+
+internal fun Rule.toQualifiedRuleId() =
+    id.toQualifiedRuleId()
+
 internal fun String.toQualifiedRuleId() =
     if (contains(":")) {
         this
@@ -8,9 +13,6 @@ internal fun String.toQualifiedRuleId() =
         // comma-separate-list.
         "standard:$this"
     }.removeSpaces()
-
-internal fun RuleReference.toQualifiedRuleId() =
-    toQualifiedRuleId(ruleSetId, ruleId)
 
 internal fun toQualifiedRuleId(
     ruleSetId: String,
@@ -25,13 +27,6 @@ internal fun toQualifiedRuleId(
         "$ruleSetId:$ruleId"
     }
 }
-
-internal fun RuleReference.toShortenedQualifiedRuleId() =
-    if (ruleSetId.removeSpaces() == "standard" || ruleSetId.removeSpaces() == "") {
-        ruleId.removeSpaces()
-    } else {
-        toQualifiedRuleId()
-    }
 
 private fun String.removeSpaces() =
     this.replace(" ", "")

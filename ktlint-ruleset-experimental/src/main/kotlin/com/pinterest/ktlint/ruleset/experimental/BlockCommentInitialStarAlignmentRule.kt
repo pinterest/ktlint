@@ -19,7 +19,7 @@ class BlockCommentInitialStarAlignmentRule :
             VisitorModifier.RunAfterRule("standard:indent")
         )
     ) {
-    override fun visit(
+    override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit

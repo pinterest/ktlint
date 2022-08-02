@@ -206,12 +206,12 @@ internal class EditorConfigGeneratorTest {
     }
 
     private open class TestRule(ruleId: String) : Rule(ruleId) {
-        override fun visit(
+        override fun beforeVisitChildNodes(
             node: ASTNode,
             autoCorrect: Boolean,
             emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
         ) {
-            TODO("Not yet implemented")
+            throw UnsupportedOperationException("This method is not expected to be called")
         }
     }
 

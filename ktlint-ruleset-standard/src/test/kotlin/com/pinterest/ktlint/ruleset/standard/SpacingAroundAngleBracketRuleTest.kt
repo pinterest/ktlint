@@ -1,11 +1,11 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 class SpacingAroundAngleBracketRuleTest {
-    private val spacingAroundAngleBracketsRuleAssertThat = SpacingAroundAngleBracketsRule().assertThat()
+    private val spacingAroundAngleBracketsRuleAssertThat = assertThatRule { SpacingAroundAngleBracketsRule() }
 
     @Test
     fun `Given a type argument list with unnecessary spaces or newlines before or after the angle brackets`() {
@@ -59,7 +59,7 @@ class SpacingAroundAngleBracketRuleTest {
                 > = mapOf()
             """.trimIndent()
         spacingAroundAngleBracketsRuleAssertThat(code)
-            .addAdditionalRules(IndentationRule())
+            .addAdditionalRuleProvider { IndentationRule() }
             .hasLintViolations(
                 LintViolation(1, 12, "Unexpected spacing after \"<\""),
                 LintViolation(2, 23, "Unexpected spacing before \">\""),
@@ -109,7 +109,7 @@ class SpacingAroundAngleBracketRuleTest {
                 > {}
             """.trimIndent()
         spacingAroundAngleBracketsRuleAssertThat(code)
-            .addAdditionalRules(IndentationRule())
+            .addAdditionalRuleProvider { IndentationRule() }
             .hasLintViolations(
                 LintViolation(2, 19, "Unexpected spacing after \"<\""),
                 LintViolation(3, 31, "Unexpected spacing before \">\""),

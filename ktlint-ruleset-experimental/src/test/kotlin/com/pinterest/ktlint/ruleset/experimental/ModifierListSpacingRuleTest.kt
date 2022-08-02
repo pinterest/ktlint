@@ -1,11 +1,11 @@
 package com.pinterest.ktlint.ruleset.experimental
 
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 class ModifierListSpacingRuleTest {
-    private val modifierListSpacingRuleAssertThat = ModifierListSpacingRule().assertThat()
+    private val modifierListSpacingRuleAssertThat = assertThatRule { ModifierListSpacingRule() }
 
     @Test
     fun `Given a function preceded by multiple modifiers separated by multiple space then remove redundant spaces`() {
