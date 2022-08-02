@@ -522,8 +522,11 @@ public class FunctionSignatureRule :
             .firstOrNull()
             ?.also { firstLineOfBodyExpression ->
                 if (whiteSpaceBeforeFunctionBodyExpression.isWhiteSpaceWithNewline()) {
-                    if (functionBodyExpressionWrapping == default ||
-                        (functionBodyExpressionWrapping == multiline && functionBodyExpressionLines.size == 1) ||
+                    val mergeWithFunctionSignature =
+                        functionBodyExpressionWrapping.keepFirstLineOfBodyExpressionTogetherWithFunctionSignature(
+                            firstLineOfBodyExpression.length < maxLengthRemainingForFirstLineOfBodyExpression
+                        )
+                    if (mergeWithFunctionSignature ||
                         node.isMultilineFunctionSignatureWithoutExplicitReturnType(lastNodeOfFunctionSignatureWithBodyExpression)
                     ) {
                         emit(
@@ -754,5 +757,12 @@ public class FunctionSignatureRule :
          * Always force the body expression to start on a separate line.
          */
         always;
+
+        internal fun keepFirstLineOfBodyExpressionTogetherWithFunctionSignature(fitOnSameLine: Boolean) =
+            if (this == default || this == multiline) {
+                fitOnSameLine
+            } else {
+                false
+            }
     }
 }
