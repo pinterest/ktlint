@@ -3,13 +3,18 @@ package com.pinterest.ktlint.ruleset.standard
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.ELSE
 import com.pinterest.ktlint.core.ast.ElementType.ELSE_KEYWORD
+import com.pinterest.ktlint.core.ast.ElementType.IF
 import com.pinterest.ktlint.core.ast.ElementType.LBRACE
 import com.pinterest.ktlint.core.ast.ElementType.RBRACE
 import com.pinterest.ktlint.core.ast.ElementType.RPAR
 import com.pinterest.ktlint.core.ast.ElementType.THEN
+import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
+import com.pinterest.ktlint.core.ast.isPartOf
 import com.pinterest.ktlint.core.ast.isPartOfComment
 import com.pinterest.ktlint.core.ast.isWhiteSpaceWithoutNewline
+import com.pinterest.ktlint.core.ast.nextSibling
 import com.pinterest.ktlint.core.ast.prevLeaf
+import com.pinterest.ktlint.core.ast.upsertWhitespaceBeforeMe
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
@@ -42,9 +47,17 @@ class MultiLineIfElseRule : Rule("multiline-if-else") {
 
     private fun autocorrect(node: ASTNode) {
         val prevLeaves =
-            node.leaves(forward = false).takeWhile { it.elementType !in listOf(RPAR, ELSE_KEYWORD) }.toList().reversed()
+            node
+                .leaves(forward = false)
+                .takeWhile { it.elementType !in listOf(RPAR, ELSE_KEYWORD) }
+                .toList()
+                .reversed()
         val nextLeaves =
-            node.leaves(forward = true).takeWhile { it.isWhiteSpaceWithoutNewline() || it.isPartOfComment() }.toList()
+            node
+                .leaves(forward = true)
+                .takeWhile { it.isWhiteSpaceWithoutNewline() || it.isPartOfComment() }
+                .toList()
+                .dropLastWhile { it.isWhiteSpaceWithoutNewline() }
         val rightBraceIndent = node.treeParent
             .prevLeaf { it is PsiWhiteSpace && it.textContains('\n') }?.text.orEmpty()
             .let { "\n${it.substringAfterLast("\n")}" }
@@ -62,8 +75,17 @@ class MultiLineIfElseRule : Rule("multiline-if-else") {
         }
 
         // Make sure else starts on same line as newly inserted right brace
-        if (node.elementType == THEN && node.treeNext?.treeNext?.elementType == ELSE_KEYWORD) {
-            node.treeParent.replaceChild(node.treeNext, PsiWhiteSpaceImpl(" "))
+        if (node.elementType == THEN) {
+            node
+                .nextSibling { !it.isPartOfComment() }
+                ?.let { nextSibling ->
+                    if (nextSibling.elementType == ELSE_KEYWORD) {
+                        (nextSibling as LeafPsiElement).upsertWhitespaceBeforeMe(" ")
+                    }
+                    if (nextSibling.elementType == WHITE_SPACE && nextSibling.text != " ") {
+                        (nextSibling as LeafPsiElement).rawReplaceWithText(" ")
+                    }
+                }
         }
     }
 }

@@ -492,4 +492,27 @@ class MultiLineIfElseRuleTest {
             .hasLintViolation(6, 13, "Missing { ... }")
             .isFormattedAs(formattedCode)
     }
+
+    @Test
+    fun `Issue 1560 - Given an if statement with else keyword on same line as true branch`() {
+        val code =
+            """
+            fun foo() = if (bar())
+                "a" else
+                "b"
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun foo() = if (bar()) {
+                "a"
+            } else {
+                "b"
+            }
+            """.trimIndent()
+        multiLineIfElseRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(2, 5, "Missing { ... }"),
+                LintViolation(3, 5, "Missing { ... }")
+            ).isFormattedAs(formattedCode)
+    }
 }
