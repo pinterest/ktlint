@@ -35,7 +35,7 @@ class MultiLineIfElseRule :
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> =
         listOf(
             DefaultEditorConfigProperties.indentSizeProperty,
-            DefaultEditorConfigProperties.indentStyleProperty,
+            DefaultEditorConfigProperties.indentStyleProperty
         )
     private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
 
