@@ -3,9 +3,12 @@ package com.pinterest.ktlint.ruleset.experimental.trailingcomma
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType
+import com.pinterest.ktlint.core.ast.ElementType.ENUM_ENTRY
+import com.pinterest.ktlint.core.ast.ElementType.SEMICOLON
 import com.pinterest.ktlint.core.ast.children
 import com.pinterest.ktlint.core.ast.containsLineBreakInRange
 import com.pinterest.ktlint.core.ast.isRoot
+import com.pinterest.ktlint.core.ast.lineNumber
 import com.pinterest.ktlint.core.ast.prevCodeLeaf
 import com.pinterest.ktlint.core.ast.prevLeaf
 import kotlin.properties.Delegates
@@ -25,6 +28,7 @@ import org.jetbrains.kotlin.psi.KtPsiFactory
 import org.jetbrains.kotlin.psi.KtValueArgumentList
 import org.jetbrains.kotlin.psi.KtWhenEntry
 import org.jetbrains.kotlin.psi.KtWhenExpression
+import org.jetbrains.kotlin.psi.psiUtil.allChildren
 import org.jetbrains.kotlin.psi.psiUtil.anyDescendantOfType
 import org.jetbrains.kotlin.psi.psiUtil.collectDescendantsOfType
 import org.jetbrains.kotlin.psi.psiUtil.nextLeaf
@@ -202,23 +206,46 @@ public class TrailingCommaRule :
         require(psi is KtClass)
 
         if (psi.isEnum()) {
-            val classBody = node.children().singleOrNull { it.psi is KtClassBody }
-                ?: return // Nothing to do for empty enum class
+            val classBody = node
+                .children()
+                .singleOrNull { it.psi is KtClassBody }
+                ?: return
 
-            val lastRelevantChild = classBody.psi.children.toList().asReversed()
-                .first()
-
-            val fullAST = psi
-            val fullPsi = classBody.psi
-
-            if (lastRelevantChild !is KtEnumEntry) {
-                // Aborting processing since Enum contains more than just constants.
-                return
-            }
-
-            val inspectNode = classBody.lastChildNode
+            if (classBody.lastTwoEnumEntriesAreOnSameLine()) return // Do nothing when last two entries are on same line
+            val inspectNode = classBody.determineNodeToInspectForEnum() ?: return
             node.reportAndCorrectTrailingCommaNodeBefore(inspectNode, emit, autoCorrect)
         }
+    }
+
+    /**
+     * Determines what [ASTNode] to inspect when dealing with Enums.
+     *
+     * If an Enum is terminated by a semicolon, that will be inspected, otherwise the element following the last
+     * enum entry (which should be the `}` terminating the enum class)
+     */
+    private fun ASTNode.determineNodeToInspectForEnum(): ASTNode? {
+        val lastEnumEntry = psi
+            .children
+            .last { it is KtEnumEntry }
+
+        val semicolon = lastEnumEntry
+            .node
+            .children()
+            .singleOrNull { it.elementType == SEMICOLON }
+
+        // Inspect the semicolon if it is semicolon terminated, otherwise next non-ignorable node in the tree
+        return semicolon
+            ?: lastEnumEntry.nextLeaf { !it.node.isIgnorable() }!!.node
+    }
+
+    private fun ASTNode.lastTwoEnumEntriesAreOnSameLine(): Boolean {
+        val enumEntries = psi
+            .children
+            .filterIsInstance<KtEnumEntry>()
+            .reversed() // We are interested in the last two ones.
+
+        if (enumEntries.count() < 2) return false
+        return enumEntries[0].node.lineNumber() == enumEntries[1].node.lineNumber()
     }
 
     private fun ASTNode.reportAndCorrectTrailingCommaNodeBefore(
@@ -264,6 +291,7 @@ public class TrailingCommaRule :
                         true
                     )
                 }
+
                 if (autoCorrect) {
                     if (addNewLineBeforeArrowInWhenEntry) {
                         val parentIndent = (prevNode.psi.parent.prevLeaf() as? PsiWhiteSpace)?.text ?: "\n"
@@ -276,6 +304,20 @@ public class TrailingCommaRule :
                             prevNode.psi.parent.addAfter(newLine, prevNode.psi)
                         }
                     }
+
+                    if (inspectNode.treeParent.elementType == ENUM_ENTRY) {
+                        with(KtPsiFactory(prevNode.psi)) {
+                            val parentIndent = (prevNode.psi.parent.prevLeaf() as? PsiWhiteSpace)?.text ?: "\n"
+                            val newline = createWhiteSpace(parentIndent)
+                            val enumEntry = inspectNode.treeParent.psi
+                            enumEntry.apply {
+                                add(newline)
+                                removeChild(inspectNode)
+                                parent.addAfter(createSemicolon(), this)
+                            }
+                        }
+                    }
+
                     val comma = KtPsiFactory(prevNode.psi).createComma()
                     prevNode.psi.parent.addAfter(comma, prevNode.psi)
                 }
@@ -300,6 +342,13 @@ public class TrailingCommaRule :
             !(leafBeforeArrow is PsiWhiteSpace && leafBeforeArrow.textContains('\n'))
         } else {
             false
+        }
+
+    private fun ASTNode?.correctTrailingCommaInSemicolonTerminatedEnum() =
+        when {
+            this == null -> false
+            psi is KtEnumEntry -> psi.allChildren.last?.node?.elementType == SEMICOLON
+            else -> false
         }
 
     private fun ASTNode?.findPreviousTrailingCommaNodeOrNull(): ASTNode? {
@@ -363,11 +412,6 @@ public class TrailingCommaRule :
             ElementType.INDICES,
             ElementType.TYPE_ARGUMENT_LIST,
             ElementType.VALUE_ARGUMENT_LIST
-        )
-
-        private val ENUM_IGNORED_TYPES = TokenSet.create(
-            ElementType.WHITE_SPACE,
-            ElementType.RBRACE
         )
 
         internal const val ALLOW_TRAILING_COMMA_NAME = "ij_kotlin_allow_trailing_comma"

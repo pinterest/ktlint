@@ -5,6 +5,7 @@ import com.pinterest.ktlint.ruleset.experimental.trailingcomma.TrailingCommaRule
 import com.pinterest.ktlint.ruleset.experimental.trailingcomma.TrailingCommaRule.Companion.allowTrailingCommaProperty
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThat
 import com.pinterest.ktlint.test.LintViolation
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class TrailingCommaRuleTest {
@@ -1023,29 +1024,6 @@ class TrailingCommaRuleTest {
     }
 
     @Test
-    fun `Given that a trailing comma is required then add trailing comma after last enum member`() {
-        val code =
-            """
-            enum class Shape {
-                SQUARE,
-                TRIANGLE
-            }
-            """.trimIndent()
-        val formattedCode =
-            """
-            enum class Shape {
-                SQUARE,
-                TRIANGLE,
-            }
-            """.trimIndent()
-
-        trailingCommaRuleAssertThat(code)
-            .withEditorConfigOverride(allowTrailingCommaProperty to true)
-            .hasLintViolation(3, 13, "Missing trailing comma before \"}\"")
-            .isFormattedAs(formattedCode)
-    }
-
-    @Test
     fun `Given that a trailing comma is is not allowed then remove comma after last enum member`() {
         val code =
             """
@@ -1069,14 +1047,42 @@ class TrailingCommaRuleTest {
     }
 
     @Test
-    fun `Given that a trailing comma is not allowed then nothing happens for enums terminated with semicolon`() {
+    fun `Given that a trailing comma is not allowed then it is removed for enums terminated with semicolon`() {
         val code =
             """
             enum class Shape {
                 SQUARE,
-                TRIANGLE;
+                TRIANGLE,
+                ;
 
                 fun print() = name()
+            }
+            """.trimIndent()
+
+        // TODO: Should the semicolon be moved up automatically?
+        val formattedCode =
+            """
+            enum class Shape {
+                SQUARE,
+                TRIANGLE
+                ;
+
+                fun print() = name()
+            }
+            """.trimIndent()
+
+        trailingCommaRuleAssertThat(code)
+            .withEditorConfigOverride(allowTrailingCommaProperty to false)
+            .hasLintViolation(3, 13, "Unnecessary trailing comma before \";\"")
+            .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given that a trailing comma is not allowed then it is not removed for enums where last two entries are on same line`() {
+        val code =
+            """
+            enum class Shape {
+                SQUARE, TRIANGLE,
             }
             """.trimIndent()
 
@@ -1085,93 +1091,191 @@ class TrailingCommaRuleTest {
             .hasNoLintViolations()
     }
 
-    @Test
-    fun `Given that a trailing comma is allowed then nothing happens for enums terminated with semicolon`() {
-        val code =
-            """
-            enum class Shape {
-                SQUARE,
-                TRIANGLE;
+    @Nested
+    inner class MissingRequiredTrailingComma {
 
-                fun print() = name()
-            }
-            """.trimIndent()
-
-        trailingCommaRuleAssertThat(code)
-            .withEditorConfigOverride(allowTrailingCommaProperty to true)
-            .hasNoLintViolations()
-    }
-
-    @Test
-    fun `Given that a trailing comma is allowed then it is added for complicated enums`() {
-        val code =
-            """
-            interface Printable {
-                fun print(): String
-            }
-
-            enum class Shape : Printable {
-                /*
-                 * Block comment is OK!
-                 */
-                Square {
-                    override fun print() = "■" // EOL Comment should be OK
-                },
-
-                Triangle {
-                    override fun print() = "▲"
+        @Test
+        fun `Given that last two enumeration entries are on same line, do not add a trailing comma`() {
+            val code =
+                """
+                enum class Shape {
+                    SQUARE, TRIANGLE
                 }
-            }
-            """.trimIndent()
+                """.trimIndent()
 
-        val formattedCode =
-            """
-            interface Printable {
-                fun print(): String
-            }
+            trailingCommaRuleAssertThat(code)
+                .withEditorConfigOverride(allowTrailingCommaProperty to true)
+                .hasNoLintViolations()
+        }
 
-            enum class Shape : Printable {
-                /*
-                 * Block comment is OK!
-                 */
-                Square {
-                    override fun print() = "■" // EOL Comment should be OK
-                },
+        @Test
+        fun `Given an enum is terminated by a semicolon and EOL comment without a trailing comma, then it is added `() {
+            val code =
+                """
+                enum class Shape {
+                    SQUARE,
+                    TRIANGLE; // EOL Comment should be kept
+                }
+                """.trimIndent()
 
-                Triangle {
-                    override fun print() = "▲"
-                },
-            }
-            """.trimIndent()
+            val formattedCode =
+                """
+                enum class Shape {
+                    SQUARE,
+                    TRIANGLE, // EOL Comment should be kept
+                    ;
+                }
+                """.trimIndent()
 
-        trailingCommaRuleAssertThat(code)
-            .withEditorConfigOverride(allowTrailingCommaProperty to true)
-            .hasLintViolation(15, 6, "Missing trailing comma before \"}\"")
-            .isFormattedAs(formattedCode)
-    }
+            trailingCommaRuleAssertThat(code)
+                .withEditorConfigOverride(allowTrailingCommaProperty to true)
+                .hasLintViolation(3, 13, "Missing trailing comma before \";\"")
+                .isFormattedAs(formattedCode)
+        }
 
-    @Test
-    fun `Given that a trailing comma is allowed then it is added if enum is already terminated with semi-colon`() {
-        val code =
-            """
-            enum class Shape {
-                SQUARE,
-                TRIANGLE;
-            }
-            """.trimIndent()
+        @Test
+        fun `Given an enum is terminated by a semicolon and block comment, then it is added `() {
+            val code =
+                """
+                enum class Shape {
+                    SQUARE,
+                    TRIANGLE; /* block comment should be kept */
+                }
+                """.trimIndent()
 
-        val formattedCode =
-            """
-            enum class Shape {
-                SQUARE,
-                TRIANGLE,
-                ;
-            }
-            """.trimIndent()
+            val formattedCode =
+                """
+                enum class Shape {
+                    SQUARE,
+                    TRIANGLE, /* block comment should be kept */
+                    ;
+                }
+                """.trimIndent()
 
-        trailingCommaRuleAssertThat(code)
-            .withEditorConfigOverride(allowTrailingCommaProperty to true)
-            .hasLintViolation(3, 14, "Missing trailing comma before \"}\"")
-            .isFormattedAs(formattedCode)
+            trailingCommaRuleAssertThat(code)
+                .withEditorConfigOverride(allowTrailingCommaProperty to true)
+                .hasLintViolation(3, 13, "Missing trailing comma before \";\"")
+                .isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Given an enum terminated by semicolon without a trailing comma then it is added`() {
+            val code =
+                """
+                enum class Shape {
+                    SQUARE,
+                    TRIANGLE;
+                }
+                """.trimIndent()
+
+            val formattedCode =
+                """
+                enum class Shape {
+                    SQUARE,
+                    TRIANGLE,
+                    ;
+                }
+                """.trimIndent()
+
+            trailingCommaRuleAssertThat(code)
+                .withEditorConfigOverride(allowTrailingCommaProperty to true)
+                .hasLintViolation(3, 13, "Missing trailing comma before \";\"")
+                .isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Given an enum without trailing-comma with other declarations following the enum entries then it is added`() {
+            val code =
+                """
+                enum class Shape {
+                    SQUARE,
+                    TRIANGLE;
+
+                    fun print() = name()
+                }
+                """.trimIndent()
+
+            val formattedCode =
+                """
+                enum class Shape {
+                    SQUARE,
+                    TRIANGLE,
+                    ;
+
+                    fun print() = name()
+                }
+                """.trimIndent()
+
+            trailingCommaRuleAssertThat(code)
+                .withEditorConfigOverride(allowTrailingCommaProperty to true)
+                .hasLintViolation(3, 13, "Missing trailing comma before \";\"")
+                .isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Given that a trailing comma is required then it is added for complicated enums`() {
+            val code =
+                """
+                interface Printable {
+                    fun print(): String
+                }
+
+                enum class Shape : Printable {
+                    Square {
+                        override fun print() = "■"
+                    },
+
+                    Triangle {
+                        override fun print() = "▲"
+                    }
+                }
+                """.trimIndent()
+
+            val formattedCode =
+                """
+                interface Printable {
+                    fun print(): String
+                }
+
+                enum class Shape : Printable {
+                    Square {
+                        override fun print() = "■"
+                    },
+
+                    Triangle {
+                        override fun print() = "▲"
+                    },
+                }
+                """.trimIndent()
+
+            trailingCommaRuleAssertThat(code)
+                .withEditorConfigOverride(allowTrailingCommaProperty to true)
+                .hasLintViolation(12, 6, "Missing trailing comma before \"}\"")
+                .isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Given that a trailing comma is required then add trailing comma after last enum member`() {
+            val code =
+                """
+                enum class Shape {
+                    SQUARE,
+                    TRIANGLE
+                }
+                """.trimIndent()
+
+            val formattedCode =
+                """
+                enum class Shape {
+                    SQUARE,
+                    TRIANGLE,
+                }
+                """.trimIndent()
+
+            trailingCommaRuleAssertThat(code)
+                .withEditorConfigOverride(allowTrailingCommaProperty to true)
+                .hasLintViolation(3, 13, "Missing trailing comma before \"}\"")
+                .isFormattedAs(formattedCode)
+        }
     }
 }
