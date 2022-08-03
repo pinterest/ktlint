@@ -9,14 +9,16 @@ import com.pinterest.ktlint.core.Reporter
 import com.pinterest.ktlint.core.ReporterProvider
 import com.pinterest.ktlint.core.RuleExecutionException
 import com.pinterest.ktlint.core.RuleProvider
+import com.pinterest.ktlint.core.api.Baseline.Status.INVALID
+import com.pinterest.ktlint.core.api.Baseline.Status.NOT_FOUND
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.codeStyleSetProperty
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.disabledRulesProperty
 import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.plus
+import com.pinterest.ktlint.core.api.doesNotContain
+import com.pinterest.ktlint.core.api.loadBaseline
+import com.pinterest.ktlint.core.api.relativeRoute
 import com.pinterest.ktlint.core.initKtLintKLogger
-import com.pinterest.ktlint.core.internal.containsLintError
-import com.pinterest.ktlint.core.internal.loadBaseline
-import com.pinterest.ktlint.core.internal.relativeRoute
 import com.pinterest.ktlint.core.setDefaultLoggerModifier
 import com.pinterest.ktlint.reporter.plain.internal.Color
 import java.io.File
@@ -193,7 +195,7 @@ internal class KtlintCommandLine {
         names = ["--baseline"],
         description = ["Defines a baseline file to check against"]
     )
-    private var baseline: String = ""
+    private var baselinePath: String = ""
 
     @Parameters(hidden = true)
     private var patterns = ArrayList<String>()
@@ -219,14 +221,21 @@ internal class KtlintCommandLine {
 
         val start = System.currentTimeMillis()
 
-        val baselineResults = loadBaseline(baseline)
         val ruleProviders = rulesetJarFiles.loadRuleProviders(experimental, debug, disabledRules)
         var reporter = loadReporter()
-        if (baselineResults.baselineGenerationNeeded) {
-            val baselineReporter = ReporterTemplate("baseline", null, emptyMap(), baseline)
-            val reporterProviderById = loadReporters(emptyList())
-            reporter = Reporter.from(reporter, baselineReporter.toReporter(reporterProviderById))
-        }
+        val baselineLintErrorsPerFile =
+            if (baselinePath == "") {
+                emptyMap()
+            } else {
+                loadBaseline(baselinePath)
+                    .also { baseline ->
+                        if (baseline.status == INVALID || baseline.status == NOT_FOUND) {
+                            val baselineReporter = ReporterTemplate("baseline", null, emptyMap(), baselinePath)
+                            val reporterProviderById = loadReporters(emptyList())
+                            reporter = Reporter.from(reporter, baselineReporter.toReporter(reporterProviderById))
+                        }
+                    }.lintErrorsPerFile
+            }
         val editorConfigOverride =
             EditorConfigOverride
                 .emptyEditorConfigOverride
@@ -243,7 +252,7 @@ internal class KtlintCommandLine {
             lintFiles(
                 ruleProviders,
                 editorConfigOverride,
-                baselineResults.baselineRules,
+                baselineLintErrorsPerFile,
                 reporter
             )
         }
@@ -273,7 +282,7 @@ internal class KtlintCommandLine {
     private fun lintFiles(
         ruleProviders: Set<RuleProvider>,
         editorConfigOverride: EditorConfigOverride,
-        baseline: Map<String, List<LintError>>?,
+        lintErrorsPerFile: Map<String, List<LintError>>,
         reporter: Reporter
     ) {
         FileSystems.getDefault()
@@ -283,11 +292,11 @@ internal class KtlintCommandLine {
             .map { file ->
                 Callable {
                     file to process(
-                        file.path,
-                        file.readText(),
-                        editorConfigOverride,
-                        baseline?.get(file.relativeRoute),
-                        ruleProviders
+                        fileName = file.path,
+                        fileContent = file.readText(),
+                        editorConfigOverride = editorConfigOverride,
+                        baselineLintErrors = lintErrorsPerFile.getOrDefault(file.relativeRoute, emptyList()),
+                        ruleProviders = ruleProviders
                     )
                 }
             }.parallel({ (file, errList) -> report(file.location(relative), errList, reporter) })
@@ -301,11 +310,11 @@ internal class KtlintCommandLine {
         report(
             KtLint.STDIN_FILE,
             process(
-                KtLint.STDIN_FILE,
-                String(System.`in`.readBytes()),
-                editorConfigOverride,
-                null,
-                ruleProviders
+                fileName = KtLint.STDIN_FILE,
+                fileContent = String(System.`in`.readBytes()),
+                editorConfigOverride = editorConfigOverride,
+                baselineLintErrors = emptyList(),
+                ruleProviders = ruleProviders
             ),
             reporter
         )
@@ -352,7 +361,7 @@ internal class KtlintCommandLine {
         fileName: String,
         fileContent: String,
         editorConfigOverride: EditorConfigOverride,
-        baselineErrors: List<LintError>?,
+        baselineLintErrors: List<LintError>,
         ruleProviders: Set<RuleProvider>
     ): List<LintErrorWithCorrectionInfo> {
         logger.trace {
@@ -369,9 +378,9 @@ internal class KtlintCommandLine {
                     editorConfigOverride,
                     editorConfigPath,
                     debug
-                ) { err, corrected ->
-                    if (baselineErrors == null || !baselineErrors.containsLintError(err)) {
-                        result.add(LintErrorWithCorrectionInfo(err, corrected))
+                ) { lintError, corrected ->
+                    if (baselineLintErrors.doesNotContain(lintError)) {
+                        result.add(LintErrorWithCorrectionInfo(lintError, corrected))
                         if (!corrected) {
                             tripped.set(true)
                         }
@@ -398,9 +407,9 @@ internal class KtlintCommandLine {
                     editorConfigOverride,
                     editorConfigPath,
                     debug
-                ) { err ->
-                    if (baselineErrors == null || !baselineErrors.containsLintError(err)) {
-                        result.add(LintErrorWithCorrectionInfo(err, false))
+                ) { lintError ->
+                    if (baselineLintErrors.doesNotContain(lintError)) {
+                        result.add(LintErrorWithCorrectionInfo(lintError, false))
                         tripped.set(true)
                     }
                 }
