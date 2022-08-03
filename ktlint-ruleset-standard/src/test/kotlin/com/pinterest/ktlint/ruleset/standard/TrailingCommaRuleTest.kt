@@ -1042,7 +1042,6 @@ class TrailingCommaRuleTest {
                 TRIANGLE
             }
             """.trimIndent()
-
         trailingCommaRuleAssertThat(code)
             .withEditorConfigOverride(allowTrailingCommaProperty to false)
             .hasLintViolation(3, 13, "Unnecessary trailing comma before \"}\"")
@@ -1061,8 +1060,6 @@ class TrailingCommaRuleTest {
                 fun print() = name()
             }
             """.trimIndent()
-
-        // TODO: Should the semicolon be moved up automatically?
         val formattedCode =
             """
             enum class Shape {
@@ -1073,7 +1070,6 @@ class TrailingCommaRuleTest {
                 fun print() = name()
             }
             """.trimIndent()
-
         trailingCommaRuleAssertThat(code)
             .withEditorConfigOverride(allowTrailingCommaProperty to false)
             .hasLintViolation(3, 13, "Unnecessary trailing comma before \";\"")
@@ -1088,7 +1084,6 @@ class TrailingCommaRuleTest {
                 SQUARE, TRIANGLE,
             }
             """.trimIndent()
-
         trailingCommaRuleAssertThat(code)
             .withEditorConfigOverride(allowTrailingCommaProperty to false)
             .hasNoLintViolations()
@@ -1096,7 +1091,6 @@ class TrailingCommaRuleTest {
 
     @Nested
     inner class MissingRequiredTrailingComma {
-
         @Test
         fun `Given that last two enumeration entries are on same line, do not add a trailing comma`() {
             val code =
@@ -1105,7 +1099,6 @@ class TrailingCommaRuleTest {
                     SQUARE, TRIANGLE
                 }
                 """.trimIndent()
-
             trailingCommaRuleAssertThat(code)
                 .withEditorConfigOverride(allowTrailingCommaProperty to true)
                 .hasNoLintViolations()
@@ -1120,7 +1113,6 @@ class TrailingCommaRuleTest {
                     TRIANGLE; // EOL Comment should be kept
                 }
                 """.trimIndent()
-
             val formattedCode =
                 """
                 enum class Shape {
@@ -1129,7 +1121,6 @@ class TrailingCommaRuleTest {
                     ;
                 }
                 """.trimIndent()
-
             trailingCommaRuleAssertThat(code)
                 .withEditorConfigOverride(allowTrailingCommaProperty to true)
                 .hasLintViolation(3, 13, "Missing trailing comma before \";\"")
@@ -1145,7 +1136,6 @@ class TrailingCommaRuleTest {
                     TRIANGLE; /* block comment should be kept */
                 }
                 """.trimIndent()
-
             val formattedCode =
                 """
                 enum class Shape {
@@ -1154,7 +1144,6 @@ class TrailingCommaRuleTest {
                     ;
                 }
                 """.trimIndent()
-
             trailingCommaRuleAssertThat(code)
                 .withEditorConfigOverride(allowTrailingCommaProperty to true)
                 .hasLintViolation(3, 13, "Missing trailing comma before \";\"")
@@ -1170,7 +1159,6 @@ class TrailingCommaRuleTest {
                     TRIANGLE;
                 }
                 """.trimIndent()
-
             val formattedCode =
                 """
                 enum class Shape {
@@ -1179,7 +1167,6 @@ class TrailingCommaRuleTest {
                     ;
                 }
                 """.trimIndent()
-
             trailingCommaRuleAssertThat(code)
                 .withEditorConfigOverride(allowTrailingCommaProperty to true)
                 .hasLintViolation(3, 13, "Missing trailing comma before \";\"")
@@ -1197,7 +1184,6 @@ class TrailingCommaRuleTest {
                     fun print() = name()
                 }
                 """.trimIndent()
-
             val formattedCode =
                 """
                 enum class Shape {
@@ -1208,7 +1194,6 @@ class TrailingCommaRuleTest {
                     fun print() = name()
                 }
                 """.trimIndent()
-
             trailingCommaRuleAssertThat(code)
                 .withEditorConfigOverride(allowTrailingCommaProperty to true)
                 .hasLintViolation(3, 13, "Missing trailing comma before \";\"")
@@ -1233,7 +1218,6 @@ class TrailingCommaRuleTest {
                     }
                 }
                 """.trimIndent()
-
             val formattedCode =
                 """
                 interface Printable {
@@ -1250,7 +1234,6 @@ class TrailingCommaRuleTest {
                     },
                 }
                 """.trimIndent()
-
             trailingCommaRuleAssertThat(code)
                 .withEditorConfigOverride(allowTrailingCommaProperty to true)
                 .hasLintViolation(12, 6, "Missing trailing comma before \"}\"")
@@ -1266,7 +1249,6 @@ class TrailingCommaRuleTest {
                     TRIANGLE
                 }
                 """.trimIndent()
-
             val formattedCode =
                 """
                 enum class Shape {
@@ -1274,7 +1256,6 @@ class TrailingCommaRuleTest {
                     TRIANGLE,
                 }
                 """.trimIndent()
-
             trailingCommaRuleAssertThat(code)
                 .withEditorConfigOverride(allowTrailingCommaProperty to true)
                 .hasLintViolation(3, 13, "Missing trailing comma before \"}\"")

@@ -4,8 +4,19 @@ import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType
+import com.pinterest.ktlint.core.ast.ElementType.CLASS
+import com.pinterest.ktlint.core.ast.ElementType.CLASS_BODY
+import com.pinterest.ktlint.core.ast.ElementType.COLLECTION_LITERAL_EXPRESSION
+import com.pinterest.ktlint.core.ast.ElementType.DESTRUCTURING_DECLARATION
 import com.pinterest.ktlint.core.ast.ElementType.ENUM_ENTRY
+import com.pinterest.ktlint.core.ast.ElementType.FUNCTION_LITERAL
+import com.pinterest.ktlint.core.ast.ElementType.INDICES
 import com.pinterest.ktlint.core.ast.ElementType.SEMICOLON
+import com.pinterest.ktlint.core.ast.ElementType.TYPE_ARGUMENT_LIST
+import com.pinterest.ktlint.core.ast.ElementType.TYPE_PARAMETER_LIST
+import com.pinterest.ktlint.core.ast.ElementType.VALUE_ARGUMENT_LIST
+import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER_LIST
+import com.pinterest.ktlint.core.ast.ElementType.WHEN_ENTRY
 import com.pinterest.ktlint.core.ast.children
 import com.pinterest.ktlint.core.ast.containsLineBreakInRange
 import com.pinterest.ktlint.core.ast.lineNumber
@@ -19,7 +30,6 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 import org.jetbrains.kotlin.psi.KtClass
-import org.jetbrains.kotlin.psi.KtClassBody
 import org.jetbrains.kotlin.psi.KtCollectionLiteralExpression
 import org.jetbrains.kotlin.psi.KtDestructuringDeclaration
 import org.jetbrains.kotlin.psi.KtEnumEntry
@@ -28,7 +38,6 @@ import org.jetbrains.kotlin.psi.KtPsiFactory
 import org.jetbrains.kotlin.psi.KtValueArgumentList
 import org.jetbrains.kotlin.psi.KtWhenEntry
 import org.jetbrains.kotlin.psi.KtWhenExpression
-import org.jetbrains.kotlin.psi.psiUtil.allChildren
 import org.jetbrains.kotlin.psi.psiUtil.anyDescendantOfType
 import org.jetbrains.kotlin.psi.psiUtil.collectDescendantsOfType
 import org.jetbrains.kotlin.psi.psiUtil.nextLeaf
@@ -54,7 +63,7 @@ private enum class TrailingCommaState {
     /**
      * The trailing comma isn't needed, but exists
      */
-    REDUNDANT,
+    REDUNDANT
     ;
 }
 
@@ -92,16 +101,16 @@ public class TrailingCommaRule :
         // Keep processing of element types in sync with Intellij Kotlin formatting settings.
         // https://github.com/JetBrains/intellij-kotlin/blob/master/formatter/src/org/jetbrains/kotlin/idea/formatter/trailingComma/util.kt
         when (node.elementType) {
-            ElementType.DESTRUCTURING_DECLARATION -> visitDestructuringDeclaration(node, emit, autoCorrect)
-            ElementType.FUNCTION_LITERAL -> visitFunctionLiteral(node, emit, autoCorrect)
-            ElementType.TYPE_PARAMETER_LIST -> visitTypeList(node, emit, autoCorrect)
-            ElementType.VALUE_PARAMETER_LIST -> visitValueList(node, emit, autoCorrect)
-            ElementType.WHEN_ENTRY -> visitWhenEntry(node, emit, autoCorrect)
-            ElementType.CLASS -> visitClassEntry(node, emit, autoCorrect)
-            ElementType.COLLECTION_LITERAL_EXPRESSION -> visitCollectionLiteralExpression(node, emit, autoCorrect)
-            ElementType.INDICES -> visitIndices(node, emit, autoCorrect)
-            ElementType.TYPE_ARGUMENT_LIST -> visitTypeList(node, emit, autoCorrect)
-            ElementType.VALUE_ARGUMENT_LIST -> visitValueList(node, emit, autoCorrect)
+            CLASS -> visitClass(node, emit, autoCorrect)
+            COLLECTION_LITERAL_EXPRESSION -> visitCollectionLiteralExpression(node, emit, autoCorrect)
+            DESTRUCTURING_DECLARATION -> visitDestructuringDeclaration(node, emit, autoCorrect)
+            FUNCTION_LITERAL -> visitFunctionLiteral(node, emit, autoCorrect)
+            INDICES -> visitIndices(node, emit, autoCorrect)
+            TYPE_ARGUMENT_LIST -> visitTypeList(node, emit, autoCorrect)
+            TYPE_PARAMETER_LIST -> visitTypeList(node, emit, autoCorrect)
+            VALUE_ARGUMENT_LIST -> visitValueList(node, emit, autoCorrect)
+            VALUE_PARAMETER_LIST -> visitValueList(node, emit, autoCorrect)
+            WHEN_ENTRY -> visitWhenEntry(node, emit, autoCorrect)
             else -> Unit
         }
     }
@@ -157,7 +166,7 @@ public class TrailingCommaRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
         autoCorrect: Boolean
     ) {
-        if (node.treeParent.elementType != ElementType.FUNCTION_LITERAL) {
+        if (node.treeParent.elementType != FUNCTION_LITERAL) {
             node
                 .children()
                 .lastOrNull { it.elementType == ElementType.RPAR }
@@ -196,7 +205,7 @@ public class TrailingCommaRule :
         node.reportAndCorrectTrailingCommaNodeBefore(inspectNode, emit, autoCorrect)
     }
 
-    private fun visitClassEntry(
+    private fun visitClass(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
         autoCorrect: Boolean
@@ -204,47 +213,42 @@ public class TrailingCommaRule :
         val psi = node.psi
         require(psi is KtClass)
 
-        if (psi.isEnum()) {
-            val classBody = node
-                .children()
-                .singleOrNull { it.psi is KtClassBody }
-                ?: return
-
-            if (classBody.lastTwoEnumEntriesAreOnSameLine()) return // Do nothing when last two entries are on same line
-            val inspectNode = classBody.determineNodeToInspectForEnum() ?: return
-            node.reportAndCorrectTrailingCommaNodeBefore(inspectNode, emit, autoCorrect)
-        }
+        node
+            .takeIf { psi.isEnum() }
+            ?.findChildByType(CLASS_BODY)
+            ?.takeUnless {
+                // Do nothing when last two entries are on same line as no trailing comma should be inserted
+                it.lastTwoEnumEntriesAreOnSameLine()
+            }?.let { classBody ->
+                val nodeAfterTrailingCommaPosition = classBody.findNodeAfterTrailingCommaPosition()
+                node.reportAndCorrectTrailingCommaNodeBefore(nodeAfterTrailingCommaPosition, emit, autoCorrect)
+            }
     }
 
     /**
-     * Determines what [ASTNode] to inspect when dealing with Enums.
+     * Determines the [ASTNode] before which the trailing comma is allowed.
      *
-     * If an Enum is terminated by a semicolon, that will be inspected, otherwise the element following the last
-     * enum entry (which should be the `}` terminating the enum class)
+     * If the list of enumeration entries is terminated by a semicolon, that semicolon will be returned. Otherwise, the
+     * last element of the class.
      */
-    private fun ASTNode.determineNodeToInspectForEnum(): ASTNode? {
-        val lastEnumEntry = psi
-            .children
-            .last { it is KtEnumEntry }
+    private fun ASTNode.findNodeAfterTrailingCommaPosition(): ASTNode {
+        val lastEnumEntry = children().last { it.psi is KtEnumEntry }
 
-        val semicolon = lastEnumEntry
-            .node
+        val semicolonAfterLastEnumEntry = lastEnumEntry
             .children()
             .singleOrNull { it.elementType == SEMICOLON }
 
-        // Inspect the semicolon if it is semicolon terminated, otherwise next non-ignorable node in the tree
-        return semicolon
-            ?: lastEnumEntry.nextLeaf { !it.node.isIgnorable() }!!.node
+        return semicolonAfterLastEnumEntry ?: lastChildNode
     }
 
     private fun ASTNode.lastTwoEnumEntriesAreOnSameLine(): Boolean {
-        val enumEntries = psi
-            .children
-            .filterIsInstance<KtEnumEntry>()
-            .reversed() // We are interested in the last two ones.
+        val lastTwoEnumEntries =
+            children()
+                .filter { it.psi is KtEnumEntry }
+                .toList()
+                .takeLast(2)
 
-        if (enumEntries.count() < 2) return false
-        return enumEntries[0].node.lineNumber() == enumEntries[1].node.lineNumber()
+        return lastTwoEnumEntries.count() == 2 && lastTwoEnumEntries[0].lineNumber() == lastTwoEnumEntries[1].lineNumber()
     }
 
     private fun ASTNode.reportAndCorrectTrailingCommaNodeBefore(
@@ -343,13 +347,6 @@ public class TrailingCommaRule :
             false
         }
 
-    private fun ASTNode?.correctTrailingCommaInSemicolonTerminatedEnum() =
-        when {
-            this == null -> false
-            psi is KtEnumEntry -> psi.allChildren.last?.node?.elementType == SEMICOLON
-            else -> false
-        }
-
     private fun ASTNode?.findPreviousTrailingCommaNodeOrNull(): ASTNode? {
         var node = this
         while (node?.isIgnorable() == true) {
@@ -397,20 +394,20 @@ public class TrailingCommaRule :
     public companion object {
 
         private val TYPES_ON_DECLARATION_SITE = TokenSet.create(
-            ElementType.DESTRUCTURING_DECLARATION,
-            ElementType.FUNCTION_LITERAL,
+            DESTRUCTURING_DECLARATION,
+            FUNCTION_LITERAL,
             ElementType.FUNCTION_TYPE,
-            ElementType.TYPE_PARAMETER_LIST,
-            ElementType.VALUE_PARAMETER_LIST,
-            ElementType.WHEN_ENTRY,
-            ElementType.CLASS
+            TYPE_PARAMETER_LIST,
+            VALUE_PARAMETER_LIST,
+            WHEN_ENTRY,
+            CLASS
         )
 
         private val TYPES_ON_CALL_SITE = TokenSet.create(
-            ElementType.COLLECTION_LITERAL_EXPRESSION,
-            ElementType.INDICES,
-            ElementType.TYPE_ARGUMENT_LIST,
-            ElementType.VALUE_ARGUMENT_LIST
+            COLLECTION_LITERAL_EXPRESSION,
+            INDICES,
+            TYPE_ARGUMENT_LIST,
+            VALUE_ARGUMENT_LIST
         )
 
         internal const val ALLOW_TRAILING_COMMA_NAME = "ij_kotlin_allow_trailing_comma"
