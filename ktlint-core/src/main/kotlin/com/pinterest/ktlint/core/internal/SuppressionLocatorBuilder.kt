@@ -38,12 +38,17 @@ internal object SuppressionLocatorBuilder {
         val hintsList = collect(rootNode)
         return if (hintsList.isEmpty()) {
             noSuppression
-        } else { offset, ruleId, isRoot ->
+        } else {
+            toSuppressedRegionsLocator(hintsList)
+        }
+    }
+
+    private fun toSuppressedRegionsLocator(hintsList: List<SuppressionHint>): SuppressionLocator =
+        { offset, ruleId, isRoot ->
             hintsList
                 .filter { offset in it.range }
                 .any { hint -> hint.disabledRules.isEmpty() || hint.disabledRules.contains(ruleId) }
         }
-    }
 
     /**
      * @param range zero-based range of lines where lint errors should be suppressed

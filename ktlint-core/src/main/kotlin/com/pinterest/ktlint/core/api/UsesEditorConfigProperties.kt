@@ -47,9 +47,23 @@ public interface UsesEditorConfigProperties {
         require(editorConfigProperties.contains(editorConfigProperty)) {
             "EditorConfigProperty '${editorConfigProperty.type.name}' may only be retrieved when it is registered in the editorConfigProperties."
         }
-        val codeStyle = getEditorConfigValue(codeStyleSetProperty, official)
-        return getEditorConfigValue(editorConfigProperty, codeStyle)
+
+        return getEditorConfigValue(editorConfigProperty, getEditorConfigCodeStyle())
     }
+
+    /**
+     * The code style property does not need to be defined in the [editorConfigProperties] of the class that defines
+     * this interface. Those classed should not need to be aware of the different coding styles except when setting
+     * different default values. As the property is not defined in the [editorConfigProperties] the value needs to
+     * be parsed explicitly to prevent class cast exceptions.
+     */
+    private fun EditorConfigProperties.getEditorConfigCodeStyle() =
+        codeStyleSetProperty
+            .type
+            .parse(
+                get(codeStyleSetProperty.type.name)?.sourceValue
+            ).parsed
+            ?: official
 
     /**
      * Get the value of [EditorConfigProperty] based on loaded [EditorConfigProperties] content for the current
@@ -61,8 +75,10 @@ public interface UsesEditorConfigProperties {
             "EditorConfigProperty '${editorConfigProperty.type.name}' may only be retrieved when it is registered in the editorConfigProperties."
         }
         val editorConfigPropertyValues = getUserData(KtLint.EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY)!!
-        val codeStyle = editorConfigPropertyValues.getEditorConfigValue(codeStyleSetProperty, official)
-        return editorConfigPropertyValues.getEditorConfigValue(editorConfigProperty, codeStyle)
+        return editorConfigPropertyValues.getEditorConfigValue(
+            editorConfigProperty,
+            editorConfigPropertyValues.getEditorConfigCodeStyle()
+        )
     }
 
     private fun <T> EditorConfigProperties.getEditorConfigValue(
