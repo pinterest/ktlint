@@ -9,8 +9,9 @@ If the PR solves an issue than provide a link to that issue. -->
 <!-- Following checklist maybe skipped in some cases -->
 - [ ] PR description added
 - [ ] tests are added
+- [ ] KtLint has been applied on source code itself and violations are fixed
+- [ ] [documentation](https://pinterest.github.io/ktlint/) is updated
 - [ ] `CHANGELOG.md` is updated
 
 In case of adding a new rule:
-- [ ] `README.md` is updated
-- [ ] Rule has been applied on Ktlint itself and violations are fixed
+- [ ] Rule is added to [rules documentation](https://pinterest.github.io/ktlint/rules/standard/)
