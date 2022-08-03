@@ -177,10 +177,6 @@ ktlint installGitPrePushHook
 
 `-a` or `--android`: Turn on Android Kotlin Style Guide compatibility. This flag is most likely to be removed in a future version. Use `.editorconfig ktlint_code_style`(https://pinterest.github.io/ktlint/rules/configuration/#code-style). 
 
-`applyToIDEA` or `--apply-to-idea`: Update Intellij IDEA Kotlin codestyle settings (global)
-
-`applyToIDEAProject` or `--apply-to-idea-project`: Update Intellij IDEA project settings
-
 `--color` and `--color-name=<colorName>`: Make output colorful and optionally set the color name to use.
 
 `--disabled_rules=<disabledRules>`: A comma-separated list of rules to globally disable. To disable the standard ktlint rule-set use `--disabled_rules=standard`.  This flag is most likely to be removed in a future version. Use `.editorconfig disabled_rules`(https://pinterest.github.io/ktlint/rules/configuration/#disabled-rules).

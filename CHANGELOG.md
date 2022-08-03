@@ -112,6 +112,12 @@ Once above has been implemented, rules no longer have to clean up their internal
 
 The callback function provided as parameter to the format function is now called for all errors regardless whether the error has been autocorrected. Existing consumers of the format function should now explicitly check the `autocorrected` flag in the callback result and handle it appropriately (in most case this will be ignoring the callback results for which `autocorrected` has value `true`).
 
+#### .editorconfig property "disabled_rules"
+
+The `.editorconfig` property `disabled_rules` (api property `DefaultEditorConfigProperties.disabledRulesProperty`) has been deprecated and will be removed in a future version. Use `ktlint_disabled_rules` (api property `DefaultEditorConfigProperties.ktlintDisabledRulesProperty`) instead as it more clearly identifies that ktlint is the owner of the property. This property is to be renamed in `.editorconfig` files and `ExperimentalParams.editorConfigOverride`.   
+
+Although, Ktlint 0.47.0 falls back on property `disabled_rules` whenever `ktlint_disabled_rules` is not found, this result in a warning message being printed. 
+
 ### Added
 
 * Add `format` reporter. This reporter prints a one-line-summary of the formatting status per file. ([#621](https://github.com/pinterest/ktlint/issue/621)).
@@ -133,8 +139,10 @@ The callback function provided as parameter to the format function is now called
 
 * Print an error message and return with non-zero exit code when no files are found that match with the globs ([#629](https://github.com/pinterest/ktlint/issue/629)).
 * Invoke callback on `format` function for all errors including errors that are autocorrected ([#1491](https://github.com/pinterest/ktlint/issues/1491))
+* Rename `.editorconfig` property `disabled_rules` to `ktlint_disabled_rules` ([#701](https://github.com/pinterest/ktlint/issues/701))
 
 ### Removed
+* Remove support to generate IntelliJ IDEA configuration files as this no longer fits the scope of the ktlint project ([#701](https://github.com/pinterest/ktlint/issues/701))
 
 ## [0.46.1] - 2022-06-21
 
