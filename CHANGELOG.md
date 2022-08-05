@@ -126,7 +126,11 @@ The callback function provided as parameter to the format function is now called
 * When a glob is specified then ensure that it matches files in the current directory and not only in subdirectories of the current directory ([#1533](https://github.com/pinterest/ktlint/issue/1533)).
 * Execute `ktlint` cli on default kotlin extensions only when an (existing) path to a directory is given. ([#917](https://github.com/pinterest/ktlint/issue/917)).
 * Invoke callback on `format` function for all errors including errors that are autocorrected ([#1491](https://github.com/pinterest/ktlint/issues/1491))
-
+* Add missing whitespace when else is on same line as true condition `multiline-if-else` ([#1560](https://github.com/pinterest/ktlint/issues/1560))
+* Fix multiline if-statements `multiline-if-else` ([#828](https://github.com/pinterest/ktlint/issues/828))
+* Prevent class cast exception on ".editorconfig" property `ktlint_code_style`  ([#1559](https://github.com/pinterest/ktlint/issues/1559))
+* Handle trailing comma in enums `trailing-comma` ([#1542](https://github.com/pinterest/ktlint/pull/1542))
+* Split TrailingCommaRule ([#1555](https://github.com/pinterest/ktlint/pull/1555))
 
 ### Changed
 
@@ -1100,8 +1104,8 @@ path/to/file.kt
 path/to/another-file.kt
   1:10 Unnecessary semicolon.
 ```   
-- [string-template](https://ktlint.github.io/#rule-string-template),  
-[no-empty-class-body](https://ktlint.github.io/#rule-empty-class-body),  
+- [string-template](https://pinterest.github.io/ktlint/rules/standard/#string-template),  
+[no-empty-class-body](https://pinterest.github.io/ktlint/rules/standard/#no-empty-class-bodies),  
 max-line-length ([#47](https://github.com/shyiko/ktlint/issues/47)),  
 final-newline (activated only if `insert_final_newline` is set in `.editorconfig` (under `[*.{kt,kts}]`)) rules.
 - `--limit` CLI option (e.g. use `--limit=10` to limit the number of errors to display).
@@ -1162,8 +1166,8 @@ set in `[*{kt,kts}]` section).
 
 ### Added
 
-- [no-unit-return](https://ktlint.github.io/#rule-unit-return) rule.
-- [modifier-order](https://ktlint.github.io/#rule-modifier-order) rule ([#42](https://github.com/shyiko/ktlint/issues/42)).
+- [no-unit-return](https://pinterest.github.io/ktlint/rules/standard/#no-unit-as-return-type) rule.
+- [modifier-order](https://pinterest.github.io/ktlint/rules/standard/#modifier-order) rule ([#42](https://github.com/shyiko/ktlint/issues/42)).
 - `else/catch/finally` on the same line as `}` check (now part of "keyword-spacing" rule).
 - `ktlint-intellij-idea-integration` binary for easy Intellij IDEA config injection.
 

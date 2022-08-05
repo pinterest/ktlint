@@ -230,7 +230,7 @@ public class TrailingCommaOnCallSiteRule :
         /**
          * The trailing comma isn't needed, but exists
          */
-        REDUNDANT,
+        REDUNDANT
         ;
     }
 

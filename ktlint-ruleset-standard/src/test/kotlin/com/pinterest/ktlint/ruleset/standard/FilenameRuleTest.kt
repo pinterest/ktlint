@@ -56,7 +56,7 @@ class FilenameRuleTest {
             .hasLintViolationWithoutAutoCorrect(1, 1, "File name '$NON_PASCAL_CASE_NAME' should conform PascalCase")
     }
 
-    @ParameterizedTest(name = "Class type: {0}, expected result: {1}")
+    @ParameterizedTest(name = "Class type: {0}")
     @ValueSource(
         strings = [
             "class Foo",

@@ -480,7 +480,9 @@ class MultiLineIfElseRuleTest {
             fun test(a: Int, b: Int, c: Int, d: Int, bar: Boolean) {
                 foo(
                     a,
-                    if (bar) b else {
+                    if (bar) {
+                        b
+                    } else {
                         c
                     },
                     d
@@ -488,8 +490,83 @@ class MultiLineIfElseRuleTest {
             }
             """.trimIndent()
         multiLineIfElseRuleAssertThat(code)
-            // TODO: It is not consistent that argument "b" is not wrapped in a block while argument "c" is wrapped
-            .hasLintViolation(6, 13, "Missing { ... }")
+            .hasLintViolations(
+                LintViolation(5, 18, "Missing { ... }"),
+                LintViolation(6, 13, "Missing { ... }")
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Issue 1560 - Given an if statement with else keyword on same line as true branch`() {
+        val code =
+            """
+            fun foo() = if (bar())
+                "a" else
+                "b"
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun foo() = if (bar()) {
+                "a"
+            } else {
+                "b"
+            }
+            """.trimIndent()
+        multiLineIfElseRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(2, 5, "Missing { ... }"),
+                LintViolation(3, 5, "Missing { ... }")
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Issue 828 - Given an if statement with multiline statement starting on same line as if`() {
+        val code =
+            """
+            fun foo() {
+                if (true) 50
+                  .toString()
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun foo() {
+                if (true) {
+                    50
+                        .toString()
+                }
+            }
+            """.trimIndent()
+        multiLineIfElseRuleAssertThat(code)
+            .addAdditionalRuleProvider { IndentationRule() }
+            .hasLintViolation(2, 15, "Missing { ... }")
             .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Issue 828 - Given an if statement with simple branches but the else branch is on a separate line`() {
+        val code =
+            """
+            fun foo() {
+                if (true) 50
+                else 55
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun foo() {
+                if (true) {
+                    50
+                } else {
+                    55
+                }
+            }
+            """.trimIndent()
+        multiLineIfElseRuleAssertThat(code)
+            .addAdditionalRuleProvider { IndentationRule() }
+            .hasLintViolations(
+                LintViolation(2, 15, "Missing { ... }"),
+                LintViolation(3, 10, "Missing { ... }")
+            ).isFormattedAs(formattedCode)
     }
 }

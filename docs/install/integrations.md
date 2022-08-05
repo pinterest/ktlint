@@ -22,7 +22,7 @@ See [cli usage](../cli) for arguments that can be supplied to `ktlint`.
                 <java taskname="ktlint" dir="${basedir}" fork="true" failonerror="true"
                     classpathref="maven.plugin.classpath" classname="com.pinterest.ktlint.Main">
                     <arg value="src/**/*.kt"/>
-                    <!-- see https://ktlint.github.io/install/cli/#command-line-usage for more information -->
+                    <!-- see https://pinterest.github.io/ktlint/install/cli/#command-line-usage for more information -->
                 </java>
             </target>
             </configuration>
@@ -38,7 +38,7 @@ See [cli usage](../cli) for arguments that can be supplied to `ktlint`.
                     classpathref="maven.plugin.classpath" classname="com.pinterest.ktlint.Main">
                     <arg value="-F"/>
                     <arg value="src/**/*.kt"/>
-                    <!-- see https://ktlint.github.io/install/cli/#command-line-usage for more information -->
+                    <!-- see https://pinterest.github.io/ktlint/install/cli/#command-line-usage for more information -->
                 </java>
             </target>
             </configuration>
@@ -125,7 +125,7 @@ task ktlint(type: JavaExec, group: "verification") {
     classpath = configurations.ktlint
     mainClass.set("com.pinterest.ktlint.Main")
     args "src/**/*.kt"
-    // see https://ktlint.github.io/install/cli/#command-line-usage for more information
+    // see https://pinterest.github.io/ktlint/install/cli/#command-line-usage for more information
 }
 check.dependsOn ktlint
 
@@ -134,7 +134,7 @@ task ktlintFormat(type: JavaExec, group: "formatting") {
     classpath = configurations.ktlint
     mainClass.set("com.pinterest.ktlint.Main")
     args "-F", "src/**/*.kt"
-    // see https://ktlint.github.io/install/cli/#command-line-usage for more information
+    // see https://pinterest.github.io/ktlint/install/cli/#command-line-usage for more information
 }
 ```
 
@@ -172,7 +172,7 @@ val ktlintCheck by tasks.creating(JavaExec::class) {
     description = "Check Kotlin code style."
     classpath = ktlint
     mainClass.set("com.pinterest.ktlint.Main")
-    // see https://ktlint.github.io/install/cli/#command-line-usage for more information
+    // see https://pinterest.github.io/ktlint/install/cli/#command-line-usage for more information
     args = listOf("src/**/*.kt")
 }
 
@@ -183,7 +183,7 @@ val ktlintFormat by tasks.creating(JavaExec::class) {
     description = "Fix Kotlin code style deviations."
     classpath = ktlint
     mainClass.set("com.pinterest.ktlint.Main")
-    // see https://ktlint.github.io/install/cli/#command-line-usage for more information
+    // see https://pinterest.github.io/ktlint/install/cli/#command-line-usage for more information
     args = listOf("-F", "src/**/*.kt")
 }
 ```
