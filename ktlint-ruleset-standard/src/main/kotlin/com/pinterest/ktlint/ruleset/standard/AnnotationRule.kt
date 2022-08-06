@@ -1,30 +1,38 @@
 package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.ast.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.FILE_ANNOTATION_LIST
-import com.pinterest.ktlint.core.ast.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.core.ast.ElementType.TYPE_ARGUMENT_LIST
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_ARGUMENT
+import com.pinterest.ktlint.core.ast.ElementType.VALUE_ARGUMENT_LIST
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER
+import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
+import com.pinterest.ktlint.core.ast.children
+import com.pinterest.ktlint.core.ast.firstChildLeafOrSelf
 import com.pinterest.ktlint.core.ast.isPartOf
 import com.pinterest.ktlint.core.ast.isPartOfComment
 import com.pinterest.ktlint.core.ast.isWhiteSpace
+import com.pinterest.ktlint.core.ast.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.core.ast.lastChildLeafOrSelf
 import com.pinterest.ktlint.core.ast.lineNumber
+import com.pinterest.ktlint.core.ast.nextCodeLeaf
+import com.pinterest.ktlint.core.ast.nextLeaf
 import com.pinterest.ktlint.core.ast.nextSibling
 import com.pinterest.ktlint.core.ast.prevSibling
 import com.pinterest.ktlint.core.ast.upsertWhitespaceBeforeMe
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationUseSiteTarget
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
 import org.jetbrains.kotlin.psi.KtScript
-import org.jetbrains.kotlin.psi.psiUtil.children
 import org.jetbrains.kotlin.psi.psiUtil.endOffset
 import org.jetbrains.kotlin.psi.psiUtil.getNextSiblingIgnoringWhitespaceAndComments
-import org.jetbrains.kotlin.psi.psiUtil.nextLeaf
+import org.jetbrains.kotlin.psi.psiUtil.leaves
+import org.jetbrains.kotlin.psi.psiUtil.siblings
+import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
 /**
  * Ensures multiple annotations are not on the same line as the annotated declaration. Also ensures that annotations
@@ -34,117 +42,236 @@ import org.jetbrains.kotlin.psi.psiUtil.nextLeaf
  *
  * @see [AnnotationSpacingRule] for white space rules. Moved since
  */
-class AnnotationRule : Rule("annotation") {
-
-    companion object {
-        const val multipleAnnotationsOnSameLineAsAnnotatedConstructErrorMessage =
-            "Multiple annotations should not be placed on the same line as the annotated construct"
-        const val annotationsWithParametersAreNotOnSeparateLinesErrorMessage =
-            "Annotations with parameters should all be placed on separate lines prior to the annotated construct"
-        const val fileAnnotationsShouldBeSeparated =
-            "File annotations should be separated from file contents with a blank line"
-    }
-
+public class AnnotationRule : Rule("annotation") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
-        if (node.elementType != MODIFIER_LIST && node.elementType != FILE_ANNOTATION_LIST) {
-            return
+        when (node.elementType) {
+            FILE_ANNOTATION_LIST -> {
+                visitFileAnnotationList(node, emit, autoCorrect)
+            }
+            ANNOTATION_ENTRY ->
+                visitAnnotationEntry(node, emit, autoCorrect)
+        }
+    }
+
+    private fun visitAnnotationEntry(
+        node: ASTNode,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        autoCorrect: Boolean
+    ) {
+        require(node.elementType == ANNOTATION_ENTRY)
+
+        if (node.isAnnotationEntryWithValueArgumentList() &&
+            node.treeParent.treeParent.elementType != VALUE_PARAMETER && // fun fn(@Ann("blah") a: String)
+            node.treeParent.treeParent.elementType != VALUE_ARGUMENT && // fn(@Ann("blah") "42")
+            !node.isPartOf(TYPE_ARGUMENT_LIST) && // val property: Map<@Ann("blah") String, Int>
+            node.isNotReceiverTargetAnnotation()
+        ) {
+            checkForAnnotationWithParameterToBePlacedOnSeparateLine(node, emit, autoCorrect)
         }
 
-        val annotations =
-            node.children()
-                .mapNotNull { it.psi as? KtAnnotationEntry }
-                .toList()
-        if (annotations.isEmpty()) {
-            return
+        if ((node.isFollowedByOtherAnnotationEntry() && node.isOnSameLineAsNextAnnotationEntry()) ||
+            (node.isPrecededByOtherAnnotationEntry() && node.isOnSameLineAsAnnotatedConstruct())
+        ) {
+            checkForAnnotationToBePlacedOnSeparateLine(node, emit, autoCorrect)
         }
 
-        // Join the nodes that immediately follow the annotations (whitespace), then add the final whitespace
-        // if it's not a child of root. This happens when a new line separates the annotations from the annotated
-        // construct. In the following example, there are no whitespace children of root, but root's next sibling is the
-        // new line whitespace.
-        //
-        //      @JvmField
-        //      val s: Any
-        //
-        val whiteSpaces = (annotations.asSequence().map { it.nextSibling } + node.treeNext)
-            .filterIsInstance<PsiWhiteSpace>()
-            .take(annotations.size)
-            .toList()
+        if (node.isPrecededByOtherAnnotationEntry() && node.isOnSameLineAsAnnotatedConstruct()) {
+            checkForMultipleAnnotationsOnSameLineAsAnnotatedConstruct(node, emit, autoCorrect)
+        }
+    }
 
-        val noWhiteSpaceAfterAnnotation = node.elementType != FILE_ANNOTATION_LIST &&
-            (whiteSpaces.isEmpty() || whiteSpaces.last().nextSibling is KtAnnotationEntry)
-        if (noWhiteSpaceAfterAnnotation) {
+    private fun checkForAnnotationWithParameterToBePlacedOnSeparateLine(
+        node: ASTNode,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        autoCorrect: Boolean
+    ) {
+        if (node.isPrecededByOtherAnnotationEntry() && node.isOnSameLineAsPreviousAnnotationEntry()) {
             emit(
-                annotations.last().endOffset - 1,
-                "Missing spacing after ${annotations.last().text}",
+                node.startOffset,
+                "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct",
                 true
             )
             if (autoCorrect) {
-                (annotations.last().nextLeaf() as? LeafPsiElement)?.upsertWhitespaceBeforeMe(" ")
+                node
+                    .firstChildLeafOrSelf()
+                    .safeAs<LeafPsiElement>()
+                    ?.upsertWhitespaceBeforeMe(" ")
             }
         }
 
-        val multipleAnnotationsOnSameLineAsAnnotatedConstruct =
-            annotations.size > 1 && !whiteSpaces.last().textContains('\n') && doesNotEndWithAComment(whiteSpaces)
-        if (multipleAnnotationsOnSameLineAsAnnotatedConstruct) {
+        if (node.isOnSameLineAsNextAnnotationEntryOrAnnotatedConstruct()) {
             emit(
-                annotations.first().node.startOffset,
-                multipleAnnotationsOnSameLineAsAnnotatedConstructErrorMessage,
+                node.startOffset,
+                "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct",
                 true
             )
             if (autoCorrect) {
-                (whiteSpaces.last() as LeafPsiElement).rawReplaceWithText(getNewlineWithIndent(node))
-            }
-        }
-
-        val annotationsWithParametersAreNotOnSeparateLines =
-            annotations.any { it.valueArgumentList != null } &&
-                !whiteSpaces.all { it.textContains('\n') } &&
-                doesNotEndWithAComment(whiteSpaces) &&
-                node.treeParent.elementType != VALUE_PARAMETER && // fun fn(@Ann("blah") a: String)
-                node.treeParent.elementType != VALUE_ARGUMENT && // fn(@Ann("blah") "42")
-                !node.isPartOf(TYPE_ARGUMENT_LIST) && // val property: Map<@Ann("blah") String, Int>
-                annotations.none { it.useSiteTarget?.getAnnotationUseSiteTarget() == AnnotationUseSiteTarget.RECEIVER }
-        if (annotationsWithParametersAreNotOnSeparateLines) {
-            emit(
-                annotations.first().node.startOffset,
-                annotationsWithParametersAreNotOnSeparateLinesErrorMessage,
-                true
-            )
-            if (autoCorrect) {
-                whiteSpaces.forEach {
-                    (it as LeafPsiElement).rawReplaceWithText(getNewlineWithIndent(node))
-                }
-            }
-        }
-
-        if (node.elementType == FILE_ANNOTATION_LIST) {
-            val lineNumber = node.lineNumber()
-            val next = node.nextSibling { it.textLength > 0 }?.let { next ->
-                val psi = next.psi
-                ((psi as? KtScript)?.blockExpression?.firstChildNode ?: next).nextSibling {
-                    !it.isWhiteSpace() && !(it.isPartOfComment() && it.lineNumber() == lineNumber)
-                }
-            }
-            val nextLineNumber = next?.lineNumber()
-            if (lineNumber != null && nextLineNumber != null) {
-                val diff = nextLineNumber - lineNumber
-                if (diff < 2) {
-                    val psi = node.psi
-                    emit(psi.endOffset - 1, fileAnnotationsShouldBeSeparated, true)
-                    if (autoCorrect) {
-                        if (diff == 0) {
-                            psi.getNextSiblingIgnoringWhitespaceAndComments(withItself = false)?.node
-                                ?.prevSibling { it.isWhiteSpace() }
-                                ?.let { (it as? LeafPsiElement)?.delete() }
-                            next.treeParent.addChild(PsiWhiteSpaceImpl("\n"), next)
+                node
+                    .lastChildLeafOrSelf()
+                    .nextLeaf()
+                    .safeAs<LeafPsiElement>()
+                    ?.let {
+                        if (it.elementType == WHITE_SPACE) {
+                            it.replaceWithText(getNewlineWithIndent(node.treeParent))
+                        } else {
+                            it.rawInsertBeforeMe(
+                                PsiWhiteSpaceImpl(getNewlineWithIndent(node.treeParent))
+                            )
                         }
+                    }
+            }
+        }
+    }
+
+    private fun checkForMultipleAnnotationsOnSameLineAsAnnotatedConstruct(
+        node: ASTNode,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        autoCorrect: Boolean
+    ) {
+        if (node.isLastAnnotationEntry()) {
+            val noAnnotationWithParameters =
+                node
+                    .siblings(forward = false)
+                    .none { it.isAnnotationEntryWithValueArgumentList() }
+            if (noAnnotationWithParameters) {
+                emit(
+                    node.treeParent.startOffset,
+                    "Multiple annotations should not be placed on the same line as the annotated construct",
+                    true
+                )
+                if (autoCorrect) {
+                    node
+                        .lastChildLeafOrSelf()
+                        .nextCodeLeaf()
+                        .safeAs<LeafPsiElement>()
+                        ?.upsertWhitespaceBeforeMe(getNewlineWithIndent(node.treeParent))
+                }
+            }
+        }
+    }
+
+    private fun checkForAnnotationToBePlacedOnSeparateLine(
+        node: ASTNode,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        autoCorrect: Boolean
+    ) {
+        val isFollowedWithAnnotationHavingValueArgumentList =
+            node
+                .siblings(forward = true)
+                .any { it.isAnnotationEntryWithValueArgumentList() }
+        val isPrecededWithAnnotationOnOtherLine =
+            node
+                .siblings(forward = false)
+                .any { it.isWhiteSpaceWithNewline() }
+        if (isFollowedWithAnnotationHavingValueArgumentList || isPrecededWithAnnotationOnOtherLine) {
+            emit(
+                node.startOffset,
+                "Annotation must be placed on separate line",
+                true
+            )
+            if (autoCorrect) {
+                node
+                    .lastChildLeafOrSelf()
+                    .nextLeaf()
+                    .safeAs<LeafPsiElement>()
+                    ?.let {
+                        if (it.elementType == WHITE_SPACE) {
+                            it.replaceWithText(getNewlineWithIndent(node.treeParent))
+                        } else {
+                            it.upsertWhitespaceBeforeMe(
+                                getNewlineWithIndent(node.treeParent)
+                            )
+                        }
+                    }
+            }
+        }
+    }
+
+    private fun ASTNode.isNotReceiverTargetAnnotation() =
+        getAnnotationUseSiteTarget() != AnnotationUseSiteTarget.RECEIVER
+
+    private fun ASTNode.getAnnotationUseSiteTarget() =
+        psi
+            .safeAs<KtAnnotationEntry>()
+            ?.useSiteTarget
+            ?.getAnnotationUseSiteTarget()
+
+    private fun ASTNode.isAnnotationEntryWithValueArgumentList() =
+        getAnnotationEntryValueArgumentList() != null
+
+    private fun ASTNode.getAnnotationEntryValueArgumentList() =
+        takeIf { it.elementType == ANNOTATION_ENTRY }
+            ?.findChildByType(VALUE_ARGUMENT_LIST)
+
+    private fun ASTNode.isLastAnnotationEntry() =
+        treeParent
+            .children()
+            .lastOrNull { it.elementType == ANNOTATION_ENTRY }
+            .let { it == this }
+
+    private fun ASTNode.isPrecededByOtherAnnotationEntry() =
+        siblings(forward = false).any { it.elementType == ANNOTATION_ENTRY }
+
+    private fun ASTNode.isOnSameLineAsPreviousAnnotationEntry() =
+        siblings(forward = false)
+            .takeWhile { it.elementType != ANNOTATION_ENTRY }
+            .none { it.isWhiteSpaceWithNewline() }
+
+    private fun ASTNode.isFollowedByOtherAnnotationEntry() =
+        siblings(forward = true).any { it.elementType == ANNOTATION_ENTRY }
+
+    private fun ASTNode.isOnSameLineAsNextAnnotationEntry() =
+        siblings(forward = true)
+            .takeWhile { it.elementType != ANNOTATION_ENTRY }
+            .none { it.isWhiteSpaceWithNewline() }
+
+    private fun ASTNode.isOnSameLineAsAnnotatedConstruct() =
+        lastChildLeafOrSelf()
+            .leaves(forward = true)
+            .takeWhile { it.isWhiteSpace() || it.isPartOfComment() }
+            .none { it.isWhiteSpaceWithNewline() }
+
+    private fun ASTNode.isOnSameLineAsNextAnnotationEntryOrAnnotatedConstruct() =
+        if (isFollowedByOtherAnnotationEntry()) {
+            isOnSameLineAsNextAnnotationEntry()
+        } else {
+            isOnSameLineAsAnnotatedConstruct()
+        }
+
+    private fun visitFileAnnotationList(
+        node: ASTNode,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        autoCorrect: Boolean
+    ) {
+        val lineNumber = node.lineNumber()
+        val next = node.nextSibling { it.textLength > 0 }?.let { next ->
+            val psi = next.psi
+            ((psi as? KtScript)?.blockExpression?.firstChildNode ?: next).nextSibling {
+                !it.isWhiteSpace() && !(it.isPartOfComment() && it.lineNumber() == lineNumber)
+            }
+        }
+        val nextLineNumber = next?.lineNumber()
+        if (lineNumber != null && nextLineNumber != null) {
+            val diff = nextLineNumber - lineNumber
+            if (diff < 2) {
+                val psi = node.psi
+                emit(
+                    psi.endOffset - 1,
+                    "File annotations should be separated from file contents with a blank line",
+                    true
+                )
+                if (autoCorrect) {
+                    if (diff == 0) {
+                        psi.getNextSiblingIgnoringWhitespaceAndComments(withItself = false)?.node
+                            ?.prevSibling { it.isWhiteSpace() }
+                            ?.let { (it as? LeafPsiElement)?.delete() }
                         next.treeParent.addChild(PsiWhiteSpaceImpl("\n"), next)
                     }
+                    next.treeParent.addChild(PsiWhiteSpaceImpl("\n"), next)
                 }
             }
         }
@@ -161,10 +288,5 @@ class AnnotationRule : Rule("annotation") {
         } else {
             newLineWithIndent
         }
-    }
-
-    private fun doesNotEndWithAComment(whiteSpaces: List<PsiWhiteSpace>): Boolean {
-        val lastNode = whiteSpaces.lastOrNull()?.nextLeaf()
-        return lastNode !is PsiComment || lastNode.nextLeaf()?.textContains('\n') == false
     }
 }
