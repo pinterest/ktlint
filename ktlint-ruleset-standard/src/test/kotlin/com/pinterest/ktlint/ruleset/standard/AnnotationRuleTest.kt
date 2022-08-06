@@ -226,30 +226,20 @@ class AnnotationRuleTest {
         val code =
             """
             class FooBar {
-                @Foo(
-                    groups = [
-                        "a",
-                        "b"
-                    ]
-                )
+                @Foo("foo")
                 @Bar val bar: Any
             }
             """.trimIndent()
         val formattedCode =
             """
             class FooBar {
-                @Foo(
-                    groups = [
-                        "a",
-                        "b"
-                    ]
-                )
+                @Foo("foo")
                 @Bar
                 val bar: Any
             }
             """.trimIndent()
         annotationRuleAssertThat(code)
-            .hasLintViolation(8, 5, "Annotation must be placed on separate line")
+            .hasLintViolation(3, 5, "Annotation must be placed on separate line")
             .isFormattedAs(formattedCode)
     }
 
