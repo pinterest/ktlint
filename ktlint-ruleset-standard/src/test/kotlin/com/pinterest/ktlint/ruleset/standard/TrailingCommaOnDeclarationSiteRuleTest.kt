@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class TrailingCommaOnDeclarationSiteRuleTest {
-
     private val ruleAssertThat =
         KtLintAssertThat.assertThatRule(
             provider = { TrailingCommaOnDeclarationSiteRule() },

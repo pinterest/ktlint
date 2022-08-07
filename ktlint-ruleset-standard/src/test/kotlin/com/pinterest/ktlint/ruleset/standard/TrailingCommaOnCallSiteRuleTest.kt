@@ -7,7 +7,6 @@ import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 class TrailingCommaOnCallSiteRuleTest {
-
     private val ruleAssertThat =
         assertThatRule(
             provider = { TrailingCommaOnCallSiteRule() },

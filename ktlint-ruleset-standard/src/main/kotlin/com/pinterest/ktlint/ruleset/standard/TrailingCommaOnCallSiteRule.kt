@@ -211,29 +211,6 @@ public class TrailingCommaOnCallSiteRule :
         }
     }
 
-    private enum class TrailingCommaState {
-        /**
-         * The trailing comma is needed and exists
-         */
-        EXISTS,
-
-        /**
-         * The trailing comma is needed and doesn't exist
-         */
-        MISSING,
-
-        /**
-         * The trailing comma isn't needed and doesn't exist
-         */
-        NOT_EXISTS,
-
-        /**
-         * The trailing comma isn't needed, but exists
-         */
-        REDUNDANT
-        ;
-    }
-
     private fun isMultiline(element: PsiElement): Boolean = when {
         element.parent is KtFunctionLiteral -> isMultiline(element.parent)
         element is KtFunctionLiteral -> containsLineBreakInRange(element.valueParameterList!!, element.arrow!!)
@@ -245,7 +222,7 @@ public class TrailingCommaOnCallSiteRule :
             //    "something",
             // ])
             val lastChild = element.collectDescendantsOfType<KtCollectionLiteralExpression>().last()
-            containsLineBreakInLeafsRange(lastChild.rightBracket!!, element.rightParenthesis!!)
+            containsLineBreakInLeavesRange(lastChild.rightBracket!!, element.rightParenthesis!!)
         }
         else -> element.textContains('\n')
     }
@@ -270,7 +247,7 @@ public class TrailingCommaOnCallSiteRule :
         }
     }
 
-    private fun containsLineBreakInLeafsRange(from: PsiElement, to: PsiElement): Boolean {
+    private fun containsLineBreakInLeavesRange(from: PsiElement, to: PsiElement): Boolean {
         var leaf: PsiElement? = from
         while (leaf != null && !leaf.isEquivalentTo(to)) {
             if (leaf.textContains('\n')) {
@@ -286,11 +263,33 @@ public class TrailingCommaOnCallSiteRule :
             elementType == ElementType.EOL_COMMENT ||
             elementType == ElementType.BLOCK_COMMENT
 
+    private enum class TrailingCommaState {
+        /**
+         * The trailing comma is needed and exists
+         */
+        EXISTS,
+
+        /**
+         * The trailing comma is needed and doesn't exist
+         */
+        MISSING,
+
+        /**
+         * The trailing comma isn't needed and doesn't exist
+         */
+        NOT_EXISTS,
+
+        /**
+         * The trailing comma isn't needed, but exists
+         */
+        REDUNDANT
+        ;
+    }
+
     public companion object {
         internal const val ALLOW_TRAILING_COMMA_ON_CALL_SITE_NAME = "ij_kotlin_allow_trailing_comma_on_call_site"
         private const val ALLOW_TRAILING_COMMA_ON_CALL_SITE_DESCRIPTION =
-            "Defines whether a trailing comma (or no trailing comma)" +
-                "should be enforced on the calling side," +
+            "Defines whether a trailing comma (or no trailing comma) should be enforced on the calling side," +
                 "e.g. argument-list, when-entries, lambda-arguments, indices, etc."
         private val BOOLEAN_VALUES_SET = setOf("true", "false")
 
