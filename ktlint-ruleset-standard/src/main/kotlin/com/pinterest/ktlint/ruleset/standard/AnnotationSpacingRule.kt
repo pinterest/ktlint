@@ -73,7 +73,9 @@ class AnnotationSpacingRule : Rule("annotation-spacing") {
                     val s = it.text
                     // Ensure at least one occurrence of two line breaks
                     s.indexOf("\n") != s.lastIndexOf("\n")
-                } else it.isPartOfComment() && !it.isCommentOnSameLineAsPrevLeaf()
+                } else {
+                    it.isPartOfComment() && !it.isCommentOnSameLineAsPrevLeaf()
+                }
             }
         )
         if (next != null) {
