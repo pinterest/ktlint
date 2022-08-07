@@ -4,6 +4,7 @@ import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.RuleRunner
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.disabledRulesProperty
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.ktlintDisabledRulesProperty
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties.EditorConfigProperty
@@ -22,7 +23,10 @@ internal class VisitorProvider(
      */
     recreateRuleSorter: Boolean = false
 ) : UsesEditorConfigProperties {
-    override val editorConfigProperties: List<EditorConfigProperty<*>> = listOf(disabledRulesProperty)
+    override val editorConfigProperties: List<EditorConfigProperty<*>> = listOf(
+        ktlintDisabledRulesProperty,
+        disabledRulesProperty
+    )
 
     /**
      * The list of [ruleRunners] is sorted based on the [Rule.VisitorModifier] of the rules.
@@ -80,12 +84,21 @@ internal class VisitorProvider(
         }
     }
 
-    private fun isNotDisabled(editorConfigProperties: EditorConfigProperties, qualifiedRuleId: String): Boolean =
-        editorConfigProperties
-            .getEditorConfigValue(disabledRulesProperty)
+    private fun isNotDisabled(editorConfigProperties: EditorConfigProperties, qualifiedRuleId: String): Boolean {
+        val ktlintDisabledRulesProperty =
+            if (editorConfigProperties.containsKey(ktlintDisabledRulesProperty.type.name) ||
+                !editorConfigProperties.containsKey(disabledRulesProperty.type.name)
+            ) {
+                // New property takes precedence when defined, or, when both old and new property are not defined.
+                editorConfigProperties.getEditorConfigValue(ktlintDisabledRulesProperty)
+            } else {
+                editorConfigProperties.getEditorConfigValue(disabledRulesProperty)
+            }
+        return ktlintDisabledRulesProperty
             .split(",")
             .none {
                 // The rule set id in the disabled_rules setting may be omitted for rules in the standard rule set
                 it.toQualifiedRuleId() == qualifiedRuleId
             }
+    }
 }

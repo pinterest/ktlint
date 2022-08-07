@@ -2,8 +2,6 @@
 
 package com.pinterest.ktlint
 
-import com.pinterest.ktlint.internal.ApplyToIDEAGloballySubCommand
-import com.pinterest.ktlint.internal.ApplyToIDEAProjectSubCommand
 import com.pinterest.ktlint.internal.GenerateEditorConfigSubCommand
 import com.pinterest.ktlint.internal.GitPreCommitHookSubCommand
 import com.pinterest.ktlint.internal.GitPrePushHookSubCommand
@@ -18,8 +16,6 @@ fun main(args: Array<String>) {
         .addSubcommand(GitPreCommitHookSubCommand.COMMAND_NAME, GitPreCommitHookSubCommand())
         .addSubcommand(GitPrePushHookSubCommand.COMMAND_NAME, GitPrePushHookSubCommand())
         .addSubcommand(PrintASTSubCommand.COMMAND_NAME, PrintASTSubCommand())
-        .addSubcommand(ApplyToIDEAGloballySubCommand.COMMAND_NAME, ApplyToIDEAGloballySubCommand())
-        .addSubcommand(ApplyToIDEAProjectSubCommand.COMMAND_NAME, ApplyToIDEAProjectSubCommand())
         .addSubcommand(GenerateEditorConfigSubCommand.COMMAND_NAME, GenerateEditorConfigSubCommand())
     val parseResult = commandLine.parseArgs(*args)
 
@@ -40,8 +36,6 @@ private fun handleSubCommand(
         is GitPreCommitHookSubCommand -> subCommand.run()
         is GitPrePushHookSubCommand -> subCommand.run()
         is PrintASTSubCommand -> subCommand.run()
-        is ApplyToIDEAGloballySubCommand -> subCommand.run()
-        is ApplyToIDEAProjectSubCommand -> subCommand.run()
         is GenerateEditorConfigSubCommand -> subCommand.run()
         else -> commandLine.usage(System.out, CommandLine.Help.Ansi.OFF)
     }

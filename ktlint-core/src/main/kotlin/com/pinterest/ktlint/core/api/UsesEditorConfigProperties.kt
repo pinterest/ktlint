@@ -85,6 +85,10 @@ public interface UsesEditorConfigProperties {
         editorConfigProperty: EditorConfigProperty<T>,
         codeStyleValue: CodeStyleValue
     ): T {
+        if (editorConfigProperty.deprecationWarning != null) {
+            logger.warn { "Property '${editorConfigProperty.type.name}' is deprecated: ${editorConfigProperty.deprecationWarning}" }
+        }
+
         val property = get(editorConfigProperty.type.name)
 
         // If the property value is remapped to a non-null value then return it immediately.
@@ -178,7 +182,12 @@ public interface UsesEditorConfigProperties {
          * value of the property. The
          */
         public val propertyMapper: ((Property?, CodeStyleValue) -> T?)? = null,
-        public val propertyWriter: (T) -> String = { it.toString() }
+        public val propertyWriter: (T) -> String = { it.toString() },
+
+        /**
+         * Optional message to be displayed whenever the value of the property is being retrieved.
+         */
+        internal val deprecationWarning: String? = null
     )
 }
 
@@ -207,10 +216,38 @@ public object DefaultEditorConfigProperties : UsesEditorConfigProperties {
             defaultAndroidValue = android
         )
 
+    @Deprecated(
+        message = "Marked for removal in KtLint 0.48",
+        replaceWith = ReplaceWith("ktlintDisabledRulesProperty")
+    )
     public val disabledRulesProperty: UsesEditorConfigProperties.EditorConfigProperty<String> =
         UsesEditorConfigProperties.EditorConfigProperty(
             type = PropertyType.LowerCasingPropertyType(
                 "disabled_rules",
+                "A comma separated list of rule ids which should not be run. For rules not defined in the 'standard' ruleset, the qualified rule-id should be used.",
+                PropertyType.PropertyValueParser.IDENTITY_VALUE_PARSER,
+                emptySet()
+            ),
+            defaultValue = "",
+            propertyMapper = { property, _ ->
+                when {
+                    property?.isUnset == true -> ""
+                    property?.getValueAs<String>() != null -> {
+                        // Remove spaces (most likely they occur only around the comma) as they otherwise will be seen
+                        // as part of the rule-id which is to be disabled. But as the space is not allowed in the id's
+                        // of rule sets and rule ids, they are just removed all.
+                        property.getValueAs<String>().replace(" ", "")
+                    }
+                    else -> property?.getValueAs()
+                }
+            },
+            deprecationWarning = "Rename property 'disabled_rules' to 'ktlint_disabled_rules' in all '.editorconfig' files."
+        )
+
+    public val ktlintDisabledRulesProperty: UsesEditorConfigProperties.EditorConfigProperty<String> =
+        UsesEditorConfigProperties.EditorConfigProperty(
+            type = PropertyType.LowerCasingPropertyType(
+                "ktlint_disabled_rules",
                 "A comma separated list of rule ids which should not be run. For rules not defined in the 'standard' ruleset, the qualified rule-id should be used.",
                 PropertyType.PropertyValueParser.IDENTITY_VALUE_PARSER,
                 emptySet()
