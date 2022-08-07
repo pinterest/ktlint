@@ -91,7 +91,7 @@ import package.b.*
 An error for a specific rule on a specific line can be disabled with a `@Suppress` annotation:
 
 ```kotlin
-@Suppress("ktlint:max-line-length","ktlint:experimental:trailing-comma")
+@Suppress("ktlint:max-line-length","ktlint:experimental:trailing-comma-on-call-site")
 val foo = listOf(
     "some really looooooooooooooooong string exceeding the max line length",
   )
