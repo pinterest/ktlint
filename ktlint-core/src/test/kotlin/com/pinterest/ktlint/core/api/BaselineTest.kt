@@ -1,4 +1,4 @@
-package com.pinterest.ktlint.core.internal
+package com.pinterest.ktlint.core.api
 
 import com.pinterest.ktlint.core.LintError
 import java.io.ByteArrayInputStream
@@ -6,7 +6,7 @@ import java.io.InputStream
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class BaselineSupportTest {
+class BaselineTest {
     @Test
     fun testParseBaselineFile() {
         val filename = "TestBaselineFile.kt"
@@ -23,21 +23,22 @@ class BaselineSupportTest {
             detail = ""
         )
 
-        val baseline: InputStream = ByteArrayInputStream(
-            """
+        val baseline: InputStream =
+            ByteArrayInputStream(
+                """
                 <file name="$filename">
                         <error line="${errorOne.line}" column="${errorOne.col}" source="${errorOne.ruleId}" />
                         <error line="${errorTwo.line}" column="${errorTwo.col}" source="${errorTwo.ruleId}" />
                     </file>
-            """.toByteArray()
-        )
+                """.trimIndent()
+                    .toByteArray()
+            )
 
         val baselineFiles = parseBaseline(baseline)
 
-        assertThat(baselineFiles).containsKey(filename)
-        val lintErrors = baselineFiles[filename]
-        assertThat(lintErrors).hasSize(2)
-        assertThat(lintErrors?.containsLintError(errorOne))
-        assertThat(lintErrors?.containsLintError(errorTwo))
+        assertThat(baselineFiles).containsEntry(
+            filename,
+            listOf(errorOne, errorTwo)
+        )
     }
 }

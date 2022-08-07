@@ -112,6 +112,16 @@ Once above has been implemented, rules no longer have to clean up their internal
 
 The callback function provided as parameter to the format function is now called for all errors regardless whether the error has been autocorrected. Existing consumers of the format function should now explicitly check the `autocorrected` flag in the callback result and handle it appropriately (in most case this will be ignoring the callback results for which `autocorrected` has value `true`).
 
+#### CurrentBaseline
+
+Class `com.pinterest.ktlint.core.internal.CurrentBaseline` has been replaced with `com.pinterest.ktlint.core.api.Baseline`.
+
+Noteworthy changes:
+* Field `baselineRules` (nullable) is replaced with `lintErrorsPerFile (non-nullable).
+* Field `baselineGenerationNeeded` (boolean) is replaced with `status` (type `Baseline.Status`).
+
+The utility functions provided via `com.pinterest.ktlint.core.internal.CurrentBaseline` are moved to the new class. One new method `List<LintError>.doesNotContain(lintError: LintError)` is added.
+
 ### Added
 
 * Add `format` reporter. This reporter prints a one-line-summary of the formatting status per file. ([#621](https://github.com/pinterest/ktlint/issue/621)).
