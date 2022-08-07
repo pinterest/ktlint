@@ -12,7 +12,7 @@ All releases of `ktlint` can be downloaded from the [releases](https://github.co
 A particular version of `ktlint` can be downloaded with next command which also changes the file to an executable in directory `/usr/local/bin`:
 
 ```sh title="Download"
-curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.46.0/ktlint && chmod a+x ktlint && sudo mv ktlint /usr/local/bin/
+curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.46.1/ktlint && chmod a+x ktlint && sudo mv ktlint /usr/local/bin/
 ```
 
 !!! tip "Curl not installed or behind proxy"
@@ -176,10 +176,6 @@ ktlint installGitPrePushHook
 ### Miscellaneous flags and commands
 
 `-a` or `--android`: Turn on Android Kotlin Style Guide compatibility. This flag is most likely to be removed in a future version. Use `.editorconfig ktlint_code_style`(https://pinterest.github.io/ktlint/rules/configuration/#code-style). 
-
-`applyToIDEA` or `--apply-to-idea`: Update Intellij IDEA Kotlin codestyle settings (global)
-
-`applyToIDEAProject` or `--apply-to-idea-project`: Update Intellij IDEA project settings
 
 `--color` and `--color-name=<colorName>`: Make output colorful and optionally set the color name to use.
 

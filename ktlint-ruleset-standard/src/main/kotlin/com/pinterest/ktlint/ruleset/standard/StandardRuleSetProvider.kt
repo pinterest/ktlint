@@ -2,7 +2,6 @@ package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.RuleProvider
 import com.pinterest.ktlint.core.RuleSetProviderV2
-import com.pinterest.ktlint.ruleset.experimental.trailingcomma.TrailingCommaRule
 
 public class StandardRuleSetProvider :
     RuleSetProviderV2(
@@ -59,7 +58,8 @@ public class StandardRuleSetProvider :
             RuleProvider { SpacingBetweenDeclarationsWithAnnotationsRule() },
             RuleProvider { SpacingBetweenDeclarationsWithCommentsRule() },
             RuleProvider { StringTemplateRule() },
-            RuleProvider { TrailingCommaRule() },
+            RuleProvider { TrailingCommaOnCallSiteRule() },
+            RuleProvider { TrailingCommaOnDeclarationSiteRule() },
             RuleProvider { WrappingRule() }
         )
 }

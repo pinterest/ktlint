@@ -176,18 +176,29 @@ max_line_length = -1 # Use "off" (or -1) to ignore max line length or a positive
 
 This setting is used by multiple rules of which rule `max-line-length` is the most important.
 
-## Trailing comma
+## Trailing comma on call site
 
-Trailing comma's (both on call and declaration site) are disabled (e.g. not allowed) by. When enabling the properties, the trailing becomes mandatory where applicable.
+By default, trailing comma's on call site are not allowed. When enabling the property, the trailing comma becomes mandatory where applicable.
 
 Example:
 ```ini
 [*.{kt,kts}]
-ij_kotlin_allow_trailing_comma = false
 ij_kotlin_allow_trailing_comma_on_call_site = false
 ```
 
-This setting only takes effect when rule `trailing-comma` is enabled.
+This setting only takes effect when rule `trailing-comma-on-call-site` is enabled.
+
+## Trailing comma on declaration site
+
+By default, trailing comma's on declaration site are not allowed. When enabling the property, the trailing comma becomes mandatory where applicable.
+
+Example:
+```ini
+[*.{kt,kts}]
+ij_kotlin_allow_trailing_comma = false # Only used for declaration site 
+```
+
+This setting only takes effect when rule `trailing-comma-on-declaration-site` is enabled.
 
 ## Overriding Editorconfig properties for specific directories
 
