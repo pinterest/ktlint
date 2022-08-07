@@ -308,6 +308,60 @@ class TrailingCommaOnDeclarationSiteRuleTest {
     }
 
     @Test
+    fun `Given that the trailing comma is required on declaration site and that the trailing comma exists but is not followed by a newline then add the newline before the arrow`() {
+        val code =
+            """
+            fun foo(bar: Any): String = when(bar) {
+                1,
+                2,-> {
+                    "a"
+                }
+                3,
+                4,-> {
+                    "b"
+                }
+                5,
+                6 /* some comment */,-> {
+                    "c"
+                }
+                else -> {
+                    "d"
+                }
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun foo(bar: Any): String = when(bar) {
+                1,
+                2,
+                -> {
+                    "a"
+                }
+                3,
+                4,
+                -> {
+                    "b"
+                }
+                5,
+                6 /* some comment */,
+                -> {
+                    "c"
+                }
+                else -> {
+                    "d"
+                }
+            }
+            """.trimIndent()
+        ruleAssertThat(code)
+            .withEditorConfigOverride(allowTrailingCommaProperty to true)
+            .hasLintViolations(
+                LintViolation(3, 6, "Expected a newline between the trailing comma and  \"->\""),
+                LintViolation(7, 6, "Expected a newline between the trailing comma and  \"->\""),
+                LintViolation(11, 25, "Expected a newline between the trailing comma and  \"->\"")
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
     fun `Given that the trailing comma is not allowed on declaration site then remove it from the destructuring declaration when present`() {
         val code =
             """
