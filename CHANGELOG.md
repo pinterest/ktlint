@@ -148,6 +148,7 @@ Although, Ktlint 0.47.0 falls back on property `disabled_rules` whenever `ktlint
 * Prevent class cast exception on ".editorconfig" property `ktlint_code_style`  ([#1559](https://github.com/pinterest/ktlint/issues/1559))
 * Handle trailing comma in enums `trailing-comma` ([#1542](https://github.com/pinterest/ktlint/pull/1542))
 * Split rule `trailing-comma` into `trailing-comma-on-call-site` and `trailing-comma-on-declaration-site` ([#1555](https://github.com/pinterest/ktlint/pull/1555))
+* Fix indent of when entry with a dot qualified expression instead of simple value when trailing comma is required ([#1519](https://github.com/pinterest/ktlint/pull/1519))
 
 ### Changed
 

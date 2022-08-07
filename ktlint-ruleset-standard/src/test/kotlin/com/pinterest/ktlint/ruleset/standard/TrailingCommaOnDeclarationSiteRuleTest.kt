@@ -274,6 +274,40 @@ class TrailingCommaOnDeclarationSiteRuleTest {
     }
 
     @Test
+    fun `Issue 1519 - Given a when entry which is not a simple value but a dot qualified expression and that the trailing comma is required on declaration site then add it when missing`() {
+        val code =
+            """
+            fun foo(bar: Any): String = when(bar) {
+                bar.foobar1(), bar.foobar2() -> "a"
+                bar.foobar3(), bar.foobar4() // The comma should be inserted before the comment
+                -> "a"
+                bar.foobar5(),
+                bar.foobar6() /* The comma should be inserted before the comment */
+                -> "a"
+                else -> "b"
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun foo(bar: Any): String = when(bar) {
+                bar.foobar1(), bar.foobar2() -> "a"
+                bar.foobar3(), bar.foobar4(), // The comma should be inserted before the comment
+                -> "a"
+                bar.foobar5(),
+                bar.foobar6(), /* The comma should be inserted before the comment */
+                -> "a"
+                else -> "b"
+            }
+            """.trimIndent()
+        ruleAssertThat(code)
+            .withEditorConfigOverride(allowTrailingCommaProperty to true)
+            .hasLintViolations(
+                LintViolation(3, 33, "Missing trailing comma before \"->\""),
+                LintViolation(6, 18, "Missing trailing comma before \"->\"")
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
     fun `Given that the trailing comma is not allowed on declaration site then remove it from the destructuring declaration when present`() {
         val code =
             """

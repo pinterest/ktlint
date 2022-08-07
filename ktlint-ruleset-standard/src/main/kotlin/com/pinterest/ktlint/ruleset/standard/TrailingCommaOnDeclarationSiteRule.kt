@@ -6,6 +6,7 @@ import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType
 import com.pinterest.ktlint.core.ast.children
 import com.pinterest.ktlint.core.ast.containsLineBreakInRange
+import com.pinterest.ktlint.core.ast.lineIndent
 import com.pinterest.ktlint.core.ast.lineNumber
 import com.pinterest.ktlint.core.ast.prevCodeLeaf
 import com.pinterest.ktlint.core.ast.prevLeaf
@@ -28,6 +29,7 @@ import org.jetbrains.kotlin.psi.KtWhenExpression
 import org.jetbrains.kotlin.psi.psiUtil.anyDescendantOfType
 import org.jetbrains.kotlin.psi.psiUtil.collectDescendantsOfType
 import org.jetbrains.kotlin.psi.psiUtil.nextLeaf
+import org.jetbrains.kotlin.psi.psiUtil.parents
 import org.jetbrains.kotlin.psi.psiUtil.prevLeaf
 import org.jetbrains.kotlin.utils.addToStdlib.cast
 
@@ -265,7 +267,7 @@ public class TrailingCommaOnDeclarationSiteRule :
                 }
                 if (autoCorrect) {
                     if (addNewLineBeforeArrowInWhenEntry) {
-                        val parentIndent = (prevNode.psi.parent.prevLeaf() as? PsiWhiteSpace)?.text ?: "\n"
+                        val parentIndent = "\n" + prevNode.getWhenEntryIndent()
                         val leafBeforeArrow = (psi as KtWhenEntry).arrow?.prevLeaf()
                         if (leafBeforeArrow != null && leafBeforeArrow is PsiWhiteSpace) {
                             val newLine = KtPsiFactory(prevNode.psi).createWhiteSpace(parentIndent)
@@ -306,6 +308,12 @@ public class TrailingCommaOnDeclarationSiteRule :
             TrailingCommaState.NOT_EXISTS -> Unit
         }
     }
+
+    private fun ASTNode.getWhenEntryIndent() =
+        // The when entry can be a simple value but might also be a complex expression.
+        parents()
+            .last { it.elementType == ElementType.WHEN_ENTRY }
+            .lineIndent()
 
     private fun isMultiline(element: PsiElement): Boolean = when {
         element.parent is KtFunctionLiteral -> isMultiline(element.parent)
