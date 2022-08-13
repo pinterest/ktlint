@@ -15,6 +15,8 @@ import org.ec4j.core.model.Property
 import org.ec4j.core.model.Section
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.DisabledOnOs
+import org.junit.jupiter.api.condition.OS
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 
@@ -44,6 +46,7 @@ class EditorConfigDefaultsLoaderTest {
     }
 
     @Test
+    @DisabledOnOs(OS.WINDOWS) // Filename can not start or end with space
     fun `Given a blank path then return empty editor config default`() {
         val actual = editorConfigDefaultsLoader.load(
             fileSystemMock.normalizedPath("  ")
