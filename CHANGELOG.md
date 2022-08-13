@@ -166,7 +166,7 @@ API consumers can easily create the EditConfigDefaults by calling
 * Invoke callback on `format` function for all errors including errors that are autocorrected ([#1491](https://github.com/pinterest/ktlint/issues/1491))
 * Improve rule `annotation` ([#1574](https://github.com/pinterest/ktlint/pull/1574))
 * Rename `.editorconfig` property `disabled_rules` to `ktlint_disabled_rules` ([#701](https://github.com/pinterest/ktlint/issues/701))
-* Allow file and directory paths in CLI-parameter "--editorconfig" ([#xxx](https://github.com/pinterest/ktlint/issues/xxx))
+* Allow file and directory paths in CLI-parameter "--editorconfig" ([#1580](https://github.com/pinterest/ktlint/pull/1580))
 
 ### Removed
 * Remove support to generate IntelliJ IDEA configuration files as this no longer fits the scope of the ktlint project ([#701](https://github.com/pinterest/ktlint/issues/701))
