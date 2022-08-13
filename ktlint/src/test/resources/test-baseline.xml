@@ -7,4 +7,13 @@
     <file name="src/test/resources/TestBaselineExtraErrorFile.kt">
         <error line="1" column="34" source="no-empty-class-body" />
     </file>
+    <file name="ktlint/build/resources/test/cli/editorconfig-path/project/src/main/kotlin/example/Foo.kt">
+        <error line="1" column="1" source="max-line-length" />
+    </file>
+    <file name="ktlint/build/resources/test/cli/editorconfig-path/project/src/main/kotlin/filename-example/foobar2.kt">
+        <error line="1" column="1" source="filename" />
+    </file>
+    <file name="ktlint/build/resources/test/cli/editorconfig-path/project/src/test/kotlin/example/FooTest.kt">
+        <error line="1" column="1" source="max-line-length" />
+    </file>
 </baseline>

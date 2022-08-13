@@ -91,26 +91,22 @@ public interface UsesEditorConfigProperties {
 
         val property = get(editorConfigProperty.type.name)
 
-        // If the property value is remapped to a non-null value then return it immediately.
-        editorConfigProperty
-            .propertyMapper
-            ?.invoke(property, codeStyleValue)
-            ?.let { newValue ->
-                when {
-                    property == null ->
+        if (property != null) {
+            editorConfigProperty
+                .propertyMapper
+                ?.invoke(property, codeStyleValue)
+                ?.let { newValue ->
+                    // If the property value is remapped to a non-null value then return it immediately.
+                    val originalValue = property.sourceValue
+                    if (newValue.toString() != originalValue) {
                         logger.trace {
-                            "No value of '.editorconfig' property '${editorConfigProperty.type.name}' was found. " +
-                                "Value has been defaulted to '$newValue'. Setting the value explicitly in '.editorconfig' " +
-                                "remove this message from the log."
+                            "Value of '.editorconfig' property '${editorConfigProperty.type.name}' is remapped " +
+                                "from '$originalValue' to '$newValue'"
                         }
-                    newValue != property.getValueAs() ->
-                        logger.trace {
-                            "Value of '.editorconfig' property '${editorConfigProperty.type.name}' is overridden " +
-                                "from '${property.sourceValue}' to '$newValue'"
-                        }
+                    }
+                    return newValue
                 }
-                return newValue
-            }
+        }
 
         return property?.getValueAs()
             ?: editorConfigProperty
@@ -119,7 +115,7 @@ public interface UsesEditorConfigProperties {
                     logger.trace {
                         "No value of '.editorconfig' property '${editorConfigProperty.type.name}' was found. Value " +
                             "has been defaulted to '$it'. Setting the value explicitly in '.editorconfig' " +
-                            "remove this message from the log."
+                            "removes this message from the log."
                     }
                 }
     }
@@ -297,6 +293,7 @@ public object DefaultEditorConfigProperties : UsesEditorConfigProperties {
         UsesEditorConfigProperties.EditorConfigProperty(
             type = PropertyType.max_line_length,
             defaultValue = -1,
+            defaultAndroidValue = 100,
             propertyMapper = { property, codeStyleValue ->
                 when {
                     property == null || property.isUnset -> {
@@ -308,7 +305,7 @@ public object DefaultEditorConfigProperties : UsesEditorConfigProperties {
                         }
                     }
                     property.sourceValue == "off" -> -1
-                    else -> property.getValueAs()
+                    else -> PropertyType.max_line_length.parse(property.sourceValue).parsed
                 }
             }
         )

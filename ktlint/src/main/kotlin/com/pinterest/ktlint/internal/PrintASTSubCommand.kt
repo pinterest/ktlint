@@ -3,6 +3,7 @@ package com.pinterest.ktlint.internal
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.ParseException
 import com.pinterest.ktlint.core.RuleProvider
+import com.pinterest.ktlint.core.api.EditorConfigDefaults.Companion.emptyEditorConfigDefaults
 import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.emptyEditorConfigOverride
 import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ruleset.test.DumpASTRule
@@ -75,6 +76,7 @@ internal class PrintASTSubCommand : Runnable {
                 ruleProviders = setOf(
                     RuleProvider { DumpASTRule(System.out, ktlintCommand.color) }
                 ),
+                editorConfigDefaults = emptyEditorConfigDefaults,
                 editorConfigOverride = emptyEditorConfigOverride,
                 debug = ktlintCommand.debug
             )

@@ -1,0 +1,4 @@
+root = true
+
+[**/*-example/*.{kt,kts}]
+ktlint_disabled_rules = filename

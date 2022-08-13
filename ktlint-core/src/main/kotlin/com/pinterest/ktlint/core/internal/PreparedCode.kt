@@ -3,7 +3,6 @@ package com.pinterest.ktlint.core.internal
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.ParseException
 import com.pinterest.ktlint.core.api.EditorConfigProperties
-import java.nio.file.Paths
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.PsiErrorElement
@@ -43,13 +42,11 @@ internal fun prepareCodeForLinting(params: KtLint.ExperimentalParams): PreparedC
 
     val rootNode = psiFile.node
 
-    val editorConfigProperties = KtLint.editorConfigLoader.loadPropertiesForFile(
-        params.normalizedFilePath,
-        params.isStdIn,
-        params.editorConfigPath?.let { Paths.get(it) },
-        params.getRules(),
-        params.editorConfigOverride,
-        params.debug
+    val editorConfigProperties = KtLint.editorConfigLoader.load(
+        filePath = params.normalizedFilePath,
+        rules = params.getRules(),
+        editorConfigDefaults = params.editorConfigDefaults,
+        editorConfigOverride = params.editorConfigOverride
     )
 
     if (!params.isStdIn) {

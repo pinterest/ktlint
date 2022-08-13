@@ -13,6 +13,7 @@ import com.pinterest.ktlint.core.api.Baseline.Status.INVALID
 import com.pinterest.ktlint.core.api.Baseline.Status.NOT_FOUND
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.codeStyleSetProperty
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.disabledRulesProperty
+import com.pinterest.ktlint.core.api.EditorConfigDefaults
 import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.plus
 import com.pinterest.ktlint.core.api.doesNotContain
@@ -27,6 +28,7 @@ import java.io.PrintStream
 import java.net.URLClassLoader
 import java.net.URLDecoder
 import java.nio.file.FileSystems
+import java.nio.file.Paths
 import java.util.Locale
 import java.util.ServiceLoader
 import java.util.concurrent.ArrayBlockingQueue
@@ -236,6 +238,12 @@ internal class KtlintCommandLine {
                         }
                     }.lintErrorsPerFile
             }
+
+        val editorConfigDefaults = EditorConfigDefaults.load(
+            editorConfigPath
+                ?.expandTildeToFullPath()
+                ?.let { path -> Paths.get(path) }
+        )
         val editorConfigOverride =
             EditorConfigOverride
                 .emptyEditorConfigOverride
@@ -247,10 +255,16 @@ internal class KtlintCommandLine {
 
         reporter.beforeAll()
         if (stdin) {
-            lintStdin(ruleProviders, editorConfigOverride, reporter)
+            lintStdin(
+                ruleProviders,
+                editorConfigDefaults,
+                editorConfigOverride,
+                reporter
+            )
         } else {
             lintFiles(
                 ruleProviders,
+                editorConfigDefaults,
                 editorConfigOverride,
                 baselineLintErrorsPerFile,
                 reporter
@@ -281,6 +295,7 @@ internal class KtlintCommandLine {
 
     private fun lintFiles(
         ruleProviders: Set<RuleProvider>,
+        editorConfigDefaults: EditorConfigDefaults,
         editorConfigOverride: EditorConfigOverride,
         lintErrorsPerFile: Map<String, List<LintError>>,
         reporter: Reporter
@@ -294,6 +309,7 @@ internal class KtlintCommandLine {
                     file to process(
                         fileName = file.path,
                         fileContent = file.readText(),
+                        editorConfigDefaults = editorConfigDefaults,
                         editorConfigOverride = editorConfigOverride,
                         baselineLintErrors = lintErrorsPerFile.getOrDefault(file.relativeRoute, emptyList()),
                         ruleProviders = ruleProviders
@@ -304,6 +320,7 @@ internal class KtlintCommandLine {
 
     private fun lintStdin(
         ruleProviders: Set<RuleProvider>,
+        editorConfigDefaults: EditorConfigDefaults,
         editorConfigOverride: EditorConfigOverride,
         reporter: Reporter
     ) {
@@ -312,6 +329,7 @@ internal class KtlintCommandLine {
             process(
                 fileName = KtLint.STDIN_FILE,
                 fileContent = String(System.`in`.readBytes()),
+                editorConfigDefaults = editorConfigDefaults,
                 editorConfigOverride = editorConfigOverride,
                 baselineLintErrors = emptyList(),
                 ruleProviders = ruleProviders
@@ -360,6 +378,7 @@ internal class KtlintCommandLine {
     private fun process(
         fileName: String,
         fileContent: String,
+        editorConfigDefaults: EditorConfigDefaults,
         editorConfigOverride: EditorConfigOverride,
         baselineLintErrors: List<LintError>,
         ruleProviders: Set<RuleProvider>
@@ -375,6 +394,7 @@ internal class KtlintCommandLine {
                     fileName,
                     fileContent,
                     ruleProviders,
+                    editorConfigDefaults,
                     editorConfigOverride,
                     editorConfigPath,
                     debug
@@ -404,6 +424,7 @@ internal class KtlintCommandLine {
                     fileName,
                     fileContent,
                     ruleProviders,
+                    editorConfigDefaults,
                     editorConfigOverride,
                     editorConfigPath,
                     debug

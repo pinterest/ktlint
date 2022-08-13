@@ -16,36 +16,24 @@ import org.assertj.core.api.Assertions.entry
 import org.intellij.lang.annotations.Language
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 internal class EditorConfigLoaderTest {
-    private val tempFileSystem = Jimfs.newFileSystem(Configuration.forCurrentPlatform())
-    private val editorConfigLoader = EditorConfigLoader(tempFileSystem)
+    private val fileSystemMock = Jimfs.newFileSystem(Configuration.forCurrentPlatform())
+    private val editorConfigLoader = EditorConfigLoader(fileSystemMock)
     private val rules = setOf(TestRule())
-
-    private fun FileSystem.normalizedPath(path: String): Path {
-        val root = rootDirectories.joinToString(separator = "/")
-        return getPath("$root$path")
-    }
-
-    private fun FileSystem.writeEditorConfigFile(
-        filePath: String,
-        content: String
-    ) {
-        Files.createDirectories(normalizedPath(filePath))
-        Files.write(normalizedPath("$filePath/.editorconfig"), content.toByteArray())
-    }
 
     @AfterEach
     fun tearDown() {
-        tempFileSystem.close()
+        fileSystemMock.close()
     }
 
     @Test
     fun testParentDirectoryFallback() {
         val projectDir = "/projects/project-1"
         val projectSubDirectory = "$projectDir/project-1-subdirectory"
-        Files.createDirectories(tempFileSystem.normalizedPath(projectSubDirectory))
+        Files.createDirectories(fileSystemMock.normalizedPath(projectSubDirectory))
         //language=EditorConfig
         val editorConfigFiles = arrayOf(
             """
@@ -72,10 +60,10 @@ internal class EditorConfigLoaderTest {
         )
 
         editorConfigFiles.forEach { editorConfigFileContent ->
-            tempFileSystem.writeEditorConfigFile(projectDir, editorConfigFileContent)
+            fileSystemMock.writeEditorConfigFile(projectDir, editorConfigFileContent)
 
-            val lintFile = tempFileSystem.normalizedPath(projectDir).resolve("test.kt")
-            val editorConfig = editorConfigLoader.loadPropertiesForFile(lintFile, rules = rules)
+            val lintFile = fileSystemMock.normalizedPath(projectDir).resolve("test.kt")
+            val editorConfig = editorConfigLoader.load(lintFile, rules = rules)
             val parsedEditorConfig = editorConfig.convertToRawValues()
 
             assertThat(parsedEditorConfig).isNotEmpty
@@ -93,6 +81,7 @@ internal class EditorConfigLoaderTest {
         }
     }
 
+    //language=
     @Test
     fun testRootTermination() {
         val rootDir = "/projects"
@@ -100,7 +89,7 @@ internal class EditorConfigLoaderTest {
         val project1Subdirectory = "$project1Dir/project-1-subdirectory"
 
         //language=EditorConfig
-        tempFileSystem.writeEditorConfigFile(
+        fileSystemMock.writeEditorConfigFile(
             rootDir,
             """
             root = true
@@ -110,7 +99,7 @@ internal class EditorConfigLoaderTest {
         )
 
         //language=EditorConfig
-        tempFileSystem.writeEditorConfigFile(
+        fileSystemMock.writeEditorConfigFile(
             project1Dir,
             """
             root = true
@@ -121,7 +110,7 @@ internal class EditorConfigLoaderTest {
         )
 
         //language=EditorConfig
-        tempFileSystem.writeEditorConfigFile(
+        fileSystemMock.writeEditorConfigFile(
             project1Subdirectory,
             """
             [*]
@@ -129,8 +118,8 @@ internal class EditorConfigLoaderTest {
             """.trimIndent()
         )
 
-        val lintFileSubdirectory = tempFileSystem.normalizedPath(project1Subdirectory).resolve("test.kt")
-        var editorConfigProperties = editorConfigLoader.loadPropertiesForFile(lintFileSubdirectory, rules = rules)
+        val lintFileSubdirectory = fileSystemMock.normalizedPath(project1Subdirectory).resolve("test.kt")
+        var editorConfigProperties = editorConfigLoader.load(lintFileSubdirectory, rules = rules)
         var parsedEditorConfig = editorConfigProperties.convertToRawValues()
 
         assertThat(parsedEditorConfig).isEqualTo(
@@ -141,8 +130,8 @@ internal class EditorConfigLoaderTest {
             )
         )
 
-        val lintFileMainDir = tempFileSystem.normalizedPath(project1Dir).resolve("test.kts")
-        editorConfigProperties = editorConfigLoader.loadPropertiesForFile(lintFileMainDir, rules = rules)
+        val lintFileMainDir = fileSystemMock.normalizedPath(project1Dir).resolve("test.kts")
+        editorConfigProperties = editorConfigLoader.load(lintFileMainDir, rules = rules)
         parsedEditorConfig = editorConfigProperties.convertToRawValues()
 
         assertThat(parsedEditorConfig).isEqualTo(
@@ -153,8 +142,8 @@ internal class EditorConfigLoaderTest {
             )
         )
 
-        val lintFileRoot = tempFileSystem.normalizedPath(rootDir).resolve("test.kt")
-        editorConfigProperties = editorConfigLoader.loadPropertiesForFile(lintFileRoot, rules = rules)
+        val lintFileRoot = fileSystemMock.normalizedPath(rootDir).resolve("test.kt")
+        editorConfigProperties = editorConfigLoader.load(lintFileRoot, rules = rules)
         parsedEditorConfig = editorConfigProperties.convertToRawValues()
 
         assertThat(parsedEditorConfig).isEqualTo(
@@ -175,10 +164,10 @@ internal class EditorConfigLoaderTest {
             insert_final_newline = true
             disabled_rules = import-ordering
             """.trimIndent()
-        tempFileSystem.writeEditorConfigFile(projectDir, editorconfigFile)
+        fileSystemMock.writeEditorConfigFile(projectDir, editorconfigFile)
 
-        val lintFile = tempFileSystem.normalizedPath(projectDir).resolve("test.kt")
-        val editorConfigProperties = editorConfigLoader.loadPropertiesForFile(lintFile, rules = rules)
+        val lintFile = fileSystemMock.normalizedPath(projectDir).resolve("test.kt")
+        val editorConfigProperties = editorConfigLoader.load(lintFile, rules = rules)
         val parsedEditorConfig = editorConfigProperties.convertToRawValues()
 
         assertThat(parsedEditorConfig).isNotEmpty
@@ -200,10 +189,10 @@ internal class EditorConfigLoaderTest {
             [*.{kt,kts}]
             indent_size = unset
             """.trimIndent()
-        tempFileSystem.writeEditorConfigFile(projectDir, editorconfigFile)
+        fileSystemMock.writeEditorConfigFile(projectDir, editorconfigFile)
 
-        val lintFile = tempFileSystem.normalizedPath(projectDir).resolve("test.kt")
-        val editorConfigProperties = editorConfigLoader.loadPropertiesForFile(lintFile, rules = rules)
+        val lintFile = fileSystemMock.normalizedPath(projectDir).resolve("test.kt")
+        val editorConfigProperties = editorConfigLoader.load(lintFile, rules = rules)
         val parsedEditorConfig = editorConfigProperties.convertToRawValues()
 
         assertThat(parsedEditorConfig).isNotEmpty
@@ -225,10 +214,10 @@ internal class EditorConfigLoaderTest {
             [*.{kt,kts}]
             disabled_rules=import-ordering, no-wildcard-imports
             """.trimIndent()
-        tempFileSystem.writeEditorConfigFile(projectDir, editorconfigFile)
-        val lintFile = tempFileSystem.normalizedPath(projectDir).resolve("test.kts")
+        fileSystemMock.writeEditorConfigFile(projectDir, editorconfigFile)
+        val lintFile = fileSystemMock.normalizedPath(projectDir).resolve("test.kts")
 
-        val editorConfigProperties = editorConfigLoader.loadPropertiesForFile(lintFile, rules = rules)
+        val editorConfigProperties = editorConfigLoader.load(lintFile, rules = rules)
         val parsedEditorConfig = editorConfigProperties.convertToRawValues()
 
         assertThat(parsedEditorConfig).isNotEmpty
@@ -241,7 +230,7 @@ internal class EditorConfigLoaderTest {
 
     @Test
     fun `Should return the override properties only on null file path`() {
-        val parsedEditorConfig = editorConfigLoader.loadPropertiesForFile(
+        val parsedEditorConfig = editorConfigLoader.load(
             filePath = null,
             rules = rules,
             editorConfigOverride = EditorConfigOverride.from(insertNewLineProperty to "true")
@@ -254,7 +243,7 @@ internal class EditorConfigLoaderTest {
 
     @Test
     fun `Should return the override properties only non supported file`() {
-        val parsedEditorConfig = editorConfigLoader.loadPropertiesForFile(
+        val parsedEditorConfig = editorConfigLoader.load(
             filePath = null,
             rules = rules,
             editorConfigOverride = EditorConfigOverride.from(insertNewLineProperty to "true")
@@ -274,7 +263,7 @@ internal class EditorConfigLoaderTest {
             insert_final_newline = true
             disabled_rules = import-ordering
             """.trimIndent()
-        tempFileSystem.writeEditorConfigFile(".", editorconfigFile)
+        fileSystemMock.writeEditorConfigFile(".", editorconfigFile)
 
         val editorConfigProperties = editorConfigLoader.loadPropertiesForFile(
             filePath = null,
@@ -293,6 +282,7 @@ internal class EditorConfigLoaderTest {
         )
     }
 
+    //language=
     @Test
     fun `Should load properties from alternative provided editorconfig file`() {
         val rootDir = "/projects"
@@ -300,7 +290,7 @@ internal class EditorConfigLoaderTest {
         val anotherDir = "$rootDir/project-2-dir"
 
         //language=EditorConfig
-        tempFileSystem.writeEditorConfigFile(
+        fileSystemMock.writeEditorConfigFile(
             rootDir,
             """
             root = true
@@ -310,7 +300,7 @@ internal class EditorConfigLoaderTest {
         )
 
         //language=EditorConfig
-        tempFileSystem.writeEditorConfigFile(
+        fileSystemMock.writeEditorConfigFile(
             mainProjectDir,
             """
             root = true
@@ -321,7 +311,7 @@ internal class EditorConfigLoaderTest {
         )
 
         //language=EditorConfig
-        tempFileSystem.writeEditorConfigFile(
+        fileSystemMock.writeEditorConfigFile(
             anotherDir,
             """
             [*]
@@ -329,10 +319,10 @@ internal class EditorConfigLoaderTest {
             """.trimIndent()
         )
 
-        val lintFile = tempFileSystem.normalizedPath(mainProjectDir).resolve("test.kt")
+        val lintFile = fileSystemMock.normalizedPath(mainProjectDir).resolve("test.kt")
         val editorConfigProperties = editorConfigLoader.loadPropertiesForFile(
             filePath = lintFile,
-            alternativeEditorConfig = tempFileSystem.normalizedPath(anotherDir).resolve(".editorconfig"),
+            alternativeEditorConfig = fileSystemMock.normalizedPath(anotherDir).resolve(".editorconfig"),
             rules = rules
         )
         val parsedEditorConfig = editorConfigProperties.convertToRawValues()
@@ -347,13 +337,14 @@ internal class EditorConfigLoaderTest {
         )
     }
 
+    //language=
     @Test
     fun `Should load properties from alternative editorconfig on stdin input`() {
         val rootDir = "/projects"
         val anotherDir = "$rootDir/project-2-dir"
 
         //language=EditorConfig
-        tempFileSystem.writeEditorConfigFile(
+        fileSystemMock.writeEditorConfigFile(
             rootDir,
             """
             root = true
@@ -363,7 +354,7 @@ internal class EditorConfigLoaderTest {
         )
 
         //language=EditorConfig
-        tempFileSystem.writeEditorConfigFile(
+        fileSystemMock.writeEditorConfigFile(
             anotherDir,
             """
             [*]
@@ -373,7 +364,7 @@ internal class EditorConfigLoaderTest {
 
         val editorConfigProperties = editorConfigLoader.loadPropertiesForFile(
             filePath = null,
-            alternativeEditorConfig = tempFileSystem.normalizedPath(anotherDir).resolve(".editorconfig"),
+            alternativeEditorConfig = fileSystemMock.normalizedPath(anotherDir).resolve(".editorconfig"),
             isStdIn = true,
             rules = rules
         )
@@ -403,9 +394,9 @@ internal class EditorConfigLoaderTest {
             [api/*.{kt,kts}]
             disabled_rules = class-must-be-internal
             """.trimIndent()
-        tempFileSystem.writeEditorConfigFile(projectDir, editorconfigFile)
+        fileSystemMock.writeEditorConfigFile(projectDir, editorconfigFile)
 
-        val lintFile = tempFileSystem.normalizedPath(projectDir).resolve("api").resolve("test.kt")
+        val lintFile = fileSystemMock.normalizedPath(projectDir).resolve("api").resolve("test.kt")
         Files.createDirectories(lintFile)
 
         val editorConfigProperties = editorConfigLoader.loadPropertiesForFile(lintFile, debug = true, rules = rules)
@@ -430,11 +421,11 @@ internal class EditorConfigLoaderTest {
             [*.{kt,kts}]
             disabled_rules=import-ordering, no-wildcard-imports
             """.trimIndent()
-        tempFileSystem.writeEditorConfigFile(projectDir, editorconfigFile)
+        fileSystemMock.writeEditorConfigFile(projectDir, editorconfigFile)
 
-        val lintFile = tempFileSystem.normalizedPath(projectDir).resolve("test.kts")
+        val lintFile = fileSystemMock.normalizedPath(projectDir).resolve("test.kts")
 
-        val editorConfigProperties = editorConfigLoader.loadPropertiesForFile(
+        val editorConfigProperties = editorConfigLoader.load(
             lintFile,
             rules = rules.plus(FinalNewlineRule()),
             editorConfigOverride = EditorConfigOverride.from(insertNewLineProperty to "true")
@@ -460,11 +451,11 @@ internal class EditorConfigLoaderTest {
             [*.{kt,kts}]
             insert_final_newline = true
             """.trimIndent()
-        tempFileSystem.writeEditorConfigFile(projectDir, editorconfigFile)
+        fileSystemMock.writeEditorConfigFile(projectDir, editorconfigFile)
 
-        val lintFile = tempFileSystem.normalizedPath(projectDir).resolve("test.kts")
+        val lintFile = fileSystemMock.normalizedPath(projectDir).resolve("test.kts")
 
-        val editorConfigProperties = editorConfigLoader.loadPropertiesForFile(
+        val editorConfigProperties = editorConfigLoader.load(
             lintFile,
             rules = rules.plus(FinalNewlineRule()),
             editorConfigOverride = EditorConfigOverride.from(insertNewLineProperty to "false")
@@ -477,6 +468,464 @@ internal class EditorConfigLoaderTest {
                 "insert_final_newline" to "false"
             )
         )
+    }
+
+    // TODO: To be removed when method loadPropertiesForFile is removed
+    @Nested
+    inner class LoadPropertiesForFile {
+        @Test
+        fun testParentDirectoryFallback() {
+            val projectDir = "/projects/project-1"
+            val projectSubDirectory = "$projectDir/project-1-subdirectory"
+            Files.createDirectories(fileSystemMock.normalizedPath(projectSubDirectory))
+            //language=EditorConfig
+            val editorConfigFiles = arrayOf(
+                """
+                [*]
+                indent_size = 2
+                """.trimIndent(),
+                """
+                root = true
+                [*]
+                indent_size = 2
+                """.trimIndent(),
+                """
+                [*]
+                indent_size = 4
+                [*.{kt,kts}]
+                indent_size = 2
+                """.trimIndent(),
+                """
+                [*.{kt,kts}]
+                indent_size = 4
+                [*]
+                indent_size = 2
+                """.trimIndent()
+            )
+
+            editorConfigFiles.forEach { editorConfigFileContent ->
+                fileSystemMock.writeEditorConfigFile(projectDir, editorConfigFileContent)
+
+                val lintFile = fileSystemMock.normalizedPath(projectDir).resolve("test.kt")
+                val editorConfig = editorConfigLoader.loadPropertiesForFile(lintFile, rules = rules)
+                val parsedEditorConfig = editorConfig.convertToRawValues()
+
+                assertThat(parsedEditorConfig).isNotEmpty
+                assertThat(parsedEditorConfig)
+                    .overridingErrorMessage(
+                        "Expected \n%s\nto yield indent_size = 2",
+                        editorConfigFileContent
+                    )
+                    .isEqualTo(
+                        mapOf(
+                            "indent_size" to "2",
+                            "tab_width" to "2"
+                        )
+                    )
+            }
+        }
+
+        //language=
+        @Test
+        fun testRootTermination() {
+            val rootDir = "/projects"
+            val project1Dir = "$rootDir/project-1"
+            val project1Subdirectory = "$project1Dir/project-1-subdirectory"
+
+            //language=EditorConfig
+            fileSystemMock.writeEditorConfigFile(
+                rootDir,
+                """
+                root = true
+                [*]
+                end_of_line = lf
+                """.trimIndent()
+            )
+
+            //language=EditorConfig
+            fileSystemMock.writeEditorConfigFile(
+                project1Dir,
+                """
+                root = true
+                [*.{kt,kts}]
+                indent_size = 4
+                indent_style = space
+                """.trimIndent()
+            )
+
+            //language=EditorConfig
+            fileSystemMock.writeEditorConfigFile(
+                project1Subdirectory,
+                """
+                [*]
+                indent_size = 2
+                """.trimIndent()
+            )
+
+            val lintFileSubdirectory = fileSystemMock.normalizedPath(project1Subdirectory).resolve("test.kt")
+            var editorConfigProperties = editorConfigLoader.loadPropertiesForFile(lintFileSubdirectory, rules = rules)
+            var parsedEditorConfig = editorConfigProperties.convertToRawValues()
+
+            assertThat(parsedEditorConfig).isEqualTo(
+                mapOf(
+                    "indent_size" to "2",
+                    "tab_width" to "2",
+                    "indent_style" to "space"
+                )
+            )
+
+            val lintFileMainDir = fileSystemMock.normalizedPath(project1Dir).resolve("test.kts")
+            editorConfigProperties = editorConfigLoader.loadPropertiesForFile(lintFileMainDir, rules = rules)
+            parsedEditorConfig = editorConfigProperties.convertToRawValues()
+
+            assertThat(parsedEditorConfig).isEqualTo(
+                mapOf(
+                    "indent_size" to "4",
+                    "tab_width" to "4",
+                    "indent_style" to "space"
+                )
+            )
+
+            val lintFileRoot = fileSystemMock.normalizedPath(rootDir).resolve("test.kt")
+            editorConfigProperties = editorConfigLoader.loadPropertiesForFile(lintFileRoot, rules = rules)
+            parsedEditorConfig = editorConfigProperties.convertToRawValues()
+
+            assertThat(parsedEditorConfig).isEqualTo(
+                mapOf(
+                    "end_of_line" to "lf"
+                )
+            )
+        }
+
+        @Test
+        fun `Should parse assignment with spaces`() {
+            val projectDir = "/project"
+
+            @Language("EditorConfig")
+            val editorconfigFile =
+                """
+                [*.{kt,kts}]
+                insert_final_newline = true
+                disabled_rules = import-ordering
+                """.trimIndent()
+            fileSystemMock.writeEditorConfigFile(projectDir, editorconfigFile)
+
+            val lintFile = fileSystemMock.normalizedPath(projectDir).resolve("test.kt")
+            val editorConfigProperties = editorConfigLoader.loadPropertiesForFile(lintFile, rules = rules)
+            val parsedEditorConfig = editorConfigProperties.convertToRawValues()
+
+            assertThat(parsedEditorConfig).isNotEmpty
+            assertThat(parsedEditorConfig).isEqualTo(
+                mapOf(
+                    "insert_final_newline" to "true",
+                    "disabled_rules" to "import-ordering"
+                )
+            )
+        }
+
+        @Test
+        fun `Should parse unset values`() {
+            val projectDir = "/project"
+
+            @Language("EditorConfig")
+            val editorconfigFile =
+                """
+                [*.{kt,kts}]
+                indent_size = unset
+                """.trimIndent()
+            fileSystemMock.writeEditorConfigFile(projectDir, editorconfigFile)
+
+            val lintFile = fileSystemMock.normalizedPath(projectDir).resolve("test.kt")
+            val editorConfigProperties = editorConfigLoader.loadPropertiesForFile(lintFile, rules = rules)
+            val parsedEditorConfig = editorConfigProperties.convertToRawValues()
+
+            assertThat(parsedEditorConfig).isNotEmpty
+            assertThat(parsedEditorConfig).isEqualTo(
+                mapOf(
+                    "indent_size" to "unset",
+                    "tab_width" to "unset"
+                )
+            )
+        }
+
+        @Test
+        fun `Should parse list with spaces after comma`() {
+            val projectDir = "/project"
+
+            @Language("EditorConfig")
+            val editorconfigFile =
+                """
+                [*.{kt,kts}]
+                disabled_rules=import-ordering, no-wildcard-imports
+                """.trimIndent()
+            fileSystemMock.writeEditorConfigFile(projectDir, editorconfigFile)
+            val lintFile = fileSystemMock.normalizedPath(projectDir).resolve("test.kts")
+
+            val editorConfigProperties = editorConfigLoader.loadPropertiesForFile(lintFile, rules = rules)
+            val parsedEditorConfig = editorConfigProperties.convertToRawValues()
+
+            assertThat(parsedEditorConfig).isNotEmpty
+            assertThat(parsedEditorConfig).isEqualTo(
+                mapOf(
+                    "disabled_rules" to "import-ordering, no-wildcard-imports"
+                )
+            )
+        }
+
+        @Test
+        fun `Should return the override properties only on null file path`() {
+            val parsedEditorConfig = editorConfigLoader.loadPropertiesForFile(
+                filePath = null,
+                rules = rules,
+                editorConfigOverride = EditorConfigOverride.from(insertNewLineProperty to "true")
+            )
+
+            assertThat(parsedEditorConfig.convertToRawValues()).containsExactly(
+                entry("insert_final_newline", "true")
+            )
+        }
+
+        @Test
+        fun `Should return the override properties only non supported file`() {
+            val parsedEditorConfig = editorConfigLoader.loadPropertiesForFile(
+                filePath = null,
+                rules = rules,
+                editorConfigOverride = EditorConfigOverride.from(insertNewLineProperty to "true")
+            )
+
+            assertThat(parsedEditorConfig.convertToRawValues()).containsExactly(
+                entry("insert_final_newline", "true")
+            )
+        }
+
+        @Test
+        fun `Should return properties for stdin from current directory`() {
+            @Language("EditorConfig")
+            val editorconfigFile =
+                """
+                [*.{kt,kts}]
+                insert_final_newline = true
+                disabled_rules = import-ordering
+                """.trimIndent()
+            fileSystemMock.writeEditorConfigFile(".", editorconfigFile)
+
+            val editorConfigProperties = editorConfigLoader.loadPropertiesForFile(
+                filePath = null,
+                isStdIn = true,
+                rules = rules,
+                debug = true
+            )
+            val parsedEditorConfig = editorConfigProperties.convertToRawValues()
+
+            assertThat(parsedEditorConfig).isNotEmpty
+            assertThat(parsedEditorConfig).isEqualTo(
+                mapOf(
+                    "insert_final_newline" to "true",
+                    "disabled_rules" to "import-ordering"
+                )
+            )
+        }
+
+        //language=
+        @Test
+        fun `Should load properties from alternative provided editorconfig file`() {
+            val rootDir = "/projects"
+            val mainProjectDir = "$rootDir/project-1"
+            val anotherDir = "$rootDir/project-2-dir"
+
+            //language=EditorConfig
+            fileSystemMock.writeEditorConfigFile(
+                rootDir,
+                """
+                root = true
+                [*]
+                end_of_line = lf
+                """.trimIndent()
+            )
+
+            //language=EditorConfig
+            fileSystemMock.writeEditorConfigFile(
+                mainProjectDir,
+                """
+                root = true
+                [*.{kt,kts}]
+                indent_size = 4
+                indent_style = space
+                """.trimIndent()
+            )
+
+            //language=EditorConfig
+            fileSystemMock.writeEditorConfigFile(
+                anotherDir,
+                """
+                [*]
+                indent_size = 2
+                """.trimIndent()
+            )
+
+            val lintFile = fileSystemMock.normalizedPath(mainProjectDir).resolve("test.kt")
+            val editorConfigProperties = editorConfigLoader.loadPropertiesForFile(
+                filePath = lintFile,
+                alternativeEditorConfig = fileSystemMock.normalizedPath(anotherDir).resolve(".editorconfig"),
+                rules = rules
+            )
+            val parsedEditorConfig = editorConfigProperties.convertToRawValues()
+
+            assertThat(parsedEditorConfig).isNotEmpty
+            assertThat(parsedEditorConfig).isEqualTo(
+                mapOf(
+                    "end_of_line" to "lf",
+                    "indent_size" to "2",
+                    "tab_width" to "2"
+                )
+            )
+        }
+
+        //language=
+        @Test
+        fun `Should load properties from alternative editorconfig on stdin input`() {
+            val rootDir = "/projects"
+            val anotherDir = "$rootDir/project-2-dir"
+
+            //language=EditorConfig
+            fileSystemMock.writeEditorConfigFile(
+                rootDir,
+                """
+                root = true
+                [*]
+                end_of_line = lf
+                """.trimIndent()
+            )
+
+            //language=EditorConfig
+            fileSystemMock.writeEditorConfigFile(
+                anotherDir,
+                """
+                [*]
+                indent_size = 2
+                """.trimIndent()
+            )
+
+            val editorConfigProperties = editorConfigLoader.loadPropertiesForFile(
+                filePath = null,
+                alternativeEditorConfig = fileSystemMock.normalizedPath(anotherDir).resolve(".editorconfig"),
+                isStdIn = true,
+                rules = rules
+            )
+            val parsedEditorConfig = editorConfigProperties.convertToRawValues()
+
+            assertThat(parsedEditorConfig).isNotEmpty
+            assertThat(parsedEditorConfig).isEqualTo(
+                mapOf(
+                    "end_of_line" to "lf",
+                    "indent_size" to "2",
+                    "tab_width" to "2"
+                )
+            )
+        }
+
+        @Test
+        fun `Should support editorconfig globs when loading properties for file specified under such glob`() {
+            val projectDir = "/project"
+
+            @Language("EditorConfig")
+            val editorconfigFile =
+                """
+                [*.{kt,kts}]
+                insert_final_newline = true
+                disabled_rules = import-ordering
+
+                [api/*.{kt,kts}]
+                disabled_rules = class-must-be-internal
+                """.trimIndent()
+            fileSystemMock.writeEditorConfigFile(projectDir, editorconfigFile)
+
+            val lintFile = fileSystemMock.normalizedPath(projectDir).resolve("api").resolve("test.kt")
+            Files.createDirectories(lintFile)
+
+            val editorConfigProperties = editorConfigLoader.loadPropertiesForFile(lintFile, debug = true, rules = rules)
+            val parsedEditorConfig = editorConfigProperties.convertToRawValues()
+
+            assertThat(parsedEditorConfig).isNotEmpty
+            assertThat(parsedEditorConfig).isEqualTo(
+                mapOf(
+                    "insert_final_newline" to "true",
+                    "disabled_rules" to "class-must-be-internal"
+                )
+            )
+        }
+
+        @Test
+        fun `Should add property from override`() {
+            val projectDir = "/project"
+
+            @Language("EditorConfig")
+            val editorconfigFile =
+                """
+                [*.{kt,kts}]
+                disabled_rules=import-ordering, no-wildcard-imports
+                """.trimIndent()
+            fileSystemMock.writeEditorConfigFile(projectDir, editorconfigFile)
+
+            val lintFile = fileSystemMock.normalizedPath(projectDir).resolve("test.kts")
+
+            val editorConfigProperties = editorConfigLoader.loadPropertiesForFile(
+                lintFile,
+                rules = rules.plus(FinalNewlineRule()),
+                editorConfigOverride = EditorConfigOverride.from(insertNewLineProperty to "true")
+            )
+            val parsedEditorConfig = editorConfigProperties.convertToRawValues()
+
+            assertThat(parsedEditorConfig).isNotEmpty
+            assertThat(parsedEditorConfig).isEqualTo(
+                mapOf(
+                    "disabled_rules" to "import-ordering, no-wildcard-imports",
+                    "insert_final_newline" to "true"
+                )
+            )
+        }
+
+        @Test
+        fun `Should replace property from override`() {
+            val projectDir = "/project"
+
+            @Language("EditorConfig")
+            val editorconfigFile =
+                """
+                [*.{kt,kts}]
+                insert_final_newline = true
+                """.trimIndent()
+            fileSystemMock.writeEditorConfigFile(projectDir, editorconfigFile)
+
+            val lintFile = fileSystemMock.normalizedPath(projectDir).resolve("test.kts")
+
+            val editorConfigProperties = editorConfigLoader.loadPropertiesForFile(
+                lintFile,
+                rules = rules.plus(FinalNewlineRule()),
+                editorConfigOverride = EditorConfigOverride.from(insertNewLineProperty to "false")
+            )
+            val parsedEditorConfig = editorConfigProperties.convertToRawValues()
+
+            assertThat(parsedEditorConfig).isNotEmpty
+            assertThat(parsedEditorConfig).isEqualTo(
+                mapOf(
+                    "insert_final_newline" to "false"
+                )
+            )
+        }
+    }
+
+    private fun FileSystem.normalizedPath(path: String): Path {
+        val root = rootDirectories.joinToString(separator = "/")
+        return getPath("$root$path")
+    }
+
+    private fun FileSystem.writeEditorConfigFile(
+        filePath: String,
+        content: String
+    ) {
+        Files.createDirectories(normalizedPath(filePath))
+        Files.write(normalizedPath("$filePath/.editorconfig"), content.toByteArray())
     }
 
     private class TestRule : Rule("editorconfig-test"), UsesEditorConfigProperties {
