@@ -93,15 +93,15 @@ class AnnotationRuleTest {
             """.trimIndent()
         annotationRuleAssertThat(code)
             .hasLintViolations(
-                LintViolation(1, 1, "Annotations with parameters should all be placed on separate lines prior to the annotated construct"),
-                LintViolation(2, 5, "Annotations with parameters should all be placed on separate lines prior to the annotated construct"),
-                LintViolation(3, 5, "Annotations with parameters should all be placed on separate lines prior to the annotated construct"),
-                LintViolation(5, 1, "Annotations with parameters should all be placed on separate lines prior to the annotated construct"),
-                LintViolation(6, 5, "Annotations with parameters should all be placed on separate lines prior to the annotated construct"),
-                LintViolation(7, 5, "Annotations with parameters should all be placed on separate lines prior to the annotated construct"),
-                LintViolation(9, 1, "Annotations with parameters should all be placed on separate lines prior to the annotated construct"),
-                LintViolation(10, 5, "Annotations with parameters should all be placed on separate lines prior to the annotated construct"),
-                LintViolation(11, 5, "Annotations with parameters should all be placed on separate lines prior to the annotated construct")
+                LintViolation(1, 1, "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct"),
+                LintViolation(2, 5, "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct"),
+                LintViolation(3, 5, "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct"),
+                LintViolation(5, 1, "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct"),
+                LintViolation(6, 5, "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct"),
+                LintViolation(7, 5, "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct"),
+                LintViolation(9, 1, "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct"),
+                LintViolation(10, 5, "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct"),
+                LintViolation(11, 5, "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct")
             ).isFormattedAs(formattedCode)
     }
 
@@ -144,11 +144,7 @@ class AnnotationRuleTest {
             var foo: String
             """.trimIndent()
         annotationRuleAssertThat(code)
-            .hasLintViolation(
-                1,
-                1,
-                "Multiple annotations should not be placed on the same line as the annotated construct"
-            )
+            .hasLintViolation(1, 1, "Multiple annotations should not be placed on the same line as the annotated construct")
             .isFormattedAs(formattedCode)
     }
 
@@ -156,21 +152,15 @@ class AnnotationRuleTest {
     fun `Given multiple annotations on same line as annotated construct (without indentation but preceded by one or more blank line)`() {
         val code =
             """
-
             @JvmField @Volatile var foo: String
             """.trimIndent()
         val formattedCode =
             """
-
             @JvmField @Volatile
             var foo: String
             """.trimIndent()
         annotationRuleAssertThat(code)
-            .hasLintViolation(
-                2,
-                1,
-                "Multiple annotations should not be placed on the same line as the annotated construct"
-            )
+            .hasLintViolation(1, 1, "Multiple annotations should not be placed on the same line as the annotated construct")
             .isFormattedAs(formattedCode)
     }
 
@@ -185,16 +175,19 @@ class AnnotationRuleTest {
             """.trimIndent()
         val formattedCode =
             """
-            @Suppress("AnnotationRule") class FooBar {
-                @Suppress("AnnotationRule") var foo: String
-                @Suppress("AnnotationRule") fun bar() {}
+            @Suppress("AnnotationRule")
+            class FooBar {
+                @Suppress("AnnotationRule")
+                var foo: String
+                @Suppress("AnnotationRule")
+                fun bar() {}
             }
             """.trimIndent()
         annotationRuleAssertThat(code)
             .hasLintViolations(
-                LintViolation(1, 27, "Missing spacing after @Suppress(\"AnnotationRule\")"),
-                LintViolation(2, 31, "Missing spacing after @Suppress(\"AnnotationRule\")"),
-                LintViolation(3, 31, "Missing spacing after @Suppress(\"AnnotationRule\")")
+                LintViolation(1, 1, "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct"),
+                LintViolation(2, 5, "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct"),
+                LintViolation(3, 5, "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct")
             ).isFormattedAs(formattedCode)
     }
 
@@ -224,12 +217,29 @@ class AnnotationRuleTest {
             }
             """.trimIndent()
         annotationRuleAssertThat(code)
-            // TODO: Offset and message is not entirely clear
-            .hasLintViolation(
-                2,
-                5,
-                "Annotations with parameters should all be placed on separate lines prior to the annotated construct"
-            )
+            .hasLintViolation(2, 5, "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct")
+            .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given a annotation with parameter followed by an annotation without parameters on the same line as the annotated construct`() {
+        val code =
+            """
+            class FooBar {
+                @Foo("foo")
+                @Bar val bar: Any
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            class FooBar {
+                @Foo("foo")
+                @Bar
+                val bar: Any
+            }
+            """.trimIndent()
+        annotationRuleAssertThat(code)
+            .hasLintViolation(3, 5, "Annotation must be placed on separate line")
             .isFormattedAs(formattedCode)
     }
 
@@ -384,7 +394,7 @@ class AnnotationRuleTest {
                 """.trimIndent()
             annotationRuleAssertThat(code)
                 .hasLintViolations(
-                    LintViolation(1, 1, "Annotations with parameters should all be placed on separate lines prior to the annotated construct"),
+                    LintViolation(1, 1, "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct"),
                     LintViolation(1, 25, "File annotations should be separated from file contents with a blank line")
                 ).isFormattedAs(formattedCode)
         }
@@ -474,5 +484,48 @@ class AnnotationRuleTest {
 
             """.trimIndent()
         annotationRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Issue 1539 - Given an annotation with parameter followed by an EOL comment and followed by another annotation`() {
+        val code =
+            """
+            @Suppress("AnnotationRule") // some comment
+            @Bar
+            class Foo
+            """.trimIndent()
+        annotationRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Issue 1539 - Given an annotation with parameter followed by an EOL comment on separate line before annotated construct`() {
+        val code =
+            """
+            @Suppress("AnnotationRule")
+            // some comment between last annotation and annotated construct
+            class Foo
+            """.trimIndent()
+        annotationRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Given a line containing multiple annotations without parameters and another line with another annotation`() {
+        val code =
+            """
+            @Foo1
+            @Foo2 @Foo3
+            fun foo() {}
+            """.trimIndent()
+        val formattedCode =
+            """
+            @Foo1
+            @Foo2
+            @Foo3
+            fun foo() {}
+            """.trimIndent()
+        annotationRuleAssertThat(code)
+            .asKotlinScript()
+            .hasLintViolation(2, 1, "Annotation must be placed on separate line")
+            .isFormattedAs(formattedCode)
     }
 }
