@@ -4,17 +4,23 @@ import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType
+import com.pinterest.ktlint.core.ast.ElementType.ARROW
+import com.pinterest.ktlint.core.ast.ElementType.WHEN_ENTRY
+import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.core.ast.children
 import com.pinterest.ktlint.core.ast.containsLineBreakInRange
+import com.pinterest.ktlint.core.ast.lineIndent
 import com.pinterest.ktlint.core.ast.lineNumber
 import com.pinterest.ktlint.core.ast.prevCodeLeaf
 import com.pinterest.ktlint.core.ast.prevLeaf
+import com.pinterest.ktlint.core.ast.upsertWhitespaceAfterMe
 import kotlin.properties.Delegates
 import org.ec4j.core.model.PropertyType
 import org.ec4j.core.model.PropertyType.PropertyValueParser
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
+import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtCollectionLiteralExpression
@@ -28,6 +34,7 @@ import org.jetbrains.kotlin.psi.KtWhenExpression
 import org.jetbrains.kotlin.psi.psiUtil.anyDescendantOfType
 import org.jetbrains.kotlin.psi.psiUtil.collectDescendantsOfType
 import org.jetbrains.kotlin.psi.psiUtil.nextLeaf
+import org.jetbrains.kotlin.psi.psiUtil.parents
 import org.jetbrains.kotlin.psi.psiUtil.prevLeaf
 import org.jetbrains.kotlin.utils.addToStdlib.cast
 
@@ -237,62 +244,87 @@ public class TrailingCommaOnDeclarationSiteRule :
             else -> if (trailingCommaNode != null) TrailingCommaState.REDUNDANT else TrailingCommaState.NOT_EXISTS
         }
         when (trailingCommaState) {
-            TrailingCommaState.EXISTS -> if (!isTrailingCommaAllowed) {
-                emit(
-                    trailingCommaNode!!.startOffset,
-                    "Unnecessary trailing comma before \"${inspectNode.text}\"",
-                    true
-                )
-                if (autoCorrect) {
-                    this.removeChild(trailingCommaNode)
-                }
-            }
-            TrailingCommaState.MISSING -> if (isTrailingCommaAllowed) {
-                val addNewLineBeforeArrowInWhenEntry = addNewLineBeforeArrowInWhen()
-                val prevNode = inspectNode.prevCodeLeaf()!!
-                if (addNewLineBeforeArrowInWhenEntry) {
-                    emit(
-                        prevNode.startOffset + prevNode.textLength,
-                        "Missing trailing comma and newline before \"${inspectNode.text}\"",
-                        true
-                    )
-                } else {
-                    emit(
-                        prevNode.startOffset + prevNode.textLength,
-                        "Missing trailing comma before \"${inspectNode.text}\"",
-                        true
-                    )
-                }
-                if (autoCorrect) {
-                    if (addNewLineBeforeArrowInWhenEntry) {
-                        val parentIndent = (prevNode.psi.parent.prevLeaf() as? PsiWhiteSpace)?.text ?: "\n"
-                        val leafBeforeArrow = (psi as KtWhenEntry).arrow?.prevLeaf()
-                        if (leafBeforeArrow != null && leafBeforeArrow is PsiWhiteSpace) {
-                            val newLine = KtPsiFactory(prevNode.psi).createWhiteSpace(parentIndent)
-                            leafBeforeArrow.replace(newLine)
-                        } else {
-                            val newLine = KtPsiFactory(prevNode.psi).createWhiteSpace(parentIndent)
-                            prevNode.psi.parent.addAfter(newLine, prevNode.psi)
-                        }
-                    }
-
-                    if (inspectNode.treeParent.elementType == ElementType.ENUM_ENTRY) {
-                        with(KtPsiFactory(prevNode.psi)) {
-                            val parentIndent = (prevNode.psi.parent.prevLeaf() as? PsiWhiteSpace)?.text ?: "\n"
-                            val newline = createWhiteSpace(parentIndent)
-                            val enumEntry = inspectNode.treeParent.psi
-                            enumEntry.apply {
-                                add(newline)
-                                removeChild(inspectNode)
-                                parent.addAfter(createSemicolon(), this)
+            TrailingCommaState.EXISTS ->
+                if (isTrailingCommaAllowed) {
+                    inspectNode
+                        .treeParent
+                        .takeIf { it.elementType == WHEN_ENTRY }
+                        ?.findChildByType(ARROW)
+                        ?.prevLeaf()
+                        ?.let { lastNodeBeforeArrow ->
+                            if (lastNodeBeforeArrow.elementType != WHITE_SPACE || !lastNodeBeforeArrow.textContains('\n')) {
+                                emit(
+                                    trailingCommaNode!!.startOffset,
+                                    "Expected a newline between the trailing comma and  \"${inspectNode.text}\"",
+                                    true
+                                )
+                                if (autoCorrect) {
+                                    val parentIndent = "\n" + inspectNode.getWhenEntryIndent()
+                                    if (lastNodeBeforeArrow.elementType == WHITE_SPACE) {
+                                        (lastNodeBeforeArrow as LeafPsiElement).rawReplaceWithText(parentIndent)
+                                    } else {
+                                        (lastNodeBeforeArrow as LeafPsiElement).upsertWhitespaceAfterMe(parentIndent)
+                                    }
+                                }
                             }
                         }
+                } else {
+                    emit(
+                        trailingCommaNode!!.startOffset,
+                        "Unnecessary trailing comma before \"${inspectNode.text}\"",
+                        true
+                    )
+                    if (autoCorrect) {
+                        this.removeChild(trailingCommaNode)
                     }
-
-                    val comma = KtPsiFactory(prevNode.psi).createComma()
-                    prevNode.psi.parent.addAfter(comma, prevNode.psi)
                 }
-            }
+            TrailingCommaState.MISSING ->
+                if (isTrailingCommaAllowed) {
+                    val addNewLineBeforeArrowInWhenEntry = addNewLineBeforeArrowInWhen()
+                    val prevNode = inspectNode.prevCodeLeaf()!!
+                    if (addNewLineBeforeArrowInWhenEntry) {
+                        emit(
+                            prevNode.startOffset + prevNode.textLength,
+                            "Missing trailing comma and newline before \"${inspectNode.text}\"",
+                            true
+                        )
+                    } else {
+                        emit(
+                            prevNode.startOffset + prevNode.textLength,
+                            "Missing trailing comma before \"${inspectNode.text}\"",
+                            true
+                        )
+                    }
+                    if (autoCorrect) {
+                        if (addNewLineBeforeArrowInWhenEntry) {
+                            val parentIndent = "\n" + prevNode.getWhenEntryIndent()
+                            val leafBeforeArrow = (psi as KtWhenEntry).arrow?.prevLeaf()
+                            if (leafBeforeArrow != null && leafBeforeArrow is PsiWhiteSpace) {
+                                val newLine = KtPsiFactory(prevNode.psi).createWhiteSpace(parentIndent)
+                                leafBeforeArrow.replace(newLine)
+                            } else {
+                                val newLine = KtPsiFactory(prevNode.psi).createWhiteSpace(parentIndent)
+                                prevNode.psi.parent.addAfter(newLine, prevNode.psi)
+                            }
+                        }
+
+                        if (inspectNode.treeParent.elementType == ElementType.ENUM_ENTRY) {
+                            with(KtPsiFactory(prevNode.psi)) {
+                                val parentIndent = (prevNode.psi.parent.prevLeaf() as? PsiWhiteSpace)?.text ?: "\n"
+                                val newline = createWhiteSpace(parentIndent)
+                                val enumEntry = inspectNode.treeParent.psi
+                                enumEntry.apply {
+                                    add(newline)
+                                    removeChild(inspectNode)
+                                    parent.addAfter(createSemicolon(), this)
+                                }
+                            }
+                        }
+
+                        val comma = KtPsiFactory(prevNode.psi).createComma()
+                        prevNode.psi.parent.addAfter(comma, prevNode.psi)
+                    }
+                }
             TrailingCommaState.REDUNDANT -> {
                 emit(
                     trailingCommaNode!!.startOffset,
@@ -306,6 +338,12 @@ public class TrailingCommaOnDeclarationSiteRule :
             TrailingCommaState.NOT_EXISTS -> Unit
         }
     }
+
+    private fun ASTNode.getWhenEntryIndent() =
+        // The when entry can be a simple value but might also be a complex expression.
+        parents()
+            .last { it.elementType == ElementType.WHEN_ENTRY }
+            .lineIndent()
 
     private fun isMultiline(element: PsiElement): Boolean = when {
         element.parent is KtFunctionLiteral -> isMultiline(element.parent)

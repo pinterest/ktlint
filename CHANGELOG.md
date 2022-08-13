@@ -149,6 +149,8 @@ Although, Ktlint 0.47.0 falls back on property `disabled_rules` whenever `ktlint
 * Handle trailing comma in enums `trailing-comma` ([#1542](https://github.com/pinterest/ktlint/pull/1542))
 * Allow EOL comment after annotation ([#1539](https://github.com/pinterest/ktlint/issues/1539))
 * Split rule `trailing-comma` into `trailing-comma-on-call-site` and `trailing-comma-on-declaration-site` ([#1555](https://github.com/pinterest/ktlint/pull/1555))
+* Fix indent of when entry with a dot qualified expression instead of simple value when trailing comma is required ([#1519](https://github.com/pinterest/ktlint/pull/1519))
+* Fix whitespace between trailing comma and arrow in when entry when trailing comma is required ([#1519](https://github.com/pinterest/ktlint/pull/1519))
 
 ### Changed
 
