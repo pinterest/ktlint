@@ -11,7 +11,7 @@ import picocli.CommandLine
     mixinStandardHelpOptions = true,
     versionProvider = KtlintVersionProvider::class
 )
-class GitPrePushHookSubCommand : Runnable {
+internal class GitPrePushHookSubCommand : Runnable {
     @CommandLine.ParentCommand
     private lateinit var ktlintCommand: KtlintCommandLine
 
@@ -33,7 +33,7 @@ class GitPrePushHookSubCommand : Runnable {
         )
         .readBytes()
 
-    companion object {
-        const val COMMAND_NAME = "installGitPrePushHook"
+    internal companion object {
+        internal const val COMMAND_NAME = "installGitPrePushHook"
     }
 }

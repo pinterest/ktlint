@@ -8,7 +8,7 @@ import java.nio.file.Paths
 import java.util.ArrayList
 import java.util.concurrent.ConcurrentHashMap
 
-class BaselineReporter(val out: PrintStream) : Reporter {
+public class BaselineReporter(private val out: PrintStream) : Reporter {
 
     private val acc = ConcurrentHashMap<String, MutableList<LintError>>()
 

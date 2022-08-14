@@ -38,7 +38,7 @@ import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 import org.jetbrains.kotlin.psi.KtImportDirective
 import org.jetbrains.kotlin.psi.KtPrefixExpression
 
-class SpacingAroundOperatorsRule : Rule("op-spacing") {
+public class SpacingAroundOperatorsRule : Rule("op-spacing") {
 
     private val tokenSet = TokenSet.create(
         MUL, PLUS, MINUS, DIV, PERC, LT, GT, LTEQ, GTEQ, EQEQEQ, EXCLEQEQEQ, EQEQ,

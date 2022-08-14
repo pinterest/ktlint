@@ -1484,6 +1484,7 @@ private open class DummyRule(
  * A dummy rule for testing
  */
 private class AutoCorrectErrorRule : Rule("auto-correct") {
+    @Suppress("OVERRIDE_DEPRECATION")
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,

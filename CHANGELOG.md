@@ -128,6 +128,10 @@ The `.editorconfig` property `disabled_rules` (api property `DefaultEditorConfig
 
 Although, Ktlint 0.47.0 falls back on property `disabled_rules` whenever `ktlint_disabled_rules` is not found, this result in a warning message being printed. 
 
+#### Miscellaneous
+
+Several methods for which it is unlikely that they are used by API consumers have been marked for removal from the public API in KtLint 0.48.0. Please create an issue in case you have a valid business case to keep such methods in the public API.
+
 ### Added
 
 * Add `format` reporter. This reporter prints a one-line-summary of the formatting status per file. ([#621](https://github.com/pinterest/ktlint/issue/621)).

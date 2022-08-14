@@ -9,7 +9,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
-class SpacingAroundDotRule : Rule("dot-spacing") {
+public class SpacingAroundDotRule : Rule("dot-spacing") {
 
     override fun beforeVisitChildNodes(
         node: ASTNode,

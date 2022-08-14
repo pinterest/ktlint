@@ -27,7 +27,7 @@ import org.jetbrains.kotlin.psi.KtIfExpression
 import org.jetbrains.kotlin.psi.KtLoopExpression
 import org.jetbrains.kotlin.psi.psiUtil.getStrictParentOfType
 
-class NoSemicolonsRule : Rule("no-semi") {
+public class NoSemicolonsRule : Rule("no-semi") {
 
     override fun beforeVisitChildNodes(
         node: ASTNode,

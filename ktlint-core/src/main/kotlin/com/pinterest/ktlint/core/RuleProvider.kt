@@ -28,6 +28,6 @@ public class RuleProvider(
         }
     )
 
-    public fun createNewRuleInstance() =
+    public fun createNewRuleInstance(): Rule =
         provider()
 }

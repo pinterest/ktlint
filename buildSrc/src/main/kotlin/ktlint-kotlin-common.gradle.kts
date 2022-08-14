@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
     kotlin("jvm")
 }
@@ -13,10 +11,8 @@ kotlin {
         languageVersion.set(JavaLanguageVersion.of(8))
     }
 
-    // Do not enable explicit api for cli project
-    if (project.name != "ktlint") {
-        explicitApiWarning()
-    }
+    // All modules, the CLI included, must have an explicit API
+    explicitApi()
 }
 
 addAdditionalJdkVersionTests()
