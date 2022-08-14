@@ -10,18 +10,20 @@ import org.junit.jupiter.api.Test
 class BaselineTests {
     @BeforeEach
     internal fun setUp() {
-        System.setSecurityManager(object : SecurityManager() {
-            override fun checkPermission(perm: Permission?) { // allow anything.
-            }
+        System.setSecurityManager(
+            object : SecurityManager() {
+                override fun checkPermission(perm: Permission?) { // allow anything.
+                }
 
-            override fun checkPermission(perm: Permission?, context: Any?) { // allow anything.
-            }
+                override fun checkPermission(perm: Permission?, context: Any?) { // allow anything.
+                }
 
-            override fun checkExit(status: Int) {
-                super.checkExit(status)
-                throw ExitException()
-            }
-        })
+                override fun checkExit(status: Int) {
+                    super.checkExit(status)
+                    throw ExitException()
+                }
+            },
+        )
     }
 
     @Test

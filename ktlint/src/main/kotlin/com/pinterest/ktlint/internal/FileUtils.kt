@@ -118,7 +118,7 @@ internal fun FileSystem.fileSequence(
                         FileVisitResult.CONTINUE
                     }
                 }
-            }
+            },
         )
     }
     logger.debug { "Results: include ${result.count()} files in $duration ms" }
@@ -165,7 +165,7 @@ private fun getDefaultPatternsForPath(path: Path?) = defaultKotlinFileExtensions
     .flatMap {
         listOf(
             "$path$globSeparator*.$it",
-            "$path$globSeparator**$globSeparator*.$it"
+            "$path$globSeparator**$globSeparator*.$it",
         )
     }
 
@@ -231,8 +231,8 @@ internal fun lintFile(
             lintErrorCallback(e)
         },
         debug = debug,
-        isInvokedFromCli = true
-    )
+        isInvokedFromCli = true,
+    ),
 )
 
 /**
@@ -257,6 +257,6 @@ internal fun formatFile(
             editorConfigPath = editorConfigPath,
             cb = cb,
             debug = debug,
-            isInvokedFromCli = true
-        )
+            isInvokedFromCli = true,
+        ),
     )

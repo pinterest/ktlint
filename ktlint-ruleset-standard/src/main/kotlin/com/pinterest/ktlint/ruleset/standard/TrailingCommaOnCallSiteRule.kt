@@ -36,15 +36,15 @@ public class TrailingCommaOnCallSiteRule :
             VisitorModifier.RunAfterRule(
                 ruleId = "standard:indent",
                 loadOnlyWhenOtherRuleIsLoaded = true,
-                runOnlyWhenOtherRuleIsEnabled = true
+                runOnlyWhenOtherRuleIsEnabled = true,
             ),
-            VisitorModifier.RunAsLateAsPossible
-        )
+            VisitorModifier.RunAsLateAsPossible,
+        ),
     ),
     UsesEditorConfigProperties {
 
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
-        allowTrailingCommaOnCallSiteProperty
+        allowTrailingCommaOnCallSiteProperty,
     )
 
     private var allowTrailingCommaOnCallSite by Delegates.notNull<Boolean>()
@@ -84,7 +84,7 @@ public class TrailingCommaOnCallSiteRule :
             inspectNode = inspectNode,
             emit = emit,
             isTrailingCommaAllowed = node.isTrailingCommaAllowed(),
-            autoCorrect = autoCorrect
+            autoCorrect = autoCorrect,
         )
     }
 
@@ -100,7 +100,7 @@ public class TrailingCommaOnCallSiteRule :
             inspectNode = inspectNode,
             emit = emit,
             isTrailingCommaAllowed = node.isTrailingCommaAllowed(),
-            autoCorrect = autoCorrect
+            autoCorrect = autoCorrect,
         )
     }
 
@@ -118,7 +118,7 @@ public class TrailingCommaOnCallSiteRule :
                         inspectNode = inspectNode,
                         emit = emit,
                         isTrailingCommaAllowed = node.isTrailingCommaAllowed(),
-                        autoCorrect = autoCorrect
+                        autoCorrect = autoCorrect,
                     )
                 }
         }
@@ -136,7 +136,7 @@ public class TrailingCommaOnCallSiteRule :
             inspectNode = inspectNode,
             emit = emit,
             isTrailingCommaAllowed = node.isTrailingCommaAllowed(),
-            autoCorrect = autoCorrect
+            autoCorrect = autoCorrect,
         )
     }
 
@@ -157,7 +157,7 @@ public class TrailingCommaOnCallSiteRule :
                 emit(
                     trailingCommaNode!!.startOffset,
                     "Unnecessary trailing comma before \"${inspectNode.text}\"",
-                    true
+                    true,
                 )
                 if (autoCorrect) {
                     this.removeChild(trailingCommaNode)
@@ -168,7 +168,7 @@ public class TrailingCommaOnCallSiteRule :
                 emit(
                     prevNode.startOffset + prevNode.textLength,
                     "Missing trailing comma before \"${inspectNode.text}\"",
-                    true
+                    true,
                 )
                 if (autoCorrect) {
                     val comma = KtPsiFactory(prevNode.psi).createComma()
@@ -179,7 +179,7 @@ public class TrailingCommaOnCallSiteRule :
                 emit(
                     trailingCommaNode!!.startOffset,
                     "Unnecessary trailing comma before \"${inspectNode.text}\"",
-                    true
+                    true,
                 )
                 if (autoCorrect) {
                     this.removeChild(trailingCommaNode)
@@ -270,16 +270,16 @@ public class TrailingCommaOnCallSiteRule :
                     ALLOW_TRAILING_COMMA_ON_CALL_SITE_NAME,
                     ALLOW_TRAILING_COMMA_ON_CALL_SITE_DESCRIPTION,
                     PropertyValueParser.BOOLEAN_VALUE_PARSER,
-                    BOOLEAN_VALUES_SET
+                    BOOLEAN_VALUES_SET,
                 ),
-                defaultValue = false
+                defaultValue = false,
             )
 
         private val TYPES_ON_CALL_SITE = TokenSet.create(
             ElementType.COLLECTION_LITERAL_EXPRESSION,
             ElementType.INDICES,
             ElementType.TYPE_ARGUMENT_LIST,
-            ElementType.VALUE_ARGUMENT_LIST
+            ElementType.VALUE_ARGUMENT_LIST,
         )
     }
 }

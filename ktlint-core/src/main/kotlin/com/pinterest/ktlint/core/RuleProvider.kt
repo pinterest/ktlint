@@ -25,7 +25,7 @@ public class RuleProvider(
                 .get()
                 // but only use the instance for the rule at the specified index
                 .elementAt(ruleIndex)
-        }
+        },
     )
 
     public fun createNewRuleInstance() =

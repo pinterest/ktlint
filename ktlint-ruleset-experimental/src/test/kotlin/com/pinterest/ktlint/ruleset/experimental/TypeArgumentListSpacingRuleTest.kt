@@ -22,7 +22,7 @@ class TypeArgumentListSpacingRuleTest {
                 LintViolation(1, 20, "No whitespace expected at this position"),
                 LintViolation(1, 22, "No whitespace expected at this position"),
                 LintViolation(1, 32, "No whitespace expected at this position"),
-                LintViolation(1, 34, "No whitespace expected at this position")
+                LintViolation(1, 34, "No whitespace expected at this position"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -45,7 +45,7 @@ class TypeArgumentListSpacingRuleTest {
                 LintViolation(1, 16, "No whitespace expected at this position"),
                 LintViolation(1, 18, "No whitespace expected at this position"),
                 LintViolation(2, 30, "No whitespace expected at this position"),
-                LintViolation(2, 32, "No whitespace expected at this position")
+                LintViolation(2, 32, "No whitespace expected at this position"),
             ).isFormattedAs(formattedCode)
     }
 

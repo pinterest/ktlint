@@ -46,7 +46,7 @@ class NoConsecutiveBlankLinesRuleTest {
                 LintViolation(3, 1, "Needless blank line(s)"),
                 LintViolation(6, 1, "Needless blank line(s)"),
                 LintViolation(9, 1, "Needless blank line(s)"),
-                LintViolation(13, 1, "Needless blank line(s)")
+                LintViolation(13, 1, "Needless blank line(s)"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -138,7 +138,7 @@ class NoConsecutiveBlankLinesRuleTest {
                     // TODO: Line number is incorrect
                     LintViolation(3, 1, "Needless blank line(s)"),
                     // TODO: Line number is incorrect
-                    LintViolation(7, 1, "Needless blank line(s)")
+                    LintViolation(7, 1, "Needless blank line(s)"),
                 ).isFormattedAs(formattedCode)
         }
 
@@ -206,7 +206,7 @@ class NoConsecutiveBlankLinesRuleTest {
 
                         .lowercase(Locale.getDefault())
                 }
-                """.trimIndent()
+                """.trimIndent(),
             )
     }
 }

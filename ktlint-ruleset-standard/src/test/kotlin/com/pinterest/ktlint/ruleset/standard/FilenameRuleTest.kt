@@ -68,8 +68,8 @@ class FilenameRuleTest {
             "sealed class Foo",
             "sealed class `Foo`",
             "interface Foo",
-            "interface `Foo`"
-        ]
+            "interface `Foo`",
+        ],
     )
     fun `Given a file containing a single declaration of a class type then the filename should match the class name`(code: String) {
         fileNameRuleAssertThat(code)
@@ -81,8 +81,8 @@ class FilenameRuleTest {
     @ValueSource(
         strings = [
             "object Foo",
-            "typealias Foo = String"
-        ]
+            "typealias Foo = String",
+        ],
     )
     fun `Given a file containing one top level declaration then the file should be named after the identifier`(
         code: String,
@@ -99,8 +99,8 @@ class FilenameRuleTest {
             "const val FOO",
             "fun String.foo() = {}",
             "fun foo() = {}",
-            "operator fun Foo.plus(other: Foo): Foo { /* ... */ }"
-        ]
+            "operator fun Foo.plus(other: Foo): Foo { /* ... */ }",
+        ],
     )
     fun `Given a file containing one top level then the file should conform to PascalCase`(
         code: String,
@@ -114,8 +114,8 @@ class FilenameRuleTest {
     @ValueSource(
         strings = [
             "val foo",
-            "const val FOO"
-        ]
+            "const val FOO",
+        ],
     )
     fun `Given a file containing a single top level property declaration (non-private) and one private top level class declaration then the file should conform to PascalCase`(
         topLevelDeclaration: String,
@@ -138,8 +138,8 @@ class FilenameRuleTest {
             "fun bar() = {}",
             "object Bar",
             "typealias Bar = String",
-            "val bar"
-        ]
+            "val bar",
+        ],
     )
     fun `Given a file containing a single top level class (non-private) and another top level declaration (non-private, not extending that class) then the file should conform to PascalCase notation but does not need to be named after that class`(
         otherTopLevelDeclaration: String,
@@ -158,8 +158,8 @@ class FilenameRuleTest {
     @ValueSource(
         strings = [
             "fun Foo.foo() = {}",
-            "private object Bar"
-        ]
+            "private object Bar",
+        ],
     )
     fun `Given a file containing a single top level class (non-private) and another top level declaration (private and,x xor extending that class) then the file should be named after that class`(
         otherTopLevelDeclaration: String,

@@ -77,7 +77,7 @@ public class WrappingRule :
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> =
         listOf(
             DefaultEditorConfigProperties.indentSizeProperty,
-            DefaultEditorConfigProperties.indentStyleProperty
+            DefaultEditorConfigProperties.indentStyleProperty,
         )
 
     private var line = 1
@@ -87,7 +87,7 @@ public class WrappingRule :
         line = 1
         indentConfig = IndentConfig(
             indentStyle = editorConfigProperties.getEditorConfigValue(DefaultEditorConfigProperties.indentStyleProperty),
-            tabWidth = editorConfigProperties.getEditorConfigValue(DefaultEditorConfigProperties.indentSizeProperty)
+            tabWidth = editorConfigProperties.getEditorConfigValue(DefaultEditorConfigProperties.indentSizeProperty),
         )
     }
 
@@ -232,7 +232,7 @@ public class WrappingRule :
                         nodeAfterWhichNewlineIsRequired = c,
                         autoCorrect = autoCorrect,
                         emit = emit,
-                        indent = node.lineIndent()
+                        indent = node.lineIndent(),
                     )
                 }
             }
@@ -316,7 +316,7 @@ public class WrappingRule :
                 emit(
                     node.startOffset,
                     "Missing newline before \"\"\"",
-                    true
+                    true,
                 )
                 if (autoCorrect) {
                     node as LeafPsiElement
@@ -402,7 +402,7 @@ public class WrappingRule :
         emit(
             node.startOffset - 1,
             """Missing newline before "${node.text}"""",
-            true
+            true,
         )
         logger.trace { "$line: " + ((if (!autoCorrect) "would have " else "") + "inserted newline before ${node.text}") }
         if (autoCorrect) {
@@ -420,7 +420,7 @@ public class WrappingRule :
         emit(
             nodeAfterWhichNewlineIsRequired.startOffset + 1,
             """Missing newline after "${nodeAfterWhichNewlineIsRequired.text}"""",
-            true
+            true,
         )
         logger.trace { "$line: " + (if (!autoCorrect) "would have " else "") + "inserted newline after ${nodeAfterWhichNewlineIsRequired.text}" }
         if (autoCorrect) {
@@ -499,7 +499,7 @@ public class WrappingRule :
         private val rTokenSet = TokenSet.create(RPAR, RBRACE, RBRACKET, GT)
         private val matchingRToken =
             lTokenSet.types.zip(
-                rTokenSet.types
+                rTokenSet.types,
             ).toMap()
     }
 }

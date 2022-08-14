@@ -14,13 +14,13 @@ class BaselineTest {
             line = 1,
             col = 1,
             ruleId = "final-new-line",
-            detail = ""
+            detail = "",
         )
         val errorTwo = LintError(
             line = 62,
             col = 1,
             ruleId = "no-blank-line-before-rbrace",
-            detail = ""
+            detail = "",
         )
 
         val baseline: InputStream =
@@ -31,14 +31,14 @@ class BaselineTest {
                         <error line="${errorTwo.line}" column="${errorTwo.col}" source="${errorTwo.ruleId}" />
                     </file>
                 """.trimIndent()
-                    .toByteArray()
+                    .toByteArray(),
             )
 
         val baselineFiles = parseBaseline(baseline)
 
         assertThat(baselineFiles).containsEntry(
             filename,
-            listOf(errorOne, errorTwo)
+            listOf(errorOne, errorTwo),
         )
     }
 }

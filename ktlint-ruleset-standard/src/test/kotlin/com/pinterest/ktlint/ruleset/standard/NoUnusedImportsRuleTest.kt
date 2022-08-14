@@ -203,7 +203,7 @@ class NoUnusedImportsRuleTest {
             noUnusedImportsRuleAssertThat(code)
                 .hasLintViolations(
                     LintViolation(2, 1, "Unused import"),
-                    LintViolation(3, 1, "Unused import")
+                    LintViolation(3, 1, "Unused import"),
                 ).isFormattedAs(formattedCode)
         }
     }
@@ -259,7 +259,7 @@ class NoUnusedImportsRuleTest {
                 LintViolation(7, 1, "Unused import"),
                 LintViolation(8, 1, "Unused import"),
                 LintViolation(9, 1, "Unused import"),
-                LintViolation(10, 1, "Unused import")
+                LintViolation(10, 1, "Unused import"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -292,7 +292,7 @@ class NoUnusedImportsRuleTest {
         noUnusedImportsRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(2, 1, "Unnecessary import"),
-                LintViolation(4, 1, "Unnecessary import")
+                LintViolation(4, 1, "Unnecessary import"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -327,7 +327,7 @@ class NoUnusedImportsRuleTest {
         noUnusedImportsRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(3, 1, "Unnecessary import"),
-                LintViolation(5, 1, "Unnecessary import")
+                LintViolation(5, 1, "Unnecessary import"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -362,7 +362,7 @@ class NoUnusedImportsRuleTest {
             .hasLintViolations(
                 LintViolation(4, 1, "Unused import"),
                 LintViolation(5, 1, "Unused import"),
-                LintViolation(6, 1, "Unused import")
+                LintViolation(6, 1, "Unused import"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -418,7 +418,7 @@ class NoUnusedImportsRuleTest {
 //                .hasLintViolation(4, 1, "Unused import")
                 .hasLintViolations(
                     LintViolation(4, 1, "Unused import"),
-                    LintViolation(5, 1, "Unused import")
+                    LintViolation(5, 1, "Unused import"),
                 ).isFormattedAs(formattedCode)
         }
 
@@ -491,7 +491,7 @@ class NoUnusedImportsRuleTest {
             noUnusedImportsRuleAssertThat(code)
                 .hasLintViolations(
                     LintViolation(2, 1, "Unused import"),
-                    LintViolation(5, 1, "Unused import")
+                    LintViolation(5, 1, "Unused import"),
                 ).isFormattedAs(formattedCode)
         }
     }
@@ -545,7 +545,7 @@ class NoUnusedImportsRuleTest {
             noUnusedImportsRuleAssertThat(code)
                 .hasLintViolations(
                     LintViolation(1, 1, "Unused import"),
-                    LintViolation(2, 1, "Unused import")
+                    LintViolation(2, 1, "Unused import"),
                 ).isFormattedAs(formattedCode)
         }
 
@@ -785,7 +785,7 @@ class NoUnusedImportsRuleTest {
             noUnusedImportsRuleAssertThat(code)
                 .hasLintViolations(
                     LintViolation(1, 1, "Unnecessary import"),
-                    LintViolation(2, 1, "Unnecessary import")
+                    LintViolation(2, 1, "Unnecessary import"),
                 ).isFormattedAs(formattedCode)
         }
 

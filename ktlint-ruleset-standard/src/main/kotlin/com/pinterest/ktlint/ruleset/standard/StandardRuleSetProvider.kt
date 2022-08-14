@@ -11,8 +11,8 @@ public class StandardRuleSetProvider :
             description = "Standard rules based on the Kotlin coding conventions (https://kotlinlang.org/docs/coding-conventions.html) and Android Kotlin styleguide (https://developer.android.com/kotlin/style-guide)",
             license = "https://github.com/pinterest/ktlint/blob/master/LICENSE",
             repositoryUrl = "https://github.com/pinterest/ktlint",
-            issueTrackerUrl = "https://github.com/pinterest/ktlint/issues"
-        )
+            issueTrackerUrl = "https://github.com/pinterest/ktlint/issues",
+        ),
     ) {
     override fun getRuleProviders(): Set<RuleProvider> =
         setOf(
@@ -60,6 +60,6 @@ public class StandardRuleSetProvider :
             RuleProvider { StringTemplateRule() },
             RuleProvider { TrailingCommaOnCallSiteRule() },
             RuleProvider { TrailingCommaOnDeclarationSiteRule() },
-            RuleProvider { WrappingRule() }
+            RuleProvider { WrappingRule() },
         )
 }

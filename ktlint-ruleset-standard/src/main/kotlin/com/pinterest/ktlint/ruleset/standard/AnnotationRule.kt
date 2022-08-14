@@ -93,7 +93,7 @@ public class AnnotationRule : Rule("annotation") {
             emit(
                 node.startOffset,
                 "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct",
-                true
+                true,
             )
             if (autoCorrect) {
                 node
@@ -107,7 +107,7 @@ public class AnnotationRule : Rule("annotation") {
             emit(
                 node.startOffset,
                 "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct",
-                true
+                true,
             )
             if (autoCorrect) {
                 node
@@ -119,7 +119,7 @@ public class AnnotationRule : Rule("annotation") {
                             it.replaceWithText(getNewlineWithIndent(node.treeParent))
                         } else {
                             it.rawInsertBeforeMe(
-                                PsiWhiteSpaceImpl(getNewlineWithIndent(node.treeParent))
+                                PsiWhiteSpaceImpl(getNewlineWithIndent(node.treeParent)),
                             )
                         }
                     }
@@ -141,7 +141,7 @@ public class AnnotationRule : Rule("annotation") {
                 emit(
                     node.treeParent.startOffset,
                     "Multiple annotations should not be placed on the same line as the annotated construct",
-                    true
+                    true,
                 )
                 if (autoCorrect) {
                     node
@@ -171,7 +171,7 @@ public class AnnotationRule : Rule("annotation") {
             emit(
                 node.startOffset,
                 "Annotation must be placed on separate line",
-                true
+                true,
             )
             if (autoCorrect) {
                 node
@@ -183,7 +183,7 @@ public class AnnotationRule : Rule("annotation") {
                             it.replaceWithText(getNewlineWithIndent(node.treeParent))
                         } else {
                             it.upsertWhitespaceBeforeMe(
-                                getNewlineWithIndent(node.treeParent)
+                                getNewlineWithIndent(node.treeParent),
                             )
                         }
                     }
@@ -262,7 +262,7 @@ public class AnnotationRule : Rule("annotation") {
                 emit(
                     psi.endOffset - 1,
                     "File annotations should be separated from file contents with a blank line",
-                    true
+                    true,
                 )
                 if (autoCorrect) {
                     if (diff == 0) {

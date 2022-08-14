@@ -85,37 +85,37 @@ Flags:
     customSynopsis = [""],
     sortOptions = false,
     mixinStandardHelpOptions = true,
-    versionProvider = KtlintVersionProvider::class
+    versionProvider = KtlintVersionProvider::class,
 )
 internal class KtlintCommandLine {
 
     @Option(
         names = ["--android", "-a"],
-        description = ["Turn on Android Kotlin Style Guide compatibility"]
+        description = ["Turn on Android Kotlin Style Guide compatibility"],
     )
     var android: Boolean = false
 
     @Option(
         names = ["--color"],
-        description = ["Make output colorful"]
+        description = ["Make output colorful"],
     )
     var color: Boolean = false
 
     @Option(
         names = ["--color-name"],
-        description = ["Customize the output color"]
+        description = ["Customize the output color"],
     )
     var colorName: String = Color.DARK_GRAY.name
 
     @Option(
         names = ["--debug"],
-        description = ["Turn on debug output"]
+        description = ["Turn on debug output"],
     )
     var debug: Boolean = false
 
     @Option(
         names = ["--trace"],
-        description = ["Turn on trace output"]
+        description = ["Turn on trace output"],
     )
     var trace: Boolean = false
 
@@ -123,21 +123,21 @@ internal class KtlintCommandLine {
         names = ["--disabled_rules"],
         description = [
             "Comma-separated list of rules to globally disable." +
-                " To disable standard ktlint rule-set use --disabled_rules=standard"
-        ]
+                " To disable standard ktlint rule-set use --disabled_rules=standard",
+        ],
     )
     var disabledRules: String = ""
 
     // TODO: this should have been a command, not a flag (consider changing in 1.0.0)
     @Option(
         names = ["--format", "-F"],
-        description = ["Fix any deviations from the code style"]
+        description = ["Fix any deviations from the code style"],
     )
     private var format: Boolean = false
 
     @Option(
         names = ["--limit"],
-        description = ["Maximum number of errors to show (default: show all)"]
+        description = ["Maximum number of errors to show (default: show all)"],
     )
     private var limit: Int = -1
         get() = if (field < 0) Int.MAX_VALUE else field
@@ -146,8 +146,8 @@ internal class KtlintCommandLine {
         names = ["--relative"],
         description = [
             "Print files relative to the working directory " +
-                "(e.g. dir/file.kt instead of /home/user/project/dir/file.kt)"
-        ]
+                "(e.g. dir/file.kt instead of /home/user/project/dir/file.kt)",
+        ],
     )
     var relative: Boolean = false
 
@@ -156,44 +156,44 @@ internal class KtlintCommandLine {
         description = [
             "A reporter to use (built-in: plain (default), plain?group_by_file, json, sarif, checkstyle, html). " +
                 "To use a third-party reporter specify a path to a JAR file on the filesystem via ',artifact=' option. " +
-                "To override reporter output, use ',output=' option."
-        ]
+                "To override reporter output, use ',output=' option.",
+        ],
     )
     private var reporters: JarFiles = ArrayList()
 
     @Option(
         names = ["--ruleset", "-R"],
-        description = ["A path to a JAR file containing additional ruleset(s)"]
+        description = ["A path to a JAR file containing additional ruleset(s)"],
     )
     var rulesetJarFiles: JarFiles = ArrayList()
 
     @Option(
         names = ["--stdin"],
-        description = ["Read file from stdin"]
+        description = ["Read file from stdin"],
     )
     private var stdin: Boolean = false
 
     @Option(
         names = ["--verbose", "-v"],
-        description = ["Show error codes"]
+        description = ["Show error codes"],
     )
     private var verbose: Boolean = false
 
     @Option(
         names = ["--editorconfig"],
-        description = ["Path to .editorconfig"]
+        description = ["Path to .editorconfig"],
     )
     private var editorConfigPath: String? = null
 
     @Option(
         names = ["--experimental"],
-        description = ["Enabled experimental rules (ktlint-ruleset-experimental)"]
+        description = ["Enabled experimental rules (ktlint-ruleset-experimental)"],
     )
     var experimental: Boolean = false
 
     @Option(
         names = ["--baseline"],
-        description = ["Defines a baseline file to check against"]
+        description = ["Defines a baseline file to check against"],
     )
     private var baselinePath: String = ""
 
@@ -253,7 +253,7 @@ internal class KtlintCommandLine {
                 ruleProviders,
                 editorConfigOverride,
                 baselineLintErrorsPerFile,
-                reporter
+                reporter,
             )
         }
         reporter.afterAll()
@@ -296,7 +296,7 @@ internal class KtlintCommandLine {
                         fileContent = file.readText(),
                         editorConfigOverride = editorConfigOverride,
                         baselineLintErrors = lintErrorsPerFile.getOrDefault(file.relativeRoute, emptyList()),
-                        ruleProviders = ruleProviders
+                        ruleProviders = ruleProviders,
                     )
                 }
             }.parallel({ (file, errList) -> report(file.location(relative), errList, reporter) })
@@ -314,9 +314,9 @@ internal class KtlintCommandLine {
                 fileContent = String(System.`in`.readBytes()),
                 editorConfigOverride = editorConfigOverride,
                 baselineLintErrors = emptyList(),
-                ruleProviders = ruleProviders
+                ruleProviders = ruleProviders,
             ),
-            reporter
+            reporter,
         )
     }
 
@@ -351,7 +351,7 @@ internal class KtlintCommandLine {
             reporter.onLintError(
                 fileName,
                 if (!err.canBeAutoCorrected) err.copy(detail = err.detail + " (cannot be auto-corrected)") else err,
-                corrected
+                corrected,
             )
         }
         reporter.after(fileName)
@@ -377,7 +377,7 @@ internal class KtlintCommandLine {
                     ruleProviders,
                     editorConfigOverride,
                     editorConfigPath,
-                    debug
+                    debug,
                 ) { lintError, corrected ->
                     if (baselineLintErrors.doesNotContain(lintError)) {
                         result.add(LintErrorWithCorrectionInfo(lintError, corrected))
@@ -406,7 +406,7 @@ internal class KtlintCommandLine {
                     ruleProviders,
                     editorConfigOverride,
                     editorConfigPath,
-                    debug
+                    debug,
                 ) { lintError ->
                     if (baselineLintErrors.doesNotContain(lintError)) {
                         result.add(LintErrorWithCorrectionInfo(lintError, false))
@@ -435,9 +435,9 @@ internal class KtlintCommandLine {
                         "verbose" to verbose.toString(),
                         "color" to color.toString(),
                         "color_name" to colorName,
-                        "format" to format.toString()
+                        "format" to format.toString(),
                     ) + parseQuery(rawReporterConfig),
-                    split.lastOrNull { it.startsWith("output=") }?.let { it.split("=")[1] }
+                    split.lastOrNull { it.startsWith("output=") }?.let { it.split("=")[1] },
                 )
             }
             .distinct()
@@ -492,7 +492,7 @@ internal class KtlintCommandLine {
                     e.line,
                     e.col,
                     "",
-                    "Not a valid Kotlin file (${e.message?.lowercase(Locale.getDefault())})"
+                    "Not a valid Kotlin file (${e.message?.lowercase(Locale.getDefault())})",
                 )
             is RuleExecutionException -> {
                 logger.debug("Internal Error (${e.ruleId}) in file '$filename' at position '${e.line}:${e.col}", e)
@@ -503,7 +503,7 @@ internal class KtlintCommandLine {
                     "Internal Error (${e.ruleId}) in file '$filename' at position '${e.line}:${e.col}. " +
                         "Please create a ticket at https://github.com/pinterest/ktlint/issues " +
                         "(if possible, please re-run with the --debug flag to get the stacktrace " +
-                        "and provide the source code that triggered an error)"
+                        "and provide the source code that triggered an error)",
                 )
             }
             else -> throw e
@@ -517,7 +517,7 @@ internal class KtlintCommandLine {
                     s.split("=", limit = 2).let { e ->
                         map.put(
                             e[0],
-                            URLDecoder.decode(e.getOrElse(1) { "true" }, "UTF-8")
+                            URLDecoder.decode(e.getOrElse(1) { "true" }, "UTF-8"),
                         )
                     }
                 }
@@ -606,7 +606,7 @@ internal class KtlintCommandLine {
     private fun loadReporters(externalReportersJarPaths: List<String>) = ServiceLoader
         .load(
             ReporterProvider::class.java,
-            URLClassLoader(externalReportersJarPaths.toFilesURIList().toTypedArray())
+            URLClassLoader(externalReportersJarPaths.toFilesURIList().toTypedArray()),
         )
         .associateBy { it.id }
         .onEach { entry ->

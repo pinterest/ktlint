@@ -43,7 +43,7 @@ public class ArgumentListWrappingRule :
         listOf(
             indentSizeProperty,
             indentStyleProperty,
-            maxLineLengthProperty
+            maxLineLengthProperty,
         )
 
     private var editorConfigIndent = IndentConfig.DEFAULT_INDENT_CONFIG
@@ -53,7 +53,7 @@ public class ArgumentListWrappingRule :
     override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
         editorConfigIndent = IndentConfig(
             indentStyle = editorConfigProperties.getEditorConfigValue(indentStyleProperty),
-            tabWidth = editorConfigProperties.getEditorConfigValue(indentSizeProperty)
+            tabWidth = editorConfigProperties.getEditorConfigValue(indentSizeProperty),
         )
         maxLineLength = editorConfigProperties.getEditorConfigValue(maxLineLengthProperty)
     }

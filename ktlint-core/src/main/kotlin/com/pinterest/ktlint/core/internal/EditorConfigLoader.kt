@@ -87,7 +87,7 @@ public class EditorConfigLoader(
 
         return propService
             .queryProperties(
-                Resource.Resources.ofPath(normalizedFilePath, StandardCharsets.UTF_8)
+                Resource.Resources.ofPath(normalizedFilePath, StandardCharsets.UTF_8),
             )
             .properties
             .also { loaded ->
@@ -107,7 +107,7 @@ public class EditorConfigLoader(
                         .map { entry -> "${entry.key}: ${entry.value.sourceValue}" }
                         .joinToString(
                             prefix = "Resolving .editorconfig files for $normalizedFilePath file path:\n\t",
-                            separator = ", "
+                            separator = ", ",
                         )
                 }
             }
@@ -148,7 +148,7 @@ public class EditorConfigLoader(
          */
         internal val SUPPORTED_FILES = arrayOf(
             ".kt",
-            ".kts"
+            ".kts",
         )
 
         /**

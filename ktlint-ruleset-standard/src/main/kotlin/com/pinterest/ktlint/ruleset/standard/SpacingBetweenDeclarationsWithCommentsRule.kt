@@ -36,7 +36,7 @@ class SpacingBetweenDeclarationsWithCommentsRule : Rule("spacing-between-declara
                     emit(
                         node.startOffset,
                         "Declarations and declarations with comments should have an empty space between.",
-                        true
+                        true,
                     )
                     if (autoCorrect) {
                         val indent = node.prevLeaf()?.text?.trim('\n') ?: ""

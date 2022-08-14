@@ -25,7 +25,7 @@ public class CommentWrappingRule :
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> =
         listOf(
             DefaultEditorConfigProperties.indentSizeProperty,
-            DefaultEditorConfigProperties.indentStyleProperty
+            DefaultEditorConfigProperties.indentStyleProperty,
         )
 
     override fun beforeVisitChildNodes(
@@ -52,7 +52,7 @@ public class CommentWrappingRule :
                     emit(
                         node.startOffset,
                         "A block comment in between other elements on the same line is disallowed",
-                        false
+                        false,
                     )
                 } else {
                     // Do not try to fix constructs like below:
@@ -62,7 +62,7 @@ public class CommentWrappingRule :
                     emit(
                         node.startOffset,
                         "A block comment starting on same line as another element and ending on another line before another element is disallowed",
-                        false
+                        false,
                     )
                 }
                 return
@@ -86,7 +86,7 @@ public class CommentWrappingRule :
             emit(
                 startOffset,
                 "A single line block comment after a code element on the same line must be replaced with an EOL comment",
-                true
+                true,
             )
             if (autoCorrect) {
                 blockCommentNode.replaceWithEndOfLineComment()
@@ -96,7 +96,7 @@ public class CommentWrappingRule :
             emit(
                 blockCommentNode.startOffset,
                 "A block comment after any other element on the same line must be separated by a new line",
-                false
+                false,
             )
         }
     }

@@ -50,7 +50,7 @@ internal fun initPsiFileFactory(isFromCli: Boolean): PsiFileFactory {
         val extensionPath = extractCompilerExtension()
         compilerConfiguration.put(
             CLIConfigurationKeys.INTELLIJ_PLUGIN_ROOT,
-            extensionPath.toAbsolutePath().toString()
+            extensionPath.toAbsolutePath().toString(),
         )
     }
 
@@ -59,7 +59,7 @@ internal fun initPsiFileFactory(isFromCli: Boolean): PsiFileFactory {
         val project = KotlinCoreEnvironment.createForProduction(
             disposable,
             compilerConfiguration,
-            EnvironmentConfigFiles.JVM_CONFIG_FILES
+            EnvironmentConfigFiles.JVM_CONFIG_FILES,
         ).project as MockProject
 
         project.enableASTMutations()
@@ -139,7 +139,7 @@ private class FormatPomModel : UserDataHolderBase(), PomModel {
                 .getReflectionFactory()
                 .newConstructorForSerialization(
                     aspect,
-                    Any::class.java.getDeclaredConstructor(*arrayOfNulls<Class<*>>(0))
+                    Any::class.java.getDeclaredConstructor(*arrayOfNulls<Class<*>>(0)),
                 )
             return constructor.newInstance() as T
         }

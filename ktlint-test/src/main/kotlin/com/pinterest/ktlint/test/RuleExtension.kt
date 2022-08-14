@@ -50,7 +50,7 @@ private fun Set<RuleProvider>.toRuleProviders(): Set<RuleProvider> {
                 DumpASTRule(
                     // Write to STDOUT. The focus in a failed unit test should first go to the error in the rule that is
                     // to be tested and not to the AST,
-                    out = System.out
+                    out = System.out,
                 )
             }
         }
@@ -72,10 +72,10 @@ public fun Set<RuleProvider>.lint(
         editorConfigOverride = editorConfigOverride,
         userData = userData,
         script = script,
-        cb = { e, _ -> res.add(e) }
+        cb = { e, _ -> res.add(e) },
     )
     KtLint.lint(
-        experimentalParams
+        experimentalParams,
     )
     return res
 }
@@ -95,7 +95,7 @@ public fun Set<RuleProvider>.format(
         editorConfigOverride = editorConfigOverride,
         userData = userData,
         script = script,
-        cb = cb
+        cb = cb,
     )
     return KtLint.format(experimentalParams)
 }

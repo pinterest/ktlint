@@ -27,7 +27,7 @@ class UnnecessaryParenthesesBeforeTrailingLambdaRule : Rule("$experimentalRulese
             emit(
                 node.startOffset,
                 "Empty parentheses in function call followed by lambda are unnecessary",
-                true
+                true,
             )
             if (autoCorrect) {
                 node.removeChild(node)

@@ -83,7 +83,7 @@ public class FunctionStartOfBodySpacingRule : Rule("$experimentalRulesetId:funct
                             emit(
                                 assignmentExpression.startOffset,
                                 "Expected a single white space between assignment and expression body on same line",
-                                true
+                                true,
                             )
                             if (autoCorrect) {
                                 (assignmentExpression as LeafPsiElement).upsertWhitespaceAfterMe(" ")

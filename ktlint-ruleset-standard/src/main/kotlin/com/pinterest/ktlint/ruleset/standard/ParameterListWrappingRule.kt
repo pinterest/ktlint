@@ -39,7 +39,7 @@ public class ParameterListWrappingRule :
         listOf(
             indentSizeProperty,
             indentStyleProperty,
-            maxLineLengthProperty
+            maxLineLengthProperty,
         )
 
     private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
@@ -49,7 +49,7 @@ public class ParameterListWrappingRule :
         maxLineLength = editorConfigProperties.getEditorConfigValue(maxLineLengthProperty)
         indentConfig = IndentConfig(
             indentStyle = editorConfigProperties.getEditorConfigValue(indentStyleProperty),
-            tabWidth = editorConfigProperties.getEditorConfigValue(indentSizeProperty)
+            tabWidth = editorConfigProperties.getEditorConfigValue(indentSizeProperty),
         )
         if (indentConfig.disabled) {
             stopTraversalOfAST()
@@ -94,7 +94,7 @@ public class ParameterListWrappingRule :
                                 emit(
                                     it.startOffset,
                                     "Parameter of nullable type should be on a separate line (unless the type fits on a single line)",
-                                    true
+                                    true,
                                 )
                                 if (autoCorrect) {
                                     (it as LeafElement).upsertWhitespaceAfterMe("\n${indentConfig.indent}")

@@ -24,7 +24,7 @@ public class KdocWrappingRule :
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> =
         listOf(
             DefaultEditorConfigProperties.indentSizeProperty,
-            DefaultEditorConfigProperties.indentStyleProperty
+            DefaultEditorConfigProperties.indentStyleProperty,
         )
 
     override fun beforeVisitChildNodes(
@@ -53,7 +53,7 @@ public class KdocWrappingRule :
                     emit(
                         node.startOffset,
                         "A KDoc comment in between other elements on the same line is disallowed",
-                        false
+                        false,
                     )
                 } else {
                     // Do not try to fix constructs like below:
@@ -63,7 +63,7 @@ public class KdocWrappingRule :
                     emit(
                         node.startOffset,
                         "A KDoc comment starting on same line as another element and ending on another line before another element is disallowed",
-                        false
+                        false,
                     )
                 }
                 return
@@ -75,7 +75,7 @@ public class KdocWrappingRule :
                 emit(
                     node.startOffset,
                     "A KDoc comment after any other element on the same line must be separated by a new line",
-                    false
+                    false,
                 )
             }
 

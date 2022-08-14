@@ -32,7 +32,7 @@ internal fun prepareCodeForLinting(params: KtLint.ExperimentalParams): PreparedC
     val psiFile = psiFileFactory.createFileFromText(
         psiFileName,
         KotlinLanguage.INSTANCE,
-        normalizedText
+        normalizedText,
     ) as KtFile
 
     val errorElement = psiFile.findErrorElement()
@@ -49,7 +49,7 @@ internal fun prepareCodeForLinting(params: KtLint.ExperimentalParams): PreparedC
         params.editorConfigPath?.let { Paths.get(it) },
         params.getRules(),
         params.editorConfigOverride,
-        params.debug
+        params.debug,
     )
 
     if (!params.isStdIn) {
@@ -66,7 +66,7 @@ internal fun prepareCodeForLinting(params: KtLint.ExperimentalParams): PreparedC
         rootNode,
         editorConfigProperties,
         positionInTextLocator,
-        suppressedRegionLocator
+        suppressedRegionLocator,
     )
 }
 

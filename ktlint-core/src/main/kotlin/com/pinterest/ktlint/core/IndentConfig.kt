@@ -40,7 +40,7 @@ public data class IndentConfig(
             PropertyType.IndentStyleValue.tab -> TAB
             PropertyType.IndentStyleValue.space -> SPACE
         },
-        tabWidth = tabWidth
+        tabWidth = tabWidth,
     )
 
     public enum class IndentStyle { SPACE, TAB }
@@ -143,7 +143,7 @@ public data class IndentConfig(
 
         public val DEFAULT_INDENT_CONFIG: IndentConfig = IndentConfig(
             indentStyle = SPACE,
-            tabWidth = 4
+            tabWidth = 4,
         )
     }
 }

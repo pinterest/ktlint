@@ -53,7 +53,7 @@ class ModifierOrderRule : Rule("modifier-order") {
         INLINE_KEYWORD,
         INFIX_KEYWORD,
         OPERATOR_KEYWORD,
-        DATA_KEYWORD
+        DATA_KEYWORD,
         // NOINLINE_KEYWORD, CROSSINLINE_KEYWORD, OUT_KEYWORD, IN_KEYWORD, REIFIED_KEYWORD
         // HEADER_KEYWORD, IMPL_KEYWORD
     )
@@ -75,7 +75,7 @@ class ModifierOrderRule : Rule("modifier-order") {
                     "Incorrect modifier order (should be \"${
                     squashAnnotations(sorted).joinToString(" ")
                     }\")",
-                    true
+                    true,
                 )
                 if (autoCorrect) {
                     modifierArr.forEachIndexed { i, n ->

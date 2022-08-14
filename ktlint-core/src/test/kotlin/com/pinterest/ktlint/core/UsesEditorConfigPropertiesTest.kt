@@ -17,7 +17,7 @@ class UsesEditorConfigPropertiesTest {
         fun `Given that editor config property indent_size is set to an integer value then return that integer value via the getEditorConfigValue of the node`() {
             val editorConfigProperties = createEditorConfigPropertiesFrom(
                 indentSizeProperty,
-                SOME_INTEGER_VALUE.toString()
+                SOME_INTEGER_VALUE.toString(),
             )
 
             val actual = with(EditorConfigPropertiesTester(indentSizeProperty)) {
@@ -31,7 +31,7 @@ class UsesEditorConfigPropertiesTest {
         fun `Given that editor config property indent_size is set to value 'unset' then return -1 as value via the getEditorConfigValue of the node`() {
             val editorConfigProperties = createEditorConfigPropertiesFrom(
                 indentSizeProperty,
-                "unset"
+                "unset",
             )
 
             val actual = with(EditorConfigPropertiesTester(indentSizeProperty)) {
@@ -45,7 +45,7 @@ class UsesEditorConfigPropertiesTest {
         fun `Issue 1485 - Given that editor config property indent_size is set to value 'tab' then return tabWidth as value via the getEditorConfigValue of the node`() {
             val editorConfigProperties = createEditorConfigPropertiesFrom(
                 indentSizeProperty,
-                "tab"
+                "tab",
             )
 
             val actual = with(EditorConfigPropertiesTester(indentSizeProperty)) {
@@ -73,7 +73,7 @@ class UsesEditorConfigPropertiesTest {
         fun `Given that editor config property max_line_length is set to an integer value then return that integer value via the getEditorConfigValue of the node`() {
             val editorConfigProperties = createEditorConfigPropertiesFrom(
                 maxLineLengthProperty,
-                SOME_INTEGER_VALUE.toString()
+                SOME_INTEGER_VALUE.toString(),
             )
 
             val actual = with(EditorConfigPropertiesTester(maxLineLengthProperty)) {
@@ -87,7 +87,7 @@ class UsesEditorConfigPropertiesTest {
         fun `Given that editor config property max_line_length is set to value 'off' then return -1 via the getEditorConfigValue of the node`() {
             val editorConfigProperties = createEditorConfigPropertiesFrom(
                 maxLineLengthProperty,
-                "off"
+                "off",
             )
 
             val actual = with(EditorConfigPropertiesTester(maxLineLengthProperty)) {
@@ -101,7 +101,7 @@ class UsesEditorConfigPropertiesTest {
         fun `Given that editor config property max_line_length is set to value 'unset' for android then return 100 via the getEditorConfigValue of the node`() {
             val editorConfigProperties = createEditorConfigPropertiesFrom(
                 maxLineLengthProperty,
-                "unset"
+                "unset",
             ).plus(ANDROID_CODE_STYLE)
 
             val actual = with(EditorConfigPropertiesTester(maxLineLengthProperty)) {
@@ -115,7 +115,7 @@ class UsesEditorConfigPropertiesTest {
         fun `Given that editor config property max_line_length is set to value 'unset' for non-android then return -1 via the getEditorConfigValue of the node`() {
             val editorConfigProperties = createEditorConfigPropertiesFrom(
                 maxLineLengthProperty,
-                "unset"
+                "unset",
             ).plus(OFFICIAL_CODE_STYLE)
 
             val actual = with(EditorConfigPropertiesTester(maxLineLengthProperty)) {
@@ -148,7 +148,7 @@ class UsesEditorConfigPropertiesTest {
     fun `Given that editor config property disabled_rules is set and has spacing around the comma, then retrieve the list without those spaces'`() {
         val editorConfigProperties = createEditorConfigPropertiesFrom(
             disabledRulesProperty,
-            "$RULE_A, $RULE_B,$RULE_C , $RULE_D"
+            "$RULE_A, $RULE_B,$RULE_C , $RULE_D",
         )
 
         val actual = with(EditorConfigPropertiesTester(disabledRulesProperty)) {
@@ -172,11 +172,11 @@ class UsesEditorConfigPropertiesTest {
         const val SOME_INTEGER_VALUE = 123
         val ANDROID_CODE_STYLE = createEditorConfigPropertiesFrom(
             DefaultEditorConfigProperties.codeStyleSetProperty,
-            DefaultEditorConfigProperties.CodeStyleValue.android.name.lowercase()
+            DefaultEditorConfigProperties.CodeStyleValue.android.name.lowercase(),
         )
         val OFFICIAL_CODE_STYLE = createEditorConfigPropertiesFrom(
             DefaultEditorConfigProperties.codeStyleSetProperty,
-            DefaultEditorConfigProperties.CodeStyleValue.official.name.lowercase()
+            DefaultEditorConfigProperties.CodeStyleValue.official.name.lowercase(),
         )
 
         private fun <T : Any> createEditorConfigPropertiesFrom(
@@ -189,7 +189,7 @@ class UsesEditorConfigPropertiesTest {
                         .name(type.name)
                         .type(type)
                         .value(value)
-                        .build()
+                        .build(),
                 )
             }
     }

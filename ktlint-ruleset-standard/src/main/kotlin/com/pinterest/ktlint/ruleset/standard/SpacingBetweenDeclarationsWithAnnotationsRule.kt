@@ -35,7 +35,7 @@ class SpacingBetweenDeclarationsWithAnnotationsRule : Rule("spacing-between-decl
                 emit(
                     node.startOffset,
                     "Declarations and declarations with annotations should have an empty space between.",
-                    true
+                    true,
                 )
                 if (autoCorrect) {
                     val indent = whiteSpaceAfterPreviousDeclaration.text.substringAfter('\n')

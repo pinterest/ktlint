@@ -71,7 +71,7 @@ public open class Rule(
      */
     @Deprecated(
         message = "Marked for deletion in ktlint 0.48.0",
-        replaceWith = ReplaceWith("beforeVisitChildNodes(node, autocorrect, emit")
+        replaceWith = ReplaceWith("beforeVisitChildNodes(node, autocorrect, emit"),
     )
     @Suppress("UNUSED_PARAMETER")
     public open fun visit(
@@ -179,7 +179,7 @@ public open class Rule(
             """
                 Marked for removal in Ktlint 0.48. This modifier blocks the ability to suppress ktlint rules. See
                 changelog Ktlint 0.47 for details on how to modify a rule using this modifier.
-                """
+                """,
         )
         object RunOnRootNodeOnly : VisitorModifier()
     }

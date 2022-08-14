@@ -43,7 +43,7 @@ public class DiscouragedCommentLocationRule : Rule("$experimentalRulesetId:disco
                     emit(
                         node.startOffset,
                         "No comment expected at this location",
-                        false
+                        false,
                     )
                 }
             }

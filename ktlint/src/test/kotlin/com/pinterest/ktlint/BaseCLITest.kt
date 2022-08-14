@@ -79,7 +79,7 @@ abstract class BaseCLITest {
                     Files.copy(file, dest.resolve(relativize(file)))
                     return FileVisitResult.CONTINUE
                 }
-            }
+            },
         )
     }
 
@@ -96,9 +96,9 @@ abstract class BaseCLITest {
                         .followedByIndentedList(
                             listOf(
                                 "RESULTS OF STDOUT:".followedByIndentedList(normalOutput, 2),
-                                "RESULTS OF STDERR:".followedByIndentedList(errorOutput, 2)
-                            )
-                        )
+                                "RESULTS OF STDERR:".followedByIndentedList(errorOutput, 2),
+                            ),
+                        ),
                 ).isEqualTo(0)
         }
 
@@ -111,7 +111,7 @@ abstract class BaseCLITest {
         fun assertErrorOutputIsEmpty() {
             assertThat(errorOutput.isEmpty())
                 .withFailMessage(
-                    "Expected error output to be empty but was:".followedByIndentedList(errorOutput)
+                    "Expected error output to be empty but was:".followedByIndentedList(errorOutput),
                 ).isTrue
         }
 

@@ -29,7 +29,7 @@ public class EnumEntryNameCaseRule : Rule("enum-entry-name-case") {
             emit(
                 node.startOffset,
                 "Enum entry name should be uppercase underscore-separated names like \"ENUM_ENTRY\" or upper camel-case like \"EnumEntry\"",
-                false
+                false,
             )
         }
     }

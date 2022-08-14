@@ -24,7 +24,7 @@ public class FunKeywordSpacingRule : Rule("$experimentalRulesetId:fun-keyword-sp
                 emit(
                     whiteSpaceAfterFunKeyword.startOffset,
                     "Single space expected after the fun keyword",
-                    true
+                    true,
                 )
                 if (autoCorrect) {
                     (whiteSpaceAfterFunKeyword as LeafPsiElement).rawReplaceWithText(" ")

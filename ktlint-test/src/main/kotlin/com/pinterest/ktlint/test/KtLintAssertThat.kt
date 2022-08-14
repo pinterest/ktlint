@@ -127,7 +127,7 @@ public class KtLintAssertThat(
      */
     public fun addAdditionalRuleProviders(vararg providers: (() -> Rule)): KtLintAssertThat {
         additionalRuleProviders.addAll(
-            providers.map { RuleProvider(it) }
+            providers.map { RuleProvider(it) },
         )
 
         return this
@@ -217,7 +217,7 @@ public class KtLintAssertThat(
                 filePath = filePath,
                 kotlinScript = kotlinScript,
                 editorConfigOverride = EditorConfigOverride.emptyEditorConfigOverride,
-                additionalRuleProviders = additionalRuleProviders.toSet()
+                additionalRuleProviders = additionalRuleProviders.toSet(),
             )
         } else {
             KtLintAssertThatAssertable(
@@ -226,7 +226,7 @@ public class KtLintAssertThat(
                 filePath = filePath,
                 kotlinScript = kotlinScript,
                 editorConfigOverride = EditorConfigOverride.from(*editorConfigProperties.toTypedArray()),
-                additionalRuleProviders = additionalRuleProviders.toSet()
+                additionalRuleProviders = additionalRuleProviders.toSet(),
             )
         }
 
@@ -259,7 +259,7 @@ public class KtLintAssertThat(
                 KtLintAssertThat(
                     ruleProvider = this,
                     code = code,
-                    additionalRuleProviders = additionalRuleProviders.toMutableSet()
+                    additionalRuleProviders = additionalRuleProviders.toMutableSet(),
                 )
             }
 
@@ -348,8 +348,8 @@ public class KtLintAssertThatAssertable(
             LintViolation(
                 line = line,
                 col = col,
-                detail = detail
-            )
+                detail = detail,
+            ),
         )
 
     /**
@@ -365,8 +365,8 @@ public class KtLintAssertThatAssertable(
             LintViolation(
                 line = line,
                 col = col,
-                detail = detail
-            )
+                detail = detail,
+            ),
         )
 
     /**
@@ -431,8 +431,8 @@ public class KtLintAssertThatAssertable(
             LintViolation(
                 line = line,
                 col = col,
-                detail = detail
-            )
+                detail = detail,
+            ),
         )
 
     /**
@@ -458,7 +458,7 @@ public class KtLintAssertThatAssertable(
                 line = it.line,
                 col = it.col,
                 detail = it.detail,
-                canBeAutoCorrected = canBeAutoCorrected
+                canBeAutoCorrected = canBeAutoCorrected,
             )
         }.toTypedArray()
     }
@@ -475,7 +475,7 @@ public class KtLintAssertThatAssertable(
                 line = it.line,
                 col = it.col,
                 detail = it.detail,
-                canBeAutoCorrected = it.canBeAutoCorrected
+                canBeAutoCorrected = it.canBeAutoCorrected,
             )
         }.toTypedArray()
 
@@ -488,7 +488,7 @@ public class KtLintAssertThatAssertable(
                 lintedFilePath = filePath,
                 script = kotlinScript,
                 text = code,
-                editorConfigOverride = editorConfigOverride
+                editorConfigOverride = editorConfigOverride,
             )
     }
 
@@ -499,7 +499,7 @@ public class KtLintAssertThatAssertable(
                 lintedFilePath = filePath,
                 script = kotlinScript,
                 text = code,
-                editorConfigOverride = editorConfigOverride
+                editorConfigOverride = editorConfigOverride,
             )
 
     /* Representation of the field of the [LintError] that should be identical. Note that no comparison can be made
@@ -518,7 +518,7 @@ internal class MissingEolMarker : RuntimeException(
     The first line of the provide code sample should contain text '$MAX_LINE_LENGTH_MARKER' which is provided by the
     constant '${::MAX_LINE_LENGTH_MARKER.name}' and ends with the EOL_CHAR'$EOL_CHAR' provided by the constant
     '${::EOL_CHAR.name}' which indicates the last position that is allowed.
-    """.trimIndent()
+    """.trimIndent(),
 )
 
 /**

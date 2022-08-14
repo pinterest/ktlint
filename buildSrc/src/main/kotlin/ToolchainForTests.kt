@@ -17,7 +17,7 @@ private fun Project.addJdkVersionTests(jdkVersion: Int) {
         javaLauncher.set(
             javaToolchains.launcherFor {
                 languageVersion.set(JavaLanguageVersion.of(jdkVersion))
-            }
+            },
         )
     }
     tasks.named("check") {

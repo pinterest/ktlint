@@ -38,7 +38,7 @@ internal class EditorConfigGenerator(
         val editorConfig: Map<String, Property> = editorConfigLoader.loadPropertiesForFile(
             filePath = filePath,
             rules = rules,
-            debug = debug
+            debug = debug,
         )
 
         val potentialEditorConfigSettings =
@@ -66,7 +66,7 @@ internal class EditorConfigGenerator(
                         val value = with(rule) {
                             editorConfig.writeEditorConfigProperty(
                                 property,
-                                codeStyle
+                                codeStyle,
                             )
                         }
                         logger.debug {
@@ -75,7 +75,7 @@ internal class EditorConfigGenerator(
                         ConfigurationSetting(
                             key = property.type.name,
                             value = value,
-                            usage = "Rule '${rule.id}'"
+                            usage = "Rule '${rule.id}'",
                         )
                     }
             } else {
@@ -92,7 +92,7 @@ internal class EditorConfigGenerator(
             val value = with((DefaultEditorConfigProperties as UsesEditorConfigProperties)) {
                 editorConfig.writeEditorConfigProperty(
                     editorConfigProperty,
-                    codeStyle
+                    codeStyle,
                 )
             }
             logger.debug {
@@ -101,7 +101,7 @@ internal class EditorConfigGenerator(
             ConfigurationSetting(
                 key = editorConfigProperty.type.name,
                 value = value,
-                usage = "Class '${DefaultEditorConfigProperties::class.simpleName}'"
+                usage = "Class '${DefaultEditorConfigProperties::class.simpleName}'",
             )
         }
 

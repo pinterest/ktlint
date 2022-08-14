@@ -76,7 +76,7 @@ class AnnotationSpacingRule : Rule("annotation-spacing") {
                 } else {
                     it.isPartOfComment() && !it.isCommentOnSameLineAsPrevLeaf()
                 }
-            }
+            },
         )
         if (next != null) {
             if (node.elementType != ElementType.FILE_ANNOTATION_LIST) {

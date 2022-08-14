@@ -303,7 +303,7 @@ class NoSemicolonsRuleTest {
                 // TODO: It is not consistent that the semicolon is only reported in one of cases above
                 .hasLintViolations(
                     LintViolation(11, 5, "Unnecessary semicolon"),
-                    LintViolation(15, 5, "Unnecessary semicolon")
+                    LintViolation(15, 5, "Unnecessary semicolon"),
                 )
         }
     }

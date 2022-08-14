@@ -11,11 +11,11 @@ public class CustomRuleSetProvider :
             description = "Example of a custom rule set",
             license = "https://github.com/pinterest/ktlint/blob/master/LICENSE",
             repositoryUrl = "https://github.com/pinterest/ktlint",
-            issueTrackerUrl = "https://github.com/pinterest/ktlint/issues"
-        )
+            issueTrackerUrl = "https://github.com/pinterest/ktlint/issues",
+        ),
     ) {
     override fun getRuleProviders(): Set<RuleProvider> =
         setOf(
-            RuleProvider { NoVarRule() }
+            RuleProvider { NoVarRule() },
         )
 }

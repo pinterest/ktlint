@@ -63,7 +63,7 @@ public object KtLint {
         val text: String,
         @Deprecated(
             message = "Marked for removal in KtLint 0.48",
-            replaceWith = ReplaceWith("ruleProviders")
+            replaceWith = ReplaceWith("ruleProviders"),
         )
         val ruleSets: Iterable<RuleSet> = Iterable { emptySet<RuleSet>().iterator() },
         val ruleProviders: Set<RuleProvider> = emptySet(),
@@ -89,7 +89,7 @@ public object KtLint {
                     // TODO: remove when removing the deprecated ruleSets.
                     ruleSets
                         .flatMap { it.rules.toList() }
-                        .map { RuleRunner(createStaticRuleProvider(it)) }
+                        .map { RuleRunner(createStaticRuleProvider(it)) },
                 ).distinctBy { it.ruleId }
                 .toSet()
 
@@ -246,7 +246,7 @@ public object KtLint {
                             // updating the code
                             preparedCode.suppressedRegionLocator =
                                 SuppressionLocatorBuilder.buildSuppressedRegionsLocator(
-                                    preparedCode.rootNode
+                                    preparedCode.rootNode,
                                 )
                         }
                     }
@@ -256,8 +256,8 @@ public object KtLint {
                             LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected),
                             // It is assumed that a rule that emits that an error can be autocorrected, also
                             // does correct the error.
-                            canBeAutoCorrected
-                        )
+                            canBeAutoCorrected,
+                        ),
                     )
                 }
             }
@@ -272,8 +272,8 @@ public object KtLint {
                                 LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected),
                                 // It is assumed that a rule only corrects an error after it has emitted an
                                 // error and indicating that it actually can be autocorrected.
-                                false
-                            )
+                                false,
+                            ),
                         )
                     }
                 }
@@ -341,7 +341,7 @@ public object KtLint {
             filePath,
             params.getRules(),
             params.debug,
-            codeStyle
+            codeStyle,
         )
     }
 
@@ -396,7 +396,7 @@ internal class RuleRunner(private val provider: RuleProvider) {
                         "maintainer of the rule."
                 }
                 runAfterRuleVisitorModifier.copy(
-                    ruleId = qualifiedAfterRuleId
+                    ruleId = qualifiedAfterRuleId,
                 )
             }
 

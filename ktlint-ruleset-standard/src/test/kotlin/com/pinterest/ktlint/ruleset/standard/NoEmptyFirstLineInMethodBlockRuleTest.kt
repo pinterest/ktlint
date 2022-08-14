@@ -71,7 +71,7 @@ class NoEmptyFirstLineInMethodBlockRuleTest {
             .hasLintViolations(
                 LintViolation(3, 1, "First line in a method block should not be empty"),
                 LintViolation(6, 1, "First line in a method block should not be empty"),
-                LintViolation(9, 1, "First line in a method block should not be empty")
+                LintViolation(9, 1, "First line in a method block should not be empty"),
             ).isFormattedAs(formattedFunction)
     }
 

@@ -101,7 +101,7 @@ public class TypeArgumentListSpacingRule : Rule("$experimentalRulesetId:type-arg
             emit(
                 node.startOffset,
                 "No whitespace expected at this position",
-                true
+                true,
             )
             if (autoCorrect) {
                 node.treeParent.removeChild(node)

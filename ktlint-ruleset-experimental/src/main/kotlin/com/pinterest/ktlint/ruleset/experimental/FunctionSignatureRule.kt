@@ -48,8 +48,8 @@ public class FunctionSignatureRule :
         id = "$experimentalRulesetId:function-signature",
         visitorModifiers = setOf(
             // Run after wrapping and spacing rules
-            VisitorModifier.RunAsLateAsPossible
-        )
+            VisitorModifier.RunAsLateAsPossible,
+        ),
     ),
     UsesEditorConfigProperties {
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> =
@@ -58,7 +58,7 @@ public class FunctionSignatureRule :
             indentStyleProperty,
             maxLineLengthProperty,
             forceMultilineWhenParameterCountGreaterOrEqualThanProperty,
-            functionBodyExpressionWrappingProperty
+            functionBodyExpressionWrappingProperty,
         )
 
     private var indent: String? = null
@@ -72,7 +72,7 @@ public class FunctionSignatureRule :
             functionBodyExpressionWrapping = getEditorConfigValue(functionBodyExpressionWrappingProperty)
             val indentConfig = IndentConfig(
                 indentStyle = getEditorConfigValue(indentStyleProperty),
-                tabWidth = getEditorConfigValue(indentSizeProperty)
+                tabWidth = getEditorConfigValue(indentSizeProperty),
             )
             indent = indentConfig.indent
             maxLineLength = getEditorConfigValue(maxLineLengthProperty)
@@ -115,7 +115,7 @@ public class FunctionSignatureRule :
         return collectLeavesRecursively()
             .childrenBetween(
                 startASTNodePredicate = { it == firstCodeChild },
-                endASTNodePredicate = { it == startOfBodyBlock || it == startOfBodyExpression }
+                endASTNodePredicate = { it == startOfBodyBlock || it == startOfBodyExpression },
             )
     }
 
@@ -190,7 +190,7 @@ public class FunctionSignatureRule :
             .functionSignatureNodes()
             .childrenBetween(
                 startASTNodePredicate = { it == closingParenthesis },
-                endASTNodePredicate = { false }
+                endASTNodePredicate = { false },
             )
 
         return node.lineIndent().length +
@@ -278,7 +278,7 @@ public class FunctionSignatureRule :
                     emit(
                         whiteSpace.startOffset,
                         "No whitespace expected in empty parameter list",
-                        true
+                        true,
                     )
                 }
                 if (autoCorrect && !dryRun) {
@@ -320,7 +320,7 @@ public class FunctionSignatureRule :
                             emit(
                                 firstParameterInList.startOffset,
                                 "Newline expected after opening parenthesis",
-                                true
+                                true,
                             )
                         }
                         if (autoCorrect && !dryRun) {
@@ -328,7 +328,7 @@ public class FunctionSignatureRule :
                                 (valueParameterList.firstChildNode as LeafElement).upsertWhitespaceAfterMe(expectedParameterIndent)
                             } else {
                                 (whiteSpaceBeforeIdentifier as LeafElement).rawReplaceWithText(
-                                    expectedParameterIndent
+                                    expectedParameterIndent,
                                 )
                             }
                         } else {
@@ -341,7 +341,7 @@ public class FunctionSignatureRule :
                             emit(
                                 firstParameter!!.startOffset,
                                 "No whitespace expected between opening parenthesis and first parameter name",
-                                true
+                                true,
                             )
                         }
                         if (autoCorrect && !dryRun) {
@@ -390,7 +390,7 @@ public class FunctionSignatureRule :
                                     emit(
                                         valueParameter.startOffset,
                                         "Parameter should start on a newline",
-                                        true
+                                        true,
                                     )
                                 }
                                 if (autoCorrect && !dryRun) {
@@ -398,7 +398,7 @@ public class FunctionSignatureRule :
                                         (firstChildNodeInValueParameter as LeafElement).upsertWhitespaceBeforeMe(expectedParameterIndent)
                                     } else {
                                         (whiteSpaceBeforeIdentifier as LeafElement).rawReplaceWithText(
-                                            expectedParameterIndent
+                                            expectedParameterIndent,
                                         )
                                     }
                                 } else {
@@ -411,7 +411,7 @@ public class FunctionSignatureRule :
                                     emit(
                                         firstChildNodeInValueParameter!!.startOffset,
                                         "Single whitespace expected before parameter",
-                                        true
+                                        true,
                                     )
                                 }
                                 if (autoCorrect && !dryRun) {
@@ -456,7 +456,7 @@ public class FunctionSignatureRule :
                             emit(
                                 closingParenthesis!!.startOffset,
                                 "Newline expected before closing parenthesis",
-                                true
+                                true,
                             )
                         }
                         if (autoCorrect && !dryRun) {
@@ -473,7 +473,7 @@ public class FunctionSignatureRule :
                             emit(
                                 whiteSpaceBeforeClosingParenthesis.startOffset,
                                 "No whitespace expected between last parameter and closing parenthesis",
-                                true
+                                true,
                             )
                         }
                         if (autoCorrect && !dryRun) {
@@ -524,7 +524,7 @@ public class FunctionSignatureRule :
                 if (whiteSpaceBeforeFunctionBodyExpression.isWhiteSpaceWithNewline()) {
                     val mergeWithFunctionSignature =
                         functionBodyExpressionWrapping.keepFirstLineOfBodyExpressionTogetherWithFunctionSignature(
-                            firstLineOfBodyExpression.length < maxLengthRemainingForFirstLineOfBodyExpression
+                            firstLineOfBodyExpression.length < maxLengthRemainingForFirstLineOfBodyExpression,
                         )
                     if (mergeWithFunctionSignature ||
                         node.isMultilineFunctionSignatureWithoutExplicitReturnType(lastNodeOfFunctionSignatureWithBodyExpression)
@@ -532,7 +532,7 @@ public class FunctionSignatureRule :
                         emit(
                             whiteSpaceBeforeFunctionBodyExpression!!.startOffset,
                             "First line of body expression fits on same line as function signature",
-                            true
+                            true,
                         )
                         if (autoCorrect) {
                             (whiteSpaceBeforeFunctionBodyExpression as LeafPsiElement).rawReplaceWithText(" ")
@@ -550,7 +550,7 @@ public class FunctionSignatureRule :
                             emit(
                                 functionBodyExpressionNodes.first().startOffset,
                                 "Single whitespace expected before expression body",
-                                true
+                                true,
                             )
                             if (autoCorrect) {
                                 if (whiteSpaceBeforeFunctionBodyExpression != null) {
@@ -567,7 +567,7 @@ public class FunctionSignatureRule :
                         emit(
                             functionBodyExpressionNodes.first().startOffset,
                             "Newline expected before expression body",
-                            true
+                            true,
                         )
                         if (autoCorrect) {
                             val newLineAndIndent = "\n" + node.lineIndent() + indent
@@ -587,7 +587,7 @@ public class FunctionSignatureRule :
     ) = functionSignatureNodes()
         .childrenBetween(
             startASTNodePredicate = { true },
-            endASTNodePredicate = { it == lastNodeOfFunctionSignatureWithBodyExpression }
+            endASTNodePredicate = { it == lastNodeOfFunctionSignatureWithBodyExpression },
         ).joinToString(separator = "") { it.text }
         .split("\n")
         .lastOrNull()
@@ -636,7 +636,7 @@ public class FunctionSignatureRule :
                 endASTNodePredicate = {
                     // collect all remaining nodes
                     false
-                }
+                },
             )
 
     private fun List<ASTNode>.getStartingWhitespaceOrNull() =
@@ -714,9 +714,9 @@ public class FunctionSignatureRule :
                         "number of parameters even in case the entire function signature would fit on a single line. " +
                         "By default this parameter is not enabled.",
                     PropertyType.PropertyValueParser.POSITIVE_INT_VALUE_PARSER,
-                    setOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "unset")
+                    setOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "unset"),
                 ),
-                defaultValue = -1
+                defaultValue = -1,
             )
 
         public val functionBodyExpressionWrappingProperty: UsesEditorConfigProperties.EditorConfigProperty<FunctionBodyExpressionWrapping> =
@@ -728,9 +728,9 @@ public class FunctionSignatureRule :
                         "line as the function signature. Use 'multiline' to force wrapping of body expressions that " +
                         "consists of multiple line. Use 'always' to force wrapping of body expression always.",
                     EnumValueParser(FunctionBodyExpressionWrapping::class.java),
-                    FunctionBodyExpressionWrapping.values().map { it.name }.toSet()
+                    FunctionBodyExpressionWrapping.values().map { it.name }.toSet(),
                 ),
-                defaultValue = default
+                defaultValue = default,
             )
 
         private val INDENT_WITH_CLOSING_PARENTHESIS = Regex("\\s*\\) =")

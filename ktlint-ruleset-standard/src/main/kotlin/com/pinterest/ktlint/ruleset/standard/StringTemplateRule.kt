@@ -43,7 +43,7 @@ class StringTemplateRule : Rule("string-template") {
                     emit(
                         entryExpression.operationTokenNode.startOffset,
                         "Redundant \"toString()\" call in string template",
-                        true
+                        true,
                     )
                     if (autoCorrect) {
                         entryExpression.replace(receiver)

@@ -28,7 +28,7 @@ class PlainReporter(
                 out.println(
                     "${colorFileName(file)}${":".colored()}${err.line}${
                     ":${"${err.col}:".let { if (pad) String.format("%-4s", it) else it}}".colored()
-                    } ${err.detail} ${"(${err.ruleId})".colored()}"
+                    } ${err.detail} ${"(${err.ruleId})".colored()}",
                 )
             }
         }
@@ -42,7 +42,7 @@ class PlainReporter(
                 out.println(
                     "  $line${
                     ":${if (pad) String.format("%-3s", col) else "$col"}".colored()
-                    } $detail${if (verbose) " ($ruleId)".colored() else ""}"
+                    } $detail${if (verbose) " ($ruleId)".colored() else ""}",
                 )
             }
         }

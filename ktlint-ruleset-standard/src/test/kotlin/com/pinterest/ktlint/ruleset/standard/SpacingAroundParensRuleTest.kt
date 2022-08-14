@@ -92,7 +92,7 @@ class SpacingAroundParensRuleTest {
         spacingAroundParensRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(1, 15, "Unexpected spacing around \"(\""),
-                LintViolation(2, 15, "Unexpected spacing after \"(\"")
+                LintViolation(2, 15, "Unexpected spacing after \"(\""),
             ).isFormattedAs(formattedCode)
     }
 

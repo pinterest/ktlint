@@ -47,7 +47,7 @@ internal class IndentationRuleTest {
                     LintViolation(2, 1, "Unexpected indentation (0) (should be 4)"),
                     LintViolation(3, 1, "Unexpected indentation (0) (should be 8)"),
                     LintViolation(4, 1, "Unexpected indentation (0) (should be 4)"),
-                    LintViolation(5, 1, "Unexpected indentation (0) (should be 8)")
+                    LintViolation(5, 1, "Unexpected indentation (0) (should be 8)"),
                 ).isFormattedAs(formattedCode)
         }
 
@@ -68,7 +68,7 @@ internal class IndentationRuleTest {
                     LintViolation(2, 1, "Unexpected indentation (0) (should be 1)"),
                     LintViolation(3, 1, "Unexpected indentation (0) (should be 2)"),
                     LintViolation(4, 1, "Unexpected indentation (0) (should be 1)"),
-                    LintViolation(5, 1, "Unexpected indentation (0) (should be 2)")
+                    LintViolation(5, 1, "Unexpected indentation (0) (should be 2)"),
                 ).isFormattedAs(formattedCode)
         }
     }
@@ -101,7 +101,7 @@ internal class IndentationRuleTest {
             indentationRuleAssertThat(code)
                 .hasLintViolations(
                     LintViolation(2, 1, "Unexpected indentation (0) (should be 4)"),
-                    LintViolation(3, 1, "Unexpected indentation (0) (should be 4)")
+                    LintViolation(3, 1, "Unexpected indentation (0) (should be 4)"),
                 ).isFormattedAs(formattedCode)
         }
 
@@ -121,7 +121,7 @@ internal class IndentationRuleTest {
                 .withEditorConfigOverride(INDENT_STYLE_TAB)
                 .hasLintViolations(
                     LintViolation(2, 1, "Unexpected indentation (0) (should be 1)"),
-                    LintViolation(3, 1, "Unexpected indentation (0) (should be 1)")
+                    LintViolation(3, 1, "Unexpected indentation (0) (should be 1)"),
                 ).isFormattedAs(formattedCode)
         }
     }
@@ -154,7 +154,7 @@ internal class IndentationRuleTest {
                     LintViolation(2, 1, "Unexpected indentation (0) (should be 4)"),
                     LintViolation(3, 1, "Unexpected indentation (0) (should be 8)"),
                     LintViolation(4, 1, "Unexpected indentation (0) (should be 8)"),
-                    LintViolation(5, 1, "Unexpected indentation (0) (should be 4)")
+                    LintViolation(5, 1, "Unexpected indentation (0) (should be 4)"),
                 ).isFormattedAs(formattedCode)
         }
 
@@ -175,7 +175,7 @@ internal class IndentationRuleTest {
                     LintViolation(2, 1, "Unexpected indentation (0) (should be 1)"),
                     LintViolation(3, 1, "Unexpected indentation (0) (should be 2)"),
                     LintViolation(4, 1, "Unexpected indentation (0) (should be 2)"),
-                    LintViolation(5, 1, "Unexpected indentation (0) (should be 1)")
+                    LintViolation(5, 1, "Unexpected indentation (0) (should be 1)"),
                 ).isFormattedAs(formattedCode)
         }
     }
@@ -206,7 +206,7 @@ internal class IndentationRuleTest {
                     LintViolation(2, 1, "Unexpected indentation (0) (should be 4)"),
                     LintViolation(3, 1, "Unexpected indentation (0) (should be 8)"),
                     LintViolation(4, 1, "Unexpected indentation (0) (should be 8)"),
-                    LintViolation(5, 1, "Unexpected indentation (0) (should be 4)")
+                    LintViolation(5, 1, "Unexpected indentation (0) (should be 4)"),
                 ).isFormattedAs(formattedCode)
         }
 
@@ -226,7 +226,7 @@ internal class IndentationRuleTest {
                     LintViolation(2, 1, "Unexpected indentation (0) (should be 1)"),
                     LintViolation(3, 1, "Unexpected indentation (0) (should be 2)"),
                     LintViolation(4, 1, "Unexpected indentation (0) (should be 2)"),
-                    LintViolation(5, 1, "Unexpected indentation (0) (should be 1)")
+                    LintViolation(5, 1, "Unexpected indentation (0) (should be 1)"),
                 ).isFormattedAs(formattedCode)
         }
     }
@@ -266,7 +266,7 @@ internal class IndentationRuleTest {
                     LintViolation(5, 1, "Unexpected indentation (0) (should be 8)"),
                     LintViolation(6, 1, "Unexpected indentation (0) (should be 4)"),
                     LintViolation(7, 1, "Unexpected indentation (0) (should be 8)"),
-                    LintViolation(8, 1, "Unexpected indentation (0) (should be 4)")
+                    LintViolation(8, 1, "Unexpected indentation (0) (should be 4)"),
                 ).isFormattedAs(formattedCode)
         }
 
@@ -292,7 +292,7 @@ internal class IndentationRuleTest {
                     LintViolation(5, 1, "Unexpected indentation (0) (should be 2)"),
                     LintViolation(6, 1, "Unexpected indentation (0) (should be 1)"),
                     LintViolation(7, 1, "Unexpected indentation (0) (should be 2)"),
-                    LintViolation(8, 1, "Unexpected indentation (0) (should be 1)")
+                    LintViolation(8, 1, "Unexpected indentation (0) (should be 1)"),
                 ).isFormattedAs(formattedCode)
         }
     }
@@ -360,7 +360,7 @@ internal class IndentationRuleTest {
                     LintViolation(2, 1, "Unexpected indentation (0) (should be 4)"),
                     LintViolation(3, 1, "Unexpected indentation (0) (should be 8)"),
                     LintViolation(4, 1, "Unexpected indentation (0) (should be 8)"),
-                    LintViolation(5, 1, "Unexpected indentation (0) (should be 4)")
+                    LintViolation(5, 1, "Unexpected indentation (0) (should be 4)"),
                 ).isFormattedAs(formattedCode)
         }
 
@@ -380,7 +380,7 @@ internal class IndentationRuleTest {
                     LintViolation(2, 1, "Unexpected indentation (0) (should be 1)"),
                     LintViolation(3, 1, "Unexpected indentation (0) (should be 2)"),
                     LintViolation(4, 1, "Unexpected indentation (0) (should be 2)"),
-                    LintViolation(5, 1, "Unexpected indentation (0) (should be 1)")
+                    LintViolation(5, 1, "Unexpected indentation (0) (should be 1)"),
                 ).isFormattedAs(formattedCode)
         }
     }
@@ -420,7 +420,7 @@ internal class IndentationRuleTest {
                     LintViolation(5, 1, "Unexpected indentation (0) (should be 8)"),
                     LintViolation(6, 1, "Unexpected indentation (0) (should be 4)"),
                     LintViolation(7, 1, "Unexpected indentation (0) (should be 8)"),
-                    LintViolation(8, 1, "Unexpected indentation (0) (should be 4)")
+                    LintViolation(8, 1, "Unexpected indentation (0) (should be 4)"),
                 ).isFormattedAs(formattedCode)
         }
 
@@ -446,7 +446,7 @@ internal class IndentationRuleTest {
                     LintViolation(5, 1, "Unexpected indentation (0) (should be 2)"),
                     LintViolation(6, 1, "Unexpected indentation (0) (should be 1)"),
                     LintViolation(7, 1, "Unexpected indentation (0) (should be 2)"),
-                    LintViolation(8, 1, "Unexpected indentation (0) (should be 1)")
+                    LintViolation(8, 1, "Unexpected indentation (0) (should be 1)"),
                 ).isFormattedAs(formattedCode)
         }
     }
@@ -480,7 +480,7 @@ internal class IndentationRuleTest {
                     LintViolation(3, 1, "Unexpected indentation (0) (should be 8)"),
                     LintViolation(4, 1, "Unexpected indentation (0) (should be 8)"),
                     LintViolation(5, 1, "Unexpected indentation (0) (should be 12)"),
-                    LintViolation(6, 1, "Unexpected indentation (0) (should be 8)")
+                    LintViolation(6, 1, "Unexpected indentation (0) (should be 8)"),
                 ).isFormattedAs(formattedCode)
         }
 
@@ -502,7 +502,7 @@ internal class IndentationRuleTest {
                     LintViolation(3, 1, "Unexpected indentation (0) (should be 2)"),
                     LintViolation(4, 1, "Unexpected indentation (0) (should be 2)"),
                     LintViolation(5, 1, "Unexpected indentation (0) (should be 3)"),
-                    LintViolation(6, 1, "Unexpected indentation (0) (should be 2)")
+                    LintViolation(6, 1, "Unexpected indentation (0) (should be 2)"),
                 ).isFormattedAs(formattedCode)
         }
     }
@@ -529,7 +529,7 @@ internal class IndentationRuleTest {
             indentationRuleAssertThat(code)
                 .hasLintViolations(
                     LintViolation(2, 1, "Unexpected indentation (0) (should be 4)"),
-                    LintViolation(3, 1, "Unexpected indentation (0) (should be 4)")
+                    LintViolation(3, 1, "Unexpected indentation (0) (should be 4)"),
                 ).isFormattedAs(formattedCode)
         }
 
@@ -546,7 +546,7 @@ internal class IndentationRuleTest {
                 .withEditorConfigOverride(INDENT_STYLE_TAB)
                 .hasLintViolations(
                     LintViolation(2, 1, "Unexpected indentation (0) (should be 1)"),
-                    LintViolation(3, 1, "Unexpected indentation (0) (should be 1)")
+                    LintViolation(3, 1, "Unexpected indentation (0) (should be 1)"),
                 ).isFormattedAs(formattedCode)
         }
     }
@@ -584,7 +584,7 @@ internal class IndentationRuleTest {
                 .hasLintViolations(
                     LintViolation(2, 1, "Unexpected indentation (0) (should be 4)"),
                     LintViolation(4, 1, "Unexpected indentation (0) (should be 4)"),
-                    LintViolation(5, 1, "Unexpected indentation (0) (should be 4)")
+                    LintViolation(5, 1, "Unexpected indentation (0) (should be 4)"),
                 ).isFormattedAs(formattedCode)
         }
 
@@ -607,7 +607,7 @@ internal class IndentationRuleTest {
                 .hasLintViolations(
                     LintViolation(2, 1, "Unexpected indentation (0) (should be 1)"),
                     LintViolation(4, 1, "Unexpected indentation (0) (should be 1)"),
-                    LintViolation(5, 1, "Unexpected indentation (0) (should be 1)")
+                    LintViolation(5, 1, "Unexpected indentation (0) (should be 1)"),
                 ).isFormattedAs(formattedCode)
         }
     }
@@ -643,7 +643,7 @@ internal class IndentationRuleTest {
                     LintViolation(3, 1, "Unexpected indentation (0) (should be 8)"),
                     LintViolation(5, 1, "Unexpected indentation (0) (should be 4)"),
                     LintViolation(6, 1, "Unexpected indentation (0) (should be 8)"),
-                    LintViolation(7, 1, "Unexpected indentation (0) (should be 8)")
+                    LintViolation(7, 1, "Unexpected indentation (0) (should be 8)"),
                 ).isFormattedAs(formattedCode)
         }
 
@@ -666,7 +666,7 @@ internal class IndentationRuleTest {
                     LintViolation(3, 1, "Unexpected indentation (0) (should be 2)"),
                     LintViolation(5, 1, "Unexpected indentation (0) (should be 1)"),
                     LintViolation(6, 1, "Unexpected indentation (0) (should be 2)"),
-                    LintViolation(7, 1, "Unexpected indentation (0) (should be 2)")
+                    LintViolation(7, 1, "Unexpected indentation (0) (should be 2)"),
                 ).isFormattedAs(formattedCode)
         }
     }
@@ -706,7 +706,7 @@ internal class IndentationRuleTest {
                     LintViolation(5, 1, "Unexpected indentation (0) (should be 8)"),
                     LintViolation(6, 1, "Unexpected indentation (0) (should be 8)"),
                     LintViolation(7, 1, "Unexpected indentation (0) (should be 8)"),
-                    LintViolation(8, 1, "Unexpected indentation (0) (should be 4)")
+                    LintViolation(8, 1, "Unexpected indentation (0) (should be 4)"),
                 ).isFormattedAs(formattedCode)
         }
 
@@ -731,7 +731,7 @@ internal class IndentationRuleTest {
                     LintViolation(5, 1, "Unexpected indentation (0) (should be 2)"),
                     LintViolation(6, 1, "Unexpected indentation (0) (should be 2)"),
                     LintViolation(7, 1, "Unexpected indentation (0) (should be 2)"),
-                    LintViolation(8, 1, "Unexpected indentation (0) (should be 1)")
+                    LintViolation(8, 1, "Unexpected indentation (0) (should be 1)"),
                 ).isFormattedAs(formattedCode)
         }
     }
@@ -761,7 +761,7 @@ internal class IndentationRuleTest {
                 .hasLintViolations(
                     LintViolation(2, 1, "Unexpected indentation (0) (should be 4)"),
                     LintViolation(3, 1, "Unexpected indentation (0) (should be 4)"),
-                    LintViolation(4, 1, "Unexpected indentation (0) (should be 4)")
+                    LintViolation(4, 1, "Unexpected indentation (0) (should be 4)"),
                 ).isFormattedAs(formattedCode)
         }
 
@@ -780,7 +780,7 @@ internal class IndentationRuleTest {
                 .hasLintViolations(
                     LintViolation(2, 1, "Unexpected indentation (0) (should be 1)"),
                     LintViolation(3, 1, "Unexpected indentation (0) (should be 1)"),
-                    LintViolation(4, 1, "Unexpected indentation (0) (should be 1)")
+                    LintViolation(4, 1, "Unexpected indentation (0) (should be 1)"),
                 ).isFormattedAs(formattedCode)
         }
     }
@@ -828,7 +828,7 @@ internal class IndentationRuleTest {
             indentationRuleAssertThat(code)
                 .hasLintViolations(
                     LintViolation(2, 1, "Unexpected indentation (0) (should be 4)"),
-                    LintViolation(3, 1, "Unexpected indentation (0) (should be 4)")
+                    LintViolation(3, 1, "Unexpected indentation (0) (should be 4)"),
                 ).isFormattedAs(formattedCode)
         }
 
@@ -845,7 +845,7 @@ internal class IndentationRuleTest {
                 .withEditorConfigOverride(INDENT_STYLE_TAB)
                 .hasLintViolations(
                     LintViolation(2, 1, "Unexpected indentation (0) (should be 1)"),
-                    LintViolation(3, 1, "Unexpected indentation (0) (should be 1)")
+                    LintViolation(3, 1, "Unexpected indentation (0) (should be 1)"),
                 ).isFormattedAs(formattedCode)
         }
     }
@@ -888,7 +888,7 @@ internal class IndentationRuleTest {
             .withEditorConfigOverride(indentSizeProperty to 2)
             .hasLintViolations(
                 LintViolation(2, 1, "Unexpected indentation (3) (should be 2)"),
-                LintViolation(3, 1, "Unexpected indentation (4) (should be 2)")
+                LintViolation(3, 1, "Unexpected indentation (4) (should be 2)"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -930,7 +930,7 @@ internal class IndentationRuleTest {
             .withEditorConfigOverride(INDENT_STYLE_TAB)
             .hasLintViolations(
                 LintViolation(2, 1, "Unexpected indentation (0) (should be 1)"),
-                LintViolation(3, 1, "Unexpected indentation (2) (should be 1)")
+                LintViolation(3, 1, "Unexpected indentation (2) (should be 1)"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -976,7 +976,7 @@ internal class IndentationRuleTest {
                 LintViolation(3, 1, "Unexpected indentation (10) (should be 8)"),
                 LintViolation(4, 1, "Unexpected indentation (10) (should be 8)"),
                 LintViolation(5, 1, "Unexpected indentation (10) (should be 8)"),
-                LintViolation(6, 1, "Unexpected indentation (10) (should be 4)")
+                LintViolation(6, 1, "Unexpected indentation (10) (should be 4)"),
             )
             .isFormattedAs(formattedCode)
     }
@@ -1006,7 +1006,7 @@ internal class IndentationRuleTest {
                 LintViolation(2, 1, "Unexpected indentation (2) (should be 4)"),
                 LintViolation(3, 1, "Unexpected indentation (3) (should be 5)"),
                 LintViolation(4, 1, "Unexpected indentation (3) (should be 5)"),
-                LintViolation(5, 1, "Unexpected indentation (2) (should be 4)")
+                LintViolation(5, 1, "Unexpected indentation (2) (should be 4)"),
             )
             .isFormattedAs(formattedCode)
     }
@@ -1112,7 +1112,7 @@ internal class IndentationRuleTest {
                 .hasLintViolations(
                     LintViolation(2, 1, "Unexpected indentation (8) (should be 4)"),
                     LintViolation(3, 1, "Unexpected indentation (9) (should be 5)"),
-                    LintViolation(4, 1, "Unexpected indentation (9) (should be 5)")
+                    LintViolation(4, 1, "Unexpected indentation (9) (should be 5)"),
                 ).isFormattedAs(formattedCode)
         }
 
@@ -1186,7 +1186,7 @@ internal class IndentationRuleTest {
                 .hasLintViolations(
                     LintViolation(2, 1, "Unexpected indentation (8) (should be 4)"),
                     LintViolation(3, 1, "Unexpected indentation (9) (should be 5)"),
-                    LintViolation(4, 1, "Unexpected indentation (9) (should be 5)")
+                    LintViolation(4, 1, "Unexpected indentation (9) (should be 5)"),
                 ).isFormattedAs(formattedCode)
         }
 
@@ -1254,7 +1254,7 @@ internal class IndentationRuleTest {
                     LintViolation(10, 1, "Unexpected indentation (0) (should be 20)"),
                     LintViolation(11, 1, "Unexpected indentation (0) (should be 20)"),
                     LintViolation(12, 1, "Unexpected indentation (0) (should be 12)"),
-                    LintViolation(13, 1, "Unexpected indentation (0) (should be 8)")
+                    LintViolation(13, 1, "Unexpected indentation (0) (should be 8)"),
                 ).isFormattedAs(formattedCode)
         }
 
@@ -1319,7 +1319,7 @@ internal class IndentationRuleTest {
                     LintViolation(14, 1, "Unexpected indentation (0) (should be 8)"),
                     LintViolation(15, 1, "Unexpected indentation (0) (should be 4)"),
                     LintViolation(16, 1, "Unexpected indentation (0) (should be 8)"),
-                    LintViolation(17, 1, "Unexpected indentation (0) (should be 4)")
+                    LintViolation(17, 1, "Unexpected indentation (0) (should be 4)"),
                 ).isFormattedAs(formattedCode)
         }
 
@@ -1384,7 +1384,7 @@ internal class IndentationRuleTest {
                     LintViolation(14, 1, "Unexpected indentation (0) (should be 8)"),
                     LintViolation(15, 1, "Unexpected indentation (0) (should be 4)"),
                     LintViolation(16, 1, "Unexpected indentation (0) (should be 8)"),
-                    LintViolation(17, 1, "Unexpected indentation (0) (should be 4)")
+                    LintViolation(17, 1, "Unexpected indentation (0) (should be 4)"),
                 ).isFormattedAs(formattedCode)
         }
     }
@@ -1494,7 +1494,7 @@ internal class IndentationRuleTest {
                 LintViolation(30, 1, "Unexpected indentation (0) (should be 8)"),
                 LintViolation(32, 1, "Unexpected indentation (0) (should be 4)"),
                 LintViolation(33, 1, "Unexpected indentation (0) (should be 8)"),
-                LintViolation(34, 1, "Unexpected indentation (0) (should be 8)")
+                LintViolation(34, 1, "Unexpected indentation (0) (should be 8)"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -1522,7 +1522,7 @@ internal class IndentationRuleTest {
             .hasLintViolations(
                 LintViolation(3, 1, "Unexpected indentation (8) (should be 4)"),
                 LintViolation(4, 1, "Unexpected indentation (12) (should be 8)"),
-                LintViolation(5, 1, "Unexpected indentation (12) (should be 8)")
+                LintViolation(5, 1, "Unexpected indentation (12) (should be 8)"),
             ) // Can't check the formatted code here as the template string expression results in an error in AssertJ
     }
 
@@ -1596,7 +1596,7 @@ internal class IndentationRuleTest {
             indentationRuleAssertThat(code)
                 .hasLintViolations(
                     LintViolation(4, 1, "Unexpected indentation (0) (should be 8)"),
-                    LintViolation(8, 1, "Unexpected indentation (0) (should be 8)")
+                    LintViolation(8, 1, "Unexpected indentation (0) (should be 8)"),
                 ).isFormattedAs(formattedCode)
         }
 
@@ -1634,7 +1634,7 @@ internal class IndentationRuleTest {
                     LintViolation(6, 1, "Unexpected indentation (0) (should be 8)"),
                     LintViolation(7, 1, "Unexpected indentation (0) (should be 4)"),
                     LintViolation(8, 1, "Unexpected indentation (0) (should be 8)"),
-                    LintViolation(9, 1, "Unexpected indentation (0) (should be 4)")
+                    LintViolation(9, 1, "Unexpected indentation (0) (should be 4)"),
                 )
                 .isFormattedAs(formattedCode)
         }
@@ -1676,7 +1676,7 @@ internal class IndentationRuleTest {
                     LintViolation(7, 1, "Unexpected indentation (0) (should be 4)"),
                     LintViolation(8, 1, "Unexpected indentation (0) (should be 8)"),
                     LintViolation(9, 1, "Unexpected indentation (0) (should be 12)"),
-                    LintViolation(10, 1, "Unexpected indentation (0) (should be 12)")
+                    LintViolation(10, 1, "Unexpected indentation (0) (should be 12)"),
                 ).isFormattedAs(formattedCode)
         }
 
@@ -1714,7 +1714,7 @@ internal class IndentationRuleTest {
                     LintViolation(5, 1, "Unexpected indentation (0) (should be 4)"),
                     LintViolation(6, 1, "Unexpected indentation (0) (should be 8)"),
                     LintViolation(7, 1, "Unexpected indentation (0) (should be 12)"),
-                    LintViolation(8, 1, "Unexpected indentation (0) (should be 4)")
+                    LintViolation(8, 1, "Unexpected indentation (0) (should be 4)"),
                 ).isFormattedAs(formattedCode)
         }
     }
@@ -1742,7 +1742,7 @@ internal class IndentationRuleTest {
         indentationRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(3, 1, "Unexpected indentation (0) (should be 8)"),
-                LintViolation(5, 1, "Unexpected indentation (0) (should be 8)")
+                LintViolation(5, 1, "Unexpected indentation (0) (should be 8)"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -1775,7 +1775,7 @@ internal class IndentationRuleTest {
                 LintViolation(3, 1, "Unexpected indentation (0) (should be 8)"),
                 LintViolation(4, 1, "Unexpected indentation (0) (should be 4)"),
                 LintViolation(6, 1, "Unexpected indentation (0) (should be 8)"),
-                LintViolation(7, 1, "Unexpected indentation (0) (should be 4)")
+                LintViolation(7, 1, "Unexpected indentation (0) (should be 4)"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -1905,7 +1905,7 @@ internal class IndentationRuleTest {
                 LintViolation(11, 1, "Unexpected indentation (0) (should be 16)"),
                 LintViolation(12, 1, "Unexpected indentation (0) (should be 8)"),
                 LintViolation(13, 1, "Unexpected indentation (0) (should be 8)"),
-                LintViolation(14, 1, "Unexpected indentation (0) (should be 8)")
+                LintViolation(14, 1, "Unexpected indentation (0) (should be 8)"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -1935,7 +1935,7 @@ internal class IndentationRuleTest {
             .hasLintViolations(
                 LintViolation(5, 1, "Unexpected indentation (4) (should be 8)"),
                 LintViolation(6, 1, "Unexpected indentation (8) (should be 12)"),
-                LintViolation(7, 1, "Unexpected indentation (4) (should be 8)")
+                LintViolation(7, 1, "Unexpected indentation (4) (should be 8)"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -1969,7 +1969,7 @@ internal class IndentationRuleTest {
             .hasLintViolations(
                 LintViolation(7, 1, "Unexpected indentation (4) (should be 8)"),
                 LintViolation(8, 1, "Unexpected indentation (8) (should be 12)"),
-                LintViolation(9, 1, "Unexpected indentation (4) (should be 8)")
+                LintViolation(9, 1, "Unexpected indentation (4) (should be 8)"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -2002,7 +2002,7 @@ internal class IndentationRuleTest {
             .addAdditionalRuleProvider { WrappingRule() }
             .hasLintViolations(
                 LintViolation(3, 1, "Unexpected indentation (4) (should be 8)"),
-                LintViolation(4, 1, "Unexpected indentation (4) (should be 8)")
+                LintViolation(4, 1, "Unexpected indentation (4) (should be 8)"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -2040,7 +2040,7 @@ internal class IndentationRuleTest {
             .addAdditionalRuleProvider { WrappingRule() }
             .hasLintViolations(
                 LintViolation(5, 1, "Unexpected indent of multiline string closing quotes"),
-                LintViolation(7, 1, "Unexpected indent of multiline string closing quotes")
+                LintViolation(7, 1, "Unexpected indent of multiline string closing quotes"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -2082,7 +2082,7 @@ internal class IndentationRuleTest {
                 LintViolation(3, 1, "Unexpected indentation (0) (should be 8)"),
                 LintViolation(4, 1, "Unexpected indentation (4) (should be 8)"),
                 LintViolation(7, 1, "Unexpected indentation (0) (should be 8)"),
-                LintViolation(8, 1, "Unexpected indentation (4) (should be 8)")
+                LintViolation(8, 1, "Unexpected indentation (4) (should be 8)"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -2145,7 +2145,7 @@ internal class IndentationRuleTest {
                 LintViolation(7, 1, "Unexpected indentation (0) (should be 4)"),
                 LintViolation(8, 1, "Unexpected indentation (0) (should be 8)"),
                 LintViolation(9, 1, "Unexpected indentation (0) (should be 12)"),
-                LintViolation(10, 1, "Unexpected indentation (0) (should be 4)")
+                LintViolation(10, 1, "Unexpected indentation (0) (should be 4)"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -2213,7 +2213,7 @@ internal class IndentationRuleTest {
                 LintViolation(3, 1, "Unexpected indentation (8) (should be 12)"),
                 LintViolation(4, 1, "Unexpected indentation (12) (should be 8)"),
                 LintViolation(5, 1, "Unexpected indentation (12) (should be 8)"),
-                LintViolation(6, 1, "Unexpected indentation (8) (should be 4)")
+                LintViolation(6, 1, "Unexpected indentation (8) (should be 4)"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -2254,7 +2254,7 @@ internal class IndentationRuleTest {
                 LintViolation(2, 1, "Unexpected indentation (0) (should be 4)"),
                 LintViolation(4, 1, "Unexpected indentation (0) (should be 4)"),
                 LintViolation(5, 1, "Unexpected indentation (0) (should be 8)"),
-                LintViolation(6, 1, "Unexpected indentation (0) (should be 4)")
+                LintViolation(6, 1, "Unexpected indentation (0) (should be 4)"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -2310,7 +2310,7 @@ internal class IndentationRuleTest {
             .withEditorConfigOverride(INDENT_STYLE_TAB)
             .hasLintViolations(
                 LintViolation(2, 1, "Unexpected space character(s)"),
-                LintViolation(3, 1, "Unexpected space character(s)")
+                LintViolation(3, 1, "Unexpected space character(s)"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -2333,7 +2333,7 @@ internal class IndentationRuleTest {
                 LintViolation(2, 1, "Unexpected tab character(s)"),
                 LintViolation(2, 1, "Unexpected indentation (8) (should be 4)"),
                 LintViolation(3, 1, "Unexpected tab character(s)"),
-                LintViolation(3, 1, "Unexpected indentation (4) (should be 0)")
+                LintViolation(3, 1, "Unexpected indentation (4) (should be 0)"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -2359,7 +2359,7 @@ internal class IndentationRuleTest {
             .hasLintViolations(
                 LintViolation(2, 1, "Unexpected tab character(s)"),
                 LintViolation(3, 1, "Unexpected tab character(s)"),
-                LintViolation(4, 1, "Unexpected tab character(s)")
+                LintViolation(4, 1, "Unexpected tab character(s)"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -2386,7 +2386,7 @@ internal class IndentationRuleTest {
             .hasLintViolations(
                 LintViolation(2, 1, "Unexpected tab character(s)"),
                 LintViolation(3, 1, "Unexpected tab character(s)"),
-                LintViolation(4, 1, "Unexpected tab character(s)")
+                LintViolation(4, 1, "Unexpected tab character(s)"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -2471,7 +2471,7 @@ internal class IndentationRuleTest {
         indentationRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(2, 1, "Unexpected indentation (8) (should be 4)"),
-                LintViolation(6, 1, "Unexpected indentation (4) (should be 8)")
+                LintViolation(6, 1, "Unexpected indentation (4) (should be 8)"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -2661,7 +2661,7 @@ internal class IndentationRuleTest {
                 .addAdditionalRuleProvider { WrappingRule() }
                 .hasLintViolations(
                     LintViolation(2, 1, "Unexpected indentation (0) (should be 4)"),
-                    LintViolation(6, 1, "Unexpected indent of multiline string closing quotes")
+                    LintViolation(6, 1, "Unexpected indent of multiline string closing quotes"),
                 ).isFormattedAs(formattedCode)
         }
 
@@ -2689,7 +2689,7 @@ internal class IndentationRuleTest {
             indentationRuleAssertThat(code)
                 .hasLintViolations(
                     LintViolation(3, 3, "Unexpected indent of multiline string closing quotes"),
-                    LintViolation(5, 1, "Unexpected indent of multiline string closing quotes")
+                    LintViolation(5, 1, "Unexpected indent of multiline string closing quotes"),
                 ).isFormattedAs(formattedCode)
         }
 
@@ -2769,7 +2769,7 @@ internal class IndentationRuleTest {
                     LintViolation(7, 1, "Unexpected indentation (4) (should be 8)"),
                     LintViolation(10, 1, "Unexpected indent of multiline string closing quotes"),
                     LintViolation(12, 1, "Unexpected indentation (4) (should be 8)"),
-                    LintViolation(15, 1, "Unexpected indent of multiline string closing quotes")
+                    LintViolation(15, 1, "Unexpected indent of multiline string closing quotes"),
                 ).isFormattedAs(formattedCode)
         }
 
@@ -2846,7 +2846,7 @@ internal class IndentationRuleTest {
                 .hasLintViolationWithoutAutoCorrect(
                     1,
                     11,
-                    "Indentation of multiline string should not contain both tab(s) and space(s)"
+                    "Indentation of multiline string should not contain both tab(s) and space(s)",
                 )
         }
 
@@ -3042,7 +3042,7 @@ internal class IndentationRuleTest {
             indentationRuleAssertThat(code)
                 .hasLintViolations(
                     LintViolation(4, 1, "Unexpected indentation (16) (should be 12)"),
-                    LintViolation(5, 1, "Unexpected indentation (20) (should be 12)")
+                    LintViolation(5, 1, "Unexpected indentation (20) (should be 12)"),
                 )
                 .isFormattedAs(formattedCode)
         }
@@ -3555,7 +3555,7 @@ internal class IndentationRuleTest {
                 LintViolation(9, 1, "Unexpected indentation (4) (should be 8)"),
                 LintViolation(15, 1, "Unexpected indentation (4) (should be 8)"),
                 LintViolation(21, 1, "Unexpected indentation (4) (should be 8)"),
-                LintViolation(22, 1, "Unexpected indentation (4) (should be 8)")
+                LintViolation(22, 1, "Unexpected indentation (4) (should be 8)"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -3595,7 +3595,7 @@ internal class IndentationRuleTest {
             .hasLintViolations(
                 LintViolation(2, 1, "Unexpected indentation (4) (should be 8)"),
                 LintViolation(8, 1, "Unexpected indentation (4) (should be 8)"),
-                LintViolation(9, 1, "Unexpected indentation (4) (should be 8)")
+                LintViolation(9, 1, "Unexpected indentation (4) (should be 8)"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -3641,7 +3641,7 @@ internal class IndentationRuleTest {
                 LintViolation(3, 1, "Unexpected indentation (4) (should be 8)"),
                 LintViolation(9, 1, "Unexpected indentation (4) (should be 8)"),
                 LintViolation(10, 1, "Unexpected indentation (4) (should be 8)"),
-                LintViolation(11, 1, "Unexpected indentation (4) (should be 8)")
+                LintViolation(11, 1, "Unexpected indentation (4) (should be 8)"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -3787,7 +3787,7 @@ internal class IndentationRuleTest {
         indentationRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(3, 1, "Unexpected indentation (12) (should be 20)"),
-                LintViolation(4, 1, "Unexpected indentation (12) (should be 20)")
+                LintViolation(4, 1, "Unexpected indentation (12) (should be 20)"),
             ).isFormattedAs(formattedCode)
     }
 

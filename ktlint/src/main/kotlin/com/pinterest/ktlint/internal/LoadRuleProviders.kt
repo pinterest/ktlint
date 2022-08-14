@@ -25,7 +25,7 @@ internal fun JarFiles.loadRuleProviders(
         .plus(
             // Ensure that always at least one element exists in this list so that the rule sets provided by the KtLint
             // CLI module itself will be found even in case no JAR files are specified
-            null
+            null,
         )
         // Remove JAR files which were provided multiple times
         .distinct()
@@ -51,7 +51,7 @@ private fun getRuleProvidersFromJar(
         ServiceLoader
             .load(
                 RuleSetProviderV2::class.java,
-                URLClassLoader(listOfNotNull(url).toTypedArray())
+                URLClassLoader(listOfNotNull(url).toTypedArray()),
             ).filter {
                 // The KtLint-root (CLI) module includes the standard and experimental rule sets. When those rule sets
                 // are also included in the specified JAR (url != null) then ignore them.
@@ -84,7 +84,7 @@ private fun getLegacyRuleProvidersFromJar(url: URL?) =
     ServiceLoader
         .load(
             RuleSetProvider::class.java,
-            URLClassLoader(listOfNotNull(url).toTypedArray())
+            URLClassLoader(listOfNotNull(url).toTypedArray()),
         ).filter {
             // The standard and experimental KtLint rule sets are included the ktlint CLI module itself (url ==
             // null). When those rule set are also included in the specified JAR (url != null) then ignore them.

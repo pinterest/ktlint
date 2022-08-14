@@ -61,7 +61,7 @@ public fun loadBaseline(path: String): Baseline {
             try {
                 return Baseline(
                     lintErrorsPerFile = parseBaseline(baselineFile.inputStream()),
-                    status = VALID
+                    status = VALID,
                 )
             } catch (e: IOException) {
                 logger.error { "Unable to parse baseline file: $path" }
@@ -115,9 +115,9 @@ private fun Element.parseBaselineErrorsByFile(): List<LintError> {
                     line = getAttribute("line").toInt(),
                     col = getAttribute("column").toInt(),
                     ruleId = getAttribute("source"),
-                    detail = "" // Not available in the baseline file
+                    detail = "", // Not available in the baseline file
                 )
-            }
+            },
         )
     }
     return errors

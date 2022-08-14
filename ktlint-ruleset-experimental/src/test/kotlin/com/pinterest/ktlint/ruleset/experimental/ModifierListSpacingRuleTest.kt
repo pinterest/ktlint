@@ -28,7 +28,7 @@ class ModifierListSpacingRuleTest {
                 LintViolation(1, 9, "Single whitespace expected after modifier"),
                 LintViolation(3, 14, "Single whitespace expected after modifier"),
                 LintViolation(3, 24, "Single whitespace expected after modifier"),
-                LintViolation(3, 33, "Single whitespace expected after modifier")
+                LintViolation(3, 33, "Single whitespace expected after modifier"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -57,7 +57,7 @@ class ModifierListSpacingRuleTest {
                 LintViolation(1, 9, "Single whitespace expected after modifier"),
                 LintViolation(4, 14, "Single whitespace expected after modifier"),
                 LintViolation(5, 13, "Single whitespace expected after modifier"),
-                LintViolation(6, 12, "Single whitespace expected after modifier")
+                LintViolation(6, 12, "Single whitespace expected after modifier"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -94,7 +94,7 @@ class ModifierListSpacingRuleTest {
         modifierListSpacingRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(1, 15, "Single whitespace expected after modifier"),
-                LintViolation(3, 11, "Single whitespace expected after modifier")
+                LintViolation(3, 11, "Single whitespace expected after modifier"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -121,7 +121,7 @@ class ModifierListSpacingRuleTest {
         modifierListSpacingRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(1, 6, "Single whitespace or newline expected after annotation"),
-                LintViolation(1, 13, "Single whitespace or newline expected after annotation")
+                LintViolation(1, 13, "Single whitespace or newline expected after annotation"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -144,7 +144,7 @@ class ModifierListSpacingRuleTest {
         modifierListSpacingRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(1, 6, "Single whitespace or newline expected after annotation"),
-                LintViolation(3, 6, "Single whitespace or newline expected after annotation")
+                LintViolation(3, 6, "Single whitespace or newline expected after annotation"),
             ).isFormattedAs(formattedCode)
     }
 

@@ -61,7 +61,7 @@ public class ModifierListSpacingRule : Rule("$experimentalRulesetId:modifier-lis
                         emit(
                             whitespace.startOffset,
                             "Single whitespace or newline expected after annotation",
-                            true
+                            true,
                         )
                         if (autoCorrect) {
                             (whitespace as LeafPsiElement).rawReplaceWithText(expectedWhiteSpace)
@@ -71,7 +71,7 @@ public class ModifierListSpacingRule : Rule("$experimentalRulesetId:modifier-lis
                     emit(
                         whitespace.startOffset,
                         "Single whitespace expected after modifier",
-                        true
+                        true,
                     )
                     if (autoCorrect) {
                         (whitespace as LeafPsiElement).rawReplaceWithText(" ")

@@ -53,7 +53,7 @@ public class FormatReporter(
                 "Format not needed (no violations found)"
         }
         out.println(
-            "${colorFileName(file)}${":".colored()} $result"
+            "${colorFileName(file)}${":".colored()} $result",
         )
     }
 

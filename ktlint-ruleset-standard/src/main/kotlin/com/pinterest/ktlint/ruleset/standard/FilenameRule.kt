@@ -131,7 +131,7 @@ public class FilenameRule : Rule("filename") {
             emit(
                 0,
                 "File '$this.kt' contains a single class and possibly also extension functions for that class and should be named same after that class '$className.kt'",
-                false
+                false,
             )
         }
     }
@@ -147,7 +147,7 @@ public class FilenameRule : Rule("filename") {
             emit(
                 0,
                 "File '$this.kt' contains a single top level declaration and should be named '$filename.kt'",
-                false
+                false,
             )
         }
     }

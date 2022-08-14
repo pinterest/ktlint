@@ -52,7 +52,7 @@ class CommentWrappingRuleTest {
                 LintViolation(1, 21, "A block comment may not be followed by any other element on that same line"),
                 LintViolation(2, 21, "A block comment may not be followed by any other element on that same line"),
                 LintViolation(3, 21, "A block comment may not be followed by any other element on that same line"),
-                LintViolation(4, 21, "A block comment may not be followed by any other element on that same line")
+                LintViolation(4, 21, "A block comment may not be followed by any other element on that same line"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -93,7 +93,7 @@ class CommentWrappingRuleTest {
             .hasLintViolationWithoutAutoCorrect(
                 1,
                 9,
-                "A block comment in between other elements on the same line is disallowed"
+                "A block comment in between other elements on the same line is disallowed",
             )
     }
 

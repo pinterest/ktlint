@@ -88,7 +88,7 @@ public abstract class RuleSetProviderV2(
             description = "Not specified",
             license = "Not specified",
             repositoryUrl = "Not specified",
-            issueTrackerUrl = "Not specified"
+            issueTrackerUrl = "Not specified",
         )
     }
 }

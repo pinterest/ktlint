@@ -68,7 +68,7 @@ class SpacingAroundAngleBracketRuleTest {
                 LintViolation(16, 21, "Unexpected spacing before \"<\""),
                 LintViolation(16, 23, "Unexpected spacing after \"<\""),
                 LintViolation(16, 30, "Unexpected spacing before \">\""),
-                LintViolation(16, 32, "Unexpected spacing before \">\"")
+                LintViolation(16, 32, "Unexpected spacing before \">\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -119,7 +119,7 @@ class SpacingAroundAngleBracketRuleTest {
                 LintViolation(8, 6, "Unexpected spacing after \"<\""),
                 LintViolation(8, 19, "Unexpected spacing before \">\""),
                 LintViolation(13, 14, "Unexpected spacing after \"<\""),
-                LintViolation(13, 21, "Unexpected spacing before \">\"")
+                LintViolation(13, 21, "Unexpected spacing before \">\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -155,7 +155,7 @@ class SpacingAroundAngleBracketRuleTest {
         spacingAroundAngleBracketsRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(1, 20, "Unexpected spacing after \"<\""),
-                LintViolation(1, 30, "Unexpected spacing before \">\"")
+                LintViolation(1, 30, "Unexpected spacing before \">\""),
             ).isFormattedAs(formattedCode)
     }
 }

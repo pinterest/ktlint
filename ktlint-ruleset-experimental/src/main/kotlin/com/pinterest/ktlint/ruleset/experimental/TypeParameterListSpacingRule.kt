@@ -155,7 +155,7 @@ public class TypeParameterListSpacingRule : Rule("$experimentalRulesetId:type-pa
             emit(
                 node.startOffset,
                 "No whitespace expected at this position",
-                true
+                true,
             )
             if (autoCorrect) {
                 node.treeParent.removeChild(node)
@@ -174,7 +174,7 @@ public class TypeParameterListSpacingRule : Rule("$experimentalRulesetId:type-pa
                 emit(
                     node.startOffset,
                     "Expected a single space instead of newline",
-                    true
+                    true,
                 )
                 if (autoCorrect) {
                     (node as LeafPsiElement).rawReplaceWithText(" ")
@@ -184,7 +184,7 @@ public class TypeParameterListSpacingRule : Rule("$experimentalRulesetId:type-pa
                 emit(
                     node.startOffset,
                     "Expected a single space",
-                    true
+                    true,
                 )
                 if (autoCorrect) {
                     if (node.elementType == WHITE_SPACE) {

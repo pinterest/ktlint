@@ -22,7 +22,7 @@ internal object SuppressionLocatorBuilder {
     val noSuppression: SuppressionLocator = { _, _, _ -> false }
 
     private val suppressAnnotationRuleMap = mapOf(
-        "RemoveCurlyBracesFromTemplate" to "string-template"
+        "RemoveCurlyBracesFromTemplate" to "string-template",
     )
     private val suppressAnnotations = setOf("Suppress", "SuppressWarnings")
     private const val suppressAllKtlintRules = "ktlint-all"
@@ -90,8 +90,8 @@ internal object SuppressionLocatorBuilder {
                                 result.add(
                                     SuppressionHint(
                                         IntRange(openingHint.range.first, node.startOffset - 1),
-                                        disabledRules
-                                    )
+                                        disabledRules,
+                                    ),
                                 )
                             }
                         }
@@ -109,7 +109,7 @@ internal object SuppressionLocatorBuilder {
         result.addAll(
             open.map {
                 SuppressionHint(IntRange(it.range.first, rootNode.textLength), it.disabledRules)
-            }
+            },
         )
         return result
     }
@@ -168,12 +168,12 @@ internal object SuppressionLocatorBuilder {
                     suppressedRules.contains(suppressAllKtlintRules) ->
                         SuppressionHint(
                             IntRange(psi.startOffset, psi.endOffset),
-                            emptySet()
+                            emptySet(),
                         )
                     else ->
                         SuppressionHint(
                             IntRange(psi.startOffset, psi.endOffset),
-                            suppressedRules.toSet()
+                            suppressedRules.toSet(),
                         )
                 }
             }

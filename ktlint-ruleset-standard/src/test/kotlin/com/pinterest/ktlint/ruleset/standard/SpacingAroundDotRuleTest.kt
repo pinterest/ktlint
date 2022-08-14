@@ -50,7 +50,7 @@ class SpacingAroundDotRuleTest {
         spacingAroundDotRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(1, 11, "Unexpected spacing before \".\""),
-                LintViolation(1, 13, "Unexpected spacing after \".\"")
+                LintViolation(1, 13, "Unexpected spacing after \".\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -103,7 +103,7 @@ class SpacingAroundDotRuleTest {
             .hasLintViolations(
                 LintViolation(1, 22, "Unexpected spacing after \".\""),
                 LintViolation(3, 6, "Unexpected spacing after \".\""),
-                LintViolation(6, 6, "Unexpected spacing after \".\"")
+                LintViolation(6, 6, "Unexpected spacing after \".\""),
             ).isFormattedAs(formattedCode)
     }
 

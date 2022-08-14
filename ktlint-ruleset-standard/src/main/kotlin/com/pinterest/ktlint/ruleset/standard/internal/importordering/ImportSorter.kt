@@ -20,7 +20,7 @@ internal class ImportSorter(
             importPath1,
             importPath2,
             { import -> findImportIndex(import) },
-            { import -> import.toString().replace("`", "") }
+            { import -> import.toString().replace("`", "") },
         )
     }
 

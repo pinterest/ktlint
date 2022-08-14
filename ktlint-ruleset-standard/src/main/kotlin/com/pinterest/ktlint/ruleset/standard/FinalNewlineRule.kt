@@ -15,7 +15,7 @@ public class FinalNewlineRule :
     UsesEditorConfigProperties {
 
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
-        insertNewLineProperty
+        insertNewLineProperty,
     )
 
     private var insertFinalNewline by Delegates.notNull<Boolean>()
