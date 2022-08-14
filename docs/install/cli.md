@@ -134,7 +134,7 @@ ktlint --experimental --ruleset=/path/to/custom-ruleset.jar generateEditorConfig
 
 Normally this file is located in the root of your project directory. In case the file is located in a sub folder of the project, the settings of that file only applies to that subdirectory and its folders (recursively). Ktlint automatically detects and reads all `.editorconfig` files in your project.
 
-With command below, an `editorconfig` file of an alternative location can be used to configure ktlint:
+Use command below, to specify a default `editorconfig`. In case a property is not defined in any `.editorconfig` file on the path to the file, the value from the default file is used. The path may point to any valid file or directory. The path can be relative or absolute. Depending on your OS, the "~" at the beginning of a path is replaced by the user home directory.
 
 ```shell title="Override '.editorconfig'"
 ktlint --editorconfig=/path/to/.editorconfig
