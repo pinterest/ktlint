@@ -12,6 +12,7 @@ import com.pinterest.ktlint.core.ast.ElementType.CALL_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.CLOSING_QUOTE
 import com.pinterest.ktlint.core.ast.ElementType.COMMA
 import com.pinterest.ktlint.core.ast.ElementType.CONDITION
+import com.pinterest.ktlint.core.ast.ElementType.DESTRUCTURING_DECLARATION
 import com.pinterest.ktlint.core.ast.ElementType.DOT
 import com.pinterest.ktlint.core.ast.ElementType.FUN
 import com.pinterest.ktlint.core.ast.ElementType.FUNCTION_LITERAL
@@ -60,6 +61,7 @@ import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 import org.jetbrains.kotlin.psi.KtStringTemplateExpression
 import org.jetbrains.kotlin.psi.KtSuperTypeList
+import org.jetbrains.kotlin.psi.psiUtil.siblings
 
 private val logger = KotlinLogging.logger {}.initKtLintKLogger()
 
@@ -277,8 +279,11 @@ public class WrappingRule :
                 }
                 // insert \n after multi-line value
                 val nextSibling = c.nextSibling { it.elementType != WHITE_SPACE }
+                val hasDestructuringDeclarationAsLastValueParameter =
+                    c.isLastValueParameter() && c.firstChildNode.elementType == DESTRUCTURING_DECLARATION
                 if (
                     nextSibling?.elementType == COMMA &&
+                    !hasDestructuringDeclarationAsLastValueParameter &&
                     !nextSibling.treeNext.isWhiteSpaceWithNewline() &&
                     // value(
                     // ), // a comment
@@ -290,6 +295,10 @@ public class WrappingRule :
             }
         }
     }
+
+    private fun ASTNode.isLastValueParameter() =
+        elementType == VALUE_PARAMETER &&
+            siblings().none { it.elementType == VALUE_PARAMETER }
 
     private fun rearrangeClosingQuote(
         node: ASTNode,
