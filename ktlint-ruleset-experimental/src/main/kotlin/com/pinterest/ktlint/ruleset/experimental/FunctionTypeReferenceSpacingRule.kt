@@ -13,7 +13,7 @@ public class FunctionTypeReferenceSpacingRule : Rule("$experimentalRulesetId:fun
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.elementType == FUN) {
             node
@@ -48,7 +48,7 @@ public class FunctionTypeReferenceSpacingRule : Rule("$experimentalRulesetId:fun
     private fun visitNodesUntilStartOfValueParameterList(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         var currentNode: ASTNode? = node
         while (currentNode != null && currentNode.elementType != VALUE_PARAMETER_LIST) {
@@ -61,7 +61,7 @@ public class FunctionTypeReferenceSpacingRule : Rule("$experimentalRulesetId:fun
     private fun removeIfNonEmptyWhiteSpace(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         if (node.elementType == WHITE_SPACE && node.text.isNotEmpty()) {
             emit(node.startOffset, "Unexpected whitespace", true)

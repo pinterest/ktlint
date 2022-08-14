@@ -16,7 +16,7 @@ private val logger = KotlinLogging.logger {}.initKtLintKLogger()
  * Rule should implement [UsesEditorConfigProperties] interface to support this.
  */
 internal class EditorConfigGenerator(
-    private val editorConfigLoader: EditorConfigLoader
+    private val editorConfigLoader: EditorConfigLoader,
 ) {
     /**
      * Method loads merged `.editorconfig` content using [com.pinterest.ktlint.core.KtLint.ExperimentalParams.fileName] path,
@@ -33,7 +33,7 @@ internal class EditorConfigGenerator(
         filePath: Path,
         rules: Set<Rule>,
         debug: Boolean = false,
-        codeStyle: DefaultEditorConfigProperties.CodeStyleValue
+        codeStyle: DefaultEditorConfigProperties.CodeStyleValue,
     ): String {
         val editorConfig: Map<String, Property> = editorConfigLoader.loadPropertiesForFile(
             filePath = filePath,
@@ -56,7 +56,7 @@ internal class EditorConfigGenerator(
     private fun getConfigurationSettingsForRules(
         rules: Set<Rule>,
         editorConfig: Map<String, Property>,
-        codeStyle: DefaultEditorConfigProperties.CodeStyleValue
+        codeStyle: DefaultEditorConfigProperties.CodeStyleValue,
     ) = rules
         .mapNotNull { rule ->
             if (rule is UsesEditorConfigProperties && rule.editorConfigProperties.isNotEmpty()) {
@@ -85,7 +85,7 @@ internal class EditorConfigGenerator(
 
     private fun getConfigurationSettingsForDefaultEditorConfigProperties(
         editorConfig: Map<String, Property>,
-        codeStyle: DefaultEditorConfigProperties.CodeStyleValue
+        codeStyle: DefaultEditorConfigProperties.CodeStyleValue,
     ) = DefaultEditorConfigProperties
         .editorConfigProperties
         .map { editorConfigProperty ->
@@ -121,6 +121,6 @@ internal class EditorConfigGenerator(
     private data class ConfigurationSetting(
         val key: String,
         val value: String,
-        val usage: String
+        val usage: String,
     )
 }

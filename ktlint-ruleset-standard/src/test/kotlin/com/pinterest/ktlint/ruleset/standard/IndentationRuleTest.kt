@@ -1548,7 +1548,7 @@ internal class IndentationRuleTest {
         @ParameterizedTest(name = "As Kotlin script: {0}")
         @ValueSource(booleans = [true, false])
         fun `Given a file with blanks only on the first line then do not report unexpected indentation for that first line`(
-            asKotlinScript: Boolean
+            asKotlinScript: Boolean,
         ) {
             val code =
                 """

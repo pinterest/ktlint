@@ -62,7 +62,7 @@ class MaxLineLengthRule :
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (maxLineLength <= 0) {
             return
@@ -152,7 +152,7 @@ private fun ASTNode.getElementsPerLine(): List<ParsedLine> {
 private data class ParsedLine(
     val line: String,
     val offset: Int,
-    val elements: List<ASTNode>
+    val elements: List<ASTNode>,
 ) {
     fun lineLength(ignoreBackTickedIdentifier: Boolean): Int {
         return if (ignoreBackTickedIdentifier) {

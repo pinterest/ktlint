@@ -40,7 +40,7 @@ public class NoUnusedImportsRule : Rule("no-unused-imports") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.isRoot()) {
             rootNode = node
@@ -104,7 +104,7 @@ public class NoUnusedImportsRule : Rule("no-unused-imports") {
     override fun afterVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.elementType == FILE) {
             val directCalls = ref.filter { !it.inDotQualifiedExpression }.map { it.text }

@@ -25,7 +25,7 @@ private val logger = KotlinLogging.logger {}.initKtLintKLogger()
  * Contains internal in-memory cache to speedup lookup.
  */
 public class EditorConfigLoader(
-    private val fs: FileSystem
+    private val fs: FileSystem,
 ) {
     private val cache = ThreadSafeEditorConfigCache()
 
@@ -52,7 +52,7 @@ public class EditorConfigLoader(
         alternativeEditorConfig: Path? = null,
         rules: Set<Rule>,
         editorConfigOverride: EditorConfigOverride = emptyEditorConfigOverride,
-        debug: Boolean = false
+        debug: Boolean = false,
     ): EditorConfigProperties {
         if (!isStdIn &&
             (filePath == null || SUPPORTED_FILES.none { filePath.toString().endsWith(it) })
@@ -121,7 +121,7 @@ public class EditorConfigLoader(
     }
 
     private fun createLoaderService(
-        rules: Set<Rule>
+        rules: Set<Rule>,
     ): ResourcePropertiesService {
         val propertyTypeRegistry = PropertyTypeRegistry.builder()
             .defaults()

@@ -16,7 +16,7 @@ internal class RuleRunnerSorter {
     @Synchronized
     fun getSortedRuleRunners(
         ruleRunners: Set<RuleRunner>,
-        debug: Boolean
+        debug: Boolean,
     ): List<RuleRunner> {
         val debugSorter =
             debug &&
@@ -40,7 +40,7 @@ internal class RuleRunnerSorter {
 
     private fun createHashCode(
         ruleRunners: Set<RuleRunner>,
-        debug: Boolean
+        debug: Boolean,
     ): Int {
         val cacheKey = ruleRunners
             .map { it.qualifiedRuleId }

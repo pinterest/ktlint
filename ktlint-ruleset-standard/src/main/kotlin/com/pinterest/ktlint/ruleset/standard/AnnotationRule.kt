@@ -46,7 +46,7 @@ public class AnnotationRule : Rule("annotation") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         when (node.elementType) {
             FILE_ANNOTATION_LIST -> {
@@ -60,7 +60,7 @@ public class AnnotationRule : Rule("annotation") {
     private fun visitAnnotationEntry(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         require(node.elementType == ANNOTATION_ENTRY)
 
@@ -87,7 +87,7 @@ public class AnnotationRule : Rule("annotation") {
     private fun checkForAnnotationWithParameterToBePlacedOnSeparateLine(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         if (node.isPrecededByOtherAnnotationEntry() && node.isOnSameLineAsPreviousAnnotationEntry()) {
             emit(
@@ -130,7 +130,7 @@ public class AnnotationRule : Rule("annotation") {
     private fun checkForMultipleAnnotationsOnSameLineAsAnnotatedConstruct(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         if (node.isLastAnnotationEntry()) {
             val noAnnotationWithParameters =
@@ -157,7 +157,7 @@ public class AnnotationRule : Rule("annotation") {
     private fun checkForAnnotationToBePlacedOnSeparateLine(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         val isFollowedWithAnnotationHavingValueArgumentList =
             node
@@ -245,7 +245,7 @@ public class AnnotationRule : Rule("annotation") {
     private fun visitFileAnnotationList(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         val lineNumber = node.lineNumber()
         val next = node.nextSibling { it.textLength > 0 }?.let { next ->

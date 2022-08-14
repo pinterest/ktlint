@@ -73,7 +73,7 @@ public class TrailingCommaOnDeclarationSiteRule :
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         // Keep processing of element types in sync with Intellij Kotlin formatting settings.
         // https://github.com/JetBrains/intellij-kotlin/blob/master/formatter/src/org/jetbrains/kotlin/idea/formatter/trailingComma/util.kt
@@ -91,7 +91,7 @@ public class TrailingCommaOnDeclarationSiteRule :
     private fun visitDestructuringDeclaration(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         val inspectNode = node
             .children()
@@ -107,7 +107,7 @@ public class TrailingCommaOnDeclarationSiteRule :
     private fun visitFunctionLiteral(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         val inspectNode = node
             .children()
@@ -125,7 +125,7 @@ public class TrailingCommaOnDeclarationSiteRule :
     private fun visitValueList(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.treeParent.elementType != ElementType.FUNCTION_LITERAL) {
             node
@@ -145,7 +145,7 @@ public class TrailingCommaOnDeclarationSiteRule :
     private fun visitTypeList(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         val inspectNode = node
             .children()
@@ -161,7 +161,7 @@ public class TrailingCommaOnDeclarationSiteRule :
     private fun visitWhenEntry(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         val psi = node.psi
         require(psi is KtWhenEntry)
@@ -183,7 +183,7 @@ public class TrailingCommaOnDeclarationSiteRule :
     private fun visitClass(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         val psi = node.psi
         require(psi is KtClass)
@@ -235,7 +235,7 @@ public class TrailingCommaOnDeclarationSiteRule :
         inspectNode: ASTNode,
         isTrailingCommaAllowed: Boolean,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         val prevLeaf = inspectNode.prevLeaf()
         val trailingCommaNode = prevLeaf.findPreviousTrailingCommaNodeOrNull()
@@ -416,8 +416,7 @@ public class TrailingCommaOnDeclarationSiteRule :
         /**
          * The trailing comma isn't needed, but exists
          */
-        REDUNDANT
-        ;
+        REDUNDANT,
     }
 
     public companion object {

@@ -73,7 +73,7 @@ public object KtLint {
         val editorConfigPath: String? = null,
         val debug: Boolean = false,
         val editorConfigOverride: EditorConfigOverride = emptyEditorConfigOverride,
-        val isInvokedFromCli: Boolean = false
+        val isInvokedFromCli: Boolean = false,
     ) {
         internal val ruleRunners: Set<RuleRunner> =
             ruleProviders
@@ -176,7 +176,7 @@ public object KtLint {
         rule: Rule,
         fqRuleId: String,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         rule.startTraversalOfAST()
         rule.beforeFirstNode(editorConfigProperties)
@@ -189,7 +189,7 @@ public object KtLint {
         rule: Rule,
         fqRuleId: String,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (rule.shouldContinueTraversalOfAST()) {
             try {
@@ -324,7 +324,7 @@ public object KtLint {
      * ```
      */
     public fun generateKotlinEditorConfigSection(
-        params: ExperimentalParams
+        params: ExperimentalParams,
     ): String {
         val filePath = params.normalizedFilePath
         requireNotNull(filePath) {

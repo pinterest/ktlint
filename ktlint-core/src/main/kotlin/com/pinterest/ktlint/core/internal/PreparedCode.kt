@@ -16,7 +16,7 @@ internal class PreparedCode(
     val rootNode: FileASTNode,
     val editorConfigProperties: EditorConfigProperties,
     val positionInTextLocator: (offset: Int) -> LineAndColumn,
-    var suppressedRegionLocator: SuppressionLocator
+    var suppressedRegionLocator: SuppressionLocator,
 )
 
 internal fun prepareCodeForLinting(params: KtLint.ExperimentalParams): PreparedCode {

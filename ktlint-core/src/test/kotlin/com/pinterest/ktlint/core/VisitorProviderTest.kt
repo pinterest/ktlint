@@ -177,14 +177,14 @@ class VisitorProviderTest {
 
     open class R(
         id: String,
-        visitorModifiers: Set<VisitorModifier> = emptySet()
+        visitorModifiers: Set<VisitorModifier> = emptySet(),
     ) : Rule(id, visitorModifiers) {
         constructor(id: String, visitorModifier: VisitorModifier) : this(id, setOf(visitorModifier))
 
         override fun beforeVisitChildNodes(
             node: ASTNode,
             autoCorrect: Boolean,
-            emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+            emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
         ) {
             throw UnsupportedOperationException(
                 "Rule should never be really invoked because that is not the aim of this unit test."
@@ -195,7 +195,7 @@ class VisitorProviderTest {
     private data class Visit(val shortenedQualifiedRuleId: String) {
         constructor(
             ruleSetId: String,
-            ruleId: String
+            ruleId: String,
         ) : this(
             shortenedQualifiedRuleId = "$ruleSetId:$ruleId"
         ) {

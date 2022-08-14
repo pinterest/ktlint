@@ -10,7 +10,7 @@ import org.jetbrains.kotlin.resolve.ImportPath
 public class PatternEntry(
     packageName: String,
     public val withSubpackages: Boolean,
-    public val hasAlias: Boolean
+    public val hasAlias: Boolean,
 ) {
 
     private val packageName = packageName.removeSuffix(".*")

@@ -49,7 +49,7 @@ class DisabledRulesTest {
         )
         fun `Given some code and a disabled standard rule then no violation is reported`(
             ruleId: String,
-            disabledRuleId: String
+            disabledRuleId: String,
         ) {
             assertThat(
                 ArrayList<LintError>().apply {
@@ -119,7 +119,7 @@ class DisabledRulesTest {
         )
         fun `Given some code and a disabled standard rule then no violation is reported`(
             ruleId: String,
-            disabledRuleId: String
+            disabledRuleId: String,
         ) {
             assertThat(
                 ArrayList<LintError>().apply {
@@ -178,7 +178,7 @@ class DisabledRulesTest {
         override fun beforeVisitChildNodes(
             node: ASTNode,
             autoCorrect: Boolean,
-            emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+            emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
         ) {
             if (node.elementType == ElementType.VAR_KEYWORD) {
                 emit(node.startOffset, "Unexpected var, use val instead", false)

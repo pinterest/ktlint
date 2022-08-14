@@ -159,7 +159,7 @@ class UsesEditorConfigPropertiesTest {
     }
 
     class EditorConfigPropertiesTester<T>(
-        editorConfigProperty: UsesEditorConfigProperties.EditorConfigProperty<T>
+        editorConfigProperty: UsesEditorConfigProperties.EditorConfigProperty<T>,
     ) : UsesEditorConfigProperties {
         override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(editorConfigProperty)
     }
@@ -181,7 +181,7 @@ class UsesEditorConfigPropertiesTest {
 
         private fun <T : Any> createEditorConfigPropertiesFrom(
             editorConfigProperty: UsesEditorConfigProperties.EditorConfigProperty<T>,
-            value: String
+            value: String,
         ) =
             with(editorConfigProperty) {
                 mapOf(

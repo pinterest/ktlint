@@ -24,7 +24,7 @@ public open class Rule(
      * Set of modifiers of the visitor. Preferably a rule has no modifiers at all, meaning that it is completely
      * independent of all other rules.
      */
-    public val visitorModifiers: Set<VisitorModifier> = emptySet()
+    public val visitorModifiers: Set<VisitorModifier> = emptySet(),
 ) {
     private var traversalState = TraversalState.NOT_STARTED
 
@@ -50,7 +50,7 @@ public open class Rule(
     public open fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) =
         /**
          * For backwards compatibility with ktlint 0.46.x or before, call [visit] when not implemented on node.
@@ -77,7 +77,7 @@ public open class Rule(
     public open fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {}
 
     /**
@@ -87,7 +87,7 @@ public open class Rule(
     public open fun afterVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {}
 
     /**
@@ -152,7 +152,7 @@ public open class Rule(
         /**
          * Stops traversal of yet unvisited nodes in the AST. See [stopTraversalOfAST] for more details.
          */
-        STOP
+        STOP,
     }
 
     sealed class VisitorModifier {
@@ -170,7 +170,7 @@ public open class Rule(
             /**
              * The annotated rule will only be run in case the other rule is enabled.
              */
-            val runOnlyWhenOtherRuleIsEnabled: Boolean = false
+            val runOnlyWhenOtherRuleIsEnabled: Boolean = false,
         ) : VisitorModifier()
 
         object RunAsLateAsPossible : VisitorModifier()

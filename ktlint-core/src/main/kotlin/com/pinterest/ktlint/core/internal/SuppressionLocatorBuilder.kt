@@ -33,7 +33,7 @@ internal object SuppressionLocatorBuilder {
      * Builds [SuppressionLocator] for given [rootNode] of AST tree.
      */
     fun buildSuppressedRegionsLocator(
-        rootNode: ASTNode
+        rootNode: ASTNode,
     ): SuppressionLocator {
         val hintsList = collect(rootNode)
         return if (hintsList.isEmpty()) {
@@ -56,11 +56,11 @@ internal object SuppressionLocatorBuilder {
      */
     private data class SuppressionHint(
         val range: IntRange,
-        val disabledRules: Set<String> = emptySet()
+        val disabledRules: Set<String> = emptySet(),
     )
 
     private fun collect(
-        rootNode: ASTNode
+        rootNode: ASTNode,
     ): List<SuppressionHint> {
         val result = ArrayList<SuppressionHint>()
         val open = ArrayList<SuppressionHint>()
@@ -123,7 +123,7 @@ internal object SuppressionLocatorBuilder {
 
     private fun parseHintArgs(
         commentText: String,
-        key: String
+        key: String,
     ): List<String>? {
         if (commentText.startsWith(key)) {
             val parsedComment = splitCommentBySpace(commentText)
@@ -136,7 +136,7 @@ internal object SuppressionLocatorBuilder {
     }
 
     private fun splitCommentBySpace(
-        comment: String
+        comment: String,
     ) = comment
         .replace(commentRegex, " ")
         .replace(" {2,}", " ")
@@ -152,7 +152,7 @@ internal object SuppressionLocatorBuilder {
     private fun createSuppressionHintFromAnnotations(
         psi: KtAnnotated,
         targetAnnotations: Collection<String>,
-        annotationValueToRuleMapping: Map<String, String>
+        annotationValueToRuleMapping: Map<String, String>,
     ): SuppressionHint? =
         psi
             .annotationEntries

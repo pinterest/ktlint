@@ -19,7 +19,7 @@ private val logger = KotlinLogging.logger {}.initKtLintKLogger()
 internal fun JarFiles.loadRuleProviders(
     loadExperimental: Boolean,
     debug: Boolean,
-    disabledRules: String
+    disabledRules: String,
 ): Set<RuleProvider> =
     toFilesURIList()
         .plus(
@@ -42,7 +42,7 @@ internal fun JarFiles.loadRuleProviders(
 
 private fun getRuleProvidersFromJar(
     url: URL?,
-    debug: Boolean
+    debug: Boolean,
 ): Map<String, Set<RuleProvider>> {
     if (url != null && debug) {
         logger.debug { "JAR ruleset provided with path \"${url.path}\"" }

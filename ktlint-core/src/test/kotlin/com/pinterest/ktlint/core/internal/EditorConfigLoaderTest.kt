@@ -30,7 +30,7 @@ internal class EditorConfigLoaderTest {
 
     private fun FileSystem.writeEditorConfigFile(
         filePath: String,
-        content: String
+        content: String,
     ) {
         Files.createDirectories(normalizedPath(filePath))
         Files.write(normalizedPath("$filePath/.editorconfig"), content.toByteArray())
@@ -485,7 +485,7 @@ internal class EditorConfigLoaderTest {
         override fun beforeVisitChildNodes(
             node: ASTNode,
             autoCorrect: Boolean,
-            emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+            emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
         ) {
             throw NotImplementedError()
         }

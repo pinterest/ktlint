@@ -59,7 +59,7 @@ public class ParameterListWrappingRule :
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         when (node.elementType) {
             NULLABLE_TYPE -> wrapNullableType(node, emit, autoCorrect)
@@ -74,7 +74,7 @@ public class ParameterListWrappingRule :
     private fun wrapNullableType(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         require(node.elementType == NULLABLE_TYPE)
         node
@@ -132,7 +132,7 @@ public class ParameterListWrappingRule :
     private fun wrapParameterList(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         val newIndentLevel = getNewIndentLevel(node)
         node
@@ -167,7 +167,7 @@ public class ParameterListWrappingRule :
         newIndentLevel: Int,
         child: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         val indent = "\n" + indentConfig.indent.repeat(newIndentLevel)
         when (child.elementType) {
@@ -181,7 +181,8 @@ public class ParameterListWrappingRule :
                 }
             }
             VALUE_PARAMETER,
-            RPAR -> {
+            RPAR,
+            -> {
                 // aiming for
                 // ... LPAR
                 // <line indent + indentSize> VALUE_PARAMETER...

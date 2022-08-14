@@ -18,7 +18,7 @@ public class FunctionStartOfBodySpacingRule : Rule("$experimentalRulesetId:funct
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.elementType == FUN) {
             node
@@ -34,7 +34,7 @@ public class FunctionStartOfBodySpacingRule : Rule("$experimentalRulesetId:funct
     private fun visitFunctionFollowedByBodyExpression(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         fixWhiteSpaceBeforeAssignmentOfBodyExpression(node, emit, autoCorrect)
         fixWhiteSpaceBetweenAssignmentAndBodyExpression(node, emit, autoCorrect)
@@ -43,7 +43,7 @@ public class FunctionStartOfBodySpacingRule : Rule("$experimentalRulesetId:funct
     private fun fixWhiteSpaceBeforeAssignmentOfBodyExpression(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         node
             .findChildByType(ElementType.EQ)
@@ -70,7 +70,7 @@ public class FunctionStartOfBodySpacingRule : Rule("$experimentalRulesetId:funct
     private fun fixWhiteSpaceBetweenAssignmentAndBodyExpression(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         node
             .findChildByType(ElementType.EQ)
@@ -101,7 +101,7 @@ public class FunctionStartOfBodySpacingRule : Rule("$experimentalRulesetId:funct
     private fun visitFunctionFollowedByBodyBlock(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         node
             .findChildByType(ElementType.BLOCK)

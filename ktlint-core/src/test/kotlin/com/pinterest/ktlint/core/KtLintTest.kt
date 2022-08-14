@@ -1465,12 +1465,12 @@ private class DummyRuleWithCustomEditorConfigProperty :
  * A dummy rule for testing. Optionally the rule can be created with a lambda to be executed for each node visited.
  */
 private open class DummyRule(
-    val block: (node: ASTNode) -> Unit = {}
+    val block: (node: ASTNode) -> Unit = {},
 ) : Rule(DUMMY_RULE_ID) {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         block(node)
     }
@@ -1487,7 +1487,7 @@ private class AutoCorrectErrorRule : Rule("auto-correct") {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.elementType == REGULAR_STRING_PART) {
             when (node.text) {
@@ -1520,12 +1520,12 @@ private class AutoCorrectErrorRule : Rule("auto-correct") {
 private class SimpleTestRuleLegacy(
     private val ruleExecutionCalls: MutableList<RuleExecutionCall>,
     id: String,
-    visitorModifiers: Set<VisitorModifier> = emptySet()
+    visitorModifiers: Set<VisitorModifier> = emptySet(),
 ) : Rule(id, visitorModifiers) {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         ruleExecutionCalls.add(RuleExecutionCall(id, VISIT, node.visitNodeType, node.elementType))
     }
@@ -1543,7 +1543,7 @@ private class SimpleTestRule(
     private val stopTraversalInBeforeFirstNode: Boolean = false,
     private val stopTraversalInBeforeVisitChildNodes: (ASTNode) -> Boolean = { false },
     private val stopTraversalInAfterVisitChildNodes: (ASTNode) -> Boolean = { false },
-    private val stopTraversalInAfterLastNode: Boolean = false
+    private val stopTraversalInAfterLastNode: Boolean = false,
 ) : Rule(id, visitorModifiers) {
     override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
         ruleExecutionCalls.add(RuleExecutionCall(id, BEFORE_FIRST))
@@ -1555,7 +1555,7 @@ private class SimpleTestRule(
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         ruleExecutionCalls.add(node.toRuleExecutionCall(id, BEFORE_CHILDREN))
         if (stopTraversalInBeforeVisitChildNodes(node)) {
@@ -1566,7 +1566,7 @@ private class SimpleTestRule(
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         ruleExecutionCalls.add(node.toRuleExecutionCall(id, VISIT))
     }
@@ -1574,7 +1574,7 @@ private class SimpleTestRule(
     override fun afterVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         ruleExecutionCalls.add(node.toRuleExecutionCall(id, AFTER_CHILDREN))
         if (stopTraversalInAfterVisitChildNodes(node)) {
@@ -1608,7 +1608,7 @@ private data class RuleExecutionCall(
     val ruleMethod: RuleMethod,
     val visitNodeType: VisitNodeType? = null,
     val elementType: IElementType? = null,
-    val classIdentifier: String? = null
+    val classIdentifier: String? = null,
 ) {
     enum class RuleMethod { BEFORE_FIRST, BEFORE_CHILDREN, VISIT, AFTER_CHILDREN, AFTER_LAST }
     enum class VisitNodeType { ROOT, CHILD }
@@ -1633,7 +1633,7 @@ private data class CallbackResult(
     val ruleId: String,
     val detail: String,
     val canBeAutoCorrected: Boolean,
-    val corrected: Boolean
+    val corrected: Boolean,
 )
 
 /**
@@ -1652,7 +1652,7 @@ private class WithStateRule : Rule("with-state") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         emit(node.startOffset, "Fake violation which can be autocorrected", true)
     }

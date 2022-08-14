@@ -14,7 +14,7 @@ class NoEmptyFirstLineInMethodBlockRule : Rule("no-empty-first-line-in-method-bl
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node is PsiWhiteSpace && node.textContains('\n') &&
             node.prevLeaf()?.elementType == ElementType.LBRACE && node.isPartOf(FUN) &&

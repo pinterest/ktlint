@@ -42,7 +42,7 @@ public class KtLintAssertThat(
      * Providers of rules which have to be executed in addition to the main rule when linting/formatting the code. Note
      * that lint errors for those rules are suppressed.
      */
-    private val additionalRuleProviders: MutableSet<RuleProvider>
+    private val additionalRuleProviders: MutableSet<RuleProvider>,
 ) {
     private var filePath: String? = null
     private var kotlinScript = false
@@ -53,7 +53,7 @@ public class KtLintAssertThat(
      * Properties which have been set before, are silently overwritten with the new vale.
      */
     public fun withEditorConfigOverride(
-        vararg properties: Pair<UsesEditorConfigProperties.EditorConfigProperty<*>, *>
+        vararg properties: Pair<UsesEditorConfigProperties.EditorConfigProperty<*>, *>,
     ): KtLintAssertThat {
         editorConfigProperties = editorConfigProperties + properties.toSet()
 
@@ -155,7 +155,7 @@ public class KtLintAssertThat(
     public fun hasLintViolation(
         line: Int,
         col: Int,
-        detail: String
+        detail: String,
     ): KtLintAssertThatAssertable =
         ktLintAssertThatAssertable().hasLintViolation(line, col, detail)
 
@@ -174,7 +174,7 @@ public class KtLintAssertThat(
     public fun hasLintViolationForAdditionalRule(
         line: Int,
         col: Int,
-        detail: String
+        detail: String,
     ): KtLintAssertThatAssertable =
         ktLintAssertThatAssertable().hasLintViolationForAdditionalRule(line, col, detail)
 
@@ -198,7 +198,7 @@ public class KtLintAssertThat(
     public fun hasLintViolationWithoutAutoCorrect(
         line: Int,
         col: Int,
-        detail: String
+        detail: String,
     ): Unit =
         ktLintAssertThatAssertable().hasLintViolationWithoutAutoCorrect(line, col, detail)
 
@@ -248,12 +248,12 @@ public class KtLintAssertThat(
 
         public fun assertThatRule(
             provider: () -> Rule,
-            additionalRuleProviders: Set<RuleProvider>
+            additionalRuleProviders: Set<RuleProvider>,
         ) =
             RuleProvider { provider() }.assertThat(additionalRuleProviders)
 
         private fun RuleProvider.assertThat(
-            additionalRuleProviders: Set<RuleProvider> = emptySet()
+            additionalRuleProviders: Set<RuleProvider> = emptySet(),
         ): (String) -> KtLintAssertThat =
             { code ->
                 KtLintAssertThat(
@@ -291,7 +291,7 @@ public class KtLintAssertThatAssertable(
      *  The rules which have to be executed in addition to the main rule when linting/formatting the code. Note that
      *  lint errors for those rules are suppressed.
      */
-    private val additionalRuleProviders: Set<RuleProvider>
+    private val additionalRuleProviders: Set<RuleProvider>,
 ) : AbstractAssert<KtLintAssertThatAssertable, String>(code, KtLintAssertThatAssertable::class.java) {
     private val ruleId = ruleProvider.createNewRuleInstance().id
 
@@ -342,7 +342,7 @@ public class KtLintAssertThatAssertable(
     public fun hasLintViolation(
         line: Int,
         col: Int,
-        detail: String
+        detail: String,
     ): KtLintAssertThatAssertable =
         hasLintViolations(
             LintViolation(
@@ -359,7 +359,7 @@ public class KtLintAssertThatAssertable(
     public fun hasLintViolationForAdditionalRule(
         line: Int,
         col: Int,
-        detail: String
+        detail: String,
     ): KtLintAssertThatAssertable =
         hasLintViolationsForAdditionalRules(
             LintViolation(
@@ -425,7 +425,7 @@ public class KtLintAssertThatAssertable(
     public fun hasLintViolationWithoutAutoCorrect(
         line: Int,
         col: Int,
-        detail: String
+        detail: String,
     ): Unit =
         hasLintViolationsWithoutAutocorrect(
             LintViolation(
@@ -509,7 +509,7 @@ public class KtLintAssertThatAssertable(
         val line: Int,
         val col: Int,
         val detail: String,
-        val canBeAutoCorrected: Boolean
+        val canBeAutoCorrected: Boolean,
     )
 }
 
@@ -528,5 +528,5 @@ internal class MissingEolMarker : RuntimeException(
 public data class LintViolation(
     val line: Int,
     val col: Int,
-    val detail: String
+    val detail: String,
 )

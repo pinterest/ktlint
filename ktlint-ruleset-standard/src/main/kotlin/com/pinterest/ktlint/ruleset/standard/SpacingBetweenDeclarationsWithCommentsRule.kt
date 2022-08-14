@@ -20,7 +20,7 @@ class SpacingBetweenDeclarationsWithCommentsRule : Rule("spacing-between-declara
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node is PsiComment) {
             val declaration = node.parent as? KtDeclaration ?: return

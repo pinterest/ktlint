@@ -207,7 +207,7 @@ class SuppressionLocatorBuilderTest {
         override fun beforeVisitChildNodes(
             node: ASTNode,
             autoCorrect: Boolean,
-            emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+            emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
         ) {
             if (node.elementType == ElementType.IDENTIFIER && node.text.startsWith("foo")) {
                 emit(node.startOffset, "Line should not contain a foo identifier", false)

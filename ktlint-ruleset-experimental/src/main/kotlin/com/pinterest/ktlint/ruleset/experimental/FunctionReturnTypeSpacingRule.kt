@@ -14,7 +14,7 @@ public class FunctionReturnTypeSpacingRule : Rule("$experimentalRulesetId:functi
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         node.firstChildNode
         node
@@ -29,7 +29,7 @@ public class FunctionReturnTypeSpacingRule : Rule("$experimentalRulesetId:functi
     private fun removeWhiteSpaceBetweenClosingParenthesisAndColon(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         require(node.elementType == COLON)
         node
@@ -46,7 +46,7 @@ public class FunctionReturnTypeSpacingRule : Rule("$experimentalRulesetId:functi
     private fun fixWhiteSpaceBetweenColonAndReturnType(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         require(node.elementType == COLON)
         node

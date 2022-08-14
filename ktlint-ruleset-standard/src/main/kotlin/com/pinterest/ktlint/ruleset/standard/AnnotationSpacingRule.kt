@@ -33,7 +33,7 @@ class AnnotationSpacingRule : Rule("annotation-spacing") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.elementType != ElementType.MODIFIER_LIST && node.elementType != ElementType.FILE_ANNOTATION_LIST) {
             return
@@ -126,7 +126,7 @@ class AnnotationSpacingRule : Rule("annotation-spacing") {
 
     private inline fun ASTNode.nextSiblingWithAtLeastOneOf(
         p: (ASTNode) -> Boolean,
-        needsToOccur: (ASTNode) -> Boolean
+        needsToOccur: (ASTNode) -> Boolean,
     ): ASTNode? {
         var n = this.treeNext
         var occurrenceCount = 0
@@ -167,7 +167,7 @@ class AnnotationSpacingRule : Rule("annotation-spacing") {
 
     private fun removeIntraLineBreaks(
         node: ASTNode,
-        last: KtAnnotationEntry
+        last: KtAnnotationEntry,
     ) {
         val txt = node.text
         // Pull the next before raw replace or it will blow up

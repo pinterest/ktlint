@@ -12,7 +12,7 @@ public class FormatReporter(
     val out: PrintStream,
     val format: Boolean,
     val shouldColorOutput: Boolean = false,
-    val outputColor: Color = Color.DARK_GRAY
+    val outputColor: Color = Color.DARK_GRAY,
 ) : Reporter {
     private val countAutoCorrectPossibleOrDone = ConcurrentHashMap<String, Int>()
     private val countCanNotBeAutoCorrected = ConcurrentHashMap<String, Int>()

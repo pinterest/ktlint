@@ -21,7 +21,7 @@ class SpacingBetweenDeclarationsWithAnnotationsRule : Rule("spacing-between-decl
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.elementType == MODIFIER_LIST && node.hasAnnotationsAsChildren()) {
             val declaration = node.psi.parent as? KtDeclaration

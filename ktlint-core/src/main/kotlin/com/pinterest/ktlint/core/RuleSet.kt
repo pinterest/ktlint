@@ -10,7 +10,7 @@ import com.pinterest.ktlint.core.internal.IdNamingPolicy
 @Deprecated("Marked for removal in KtLint 0.48. See KDoc.")
 open class RuleSet(
     val id: String,
-    vararg val rules: Rule
+    vararg val rules: Rule,
 ) : Iterable<Rule> {
 
     init {

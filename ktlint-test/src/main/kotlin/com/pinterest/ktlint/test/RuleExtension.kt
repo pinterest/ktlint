@@ -62,7 +62,7 @@ public fun Set<RuleProvider>.lint(
     text: String,
     editorConfigOverride: EditorConfigOverride = EditorConfigOverride.emptyEditorConfigOverride,
     userData: Map<String, String> = emptyMap(),
-    script: Boolean = false
+    script: Boolean = false,
 ): List<LintError> {
     val res = ArrayList<LintError>()
     val experimentalParams = KtLint.ExperimentalParams(
@@ -86,7 +86,7 @@ public fun Set<RuleProvider>.format(
     editorConfigOverride: EditorConfigOverride = EditorConfigOverride.emptyEditorConfigOverride,
     userData: Map<String, String> = emptyMap(),
     cb: (e: LintError, corrected: Boolean) -> Unit = { _, _ -> },
-    script: Boolean = false
+    script: Boolean = false,
 ): String {
     val experimentalParams = KtLint.ExperimentalParams(
         fileName = lintedFilePath,

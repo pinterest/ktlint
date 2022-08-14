@@ -15,7 +15,7 @@ import org.jetbrains.kotlin.lexer.KtTokens
 
 public class DumpASTRule @JvmOverloads constructor(
     private val out: PrintStream = System.err,
-    private val color: Boolean = false
+    private val color: Boolean = false,
 ) : Rule("dump") {
 
     private companion object {
@@ -28,7 +28,7 @@ public class DumpASTRule @JvmOverloads constructor(
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, corrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, corrected: Boolean) -> Unit,
     ) {
         if (node.isRoot()) {
             lineNumberColumnLength = node

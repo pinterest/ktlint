@@ -679,7 +679,7 @@ class FunctionSignatureRuleTest {
             names = ["default", "multiline"]
         )
         fun `Given that the function signature and a single line body expression body fit on the same line then do not reformat function signature or body expression`(
-            bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping
+            bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping,
         ) {
             val code =
                 """
@@ -698,7 +698,7 @@ class FunctionSignatureRuleTest {
             names = ["always"]
         )
         fun `Given that the function signature and a single line body expression body fit on the same line then do not reformat function signature but move the body expression to a separate line`(
-            bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping
+            bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping,
         ) {
             val code =
                 """
@@ -725,7 +725,7 @@ class FunctionSignatureRuleTest {
             names = ["multiline", "always"]
         )
         fun `Given that the function signature and first line of a multiline body expression body fit on the same line then do not reformat the function signature, move the body expression to a separate line`(
-            bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping
+            bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping,
         ) {
             val code =
                 """
@@ -758,7 +758,7 @@ class FunctionSignatureRuleTest {
             names = ["default", "multiline"]
         )
         fun `Given that the function signature and a single line body expression body fit on the same line then do reformat as single line signature`(
-            bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping
+            bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping,
         ) {
             val code =
                 """
@@ -792,7 +792,7 @@ class FunctionSignatureRuleTest {
             names = ["default", "multiline", "always"]
         )
         fun `Given that the function signature and first line of a multi line body expression body do not fit on the same line then do reformat`(
-            bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping
+            bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping,
         ) {
             val code =
                 """
@@ -826,7 +826,7 @@ class FunctionSignatureRuleTest {
             names = ["always"]
         )
         fun `Given that the function signature and the first line of a multi line body expression body fit on the same line then reformat to single line signature but keep body expression on separate line`(
-            bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping
+            bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping,
         ) {
             val code =
                 """
@@ -862,7 +862,7 @@ class FunctionSignatureRuleTest {
             names = ["default", "multiline"]
         )
         fun `Given that the function signature and first line of a multiline body expression body fit on the same line then do reformat as single line signature`(
-            bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping
+            bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping,
         ) {
             val code =
                 """
@@ -898,7 +898,7 @@ class FunctionSignatureRuleTest {
             names = ["always"]
         )
         fun `Given that the function signature and first line of a multiline body expression body fit on the same line then do reformat as single line signature, keep the body expression on a separate line`(
-            bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping
+            bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping,
         ) {
             val code =
                 """
@@ -934,7 +934,7 @@ class FunctionSignatureRuleTest {
         value = FunctionSignatureRule.FunctionBodyExpressionWrapping::class
     )
     fun `Given a multiline function signature without explicit return type and start of body expression on next line then keep first line of body expression body on the same line as the last line of the function signature`(
-        bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping
+        bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping,
     ) {
         val code =
             """
@@ -968,7 +968,7 @@ class FunctionSignatureRuleTest {
         value = FunctionSignatureRule.FunctionBodyExpressionWrapping::class
     )
     fun `Given a multiline function signature without explicit return type and start of body expression on same line as last line of function signature then do not reformat`(
-        bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping
+        bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping,
     ) {
         val code =
             """

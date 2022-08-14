@@ -26,7 +26,7 @@ class QualifiedRuleIdKtTest {
     )
     fun `Given a rule id then return the qualified rule id`(
         ruleId: String,
-        qualifiedRuleId: String
+        qualifiedRuleId: String,
     ) {
         assertThat(
             ruleId.toQualifiedRuleId()

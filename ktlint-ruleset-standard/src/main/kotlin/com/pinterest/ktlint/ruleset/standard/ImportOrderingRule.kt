@@ -55,7 +55,7 @@ public class ImportOrderingRule :
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.elementType == ElementType.IMPORT_LIST) {
             val children = node.getChildren(null)
@@ -129,7 +129,7 @@ public class ImportOrderingRule :
 
     private fun getUniqueImportsAndBlankLines(
         children: Array<ASTNode>,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ): Pair<Boolean, List<ASTNode>> {
         var autoCorrectDuplicateImports = false
         val imports = mutableListOf<ASTNode>()

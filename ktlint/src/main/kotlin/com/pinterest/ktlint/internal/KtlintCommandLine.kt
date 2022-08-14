@@ -283,7 +283,7 @@ internal class KtlintCommandLine {
         ruleProviders: Set<RuleProvider>,
         editorConfigOverride: EditorConfigOverride,
         lintErrorsPerFile: Map<String, List<LintError>>,
-        reporter: Reporter
+        reporter: Reporter,
     ) {
         FileSystems.getDefault()
             .fileSequence(patterns)
@@ -305,7 +305,7 @@ internal class KtlintCommandLine {
     private fun lintStdin(
         ruleProviders: Set<RuleProvider>,
         editorConfigOverride: EditorConfigOverride,
-        reporter: Reporter
+        reporter: Reporter,
     ) {
         report(
             KtLint.STDIN_FILE,
@@ -340,7 +340,7 @@ internal class KtlintCommandLine {
     private fun report(
         fileName: String,
         errList: List<LintErrorWithCorrectionInfo>,
-        reporter: Reporter
+        reporter: Reporter,
     ) {
         fileNumber.incrementAndGet()
         val errListLimit = minOf(errList.size, maxOf(limit - errorNumber.get(), 0))
@@ -362,7 +362,7 @@ internal class KtlintCommandLine {
         fileContent: String,
         editorConfigOverride: EditorConfigOverride,
         baselineLintErrors: List<LintError>,
-        ruleProviders: Set<RuleProvider>
+        ruleProviders: Set<RuleProvider>,
     ): List<LintErrorWithCorrectionInfo> {
         logger.trace {
             val fileLocation = if (fileName != KtLint.STDIN_FILE) File(fileName).location(relative) else fileName
@@ -446,7 +446,7 @@ internal class KtlintCommandLine {
     }
 
     private fun ReporterTemplate.toReporter(
-        reporterProviderById: Map<String, ReporterProvider<*>>
+        reporterProviderById: Map<String, ReporterProvider<*>>,
     ): Reporter {
         val reporterProvider = reporterProviderById[id]
         if (reporterProvider == null) {
@@ -555,7 +555,7 @@ internal class KtlintCommandLine {
      */
     private fun <T> Sequence<Callable<T>>.parallel(
         cb: (T) -> Unit,
-        numberOfThreads: Int = Runtime.getRuntime().availableProcessors()
+        numberOfThreads: Int = Runtime.getRuntime().availableProcessors(),
     ) {
         val pill = object : Future<T> {
             override fun isDone(): Boolean {
@@ -615,13 +615,13 @@ internal class KtlintCommandLine {
 
     private data class LintErrorWithCorrectionInfo(
         val err: LintError,
-        val corrected: Boolean
+        val corrected: Boolean,
     )
 
     private data class ReporterTemplate(
         val id: String,
         val artifact: String?,
         val config: Map<String, String>,
-        val output: String?
+        val output: String?,
     )
 }

@@ -48,7 +48,7 @@ class SpacingAroundOperatorsRule : Rule("op-spacing") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (tokenSet.contains(node.elementType) &&
             node is LeafElement &&

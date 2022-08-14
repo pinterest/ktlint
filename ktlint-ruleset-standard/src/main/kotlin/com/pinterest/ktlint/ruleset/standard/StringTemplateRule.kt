@@ -21,7 +21,7 @@ class StringTemplateRule : Rule("string-template") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         val elementType = node.elementType
         // code below is commented out because (setting aside potentially dangerous replaceChild part)

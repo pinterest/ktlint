@@ -213,7 +213,7 @@ internal class FileUtilsFileSequenceTest {
         ]
     )
     fun `Given a non-Windows OS and a pattern that starts with a tilde then transform the globs to the user home directory`(
-        pattern: String
+        pattern: String,
     ) {
         val homeDir = System.getProperty("user.home")
         val filePath = "$homeDir/project/src/main/kotlin/One.kt".normalizePath()
@@ -291,7 +291,7 @@ internal class FileUtilsFileSequenceTest {
 
     private fun getFiles(
         patterns: List<String> = emptyList(),
-        rootDir: Path = tempFileSystem.rootDirectories.first()
+        rootDir: Path = tempFileSystem.rootDirectories.first(),
     ): List<String> = tempFileSystem
         .fileSequence(patterns, rootDir)
         .map { it.toString() }

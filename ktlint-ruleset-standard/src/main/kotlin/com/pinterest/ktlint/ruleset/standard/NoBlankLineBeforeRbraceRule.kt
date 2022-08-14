@@ -12,7 +12,7 @@ class NoBlankLineBeforeRbraceRule : Rule("no-blank-line-before-rbrace") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node is PsiWhiteSpace &&
             node.textContains('\n') &&

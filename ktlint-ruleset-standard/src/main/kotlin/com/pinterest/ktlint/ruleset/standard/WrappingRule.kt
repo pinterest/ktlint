@@ -94,7 +94,7 @@ public class WrappingRule :
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         when (node.elementType) {
             LPAR, LBRACE, LBRACKET -> rearrangeBlock(node, autoCorrect, emit) // TODO: LT
@@ -109,7 +109,7 @@ public class WrappingRule :
     private fun rearrangeBlock(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         val rElementType = matchingRToken[node.elementType]
         var newlineInBetween = false
@@ -188,7 +188,7 @@ public class WrappingRule :
     private fun rearrangeSuperTypeList(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         val entries = (node.psi as KtSuperTypeList).entries
         if (
@@ -246,7 +246,7 @@ public class WrappingRule :
     private fun rearrangeValueList(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         for (c in node.children()) {
             val hasLineBreak = when (c.elementType) {
@@ -294,7 +294,7 @@ public class WrappingRule :
     private fun rearrangeClosingQuote(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         node
             .treeParent
@@ -356,7 +356,7 @@ public class WrappingRule :
     private fun rearrangeArrow(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         val p = node.treeParent
         if (
@@ -397,7 +397,7 @@ public class WrappingRule :
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        indent: String
+        indent: String,
     ) {
         emit(
             node.startOffset - 1,
@@ -415,7 +415,7 @@ public class WrappingRule :
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
         indent: String? = null,
-        nodeToFix: ASTNode = nodeAfterWhichNewlineIsRequired
+        nodeToFix: ASTNode = nodeAfterWhichNewlineIsRequired,
     ) {
         emit(
             nodeAfterWhichNewlineIsRequired.startOffset + 1,

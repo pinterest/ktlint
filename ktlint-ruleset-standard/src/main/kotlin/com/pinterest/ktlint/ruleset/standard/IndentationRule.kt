@@ -134,7 +134,7 @@ public class IndentationRule :
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.isRoot()) {
             val firstNotEmptyLeaf = node.nextLeaf()
@@ -361,7 +361,7 @@ public class IndentationRule :
     override fun afterVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         when (node.elementType) {
             SUPER_TYPE_LIST ->
@@ -561,7 +561,7 @@ public class IndentationRule :
     private fun indentStringTemplate(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         node
             .let { it.psi as KtStringTemplateExpression }
@@ -680,7 +680,7 @@ public class IndentationRule :
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        ctx: IndentContext
+        ctx: IndentContext,
     ) {
         val text = node.text
         val nodeIndent = text.substringAfterLast("\n")
@@ -971,7 +971,7 @@ public class IndentationRule :
             // Line at which the block is opened
             val line: Int,
             // Type of indentation to be used for the block
-            val blockIndentationType: BlockIndentationType
+            val blockIndentationType: BlockIndentationType,
         ) {
             enum class BlockIndentationType {
                 /**
@@ -985,7 +985,7 @@ public class IndentationRule :
                  * the expected indentation level. The indentation of the closing element has to be decreased one level
                  * without altering the expected indentation level.
                  */
-                SAME_AS_PREVIOUS_BLOCK
+                SAME_AS_PREVIOUS_BLOCK,
             }
         }
     }

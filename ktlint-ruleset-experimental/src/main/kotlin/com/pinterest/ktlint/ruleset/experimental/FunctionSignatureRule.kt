@@ -82,7 +82,7 @@ public class FunctionSignatureRule :
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.elementType == FUN) {
             node
@@ -144,7 +144,7 @@ public class FunctionSignatureRule :
     private fun visitFunctionSignature(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         require(node.elementType == FUN)
 
@@ -210,7 +210,7 @@ public class FunctionSignatureRule :
     private fun calculateFunctionSignatureLengthAsSingleLineSignature(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ): Int {
         val actualFunctionSignatureLength = node.getFunctionSignatureLength()
 
@@ -232,7 +232,7 @@ public class FunctionSignatureRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
         autoCorrect: Boolean,
         multiline: Boolean,
-        dryRun: Boolean
+        dryRun: Boolean,
     ): Int {
         var whiteSpaceCorrection = 0
 
@@ -258,7 +258,7 @@ public class FunctionSignatureRule :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
         autoCorrect: Boolean,
-        dryRun: Boolean
+        dryRun: Boolean,
     ): Int {
         var whiteSpaceCorrection = 0
 
@@ -296,7 +296,7 @@ public class FunctionSignatureRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
         autoCorrect: Boolean,
         multiline: Boolean,
-        dryRun: Boolean
+        dryRun: Boolean,
     ): Int {
         var whiteSpaceCorrection = 0
 
@@ -361,7 +361,7 @@ public class FunctionSignatureRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
         autoCorrect: Boolean,
         multiline: Boolean,
-        dryRun: Boolean
+        dryRun: Boolean,
     ): Int {
         var whiteSpaceCorrection = 0
 
@@ -436,7 +436,7 @@ public class FunctionSignatureRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
         autoCorrect: Boolean,
         multiline: Boolean,
-        dryRun: Boolean
+        dryRun: Boolean,
     ): Int {
         var whiteSpaceCorrection = 0
 
@@ -491,7 +491,7 @@ public class FunctionSignatureRule :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
         autoCorrect: Boolean,
-        maxLengthRemainingForFirstLineOfBodyExpression: Int
+        maxLengthRemainingForFirstLineOfBodyExpression: Int,
     ) {
         if (node.findChildByType(EQ) == null) {
             fixFunctionBodyBlock(node, emit, autoCorrect)
@@ -504,7 +504,7 @@ public class FunctionSignatureRule :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
         autoCorrect: Boolean,
-        maxLengthRemainingForFirstLineOfBodyExpression: Int
+        maxLengthRemainingForFirstLineOfBodyExpression: Int,
     ) {
         val lastNodeOfFunctionSignatureWithBodyExpression =
             node
@@ -583,7 +583,7 @@ public class FunctionSignatureRule :
     }
 
     private fun ASTNode.isMultilineFunctionSignatureWithoutExplicitReturnType(
-        lastNodeOfFunctionSignatureWithBodyExpression: ASTNode?
+        lastNodeOfFunctionSignatureWithBodyExpression: ASTNode?,
     ) = functionSignatureNodes()
         .childrenBetween(
             startASTNodePredicate = { true },
@@ -597,7 +597,7 @@ public class FunctionSignatureRule :
     private fun fixFunctionBodyBlock(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         val lastNodeOfFunctionSignatureWithBlockBody =
             node
@@ -661,7 +661,7 @@ public class FunctionSignatureRule :
 
     private fun List<ASTNode>.childrenBetween(
         startASTNodePredicate: (ASTNode) -> Boolean = { _ -> true },
-        endASTNodePredicate: (ASTNode) -> Boolean = { _ -> false }
+        endASTNodePredicate: (ASTNode) -> Boolean = { _ -> false },
     ): List<ASTNode> {
         val iterator = iterator()
         var currentNode: ASTNode
@@ -756,7 +756,9 @@ public class FunctionSignatureRule :
         /**
          * Always force the body expression to start on a separate line.
          */
-        always;
+        always,
+
+        ;
 
         internal fun keepFirstLineOfBodyExpressionTogetherWithFunctionSignature(fitOnSameLine: Boolean) =
             if (this == default || this == multiline) {

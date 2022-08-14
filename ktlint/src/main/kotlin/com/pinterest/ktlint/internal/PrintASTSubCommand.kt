@@ -58,7 +58,7 @@ internal class PrintASTSubCommand : Runnable {
 
     private fun printAST(
         fileName: String,
-        fileContent: String
+        fileContent: String,
     ) {
         logger.debug {
             "Analyzing " + if (fileName != KtLint.STDIN_FILE) {

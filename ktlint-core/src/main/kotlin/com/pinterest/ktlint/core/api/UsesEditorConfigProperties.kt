@@ -83,7 +83,7 @@ public interface UsesEditorConfigProperties {
 
     private fun <T> EditorConfigProperties.getEditorConfigValue(
         editorConfigProperty: EditorConfigProperty<T>,
-        codeStyleValue: CodeStyleValue
+        codeStyleValue: CodeStyleValue,
     ): T {
         if (editorConfigProperty.deprecationWarning != null) {
             logger.warn { "Property '${editorConfigProperty.type.name}' is deprecated: ${editorConfigProperty.deprecationWarning}" }
@@ -136,7 +136,7 @@ public interface UsesEditorConfigProperties {
      */
     public fun <T> EditorConfigProperties.writeEditorConfigProperty(
         editorConfigProperty: EditorConfigProperty<T>,
-        codeStyleValue: CodeStyleValue
+        codeStyleValue: CodeStyleValue,
     ): String {
         return editorConfigProperty.propertyWriter(getEditorConfigValue(editorConfigProperty, codeStyleValue))
     }
@@ -187,7 +187,7 @@ public interface UsesEditorConfigProperties {
         /**
          * Optional message to be displayed whenever the value of the property is being retrieved.
          */
-        internal val deprecationWarning: String? = null
+        internal val deprecationWarning: String? = null,
     )
 }
 
@@ -201,7 +201,7 @@ public object DefaultEditorConfigProperties : UsesEditorConfigProperties {
     @Suppress("EnumEntryName", "ktlint:enum-entry-name-case")
     public enum class CodeStyleValue {
         android,
-        official;
+        official,
     }
 
     public val codeStyleSetProperty: UsesEditorConfigProperties.EditorConfigProperty<CodeStyleValue> =

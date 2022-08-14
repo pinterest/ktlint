@@ -21,7 +21,7 @@ public class ModifierListSpacingRule : Rule("$experimentalRulesetId:modifier-lis
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.elementType == MODIFIER_LIST) {
             node
@@ -35,7 +35,7 @@ public class ModifierListSpacingRule : Rule("$experimentalRulesetId:modifier-lis
     private fun visitModifierChild(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.elementType == WHITE_SPACE) {
             return

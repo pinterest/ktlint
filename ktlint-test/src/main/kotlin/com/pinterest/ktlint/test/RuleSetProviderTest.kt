@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test
 
 public open class RuleSetProviderTest(
     private val rulesetClass: Class<out RuleSetProviderV2>,
-    private val packageName: String
+    private val packageName: String,
 ) {
     private val ruleSetProvider =
         rulesetClass

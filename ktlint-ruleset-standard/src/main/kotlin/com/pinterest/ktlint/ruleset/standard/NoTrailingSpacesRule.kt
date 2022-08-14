@@ -14,7 +14,7 @@ class NoTrailingSpacesRule : Rule("no-trailing-spaces") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.isPartOfKDoc()) {
             if (node.elementType == WHITE_SPACE && node.hasTrailingSpacesBeforeNewline()) {

@@ -31,7 +31,7 @@ public class CommentWrappingRule :
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.elementType == BLOCK_COMMENT) {
             val nonIndentLeafOnSameLinePrecedingBlockComment =
@@ -79,7 +79,7 @@ public class CommentWrappingRule :
     private fun ASTNode.precedesBlockCommentOnSameLine(
         blockCommentNode: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         val leafAfterBlockComment = blockCommentNode.nextLeaf()
         if (!blockCommentNode.textContains('\n') && leafAfterBlockComment.isLastElementOnLine()) {
@@ -111,7 +111,7 @@ public class CommentWrappingRule :
     private fun ASTNode.followsBlockCommentOnSameLine(
         blockCommentNode: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         emit(startOffset, "A block comment may not be followed by any other element on that same line", true)
         if (autoCorrect) {

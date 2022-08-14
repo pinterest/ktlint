@@ -85,7 +85,7 @@ class FilenameRuleTest {
         ]
     )
     fun `Given a file containing one top level declaration then the file should be named after the identifier`(
-        code: String
+        code: String,
     ) {
         fileNameRuleAssertThat(code)
             .asFileWithPath(UNEXPECTED_FILE_NAME)
@@ -103,7 +103,7 @@ class FilenameRuleTest {
         ]
     )
     fun `Given a file containing one top level then the file should conform to PascalCase`(
-        code: String
+        code: String,
     ) {
         fileNameRuleAssertThat(code)
             .asFileWithPath(NON_PASCAL_CASE_NAME)
@@ -118,7 +118,7 @@ class FilenameRuleTest {
         ]
     )
     fun `Given a file containing a single top level property declaration (non-private) and one private top level class declaration then the file should conform to PascalCase`(
-        topLevelDeclaration: String
+        topLevelDeclaration: String,
     ) {
         val code =
             """
@@ -142,7 +142,7 @@ class FilenameRuleTest {
         ]
     )
     fun `Given a file containing a single top level class (non-private) and another top level declaration (non-private, not extending that class) then the file should conform to PascalCase notation but does not need to be named after that class`(
-        otherTopLevelDeclaration: String
+        otherTopLevelDeclaration: String,
     ) {
         val code =
             """
@@ -162,7 +162,7 @@ class FilenameRuleTest {
         ]
     )
     fun `Given a file containing a single top level class (non-private) and another top level declaration (private and,x xor extending that class) then the file should be named after that class`(
-        otherTopLevelDeclaration: String
+        otherTopLevelDeclaration: String,
     ) {
         val code =
             """
