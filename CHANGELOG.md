@@ -158,6 +158,7 @@ Although, Ktlint 0.47.0 falls back on property `disabled_rules` whenever `ktlint
 * Invoke callback on `format` function for all errors including errors that are autocorrected ([#1491](https://github.com/pinterest/ktlint/issues/1491))
 * Improve rule `annotation` ([#1574](https://github.com/pinterest/ktlint/pull/1574))
 * Rename `.editorconfig` property `disabled_rules` to `ktlint_disabled_rules` ([#701](https://github.com/pinterest/ktlint/issues/701))
+* Update Kotlin development version to `1.7.20-beta` and Kotlin version to `1.7.10`.
 
 ### Removed
 * Remove support to generate IntelliJ IDEA configuration files as this no longer fits the scope of the ktlint project ([#701](https://github.com/pinterest/ktlint/issues/701))
