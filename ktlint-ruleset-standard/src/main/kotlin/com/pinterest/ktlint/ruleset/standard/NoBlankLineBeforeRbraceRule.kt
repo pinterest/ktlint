@@ -7,7 +7,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
-class NoBlankLineBeforeRbraceRule : Rule("no-blank-line-before-rbrace") {
+public class NoBlankLineBeforeRbraceRule : Rule("no-blank-line-before-rbrace") {
 
     override fun beforeVisitChildNodes(
         node: ASTNode,

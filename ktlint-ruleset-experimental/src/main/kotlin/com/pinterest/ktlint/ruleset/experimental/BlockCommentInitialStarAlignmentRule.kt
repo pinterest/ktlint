@@ -9,7 +9,7 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 /**
  * When present, align the initial star in a block comment.
  */
-class BlockCommentInitialStarAlignmentRule :
+public class BlockCommentInitialStarAlignmentRule :
     Rule(
         "$experimentalRulesetId:block-comment-initial-star-alignment",
         visitorModifiers = setOf(

@@ -1561,6 +1561,7 @@ internal class IndentationRuleTest {
                 |// comment
                 """.trimMargin()
             indentationRuleAssertThat(code)
+                .asKotlinScript(asKotlinScript)
                 // Note that no LintError is created for the first line as it does not contain any code
                 .hasLintViolation(2, 1, "Unexpected indentation (2) (should be 0)")
                 .isFormattedAs(formattedCode)

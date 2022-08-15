@@ -8,7 +8,7 @@ import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.core.ast.nextCodeLeaf
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
-class NoUnitReturnRule : Rule("no-unit-return") {
+public class NoUnitReturnRule : Rule("no-unit-return") {
 
     override fun beforeVisitChildNodes(
         node: ASTNode,

@@ -11,7 +11,7 @@ import com.pinterest.ktlint.core.ast.nextLeaf
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.psi.KtObjectLiteralExpression
 
-class NoEmptyClassBodyRule : Rule("no-empty-class-body") {
+public class NoEmptyClassBodyRule : Rule("no-empty-class-body") {
 
     override fun beforeVisitChildNodes(
         node: ASTNode,

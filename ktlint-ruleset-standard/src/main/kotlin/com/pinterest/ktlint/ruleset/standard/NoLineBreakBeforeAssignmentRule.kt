@@ -12,7 +12,7 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.psi.KtPsiFactory
 import org.jetbrains.kotlin.psi.psiUtil.siblings
 
-class NoLineBreakBeforeAssignmentRule : Rule("no-line-break-before-assignment") {
+public class NoLineBreakBeforeAssignmentRule : Rule("no-line-break-before-assignment") {
 
     override fun beforeVisitChildNodes(node: ASTNode, autoCorrect: Boolean, emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
         if (node.elementType == EQ) {

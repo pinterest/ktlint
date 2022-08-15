@@ -8,7 +8,7 @@ import org.jetbrains.kotlin.psi.KtPackageDirective
 /**
  * https://kotlinlang.org/docs/coding-conventions.html#naming-rules
  */
-class PackageNameRule : Rule("package-name") {
+public class PackageNameRule : Rule("package-name") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,

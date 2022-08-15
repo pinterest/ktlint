@@ -8,7 +8,7 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
-class CommentSpacingRule : Rule("comment-spacing") {
+public class CommentSpacingRule : Rule("comment-spacing") {
 
     override fun beforeVisitChildNodes(
         node: ASTNode,

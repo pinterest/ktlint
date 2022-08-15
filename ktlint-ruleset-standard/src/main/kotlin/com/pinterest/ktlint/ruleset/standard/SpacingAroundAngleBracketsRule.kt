@@ -13,7 +13,7 @@ import com.pinterest.ktlint.core.ast.prevLeaf
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 
-class SpacingAroundAngleBracketsRule : Rule("spacing-around-angle-brackets") {
+public class SpacingAroundAngleBracketsRule : Rule("spacing-around-angle-brackets") {
     private fun String.trimBeforeLastLine() = this.substring(this.lastIndexOf('\n'))
 
     override fun beforeVisitChildNodes(
@@ -90,7 +90,7 @@ class SpacingAroundAngleBracketsRule : Rule("spacing-around-angle-brackets") {
         }
     }
 
-    companion object {
-        private val typesOkWithPrecedingWhitespace = setOf(VAL_KEYWORD, VAR_KEYWORD, FUN_KEYWORD)
+    private companion object {
+        val typesOkWithPrecedingWhitespace = setOf(VAL_KEYWORD, VAR_KEYWORD, FUN_KEYWORD)
     }
 }

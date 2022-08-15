@@ -17,7 +17,7 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 
-class SpacingAroundCommaRule : Rule("comma-spacing") {
+public class SpacingAroundCommaRule : Rule("comma-spacing") {
 
     private val rTokenSet = TokenSet.create(RPAR, RBRACKET, GT)
 

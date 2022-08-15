@@ -29,7 +29,7 @@ import org.jetbrains.kotlin.psi.psiUtil.leaves
 /**
  * https://kotlinlang.org/docs/reference/coding-conventions.html#formatting-control-flow-statements
  */
-class MultiLineIfElseRule :
+public class MultiLineIfElseRule :
     Rule("multiline-if-else"),
     UsesEditorConfigProperties {
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> =

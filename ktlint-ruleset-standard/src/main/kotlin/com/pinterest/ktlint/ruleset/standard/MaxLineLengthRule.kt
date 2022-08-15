@@ -20,7 +20,7 @@ import org.jetbrains.kotlin.kdoc.psi.api.KDoc
 import org.jetbrains.kotlin.psi.KtImportDirective
 import org.jetbrains.kotlin.psi.KtPackageDirective
 
-class MaxLineLengthRule :
+public class MaxLineLengthRule :
     Rule(
         id = "max-line-length",
         visitorModifiers = setOf(
@@ -174,8 +174,8 @@ private data class ParsedLine(
     }
 }
 
-@Deprecated("Marked for removal from public API in ktlint 0.48")
-class RangeTree(seq: List<Int> = emptyList()) {
+@Deprecated("Marked for removal from public API in KtLint 0.48. Please raise an issue if you have a use case to keep it public.")
+public class RangeTree(seq: List<Int> = emptyList()) {
 
     private var emptyArrayView = ArrayView(0, 0)
     private var arr: IntArray = seq.toIntArray()
@@ -188,8 +188,8 @@ class RangeTree(seq: List<Int> = emptyList()) {
 
     // runtime: O(log(n)+k), where k is number of matching points
     // space: O(1)
-    @Deprecated("Marked for removal from public API in ktlint 0.48")
-    fun query(vmin: Int, vmax: Int): RangeTree.ArrayView {
+    @Deprecated("Marked for removal from public API in KtLint 0.48. Please raise an issue if you have a use case to keep it public.")
+    public fun query(vmin: Int, vmax: Int): RangeTree.ArrayView {
         var r = arr.size - 1
         if (r == -1 || vmax < arr[0] || arr[r] < vmin) {
             return emptyArrayView
@@ -222,25 +222,26 @@ class RangeTree(seq: List<Int> = emptyList()) {
         return ArrayView(l, k)
     }
 
-    @Deprecated("Marked for removal from public API in ktlint 0.48")
-    fun isEmpty() = arr.isEmpty()
+    @Deprecated("Marked for removal from public API in KtLint 0.48. Please raise an issue if you have a use case to keep it public.")
+    public fun isEmpty(): Boolean =
+        arr.isEmpty()
 
-    @Deprecated("Marked for removal from public API in ktlint 0.48")
-    inner class ArrayView(private var l: Int, private val r: Int) {
+    @Deprecated("Marked for removal from public API in KtLint 0.48. Please raise an issue if you have a use case to keep it public.")
+    public inner class ArrayView(private var l: Int, private val r: Int) {
 
-        @Deprecated("Marked for removal from public API in ktlint 0.48")
-        val size: Int = r - l
+        @Deprecated("Marked for removal from public API in KtLint 0.48. Please raise an issue if you have a use case to keep it public.")
+        public val size: Int = r - l
 
-        @Deprecated("Marked for removal from public API in ktlint 0.48")
-        fun get(i: Int): Int {
+        @Deprecated("Marked for removal from public API in KtLint 0.48. Please raise an issue if you have a use case to keep it public.")
+        public fun get(i: Int): Int {
             if (i < 0 || i >= size) {
                 throw IndexOutOfBoundsException()
             }
             return arr[l + i]
         }
 
-        @Deprecated("Marked for removal from public API in ktlint 0.48")
-        inline fun forEach(cb: (v: Int) -> Unit) {
+        @Deprecated("Marked for removal from public API in KtLint 0.48. Please raise an issue if you have a use case to keep it public.")
+        public inline fun forEach(cb: (v: Int) -> Unit) {
             var i = 0
             while (i < size) {
                 cb(get(i++))

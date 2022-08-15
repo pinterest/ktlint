@@ -27,7 +27,7 @@ import org.jetbrains.kotlin.psi.KtBlockExpression
 import org.jetbrains.kotlin.psi.KtPropertyAccessor
 import org.jetbrains.kotlin.psi.KtWhenEntry
 
-class SpacingAroundKeywordRule : Rule("keyword-spacing") {
+public class SpacingAroundKeywordRule : Rule("keyword-spacing") {
 
     private val noLFBeforeSet = create(ELSE_KEYWORD, CATCH_KEYWORD, FINALLY_KEYWORD)
     private val tokenSet = create(
