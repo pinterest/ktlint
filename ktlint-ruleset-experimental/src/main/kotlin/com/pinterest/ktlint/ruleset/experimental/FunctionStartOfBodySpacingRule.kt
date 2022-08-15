@@ -113,20 +113,12 @@ public class FunctionStartOfBodySpacingRule : Rule("$experimentalRulesetId:funct
                         if (whiteSpaceBeforeExpressionBlock == null) {
                             emit(block.startOffset, "Expected a single white space before start of function body", true)
                             if (autoCorrect) {
-                                if (whiteSpaceBeforeExpressionBlock == null) {
-                                    (block.firstChildNode.prevLeaf(true) as LeafPsiElement).upsertWhitespaceAfterMe(" ")
-                                } else {
-                                    (whiteSpaceBeforeExpressionBlock as LeafElement).rawReplaceWithText(" ")
-                                }
+                                (block.firstChildNode.prevLeaf(true) as LeafPsiElement).upsertWhitespaceAfterMe(" ")
                             }
                         } else if (whiteSpaceBeforeExpressionBlock.text != " ") {
                             emit(whiteSpaceBeforeExpressionBlock.startOffset, "Unexpected whitespace", true)
                             if (autoCorrect) {
-                                if (whiteSpaceBeforeExpressionBlock == null) {
-                                    (block.firstChildNode as LeafPsiElement).upsertWhitespaceBeforeMe(" ")
-                                } else {
-                                    (whiteSpaceBeforeExpressionBlock as LeafElement).rawReplaceWithText(" ")
-                                }
+                                (whiteSpaceBeforeExpressionBlock as LeafElement).rawReplaceWithText(" ")
                             }
                         }
                     }

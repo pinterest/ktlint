@@ -18,7 +18,7 @@ private val logger = KotlinLogging.logger {}.initKtLintKLogger()
     mixinStandardHelpOptions = true,
     versionProvider = KtlintVersionProvider::class
 )
-class GenerateEditorConfigSubCommand : Runnable {
+internal class GenerateEditorConfigSubCommand : Runnable {
     @CommandLine.ParentCommand
     private lateinit var ktlintCommand: KtlintCommandLine
 
@@ -62,7 +62,7 @@ class GenerateEditorConfigSubCommand : Runnable {
             DefaultEditorConfigProperties.CodeStyleValue.official
         }
 
-    companion object {
+    internal companion object {
         internal const val COMMAND_NAME = "generateEditorConfig"
     }
 }

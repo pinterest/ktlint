@@ -3,6 +3,7 @@ package com.pinterest.ktlint.core
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.disabledRulesProperty
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentSizeProperty
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.ktlintDisabledRulesProperty
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.maxLineLengthProperty
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import org.assertj.core.api.Assertions.assertThat
@@ -144,6 +145,7 @@ class UsesEditorConfigPropertiesTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun `Given that editor config property disabled_rules is set and has spacing around the comma, then retrieve the list without those spaces'`() {
         val editorConfigProperties = createEditorConfigPropertiesFrom(
@@ -153,6 +155,20 @@ class UsesEditorConfigPropertiesTest {
 
         val actual = with(EditorConfigPropertiesTester(disabledRulesProperty)) {
             editorConfigProperties.getEditorConfigValue(disabledRulesProperty)
+        }
+
+        assertThat(actual).isEqualTo("$RULE_A,$RULE_B,$RULE_C,$RULE_D")
+    }
+
+    @Test
+    fun `Given that editor config property ktlint_disabled_rules is set and has spacing around the comma, then retrieve the list without those spaces'`() {
+        val editorConfigProperties = createEditorConfigPropertiesFrom(
+            ktlintDisabledRulesProperty,
+            "$RULE_A, $RULE_B,$RULE_C , $RULE_D"
+        )
+
+        val actual = with(EditorConfigPropertiesTester(ktlintDisabledRulesProperty)) {
+            editorConfigProperties.getEditorConfigValue(ktlintDisabledRulesProperty)
         }
 
         assertThat(actual).isEqualTo("$RULE_A,$RULE_B,$RULE_C,$RULE_D")

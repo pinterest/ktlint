@@ -16,7 +16,7 @@ import org.jetbrains.kotlin.psi.KtNameReferenceExpression
 import org.jetbrains.kotlin.psi.KtSuperExpression
 import org.jetbrains.kotlin.psi.KtThisExpression
 
-class StringTemplateRule : Rule("string-template") {
+public class StringTemplateRule : Rule("string-template") {
 
     override fun beforeVisitChildNodes(
         node: ASTNode,

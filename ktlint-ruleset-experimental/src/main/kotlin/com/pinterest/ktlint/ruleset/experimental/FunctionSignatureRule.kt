@@ -613,7 +613,7 @@ public class FunctionSignatureRule :
             .joinTextToString()
             .split("\n")
             .firstOrNull()
-            ?.also { firstLineOfBodyBlock ->
+            ?.also {
                 if (whiteSpaceBeforeFunctionBodyExpression == null) {
                     emit(functionBodyBlock.first().startOffset, "Expected a single space before body block", true)
                     if (autoCorrect) {

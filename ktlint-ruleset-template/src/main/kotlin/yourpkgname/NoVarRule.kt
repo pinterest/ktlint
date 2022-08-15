@@ -4,7 +4,7 @@ import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.VAR_KEYWORD
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
-class NoVarRule : Rule("no-var") {
+public class NoVarRule : Rule("no-var") {
 
     override fun beforeVisitChildNodes(
         node: ASTNode,

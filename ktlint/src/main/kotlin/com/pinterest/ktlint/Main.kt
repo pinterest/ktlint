@@ -10,7 +10,7 @@ import com.pinterest.ktlint.internal.PrintASTSubCommand
 import com.pinterest.ktlint.internal.printCommandLineHelpOrVersionUsage
 import picocli.CommandLine
 
-fun main(args: Array<String>) {
+public fun main(args: Array<String>) {
     val ktlintCommand = KtlintCommandLine()
     val commandLine = CommandLine(ktlintCommand)
         .addSubcommand(GitPreCommitHookSubCommand.COMMAND_NAME, GitPreCommitHookSubCommand())
