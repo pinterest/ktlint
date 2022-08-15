@@ -18,6 +18,5 @@ signing.secretKeyRingFile=~/.gnupg/secring.gpg
 
 1. Update `VERSION_NAME` with new release version in project root `gradle.properties`
 2. Fill in `CHANGELOG.md` with related to new version changes.
-3. Run `./gradlew publishNewRelease` to build, upload new artifacts,
-update `README.md` and [https://ktlint.github.io](https://ktlint.github.io) site.
+3. Run `./gradlew publishNewRelease` to build, upload new artifacts, update KtLint version number on [CLI documentation](docs/install/cli.md) and [integrations documentation](docs/install/integrations.md) and [https://ktlint.github.io](https://ktlint.github.io) site.
 4. Update Github release notes with info from `CHANGELOG.md`
