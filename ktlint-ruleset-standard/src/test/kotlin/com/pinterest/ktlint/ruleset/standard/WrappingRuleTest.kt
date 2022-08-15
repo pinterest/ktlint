@@ -1573,6 +1573,23 @@ internal class WrappingRuleTest {
         wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
+    @Test
+    fun `Issue 1578 - Given a destructuring declaration followed by a trailing comma then do not require it to be followed by a newline as no other value parameter follows`() {
+        val code =
+            """
+            // fun foo(block: (Pair<Int, Int>) -> Unit) {}
+            val bar =
+                foo {
+                        (
+                            a,
+                            b,
+                        ),
+                    ->
+                }
+            """.trimIndent()
+        wrappingRuleAssertThat(code).hasNoLintViolations()
+    }
+
     private companion object {
         const val MULTILINE_STRING_QUOTE = "${'"'}${'"'}${'"'}"
         const val TAB = "${'\t'}"
