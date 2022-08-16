@@ -8,9 +8,9 @@ import com.pinterest.ktlint.core.internal.IdNamingPolicy
  * This class becomes redundant when resolving the deprecation of [RuleSetProvider.get].
  */
 @Deprecated("Marked for removal in KtLint 0.48. See KDoc.")
-open class RuleSet(
-    val id: String,
-    vararg val rules: Rule
+public open class RuleSet(
+    public val id: String,
+    public vararg val rules: Rule
 ) : Iterable<Rule> {
 
     init {

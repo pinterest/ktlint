@@ -16,7 +16,7 @@ import org.jetbrains.kotlin.psi.psiUtil.startOffset
 /**
  * @see https://youtrack.jetbrains.com/issue/KT-35088
  */
-class SpacingBetweenDeclarationsWithCommentsRule : Rule("spacing-between-declarations-with-comments") {
+public class SpacingBetweenDeclarationsWithCommentsRule : Rule("spacing-between-declarations-with-comments") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,

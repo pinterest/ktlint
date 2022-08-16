@@ -1,13 +1,149 @@
 package com.pinterest.ktlint.core
 
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.disabledRulesProperty
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.ktlintDisabledRulesProperty
 import com.pinterest.ktlint.core.internal.VisitorProvider
 import org.assertj.core.api.Assertions.assertThat
 import org.ec4j.core.model.Property
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class VisitorProviderTest {
+    @Suppress("DEPRECATION")
+    @Nested
+    @Deprecated("To be removed in KtLint 0.48 when disabledRulesProperty is removed")
+    inner class WithDisabledRulesProperty {
+        @Test
+        fun `A root only rule only visits the FILE node only`() {
+            val actual = testVisitorProviderWithDisabledRulesProperty(
+                RuleProvider { RootNodeOnlyRule(ROOT_NODE_ONLY_RULE) }
+            )
+
+            assertThat(actual).containsExactly(
+                Visit(ROOT_NODE_ONLY_RULE)
+            )
+        }
+
+        @Test
+        fun `A run-as-late-as-possible-rule runs later than normal rules`() {
+            val actual = testVisitorProviderWithDisabledRulesProperty(
+                RuleProvider { NormalRule(RULE_A) },
+                RuleProvider { RunAsLateAsPossibleRule(RULE_B) },
+                RuleProvider { NormalRule(RULE_C) }
+            )
+
+            assertThat(actual).containsExactly(
+                Visit(RULE_A),
+                Visit(RULE_C),
+                Visit(RULE_B)
+            )
+        }
+
+        @Test
+        fun `A run as late as possible on root node only rule visits the root node only`() {
+            val actual = testVisitorProviderWithDisabledRulesProperty(
+                RuleProvider { RunAsLateAsPossibleOnRootNodeOnlyRule(RUN_AS_LATE_AS_POSSIBLE_RULE) }
+            )
+
+            assertThat(actual).containsExactly(
+                Visit(RUN_AS_LATE_AS_POSSIBLE_RULE)
+            )
+        }
+
+        @Test
+        fun `Disabled rules in any type of rule set are not executed`() {
+            val actual = testVisitorProviderWithDisabledRulesProperty(
+                RuleProvider { NormalRule(RULE_A) },
+                RuleProvider { NormalRule(SOME_DISABLED_RULE_IN_STANDARD_RULE_SET) },
+                RuleProvider { NormalRule("$EXPERIMENTAL:$RULE_B") },
+                RuleProvider { NormalRule(SOME_DISABLED_RULE_IN_EXPERIMENTAL_RULE_SET) },
+                RuleProvider { NormalRule("$CUSTOM_RULE_SET_A:$RULE_C") },
+                RuleProvider { NormalRule(SOME_DISABLED_RULE_IN_CUSTOM_RULE_SET_A) }
+            )
+
+            assertThat(actual).containsExactly(
+                Visit(RULE_A),
+                Visit(EXPERIMENTAL, RULE_B),
+                Visit(CUSTOM_RULE_SET_A, RULE_C)
+            )
+        }
+
+        @Test
+        fun `When no enabled rules are found for the root node, the visit function on the root node is not executed`() {
+            val actual = testVisitorProviderWithDisabledRulesProperty(
+                RuleProvider { NormalRule(SOME_DISABLED_RULE_IN_STANDARD_RULE_SET) }
+            )
+
+            assertThat(actual).isNull()
+        }
+
+        @Test
+        fun `When no runnable rules are found for the root node, the visit function on the root node is not executed`() {
+            val actual = testVisitorProviderWithDisabledRulesProperty(
+                RuleProvider { NormalRule(SOME_DISABLED_RULE_IN_STANDARD_RULE_SET) },
+                RuleProvider {
+                    object : R(
+                        id = RULE_A,
+                        visitorModifier = VisitorModifier.RunAfterRule(
+                            ruleId = SOME_DISABLED_RULE_IN_STANDARD_RULE_SET,
+                            runOnlyWhenOtherRuleIsEnabled = true
+                        )
+                    ) {}
+                }
+            )
+
+            assertThat(actual).isNull()
+        }
+
+        /**
+         * Create a visitor provider. It returns a list of visits that the provider made after it was invoked. The tests of
+         * the visitor provider should only focus on whether the visit provider has invoked the correct rules in the correct
+         * order. Note that the testProvider does not invoke the real visit method of the rule.
+         */
+        private fun testVisitorProviderWithDisabledRulesProperty(vararg ruleProviders: RuleProvider): MutableList<Visit>? {
+            return VisitorProvider(
+                params = KtLint.ExperimentalParams(
+                    text = "",
+                    cb = { _, _ -> },
+                    ruleProviders = ruleProviders.toSet(),
+                    // Enable debug mode as it is helpful when a test fails
+                    debug = true
+                ),
+                // Creates a new VisitorProviderFactory for each unit test to prevent that tests for the exact same set of
+                // ruleIds are influencing each other.
+                recreateRuleSorter = true
+            ).run {
+                var visits: MutableList<Visit>? = null
+                visitor(
+                    disabledRulesEditorConfigProperties(
+                        SOME_DISABLED_RULE_IN_STANDARD_RULE_SET,
+                        SOME_DISABLED_RULE_IN_EXPERIMENTAL_RULE_SET,
+                        SOME_DISABLED_RULE_IN_CUSTOM_RULE_SET_A
+                    )
+                ).invoke { _, fqRuleId ->
+                    if (visits == null) {
+                        visits = mutableListOf()
+                    }
+                    visits?.add(Visit(fqRuleId))
+                }
+                visits
+            }
+        }
+
+        private fun disabledRulesEditorConfigProperties(vararg ruleIds: String) =
+            with(disabledRulesProperty) {
+                mapOf(
+                    type.name to
+                        Property.builder()
+                            .name(type.name)
+                            .type(type)
+                            .value(ruleIds.joinToString(separator = ","))
+                            .build()
+                )
+            }
+    }
+
     @Test
     fun `A root only rule only visits the FILE node only`() {
         val actual = testVisitorProvider(
@@ -110,7 +246,7 @@ class VisitorProviderTest {
         ).run {
             var visits: MutableList<Visit>? = null
             visitor(
-                disabledRulesEditorConfigProperties(
+                ktlintDisabledRulesEditorConfigProperties(
                     SOME_DISABLED_RULE_IN_STANDARD_RULE_SET,
                     SOME_DISABLED_RULE_IN_EXPERIMENTAL_RULE_SET,
                     SOME_DISABLED_RULE_IN_CUSTOM_RULE_SET_A
@@ -125,8 +261,8 @@ class VisitorProviderTest {
         }
     }
 
-    private fun disabledRulesEditorConfigProperties(vararg ruleIds: String) =
-        with(disabledRulesProperty) {
+    private fun ktlintDisabledRulesEditorConfigProperties(vararg ruleIds: String) =
+        with(ktlintDisabledRulesProperty) {
             mapOf(
                 type.name to
                     Property.builder()

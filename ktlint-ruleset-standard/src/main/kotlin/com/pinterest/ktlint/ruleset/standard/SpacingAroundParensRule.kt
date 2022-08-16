@@ -22,7 +22,7 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
  *
  * See https://kotlinlang.org/docs/reference/coding-conventions.html#horizontal-whitespace
  */
-class SpacingAroundParensRule : Rule("paren-spacing") {
+public class SpacingAroundParensRule : Rule("paren-spacing") {
 
     override fun beforeVisitChildNodes(
         node: ASTNode,

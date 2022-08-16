@@ -12,7 +12,7 @@ private val logger = KotlinLogging.logger {}.initKtLintKLogger()
 
 private const val DEFAULT_GIT_HOOKS_DIR = "hooks"
 
-object GitHookInstaller {
+internal object GitHookInstaller {
     fun installGitHook(
         gitHookName: String,
         gitHookLoader: () -> ByteArray

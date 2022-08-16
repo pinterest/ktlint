@@ -11,7 +11,7 @@ import picocli.CommandLine
     mixinStandardHelpOptions = true,
     versionProvider = KtlintVersionProvider::class
 )
-class GitPreCommitHookSubCommand : Runnable {
+internal class GitPreCommitHookSubCommand : Runnable {
     @CommandLine.ParentCommand
     private lateinit var ktlintCommand: KtlintCommandLine
 
@@ -32,7 +32,7 @@ class GitPreCommitHookSubCommand : Runnable {
             "ktlint-git-pre-commit-hook${if (ktlintCommand.android) "-android" else ""}.sh"
         ).use { it.readBytes() }
 
-    companion object {
-        const val COMMAND_NAME = "installGitPreCommitHook"
+    internal companion object {
+        internal const val COMMAND_NAME = "installGitPreCommitHook"
     }
 }

@@ -31,7 +31,8 @@ escape_for_sed() { echo $1 | sed -e 's/[]\/$*.^|[]/\\&/g'; }
 
 # update readme.md
 
-sed -i "" "s/$(escape_for_sed $PREVIOUS_VERSION)/$(escape_for_sed $VERSION)/g" README.md
+sed -i "" "s/$(escape_for_sed $PREVIOUS_VERSION)/$(escape_for_sed $VERSION)/g" docs/install/cli.md
+sed -i "" "s/$(escape_for_sed $PREVIOUS_VERSION)/$(escape_for_sed $VERSION)/g" docs/install/integrations.md
 git --no-pager diff README.md
 
 # ask for user confirmation

@@ -1133,7 +1133,7 @@ internal class WrappingRuleTest {
     }
 
     @Test
-    fun `format kdoc`() {
+    fun `format kdoc with spaces`() {
         @Suppress("RemoveCurlyBracesFromTemplate")
         val code =
             """
@@ -1157,6 +1157,32 @@ internal class WrappingRuleTest {
 
         @Suppress("RemoveCurlyBracesFromTemplate")
         val codeTabs =
+            """
+            /**
+             * some function1
+             */
+            fun someFunction1() {
+            ${TAB}return Unit
+            }
+
+            class SomeClass {
+            ${TAB}/**
+            ${TAB} * some function2
+            ${TAB} */
+            ${TAB}fun someFunction2() {
+            ${TAB}${TAB}return Unit
+            ${TAB}}
+            }
+            """.trimIndent()
+        wrappingRuleAssertThat(code)
+            .withEditorConfigOverride(DefaultEditorConfigProperties.indentStyleProperty to tab)
+            .hasNoLintViolations()
+    }
+
+    @Test
+    fun `format kdoc with tabs`() {
+        @Suppress("RemoveCurlyBracesFromTemplate")
+        val code =
             """
             /**
              * some function1
@@ -1543,6 +1569,23 @@ internal class WrappingRuleTest {
                     println(item)
                 }
             }
+            """.trimIndent()
+        wrappingRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Issue 1578 - Given a destructuring declaration followed by a trailing comma then do not require it to be followed by a newline as no other value parameter follows`() {
+        val code =
+            """
+            // fun foo(block: (Pair<Int, Int>) -> Unit) {}
+            val bar =
+                foo {
+                        (
+                            a,
+                            b,
+                        ),
+                    ->
+                }
             """.trimIndent()
         wrappingRuleAssertThat(code).hasNoLintViolations()
     }

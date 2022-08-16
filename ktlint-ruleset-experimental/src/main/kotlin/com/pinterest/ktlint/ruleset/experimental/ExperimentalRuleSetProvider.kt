@@ -5,7 +5,7 @@ import com.pinterest.ktlint.core.RuleSet
 import com.pinterest.ktlint.core.RuleSetProvider
 import com.pinterest.ktlint.core.RuleSetProviderV2
 
-public const val experimentalRulesetId = "experimental"
+public const val experimentalRulesetId: String = "experimental"
 
 public class ExperimentalRuleSetProvider :
     RuleSetProviderV2(
@@ -19,6 +19,10 @@ public class ExperimentalRuleSetProvider :
         )
     ),
     RuleSetProvider {
+    @Deprecated(
+        message = "Marked for removal in KtLint 0.48. See changelog for more information.",
+        replaceWith = ReplaceWith("getRuleProviders()")
+    )
     override fun get(): RuleSet = RuleSet(
         experimentalRulesetId,
         UnnecessaryParenthesesBeforeTrailingLambdaRule(),

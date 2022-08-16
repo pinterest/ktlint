@@ -235,7 +235,7 @@ public class KtLintAssertThat(
          * Creates an assertThat assertion function for the rule provided by [provider]. This assertion function has
          * extensions specifically for testing KtLint rules.
          */
-        public fun assertThatRule(provider: () -> Rule) =
+        public fun assertThatRule(provider: () -> Rule): (String) -> KtLintAssertThat =
             RuleProvider { provider() }.assertThat()
 
         /**
@@ -249,7 +249,7 @@ public class KtLintAssertThat(
         public fun assertThatRule(
             provider: () -> Rule,
             additionalRuleProviders: Set<RuleProvider>
-        ) =
+        ): (String) -> KtLintAssertThat =
             RuleProvider { provider() }.assertThat(additionalRuleProviders)
 
         private fun RuleProvider.assertThat(

@@ -33,7 +33,7 @@ import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
 import org.jetbrains.kotlin.psi.KtDeclarationModifierList
 
-class ModifierOrderRule : Rule("modifier-order") {
+public class ModifierOrderRule : Rule("modifier-order") {
 
     // subset of ElementType.MODIFIER_KEYWORDS_ARRAY (+ annotations entries)
     private val order = arrayOf(
