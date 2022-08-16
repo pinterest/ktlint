@@ -164,7 +164,7 @@ class UsesEditorConfigPropertiesTest {
     fun `Given that editor config property ktlint_disabled_rules is set and has spacing around the comma, then retrieve the list without those spaces'`() {
         val editorConfigProperties = createEditorConfigPropertiesFrom(
             ktlintDisabledRulesProperty,
-            "$RULE_A, $RULE_B,$RULE_C , $RULE_D"
+            "$RULE_A, $RULE_B,$RULE_C , $RULE_D",
         )
 
         val actual = with(EditorConfigPropertiesTester(ktlintDisabledRulesProperty)) {

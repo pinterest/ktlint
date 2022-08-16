@@ -17,11 +17,11 @@ class VisitorProviderTest {
         @Test
         fun `A root only rule only visits the FILE node only`() {
             val actual = testVisitorProviderWithDisabledRulesProperty(
-                RuleProvider { RootNodeOnlyRule(ROOT_NODE_ONLY_RULE) }
+                RuleProvider { RootNodeOnlyRule(ROOT_NODE_ONLY_RULE) },
             )
 
             assertThat(actual).containsExactly(
-                Visit(ROOT_NODE_ONLY_RULE)
+                Visit(ROOT_NODE_ONLY_RULE),
             )
         }
 
@@ -30,24 +30,24 @@ class VisitorProviderTest {
             val actual = testVisitorProviderWithDisabledRulesProperty(
                 RuleProvider { NormalRule(RULE_A) },
                 RuleProvider { RunAsLateAsPossibleRule(RULE_B) },
-                RuleProvider { NormalRule(RULE_C) }
+                RuleProvider { NormalRule(RULE_C) },
             )
 
             assertThat(actual).containsExactly(
                 Visit(RULE_A),
                 Visit(RULE_C),
-                Visit(RULE_B)
+                Visit(RULE_B),
             )
         }
 
         @Test
         fun `A run as late as possible on root node only rule visits the root node only`() {
             val actual = testVisitorProviderWithDisabledRulesProperty(
-                RuleProvider { RunAsLateAsPossibleOnRootNodeOnlyRule(RUN_AS_LATE_AS_POSSIBLE_RULE) }
+                RuleProvider { RunAsLateAsPossibleOnRootNodeOnlyRule(RUN_AS_LATE_AS_POSSIBLE_RULE) },
             )
 
             assertThat(actual).containsExactly(
-                Visit(RUN_AS_LATE_AS_POSSIBLE_RULE)
+                Visit(RUN_AS_LATE_AS_POSSIBLE_RULE),
             )
         }
 
@@ -59,20 +59,20 @@ class VisitorProviderTest {
                 RuleProvider { NormalRule("$EXPERIMENTAL:$RULE_B") },
                 RuleProvider { NormalRule(SOME_DISABLED_RULE_IN_EXPERIMENTAL_RULE_SET) },
                 RuleProvider { NormalRule("$CUSTOM_RULE_SET_A:$RULE_C") },
-                RuleProvider { NormalRule(SOME_DISABLED_RULE_IN_CUSTOM_RULE_SET_A) }
+                RuleProvider { NormalRule(SOME_DISABLED_RULE_IN_CUSTOM_RULE_SET_A) },
             )
 
             assertThat(actual).containsExactly(
                 Visit(RULE_A),
                 Visit(EXPERIMENTAL, RULE_B),
-                Visit(CUSTOM_RULE_SET_A, RULE_C)
+                Visit(CUSTOM_RULE_SET_A, RULE_C),
             )
         }
 
         @Test
         fun `When no enabled rules are found for the root node, the visit function on the root node is not executed`() {
             val actual = testVisitorProviderWithDisabledRulesProperty(
-                RuleProvider { NormalRule(SOME_DISABLED_RULE_IN_STANDARD_RULE_SET) }
+                RuleProvider { NormalRule(SOME_DISABLED_RULE_IN_STANDARD_RULE_SET) },
             )
 
             assertThat(actual).isNull()
@@ -87,10 +87,10 @@ class VisitorProviderTest {
                         id = RULE_A,
                         visitorModifier = VisitorModifier.RunAfterRule(
                             ruleId = SOME_DISABLED_RULE_IN_STANDARD_RULE_SET,
-                            runOnlyWhenOtherRuleIsEnabled = true
-                        )
+                            runOnlyWhenOtherRuleIsEnabled = true,
+                        ),
                     ) {}
-                }
+                },
             )
 
             assertThat(actual).isNull()
@@ -108,19 +108,19 @@ class VisitorProviderTest {
                     cb = { _, _ -> },
                     ruleProviders = ruleProviders.toSet(),
                     // Enable debug mode as it is helpful when a test fails
-                    debug = true
+                    debug = true,
                 ),
                 // Creates a new VisitorProviderFactory for each unit test to prevent that tests for the exact same set of
                 // ruleIds are influencing each other.
-                recreateRuleSorter = true
+                recreateRuleSorter = true,
             ).run {
                 var visits: MutableList<Visit>? = null
                 visitor(
                     disabledRulesEditorConfigProperties(
                         SOME_DISABLED_RULE_IN_STANDARD_RULE_SET,
                         SOME_DISABLED_RULE_IN_EXPERIMENTAL_RULE_SET,
-                        SOME_DISABLED_RULE_IN_CUSTOM_RULE_SET_A
-                    )
+                        SOME_DISABLED_RULE_IN_CUSTOM_RULE_SET_A,
+                    ),
                 ).invoke { _, fqRuleId ->
                     if (visits == null) {
                         visits = mutableListOf()
@@ -139,7 +139,7 @@ class VisitorProviderTest {
                             .name(type.name)
                             .type(type)
                             .value(ruleIds.joinToString(separator = ","))
-                            .build()
+                            .build(),
                 )
             }
     }

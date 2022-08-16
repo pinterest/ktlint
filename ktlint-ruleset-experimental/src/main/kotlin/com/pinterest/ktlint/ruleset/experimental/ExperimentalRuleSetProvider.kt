@@ -21,7 +21,7 @@ public class ExperimentalRuleSetProvider :
     RuleSetProvider {
     @Deprecated(
         message = "Marked for removal in KtLint 0.48. See changelog for more information.",
-        replaceWith = ReplaceWith("getRuleProviders()")
+        replaceWith = ReplaceWith("getRuleProviders()"),
     )
     override fun get(): RuleSet = RuleSet(
         experimentalRulesetId,

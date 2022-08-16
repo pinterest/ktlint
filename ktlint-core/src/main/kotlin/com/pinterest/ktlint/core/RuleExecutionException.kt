@@ -10,5 +10,5 @@ public class RuleExecutionException(
     public val line: Int,
     public val col: Int,
     public val ruleId: String,
-    cause: Throwable
+    cause: Throwable,
 ) : RuntimeException(cause)
