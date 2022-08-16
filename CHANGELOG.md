@@ -128,6 +128,10 @@ The `.editorconfig` property `disabled_rules` (api property `DefaultEditorConfig
 
 Although, Ktlint 0.47.0 falls back on property `disabled_rules` whenever `ktlint_disabled_rules` is not found, this result in a warning message being printed. 
 
+#### Miscellaneous
+
+Several methods for which it is unlikely that they are used by API consumers have been marked for removal from the public API in KtLint 0.48.0. Please create an issue in case you have a valid business case to keep such methods in the public API.
+
 ### Added
 
 * Add `format` reporter. This reporter prints a one-line-summary of the formatting status per file. ([#621](https://github.com/pinterest/ktlint/issue/621)).
@@ -151,6 +155,7 @@ Although, Ktlint 0.47.0 falls back on property `disabled_rules` whenever `ktlint
 * Split rule `trailing-comma` into `trailing-comma-on-call-site` and `trailing-comma-on-declaration-site` ([#1555](https://github.com/pinterest/ktlint/pull/1555))
 * Fix indent of when entry with a dot qualified expression instead of simple value when trailing comma is required ([#1519](https://github.com/pinterest/ktlint/pull/1519))
 * Fix whitespace between trailing comma and arrow in when entry when trailing comma is required ([#1519](https://github.com/pinterest/ktlint/pull/1519))
+* Prevent false positive in parameter list for which the last value parameter is a destructuring declaration followed by a trailing comma `wrapping` ([#1578](https://github.com/pinterest/ktlint/issues/1578))
 
 ### Changed
 
@@ -159,6 +164,7 @@ Although, Ktlint 0.47.0 falls back on property `disabled_rules` whenever `ktlint
 * Improve rule `annotation` ([#1574](https://github.com/pinterest/ktlint/pull/1574))
 * Rename `.editorconfig` property `disabled_rules` to `ktlint_disabled_rules` ([#701](https://github.com/pinterest/ktlint/issues/701))
 * Update Kotlin development version to `1.7.20-beta` and Kotlin version to `1.7.10`.
+* Update release scripting to set version number in mkdocs documentation ([#1575](https://github.com/pinterest/ktlint/issue/1575)).
 
 ### Removed
 * Remove support to generate IntelliJ IDEA configuration files as this no longer fits the scope of the ktlint project ([#701](https://github.com/pinterest/ktlint/issues/701))

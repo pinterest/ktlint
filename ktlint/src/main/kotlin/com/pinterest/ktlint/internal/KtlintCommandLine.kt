@@ -210,8 +210,6 @@ internal class KtlintCommandLine {
         }
         logger = configureLogger()
 
-        failOnOldRulesetProviderUsage()
-
         // Set default value to patterns only after the logger has been configured to avoid a warning about initializing
         // the logger multiple times
         if (patterns.isEmpty()) {
@@ -318,23 +316,6 @@ internal class KtlintCommandLine {
             ),
             reporter
         )
-    }
-
-    /**
-     * Detect custom rulesets that have not been moved to the new package.
-     */
-    @Suppress("Deprecation")
-    private fun failOnOldRulesetProviderUsage() {
-        if (ServiceLoader.load(com.github.shyiko.ktlint.core.RuleSetProvider::class.java).any()) {
-            logger.error {
-                """
-                Cannot load custom ruleset!")
-                RuleSetProvider has moved to com.pinterest.ktlint.core.")
-                Please rename META-INF/services/com.github.shyiko.ktlint.core.RuleSetProvider to META-INF/services/com.pinterest.ktlint.core.RuleSetProvider")
-                """.trimIndent()
-            }
-            exitProcess(1)
-        }
     }
 
     private fun report(

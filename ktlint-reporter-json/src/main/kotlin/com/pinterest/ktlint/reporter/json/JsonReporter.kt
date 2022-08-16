@@ -6,7 +6,7 @@ import java.io.PrintStream
 import java.util.ArrayList
 import java.util.concurrent.ConcurrentHashMap
 
-class JsonReporter(val out: PrintStream) : Reporter {
+public class JsonReporter(private val out: PrintStream) : Reporter {
 
     private val acc = ConcurrentHashMap<String, MutableList<LintError>>()
 

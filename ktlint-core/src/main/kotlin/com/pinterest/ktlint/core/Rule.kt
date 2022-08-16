@@ -51,7 +51,7 @@ public open class Rule(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
-    ) =
+    ): Unit =
         /**
          * For backwards compatibility with ktlint 0.46.x or before, call [visit] when not implemented on node.
          * Add abstract function modifier and remove function body after removal of deprecated [visit] method to enforce
@@ -155,9 +155,9 @@ public open class Rule(
         STOP
     }
 
-    sealed class VisitorModifier {
+    public sealed class VisitorModifier {
 
-        data class RunAfterRule(
+        public data class RunAfterRule(
             /**
              * Qualified ruleId in format "ruleSetId:ruleId". For a rule in the standard rule set it suffices to specify
              * the ruleId only.
@@ -173,7 +173,7 @@ public open class Rule(
             val runOnlyWhenOtherRuleIsEnabled: Boolean = false
         ) : VisitorModifier()
 
-        object RunAsLateAsPossible : VisitorModifier()
+        public object RunAsLateAsPossible : VisitorModifier()
 
         @Deprecated(
             """
@@ -181,6 +181,6 @@ public open class Rule(
                 changelog Ktlint 0.47 for details on how to modify a rule using this modifier.
                 """
         )
-        object RunOnRootNodeOnly : VisitorModifier()
+        public object RunOnRootNodeOnly : VisitorModifier()
     }
 }
