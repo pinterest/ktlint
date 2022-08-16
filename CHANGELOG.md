@@ -130,7 +130,7 @@ Although, Ktlint 0.47.0 falls back on property `disabled_rules` whenever `ktlint
 
 #### Default/alternative .editorconfig
 
-Parameter "ExperimentalParams.editorConfigDefaults" is deprecated in favor of the new parameter "ExperimentalParams.editorConfigDefaults". When used in the old implementation this resulted in ignoring all ".editorconfig" files on the path to the file. The new implementation uses properties from the "editorConfigDefaults"parameter only when no ".editorconfig" files on the path to the file supplies this property for the filepath.
+Parameter "ExperimentalParams.editorConfigPath" is deprecated in favor of the new parameter "ExperimentalParams.editorConfigDefaults". When used in the old implementation this resulted in ignoring all ".editorconfig" files on the path to the file. The new implementation uses properties from the "editorConfigDefaults"parameter only when no ".editorconfig" files on the path to the file supplies this property for the filepath.
 
 API consumers can easily create the EditConfigDefaults by calling
 "EditConfigDefaults.load(path)" or creating it programmatically.
