@@ -876,4 +876,45 @@ class TrailingCommaOnDeclarationSiteRuleTest {
                 .isFormattedAs(formattedCode)
         }
     }
+
+    @Test
+    fun `Given that a trailing comma is required then add trailing comma after last enum member`() {
+        val code =
+            """
+            val foobar = if (true) {
+                "foo"
+            } else "bar"
+
+            enum class SomeEnum {
+                A, B
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            val foobar = if (true) {
+                "foo"
+            } else {
+                "bar"
+            }
+
+            enum class SomeEnum {
+                A, B
+            }
+            """.trimIndent()
+
+        // Ensure that AST before Enumeration class is changed by another rule before the running the
+        // TrailingCommaOnDeclarationSiteRule
+        val multiLineIfElseRuleAssertThat =
+            KtLintAssertThat.assertThatRule(
+                provider = { MultiLineIfElseRule() },
+                additionalRuleProviders = setOf(
+                    RuleProvider { TrailingCommaOnDeclarationSiteRule() },
+                    RuleProvider { IndentationRule() } // Required for TrailingCommaOnDeclarationSiteRule
+                )
+            )
+
+        multiLineIfElseRuleAssertThat(code)
+            .withEditorConfigOverride(allowTrailingCommaProperty to true)
+            .isFormattedAs(formattedCode)
+    }
 }
