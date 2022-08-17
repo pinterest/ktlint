@@ -123,7 +123,7 @@ class NoLineBreakBeforeAssignmentRuleTest {
                 .hasLintViolations(
                     // TODO: The error description is not correct
                     LintViolation(2, 5, "Line break before assignment is not allowed"),
-                    LintViolation(4, 5, "Line break before assignment is not allowed")
+                    LintViolation(4, 5, "Line break before assignment is not allowed"),
                 ).isFormattedAs(formattedCode)
         }
     }

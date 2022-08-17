@@ -39,7 +39,7 @@ internal val defaultPatterns = defaultKotlinFileExtensions.map { "**$globSeparat
  */
 internal fun FileSystem.fileSequence(
     patterns: List<String>,
-    rootDir: Path = Paths.get(".").toAbsolutePath().normalize()
+    rootDir: Path = Paths.get(".").toAbsolutePath().normalize(),
 ): Sequence<Path> {
     val result = mutableListOf<Path>()
 
@@ -93,7 +93,7 @@ internal fun FileSystem.fileSequence(
             object : SimpleFileVisitor<Path>() {
                 override fun visitFile(
                     filePath: Path,
-                    fileAttrs: BasicFileAttributes
+                    fileAttrs: BasicFileAttributes,
                 ): FileVisitResult {
                     if (negatedPathMatchers.none { it.matches(filePath) } &&
                         pathMatchers.any { it.matches(filePath) }
@@ -108,7 +108,7 @@ internal fun FileSystem.fileSequence(
 
                 override fun preVisitDirectory(
                     dirPath: Path,
-                    dirAttr: BasicFileAttributes
+                    dirAttr: BasicFileAttributes,
                 ): FileVisitResult {
                     return if (Files.isHidden(dirPath)) {
                         logger.debug { "- Dir: $dirPath: Ignore" }
@@ -118,7 +118,7 @@ internal fun FileSystem.fileSequence(
                         FileVisitResult.CONTINUE
                     }
                 }
-            }
+            },
         )
     }
     logger.debug { "Results: include ${result.count()} files in $duration ms" }
@@ -128,7 +128,7 @@ internal fun FileSystem.fileSequence(
 
 private fun FileSystem.expand(
     patterns: List<String>,
-    rootDir: Path
+    rootDir: Path,
 ) =
     patterns
         .map { it.expandTildeToFullPath() }
@@ -137,7 +137,7 @@ private fun FileSystem.expand(
 
 private fun FileSystem.toGlob(
     path: String,
-    rootDir: Path
+    rootDir: Path,
 ): List<String> {
     val negation = if (path.startsWith(NEGATION_PREFIX)) {
         NEGATION_PREFIX
@@ -165,7 +165,7 @@ private fun getDefaultPatternsForPath(path: Path?) = defaultKotlinFileExtensions
     .flatMap {
         listOf(
             "$path$globSeparator*.$it",
-            "$path$globSeparator**$globSeparator*.$it"
+            "$path$globSeparator**$globSeparator*.$it",
         )
     }
 
@@ -205,7 +205,7 @@ private fun String.expandTildeToFullPath(): String =
     }
 
 internal fun File.location(
-    relative: Boolean
+    relative: Boolean,
 ) = if (relative) this.toRelativeString(File(workDir)) else this.path
 
 /**
@@ -218,7 +218,7 @@ internal fun lintFile(
     editorConfigOverride: EditorConfigOverride,
     editorConfigPath: String? = null,
     debug: Boolean = false,
-    lintErrorCallback: (LintError) -> Unit = {}
+    lintErrorCallback: (LintError) -> Unit = {},
 ) = KtLint.lint(
     KtLint.ExperimentalParams(
         fileName = fileName,
@@ -231,8 +231,8 @@ internal fun lintFile(
             lintErrorCallback(e)
         },
         debug = debug,
-        isInvokedFromCli = true
-    )
+        isInvokedFromCli = true,
+    ),
 )
 
 /**
@@ -245,7 +245,7 @@ internal fun formatFile(
     editorConfigOverride: EditorConfigOverride,
     editorConfigPath: String?,
     debug: Boolean,
-    cb: (e: LintError, corrected: Boolean) -> Unit
+    cb: (e: LintError, corrected: Boolean) -> Unit,
 ): String =
     KtLint.format(
         KtLint.ExperimentalParams(
@@ -257,6 +257,6 @@ internal fun formatFile(
             editorConfigPath = editorConfigPath,
             cb = cb,
             debug = debug,
-            isInvokedFromCli = true
-        )
+            isInvokedFromCli = true,
+        ),
     )

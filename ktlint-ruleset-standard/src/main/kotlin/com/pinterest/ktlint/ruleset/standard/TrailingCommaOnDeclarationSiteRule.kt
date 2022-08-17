@@ -56,15 +56,15 @@ public class TrailingCommaOnDeclarationSiteRule :
             VisitorModifier.RunAfterRule(
                 ruleId = "standard:indent",
                 loadOnlyWhenOtherRuleIsLoaded = true,
-                runOnlyWhenOtherRuleIsEnabled = true
+                runOnlyWhenOtherRuleIsEnabled = true,
             ),
-            VisitorModifier.RunAsLateAsPossible
-        )
+            VisitorModifier.RunAsLateAsPossible,
+        ),
     ),
     UsesEditorConfigProperties {
 
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
-        allowTrailingCommaProperty
+        allowTrailingCommaProperty,
     )
 
     private var allowTrailingComma by Delegates.notNull<Boolean>()
@@ -79,7 +79,7 @@ public class TrailingCommaOnDeclarationSiteRule :
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         // Keep processing of element types in sync with Intellij Kotlin formatting settings.
         // https://github.com/JetBrains/intellij-kotlin/blob/master/formatter/src/org/jetbrains/kotlin/idea/formatter/trailingComma/util.kt
@@ -97,7 +97,7 @@ public class TrailingCommaOnDeclarationSiteRule :
     private fun visitDestructuringDeclaration(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         val inspectNode = node
             .children()
@@ -106,14 +106,14 @@ public class TrailingCommaOnDeclarationSiteRule :
             inspectNode = inspectNode,
             isTrailingCommaAllowed = node.isTrailingCommaAllowed(),
             autoCorrect = autoCorrect,
-            emit = emit
+            emit = emit,
         )
     }
 
     private fun visitFunctionLiteral(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         val inspectNode = node
             .children()
@@ -124,14 +124,14 @@ public class TrailingCommaOnDeclarationSiteRule :
             inspectNode = inspectNode,
             isTrailingCommaAllowed = node.isTrailingCommaAllowed(),
             autoCorrect = autoCorrect,
-            emit = emit
+            emit = emit,
         )
     }
 
     private fun visitValueList(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.treeParent.elementType != FUNCTION_LITERAL) {
             node
@@ -142,7 +142,7 @@ public class TrailingCommaOnDeclarationSiteRule :
                         inspectNode = inspectNode,
                         isTrailingCommaAllowed = node.isTrailingCommaAllowed(),
                         autoCorrect = autoCorrect,
-                        emit = emit
+                        emit = emit,
                     )
                 }
         }
@@ -151,7 +151,7 @@ public class TrailingCommaOnDeclarationSiteRule :
     private fun visitTypeList(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         val inspectNode = node
             .children()
@@ -160,14 +160,14 @@ public class TrailingCommaOnDeclarationSiteRule :
             inspectNode = inspectNode,
             isTrailingCommaAllowed = node.isTrailingCommaAllowed(),
             autoCorrect = autoCorrect,
-            emit = emit
+            emit = emit,
         )
     }
 
     private fun visitWhenEntry(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         val psi = node.psi
         require(psi is KtWhenEntry)
@@ -183,13 +183,13 @@ public class TrailingCommaOnDeclarationSiteRule :
             inspectNode = inspectNode,
             isTrailingCommaAllowed = node.isTrailingCommaAllowed(),
             autoCorrect = autoCorrect,
-            emit = emit
+            emit = emit,
         )
     }
     private fun visitClass(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         val psi = node.psi
         require(psi is KtClass)
@@ -206,7 +206,7 @@ public class TrailingCommaOnDeclarationSiteRule :
                     inspectNode = nodeAfterTrailingCommaPosition,
                     isTrailingCommaAllowed = node.isTrailingCommaAllowed(),
                     autoCorrect = autoCorrect,
-                    emit = emit
+                    emit = emit,
                 )
             }
     }
@@ -241,7 +241,7 @@ public class TrailingCommaOnDeclarationSiteRule :
         inspectNode: ASTNode,
         isTrailingCommaAllowed: Boolean,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         val prevLeaf = inspectNode.prevLeaf()
         val trailingCommaNode = prevLeaf.findPreviousTrailingCommaNodeOrNull()
@@ -262,7 +262,7 @@ public class TrailingCommaOnDeclarationSiteRule :
                                 emit(
                                     trailingCommaNode!!.startOffset,
                                     "Expected a newline between the trailing comma and  \"${inspectNode.text}\"",
-                                    true
+                                    true,
                                 )
                                 if (autoCorrect) {
                                     val parentIndent = "\n" + inspectNode.getWhenEntryIndent()
@@ -278,7 +278,7 @@ public class TrailingCommaOnDeclarationSiteRule :
                     emit(
                         trailingCommaNode!!.startOffset,
                         "Unnecessary trailing comma before \"${inspectNode.text}\"",
-                        true
+                        true,
                     )
                     if (autoCorrect) {
                         this.removeChild(trailingCommaNode)
@@ -292,13 +292,13 @@ public class TrailingCommaOnDeclarationSiteRule :
                         emit(
                             prevNode.startOffset + prevNode.textLength,
                             "Missing trailing comma and newline before \"${inspectNode.text}\"",
-                            true
+                            true,
                         )
                     } else {
                         emit(
                             prevNode.startOffset + prevNode.textLength,
                             "Missing trailing comma before \"${inspectNode.text}\"",
-                            true
+                            true,
                         )
                     }
                     if (autoCorrect) {
@@ -335,7 +335,7 @@ public class TrailingCommaOnDeclarationSiteRule :
                 emit(
                     trailingCommaNode!!.startOffset,
                     "Unnecessary trailing comma before \"${inspectNode.text}\"",
-                    true
+                    true,
                 )
                 if (autoCorrect) {
                     this.removeChild(trailingCommaNode)
@@ -422,8 +422,7 @@ public class TrailingCommaOnDeclarationSiteRule :
         /**
          * The trailing comma isn't needed, but exists
          */
-        REDUNDANT
-        ;
+        REDUNDANT,
     }
 
     public companion object {
@@ -443,9 +442,9 @@ public class TrailingCommaOnDeclarationSiteRule :
                     ALLOW_TRAILING_COMMA_NAME,
                     ALLOW_TRAILING_COMMA_DESCRIPTION,
                     PropertyValueParser.BOOLEAN_VALUE_PARSER,
-                    BOOLEAN_VALUES_SET
+                    BOOLEAN_VALUES_SET,
                 ),
-                defaultValue = false
+                defaultValue = false,
             )
 
         private val TYPES_ON_DECLARATION_SITE = TokenSet.create(
@@ -455,7 +454,7 @@ public class TrailingCommaOnDeclarationSiteRule :
             FUNCTION_TYPE,
             TYPE_PARAMETER_LIST,
             VALUE_PARAMETER_LIST,
-            WHEN_ENTRY
+            WHEN_ENTRY,
         )
     }
 }

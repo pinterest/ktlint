@@ -38,7 +38,7 @@ class StringTemplateRuleTest {
             .hasLintViolations(
                 LintViolation(1, 28, "Redundant \"toString()\" call in string template"),
                 LintViolation(2, 27, "Redundant \"toString()\" call in string template"),
-                LintViolation(5, 78, "Redundant \"toString()\" call in string template")
+                LintViolation(5, 78, "Redundant \"toString()\" call in string template"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -82,7 +82,7 @@ class StringTemplateRuleTest {
         stringTemplateRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(1, 14, "Redundant curly braces"),
-                LintViolation(2, 14, "Redundant curly braces")
+                LintViolation(2, 14, "Redundant curly braces"),
             ).isFormattedAs(formattedCode)
     }
 

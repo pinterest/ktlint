@@ -104,15 +104,15 @@ public class IndentationRule :
             VisitorModifier.RunAfterRule(
                 ruleId = "experimental:function-signature",
                 loadOnlyWhenOtherRuleIsLoaded = false,
-                runOnlyWhenOtherRuleIsEnabled = false
-            )
-        )
+                runOnlyWhenOtherRuleIsEnabled = false,
+            ),
+        ),
     ),
     UsesEditorConfigProperties {
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> =
         listOf(
             indentSizeProperty,
-            indentStyleProperty
+            indentStyleProperty,
         )
     private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
 
@@ -124,7 +124,7 @@ public class IndentationRule :
     override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
         indentConfig = IndentConfig(
             indentStyle = editorConfigProperties.getEditorConfigValue(indentStyleProperty),
-            tabWidth = editorConfigProperties.getEditorConfigValue(indentSizeProperty)
+            tabWidth = editorConfigProperties.getEditorConfigValue(indentSizeProperty),
         )
         if (indentConfig.disabled) {
             stopTraversalOfAST()
@@ -134,7 +134,7 @@ public class IndentationRule :
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.isRoot()) {
             val firstNotEmptyLeaf = node.nextLeaf()
@@ -154,7 +154,7 @@ public class IndentationRule :
                                 "expected indent is kept unchanged -> $expectedIndent"
                         }
                         ctx.blockStack.push(
-                            Block(node.elementType, line, SAME_AS_PREVIOUS_BLOCK)
+                            Block(node.elementType, line, SAME_AS_PREVIOUS_BLOCK),
                         )
                     }
                     node.isAfterValueParameterOnSameLine() -> {
@@ -163,7 +163,7 @@ public class IndentationRule :
                                 "parameter value ended, expected indent is kept unchanged -> $expectedIndent"
                         }
                         ctx.blockStack.push(
-                            Block(node.elementType, line, SAME_AS_PREVIOUS_BLOCK)
+                            Block(node.elementType, line, SAME_AS_PREVIOUS_BLOCK),
                         )
                     }
                     prevBlock != null && line == prevBlock.line -> {
@@ -172,20 +172,20 @@ public class IndentationRule :
                                 "expected indent is kept unchanged -> $expectedIndent"
                         }
                         ctx.blockStack.push(
-                            Block(node.elementType, line, SAME_AS_PREVIOUS_BLOCK)
+                            Block(node.elementType, line, SAME_AS_PREVIOUS_BLOCK),
                         )
                     }
                     else -> {
                         if (node.isPartOfForLoopConditionWithMultilineExpression()) {
                             logger.trace { "$line: block starting with ${node.text} -> Keep at $expectedIndent" }
                             ctx.blockStack.push(
-                                Block(node.elementType, line, SAME_AS_PREVIOUS_BLOCK)
+                                Block(node.elementType, line, SAME_AS_PREVIOUS_BLOCK),
                             )
                         } else {
                             expectedIndent++
                             logger.trace { "$line: block starting with ${node.text} -> Increase to $expectedIndent" }
                             ctx.blockStack.push(
-                                Block(node.elementType, line, REGULAR)
+                                Block(node.elementType, line, REGULAR),
                             )
                         }
                     }
@@ -194,7 +194,7 @@ public class IndentationRule :
                     ctx.blockStack.iterator().asSequence().toList()
                         .joinToString(
                             separator = "\n\t",
-                            prefix = "Stack (newest first) after pushing new element:\n\t"
+                            prefix = "Stack (newest first) after pushing new element:\n\t",
                         )
                 }
             }
@@ -204,7 +204,7 @@ public class IndentationRule :
                     ctx.blockStack.iterator().asSequence().toList()
                         .joinToString(
                             separator = "\n\t",
-                            prefix = "Stack before popping newest element from top of stack:\n\t"
+                            prefix = "Stack before popping newest element from top of stack:\n\t",
                         )
                 }
                 val block = ctx.blockStack.pop()
@@ -361,7 +361,7 @@ public class IndentationRule :
     override fun afterVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         when (node.elementType) {
             SUPER_TYPE_LIST ->
@@ -386,7 +386,7 @@ public class IndentationRule :
     private fun adjustExpectedIndentInsideQualifiedExpression(n: ASTNode, ctx: IndentContext) {
         val p = n.parent({
             it.treeParent.elementType != DOT_QUALIFIED_EXPRESSION && it.treeParent.elementType != SAFE_ACCESS_EXPRESSION
-        }) ?: return
+        },) ?: return
         val nextSibling = n.treeNext
         if (!ctx.ignored.contains(p) && nextSibling != null) {
             if (p.treeParent.elementType == PROPERTY_DELEGATE &&
@@ -561,7 +561,7 @@ public class IndentationRule :
     private fun indentStringTemplate(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         node
             .let { it.psi as KtStringTemplateExpression }
@@ -575,7 +575,7 @@ public class IndentationRule :
                     emit(
                         node.startOffset,
                         "Indentation of multiline string should not contain both tab(s) and space(s)",
-                        false
+                        false,
                     )
                     return
                 }
@@ -629,11 +629,11 @@ public class IndentationRule :
                                 emit(
                                     it.startOffset + offsetFirstWrongIndentChar,
                                     "Unexpected '${indentConfig.unexpectedIndentCharDescription}' character(s) in margin of multiline string",
-                                    true
+                                    true,
                                 )
                                 if (autoCorrect) {
                                     (it.firstChildNode as LeafPsiElement).rawReplaceWithText(
-                                        expectedIndentation + actualContent
+                                        expectedIndentation + actualContent,
                                     )
                                 }
                             } else if (actualIndent != expectedIndentation && it.isIndentBeforeClosingQuote()) {
@@ -642,16 +642,16 @@ public class IndentationRule :
                                 emit(
                                     it.startOffset,
                                     "Unexpected indent of multiline string closing quotes",
-                                    true
+                                    true,
                                 )
                                 if (autoCorrect) {
                                     if (it.firstChildNode == null) {
                                         (it as LeafPsiElement).rawInsertBeforeMe(
-                                            LeafPsiElement(REGULAR_STRING_PART, expectedIndentation)
+                                            LeafPsiElement(REGULAR_STRING_PART, expectedIndentation),
                                         )
                                     } else {
                                         (it.firstChildNode as LeafPsiElement).rawReplaceWithText(
-                                            expectedIndentation + actualContent
+                                            expectedIndentation + actualContent,
                                         )
                                     }
                                 }
@@ -680,7 +680,7 @@ public class IndentationRule :
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        ctx: IndentContext
+        ctx: IndentContext,
     ) {
         val text = node.text
         val nodeIndent = text.substringAfterLast("\n")
@@ -800,7 +800,7 @@ public class IndentationRule :
                         emit(
                             node.startOffset + text.length - nodeIndent.length,
                             "Unexpected tab character(s)",
-                            true
+                            true,
                         )
                         indentConfig.toNormalizedIndent(nodeIndent)
                     } else {
@@ -819,7 +819,7 @@ public class IndentationRule :
                         emit(
                             node.startOffset + text.length - nodeIndent.length,
                             "Unexpected space character(s)",
-                            true
+                            true,
                         )
                         indentConfig.toNormalizedIndent(indentWithoutKdocIndent) +
                             // Re-add the kdoc indent when it was present before
@@ -840,7 +840,7 @@ public class IndentationRule :
             emit(
                 node.startOffset + text.length - nodeIndent.length,
                 "Unexpected indentation (${normalizedNodeIndent.length}) (should be ${expectedIndent.length})",
-                true
+                true,
             )
             logger.trace {
                 "$line: " + (if (!autoCorrect) "would have " else "") + "changed indentation to ${expectedIndent.length} (from ${normalizedNodeIndent.length})"
@@ -849,7 +849,7 @@ public class IndentationRule :
         if (autoCorrect) {
             if (nodeIndent != normalizedNodeIndent || normalizedNodeIndent != expectedIndent) {
                 (node as LeafPsiElement).rawReplaceWithText(
-                    text.substringBeforeLast("\n") + "\n" + expectedIndent
+                    text.substringBeforeLast("\n") + "\n" + expectedIndent,
                 )
             }
         }
@@ -971,7 +971,7 @@ public class IndentationRule :
             // Line at which the block is opened
             val line: Int,
             // Type of indentation to be used for the block
-            val blockIndentationType: BlockIndentationType
+            val blockIndentationType: BlockIndentationType,
         ) {
             enum class BlockIndentationType {
                 /**
@@ -985,7 +985,7 @@ public class IndentationRule :
                  * the expected indentation level. The indentation of the closing element has to be decreased one level
                  * without altering the expected indentation level.
                  */
-                SAME_AS_PREVIOUS_BLOCK
+                SAME_AS_PREVIOUS_BLOCK,
             }
         }
     }
@@ -995,7 +995,7 @@ public class IndentationRule :
         private val rTokenSet = TokenSet.create(RPAR, RBRACE, RBRACKET, GT)
         private val matchingRToken =
             lTokenSet.types.zip(
-                rTokenSet.types
+                rTokenSet.types,
             ).toMap()
     }
 }
@@ -1059,7 +1059,7 @@ private fun String.splitIndentAt(index: Int): Pair<String, String> {
     val safeIndex = kotlin.math.min(firstNonWhitespaceIndex, index)
     return Pair(
         first = this.take(safeIndex),
-        second = this.substring(safeIndex)
+        second = this.substring(safeIndex),
     )
 }
 

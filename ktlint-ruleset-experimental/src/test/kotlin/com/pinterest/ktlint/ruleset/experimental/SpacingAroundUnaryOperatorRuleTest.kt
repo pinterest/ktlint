@@ -31,7 +31,7 @@ class SpacingAroundUnaryOperatorRuleTest {
             .hasLintViolations(
                 LintViolation(2, 21, "Unexpected spacing in i ++"),
                 LintViolation(4, 22, "Unexpected spacing in ++ i"),
-                LintViolation(5, 22, "Unexpected spacing in ++\\n    i")
+                LintViolation(5, 22, "Unexpected spacing in ++\\n    i"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -58,7 +58,7 @@ class SpacingAroundUnaryOperatorRuleTest {
             .hasLintViolations(
                 LintViolation(2, 21, "Unexpected spacing in i --"),
                 LintViolation(4, 22, "Unexpected spacing in -- i"),
-                LintViolation(5, 22, "Unexpected spacing in --\\n    i")
+                LintViolation(5, 22, "Unexpected spacing in --\\n    i"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -103,7 +103,7 @@ class SpacingAroundUnaryOperatorRuleTest {
                 LintViolation(8, 25, "Unexpected spacing in - 1"),
                 LintViolation(9, 13, "Unexpected spacing in -\\n    1"),
                 LintViolation(11, 19, "Unexpected spacing in -\\n    100"),
-                LintViolation(13, 26, "Unexpected spacing in -\\n    1")
+                LintViolation(13, 26, "Unexpected spacing in -\\n    1"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -125,7 +125,7 @@ class SpacingAroundUnaryOperatorRuleTest {
         spacingAroundUnaryOperatorRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(2, 21, "Unexpected spacing in ! i"),
-                LintViolation(3, 21, "Unexpected spacing in !\\n    i")
+                LintViolation(3, 21, "Unexpected spacing in !\\n    i"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -149,7 +149,7 @@ class SpacingAroundUnaryOperatorRuleTest {
             """.trimIndent()
         spacingAroundUnaryOperatorRuleAssertThat(code)
             .hasLintViolations(
-                LintViolation(2, 17, "Unexpected spacing in \"foo\" !!")
+                LintViolation(2, 17, "Unexpected spacing in \"foo\" !!"),
                 // TODO: "foo3" should also be disallowed
             ).isFormattedAs(formattedCode)
     }
@@ -195,7 +195,7 @@ class SpacingAroundUnaryOperatorRuleTest {
                 LintViolation(6, 23, "Unexpected spacing in + f"),
                 LintViolation(6, 29, "Unexpected spacing in - 10"),
                 LintViolation(7, 24, "Unexpected spacing in - 3"),
-                LintViolation(7, 35, "Unexpected spacing in - 4")
+                LintViolation(7, 35, "Unexpected spacing in - 4"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -216,7 +216,7 @@ class SpacingAroundUnaryOperatorRuleTest {
         spacingAroundUnaryOperatorRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(2, 26, "Unexpected spacing in - 1"),
-                LintViolation(3, 13, "Unexpected spacing in - 1")
+                LintViolation(3, 13, "Unexpected spacing in - 1"),
             ).isFormattedAs(formattedCode)
     }
 }

@@ -17,7 +17,7 @@ public class EnumEntryNameCaseRule : Rule("enum-entry-name-case") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node !is CompositeElement) {
             return
@@ -29,7 +29,7 @@ public class EnumEntryNameCaseRule : Rule("enum-entry-name-case") {
             emit(
                 node.startOffset,
                 "Enum entry name should be uppercase underscore-separated names like \"ENUM_ENTRY\" or upper camel-case like \"EnumEntry\"",
-                false
+                false,
             )
         }
     }

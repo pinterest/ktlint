@@ -93,7 +93,9 @@ signing {
     // useGpgCmd()
 
     sign(publishing.publications["maven"])
-    setRequired({
-        !version.toString().endsWith("SNAPSHOT")
-    })
+    setRequired(
+        {
+            !version.toString().endsWith("SNAPSHOT")
+        },
+    )
 }

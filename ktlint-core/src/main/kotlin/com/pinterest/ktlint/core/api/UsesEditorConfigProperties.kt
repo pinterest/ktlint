@@ -61,7 +61,7 @@ public interface UsesEditorConfigProperties {
         codeStyleSetProperty
             .type
             .parse(
-                get(codeStyleSetProperty.type.name)?.sourceValue
+                get(codeStyleSetProperty.type.name)?.sourceValue,
             ).parsed
             ?: official
 
@@ -77,13 +77,13 @@ public interface UsesEditorConfigProperties {
         val editorConfigPropertyValues = getUserData(KtLint.EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY)!!
         return editorConfigPropertyValues.getEditorConfigValue(
             editorConfigProperty,
-            editorConfigPropertyValues.getEditorConfigCodeStyle()
+            editorConfigPropertyValues.getEditorConfigCodeStyle(),
         )
     }
 
     private fun <T> EditorConfigProperties.getEditorConfigValue(
         editorConfigProperty: EditorConfigProperty<T>,
-        codeStyleValue: CodeStyleValue
+        codeStyleValue: CodeStyleValue,
     ): T {
         if (editorConfigProperty.deprecationWarning != null) {
             logger.warn { "Property '${editorConfigProperty.type.name}' is deprecated: ${editorConfigProperty.deprecationWarning}" }
@@ -136,7 +136,7 @@ public interface UsesEditorConfigProperties {
      */
     public fun <T> EditorConfigProperties.writeEditorConfigProperty(
         editorConfigProperty: EditorConfigProperty<T>,
-        codeStyleValue: CodeStyleValue
+        codeStyleValue: CodeStyleValue,
     ): String {
         return editorConfigProperty.propertyWriter(getEditorConfigValue(editorConfigProperty, codeStyleValue))
     }
@@ -187,7 +187,7 @@ public interface UsesEditorConfigProperties {
         /**
          * Optional message to be displayed whenever the value of the property is being retrieved.
          */
-        internal val deprecationWarning: String? = null
+        internal val deprecationWarning: String? = null,
     )
 }
 
@@ -201,7 +201,7 @@ public object DefaultEditorConfigProperties : UsesEditorConfigProperties {
     @Suppress("EnumEntryName", "ktlint:enum-entry-name-case")
     public enum class CodeStyleValue {
         android,
-        official;
+        official,
     }
 
     public val codeStyleSetProperty: UsesEditorConfigProperties.EditorConfigProperty<CodeStyleValue> =
@@ -210,15 +210,15 @@ public object DefaultEditorConfigProperties : UsesEditorConfigProperties {
                 "ktlint_code_style",
                 "The code style ('official' or 'android') to be applied. Defaults to 'official' when not set.",
                 EnumValueParser(CodeStyleValue::class.java),
-                CodeStyleValue.values().map { it.name }.toSet()
+                CodeStyleValue.values().map { it.name }.toSet(),
             ),
             defaultValue = official,
-            defaultAndroidValue = android
+            defaultAndroidValue = android,
         )
 
     @Deprecated(
         message = "Marked for removal in KtLint 0.48",
-        replaceWith = ReplaceWith("ktlintDisabledRulesProperty")
+        replaceWith = ReplaceWith("ktlintDisabledRulesProperty"),
     )
     public val disabledRulesProperty: UsesEditorConfigProperties.EditorConfigProperty<String> =
         UsesEditorConfigProperties.EditorConfigProperty(
@@ -226,7 +226,7 @@ public object DefaultEditorConfigProperties : UsesEditorConfigProperties {
                 "disabled_rules",
                 "A comma separated list of rule ids which should not be run. For rules not defined in the 'standard' ruleset, the qualified rule-id should be used.",
                 PropertyType.PropertyValueParser.IDENTITY_VALUE_PARSER,
-                emptySet()
+                emptySet(),
             ),
             defaultValue = "",
             propertyMapper = { property, _ ->
@@ -241,7 +241,7 @@ public object DefaultEditorConfigProperties : UsesEditorConfigProperties {
                     else -> property?.getValueAs()
                 }
             },
-            deprecationWarning = "Rename property 'disabled_rules' to 'ktlint_disabled_rules' in all '.editorconfig' files."
+            deprecationWarning = "Rename property 'disabled_rules' to 'ktlint_disabled_rules' in all '.editorconfig' files.",
         )
 
     public val ktlintDisabledRulesProperty: UsesEditorConfigProperties.EditorConfigProperty<String> =
@@ -250,7 +250,7 @@ public object DefaultEditorConfigProperties : UsesEditorConfigProperties {
                 "ktlint_disabled_rules",
                 "A comma separated list of rule ids which should not be run. For rules not defined in the 'standard' ruleset, the qualified rule-id should be used.",
                 PropertyType.PropertyValueParser.IDENTITY_VALUE_PARSER,
-                emptySet()
+                emptySet(),
             ),
             defaultValue = "",
             propertyMapper = { property, _ ->
@@ -264,13 +264,13 @@ public object DefaultEditorConfigProperties : UsesEditorConfigProperties {
                     }
                     else -> property?.getValueAs()
                 }
-            }
+            },
         )
 
     public val indentStyleProperty: UsesEditorConfigProperties.EditorConfigProperty<PropertyType.IndentStyleValue> =
         UsesEditorConfigProperties.EditorConfigProperty(
             type = PropertyType.indent_style,
-            defaultValue = PropertyType.IndentStyleValue.space
+            defaultValue = PropertyType.IndentStyleValue.space,
         )
 
     public val indentSizeProperty: UsesEditorConfigProperties.EditorConfigProperty<Int> =
@@ -284,13 +284,13 @@ public object DefaultEditorConfigProperties : UsesEditorConfigProperties {
                         IndentConfig.DEFAULT_INDENT_CONFIG.tabWidth
                     else -> property.getValueAs()
                 }
-            }
+            },
         )
 
     public val insertNewLineProperty: UsesEditorConfigProperties.EditorConfigProperty<Boolean> =
         UsesEditorConfigProperties.EditorConfigProperty(
             type = PropertyType.insert_final_newline,
-            defaultValue = true
+            defaultValue = true,
         )
 
     public val maxLineLengthProperty: UsesEditorConfigProperties.EditorConfigProperty<Int> =
@@ -310,7 +310,7 @@ public object DefaultEditorConfigProperties : UsesEditorConfigProperties {
                     property.sourceValue == "off" -> -1
                     else -> property.getValueAs()
                 }
-            }
+            },
         )
 
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
@@ -319,7 +319,7 @@ public object DefaultEditorConfigProperties : UsesEditorConfigProperties {
         indentStyleProperty,
         indentSizeProperty,
         insertNewLineProperty,
-        maxLineLengthProperty
+        maxLineLengthProperty,
     )
 }
 

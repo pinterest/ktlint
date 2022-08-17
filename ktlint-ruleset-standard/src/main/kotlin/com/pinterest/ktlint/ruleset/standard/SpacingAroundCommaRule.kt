@@ -24,7 +24,7 @@ public class SpacingAroundCommaRule : Rule("comma-spacing") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node is LeafPsiElement && node.textMatches(",") && !node.isPartOfString()) {
             val prevLeaf = node.prevLeaf()

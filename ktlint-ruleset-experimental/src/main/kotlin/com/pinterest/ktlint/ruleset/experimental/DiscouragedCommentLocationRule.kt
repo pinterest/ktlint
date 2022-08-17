@@ -31,7 +31,7 @@ public class DiscouragedCommentLocationRule : Rule("$experimentalRulesetId:disco
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         node
             .takeIf { it.isPartOfComment() }
@@ -43,7 +43,7 @@ public class DiscouragedCommentLocationRule : Rule("$experimentalRulesetId:disco
                     emit(
                         node.startOffset,
                         "No comment expected at this location",
-                        false
+                        false,
                     )
                 }
             }

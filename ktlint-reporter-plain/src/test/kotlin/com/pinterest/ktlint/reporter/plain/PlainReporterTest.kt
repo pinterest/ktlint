@@ -20,9 +20,9 @@ class PlainReporterTest {
                 1,
                 1,
                 "rule-1",
-                "<\"&'>"
+                "<\"&'>",
             ),
-            false
+            false,
         )
         reporter.onLintError(
             "/one-fixed-and-one-not.kt",
@@ -30,9 +30,9 @@ class PlainReporterTest {
                 2,
                 1,
                 "rule-2",
-                "And if you see my friend"
+                "And if you see my friend",
             ),
-            true
+            true,
         )
 
         reporter.onLintError(
@@ -41,9 +41,9 @@ class PlainReporterTest {
                 1,
                 10,
                 "rule-1",
-                "I thought I would again"
+                "I thought I would again",
             ),
-            false
+            false,
         )
         reporter.onLintError(
             "/two-not-fixed.kt",
@@ -51,9 +51,9 @@ class PlainReporterTest {
                 2,
                 20,
                 "rule-2",
-                "A single thin straight line"
+                "A single thin straight line",
             ),
-            false
+            false,
         )
 
         reporter.onLintError(
@@ -62,9 +62,9 @@ class PlainReporterTest {
                 1,
                 1,
                 "rule-1",
-                "I thought we had more time"
+                "I thought we had more time",
             ),
-            true
+            true,
         )
         assertThat(String(out.toByteArray())).isEqualTo(
             """
@@ -72,7 +72,7 @@ class PlainReporterTest {
             /two-not-fixed.kt:1:10: I thought I would again (rule-1)
             /two-not-fixed.kt:2:20: A single thin straight line (rule-2)
 
-            """.trimIndent().replace("\n", System.lineSeparator())
+            """.trimIndent().replace("\n", System.lineSeparator()),
         )
     }
 
@@ -83,7 +83,7 @@ class PlainReporterTest {
         val reporter = PlainReporter(
             PrintStream(out, true),
             shouldColorOutput = true,
-            outputColor = outputColor
+            outputColor = outputColor,
         )
         reporter.onLintError(
             File.separator + "one-fixed-and-one-not.kt",
@@ -91,9 +91,9 @@ class PlainReporterTest {
                 1,
                 1,
                 "rule-1",
-                "<\"&'>"
+                "<\"&'>",
             ),
-            false
+            false,
         )
         val outputString = String(out.toByteArray())
 
@@ -106,7 +106,7 @@ class PlainReporterTest {
                 ":1:".color(outputColor) +
                 " <\"&'> " +
                 "(rule-1)".color(outputColor) +
-                System.lineSeparator()
+                System.lineSeparator(),
         )
     }
 
@@ -120,9 +120,9 @@ class PlainReporterTest {
                 1,
                 1,
                 "rule-1",
-                "<\"&'>"
+                "<\"&'>",
             ),
-            false
+            false,
         )
         reporter.onLintError(
             "/one-fixed-and-one-not.kt",
@@ -130,9 +130,9 @@ class PlainReporterTest {
                 2,
                 1,
                 "rule-2",
-                "And if you see my friend"
+                "And if you see my friend",
             ),
-            true
+            true,
         )
 
         reporter.onLintError(
@@ -141,9 +141,9 @@ class PlainReporterTest {
                 1,
                 10,
                 "rule-1",
-                "I thought I would again"
+                "I thought I would again",
             ),
-            false
+            false,
         )
         reporter.onLintError(
             "/two-not-fixed.kt",
@@ -151,9 +151,9 @@ class PlainReporterTest {
                 2,
                 20,
                 "rule-2",
-                "A single thin straight line"
+                "A single thin straight line",
             ),
-            false
+            false,
         )
 
         reporter.onLintError(
@@ -162,9 +162,9 @@ class PlainReporterTest {
                 1,
                 1,
                 "rule-1",
-                "I thought we had more time"
+                "I thought we had more time",
             ),
-            true
+            true,
         )
         reporter.after("/one-fixed-and-one-not.kt")
         reporter.after("/two-not-fixed.kt")
@@ -177,7 +177,7 @@ class PlainReporterTest {
               1:10 I thought I would again
               2:20 A single thin straight line
 
-            """.trimIndent().replace("\n", System.lineSeparator())
+            """.trimIndent().replace("\n", System.lineSeparator()),
         )
     }
 }

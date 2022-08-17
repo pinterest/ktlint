@@ -52,7 +52,7 @@ class KdocWrappingRuleTest {
                 LintViolation(1, 27, "A KDoc comment may not be followed by any other element on that same line"),
                 LintViolation(2, 27, "A KDoc comment may not be followed by any other element on that same line"),
                 LintViolation(3, 27, "A KDoc comment may not be followed by any other element on that same line"),
-                LintViolation(4, 27, "A KDoc comment may not be followed by any other element on that same line")
+                LintViolation(4, 27, "A KDoc comment may not be followed by any other element on that same line"),
             ).isFormattedAs(formattedCode)
     }
 

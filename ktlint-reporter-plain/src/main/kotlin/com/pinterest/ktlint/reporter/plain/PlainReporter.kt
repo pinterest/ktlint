@@ -15,7 +15,7 @@ public class PlainReporter(
     private val groupByFile: Boolean = false,
     private val shouldColorOutput: Boolean = false,
     private val outputColor: Color = Color.DARK_GRAY,
-    private val pad: Boolean = false
+    private val pad: Boolean = false,
 ) : Reporter {
 
     private val acc = ConcurrentHashMap<String, MutableList<LintError>>()
@@ -28,7 +28,7 @@ public class PlainReporter(
                 out.println(
                     "${colorFileName(file)}${":".colored()}${err.line}${
                     ":${"${err.col}:".let { if (pad) String.format("%-4s", it) else it}}".colored()
-                    } ${err.detail} ${"(${err.ruleId})".colored()}"
+                    } ${err.detail} ${"(${err.ruleId})".colored()}",
                 )
             }
         }
@@ -42,7 +42,7 @@ public class PlainReporter(
                 out.println(
                     "  $line${
                     ":${if (pad) String.format("%-3s", col) else "$col"}".colored()
-                    } $detail${if (verbose) " ($ruleId)".colored() else ""}"
+                    } $detail${if (verbose) " ($ruleId)".colored() else ""}",
                 )
             }
         }

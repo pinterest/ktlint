@@ -30,7 +30,7 @@ internal class EditorConfigLoaderTest {
 
     private fun FileSystem.writeEditorConfigFile(
         filePath: String,
-        content: String
+        content: String,
     ) {
         Files.createDirectories(normalizedPath(filePath))
         Files.write(normalizedPath("$filePath/.editorconfig"), content.toByteArray())
@@ -68,7 +68,7 @@ internal class EditorConfigLoaderTest {
             indent_size = 4
             [*]
             indent_size = 2
-            """.trimIndent()
+            """.trimIndent(),
         )
 
         editorConfigFiles.forEach { editorConfigFileContent ->
@@ -82,13 +82,13 @@ internal class EditorConfigLoaderTest {
             assertThat(parsedEditorConfig)
                 .overridingErrorMessage(
                     "Expected \n%s\nto yield indent_size = 2",
-                    editorConfigFileContent
+                    editorConfigFileContent,
                 )
                 .isEqualTo(
                     mapOf(
                         "indent_size" to "2",
-                        "tab_width" to "2"
-                    )
+                        "tab_width" to "2",
+                    ),
                 )
         }
     }
@@ -106,7 +106,7 @@ internal class EditorConfigLoaderTest {
             root = true
             [*]
             end_of_line = lf
-            """.trimIndent()
+            """.trimIndent(),
         )
 
         //language=EditorConfig
@@ -117,7 +117,7 @@ internal class EditorConfigLoaderTest {
             [*.{kt,kts}]
             indent_size = 4
             indent_style = space
-            """.trimIndent()
+            """.trimIndent(),
         )
 
         //language=EditorConfig
@@ -126,7 +126,7 @@ internal class EditorConfigLoaderTest {
             """
             [*]
             indent_size = 2
-            """.trimIndent()
+            """.trimIndent(),
         )
 
         val lintFileSubdirectory = tempFileSystem.normalizedPath(project1Subdirectory).resolve("test.kt")
@@ -137,8 +137,8 @@ internal class EditorConfigLoaderTest {
             mapOf(
                 "indent_size" to "2",
                 "tab_width" to "2",
-                "indent_style" to "space"
-            )
+                "indent_style" to "space",
+            ),
         )
 
         val lintFileMainDir = tempFileSystem.normalizedPath(project1Dir).resolve("test.kts")
@@ -149,8 +149,8 @@ internal class EditorConfigLoaderTest {
             mapOf(
                 "indent_size" to "4",
                 "tab_width" to "4",
-                "indent_style" to "space"
-            )
+                "indent_style" to "space",
+            ),
         )
 
         val lintFileRoot = tempFileSystem.normalizedPath(rootDir).resolve("test.kt")
@@ -159,8 +159,8 @@ internal class EditorConfigLoaderTest {
 
         assertThat(parsedEditorConfig).isEqualTo(
             mapOf(
-                "end_of_line" to "lf"
-            )
+                "end_of_line" to "lf",
+            ),
         )
     }
 
@@ -185,8 +185,8 @@ internal class EditorConfigLoaderTest {
         assertThat(parsedEditorConfig).isEqualTo(
             mapOf(
                 "insert_final_newline" to "true",
-                "disabled_rules" to "import-ordering"
-            )
+                "disabled_rules" to "import-ordering",
+            ),
         )
     }
 
@@ -210,8 +210,8 @@ internal class EditorConfigLoaderTest {
         assertThat(parsedEditorConfig).isEqualTo(
             mapOf(
                 "indent_size" to "unset",
-                "tab_width" to "unset"
-            )
+                "tab_width" to "unset",
+            ),
         )
     }
 
@@ -234,8 +234,8 @@ internal class EditorConfigLoaderTest {
         assertThat(parsedEditorConfig).isNotEmpty
         assertThat(parsedEditorConfig).isEqualTo(
             mapOf(
-                "disabled_rules" to "import-ordering, no-wildcard-imports"
-            )
+                "disabled_rules" to "import-ordering, no-wildcard-imports",
+            ),
         )
     }
 
@@ -244,11 +244,11 @@ internal class EditorConfigLoaderTest {
         val parsedEditorConfig = editorConfigLoader.loadPropertiesForFile(
             filePath = null,
             rules = rules,
-            editorConfigOverride = EditorConfigOverride.from(insertNewLineProperty to "true")
+            editorConfigOverride = EditorConfigOverride.from(insertNewLineProperty to "true"),
         )
 
         assertThat(parsedEditorConfig.convertToRawValues()).containsExactly(
-            entry("insert_final_newline", "true")
+            entry("insert_final_newline", "true"),
         )
     }
 
@@ -257,11 +257,11 @@ internal class EditorConfigLoaderTest {
         val parsedEditorConfig = editorConfigLoader.loadPropertiesForFile(
             filePath = null,
             rules = rules,
-            editorConfigOverride = EditorConfigOverride.from(insertNewLineProperty to "true")
+            editorConfigOverride = EditorConfigOverride.from(insertNewLineProperty to "true"),
         )
 
         assertThat(parsedEditorConfig.convertToRawValues()).containsExactly(
-            entry("insert_final_newline", "true")
+            entry("insert_final_newline", "true"),
         )
     }
 
@@ -280,7 +280,7 @@ internal class EditorConfigLoaderTest {
             filePath = null,
             isStdIn = true,
             rules = rules,
-            debug = true
+            debug = true,
         )
         val parsedEditorConfig = editorConfigProperties.convertToRawValues()
 
@@ -288,8 +288,8 @@ internal class EditorConfigLoaderTest {
         assertThat(parsedEditorConfig).isEqualTo(
             mapOf(
                 "insert_final_newline" to "true",
-                "disabled_rules" to "import-ordering"
-            )
+                "disabled_rules" to "import-ordering",
+            ),
         )
     }
 
@@ -306,7 +306,7 @@ internal class EditorConfigLoaderTest {
             root = true
             [*]
             end_of_line = lf
-            """.trimIndent()
+            """.trimIndent(),
         )
 
         //language=EditorConfig
@@ -317,7 +317,7 @@ internal class EditorConfigLoaderTest {
             [*.{kt,kts}]
             indent_size = 4
             indent_style = space
-            """.trimIndent()
+            """.trimIndent(),
         )
 
         //language=EditorConfig
@@ -326,14 +326,14 @@ internal class EditorConfigLoaderTest {
             """
             [*]
             indent_size = 2
-            """.trimIndent()
+            """.trimIndent(),
         )
 
         val lintFile = tempFileSystem.normalizedPath(mainProjectDir).resolve("test.kt")
         val editorConfigProperties = editorConfigLoader.loadPropertiesForFile(
             filePath = lintFile,
             alternativeEditorConfig = tempFileSystem.normalizedPath(anotherDir).resolve(".editorconfig"),
-            rules = rules
+            rules = rules,
         )
         val parsedEditorConfig = editorConfigProperties.convertToRawValues()
 
@@ -342,8 +342,8 @@ internal class EditorConfigLoaderTest {
             mapOf(
                 "end_of_line" to "lf",
                 "indent_size" to "2",
-                "tab_width" to "2"
-            )
+                "tab_width" to "2",
+            ),
         )
     }
 
@@ -359,7 +359,7 @@ internal class EditorConfigLoaderTest {
             root = true
             [*]
             end_of_line = lf
-            """.trimIndent()
+            """.trimIndent(),
         )
 
         //language=EditorConfig
@@ -368,14 +368,14 @@ internal class EditorConfigLoaderTest {
             """
             [*]
             indent_size = 2
-            """.trimIndent()
+            """.trimIndent(),
         )
 
         val editorConfigProperties = editorConfigLoader.loadPropertiesForFile(
             filePath = null,
             alternativeEditorConfig = tempFileSystem.normalizedPath(anotherDir).resolve(".editorconfig"),
             isStdIn = true,
-            rules = rules
+            rules = rules,
         )
         val parsedEditorConfig = editorConfigProperties.convertToRawValues()
 
@@ -384,8 +384,8 @@ internal class EditorConfigLoaderTest {
             mapOf(
                 "end_of_line" to "lf",
                 "indent_size" to "2",
-                "tab_width" to "2"
-            )
+                "tab_width" to "2",
+            ),
         )
     }
 
@@ -415,8 +415,8 @@ internal class EditorConfigLoaderTest {
         assertThat(parsedEditorConfig).isEqualTo(
             mapOf(
                 "insert_final_newline" to "true",
-                "disabled_rules" to "class-must-be-internal"
-            )
+                "disabled_rules" to "class-must-be-internal",
+            ),
         )
     }
 
@@ -437,7 +437,7 @@ internal class EditorConfigLoaderTest {
         val editorConfigProperties = editorConfigLoader.loadPropertiesForFile(
             lintFile,
             rules = rules.plus(FinalNewlineRule()),
-            editorConfigOverride = EditorConfigOverride.from(insertNewLineProperty to "true")
+            editorConfigOverride = EditorConfigOverride.from(insertNewLineProperty to "true"),
         )
         val parsedEditorConfig = editorConfigProperties.convertToRawValues()
 
@@ -445,8 +445,8 @@ internal class EditorConfigLoaderTest {
         assertThat(parsedEditorConfig).isEqualTo(
             mapOf(
                 "disabled_rules" to "import-ordering, no-wildcard-imports",
-                "insert_final_newline" to "true"
-            )
+                "insert_final_newline" to "true",
+            ),
         )
     }
 
@@ -467,15 +467,15 @@ internal class EditorConfigLoaderTest {
         val editorConfigProperties = editorConfigLoader.loadPropertiesForFile(
             lintFile,
             rules = rules.plus(FinalNewlineRule()),
-            editorConfigOverride = EditorConfigOverride.from(insertNewLineProperty to "false")
+            editorConfigOverride = EditorConfigOverride.from(insertNewLineProperty to "false"),
         )
         val parsedEditorConfig = editorConfigProperties.convertToRawValues()
 
         assertThat(parsedEditorConfig).isNotEmpty
         assertThat(parsedEditorConfig).isEqualTo(
             mapOf(
-                "insert_final_newline" to "false"
-            )
+                "insert_final_newline" to "false",
+            ),
         )
     }
 
@@ -485,7 +485,7 @@ internal class EditorConfigLoaderTest {
         override fun beforeVisitChildNodes(
             node: ASTNode,
             autoCorrect: Boolean,
-            emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+            emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
         ) {
             throw NotImplementedError()
         }

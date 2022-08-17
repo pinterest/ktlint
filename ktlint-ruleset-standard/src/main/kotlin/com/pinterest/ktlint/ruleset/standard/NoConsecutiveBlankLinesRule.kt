@@ -14,7 +14,7 @@ public class NoConsecutiveBlankLinesRule : Rule("no-consecutive-blank-lines") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node is PsiWhiteSpace &&
             node.prevSibling != null

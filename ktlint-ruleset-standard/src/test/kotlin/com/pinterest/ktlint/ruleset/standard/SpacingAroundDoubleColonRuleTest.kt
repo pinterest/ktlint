@@ -33,7 +33,7 @@ class SpacingAroundDoubleColonRuleTest {
                 LintViolation(3, 15, "Unexpected spacing before \"::\""),
                 LintViolation(4, 17, "Unexpected spacing after \"::\""),
                 LintViolation(5, 16, "Unexpected spacing around \"::\""),
-                LintViolation(6, 17, "Unexpected spacing after \"::\"")
+                LintViolation(6, 17, "Unexpected spacing after \"::\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -67,7 +67,7 @@ class SpacingAroundDoubleColonRuleTest {
                 LintViolation(2, 41, "Unexpected spacing after \"::\""),
                 LintViolation(3, 38, "Unexpected spacing before \"::\""),
                 LintViolation(4, 40, "Unexpected spacing around \"::\""),
-                LintViolation(8, 41, "Unexpected spacing after \"::\"")
+                LintViolation(8, 41, "Unexpected spacing after \"::\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -132,7 +132,7 @@ class SpacingAroundDoubleColonRuleTest {
         spacingAroundDoubleColonRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(5, 11, "Unexpected spacing after \"::\""),
-                LintViolation(7, 11, "Unexpected spacing after \"::\"")
+                LintViolation(7, 11, "Unexpected spacing after \"::\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -164,7 +164,7 @@ class SpacingAroundDoubleColonRuleTest {
             .hasLintViolations(
                 LintViolation(5, 22, "Unexpected spacing after \"::\""),
                 LintViolation(6, 20, "Unexpected spacing before \"::\""),
-                LintViolation(7, 21, "Unexpected spacing around \"::\"")
+                LintViolation(7, 21, "Unexpected spacing around \"::\""),
             ).isFormattedAs(formattedCode)
     }
 }

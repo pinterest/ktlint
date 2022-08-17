@@ -10,7 +10,7 @@ import org.jetbrains.kotlin.resolve.ImportPath
 public class PatternEntry(
     packageName: String,
     public val withSubpackages: Boolean,
-    public val hasAlias: Boolean
+    public val hasAlias: Boolean,
 ) {
 
     private val packageName = packageName.removeSuffix(".*")
@@ -79,21 +79,21 @@ public class PatternEntry(
             PatternEntry(
                 BLANK_LINE_CHAR,
                 withSubpackages = true,
-                hasAlias = false
+                hasAlias = false,
             )
 
         public val ALL_OTHER_IMPORTS_ENTRY: PatternEntry =
             PatternEntry(
                 WILDCARD_CHAR,
                 withSubpackages = true,
-                hasAlias = false
+                hasAlias = false,
             )
 
         public val ALL_OTHER_ALIAS_IMPORTS_ENTRY: PatternEntry =
             PatternEntry(
                 ALIAS_CHAR,
                 withSubpackages = true,
-                hasAlias = true
+                hasAlias = true,
             )
     }
 }

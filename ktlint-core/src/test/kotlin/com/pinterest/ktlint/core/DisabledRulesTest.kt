@@ -20,16 +20,16 @@ class DisabledRulesTest {
                     KtLint.ExperimentalParams(
                         text = "var foo",
                         ruleProviders = setOf(
-                            RuleProvider { NoVarRule("no-var") }
+                            RuleProvider { NoVarRule("no-var") },
                         ),
-                        cb = { e, _ -> add(e) }
-                    )
+                        cb = { e, _ -> add(e) },
+                    ),
                 )
-            }
+            },
         ).isEqualTo(
             listOf(
-                LintError(1, 1, "no-var", "Unexpected var, use val instead")
-            )
+                LintError(1, 1, "no-var", "Unexpected var, use val instead"),
+            ),
         )
     }
 
@@ -44,12 +44,12 @@ class DisabledRulesTest {
                 "standard:no-var,no-var",
                 "standard:no-var,standard:no-var",
                 "experimental:no-var,experimental:no-var",
-                "custom:no-var,custom:no-var"
-            ]
+                "custom:no-var,custom:no-var",
+            ],
         )
         fun `Given some code and a disabled standard rule then no violation is reported`(
             ruleId: String,
-            disabledRuleId: String
+            disabledRuleId: String,
         ) {
             assertThat(
                 ArrayList<LintError>().apply {
@@ -57,13 +57,13 @@ class DisabledRulesTest {
                         KtLint.ExperimentalParams(
                             text = "var foo",
                             ruleProviders = setOf(
-                                RuleProvider { NoVarRule(ruleId) }
+                                RuleProvider { NoVarRule(ruleId) },
                             ),
                             cb = { e, _ -> add(e) },
-                            editorConfigOverride = EditorConfigOverride.from(disabledRulesProperty to disabledRuleId)
-                        )
+                            editorConfigOverride = EditorConfigOverride.from(disabledRulesProperty to disabledRuleId),
+                        ),
                     )
-                }
+                },
             ).isEmpty()
         }
 
@@ -75,13 +75,13 @@ class DisabledRulesTest {
                         KtLint.ExperimentalParams(
                             text = "var foo",
                             ruleProviders = setOf(
-                                RuleProvider { NoVarRule("no-var") }
+                                RuleProvider { NoVarRule("no-var") },
                             ),
                             cb = { e, _ -> add(e) },
-                            editorConfigOverride = EditorConfigOverride.from(disabledRulesProperty to "no-var")
-                        )
+                            editorConfigOverride = EditorConfigOverride.from(disabledRulesProperty to "no-var"),
+                        ),
                     )
-                }
+                },
             ).isEmpty()
         }
 
@@ -93,13 +93,13 @@ class DisabledRulesTest {
                         KtLint.ExperimentalParams(
                             text = "var foo",
                             ruleProviders = setOf(
-                                RuleProvider { NoVarRule("experimental:no-var") }
+                                RuleProvider { NoVarRule("experimental:no-var") },
                             ),
                             cb = { e, _ -> add(e) },
-                            editorConfigOverride = EditorConfigOverride.from(disabledRulesProperty to "experimental:no-var")
-                        )
+                            editorConfigOverride = EditorConfigOverride.from(disabledRulesProperty to "experimental:no-var"),
+                        ),
                     )
-                }
+                },
             ).isEmpty()
         }
     }
@@ -114,12 +114,12 @@ class DisabledRulesTest {
                 "standard:no-var,no-var",
                 "standard:no-var,standard:no-var",
                 "experimental:no-var,experimental:no-var",
-                "custom:no-var,custom:no-var"
-            ]
+                "custom:no-var,custom:no-var",
+            ],
         )
         fun `Given some code and a disabled standard rule then no violation is reported`(
             ruleId: String,
-            disabledRuleId: String
+            disabledRuleId: String,
         ) {
             assertThat(
                 ArrayList<LintError>().apply {
@@ -127,13 +127,13 @@ class DisabledRulesTest {
                         KtLint.ExperimentalParams(
                             text = "var foo",
                             ruleProviders = setOf(
-                                RuleProvider { NoVarRule(ruleId) }
+                                RuleProvider { NoVarRule(ruleId) },
                             ),
                             cb = { e, _ -> add(e) },
-                            editorConfigOverride = EditorConfigOverride.from(ktlintDisabledRulesProperty to disabledRuleId)
-                        )
+                            editorConfigOverride = EditorConfigOverride.from(ktlintDisabledRulesProperty to disabledRuleId),
+                        ),
                     )
-                }
+                },
             ).isEmpty()
         }
 
@@ -145,13 +145,13 @@ class DisabledRulesTest {
                         KtLint.ExperimentalParams(
                             text = "var foo",
                             ruleProviders = setOf(
-                                RuleProvider { NoVarRule("no-var") }
+                                RuleProvider { NoVarRule("no-var") },
                             ),
                             cb = { e, _ -> add(e) },
-                            editorConfigOverride = EditorConfigOverride.from(ktlintDisabledRulesProperty to "no-var")
-                        )
+                            editorConfigOverride = EditorConfigOverride.from(ktlintDisabledRulesProperty to "no-var"),
+                        ),
                     )
-                }
+                },
             ).isEmpty()
         }
 
@@ -163,13 +163,13 @@ class DisabledRulesTest {
                         KtLint.ExperimentalParams(
                             text = "var foo",
                             ruleProviders = setOf(
-                                RuleProvider { NoVarRule("experimental:no-var") }
+                                RuleProvider { NoVarRule("experimental:no-var") },
                             ),
                             cb = { e, _ -> add(e) },
-                            editorConfigOverride = EditorConfigOverride.from(ktlintDisabledRulesProperty to "experimental:no-var")
-                        )
+                            editorConfigOverride = EditorConfigOverride.from(ktlintDisabledRulesProperty to "experimental:no-var"),
+                        ),
                     )
-                }
+                },
             ).isEmpty()
         }
     }
@@ -178,7 +178,7 @@ class DisabledRulesTest {
         override fun beforeVisitChildNodes(
             node: ASTNode,
             autoCorrect: Boolean,
-            emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+            emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
         ) {
             if (node.elementType == ElementType.VAR_KEYWORD) {
                 emit(node.startOffset, "Unexpected var, use val instead", false)

@@ -52,8 +52,8 @@ class KtLintTest {
                             cb = { _, _ -> },
                             script = false,
                             editorConfigPath = null,
-                            debug = false
-                        )
+                            debug = false,
+                        ),
                     )
                 }.isInstanceOf(IllegalArgumentException::class.java)
                     .hasMessage("Provide exactly one of parameters 'ruleSets' or 'ruleProviders'")
@@ -67,17 +67,17 @@ class KtLintTest {
                             fileName = "some-filename",
                             text = "fun main() {}",
                             ruleSets = listOf(
-                                RuleSet("standard", DummyRule())
+                                RuleSet("standard", DummyRule()),
                             ),
                             ruleProviders = setOf(
-                                RuleProvider { DummyRule() }
+                                RuleProvider { DummyRule() },
                             ),
                             userData = emptyMap(),
                             cb = { _, _ -> },
                             script = false,
                             editorConfigPath = null,
-                            debug = false
-                        )
+                            debug = false,
+                        ),
                     )
                 }.isInstanceOf(IllegalArgumentException::class.java)
                     .hasMessage("Provide exactly one of parameters 'ruleSets' or 'ruleProviders'")
@@ -101,15 +101,15 @@ class KtLintTest {
                                         if (node.isRoot()) {
                                             numberOfRootNodesVisited++
                                         }
-                                    }
-                                )
+                                    },
+                                ),
                             ),
                             userData = emptyMap(),
                             cb = { _, _ -> },
                             script = false,
                             editorConfigPath = null,
-                            debug = false
-                        )
+                            debug = false,
+                        ),
                     )
                     assertThat(numberOfRootNodesVisited).isEqualTo(1)
                 }
@@ -122,21 +122,21 @@ class KtLintTest {
                                 fileName = "some-filename",
                                 text = "fun main() {}",
                                 ruleSets = listOf(
-                                    RuleSet("standard", DummyRule())
+                                    RuleSet("standard", DummyRule()),
                                 ),
                                 userData = mapOf("max_line_length" to "80"),
                                 cb = { _, _ -> },
                                 script = false,
                                 editorConfigPath = null,
-                                debug = false
-                            )
+                                debug = false,
+                            ),
                         )
                     }.isInstanceOf(IllegalStateException::class.java)
                         .hasMessage(
                             "UserData should not contain '.editorconfig' properties [max_line_length]. Such properties " +
                                 "should be passed via the 'ExperimentalParams.editorConfigOverride' field. Note that " +
                                 "this is only required for properties that (potentially) contain a value that differs " +
-                                "from the actual value in the '.editorconfig' file."
+                                "from the actual value in the '.editorconfig' file.",
                         )
                 }
 
@@ -148,24 +148,24 @@ class KtLintTest {
                                 fileName = "some-filename",
                                 text = "fun main() {}",
                                 ruleSets = listOf(
-                                    RuleSet("standard", DummyRule())
+                                    RuleSet("standard", DummyRule()),
                                 ),
                                 userData = mapOf(
                                     "indent_style" to "space",
-                                    "indent_size" to "4"
+                                    "indent_size" to "4",
                                 ),
                                 cb = { _, _ -> },
                                 script = false,
                                 editorConfigPath = null,
-                                debug = false
-                            )
+                                debug = false,
+                            ),
                         )
                     }.isInstanceOf(IllegalStateException::class.java)
                         .hasMessage(
                             "UserData should not contain '.editorconfig' properties [indent_size, indent_style]. Such" +
                                 " properties should be passed via the 'ExperimentalParams.editorConfigOverride' field. " +
                                 "Note that this is only required for properties that (potentially) contain a value that " +
-                                "differs from the actual value in the '.editorconfig' file."
+                                "differs from the actual value in the '.editorconfig' file.",
                         )
                 }
 
@@ -177,21 +177,21 @@ class KtLintTest {
                                 fileName = "some-filename",
                                 text = "fun main() {}",
                                 ruleSets = listOf(
-                                    RuleSet("standard", DummyRuleWithCustomEditorConfigProperty())
+                                    RuleSet("standard", DummyRuleWithCustomEditorConfigProperty()),
                                 ),
                                 userData = mapOf(SOME_CUSTOM_RULE_PROPERTY to "false"),
                                 cb = { _, _ -> },
                                 script = false,
                                 editorConfigPath = null,
-                                debug = false
-                            )
+                                debug = false,
+                            ),
                         )
                     }.isInstanceOf(IllegalStateException::class.java)
                         .hasMessage(
                             "UserData should not contain '.editorconfig' properties [$SOME_CUSTOM_RULE_PROPERTY]. Such" +
                                 " properties should be passed via the 'ExperimentalParams.editorConfigOverride' field. " +
                                 "Note that this is only required for properties that (potentially) contain a value that " +
-                                "differs from the actual value in the '.editorconfig' file."
+                                "differs from the actual value in the '.editorconfig' file.",
                         )
                 }
 
@@ -207,7 +207,7 @@ class KtLintTest {
                         KtLint.ExperimentalParams(
                             text = code,
                             ruleSets = listOf(
-                                RuleSet("standard", AutoCorrectErrorRule())
+                                RuleSet("standard", AutoCorrectErrorRule()),
                             ),
                             userData = emptyMap(),
                             cb = { e, corrected ->
@@ -218,14 +218,14 @@ class KtLintTest {
                                         ruleId = e.ruleId,
                                         detail = e.detail,
                                         canBeAutoCorrected = e.canBeAutoCorrected,
-                                        corrected = corrected
-                                    )
+                                        corrected = corrected,
+                                    ),
                                 )
                             },
                             script = false,
                             editorConfigPath = null,
-                            debug = false
-                        )
+                            debug = false,
+                        ),
                     )
                     assertThat(callbacks).containsExactly(
                         CallbackResult(
@@ -234,7 +234,7 @@ class KtLintTest {
                             ruleId = "auto-correct",
                             detail = AutoCorrectErrorRule.ERROR_MESSAGE_CAN_NOT_BE_AUTOCORRECTED,
                             canBeAutoCorrected = false,
-                            corrected = false
+                            corrected = false,
                         ),
                         CallbackResult(
                             line = 2,
@@ -242,8 +242,8 @@ class KtLintTest {
                             ruleId = "auto-correct",
                             detail = AutoCorrectErrorRule.ERROR_MESSAGE_CAN_BE_AUTOCORRECTED,
                             canBeAutoCorrected = true,
-                            corrected = false
-                        )
+                            corrected = false,
+                        ),
                     )
                 }
             }
@@ -265,14 +265,14 @@ class KtLintTest {
                                             numberOfRootNodesVisited++
                                         }
                                     }
-                                }
+                                },
                             ),
                             userData = emptyMap(),
                             cb = { _, _ -> },
                             script = false,
                             editorConfigPath = null,
-                            debug = false
-                        )
+                            debug = false,
+                        ),
                     )
                     assertThat(numberOfRootNodesVisited).isEqualTo(1)
                 }
@@ -285,21 +285,21 @@ class KtLintTest {
                                 fileName = "some-filename",
                                 text = "fun main() {}",
                                 ruleProviders = setOf(
-                                    RuleProvider { DummyRule() }
+                                    RuleProvider { DummyRule() },
                                 ),
                                 userData = mapOf("max_line_length" to "80"),
                                 cb = { _, _ -> },
                                 script = false,
                                 editorConfigPath = null,
-                                debug = false
-                            )
+                                debug = false,
+                            ),
                         )
                     }.isInstanceOf(IllegalStateException::class.java)
                         .hasMessage(
                             "UserData should not contain '.editorconfig' properties [max_line_length]. Such properties " +
                                 "should be passed via the 'ExperimentalParams.editorConfigOverride' field. Note that " +
                                 "this is only required for properties that (potentially) contain a value that differs " +
-                                "from the actual value in the '.editorconfig' file."
+                                "from the actual value in the '.editorconfig' file.",
                         )
                 }
 
@@ -311,24 +311,24 @@ class KtLintTest {
                                 fileName = "some-filename",
                                 text = "fun main() {}",
                                 ruleProviders = setOf(
-                                    RuleProvider { DummyRule() }
+                                    RuleProvider { DummyRule() },
                                 ),
                                 userData = mapOf(
                                     "indent_style" to "space",
-                                    "indent_size" to "4"
+                                    "indent_size" to "4",
                                 ),
                                 cb = { _, _ -> },
                                 script = false,
                                 editorConfigPath = null,
-                                debug = false
-                            )
+                                debug = false,
+                            ),
                         )
                     }.isInstanceOf(IllegalStateException::class.java)
                         .hasMessage(
                             "UserData should not contain '.editorconfig' properties [indent_size, indent_style]. Such" +
                                 " properties should be passed via the 'ExperimentalParams.editorConfigOverride' field. " +
                                 "Note that this is only required for properties that (potentially) contain a value that " +
-                                "differs from the actual value in the '.editorconfig' file."
+                                "differs from the actual value in the '.editorconfig' file.",
                         )
                 }
 
@@ -340,21 +340,21 @@ class KtLintTest {
                                 fileName = "some-filename",
                                 text = "fun main() {}",
                                 ruleProviders = setOf(
-                                    RuleProvider { DummyRuleWithCustomEditorConfigProperty() }
+                                    RuleProvider { DummyRuleWithCustomEditorConfigProperty() },
                                 ),
                                 userData = mapOf(SOME_CUSTOM_RULE_PROPERTY to "false"),
                                 cb = { _, _ -> },
                                 script = false,
                                 editorConfigPath = null,
-                                debug = false
-                            )
+                                debug = false,
+                            ),
                         )
                     }.isInstanceOf(IllegalStateException::class.java)
                         .hasMessage(
                             "UserData should not contain '.editorconfig' properties [$SOME_CUSTOM_RULE_PROPERTY]. Such" +
                                 " properties should be passed via the 'ExperimentalParams.editorConfigOverride' field. " +
                                 "Note that this is only required for properties that (potentially) contain a value that " +
-                                "differs from the actual value in the '.editorconfig' file."
+                                "differs from the actual value in the '.editorconfig' file.",
                         )
                 }
 
@@ -370,7 +370,7 @@ class KtLintTest {
                         KtLint.ExperimentalParams(
                             text = code,
                             ruleProviders = setOf(
-                                RuleProvider { AutoCorrectErrorRule() }
+                                RuleProvider { AutoCorrectErrorRule() },
                             ),
                             userData = emptyMap(),
                             cb = { e, corrected ->
@@ -381,14 +381,14 @@ class KtLintTest {
                                         ruleId = e.ruleId,
                                         detail = e.detail,
                                         canBeAutoCorrected = e.canBeAutoCorrected,
-                                        corrected = corrected
-                                    )
+                                        corrected = corrected,
+                                    ),
                                 )
                             },
                             script = false,
                             editorConfigPath = null,
-                            debug = false
-                        )
+                            debug = false,
+                        ),
                     )
                     assertThat(callbacks).containsExactly(
                         CallbackResult(
@@ -397,7 +397,7 @@ class KtLintTest {
                             ruleId = "auto-correct",
                             detail = AutoCorrectErrorRule.ERROR_MESSAGE_CAN_NOT_BE_AUTOCORRECTED,
                             canBeAutoCorrected = false,
-                            corrected = false
+                            corrected = false,
                         ),
                         CallbackResult(
                             line = 2,
@@ -405,8 +405,8 @@ class KtLintTest {
                             ruleId = "auto-correct",
                             detail = AutoCorrectErrorRule.ERROR_MESSAGE_CAN_BE_AUTOCORRECTED,
                             canBeAutoCorrected = true,
-                            corrected = false
-                        )
+                            corrected = false,
+                        ),
                     )
                 }
             }
@@ -423,7 +423,7 @@ class KtLintTest {
                     KtLint.ExperimentalParams(
                         text = code,
                         ruleSets = listOf(
-                            RuleSet("standard", AutoCorrectErrorRule())
+                            RuleSet("standard", AutoCorrectErrorRule()),
                         ),
                         userData = emptyMap(),
                         cb = { e, corrected ->
@@ -434,14 +434,14 @@ class KtLintTest {
                                     ruleId = e.ruleId,
                                     detail = e.detail,
                                     canBeAutoCorrected = e.canBeAutoCorrected,
-                                    corrected = corrected
-                                )
+                                    corrected = corrected,
+                                ),
                             )
                         },
                         script = false,
                         editorConfigPath = null,
-                        debug = false
-                    )
+                        debug = false,
+                    ),
                 )
                 assertThat(callbacks).containsExactly(
                     CallbackResult(
@@ -450,7 +450,7 @@ class KtLintTest {
                         ruleId = "auto-correct",
                         detail = AutoCorrectErrorRule.ERROR_MESSAGE_CAN_NOT_BE_AUTOCORRECTED,
                         canBeAutoCorrected = false,
-                        corrected = false
+                        corrected = false,
                     ),
                     CallbackResult(
                         line = 2,
@@ -458,8 +458,8 @@ class KtLintTest {
                         ruleId = "auto-correct",
                         detail = AutoCorrectErrorRule.ERROR_MESSAGE_CAN_BE_AUTOCORRECTED,
                         canBeAutoCorrected = true,
-                        corrected = false
-                    )
+                        corrected = false,
+                    ),
                 )
             }
         }
@@ -479,8 +479,8 @@ class KtLintTest {
                             cb = { _, _ -> },
                             script = false,
                             editorConfigPath = null,
-                            debug = false
-                        )
+                            debug = false,
+                        ),
                     )
                 }.isInstanceOf(IllegalArgumentException::class.java)
                     .hasMessage("Provide exactly one of parameters 'ruleSets' or 'ruleProviders'")
@@ -494,17 +494,17 @@ class KtLintTest {
                             fileName = "some-filename",
                             text = "fun main() {}",
                             ruleSets = listOf(
-                                RuleSet("standard", DummyRule())
+                                RuleSet("standard", DummyRule()),
                             ),
                             ruleProviders = setOf(
-                                RuleProvider { DummyRule() }
+                                RuleProvider { DummyRule() },
                             ),
                             userData = emptyMap(),
                             cb = { _, _ -> },
                             script = false,
                             editorConfigPath = null,
-                            debug = false
-                        )
+                            debug = false,
+                        ),
                     )
                 }.isInstanceOf(IllegalArgumentException::class.java)
                     .hasMessage("Provide exactly one of parameters 'ruleSets' or 'ruleProviders'")
@@ -528,15 +528,15 @@ class KtLintTest {
                                         if (node.isRoot()) {
                                             numberOfRootNodesVisited++
                                         }
-                                    }
-                                )
+                                    },
+                                ),
                             ),
                             userData = emptyMap(),
                             cb = { _, _ -> },
                             script = false,
                             editorConfigPath = null,
-                            debug = false
-                        )
+                            debug = false,
+                        ),
                     )
                     assertThat(numberOfRootNodesVisited).isEqualTo(1)
                 }
@@ -549,21 +549,21 @@ class KtLintTest {
                                 fileName = "some-filename",
                                 text = "fun main() {}",
                                 ruleSets = listOf(
-                                    RuleSet("standard", DummyRule())
+                                    RuleSet("standard", DummyRule()),
                                 ),
                                 userData = mapOf("max_line_length" to "80"),
                                 cb = { _, _ -> },
                                 script = false,
                                 editorConfigPath = null,
-                                debug = false
-                            )
+                                debug = false,
+                            ),
                         )
                     }.isInstanceOf(IllegalStateException::class.java)
                         .hasMessage(
                             "UserData should not contain '.editorconfig' properties [max_line_length]. Such properties " +
                                 "should be passed via the 'ExperimentalParams.editorConfigOverride' field. Note that " +
                                 "this is only required for properties that (potentially) contain a value that differs " +
-                                "from the actual value in the '.editorconfig' file."
+                                "from the actual value in the '.editorconfig' file.",
                         )
                 }
 
@@ -575,24 +575,24 @@ class KtLintTest {
                                 fileName = "some-filename",
                                 text = "fun main() {}",
                                 ruleSets = listOf(
-                                    RuleSet("standard", DummyRule())
+                                    RuleSet("standard", DummyRule()),
                                 ),
                                 userData = mapOf(
                                     "indent_style" to "space",
-                                    "indent_size" to "4"
+                                    "indent_size" to "4",
                                 ),
                                 cb = { _, _ -> },
                                 script = false,
                                 editorConfigPath = null,
-                                debug = false
-                            )
+                                debug = false,
+                            ),
                         )
                     }.isInstanceOf(IllegalStateException::class.java)
                         .hasMessage(
                             "UserData should not contain '.editorconfig' properties [indent_size, indent_style]. Such" +
                                 " properties should be passed via the 'ExperimentalParams.editorConfigOverride' field. " +
                                 "Note that this is only required for properties that (potentially) contain a value that " +
-                                "differs from the actual value in the '.editorconfig' file."
+                                "differs from the actual value in the '.editorconfig' file.",
                         )
                 }
 
@@ -604,21 +604,21 @@ class KtLintTest {
                                 fileName = "some-filename",
                                 text = "fun main() {}",
                                 ruleSets = listOf(
-                                    RuleSet("standard", DummyRuleWithCustomEditorConfigProperty())
+                                    RuleSet("standard", DummyRuleWithCustomEditorConfigProperty()),
                                 ),
                                 userData = mapOf(SOME_CUSTOM_RULE_PROPERTY to "false"),
                                 cb = { _, _ -> },
                                 script = false,
                                 editorConfigPath = null,
-                                debug = false
-                            )
+                                debug = false,
+                            ),
                         )
                     }.isInstanceOf(IllegalStateException::class.java)
                         .hasMessage(
                             "UserData should not contain '.editorconfig' properties [$SOME_CUSTOM_RULE_PROPERTY]. Such" +
                                 " properties should be passed via the 'ExperimentalParams.editorConfigOverride' field. " +
                                 "Note that this is only required for properties that (potentially) contain a value that " +
-                                "differs from the actual value in the '.editorconfig' file."
+                                "differs from the actual value in the '.editorconfig' file.",
                         )
                 }
             }
@@ -640,7 +640,7 @@ class KtLintTest {
                     KtLint.ExperimentalParams(
                         text = code,
                         ruleSets = listOf(
-                            RuleSet("standard", AutoCorrectErrorRule())
+                            RuleSet("standard", AutoCorrectErrorRule()),
                         ),
                         userData = emptyMap(),
                         cb = { e, corrected ->
@@ -651,14 +651,14 @@ class KtLintTest {
                                     ruleId = e.ruleId,
                                     detail = e.detail,
                                     canBeAutoCorrected = e.canBeAutoCorrected,
-                                    corrected = corrected
-                                )
+                                    corrected = corrected,
+                                ),
                             )
                         },
                         script = false,
                         editorConfigPath = null,
-                        debug = false
-                    )
+                        debug = false,
+                    ),
                 )
                 assertThat(actualFormattedCode).isEqualTo(formattedCode)
                 assertThat(callbacks).containsExactly(
@@ -668,7 +668,7 @@ class KtLintTest {
                         ruleId = "auto-correct",
                         detail = AutoCorrectErrorRule.ERROR_MESSAGE_CAN_NOT_BE_AUTOCORRECTED,
                         canBeAutoCorrected = false,
-                        corrected = false
+                        corrected = false,
                     ),
                     CallbackResult(
                         line = 2,
@@ -676,8 +676,8 @@ class KtLintTest {
                         ruleId = "auto-correct",
                         detail = AutoCorrectErrorRule.ERROR_MESSAGE_CAN_BE_AUTOCORRECTED,
                         canBeAutoCorrected = true,
-                        corrected = true
-                    )
+                        corrected = true,
+                    ),
                 )
             }
         }
@@ -699,7 +699,7 @@ class KtLintTest {
                 KtLint.ExperimentalParams(
                     text = code,
                     ruleSets = listOf(
-                        RuleSet("standard", AutoCorrectErrorRule())
+                        RuleSet("standard", AutoCorrectErrorRule()),
                     ),
                     userData = emptyMap(),
                     cb = { e, corrected ->
@@ -710,14 +710,14 @@ class KtLintTest {
                                 ruleId = e.ruleId,
                                 detail = e.detail,
                                 canBeAutoCorrected = e.canBeAutoCorrected,
-                                corrected = corrected
-                            )
+                                corrected = corrected,
+                            ),
                         )
                     },
                     script = false,
                     editorConfigPath = null,
-                    debug = false
-                )
+                    debug = false,
+                ),
             )
             assertThat(actualFormattedCode).isEqualTo(formattedCode)
             assertThat(callbacks).containsExactly(
@@ -727,7 +727,7 @@ class KtLintTest {
                     ruleId = "auto-correct",
                     detail = AutoCorrectErrorRule.ERROR_MESSAGE_CAN_NOT_BE_AUTOCORRECTED,
                     canBeAutoCorrected = false,
-                    corrected = false
+                    corrected = false,
                 ),
                 CallbackResult(
                     line = 2,
@@ -735,8 +735,8 @@ class KtLintTest {
                     ruleId = "auto-correct",
                     detail = AutoCorrectErrorRule.ERROR_MESSAGE_CAN_BE_AUTOCORRECTED,
                     canBeAutoCorrected = true,
-                    corrected = true
-                )
+                    corrected = true,
+                ),
             )
         }
     }
@@ -758,14 +758,14 @@ class KtLintTest {
                                     numberOfRootNodesVisited++
                                 }
                             }
-                        }
+                        },
                     ),
                     userData = emptyMap(),
                     cb = { _, _ -> },
                     script = false,
                     editorConfigPath = null,
-                    debug = false
-                )
+                    debug = false,
+                ),
             )
             assertThat(numberOfRootNodesVisited).isEqualTo(1)
         }
@@ -778,21 +778,21 @@ class KtLintTest {
                         fileName = "some-filename",
                         text = "fun main() {}",
                         ruleProviders = setOf(
-                            RuleProvider { DummyRule() }
+                            RuleProvider { DummyRule() },
                         ),
                         userData = mapOf("max_line_length" to "80"),
                         cb = { _, _ -> },
                         script = false,
                         editorConfigPath = null,
-                        debug = false
-                    )
+                        debug = false,
+                    ),
                 )
             }.isInstanceOf(IllegalStateException::class.java)
                 .hasMessage(
                     "UserData should not contain '.editorconfig' properties [max_line_length]. Such properties " +
                         "should be passed via the 'ExperimentalParams.editorConfigOverride' field. Note that " +
                         "this is only required for properties that (potentially) contain a value that differs " +
-                        "from the actual value in the '.editorconfig' file."
+                        "from the actual value in the '.editorconfig' file.",
                 )
         }
 
@@ -804,24 +804,24 @@ class KtLintTest {
                         fileName = "some-filename",
                         text = "fun main() {}",
                         ruleProviders = setOf(
-                            RuleProvider { DummyRule() }
+                            RuleProvider { DummyRule() },
                         ),
                         userData = mapOf(
                             "indent_style" to "space",
-                            "indent_size" to "4"
+                            "indent_size" to "4",
                         ),
                         cb = { _, _ -> },
                         script = false,
                         editorConfigPath = null,
-                        debug = false
-                    )
+                        debug = false,
+                    ),
                 )
             }.isInstanceOf(IllegalStateException::class.java)
                 .hasMessage(
                     "UserData should not contain '.editorconfig' properties [indent_size, indent_style]. Such" +
                         " properties should be passed via the 'ExperimentalParams.editorConfigOverride' field. " +
                         "Note that this is only required for properties that (potentially) contain a value that " +
-                        "differs from the actual value in the '.editorconfig' file."
+                        "differs from the actual value in the '.editorconfig' file.",
                 )
         }
 
@@ -833,21 +833,21 @@ class KtLintTest {
                         fileName = "some-filename",
                         text = "fun main() {}",
                         ruleProviders = setOf(
-                            RuleProvider { DummyRuleWithCustomEditorConfigProperty() }
+                            RuleProvider { DummyRuleWithCustomEditorConfigProperty() },
                         ),
                         userData = mapOf(SOME_CUSTOM_RULE_PROPERTY to "false"),
                         cb = { _, _ -> },
                         script = false,
                         editorConfigPath = null,
-                        debug = false
-                    )
+                        debug = false,
+                    ),
                 )
             }.isInstanceOf(IllegalStateException::class.java)
                 .hasMessage(
                     "UserData should not contain '.editorconfig' properties [$SOME_CUSTOM_RULE_PROPERTY]. Such" +
                         " properties should be passed via the 'ExperimentalParams.editorConfigOverride' field. " +
                         "Note that this is only required for properties that (potentially) contain a value that " +
-                        "differs from the actual value in the '.editorconfig' file."
+                        "differs from the actual value in the '.editorconfig' file.",
                 )
         }
 
@@ -868,7 +868,7 @@ class KtLintTest {
                 KtLint.ExperimentalParams(
                     text = code,
                     ruleProviders = setOf(
-                        RuleProvider { AutoCorrectErrorRule() }
+                        RuleProvider { AutoCorrectErrorRule() },
                     ),
                     userData = emptyMap(),
                     cb = { e, corrected ->
@@ -879,14 +879,14 @@ class KtLintTest {
                                 ruleId = e.ruleId,
                                 detail = e.detail,
                                 canBeAutoCorrected = e.canBeAutoCorrected,
-                                corrected = corrected
-                            )
+                                corrected = corrected,
+                            ),
                         )
                     },
                     script = false,
                     editorConfigPath = null,
-                    debug = false
-                )
+                    debug = false,
+                ),
             )
             assertThat(actualFormattedCode).isEqualTo(formattedCode)
             assertThat(callbacks).containsExactly(
@@ -896,7 +896,7 @@ class KtLintTest {
                     ruleId = "auto-correct",
                     detail = AutoCorrectErrorRule.ERROR_MESSAGE_CAN_NOT_BE_AUTOCORRECTED,
                     canBeAutoCorrected = false,
-                    corrected = false
+                    corrected = false,
                 ),
                 CallbackResult(
                     line = 2,
@@ -904,8 +904,8 @@ class KtLintTest {
                     ruleId = "auto-correct",
                     detail = AutoCorrectErrorRule.ERROR_MESSAGE_CAN_BE_AUTOCORRECTED,
                     canBeAutoCorrected = true,
-                    corrected = true
-                )
+                    corrected = true,
+                ),
             )
         }
     }
@@ -926,19 +926,19 @@ class KtLintTest {
                             SimpleTestRuleLegacy(
                                 ruleExecutionCalls = ruleExecutionCalls,
                                 id = "a",
-                                visitorModifiers = setOf()
+                                visitorModifiers = setOf(),
                             )
                         },
                         RuleProvider {
                             SimpleTestRuleLegacy(
                                 ruleExecutionCalls = ruleExecutionCalls,
                                 id = "b",
-                                visitorModifiers = setOf(RunAsLateAsPossible)
+                                visitorModifiers = setOf(RunAsLateAsPossible),
                             )
-                        }
+                        },
                     ),
-                    cb = { _, _ -> }
-                )
+                    cb = { _, _ -> },
+                ),
             )
             assertThat(ruleExecutionCalls).containsExactly(
                 RuleExecutionCall("a", VISIT, ROOT, FILE),
@@ -946,7 +946,7 @@ class KtLintTest {
                 RuleExecutionCall("a", VISIT, CHILD, IMPORT_LIST),
                 RuleExecutionCall("b", VISIT, ROOT, FILE),
                 RuleExecutionCall("b", VISIT, CHILD, PACKAGE_DIRECTIVE),
-                RuleExecutionCall("b", VISIT, CHILD, IMPORT_LIST)
+                RuleExecutionCall("b", VISIT, CHILD, IMPORT_LIST),
             )
         }
 
@@ -961,7 +961,7 @@ class KtLintTest {
                             SimpleTestRuleLegacy(
                                 ruleExecutionCalls = ruleExecutionCalls,
                                 id = "a",
-                                visitorModifiers = setOf(RunOnRootNodeOnly)
+                                visitorModifiers = setOf(RunOnRootNodeOnly),
                             )
                         },
                         RuleProvider {
@@ -970,17 +970,17 @@ class KtLintTest {
                                 id = "b",
                                 visitorModifiers = setOf(
                                     RunOnRootNodeOnly,
-                                    RunAsLateAsPossible
-                                )
+                                    RunAsLateAsPossible,
+                                ),
                             )
-                        }
+                        },
                     ),
-                    cb = { _, _ -> }
-                )
+                    cb = { _, _ -> },
+                ),
             )
             assertThat(ruleExecutionCalls).containsExactly(
                 RuleExecutionCall("a", VISIT, ROOT, FILE),
-                RuleExecutionCall("b", VISIT, ROOT, FILE)
+                RuleExecutionCall("b", VISIT, ROOT, FILE),
             )
         }
 
@@ -996,7 +996,7 @@ class KtLintTest {
                             SimpleTestRuleLegacy(
                                 ruleExecutionCalls = ruleExecutionCalls,
                                 id = "e",
-                                visitorModifiers = setOf(RunAsLateAsPossible)
+                                visitorModifiers = setOf(RunAsLateAsPossible),
                             )
                         },
                         RuleProvider {
@@ -1005,14 +1005,14 @@ class KtLintTest {
                                 id = "d",
                                 visitorModifiers = setOf(
                                     RunOnRootNodeOnly,
-                                    RunAsLateAsPossible
-                                )
+                                    RunAsLateAsPossible,
+                                ),
                             )
                         },
                         RuleProvider {
                             SimpleTestRuleLegacy(
                                 ruleExecutionCalls = ruleExecutionCalls,
-                                id = "b"
+                                id = "b",
                             )
                         },
                         RuleProvider {
@@ -1020,19 +1020,19 @@ class KtLintTest {
                                 ruleExecutionCalls = ruleExecutionCalls,
                                 id = "a",
                                 visitorModifiers = setOf(
-                                    RunOnRootNodeOnly
-                                )
+                                    RunOnRootNodeOnly,
+                                ),
                             )
                         },
                         RuleProvider {
                             SimpleTestRuleLegacy(
                                 ruleExecutionCalls = ruleExecutionCalls,
-                                id = "c"
+                                id = "c",
                             )
-                        }
+                        },
                     ),
-                    cb = { _, _ -> }
-                )
+                    cb = { _, _ -> },
+                ),
             )
             assertThat(ruleExecutionCalls).containsExactly(
                 RuleExecutionCall("a", VISIT, ROOT, FILE),
@@ -1045,7 +1045,7 @@ class KtLintTest {
                 RuleExecutionCall("d", VISIT, ROOT, FILE),
                 RuleExecutionCall("e", VISIT, ROOT, FILE),
                 RuleExecutionCall("e", VISIT, CHILD, PACKAGE_DIRECTIVE),
-                RuleExecutionCall("e", VISIT, CHILD, IMPORT_LIST)
+                RuleExecutionCall("e", VISIT, CHILD, IMPORT_LIST),
             )
         }
     }
@@ -1065,19 +1065,19 @@ class KtLintTest {
                             SimpleTestRule(
                                 ruleExecutionCalls = ruleExecutionCalls,
                                 id = "a",
-                                visitorModifiers = setOf()
+                                visitorModifiers = setOf(),
                             )
                         },
                         RuleProvider {
                             SimpleTestRule(
                                 ruleExecutionCalls = ruleExecutionCalls,
                                 id = "b",
-                                visitorModifiers = setOf(RunAsLateAsPossible)
+                                visitorModifiers = setOf(RunAsLateAsPossible),
                             )
-                        }
+                        },
                     ),
-                    cb = { _, _ -> }
-                )
+                    cb = { _, _ -> },
+                ),
             )
             assertThat(ruleExecutionCalls).containsExactly(
                 // File a
@@ -1097,7 +1097,7 @@ class KtLintTest {
                 RuleExecutionCall("b", BEFORE_CHILDREN, CHILD, IMPORT_LIST),
                 RuleExecutionCall("b", AFTER_CHILDREN, CHILD, IMPORT_LIST),
                 RuleExecutionCall("b", AFTER_CHILDREN, ROOT, FILE),
-                RuleExecutionCall("b", AFTER_LAST)
+                RuleExecutionCall("b", AFTER_LAST),
             )
         }
 
@@ -1112,19 +1112,19 @@ class KtLintTest {
                             SimpleTestRule(
                                 ruleExecutionCalls = ruleExecutionCalls,
                                 id = "a",
-                                visitorModifiers = setOf(RunOnRootNodeOnly)
+                                visitorModifiers = setOf(RunOnRootNodeOnly),
                             )
                         },
                         RuleProvider {
                             SimpleTestRule(
                                 ruleExecutionCalls = ruleExecutionCalls,
                                 id = "b",
-                                visitorModifiers = setOf(RunOnRootNodeOnly, RunAsLateAsPossible)
+                                visitorModifiers = setOf(RunOnRootNodeOnly, RunAsLateAsPossible),
                             )
-                        }
+                        },
                     ),
-                    cb = { _, _ -> }
-                )
+                    cb = { _, _ -> },
+                ),
             )
             assertThat(ruleExecutionCalls).containsExactly(
                 // File a
@@ -1136,7 +1136,7 @@ class KtLintTest {
                 RuleExecutionCall("b", BEFORE_FIRST),
                 RuleExecutionCall("b", BEFORE_CHILDREN, ROOT, FILE),
                 RuleExecutionCall("b", AFTER_CHILDREN, ROOT, FILE),
-                RuleExecutionCall("b", AFTER_LAST)
+                RuleExecutionCall("b", AFTER_LAST),
             )
         }
 
@@ -1152,7 +1152,7 @@ class KtLintTest {
                             SimpleTestRule(
                                 ruleExecutionCalls = ruleExecutionCalls,
                                 id = "e",
-                                visitorModifiers = setOf(RunAsLateAsPossible)
+                                visitorModifiers = setOf(RunAsLateAsPossible),
                             )
                         },
                         RuleProvider {
@@ -1161,14 +1161,14 @@ class KtLintTest {
                                 id = "d",
                                 visitorModifiers = setOf(
                                     RunOnRootNodeOnly,
-                                    RunAsLateAsPossible
-                                )
+                                    RunAsLateAsPossible,
+                                ),
                             )
                         },
                         RuleProvider {
                             SimpleTestRule(
                                 ruleExecutionCalls = ruleExecutionCalls,
-                                id = "b"
+                                id = "b",
                             )
                         },
                         RuleProvider {
@@ -1176,19 +1176,19 @@ class KtLintTest {
                                 ruleExecutionCalls = ruleExecutionCalls,
                                 id = "a",
                                 visitorModifiers = setOf(
-                                    RunOnRootNodeOnly
-                                )
+                                    RunOnRootNodeOnly,
+                                ),
                             )
                         },
                         RuleProvider {
                             SimpleTestRule(
                                 ruleExecutionCalls = ruleExecutionCalls,
-                                id = "c"
+                                id = "c",
                             )
-                        }
+                        },
                     ),
-                    cb = { _, _ -> }
-                )
+                    cb = { _, _ -> },
+                ),
             )
             assertThat(ruleExecutionCalls).containsExactly(
                 // File a (root only)
@@ -1227,7 +1227,7 @@ class KtLintTest {
                 RuleExecutionCall("e", BEFORE_CHILDREN, CHILD, IMPORT_LIST),
                 RuleExecutionCall("e", AFTER_CHILDREN, CHILD, IMPORT_LIST),
                 RuleExecutionCall("e", AFTER_CHILDREN, ROOT, FILE),
-                RuleExecutionCall("e", AFTER_LAST)
+                RuleExecutionCall("e", AFTER_LAST),
             )
         }
     }
@@ -1240,10 +1240,10 @@ class KtLintTest {
             KtLint.ExperimentalParams(
                 text = code,
                 ruleProviders = setOf(
-                    RuleProvider { DummyRule() }
+                    RuleProvider { DummyRule() },
                 ),
-                cb = { _, _ -> }
-            )
+                cb = { _, _ -> },
+            ),
         )
 
         assertThat(actual).isEqualTo(code)
@@ -1262,17 +1262,17 @@ class KtLintTest {
                             SimpleTestRule(
                                 id = "stop-traversal",
                                 ruleExecutionCalls = ruleExecutionCalls,
-                                stopTraversalInBeforeFirstNode = true
+                                stopTraversalInBeforeFirstNode = true,
                             )
-                        }
+                        },
                     ),
-                    cb = { _, _ -> }
-                )
+                    cb = { _, _ -> },
+                ),
             )
 
             assertThat(ruleExecutionCalls).containsExactly(
                 RuleExecutionCall("stop-traversal", BEFORE_FIRST),
-                RuleExecutionCall("stop-traversal", AFTER_LAST)
+                RuleExecutionCall("stop-traversal", AFTER_LAST),
             )
         }
 
@@ -1300,12 +1300,12 @@ class KtLintTest {
                                 stopTraversalInBeforeVisitChildNodes = { node ->
                                     // Stop when Class Foo has been entered
                                     node.elementType == CLASS && node.findChildByType(IDENTIFIER)?.text == "Foo"
-                                }
+                                },
                             )
-                        }
+                        },
                     ),
-                    cb = { _, _ -> }
-                )
+                    cb = { _, _ -> },
+                ),
             )
 
             assertThat(ruleExecutionCalls)
@@ -1316,7 +1316,7 @@ class KtLintTest {
                     RuleExecutionCall("stop-traversal", BEFORE_CHILDREN, CHILD, CLASS, "Foo"),
                     RuleExecutionCall("stop-traversal", AFTER_CHILDREN, CHILD, CLASS, "Foo"),
                     RuleExecutionCall("stop-traversal", AFTER_CHILDREN, CHILD, CLASS, "FooBar"),
-                    RuleExecutionCall("stop-traversal", AFTER_LAST)
+                    RuleExecutionCall("stop-traversal", AFTER_LAST),
                 )
         }
 
@@ -1344,12 +1344,12 @@ class KtLintTest {
                                 stopTraversalInAfterVisitChildNodes = { node ->
                                     // Stop when Class Foo has been visited
                                     node.elementType == CLASS && node.findChildByType(IDENTIFIER)?.text == "Foo"
-                                }
+                                },
                             )
-                        }
+                        },
                     ),
-                    cb = { _, _ -> }
-                )
+                    cb = { _, _ -> },
+                ),
             )
 
             assertThat(ruleExecutionCalls)
@@ -1362,7 +1362,7 @@ class KtLintTest {
                     RuleExecutionCall("stop-traversal", AFTER_CHILDREN, CHILD, CLASS, "InsideFoo"),
                     RuleExecutionCall("stop-traversal", AFTER_CHILDREN, CHILD, CLASS, "Foo"),
                     RuleExecutionCall("stop-traversal", AFTER_CHILDREN, CHILD, CLASS, "FooBar"),
-                    RuleExecutionCall("stop-traversal", AFTER_LAST)
+                    RuleExecutionCall("stop-traversal", AFTER_LAST),
                 )
         }
 
@@ -1377,17 +1377,17 @@ class KtLintTest {
                             SimpleTestRule(
                                 id = "stop-traversal",
                                 ruleExecutionCalls = ruleExecutionCalls,
-                                stopTraversalInBeforeFirstNode = true
+                                stopTraversalInBeforeFirstNode = true,
                             )
-                        }
+                        },
                     ),
-                    cb = { _, _ -> }
-                )
+                    cb = { _, _ -> },
+                ),
             )
 
             assertThat(ruleExecutionCalls).containsExactly(
                 RuleExecutionCall("stop-traversal", BEFORE_FIRST),
-                RuleExecutionCall("stop-traversal", AFTER_LAST)
+                RuleExecutionCall("stop-traversal", AFTER_LAST),
             )
         }
     }
@@ -1409,11 +1409,11 @@ class KtLintTest {
                         ruleSets = listOf(
                             RuleSet(
                                 "with-state-and-rule-sets",
-                                WithStateRule()
-                            )
+                                WithStateRule(),
+                            ),
                         ),
-                        cb = { _, _ -> }
-                    )
+                        cb = { _, _ -> },
+                    ),
                 )
             }.isInstanceOf(IllegalStateException::class.java)
                 .hasMessage("Rule has been visited before")
@@ -1430,10 +1430,10 @@ class KtLintTest {
                 KtLint.ExperimentalParams(
                     text = "",
                     ruleProviders = setOf(
-                        RuleProvider { WithStateRule() }
+                        RuleProvider { WithStateRule() },
                     ),
-                    cb = { _, _ -> }
-                )
+                    cb = { _, _ -> },
+                ),
             )
         }
     }
@@ -1454,9 +1454,9 @@ private class DummyRuleWithCustomEditorConfigProperty :
                     SOME_CUSTOM_RULE_PROPERTY,
                     "some-custom-rule-property-description",
                     PropertyType.PropertyValueParser.BOOLEAN_VALUE_PARSER,
-                    setOf(true.toString(), false.toString())
+                    setOf(true.toString(), false.toString()),
                 ),
-                defaultValue = false
+                defaultValue = false,
             )
     }
 }
@@ -1465,12 +1465,12 @@ private class DummyRuleWithCustomEditorConfigProperty :
  * A dummy rule for testing. Optionally the rule can be created with a lambda to be executed for each node visited.
  */
 private open class DummyRule(
-    val block: (node: ASTNode) -> Unit = {}
+    val block: (node: ASTNode) -> Unit = {},
 ) : Rule(DUMMY_RULE_ID) {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         block(node)
     }
@@ -1488,7 +1488,7 @@ private class AutoCorrectErrorRule : Rule("auto-correct") {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.elementType == REGULAR_STRING_PART) {
             when (node.text) {
@@ -1521,12 +1521,12 @@ private class AutoCorrectErrorRule : Rule("auto-correct") {
 private class SimpleTestRuleLegacy(
     private val ruleExecutionCalls: MutableList<RuleExecutionCall>,
     id: String,
-    visitorModifiers: Set<VisitorModifier> = emptySet()
+    visitorModifiers: Set<VisitorModifier> = emptySet(),
 ) : Rule(id, visitorModifiers) {
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         ruleExecutionCalls.add(RuleExecutionCall(id, VISIT, node.visitNodeType, node.elementType))
     }
@@ -1544,7 +1544,7 @@ private class SimpleTestRule(
     private val stopTraversalInBeforeFirstNode: Boolean = false,
     private val stopTraversalInBeforeVisitChildNodes: (ASTNode) -> Boolean = { false },
     private val stopTraversalInAfterVisitChildNodes: (ASTNode) -> Boolean = { false },
-    private val stopTraversalInAfterLastNode: Boolean = false
+    private val stopTraversalInAfterLastNode: Boolean = false,
 ) : Rule(id, visitorModifiers) {
     override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
         ruleExecutionCalls.add(RuleExecutionCall(id, BEFORE_FIRST))
@@ -1556,7 +1556,7 @@ private class SimpleTestRule(
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         ruleExecutionCalls.add(node.toRuleExecutionCall(id, BEFORE_CHILDREN))
         if (stopTraversalInBeforeVisitChildNodes(node)) {
@@ -1567,7 +1567,7 @@ private class SimpleTestRule(
     override fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         ruleExecutionCalls.add(node.toRuleExecutionCall(id, VISIT))
     }
@@ -1575,7 +1575,7 @@ private class SimpleTestRule(
     override fun afterVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         ruleExecutionCalls.add(node.toRuleExecutionCall(id, AFTER_CHILDREN))
         if (stopTraversalInAfterVisitChildNodes(node)) {
@@ -1600,7 +1600,7 @@ private class SimpleTestRule(
                 findChildByType(IDENTIFIER)?.text
             } else {
                 null
-            }
+            },
         )
 }
 
@@ -1609,7 +1609,7 @@ private data class RuleExecutionCall(
     val ruleMethod: RuleMethod,
     val visitNodeType: VisitNodeType? = null,
     val elementType: IElementType? = null,
-    val classIdentifier: String? = null
+    val classIdentifier: String? = null,
 ) {
     enum class RuleMethod { BEFORE_FIRST, BEFORE_CHILDREN, VISIT, AFTER_CHILDREN, AFTER_LAST }
     enum class VisitNodeType { ROOT, CHILD }
@@ -1634,7 +1634,7 @@ private data class CallbackResult(
     val ruleId: String,
     val detail: String,
     val canBeAutoCorrected: Boolean,
-    val corrected: Boolean
+    val corrected: Boolean,
 )
 
 /**
@@ -1653,7 +1653,7 @@ private class WithStateRule : Rule("with-state") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         emit(node.startOffset, "Fake violation which can be autocorrected", true)
     }

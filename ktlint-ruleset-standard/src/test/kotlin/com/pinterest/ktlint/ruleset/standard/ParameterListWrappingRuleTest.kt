@@ -13,8 +13,8 @@ class ParameterListWrappingRuleTest {
             additionalRuleProviders = setOf(
                 // Apply the IndentationRule always as additional rule, so that the formattedCode in the unit test looks
                 // correct.
-                RuleProvider { IndentationRule() }
-            )
+                RuleProvider { IndentationRule() },
+            ),
         )
 
     @Test
@@ -36,7 +36,7 @@ class ParameterListWrappingRuleTest {
             .hasLintViolations(
                 LintViolation(1, 14, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
                 LintViolation(1, 30, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
-                LintViolation(2, 28, """Missing newline before ")"""")
+                LintViolation(2, 28, """Missing newline before ")""""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -60,7 +60,7 @@ class ParameterListWrappingRuleTest {
                 LintViolation(1, 14, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
                 LintViolation(1, 30, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
                 LintViolation(1, 46, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
-                LintViolation(1, 60, """Missing newline before ")"""")
+                LintViolation(1, 60, """Missing newline before ")""""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -118,7 +118,7 @@ class ParameterListWrappingRuleTest {
         parameterListWrappingRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(1, 7, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
-                LintViolation(3, 13, """Missing newline before ")"""")
+                LintViolation(3, 13, """Missing newline before ")""""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -143,7 +143,7 @@ class ParameterListWrappingRuleTest {
             .hasLintViolation(
                 3,
                 13,
-                "Parameter should be on a separate line (unless all parameters can fit a single line)"
+                "Parameter should be on a separate line (unless all parameters can fit a single line)",
             )
             .isFormattedAs(formattedCode)
     }
@@ -170,7 +170,7 @@ class ParameterListWrappingRuleTest {
                 LintViolation(1, 7, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
                 LintViolation(1, 15, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
                 LintViolation(1, 23, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
-                LintViolation(1, 29, """Missing newline before ")"""")
+                LintViolation(1, 29, """Missing newline before ")""""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -224,7 +224,7 @@ class ParameterListWrappingRuleTest {
             .hasLintViolations(
                 LintViolation(2, 11, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
                 LintViolation(6, 19, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
-                LintViolation(6, 37, """Missing newline before ")"""")
+                LintViolation(6, 37, """Missing newline before ")""""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -255,7 +255,7 @@ class ParameterListWrappingRuleTest {
             .hasLintViolation(
                 2,
                 11,
-                "Parameter should be on a separate line (unless all parameters can fit a single line)"
+                "Parameter should be on a separate line (unless all parameters can fit a single line)",
             )
             .isFormattedAs(formattedCode)
     }
@@ -287,7 +287,7 @@ class ParameterListWrappingRuleTest {
                 LintViolation(4, 12, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
                 LintViolation(4, 25, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
                 LintViolation(5, 32, """Missing newline before ")""""),
-                LintViolation(5, 41, """Missing newline before ")"""")
+                LintViolation(5, 41, """Missing newline before ")""""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -319,7 +319,7 @@ class ParameterListWrappingRuleTest {
                 LintViolation(1, 68, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
                 LintViolation(1, 90, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
                 LintViolation(1, 117, "Missing newline before \")\""),
-                LintViolation(1, 126, "Missing newline before \")\"")
+                LintViolation(1, 126, "Missing newline before \")\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -479,7 +479,7 @@ class ParameterListWrappingRuleTest {
             .withEditorConfigOverride(maxLineLengthProperty to 80)
             .hasLintViolations(
                 LintViolation(1, 22, "Parameter of nullable type should be on a separate line (unless the type fits on a single line)"),
-                LintViolation(1, 95, """Missing newline before ")"""")
+                LintViolation(1, 95, """Missing newline before ")""""),
             ).isFormattedAs(formattedCode)
     }
 }

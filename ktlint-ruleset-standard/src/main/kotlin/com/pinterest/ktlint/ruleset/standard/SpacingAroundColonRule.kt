@@ -31,7 +31,7 @@ public class SpacingAroundColonRule : Rule("colon-spacing") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node is LeafPsiElement && node.textMatches(":") && !node.isPartOfString() && !node.isPartOfComment()) {
             if (node.isPartOf(ANNOTATION) || node.isPartOf(ANNOTATION_ENTRY)) {

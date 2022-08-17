@@ -32,7 +32,7 @@ class NoTrailingSpacesRuleTest {
                 LintViolation(2, 14, "Trailing space(s)"),
                 LintViolation(3, 1, "Trailing space(s)"),
                 LintViolation(4, 1, "Trailing space(s)"),
-                LintViolation(5, 2, "Trailing space(s)")
+                LintViolation(5, 2, "Trailing space(s)"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -63,7 +63,7 @@ class NoTrailingSpacesRuleTest {
                 LintViolation(1, 3, "Trailing space(s)"),
                 LintViolation(2, 16, "Trailing space(s)"),
                 LintViolation(4, 7, "Trailing space(s)"),
-                LintViolation(5, 20, "Trailing space(s)")
+                LintViolation(5, 20, "Trailing space(s)"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -98,7 +98,7 @@ class NoTrailingSpacesRuleTest {
                 LintViolation(1, 3, "Trailing space(s)"),
                 LintViolation(2, 16, "Trailing space(s)"),
                 LintViolation(5, 7, "Trailing space(s)"),
-                LintViolation(6, 20, "Trailing space(s)")
+                LintViolation(6, 20, "Trailing space(s)"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -139,7 +139,7 @@ class NoTrailingSpacesRuleTest {
                 LintViolation(3, 3, "Trailing space(s)"),
                 LintViolation(6, 8, "Trailing space(s)"),
                 LintViolation(7, 20, "Trailing space(s)"),
-                LintViolation(8, 7, "Trailing space(s)")
+                LintViolation(8, 7, "Trailing space(s)"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -174,7 +174,7 @@ class NoTrailingSpacesRuleTest {
         noTrailingSpacesRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(3, 1, "Trailing space(s)"),
-                LintViolation(8, 1, "Trailing space(s)")
+                LintViolation(8, 1, "Trailing space(s)"),
             ).isFormattedAs(formattedCode)
     }
 

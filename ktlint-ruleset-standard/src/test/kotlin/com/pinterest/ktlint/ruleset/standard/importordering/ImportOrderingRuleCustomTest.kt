@@ -107,7 +107,7 @@ class ImportOrderingRuleCustomTest {
             """.trimIndent()
         importOrderingRuleAssertThat(code)
             .withEditorConfigOverride(
-                ideaImportsLayoutProperty to "android.**,|,org.junit.**,|,net.**,|,org.**,|,java.**,|,com.**,|,javax.**,|,*"
+                ideaImportsLayoutProperty to "android.**,|,org.junit.**,|,net.**,|,org.**,|,java.**,|,com.**,|,javax.**,|,*",
             ).hasNoLintViolations()
     }
 
@@ -147,7 +147,7 @@ class ImportOrderingRuleCustomTest {
             """.trimIndent()
         importOrderingRuleAssertThat(code)
             .withEditorConfigOverride(
-                ideaImportsLayoutProperty to "android.**,|,org.junit.**,|,net.**,|,org.**,|,java.**,|,com.**,|,javax.**,|,*"
+                ideaImportsLayoutProperty to "android.**,|,org.junit.**,|,net.**,|,org.**,|,java.**,|,com.**,|,javax.**,|,*",
             ).hasLintViolation(1, 1, "Imports must be ordered according to the pattern specified in .editorconfig")
             .isFormattedAs(formattedCode)
     }

@@ -14,7 +14,7 @@ public class NoTrailingSpacesRule : Rule("no-trailing-spaces") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.isPartOfKDoc()) {
             if (node.elementType == WHITE_SPACE && node.hasTrailingSpacesBeforeNewline()) {
@@ -69,7 +69,7 @@ public class NoTrailingSpacesRule : Rule("no-trailing-spaces") {
     private fun ASTNode.removeTrailingSpacesBeforeNewline() {
         val newText = text.replace(
             regex = SPACE_OR_TAB_BEFORE_NEWLINE_REGEX,
-            replacement = "\n"
+            replacement = "\n",
         )
         (this as LeafPsiElement).replaceWithText(newText)
     }

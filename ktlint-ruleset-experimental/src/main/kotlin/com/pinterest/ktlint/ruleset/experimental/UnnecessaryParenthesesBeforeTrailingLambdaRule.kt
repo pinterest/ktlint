@@ -18,7 +18,7 @@ public class UnnecessaryParenthesesBeforeTrailingLambdaRule : Rule("$experimenta
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.isPartOf(CALL_EXPRESSION) &&
             node.isEmptyArgumentList() &&
@@ -27,7 +27,7 @@ public class UnnecessaryParenthesesBeforeTrailingLambdaRule : Rule("$experimenta
             emit(
                 node.startOffset,
                 "Empty parentheses in function call followed by lambda are unnecessary",
-                true
+                true,
             )
             if (autoCorrect) {
                 node.removeChild(node)

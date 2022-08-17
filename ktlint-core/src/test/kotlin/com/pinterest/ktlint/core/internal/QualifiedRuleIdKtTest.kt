@@ -19,17 +19,17 @@ class QualifiedRuleIdKtTest {
             "custom-rule-set:rule-id,custom-rule-set:rule-id",
             " custom-rule-set:rule-id,custom-rule-set:rule-id",
             "custom-rule-set:rule-id ,custom-rule-set:rule-id",
-            "custom - rule - set : rule - id ,custom-rule-set:rule-id"
+            "custom - rule - set : rule - id ,custom-rule-set:rule-id",
         ],
         ignoreLeadingAndTrailingWhitespace = false,
-        nullValues = [""]
+        nullValues = [""],
     )
     fun `Given a rule id then return the qualified rule id`(
         ruleId: String,
-        qualifiedRuleId: String
+        qualifiedRuleId: String,
     ) {
         assertThat(
-            ruleId.toQualifiedRuleId()
+            ruleId.toQualifiedRuleId(),
         ).isEqualTo(qualifiedRuleId)
     }
 }

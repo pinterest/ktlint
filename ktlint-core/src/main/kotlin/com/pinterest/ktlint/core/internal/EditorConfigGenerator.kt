@@ -16,7 +16,7 @@ private val logger = KotlinLogging.logger {}.initKtLintKLogger()
  * Rule should implement [UsesEditorConfigProperties] interface to support this.
  */
 internal class EditorConfigGenerator(
-    private val editorConfigLoader: EditorConfigLoader
+    private val editorConfigLoader: EditorConfigLoader,
 ) {
     /**
      * Method loads merged `.editorconfig` content using [com.pinterest.ktlint.core.KtLint.ExperimentalParams.fileName] path,
@@ -33,12 +33,12 @@ internal class EditorConfigGenerator(
         filePath: Path,
         rules: Set<Rule>,
         debug: Boolean = false,
-        codeStyle: DefaultEditorConfigProperties.CodeStyleValue
+        codeStyle: DefaultEditorConfigProperties.CodeStyleValue,
     ): String {
         val editorConfig: Map<String, Property> = editorConfigLoader.loadPropertiesForFile(
             filePath = filePath,
             rules = rules,
-            debug = debug
+            debug = debug,
         )
 
         val potentialEditorConfigSettings =
@@ -56,7 +56,7 @@ internal class EditorConfigGenerator(
     private fun getConfigurationSettingsForRules(
         rules: Set<Rule>,
         editorConfig: Map<String, Property>,
-        codeStyle: DefaultEditorConfigProperties.CodeStyleValue
+        codeStyle: DefaultEditorConfigProperties.CodeStyleValue,
     ) = rules
         .mapNotNull { rule ->
             if (rule is UsesEditorConfigProperties && rule.editorConfigProperties.isNotEmpty()) {
@@ -66,7 +66,7 @@ internal class EditorConfigGenerator(
                         val value = with(rule) {
                             editorConfig.writeEditorConfigProperty(
                                 property,
-                                codeStyle
+                                codeStyle,
                             )
                         }
                         logger.debug {
@@ -75,7 +75,7 @@ internal class EditorConfigGenerator(
                         ConfigurationSetting(
                             key = property.type.name,
                             value = value,
-                            usage = "Rule '${rule.id}'"
+                            usage = "Rule '${rule.id}'",
                         )
                     }
             } else {
@@ -85,14 +85,14 @@ internal class EditorConfigGenerator(
 
     private fun getConfigurationSettingsForDefaultEditorConfigProperties(
         editorConfig: Map<String, Property>,
-        codeStyle: DefaultEditorConfigProperties.CodeStyleValue
+        codeStyle: DefaultEditorConfigProperties.CodeStyleValue,
     ) = DefaultEditorConfigProperties
         .editorConfigProperties
         .map { editorConfigProperty ->
             val value = with((DefaultEditorConfigProperties as UsesEditorConfigProperties)) {
                 editorConfig.writeEditorConfigProperty(
                     editorConfigProperty,
-                    codeStyle
+                    codeStyle,
                 )
             }
             logger.debug {
@@ -101,7 +101,7 @@ internal class EditorConfigGenerator(
             ConfigurationSetting(
                 key = editorConfigProperty.type.name,
                 value = value,
-                usage = "Class '${DefaultEditorConfigProperties::class.simpleName}'"
+                usage = "Class '${DefaultEditorConfigProperties::class.simpleName}'",
             )
         }
 
@@ -121,6 +121,6 @@ internal class EditorConfigGenerator(
     private data class ConfigurationSetting(
         val key: String,
         val value: String,
-        val usage: String
+        val usage: String,
     )
 }

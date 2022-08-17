@@ -63,7 +63,7 @@ public object KtLint {
         val text: String,
         @Deprecated(
             message = "Marked for removal in KtLint 0.48",
-            replaceWith = ReplaceWith("ruleProviders")
+            replaceWith = ReplaceWith("ruleProviders"),
         )
         val ruleSets: Iterable<RuleSet> = Iterable { emptySet<RuleSet>().iterator() },
         val ruleProviders: Set<RuleProvider> = emptySet(),
@@ -73,7 +73,7 @@ public object KtLint {
         val editorConfigPath: String? = null,
         val debug: Boolean = false,
         val editorConfigOverride: EditorConfigOverride = emptyEditorConfigOverride,
-        val isInvokedFromCli: Boolean = false
+        val isInvokedFromCli: Boolean = false,
     ) {
         internal val ruleRunners: Set<RuleRunner> =
             ruleProviders
@@ -89,7 +89,7 @@ public object KtLint {
                     // TODO: remove when removing the deprecated ruleSets.
                     ruleSets
                         .flatMap { it.rules.toList() }
-                        .map { RuleRunner(createStaticRuleProvider(it)) }
+                        .map { RuleRunner(createStaticRuleProvider(it)) },
                 ).distinctBy { it.ruleId }
                 .toSet()
 
@@ -176,7 +176,7 @@ public object KtLint {
         rule: Rule,
         fqRuleId: String,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         rule.startTraversalOfAST()
         rule.beforeFirstNode(editorConfigProperties)
@@ -189,7 +189,7 @@ public object KtLint {
         rule: Rule,
         fqRuleId: String,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (rule.shouldContinueTraversalOfAST()) {
             try {
@@ -246,7 +246,7 @@ public object KtLint {
                             // updating the code
                             preparedCode.suppressedRegionLocator =
                                 SuppressionLocatorBuilder.buildSuppressedRegionsLocator(
-                                    preparedCode.rootNode
+                                    preparedCode.rootNode,
                                 )
                         }
                     }
@@ -256,8 +256,8 @@ public object KtLint {
                             LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected),
                             // It is assumed that a rule that emits that an error can be autocorrected, also
                             // does correct the error.
-                            canBeAutoCorrected
-                        )
+                            canBeAutoCorrected,
+                        ),
                     )
                 }
             }
@@ -272,8 +272,8 @@ public object KtLint {
                                 LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected),
                                 // It is assumed that a rule only corrects an error after it has emitted an
                                 // error and indicating that it actually can be autocorrected.
-                                false
-                            )
+                                false,
+                            ),
                         )
                     }
                 }
@@ -324,7 +324,7 @@ public object KtLint {
      * ```
      */
     public fun generateKotlinEditorConfigSection(
-        params: ExperimentalParams
+        params: ExperimentalParams,
     ): String {
         val filePath = params.normalizedFilePath
         requireNotNull(filePath) {
@@ -341,7 +341,7 @@ public object KtLint {
             filePath,
             params.getRules(),
             params.debug,
-            codeStyle
+            codeStyle,
         )
     }
 
@@ -396,7 +396,7 @@ internal class RuleRunner(private val provider: RuleProvider) {
                         "maintainer of the rule."
                 }
                 runAfterRuleVisitorModifier.copy(
-                    ruleId = qualifiedAfterRuleId
+                    ruleId = qualifiedAfterRuleId,
                 )
             }
 

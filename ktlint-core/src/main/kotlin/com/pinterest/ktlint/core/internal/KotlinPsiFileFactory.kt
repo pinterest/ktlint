@@ -50,7 +50,7 @@ internal fun initPsiFileFactory(isFromCli: Boolean): PsiFileFactory {
         val extensionPath = extractCompilerExtension()
         compilerConfiguration.put(
             CLIConfigurationKeys.INTELLIJ_PLUGIN_ROOT,
-            extensionPath.toAbsolutePath().toString()
+            extensionPath.toAbsolutePath().toString(),
         )
     }
 
@@ -59,7 +59,7 @@ internal fun initPsiFileFactory(isFromCli: Boolean): PsiFileFactory {
         val project = KotlinCoreEnvironment.createForProduction(
             disposable,
             compilerConfiguration,
-            EnvironmentConfigFiles.JVM_CONFIG_FILES
+            EnvironmentConfigFiles.JVM_CONFIG_FILES,
         ).project as MockProject
 
         project.enableASTMutations()
@@ -97,7 +97,7 @@ private fun extractCompilerExtension(): Path {
  */
 private class LoggerFactory : DiagnosticLogger.Factory {
     override fun getLoggerInstance(
-        p: String
+        p: String,
     ): DiagnosticLogger = object : DefaultLogger(null) {
         override fun warn(message: String?, t: Throwable?) {}
         override fun error(message: String?, vararg details: String?) {}
@@ -122,14 +122,14 @@ private fun MockProject.enableASTMutations() {
 private class FormatPomModel : UserDataHolderBase(), PomModel {
 
     override fun runTransaction(
-        transaction: PomTransaction
+        transaction: PomTransaction,
     ) {
         (transaction as PomTransactionBase).run()
     }
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : PomModelAspect> getModelAspect(
-        aspect: Class<T>
+        aspect: Class<T>,
     ): T? {
         if (aspect == TreeAspect::class.java) {
             // using approach described in https://git.io/vKQTo due to the magical bytecode of TreeAspect
@@ -139,7 +139,7 @@ private class FormatPomModel : UserDataHolderBase(), PomModel {
                 .getReflectionFactory()
                 .newConstructorForSerialization(
                     aspect,
-                    Any::class.java.getDeclaredConstructor(*arrayOfNulls<Class<*>>(0))
+                    Any::class.java.getDeclaredConstructor(*arrayOfNulls<Class<*>>(0)),
                 )
             return constructor.newInstance() as T
         }

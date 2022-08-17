@@ -45,21 +45,21 @@ public class SarifReporter(private val out: PrintStream) : Reporter {
                         physicalLocation = PhysicalLocation(
                             region = Region(
                                 startLine = err.line.toLong(),
-                                startColumn = err.col.toLong()
+                                startColumn = err.col.toLong(),
                             ),
                             artifactLocation = workingDirectory?.let { workingDirectory ->
                                 ArtifactLocation(
                                     uri = File(file).relativeTo(workingDirectory).path,
-                                    uriBaseID = SRCROOT
+                                    uriBaseID = SRCROOT,
                                 )
                             } ?: ArtifactLocation(
-                                uri = file
-                            )
-                        )
-                    )
+                                uri = file,
+                            ),
+                        ),
+                    ),
                 ),
-                message = Message(text = err.detail)
-            )
+                message = Message(text = err.detail),
+            ),
         )
     }
 
@@ -80,15 +80,15 @@ public class SarifReporter(private val out: PrintStream) : Reporter {
                             rules = listOf(),
                             organization = "pinterest",
                             semanticVersion = version,
-                            version = version
-                        )
+                            version = version,
+                        ),
                     ),
                     originalURIBaseIDS = workingDirectory?.let {
                         mapOf(SRCROOT to ArtifactLocation(uri = "file://${it.path.sanitize()}"))
                     },
-                    results = results
-                )
-            )
+                    results = results,
+                ),
+            ),
         )
         out.println(SarifSerializer.toJson(sarifSchema210))
     }

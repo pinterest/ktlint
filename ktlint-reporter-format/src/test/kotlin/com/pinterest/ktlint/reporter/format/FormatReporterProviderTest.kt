@@ -14,7 +14,7 @@ class FormatReporterProviderTest {
                 FormatReporterProvider()
                     .get(
                         out = PrintStream(out, true),
-                        opt = emptyMap()
+                        opt = emptyMap(),
                     )
             }.withMessage("Format is not specified in config options")
     }
@@ -25,8 +25,8 @@ class FormatReporterProviderTest {
             out = PrintStream(out, true),
             opt = mapOf(
                 "format" to "true",
-                "color_name" to "RED"
-            )
+                "color_name" to "RED",
+            ),
         )
 
         assertThat(formatReporter).isNotNull
@@ -41,8 +41,8 @@ class FormatReporterProviderTest {
                         out = PrintStream(out, true),
                         opt = mapOf(
                             "format" to "invalid",
-                            "color_name" to "RED"
-                        )
+                            "color_name" to "RED",
+                        ),
                     )
             }.withMessage("The string doesn't represent a boolean value: invalid")
     }
@@ -54,7 +54,7 @@ class FormatReporterProviderTest {
                 FormatReporterProvider()
                     .get(
                         out = PrintStream(out, true),
-                        opt = mapOf("format" to "true")
+                        opt = mapOf("format" to "true"),
                     )
             }.withMessage("Invalid color parameter.")
     }
@@ -68,8 +68,8 @@ class FormatReporterProviderTest {
                         out = PrintStream(out, true),
                         opt = mapOf(
                             "format" to "true",
-                            "color_name" to ""
-                        )
+                            "color_name" to "",
+                        ),
                     )
             }.withMessage("Invalid color parameter.")
     }
@@ -83,8 +83,8 @@ class FormatReporterProviderTest {
                         out = PrintStream(out, true),
                         opt = mapOf(
                             "format" to "true",
-                            "color_name" to "GARBAGE_INPUT"
-                        )
+                            "color_name" to "GARBAGE_INPUT",
+                        ),
                     )
             }.withMessage("Invalid color parameter.")
     }

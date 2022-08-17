@@ -21,7 +21,7 @@ class SuppressionLocatorBuilderTest {
             LintError(1, 5, "no-foo-identifier-standard", "Line should not contain a foo identifier"),
             LintError(1, 5, "custom:no-foo-identifier", "Line should not contain a foo identifier"),
             LintError(2, 5, "no-foo-identifier-standard", "Line should not contain a foo identifier"),
-            LintError(2, 5, "custom:no-foo-identifier", "Line should not contain a foo identifier")
+            LintError(2, 5, "custom:no-foo-identifier", "Line should not contain a foo identifier"),
         )
     }
 
@@ -54,7 +54,7 @@ class SuppressionLocatorBuilderTest {
             """.trimIndent()
         assertThat(lint(code)).containsExactly(
             LintError(4, 5, "no-foo-identifier-standard", "Line should not contain a foo identifier"),
-            LintError(4, 5, "custom:no-foo-identifier", "Line should not contain a foo identifier")
+            LintError(4, 5, "custom:no-foo-identifier", "Line should not contain a foo identifier"),
         )
     }
 
@@ -69,7 +69,7 @@ class SuppressionLocatorBuilderTest {
             """.trimIndent()
         assertThat(lint(code)).containsExactly(
             LintError(4, 5, "no-foo-identifier-standard", "Line should not contain a foo identifier"),
-            LintError(4, 5, "custom:no-foo-identifier", "Line should not contain a foo identifier")
+            LintError(4, 5, "custom:no-foo-identifier", "Line should not contain a foo identifier"),
         )
     }
 
@@ -84,7 +84,7 @@ class SuppressionLocatorBuilderTest {
             """.trimIndent()
         assertThat(lint(code)).containsExactly(
             LintError(4, 5, "no-foo-identifier-standard", "Line should not contain a foo identifier"),
-            LintError(4, 5, "custom:no-foo-identifier", "Line should not contain a foo identifier")
+            LintError(4, 5, "custom:no-foo-identifier", "Line should not contain a foo identifier"),
         )
     }
 
@@ -99,7 +99,7 @@ class SuppressionLocatorBuilderTest {
             """.trimIndent()
         assertThat(lint(code)).containsExactly(
             LintError(4, 5, "no-foo-identifier-standard", "Line should not contain a foo identifier"),
-            LintError(4, 5, "custom:no-foo-identifier", "Line should not contain a foo identifier")
+            LintError(4, 5, "custom:no-foo-identifier", "Line should not contain a foo identifier"),
         )
     }
 
@@ -116,7 +116,7 @@ class SuppressionLocatorBuilderTest {
             """.trimIndent()
         assertThat(lint(code)).containsExactly(
             LintError(6, 5, "no-foo-identifier-standard", "Line should not contain a foo identifier"),
-            LintError(6, 5, "custom:no-foo-identifier", "Line should not contain a foo identifier")
+            LintError(6, 5, "custom:no-foo-identifier", "Line should not contain a foo identifier"),
         )
     }
 
@@ -133,7 +133,7 @@ class SuppressionLocatorBuilderTest {
             """.trimIndent()
         assertThat(lint(code)).containsExactly(
             LintError(6, 5, "no-foo-identifier-standard", "Line should not contain a foo identifier"),
-            LintError(6, 5, "custom:no-foo-identifier", "Line should not contain a foo identifier")
+            LintError(6, 5, "custom:no-foo-identifier", "Line should not contain a foo identifier"),
         )
     }
 
@@ -207,7 +207,7 @@ class SuppressionLocatorBuilderTest {
         override fun beforeVisitChildNodes(
             node: ASTNode,
             autoCorrect: Boolean,
-            emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+            emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
         ) {
             if (node.elementType == ElementType.IDENTIFIER && node.text.startsWith("foo")) {
                 emit(node.startOffset, "Line should not contain a foo identifier", false)
@@ -224,10 +224,10 @@ class SuppressionLocatorBuilderTest {
                         // The same rule is supplied once a standard rule and once as non-standard rule. Note that the
                         // ruleIds are different.
                         RuleProvider { NoFooIdentifierRule("no-foo-identifier-standard") },
-                        RuleProvider { NoFooIdentifierRule("$NON_STANDARD_RULE_SET_ID:no-foo-identifier") }
+                        RuleProvider { NoFooIdentifierRule("$NON_STANDARD_RULE_SET_ID:no-foo-identifier") },
                     ),
-                    cb = { e, _ -> add(e) }
-                )
+                    cb = { e, _ -> add(e) },
+                ),
             )
         }
 

@@ -32,7 +32,7 @@ public class BaselineReporter(private val out: PrintStream) : Reporter {
             out.println("""    <file name="${fileName.escapeXMLAttrValue()}">""")
             for ((line, col, ruleId, _) in errList) {
                 out.println(
-                    """        <error line="$line" column="$col" source="$ruleId" />"""
+                    """        <error line="$line" column="$col" source="$ruleId" />""",
                 )
             }
             out.println("""    </file>""")

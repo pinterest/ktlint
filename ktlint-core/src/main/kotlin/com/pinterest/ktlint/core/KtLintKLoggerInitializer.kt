@@ -13,7 +13,7 @@ private var defaultLoggerModifier: ((KLogger) -> Unit)? = null
  * [initKtLintKLogger].
  */
 public fun KLogger.setDefaultLoggerModifier(
-    loggerModifier: (KLogger) -> Unit
+    loggerModifier: (KLogger) -> Unit,
 ): KLogger {
     if (defaultLoggerModifier != null) {
         warn {

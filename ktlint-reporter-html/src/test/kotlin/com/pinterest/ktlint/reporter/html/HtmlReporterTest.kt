@@ -69,7 +69,7 @@ class HtmlReporterTest {
         reporter.onLintError(
             "/file1.kt",
             LintError(1, 1, "rule-1", "rule-1 broken"),
-            false
+            false,
         )
 
         reporter.afterAll()
@@ -112,13 +112,13 @@ class HtmlReporterTest {
         reporter.onLintError(
             "/file1.kt",
             LintError(1, 1, "rule-1", "rule-1 broken"),
-            false
+            false,
         )
 
         reporter.onLintError(
             "/file2.kt",
             LintError(1, 1, "rule-1", "rule-1 broken"),
-            true
+            true,
         )
 
         reporter.afterAll()
@@ -161,13 +161,13 @@ class HtmlReporterTest {
         reporter.onLintError(
             "/file1.kt",
             LintError(1, 1, "rule-1", "Error message contains a generic type like List<Int> (cannot be auto-corrected)"),
-            false
+            false,
         )
 
         reporter.onLintError(
             "/file1.kt",
             LintError(2, 1, "rule-2", "Error message contains special html symbols like a<b>c\"d'e&f (cannot be auto-corrected)"),
-            false
+            false,
         )
 
         reporter.afterAll()

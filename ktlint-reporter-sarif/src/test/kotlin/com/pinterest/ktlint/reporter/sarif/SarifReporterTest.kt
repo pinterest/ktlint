@@ -19,27 +19,27 @@ class SarifReporterTest {
         reporter.onLintError(
             "$workingDirectory/one-fixed-and-one-not.kt",
             LintError(1, 1, "rule-1", "<\"&'>"),
-            false
+            false,
         )
         reporter.onLintError(
             "$workingDirectory/one-fixed-and-one-not.kt",
             LintError(2, 1, "rule-2", "And if you see my friend"),
-            true
+            true,
         )
         reporter.onLintError(
             "$workingDirectory/two-not-fixed.kt",
             LintError(1, 10, "rule-1", "I thought I would again"),
-            false
+            false,
         )
         reporter.onLintError(
             "$workingDirectory/two-not-fixed.kt",
             LintError(2, 20, "rule-2", "A single thin straight line"),
-            false
+            false,
         )
         reporter.onLintError(
             "$workingDirectory/all-corrected.kt",
             LintError(1, 1, "rule-1", "I thought we had more time"),
-            true
+            true,
         )
         reporter.afterAll()
 

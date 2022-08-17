@@ -21,11 +21,11 @@ internal class VisitorProvider(
     /**
      * Creates a new [RuleRunnerSorter]. Only to be used in unit tests where the same set of rules are used with distinct [Rule.VisitorModifier]s.
      */
-    recreateRuleSorter: Boolean = false
+    recreateRuleSorter: Boolean = false,
 ) : UsesEditorConfigProperties {
     override val editorConfigProperties: List<EditorConfigProperty<*>> = listOf(
         ktlintDisabledRulesProperty,
-        disabledRulesProperty
+        disabledRulesProperty,
     )
 
     /**
@@ -45,7 +45,7 @@ internal class VisitorProvider(
         if (enabledRuleRunners.isEmpty()) {
             if (params.debug && enabledRuleRunners.isEmpty()) {
                 println(
-                    "[DEBUG] Skipping file as no enabled rules are found to be executed"
+                    "[DEBUG] Skipping file as no enabled rules are found to be executed",
                 )
             }
             return { _ -> }
@@ -64,7 +64,7 @@ internal class VisitorProvider(
                     println(
                         "[DEBUG] Skipping rule with id '${it.qualifiedRuleId}'. This rule has to run after rule with " +
                             "id '${it.runAfterRule?.ruleId?.toQualifiedRuleId()}' and will not run in case that rule is " +
-                            "disabled."
+                            "disabled.",
                     )
                 }
         }
@@ -72,7 +72,7 @@ internal class VisitorProvider(
         if (ruleRunnersToExecute.isEmpty()) {
             if (params.debug) {
                 println(
-                    "[DEBUG] Skipping file as no enabled rules are found to be executed"
+                    "[DEBUG] Skipping file as no enabled rules are found to be executed",
                 )
             }
             return { _ -> }
