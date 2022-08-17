@@ -22,7 +22,7 @@ import org.junit.jupiter.params.provider.ValueSource
 
 class EditorConfigDefaultsLoaderTest {
     private val fileSystemMock = Jimfs.newFileSystem(Configuration.forCurrentPlatform())
-    private val editorConfigDefaultsLoader = EditorConfigDefaultsLoader(fileSystemMock)
+    private val editorConfigDefaultsLoader = EditorConfigDefaultsLoader()
 
     @AfterEach
     internal fun tearDown() {
@@ -39,7 +39,7 @@ class EditorConfigDefaultsLoaderTest {
     @Test
     fun `Given an empty path then return empty editor config default`() {
         val actual = editorConfigDefaultsLoader.load(
-            fileSystemMock.normalizedPath("")
+            fileSystemMock.normalizedPath(""),
         )
 
         assertThat(actual).isEqualTo(emptyEditorConfigDefaults)
@@ -49,7 +49,7 @@ class EditorConfigDefaultsLoaderTest {
     @DisabledOnOs(OS.WINDOWS) // Filename can not start or end with space
     fun `Given a blank path then return empty editor config default`() {
         val actual = editorConfigDefaultsLoader.load(
-            fileSystemMock.normalizedPath("  ")
+            fileSystemMock.normalizedPath("  "),
         )
 
         assertThat(actual).isEqualTo(emptyEditorConfigDefaults)
@@ -58,7 +58,7 @@ class EditorConfigDefaultsLoaderTest {
     @Test
     fun `Given an non existing path then return empty editor config default`() {
         val actual = editorConfigDefaultsLoader.load(
-            fileSystemMock.normalizedPath("/path/to/non/existing/file.kt")
+            fileSystemMock.normalizedPath("/path/to/non/existing/file.kt"),
         )
 
         assertThat(actual).isEqualTo(emptyEditorConfigDefaults)
@@ -68,24 +68,24 @@ class EditorConfigDefaultsLoaderTest {
     @ValueSource(
         strings = [
             ".editorconfig",
-            "some-alternative-file-name"
-        ]
+            "some-alternative-file-name",
+        ],
     )
     fun `Given an existing editor config file then load all settings from it`(
-        fileName: String
+        fileName: String,
     ) {
         val existingEditorConfigFileName = "/some/path/to/existing/$fileName"
         fileSystemMock.writeEditorConfigFile(
             existingEditorConfigFileName,
-            SOME_EDITOR_CONFIG.toString()
+            SOME_EDITOR_CONFIG.toString(),
         )
 
         val actual = editorConfigDefaultsLoader.load(
-            fileSystemMock.normalizedPath(existingEditorConfigFileName)
+            fileSystemMock.normalizedPath(existingEditorConfigFileName),
         )
 
         assertThat(actual).isEqualTo(
-            EditorConfigDefaults(SOME_EDITOR_CONFIG)
+            EditorConfigDefaults(SOME_EDITOR_CONFIG),
         )
     }
 
@@ -94,21 +94,21 @@ class EditorConfigDefaultsLoaderTest {
         val existingDirectory = "/some/path/to/existing/directory"
         fileSystemMock.writeEditorConfigFile(
             existingDirectory.plus("/.editorconfig"),
-            SOME_EDITOR_CONFIG.toString()
+            SOME_EDITOR_CONFIG.toString(),
         )
 
         val actual = editorConfigDefaultsLoader.load(
-            fileSystemMock.normalizedPath(existingDirectory)
+            fileSystemMock.normalizedPath(existingDirectory),
         )
 
         assertThat(actual).isEqualTo(
-            EditorConfigDefaults(SOME_EDITOR_CONFIG)
+            EditorConfigDefaults(SOME_EDITOR_CONFIG),
         )
     }
 
     private fun FileSystem.writeEditorConfigFile(
         filePath: String,
-        content: String
+        content: String,
     ) {
         val path = normalizedPath(filePath)
         require(!path.isDirectory())
@@ -133,8 +133,8 @@ class EditorConfigDefaultsLoaderTest {
                         Property
                             .builder()
                             .name("some-property")
-                            .value("some-property-value")
-                    )
+                            .value("some-property-value"),
+                    ),
             )
             .build()
     }

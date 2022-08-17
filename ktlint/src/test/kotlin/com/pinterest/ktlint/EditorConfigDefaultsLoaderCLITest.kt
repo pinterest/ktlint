@@ -16,7 +16,7 @@ class EditorConfigDefaultsLoaderCLITest : BaseCLITest() {
     fun `When no default editorconfig is specified only the normal editorconfig file(s) on the file paths are used`() {
         runKtLintCliProcess(
             "editorconfig-path",
-            listOf()
+            listOf(),
         ) {
             assertErrorExitCode()
 
@@ -38,16 +38,16 @@ class EditorConfigDefaultsLoaderCLITest : BaseCLITest() {
             ".editorconfig-bar",
             "editorconfig-alternative",
             // Ensure that relative urls are allowed as well
-            "../project/editorconfig-alternative"
-        ]
+            "../project/editorconfig-alternative",
+        ],
     )
     fun `Given a default editorconfig path then use defaults when editorconfig files on the filepath do not resolve the property`(
-        editorconfigPath: String
+        editorconfigPath: String,
     ) {
         val projectDirectory = "$BASE_DIR_PLACEHOLDER/editorconfig-path/project"
         runKtLintCliProcess(
             "editorconfig-path",
-            listOf("--editorconfig=$projectDirectory/$editorconfigPath")
+            listOf("--editorconfig=$projectDirectory/$editorconfigPath"),
         ) {
             assertErrorExitCode()
 
@@ -66,7 +66,7 @@ class EditorConfigDefaultsLoaderCLITest : BaseCLITest() {
         val projectDirectory = "$BASE_DIR_PLACEHOLDER/editorconfig-path/project"
         runKtLintCliProcess(
             "editorconfig-path",
-            listOf("--editorconfig=$projectDirectory/.editorconfig-default-max-line-length-on-tests-only")
+            listOf("--editorconfig=$projectDirectory/.editorconfig-default-max-line-length-on-tests-only"),
         ) {
             assertErrorExitCode()
 
@@ -84,7 +84,7 @@ class EditorConfigDefaultsLoaderCLITest : BaseCLITest() {
         val projectDirectory = "$BASE_DIR_PLACEHOLDER/editorconfig-path/project"
         runKtLintCliProcess(
             "editorconfig-path",
-            listOf("--editorconfig=$projectDirectory/.editorconfig-disable-filename-rule")
+            listOf("--editorconfig=$projectDirectory/.editorconfig-disable-filename-rule"),
         ) {
             assertErrorExitCode()
 

@@ -187,7 +187,7 @@ internal class KtlintCommandLine {
             "Path to the default '.editorconfig'. A property value from this file is used only when no " +
                 "'.editorconfig' file on the path to the source file specifies that property. Note: up until ktlint " +
                 "0.46 the property value in this file used to override values found in '.editorconfig' files on the " +
-                "path to the source file."
+                "path to the source file.",
         ],
     )
     private var editorConfigPath: String? = null
@@ -245,7 +245,7 @@ internal class KtlintCommandLine {
         val editorConfigDefaults = EditorConfigDefaults.load(
             editorConfigPath
                 ?.expandTildeToFullPath()
-                ?.let { path -> Paths.get(path) }
+                ?.let { path -> Paths.get(path) },
         )
         val editorConfigOverride =
             EditorConfigOverride
@@ -262,7 +262,7 @@ internal class KtlintCommandLine {
                 ruleProviders,
                 editorConfigDefaults,
                 editorConfigOverride,
-                reporter
+                reporter,
             )
         } else {
             lintFiles(

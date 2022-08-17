@@ -5,8 +5,6 @@ import com.pinterest.ktlint.core.api.EditorConfigDefaults.Companion.emptyEditorC
 import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ktlint.core.internal.ThreadSafeEditorConfigCache.Companion.threadSafeEditorConfigCache
 import java.nio.charset.StandardCharsets
-import java.nio.file.FileSystem
-import java.nio.file.FileSystems
 import java.nio.file.Path
 import kotlin.io.path.isDirectory
 import kotlin.io.path.notExists
@@ -21,9 +19,7 @@ private val logger = KotlinLogging.logger {}.initKtLintKLogger()
 /**
  * Load all properties from an ".editorconfig" file without filtering on a glob.
  */
-internal class EditorConfigDefaultsLoader(
-    private val fileSystem: FileSystem = FileSystems.getDefault()
-) {
+internal class EditorConfigDefaultsLoader {
     private val editorConfigLoader: EditorConfigLoader = EditorConfigLoader.of(Version.CURRENT)
 
     /**
@@ -56,7 +52,7 @@ internal class EditorConfigDefaultsLoader(
                         .split("\n")
                         .joinToString(
                             prefix = "Loaded .editorconfig-properties from file '$editorConfigFilePath':\n\t",
-                            separator = "\n\t"
+                            separator = "\n\t",
                         )
                 }
             }.let { EditorConfigDefaults(it) }
@@ -66,7 +62,7 @@ internal class EditorConfigDefaultsLoader(
         if (isDirectory()) {
             pathString
                 .plus(
-                    fileSystem.separator.plus(".editorconfig")
+                    fileSystem.separator.plus(".editorconfig"),
                 ).let { path -> fileSystem.getPath(path) }
         } else {
             this
