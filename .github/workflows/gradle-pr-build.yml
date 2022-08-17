@@ -17,7 +17,7 @@ jobs:
           java-version: 17
       - uses: gradle/gradle-build-action@v2
       - name: Build with release Kotlin version
-        run: ./gradlew clean build ktlint
+        run: ./gradlew clean build ktlint --no-daemon
       - name: Upload test results
         uses: actions/upload-artifact@v3
         if: failure()
@@ -26,4 +26,4 @@ jobs:
           path: 'ktlint/build/reports/tests/**'
           if-no-files-found: warn
       - name: Build with dev Kotlin version
-        run: ./gradlew -PkotlinDev clean build ktlint
+        run: ./gradlew -PkotlinDev clean build ktlint --no-daemon
