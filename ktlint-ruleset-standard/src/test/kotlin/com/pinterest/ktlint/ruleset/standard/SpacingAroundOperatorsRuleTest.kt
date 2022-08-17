@@ -25,8 +25,8 @@ class SpacingAroundOperatorsRuleTest {
             "==",
             "===",
             "!=",
-            "!=="
-        ]
+            "!==",
+        ],
     )
     fun `Given a simple operator`(operator: String) {
         val code =
@@ -47,7 +47,7 @@ class SpacingAroundOperatorsRuleTest {
             .hasLintViolations(
                 LintViolation(1, 13, "Missing spacing around \"${operator}\""),
                 LintViolation(2, 13, "Missing spacing before \"${operator}\""),
-                LintViolation(3, 15, "Missing spacing after \"${operator}\"")
+                LintViolation(3, 15, "Missing spacing after \"${operator}\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -58,8 +58,8 @@ class SpacingAroundOperatorsRuleTest {
             "++",
             "-",
             "--",
-            "!"
-        ]
+            "!",
+        ],
     )
     fun `Given a unary prefix operator`(operator: String) {
         val code =
@@ -73,8 +73,8 @@ class SpacingAroundOperatorsRuleTest {
     @ValueSource(
         strings = [
             "++",
-            "--"
-        ]
+            "--",
+        ],
     )
     fun `Given a unary postfix operator`(operator: String) {
         val code =
@@ -123,7 +123,7 @@ class SpacingAroundOperatorsRuleTest {
             .hasLintViolations(
                 LintViolation(1, 11, "Missing spacing around \"=\""),
                 LintViolation(2, 11, "Missing spacing before \"=\""),
-                LintViolation(3, 13, "Missing spacing after \"=\"")
+                LintViolation(3, 13, "Missing spacing after \"=\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -156,7 +156,7 @@ class SpacingAroundOperatorsRuleTest {
             .hasLintViolations(
                 LintViolation(1, 9, "Missing spacing around \"=\""),
                 LintViolation(2, 9, "Missing spacing before \"=\""),
-                LintViolation(3, 11, "Missing spacing after \"=\"")
+                LintViolation(3, 11, "Missing spacing after \"=\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -189,7 +189,7 @@ class SpacingAroundOperatorsRuleTest {
                     LintViolation(3, 6, "Missing spacing around \"+=\""),
                     LintViolation(4, 6, "Missing spacing around \"-=\""),
                     LintViolation(5, 6, "Missing spacing around \"/=\""),
-                    LintViolation(6, 6, "Missing spacing around \"*=\"")
+                    LintViolation(6, 6, "Missing spacing around \"*=\""),
                 ).isFormattedAs(formattedCode)
         }
 
@@ -220,7 +220,7 @@ class SpacingAroundOperatorsRuleTest {
                     LintViolation(3, 6, "Missing spacing before \"+=\""),
                     LintViolation(4, 6, "Missing spacing before \"-=\""),
                     LintViolation(5, 6, "Missing spacing before \"/=\""),
-                    LintViolation(6, 6, "Missing spacing before \"*=\"")
+                    LintViolation(6, 6, "Missing spacing before \"*=\""),
                 ).isFormattedAs(formattedCode)
         }
 
@@ -251,7 +251,7 @@ class SpacingAroundOperatorsRuleTest {
                     LintViolation(3, 8, "Missing spacing after \"+=\""),
                     LintViolation(4, 8, "Missing spacing after \"-=\""),
                     LintViolation(5, 8, "Missing spacing after \"/=\""),
-                    LintViolation(6, 8, "Missing spacing after \"*=\"")
+                    LintViolation(6, 8, "Missing spacing after \"*=\""),
                 ).isFormattedAs(formattedCode)
         }
     }

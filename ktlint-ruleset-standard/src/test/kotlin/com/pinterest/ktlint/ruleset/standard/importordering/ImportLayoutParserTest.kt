@@ -31,7 +31,7 @@ class ImportLayoutParserTest {
             PatternEntry("android.*", withSubpackages = true, hasAlias = true),
             PatternEntry.ALL_OTHER_IMPORTS_ENTRY,
             PatternEntry("kotlin.io.Closeable.*", withSubpackages = false, hasAlias = false),
-            PatternEntry.ALL_OTHER_ALIAS_IMPORTS_ENTRY
+            PatternEntry.ALL_OTHER_ALIAS_IMPORTS_ENTRY,
         )
         val actual = parseImportsLayout("android.**,|,org.junit.**,|,^android.**,*,kotlin.io.Closeable.*,^")
 

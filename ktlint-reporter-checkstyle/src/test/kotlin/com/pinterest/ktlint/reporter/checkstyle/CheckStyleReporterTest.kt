@@ -18,9 +18,9 @@ class CheckStyleReporterTest {
                 1,
                 1,
                 "rule-1",
-                "<\"&'>"
+                "<\"&'>",
             ),
-            false
+            false,
         )
         reporter.onLintError(
             "/one-fixed-and-one-not.kt",
@@ -28,9 +28,9 @@ class CheckStyleReporterTest {
                 2,
                 1,
                 "rule-2",
-                "And if you see my friend"
+                "And if you see my friend",
             ),
-            true
+            true,
         )
 
         reporter.onLintError(
@@ -39,9 +39,9 @@ class CheckStyleReporterTest {
                 1,
                 10,
                 "rule-1",
-                "I thought I would again"
+                "I thought I would again",
             ),
-            false
+            false,
         )
         reporter.onLintError(
             "/two-not-fixed.kt",
@@ -49,9 +49,9 @@ class CheckStyleReporterTest {
                 2,
                 20,
                 "rule-2",
-                "A single thin straight line"
+                "A single thin straight line",
             ),
-            false
+            false,
         )
 
         reporter.onLintError(
@@ -60,9 +60,9 @@ class CheckStyleReporterTest {
                 1,
                 1,
                 "rule-1",
-                "I thought we had more time"
+                "I thought we had more time",
             ),
-            true
+            true,
         )
         reporter.afterAll()
         assertThat(String(out.toByteArray())).isEqualTo(
@@ -79,7 +79,7 @@ class CheckStyleReporterTest {
             </checkstyle>
 
             """.trimIndent()
-                .replace("\n", System.lineSeparator())
+                .replace("\n", System.lineSeparator()),
         )
     }
 }

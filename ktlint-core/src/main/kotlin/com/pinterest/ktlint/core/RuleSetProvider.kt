@@ -29,7 +29,7 @@ public interface RuleSetProvider : Serializable {
      * of the [Rule] is shared. As of this [Rule] have to clear their internal state.
      */
     @Deprecated(
-        "Marked for removal in KtLint 0.48. See changelog or KDoc for more information."
+        "Marked for removal in KtLint 0.48. See changelog or KDoc for more information.",
     )
     public fun get(): RuleSet
 }

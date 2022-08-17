@@ -11,7 +11,7 @@ class PlainReporterProviderTest {
     fun `Given that a valid color name is provided then the plain reporter provider is created without exception`() {
         val plainReporter = PlainReporterProvider().get(
             out = PrintStream(out, true),
-            opt = mapOf("color_name" to "RED")
+            opt = mapOf("color_name" to "RED"),
         )
 
         assertThat(plainReporter).isNotNull
@@ -24,7 +24,7 @@ class PlainReporterProviderTest {
                 PlainReporterProvider()
                     .get(
                         out = PrintStream(out, true),
-                        opt = mapOf()
+                        opt = mapOf(),
                     )
             }.withMessage("Invalid color parameter.")
     }
@@ -36,7 +36,7 @@ class PlainReporterProviderTest {
                 PlainReporterProvider()
                     .get(
                         out = PrintStream(out, true),
-                        opt = mapOf("color_name" to "")
+                        opt = mapOf("color_name" to ""),
                     )
             }.withMessage("Invalid color parameter.")
     }
@@ -48,7 +48,7 @@ class PlainReporterProviderTest {
                 PlainReporterProvider()
                     .get(
                         out = PrintStream(out, true),
-                        opt = mapOf("color_name" to "GARBAGE_INPUT")
+                        opt = mapOf("color_name" to "GARBAGE_INPUT"),
                     )
             }.withMessage("Invalid color parameter.")
     }

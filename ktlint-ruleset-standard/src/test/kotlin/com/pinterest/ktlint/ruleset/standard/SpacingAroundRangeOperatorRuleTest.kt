@@ -33,7 +33,7 @@ class SpacingAroundRangeOperatorRuleTest {
             .hasLintViolations(
                 LintViolation(2, 16, "Unexpected spacing after \"..\""),
                 LintViolation(3, 15, "Unexpected spacing around \"..\""),
-                LintViolation(4, 14, "Unexpected spacing before \"..\"")
+                LintViolation(4, 14, "Unexpected spacing before \"..\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -61,7 +61,7 @@ class SpacingAroundRangeOperatorRuleTest {
             .hasLintViolations(
                 LintViolation(3, 18, "Unexpected spacing after \"..\""),
                 LintViolation(4, 17, "Unexpected spacing around \"..\""),
-                LintViolation(5, 16, "Unexpected spacing before \"..\"")
+                LintViolation(5, 16, "Unexpected spacing before \"..\""),
             ).isFormattedAs(formattedCode)
     }
 }

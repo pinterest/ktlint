@@ -24,5 +24,5 @@ public enum class Color(public val code: Int) {
     LIGHT_BLUE(94),
     LIGHT_MAGENTA(95),
     LIGHT_CYAN(96),
-    WHITE(97)
+    WHITE(97),
 }

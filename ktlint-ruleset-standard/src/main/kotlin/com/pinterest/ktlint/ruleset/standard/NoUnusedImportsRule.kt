@@ -29,7 +29,7 @@ import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
 public class NoUnusedImportsRule : Rule("no-unused-imports") {
     private val ref = mutableSetOf(
-        Reference("*", false)
+        Reference("*", false),
     )
     private val parentExpressions = mutableSetOf<String>()
     private val imports = mutableMapOf<ImportPath, ASTNode>()
@@ -40,7 +40,7 @@ public class NoUnusedImportsRule : Rule("no-unused-imports") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.isRoot()) {
             rootNode = node
@@ -91,8 +91,8 @@ public class NoUnusedImportsRule : Rule("no-unused-imports") {
                             ref.add(
                                 Reference(
                                     it.removeBackticksAndTrim(),
-                                    node.psi.parentDotQualifiedExpression() != null
-                                )
+                                    node.psi.parentDotQualifiedExpression() != null,
+                                ),
                             )
                         }
                 }
@@ -104,7 +104,7 @@ public class NoUnusedImportsRule : Rule("no-unused-imports") {
     override fun afterVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.elementType == FILE) {
             val directCalls = ref.filter { !it.inDotQualifiedExpression }.map { it.text }
@@ -184,7 +184,7 @@ public class NoUnusedImportsRule : Rule("no-unused-imports") {
         }
 
         val methodCallExpression = text.substringBeforeLast(
-            "("
+            "(",
         )
 
         // Only check static imports; identified if they start with a capital letter indicating a
@@ -198,7 +198,7 @@ public class NoUnusedImportsRule : Rule("no-unused-imports") {
             .forEach { import ->
                 val count = imports.count {
                     it.key.pathStr.removeBackticksAndTrim().startsWith(
-                        import.key.pathStr.removeBackticksAndTrim().substringBefore(methodCallExpression)
+                        import.key.pathStr.removeBackticksAndTrim().substringBefore(methodCallExpression),
                     )
                 }
                 // Parent import and static import both are present
@@ -253,7 +253,7 @@ public class NoUnusedImportsRule : Rule("no-unused-imports") {
             // iteration (https://github.com/shyiko/ktlint/issues/40)
             "iterator",
             // by (https://github.com/shyiko/ktlint/issues/54)
-            "getValue", "setValue"
+            "getValue", "setValue",
         )
     }
 }

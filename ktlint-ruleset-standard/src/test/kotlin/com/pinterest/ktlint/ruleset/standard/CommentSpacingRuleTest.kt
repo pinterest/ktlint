@@ -61,7 +61,7 @@ class CommentSpacingRuleTest {
                 LintViolation(4, 22, "Missing space after //"),
                 LintViolation(6, 24, "Missing space before //"),
                 LintViolation(6, 24, "Missing space after //"),
-                LintViolation(10, 5, "Missing space after //")
+                LintViolation(10, 5, "Missing space after //"),
             ).isFormattedAs(formattedCode)
     }
 }

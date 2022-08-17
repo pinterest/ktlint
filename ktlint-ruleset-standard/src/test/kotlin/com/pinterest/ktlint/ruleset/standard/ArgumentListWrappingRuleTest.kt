@@ -31,7 +31,7 @@ class ArgumentListWrappingRuleTest {
             .hasLintViolation(
                 3,
                 8,
-                "Argument should be on a separate line (unless all arguments can fit a single line)"
+                "Argument should be on a separate line (unless all arguments can fit a single line)",
             )
             .isFormattedAs(formattedCode)
     }
@@ -62,7 +62,7 @@ class ArgumentListWrappingRuleTest {
             .hasLintViolations(
                 LintViolation(2, 9, "Argument should be on a separate line (unless all arguments can fit a single line)"),
                 LintViolation(2, 14, "Argument should be on a separate line (unless all arguments can fit a single line)"),
-                LintViolation(3, 8, "Missing newline before \")\"")
+                LintViolation(3, 8, "Missing newline before \")\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -86,7 +86,7 @@ class ArgumentListWrappingRuleTest {
                 LintViolation(1, 11, "Argument should be on a separate line (unless all arguments can fit a single line)"),
                 LintViolation(1, 14, "Argument should be on a separate line (unless all arguments can fit a single line)"),
                 LintViolation(1, 17, "Argument should be on a separate line (unless all arguments can fit a single line)"),
-                LintViolation(1, 18, "Missing newline before \")\"")
+                LintViolation(1, 18, "Missing newline before \")\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -164,7 +164,7 @@ class ArgumentListWrappingRuleTest {
             .hasLintViolations(
                 LintViolation(13, 10, "Argument should be on a separate line (unless all arguments can fit a single line)"),
                 LintViolation(13, 19, "Argument should be on a separate line (unless all arguments can fit a single line)"),
-                LintViolation(13, 26, "Missing newline before \")\"")
+                LintViolation(13, 26, "Missing newline before \")\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -202,7 +202,7 @@ class ArgumentListWrappingRuleTest {
                 LintViolation(3, 18, "Argument should be on a separate line (unless all arguments can fit a single line)"),
                 LintViolation(5, 6, "Missing newline before \")\""),
                 LintViolation(7, 9, "Argument should be on a separate line (unless all arguments can fit a single line)"),
-                LintViolation(8, 26, "Missing newline before \")\"")
+                LintViolation(8, 26, "Missing newline before \")\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -251,7 +251,7 @@ class ArgumentListWrappingRuleTest {
             .hasLintViolations(
                 LintViolation(5, 17, "Argument should be on a separate line (unless all arguments can fit a single line)"),
                 LintViolation(6, 31, "Argument should be on a separate line (unless all arguments can fit a single line)"),
-                LintViolation(6, 32, "Missing newline before \")\"")
+                LintViolation(6, 32, "Missing newline before \")\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -283,7 +283,7 @@ class ArgumentListWrappingRuleTest {
             .hasLintViolations(
                 LintViolation(2, 10, "Argument should be on a separate line (unless all arguments can fit a single line)"),
                 LintViolation(2, 19, "Argument should be on a separate line (unless all arguments can fit a single line)"),
-                LintViolation(5, 12, "Missing newline before \")\"")
+                LintViolation(5, 12, "Missing newline before \")\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -358,7 +358,7 @@ class ArgumentListWrappingRuleTest {
             .addAdditionalRuleProvider { IndentationRule() }
             .hasLintViolations(
                 LintViolation(4, 21, "Argument should be on a separate line (unless all arguments can fit a single line)"),
-                LintViolation(7, 10, "Missing newline before \")\"")
+                LintViolation(7, 10, "Missing newline before \")\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -524,7 +524,7 @@ class ArgumentListWrappingRuleTest {
             .withEditorConfigOverride(maxLineLengthProperty to 33)
             .hasLintViolations(
                 LintViolation(8, 23, "Argument should be on a separate line (unless all arguments can fit a single line)"),
-                LintViolation(8, 34, "Missing newline before \")\"")
+                LintViolation(8, 34, "Missing newline before \")\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -556,7 +556,7 @@ class ArgumentListWrappingRuleTest {
             .withEditorConfigOverride(maxLineLengthProperty to 65)
             .hasLintViolations(
                 LintViolation(4, 15, "Argument should be on a separate line (unless all arguments can fit a single line)"),
-                LintViolation(4, 70, "Missing newline before \")\"")
+                LintViolation(4, 70, "Missing newline before \")\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -758,7 +758,7 @@ class ArgumentListWrappingRuleTest {
                 LintViolation(27, 26, "Argument should be on a separate line (unless all arguments can fit a single line)"),
                 LintViolation(28, 22, "Argument should be on a separate line (unless all arguments can fit a single line)"),
                 LintViolation(29, 22, "Argument should be on a separate line (unless all arguments can fit a single line)"),
-                LintViolation(32, 22, "Argument should be on a separate line (unless all arguments can fit a single line)")
+                LintViolation(32, 22, "Argument should be on a separate line (unless all arguments can fit a single line)"),
             ).isFormattedAs(formattedCode)
     }
 

@@ -118,7 +118,7 @@ class MultiLineIfElseRuleTest {
         multiLineIfElseRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(3, 9, "Missing { ... }"),
-                LintViolation(5, 9, "Missing { ... }")
+                LintViolation(5, 9, "Missing { ... }"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -148,7 +148,7 @@ class MultiLineIfElseRuleTest {
         multiLineIfElseRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(5, 9, "Missing { ... }"),
-                LintViolation(7, 9, "Missing { ... }")
+                LintViolation(7, 9, "Missing { ... }"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -179,7 +179,7 @@ class MultiLineIfElseRuleTest {
             .hasLintViolations(
                 LintViolation(3, 9, "Missing { ... }"),
                 LintViolation(5, 9, "Missing { ... }"),
-                LintViolation(7, 9, "Missing { ... }")
+                LintViolation(7, 9, "Missing { ... }"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -268,7 +268,7 @@ class MultiLineIfElseRuleTest {
                 LintViolation(23, 13, "Missing { ... }"),
                 LintViolation(25, 9, "Missing { ... }"),
                 LintViolation(26, 13, "Missing { ... }"),
-                LintViolation(28, 13, "Missing { ... }")
+                LintViolation(28, 13, "Missing { ... }"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -300,7 +300,7 @@ class MultiLineIfElseRuleTest {
         multiLineIfElseRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(5, 9, "Missing { ... }"),
-                LintViolation(7, 9, "Missing { ... }")
+                LintViolation(7, 9, "Missing { ... }"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -360,7 +360,7 @@ class MultiLineIfElseRuleTest {
                 LintViolation(11, 13, "Missing { ... }"),
                 LintViolation(13, 9, "Missing { ... }"),
                 LintViolation(14, 13, "Missing { ... }"),
-                LintViolation(16, 13, "Missing { ... }")
+                LintViolation(16, 13, "Missing { ... }"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -394,7 +394,7 @@ class MultiLineIfElseRuleTest {
         multiLineIfElseRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(4, 13, "Missing { ... }"),
-                LintViolation(6, 13, "Missing { ... }")
+                LintViolation(6, 13, "Missing { ... }"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -427,7 +427,7 @@ class MultiLineIfElseRuleTest {
             .addAdditionalRuleProvider { IndentationRule() }
             .hasLintViolations(
                 LintViolation(4, 9, "Missing { ... }"),
-                LintViolation(7, 9, "Missing { ... }")
+                LintViolation(7, 9, "Missing { ... }"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -456,7 +456,7 @@ class MultiLineIfElseRuleTest {
             .addAdditionalRuleProvider { IndentationRule() }
             .hasLintViolations(
                 LintViolation(3, 9, "Missing { ... }"),
-                LintViolation(5, 9, "Missing { ... }")
+                LintViolation(5, 9, "Missing { ... }"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -492,7 +492,7 @@ class MultiLineIfElseRuleTest {
         multiLineIfElseRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(5, 18, "Missing { ... }"),
-                LintViolation(6, 13, "Missing { ... }")
+                LintViolation(6, 13, "Missing { ... }"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -515,7 +515,7 @@ class MultiLineIfElseRuleTest {
         multiLineIfElseRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(2, 5, "Missing { ... }"),
-                LintViolation(3, 5, "Missing { ... }")
+                LintViolation(3, 5, "Missing { ... }"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -566,7 +566,7 @@ class MultiLineIfElseRuleTest {
             .addAdditionalRuleProvider { IndentationRule() }
             .hasLintViolations(
                 LintViolation(2, 15, "Missing { ... }"),
-                LintViolation(3, 10, "Missing { ... }")
+                LintViolation(3, 10, "Missing { ... }"),
             ).isFormattedAs(formattedCode)
     }
 }

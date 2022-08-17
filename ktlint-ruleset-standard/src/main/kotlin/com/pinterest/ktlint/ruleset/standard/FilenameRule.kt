@@ -45,7 +45,7 @@ public class FilenameRule : Rule("filename") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.isRoot()) {
             node as FileASTNode? ?: error("node is not ${FileASTNode::class} but ${node::class}")
@@ -125,13 +125,13 @@ public class FilenameRule : Rule("filename") {
 
     private fun String.shouldMatchClassName(
         className: String,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (this != className) {
             emit(
                 0,
                 "File '$this.kt' contains a single class and possibly also extension functions for that class and should be named same after that class '$className.kt'",
-                false
+                false,
             )
         }
     }
@@ -141,19 +141,19 @@ public class FilenameRule : Rule("filename") {
 
     private fun String.shouldMatchFileName(
         filename: String,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (this != filename) {
             emit(
                 0,
                 "File '$this.kt' contains a single top level declaration and should be named '$filename.kt'",
-                false
+                false,
             )
         }
     }
 
     private fun String.shouldMatchPascalCase(
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (!this.matches(pascalCaseRegEx)) {
             emit(0, "File name '$this.kt' should conform PascalCase", false)
@@ -162,7 +162,7 @@ public class FilenameRule : Rule("filename") {
 
     private data class TopLevelDeclaration(
         val elementType: IElementType,
-        val identifier: String
+        val identifier: String,
     )
 
     private fun ASTNode.toTopLevelDeclaration(): TopLevelDeclaration? =

@@ -16,13 +16,13 @@ public class BlockCommentInitialStarAlignmentRule :
             // The block comment is a node which can contain multiple lines. The indent of the second and later line
             // should be determined based on the indent of the block comment node. This indent is determined by the
             // indentation rule.
-            VisitorModifier.RunAfterRule("standard:indent")
-        )
+            VisitorModifier.RunAfterRule("standard:indent"),
+        ),
     ) {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.elementType == BLOCK_COMMENT) {
             val expectedIndentForLineWithInitialStar = node.lineIndent() + " *"

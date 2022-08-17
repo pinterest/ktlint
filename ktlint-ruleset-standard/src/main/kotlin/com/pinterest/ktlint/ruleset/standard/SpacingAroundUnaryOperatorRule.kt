@@ -16,7 +16,7 @@ public class SpacingAroundUnaryOperatorRule : Rule("unary-op-spacing") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.elementType == ElementType.PREFIX_EXPRESSION ||
             node.elementType == ElementType.POSTFIX_EXPRESSION

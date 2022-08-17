@@ -13,7 +13,7 @@ public class NoUnitReturnRule : Rule("no-unit-return") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.elementType == TYPE_REFERENCE &&
             node.treeParent.elementType == FUN &&

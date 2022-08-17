@@ -21,7 +21,7 @@ class SpacingAroundCurlyRuleTest {
         spacingAroundCurlyRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(1, 10, "Missing spacing around \"{\""),
-                LintViolation(1, 25, "Missing spacing before \"}\"")
+                LintViolation(1, 25, "Missing spacing before \"}\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -40,7 +40,7 @@ class SpacingAroundCurlyRuleTest {
                 LintViolation(1, 19, "Missing spacing around \"{\""),
                 LintViolation(1, 21, "Missing spacing around \"}\""),
                 LintViolation(1, 26, "Missing spacing around \"{\""),
-                LintViolation(1, 28, "Missing spacing before \"}\"")
+                LintViolation(1, 28, "Missing spacing before \"}\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -83,7 +83,7 @@ class SpacingAroundCurlyRuleTest {
             .hasLintViolations(
                 // TODO: Col offset is not correct
                 LintViolation(1, 17, "Missing spacing after \"{\""),
-                LintViolation(1, 23, "Missing spacing before \"}\"")
+                LintViolation(1, 23, "Missing spacing before \"}\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -220,7 +220,7 @@ class SpacingAroundCurlyRuleTest {
                 LintViolation(3, 61, "Missing spacing before \"{\""),
                 // TODO: Col offset is not correct
                 LintViolation(3, 63, "Missing spacing after \"}\""),
-                LintViolation(3, 63, "Missing spacing before \"}\"")
+                LintViolation(3, 63, "Missing spacing before \"}\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -238,7 +238,7 @@ class SpacingAroundCurlyRuleTest {
             .hasLintViolations(
                 LintViolation(1, 18, "Missing spacing before \"{\""),
                 LintViolation(1, 26, "Missing spacing before \"{\""),
-                LintViolation(1, 33, "Missing spacing before \"{\"")
+                LintViolation(1, 33, "Missing spacing before \"{\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -372,7 +372,7 @@ class SpacingAroundCurlyRuleTest {
             spacingAroundCurlyRuleAssertThat(code)
                 .hasLintViolations(
                     LintViolation(2, 1, "Unexpected newline before \"{\""),
-                    LintViolation(4, 1, "Unexpected newline before \"{\"")
+                    LintViolation(4, 1, "Unexpected newline before \"{\""),
                 ).isFormattedAs(formattedCode)
         }
 
@@ -465,7 +465,7 @@ class SpacingAroundCurlyRuleTest {
         spacingAroundCurlyRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(2, 1, "Unexpected newline before \"{\""),
-                LintViolation(5, 1, "Unexpected newline before \"{\"")
+                LintViolation(5, 1, "Unexpected newline before \"{\""),
             ).isFormattedAs(formattedCode)
     }
 }

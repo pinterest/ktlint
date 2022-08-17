@@ -9,5 +9,5 @@ package com.pinterest.ktlint.core
 public class ParseException(
     public val line: Int,
     public val col: Int,
-    message: String
+    message: String,
 ) : RuntimeException("$line:$col $message")

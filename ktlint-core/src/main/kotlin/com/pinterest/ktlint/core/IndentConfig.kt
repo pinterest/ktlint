@@ -10,7 +10,7 @@ public data class IndentConfig(
     /**
      * The number of spaces that is equivalent to one tab
      */
-    val tabWidth: Int
+    val tabWidth: Int,
 ) {
     /**
      * To use the [IndentConfig] in a rule, the following needs to be done:
@@ -34,13 +34,13 @@ public data class IndentConfig(
         /**
          * The number of spaces that is equivalent to one tab
          */
-        tabWidth: Int
+        tabWidth: Int,
     ) : this(
         indentStyle = when (indentStyle) {
             PropertyType.IndentStyleValue.tab -> TAB
             PropertyType.IndentStyleValue.space -> SPACE
         },
-        tabWidth = tabWidth
+        tabWidth = tabWidth,
     )
 
     public enum class IndentStyle { SPACE, TAB }
@@ -143,7 +143,7 @@ public data class IndentConfig(
 
         public val DEFAULT_INDENT_CONFIG: IndentConfig = IndentConfig(
             indentStyle = SPACE,
-            tabWidth = 4
+            tabWidth = 4,
         )
     }
 }

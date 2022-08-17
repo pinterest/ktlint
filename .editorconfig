@@ -15,11 +15,8 @@ indent_size = 4
 
 [*.{kt,kts}]
 ij_kotlin_imports_layout=*
-# Ideally, no experimental rule should be disabled. Ktlint should follow the dogfooding principle. This means that an
-# experimental rule should only be added to the master branch no sooner than that this rule has been applied on the
-# ktlint code base itself.
-ij_kotlin_allow_trailing_comma=false
-ij_kotlin_allow_trailing_comma_on_call_site=false
+ij_kotlin_allow_trailing_comma=true
+ij_kotlin_allow_trailing_comma_on_call_site=true
 
 [*.md]
 trim_trailing_whitespace = false

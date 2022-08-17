@@ -93,7 +93,7 @@ class FunctionSignatureRuleTest {
                 LintViolation(2, 7, "Newline expected after opening parenthesis"),
                 LintViolation(2, 15, "Parameter should start on a newline"),
                 LintViolation(2, 23, "Parameter should start on a newline"),
-                LintViolation(2, 29, "Newline expected before closing parenthesis")
+                LintViolation(2, 29, "Newline expected before closing parenthesis"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -160,7 +160,7 @@ class FunctionSignatureRuleTest {
                 LintViolation(2, 7, "Newline expected after opening parenthesis"),
                 LintViolation(2, 15, "Parameter should start on a newline"),
                 LintViolation(2, 23, "Parameter should start on a newline"),
-                LintViolation(2, 29, "Newline expected before closing parenthesis")
+                LintViolation(2, 29, "Newline expected before closing parenthesis"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -186,7 +186,7 @@ class FunctionSignatureRuleTest {
                 LintViolation(2, 7, "Newline expected after opening parenthesis"),
                 LintViolation(2, 20, "Parameter should start on a newline"),
                 LintViolation(2, 28, "Parameter should start on a newline"),
-                LintViolation(2, 34, "Newline expected before closing parenthesis")
+                LintViolation(2, 34, "Newline expected before closing parenthesis"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -237,7 +237,7 @@ class FunctionSignatureRuleTest {
             .hasLintViolations(
                 LintViolation(2, 7, "Newline expected after opening parenthesis"),
                 LintViolation(2, 15, "Parameter should start on a newline"),
-                LintViolation(2, 23, "Parameter should start on a newline")
+                LintViolation(2, 23, "Parameter should start on a newline"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -377,7 +377,7 @@ class FunctionSignatureRuleTest {
                 LintViolation(6, 5, "Single whitespace expected before parameter"),
                 LintViolation(7, 5, "Single whitespace expected before parameter"),
                 LintViolation(7, 11, "No whitespace expected between last parameter and closing parenthesis"),
-                LintViolation(8, 5, "Newline expected before expression body")
+                LintViolation(8, 5, "Newline expected before expression body"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -413,7 +413,7 @@ class FunctionSignatureRuleTest {
                 LintViolation(7, 9, "Single whitespace expected before parameter"),
                 LintViolation(8, 9, "Single whitespace expected before parameter"),
                 LintViolation(8, 15, "No whitespace expected between last parameter and closing parenthesis"),
-                LintViolation(9, 9, "Newline expected before expression body")
+                LintViolation(9, 9, "Newline expected before expression body"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -447,7 +447,7 @@ class FunctionSignatureRuleTest {
                     LintViolation(2, 7, "Newline expected after opening parenthesis"),
                     LintViolation(2, 15, "Parameter should start on a newline"),
                     LintViolation(2, 23, "Parameter should start on a newline"),
-                    LintViolation(2, 29, "Newline expected before closing parenthesis")
+                    LintViolation(2, 29, "Newline expected before closing parenthesis"),
                 ).isFormattedAs(formattedCode)
         }
 
@@ -475,7 +475,7 @@ class FunctionSignatureRuleTest {
                     LintViolation(1, 7, "Newline expected after opening parenthesis"),
                     LintViolation(1, 15, "Parameter should start on a newline"),
                     LintViolation(1, 23, "Parameter should start on a newline"),
-                    LintViolation(1, 29, "Newline expected before closing parenthesis")
+                    LintViolation(1, 29, "Newline expected before closing parenthesis"),
                 ).isFormattedAs(formattedCode)
         }
     }
@@ -614,16 +614,16 @@ class FunctionSignatureRuleTest {
                     { SpacingAroundParensRule() },
                     { SpacingAroundDotRule() },
                     { SpacingAroundCommaRule() },
-                    { SpacingAroundColonRule() }
+                    { SpacingAroundColonRule() },
                 ).hasLintViolations(
                     LintViolation(3, 10, "No whitespace expected between opening parenthesis and first parameter name"),
                     LintViolation(7, 17, "Single whitespace expected before parameter"),
                     LintViolation(
                         8,
                         22,
-                        "No whitespace expected between last parameter and closing parenthesis"
+                        "No whitespace expected between last parameter and closing parenthesis",
                     ),
-                    LintViolation(9, 10, "No whitespace expected between opening parenthesis and first parameter name")
+                    LintViolation(9, 10, "No whitespace expected between opening parenthesis and first parameter name"),
                 ).isFormattedAs(formattedCode)
         }
 
@@ -664,7 +664,7 @@ class FunctionSignatureRuleTest {
                     { FunctionTypeReferenceSpacingRule() },
                     { SpacingAroundColonRule() },
                     { SpacingAroundCommaRule() },
-                    { SpacingAroundOperatorsRule() }
+                    { SpacingAroundOperatorsRule() },
                 ).hasLintViolation(2, 15, "Single whitespace expected before parameter")
                 .isFormattedAs(formattedCode)
         }
@@ -676,10 +676,10 @@ class FunctionSignatureRuleTest {
         @ParameterizedTest(name = "bodyExpressionWrapping: {0}")
         @EnumSource(
             value = FunctionSignatureRule.FunctionBodyExpressionWrapping::class,
-            names = ["default", "multiline"]
+            names = ["default", "multiline"],
         )
         fun `Given that the function signature and a single line body expression body fit on the same line then do not reformat function signature or body expression`(
-            bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping
+            bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping,
         ) {
             val code =
                 """
@@ -695,10 +695,10 @@ class FunctionSignatureRuleTest {
         @ParameterizedTest(name = "bodyExpressionWrapping: {0}")
         @EnumSource(
             value = FunctionSignatureRule.FunctionBodyExpressionWrapping::class,
-            names = ["always"]
+            names = ["always"],
         )
         fun `Given that the function signature and a single line body expression body fit on the same line then do not reformat function signature but move the body expression to a separate line`(
-            bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping
+            bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping,
         ) {
             val code =
                 """
@@ -722,10 +722,10 @@ class FunctionSignatureRuleTest {
         @ParameterizedTest(name = "bodyExpressionWrapping: {0}")
         @EnumSource(
             value = FunctionSignatureRule.FunctionBodyExpressionWrapping::class,
-            names = ["multiline", "always"]
+            names = ["multiline", "always"],
         )
         fun `Given that the function signature and first line of a multiline body expression body fit on the same line then do not reformat the function signature, move the body expression to a separate line`(
-            bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping
+            bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping,
         ) {
             val code =
                 """
@@ -755,10 +755,10 @@ class FunctionSignatureRuleTest {
         @ParameterizedTest(name = "bodyExpressionWrapping: {0}")
         @EnumSource(
             value = FunctionSignatureRule.FunctionBodyExpressionWrapping::class,
-            names = ["default", "multiline"]
+            names = ["default", "multiline"],
         )
         fun `Given that the function signature and a single line body expression body fit on the same line then do reformat as single line signature`(
-            bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping
+            bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping,
         ) {
             val code =
                 """
@@ -782,17 +782,17 @@ class FunctionSignatureRuleTest {
                     LintViolation(3, 5, "No whitespace expected between opening parenthesis and first parameter name"),
                     LintViolation(4, 5, "Single whitespace expected before parameter"),
                     LintViolation(4, 11, "No whitespace expected between last parameter and closing parenthesis"),
-                    LintViolation(5, 12, "First line of body expression fits on same line as function signature")
+                    LintViolation(5, 12, "First line of body expression fits on same line as function signature"),
                 ).isFormattedAs(formattedCode)
         }
 
         @ParameterizedTest(name = "bodyExpressionWrapping: {0}")
         @EnumSource(
             value = FunctionSignatureRule.FunctionBodyExpressionWrapping::class,
-            names = ["default", "multiline", "always"]
+            names = ["default", "multiline", "always"],
         )
         fun `Given that the function signature and first line of a multi line body expression body do not fit on the same line then do reformat`(
-            bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping
+            bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping,
         ) {
             val code =
                 """
@@ -816,17 +816,17 @@ class FunctionSignatureRuleTest {
                     LintViolation(3, 5, "No whitespace expected between opening parenthesis and first parameter name"),
                     LintViolation(4, 5, "Single whitespace expected before parameter"),
                     LintViolation(4, 11, "No whitespace expected between last parameter and closing parenthesis"),
-                    LintViolation(5, 13, "Newline expected before expression body")
+                    LintViolation(5, 13, "Newline expected before expression body"),
                 ).isFormattedAs(formattedCode)
         }
 
         @ParameterizedTest(name = "bodyExpressionWrapping: {0}")
         @EnumSource(
             value = FunctionSignatureRule.FunctionBodyExpressionWrapping::class,
-            names = ["always"]
+            names = ["always"],
         )
         fun `Given that the function signature and the first line of a multi line body expression body fit on the same line then reformat to single line signature but keep body expression on separate line`(
-            bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping
+            bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping,
         ) {
             val code =
                 """
@@ -852,17 +852,17 @@ class FunctionSignatureRuleTest {
                 .hasLintViolations(
                     LintViolation(3, 5, "No whitespace expected between opening parenthesis and first parameter name"),
                     LintViolation(4, 5, "Single whitespace expected before parameter"),
-                    LintViolation(4, 11, "No whitespace expected between last parameter and closing parenthesis")
+                    LintViolation(4, 11, "No whitespace expected between last parameter and closing parenthesis"),
                 ).isFormattedAs(formattedCode)
         }
 
         @ParameterizedTest(name = "bodyExpressionWrapping: {0}")
         @EnumSource(
             value = FunctionSignatureRule.FunctionBodyExpressionWrapping::class,
-            names = ["default", "multiline"]
+            names = ["default", "multiline"],
         )
         fun `Given that the function signature and first line of a multiline body expression body fit on the same line then do reformat as single line signature`(
-            bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping
+            bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping,
         ) {
             val code =
                 """
@@ -888,17 +888,17 @@ class FunctionSignatureRuleTest {
                     LintViolation(3, 5, "No whitespace expected between opening parenthesis and first parameter name"),
                     LintViolation(4, 5, "Single whitespace expected before parameter"),
                     LintViolation(4, 11, "No whitespace expected between last parameter and closing parenthesis"),
-                    LintViolation(5, 12, "First line of body expression fits on same line as function signature")
+                    LintViolation(5, 12, "First line of body expression fits on same line as function signature"),
                 ).isFormattedAs(formattedCode)
         }
 
         @ParameterizedTest(name = "bodyExpressionWrapping: {0}")
         @EnumSource(
             value = FunctionSignatureRule.FunctionBodyExpressionWrapping::class,
-            names = ["always"]
+            names = ["always"],
         )
         fun `Given that the function signature and first line of a multiline body expression body fit on the same line then do reformat as single line signature, keep the body expression on a separate line`(
-            bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping
+            bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping,
         ) {
             val code =
                 """
@@ -924,17 +924,17 @@ class FunctionSignatureRuleTest {
                 .hasLintViolations(
                     LintViolation(3, 5, "No whitespace expected between opening parenthesis and first parameter name"),
                     LintViolation(4, 5, "Single whitespace expected before parameter"),
-                    LintViolation(4, 11, "No whitespace expected between last parameter and closing parenthesis")
+                    LintViolation(4, 11, "No whitespace expected between last parameter and closing parenthesis"),
                 ).isFormattedAs(formattedCode)
         }
     }
 
     @ParameterizedTest(name = "bodyExpressionWrapping: {0}")
     @EnumSource(
-        value = FunctionSignatureRule.FunctionBodyExpressionWrapping::class
+        value = FunctionSignatureRule.FunctionBodyExpressionWrapping::class,
     )
     fun `Given a multiline function signature without explicit return type and start of body expression on next line then keep first line of body expression body on the same line as the last line of the function signature`(
-        bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping
+        bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping,
     ) {
         val code =
             """
@@ -965,10 +965,10 @@ class FunctionSignatureRuleTest {
 
     @ParameterizedTest(name = "bodyExpressionWrapping: {0}")
     @EnumSource(
-        value = FunctionSignatureRule.FunctionBodyExpressionWrapping::class
+        value = FunctionSignatureRule.FunctionBodyExpressionWrapping::class,
     )
     fun `Given a multiline function signature without explicit return type and start of body expression on same line as last line of function signature then do not reformat`(
-        bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping
+        bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping,
     ) {
         val code =
             """
@@ -1004,7 +1004,7 @@ class FunctionSignatureRuleTest {
             .setMaxLineLength()
             .hasLintViolations(
                 LintViolation(3, 5, "No whitespace expected between opening parenthesis and first parameter name"),
-                LintViolation(3, 21, "No whitespace expected between last parameter and closing parenthesis")
+                LintViolation(3, 21, "No whitespace expected between last parameter and closing parenthesis"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -1028,7 +1028,7 @@ class FunctionSignatureRuleTest {
             .setMaxLineLength()
             .hasLintViolations(
                 LintViolation(2, 9, "Newline expected after opening parenthesis"),
-                LintViolation(3, 16, "Newline expected before closing parenthesis")
+                LintViolation(3, 16, "Newline expected before closing parenthesis"),
             ).isFormattedAs(formattedCode)
     }
 

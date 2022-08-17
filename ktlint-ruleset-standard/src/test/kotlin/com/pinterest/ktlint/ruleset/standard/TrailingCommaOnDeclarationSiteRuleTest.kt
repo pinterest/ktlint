@@ -14,8 +14,8 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             additionalRuleProviders = setOf(
                 // Apply the IndentationRule always as additional rule, so that the formattedCode in the unit test looks
                 // correct.
-                RuleProvider { IndentationRule() }
-            )
+                RuleProvider { IndentationRule() },
+            ),
         )
 
     @Test
@@ -70,7 +70,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
                 LintViolation(13, 14, "Unnecessary trailing comma before \")\""),
                 LintViolation(16, 20, "Unnecessary trailing comma before \")\""),
                 LintViolation(18, 20, "Unnecessary trailing comma before \")\""),
-                LintViolation(18, 42, "Unnecessary trailing comma before \"->\"")
+                LintViolation(18, 42, "Unnecessary trailing comma before \"->\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -101,7 +101,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             .hasLintViolations(
                 LintViolation(1, 29, "Unnecessary trailing comma before \")\""),
                 LintViolation(3, 17, "Unnecessary trailing comma before \")\""),
-                LintViolation(6, 17, "Unnecessary trailing comma before \")\"")
+                LintViolation(6, 17, "Unnecessary trailing comma before \")\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -131,7 +131,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             .withEditorConfigOverride(allowTrailingCommaProperty to true)
             .hasLintViolations(
                 LintViolation(3, 17, "Missing trailing comma before \")\""),
-                LintViolation(6, 17, "Missing trailing comma before \")\"")
+                LintViolation(6, 17, "Missing trailing comma before \")\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -166,7 +166,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             .hasLintViolations(
                 LintViolation(1, 16, "Unnecessary trailing comma before \">\""),
                 LintViolation(4, 6, "Unnecessary trailing comma before \">\""),
-                LintViolation(8, 6, "Unnecessary trailing comma before \">\"")
+                LintViolation(8, 6, "Unnecessary trailing comma before \">\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -200,7 +200,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             .withEditorConfigOverride(allowTrailingCommaProperty to true)
             .hasLintViolations(
                 LintViolation(4, 6, "Missing trailing comma before \">\""),
-                LintViolation(8, 6, "Missing trailing comma before \">\"")
+                LintViolation(8, 6, "Missing trailing comma before \">\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -235,7 +235,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             .hasLintViolations(
                 LintViolation(2, 9, "Unnecessary trailing comma before \"->\""),
                 LintViolation(3, 9, "Unnecessary trailing comma before \"->\""),
-                LintViolation(6, 6, "Unnecessary trailing comma before \"->\"")
+                LintViolation(6, 6, "Unnecessary trailing comma before \"->\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -269,7 +269,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             .withEditorConfigOverride(allowTrailingCommaProperty to true)
             .hasLintViolations(
                 LintViolation(3, 9, "Missing trailing comma before \"->\""),
-                LintViolation(6, 6, "Missing trailing comma before \"->\"")
+                LintViolation(6, 6, "Missing trailing comma before \"->\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -303,7 +303,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             .withEditorConfigOverride(allowTrailingCommaProperty to true)
             .hasLintViolations(
                 LintViolation(3, 33, "Missing trailing comma before \"->\""),
-                LintViolation(6, 18, "Missing trailing comma before \"->\"")
+                LintViolation(6, 18, "Missing trailing comma before \"->\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -357,7 +357,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             .hasLintViolations(
                 LintViolation(3, 6, "Expected a newline between the trailing comma and  \"->\""),
                 LintViolation(7, 6, "Expected a newline between the trailing comma and  \"->\""),
-                LintViolation(11, 25, "Expected a newline between the trailing comma and  \"->\"")
+                LintViolation(11, 25, "Expected a newline between the trailing comma and  \"->\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -400,7 +400,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             .hasLintViolations(
                 LintViolation(4, 14, "Unnecessary trailing comma before \")\""),
                 LintViolation(7, 10, "Unnecessary trailing comma before \")\""),
-                LintViolation(11, 10, "Unnecessary trailing comma before \")\"")
+                LintViolation(11, 10, "Unnecessary trailing comma before \")\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -442,7 +442,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             .withEditorConfigOverride(allowTrailingCommaProperty to true)
             .hasLintViolations(
                 LintViolation(7, 10, "Missing trailing comma before \")\""),
-                LintViolation(11, 10, "Missing trailing comma before \")\"")
+                LintViolation(11, 10, "Missing trailing comma before \")\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -481,7 +481,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             .hasLintViolations(
                 LintViolation(1, 44, "Unnecessary trailing comma before \"->\""),
                 LintViolation(4, 12, "Unnecessary trailing comma before \"->\""),
-                LintViolation(9, 12, "Unnecessary trailing comma before \"->\"")
+                LintViolation(9, 12, "Unnecessary trailing comma before \"->\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -519,7 +519,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             .withEditorConfigOverride(allowTrailingCommaProperty to true)
             .hasLintViolations(
                 LintViolation(4, 12, "Missing trailing comma before \"->\""),
-                LintViolation(9, 12, "Missing trailing comma before \"->\"")
+                LintViolation(9, 12, "Missing trailing comma before \"->\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -553,7 +553,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             .withEditorConfigOverride(allowTrailingCommaProperty to true)
             .hasLintViolations(
                 LintViolation(4, 29, "Missing trailing comma before \")\""),
-                LintViolation(6, 13, "Missing trailing comma before \")\"")
+                LintViolation(6, 13, "Missing trailing comma before \")\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -602,7 +602,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             .withEditorConfigOverride(allowTrailingCommaProperty to true)
             .hasLintViolations(
                 LintViolation(4, 6, "Missing trailing comma and newline before \"->\""),
-                LintViolation(6, 6, "Missing trailing comma and newline before \"->\"")
+                LintViolation(6, 6, "Missing trailing comma and newline before \"->\""),
             ).isFormattedAs(formattedCode)
     }
 

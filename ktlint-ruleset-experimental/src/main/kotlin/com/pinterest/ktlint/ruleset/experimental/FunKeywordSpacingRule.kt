@@ -14,7 +14,7 @@ public class FunKeywordSpacingRule : Rule("$experimentalRulesetId:fun-keyword-sp
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         node
             .takeIf { it.elementType == FUN_KEYWORD }
@@ -24,7 +24,7 @@ public class FunKeywordSpacingRule : Rule("$experimentalRulesetId:fun-keyword-sp
                 emit(
                     whiteSpaceAfterFunKeyword.startOffset,
                     "Single space expected after the fun keyword",
-                    true
+                    true,
                 )
                 if (autoCorrect) {
                     (whiteSpaceAfterFunKeyword as LeafPsiElement).rawReplaceWithText(" ")

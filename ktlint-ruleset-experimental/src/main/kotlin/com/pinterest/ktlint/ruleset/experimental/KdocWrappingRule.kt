@@ -24,13 +24,13 @@ public class KdocWrappingRule :
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> =
         listOf(
             DefaultEditorConfigProperties.indentSizeProperty,
-            DefaultEditorConfigProperties.indentStyleProperty
+            DefaultEditorConfigProperties.indentStyleProperty,
         )
 
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.elementType == KDOC) {
             val nonIndentLeafOnSameLinePrecedingKdocComment =
@@ -53,7 +53,7 @@ public class KdocWrappingRule :
                     emit(
                         node.startOffset,
                         "A KDoc comment in between other elements on the same line is disallowed",
-                        false
+                        false,
                     )
                 } else {
                     // Do not try to fix constructs like below:
@@ -63,7 +63,7 @@ public class KdocWrappingRule :
                     emit(
                         node.startOffset,
                         "A KDoc comment starting on same line as another element and ending on another line before another element is disallowed",
-                        false
+                        false,
                     )
                 }
                 return
@@ -75,7 +75,7 @@ public class KdocWrappingRule :
                 emit(
                     node.startOffset,
                     "A KDoc comment after any other element on the same line must be separated by a new line",
-                    false
+                    false,
                 )
             }
 
@@ -87,7 +87,7 @@ public class KdocWrappingRule :
     private fun ASTNode.followsKdocCommentOnSameLine(
         kdocCommentNode: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         emit(startOffset, "A KDoc comment may not be followed by any other element on that same line", true)
         if (autoCorrect) {

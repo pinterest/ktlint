@@ -15,7 +15,7 @@ private const val DEFAULT_GIT_HOOKS_DIR = "hooks"
 internal object GitHookInstaller {
     fun installGitHook(
         gitHookName: String,
-        gitHookLoader: () -> ByteArray
+        gitHookLoader: () -> ByteArray,
     ) {
         val gitHooksDir = try {
             resolveGitHooksDir()
@@ -90,7 +90,7 @@ internal object GitHookInstaller {
         hooksDir: File,
         hookFile: File,
         expectedHookContent: ByteArray,
-        gitHookName: String
+        gitHookName: String,
     ) {
         // backup existing hook (if any)
         val actualHookContent = hookFile.readBytes()

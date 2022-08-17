@@ -41,5 +41,5 @@ include(
     ":ktlint-ruleset-template",
     ":ktlint-ruleset-test",
     ":ktlint-test",
-    ":ktlint-test-logging"
+    ":ktlint-test-logging",
 )

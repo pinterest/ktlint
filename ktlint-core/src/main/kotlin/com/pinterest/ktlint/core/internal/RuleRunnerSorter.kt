@@ -16,7 +16,7 @@ internal class RuleRunnerSorter {
     @Synchronized
     fun getSortedRuleRunners(
         ruleRunners: Set<RuleRunner>,
-        debug: Boolean
+        debug: Boolean,
     ): List<RuleRunner> {
         val debugSorter =
             debug &&
@@ -40,7 +40,7 @@ internal class RuleRunnerSorter {
 
     private fun createHashCode(
         ruleRunners: Set<RuleRunner>,
-        debug: Boolean
+        debug: Boolean,
     ): Int {
         val cacheKey = ruleRunners
             .map { it.qualifiedRuleId }
@@ -95,7 +95,7 @@ internal class RuleRunnerSorter {
                         println(
                             "[WARN] Skipping rule with id '${currentRuleRunner.qualifiedRuleId}' as it requires " +
                                 "that the rule with id '${runAfterRule.ruleId}' is loaded. However, " +
-                                "no rule with this id is loaded."
+                                "no rule with this id is loaded.",
                         )
                         continue
                     } else {
@@ -104,7 +104,7 @@ internal class RuleRunnerSorter {
                                 "[DEBUG] Rule with id '${currentRuleRunner.qualifiedRuleId}' should run after the " +
                                     "rule with id '${runAfterRule.ruleId}'. However, the latter " +
                                     "rule is not loaded and is allowed to be ignored. For best results, it is " +
-                                    "advised load the rule."
+                                    "advised load the rule.",
                             )
                         }
                         // As it is not required that the rule is loaded, the runAfter condition is ignored.

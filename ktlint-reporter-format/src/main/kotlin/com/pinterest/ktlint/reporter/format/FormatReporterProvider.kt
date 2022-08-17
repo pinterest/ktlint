@@ -14,7 +14,7 @@ public class FormatReporterProvider : ReporterProvider<FormatReporter> {
                 .getOrElse("format") { throw IllegalArgumentException("Format is not specified in config options") }
                 .toBooleanStrict(),
             shouldColorOutput = opt["color"]?.emptyOrTrue() ?: false,
-            outputColor = getColor(opt["color_name"])
+            outputColor = getColor(opt["color_name"]),
         )
 
     private fun String.emptyOrTrue() = this == "" || this == "true"
