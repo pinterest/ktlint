@@ -165,6 +165,7 @@ Several methods for which it is unlikely that they are used by API consumers hav
 * Rename `.editorconfig` property `disabled_rules` to `ktlint_disabled_rules` ([#701](https://github.com/pinterest/ktlint/issues/701))
 * Update Kotlin development version to `1.7.20-beta` and Kotlin version to `1.7.10`.
 * Update release scripting to set version number in mkdocs documentation ([#1575](https://github.com/pinterest/ktlint/issue/1575)).
+* Update Gradle to `7.5.1` version
 
 ### Removed
 * Remove support to generate IntelliJ IDEA configuration files as this no longer fits the scope of the ktlint project ([#701](https://github.com/pinterest/ktlint/issues/701))

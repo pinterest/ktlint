@@ -110,8 +110,7 @@ tasks.register("publishNewRelease", DefaultTask.class) {
   dependsOn(announceTask, homebrewTask, tasks.named("githubRelease"))
 }
 
-tasks.withType(Wrapper).configureEach {
-  gradleVersion = libs.versions.gradle
-  distributionSha256Sum = libs.versions.gradleSha256
-  distributionType = Wrapper.DistributionType.BIN
+tasks.wrapper {
+  gradleVersion = libs.versions.gradle.get()
+  distributionSha256Sum = libs.versions.gradleSha256.get()
 }
