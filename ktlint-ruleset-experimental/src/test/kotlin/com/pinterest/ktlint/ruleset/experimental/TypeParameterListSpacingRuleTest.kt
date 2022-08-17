@@ -36,7 +36,7 @@ class TypeParameterListSpacingRuleTest {
                 LintViolation(1, 4, "Expected a single space"),
                 LintViolation(2, 8, "Expected a single space"),
                 LintViolation(3, 4, "Expected a single space"),
-                LintViolation(3, 7, "Expected a single space")
+                LintViolation(3, 7, "Expected a single space"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -59,7 +59,7 @@ class TypeParameterListSpacingRuleTest {
                 LintViolation(1, 4, "Expected a single space"),
                 LintViolation(2, 8, "Expected a single space"),
                 LintViolation(3, 4, "Expected a single space"),
-                LintViolation(3, 9, "Expected a single space")
+                LintViolation(3, 9, "Expected a single space"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -86,7 +86,7 @@ class TypeParameterListSpacingRuleTest {
                 LintViolation(1, 4, "Expected a single space instead of newline"),
                 LintViolation(3, 8, "Expected a single space instead of newline"),
                 LintViolation(5, 4, "Expected a single space instead of newline"),
-                LintViolation(6, 4, "Expected a single space instead of newline")
+                LintViolation(6, 4, "Expected a single space instead of newline"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -132,7 +132,7 @@ class TypeParameterListSpacingRuleTest {
         typeParameterListSpacingRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(1, 13, "Expected a single space"),
-                LintViolation(4, 17, "Expected a single space")
+                LintViolation(4, 17, "Expected a single space"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -161,7 +161,7 @@ class TypeParameterListSpacingRuleTest {
         typeParameterListSpacingRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(1, 13, "Expected a single space instead of newline"),
-                LintViolation(5, 17, "Expected a single space instead of newline")
+                LintViolation(5, 17, "Expected a single space instead of newline"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -206,7 +206,7 @@ class TypeParameterListSpacingRuleTest {
                 LintViolation(3, 16, "Expected a single space"),
                 LintViolation(4, 16, "Expected a single space"),
                 LintViolation(5, 16, "Expected a single space"),
-                LintViolation(6, 16, "Expected a single space")
+                LintViolation(6, 16, "Expected a single space"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -243,7 +243,7 @@ class TypeParameterListSpacingRuleTest {
                 LintViolation(5, 16, "Expected a single space instead of newline"),
                 LintViolation(7, 16, "Expected a single space instead of newline"),
                 LintViolation(9, 16, "Expected a single space instead of newline"),
-                LintViolation(11, 16, "Expected a single space instead of newline")
+                LintViolation(11, 16, "Expected a single space instead of newline"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -260,7 +260,7 @@ class TypeParameterListSpacingRuleTest {
         typeParameterListSpacingRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(1, 10, "No whitespace expected at this position"),
-                LintViolation(1, 14, "No whitespace expected at this position")
+                LintViolation(1, 14, "No whitespace expected at this position"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -279,7 +279,7 @@ class TypeParameterListSpacingRuleTest {
         typeParameterListSpacingRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(1, 6, "No whitespace expected at this position"),
-                LintViolation(2, 11, "No whitespace expected at this position")
+                LintViolation(2, 11, "No whitespace expected at this position"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -298,7 +298,7 @@ class TypeParameterListSpacingRuleTest {
         typeParameterListSpacingRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(1, 7, "No whitespace expected at this position"),
-                LintViolation(2, 12, "No whitespace expected at this position")
+                LintViolation(2, 12, "No whitespace expected at this position"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -315,7 +315,7 @@ class TypeParameterListSpacingRuleTest {
         typeParameterListSpacingRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(1, 14, "No whitespace expected at this position"),
-                LintViolation(1, 19, "Expected a single space")
+                LintViolation(1, 19, "Expected a single space"),
             ).isFormattedAs(formattedCode)
     }
 }

@@ -13,7 +13,7 @@ public class NoWildcardImportsRule :
     Rule("no-wildcard-imports"),
     UsesEditorConfigProperties {
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
-        packagesToUseImportOnDemandProperty
+        packagesToUseImportOnDemandProperty,
     )
 
     private lateinit var allowedWildcardImports: List<PatternEntry>
@@ -25,7 +25,7 @@ public class NoWildcardImportsRule :
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.elementType == IMPORT_DIRECTIVE) {
             val importDirective = node.psi as KtImportDirective
@@ -49,13 +49,13 @@ public class NoWildcardImportsRule :
                     PatternEntry(
                         packageName = import.removeSuffix(WILDCARD_WITH_SUBPACKAGES).plus(WILDCARD_WITHOUT_SUBPACKAGES),
                         withSubpackages = true,
-                        hasAlias = false
+                        hasAlias = false,
                     )
                 } else {
                     PatternEntry(
                         packageName = import,
                         withSubpackages = false,
-                        hasAlias = false
+                        hasAlias = false,
                     )
                 }
             }
@@ -67,12 +67,12 @@ public class NoWildcardImportsRule :
                     else -> try {
                         PropertyType.PropertyValue.valid(
                             value,
-                            value?.let(::parseAllowedWildcardImports) ?: emptyList()
+                            value?.let(::parseAllowedWildcardImports) ?: emptyList(),
                         )
                     } catch (e: IllegalArgumentException) {
                         PropertyType.PropertyValue.invalid(
                             value,
-                            "Unexpected imports layout: $value"
+                            "Unexpected imports layout: $value",
                         )
                     }
                 }
@@ -83,7 +83,7 @@ public class NoWildcardImportsRule :
                 type = PropertyType(
                     "ij_kotlin_packages_to_use_import_on_demand",
                     "Defines allowed wildcard imports",
-                    packagesToUseImportOnDemandPropertyParser
+                    packagesToUseImportOnDemandPropertyParser,
                 ),
                 /**
                  * Default IntelliJ IDEA style: Use wildcard imports for packages in "java.util", "kotlin.android.synthetic" and
@@ -92,7 +92,7 @@ public class NoWildcardImportsRule :
                  * https://github.com/JetBrains/kotlin/blob/ffdab473e28d0d872136b910eb2e0f4beea2e19c/idea/formatter/src/org/jetbrains/kotlin/idea/core/formatter/KotlinCodeStyleSettings.java#L81-L82
                  */
                 defaultValue = parseAllowedWildcardImports("java.util.*,kotlinx.android.synthetic.**"),
-                propertyWriter = { it.joinToString(separator = ",") }
+                propertyWriter = { it.joinToString(separator = ",") },
             )
     }
 }

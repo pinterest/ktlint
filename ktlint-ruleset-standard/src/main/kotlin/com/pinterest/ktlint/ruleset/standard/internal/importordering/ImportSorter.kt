@@ -9,7 +9,7 @@ import org.jetbrains.kotlin.resolve.ImportPath
  * Adopted from https://github.com/JetBrains/kotlin/blob/a270ee094c4d7b9520e0898a242bb6ce4dfcad7b/idea/src/org/jetbrains/kotlin/idea/util/ImportPathComparator.kt#L15
  */
 internal class ImportSorter(
-    val patterns: List<PatternEntry>
+    val patterns: List<PatternEntry>,
 ) : Comparator<KtImportDirective> {
 
     override fun compare(import1: KtImportDirective, import2: KtImportDirective): Int {
@@ -20,7 +20,7 @@ internal class ImportSorter(
             importPath1,
             importPath2,
             { import -> findImportIndex(import) },
-            { import -> import.toString().replace("`", "") }
+            { import -> import.toString().replace("`", "") },
         )
     }
 

@@ -6,10 +6,10 @@ import com.pinterest.ktlint.core.RuleSetProviderV2
 public class TestRuleSetProvider :
     RuleSetProviderV2(
         id = "test",
-        about = NO_ABOUT
+        about = NO_ABOUT,
     ) {
     override fun getRuleProviders(): Set<RuleProvider> =
         setOf(
-            RuleProvider { DumpASTRule() }
+            RuleProvider { DumpASTRule() },
         )
 }

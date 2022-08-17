@@ -30,7 +30,7 @@ public class MaxLineLengthRule :
                 // won't be affected by that rule.
                 ruleId = "trailing-comma-on-call-site",
                 loadOnlyWhenOtherRuleIsLoaded = false,
-                runOnlyWhenOtherRuleIsEnabled = false
+                runOnlyWhenOtherRuleIsEnabled = false,
             ),
             VisitorModifier.RunAfterRule(
                 // This rule should run after all other rules. Each time a rule visitor is modified with
@@ -38,16 +38,16 @@ public class MaxLineLengthRule :
                 // won't be affected by that rule.
                 ruleId = "trailing-comma-on-declaration-site",
                 loadOnlyWhenOtherRuleIsLoaded = false,
-                runOnlyWhenOtherRuleIsEnabled = false
+                runOnlyWhenOtherRuleIsEnabled = false,
             ),
-            VisitorModifier.RunAsLateAsPossible
-        )
+            VisitorModifier.RunAsLateAsPossible,
+        ),
     ),
     UsesEditorConfigProperties {
 
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
         maxLineLengthProperty,
-        ignoreBackTickedIdentifierProperty
+        ignoreBackTickedIdentifierProperty,
     )
 
     private var maxLineLength: Int = maxLineLengthProperty.defaultValue
@@ -62,7 +62,7 @@ public class MaxLineLengthRule :
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (maxLineLength <= 0) {
             return
@@ -125,9 +125,9 @@ public class MaxLineLengthRule :
                     KTLINT_IGNORE_BACKTICKED_IDENTIFIER_NAME,
                     PROPERTY_DESCRIPTION,
                     PropertyType.PropertyValueParser.BOOLEAN_VALUE_PARSER,
-                    setOf(true.toString(), false.toString())
+                    setOf(true.toString(), false.toString()),
                 ),
-                defaultValue = false
+                defaultValue = false,
             )
     }
 }
@@ -152,7 +152,7 @@ private fun ASTNode.getElementsPerLine(): List<ParsedLine> {
 private data class ParsedLine(
     val line: String,
     val offset: Int,
-    val elements: List<ASTNode>
+    val elements: List<ASTNode>,
 ) {
     fun lineLength(ignoreBackTickedIdentifier: Boolean): Int {
         return if (ignoreBackTickedIdentifier) {

@@ -14,7 +14,7 @@ public data class LintError(
     val line: Int,
     val col: Int,
     val ruleId: String,
-    val detail: String
+    val detail: String,
 ) : Serializable {
 
     // fixme:
@@ -28,7 +28,7 @@ public data class LintError(
         col: Int,
         ruleId: String,
         detail: String,
-        canBeAutoCorrected: Boolean
+        canBeAutoCorrected: Boolean,
     ) : this(line, col, ruleId, detail) {
         this.canBeAutoCorrected = canBeAutoCorrected
     }

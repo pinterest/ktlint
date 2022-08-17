@@ -46,7 +46,7 @@ public class AnnotationRule : Rule("annotation") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         when (node.elementType) {
             FILE_ANNOTATION_LIST -> {
@@ -60,7 +60,7 @@ public class AnnotationRule : Rule("annotation") {
     private fun visitAnnotationEntry(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         require(node.elementType == ANNOTATION_ENTRY)
 
@@ -87,13 +87,13 @@ public class AnnotationRule : Rule("annotation") {
     private fun checkForAnnotationWithParameterToBePlacedOnSeparateLine(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         if (node.isPrecededByOtherAnnotationEntry() && node.isOnSameLineAsPreviousAnnotationEntry()) {
             emit(
                 node.startOffset,
                 "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct",
-                true
+                true,
             )
             if (autoCorrect) {
                 node
@@ -107,7 +107,7 @@ public class AnnotationRule : Rule("annotation") {
             emit(
                 node.startOffset,
                 "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct",
-                true
+                true,
             )
             if (autoCorrect) {
                 node
@@ -119,7 +119,7 @@ public class AnnotationRule : Rule("annotation") {
                             it.replaceWithText(getNewlineWithIndent(node.treeParent))
                         } else {
                             it.rawInsertBeforeMe(
-                                PsiWhiteSpaceImpl(getNewlineWithIndent(node.treeParent))
+                                PsiWhiteSpaceImpl(getNewlineWithIndent(node.treeParent)),
                             )
                         }
                     }
@@ -130,7 +130,7 @@ public class AnnotationRule : Rule("annotation") {
     private fun checkForMultipleAnnotationsOnSameLineAsAnnotatedConstruct(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         if (node.isLastAnnotationEntry()) {
             val noAnnotationWithParameters =
@@ -141,7 +141,7 @@ public class AnnotationRule : Rule("annotation") {
                 emit(
                     node.treeParent.startOffset,
                     "Multiple annotations should not be placed on the same line as the annotated construct",
-                    true
+                    true,
                 )
                 if (autoCorrect) {
                     node
@@ -157,7 +157,7 @@ public class AnnotationRule : Rule("annotation") {
     private fun checkForAnnotationToBePlacedOnSeparateLine(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         val isFollowedWithAnnotationHavingValueArgumentList =
             node
@@ -171,7 +171,7 @@ public class AnnotationRule : Rule("annotation") {
             emit(
                 node.startOffset,
                 "Annotation must be placed on separate line",
-                true
+                true,
             )
             if (autoCorrect) {
                 node
@@ -183,7 +183,7 @@ public class AnnotationRule : Rule("annotation") {
                             it.replaceWithText(getNewlineWithIndent(node.treeParent))
                         } else {
                             it.upsertWhitespaceBeforeMe(
-                                getNewlineWithIndent(node.treeParent)
+                                getNewlineWithIndent(node.treeParent),
                             )
                         }
                     }
@@ -245,7 +245,7 @@ public class AnnotationRule : Rule("annotation") {
     private fun visitFileAnnotationList(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         val lineNumber = node.lineNumber()
         val next = node.nextSibling { it.textLength > 0 }?.let { next ->
@@ -262,7 +262,7 @@ public class AnnotationRule : Rule("annotation") {
                 emit(
                     psi.endOffset - 1,
                     "File annotations should be separated from file contents with a blank line",
-                    true
+                    true,
                 )
                 if (autoCorrect) {
                     if (diff == 0) {

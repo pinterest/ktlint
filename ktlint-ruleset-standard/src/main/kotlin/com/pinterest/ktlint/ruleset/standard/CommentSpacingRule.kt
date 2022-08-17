@@ -13,7 +13,7 @@ public class CommentSpacingRule : Rule("comment-spacing") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node is PsiComment && node is LeafPsiElement && node.getText().startsWith("//")) {
             val prevLeaf = node.prevLeaf()

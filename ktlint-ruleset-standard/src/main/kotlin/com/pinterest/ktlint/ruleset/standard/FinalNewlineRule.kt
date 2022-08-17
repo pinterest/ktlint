@@ -15,7 +15,7 @@ public class FinalNewlineRule :
     UsesEditorConfigProperties {
 
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
-        insertNewLineProperty
+        insertNewLineProperty,
     )
 
     private var insertFinalNewline by Delegates.notNull<Boolean>()
@@ -27,7 +27,7 @@ public class FinalNewlineRule :
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.isRoot()) {
             if (node.textLength == 0) {

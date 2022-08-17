@@ -43,7 +43,7 @@ class ImportOrderingRuleIdeaTest {
             .hasLintViolation(
                 1,
                 1,
-                "Imports must be ordered in lexicographic order without any empty lines in-between with \"java\", \"javax\", \"kotlin\" and aliases in the end"
+                "Imports must be ordered in lexicographic order without any empty lines in-between with \"java\", \"javax\", \"kotlin\" and aliases in the end",
             )
             .isFormattedAs(formattedCode)
     }
@@ -91,7 +91,7 @@ class ImportOrderingRuleIdeaTest {
             .withEditorConfigOverride(IDEA_DEFAULT_IMPORT_ORDERING)
             .hasLintViolations(
                 LintViolation(3, 1, "Duplicate 'import android.view.View' found"),
-                LintViolation(6, 1, "Duplicate 'import android.content.Context as Ctx1' found")
+                LintViolation(6, 1, "Duplicate 'import android.content.Context as Ctx1' found"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -117,7 +117,7 @@ class ImportOrderingRuleIdeaTest {
             .hasLintViolation(
                 1,
                 1,
-                "Imports must be ordered in lexicographic order without any empty lines in-between with \"java\", \"javax\", \"kotlin\" and aliases in the end"
+                "Imports must be ordered in lexicographic order without any empty lines in-between with \"java\", \"javax\", \"kotlin\" and aliases in the end",
             )
             .isFormattedAs(formattedCode)
     }
@@ -157,7 +157,7 @@ class ImportOrderingRuleIdeaTest {
             .hasLintViolation(
                 1,
                 1,
-                "Imports must be ordered in lexicographic order without any empty lines in-between with \"java\", \"javax\", \"kotlin\" and aliases in the end"
+                "Imports must be ordered in lexicographic order without any empty lines in-between with \"java\", \"javax\", \"kotlin\" and aliases in the end",
             )
             .isFormattedAs(formattedCode)
     }

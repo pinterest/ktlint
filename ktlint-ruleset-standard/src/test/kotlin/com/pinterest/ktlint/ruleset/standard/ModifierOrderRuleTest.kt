@@ -46,7 +46,7 @@ class ModifierOrderRuleTest {
             .hasLintViolations(
                 LintViolation(2, 5, "Incorrect modifier order (should be \"protected open\")"),
                 LintViolation(3, 5, "Incorrect modifier order (should be \"internal open suspend\")"),
-                LintViolation(4, 5, "Incorrect modifier order (should be \"protected lateinit\")")
+                LintViolation(4, 5, "Incorrect modifier order (should be \"protected lateinit\")"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -97,7 +97,7 @@ class ModifierOrderRuleTest {
                 LintViolation(3, 5, "Incorrect modifier order (should be \"override suspend\")"),
                 LintViolation(4, 5, "Incorrect modifier order (should be \"override tailrec\")"),
                 LintViolation(5, 5, "Incorrect modifier order (should be \"@Annotation... override\")"),
-                LintViolation(6, 5, "Incorrect modifier order (should be \"@Annotation... public override suspend\")")
+                LintViolation(6, 5, "Incorrect modifier order (should be \"@Annotation... public override suspend\")"),
             ).isFormattedAs(formattedCode)
     }
 

@@ -31,7 +31,7 @@ class NoBlankLineBeforeRbraceRuleTest {
         noBlankLineBeforeRbraceRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(3, 1, "Unexpected blank line(s) before \"}\""),
-                LintViolation(6, 1, "Unexpected blank line(s) before \"}\"")
+                LintViolation(6, 1, "Unexpected blank line(s) before \"}\""),
             ).isFormattedAs(formattedCode)
     }
 

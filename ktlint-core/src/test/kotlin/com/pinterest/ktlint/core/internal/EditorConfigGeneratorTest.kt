@@ -27,7 +27,7 @@ internal class EditorConfigGeneratorTest {
         val generatedEditorConfig = editorConfigGenerator.generateEditorconfig(
             filePath = tempFileSystem.normalizedPath(rootDir).resolve("test.kt"),
             rules = emptySet(),
-            codeStyle = official
+            codeStyle = official,
         )
 
         assertThat(generatedEditorConfig.lines()).containsExactly(
@@ -36,7 +36,7 @@ internal class EditorConfigGeneratorTest {
             "indent_style = space",
             "insert_final_newline = true",
             "ktlint_code_style = official",
-            "max_line_length = -1"
+            "max_line_length = -1",
         )
     }
 
@@ -46,19 +46,19 @@ internal class EditorConfigGeneratorTest {
             rootDir,
             """
             root = true
-            """.trimIndent()
+            """.trimIndent(),
         )
 
         val generatedEditorConfig = editorConfigGenerator.generateEditorconfig(
             filePath = tempFileSystem.normalizedPath(rootDir).resolve("test.kt"),
             rules = rules,
-            codeStyle = official
+            codeStyle = official,
         )
 
         assertThat(generatedEditorConfig.lines()).doesNotContainAnyElementsOf(listOf("root = true"))
         assertThat(generatedEditorConfig.lines()).contains(
             "$PROPERTY_1_NAME = $PROPERTY_1_DEFAULT_VALUE",
-            "$PROPERTY_2_NAME = $PROPERTY_2_DEFAULT_VALUE"
+            "$PROPERTY_2_NAME = $PROPERTY_2_DEFAULT_VALUE",
         )
     }
 
@@ -67,12 +67,12 @@ internal class EditorConfigGeneratorTest {
         val generatedEditorConfig = editorConfigGenerator.generateEditorconfig(
             filePath = tempFileSystem.normalizedPath(rootDir).resolve("test.kt"),
             rules = rules,
-            codeStyle = android
+            codeStyle = android,
         )
 
         assertThat(generatedEditorConfig.lines()).contains(
             "$PROPERTY_1_NAME = $PROPERTY_1_DEFAULT_VALUE_ANDROID",
-            "$PROPERTY_2_NAME = $PROPERTY_2_DEFAULT_VALUE_ANDROID"
+            "$PROPERTY_2_NAME = $PROPERTY_2_DEFAULT_VALUE_ANDROID",
         )
     }
 
@@ -84,21 +84,21 @@ internal class EditorConfigGeneratorTest {
                 object : TestRule("test-rule-two"), UsesEditorConfigProperties {
                     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
                         EDITOR_CONFIG_PROPERTY_2,
-                        EDITOR_CONFIG_PROPERTY_1
+                        EDITOR_CONFIG_PROPERTY_1,
                     )
                 },
                 object : TestRule("test-rule-two"), UsesEditorConfigProperties {
                     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
-                        EDITOR_CONFIG_PROPERTY_1
+                        EDITOR_CONFIG_PROPERTY_1,
                     )
-                }
+                },
             ),
-            codeStyle = official
+            codeStyle = official,
         )
 
         assertThat(generatedEditorConfig.lines()).contains(
             "$PROPERTY_1_NAME = $PROPERTY_1_DEFAULT_VALUE",
-            "$PROPERTY_2_NAME = $PROPERTY_2_DEFAULT_VALUE"
+            "$PROPERTY_2_NAME = $PROPERTY_2_DEFAULT_VALUE",
         )
     }
 
@@ -109,21 +109,21 @@ internal class EditorConfigGeneratorTest {
             rules = setOf(
                 object : TestRule("test-rule-two"), UsesEditorConfigProperties {
                     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
-                        EDITOR_CONFIG_PROPERTY_3_WITH_DEFAULT_VALUE_A
+                        EDITOR_CONFIG_PROPERTY_3_WITH_DEFAULT_VALUE_A,
                     )
                 },
                 object : TestRule("test-rule-two"), UsesEditorConfigProperties {
                     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
-                        EDITOR_CONFIG_PROPERTY_3_WITH_DEFAULT_VALUE_B
+                        EDITOR_CONFIG_PROPERTY_3_WITH_DEFAULT_VALUE_B,
                     )
-                }
+                },
             ),
-            codeStyle = official
+            codeStyle = official,
         )
 
         assertThat(generatedEditorConfig.lines()).contains(
             "$PROPERTY_3_NAME = $PROPERTY_3_VALUE_A",
-            "$PROPERTY_3_NAME = $PROPERTY_3_VALUE_B"
+            "$PROPERTY_3_NAME = $PROPERTY_3_VALUE_B",
         )
     }
 
@@ -137,19 +137,19 @@ internal class EditorConfigGeneratorTest {
 
             [*.{kt,kts}]
             $PROPERTY_1_NAME = false
-            """.trimIndent()
+            """.trimIndent(),
         )
 
         val generatedEditorConfig = editorConfigGenerator.generateEditorconfig(
             filePath = tempFileSystem.normalizedPath(rootDir).resolve("test.kt"),
             rules = rules,
-            codeStyle = official
+            codeStyle = official,
         )
 
         assertThat(generatedEditorConfig.lines()).doesNotContainAnyElementsOf(listOf("root = true"))
         assertThat(generatedEditorConfig.lines()).contains(
             "$PROPERTY_1_NAME = false",
-            "$PROPERTY_2_NAME = $PROPERTY_2_DEFAULT_VALUE"
+            "$PROPERTY_2_NAME = $PROPERTY_2_DEFAULT_VALUE",
         )
     }
 
@@ -161,27 +161,27 @@ internal class EditorConfigGeneratorTest {
             root = true
             indent_size = 4
             $PROPERTY_1_NAME = false
-            """.trimIndent()
+            """.trimIndent(),
         )
 
         val generatedEditorConfig = editorConfigGenerator.generateEditorconfig(
             filePath = tempFileSystem.normalizedPath(rootDir).resolve("test.kt"),
             rules = rules,
-            codeStyle = official
+            codeStyle = official,
         )
 
         assertThat(generatedEditorConfig.lines()).doesNotContainAnyElementsOf(listOf("root = true"))
         assertThat(generatedEditorConfig.lines()).contains(
-            "$PROPERTY_2_NAME = $PROPERTY_2_DEFAULT_VALUE"
+            "$PROPERTY_2_NAME = $PROPERTY_2_DEFAULT_VALUE",
         )
         assertThat(generatedEditorConfig.lines()).doesNotContain(
-            "$PROPERTY_1_NAME = false"
+            "$PROPERTY_1_NAME = false",
         )
     }
 
     private fun FileSystem.writeEditorConfigFile(
         filePath: String,
-        content: String
+        content: String,
     ) {
         Files.createDirectories(normalizedPath(filePath))
         Files.write(normalizedPath("$filePath/.editorconfig"), content.toByteArray())
@@ -195,13 +195,13 @@ internal class EditorConfigGeneratorTest {
     private class TestRule1 : TestRule("test-rule-one"), UsesEditorConfigProperties {
         override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
             EDITOR_CONFIG_PROPERTY_2,
-            EDITOR_CONFIG_PROPERTY_1
+            EDITOR_CONFIG_PROPERTY_1,
         )
     }
 
     private class TestRule2 : TestRule("test-rule-two"), UsesEditorConfigProperties {
         override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
-            EDITOR_CONFIG_PROPERTY_1
+            EDITOR_CONFIG_PROPERTY_1,
         )
     }
 
@@ -209,7 +209,7 @@ internal class EditorConfigGeneratorTest {
         override fun beforeVisitChildNodes(
             node: ASTNode,
             autoCorrect: Boolean,
-            emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+            emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
         ) {
             throw UnsupportedOperationException("This method is not expected to be called")
         }
@@ -230,29 +230,29 @@ internal class EditorConfigGeneratorTest {
                 PROPERTY_1_NAME,
                 "",
                 PropertyType.PropertyValueParser.BOOLEAN_VALUE_PARSER,
-                setOf("true", "false")
+                setOf("true", "false"),
             ),
             defaultValue = PROPERTY_1_DEFAULT_VALUE,
-            defaultAndroidValue = PROPERTY_1_DEFAULT_VALUE_ANDROID
+            defaultAndroidValue = PROPERTY_1_DEFAULT_VALUE_ANDROID,
         )
         val EDITOR_CONFIG_PROPERTY_2 = UsesEditorConfigProperties.EditorConfigProperty(
             type = PropertyType(
                 PROPERTY_2_NAME,
                 "",
                 PropertyType.PropertyValueParser.POSITIVE_INT_VALUE_PARSER,
-                setOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "0")
+                setOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "0"),
             ),
             defaultValue = PROPERTY_2_DEFAULT_VALUE,
-            defaultAndroidValue = PROPERTY_2_DEFAULT_VALUE_ANDROID
+            defaultAndroidValue = PROPERTY_2_DEFAULT_VALUE_ANDROID,
         )
         val EDITOR_CONFIG_PROPERTY_3_WITH_DEFAULT_VALUE_A = UsesEditorConfigProperties.EditorConfigProperty(
             type = PropertyType(
                 PROPERTY_3_NAME,
                 "",
                 PropertyType.PropertyValueParser.IDENTITY_VALUE_PARSER,
-                setOf(PROPERTY_3_VALUE_A, PROPERTY_3_VALUE_B)
+                setOf(PROPERTY_3_VALUE_A, PROPERTY_3_VALUE_B),
             ),
-            defaultValue = PROPERTY_3_VALUE_A
+            defaultValue = PROPERTY_3_VALUE_A,
         )
         val EDITOR_CONFIG_PROPERTY_3_WITH_DEFAULT_VALUE_B =
             UsesEditorConfigProperties.EditorConfigProperty(
@@ -260,9 +260,9 @@ internal class EditorConfigGeneratorTest {
                     PROPERTY_3_NAME,
                     "",
                     PropertyType.PropertyValueParser.IDENTITY_VALUE_PARSER,
-                    setOf(PROPERTY_3_VALUE_A, PROPERTY_3_VALUE_B)
+                    setOf(PROPERTY_3_VALUE_A, PROPERTY_3_VALUE_B),
                 ),
-                defaultValue = PROPERTY_3_VALUE_B
+                defaultValue = PROPERTY_3_VALUE_B,
             )
     }
 }

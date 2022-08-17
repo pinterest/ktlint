@@ -79,7 +79,7 @@ public class WrappingRule :
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> =
         listOf(
             DefaultEditorConfigProperties.indentSizeProperty,
-            DefaultEditorConfigProperties.indentStyleProperty
+            DefaultEditorConfigProperties.indentStyleProperty,
         )
 
     private var line = 1
@@ -89,14 +89,14 @@ public class WrappingRule :
         line = 1
         indentConfig = IndentConfig(
             indentStyle = editorConfigProperties.getEditorConfigValue(DefaultEditorConfigProperties.indentStyleProperty),
-            tabWidth = editorConfigProperties.getEditorConfigValue(DefaultEditorConfigProperties.indentSizeProperty)
+            tabWidth = editorConfigProperties.getEditorConfigValue(DefaultEditorConfigProperties.indentSizeProperty),
         )
     }
 
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         when (node.elementType) {
             LPAR, LBRACE, LBRACKET -> rearrangeBlock(node, autoCorrect, emit) // TODO: LT
@@ -111,7 +111,7 @@ public class WrappingRule :
     private fun rearrangeBlock(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         val rElementType = matchingRToken[node.elementType]
         var newlineInBetween = false
@@ -190,7 +190,7 @@ public class WrappingRule :
     private fun rearrangeSuperTypeList(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         val entries = (node.psi as KtSuperTypeList).entries
         if (
@@ -234,7 +234,7 @@ public class WrappingRule :
                         nodeAfterWhichNewlineIsRequired = c,
                         autoCorrect = autoCorrect,
                         emit = emit,
-                        indent = node.lineIndent()
+                        indent = node.lineIndent(),
                     )
                 }
             }
@@ -248,7 +248,7 @@ public class WrappingRule :
     private fun rearrangeValueList(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         for (c in node.children()) {
             val hasLineBreak = when (c.elementType) {
@@ -303,7 +303,7 @@ public class WrappingRule :
     private fun rearrangeClosingQuote(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         node
             .treeParent
@@ -325,7 +325,7 @@ public class WrappingRule :
                 emit(
                     node.startOffset,
                     "Missing newline before \"\"\"",
-                    true
+                    true,
                 )
                 if (autoCorrect) {
                     node as LeafPsiElement
@@ -365,7 +365,7 @@ public class WrappingRule :
     private fun rearrangeArrow(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         val p = node.treeParent
         if (
@@ -406,12 +406,12 @@ public class WrappingRule :
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        indent: String
+        indent: String,
     ) {
         emit(
             node.startOffset - 1,
             """Missing newline before "${node.text}"""",
-            true
+            true,
         )
         logger.trace { "$line: " + ((if (!autoCorrect) "would have " else "") + "inserted newline before ${node.text}") }
         if (autoCorrect) {
@@ -424,12 +424,12 @@ public class WrappingRule :
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
         indent: String? = null,
-        nodeToFix: ASTNode = nodeAfterWhichNewlineIsRequired
+        nodeToFix: ASTNode = nodeAfterWhichNewlineIsRequired,
     ) {
         emit(
             nodeAfterWhichNewlineIsRequired.startOffset + 1,
             """Missing newline after "${nodeAfterWhichNewlineIsRequired.text}"""",
-            true
+            true,
         )
         logger.trace { "$line: " + (if (!autoCorrect) "would have " else "") + "inserted newline after ${nodeAfterWhichNewlineIsRequired.text}" }
         if (autoCorrect) {
@@ -508,7 +508,7 @@ public class WrappingRule :
         private val rTokenSet = TokenSet.create(RPAR, RBRACE, RBRACKET, GT)
         private val matchingRToken =
             lTokenSet.types.zip(
-                rTokenSet.types
+                rTokenSet.types,
             ).toMap()
     }
 }

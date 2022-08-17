@@ -7,6 +7,6 @@ package com.github.shyiko.ktlint.core
  */
 @Deprecated(
     level = DeprecationLevel.ERROR,
-    message = "RuleSetProvider has moved to com.pinterest.ktlint.core"
+    message = "RuleSetProvider has moved to com.pinterest.ktlint.core",
 )
 public interface RuleSetProvider

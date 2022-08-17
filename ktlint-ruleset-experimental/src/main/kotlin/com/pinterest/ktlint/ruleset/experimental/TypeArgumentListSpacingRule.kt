@@ -26,7 +26,7 @@ public class TypeArgumentListSpacingRule : Rule("$experimentalRulesetId:type-arg
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         when (node.elementType) {
             TYPE_ARGUMENT_LIST -> {
@@ -41,7 +41,7 @@ public class TypeArgumentListSpacingRule : Rule("$experimentalRulesetId:type-arg
     private fun visitFunctionDeclaration(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         // No whitespace expected before type argument list of function call
         //    val list = listOf <String>()
@@ -73,7 +73,7 @@ public class TypeArgumentListSpacingRule : Rule("$experimentalRulesetId:type-arg
     private fun visitInsideTypeArgumentList(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         // No whitespace expected after opening angle bracket of type argument list
         //    val list = listOf< String>()
@@ -95,13 +95,13 @@ public class TypeArgumentListSpacingRule : Rule("$experimentalRulesetId:type-arg
     private fun noWhitespaceExpected(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.text != "") {
             emit(
                 node.startOffset,
                 "No whitespace expected at this position",
-                true
+                true,
             )
             if (autoCorrect) {
                 node.treeParent.removeChild(node)

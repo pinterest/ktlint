@@ -28,7 +28,9 @@ private val logger = KotlinLogging.logger {}.initKtLintKLogger()
 /**
  * Loader for `.editorconfig` properties for files on [fileSystem].
  */
-public class EditorConfigLoader(private val fileSystem: FileSystem = FileSystems.getDefault()) {
+public class EditorConfigLoader(
+    private val fileSystem: FileSystem = FileSystems.getDefault(),
+) {
     /**
      * DEPRECATION NOTICE:
      * This method is removed from the public API in KtLint 0.48.0. Please raise an issue if you have a use case as
@@ -53,7 +55,7 @@ public class EditorConfigLoader(private val fileSystem: FileSystem = FileSystems
      */
     @Deprecated(
         message = "Marked for removal in ktlint 0.48.0. See kdoc or changelog for more information",
-        replaceWith = ReplaceWith("loadForFile(filePath)")
+        replaceWith = ReplaceWith("loadForFile(filePath)"),
     )
     public fun loadPropertiesForFile(
         filePath: Path?,
@@ -61,7 +63,7 @@ public class EditorConfigLoader(private val fileSystem: FileSystem = FileSystems
         alternativeEditorConfig: Path? = null,
         rules: Set<Rule>,
         editorConfigOverride: EditorConfigOverride = emptyEditorConfigOverride,
-        debug: Boolean = false
+        debug: Boolean = false,
     ): EditorConfigProperties {
         if (!isStdIn && filePath.isNullOrNotSupported()) {
             return editorConfigOverride
@@ -124,7 +126,7 @@ public class EditorConfigLoader(private val fileSystem: FileSystem = FileSystems
         filePath: Path?,
         rules: Set<Rule> = emptySet(),
         editorConfigDefaults: EditorConfigDefaults = emptyEditorConfigDefaults,
-        editorConfigOverride: EditorConfigOverride = emptyEditorConfigOverride
+        editorConfigOverride: EditorConfigOverride = emptyEditorConfigOverride,
     ): EditorConfigProperties {
         if (filePath.isNullOrNotSupported()) {
             return editorConfigOverride
@@ -156,11 +158,11 @@ public class EditorConfigLoader(private val fileSystem: FileSystem = FileSystems
     }
 
     private fun MutableMap<String, Property>.prettyPrint(
-        normalizedFilePath: Path?
+        normalizedFilePath: Path?,
     ) = map { entry -> "${entry.key}: ${entry.value.sourceValue}" }
         .joinToString(
             prefix = "Resolving .editorconfig files for $normalizedFilePath file path:\n\t",
-            separator = "\n\t"
+            separator = "\n\t",
         )
 
     private fun Path?.resource() =
@@ -168,7 +170,7 @@ public class EditorConfigLoader(private val fileSystem: FileSystem = FileSystems
 
     private fun property(
         property: UsesEditorConfigProperties.EditorConfigProperty<*>,
-        value: PropertyType.PropertyValue<*>
+        value: PropertyType.PropertyValue<*>,
     ) = Property
         .builder()
         .name(property.type.name)
@@ -193,15 +195,15 @@ public class EditorConfigLoader(private val fileSystem: FileSystem = FileSystems
 
     private fun createLoaderService(
         rules: Set<Rule>,
-        editorConfigDefaults: EditorConfigDefaults
+        editorConfigDefaults: EditorConfigDefaults,
     ) = createResourcePropertiesService(
         editorConfigLoader(rules),
-        editorConfigDefaults
+        editorConfigDefaults,
     )
 
     private fun createResourcePropertiesService(
         editorConfigLoader: EditorConfigLoader,
-        editorConfigDefaults: EditorConfigDefaults
+        editorConfigDefaults: EditorConfigDefaults,
     ) =
         ResourcePropertiesService.builder()
             .keepUnset(true)
@@ -233,7 +235,7 @@ public class EditorConfigLoader(private val fileSystem: FileSystem = FileSystems
      */
     @Deprecated(
         message = "Marked for removal in KtLint 0.48.0",
-        replaceWith = ReplaceWith("KtLint.trimMemory()")
+        replaceWith = ReplaceWith("KtLint.trimMemory()"),
     )
     public fun trimMemory() {
         threadSafeEditorConfigCache.clear()
@@ -245,7 +247,7 @@ public class EditorConfigLoader(private val fileSystem: FileSystem = FileSystems
          */
         internal val SUPPORTED_FILES = arrayOf(
             ".kt",
-            ".kts"
+            ".kts",
         )
 
         /**

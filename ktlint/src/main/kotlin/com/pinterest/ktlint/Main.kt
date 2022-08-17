@@ -30,7 +30,7 @@ public fun main(args: Array<String>) {
 
 private fun handleSubCommand(
     commandLine: CommandLine,
-    parseResult: CommandLine.ParseResult
+    parseResult: CommandLine.ParseResult,
 ) {
     when (val subCommand = parseResult.subcommand().commandSpec().userObject()) {
         is GitPreCommitHookSubCommand -> subCommand.run()

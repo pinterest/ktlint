@@ -17,7 +17,7 @@ import java.io.Serializable
 
 public abstract class RuleSetProviderV2(
     public val id: String,
-    public val about: About
+    public val about: About,
 ) : Serializable {
 
     init {
@@ -61,7 +61,7 @@ public abstract class RuleSetProviderV2(
         val description: String?,
         val license: String?,
         val repositoryUrl: String?,
-        val issueTrackerUrl: String?
+        val issueTrackerUrl: String?,
     ) {
         init {
             require(maintainer == null || maintainer.length <= 50) {
@@ -88,7 +88,7 @@ public abstract class RuleSetProviderV2(
             description = "Not specified",
             license = "Not specified",
             repositoryUrl = "Not specified",
-            issueTrackerUrl = "Not specified"
+            issueTrackerUrl = "Not specified",
         )
     }
 }

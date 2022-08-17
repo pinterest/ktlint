@@ -8,7 +8,7 @@ import picocli.CommandLine
  * and exit process with [exitCode] exit code.
  */
 internal fun CommandLine.printCommandLineHelpOrVersionUsage(
-    exitCode: Int = 0
+    exitCode: Int = 0,
 ) {
     if (isUsageHelpRequested) {
         usage(System.out, CommandLine.Help.Ansi.OFF)

@@ -41,7 +41,7 @@ public class ImportOrderingRule :
     UsesEditorConfigProperties {
 
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
-        ideaImportsLayoutProperty
+        ideaImportsLayoutProperty,
     )
 
     private lateinit var importsLayout: List<PatternEntry>
@@ -55,7 +55,7 @@ public class ImportOrderingRule :
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.elementType == ElementType.IMPORT_LIST) {
             val children = node.getChildren(null)
@@ -99,7 +99,7 @@ public class ImportOrderingRule :
                         node.startOffset,
                         errorMessages.getOrDefault(importsLayout, CUSTOM_ERROR_MESSAGE) +
                             " -- no autocorrection due to comments in the import list",
-                        false
+                        false,
                     )
                 } else {
                     val autoCorrectWhitespace = hasTooMuchWhitespace(children) && !isCustomLayout()
@@ -108,7 +108,7 @@ public class ImportOrderingRule :
                         emit(
                             node.startOffset,
                             errorMessages.getOrDefault(importsLayout, CUSTOM_ERROR_MESSAGE),
-                            true
+                            true,
                         )
                     }
                     if (autoCorrect && (autoCorrectDuplicateImports || autoCorrectSortOrder || autoCorrectWhitespace)) {
@@ -129,7 +129,7 @@ public class ImportOrderingRule :
 
     private fun getUniqueImportsAndBlankLines(
         children: Array<ASTNode>,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ): Pair<Boolean, List<ASTNode>> {
         var autoCorrectDuplicateImports = false
         val imports = mutableListOf<ASTNode>()
@@ -147,7 +147,7 @@ public class ImportOrderingRule :
                     emit(
                         current.startOffset,
                         "Duplicate '${current.text}' found",
-                        true
+                        true,
                     )
                     autoCorrectDuplicateImports = true
                 }
@@ -205,7 +205,7 @@ public class ImportOrderingRule :
 
         private val errorMessages = mapOf(
             IDEA_PATTERN to IDEA_ERROR_MESSAGE,
-            ASCII_PATTERN to ASCII_ERROR_MESSAGE
+            ASCII_PATTERN to ASCII_ERROR_MESSAGE,
         )
 
         private val editorConfigPropertyParser: (String, String?) -> PropertyType.PropertyValue<List<PatternEntry>> =
@@ -213,31 +213,31 @@ public class ImportOrderingRule :
                 when {
                     value.isNullOrBlank() -> PropertyType.PropertyValue.invalid(
                         value,
-                        "Import layout must contain at least one entry of a wildcard symbol (*)"
+                        "Import layout must contain at least one entry of a wildcard symbol (*)",
                     )
                     value == "idea" -> {
                         logger.warn { "`idea` is deprecated! Please use `*,java.**,javax.**,kotlin.**,^` instead to ensure that the Kotlin IDE plugin recognizes the value" }
                         PropertyType.PropertyValue.valid(
                             value,
-                            IDEA_PATTERN
+                            IDEA_PATTERN,
                         )
                     }
                     value == "ascii" -> {
                         logger.warn { "`ascii` is deprecated! Please use `*` instead to ensure that the Kotlin IDE plugin recognizes the value" }
                         PropertyType.PropertyValue.valid(
                             value,
-                            ASCII_PATTERN
+                            ASCII_PATTERN,
                         )
                     }
                     else -> try {
                         PropertyType.PropertyValue.valid(
                             value,
-                            parseImportsLayout(value)
+                            parseImportsLayout(value),
                         )
                     } catch (e: IllegalArgumentException) {
                         PropertyType.PropertyValue.invalid(
                             value,
-                            "Unexpected imports layout: $value"
+                            "Unexpected imports layout: $value",
                         )
                     }
                 }
@@ -248,11 +248,11 @@ public class ImportOrderingRule :
                 type = PropertyType(
                     IDEA_IMPORTS_LAYOUT_PROPERTY_NAME,
                     PROPERTY_DESCRIPTION,
-                    editorConfigPropertyParser
+                    editorConfigPropertyParser,
                 ),
                 defaultValue = IDEA_PATTERN,
                 defaultAndroidValue = ASCII_PATTERN,
-                propertyWriter = { it.joinToString(separator = ",") }
+                propertyWriter = { it.joinToString(separator = ",") },
             )
     }
 }

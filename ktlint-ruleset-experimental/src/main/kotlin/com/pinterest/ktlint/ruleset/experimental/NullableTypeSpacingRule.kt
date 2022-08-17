@@ -11,7 +11,7 @@ public class NullableTypeSpacingRule : Rule("$experimentalRulesetId:nullable-typ
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         node
             .takeIf { node.elementType == QUEST }

@@ -11,6 +11,7 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.CompositeElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
+import org.jetbrains.kotlin.psi.psiUtil.leaves
 import org.jetbrains.kotlin.psi.psiUtil.siblings
 
 public fun ASTNode.nextLeaf(includeEmpty: Boolean = false, skipSubtree: Boolean = false): ASTNode? {
@@ -246,6 +247,16 @@ public fun ASTNode.visit(enter: (node: ASTNode) -> Unit, exit: (node: ASTNode) -
     exit(this)
 }
 
+/**
+ * Get the line number of the node in the original code sample. If the AST, prior to the current node, is changed by
+ * adding or removing a node containing a newline, the lineNumber will not be calculated correctly. Either it results in
+ * an incorrect lineNumber or an IndexOutOfBoundsException (Wrong offset). is thrown. The rule in which the problem
+ * manifest does not need to be the same rule which has changed the prior AST. Debugging such problems can be very hard.
+ */
+@Deprecated(
+    "Marked for removal in KtLint 0.48. The lineNumber is a calculated field. This calculation is not always " +
+        "reliable when formatting code.See KDOC for more information.",
+)
 public fun ASTNode.lineNumber(): Int? =
     this.psi.containingFile?.viewProvider?.document?.getLineNumber(this.startOffset)?.let { it + 1 }
 
@@ -293,7 +304,40 @@ public fun ASTNode.logStructure(): ASTNode =
 private fun String.replaceTabAndNewline(): String =
     replace("\t", "\\t").replace("\n", "\\n")
 
+@Deprecated(
+    message = "This method is marked for removal in KtLint 0.48.0 as it is not reliable.",
+    replaceWith = ReplaceWith("hasWhiteSpaceWithNewLineInClosedRange(from, to)"),
+)
 public fun containsLineBreakInRange(from: PsiElement, to: PsiElement): Boolean =
     from.siblings(forward = true, withItself = true)
         .takeWhile { !it.isEquivalentTo(to) }
         .any { it.textContains('\n') }
+
+/**
+ * Verifies that a whitespace leaf containing a newline exist in the closed range [from] - [to]. Also, returns true in
+ * case any of the boundary nodes [from] or [to] is a whitespace leaf containing a newline.
+ */
+public fun hasWhiteSpaceWithNewLineInClosedRange(from: ASTNode, to: ASTNode): Boolean =
+    from.isWhiteSpaceWithNewline() ||
+        leavesInOpenRange(from, to).any { it.isWhiteSpaceWithNewline() } ||
+        to.isWhiteSpaceWithNewline()
+
+/**
+ * Verifies that no whitespace leaf contains a newline in the closed range [from] - [to]. Also, the boundary nodes
+ * [from] and [to] should not be a whitespace leaf containing a newline.
+ */
+public fun noWhiteSpaceWithNewLineInClosedRange(from: ASTNode, to: ASTNode): Boolean =
+    !from.isWhiteSpaceWithNewline() &&
+        leavesInOpenRange(from, to).none { it.isWhiteSpaceWithNewline() } &&
+        !to.isWhiteSpaceWithNewline()
+
+/**
+ * Creates a sequence of leaf nodes in the open range [from] - [to]. This means that the boundary nodes are excluded
+ * from the range in case they would happen to be a leaf node. In case [from] is a [CompositeElement] than the first
+ * leaf node in the sequence is the first leaf node in this [CompositeElement]. In case [to] is a [CompositeElement]
+ * than the last node in the sequence is the last leaf node prior to this [CompositeElement].
+ */
+public fun leavesInOpenRange(from: ASTNode, to: ASTNode): Sequence<ASTNode> =
+    from
+        .leaves()
+        .takeWhile { it != to && it != to.firstChildNode }

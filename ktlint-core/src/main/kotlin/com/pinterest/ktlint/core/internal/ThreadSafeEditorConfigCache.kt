@@ -21,7 +21,7 @@ internal class ThreadSafeEditorConfigCache : Cache {
      */
     override fun get(
         editorConfigFile: Resource,
-        editorConfigLoader: EditorConfigLoader
+        editorConfigLoader: EditorConfigLoader,
     ): EditorConfig {
         readWriteLock.read {
             return inMemoryMap[editorConfigFile]

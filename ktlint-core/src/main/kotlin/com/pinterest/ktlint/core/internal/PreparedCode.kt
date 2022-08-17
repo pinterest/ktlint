@@ -15,7 +15,7 @@ internal class PreparedCode(
     val rootNode: FileASTNode,
     val editorConfigProperties: EditorConfigProperties,
     val positionInTextLocator: (offset: Int) -> LineAndColumn,
-    var suppressedRegionLocator: SuppressionLocator
+    var suppressedRegionLocator: SuppressionLocator,
 )
 
 internal fun prepareCodeForLinting(params: KtLint.ExperimentalParams): PreparedCode {
@@ -31,7 +31,7 @@ internal fun prepareCodeForLinting(params: KtLint.ExperimentalParams): PreparedC
     val psiFile = psiFileFactory.createFileFromText(
         psiFileName,
         KotlinLanguage.INSTANCE,
-        normalizedText
+        normalizedText,
     ) as KtFile
 
     val errorElement = psiFile.findErrorElement()
@@ -46,7 +46,7 @@ internal fun prepareCodeForLinting(params: KtLint.ExperimentalParams): PreparedC
         filePath = params.normalizedFilePath,
         rules = params.getRules(),
         editorConfigDefaults = params.editorConfigDefaults,
-        editorConfigOverride = params.editorConfigOverride
+        editorConfigOverride = params.editorConfigOverride,
     )
 
     if (!params.isStdIn) {
@@ -63,7 +63,7 @@ internal fun prepareCodeForLinting(params: KtLint.ExperimentalParams): PreparedC
         rootNode,
         editorConfigProperties,
         positionInTextLocator,
-        suppressedRegionLocator
+        suppressedRegionLocator,
     )
 }
 

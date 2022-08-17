@@ -27,7 +27,7 @@ abstract class BaseCLITest {
     fun runKtLintCliProcess(
         testProjectName: String,
         arguments: List<String> = emptyList(),
-        executionAssertions: ExecutionResult.() -> Unit
+        executionAssertions: ExecutionResult.() -> Unit,
     ) {
         val projectPath = prepareTestProject(testProjectName)
         val ktlintCommand =
@@ -88,7 +88,7 @@ abstract class BaseCLITest {
             object : SimpleFileVisitor<Path>() {
                 override fun preVisitDirectory(
                     dir: Path,
-                    attrs: BasicFileAttributes
+                    attrs: BasicFileAttributes,
                 ): FileVisitResult {
                     Files.createDirectories(dest.resolve(relativize(dir)))
                     return FileVisitResult.CONTINUE
@@ -96,12 +96,12 @@ abstract class BaseCLITest {
 
                 override fun visitFile(
                     file: Path,
-                    attrs: BasicFileAttributes
+                    attrs: BasicFileAttributes,
                 ): FileVisitResult {
                     Files.copy(file, dest.resolve(relativize(file)))
                     return FileVisitResult.CONTINUE
                 }
-            }
+            },
         )
     }
 
@@ -109,7 +109,7 @@ abstract class BaseCLITest {
         val exitCode: Int,
         val normalOutput: List<String>,
         val errorOutput: List<String>,
-        val testProject: Path
+        val testProject: Path,
     ) {
         fun assertNormalExitCode() {
             assertThat(exitCode)
@@ -118,9 +118,9 @@ abstract class BaseCLITest {
                         .followedByIndentedList(
                             listOf(
                                 "RESULTS OF STDOUT:".followedByIndentedList(normalOutput, 2),
-                                "RESULTS OF STDERR:".followedByIndentedList(errorOutput, 2)
-                            )
-                        )
+                                "RESULTS OF STDERR:".followedByIndentedList(errorOutput, 2),
+                            ),
+                        ),
                 ).isEqualTo(0)
         }
 
@@ -133,12 +133,12 @@ abstract class BaseCLITest {
         fun assertErrorOutputIsEmpty() {
             assertThat(errorOutput.isEmpty())
                 .withFailMessage(
-                    "Expected error output to be empty but was:".followedByIndentedList(errorOutput)
+                    "Expected error output to be empty but was:".followedByIndentedList(errorOutput),
                 ).isTrue
         }
 
         fun assertSourceFileWasFormatted(
-            filePathInProject: String
+            filePathInProject: String,
         ) {
             val originalFile = testProjectsPath.resolve(testProject.last()).resolve(filePathInProject)
             val newFile = testProject.resolve(filePathInProject)

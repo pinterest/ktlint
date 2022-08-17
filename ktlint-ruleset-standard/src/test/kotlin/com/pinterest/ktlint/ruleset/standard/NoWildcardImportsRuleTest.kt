@@ -26,7 +26,7 @@ class NoWildcardImportsRuleTest {
             noWildcardImportsRuleAssertThat(code)
                 .hasLintViolationsWithoutAutoCorrect(
                     LintViolation(2, 1, "Wildcard import"),
-                    LintViolation(4, 1, "Wildcard import")
+                    LintViolation(4, 1, "Wildcard import"),
                 )
         }
 
@@ -57,7 +57,7 @@ class NoWildcardImportsRuleTest {
                 .withEditorConfigOverride(packagesToUseImportOnDemandProperty to "unset")
                 .hasLintViolationsWithoutAutoCorrect(
                     LintViolation(3, 1, "Wildcard import"),
-                    LintViolation(4, 1, "Wildcard import")
+                    LintViolation(4, 1, "Wildcard import"),
                 )
         }
 

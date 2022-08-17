@@ -15,33 +15,33 @@ class FormatReporterTest {
         val out = ByteArrayOutputStream()
         val reporter = FormatReporter(
             out = PrintStream(out, true),
-            format = true
+            format = true,
         )
 
         // File 1: 1 violation not autocorrected
         reporter.onLintError(
             SOME_FILE_PATH_1,
             SOME_LINT_ERROR_UNCORRECTABLE,
-            false
+            false,
         )
 
         // File 2: 2 violations not autocorrected
         reporter.onLintError(
             SOME_FILE_PATH_2,
             SOME_LINT_ERROR_UNCORRECTABLE,
-            false
+            false,
         )
         reporter.onLintError(
             SOME_FILE_PATH_2,
             SOME_LINT_ERROR_UNCORRECTABLE,
-            false
+            false,
         )
 
         // File 3: At least 1 violation autocorrected
         reporter.onLintError(
             SOME_FILE_PATH_3,
             SOME_LINT_ERROR_CORRECTABLE,
-            true
+            true,
         )
 
         reporter.after(SOME_FILE_PATH_1)
@@ -58,7 +58,7 @@ class FormatReporterTest {
             $SOME_FILE_PATH_3: Format completed (all violations have been fixed)
             $SOME_FILE_PATH_4: Format not needed (no violations found)
 
-            """.trimIndent().replace("\n", System.lineSeparator())
+            """.trimIndent().replace("\n", System.lineSeparator()),
         )
     }
 
@@ -67,14 +67,14 @@ class FormatReporterTest {
         val out = ByteArrayOutputStream()
         val reporter = FormatReporter(
             out = PrintStream(out, true),
-            format = false
+            format = false,
         )
 
         // File 1: At least 1 violation can be autocorrected but is not (e.g. lint is running)
         reporter.onLintError(
             SOME_FILE_PATH_1,
             SOME_LINT_ERROR_CORRECTABLE,
-            false
+            false,
         )
 
         reporter.after(SOME_FILE_PATH_1)
@@ -87,7 +87,7 @@ class FormatReporterTest {
             $SOME_FILE_PATH_1: Format required (all violations can be autocorrected)
             $SOME_FILE_PATH_2: Format not needed (no violations found)
 
-            """.trimIndent().replace("\n", System.lineSeparator())
+            """.trimIndent().replace("\n", System.lineSeparator()),
         )
     }
 
@@ -99,16 +99,16 @@ class FormatReporterTest {
             PrintStream(out, true),
             format = true,
             shouldColorOutput = true,
-            outputColor = outputColor
+            outputColor = outputColor,
         )
 
         reporter.onLintError(
             File.separator.plus(SOME_FILE_NAME),
             SOME_LINT_ERROR_UNCORRECTABLE,
-            false
+            false,
         )
         reporter.after(
-            File.separator.plus(SOME_FILE_NAME)
+            File.separator.plus(SOME_FILE_NAME),
         )
 
         val outputString = String(out.toByteArray())
@@ -120,7 +120,7 @@ class FormatReporterTest {
                 ":".color(outputColor) +
                 " " +
                 "Format not completed (1 violation needs manual fixing)" +
-                System.lineSeparator()
+                System.lineSeparator(),
         )
     }
 
@@ -130,14 +130,14 @@ class FormatReporterTest {
             1,
             "some-rule",
             "This error can be autocorrected",
-            true
+            true,
         )
         val SOME_LINT_ERROR_UNCORRECTABLE = LintError(
             1,
             1,
             "rule-1",
             "This error can *not* be autocorrected",
-            false
+            false,
         )
         const val SOME_FILE_PATH_1 = "/path/to/some-file-1.kt"
         const val SOME_FILE_PATH_2 = "/path/to/some-file-2.kt"

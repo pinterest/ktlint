@@ -16,7 +16,7 @@ internal fun String.toQualifiedRuleId() =
 
 internal fun toQualifiedRuleId(
     ruleSetId: String,
-    ruleId: String
+    ruleId: String,
 ): String {
     if (ruleSetId.contains(" ") || ruleId.contains(" ")) {
         return toQualifiedRuleId(ruleSetId.removeSpaces(), ruleId.removeSpaces())

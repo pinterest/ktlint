@@ -10,7 +10,7 @@ public class RuleProvider(
     /**
      * Lambda which creates a new instance of the rule.
      */
-    private val provider: () -> Rule
+    private val provider: () -> Rule,
 ) {
     /**
      * Creates a RuleProvider based on a [RuleSet] to provide backwards compatability with KtLint 0.46. This will be
@@ -25,7 +25,7 @@ public class RuleProvider(
                 .get()
                 // but only use the instance for the rule at the specified index
                 .elementAt(ruleIndex)
-        }
+        },
     )
 
     public fun createNewRuleInstance(): Rule =

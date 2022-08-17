@@ -18,7 +18,7 @@ class RuleSetsLoaderCLITest : BaseCLITest() {
             val jarWithRulesetProviderV1 = "custom-ruleset/rule-set-provider-v1/ktlint-ruleset-template.jar"
             runKtLintCliProcess(
                 "custom-ruleset",
-                listOf("-R", "$BASE_DIR_PLACEHOLDER/$jarWithRulesetProviderV1")
+                listOf("-R", "$BASE_DIR_PLACEHOLDER/$jarWithRulesetProviderV1"),
             ) {
                 assertNormalExitCode()
 
@@ -26,7 +26,7 @@ class RuleSetsLoaderCLITest : BaseCLITest() {
                 assertThat(normalOutput)
                     .anyMatch {
                         it.matches(
-                            Regex(".* WARN .* JAR .*$jarWithRulesetProviderV1, provided as command line argument, contains a custom ruleset provider which will \\*NOT\\*.* be compatible with the next KtLint version \\(0.48\\). Contact the maintainer of this ruleset. This JAR is not maintained by the KtLint project.*")
+                            Regex(".* WARN .* JAR .*$jarWithRulesetProviderV1, provided as command line argument, contains a custom ruleset provider which will \\*NOT\\*.* be compatible with the next KtLint version \\(0.48\\). Contact the maintainer of this ruleset. This JAR is not maintained by the KtLint project.*"),
                         )
                     }
             }
@@ -37,14 +37,14 @@ class RuleSetsLoaderCLITest : BaseCLITest() {
             val jarWithoutRulesetProvider = "custom-ruleset/rule-set-provider-v1/ktlint-reporter-html.jar"
             runKtLintCliProcess(
                 "custom-ruleset",
-                listOf("-R", "$BASE_DIR_PLACEHOLDER/$jarWithoutRulesetProvider")
+                listOf("-R", "$BASE_DIR_PLACEHOLDER/$jarWithoutRulesetProvider"),
             ) {
                 assertNormalExitCode()
 
                 assertThat(normalOutput)
                     .anyMatch {
                         it.matches(
-                            Regex(".* WARN .* JAR .*$jarWithoutRulesetProvider, provided as command line argument, does not contain a custom ruleset provider.")
+                            Regex(".* WARN .* JAR .*$jarWithoutRulesetProvider, provided as command line argument, does not contain a custom ruleset provider."),
                         )
                     }
             }
@@ -59,7 +59,7 @@ class RuleSetsLoaderCLITest : BaseCLITest() {
             val jarWithRulesetProviderV2 = "custom-ruleset/rule-set-provider-v2/ktlint-ruleset-template.jar"
             runKtLintCliProcess(
                 "custom-ruleset",
-                listOf("-R", "$BASE_DIR_PLACEHOLDER/$jarWithRulesetProviderV2")
+                listOf("-R", "$BASE_DIR_PLACEHOLDER/$jarWithRulesetProviderV2"),
             ) {
                 assertNormalExitCode()
 
@@ -67,7 +67,7 @@ class RuleSetsLoaderCLITest : BaseCLITest() {
                 assertThat(normalOutput)
                     .noneMatch {
                         it.matches(
-                            Regex(".* WARN .* JAR .*$jarWithRulesetProviderV2, provided as command line argument, contains a custom ruleset provider which will \\*NOT\\*.* be compatible with the next KtLint version \\(0.48\\). Contact the maintainer of this ruleset. This JAR is not maintained by the KtLint project.*")
+                            Regex(".* WARN .* JAR .*$jarWithRulesetProviderV2, provided as command line argument, contains a custom ruleset provider which will \\*NOT\\*.* be compatible with the next KtLint version \\(0.48\\). Contact the maintainer of this ruleset. This JAR is not maintained by the KtLint project.*"),
                         )
                     }
             }
@@ -78,14 +78,14 @@ class RuleSetsLoaderCLITest : BaseCLITest() {
             val jarWithoutRulesetProvider = "custom-ruleset/rule-set-provider-v2/ktlint-reporter-html.jar"
             runKtLintCliProcess(
                 "custom-ruleset",
-                listOf("-R", "$BASE_DIR_PLACEHOLDER/$jarWithoutRulesetProvider")
+                listOf("-R", "$BASE_DIR_PLACEHOLDER/$jarWithoutRulesetProvider"),
             ) {
                 assertNormalExitCode()
 
                 assertThat(normalOutput)
                     .anyMatch {
                         it.matches(
-                            Regex(".* WARN .* JAR .*$jarWithoutRulesetProvider, provided as command line argument, does not contain a custom ruleset provider.")
+                            Regex(".* WARN .* JAR .*$jarWithoutRulesetProvider, provided as command line argument, does not contain a custom ruleset provider."),
                         )
                     }
             }

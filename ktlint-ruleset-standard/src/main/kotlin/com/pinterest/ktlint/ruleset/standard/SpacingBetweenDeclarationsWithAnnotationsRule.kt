@@ -21,7 +21,7 @@ public class SpacingBetweenDeclarationsWithAnnotationsRule : Rule("spacing-betwe
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.elementType == MODIFIER_LIST && node.hasAnnotationsAsChildren()) {
             val declaration = node.psi.parent as? KtDeclaration
@@ -35,7 +35,7 @@ public class SpacingBetweenDeclarationsWithAnnotationsRule : Rule("spacing-betwe
                 emit(
                     node.startOffset,
                     "Declarations and declarations with annotations should have an empty space between.",
-                    true
+                    true,
                 )
                 if (autoCorrect) {
                     val indent = whiteSpaceAfterPreviousDeclaration.text.substringAfter('\n')
