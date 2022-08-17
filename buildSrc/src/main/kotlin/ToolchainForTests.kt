@@ -19,6 +19,14 @@ private fun Project.addJdkVersionTests(jdkVersion: Int) {
                 languageVersion.set(JavaLanguageVersion.of(jdkVersion))
             },
         )
+        if (jdkVersion > 16) {
+            // https://docs.gradle.org/7.5/userguide/upgrading_version_7.html#removes_implicit_add_opens_for_test_workers
+            val jvmArgs = listOf(
+                "--add-opens=java.base/java.lang=ALL-UNNAMED",
+                "--add-opens=java.base/java.util=ALL-UNNAMED",
+            )
+            setJvmArgs(jvmArgs)
+        }
     }
     tasks.named("check") {
         dependsOn(jdkVersionTests)
