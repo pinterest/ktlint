@@ -909,8 +909,8 @@ class TrailingCommaOnDeclarationSiteRuleTest {
                 provider = { MultiLineIfElseRule() },
                 additionalRuleProviders = setOf(
                     RuleProvider { TrailingCommaOnDeclarationSiteRule() },
-                    RuleProvider { IndentationRule() } // Required for TrailingCommaOnDeclarationSiteRule
-                )
+                    RuleProvider { IndentationRule() }, // Required for TrailingCommaOnDeclarationSiteRule
+                ),
             )
 
         multiLineIfElseRuleAssertThat(code)

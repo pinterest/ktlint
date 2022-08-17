@@ -22,7 +22,7 @@ class PackageKtTest {
                 enum class Shape {
                     FOO, FOOBAR, BAR
                 }
-                """.trimIndent()
+                """.trimIndent(),
             ).toEnumClassBodySequence()
 
         val actual =
@@ -40,7 +40,7 @@ class PackageKtTest {
             ",",
             " ",
             "BAR",
-            "\n"
+            "\n",
             // RBRACE is omitted from class body as it is an open range
         )
     }
@@ -55,7 +55,7 @@ class PackageKtTest {
                     enum class Shape {
                         FOO, FOOBAR, BAR
                     }
-                    """.trimIndent()
+                    """.trimIndent(),
                 ).toEnumClassBodySequence()
                     .filter { it.elementType == ENUM_ENTRY }
 
@@ -71,7 +71,7 @@ class PackageKtTest {
                     """
                     enum class Shape {
                         FOO, FOOBAR, BAR } // Malformed on purpose for test
-                    """.trimIndent()
+                    """.trimIndent(),
                 ).toEnumClassBodySequence()
 
             val actual = noWhiteSpaceWithNewLineInClosedRange(enumClassBody.first(), enumClassBody.last())
@@ -89,7 +89,7 @@ class PackageKtTest {
                         FOOBAR,
                         BAR
                     }
-                    """.trimIndent()
+                    """.trimIndent(),
                 ).toEnumClassBodySequence()
 
             val actual = noWhiteSpaceWithNewLineInClosedRange(enumClassBody.first(), enumClassBody.last())
@@ -104,7 +104,7 @@ class PackageKtTest {
                     """
                     enum class Shape { FOO, FOOBAR, BAR
                     } // Malformed on purpose for test
-                    """.trimIndent()
+                    """.trimIndent(),
                 ).toEnumClassBodySequence()
 
             val actual = noWhiteSpaceWithNewLineInClosedRange(enumClassBody.first(), enumClassBody.last())
@@ -120,7 +120,7 @@ class PackageKtTest {
                     enum class Shape { FOO, /*
                     newline in a block comment is ignored as it is not part of a whitespace leaf
                     */ FOOBAR, BAR }
-                    """.trimIndent()
+                    """.trimIndent(),
                 ).toEnumClassBodySequence()
 
             val actual = noWhiteSpaceWithNewLineInClosedRange(enumClassBody.first(), enumClassBody.last())
@@ -139,7 +139,7 @@ class PackageKtTest {
                     enum class Shape {
                         FOO, FOOBAR, BAR
                     }
-                    """.trimIndent()
+                    """.trimIndent(),
                 ).toEnumClassBodySequence()
                     .filter { it.elementType == ENUM_ENTRY }
 
@@ -155,7 +155,7 @@ class PackageKtTest {
                     """
                     enum class Shape {
                         FOO, FOOBAR, BAR } // Malformed on purpose for test
-                    """.trimIndent()
+                    """.trimIndent(),
                 ).toEnumClassBodySequence()
 
             val actual = hasWhiteSpaceWithNewLineInClosedRange(enumClassBody.first(), enumClassBody.last())
@@ -173,7 +173,7 @@ class PackageKtTest {
                         FOOBAR,
                         BAR
                     }
-                    """.trimIndent()
+                    """.trimIndent(),
                 ).toEnumClassBodySequence()
 
             val actual = hasWhiteSpaceWithNewLineInClosedRange(enumClassBody.first(), enumClassBody.last())
@@ -188,7 +188,7 @@ class PackageKtTest {
                     """
                     enum class Shape { FOO, FOOBAR, BAR
                     } // Malformed on purpose for test
-                    """.trimIndent()
+                    """.trimIndent(),
                 ).toEnumClassBodySequence()
 
             val actual = hasWhiteSpaceWithNewLineInClosedRange(enumClassBody.first(), enumClassBody.last())
@@ -204,7 +204,7 @@ class PackageKtTest {
                     enum class Shape { FOO, /*
                     newline in a block comment is ignored as it is not part of a whitespace leaf
                     */ FOOBAR, BAR }
-                    """.trimIndent()
+                    """.trimIndent(),
                 ).toEnumClassBodySequence()
 
             val actual = noWhiteSpaceWithNewLineInClosedRange(enumClassBody.first(), enumClassBody.last())
@@ -221,7 +221,7 @@ class PackageKtTest {
                 enum class Shape { FOO, /*
                 newline in a block comment should be ignored as it is not part of a whitespace leaf
                 */ FOOBAR, BAR }
-                """.trimIndent()
+                """.trimIndent(),
             ).toEnumClassBodySequence()
 
         val actual = containsLineBreakInRange(enumClassBody.first().psi, enumClassBody.last().psi)
@@ -236,10 +236,10 @@ class PackageKtTest {
                 text =
                 code,
                 ruleProviders = setOf(
-                    RuleProvider { DummyRule() }
+                    RuleProvider { DummyRule() },
                 ),
-                cb = { _, _ -> }
-            )
+                cb = { _, _ -> },
+            ),
         ).rootNode
 
     private fun FileASTNode.toEnumClassBodySequence() =
@@ -253,12 +253,12 @@ class PackageKtTest {
  * A dummy rule for testing. Optionally the rule can be created with a lambda to be executed for each node visited.
  */
 private open class DummyRule(
-    val block: (node: ASTNode) -> Unit = {}
+    val block: (node: ASTNode) -> Unit = {},
 ) : Rule(DUMMY_RULE_ID) {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         block(node)
     }

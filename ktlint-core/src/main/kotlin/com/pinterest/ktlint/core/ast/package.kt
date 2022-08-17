@@ -255,7 +255,7 @@ public fun ASTNode.visit(enter: (node: ASTNode) -> Unit, exit: (node: ASTNode) -
  */
 @Deprecated(
     "Marked for removal in KtLint 0.48. The lineNumber is a calculated field. This calculation is not always " +
-        "reliable when formatting code.See KDOC for more information."
+        "reliable when formatting code.See KDOC for more information.",
 )
 public fun ASTNode.lineNumber(): Int? =
     this.psi.containingFile?.viewProvider?.document?.getLineNumber(this.startOffset)?.let { it + 1 }
@@ -306,7 +306,7 @@ private fun String.replaceTabAndNewline(): String =
 
 @Deprecated(
     message = "This method is marked for removal in KtLint 0.48.0 as it is not reliable.",
-    replaceWith = ReplaceWith("hasWhiteSpaceWithNewLineInClosedRange(from, to)")
+    replaceWith = ReplaceWith("hasWhiteSpaceWithNewLineInClosedRange(from, to)"),
 )
 public fun containsLineBreakInRange(from: PsiElement, to: PsiElement): Boolean =
     from.siblings(forward = true, withItself = true)
