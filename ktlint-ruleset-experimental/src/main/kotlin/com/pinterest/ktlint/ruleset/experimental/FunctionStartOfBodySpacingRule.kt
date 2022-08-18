@@ -18,7 +18,7 @@ public class FunctionStartOfBodySpacingRule : Rule("$experimentalRulesetId:funct
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.elementType == FUN) {
             node
@@ -34,7 +34,7 @@ public class FunctionStartOfBodySpacingRule : Rule("$experimentalRulesetId:funct
     private fun visitFunctionFollowedByBodyExpression(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         fixWhiteSpaceBeforeAssignmentOfBodyExpression(node, emit, autoCorrect)
         fixWhiteSpaceBetweenAssignmentAndBodyExpression(node, emit, autoCorrect)
@@ -43,7 +43,7 @@ public class FunctionStartOfBodySpacingRule : Rule("$experimentalRulesetId:funct
     private fun fixWhiteSpaceBeforeAssignmentOfBodyExpression(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         node
             .findChildByType(ElementType.EQ)
@@ -70,7 +70,7 @@ public class FunctionStartOfBodySpacingRule : Rule("$experimentalRulesetId:funct
     private fun fixWhiteSpaceBetweenAssignmentAndBodyExpression(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         node
             .findChildByType(ElementType.EQ)
@@ -83,7 +83,7 @@ public class FunctionStartOfBodySpacingRule : Rule("$experimentalRulesetId:funct
                             emit(
                                 assignmentExpression.startOffset,
                                 "Expected a single white space between assignment and expression body on same line",
-                                true
+                                true,
                             )
                             if (autoCorrect) {
                                 (assignmentExpression as LeafPsiElement).upsertWhitespaceAfterMe(" ")
@@ -101,7 +101,7 @@ public class FunctionStartOfBodySpacingRule : Rule("$experimentalRulesetId:funct
     private fun visitFunctionFollowedByBodyBlock(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         node
             .findChildByType(ElementType.BLOCK)
@@ -113,20 +113,12 @@ public class FunctionStartOfBodySpacingRule : Rule("$experimentalRulesetId:funct
                         if (whiteSpaceBeforeExpressionBlock == null) {
                             emit(block.startOffset, "Expected a single white space before start of function body", true)
                             if (autoCorrect) {
-                                if (whiteSpaceBeforeExpressionBlock == null) {
-                                    (block.firstChildNode.prevLeaf(true) as LeafPsiElement).upsertWhitespaceAfterMe(" ")
-                                } else {
-                                    (whiteSpaceBeforeExpressionBlock as LeafElement).rawReplaceWithText(" ")
-                                }
+                                (block.firstChildNode.prevLeaf(true) as LeafPsiElement).upsertWhitespaceAfterMe(" ")
                             }
                         } else if (whiteSpaceBeforeExpressionBlock.text != " ") {
                             emit(whiteSpaceBeforeExpressionBlock.startOffset, "Unexpected whitespace", true)
                             if (autoCorrect) {
-                                if (whiteSpaceBeforeExpressionBlock == null) {
-                                    (block.firstChildNode as LeafPsiElement).upsertWhitespaceBeforeMe(" ")
-                                } else {
-                                    (whiteSpaceBeforeExpressionBlock as LeafElement).rawReplaceWithText(" ")
-                                }
+                                (whiteSpaceBeforeExpressionBlock as LeafElement).rawReplaceWithText(" ")
                             }
                         }
                     }

@@ -17,11 +17,11 @@ import org.jetbrains.kotlin.psi.psiUtil.prevLeafs
 /**
  * @see https://youtrack.jetbrains.com/issue/KT-35106
  */
-class SpacingBetweenDeclarationsWithAnnotationsRule : Rule("spacing-between-declarations-with-annotations") {
+public class SpacingBetweenDeclarationsWithAnnotationsRule : Rule("spacing-between-declarations-with-annotations") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.elementType == MODIFIER_LIST && node.hasAnnotationsAsChildren()) {
             val declaration = node.psi.parent as? KtDeclaration
@@ -35,7 +35,7 @@ class SpacingBetweenDeclarationsWithAnnotationsRule : Rule("spacing-between-decl
                 emit(
                     node.startOffset,
                     "Declarations and declarations with annotations should have an empty space between.",
-                    true
+                    true,
                 )
                 if (autoCorrect) {
                     val indent = whiteSpaceAfterPreviousDeclaration.text.substringAfter('\n')

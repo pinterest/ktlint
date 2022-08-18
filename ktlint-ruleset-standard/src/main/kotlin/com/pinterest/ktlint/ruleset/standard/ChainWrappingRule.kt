@@ -33,7 +33,7 @@ import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.psiUtil.leaves
 
-class ChainWrappingRule : Rule("chain-wrapping") {
+public class ChainWrappingRule : Rule("chain-wrapping") {
 
     private val sameLineTokens = TokenSet.create(MUL, DIV, PERC, ANDAND, OROR)
     private val prefixTokens = TokenSet.create(PLUS, MINUS)
@@ -43,7 +43,7 @@ class ChainWrappingRule : Rule("chain-wrapping") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         /*
            org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement (DOT) | "."

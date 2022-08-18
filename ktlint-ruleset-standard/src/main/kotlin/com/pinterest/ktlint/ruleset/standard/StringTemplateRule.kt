@@ -16,12 +16,12 @@ import org.jetbrains.kotlin.psi.KtNameReferenceExpression
 import org.jetbrains.kotlin.psi.KtSuperExpression
 import org.jetbrains.kotlin.psi.KtThisExpression
 
-class StringTemplateRule : Rule("string-template") {
+public class StringTemplateRule : Rule("string-template") {
 
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         val elementType = node.elementType
         // code below is commented out because (setting aside potentially dangerous replaceChild part)
@@ -43,7 +43,7 @@ class StringTemplateRule : Rule("string-template") {
                     emit(
                         entryExpression.operationTokenNode.startOffset,
                         "Redundant \"toString()\" call in string template",
-                        true
+                        true,
                     )
                     if (autoCorrect) {
                         entryExpression.replace(receiver)

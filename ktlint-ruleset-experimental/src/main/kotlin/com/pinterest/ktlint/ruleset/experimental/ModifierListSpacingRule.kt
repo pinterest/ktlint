@@ -21,7 +21,7 @@ public class ModifierListSpacingRule : Rule("$experimentalRulesetId:modifier-lis
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.elementType == MODIFIER_LIST) {
             node
@@ -35,7 +35,7 @@ public class ModifierListSpacingRule : Rule("$experimentalRulesetId:modifier-lis
     private fun visitModifierChild(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.elementType == WHITE_SPACE) {
             return
@@ -61,7 +61,7 @@ public class ModifierListSpacingRule : Rule("$experimentalRulesetId:modifier-lis
                         emit(
                             whitespace.startOffset,
                             "Single whitespace or newline expected after annotation",
-                            true
+                            true,
                         )
                         if (autoCorrect) {
                             (whitespace as LeafPsiElement).rawReplaceWithText(expectedWhiteSpace)
@@ -71,7 +71,7 @@ public class ModifierListSpacingRule : Rule("$experimentalRulesetId:modifier-lis
                     emit(
                         whitespace.startOffset,
                         "Single whitespace expected after modifier",
-                        true
+                        true,
                     )
                     if (autoCorrect) {
                         (whitespace as LeafPsiElement).rawReplaceWithText(" ")

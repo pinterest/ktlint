@@ -6,7 +6,7 @@ internal typealias LineAndColumn = Pair<Int, Int>
  * Builds function to locate position in text - line and column based on offset from the text start.
  */
 internal fun buildPositionInTextLocator(
-    text: String
+    text: String,
 ): (offset: Int) -> LineAndColumn {
     val textLength = text.length
     val arr = ArrayList<Int>()
@@ -33,7 +33,7 @@ internal fun buildPositionInTextLocator(
 }
 
 private class SegmentTree(
-    sortedArray: Array<Int>
+    sortedArray: Array<Int>,
 ) {
 
     init {
@@ -56,7 +56,7 @@ private class SegmentTree(
     private fun binarySearch(
         v: Int,
         l: Int,
-        r: Int
+        r: Int,
     ): Int = when {
         l > r -> -1
         else -> {
@@ -73,5 +73,5 @@ private class SegmentTree(
 
 private data class Segment(
     val left: Int,
-    val right: Int
+    val right: Int,
 )

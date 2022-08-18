@@ -101,7 +101,7 @@ class AnnotationRuleTest {
                 LintViolation(7, 5, "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct"),
                 LintViolation(9, 1, "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct"),
                 LintViolation(10, 5, "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct"),
-                LintViolation(11, 5, "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct")
+                LintViolation(11, 5, "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -128,7 +128,7 @@ class AnnotationRuleTest {
             .hasLintViolations(
                 LintViolation(1, 1, "Multiple annotations should not be placed on the same line as the annotated construct"),
                 LintViolation(2, 5, "Multiple annotations should not be placed on the same line as the annotated construct"),
-                LintViolation(3, 5, "Multiple annotations should not be placed on the same line as the annotated construct")
+                LintViolation(3, 5, "Multiple annotations should not be placed on the same line as the annotated construct"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -187,7 +187,7 @@ class AnnotationRuleTest {
             .hasLintViolations(
                 LintViolation(1, 1, "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct"),
                 LintViolation(2, 5, "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct"),
-                LintViolation(3, 5, "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct")
+                LintViolation(3, 5, "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -395,7 +395,7 @@ class AnnotationRuleTest {
             annotationRuleAssertThat(code)
                 .hasLintViolations(
                     LintViolation(1, 1, "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct"),
-                    LintViolation(1, 25, "File annotations should be separated from file contents with a blank line")
+                    LintViolation(1, 25, "File annotations should be separated from file contents with a blank line"),
                 ).isFormattedAs(formattedCode)
         }
 

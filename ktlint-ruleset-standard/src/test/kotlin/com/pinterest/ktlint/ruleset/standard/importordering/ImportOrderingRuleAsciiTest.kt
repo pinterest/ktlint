@@ -126,7 +126,7 @@ class ImportOrderingRuleAsciiTest {
             .hasLintViolationWithoutAutoCorrect(
                 1,
                 1,
-                "Imports must be ordered in lexicographic order without any empty lines in-between -- no autocorrection due to comments in the import list"
+                "Imports must be ordered in lexicographic order without any empty lines in-between -- no autocorrection due to comments in the import list",
             )
     }
 
@@ -144,7 +144,7 @@ class ImportOrderingRuleAsciiTest {
             .hasLintViolationWithoutAutoCorrect(
                 1,
                 1,
-                "Imports must be ordered in lexicographic order without any empty lines in-between -- no autocorrection due to comments in the import list"
+                "Imports must be ordered in lexicographic order without any empty lines in-between -- no autocorrection due to comments in the import list",
             )
     }
 

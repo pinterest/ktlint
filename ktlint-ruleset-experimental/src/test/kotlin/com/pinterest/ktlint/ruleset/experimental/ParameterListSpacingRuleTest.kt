@@ -233,7 +233,7 @@ class ParameterListSpacingRuleTest {
             .hasLintViolations(
                 LintViolation(1, 16, "Expected a single space"),
                 LintViolation(2, 25, "Expected a single space"),
-                LintViolation(5, 28, "Expected a single space")
+                LintViolation(5, 28, "Expected a single space"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -266,7 +266,7 @@ class ParameterListSpacingRuleTest {
             .hasLintViolations(
                 LintViolation(1, 16, "Expected a single space"),
                 LintViolation(3, 25, "Expected a single space"),
-                LintViolation(7, 28, "Expected a single space")
+                LintViolation(7, 28, "Expected a single space"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -286,7 +286,7 @@ class ParameterListSpacingRuleTest {
             .hasLintViolations(
                 LintViolation(2, 15, "Expected a single space"),
                 LintViolation(2, 25, "Expected a single space"),
-                LintViolation(2, 38, "Expected a single space")
+                LintViolation(2, 38, "Expected a single space"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -313,7 +313,7 @@ class ParameterListSpacingRuleTest {
             .hasLintViolations(
                 LintViolation(3, 11, "Expected a single space"),
                 LintViolation(4, 13, "Expected a single space"),
-                LintViolation(5, 16, "Expected a single space")
+                LintViolation(5, 16, "Expected a single space"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -427,7 +427,7 @@ class ParameterListSpacingRuleTest {
                 LintViolation(1, 48, "Expected a single space"),
                 LintViolation(1, 51, "Unexpected whitespace"),
                 LintViolation(1, 53, "Expected a single space"),
-                LintViolation(1, 58, "Unexpected whitespace")
+                LintViolation(1, 58, "Unexpected whitespace"),
             ).isFormattedAs(formattedCode)
     }
 

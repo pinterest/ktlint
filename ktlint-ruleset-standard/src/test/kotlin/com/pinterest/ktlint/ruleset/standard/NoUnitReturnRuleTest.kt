@@ -73,7 +73,7 @@ class NoUnitReturnRuleTest {
                 LintViolation(1, 13, "Unnecessary \"Unit\" return type"),
                 LintViolation(2, 13, "Unnecessary \"Unit\" return type"),
                 LintViolation(3, 13, "Unnecessary \"Unit\" return type"),
-                LintViolation(5, 13, "Unnecessary \"Unit\" return type")
+                LintViolation(5, 13, "Unnecessary \"Unit\" return type"),
             ).isFormattedAs(formattedCode)
     }
 

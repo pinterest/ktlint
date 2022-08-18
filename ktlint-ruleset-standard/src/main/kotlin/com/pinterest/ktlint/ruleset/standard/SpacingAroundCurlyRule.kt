@@ -31,12 +31,12 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.TreeElement
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtLambdaExpression
 
-class SpacingAroundCurlyRule : Rule("curly-spacing") {
+public class SpacingAroundCurlyRule : Rule("curly-spacing") {
 
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node is LeafPsiElement && !node.isPartOfString()) {
             val prevLeaf = node.prevLeaf()
@@ -125,7 +125,7 @@ class SpacingAroundCurlyRule : Rule("curly-spacing") {
         }
     }
 
-    fun shouldNotToBeSeparatedBySpace(leaf: ASTNode?): Boolean {
+    private fun shouldNotToBeSeparatedBySpace(leaf: ASTNode?): Boolean {
         val nextElementType = leaf?.elementType
         return (
             nextElementType == DOT ||

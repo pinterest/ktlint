@@ -22,12 +22,12 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
  *
  * See https://kotlinlang.org/docs/reference/coding-conventions.html#horizontal-whitespace
  */
-class SpacingAroundParensRule : Rule("paren-spacing") {
+public class SpacingAroundParensRule : Rule("paren-spacing") {
 
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.elementType == LPAR || node.elementType == RPAR) {
             val prevLeaf = node.prevLeaf()

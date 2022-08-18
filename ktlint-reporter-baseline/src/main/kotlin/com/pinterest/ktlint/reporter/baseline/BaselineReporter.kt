@@ -8,7 +8,7 @@ import java.nio.file.Paths
 import java.util.ArrayList
 import java.util.concurrent.ConcurrentHashMap
 
-class BaselineReporter(val out: PrintStream) : Reporter {
+public class BaselineReporter(private val out: PrintStream) : Reporter {
 
     private val acc = ConcurrentHashMap<String, MutableList<LintError>>()
 
@@ -32,7 +32,7 @@ class BaselineReporter(val out: PrintStream) : Reporter {
             out.println("""    <file name="${fileName.escapeXMLAttrValue()}">""")
             for ((line, col, ruleId, _) in errList) {
                 out.println(
-                    """        <error line="$line" column="$col" source="$ruleId" />"""
+                    """        <error line="$line" column="$col" source="$ruleId" />""",
                 )
             }
             out.println("""    </file>""")

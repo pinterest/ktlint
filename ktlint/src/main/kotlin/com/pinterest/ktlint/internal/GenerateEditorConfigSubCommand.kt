@@ -13,12 +13,12 @@ private val logger = KotlinLogging.logger {}.initKtLintKLogger()
 @CommandLine.Command(
     description = [
         "EXPERIMENTAL!!! Generate kotlin style section for '.editorconfig' file.",
-        "Add output content into '.editorconfig' file"
+        "Add output content into '.editorconfig' file",
     ],
     mixinStandardHelpOptions = true,
-    versionProvider = KtlintVersionProvider::class
+    versionProvider = KtlintVersionProvider::class,
 )
-class GenerateEditorConfigSubCommand : Runnable {
+internal class GenerateEditorConfigSubCommand : Runnable {
     @CommandLine.ParentCommand
     private lateinit var ktlintCommand: KtlintCommandLine
 
@@ -38,12 +38,12 @@ class GenerateEditorConfigSubCommand : Runnable {
                     .loadRuleProviders(
                         ktlintCommand.experimental,
                         ktlintCommand.debug,
-                        ktlintCommand.disabledRules
+                        ktlintCommand.disabledRules,
                     ),
                 editorConfigOverride = EditorConfigOverride.from(codeStyleSetProperty to codeStyle()),
                 debug = ktlintCommand.debug,
-                cb = { _, _ -> }
-            )
+                cb = { _, _ -> },
+            ),
         )
 
         if (generatedEditorConfig.isNotBlank()) {
@@ -62,7 +62,7 @@ class GenerateEditorConfigSubCommand : Runnable {
             DefaultEditorConfigProperties.CodeStyleValue.official
         }
 
-    companion object {
+    internal companion object {
         internal const val COMMAND_NAME = "generateEditorConfig"
     }
 }

@@ -94,7 +94,7 @@ class SpacingAroundCommaRuleTest {
         spacingAroundCommaRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(2, 14, "Unexpected spacing before \",\""),
-                LintViolation(3, 14, "Unexpected spacing before \",\"")
+                LintViolation(3, 14, "Unexpected spacing before \",\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -124,7 +124,7 @@ class SpacingAroundCommaRuleTest {
             .hasLintViolations(
                 LintViolation(2, 14, "Unexpected spacing before \",\""),
                 LintViolation(3, 30, "Unexpected spacing before \",\""),
-                LintViolation(5, 21, "Unexpected spacing before \",\"")
+                LintViolation(5, 21, "Unexpected spacing before \",\""),
             ).isFormattedAs(formattedCode)
     }
 

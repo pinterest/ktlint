@@ -43,7 +43,7 @@ public class ArgumentListWrappingRule :
         listOf(
             indentSizeProperty,
             indentStyleProperty,
-            maxLineLengthProperty
+            maxLineLengthProperty,
         )
 
     private var editorConfigIndent = IndentConfig.DEFAULT_INDENT_CONFIG
@@ -53,7 +53,7 @@ public class ArgumentListWrappingRule :
     override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
         editorConfigIndent = IndentConfig(
             indentStyle = editorConfigProperties.getEditorConfigValue(indentStyleProperty),
-            tabWidth = editorConfigProperties.getEditorConfigValue(indentSizeProperty)
+            tabWidth = editorConfigProperties.getEditorConfigValue(indentSizeProperty),
         )
         maxLineLength = editorConfigProperties.getEditorConfigValue(maxLineLengthProperty)
     }
@@ -61,7 +61,7 @@ public class ArgumentListWrappingRule :
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (editorConfigIndent.disabled) {
             return
@@ -144,7 +144,7 @@ public class ArgumentListWrappingRule :
         newIndentLevel: Int,
         child: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         val indent = "\n" + editorConfigIndent.indent.repeat(newIndentLevel)
         when (child.elementType) {
@@ -158,7 +158,8 @@ public class ArgumentListWrappingRule :
                 }
             }
             ElementType.VALUE_ARGUMENT,
-            ElementType.RPAR -> {
+            ElementType.RPAR,
+            -> {
                 // aiming for
                 // ... LPAR
                 // <line indent + indentSize> VALUE_PARAMETER...

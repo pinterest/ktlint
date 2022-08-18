@@ -31,7 +31,7 @@ public class EditorConfigOverride {
          * Creates the [EditorConfigOverride] based on one or more property-value mappings.
          */
         public fun from(
-            vararg properties: Pair<EditorConfigProperty<*>, *>
+            vararg properties: Pair<EditorConfigProperty<*>, *>,
         ): EditorConfigOverride {
             require(properties.isNotEmpty()) {
                 "Can not create an EditorConfigOverride without properties. Use 'emptyEditorConfigOverride' instead."
@@ -49,7 +49,7 @@ public class EditorConfigOverride {
          * the original [EditorConfigOverride] silently.
          */
         public fun EditorConfigOverride.plus(
-            vararg properties: Pair<EditorConfigProperty<*>, *>
+            vararg properties: Pair<EditorConfigProperty<*>, *>,
         ): EditorConfigOverride {
             require(properties.isNotEmpty()) {
                 "Can not add EditorConfigOverride without properties."

@@ -29,8 +29,8 @@ class RemoveDiacriticsFromLettersTest {
             "ŚŠ",
             "ÛÜÙÚŪ",
             "Ÿ",
-            "ŽŹŻ"
-        ]
+            "ŽŹŻ",
+        ],
     )
     fun `Given a letter with a diacritic then remove it`(original: String) {
         assertThat(original.matches("[A-Za-z]*".regExIgnoringDiacriticsAndStrokesOnLetters())).isTrue

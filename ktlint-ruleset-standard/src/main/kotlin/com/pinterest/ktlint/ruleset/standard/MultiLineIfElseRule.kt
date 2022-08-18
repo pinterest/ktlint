@@ -29,27 +29,27 @@ import org.jetbrains.kotlin.psi.psiUtil.leaves
 /**
  * https://kotlinlang.org/docs/reference/coding-conventions.html#formatting-control-flow-statements
  */
-class MultiLineIfElseRule :
+public class MultiLineIfElseRule :
     Rule("multiline-if-else"),
     UsesEditorConfigProperties {
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> =
         listOf(
             DefaultEditorConfigProperties.indentSizeProperty,
-            DefaultEditorConfigProperties.indentStyleProperty
+            DefaultEditorConfigProperties.indentStyleProperty,
         )
     private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
 
     override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
         indentConfig = IndentConfig(
             indentStyle = editorConfigProperties.getEditorConfigValue(DefaultEditorConfigProperties.indentStyleProperty),
-            tabWidth = editorConfigProperties.getEditorConfigValue(DefaultEditorConfigProperties.indentSizeProperty)
+            tabWidth = editorConfigProperties.getEditorConfigValue(DefaultEditorConfigProperties.indentSizeProperty),
         )
     }
 
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.elementType == THEN || node.elementType == ELSE) {
             if (node.firstChildNode?.elementType == BLOCK) {

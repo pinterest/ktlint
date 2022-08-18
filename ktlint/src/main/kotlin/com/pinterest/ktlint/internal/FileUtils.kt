@@ -3,6 +3,7 @@ package com.pinterest.ktlint.internal
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.RuleProvider
+import com.pinterest.ktlint.core.api.EditorConfigDefaults
 import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.initKtLintKLogger
 import java.io.File
@@ -39,7 +40,7 @@ internal val defaultPatterns = defaultKotlinFileExtensions.map { "**$globSeparat
  */
 internal fun FileSystem.fileSequence(
     patterns: List<String>,
-    rootDir: Path = Paths.get(".").toAbsolutePath().normalize()
+    rootDir: Path = Paths.get(".").toAbsolutePath().normalize(),
 ): Sequence<Path> {
     val result = mutableListOf<Path>()
 
@@ -93,42 +94,42 @@ internal fun FileSystem.fileSequence(
             object : SimpleFileVisitor<Path>() {
                 override fun visitFile(
                     filePath: Path,
-                    fileAttrs: BasicFileAttributes
+                    fileAttrs: BasicFileAttributes,
                 ): FileVisitResult {
                     if (negatedPathMatchers.none { it.matches(filePath) } &&
                         pathMatchers.any { it.matches(filePath) }
                     ) {
-                        logger.debug { "- File: $filePath: Include" }
+                        logger.trace { "- File: $filePath: Include" }
                         result.add(filePath)
                     } else {
-                        logger.debug { "- File: $filePath: Ignore" }
+                        logger.trace { "- File: $filePath: Ignore" }
                     }
                     return FileVisitResult.CONTINUE
                 }
 
                 override fun preVisitDirectory(
                     dirPath: Path,
-                    dirAttr: BasicFileAttributes
+                    dirAttr: BasicFileAttributes,
                 ): FileVisitResult {
                     return if (Files.isHidden(dirPath)) {
-                        logger.debug { "- Dir: $dirPath: Ignore" }
+                        logger.trace { "- Dir: $dirPath: Ignore" }
                         FileVisitResult.SKIP_SUBTREE
                     } else {
-                        logger.debug { "- Dir: $dirPath: Traverse" }
+                        logger.trace { "- Dir: $dirPath: Traverse" }
                         FileVisitResult.CONTINUE
                     }
                 }
-            }
+            },
         )
     }
-    logger.debug { "Results: include ${result.count()} files in $duration ms" }
+    logger.debug { "Discovered ${result.count()} files to be processed in $duration ms" }
 
     return result.asSequence()
 }
 
 private fun FileSystem.expand(
     patterns: List<String>,
-    rootDir: Path
+    rootDir: Path,
 ) =
     patterns
         .map { it.expandTildeToFullPath() }
@@ -137,7 +138,7 @@ private fun FileSystem.expand(
 
 private fun FileSystem.toGlob(
     path: String,
-    rootDir: Path
+    rootDir: Path,
 ): List<String> {
     val negation = if (path.startsWith(NEGATION_PREFIX)) {
         NEGATION_PREFIX
@@ -165,7 +166,7 @@ private fun getDefaultPatternsForPath(path: Path?) = defaultKotlinFileExtensions
     .flatMap {
         listOf(
             "$path$globSeparator*.$it",
-            "$path$globSeparator**$globSeparator*.$it"
+            "$path$globSeparator**$globSeparator*.$it",
         )
     }
 
@@ -196,7 +197,7 @@ internal fun JarFiles.toFilesURIList() = map {
 
 // a complete solution would be to implement https://www.gnu.org/software/bash/manual/html_node/Tilde-Expansion.html
 // this implementation takes care only of the most commonly used case (~/)
-private fun String.expandTildeToFullPath(): String =
+internal fun String.expandTildeToFullPath(): String =
     if (os.startsWith("windows", true)) {
         // Windows sometimes inserts `~` into paths when using short directory names notation, e.g. `C:\Users\USERNA~1\Documents
         this
@@ -205,7 +206,7 @@ private fun String.expandTildeToFullPath(): String =
     }
 
 internal fun File.location(
-    relative: Boolean
+    relative: Boolean,
 ) = if (relative) this.toRelativeString(File(workDir)) else this.path
 
 /**
@@ -215,24 +216,26 @@ internal fun lintFile(
     fileName: String,
     fileContents: String,
     ruleProviders: Set<RuleProvider>,
+    editorConfigDefaults: EditorConfigDefaults,
     editorConfigOverride: EditorConfigOverride,
     editorConfigPath: String? = null,
     debug: Boolean = false,
-    lintErrorCallback: (LintError) -> Unit = {}
+    lintErrorCallback: (LintError) -> Unit = {},
 ) = KtLint.lint(
     KtLint.ExperimentalParams(
         fileName = fileName,
         text = fileContents,
         ruleProviders = ruleProviders,
         script = !fileName.endsWith(".kt", ignoreCase = true),
+        editorConfigDefaults = editorConfigDefaults,
         editorConfigOverride = editorConfigOverride,
         editorConfigPath = editorConfigPath,
         cb = { e, _ ->
             lintErrorCallback(e)
         },
         debug = debug,
-        isInvokedFromCli = true
-    )
+        isInvokedFromCli = true,
+    ),
 )
 
 /**
@@ -242,10 +245,11 @@ internal fun formatFile(
     fileName: String,
     fileContents: String,
     ruleProviders: Set<RuleProvider>,
+    editorConfigDefaults: EditorConfigDefaults,
     editorConfigOverride: EditorConfigOverride,
     editorConfigPath: String?,
     debug: Boolean,
-    cb: (e: LintError, corrected: Boolean) -> Unit
+    cb: (e: LintError, corrected: Boolean) -> Unit,
 ): String =
     KtLint.format(
         KtLint.ExperimentalParams(
@@ -253,10 +257,11 @@ internal fun formatFile(
             text = fileContents,
             ruleProviders = ruleProviders,
             script = !fileName.endsWith(".kt", ignoreCase = true),
+            editorConfigDefaults = editorConfigDefaults,
             editorConfigOverride = editorConfigOverride,
             editorConfigPath = editorConfigPath,
             cb = cb,
             debug = debug,
-            isInvokedFromCli = true
-        )
+            isInvokedFromCli = true,
+        ),
     )

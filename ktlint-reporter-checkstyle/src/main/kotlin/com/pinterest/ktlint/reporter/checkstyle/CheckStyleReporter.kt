@@ -6,7 +6,7 @@ import java.io.PrintStream
 import java.util.ArrayList
 import java.util.concurrent.ConcurrentHashMap
 
-class CheckStyleReporter(val out: PrintStream) : Reporter {
+public class CheckStyleReporter(private val out: PrintStream) : Reporter {
 
     private val acc = ConcurrentHashMap<String, MutableList<LintError>>()
 
@@ -25,7 +25,7 @@ class CheckStyleReporter(val out: PrintStream) : Reporter {
                 out.println(
                     """        <error line="$line" column="$col" severity="error" message="${
                     detail.escapeXMLAttrValue()
-                    }" source="$ruleId" />"""
+                    }" source="$ruleId" />""",
                 )
             }
             out.println("""    </file>""")

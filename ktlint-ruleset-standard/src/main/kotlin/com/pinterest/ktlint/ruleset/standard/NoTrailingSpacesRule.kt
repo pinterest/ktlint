@@ -10,11 +10,11 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.kdoc.psi.api.KDoc
 
-class NoTrailingSpacesRule : Rule("no-trailing-spaces") {
+public class NoTrailingSpacesRule : Rule("no-trailing-spaces") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.isPartOfKDoc()) {
             if (node.elementType == WHITE_SPACE && node.hasTrailingSpacesBeforeNewline()) {
@@ -69,7 +69,7 @@ class NoTrailingSpacesRule : Rule("no-trailing-spaces") {
     private fun ASTNode.removeTrailingSpacesBeforeNewline() {
         val newText = text.replace(
             regex = SPACE_OR_TAB_BEFORE_NEWLINE_REGEX,
-            replacement = "\n"
+            replacement = "\n",
         )
         (this as LeafPsiElement).replaceWithText(newText)
     }

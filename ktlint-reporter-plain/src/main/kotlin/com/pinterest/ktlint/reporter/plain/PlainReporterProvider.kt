@@ -15,7 +15,7 @@ public class PlainReporterProvider : ReporterProvider<PlainReporter> {
             groupByFile = opt["group_by_file"]?.emptyOrTrue() ?: false,
             shouldColorOutput = opt["color"]?.emptyOrTrue() ?: false,
             outputColor = getColor(opt["color_name"]),
-            pad = opt["pad"]?.emptyOrTrue() ?: false
+            pad = opt["pad"]?.emptyOrTrue() ?: false,
         )
 
     private fun String.emptyOrTrue() = this == "" || this == "true"

@@ -3,9 +3,12 @@ package com.pinterest.ktlint.reporter.plain.internal
 /**
  * Stripped down version of https://github.com/ziggy42/kolor (ziggy42/kolor#6).
  */
-fun String.color(foreground: Color) = "\u001B[${foreground.code}m$this\u001B[0m"
+@Deprecated("Marked for removal from public API in KtLint 0.48. Please raise an issue if you have a use case to keep it public.")
+public fun String.color(foreground: Color): String =
+    "\u001B[${foreground.code}m$this\u001B[0m"
 
-enum class Color(val code: Int) {
+@Deprecated("Marked for removal from public API in KtLint 0.48. Please raise an issue if you have a use case to keep it public.")
+public enum class Color(public val code: Int) {
     BLACK(30),
     RED(31),
     GREEN(32),
@@ -21,5 +24,5 @@ enum class Color(val code: Int) {
     LIGHT_BLUE(94),
     LIGHT_MAGENTA(95),
     LIGHT_CYAN(96),
-    WHITE(97)
+    WHITE(97),
 }

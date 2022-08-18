@@ -128,6 +128,17 @@ The `.editorconfig` property `disabled_rules` (api property `DefaultEditorConfig
 
 Although, Ktlint 0.47.0 falls back on property `disabled_rules` whenever `ktlint_disabled_rules` is not found, this result in a warning message being printed. 
 
+#### Default/alternative .editorconfig
+
+Parameter "ExperimentalParams.editorConfigPath" is deprecated in favor of the new parameter "ExperimentalParams.editorConfigDefaults". When used in the old implementation this resulted in ignoring all ".editorconfig" files on the path to the file. The new implementation uses properties from the "editorConfigDefaults"parameter only when no ".editorconfig" files on the path to the file supplies this property for the filepath.
+
+API consumers can easily create the EditConfigDefaults by calling
+"EditConfigDefaults.load(path)" or creating it programmatically.
+
+#### Miscellaneous
+
+Several methods for which it is unlikely that they are used by API consumers have been marked for removal from the public API in KtLint 0.48.0. Please create an issue in case you have a valid business case to keep such methods in the public API.
+
 ### Added
 
 * Add `format` reporter. This reporter prints a one-line-summary of the formatting status per file. ([#621](https://github.com/pinterest/ktlint/issue/621)).
@@ -149,8 +160,10 @@ Although, Ktlint 0.47.0 falls back on property `disabled_rules` whenever `ktlint
 * Handle trailing comma in enums `trailing-comma` ([#1542](https://github.com/pinterest/ktlint/pull/1542))
 * Allow EOL comment after annotation ([#1539](https://github.com/pinterest/ktlint/issues/1539))
 * Split rule `trailing-comma` into `trailing-comma-on-call-site` and `trailing-comma-on-declaration-site` ([#1555](https://github.com/pinterest/ktlint/pull/1555))
+* Support globs containing directories in the ".editorconfig" supplied via CLI "--editorconfig"  ([#1551](https://github.com/pinterest/ktlint/pull/1551))
 * Fix indent of when entry with a dot qualified expression instead of simple value when trailing comma is required ([#1519](https://github.com/pinterest/ktlint/pull/1519))
 * Fix whitespace between trailing comma and arrow in when entry when trailing comma is required ([#1519](https://github.com/pinterest/ktlint/pull/1519))
+* Prevent false positive in parameter list for which the last value parameter is a destructuring declaration followed by a trailing comma `wrapping` ([#1578](https://github.com/pinterest/ktlint/issues/1578))
 
 ### Changed
 
@@ -158,6 +171,10 @@ Although, Ktlint 0.47.0 falls back on property `disabled_rules` whenever `ktlint
 * Invoke callback on `format` function for all errors including errors that are autocorrected ([#1491](https://github.com/pinterest/ktlint/issues/1491))
 * Improve rule `annotation` ([#1574](https://github.com/pinterest/ktlint/pull/1574))
 * Rename `.editorconfig` property `disabled_rules` to `ktlint_disabled_rules` ([#701](https://github.com/pinterest/ktlint/issues/701))
+* Allow file and directory paths in CLI-parameter "--editorconfig" ([#1580](https://github.com/pinterest/ktlint/pull/1580))
+* Update Kotlin development version to `1.7.20-beta` and Kotlin version to `1.7.10`.
+* Update release scripting to set version number in mkdocs documentation ([#1575](https://github.com/pinterest/ktlint/issue/1575)).
+* Update Gradle to `7.5.1` version
 
 ### Removed
 * Remove support to generate IntelliJ IDEA configuration files as this no longer fits the scope of the ktlint project ([#701](https://github.com/pinterest/ktlint/issues/701))

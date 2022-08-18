@@ -28,7 +28,7 @@ public class TypeParameterListSpacingRule : Rule("$experimentalRulesetId:type-pa
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.elementType != TYPE_PARAMETER_LIST) {
             return
@@ -45,7 +45,7 @@ public class TypeParameterListSpacingRule : Rule("$experimentalRulesetId:type-pa
     private fun visitClassDeclaration(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         // No white space expected between class name and parameter list
         //     class Bar <T>
@@ -83,7 +83,7 @@ public class TypeParameterListSpacingRule : Rule("$experimentalRulesetId:type-pa
     private fun visitTypeAliasDeclaration(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         // No white space expected between typealias keyword name and parameter list
         //     typealias Bar <T>
@@ -103,7 +103,7 @@ public class TypeParameterListSpacingRule : Rule("$experimentalRulesetId:type-pa
     private fun visitFunctionDeclaration(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         // Single space expected before type parameter list of function
         //    fun<T> foo(...)
@@ -131,7 +131,7 @@ public class TypeParameterListSpacingRule : Rule("$experimentalRulesetId:type-pa
     private fun visitInsideTypeParameterList(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         node
             .findChildByType(LT)
@@ -149,13 +149,13 @@ public class TypeParameterListSpacingRule : Rule("$experimentalRulesetId:type-pa
     private fun noWhitespaceExpected(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.text != "") {
             emit(
                 node.startOffset,
                 "No whitespace expected at this position",
-                true
+                true,
             )
             if (autoCorrect) {
                 node.treeParent.removeChild(node)
@@ -166,7 +166,7 @@ public class TypeParameterListSpacingRule : Rule("$experimentalRulesetId:type-pa
     private fun singleSpaceExpected(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         when {
             node.text == " " -> Unit
@@ -174,7 +174,7 @@ public class TypeParameterListSpacingRule : Rule("$experimentalRulesetId:type-pa
                 emit(
                     node.startOffset,
                     "Expected a single space instead of newline",
-                    true
+                    true,
                 )
                 if (autoCorrect) {
                     (node as LeafPsiElement).rawReplaceWithText(" ")
@@ -184,7 +184,7 @@ public class TypeParameterListSpacingRule : Rule("$experimentalRulesetId:type-pa
                 emit(
                     node.startOffset,
                     "Expected a single space",
-                    true
+                    true,
                 )
                 if (autoCorrect) {
                     if (node.elementType == WHITE_SPACE) {

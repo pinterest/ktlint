@@ -8,12 +8,12 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
-class CommentSpacingRule : Rule("comment-spacing") {
+public class CommentSpacingRule : Rule("comment-spacing") {
 
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node is PsiComment && node is LeafPsiElement && node.getText().startsWith("//")) {
             val prevLeaf = node.prevLeaf()

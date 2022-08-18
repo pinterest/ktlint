@@ -28,7 +28,7 @@ class ChainWrappingRuleTest {
             .hasLintViolations(
                 LintViolation(1, 26, "Line must not end with \".\""),
                 LintViolation(2, 24, "Line must not end with \".\""),
-                LintViolation(3, 32, "Line must not end with \"?.\"")
+                LintViolation(3, 32, "Line must not end with \"?.\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -78,7 +78,7 @@ class ChainWrappingRuleTest {
         chainWrappingRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(2, 5, "Line must not begin with \"&&\""),
-                LintViolation(4, 5, "Line must not begin with \"||\"")
+                LintViolation(4, 5, "Line must not begin with \"||\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -218,7 +218,7 @@ class ChainWrappingRuleTest {
                 LintViolation(7, 9, "Line must not begin with \"&&\""),
                 LintViolation(8, 18, "Line must not end with \".\""),
                 LintViolation(10, 14, "Line must not end with \".\""),
-                LintViolation(13, 14, "Line must not end with \".\"")
+                LintViolation(13, 14, "Line must not end with \".\""),
             ).isFormattedAs(formattedCode)
     }
 

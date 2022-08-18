@@ -170,7 +170,7 @@ class SpacingAroundColonRuleTest {
                 LintViolation(4, 9, "Missing spacing around \":\""),
                 LintViolation(5, 18, "Missing spacing around \":\""),
                 LintViolation(6, 31, "Missing spacing around \":\""),
-                LintViolation(8, 20, "Missing spacing around \":\"")
+                LintViolation(8, 20, "Missing spacing around \":\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -270,7 +270,7 @@ class SpacingAroundColonRuleTest {
                 LintViolation(1, 8, "Unexpected newline before \":\""),
                 LintViolation(4, 19, "Unexpected newline before \":\""),
                 LintViolation(8, 3, "Unexpected newline before \":\""),
-                LintViolation(10, 17, "Unexpected newline before \":\"")
+                LintViolation(10, 17, "Unexpected newline before \":\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -363,7 +363,7 @@ class SpacingAroundColonRuleTest {
                 LintViolation(19, 19, "Unexpected newline before \":\""),
                 LintViolation(22, 13, "Unexpected newline before \":\""),
                 LintViolation(27, 24, "Unexpected newline before \":\""),
-                LintViolation(33, 19, "Unexpected newline before \":\"")
+                LintViolation(33, 19, "Unexpected newline before \":\""),
             ).isFormattedAs(formattedCode)
     }
 }

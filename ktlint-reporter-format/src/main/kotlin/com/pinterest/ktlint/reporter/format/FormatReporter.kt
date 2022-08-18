@@ -9,10 +9,10 @@ import java.io.PrintStream
 import java.util.concurrent.ConcurrentHashMap
 
 public class FormatReporter(
-    val out: PrintStream,
-    val format: Boolean,
-    val shouldColorOutput: Boolean = false,
-    val outputColor: Color = Color.DARK_GRAY
+    private val out: PrintStream,
+    private val format: Boolean,
+    private val shouldColorOutput: Boolean = false,
+    private val outputColor: Color = Color.DARK_GRAY,
 ) : Reporter {
     private val countAutoCorrectPossibleOrDone = ConcurrentHashMap<String, Int>()
     private val countCanNotBeAutoCorrected = ConcurrentHashMap<String, Int>()
@@ -53,7 +53,7 @@ public class FormatReporter(
                 "Format not needed (no violations found)"
         }
         out.println(
-            "${colorFileName(file)}${":".colored()} $result"
+            "${colorFileName(file)}${":".colored()} $result",
         )
     }
 

@@ -17,14 +17,14 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 
-class SpacingAroundCommaRule : Rule("comma-spacing") {
+public class SpacingAroundCommaRule : Rule("comma-spacing") {
 
     private val rTokenSet = TokenSet.create(RPAR, RBRACKET, GT)
 
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node is LeafPsiElement && node.textMatches(",") && !node.isPartOfString()) {
             val prevLeaf = node.prevLeaf()

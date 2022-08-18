@@ -52,7 +52,7 @@ class NoEmptyClassBodyRuleTest {
                 LintViolation(9, 14, "Unnecessary block (\"{}\")"),
                 LintViolation(10, 10, "Unnecessary block (\"{}\")"),
                 LintViolation(11, 11, "Unnecessary block (\"{}\")"),
-                LintViolation(12, 11, "Unnecessary block (\"{}\")")
+                LintViolation(12, 11, "Unnecessary block (\"{}\")"),
             ).isFormattedAs(formattedCode)
     }
 

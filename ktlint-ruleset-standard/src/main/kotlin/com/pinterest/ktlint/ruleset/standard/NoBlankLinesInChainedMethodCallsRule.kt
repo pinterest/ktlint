@@ -10,7 +10,7 @@ public class NoBlankLinesInChainedMethodCallsRule : Rule("no-blank-lines-in-chai
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         val isBlankLine = node is PsiWhiteSpace && node.getText().contains("\n\n")
         if (isBlankLine && node.treeParent.elementType == DOT_QUALIFIED_EXPRESSION) {

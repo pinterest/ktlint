@@ -9,13 +9,13 @@ import java.io.PrintStream
 import java.util.ArrayList
 import java.util.concurrent.ConcurrentHashMap
 
-class PlainReporter(
-    val out: PrintStream,
-    val verbose: Boolean = false,
-    val groupByFile: Boolean = false,
-    val shouldColorOutput: Boolean = false,
-    val outputColor: Color = Color.DARK_GRAY,
-    val pad: Boolean = false
+public class PlainReporter(
+    private val out: PrintStream,
+    private val verbose: Boolean = false,
+    private val groupByFile: Boolean = false,
+    private val shouldColorOutput: Boolean = false,
+    private val outputColor: Color = Color.DARK_GRAY,
+    private val pad: Boolean = false,
 ) : Reporter {
 
     private val acc = ConcurrentHashMap<String, MutableList<LintError>>()
@@ -28,7 +28,7 @@ class PlainReporter(
                 out.println(
                     "${colorFileName(file)}${":".colored()}${err.line}${
                     ":${"${err.col}:".let { if (pad) String.format("%-4s", it) else it}}".colored()
-                    } ${err.detail} ${"(${err.ruleId})".colored()}"
+                    } ${err.detail} ${"(${err.ruleId})".colored()}",
                 )
             }
         }
@@ -42,7 +42,7 @@ class PlainReporter(
                 out.println(
                     "  $line${
                     ":${if (pad) String.format("%-3s", col) else "$col"}".colored()
-                    } $detail${if (verbose) " ($ruleId)".colored() else ""}"
+                    } $detail${if (verbose) " ($ruleId)".colored() else ""}",
                 )
             }
         }

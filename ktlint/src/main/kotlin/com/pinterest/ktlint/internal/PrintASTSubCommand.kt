@@ -3,6 +3,7 @@ package com.pinterest.ktlint.internal
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.ParseException
 import com.pinterest.ktlint.core.RuleProvider
+import com.pinterest.ktlint.core.api.EditorConfigDefaults.Companion.emptyEditorConfigDefaults
 import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.emptyEditorConfigOverride
 import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ruleset.test.DumpASTRule
@@ -17,11 +18,11 @@ private val logger = KotlinLogging.logger {}.initKtLintKLogger()
 @CommandLine.Command(
     description = [
         "Print AST (useful when writing/debugging rules)",
-        "Usage of \"--print-ast\" command line option is deprecated!"
+        "Usage of \"--print-ast\" command line option is deprecated!",
     ],
     aliases = ["--print-ast"],
     mixinStandardHelpOptions = true,
-    versionProvider = KtlintVersionProvider::class
+    versionProvider = KtlintVersionProvider::class,
 )
 internal class PrintASTSubCommand : Runnable {
     @CommandLine.ParentCommand
@@ -31,13 +32,13 @@ internal class PrintASTSubCommand : Runnable {
     private lateinit var commandSpec: CommandLine.Model.CommandSpec
 
     @CommandLine.Parameters(
-        description = ["include all files under this .gitignore-like patterns"]
+        description = ["include all files under this .gitignore-like patterns"],
     )
     private var patterns = ArrayList<String>()
 
     @CommandLine.Option(
         names = ["--stdin"],
-        description = ["Read file content from stdin"]
+        description = ["Read file content from stdin"],
     )
     private var stdin: Boolean = false
 
@@ -58,7 +59,7 @@ internal class PrintASTSubCommand : Runnable {
 
     private fun printAST(
         fileName: String,
-        fileContent: String
+        fileContent: String,
     ) {
         logger.debug {
             "Analyzing " + if (fileName != KtLint.STDIN_FILE) {
@@ -73,17 +74,18 @@ internal class PrintASTSubCommand : Runnable {
                 fileName = fileName,
                 fileContents = fileContent,
                 ruleProviders = setOf(
-                    RuleProvider { DumpASTRule(System.out, ktlintCommand.color) }
+                    RuleProvider { DumpASTRule(System.out, ktlintCommand.color) },
                 ),
+                editorConfigDefaults = emptyEditorConfigDefaults,
                 editorConfigOverride = emptyEditorConfigOverride,
-                debug = ktlintCommand.debug
+                debug = ktlintCommand.debug,
             )
         } catch (e: Exception) {
             if (e is ParseException) {
                 throw ParseException(
                     e.line,
                     e.col,
-                    "Not a valid Kotlin file (${e.message?.lowercase(Locale.getDefault())})"
+                    "Not a valid Kotlin file (${e.message?.lowercase(Locale.getDefault())})",
                 )
             }
             throw e

@@ -13,6 +13,7 @@ import com.pinterest.ktlint.core.api.Baseline.Status.INVALID
 import com.pinterest.ktlint.core.api.Baseline.Status.NOT_FOUND
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.codeStyleSetProperty
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.disabledRulesProperty
+import com.pinterest.ktlint.core.api.EditorConfigDefaults
 import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.plus
 import com.pinterest.ktlint.core.api.doesNotContain
@@ -27,6 +28,7 @@ import java.io.PrintStream
 import java.net.URLClassLoader
 import java.net.URLDecoder
 import java.nio.file.FileSystems
+import java.nio.file.Paths
 import java.util.Locale
 import java.util.ServiceLoader
 import java.util.concurrent.ArrayBlockingQueue
@@ -85,37 +87,37 @@ Flags:
     customSynopsis = [""],
     sortOptions = false,
     mixinStandardHelpOptions = true,
-    versionProvider = KtlintVersionProvider::class
+    versionProvider = KtlintVersionProvider::class,
 )
 internal class KtlintCommandLine {
 
     @Option(
         names = ["--android", "-a"],
-        description = ["Turn on Android Kotlin Style Guide compatibility"]
+        description = ["Turn on Android Kotlin Style Guide compatibility"],
     )
     var android: Boolean = false
 
     @Option(
         names = ["--color"],
-        description = ["Make output colorful"]
+        description = ["Make output colorful"],
     )
     var color: Boolean = false
 
     @Option(
         names = ["--color-name"],
-        description = ["Customize the output color"]
+        description = ["Customize the output color"],
     )
     var colorName: String = Color.DARK_GRAY.name
 
     @Option(
         names = ["--debug"],
-        description = ["Turn on debug output"]
+        description = ["Turn on debug output"],
     )
     var debug: Boolean = false
 
     @Option(
         names = ["--trace"],
-        description = ["Turn on trace output"]
+        description = ["Turn on trace output"],
     )
     var trace: Boolean = false
 
@@ -123,21 +125,21 @@ internal class KtlintCommandLine {
         names = ["--disabled_rules"],
         description = [
             "Comma-separated list of rules to globally disable." +
-                " To disable standard ktlint rule-set use --disabled_rules=standard"
-        ]
+                " To disable standard ktlint rule-set use --disabled_rules=standard",
+        ],
     )
     var disabledRules: String = ""
 
     // TODO: this should have been a command, not a flag (consider changing in 1.0.0)
     @Option(
         names = ["--format", "-F"],
-        description = ["Fix any deviations from the code style"]
+        description = ["Fix any deviations from the code style"],
     )
     private var format: Boolean = false
 
     @Option(
         names = ["--limit"],
-        description = ["Maximum number of errors to show (default: show all)"]
+        description = ["Maximum number of errors to show (default: show all)"],
     )
     private var limit: Int = -1
         get() = if (field < 0) Int.MAX_VALUE else field
@@ -146,8 +148,8 @@ internal class KtlintCommandLine {
         names = ["--relative"],
         description = [
             "Print files relative to the working directory " +
-                "(e.g. dir/file.kt instead of /home/user/project/dir/file.kt)"
-        ]
+                "(e.g. dir/file.kt instead of /home/user/project/dir/file.kt)",
+        ],
     )
     var relative: Boolean = false
 
@@ -156,44 +158,49 @@ internal class KtlintCommandLine {
         description = [
             "A reporter to use (built-in: plain (default), plain?group_by_file, json, sarif, checkstyle, html). " +
                 "To use a third-party reporter specify a path to a JAR file on the filesystem via ',artifact=' option. " +
-                "To override reporter output, use ',output=' option."
-        ]
+                "To override reporter output, use ',output=' option.",
+        ],
     )
     private var reporters: JarFiles = ArrayList()
 
     @Option(
         names = ["--ruleset", "-R"],
-        description = ["A path to a JAR file containing additional ruleset(s)"]
+        description = ["A path to a JAR file containing additional ruleset(s)"],
     )
     var rulesetJarFiles: JarFiles = ArrayList()
 
     @Option(
         names = ["--stdin"],
-        description = ["Read file from stdin"]
+        description = ["Read file from stdin"],
     )
     private var stdin: Boolean = false
 
     @Option(
         names = ["--verbose", "-v"],
-        description = ["Show error codes"]
+        description = ["Show error codes"],
     )
     private var verbose: Boolean = false
 
     @Option(
         names = ["--editorconfig"],
-        description = ["Path to .editorconfig"]
+        description = [
+            "Path to the default '.editorconfig'. A property value from this file is used only when no " +
+                "'.editorconfig' file on the path to the source file specifies that property. Note: up until ktlint " +
+                "0.46 the property value in this file used to override values found in '.editorconfig' files on the " +
+                "path to the source file.",
+        ],
     )
     private var editorConfigPath: String? = null
 
     @Option(
         names = ["--experimental"],
-        description = ["Enabled experimental rules (ktlint-ruleset-experimental)"]
+        description = ["Enabled experimental rules (ktlint-ruleset-experimental)"],
     )
     var experimental: Boolean = false
 
     @Option(
         names = ["--baseline"],
-        description = ["Defines a baseline file to check against"]
+        description = ["Defines a baseline file to check against"],
     )
     private var baselinePath: String = ""
 
@@ -209,8 +216,6 @@ internal class KtlintCommandLine {
             debug = true
         }
         logger = configureLogger()
-
-        failOnOldRulesetProviderUsage()
 
         // Set default value to patterns only after the logger has been configured to avoid a warning about initializing
         // the logger multiple times
@@ -236,6 +241,12 @@ internal class KtlintCommandLine {
                         }
                     }.lintErrorsPerFile
             }
+
+        val editorConfigDefaults = EditorConfigDefaults.load(
+            editorConfigPath
+                ?.expandTildeToFullPath()
+                ?.let { path -> Paths.get(path) },
+        )
         val editorConfigOverride =
             EditorConfigOverride
                 .emptyEditorConfigOverride
@@ -247,13 +258,19 @@ internal class KtlintCommandLine {
 
         reporter.beforeAll()
         if (stdin) {
-            lintStdin(ruleProviders, editorConfigOverride, reporter)
+            lintStdin(
+                ruleProviders,
+                editorConfigDefaults,
+                editorConfigOverride,
+                reporter,
+            )
         } else {
             lintFiles(
                 ruleProviders,
+                editorConfigDefaults,
                 editorConfigOverride,
                 baselineLintErrorsPerFile,
-                reporter
+                reporter,
             )
         }
         reporter.afterAll()
@@ -281,9 +298,10 @@ internal class KtlintCommandLine {
 
     private fun lintFiles(
         ruleProviders: Set<RuleProvider>,
+        editorConfigDefaults: EditorConfigDefaults,
         editorConfigOverride: EditorConfigOverride,
         lintErrorsPerFile: Map<String, List<LintError>>,
-        reporter: Reporter
+        reporter: Reporter,
     ) {
         FileSystems.getDefault()
             .fileSequence(patterns)
@@ -294,9 +312,10 @@ internal class KtlintCommandLine {
                     file to process(
                         fileName = file.path,
                         fileContent = file.readText(),
+                        editorConfigDefaults = editorConfigDefaults,
                         editorConfigOverride = editorConfigOverride,
                         baselineLintErrors = lintErrorsPerFile.getOrDefault(file.relativeRoute, emptyList()),
-                        ruleProviders = ruleProviders
+                        ruleProviders = ruleProviders,
                     )
                 }
             }.parallel({ (file, errList) -> report(file.location(relative), errList, reporter) })
@@ -304,43 +323,28 @@ internal class KtlintCommandLine {
 
     private fun lintStdin(
         ruleProviders: Set<RuleProvider>,
+        editorConfigDefaults: EditorConfigDefaults,
         editorConfigOverride: EditorConfigOverride,
-        reporter: Reporter
+        reporter: Reporter,
     ) {
         report(
             KtLint.STDIN_FILE,
             process(
                 fileName = KtLint.STDIN_FILE,
                 fileContent = String(System.`in`.readBytes()),
+                editorConfigDefaults = editorConfigDefaults,
                 editorConfigOverride = editorConfigOverride,
                 baselineLintErrors = emptyList(),
-                ruleProviders = ruleProviders
+                ruleProviders = ruleProviders,
             ),
-            reporter
+            reporter,
         )
-    }
-
-    /**
-     * Detect custom rulesets that have not been moved to the new package.
-     */
-    @Suppress("Deprecation")
-    private fun failOnOldRulesetProviderUsage() {
-        if (ServiceLoader.load(com.github.shyiko.ktlint.core.RuleSetProvider::class.java).any()) {
-            logger.error {
-                """
-                Cannot load custom ruleset!")
-                RuleSetProvider has moved to com.pinterest.ktlint.core.")
-                Please rename META-INF/services/com.github.shyiko.ktlint.core.RuleSetProvider to META-INF/services/com.pinterest.ktlint.core.RuleSetProvider")
-                """.trimIndent()
-            }
-            exitProcess(1)
-        }
     }
 
     private fun report(
         fileName: String,
         errList: List<LintErrorWithCorrectionInfo>,
-        reporter: Reporter
+        reporter: Reporter,
     ) {
         fileNumber.incrementAndGet()
         val errListLimit = minOf(errList.size, maxOf(limit - errorNumber.get(), 0))
@@ -351,7 +355,7 @@ internal class KtlintCommandLine {
             reporter.onLintError(
                 fileName,
                 if (!err.canBeAutoCorrected) err.copy(detail = err.detail + " (cannot be auto-corrected)") else err,
-                corrected
+                corrected,
             )
         }
         reporter.after(fileName)
@@ -360,9 +364,10 @@ internal class KtlintCommandLine {
     private fun process(
         fileName: String,
         fileContent: String,
+        editorConfigDefaults: EditorConfigDefaults,
         editorConfigOverride: EditorConfigOverride,
         baselineLintErrors: List<LintError>,
-        ruleProviders: Set<RuleProvider>
+        ruleProviders: Set<RuleProvider>,
     ): List<LintErrorWithCorrectionInfo> {
         logger.trace {
             val fileLocation = if (fileName != KtLint.STDIN_FILE) File(fileName).location(relative) else fileName
@@ -375,9 +380,10 @@ internal class KtlintCommandLine {
                     fileName,
                     fileContent,
                     ruleProviders,
+                    editorConfigDefaults,
                     editorConfigOverride,
                     editorConfigPath,
-                    debug
+                    debug,
                 ) { lintError, corrected ->
                     if (baselineLintErrors.doesNotContain(lintError)) {
                         result.add(LintErrorWithCorrectionInfo(lintError, corrected))
@@ -404,9 +410,10 @@ internal class KtlintCommandLine {
                     fileName,
                     fileContent,
                     ruleProviders,
+                    editorConfigDefaults,
                     editorConfigOverride,
                     editorConfigPath,
-                    debug
+                    debug,
                 ) { lintError ->
                     if (baselineLintErrors.doesNotContain(lintError)) {
                         result.add(LintErrorWithCorrectionInfo(lintError, false))
@@ -435,9 +442,9 @@ internal class KtlintCommandLine {
                         "verbose" to verbose.toString(),
                         "color" to color.toString(),
                         "color_name" to colorName,
-                        "format" to format.toString()
+                        "format" to format.toString(),
                     ) + parseQuery(rawReporterConfig),
-                    split.lastOrNull { it.startsWith("output=") }?.let { it.split("=")[1] }
+                    split.lastOrNull { it.startsWith("output=") }?.let { it.split("=")[1] },
                 )
             }
             .distinct()
@@ -446,7 +453,7 @@ internal class KtlintCommandLine {
     }
 
     private fun ReporterTemplate.toReporter(
-        reporterProviderById: Map<String, ReporterProvider<*>>
+        reporterProviderById: Map<String, ReporterProvider<*>>,
     ): Reporter {
         val reporterProvider = reporterProviderById[id]
         if (reporterProvider == null) {
@@ -492,7 +499,7 @@ internal class KtlintCommandLine {
                     e.line,
                     e.col,
                     "",
-                    "Not a valid Kotlin file (${e.message?.lowercase(Locale.getDefault())})"
+                    "Not a valid Kotlin file (${e.message?.lowercase(Locale.getDefault())})",
                 )
             is RuleExecutionException -> {
                 logger.debug("Internal Error (${e.ruleId}) in file '$filename' at position '${e.line}:${e.col}", e)
@@ -503,7 +510,7 @@ internal class KtlintCommandLine {
                     "Internal Error (${e.ruleId}) in file '$filename' at position '${e.line}:${e.col}. " +
                         "Please create a ticket at https://github.com/pinterest/ktlint/issues " +
                         "(if possible, please re-run with the --debug flag to get the stacktrace " +
-                        "and provide the source code that triggered an error)"
+                        "and provide the source code that triggered an error)",
                 )
             }
             else -> throw e
@@ -517,7 +524,7 @@ internal class KtlintCommandLine {
                     s.split("=", limit = 2).let { e ->
                         map.put(
                             e[0],
-                            URLDecoder.decode(e.getOrElse(1) { "true" }, "UTF-8")
+                            URLDecoder.decode(e.getOrElse(1) { "true" }, "UTF-8"),
                         )
                     }
                 }
@@ -555,7 +562,7 @@ internal class KtlintCommandLine {
      */
     private fun <T> Sequence<Callable<T>>.parallel(
         cb: (T) -> Unit,
-        numberOfThreads: Int = Runtime.getRuntime().availableProcessors()
+        numberOfThreads: Int = Runtime.getRuntime().availableProcessors(),
     ) {
         val pill = object : Future<T> {
             override fun isDone(): Boolean {
@@ -606,7 +613,7 @@ internal class KtlintCommandLine {
     private fun loadReporters(externalReportersJarPaths: List<String>) = ServiceLoader
         .load(
             ReporterProvider::class.java,
-            URLClassLoader(externalReportersJarPaths.toFilesURIList().toTypedArray())
+            URLClassLoader(externalReportersJarPaths.toFilesURIList().toTypedArray()),
         )
         .associateBy { it.id }
         .onEach { entry ->
@@ -615,13 +622,13 @@ internal class KtlintCommandLine {
 
     private data class LintErrorWithCorrectionInfo(
         val err: LintError,
-        val corrected: Boolean
+        val corrected: Boolean,
     )
 
     private data class ReporterTemplate(
         val id: String,
         val artifact: String?,
         val config: Map<String, String>,
-        val output: String?
+        val output: String?,
     )
 }

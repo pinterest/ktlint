@@ -7,12 +7,12 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
-class NoBlankLineBeforeRbraceRule : Rule("no-blank-line-before-rbrace") {
+public class NoBlankLineBeforeRbraceRule : Rule("no-blank-line-before-rbrace") {
 
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node is PsiWhiteSpace &&
             node.textContains('\n') &&
@@ -23,7 +23,7 @@ class NoBlankLineBeforeRbraceRule : Rule("no-blank-line-before-rbrace") {
                 emit(
                     node.startOffset + split[0].length + split[1].length + 1,
                     "Unexpected blank line(s) before \"}\"",
-                    true
+                    true,
                 )
                 if (autoCorrect) {
                     (node as LeafPsiElement).rawReplaceWithText("${split.first()}\n${split.last()}")

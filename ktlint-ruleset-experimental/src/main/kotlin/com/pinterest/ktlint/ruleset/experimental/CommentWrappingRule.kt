@@ -25,13 +25,13 @@ public class CommentWrappingRule :
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> =
         listOf(
             DefaultEditorConfigProperties.indentSizeProperty,
-            DefaultEditorConfigProperties.indentStyleProperty
+            DefaultEditorConfigProperties.indentStyleProperty,
         )
 
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.elementType == BLOCK_COMMENT) {
             val nonIndentLeafOnSameLinePrecedingBlockComment =
@@ -52,7 +52,7 @@ public class CommentWrappingRule :
                     emit(
                         node.startOffset,
                         "A block comment in between other elements on the same line is disallowed",
-                        false
+                        false,
                     )
                 } else {
                     // Do not try to fix constructs like below:
@@ -62,7 +62,7 @@ public class CommentWrappingRule :
                     emit(
                         node.startOffset,
                         "A block comment starting on same line as another element and ending on another line before another element is disallowed",
-                        false
+                        false,
                     )
                 }
                 return
@@ -79,14 +79,14 @@ public class CommentWrappingRule :
     private fun ASTNode.precedesBlockCommentOnSameLine(
         blockCommentNode: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         val leafAfterBlockComment = blockCommentNode.nextLeaf()
         if (!blockCommentNode.textContains('\n') && leafAfterBlockComment.isLastElementOnLine()) {
             emit(
                 startOffset,
                 "A single line block comment after a code element on the same line must be replaced with an EOL comment",
-                true
+                true,
             )
             if (autoCorrect) {
                 blockCommentNode.replaceWithEndOfLineComment()
@@ -96,7 +96,7 @@ public class CommentWrappingRule :
             emit(
                 blockCommentNode.startOffset,
                 "A block comment after any other element on the same line must be separated by a new line",
-                false
+                false,
             )
         }
     }
@@ -111,7 +111,7 @@ public class CommentWrappingRule :
     private fun ASTNode.followsBlockCommentOnSameLine(
         blockCommentNode: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         emit(startOffset, "A block comment may not be followed by any other element on that same line", true)
         if (autoCorrect) {

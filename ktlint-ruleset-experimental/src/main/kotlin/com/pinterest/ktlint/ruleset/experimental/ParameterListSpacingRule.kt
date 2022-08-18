@@ -29,7 +29,7 @@ public class ParameterListSpacingRule : Rule("$experimentalRulesetId:parameter-l
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.elementType == VALUE_PARAMETER_LIST) {
             visitValueParameterList(node, emit, autoCorrect)
@@ -39,7 +39,7 @@ public class ParameterListSpacingRule : Rule("$experimentalRulesetId:parameter-l
     private fun visitValueParameterList(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         require(node.elementType == VALUE_PARAMETER_LIST)
         val countValueParameters =
@@ -107,7 +107,7 @@ public class ParameterListSpacingRule : Rule("$experimentalRulesetId:parameter-l
     private fun visitValueParameter(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         visitModifierList(node, emit, autoCorrect)
         removeWhiteSpaceBetweenParameterIdentifierAndColon(node, emit, autoCorrect)
@@ -117,7 +117,7 @@ public class ParameterListSpacingRule : Rule("$experimentalRulesetId:parameter-l
     private fun visitModifierList(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         val modifierList = node.findChildByType(MODIFIER_LIST) ?: return
         removeWhiteSpaceBetweenModifiersInList(modifierList, emit, autoCorrect)
@@ -127,7 +127,7 @@ public class ParameterListSpacingRule : Rule("$experimentalRulesetId:parameter-l
     private fun removeWhiteSpaceBetweenModifiersInList(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         require(node.elementType == MODIFIER_LIST)
         node
@@ -141,7 +141,7 @@ public class ParameterListSpacingRule : Rule("$experimentalRulesetId:parameter-l
     private fun visitWhiteSpaceAfterModifier(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         node
             .takeUnless {
@@ -155,7 +155,7 @@ public class ParameterListSpacingRule : Rule("$experimentalRulesetId:parameter-l
     private fun removeWhiteSpaceBetweenModifierListAndParameterIdentifier(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         require(node.elementType == MODIFIER_LIST)
         node
@@ -167,7 +167,7 @@ public class ParameterListSpacingRule : Rule("$experimentalRulesetId:parameter-l
     private fun removeWhiteSpaceBetweenParameterIdentifierAndColon(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         node
             .findChildByType(COLON)
@@ -181,7 +181,7 @@ public class ParameterListSpacingRule : Rule("$experimentalRulesetId:parameter-l
     private fun fixWhiteSpaceAfterColonInParameter(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         val colonNode = node.findChildByType(COLON) ?: return
         colonNode
@@ -199,7 +199,7 @@ public class ParameterListSpacingRule : Rule("$experimentalRulesetId:parameter-l
     private fun addMissingWhiteSpaceAfterMe(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         require(node.elementType == COLON || node.elementType == COMMA)
         emit(node.startOffset, "Whitespace after '${node.text}' is missing", true)
@@ -223,7 +223,7 @@ public class ParameterListSpacingRule : Rule("$experimentalRulesetId:parameter-l
     private fun removeUnexpectedWhiteSpace(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         emit(node.startOffset, "Unexpected whitespace", true)
         if (autoCorrect) {
@@ -234,7 +234,7 @@ public class ParameterListSpacingRule : Rule("$experimentalRulesetId:parameter-l
     private fun replaceWithSingleSpace(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         emit(node.startOffset, "Expected a single space", true)
         if (autoCorrect) {

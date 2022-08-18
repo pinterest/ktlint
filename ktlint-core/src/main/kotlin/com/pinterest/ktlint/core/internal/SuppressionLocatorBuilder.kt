@@ -22,7 +22,7 @@ internal object SuppressionLocatorBuilder {
     val noSuppression: SuppressionLocator = { _, _, _ -> false }
 
     private val suppressAnnotationRuleMap = mapOf(
-        "RemoveCurlyBracesFromTemplate" to "string-template"
+        "RemoveCurlyBracesFromTemplate" to "string-template",
     )
     private val suppressAnnotations = setOf("Suppress", "SuppressWarnings")
     private const val suppressAllKtlintRules = "ktlint-all"
@@ -33,7 +33,7 @@ internal object SuppressionLocatorBuilder {
      * Builds [SuppressionLocator] for given [rootNode] of AST tree.
      */
     fun buildSuppressedRegionsLocator(
-        rootNode: ASTNode
+        rootNode: ASTNode,
     ): SuppressionLocator {
         val hintsList = collect(rootNode)
         return if (hintsList.isEmpty()) {
@@ -56,11 +56,11 @@ internal object SuppressionLocatorBuilder {
      */
     private data class SuppressionHint(
         val range: IntRange,
-        val disabledRules: Set<String> = emptySet()
+        val disabledRules: Set<String> = emptySet(),
     )
 
     private fun collect(
-        rootNode: ASTNode
+        rootNode: ASTNode,
     ): List<SuppressionHint> {
         val result = ArrayList<SuppressionHint>()
         val open = ArrayList<SuppressionHint>()
@@ -90,8 +90,8 @@ internal object SuppressionLocatorBuilder {
                                 result.add(
                                     SuppressionHint(
                                         IntRange(openingHint.range.first, node.startOffset - 1),
-                                        disabledRules
-                                    )
+                                        disabledRules,
+                                    ),
                                 )
                             }
                         }
@@ -109,7 +109,7 @@ internal object SuppressionLocatorBuilder {
         result.addAll(
             open.map {
                 SuppressionHint(IntRange(it.range.first, rootNode.textLength), it.disabledRules)
-            }
+            },
         )
         return result
     }
@@ -123,7 +123,7 @@ internal object SuppressionLocatorBuilder {
 
     private fun parseHintArgs(
         commentText: String,
-        key: String
+        key: String,
     ): List<String>? {
         if (commentText.startsWith(key)) {
             val parsedComment = splitCommentBySpace(commentText)
@@ -136,7 +136,7 @@ internal object SuppressionLocatorBuilder {
     }
 
     private fun splitCommentBySpace(
-        comment: String
+        comment: String,
     ) = comment
         .replace(commentRegex, " ")
         .replace(" {2,}", " ")
@@ -152,7 +152,7 @@ internal object SuppressionLocatorBuilder {
     private fun createSuppressionHintFromAnnotations(
         psi: KtAnnotated,
         targetAnnotations: Collection<String>,
-        annotationValueToRuleMapping: Map<String, String>
+        annotationValueToRuleMapping: Map<String, String>,
     ): SuppressionHint? =
         psi
             .annotationEntries
@@ -168,12 +168,12 @@ internal object SuppressionLocatorBuilder {
                     suppressedRules.contains(suppressAllKtlintRules) ->
                         SuppressionHint(
                             IntRange(psi.startOffset, psi.endOffset),
-                            emptySet()
+                            emptySet(),
                         )
                     else ->
                         SuppressionHint(
                             IntRange(psi.startOffset, psi.endOffset),
-                            suppressedRules.toSet()
+                            suppressedRules.toSet(),
                         )
                 }
             }

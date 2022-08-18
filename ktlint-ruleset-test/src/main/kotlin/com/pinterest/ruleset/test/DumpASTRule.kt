@@ -15,7 +15,7 @@ import org.jetbrains.kotlin.lexer.KtTokens
 
 public class DumpASTRule @JvmOverloads constructor(
     private val out: PrintStream = System.err,
-    private val color: Boolean = false
+    private val color: Boolean = false,
 ) : Rule("dump") {
 
     private companion object {
@@ -28,7 +28,7 @@ public class DumpASTRule @JvmOverloads constructor(
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, corrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, corrected: Boolean) -> Unit,
     ) {
         if (node.isRoot()) {
             lineNumberColumnLength = node
@@ -53,23 +53,23 @@ public class DumpASTRule @JvmOverloads constructor(
                 "  ".repeat(level).dim() +
                 colorClassName(node.psi.className) +
                 " (".dim() + colorClassName(elementTypeClassName(node.elementType)) + ")".dim() +
-                if (node.getChildren(null).isEmpty()) " \"" + node.text.escape().brighten() + "\"" else ""
+                if (node.getChildren(null).isEmpty()) " \"" + node.text.escape().brighten() + "\"" else "",
         )
         if (lastNode == node) {
             out.println()
             out.println(
                 " ".repeat(lineNumberColumnLength) +
-                    "  format: <line_number:> <node.psi::class> (<node.elementType>) \"<node.text>\"".dim()
+                    "  format: <line_number:> <node.psi::class> (<node.elementType>) \"<node.text>\"".dim(),
             )
             if (node.lineNumberOrUnknown() == "Unknown") {
                 out.println(
                     " ".repeat(lineNumberColumnLength) +
-                        "          line_number 'Unknown' is caused by mutations in the AST during formatting".dim()
+                        "          line_number 'Unknown' is caused by mutations in the AST during formatting".dim(),
                 )
             }
             out.println(
                 " ".repeat(lineNumberColumnLength) +
-                    "  legend: ~ = org.jetbrains.kotlin, c.i.p = com.intellij.psi".dim()
+                    "  legend: ~ = org.jetbrains.kotlin, c.i.p = com.intellij.psi".dim(),
             )
             out.println()
         }

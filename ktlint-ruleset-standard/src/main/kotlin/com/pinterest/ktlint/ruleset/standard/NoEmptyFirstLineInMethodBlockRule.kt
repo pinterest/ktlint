@@ -10,11 +10,11 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
-class NoEmptyFirstLineInMethodBlockRule : Rule("no-empty-first-line-in-method-block") {
+public class NoEmptyFirstLineInMethodBlockRule : Rule("no-empty-first-line-in-method-block") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node is PsiWhiteSpace && node.textContains('\n') &&
             node.prevLeaf()?.elementType == ElementType.LBRACE && node.isPartOf(FUN) &&
@@ -25,7 +25,7 @@ class NoEmptyFirstLineInMethodBlockRule : Rule("no-empty-first-line-in-method-bl
                 emit(
                     node.startOffset + 1,
                     "First line in a method block should not be empty",
-                    true
+                    true,
                 )
                 if (autoCorrect) {
                     (node as LeafPsiElement).rawReplaceWithText("${split.first()}\n${split.last()}")

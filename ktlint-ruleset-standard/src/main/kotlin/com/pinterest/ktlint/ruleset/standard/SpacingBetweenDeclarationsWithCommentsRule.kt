@@ -16,11 +16,11 @@ import org.jetbrains.kotlin.psi.psiUtil.startOffset
 /**
  * @see https://youtrack.jetbrains.com/issue/KT-35088
  */
-class SpacingBetweenDeclarationsWithCommentsRule : Rule("spacing-between-declarations-with-comments") {
+public class SpacingBetweenDeclarationsWithCommentsRule : Rule("spacing-between-declarations-with-comments") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node is PsiComment) {
             val declaration = node.parent as? KtDeclaration ?: return
@@ -36,7 +36,7 @@ class SpacingBetweenDeclarationsWithCommentsRule : Rule("spacing-between-declara
                     emit(
                         node.startOffset,
                         "Declarations and declarations with comments should have an empty space between.",
-                        true
+                        true,
                     )
                     if (autoCorrect) {
                         val indent = node.prevLeaf()?.text?.trim('\n') ?: ""

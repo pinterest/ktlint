@@ -23,7 +23,7 @@ class FunctionTypeReferenceSpacingRuleTest {
         functionTypeReferenceSpacingRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(1, 11, "Unexpected whitespace"),
-                LintViolation(2, 11, "Unexpected whitespace")
+                LintViolation(2, 11, "Unexpected whitespace"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -43,7 +43,7 @@ class FunctionTypeReferenceSpacingRuleTest {
         functionTypeReferenceSpacingRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(1, 11, "Unexpected whitespace"),
-                LintViolation(2, 11, "Unexpected whitespace")
+                LintViolation(2, 11, "Unexpected whitespace"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -63,7 +63,7 @@ class FunctionTypeReferenceSpacingRuleTest {
         functionTypeReferenceSpacingRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(1, 12, "Unexpected whitespace"),
-                LintViolation(2, 12, "Unexpected whitespace")
+                LintViolation(2, 12, "Unexpected whitespace"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -108,7 +108,7 @@ class FunctionTypeReferenceSpacingRuleTest {
             .hasLintViolations(
                 LintViolation(1, 36, "Unexpected whitespace"),
                 LintViolation(1, 38, "Unexpected whitespace"),
-                LintViolation(1, 40, "Unexpected whitespace")
+                LintViolation(1, 40, "Unexpected whitespace"),
             ).isFormattedAs(formattedCode)
     }
 }

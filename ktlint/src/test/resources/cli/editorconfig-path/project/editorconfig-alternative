@@ -1,0 +1,4 @@
+root = true
+
+[Bar*.{kt,kts}]
+max_line_length = 20

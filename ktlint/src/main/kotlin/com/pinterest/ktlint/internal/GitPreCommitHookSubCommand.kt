@@ -5,13 +5,13 @@ import picocli.CommandLine
 @CommandLine.Command(
     description = [
         "Install git hook to automatically check files for style violations on commit",
-        "Usage of \"--install-git-pre-commit-hook\" command line option is deprecated!"
+        "Usage of \"--install-git-pre-commit-hook\" command line option is deprecated!",
     ],
     aliases = ["--install-git-pre-commit-hook"],
     mixinStandardHelpOptions = true,
-    versionProvider = KtlintVersionProvider::class
+    versionProvider = KtlintVersionProvider::class,
 )
-class GitPreCommitHookSubCommand : Runnable {
+internal class GitPreCommitHookSubCommand : Runnable {
     @CommandLine.ParentCommand
     private lateinit var ktlintCommand: KtlintCommandLine
 
@@ -29,10 +29,10 @@ class GitPreCommitHookSubCommand : Runnable {
     private fun loadHookContent(): ByteArray = ClassLoader
         .getSystemClassLoader()
         .getResourceAsStream(
-            "ktlint-git-pre-commit-hook${if (ktlintCommand.android) "-android" else ""}.sh"
+            "ktlint-git-pre-commit-hook${if (ktlintCommand.android) "-android" else ""}.sh",
         ).use { it.readBytes() }
 
-    companion object {
-        const val COMMAND_NAME = "installGitPreCommitHook"
+    internal companion object {
+        internal const val COMMAND_NAME = "installGitPreCommitHook"
     }
 }
