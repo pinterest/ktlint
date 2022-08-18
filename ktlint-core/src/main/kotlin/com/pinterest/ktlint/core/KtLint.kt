@@ -2,6 +2,8 @@ package com.pinterest.ktlint.core
 
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.codeStyleSetProperty
+import com.pinterest.ktlint.core.api.EditorConfigDefaults
+import com.pinterest.ktlint.core.api.EditorConfigDefaults.Companion.emptyEditorConfigDefaults
 import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.emptyEditorConfigOverride
 import com.pinterest.ktlint.core.api.EditorConfigProperties
@@ -10,6 +12,7 @@ import com.pinterest.ktlint.core.internal.EditorConfigGenerator
 import com.pinterest.ktlint.core.internal.EditorConfigLoader
 import com.pinterest.ktlint.core.internal.PreparedCode
 import com.pinterest.ktlint.core.internal.SuppressionLocatorBuilder
+import com.pinterest.ktlint.core.internal.ThreadSafeEditorConfigCache.Companion.threadSafeEditorConfigCache
 import com.pinterest.ktlint.core.internal.VisitorProvider
 import com.pinterest.ktlint.core.internal.prepareCodeForLinting
 import com.pinterest.ktlint.core.internal.toQualifiedRuleId
@@ -45,9 +48,14 @@ public object KtLint {
      * [userData] Map of user options. This field is deprecated and will be removed in a future version.
      * [cb] callback invoked for each lint error
      * [script] true if this is a Kotlin script file
-     * [editorConfigPath] optional path of the .editorconfig file (otherwise will use working directory)
+     * [editorConfigPath] optional path of the .editorconfig file (otherwise will use working directory). Marked for
+     * removal in KtLint 0.48. Use [editorConfigDefaults] instead
      * [debug] True if invoked with the --debug flag
-     * [editorConfigOverride] should contain entries to add/replace from loaded `.editorconfig` files.
+     * [editorConfigDefaults] contains default values for `.editorconfig` properties which are not set explicitly in
+     * any '.editorconfig' file located on the path of the [fileName]. If a property is set in [editorConfigDefaults]
+     * this takes precedence above the default values defined in the KtLint project.
+     * [editorConfigOverride] should contain entries to add/replace from loaded `.editorconfig` files. If a property is
+     * set in [editorConfigOverride] it takes precedence above the same property being set in any other way.
      *
      * For possible keys check related [Rule]s that implements [UsesEditorConfigProperties] interface.
      *
@@ -70,8 +78,10 @@ public object KtLint {
         val userData: Map<String, String> = emptyMap(), // TODO: remove in a future version
         val cb: (e: LintError, corrected: Boolean) -> Unit,
         val script: Boolean = false,
+        @Deprecated("Marked for removal in KtLint 0.48. Use 'editorConfigDefaults' to specify default property values")
         val editorConfigPath: String? = null,
         val debug: Boolean = false,
+        val editorConfigDefaults: EditorConfigDefaults = emptyEditorConfigDefaults,
         val editorConfigOverride: EditorConfigOverride = emptyEditorConfigOverride,
         val isInvokedFromCli: Boolean = false,
     ) {
@@ -302,10 +312,10 @@ public object KtLint {
         visitorModifiers.contains(Rule.VisitorModifier.RunOnRootNodeOnly)
 
     /**
-     * Reduce memory usage of all internal caches.
+     * Reduce memory usage by cleaning internal caches.
      */
     public fun trimMemory() {
-        editorConfigLoader.trimMemory()
+        threadSafeEditorConfigCache.clear()
     }
 
     /**

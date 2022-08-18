@@ -3,6 +3,7 @@ package com.pinterest.ktlint.internal
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.RuleProvider
+import com.pinterest.ktlint.core.api.EditorConfigDefaults
 import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.initKtLintKLogger
 import java.io.File
@@ -98,10 +99,10 @@ internal fun FileSystem.fileSequence(
                     if (negatedPathMatchers.none { it.matches(filePath) } &&
                         pathMatchers.any { it.matches(filePath) }
                     ) {
-                        logger.debug { "- File: $filePath: Include" }
+                        logger.trace { "- File: $filePath: Include" }
                         result.add(filePath)
                     } else {
-                        logger.debug { "- File: $filePath: Ignore" }
+                        logger.trace { "- File: $filePath: Ignore" }
                     }
                     return FileVisitResult.CONTINUE
                 }
@@ -111,17 +112,17 @@ internal fun FileSystem.fileSequence(
                     dirAttr: BasicFileAttributes,
                 ): FileVisitResult {
                     return if (Files.isHidden(dirPath)) {
-                        logger.debug { "- Dir: $dirPath: Ignore" }
+                        logger.trace { "- Dir: $dirPath: Ignore" }
                         FileVisitResult.SKIP_SUBTREE
                     } else {
-                        logger.debug { "- Dir: $dirPath: Traverse" }
+                        logger.trace { "- Dir: $dirPath: Traverse" }
                         FileVisitResult.CONTINUE
                     }
                 }
             },
         )
     }
-    logger.debug { "Results: include ${result.count()} files in $duration ms" }
+    logger.debug { "Discovered ${result.count()} files to be processed in $duration ms" }
 
     return result.asSequence()
 }
@@ -196,7 +197,7 @@ internal fun JarFiles.toFilesURIList() = map {
 
 // a complete solution would be to implement https://www.gnu.org/software/bash/manual/html_node/Tilde-Expansion.html
 // this implementation takes care only of the most commonly used case (~/)
-private fun String.expandTildeToFullPath(): String =
+internal fun String.expandTildeToFullPath(): String =
     if (os.startsWith("windows", true)) {
         // Windows sometimes inserts `~` into paths when using short directory names notation, e.g. `C:\Users\USERNA~1\Documents
         this
@@ -215,6 +216,7 @@ internal fun lintFile(
     fileName: String,
     fileContents: String,
     ruleProviders: Set<RuleProvider>,
+    editorConfigDefaults: EditorConfigDefaults,
     editorConfigOverride: EditorConfigOverride,
     editorConfigPath: String? = null,
     debug: Boolean = false,
@@ -225,6 +227,7 @@ internal fun lintFile(
         text = fileContents,
         ruleProviders = ruleProviders,
         script = !fileName.endsWith(".kt", ignoreCase = true),
+        editorConfigDefaults = editorConfigDefaults,
         editorConfigOverride = editorConfigOverride,
         editorConfigPath = editorConfigPath,
         cb = { e, _ ->
@@ -242,6 +245,7 @@ internal fun formatFile(
     fileName: String,
     fileContents: String,
     ruleProviders: Set<RuleProvider>,
+    editorConfigDefaults: EditorConfigDefaults,
     editorConfigOverride: EditorConfigOverride,
     editorConfigPath: String?,
     debug: Boolean,
@@ -253,6 +257,7 @@ internal fun formatFile(
             text = fileContents,
             ruleProviders = ruleProviders,
             script = !fileName.endsWith(".kt", ignoreCase = true),
+            editorConfigDefaults = editorConfigDefaults,
             editorConfigOverride = editorConfigOverride,
             editorConfigPath = editorConfigPath,
             cb = cb,

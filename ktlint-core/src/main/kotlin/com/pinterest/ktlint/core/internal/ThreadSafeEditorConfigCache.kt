@@ -15,14 +15,18 @@ internal class ThreadSafeEditorConfigCache : Cache {
     private val readWriteLock = ReentrantReadWriteLock()
     private val inMemoryMap = HashMap<Resource, EditorConfig>()
 
+    /**
+     * Gets the [editorConfigFile] from the cache. If not found, then the [editorConfigLoader] is used to retrieve the
+     * '.editorconfig' properties. The result is stored in the cache.
+     */
     override fun get(
         editorConfigFile: Resource,
-        loader: EditorConfigLoader,
+        editorConfigLoader: EditorConfigLoader,
     ): EditorConfig {
         readWriteLock.read {
             return inMemoryMap[editorConfigFile]
                 ?: readWriteLock.write {
-                    val result = loader.load(editorConfigFile)
+                    val result = editorConfigLoader.load(editorConfigFile)
                     inMemoryMap[editorConfigFile] = result
                     result
                 }
@@ -31,5 +35,9 @@ internal class ThreadSafeEditorConfigCache : Cache {
 
     fun clear() = readWriteLock.write {
         inMemoryMap.clear()
+    }
+
+    internal companion object {
+        val threadSafeEditorConfigCache = ThreadSafeEditorConfigCache()
     }
 }
