@@ -16,10 +16,12 @@ import com.pinterest.ktlint.core.internal.ThreadSafeEditorConfigCache.Companion.
 import com.pinterest.ktlint.core.internal.VisitorProvider
 import com.pinterest.ktlint.core.internal.prepareCodeForLinting
 import com.pinterest.ktlint.core.internal.toQualifiedRuleId
+import java.nio.charset.StandardCharsets
 import java.nio.file.FileSystems
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.Locale
+import org.ec4j.core.Resource
 import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.openapi.util.Key
@@ -316,6 +318,17 @@ public object KtLint {
      */
     public fun trimMemory() {
         threadSafeEditorConfigCache.clear()
+    }
+
+    /**
+     * Reloads an '.editorconfig' file given that it is currently loaded into the KtLint cache. This method is intended
+     * to be called by the API consumer when it is aware of changes in the '.editorconfig' file that should be taken
+     * into account with next calls to [lint] and/or [format].
+     */
+    public fun reloadEditorConfigFile(path: Path) {
+        threadSafeEditorConfigCache.reloadIfExists(
+            Resource.Resources.ofPath(path, StandardCharsets.UTF_8),
+        )
     }
 
     /**

@@ -135,6 +135,17 @@ Parameter "ExperimentalParams.editorConfigPath" is deprecated in favor of the ne
 API consumers can easily create the EditConfigDefaults by calling
 "EditConfigDefaults.load(path)" or creating it programmatically.
 
+#### Reload of `.editorconfig` file
+
+Some API Consumers keep a long-running instance of the KtLint engine alive. In case an `.editorconfig` file is changed, which was already loaded into the internal cache of the KtLint engine this change would not be taken into account by KtLint. One way to deal with this, was to clear the entire KtLint cache after each change in an `.editorconfig` file.
+
+Now, the API consumer can reload an `.editorconfig`. If the `.editorconfig` with given path is actually found in the cached, it will be replaced with the new value directly. If the file is not yet loaded in the cache, loading will be deferred until the file is actually requested again.
+
+Example:
+```kotlin
+KtLint.reloadEditorConfigFile("/some/path/to/.editorconfig")
+```
+
 #### Miscellaneous
 
 Several methods for which it is unlikely that they are used by API consumers have been marked for removal from the public API in KtLint 0.48.0. Please create an issue in case you have a valid business case to keep such methods in the public API.
