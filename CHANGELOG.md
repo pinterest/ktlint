@@ -1308,6 +1308,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.47.0]: https://github.com/pinterest/ktlint/compare/0.46.1...0.47.0
 [0.46.1]: https://github.com/pinterest/ktlint/compare/0.46.0...0.46.1
 [0.46.0]: https://github.com/pinterest/ktlint/compare/0.45.2...0.46.0
 [0.45.2]: https://github.com/pinterest/ktlint/compare/0.45.1...0.45.2
