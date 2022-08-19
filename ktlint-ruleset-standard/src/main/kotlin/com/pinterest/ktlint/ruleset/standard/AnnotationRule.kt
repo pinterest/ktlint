@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.ast.ElementType.ANNOTATED_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.FILE_ANNOTATION_LIST
 import com.pinterest.ktlint.core.ast.ElementType.TYPE_ARGUMENT_LIST
@@ -107,7 +108,11 @@ public class AnnotationRule : Rule("annotation") {
             emit(
                 node.startOffset,
                 "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct",
-                true,
+                // Annotated expressions for which the annotation contains a parameter can be hard to correct
+                // automatically. See examples below. For now, let them be fixed manually.
+                // fun foo1() = @Suppress("DEPRECATION") bar()
+                // if (@Suppress("DEPRECATION") bar()) { .. }
+                node.treeParent.elementType != ANNOTATED_EXPRESSION,
             )
             if (autoCorrect) {
                 node

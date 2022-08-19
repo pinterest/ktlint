@@ -24,7 +24,7 @@
 - **.editorconfig**  
   Some rules do allow further configuration, but in all cases a reasonable default is set when not provided. `ktlint` primarily uses the [.editorconfig file](#editorconfig) to read default `.editorconfig`, IntelliJ IDEA specific and Ktlint specific properties.
 - **Disable rules**  
-  If need be, rules can be disabled easily[*](https://github.com/pinterest/ktlint#how-do-i-globally-disable-a-rule).
+  If need be, rules can be disabled easily[*](https://pinterest.github.io/ktlint/faq/#how-do-i-globally-disable-a-rule).
 - **Built-in formatter**  
   Most lint violations don't need to be fixed manually. `ktlint` has a built-in formatter which fixes violations when possible. Some violations can not be fixed in a deterministic way, and need manual action.
 - **Customizable output**  

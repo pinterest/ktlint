@@ -528,4 +528,14 @@ class AnnotationRuleTest {
             .hasLintViolation(2, 1, "Annotation must be placed on separate line")
             .isFormattedAs(formattedCode)
     }
+
+    @Test
+    fun `Given an annotated expression on same line as annotated construct and the annotation contains a parameter then report a violation which can not be autocorrected`() {
+        val code =
+            """
+            fun foo() = @Suppress("DEPRECATION") bar()
+            """.trimIndent()
+        annotationRuleAssertThat(code)
+            .hasLintViolationWithoutAutoCorrect(1, 13, "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct")
+    }
 }
