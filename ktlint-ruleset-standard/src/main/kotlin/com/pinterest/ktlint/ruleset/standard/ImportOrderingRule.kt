@@ -199,8 +199,10 @@ public class ImportOrderingRule :
         private val IDEA_PATTERN = parseImportsLayout("*,java.**,javax.**,kotlin.**,^")
 
         private const val IDEA_ERROR_MESSAGE = "Imports must be ordered in lexicographic order without any empty lines in-between " +
-            "with \"java\", \"javax\", \"kotlin\" and aliases in the end"
-        private const val ASCII_ERROR_MESSAGE = "Imports must be ordered in lexicographic order without any empty lines in-between"
+            "with \"java\", \"javax\", \"kotlin\" and aliases in the end. " +
+            "Pointer is at the start of the imports block. Error is somewhere in the whole block."
+        private const val ASCII_ERROR_MESSAGE = "Imports must be ordered in lexicographic order without any empty lines in-between. " +
+            "Pointer is at the start of the imports block. Error is somewhere in the whole block."         
         private const val CUSTOM_ERROR_MESSAGE = "Imports must be ordered according to the pattern specified in .editorconfig"
 
         private val errorMessages = mapOf(
