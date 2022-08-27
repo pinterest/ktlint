@@ -2,11 +2,13 @@ package com.pinterest.ktlint.internal
 
 import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
+import com.pinterest.ktlint.core.initKtLintKLogger
 import java.io.File
 import java.nio.file.FileSystem
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.Locale
+import mu.KotlinLogging
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assumptions.assumeTrue
@@ -17,6 +19,8 @@ import org.junit.jupiter.api.condition.DisabledOnOs
 import org.junit.jupiter.api.condition.OS
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
+
+private val logger = KotlinLogging.logger {}.initKtLintKLogger()
 
 /**
  * Tests for [fileSequence] method.
@@ -242,9 +246,16 @@ internal class FileUtilsFileSequenceTest {
     }
 
     // Jimfs does not currently support the Windows syntax for an absolute path on the current drive (e.g. "\foo\bar")
-    @DisabledOnOs(OS.WINDOWS)
+//    @DisabledOnOs(OS.WINDOWS)
     @Test
     fun `Given a (relative) directory path (but not a glob) from the workdir then find all files in that workdir and it subdirectories having the default kotlin extensions`() {
+        logger.info {
+            val patterns = "src/main/kotlin".normalizeGlob()
+            val dir = "${rootDir}project1".normalizePath()
+            "`Given a (relative) directory path (but not a glob) from the workdir then find all files in that workdir and it subdirectories having the default kotlin extensions`\n" +
+                "\tpatterns = $patterns\n" +
+                "\trootDir = $dir"
+        }
         val foundFiles = getFiles(
             patterns = listOf("src/main/kotlin".normalizeGlob()),
             rootDir = tempFileSystem.getPath("${rootDir}project1".normalizePath()),
@@ -296,6 +307,11 @@ internal class FileUtilsFileSequenceTest {
         .fileSequence(patterns, rootDir)
         .map { it.toString() }
         .toList()
+        .also {
+            logger.info {
+                "Getting files with [patterns = $patterns] and [rootdir = $rootDir] returns [files = $it]"
+            }
+        }
 }
 
 internal val rawGlobSeparator: String get() {
