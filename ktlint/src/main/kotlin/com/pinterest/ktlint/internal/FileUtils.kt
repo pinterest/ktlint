@@ -15,6 +15,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
+import kotlin.io.path.absolutePathString
 import kotlin.io.path.isDirectory
 import kotlin.system.exitProcess
 import kotlin.system.measureTimeMillis
@@ -95,8 +96,14 @@ internal fun FileSystem.fileSequence(
                     filePath: Path,
                     fileAttrs: BasicFileAttributes,
                 ): FileVisitResult {
-                    if (negatedPathMatchers.none { it.matches(filePath) } &&
-                        pathMatchers.any { it.matches(filePath) }
+                    val path =
+                        if (onWindowsOS) {
+                            Paths.get(filePath.absolutePathString().replace(File.separatorChar, '/'))
+                        } else {
+                            filePath
+                        }
+                    if (negatedPathMatchers.none { it.matches(path) } &&
+                        pathMatchers.any { it.matches(path) }
                     ) {
                         logger.trace { "- File: $filePath: Include" }
                         result.add(filePath)
