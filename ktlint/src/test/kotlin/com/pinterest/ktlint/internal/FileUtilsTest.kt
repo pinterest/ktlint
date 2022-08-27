@@ -7,15 +7,13 @@ import java.io.File
 import java.nio.file.FileSystem
 import java.nio.file.Files
 import java.nio.file.Path
-import java.util.Locale
 import mu.KotlinLogging
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.DisabledOnOs
+import org.junit.jupiter.api.condition.EnabledOnOs
 import org.junit.jupiter.api.condition.OS
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
@@ -25,7 +23,7 @@ private val logger = KotlinLogging.logger {}.initKtLintKLogger()
 /**
  * Tests for [fileSequence] method.
  */
-internal class FileUtilsFileSequenceTest {
+internal class FileUtilsTest {
     private val tempFileSystem = Jimfs.newFileSystem(Configuration.forCurrentPlatform())
 
     private val rootDir = tempFileSystem.rootDirectories.first().toString()
@@ -91,8 +89,8 @@ internal class FileUtilsFileSequenceTest {
     fun `Given some patterns and no workdir then ignore all files in hidden directories`() {
         val foundFiles = getFiles(
             patterns = listOf(
-                "project1/**/*.kt".normalizeGlob(),
-                "project1/*.kt".normalizeGlob(),
+                "project1/**/*.kt",
+                "project1/*.kt",
             ),
         )
 
@@ -108,49 +106,25 @@ internal class FileUtilsFileSequenceTest {
             )
     }
 
-    @Nested
-    inner class NegatePattern {
-        @Test
-        fun `Given some patterns including a negate pattern and no workdir then select all files except files in the negate pattern`() {
-            val foundFiles = getFiles(
-                patterns = listOf(
-                    "project1/src/**/*.kt".normalizeGlob(),
-                    "!project1/src/**/example/*.kt".normalizeGlob(),
-                ),
-            )
+    @Test
+    fun `Given some patterns including a negate pattern and no workdir then select all files except files in the negate pattern`() {
+        val foundFiles = getFiles(
+            patterns = listOf(
+                "project1/src/**/*.kt",
+                "!project1/src/**/example/*.kt",
+            ),
+        )
 
-            assertThat(foundFiles)
-                .containsExactlyInAnyOrder(ktFile1InProjectSubDirectory)
-                .doesNotContain(ktFile2InProjectSubDirectory)
-        }
-
-        @Test
-        fun `Given the Windows OS and some unescaped patterns including a negate pattern and no workdir then ignore all files in the negate pattern`() {
-            assumeTrue(
-                System
-                    .getProperty("os.name")
-                    .lowercase(Locale.getDefault())
-                    .startsWith("windows"),
-            )
-
-            val foundFiles = getFiles(
-                patterns = listOf(
-                    "project1\\src\\**\\*.kt".normalizeGlob(),
-                    "!project1\\src\\**\\example\\*.kt".normalizeGlob(),
-                ),
-            )
-
-            assertThat(foundFiles)
-                .containsExactlyInAnyOrder(ktFile1InProjectSubDirectory)
-                .doesNotContain(ktFile2InProjectSubDirectory)
-        }
+        assertThat(foundFiles)
+            .containsExactlyInAnyOrder(ktFile1InProjectSubDirectory)
+            .doesNotContain(ktFile2InProjectSubDirectory)
     }
 
     @Test
     fun `Given a pattern and a workdir then find all files in that workdir and all its sub directories that match the pattern`() {
         val foundFiles = getFiles(
             patterns = listOf(
-                "**/main/**/*.kt".normalizeGlob(),
+                "**/main/**/*.kt",
             ),
             rootDir = tempFileSystem.getPath("${rootDir}project1".normalizePath()),
         )
@@ -164,7 +138,7 @@ internal class FileUtilsFileSequenceTest {
     @Test
     fun `Given an (relative) file path from the workdir then find all files in that workdir and all its sub directories that match the pattern`() {
         val foundFiles = getFiles(
-            patterns = listOf("src/main/kotlin/One.kt".normalizeGlob()),
+            patterns = listOf("src/main/kotlin/One.kt"),
             rootDir = tempFileSystem.getPath("${rootDir}project1".normalizePath()),
         )
 
@@ -177,8 +151,8 @@ internal class FileUtilsFileSequenceTest {
     fun `Given an (absolute) file path and a workdir then find that absolute path and all files in the workdir and all its sub directories that match the pattern`() {
         val foundFiles = getFiles(
             patterns = listOf(
-                "src/main/kotlin/One.kt".normalizeGlob(),
-                ktFile2InProjectSubDirectory.normalizeGlob(),
+                "src/main/kotlin/One.kt",
+                ktFile2InProjectSubDirectory,
             ),
             rootDir = tempFileSystem.getPath("${rootDir}project1".normalizePath()),
         )
@@ -193,7 +167,7 @@ internal class FileUtilsFileSequenceTest {
     fun `Given a glob containing an (absolute) file path and a workdir then find all files match the pattern`() {
         val foundFiles = getFiles(
             patterns = listOf(
-                "${rootDir}project1/src/**/*.kt".normalizeGlob(),
+                "${rootDir}project1/src/**/*.kt",
             ),
             rootDir = tempFileSystem.getPath("${rootDir}project1".normalizePath()),
         )
@@ -224,7 +198,7 @@ internal class FileUtilsFileSequenceTest {
         tempFileSystem.createFile(filePath)
 
         val foundFiles = getFiles(
-            patterns = listOf(pattern.normalizeGlob()),
+            patterns = listOf(pattern),
         )
 
         assertThat(foundFiles).containsExactlyInAnyOrder(filePath)
@@ -234,7 +208,7 @@ internal class FileUtilsFileSequenceTest {
     fun `Given a pattern containing a double star and a workdir without subdirectories then find all files in that workdir`() {
         val foundFiles = getFiles(
             patterns = listOf(
-                "**/*.kt".normalizeGlob(),
+                "**/*.kt",
             ),
             rootDir = tempFileSystem.getPath("${rootDir}project1/src/main/kotlin/".normalizePath()),
         )
@@ -245,19 +219,17 @@ internal class FileUtilsFileSequenceTest {
         )
     }
 
-    // Jimfs does not currently support the Windows syntax for an absolute path on the current drive (e.g. "\foo\bar")
-//    @DisabledOnOs(OS.WINDOWS)
     @Test
     fun `Given a (relative) directory path (but not a glob) from the workdir then find all files in that workdir and it subdirectories having the default kotlin extensions`() {
         logger.info {
-            val patterns = "src/main/kotlin".normalizeGlob()
+            val patterns = "src/main/kotlin"
             val dir = "${rootDir}project1".normalizePath()
             "`Given a (relative) directory path (but not a glob) from the workdir then find all files in that workdir and it subdirectories having the default kotlin extensions`\n" +
                 "\tpatterns = $patterns\n" +
                 "\trootDir = $dir"
         }
         val foundFiles = getFiles(
-            patterns = listOf("src/main/kotlin".normalizeGlob()),
+            patterns = listOf("src/main/kotlin"),
             rootDir = tempFileSystem.getPath("${rootDir}project1".normalizePath()),
         )
 
@@ -269,19 +241,13 @@ internal class FileUtilsFileSequenceTest {
         )
     }
 
+    @EnabledOnOs(OS.WINDOWS)
     @Test
-    fun `Given the Windows OS and some unescaped globs including a negate pattern and no workdir then ignore all files in the negate pattern`() {
-        assumeTrue(
-            System
-                .getProperty("os.name")
-                .lowercase(Locale.getDefault())
-                .startsWith("windows"),
-        )
-
+    fun `Given the Windows OS and some globs using backslash as file separator the convert the globs to using a forward slash`() {
         val foundFiles = getFiles(
             patterns = listOf(
-                "project1\\src\\**\\*.kt".normalizeGlob(),
-                "!project1\\src\\**\\example\\*.kt".normalizeGlob(),
+                "project1\\src\\**\\*.kt",
+                "!project1\\src\\**\\example\\*.kt",
             ),
         )
 
@@ -291,7 +257,6 @@ internal class FileUtilsFileSequenceTest {
     }
 
     private fun String.normalizePath() = replace('/', File.separatorChar)
-    private fun String.normalizeGlob(): String = replace("/", rawGlobSeparator)
 
     private fun FileSystem.createFile(it: String) {
         val filePath = getPath(it.normalizePath())
@@ -312,12 +277,4 @@ internal class FileUtilsFileSequenceTest {
                 "Getting files with [patterns = $patterns] and [rootdir = $rootDir] returns [files = $it]"
             }
         }
-}
-
-internal val rawGlobSeparator: String get() {
-    val os = System.getProperty("os.name")
-    return when {
-        os.startsWith("windows", ignoreCase = true) -> "\\"
-        else -> "/"
-    }
 }

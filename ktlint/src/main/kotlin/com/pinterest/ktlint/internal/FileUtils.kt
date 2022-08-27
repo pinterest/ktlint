@@ -28,11 +28,10 @@ internal val workDir: String = File(".").canonicalPath
 private val tildeRegex = Regex("^(!)?~")
 private const val NEGATION_PREFIX = "!"
 
-private val os = System.getProperty("os.name")
 private val userHome = System.getProperty("user.home")
 
 private val defaultKotlinFileExtensions = setOf("kt", "kts")
-internal val defaultPatterns = defaultKotlinFileExtensions.map { "**$globSeparator*.$it" }
+internal val defaultPatterns = defaultKotlinFileExtensions.map { "**/*.$it" }
 
 /**
  * Transform the [patterns] to a sequence of files. Each element in [patterns] can be a glob, a file or directory path
@@ -133,8 +132,14 @@ private fun FileSystem.expand(
 ) =
     patterns
         .map { it.expandTildeToFullPath() }
-        .map { it.replace(File.separator, globSeparator) }
-        .flatMap { path -> toGlob(path, rootDir) }
+        .map {
+            if (onWindowsOS) {
+                // By definition the globs should use "/" as separator. Out of courtesy replace "\" with "/"
+                it.replace(File.separator, "/")
+            } else {
+                it
+            }
+        }.flatMap { path -> toGlob(path, rootDir) }
 
 private fun FileSystem.toGlob(
     path: String,
@@ -157,7 +162,7 @@ private fun FileSystem.toGlob(
     } else if (isGlobAbsolutePath(pathWithoutNegationPrefix)) {
         listOf(pathWithoutNegationPrefix)
     } else {
-        listOf(pathWithoutNegationPrefix.prefixIfNot("**$globSeparator"))
+        listOf(pathWithoutNegationPrefix.prefixIfNot("**/"))
     }
     return expandedGlobs.map { "${negation}glob:$it" }
 }
@@ -165,8 +170,8 @@ private fun FileSystem.toGlob(
 private fun getDefaultPatternsForPath(path: Path?) = defaultKotlinFileExtensions
     .flatMap {
         listOf(
-            "$path$globSeparator*.$it",
-            "$path$globSeparator**$globSeparator*.$it",
+            "$path/*.$it",
+            "$path/**/*.$it",
         )
     }
 
@@ -174,12 +179,6 @@ private fun FileSystem.isGlobAbsolutePath(glob: String) =
     rootDirectories
         .map { it.toString() }
         .any { glob.startsWith(it) }
-
-private val globSeparator: String get() =
-    when {
-        os.startsWith("windows", ignoreCase = true) -> "\\\\"
-        else -> "/"
-    }
 
 /**
  * List of paths to Java `jar` files.
@@ -198,12 +197,18 @@ internal fun JarFiles.toFilesURIList() = map {
 // a complete solution would be to implement https://www.gnu.org/software/bash/manual/html_node/Tilde-Expansion.html
 // this implementation takes care only of the most commonly used case (~/)
 internal fun String.expandTildeToFullPath(): String =
-    if (os.startsWith("windows", true)) {
+    if (onWindowsOS) {
         // Windows sometimes inserts `~` into paths when using short directory names notation, e.g. `C:\Users\USERNA~1\Documents
         this
     } else {
         replaceFirst(tildeRegex, userHome)
     }
+
+private val onWindowsOS
+    get() =
+        System
+            .getProperty("os.name")
+            .startsWith("windows", true)
 
 internal fun File.location(
     relative: Boolean,
