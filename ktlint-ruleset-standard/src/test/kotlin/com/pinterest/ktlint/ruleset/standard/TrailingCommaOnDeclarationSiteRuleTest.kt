@@ -725,6 +725,19 @@ class TrailingCommaOnDeclarationSiteRuleTest {
         }
 
         @Test
+        fun `Issue 1605 - Given that an empty parameter list with a comment, dot add a trailing comma`() {
+            val code =
+                """
+                class Test(
+                    // comment
+                )
+                """.trimIndent()
+            ruleAssertThat(code)
+                .withEditorConfigOverride(allowTrailingCommaProperty to true)
+                .hasNoLintViolations()
+        }
+
+        @Test
         fun `Given an enum is terminated by a semicolon and EOL comment without a trailing comma, then it is added `() {
             val code =
                 """

@@ -470,4 +470,17 @@ class TrailingCommaOnCallSiteRuleTest {
                 LintViolation(7, 6, "Missing trailing comma before \")\""),
             ).isFormattedAs(formattedCode)
     }
+
+    @Test
+    fun `Issue 1602 - Given that an empty argument list with a comment, dot add a trailing comma`() {
+        val code =
+            """
+            val foo = setOf<Int>(
+                // some comment
+            )
+            """.trimIndent()
+        ruleAssertThat(code)
+            .withEditorConfigOverride(allowTrailingCommaOnCallSiteProperty to true)
+            .hasNoLintViolations()
+    }
 }
