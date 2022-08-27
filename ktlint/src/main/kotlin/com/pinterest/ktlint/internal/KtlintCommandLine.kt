@@ -12,7 +12,7 @@ import com.pinterest.ktlint.core.RuleProvider
 import com.pinterest.ktlint.core.api.Baseline.Status.INVALID
 import com.pinterest.ktlint.core.api.Baseline.Status.NOT_FOUND
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.codeStyleSetProperty
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.disabledRulesProperty
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.ktlintDisabledRulesProperty
 import com.pinterest.ktlint.core.api.EditorConfigDefaults
 import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.plus
@@ -251,7 +251,7 @@ internal class KtlintCommandLine {
             EditorConfigOverride
                 .emptyEditorConfigOverride
                 .applyIf(disabledRules.isNotBlank()) {
-                    plus(disabledRulesProperty to disabledRules)
+                    plus(ktlintDisabledRulesProperty to disabledRules)
                 }.applyIf(android) {
                     plus(codeStyleSetProperty to android)
                 }
