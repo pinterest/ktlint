@@ -6,12 +6,15 @@ import com.pinterest.ktlint.core.initKtLintKLogger
 import java.io.File
 import java.nio.file.FileSystem
 import java.nio.file.Files
+import java.nio.file.InvalidPathException
 import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.isDirectory
+import kotlin.io.path.pathString
 import mu.KotlinLogging
 import org.assertj.core.api.Assertions.assertThat
+import org.jetbrains.kotlin.util.prefixIfNot
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -289,11 +292,14 @@ internal class FileUtilsTest {
                 "project1/src, C:\\project1\\src",
                 "project1/src/main, C:\\project1\\src\\main",
                 "project1/src/main/kotlin, C:\\project1\\src\\main\\kotlin",
-                "project1/src/main/kotlin.One.kt, C:\\project1\\src\\main\\kotlin\\One.kt",
+                "project1/src/main/kotlin/One.kt, C:\\project1\\src\\main\\kotlin\\One.kt",
             ],
         )
         fun `Resolve`(path: String?, expected: String) {
-            val actual = rootPath.resolve(Paths.get(path ?: ""))
+            val actual =
+                rootPath
+                    .resolve(Paths.get(path ?: ""))
+                    .pathString
 
             assertThat(actual).isEqualTo(expected)
         }
@@ -306,13 +312,136 @@ internal class FileUtilsTest {
                 "project1/src, C:\\project1\\src",
                 "project1/src/main, C:\\project1\\src\\main",
                 "project1/src/main/kotlin, C:\\project1\\src\\main\\kotlin",
-                "project1/src/main/kotlin.One.kt, C:\\project1\\src\\main\\kotlin\\One.kt",
+                "project1/src/main/kotlin/One.kt, C:\\project1\\src\\main\\kotlin\\One.kt",
             ],
         )
         fun `Resolve normalized`(path: String?, expected: String) {
-            val actual = rootPath.resolve(Paths.get(path?.normalizePath() ?: ""))
+            val actual =
+                rootPath
+                    .resolve(Paths.get(path?.normalizePath() ?: ""))
+                    .pathString
 
             assertThat(actual).isEqualTo(expected)
+        }
+
+        @ParameterizedTest(name = "Path: {0}, expected result: {1}")
+        @CsvSource(
+            value = [
+                "**/*.kt, C:\\",
+                "project1/**/*.kt, C:\\project1",
+                "project1/src/**/*.kt, C:\\project1\\src",
+                "project1/src/main/**/*.kt, C:\\project1\\src\\main",
+                "project1/src/main/kotlin/**/*.kt, C:\\project1\\src\\main\\kotlin",
+                "project1/src/main/kotlin/*.kt, C:\\project1\\src\\main\\kotlin",
+                "project1/src/main/kotlin/One.kt, C:\\project1\\src\\main\\kotlin\\One.kt",
+            ],
+        )
+        fun `Resolve path with globs`(path: String?, expected: String) {
+            val actual = rootPath.resolve(Paths.get(path?.normalizePath() ?: ""))
+
+            assertThat(actual.pathString).isEqualTo(expected)
+
+            assertThat(Files.isRegularFile(actual)).isTrue
+        }
+
+        private fun FileSystem.expand(
+            patterns: List<String>,
+            rootDir: Path,
+        ) =
+            patterns
+                .map { it.expandTildeToFullPath() }
+                .map {
+                    if (onWindowsOS) {
+                        // By definition the globs should use "/" as separator. Out of courtesy replace "\" with "/"
+                        it.replace(File.separator, "/")
+                    } else {
+                        it
+                    }
+                }.flatMap { path -> toGlob(path, rootDir) }
+
+        private val onWindowsOS
+            get() =
+                System
+                    .getProperty("os.name")
+                    .startsWith("windows", true)
+
+        private val NEGATION_PREFIX = "!"
+
+        private fun FileSystem.toGlob(
+            path: String,
+            rootDir: Path,
+        ): List<String> {
+            val negation = if (path.startsWith(NEGATION_PREFIX)) {
+                NEGATION_PREFIX
+            } else {
+                ""
+            }
+            val pathWithoutNegationPrefix = path.removePrefix(NEGATION_PREFIX)
+            val resolvedPath = try {
+                rootDir.resolve(pathWithoutNegationPrefix)
+            } catch (e: InvalidPathException) {
+                // Windows throws an exception when you pass a glob to Path#resolve.
+                null
+            }
+            val expandedGlobs = if (resolvedPath != null && resolvedPath.isDirectory()) {
+                getDefaultPatternsForPath(resolvedPath)
+            } else if (isGlobAbsolutePath(pathWithoutNegationPrefix)) {
+                listOf(pathWithoutNegationPrefix)
+            } else {
+                listOf(pathWithoutNegationPrefix.prefixIfNot("**/"))
+            }
+            return expandedGlobs.map { "${negation}glob:$it" }
+        }
+
+        private fun FileSystem.isGlobAbsolutePath(glob: String) =
+            rootDirectories
+                .map { it.toString() }
+                .any { glob.startsWith(it) }
+
+        private val defaultKotlinFileExtensions = setOf("kt", "kts")
+
+        private fun getDefaultPatternsForPath(path: Path?) = defaultKotlinFileExtensions
+            .flatMap {
+                listOf(
+                    "$path/*.$it",
+                    "$path/**/*.$it",
+                )
+            }
+
+        @Test
+        fun `Expand without patterns in root dir`() {
+            val actual = tempFileSystem.expand(emptyList(), Paths.get(rootDir))
+
+            assertThat(actual).containsExactly(
+                "glob:**/*.kt",
+                "glob:**/*.kts",
+            )
+        }
+
+        @Test
+        fun `Expand without patterns in project dir`() {
+            val actual = tempFileSystem.expand(emptyList(), Paths.get("${rootDir}project1"))
+
+            assertThat(actual).containsExactly(
+                "glob:C:/project1/**/*.kt",
+                "glob:C:/project1/**/*.kts",
+            )
+        }
+
+        @Test
+        fun `Expand with patterns in project dir`() {
+            val actual = tempFileSystem.expand(
+                listOf(
+                    "**/project1/src/**.kt",
+                    "!**/project1/src/scripts/**.kt",
+                ),
+                Paths.get("${rootDir}project1"),
+            )
+
+            assertThat(actual).containsExactly(
+                "glob:**/project1/src/**.kt",
+                "!glob:**/project1/src/scripts/**.kt",
+            )
         }
     }
 
