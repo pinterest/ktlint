@@ -33,6 +33,7 @@ import org.jetbrains.kotlin.psi.KtCollectionLiteralExpression
 import org.jetbrains.kotlin.psi.KtDestructuringDeclaration
 import org.jetbrains.kotlin.psi.KtEnumEntry
 import org.jetbrains.kotlin.psi.KtFunctionLiteral
+import org.jetbrains.kotlin.psi.KtParameterList
 import org.jetbrains.kotlin.psi.KtPsiFactory
 import org.jetbrains.kotlin.psi.KtValueArgumentList
 import org.jetbrains.kotlin.psi.KtWhenEntry
@@ -364,6 +365,7 @@ public class TrailingCommaOnDeclarationSiteRule :
             val lastChild = element.collectDescendantsOfType<KtCollectionLiteralExpression>().last()
             containsLineBreakInLeavesRange(lastChild.rightBracket!!, element.rightParenthesis!!)
         }
+        element is KtParameterList && element.parameters.isEmpty() -> false
         else -> element.textContains('\n')
     }
 

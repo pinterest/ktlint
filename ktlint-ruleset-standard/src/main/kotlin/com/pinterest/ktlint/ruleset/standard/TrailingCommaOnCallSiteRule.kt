@@ -202,6 +202,7 @@ public class TrailingCommaOnCallSiteRule :
             val lastChild = element.collectDescendantsOfType<KtCollectionLiteralExpression>().last()
             containsLineBreakInLeavesRange(lastChild.rightBracket!!, element.rightParenthesis!!)
         }
+        element is KtValueArgumentList && element.arguments.isEmpty() -> false
         else -> element.textContains('\n')
     }
 
