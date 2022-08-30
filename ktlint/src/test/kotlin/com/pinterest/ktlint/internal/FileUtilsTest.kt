@@ -3,10 +3,8 @@ package com.pinterest.ktlint.internal
 import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
 import com.pinterest.ktlint.core.initKtLintKLogger
-import java.io.File
 import java.nio.file.FileSystem
 import java.nio.file.Files
-import java.nio.file.InvalidPathException
 import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.io.path.absolutePathString
@@ -14,7 +12,6 @@ import kotlin.io.path.isDirectory
 import kotlin.io.path.pathString
 import mu.KotlinLogging
 import org.assertj.core.api.Assertions.assertThat
-import org.jetbrains.kotlin.util.prefixIfNot
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -171,21 +168,6 @@ internal class FileUtilsTest {
         )
     }
 
-    @Test
-    fun `Given a glob containing an (absolute) file path and a workdir then find all files match the pattern`() {
-        val foundFiles = getFiles(
-            patterns = listOf(
-                "${rootDir}project1/src/**/*.kt",
-            ),
-            rootDir = tempFileSystem.getPath("${rootDir}project1".normalizePath()),
-        )
-
-        assertThat(foundFiles).containsExactlyInAnyOrder(
-            ktFile1InProjectSubDirectory,
-            ktFile2InProjectSubDirectory,
-        )
-    }
-
     // Jimfs does not currently support the Windows syntax for an absolute path on the current drive (e.g. "\foo\bar")
     @DisabledOnOs(OS.WINDOWS)
     @ParameterizedTest(name = "Pattern: {0}")
@@ -219,6 +201,21 @@ internal class FileUtilsTest {
                 "**/*.kt",
             ),
             rootDir = tempFileSystem.getPath("${rootDir}project1/src/main/kotlin/".normalizePath()),
+        )
+
+        assertThat(foundFiles).containsExactlyInAnyOrder(
+            ktFile1InProjectSubDirectory,
+            ktFile2InProjectSubDirectory,
+        )
+    }
+
+    @Test
+    fun `Given a pattern containing multiple double star patters and a workdir without subdirectories then find all files in that workdir`() {
+        val foundFiles = getFiles(
+            patterns = listOf(
+                "src/**/kotlin/**/*.kt",
+            ),
+            rootDir = tempFileSystem.getPath("${rootDir}project1".normalizePath()),
         )
 
         assertThat(foundFiles).containsExactlyInAnyOrder(
@@ -344,70 +341,6 @@ internal class FileUtilsTest {
             assertThat(Files.isRegularFile(actual)).isTrue
         }
 
-        private fun FileSystem.expand(
-            patterns: List<String>,
-            rootDir: Path,
-        ) =
-            patterns
-                .map { it.expandTildeToFullPath() }
-                .map {
-                    if (onWindowsOS) {
-                        // By definition the globs should use "/" as separator. Out of courtesy replace "\" with "/"
-                        it.replace(File.separator, "/")
-                    } else {
-                        it
-                    }
-                }.flatMap { path -> toGlob(path, rootDir) }
-
-        private val onWindowsOS
-            get() =
-                System
-                    .getProperty("os.name")
-                    .startsWith("windows", true)
-
-        private val NEGATION_PREFIX = "!"
-
-        private fun FileSystem.toGlob(
-            path: String,
-            rootDir: Path,
-        ): List<String> {
-            val negation = if (path.startsWith(NEGATION_PREFIX)) {
-                NEGATION_PREFIX
-            } else {
-                ""
-            }
-            val pathWithoutNegationPrefix = path.removePrefix(NEGATION_PREFIX)
-            val resolvedPath = try {
-                rootDir.resolve(pathWithoutNegationPrefix)
-            } catch (e: InvalidPathException) {
-                // Windows throws an exception when you pass a glob to Path#resolve.
-                null
-            }
-            val expandedGlobs = if (resolvedPath != null && resolvedPath.isDirectory()) {
-                getDefaultPatternsForPath(resolvedPath)
-            } else if (isGlobAbsolutePath(pathWithoutNegationPrefix)) {
-                listOf(pathWithoutNegationPrefix)
-            } else {
-                listOf(pathWithoutNegationPrefix.prefixIfNot("**/"))
-            }
-            return expandedGlobs.map { "${negation}glob:$it" }
-        }
-
-        private fun FileSystem.isGlobAbsolutePath(glob: String) =
-            rootDirectories
-                .map { it.toString() }
-                .any { glob.startsWith(it) }
-
-        private val defaultKotlinFileExtensions = setOf("kt", "kts")
-
-        private fun getDefaultPatternsForPath(path: Path?) = defaultKotlinFileExtensions
-            .flatMap {
-                listOf(
-                    "$path/*.$it",
-                    "$path/**/*.$it",
-                )
-            }
-
         @Test
         fun `Expand without patterns in root dir`() {
             val actual = tempFileSystem.expand(emptyList(), Paths.get(rootDir))
@@ -443,9 +376,23 @@ internal class FileUtilsTest {
                 "!glob:**/project1/src/scripts/**.kt",
             )
         }
+
+        @Test
+        fun `Exxpand with patterns in project dir`() {
+            val actual = tempFileSystem.expand(
+                listOf(
+                    "src/**/kotlin/*.kt",
+                ),
+                Paths.get("${rootDir}project1"),
+            )
+
+            assertThat(actual).containsExactly(
+                "glob:**/project1/src/**/kotlin/*.kt",
+            )
+        }
     }
 
-    private fun String.normalizePath() = replace('/', File.separatorChar)
+    private fun String.normalizePath() = replace("/", tempFileSystem.separator)
 
     private fun FileSystem.createFile(it: String) {
         val filePath = getPath(it.normalizePath())
@@ -459,7 +406,7 @@ internal class FileUtilsTest {
         rootDir: Path = tempFileSystem.rootDirectories.first(),
     ): List<String> = tempFileSystem
         .fileSequence(patterns, rootDir)
-        .map { it.toString() }
+        .map { it.normalize().toString() }
         .toList()
         .also {
             logger.info {

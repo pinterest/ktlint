@@ -1,11 +1,13 @@
 package com.pinterest.ktlint.internal
 
+import ch.qos.logback.classic.Level
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.RuleProvider
 import com.pinterest.ktlint.core.api.EditorConfigDefaults
 import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.initKtLintKLogger
+import com.pinterest.ktlint.core.setDefaultLoggerModifier
 import java.io.File
 import java.nio.file.FileSystem
 import java.nio.file.FileVisitResult
@@ -23,6 +25,7 @@ import mu.KotlinLogging
 import org.jetbrains.kotlin.util.prefixIfNot
 
 private val logger = KotlinLogging.logger {}.initKtLintKLogger()
+    .setDefaultLoggerModifier { Level.TRACE } // TODO: remove
 
 internal val workDir: String = File(".").canonicalPath
 
@@ -84,7 +87,7 @@ internal fun FileSystem.fileSequence(
         Start walkFileTree for rootDir: '$rootDir'
            include:
         ${pathMatchers.map { "      - $it" }}
-           exlcude:
+           exclude:
         ${negatedPathMatchers.map { "      - $it" }}
         """.trimIndent()
     }
@@ -97,8 +100,16 @@ internal fun FileSystem.fileSequence(
                     fileAttrs: BasicFileAttributes,
                 ): FileVisitResult {
                     val path =
+//                        filePath
+//                            .absolutePathString()
+//                            .removePrefix(rootDir.absolutePathString())
+//                            .replace(File.separatorChar, '/')
+//                            .let { Paths.get(it) }
                         if (onWindowsOS) {
-                            Paths.get(filePath.absolutePathString().replace(File.separatorChar, '/'))
+                            filePath
+                                .absolutePathString()
+                                .replace(File.separatorChar, '/')
+                                .toPath()
                         } else {
                             filePath
                         }
@@ -133,7 +144,7 @@ internal fun FileSystem.fileSequence(
     return result.asSequence()
 }
 
-private fun FileSystem.expand(
+internal fun FileSystem.expand(
     patterns: List<String>,
     rootDir: Path,
 ) =
@@ -161,31 +172,72 @@ private fun FileSystem.toGlob(
     val resolvedPath = try {
         rootDir.resolve(pathWithoutNegationPrefix)
     } catch (e: InvalidPathException) {
-        // Windows throws an exception when you pass a glob to Path#resolve.
+        //  Windows throws an exception when passing a wildcard (*) to Path#resolve.
         null
     }
-    val expandedGlobs = if (resolvedPath != null && resolvedPath.isDirectory()) {
-        getDefaultPatternsForPath(resolvedPath)
-    } else if (isGlobAbsolutePath(pathWithoutNegationPrefix)) {
-        listOf(pathWithoutNegationPrefix)
-    } else {
-        listOf(pathWithoutNegationPrefix.prefixIfNot("**/"))
+
+    val safeResolvedPath =
+        (
+            resolvedPath
+                ?: pathWithoutNegationPrefix.toPath()
+            )
+            ?.let { path ->
+                if (onWindowsOS) {
+                    // Remove drive letter (and colon) from path as this will lead to invalid globs
+                    path
+                        .toString()
+                        .replace(this.separator, "/")
+                        .substringAfter(":")
+                        .prefixIfNot("**/")
+                        .toPath()
+                } else {
+                    path
+                }
+            }
+
+    val expandedGlobs = when {
+        resolvedPath != null && resolvedPath.isDirectory() ->
+            getDefaultPatternsForPath(safeResolvedPath)
+        else -> {
+            expandDoubleStarPatterns(safeResolvedPath)
+        }
     }
     return expandedGlobs.map { "${negation}glob:$it" }
 }
 
-private fun getDefaultPatternsForPath(path: Path?) = defaultKotlinFileExtensions
-    .flatMap {
-        listOf(
-            "$path/*.$it",
-            "$path/**/*.$it",
-        )
-    }
+/**
+ * For each double star pattern in the path, create and additional path in which the double start pattern is removed.
+ * In this way a pattern like some-directory/**/*.kt will match wile files in some-directory or any of its
+ * subdirectories.
+ */
+private fun expandDoubleStarPatterns(path: Path?): List<Path> {
+    val paths = mutableListOf(path)
+    val parts = path.toString().split("/")
+    parts
+        .filter { it == "**" }
+        .forEach { doubleStarPart ->
+            run {
+                val expandedPath =
+                    parts
+                        .filter { it !== doubleStarPart }
+                        .joinToString(separator = "/")
+                        .toPath()
+                // The original path can contain multiple double star patterns. Replace only one double start pattern
+                // with an additional path patter and call recursively for remain double star patterns
+                paths.addAll(expandDoubleStarPatterns(expandedPath))
+            }
+        }
+    return paths.filterNotNull()
+}
 
-private fun FileSystem.isGlobAbsolutePath(glob: String) =
-    rootDirectories
-        .map { it.toString() }
-        .any { glob.startsWith(it) }
+private fun getDefaultPatternsForPath(path: Path?) =
+    defaultKotlinFileExtensions
+        .flatMap {
+            listOf(
+                "$path/*.$it",
+                "$path/**/*.$it",
+            )
+        }
 
 /**
  * List of paths to Java `jar` files.
@@ -210,6 +262,9 @@ internal fun String.expandTildeToFullPath(): String =
     } else {
         replaceFirst(tildeRegex, userHome)
     }
+
+private fun String.toPath() =
+    Paths.get(this)
 
 private val onWindowsOS
     get() =
