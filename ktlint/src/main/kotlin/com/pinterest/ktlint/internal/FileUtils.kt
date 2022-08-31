@@ -175,7 +175,11 @@ private fun FileSystem.toGlob(
     } else {
         ""
     }
-    val pathWithoutNegationPrefix = path.removePrefix(NEGATION_PREFIX)
+    val pathWithoutNegationPrefix =
+        path
+            .removePrefix(NEGATION_PREFIX)
+            // Replace "\" in windows paths with "/"
+            .replace(this.separator, "/")
     val expandedPatterns = try {
         val resolvedPath = rootDir.resolve(pathWithoutNegationPrefix)
         if (resolvedPath.isDirectory()) {
@@ -186,18 +190,23 @@ private fun FileSystem.toGlob(
     } catch (e: InvalidPathException) {
         if (onWindowsOS) {
             //  Windows throws an exception when passing a wildcard (*) to Path#resolve.
-            pathWithoutNegationPrefix
-                .replace(this.separator, "/")
-                // Remove drive letter (and colon) from path as this will lead to invalid globs
-                .substringAfter(":")
-                .prefixIfNot("**/")
-                .expandDoubleStarPatterns()
+            pathWithoutNegationPrefix.expandDoubleStarPatterns()
         } else {
             emptyList()
         }
     }
 
-    return expandedPatterns.map { "${negation}glob:$it" }
+    return expandedPatterns
+        .map {
+            if (onWindowsOS) {
+                // Remove drive letter (and colon) from path as this will lead to invalid globs and replace it with a double
+                // star pattern. Technically this is not functionally identical as the pattern could match on multiple drives.
+                it.substringAfter(":").prefixIfNot("**/")
+            } else {
+                it
+            }
+        }
+        .map { "${negation}glob:$it" }
 }
 
 /**
