@@ -6,21 +6,15 @@ import com.pinterest.ktlint.core.initKtLintKLogger
 import java.nio.file.FileSystem
 import java.nio.file.Files
 import java.nio.file.Path
-import java.nio.file.Paths
-import kotlin.io.path.absolutePathString
-import kotlin.io.path.isDirectory
-import kotlin.io.path.pathString
 import mu.KotlinLogging
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.DisabledOnOs
 import org.junit.jupiter.api.condition.EnabledOnOs
 import org.junit.jupiter.api.condition.OS
 import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.ValueSource
 
 private val logger = KotlinLogging.logger {}.initKtLintKLogger()
@@ -259,137 +253,6 @@ internal class FileUtilsTest {
         assertThat(foundFiles)
             .containsExactlyInAnyOrder(ktFile1InProjectSubDirectory)
             .doesNotContain(ktFile2InProjectSubDirectory)
-    }
-
-    @EnabledOnOs(OS.WINDOWS)
-    @Nested
-    inner class ExploreFileSystem {
-        val rootPath = Paths.get(rootDir)
-
-        @Test
-        fun `Is absolute path`() {
-            assertThat(rootPath.isAbsolute).isTrue
-        }
-
-        @Test
-        fun `Is directory`() {
-            assertThat(rootPath.isDirectory()).isTrue
-        }
-
-        @Test
-        fun `Has root dir name`() {
-            assertThat(rootPath.absolutePathString()).isEqualTo("C:\\")
-        }
-
-        @ParameterizedTest(name = "Path: {0}, expected result: {1}")
-        @CsvSource(
-            value = [
-                ", C:\\",
-                "project1, C:\\project1",
-                "project1/src, C:\\project1\\src",
-                "project1/src/main, C:\\project1\\src\\main",
-                "project1/src/main/kotlin, C:\\project1\\src\\main\\kotlin",
-                "project1/src/main/kotlin/One.kt, C:\\project1\\src\\main\\kotlin\\One.kt",
-            ],
-        )
-        fun `Resolve`(path: String?, expected: String) {
-            val actual =
-                rootPath
-                    .resolve(Paths.get(path ?: ""))
-                    .pathString
-
-            assertThat(actual).isEqualTo(expected)
-        }
-
-        @ParameterizedTest(name = "Path: {0}, expected result: {1}")
-        @CsvSource(
-            value = [
-                ", C:\\",
-                "project1, C:\\project1",
-                "project1/src, C:\\project1\\src",
-                "project1/src/main, C:\\project1\\src\\main",
-                "project1/src/main/kotlin, C:\\project1\\src\\main\\kotlin",
-                "project1/src/main/kotlin/One.kt, C:\\project1\\src\\main\\kotlin\\One.kt",
-            ],
-        )
-        fun `Resolve normalized`(path: String?, expected: String) {
-            val actual =
-                rootPath
-                    .resolve(Paths.get(path?.normalizePath() ?: ""))
-                    .pathString
-
-            assertThat(actual).isEqualTo(expected)
-        }
-
-        @ParameterizedTest(name = "Path: {0}, expected result: {1}")
-        @CsvSource(
-            value = [
-                "**/*.kt, C:\\",
-                "project1/**/*.kt, C:\\project1",
-                "project1/src/**/*.kt, C:\\project1\\src",
-                "project1/src/main/**/*.kt, C:\\project1\\src\\main",
-                "project1/src/main/kotlin/**/*.kt, C:\\project1\\src\\main\\kotlin",
-                "project1/src/main/kotlin/*.kt, C:\\project1\\src\\main\\kotlin",
-                "project1/src/main/kotlin/One.kt, C:\\project1\\src\\main\\kotlin\\One.kt",
-            ],
-        )
-        fun `Resolve path with globs`(path: String?, expected: String) {
-            val actual = rootPath.resolve(Paths.get(path?.normalizePath() ?: ""))
-
-            assertThat(actual.pathString).isEqualTo(expected)
-
-            assertThat(Files.isRegularFile(actual)).isTrue
-        }
-
-        @Test
-        fun `Expand without patterns in root dir`() {
-            val actual = tempFileSystem.expand(emptyList(), Paths.get(rootDir))
-
-            assertThat(actual).containsExactly(
-                "glob:**/*.kt",
-                "glob:**/*.kts",
-            )
-        }
-
-        @Test
-        fun `Expand without patterns in project dir`() {
-            val actual = tempFileSystem.expand(emptyList(), Paths.get("${rootDir}project1"))
-
-            assertThat(actual).containsExactly(
-                "glob:C:/project1/**/*.kt",
-                "glob:C:/project1/**/*.kts",
-            )
-        }
-
-        @Test
-        fun `Expand with patterns in project dir`() {
-            val actual = tempFileSystem.expand(
-                listOf(
-                    "**/project1/src/**.kt",
-                    "!**/project1/src/scripts/**.kt",
-                ),
-                Paths.get("${rootDir}project1"),
-            )
-
-            assertThat(actual).containsExactly(
-                "glob:**/project1/src/**.kt",
-                "!glob:**/project1/src/scripts/**.kt",
-            )
-        }
-
-        @Test
-        fun `Exxpand with patterns in project dir`() {
-            val actual = tempFileSystem.expand(
-                listOf(
-                    "src/**/kotlin/*.kt",
-                ),
-                Paths.get("${rootDir}project1"),
-            )
-
-            assertThat(actual).containsExactly(
-                "glob:**/project1/src/**/kotlin/*.kt",
-            )
-        }
     }
 
     private fun String.normalizePath() = replace("/", tempFileSystem.separator)
