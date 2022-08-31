@@ -178,35 +178,55 @@ private fun FileSystem.toGlob(
     val pathWithoutNegationPrefix =
         path
             .removePrefix(NEGATION_PREFIX)
-            // Replace "\" in windows paths with "/"
-            .replace(this.separator, "/")
     val expandedPatterns = try {
         val resolvedPath = rootDir.resolve(pathWithoutNegationPrefix)
         if (resolvedPath.isDirectory()) {
-            resolvedPath.expandPathToDefaultPatterns()
+            resolvedPath
+                .expandPathToDefaultPatterns()
+                .also {
+                    logger.trace { "Expanding resolved directory path '$resolvedPath' to patterns: [$it]" }
+                }
         } else {
-            resolvedPath.pathString.expandDoubleStarPatterns()
+            resolvedPath
+                .pathString
+                .expandDoubleStarPatterns()
+                .also {
+                    logger.trace { "Expanding resolved path '$resolvedPath` to patterns: [$it]" }
+                }
         }
     } catch (e: InvalidPathException) {
         if (onWindowsOS) {
             //  Windows throws an exception when passing a wildcard (*) to Path#resolve.
-            pathWithoutNegationPrefix.expandDoubleStarPatterns()
+            pathWithoutNegationPrefix
+                .expandDoubleStarPatterns()
+                .also {
+                    logger.trace { "On WindowsOS: expanding unresolved path '$pathWithoutNegationPrefix` to patterns: [$it]" }
+                }
         } else {
             emptyList()
         }
     }
 
     return expandedPatterns
-        .map {
+        .map { originalPattern ->
             if (onWindowsOS) {
-                // Remove drive letter (and colon) from path as this will lead to invalid globs and replace it with a double
-                // star pattern. Technically this is not functionally identical as the pattern could match on multiple drives.
-                it.substringAfter(":").prefixIfNot("**/")
+                originalPattern
+                    // Replace "\" with "/"
+                    .replace(this.separator, "/")
+                    // Remove drive letter (and colon) from path as this will lead to invalid globs and replace it with a double
+                    // star pattern. Technically this is not functionally identical as the pattern could match on multiple drives.
+                    .substringAfter(":")
+                    .removePrefix("/")
+                    .prefixIfNot("**/")
+                    .also { transformedPattern ->
+                        if (transformedPattern != originalPattern) {
+                            logger.trace { "On WindowsOS, transform '$originalPattern' to '$transformedPattern'" }
+                        }
+                    }
             } else {
-                it
+                originalPattern
             }
-        }
-        .map { "${negation}glob:$it" }
+        }.map { "${negation}glob:$it" }
 }
 
 /**
