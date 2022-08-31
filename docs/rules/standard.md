@@ -180,7 +180,7 @@ Rule id: `trailing-comma-on-declaration-site`
 
 ## Wrapping
 
-Inserts missing newlines (e.g. between parentheses of a multi-line function call).
+Inserts missing newlines (for example between parentheses of a multi-line function call).
 
 Rule id: `wrapping`
 
