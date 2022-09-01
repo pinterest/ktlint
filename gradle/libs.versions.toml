@@ -5,7 +5,7 @@ kotlin = "1.7.10" # Keep in sync with buildSrc/build.gradle.kts
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
-githubRelease = "com.github.breadmoirai.github-release:2.2.12"
+githubRelease = "com.github.breadmoirai.github-release:2.4.1"
 checksum = "org.gradle.crypto.checksum:1.4.0"
 shadow = "com.github.johnrengelman.shadow:7.1.2"
 
@@ -14,13 +14,13 @@ kotlin-compiler = { module = "org.jetbrains.kotlin:kotlin-compiler-embeddable", 
 klob = "com.github.shyiko.klob:klob:0.2.1"
 ec4j = "org.ec4j.core:ec4j-core:0.3.0"
 picocli = "info.picocli:picocli:4.6.3"
-logging = "io.github.microutils:kotlin-logging-jvm:2.1.21"
+logging = "io.github.microutils:kotlin-logging-jvm:2.1.23"
 # Use logback-classic as the logger for kotlin-logging / slf4j as it allow changing the log level at runtime.
-logback = "ch.qos.logback:logback-classic:1.2.11"
+logback = "ch.qos.logback:logback-classic:1.3.0"
 # Required for logback.xml conditional configuration
 janino = "org.codehaus.janino:janino:3.1.7"
 # Testing libraries
-junit5 = "org.junit.jupiter:junit-jupiter:5.8.2"
-assertj = "org.assertj:assertj-core:3.22.0"
+junit5 = "org.junit.jupiter:junit-jupiter:5.9.0"
+assertj = "org.assertj:assertj-core:3.23.1"
 sarif4k = "io.github.detekt.sarif4k:sarif4k:0.0.1"
 jimfs = "com.google.jimfs:jimfs:1.2"
