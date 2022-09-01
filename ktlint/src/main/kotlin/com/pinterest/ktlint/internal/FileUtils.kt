@@ -1,13 +1,11 @@
 package com.pinterest.ktlint.internal
 
-import ch.qos.logback.classic.Level
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.RuleProvider
 import com.pinterest.ktlint.core.api.EditorConfigDefaults
 import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.initKtLintKLogger
-import com.pinterest.ktlint.core.setDefaultLoggerModifier
 import java.io.File
 import java.nio.file.FileSystem
 import java.nio.file.FileVisitResult
@@ -26,7 +24,6 @@ import mu.KotlinLogging
 import org.jetbrains.kotlin.util.prefixIfNot
 
 private val logger = KotlinLogging.logger {}.initKtLintKLogger()
-    .setDefaultLoggerModifier { Level.TRACE } // TODO: remove
 
 internal val workDir: String = File(".").canonicalPath
 
@@ -145,7 +142,7 @@ internal fun FileSystem.fileSequence(
     return result.asSequence()
 }
 
-internal fun FileSystem.expand(
+private fun FileSystem.expand(
     patterns: List<String>,
     rootDir: Path,
 ) =
