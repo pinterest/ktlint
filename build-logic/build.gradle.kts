@@ -15,6 +15,6 @@ val kotlinVersion = if (project.hasProperty("kotlinDev")) {
 }
 
 dependencies {
-    implementation(libs.kotlin.plugin)
+    implementation(kotlin("gradle-plugin", kotlinVersion))
     implementation(libs.dokka)
 }
