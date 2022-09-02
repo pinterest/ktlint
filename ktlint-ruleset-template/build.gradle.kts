@@ -1,5 +1,5 @@
 plugins {
-    `ktlint-kotlin-common` // replace it with 'org.jetbrains.kotlin.jvm'
+    id("ktlint-kotlin-common") // replace it with 'org.jetbrains.kotlin.jvm'
     `java-library`
     `maven-publish`
 }
