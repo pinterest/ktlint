@@ -10,6 +10,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 Do not show deprecation warning about property "disabled_rules" when using CLi-parameter `--disabled-rules` ([#1599](https://github.com/pinterest/ktlint/issues/1599)) 
 
+* Traversing directory hierarchy at Windows ([#1600](https://github.com/pinterest/ktlint/issues/1600))
+* Ant-style path pattern support ([#1601](https://github.com/pinterest/ktlint/issues/1601))
+
 ### Added
 
 ### Changed
