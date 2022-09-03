@@ -100,7 +100,7 @@ class EditorConfigDefaultsLoaderCLITest : BaseCLITest() {
         val projectDirectory = "$BASE_DIR_PLACEHOLDER/editorconfig-path/project"
         runKtLintCliProcess(
             "editorconfig-path",
-            listOf("--editorconfig=$projectDirectory/editorconfig-boolean-setting", "--debug"),
+            listOf("--editorconfig=$projectDirectory/editorconfig-boolean-setting"),
         ) {
             assertErrorExitCode()
 
