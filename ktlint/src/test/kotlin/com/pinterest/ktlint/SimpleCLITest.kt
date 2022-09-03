@@ -69,7 +69,7 @@ class SimpleCLITest : BaseCLITest() {
             "too-many-empty-lines",
             listOf("SomeOtherFile.kt"),
         ) {
-            assertErrorExitCode()
+            assertNormalExitCode()
 
             assert(normalOutput.find { it.contains("No files matched [SomeOtherFile.kt]") } != null) {
                 "Unexpected output:\n${normalOutput.joinToString(separator = "\n")}"

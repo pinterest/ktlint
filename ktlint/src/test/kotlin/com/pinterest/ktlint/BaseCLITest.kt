@@ -151,7 +151,7 @@ abstract class BaseCLITest {
 
     companion object {
         private const val WAIT_INTERVAL_DURATION = 100L
-        private const val WAIT_INTERVAL_MAX_OCCURRENCES = 100
+        private const val WAIT_INTERVAL_MAX_OCCURRENCES = 1000
         val testProjectsPath: Path = Paths.get("src", "test", "resources", "cli")
         const val BASE_DIR_PLACEHOLDER = "__TEMP_DIR__"
     }
