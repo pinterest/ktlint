@@ -16,6 +16,7 @@ Do not show deprecation warning about property "disabled_rules" when using CLi-p
 ### Added
 
 ### Changed
+* Display warning instead of error when no files are matched, and return with exit code 0. ([#1624](https://github.com/pinterest/ktlint/issues/1624))
 
 ### Removed
 

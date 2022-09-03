@@ -274,11 +274,12 @@ internal class KtlintCommandLine {
             )
         }
         reporter.afterAll()
-        if (fileNumber.get() == 0) {
-            logger.error { "No files matched $patterns" }
-            exitProcess(1)
-        }
         logger.debug { "${System.currentTimeMillis() - start}ms / $fileNumber file(s) / $errorNumber error(s)" }
+        if (fileNumber.get() == 0) {
+            // Do not return an error as this would implicate that in a multi-module project, each module has to contain
+            // at least one kotlin file.
+            logger.warn { "No files matched $patterns" }
+        }
         if (tripped.get()) {
             exitProcess(1)
         }
