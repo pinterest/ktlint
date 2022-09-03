@@ -317,7 +317,9 @@ public class TrailingCommaOnDeclarationSiteRule :
 
                         if (inspectNode.treeParent.elementType == ElementType.ENUM_ENTRY) {
                             with(KtPsiFactory(prevNode.psi)) {
-                                val parentIndent = (prevNode.psi.parent.prevLeaf() as? PsiWhiteSpace)?.text ?: "\n"
+                                val parentIndent =
+                                    (prevNode.psi.parent.prevLeaf() as? PsiWhiteSpace)?.text
+                                        ?: "\n${prevNode.lineIndent()}"
                                 val newline = createWhiteSpace(parentIndent)
                                 val enumEntry = inspectNode.treeParent.psi
                                 enumEntry.apply {
