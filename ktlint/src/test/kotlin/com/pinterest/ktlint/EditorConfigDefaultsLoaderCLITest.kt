@@ -95,6 +95,20 @@ class EditorConfigDefaultsLoaderCLITest : BaseCLITest() {
         }
     }
 
+    @Test
+    fun `Issue 1627 - Given a default editorconfig containing a boolean setting then do not throw a class cast exception`() {
+        val projectDirectory = "$BASE_DIR_PLACEHOLDER/editorconfig-path/project"
+        runKtLintCliProcess(
+            "editorconfig-path",
+            listOf("--editorconfig=$projectDirectory/editorconfig-boolean-setting", "--debug"),
+        ) {
+            assertErrorExitCode()
+
+            val assertThat = assertThat(errorOutput)
+            assertThat.doesNotContainLineMatching(Regex(".*java.lang.ClassCastException: java.lang.String cannot be cast to java.lang.Boolean.*"))
+        }
+    }
+
     private fun ListAssert<String>.containsLineMatching(regex: Regex) =
         this.anyMatch {
             it.matches(regex)
