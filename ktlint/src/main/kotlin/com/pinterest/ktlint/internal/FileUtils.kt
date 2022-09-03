@@ -15,6 +15,8 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
+import java.util.Deque
+import java.util.LinkedList
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.isDirectory
 import kotlin.io.path.pathString
@@ -142,12 +144,18 @@ internal fun FileSystem.fileSequence(
     return result.asSequence()
 }
 
-private fun FileSystem.expand(
+internal fun FileSystem.expand(
     patterns: List<String>,
     rootDir: Path,
 ) =
     patterns
-        .map { it.expandTildeToFullPath() }
+        .mapNotNull {
+            if (onWindowsOS) {
+                it.normalizeWindowsPattern()
+            } else {
+                it
+            }
+        }.map { it.expandTildeToFullPath() }
         .map {
             if (onWindowsOS) {
                 // By definition the globs should use "/" as separator. Out of courtesy replace "\" with "/"
@@ -176,7 +184,10 @@ private fun FileSystem.toGlob(
         path
             .removePrefix(NEGATION_PREFIX)
     val expandedPatterns = try {
-        val resolvedPath = rootDir.resolve(pathWithoutNegationPrefix)
+        val resolvedPath =
+            rootDir
+                .resolve(pathWithoutNegationPrefix)
+                .normalize()
         if (resolvedPath.isDirectory()) {
             resolvedPath
                 .expandPathToDefaultPatterns()
@@ -231,8 +242,8 @@ private fun FileSystem.toGlob(
  * In this way a pattern like some-directory/**/*.kt will match wile files in some-directory or any of its
  * subdirectories.
  */
-private fun String?.expandDoubleStarPatterns(): List<String> {
-    val paths = mutableListOf(this)
+private fun String?.expandDoubleStarPatterns(): Set<String> {
+    val paths = mutableSetOf(this)
     val parts = this?.split("/").orEmpty()
     parts
         .filter { it == "**" }
@@ -247,8 +258,47 @@ private fun String?.expandDoubleStarPatterns(): List<String> {
                 paths.addAll(expandedPath.expandDoubleStarPatterns())
             }
         }
-    return paths.filterNotNull()
+    return paths.filterNotNull().toSet()
 }
+
+private fun String?.normalizeWindowsPattern() =
+    if (onWindowsOS) {
+        val parts: Deque<String> = LinkedList()
+        // Replace "\" with "/"
+        this
+            ?.replace("\\", "/")
+            ?.split("/")
+            ?.filterNot {
+                // Reference to current directory can simply be ignored
+                it == "."
+            }?.forEach {
+                if (it == "..") {
+                    // Whenever the parent directory reference follows a part not containing a wildcard, then the parent
+                    // reference and the preceding element can be ignored. In other cases, the result pattern can not be
+                    // cleaned. If that pattern would be transformed to a glob then the result regular expression of
+                    // that glob results in a pattern that will never be matched as the ".." reference will not occur in
+                    // the filepath that is being checked with the regular expression.
+                    if (parts.isEmpty()) {
+                        logger.warn {
+                            "On WindowsOS the pattern '$this' can not be used as it refers to a path outside of the current directory"
+                        }
+                        return@normalizeWindowsPattern null
+                    } else if (parts.peekLast().contains('*')) {
+                        logger.warn {
+                            "On WindowsOS the pattern '$this' can not be used as '/..' follows the wildcard pattern ${parts.peekLast()}"
+                        }
+                        return@normalizeWindowsPattern null
+                    } else {
+                        parts.removeLast()
+                    }
+                } else {
+                    parts.addLast(it)
+                }
+            }
+        parts.joinToString(separator = "/")
+    } else {
+        this
+    }
 
 private fun Path.expandPathToDefaultPatterns() =
     defaultKotlinFileExtensions
@@ -282,7 +332,9 @@ internal fun String.expandTildeToFullPath(): String =
     } else {
         replaceFirst(tildeRegex, userHome)
             .also {
-                logger.trace { "On non-WindowsOS expand '$this' to '$it'" }
+                if (it != this) {
+                    logger.trace { "On non-WindowsOS expand '$this' to '$it'" }
+                }
             }
     }
 

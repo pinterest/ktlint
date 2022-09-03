@@ -134,6 +134,34 @@ internal class FileUtilsTest {
         )
     }
 
+    @ParameterizedTest(name = "Pattern: {0}")
+    @ValueSource(
+        strings = [
+            // Redundant path below should resolve to "**/main/**/*.kt" for the test to succeed
+            "./**/main/**/*.kt",
+            "**/./main/**/*.kt",
+            "**/main/./**/*.kt",
+            "**/main/**/./*.kt",
+            "xx/../**/main/**/./*.kt",
+            "**/xx/../main/**/*.kt",
+            "**/main/xx/../**/*.kt",
+            "**/main/**/./xx/../*.kt",
+        ],
+    )
+    fun `Given a pattern containing redundant elements then find all files in that workdir and all its sub directories that match the pattern without the redundant items`(
+        pattern: String,
+    ) {
+        val foundFiles = getFiles(
+            patterns = listOf(pattern),
+            rootDir = tempFileSystem.getPath("${rootDir}project1".normalizePath()),
+        )
+
+        assertThat(foundFiles).containsExactlyInAnyOrder(
+            ktFile1InProjectSubDirectory,
+            ktFile2InProjectSubDirectory,
+        )
+    }
+
     @Test
     fun `Given an (relative) file path from the workdir then find all files in that workdir and all its sub directories that match the pattern`() {
         val foundFiles = getFiles(
@@ -253,6 +281,94 @@ internal class FileUtilsTest {
         assertThat(foundFiles)
             .containsExactlyInAnyOrder(ktFile1InProjectSubDirectory)
             .doesNotContain(ktFile2InProjectSubDirectory)
+    }
+
+    @DisabledOnOs(OS.WINDOWS)
+    @ParameterizedTest(name = "Pattern: {0}")
+    @ValueSource(
+        strings = [
+            "../**/*.kt",
+            "../**/src/main/kotlin/One.kt",
+            "src/../../project1/src/**/*.kt",
+            "src/../../project1/src/main/kotlin/*.kt",
+        ],
+    )
+    fun `On non-WindowsOS, a pattern containing a double-dot (parent directory) reference may leave the current directory`(
+        pattern: String,
+    ) {
+        val foundFiles = getFiles(
+            patterns = listOf(pattern),
+            rootDir = tempFileSystem.getPath("${rootDir}project1".normalizePath()),
+        )
+
+        assertThat(foundFiles).contains(ktFile1InProjectSubDirectory)
+    }
+
+    @EnabledOnOs(OS.WINDOWS)
+    @ParameterizedTest(name = "Pattern: {0}")
+    @ValueSource(
+        strings = [
+            "../**/*.kt",
+            "../**/src/main/kotlin/One.kt",
+            "src/../../project1/src/**/*.kt",
+            "src/../../project1/src/main/kotlin/*.kt",
+        ],
+    )
+    fun `On WindowsOS, a pattern containing a double-dot (parent directory) reference may not leave the current directory`(
+        pattern: String,
+    ) {
+        val foundFiles = getFiles(
+            patterns = listOf(
+                pattern,
+                "/some/non/existing/file", // This prevents the default patterns to be added
+            ),
+            rootDir = tempFileSystem.getPath("${rootDir}project1".normalizePath()),
+        )
+
+        assertThat(foundFiles).isEmpty()
+    }
+
+    @DisabledOnOs(OS.WINDOWS)
+    @ParameterizedTest(name = "Pattern: {0}")
+    @ValueSource(
+        strings = [
+            "**/../**/*.kt",
+            "**/../src/main/kotlin/One.kt",
+            "src/main/k*/../kotlin/One.kt",
+        ],
+    )
+    fun `On non-WindowsOS, a pattern containing a wildcard may followed by a double-dot (parent directory) reference`(
+        pattern: String,
+    ) {
+        val foundFiles = getFiles(
+            patterns = listOf(pattern),
+            rootDir = tempFileSystem.getPath("${rootDir}project1".normalizePath()),
+        )
+
+        assertThat(foundFiles).contains(ktFile1InProjectSubDirectory)
+    }
+
+    @EnabledOnOs(OS.WINDOWS)
+    @ParameterizedTest(name = "Pattern: {0}")
+    @ValueSource(
+        strings = [
+            "**/../**/*.kt",
+            "**/../src/main/kotlin/One.kt",
+            "src/main/k*/../kotlin/One.kt",
+        ],
+    )
+    fun `On WindowsOS, a pattern containing a wildcard may followed by a double-dot (parent directory) reference`(
+        pattern: String,
+    ) {
+        val foundFiles = getFiles(
+            patterns = listOf(
+                pattern,
+                "/some/non/existing/file", // This prevents the default patterns to be added
+            ),
+            rootDir = tempFileSystem.getPath("${rootDir}project1".normalizePath()),
+        )
+
+        assertThat(foundFiles).isEmpty()
     }
 
     private fun String.normalizePath() = replace("/", tempFileSystem.separator)
