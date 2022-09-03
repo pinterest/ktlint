@@ -8,6 +8,10 @@ import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.ktlintDisable
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties.EditorConfigProperty
+import com.pinterest.ktlint.core.initKtLintKLogger
+import mu.KotlinLogging
+
+private val logger = KotlinLogging.logger {}.initKtLintKLogger()
 
 /**
  * The VisitorProvider is created for each file being scanned. As the [RuleRunnerSorter] logs the order in which the
@@ -43,11 +47,7 @@ internal class VisitorProvider(
             ruleRunners
                 .filter { ruleRunner -> isNotDisabled(editorConfigProperties, ruleRunner.qualifiedRuleId) }
         if (enabledRuleRunners.isEmpty()) {
-            if (params.debug && enabledRuleRunners.isEmpty()) {
-                println(
-                    "[DEBUG] Skipping file as no enabled rules are found to be executed",
-                )
-            }
+            logger.debug { "Skipping file as no enabled rules are found to be executed" }
             return { _ -> }
         }
         val ruleRunnersToBeSkipped =
@@ -58,23 +58,21 @@ internal class VisitorProvider(
                         runAfterRule.runOnlyWhenOtherRuleIsEnabled &&
                         enabledRuleRunners.none { it.qualifiedRuleId == runAfterRule.ruleId.toQualifiedRuleId() }
                 }
-        if (params.debug && ruleRunnersToBeSkipped.isNotEmpty()) {
-            ruleRunnersToBeSkipped
-                .forEach {
-                    println(
-                        "[DEBUG] Skipping rule with id '${it.qualifiedRuleId}'. This rule has to run after rule with " +
-                            "id '${it.runAfterRule?.ruleId?.toQualifiedRuleId()}' and will not run in case that rule is " +
-                            "disabled.",
-                    )
-                }
+        if (ruleRunnersToBeSkipped.isNotEmpty()) {
+            logger.debug {
+                ruleRunnersToBeSkipped
+                    .forEach {
+                        println(
+                            "Skipping rule with id '${it.qualifiedRuleId}'. This rule has to run after rule with " +
+                                "id '${it.runAfterRule?.ruleId?.toQualifiedRuleId()}' and will not run in case that rule is " +
+                                "disabled.",
+                        )
+                    }
+            }
         }
         val ruleRunnersToExecute = enabledRuleRunners - ruleRunnersToBeSkipped.toSet()
         if (ruleRunnersToExecute.isEmpty()) {
-            if (params.debug) {
-                println(
-                    "[DEBUG] Skipping file as no enabled rules are found to be executed",
-                )
-            }
+            logger.debug { "Skipping file as no enabled rules are found to be executed" }
             return { _ -> }
         }
         return { visit ->
