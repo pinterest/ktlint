@@ -145,6 +145,8 @@ public class IndentationRuleNew :
                         node.treeParent?.elementType == CLASS_BODY ||
                         node.treeParent?.elementType == DOT_QUALIFIED_EXPRESSION ||
                         node.treeParent?.elementType == PROPERTY ||
+                        node.treeParent?.elementType == PROPERTY ||
+                        node.treeParent?.elementType == FUN ||
                         node.treeParent?.elementType == FUNCTION_LITERAL ||
                         node.treeParent?.elementType == VALUE_ARGUMENT_LIST ||
                         node.treeParent?.elementType == WHEN
@@ -153,9 +155,8 @@ public class IndentationRuleNew :
                 visitWhiteSpace(node, autoCorrect, emit)
                 INCREMENT_FROM_CURRENT
             }
-            node.isWhiteSpaceWithNewline() &&
-                node.prevCodeSibling()?.elementType == EQ ->
-                INCREMENT_FROM_FIRST
+            node.elementType == EQ && node.treeParent?.elementType == FUN ->
+                INCREMENT_FROM_CURRENT
             node.isWhiteSpaceWithNewline() &&
                 node.prevCodeSibling()?.elementType == ARROW -> {
                 indentContextStack.increaseIndentOfLast()
@@ -172,6 +173,7 @@ public class IndentationRuleNew :
             node.elementType == BLOCK ||
                 node.elementType == CLASS_BODY ||
                 node.elementType == PROPERTY ||
+                node.elementType == FUN ||
                 node.elementType == FUNCTION_LITERAL ||
                 node.elementType == VALUE_ARGUMENT_LIST ||
                 node.elementType == WHEN ||
