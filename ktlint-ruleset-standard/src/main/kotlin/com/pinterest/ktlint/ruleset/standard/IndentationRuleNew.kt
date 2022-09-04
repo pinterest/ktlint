@@ -146,7 +146,6 @@ public class IndentationRuleNew :
                         node.treeParent?.elementType == DOT_QUALIFIED_EXPRESSION ||
                         node.treeParent?.elementType == PROPERTY ||
                         node.treeParent?.elementType == PROPERTY ||
-                        node.treeParent?.elementType == FUN ||
                         node.treeParent?.elementType == FUNCTION_LITERAL ||
                         node.treeParent?.elementType == VALUE_ARGUMENT_LIST ||
                         node.treeParent?.elementType == WHEN
@@ -157,6 +156,13 @@ public class IndentationRuleNew :
             }
             node.elementType == EQ && node.treeParent?.elementType == FUN ->
                 INCREMENT_FROM_CURRENT
+            node.isWhiteSpaceWithNewline() &&
+                node.prevCodeSibling()?.elementType == EQ &&
+                node.treeParent?.elementType == FUN -> {
+                indentContextStack.increaseIndentOfLast()
+                visitWhiteSpace(node, autoCorrect, emit)
+                INCREMENT_FROM_CURRENT
+            }
             node.isWhiteSpaceWithNewline() &&
                 node.prevCodeSibling()?.elementType == ARROW -> {
                 indentContextStack.increaseIndentOfLast()
@@ -431,18 +437,19 @@ public class IndentationRuleNew :
             val parent = indentContextStack.peekLast()
             when (indentAdjustment) {
                 NONE -> Unit
-                SAME_AS_PARENT ->
+                SAME_AS_PARENT -> {
+                    val newIndentContext = NewIndentContext(
+                        node = node,
+                        nodeIndentLevel = parent.nodeIndentLevel,
+                        childIndentLevel = parent.childIndentLevel,
+                        unchanged = true,
+                    )
                     indentContextStack
-                        .addLast(
-                            NewIndentContext(
-                                node = node,
-                                nodeIndentLevel = parent.nodeIndentLevel,
-                                childIndentLevel = parent.childIndentLevel,
-                                unchanged = true,
-                            ),
-                        ).also {
-                            logger.trace { "Create new indent context (same as parent) with level ${parent.nodeIndentLevel} for ${node.elementType}: ${node.textWithEscapedTabAndNewline()}" }
+                        .addLast(newIndentContext)
+                        .also {
+                            logger.trace { "Create new indent context (same as parent) with level (${newIndentContext.nodeIndentLevel}, ${newIndentContext.childIndentLevel})  for ${node.elementType}: ${node.textWithEscapedTabAndNewline()}" }
                         }
+                }
                 INCREMENT_FROM_FIRST -> {
                     indentContextStack
                         .addLast(
