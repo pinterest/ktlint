@@ -205,7 +205,9 @@ public object KtLint {
     ) {
         if (rule.shouldContinueTraversalOfAST()) {
             try {
-                rule.beforeVisitChildNodes(node, autoCorrect, emit)
+                if (!suppressedRegionLocator(node.startOffset, fqRuleId, node === rootNode)) {
+                    rule.beforeVisitChildNodes(node, autoCorrect, emit)
+                }
                 if (!rule.runsOnRootNodeOnly() && rule.shouldContinueTraversalOfAST()) {
                     node
                         .getChildren(null)
@@ -218,7 +220,9 @@ public object KtLint {
                             }
                         }
                 }
-                rule.afterVisitChildNodes(node, autoCorrect, emit)
+                if (!suppressedRegionLocator(node.startOffset, fqRuleId, node === rootNode)) {
+                    rule.afterVisitChildNodes(node, autoCorrect, emit)
+                }
             } catch (e: Exception) {
                 if (autoCorrect) {
                     // line/col cannot be reliably mapped as exception might originate from a node not present in the
