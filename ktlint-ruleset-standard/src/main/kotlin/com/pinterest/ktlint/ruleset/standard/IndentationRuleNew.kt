@@ -44,6 +44,7 @@ import com.pinterest.ktlint.core.ast.ElementType.TYPE_ARGUMENT_LIST
 import com.pinterest.ktlint.core.ast.ElementType.TYPE_PARAMETER_LIST
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_ARGUMENT
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_ARGUMENT_LIST
+import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.core.ast.ElementType.WHEN
 import com.pinterest.ktlint.core.ast.ElementType.WHEN_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
@@ -148,6 +149,7 @@ public class IndentationRuleNew :
                         node.treeParent?.elementType == PROPERTY ||
                         node.treeParent?.elementType == FUNCTION_LITERAL ||
                         node.treeParent?.elementType == VALUE_ARGUMENT_LIST ||
+                        node.treeParent?.elementType == VALUE_PARAMETER_LIST ||
                         node.treeParent?.elementType == WHEN
                     ) -> {
                 indentContextStack.increaseIndentOfLast()
@@ -169,6 +171,18 @@ public class IndentationRuleNew :
                 visitWhiteSpace(node, autoCorrect, emit)
                 INCREMENT_FROM_CURRENT
             }
+            node.elementType == BLOCK ||
+                node.elementType == CLASS_BODY ||
+                node.elementType == PROPERTY ||
+                node.elementType == FUN ||
+                node.elementType == FUNCTION_LITERAL ||
+                node.elementType == VALUE_ARGUMENT_LIST ||
+                node.elementType == VALUE_PARAMETER_LIST ||
+                node.elementType == WHEN ||
+                node.elementType == WHEN_ENTRY ->
+                SAME_AS_PARENT
+            node.elementType == DOT_QUALIFIED_EXPRESSION ->
+                INCREMENT_FROM_FIRST
             //        if (node.children().none() || node.children().none { it.isWhiteSpaceWithNewline() }) {
             !node.isWhiteSpaceWithNewline() && node.children().none { it.isWhiteSpaceWithNewline() } -> {
                 // No direct child node contains a whitespace with new line. So this node can not be a reason to change
@@ -176,17 +190,6 @@ public class IndentationRuleNew :
                 logger.trace { "Ignore node as it is not and does not contain a whitespace with newline for ${node.elementType}: ${node.textWithEscapedTabAndNewline()}" }
                 return
             }
-            node.elementType == BLOCK ||
-                node.elementType == CLASS_BODY ||
-                node.elementType == PROPERTY ||
-                node.elementType == FUN ||
-                node.elementType == FUNCTION_LITERAL ||
-                node.elementType == VALUE_ARGUMENT_LIST ||
-                node.elementType == WHEN ||
-                node.elementType == WHEN_ENTRY ->
-                SAME_AS_PARENT
-            node.elementType == DOT_QUALIFIED_EXPRESSION ->
-                INCREMENT_FROM_FIRST
 
             false && node.elementType == FUNCTION_LITERAL -> {
                 node.logIndentRaised()
