@@ -144,7 +144,7 @@ internal fun FileSystem.fileSequence(
     return result.asSequence()
 }
 
-internal fun FileSystem.expand(
+private fun FileSystem.expand(
     patterns: List<String>,
     rootDir: Path,
 ) =
