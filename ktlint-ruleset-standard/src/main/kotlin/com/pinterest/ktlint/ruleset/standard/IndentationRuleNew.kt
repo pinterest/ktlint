@@ -146,7 +146,8 @@ public class IndentationRuleNew :
                         node.treeParent?.elementType == DOT_QUALIFIED_EXPRESSION ||
                         node.treeParent?.elementType == PROPERTY ||
                         node.treeParent?.elementType == FUNCTION_LITERAL ||
-                        node.treeParent?.elementType == VALUE_ARGUMENT_LIST
+                        node.treeParent?.elementType == VALUE_ARGUMENT_LIST ||
+                        node.treeParent?.elementType == WHEN
                     ) -> {
                 indentContextStack.increaseIndentOfLast()
                 visitWhiteSpace(node, autoCorrect, emit)
@@ -155,6 +156,12 @@ public class IndentationRuleNew :
             node.isWhiteSpaceWithNewline() &&
                 node.prevCodeSibling()?.elementType == EQ ->
                 INCREMENT_FROM_FIRST
+            node.isWhiteSpaceWithNewline() &&
+                node.prevCodeSibling()?.elementType == ARROW -> {
+                indentContextStack.increaseIndentOfLast()
+                visitWhiteSpace(node, autoCorrect, emit)
+                INCREMENT_FROM_CURRENT
+            }
             //        if (node.children().none() || node.children().none { it.isWhiteSpaceWithNewline() }) {
             !node.isWhiteSpaceWithNewline() && node.children().none { it.isWhiteSpaceWithNewline() } -> {
                 // No direct child node contains a whitespace with new line. So this node can not be a reason to change
@@ -167,7 +174,8 @@ public class IndentationRuleNew :
                 node.elementType == PROPERTY ||
                 node.elementType == FUNCTION_LITERAL ||
                 node.elementType == VALUE_ARGUMENT_LIST ||
-                node.elementType == PROPERTY ->
+                node.elementType == WHEN ||
+                node.elementType == WHEN_ENTRY ->
                 SAME_AS_PARENT
             node.elementType == DOT_QUALIFIED_EXPRESSION ->
                 INCREMENT_FROM_FIRST
