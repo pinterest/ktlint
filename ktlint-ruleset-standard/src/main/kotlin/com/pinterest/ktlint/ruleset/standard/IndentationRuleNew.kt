@@ -20,6 +20,7 @@ import com.pinterest.ktlint.core.ast.ElementType.CONDITION
 import com.pinterest.ktlint.core.ast.ElementType.DOT_QUALIFIED_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.ELVIS
 import com.pinterest.ktlint.core.ast.ElementType.EQ
+import com.pinterest.ktlint.core.ast.ElementType.FUN
 import com.pinterest.ktlint.core.ast.ElementType.FUNCTION_LITERAL
 import com.pinterest.ktlint.core.ast.ElementType.FUN_KEYWORD
 import com.pinterest.ktlint.core.ast.ElementType.IF
@@ -57,6 +58,7 @@ import com.pinterest.ktlint.core.ast.nextLeaf
 import com.pinterest.ktlint.core.ast.nextSibling
 import com.pinterest.ktlint.core.ast.noWhiteSpaceWithNewLineInClosedRange
 import com.pinterest.ktlint.core.ast.parent
+import com.pinterest.ktlint.core.ast.prevCodeSibling
 import com.pinterest.ktlint.core.ast.prevLeaf
 import com.pinterest.ktlint.core.ast.prevSibling
 import com.pinterest.ktlint.core.initKtLintKLogger
@@ -136,21 +138,26 @@ public class IndentationRuleNew :
             )
         }
 
-//        if (node.children().none() || node.children().none { it.isWhiteSpaceWithNewline() }) {
-        if (!node.isWhiteSpaceWithNewline() && node.children().none { it.isWhiteSpaceWithNewline() }) {
-            // No direct child node contains a whitespace with new line. So this node can not be a reason to change
-            // the indent level
-            logger.trace { "Ignore node as it is not and does not contain a whitespace with newline for ${node.elementType}: ${node.textWithEscapedTabAndNewline()}" }
-            return
-        }
-
         val indentAdjustment = when {
+            node.isWhiteSpaceWithNewline() &&
+                node.prevCodeSibling()?.elementType == EQ ->
+                INCREMENT_FROM_FIRST
+            //        if (node.children().none() || node.children().none { it.isWhiteSpaceWithNewline() }) {
+            !node.isWhiteSpaceWithNewline() && node.children().none { it.isWhiteSpaceWithNewline() } -> {
+                // No direct child node contains a whitespace with new line. So this node can not be a reason to change
+                // the indent level
+                logger.trace { "Ignore node as it is not and does not contain a whitespace with newline for ${node.elementType}: ${node.textWithEscapedTabAndNewline()}" }
+                return
+            }
             node.elementType == BLOCK ||
                 node.elementType == CLASS_BODY ||
                 node.elementType == FUNCTION_LITERAL ||
-                node.elementType == VALUE_ARGUMENT_LIST ||
                 node.elementType == PROPERTY ->
                 SAME_AS_PARENT
+            node.elementType == VALUE_ARGUMENT_LIST ||
+                node.elementType == DOT_QUALIFIED_EXPRESSION ->
+                INCREMENT_FROM_FIRST
+
             false && node.elementType == FUNCTION_LITERAL -> {
                 node.logIndentRaised()
                 INCREMENT_FROM_FIRST
@@ -287,6 +294,14 @@ public class IndentationRuleNew :
 //                indentContextStack.increaseIndentOfLast()
                 INCREMENT_FROM_CURRENT
             }
+            node.elementType == EQ &&
+                node.treeParent.elementType == FUN &&
+                node.nextSibling { !it.isPartOfComment() }.isWhiteSpaceWithNewline() -> {
+                // Allow:
+                // fun foo() =
+                //     value
+                INCREMENT_FROM_CURRENT
+            }
             false && node.elementType == FUNCTION_LITERAL -> {
                 node.logIndentRaised()
                 INCREMENT_FROM_FIRST
@@ -344,7 +359,7 @@ public class IndentationRuleNew :
                 visitWhiteSpace(node, autoCorrect, emit)
                 INCREMENT_FROM_CURRENT
             }
-            node.isWhiteSpaceWithNewline() -> {
+            false && node.isWhiteSpaceWithNewline() -> {
 //                node.logIndentRaised()
                 indentContextStack.increaseIndentOfLast()
                 visitWhiteSpace(node, autoCorrect, emit)
