@@ -142,8 +142,10 @@ public class IndentationRuleNew :
         val indentAdjustment = when {
             node.isWhiteSpaceWithNewline() &&
                 (
-                    node.treeParent?.elementType == BLOCK ||
+                    node.treeParent?.elementType == BINARY_EXPRESSION ||
+                        node.treeParent?.elementType == BLOCK ||
                         node.treeParent?.elementType == CLASS_BODY ||
+                        node.treeParent?.elementType == CONDITION ||
                         node.treeParent?.elementType == DOT_QUALIFIED_EXPRESSION ||
                         node.treeParent?.elementType == PROPERTY ||
                         node.treeParent?.elementType == PROPERTY ||
@@ -171,8 +173,10 @@ public class IndentationRuleNew :
                 visitWhiteSpace(node, autoCorrect, emit)
                 INCREMENT_FROM_CURRENT
             }
-            node.elementType == BLOCK ||
+            node.elementType == BINARY_EXPRESSION ||
+                node.elementType == BLOCK ||
                 node.elementType == CLASS_BODY ||
+                node.elementType == CONDITION ||
                 node.elementType == PROPERTY ||
                 node.elementType == FUN ||
                 node.elementType == FUNCTION_LITERAL ||
