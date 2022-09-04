@@ -44,7 +44,7 @@ internal object SuppressionLocatorBuilder {
     }
 
     private fun toSuppressedRegionsLocator(hintsList: List<SuppressionHint>): SuppressionLocator =
-        { offset, ruleId, isRoot ->
+        { offset, ruleId, isRoot -> // TODO: Remove unused parameter isRoot
             hintsList
                 .filter { offset in it.range }
                 .any { hint -> hint.disabledRules.isEmpty() || hint.disabledRules.contains(ruleId) }
