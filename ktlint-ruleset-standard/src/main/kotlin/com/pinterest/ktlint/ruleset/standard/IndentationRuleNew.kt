@@ -140,6 +140,19 @@ public class IndentationRuleNew :
 
         val indentAdjustment = when {
             node.isWhiteSpaceWithNewline() &&
+                (
+                    node.treeParent?.elementType == BLOCK ||
+                        node.treeParent?.elementType == CLASS_BODY ||
+                        node.treeParent?.elementType == DOT_QUALIFIED_EXPRESSION ||
+                        node.treeParent?.elementType == PROPERTY ||
+                        node.treeParent?.elementType == FUNCTION_LITERAL ||
+                        node.treeParent?.elementType == VALUE_ARGUMENT_LIST
+                    ) -> {
+                indentContextStack.increaseIndentOfLast()
+                visitWhiteSpace(node, autoCorrect, emit)
+                INCREMENT_FROM_CURRENT
+            }
+            node.isWhiteSpaceWithNewline() &&
                 node.prevCodeSibling()?.elementType == EQ ->
                 INCREMENT_FROM_FIRST
             //        if (node.children().none() || node.children().none { it.isWhiteSpaceWithNewline() }) {
@@ -151,11 +164,12 @@ public class IndentationRuleNew :
             }
             node.elementType == BLOCK ||
                 node.elementType == CLASS_BODY ||
+                node.elementType == PROPERTY ||
                 node.elementType == FUNCTION_LITERAL ||
+                node.elementType == VALUE_ARGUMENT_LIST ||
                 node.elementType == PROPERTY ->
                 SAME_AS_PARENT
-            node.elementType == VALUE_ARGUMENT_LIST ||
-                node.elementType == DOT_QUALIFIED_EXPRESSION ->
+            node.elementType == DOT_QUALIFIED_EXPRESSION ->
                 INCREMENT_FROM_FIRST
 
             false && node.elementType == FUNCTION_LITERAL -> {
@@ -364,6 +378,9 @@ public class IndentationRuleNew :
                 indentContextStack.increaseIndentOfLast()
                 visitWhiteSpace(node, autoCorrect, emit)
                 INCREMENT_FROM_CURRENT
+            }
+            node.isWhiteSpaceWithNewline() -> {
+                visitWhiteSpace(node, autoCorrect, emit)
             }
             false && node.isWhiteSpaceWithNewline() -> {
                 val nextCodeSibling = node.nextCodeSibling()
