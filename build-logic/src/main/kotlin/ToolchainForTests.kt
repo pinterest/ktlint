@@ -3,6 +3,7 @@ import org.gradle.api.tasks.testing.Test
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.jvm.toolchain.JavaToolchainService
 import org.gradle.kotlin.dsl.register
+import org.gradle.language.base.plugins.LifecycleBasePlugin
 
 val Project.javaToolchains: JavaToolchainService
     get() = extensions.getByType(JavaToolchainService::class.java)
@@ -19,6 +20,8 @@ private fun Project.addJdkVersionTests(jdkVersion: Int) {
                 languageVersion.set(JavaLanguageVersion.of(jdkVersion))
             },
         )
+        description = "RUns the test suite on JDK $jdkVersion"
+        group = LifecycleBasePlugin.VERIFICATION_GROUP
         val jvmArgs = mutableListOf<String>()
         if (jdkVersion >= 16) {
             // https://docs.gradle.org/7.5/userguide/upgrading_version_7.html#removes_implicit_add_opens_for_test_workers
