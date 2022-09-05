@@ -20,7 +20,7 @@ private fun Project.addJdkVersionTests(jdkVersion: Int) {
                 languageVersion.set(JavaLanguageVersion.of(jdkVersion))
             },
         )
-        description = "RUns the test suite on JDK $jdkVersion"
+        description = "Runs the test suite on JDK $jdkVersion"
         group = LifecycleBasePlugin.VERIFICATION_GROUP
         val jvmArgs = mutableListOf<String>()
         if (jdkVersion >= 16) {
@@ -35,6 +35,10 @@ private fun Project.addJdkVersionTests(jdkVersion: Int) {
             jvmArgs += "-Djava.security.manager=allow"
         }
         setJvmArgs(jvmArgs)
+        (tasks.getByName("test") as Test).let { testTask ->
+            classpath = testTask.classpath
+            testClassesDirs = testTask.testClassesDirs
+        }
     }
     tasks.named("check") {
         dependsOn(jdkVersionTests)
