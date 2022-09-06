@@ -324,12 +324,8 @@ internal class IndentationRuleTest {
     fun `remove me too`() {
         val code =
             """
-            val foo =
-            listOf("foo", "bar").joinToString {
-            it.toUpperCaseAsciiOnly()
-            } + bar(
-            "foo"
-            )
+            @Deprecated("Foo")
+            val foo3 = "foo"
             """.trimIndent()
         val formattedCode =
             """

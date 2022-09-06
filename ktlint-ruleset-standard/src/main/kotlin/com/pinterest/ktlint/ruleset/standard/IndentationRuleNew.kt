@@ -34,6 +34,7 @@ import com.pinterest.ktlint.core.ast.ElementType.LAMBDA_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.LONG_STRING_TEMPLATE_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.LONG_TEMPLATE_ENTRY_END
 import com.pinterest.ktlint.core.ast.ElementType.LPAR
+import com.pinterest.ktlint.core.ast.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.core.ast.ElementType.OPEN_QUOTE
 import com.pinterest.ktlint.core.ast.ElementType.OPERATION_REFERENCE
 import com.pinterest.ktlint.core.ast.ElementType.PROPERTY
@@ -150,8 +151,6 @@ public class IndentationRuleNew :
                         node.treeParent?.elementType == CLASS ||
                         node.treeParent?.elementType == CONDITION ||
                         node.treeParent?.elementType == DOT_QUALIFIED_EXPRESSION ||
-                        node.treeParent?.elementType == PROPERTY ||
-                        node.treeParent?.elementType == PROPERTY ||
                         node.treeParent?.elementType == FUNCTION_LITERAL ||
                         node.treeParent?.elementType == TYPE_ARGUMENT_LIST ||
                         node.treeParent?.elementType == VALUE_ARGUMENT_LIST ||
@@ -161,6 +160,17 @@ public class IndentationRuleNew :
                 indentContextStack.increaseIndentOfLast()
                 visitWhiteSpace(node, autoCorrect, emit)
                 INCREMENT_FROM_CURRENT
+            }
+            node.isWhiteSpaceWithNewline() &&
+                node.treeParent?.elementType == PROPERTY -> {
+                if (node.treePrev?.elementType == MODIFIER_LIST) {
+                    visitWhiteSpace(node, autoCorrect, emit)
+                    NONE
+                } else {
+                    indentContextStack.increaseIndentOfLast()
+                    visitWhiteSpace(node, autoCorrect, emit)
+                    INCREMENT_FROM_CURRENT
+                }
             }
             node.isWhiteSpaceWithNewline() &&
                 node.treeParent?.elementType == CLASS_BODY -> {
