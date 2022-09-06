@@ -14,6 +14,7 @@ import com.pinterest.ktlint.core.ast.ElementType.BLOCK
 import com.pinterest.ktlint.core.ast.ElementType.BLOCK_COMMENT
 import com.pinterest.ktlint.core.ast.ElementType.BODY
 import com.pinterest.ktlint.core.ast.ElementType.CALL_EXPRESSION
+import com.pinterest.ktlint.core.ast.ElementType.CLASS
 import com.pinterest.ktlint.core.ast.ElementType.CLASS_BODY
 import com.pinterest.ktlint.core.ast.ElementType.CLASS_KEYWORD
 import com.pinterest.ktlint.core.ast.ElementType.CONDITION
@@ -39,6 +40,7 @@ import com.pinterest.ktlint.core.ast.ElementType.PROPERTY
 import com.pinterest.ktlint.core.ast.ElementType.PROPERTY_ACCESSOR
 import com.pinterest.ktlint.core.ast.ElementType.RBRACE
 import com.pinterest.ktlint.core.ast.ElementType.RPAR
+import com.pinterest.ktlint.core.ast.ElementType.SUPER_TYPE_LIST
 import com.pinterest.ktlint.core.ast.ElementType.TRY
 import com.pinterest.ktlint.core.ast.ElementType.TYPE_ARGUMENT_LIST
 import com.pinterest.ktlint.core.ast.ElementType.TYPE_PARAMETER_LIST
@@ -75,6 +77,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
+import org.jetbrains.kotlin.psi.psiUtil.parents
 
 private val logger = KotlinLogging.logger {}.initKtLintKLogger()
 
@@ -144,12 +147,13 @@ public class IndentationRuleNew :
                 (
                     node.treeParent?.elementType == BINARY_EXPRESSION ||
                         node.treeParent?.elementType == BLOCK ||
-                        node.treeParent?.elementType == CLASS_BODY ||
+                        node.treeParent?.elementType == CLASS ||
                         node.treeParent?.elementType == CONDITION ||
                         node.treeParent?.elementType == DOT_QUALIFIED_EXPRESSION ||
                         node.treeParent?.elementType == PROPERTY ||
                         node.treeParent?.elementType == PROPERTY ||
                         node.treeParent?.elementType == FUNCTION_LITERAL ||
+                        node.treeParent?.elementType == TYPE_ARGUMENT_LIST ||
                         node.treeParent?.elementType == VALUE_ARGUMENT_LIST ||
                         node.treeParent?.elementType == VALUE_PARAMETER_LIST ||
                         node.treeParent?.elementType == WHEN
@@ -157,6 +161,17 @@ public class IndentationRuleNew :
                 indentContextStack.increaseIndentOfLast()
                 visitWhiteSpace(node, autoCorrect, emit)
                 INCREMENT_FROM_CURRENT
+            }
+            node.isWhiteSpaceWithNewline() &&
+                node.treeParent?.elementType == CLASS_BODY -> {
+                if (node.isPrecededByMultilineSuperTypeList()) {
+                    visitWhiteSpace(node, autoCorrect, emit)
+                    NONE
+                } else {
+                    indentContextStack.increaseIndentOfLast()
+                    visitWhiteSpace(node, autoCorrect, emit)
+                    INCREMENT_FROM_CURRENT
+                }
             }
             node.elementType == EQ && node.treeParent?.elementType == FUN ->
                 INCREMENT_FROM_CURRENT
@@ -175,17 +190,20 @@ public class IndentationRuleNew :
             }
             node.elementType == BINARY_EXPRESSION ||
                 node.elementType == BLOCK ||
+                node.elementType == CLASS ||
                 node.elementType == CLASS_BODY ||
                 node.elementType == CONDITION ||
                 node.elementType == PROPERTY ||
                 node.elementType == FUN ||
                 node.elementType == FUNCTION_LITERAL ||
+                node.elementType == TYPE_ARGUMENT_LIST ||
                 node.elementType == VALUE_ARGUMENT_LIST ||
                 node.elementType == VALUE_PARAMETER_LIST ||
                 node.elementType == WHEN ||
                 node.elementType == WHEN_ENTRY ->
                 SAME_AS_PARENT
-            node.elementType == DOT_QUALIFIED_EXPRESSION ->
+            node.elementType == SUPER_TYPE_LIST ||
+                node.elementType == DOT_QUALIFIED_EXPRESSION ->
                 INCREMENT_FROM_FIRST
             //        if (node.children().none() || node.children().none { it.isWhiteSpaceWithNewline() }) {
             !node.isWhiteSpaceWithNewline() && node.children().none { it.isWhiteSpaceWithNewline() } -> {
@@ -479,6 +497,15 @@ public class IndentationRuleNew :
         }
     }
 
+    private fun ASTNode.isPrecededByMultilineSuperTypeList(): Boolean {
+        require(treeParent?.elementType == CLASS_BODY)
+        return parents()
+            .last { it.elementType == CLASS }
+            .findChildByType(SUPER_TYPE_LIST)
+            ?.textContains('\n')
+            ?: false
+    }
+
     private fun isRightHandSideOfBinaryExpressionOnSameLineAsOperatorPrecedingIt(node: ASTNode) =
         indentContextStack
             .last
@@ -502,6 +529,7 @@ public class IndentationRuleNew :
             val newIndentLevel = oldIndentLevel + 1
             addLast(
                 lastIndentContext.copy(
+                    nodeIndentLevel = oldIndentLevel,
                     childIndentLevel = newIndentLevel,
                     unchanged = false,
                 ),
@@ -579,12 +607,11 @@ public class IndentationRuleNew :
                         nextLeafElementType == LONG_TEMPLATE_ENTRY_END
                     )
         val adjustedExpectedIndent =
-            lastIndexContext.childIndentLevel +
-                if (lastIndexContext.childIndentLevel > lastIndexContext.nodeIndentLevel && isClosingNode) {
-                    -1
-                } else {
-                    0
-                }
+            if (isClosingNode) {
+                lastIndexContext.nodeIndentLevel
+            } else {
+                lastIndexContext.childIndentLevel
+            }
         // indentation with incorrect characters replaced
         val normalizedNodeIndent =
             when (indentConfig.indentStyle) {
