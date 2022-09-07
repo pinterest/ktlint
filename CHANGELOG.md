@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## Unreleased
+## [0.47.1] - 2022-09-07
 
 ### Fixed
 * Do not add trailing comma in empty parameter/argument list with comments (`trailing-comma-on-call-site`, `trailing-comma-on-declaration-site`) ([#1602](https://github.com/pinterest/ktlint/issue/1602))
@@ -13,12 +13,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 * Ant-style path pattern support ([#1601](https://github.com/pinterest/ktlint/issues/1601))
 * Apply `@file:Suppress` on all toplevel declarations ([#1623](https://github.com/pinterest/ktlint/issues/1623)) 
 
-### Added
-
 ### Changed
 * Display warning instead of error when no files are matched, and return with exit code 0. ([#1624](https://github.com/pinterest/ktlint/issues/1624))
-
-### Removed
 
 ## [0.47.0] - 2022-08-19
 
@@ -1326,6 +1322,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.47.1]: https://github.com/pinterest/ktlint/compare/0.47.0...0.47.1
 [0.47.0]: https://github.com/pinterest/ktlint/compare/0.46.1...0.47.0
 [0.46.1]: https://github.com/pinterest/ktlint/compare/0.46.0...0.46.1
 [0.46.0]: https://github.com/pinterest/ktlint/compare/0.45.2...0.46.0
