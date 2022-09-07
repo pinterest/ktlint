@@ -150,7 +150,6 @@ public class IndentationRuleNew :
                         node.treeParent?.elementType == BLOCK ||
                         node.treeParent?.elementType == CLASS ||
                         node.treeParent?.elementType == CONDITION ||
-                        node.treeParent?.elementType == DOT_QUALIFIED_EXPRESSION ||
                         node.treeParent?.elementType == FUNCTION_LITERAL ||
                         node.treeParent?.elementType == TYPE_ARGUMENT_LIST ||
                         node.treeParent?.elementType == VALUE_ARGUMENT_LIST ||
@@ -160,6 +159,20 @@ public class IndentationRuleNew :
                 indentContextStack.increaseIndentOfLast()
                 visitWhiteSpace(node, autoCorrect, emit)
                 INCREMENT_FROM_CURRENT
+            }
+            node.isWhiteSpaceWithNewline() &&
+                node.treeParent?.elementType == DOT_QUALIFIED_EXPRESSION -> {
+                val isNestedDotQualifiedExpression =
+                    node.treeParent?.firstChildNode?.elementType == DOT_QUALIFIED_EXPRESSION
+                if (isNestedDotQualifiedExpression) {
+                    indentContextStack.increaseIndentOfLast()
+                    visitWhiteSpace(node, autoCorrect, emit)
+                    NONE
+                } else {
+                    indentContextStack.increaseIndentOfLast()
+                    visitWhiteSpace(node, autoCorrect, emit)
+                    INCREMENT_FROM_CURRENT
+                }
             }
             node.isWhiteSpaceWithNewline() &&
                 node.treeParent?.elementType == PROPERTY -> {
@@ -212,9 +225,17 @@ public class IndentationRuleNew :
                 node.elementType == WHEN ||
                 node.elementType == WHEN_ENTRY ->
                 SAME_AS_PARENT
-            node.elementType == SUPER_TYPE_LIST ||
-                node.elementType == DOT_QUALIFIED_EXPRESSION ->
+            node.elementType == SUPER_TYPE_LIST ->
                 INCREMENT_FROM_FIRST
+            node.elementType == DOT_QUALIFIED_EXPRESSION -> {
+                val isNestedDotQualifiedExpression =
+                    node.treeParent?.firstChildNode?.elementType == DOT_QUALIFIED_EXPRESSION
+                if (isNestedDotQualifiedExpression) {
+                    NONE
+                } else {
+                    INCREMENT_FROM_FIRST
+                }
+            }
             //        if (node.children().none() || node.children().none { it.isWhiteSpaceWithNewline() }) {
             !node.isWhiteSpaceWithNewline() && node.children().none { it.isWhiteSpaceWithNewline() } -> {
                 // No direct child node contains a whitespace with new line. So this node can not be a reason to change
@@ -282,8 +303,8 @@ public class IndentationRuleNew :
                 }
             }
             false &&
-//            node.elementType == BINARY_EXPRESSION ||
-//                node.elementType == DOT_QUALIFIED_EXPRESSION ||
+                node.elementType == BINARY_EXPRESSION ||
+                node.elementType == DOT_QUALIFIED_EXPRESSION ||
                 node.elementType == OPERATION_REFERENCE ->
                 if (node.treeParent.elementType != CONDITION &&
                     indentContextStack.last.node.elementType != BINARY_EXPRESSION &&
@@ -486,12 +507,17 @@ public class IndentationRuleNew :
                         }
                 }
                 INCREMENT_FROM_FIRST -> {
+                    val newIndentLevel = if (parent.unchanged) {
+                        parent.nodeIndentLevel
+                    } else {
+                        parent.childIndentLevel
+                    }
                     indentContextStack
                         .addLast(
                             NewIndentContext(
                                 node = node,
-                                nodeIndentLevel = parent.nodeIndentLevel + 1,
-                                childIndentLevel = parent.nodeIndentLevel + 1,
+                                nodeIndentLevel = newIndentLevel,
+                                childIndentLevel = newIndentLevel,
                                 unchanged = true,
                             ),
                         ).also {
