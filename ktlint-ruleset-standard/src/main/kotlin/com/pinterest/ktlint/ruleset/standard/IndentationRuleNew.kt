@@ -148,7 +148,6 @@ public class IndentationRuleNew :
                 (
                     node.treeParent?.elementType == BINARY_EXPRESSION ||
                         node.treeParent?.elementType == BLOCK ||
-                        node.treeParent?.elementType == CLASS ||
                         node.treeParent?.elementType == CONDITION ||
                         node.treeParent?.elementType == FUNCTION_LITERAL ||
                         node.treeParent?.elementType == TYPE_ARGUMENT_LIST ||
@@ -175,7 +174,10 @@ public class IndentationRuleNew :
                 }
             }
             node.isWhiteSpaceWithNewline() &&
-                node.treeParent?.elementType == PROPERTY -> {
+                (
+                    node.treeParent?.elementType == CLASS ||
+                        node.treeParent?.elementType == PROPERTY
+                    ) -> {
                 if (node.treePrev?.elementType == MODIFIER_LIST) {
                     visitWhiteSpace(node, autoCorrect, emit)
                     NONE
