@@ -213,8 +213,7 @@ public class IndentationRuleNew :
                 visitWhiteSpace(node, autoCorrect, emit)
                 INCREMENT_FROM_CURRENT
             }
-            node.elementType == BINARY_EXPRESSION ||
-                node.elementType == BLOCK ||
+            node.elementType == BLOCK ||
                 node.elementType == CLASS ||
                 node.elementType == CLASS_BODY ||
                 node.elementType == CONDITION ||
@@ -229,6 +228,17 @@ public class IndentationRuleNew :
                 SAME_AS_PARENT
             node.elementType == SUPER_TYPE_LIST ->
                 INCREMENT_FROM_FIRST
+            node.elementType == BINARY_EXPRESSION -> {
+                if (node.treeParent?.elementType == BINARY_EXPRESSION) {
+                    if (node.treeParent?.findChildByType(OPERATION_REFERENCE)?.text == "to") {
+                        INCREMENT_FROM_CURRENT
+                    } else {
+                        NONE
+                    }
+                } else {
+                    SAME_AS_PARENT
+                }
+            }
             node.elementType == DOT_QUALIFIED_EXPRESSION -> {
                 val isNestedDotQualifiedExpression =
                     node.treeParent?.firstChildNode?.elementType == DOT_QUALIFIED_EXPRESSION

@@ -304,19 +304,15 @@ internal class IndentationRuleTest {
     fun `remove me first`() {
         val code =
             """
-            fun foo1() =
-                "Sum of uneven numbers = $.{
-                    listOf(1,2,3)
-                        .filter { it % 2 == 0 }
-                        .sum()
-                }"
-            fun foo2() = "Sum of uneven numbers = $.{
-            listOf(1,2,3)
-                .filter { it % 2 == 0 }
-                .sum()
-            }"
+            fun foo(i1: Int, i2: Int) =
+            if (i1 > 0 &&
+            i2 < 0
+            ) {
+            1
+            } else {
+            2
+            }
             """.trimIndent()
-                .replacePlaceholderWithStringTemplate()
         val formattedCode =
             """
             xxx
@@ -327,23 +323,17 @@ internal class IndentationRuleTest {
 
     @Test
     fun `remove me too`() {
-        val code: String =
+        val code =
             """
-            fun foo1(bar: String) =
-            bar.uppercase(Locale.getDefault())
-            .trim()
-            .length.also {
-            println("done")
-            }
+            val foo1 =
+            "bar" to
+            "a" +
+            "b" +
+            "c"
             """.trimIndent()
         val formattedCode =
             """
-            fun foo1(bar: String) =
-                bar.uppercase(Locale.getDefault())
-                    .trim()
-                    .length.also {
-                        println("done")
-                    }
+            xxx
             """.trimIndent()
 //        indentationRuleAssertThat(code)
         newIndentationRuleAssertThat(code)
