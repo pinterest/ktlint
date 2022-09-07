@@ -62,6 +62,7 @@ githubRelease {
   repo "ktlint"
   tagName project.properties['VERSION_NAME']
   releaseName project.properties['VERSION_NAME']
+  targetCommitish "master"
   releaseAssets project.files({
     // "shadowJarExecutableChecksum" task does not declare checksum files
     // as output, only the whole output directory. As it uses the same directory
