@@ -12,29 +12,20 @@ import com.pinterest.ktlint.core.ast.ElementType.ARROW
 import com.pinterest.ktlint.core.ast.ElementType.BINARY_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.BLOCK
 import com.pinterest.ktlint.core.ast.ElementType.BLOCK_COMMENT
-import com.pinterest.ktlint.core.ast.ElementType.BODY
-import com.pinterest.ktlint.core.ast.ElementType.CALL_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.CLASS
 import com.pinterest.ktlint.core.ast.ElementType.CLASS_BODY
-import com.pinterest.ktlint.core.ast.ElementType.CLASS_KEYWORD
 import com.pinterest.ktlint.core.ast.ElementType.CONDITION
 import com.pinterest.ktlint.core.ast.ElementType.DOT_QUALIFIED_EXPRESSION
-import com.pinterest.ktlint.core.ast.ElementType.ELVIS
 import com.pinterest.ktlint.core.ast.ElementType.EQ
 import com.pinterest.ktlint.core.ast.ElementType.FUN
 import com.pinterest.ktlint.core.ast.ElementType.FUNCTION_LITERAL
-import com.pinterest.ktlint.core.ast.ElementType.FUN_KEYWORD
-import com.pinterest.ktlint.core.ast.ElementType.IF
 import com.pinterest.ktlint.core.ast.ElementType.KDOC
 import com.pinterest.ktlint.core.ast.ElementType.KDOC_END
 import com.pinterest.ktlint.core.ast.ElementType.KDOC_LEADING_ASTERISK
 import com.pinterest.ktlint.core.ast.ElementType.KDOC_START
-import com.pinterest.ktlint.core.ast.ElementType.LAMBDA_ARGUMENT
-import com.pinterest.ktlint.core.ast.ElementType.LAMBDA_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.LONG_STRING_TEMPLATE_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.LONG_TEMPLATE_ENTRY_END
 import com.pinterest.ktlint.core.ast.ElementType.LONG_TEMPLATE_ENTRY_START
-import com.pinterest.ktlint.core.ast.ElementType.LPAR
 import com.pinterest.ktlint.core.ast.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.core.ast.ElementType.OPEN_QUOTE
 import com.pinterest.ktlint.core.ast.ElementType.OPERATION_REFERENCE
@@ -44,28 +35,21 @@ import com.pinterest.ktlint.core.ast.ElementType.RBRACE
 import com.pinterest.ktlint.core.ast.ElementType.RPAR
 import com.pinterest.ktlint.core.ast.ElementType.STRING_TEMPLATE
 import com.pinterest.ktlint.core.ast.ElementType.SUPER_TYPE_LIST
-import com.pinterest.ktlint.core.ast.ElementType.TRY
 import com.pinterest.ktlint.core.ast.ElementType.TYPE_ARGUMENT_LIST
-import com.pinterest.ktlint.core.ast.ElementType.TYPE_PARAMETER_LIST
-import com.pinterest.ktlint.core.ast.ElementType.VALUE_ARGUMENT
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_ARGUMENT_LIST
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.core.ast.ElementType.WHEN
 import com.pinterest.ktlint.core.ast.ElementType.WHEN_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.core.ast.children
-import com.pinterest.ktlint.core.ast.firstChildLeafOrSelf
 import com.pinterest.ktlint.core.ast.isPartOfComment
 import com.pinterest.ktlint.core.ast.isRoot
 import com.pinterest.ktlint.core.ast.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.core.ast.isWhiteSpaceWithoutNewline
-import com.pinterest.ktlint.core.ast.nextCodeSibling
 import com.pinterest.ktlint.core.ast.nextLeaf
 import com.pinterest.ktlint.core.ast.nextSibling
-import com.pinterest.ktlint.core.ast.noWhiteSpaceWithNewLineInClosedRange
 import com.pinterest.ktlint.core.ast.parent
 import com.pinterest.ktlint.core.ast.prevCodeSibling
-import com.pinterest.ktlint.core.ast.prevLeaf
 import com.pinterest.ktlint.core.ast.prevSibling
 import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ktlint.ruleset.standard.IndentAdjustment.DECREMENT_FROM_CURRENT
@@ -79,7 +63,6 @@ import mu.KotlinLogging
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
-import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
 import org.jetbrains.kotlin.psi.psiUtil.parents
 
 private val logger = KotlinLogging.logger {}.initKtLintKLogger()
@@ -267,128 +250,6 @@ public class IndentationRuleNew :
                 logger.trace { "Ignore node as it is not and does not contain a whitespace with newline for ${node.elementType}: ${node.textWithEscapedTabAndNewline()}" }
                 return
             }
-
-            false && node.elementType == FUNCTION_LITERAL -> {
-                node.logIndentRaised()
-                INCREMENT_FROM_FIRST
-            }
-            false && INDENT_ON_ELEMENT_TYPE.contains(node.elementType) -> {
-                node.logIndentRaised()
-                INCREMENT_FROM_FIRST
-            }
-            false && node.elementType == PROPERTY -> {
-                if (node.findChildByType(PROPERTY_ACCESSOR) != null) {
-                    node.logIndentRaised()
-                    INCREMENT_FROM_FIRST
-                } else {
-                    NONE
-                }
-            }
-            false && node.elementType == BLOCK && node.treeParent.elementType == PROPERTY_ACCESSOR -> {
-                node.logIndentRaised()
-                indentContextStack.increaseIndentOfLast()
-                INCREMENT_FROM_CURRENT
-            }
-            false && node.elementType == CLASS_KEYWORD -> {
-                // Only starting from the class keyword, the remaining child elements needs to be indented. The
-                // modifiers which precede this keyword should not be indented.
-//                indentContextStack.increaseIndentOfLast()
-                INCREMENT_FROM_CURRENT
-            }
-            false && node.elementType == FUN_KEYWORD -> {
-                // Only starting from the fun keyword the remaining child elements needs to be indented. The modifiers
-                // which precede this keyword should not be indented.
-                indentContextStack.increaseIndentOfLast()
-                INCREMENT_FROM_CURRENT
-            }
-            false &&
-                node.elementType == BINARY_EXPRESSION &&
-                node.textContains('\n') -> {
-//                node.children().any { !it.isPartOfComment() && it.isWhiteSpaceWithNewline() } ->
-//                &&
-//                indentContextStack.last.node.lineNumber() != node.lineNumber() ->
-                if (indentContextStack.last.node.elementType == PROPERTY &&
-                    noWhiteSpaceWithNewLineInClosedRange(
-                            indentContextStack.last.node.firstChildLeafOrSelf(),
-                            node.firstChildLeafOrSelf(),
-                        )
-                ) {
-                    // A call expression on the right-hand side does not take another indention if the indentation was
-                    // already raised for the left-hand side given that it starts on the same line as that left hand
-                    // side node.
-                    // val foobar =
-                    //     foo.doSomeThing {
-                    //        bar
-                    //     }
-                    Unit
-                } else {
-                    node.logIndentRaised()
-                    INCREMENT_FROM_FIRST
-                }
-            }
-            false &&
-                node.elementType == BINARY_EXPRESSION ||
-                node.elementType == DOT_QUALIFIED_EXPRESSION ||
-                node.elementType == OPERATION_REFERENCE ->
-                if (node.treeParent.elementType != CONDITION &&
-                    indentContextStack.last.node.elementType != BINARY_EXPRESSION &&
-//                    indentContextStack.last.node.elementType != DOT_QUALIFIED_EXPRESSION &&
-                    indentContextStack.last.node.elementType != OPERATION_REFERENCE &&
-                    !(
-                        node.elementType == BINARY_EXPRESSION &&
-                            node == indentContextStack.last.node.lastChildNode &&
-                            noWhiteSpaceWithNewLineInClosedRange(
-                                    indentContextStack.last.node.firstChildLeafOrSelf(),
-                                    node.firstChildLeafOrSelf(),
-                                )
-                        )
-//                    indentContextStack.last.node.elementType != PROPERTY
-                ) {
-                    node.logIndentRaised()
-                    INCREMENT_FROM_FIRST
-                } else {
-                    Unit
-                }
-            false && node.elementType == CALL_EXPRESSION &&
-                node.textContains('\n') ->
-//                node.children().any { !it.isPartOfComment() && it.isWhiteSpaceWithNewline() } ->
-//                &&
-//                indentContextStack.last.node.lineNumber() != node.lineNumber() ->
-                if (indentContextStack.last.node.elementType == DOT_QUALIFIED_EXPRESSION &&
-                    noWhiteSpaceWithNewLineInClosedRange(
-                            indentContextStack.last.node.firstChildLeafOrSelf(),
-                            node.firstChildLeafOrSelf(),
-                        )
-                ) {
-                    // A call expression on the right-hand side does not take another indention if the indentation was
-                    // already raised for the left-hand side given that it starts on the same line as that left hand
-                    // side node.
-                    // val foobar =
-                    //     foo.doSomeThing {
-                    //        bar
-                    //     }
-                    Unit
-                } else if (isRightHandSideOfBinaryExpressionOnSameLineAsOperatorPrecedingIt(node)) {
-                    Unit
-                } else {
-                    node.logIndentRaised()
-                    INCREMENT_FROM_FIRST
-                }
-            false && node.elementType == DOT_QUALIFIED_EXPRESSION || node.elementType == CALL_EXPRESSION ->
-                if (node.treeParent.elementType != node.elementType) {
-                    INCREMENT_FROM_FIRST
-                } else if (
-                    indentContextStack.last.node.elementType != DOT_QUALIFIED_EXPRESSION &&
-                    indentContextStack.last.node.elementType != BINARY_EXPRESSION &&
-                    indentContextStack.last.node.elementType != CALL_EXPRESSION
-//                    indentContextStack.last.node.lineNumber() != node.lineNumber()
-//                    node.parents().none { it == indentContextStack.last.node }
-                ) {
-                    node.logIndentRaised()
-                    INCREMENT_FROM_FIRST
-                } else {
-                    Unit
-                }
             node.elementType == EQ &&
                 node.treeParent.elementType == PROPERTY &&
                 node.treeParent.findChildByType(PROPERTY_ACCESSOR) == null &&
@@ -412,90 +273,13 @@ public class IndentationRuleNew :
                 //     value
                 INCREMENT_FROM_CURRENT
             }
-            false && node.elementType == FUNCTION_LITERAL -> {
-                node.logIndentRaised()
-                INCREMENT_FROM_FIRST
-                node
-                    .chainedParent(LAMBDA_EXPRESSION, VALUE_ARGUMENT)
-                    ?.prevSibling { !it.isPartOfComment() }
-                    .takeIf { prevSibling -> prevSibling?.elementType == LPAR || prevSibling.isWhiteSpaceWithoutNewline() }
-                    ?.let {
-                        // Allow
-                        // foo({
-                        //     ...
-                        // }, {
-                        //     ...
-                        // })
-                        node.logIndentLowered()
-                        DECREMENT_FROM_CURRENT
-                    }
-                node
-                    .chainedParent(LAMBDA_EXPRESSION, LAMBDA_ARGUMENT)
-                    ?.prevSibling { !it.isPartOfComment() }
-                    .takeIf { prevSibling -> prevSibling?.elementType == LPAR || prevSibling.isWhiteSpaceWithoutNewline() }
-                    ?.let {
-                        node.logIndentLowered()
-                        DECREMENT_FROM_CURRENT
-                    }
-            }
-            false && node.elementType == WHEN -> {
-                // when ... {
-                //     ...
-                // }
-                node.logIndentRaised()
-                INCREMENT_FROM_CURRENT
-            }
-            false && node.elementType == LONG_STRING_TEMPLATE_ENTRY &&
-                node.treeParent.prevSibling { !it.isPartOfComment() }.isWhiteSpaceWithNewline() -> {
-                node.logIndentRaised()
-                INCREMENT_FROM_CURRENT
-            }
-            false && node.elementType == BLOCK &&
-                node.treeParent?.elementType == WHEN_ENTRY -> {
-                node.logIndentRaised()
-                INCREMENT_FROM_CURRENT
-            }
-            false && node.isWhiteSpaceWithNewline() &&
-                node.prevLeaf()?.elementType == ARROW &&
-                node.treeParent?.elementType == WHEN_ENTRY -> {
-                // Condition and value inside when entry may be placed on separate lines
-                // when ... {
-                //     condition ->
-                //         value1
-                //     else ->
-                //         value2
-                // }
-                node.logIndentRaised()
-                visitWhiteSpace(node, autoCorrect, emit)
-                INCREMENT_FROM_CURRENT
-            }
-            false && node.isWhiteSpaceWithNewline() -> {
-//                node.logIndentRaised()
-                indentContextStack.increaseIndentOfLast()
-                visitWhiteSpace(node, autoCorrect, emit)
-                INCREMENT_FROM_CURRENT
-            }
             node.isWhiteSpaceWithNewline() -> {
                 visitWhiteSpace(node, autoCorrect, emit)
-            }
-            false && node.isWhiteSpaceWithNewline() -> {
-                val nextCodeSibling = node.nextCodeSibling()
-                when {
-                    nextCodeSibling == null -> Unit
-                    nextCodeSibling.elementType == OPERATION_REFERENCE &&
-                        nextCodeSibling.firstChildNode?.elementType == ELVIS &&
-                        indentContextStack.last.node.elementType != BINARY_EXPRESSION -> {
-                        // Indent the elvis operator itself
-                        node.logIndentRaised()
-                        // Indent complex multiline value/expression after the elvis operator
-                        indentContextStack.increaseIndentOfLast()
-                        INCREMENT_FROM_CURRENT
-                    }
-                }
-                visitWhiteSpace(node, autoCorrect, emit)
+                NONE
             }
             else -> {
                 logger.trace { "No processing for ${node.elementType}: ${node.textWithEscapedTabAndNewline()}" }
+                NONE
             }
         }
 
@@ -510,10 +294,6 @@ public class IndentationRuleNew :
                 ),
             )
         } else {
-//            val parentIndentContext = indentContextStack.last()
-//            require(parentIndentContext.node == node.treeParent) {
-//                "Stack may not have been changed"
-//            }
             val parent = indentContextStack.peekLast()
             when (indentAdjustment) {
                 NONE -> Unit
@@ -566,19 +346,6 @@ public class IndentationRuleNew :
             ?: false
     }
 
-    private fun isRightHandSideOfBinaryExpressionOnSameLineAsOperatorPrecedingIt(node: ASTNode) =
-        indentContextStack
-            .last
-            .node
-            .takeIf { it.elementType == BINARY_EXPRESSION }
-            ?.findChildByType(OPERATION_REFERENCE)
-            ?.let { operationReference ->
-                noWhiteSpaceWithNewLineInClosedRange(
-                    operationReference.firstChildLeafOrSelf(),
-                    node.firstChildLeafOrSelf(),
-                )
-            } ?: false
-
     /**
      * Increase indent for yet unvisited child nodes of the last node on the stack.
      */
@@ -600,15 +367,6 @@ public class IndentationRuleNew :
             }
         }
     }
-
-    /**
-     * Decrease indent for yet unvisited child nodes of the last node on the stack.
-     */
-//    private fun Deque<NewIndentContext>.decreaseIndentOfLast() {
-//        val lastIndentContext = removeLast()
-//        addLast(lastIndentContext.copy(childIndentLevel = lastIndentContext.childIndentLevel - 1))
-//        lastIndentContext.node.logIndentLowered()
-//    }
 
     override fun afterVisitChildNodes(
         node: ASTNode,
@@ -737,17 +495,6 @@ public class IndentationRuleNew :
         }
     }
 
-    private companion object {
-        val INDENT_ON_ELEMENT_TYPE = arrayOf(
-            BODY,
-//            CALL_EXPRESSION,
-            IF,
-            TRY,
-            TYPE_ARGUMENT_LIST,
-            TYPE_PARAMETER_LIST,
-        )
-    }
-
     private data class NewIndentContext(
         /**
          * The node on the indent context is based.
@@ -778,20 +525,6 @@ private fun ASTNode.isKDocIndent() =
         false
     }
 
-private fun ASTNode.chainedParent(vararg parentElementTypes: IElementType): ASTNode? {
-    var currentNode = this
-    val parentElementTypeIterator = parentElementTypes.iterator()
-    while (currentNode != null && parentElementTypeIterator.hasNext()) {
-        val parentElementType = parentElementTypeIterator.next()
-        if (currentNode.treeParent.elementType == parentElementType) {
-            currentNode = currentNode.treeParent
-        } else {
-            return null
-        }
-    }
-    return currentNode
-}
-
 private fun ASTNode.textWithEscapedTabAndNewline(): String {
     val (prefix, suffix) = if (this.elementType == WHITE_SPACE) {
         Pair("[", "]")
@@ -807,13 +540,7 @@ private fun ASTNode.textWithEscapedTabAndNewline(): String {
 }
 
 private fun ASTNode.processedButNoIndentationChangedNeeded() =
-    logger.trace { "No identation change required for $elementType: ${textWithEscapedTabAndNewline()}" }
-
-private fun ASTNode.logIndentRaised() =
-    logger.trace { "Raised indent while processing $elementType: ${textWithEscapedTabAndNewline()}" }
-
-private fun ASTNode.logIndentLowered() =
-    logger.trace { "Lowered indent while processing $elementType: ${textWithEscapedTabAndNewline()}" }
+    logger.trace { "No indentation change required for $elementType: ${textWithEscapedTabAndNewline()}" }
 
 private enum class IndentAdjustment {
     NONE,
