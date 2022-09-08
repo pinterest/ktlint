@@ -304,13 +304,13 @@ internal class IndentationRuleTest {
     fun `remove me first`() {
         val code =
             """
-            fun foo2() = "Sum of uneven numbers = $.{
-            listOf(1,2,3)
-                .filter { it % 2 == 0 }
-                .sum()
-            }"
+            val foo =
+                false ||
+                    (
+                        true ||
+                            false
+                        )
             """.trimIndent()
-                .replacePlaceholderWithStringTemplate()
         val formattedCode =
             """
             xxx
@@ -1531,6 +1531,36 @@ internal class IndentationRuleTest {
     @Nested
     inner class NestedConditionals {
         @Test
+        fun `Given a simple nested conditional`() {
+            val code =
+                """
+                val foo =
+                false ||
+                (
+                true ||
+                false
+                )
+                """.trimIndent()
+            val formattedCode =
+                """
+                val foo =
+                    false ||
+                        (
+                            true ||
+                                false
+                            )
+                """.trimIndent()
+            newIndentationRuleAssertThat(code)
+                .hasLintViolations(
+                    LintViolation(2, 1, "Unexpected indentation (0) (should be 4)"),
+                    LintViolation(3, 1, "Unexpected indentation (0) (should be 8)"),
+                    LintViolation(4, 1, "Unexpected indentation (0) (should be 12)"),
+                    LintViolation(5, 1, "Unexpected indentation (0) (should be 16)"),
+                    LintViolation(6, 1, "Unexpected indentation (0) (should be 12)"),
+                ).isFormattedAs(formattedCode)
+        }
+
+        @Test
         fun `Given a method chain combined with nested conditionals`() {
             val code =
                 """
@@ -1564,7 +1594,7 @@ internal class IndentationRuleTest {
                             ) ||
                         false
                 """.trimIndent()
-            indentationRuleAssertThat(code)
+            newIndentationRuleAssertThat(code)
                 .hasLintViolations(
                     LintViolation(2, 1, "Unexpected indentation (0) (should be 4)"),
                     LintViolation(3, 1, "Unexpected indentation (0) (should be 8)"),

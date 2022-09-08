@@ -29,6 +29,7 @@ import com.pinterest.ktlint.core.ast.ElementType.LONG_TEMPLATE_ENTRY_START
 import com.pinterest.ktlint.core.ast.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.core.ast.ElementType.OPEN_QUOTE
 import com.pinterest.ktlint.core.ast.ElementType.OPERATION_REFERENCE
+import com.pinterest.ktlint.core.ast.ElementType.PARENTHESIZED
 import com.pinterest.ktlint.core.ast.ElementType.PROPERTY
 import com.pinterest.ktlint.core.ast.ElementType.PROPERTY_ACCESSOR
 import com.pinterest.ktlint.core.ast.ElementType.RBRACE
@@ -135,6 +136,7 @@ public class IndentationRuleNew :
                         node.treeParent?.elementType == BLOCK ||
                         node.treeParent?.elementType == CONDITION ||
                         node.treeParent?.elementType == FUNCTION_LITERAL ||
+                        node.treeParent?.elementType == PARENTHESIZED ||
                         node.treeParent?.elementType == TYPE_ARGUMENT_LIST ||
                         node.treeParent?.elementType == VALUE_ARGUMENT_LIST ||
                         node.treeParent?.elementType == VALUE_PARAMETER_LIST ||
@@ -215,6 +217,7 @@ public class IndentationRuleNew :
                 node.elementType == FUNCTION_LITERAL ||
                 node.elementType == STRING_TEMPLATE ||
                 node.elementType == LONG_STRING_TEMPLATE_ENTRY ||
+                node.elementType == PARENTHESIZED ||
                 node.elementType == TYPE_ARGUMENT_LIST ||
                 node.elementType == VALUE_ARGUMENT_LIST ||
                 node.elementType == VALUE_PARAMETER_LIST ||
@@ -420,7 +423,10 @@ public class IndentationRuleNew :
         val isClosingNode =
             nextLeaf == lastIndexContext.node.lastChildNode &&
                 (
-                    nextLeafElementType == RPAR ||
+                    (
+                        nextLeafElementType == RPAR &&
+                            nextLeaf.treeParent?.elementType != PARENTHESIZED
+                        ) ||
                         nextLeafElementType == RBRACE ||
                         nextLeafElementType == LONG_TEMPLATE_ENTRY_END
                     )
