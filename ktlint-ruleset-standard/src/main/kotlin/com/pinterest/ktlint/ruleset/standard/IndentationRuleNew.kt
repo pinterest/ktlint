@@ -33,6 +33,7 @@ import com.pinterest.ktlint.core.ast.ElementType.LAMBDA_ARGUMENT
 import com.pinterest.ktlint.core.ast.ElementType.LAMBDA_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.LONG_STRING_TEMPLATE_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.LONG_TEMPLATE_ENTRY_END
+import com.pinterest.ktlint.core.ast.ElementType.LONG_TEMPLATE_ENTRY_START
 import com.pinterest.ktlint.core.ast.ElementType.LPAR
 import com.pinterest.ktlint.core.ast.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.core.ast.ElementType.OPEN_QUOTE
@@ -41,6 +42,7 @@ import com.pinterest.ktlint.core.ast.ElementType.PROPERTY
 import com.pinterest.ktlint.core.ast.ElementType.PROPERTY_ACCESSOR
 import com.pinterest.ktlint.core.ast.ElementType.RBRACE
 import com.pinterest.ktlint.core.ast.ElementType.RPAR
+import com.pinterest.ktlint.core.ast.ElementType.STRING_TEMPLATE
 import com.pinterest.ktlint.core.ast.ElementType.SUPER_TYPE_LIST
 import com.pinterest.ktlint.core.ast.ElementType.TRY
 import com.pinterest.ktlint.core.ast.ElementType.TYPE_ARGUMENT_LIST
@@ -198,8 +200,6 @@ public class IndentationRuleNew :
                     INCREMENT_FROM_CURRENT
                 }
             }
-            node.elementType == EQ && node.treeParent?.elementType == FUN ->
-                INCREMENT_FROM_CURRENT
             node.isWhiteSpaceWithNewline() &&
                 node.prevCodeSibling()?.elementType == EQ &&
                 node.treeParent?.elementType == FUN -> {
@@ -213,6 +213,16 @@ public class IndentationRuleNew :
                 visitWhiteSpace(node, autoCorrect, emit)
                 INCREMENT_FROM_CURRENT
             }
+            node.elementType == LONG_STRING_TEMPLATE_ENTRY &&
+                node.treeParent.prevSibling { !it.isPartOfComment() }?.isWhiteSpaceWithNewline() == true -> {
+                SAME_AS_PARENT
+            }
+            node.isWhiteSpaceWithNewline() &&
+                node.prevCodeSibling()?.elementType == LONG_TEMPLATE_ENTRY_START -> {
+                indentContextStack.increaseIndentOfLast()
+                visitWhiteSpace(node, autoCorrect, emit)
+                INCREMENT_FROM_CURRENT
+            }
             node.elementType == BLOCK ||
                 node.elementType == CLASS ||
                 node.elementType == CLASS_BODY ||
@@ -220,6 +230,8 @@ public class IndentationRuleNew :
                 node.elementType == PROPERTY ||
                 node.elementType == FUN ||
                 node.elementType == FUNCTION_LITERAL ||
+                node.elementType == STRING_TEMPLATE ||
+                node.elementType == LONG_STRING_TEMPLATE_ENTRY ||
                 node.elementType == TYPE_ARGUMENT_LIST ||
                 node.elementType == VALUE_ARGUMENT_LIST ||
                 node.elementType == VALUE_PARAMETER_LIST ||
