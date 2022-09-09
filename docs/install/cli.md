@@ -38,7 +38,7 @@ curl -sS https://keybase.io/shyiko/pgp_keys.asc | gpg --import && gpg --verify k
 
 `ktlint` can be installed via several OS specific package managers.
 
-Install with [brew on maxOC](https://brew.sh/) or [Homebrew on Linux](https://docs.brew.sh/Homebrew-on-Linux)
+Install with [brew on macOS](https://brew.sh/) or [Homebrew on Linux](https://docs.brew.sh/Homebrew-on-Linux)
 ```sh
 brew install ktlint
 ```
