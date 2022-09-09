@@ -51,7 +51,7 @@ See [cli usage](../cli) for arguments that can be supplied to `ktlint`.
         <dependency>
             <groupId>com.pinterest</groupId>
             <artifactId>ktlint</artifactId>
-            <version>0.47.0</version>
+            <version>0.47.1</version>
         </dependency>
         <!-- additional 3rd party ruleset(s) can be specified here -->
     </dependencies>
@@ -110,7 +110,7 @@ configurations {
 }
 
 dependencies {
-    ktlint("com.pinterest:ktlint:0.47.0") {
+    ktlint("com.pinterest:ktlint:0.47.1") {
         attributes {
             attribute(Bundling.BUNDLING_ATTRIBUTE, getObjects().named(Bundling, Bundling.EXTERNAL))
         }
@@ -154,7 +154,7 @@ The configuration below, defines following task:
 val ktlint by configurations.creating
 
 dependencies {
-    ktlint("com.pinterest:ktlint:0.47.0") {
+    ktlint("com.pinterest:ktlint:0.47.1") {
         attributes {
             attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.EXTERNAL))
         }
