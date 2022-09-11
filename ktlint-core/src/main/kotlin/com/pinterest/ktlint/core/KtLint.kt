@@ -205,9 +205,8 @@ public object KtLint {
     ) {
         if (rule.shouldContinueTraversalOfAST()) {
             try {
-                if (!suppressedRegionLocator(node.startOffset, fqRuleId, node === rootNode)) {
-                    rule.beforeVisitChildNodes(node, autoCorrect, emit)
-                }
+                val suppressedBefore = suppressedRegionLocator(node.startOffset, fqRuleId, node === rootNode)
+                rule.beforeVisitChildNodes(node, autoCorrect && !suppressedBefore, if (suppressedBefore) ignoredEmit else emit)
                 if (!rule.runsOnRootNodeOnly() && rule.shouldContinueTraversalOfAST()) {
                     node
                         .getChildren(null)
@@ -215,14 +214,16 @@ public object KtLint {
                             // https://github.com/shyiko/ktlint/issues/158#issuecomment-462728189
                             // fixme: enforcing suppression based on node.startOffset is wrong (not just because not all nodes are leaves
                             //  but because rules are free to emit (and fix!) errors at any position)
-                            if (!suppressedRegionLocator(childNode.startOffset, fqRuleId, childNode === rootNode)) {
-                                this.executeRuleOnNodeRecursively(childNode, rule, fqRuleId, autoCorrect, emit)
-                            }
+                            val suppressChild = suppressedRegionLocator(childNode.startOffset, fqRuleId, childNode === rootNode)
+                            this.executeRuleOnNodeRecursively(
+                                childNode, rule, fqRuleId,
+                                autoCorrect && !suppressChild,
+                                if (suppressChild) ignoredEmit else emit,
+                            )
                         }
                 }
-                if (!suppressedRegionLocator(node.startOffset, fqRuleId, node === rootNode)) {
-                    rule.afterVisitChildNodes(node, autoCorrect, emit)
-                }
+                val suppressedAfter = suppressedRegionLocator(node.startOffset, fqRuleId, node === rootNode)
+                rule.afterVisitChildNodes(node, autoCorrect && !suppressedAfter, if (suppressedAfter) ignoredEmit else emit)
             } catch (e: Exception) {
                 if (autoCorrect) {
                     // line/col cannot be reliably mapped as exception might originate from a node not present in the
@@ -448,3 +449,5 @@ internal class RuleRunner(private val provider: RuleProvider) {
 @Deprecated(message = "Remove when 'ruleSets' are removed")
 private fun createStaticRuleProvider(rule: Rule) =
     RuleProvider { rule }
+
+private val ignoredEmit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit = { _, _, _ -> }
