@@ -8,10 +8,10 @@ import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentSizePro
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentStyleProperty
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
-import com.pinterest.ktlint.core.ast.ElementType.ARROW
 import com.pinterest.ktlint.core.ast.ElementType.BINARY_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.BLOCK
 import com.pinterest.ktlint.core.ast.ElementType.BLOCK_COMMENT
+import com.pinterest.ktlint.core.ast.ElementType.CALL_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.CLASS
 import com.pinterest.ktlint.core.ast.ElementType.CLASS_BODY
 import com.pinterest.ktlint.core.ast.ElementType.CONDITION
@@ -24,9 +24,9 @@ import com.pinterest.ktlint.core.ast.ElementType.KDOC
 import com.pinterest.ktlint.core.ast.ElementType.KDOC_END
 import com.pinterest.ktlint.core.ast.ElementType.KDOC_LEADING_ASTERISK
 import com.pinterest.ktlint.core.ast.ElementType.KDOC_START
+import com.pinterest.ktlint.core.ast.ElementType.LAMBDA_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.LONG_STRING_TEMPLATE_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.LONG_TEMPLATE_ENTRY_END
-import com.pinterest.ktlint.core.ast.ElementType.LONG_TEMPLATE_ENTRY_START
 import com.pinterest.ktlint.core.ast.ElementType.OPEN_QUOTE
 import com.pinterest.ktlint.core.ast.ElementType.PARENTHESIZED
 import com.pinterest.ktlint.core.ast.ElementType.PROPERTY
@@ -42,6 +42,7 @@ import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.core.ast.ElementType.WHEN
 import com.pinterest.ktlint.core.ast.ElementType.WHEN_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.WHILE
+import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.core.ast.children
 import com.pinterest.ktlint.core.ast.isPartOfComment
 import com.pinterest.ktlint.core.ast.isRoot
@@ -60,6 +61,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.psi.psiUtil.leaves
+import org.jetbrains.kotlin.psi.psiUtil.parents
 
 private val logger = KotlinLogging.logger {}.initKtLintKLogger()
 
@@ -134,36 +136,77 @@ public class IndentationRuleNew :
         }
          */
 
-        if (node.isWhiteSpaceWithNewline()) {
-            if (indentContextStack.peekLast()?.unchanged == true) {
-                val lastIndentContext = indentContextStack.removeLast()
-                indentContextStack.addLast(
-                    lastIndentContext.copy(unchanged = false),
+        if (node.treeParent?.elementType == BINARY_EXPRESSION) {
+            val binaryExpression = node.treeParent
+            if (node == binaryExpression.firstChildNode) {
+                startIndentContextSameAsParent(
+                    fromAstNode = node,
+                    toAstNode = node.lastChildLeafOrSelf(),
                 )
+                Unit
+            } else if (node.elementType == WHITE_SPACE || node == binaryExpression.lastChildNode) {
+                if (isBinaryExpressionWrappedInCondition(node)) {
+                    startIndentContext(
+                        fromAstNode = node,
+                        toAstNode = binaryExpression.lastChildLeafOrSelf(),
+                        nodeIndentLevel = 1,
+                        childIndentLevel = 2,
+                    )
+                    Unit
+                } else {
+                    startIndentContextSameAsParent(
+                        fromAstNode = node,
+                        toAstNode = node.lastChildLeafOrSelf(),
+                    )
+                    Unit
+                }
             }
+        } else if (node.isWhiteSpaceWithNewline()) {
+            indentContextStack
+                .peekLast()
+                ?.let { lastIndentContext ->
+                    if (lastIndentContext.unchanged && !isBinaryExpressionWrappedInCondition(node)) {
+                        indentContextStack
+                            .peekLast()
+                            .takeIf { it.unchanged }
+                            ?.let { lastIndentContext ->
+                                indentContextStack.addLast(
+                                    lastIndentContext.copy(
+                                        fromASTNode = node,
+                                        toASTNode = lastIndentContext.toASTNode,
+                                        unchanged = false,
+                                    ),
+                                )
+                            }
+                    }
+                    Unit
+                }
         }
         when {
             node.isWhiteSpaceWithNewline() &&
-                (
-                    node.treeParent?.elementType == ARROW ||
-                        node.treeParent?.elementType == BLOCK ||
-                        node.treeParent?.elementType == BINARY_EXPRESSION ||
-                        node.treeParent?.elementType == CONDITION ||
-                        node.treeParent?.elementType == DOT_QUALIFIED_EXPRESSION ||
-                        node.treeParent?.elementType == FUNCTION_LITERAL ||
-                        node.treeParent?.elementType == LONG_TEMPLATE_ENTRY_START ||
-                        node.treeParent?.elementType == PARENTHESIZED ||
-                        node.treeParent?.elementType == PROPERTY ||
-                        node.treeParent?.elementType == TYPE_ARGUMENT_LIST ||
-                        node.treeParent?.elementType == VALUE_ARGUMENT_LIST ||
-                        node.treeParent?.elementType == VALUE_PARAMETER_LIST ||
-                        node.treeParent?.elementType == WHEN
-                    ) -> {
-                visitWhiteSpace(node, autoCorrect, emit)
-            }
-            node.isWhiteSpaceWithNewline() &&
                 node.prevCodeSibling()?.elementType == EQ &&
                 node.treeParent?.elementType == FUN -> {
+                visitWhiteSpace(node, autoCorrect, emit)
+            }
+            node.isWhiteSpaceWithNewline()
+//                &&
+//                (
+//                    node.treeParent?.elementType == ARROW ||
+//                        node.treeParent?.elementType == BLOCK ||
+//                        node.treeParent?.elementType == BINARY_EXPRESSION ||
+//                        node.treeParent?.elementType == CALL_EXPRESSION ||
+//                        node.treeParent?.elementType == CONDITION ||
+//                        node.treeParent?.elementType == DOT_QUALIFIED_EXPRESSION ||
+//                        node.treeParent?.elementType == FUNCTION_LITERAL ||
+//                        node.treeParent?.elementType == LONG_TEMPLATE_ENTRY_START ||
+//                        node.treeParent?.elementType == PARENTHESIZED ||
+//                        node.treeParent?.elementType == PROPERTY ||
+//                        node.treeParent?.elementType == TYPE_ARGUMENT_LIST ||
+//                        node.treeParent?.elementType == VALUE_ARGUMENT_LIST ||
+//                        node.treeParent?.elementType == VALUE_PARAMETER_LIST ||
+//                        node.treeParent?.elementType == WHEN
+//                    )
+            -> {
                 visitWhiteSpace(node, autoCorrect, emit)
             }
             node.elementType == LONG_STRING_TEMPLATE_ENTRY &&
@@ -171,10 +214,11 @@ public class IndentationRuleNew :
                 startIndentContextSameAsParent(node)
             }
             node.elementType == BLOCK ||
+                node.elementType == CALL_EXPRESSION ||
                 node.elementType == CLASS_BODY ||
-                node.elementType == CONDITION ||
                 node.elementType == FUNCTION_LITERAL ||
                 node.elementType == STRING_TEMPLATE ||
+                node.elementType == LAMBDA_EXPRESSION ||
                 node.elementType == LONG_STRING_TEMPLATE_ENTRY ||
                 node.elementType == PARENTHESIZED ||
                 node.elementType == SUPER_TYPE_ENTRY ||
@@ -204,8 +248,50 @@ public class IndentationRuleNew :
                     fromAstNode = node,
                     toAstNode = node.findChildByType(SUPER_TYPE_LIST)!!.lastChildLeafOrSelf(),
                 )
+            node.elementType == CONDITION -> {
+                val parent = indentContextStack.peekLast()
+                if (parent.unchanged) {
+                    startIndentContext(
+                        fromAstNode = node,
+                        toAstNode = node.lastChildLeafOrSelf(),
+                        parent.nodeIndentLevel,
+                        parent.nodeIndentLevel,
+                    )
+                } else {
+                    startIndentContext(
+                        fromAstNode = node,
+                        toAstNode = node.lastChildLeafOrSelf(),
+                        parent.childIndentLevel,
+                        parent.childIndentLevel,
+                    )
+                }
+            }
             node.elementType == BINARY_EXPRESSION -> {
-                if (node.treeParent?.elementType != BINARY_EXPRESSION) {
+                if (isBinaryExpressionWrappedInCondition(node)) {
+                    val parent = indentContextStack.peekLast()
+//                    if (parent.unchanged) {
+//                        startIndentContext(
+//                            fromAstNode = node.firstChildNode,
+//                            toAstNode = node.firstChildNode.lastChildLeafOrSelf(),
+//                            parent.nodeIndentLevel,
+//                            parent.nodeIndentLevel,
+//                        )
+//                    } else {
+//                        startIndentContext(
+//                            fromAstNode = node.firstChildNode,
+//                            toAstNode = node.firstChildNode.lastChildLeafOrSelf(),
+//                            parent.childIndentLevel,
+//                            parent.childIndentLevel,
+//                        )
+//                    }
+//                    startIndentContextSameAsParent(
+                    startIndentContext(
+                        fromAstNode = node.firstChildNode,
+                        toAstNode = node.firstChildNode.lastChildLeafOrSelf(),
+                        parent.nodeIndentLevel,
+                        parent.childIndentLevel,
+                    )
+                } else if (node.treeParent?.elementType != BINARY_EXPRESSION) {
                     startIndentContextSameAsParent(node)
                 }
             }
@@ -248,6 +334,13 @@ public class IndentationRuleNew :
         }
     }
 
+    private fun isBinaryExpressionWrappedInCondition(node: ASTNode) =
+        node
+            .parents()
+            .takeWhile { it.elementType == BINARY_EXPRESSION || it.elementType == CONDITION }
+            .lastOrNull()
+            ?.elementType == CONDITION
+
     private fun startIndentContextSameAsParent(
         fromAstNode: ASTNode,
         toAstNode: ASTNode = fromAstNode.lastChildLeafOrSelf(),
@@ -258,7 +351,7 @@ public class IndentationRuleNew :
                 fromAstNode,
                 toAstNode,
                 parent.nodeIndentLevel,
-                parent.childIndentLevel,
+                parent.nodeIndentLevel + 1,
             )
         } else {
             startIndentContext(
