@@ -11,14 +11,24 @@ import org.jetbrains.kotlin.psi.KtFile
 
 private val kotlinPsiFileFactoryProvider = KotlinPsiFileFactoryProvider()
 
-internal class PreparedCode(
+internal class RuleExecutionContext(
     val rootNode: FileASTNode,
     val editorConfigProperties: EditorConfigProperties,
     val positionInTextLocator: (offset: Int) -> LineAndColumn,
-    var suppressedRegionLocator: SuppressionLocator,
-)
+) {
+    lateinit var suppressionLocator: SuppressionLocator
+        private set
 
-internal fun prepareCodeForLinting(params: KtLint.ExperimentalParams): PreparedCode {
+    init {
+        rebuildSuppressionLocator()
+    }
+
+    fun rebuildSuppressionLocator() {
+        suppressionLocator = SuppressionLocatorBuilder.buildSuppressedRegionsLocator(rootNode)
+    }
+}
+
+internal fun createRuleExecutionContext(params: KtLint.ExperimentalParams): RuleExecutionContext {
     val psiFileFactory = kotlinPsiFileFactoryProvider.getKotlinPsiFileFactory(params.isInvokedFromCli)
     val normalizedText = normalizeText(params.text)
     val positionInTextLocator = buildPositionInTextLocator(normalizedText)
@@ -57,13 +67,10 @@ internal fun prepareCodeForLinting(params: KtLint.ExperimentalParams): PreparedC
     // is removed
     rootNode.putUserData(KtLint.EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY, editorConfigProperties)
 
-    val suppressedRegionLocator = SuppressionLocatorBuilder.buildSuppressedRegionsLocator(rootNode)
-
-    return PreparedCode(
+    return RuleExecutionContext(
         rootNode,
         editorConfigProperties,
         positionInTextLocator,
-        suppressedRegionLocator,
     )
 }
 
