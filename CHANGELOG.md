@@ -2,6 +2,19 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+### API Changes & RuleSet providers
+
+### Added
+
+### Fixed
+
+* Let a rule process all nodes even in case the rule is suppressed for a node so that the rule can update the internal state ([#1644](https://github.com/pinterest/ktlint/issue/1644))
+
+### Changed
+
+
 ## [0.47.1] - 2022-09-07
 
 ### Fixed

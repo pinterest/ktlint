@@ -6,7 +6,7 @@ import com.pinterest.ktlint.core.RuleProvider
 import com.pinterest.ktlint.core.ast.ElementType.CLASS
 import com.pinterest.ktlint.core.ast.ElementType.CLASS_BODY
 import com.pinterest.ktlint.core.ast.ElementType.ENUM_ENTRY
-import com.pinterest.ktlint.core.internal.prepareCodeForLinting
+import com.pinterest.ktlint.core.internal.createRuleExecutionContext
 import org.assertj.core.api.Assertions.assertThat
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
@@ -231,7 +231,7 @@ class PackageKtTest {
     }
 
     private fun transformCodeToAST(code: String) =
-        prepareCodeForLinting(
+        createRuleExecutionContext(
             KtLint.ExperimentalParams(
                 text =
                 code,
