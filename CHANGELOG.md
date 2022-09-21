@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### API Changes & RuleSet providers
 
 ### Added
+* Wrap blocks in case the max line length is exceeded or in case the block contains a new line `wrapping` ([#1643](https://github.com/pinterest/ktlint/issue/1643))
 
 ### Fixed
 
