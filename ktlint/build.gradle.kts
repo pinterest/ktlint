@@ -76,9 +76,9 @@ tasks.register<Checksum>("shadowJarExecutableChecksum") {
     description = "Generates MD5 checksum for ktlint executable"
     group = "Distribution"
 
-    inputFiles.setFrom(shadowJarExecutable.get().outputs.files)
+    inputFiles.setFrom(shadowJarExecutable.map { it.outputs.files })
     // put the checksums in the same folder with the executable itself
-    outputDirectory.set(shadowJarExecutable.get().outputs.files.files.first().parentFile)
+    outputDirectory.fileProvider(shadowJarExecutable.map { it.outputs.files.files.first().parentFile })
     checksumAlgorithm.set(Checksum.Algorithm.MD5)
 }
 
