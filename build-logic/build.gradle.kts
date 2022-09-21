@@ -6,15 +6,13 @@ repositories {
     mavenCentral()
 }
 
-// Pass '-PkotlinDev' to command line to enable kotlin-in-development version
-val kotlinVersion = if (project.hasProperty("kotlinDev")) {
-    logger.warn("Enabling kotlin dev version!")
-    libs.versions.kotlinDev.get()
-} else {
-    libs.versions.kotlin.get()
-}
-
 dependencies {
-    implementation(kotlin("gradle-plugin", kotlinVersion))
+    if (project.hasProperty("kotlinDev")) {
+        // Pass '-PkotlinDev' to command line to enable kotlin-in-development version
+        logger.warn("Enabling kotlin dev version!")
+        implementation(libs.kotlin.plugin.dev)
+    } else {
+        implementation(libs.kotlin.plugin)
+    }
     implementation(libs.dokka)
 }
