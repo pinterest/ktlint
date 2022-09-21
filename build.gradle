@@ -37,8 +37,9 @@ task ktlint(type: JavaExec, group: LifecycleBasePlugin.VERIFICATION_GROUP) {
     '--baseline=ktlint/src/test/resources/test-baseline.xml',
     // Experimental rules run by default run on the ktlint code base itself. Experimental rules should not be released if
     // we are not pleased ourselves with the results on the ktlint code base.
-    '--experimental',
-    '--verbose'
+    '--experimental'
+    // Do not run with option "--verbose" or "-v" as the lint violations are difficult to spot between the amount of
+    // debug output lines.
 }
 
 // Deployment tasks
