@@ -4,8 +4,13 @@ import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType
+import com.pinterest.ktlint.core.ast.ElementType.COLLECTION_LITERAL_EXPRESSION
+import com.pinterest.ktlint.core.ast.ElementType.INDICES
+import com.pinterest.ktlint.core.ast.ElementType.TYPE_ARGUMENT_LIST
+import com.pinterest.ktlint.core.ast.ElementType.VALUE_ARGUMENT
+import com.pinterest.ktlint.core.ast.ElementType.VALUE_ARGUMENT_LIST
 import com.pinterest.ktlint.core.ast.children
-import com.pinterest.ktlint.core.ast.containsLineBreakInRange
+import com.pinterest.ktlint.core.ast.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.core.ast.prevCodeLeaf
 import com.pinterest.ktlint.core.ast.prevLeaf
 import kotlin.properties.Delegates
@@ -14,14 +19,7 @@ import org.ec4j.core.model.PropertyType.PropertyValueParser
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
-import org.jetbrains.kotlin.psi.KtCollectionLiteralExpression
-import org.jetbrains.kotlin.psi.KtDestructuringDeclaration
-import org.jetbrains.kotlin.psi.KtFunctionLiteral
 import org.jetbrains.kotlin.psi.KtPsiFactory
-import org.jetbrains.kotlin.psi.KtValueArgumentList
-import org.jetbrains.kotlin.psi.KtWhenEntry
-import org.jetbrains.kotlin.psi.psiUtil.anyDescendantOfType
-import org.jetbrains.kotlin.psi.psiUtil.collectDescendantsOfType
 import org.jetbrains.kotlin.psi.psiUtil.nextLeaf
 
 /**
@@ -64,10 +62,10 @@ public class TrailingCommaOnCallSiteRule :
         // Keep processing of element types in sync with Intellij Kotlin formatting settings.
         // https://github.com/JetBrains/intellij-kotlin/blob/master/formatter/src/org/jetbrains/kotlin/idea/formatter/trailingComma/util.kt
         when (node.elementType) {
-            ElementType.COLLECTION_LITERAL_EXPRESSION -> visitCollectionLiteralExpression(node, autoCorrect, emit)
-            ElementType.INDICES -> visitIndices(node, autoCorrect, emit)
-            ElementType.TYPE_ARGUMENT_LIST -> visitTypeList(node, autoCorrect, emit)
-            ElementType.VALUE_ARGUMENT_LIST -> visitValueList(node, autoCorrect, emit)
+            COLLECTION_LITERAL_EXPRESSION -> visitCollectionLiteralExpression(node, autoCorrect, emit)
+            INDICES -> visitIndices(node, autoCorrect, emit)
+            TYPE_ARGUMENT_LIST -> visitTypeList(node, autoCorrect, emit)
+            VALUE_ARGUMENT_LIST -> visitValueList(node, autoCorrect, emit)
             else -> Unit
         }
     }
@@ -149,7 +147,7 @@ public class TrailingCommaOnCallSiteRule :
         val prevLeaf = inspectNode.prevLeaf()
         val trailingCommaNode = prevLeaf.findPreviousTrailingCommaNodeOrNull()
         val trailingCommaState = when {
-            isMultiline(psi) -> if (trailingCommaNode != null) TrailingCommaState.EXISTS else TrailingCommaState.MISSING
+            this.isMultiline() -> if (trailingCommaNode != null) TrailingCommaState.EXISTS else TrailingCommaState.MISSING
             else -> if (trailingCommaNode != null) TrailingCommaState.REDUNDANT else TrailingCommaState.NOT_EXISTS
         }
         when (trailingCommaState) {
@@ -189,22 +187,18 @@ public class TrailingCommaOnCallSiteRule :
         }
     }
 
-    private fun isMultiline(element: PsiElement): Boolean = when {
-        element.parent is KtFunctionLiteral -> isMultiline(element.parent)
-        element is KtFunctionLiteral -> containsLineBreakInRange(element.valueParameterList!!, element.arrow!!)
-        element is KtWhenEntry -> containsLineBreakInRange(element.firstChild, element.arrow!!)
-        element is KtDestructuringDeclaration -> containsLineBreakInRange(element.lPar!!, element.rPar!!)
-        element is KtValueArgumentList && element.children.size == 1 && element.anyDescendantOfType<KtCollectionLiteralExpression>() -> {
-            // special handling for collection literal
-            // @Annotation([
-            //    "something",
-            // ])
-            val lastChild = element.collectDescendantsOfType<KtCollectionLiteralExpression>().last()
-            containsLineBreakInLeavesRange(lastChild.rightBracket!!, element.rightParenthesis!!)
+    private fun ASTNode.isMultiline(): Boolean =
+        if (elementType == VALUE_ARGUMENT_LIST) {
+            hasAtLeastOneArgument() && hasAtLeastOneWhiteSpaceWithNewLine()
+        } else {
+            textContains('\n')
         }
-        element is KtValueArgumentList && element.arguments.isEmpty() -> false
-        else -> element.textContains('\n')
-    }
+
+    private fun ASTNode.hasAtLeastOneWhiteSpaceWithNewLine() =
+        children().any { it.isWhiteSpaceWithNewline() }
+
+    private fun ASTNode.hasAtLeastOneArgument() =
+        children().any { it.elementType == VALUE_ARGUMENT }
 
     private fun ASTNode?.findPreviousTrailingCommaNodeOrNull(): ASTNode? {
         var node = this
@@ -277,10 +271,10 @@ public class TrailingCommaOnCallSiteRule :
             )
 
         private val TYPES_ON_CALL_SITE = TokenSet.create(
-            ElementType.COLLECTION_LITERAL_EXPRESSION,
-            ElementType.INDICES,
-            ElementType.TYPE_ARGUMENT_LIST,
-            ElementType.VALUE_ARGUMENT_LIST,
+            COLLECTION_LITERAL_EXPRESSION,
+            INDICES,
+            TYPE_ARGUMENT_LIST,
+            VALUE_ARGUMENT_LIST,
         )
     }
 }
