@@ -73,6 +73,7 @@ public fun Set<RuleProvider>.lint(
         userData = userData,
         script = script,
         cb = { e, _ -> res.add(e) },
+        debug = true,
     )
     KtLint.lint(
         experimentalParams,
@@ -96,6 +97,7 @@ public fun Set<RuleProvider>.format(
         userData = userData,
         script = script,
         cb = cb,
+        debug = true,
     )
     return KtLint.format(experimentalParams)
 }
