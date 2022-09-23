@@ -1,9 +1,8 @@
 plugins {
-  id 'org.jetbrains.kotlin.jvm' apply false
+  alias(libs.plugins.kotlin.jvm) apply false
   alias(libs.plugins.checksum)
   alias(libs.plugins.shadow)
   alias(libs.plugins.githubRelease)
-//  id 'nebula.lint' version '17.5.0'
 }
 
 def isKotlinDev = project.hasProperty('isKotlinDev')
