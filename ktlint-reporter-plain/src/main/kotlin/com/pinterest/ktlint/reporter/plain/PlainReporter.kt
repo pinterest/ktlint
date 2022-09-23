@@ -11,7 +11,6 @@ import java.util.concurrent.ConcurrentHashMap
 
 public class PlainReporter(
     private val out: PrintStream,
-    private val verbose: Boolean = false,
     private val groupByFile: Boolean = false,
     private val shouldColorOutput: Boolean = false,
     private val outputColor: Color = Color.DARK_GRAY,
@@ -42,7 +41,7 @@ public class PlainReporter(
                 out.println(
                     "  $line${
                     ":${if (pad) String.format("%-3s", col) else "$col"}".colored()
-                    } $detail${if (verbose) " ($ruleId)".colored() else ""}",
+                    } $detail ${"($ruleId)".colored()}",
                 )
             }
         }

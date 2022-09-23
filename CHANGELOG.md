@@ -15,6 +15,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+* CLI options `--debug`, `--trace`, `--verbose` and `-v` are replaced with `--log-level=<level>` or the short version `-l=<level>, see [CLI log-level](https://pinterest.github.io/ktlint/install/cli/#logging). ([#1632](https://github.com/pinterest/ktlint/issue/1632))
+* In CLI, disable logging entirely by setting `--log-level=none` or `-l=none` ([#1652](https://github.com/pinterest/ktlint/issue/1652))
+
 
 ## [0.47.1] - 2022-09-07
 

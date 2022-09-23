@@ -96,9 +96,9 @@ ktlint "src/**/*.kt" "!src/**/*Test.kt"
 ktlint "src/**/*.kt" "!src/**/generated/**"
 ```
 
-### Error reporting
+### Violation reporting
 
-`ktlint` supports different type of reporters. When not specified the `plain` reporter is used. Optionally the `plain` reporter can group the violations per file.
+`ktlint` supports different type of reporters for lint violations. When not specified the `plain` reporter is used. Optionally the `plain` reporter can group the violations per file.
 
 ```shell title="Style violation grouped by file"
 $ ktlint --reporter=plain?group_by_file
@@ -117,6 +117,12 @@ If resolving all existing errors in a project is unwanted, it is possible to cre
 ```shell title="Check against a baseline file"
 ktlint --baseline=ktlint-baseline.xml # Baseline is created when not existing
 ```
+
+### Logging
+
+Logging information is written to `stdout`. The amount of logging can be influenced by setting the minimal log level using option `--log-level` or `-l` to one of values `trace`, `debug`, `info`, `warn`, `error`, or `none` to suppress all logging.
+
+By default, the `info` log level is used meaning that all log lines at level `info`, `warn` and `error` are shown while suppressing log lines at level `debug` or `trace`.
 
 ### Rule configuration (`.editorconfig`)
 
@@ -145,7 +151,7 @@ ktlint --editorconfig=/path/to/.editorconfig
 
 ### Stdin && stdout
 
-With command below, the input is read from `stdin` and the violations are printed to `stderr`.
+With command below, the input is read from `stdin` and the violations are printed to `stderr`. Logging is written to `stdout`.
 
 ```shell title="Lint from stdin"
 ktlint --stdin
@@ -157,7 +163,8 @@ When combined with the `--format` option, the formatted code is written to `stdo
 ktlint --stdin -F
 ```
 
-!!! tip Suppress error output
+!!! tip Suppress logging and error output
+    Logging output printed to `stdout` can be suppressed by setting `--log-level=none` (see [logging](#logging)).
     Output printed to `stderr` can be suppressed in different ways. To ignore all error output, add `2> /dev/null` to the end of the command line. Otherwise, specify a [reporter](#error-reporting) to write the error output to a file.
 
 
@@ -188,8 +195,6 @@ ktlint installGitPrePushHook
 `printAST` or `--print-ast`: Prints AST (useful when writing/debugging rules)
 
 `--relative`: Print files relative to the working directory (e.g. dir/file.kt instead of /home/user/project/dir/file.kt)
-
-`-v`, `--verbose` or `--debug`: Turn on debug output. Also option `--trace` is available, but this is meant for ktlint library developers.
 
 `-V` or `--version`: Prints version information and exit.
 

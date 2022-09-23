@@ -35,11 +35,12 @@ task ktlint(type: JavaExec, group: LifecycleBasePlugin.VERIFICATION_GROUP) {
     // Exclude sources which contain lint violations for the purpose of testing.
     '!ktlint/src/test/resources/**',
     '--baseline=ktlint/src/test/resources/test-baseline.xml',
-    // Experimental rules run by default run on the ktlint code base itself. Experimental rules should not be released if
-    // we are not pleased ourselves with the results on the ktlint code base.
-    '--experimental'
-    // Do not run with option "--verbose" or "-v" as the lint violations are difficult to spot between the amount of
-    // debug output lines.
+    // Experimental rules run by default run on the ktlint code base itself. Experimental rules should not be released
+    // if we are not pleased ourselves with the results on the ktlint code base.
+    '--experimental',
+    // Run with log-level error so that all lint violations can be spotted easily and are not drowned in a lot of log
+    // lines.
+    '--log-level=error'
 }
 
 // Deployment tasks

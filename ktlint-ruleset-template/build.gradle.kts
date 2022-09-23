@@ -44,10 +44,10 @@ tasks.register<JavaExec>("ktlint") {
     dependsOn(tasks.classes)
     group = LifecycleBasePlugin.VERIFICATION_GROUP
     mainClass.set("com.pinterest.ktlint.Main")
-    // adding compiled classes to the classpath so that ktlint would validate project"s sources
+    // adding compiled classes to the classpath so that ktlint would validate project's sources
     // using its own ruleset (in other words to dogfood)
     classpath = ktlint + sourceSets.main.get().output
-    args("--debug", "src/**/*.kt")
+    args("--log-level=debug", "src/**/*.kt")
 }.let {
     tasks.check.get().dependsOn(it)
 }
