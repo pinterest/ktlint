@@ -386,7 +386,7 @@ public class IndentationRule :
     private fun adjustExpectedIndentInsideQualifiedExpression(n: ASTNode, ctx: IndentContext) {
         val p = n.parent({
             it.treeParent.elementType != DOT_QUALIFIED_EXPRESSION && it.treeParent.elementType != SAFE_ACCESS_EXPRESSION
-        },) ?: return
+        }) ?: return
         val nextSibling = n.treeNext
         if (!ctx.ignored.contains(p) && nextSibling != null) {
             if (p.treeParent.elementType == PROPERTY_DELEGATE &&
