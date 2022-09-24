@@ -6,6 +6,14 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### API Changes & RuleSet providers
 
+#### Retrieve input files
+
+The list of files which will be accessed by KtLint when linting or formatting a given path can now be retrieved with the new API `KtLint.getInputPaths(path: Path): List<Path>`. Currently, the `.editorconfig` files are the only files which will be accessed during linting or formatting in addition to the source files itself. 
+
+This API can be called with either a file or a directory. It's intended usage is that it is called once with a directory path before actually linting or formatting files. When called with a directory path, all `.editorconfig` in the directory or any of its subdirectories (except hidden directories) are returned. In case the given directory does not contain an `.editorconfig` file or if it does not contain the `root=true` setting, the parent directories are scanned as well until a root `.editorconfig` file is found.
+
+Calling this API with a file path results in the `.editorconfig` files that will be accessed when processing that specific file. In case the directory in which the file resides does not contain an `.editorconfig` file or if it does not contain the `root=true` setting, the parent directories are scanned until a root `.editorconfig` file is found.
+
 ### Added
 
 ### Fixed

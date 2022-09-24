@@ -8,6 +8,7 @@ import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.emptyEditorConfigOverride
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
+import com.pinterest.ktlint.core.internal.EditorConfigFinder
 import com.pinterest.ktlint.core.internal.EditorConfigGenerator
 import com.pinterest.ktlint.core.internal.EditorConfigLoader
 import com.pinterest.ktlint.core.internal.RuleExecutionContext
@@ -21,6 +22,7 @@ import java.nio.file.FileSystems
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.Locale
+import kotlin.io.path.isDirectory
 import org.ec4j.core.Resource
 import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -339,6 +341,15 @@ public object KtLint {
             Resource.Resources.ofPath(path, StandardCharsets.UTF_8),
         )
     }
+
+    /**
+     * Get the list of files which will be accessed by KtLint when linting or formatting the given file or directory.
+     */
+    public fun getInputPaths(path: Path): List<Path> =
+        EditorConfigFinder().findEditorConfigs(path) +
+            listOfNotNull(
+                path.takeIf { !it.isDirectory() },
+            )
 
     /**
      * Generates Kotlin `.editorconfig` file section content based on [ExperimentalParams].
