@@ -185,7 +185,7 @@ class EditorConfigFinderTest {
                 // Ignore files created in temp dirs of other tests
                 it.startsWith(tempDir)
             }?.absolutePathString()
-            ?.replace(tempDir.fileSystem.separator, "/")
             ?.removePrefix(tempDir.absolutePathString())
             ?.removePrefix(File.separator)
+            ?.replace(tempDir.fileSystem.separator, "/")
 }
