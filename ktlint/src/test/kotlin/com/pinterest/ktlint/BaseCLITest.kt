@@ -1,6 +1,7 @@
 package com.pinterest.ktlint
 
 import java.io.File
+import java.io.InputStream
 import java.nio.file.FileVisitResult
 import java.nio.file.Files
 import java.nio.file.Path
@@ -27,6 +28,7 @@ abstract class BaseCLITest {
     fun runKtLintCliProcess(
         testProjectName: String,
         arguments: List<String> = emptyList(),
+        stdin: InputStream? = null,
         executionAssertions: ExecutionResult.() -> Unit,
     ) {
         val projectPath = prepareTestProject(testProjectName)
@@ -43,6 +45,11 @@ abstract class BaseCLITest {
         environment["PATH"] = "${System.getProperty("java.home")}${File.separator}bin${File.pathSeparator}${System.getenv()["PATH"]}"
 
         val process = processBuilder.start()
+
+        if (stdin != null) {
+            process.outputStream.use(stdin::copyTo)
+        }
+
         if (process.completedInAllowedDuration()) {
             val output = process.inputStream.bufferedReader().use { it.readLines() }
             val error = process.errorStream.bufferedReader().use { it.readLines() }

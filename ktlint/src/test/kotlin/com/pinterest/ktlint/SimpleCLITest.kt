@@ -1,5 +1,6 @@
 package com.pinterest.ktlint
 
+import java.io.ByteArrayInputStream
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -103,6 +104,21 @@ class SimpleCLITest : BaseCLITest() {
                 "no-consecutive-blank-lines",
                 "no-empty-first-line-in-method-block",
             )
+        }
+    }
+
+    @Test
+    fun `Given some code with an error but a pattern read in from stdin which does not select the file`() {
+        runKtLintCliProcess(
+            "too-many-empty-lines",
+            listOf("--patterns-from-stdin"),
+            stdin = ByteArrayInputStream("SomeOtherFile.kt".toByteArray()),
+        ) {
+            assertNormalExitCode()
+
+            assert(normalOutput.find { it.contains("No files matched [SomeOtherFile.kt]") } != null) {
+                "Unexpected output:\n${normalOutput.joinToString(separator = "\n")}"
+            }
         }
     }
 }
