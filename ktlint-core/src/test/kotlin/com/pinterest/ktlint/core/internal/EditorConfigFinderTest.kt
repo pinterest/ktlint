@@ -165,4 +165,5 @@ class EditorConfigFinderTest {
         absolutePathString()
             .removePrefix(tempDir.absolutePathString())
             .removePrefix(File.separator)
+            .replace(tempDir.fileSystem.separator, "/")
 }
