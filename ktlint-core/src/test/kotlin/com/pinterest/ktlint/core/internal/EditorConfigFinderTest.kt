@@ -181,11 +181,11 @@ class EditorConfigFinderTest {
 
     private fun Path.toRelativePathStringIn(tempDir: Path): String? =
         this
+            .absolutePathString()
             .takeIf {
                 // Ignore files created in temp dirs of other tests
-                it.startsWith(tempDir)
-            }?.absolutePathString()
-            ?.removePrefix(tempDir.absolutePathString())
+                it.startsWith(tempDir.absolutePathString())
+            }?.removePrefix(tempDir.absolutePathString())
             ?.removePrefix(File.separator)
             ?.replace(tempDir.fileSystem.separator, "/")
 }

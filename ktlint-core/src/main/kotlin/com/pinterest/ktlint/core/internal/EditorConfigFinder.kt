@@ -17,7 +17,7 @@ import org.jetbrains.kotlin.konan.file.File
 private val logger = KotlinLogging.logger {}.initKtLintKLogger()
 
 internal class EditorConfigFinder {
-    // Do not reuse the generic threadSageEditorConfigCache to prevent that results are incorrect due to other calls to
+    // Do not reuse the generic threadSafeEditorConfigCache to prevent that results are incorrect due to other calls to
     // KtLint that result in changing the cache
     private val editorConfigCache = ThreadSafeEditorConfigCache()
 
