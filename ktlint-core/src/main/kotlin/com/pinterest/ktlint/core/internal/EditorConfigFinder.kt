@@ -1,7 +1,6 @@
 package com.pinterest.ktlint.core.internal
 
 import com.pinterest.ktlint.core.initKtLintKLogger
-import com.pinterest.ktlint.core.internal.ThreadSafeEditorConfigCache.Companion.threadSafeEditorConfigCache
 import java.nio.charset.StandardCharsets
 import java.nio.file.FileVisitResult
 import java.nio.file.Files
@@ -18,6 +17,10 @@ import org.jetbrains.kotlin.konan.file.File
 private val logger = KotlinLogging.logger {}.initKtLintKLogger()
 
 internal class EditorConfigFinder {
+    // Do not reuse the generic threadSageEditorConfigCache to prevent that results are incorrect due to other calls to
+    // KtLint that result in changing the cache
+    private val editorConfigCache = ThreadSafeEditorConfigCache()
+
     /**
      * Finds all relevant ".editorconfig" files for the given path.
      */
@@ -71,7 +74,7 @@ internal class EditorConfigFinder {
         // cache provided by KtLint. As of this the list of parental ".editorconfig" files can be extracted from the
         // cache.
         createLoaderService().queryProperties(path.resource())
-        return threadSafeEditorConfigCache.getPaths()
+        return editorConfigCache.getPaths()
     }
 
     private fun Path?.resource() =
@@ -79,7 +82,7 @@ internal class EditorConfigFinder {
 
     private fun createLoaderService() =
         ResourcePropertiesService.builder()
-            .cache(threadSafeEditorConfigCache)
+            .cache(editorConfigCache)
             .loader(org.ec4j.core.EditorConfigLoader.of(Version.CURRENT))
             .build()
 }
