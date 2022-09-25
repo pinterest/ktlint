@@ -12,50 +12,56 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 
 class EditorConfigFinderTest {
-    @TempDir
-    private lateinit var tempDir: Path
-
     @Nested
     inner class FindByFile {
         @Test
-        fun `Given a kotlin file in a subdirectory and a root-editorconfig file in the same directory then get the path of that editorconfig file`() {
+        fun `Given a kotlin file in a subdirectory and a root-editorconfig file in the same directory then get the path of that editorconfig file`(
+            @TempDir
+            tempDir: Path,
+        ) {
             val someSubDir = "some-project/src/main/kotlin"
-            createFile("$someSubDir/.editorconfig", "root=true")
-            val kotlinFilePath = createFile("$someSubDir/test.kt", "val foo = 42")
+            tempDir.createFile("$someSubDir/.editorconfig", "root=true")
+            val kotlinFilePath = tempDir.createFile("$someSubDir/test.kt", "val foo = 42")
 
             val actual =
                 EditorConfigFinder()
                     .findEditorConfigs(kotlinFilePath)
-                    .map { it.toPathStringWithoutTempDirPrefix() }
+                    .mapNotNull { it.toRelativePathStringIn(tempDir) }
 
             assertThat(actual).contains("$someSubDir/.editorconfig")
         }
 
         @Test
-        fun `Given a kotlin file in a subdirectory and a root-editorconfig file in a parent directory then get the path of that parent editorconfig file`() {
+        fun `Given a kotlin file in a subdirectory and a root-editorconfig file in a parent directory then get the path of that parent editorconfig file`(
+            @TempDir
+            tempDir: Path,
+        ) {
             val someProjectDirectory = "some-project"
-            createFile("$someProjectDirectory/.editorconfig", "root=true")
-            val kotlinFilePath = createFile("$someProjectDirectory/src/main/kotlin/test.kt", "val foo = 42")
+            tempDir.createFile("$someProjectDirectory/.editorconfig", "root=true")
+            val kotlinFilePath = tempDir.createFile("$someProjectDirectory/src/main/kotlin/test.kt", "val foo = 42")
 
             val actual =
                 EditorConfigFinder()
                     .findEditorConfigs(kotlinFilePath)
-                    .map { it.toPathStringWithoutTempDirPrefix() }
+                    .mapNotNull { it.toRelativePathStringIn(tempDir) }
 
             assertThat(actual).contains("$someProjectDirectory/.editorconfig")
         }
 
         @Test
-        fun `Given a kotlin file in a subdirectory and a non-root-editorconfig file in that same directory and a root-editorconfig file in a parent directory then get the paths of both editorconfig files`() {
+        fun `Given a kotlin file in a subdirectory and a non-root-editorconfig file in that same directory and a root-editorconfig file in a parent directory then get the paths of both editorconfig files`(
+            @TempDir
+            tempDir: Path,
+        ) {
             val someProjectDirectory = "some-project"
-            createFile("$someProjectDirectory/.editorconfig", "root=true")
-            createFile("$someProjectDirectory/src/main/.editorconfig", "root=false")
-            val kotlinFilePath = createFile("$someProjectDirectory/src/main/kotlin/test.kt", "val foo = 42")
+            tempDir.createFile("$someProjectDirectory/.editorconfig", "root=true")
+            tempDir.createFile("$someProjectDirectory/src/main/.editorconfig", "root=false")
+            val kotlinFilePath = tempDir.createFile("$someProjectDirectory/src/main/kotlin/test.kt", "val foo = 42")
 
             val actual =
                 EditorConfigFinder()
                     .findEditorConfigs(kotlinFilePath)
-                    .map { it.toPathStringWithoutTempDirPrefix() }
+                    .mapNotNull { it.toRelativePathStringIn(tempDir) }
 
             assertThat(actual).contains(
                 "$someProjectDirectory/.editorconfig",
@@ -64,17 +70,20 @@ class EditorConfigFinderTest {
         }
 
         @Test
-        fun `Given a kotlin file in a subdirectory and a root-editorconfig file in the parent directory and another root-editorconfig file in a great-parent directory then get the paths of editorconfig files excluding root-editorconfig once the first one is found`() {
+        fun `Given a kotlin file in a subdirectory and a root-editorconfig file in the parent directory and another root-editorconfig file in a great-parent directory then get the paths of editorconfig files excluding root-editorconfig once the first one is found`(
+            @TempDir
+            tempDir: Path,
+        ) {
             val someProjectDirectory = "some-project"
-            createFile("$someProjectDirectory/src/main/.editorconfig", "root=false")
-            createFile("$someProjectDirectory/src/.editorconfig", "root=true")
-            createFile("$someProjectDirectory/.editorconfig", "root=true")
-            val kotlinFilePath = createFile("$someProjectDirectory/src/main/kotlin/test.kt", "val foo = 42")
+            tempDir.createFile("$someProjectDirectory/src/main/.editorconfig", "root=false")
+            tempDir.createFile("$someProjectDirectory/src/.editorconfig", "root=true")
+            tempDir.createFile("$someProjectDirectory/.editorconfig", "root=true")
+            val kotlinFilePath = tempDir.createFile("$someProjectDirectory/src/main/kotlin/test.kt", "val foo = 42")
 
             val actual =
                 EditorConfigFinder()
                     .findEditorConfigs(kotlinFilePath)
-                    .map { it.toPathStringWithoutTempDirPrefix() }
+                    .mapNotNull { it.toRelativePathStringIn(tempDir) }
 
             assertThat(actual)
                 .contains(
@@ -89,15 +98,18 @@ class EditorConfigFinderTest {
     @Nested
     inner class FindByDirectory {
         @Test
-        fun `Given a directory containing a root-editorconfig file and a subdirectory containing a editorconfig file then get the paths of both editorconfig files`() {
+        fun `Given a directory containing a root-editorconfig file and a subdirectory containing a editorconfig file then get the paths of both editorconfig files`(
+            @TempDir
+            tempDir: Path,
+        ) {
             val someDirectory = "some-project"
-            createFile("$someDirectory/.editorconfig", "root=true")
-            createFile("$someDirectory/src/main/kotlin/.editorconfig", "some-property=some-value")
+            tempDir.createFile("$someDirectory/.editorconfig", "root=true")
+            tempDir.createFile("$someDirectory/src/main/kotlin/.editorconfig", "some-property=some-value")
 
             val actual =
                 EditorConfigFinder()
-                    .findEditorConfigs(toTempDirPath(someDirectory))
-                    .map { it.toPathStringWithoutTempDirPrefix() }
+                    .findEditorConfigs(tempDir.plus(someDirectory))
+                    .mapNotNull { it.toRelativePathStringIn(tempDir) }
 
             assertThat(actual).contains(
                 "$someDirectory/.editorconfig",
@@ -106,16 +118,19 @@ class EditorConfigFinderTest {
         }
 
         @Test
-        fun `Given a subdirectory containing an editorconfig file and a sibling subdirectory contain a editorconfig file in a parent directory then get the path of all editorconfig file except of the sibling subdirectory`() {
+        fun `Given a subdirectory containing an editorconfig file and a sibling subdirectory contain a editorconfig file in a parent directory then get the path of all editorconfig file except of the sibling subdirectory`(
+            @TempDir
+            tempDir: Path,
+        ) {
             val someProjectDirectory = "some-project"
-            createFile("$someProjectDirectory/.editorconfig", "root=true")
-            createFile("$someProjectDirectory/src/main/kotlin/.editorconfig", "some-property=some-value")
-            createFile("$someProjectDirectory/src/test/kotlin/.editorconfig", "some-property=some-value")
+            tempDir.createFile("$someProjectDirectory/.editorconfig", "root=true")
+            tempDir.createFile("$someProjectDirectory/src/main/kotlin/.editorconfig", "some-property=some-value")
+            tempDir.createFile("$someProjectDirectory/src/test/kotlin/.editorconfig", "some-property=some-value")
 
             val actual =
                 EditorConfigFinder()
-                    .findEditorConfigs(toTempDirPath("$someProjectDirectory/src/main/kotlin"))
-                    .map { it.toPathStringWithoutTempDirPrefix() }
+                    .findEditorConfigs(tempDir.plus("$someProjectDirectory/src/main/kotlin"))
+                    .mapNotNull { it.toRelativePathStringIn(tempDir) }
 
             assertThat(actual)
                 .contains(
@@ -127,16 +142,19 @@ class EditorConfigFinderTest {
         }
 
         @Test
-        fun `Given a directory containing an editorconfig file and multiple subdirectores containing a editorconfig file then get the path of all editorconfig files`() {
+        fun `Given a directory containing an editorconfig file and multiple subdirectores containing a editorconfig file then get the path of all editorconfig files`(
+            @TempDir
+            tempDir: Path,
+        ) {
             val someProjectDirectory = "some-project"
-            createFile("$someProjectDirectory/.editorconfig", "root=true")
-            createFile("$someProjectDirectory/src/main/kotlin/.editorconfig", "some-property=some-value")
-            createFile("$someProjectDirectory/src/test/kotlin/.editorconfig", "some-property=some-value")
+            tempDir.createFile("$someProjectDirectory/.editorconfig", "root=true")
+            tempDir.createFile("$someProjectDirectory/src/main/kotlin/.editorconfig", "some-property=some-value")
+            tempDir.createFile("$someProjectDirectory/src/test/kotlin/.editorconfig", "some-property=some-value")
 
             val actual =
                 EditorConfigFinder()
-                    .findEditorConfigs(toTempDirPath("$someProjectDirectory"))
-                    .map { it.toPathStringWithoutTempDirPrefix() }
+                    .findEditorConfigs(tempDir.plus(someProjectDirectory))
+                    .mapNotNull { it.toRelativePathStringIn(tempDir) }
 
             assertThat(actual).contains(
                 "$someProjectDirectory/.editorconfig",
@@ -146,24 +164,28 @@ class EditorConfigFinderTest {
         }
     }
 
-    private fun createFile(fileName: String, content: String): Path {
+    private fun Path.createFile(fileName: String, content: String): Path {
         val dirPath = fileName.substringBeforeLast("/", "")
-        Files.createDirectories(toTempDirPath(dirPath))
+        Files.createDirectories(plus(dirPath))
         return Files
-            .createFile(toTempDirPath(fileName))
+            .createFile(plus(fileName))
             .also { it.writeText(content) }
     }
 
-    private fun toTempDirPath(subPath: String): Path =
-        tempDir
+    private fun Path.plus(subPath: String): Path =
+        this
             .absolutePathString()
             .plus(File.separator)
             .plus(subPath)
             .let { Paths.get(it) }
 
-    private fun Path.toPathStringWithoutTempDirPrefix() =
-        absolutePathString()
-            .removePrefix(tempDir.absolutePathString())
-            .removePrefix(File.separator)
-            .replace(tempDir.fileSystem.separator, "/")
+    private fun Path.toRelativePathStringIn(tempDir: Path): String? =
+        this
+            .takeIf {
+                // Ignore files created in temp dirs of other tests
+                it.startsWith(tempDir)
+            }?.absolutePathString()
+            ?.replace(tempDir.fileSystem.separator, "/")
+            ?.removePrefix(tempDir.absolutePathString())
+            ?.removePrefix(File.separator)
 }
