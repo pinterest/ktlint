@@ -1,7 +1,7 @@
 package com.pinterest.ktlint
 
 import java.io.ByteArrayInputStream
-import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.SoftAssertions
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.DisabledOnOs
@@ -16,12 +16,13 @@ class SimpleCLITest : BaseCLITest() {
             "no-code-style-error",
             listOf("--help"),
         ) {
-            assertNormalExitCode()
-            assertErrorOutputIsEmpty()
-
-            assert(normalOutput.contains("Usage:") && normalOutput.contains("Examples:")) {
-                "Did not produced help output!\n ${normalOutput.joinToString(separator = "\n")}"
-            }
+            SoftAssertions().apply {
+                assertNormalExitCode()
+                assertErrorOutputIsEmpty()
+                assertThat(normalOutput).containsLineMatching("An anti-bikeshedding Kotlin linter with built-in formatter.")
+                assertThat(normalOutput).containsLineMatching("Usage:")
+                assertThat(normalOutput).containsLineMatching("Examples:")
+            }.assertAll()
         }
     }
 
@@ -31,13 +32,11 @@ class SimpleCLITest : BaseCLITest() {
             "no-code-style-error",
             listOf("--version"),
         ) {
-            assertNormalExitCode()
-            assertErrorOutputIsEmpty()
-
-            val expectedVersion = System.getProperty("ktlint-version")
-            assert(normalOutput.contains(expectedVersion)) {
-                "Output did not contain expected $expectedVersion version:\n ${normalOutput.joinToString(separator = "\n")}"
-            }
+            SoftAssertions().apply {
+                assertNormalExitCode()
+                assertErrorOutputIsEmpty()
+                assertThat(normalOutput).containsExactly(System.getProperty("ktlint-version"))
+            }.assertAll()
         }
     }
 
@@ -46,8 +45,10 @@ class SimpleCLITest : BaseCLITest() {
         runKtLintCliProcess(
             "no-code-style-error",
         ) {
-            assertNormalExitCode()
-            assertErrorOutputIsEmpty()
+            SoftAssertions().apply {
+                assertNormalExitCode()
+                assertErrorOutputIsEmpty()
+            }.assertAll()
         }
     }
 
@@ -56,25 +57,24 @@ class SimpleCLITest : BaseCLITest() {
         runKtLintCliProcess(
             "too-many-empty-lines",
         ) {
-            assertErrorExitCode()
-
-            assert(normalOutput.find { it.contains("Needless blank line(s)") } != null) {
-                "Unexpected output:\n${normalOutput.joinToString(separator = "\n")}"
-            }
+            SoftAssertions().apply {
+                assertErrorExitCode()
+                assertThat(normalOutput).containsLineMatching("Needless blank line(s)")
+            }.assertAll()
         }
     }
 
     @Test
     fun `Given some code with an error but a glob which does not select the file`() {
+        val somePattern = "some-pattern"
         runKtLintCliProcess(
             "too-many-empty-lines",
-            listOf("SomeOtherFile.kt"),
+            listOf(somePattern),
         ) {
-            assertNormalExitCode()
-
-            assert(normalOutput.find { it.contains("No files matched [SomeOtherFile.kt]") } != null) {
-                "Unexpected output:\n${normalOutput.joinToString(separator = "\n")}"
-            }
+            SoftAssertions().apply {
+                assertNormalExitCode()
+                assertThat(normalOutput).containsLineMatching("No files matched [$somePattern]")
+            }.assertAll()
         }
     }
 
@@ -84,11 +84,13 @@ class SimpleCLITest : BaseCLITest() {
             "too-many-empty-lines",
             listOf("-F"),
         ) {
-            assertNormalExitCode()
-            // on JDK11+ contains warning about illegal reflective access operation
-            // assertErrorOutputIsEmpty()
+            SoftAssertions().apply {
+                assertNormalExitCode()
+                // on JDK11+ contains warning about illegal reflective access operation
+                // assertErrorOutputIsEmpty()
 
-            assertSourceFileWasFormatted("Main.kt")
+                assertSourceFileWasFormatted("Main.kt")
+            }.assertAll()
         }
     }
 
@@ -98,27 +100,28 @@ class SimpleCLITest : BaseCLITest() {
             "too-many-empty-lines",
             listOf("--disabled_rules=no-consecutive-blank-lines,no-empty-first-line-in-method-block"),
         ) {
-            assertNormalExitCode()
-
-            assertThat(normalOutput).doesNotContain(
-                "no-consecutive-blank-lines",
-                "no-empty-first-line-in-method-block",
-            )
+            SoftAssertions().apply {
+                assertNormalExitCode()
+                assertThat(normalOutput).doesNotContain(
+                    "no-consecutive-blank-lines",
+                    "no-empty-first-line-in-method-block",
+                )
+            }.assertAll()
         }
     }
 
     @Test
-    fun `Given some code with an error but a pattern read in from stdin which does not select the file`() {
+    fun `Given some code with an error and a pattern which is read in from stdin which does not select the file then return the no files matched warning`() {
+        val somePatternProvidedViaStdin = "some-pattern-provided-via-stdin"
         runKtLintCliProcess(
             "too-many-empty-lines",
             listOf("--patterns-from-stdin"),
-            stdin = ByteArrayInputStream("SomeOtherFile.kt".toByteArray()),
+            stdin = ByteArrayInputStream(somePatternProvidedViaStdin.toByteArray()),
         ) {
-            assertNormalExitCode()
-
-            assert(normalOutput.find { it.contains("No files matched [SomeOtherFile.kt]") } != null) {
-                "Unexpected output:\n${normalOutput.joinToString(separator = "\n")}"
-            }
+            SoftAssertions().apply {
+                assertNormalExitCode()
+                assertThat(normalOutput).containsLineMatching("No files matched [$somePatternProvidedViaStdin]")
+            }.assertAll()
         }
     }
 }
