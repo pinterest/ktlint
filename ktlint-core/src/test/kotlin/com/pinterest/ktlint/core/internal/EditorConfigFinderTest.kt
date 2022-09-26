@@ -8,9 +8,6 @@ import kotlin.io.path.writeText
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertAll
-import org.junit.jupiter.api.condition.EnabledOnOs
-import org.junit.jupiter.api.condition.OS
 import org.junit.jupiter.api.io.TempDir
 
 class EditorConfigFinderTest {
@@ -25,12 +22,11 @@ class EditorConfigFinderTest {
             tempDir.createFile("$someSubDir/.editorconfig", "root=true")
             val kotlinFilePath = tempDir.createFile("$someSubDir/test.kt", "val foo = 42")
 
-            val actual =
-                EditorConfigFinder()
-                    .findEditorConfigs(kotlinFilePath)
-                    .mapNotNull { it.removePrefixOrNull(tempDir) }
+            val actual = EditorConfigFinder().findEditorConfigs(kotlinFilePath)
 
-            assertThat(actual).contains("$someSubDir/.editorconfig")
+            assertThat(actual).contains(
+                tempDir.plus("$someSubDir/.editorconfig"),
+            )
         }
 
         @Test
@@ -42,12 +38,11 @@ class EditorConfigFinderTest {
             tempDir.createFile("$someProjectDirectory/.editorconfig", "root=true")
             val kotlinFilePath = tempDir.createFile("$someProjectDirectory/src/main/kotlin/test.kt", "val foo = 42")
 
-            val actual =
-                EditorConfigFinder()
-                    .findEditorConfigs(kotlinFilePath)
-                    .mapNotNull { it.removePrefixOrNull(tempDir) }
+            val actual = EditorConfigFinder().findEditorConfigs(kotlinFilePath)
 
-            assertThat(actual).contains("$someProjectDirectory/.editorconfig")
+            assertThat(actual).contains(
+                tempDir.plus("$someProjectDirectory/.editorconfig"),
+            )
         }
 
         @Test
@@ -60,14 +55,11 @@ class EditorConfigFinderTest {
             tempDir.createFile("$someProjectDirectory/src/main/.editorconfig", "root=false")
             val kotlinFilePath = tempDir.createFile("$someProjectDirectory/src/main/kotlin/test.kt", "val foo = 42")
 
-            val actual =
-                EditorConfigFinder()
-                    .findEditorConfigs(kotlinFilePath)
-                    .mapNotNull { it.removePrefixOrNull(tempDir) }
+            val actual = EditorConfigFinder().findEditorConfigs(kotlinFilePath)
 
             assertThat(actual).contains(
-                "$someProjectDirectory/.editorconfig",
-                "$someProjectDirectory/src/main/.editorconfig",
+                tempDir.plus("$someProjectDirectory/.editorconfig"),
+                tempDir.plus("$someProjectDirectory/src/main/.editorconfig"),
             )
         }
 
@@ -82,34 +74,7 @@ class EditorConfigFinderTest {
             tempDir.createFile("$someProjectDirectory/.editorconfig", "root=true")
             val kotlinFilePath = tempDir.createFile("$someProjectDirectory/src/main/kotlin/test.kt", "val foo = 42")
 
-            val actual =
-                EditorConfigFinder()
-                    .findEditorConfigs(kotlinFilePath)
-                    .mapNotNull { it.removePrefixOrNull(tempDir) }
-
-            assertThat(actual)
-                .contains(
-                    "$someProjectDirectory/src/main/.editorconfig",
-                    "$someProjectDirectory/src/.editorconfig",
-                ).doesNotContain(
-                    "$someProjectDirectory/.editorconfig",
-                )
-        }
-
-        @Test
-        fun `What is happening here 0`(
-            @TempDir
-            tempDir: Path,
-        ) {
-            val someProjectDirectory = "some-project"
-            tempDir.createFile("$someProjectDirectory/src/main/.editorconfig", "root=false")
-            tempDir.createFile("$someProjectDirectory/src/.editorconfig", "root=true")
-            tempDir.createFile("$someProjectDirectory/.editorconfig", "root=true")
-            val kotlinFilePath = tempDir.createFile("$someProjectDirectory/src/main/kotlin/test.kt", "val foo = 42")
-
-            val actual =
-                EditorConfigFinder()
-                    .findEditorConfigs(kotlinFilePath)
+            val actual = EditorConfigFinder().findEditorConfigs(kotlinFilePath)
 
             assertThat(actual)
                 .contains(
@@ -117,150 +82,6 @@ class EditorConfigFinderTest {
                     tempDir.plus("$someProjectDirectory/src/.editorconfig"),
                 ).doesNotContain(
                     tempDir.plus("$someProjectDirectory/.editorconfig"),
-                )
-        }
-
-        @EnabledOnOs(OS.WINDOWS)
-        @Test
-        fun `What is happening here 1`(
-            @TempDir
-            tempDir: Path,
-        ) {
-            val someProjectDirectory = "some-project"
-            tempDir.createFile("$someProjectDirectory/src/main/.editorconfig", "root=false")
-            tempDir.createFile("$someProjectDirectory/src/.editorconfig", "root=true")
-            tempDir.createFile("$someProjectDirectory/.editorconfig", "root=true")
-            val kotlinFilePath = tempDir.createFile("$someProjectDirectory/src/main/kotlin/test.kt", "val foo = 42")
-
-            val actual =
-                EditorConfigFinder()
-                    .findEditorConfigs(kotlinFilePath)
-                    .map { it.absolutePathString() }
-
-            assertThat(actual)
-                .contains(
-                    "$someProjectDirectory/src/main/.editorconfig",
-                    "$someProjectDirectory/src/.editorconfig",
-                ).doesNotContain(
-                    "$someProjectDirectory/.editorconfig",
-                )
-        }
-
-        @EnabledOnOs(OS.WINDOWS)
-        @Test
-        fun `What is happening here 2`(
-            @TempDir
-            tempDir: Path,
-        ) {
-            val someProjectDirectory = "some-project"
-            tempDir.createFile("$someProjectDirectory/src/main/.editorconfig", "root=false")
-            tempDir.createFile("$someProjectDirectory/src/.editorconfig", "root=true")
-            tempDir.createFile("$someProjectDirectory/.editorconfig", "root=true")
-            val kotlinFilePath = tempDir.createFile("$someProjectDirectory/src/main/kotlin/test.kt", "val foo = 42")
-
-            val actual =
-                EditorConfigFinder()
-                    .findEditorConfigs(kotlinFilePath)
-                    .mapNotNull {
-                        it
-                            .absolutePathString()
-                            .takeIf {
-                                // Ignore files created in temp dirs of other tests
-                                it.startsWith(tempDir.absolutePathString())
-                            }?.removePrefix(tempDir.absolutePathString())
-                            ?.removePrefix(tempDir.fileSystem.separator)
-                            ?.replace(tempDir.fileSystem.separator, "/")
-                    }
-
-            assertAll(
-                {
-                    assertThat(tempDir.absolutePathString()).isEqualTo("something-else")
-                },
-                {
-                    assertThat(tempDir.fileSystem.separator)
-                        .withFailMessage("Path separator")
-                        .isEqualTo("something-else")
-                },
-                {
-                    assertThat(actual)
-                        .withFailMessage("Actual result")
-                        .contains(
-                            "$someProjectDirectory/src/main/.editorconfig",
-                            "$someProjectDirectory/src/.editorconfig",
-                        ).doesNotContain(
-                            "$someProjectDirectory/.editorconfig",
-                        )
-                },
-            )
-        }
-
-        @EnabledOnOs(OS.WINDOWS)
-        @Test
-        fun `What is happening here 3`(
-            @TempDir
-            tempDir: Path,
-        ) {
-            val someProjectDirectory = "some-project"
-            tempDir.createFile("$someProjectDirectory/src/main/.editorconfig", "root=false")
-            tempDir.createFile("$someProjectDirectory/src/.editorconfig", "root=true")
-            tempDir.createFile("$someProjectDirectory/.editorconfig", "root=true")
-            val kotlinFilePath = tempDir.createFile("$someProjectDirectory/src/main/kotlin/test.kt", "val foo = 42")
-
-            val actual =
-                EditorConfigFinder()
-                    .findEditorConfigs(kotlinFilePath)
-                    .mapNotNull {
-                        it
-                            .absolutePathString()
-                            .takeIf {
-                                // Ignore files created in temp dirs of other tests
-                                it.startsWith(tempDir.absolutePathString())
-                            }?.removePrefix(tempDir.absolutePathString())
-                            ?.removePrefix(tempDir.fileSystem.separator)
-                            ?.replace(tempDir.fileSystem.separator, "/")
-                    }
-
-            assertThat(actual)
-                .contains(
-                    "$someProjectDirectory/src/main/.editorconfig",
-                    "$someProjectDirectory/src/.editorconfig",
-                ).doesNotContain(
-                    "$someProjectDirectory/.editorconfig",
-                )
-        }
-
-        @EnabledOnOs(OS.WINDOWS)
-        @Test
-        fun `What is happening here 4`(
-            @TempDir
-            tempDir: Path,
-        ) {
-            val someProjectDirectory = "some-project"
-            tempDir.createFile("$someProjectDirectory/src/main/.editorconfig", "root=false")
-            tempDir.createFile("$someProjectDirectory/src/.editorconfig", "root=true")
-            tempDir.createFile("$someProjectDirectory/.editorconfig", "root=true")
-            val kotlinFilePath = tempDir.createFile("$someProjectDirectory/src/main/kotlin/test.kt", "val foo = 42")
-
-            val actual =
-                EditorConfigFinder()
-                    .findEditorConfigs(kotlinFilePath)
-                    .mapNotNull {
-                        it
-                            .absolutePathString()
-                            .takeIf {
-                                // Ignore files created in temp dirs of other tests
-                                it.startsWith(tempDir.absolutePathString())
-                            }?.removePrefix(tempDir.absolutePathString())
-                            ?.removePrefix(tempDir.fileSystem.separator)
-                            ?.replace(tempDir.fileSystem.separator, "/")
-                    }
-
-            assertThat(actual)
-                .contains(
-                    "$someProjectDirectory/src/main/.editorconfig",
-                    "$someProjectDirectory/src/.editorconfig",
-                ).doesNotContain(
-                    "$someProjectDirectory/.editorconfig",
                 )
         }
     }
@@ -276,14 +97,11 @@ class EditorConfigFinderTest {
             tempDir.createFile("$someDirectory/.editorconfig", "root=true")
             tempDir.createFile("$someDirectory/src/main/kotlin/.editorconfig", "some-property=some-value")
 
-            val actual =
-                EditorConfigFinder()
-                    .findEditorConfigs(tempDir.plus(someDirectory))
-                    .mapNotNull { it.removePrefixOrNull(tempDir) }
+            val actual = EditorConfigFinder().findEditorConfigs(tempDir.plus(someDirectory))
 
             assertThat(actual).contains(
-                "$someDirectory/.editorconfig",
-                "$someDirectory/src/main/kotlin/.editorconfig",
+                tempDir.plus("$someDirectory/.editorconfig"),
+                tempDir.plus("$someDirectory/src/main/kotlin/.editorconfig"),
             )
         }
 
@@ -297,17 +115,14 @@ class EditorConfigFinderTest {
             tempDir.createFile("$someProjectDirectory/src/main/kotlin/.editorconfig", "some-property=some-value")
             tempDir.createFile("$someProjectDirectory/src/test/kotlin/.editorconfig", "some-property=some-value")
 
-            val actual =
-                EditorConfigFinder()
-                    .findEditorConfigs(tempDir.plus("$someProjectDirectory/src/main/kotlin"))
-                    .mapNotNull { it.removePrefixOrNull(tempDir) }
+            val actual = EditorConfigFinder().findEditorConfigs(tempDir.plus("$someProjectDirectory/src/main/kotlin"))
 
             assertThat(actual)
                 .contains(
-                    "$someProjectDirectory/.editorconfig",
-                    "$someProjectDirectory/src/main/kotlin/.editorconfig",
+                    tempDir.plus("$someProjectDirectory/.editorconfig"),
+                    tempDir.plus("$someProjectDirectory/src/main/kotlin/.editorconfig"),
                 ).doesNotContain(
-                    "$someProjectDirectory/src/test/kotlin/.editorconfig",
+                    tempDir.plus("$someProjectDirectory/src/test/kotlin/.editorconfig"),
                 )
         }
 
@@ -321,15 +136,12 @@ class EditorConfigFinderTest {
             tempDir.createFile("$someProjectDirectory/src/main/kotlin/.editorconfig", "some-property=some-value")
             tempDir.createFile("$someProjectDirectory/src/test/kotlin/.editorconfig", "some-property=some-value")
 
-            val actual =
-                EditorConfigFinder()
-                    .findEditorConfigs(tempDir.plus(someProjectDirectory))
-                    .mapNotNull { it.removePrefixOrNull(tempDir) }
+            val actual = EditorConfigFinder().findEditorConfigs(tempDir.plus(someProjectDirectory))
 
             assertThat(actual).contains(
-                "$someProjectDirectory/.editorconfig",
-                "$someProjectDirectory/src/main/kotlin/.editorconfig",
-                "$someProjectDirectory/src/test/kotlin/.editorconfig",
+                tempDir.plus("$someProjectDirectory/.editorconfig"),
+                tempDir.plus("$someProjectDirectory/src/main/kotlin/.editorconfig"),
+                tempDir.plus("$someProjectDirectory/src/test/kotlin/.editorconfig"),
             )
         }
     }
@@ -348,14 +160,4 @@ class EditorConfigFinderTest {
             .plus(this.fileSystem.separator)
             .plus(subPath)
             .let { Paths.get(it) }
-
-    private fun Path.removePrefixOrNull(tempDir: Path): String? =
-        this
-            .absolutePathString()
-            .takeIf {
-                // Ignore files created in temp dirs of other tests
-                it.startsWith(tempDir.absolutePathString())
-            }?.removePrefix(tempDir.absolutePathString())
-            ?.removePrefix(tempDir.fileSystem.separator)
-            ?.replace(tempDir.fileSystem.separator, "/")
 }
