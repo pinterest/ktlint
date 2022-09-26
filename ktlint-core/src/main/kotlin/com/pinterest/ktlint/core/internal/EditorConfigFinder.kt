@@ -31,7 +31,11 @@ internal class EditorConfigFinder {
             result += findEditorConfigsInSubDirectories(normalizedPath)
         }
         result += findEditorConfigsInParentDirectories(normalizedPath)
-        return result.toList()
+        return result
+            .map {
+                // Resolve against original path as the drive letter seems to get lost on WindowsOs
+                path.resolve(it)
+            }.toList()
     }
 
     private fun findEditorConfigsInSubDirectories(path: Path): List<Path> {
