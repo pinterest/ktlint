@@ -71,6 +71,18 @@ class ThreadSafeEditorConfigCacheTest {
     }
 
     @Test
+    fun `Given that a file is stored in the cache and then file is explicitly reloaded`() {
+        val threadSafeEditorConfigCache = ThreadSafeEditorConfigCache()
+
+        val editorConfigLoaderFile1 = EditorConfigLoaderMock(EDIT_CONFIG_1)
+        threadSafeEditorConfigCache.get(FILE_1, editorConfigLoaderFile1)
+        threadSafeEditorConfigCache.reloadIfExists(FILE_1)
+        threadSafeEditorConfigCache.reloadIfExists(FILE_1)
+
+        assertThat(editorConfigLoaderFile1.loadCount).isEqualTo(3)
+    }
+
+    @Test
     fun `Given that a file is stored in the cache and then the cache is cleared and the file is requested again then the file is to be reloaded`() {
         val threadSafeEditorConfigCache = ThreadSafeEditorConfigCache()
 
@@ -81,18 +93,6 @@ class ThreadSafeEditorConfigCacheTest {
         threadSafeEditorConfigCache.get(FILE_1, editorConfigLoaderFile1)
 
         assertThat(editorConfigLoaderFile1.loadCount).isEqualTo(2)
-    }
-
-    @Test
-    fun `Given that a file is stored in the cache and then file is explicitly reloaded`() {
-        val threadSafeEditorConfigCache = ThreadSafeEditorConfigCache()
-
-        val editorConfigLoaderFile1 = EditorConfigLoaderMock(EDIT_CONFIG_1)
-        threadSafeEditorConfigCache.get(FILE_1, editorConfigLoaderFile1)
-        threadSafeEditorConfigCache.reloadIfExists(FILE_1)
-        threadSafeEditorConfigCache.reloadIfExists(FILE_1)
-
-        assertThat(editorConfigLoaderFile1.loadCount).isEqualTo(3)
     }
 
     private companion object {
