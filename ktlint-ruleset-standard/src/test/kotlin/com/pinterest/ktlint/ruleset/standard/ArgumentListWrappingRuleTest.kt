@@ -1,6 +1,8 @@
 package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.maxLineLengthProperty
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE
@@ -798,5 +800,48 @@ class ArgumentListWrappingRuleTest {
             }
             """.trimIndent()
         argumentListWrappingRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Issue 1643 - do not wrap arguments if after wrapping rule the max line is no longer exceeded`() {
+        val code =
+            """
+            // $MAX_LINE_LENGTH_MARKER                                                   $EOL_CHAR
+            class Bar1 {
+                val barrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr by lazy {
+                    fooooooooooooo("fooooooooooooooooooooooooooooooooooooooooooooo", true)
+                }
+            }
+            class Bar2 {
+                val barrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr by lazy { fooooooooooooo("fooooooooooooooooooooooooooooooooooooooooooooo", true) }
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            // $MAX_LINE_LENGTH_MARKER                                                   $EOL_CHAR
+            class Bar1 {
+                val barrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr by lazy {
+                    fooooooooooooo("fooooooooooooooooooooooooooooooooooooooooooooo", true)
+                }
+            }
+            class Bar2 {
+                val barrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr by lazy {
+                    fooooooooooooo("fooooooooooooooooooooooooooooooooooooooooooooo", true)
+                }
+            }
+            """.trimIndent()
+        argumentListWrappingRuleAssertThat(code)
+            .setMaxLineLength()
+            .addAdditionalRuleProvider { WrappingRule() }
+            .hasLintViolations(
+                // During lint the violations below are reported because during linting, each rule reports its
+                // violations independently and can not anticipate on autocorrects which would have been made by other
+                // rules if those rules (i.e. the 'wrapping' rule) would have executed before the current rule (i.e. the
+                // 'argument-list-wrapping' rule)
+                LintViolation(8, 68, "Argument should be on a separate line (unless all arguments can fit a single line)"),
+                LintViolation(8, 118, "Argument should be on a separate line (unless all arguments can fit a single line)"),
+                LintViolation(8, 122, "Missing newline before \")\""),
+            )
+            .isFormattedAs(formattedCode)
     }
 }
