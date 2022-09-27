@@ -43,8 +43,10 @@ import kotlin.system.exitProcess
 import mu.KLogger
 import mu.KotlinLogging
 import org.jetbrains.kotlin.utils.addToStdlib.applyIf
+import picocli.CommandLine
 import picocli.CommandLine.Command
 import picocli.CommandLine.Option
+import picocli.CommandLine.ParameterException
 import picocli.CommandLine.Parameters
 
 private lateinit var logger: KLogger
@@ -90,6 +92,9 @@ Flags:
     versionProvider = KtlintVersionProvider::class,
 )
 internal class KtlintCommandLine {
+
+    @CommandLine.Spec
+    private lateinit var commandSpec: CommandLine.Model.CommandSpec
 
     @Option(
         names = ["--android", "-a"],
@@ -176,6 +181,18 @@ internal class KtlintCommandLine {
     private var stdin: Boolean = false
 
     @Option(
+        names = ["--patterns-from-stdin"],
+        description = [
+            "Read additional patterns to check/format from stdin. " +
+                "Patterns are delimited by the given argument. (default is newline) " +
+                "If the argument is an empty string, the NUL byte is used.",
+        ],
+        arity = "0..1",
+        fallbackValue = "\n",
+    )
+    private var stdinDelimiter: String? = null
+
+    @Option(
         names = ["--verbose", "-v"],
         description = ["Show error codes"],
     )
@@ -216,6 +233,11 @@ internal class KtlintCommandLine {
             debug = true
         }
         logger = configureLogger()
+
+        assertStdinAndPatternsFromStdinOptionsMutuallyExclusive()
+
+        val stdinPatterns: Set<String> = readPatternsFromStdin()
+        patterns.addAll(stdinPatterns)
 
         // Set default value to patterns only after the logger has been configured to avoid a warning about initializing
         // the logger multiple times
@@ -296,6 +318,15 @@ internal class KtlintCommandLine {
                 }
             }
             .initKtLintKLogger()
+
+    private fun assertStdinAndPatternsFromStdinOptionsMutuallyExclusive() {
+        if (stdin && stdinDelimiter != null) {
+            throw ParameterException(
+                commandSpec.commandLine(),
+                "Options --stdin and --patterns-from-stdin mutually exclusive",
+            )
+        }
+    }
 
     private fun lintFiles(
         ruleProviders: Set<RuleProvider>,
@@ -531,6 +562,18 @@ internal class KtlintCommandLine {
                 }
                 map
             }
+
+    private fun readPatternsFromStdin(): Set<String> {
+        val delimiter: String = stdinDelimiter
+            ?.ifEmpty { "\u0000" }
+            ?: return emptySet()
+
+        return String(System.`in`.readBytes())
+            .split(delimiter)
+            .let { patterns: List<String> ->
+                patterns.filterTo(LinkedHashSet(patterns.size), String::isNotEmpty)
+            }
+    }
 
     private fun File.mkdirsOrFail() {
         if (!mkdirs() && !isDirectory) {

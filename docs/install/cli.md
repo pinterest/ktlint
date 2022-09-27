@@ -189,6 +189,9 @@ ktlint installGitPrePushHook
 
 `--relative`: Print files relative to the working directory (e.g. dir/file.kt instead of /home/user/project/dir/file.kt)
 
+`--patterns-from-stdin[=<delimiter>]`: Reads additional patterns from `stdin`, where the patterns are separated by `<delimiter>`. If `=<delimiter>` is omitted, newline is used as fallback delimiter. If an empty string is given, the `NUL` byte is used as delimiter instead.
+Options `--stdin` and `--patterns-from-stdin` are mutually exclusive, only one of them can be given at a time.
+
 `-v`, `--verbose` or `--debug`: Turn on debug output. Also option `--trace` is available, but this is meant for ktlint library developers.
 
 `-V` or `--version`: Prints version information and exit.
