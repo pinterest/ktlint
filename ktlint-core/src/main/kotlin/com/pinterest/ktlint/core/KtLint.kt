@@ -8,6 +8,7 @@ import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.emptyEditorConfigOverride
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
+import com.pinterest.ktlint.core.internal.EditorConfigFinder
 import com.pinterest.ktlint.core.internal.EditorConfigGenerator
 import com.pinterest.ktlint.core.internal.EditorConfigLoader
 import com.pinterest.ktlint.core.internal.RuleExecutionContext
@@ -27,6 +28,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.openapi.util.Key
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
+@Suppress("MemberVisibilityCanBePrivate")
 public object KtLint {
     public val FILE_PATH_USER_DATA_KEY: Key<String> = Key<String>("FILE_PATH")
 
@@ -330,9 +332,20 @@ public object KtLint {
     }
 
     /**
+     * Get the list of files which will be accessed by KtLint when linting or formatting the given file or directory.
+     * The API consumer can use this list to observe changes in '.editorconfig` files. Whenever such a change is
+     * observed, the API consumer should call [reloadEditorConfigFile].
+     * To avoid unnecessary access to the file system, it is best to call this method only once for the root of the
+     * project which is to be [lint] or [format].
+     */
+    public fun editorConfigFilePaths(path: Path): List<Path> =
+        EditorConfigFinder().findEditorConfigs(path)
+
+    /**
      * Reloads an '.editorconfig' file given that it is currently loaded into the KtLint cache. This method is intended
      * to be called by the API consumer when it is aware of changes in the '.editorconfig' file that should be taken
-     * into account with next calls to [lint] and/or [format].
+     * into account with next calls to [lint] and/or [format]. See [editorConfigFilePaths] to get the list of
+     * '.editorconfig' files which need to be observed.
      */
     public fun reloadEditorConfigFile(path: Path) {
         threadSafeEditorConfigCache.reloadIfExists(
