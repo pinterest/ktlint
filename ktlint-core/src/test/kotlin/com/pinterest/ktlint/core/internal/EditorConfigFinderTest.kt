@@ -127,7 +127,7 @@ class EditorConfigFinderTest {
         }
 
         @Test
-        fun `Given a directory containing an editorconfig file and multiple subdirectores containing a editorconfig file then get the path of all editorconfig files`(
+        fun `Given a directory containing an editorconfig file and multiple subdirectories containing a editorconfig file then get the path of all editorconfig files`(
             @TempDir
             tempDir: Path,
         ) {
