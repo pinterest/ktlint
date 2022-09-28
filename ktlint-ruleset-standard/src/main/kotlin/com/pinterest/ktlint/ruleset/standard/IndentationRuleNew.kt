@@ -27,6 +27,7 @@ import com.pinterest.ktlint.core.ast.ElementType.KDOC_START
 import com.pinterest.ktlint.core.ast.ElementType.LONG_STRING_TEMPLATE_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.LONG_TEMPLATE_ENTRY_END
 import com.pinterest.ktlint.core.ast.ElementType.LONG_TEMPLATE_ENTRY_START
+import com.pinterest.ktlint.core.ast.ElementType.LPAR
 import com.pinterest.ktlint.core.ast.ElementType.OPEN_QUOTE
 import com.pinterest.ktlint.core.ast.ElementType.PARENTHESIZED
 import com.pinterest.ktlint.core.ast.ElementType.PROPERTY
@@ -48,9 +49,12 @@ import com.pinterest.ktlint.core.ast.isRoot
 import com.pinterest.ktlint.core.ast.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.core.ast.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.core.ast.lastChildLeafOrSelf
+import com.pinterest.ktlint.core.ast.nextCodeSibling
 import com.pinterest.ktlint.core.ast.nextLeaf
+import com.pinterest.ktlint.core.ast.nextSibling
 import com.pinterest.ktlint.core.ast.parent
 import com.pinterest.ktlint.core.ast.prevCodeSibling
+import com.pinterest.ktlint.core.ast.prevLeaf
 import com.pinterest.ktlint.core.ast.prevSibling
 import com.pinterest.ktlint.core.initKtLintKLogger
 import java.util.Deque
@@ -172,7 +176,6 @@ public class IndentationRuleNew :
             }
             node.elementType == BLOCK ||
                 node.elementType == CLASS_BODY ||
-                node.elementType == CONDITION ||
                 node.elementType == FUNCTION_LITERAL ||
                 node.elementType == STRING_TEMPLATE ||
                 node.elementType == LONG_STRING_TEMPLATE_ENTRY ||
@@ -192,7 +195,33 @@ public class IndentationRuleNew :
                     toAstNode = node.treeParent.lastChildLeafOrSelf(),
                 )
             }
-            node.elementType == WHILE -> {
+            node.elementType == LPAR && node.nextCodeSibling()?.elementType == CONDITION -> {
+                currentIndentLevel()
+                    .let { currentIndentLevel ->
+                        startIndentContext(
+                            fromAstNode = requireNotNull(node.nextLeaf()), // Allow to pickup whitespace before condition
+                            toAstNode = requireNotNull(node.nextCodeSibling()).lastChildLeafOrSelf(), // Ignore whitespace after condition but before rpar
+                            nodeIndentLevel = currentIndentLevel + 1,
+                            childIndentLevel = currentIndentLevel + 1,
+                       )
+                    }
+            }
+            false && node.elementType == LPAR && node.nextCodeSibling()?.elementType == CONDITION -> {
+                val rpar =
+                    requireNotNull(
+                        node.nextSibling { it.elementType == RPAR },
+                    )
+                currentIndentLevel()
+                    .let { currentIndentLevel ->
+                        startIndentContext(
+                            node,
+                            rpar,
+                            currentIndentLevel + 1,
+                            currentIndentLevel + 1,
+                        )
+                    }
+            }
+            false && node.elementType == WHILE -> {
                 startIndentContextSameAsParent(
                     fromAstNode = node,
                     toAstNode = requireNotNull(node.findChildByType(RPAR)),
@@ -252,23 +281,27 @@ public class IndentationRuleNew :
         fromAstNode: ASTNode,
         toAstNode: ASTNode = fromAstNode.lastChildLeafOrSelf(),
     ) {
-        val parent = indentContextStack.peekLast()
-        if (parent.unchanged) {
-            startIndentContext(
-                fromAstNode,
-                toAstNode,
-                parent.nodeIndentLevel,
-                parent.childIndentLevel,
-            )
-        } else {
-            startIndentContext(
-                fromAstNode,
-                toAstNode,
-                parent.childIndentLevel,
-                parent.childIndentLevel + 1,
-            )
-        }
+        currentIndentLevel()
+            .let { currentIndentLevel ->
+                startIndentContext(
+                    fromAstNode,
+                    toAstNode,
+                    currentIndentLevel,
+                    currentIndentLevel + 1,
+                )
+            }
     }
+
+    private fun currentIndentLevel() =
+        indentContextStack
+            .peekLast()
+            .let { lastIndentContextStack ->
+                if (lastIndentContextStack.unchanged) {
+                    lastIndentContextStack.nodeIndentLevel
+                } else {
+                    lastIndentContextStack.childIndentLevel
+                }
+            }
 
     private fun startIndentContext(
         fromAstNode: ASTNode,
@@ -287,11 +320,17 @@ public class IndentationRuleNew :
             .addLast(newIndentContext)
             .also {
                 logger.trace {
-                    val context = fromAstNode
-                        .leaves()
-                        .takeWhile { it != toAstNode }
-                        .joinToString(separator = "") { it.text }
-                        .textWithEscapedTabAndNewline()
+                    val context =
+                        fromAstNode
+                            .prevLeaf() // The 'fromAstNode' itself needs to be returned by '.leaves()' call as well
+                            ?.leaves()
+                            .orEmpty()
+                            .takeWhile {
+                                // The 'toAstNode' itself nees to be included as well
+                                it != toAstNode.nextLeaf()
+                            }
+                            .joinToString(separator = "") { it.text }
+                            .textWithEscapedTabAndNewline()
                     "Create new indent context (same as parent) with level (${newIndentContext.nodeIndentLevel}, ${newIndentContext.childIndentLevel})  for ${fromAstNode.elementType}: $context"
                 }
             }
@@ -302,7 +341,9 @@ public class IndentationRuleNew :
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
-        while (indentContextStack.isNotEmpty() && indentContextStack.last.toASTNode == node) {
+//        while (indentContextStack.isNotEmpty() && indentContextStack.last.toASTNode == node) {
+        Unit
+        while (indentContextStack.peekLast()?.toASTNode == node) {
             indentContextStack.removeLast()
         }
     }

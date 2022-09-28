@@ -304,25 +304,15 @@ internal class IndentationRuleTest {
     fun `remove me first`() {
         val code =
             """
-            fun foo() {
-            while (
-            listOf<Any>()
-            .toString()
-            .isEmpty() &&
-            false ||
-            (
-            true ||
-            false ||
-            listOf<Any>()
-            .toString()
-            .isEmpty()
-            ) ||
-            false
-            ) {
-            println("hello")
-            }
-            }
-            """.trimIndent()
+                fun foo() {
+                while (
+                true ||
+                false
+                ) {
+                println("hello")
+                }
+                }
+                """.trimIndent()
         val formattedCode =
             """
             xxx
@@ -335,16 +325,15 @@ internal class IndentationRuleTest {
     fun `remove me too`() {
         val code =
             """
-            fun foo() {
-                while (
-                    true ||
-                    false
+            fun foo(i1: Int, i2: Int) =
+                if (i1 > 0 &&
+                    i2 < 0
                 ) {
-                    println("hello")
+                    1
+                } else {
+                    2
                 }
-            }
             """.trimIndent()
-                .replacePlaceholderWithStringTemplate()
         val formattedCode =
             """
             xxx
