@@ -304,15 +304,25 @@ internal class IndentationRuleTest {
     fun `remove me first`() {
         val code =
             """
-                fun foo() {
+            fun foo() {
                 while (
-                true ||
-                false
+                    listOf<Any>()
+                        .toString()
+                        .isEmpty() &&
+                    false ||
+                    (
+                        true ||
+                            false ||
+                            listOf<Any>()
+                                .toString()
+                                .isEmpty()
+                        ) ||
+                    false
                 ) {
-                println("hello")
+                    println("hello")
                 }
-                }
-                """.trimIndent()
+            }
+            """.trimIndent()
         val formattedCode =
             """
             xxx
@@ -1664,15 +1674,15 @@ internal class IndentationRuleTest {
                     LintViolation(3, 1, "Unexpected indentation (0) (should be 8)"),
                     LintViolation(4, 1, "Unexpected indentation (0) (should be 12)"),
                     LintViolation(5, 1, "Unexpected indentation (0) (should be 12)"),
-                    LintViolation(6, 1, "Unexpected indentation (0) (should be 12)"),
-                    LintViolation(7, 1, "Unexpected indentation (0) (should be 12)"),
-                    LintViolation(8, 1, "Unexpected indentation (0) (should be 16)"),
-                    LintViolation(9, 1, "Unexpected indentation (0) (should be 20)"),
-                    LintViolation(10, 1, "Unexpected indentation (0) (should be 20)"),
-                    LintViolation(11, 1, "Unexpected indentation (0) (should be 24)"),
-                    LintViolation(12, 1, "Unexpected indentation (0) (should be 24)"),
-                    LintViolation(13, 1, "Unexpected indentation (0) (should be 16)"),
-                    LintViolation(14, 1, "Unexpected indentation (0) (should be 12)"),
+                    LintViolation(6, 1, "Unexpected indentation (0) (should be 8)"),
+                    LintViolation(7, 1, "Unexpected indentation (0) (should be 8)"),
+                    LintViolation(8, 1, "Unexpected indentation (0) (should be 12)"),
+                    LintViolation(9, 1, "Unexpected indentation (0) (should be 16)"),
+                    LintViolation(10, 1, "Unexpected indentation (0) (should be 16)"),
+                    LintViolation(11, 1, "Unexpected indentation (0) (should be 20)"),
+                    LintViolation(12, 1, "Unexpected indentation (0) (should be 20)"),
+                    LintViolation(13, 1, "Unexpected indentation (0) (should be 12)"),
+                    LintViolation(14, 1, "Unexpected indentation (0) (should be 8)"),
                     LintViolation(15, 1, "Unexpected indentation (0) (should be 4)"),
                     LintViolation(16, 1, "Unexpected indentation (0) (should be 8)"),
                     LintViolation(17, 1, "Unexpected indentation (0) (should be 4)"),

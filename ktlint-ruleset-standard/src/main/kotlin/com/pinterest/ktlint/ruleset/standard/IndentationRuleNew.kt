@@ -8,7 +8,6 @@ import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentSizePro
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentStyleProperty
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
-import com.pinterest.ktlint.core.ast.ElementType.ARROW
 import com.pinterest.ktlint.core.ast.ElementType.BINARY_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.BLOCK
 import com.pinterest.ktlint.core.ast.ElementType.BLOCK_COMMENT
@@ -26,7 +25,6 @@ import com.pinterest.ktlint.core.ast.ElementType.KDOC_LEADING_ASTERISK
 import com.pinterest.ktlint.core.ast.ElementType.KDOC_START
 import com.pinterest.ktlint.core.ast.ElementType.LONG_STRING_TEMPLATE_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.LONG_TEMPLATE_ENTRY_END
-import com.pinterest.ktlint.core.ast.ElementType.LONG_TEMPLATE_ENTRY_START
 import com.pinterest.ktlint.core.ast.ElementType.LPAR
 import com.pinterest.ktlint.core.ast.ElementType.OPEN_QUOTE
 import com.pinterest.ktlint.core.ast.ElementType.PARENTHESIZED
@@ -42,7 +40,6 @@ import com.pinterest.ktlint.core.ast.ElementType.VALUE_ARGUMENT_LIST
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.core.ast.ElementType.WHEN
 import com.pinterest.ktlint.core.ast.ElementType.WHEN_ENTRY
-import com.pinterest.ktlint.core.ast.ElementType.WHILE
 import com.pinterest.ktlint.core.ast.children
 import com.pinterest.ktlint.core.ast.isPartOfComment
 import com.pinterest.ktlint.core.ast.isRoot
@@ -64,6 +61,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.psi.psiUtil.leaves
+import org.jetbrains.kotlin.psi.psiUtil.parents
 
 private val logger = KotlinLogging.logger {}.initKtLintKLogger()
 
@@ -147,22 +145,7 @@ public class IndentationRuleNew :
             }
         }
         when {
-            node.isWhiteSpaceWithNewline() &&
-                (
-                    node.treeParent?.elementType == ARROW ||
-                        node.treeParent?.elementType == BLOCK ||
-                        node.treeParent?.elementType == BINARY_EXPRESSION ||
-                        node.treeParent?.elementType == CONDITION ||
-                        node.treeParent?.elementType == DOT_QUALIFIED_EXPRESSION ||
-                        node.treeParent?.elementType == FUNCTION_LITERAL ||
-                        node.treeParent?.elementType == LONG_TEMPLATE_ENTRY_START ||
-                        node.treeParent?.elementType == PARENTHESIZED ||
-                        node.treeParent?.elementType == PROPERTY ||
-                        node.treeParent?.elementType == TYPE_ARGUMENT_LIST ||
-                        node.treeParent?.elementType == VALUE_ARGUMENT_LIST ||
-                        node.treeParent?.elementType == VALUE_PARAMETER_LIST ||
-                        node.treeParent?.elementType == WHEN
-                    ) -> {
+            node.isWhiteSpaceWithNewline() -> {
                 visitWhiteSpace(node, autoCorrect, emit)
             }
             node.isWhiteSpaceWithNewline() &&
@@ -203,29 +186,8 @@ public class IndentationRuleNew :
                             toAstNode = requireNotNull(node.nextCodeSibling()).lastChildLeafOrSelf(), // Ignore whitespace after condition but before rpar
                             nodeIndentLevel = currentIndentLevel + 1,
                             childIndentLevel = currentIndentLevel + 1,
-                       )
-                    }
-            }
-            false && node.elementType == LPAR && node.nextCodeSibling()?.elementType == CONDITION -> {
-                val rpar =
-                    requireNotNull(
-                        node.nextSibling { it.elementType == RPAR },
-                    )
-                currentIndentLevel()
-                    .let { currentIndentLevel ->
-                        startIndentContext(
-                            node,
-                            rpar,
-                            currentIndentLevel + 1,
-                            currentIndentLevel + 1,
                         )
                     }
-            }
-            false && node.elementType == WHILE -> {
-                startIndentContextSameAsParent(
-                    fromAstNode = node,
-                    toAstNode = requireNotNull(node.findChildByType(RPAR)),
-                )
             }
             node.elementType == CLASS &&
                 node.findChildByType(SUPER_TYPE_LIST) != null ->
@@ -234,9 +196,15 @@ public class IndentationRuleNew :
                     toAstNode = node.findChildByType(SUPER_TYPE_LIST)!!.lastChildLeafOrSelf(),
                 )
             node.elementType == BINARY_EXPRESSION -> {
-                if (node.treeParent?.elementType != BINARY_EXPRESSION) {
+                if (isPartOfBinaryExpressionWrappedInCondition(node)) {
+                    startIndentContextSameAsParent(
+                        fromAstNode = node.firstChildNode,
+                        toAstNode = node.firstChildNode.lastChildLeafOrSelf(),
+                    )
+                } else if (node.treeParent?.elementType != BINARY_EXPRESSION) {
                     startIndentContextSameAsParent(node)
                 }
+                Unit
             }
             node.elementType == DOT_QUALIFIED_EXPRESSION -> {
                 if (node.treeParent?.firstChildNode?.elementType != DOT_QUALIFIED_EXPRESSION) {
@@ -276,6 +244,13 @@ public class IndentationRuleNew :
             )
         }
     }
+
+    private fun isPartOfBinaryExpressionWrappedInCondition(node: ASTNode) =
+        node
+            .parents()
+            .takeWhile { it.elementType == BINARY_EXPRESSION || it.elementType == CONDITION }
+            .lastOrNull()
+            ?.elementType == CONDITION
 
     private fun startIndentContextSameAsParent(
         fromAstNode: ASTNode,
@@ -341,10 +316,29 @@ public class IndentationRuleNew :
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
-//        while (indentContextStack.isNotEmpty() && indentContextStack.last.toASTNode == node) {
-        Unit
         while (indentContextStack.peekLast()?.toASTNode == node) {
             indentContextStack.removeLast()
+        }
+
+        if (isPartOfBinaryExpressionWrappedInCondition(node)) {
+            val binaryExpression = node.treeParent
+            if (indentContextStack.peekLast().fromASTNode == binaryExpression) {
+                // Remove the indent context for the left-hand side of the binary expression
+                indentContextStack.removeLast()
+                // Complex binary expression are nested in such a way that the indent context of the condition wrapper
+                // is not the last node on the stack
+                val conditionIndentContext =
+                    indentContextStack
+                        .filterNot { it.fromASTNode.elementType == BINARY_EXPRESSION }
+                        .last()
+                // Create new indent context for the remainder (operator and right-hand side) of the binary expression
+                startIndentContext(
+                    fromAstNode = requireNotNull(node.nextSibling { true }),
+                    toAstNode = binaryExpression.lastChildLeafOrSelf(),
+                    nodeIndentLevel = conditionIndentContext.nodeIndentLevel,
+                    childIndentLevel = conditionIndentContext.childIndentLevel,
+                )
+            }
         }
     }
 
@@ -400,8 +394,6 @@ public class IndentationRuleNew :
         val adjustedExpectedIndent =
             if (isClosingNode) {
                 lastIndexContext.nodeIndentLevel
-//                indentContextStack.removeLast()
-//                indentContextStack.peekLast().childIndentLevel
             } else {
                 lastIndexContext.childIndentLevel
             }
