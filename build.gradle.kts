@@ -66,21 +66,14 @@ githubRelease {
     tagName(project.properties["VERSION_NAME"].toString())
     releaseName(project.properties["VERSION_NAME"].toString())
     targetCommitish("master")
-    releaseAssets(
-        project.files(
-            {
-                // "shadowJarExecutableChecksum" task does not declare checksum files
-                // as output, only the whole output directory. As it uses the same directory
-                // as "shadowJarExecutable" - just pass all the files from that directory
-                projects.ktlint.dependencyProject.tasks.named("shadowJarExecutable").get()
-                    .outputs
-                    .files
-                    .getFiles()
-                    .first()
-                    .parentFile
-                    .listFiles()
-            },
-        ),
+    releaseAssets.from(
+        provider {
+            // "shadowJarExecutableChecksum" task does not declare checksum files
+            // as output, only the whole output directory. As it uses the same directory
+            // as "shadowJarExecutable" - just pass all the files from that directory
+            projects.ktlint.dependencyProject.tasks.named("shadowJarExecutable").get()
+                .outputs.files.files.first().parentFile.listFiles()
+        },
     )
     overwrite(true)
     dryRun(false)
