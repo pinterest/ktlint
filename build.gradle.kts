@@ -31,6 +31,8 @@ tasks.register<JavaExec>("ktlint") {
     mainClass.set("com.pinterest.ktlint.Main")
     args(
         "**/src/**/*.kt",
+        "**.kts",
+        "!**/build/**",
         // Exclude sources which contain lint violations for the purpose of testing.
         "!ktlint/src/test/resources/**",
         "--baseline=ktlint/src/test/resources/test-baseline.xml",
