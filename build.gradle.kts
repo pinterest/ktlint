@@ -53,7 +53,7 @@ fun getGithubToken(): String {
 }
 
 // Explicitly adding dependency on "shadowJarExecutable" as Gradle does not it set via "releaseAssets" property
-tasks.named("githubRelease").configure {
+tasks.named("githubRelease") {
     dependsOn(provider { projects.ktlint.dependencyProject.tasks.named("shadowJarExecutable") })
 }
 
@@ -91,7 +91,7 @@ githubRelease {
 }
 
 // Put "servers.github.privKey" in "$HOME/.gradle/gradle.properties".
-val announceTask = tasks.register("announceRelease", Exec::class.java) {
+val announceRelease by tasks.registering(Exec::class) {
     group = "Help"
     description = "Runs .announce script"
     subprojects.filter {
@@ -102,10 +102,10 @@ val announceTask = tasks.register("announceRelease", Exec::class.java) {
 
     commandLine("./.announce", "-y")
     environment("VERSION" to "${project.property("VERSION_NAME")}")
-    environment("GITHUB_TOKEN" to "${getGithubToken()}")
+    environment("GITHUB_TOKEN" to getGithubToken())
 }
 
-val homebrewTask = tasks.register("homebrewBumpFormula", Exec::class.java) {
+val homebrewBumpFormula by tasks.registering(Exec::class) {
     group = "Help"
     description = "Runs brew bump-forumula-pr"
     commandLine("./.homebrew")
@@ -116,7 +116,7 @@ val homebrewTask = tasks.register("homebrewBumpFormula", Exec::class.java) {
 tasks.register("publishNewRelease", DefaultTask::class) {
     group = "Help"
     description = "Triggers uploading new archives and publish announcements"
-    dependsOn(announceTask, homebrewTask, tasks.named("githubRelease"))
+    dependsOn(announceRelease, homebrewBumpFormula, tasks.named("githubRelease"))
 }
 
 tasks.wrapper {
