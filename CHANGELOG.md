@@ -26,7 +26,7 @@ Calling this API with a file path results in the `.editorconfig` files that will
 * Do not add a trailing comma in case a multiline function call argument is found but no newline between the arguments `trailing-comma-on-call-site` ([#1642](https://github.com/pinterest/ktlint/issue/1642))
 
 ### Changed
-
+* Update Kotlin development version to `1.7.20` and Kotlin version to `1.7.20`.
 
 ## [0.47.1] - 2022-09-07
 
