@@ -1733,7 +1733,7 @@ internal class IndentationRuleTest {
                     }
                 }
                 """.trimIndent()
-            indentationRuleAssertThat(code)
+            newIndentationRuleAssertThat(code)
                 .hasLintViolations(
                     LintViolation(2, 1, "Unexpected indentation (0) (should be 4)"),
                     LintViolation(3, 1, "Unexpected indentation (0) (should be 8)"),
@@ -2088,7 +2088,7 @@ internal class IndentationRuleTest {
                 )
                 private val foo: String = "foo"
                 """.trimIndent()
-            indentationRuleAssertThat(code)
+            newIndentationRuleAssertThat(code)
                 .hasLintViolations(
                     LintViolation(4, 1, "Unexpected indentation (0) (should be 4)"),
                     LintViolation(5, 1, "Unexpected indentation (0) (should be 4)"),
@@ -2173,7 +2173,7 @@ internal class IndentationRuleTest {
                 else -> -1
             }
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintViolations()
+        newIndentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -2194,7 +2194,7 @@ internal class IndentationRuleTest {
                 else -> 0
             }
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintViolations()
+        newIndentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
