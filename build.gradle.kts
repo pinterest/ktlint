@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.githubRelease)
 }
 
-val isKotlinDev = project.hasProperty("isKotlinDev")
+val isKotlinDev: Boolean = project.hasProperty("isKotlinDev")
 
 allprojects {
     if (isKotlinDev) {
@@ -45,26 +45,28 @@ tasks.register<JavaExec>("ktlint") {
 }
 
 // Deployment tasks
-fun getGithubToken(): String {
-    return if (project.hasProperty("servers.github.privKey")) {
-        project.property("servers.github.privKey").toString()
-    } else {
-        logger.warn("No github token specified")
-        ""
-    }
+val githubToken: String = if (project.hasProperty("servers.github.privKey")) {
+    project.property("servers.github.privKey").toString()
+} else {
+    logger.warn("No github token specified")
+    ""
+}
+
+val shadowJarExecutable: TaskProvider<Task> by lazy {
+    projects.ktlint.dependencyProject.tasks.named("shadowJarExecutable")
 }
 
 // Explicitly adding dependency on "shadowJarExecutable" as Gradle does not it set via "releaseAssets" property
 tasks.named("githubRelease") {
-    dependsOn(provider { projects.ktlint.dependencyProject.tasks.named("shadowJarExecutable") })
+    dependsOn(provider { shadowJarExecutable })
 }
 
 githubRelease {
-    token(getGithubToken())
+    token(githubToken)
     owner("pinterest")
     repo("ktlint")
-    tagName(project.properties["VERSION_NAME"].toString())
-    releaseName(project.properties["VERSION_NAME"].toString())
+    tagName(project.property("VERSION_NAME").toString())
+    releaseName(project.property("VERSION_NAME").toString())
     targetCommitish("master")
     releaseAssets(
         project.files(
@@ -72,8 +74,7 @@ githubRelease {
                 // "shadowJarExecutableChecksum" task does not declare checksum files
                 // as output, only the whole output directory. As it uses the same directory
                 // as "shadowJarExecutable" - just pass all the files from that directory
-                projects.ktlint.dependencyProject.tasks.named("shadowJarExecutable").get()
-                    .outputs.files.files.first().parentFile.listFiles()
+                shadowJarExecutable.get().outputs.files.files.first().parentFile.listFiles()
             },
         ),
     )
@@ -91,15 +92,13 @@ githubRelease {
 val announceRelease by tasks.registering(Exec::class) {
     group = "Help"
     description = "Runs .announce script"
-    subprojects.filter {
-        !it.name.contains("ktlint-ruleset-template")
-    }.forEach { subproject ->
+    subprojects.filter { !it.name.contains("ktlint-ruleset-template") }.forEach { subproject ->
         dependsOn(subproject.tasks.named("publishMavenPublicationToMavenCentralRepository"))
     }
 
     commandLine("./.announce", "-y")
     environment("VERSION" to "${project.property("VERSION_NAME")}")
-    environment("GITHUB_TOKEN" to getGithubToken())
+    environment("GITHUB_TOKEN" to githubToken)
 }
 
 val homebrewBumpFormula by tasks.registering(Exec::class) {
@@ -110,7 +109,7 @@ val homebrewBumpFormula by tasks.registering(Exec::class) {
     dependsOn(tasks.named("githubRelease"))
 }
 
-tasks.register("publishNewRelease", DefaultTask::class) {
+tasks.register<DefaultTask>("publishNewRelease") {
     group = "Help"
     description = "Triggers uploading new archives and publish announcements"
     dependsOn(announceRelease, homebrewBumpFormula, tasks.named("githubRelease"))
