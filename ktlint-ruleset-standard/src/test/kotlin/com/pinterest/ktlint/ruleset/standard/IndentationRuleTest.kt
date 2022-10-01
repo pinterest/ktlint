@@ -305,22 +305,10 @@ internal class IndentationRuleTest {
         val code =
             """
             fun foo() {
-                while (
-                    listOf<Any>()
-                        .toString()
-                        .isEmpty() &&
-                    false ||
-                    (
-                        true ||
-                            false ||
-                            listOf<Any>()
-                                .toString()
-                                .isEmpty()
-                        ) ||
-                    false
-                ) {
-                    println("hello")
-                }
+                if (true)
+                    1
+                else
+                    2
             }
             """.trimIndent()
         val formattedCode =
@@ -335,14 +323,10 @@ internal class IndentationRuleTest {
     fun `remove me too`() {
         val code =
             """
-            fun foo(i1: Int, i2: Int) =
-                if (i1 > 0 &&
-                    i2 < 0
-                ) {
-                    1
-                } else {
-                    2
-                }
+            val foo = if (true)
+                1
+            else
+                2
             """.trimIndent()
         val formattedCode =
             """
@@ -2201,12 +2185,26 @@ internal class IndentationRuleTest {
     fun `Given if-else-statement for which branches are not wrapped in block`() {
         val code =
             """
+            fun foo() {
+                if (true)
+                    1
+                else
+                    2
+            }
+            """.trimIndent()
+        newIndentationRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Given a property assignment with if-else-expression for which branches are not wrapped in block`() {
+        val code =
+            """
             val foo = if (true)
                 1
             else
                 2
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintViolations()
+        newIndentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -2219,7 +2217,7 @@ internal class IndentationRuleTest {
                 3 + 4
                 ) // IDEA quirk
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintViolations()
+        newIndentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test

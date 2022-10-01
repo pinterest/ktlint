@@ -15,10 +15,12 @@ import com.pinterest.ktlint.core.ast.ElementType.CLASS
 import com.pinterest.ktlint.core.ast.ElementType.CLASS_BODY
 import com.pinterest.ktlint.core.ast.ElementType.CONDITION
 import com.pinterest.ktlint.core.ast.ElementType.DOT_QUALIFIED_EXPRESSION
+import com.pinterest.ktlint.core.ast.ElementType.ELSE_KEYWORD
 import com.pinterest.ktlint.core.ast.ElementType.EQ
 import com.pinterest.ktlint.core.ast.ElementType.FUN
 import com.pinterest.ktlint.core.ast.ElementType.FUNCTION_LITERAL
 import com.pinterest.ktlint.core.ast.ElementType.IDENTIFIER
+import com.pinterest.ktlint.core.ast.ElementType.IF
 import com.pinterest.ktlint.core.ast.ElementType.KDOC
 import com.pinterest.ktlint.core.ast.ElementType.KDOC_END
 import com.pinterest.ktlint.core.ast.ElementType.KDOC_LEADING_ASTERISK
@@ -35,6 +37,7 @@ import com.pinterest.ktlint.core.ast.ElementType.STRING_TEMPLATE
 import com.pinterest.ktlint.core.ast.ElementType.SUPER_TYPE_CALL_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.SUPER_TYPE_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.SUPER_TYPE_LIST
+import com.pinterest.ktlint.core.ast.ElementType.THEN
 import com.pinterest.ktlint.core.ast.ElementType.TYPE_ARGUMENT_LIST
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_ARGUMENT_LIST
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER_LIST
@@ -50,6 +53,7 @@ import com.pinterest.ktlint.core.ast.nextCodeSibling
 import com.pinterest.ktlint.core.ast.nextLeaf
 import com.pinterest.ktlint.core.ast.nextSibling
 import com.pinterest.ktlint.core.ast.parent
+import com.pinterest.ktlint.core.ast.prevCodeLeaf
 import com.pinterest.ktlint.core.ast.prevCodeSibling
 import com.pinterest.ktlint.core.ast.prevLeaf
 import com.pinterest.ktlint.core.ast.prevSibling
@@ -212,7 +216,8 @@ public class IndentationRuleNew :
                 }
             }
             node.elementType == IDENTIFIER &&
-                node.treeParent.elementType == PROPERTY -> {
+                node.treeParent.elementType == PROPERTY &&
+                node.treeParent.findChildByType(IF) == null -> {
                 startIndentContextSameAsParent(
                     fromAstNode = node,
                     toAstNode = node.treeParent.lastChildLeafOrSelf(),
@@ -320,24 +325,43 @@ public class IndentationRuleNew :
             indentContextStack.removeLast()
         }
 
-        if (isPartOfBinaryExpressionWrappedInCondition(node)) {
-            val binaryExpression = node.treeParent
-            if (indentContextStack.peekLast().fromASTNode == binaryExpression) {
-                // Remove the indent context for the left-hand side of the binary expression
-                indentContextStack.removeLast()
-                // Complex binary expression are nested in such a way that the indent context of the condition wrapper
-                // is not the last node on the stack
-                val conditionIndentContext =
-                    indentContextStack
-                        .filterNot { it.fromASTNode.elementType == BINARY_EXPRESSION }
-                        .last()
-                // Create new indent context for the remainder (operator and right-hand side) of the binary expression
-                startIndentContext(
-                    fromAstNode = requireNotNull(node.nextSibling { true }),
-                    toAstNode = binaryExpression.lastChildLeafOrSelf(),
-                    nodeIndentLevel = conditionIndentContext.nodeIndentLevel,
-                    childIndentLevel = conditionIndentContext.childIndentLevel,
+        when {
+            node.elementType == RPAR &&
+                node.nextCodeSibling()?.elementType == THEN -> {
+                startIndentContextSameAsParent(
+                    fromAstNode = node.nextCodeSibling()!!,
+                    toAstNode = node
+                        .treeParent
+                        .findChildByType(ELSE_KEYWORD)
+                        ?.prevCodeLeaf()
+                        ?: node.treeParent.lastChildLeafOrSelf(),
                 )
+            }
+            node.elementType == ELSE_KEYWORD -> {
+                startIndentContextSameAsParent(
+                    fromAstNode = node,
+                    node.treeParent.lastChildLeafOrSelf(),
+                )
+            }
+            isPartOfBinaryExpressionWrappedInCondition(node) -> {
+                val binaryExpression = node.treeParent
+                if (indentContextStack.peekLast().fromASTNode == binaryExpression) {
+                    // Remove the indent context for the left-hand side of the binary expression
+                    indentContextStack.removeLast()
+                    // Complex binary expression are nested in such a way that the indent context of the condition wrapper
+                    // is not the last node on the stack
+                    val conditionIndentContext =
+                        indentContextStack
+                            .filterNot { it.fromASTNode.elementType == BINARY_EXPRESSION }
+                            .last()
+                    // Create new indent context for the remainder (operator and right-hand side) of the binary expression
+                    startIndentContext(
+                        fromAstNode = requireNotNull(node.nextSibling { true }),
+                        toAstNode = binaryExpression.lastChildLeafOrSelf(),
+                        nodeIndentLevel = conditionIndentContext.nodeIndentLevel,
+                        childIndentLevel = conditionIndentContext.childIndentLevel,
+                    )
+                }
             }
         }
     }
