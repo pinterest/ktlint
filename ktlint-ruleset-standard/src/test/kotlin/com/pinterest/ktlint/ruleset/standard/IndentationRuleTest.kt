@@ -304,12 +304,11 @@ internal class IndentationRuleTest {
     fun `remove me first`() {
         val code =
             """
-            fun foo() {
-                if (true)
-                    1
-                else
-                    2
-            }
+            val foo1 =
+                  nullableList
+                  .find { !it.empty() }
+                  ?.map { x + 2 }
+                  ?.filter { true }
             """.trimIndent()
         val formattedCode =
             """
@@ -2270,7 +2269,7 @@ internal class IndentationRuleTest {
                     .toString()
             val foo3 = 1
             """.trimIndent()
-        indentationRuleAssertThat(code)
+        newIndentationRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(2, 1, "Unexpected indentation (0) (should be 4)"),
                 LintViolation(3, 1, "Unexpected indentation (0) (should be 8)"),

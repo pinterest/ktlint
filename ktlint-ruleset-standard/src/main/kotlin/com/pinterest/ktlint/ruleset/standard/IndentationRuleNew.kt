@@ -34,6 +34,7 @@ import com.pinterest.ktlint.core.ast.ElementType.PARENTHESIZED
 import com.pinterest.ktlint.core.ast.ElementType.PROPERTY
 import com.pinterest.ktlint.core.ast.ElementType.RBRACE
 import com.pinterest.ktlint.core.ast.ElementType.RPAR
+import com.pinterest.ktlint.core.ast.ElementType.SAFE_ACCESS_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.STRING_TEMPLATE
 import com.pinterest.ktlint.core.ast.ElementType.SUPER_TYPE_CALL_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.SUPER_TYPE_ENTRY
@@ -214,6 +215,11 @@ public class IndentationRuleNew :
             }
             node.elementType == DOT_QUALIFIED_EXPRESSION -> {
                 if (node.treeParent?.firstChildNode?.elementType != DOT_QUALIFIED_EXPRESSION) {
+                    startIndentContextSameAsParent(node)
+                }
+            }
+            node.elementType == SAFE_ACCESS_EXPRESSION -> {
+                if (node.treeParent?.firstChildNode?.elementType != SAFE_ACCESS_EXPRESSION) {
                     startIndentContextSameAsParent(node)
                 }
             }
