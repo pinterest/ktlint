@@ -1,12 +1,17 @@
 package com.pinterest.ktlint.ruleset.standard
 
+import ch.qos.logback.classic.Level
+import ch.qos.logback.classic.Logger
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentSizeProperty
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentStyleProperty
+import com.pinterest.ktlint.core.initKtLintKLogger
+import com.pinterest.ktlint.core.setDefaultLoggerModifier
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE
 import com.pinterest.ktlint.test.SPACE
 import com.pinterest.ktlint.test.TAB
+import mu.KotlinLogging
 import org.ec4j.core.model.PropertyType
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
@@ -18,6 +23,16 @@ import org.junit.jupiter.params.provider.ValueSource
 
 @Suppress("RemoveCurlyBracesFromTemplate")
 internal class IndentationRuleTest {
+    init {
+        // Overwrite default logging with TRACE logging by initializing *and* printing first log statement before
+        // loading any other classes.
+        KotlinLogging
+            .logger {}
+            .setDefaultLoggerModifier { logger -> (logger.underlyingLogger as Logger).level = Level.TRACE }
+            .initKtLintKLogger()
+            .trace { "Enable trace logging for unit test" }
+    }
+
     @BeforeEach
     internal fun setUp() {
         System.setProperty("KTLINT_UNIT_TEST_TRACE", "on")
@@ -304,12 +319,15 @@ internal class IndentationRuleTest {
     fun `remove me first`() {
         val code =
             """
-            val foo1 =
-                  nullableList
-                  .find { !it.empty() }
-                  ?.map { x + 2 }
-                  ?.filter { true }
+            fun foo() {
+                println(
+                "$.{
+                true
+                }"
+                )
+            }
             """.trimIndent()
+                .replacePlaceholderWithStringTemplate()
         val formattedCode =
             """
             xxx
@@ -2369,18 +2387,16 @@ internal class IndentationRuleTest {
             fun foo() {
                 println(
                     "$.{
-                    true
+                        true
                     }"
                 )
             }
             """.trimIndent()
                 .replacePlaceholderWithStringTemplate()
-        indentationRuleAssertThat(code)
+        newIndentationRuleAssertThat(code)
             .addAdditionalRuleProvider { WrappingRule() }
-            .hasLintViolations(
-                LintViolation(3, 1, "Unexpected indentation (4) (should be 8)"),
-                LintViolation(4, 1, "Unexpected indentation (4) (should be 8)"),
-            ).isFormattedAs(formattedCode)
+            .hasLintViolation(3, 1, "Unexpected indentation (4) (should be 8)")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
