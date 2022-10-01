@@ -2308,7 +2308,7 @@ internal class IndentationRuleTest {
                         println("bar2")
                     }
             """.trimIndent()
-        indentationRuleAssertThat(code)
+        newIndentationRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(5, 1, "Unexpected indentation (4) (should be 8)"),
                 LintViolation(6, 1, "Unexpected indentation (8) (should be 12)"),
@@ -2342,7 +2342,7 @@ internal class IndentationRuleTest {
                         println("bar2")
                     }
             """.trimIndent()
-        indentationRuleAssertThat(code)
+        newIndentationRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(7, 1, "Unexpected indentation (4) (should be 8)"),
                 LintViolation(8, 1, "Unexpected indentation (8) (should be 12)"),
