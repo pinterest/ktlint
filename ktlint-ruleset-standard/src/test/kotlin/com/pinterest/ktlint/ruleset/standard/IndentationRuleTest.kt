@@ -2229,7 +2229,7 @@ internal class IndentationRuleTest {
                     println()
             }
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintViolations()
+        newIndentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test

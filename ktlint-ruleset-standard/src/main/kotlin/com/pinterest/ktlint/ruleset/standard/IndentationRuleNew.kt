@@ -11,6 +11,7 @@ import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType.BINARY_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.BLOCK
 import com.pinterest.ktlint.core.ast.ElementType.BLOCK_COMMENT
+import com.pinterest.ktlint.core.ast.ElementType.BODY
 import com.pinterest.ktlint.core.ast.ElementType.CLASS
 import com.pinterest.ktlint.core.ast.ElementType.CLASS_BODY
 import com.pinterest.ktlint.core.ast.ElementType.CONDITION
@@ -43,6 +44,7 @@ import com.pinterest.ktlint.core.ast.ElementType.VALUE_ARGUMENT_LIST
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.core.ast.ElementType.WHEN
 import com.pinterest.ktlint.core.ast.ElementType.WHEN_ENTRY
+import com.pinterest.ktlint.core.ast.ElementType.WHILE
 import com.pinterest.ktlint.core.ast.children
 import com.pinterest.ktlint.core.ast.isPartOfComment
 import com.pinterest.ktlint.core.ast.isRoot
@@ -340,6 +342,13 @@ public class IndentationRuleNew :
             node.elementType == ELSE_KEYWORD -> {
                 startIndentContextSameAsParent(
                     fromAstNode = node,
+                    node.treeParent.lastChildLeafOrSelf(),
+                )
+            }
+            node.elementType == RPAR &&
+                node.nextCodeSibling()?.elementType == BODY -> {
+                startIndentContextSameAsParent(
+                    fromAstNode = node.nextCodeSibling()!!,
                     node.treeParent.lastChildLeafOrSelf(),
                 )
             }
