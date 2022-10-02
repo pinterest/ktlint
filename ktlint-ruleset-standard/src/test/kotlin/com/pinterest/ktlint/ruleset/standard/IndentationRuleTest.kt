@@ -2505,7 +2505,7 @@ internal class IndentationRuleTest {
                 v: String
             ) -> Unit
             """.trimIndent()
-        indentationRuleAssertThat(code)
+        newIndentationRuleAssertThat(code)
             .hasLintViolation(2, 1, "Unexpected indentation (0) (should be 4)")
             .isFormattedAs(formattedCode)
     }
@@ -2540,7 +2540,7 @@ internal class IndentationRuleTest {
                 })
             }
             """.trimIndent()
-        indentationRuleAssertThat(code)
+        newIndentationRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(2, 1, "Unexpected indentation (0) (should be 4)"),
                 LintViolation(3, 1, "Unexpected indentation (0) (should be 8)"),
