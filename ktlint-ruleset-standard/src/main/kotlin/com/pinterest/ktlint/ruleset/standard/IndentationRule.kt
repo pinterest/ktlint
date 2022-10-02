@@ -492,7 +492,7 @@ public class IndentationRule :
     }
 
     private fun adjustExpectedIndentAfterArrow(n: ASTNode, ctx: IndentContext) {
-        // Only adjust indents for arrows inside of when statements. Lambda arrows should not increase indent.
+        // Only adjust indents for arrows inside when statements. Lambda arrows should not increase indent.
         if (n.treeParent?.elementType == WHEN_ENTRY) {
             val prevBlock = ctx.blockStack.peek()
             if (prevBlock == null || line != prevBlock.line) {
@@ -1042,7 +1042,7 @@ private fun ASTNode.getFirstElementOnSameLine(): ASTNode {
 }
 
 /**
- * Splits the string at the given index or at the first non white space character before that index. The returned pair
+ * Splits the string at the given index or at the first non-white space character before that index. The returned pair
  * consists of the indentation and the second part contains the remainder. Note that the second part still can start
  * with whitespace characters in case the original strings starts with more white space characters than the requested
  * split index.

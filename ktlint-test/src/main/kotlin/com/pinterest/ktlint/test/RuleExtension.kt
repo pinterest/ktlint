@@ -64,7 +64,7 @@ public fun Set<RuleProvider>.lint(
     userData: Map<String, String> = emptyMap(),
     script: Boolean = false,
 ): List<LintError> {
-    val res = ArrayList<LintError>()
+    val lintErrors = ArrayList<LintError>()
     val experimentalParams = KtLint.ExperimentalParams(
         fileName = lintedFilePath,
         text = text,
@@ -72,12 +72,10 @@ public fun Set<RuleProvider>.lint(
         editorConfigOverride = editorConfigOverride,
         userData = userData,
         script = script,
-        cb = { e, _ -> res.add(e) },
+        cb = { lintError, _ -> lintErrors.add(lintError) },
     )
-    KtLint.lint(
-        experimentalParams,
-    )
-    return res
+    KtLint.lint(experimentalParams)
+    return lintErrors
 }
 
 public fun Set<RuleProvider>.format(
@@ -87,7 +85,8 @@ public fun Set<RuleProvider>.format(
     userData: Map<String, String> = emptyMap(),
     cb: (e: LintError, corrected: Boolean) -> Unit = { _, _ -> },
     script: Boolean = false,
-): String {
+): Pair<String, List<LintError>> {
+    val lintErrors = ArrayList<LintError>()
     val experimentalParams = KtLint.ExperimentalParams(
         fileName = lintedFilePath,
         text = text,
@@ -95,7 +94,8 @@ public fun Set<RuleProvider>.format(
         editorConfigOverride = editorConfigOverride,
         userData = userData,
         script = script,
-        cb = cb,
+        cb = { lintError, _ -> lintErrors.add(lintError) },
     )
-    return KtLint.format(experimentalParams)
+    val formattedCode = KtLint.format(experimentalParams)
+    return Pair(formattedCode, lintErrors)
 }

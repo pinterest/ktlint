@@ -12,9 +12,12 @@ import com.pinterest.ktlint.core.ast.ElementType.BINARY_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.BLOCK
 import com.pinterest.ktlint.core.ast.ElementType.BLOCK_COMMENT
 import com.pinterest.ktlint.core.ast.ElementType.BODY
+import com.pinterest.ktlint.core.ast.ElementType.CALL_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.CLASS
 import com.pinterest.ktlint.core.ast.ElementType.CLASS_BODY
+import com.pinterest.ktlint.core.ast.ElementType.CLOSING_QUOTE
 import com.pinterest.ktlint.core.ast.ElementType.CONDITION
+import com.pinterest.ktlint.core.ast.ElementType.DOT
 import com.pinterest.ktlint.core.ast.ElementType.DOT_QUALIFIED_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.ELSE_KEYWORD
 import com.pinterest.ktlint.core.ast.ElementType.EQ
@@ -26,6 +29,7 @@ import com.pinterest.ktlint.core.ast.ElementType.KDOC
 import com.pinterest.ktlint.core.ast.ElementType.KDOC_END
 import com.pinterest.ktlint.core.ast.ElementType.KDOC_LEADING_ASTERISK
 import com.pinterest.ktlint.core.ast.ElementType.KDOC_START
+import com.pinterest.ktlint.core.ast.ElementType.LITERAL_STRING_TEMPLATE_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.LONG_STRING_TEMPLATE_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.LONG_TEMPLATE_ENTRY_END
 import com.pinterest.ktlint.core.ast.ElementType.LPAR
@@ -33,8 +37,10 @@ import com.pinterest.ktlint.core.ast.ElementType.OPEN_QUOTE
 import com.pinterest.ktlint.core.ast.ElementType.PARENTHESIZED
 import com.pinterest.ktlint.core.ast.ElementType.PROPERTY
 import com.pinterest.ktlint.core.ast.ElementType.RBRACE
+import com.pinterest.ktlint.core.ast.ElementType.REGULAR_STRING_PART
 import com.pinterest.ktlint.core.ast.ElementType.RPAR
 import com.pinterest.ktlint.core.ast.ElementType.SAFE_ACCESS_EXPRESSION
+import com.pinterest.ktlint.core.ast.ElementType.SHORT_STRING_TEMPLATE_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.STRING_TEMPLATE
 import com.pinterest.ktlint.core.ast.ElementType.SUPER_TYPE_CALL_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.SUPER_TYPE_ENTRY
@@ -45,7 +51,6 @@ import com.pinterest.ktlint.core.ast.ElementType.VALUE_ARGUMENT_LIST
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.core.ast.ElementType.WHEN
 import com.pinterest.ktlint.core.ast.ElementType.WHEN_ENTRY
-import com.pinterest.ktlint.core.ast.ElementType.WHILE
 import com.pinterest.ktlint.core.ast.children
 import com.pinterest.ktlint.core.ast.isPartOfComment
 import com.pinterest.ktlint.core.ast.isRoot
@@ -67,6 +72,7 @@ import mu.KotlinLogging
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
+import org.jetbrains.kotlin.psi.KtStringTemplateExpression
 import org.jetbrains.kotlin.psi.psiUtil.leaves
 import org.jetbrains.kotlin.psi.psiUtil.parents
 
@@ -96,6 +102,8 @@ public class IndentationRuleNew :
     private var expectedIndent = 0
 
     private val indentContextStack: Deque<NewIndentContext> = LinkedList()
+
+    private lateinit var stringTemplateIndenter: StringTemplateIndenter
 
     override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
         indentConfig = IndentConfig(
@@ -231,6 +239,10 @@ public class IndentationRuleNew :
                     toAstNode = node.treeParent.lastChildLeafOrSelf(),
                 )
             }
+            node.elementType == LITERAL_STRING_TEMPLATE_ENTRY &&
+                node.nextCodeSibling()?.elementType == CLOSING_QUOTE -> {
+                    visitWhiteSpaceBeforeClosingQuote(node, autoCorrect, emit)
+                }
             !node.isWhiteSpaceWithNewline() && node.children().none { it.isWhiteSpaceWithNewline() } -> {
                 // No direct child node contains a whitespace with new line. So this node can not be a reason to change
                 // the indent level
@@ -428,7 +440,8 @@ public class IndentationRuleNew :
                             nextLeaf.treeParent?.elementType != PARENTHESIZED
                         ) ||
                         nextLeafElementType == RBRACE ||
-                        nextLeafElementType == LONG_TEMPLATE_ENTRY_END
+                        nextLeafElementType == LONG_TEMPLATE_ENTRY_END ||
+                        nextLeafElementType == CLOSING_QUOTE
                     )
         val adjustedExpectedIndent =
             if (isClosingNode) {
@@ -501,6 +514,17 @@ public class IndentationRuleNew :
         }
     }
 
+    private fun visitWhiteSpaceBeforeClosingQuote(
+        node: ASTNode,
+        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+    ) {
+        if (!this::stringTemplateIndenter.isInitialized) {
+            stringTemplateIndenter = StringTemplateIndenter(indentConfig)
+        }
+        stringTemplateIndenter.visitClosingQuotes(currentIndentLevel(), node.treeParent, autoCorrect, emit)
+    }
+
     private data class NewIndentContext(
         /**
          * The node on which the indent context starts.
@@ -559,3 +583,213 @@ private fun String.textWithEscapedTabAndNewline(): String {
 
 private fun ASTNode.processedButNoIndentationChangedNeeded() =
     logger.trace { "No indentation change required for $elementType: ${textWithEscapedTabAndNewline()}" }
+
+private class StringTemplateIndenter(private val indentConfig: IndentConfig) {
+    fun visitClosingQuotes(
+        expectedIndentLevel: Int,
+        node: ASTNode,
+        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+    ) {
+        require(node.elementType == STRING_TEMPLATE)
+        node
+            .let { it.psi as KtStringTemplateExpression }
+            .takeIf { it.isFollowedByTrimIndent() || it.isFollowedByTrimMargin() }
+            ?.takeIf { it.isMultiLine() }
+            ?.let { _ ->
+                if (node.containsMixedIndentationCharacters()) {
+                    // It can not be determined with certainty how mixed indentation characters should be interpreted.
+                    // The trimIndent function handles tabs and spaces equally (one tabs equals one space) while the user
+                    // might expect that the tab size in the indentation is more than one space.
+                    emit(
+                        node.startOffset,
+                        "Indentation of multiline string should not contain both tab(s) and space(s)",
+                        false,
+                    )
+                    return
+                }
+
+                val prefixLength = node.getCommonPrefixLength()
+                val correctedExpectedIndentLevel = if (node.prevLeaf()?.text == "\n") {
+                    // In case the opening quotes are placed at the start of the line, then the closing quotes should
+                    // have no indent as well.
+                    0
+                } else {
+                    expectedIndentLevel
+                }
+                val expectedIndentation = indentConfig.indent.repeat(correctedExpectedIndentLevel)
+                val expectedPrefixLength = correctedExpectedIndentLevel * indentConfig.indent.length
+                node.children()
+                    .forEach {
+                        if (it.prevLeaf()?.text == "\n" &&
+                            (
+                                it.isLiteralStringTemplateEntry() ||
+                                    it.isVariableStringTemplateEntry() ||
+                                    it.isClosingQuote()
+                                )
+                        ) {
+                            val (actualIndent, actualContent) =
+                                if (it.isIndentBeforeClosingQuote()) {
+                                    it.text.splitIndentAt(it.text.length)
+                                } else if (it.isVariableStringTemplateEntry() && it.isFirstNonBlankElementOnLine()) {
+                                    it.getFirstElementOnSameLine().text.splitIndentAt(expectedPrefixLength)
+                                } else {
+                                    it.text.splitIndentAt(prefixLength)
+                                }
+                            if (indentConfig.containsUnexpectedIndentChar(actualIndent)) {
+                                val offsetFirstWrongIndentChar =
+                                    indentConfig.indexOfFirstUnexpectedIndentChar(actualIndent)
+                                emit(
+                                    it.startOffset + offsetFirstWrongIndentChar,
+                                    "Unexpected '${indentConfig.unexpectedIndentCharDescription}' character(s) in margin of multiline string",
+                                    true,
+                                )
+                                if (autoCorrect) {
+                                    (it.firstChildNode as LeafPsiElement).rawReplaceWithText(
+                                        expectedIndentation + actualContent,
+                                    )
+                                }
+                            } else if (actualIndent != expectedIndentation && it.isIndentBeforeClosingQuote()) {
+                                // It is a deliberate choice not to fix the indents inside the string literal except the line which only contains
+                                // the closing quotes.
+                                emit(
+                                    it.startOffset,
+                                    "Unexpected indent of multiline string closing quotes",
+                                    true,
+                                )
+                                if (autoCorrect) {
+                                    if (it.firstChildNode == null) {
+                                        (it as LeafPsiElement).rawInsertBeforeMe(
+                                            LeafPsiElement(REGULAR_STRING_PART, expectedIndentation),
+                                        )
+                                    } else {
+                                        (it.firstChildNode as LeafPsiElement).rawReplaceWithText(
+                                            expectedIndentation + actualContent,
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+            }
+    }
+
+    /**
+     * Get the length of the indent which is shared by all lines inside the string template except for the indent of
+     * the closing quotes.
+     */
+    private fun ASTNode.getCommonPrefixLength() =
+        children()
+            .filterNot { it.elementType == OPEN_QUOTE }
+            .filterNot { it.elementType == CLOSING_QUOTE }
+            .filter { it.prevLeaf()?.text == "\n" }
+            .filterNot { it.text == "\n" }
+            .let { indents ->
+                val indentsExceptBlankIndentBeforeClosingQuote = indents
+                    .filterNot { it.isIndentBeforeClosingQuote() }
+                if (indentsExceptBlankIndentBeforeClosingQuote.count() > 0) {
+                    indentsExceptBlankIndentBeforeClosingQuote
+                } else {
+                    indents
+                }
+            }
+            .map { it.text.indentLength() }
+            .minOrNull()
+            ?: 0
+
+    private fun KtStringTemplateExpression.isFollowedByTrimIndent() = isFollowedBy("trimIndent()")
+
+    private fun KtStringTemplateExpression.isFollowedByTrimMargin() = isFollowedBy("trimMargin()")
+
+    private fun KtStringTemplateExpression.isFollowedBy(callExpressionName: String) =
+        this.node.nextSibling { it.elementType != DOT }
+            .let { it?.elementType == CALL_EXPRESSION && it.text == callExpressionName }
+
+    private fun KtStringTemplateExpression.isMultiLine(): Boolean {
+        for (child in node.children()) {
+            if (child.elementType == LITERAL_STRING_TEMPLATE_ENTRY) {
+                val v = child.text
+                if (v == "\n") {
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
+    private fun ASTNode.containsMixedIndentationCharacters(): Boolean {
+        assert((this.psi as KtStringTemplateExpression).isMultiLine())
+        val nonBlankLines = this
+            .text
+            .split("\n")
+            .filterNot { it.startsWith("\"\"\"") }
+            .filterNot { it.endsWith("\"\"\"") }
+            .filterNot { it.isBlank() }
+        val prefixLength = nonBlankLines.minOfOrNull { it.indentLength() } ?: 0
+        val distinctIndentCharacters = nonBlankLines
+            .joinToString(separator = "") {
+                it.splitIndentAt(prefixLength).first
+            }
+            .toCharArray()
+            .distinct()
+            .count()
+        return distinctIndentCharacters > 1
+    }
+
+    private fun ASTNode.isIndentBeforeClosingQuote() =
+        elementType == CLOSING_QUOTE || (text.isBlank() && nextCodeSibling()?.elementType == CLOSING_QUOTE)
+
+    private fun ASTNode.isLiteralStringTemplateEntry() =
+        elementType == LITERAL_STRING_TEMPLATE_ENTRY && text != "\n"
+
+    private fun ASTNode.isVariableStringTemplateEntry() =
+        elementType == LONG_STRING_TEMPLATE_ENTRY || elementType == SHORT_STRING_TEMPLATE_ENTRY
+
+    private fun ASTNode.isClosingQuote() =
+        elementType == CLOSING_QUOTE
+
+    private fun String.indentLength() =
+        indexOfFirst { !it.isWhitespace() }.let { if (it == -1) length else it }
+
+    /**
+     * Splits the string at the given index or at the first non white space character before that index. The returned pair
+     * consists of the indentation and the second part contains the remainder. Note that the second part still can start
+     * with whitespace characters in case the original strings starts with more white space characters than the requested
+     * split index.
+     */
+    private fun String.splitIndentAt(index: Int): Pair<String, String> {
+        assert(index >= 0)
+        val firstNonWhitespaceIndex = indexOfFirst { !it.isWhitespace() }.let {
+            if (it == -1) {
+                this.length
+            } else {
+                it
+            }
+        }
+        val safeIndex = kotlin.math.min(firstNonWhitespaceIndex, index)
+        return Pair(
+            first = this.take(safeIndex),
+            second = this.substring(safeIndex),
+        )
+    }
+
+    private fun ASTNode.getFirstElementOnSameLine(): ASTNode {
+        val firstLeafOnLine = prevLeaf { it.text == "\n" }
+        return if (firstLeafOnLine == null) {
+            this
+        } else {
+            firstLeafOnLine.nextLeaf(includeEmpty = true) ?: this
+        }
+    }
+
+    private fun ASTNode.isFirstNonBlankElementOnLine(): Boolean {
+        var node: ASTNode? = getFirstElementOnSameLine()
+        while (node != null && node != this && node.text.isWhitespace()) {
+            node = node.nextLeaf()
+        }
+        return node != this
+    }
+
+    private fun String.isWhitespace() =
+        none { !it.isWhitespace() }
+}

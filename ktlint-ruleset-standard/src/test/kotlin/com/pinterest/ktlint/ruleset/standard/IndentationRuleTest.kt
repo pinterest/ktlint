@@ -320,19 +320,20 @@ internal class IndentationRuleTest {
         val code =
             """
             fun foo() {
-                println(
-                "$.{
-                true
-                }"
-                )
+                println($MULTILINE_STRING_QUOTE
+                $MULTILINE_STRING_QUOTE)
+                println($MULTILINE_STRING_QUOTE
+                $MULTILINE_STRING_QUOTE.trimIndent())
+                println($MULTILINE_STRING_QUOTE
+                $MULTILINE_STRING_QUOTE.trimMargin())
             }
             """.trimIndent()
-                .replacePlaceholderWithStringTemplate()
         val formattedCode =
             """
             xxx
             """.trimIndent()
         newIndentationRuleAssertThat(code)
+            .addAdditionalRuleProvider { WrappingRule() }
             .isFormattedAs(formattedCode)
     }
 
@@ -2404,12 +2405,18 @@ internal class IndentationRuleTest {
         val code =
             """
             fun foo() {
-                println($MULTILINE_STRING_QUOTE
-                $MULTILINE_STRING_QUOTE)
-                println($MULTILINE_STRING_QUOTE
-                $MULTILINE_STRING_QUOTE.trimIndent())
-                println($MULTILINE_STRING_QUOTE
-                $MULTILINE_STRING_QUOTE.trimMargin())
+                println(
+                $MULTILINE_STRING_QUOTE
+                $MULTILINE_STRING_QUOTE // Indent of this line will not be fixed
+                )
+                println(
+                $MULTILINE_STRING_QUOTE
+                $MULTILINE_STRING_QUOTE.trimIndent()
+                )
+                println(
+                $MULTILINE_STRING_QUOTE
+                $MULTILINE_STRING_QUOTE.trimMargin()
+                )
             }
             """.trimIndent()
         val formattedCode =
@@ -2417,7 +2424,7 @@ internal class IndentationRuleTest {
             fun foo() {
                 println(
                     $MULTILINE_STRING_QUOTE
-                $MULTILINE_STRING_QUOTE
+                $MULTILINE_STRING_QUOTE // Indent of this line will not be fixed
                 )
                 println(
                     $MULTILINE_STRING_QUOTE
@@ -2429,11 +2436,13 @@ internal class IndentationRuleTest {
                 )
             }
             """.trimIndent()
-        indentationRuleAssertThat(code)
-            .addAdditionalRuleProvider { WrappingRule() }
+        newIndentationRuleAssertThat(code)
             .hasLintViolations(
-                LintViolation(5, 1, "Unexpected indent of multiline string closing quotes"),
-                LintViolation(7, 1, "Unexpected indent of multiline string closing quotes"),
+                LintViolation(3, 1, "Unexpected indentation (4) (should be 8)"),
+                LintViolation(7, 1, "Unexpected indentation (4) (should be 8)"),
+                LintViolation(8, 1, "Unexpected indent of multiline string closing quotes"),
+                LintViolation(11, 1, "Unexpected indentation (4) (should be 8)"),
+                LintViolation(12, 1, "Unexpected indent of multiline string closing quotes"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -2442,13 +2451,16 @@ internal class IndentationRuleTest {
         val code =
             """
             fun foo1() {
-                foo2($MULTILINE_STRING_QUOTE$.{
+                foo2(
+                $MULTILINE_STRING_QUOTE$.{
             true
                 }
                 text
             _$.{
             true
-                }$MULTILINE_STRING_QUOTE.trimIndent(), ${MULTILINE_STRING_QUOTE}text$MULTILINE_STRING_QUOTE)
+                }$MULTILINE_STRING_QUOTE.trimIndent(),
+                ${MULTILINE_STRING_QUOTE}text$MULTILINE_STRING_QUOTE
+                )
             }
             """.trimIndent()
                 .replacePlaceholderWithStringTemplate()
@@ -2457,25 +2469,25 @@ internal class IndentationRuleTest {
             fun foo1() {
                 foo2(
                     $MULTILINE_STRING_QUOTE$.{
-                    true
+                        true
                     }
                 text
             _$.{
-                    true
-                    }
-                    $MULTILINE_STRING_QUOTE.trimIndent(),
+                        true
+                    }$MULTILINE_STRING_QUOTE.trimIndent(),
                     ${MULTILINE_STRING_QUOTE}text$MULTILINE_STRING_QUOTE
                 )
             }
             """.trimIndent()
                 .replacePlaceholderWithStringTemplate()
-        indentationRuleAssertThat(code)
-            .addAdditionalRuleProvider { WrappingRule() }
+        newIndentationRuleAssertThat(code)
             .hasLintViolations(
-                LintViolation(3, 1, "Unexpected indentation (0) (should be 8)"),
-                LintViolation(4, 1, "Unexpected indentation (4) (should be 8)"),
-                LintViolation(7, 1, "Unexpected indentation (0) (should be 8)"),
-                LintViolation(8, 1, "Unexpected indentation (4) (should be 8)"),
+                LintViolation(3, 1, "Unexpected indentation (4) (should be 8)"),
+                LintViolation(4, 1, "Unexpected indentation (0) (should be 12)"),
+                LintViolation(5, 1, "Unexpected indentation (4) (should be 8)"),
+                LintViolation(8, 1, "Unexpected indentation (0) (should be 12)"),
+                LintViolation(9, 1, "Unexpected indentation (4) (should be 8)"),
+                LintViolation(10, 1, "Unexpected indentation (4) (should be 8)"),
             ).isFormattedAs(formattedCode)
     }
 
