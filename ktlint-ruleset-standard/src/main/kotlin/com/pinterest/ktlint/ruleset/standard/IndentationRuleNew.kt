@@ -8,6 +8,7 @@ import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentSizePro
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentStyleProperty
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
+import com.pinterest.ktlint.core.ast.ElementType.ARROW
 import com.pinterest.ktlint.core.ast.ElementType.BINARY_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.BLOCK
 import com.pinterest.ktlint.core.ast.ElementType.BLOCK_COMMENT
@@ -50,6 +51,9 @@ import com.pinterest.ktlint.core.ast.ElementType.TYPE_ARGUMENT_LIST
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_ARGUMENT_LIST
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.core.ast.ElementType.WHEN
+import com.pinterest.ktlint.core.ast.ElementType.WHEN_CONDITION_IN_RANGE
+import com.pinterest.ktlint.core.ast.ElementType.WHEN_CONDITION_IS_PATTERN
+import com.pinterest.ktlint.core.ast.ElementType.WHEN_CONDITION_WITH_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.WHEN_ENTRY
 import com.pinterest.ktlint.core.ast.children
 import com.pinterest.ktlint.core.ast.isPartOfComment
@@ -183,8 +187,7 @@ public class IndentationRuleNew :
                 node.elementType == TYPE_ARGUMENT_LIST ||
                 node.elementType == VALUE_ARGUMENT_LIST ||
                 node.elementType == VALUE_PARAMETER_LIST ||
-                node.elementType == WHEN ||
-                node.elementType == WHEN_ENTRY ->
+                node.elementType == WHEN ->
                 startIndentContextSameAsParent(node)
             node.elementType == EQ &&
                 node.treeParent?.elementType == FUN -> {
@@ -243,6 +246,19 @@ public class IndentationRuleNew :
                 node.nextCodeSibling()?.elementType == CLOSING_QUOTE -> {
                     visitWhiteSpaceBeforeClosingQuote(node, autoCorrect, emit)
                 }
+            node.elementType == WHEN_ENTRY -> {
+                val lastCodeLeafBeforeArrow =
+                    requireNotNull(
+                        node.findChildByType(ARROW)?.prevCodeLeaf()
+                    ) { "Can not find last code leaf before arrow in when entry" }
+                val indentLevel = currentIndentLevel()
+                startIndentContext(
+                    fromAstNode = node,
+                    toAstNode = lastCodeLeafBeforeArrow,
+                    nodeIndentLevel = indentLevel,
+                    childIndentLevel = indentLevel,
+                )
+            }
             !node.isWhiteSpaceWithNewline() && node.children().none { it.isWhiteSpaceWithNewline() } -> {
                 // No direct child node contains a whitespace with new line. So this node can not be a reason to change
                 // the indent level
@@ -389,6 +405,12 @@ public class IndentationRuleNew :
                         childIndentLevel = conditionIndentContext.childIndentLevel,
                     )
                 }
+            }
+            node.elementType == ARROW && node.treeParent.elementType == WHEN_ENTRY -> {
+                startIndentContextSameAsParent(
+                    fromAstNode = node,
+                    toAstNode = node.treeParent.lastChildLeafOrSelf()
+                )
             }
         }
     }
