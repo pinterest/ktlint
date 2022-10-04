@@ -57,7 +57,7 @@ val shadowJarExecutable: TaskProvider<Task> by lazy {
 }
 
 // Explicitly adding dependency on "shadowJarExecutable" as Gradle does not it set via "releaseAssets" property
-tasks.named("githubRelease") {
+tasks.githubRelease {
     dependsOn(provider { shadowJarExecutable })
 }
 
