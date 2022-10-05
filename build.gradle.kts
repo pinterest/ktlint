@@ -1,3 +1,5 @@
+import java.net.URL
+
 plugins {
     alias(libs.plugins.kotlin.jvm) apply false
     alias(libs.plugins.checksum)
@@ -116,6 +118,6 @@ tasks.register<DefaultTask>("publishNewRelease") {
 }
 
 tasks.wrapper {
-    gradleVersion = libs.versions.gradle.get()
-    distributionSha256Sum = libs.versions.gradleSha256.get()
+    distributionSha256Sum = URL("$distributionUrl.sha256")
+        .openStream().use { it.reader().readText().trim() }
 }
