@@ -33,10 +33,10 @@ internal fun createRuleExecutionContext(params: KtLint.ExperimentalParams): Rule
     val normalizedText = normalizeText(params.text)
     val positionInTextLocator = buildPositionInTextLocator(normalizedText)
 
-    val psiFileName = if (params.script) {
-        "file.kts"
-    } else {
-        "file.kt"
+    val psiFileName = when {
+        params.fileName != null -> params.fileName
+        params.script -> "file.kts"
+        else -> "file.kt"
     }
     val psiFile = psiFileFactory.createFileFromText(
         psiFileName,
