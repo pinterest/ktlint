@@ -9,13 +9,13 @@ group = "com.github.username"
 val sourcesJar by tasks.registering(Jar::class) {
     dependsOn(tasks.classes)
     archiveClassifier.set("sources")
-    from(sourceSets.main.get().allSource)
+    from(sourceSets.main.map { it.allSource })
 }
 
 val javadocJar by tasks.registering(Jar::class) {
     dependsOn(tasks.javadoc)
     archiveClassifier.set("javadoc")
-    from(tasks.javadoc.get().destinationDir)
+    from(tasks.javadoc.map { it.destinationDir!! })
 }
 
 artifacts {
@@ -46,10 +46,12 @@ tasks.register<JavaExec>("ktlint") {
     mainClass.set("com.pinterest.ktlint.Main")
     // adding compiled classes to the classpath so that ktlint would validate project"s sources
     // using its own ruleset (in other words to dogfood)
-    classpath = ktlint + sourceSets.main.get().output
+    classpath(ktlint, sourceSets.main.map { it.output })
     args("--debug", "src/**/*.kt")
 }.let {
-    tasks.check.get().dependsOn(it)
+    tasks.check.configure {
+        dependsOn(it)
+    }
 }
 
 afterEvaluate {

@@ -69,7 +69,7 @@ val shadowJarExecutable by tasks.registering(DefaultTask::class) {
             signing.sign(execFile)
         }
     }
-    finalizedBy(tasks["shadowJarExecutableChecksum"])
+    finalizedBy(tasks.named("shadowJarExecutableChecksum"))
 }
 
 tasks.register<Checksum>("shadowJarExecutableChecksum") {
