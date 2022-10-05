@@ -319,14 +319,12 @@ internal class IndentationRuleTest {
     fun `remove me first`() {
         val code =
             """
-            fun foo() {
-                println($MULTILINE_STRING_QUOTE
-                $MULTILINE_STRING_QUOTE)
-                println($MULTILINE_STRING_QUOTE
-                $MULTILINE_STRING_QUOTE.trimIndent())
-                println($MULTILINE_STRING_QUOTE
-                $MULTILINE_STRING_QUOTE.trimMargin())
-            }
+            val foo =
+                "bar"
+                    .substring(
+                        3,
+                        3
+                    )
             """.trimIndent()
         val formattedCode =
             """

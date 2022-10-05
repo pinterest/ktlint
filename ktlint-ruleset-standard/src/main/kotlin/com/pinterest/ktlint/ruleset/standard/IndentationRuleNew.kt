@@ -10,7 +10,6 @@ import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType.ARROW
 import com.pinterest.ktlint.core.ast.ElementType.BINARY_EXPRESSION
-import com.pinterest.ktlint.core.ast.ElementType.BLOCK
 import com.pinterest.ktlint.core.ast.ElementType.BLOCK_COMMENT
 import com.pinterest.ktlint.core.ast.ElementType.BODY
 import com.pinterest.ktlint.core.ast.ElementType.CALL_EXPRESSION
@@ -30,6 +29,7 @@ import com.pinterest.ktlint.core.ast.ElementType.KDOC
 import com.pinterest.ktlint.core.ast.ElementType.KDOC_END
 import com.pinterest.ktlint.core.ast.ElementType.KDOC_LEADING_ASTERISK
 import com.pinterest.ktlint.core.ast.ElementType.KDOC_START
+import com.pinterest.ktlint.core.ast.ElementType.LBRACE
 import com.pinterest.ktlint.core.ast.ElementType.LITERAL_STRING_TEMPLATE_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.LONG_STRING_TEMPLATE_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.LONG_TEMPLATE_ENTRY_END
@@ -51,13 +51,11 @@ import com.pinterest.ktlint.core.ast.ElementType.TYPE_ARGUMENT_LIST
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_ARGUMENT_LIST
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.core.ast.ElementType.WHEN
-import com.pinterest.ktlint.core.ast.ElementType.WHEN_CONDITION_IN_RANGE
-import com.pinterest.ktlint.core.ast.ElementType.WHEN_CONDITION_IS_PATTERN
-import com.pinterest.ktlint.core.ast.ElementType.WHEN_CONDITION_WITH_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.WHEN_ENTRY
 import com.pinterest.ktlint.core.ast.children
 import com.pinterest.ktlint.core.ast.isPartOfComment
 import com.pinterest.ktlint.core.ast.isRoot
+import com.pinterest.ktlint.core.ast.isWhiteSpace
 import com.pinterest.ktlint.core.ast.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.core.ast.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.core.ast.lastChildLeafOrSelf
@@ -176,8 +174,7 @@ public class IndentationRuleNew :
                 node.treeParent.prevSibling { !it.isPartOfComment() }?.isWhiteSpaceWithNewline() == true -> {
                 startIndentContextSameAsParent(node)
             }
-            node.elementType == BLOCK ||
-                node.elementType == CLASS_BODY ||
+            node.elementType == CLASS_BODY ||
                 node.elementType == FUNCTION_LITERAL ||
                 node.elementType == STRING_TEMPLATE ||
                 node.elementType == LONG_STRING_TEMPLATE_ENTRY ||
@@ -189,6 +186,15 @@ public class IndentationRuleNew :
                 node.elementType == VALUE_PARAMETER_LIST ||
                 node.elementType == WHEN ->
                 startIndentContextSameAsParent(node)
+            node.elementType == LBRACE -> {
+                val rbrace = requireNotNull(
+                    node.nextSibling { it.elementType == RBRACE }
+                ) { "Can not find matching rbrace" }
+                startIndentContextSameAsParent(
+                    fromAstNode = node,
+                    toAstNode = rbrace,
+                )
+            }
             node.elementType == EQ &&
                 node.treeParent?.elementType == FUN -> {
                 startIndentContextSameAsParent(
@@ -225,9 +231,7 @@ public class IndentationRuleNew :
                 Unit
             }
             node.elementType == DOT_QUALIFIED_EXPRESSION -> {
-                if (node.treeParent?.firstChildNode?.elementType != DOT_QUALIFIED_EXPRESSION) {
-                    startIndentContextSameAsParent(node)
-                }
+                startIndentContextSameAsParent(node.firstCodeChild())
             }
             node.elementType == SAFE_ACCESS_EXPRESSION -> {
                 if (node.treeParent?.firstChildNode?.elementType != SAFE_ACCESS_EXPRESSION) {
@@ -285,6 +289,10 @@ public class IndentationRuleNew :
             )
         }
     }
+
+    private fun ASTNode.firstCodeChild() =
+        children()
+            .first { !it.isWhiteSpace() && !it.isPartOfComment() }
 
     private fun isPartOfBinaryExpressionWrappedInCondition(node: ASTNode) =
         node
@@ -412,7 +420,49 @@ public class IndentationRuleNew :
                     toAstNode = node.treeParent.lastChildLeafOrSelf()
                 )
             }
+            node.treeParent?.elementType == DOT_QUALIFIED_EXPRESSION && node == node.treeParent?.firstCodeChild() -> {
+                val fromAstNode =
+                    requireNotNull(
+                        node
+                            .treeParent
+                            ?.firstCodeChild()
+                            ?.nextLeaf()
+                    ) { "Can not find a leaf after the left hand side in a dot qualified expression" }
+                val extraIndent =
+                    if (node.hasWhitespaceWithNewLineInBinaryExpression()) {
+                        1
+                    } else {
+                        0
+                    }
+                currentIndentLevel()
+                    .plus(extraIndent)
+                    .let { indentLevel ->
+                    startIndentContext(
+                        fromAstNode = fromAstNode,
+                        toAstNode = node.treeParent.lastChildLeafOrSelf(),
+                        nodeIndentLevel = indentLevel,
+                        childIndentLevel = indentLevel,
+                    )
+                }
+            }
         }
+    }
+
+    private fun ASTNode.hasWhitespaceWithNewLineInBinaryExpression(): Boolean {
+        var node = this
+        do {
+            if (node.elementType == DOT_QUALIFIED_EXPRESSION) {
+                val hasWhitespaceWithNewLineInLeftHandSide =
+                    node
+                        .children()
+                        .any { it.isWhiteSpaceWithNewline() }
+                if (hasWhitespaceWithNewLineInLeftHandSide) {
+                    return true
+                }
+            }
+            node = node.treeParent
+        } while (node.elementType == DOT_QUALIFIED_EXPRESSION)
+        return false
     }
 
     override fun afterLastNode() {
