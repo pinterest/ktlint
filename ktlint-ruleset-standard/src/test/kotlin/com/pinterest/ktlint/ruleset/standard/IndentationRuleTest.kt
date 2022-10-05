@@ -319,19 +319,23 @@ internal class IndentationRuleTest {
     fun `remove me first`() {
         val code =
             """
-            val foo =
-                "bar"
-                    .substring(
-                        3,
-                        3
+            fun main() {
+                f({ v ->
+                    x
+                        .f()
+                })
+                f({ v ->
+                    d(
+                        1
                     )
+                })
+            }
             """.trimIndent()
         val formattedCode =
             """
             xxx
             """.trimIndent()
         newIndentationRuleAssertThat(code)
-            .addAdditionalRuleProvider { WrappingRule() }
             .isFormattedAs(formattedCode)
     }
 
@@ -339,10 +343,13 @@ internal class IndentationRuleTest {
     fun `remove me too`() {
         val code =
             """
-            val foo = if (true)
-                1
-            else
-                2
+            fun main() {
+                foo.func {
+                        param1, param2 ->
+                    doSomething()
+                    doSomething2()
+                }
+            }
             """.trimIndent()
         val formattedCode =
             """
@@ -2611,7 +2618,7 @@ internal class IndentationRuleTest {
                 }
             }
             """.trimIndent()
-        indentationRuleAssertThat(code)
+        newIndentationRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(3, 1, "Unexpected indentation (8) (should be 12)"),
                 LintViolation(4, 1, "Unexpected indentation (12) (should be 8)"),
