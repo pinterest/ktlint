@@ -9,7 +9,7 @@ val Project.javaToolchains: JavaToolchainService
 
 fun Project.addAdditionalJdkVersionTests() {
     // Tests should be run on all supported LTS versions of the JDK. For example, see https://endoflife.date/java
-    listOf(8, 11, 17, 18).forEach(::addJdkVersionTests)
+    listOf(11, 17, 18).forEach(::addJdkVersionTests)
 }
 
 private fun Project.addJdkVersionTests(jdkVersion: Int) {
