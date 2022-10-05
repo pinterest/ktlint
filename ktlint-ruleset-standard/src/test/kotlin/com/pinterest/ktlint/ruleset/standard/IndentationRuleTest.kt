@@ -2634,7 +2634,7 @@ internal class IndentationRuleTest {
             val foo = // comment
                 "foo"
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintViolations()
+        newIndentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -2659,7 +2659,7 @@ internal class IndentationRuleTest {
                 ) -> Unit, c: Int, d: Int) {}
             }
             """.trimIndent()
-        indentationRuleAssertThat(code)
+        newIndentationRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(2, 1, "Unexpected indentation (0) (should be 4)"),
                 LintViolation(4, 1, "Unexpected indentation (0) (should be 4)"),
