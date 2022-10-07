@@ -11,6 +11,7 @@ import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.ARROW
 import com.pinterest.ktlint.core.ast.ElementType.BINARY_EXPRESSION
+import com.pinterest.ktlint.core.ast.ElementType.BLOCK
 import com.pinterest.ktlint.core.ast.ElementType.BLOCK_COMMENT
 import com.pinterest.ktlint.core.ast.ElementType.BODY
 import com.pinterest.ktlint.core.ast.ElementType.CALL_EXPRESSION
@@ -53,6 +54,7 @@ import com.pinterest.ktlint.core.ast.ElementType.THEN
 import com.pinterest.ktlint.core.ast.ElementType.TYPE_ARGUMENT_LIST
 import com.pinterest.ktlint.core.ast.ElementType.TYPE_CONSTRAINT
 import com.pinterest.ktlint.core.ast.ElementType.TYPE_CONSTRAINT_LIST
+import com.pinterest.ktlint.core.ast.ElementType.TYPE_REFERENCE
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_ARGUMENT_LIST
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.core.ast.ElementType.WHEN
@@ -66,6 +68,7 @@ import com.pinterest.ktlint.core.ast.isWhiteSpace
 import com.pinterest.ktlint.core.ast.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.core.ast.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.core.ast.lastChildLeafOrSelf
+import com.pinterest.ktlint.core.ast.nextCodeLeaf
 import com.pinterest.ktlint.core.ast.nextCodeSibling
 import com.pinterest.ktlint.core.ast.nextLeaf
 import com.pinterest.ktlint.core.ast.nextSibling
@@ -216,13 +219,6 @@ public class IndentationRuleNew :
                     )
                 }
             }
-            node.elementType == EQ &&
-                node.treeParent?.elementType == FUN -> {
-                startIndentContextSameAsParent(
-                    fromAstNode = node,
-                    toAstNode = node.treeParent.lastChildLeafOrSelf(),
-                )
-            }
             node.elementType == LPAR && node.nextCodeSibling()?.elementType == CONDITION -> {
                 startIndentContext(
                     fromAstNode = requireNotNull(node.nextLeaf()), // Allow to pickup whitespace before condition
@@ -230,6 +226,63 @@ public class IndentationRuleNew :
                     nodeIndent = currentIndent() + indentConfig.indent,
                     childIndent = "",
                 )
+            }
+            node.elementType == FUN -> {
+                // Outer indent context
+                startIndentContext(
+                    fromAstNode = node,
+                    toAstNode = node.lastChildLeafOrSelf(),
+                    nodeIndent = currentIndent(),
+                    childIndent = ""
+                )
+
+                // Sub indent contexts in reversed order
+                var nextToAstNode: ASTNode = node.lastChildLeafOrSelf()
+                val eqOrBlock =
+                    node.findChildByType(EQ)
+                        ?: node.findChildByType(BLOCK)
+                eqOrBlock?.let {
+                        nextToAstNode = startIndentContextSameAsParent(
+                            fromAstNode = eqOrBlock,
+                            toAstNode = nextToAstNode,
+                        ).fromASTNode.prevLeaf()!!
+                    }
+
+                node
+                    .findChildByType(TYPE_REFERENCE)
+                    ?.let { typeReference ->
+                        nextToAstNode = startIndentContextSameAsParent(
+                            fromAstNode = typeReference.startOfIndentContext(),
+                            toAstNode = nextToAstNode,
+                        ).fromASTNode.prevLeaf()!!
+                    }
+
+
+                // Leading annotations and comments should be indented at same level as function itself
+                val lastAccessModifierNotToBeIndented = node.lastAccessModifierNotToBeIndented()
+                if (lastAccessModifierNotToBeIndented == null) {
+                    startIndentContextSameAsParent(
+                        fromAstNode = node,
+                        toAstNode = nextToAstNode,
+                    )
+                } else {
+                    val indentFromElement = lastAccessModifierNotToBeIndented
+                        .lastChildLeafOrSelf()
+                        .nextCodeLeaf()
+                    indentFromElement
+                        ?.let { fromAstNode ->
+                            nextToAstNode = startIndentContextSameAsParent(
+                                fromAstNode = fromAstNode,
+                                toAstNode = nextToAstNode,
+                            ).fromASTNode.prevLeaf()!!
+                        }
+                    startIndentContext(
+                        fromAstNode = node,
+                        toAstNode = nextToAstNode,
+                        nodeIndent = currentIndent(),
+                        childIndent = ""
+                    )
+                }
             }
             node.elementType == CLASS -> {
                 // Outer indent context
@@ -266,19 +319,7 @@ public class IndentationRuleNew :
                     }
 
                 // Leading annotations and comments should be indented at same level as class itself
-                val modifierList = node.findChildByType(MODIFIER_LIST)
-                val lastAccessModifierNotToBeIndented =
-                    modifierList
-                        ?.children()
-                        ?.takeWhile { it.elementType == ANNOTATION_ENTRY || it.isPartOfComment() || it.isWhiteSpace() }
-                        ?.lastOrNull()
-                        ?.let { last ->
-                            if (last.isWhiteSpace()) {
-                                last.prevSibling { true }
-                            } else {
-                                last
-                            }
-                        }
+                val lastAccessModifierNotToBeIndented = node.lastAccessModifierNotToBeIndented()
                 val lastNode =
                     node.findChildByType(COLON)
                         ?: node.findChildByType(VALUE_PARAMETER_LIST)
@@ -384,6 +425,19 @@ public class IndentationRuleNew :
         }
     }
 
+    private fun ASTNode.lastAccessModifierNotToBeIndented() =
+        findChildByType(MODIFIER_LIST)
+            ?.children()
+            ?.takeWhile { it.elementType == ANNOTATION_ENTRY || it.isPartOfComment() || it.isWhiteSpace() }
+            ?.lastOrNull()
+//            ?.let { last ->
+//                if (last.isWhiteSpace()) {
+//                    last.prevSibling { true }
+//                } else {
+//                    last
+//                }
+//            }
+
     private fun ASTNode.startOfIndentContext(): ASTNode {
         var fromAstNode: ASTNode? = this
         while (fromAstNode?.prevLeaf() != null &&
@@ -408,14 +462,13 @@ public class IndentationRuleNew :
     private fun startIndentContextSameAsParent(
         fromAstNode: ASTNode,
         toAstNode: ASTNode = fromAstNode.lastChildLeafOrSelf(),
-    ) {
+    ) =
         startIndentContext(
             fromAstNode = fromAstNode,
             toAstNode = toAstNode,
             nodeIndent = currentIndent(),
             childIndent = indentConfig.indent,
         )
-    }
 
     private fun currentIndent() =
         indentContextStack
@@ -427,23 +480,19 @@ public class IndentationRuleNew :
         toAstNode: ASTNode,
         nodeIndent: String,
         childIndent: String,
-    ) {
+    ): NewIndentContext =
         NewIndentContext(
             fromASTNode = fromAstNode,
             toASTNode = toAstNode,
             nodeIndent = nodeIndent,
             childIndent = childIndent,
             unchanged = true,
-        ).let { newIndentContext ->
-            indentContextStack
-                .addLast(newIndentContext)
-                .also {
-                    logger.trace {
-                        "Create new indent context (same as parent) with level (${indentConfig.indentLevelFrom(newIndentContext.nodeIndent)}, ${indentConfig.indentLevelFrom(newIndentContext.childIndent)})  for ${fromAstNode.elementType}: ${newIndentContext.nodes}"
-                    }
-                }
+        ).also { newIndentContext ->
+            logger.trace {
+                "Create new indent context (same as parent) with level (${indentConfig.indentLevelFrom(newIndentContext.nodeIndent)}, ${indentConfig.indentLevelFrom(newIndentContext.childIndent)})  for ${fromAstNode.elementType}: ${newIndentContext.nodes}"
+            }
+            indentContextStack.addLast(newIndentContext)
         }
-    }
 
     override fun afterVisitChildNodes(
         node: ASTNode,

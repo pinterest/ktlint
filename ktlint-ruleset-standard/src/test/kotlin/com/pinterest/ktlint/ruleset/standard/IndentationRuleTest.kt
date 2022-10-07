@@ -2863,7 +2863,7 @@ internal class IndentationRuleTest {
             abstract fun doPerformSomeOperation(param: ALongParameter):
                 SomeLongInterface<ALongParameter.InnerClass, SomeOtherClass>
             """.trimIndent()
-        indentationRuleAssertThat(code)
+        newIndentationRuleAssertThat(code)
             .hasLintViolation(2, 1, "Unexpected indentation (0) (should be 4)")
             .isFormattedAs(formattedCode)
     }
