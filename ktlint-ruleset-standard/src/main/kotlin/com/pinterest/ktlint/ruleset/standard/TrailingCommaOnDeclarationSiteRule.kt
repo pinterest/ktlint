@@ -448,7 +448,7 @@ public class TrailingCommaOnDeclarationSiteRule :
                     PropertyValueParser.BOOLEAN_VALUE_PARSER,
                     BOOLEAN_VALUES_SET,
                 ),
-                defaultValue = false,
+                defaultValue = true,
             )
 
         private val TYPES_ON_DECLARATION_SITE = TokenSet.create(
