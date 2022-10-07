@@ -331,6 +331,7 @@ public object DefaultEditorConfigProperties : UsesEditorConfigProperties {
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
         codeStyleSetProperty,
         disabledRulesProperty,
+        ktlintDisabledRulesProperty,
         indentStyleProperty,
         indentSizeProperty,
         insertNewLineProperty,
