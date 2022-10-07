@@ -140,7 +140,7 @@ internal class EditorConfigGeneratorTest {
             $PROPERTY_1_NAME = false
             """.trimIndent(),
         )
-in
+
         val generatedEditorConfig = editorConfigGenerator.generateEditorconfig(
             filePath = tempFileSystem.normalizedPath(rootDir).resolve("test.kt"),
             rules = rules,
