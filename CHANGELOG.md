@@ -24,7 +24,7 @@ Calling this API with a file path results in the `.editorconfig` files that will
 * Let a rule process all nodes even in case the rule is suppressed for a node so that the rule can update the internal state ([#1644](https://github.com/pinterest/ktlint/issue/1644))
 * Read `.editorconfig` when running CLI with options `--stdin` and `--editorconfig` ([#1651](https://github.com/pinterest/ktlint/issue/1651))
 * Do not add a trailing comma in case a multiline function call argument is found but no newline between the arguments `trailing-comma-on-call-site` ([#1642](https://github.com/pinterest/ktlint/issue/1642))
-* `ktlint_disabled_rules` is missing from `editorConfigProperties`
+* Add missing `ktlint_disabled_rules` to exposed `editorConfigProperties`
 
 ### Changed
 * Update Kotlin development version to `1.7.20` and Kotlin version to `1.7.20`.
