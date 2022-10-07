@@ -2711,7 +2711,7 @@ internal class IndentationRuleTest {
                 )
             }
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintViolations()
+        newIndentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -2728,7 +2728,7 @@ internal class IndentationRuleTest {
             ${TAB}return 0
             }
             """.trimIndent()
-        indentationRuleAssertThat(code)
+        newIndentationRuleAssertThat(code)
             .withEditorConfigOverride(INDENT_STYLE_TAB)
             .hasLintViolations(
                 LintViolation(2, 1, "Unexpected space character(s)"),
@@ -2750,7 +2750,7 @@ internal class IndentationRuleTest {
                 return 0
             }
             """.trimIndent()
-        indentationRuleAssertThat(code)
+        newIndentationRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(2, 1, "Unexpected tab character(s)"),
                 LintViolation(2, 1, "Unexpected indentation (8) (should be 4)"),
@@ -2777,7 +2777,7 @@ internal class IndentationRuleTest {
                 }
             }
             """.trimIndent()
-        indentationRuleAssertThat(code)
+        newIndentationRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(2, 1, "Unexpected tab character(s)"),
                 LintViolation(3, 1, "Unexpected tab character(s)"),
@@ -2803,7 +2803,7 @@ internal class IndentationRuleTest {
               }
             }
             """.trimIndent()
-        indentationRuleAssertThat(code)
+        newIndentationRuleAssertThat(code)
             .withEditorConfigOverride(indentSizeProperty to 2)
             .hasLintViolations(
                 LintViolation(2, 1, "Unexpected tab character(s)"),
@@ -2823,7 +2823,7 @@ internal class IndentationRuleTest {
                             Manifest(stream).mainAttributes.getValue("Implementation-Version")
                         }
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintViolations()
+        newIndentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -2846,7 +2846,7 @@ internal class IndentationRuleTest {
                     }
             }
             """.trimIndent()
-        indentationRuleAssertThat(code)
+        newIndentationRuleAssertThat(code)
             .hasLintViolation(4, 1, "Unexpected indentation (16) (should be 12)")
             .isFormattedAs(formattedCode)
     }
