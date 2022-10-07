@@ -267,7 +267,7 @@ public class TrailingCommaOnCallSiteRule :
                     PropertyValueParser.BOOLEAN_VALUE_PARSER,
                     BOOLEAN_VALUES_SET,
                 ),
-                defaultValue = false,
+                defaultValue = true,
             )
 
         private val TYPES_ON_CALL_SITE = TokenSet.create(
