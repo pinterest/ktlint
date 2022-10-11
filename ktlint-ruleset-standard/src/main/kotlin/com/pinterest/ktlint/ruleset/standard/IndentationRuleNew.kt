@@ -143,14 +143,7 @@ public class IndentationRuleNew :
                         whitespaceWithoutNewline.treeParent.removeChild(whitespaceWithoutNewline)
                     }
                 }
-            indentContextStack.addLast(
-                NewIndentContext(
-                    fromASTNode = node,
-                    nodeIndent = "",
-                    childIndent = "",
-                    unchanged = false,
-                ),
-            )
+            indentContextStack.addLast(startNoIndentZone(node))
         }
 
         /* Dump entire indentContextStack before each node
@@ -414,14 +407,7 @@ public class IndentationRuleNew :
 
         // Add node to stack only when it has not been pushed yet
         if (indentContextStack.isEmpty()) {
-            indentContextStack.addLast(
-                NewIndentContext(
-                    fromASTNode = node,
-                    nodeIndent = "",
-                    childIndent = "",
-                    unchanged = true,
-                ),
-            )
+            indentContextStack.addLast(startNoIndentZone(node))
         }
     }
 
@@ -480,12 +466,16 @@ public class IndentationRuleNew :
         toAstNode: ASTNode,
         nodeIndent: String,
         childIndent: String,
+        firstChildIndent: String = childIndent, // TODO: fix order
+        lastChildIndent: String = childIndent,
     ): NewIndentContext =
         NewIndentContext(
             fromASTNode = fromAstNode,
             toASTNode = toAstNode,
             nodeIndent = nodeIndent,
+            firstChildIndent = firstChildIndent,
             childIndent = childIndent,
+            lastChildIndent = lastChildIndent,
             unchanged = true,
         ).also { newIndentContext ->
             logger.trace {
@@ -758,6 +748,16 @@ public class IndentationRuleNew :
         }
     }
 
+    private fun startNoIndentZone(node: ASTNode) =
+        NewIndentContext(
+            fromASTNode = node,
+            nodeIndent = "",
+            firstChildIndent = "",
+            childIndent = "",
+            lastChildIndent = "",
+            unchanged = false,
+        )
+
     private companion object {
         const val KDOC_CONTINUATION_INDENT = " "
         const val TYPE_CONSTRAINT_CONTINUATION_INDENT = "      " // Length of keyword "where" plus separating space
@@ -782,11 +782,25 @@ public class IndentationRuleNew :
         val nodeIndent: String,
 
         /**
+         * Additional indentation for first child node. Normally this should be equal to the 'indentConfig.indent' to
+         * ensure a consistent indentation style. In very limited cases when the default indentation is set to 'tab' it
+         * is still needed to adjust the last indentation using spaces.
+         */
+        val firstChildIndent: String,
+
+        /**
          * Additional indentation for child nodes. Normally this should be equal to the 'indentConfig.indent' to ensure
          * a consistent indentation style. In very limited cases when the default indentation is set to 'tab' it is
          * still needed to adjust the last indentation using spaces.
          */
         val childIndent: String,
+
+        /**
+         * Additional indentation for last child node. Normally this should be equal to the 'indentConfig.indent' to
+         * ensure a consistent indentation style. In very limited cases when the default indentation is set to 'tab' it
+         * is still needed to adjust the last indentation using spaces.
+         */
+        val lastChildIndent: String,
 
         /**
          * True when the indentation level for child nodes has been raised
