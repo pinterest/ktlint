@@ -36,6 +36,7 @@ internal class EditorConfigGeneratorTest {
             "indent_style = space",
             "insert_final_newline = true",
             "ktlint_code_style = official",
+            "ktlint_disabled_rules = ",
             "max_line_length = -1",
         )
     }

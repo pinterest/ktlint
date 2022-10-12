@@ -15,12 +15,12 @@ ktlint_code_style = official
 
 ## Disabled rules
 
-By default, no rules are disabled. The property `disabled_rules` holds a comma separated list (without spaces). Rules which are not defined in the `standard` ruleset have to be prefixed. Rules defined in the `standard` ruleset may optionally be prefixed.
+By default, no rules are disabled. The property `ktlint_disabled_rules` holds a comma separated list (without spaces). Rules which are not defined in the `standard` ruleset have to be prefixed. Rules defined in the `standard` ruleset may optionally be prefixed.
 
 Example:
 ```ini
 [*.{kt,kts}]
-disabled_rules = some-standard-rule,experimental:some-experimental-rule,my-custom-ruleset:my-custom-rule
+ktlint_disabled_rules = some-standard-rule,experimental:some-experimental-rule,my-custom-ruleset:my-custom-rule
 ```
 
 ## Final newline
@@ -205,9 +205,9 @@ This setting only takes effect when rule `trailing-comma-on-declaration-site` is
 You can [override](https://editorconfig.org/#file-format-details) properties for specific directories inside your project:
 ```ini
 [*.{kt,kts}]
-disabled_rules=import-ordering
+ktlint_disabled_rules=import-ordering
 
  Note that in this case 'import-ordering' rule will be active and 'indent' will be disabled
 [api/*.{kt,kts}]
-disabled_rules=indent
+ktlint_disabled_rules=indent
 ```
