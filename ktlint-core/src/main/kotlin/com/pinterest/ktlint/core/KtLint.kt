@@ -30,6 +30,15 @@ import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
 @Suppress("MemberVisibilityCanBePrivate")
 public object KtLint {
+    @Deprecated(
+        """
+            Marked for removal in KtLint 0.49.0. Use:
+                if (node.isRoot()) {
+                    val fileName = (node.psi as? KtFile)?.name
+                    ...
+                }
+            """,
+    )
     public val FILE_PATH_USER_DATA_KEY: Key<String> = Key<String>("FILE_PATH")
 
     @Deprecated("Marked for removal in Ktlint 0.48.0")

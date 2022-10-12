@@ -14,6 +14,16 @@ This API can be called with either a file or a directory. It's intended usage is
 
 Calling this API with a file path results in the `.editorconfig` files that will be accessed when processing that specific file. In case the directory in which the file resides does not contain an `.editorconfig` file or if it does not contain the `root=true` setting, the parent directories are scanned until a root `.editorconfig` file is found.
 
+#### Psi filename replaces FILE_PATH_USER_DATA_KEY
+
+Constant `KtLint.FILE_PATH_USER_DATA_KEY` is deprecated and will be removed in  KtLint version 0.49.0. The file name will be passed correctly to the node with element type FILE and can be retrieved as follows:
+```kotlin
+if (node.isRoot()) {
+    val fileName = (node.psi as? KtFile)?.name
+    ...
+}
+```
+
 ### Added
 * Wrap blocks in case the max line length is exceeded or in case the block contains a new line `wrapping` ([#1643](https://github.com/pinterest/ktlint/issue/1643))
 
