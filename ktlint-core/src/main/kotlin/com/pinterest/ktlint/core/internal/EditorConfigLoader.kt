@@ -213,7 +213,7 @@ public class EditorConfigLoader(
         PropertyTypeRegistry.builder()
             .defaults()
             .apply {
-                rules
+                rules.asSequence()
                     .filterIsInstance<UsesEditorConfigProperties>()
                     .flatMap(UsesEditorConfigProperties::editorConfigProperties)
                     .forEach { editorConfigProperty ->

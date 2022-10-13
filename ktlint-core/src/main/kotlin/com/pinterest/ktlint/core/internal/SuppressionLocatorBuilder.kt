@@ -45,7 +45,7 @@ internal object SuppressionLocatorBuilder {
 
     private fun toSuppressedRegionsLocator(hintsList: List<SuppressionHint>): SuppressionLocator =
         { offset, ruleId, isRoot -> // TODO: Remove unused parameter isRoot
-            hintsList
+            hintsList.asSequence()
                 .filter { offset in it.range }
                 .any { hint -> hint.disabledRules.isEmpty() || hint.disabledRules.contains(ruleId) }
         }
@@ -156,12 +156,14 @@ internal object SuppressionLocatorBuilder {
     ): SuppressionHint? =
         psi
             .annotationEntries
+            .asSequence()
             .filter {
                 it.calleeExpression
                     ?.constructorReferenceExpression
                     ?.getReferencedName() in targetAnnotations
             }.flatMap(KtAnnotationEntry::getValueArguments)
             .mapNotNull { it.toRuleId(annotationValueToRuleMapping) }
+            .toList()
             .let { suppressedRules ->
                 when {
                     suppressedRules.isEmpty() -> null

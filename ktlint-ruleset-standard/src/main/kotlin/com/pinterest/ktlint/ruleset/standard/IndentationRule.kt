@@ -926,6 +926,7 @@ public class IndentationRule :
         val nonBlankLines = this
             .text
             .split("\n")
+            .asSequence()
             .filterNot { it.startsWith("\"\"\"") }
             .filterNot { it.endsWith("\"\"\"") }
             .filterNot { it.isBlank() }

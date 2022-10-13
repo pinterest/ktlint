@@ -23,9 +23,10 @@ public open class RuleSetProviderTest(
         val srcLocation = rulesetClass.protectionDomain.codeSource.location.path
         val rulesDir = File(srcLocation + packageName.replace(".", "/"))
         val packageRules = rulesDir.listFiles()
+            ?.asSequence()
             ?.map { it.name.removeSuffix(".class") }
             ?.filter { it.endsWith("Rule") }
-            ?: arrayListOf()
+            ?.toList().orEmpty()
 
         val providerRules = rules.map { it::class.java.simpleName }
         val missingRules =

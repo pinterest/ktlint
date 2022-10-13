@@ -99,7 +99,7 @@ public object KtLint {
         val isInvokedFromCli: Boolean = false,
     ) {
         internal val ruleRunners: Set<RuleRunner> =
-            ruleProviders
+            ruleProviders.asSequence()
                 .map { RuleRunner(it) }
                 .plus(
                     /** Support backward compatibility for API consumers in KtLint 0.47 by changing rule sets to rule

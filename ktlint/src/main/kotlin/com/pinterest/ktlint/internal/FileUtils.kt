@@ -69,17 +69,19 @@ internal fun FileSystem.fileSequence(
             .map { getPathMatcher("glob:$it") }
             .toSet()
     } else {
-        globs
+        globs.asSequence()
             .filterNot { it.startsWith(NEGATION_PREFIX) }
             .map { getPathMatcher(it) }
+            .toSet()
     }
 
     val negatedPathMatchers = if (globs.isEmpty()) {
         emptySet()
     } else {
-        globs
+        globs.asSequence()
             .filter { it.startsWith(NEGATION_PREFIX) }
             .map { getPathMatcher(it.removePrefix(NEGATION_PREFIX)) }
+            .toSet()
     }
 
     logger.debug {
@@ -147,8 +149,8 @@ internal fun FileSystem.fileSequence(
 private fun FileSystem.expand(
     patterns: List<String>,
     rootDir: Path,
-) =
-    patterns
+): List<String> =
+    patterns.asSequence()
         .mapNotNull {
             if (onWindowsOS) {
                 it.normalizeWindowsPattern()
@@ -170,6 +172,7 @@ private fun FileSystem.expand(
                 it
             }
         }.flatMap { path -> toGlob(path, rootDir) }
+        .toList()
 
 private fun FileSystem.toGlob(
     path: String,
@@ -215,7 +218,7 @@ private fun FileSystem.toGlob(
         }
     }
 
-    return expandedPatterns
+    return expandedPatterns.asSequence()
         .map { originalPattern ->
             if (onWindowsOS) {
                 originalPattern
@@ -235,6 +238,7 @@ private fun FileSystem.toGlob(
                 originalPattern
             }
         }.map { "${negation}glob:$it" }
+        .toList()
 }
 
 /**
@@ -245,7 +249,7 @@ private fun FileSystem.toGlob(
 private fun String?.expandDoubleStarPatterns(): Set<String> {
     val paths = mutableSetOf(this)
     val parts = this?.split("/").orEmpty()
-    parts
+    parts.asSequence()
         .filter { it == "**" }
         .forEach { doubleStarPart ->
             run {
@@ -268,6 +272,7 @@ private fun String?.normalizeWindowsPattern() =
         this
             ?.replace("\\", "/")
             ?.split("/")
+            ?.asSequence()
             ?.filterNot {
                 // Reference to current directory can simply be ignored
                 it == "."

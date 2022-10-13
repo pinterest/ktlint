@@ -107,7 +107,7 @@ public class NoUnusedImportsRule : Rule("no-unused-imports") {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.elementType == FILE) {
-            val directCalls = ref.filter { !it.inDotQualifiedExpression }.map { it.text }
+            val directCalls = ref.asSequence().filter { !it.inDotQualifiedExpression }.map { it.text }
             parentExpressions.forEach { parent ->
                 imports
                     .filterKeys { import ->

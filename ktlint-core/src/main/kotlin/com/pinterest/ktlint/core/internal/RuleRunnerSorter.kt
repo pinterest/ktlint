@@ -135,11 +135,12 @@ internal class RuleRunnerSorter {
         }
         check(blockedRuleRunners.isEmpty()) {
             val customRuleSetIds =
-                blockedRuleRunners
+                blockedRuleRunners.asSequence()
                     .map { it.ruleSetId }
                     .filterNot { it == "standard" || it == "experimental" }
                     .distinct()
                     .sorted()
+                    .toList()
             val prefix =
                 if (customRuleSetIds.isEmpty()) {
                     "Found cyclic dependencies between rules that should run after another rule:"
@@ -160,10 +161,11 @@ internal class RuleRunnerSorter {
     }
 
     private fun List<RuleRunner>.findRuleRunnersBlockedBy(qualifiedRuleId: String): List<RuleRunner> {
-        return this
+        return asSequence()
             .filter { it.runAfterRule?.ruleId == qualifiedRuleId }
             .map { listOf(it) + this.findRuleRunnersBlockedBy(it.qualifiedRuleId) }
             .flatten()
+            .toList()
     }
 
     private fun RuleRunner.runsAfter(ruleRunner: RuleRunner) =

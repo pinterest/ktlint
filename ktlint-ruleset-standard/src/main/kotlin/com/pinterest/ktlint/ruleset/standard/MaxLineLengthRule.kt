@@ -71,6 +71,7 @@ public class MaxLineLengthRule :
             val errorOffset = arrayListOf<Int>()
             node
                 .getElementsPerLine()
+                .asSequence()
                 .filter { it.lineLength(ignoreBackTickedIdentifier) > maxLineLength }
                 .forEach { parsedLine ->
                     val el = parsedLine.elements.last()
@@ -163,7 +164,7 @@ private data class ParsedLine(
     }
 
     private fun totalLengthBacktickedElements(): Int {
-        return elements
+        return elements.asSequence()
             .filterIsInstance(PsiElement::class.java)
             .filter { it.text.matches(isValueBetweenBackticks) }
             .sumOf(PsiElement::getTextLength)

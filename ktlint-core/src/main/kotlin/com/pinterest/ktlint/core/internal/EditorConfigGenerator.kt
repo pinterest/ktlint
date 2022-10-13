@@ -46,7 +46,7 @@ internal class EditorConfigGenerator(
                 .plus(getConfigurationSettingsForDefaultEditorConfigProperties(editorConfig, codeStyle))
                 .also { it.reportSettingsWithMultipleDistinctValues() }
 
-        return potentialEditorConfigSettings
+        return potentialEditorConfigSettings.asSequence()
             .map { "${it.key} = ${it.value}" }
             .distinct()
             .sorted()
@@ -107,6 +107,7 @@ internal class EditorConfigGenerator(
 
     private fun List<ConfigurationSetting>.reportSettingsWithMultipleDistinctValues() =
         groupBy { it.key }
+            .asSequence()
             .filter { (_, configurationSettingsGroup) -> configurationSettingsGroup.countDistinctValues() > 1 }
             .forEach {
                 logger.error {
