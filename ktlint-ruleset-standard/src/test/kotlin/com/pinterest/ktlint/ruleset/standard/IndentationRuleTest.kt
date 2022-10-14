@@ -319,12 +319,13 @@ internal class IndentationRuleTest {
     fun `remove me first`() {
         val code =
             """
-            val foo =
-                false ||
-                    (
-                        true ||
-                            false
-                        )
+            val s:
+                String = ""
+
+            fun process(
+                fileName:
+                String
+            ): List<Output>
             """.trimIndent()
         val formattedCode =
             """
@@ -2870,7 +2871,7 @@ internal class IndentationRuleTest {
 
             fun process(
                 fileName:
-                String
+                    String
             ): List<Output>
             """.trimIndent()
         val formattedCode =
@@ -2880,13 +2881,13 @@ internal class IndentationRuleTest {
 
             fun process(
                 fileName:
-                    String
+                String
             ): List<Output>
             """.trimIndent()
-        indentationRuleAssertThat(code)
+        newIndentationRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(2, 1, "Unexpected indentation (8) (should be 4)"),
-                LintViolation(6, 1, "Unexpected indentation (4) (should be 8)"),
+                LintViolation(6, 1, "Unexpected indentation (8) (should be 4)"),
             ).isFormattedAs(formattedCode)
     }
 
