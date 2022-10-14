@@ -319,13 +319,16 @@ internal class IndentationRuleTest {
     fun `remove me first`() {
         val code =
             """
-            private val gpsRegion =
-                if (permissionHandler.isPermissionGranted(
-                        context, Manifest.permission.ACCESS_FINE_LOCATION
-                    )
-                ) {
-                    // stuff
-                }
+            interface UserRepository : JpaRepository<User, UUID> {
+                @Query(
+                    $MULTILINE_STRING_QUOTE
+                    select u from User u
+                    inner join Organization o on u.organization = o
+                    where o = :organization
+                    $MULTILINE_STRING_QUOTE.trimIndent()
+                )
+                fun findByOrganization(organization: Organization, pageable: Pageable): Page<User>
+            }
             """.trimIndent()
         val formattedCode =
             """
@@ -2960,7 +2963,7 @@ internal class IndentationRuleTest {
                         ${true}
                     $MULTILINE_STRING_QUOTE.trimIndent()
                 """.trimIndent()
-            indentationRuleAssertThat(code).hasNoLintViolations()
+            newIndentationRuleAssertThat(code).hasNoLintViolations()
         }
 
         @Test
@@ -2969,7 +2972,7 @@ internal class IndentationRuleTest {
                 """
                 val foo = $MULTILINE_STRING_QUOTE${true}$MULTILINE_STRING_QUOTE.trimIndent()
                 """.trimIndent()
-            indentationRuleAssertThat(code).hasNoLintViolations()
+            newIndentationRuleAssertThat(code).hasNoLintViolations()
         }
 
         @Test
@@ -2988,7 +2991,7 @@ internal class IndentationRuleTest {
 
                 $MULTILINE_STRING_QUOTE.trimIndent()
                 """.trimIndent()
-            indentationRuleAssertThat(code).hasNoLintViolations()
+            newIndentationRuleAssertThat(code).hasNoLintViolations()
         }
 
         @Test
@@ -3011,7 +3014,7 @@ internal class IndentationRuleTest {
                     $MULTILINE_STRING_QUOTE.trimIndent()
                 }
                 """.trimIndent()
-            indentationRuleAssertThat(code)
+            newIndentationRuleAssertThat(code)
                 .hasLintViolation(5, 1, "Unexpected indent of multiline string closing quotes")
                 .isFormattedAs(formattedCode)
         }
@@ -3044,7 +3047,7 @@ internal class IndentationRuleTest {
                     )
                 }
                 """.trimIndent()
-            indentationRuleAssertThat(code)
+            newIndentationRuleAssertThat(code)
                 .hasLintViolation(8, 1, "Unexpected indent of multiline string closing quotes")
                 .isFormattedAs(formattedCode)
         }
@@ -3073,7 +3076,7 @@ internal class IndentationRuleTest {
                     )
                 }
                 """.trimIndent()
-            indentationRuleAssertThat(code)
+            newIndentationRuleAssertThat(code)
                 .addAdditionalRuleProvider { WrappingRule() }
                 .hasLintViolations(
                     LintViolation(2, 1, "Unexpected indentation (0) (should be 4)"),
@@ -3102,42 +3105,11 @@ internal class IndentationRuleTest {
                     Text
                     $MULTILINE_STRING_QUOTE
                 """.trimIndent()
-            indentationRuleAssertThat(code)
+            newIndentationRuleAssertThat(code)
                 .hasLintViolations(
                     LintViolation(3, 3, "Unexpected indent of multiline string closing quotes"),
                     LintViolation(5, 1, "Unexpected indent of multiline string closing quotes"),
                 ).isFormattedAs(formattedCode)
-        }
-
-        @Test
-        fun `Given a multiline raw string literal as non-first function call parameter`() {
-            val code =
-                """
-                fun foo() {
-                    write(fs.getPath("/projects/.editorconfig"), $MULTILINE_STRING_QUOTE
-                        root = true
-                        [*]
-                        end_of_line = lf
-                    $MULTILINE_STRING_QUOTE.trimIndent().toByteArray())
-                }
-                """.trimIndent()
-            val formattedCode =
-                """
-                fun foo() {
-                    write(
-                        fs.getPath("/projects/.editorconfig"),
-                        $MULTILINE_STRING_QUOTE
-                        root = true
-                        [*]
-                        end_of_line = lf
-                        $MULTILINE_STRING_QUOTE.trimIndent().toByteArray()
-                    )
-                }
-                """.trimIndent()
-            indentationRuleAssertThat(code)
-                .addAdditionalRuleProvider { WrappingRule() }
-                .hasLintViolation(6, 1, "Unexpected indent of multiline string closing quotes")
-                .isFormattedAs(formattedCode)
         }
 
         @Test
@@ -3180,7 +3152,7 @@ internal class IndentationRuleTest {
                         $MULTILINE_STRING_QUOTE.trimIndent()
                 }
                 """.trimIndent()
-            indentationRuleAssertThat(code)
+            newIndentationRuleAssertThat(code)
                 .hasLintViolations(
                     LintViolation(7, 1, "Unexpected indentation (4) (should be 8)"),
                     LintViolation(10, 1, "Unexpected indent of multiline string closing quotes"),
@@ -3230,7 +3202,7 @@ internal class IndentationRuleTest {
                     )
                 }
                 """.trimIndent()
-            indentationRuleAssertThat(code)
+            newIndentationRuleAssertThat(code)
                 .hasLintViolation(7, 1, "Unexpected indent of multiline string closing quotes")
                 .isFormattedAs(formattedCode)
         }
@@ -3246,7 +3218,7 @@ internal class IndentationRuleTest {
                     Tab at the end of this line.$TAB
                     $MULTILINE_STRING_QUOTE.trimIndent()
                 """.trimIndent()
-            indentationRuleAssertThat(code).hasNoLintViolations()
+            newIndentationRuleAssertThat(code).hasNoLintViolations()
         }
 
         @Test
@@ -3258,7 +3230,7 @@ internal class IndentationRuleTest {
                 ${TAB}line2
                     $MULTILINE_STRING_QUOTE.trimIndent()
                 """.trimIndent()
-            indentationRuleAssertThat(code)
+            newIndentationRuleAssertThat(code)
                 .hasLintViolationWithoutAutoCorrect(
                     1,
                     11,
@@ -3275,39 +3247,7 @@ internal class IndentationRuleTest {
                 some text
                 $MULTILINE_STRING_QUOTE
                 """.trimIndent()
-            indentationRuleAssertThat(code).hasNoLintViolations()
-        }
-
-        @Test
-        fun `Issue 1127 - Given a raw string literal followed by trimIndent in parameter list`() {
-            val code =
-                """
-                interface UserRepository : JpaRepository<User, UUID> {
-                    @Query($MULTILINE_STRING_QUOTE
-                        select u from User u
-                        inner join Organization o on u.organization = o
-                        where o = :organization
-                    $MULTILINE_STRING_QUOTE.trimIndent())
-                    fun findByOrganization(organization: Organization, pageable: Pageable): Page<User>
-                }
-                """.trimIndent()
-            val formattedCode =
-                """
-                interface UserRepository : JpaRepository<User, UUID> {
-                    @Query(
-                        $MULTILINE_STRING_QUOTE
-                        select u from User u
-                        inner join Organization o on u.organization = o
-                        where o = :organization
-                        $MULTILINE_STRING_QUOTE.trimIndent()
-                    )
-                    fun findByOrganization(organization: Organization, pageable: Pageable): Page<User>
-                }
-                """.trimIndent()
-            indentationRuleAssertThat(code)
-                .addAdditionalRuleProvider { WrappingRule() }
-                .hasLintViolation(6, 1, "Unexpected indent of multiline string closing quotes")
-                .isFormattedAs(formattedCode)
+            newIndentationRuleAssertThat(code).hasNoLintViolations()
         }
     }
 
