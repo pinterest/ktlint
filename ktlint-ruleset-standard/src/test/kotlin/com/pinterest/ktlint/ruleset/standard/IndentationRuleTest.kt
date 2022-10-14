@@ -319,17 +319,12 @@ internal class IndentationRuleTest {
     fun `remove me first`() {
         val code =
             """
-            fun main() {
-                f({ v ->
-                    x
-                        .f()
-                })
-                f({ v ->
-                    d(
-                        1
-                    )
-                })
-            }
+            val foo =
+                false ||
+                    (
+                        true ||
+                            false
+                        )
             """.trimIndent()
         val formattedCode =
             """
@@ -343,13 +338,11 @@ internal class IndentationRuleTest {
     fun `remove me too`() {
         val code =
             """
-            fun main() {
-                foo.func {
-                        param1, param2 ->
-                    doSomething()
-                    doSomething2()
-                }
-            }
+            val foo = if (true) (
+                1 + 2
+                ) else ( // IDEA quirk
+                3 + 4
+                ) // IDEA quirk
             """.trimIndent()
         val formattedCode =
             """
