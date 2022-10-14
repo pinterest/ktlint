@@ -221,12 +221,12 @@ public class IndentationRuleNew :
 
             node.elementType == IF -> {
                 // Outer indent context
-                startIndentContext(
+                var nextToAstNode = startIndentContext(
                     fromAstNode = node,
                     toAstNode = node.lastChildLeafOrSelf(),
                     nodeIndent = currentIndent(),
                     childIndent = "",
-                )
+                ).toASTNode
 
                 // Inner indent contexts in reversed order
                 node
@@ -234,29 +234,29 @@ public class IndentationRuleNew :
                     ?.lastChildLeafOrSelf()
                     ?.nextCodeLeaf()
                     ?.let { nodeAfterThenBlock ->
-                        startIndentContext(
+                        nextToAstNode = startIndentContext(
                             fromAstNode = nodeAfterThenBlock,
-                            toAstNode = indentContextStack.peekLast().toASTNode,
+                            toAstNode = nextToAstNode,
                             nodeIndent = currentIndent(),
                             firstChildIndent = "", // The "else" keyword should not be indented
                             childIndent = indentConfig.indent,
-                        )
+                        ).fromASTNode.prevCodeLeaf()!!
                     }
                 node
                     .findChildByType(RPAR)
                     ?.lastChildLeafOrSelf()
                     ?.nextCodeLeaf()
                     ?.let { nodeAfterConditionBlock ->
-                        startIndentContext(
+                        nextToAstNode = startIndentContext(
                             fromAstNode = nodeAfterConditionBlock,
-                            toAstNode = indentContextStack.peekLast().fromASTNode.prevCodeLeaf()!!,
+                            toAstNode = nextToAstNode,
                             nodeIndent = currentIndent(),
                             childIndent = indentConfig.indent,
-                        )
+                        ).fromASTNode.prevCodeLeaf()!!
                     }
                 startIndentContext(
                     fromAstNode = node,
-                    toAstNode = indentContextStack.peekLast().fromASTNode.prevCodeLeaf()!!,
+                    toAstNode = nextToAstNode,
                     nodeIndent = currentIndent(),
                     childIndent = indentConfig.indent,
                     lastChildIndent = "", // No indent for the RPAR

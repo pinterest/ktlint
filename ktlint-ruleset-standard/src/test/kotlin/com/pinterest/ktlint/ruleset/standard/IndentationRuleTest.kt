@@ -319,13 +319,13 @@ internal class IndentationRuleTest {
     fun `remove me first`() {
         val code =
             """
-            val s:
-                String = ""
-
-            fun process(
-                fileName:
-                String
-            ): List<Output>
+            private val gpsRegion =
+                if (permissionHandler.isPermissionGranted(
+                        context, Manifest.permission.ACCESS_FINE_LOCATION
+                    )
+                ) {
+                    // stuff
+                }
             """.trimIndent()
         val formattedCode =
             """
@@ -2946,7 +2946,7 @@ internal class IndentationRuleTest {
                     // stuff
                 }
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintViolations()
+        newIndentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Nested
