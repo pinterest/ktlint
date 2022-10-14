@@ -2903,7 +2903,7 @@ internal class IndentationRuleTest {
                 )
             }
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintViolations()
+        newIndentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -2917,7 +2917,7 @@ internal class IndentationRuleTest {
                     evenNumber * evenNumber
                 }
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintViolations()
+        newIndentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -2931,7 +2931,7 @@ internal class IndentationRuleTest {
                     2.toString()
             }
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintViolations()
+        newIndentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
