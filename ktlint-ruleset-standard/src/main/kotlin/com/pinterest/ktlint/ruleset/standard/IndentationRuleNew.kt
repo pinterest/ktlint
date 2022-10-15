@@ -19,6 +19,7 @@ import com.pinterest.ktlint.core.ast.ElementType.CLASS
 import com.pinterest.ktlint.core.ast.ElementType.CLASS_BODY
 import com.pinterest.ktlint.core.ast.ElementType.CLOSING_QUOTE
 import com.pinterest.ktlint.core.ast.ElementType.CONDITION
+import com.pinterest.ktlint.core.ast.ElementType.DELEGATED_SUPER_TYPE_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.DOT
 import com.pinterest.ktlint.core.ast.ElementType.DOT_QUALIFIED_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.EQ
@@ -214,6 +215,15 @@ public class IndentationRuleNew :
                     toAstNode = node.lastChildLeafOrSelf(),
                     nodeIndent = currentIndent(),
                     childIndent = indentConfig.indent,
+                )
+            }
+
+            node.elementType == DELEGATED_SUPER_TYPE_ENTRY -> {
+                startIndentContext(
+                    fromAstNode = node,
+                    toAstNode = node.lastChildLeafOrSelf(),
+                    nodeIndent = currentIndent(),
+                    childIndent = "",
                 )
             }
 

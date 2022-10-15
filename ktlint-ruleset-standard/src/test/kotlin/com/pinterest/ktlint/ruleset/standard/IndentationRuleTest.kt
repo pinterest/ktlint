@@ -3461,7 +3461,7 @@ internal class IndentationRuleTest {
                     c = 3
                 )
                 """.trimIndent()
-            indentationRuleAssertThat(code).hasNoLintViolations()
+            newIndentationRuleAssertThat(code).hasNoLintViolations()
         }
 
         @Test
@@ -3475,7 +3475,7 @@ internal class IndentationRuleTest {
                     c = 3
                 )
                 """.trimIndent()
-            indentationRuleAssertThat(code).hasNoLintViolations()
+            newIndentationRuleAssertThat(code).hasNoLintViolations()
         }
 
         @Test
@@ -3493,7 +3493,7 @@ internal class IndentationRuleTest {
                         c = 3
                     )
                 """.trimIndent()
-            indentationRuleAssertThat(code).hasNoLintViolations()
+            newIndentationRuleAssertThat(code).hasNoLintViolations()
         }
 
         @Test
@@ -3512,7 +3512,7 @@ internal class IndentationRuleTest {
                         c = 3
                     )
                 """.trimIndent()
-            indentationRuleAssertThat(code).hasNoLintViolations()
+            newIndentationRuleAssertThat(code).hasNoLintViolations()
         }
 
         @Test
@@ -3531,7 +3531,7 @@ internal class IndentationRuleTest {
                     )
                 }
                 """.trimIndent()
-            indentationRuleAssertThat(code).hasNoLintViolations()
+            newIndentationRuleAssertThat(code).hasNoLintViolations()
         }
 
         @Test
@@ -3555,7 +3555,7 @@ internal class IndentationRuleTest {
                     )
                 )
                 """.trimIndent()
-            indentationRuleAssertThat(code).hasNoLintViolations()
+            newIndentationRuleAssertThat(code).hasNoLintViolations()
         }
     }
 
