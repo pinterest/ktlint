@@ -53,6 +53,7 @@ import com.pinterest.ktlint.core.ast.ElementType.TYPE_CONSTRAINT
 import com.pinterest.ktlint.core.ast.ElementType.TYPE_CONSTRAINT_LIST
 import com.pinterest.ktlint.core.ast.ElementType.TYPE_REFERENCE
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_ARGUMENT_LIST
+import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.core.ast.ElementType.WHEN
 import com.pinterest.ktlint.core.ast.ElementType.WHEN_ENTRY
@@ -312,6 +313,45 @@ public class IndentationRuleNew :
                     fromAstNode = requireNotNull(node.nextLeaf()), // Allow to pickup whitespace before condition
                     toAstNode = requireNotNull(node.nextCodeSibling()).lastChildLeafOrSelf(), // Ignore whitespace after condition but before rpar
                     nodeIndent = currentIndent() + indentConfig.indent,
+                    childIndent = "",
+                )
+            }
+
+            node.elementType == VALUE_PARAMETER -> {
+                // Outer indent context
+                startIndentContext(
+                    fromAstNode = node,
+                    toAstNode = node.lastChildLeafOrSelf(),
+                    nodeIndent = currentIndent(),
+                    childIndent = "",
+                )
+
+                // Sub indent contexts in reversed order
+                // Leading annotations and comments should be indented at same level as function itself
+                var nextToAstNode: ASTNode = node.lastChildLeafOrSelf()
+                node
+                    .findChildByType(EQ)
+                    ?.let { fromAstNode ->
+                        nextToAstNode = startIndentContextSameAsParent(
+                            fromAstNode = fromAstNode,
+                            toAstNode = nextToAstNode,
+                        ).fromASTNode.prevLeaf()!!
+                    }
+
+                node
+                    .lastAccessModifierNotToBeIndented()
+                    ?.lastChildLeafOrSelf()
+                    ?.nextCodeLeaf()
+                    ?.let { fromAstNode ->
+                        nextToAstNode = startIndentContextSameAsParent(
+                            fromAstNode = fromAstNode,
+                            toAstNode = nextToAstNode,
+                        ).fromASTNode.prevLeaf()!!
+                    }
+                startIndentContext(
+                    fromAstNode = node,
+                    toAstNode = nextToAstNode,
+                    nodeIndent = currentIndent(),
                     childIndent = "",
                 )
             }
