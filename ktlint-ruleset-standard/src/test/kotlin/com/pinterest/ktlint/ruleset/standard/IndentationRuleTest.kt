@@ -3942,7 +3942,7 @@ internal class IndentationRuleTest {
                 // does something with string
             }
             """.trimIndent()
-        indentationRuleAssertThat(code)
+        newIndentationRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(2, 1, "Unexpected indentation (4) (should be 8)"),
                 LintViolation(8, 1, "Unexpected indentation (4) (should be 8)"),
