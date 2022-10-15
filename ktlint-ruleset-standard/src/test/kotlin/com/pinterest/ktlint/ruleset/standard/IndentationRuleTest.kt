@@ -3303,7 +3303,7 @@ internal class IndentationRuleTest {
 
                 val j = 0
                 """.trimIndent()
-            indentationRuleAssertThat(code).hasNoLintViolations()
+            newIndentationRuleAssertThat(code).hasNoLintViolations()
         }
 
         @Test
@@ -3320,7 +3320,7 @@ internal class IndentationRuleTest {
 
                 val j = 0
                 """.trimIndent()
-            indentationRuleAssertThat(code).hasNoLintViolations()
+            newIndentationRuleAssertThat(code).hasNoLintViolations()
         }
 
         @Test
@@ -3336,7 +3336,7 @@ internal class IndentationRuleTest {
 
                 val j = 0
                 """.trimIndent()
-            indentationRuleAssertThat(code).hasNoLintViolations()
+            newIndentationRuleAssertThat(code).hasNoLintViolations()
         }
 
         @Test
@@ -3352,7 +3352,7 @@ internal class IndentationRuleTest {
                     val aVar = 0
                 }
                 """.trimIndent()
-            indentationRuleAssertThat(code).hasNoLintViolations()
+            newIndentationRuleAssertThat(code).hasNoLintViolations()
         }
 
         @Test
@@ -3371,7 +3371,7 @@ internal class IndentationRuleTest {
                     val aVar = 0
                 }
                 """.trimIndent()
-            indentationRuleAssertThat(code).hasNoLintViolations()
+            newIndentationRuleAssertThat(code).hasNoLintViolations()
         }
 
         @Test
@@ -3394,7 +3394,7 @@ internal class IndentationRuleTest {
                             .default(1)
                 }
                 """.trimIndent()
-            indentationRuleAssertThat(code)
+            newIndentationRuleAssertThat(code)
                 .hasLintViolations(
                     LintViolation(4, 1, "Unexpected indentation (16) (should be 12)"),
                     LintViolation(5, 1, "Unexpected indentation (20) (should be 12)"),
@@ -3409,7 +3409,7 @@ internal class IndentationRuleTest {
                 val locale: Locale by option
                     .default()
                 """.trimIndent()
-            indentationRuleAssertThat(code).hasNoLintViolations()
+            newIndentationRuleAssertThat(code).hasNoLintViolations()
         }
 
         @Test
@@ -3425,7 +3425,7 @@ internal class IndentationRuleTest {
                         }
                 }
                 """.trimIndent()
-            indentationRuleAssertThat(code).hasNoLintViolations()
+            newIndentationRuleAssertThat(code).hasNoLintViolations()
         }
     }
 
@@ -3442,7 +3442,7 @@ internal class IndentationRuleTest {
                     }
             }
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintViolations()
+        newIndentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Nested
