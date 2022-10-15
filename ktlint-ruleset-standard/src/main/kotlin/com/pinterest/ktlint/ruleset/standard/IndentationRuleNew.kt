@@ -320,7 +320,7 @@ public class IndentationRuleNew :
                     ?.findChildByType(ARROW)
                     ?.let { arrow ->
                         startIndentContext(
-                            fromAstNode = requireNotNull(arrow.nextLeaf()),
+                            fromAstNode = arrow,
                             toAstNode = rbrace,
                             nodeIndent = currentIndent(),
                             childIndent = indentConfig.indent,
@@ -328,7 +328,7 @@ public class IndentationRuleNew :
                         )
                         startIndentContext(
                             fromAstNode = node,
-                            toAstNode = arrow,
+                            toAstNode = arrow.prevCodeLeaf()!!,
                             nodeIndent = currentIndent(),
                             childIndent = indentConfig.indent.repeat(2),
                         )

@@ -319,11 +319,10 @@ internal class IndentationRuleTest {
     fun `remove me first`() {
         val code =
             """
-            class Issue1222 {
-                constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) :
-                    super(context, attrs, defStyleAttr, defStyleRes) {
-                    init(attrs, defStyleAttr, defStyleRes)
-                }
+            val foo1: (String) -> String = {
+                    s: String
+                ->
+                // does something with string
             }
             """.trimIndent()
         val formattedCode =
@@ -3900,7 +3899,7 @@ internal class IndentationRuleTest {
                 // does something with string
             }
             """.trimIndent()
-        indentationRuleAssertThat(code)
+        newIndentationRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(2, 1, "Unexpected indentation (4) (should be 8)"),
                 LintViolation(8, 1, "Unexpected indentation (4) (should be 8)"),
