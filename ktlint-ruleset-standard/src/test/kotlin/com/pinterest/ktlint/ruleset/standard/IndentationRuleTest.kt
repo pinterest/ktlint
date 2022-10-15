@@ -3600,7 +3600,7 @@ internal class IndentationRuleTest {
                     ) == 2
             }
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintViolations()
+        newIndentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -3620,7 +3620,7 @@ internal class IndentationRuleTest {
             ),
                 Parent2
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintViolations()
+        newIndentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -3638,7 +3638,7 @@ internal class IndentationRuleTest {
                 return Gooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooogle()
             }
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintViolations()
+        newIndentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -3655,7 +3655,7 @@ internal class IndentationRuleTest {
                 })
             }
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintViolations()
+        newIndentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -3675,7 +3675,7 @@ internal class IndentationRuleTest {
                 })
             }
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintViolations()
+        newIndentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -3692,7 +3692,7 @@ internal class IndentationRuleTest {
                 })
             }
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintViolations()
+        newIndentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -3707,7 +3707,7 @@ internal class IndentationRuleTest {
 
             open class B(f: () -> Int)
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintViolations()
+        newIndentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -3720,7 +3720,7 @@ internal class IndentationRuleTest {
                 }
             }
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintViolations()
+        newIndentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
