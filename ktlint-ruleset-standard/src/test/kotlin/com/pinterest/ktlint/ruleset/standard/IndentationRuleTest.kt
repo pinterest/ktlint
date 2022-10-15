@@ -319,13 +319,22 @@ internal class IndentationRuleTest {
     fun `remove me first`() {
         val code =
             """
-            data class D(
-                private val a: Int = 1,
-                val b: Int =
-                    2,
-                @Foo
-                val c: Int = 3
-            )
+            fun test() {
+                val someTest
+
+                a
+                    .toIntOrNull()
+                    ?: 1
+
+                return a
+                        .toIntOrNull()
+                        ?: 1
+
+            }
+            fun bar() =
+                a
+                    .toIntOrNull()
+                    ?: 1
             """.trimIndent()
         val formattedCode =
             """
@@ -3738,7 +3747,7 @@ internal class IndentationRuleTest {
                         ?: 1
             }
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintViolations()
+        newIndentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test

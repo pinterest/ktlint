@@ -22,6 +22,7 @@ import com.pinterest.ktlint.core.ast.ElementType.CONDITION
 import com.pinterest.ktlint.core.ast.ElementType.DELEGATED_SUPER_TYPE_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.DOT
 import com.pinterest.ktlint.core.ast.ElementType.DOT_QUALIFIED_EXPRESSION
+import com.pinterest.ktlint.core.ast.ElementType.ELVIS
 import com.pinterest.ktlint.core.ast.ElementType.EQ
 import com.pinterest.ktlint.core.ast.ElementType.FUN
 import com.pinterest.ktlint.core.ast.ElementType.FUNCTION_LITERAL
@@ -37,6 +38,7 @@ import com.pinterest.ktlint.core.ast.ElementType.LONG_STRING_TEMPLATE_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.LPAR
 import com.pinterest.ktlint.core.ast.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.core.ast.ElementType.OPEN_QUOTE
+import com.pinterest.ktlint.core.ast.ElementType.OPERATION_REFERENCE
 import com.pinterest.ktlint.core.ast.ElementType.PARENTHESIZED
 import com.pinterest.ktlint.core.ast.ElementType.PROPERTY
 import com.pinterest.ktlint.core.ast.ElementType.RBRACE
@@ -465,10 +467,13 @@ public class IndentationRuleNew :
                         fromAstNode = node.firstChildNode,
                         toAstNode = node.firstChildNode.lastChildLeafOrSelf(),
                     )
-                } else if (node.treeParent?.elementType != BINARY_EXPRESSION) {
+                } else if (node.treeParent?.elementType != BINARY_EXPRESSION ||
+                        node.findChildByType(OPERATION_REFERENCE)?.firstChildNode?.elementType == ELVIS
+                ) {
                     startIndentContextSameAsParent(node)
+                } else {
+                    Unit
                 }
-                Unit
             }
 
             node.elementType == DOT_QUALIFIED_EXPRESSION -> {
