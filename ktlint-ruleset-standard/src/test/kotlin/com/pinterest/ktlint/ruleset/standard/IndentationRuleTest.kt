@@ -319,15 +319,14 @@ internal class IndentationRuleTest {
     fun `remove me first`() {
         val code =
             """
-            interface UserRepository : JpaRepository<User, UUID> {
-                @Query(
-                    $MULTILINE_STRING_QUOTE
-                    select u from User u
-                    inner join Organization o on u.organization = o
-                    where o = :organization
-                    $MULTILINE_STRING_QUOTE.trimIndent()
-                )
-                fun findByOrganization(organization: Organization, pageable: Pageable): Page<User>
+            // Comment
+            fun foo() {
+            }
+
+            // comment
+            enum class Bar {
+                A("a"),
+                B("b");
             }
             """.trimIndent()
         val formattedCode =
@@ -3290,7 +3289,7 @@ internal class IndentationRuleTest {
                 return Letter.B
             }
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintViolations()
+        newIndentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Nested

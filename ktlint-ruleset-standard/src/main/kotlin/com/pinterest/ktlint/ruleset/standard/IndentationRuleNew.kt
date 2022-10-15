@@ -18,11 +18,9 @@ import com.pinterest.ktlint.core.ast.ElementType.CALL_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.CLASS
 import com.pinterest.ktlint.core.ast.ElementType.CLASS_BODY
 import com.pinterest.ktlint.core.ast.ElementType.CLOSING_QUOTE
-import com.pinterest.ktlint.core.ast.ElementType.COLON
 import com.pinterest.ktlint.core.ast.ElementType.CONDITION
 import com.pinterest.ktlint.core.ast.ElementType.DOT
 import com.pinterest.ktlint.core.ast.ElementType.DOT_QUALIFIED_EXPRESSION
-import com.pinterest.ktlint.core.ast.ElementType.ELSE_KEYWORD
 import com.pinterest.ktlint.core.ast.ElementType.EQ
 import com.pinterest.ktlint.core.ast.ElementType.FUN
 import com.pinterest.ktlint.core.ast.ElementType.FUNCTION_LITERAL
@@ -340,30 +338,22 @@ public class IndentationRuleNew :
 
 
                 // Leading annotations and comments should be indented at same level as function itself
-                val lastAccessModifierNotToBeIndented = node.lastAccessModifierNotToBeIndented()
-                if (lastAccessModifierNotToBeIndented == null) {
-                    startIndentContextSameAsParent(
-                        fromAstNode = node,
-                        toAstNode = nextToAstNode,
-                    )
-                } else {
-                    val indentFromElement = lastAccessModifierNotToBeIndented
-                        .lastChildLeafOrSelf()
-                        .nextCodeLeaf()
-                    indentFromElement
-                        ?.let { fromAstNode ->
-                            nextToAstNode = startIndentContextSameAsParent(
-                                fromAstNode = fromAstNode,
-                                toAstNode = nextToAstNode,
-                            ).fromASTNode.prevLeaf()!!
-                        }
-                    startIndentContext(
-                        fromAstNode = node,
-                        toAstNode = nextToAstNode,
-                        nodeIndent = currentIndent(),
-                        childIndent = "",
-                    )
+                node
+                    .lastAccessModifierNotToBeIndented()
+                    ?.lastChildLeafOrSelf()
+                    ?.nextCodeLeaf()
+                    ?.let { fromAstNode ->
+                        nextToAstNode = startIndentContextSameAsParent(
+                            fromAstNode = fromAstNode,
+                            toAstNode = nextToAstNode,
+                        ).fromASTNode.prevLeaf()!!
                 }
+                startIndentContext(
+                    fromAstNode = node,
+                    toAstNode = nextToAstNode,
+                    nodeIndent = currentIndent(),
+                    childIndent = "",
+                )
             }
 
             node.elementType == CLASS -> {
@@ -376,6 +366,7 @@ public class IndentationRuleNew :
                 )
 
                 // Sub indent contexts in reversed order
+                var nextToAstNode: ASTNode = node.lastChildLeafOrSelf()
                 node
                     .findChildByType(WHERE_KEYWORD)
                     ?.let { where ->
@@ -386,47 +377,36 @@ public class IndentationRuleNew :
                         require(
                             typeConstraintList.elementType == TYPE_CONSTRAINT_LIST,
                         ) { "Code sibling after WHERE in CLASS is not a TYPE_CONSTRAINT_LIST" }
-                        startIndentContextSameAsParent(
+                        nextToAstNode = startIndentContextSameAsParent(
                             fromAstNode = where.startOfIndentContext(),
                             toAstNode = typeConstraintList.lastChildLeafOrSelf(),
-                        )
+                        ).fromASTNode.prevCodeLeaf()!!
                     }
                 node
                     .findChildByType(SUPER_TYPE_LIST)
                     ?.let { superTypeList ->
-                        startIndentContextSameAsParent(
+                        nextToAstNode = startIndentContextSameAsParent(
                             fromAstNode = superTypeList.startOfIndentContext(),
                             toAstNode = superTypeList.lastChildLeafOrSelf(),
-                        )
+                        ).fromASTNode.prevCodeLeaf()!!
                     }
 
                 // Leading annotations and comments should be indented at same level as class itself
-                val lastAccessModifierNotToBeIndented = node.lastAccessModifierNotToBeIndented()
-                val lastNode =
-                    node.findChildByType(COLON)
-                        ?: node.findChildByType(VALUE_PARAMETER_LIST)
-                        ?: node.findChildByType(IDENTIFIER)!!
-                if (lastAccessModifierNotToBeIndented == null) {
-                    startIndentContextSameAsParent(
-                        fromAstNode = node,
-                        toAstNode = lastNode.lastChildLeafOrSelf(),
-                    )
-                } else {
-                    lastAccessModifierNotToBeIndented
-                        .nextCodeSibling()
-                        ?.let { firstAccessModifier ->
-                            startIndentContextSameAsParent(
-                                fromAstNode = firstAccessModifier,
-                                toAstNode = lastNode.lastChildLeafOrSelf(),
-                            )
-                        }
-                    startIndentContext(
-                        fromAstNode = node,
-                        toAstNode = lastAccessModifierNotToBeIndented,
-                        nodeIndent = currentIndent(),
-                        childIndent = "",
-                    )
+                node
+                    .lastAccessModifierNotToBeIndented()
+                    ?.nextCodeSibling()
+                    ?.let { fromAstNode ->
+                        nextToAstNode = startIndentContextSameAsParent(
+                            fromAstNode = fromAstNode,
+                            toAstNode = nextToAstNode,
+                        ).fromASTNode.prevCodeLeaf()!!
                 }
+                startIndentContext(
+                    fromAstNode = node,
+                    toAstNode = nextToAstNode,
+                    nodeIndent = currentIndent(),
+                    childIndent = "",
+                )
             }
 
             node.elementType == BINARY_EXPRESSION -> {
