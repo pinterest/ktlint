@@ -319,22 +319,12 @@ internal class IndentationRuleTest {
     fun `remove me first`() {
         val code =
             """
-            fun test() {
-                val someTest
-
-                a
-                    .toIntOrNull()
-                    ?: 1
-
-                return a
-                        .toIntOrNull()
-                        ?: 1
-
+            class Issue1222 {
+                constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) :
+                    super(context, attrs, defStyleAttr, defStyleRes) {
+                    init(attrs, defStyleAttr, defStyleRes)
+                }
             }
-            fun bar() =
-                a
-                    .toIntOrNull()
-                    ?: 1
             """.trimIndent()
         val formattedCode =
             """
@@ -3818,7 +3808,7 @@ internal class IndentationRuleTest {
                 }
             }
             """.trimIndent()
-        indentationRuleAssertThat(code)
+        newIndentationRuleAssertThat(code)
             .hasLintViolation(3, 1, "Unexpected indentation (12) (should be 8)")
             .isFormattedAs(formattedCode)
     }
@@ -3847,7 +3837,7 @@ internal class IndentationRuleTest {
                 }
             }
             """.trimIndent()
-        indentationRuleAssertThat(code)
+        newIndentationRuleAssertThat(code)
             .hasLintViolation(4, 1, "Unexpected indentation (8) (should be 12)")
             .isFormattedAs(formattedCode)
     }

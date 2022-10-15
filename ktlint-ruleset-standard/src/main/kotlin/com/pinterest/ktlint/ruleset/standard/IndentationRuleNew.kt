@@ -19,6 +19,7 @@ import com.pinterest.ktlint.core.ast.ElementType.CLASS
 import com.pinterest.ktlint.core.ast.ElementType.CLASS_BODY
 import com.pinterest.ktlint.core.ast.ElementType.CLOSING_QUOTE
 import com.pinterest.ktlint.core.ast.ElementType.CONDITION
+import com.pinterest.ktlint.core.ast.ElementType.CONSTRUCTOR_DELEGATION_CALL
 import com.pinterest.ktlint.core.ast.ElementType.DELEGATED_SUPER_TYPE_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.DOT
 import com.pinterest.ktlint.core.ast.ElementType.DOT_QUALIFIED_EXPRESSION
@@ -45,6 +46,7 @@ import com.pinterest.ktlint.core.ast.ElementType.RBRACE
 import com.pinterest.ktlint.core.ast.ElementType.REGULAR_STRING_PART
 import com.pinterest.ktlint.core.ast.ElementType.RPAR
 import com.pinterest.ktlint.core.ast.ElementType.SAFE_ACCESS_EXPRESSION
+import com.pinterest.ktlint.core.ast.ElementType.SECONDARY_CONSTRUCTOR
 import com.pinterest.ktlint.core.ast.ElementType.SHORT_STRING_TEMPLATE_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.STRING_TEMPLATE
 import com.pinterest.ktlint.core.ast.ElementType.SUPER_TYPE_CALL_ENTRY
@@ -188,9 +190,9 @@ public class IndentationRuleNew :
             }
 
             node.elementType == CLASS_BODY ||
-                node.elementType == STRING_TEMPLATE ||
                 node.elementType == LONG_STRING_TEMPLATE_ENTRY ||
                 node.elementType == SUPER_TYPE_CALL_ENTRY ||
+                node.elementType == STRING_TEMPLATE ||
                 node.elementType == VALUE_ARGUMENT_LIST ||
                 node.elementType == VALUE_PARAMETER_LIST ||
                 node.elementType == WHEN ->
@@ -201,6 +203,29 @@ public class IndentationRuleNew :
                     childIndent = indentConfig.indent,
                     lastChildIndent = "",
                 )
+
+            node.elementType == SECONDARY_CONSTRUCTOR -> {
+                // Outer indent context
+                startIndentContext(
+                    fromAstNode = node,
+                    toAstNode = node.lastChildLeafOrSelf(),
+                    nodeIndent = currentIndent(),
+                    childIndent = "",
+                )
+
+                // Inner indent contexts in reversed order
+                node
+                    .findChildByType(CONSTRUCTOR_DELEGATION_CALL)
+                    ?.lastChildLeafOrSelf()
+                    ?.let { toAstNode ->
+                        startIndentContext(
+                            fromAstNode = node,
+                            toAstNode = toAstNode,
+                            nodeIndent = currentIndent(),
+                            childIndent = indentConfig.indent,
+                        )
+                    }
+            }
 
             node.elementType == PARENTHESIZED &&
                 node.treeParent.treeParent.elementType != IF -> {
