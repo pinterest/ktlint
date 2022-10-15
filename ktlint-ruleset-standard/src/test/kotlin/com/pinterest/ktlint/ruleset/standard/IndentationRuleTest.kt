@@ -3770,7 +3770,7 @@ internal class IndentationRuleTest {
                 }
             }
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintViolations()
+        newIndentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -3793,7 +3793,7 @@ internal class IndentationRuleTest {
             ${TAB}}
             }
             """.trimIndent()
-        indentationRuleAssertThat(code)
+        newIndentationRuleAssertThat(code)
             .withEditorConfigOverride(INDENT_STYLE_TAB)
             .hasNoLintViolations()
     }
