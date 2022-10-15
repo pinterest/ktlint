@@ -3574,7 +3574,7 @@ internal class IndentationRuleTest {
                 )
             }
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintViolations()
+        newIndentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
