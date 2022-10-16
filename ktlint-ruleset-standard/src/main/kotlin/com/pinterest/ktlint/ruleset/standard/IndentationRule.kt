@@ -472,23 +472,26 @@ public class IndentationRule :
 
                 // Leading annotations and comments should be indented at same level as class itself
                 node
-                    .lastAccessModifierNotToBeIndented()
-                    ?.nextCodeSibling()
-                    ?.let { fromAstNode ->
-                        nextToAstNode = startIndentContext(
-                            fromAstNode = fromAstNode,
+                    .firstCodeChild()
+                    .let { firstCodeChild ->
+                        firstCodeChild
+                            .takeIf { it.elementType == MODIFIER_LIST }
+                            ?.lastAccessModifierNotToBeIndented()
+                            ?: firstCodeChild.nextCodeLeaf()
+                    }?.let { lastAccessModifierNotToBeIndented ->
+                        startIndentContext(
+                            fromAstNode = lastAccessModifierNotToBeIndented.nextCodeLeaf()!!,
                             toAstNode = nextToAstNode,
                             nodeIndent = currentIndent(),
-                            firstChildIndent = "",
-                            childIndent = indentConfig.indent,
-                        ).fromASTNode.prevCodeLeaf()!!
+                            childIndent = "",
+                        )
+                        startIndentContext(
+                            fromAstNode = node,
+                            toAstNode = lastAccessModifierNotToBeIndented,
+                            nodeIndent = currentIndent(),
+                            childIndent = "",
+                        )
                     }
-                startIndentContext(
-                    fromAstNode = node,
-                    toAstNode = nextToAstNode,
-                    nodeIndent = currentIndent(),
-                    childIndent = "",
-                )
             }
 
             node.elementType == BINARY_EXPRESSION -> {

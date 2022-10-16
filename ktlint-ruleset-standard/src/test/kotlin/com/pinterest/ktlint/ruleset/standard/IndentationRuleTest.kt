@@ -3249,6 +3249,19 @@ internal class IndentationRuleTest {
         indentationRuleAssertThat(code).hasNoLintViolations()
     }
 
+    @Test
+    fun `REMOVE ME2`() {
+        val code =
+            """
+            // https://github.com/pinterest/ktlint/issues/900
+            enum class Letter(val value: String) {
+                A("a"),
+                B("b");
+            }
+            """.trimIndent()
+        indentationRuleAssertThat(code).hasNoLintViolations()
+    }
+
     @Nested
     inner class PropertyDelegate {
         @Test
@@ -4266,7 +4279,9 @@ internal class IndentationRuleTest {
         val code =
             """
             @Foo("foo")
-            public class Bar
+            public class Bar {
+                fun bar() = "bar"
+            }
             """.trimIndent()
         indentationRuleAssertThat(code).hasNoLintViolations()
     }
