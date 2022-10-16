@@ -319,10 +319,20 @@ internal class IndentationRuleTest {
     fun `remove me first`() {
         val code =
             """
-            val foo1: (String) -> String = {
-                    s: String
+            val foo1: (String, String) -> String = {
+                    s1: String,
+                    s3: String,
+                    s2: String
                 ->
-                // does something with string
+                // does something with strings
+            }
+
+            val foo2 = {
+                    s1: String,
+                    // Trailing comma on last element is allowed and does not have effect
+                    s2: String,
+                ->
+                // does something with strings
             }
             """.trimIndent()
         val formattedCode =
@@ -3986,7 +3996,7 @@ internal class IndentationRuleTest {
                 // does something with strings
             }
             """.trimIndent()
-        indentationRuleAssertThat(code)
+        newIndentationRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(2, 1, "Unexpected indentation (4) (should be 8)"),
                 LintViolation(3, 1, "Unexpected indentation (4) (should be 8)"),

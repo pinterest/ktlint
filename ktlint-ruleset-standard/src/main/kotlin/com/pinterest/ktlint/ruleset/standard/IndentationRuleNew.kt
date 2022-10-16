@@ -27,6 +27,7 @@ import com.pinterest.ktlint.core.ast.ElementType.ELVIS
 import com.pinterest.ktlint.core.ast.ElementType.EQ
 import com.pinterest.ktlint.core.ast.ElementType.FUN
 import com.pinterest.ktlint.core.ast.ElementType.FUNCTION_LITERAL
+import com.pinterest.ktlint.core.ast.ElementType.FUNCTION_TYPE
 import com.pinterest.ktlint.core.ast.ElementType.IDENTIFIER
 import com.pinterest.ktlint.core.ast.ElementType.IF
 import com.pinterest.ktlint.core.ast.ElementType.KDOC
@@ -194,7 +195,6 @@ public class IndentationRuleNew :
                 node.elementType == SUPER_TYPE_CALL_ENTRY ||
                 node.elementType == STRING_TEMPLATE ||
                 node.elementType == VALUE_ARGUMENT_LIST ||
-                node.elementType == VALUE_PARAMETER_LIST ||
                 node.elementType == WHEN ->
                 startIndentContext(
                     fromAstNode = node,
@@ -334,6 +334,16 @@ public class IndentationRuleNew :
                         )
                     }
             }
+
+            node.elementType == VALUE_PARAMETER_LIST &&
+                node.treeParent.elementType != FUNCTION_LITERAL ->
+                startIndentContext(
+                    fromAstNode = node,
+                    toAstNode = node.lastChildLeafOrSelf(),
+                    nodeIndent = currentIndent(),
+                    childIndent = indentConfig.indent,
+                    lastChildIndent = "",
+                )
 
             node.elementType == LPAR && node.nextCodeSibling()?.elementType == CONDITION -> {
                 startIndentContext(
