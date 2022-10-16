@@ -4279,7 +4279,7 @@ internal class IndentationRuleTest {
                     "foo" +
                         "bar"
                 """.trimIndent()
-            indentationRuleAssertThat(code).hasNoLintViolations()
+            newIndentationRuleAssertThat(code).hasNoLintViolations()
         }
 
         @Test
@@ -4297,7 +4297,7 @@ internal class IndentationRuleTest {
                     "foo" +
                         "bar"
                 """.trimIndent()
-            indentationRuleAssertThat(code).hasNoLintViolations()
+            newIndentationRuleAssertThat(code).hasNoLintViolations()
         }
     }
 
