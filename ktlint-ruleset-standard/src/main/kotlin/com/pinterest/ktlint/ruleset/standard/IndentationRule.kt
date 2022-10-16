@@ -512,8 +512,13 @@ public class IndentationRule :
             }
 
             node.elementType == SAFE_ACCESS_EXPRESSION -> {
-                if (node.treeParent?.firstChildNode?.elementType != SAFE_ACCESS_EXPRESSION) {
-                    startIndentContextSameAsParent(node)
+                if (node.treeParent?.elementType != SAFE_ACCESS_EXPRESSION) {
+                    startIndentContext(
+                        fromAstNode = node,
+                        toAstNode = node.lastChildLeafOrSelf(),
+                        nodeIndent = currentIndent(),
+                        childIndent = indentConfig.indent,
+                    )
                 }
             }
 
@@ -769,7 +774,7 @@ public class IndentationRule :
     private fun ASTNode.hasWhitespaceWithNewLineInBinaryExpression(): Boolean {
         var node = this
         do {
-            if (node.elementType == DOT_QUALIFIED_EXPRESSION) {
+            if (node.isRecursiveExpressionElement()) {
                 val hasWhitespaceWithNewLineInLeftHandSide =
                     node
                         .children()
@@ -779,9 +784,20 @@ public class IndentationRule :
                 }
             }
             node = node.treeParent
-        } while (node.elementType == DOT_QUALIFIED_EXPRESSION)
+        } while (node.isRecursiveExpressionElement())
         return false
     }
+
+    private fun ASTNode?.isRecursiveExpressionElement() =
+        when (this?.elementType) {
+//            BINARY_EXPRESSION,
+//            SAFE_ACCESS_EXPRESSION,
+//            CALL_EXPRESSION,
+//            REFERENCE_EXPRESSION,
+            DOT_QUALIFIED_EXPRESSION
+            -> true
+            else -> false
+        }
 
     override fun afterLastNode() {
         // The expectedIndent should never be negative. If so, it is very likely that ktlint crashes at runtime when

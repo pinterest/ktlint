@@ -4286,6 +4286,40 @@ internal class IndentationRuleTest {
         indentationRuleAssertThat(code).hasNoLintViolations()
     }
 
+    @Nested
+    inner class SafeAccessExpression {
+        @Test
+        fun `Given a safe access expression as function parameter`() {
+            val code =
+                """
+                val editorConfigDefaults = EditorConfigDefaults.load(
+                    editorConfigPath
+                        ?.expandTildeToFullPath()
+                        ?.let { path -> Paths.get(path) },
+                )
+                """.trimIndent()
+            indentationRuleAssertThat(code).hasNoLintViolations()
+        }
+
+        @Test
+        fun `Given a nested safe access expression`() {
+            val code =
+                """
+                val foo = bar
+                    ?.filter { number ->
+                        number == 0
+                    }?.map { evenNumber ->
+                        evenNumber * evenNumber
+                    }?.map { evenNumber ->
+                        evenNumber * evenNumber
+                    }?.map { evenNumber ->
+                        evenNumber * evenNumber
+                    }
+                """.trimIndent()
+            indentationRuleAssertThat(code).hasNoLintViolations()
+        }
+    }
+
     private companion object {
         val INDENT_STYLE_TAB = indentStyleProperty to PropertyType.IndentStyleValue.tab
     }
