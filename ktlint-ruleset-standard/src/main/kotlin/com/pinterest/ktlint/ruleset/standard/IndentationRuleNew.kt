@@ -43,6 +43,7 @@ import com.pinterest.ktlint.core.ast.ElementType.OPEN_QUOTE
 import com.pinterest.ktlint.core.ast.ElementType.OPERATION_REFERENCE
 import com.pinterest.ktlint.core.ast.ElementType.PARENTHESIZED
 import com.pinterest.ktlint.core.ast.ElementType.PROPERTY
+import com.pinterest.ktlint.core.ast.ElementType.PROPERTY_ACCESSOR
 import com.pinterest.ktlint.core.ast.ElementType.RBRACE
 import com.pinterest.ktlint.core.ast.ElementType.REGULAR_STRING_PART
 import com.pinterest.ktlint.core.ast.ElementType.RPAR
@@ -170,12 +171,6 @@ public class IndentationRuleNew :
         }
         when {
             node.isWhiteSpaceWithNewline() -> {
-                visitWhiteSpace(node, autoCorrect, emit)
-            }
-
-            node.isWhiteSpaceWithNewline() &&
-                node.prevCodeSibling()?.elementType == EQ &&
-                node.treeParent?.elementType == FUN -> {
                 visitWhiteSpace(node, autoCorrect, emit)
             }
 
@@ -579,6 +574,28 @@ public class IndentationRuleNew :
                     nodeIndent = currentIndent(),
                     childIndent = TYPE_CONSTRAINT_CONTINUATION_INDENT,
                 )
+            }
+
+            node.elementType == PROPERTY_ACCESSOR -> {
+                // Outer indent context
+                startIndentContext(
+                    fromAstNode = node,
+                    toAstNode = node.lastChildLeafOrSelf(),
+                    nodeIndent = currentIndent(),
+                    childIndent = "",
+                )
+
+                // Inner indent contexts in reversed order
+                node
+                    .findChildByType(EQ)
+                    ?.let { fromAstNode ->
+                        startIndentContext(
+                            fromAstNode = fromAstNode,
+                            toAstNode = node.lastChildLeafOrSelf(),
+                            nodeIndent = currentIndent(),
+                            childIndent = indentConfig.indent,
+                        )
+                    }
             }
 
             !node.isWhiteSpaceWithNewline() && node.children().none { it.isWhiteSpaceWithNewline() } -> {
