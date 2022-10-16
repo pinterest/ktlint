@@ -335,7 +335,7 @@ public class KtLintAssertThatAssertable(
                             } else {
                                 "If this is caused by an additional rule added to the test, then remove that rule in case it " +
                                     "is always executed before the rule under test."
-                            }
+                            },
                     )
                     .isEmpty()
             },
@@ -348,10 +348,10 @@ public class KtLintAssertThatAssertable(
                             } else {
                                 "If this is caused by an additional rule added to the test, then remove that rule in case it " +
                                     "is always executed before the rule under test."
-                            }
+                            },
                     )
                     .isEqualTo(code)
-            }
+            },
         )
     }
 

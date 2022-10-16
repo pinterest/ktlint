@@ -27,7 +27,6 @@ import com.pinterest.ktlint.core.ast.ElementType.ELVIS
 import com.pinterest.ktlint.core.ast.ElementType.EQ
 import com.pinterest.ktlint.core.ast.ElementType.FUN
 import com.pinterest.ktlint.core.ast.ElementType.FUNCTION_LITERAL
-import com.pinterest.ktlint.core.ast.ElementType.FUNCTION_TYPE
 import com.pinterest.ktlint.core.ast.ElementType.IDENTIFIER
 import com.pinterest.ktlint.core.ast.ElementType.IF
 import com.pinterest.ktlint.core.ast.ElementType.KDOC
@@ -79,7 +78,6 @@ import com.pinterest.ktlint.core.ast.nextLeaf
 import com.pinterest.ktlint.core.ast.nextSibling
 import com.pinterest.ktlint.core.ast.parent
 import com.pinterest.ktlint.core.ast.prevCodeLeaf
-import com.pinterest.ktlint.core.ast.prevCodeSibling
 import com.pinterest.ktlint.core.ast.prevLeaf
 import com.pinterest.ktlint.core.ast.prevSibling
 import com.pinterest.ktlint.core.initKtLintKLogger
@@ -418,7 +416,6 @@ public class IndentationRuleNew :
                         ).fromASTNode.prevLeaf()!!
                     }
 
-
                 // Leading annotations and comments should be indented at same level as function itself
                 node
                     .lastAccessModifierNotToBeIndented()
@@ -429,7 +426,7 @@ public class IndentationRuleNew :
                             fromAstNode = fromAstNode,
                             toAstNode = nextToAstNode,
                         ).fromASTNode.prevLeaf()!!
-                }
+                    }
                 startIndentContext(
                     fromAstNode = node,
                     toAstNode = nextToAstNode,
@@ -482,7 +479,7 @@ public class IndentationRuleNew :
                             fromAstNode = fromAstNode,
                             toAstNode = nextToAstNode,
                         ).fromASTNode.prevCodeLeaf()!!
-                }
+                    }
                 startIndentContext(
                     fromAstNode = node,
                     toAstNode = nextToAstNode,
@@ -498,11 +495,9 @@ public class IndentationRuleNew :
                         toAstNode = node.firstChildNode.lastChildLeafOrSelf(),
                     )
                 } else if (node.treeParent?.elementType != BINARY_EXPRESSION ||
-                        node.findChildByType(OPERATION_REFERENCE)?.firstChildNode?.elementType == ELVIS
+                    node.findChildByType(OPERATION_REFERENCE)?.firstChildNode?.elementType == ELVIS
                 ) {
                     startIndentContextSameAsParent(node)
-                } else {
-                    Unit
                 }
             }
 
@@ -563,7 +558,6 @@ public class IndentationRuleNew :
                     nodeIndent = currentIndent(),
                     childIndent = "",
                 )
-
             }
 
             node.elementType == WHERE_KEYWORD &&
@@ -681,11 +675,9 @@ public class IndentationRuleNew :
             unchanged = true,
         ).also { newIndentContext ->
             logger.trace {
-                "Create new indent context (same as parent) with level (${indentConfig.indentLevelFrom(newIndentContext.nodeIndent)}, ${
-                    indentConfig.indentLevelFrom(
-                        newIndentContext.childIndent,
-                    )
-                })  for ${fromAstNode.elementType}: ${newIndentContext.nodes}"
+                val nodeIndentLevel = indentConfig.indentLevelFrom(newIndentContext.nodeIndent)
+                val childIndentLevel = indentConfig.indentLevelFrom(newIndentContext.childIndent)
+                "Create new indent context (same as parent) with level ($nodeIndentLevel, $childIndentLevel) for ${fromAstNode.elementType}: ${newIndentContext.nodes}"
             }
             indentContextStack.addLast(newIndentContext)
         }
@@ -698,26 +690,21 @@ public class IndentationRuleNew :
         while (indentContextStack.peekLast()?.toASTNode == node) {
             logger.trace {
                 val indentContext = indentContextStack.peekLast()
-                "Remove indent context with level (${indentConfig.indentLevelFrom(indentContext.nodeIndent)}, ${
-                    indentConfig.indentLevelFrom(
-                        indentContext.childIndent,
-                    )
-                }) for ${indentContext.fromASTNode.elementType}: ${indentContext.nodes}"
+                val nodeIndentLevel = indentConfig.indentLevelFrom(indentContext.nodeIndent)
+                val childIndentLevel = indentConfig.indentLevelFrom(indentContext.childIndent)
+                "Remove indent context with level ($nodeIndentLevel, $childIndentLevel) for ${indentContext.fromASTNode.elementType}: ${indentContext.nodes}"
             }
             indentContextStack
                 .removeLast()
                 .also {
                     logger.trace {
                         val indentContext = indentContextStack.peekLast()
-                        "Last indent context with level (${indentConfig.indentLevelFrom(indentContext.nodeIndent)}, ${
-                            indentConfig.indentLevelFrom(
-                                indentContext.childIndent,
-                            )
-                        }) for ${indentContext.fromASTNode.elementType}: ${indentContext.nodes}"
+                        val nodeIndentLevel = indentConfig.indentLevelFrom(indentContext.nodeIndent)
+                        val childIndentLevel = indentConfig.indentLevelFrom(indentContext.childIndent)
+                        "Last indent context with level ($nodeIndentLevel, $childIndentLevel) for ${indentContext.fromASTNode.elementType}: ${indentContext.nodes}"
                     }
                 }
         }
-
 
         when {
             node.elementType == RPAR &&
@@ -1219,7 +1206,7 @@ private class StringTemplateIndenter(private val indentConfig: IndentConfig) {
         indexOfFirst { !it.isWhitespace() }.let { if (it == -1) length else it }
 
     /**
-     * Splits the string at the given index or at the first non white space character before that index. The returned pair
+     * Splits the string at the given index or at the first non-white space character before that index. The returned pair
      * consists of the indentation and the second part contains the remainder. Note that the second part still can start
      * with whitespace characters in case the original strings starts with more white space characters than the requested
      * split index.

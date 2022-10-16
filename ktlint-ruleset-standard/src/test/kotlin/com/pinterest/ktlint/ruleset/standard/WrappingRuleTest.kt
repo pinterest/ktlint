@@ -1103,28 +1103,28 @@ internal class WrappingRuleTest {
     fun `Issue 1127 - Given a raw string literal followed by trimIndent in parameter list`() {
         val code =
             """
-                interface UserRepository : JpaRepository<User, UUID> {
-                    @Query($MULTILINE_STRING_QUOTE
-                        select u from User u
-                        inner join Organization o on u.organization = o
-                        where o = :organization
-                    $MULTILINE_STRING_QUOTE.trimIndent())
-                    fun findByOrganization(organization: Organization, pageable: Pageable): Page<User>
-                }
-                """.trimIndent()
+            interface UserRepository : JpaRepository<User, UUID> {
+                @Query($MULTILINE_STRING_QUOTE
+                    select u from User u
+                    inner join Organization o on u.organization = o
+                    where o = :organization
+                $MULTILINE_STRING_QUOTE.trimIndent())
+                fun findByOrganization(organization: Organization, pageable: Pageable): Page<User>
+            }
+            """.trimIndent()
         val formattedCode =
             """
-                interface UserRepository : JpaRepository<User, UUID> {
-                    @Query(
-                        $MULTILINE_STRING_QUOTE
-                        select u from User u
-                        inner join Organization o on u.organization = o
-                        where o = :organization
-                        $MULTILINE_STRING_QUOTE.trimIndent()
-                    )
-                    fun findByOrganization(organization: Organization, pageable: Pageable): Page<User>
-                }
-                """.trimIndent()
+            interface UserRepository : JpaRepository<User, UUID> {
+                @Query(
+                    $MULTILINE_STRING_QUOTE
+                    select u from User u
+                    inner join Organization o on u.organization = o
+                    where o = :organization
+                    $MULTILINE_STRING_QUOTE.trimIndent()
+                )
+                fun findByOrganization(organization: Organization, pageable: Pageable): Page<User>
+            }
+            """.trimIndent()
         wrappingRuleAssertThat(code)
             .addAdditionalRuleProvider { IndentationRule() }
             .hasLintViolations(

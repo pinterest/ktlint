@@ -38,8 +38,6 @@ internal class IndentationRuleTest {
         System.setProperty("KTLINT_UNIT_TEST_TRACE", "on")
     }
 
-    @Deprecated("")
-    private val indentationRuleAssertThat = assertThatRule { IndentationRule() }
     private val newIndentationRuleAssertThat = assertThatRule { IndentationRuleNew() }
 
     @Nested
@@ -313,44 +311,6 @@ internal class IndentationRuleTest {
                 newIndentationRuleAssertThat(code).hasNoLintViolations()
             }
         }
-    }
-
-    @Test
-    fun `remove me first`() {
-        val code =
-            """
-            private val foo: String =
-                "foo"
-                get() =
-                    listOf("a", value, "c")
-                        .filterNotNull()
-                        .joinToString()
-            """.trimIndent()
-        val formattedCode =
-            """
-            xxx
-            """.trimIndent()
-        newIndentationRuleAssertThat(code)
-            .isFormattedAs(formattedCode)
-    }
-
-    @Test
-    fun `remove me too`() {
-        val code =
-            """
-            val foo = if (true) (
-                1 + 2
-                ) else ( // IDEA quirk
-                3 + 4
-                ) // IDEA quirk
-            """.trimIndent()
-        val formattedCode =
-            """
-            xxx
-            """.trimIndent()
-//        indentationRuleAssertThat(code)
-        newIndentationRuleAssertThat(code)
-            .isFormattedAs(formattedCode)
     }
 
     @Nested
@@ -2684,7 +2644,7 @@ internal class IndentationRuleTest {
             }
             """.trimIndent()
         newIndentationRuleAssertThat(code)
-            //.hasNoLintViolations()
+            .hasLintViolation(6, 1, "Unexpected indentation (8) (should be 10)")
             .isFormattedAs(formattedCode)
     }
 
