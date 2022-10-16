@@ -4261,6 +4261,16 @@ internal class IndentationRuleTest {
         }
     }
 
+    @Test
+    fun `Given a class prefixed with an annotation and another access modifier`() {
+        val code =
+            """
+            @Foo("foo")
+            public class Bar
+            """.trimIndent()
+        indentationRuleAssertThat(code).hasNoLintViolations()
+    }
+
     private companion object {
         val INDENT_STYLE_TAB = indentStyleProperty to PropertyType.IndentStyleValue.tab
     }

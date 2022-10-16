@@ -475,9 +475,12 @@ public class IndentationRule :
                     .lastAccessModifierNotToBeIndented()
                     ?.nextCodeSibling()
                     ?.let { fromAstNode ->
-                        nextToAstNode = startIndentContextSameAsParent(
+                        nextToAstNode = startIndentContext(
                             fromAstNode = fromAstNode,
                             toAstNode = nextToAstNode,
+                            nodeIndent = currentIndent(),
+                            firstChildIndent = "",
+                            childIndent = indentConfig.indent,
                         ).fromASTNode.prevCodeLeaf()!!
                     }
                 startIndentContext(
