@@ -4013,7 +4013,7 @@ internal class IndentationRuleTest {
             object ApplicationComponentFactory : ApplicationComponent.Factory
             by DaggerApplicationComponent.factory()
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintViolations()
+        newIndentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -4037,7 +4037,7 @@ internal class IndentationRuleTest {
             // resulting in the formatting to crash on the next line.
             val bar = 1
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintViolations()
+        newIndentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -4051,7 +4051,7 @@ internal class IndentationRuleTest {
                 println()
             }
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintViolations()
+        newIndentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -4108,7 +4108,7 @@ internal class IndentationRuleTest {
             )
             val foo9 = println({ bar() }, { bar()})
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintViolations()
+        newIndentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -4121,7 +4121,7 @@ internal class IndentationRuleTest {
                     "" // IDEA quirk (ignored)
                 )
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintViolations()
+        newIndentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Disabled("To be fixed as code as lambda with parameters on multiple line")
@@ -4145,7 +4145,7 @@ internal class IndentationRuleTest {
                     ClassB(paramA, paramB, paramC)
                 }
             """.trimIndent()
-        indentationRuleAssertThat(code)
+        newIndentationRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(3, 1, "Unexpected indentation (12) (should be 20)"),
                 LintViolation(4, 1, "Unexpected indentation (12) (should be 20)"),
@@ -4168,7 +4168,7 @@ internal class IndentationRuleTest {
                     }
                 }
                 """.trimIndent()
-            indentationRuleAssertThat(code).hasNoLintViolations()
+            newIndentationRuleAssertThat(code).hasNoLintViolations()
         }
 
         @Test
@@ -4185,7 +4185,7 @@ internal class IndentationRuleTest {
                     }
                 }
                 """.trimIndent()
-            indentationRuleAssertThat(code).hasNoLintViolations()
+            newIndentationRuleAssertThat(code).hasNoLintViolations()
         }
 
         @Test
@@ -4202,7 +4202,7 @@ internal class IndentationRuleTest {
                     }
                 }
                 """.trimIndent()
-            indentationRuleAssertThat(code).hasNoLintViolations()
+            newIndentationRuleAssertThat(code).hasNoLintViolations()
         }
 
         @Test
@@ -4218,7 +4218,7 @@ internal class IndentationRuleTest {
                     }
                 }
                 """.trimIndent()
-            indentationRuleAssertThat(code).hasNoLintViolations()
+            newIndentationRuleAssertThat(code).hasNoLintViolations()
         }
     }
 
