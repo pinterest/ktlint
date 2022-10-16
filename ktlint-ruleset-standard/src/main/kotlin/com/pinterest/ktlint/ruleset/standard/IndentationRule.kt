@@ -34,6 +34,7 @@ import com.pinterest.ktlint.core.ast.ElementType.KDOC_END
 import com.pinterest.ktlint.core.ast.ElementType.KDOC_LEADING_ASTERISK
 import com.pinterest.ktlint.core.ast.ElementType.KDOC_START
 import com.pinterest.ktlint.core.ast.ElementType.LBRACE
+import com.pinterest.ktlint.core.ast.ElementType.LBRACKET
 import com.pinterest.ktlint.core.ast.ElementType.LITERAL_STRING_TEMPLATE_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.LONG_STRING_TEMPLATE_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.LPAR
@@ -44,6 +45,7 @@ import com.pinterest.ktlint.core.ast.ElementType.PARENTHESIZED
 import com.pinterest.ktlint.core.ast.ElementType.PROPERTY
 import com.pinterest.ktlint.core.ast.ElementType.PROPERTY_ACCESSOR
 import com.pinterest.ktlint.core.ast.ElementType.RBRACE
+import com.pinterest.ktlint.core.ast.ElementType.RBRACKET
 import com.pinterest.ktlint.core.ast.ElementType.REGULAR_STRING_PART
 import com.pinterest.ktlint.core.ast.ElementType.RPAR
 import com.pinterest.ktlint.core.ast.ElementType.SAFE_ACCESS_EXPRESSION
@@ -599,6 +601,22 @@ public class IndentationRule :
                             toAstNode = node.lastChildLeafOrSelf(),
                             nodeIndent = currentIndent(),
                             childIndent = indentConfig.indent,
+                        )
+                    }
+            }
+
+            node.elementType == LBRACKET -> {
+                node
+                    .treeParent
+                    .findChildByType(RBRACKET)
+                    ?.let { rbracket ->
+                        startIndentContext(
+                            fromAstNode = node,
+                            toAstNode = rbracket,
+                            nodeIndent = currentIndent(),
+                            firstChildIndent = "",
+                            childIndent = indentConfig.indent,
+                            lastChildIndent = "",
                         )
                     }
             }

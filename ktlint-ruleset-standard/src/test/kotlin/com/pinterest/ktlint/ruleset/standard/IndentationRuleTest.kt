@@ -4320,6 +4320,18 @@ internal class IndentationRuleTest {
         }
     }
 
+    @Test
+    fun `Given an array`() {
+        val code =
+            """
+            val foo = [
+                "bar1",
+                "bar2"
+            ]
+            """.trimIndent()
+        indentationRuleAssertThat(code).hasNoLintViolations()
+    }
+
     private companion object {
         val INDENT_STYLE_TAB = indentStyleProperty to PropertyType.IndentStyleValue.tab
     }
