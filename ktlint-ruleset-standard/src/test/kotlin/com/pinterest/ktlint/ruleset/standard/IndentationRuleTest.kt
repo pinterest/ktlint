@@ -4351,6 +4351,31 @@ internal class IndentationRuleTest {
         indentationRuleAssertThat(code).hasNoLintViolations()
     }
 
+    @Test
+    fun `Given some Kdoc or comment before annotation on secondary constructor`() {
+        val code =
+            """
+            class Foo {
+                /**
+                 * Some comment
+                 */
+                @Bar
+                public constructor(string: String) : this(string)
+
+                /*
+                 * Some comment
+                 */
+                @Bar
+                public constructor(string: String) : this(string)
+
+                // Some comment
+                @Bar
+                public constructor(string: String) : this(string)
+            }
+            """.trimIndent()
+        indentationRuleAssertThat(code).isFormattedAs("xxx")
+    }
+
     private companion object {
         val INDENT_STYLE_TAB = indentStyleProperty to PropertyType.IndentStyleValue.tab
     }

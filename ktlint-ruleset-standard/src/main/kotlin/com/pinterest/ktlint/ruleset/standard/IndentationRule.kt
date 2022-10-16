@@ -359,7 +359,6 @@ public class IndentationRule :
                 )
 
                 // Sub indent contexts in reversed order
-                // Leading annotations and comments should be indented at same level as function itself
                 var nextToAstNode: ASTNode = node.lastChildLeafOrSelf()
                 node
                     .findChildByType(EQ)
@@ -370,16 +369,7 @@ public class IndentationRule :
                         ).fromASTNode.prevLeaf()!!
                     }
 
-                node
-                    .lastAccessModifierNotToBeIndented()
-                    ?.lastChildLeafOrSelf()
-                    ?.nextCodeLeaf()
-                    ?.let { fromAstNode ->
-                        nextToAstNode = startIndentContextSameAsParent(
-                            fromAstNode = fromAstNode,
-                            toAstNode = nextToAstNode,
-                        ).fromASTNode.prevLeaf()!!
-                    }
+                // Leading annotations and comments should be indented at same level as function itself
                 startIndentContext(
                     fromAstNode = node,
                     toAstNode = nextToAstNode,
@@ -419,16 +409,6 @@ public class IndentationRule :
                     }
 
                 // Leading annotations and comments should be indented at same level as function itself
-                node
-                    .lastAccessModifierNotToBeIndented()
-                    ?.lastChildLeafOrSelf()
-                    ?.nextCodeLeaf()
-                    ?.let { fromAstNode ->
-                        nextToAstNode = startIndentContextSameAsParent(
-                            fromAstNode = fromAstNode,
-                            toAstNode = nextToAstNode,
-                        ).fromASTNode.prevLeaf()!!
-                    }
                 startIndentContext(
                     fromAstNode = node,
                     toAstNode = nextToAstNode,
@@ -473,27 +453,12 @@ public class IndentationRule :
                     }
 
                 // Leading annotations and comments should be indented at same level as class itself
-                node
-                    .firstCodeChild()
-                    .let { firstCodeChild ->
-                        firstCodeChild
-                            .takeIf { it.elementType == MODIFIER_LIST }
-                            ?.lastAccessModifierNotToBeIndented()
-                            ?: firstCodeChild.nextCodeLeaf()
-                    }?.let { lastAccessModifierNotToBeIndented ->
-                        startIndentContext(
-                            fromAstNode = lastAccessModifierNotToBeIndented.nextCodeLeaf()!!,
-                            toAstNode = nextToAstNode,
-                            nodeIndent = currentIndent(),
-                            childIndent = "",
-                        )
-                        startIndentContext(
-                            fromAstNode = node,
-                            toAstNode = lastAccessModifierNotToBeIndented,
-                            nodeIndent = currentIndent(),
-                            childIndent = "",
-                        )
-                    }
+                startIndentContext(
+                    fromAstNode = node,
+                    toAstNode = nextToAstNode,
+                    nodeIndent = currentIndent(),
+                    childIndent = "",
+                )
             }
 
             node.elementType == BINARY_EXPRESSION -> {
@@ -640,12 +605,6 @@ public class IndentationRule :
         }
     }
 
-    private fun ASTNode.lastAccessModifierNotToBeIndented() =
-        findChildByType(MODIFIER_LIST)
-            ?.children()
-            ?.takeWhile { it.elementType == ANNOTATION_ENTRY || it.isPartOfComment() || it.isWhiteSpace() }
-            ?.lastOrNull()
-
     private fun ASTNode.startOfIndentContext(): ASTNode {
         var fromAstNode: ASTNode? = this
         while (fromAstNode?.prevLeaf() != null &&
@@ -655,10 +614,6 @@ public class IndentationRule :
         }
         return fromAstNode!!
     }
-
-    private fun ASTNode.firstCodeChild() =
-        children()
-            .first { !it.isWhiteSpace() && !it.isPartOfComment() }
 
     private fun isPartOfBinaryExpressionWrappedInCondition(node: ASTNode) =
         node
