@@ -4332,6 +4332,25 @@ internal class IndentationRuleTest {
         indentationRuleAssertThat(code).hasNoLintViolations()
     }
 
+    @Test
+    fun `Given a nested dot qualified expression`() {
+        val code =
+            """
+            fun foo() =
+                FooBar
+                    .fooBar(
+                        "foobar"
+                    ).filter {
+                        it == "bar"
+                    }.associate { ruleSetProviderV1 ->
+                        "bar"
+                    }.also {
+                        bar()
+                    }
+            """.trimIndent()
+        indentationRuleAssertThat(code).hasNoLintViolations()
+    }
+
     private companion object {
         val INDENT_STYLE_TAB = indentStyleProperty to PropertyType.IndentStyleValue.tab
     }

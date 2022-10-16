@@ -509,12 +509,9 @@ public class IndentationRule :
                 }
             }
 
-            node.elementType == DOT_QUALIFIED_EXPRESSION -> {
-                startIndentContextSameAsParent(node.firstCodeChild())
-            }
-
-            node.elementType == SAFE_ACCESS_EXPRESSION -> {
-                if (node.treeParent?.elementType != SAFE_ACCESS_EXPRESSION) {
+            node.elementType == DOT_QUALIFIED_EXPRESSION ||
+                node.elementType == SAFE_ACCESS_EXPRESSION -> {
+                if (node.treeParent?.elementType != node.elementType) {
                     startIndentContext(
                         fromAstNode = node,
                         toAstNode = node.lastChildLeafOrSelf(),
@@ -764,58 +761,8 @@ public class IndentationRule :
                     )
                 }
             }
-
-            node.treeParent?.elementType == DOT_QUALIFIED_EXPRESSION && node == node.treeParent?.firstCodeChild() -> {
-                val fromAstNode =
-                    requireNotNull(
-                        node
-                            .treeParent
-                            ?.firstCodeChild()
-                            ?.nextLeaf(),
-                    ) { "Can not find a leaf after the left hand side in a dot qualified expression" }
-                val extraIndent =
-                    if (node.hasWhitespaceWithNewLineInBinaryExpression()) {
-                        indentConfig.indent
-                    } else {
-                        ""
-                    }
-                startIndentContext(
-                    fromAstNode = fromAstNode,
-                    toAstNode = node.treeParent.lastChildLeafOrSelf(),
-                    nodeIndent = currentIndent() + extraIndent,
-                    childIndent = "",
-                )
-            }
         }
     }
-
-    private fun ASTNode.hasWhitespaceWithNewLineInBinaryExpression(): Boolean {
-        var node = this
-        do {
-            if (node.isRecursiveExpressionElement()) {
-                val hasWhitespaceWithNewLineInLeftHandSide =
-                    node
-                        .children()
-                        .any { it.isWhiteSpaceWithNewline() }
-                if (hasWhitespaceWithNewLineInLeftHandSide) {
-                    return true
-                }
-            }
-            node = node.treeParent
-        } while (node.isRecursiveExpressionElement())
-        return false
-    }
-
-    private fun ASTNode?.isRecursiveExpressionElement() =
-        when (this?.elementType) {
-//            BINARY_EXPRESSION,
-//            SAFE_ACCESS_EXPRESSION,
-//            CALL_EXPRESSION,
-//            REFERENCE_EXPRESSION,
-            DOT_QUALIFIED_EXPRESSION
-            -> true
-            else -> false
-        }
 
     override fun afterLastNode() {
         // The expectedIndent should never be negative. If so, it is very likely that ktlint crashes at runtime when
