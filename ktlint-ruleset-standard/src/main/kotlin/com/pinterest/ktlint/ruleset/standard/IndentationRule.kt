@@ -209,16 +209,27 @@ public class IndentationRule :
                 )
 
                 // Inner indent contexts in reversed order
+                var nextToAstNode = node.lastChildLeafOrSelf()
                 node
                     .findChildByType(CONSTRUCTOR_DELEGATION_CALL)
-                    ?.lastChildLeafOrSelf()
-                    ?.let { toAstNode ->
-                        startIndentContext(
-                            fromAstNode = node,
-                            toAstNode = toAstNode,
+                    ?.let { constructorDelegationCall ->
+                        val fromAstNode = node.skipLeadingWhitespaceCommentsAndAnnotations()
+                        nextToAstNode = startIndentContext(
+                            fromAstNode = constructorDelegationCall,
+                            toAstNode = constructorDelegationCall.lastChildLeafOrSelf(),
                             nodeIndent = currentIndent(),
                             childIndent = indentConfig.indent,
-                        )
+                        ).fromASTNode.prevCodeLeaf()!!
+
+                        // Leading annotations and comments should be indented at same level as constructor itself
+                        if (fromAstNode != node.nextLeaf()) {
+                            startIndentContext(
+                                fromAstNode = node,
+                                toAstNode = nextToAstNode,
+                                nodeIndent = currentIndent(),
+                                childIndent = "",
+                            )
+                        }
                     }
             }
 
@@ -403,7 +414,7 @@ public class IndentationRule :
                     .findChildByType(TYPE_REFERENCE)
                     ?.let { typeReference ->
                         nextToAstNode = startIndentContextSameAsParent(
-                            fromAstNode = typeReference.startOfIndentContext(),
+                            fromAstNode = typeReference.getPrecedingLeadingCommentsAndWhitespaces(),
                             toAstNode = nextToAstNode,
                         ).fromASTNode.prevLeaf()!!
                     }
@@ -439,7 +450,7 @@ public class IndentationRule :
                             typeConstraintList.elementType == TYPE_CONSTRAINT_LIST,
                         ) { "Code sibling after WHERE in CLASS is not a TYPE_CONSTRAINT_LIST" }
                         nextToAstNode = startIndentContextSameAsParent(
-                            fromAstNode = where.startOfIndentContext(),
+                            fromAstNode = where.getPrecedingLeadingCommentsAndWhitespaces(),
                             toAstNode = typeConstraintList.lastChildLeafOrSelf(),
                         ).fromASTNode.prevCodeLeaf()!!
                     }
@@ -447,7 +458,7 @@ public class IndentationRule :
                     .findChildByType(SUPER_TYPE_LIST)
                     ?.let { superTypeList ->
                         nextToAstNode = startIndentContextSameAsParent(
-                            fromAstNode = superTypeList.startOfIndentContext(),
+                            fromAstNode = superTypeList.getPrecedingLeadingCommentsAndWhitespaces(),
                             toAstNode = superTypeList.lastChildLeafOrSelf(),
                         ).fromASTNode.prevCodeLeaf()!!
                     }
@@ -605,7 +616,22 @@ public class IndentationRule :
         }
     }
 
-    private fun ASTNode.startOfIndentContext(): ASTNode {
+    private fun ASTNode.skipLeadingWhitespaceCommentsAndAnnotations(): ASTNode {
+        require(elementType == SECONDARY_CONSTRUCTOR)
+        var node: ASTNode? = this
+        while (node != null &&
+            (node.isWhiteSpace() || node.isPartOfComment() || node.elementType == ANNOTATION_ENTRY)
+        ) {
+            if (node.elementType == MODIFIER_LIST) {
+                node = node.firstChildNode
+            } else {
+                node = node.nextCodeSibling()
+            }
+        }
+        return node ?: this
+    }
+
+    private fun ASTNode.getPrecedingLeadingCommentsAndWhitespaces(): ASTNode {
         var fromAstNode: ASTNode? = this
         while (fromAstNode?.prevLeaf() != null &&
             (fromAstNode.prevLeaf().isWhiteSpace() || fromAstNode.prevLeaf()?.isPartOfComment() == true)

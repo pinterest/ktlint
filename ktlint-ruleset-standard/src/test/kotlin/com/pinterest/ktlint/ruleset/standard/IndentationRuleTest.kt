@@ -4373,7 +4373,7 @@ internal class IndentationRuleTest {
                 public constructor(string: String) : this(string)
             }
             """.trimIndent()
-        indentationRuleAssertThat(code).isFormattedAs("xxx")
+        indentationRuleAssertThat(code).hasNoLintViolations()
     }
 
     private companion object {
