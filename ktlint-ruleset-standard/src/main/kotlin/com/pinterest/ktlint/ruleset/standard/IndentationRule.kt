@@ -11,6 +11,7 @@ import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.ARROW
 import com.pinterest.ktlint.core.ast.ElementType.BINARY_EXPRESSION
+import com.pinterest.ktlint.core.ast.ElementType.BINARY_WITH_TYPE
 import com.pinterest.ktlint.core.ast.ElementType.BLOCK
 import com.pinterest.ktlint.core.ast.ElementType.BLOCK_COMMENT
 import com.pinterest.ktlint.core.ast.ElementType.BODY
@@ -243,7 +244,8 @@ public class IndentationRule :
                 )
             }
 
-            node.elementType == SUPER_TYPE_ENTRY -> {
+            node.elementType == BINARY_WITH_TYPE ||
+                node.elementType == SUPER_TYPE_ENTRY -> {
                 startIndentContext(
                     fromAstNode = node,
                     toAstNode = node.lastChildLeafOrSelf(),

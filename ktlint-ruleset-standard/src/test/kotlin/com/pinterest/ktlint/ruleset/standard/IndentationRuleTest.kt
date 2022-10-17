@@ -4376,6 +4376,18 @@ internal class IndentationRuleTest {
         indentationRuleAssertThat(code).hasNoLintViolations()
     }
 
+    @Test
+    fun `Given a multiline binary with type`() {
+        val code =
+            """
+            fun foo() {
+                node.prevLeaf { it is PsiWhiteSpace && it.textContains('\n') } as
+                    PsiWhiteSpace?
+            }
+            """.trimIndent()
+        indentationRuleAssertThat(code).hasNoLintViolations()
+    }
+
     private companion object {
         val INDENT_STYLE_TAB = indentStyleProperty to PropertyType.IndentStyleValue.tab
     }
