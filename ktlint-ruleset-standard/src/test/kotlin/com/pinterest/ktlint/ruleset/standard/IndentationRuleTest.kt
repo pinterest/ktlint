@@ -4388,6 +4388,21 @@ internal class IndentationRuleTest {
         indentationRuleAssertThat(code).hasNoLintViolations()
     }
 
+    @Test
+    fun `Given a multiline destructuring declaration`() {
+        val code =
+            """
+            fun foobar() {
+                val (foo, bar) =
+                    Pair(
+                        foo(),
+                        bar()
+                    )
+            }
+            """.trimIndent()
+        indentationRuleAssertThat(code).hasNoLintViolations()
+    }
+
     private companion object {
         val INDENT_STYLE_TAB = indentStyleProperty to PropertyType.IndentStyleValue.tab
     }

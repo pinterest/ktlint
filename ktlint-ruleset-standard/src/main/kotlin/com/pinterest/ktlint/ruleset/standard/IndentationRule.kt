@@ -22,6 +22,7 @@ import com.pinterest.ktlint.core.ast.ElementType.CLOSING_QUOTE
 import com.pinterest.ktlint.core.ast.ElementType.CONDITION
 import com.pinterest.ktlint.core.ast.ElementType.CONSTRUCTOR_DELEGATION_CALL
 import com.pinterest.ktlint.core.ast.ElementType.DELEGATED_SUPER_TYPE_ENTRY
+import com.pinterest.ktlint.core.ast.ElementType.DESTRUCTURING_DECLARATION
 import com.pinterest.ktlint.core.ast.ElementType.DOT
 import com.pinterest.ktlint.core.ast.ElementType.DOT_QUALIFIED_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.ELVIS
@@ -245,6 +246,7 @@ public class IndentationRule :
             }
 
             node.elementType == BINARY_WITH_TYPE ||
+                node.elementType == DESTRUCTURING_DECLARATION ||
                 node.elementType == SUPER_TYPE_ENTRY -> {
                 startIndentContext(
                     fromAstNode = node,
