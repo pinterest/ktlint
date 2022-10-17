@@ -141,7 +141,7 @@ public class WrappingRule :
             (
                 numberOfArgs == 1 &&
                     firstArg?.firstChildNode?.elementType
-                    ?.let { it == OBJECT_LITERAL || it == LAMBDA_EXPRESSION } == true
+                        ?.let { it == OBJECT_LITERAL || it == LAMBDA_EXPRESSION } == true
                 )
         ) {
             return
@@ -162,11 +162,11 @@ public class WrappingRule :
             return
         }
         if (!node.nextCodeLeaf()?.prevLeaf {
-            // Skip comments, whitespace, and empty nodes
-            !it.isPartOfComment() &&
-                !it.isWhiteSpaceWithoutNewline() &&
-                it.textLength > 0
-        }.isWhiteSpaceWithNewline() &&
+                // Skip comments, whitespace, and empty nodes
+                !it.isPartOfComment() &&
+                    !it.isWhiteSpaceWithoutNewline() &&
+                    it.textLength > 0
+            }.isWhiteSpaceWithNewline() &&
             // IDEA quirk:
             // if (true &&
             //     true

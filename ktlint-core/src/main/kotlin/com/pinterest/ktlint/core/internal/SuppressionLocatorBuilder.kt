@@ -71,8 +71,7 @@ internal object SuppressionLocatorBuilder {
                     val commentText = text.removePrefix("//").trim()
                     parseHintArgs(commentText, "ktlint-disable")?.let { args ->
                         val lineStart = (
-                            node.prevLeaf { it is PsiWhiteSpace && it.textContains('\n') } as
-                                PsiWhiteSpace?
+                            node.prevLeaf { it is PsiWhiteSpace && it.textContains('\n') } as PsiWhiteSpace?
                             )?.let { it.node.startOffset + it.text.lastIndexOf('\n') + 1 } ?: 0
                         result.add(SuppressionHint(IntRange(lineStart, node.startOffset), HashSet(args)))
                     }
