@@ -4403,6 +4403,31 @@ internal class IndentationRuleTest {
         indentationRuleAssertThat(code).hasNoLintViolations()
     }
 
+    @Test
+    fun `Given a function with annotation of first parameter on same line as left parenthesis of function`() {
+        val code =
+            """
+            class A {
+                fun f(@Annotation
+                    a: Any,
+                    @Annotation(
+                        [
+                            "v1",
+                            "v2"
+                        ]
+                    )
+                    b: Any,
+                    c: Any =
+                        false,
+                    @Annotation d: Any,
+                    @SingleLineAnnotation([1, 2])
+                    e: Any) {
+                }
+            }
+            """.trimIndent()
+        indentationRuleAssertThat(code).hasNoLintViolations()
+    }
+
     private companion object {
         val INDENT_STYLE_TAB = indentStyleProperty to PropertyType.IndentStyleValue.tab
     }

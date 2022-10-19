@@ -384,13 +384,26 @@ public class IndentationRule :
                         ).fromASTNode.prevLeaf()!!
                     }
 
-                // Leading annotations and comments should be indented at same level as function itself
-                startIndentContext(
-                    fromAstNode = node,
-                    toAstNode = nextToAstNode,
-                    nodeIndent = currentIndent(),
-                    childIndent = "",
-                )
+                // Leading annotations and comments should be indented at same level as constructor itself
+                val fromAstNode = node.skipLeadingWhitespaceCommentsAndAnnotations()
+                if (fromAstNode != node.firstChildNode &&
+                    node.prevSibling { it.isWhiteSpaceWithNewline() } == null &&
+                    node == node.treeParent.findChildByType(VALUE_PARAMETER)) {
+                    nextToAstNode = startIndentContext(
+                        fromAstNode = fromAstNode,
+                        toAstNode = nextToAstNode,
+                        nodeIndent = currentIndent(),
+                        childIndent = indentConfig.indent,
+                    ).fromASTNode.prevLeaf { !it.isWhiteSpace() }!!
+                } else {
+                    startIndentContext(
+                        fromAstNode = node,
+                        toAstNode = nextToAstNode,
+                        nodeIndent = currentIndent(),
+                        childIndent = "",
+                    )
+                }
+                Unit
             }
 
             node.elementType == FUN -> {
@@ -621,18 +634,16 @@ public class IndentationRule :
     }
 
     private fun ASTNode.skipLeadingWhitespaceCommentsAndAnnotations(): ASTNode {
-        require(elementType == SECONDARY_CONSTRUCTOR)
-        var node: ASTNode? = this
-        while (node != null &&
-            (node.isWhiteSpace() || node.isPartOfComment() || node.elementType == ANNOTATION_ENTRY)
-        ) {
-            if (node.elementType == MODIFIER_LIST) {
-                node = node.firstChildNode
-            } else {
-                node = node.nextCodeSibling()
+        require(elementType == SECONDARY_CONSTRUCTOR || elementType == VALUE_PARAMETER)
+        return findChildByType(MODIFIER_LIST)
+            ?.let { modifierList ->
+                modifierList
+                    .children()
+                    .firstOrNull { !it.isWhiteSpace() && !it.isPartOfComment() && it.elementType != ANNOTATION_ENTRY }
+                    ?: modifierList.nextCodeSibling()
             }
-        }
-        return node ?: this
+            ?: children().firstOrNull { !it.isWhiteSpace() && !it.isPartOfComment() }
+            ?: this
     }
 
     private fun ASTNode.getPrecedingLeadingCommentsAndWhitespaces(): ASTNode {
@@ -755,7 +766,8 @@ public class IndentationRule :
         // tests, as the examples are way more simple than realistic code.
         assert(expectedIndent >= 0)
         require(indentContextStack.isEmpty()) {
-            "Stack should be empty"
+            indentContextStack
+                .joinToString(prefix = "Stack should be empty:\n\t", separator = "\n\t") { it.toString() }
         }
     }
 
