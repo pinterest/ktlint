@@ -41,6 +41,7 @@ import com.pinterest.ktlint.core.ast.ElementType.LITERAL_STRING_TEMPLATE_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.LONG_STRING_TEMPLATE_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.LPAR
 import com.pinterest.ktlint.core.ast.ElementType.MODIFIER_LIST
+import com.pinterest.ktlint.core.ast.ElementType.NULLABLE_TYPE
 import com.pinterest.ktlint.core.ast.ElementType.OPEN_QUOTE
 import com.pinterest.ktlint.core.ast.ElementType.OPERATION_REFERENCE
 import com.pinterest.ktlint.core.ast.ElementType.PARENTHESIZED
@@ -58,8 +59,10 @@ import com.pinterest.ktlint.core.ast.ElementType.SUPER_TYPE_CALL_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.SUPER_TYPE_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.SUPER_TYPE_LIST
 import com.pinterest.ktlint.core.ast.ElementType.THEN
+import com.pinterest.ktlint.core.ast.ElementType.TYPE_ARGUMENT_LIST
 import com.pinterest.ktlint.core.ast.ElementType.TYPE_CONSTRAINT
 import com.pinterest.ktlint.core.ast.ElementType.TYPE_CONSTRAINT_LIST
+import com.pinterest.ktlint.core.ast.ElementType.TYPE_PARAMETER_LIST
 import com.pinterest.ktlint.core.ast.ElementType.TYPE_REFERENCE
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_ARGUMENT_LIST
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER
@@ -247,7 +250,9 @@ public class IndentationRule :
 
             node.elementType == BINARY_WITH_TYPE ||
                 node.elementType == DESTRUCTURING_DECLARATION ||
-                node.elementType == SUPER_TYPE_ENTRY -> {
+                node.elementType == SUPER_TYPE_ENTRY ||
+                node.elementType == TYPE_ARGUMENT_LIST ||
+                node.elementType == TYPE_PARAMETER_LIST -> {
                 startIndentContext(
                     fromAstNode = node,
                     toAstNode = node.lastChildLeafOrSelf(),
@@ -388,7 +393,8 @@ public class IndentationRule :
                 val fromAstNode = node.skipLeadingWhitespaceCommentsAndAnnotations()
                 if (fromAstNode != node.firstChildNode &&
                     node.prevSibling { it.isWhiteSpaceWithNewline() } == null &&
-                    node == node.treeParent.findChildByType(VALUE_PARAMETER)) {
+                    node == node.treeParent.findChildByType(VALUE_PARAMETER)
+                ) {
                     nextToAstNode = startIndentContext(
                         fromAstNode = fromAstNode,
                         toAstNode = nextToAstNode,
@@ -609,6 +615,35 @@ public class IndentationRule :
                             lastChildIndent = "",
                         )
                     }
+            }
+
+            node.elementType == NULLABLE_TYPE -> {
+                // Outer indent context
+                startIndentContext(
+                    fromAstNode = node,
+                    toAstNode = node.lastChildLeafOrSelf(),
+                    nodeIndent = currentIndent(),
+                    childIndent = "",
+                )
+
+                // Inner indent contexts in reversed order
+                var nextToAstNode = node.lastChildLeafOrSelf()
+                node
+                    .findChildByType(RPAR)
+                    ?.let { fromAstNode ->
+                        nextToAstNode = startIndentContext(
+                            fromAstNode = fromAstNode,
+                            toAstNode = nextToAstNode,
+                            nodeIndent = currentIndent(),
+                            childIndent = "",
+                        ).fromASTNode.prevCodeLeaf()!!
+                    }
+                startIndentContext(
+                    fromAstNode = node,
+                    toAstNode = nextToAstNode,
+                    nodeIndent = currentIndent(),
+                    childIndent = indentConfig.indent,
+                )
             }
 
             !node.isWhiteSpaceWithNewline() && node.children().none { it.isWhiteSpaceWithNewline() } -> {

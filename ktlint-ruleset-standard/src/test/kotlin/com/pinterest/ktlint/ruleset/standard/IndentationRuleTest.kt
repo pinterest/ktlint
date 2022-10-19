@@ -2,6 +2,7 @@ package com.pinterest.ktlint.ruleset.standard
 
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentSizeProperty
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentStyleProperty
 import com.pinterest.ktlint.core.initKtLintKLogger
@@ -4424,6 +4425,56 @@ internal class IndentationRuleTest {
                     e: Any) {
                 }
             }
+            """.trimIndent()
+        indentationRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Nested
+    inner class TypeParameterList {
+        @Test
+        fun `Given type parameter list`() {
+            val code =
+                """
+                public class Foo
+                <Bar : String> {}
+                """.trimIndent()
+            indentationRuleAssertThat(code).hasNoLintViolations()
+        }
+
+        @Test
+        fun `Given a nested type parameter list`() {
+            val code =
+                """
+                public class Foo<
+                    Bar1 : String,
+                    Bar2 : Map<
+                        Int,
+                        List<String>
+                    >
+                > {}
+                """.trimIndent()
+            val formattedCode =
+                """
+                public class Foo<
+                    Bar1 : String,
+                    Bar2 : Map<
+                        Int,
+                        List<String>
+                        >
+                    > {}
+                """.trimIndent()
+            indentationRuleAssertThat(code)
+                .isFormattedAs(formattedCode)
+        }
+    }
+
+    @Test
+    fun `Given a multiline nullable function type between parenthesis`() {
+        val code =
+            """
+            var foo: (
+                () -> Unit
+            )? = null
             """.trimIndent()
         indentationRuleAssertThat(code).hasNoLintViolations()
     }
