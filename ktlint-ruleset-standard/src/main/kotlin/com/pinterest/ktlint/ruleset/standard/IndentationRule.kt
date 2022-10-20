@@ -681,7 +681,7 @@ public class IndentationRule :
             }
 
 
-                !node.isWhiteSpaceWithNewline() && node.children().none { it.isWhiteSpaceWithNewline() } -> {
+            !node.isWhiteSpaceWithNewline() && node.children().none { it.isWhiteSpaceWithNewline() } -> {
                 // No direct child node contains a whitespace with new line. So this node can not be a reason to change
                 // the indent level
                 logger.trace { "Ignore node as it is not and does not contain a whitespace with newline for ${node.elementType}: ${node.textWithEscapedTabAndNewline()}" }

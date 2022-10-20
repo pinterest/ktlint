@@ -28,7 +28,7 @@ internal class WrappingRuleTest {
             fun foo() {
                 println(
                     "$.{
-                    true
+                        true
                     }"
                 )
             }

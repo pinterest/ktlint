@@ -4480,7 +4480,7 @@ internal class IndentationRuleTest {
     }
 
     @Test
-    fun `Given a destructuring declaration inside a function`() {
+    fun `Given a destructuring declaration`() {
         val code =
             """
             fun foo() {
