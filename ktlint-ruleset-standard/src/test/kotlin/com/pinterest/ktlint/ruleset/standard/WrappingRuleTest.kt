@@ -104,11 +104,11 @@ internal class WrappingRuleTest {
             fun foo1() {
                 foo2(
                     $MULTILINE_STRING_QUOTE$.{
-                    true
+                        true
                     }
                 text
             _$.{
-                    true
+                        true
                     }
                     $MULTILINE_STRING_QUOTE.trimIndent(),
                     ${MULTILINE_STRING_QUOTE}text$MULTILINE_STRING_QUOTE
@@ -1130,8 +1130,7 @@ internal class WrappingRuleTest {
             .hasLintViolations(
                 LintViolation(2, 12, "Missing newline after \"(\""),
                 LintViolation(6, 20, "Missing newline before \")\""),
-            ).hasLintViolationForAdditionalRule(6, 1, "Unexpected indent of multiline string closing quotes")
-            .isFormattedAs(formattedCode)
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
