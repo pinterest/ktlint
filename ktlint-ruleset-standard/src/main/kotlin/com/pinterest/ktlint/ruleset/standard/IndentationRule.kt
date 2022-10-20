@@ -249,7 +249,6 @@ public class IndentationRule :
             }
 
             node.elementType == BINARY_WITH_TYPE ||
-                node.elementType == DESTRUCTURING_DECLARATION ||
                 node.elementType == SUPER_TYPE_ENTRY ||
                 node.elementType == TYPE_ARGUMENT_LIST ||
                 node.elementType == TYPE_PARAMETER_LIST -> {
@@ -646,7 +645,43 @@ public class IndentationRule :
                 )
             }
 
-            !node.isWhiteSpaceWithNewline() && node.children().none { it.isWhiteSpaceWithNewline() } -> {
+            node.elementType == DESTRUCTURING_DECLARATION -> {
+                // Outer indent context
+                startIndentContext(
+                    fromAstNode = node,
+                    toAstNode = node.lastChildLeafOrSelf(),
+                    nodeIndent = currentIndent(),
+                    childIndent = "",
+                )
+
+                // Inner indent contexts in reversed order
+                var nextToAstNode = node.lastChildLeafOrSelf()
+                node
+                    .findChildByType(EQ)
+                    ?.let { eq ->
+                        nextToAstNode = startIndentContext(
+                            fromAstNode = eq,
+                            toAstNode = nextToAstNode,
+                            nodeIndent = currentIndent(),
+                            childIndent = indentConfig.indent,
+                        ).fromASTNode.prevCodeLeaf()!!
+                    }
+
+                node
+                    .findChildByType(RPAR)
+                    ?.let {
+                        startIndentContext(
+                            fromAstNode = node,
+                            toAstNode = nextToAstNode,
+                            nodeIndent = currentIndent(),
+                            childIndent = indentConfig.indent,
+                            lastChildIndent = "",
+                        )
+                    }
+            }
+
+
+                !node.isWhiteSpaceWithNewline() && node.children().none { it.isWhiteSpaceWithNewline() } -> {
                 // No direct child node contains a whitespace with new line. So this node can not be a reason to change
                 // the indent level
                 logger.trace { "Ignore node as it is not and does not contain a whitespace with newline for ${node.elementType}: ${node.textWithEscapedTabAndNewline()}" }

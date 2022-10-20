@@ -4479,6 +4479,32 @@ internal class IndentationRuleTest {
         indentationRuleAssertThat(code).hasNoLintViolations()
     }
 
+    @Test
+    fun `Given a destructuring declaration inside a function`() {
+        val code =
+            """
+            fun foo() {
+                fun bar(): Pair<Int, Int> = Pair(1, 2)
+
+                val (x, y) = bar()
+                val (
+                    x,
+                    y
+                ) = bar()
+                val (
+                    x,
+                    y
+                ) = bar()
+                val (
+                    x,
+                    y
+                ) =
+                    bar()
+            }
+            """.trimIndent()
+        indentationRuleAssertThat(code).hasNoLintViolations()
+    }
+
     private companion object {
         val INDENT_STYLE_TAB = indentStyleProperty to PropertyType.IndentStyleValue.tab
     }
