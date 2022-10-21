@@ -2705,7 +2705,7 @@ internal class IndentationRuleTest {
             """
             class Foo {
             ${TAB}fun doBar() {
-            ${TAB}${TAB}println("test2")
+            ${TAB}${TAB}println("test")
             ${TAB}}
             }
             """.trimIndent()

@@ -122,7 +122,7 @@ public class IndentationRule :
 
     private var line = 1
 
-    private val indentContextStack: Deque<NewIndentContext> = LinkedList()
+    private val indentContextStack: Deque<IndentContext> = LinkedList()
 
     private lateinit var stringTemplateIndenter: StringTemplateIndenter
 
@@ -156,6 +156,7 @@ public class IndentationRule :
         }
 
         if (node.isWhiteSpaceWithNewline()) {
+            line++
             if (indentContextStack.peekLast()?.unchanged == true) {
                 val lastIndentContext = indentContextStack.removeLast()
                 indentContextStack.addLast(
@@ -733,8 +734,8 @@ public class IndentationRule :
         childIndent: String,
         firstChildIndent: String = childIndent, // TODO: fix order
         lastChildIndent: String = childIndent,
-    ): NewIndentContext =
-        NewIndentContext(
+    ): IndentContext =
+        IndentContext(
             fromASTNode = fromAstNode,
             toASTNode = toAstNode,
             nodeIndent = nodeIndent,
@@ -955,7 +956,7 @@ public class IndentationRule :
     }
 
     private fun startNoIndentZone(node: ASTNode) =
-        NewIndentContext(
+        IndentContext(
             fromASTNode = node,
             nodeIndent = "",
             firstChildIndent = "",
@@ -969,7 +970,7 @@ public class IndentationRule :
         const val TYPE_CONSTRAINT_CONTINUATION_INDENT = "      " // Length of keyword "where" plus separating space
     }
 
-    private data class NewIndentContext(
+    private data class IndentContext(
         /**
          * The node on which the indent context starts.
          */
