@@ -121,7 +121,6 @@ public class IndentationRule :
     private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
 
     private var line = 1
-    private var expectedIndent = 0
 
     private val indentContextStack: Deque<NewIndentContext> = LinkedList()
 
@@ -155,16 +154,6 @@ public class IndentationRule :
                 }
             indentContextStack.addLast(startNoIndentZone(node))
         }
-
-        /* Dump entire indentContextStack before each node
-        logger.trace {
-            indentContextStack
-                .joinToString(
-                    prefix = "Node ${node.elementType}: ${node.textWithEscapedTabAndNewline()}\n\t",
-                    separator = "\n\t",
-                ) { "${it.fromASTNode.elementType} - ${it.toASTNode.elementType}: ${it.nodeIndentLevel}, ${it.childIndentLevel}, ${it.unchanged}" }
-        }
-         */
 
         if (node.isWhiteSpaceWithNewline()) {
             if (indentContextStack.peekLast()?.unchanged == true) {
@@ -680,17 +669,6 @@ public class IndentationRule :
                     }
             }
 
-            !node.isWhiteSpaceWithNewline() && node.children().none { it.isWhiteSpaceWithNewline() } -> {
-                // No direct child node contains a whitespace with new line. So this node can not be a reason to change
-                // the indent level
-                logger.trace { "Ignore node as it is not and does not contain a whitespace with newline for ${node.elementType}: ${node.textWithEscapedTabAndNewline()}" }
-                return
-            }
-
-            node.isWhiteSpaceWithNewline() -> {
-                visitWhiteSpace(node, autoCorrect, emit)
-            }
-
             else -> {
                 logger.trace { "No processing for ${node.elementType}: ${node.textWithEscapedTabAndNewline()}" }
             }
@@ -830,10 +808,6 @@ public class IndentationRule :
     }
 
     override fun afterLastNode() {
-        // The expectedIndent should never be negative. If so, it is very likely that ktlint crashes at runtime when
-        // autocorrecting is executed while no error occurs with linting only. Often, such errors are not found in unit
-        // tests, as the examples are way more simple than realistic code.
-        assert(expectedIndent >= 0)
         require(indentContextStack.isEmpty()) {
             indentContextStack
                 .joinToString(prefix = "Stack should be empty:\n\t", separator = "\n\t") { it.toString() }
@@ -867,7 +841,7 @@ public class IndentationRule :
             }
         }
 
-        // adjusting expectedIndent based on what is in front
+        // Adjust indent for first/last child of node
         val lastIndexContext = indentContextStack.peekLast()
         val adjustedChildIndent =
             when {
@@ -1039,17 +1013,6 @@ public class IndentationRule :
          */
         val unchanged: Boolean,
     ) {
-//        init {
-//            require(fromASTNode.elementType != WHITE_SPACE) {
-//                "Indent context should not start at whitespace node as such node might be altered or replaced by " +
-//                    "this rule and as a result could result in a corrupted indent context stack"
-//            }
-//            require(toASTNode.elementType != WHITE_SPACE) {
-//                "Indent context should not end at whitespace node as such node might be altered or replaced by " +
-//                    "this rule and as a result could result in a corrupted indent context stack"
-//            }
-//        }
-
         val nodes: String
             get() =
                 fromASTNode
