@@ -568,6 +568,20 @@ public class IndentationRule :
                 )
             }
 
+            node.elementType == KDOC -> {
+                node
+                    .findChildByType(KDOC_START)
+                    ?.nextLeaf()
+                    ?.let { fromAstNode ->
+                        startIndentContext(
+                            fromAstNode = fromAstNode,
+                            toAstNode = node.lastChildLeafOrSelf(),
+                            nodeIndent = currentIndent(),
+                            childIndent = KDOC_CONTINUATION_INDENT,
+                        )
+                    }
+            }
+
             node.elementType == PROPERTY_ACCESSOR -> {
                 // Outer indent context
                 startIndentContext(
@@ -857,46 +871,8 @@ public class IndentationRule :
                 else -> lastIndexContext.childIndent
             }
         // indentation with incorrect characters replaced
-        val normalizedNodeIndent =
-            when (indentConfig.indentStyle) {
-                SPACE -> {
-                    if ('\t' in nodeIndent) {
-                        emit(
-                            node.startOffset + text.length - nodeIndent.length,
-                            "Unexpected tab character(s)",
-                            true,
-                        )
-                        indentConfig.toNormalizedIndent(nodeIndent)
-                    } else {
-                        nodeIndent
-                    }
-                }
-
-                TAB -> {
-                    val acceptableTrailingSpaces = node.acceptableTrailingSpaces()
-                    val nodeIndentWithoutAcceptableTrailingSpaces = nodeIndent.removeSuffix(acceptableTrailingSpaces)
-                    if (' ' in nodeIndentWithoutAcceptableTrailingSpaces) {
-                        emit(
-                            node.startOffset + text.length - nodeIndent.length,
-                            "Unexpected space character(s)",
-                            true,
-                        )
-                        indentConfig
-                            .toNormalizedIndent(nodeIndentWithoutAcceptableTrailingSpaces)
-                            .plus(acceptableTrailingSpaces)
-                    } else {
-                        nodeIndent
-                    }
-                }
-            }
-        val kdocContinuationIndent =
-            if (comment?.elementType == KDOC && nextLeafElementType != KDOC_START) {
-                // +1 space before * in `/**\n *\n */`
-                KDOC_CONTINUATION_INDENT
-            } else {
-                ""
-            }
-        val expectedIndentation = lastIndexContext.nodeIndent + adjustedChildIndent + kdocContinuationIndent
+        val normalizedNodeIndent = normalizeNodeIndent(nodeIndent, emit, node, text)
+        val expectedIndentation = lastIndexContext.nodeIndent + adjustedChildIndent
         if (normalizedNodeIndent != expectedIndentation) {
             emit(
                 node.startOffset + text.length - nodeIndent.length,
@@ -914,6 +890,43 @@ public class IndentationRule :
                 (node as LeafPsiElement).rawReplaceWithText(
                     text.substringBeforeLast("\n") + "\n" + expectedIndentation,
                 )
+            }
+        }
+    }
+
+    private fun normalizeNodeIndent(
+        nodeIndent: String,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        node: ASTNode,
+        text: String,
+    ) = when (indentConfig.indentStyle) {
+        SPACE -> {
+            if ('\t' in nodeIndent) {
+                emit(
+                    node.startOffset + text.length - nodeIndent.length,
+                    "Unexpected tab character(s)",
+                    true,
+                )
+                indentConfig.toNormalizedIndent(nodeIndent)
+            } else {
+                nodeIndent
+            }
+        }
+
+        TAB -> {
+            val acceptableTrailingSpaces = node.acceptableTrailingSpaces()
+            val nodeIndentWithoutAcceptableTrailingSpaces = nodeIndent.removeSuffix(acceptableTrailingSpaces)
+            if (' ' in nodeIndentWithoutAcceptableTrailingSpaces) {
+                emit(
+                    node.startOffset + text.length - nodeIndent.length,
+                    "Unexpected space character(s)",
+                    true,
+                )
+                indentConfig
+                    .toNormalizedIndent(nodeIndentWithoutAcceptableTrailingSpaces)
+                    .plus(acceptableTrailingSpaces)
+            } else {
+                nodeIndent
             }
         }
     }
