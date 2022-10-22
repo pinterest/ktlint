@@ -488,6 +488,17 @@ public class IndentationRule :
 
             node.elementType == BINARY_EXPRESSION -> {
                 if (isPartOfBinaryExpressionWrappedInCondition(node)) {
+                    // Complex binary expression are nested in such a way that the indent context of the condition
+                    // wrapper is not the last node on the stack
+                    val conditionIndentContext =
+                        indentContextStack.last { it.fromASTNode.elementType != BINARY_EXPRESSION }
+                    // Create new indent context for the remainder (operator and right-hand side) of the binary expression
+                    startIndentContext(
+                        fromAstNode = node.findChildByType(OPERATION_REFERENCE)!!,
+                        toAstNode = node.lastChildLeafOrSelf(),
+                        nodeIndent = conditionIndentContext.nodeIndent,
+                        childIndent = conditionIndentContext.childIndent,
+                    )
                     startIndentContextSameAsParent(
                         fromAstNode = node.firstChildNode,
                         toAstNode = node.firstChildNode.lastChildLeafOrSelf(),
@@ -823,29 +834,6 @@ public class IndentationRule :
                         "Last indent context with level ($nodeIndentLevel, $childIndentLevel) for ${indentContext.fromASTNode.elementType}: ${indentContext.nodes}"
                     }
                 }
-        }
-
-        when {
-            isPartOfBinaryExpressionWrappedInCondition(node) -> {
-                val binaryExpression = node.treeParent
-                if (indentContextStack.peekLast().fromASTNode == binaryExpression) {
-                    // Remove the indent context for the left-hand side of the binary expression
-                    indentContextStack.removeLast()
-                    // Complex binary expression are nested in such a way that the indent context of the condition wrapper
-                    // is not the last node on the stack
-                    val conditionIndentContext =
-                        indentContextStack
-                            .filterNot { it.fromASTNode.elementType == BINARY_EXPRESSION }
-                            .last()
-                    // Create new indent context for the remainder (operator and right-hand side) of the binary expression
-                    startIndentContext(
-                        fromAstNode = requireNotNull(node.nextSibling { true }),
-                        toAstNode = binaryExpression.lastChildLeafOrSelf(),
-                        nodeIndent = conditionIndentContext.nodeIndent,
-                        childIndent = conditionIndentContext.childIndent,
-                    )
-                }
-            }
         }
     }
 
