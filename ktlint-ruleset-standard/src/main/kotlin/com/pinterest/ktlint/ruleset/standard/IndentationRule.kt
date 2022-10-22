@@ -86,10 +86,11 @@ import com.pinterest.ktlint.core.ast.nextLeaf
 import com.pinterest.ktlint.core.ast.nextSibling
 import com.pinterest.ktlint.core.ast.parent
 import com.pinterest.ktlint.core.ast.prevCodeLeaf
-import com.pinterest.ktlint.core.ast.prevCodeSibling
 import com.pinterest.ktlint.core.ast.prevLeaf
 import com.pinterest.ktlint.core.ast.prevSibling
 import com.pinterest.ktlint.core.initKtLintKLogger
+import com.pinterest.ktlint.ruleset.standard.IndentationRule.IndentContextType.NORMAL
+import com.pinterest.ktlint.ruleset.standard.IndentationRule.IndentContextType.NORMAL_EXCEPT_LAST_NODE
 import java.util.Deque
 import java.util.LinkedList
 import mu.KotlinLogging
@@ -175,10 +176,8 @@ public class IndentationRule :
                 node.treeParent.prevSibling { !it.isPartOfComment() }?.isWhiteSpaceWithNewline() == true -> {
                 startIndentContext(
                     fromAstNode = node,
-                    toAstNode = node.lastChildLeafOrSelf(),
-                    nodeIndent = currentIndent(),
-                    childIndent = indentConfig.indent,
                     lastChildIndent = "",
+                    indentContextType = NORMAL_EXCEPT_LAST_NODE
                 )
             }
 
@@ -190,10 +189,8 @@ public class IndentationRule :
                 node.elementType == WHEN ->
                 startIndentContext(
                     fromAstNode = node,
-                    toAstNode = node.lastChildLeafOrSelf(),
-                    nodeIndent = currentIndent(),
-                    childIndent = indentConfig.indent,
                     lastChildIndent = "",
+                    indentContextType = NORMAL_EXCEPT_LAST_NODE
                 )
 
             node.elementType == SECONDARY_CONSTRUCTOR -> {
@@ -345,10 +342,8 @@ public class IndentationRule :
                 node.treeParent.elementType != FUNCTION_LITERAL ->
                 startIndentContext(
                     fromAstNode = node,
-                    toAstNode = node.lastChildLeafOrSelf(),
-                    nodeIndent = currentIndent(),
-                    childIndent = indentConfig.indent,
                     lastChildIndent = "",
+                    indentContextType = NORMAL_EXCEPT_LAST_NODE
                 )
 
             node.elementType == LPAR && node.nextCodeSibling()?.elementType == CONDITION -> {
@@ -626,7 +621,7 @@ public class IndentationRule :
                     childIndent = "",
                 )
 
-                 // Inner indent contexts in reversed order
+                // Inner indent contexts in reversed order
                 node
                     .findChildByType(BODY)
                     ?.takeIf { it.nextCodeLeaf()?.elementType != LBRACE }
@@ -789,21 +784,27 @@ public class IndentationRule :
 
     private fun startIndentContext(
         fromAstNode: ASTNode,
-        toAstNode: ASTNode,
-        nodeIndent: String,
-        childIndent: String,
+        toAstNode: ASTNode = fromAstNode.lastChildLeafOrSelf(),
+        nodeIndent: String = currentIndent(),
+        childIndent: String = indentConfig.indent,
         firstChildIndent: String = childIndent, // TODO: fix order
         lastChildIndent: String = childIndent,
+        unchanged: Boolean = true,
+        indentContextType: IndentContextType = NORMAL,
     ): IndentContext =
-        IndentContext(
-            fromASTNode = fromAstNode,
-            toASTNode = toAstNode,
-            nodeIndent = nodeIndent,
-            firstChildIndent = firstChildIndent,
-            childIndent = childIndent,
-            lastChildIndent = lastChildIndent,
-            unchanged = true,
-        ).also { newIndentContext ->
+        when (indentContextType) {
+            NORMAL,
+            NORMAL_EXCEPT_LAST_NODE ->
+                IndentContext(
+                    fromASTNode = fromAstNode,
+                    toASTNode = toAstNode,
+                    nodeIndent = nodeIndent,
+                    firstChildIndent = firstChildIndent,
+                    childIndent = childIndent,
+                    lastChildIndent = lastChildIndent,
+                    unchanged = unchanged,
+                )
+        }.also { newIndentContext ->
             logger.trace {
                 val nodeIndentLevel = indentConfig.indentLevelFrom(newIndentContext.nodeIndent)
                 val childIndentLevel = indentConfig.indentLevelFrom(newIndentContext.childIndent)
@@ -1064,6 +1065,11 @@ public class IndentationRule :
             } else {
                 nodeIndent + childIndent
             }
+    }
+
+    private enum class IndentContextType {
+        NORMAL,
+        NORMAL_EXCEPT_LAST_NODE
     }
 }
 
