@@ -856,23 +856,8 @@ public class IndentationRule :
             }
         }
 
-        // Adjust indent for first/last child of node
-        val lastIndexContext = indentContextStack.peekLast()
-        val adjustedChildIndent =
-            when {
-                node == lastIndexContext.fromASTNode.firstChildLeafOrSelf() ||
-                    nextLeaf == lastIndexContext.fromASTNode.firstChildLeafOrSelf() ->
-                    lastIndexContext.firstChildIndent
-
-                node == lastIndexContext.toASTNode ||
-                    nextLeaf == lastIndexContext.toASTNode ->
-                    lastIndexContext.lastChildIndent
-
-                else -> lastIndexContext.childIndent
-            }
-        // indentation with incorrect characters replaced
-        val normalizedNodeIndent = normalizeNodeIndent(nodeIndent, emit, node, text)
-        val expectedIndentation = lastIndexContext.nodeIndent + adjustedChildIndent
+        val normalizedNodeIndent = node.normalizedIndent(emit)
+        val expectedIndentation = node.expectedIndent()
         if (normalizedNodeIndent != expectedIndentation) {
             emit(
                 node.startOffset + text.length - nodeIndent.length,
@@ -894,39 +879,57 @@ public class IndentationRule :
         }
     }
 
-    private fun normalizeNodeIndent(
-        nodeIndent: String,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        node: ASTNode,
-        text: String,
-    ) = when (indentConfig.indentStyle) {
-        SPACE -> {
-            if ('\t' in nodeIndent) {
-                emit(
-                    node.startOffset + text.length - nodeIndent.length,
-                    "Unexpected tab character(s)",
-                    true,
-                )
-                indentConfig.toNormalizedIndent(nodeIndent)
-            } else {
-                nodeIndent
-            }
-        }
+    private fun ASTNode.expectedIndent(): String {
+        val lastIndexContext = indentContextStack.peekLast()
+        val nextLeaf = nextLeaf()
+        val adjustedChildIndent =
+            when {
+                this == lastIndexContext.fromASTNode.firstChildLeafOrSelf() ||
+                    nextLeaf == lastIndexContext.fromASTNode.firstChildLeafOrSelf() ->
+                    lastIndexContext.firstChildIndent
 
-        TAB -> {
-            val acceptableTrailingSpaces = node.acceptableTrailingSpaces()
-            val nodeIndentWithoutAcceptableTrailingSpaces = nodeIndent.removeSuffix(acceptableTrailingSpaces)
-            if (' ' in nodeIndentWithoutAcceptableTrailingSpaces) {
-                emit(
-                    node.startOffset + text.length - nodeIndent.length,
-                    "Unexpected space character(s)",
-                    true,
-                )
-                indentConfig
-                    .toNormalizedIndent(nodeIndentWithoutAcceptableTrailingSpaces)
-                    .plus(acceptableTrailingSpaces)
-            } else {
-                nodeIndent
+                this == lastIndexContext.toASTNode ||
+                    nextLeaf == lastIndexContext.toASTNode ->
+                    lastIndexContext.lastChildIndent
+
+                else -> lastIndexContext.childIndent
+            }
+        return lastIndexContext.nodeIndent + adjustedChildIndent
+    }
+
+    private fun ASTNode.normalizedIndent(
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+    ): String {
+        val nodeIndent = text.substringAfterLast("\n")
+        return when (indentConfig.indentStyle) {
+            SPACE -> {
+                if ('\t' in nodeIndent) {
+                    emit(
+                        startOffset + text.length - nodeIndent.length,
+                        "Unexpected tab character(s)",
+                        true,
+                    )
+                    indentConfig.toNormalizedIndent(nodeIndent)
+                } else {
+                    nodeIndent
+                }
+            }
+
+            TAB -> {
+                val acceptableTrailingSpaces = acceptableTrailingSpaces()
+                val nodeIndentWithoutAcceptableTrailingSpaces = nodeIndent.removeSuffix(acceptableTrailingSpaces)
+                if (' ' in nodeIndentWithoutAcceptableTrailingSpaces) {
+                    emit(
+                        startOffset + text.length - nodeIndent.length,
+                        "Unexpected space character(s)",
+                        true,
+                    )
+                    indentConfig
+                        .toNormalizedIndent(nodeIndentWithoutAcceptableTrailingSpaces)
+                        .plus(acceptableTrailingSpaces)
+                } else {
+                    nodeIndent
+                }
             }
         }
     }
