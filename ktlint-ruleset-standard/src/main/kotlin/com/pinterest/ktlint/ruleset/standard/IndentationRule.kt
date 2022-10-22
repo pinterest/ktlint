@@ -70,6 +70,7 @@ import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.core.ast.ElementType.WHEN
 import com.pinterest.ktlint.core.ast.ElementType.WHEN_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.WHERE_KEYWORD
+import com.pinterest.ktlint.core.ast.ElementType.WHILE
 import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.core.ast.children
 import com.pinterest.ktlint.core.ast.firstChildLeafOrSelf
@@ -85,6 +86,7 @@ import com.pinterest.ktlint.core.ast.nextLeaf
 import com.pinterest.ktlint.core.ast.nextSibling
 import com.pinterest.ktlint.core.ast.parent
 import com.pinterest.ktlint.core.ast.prevCodeLeaf
+import com.pinterest.ktlint.core.ast.prevCodeSibling
 import com.pinterest.ktlint.core.ast.prevLeaf
 import com.pinterest.ktlint.core.ast.prevSibling
 import com.pinterest.ktlint.core.initKtLintKLogger
@@ -604,6 +606,39 @@ public class IndentationRule :
                     }
             }
 
+            node.elementType == WHILE -> {
+                // Outer indent context
+                startIndentContext(
+                    fromAstNode = node,
+                    toAstNode = node.lastChildLeafOrSelf(),
+                    nodeIndent = currentIndent(),
+                    childIndent = "",
+                )
+
+                 // Inner indent contexts in reversed order
+                node
+                    .findChildByType(BODY)
+                    ?.takeIf { it.nextCodeLeaf()?.elementType != LBRACE }
+                    ?.let { rpar ->
+                        startIndentContext(
+                            fromAstNode = rpar,
+                            toAstNode = node.lastChildLeafOrSelf(),
+                            nodeIndent = currentIndent(),
+                            childIndent = indentConfig.indent,
+                        )
+                    }
+                node
+                    .findChildByType(CONDITION)
+                    ?.let { fromAstNode ->
+                        startIndentContext(
+                            fromAstNode = fromAstNode,
+                            toAstNode = fromAstNode.lastChildLeafOrSelf(),
+                            nodeIndent = currentIndent(),
+                            childIndent = indentConfig.indent,
+                        )
+                    }
+            }
+
             node.elementType == LBRACKET -> {
                 node
                     .treeParent
@@ -791,14 +826,6 @@ public class IndentationRule :
         }
 
         when {
-            node.elementType == RPAR &&
-                node.nextCodeSibling()?.elementType == BODY -> {
-                startIndentContextSameAsParent(
-                    fromAstNode = node.nextCodeSibling()!!,
-                    node.treeParent.lastChildLeafOrSelf(),
-                )
-            }
-
             isPartOfBinaryExpressionWrappedInCondition(node) -> {
                 val binaryExpression = node.treeParent
                 if (indentContextStack.peekLast().fromASTNode == binaryExpression) {
