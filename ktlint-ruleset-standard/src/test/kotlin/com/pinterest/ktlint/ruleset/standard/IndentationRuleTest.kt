@@ -4504,6 +4504,18 @@ internal class IndentationRuleTest {
             .isFormattedAs(formattedCode)
     }
 
+    @Test
+    fun `Given a for loop without braces around body`() {
+        val code =
+            """
+            fun bar() {
+                for (foo in fooList)
+                    foo()
+            }
+            """.trimIndent()
+        indentationRuleAssertThat(code).hasNoLintViolations()
+    }
+
     private companion object {
         val INDENT_STYLE_TAB = indentStyleProperty to PropertyType.IndentStyleValue.tab
     }

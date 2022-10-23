@@ -27,6 +27,7 @@ import com.pinterest.ktlint.core.ast.ElementType.DOT
 import com.pinterest.ktlint.core.ast.ElementType.DOT_QUALIFIED_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.ELVIS
 import com.pinterest.ktlint.core.ast.ElementType.EQ
+import com.pinterest.ktlint.core.ast.ElementType.FOR
 import com.pinterest.ktlint.core.ast.ElementType.FUN
 import com.pinterest.ktlint.core.ast.ElementType.FUNCTION_LITERAL
 import com.pinterest.ktlint.core.ast.ElementType.IDENTIFIER
@@ -255,8 +256,9 @@ public class IndentationRule :
             node.elementType == PROPERTY_ACCESSOR ->
                 visitPropertyAccessor(node)
 
-            node.elementType == WHILE ->
-                visitWhile(node)
+            node.elementType == FOR ||
+                node.elementType == WHILE ->
+                visitConditionalLoop(node)
 
             node.elementType == LBRACKET ->
                 visitLBracket(node)
@@ -542,7 +544,7 @@ public class IndentationRule :
             }
     }
 
-    private fun visitWhile(node: ASTNode) {
+    private fun visitConditionalLoop(node: ASTNode) {
         // Inner indent contexts in reversed order
         node
             .findChildByType(BODY)
