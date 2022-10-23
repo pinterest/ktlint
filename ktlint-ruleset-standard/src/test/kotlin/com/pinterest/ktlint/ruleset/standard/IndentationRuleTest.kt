@@ -4528,6 +4528,26 @@ internal class IndentationRuleTest {
         indentationRuleAssertThat(code).hasNoLintViolations()
     }
 
+    @Test
+    fun `Given a property accessor preceded with an annotation or comment`() {
+        val code =
+            """
+            var foo1: String
+                @Internal
+                get() = "foo"
+                @Internal
+                set(value) = "foo"
+            var foo1: String
+                // Some comment
+                get() = "foo"
+                /*
+                 * Some comment
+                 */
+                set(value) = "foo"
+            """.trimIndent()
+        indentationRuleAssertThat(code).hasNoLintViolations()
+    }
+
     private companion object {
         val INDENT_STYLE_TAB = indentStyleProperty to PropertyType.IndentStyleValue.tab
     }

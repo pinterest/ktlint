@@ -534,14 +534,21 @@ public class IndentationRule :
     }
 
     private fun visitPropertyAccessor(node: ASTNode) {
+        var nextToASTNode = node.lastChildLeafOrSelf()
         node
             .findChildByType(EQ)
             ?.let { fromAstNode ->
-                startIndentContext(
+                nextToASTNode = startIndentContext(
                     fromAstNode = fromAstNode,
                     toAstNode = node.lastChildLeafOrSelf(),
-                )
+                ).prevCodeLeaf()
             }
+        // No indent on preceding annotations and comments
+        startIndentContext(
+            fromAstNode = node,
+            toAstNode = nextToASTNode,
+            childIndent = ""
+        )
     }
 
     private fun visitConditionalLoop(node: ASTNode) {
