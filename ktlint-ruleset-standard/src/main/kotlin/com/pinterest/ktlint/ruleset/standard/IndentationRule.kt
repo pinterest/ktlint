@@ -747,7 +747,7 @@ public class IndentationRule :
 
     private fun ASTNode.ignoreIndent(): Boolean {
         val nextLeaf = nextLeaf()
-        if (text == "\n" && nextLeaf.isStartOfRawStringLiteral()) {
+        if (text.endsWith("\n") && nextLeaf.isStartOfRawStringLiteral()) {
             processedButNoIndentationChangedNeeded()
             return true // raw strings (""") are allowed at column 0
         }
@@ -755,7 +755,7 @@ public class IndentationRule :
         nextLeaf
             ?.parent({ it.psi is PsiComment }, strict = false)
             ?.let { comment ->
-                if (text == "\n") {
+                if (text.endsWith("\n")) {
                     processedButNoIndentationChangedNeeded()
                     return true // comments are allowed at column 0
                 }
