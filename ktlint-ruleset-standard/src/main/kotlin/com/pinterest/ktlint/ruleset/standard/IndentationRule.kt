@@ -89,8 +89,6 @@ import com.pinterest.ktlint.core.ast.prevCodeLeaf
 import com.pinterest.ktlint.core.ast.prevLeaf
 import com.pinterest.ktlint.core.ast.prevSibling
 import com.pinterest.ktlint.core.initKtLintKLogger
-import com.pinterest.ktlint.ruleset.standard.IndentationRule.IndentContextType.NORMAL
-import com.pinterest.ktlint.ruleset.standard.IndentationRule.IndentContextType.NORMAL_EXCEPT_LAST_NODE
 import java.util.Deque
 import java.util.LinkedList
 import mu.KotlinLogging
@@ -177,7 +175,6 @@ public class IndentationRule :
                 startIndentContext(
                     fromAstNode = node,
                     lastChildIndent = "",
-                    indentContextType = NORMAL_EXCEPT_LAST_NODE
                 )
             }
 
@@ -190,15 +187,12 @@ public class IndentationRule :
                 startIndentContext(
                     fromAstNode = node,
                     lastChildIndent = "",
-                    indentContextType = NORMAL_EXCEPT_LAST_NODE
                 )
 
             node.elementType == SECONDARY_CONSTRUCTOR -> {
                 // Outer indent context
                 startIndentContext(
                     fromAstNode = node,
-                    toAstNode = node.lastChildLeafOrSelf(),
-                    nodeIndent = currentIndent(),
                     childIndent = "",
                 )
 
@@ -210,9 +204,6 @@ public class IndentationRule :
                         val fromAstNode = node.skipLeadingWhitespaceCommentsAndAnnotations()
                         nextToAstNode = startIndentContext(
                             fromAstNode = constructorDelegationCall,
-                            toAstNode = constructorDelegationCall.lastChildLeafOrSelf(),
-                            nodeIndent = currentIndent(),
-                            childIndent = indentConfig.indent,
                         ).fromASTNode.prevCodeLeaf()!!
 
                         // Leading annotations and comments should be indented at same level as constructor itself
@@ -220,7 +211,6 @@ public class IndentationRule :
                             startIndentContext(
                                 fromAstNode = node,
                                 toAstNode = nextToAstNode,
-                                nodeIndent = currentIndent(),
                                 childIndent = "",
                             )
                         }
@@ -229,31 +219,19 @@ public class IndentationRule :
 
             node.elementType == PARENTHESIZED &&
                 node.treeParent.treeParent.elementType != IF -> {
-                startIndentContext(
-                    fromAstNode = node,
-                    toAstNode = node.lastChildLeafOrSelf(),
-                    nodeIndent = currentIndent(),
-                    childIndent = indentConfig.indent,
-                )
+                startIndentContext(node)
             }
 
             node.elementType == BINARY_WITH_TYPE ||
                 node.elementType == SUPER_TYPE_ENTRY ||
                 node.elementType == TYPE_ARGUMENT_LIST ||
                 node.elementType == TYPE_PARAMETER_LIST -> {
-                startIndentContext(
-                    fromAstNode = node,
-                    toAstNode = node.lastChildLeafOrSelf(),
-                    nodeIndent = currentIndent(),
-                    childIndent = indentConfig.indent,
-                )
+                startIndentContext(node)
             }
 
             node.elementType == DELEGATED_SUPER_TYPE_ENTRY -> {
                 startIndentContext(
                     fromAstNode = node,
-                    toAstNode = node.lastChildLeafOrSelf(),
-                    nodeIndent = currentIndent(),
                     childIndent = "",
                 )
             }
@@ -262,8 +240,6 @@ public class IndentationRule :
                 // Outer indent context
                 var nextToAstNode = startIndentContext(
                     fromAstNode = node,
-                    toAstNode = node.lastChildLeafOrSelf(),
-                    nodeIndent = currentIndent(),
                     childIndent = "",
                 ).toASTNode
 
@@ -276,9 +252,7 @@ public class IndentationRule :
                         nextToAstNode = startIndentContext(
                             fromAstNode = nodeAfterThenBlock,
                             toAstNode = nextToAstNode,
-                            nodeIndent = currentIndent(),
                             firstChildIndent = "", // The "else" keyword should not be indented
-                            childIndent = indentConfig.indent,
                         ).fromASTNode.prevCodeLeaf()!!
                     }
                 node
@@ -289,15 +263,11 @@ public class IndentationRule :
                         nextToAstNode = startIndentContext(
                             fromAstNode = nodeAfterConditionBlock,
                             toAstNode = nextToAstNode,
-                            nodeIndent = currentIndent(),
-                            childIndent = indentConfig.indent,
                         ).fromASTNode.prevCodeLeaf()!!
                     }
                 startIndentContext(
                     fromAstNode = node,
                     toAstNode = nextToAstNode,
-                    nodeIndent = currentIndent(),
-                    childIndent = indentConfig.indent,
                     lastChildIndent = "", // No indent for the RPAR
                 )
             }
@@ -310,9 +280,7 @@ public class IndentationRule :
                 startIndentContext(
                     fromAstNode = node,
                     toAstNode = rbrace,
-                    nodeIndent = currentIndent(),
                     firstChildIndent = "",
-                    childIndent = indentConfig.indent,
                     lastChildIndent = "",
                 )
 
@@ -325,14 +293,11 @@ public class IndentationRule :
                         startIndentContext(
                             fromAstNode = arrow,
                             toAstNode = rbrace,
-                            nodeIndent = currentIndent(),
-                            childIndent = indentConfig.indent,
                             lastChildIndent = "",
                         )
                         startIndentContext(
                             fromAstNode = node,
                             toAstNode = arrow.prevCodeLeaf()!!,
-                            nodeIndent = currentIndent(),
                             childIndent = indentConfig.indent.repeat(2),
                         )
                     }
@@ -343,7 +308,6 @@ public class IndentationRule :
                 startIndentContext(
                     fromAstNode = node,
                     lastChildIndent = "",
-                    indentContextType = NORMAL_EXCEPT_LAST_NODE
                 )
 
             node.elementType == LPAR && node.nextCodeSibling()?.elementType == CONDITION -> {
@@ -359,8 +323,6 @@ public class IndentationRule :
                 // Outer indent context
                 startIndentContext(
                     fromAstNode = node,
-                    toAstNode = node.lastChildLeafOrSelf(),
-                    nodeIndent = currentIndent(),
                     childIndent = "",
                 )
 
@@ -369,7 +331,7 @@ public class IndentationRule :
                 node
                     .findChildByType(EQ)
                     ?.let { fromAstNode ->
-                        nextToAstNode = startIndentContextSameAsParent(
+                        nextToAstNode = startIndentContext(
                             fromAstNode = fromAstNode,
                             toAstNode = nextToAstNode,
                         ).fromASTNode.prevLeaf()!!
@@ -384,14 +346,11 @@ public class IndentationRule :
                     nextToAstNode = startIndentContext(
                         fromAstNode = fromAstNode,
                         toAstNode = nextToAstNode,
-                        nodeIndent = currentIndent(),
-                        childIndent = indentConfig.indent,
                     ).fromASTNode.prevLeaf { !it.isWhiteSpace() }!!
                 } else {
                     startIndentContext(
                         fromAstNode = node,
                         toAstNode = nextToAstNode,
-                        nodeIndent = currentIndent(),
                         childIndent = "",
                     )
                 }
@@ -402,8 +361,6 @@ public class IndentationRule :
                 // Outer indent context
                 startIndentContext(
                     fromAstNode = node,
-                    toAstNode = node.lastChildLeafOrSelf(),
-                    nodeIndent = currentIndent(),
                     childIndent = "",
                 )
 
@@ -413,7 +370,7 @@ public class IndentationRule :
                     node.findChildByType(EQ)
                         ?: node.findChildByType(BLOCK)
                 eqOrBlock?.let {
-                    nextToAstNode = startIndentContextSameAsParent(
+                    nextToAstNode = startIndentContext(
                         fromAstNode = eqOrBlock,
                         toAstNode = nextToAstNode,
                     ).fromASTNode.prevLeaf()!!
@@ -422,7 +379,7 @@ public class IndentationRule :
                 node
                     .findChildByType(TYPE_REFERENCE)
                     ?.let { typeReference ->
-                        nextToAstNode = startIndentContextSameAsParent(
+                        nextToAstNode = startIndentContext(
                             fromAstNode = typeReference.getPrecedingLeadingCommentsAndWhitespaces(),
                             toAstNode = nextToAstNode,
                         ).fromASTNode.prevLeaf()!!
@@ -432,7 +389,6 @@ public class IndentationRule :
                 startIndentContext(
                     fromAstNode = node,
                     toAstNode = nextToAstNode,
-                    nodeIndent = currentIndent(),
                     childIndent = "",
                 )
             }
@@ -441,8 +397,6 @@ public class IndentationRule :
                 // Outer indent context
                 startIndentContext(
                     fromAstNode = node,
-                    toAstNode = node.lastChildLeafOrSelf(),
-                    nodeIndent = currentIndent(),
                     childIndent = "",
                 )
 
@@ -458,7 +412,7 @@ public class IndentationRule :
                         require(
                             typeConstraintList.elementType == TYPE_CONSTRAINT_LIST,
                         ) { "Code sibling after WHERE in CLASS is not a TYPE_CONSTRAINT_LIST" }
-                        nextToAstNode = startIndentContextSameAsParent(
+                        nextToAstNode = startIndentContext(
                             fromAstNode = where.getPrecedingLeadingCommentsAndWhitespaces(),
                             toAstNode = typeConstraintList.lastChildLeafOrSelf(),
                         ).fromASTNode.prevCodeLeaf()!!
@@ -466,7 +420,7 @@ public class IndentationRule :
                 node
                     .findChildByType(SUPER_TYPE_LIST)
                     ?.let { superTypeList ->
-                        nextToAstNode = startIndentContextSameAsParent(
+                        nextToAstNode = startIndentContext(
                             fromAstNode = superTypeList.getPrecedingLeadingCommentsAndWhitespaces(),
                             toAstNode = superTypeList.lastChildLeafOrSelf(),
                         ).fromASTNode.prevCodeLeaf()!!
@@ -476,7 +430,6 @@ public class IndentationRule :
                 startIndentContext(
                     fromAstNode = node,
                     toAstNode = nextToAstNode,
-                    nodeIndent = currentIndent(),
                     childIndent = "",
                 )
             }
@@ -494,32 +447,24 @@ public class IndentationRule :
                         nodeIndent = conditionIndentContext.nodeIndent,
                         childIndent = conditionIndentContext.childIndent,
                     )
-                    startIndentContextSameAsParent(
-                        fromAstNode = node.firstChildNode,
-                        toAstNode = node.firstChildNode.lastChildLeafOrSelf(),
-                    )
+                    startIndentContext(node.firstChildNode)
                 } else if (node.treeParent?.elementType != BINARY_EXPRESSION ||
                     node.findChildByType(OPERATION_REFERENCE)?.firstChildNode?.elementType == ELVIS
                 ) {
-                    startIndentContextSameAsParent(node)
+                    startIndentContext(node)
                 }
             }
 
             node.elementType == DOT_QUALIFIED_EXPRESSION ||
                 node.elementType == SAFE_ACCESS_EXPRESSION -> {
                 if (node.treeParent?.elementType != node.elementType) {
-                    startIndentContext(
-                        fromAstNode = node,
-                        toAstNode = node.lastChildLeafOrSelf(),
-                        nodeIndent = currentIndent(),
-                        childIndent = indentConfig.indent,
-                    )
+                    startIndentContext(node)
                 }
             }
 
             node.elementType == IDENTIFIER &&
                 node.treeParent.elementType == PROPERTY -> {
-                startIndentContextSameAsParent(
+                startIndentContext(
                     fromAstNode = node,
                     toAstNode = node.treeParent.lastChildLeafOrSelf(),
                 )
@@ -534,36 +479,31 @@ public class IndentationRule :
                 // Outer indent context
                 startIndentContext(
                     fromAstNode = node,
-                    toAstNode = node.lastChildLeafOrSelf(),
-                    nodeIndent = currentIndent(),
                     childIndent = "",
                 )
 
                 // Inner indent contexts in reversed order
-                val arrow =
-                    requireNotNull(
-                        node.findChildByType(ARROW),
-                    ) { "Can not find arrow in when entry" }
-                val firstAndLastIndent =
-                    if (arrow.nextLeaf()?.elementType == BLOCK) {
-                        ""
-                    } else {
-                        indentConfig.indent
+                node
+                    .findChildByType(ARROW)
+                    ?.let { arrow ->
+                        val outerIndent =
+                            if (arrow.nextLeaf()?.elementType == BLOCK) {
+                                ""
+                            } else {
+                                indentConfig.indent
+                            }
+                        startIndentContext(
+                            fromAstNode = arrow.nextLeaf()!!,
+                            toAstNode = node.lastChildLeafOrSelf(),
+                            firstChildIndent = outerIndent,
+                            lastChildIndent = outerIndent,
+                        )
+                        startIndentContext(
+                            fromAstNode = node,
+                            toAstNode = arrow,
+                            childIndent = "",
+                        )
                     }
-                startIndentContext(
-                    fromAstNode = arrow.nextLeaf()!!,
-                    toAstNode = node.lastChildLeafOrSelf(),
-                    nodeIndent = currentIndent(),
-                    firstChildIndent = firstAndLastIndent,
-                    childIndent = indentConfig.indent,
-                    lastChildIndent = firstAndLastIndent,
-                )
-                startIndentContext(
-                    fromAstNode = node,
-                    toAstNode = arrow,
-                    nodeIndent = currentIndent(),
-                    childIndent = "",
-                )
             }
 
             node.elementType == WHERE_KEYWORD &&
@@ -571,7 +511,6 @@ public class IndentationRule :
                 startIndentContext(
                     fromAstNode = node,
                     toAstNode = node.nextCodeSibling()?.lastChildLeafOrSelf()!!,
-                    nodeIndent = currentIndent(),
                     childIndent = TYPE_CONSTRAINT_CONTINUATION_INDENT,
                 )
             }
@@ -584,7 +523,6 @@ public class IndentationRule :
                         startIndentContext(
                             fromAstNode = fromAstNode,
                             toAstNode = node.lastChildLeafOrSelf(),
-                            nodeIndent = currentIndent(),
                             childIndent = KDOC_CONTINUATION_INDENT,
                         )
                     }
@@ -594,8 +532,6 @@ public class IndentationRule :
                 // Outer indent context
                 startIndentContext(
                     fromAstNode = node,
-                    toAstNode = node.lastChildLeafOrSelf(),
-                    nodeIndent = currentIndent(),
                     childIndent = "",
                 )
 
@@ -606,8 +542,6 @@ public class IndentationRule :
                         startIndentContext(
                             fromAstNode = fromAstNode,
                             toAstNode = node.lastChildLeafOrSelf(),
-                            nodeIndent = currentIndent(),
-                            childIndent = indentConfig.indent,
                         )
                     }
             }
@@ -616,8 +550,6 @@ public class IndentationRule :
                 // Outer indent context
                 startIndentContext(
                     fromAstNode = node,
-                    toAstNode = node.lastChildLeafOrSelf(),
-                    nodeIndent = currentIndent(),
                     childIndent = "",
                 )
 
@@ -629,19 +561,12 @@ public class IndentationRule :
                         startIndentContext(
                             fromAstNode = rpar,
                             toAstNode = node.lastChildLeafOrSelf(),
-                            nodeIndent = currentIndent(),
-                            childIndent = indentConfig.indent,
                         )
                     }
                 node
                     .findChildByType(CONDITION)
                     ?.let { fromAstNode ->
-                        startIndentContext(
-                            fromAstNode = fromAstNode,
-                            toAstNode = fromAstNode.lastChildLeafOrSelf(),
-                            nodeIndent = currentIndent(),
-                            childIndent = indentConfig.indent,
-                        )
+                        startIndentContext(fromAstNode)
                     }
             }
 
@@ -653,9 +578,7 @@ public class IndentationRule :
                         startIndentContext(
                             fromAstNode = node,
                             toAstNode = rbracket,
-                            nodeIndent = currentIndent(),
                             firstChildIndent = "",
-                            childIndent = indentConfig.indent,
                             lastChildIndent = "",
                         )
                     }
@@ -665,8 +588,6 @@ public class IndentationRule :
                 // Outer indent context
                 startIndentContext(
                     fromAstNode = node,
-                    toAstNode = node.lastChildLeafOrSelf(),
-                    nodeIndent = currentIndent(),
                     childIndent = "",
                 )
 
@@ -678,15 +599,12 @@ public class IndentationRule :
                         nextToAstNode = startIndentContext(
                             fromAstNode = fromAstNode,
                             toAstNode = nextToAstNode,
-                            nodeIndent = currentIndent(),
                             childIndent = "",
                         ).fromASTNode.prevCodeLeaf()!!
                     }
                 startIndentContext(
                     fromAstNode = node,
                     toAstNode = nextToAstNode,
-                    nodeIndent = currentIndent(),
-                    childIndent = indentConfig.indent,
                 )
             }
 
@@ -694,8 +612,6 @@ public class IndentationRule :
                 // Outer indent context
                 startIndentContext(
                     fromAstNode = node,
-                    toAstNode = node.lastChildLeafOrSelf(),
-                    nodeIndent = currentIndent(),
                     childIndent = "",
                 )
 
@@ -707,8 +623,6 @@ public class IndentationRule :
                         nextToAstNode = startIndentContext(
                             fromAstNode = eq,
                             toAstNode = nextToAstNode,
-                            nodeIndent = currentIndent(),
-                            childIndent = indentConfig.indent,
                         ).fromASTNode.prevCodeLeaf()!!
                     }
 
@@ -718,8 +632,6 @@ public class IndentationRule :
                         startIndentContext(
                             fromAstNode = node,
                             toAstNode = nextToAstNode,
-                            nodeIndent = currentIndent(),
-                            childIndent = indentConfig.indent,
                             lastChildIndent = "",
                         )
                     }
@@ -766,17 +678,6 @@ public class IndentationRule :
             .lastOrNull()
             ?.elementType == CONDITION
 
-    private fun startIndentContextSameAsParent(
-        fromAstNode: ASTNode,
-        toAstNode: ASTNode = fromAstNode.lastChildLeafOrSelf(),
-    ) =
-        startIndentContext(
-            fromAstNode = fromAstNode,
-            toAstNode = toAstNode,
-            nodeIndent = currentIndent(),
-            childIndent = indentConfig.indent,
-        )
-
     private fun currentIndent() =
         indentContextStack
             .peekLast()
@@ -787,24 +688,19 @@ public class IndentationRule :
         toAstNode: ASTNode = fromAstNode.lastChildLeafOrSelf(),
         nodeIndent: String = currentIndent(),
         childIndent: String = indentConfig.indent,
-        firstChildIndent: String = childIndent, // TODO: fix order
+        firstChildIndent: String = childIndent,
         lastChildIndent: String = childIndent,
         unchanged: Boolean = true,
-        indentContextType: IndentContextType = NORMAL,
     ): IndentContext =
-        when (indentContextType) {
-            NORMAL,
-            NORMAL_EXCEPT_LAST_NODE ->
-                IndentContext(
-                    fromASTNode = fromAstNode,
-                    toASTNode = toAstNode,
-                    nodeIndent = nodeIndent,
-                    firstChildIndent = firstChildIndent,
-                    childIndent = childIndent,
-                    lastChildIndent = lastChildIndent,
-                    unchanged = unchanged,
-                )
-        }.also { newIndentContext ->
+        IndentContext(
+            fromASTNode = fromAstNode,
+            toASTNode = toAstNode,
+            nodeIndent = nodeIndent,
+            firstChildIndent = firstChildIndent,
+            childIndent = childIndent,
+            lastChildIndent = lastChildIndent,
+            unchanged = unchanged,
+        ).also { newIndentContext ->
             logger.trace {
                 val nodeIndentLevel = indentConfig.indentLevelFrom(newIndentContext.nodeIndent)
                 val childIndentLevel = indentConfig.indentLevelFrom(newIndentContext.childIndent)
@@ -1042,7 +938,7 @@ public class IndentationRule :
         val lastChildIndent: String,
 
         /**
-         * True when the indentation level for child nodes has been raised
+         * True when the indentation level of this context is activated
          */
         val unchanged: Boolean,
     ) {
@@ -1065,11 +961,6 @@ public class IndentationRule :
             } else {
                 nodeIndent + childIndent
             }
-    }
-
-    private enum class IndentContextType {
-        NORMAL,
-        NORMAL_EXCEPT_LAST_NODE
     }
 }
 
