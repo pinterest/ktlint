@@ -594,7 +594,7 @@ public class IndentationRule :
         startIndentContext(
             fromAstNode = node,
             toAstNode = nextToASTNode,
-            childIndent = ""
+            childIndent = "",
         )
     }
 
