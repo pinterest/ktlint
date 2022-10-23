@@ -188,13 +188,6 @@ public class IndentationRule :
                 )
 
             node.elementType == SECONDARY_CONSTRUCTOR -> {
-                // Outer indent context
-                startIndentContext(
-                    fromAstNode = node,
-                    childIndent = "",
-                )
-
-                // Inner indent contexts in reversed order
                 node
                     .findChildByType(CONSTRUCTOR_DELEGATION_CALL)
                     ?.let { constructorDelegationCall ->
@@ -234,13 +227,7 @@ public class IndentationRule :
             }
 
             node.elementType == IF -> {
-                // Outer indent context
-                var nextToAstNode = startIndentContext(
-                    fromAstNode = node,
-                    childIndent = "",
-                ).toASTNode
-
-                // Inner indent contexts in reversed order
+                var nextToAstNode = node.lastChildLeafOrSelf()
                 node
                     .findChildByType(THEN)
                     ?.lastChildLeafOrSelf()
@@ -317,13 +304,7 @@ public class IndentationRule :
             }
 
             node.elementType == VALUE_PARAMETER -> {
-                // Outer indent context
-                startIndentContext(
-                    fromAstNode = node,
-                    childIndent = "",
-                )
-
-                // Sub indent contexts in reversed order
+                // Inner indent contexts in reversed order
                 var nextToAstNode: ASTNode = node.lastChildLeafOrSelf()
                 node
                     .findChildByType(EQ)
@@ -355,13 +336,7 @@ public class IndentationRule :
             }
 
             node.elementType == FUN -> {
-                // Outer indent context
-                startIndentContext(
-                    fromAstNode = node,
-                    childIndent = "",
-                )
-
-                // Sub indent contexts in reversed order
+                // Inner indent contexts in reversed order
                 var nextToAstNode: ASTNode = node.lastChildLeafOrSelf()
                 val eqOrBlock =
                     node.findChildByType(EQ)
@@ -391,13 +366,7 @@ public class IndentationRule :
             }
 
             node.elementType == CLASS -> {
-                // Outer indent context
-                startIndentContext(
-                    fromAstNode = node,
-                    childIndent = "",
-                )
-
-                // Sub indent contexts in reversed order
+                // Inner indent contexts in reversed order
                 var nextToAstNode: ASTNode = node.lastChildLeafOrSelf()
                 node
                     .findChildByType(WHERE_KEYWORD)
@@ -473,12 +442,6 @@ public class IndentationRule :
             }
 
             node.elementType == WHEN_ENTRY -> {
-                // Outer indent context
-                startIndentContext(
-                    fromAstNode = node,
-                    childIndent = "",
-                )
-
                 // Inner indent contexts in reversed order
                 node
                     .findChildByType(ARROW)
@@ -526,12 +489,6 @@ public class IndentationRule :
             }
 
             node.elementType == PROPERTY_ACCESSOR -> {
-                // Outer indent context
-                startIndentContext(
-                    fromAstNode = node,
-                    childIndent = "",
-                )
-
                 // Inner indent contexts in reversed order
                 node
                     .findChildByType(EQ)
@@ -544,12 +501,6 @@ public class IndentationRule :
             }
 
             node.elementType == WHILE -> {
-                // Outer indent context
-                startIndentContext(
-                    fromAstNode = node,
-                    childIndent = "",
-                )
-
                 // Inner indent contexts in reversed order
                 node
                     .findChildByType(BODY)
@@ -582,12 +533,6 @@ public class IndentationRule :
             }
 
             node.elementType == NULLABLE_TYPE -> {
-                // Outer indent context
-                startIndentContext(
-                    fromAstNode = node,
-                    childIndent = "",
-                )
-
                 // Inner indent contexts in reversed order
                 var nextToAstNode = node.lastChildLeafOrSelf()
                 node
@@ -606,12 +551,6 @@ public class IndentationRule :
             }
 
             node.elementType == DESTRUCTURING_DECLARATION -> {
-                // Outer indent context
-                startIndentContext(
-                    fromAstNode = node,
-                    childIndent = "",
-                )
-
                 // Inner indent contexts in reversed order
                 var nextToAstNode = node.lastChildLeafOrSelf()
                 node
@@ -778,17 +717,17 @@ public class IndentationRule :
         nextLeaf
             ?.parent({ it.psi is PsiComment }, strict = false)
             ?.let { comment ->
-            if (text == "\n") {
-                processedButNoIndentationChangedNeeded()
-                return true // comments are allowed at column 0
+                if (text == "\n") {
+                    processedButNoIndentationChangedNeeded()
+                    return true // comments are allowed at column 0
+                }
+                if (comment.textContains('\n') && comment.elementType == BLOCK_COMMENT) {
+                    // FIXME: while we cannot assume any kind of layout inside a block comment,
+                    // `/*` and `*/` can still be indented
+                    processedButNoIndentationChangedNeeded()
+                    return true
+                }
             }
-            if (comment.textContains('\n') && comment.elementType == BLOCK_COMMENT) {
-                // FIXME: while we cannot assume any kind of layout inside a block comment,
-                // `/*` and `*/` can still be indented
-                processedButNoIndentationChangedNeeded()
-                return true
-            }
-        }
         return false
     }
 

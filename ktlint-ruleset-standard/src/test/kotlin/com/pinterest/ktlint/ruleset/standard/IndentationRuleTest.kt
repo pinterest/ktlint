@@ -1,18 +1,12 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import ch.qos.logback.classic.Level
-import ch.qos.logback.classic.Logger
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentSizeProperty
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentStyleProperty
-import com.pinterest.ktlint.core.initKtLintKLogger
-import com.pinterest.ktlint.core.setDefaultLoggerModifier
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE
 import com.pinterest.ktlint.test.SPACE
 import com.pinterest.ktlint.test.TAB
-import mu.KotlinLogging
 import org.ec4j.core.model.PropertyType
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
