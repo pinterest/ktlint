@@ -165,7 +165,7 @@ public class IndentationRule :
                         lastIndentContext.copy(activated = true),
                     )
                 }
-                visitWhiteSpace(node, autoCorrect, emit)
+                visitNewLineIndentation(node, autoCorrect, emit)
             }
 
             node.elementType == LONG_STRING_TEMPLATE_ENTRY &&
@@ -731,55 +731,72 @@ public class IndentationRule :
         }
     }
 
-    private fun visitWhiteSpace(
+    private fun visitNewLineIndentation(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
-        val text = node.text
-        val nodeIndent = text.substringAfterLast("\n")
-        val nextLeaf = node.nextLeaf()
-        val nextLeafElementType = nextLeaf?.elementType
-        if (nextLeafElementType == OPEN_QUOTE && nextLeaf.text == "\"\"\"" && nodeIndent.isEmpty()) {
-            node.processedButNoIndentationChangedNeeded()
-            return // raw strings (""") are allowed at column 0
-        }
-        val comment = nextLeaf?.parent({ it.psi is PsiComment }, strict = false)
-        if (comment != null) {
-            if (nodeIndent.isEmpty()) {
-                node.processedButNoIndentationChangedNeeded()
-                return // comments are allowed at column 0
-            }
-            if (comment.textContains('\n') && comment.elementType == BLOCK_COMMENT) {
-                // FIXME: while we cannot assume any kind of layout inside a block comment,
-                // `/*` and `*/` can still be indented
-                node.processedButNoIndentationChangedNeeded()
-                return
-            }
+        if (node.ignoreIndent()) {
+            return
         }
 
         val normalizedNodeIndent = node.normalizedIndent(emit)
         val expectedIndentation = node.expectedIndent()
-        if (normalizedNodeIndent != expectedIndentation) {
-            emit(
-                node.startOffset + text.length - nodeIndent.length,
-                "Unexpected indentation (${normalizedNodeIndent.length}) (should be ${expectedIndentation.length})",
-                true,
-            )
+        val text = node.text
+        val nodeIndent = text.substringAfterLast("\n")
+        if (nodeIndent != normalizedNodeIndent || normalizedNodeIndent != expectedIndentation) {
+            if (normalizedNodeIndent != expectedIndentation) {
+                emit(
+                    node.startOffset + text.length - nodeIndent.length,
+                    "Unexpected indentation (${normalizedNodeIndent.length}) (should be ${expectedIndentation.length})",
+                    true,
+                )
+            } else {
+                // Indentation was at correct level but contained invalid indent characters. This violation has already
+                // been emitted.
+            }
             logger.trace {
                 "Line $line: " + (if (!autoCorrect) "would have " else "") + "changed indentation to ${expectedIndentation.length} (from ${normalizedNodeIndent.length}) for ${node.elementType}: ${node.textWithEscapedTabAndNewline()}"
             }
-        } else {
-            node.processedButNoIndentationChangedNeeded()
-        }
-        if (autoCorrect) {
-            if (nodeIndent != normalizedNodeIndent || normalizedNodeIndent != expectedIndentation) {
+            if (autoCorrect) {
                 (node as LeafPsiElement).rawReplaceWithText(
                     text.substringBeforeLast("\n") + "\n" + expectedIndentation,
                 )
             }
+        } else {
+            node.processedButNoIndentationChangedNeeded()
         }
     }
+
+    private fun ASTNode.ignoreIndent(): Boolean {
+        val nextLeaf = nextLeaf()
+        if (text == "\n" && nextLeaf.isStartOfRawStringLiteral()) {
+            processedButNoIndentationChangedNeeded()
+            return true // raw strings (""") are allowed at column 0
+        }
+
+        nextLeaf
+            ?.parent({ it.psi is PsiComment }, strict = false)
+            ?.let { comment ->
+            if (text == "\n") {
+                processedButNoIndentationChangedNeeded()
+                return true // comments are allowed at column 0
+            }
+            if (comment.textContains('\n') && comment.elementType == BLOCK_COMMENT) {
+                // FIXME: while we cannot assume any kind of layout inside a block comment,
+                // `/*` and `*/` can still be indented
+                processedButNoIndentationChangedNeeded()
+                return true
+            }
+        }
+        return false
+    }
+
+    private fun ASTNode?.isStartOfRawStringLiteral(): Boolean =
+        this != null && this.elementType == OPEN_QUOTE && this.text == "\"\"\""
+
+    private fun ASTNode.processedButNoIndentationChangedNeeded() =
+        logger.trace { "No indentation change required for $elementType: ${textWithEscapedTabAndNewline()}" }
 
     private fun ASTNode.expectedIndent(): String {
         val lastIndexContext = indentContextStack.peekLast()
@@ -970,9 +987,6 @@ private fun String.textWithEscapedTabAndNewline(): String {
                 .replace("\n", "\\n"),
         ).plus(suffix)
 }
-
-private fun ASTNode.processedButNoIndentationChangedNeeded() =
-    logger.trace { "No indentation change required for $elementType: ${textWithEscapedTabAndNewline()}" }
 
 private class StringTemplateIndenter(private val indentConfig: IndentConfig) {
     fun visitClosingQuotes(
