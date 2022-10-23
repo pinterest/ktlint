@@ -43,6 +43,7 @@ import com.pinterest.ktlint.core.ast.ElementType.LONG_STRING_TEMPLATE_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.LPAR
 import com.pinterest.ktlint.core.ast.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.core.ast.ElementType.NULLABLE_TYPE
+import com.pinterest.ktlint.core.ast.ElementType.OBJECT_DECLARATION
 import com.pinterest.ktlint.core.ast.ElementType.OPEN_QUOTE
 import com.pinterest.ktlint.core.ast.ElementType.OPERATION_REFERENCE
 import com.pinterest.ktlint.core.ast.ElementType.PARENTHESIZED
@@ -224,6 +225,9 @@ public class IndentationRule :
 
             node.elementType == CLASS ->
                 visitClass(node)
+
+            node.elementType == OBJECT_DECLARATION ->
+                visitObjectDeclaration(node)
 
             node.elementType == BINARY_EXPRESSION ->
                 visitBinaryExpression(node)
@@ -443,6 +447,26 @@ public class IndentationRule :
                     toAstNode = typeConstraintList.lastChildLeafOrSelf(),
                 ).prevCodeLeaf()
             }
+        node
+            .findChildByType(SUPER_TYPE_LIST)
+            ?.let { superTypeList ->
+                nextToAstNode = startIndentContext(
+                    fromAstNode = superTypeList.getPrecedingLeadingCommentsAndWhitespaces(),
+                    toAstNode = superTypeList.lastChildLeafOrSelf(),
+                ).prevCodeLeaf()
+            }
+
+        // Leading annotations and comments should be indented at same level as class itself
+        startIndentContext(
+            fromAstNode = node,
+            toAstNode = nextToAstNode,
+            childIndent = "",
+        )
+    }
+
+    private fun visitObjectDeclaration(node: ASTNode) {
+        // Inner indent contexts in reversed order
+        var nextToAstNode: ASTNode = node.lastChildLeafOrSelf()
         node
             .findChildByType(SUPER_TYPE_LIST)
             ?.let { superTypeList ->

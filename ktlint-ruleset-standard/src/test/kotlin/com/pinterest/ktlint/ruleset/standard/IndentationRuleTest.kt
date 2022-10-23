@@ -4548,6 +4548,21 @@ internal class IndentationRuleTest {
         indentationRuleAssertThat(code).hasNoLintViolations()
     }
 
+    @Test
+    fun `Given an object declaration with a super type list`() {
+        val code =
+            """
+            class Foo {
+                companion object FooBar :
+                    Foo,
+                    Bar {
+                    // Do something
+                }
+            }
+            """.trimIndent()
+        indentationRuleAssertThat(code).hasNoLintViolations()
+    }
+
     private companion object {
         val INDENT_STYLE_TAB = indentStyleProperty to PropertyType.IndentStyleValue.tab
     }
