@@ -67,6 +67,7 @@ import com.pinterest.ktlint.core.ast.ElementType.TYPE_CONSTRAINT
 import com.pinterest.ktlint.core.ast.ElementType.TYPE_CONSTRAINT_LIST
 import com.pinterest.ktlint.core.ast.ElementType.TYPE_PARAMETER_LIST
 import com.pinterest.ktlint.core.ast.ElementType.TYPE_REFERENCE
+import com.pinterest.ktlint.core.ast.ElementType.USER_TYPE
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_ARGUMENT_LIST
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER_LIST
@@ -525,14 +526,20 @@ public class IndentationRule :
     }
 
     private fun visitWhen(node: ASTNode) {
+        var nextToASTNode = node.lastChildLeafOrSelf()
         node
             .findChildByType(LPAR)
             ?.let { lpar ->
-                startIndentContext(
+                nextToASTNode = startIndentContext(
                     fromAstNode = lpar,
                     toAstNode = node.findChildByType(RPAR)!!,
-                )
+                    lastChildIndent = ""
+                ).prevCodeLeaf()
             }
+        startIndentContext(
+            fromAstNode = node,
+            toAstNode = nextToASTNode
+        )
     }
 
     private fun visitWhenEntry(node: ASTNode) {

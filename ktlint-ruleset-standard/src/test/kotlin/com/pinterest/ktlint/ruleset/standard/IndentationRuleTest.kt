@@ -4594,6 +4594,25 @@ internal class IndentationRuleTest {
         indentationRuleAssertThat(code).hasNoLintViolations()
     }
 
+    @Test
+    fun `Given a when statement with a multiline condition`() {
+        val code =
+            """
+            fun foo() {
+                return when (
+                    bar()
+                        .filter { it > 0 }
+                        .min()
+                ) {
+                    1 -> "A"
+                    2 -> "B"
+                    else -> "C"
+                }
+            }
+            """.trimIndent()
+        indentationRuleAssertThat(code).hasNoLintViolations()
+    }
+
     private companion object {
         val INDENT_STYLE_TAB = indentStyleProperty to PropertyType.IndentStyleValue.tab
     }
