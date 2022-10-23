@@ -25,6 +25,7 @@ import com.pinterest.ktlint.core.ast.ElementType.DELEGATED_SUPER_TYPE_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.DESTRUCTURING_DECLARATION
 import com.pinterest.ktlint.core.ast.ElementType.DOT
 import com.pinterest.ktlint.core.ast.ElementType.DOT_QUALIFIED_EXPRESSION
+import com.pinterest.ktlint.core.ast.ElementType.ELSE
 import com.pinterest.ktlint.core.ast.ElementType.ELVIS
 import com.pinterest.ktlint.core.ast.ElementType.EQ
 import com.pinterest.ktlint.core.ast.ElementType.FOR
@@ -174,8 +175,8 @@ public class IndentationRule :
                 node.elementType == LONG_STRING_TEMPLATE_ENTRY ||
                 node.elementType == SUPER_TYPE_CALL_ENTRY ||
                 node.elementType == STRING_TEMPLATE ||
-                node.elementType == VALUE_ARGUMENT_LIST ||
-                node.elementType == WHEN ->
+                node.elementType == TYPE_REFERENCE ||
+                node.elementType == VALUE_ARGUMENT_LIST ->
                 startIndentContext(
                     fromAstNode = node,
                     lastChildIndent = "",
@@ -247,6 +248,9 @@ public class IndentationRule :
                 node.nextCodeSibling()?.elementType == CLOSING_QUOTE ->
                 visitWhiteSpaceBeforeClosingQuote(node, autoCorrect, emit)
 
+            node.elementType == WHEN ->
+                visitWhen(node)
+
             node.elementType == WHEN_ENTRY ->
                 visitWhenEntry(node)
 
@@ -301,19 +305,27 @@ public class IndentationRule :
     private fun visitIf(node: ASTNode) {
         var nextToAstNode = node.lastChildLeafOrSelf()
         node
+            .findChildByType(ELSE)
+            ?.let { fromAstNode ->
+                nextToAstNode = startIndentContext(
+                    fromAstNode = fromAstNode,
+                    toAstNode = nextToAstNode,
+                ).prevCodeLeaf()
+            }
+
+        node
             .findChildByType(THEN)
             ?.lastChildLeafOrSelf()
-            ?.nextCodeLeaf()
+            ?.nextLeaf()
             ?.let { nodeAfterThenBlock ->
                 nextToAstNode = startIndentContext(
                     fromAstNode = nodeAfterThenBlock,
                     toAstNode = nextToAstNode,
-                    firstChildIndent = "", // The "else" keyword should not be indented
+                    childIndent = "",
                 ).prevCodeLeaf()
             }
         node
             .findChildByType(RPAR)
-            ?.lastChildLeafOrSelf()
             ?.nextCodeLeaf()
             ?.let { nodeAfterConditionBlock ->
                 nextToAstNode = startIndentContext(
@@ -510,6 +522,17 @@ public class IndentationRule :
             fromAstNode = node,
             toAstNode = node.treeParent.lastChildLeafOrSelf(),
         )
+    }
+
+    private fun visitWhen(node: ASTNode) {
+        node
+            .findChildByType(LPAR)
+            ?.let { lpar ->
+                startIndentContext(
+                    fromAstNode = lpar,
+                    toAstNode = node.findChildByType(RPAR)!!,
+                )
+            }
     }
 
     private fun visitWhenEntry(node: ASTNode) {

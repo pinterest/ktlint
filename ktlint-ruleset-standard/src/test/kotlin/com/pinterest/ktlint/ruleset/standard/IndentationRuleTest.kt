@@ -4563,6 +4563,37 @@ internal class IndentationRuleTest {
         indentationRuleAssertThat(code).hasNoLintViolations()
     }
 
+    @Test
+    fun `Given an if statement with multiple EOL comments between end of then and else`() {
+        val code =
+            """
+            fun foo() {
+                if (true) {
+                    // Do something
+                } // Some comment 1
+                // Some comment 2
+                else {
+                    // Do something
+                }
+            }
+            """.trimIndent()
+        indentationRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Given a type reference preceded by an annotation or comment`() {
+        val code =
+            """
+            class FooBar :
+                @Suppress("DEPRECATION")
+                Foo,
+                // Some comment
+                Bar {
+            }
+            """.trimIndent()
+        indentationRuleAssertThat(code).hasNoLintViolations()
+    }
+
     private companion object {
         val INDENT_STYLE_TAB = indentStyleProperty to PropertyType.IndentStyleValue.tab
     }
