@@ -197,12 +197,11 @@ public class IndentationRule :
                 )
 
                 // Inner indent contexts in reversed order
-                var nextToAstNode = node.lastChildLeafOrSelf()
                 node
                     .findChildByType(CONSTRUCTOR_DELEGATION_CALL)
                     ?.let { constructorDelegationCall ->
                         val fromAstNode = node.skipLeadingWhitespaceCommentsAndAnnotations()
-                        nextToAstNode = startIndentContext(
+                        val nextToAstNode = startIndentContext(
                             fromAstNode = constructorDelegationCall,
                         ).fromASTNode.prevCodeLeaf()!!
 
@@ -640,11 +639,6 @@ public class IndentationRule :
             else -> {
                 logger.trace { "No processing for ${node.elementType}: ${node.textWithEscapedTabAndNewline()}" }
             }
-        }
-
-        // Add node to stack only when it has not been pushed yet
-        if (indentContextStack.isEmpty()) {
-            indentContextStack.addLast(startNoIndentZone(node))
         }
     }
 
