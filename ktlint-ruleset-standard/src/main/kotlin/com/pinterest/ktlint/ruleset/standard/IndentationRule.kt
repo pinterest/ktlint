@@ -156,17 +156,15 @@ public class IndentationRule :
             indentContextStack.addLast(startNoIndentZone(node))
         }
 
-        if (node.isWhiteSpaceWithNewline()) {
-            line++
-            if (indentContextStack.peekLast()?.activated == false) {
-                val lastIndentContext = indentContextStack.removeLast()
-                indentContextStack.addLast(
-                    lastIndentContext.copy(activated = true),
-                )
-            }
-        }
         when {
             node.isWhiteSpaceWithNewline() -> {
+                line++
+                if (indentContextStack.peekLast()?.activated == false) {
+                    val lastIndentContext = indentContextStack.removeLast()
+                    indentContextStack.addLast(
+                        lastIndentContext.copy(activated = true),
+                    )
+                }
                 visitWhiteSpace(node, autoCorrect, emit)
             }
 
