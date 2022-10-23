@@ -158,10 +158,10 @@ public class IndentationRule :
 
         if (node.isWhiteSpaceWithNewline()) {
             line++
-            if (indentContextStack.peekLast()?.unchanged == true) {
+            if (indentContextStack.peekLast()?.activated == false) {
                 val lastIndentContext = indentContextStack.removeLast()
                 indentContextStack.addLast(
-                    lastIndentContext.copy(unchanged = false),
+                    lastIndentContext.copy(activated = true),
                 )
             }
         }
@@ -690,7 +690,6 @@ public class IndentationRule :
         childIndent: String = indentConfig.indent,
         firstChildIndent: String = childIndent,
         lastChildIndent: String = childIndent,
-        unchanged: Boolean = true,
     ): IndentContext =
         IndentContext(
             fromASTNode = fromAstNode,
@@ -699,7 +698,6 @@ public class IndentationRule :
             firstChildIndent = firstChildIndent,
             childIndent = childIndent,
             lastChildIndent = lastChildIndent,
-            unchanged = unchanged,
         ).also { newIndentContext ->
             logger.trace {
                 val nodeIndentLevel = indentConfig.indentLevelFrom(newIndentContext.nodeIndent)
@@ -890,7 +888,7 @@ public class IndentationRule :
             firstChildIndent = "",
             childIndent = "",
             lastChildIndent = "",
-            unchanged = false,
+            activated = true,
         )
 
     private companion object {
@@ -940,7 +938,7 @@ public class IndentationRule :
         /**
          * True when the indentation level of this context is activated
          */
-        val unchanged: Boolean,
+        val activated: Boolean = false,
     ) {
         val nodes: String
             get() =
@@ -956,10 +954,10 @@ public class IndentationRule :
                     .textWithEscapedTabAndNewline()
 
         fun indent() =
-            if (unchanged) {
-                nodeIndent
-            } else {
+            if (activated) {
                 nodeIndent + childIndent
+            } else {
+                nodeIndent
             }
     }
 }
