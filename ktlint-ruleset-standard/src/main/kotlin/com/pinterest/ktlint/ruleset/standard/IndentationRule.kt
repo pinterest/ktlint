@@ -168,14 +168,6 @@ public class IndentationRule :
                 visitNewLineIndentation(node, autoCorrect, emit)
             }
 
-            node.elementType == LONG_STRING_TEMPLATE_ENTRY &&
-                node.treeParent.prevSibling { !it.isPartOfComment() }?.isWhiteSpaceWithNewline() == true -> {
-                startIndentContext(
-                    fromAstNode = node,
-                    lastChildIndent = "",
-                )
-            }
-
             node.elementType == CLASS_BODY ||
                 node.elementType == LONG_STRING_TEMPLATE_ENTRY ||
                 node.elementType == SUPER_TYPE_CALL_ENTRY ||
@@ -187,105 +179,30 @@ public class IndentationRule :
                     lastChildIndent = "",
                 )
 
-            node.elementType == SECONDARY_CONSTRUCTOR -> {
-                node
-                    .findChildByType(CONSTRUCTOR_DELEGATION_CALL)
-                    ?.let { constructorDelegationCall ->
-                        val fromAstNode = node.skipLeadingWhitespaceCommentsAndAnnotations()
-                        val nextToAstNode = startIndentContext(
-                            fromAstNode = constructorDelegationCall,
-                        ).fromASTNode.prevCodeLeaf()!!
-
-                        // Leading annotations and comments should be indented at same level as constructor itself
-                        if (fromAstNode != node.nextLeaf()) {
-                            startIndentContext(
-                                fromAstNode = node,
-                                toAstNode = nextToAstNode,
-                                childIndent = "",
-                            )
-                        }
-                    }
-            }
+            node.elementType == SECONDARY_CONSTRUCTOR ->
+                visitSecondaryConstructor(node)
 
             node.elementType == PARENTHESIZED &&
-                node.treeParent.treeParent.elementType != IF -> {
+                node.treeParent.treeParent.elementType != IF ->
                 startIndentContext(node)
-            }
 
             node.elementType == BINARY_WITH_TYPE ||
                 node.elementType == SUPER_TYPE_ENTRY ||
                 node.elementType == TYPE_ARGUMENT_LIST ||
-                node.elementType == TYPE_PARAMETER_LIST -> {
+                node.elementType == TYPE_PARAMETER_LIST ->
                 startIndentContext(node)
-            }
 
-            node.elementType == DELEGATED_SUPER_TYPE_ENTRY -> {
+            node.elementType == DELEGATED_SUPER_TYPE_ENTRY ->
                 startIndentContext(
                     fromAstNode = node,
                     childIndent = "",
                 )
-            }
 
-            node.elementType == IF -> {
-                var nextToAstNode = node.lastChildLeafOrSelf()
-                node
-                    .findChildByType(THEN)
-                    ?.lastChildLeafOrSelf()
-                    ?.nextCodeLeaf()
-                    ?.let { nodeAfterThenBlock ->
-                        nextToAstNode = startIndentContext(
-                            fromAstNode = nodeAfterThenBlock,
-                            toAstNode = nextToAstNode,
-                            firstChildIndent = "", // The "else" keyword should not be indented
-                        ).fromASTNode.prevCodeLeaf()!!
-                    }
-                node
-                    .findChildByType(RPAR)
-                    ?.lastChildLeafOrSelf()
-                    ?.nextCodeLeaf()
-                    ?.let { nodeAfterConditionBlock ->
-                        nextToAstNode = startIndentContext(
-                            fromAstNode = nodeAfterConditionBlock,
-                            toAstNode = nextToAstNode,
-                        ).fromASTNode.prevCodeLeaf()!!
-                    }
-                startIndentContext(
-                    fromAstNode = node,
-                    toAstNode = nextToAstNode,
-                    lastChildIndent = "", // No indent for the RPAR
-                )
-            }
+            node.elementType == IF ->
+                visitIf(node)
 
-            node.elementType == LBRACE -> {
-                // Outer indent context
-                val rbrace = requireNotNull(
-                    node.nextSibling { it.elementType == RBRACE },
-                ) { "Can not find matching rbrace" }
-                startIndentContext(
-                    fromAstNode = node,
-                    toAstNode = rbrace,
-                    firstChildIndent = "",
-                    lastChildIndent = "",
-                )
-
-                // Inner indent context in reversed order
-                node
-                    .treeParent
-                    ?.takeIf { it.elementType == FUNCTION_LITERAL }
-                    ?.findChildByType(ARROW)
-                    ?.let { arrow ->
-                        startIndentContext(
-                            fromAstNode = arrow,
-                            toAstNode = rbrace,
-                            lastChildIndent = "",
-                        )
-                        startIndentContext(
-                            fromAstNode = node,
-                            toAstNode = arrow.prevCodeLeaf()!!,
-                            childIndent = indentConfig.indent.repeat(2),
-                        )
-                    }
-            }
+            node.elementType == LBRACE ->
+                visitLbrace(node)
 
             node.elementType == VALUE_PARAMETER_LIST &&
                 node.treeParent.elementType != FUNCTION_LITERAL ->
@@ -294,132 +211,21 @@ public class IndentationRule :
                     lastChildIndent = "",
                 )
 
-            node.elementType == LPAR && node.nextCodeSibling()?.elementType == CONDITION -> {
-                startIndentContext(
-                    fromAstNode = requireNotNull(node.nextLeaf()), // Allow to pickup whitespace before condition
-                    toAstNode = requireNotNull(node.nextCodeSibling()).lastChildLeafOrSelf(), // Ignore whitespace after condition but before rpar
-                    nodeIndent = currentIndent() + indentConfig.indent,
-                    childIndent = "",
-                )
-            }
+            node.elementType == LPAR &&
+                node.nextCodeSibling()?.elementType == CONDITION ->
+                visitLparBeforeCondition(node)
 
-            node.elementType == VALUE_PARAMETER -> {
-                // Inner indent contexts in reversed order
-                var nextToAstNode: ASTNode = node.lastChildLeafOrSelf()
-                node
-                    .findChildByType(EQ)
-                    ?.let { fromAstNode ->
-                        nextToAstNode = startIndentContext(
-                            fromAstNode = fromAstNode,
-                            toAstNode = nextToAstNode,
-                        ).fromASTNode.prevLeaf()!!
-                    }
+            node.elementType == VALUE_PARAMETER ->
+                visitValueParameter(node)
 
-                // Leading annotations and comments should be indented at same level as constructor itself
-                val fromAstNode = node.skipLeadingWhitespaceCommentsAndAnnotations()
-                if (fromAstNode != node.firstChildNode &&
-                    node.prevSibling { it.isWhiteSpaceWithNewline() } == null &&
-                    node == node.treeParent.findChildByType(VALUE_PARAMETER)
-                ) {
-                    nextToAstNode = startIndentContext(
-                        fromAstNode = fromAstNode,
-                        toAstNode = nextToAstNode,
-                    ).fromASTNode.prevLeaf { !it.isWhiteSpace() }!!
-                } else {
-                    startIndentContext(
-                        fromAstNode = node,
-                        toAstNode = nextToAstNode,
-                        childIndent = "",
-                    )
-                }
-                Unit
-            }
+            node.elementType == FUN ->
+                visitFun(node)
 
-            node.elementType == FUN -> {
-                // Inner indent contexts in reversed order
-                var nextToAstNode: ASTNode = node.lastChildLeafOrSelf()
-                val eqOrBlock =
-                    node.findChildByType(EQ)
-                        ?: node.findChildByType(BLOCK)
-                eqOrBlock?.let {
-                    nextToAstNode = startIndentContext(
-                        fromAstNode = eqOrBlock,
-                        toAstNode = nextToAstNode,
-                    ).fromASTNode.prevLeaf()!!
-                }
+            node.elementType == CLASS ->
+                visitClass(node)
 
-                node
-                    .findChildByType(TYPE_REFERENCE)
-                    ?.let { typeReference ->
-                        nextToAstNode = startIndentContext(
-                            fromAstNode = typeReference.getPrecedingLeadingCommentsAndWhitespaces(),
-                            toAstNode = nextToAstNode,
-                        ).fromASTNode.prevLeaf()!!
-                    }
-
-                // Leading annotations and comments should be indented at same level as function itself
-                startIndentContext(
-                    fromAstNode = node,
-                    toAstNode = nextToAstNode,
-                    childIndent = "",
-                )
-            }
-
-            node.elementType == CLASS -> {
-                // Inner indent contexts in reversed order
-                var nextToAstNode: ASTNode = node.lastChildLeafOrSelf()
-                node
-                    .findChildByType(WHERE_KEYWORD)
-                    ?.let { where ->
-                        val typeConstraintList =
-                            requireNotNull(
-                                where.nextCodeSibling(),
-                            ) { "Can not find code sibling after WHERE in CLASS" }
-                        require(
-                            typeConstraintList.elementType == TYPE_CONSTRAINT_LIST,
-                        ) { "Code sibling after WHERE in CLASS is not a TYPE_CONSTRAINT_LIST" }
-                        nextToAstNode = startIndentContext(
-                            fromAstNode = where.getPrecedingLeadingCommentsAndWhitespaces(),
-                            toAstNode = typeConstraintList.lastChildLeafOrSelf(),
-                        ).fromASTNode.prevCodeLeaf()!!
-                    }
-                node
-                    .findChildByType(SUPER_TYPE_LIST)
-                    ?.let { superTypeList ->
-                        nextToAstNode = startIndentContext(
-                            fromAstNode = superTypeList.getPrecedingLeadingCommentsAndWhitespaces(),
-                            toAstNode = superTypeList.lastChildLeafOrSelf(),
-                        ).fromASTNode.prevCodeLeaf()!!
-                    }
-
-                // Leading annotations and comments should be indented at same level as class itself
-                startIndentContext(
-                    fromAstNode = node,
-                    toAstNode = nextToAstNode,
-                    childIndent = "",
-                )
-            }
-
-            node.elementType == BINARY_EXPRESSION -> {
-                if (isPartOfBinaryExpressionWrappedInCondition(node)) {
-                    // Complex binary expression are nested in such a way that the indent context of the condition
-                    // wrapper is not the last node on the stack
-                    val conditionIndentContext =
-                        indentContextStack.last { it.fromASTNode.elementType != BINARY_EXPRESSION }
-                    // Create new indent context for the remainder (operator and right-hand side) of the binary expression
-                    startIndentContext(
-                        fromAstNode = node.findChildByType(OPERATION_REFERENCE)!!,
-                        toAstNode = node.lastChildLeafOrSelf(),
-                        nodeIndent = conditionIndentContext.nodeIndent,
-                        childIndent = conditionIndentContext.childIndent,
-                    )
-                    startIndentContext(node.firstChildNode)
-                } else if (node.treeParent?.elementType != BINARY_EXPRESSION ||
-                    node.findChildByType(OPERATION_REFERENCE)?.firstChildNode?.elementType == ELVIS
-                ) {
-                    startIndentContext(node)
-                }
-            }
+            node.elementType == BINARY_EXPRESSION ->
+                visitBinaryExpression(node)
 
             node.elementType == DOT_QUALIFIED_EXPRESSION ||
                 node.elementType == SAFE_ACCESS_EXPRESSION -> {
@@ -429,154 +235,384 @@ public class IndentationRule :
             }
 
             node.elementType == IDENTIFIER &&
-                node.treeParent.elementType == PROPERTY -> {
-                startIndentContext(
-                    fromAstNode = node,
-                    toAstNode = node.treeParent.lastChildLeafOrSelf(),
-                )
-            }
+                node.treeParent.elementType == PROPERTY ->
+                visitIdentifierInProperty(node)
 
             node.elementType == LITERAL_STRING_TEMPLATE_ENTRY &&
-                node.nextCodeSibling()?.elementType == CLOSING_QUOTE -> {
+                node.nextCodeSibling()?.elementType == CLOSING_QUOTE ->
                 visitWhiteSpaceBeforeClosingQuote(node, autoCorrect, emit)
-            }
 
-            node.elementType == WHEN_ENTRY -> {
-                // Inner indent contexts in reversed order
-                node
-                    .findChildByType(ARROW)
-                    ?.let { arrow ->
-                        val outerIndent =
-                            if (arrow.nextLeaf()?.elementType == BLOCK) {
-                                ""
-                            } else {
-                                indentConfig.indent
-                            }
-                        startIndentContext(
-                            fromAstNode = arrow.nextLeaf()!!,
-                            toAstNode = node.lastChildLeafOrSelf(),
-                            firstChildIndent = outerIndent,
-                            lastChildIndent = outerIndent,
-                        )
-                        startIndentContext(
-                            fromAstNode = node,
-                            toAstNode = arrow,
-                            childIndent = "",
-                        )
-                    }
-            }
+            node.elementType == WHEN_ENTRY ->
+                visitWhenEntry(node)
 
             node.elementType == WHERE_KEYWORD &&
-                node.nextCodeSibling()?.elementType == TYPE_CONSTRAINT_LIST -> {
-                startIndentContext(
-                    fromAstNode = node,
-                    toAstNode = node.nextCodeSibling()?.lastChildLeafOrSelf()!!,
-                    childIndent = TYPE_CONSTRAINT_CONTINUATION_INDENT,
-                )
-            }
+                node.nextCodeSibling()?.elementType == TYPE_CONSTRAINT_LIST ->
+                visitWhereKeywordBeforeTypeConstraintList(node)
 
-            node.elementType == KDOC -> {
-                node
-                    .findChildByType(KDOC_START)
-                    ?.nextLeaf()
-                    ?.let { fromAstNode ->
-                        startIndentContext(
-                            fromAstNode = fromAstNode,
-                            toAstNode = node.lastChildLeafOrSelf(),
-                            childIndent = KDOC_CONTINUATION_INDENT,
-                        )
-                    }
-            }
+            node.elementType == KDOC ->
+                visitKdoc(node)
 
-            node.elementType == PROPERTY_ACCESSOR -> {
-                // Inner indent contexts in reversed order
-                node
-                    .findChildByType(EQ)
-                    ?.let { fromAstNode ->
-                        startIndentContext(
-                            fromAstNode = fromAstNode,
-                            toAstNode = node.lastChildLeafOrSelf(),
-                        )
-                    }
-            }
+            node.elementType == PROPERTY_ACCESSOR ->
+                visitPropertyAccessor(node)
 
-            node.elementType == WHILE -> {
-                // Inner indent contexts in reversed order
-                node
-                    .findChildByType(BODY)
-                    ?.takeIf { it.nextCodeLeaf()?.elementType != LBRACE }
-                    ?.let { rpar ->
-                        startIndentContext(
-                            fromAstNode = rpar,
-                            toAstNode = node.lastChildLeafOrSelf(),
-                        )
-                    }
-                node
-                    .findChildByType(CONDITION)
-                    ?.let { fromAstNode ->
-                        startIndentContext(fromAstNode)
-                    }
-            }
+            node.elementType == WHILE ->
+                visitWhile(node)
 
-            node.elementType == LBRACKET -> {
-                node
-                    .treeParent
-                    .findChildByType(RBRACKET)
-                    ?.let { rbracket ->
-                        startIndentContext(
-                            fromAstNode = node,
-                            toAstNode = rbracket,
-                            firstChildIndent = "",
-                            lastChildIndent = "",
-                        )
-                    }
-            }
+            node.elementType == LBRACKET ->
+                visitLBracket(node)
 
-            node.elementType == NULLABLE_TYPE -> {
-                // Inner indent contexts in reversed order
-                var nextToAstNode = node.lastChildLeafOrSelf()
-                node
-                    .findChildByType(RPAR)
-                    ?.let { fromAstNode ->
-                        nextToAstNode = startIndentContext(
-                            fromAstNode = fromAstNode,
-                            toAstNode = nextToAstNode,
-                            childIndent = "",
-                        ).fromASTNode.prevCodeLeaf()!!
-                    }
-                startIndentContext(
-                    fromAstNode = node,
-                    toAstNode = nextToAstNode,
-                )
-            }
+            node.elementType == NULLABLE_TYPE ->
+                visitNullableType(node)
 
-            node.elementType == DESTRUCTURING_DECLARATION -> {
-                // Inner indent contexts in reversed order
-                var nextToAstNode = node.lastChildLeafOrSelf()
-                node
-                    .findChildByType(EQ)
-                    ?.let { eq ->
-                        nextToAstNode = startIndentContext(
-                            fromAstNode = eq,
-                            toAstNode = nextToAstNode,
-                        ).fromASTNode.prevCodeLeaf()!!
-                    }
-
-                node
-                    .findChildByType(RPAR)
-                    ?.let {
-                        startIndentContext(
-                            fromAstNode = node,
-                            toAstNode = nextToAstNode,
-                            lastChildIndent = "",
-                        )
-                    }
-            }
+            node.elementType == DESTRUCTURING_DECLARATION -> visitDestructuringDeclaration(node)
 
             else -> {
                 logger.trace { "No processing for ${node.elementType}: ${node.textWithEscapedTabAndNewline()}" }
             }
         }
+    }
+
+    private fun visitSecondaryConstructor(node: ASTNode) {
+        node
+            .findChildByType(CONSTRUCTOR_DELEGATION_CALL)
+            ?.let { constructorDelegationCall ->
+                val fromAstNode = node.skipLeadingWhitespaceCommentsAndAnnotations()
+                val nextToAstNode = startIndentContext(
+                    fromAstNode = constructorDelegationCall,
+                ).prevCodeLeaf()
+
+                // Leading annotations and comments should be indented at same level as constructor itself
+                if (fromAstNode != node.nextLeaf()) {
+                    startIndentContext(
+                        fromAstNode = node,
+                        toAstNode = nextToAstNode,
+                        childIndent = "",
+                    )
+                }
+            }
+    }
+
+    private fun visitIf(node: ASTNode) {
+        var nextToAstNode = node.lastChildLeafOrSelf()
+        node
+            .findChildByType(THEN)
+            ?.lastChildLeafOrSelf()
+            ?.nextCodeLeaf()
+            ?.let { nodeAfterThenBlock ->
+                nextToAstNode = startIndentContext(
+                    fromAstNode = nodeAfterThenBlock,
+                    toAstNode = nextToAstNode,
+                    firstChildIndent = "", // The "else" keyword should not be indented
+                ).prevCodeLeaf()
+            }
+        node
+            .findChildByType(RPAR)
+            ?.lastChildLeafOrSelf()
+            ?.nextCodeLeaf()
+            ?.let { nodeAfterConditionBlock ->
+                nextToAstNode = startIndentContext(
+                    fromAstNode = nodeAfterConditionBlock,
+                    toAstNode = nextToAstNode,
+                ).prevCodeLeaf()
+            }
+        startIndentContext(
+            fromAstNode = node,
+            toAstNode = nextToAstNode,
+            lastChildIndent = "", // No indent for the RPAR
+        )
+    }
+
+    private fun visitLbrace(node: ASTNode) {
+        // Outer indent context
+        val rbrace = requireNotNull(
+            node.nextSibling { it.elementType == RBRACE },
+        ) { "Can not find matching rbrace" }
+        startIndentContext(
+            fromAstNode = node,
+            toAstNode = rbrace,
+            firstChildIndent = "",
+            lastChildIndent = "",
+        )
+
+        // Inner indent context in reversed order
+        node
+            .treeParent
+            ?.takeIf { it.elementType == FUNCTION_LITERAL }
+            ?.findChildByType(ARROW)
+            ?.let { arrow ->
+                startIndentContext(
+                    fromAstNode = arrow,
+                    toAstNode = rbrace,
+                    lastChildIndent = "",
+                )
+                startIndentContext(
+                    fromAstNode = node,
+                    toAstNode = arrow.prevCodeLeaf()!!,
+                    childIndent = indentConfig.indent.repeat(2),
+                )
+            }
+    }
+
+    private fun visitLparBeforeCondition(node: ASTNode) {
+        startIndentContext(
+            fromAstNode = requireNotNull(node.nextLeaf()), // Allow to pickup whitespace before condition
+            toAstNode = requireNotNull(node.nextCodeSibling()).lastChildLeafOrSelf(), // Ignore whitespace after condition but before rpar
+            nodeIndent = currentIndent() + indentConfig.indent,
+            childIndent = "",
+        )
+    }
+
+    private fun visitValueParameter(node: ASTNode) {
+        // Inner indent contexts in reversed order
+        var nextToAstNode: ASTNode = node.lastChildLeafOrSelf()
+        node
+            .findChildByType(EQ)
+            ?.let { fromAstNode ->
+                nextToAstNode = startIndentContext(
+                    fromAstNode = fromAstNode,
+                    toAstNode = nextToAstNode,
+                ).prevCodeLeaf()
+            }
+
+        // Leading annotations and comments should be indented at same level as constructor itself
+        val fromAstNode = node.skipLeadingWhitespaceCommentsAndAnnotations()
+        if (fromAstNode != node.firstChildNode &&
+            node.prevSibling { it.isWhiteSpaceWithNewline() } == null &&
+            node == node.treeParent.findChildByType(VALUE_PARAMETER)
+        ) {
+            nextToAstNode = startIndentContext(
+                fromAstNode = fromAstNode,
+                toAstNode = nextToAstNode,
+            ).fromASTNode.prevLeaf { !it.isWhiteSpace() }!!
+        } else {
+            startIndentContext(
+                fromAstNode = node,
+                toAstNode = nextToAstNode,
+                childIndent = "",
+            )
+        }
+    }
+
+    private fun visitFun(node: ASTNode) {
+        // Inner indent contexts in reversed order
+        var nextToAstNode: ASTNode = node.lastChildLeafOrSelf()
+        val eqOrBlock =
+            node.findChildByType(EQ)
+                ?: node.findChildByType(BLOCK)
+        eqOrBlock?.let {
+            nextToAstNode = startIndentContext(
+                fromAstNode = eqOrBlock,
+                toAstNode = nextToAstNode,
+            ).prevCodeLeaf()
+        }
+
+        node
+            .findChildByType(TYPE_REFERENCE)
+            ?.let { typeReference ->
+                nextToAstNode = startIndentContext(
+                    fromAstNode = typeReference.getPrecedingLeadingCommentsAndWhitespaces(),
+                    toAstNode = nextToAstNode,
+                ).prevCodeLeaf()
+            }
+
+        // Leading annotations and comments should be indented at same level as function itself
+        startIndentContext(
+            fromAstNode = node,
+            toAstNode = nextToAstNode,
+            childIndent = "",
+        )
+    }
+
+    private fun visitClass(node: ASTNode) {
+        // Inner indent contexts in reversed order
+        var nextToAstNode: ASTNode = node.lastChildLeafOrSelf()
+        node
+            .findChildByType(WHERE_KEYWORD)
+            ?.let { where ->
+                val typeConstraintList =
+                    requireNotNull(
+                        where.nextCodeSibling(),
+                    ) { "Can not find code sibling after WHERE in CLASS" }
+                require(
+                    typeConstraintList.elementType == TYPE_CONSTRAINT_LIST,
+                ) { "Code sibling after WHERE in CLASS is not a TYPE_CONSTRAINT_LIST" }
+                nextToAstNode = startIndentContext(
+                    fromAstNode = where.getPrecedingLeadingCommentsAndWhitespaces(),
+                    toAstNode = typeConstraintList.lastChildLeafOrSelf(),
+                ).prevCodeLeaf()
+            }
+        node
+            .findChildByType(SUPER_TYPE_LIST)
+            ?.let { superTypeList ->
+                nextToAstNode = startIndentContext(
+                    fromAstNode = superTypeList.getPrecedingLeadingCommentsAndWhitespaces(),
+                    toAstNode = superTypeList.lastChildLeafOrSelf(),
+                ).prevCodeLeaf()
+            }
+
+        // Leading annotations and comments should be indented at same level as class itself
+        startIndentContext(
+            fromAstNode = node,
+            toAstNode = nextToAstNode,
+            childIndent = "",
+        )
+    }
+
+    private fun visitBinaryExpression(node: ASTNode) {
+        if (isPartOfBinaryExpressionWrappedInCondition(node)) {
+            // Complex binary expression are nested in such a way that the indent context of the condition
+            // wrapper is not the last node on the stack
+            val conditionIndentContext =
+                indentContextStack.last { it.fromASTNode.elementType != BINARY_EXPRESSION }
+            // Create new indent context for the remainder (operator and right-hand side) of the binary expression
+            startIndentContext(
+                fromAstNode = node.findChildByType(OPERATION_REFERENCE)!!,
+                toAstNode = node.lastChildLeafOrSelf(),
+                nodeIndent = conditionIndentContext.nodeIndent,
+                childIndent = conditionIndentContext.childIndent,
+            )
+            startIndentContext(node.firstChildNode)
+        } else if (node.treeParent?.elementType != BINARY_EXPRESSION ||
+            node.findChildByType(OPERATION_REFERENCE)?.firstChildNode?.elementType == ELVIS
+        ) {
+            startIndentContext(node)
+        }
+    }
+
+    private fun visitIdentifierInProperty(node: ASTNode) {
+        startIndentContext(
+            fromAstNode = node,
+            toAstNode = node.treeParent.lastChildLeafOrSelf(),
+        )
+    }
+
+    private fun visitWhenEntry(node: ASTNode) {
+        node
+            .findChildByType(ARROW)
+            ?.let { arrow ->
+                val outerIndent =
+                    if (arrow.nextLeaf()?.elementType == BLOCK) {
+                        ""
+                    } else {
+                        indentConfig.indent
+                    }
+                startIndentContext(
+                    fromAstNode = arrow.nextLeaf()!!,
+                    toAstNode = node.lastChildLeafOrSelf(),
+                    firstChildIndent = outerIndent,
+                    lastChildIndent = outerIndent,
+                )
+                startIndentContext(
+                    fromAstNode = node,
+                    toAstNode = arrow,
+                    childIndent = "",
+                )
+            }
+    }
+
+    private fun visitWhereKeywordBeforeTypeConstraintList(node: ASTNode) {
+        startIndentContext(
+            fromAstNode = node,
+            toAstNode = node.nextCodeSibling()?.lastChildLeafOrSelf()!!,
+            childIndent = TYPE_CONSTRAINT_CONTINUATION_INDENT,
+        )
+    }
+
+    private fun visitKdoc(node: ASTNode) {
+        node
+            .findChildByType(KDOC_START)
+            ?.nextLeaf()
+            ?.let { fromAstNode ->
+                startIndentContext(
+                    fromAstNode = fromAstNode,
+                    toAstNode = node.lastChildLeafOrSelf(),
+                    childIndent = KDOC_CONTINUATION_INDENT,
+                )
+            }
+    }
+
+    private fun visitPropertyAccessor(node: ASTNode) {
+        node
+            .findChildByType(EQ)
+            ?.let { fromAstNode ->
+                startIndentContext(
+                    fromAstNode = fromAstNode,
+                    toAstNode = node.lastChildLeafOrSelf(),
+                )
+            }
+    }
+
+    private fun visitWhile(node: ASTNode) {
+        // Inner indent contexts in reversed order
+        node
+            .findChildByType(BODY)
+            ?.takeIf { it.nextCodeLeaf()?.elementType != LBRACE }
+            ?.let { rpar ->
+                startIndentContext(
+                    fromAstNode = rpar,
+                    toAstNode = node.lastChildLeafOrSelf(),
+                )
+            }
+        node
+            .findChildByType(CONDITION)
+            ?.let { fromAstNode ->
+                startIndentContext(fromAstNode)
+            }
+    }
+
+    private fun visitLBracket(node: ASTNode) {
+        node
+            .treeParent
+            .findChildByType(RBRACKET)
+            ?.let { rbracket ->
+                startIndentContext(
+                    fromAstNode = node,
+                    toAstNode = rbracket,
+                    firstChildIndent = "",
+                    lastChildIndent = "",
+                )
+            }
+    }
+
+    private fun visitNullableType(node: ASTNode) {
+        // Inner indent contexts in reversed order
+        var nextToAstNode = node.lastChildLeafOrSelf()
+        node
+            .findChildByType(RPAR)
+            ?.let { fromAstNode ->
+                nextToAstNode = startIndentContext(
+                    fromAstNode = fromAstNode,
+                    toAstNode = nextToAstNode,
+                    childIndent = "",
+                ).prevCodeLeaf()
+            }
+        startIndentContext(
+            fromAstNode = node,
+            toAstNode = nextToAstNode,
+        )
+    }
+
+    private fun visitDestructuringDeclaration(node: ASTNode) {
+        // Inner indent contexts in reversed order
+        var nextToAstNode = node.lastChildLeafOrSelf()
+        node
+            .findChildByType(EQ)
+            ?.let { eq ->
+                nextToAstNode = startIndentContext(
+                    fromAstNode = eq,
+                    toAstNode = nextToAstNode,
+                ).prevCodeLeaf()
+            }
+
+        node
+            .findChildByType(RPAR)
+            ?.let {
+                startIndentContext(
+                    fromAstNode = node,
+                    toAstNode = nextToAstNode,
+                    lastChildIndent = "",
+                )
+            }
     }
 
     private fun ASTNode.skipLeadingWhitespaceCommentsAndAnnotations(): ASTNode {
@@ -907,6 +943,9 @@ public class IndentationRule :
             } else {
                 nodeIndent
             }
+
+        fun prevCodeLeaf() =
+            fromASTNode.prevCodeLeaf()!!
     }
 }
 
