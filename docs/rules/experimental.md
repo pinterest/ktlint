@@ -87,6 +87,12 @@ Consistent spacing between function name and opening parenthesis.
 
 Rule id: `experimental:spacing-between-function-name-and-opening-parenthesis`
 
+### Type argument list spacing
+
+Spacing before and after the angle brackets of a type argument list.
+
+Rule id: `experimental:type-argument-list-spacing`
+
 ### Type parameter list spacing
 
 Spacing after a type parameter list in function and class declarations.

@@ -1,7 +1,6 @@
 package com.pinterest.ktlint
 
-import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.ListAssert
+import org.assertj.core.api.SoftAssertions
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.DisabledOnOs
@@ -18,17 +17,17 @@ class EditorConfigDefaultsLoaderCLITest : BaseCLITest() {
             "editorconfig-path",
             listOf(),
         ) {
-            assertErrorExitCode()
-
-            val assertThat = assertThat(normalOutput)
-            assertThat
-                .containsLineMatching(Regex(".*FooTest.*Exceeded max line length \\(30\\).*"))
-                .containsLineMatching(Regex(".*Foo.*Exceeded max line length \\(30\\).*"))
-                .containsLineMatching(Regex(".*foobar2.*File name 'foobar2.kt' should conform PascalCase.*"))
-                // The Bar files are not matched by any glob
-                .doesNotContainLineMatching(Regex(".*Bar.*"))
-                // The filename rule is disabled for the examples-directory only
-                .doesNotContainLineMatching(Regex(".*foobar1.*File name 'foobar1.kt' should conform PascalCase.*"))
+            SoftAssertions().apply {
+                assertErrorExitCode()
+                assertThat(normalOutput)
+                    .containsLineMatching(Regex(".*FooTest.*Exceeded max line length \\(30\\).*"))
+                    .containsLineMatching(Regex(".*Foo.*Exceeded max line length \\(30\\).*"))
+                    .containsLineMatching(Regex(".*foobar2.*File name 'foobar2.kt' should conform PascalCase.*"))
+                    // The Bar files are not matched by any glob
+                    .doesNotContainLineMatching(Regex(".*Bar.*"))
+                    // The filename rule is disabled for the examples-directory only
+                    .doesNotContainLineMatching(Regex(".*foobar1.*File name 'foobar1.kt' should conform PascalCase.*"))
+            }.assertAll()
         }
     }
 
@@ -49,15 +48,15 @@ class EditorConfigDefaultsLoaderCLITest : BaseCLITest() {
             "editorconfig-path",
             listOf("--editorconfig=$projectDirectory/$editorconfigPath"),
         ) {
-            assertErrorExitCode()
-
-            val assertThat = assertThat(normalOutput)
-            assertThat
-                .containsLineMatching(Regex(".*FooTest.*Exceeded max line length \\(30\\).*"))
-                .containsLineMatching(Regex(".*Foo.*Exceeded max line length \\(30\\).*"))
-                // Only the Bar-files fall back on the default editorconfig!
-                .containsLineMatching(Regex(".*BarTest.*Exceeded max line length \\(20\\).*"))
-                .containsLineMatching(Regex(".*Bar.*Exceeded max line length \\(20\\).*"))
+            SoftAssertions().apply {
+                assertErrorExitCode()
+                assertThat(normalOutput)
+                    .containsLineMatching(Regex(".*FooTest.*Exceeded max line length \\(30\\).*"))
+                    .containsLineMatching(Regex(".*Foo.*Exceeded max line length \\(30\\).*"))
+                    // Only the Bar-files fall back on the default editorconfig!
+                    .containsLineMatching(Regex(".*BarTest.*Exceeded max line length \\(20\\).*"))
+                    .containsLineMatching(Regex(".*Bar.*Exceeded max line length \\(20\\).*"))
+            }.assertAll()
         }
     }
 
@@ -68,14 +67,14 @@ class EditorConfigDefaultsLoaderCLITest : BaseCLITest() {
             "editorconfig-path",
             listOf("--editorconfig=$projectDirectory/.editorconfig-default-max-line-length-on-tests-only"),
         ) {
-            assertErrorExitCode()
-
-            val assertThat = assertThat(normalOutput)
-            assertThat
-                .containsLineMatching(Regex(".*FooTest.*Exceeded max line length \\(30\\).*"))
-                .containsLineMatching(Regex(".*Foo.*Exceeded max line length \\(30\\).*"))
-                // Only the BarTest-file falls back on the default editorconfig!
-                .containsLineMatching(Regex(".*BarTest.*Exceeded max line length \\(25\\).*"))
+            SoftAssertions().apply {
+                assertErrorExitCode()
+                assertThat(normalOutput)
+                    .containsLineMatching(Regex(".*FooTest.*Exceeded max line length \\(30\\).*"))
+                    .containsLineMatching(Regex(".*Foo.*Exceeded max line length \\(30\\).*"))
+                    // Only the BarTest-file falls back on the default editorconfig!
+                    .containsLineMatching(Regex(".*BarTest.*Exceeded max line length \\(25\\).*"))
+            }.assertAll()
         }
     }
 
@@ -86,22 +85,26 @@ class EditorConfigDefaultsLoaderCLITest : BaseCLITest() {
             "editorconfig-path",
             listOf("--editorconfig=$projectDirectory/.editorconfig-disable-filename-rule"),
         ) {
-            assertErrorExitCode()
-
-            val assertThat = assertThat(normalOutput)
-            assertThat
-                .doesNotContainLineMatching(Regex(".*foobar1.*File name 'foobar1.kt' should conform PascalCase.*"))
-                .doesNotContainLineMatching(Regex(".*foobar2.*File name 'foobar2.kt' should conform PascalCase.*"))
+            SoftAssertions().apply {
+                assertErrorExitCode()
+                assertThat(normalOutput)
+                    .doesNotContainLineMatching(Regex(".*foobar1.*File name 'foobar1.kt' should conform PascalCase.*"))
+                    .doesNotContainLineMatching(Regex(".*foobar2.*File name 'foobar2.kt' should conform PascalCase.*"))
+            }.assertAll()
         }
     }
 
-    private fun ListAssert<String>.containsLineMatching(regex: Regex) =
-        this.anyMatch {
-            it.matches(regex)
+    @Test
+    fun `Issue 1627 - Given a default editorconfig containing a boolean setting then do not throw a class cast exception`() {
+        val projectDirectory = "$BASE_DIR_PLACEHOLDER/editorconfig-path/project"
+        runKtLintCliProcess(
+            "editorconfig-path",
+            listOf("--editorconfig=$projectDirectory/editorconfig-boolean-setting"),
+        ) {
+            SoftAssertions().apply {
+                assertErrorExitCode()
+                assertThat(errorOutput).doesNotContainLineMatching(Regex(".*java.lang.ClassCastException: java.lang.String cannot be cast to java.lang.Boolean.*"))
+            }.assertAll()
         }
-
-    private fun ListAssert<String>.doesNotContainLineMatching(regex: Regex) =
-        this.noneMatch {
-            it.matches(regex)
-        }
+    }
 }

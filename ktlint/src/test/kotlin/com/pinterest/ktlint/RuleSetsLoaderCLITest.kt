@@ -1,6 +1,6 @@
 package com.pinterest.ktlint
 
-import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.SoftAssertions
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -20,15 +20,12 @@ class RuleSetsLoaderCLITest : BaseCLITest() {
                 "custom-ruleset",
                 listOf("-R", "$BASE_DIR_PLACEHOLDER/$jarWithRulesetProviderV1"),
             ) {
-                assertNormalExitCode()
+                SoftAssertions().apply {
+                    assertNormalExitCode()
 
-                // "15:36:29.259 [main] WARN com.pinterest.ktlint.internal.LoadRuleProviders - JAR /var/folders/24/wtp_g21953x22nr8z86gvltc0000gp/T/junit5220922714985703035/custom-ruleset/rule-set-provider-v1/ktlint-reporter-html.jar, provided as command line argument, contains a custom ruleset provider which will *NOT* be compatible with the next KtLint version (0.48). Contact the maintainer of this ruleset. This JAR is not maintained by the KtLint project.".matches(Regex(".* WARN .* JAR .*$jarWithoutRulesetProvider, provided as command line argument, contains a custom ruleset provider which is \\*NOT\\* compatible with the next KtLint version \\(0.48\\). Contact the maintainer of this ruleset. This JAR is not maintained by the KtLint project."))
-                assertThat(normalOutput)
-                    .anyMatch {
-                        it.matches(
-                            Regex(".* WARN .* JAR .*$jarWithRulesetProviderV1, provided as command line argument, contains a custom ruleset provider which will \\*NOT\\*.* be compatible with the next KtLint version \\(0.48\\). Contact the maintainer of this ruleset. This JAR is not maintained by the KtLint project.*"),
-                        )
-                    }
+                    // "15:36:29.259 [main] WARN com.pinterest.ktlint.internal.LoadRuleProviders - JAR /var/folders/24/wtp_g21953x22nr8z86gvltc0000gp/T/junit5220922714985703035/custom-ruleset/rule-set-provider-v1/ktlint-reporter-html.jar, provided as command line argument, contains a custom ruleset provider which will *NOT* be compatible with the next KtLint version (0.48). Contact the maintainer of this ruleset. This JAR is not maintained by the KtLint project.".matches(Regex(".* WARN .* JAR .*$jarWithoutRulesetProvider, provided as command line argument, contains a custom ruleset provider which is \\*NOT\\* compatible with the next KtLint version \\(0.48\\). Contact the maintainer of this ruleset. This JAR is not maintained by the KtLint project."))
+                    assertThat(normalOutput).containsLineMatching("$jarWithRulesetProviderV1, provided as command line argument, contains a custom ruleset provider which will *NOT* be compatible with the next KtLint version (0.48). Contact the maintainer of this ruleset. This JAR is not maintained by the KtLint project.")
+                }.assertAll()
             }
         }
 
@@ -39,14 +36,10 @@ class RuleSetsLoaderCLITest : BaseCLITest() {
                 "custom-ruleset",
                 listOf("-R", "$BASE_DIR_PLACEHOLDER/$jarWithoutRulesetProvider"),
             ) {
-                assertNormalExitCode()
-
-                assertThat(normalOutput)
-                    .anyMatch {
-                        it.matches(
-                            Regex(".* WARN .* JAR .*$jarWithoutRulesetProvider, provided as command line argument, does not contain a custom ruleset provider."),
-                        )
-                    }
+                SoftAssertions().apply {
+                    assertNormalExitCode()
+                    assertThat(normalOutput).containsLineMatching("$jarWithoutRulesetProvider, provided as command line argument, does not contain a custom ruleset provider.")
+                }.assertAll()
             }
         }
     }
@@ -61,15 +54,12 @@ class RuleSetsLoaderCLITest : BaseCLITest() {
                 "custom-ruleset",
                 listOf("-R", "$BASE_DIR_PLACEHOLDER/$jarWithRulesetProviderV2"),
             ) {
-                assertNormalExitCode()
+                SoftAssertions().apply {
+                    assertNormalExitCode()
 
-                // "15:36:29.259 [main] WARN com.pinterest.ktlint.internal.LoadRuleProviders - JAR /var/folders/24/wtp_g21953x22nr8z86gvltc0000gp/T/junit5220922714985703035/custom-ruleset/rule-set-provider-v1/ktlint-reporter-html.jar, provided as command line argument, contains a custom ruleset provider which will *NOT* be compatible with the next KtLint version (0.48). Contact the maintainer of this ruleset. This JAR is not maintained by the KtLint project.".matches(Regex(".* WARN .* JAR .*$jarWithoutRulesetProvider, provided as command line argument, contains a custom ruleset provider which is \\*NOT\\* compatible with the next KtLint version \\(0.48\\). Contact the maintainer of this ruleset. This JAR is not maintained by the KtLint project."))
-                assertThat(normalOutput)
-                    .noneMatch {
-                        it.matches(
-                            Regex(".* WARN .* JAR .*$jarWithRulesetProviderV2, provided as command line argument, contains a custom ruleset provider which will \\*NOT\\*.* be compatible with the next KtLint version \\(0.48\\). Contact the maintainer of this ruleset. This JAR is not maintained by the KtLint project.*"),
-                        )
-                    }
+                    // "15:36:29.259 [main] WARN com.pinterest.ktlint.internal.LoadRuleProviders - JAR /var/folders/24/wtp_g21953x22nr8z86gvltc0000gp/T/junit5220922714985703035/custom-ruleset/rule-set-provider-v1/ktlint-reporter-html.jar, provided as command line argument, contains a custom ruleset provider which will *NOT* be compatible with the next KtLint version (0.48). Contact the maintainer of this ruleset. This JAR is not maintained by the KtLint project.".matches(Regex(".* WARN .* JAR .*$jarWithoutRulesetProvider, provided as command line argument, contains a custom ruleset provider which is \\*NOT\\* compatible with the next KtLint version \\(0.48\\). Contact the maintainer of this ruleset. This JAR is not maintained by the KtLint project."))
+                    assertThat(normalOutput).doesNotContainLineMatching("$jarWithRulesetProviderV2, provided as command line argument, contains a custom ruleset provider which will *NOT* be compatible with the next KtLint version (0.48). Contact the maintainer of this ruleset. This JAR is not maintained by the KtLint project.")
+                }.assertAll()
             }
         }
 
@@ -80,14 +70,10 @@ class RuleSetsLoaderCLITest : BaseCLITest() {
                 "custom-ruleset",
                 listOf("-R", "$BASE_DIR_PLACEHOLDER/$jarWithoutRulesetProvider"),
             ) {
-                assertNormalExitCode()
-
-                assertThat(normalOutput)
-                    .anyMatch {
-                        it.matches(
-                            Regex(".* WARN .* JAR .*$jarWithoutRulesetProvider, provided as command line argument, does not contain a custom ruleset provider."),
-                        )
-                    }
+                SoftAssertions().apply {
+                    assertNormalExitCode()
+                    assertThat(normalOutput).containsLineMatching("$jarWithoutRulesetProvider, provided as command line argument, does not contain a custom ruleset provider.")
+                }.assertAll()
             }
         }
     }

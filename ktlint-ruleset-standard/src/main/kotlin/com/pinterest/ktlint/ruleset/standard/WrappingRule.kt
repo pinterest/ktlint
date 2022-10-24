@@ -2,12 +2,15 @@ package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.IndentConfig
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentSizeProperty
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentStyleProperty
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.maxLineLengthProperty
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType
 import com.pinterest.ktlint.core.ast.ElementType.ANNOTATION
 import com.pinterest.ktlint.core.ast.ElementType.ARROW
+import com.pinterest.ktlint.core.ast.ElementType.BLOCK
 import com.pinterest.ktlint.core.ast.ElementType.CALL_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.CLOSING_QUOTE
 import com.pinterest.ktlint.core.ast.ElementType.COMMA
@@ -39,8 +42,10 @@ import com.pinterest.ktlint.core.ast.ElementType.WHEN_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.core.ast.children
 import com.pinterest.ktlint.core.ast.isPartOfComment
+import com.pinterest.ktlint.core.ast.isWhiteSpace
 import com.pinterest.ktlint.core.ast.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.core.ast.isWhiteSpaceWithoutNewline
+import com.pinterest.ktlint.core.ast.lastChildLeafOrSelf
 import com.pinterest.ktlint.core.ast.lineIndent
 import com.pinterest.ktlint.core.ast.nextCodeLeaf
 import com.pinterest.ktlint.core.ast.nextCodeSibling
@@ -60,6 +65,7 @@ import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 import org.jetbrains.kotlin.psi.KtStringTemplateExpression
 import org.jetbrains.kotlin.psi.KtSuperTypeList
+import org.jetbrains.kotlin.psi.psiUtil.leaves
 import org.jetbrains.kotlin.psi.psiUtil.siblings
 
 private val logger = KotlinLogging.logger {}.initKtLintKLogger()
@@ -77,19 +83,22 @@ public class WrappingRule :
     UsesEditorConfigProperties {
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> =
         listOf(
-            DefaultEditorConfigProperties.indentSizeProperty,
-            DefaultEditorConfigProperties.indentStyleProperty,
+            indentSizeProperty,
+            indentStyleProperty,
+            maxLineLengthProperty,
         )
 
     private var line = 1
     private lateinit var indentConfig: IndentConfig
+    private var maxLineLength: Int = -1
 
     override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
         line = 1
         indentConfig = IndentConfig(
-            indentStyle = editorConfigProperties.getEditorConfigValue(DefaultEditorConfigProperties.indentStyleProperty),
-            tabWidth = editorConfigProperties.getEditorConfigValue(DefaultEditorConfigProperties.indentSizeProperty),
+            indentStyle = editorConfigProperties.getEditorConfigValue(indentStyleProperty),
+            tabWidth = editorConfigProperties.getEditorConfigValue(indentSizeProperty),
         )
+        maxLineLength = editorConfigProperties.getEditorConfigValue(maxLineLengthProperty)
     }
 
     override fun beforeVisitChildNodes(
@@ -98,12 +107,60 @@ public class WrappingRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         when (node.elementType) {
-            LPAR, LBRACE, LBRACKET -> rearrangeBlock(node, autoCorrect, emit) // TODO: LT
+            BLOCK -> beforeVisitBlock(node, autoCorrect, emit)
+            LPAR, LBRACKET -> rearrangeBlock(node, autoCorrect, emit) // TODO: LT
             SUPER_TYPE_LIST -> rearrangeSuperTypeList(node, autoCorrect, emit)
             VALUE_PARAMETER_LIST, VALUE_ARGUMENT_LIST -> rearrangeValueList(node, autoCorrect, emit)
             ARROW -> rearrangeArrow(node, autoCorrect, emit)
             WHITE_SPACE -> line += node.text.count { it == '\n' }
             CLOSING_QUOTE -> rearrangeClosingQuote(node, autoCorrect, emit)
+        }
+    }
+
+    private fun beforeVisitBlock(
+        node: ASTNode,
+        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+    ) {
+        require(node.elementType == BLOCK)
+
+        val startOfBlock = node.prevLeaf { !it.isPartOfComment() && !it.isWhiteSpace() }
+        if (startOfBlock?.elementType != LBRACE) {
+            return
+        }
+        val blockIsPrecededByWhitespaceContainingNewline = startOfBlock.nextLeaf().isWhiteSpaceWithNewline()
+        val endOfBlock = node.lastChildLeafOrSelf().nextLeaf { !it.isPartOfComment() && !it.isWhiteSpace() }
+        val blockIsFollowedByWhitespaceContainingNewline = endOfBlock?.prevLeaf().isWhiteSpaceWithNewline()
+        val wrapBlock =
+            when {
+                blockIsPrecededByWhitespaceContainingNewline -> false
+                node.textContains('\n') || blockIsFollowedByWhitespaceContainingNewline -> {
+                    // A multiline block should always be wrapped
+                    true
+                }
+                maxLineLength > 0 -> {
+                    val startOfLine = node.prevLeaf { it.isWhiteSpaceWithNewline() }
+                    val endOfLine = node.nextLeaf { it.isWhiteSpaceWithNewline() }
+                    val line =
+                        startOfLine
+                            ?.leaves()
+                            ?.takeWhile { it != endOfLine }
+                            ?.joinToString(separator = "", prefix = startOfLine.text.removePrefix("\n")) { it.text }
+                            .orEmpty()
+                    line.length > maxLineLength
+                }
+                else -> false
+            }
+        if (wrapBlock) {
+            startOfBlock
+                ?.takeIf { !it.nextLeaf().isWhiteSpaceWithNewline() }
+                ?.let { leafNodeBeforeBlock ->
+                    requireNewlineAfterLeaf(
+                        leafNodeBeforeBlock,
+                        autoCorrect,
+                        emit,
+                    )
+                }
         }
     }
 
@@ -500,6 +557,34 @@ public class WrappingRule :
             node = node.nextSibling { true }
         }
         return true
+    }
+
+    override fun afterVisitChildNodes(
+        node: ASTNode,
+        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+    ) {
+        if (node.elementType == BLOCK) {
+            val startOfBlock = node.prevLeaf { !it.isPartOfComment() && !it.isWhiteSpace() }
+            if (startOfBlock?.elementType != LBRACE) {
+                return
+            }
+            val blockIsPrecededByWhitespaceContainingNewline = startOfBlock.nextLeaf().isWhiteSpaceWithNewline()
+            val endOfBlock = node.lastChildLeafOrSelf().nextLeaf { !it.isPartOfComment() && !it.isWhiteSpace() }
+            val blockIsFollowedByWhitespaceContainingNewline = endOfBlock?.prevLeaf().isWhiteSpaceWithNewline()
+            val wrapBlock =
+                !blockIsFollowedByWhitespaceContainingNewline && (
+                    blockIsPrecededByWhitespaceContainingNewline || node.textContains('\n')
+                    )
+            if (wrapBlock && endOfBlock != null) {
+                requireNewlineBeforeLeaf(
+                    endOfBlock,
+                    autoCorrect,
+                    emit,
+                    node.treeParent.lineIndent(),
+                )
+            }
+        }
     }
 
     private companion object {

@@ -8,13 +8,14 @@ import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.emptyEditorConfigOverride
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
+import com.pinterest.ktlint.core.internal.EditorConfigFinder
 import com.pinterest.ktlint.core.internal.EditorConfigGenerator
 import com.pinterest.ktlint.core.internal.EditorConfigLoader
-import com.pinterest.ktlint.core.internal.PreparedCode
-import com.pinterest.ktlint.core.internal.SuppressionLocatorBuilder
+import com.pinterest.ktlint.core.internal.RuleExecutionContext
+import com.pinterest.ktlint.core.internal.SuppressHandler
 import com.pinterest.ktlint.core.internal.ThreadSafeEditorConfigCache.Companion.threadSafeEditorConfigCache
 import com.pinterest.ktlint.core.internal.VisitorProvider
-import com.pinterest.ktlint.core.internal.prepareCodeForLinting
+import com.pinterest.ktlint.core.internal.createRuleExecutionContext
 import com.pinterest.ktlint.core.internal.toQualifiedRuleId
 import java.nio.charset.StandardCharsets
 import java.nio.file.FileSystems
@@ -27,7 +28,17 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.openapi.util.Key
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
+@Suppress("MemberVisibilityCanBePrivate")
 public object KtLint {
+    @Deprecated(
+        """
+            Marked for removal in KtLint 0.49.0. Use:
+                if (node.isRoot()) {
+                    val fileName = (node.psi as? KtFile)?.name
+                    ...
+                }
+            """,
+    )
     public val FILE_PATH_USER_DATA_KEY: Key<String> = Key<String>("FILE_PATH")
 
     @Deprecated("Marked for removal in Ktlint 0.48.0")
@@ -167,14 +178,14 @@ public object KtLint {
      * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
      */
     public fun lint(params: ExperimentalParams) {
-        val preparedCode = prepareCodeForLinting(params)
+        val ruleExecutionContext = createRuleExecutionContext(params)
         val errors = mutableListOf<LintError>()
 
         VisitorProvider(params)
-            .visitor(preparedCode.editorConfigProperties)
+            .visitor(ruleExecutionContext.editorConfigProperties)
             .invoke { rule, fqRuleId ->
-                preparedCode.executeRule(rule, fqRuleId, false) { offset, errorMessage, canBeAutoCorrected ->
-                    val (line, col) = preparedCode.positionInTextLocator(offset)
+                ruleExecutionContext.executeRule(rule, fqRuleId, false) { offset, errorMessage, canBeAutoCorrected ->
+                    val (line, col) = ruleExecutionContext.positionInTextLocator(offset)
                     errors.add(LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected))
                 }
             }
@@ -184,7 +195,7 @@ public object KtLint {
             .forEach { e -> params.cb(e, false) }
     }
 
-    private fun PreparedCode.executeRule(
+    private fun RuleExecutionContext.executeRule(
         rule: Rule,
         fqRuleId: String,
         autoCorrect: Boolean,
@@ -196,29 +207,41 @@ public object KtLint {
         rule.afterLastNode()
     }
 
-    private fun PreparedCode.executeRuleOnNodeRecursively(
+    private fun RuleExecutionContext.executeRuleOnNodeRecursively(
         node: ASTNode,
         rule: Rule,
         fqRuleId: String,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
+        /**
+         * The [RuleExecutionContext.suppressionLocator] can be changed during each visit of node when running
+         * [KtLint.format]. So a new handler is to be built before visiting the nodes.
+         */
+        val suppressHandler = SuppressHandler(suppressionLocator, rootNode, autoCorrect, emit)
         if (rule.shouldContinueTraversalOfAST()) {
             try {
-                rule.beforeVisitChildNodes(node, autoCorrect, emit)
+                suppressHandler.handle(node, fqRuleId) { autoCorrect, emit ->
+                    rule.beforeVisitChildNodes(node, autoCorrect, emit)
+                }
                 if (!rule.runsOnRootNodeOnly() && rule.shouldContinueTraversalOfAST()) {
                     node
                         .getChildren(null)
                         .forEach { childNode ->
-                            // https://github.com/shyiko/ktlint/issues/158#issuecomment-462728189
-                            // fixme: enforcing suppression based on node.startOffset is wrong (not just because not all nodes are leaves
-                            //  but because rules are free to emit (and fix!) errors at any position)
-                            if (!suppressedRegionLocator(childNode.startOffset, fqRuleId, childNode === rootNode)) {
-                                this.executeRuleOnNodeRecursively(childNode, rule, fqRuleId, autoCorrect, emit)
+                            suppressHandler.handle(childNode, fqRuleId) { autoCorrect, emit ->
+                                this.executeRuleOnNodeRecursively(
+                                    childNode,
+                                    rule,
+                                    fqRuleId,
+                                    autoCorrect,
+                                    emit,
+                                )
                             }
                         }
                 }
-                rule.afterVisitChildNodes(node, autoCorrect, emit)
+                suppressHandler.handle(node, fqRuleId) { autoCorrect, emit ->
+                    rule.afterVisitChildNodes(node, autoCorrect, emit)
+                }
             } catch (e: Exception) {
                 if (autoCorrect) {
                     // line/col cannot be reliably mapped as exception might originate from a node not present in the
@@ -240,29 +263,26 @@ public object KtLint {
      */
     public fun format(params: ExperimentalParams): String {
         val hasUTF8BOM = params.text.startsWith(UTF8_BOM)
-        val preparedCode = prepareCodeForLinting(params)
+        val ruleExecutionContext = createRuleExecutionContext(params)
 
         var tripped = false
         var mutated = false
         val errors = mutableSetOf<Pair<LintError, Boolean>>()
         val visitorProvider = VisitorProvider(params = params)
         visitorProvider
-            .visitor(preparedCode.editorConfigProperties)
+            .visitor(ruleExecutionContext.editorConfigProperties)
             .invoke { rule, fqRuleId ->
-                preparedCode.executeRule(rule, fqRuleId, true) { offset, errorMessage, canBeAutoCorrected ->
+                ruleExecutionContext.executeRule(rule, fqRuleId, true) { offset, errorMessage, canBeAutoCorrected ->
                     tripped = true
                     if (canBeAutoCorrected) {
                         mutated = true
-                        if (preparedCode.suppressedRegionLocator !== SuppressionLocatorBuilder.noSuppression) {
-                            // Offsets of start and end positions of suppressed regions might have changed due to
-                            // updating the code
-                            preparedCode.suppressedRegionLocator =
-                                SuppressionLocatorBuilder.buildSuppressedRegionsLocator(
-                                    preparedCode.rootNode,
-                                )
-                        }
+                        /**
+                         * Rebuild the suppression locator after each change in the AST as the offsets of the
+                         * suppression hints might have changed.
+                         */
+                        ruleExecutionContext.rebuildSuppressionLocator()
                     }
-                    val (line, col) = preparedCode.positionInTextLocator(offset)
+                    val (line, col) = ruleExecutionContext.positionInTextLocator(offset)
                     errors.add(
                         Pair(
                             LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected),
@@ -275,10 +295,10 @@ public object KtLint {
             }
         if (tripped) {
             visitorProvider
-                .visitor(preparedCode.editorConfigProperties)
+                .visitor(ruleExecutionContext.editorConfigProperties)
                 .invoke { rule, fqRuleId ->
-                    preparedCode.executeRule(rule, fqRuleId, false) { offset, errorMessage, canBeAutoCorrected ->
-                        val (line, col) = preparedCode.positionInTextLocator(offset)
+                    ruleExecutionContext.executeRule(rule, fqRuleId, false) { offset, errorMessage, canBeAutoCorrected ->
+                        val (line, col) = ruleExecutionContext.positionInTextLocator(offset)
                         errors.add(
                             Pair(
                                 LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected),
@@ -299,7 +319,7 @@ public object KtLint {
             return params.text
         }
 
-        val code = preparedCode
+        val code = ruleExecutionContext
             .rootNode
             .text
             .replace("\n", determineLineSeparator(params.text, params.userData))
@@ -321,9 +341,20 @@ public object KtLint {
     }
 
     /**
+     * Get the list of files which will be accessed by KtLint when linting or formatting the given file or directory.
+     * The API consumer can use this list to observe changes in '.editorconfig` files. Whenever such a change is
+     * observed, the API consumer should call [reloadEditorConfigFile].
+     * To avoid unnecessary access to the file system, it is best to call this method only once for the root of the
+     * project which is to be [lint] or [format].
+     */
+    public fun editorConfigFilePaths(path: Path): List<Path> =
+        EditorConfigFinder().findEditorConfigs(path)
+
+    /**
      * Reloads an '.editorconfig' file given that it is currently loaded into the KtLint cache. This method is intended
      * to be called by the API consumer when it is aware of changes in the '.editorconfig' file that should be taken
-     * into account with next calls to [lint] and/or [format].
+     * into account with next calls to [lint] and/or [format]. See [editorConfigFilePaths] to get the list of
+     * '.editorconfig' files which need to be observed.
      */
     public fun reloadEditorConfigFile(path: Path) {
         threadSafeEditorConfigCache.reloadIfExists(

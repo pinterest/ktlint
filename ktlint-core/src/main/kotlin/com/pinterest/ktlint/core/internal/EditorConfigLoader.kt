@@ -128,14 +128,6 @@ public class EditorConfigLoader(
         editorConfigDefaults: EditorConfigDefaults = emptyEditorConfigDefaults,
         editorConfigOverride: EditorConfigOverride = emptyEditorConfigOverride,
     ): EditorConfigProperties {
-        if (filePath.isNullOrNotSupported()) {
-            return editorConfigOverride
-                .properties
-                .map { (editorConfigProperty, propertyValue) ->
-                    editorConfigProperty.type.name to property(editorConfigProperty, propertyValue)
-                }.toMap()
-        }
-
         // TODO: Move to class init once method load PropertiesForFiles has been removed.
         require(rules.isNotEmpty()) {
             "Set of rules for which the properties have to be loaded may not be empty."

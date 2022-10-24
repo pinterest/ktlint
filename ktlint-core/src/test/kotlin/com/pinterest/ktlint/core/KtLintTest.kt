@@ -1437,6 +1437,30 @@ class KtLintTest {
             )
         }
     }
+
+    @Test
+    fun `Issue 1623 - Given a file with multiple top-level declarations then a file suppression annotation should be applied on each top level declaration`() {
+        val code =
+            """
+            @file:Suppress("ktlint:auto-correct")
+            val foo = "${AutoCorrectErrorRule.STRING_VALUE_TO_BE_AUTOCORRECTED}" // Won't be auto corrected due to suppress annotation
+            val bar = "${AutoCorrectErrorRule.STRING_VALUE_TO_BE_AUTOCORRECTED}" // Won't be auto corrected due to suppress annotation
+            """.trimIndent()
+        val actualFormattedCode = KtLint.format(
+            KtLint.ExperimentalParams(
+                text = code,
+                ruleProviders = setOf(
+                    RuleProvider { AutoCorrectErrorRule() },
+                ),
+                userData = emptyMap(),
+                cb = { _, _ -> },
+                script = false,
+                editorConfigPath = null,
+                debug = false,
+            ),
+        )
+        assertThat(actualFormattedCode).isEqualTo(code)
+    }
 }
 
 private class DummyRuleWithCustomEditorConfigProperty :

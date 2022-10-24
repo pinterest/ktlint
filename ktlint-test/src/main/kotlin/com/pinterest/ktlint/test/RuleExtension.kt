@@ -73,6 +73,7 @@ public fun Set<RuleProvider>.lint(
         userData = userData,
         script = script,
         cb = { lintError, _ -> lintErrors.add(lintError) },
+        debug = true,
     )
     KtLint.lint(experimentalParams)
     return lintErrors
@@ -95,6 +96,7 @@ public fun Set<RuleProvider>.format(
         userData = userData,
         script = script,
         cb = { lintError, _ -> lintErrors.add(lintError) },
+        debug = true,
     )
     val formattedCode = KtLint.format(experimentalParams)
     return Pair(formattedCode, lintErrors)

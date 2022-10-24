@@ -2,6 +2,10 @@ package com.pinterest.ktlint.core.internal
 
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.RuleRunner
+import com.pinterest.ktlint.core.initKtLintKLogger
+import mu.KotlinLogging
+
+private val logger = KotlinLogging.logger {}.initKtLintKLogger()
 
 /**
  * Sorts the [RuleRunner]s based on [Rule.VisitorModifier]s.
@@ -18,22 +22,22 @@ internal class RuleRunnerSorter {
         ruleRunners: Set<RuleRunner>,
         debug: Boolean,
     ): List<RuleRunner> {
-        val debugSorter =
+        val wasNotYetCached =
             debug &&
                 debugLogCache
                     .putIfAbsent(createHashCode(ruleRunners, debug), false)
                     .let { previousValue -> previousValue == null }
         return ruleRunners
             .sortedWith(defaultRuleExecutionOrderComparator())
-            .applyRunAfterRuleToRuleExecutionOrder(debugSorter)
+            .applyRunAfterRuleToRuleExecutionOrder(wasNotYetCached)
             .also { ruleReferences ->
-                if (debugSorter) {
+                if (wasNotYetCached) {
                     ruleReferences
                         .map { toQualifiedRuleId(it.ruleSetId, it.ruleId) }
-                        .joinToString(prefix = "[DEBUG] Rules will be executed in order below (unless disabled):") {
+                        .joinToString(prefix = "Rules will be executed in order below (unless disabled):") {
                             "\n           - $it"
                         }
-                        .let { println(it) }
+                        .let { logger.debug(it) }
                 }
             }
     }
@@ -92,20 +96,18 @@ internal class RuleRunnerSorter {
                 if (this.none { it.runsAfter(currentRuleRunner) }) {
                     // The RunAfterRule refers to a rule which is not loaded at all.
                     if (runAfterRule.loadOnlyWhenOtherRuleIsLoaded) {
-                        println(
-                            "[WARN] Skipping rule with id '${currentRuleRunner.qualifiedRuleId}' as it requires " +
+                        logger.warn {
+                            "Skipping rule with id '${currentRuleRunner.qualifiedRuleId}' as it requires " +
                                 "that the rule with id '${runAfterRule.ruleId}' is loaded. However, " +
-                                "no rule with this id is loaded.",
-                        )
+                                "no rule with this id is loaded."
+                        }
                         continue
                     } else {
-                        if (debug) {
-                            println(
-                                "[DEBUG] Rule with id '${currentRuleRunner.qualifiedRuleId}' should run after the " +
-                                    "rule with id '${runAfterRule.ruleId}'. However, the latter " +
-                                    "rule is not loaded and is allowed to be ignored. For best results, it is " +
-                                    "advised load the rule.",
-                            )
+                        logger.debug {
+                            "Rule with id '${currentRuleRunner.qualifiedRuleId}' should run after the " +
+                                "rule with id '${runAfterRule.ruleId}'. However, the latter " +
+                                "rule is not loaded and is allowed to be ignored. For best results, it is " +
+                                "advised load the rule."
                         }
                         // As it is not required that the rule is loaded, the runAfter condition is ignored.
                         currentRuleRunner.clearRunAfterRule()

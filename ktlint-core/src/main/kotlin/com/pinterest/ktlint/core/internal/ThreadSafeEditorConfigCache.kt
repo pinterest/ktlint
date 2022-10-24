@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.core.internal
 
 import com.pinterest.ktlint.core.initKtLintKLogger
+import java.nio.file.Paths
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.read
 import kotlin.concurrent.write
@@ -71,6 +72,14 @@ internal class ThreadSafeEditorConfigCache : Cache {
                 logger.trace { "Removing ${it.size} entries from the EditorConfig cache" }
             }.clear()
     }
+
+    /**
+     * Get the paths of files stored in the cache.
+     */
+    fun getPaths() =
+        inMemoryMap
+            .keys
+            .map { Paths.get(it.path.toString()) }
 
     private data class CacheValue(
         val editorConfigLoader: EditorConfigLoader,

@@ -20,7 +20,7 @@ $ echo 'var v = 0' > test.kt
 ```
 
 ```shell title="Running the ktlint-ruleset-template" hl_lines="1 40 43"
-$ ktlint -R build/libs/ktlint-ruleset-template.jar --debug --relative test.kt
+$ ktlint -R build/libs/ktlint-ruleset-template.jar --log-level=debug --relative test.kt
 
 18:13:21.026 [main] DEBUG com.pinterest.ktlint.internal.RuleSetsLoader - JAR ruleset provided with path "/../ktlint/ktlint-ruleset-template/build/libs/ktlint-ruleset-template.jar"
 18:13:21.241 [main] DEBUG com.pinterest.ktlint.Main - Discovered reporter with "baseline" id.

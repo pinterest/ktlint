@@ -15,7 +15,11 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
+import java.util.Deque
+import java.util.LinkedList
+import kotlin.io.path.absolutePathString
 import kotlin.io.path.isDirectory
+import kotlin.io.path.pathString
 import kotlin.system.exitProcess
 import kotlin.system.measureTimeMillis
 import mu.KotlinLogging
@@ -28,11 +32,10 @@ internal val workDir: String = File(".").canonicalPath
 private val tildeRegex = Regex("^(!)?~")
 private const val NEGATION_PREFIX = "!"
 
-private val os = System.getProperty("os.name")
 private val userHome = System.getProperty("user.home")
 
 private val defaultKotlinFileExtensions = setOf("kt", "kts")
-internal val defaultPatterns = defaultKotlinFileExtensions.map { "**$globSeparator*.$it" }
+internal val defaultPatterns = defaultKotlinFileExtensions.map { "**/*.$it" }
 
 /**
  * Transform the [patterns] to a sequence of files. Each element in [patterns] can be a glob, a file or directory path
@@ -84,7 +87,7 @@ internal fun FileSystem.fileSequence(
         Start walkFileTree for rootDir: '$rootDir'
            include:
         ${pathMatchers.map { "      - $it" }}
-           exlcude:
+           exclude:
         ${negatedPathMatchers.map { "      - $it" }}
         """.trimIndent()
     }
@@ -96,13 +99,27 @@ internal fun FileSystem.fileSequence(
                     filePath: Path,
                     fileAttrs: BasicFileAttributes,
                 ): FileVisitResult {
-                    if (negatedPathMatchers.none { it.matches(filePath) } &&
-                        pathMatchers.any { it.matches(filePath) }
+                    val path =
+                        if (onWindowsOS) {
+                            Paths.get(
+                                filePath
+                                    .absolutePathString()
+                                    .replace(File.separatorChar, '/'),
+                            ).also {
+                                if (it != filePath) {
+                                    logger.trace { "On WindowsOS transform '$filePath' to '$it'" }
+                                }
+                            }
+                        } else {
+                            filePath
+                        }
+                    if (negatedPathMatchers.none { it.matches(path) } &&
+                        pathMatchers.any { it.matches(path) }
                     ) {
-                        logger.trace { "- File: $filePath: Include" }
-                        result.add(filePath)
+                        logger.trace { "- File: $path: Include" }
+                        result.add(path)
                     } else {
-                        logger.trace { "- File: $filePath: Ignore" }
+                        logger.trace { "- File: $path: Ignore" }
                     }
                     return FileVisitResult.CONTINUE
                 }
@@ -132,9 +149,27 @@ private fun FileSystem.expand(
     rootDir: Path,
 ) =
     patterns
-        .map { it.expandTildeToFullPath() }
-        .map { it.replace(File.separator, globSeparator) }
-        .flatMap { path -> toGlob(path, rootDir) }
+        .mapNotNull {
+            if (onWindowsOS) {
+                it.normalizeWindowsPattern()
+            } else {
+                it
+            }
+        }.map { it.expandTildeToFullPath() }
+        .map {
+            if (onWindowsOS) {
+                // By definition the globs should use "/" as separator. Out of courtesy replace "\" with "/"
+                it
+                    .replace(File.separator, "/")
+                    .also { transformedPath ->
+                        if (it != transformedPath) {
+                            logger.trace { "On WindowsOS transform '$it' to '$transformedPath'" }
+                        }
+                    }
+            } else {
+                it
+            }
+        }.flatMap { path -> toGlob(path, rootDir) }
 
 private fun FileSystem.toGlob(
     path: String,
@@ -145,41 +180,134 @@ private fun FileSystem.toGlob(
     } else {
         ""
     }
-    val pathWithoutNegationPrefix = path.removePrefix(NEGATION_PREFIX)
-    val resolvedPath = try {
-        rootDir.resolve(pathWithoutNegationPrefix)
+    val pathWithoutNegationPrefix =
+        path
+            .removePrefix(NEGATION_PREFIX)
+    val expandedPatterns = try {
+        val resolvedPath =
+            rootDir
+                .resolve(pathWithoutNegationPrefix)
+                .normalize()
+        if (resolvedPath.isDirectory()) {
+            resolvedPath
+                .expandPathToDefaultPatterns()
+                .also {
+                    logger.trace { "Expanding resolved directory path '$resolvedPath' to patterns: [$it]" }
+                }
+        } else {
+            resolvedPath
+                .pathString
+                .expandDoubleStarPatterns()
+                .also {
+                    logger.trace { "Expanding resolved path '$resolvedPath` to patterns: [$it]" }
+                }
+        }
     } catch (e: InvalidPathException) {
-        // Windows throws an exception when you pass a glob to Path#resolve.
-        null
+        if (onWindowsOS) {
+            //  Windows throws an exception when passing a wildcard (*) to Path#resolve.
+            pathWithoutNegationPrefix
+                .expandDoubleStarPatterns()
+                .also {
+                    logger.trace { "On WindowsOS: expanding unresolved path '$pathWithoutNegationPrefix` to patterns: [$it]" }
+                }
+        } else {
+            emptyList()
+        }
     }
-    val expandedGlobs = if (resolvedPath != null && resolvedPath.isDirectory()) {
-        getDefaultPatternsForPath(resolvedPath)
-    } else if (isGlobAbsolutePath(pathWithoutNegationPrefix)) {
-        listOf(pathWithoutNegationPrefix)
-    } else {
-        listOf(pathWithoutNegationPrefix.prefixIfNot("**$globSeparator"))
-    }
-    return expandedGlobs.map { "${negation}glob:$it" }
+
+    return expandedPatterns
+        .map { originalPattern ->
+            if (onWindowsOS) {
+                originalPattern
+                    // Replace "\" with "/"
+                    .replace(this.separator, "/")
+                    // Remove drive letter (and colon) from path as this will lead to invalid globs and replace it with a double
+                    // star pattern. Technically this is not functionally identical as the pattern could match on multiple drives.
+                    .substringAfter(":")
+                    .removePrefix("/")
+                    .prefixIfNot("**/")
+                    .also { transformedPattern ->
+                        if (transformedPattern != originalPattern) {
+                            logger.trace { "On WindowsOS, transform '$originalPattern' to '$transformedPattern'" }
+                        }
+                    }
+            } else {
+                originalPattern
+            }
+        }.map { "${negation}glob:$it" }
 }
 
-private fun getDefaultPatternsForPath(path: Path?) = defaultKotlinFileExtensions
-    .flatMap {
-        listOf(
-            "$path$globSeparator*.$it",
-            "$path$globSeparator**$globSeparator*.$it",
-        )
+/**
+ * For each double star pattern in the path, create and additional path in which the double start pattern is removed.
+ * In this way a pattern like some-directory/**/*.kt will match wile files in some-directory or any of its
+ * subdirectories.
+ */
+private fun String?.expandDoubleStarPatterns(): Set<String> {
+    val paths = mutableSetOf(this)
+    val parts = this?.split("/").orEmpty()
+    parts
+        .filter { it == "**" }
+        .forEach { doubleStarPart ->
+            run {
+                val expandedPath =
+                    parts
+                        .filter { it !== doubleStarPart }
+                        .joinToString(separator = "/")
+                // The original path can contain multiple double star patterns. Replace only one double start pattern
+                // with an additional path patter and call recursively for remain double star patterns
+                paths.addAll(expandedPath.expandDoubleStarPatterns())
+            }
+        }
+    return paths.filterNotNull().toSet()
+}
+
+private fun String?.normalizeWindowsPattern() =
+    if (onWindowsOS) {
+        val parts: Deque<String> = LinkedList()
+        // Replace "\" with "/"
+        this
+            ?.replace("\\", "/")
+            ?.split("/")
+            ?.filterNot {
+                // Reference to current directory can simply be ignored
+                it == "."
+            }?.forEach {
+                if (it == "..") {
+                    // Whenever the parent directory reference follows a part not containing a wildcard, then the parent
+                    // reference and the preceding element can be ignored. In other cases, the result pattern can not be
+                    // cleaned. If that pattern would be transformed to a glob then the result regular expression of
+                    // that glob results in a pattern that will never be matched as the ".." reference will not occur in
+                    // the filepath that is being checked with the regular expression.
+                    if (parts.isEmpty()) {
+                        logger.warn {
+                            "On WindowsOS the pattern '$this' can not be used as it refers to a path outside of the current directory"
+                        }
+                        return@normalizeWindowsPattern null
+                    } else if (parts.peekLast().contains('*')) {
+                        logger.warn {
+                            "On WindowsOS the pattern '$this' can not be used as '/..' follows the wildcard pattern ${parts.peekLast()}"
+                        }
+                        return@normalizeWindowsPattern null
+                    } else {
+                        parts.removeLast()
+                    }
+                } else {
+                    parts.addLast(it)
+                }
+            }
+        parts.joinToString(separator = "/")
+    } else {
+        this
     }
 
-private fun FileSystem.isGlobAbsolutePath(glob: String) =
-    rootDirectories
-        .map { it.toString() }
-        .any { glob.startsWith(it) }
-
-private val globSeparator: String get() =
-    when {
-        os.startsWith("windows", ignoreCase = true) -> "\\\\"
-        else -> "/"
-    }
+private fun Path.expandPathToDefaultPatterns() =
+    defaultKotlinFileExtensions
+        .flatMap {
+            listOf(
+                "$this/*.$it",
+                "$this/**/*.$it",
+            )
+        }
 
 /**
  * List of paths to Java `jar` files.
@@ -198,12 +326,23 @@ internal fun JarFiles.toFilesURIList() = map {
 // a complete solution would be to implement https://www.gnu.org/software/bash/manual/html_node/Tilde-Expansion.html
 // this implementation takes care only of the most commonly used case (~/)
 internal fun String.expandTildeToFullPath(): String =
-    if (os.startsWith("windows", true)) {
+    if (onWindowsOS) {
         // Windows sometimes inserts `~` into paths when using short directory names notation, e.g. `C:\Users\USERNA~1\Documents
         this
     } else {
         replaceFirst(tildeRegex, userHome)
+            .also {
+                if (it != this) {
+                    logger.trace { "On non-WindowsOS expand '$this' to '$it'" }
+                }
+            }
     }
+
+private val onWindowsOS
+    get() =
+        System
+            .getProperty("os.name")
+            .startsWith("windows", true)
 
 internal fun File.location(
     relative: Boolean,

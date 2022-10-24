@@ -71,7 +71,7 @@ public open class Rule(
      */
     @Deprecated(
         message = "Marked for deletion in ktlint 0.48.0",
-        replaceWith = ReplaceWith("beforeVisitChildNodes(node, autocorrect, emit"),
+        replaceWith = ReplaceWith("beforeVisitChildNodes(node, autoCorrect, emit)"),
     )
     @Suppress("UNUSED_PARAMETER")
     public open fun visit(

@@ -108,7 +108,25 @@ public interface UsesEditorConfigProperties {
                 }
         }
 
-        return property?.getValueAs()
+        val propertyValue =
+            when {
+                property == null -> null
+                property.type != null -> property.getValueAs()
+                else -> {
+                    // In case the property was loaded from the default ".editorconfig" the type field is not known as
+                    // the property could not yet be linked to a property type that is defined in a rule. To prevent
+                    // class cast exceptions, lookup the property by name and convert to property type.
+                    @Suppress("UNCHECKED_CAST")
+                    this@UsesEditorConfigProperties
+                        .editorConfigProperties
+                        .find { it.type.name == property.name }
+                        ?.type
+                        ?.parse(property.sourceValue)
+                        ?.parsed as T?
+                }
+            }
+
+        return propertyValue
             ?: editorConfigProperty
                 .getDefaultValue(codeStyleValue)
                 .also {
@@ -313,6 +331,7 @@ public object DefaultEditorConfigProperties : UsesEditorConfigProperties {
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
         codeStyleSetProperty,
         disabledRulesProperty,
+        ktlintDisabledRulesProperty,
         indentStyleProperty,
         indentSizeProperty,
         insertNewLineProperty,

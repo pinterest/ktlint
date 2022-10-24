@@ -725,6 +725,19 @@ class TrailingCommaOnDeclarationSiteRuleTest {
         }
 
         @Test
+        fun `Issue 1605 - Given that an empty parameter list with a comment, dot add a trailing comma`() {
+            val code =
+                """
+                class Test(
+                    // comment
+                )
+                """.trimIndent()
+            ruleAssertThat(code)
+                .withEditorConfigOverride(allowTrailingCommaProperty to true)
+                .hasNoLintViolations()
+        }
+
+        @Test
         fun `Given an enum is terminated by a semicolon and EOL comment without a trailing comma, then it is added `() {
             val code =
                 """
@@ -915,6 +928,33 @@ class TrailingCommaOnDeclarationSiteRuleTest {
 
         multiLineIfElseRuleAssertThat(code)
             .withEditorConfigOverride(allowTrailingCommaProperty to true)
+            .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Issue 1609 - Given that a trailing comma is required then add trailing comma after last enum member and indent the semi-colon`() {
+        val code =
+            """
+            enum class SomeEnum1(id: String) {
+                FOO("foo"),
+                BAR("bar");
+
+                fun doSomething(id: String) {}
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            enum class SomeEnum1(id: String) {
+                FOO("foo"),
+                BAR("bar"),
+                ;
+
+                fun doSomething(id: String) {}
+            }
+            """.trimIndent()
+        ruleAssertThat(code)
+            .withEditorConfigOverride(allowTrailingCommaProperty to true)
+            .hasLintViolation(3, 15, "Missing trailing comma before \";\"")
             .isFormattedAs(formattedCode)
     }
 }

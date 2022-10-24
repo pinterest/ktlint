@@ -4,13 +4,57 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
-### Fixed
+### API Changes & RuleSet providers
+
+#### Retrieve `.editorconfig`s
+
+The list of `.editorconfig` files which will be accessed by KtLint when linting or formatting a given path can now be retrieved with the new API `KtLint.editorConfigFilePaths(path: Path): List<Path>`. 
+
+This API can be called with either a file or a directory. It's intended usage is that it is called once with the root directory of a project before actually linting or formatting files of that project. When called with a directory path, all `.editorconfig` files in the directory or any of its subdirectories (except hidden directories) are returned. In case the given directory does not contain an `.editorconfig` file or if it does not contain the `root=true` setting, the parent directories are scanned as well until a root `.editorconfig` file is found.
+
+Calling this API with a file path results in the `.editorconfig` files that will be accessed when processing that specific file. In case the directory in which the file resides does not contain an `.editorconfig` file or if it does not contain the `root=true` setting, the parent directories are scanned until a root `.editorconfig` file is found.
+
+#### Psi filename replaces FILE_PATH_USER_DATA_KEY
+
+Constant `KtLint.FILE_PATH_USER_DATA_KEY` is deprecated and will be removed in  KtLint version 0.49.0. The file name will be passed correctly to the node with element type FILE and can be retrieved as follows:
+```kotlin
+if (node.isRoot()) {
+    val fileName = (node.psi as? KtFile)?.name
+    ...
+}
+```
 
 ### Added
+* Wrap blocks in case the max line length is exceeded or in case the block contains a new line `wrapping` ([#1643](https://github.com/pinterest/ktlint/issue/1643))
+
+* patterns can be read in from `stdin` with the `--patterns-from-stdin` command line options/flags ([#1606](https://github.com/pinterest/ktlint/pull/1606))
+
+### Fixed
+
+* Let a rule process all nodes even in case the rule is suppressed for a node so that the rule can update the internal state ([#1644](https://github.com/pinterest/ktlint/issue/1644))
+* Read `.editorconfig` when running CLI with options `--stdin` and `--editorconfig` ([#1651](https://github.com/pinterest/ktlint/issue/1651))
+* Do not add a trailing comma in case a multiline function call argument is found but no newline between the arguments `trailing-comma-on-call-site` ([#1642](https://github.com/pinterest/ktlint/issue/1642))
+* Add missing `ktlint_disabled_rules` to exposed `editorConfigProperties` ([#1671](https://github.com/pinterest/ktlint/issue/1671))
 
 ### Changed
+* Update Kotlin development version to `1.7.20` and Kotlin version to `1.7.20`.
+* CLI options `--debug`, `--trace`, `--verbose` and `-v` are replaced with `--log-level=<level>` or the short version `-l=<level>, see [CLI log-level](https://pinterest.github.io/ktlint/install/cli/#logging). ([#1632](https://github.com/pinterest/ktlint/issue/1632))
+* In CLI, disable logging entirely by setting `--log-level=none` or `-l=none` ([#1652](https://github.com/pinterest/ktlint/issue/1652))
 
-### Removed
+
+## [0.47.1] - 2022-09-07
+
+### Fixed
+* Do not add trailing comma in empty parameter/argument list with comments (`trailing-comma-on-call-site`, `trailing-comma-on-declaration-site`) ([#1602](https://github.com/pinterest/ktlint/issue/1602))
+* Fix class cast exception when specifying a non-string editorconfig setting in the default ".editorconfig" ([#1627](https://github.com/pinterest/ktlint/issue/1627))
+* Fix indentation before semi-colon when it is pushed down after inserting a trailing comma  ([#1609](https://github.com/pinterest/ktlint/issue/1609))
+* Do not show deprecation warning about property "disabled_rules" when using CLi-parameter `--disabled-rules` ([#1599](https://github.com/pinterest/ktlint/issues/1599))
+* Traversing directory hierarchy at Windows ([#1600](https://github.com/pinterest/ktlint/issues/1600))
+* Ant-style path pattern support ([#1601](https://github.com/pinterest/ktlint/issues/1601))
+* Apply `@file:Suppress` on all toplevel declarations ([#1623](https://github.com/pinterest/ktlint/issues/1623)) 
+
+### Changed
+* Display warning instead of error when no files are matched, and return with exit code 0. ([#1624](https://github.com/pinterest/ktlint/issues/1624))
 
 ## [0.47.0] - 2022-08-19
 
@@ -1318,6 +1362,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.47.1]: https://github.com/pinterest/ktlint/compare/0.47.0...0.47.1
 [0.47.0]: https://github.com/pinterest/ktlint/compare/0.46.1...0.47.0
 [0.46.1]: https://github.com/pinterest/ktlint/compare/0.46.0...0.46.1
 [0.46.0]: https://github.com/pinterest/ktlint/compare/0.45.2...0.46.0

@@ -450,7 +450,7 @@ public class KtLintAssertThatAssertable(
      */
     public fun isFormattedAs(formattedCode: String): KtLintAssertThatAssertable {
         check(formattedCode != code) {
-            "Use '.hasNoLintErrors()' instead of '.isFormattedAs(<original code>)'"
+            "Use '.hasNoLintViolations()' instead of '.isFormattedAs(<original code>)'"
         }
 
         // Also format the code to be absolutely sure that codes does not get changed

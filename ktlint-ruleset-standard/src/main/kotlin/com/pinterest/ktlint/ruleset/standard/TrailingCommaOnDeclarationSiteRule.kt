@@ -33,6 +33,7 @@ import org.jetbrains.kotlin.psi.KtCollectionLiteralExpression
 import org.jetbrains.kotlin.psi.KtDestructuringDeclaration
 import org.jetbrains.kotlin.psi.KtEnumEntry
 import org.jetbrains.kotlin.psi.KtFunctionLiteral
+import org.jetbrains.kotlin.psi.KtParameterList
 import org.jetbrains.kotlin.psi.KtPsiFactory
 import org.jetbrains.kotlin.psi.KtValueArgumentList
 import org.jetbrains.kotlin.psi.KtWhenEntry
@@ -316,7 +317,9 @@ public class TrailingCommaOnDeclarationSiteRule :
 
                         if (inspectNode.treeParent.elementType == ElementType.ENUM_ENTRY) {
                             with(KtPsiFactory(prevNode.psi)) {
-                                val parentIndent = (prevNode.psi.parent.prevLeaf() as? PsiWhiteSpace)?.text ?: "\n"
+                                val parentIndent =
+                                    (prevNode.psi.parent.prevLeaf() as? PsiWhiteSpace)?.text
+                                        ?: "\n${prevNode.lineIndent()}"
                                 val newline = createWhiteSpace(parentIndent)
                                 val enumEntry = inspectNode.treeParent.psi
                                 enumEntry.apply {
@@ -364,6 +367,7 @@ public class TrailingCommaOnDeclarationSiteRule :
             val lastChild = element.collectDescendantsOfType<KtCollectionLiteralExpression>().last()
             containsLineBreakInLeavesRange(lastChild.rightBracket!!, element.rightParenthesis!!)
         }
+        element is KtParameterList && element.parameters.isEmpty() -> false
         else -> element.textContains('\n')
     }
 

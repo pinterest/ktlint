@@ -37,7 +37,18 @@ import org.jetbrains.kotlin.psi.psiUtil.getStrictParentOfType
  * in addition, "(" and ")" must be on separates line if any of the arguments are (otherwise on the same)
  */
 public class ArgumentListWrappingRule :
-    Rule("argument-list-wrapping"),
+    Rule(
+        id = "argument-list-wrapping",
+        visitorModifiers = setOf(
+            VisitorModifier.RunAfterRule(
+                // ArgumentListWrapping should only be used in case after normal wrapping the max_line_length is still
+                // violated
+                ruleId = "wrapping",
+                loadOnlyWhenOtherRuleIsLoaded = false,
+                runOnlyWhenOtherRuleIsEnabled = false,
+            ),
+        ),
+    ),
     UsesEditorConfigProperties {
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> =
         listOf(

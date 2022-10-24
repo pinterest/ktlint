@@ -178,6 +178,12 @@ Consistent removal (default) or adding of trailing comma's on declaration site.
 
 Rule id: `trailing-comma-on-declaration-site`
 
+## Wrapping
+
+Inserts missing newlines (for example between parentheses of a multi-line function call).
+
+Rule id: `wrapping`
+
 ## Spacing
 
 ### Annotation spacing

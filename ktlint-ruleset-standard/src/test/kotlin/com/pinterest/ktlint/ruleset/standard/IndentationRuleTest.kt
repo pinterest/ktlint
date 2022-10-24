@@ -4638,6 +4638,23 @@ internal class IndentationRuleTest {
         indentationRuleAssertThat(code).hasNoLintViolations()
     }
 
+    @Test
+    fun `Issue 1644 - Given multiple nested brackets and some of them have ktlint-disable`() {
+        val code =
+            """
+            fun fooBar() {
+                fun foo() {
+                    // some code
+                } // ktlint-disable indent
+
+                fun bar() {
+                    // some code
+                }
+            }
+            """.trimIndent()
+        indentationRuleAssertThat(code).hasNoLintViolations()
+    }
+
     private companion object {
         val INDENT_STYLE_TAB = indentStyleProperty to PropertyType.IndentStyleValue.tab
     }

@@ -11,7 +11,6 @@ import java.util.concurrent.ConcurrentHashMap
 
 public class PlainReporter(
     private val out: PrintStream,
-    private val verbose: Boolean = false,
     private val groupByFile: Boolean = false,
     private val shouldColorOutput: Boolean = false,
     private val outputColor: Color = Color.DARK_GRAY,
@@ -54,7 +53,7 @@ public class PlainReporter(
                     ""
                 }
                 out.println(
-                    "  $line${":$column".colored()} $detail$ruleName",
+                    "  $line${":$column".colored()} $detail ${"($ruleId)".colored()})",
                 )
             }
         }

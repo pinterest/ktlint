@@ -1,6 +1,7 @@
 package com.pinterest.ktlint
 
 import java.io.File
+import java.io.InputStream
 import java.nio.file.FileVisitResult
 import java.nio.file.Files
 import java.nio.file.Path
@@ -8,7 +9,11 @@ import java.nio.file.Paths
 import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
 import java.util.concurrent.TimeUnit
+import org.assertj.core.api.AbstractAssert
+import org.assertj.core.api.AbstractBooleanAssert
+import org.assertj.core.api.AbstractIntegerAssert
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.ListAssert
 import org.junit.jupiter.api.fail
 import org.junit.jupiter.api.io.TempDir
 
@@ -27,6 +32,7 @@ abstract class BaseCLITest {
     fun runKtLintCliProcess(
         testProjectName: String,
         arguments: List<String> = emptyList(),
+        stdin: InputStream? = null,
         executionAssertions: ExecutionResult.() -> Unit,
     ) {
         val projectPath = prepareTestProject(testProjectName)
@@ -43,6 +49,11 @@ abstract class BaseCLITest {
         environment["PATH"] = "${System.getProperty("java.home")}${File.separator}bin${File.pathSeparator}${System.getenv()["PATH"]}"
 
         val process = processBuilder.start()
+
+        if (stdin != null) {
+            process.outputStream.use(stdin::copyTo)
+        }
+
         if (process.completedInAllowedDuration()) {
             val output = process.inputStream.bufferedReader().use { it.readLines() }
             val error = process.errorStream.bufferedReader().use { it.readLines() }
@@ -105,13 +116,33 @@ abstract class BaseCLITest {
         )
     }
 
+    protected fun ListAssert<String>.containsLineMatching(string: String): ListAssert<String> =
+        this.anyMatch {
+            it.contains(string)
+        }
+
+    protected fun ListAssert<String>.containsLineMatching(regex: Regex): ListAssert<String> =
+        this.anyMatch {
+            it.matches(regex)
+        }
+
+    protected fun ListAssert<String>.doesNotContainLineMatching(string: String): ListAssert<String> =
+        this.noneMatch {
+            it.contains(string)
+        }
+
+    protected fun ListAssert<String>.doesNotContainLineMatching(regex: Regex): ListAssert<String> =
+        this.noneMatch {
+            it.matches(regex)
+        }
+
     data class ExecutionResult(
         val exitCode: Int,
         val normalOutput: List<String>,
         val errorOutput: List<String>,
         val testProject: Path,
     ) {
-        fun assertNormalExitCode() {
+        fun assertNormalExitCode(): AbstractIntegerAssert<*> =
             assertThat(exitCode)
                 .withFailMessage(
                     "Expected process to exit with exitCode 0, but was $exitCode."
@@ -122,36 +153,38 @@ abstract class BaseCLITest {
                             ),
                         ),
                 ).isEqualTo(0)
-        }
 
-        fun assertErrorExitCode() {
+        fun assertErrorExitCode(): AbstractIntegerAssert<*> =
             assertThat(exitCode)
                 .withFailMessage("Execution was expected to finish with error. However, exitCode is $exitCode")
                 .isNotEqualTo(0)
-        }
 
-        fun assertErrorOutputIsEmpty() {
+        fun assertErrorOutputIsEmpty(): AbstractBooleanAssert<*> =
             assertThat(errorOutput.isEmpty())
                 .withFailMessage(
                     "Expected error output to be empty but was:".followedByIndentedList(errorOutput),
                 ).isTrue
-        }
 
-        fun assertSourceFileWasFormatted(
-            filePathInProject: String,
-        ) {
-            val originalFile = testProjectsPath.resolve(testProject.last()).resolve(filePathInProject)
-            val newFile = testProject.resolve(filePathInProject)
+        fun assertSourceFileWasFormatted(filePathInProject: String): AbstractAssert<*, *> {
+            val originalCode =
+                testProjectsPath
+                    .resolve(testProject.last())
+                    .resolve(filePathInProject)
+                    .toFile()
+                    .readText()
+            val formattedCode =
+                testProject
+                    .resolve(filePathInProject)
+                    .toFile()
+                    .readText()
 
-            assert(originalFile.toFile().readText() != newFile.toFile().readText()) {
-                "Format did not change source file $filePathInProject content:\n${originalFile.toFile().readText()}"
-            }
+            return assertThat(formattedCode).isNotEqualTo(originalCode)
         }
     }
 
     companion object {
         private const val WAIT_INTERVAL_DURATION = 100L
-        private const val WAIT_INTERVAL_MAX_OCCURRENCES = 100
+        private const val WAIT_INTERVAL_MAX_OCCURRENCES = 1000
         val testProjectsPath: Path = Paths.get("src", "test", "resources", "cli")
         const val BASE_DIR_PLACEHOLDER = "__TEMP_DIR__"
     }

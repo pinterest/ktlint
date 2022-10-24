@@ -1,9 +1,13 @@
 package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.ec4j.core.model.PropertyType.IndentStyleValue.tab
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 internal class WrappingRuleTest {
@@ -1589,6 +1593,117 @@ internal class WrappingRuleTest {
                 }
             """.trimIndent()
         wrappingRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @DisplayName("Given a block not starting and/or ending on a separate line")
+    @Nested
+    inner class WrapBlock {
+        @Test
+        fun `A single line block on a line which does not exceed the max line length is not wrapped`() {
+            val code =
+                """
+                // $MAX_LINE_LENGTH_MARKER                                                   $EOL_CHAR
+                class Bar {
+                    val bar by lazy { foo("foooooooooooooooooooooooooooooooooooooooo", true) }
+                }
+                """.trimIndent()
+            wrappingRuleAssertThat(code)
+                .setMaxLineLength()
+                .hasNoLintViolations()
+        }
+
+        @Test
+        fun `Issue 1643 - Wrap a block in case line including the block is violating the max line length`() {
+            val code =
+                """
+                // $MAX_LINE_LENGTH_MARKER                                                   $EOL_CHAR
+                class Bar {
+                    val barrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr by lazy { fooooooooooooo("fooooooooooooooooooooooooooooooooooooooooooooo", true) }
+                }
+                """.trimIndent()
+            val formattedCode =
+                """
+                // $MAX_LINE_LENGTH_MARKER                                                   $EOL_CHAR
+                class Bar {
+                    val barrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr by lazy {
+                        fooooooooooooo("fooooooooooooooooooooooooooooooooooooooooooooo", true)
+                    }
+                }
+                """.trimIndent()
+            wrappingRuleAssertThat(code)
+                .setMaxLineLength()
+                .hasLintViolation(3, 52, "Missing newline after \"{\"")
+                .isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Wrap a multiline block not containing a newline between the LBRACE and the first statement in that block even in case the line containing the start of the block does not exceed the max-line-length`() {
+            val code =
+                """
+                class Bar {
+                    val barrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr by lazy { "foo"
+                    }
+                }
+                """.trimIndent()
+            val formattedCode =
+                """
+                class Bar {
+                    val barrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr by lazy {
+                        "foo"
+                    }
+                }
+                """.trimIndent()
+            wrappingRuleAssertThat(code)
+                .hasLintViolation(2, 52, "Missing newline after \"{\"")
+                .isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Wrap a multiline block not containing a newline between the last statement in the block and the RBRACE even in case the line containing the end of the block does not exceed the max-line-length`() {
+            val code =
+                """
+                class Bar {
+                    val barrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr by lazy {
+                        "foo" }
+                }
+                """.trimIndent()
+            val formattedCode =
+                """
+                class Bar {
+                    val barrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr by lazy {
+                        "foo"
+                    }
+                }
+                """.trimIndent()
+            wrappingRuleAssertThat(code)
+                .hasLintViolation(3, 14, "Missing newline before \"}\"")
+                .isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Wrap a multiline block not containing whitespace elements before or after the block`() {
+            val code =
+                """
+                class Bar {
+                    val bar by lazy {${MULTILINE_STRING_QUOTE}foo
+                            foo${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}}
+                }
+                """.trimIndent()
+            val formattedCode =
+                """
+                class Bar {
+                    val bar by lazy {
+                        ${MULTILINE_STRING_QUOTE}foo
+                            foo${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}
+                    }
+                }
+                """.trimIndent()
+            wrappingRuleAssertThat(code)
+                .hasLintViolations(
+                    LintViolation(2, 22, "Missing newline after \"{\""),
+                    LintViolation(3, 18, "Missing newline before \"}\""),
+                ).isFormattedAs(formattedCode)
+        }
     }
 
     private companion object {
