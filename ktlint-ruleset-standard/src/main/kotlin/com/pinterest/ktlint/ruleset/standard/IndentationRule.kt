@@ -8,6 +8,7 @@ import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentSizePro
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentStyleProperty
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
+import com.pinterest.ktlint.core.ast.ElementType.ANNOTATED_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.ARROW
 import com.pinterest.ktlint.core.ast.ElementType.BINARY_EXPRESSION
@@ -52,6 +53,7 @@ import com.pinterest.ktlint.core.ast.ElementType.PROPERTY
 import com.pinterest.ktlint.core.ast.ElementType.PROPERTY_ACCESSOR
 import com.pinterest.ktlint.core.ast.ElementType.RBRACE
 import com.pinterest.ktlint.core.ast.ElementType.RBRACKET
+import com.pinterest.ktlint.core.ast.ElementType.REFERENCE_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.REGULAR_STRING_PART
 import com.pinterest.ktlint.core.ast.ElementType.RPAR
 import com.pinterest.ktlint.core.ast.ElementType.SAFE_ACCESS_EXPRESSION
@@ -196,6 +198,7 @@ public class IndentationRule :
                 startIndentContext(node)
 
             node.elementType == DELEGATED_SUPER_TYPE_ENTRY ||
+                node.elementType == ANNOTATED_EXPRESSION ||
                 node.elementType == TYPE_REFERENCE ->
                 startIndentContext(
                     fromAstNode = node,

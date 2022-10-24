@@ -4625,6 +4625,19 @@ internal class IndentationRuleTest {
         indentationRuleAssertThat(code).hasNoLintViolations()
     }
 
+    @Test
+    fun `Given an annotated expression`() {
+        val code =
+            """
+            public fun Window.asCoroutineDispatcher(): CoroutineDispatcher =
+                @Suppress("UnsafeCastFromDynamic")
+                asDynamic().coroutineDispatcher ?: WindowDispatcher(this).also {
+                    asDynamic().coroutineDispatcher = it
+                }
+            """.trimIndent()
+        indentationRuleAssertThat(code).hasNoLintViolations()
+    }
+
     private companion object {
         val INDENT_STYLE_TAB = indentStyleProperty to PropertyType.IndentStyleValue.tab
     }
