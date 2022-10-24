@@ -4595,6 +4595,18 @@ internal class IndentationRuleTest {
     }
 
     @Test
+    fun `Given a nested type reference preceded by an annotation or comment`() {
+        val code =
+            """
+            class KtLintMultiRule :
+                @Suppress("DEPRECATION")
+                Foo.bar {
+            }
+            """.trimIndent()
+        indentationRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
     fun `Given a when statement with a multiline condition`() {
         val code =
             """

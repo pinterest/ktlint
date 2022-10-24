@@ -176,7 +176,6 @@ public class IndentationRule :
                 node.elementType == LONG_STRING_TEMPLATE_ENTRY ||
                 node.elementType == SUPER_TYPE_CALL_ENTRY ||
                 node.elementType == STRING_TEMPLATE ||
-                node.elementType == TYPE_REFERENCE ||
                 node.elementType == VALUE_ARGUMENT_LIST ->
                 startIndentContext(
                     fromAstNode = node,
@@ -196,7 +195,8 @@ public class IndentationRule :
                 node.elementType == TYPE_PARAMETER_LIST ->
                 startIndentContext(node)
 
-            node.elementType == DELEGATED_SUPER_TYPE_ENTRY ->
+            node.elementType == DELEGATED_SUPER_TYPE_ENTRY ||
+                node.elementType == TYPE_REFERENCE ->
                 startIndentContext(
                     fromAstNode = node,
                     childIndent = "",
@@ -235,7 +235,8 @@ public class IndentationRule :
                 visitBinaryExpression(node)
 
             node.elementType == DOT_QUALIFIED_EXPRESSION ||
-                node.elementType == SAFE_ACCESS_EXPRESSION -> {
+                node.elementType == SAFE_ACCESS_EXPRESSION ||
+                node.elementType == USER_TYPE -> {
                 if (node.treeParent?.elementType != node.elementType) {
                     startIndentContext(node)
                 }
