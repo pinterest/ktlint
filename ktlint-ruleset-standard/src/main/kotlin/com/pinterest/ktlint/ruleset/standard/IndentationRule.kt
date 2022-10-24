@@ -53,7 +53,6 @@ import com.pinterest.ktlint.core.ast.ElementType.PROPERTY
 import com.pinterest.ktlint.core.ast.ElementType.PROPERTY_ACCESSOR
 import com.pinterest.ktlint.core.ast.ElementType.RBRACE
 import com.pinterest.ktlint.core.ast.ElementType.RBRACKET
-import com.pinterest.ktlint.core.ast.ElementType.REFERENCE_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.REGULAR_STRING_PART
 import com.pinterest.ktlint.core.ast.ElementType.RPAR
 import com.pinterest.ktlint.core.ast.ElementType.SAFE_ACCESS_EXPRESSION
@@ -537,12 +536,12 @@ public class IndentationRule :
                 nextToASTNode = startIndentContext(
                     fromAstNode = lpar,
                     toAstNode = node.findChildByType(RPAR)!!,
-                    lastChildIndent = ""
+                    lastChildIndent = "",
                 ).prevCodeLeaf()
             }
         startIndentContext(
             fromAstNode = node,
-            toAstNode = nextToASTNode
+            toAstNode = nextToASTNode,
         )
     }
 
