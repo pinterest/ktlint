@@ -47,13 +47,8 @@ public class PlainReporter(
                 } else {
                     col
                 }
-                val ruleName = if (verbose) {
-                    " ($ruleId)".colored()
-                } else {
-                    ""
-                }
                 out.println(
-                    "  $line${":$column".colored()} $detail ${"($ruleId)".colored()})",
+                    "  $line${":$column".colored()} $detail ${"($ruleId)".colored()}",
                 )
             }
         }
