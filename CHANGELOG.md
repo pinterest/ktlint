@@ -4,6 +4,10 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+### Indent rule
+
+The `indent` rule has been rewritten from scratch. Solving problems in the old algorithm was very difficult. With the new algorithm this becomes a lot easier. Although the new implementation of the rule has been compared against several open source projects containing over 400,000 lines of code, it is still likely that new issues will be discovered. Please report your indentation issues so that these can be fixed as well.
+
 ### API Changes & RuleSet providers
 
 #### Retrieve `.editorconfig`s
@@ -16,7 +20,7 @@ Calling this API with a file path results in the `.editorconfig` files that will
 
 #### Psi filename replaces FILE_PATH_USER_DATA_KEY
 
-Constant `KtLint.FILE_PATH_USER_DATA_KEY` is deprecated and will be removed in  KtLint version 0.49.0. The file name will be passed correctly to the node with element type FILE and can be retrieved as follows:
+Constant `KtLint.FILE_PATH_USER_DATA_KEY` is deprecated and will be removed in KtLint version 0.49.0. The file name will be passed correctly to the node with element type FILE and can be retrieved as follows:
 ```kotlin
 if (node.isRoot()) {
     val fileName = (node.psi as? KtFile)?.name
@@ -40,7 +44,7 @@ if (node.isRoot()) {
 * Update Kotlin development version to `1.7.20` and Kotlin version to `1.7.20`.
 * CLI options `--debug`, `--trace`, `--verbose` and `-v` are replaced with `--log-level=<level>` or the short version `-l=<level>, see [CLI log-level](https://pinterest.github.io/ktlint/install/cli/#logging). ([#1632](https://github.com/pinterest/ktlint/issue/1632))
 * In CLI, disable logging entirely by setting `--log-level=none` or `-l=none` ([#1652](https://github.com/pinterest/ktlint/issue/1652))
-
+* Rewrite `indent` rule. Solving problems in the old algorithm was very difficult. With the new algorithm this becomes a lot easier. Although the new implementation of the rule has been compared against several open source projects containing over 400,000 lines of code, it is still likely that new issues will be discovered. Please report your indentation issues so that these can be fixed as well. ([#1682](https://github.com/pinterest/ktlint/pull/1682), [#1321](https://github.com/pinterest/ktlint/issues/1321), [#1200](https://github.com/pinterest/ktlint/issues/1200), [#1562](https://github.com/pinterest/ktlint/issues/1562), [#1563](https://github.com/pinterest/ktlint/issues/1563), [#1639](https://github.com/pinterest/ktlint/issues/1639))
 
 ## [0.47.1] - 2022-09-07
 

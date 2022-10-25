@@ -506,9 +506,14 @@ internal class KtlintCommandLine {
         val reporterProvider = reporterProviderById[id]
         if (reporterProvider == null) {
             logger.error {
-                "reporter \"$id\" wasn't found (available: ${
-                reporterProviderById.keys.sorted().joinToString(",")
-                })"
+                reporterProviderById
+                    .keys
+                    .sorted()
+                    .joinToString(
+                        separator = ", ",
+                        prefix = "reporter \"$id\" wasn't found (available: ",
+                        postfix = ")",
+                    )
             }
             exitProcess(1)
         }

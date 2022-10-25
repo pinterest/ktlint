@@ -29,7 +29,6 @@ import com.pinterest.ktlint.core.ast.ElementType.LT
 import com.pinterest.ktlint.core.ast.ElementType.OBJECT_LITERAL
 import com.pinterest.ktlint.core.ast.ElementType.RBRACE
 import com.pinterest.ktlint.core.ast.ElementType.RBRACKET
-import com.pinterest.ktlint.core.ast.ElementType.REGULAR_STRING_PART
 import com.pinterest.ktlint.core.ast.ElementType.RPAR
 import com.pinterest.ktlint.core.ast.ElementType.STRING_TEMPLATE
 import com.pinterest.ktlint.core.ast.ElementType.SUPER_TYPE_CALL_ENTRY
@@ -198,7 +197,7 @@ public class WrappingRule :
             (
                 numberOfArgs == 1 &&
                     firstArg?.firstChildNode?.elementType
-                    ?.let { it == OBJECT_LITERAL || it == LAMBDA_EXPRESSION } == true
+                        ?.let { it == OBJECT_LITERAL || it == LAMBDA_EXPRESSION } == true
                 )
         ) {
             return
@@ -219,11 +218,11 @@ public class WrappingRule :
             return
         }
         if (!node.nextCodeLeaf()?.prevLeaf {
-            // Skip comments, whitespace, and empty nodes
-            !it.isPartOfComment() &&
-                !it.isWhiteSpaceWithoutNewline() &&
-                it.textLength > 0
-        }.isWhiteSpaceWithNewline() &&
+                // Skip comments, whitespace, and empty nodes
+                !it.isPartOfComment() &&
+                    !it.isWhiteSpaceWithoutNewline() &&
+                    it.textLength > 0
+            }.isWhiteSpaceWithNewline() &&
             // IDEA quirk:
             // if (true &&
             //     true
@@ -386,7 +385,7 @@ public class WrappingRule :
                 )
                 if (autoCorrect) {
                     node as LeafPsiElement
-                    node.rawInsertBeforeMe(LeafPsiElement(REGULAR_STRING_PART, "\n"))
+                    node.rawInsertBeforeMe(LeafPsiElement(LITERAL_STRING_TEMPLATE_ENTRY, "\n"))
                 }
                 logger.trace { "$line: " + (if (!autoCorrect) "would have " else "") + "inserted newline before (closing) \"\"\"" }
             }
