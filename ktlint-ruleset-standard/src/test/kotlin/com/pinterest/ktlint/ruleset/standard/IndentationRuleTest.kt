@@ -4655,6 +4655,131 @@ internal class IndentationRuleTest {
         indentationRuleAssertThat(code).hasNoLintViolations()
     }
 
+    @Test
+    fun `Issue 1563 - Given some code starting with a comment should not introduce a blank line before the comment`() {
+        val code =
+            """
+            // Some comment or code element
+            """.trimIndent()
+        indentationRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    // Should be resolved in IntelliJ IDEA default formatter:
+    // https://youtrack.jetbrains.com/issue/KTIJ-14859/Too-little-indentation-inside-the-brackets-in-multiple-annotations-with-the-same-target
+    @Test
+    fun `Issue 1639 - Given an annotation entry within an annotation`() {
+        val code =
+            """
+            package mypackage
+
+            private annotation class A
+            private annotation class B
+
+            private class C {
+                @field: [
+                A
+                B
+                ]
+                val a: Int = 42
+            }
+            """.trimIndent()
+        indentationRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @DisplayName("Issue 1639 - Context receivers")
+    @Nested
+    inner class ContextReceivers {
+        @Test
+        fun `Given a context receiver with multiple parameters`() {
+            val code =
+                """
+                context(
+                Foo,
+                Bar
+                )
+                fun fooBar()
+                """.trimIndent()
+            val formattedCode =
+                """
+                context(
+                    Foo,
+                    Bar
+                )
+                fun fooBar()
+                """.trimIndent()
+            indentationRuleAssertThat(code)
+                .hasLintViolations(
+                    LintViolation(2, 1, "Unexpected indentation (0) (should be 4)"),
+                    LintViolation(3, 1, "Unexpected indentation (0) (should be 4)"),
+                ).isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Given a context receiver with a parameter containing generic types with multiple parameters`() {
+            val code =
+                """
+                context(
+                FooBar<
+                Foo,
+                Bar
+                >
+                )
+                fun fooBar()
+                """.trimIndent()
+            // Actually, the closing ">" should be de-indented in same way as is done with ")", "]" and "}". It is
+            // however indented to keep it in sync with other TYPE_ARGUMENT_LISTs which are formatted in this way.
+            val formattedCode =
+                """
+                context(
+                    FooBar<
+                        Foo,
+                        Bar
+                        >
+                )
+                fun fooBar()
+                """.trimIndent()
+            indentationRuleAssertThat(code)
+                .hasLintViolations(
+                    LintViolation(2, 1, "Unexpected indentation (0) (should be 4)"),
+                    LintViolation(3, 1, "Unexpected indentation (0) (should be 8)"),
+                    LintViolation(4, 1, "Unexpected indentation (0) (should be 8)"),
+                    LintViolation(5, 1, "Unexpected indentation (0) (should be 8)"),
+                ).isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Issue 1639 - Given a context receiver`() {
+            val code =
+                """
+                context(Comparator<T>)
+                infix operator fun <T> T.compareTo(other: T) = compare(this, other)
+
+                context(Comparator<T>)
+                val <T> Pair<T, T>.max get() = if (first > second) first else second
+
+                typealias ClickHandler = context(Button) (ClickEvent) -> Unit
+
+                fun main() {
+                  var g: context(Context) Receiver.(Param) -> Unit
+                  g = ::foo         // OK
+                  g = ::bar         // OK
+                  g = Receiver::baz // OK
+                }
+
+                fun test(loggingContext: LoggingContext) {
+                    with(loggingContext) {
+                        // You need to have LoggingContext in a scope as an implicit receiver
+                        // to call startBusinessOperation()
+                        startBusinessOperation()
+                    }
+                }
+                """.trimIndent()
+            indentationRuleAssertThat(code)
+//                .hasNoLintViolations()
+                .isFormattedAs("xxx")
+        }
+    }
+
     private companion object {
         val INDENT_STYLE_TAB = indentStyleProperty to PropertyType.IndentStyleValue.tab
     }

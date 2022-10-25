@@ -9,6 +9,7 @@ import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentStylePr
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType.ANNOTATED_EXPRESSION
+import com.pinterest.ktlint.core.ast.ElementType.ANNOTATION
 import com.pinterest.ktlint.core.ast.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.ARROW
 import com.pinterest.ktlint.core.ast.ElementType.BINARY_EXPRESSION
@@ -22,6 +23,7 @@ import com.pinterest.ktlint.core.ast.ElementType.CLASS_BODY
 import com.pinterest.ktlint.core.ast.ElementType.CLOSING_QUOTE
 import com.pinterest.ktlint.core.ast.ElementType.CONDITION
 import com.pinterest.ktlint.core.ast.ElementType.CONSTRUCTOR_DELEGATION_CALL
+import com.pinterest.ktlint.core.ast.ElementType.CONTEXT_RECEIVER_LIST
 import com.pinterest.ktlint.core.ast.ElementType.DELEGATED_SUPER_TYPE_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.DESTRUCTURING_DECLARATION
 import com.pinterest.ktlint.core.ast.ElementType.DOT
@@ -174,6 +176,7 @@ public class IndentationRule :
             }
 
             node.elementType == CLASS_BODY ||
+                node.elementType == CONTEXT_RECEIVER_LIST ||
                 node.elementType == LONG_STRING_TEMPLATE_ENTRY ||
                 node.elementType == SUPER_TYPE_CALL_ENTRY ||
                 node.elementType == STRING_TEMPLATE ||
@@ -629,7 +632,11 @@ public class IndentationRule :
     private fun visitLBracket(node: ASTNode) {
         node
             .treeParent
-            .findChildByType(RBRACKET)
+            .takeUnless {
+                // Should be resolved in IntelliJ IDEA default formatter:
+                // https://youtrack.jetbrains.com/issue/KTIJ-14859/Too-little-indentation-inside-the-brackets-in-multiple-annotations-with-the-same-target
+                it.elementType == ANNOTATION
+            }?.findChildByType(RBRACKET)
             ?.let { rbracket ->
                 startIndentContext(
                     fromAstNode = node,
