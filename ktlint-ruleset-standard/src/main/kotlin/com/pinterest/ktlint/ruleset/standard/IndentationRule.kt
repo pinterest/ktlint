@@ -23,6 +23,7 @@ import com.pinterest.ktlint.core.ast.ElementType.CLASS_BODY
 import com.pinterest.ktlint.core.ast.ElementType.CLOSING_QUOTE
 import com.pinterest.ktlint.core.ast.ElementType.CONDITION
 import com.pinterest.ktlint.core.ast.ElementType.CONSTRUCTOR_DELEGATION_CALL
+import com.pinterest.ktlint.core.ast.ElementType.CONTEXT_RECEIVER_LIST
 import com.pinterest.ktlint.core.ast.ElementType.DELEGATED_SUPER_TYPE_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.DESTRUCTURING_DECLARATION
 import com.pinterest.ktlint.core.ast.ElementType.DOT
@@ -175,6 +176,7 @@ public class IndentationRule :
             }
 
             node.elementType == CLASS_BODY ||
+                node.elementType == CONTEXT_RECEIVER_LIST ||
                 node.elementType == LONG_STRING_TEMPLATE_ENTRY ||
                 node.elementType == SUPER_TYPE_CALL_ENTRY ||
                 node.elementType == STRING_TEMPLATE ||

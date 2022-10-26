@@ -4686,6 +4686,80 @@ internal class IndentationRuleTest {
         indentationRuleAssertThat(code).hasNoLintViolations()
     }
 
+    @DisplayName("Issue 1639 - Context receivers")
+    @Nested
+    inner class ContextReceivers {
+        @Test
+        fun `Given a context receiver with multiple parameters`() {
+            val code =
+                """
+                context(
+                Foo,
+                Bar
+                )
+                fun fooBar()
+                """.trimIndent()
+            val formattedCode =
+                """
+                context(
+                    Foo,
+                    Bar
+                )
+                fun fooBar()
+                """.trimIndent()
+            indentationRuleAssertThat(code)
+                .hasLintViolations(
+                    LintViolation(2, 1, "Unexpected indentation (0) (should be 4)"),
+                    LintViolation(3, 1, "Unexpected indentation (0) (should be 4)"),
+                ).isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Given a context receiver with a parameter containing generic types with multiple parameters`() {
+            val code =
+                """
+                context(
+                FooBar<
+                Foo,
+                Bar
+                >
+                )
+                fun fooBar()
+                """.trimIndent()
+            // Actually, the closing ">" should be de-indented in same way as is done with ")", "]" and "}". It is
+            // however indented to keep it in sync with other TYPE_ARGUMENT_LISTs which are formatted in this way.
+            val formattedCode =
+                """
+                context(
+                    FooBar<
+                        Foo,
+                        Bar
+                        >
+                )
+                fun fooBar()
+                """.trimIndent()
+            indentationRuleAssertThat(code)
+                .hasLintViolations(
+                    LintViolation(2, 1, "Unexpected indentation (0) (should be 4)"),
+                    LintViolation(3, 1, "Unexpected indentation (0) (should be 8)"),
+                    LintViolation(4, 1, "Unexpected indentation (0) (should be 8)"),
+                    LintViolation(5, 1, "Unexpected indentation (0) (should be 8)"),
+                ).isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Issue 1639 - Given a context receiver on a function having at least one modifier`() {
+            // Formatting below conflicts with IntelliJ IDEA default formatting and need to be fixed in IntelliJ:
+            // https://youtrack.jetbrains.com/issue/KTIJ-21072/Provide-proper-indentation-on-declarations-with-context-receivers
+            val code =
+                """
+                context(Comparator<T>)
+                public fun <T> T.compareTo(other: T) = compare(this, other)
+                """.trimIndent()
+            indentationRuleAssertThat(code).hasNoLintViolations()
+        }
+    }
+
     private companion object {
         val INDENT_STYLE_TAB = indentStyleProperty to PropertyType.IndentStyleValue.tab
     }
