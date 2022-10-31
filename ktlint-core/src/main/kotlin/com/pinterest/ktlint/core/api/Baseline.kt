@@ -11,6 +11,7 @@ import java.io.InputStream
 import java.nio.file.Paths
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.parsers.ParserConfigurationException
+import kotlin.io.path.relativeToOrSelf
 import mu.KotlinLogging
 import org.w3c.dom.Element
 import org.xml.sax.SAXException
@@ -149,5 +150,5 @@ public val File.relativeRoute: String
     get() {
         val rootPath = Paths.get("").toAbsolutePath()
         val filePath = this.toPath()
-        return rootPath.relativize(filePath).toString().replace(File.separatorChar, '/')
+        return filePath.relativeToOrSelf(rootPath).toString().replace(File.separatorChar, '/')
     }

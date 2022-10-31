@@ -7,6 +7,7 @@ import java.io.PrintStream
 import java.nio.file.Paths
 import java.util.ArrayList
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.io.path.relativeToOrSelf
 
 public class BaselineReporter(private val out: PrintStream) : Reporter {
 
@@ -22,12 +23,10 @@ public class BaselineReporter(private val out: PrintStream) : Reporter {
         out.println("""<?xml version="1.0" encoding="utf-8"?>""")
         out.println("""<baseline version="1.0">""")
         for ((file, errList) in acc.entries.sortedBy { it.key }) {
-            val fileName = try {
+            val fileName = run {
                 val rootPath = Paths.get("").toAbsolutePath()
                 val filePath = Paths.get(file)
-                rootPath.relativize(filePath).toString().replace(File.separatorChar, '/')
-            } catch (e: IllegalArgumentException) {
-                file
+                filePath.relativeToOrSelf(rootPath).toString().replace(File.separatorChar, '/')
             }
             out.println("""    <file name="${fileName.escapeXMLAttrValue()}">""")
             for ((line, col, ruleId, _) in errList) {
