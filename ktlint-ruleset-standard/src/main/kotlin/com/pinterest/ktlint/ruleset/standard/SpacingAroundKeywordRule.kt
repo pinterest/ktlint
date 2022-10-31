@@ -46,7 +46,7 @@ public class SpacingAroundKeywordRule : Rule("keyword-spacing") {
             if (tokenSet.contains(node.elementType) && node.parent !is KDocName && node.nextLeaf() !is PsiWhiteSpace) {
                 emit(node.startOffset + node.text.length, "Missing spacing after \"${node.text}\"", true)
                 if (autoCorrect) {
-                    node.upsertWhitespaceAfterMe(" ")
+                    (node as ASTNode).upsertWhitespaceAfterMe(" ")
                 }
             } else if (keywordsWithoutSpaces.contains(node.elementType) && node.nextLeaf() is PsiWhiteSpace) {
                 val parent = node.parent

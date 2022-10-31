@@ -10,6 +10,7 @@ import com.pinterest.ktlint.ruleset.standard.SpacingAroundCommaRule
 import com.pinterest.ktlint.ruleset.standard.SpacingAroundDotRule
 import com.pinterest.ktlint.ruleset.standard.SpacingAroundOperatorsRule
 import com.pinterest.ktlint.ruleset.standard.SpacingAroundParensRule
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation

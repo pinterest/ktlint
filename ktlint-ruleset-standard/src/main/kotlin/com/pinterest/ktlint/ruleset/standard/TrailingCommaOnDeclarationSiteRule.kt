@@ -26,7 +26,6 @@ import org.ec4j.core.model.PropertyType.PropertyValueParser
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtCollectionLiteralExpression
@@ -267,11 +266,7 @@ public class TrailingCommaOnDeclarationSiteRule :
                                 )
                                 if (autoCorrect) {
                                     val parentIndent = "\n" + inspectNode.getWhenEntryIndent()
-                                    if (lastNodeBeforeArrow.elementType == WHITE_SPACE) {
-                                        (lastNodeBeforeArrow as LeafPsiElement).rawReplaceWithText(parentIndent)
-                                    } else {
-                                        (lastNodeBeforeArrow as LeafPsiElement).upsertWhitespaceAfterMe(parentIndent)
-                                    }
+                                    lastNodeBeforeArrow.upsertWhitespaceAfterMe(parentIndent)
                                 }
                             }
                         }
