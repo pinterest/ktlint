@@ -538,4 +538,14 @@ class AnnotationRuleTest {
         annotationRuleAssertThat(code)
             .hasLintViolationWithoutAutoCorrect(1, 13, "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct")
     }
+
+    @Test
+    fun `Given an annotation with multiple annotation entries then do not force wrapping of the entries`() {
+        val code =
+            """
+            @[JvmStatic Provides]
+            fun foo() = 42
+            """.trimIndent()
+        annotationRuleAssertThat(code).hasNoLintViolations()
+    }
 }
