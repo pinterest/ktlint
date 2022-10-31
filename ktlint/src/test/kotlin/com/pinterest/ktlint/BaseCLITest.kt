@@ -9,6 +9,10 @@ import java.nio.file.Paths
 import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
 import java.util.concurrent.TimeUnit
+import kotlin.io.path.copyTo
+import kotlin.io.path.createDirectories
+import kotlin.io.path.div
+import kotlin.io.path.relativeToOrSelf
 import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.AbstractBooleanAssert
 import org.assertj.core.api.AbstractIntegerAssert
@@ -101,7 +105,8 @@ abstract class BaseCLITest {
                     dir: Path,
                     attrs: BasicFileAttributes,
                 ): FileVisitResult {
-                    Files.createDirectories(dest.resolve(relativize(dir)))
+                    val relativeDir = dir.relativeToOrSelf(this@copyRecursively)
+                    (dest / relativeDir).createDirectories()
                     return FileVisitResult.CONTINUE
                 }
 
@@ -109,7 +114,8 @@ abstract class BaseCLITest {
                     file: Path,
                     attrs: BasicFileAttributes,
                 ): FileVisitResult {
-                    Files.copy(file, dest.resolve(relativize(file)))
+                    val relativeFile = file.relativeToOrSelf(this@copyRecursively)
+                    file.copyTo(dest / relativeFile)
                     return FileVisitResult.CONTINUE
                 }
             },
