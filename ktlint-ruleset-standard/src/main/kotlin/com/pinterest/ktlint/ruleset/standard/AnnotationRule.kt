@@ -103,8 +103,7 @@ public class AnnotationRule : Rule("annotation") {
             if (autoCorrect) {
                 node
                     .firstChildLeafOrSelf()
-                    .safeAs<LeafPsiElement>()
-                    ?.upsertWhitespaceBeforeMe(" ")
+                    .upsertWhitespaceBeforeMe(" ")
             }
         }
 
@@ -156,7 +155,6 @@ public class AnnotationRule : Rule("annotation") {
                     node
                         .lastChildLeafOrSelf()
                         .nextCodeLeaf()
-                        .safeAs<LeafPsiElement>()
                         ?.upsertWhitespaceBeforeMe(getNewlineWithIndent(node.treeParent))
                 }
             }
@@ -186,16 +184,7 @@ public class AnnotationRule : Rule("annotation") {
                 node
                     .lastChildLeafOrSelf()
                     .nextLeaf()
-                    .safeAs<LeafPsiElement>()
-                    ?.let {
-                        if (it.elementType == WHITE_SPACE) {
-                            it.replaceWithText(getNewlineWithIndent(node.treeParent))
-                        } else {
-                            it.upsertWhitespaceBeforeMe(
-                                getNewlineWithIndent(node.treeParent),
-                            )
-                        }
-                    }
+                    ?.upsertWhitespaceBeforeMe(getNewlineWithIndent(node.treeParent))
             }
         }
     }

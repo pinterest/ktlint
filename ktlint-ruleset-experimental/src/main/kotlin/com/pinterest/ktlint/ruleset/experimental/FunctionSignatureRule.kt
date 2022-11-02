@@ -324,13 +324,7 @@ public class FunctionSignatureRule :
                             )
                         }
                         if (autoCorrect && !dryRun) {
-                            if (whiteSpaceBeforeIdentifier == null) {
-                                (valueParameterList.firstChildNode as LeafElement).upsertWhitespaceAfterMe(expectedParameterIndent)
-                            } else {
-                                (whiteSpaceBeforeIdentifier as LeafElement).rawReplaceWithText(
-                                    expectedParameterIndent,
-                                )
-                            }
+                            valueParameterList.firstChildNode.upsertWhitespaceAfterMe(expectedParameterIndent)
                         } else {
                             whiteSpaceCorrection += expectedParameterIndent.length - (whiteSpaceBeforeIdentifier?.textLength ?: 0)
                         }
@@ -394,13 +388,7 @@ public class FunctionSignatureRule :
                                     )
                                 }
                                 if (autoCorrect && !dryRun) {
-                                    if (whiteSpaceBeforeIdentifier == null) {
-                                        (firstChildNodeInValueParameter as LeafElement).upsertWhitespaceBeforeMe(expectedParameterIndent)
-                                    } else {
-                                        (whiteSpaceBeforeIdentifier as LeafElement).rawReplaceWithText(
-                                            expectedParameterIndent,
-                                        )
-                                    }
+                                    firstChildNodeInValueParameter.upsertWhitespaceBeforeMe(expectedParameterIndent)
                                 } else {
                                     whiteSpaceCorrection += expectedParameterIndent.length - (whiteSpaceBeforeIdentifier?.textLength ?: 0)
                                 }
@@ -415,11 +403,7 @@ public class FunctionSignatureRule :
                                     )
                                 }
                                 if (autoCorrect && !dryRun) {
-                                    if (whiteSpaceBeforeIdentifier == null) {
-                                        (firstChildNodeInValueParameter as LeafElement).upsertWhitespaceBeforeMe(" ")
-                                    } else {
-                                        (whiteSpaceBeforeIdentifier as LeafElement).rawReplaceWithText(" ")
-                                    }
+                                    firstChildNodeInValueParameter.upsertWhitespaceBeforeMe(" ")
                                 } else {
                                     whiteSpaceCorrection += 1 - (whiteSpaceBeforeIdentifier?.textLength ?: 0)
                                 }
@@ -460,7 +444,7 @@ public class FunctionSignatureRule :
                             )
                         }
                         if (autoCorrect && !dryRun) {
-                            (closingParenthesis as LeafElement).upsertWhitespaceBeforeMe(newlineAndIndent)
+                            closingParenthesis!!.upsertWhitespaceBeforeMe(newlineAndIndent)
                         } else {
                             whiteSpaceCorrection += newlineAndIndent.length - (whiteSpaceBeforeClosingParenthesis?.textLength ?: 0)
                         }
@@ -553,11 +537,9 @@ public class FunctionSignatureRule :
                                 true,
                             )
                             if (autoCorrect) {
-                                if (whiteSpaceBeforeFunctionBodyExpression != null) {
-                                    (whiteSpaceBeforeFunctionBodyExpression as LeafPsiElement).rawReplaceWithText(" ")
-                                } else {
-                                    (functionBodyExpressionNodes.first() as LeafPsiElement).upsertWhitespaceBeforeMe(" ")
-                                }
+                                functionBodyExpressionNodes
+                                    .first()
+                                    .upsertWhitespaceBeforeMe(" ")
                             }
                         }
                     } else if (firstLineOfBodyExpression.length + 1 > maxLengthRemainingForFirstLineOfBodyExpression ||
@@ -570,12 +552,9 @@ public class FunctionSignatureRule :
                             true,
                         )
                         if (autoCorrect) {
-                            val newLineAndIndent = "\n" + node.lineIndent() + indent
-                            if (whiteSpaceBeforeFunctionBodyExpression != null) {
-                                (whiteSpaceBeforeFunctionBodyExpression as LeafPsiElement).rawReplaceWithText(newLineAndIndent)
-                            } else {
-                                (functionBodyExpressionNodes.first() as LeafPsiElement).upsertWhitespaceBeforeMe(newLineAndIndent)
-                            }
+                            functionBodyExpressionNodes
+                                .first()
+                                .upsertWhitespaceBeforeMe("\n" + node.lineIndent() + indent)
                         }
                     }
                 }
@@ -614,15 +593,13 @@ public class FunctionSignatureRule :
             .split("\n")
             .firstOrNull()
             ?.also {
-                if (whiteSpaceBeforeFunctionBodyExpression == null) {
+                if (whiteSpaceBeforeFunctionBodyExpression?.text != " ") {
                     emit(functionBodyBlock.first().startOffset, "Expected a single space before body block", true)
                     if (autoCorrect) {
-                        (functionBodyBlock.first().prevLeaf(true) as LeafPsiElement).upsertWhitespaceAfterMe(" ")
-                    }
-                } else if (whiteSpaceBeforeFunctionBodyExpression.text != " ") {
-                    emit(whiteSpaceBeforeFunctionBodyExpression.startOffset, "Expected a single space", true)
-                    if (autoCorrect) {
-                        (whiteSpaceBeforeFunctionBodyExpression as LeafPsiElement).rawReplaceWithText(" ")
+                        functionBodyBlock
+                            .first()
+                            .prevLeaf(true)
+                            ?.upsertWhitespaceAfterMe(" ")
                     }
                 }
             }

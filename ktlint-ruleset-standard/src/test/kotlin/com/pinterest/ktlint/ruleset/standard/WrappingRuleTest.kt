@@ -1139,7 +1139,6 @@ internal class WrappingRuleTest {
 
     @Test
     fun `format kdoc with spaces`() {
-        @Suppress("RemoveCurlyBracesFromTemplate")
         val code =
             """
             /**
@@ -1179,7 +1178,7 @@ internal class WrappingRuleTest {
             ${TAB}}
             }
             """.trimIndent()
-        wrappingRuleAssertThat(code)
+        wrappingRuleAssertThat(codeTabs)
             .withEditorConfigOverride(DefaultEditorConfigProperties.indentStyleProperty to tab)
             .hasNoLintViolations()
     }
