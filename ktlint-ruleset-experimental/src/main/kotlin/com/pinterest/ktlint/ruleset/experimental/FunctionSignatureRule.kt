@@ -135,7 +135,8 @@ public class FunctionSignatureRule :
                     currentNode = iterator.next()
                     if (currentNode.elementType != ANNOTATION &&
                         currentNode.elementType != ANNOTATION_ENTRY &&
-                        currentNode.elementType != WHITE_SPACE) {
+                        currentNode.elementType != WHITE_SPACE
+                    ) {
                         return currentNode
                     }
                 }
