@@ -33,7 +33,6 @@ import com.pinterest.ktlint.core.ast.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.core.ast.upsertWhitespaceBeforeMe
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 import org.jetbrains.kotlin.psi.KtImportDirective
 import org.jetbrains.kotlin.psi.KtPrefixExpression
@@ -51,7 +50,6 @@ public class SpacingAroundOperatorsRule : Rule("op-spacing") {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (tokenSet.contains(node.elementType) &&
-            node is LeafElement &&
             !node.isPartOf(KtPrefixExpression::class) && // not unary
             !(node.elementType == MUL && node.treeParent.elementType == VALUE_ARGUMENT) && // fn(*array)
             !node.isPartOf(KtImportDirective::class) // import *

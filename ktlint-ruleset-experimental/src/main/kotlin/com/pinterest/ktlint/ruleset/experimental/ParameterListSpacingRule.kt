@@ -204,7 +204,7 @@ public class ParameterListSpacingRule : Rule("$experimentalRulesetId:parameter-l
         require(node.elementType == COLON || node.elementType == COMMA)
         emit(node.startOffset, "Whitespace after '${node.text}' is missing", true)
         if (autoCorrect) {
-            (node as LeafElement).upsertWhitespaceAfterMe(" ")
+            node.upsertWhitespaceAfterMe(" ")
         }
     }
 

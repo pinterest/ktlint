@@ -471,7 +471,7 @@ public class WrappingRule :
         )
         logger.trace { "$line: " + ((if (!autoCorrect) "would have " else "") + "inserted newline before ${node.text}") }
         if (autoCorrect) {
-            (node.psi as LeafPsiElement).upsertWhitespaceBeforeMe("\n" + indent)
+            node.upsertWhitespaceBeforeMe("\n" + indent)
         }
     }
 
@@ -490,7 +490,7 @@ public class WrappingRule :
         logger.trace { "$line: " + (if (!autoCorrect) "would have " else "") + "inserted newline after ${nodeAfterWhichNewlineIsRequired.text}" }
         if (autoCorrect) {
             val tempIndent = indent ?: (nodeToFix.lineIndent() + indentConfig.indent)
-            (nodeToFix.psi as LeafPsiElement).upsertWhitespaceAfterMe("\n" + tempIndent)
+            nodeToFix.upsertWhitespaceAfterMe("\n" + tempIndent)
         }
     }
 
