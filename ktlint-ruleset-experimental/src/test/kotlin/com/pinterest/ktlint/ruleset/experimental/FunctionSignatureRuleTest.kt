@@ -1047,7 +1047,6 @@ class FunctionSignatureRuleTest {
     }
 
     private companion object {
-        const val EOL_CHAR = '#'
         const val UNEXPECTED_SPACES = "  "
         const val NO_SPACE = ""
     }
