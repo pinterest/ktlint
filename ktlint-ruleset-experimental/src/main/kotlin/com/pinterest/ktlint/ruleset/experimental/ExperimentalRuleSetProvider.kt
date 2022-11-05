@@ -41,6 +41,7 @@ public class ExperimentalRuleSetProvider :
         FunctionStartOfBodySpacingRule(),
         NullableTypeSpacingRule(),
         FunctionSignatureRule(),
+        ContextReceiverWrappingRule(),
     )
 
     override fun getRuleProviders(): Set<RuleProvider> =
@@ -61,5 +62,6 @@ public class ExperimentalRuleSetProvider :
             RuleProvider { FunctionStartOfBodySpacingRule() },
             RuleProvider { NullableTypeSpacingRule() },
             RuleProvider { FunctionSignatureRule() },
+            RuleProvider { ContextReceiverWrappingRule() },
         )
 }

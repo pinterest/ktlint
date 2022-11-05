@@ -7,6 +7,7 @@ import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentStylePr
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.maxLineLengthProperty
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
+import com.pinterest.ktlint.core.ast.ElementType.ANNOTATION
 import com.pinterest.ktlint.core.ast.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.BLOCK
 import com.pinterest.ktlint.core.ast.ElementType.BLOCK_COMMENT
@@ -132,7 +133,10 @@ public class FunctionSignatureRule :
                 var currentNode: ASTNode
                 while (iterator.hasNext()) {
                     currentNode = iterator.next()
-                    if (currentNode.elementType != ANNOTATION_ENTRY && currentNode.elementType != WHITE_SPACE) {
+                    if (currentNode.elementType != ANNOTATION &&
+                        currentNode.elementType != ANNOTATION_ENTRY &&
+                        currentNode.elementType != WHITE_SPACE
+                    ) {
                         return currentNode
                     }
                 }
