@@ -42,6 +42,11 @@ public class ExperimentalRuleSetProvider :
         NullableTypeSpacingRule(),
         FunctionSignatureRule(),
         ContextReceiverWrappingRule(),
+        ClassNamingRule(),
+        FunctionNamingRule(),
+        ObjectNamingRule(),
+        PackageNamingRule(),
+        PropertyNamingRule(),
     )
 
     override fun getRuleProviders(): Set<RuleProvider> =
@@ -63,5 +68,10 @@ public class ExperimentalRuleSetProvider :
             RuleProvider { NullableTypeSpacingRule() },
             RuleProvider { FunctionSignatureRule() },
             RuleProvider { ContextReceiverWrappingRule() },
+            RuleProvider { ClassNamingRule() },
+            RuleProvider { FunctionNamingRule() },
+            RuleProvider { ObjectNamingRule() },
+            RuleProvider { PackageNamingRule() },
+            RuleProvider { PropertyNamingRule() },
         )
 }
