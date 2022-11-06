@@ -16,7 +16,7 @@ Please search in the [issues](https://github.com/pinterest/ktlint/issues) before
 ## Observed Behavior
 <!---Tell us what happens instead of the expected behavior -->
 <!--- Provide the exact command which was executed but please -->
-<!--- ensure that the flag "--verbose" is added to the -->
+<!--- ensure that the flag "--log-level=debug" is added to the -->
 <!--- command as well. Provide the output of this command. -->
 
 ## Steps to Reproduce

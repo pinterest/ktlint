@@ -187,11 +187,7 @@ public class TypeParameterListSpacingRule : Rule("$experimentalRulesetId:type-pa
                     true,
                 )
                 if (autoCorrect) {
-                    if (node.elementType == WHITE_SPACE) {
-                        (node as LeafPsiElement).rawReplaceWithText(" ")
-                    } else {
-                        (node as LeafPsiElement).upsertWhitespaceBeforeMe(" ")
-                    }
+                    node.upsertWhitespaceBeforeMe(" ")
                 }
             }
         }

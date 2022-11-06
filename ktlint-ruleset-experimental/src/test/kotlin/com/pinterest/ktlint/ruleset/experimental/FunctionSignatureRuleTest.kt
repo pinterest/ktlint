@@ -10,6 +10,7 @@ import com.pinterest.ktlint.ruleset.standard.SpacingAroundCommaRule
 import com.pinterest.ktlint.ruleset.standard.SpacingAroundDotRule
 import com.pinterest.ktlint.ruleset.standard.SpacingAroundOperatorsRule
 import com.pinterest.ktlint.ruleset.standard.SpacingAroundParensRule
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
@@ -1045,8 +1046,37 @@ class FunctionSignatureRuleTest {
             .hasNoLintViolations()
     }
 
+    @Test
+    fun `Issue 1690 - Given a function preceded by an annotation array`() {
+        val code =
+            """
+            // $MAX_LINE_LENGTH_MARKER                   $EOL_CHAR
+            internal fun foo1(foo1: Foo, foo2: Foo): Foo =
+                "foooooooooooooooooooooooooooooooooooooo"
+
+            @Bar
+            internal fun foo2(foo1: Foo, foo2: Foo): Foo =
+                "foooooooooooooooooooooooooooooooooooooo"
+
+            @[Bar]
+            internal fun foo2(foo1: Foo, foo2: Foo): Foo =
+                "foooooooooooooooooooooooooooooooooooooo"
+
+            @[Bar1 Bar2 Bar3 Bar4 Bar5 Bar6 Bar7 Bar8 Bar9]
+            internal fun foo2(foo1: Foo, foo2: Foo): Foo =
+                "foooooooooooooooooooooooooooooooooooooo"
+
+            @[Bar1 // some comment
+            Bar2]
+            internal fun foo2(foo1: Foo, foo2: Foo): Foo =
+                "foooooooooooooooooooooooooooooooooooooo"
+            """.trimIndent()
+        functionSignatureWrappingRuleAssertThat(code)
+            .setMaxLineLength()
+            .hasNoLintViolations()
+    }
+
     private companion object {
-        const val EOL_CHAR = '#'
         const val UNEXPECTED_SPACES = "  "
         const val NO_SPACE = ""
     }

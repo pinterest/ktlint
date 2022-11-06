@@ -1,6 +1,10 @@
 package com.pinterest.ktlint.ruleset.standard
 
+import com.pinterest.ktlint.core.IndentConfig
 import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties
+import com.pinterest.ktlint.core.api.EditorConfigProperties
+import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType.ANDAND
 import com.pinterest.ktlint.core.ast.ElementType.COMMA
 import com.pinterest.ktlint.core.ast.ElementType.DIV
@@ -20,11 +24,13 @@ import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.core.ast.isPartOfComment
 import com.pinterest.ktlint.core.ast.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.core.ast.isWhiteSpaceWithoutNewline
+import com.pinterest.ktlint.core.ast.lineIndent
 import com.pinterest.ktlint.core.ast.nextCodeLeaf
 import com.pinterest.ktlint.core.ast.nextLeaf
 import com.pinterest.ktlint.core.ast.prevCodeLeaf
 import com.pinterest.ktlint.core.ast.prevLeaf
 import com.pinterest.ktlint.core.ast.upsertWhitespaceAfterMe
+import com.pinterest.ktlint.core.ast.upsertWhitespaceBeforeMe
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
@@ -33,12 +39,30 @@ import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.psiUtil.leaves
 
-public class ChainWrappingRule : Rule("chain-wrapping") {
+public class ChainWrappingRule :
+    Rule("chain-wrapping"),
+    UsesEditorConfigProperties {
+    override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> =
+        listOf(
+            DefaultEditorConfigProperties.indentSizeProperty,
+            DefaultEditorConfigProperties.indentStyleProperty,
+        )
 
+    private var indent: String? = null
     private val sameLineTokens = TokenSet.create(MUL, DIV, PERC, ANDAND, OROR)
     private val prefixTokens = TokenSet.create(PLUS, MINUS)
     private val nextLineTokens = TokenSet.create(DOT, SAFE_ACCESS, ELVIS)
     private val noSpaceAroundTokens = TokenSet.create(DOT, SAFE_ACCESS)
+
+    override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
+        with(editorConfigProperties) {
+            val indentConfig = IndentConfig(
+                indentStyle = getEditorConfigValue(com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentStyleProperty),
+                tabWidth = getEditorConfigValue(com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentSizeProperty),
+            )
+            indent = indentConfig.indent
+        }
+    }
 
     override fun beforeVisitChildNodes(
         node: ASTNode,
@@ -65,15 +89,13 @@ public class ChainWrappingRule : Rule("chain-wrapping") {
                     // (or)
                     // <prevLeaf><node="."><spaceBeforeComment><comment><nextLeaf="\n"> to
                     // <prevLeaf><delete space if any><spaceBeforeComment><comment><nextLeaf="\n"><node="."><space if needed>
-                    val prevLeaf = node.prevLeaf()
-                    if (prevLeaf is PsiWhiteSpace) {
-                        prevLeaf.node.treeParent.removeChild(prevLeaf.node)
+                    if (node.elementType == ELVIS) {
+                        node.upsertWhitespaceBeforeMe("\n" + node.lineIndent() + indent)
+                        node.upsertWhitespaceAfterMe(" ")
+                    } else {
+                        node.treeParent.removeChild(node)
+                        (nextLeaf as LeafElement).rawInsertAfterMe(node as LeafElement)
                     }
-                    if (!noSpaceAroundTokens.contains(elementType)) {
-                        (nextLeaf as LeafElement).upsertWhitespaceAfterMe(" ")
-                    }
-                    node.treeParent.removeChild(node)
-                    (nextLeaf as LeafElement).rawInsertAfterMe(node as LeafElement)
                 }
             }
         } else if (sameLineTokens.contains(elementType) || prefixTokens.contains(elementType)) {
@@ -102,11 +124,9 @@ public class ChainWrappingRule : Rule("chain-wrapping") {
                         nextLeaf.node.treeParent.removeChild(nextLeaf.node)
                     }
                     val insertionPoint = prevLeaf.prevCodeLeaf() as LeafPsiElement
-                    node.treeParent.removeChild(node)
-                    insertionPoint.rawInsertAfterMe(node as LeafPsiElement)
-                    if (!noSpaceAroundTokens.contains(elementType)) {
-                        insertionPoint.upsertWhitespaceAfterMe(" ")
-                    }
+                    (node as LeafPsiElement).treeParent.removeChild(node)
+                    insertionPoint.rawInsertAfterMe(node)
+                    (insertionPoint as ASTNode).upsertWhitespaceAfterMe(" ")
                 }
             }
         }

@@ -121,8 +121,8 @@ class FunctionStartOfBodySpacingRuleTest {
                     """.trimIndent()
                 functionStartOfBodySpacingRuleAssertThat(code)
                     .hasLintViolations(
-                        LintViolation(1, 12, "Unexpected whitespace"),
-                        LintViolation(2, 20, "Unexpected whitespace"),
+                        LintViolation(1, 11, "Expected a single white space between assignment and expression body on same line"),
+                        LintViolation(2, 19, "Expected a single white space between assignment and expression body on same line"),
                     ).isFormattedAs(formattedCode)
             }
 
@@ -206,8 +206,8 @@ class FunctionStartOfBodySpacingRuleTest {
                 """.trimIndent()
             functionStartOfBodySpacingRuleAssertThat(code)
                 .hasLintViolations(
-                    LintViolation(1, 10, "Unexpected whitespace"),
-                    LintViolation(4, 18, "Unexpected whitespace"),
+                    LintViolation(1, 12, "Expected a single white space before start of function body"),
+                    LintViolation(4, 20, "Expected a single white space before start of function body"),
                 ).isFormattedAs(formattedCode)
         }
 
@@ -235,8 +235,8 @@ class FunctionStartOfBodySpacingRuleTest {
                 """.trimIndent()
             functionStartOfBodySpacingRuleAssertThat(code)
                 .hasLintViolations(
-                    LintViolation(1, 10, "Unexpected whitespace"),
-                    LintViolation(5, 18, "Unexpected whitespace"),
+                    LintViolation(2, 1, "Expected a single white space before start of function body"),
+                    LintViolation(6, 1, "Expected a single white space before start of function body"),
                 ).isFormattedAs(formattedCode)
         }
     }

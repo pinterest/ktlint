@@ -2,6 +2,7 @@ package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.ANNOTATED_EXPRESSION
+import com.pinterest.ktlint.core.ast.ElementType.ANNOTATION
 import com.pinterest.ktlint.core.ast.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.FILE_ANNOTATION_LIST
 import com.pinterest.ktlint.core.ast.ElementType.TYPE_ARGUMENT_LIST
@@ -80,7 +81,10 @@ public class AnnotationRule : Rule("annotation") {
             checkForAnnotationToBePlacedOnSeparateLine(node, emit, autoCorrect)
         }
 
-        if (node.isPrecededByOtherAnnotationEntry() && node.isOnSameLineAsAnnotatedConstruct()) {
+        if (node.treeParent.elementType != ANNOTATION &&
+            node.isPrecededByOtherAnnotationEntry() &&
+            node.isOnSameLineAsAnnotatedConstruct()
+        ) {
             checkForMultipleAnnotationsOnSameLineAsAnnotatedConstruct(node, emit, autoCorrect)
         }
     }
@@ -99,8 +103,7 @@ public class AnnotationRule : Rule("annotation") {
             if (autoCorrect) {
                 node
                     .firstChildLeafOrSelf()
-                    .safeAs<LeafPsiElement>()
-                    ?.upsertWhitespaceBeforeMe(" ")
+                    .upsertWhitespaceBeforeMe(" ")
             }
         }
 
@@ -152,7 +155,6 @@ public class AnnotationRule : Rule("annotation") {
                     node
                         .lastChildLeafOrSelf()
                         .nextCodeLeaf()
-                        .safeAs<LeafPsiElement>()
                         ?.upsertWhitespaceBeforeMe(getNewlineWithIndent(node.treeParent))
                 }
             }
@@ -182,16 +184,7 @@ public class AnnotationRule : Rule("annotation") {
                 node
                     .lastChildLeafOrSelf()
                     .nextLeaf()
-                    .safeAs<LeafPsiElement>()
-                    ?.let {
-                        if (it.elementType == WHITE_SPACE) {
-                            it.replaceWithText(getNewlineWithIndent(node.treeParent))
-                        } else {
-                            it.upsertWhitespaceBeforeMe(
-                                getNewlineWithIndent(node.treeParent),
-                            )
-                        }
-                    }
+                    ?.upsertWhitespaceBeforeMe(getNewlineWithIndent(node.treeParent))
             }
         }
     }

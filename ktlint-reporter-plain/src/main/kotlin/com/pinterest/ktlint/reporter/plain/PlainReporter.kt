@@ -11,7 +11,6 @@ import java.util.concurrent.ConcurrentHashMap
 
 public class PlainReporter(
     private val out: PrintStream,
-    private val verbose: Boolean = false,
     private val groupByFile: Boolean = false,
     private val shouldColorOutput: Boolean = false,
     private val outputColor: Color = Color.DARK_GRAY,
@@ -25,10 +24,14 @@ public class PlainReporter(
             if (groupByFile) {
                 acc.getOrPut(file) { ArrayList<LintError>() }.add(err)
             } else {
+                val column =
+                    if (pad) {
+                        String.format("%-4s", err.col)
+                    } else {
+                        err.col
+                    }
                 out.println(
-                    "${colorFileName(file)}${":".colored()}${err.line}${
-                    ":${"${err.col}:".let { if (pad) String.format("%-4s", it) else it}}".colored()
-                    } ${err.detail} ${"(${err.ruleId})".colored()}",
+                    "${colorFileName(file)}${":".colored()}${err.line}${":$column:".colored()} ${err.detail} ${"(${err.ruleId})".colored()}",
                 )
             }
         }
@@ -39,10 +42,13 @@ public class PlainReporter(
             val errList = acc[file] ?: return
             out.println(colorFileName(file))
             for ((line, col, ruleId, detail) in errList) {
+                val column = if (pad) {
+                    String.format("%-3s", col)
+                } else {
+                    col
+                }
                 out.println(
-                    "  $line${
-                    ":${if (pad) String.format("%-3s", col) else "$col"}".colored()
-                    } $detail${if (verbose) " ($ruleId)".colored() else ""}",
+                    "  $line${":$column".colored()} $detail ${"($ruleId)".colored()}",
                 )
             }
         }

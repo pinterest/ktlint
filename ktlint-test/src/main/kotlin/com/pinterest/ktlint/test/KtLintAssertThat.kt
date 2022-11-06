@@ -9,7 +9,9 @@ import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
 import org.assertj.core.api.AbstractAssert
+import org.assertj.core.api.AbstractSoftAssertions.assertAll
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.assertAll
 
 /**
  * AssertJ style assertion for verifying KtLint rules. This class is intended to be used as follows:
@@ -111,6 +113,14 @@ public class KtLintAssertThat(
      * Adds a single provider of an additional rule to be executed when linting/formatting the code. This can to be used
      * to unit test rules which are best to be tested in conjunction with other rules, for example wrapping and
      * indenting.
+     *
+     * Caution:
+     * An additional rule provider for a rule which actually is executed before the rule under test, might result in
+     * unexpected [LintViolation] in case that additional rule is modifying the AST. During the [lint] phase, all rules
+     * are executed in parallel and as of that both the rule under test and the additional rule are using the exact same
+     * version of the AST. When, in the [format] stage the additional rule is run first, and if it modifies the AST,
+     * this could result in a [LintViolation] for the rule under test which is executed later than the additional rule.
+     *
      * Prefer to use [addAdditionalRuleProviders] when adding multiple providers of rules.
      */
     public fun addAdditionalRuleProvider(provider: () -> Rule): KtLintAssertThat {
@@ -123,6 +133,14 @@ public class KtLintAssertThat(
      * Adds a single provider of an additional rule to be executed when linting/formatting the code. This can to be used
      * to unit test rules which are best to be tested in conjunction with other rules, for example wrapping and
      * indenting.
+     *
+     * Caution:
+     * An additional rule provider for a rule which actually is executed before the rule under test, might result in
+     * unexpected [LintViolation] in case that additional rule is modifying the AST. During the [lint] phase, all rules
+     * are executed in parallel and as of that both the rule under test and the additional rule are using the exact same
+     * version of the AST. When, in the [format] stage the additional rule is run first, and if it modifies the AST,
+     * this could result in a [LintViolation] for the rule under test which is executed later than the additional rule.
+     *
      * Prefer to use [addAdditionalRuleProvider] when only a singe provider of a rule is to be added.
      */
     public fun addAdditionalRuleProviders(vararg providers: (() -> Rule)): KtLintAssertThat {
@@ -305,11 +323,36 @@ public class KtLintAssertThatAssertable(
         assertThat(lint().filterCurrentRuleOnly()).isEmpty()
 
         // Also format the code to be absolutely sure that codes does not get changed
-        val actualFormattedCode = format()
+        val (actualFormattedCode, lintErrorsWhenFormatting) = format()
 
-        assertThat(actualFormattedCode)
-            .describedAs("Code is changed by format while no lint errors were found")
-            .isEqualTo(code)
+        assertAll(
+            {
+                assertThat(lintErrorsWhenFormatting)
+                    .describedAs(
+                        "LintViolations found by format while no lint errors were found during Lint. " +
+                            if (additionalRuleProviders.isEmpty()) {
+                                "This is unexpected as no additional rule have been defined for this test."
+                            } else {
+                                "If this is caused by an additional rule added to the test, then remove that rule in case it " +
+                                    "is always executed before the rule under test."
+                            },
+                    )
+                    .isEmpty()
+            },
+            {
+                assertThat(actualFormattedCode)
+                    .describedAs(
+                        "Code is changed by format while no lint errors were found. " +
+                            if (additionalRuleProviders.isEmpty()) {
+                                "This is unexpected as no additional rule have been defined for this test."
+                            } else {
+                                "If this is caused by an additional rule added to the test, then remove that rule in case it " +
+                                    "is always executed before the rule under test."
+                            },
+                    )
+                    .isEqualTo(code)
+            },
+        )
     }
 
     /**
@@ -410,7 +453,8 @@ public class KtLintAssertThatAssertable(
             "Use '.hasNoLintViolations()' instead of '.isFormattedAs(<original code>)'"
         }
 
-        val actualFormattedCode = format()
+        // Also format the code to be absolutely sure that codes does not get changed
+        val (actualFormattedCode, _) = format()
 
         assertThat(actualFormattedCode)
             .describedAs("Code is formatted as")
@@ -492,7 +536,7 @@ public class KtLintAssertThatAssertable(
             )
     }
 
-    private fun format(): String =
+    private fun format(): Pair<String, List<LintError>> =
         setOf(ruleProvider)
             .plus(additionalRuleProviders)
             .format(

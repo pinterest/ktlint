@@ -22,10 +22,9 @@ public class CheckStyleReporter(private val out: PrintStream) : Reporter {
         for ((file, errList) in acc.entries.sortedBy { it.key }) {
             out.println("""    <file name="${file.escapeXMLAttrValue()}">""")
             for ((line, col, ruleId, detail) in errList) {
+                val message = detail.escapeXMLAttrValue()
                 out.println(
-                    """        <error line="$line" column="$col" severity="error" message="${
-                    detail.escapeXMLAttrValue()
-                    }" source="$ruleId" />""",
+                    """        <error line="$line" column="$col" severity="error" message="$message" source="$ruleId" />""",
                 )
             }
             out.println("""    </file>""")

@@ -18,6 +18,7 @@ import com.pinterest.ktlint.core.ast.ElementType.RBRACKET
 import com.pinterest.ktlint.core.ast.ElementType.RPAR
 import com.pinterest.ktlint.core.ast.ElementType.SAFE_ACCESS
 import com.pinterest.ktlint.core.ast.ElementType.SEMICOLON
+import com.pinterest.ktlint.core.ast.isLeaf
 import com.pinterest.ktlint.core.ast.isPartOfString
 import com.pinterest.ktlint.core.ast.nextLeaf
 import com.pinterest.ktlint.core.ast.prevLeaf
@@ -38,7 +39,7 @@ public class SpacingAroundCurlyRule : Rule("curly-spacing") {
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
-        if (node is LeafPsiElement && !node.isPartOfString()) {
+        if (node.isLeaf() && !node.isPartOfString()) {
             val prevLeaf = node.prevLeaf()
             val nextLeaf = node.nextLeaf()
             val spacingBefore: Boolean
@@ -49,7 +50,7 @@ public class SpacingAroundCurlyRule : Rule("curly-spacing") {
                     prevLeaf?.elementType == AT ||
                     (
                         prevLeaf?.elementType == LPAR &&
-                            (node.parent is KtLambdaExpression || node.parent.parent is KtLambdaExpression)
+                            ((node as LeafPsiElement).parent is KtLambdaExpression || node.parent.parent is KtLambdaExpression)
                         )
                 spacingAfter = nextLeaf is PsiWhiteSpace || nextLeaf?.elementType == RBRACE
                 if (prevLeaf is PsiWhiteSpace &&

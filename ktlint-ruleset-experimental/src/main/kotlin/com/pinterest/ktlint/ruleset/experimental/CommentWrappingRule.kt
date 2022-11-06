@@ -115,11 +115,7 @@ public class CommentWrappingRule :
     ) {
         emit(startOffset, "A block comment may not be followed by any other element on that same line", true)
         if (autoCorrect) {
-            if (elementType == WHITE_SPACE) {
-                (this as LeafPsiElement).rawReplaceWithText("\n${blockCommentNode.lineIndent()}")
-            } else {
-                (this as LeafPsiElement).upsertWhitespaceBeforeMe("\n${blockCommentNode.lineIndent()}")
-            }
+            this.upsertWhitespaceBeforeMe("\n${blockCommentNode.lineIndent()}")
         }
     }
 
