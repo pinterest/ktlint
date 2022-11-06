@@ -15,6 +15,7 @@ import com.pinterest.ktlint.core.ast.ElementType.WHEN_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.core.ast.children
 import com.pinterest.ktlint.core.ast.containsLineBreakInRange
+import com.pinterest.ktlint.core.ast.isCodeLeaf
 import com.pinterest.ktlint.core.ast.lineIndent
 import com.pinterest.ktlint.core.ast.noWhiteSpaceWithNewLineInClosedRange
 import com.pinterest.ktlint.core.ast.prevCodeLeaf
@@ -244,7 +245,7 @@ public class TrailingCommaOnDeclarationSiteRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         val prevLeaf = inspectNode.prevLeaf()
-        val trailingCommaNode = prevLeaf.findPreviousTrailingCommaNodeOrNull()
+        val trailingCommaNode = prevLeaf?.findPreviousTrailingCommaNodeOrNull()
         val trailingCommaState = when {
             isMultiline(psi) -> if (trailingCommaNode != null) TrailingCommaState.EXISTS else TrailingCommaState.MISSING
             else -> if (trailingCommaNode != null) TrailingCommaState.REDUNDANT else TrailingCommaState.NOT_EXISTS
@@ -374,16 +375,13 @@ public class TrailingCommaOnDeclarationSiteRule :
             false
         }
 
-    private fun ASTNode?.findPreviousTrailingCommaNodeOrNull(): ASTNode? {
-        var node = this
-        while (node?.isIgnorable() == true) {
-            node = node.prevLeaf()
-        }
-        return if (node?.elementType == ElementType.COMMA) {
-            node
+    private fun ASTNode.findPreviousTrailingCommaNodeOrNull(): ASTNode? {
+        val codeLeaf = if (isCodeLeaf()) {
+            this
         } else {
-            null
+            prevCodeLeaf()
         }
+        return codeLeaf?.takeIf { it.elementType == ElementType.COMMA }
     }
 
     private fun containsLineBreakInLeavesRange(from: PsiElement, to: PsiElement): Boolean {
@@ -396,11 +394,6 @@ public class TrailingCommaOnDeclarationSiteRule :
         }
         return leaf?.textContains('\n') ?: false
     }
-
-    private fun ASTNode.isIgnorable(): Boolean =
-        elementType == ElementType.WHITE_SPACE ||
-            elementType == ElementType.EOL_COMMENT ||
-            elementType == ElementType.BLOCK_COMMENT
 
     private enum class TrailingCommaState {
         /**

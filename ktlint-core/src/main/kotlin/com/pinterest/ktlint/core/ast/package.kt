@@ -206,6 +206,13 @@ public fun ASTNode?.isWhiteSpaceWithoutNewline(): Boolean =
 public fun ASTNode.isRoot(): Boolean = elementType == ElementType.FILE
 public fun ASTNode.isLeaf(): Boolean = firstChildNode == null
 
+/**
+ * Check if the given [ASTNode] is a code leaf. E.g. it must be a leaf and may not be a whitespace or be part of a
+ * comment.
+ */
+public fun ASTNode.isCodeLeaf(): Boolean =
+    isLeaf() && !isWhiteSpace() && !isPartOfComment()
+
 public fun ASTNode.isPartOfComment(): Boolean =
     parent({ it.psi is PsiComment }, strict = false) != null
 
