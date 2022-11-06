@@ -10,6 +10,7 @@ import com.pinterest.ktlint.core.ast.ElementType.TYPE_ARGUMENT_LIST
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_ARGUMENT
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_ARGUMENT_LIST
 import com.pinterest.ktlint.core.ast.children
+import com.pinterest.ktlint.core.ast.isCodeLeaf
 import com.pinterest.ktlint.core.ast.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.core.ast.prevCodeLeaf
 import com.pinterest.ktlint.core.ast.prevLeaf
@@ -17,10 +18,8 @@ import kotlin.properties.Delegates
 import org.ec4j.core.model.PropertyType
 import org.ec4j.core.model.PropertyType.PropertyValueParser
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 import org.jetbrains.kotlin.psi.KtPsiFactory
-import org.jetbrains.kotlin.psi.psiUtil.nextLeaf
 
 /**
  * Linting trailing comma for call site.
@@ -145,7 +144,7 @@ public class TrailingCommaOnCallSiteRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         val prevLeaf = inspectNode.prevLeaf()
-        val trailingCommaNode = prevLeaf.findPreviousTrailingCommaNodeOrNull()
+        val trailingCommaNode = prevLeaf?.findPreviousTrailingCommaNodeOrNull()
         val trailingCommaState = when {
             this.isMultiline() -> if (trailingCommaNode != null) TrailingCommaState.EXISTS else TrailingCommaState.MISSING
             else -> if (trailingCommaNode != null) TrailingCommaState.REDUNDANT else TrailingCommaState.NOT_EXISTS
@@ -200,33 +199,14 @@ public class TrailingCommaOnCallSiteRule :
     private fun ASTNode.hasAtLeastOneArgument() =
         children().any { it.elementType == VALUE_ARGUMENT }
 
-    private fun ASTNode?.findPreviousTrailingCommaNodeOrNull(): ASTNode? {
-        var node = this
-        while (node?.isIgnorable() == true) {
-            node = node.prevLeaf()
-        }
-        return if (node?.elementType == ElementType.COMMA) {
-            node
+    private fun ASTNode.findPreviousTrailingCommaNodeOrNull(): ASTNode? {
+        val codeLeaf = if (isCodeLeaf()) {
+            this
         } else {
-            null
+            prevCodeLeaf()
         }
+        return codeLeaf?.takeIf { it.elementType == ElementType.COMMA }
     }
-
-    private fun containsLineBreakInLeavesRange(from: PsiElement, to: PsiElement): Boolean {
-        var leaf: PsiElement? = from
-        while (leaf != null && !leaf.isEquivalentTo(to)) {
-            if (leaf.textContains('\n')) {
-                return true
-            }
-            leaf = leaf.nextLeaf(skipEmptyElements = false)
-        }
-        return leaf?.textContains('\n') ?: false
-    }
-
-    private fun ASTNode.isIgnorable(): Boolean =
-        elementType == ElementType.WHITE_SPACE ||
-            elementType == ElementType.EOL_COMMENT ||
-            elementType == ElementType.BLOCK_COMMENT
 
     private enum class TrailingCommaState {
         /**

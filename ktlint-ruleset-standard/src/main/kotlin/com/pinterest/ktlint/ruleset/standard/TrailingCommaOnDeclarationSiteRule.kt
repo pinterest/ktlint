@@ -15,6 +15,7 @@ import com.pinterest.ktlint.core.ast.ElementType.WHEN_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.core.ast.children
 import com.pinterest.ktlint.core.ast.containsLineBreakInRange
+import com.pinterest.ktlint.core.ast.isCodeLeaf
 import com.pinterest.ktlint.core.ast.lineIndent
 import com.pinterest.ktlint.core.ast.noWhiteSpaceWithNewLineInClosedRange
 import com.pinterest.ktlint.core.ast.prevCodeLeaf
@@ -26,7 +27,6 @@ import org.ec4j.core.model.PropertyType.PropertyValueParser
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtCollectionLiteralExpression
@@ -245,7 +245,7 @@ public class TrailingCommaOnDeclarationSiteRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         val prevLeaf = inspectNode.prevLeaf()
-        val trailingCommaNode = prevLeaf.findPreviousTrailingCommaNodeOrNull()
+        val trailingCommaNode = prevLeaf?.findPreviousTrailingCommaNodeOrNull()
         val trailingCommaState = when {
             isMultiline(psi) -> if (trailingCommaNode != null) TrailingCommaState.EXISTS else TrailingCommaState.MISSING
             else -> if (trailingCommaNode != null) TrailingCommaState.REDUNDANT else TrailingCommaState.NOT_EXISTS
@@ -267,11 +267,7 @@ public class TrailingCommaOnDeclarationSiteRule :
                                 )
                                 if (autoCorrect) {
                                     val parentIndent = "\n" + inspectNode.getWhenEntryIndent()
-                                    if (lastNodeBeforeArrow.elementType == WHITE_SPACE) {
-                                        (lastNodeBeforeArrow as LeafPsiElement).rawReplaceWithText(parentIndent)
-                                    } else {
-                                        (lastNodeBeforeArrow as LeafPsiElement).upsertWhitespaceAfterMe(parentIndent)
-                                    }
+                                    lastNodeBeforeArrow.upsertWhitespaceAfterMe(parentIndent)
                                 }
                             }
                         }
@@ -379,16 +375,13 @@ public class TrailingCommaOnDeclarationSiteRule :
             false
         }
 
-    private fun ASTNode?.findPreviousTrailingCommaNodeOrNull(): ASTNode? {
-        var node = this
-        while (node?.isIgnorable() == true) {
-            node = node.prevLeaf()
-        }
-        return if (node?.elementType == ElementType.COMMA) {
-            node
+    private fun ASTNode.findPreviousTrailingCommaNodeOrNull(): ASTNode? {
+        val codeLeaf = if (isCodeLeaf()) {
+            this
         } else {
-            null
+            prevCodeLeaf()
         }
+        return codeLeaf?.takeIf { it.elementType == ElementType.COMMA }
     }
 
     private fun containsLineBreakInLeavesRange(from: PsiElement, to: PsiElement): Boolean {
@@ -401,11 +394,6 @@ public class TrailingCommaOnDeclarationSiteRule :
         }
         return leaf?.textContains('\n') ?: false
     }
-
-    private fun ASTNode.isIgnorable(): Boolean =
-        elementType == ElementType.WHITE_SPACE ||
-            elementType == ElementType.EOL_COMMENT ||
-            elementType == ElementType.BLOCK_COMMENT
 
     private enum class TrailingCommaState {
         /**
@@ -448,7 +436,8 @@ public class TrailingCommaOnDeclarationSiteRule :
                     PropertyValueParser.BOOLEAN_VALUE_PARSER,
                     BOOLEAN_VALUES_SET,
                 ),
-                defaultValue = false,
+                defaultValue = true,
+                defaultAndroidValue = false,
             )
 
         private val TYPES_ON_DECLARATION_SITE = TokenSet.create(

@@ -83,7 +83,7 @@ public class SpacingAroundColonRule : Rule("colon-spacing") {
                             } else {
                                 (prevLeaf as LeafPsiElement).rawReplaceWithText(" ")
                             }
-                            node.upsertWhitespaceAfterMe(text)
+                            (node as ASTNode).upsertWhitespaceAfterMe(text)
                         }
                     }
                 }
@@ -105,20 +105,20 @@ public class SpacingAroundColonRule : Rule("colon-spacing") {
                 missingSpacingBefore && missingSpacingAfter -> {
                     emit(node.startOffset, "Missing spacing around \":\"", true)
                     if (autoCorrect) {
-                        node.upsertWhitespaceBeforeMe(" ")
-                        node.upsertWhitespaceAfterMe(" ")
+                        (node as ASTNode).upsertWhitespaceBeforeMe(" ")
+                        (node as ASTNode).upsertWhitespaceAfterMe(" ")
                     }
                 }
                 missingSpacingBefore -> {
                     emit(node.startOffset, "Missing spacing before \":\"", true)
                     if (autoCorrect) {
-                        node.upsertWhitespaceBeforeMe(" ")
+                        (node as ASTNode).upsertWhitespaceBeforeMe(" ")
                     }
                 }
                 missingSpacingAfter -> {
                     emit(node.startOffset + 1, "Missing spacing after \":\"", true)
                     if (autoCorrect) {
-                        node.upsertWhitespaceAfterMe(" ")
+                        (node as ASTNode).upsertWhitespaceAfterMe(" ")
                     }
                 }
             }

@@ -13,7 +13,6 @@ import com.pinterest.ktlint.core.ast.nextLeaf
 import com.pinterest.ktlint.core.ast.prevLeaf
 import com.pinterest.ktlint.core.ast.upsertWhitespaceBeforeMe
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
 /**
  * Checks external wrapping of KDoc comment. Wrapping inside the KDoc comment is not altered.
@@ -91,11 +90,7 @@ public class KdocWrappingRule :
     ) {
         emit(startOffset, "A KDoc comment may not be followed by any other element on that same line", true)
         if (autoCorrect) {
-            if (elementType == WHITE_SPACE) {
-                (this as LeafPsiElement).rawReplaceWithText("\n${kdocCommentNode.lineIndent()}")
-            } else {
-                (this as LeafPsiElement).upsertWhitespaceBeforeMe("\n${kdocCommentNode.lineIndent()}")
-            }
+            this.upsertWhitespaceBeforeMe("\n${kdocCommentNode.lineIndent()}")
         }
     }
 

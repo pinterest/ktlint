@@ -51,7 +51,7 @@ public class SpacingAroundCommaRule : Rule("comma-spacing") {
             if (nextLeaf !is PsiWhiteSpace && nextLeaf?.elementType !in rTokenSet) {
                 emit(node.startOffset + 1, "Missing spacing after \"${node.text}\"", true)
                 if (autoCorrect) {
-                    node.upsertWhitespaceAfterMe(" ")
+                    (node as ASTNode).upsertWhitespaceAfterMe(" ")
                 }
             }
         }

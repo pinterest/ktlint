@@ -8,7 +8,6 @@ import com.pinterest.ktlint.core.ast.nextLeaf
 import com.pinterest.ktlint.core.ast.prevLeaf
 import com.pinterest.ktlint.core.ast.upsertWhitespaceAfterMe
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 
 public class FunctionReturnTypeSpacingRule : Rule("$experimentalRulesetId:function-return-type-spacing") {
     override fun beforeVisitChildNodes(
@@ -53,15 +52,10 @@ public class FunctionReturnTypeSpacingRule : Rule("$experimentalRulesetId:functi
             .nextLeaf()
             ?.takeIf { it.elementType == WHITE_SPACE }
             .let { whiteSpaceAfterColon ->
-                if (whiteSpaceAfterColon == null) {
+                if (whiteSpaceAfterColon?.text != " ") {
                     emit(node.startOffset, "Single space expected between colon and return type", true)
                     if (autoCorrect) {
-                        (node as LeafElement).upsertWhitespaceAfterMe(" ")
-                    }
-                } else if (whiteSpaceAfterColon.text != " ") {
-                    emit(node.startOffset, "Unexpected whitespace", true)
-                    if (autoCorrect) {
-                        (whiteSpaceAfterColon as LeafElement).rawReplaceWithText(" ")
+                        node.upsertWhitespaceAfterMe(" ")
                     }
                 }
             }
