@@ -1,7 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.insertNewLineProperty
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.INSERT_FINAL_NEWLINE_PROPERTY
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.isRoot
@@ -15,13 +15,13 @@ public class FinalNewlineRule :
     UsesEditorConfigProperties {
 
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
-        insertNewLineProperty,
+        INSERT_FINAL_NEWLINE_PROPERTY,
     )
 
     private var insertFinalNewline by Delegates.notNull<Boolean>()
 
     override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
-        insertFinalNewline = editorConfigProperties.getEditorConfigValue(insertNewLineProperty)
+        insertFinalNewline = editorConfigProperties.getEditorConfigValue(INSERT_FINAL_NEWLINE_PROPERTY)
     }
 
     override fun beforeVisitChildNodes(

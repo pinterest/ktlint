@@ -42,7 +42,7 @@ public class TrailingCommaOnCallSiteRule :
     UsesEditorConfigProperties {
 
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
-        allowTrailingCommaOnCallSiteProperty,
+        TRAILING_COMMA_ON_CALL_SITE_PROPERTY,
     )
 
     private var allowTrailingCommaOnCallSite by Delegates.notNull<Boolean>()
@@ -51,7 +51,7 @@ public class TrailingCommaOnCallSiteRule :
         elementType in TYPES_ON_CALL_SITE && allowTrailingCommaOnCallSite
 
     override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
-        allowTrailingCommaOnCallSite = editorConfigProperties.getEditorConfigValue(allowTrailingCommaOnCallSiteProperty)
+        allowTrailingCommaOnCallSite = editorConfigProperties.getEditorConfigValue(TRAILING_COMMA_ON_CALL_SITE_PROPERTY)
     }
 
     override fun beforeVisitChildNodes(
@@ -251,24 +251,30 @@ public class TrailingCommaOnCallSiteRule :
     }
 
     public companion object {
-        internal const val ALLOW_TRAILING_COMMA_ON_CALL_SITE_NAME = "ij_kotlin_allow_trailing_comma_on_call_site"
-        private const val ALLOW_TRAILING_COMMA_ON_CALL_SITE_DESCRIPTION =
-            "Defines whether a trailing comma (or no trailing comma) should be enforced on the calling side," +
-                "e.g. argument-list, when-entries, lambda-arguments, indices, etc."
         private val BOOLEAN_VALUES_SET = setOf("true", "false")
 
-        // TODO: Rename property to trailingCommaOnCallSite. The word 'allow' is misleading as the comma is
-        //       enforced when the property is enabled and prohibited when disabled.
-        public val allowTrailingCommaOnCallSiteProperty: UsesEditorConfigProperties.EditorConfigProperty<Boolean> =
+        public val TRAILING_COMMA_ON_CALL_SITE_PROPERTY: UsesEditorConfigProperties.EditorConfigProperty<Boolean> =
             UsesEditorConfigProperties.EditorConfigProperty(
                 type = PropertyType.LowerCasingPropertyType(
-                    ALLOW_TRAILING_COMMA_ON_CALL_SITE_NAME,
-                    ALLOW_TRAILING_COMMA_ON_CALL_SITE_DESCRIPTION,
+                    "ij_kotlin_allow_trailing_comma_on_call_site",
+                    "Defines whether a trailing comma (or no trailing comma) should be enforced on the calling side," +
+                        "e.g. argument-list, when-entries, lambda-arguments, indices, etc." +
+                        "When set, IntelliJ IDEA uses this property to allow usage of a trailing comma by discretion " +
+                        "of the developer. KtLint however uses this setting to enforce consistent usage of the " +
+                        "trailing comma when set.",
                     PropertyValueParser.BOOLEAN_VALUE_PARSER,
                     BOOLEAN_VALUES_SET,
                 ),
                 defaultValue = false,
             )
+
+        @Deprecated(
+            message = "Marked for removal in KtLint 0.49",
+            replaceWith = ReplaceWith("TRAILING_COMMA_ON_CALL_SITE_PROPERTY"),
+        )
+        @Suppress("ktlint:experimental:property-naming")
+        public val allowTrailingCommaOnCallSiteProperty: UsesEditorConfigProperties.EditorConfigProperty<Boolean> =
+            TRAILING_COMMA_ON_CALL_SITE_PROPERTY
 
         private val TYPES_ON_CALL_SITE = TokenSet.create(
             COLLECTION_LITERAL_EXPRESSION,

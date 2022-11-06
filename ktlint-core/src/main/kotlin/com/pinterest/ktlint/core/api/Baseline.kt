@@ -15,7 +15,7 @@ import mu.KotlinLogging
 import org.w3c.dom.Element
 import org.xml.sax.SAXException
 
-private val logger = KotlinLogging.logger {}.initKtLintKLogger()
+private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
 /**
  * Baseline of lint errors to be ignored in subsequent calls to ktlint.
@@ -64,18 +64,18 @@ public fun loadBaseline(path: String): Baseline {
                     status = VALID,
                 )
             } catch (e: IOException) {
-                logger.error { "Unable to parse baseline file: $path" }
+                LOGGER.error { "Unable to parse baseline file: $path" }
             } catch (e: ParserConfigurationException) {
-                logger.error { "Unable to parse baseline file: $path" }
+                LOGGER.error { "Unable to parse baseline file: $path" }
             } catch (e: SAXException) {
-                logger.error { "Unable to parse baseline file: $path" }
+                LOGGER.error { "Unable to parse baseline file: $path" }
             }
 
             // Baseline can not be parsed.
             try {
                 baselineFile.delete()
             } catch (e: IOException) {
-                logger.error { "Unable to delete baseline file: $path" }
+                LOGGER.error { "Unable to delete baseline file: $path" }
             }
             return Baseline(status = INVALID)
         }

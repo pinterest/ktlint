@@ -3,13 +3,12 @@ package com.pinterest.ktlint.test
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.RuleProvider
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.maxLineLengthProperty
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
 import org.assertj.core.api.AbstractAssert
-import org.assertj.core.api.AbstractSoftAssertions.assertAll
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.assertAll
 
@@ -87,7 +86,7 @@ public class KtLintAssertThat(
             ?.indexOf(EOL_CHAR)
             ?.let { index ->
                 editorConfigProperties =
-                    editorConfigProperties + setOf(maxLineLengthProperty to (index + 1).toString())
+                    editorConfigProperties + setOf(MAX_LINE_LENGTH_PROPERTY to (index + 1).toString())
             } ?: throw MissingEolMarker()
 
         return this
@@ -234,7 +233,7 @@ public class KtLintAssertThat(
                 code = code,
                 filePath = filePath,
                 kotlinScript = kotlinScript,
-                editorConfigOverride = EditorConfigOverride.emptyEditorConfigOverride,
+                editorConfigOverride = EditorConfigOverride.EMPTY_EDITOR_CONFIG_OVERRIDE,
                 additionalRuleProviders = additionalRuleProviders.toSet(),
             )
         } else {
@@ -304,7 +303,7 @@ public class KtLintAssertThatAssertable(
     private val code: String,
     private val filePath: String?,
     private val kotlinScript: Boolean,
-    private val editorConfigOverride: EditorConfigOverride = EditorConfigOverride.emptyEditorConfigOverride,
+    private val editorConfigOverride: EditorConfigOverride = EditorConfigOverride.EMPTY_EDITOR_CONFIG_OVERRIDE,
     /**
      *  The rules which have to be executed in addition to the main rule when linting/formatting the code. Note that
      *  lint errors for those rules are suppressed.

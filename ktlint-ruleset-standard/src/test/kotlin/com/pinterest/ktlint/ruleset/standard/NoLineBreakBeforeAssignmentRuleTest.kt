@@ -5,8 +5,6 @@ import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
-const val ruleId = "no-line-break-before-assignment"
-
 class NoLineBreakBeforeAssignmentRuleTest {
     private val noLineBreakBeforeAssignmentRuleAssertThat = assertThatRule { NoLineBreakBeforeAssignmentRule() }
 

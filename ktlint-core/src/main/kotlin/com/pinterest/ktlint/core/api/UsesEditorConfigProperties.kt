@@ -2,10 +2,10 @@ package com.pinterest.ktlint.core.api
 
 import com.pinterest.ktlint.core.IndentConfig
 import com.pinterest.ktlint.core.KtLint
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.CodeStyleValue
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.CodeStyleValue.android
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.CodeStyleValue.official
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.codeStyleSetProperty
 import com.pinterest.ktlint.core.initKtLintKLogger
 import mu.KotlinLogging
 import org.ec4j.core.model.Property
@@ -13,7 +13,7 @@ import org.ec4j.core.model.PropertyType
 import org.ec4j.core.model.PropertyType.PropertyValueParser.EnumValueParser
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
-private val logger = KotlinLogging.logger {}.initKtLintKLogger()
+private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
 /**
  * Indicates [com.pinterest.ktlint.core.Rule] uses properties loaded from `.editorconfig` file.
@@ -58,10 +58,10 @@ public interface UsesEditorConfigProperties {
      * be parsed explicitly to prevent class cast exceptions.
      */
     private fun EditorConfigProperties.getEditorConfigCodeStyle() =
-        codeStyleSetProperty
+        CODE_STYLE_PROPERTY
             .type
             .parse(
-                get(codeStyleSetProperty.type.name)?.sourceValue,
+                get(CODE_STYLE_PROPERTY.type.name)?.sourceValue,
             ).parsed
             ?: official
 
@@ -86,7 +86,7 @@ public interface UsesEditorConfigProperties {
         codeStyleValue: CodeStyleValue,
     ): T {
         if (editorConfigProperty.deprecationWarning != null) {
-            logger.warn { "Property '${editorConfigProperty.type.name}' is deprecated: ${editorConfigProperty.deprecationWarning}" }
+            LOGGER.warn { "Property '${editorConfigProperty.type.name}' is deprecated: ${editorConfigProperty.deprecationWarning}" }
         }
 
         val property = get(editorConfigProperty.type.name)
@@ -99,7 +99,7 @@ public interface UsesEditorConfigProperties {
                     // If the property value is remapped to a non-null value then return it immediately.
                     val originalValue = property.sourceValue
                     if (newValue.toString() != originalValue) {
-                        logger.trace {
+                        LOGGER.trace {
                             "Value of '.editorconfig' property '${editorConfigProperty.type.name}' is remapped " +
                                 "from '$originalValue' to '$newValue'"
                         }
@@ -130,7 +130,7 @@ public interface UsesEditorConfigProperties {
             ?: editorConfigProperty
                 .getDefaultValue(codeStyleValue)
                 .also {
-                    logger.trace {
+                    LOGGER.trace {
                         "No value of '.editorconfig' property '${editorConfigProperty.type.name}' was found. Value " +
                             "has been defaulted to '$it'. Setting the value explicitly in '.editorconfig' " +
                             "removes this message from the log."
@@ -218,7 +218,7 @@ public object DefaultEditorConfigProperties : UsesEditorConfigProperties {
         official,
     }
 
-    public val codeStyleSetProperty: UsesEditorConfigProperties.EditorConfigProperty<CodeStyleValue> =
+    public val CODE_STYLE_PROPERTY: UsesEditorConfigProperties.EditorConfigProperty<CodeStyleValue> =
         UsesEditorConfigProperties.EditorConfigProperty(
             type = PropertyType.LowerCasingPropertyType(
                 "ktlint_code_style",
@@ -231,10 +231,18 @@ public object DefaultEditorConfigProperties : UsesEditorConfigProperties {
         )
 
     @Deprecated(
+        message = "Marked for removal in KtLint 0.49",
+        replaceWith = ReplaceWith("CODE_STYLE_PROPERTY"),
+    )
+    @Suppress("ktlint:experimental:property-naming")
+    public val codeStyleSetProperty: UsesEditorConfigProperties.EditorConfigProperty<CodeStyleValue> =
+        CODE_STYLE_PROPERTY
+
+    @Deprecated(
         message = "Marked for removal in KtLint 0.48",
         replaceWith = ReplaceWith("ktlintDisabledRulesProperty"),
     )
-    public val disabledRulesProperty: UsesEditorConfigProperties.EditorConfigProperty<String> =
+    public val DISABLED_RULES_PROPERTY: UsesEditorConfigProperties.EditorConfigProperty<String> =
         UsesEditorConfigProperties.EditorConfigProperty(
             type = PropertyType.LowerCasingPropertyType(
                 "disabled_rules",
@@ -258,7 +266,7 @@ public object DefaultEditorConfigProperties : UsesEditorConfigProperties {
             deprecationWarning = "Rename property 'disabled_rules' to 'ktlint_disabled_rules' in all '.editorconfig' files.",
         )
 
-    public val ktlintDisabledRulesProperty: UsesEditorConfigProperties.EditorConfigProperty<String> =
+    public val KTLINT_DISABLED_RULES_PROPERTY: UsesEditorConfigProperties.EditorConfigProperty<String> =
         UsesEditorConfigProperties.EditorConfigProperty(
             type = PropertyType.LowerCasingPropertyType(
                 "ktlint_disabled_rules",
@@ -281,13 +289,29 @@ public object DefaultEditorConfigProperties : UsesEditorConfigProperties {
             },
         )
 
-    public val indentStyleProperty: UsesEditorConfigProperties.EditorConfigProperty<PropertyType.IndentStyleValue> =
+    @Deprecated(
+        message = "Marked for removal in KtLint 0.49",
+        replaceWith = ReplaceWith("KTLINT_DISABLED_RULES_PROPERTY"),
+    )
+    @Suppress("ktlint:experimental:property-naming")
+    public val ktlintDisabledRulesProperty: UsesEditorConfigProperties.EditorConfigProperty<String> =
+        KTLINT_DISABLED_RULES_PROPERTY
+
+    public val INDENT_STYLE_PROPERTY: UsesEditorConfigProperties.EditorConfigProperty<PropertyType.IndentStyleValue> =
         UsesEditorConfigProperties.EditorConfigProperty(
             type = PropertyType.indent_style,
             defaultValue = PropertyType.IndentStyleValue.space,
         )
 
-    public val indentSizeProperty: UsesEditorConfigProperties.EditorConfigProperty<Int> =
+    @Deprecated(
+        message = "Marked for removal in KtLint 0.49",
+        replaceWith = ReplaceWith("INDENT_STYLE_PROPERTY"),
+    )
+    @Suppress("ktlint:experimental:property-naming")
+    public val indentStyleProperty: UsesEditorConfigProperties.EditorConfigProperty<PropertyType.IndentStyleValue> =
+        INDENT_STYLE_PROPERTY
+
+    public val INDENT_SIZE_PROPERTY: UsesEditorConfigProperties.EditorConfigProperty<Int> =
         UsesEditorConfigProperties.EditorConfigProperty(
             type = PropertyType.indent_size,
             defaultValue = IndentConfig.DEFAULT_INDENT_CONFIG.tabWidth,
@@ -301,13 +325,29 @@ public object DefaultEditorConfigProperties : UsesEditorConfigProperties {
             },
         )
 
-    public val insertNewLineProperty: UsesEditorConfigProperties.EditorConfigProperty<Boolean> =
+    @Deprecated(
+        message = "Marked for removal in KtLint 0.49",
+        replaceWith = ReplaceWith("INDENT_SIZE_PROPERTY"),
+    )
+    @Suppress("ktlint:experimental:property-naming")
+    public val indentSizeProperty: UsesEditorConfigProperties.EditorConfigProperty<Int> =
+        INDENT_SIZE_PROPERTY
+
+    public val INSERT_FINAL_NEWLINE_PROPERTY: UsesEditorConfigProperties.EditorConfigProperty<Boolean> =
         UsesEditorConfigProperties.EditorConfigProperty(
             type = PropertyType.insert_final_newline,
             defaultValue = true,
         )
 
-    public val maxLineLengthProperty: UsesEditorConfigProperties.EditorConfigProperty<Int> =
+    @Deprecated(
+        message = "Marked for removal in KtLint 0.49",
+        replaceWith = ReplaceWith("INSERT_FINAL_NEWLINE_PROPERTY"),
+    )
+    @Suppress("ktlint:experimental:property-naming")
+    public val insertNewLineProperty: UsesEditorConfigProperties.EditorConfigProperty<Boolean> =
+        INSERT_FINAL_NEWLINE_PROPERTY
+
+    public val MAX_LINE_LENGTH_PROPERTY: UsesEditorConfigProperties.EditorConfigProperty<Int> =
         UsesEditorConfigProperties.EditorConfigProperty(
             type = PropertyType.max_line_length,
             defaultValue = -1,
@@ -328,14 +368,22 @@ public object DefaultEditorConfigProperties : UsesEditorConfigProperties {
             },
         )
 
+    @Deprecated(
+        message = "Marked for removal in KtLint 0.49",
+        replaceWith = ReplaceWith("MAX_LINE_LENGTH_PROPERTY"),
+    )
+    @Suppress("ktlint:experimental:property-naming")
+    public val maxLineLengthProperty: UsesEditorConfigProperties.EditorConfigProperty<Int> =
+        MAX_LINE_LENGTH_PROPERTY
+
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
-        codeStyleSetProperty,
-        disabledRulesProperty,
-        ktlintDisabledRulesProperty,
-        indentStyleProperty,
-        indentSizeProperty,
-        insertNewLineProperty,
-        maxLineLengthProperty,
+        CODE_STYLE_PROPERTY,
+        DISABLED_RULES_PROPERTY,
+        KTLINT_DISABLED_RULES_PROPERTY,
+        INDENT_STYLE_PROPERTY,
+        INDENT_SIZE_PROPERTY,
+        INSERT_FINAL_NEWLINE_PROPERTY,
+        MAX_LINE_LENGTH_PROPERTY,
     )
 }
 

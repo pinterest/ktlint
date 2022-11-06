@@ -544,7 +544,7 @@ internal class WrappingRuleTest {
             }
             """.trimIndent()
         wrappingRuleAssertThat(code)
-            .withEditorConfigOverride(DefaultEditorConfigProperties.indentStyleProperty to tab)
+            .withEditorConfigOverride(DefaultEditorConfigProperties.INDENT_STYLE_PROPERTY to tab)
             .hasLintViolations(
                 LintViolation(2, 10, "Missing newline after \"(\""),
                 LintViolation(5, 18, "Missing newline before \")\""),
@@ -1179,7 +1179,7 @@ internal class WrappingRuleTest {
             }
             """.trimIndent()
         wrappingRuleAssertThat(codeTabs)
-            .withEditorConfigOverride(DefaultEditorConfigProperties.indentStyleProperty to tab)
+            .withEditorConfigOverride(DefaultEditorConfigProperties.INDENT_STYLE_PROPERTY to tab)
             .hasNoLintViolations()
     }
 
@@ -1205,7 +1205,7 @@ internal class WrappingRuleTest {
             }
             """.trimIndent()
         wrappingRuleAssertThat(code)
-            .withEditorConfigOverride(DefaultEditorConfigProperties.indentStyleProperty to tab)
+            .withEditorConfigOverride(DefaultEditorConfigProperties.INDENT_STYLE_PROPERTY to tab)
             .hasNoLintViolations()
     }
 

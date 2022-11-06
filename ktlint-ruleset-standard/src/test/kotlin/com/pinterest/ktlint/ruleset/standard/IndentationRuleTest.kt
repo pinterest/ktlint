@@ -1,7 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentSizeProperty
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentStyleProperty
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.INDENT_SIZE_PROPERTY
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE
@@ -1166,7 +1166,7 @@ internal class IndentationRuleTest {
             }
             """.trimIndent()
         indentationRuleAssertThat(code)
-            .withEditorConfigOverride(indentSizeProperty to 2)
+            .withEditorConfigOverride(INDENT_SIZE_PROPERTY to 2)
             .hasLintViolations(
                 LintViolation(2, 1, "Unexpected indentation (3) (should be 2)"),
                 LintViolation(3, 1, "Unexpected indentation (4) (should be 2)"),
@@ -1225,7 +1225,7 @@ internal class IndentationRuleTest {
             }
             """.trimIndent()
         indentationRuleAssertThat(code)
-            .withEditorConfigOverride(indentSizeProperty to "unset")
+            .withEditorConfigOverride(INDENT_SIZE_PROPERTY to "unset")
             .hasNoLintViolations()
     }
 
@@ -2738,7 +2738,7 @@ internal class IndentationRuleTest {
             }
             """.trimIndent()
         indentationRuleAssertThat(code)
-            .withEditorConfigOverride(indentSizeProperty to 2)
+            .withEditorConfigOverride(INDENT_SIZE_PROPERTY to 2)
             .hasLintViolations(
                 LintViolation(2, 1, "Unexpected tab character(s)"),
                 LintViolation(3, 1, "Unexpected tab character(s)"),
@@ -4761,7 +4761,7 @@ internal class IndentationRuleTest {
     }
 
     private companion object {
-        val INDENT_STYLE_TAB = indentStyleProperty to PropertyType.IndentStyleValue.tab
+        val INDENT_STYLE_TAB = INDENT_STYLE_PROPERTY to PropertyType.IndentStyleValue.tab
     }
 }
 

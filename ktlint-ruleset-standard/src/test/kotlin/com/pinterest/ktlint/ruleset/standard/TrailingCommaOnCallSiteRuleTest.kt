@@ -1,7 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.RuleProvider
-import com.pinterest.ktlint.ruleset.standard.TrailingCommaOnCallSiteRule.Companion.allowTrailingCommaOnCallSiteProperty
+import com.pinterest.ktlint.ruleset.standard.TrailingCommaOnCallSiteRule.Companion.TRAILING_COMMA_ON_CALL_SITE_PROPERTY
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
@@ -86,7 +86,7 @@ class TrailingCommaOnCallSiteRuleTest {
             )
             """.trimIndent()
         ruleAssertThat(code)
-            .withEditorConfigOverride(allowTrailingCommaOnCallSiteProperty to false)
+            .withEditorConfigOverride(TRAILING_COMMA_ON_CALL_SITE_PROPERTY to false)
             .hasLintViolations(
                 LintViolation(1, 28, "Unnecessary trailing comma before \")\""),
                 LintViolation(4, 8, "Unnecessary trailing comma before \")\""),
@@ -121,7 +121,7 @@ class TrailingCommaOnCallSiteRuleTest {
             )
             """.trimIndent()
         ruleAssertThat(code)
-            .withEditorConfigOverride(allowTrailingCommaOnCallSiteProperty to true)
+            .withEditorConfigOverride(TRAILING_COMMA_ON_CALL_SITE_PROPERTY to true)
             .hasLintViolations(
                 LintViolation(4, 8, "Missing trailing comma before \")\""),
                 LintViolation(8, 8, "Missing trailing comma before \")\""),
@@ -151,7 +151,7 @@ class TrailingCommaOnCallSiteRuleTest {
                 > = emptyList()
             """.trimIndent()
         ruleAssertThat(code)
-            .withEditorConfigOverride(allowTrailingCommaOnCallSiteProperty to false)
+            .withEditorConfigOverride(TRAILING_COMMA_ON_CALL_SITE_PROPERTY to false)
             .hasLintViolations(
                 LintViolation(1, 23, "Unnecessary trailing comma before \">\""),
                 LintViolation(3, 11, "Unnecessary trailing comma before \">\""),
@@ -182,7 +182,7 @@ class TrailingCommaOnCallSiteRuleTest {
                 > = emptyList()
             """.trimIndent()
         ruleAssertThat(code)
-            .withEditorConfigOverride(allowTrailingCommaOnCallSiteProperty to true)
+            .withEditorConfigOverride(TRAILING_COMMA_ON_CALL_SITE_PROPERTY to true)
             .hasLintViolations(
                 LintViolation(3, 11, "Missing trailing comma before \">\""),
                 LintViolation(6, 11, "Missing trailing comma before \">\""),
@@ -214,7 +214,7 @@ class TrailingCommaOnCallSiteRuleTest {
             ]
             """.trimIndent()
         ruleAssertThat(code)
-            .withEditorConfigOverride(allowTrailingCommaOnCallSiteProperty to false)
+            .withEditorConfigOverride(TRAILING_COMMA_ON_CALL_SITE_PROPERTY to false)
             .hasLintViolations(
                 LintViolation(2, 17, "Unnecessary trailing comma before \"]\""),
                 LintViolation(4, 6, "Unnecessary trailing comma before \"]\""),
@@ -247,7 +247,7 @@ class TrailingCommaOnCallSiteRuleTest {
             ]
             """.trimIndent()
         ruleAssertThat(code)
-            .withEditorConfigOverride(allowTrailingCommaOnCallSiteProperty to true)
+            .withEditorConfigOverride(TRAILING_COMMA_ON_CALL_SITE_PROPERTY to true)
             .hasLintViolations(
                 LintViolation(4, 6, "Missing trailing comma before \"]\""),
                 LintViolation(7, 6, "Missing trailing comma before \"]\""),
@@ -295,7 +295,7 @@ class TrailingCommaOnCallSiteRuleTest {
             val foo3: Int = 0
             """.trimIndent()
         ruleAssertThat(code)
-            .withEditorConfigOverride(allowTrailingCommaOnCallSiteProperty to false)
+            .withEditorConfigOverride(TRAILING_COMMA_ON_CALL_SITE_PROPERTY to false)
             .hasLintViolations(
                 LintViolation(3, 18, "Unnecessary trailing comma before \"]\""),
                 LintViolation(8, 6, "Unnecessary trailing comma before \"]\""),
@@ -368,7 +368,7 @@ class TrailingCommaOnCallSiteRuleTest {
             val foo4: Int = 0
             """.trimIndent()
         ruleAssertThat(code)
-            .withEditorConfigOverride(allowTrailingCommaOnCallSiteProperty to true)
+            .withEditorConfigOverride(TRAILING_COMMA_ON_CALL_SITE_PROPERTY to true)
             .hasLintViolations(
                 LintViolation(8, 6, "Missing trailing comma before \"]\""),
                 LintViolation(14, 6, "Missing trailing comma before \"]\""),
@@ -389,7 +389,7 @@ class TrailingCommaOnCallSiteRuleTest {
             }
             """.trimIndent()
         ruleAssertThat(code)
-            .withEditorConfigOverride(allowTrailingCommaOnCallSiteProperty to true)
+            .withEditorConfigOverride(TRAILING_COMMA_ON_CALL_SITE_PROPERTY to true)
             .hasNoLintViolations()
     }
 
@@ -430,7 +430,7 @@ class TrailingCommaOnCallSiteRuleTest {
             val fooBar = null
             """.trimIndent()
         ruleAssertThat(code)
-            .withEditorConfigOverride(allowTrailingCommaOnCallSiteProperty to true)
+            .withEditorConfigOverride(TRAILING_COMMA_ON_CALL_SITE_PROPERTY to true)
             .hasLintViolations(
                 LintViolation(9, 16, "Missing trailing comma before \"]\""),
                 LintViolation(12, 19, "Missing trailing comma before \")\""),
@@ -464,7 +464,7 @@ class TrailingCommaOnCallSiteRuleTest {
             annotation class Foo(val values: Array<KClass<*>>)
             """.trimIndent()
         ruleAssertThat(code)
-            .withEditorConfigOverride(allowTrailingCommaOnCallSiteProperty to true)
+            .withEditorConfigOverride(TRAILING_COMMA_ON_CALL_SITE_PROPERTY to true)
             .hasLintViolations(
                 LintViolation(6, 19, "Missing trailing comma before \"]\""),
                 LintViolation(7, 6, "Missing trailing comma before \")\""),
@@ -483,7 +483,7 @@ class TrailingCommaOnCallSiteRuleTest {
             val foo1 = setOf<Int>()
             """.trimIndent()
         ruleAssertThat(code)
-            .withEditorConfigOverride(allowTrailingCommaOnCallSiteProperty to true)
+            .withEditorConfigOverride(TRAILING_COMMA_ON_CALL_SITE_PROPERTY to true)
             .hasNoLintViolations()
     }
 
@@ -510,7 +510,7 @@ class TrailingCommaOnCallSiteRuleTest {
             }
             """.trimIndent()
         ruleAssertThat(code)
-            .withEditorConfigOverride(allowTrailingCommaOnCallSiteProperty to true)
+            .withEditorConfigOverride(TRAILING_COMMA_ON_CALL_SITE_PROPERTY to true)
             .hasNoLintViolations()
     }
 }

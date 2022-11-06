@@ -20,12 +20,12 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiCommentImpl
  * another element on the same line is replaced with an EOL comment, if possible.
  */
 public class CommentWrappingRule :
-    Rule("$experimentalRulesetId:comment-wrapping"),
+    Rule("$EXPERIMENTAL_RULE_SET_ID:comment-wrapping"),
     UsesEditorConfigProperties {
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> =
         listOf(
-            DefaultEditorConfigProperties.indentSizeProperty,
-            DefaultEditorConfigProperties.indentStyleProperty,
+            DefaultEditorConfigProperties.INDENT_SIZE_PROPERTY,
+            DefaultEditorConfigProperties.INDENT_STYLE_PROPERTY,
         )
 
     override fun beforeVisitChildNodes(

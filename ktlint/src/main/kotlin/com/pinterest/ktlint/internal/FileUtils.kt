@@ -25,17 +25,17 @@ import kotlin.system.measureTimeMillis
 import mu.KotlinLogging
 import org.jetbrains.kotlin.util.prefixIfNot
 
-private val logger = KotlinLogging.logger {}.initKtLintKLogger()
+private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
-internal val workDir: String = File(".").canonicalPath
+internal val WORK_DIR: String = File(".").canonicalPath
 
-private val tildeRegex = Regex("^(!)?~")
+private val TILDE_REGEX = Regex("^(!)?~")
 private const val NEGATION_PREFIX = "!"
 
-private val userHome = System.getProperty("user.home")
+private val USER_HOME = System.getProperty("user.home")
 
-private val defaultKotlinFileExtensions = setOf("kt", "kts")
-internal val defaultPatterns = defaultKotlinFileExtensions.map { "**/*.$it" }
+private val DEFAULT_KOTLIN_FILE_EXTENSIONS = setOf("kt", "kts")
+internal val DEFAULT_PATTERNS = DEFAULT_KOTLIN_FILE_EXTENSIONS.map { "**/*.$it" }
 
 /**
  * Transform the [patterns] to a sequence of files. Each element in [patterns] can be a glob, a file or directory path
@@ -65,7 +65,7 @@ internal fun FileSystem.fileSequence(
     val globs = expand(patternsExclusiveExistingFiles, rootDir)
 
     val pathMatchers = if (globs.isEmpty()) {
-        defaultPatterns
+        DEFAULT_PATTERNS
             .map { getPathMatcher("glob:$it") }
             .toSet()
     } else {
@@ -82,7 +82,7 @@ internal fun FileSystem.fileSequence(
             .map { getPathMatcher(it.removePrefix(NEGATION_PREFIX)) }
     }
 
-    logger.debug {
+    LOGGER.debug {
         """
         Start walkFileTree for rootDir: '$rootDir'
            include:
@@ -107,7 +107,7 @@ internal fun FileSystem.fileSequence(
                                     .replace(File.separatorChar, '/'),
                             ).also {
                                 if (it != filePath) {
-                                    logger.trace { "On WindowsOS transform '$filePath' to '$it'" }
+                                    LOGGER.trace { "On WindowsOS transform '$filePath' to '$it'" }
                                 }
                             }
                         } else {
@@ -116,10 +116,10 @@ internal fun FileSystem.fileSequence(
                     if (negatedPathMatchers.none { it.matches(path) } &&
                         pathMatchers.any { it.matches(path) }
                     ) {
-                        logger.trace { "- File: $path: Include" }
+                        LOGGER.trace { "- File: $path: Include" }
                         result.add(path)
                     } else {
-                        logger.trace { "- File: $path: Ignore" }
+                        LOGGER.trace { "- File: $path: Ignore" }
                     }
                     return FileVisitResult.CONTINUE
                 }
@@ -129,17 +129,17 @@ internal fun FileSystem.fileSequence(
                     dirAttr: BasicFileAttributes,
                 ): FileVisitResult {
                     return if (Files.isHidden(dirPath)) {
-                        logger.trace { "- Dir: $dirPath: Ignore" }
+                        LOGGER.trace { "- Dir: $dirPath: Ignore" }
                         FileVisitResult.SKIP_SUBTREE
                     } else {
-                        logger.trace { "- Dir: $dirPath: Traverse" }
+                        LOGGER.trace { "- Dir: $dirPath: Traverse" }
                         FileVisitResult.CONTINUE
                     }
                 }
             },
         )
     }
-    logger.debug { "Discovered ${result.count()} files to be processed in $duration ms" }
+    LOGGER.debug { "Discovered ${result.count()} files to be processed in $duration ms" }
 
     return result.asSequence()
 }
@@ -163,7 +163,7 @@ private fun FileSystem.expand(
                     .replace(File.separator, "/")
                     .also { transformedPath ->
                         if (it != transformedPath) {
-                            logger.trace { "On WindowsOS transform '$it' to '$transformedPath'" }
+                            LOGGER.trace { "On WindowsOS transform '$it' to '$transformedPath'" }
                         }
                     }
             } else {
@@ -192,14 +192,14 @@ private fun FileSystem.toGlob(
             resolvedPath
                 .expandPathToDefaultPatterns()
                 .also {
-                    logger.trace { "Expanding resolved directory path '$resolvedPath' to patterns: [$it]" }
+                    LOGGER.trace { "Expanding resolved directory path '$resolvedPath' to patterns: [$it]" }
                 }
         } else {
             resolvedPath
                 .pathString
                 .expandDoubleStarPatterns()
                 .also {
-                    logger.trace { "Expanding resolved path '$resolvedPath` to patterns: [$it]" }
+                    LOGGER.trace { "Expanding resolved path '$resolvedPath` to patterns: [$it]" }
                 }
         }
     } catch (e: InvalidPathException) {
@@ -208,7 +208,7 @@ private fun FileSystem.toGlob(
             pathWithoutNegationPrefix
                 .expandDoubleStarPatterns()
                 .also {
-                    logger.trace { "On WindowsOS: expanding unresolved path '$pathWithoutNegationPrefix` to patterns: [$it]" }
+                    LOGGER.trace { "On WindowsOS: expanding unresolved path '$pathWithoutNegationPrefix` to patterns: [$it]" }
                 }
         } else {
             emptyList()
@@ -228,7 +228,7 @@ private fun FileSystem.toGlob(
                     .prefixIfNot("**/")
                     .also { transformedPattern ->
                         if (transformedPattern != originalPattern) {
-                            logger.trace { "On WindowsOS, transform '$originalPattern' to '$transformedPattern'" }
+                            LOGGER.trace { "On WindowsOS, transform '$originalPattern' to '$transformedPattern'" }
                         }
                     }
             } else {
@@ -279,12 +279,12 @@ private fun String?.normalizeWindowsPattern() =
                     // that glob results in a pattern that will never be matched as the ".." reference will not occur in
                     // the filepath that is being checked with the regular expression.
                     if (parts.isEmpty()) {
-                        logger.warn {
+                        LOGGER.warn {
                             "On WindowsOS the pattern '$this' can not be used as it refers to a path outside of the current directory"
                         }
                         return@normalizeWindowsPattern null
                     } else if (parts.peekLast().contains('*')) {
-                        logger.warn {
+                        LOGGER.warn {
                             "On WindowsOS the pattern '$this' can not be used as '/..' follows the wildcard pattern ${parts.peekLast()}"
                         }
                         return@normalizeWindowsPattern null
@@ -301,7 +301,7 @@ private fun String?.normalizeWindowsPattern() =
     }
 
 private fun Path.expandPathToDefaultPatterns() =
-    defaultKotlinFileExtensions
+    DEFAULT_KOTLIN_FILE_EXTENSIONS
         .flatMap {
             listOf(
                 "$this/*.$it",
@@ -317,7 +317,7 @@ internal typealias JarFiles = List<String>
 internal fun JarFiles.toFilesURIList() = map {
     val jarFile = File(it.expandTildeToFullPath())
     if (!jarFile.exists()) {
-        logger.error { "File $it does not exist" }
+        LOGGER.error { "File $it does not exist" }
         exitProcess(1)
     }
     jarFile.toURI().toURL()
@@ -330,10 +330,10 @@ internal fun String.expandTildeToFullPath(): String =
         // Windows sometimes inserts `~` into paths when using short directory names notation, e.g. `C:\Users\USERNA~1\Documents
         this
     } else {
-        replaceFirst(tildeRegex, userHome)
+        replaceFirst(TILDE_REGEX, USER_HOME)
             .also {
                 if (it != this) {
-                    logger.trace { "On non-WindowsOS expand '$this' to '$it'" }
+                    LOGGER.trace { "On non-WindowsOS expand '$this' to '$it'" }
                 }
             }
     }
@@ -346,7 +346,7 @@ private val onWindowsOS
 
 internal fun File.location(
     relative: Boolean,
-) = if (relative) this.toRelativeString(File(workDir)) else this.path
+) = if (relative) this.toRelativeString(File(WORK_DIR)) else this.path
 
 /**
  * Run lint over common kotlin file or kotlin script file.

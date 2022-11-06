@@ -13,13 +13,13 @@ public class NoWildcardImportsRule :
     Rule("no-wildcard-imports"),
     UsesEditorConfigProperties {
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
-        packagesToUseImportOnDemandProperty,
+        IJ_KOTLIN_PACKAGES_TO_USE_IMPORT_ON_DEMAND,
     )
 
     private lateinit var allowedWildcardImports: List<PatternEntry>
 
     override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
-        allowedWildcardImports = editorConfigProperties.getEditorConfigValue(packagesToUseImportOnDemandProperty)
+        allowedWildcardImports = editorConfigProperties.getEditorConfigValue(IJ_KOTLIN_PACKAGES_TO_USE_IMPORT_ON_DEMAND)
     }
 
     override fun beforeVisitChildNodes(
@@ -61,7 +61,7 @@ public class NoWildcardImportsRule :
             }
         }
 
-        private val packagesToUseImportOnDemandPropertyParser: (String, String?) -> PropertyType.PropertyValue<List<PatternEntry>> =
+        private val PACKAGES_TO_USE_ON_DEMAND_IMPORT_PROPERTY_PARSER: (String, String?) -> PropertyType.PropertyValue<List<PatternEntry>> =
             { _, value ->
                 when {
                     else -> try {
@@ -78,12 +78,12 @@ public class NoWildcardImportsRule :
                 }
             }
 
-        public val packagesToUseImportOnDemandProperty: UsesEditorConfigProperties.EditorConfigProperty<List<PatternEntry>> =
+        public val IJ_KOTLIN_PACKAGES_TO_USE_IMPORT_ON_DEMAND: UsesEditorConfigProperties.EditorConfigProperty<List<PatternEntry>> =
             UsesEditorConfigProperties.EditorConfigProperty(
                 type = PropertyType(
                     "ij_kotlin_packages_to_use_import_on_demand",
                     "Defines allowed wildcard imports",
-                    packagesToUseImportOnDemandPropertyParser,
+                    PACKAGES_TO_USE_ON_DEMAND_IMPORT_PROPERTY_PARSER,
                 ),
                 /**
                  * Default IntelliJ IDEA style: Use wildcard imports for packages in "java.util", "kotlin.android.synthetic" and
@@ -94,5 +94,13 @@ public class NoWildcardImportsRule :
                 defaultValue = parseAllowedWildcardImports("java.util.*,kotlinx.android.synthetic.**"),
                 propertyWriter = { it.joinToString(separator = ",") },
             )
+
+        @Deprecated(
+            message = "Marked for removal in KtLint 0.49",
+            replaceWith = ReplaceWith("IJ_KOTLIN_PACKAGES_TO_USE_IMPORT_ON_DEMAND"),
+        )
+        @Suppress("ktlint:experimental:property-naming")
+        public val packagesToUseImportOnDemandProperty: UsesEditorConfigProperties.EditorConfigProperty<List<PatternEntry>> =
+            IJ_KOTLIN_PACKAGES_TO_USE_IMPORT_ON_DEMAND
     }
 }

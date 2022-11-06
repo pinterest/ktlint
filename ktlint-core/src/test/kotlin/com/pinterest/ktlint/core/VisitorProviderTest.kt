@@ -1,7 +1,7 @@
 package com.pinterest.ktlint.core
 
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.disabledRulesProperty
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.ktlintDisabledRulesProperty
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.DISABLED_RULES_PROPERTY
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.KTLINT_DISABLED_RULES_PROPERTY
 import com.pinterest.ktlint.core.internal.VisitorProvider
 import org.assertj.core.api.Assertions.assertThat
 import org.ec4j.core.model.Property
@@ -132,7 +132,7 @@ class VisitorProviderTest {
         }
 
         private fun disabledRulesEditorConfigProperties(vararg ruleIds: String) =
-            with(disabledRulesProperty) {
+            with(DISABLED_RULES_PROPERTY) {
                 mapOf(
                     type.name to
                         Property.builder()
@@ -262,7 +262,7 @@ class VisitorProviderTest {
     }
 
     private fun ktlintDisabledRulesEditorConfigProperties(vararg ruleIds: String) =
-        with(ktlintDisabledRulesProperty) {
+        with(KTLINT_DISABLED_RULES_PROPERTY) {
             mapOf(
                 type.name to
                     Property.builder()

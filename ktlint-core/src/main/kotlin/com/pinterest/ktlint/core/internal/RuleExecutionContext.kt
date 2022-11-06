@@ -9,7 +9,7 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiErrorElement
 import org.jetbrains.kotlin.idea.KotlinLanguage
 import org.jetbrains.kotlin.psi.KtFile
 
-private val kotlinPsiFileFactoryProvider = KotlinPsiFileFactoryProvider()
+private val KOTLIN_PSI_FILE_FACTORY_PROVIDER = KotlinPsiFileFactoryProvider()
 
 internal class RuleExecutionContext(
     val rootNode: FileASTNode,
@@ -29,7 +29,7 @@ internal class RuleExecutionContext(
 }
 
 internal fun createRuleExecutionContext(params: KtLint.ExperimentalParams): RuleExecutionContext {
-    val psiFileFactory = kotlinPsiFileFactoryProvider.getKotlinPsiFileFactory(params.isInvokedFromCli)
+    val psiFileFactory = KOTLIN_PSI_FILE_FACTORY_PROVIDER.getKotlinPsiFileFactory(params.isInvokedFromCli)
     val normalizedText = normalizeText(params.text)
     val positionInTextLocator = buildPositionInTextLocator(normalizedText)
 
@@ -52,7 +52,7 @@ internal fun createRuleExecutionContext(params: KtLint.ExperimentalParams): Rule
 
     val rootNode = psiFile.node
 
-    val editorConfigProperties = KtLint.editorConfigLoader.load(
+    val editorConfigProperties = KtLint.EDITOR_CONFIG_LOADER.load(
         filePath = params.normalizedFilePath,
         rules = params.getRules(),
         editorConfigDefaults = params.editorConfigDefaults,

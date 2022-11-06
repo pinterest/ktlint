@@ -33,15 +33,15 @@ public class MultiLineIfElseRule :
     UsesEditorConfigProperties {
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> =
         listOf(
-            DefaultEditorConfigProperties.indentSizeProperty,
-            DefaultEditorConfigProperties.indentStyleProperty,
+            DefaultEditorConfigProperties.INDENT_SIZE_PROPERTY,
+            DefaultEditorConfigProperties.INDENT_STYLE_PROPERTY,
         )
     private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
 
     override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
         indentConfig = IndentConfig(
-            indentStyle = editorConfigProperties.getEditorConfigValue(DefaultEditorConfigProperties.indentStyleProperty),
-            tabWidth = editorConfigProperties.getEditorConfigValue(DefaultEditorConfigProperties.indentSizeProperty),
+            indentStyle = editorConfigProperties.getEditorConfigValue(DefaultEditorConfigProperties.INDENT_STYLE_PROPERTY),
+            tabWidth = editorConfigProperties.getEditorConfigValue(DefaultEditorConfigProperties.INDENT_SIZE_PROPERTY),
         )
     }
 

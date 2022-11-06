@@ -32,7 +32,7 @@ import org.junit.jupiter.api.Test
 
 class HtmlReporterTest {
     @Test
-    fun shouldRenderEmptyReportWhen_NoIssuesFound() {
+    fun `Should render empty report when no issues found`() {
         val out = ByteArrayOutputStream()
         val reporter = HtmlReporter(PrintStream(out, true))
         reporter.afterAll()
@@ -62,7 +62,7 @@ class HtmlReporterTest {
     }
 
     @Test
-    fun shouldRenderIssuesWhen_LintProblemsFound() {
+    fun `Should render issues when lint problems found`() {
         val out = ByteArrayOutputStream()
         val reporter = HtmlReporter(PrintStream(out, true))
 
@@ -105,7 +105,7 @@ class HtmlReporterTest {
     }
 
     @Test
-    fun shouldNotRenderCorrectedIssuesWhen_LintOneIsFound() {
+    fun `Should not render corrected issues when lint one is found`() {
         val out = ByteArrayOutputStream()
         val reporter = HtmlReporter(PrintStream(out, true))
 
@@ -154,7 +154,7 @@ class HtmlReporterTest {
     }
 
     @Test
-    fun shouldRenderIssuesAndEscapeSpecialHtmlSymbolsWhen_LintProblemsFound() {
+    fun `Should render issues and escape special HTML symbols when lint problems found`() {
         val out = ByteArrayOutputStream()
         val reporter = HtmlReporter(PrintStream(out, true))
 
