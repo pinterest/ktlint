@@ -513,4 +513,27 @@ class TrailingCommaOnCallSiteRuleTest {
             .withEditorConfigOverride(TRAILING_COMMA_ON_CALL_SITE_PROPERTY to true)
             .hasNoLintViolations()
     }
+
+    @Test
+    fun `Issue 1676 - Given a trailing comma followed by a kdoc then do no add another trailing comma`() {
+        val code =
+            """
+            val foo1 = setOf(
+                1, /** Comment */
+            )
+            val foo1 = setOf(
+                2,
+                /** Comment */
+            )
+            val foo3 = setOf(
+                3,
+                /**
+                 * Comment
+                 */
+            )
+            """.trimIndent()
+        ruleAssertThat(code)
+            .withEditorConfigOverride(TrailingCommaOnDeclarationSiteRule.allowTrailingCommaProperty to true)
+            .hasNoLintViolations()
+    }
 }

@@ -957,4 +957,27 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             .hasLintViolation(3, 15, "Missing trailing comma before \";\"")
             .isFormattedAs(formattedCode)
     }
+
+    @Test
+    fun `Issue 1676 - Given a trailing comma followed by a kdoc then do no add another trailing comma`() {
+        val code =
+            """
+            fun foo(
+                val bar: Bar, /** Comment */
+            )
+            fun foo(
+                val bar: Bar,
+                /** Comment */
+            )
+            fun foo(
+                val bar: Bar,
+                /**
+                 * Comment
+                 */
+            )
+            """.trimIndent()
+        ruleAssertThat(code)
+            .withEditorConfigOverride(allowTrailingCommaProperty to true)
+            .hasNoLintViolations()
+    }
 }
