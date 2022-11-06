@@ -25,7 +25,6 @@ import com.pinterest.ktlint.core.ast.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.core.ast.upsertWhitespaceBeforeMe
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.psi.KtTypeArgumentList
@@ -97,13 +96,13 @@ public class ParameterListWrappingRule :
                                     true,
                                 )
                                 if (autoCorrect) {
-                                    (it as LeafElement).upsertWhitespaceAfterMe("\n${indentConfig.indent}")
+                                    it.upsertWhitespaceAfterMe("\n${indentConfig.indent}")
                                 }
                             }
                             RPAR -> {
                                 emit(it.startOffset, errorMessage(it), true)
                                 if (autoCorrect) {
-                                    (it as LeafElement).upsertWhitespaceBeforeMe("\n")
+                                    it.upsertWhitespaceBeforeMe("\n")
                                 }
                             }
                         }

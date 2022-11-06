@@ -172,10 +172,10 @@ class PlainReporterTest {
         assertThat(String(out.toByteArray())).isEqualTo(
             """
             /one-fixed-and-one-not.kt
-              1:1 <"&'>
+              1:1 <"&'> (rule-1)
             /two-not-fixed.kt
-              1:10 I thought I would again
-              2:20 A single thin straight line
+              1:10 I thought I would again (rule-1)
+              2:20 A single thin straight line (rule-2)
 
             """.trimIndent().replace("\n", System.lineSeparator()),
         )

@@ -8,8 +8,6 @@ import com.pinterest.ktlint.core.ast.prevLeaf
 import com.pinterest.ktlint.core.ast.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.core.ast.upsertWhitespaceBeforeMe
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
 /**
  * Lints and formats the spacing after the fun keyword
@@ -55,12 +53,12 @@ public class FunctionStartOfBodySpacingRule : Rule("$experimentalRulesetId:funct
                         if (whiteSpaceBeforeAssignment == null) {
                             emit(assignmentExpression.startOffset, "Expected a single white space before assignment of expression body", true)
                             if (autoCorrect) {
-                                (assignmentExpression as LeafPsiElement).upsertWhitespaceBeforeMe(" ")
+                                assignmentExpression.upsertWhitespaceBeforeMe(" ")
                             }
                         } else if (whiteSpaceBeforeAssignment.text != " ") {
                             emit(whiteSpaceBeforeAssignment.startOffset, "Unexpected whitespace", true)
                             if (autoCorrect) {
-                                (assignmentExpression as LeafPsiElement).upsertWhitespaceBeforeMe(" ")
+                                assignmentExpression.upsertWhitespaceBeforeMe(" ")
                             }
                         }
                     }
@@ -79,19 +77,14 @@ public class FunctionStartOfBodySpacingRule : Rule("$experimentalRulesetId:funct
                     .nextLeaf(includeEmpty = true)
                     ?.takeIf { it.elementType == ElementType.WHITE_SPACE }
                     .let { whiteSpaceAfterAssignment ->
-                        if (whiteSpaceAfterAssignment == null) {
+                        if (!(whiteSpaceAfterAssignment?.text == " " || whiteSpaceAfterAssignment?.textContains('\n') == true)) {
                             emit(
                                 assignmentExpression.startOffset,
                                 "Expected a single white space between assignment and expression body on same line",
                                 true,
                             )
                             if (autoCorrect) {
-                                (assignmentExpression as LeafPsiElement).upsertWhitespaceAfterMe(" ")
-                            }
-                        } else if (whiteSpaceAfterAssignment.text != " " && !whiteSpaceAfterAssignment.textContains('\n')) {
-                            emit(whiteSpaceAfterAssignment.startOffset, "Unexpected whitespace", true)
-                            if (autoCorrect) {
-                                (assignmentExpression as LeafPsiElement).upsertWhitespaceAfterMe(" ")
+                                assignmentExpression.upsertWhitespaceAfterMe(" ")
                             }
                         }
                     }
@@ -110,15 +103,13 @@ public class FunctionStartOfBodySpacingRule : Rule("$experimentalRulesetId:funct
                     .prevLeaf(includeEmpty = true)
                     ?.takeIf { it.elementType == ElementType.WHITE_SPACE }
                     .let { whiteSpaceBeforeExpressionBlock ->
-                        if (whiteSpaceBeforeExpressionBlock == null) {
+                        if (whiteSpaceBeforeExpressionBlock?.text != " ") {
                             emit(block.startOffset, "Expected a single white space before start of function body", true)
                             if (autoCorrect) {
-                                (block.firstChildNode.prevLeaf(true) as LeafPsiElement).upsertWhitespaceAfterMe(" ")
-                            }
-                        } else if (whiteSpaceBeforeExpressionBlock.text != " ") {
-                            emit(whiteSpaceBeforeExpressionBlock.startOffset, "Unexpected whitespace", true)
-                            if (autoCorrect) {
-                                (whiteSpaceBeforeExpressionBlock as LeafElement).rawReplaceWithText(" ")
+                                block
+                                    .firstChildNode
+                                    .prevLeaf(true)
+                                    ?.upsertWhitespaceAfterMe(" ")
                             }
                         }
                     }

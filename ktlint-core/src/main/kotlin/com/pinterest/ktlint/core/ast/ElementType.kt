@@ -125,6 +125,8 @@ public object ElementType {
     public val TYPE_CODE_FRAGMENT: IElementType = KtNodeTypes.TYPE_CODE_FRAGMENT
     public val EXPRESSION_CODE_FRAGMENT: IElementType = KtNodeTypes.EXPRESSION_CODE_FRAGMENT
     public val BLOCK_CODE_FRAGMENT: IElementType = KtNodeTypes.BLOCK_CODE_FRAGMENT
+    public val CONTEXT_RECEIVER_LIST: IElementType = KtNodeTypes.CONTEXT_RECEIVER_LIST
+    public val CONTEXT_RECEIVER: IElementType = KtNodeTypes.CONTEXT_RECEIVER
 
     // KtTokens
     public val EOF: IElementType = KtTokens.EOF

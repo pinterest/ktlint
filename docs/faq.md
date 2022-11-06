@@ -114,6 +114,6 @@ Like with other `@Suppress` annotations, it can be placed on targets supported b
 
 
 ## How do I globally disable a rule?
-With [`.editorConfig` property `disabled_rules`](../rules/configuration#disabled-rules) a rule can be disabled globally.
+With [`.editorConfig` property `ktlint_disabled_rules`](../rules/configuration-ktlint#disabled-rules) a rule can be disabled globally.
 
 You may also pass a list of disabled rules via the `--disabled_rules` command line flag. It has the same syntax as the EditorConfig property.

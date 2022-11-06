@@ -14,7 +14,7 @@ shadow = "com.github.johnrengelman.shadow:7.1.2"
 kotlin-compiler = { module = "org.jetbrains.kotlin:kotlin-compiler-embeddable", version.ref = "kotlin" }
 kotlin-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 kotlin-plugin-dev = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlinDev" }
-dokka = "org.jetbrains.dokka:dokka-gradle-plugin:1.7.10"
+dokka = "org.jetbrains.dokka:dokka-gradle-plugin:1.7.20"
 klob = "com.github.shyiko.klob:klob:0.2.1"
 ec4j = "org.ec4j.core:ec4j-core:0.3.0"
 picocli = "info.picocli:picocli:4.6.3"

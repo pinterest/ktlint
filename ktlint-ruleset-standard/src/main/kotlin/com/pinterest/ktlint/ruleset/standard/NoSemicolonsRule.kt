@@ -15,7 +15,6 @@ import com.pinterest.ktlint.core.ast.upsertWhitespaceAfterMe
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.kdoc.psi.api.KDoc
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
@@ -37,8 +36,7 @@ public class NoSemicolonsRule : Rule("no-semi") {
         if (node.elementType == KDOC_TEXT) {
             return
         }
-        if (node is LeafPsiElement &&
-            node.elementType == SEMICOLON &&
+        if (node.elementType == SEMICOLON &&
             !node.isPartOfString() &&
             !node.isPartOfEnumEntry()
         ) {

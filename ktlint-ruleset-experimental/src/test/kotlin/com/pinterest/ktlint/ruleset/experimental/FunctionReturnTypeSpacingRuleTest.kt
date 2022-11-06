@@ -72,7 +72,7 @@ class FunctionReturnTypeSpacingRuleTest {
             fun foo(): String = "some-result"
             """.trimIndent()
         functionReturnTypeSpacingRuleAssertThat(code)
-            .hasLintViolation(1, 10, "Unexpected whitespace")
+            .hasLintViolation(1, 10, "Single space expected between colon and return type")
             .isFormattedAs(formattedCode)
     }
 
@@ -88,7 +88,7 @@ class FunctionReturnTypeSpacingRuleTest {
             fun foo(): String = "some-result"
             """.trimIndent()
         functionReturnTypeSpacingRuleAssertThat(code)
-            .hasLintViolation(1, 10, "Unexpected whitespace")
+            .hasLintViolation(1, 10, "Single space expected between colon and return type")
             .isFormattedAs(formattedCode)
     }
 }
