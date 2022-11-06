@@ -27,6 +27,7 @@ Calling this API with a file path results in the `.editorconfig` files that will
 
 ### Changed
 * Update Kotlin development version to `1.7.20` and Kotlin version to `1.7.20`.
+* The default value for trailing comma's on declaration site is changed to `true` unless the `android codestyle` is enabled. Note that KtLint from a consistency viewpoint *enforces* the trailing comma on declaration site while default IntelliJ IDEA formatting only *allows* the trailing comma but leaves it up to the developer's discretion. ([#1669](https://github.com/pinterest/ktlint/pull/1669))
 
 ## [0.47.1] - 2022-09-07
 
