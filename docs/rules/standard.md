@@ -170,6 +170,18 @@ Rule id: `string-template`
 
 Consistent removal (default) or adding of trailing comma's on call site.
 
+!!! important
+    KtLint uses the IntelliJ IDEA `.editorconfig` property `ij_kotlin_allow_trailing_comma_on_call_site` to configure the rule. When tis property is enabled, KtLint *enforces* the usage of the trailing comma at call site while IntelliJ IDEA default formatter only *allows* to use the trailing comma but leaves it to the developer's discretion to actually use it (or not). KtLint values *consistent* formatting more than a per-situation decision.
+
+!!! note
+    In KtLint 0.48.x the default value for using the trailing comma on call site has been changed to `true` except when codestyle `android` is used.
+    
+    Although the Kotlin coding conventions](https://kotlinlang.org/docs/reference/coding-conventions.html#names-for-test-methods) leaves it to the developer's discretion to use trailing comma's on the call site, it also states that usage of trailing commas has several benefits:
+    
+     * It makes version-control diffs cleaner – as all the focus is on the changed value.
+     * It makes it easy to add and reorder elements – there is no need to add or delete the comma if you manipulate elements.
+     * It simplifies code generation, for example, for object initializers. The last element can also have a comma.
+
 Rule id: `trailing-comma-on-call-site`
 
 ## Trailing comma on declaration site
