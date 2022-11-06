@@ -437,7 +437,7 @@ public class TrailingCommaOnDeclarationSiteRule :
                     BOOLEAN_VALUES_SET,
                 ),
                 defaultValue = true,
-                defaultAndroidValue = false
+                defaultAndroidValue = false,
             )
 
         private val TYPES_ON_DECLARATION_SITE = TokenSet.create(
