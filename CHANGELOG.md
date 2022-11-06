@@ -45,6 +45,7 @@ if (node.isRoot()) {
 
 ### Changed
 * Update Kotlin development version to `1.7.20` and Kotlin version to `1.7.20`.
+* The default value for trailing comma's on call site is changed to `true` unless the `android codestyle` is enabled. Note that KtLint from a consistency viewpoint *enforces* the trailing comma on call site while default IntelliJ IDEA formatting only *allows* the trailing comma but leaves it up to the developer's discretion. ([#1670](https://github.com/pinterest/ktlint/pull/1670))
 * The default value for trailing comma's on declaration site is changed to `true` unless the `android codestyle` is enabled. Note that KtLint from a consistency viewpoint *enforces* the trailing comma on declaration site while default IntelliJ IDEA formatting only *allows* the trailing comma but leaves it up to the developer's discretion. ([#1669](https://github.com/pinterest/ktlint/pull/1669))
 * CLI options `--debug`, `--trace`, `--verbose` and `-v` are replaced with `--log-level=<level>` or the short version `-l=<level>, see [CLI log-level](https://pinterest.github.io/ktlint/install/cli/#logging). ([#1632](https://github.com/pinterest/ktlint/issue/1632))
 * In CLI, disable logging entirely by setting `--log-level=none` or `-l=none` ([#1652](https://github.com/pinterest/ktlint/issue/1652))
