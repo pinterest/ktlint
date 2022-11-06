@@ -977,7 +977,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             )
             """.trimIndent()
         ruleAssertThat(code)
-            .withEditorConfigOverride(allowTrailingCommaProperty to true)
+            .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to true)
             .hasNoLintViolations()
     }
 }
