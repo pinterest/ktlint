@@ -18,6 +18,8 @@ import io.github.detekt.sarif4k.ToolComponent
 import io.github.detekt.sarif4k.Version
 import java.io.File
 import java.io.PrintStream
+import kotlin.io.path.Path
+import kotlin.io.path.relativeToOrSelf
 
 private const val SRCROOT = "%SRCROOT%"
 internal fun String.sanitize(): String =
@@ -49,7 +51,7 @@ public class SarifReporter(private val out: PrintStream) : Reporter {
                             ),
                             artifactLocation = workingDirectory?.let { workingDirectory ->
                                 ArtifactLocation(
-                                    uri = File(file).relativeTo(workingDirectory).path,
+                                    uri = Path(file).relativeToOrSelf(workingDirectory.toPath()).toString(),
                                     uriBaseID = SRCROOT,
                                 )
                             } ?: ArtifactLocation(
