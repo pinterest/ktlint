@@ -4,10 +4,7 @@ import org.assertj.core.api.SoftAssertions
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.condition.DisabledOnOs
-import org.junit.jupiter.api.condition.OS
 
-@DisabledOnOs(OS.WINDOWS)
 @DisplayName("CLI ruleset loader checks")
 class RuleSetsLoaderCLITest : BaseCLITest() {
     @DisplayName("Custom rule set based on RuleSetProvider of KtLint 0.46 or before")
