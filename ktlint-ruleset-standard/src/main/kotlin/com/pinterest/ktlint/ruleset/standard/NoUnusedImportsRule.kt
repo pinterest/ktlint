@@ -135,7 +135,7 @@ public class NoUnusedImportsRule : Rule("no-unused-imports") {
                         importDirective.delete()
                     }
                 } else if (name != null && (!ref.map { it.text }.contains(name) || !isAValidImport(importPath)) &&
-                    !operatorSet.contains(name) &&
+                    !OPERATOR_SET.contains(name) &&
                     !name.isComponentN() &&
                     !importPath.ignoreProvideDelegate()
                 ) {
@@ -217,7 +217,7 @@ public class NoUnusedImportsRule : Rule("no-unused-imports") {
             it.key.pathStr.removeBackticksAndTrim().contains(importPath)
         }
 
-    private fun String.isComponentN() = componentNRegex.matches(this)
+    private fun String.isComponentN() = COMPONENT_N_REGEX.matches(this)
 
     private fun PsiElement.parentDotQualifiedExpression(): KtDotQualifiedExpression? {
         val callOrThis = (parent as? KtCallExpression)?.takeIf { it.calleeExpression == this } ?: this
@@ -229,9 +229,9 @@ public class NoUnusedImportsRule : Rule("no-unused-imports") {
     private data class Reference(val text: String, val inDotQualifiedExpression: Boolean)
 
     private companion object {
-        val componentNRegex = Regex("^component\\d+$")
+        val COMPONENT_N_REGEX = Regex("^component\\d+$")
 
-        val operatorSet = setOf(
+        val OPERATOR_SET = setOf(
             // unary
             "unaryPlus", "unaryMinus", "not",
             // inc/dec

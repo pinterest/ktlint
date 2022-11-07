@@ -31,13 +31,13 @@ public open class RuleSetProviderTest(
         val missingRules =
             packageRules
                 .minus(providerRules.toSet())
-                .joinToString(separator = separator)
+                .joinToString(separator = NEWLINE_AND_INDENT)
         assertThat(missingRules)
-            .withFailMessage("${ruleSetProvider::class.simpleName} is missing to provide the following rules:${separator}$missingRules")
+            .withFailMessage("${ruleSetProvider::class.simpleName} is missing to provide the following rules:${NEWLINE_AND_INDENT}$missingRules")
             .isEmpty()
     }
 
     private companion object {
-        const val separator = "\n\t"
+        const val NEWLINE_AND_INDENT = "\n\t"
     }
 }

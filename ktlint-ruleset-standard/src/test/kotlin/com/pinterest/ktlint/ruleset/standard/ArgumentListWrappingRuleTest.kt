@@ -1,6 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.maxLineLengthProperty
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
@@ -83,7 +83,7 @@ class ArgumentListWrappingRuleTest {
             )
             """.trimIndent()
         argumentListWrappingRuleAssertThat(code)
-            .withEditorConfigOverride(maxLineLengthProperty to 10)
+            .withEditorConfigOverride(MAX_LINE_LENGTH_PROPERTY to 10)
             .hasLintViolations(
                 LintViolation(1, 11, "Argument should be on a separate line (unless all arguments can fit a single line)"),
                 LintViolation(1, 14, "Argument should be on a separate line (unless all arguments can fit a single line)"),
@@ -162,7 +162,7 @@ class ArgumentListWrappingRuleTest {
                 )
             """.trimIndent()
         argumentListWrappingRuleAssertThat(code)
-            .withEditorConfigOverride(maxLineLengthProperty to 20)
+            .withEditorConfigOverride(MAX_LINE_LENGTH_PROPERTY to 20)
             .hasLintViolations(
                 LintViolation(13, 10, "Argument should be on a separate line (unless all arguments can fit a single line)"),
                 LintViolation(13, 19, "Argument should be on a separate line (unless all arguments can fit a single line)"),
@@ -298,7 +298,7 @@ class ArgumentListWrappingRuleTest {
                 val foo = foo(1, 2, 3, 4, 5, 6, 7, 8, 9)
                 """.trimIndent()
             argumentListWrappingRuleAssertThat(code)
-                .withEditorConfigOverride(maxLineLengthProperty to 20)
+                .withEditorConfigOverride(MAX_LINE_LENGTH_PROPERTY to 20)
                 .hasNoLintViolations()
         }
 
@@ -523,7 +523,7 @@ class ArgumentListWrappingRuleTest {
             )
             """.trimIndent()
         argumentListWrappingRuleAssertThat(code)
-            .withEditorConfigOverride(maxLineLengthProperty to 33)
+            .withEditorConfigOverride(MAX_LINE_LENGTH_PROPERTY to 33)
             .hasLintViolations(
                 LintViolation(8, 23, "Argument should be on a separate line (unless all arguments can fit a single line)"),
                 LintViolation(8, 34, "Missing newline before \")\""),
@@ -555,7 +555,7 @@ class ArgumentListWrappingRuleTest {
         argumentListWrappingRuleAssertThat(code)
             // TODO: It is not clear how the length 65 is related to the lint errors below. Starting from length 66 the
             //  lint errors are not reported anymore.
-            .withEditorConfigOverride(maxLineLengthProperty to 65)
+            .withEditorConfigOverride(MAX_LINE_LENGTH_PROPERTY to 65)
             .hasLintViolations(
                 LintViolation(4, 15, "Argument should be on a separate line (unless all arguments can fit a single line)"),
                 LintViolation(4, 70, "Missing newline before \")\""),
@@ -581,7 +581,7 @@ class ArgumentListWrappingRuleTest {
         argumentListWrappingRuleAssertThat(code)
             // TODO: With max line length of 43 or below, lint errors occur. It is not clear how that is related to
             //  example above
-            .withEditorConfigOverride(maxLineLengthProperty to 44)
+            .withEditorConfigOverride(MAX_LINE_LENGTH_PROPERTY to 44)
             .hasNoLintViolations()
     }
 

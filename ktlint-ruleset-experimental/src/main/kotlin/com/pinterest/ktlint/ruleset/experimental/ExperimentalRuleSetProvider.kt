@@ -5,11 +5,11 @@ import com.pinterest.ktlint.core.RuleSet
 import com.pinterest.ktlint.core.RuleSetProvider
 import com.pinterest.ktlint.core.RuleSetProviderV2
 
-public const val experimentalRulesetId: String = "experimental"
+public const val EXPERIMENTAL_RULE_SET_ID: String = "experimental"
 
 public class ExperimentalRuleSetProvider :
     RuleSetProviderV2(
-        id = experimentalRulesetId,
+        id = EXPERIMENTAL_RULE_SET_ID,
         about = About(
             maintainer = "KtLint",
             description = "Experimental rules based on the Kotlin coding conventions (https://kotlinlang.org/docs/coding-conventions.html) and Android Kotlin styleguide (https://developer.android.com/kotlin/style-guide). Rules are intended to be promoted to the standard ruleset once they are stable",
@@ -24,7 +24,7 @@ public class ExperimentalRuleSetProvider :
         replaceWith = ReplaceWith("getRuleProviders()"),
     )
     override fun get(): RuleSet = RuleSet(
-        experimentalRulesetId,
+        EXPERIMENTAL_RULE_SET_ID,
         UnnecessaryParenthesesBeforeTrailingLambdaRule(),
         TypeParameterListSpacingRule(),
         TypeArgumentListSpacingRule(),
@@ -42,6 +42,11 @@ public class ExperimentalRuleSetProvider :
         NullableTypeSpacingRule(),
         FunctionSignatureRule(),
         ContextReceiverWrappingRule(),
+        ClassNamingRule(),
+        FunctionNamingRule(),
+        ObjectNamingRule(),
+        PackageNamingRule(),
+        PropertyNamingRule(),
     )
 
     override fun getRuleProviders(): Set<RuleProvider> =
@@ -63,5 +68,10 @@ public class ExperimentalRuleSetProvider :
             RuleProvider { NullableTypeSpacingRule() },
             RuleProvider { FunctionSignatureRule() },
             RuleProvider { ContextReceiverWrappingRule() },
+            RuleProvider { ClassNamingRule() },
+            RuleProvider { FunctionNamingRule() },
+            RuleProvider { ObjectNamingRule() },
+            RuleProvider { PackageNamingRule() },
+            RuleProvider { PropertyNamingRule() },
         )
 }

@@ -11,7 +11,7 @@ import org.jetbrains.kotlin.psi.KtEnumEntry
  */
 public class EnumEntryNameCaseRule : Rule("enum-entry-name-case") {
     internal companion object {
-        val regex = "[A-Z]([A-Za-z\\d]*|[A-Z_\\d]*)".regExIgnoringDiacriticsAndStrokesOnLetters()
+        val ENUM_ENTRY_IDENTIFIER_REGEX = "[A-Z]([A-Za-z\\d]*|[A-Z_\\d]*)".regExIgnoringDiacriticsAndStrokesOnLetters()
     }
 
     override fun beforeVisitChildNodes(
@@ -25,7 +25,7 @@ public class EnumEntryNameCaseRule : Rule("enum-entry-name-case") {
         val enumEntry = node.psi as? KtEnumEntry ?: return
         val name = enumEntry.name ?: return
 
-        if (!name.matches(regex)) {
+        if (!name.matches(ENUM_ENTRY_IDENTIFIER_REGEX)) {
             emit(
                 node.startOffset,
                 "Enum entry name should be uppercase underscore-separated names like \"ENUM_ENTRY\" or upper camel-case like \"EnumEntry\"",

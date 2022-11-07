@@ -10,7 +10,7 @@ import java.util.ServiceConfigurationError
 import java.util.ServiceLoader
 import mu.KotlinLogging
 
-private val logger = KotlinLogging.logger {}.initKtLintKLogger()
+private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
 /**
  * Loads given list of paths to jar files. For files containing a [RuleSetProviderV2] or [RuleSetProvider] class, get
@@ -45,7 +45,7 @@ private fun getRuleProvidersFromJar(
     debug: Boolean,
 ): Map<String, Set<RuleProvider>> {
     if (url != null && debug) {
-        logger.debug { "JAR ruleset provided with path \"${url.path}\"" }
+        LOGGER.debug { "JAR ruleset provided with path \"${url.path}\"" }
     }
     return try {
         ServiceLoader
@@ -63,7 +63,7 @@ private fun getRuleProvidersFromJar(
             getLegacyRuleProvidersFromJar(url)
         } catch (e: ServiceConfigurationError) {
             if (url != null) {
-                logger.warn {
+                LOGGER.warn {
                     """
                     JAR ${url.path}, provided as command line argument, does not contain a custom ruleset provider.
                         Check following:
@@ -105,7 +105,7 @@ private fun getLegacyRuleProvidersFromJar(url: URL?) =
         }.also {
             if (url != null) {
                 if (it.isEmpty()) {
-                    logger.warn {
+                    LOGGER.warn {
                         """
                         JAR ${url.path}, provided as command line argument, does not contain a custom ruleset provider.
                             Check following:
@@ -116,7 +116,7 @@ private fun getLegacyRuleProvidersFromJar(url: URL?) =
                         """.trimIndent()
                     }
                 } else if (it.values.isNotEmpty()) {
-                    logger.warn {
+                    LOGGER.warn {
                         "JAR ${url.path}, provided as command line argument, contains a custom ruleset provider which " +
                             "will *NOT* be compatible with the next KtLint version (0.48). Contact the maintainer of " +
                             "this ruleset. This JAR is not maintained by the KtLint project."

@@ -19,7 +19,7 @@ public class DumpASTRule @JvmOverloads constructor(
 ) : Rule("dump") {
 
     private companion object {
-        val elementTypeSet = ElementType::class.members.map { it.name }.toSet()
+        val ELEMENT_TYPE_SET = ElementType::class.members.map { it.name }.toSet()
     }
 
     private var lineNumberColumnLength: Int = 0
@@ -95,7 +95,7 @@ public class DumpASTRule @JvmOverloads constructor(
         if (KtTokens.KEYWORDS.contains(elementType) || KtTokens.SOFT_KEYWORDS.contains(elementType)) {
             name = "${name}_KEYWORD"
         }
-        return if (elementTypeSet.contains(name)) name else elementType.className + "." + elementType
+        return if (ELEMENT_TYPE_SET.contains(name)) name else elementType.className + "." + elementType
     }
 
     private fun colorClassName(className: String): String {

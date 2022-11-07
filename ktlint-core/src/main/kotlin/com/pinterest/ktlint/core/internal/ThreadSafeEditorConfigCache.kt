@@ -11,7 +11,7 @@ import org.ec4j.core.EditorConfigLoader
 import org.ec4j.core.Resource
 import org.ec4j.core.model.EditorConfig
 
-private val logger = KotlinLogging.logger {}.initKtLintKLogger()
+private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
 /**
  * In-memory [Cache] implementation that could be safely accessed from any [Thread].
@@ -31,14 +31,14 @@ internal class ThreadSafeEditorConfigCache : Cache {
         readWriteLock.read {
             val cachedEditConfig = inMemoryMap[resource]
                 ?.also {
-                    logger.trace { "Retrieving EditorConfig cache entry for path ${resource.path}" }
+                    LOGGER.trace { "Retrieving EditorConfig cache entry for path ${resource.path}" }
                 }?.editConfig
             return cachedEditConfig
                 ?: readWriteLock.write {
                     CacheValue(resource, editorConfigLoader)
                         .also { cacheValue ->
                             inMemoryMap[resource] = cacheValue
-                            logger.trace { "Creating new EditorConfig cache entry for path ${resource.path}" }
+                            LOGGER.trace { "Creating new EditorConfig cache entry for path ${resource.path}" }
                         }.editConfig
                 }
         }
@@ -56,7 +56,7 @@ internal class ThreadSafeEditorConfigCache : Cache {
                             .copy(editConfig = cacheValue.editorConfigLoader.load(resource))
                             .let { cacheValue -> inMemoryMap[resource] = cacheValue }
                             .also {
-                                logger.trace { "Reload EditorConfig cache entry for path ${resource.path}" }
+                                LOGGER.trace { "Reload EditorConfig cache entry for path ${resource.path}" }
                             }
                     }
                 }
@@ -69,7 +69,7 @@ internal class ThreadSafeEditorConfigCache : Cache {
     fun clear() = readWriteLock.write {
         inMemoryMap
             .also {
-                logger.trace { "Removing ${it.size} entries from the EditorConfig cache" }
+                LOGGER.trace { "Removing ${it.size} entries from the EditorConfig cache" }
             }.clear()
     }
 
@@ -95,6 +95,6 @@ internal class ThreadSafeEditorConfigCache : Cache {
     }
 
     internal companion object {
-        val threadSafeEditorConfigCache = ThreadSafeEditorConfigCache()
+        val THREAD_SAFER_EDITOR_CONFIG_CACHE = ThreadSafeEditorConfigCache()
     }
 }

@@ -25,7 +25,7 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
  * comma's and colons. However, it does have a more complete view on the higher concept of the parameter-list without
  * interfering of the parameter-list-wrapping rule.
  */
-public class ParameterListSpacingRule : Rule("$experimentalRulesetId:parameter-list-spacing") {
+public class ParameterListSpacingRule : Rule("$EXPERIMENTAL_RULE_SET_ID:parameter-list-spacing") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,

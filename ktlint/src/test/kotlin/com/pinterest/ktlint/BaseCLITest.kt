@@ -85,7 +85,7 @@ abstract class BaseCLITest {
     }
 
     private fun prepareTestProject(testProjectName: String): Path {
-        val testProjectPath = testProjectsPath.resolve(testProjectName)
+        val testProjectPath = TEST_PROJECTS_PATHS.resolve(testProjectName)
         assert(Files.exists(testProjectPath)) {
             "Test project $testProjectName does not exist!"
         }
@@ -167,7 +167,7 @@ abstract class BaseCLITest {
 
         fun assertSourceFileWasFormatted(filePathInProject: String): AbstractAssert<*, *> {
             val originalCode =
-                testProjectsPath
+                TEST_PROJECTS_PATHS
                     .resolve(testProject.last())
                     .resolve(filePathInProject)
                     .toFile()
@@ -185,7 +185,7 @@ abstract class BaseCLITest {
     companion object {
         private const val WAIT_INTERVAL_DURATION = 100L
         private const val WAIT_INTERVAL_MAX_OCCURRENCES = 1000
-        val testProjectsPath: Path = Paths.get("src", "test", "resources", "cli")
+        val TEST_PROJECTS_PATHS: Path = Paths.get("src", "test", "resources", "cli")
         const val BASE_DIR_PLACEHOLDER = "__TEMP_DIR__"
     }
 }

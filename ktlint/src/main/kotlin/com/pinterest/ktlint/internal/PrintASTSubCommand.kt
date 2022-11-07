@@ -3,8 +3,8 @@ package com.pinterest.ktlint.internal
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.ParseException
 import com.pinterest.ktlint.core.RuleProvider
-import com.pinterest.ktlint.core.api.EditorConfigDefaults.Companion.emptyEditorConfigDefaults
-import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.emptyEditorConfigOverride
+import com.pinterest.ktlint.core.api.EditorConfigDefaults.Companion.EMPTY_EDITOR_CONFIG_DEFAULTS
+import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.EMPTY_EDITOR_CONFIG_OVERRIDE
 import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ruleset.test.DumpASTRule
 import java.io.File
@@ -13,7 +13,7 @@ import java.util.Locale
 import mu.KotlinLogging
 import picocli.CommandLine
 
-private val logger = KotlinLogging.logger {}.initKtLintKLogger()
+private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
 @CommandLine.Command(
     description = [
@@ -61,7 +61,7 @@ internal class PrintASTSubCommand : Runnable {
         fileName: String,
         fileContent: String,
     ) {
-        logger.debug {
+        LOGGER.debug {
             "Analyzing " + if (fileName != KtLint.STDIN_FILE) {
                 File(fileName).location(ktlintCommand.relative)
             } else {
@@ -76,8 +76,8 @@ internal class PrintASTSubCommand : Runnable {
                 ruleProviders = setOf(
                     RuleProvider { DumpASTRule(System.out, ktlintCommand.color) },
                 ),
-                editorConfigDefaults = emptyEditorConfigDefaults,
-                editorConfigOverride = emptyEditorConfigOverride,
+                editorConfigDefaults = EMPTY_EDITOR_CONFIG_DEFAULTS,
+                editorConfigOverride = EMPTY_EDITOR_CONFIG_OVERRIDE,
                 debug = ktlintCommand.debug,
             )
         } catch (e: Exception) {

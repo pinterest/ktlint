@@ -2,13 +2,13 @@ package com.pinterest.ktlint.internal
 
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.codeStyleSetProperty
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.initKtLintKLogger
 import mu.KotlinLogging
 import picocli.CommandLine
 
-private val logger = KotlinLogging.logger {}.initKtLintKLogger()
+private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
 @CommandLine.Command(
     description = [
@@ -40,7 +40,7 @@ internal class GenerateEditorConfigSubCommand : Runnable {
                         ktlintCommand.debug,
                         ktlintCommand.disabledRules,
                     ),
-                editorConfigOverride = EditorConfigOverride.from(codeStyleSetProperty to codeStyle()),
+                editorConfigOverride = EditorConfigOverride.from(CODE_STYLE_PROPERTY to codeStyle()),
                 debug = ktlintCommand.debug,
                 cb = { _, _ -> },
             ),
@@ -51,7 +51,7 @@ internal class GenerateEditorConfigSubCommand : Runnable {
             // should not be confused with logging markers.
             println("[*.{kt,kts}]\n$generatedEditorConfig")
         } else {
-            logger.info { "Nothing to add to .editorconfig file" }
+            LOGGER.info { "Nothing to add to .editorconfig file" }
         }
     }
 

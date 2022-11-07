@@ -155,7 +155,7 @@ public class FilenameRule : Rule("filename") {
     private fun String.shouldMatchPascalCase(
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
-        if (!this.matches(pascalCaseRegEx)) {
+        if (!this.matches(PASCAL_CASE_REGEX)) {
             emit(0, "File name '$this.kt' should conform PascalCase", false)
         }
     }
@@ -172,7 +172,7 @@ public class FilenameRule : Rule("filename") {
             ?.let { TopLevelDeclaration(elementType, it) }
 
     private companion object {
-        val pascalCaseRegEx = "^[A-Z][A-Za-z\\d]*$".regExIgnoringDiacriticsAndStrokesOnLetters()
+        val PASCAL_CASE_REGEX = "^[A-Z][A-Za-z\\d]*$".regExIgnoringDiacriticsAndStrokesOnLetters()
         val NON_CLASS_RELATED_TOP_LEVEL_DECLARATION_TYPES = listOf(OBJECT_DECLARATION, TYPEALIAS, PROPERTY)
     }
 }

@@ -235,6 +235,6 @@ class ImportOrderingRuleIdeaTest {
     }
 
     private companion object {
-        val IDEA_DEFAULT_IMPORT_ORDERING = ImportOrderingRule.ideaImportsLayoutProperty to "*,java.**,javax.**,kotlin.**,^"
+        val IDEA_DEFAULT_IMPORT_ORDERING = ImportOrderingRule.IJ_KOTLIN_IMPORTS_LAYOUT_PROPERTY to "*,java.**,javax.**,kotlin.**,^"
     }
 }

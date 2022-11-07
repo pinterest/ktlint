@@ -2,13 +2,13 @@ package com.pinterest.ktlint.core.internal
 
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.EditorConfigDefaults
-import com.pinterest.ktlint.core.api.EditorConfigDefaults.Companion.emptyEditorConfigDefaults
+import com.pinterest.ktlint.core.api.EditorConfigDefaults.Companion.EMPTY_EDITOR_CONFIG_DEFAULTS
 import com.pinterest.ktlint.core.api.EditorConfigOverride
-import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.emptyEditorConfigOverride
+import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.EMPTY_EDITOR_CONFIG_OVERRIDE
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.initKtLintKLogger
-import com.pinterest.ktlint.core.internal.ThreadSafeEditorConfigCache.Companion.threadSafeEditorConfigCache
+import com.pinterest.ktlint.core.internal.ThreadSafeEditorConfigCache.Companion.THREAD_SAFER_EDITOR_CONFIG_CACHE
 import java.nio.charset.StandardCharsets
 import java.nio.file.FileSystem
 import java.nio.file.FileSystems
@@ -23,7 +23,7 @@ import org.ec4j.core.model.PropertyType
 import org.ec4j.core.model.Version
 import org.jetbrains.kotlin.utils.addToStdlib.applyIf
 
-private val logger = KotlinLogging.logger {}.initKtLintKLogger()
+private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
 /**
  * Loader for `.editorconfig` properties for files on [fileSystem].
@@ -62,7 +62,7 @@ public class EditorConfigLoader(
         isStdIn: Boolean = false,
         alternativeEditorConfig: Path? = null,
         rules: Set<Rule>,
-        editorConfigOverride: EditorConfigOverride = emptyEditorConfigOverride,
+        editorConfigOverride: EditorConfigOverride = EMPTY_EDITOR_CONFIG_OVERRIDE,
         debug: Boolean = false,
     ): EditorConfigProperties {
         if (!isStdIn && filePath.isNullOrNotSupported()) {
@@ -89,7 +89,7 @@ public class EditorConfigLoader(
             else -> filePath
         }
 
-        return createLoaderService(rules, emptyEditorConfigDefaults)
+        return createLoaderService(rules, EMPTY_EDITOR_CONFIG_DEFAULTS)
             .queryProperties(normalizedFilePath.resource())
             .properties
             .also { loaded ->
@@ -99,7 +99,7 @@ public class EditorConfigLoader(
                         loaded[it.key.type.name] = property(it.key, it.value)
                     }
             }.also { editorConfigProperties ->
-                logger.trace { editorConfigProperties.prettyPrint(normalizedFilePath) }
+                LOGGER.trace { editorConfigProperties.prettyPrint(normalizedFilePath) }
             }
     }
 
@@ -125,8 +125,8 @@ public class EditorConfigLoader(
     public fun load(
         filePath: Path?,
         rules: Set<Rule> = emptySet(),
-        editorConfigDefaults: EditorConfigDefaults = emptyEditorConfigDefaults,
-        editorConfigOverride: EditorConfigOverride = emptyEditorConfigOverride,
+        editorConfigDefaults: EditorConfigDefaults = EMPTY_EDITOR_CONFIG_DEFAULTS,
+        editorConfigOverride: EditorConfigOverride = EMPTY_EDITOR_CONFIG_OVERRIDE,
     ): EditorConfigProperties {
         // TODO: Move to class init once method load PropertiesForFiles has been removed.
         require(rules.isNotEmpty()) {
@@ -145,7 +145,7 @@ public class EditorConfigLoader(
                         loaded[it.key.type.name] = property(it.key, it.value)
                     }
             }.also { editorConfigProperties ->
-                logger.trace { editorConfigProperties.prettyPrint(normalizedFilePath) }
+                LOGGER.trace { editorConfigProperties.prettyPrint(normalizedFilePath) }
             }
     }
 
@@ -199,9 +199,9 @@ public class EditorConfigLoader(
     ) =
         ResourcePropertiesService.builder()
             .keepUnset(true)
-            .cache(threadSafeEditorConfigCache)
+            .cache(THREAD_SAFER_EDITOR_CONFIG_CACHE)
             .loader(editorConfigLoader)
-            .applyIf(editorConfigDefaults != emptyEditorConfigDefaults) {
+            .applyIf(editorConfigDefaults != EMPTY_EDITOR_CONFIG_DEFAULTS) {
                 defaultEditorConfigs(editorConfigDefaults.value)
             }.build()
 
@@ -230,7 +230,7 @@ public class EditorConfigLoader(
         replaceWith = ReplaceWith("KtLint.trimMemory()"),
     )
     public fun trimMemory() {
-        threadSafeEditorConfigCache.clear()
+        THREAD_SAFER_EDITOR_CONFIG_CACHE.clear()
     }
 
     public companion object {

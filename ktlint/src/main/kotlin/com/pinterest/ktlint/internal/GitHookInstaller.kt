@@ -8,7 +8,7 @@ import java.security.MessageDigest
 import kotlin.system.exitProcess
 import mu.KotlinLogging
 
-private val logger = KotlinLogging.logger {}.initKtLintKLogger()
+private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
 private const val DEFAULT_GIT_HOOKS_DIR = "hooks"
 
@@ -20,7 +20,7 @@ internal object GitHookInstaller {
         val gitHooksDir = try {
             resolveGitHooksDir()
         } catch (e: IOException) {
-            logger.error { e.message }
+            LOGGER.error { e.message }
             exitProcess(1)
         }
 
@@ -33,7 +33,7 @@ internal object GitHookInstaller {
 
         gitHookFile.writeBytes(hookContent)
         gitHookFile.setExecutable(true)
-        logger.info {
+        LOGGER.info {
             """
             ${gitHookFile.path} is installed. Be aware that this hook assumes to find ktlint on the PATH. Either
             ensure that ktlint is actually added to the path or expand the ktlint command in the hook with the path.
@@ -98,7 +98,7 @@ internal object GitHookInstaller {
             !actualHookContent.contentEquals(expectedHookContent)
         ) {
             val backupFile = hooksDir.resolve("$gitHookName.ktlint-backup.${actualHookContent.toUniqueId()}")
-            logger.info { "Existing git hook ${hookFile.path} is copied to ${backupFile.path}" }
+            LOGGER.info { "Existing git hook ${hookFile.path} is copied to ${backupFile.path}" }
             hookFile.copyTo(backupFile, overwrite = true)
         }
     }

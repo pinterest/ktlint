@@ -12,7 +12,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 /**
  * Lints and formats the spacing after the fun keyword
  */
-public class FunctionStartOfBodySpacingRule : Rule("$experimentalRulesetId:function-start-of-body-spacing") {
+public class FunctionStartOfBodySpacingRule : Rule("$EXPERIMENTAL_RULE_SET_ID:function-start-of-body-spacing") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,

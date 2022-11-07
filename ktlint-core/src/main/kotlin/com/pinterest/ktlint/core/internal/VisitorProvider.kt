@@ -3,22 +3,22 @@ package com.pinterest.ktlint.core.internal
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.RuleRunner
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.disabledRulesProperty
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.ktlintDisabledRulesProperty
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.DISABLED_RULES_PROPERTY
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.KTLINT_DISABLED_RULES_PROPERTY
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties.EditorConfigProperty
 import com.pinterest.ktlint.core.initKtLintKLogger
 import mu.KotlinLogging
 
-private val logger = KotlinLogging.logger {}.initKtLintKLogger()
+private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
 /**
  * The VisitorProvider is created for each file being scanned. As the [RuleRunnerSorter] logs the order in which the
  * rules are executed, a singleton instance of the class is used to prevent that the logs are flooded with duplicate
  * log lines.
  */
-private val ruleRunnerSorter = RuleRunnerSorter()
+private val RULE_RUNNER_SORTER = RuleRunnerSorter()
 
 internal class VisitorProvider(
     private val params: KtLint.ExperimentalParams,
@@ -28,8 +28,8 @@ internal class VisitorProvider(
     recreateRuleSorter: Boolean = false,
 ) : UsesEditorConfigProperties {
     override val editorConfigProperties: List<EditorConfigProperty<*>> = listOf(
-        ktlintDisabledRulesProperty,
-        disabledRulesProperty,
+        KTLINT_DISABLED_RULES_PROPERTY,
+        DISABLED_RULES_PROPERTY,
     )
 
     /**
@@ -39,7 +39,7 @@ internal class VisitorProvider(
         if (recreateRuleSorter) {
             RuleRunnerSorter()
         } else {
-            ruleRunnerSorter
+            RULE_RUNNER_SORTER
         }.getSortedRuleRunners(params.ruleRunners, params.debug)
 
     internal fun visitor(editorConfigProperties: EditorConfigProperties): ((rule: Rule, fqRuleId: String) -> Unit) -> Unit {
@@ -47,7 +47,7 @@ internal class VisitorProvider(
             ruleRunners
                 .filter { ruleRunner -> isNotDisabled(editorConfigProperties, ruleRunner.qualifiedRuleId) }
         if (enabledRuleRunners.isEmpty()) {
-            logger.debug { "Skipping file as no enabled rules are found to be executed" }
+            LOGGER.debug { "Skipping file as no enabled rules are found to be executed" }
             return { _ -> }
         }
         val ruleRunnersToBeSkipped =
@@ -59,7 +59,7 @@ internal class VisitorProvider(
                         enabledRuleRunners.none { it.qualifiedRuleId == runAfterRule.ruleId.toQualifiedRuleId() }
                 }
         if (ruleRunnersToBeSkipped.isNotEmpty()) {
-            logger.debug {
+            LOGGER.debug {
                 ruleRunnersToBeSkipped
                     .forEach {
                         println(
@@ -72,7 +72,7 @@ internal class VisitorProvider(
         }
         val ruleRunnersToExecute = enabledRuleRunners - ruleRunnersToBeSkipped.toSet()
         if (ruleRunnersToExecute.isEmpty()) {
-            logger.debug { "Skipping file as no enabled rules are found to be executed" }
+            LOGGER.debug { "Skipping file as no enabled rules are found to be executed" }
             return { _ -> }
         }
         return { visit ->
@@ -84,13 +84,13 @@ internal class VisitorProvider(
 
     private fun isNotDisabled(editorConfigProperties: EditorConfigProperties, qualifiedRuleId: String): Boolean {
         val ktlintDisabledRulesProperty =
-            if (editorConfigProperties.containsKey(ktlintDisabledRulesProperty.type.name) ||
-                !editorConfigProperties.containsKey(disabledRulesProperty.type.name)
+            if (editorConfigProperties.containsKey(KTLINT_DISABLED_RULES_PROPERTY.type.name) ||
+                !editorConfigProperties.containsKey(DISABLED_RULES_PROPERTY.type.name)
             ) {
                 // New property takes precedence when defined, or, when both old and new property are not defined.
-                editorConfigProperties.getEditorConfigValue(ktlintDisabledRulesProperty)
+                editorConfigProperties.getEditorConfigValue(KTLINT_DISABLED_RULES_PROPERTY)
             } else {
-                editorConfigProperties.getEditorConfigValue(disabledRulesProperty)
+                editorConfigProperties.getEditorConfigValue(DISABLED_RULES_PROPERTY)
             }
         return ktlintDisabledRulesProperty
             .split(",")
