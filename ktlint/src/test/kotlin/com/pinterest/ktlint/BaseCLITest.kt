@@ -11,7 +11,6 @@ import java.nio.file.attribute.BasicFileAttributes
 import java.util.concurrent.TimeUnit
 import kotlin.io.path.copyTo
 import kotlin.io.path.createDirectories
-import kotlin.io.path.div
 import kotlin.io.path.relativeToOrSelf
 import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.AbstractBooleanAssert
@@ -106,7 +105,7 @@ abstract class BaseCLITest {
                     attrs: BasicFileAttributes,
                 ): FileVisitResult {
                     val relativeDir = dir.relativeToOrSelf(this@copyRecursively)
-                    (dest / relativeDir).createDirectories()
+                    dest.resolve(relativeDir).createDirectories()
                     return FileVisitResult.CONTINUE
                 }
 
@@ -115,7 +114,7 @@ abstract class BaseCLITest {
                     attrs: BasicFileAttributes,
                 ): FileVisitResult {
                     val relativeFile = file.relativeToOrSelf(this@copyRecursively)
-                    file.copyTo(dest / relativeFile)
+                    file.copyTo(dest.resolve(relativeFile))
                     return FileVisitResult.CONTINUE
                 }
             },
