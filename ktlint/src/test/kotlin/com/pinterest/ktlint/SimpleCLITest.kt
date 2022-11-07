@@ -7,9 +7,12 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.DisabledOnOs
 import org.junit.jupiter.api.condition.OS
 
-@DisabledOnOs(OS.WINDOWS)
 @DisplayName("CLI basic checks")
 class SimpleCLITest : BaseCLITest() {
+    /**
+     * For some reason, the external `ktlint --help` process hangs on Windows.
+     */
+    @DisabledOnOs(OS.WINDOWS)
     @Test
     fun `Given CLI argument --help then return the help output`() {
         runKtLintCliProcess(
