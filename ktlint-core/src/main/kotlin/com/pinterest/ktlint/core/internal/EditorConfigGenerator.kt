@@ -32,14 +32,9 @@ internal class EditorConfigGenerator(
     fun generateEditorconfig(
         filePath: Path,
         rules: Set<Rule>,
-        debug: Boolean = false,
         codeStyle: DefaultEditorConfigProperties.CodeStyleValue,
     ): String {
-        val editorConfig: Map<String, Property> = editorConfigLoader.loadPropertiesForFile(
-            filePath = filePath,
-            rules = rules,
-            debug = debug,
-        )
+        val editorConfig: Map<String, Property> = editorConfigLoader.load(filePath, rules)
 
         val potentialEditorConfigSettings =
             getConfigurationSettingsForRules(rules, editorConfig, codeStyle)

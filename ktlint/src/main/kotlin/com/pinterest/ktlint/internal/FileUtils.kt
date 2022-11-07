@@ -317,7 +317,7 @@ internal typealias JarFiles = List<String>
 internal fun JarFiles.toFilesURIList() = map {
     val jarFile = File(it.expandTildeToFullPath())
     if (!jarFile.exists()) {
-        LOGGER.error { "File $it does not exist" }
+        LOGGER.error { "File '$it' does not exist" }
         exitProcess(1)
     }
     jarFile.toURI().toURL()

@@ -394,7 +394,6 @@ public object KtLint {
         return EditorConfigGenerator(EDITOR_CONFIG_LOADER).generateEditorconfig(
             filePath,
             params.getRules(),
-            params.debug,
             codeStyle,
         )
     }

@@ -386,8 +386,3 @@ public object DefaultEditorConfigProperties : UsesEditorConfigProperties {
         MAX_LINE_LENGTH_PROPERTY,
     )
 }
-
-/**
- * Loaded [Property]s from `.editorconfig` files.
- */
-public typealias EditorConfigProperties = Map<String, Property>

@@ -12,7 +12,6 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
 import org.jetbrains.kotlin.psi.psiUtil.leaves
-import org.jetbrains.kotlin.psi.psiUtil.siblings
 
 public fun ASTNode.nextLeaf(includeEmpty: Boolean = false, skipSubtree: Boolean = false): ASTNode? {
     var n = if (skipSubtree) this.lastChildLeafOrSelf().nextLeafAny() else this.nextLeafAny()
@@ -326,32 +325,6 @@ public fun ASTNode.upsertWhitespaceAfterMe(text: String) {
     }
 }
 
-@Deprecated(message = "Marked for removal in Ktlint 0.48. See Ktlint 0.47.0 changelog for more information.")
-public fun ASTNode.visit(enter: (node: ASTNode) -> Unit) {
-    enter(this)
-    this.getChildren(null).forEach { it.visit(enter) }
-}
-
-@Deprecated(message = "Marked for removal in Ktlint 0.48. See Ktlint 0.47.0 changelog for more information.")
-public fun ASTNode.visit(enter: (node: ASTNode) -> Unit, exit: (node: ASTNode) -> Unit) {
-    enter(this)
-    this.getChildren(null).forEach { it.visit(enter, exit) }
-    exit(this)
-}
-
-/**
- * Get the line number of the node in the original code sample. If the AST, prior to the current node, is changed by
- * adding or removing a node containing a newline, the lineNumber will not be calculated correctly. Either it results in
- * an incorrect lineNumber or an IndexOutOfBoundsException (Wrong offset). is thrown. The rule in which the problem
- * manifest does not need to be the same rule which has changed the prior AST. Debugging such problems can be very hard.
- */
-@Deprecated(
-    "Marked for removal in KtLint 0.48. The lineNumber is a calculated field. This calculation is not always " +
-        "reliable when formatting code.See KDOC for more information.",
-)
-public fun ASTNode.lineNumber(): Int? =
-    this.psi.containingFile?.viewProvider?.document?.getLineNumber(this.startOffset)?.let { it + 1 }
-
 public val ASTNode.column: Int
     get() {
         var leaf = this.prevLeaf()
@@ -396,31 +369,48 @@ public fun ASTNode.logStructure(): ASTNode =
 private fun String.replaceTabAndNewline(): String =
     replace("\t", "\\t").replace("\n", "\\n")
 
-@Deprecated(
-    message = "This method is marked for removal in KtLint 0.48.0 as it is not reliable.",
-    replaceWith = ReplaceWith("hasWhiteSpaceWithNewLineInClosedRange(from, to)"),
-)
-public fun containsLineBreakInRange(from: PsiElement, to: PsiElement): Boolean =
-    from.siblings(forward = true, withItself = true)
-        .takeWhile { !it.isEquivalentTo(to) }
-        .any { it.textContains('\n') }
-
 /**
  * Verifies that a whitespace leaf containing a newline exist in the closed range [from] - [to]. Also, returns true in
  * case any of the boundary nodes [from] or [to] is a whitespace leaf containing a newline.
  */
+@Deprecated(
+    message = "Marked for removal in KtLint 0.49",
+    replaceWith = ReplaceWith("hasNewLineInClosedRange(from, to)"),
+)
 public fun hasWhiteSpaceWithNewLineInClosedRange(from: ASTNode, to: ASTNode): Boolean =
     from.isWhiteSpaceWithNewline() ||
         leavesInOpenRange(from, to).any { it.isWhiteSpaceWithNewline() } ||
         to.isWhiteSpaceWithNewline()
 
 /**
+ * Verifies that a leaf containing a newline exist in the closed range [from] - [to]. Also, returns true in case any of
+ * the boundary nodes [from] or [to] contains a newline.
+ */
+public fun hasNewLineInClosedRange(from: ASTNode, to: ASTNode): Boolean =
+    from.isWhiteSpaceWithNewline() ||
+        leavesInOpenRange(from, to).any { it.textContains('\n') } ||
+        to.isWhiteSpaceWithNewline()
+
+/**
  * Verifies that no whitespace leaf contains a newline in the closed range [from] - [to]. Also, the boundary nodes
  * [from] and [to] should not be a whitespace leaf containing a newline.
  */
+@Deprecated(
+    message = "Marked for removal in KtLint 0.49",
+    replaceWith = ReplaceWith("noNewLineInClosedRange(from, to)"),
+)
 public fun noWhiteSpaceWithNewLineInClosedRange(from: ASTNode, to: ASTNode): Boolean =
     !from.isWhiteSpaceWithNewline() &&
         leavesInOpenRange(from, to).none { it.isWhiteSpaceWithNewline() } &&
+        !to.isWhiteSpaceWithNewline()
+
+/**
+ * Verifies that no leaf contains a newline in the closed range [from] - [to]. Also, the boundary nodes [from] and [to]
+ * should not contain a newline.
+ */
+public fun noNewLineInClosedRange(from: ASTNode, to: ASTNode): Boolean =
+    !from.isWhiteSpaceWithNewline() &&
+        leavesInOpenRange(from, to).none { it.textContains('\n') } &&
         !to.isWhiteSpaceWithNewline()
 
 /**
