@@ -127,4 +127,17 @@ class SimpleCLITest : BaseCLITest() {
             }.assertAll()
         }
     }
+
+    @Test
+    fun `Issue 1608 - --relative and --reporter=sarif should play well together`() {
+        runKtLintCliProcess(
+            "too-many-empty-lines",
+            listOf("--relative", "--reporter=sarif"),
+        ) {
+            SoftAssertions().apply {
+                assertErrorExitCode()
+                assertThat(errorOutput).doesNotContainLineMatching("Exception in thread \"main\" java.lang.IllegalArgumentException: this and base files have different roots:")
+            }.assertAll()
+        }
+    }
 }
