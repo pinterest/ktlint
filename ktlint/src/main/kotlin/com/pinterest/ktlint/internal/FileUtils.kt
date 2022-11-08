@@ -20,6 +20,8 @@ import java.util.LinkedList
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.isDirectory
 import kotlin.io.path.pathString
+import kotlin.io.path.Path
+import kotlin.io.path.relativeToOrSelf
 import kotlin.system.exitProcess
 import kotlin.system.measureTimeMillis
 import mu.KotlinLogging
@@ -346,7 +348,7 @@ private val onWindowsOS
 
 internal fun File.location(
     relative: Boolean,
-) = if (relative) this.toRelativeString(File(WORK_DIR)) else this.path
+) = if (relative) this.toPath().relativeToOrSelf(Path(WORK_DIR)).toString() else this.path
 
 /**
  * Run lint over common kotlin file or kotlin script file.
