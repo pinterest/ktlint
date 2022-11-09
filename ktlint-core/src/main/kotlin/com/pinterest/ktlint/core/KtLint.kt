@@ -59,8 +59,6 @@ public object KtLint {
      * [userData] Map of user options. This field is deprecated and will be removed in a future version.
      * [cb] callback invoked for each lint error
      * [script] true if this is a Kotlin script file
-     * [editorConfigPath] optional path of the .editorconfig file (otherwise will use working directory). Marked for
-     * removal in KtLint 0.48. Use [editorConfigDefaults] instead
      * [debug] True if invoked with the --debug flag
      * [editorConfigDefaults] contains default values for `.editorconfig` properties which are not set explicitly in
      * any '.editorconfig' file located on the path of the [fileName]. If a property is set in [editorConfigDefaults]
@@ -84,8 +82,6 @@ public object KtLint {
         val userData: Map<String, String> = emptyMap(), // TODO: remove in a future version
         val cb: (e: LintError, corrected: Boolean) -> Unit,
         val script: Boolean = false,
-        @Deprecated("Marked for removal in KtLint 0.48. Use 'editorConfigDefaults' to specify default property values")
-        val editorConfigPath: String? = null,
         val debug: Boolean = false,
         val editorConfigDefaults: EditorConfigDefaults = EMPTY_EDITOR_CONFIG_DEFAULTS,
         val editorConfigOverride: EditorConfigOverride = EMPTY_EDITOR_CONFIG_OVERRIDE,

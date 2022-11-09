@@ -58,7 +58,6 @@ class KtLintTest {
                         userData = emptyMap(),
                         cb = { _, _ -> },
                         script = false,
-                        editorConfigPath = null,
                         debug = false,
                     ),
                 )
@@ -78,7 +77,6 @@ class KtLintTest {
                             userData = mapOf("max_line_length" to "80"),
                             cb = { _, _ -> },
                             script = false,
-                            editorConfigPath = null,
                             debug = false,
                         ),
                     )
@@ -107,7 +105,6 @@ class KtLintTest {
                             ),
                             cb = { _, _ -> },
                             script = false,
-                            editorConfigPath = null,
                             debug = false,
                         ),
                     )
@@ -133,7 +130,6 @@ class KtLintTest {
                             userData = mapOf(SOME_CUSTOM_RULE_PROPERTY_NAME to "false"),
                             cb = { _, _ -> },
                             script = false,
-                            editorConfigPath = null,
                             debug = false,
                         ),
                     )
@@ -174,7 +170,6 @@ class KtLintTest {
                             )
                         },
                         script = false,
-                        editorConfigPath = null,
                         debug = false,
                     ),
                 )
@@ -221,7 +216,6 @@ class KtLintTest {
                         userData = emptyMap(),
                         cb = { _, _ -> },
                         script = false,
-                        editorConfigPath = null,
                         debug = false,
                     ),
                 )
@@ -241,7 +235,6 @@ class KtLintTest {
                             userData = mapOf("max_line_length" to "80"),
                             cb = { _, _ -> },
                             script = false,
-                            editorConfigPath = null,
                             debug = false,
                         ),
                     )
@@ -270,7 +263,6 @@ class KtLintTest {
                             ),
                             cb = { _, _ -> },
                             script = false,
-                            editorConfigPath = null,
                             debug = false,
                         ),
                     )
@@ -296,7 +288,6 @@ class KtLintTest {
                             userData = mapOf(SOME_CUSTOM_RULE_PROPERTY_NAME to "false"),
                             cb = { _, _ -> },
                             script = false,
-                            editorConfigPath = null,
                             debug = false,
                         ),
                     )
@@ -342,7 +333,6 @@ class KtLintTest {
                             )
                         },
                         script = false,
-                        editorConfigPath = null,
                         debug = false,
                     ),
                 )
@@ -886,7 +876,6 @@ class KtLintTest {
                 userData = emptyMap(),
                 cb = { _, _ -> },
                 script = false,
-                editorConfigPath = null,
                 debug = false,
             ),
         )

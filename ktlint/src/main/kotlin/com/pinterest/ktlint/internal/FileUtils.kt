@@ -368,7 +368,6 @@ internal fun lintFile(
         script = !fileName.endsWith(".kt", ignoreCase = true),
         editorConfigDefaults = editorConfigDefaults,
         editorConfigOverride = editorConfigOverride,
-        editorConfigPath = editorConfigPath,
         cb = { e, _ ->
             lintErrorCallback(e)
         },
@@ -398,7 +397,6 @@ internal fun formatFile(
             script = !fileName.endsWith(".kt", ignoreCase = true),
             editorConfigDefaults = editorConfigDefaults,
             editorConfigOverride = editorConfigOverride,
-            editorConfigPath = editorConfigPath,
             cb = cb,
             debug = debug,
             isInvokedFromCli = true,
