@@ -7,6 +7,7 @@ import com.pinterest.ktlint.core.api.EditorConfigDefaults.Companion.EMPTY_EDITOR
 import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.EMPTY_EDITOR_CONFIG_OVERRIDE
 import com.pinterest.ktlint.core.api.EditorConfigProperties
+import com.pinterest.ktlint.core.api.KtLintRuleExecutionException
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.internal.EditorConfigFinder
 import com.pinterest.ktlint.core.internal.EditorConfigGenerator
@@ -152,7 +153,7 @@ public object KtLint {
      * Check source for lint errors.
      *
      * @throws KtLintParseException if text is not a valid Kotlin code
-     * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
+     * @throws KtLintRuleExecutionException in case of internal failure caused by a bug in rule implementation
      */
     public fun lint(params: ExperimentalParams) {
         val ruleExecutionContext = createRuleExecutionContext(params)
@@ -223,10 +224,10 @@ public object KtLint {
                 if (autoCorrect) {
                     // line/col cannot be reliably mapped as exception might originate from a node not present in the
                     // original AST
-                    throw RuleExecutionException(0, 0, fqRuleId, e)
+                    throw KtLintRuleExecutionException(0, 0, fqRuleId, e)
                 } else {
                     val (line, col) = positionInTextLocator(node.startOffset)
-                    throw RuleExecutionException(line, col, fqRuleId, e)
+                    throw KtLintRuleExecutionException(line, col, fqRuleId, e)
                 }
             }
         }
@@ -236,7 +237,7 @@ public object KtLint {
      * Fix style violations.
      *
      * @throws KtLintParseException if text is not a valid Kotlin code
-     * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
+     * @throws KtLintRuleExecutionException in case of internal failure caused by a bug in rule implementation
      */
     public fun format(params: ExperimentalParams): String {
         val hasUTF8BOM = params.text.startsWith(UTF8_BOM)
