@@ -144,17 +144,6 @@ public class EditorConfigLoader(
             }
             .build()
 
-    /**
-     * Trims used in-memory cache.
-     */
-    @Deprecated(
-        message = "Marked for removal in KtLint 0.48.0",
-        replaceWith = ReplaceWith("KtLint.trimMemory()"),
-    )
-    public fun trimMemory() {
-        THREAD_SAFER_EDITOR_CONFIG_CACHE.clear()
-    }
-
     public companion object {
         /**
          * List of file extensions, editorconfig lookup will be performed.

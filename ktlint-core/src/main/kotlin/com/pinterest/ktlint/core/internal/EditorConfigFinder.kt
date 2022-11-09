@@ -94,8 +94,7 @@ internal class EditorConfigFinder {
                 },
             )
         }.also { duration ->
-            // TODO: Remove (or reduce loglevel to debug/trace) before release 0.48
-            LOGGER.info {
+            LOGGER.debug {
                 "Scanning file system to find all '.editorconfig' files in directory '$path' scanned $visitedDirectoryCount directories in $duration ms"
             }
         }

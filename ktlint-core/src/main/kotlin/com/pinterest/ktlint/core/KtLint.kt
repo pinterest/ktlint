@@ -54,8 +54,6 @@ public object KtLint {
      *
      * [fileName] path of file to lint/format
      * [text] Contents of file to lint/format
-     * [ruleSets] a collection of "RuleSet"s used to validate source. This field is deprecated and will be removed in
-     * KtLint 0.48.
      * [ruleProviders] a collection of [RuleProvider]s used to create new instances of [Rule]s so that it can keep
      * internal state and be called thread-safe
      * [userData] Map of user options. This field is deprecated and will be removed in a future version.
@@ -82,11 +80,6 @@ public object KtLint {
     public data class ExperimentalParams(
         val fileName: String? = null,
         val text: String,
-        @Deprecated(
-            message = "Marked for removal in KtLint 0.48",
-            replaceWith = ReplaceWith("ruleProviders"),
-        )
-        val ruleSets: Iterable<RuleSet> = Iterable { emptySet<RuleSet>().iterator() },
         val ruleProviders: Set<RuleProvider> = emptySet(),
         val userData: Map<String, String> = emptyMap(), // TODO: remove in a future version
         val cb: (e: LintError, corrected: Boolean) -> Unit,
@@ -101,19 +94,7 @@ public object KtLint {
         internal val ruleRunners: Set<RuleRunner> =
             ruleProviders
                 .map { RuleRunner(it) }
-                .plus(
-                    /** Support backward compatibility for API consumers in KtLint 0.47 by changing rule sets to rule
-                     * providers with limitation that for those rules *no* new instances can be created during
-                     * [KtLint.format].
-                     * KtLint CLI already transforms rules provided by external rule providers to real RuleProviders
-                     * for which new instances can be created. The same workaround is not possible for as
-                     * [KtLint.ExperimentalParams.ruleSets] already contain the created [Rule] instance.
-                     */
-                    // TODO: remove when removing the deprecated ruleSets.
-                    ruleSets
-                        .flatMap { it.rules.toList() }
-                        .map { RuleRunner(createStaticRuleProvider(it)) },
-                ).distinctBy { it.ruleId }
+                .distinctBy { it.ruleId }
                 .toSet()
 
         internal fun getRules(): Set<Rule> =
@@ -122,8 +103,8 @@ public object KtLint {
                 .toSet()
 
         init {
-            require(ruleSets.any() xor ruleProviders.any()) {
-                "Provide exactly one of parameters 'ruleSets' or 'ruleProviders'"
+            require(ruleProviders.any()) {
+                "A non-empty set of 'ruleProviders' need to be provided"
             }
             // Extract all default and custom ".editorconfig" properties which are registered
             val editorConfigProperties =
@@ -460,17 +441,3 @@ internal class RuleRunner(private val provider: RuleProvider) {
         runAfterRule = null
     }
 }
-
-/**
- * This provider is added for backward compatibility of KtLint 0.47 so that API consumers can either use
- * [KtLint.ExperimentalParams.ruleSets] or [KtLint.ExperimentalParams.ruleProviders] per [RuleSetProvider]. This method
- * created a [RuleProvider] which returns a *static* instance of a rule and should only be used for rules provided via
- * [KtLint.ExperimentalParams.ruleSets].
- * * Rules provided by this [RuleProvider] might leak state between the first and second invocation of the rule when
- * running [KtLint.format]. It is assumed that [Rule] implementations offered by 'KtLint 0.46.x' and custom rule set
- * providers are not suffering any problems at this moment as this architectural bug exists in KtLint for quite a long
- * * Note that [KtLint.ExperimentalParams.ruleSets] and this helper method will be removed in KtLint 0.48.
- */
-@Deprecated(message = "Remove when 'ruleSets' are removed")
-private fun createStaticRuleProvider(rule: Rule) =
-    RuleProvider { rule }

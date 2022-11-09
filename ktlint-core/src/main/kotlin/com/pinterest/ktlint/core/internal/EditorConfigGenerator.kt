@@ -19,8 +19,7 @@ internal class EditorConfigGenerator(
     private val editorConfigLoader: EditorConfigLoader,
 ) {
     /**
-     * Method loads merged `.editorconfig` content using [com.pinterest.ktlint.core.KtLint.ExperimentalParams.fileName] path,
-     * and then, by querying rules from [com.pinterest.ktlint.core.KtLint.ExperimentalParams.ruleSets]
+     * Method loads merged `.editorconfig` content using [filePath], and then, by querying the set of [Rule]s
      * generates Kotlin section (default is `[*.{kt,kts}]`) content including expected default values.
      *
      * @return Kotlin section editorconfig content. For example:
