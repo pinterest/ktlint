@@ -928,11 +928,10 @@ private open class DummyRule(
  * A dummy rule for testing
  */
 private class AutoCorrectErrorRule : Rule("auto-correct") {
-    @Suppress("OVERRIDE_DEPRECATION")
-    override fun visit(
+    override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         if (node.elementType == REGULAR_STRING_PART) {
             when (node.text) {
@@ -967,10 +966,10 @@ private class SimpleTestRuleLegacy(
     id: String,
     visitorModifiers: Set<VisitorModifier> = emptySet(),
 ) : Rule(id, visitorModifiers) {
-    override fun visit(
+    override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
     ) {
         ruleExecutionCalls.add(RuleExecutionCall(id, VISIT, node.visitNodeType, node.elementType))
     }
@@ -1006,14 +1005,6 @@ private class SimpleTestRule(
         if (stopTraversalInBeforeVisitChildNodes(node)) {
             stopTraversalOfAST()
         }
-    }
-
-    override fun visit(
-        node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-    ) {
-        ruleExecutionCalls.add(node.toRuleExecutionCall(id, VISIT))
     }
 
     override fun afterVisitChildNodes(

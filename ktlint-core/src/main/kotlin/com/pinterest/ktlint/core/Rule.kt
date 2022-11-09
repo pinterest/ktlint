@@ -7,10 +7,9 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 /**
  * The [Rule] contains the life cycle hooks which are needed for the KtLint rule engine.
  *
- * Implementation **doesn't** have to be thread-safe or stateless (provided that [RuleSetProviderV2] creates a new
- * instance of the [Rule] when [RuleSetProviderV2.getRuleProviders] has implemented its [RuleProvider] in such a way
- * that each call to [RuleProvider.createNewRuleInstance] indeed creates a new instance. The KtLint engine never
- * re-uses a [Rule] instance once is has been used for traversal of the AST of a file.
+ * Implementation **doesn't** have to be thread-safe or stateless, provided that [RuleSetProviderV2] creates a new
+ * instance of the [Rule] on each call to [RuleProvider.createNewRuleInstance]. The KtLint engine never re-uses a [Rule]
+ * instance once is has been used for traversal of the AST of a file.
  */
 public open class Rule(
     /**
@@ -36,7 +35,6 @@ public open class Rule(
      * This method is called once before the first node is visited. It can be used to initialize the state of the rule
      * before processing of nodes starts.
      */
-    @Suppress("UNUSED_PARAMETER")
     public open fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {}
 
     /**
@@ -44,37 +42,10 @@ public open class Rule(
      * child nodes resulting in a depth first traversal of the AST.
      *
      * @param node AST node
-     * @param autoCorrect indicates whether rule should attempt auto-correction
+     * @param autoCorrect indicates whether rule should attempt autocorrection
      * @param emit a way for rule to notify about a violation (lint error)
      */
     public open fun beforeVisitChildNodes(
-        node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-    ): Unit =
-        /**
-         * For backwards compatibility with ktlint 0.46.x or before, call [visit] when not implemented on node.
-         * Add abstract function modifier and remove function body after removal of deprecated [visit] method to enforce
-         * explicit implementation by rule developer.
-         */
-        visit(node, autoCorrect, emit)
-
-    /**
-     * Rules that override method [visit] should rename that method to [beforeVisitChildNodes]. For backwards
-     * compatibility reasons (in KtLint 0.47 only), this method is called via the default implementation of
-     * [beforeVisitChildNodes]. Whenever [beforeVisitChildNodes] is overridden with a custom implementation, this method
-     * will no longer be called.
-     *
-     * @param node AST node
-     * @param autoCorrect indicates whether rule should attempt auto-correction
-     * @param emit a way for rule to notify about a violation (lint error)
-     */
-    @Deprecated(
-        message = "Marked for deletion in ktlint 0.48.0",
-        replaceWith = ReplaceWith("beforeVisitChildNodes(node, autoCorrect, emit)"),
-    )
-    @Suppress("UNUSED_PARAMETER")
-    public open fun visit(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
@@ -83,7 +54,7 @@ public open class Rule(
     /**
      * This method is called on a node in AST after all its child nodes have been visited.
      */
-    @Suppress("unused", "UNUSED_PARAMETER")
+    @Suppress("unused")
     public open fun afterVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
