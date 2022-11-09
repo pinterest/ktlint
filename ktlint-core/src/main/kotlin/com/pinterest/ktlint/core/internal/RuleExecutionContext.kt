@@ -1,8 +1,8 @@
 package com.pinterest.ktlint.core.internal
 
 import com.pinterest.ktlint.core.KtLint
-import com.pinterest.ktlint.core.ParseException
 import com.pinterest.ktlint.core.api.EditorConfigProperties
+import com.pinterest.ktlint.core.api.KtLintParseException
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.PsiErrorElement
@@ -44,11 +44,12 @@ internal fun createRuleExecutionContext(params: KtLint.ExperimentalParams): Rule
         normalizedText,
     ) as KtFile
 
-    val errorElement = psiFile.findErrorElement()
-    if (errorElement != null) {
-        val (line, col) = positionInTextLocator(errorElement.textOffset)
-        throw ParseException(line, col, errorElement.errorDescription)
-    }
+    psiFile
+        .findErrorElement()
+        ?.let { errorElement ->
+            val (line, col) = positionInTextLocator(errorElement.textOffset)
+            throw KtLintParseException(line, col, errorElement.errorDescription)
+        }
 
     val rootNode = psiFile.node
 

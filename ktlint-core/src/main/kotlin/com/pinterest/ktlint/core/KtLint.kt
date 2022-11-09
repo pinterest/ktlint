@@ -151,7 +151,7 @@ public object KtLint {
     /**
      * Check source for lint errors.
      *
-     * @throws ParseException if text is not a valid Kotlin code
+     * @throws KtLintParseException if text is not a valid Kotlin code
      * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
      */
     public fun lint(params: ExperimentalParams) {
@@ -235,7 +235,7 @@ public object KtLint {
     /**
      * Fix style violations.
      *
-     * @throws ParseException if text is not a valid Kotlin code
+     * @throws KtLintParseException if text is not a valid Kotlin code
      * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
      */
     public fun format(params: ExperimentalParams): String {

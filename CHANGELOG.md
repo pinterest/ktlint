@@ -28,6 +28,10 @@ if (node.isRoot()) {
 }
 ```
 
+#### ParseException
+
+The `com.pinterest.ktlint.core.KtLintParseException` has been replaced with `com.pinterest.ktlint.core.api.KtLintParseException`.
+
 ### Added
 * Wrap blocks in case the max line length is exceeded or in case the block contains a new line `wrapping` ([#1643](https://github.com/pinterest/ktlint/issue/1643))
 * patterns can be read in from `stdin` with the `--patterns-from-stdin` command line options/flags ([#1606](https://github.com/pinterest/ktlint/pull/1606))

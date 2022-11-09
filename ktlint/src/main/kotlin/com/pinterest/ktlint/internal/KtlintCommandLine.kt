@@ -4,7 +4,6 @@ import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.LintError
-import com.pinterest.ktlint.core.ParseException
 import com.pinterest.ktlint.core.Reporter
 import com.pinterest.ktlint.core.ReporterProvider
 import com.pinterest.ktlint.core.RuleExecutionException
@@ -16,6 +15,7 @@ import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.KTLINT_DISABL
 import com.pinterest.ktlint.core.api.EditorConfigDefaults
 import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.plus
+import com.pinterest.ktlint.core.api.KtLintParseException
 import com.pinterest.ktlint.core.api.doesNotContain
 import com.pinterest.ktlint.core.api.loadBaseline
 import com.pinterest.ktlint.core.api.relativeRoute
@@ -547,7 +547,7 @@ internal class KtlintCommandLine {
 
     private fun Exception.toLintError(filename: Any?): LintError = this.let { e ->
         when (e) {
-            is ParseException ->
+            is KtLintParseException ->
                 LintError(
                     e.line,
                     e.col,
