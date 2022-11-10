@@ -202,7 +202,7 @@ public object KtLint {
                 suppressHandler.handle(node, fqRuleId) { autoCorrect, emit ->
                     rule.beforeVisitChildNodes(node, autoCorrect, emit)
                 }
-                if (!rule.runsOnRootNodeOnly() && rule.shouldContinueTraversalOfAST()) {
+                if (rule.shouldContinueTraversalOfAST()) {
                     node
                         .getChildren(null)
                         .forEach { childNode ->
@@ -308,9 +308,6 @@ public object KtLint {
         }
     }
 
-    private fun Rule.runsOnRootNodeOnly() =
-        visitorModifiers.contains(Rule.VisitorModifier.RunOnRootNodeOnly)
-
     /**
      * Reduce memory usage by cleaning internal caches.
      */
@@ -395,8 +392,6 @@ internal class RuleRunner(private val provider: RuleProvider) {
     internal val ruleId = rule.id
     internal val ruleSetId = qualifiedRuleId.substringBefore(':')
 
-    val runOnRootNodeOnly =
-        rule.visitorModifiers.contains(Rule.VisitorModifier.RunOnRootNodeOnly)
     val runAsLateAsPossible = rule.visitorModifiers.contains(Rule.VisitorModifier.RunAsLateAsPossible)
     var runAfterRule = setRunAfterRule()
 

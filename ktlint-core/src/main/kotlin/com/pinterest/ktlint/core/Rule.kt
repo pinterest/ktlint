@@ -145,13 +145,5 @@ public open class Rule(
         ) : VisitorModifier()
 
         public object RunAsLateAsPossible : VisitorModifier()
-
-        @Deprecated(
-            """
-                Marked for removal in Ktlint 0.48. This modifier blocks the ability to suppress ktlint rules. See
-                changelog Ktlint 0.47 for details on how to modify a rule using this modifier.
-                """,
-        )
-        public object RunOnRootNodeOnly : VisitorModifier()
     }
 }

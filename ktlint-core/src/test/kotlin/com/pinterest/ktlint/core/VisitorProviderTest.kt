@@ -15,17 +15,6 @@ class VisitorProviderTest {
     @Deprecated("To be removed in KtLint 0.48 when disabledRulesProperty is removed")
     inner class WithDisabledRulesProperty {
         @Test
-        fun `A root only rule only visits the FILE node only`() {
-            val actual = testVisitorProviderWithDisabledRulesProperty(
-                RuleProvider { RootNodeOnlyRule(ROOT_NODE_ONLY_RULE) },
-            )
-
-            assertThat(actual).containsExactly(
-                Visit(ROOT_NODE_ONLY_RULE),
-            )
-        }
-
-        @Test
         fun `A run-as-late-as-possible-rule runs later than normal rules`() {
             val actual = testVisitorProviderWithDisabledRulesProperty(
                 RuleProvider { NormalRule(RULE_A) },
@@ -37,17 +26,6 @@ class VisitorProviderTest {
                 Visit(RULE_A),
                 Visit(RULE_C),
                 Visit(RULE_B),
-            )
-        }
-
-        @Test
-        fun `A run as late as possible on root node only rule visits the root node only`() {
-            val actual = testVisitorProviderWithDisabledRulesProperty(
-                RuleProvider { RunAsLateAsPossibleOnRootNodeOnlyRule(RUN_AS_LATE_AS_POSSIBLE_RULE) },
-            )
-
-            assertThat(actual).containsExactly(
-                Visit(RUN_AS_LATE_AS_POSSIBLE_RULE),
             )
         }
 
@@ -145,17 +123,6 @@ class VisitorProviderTest {
     }
 
     @Test
-    fun `A root only rule only visits the FILE node only`() {
-        val actual = testVisitorProvider(
-            RuleProvider { RootNodeOnlyRule(ROOT_NODE_ONLY_RULE) },
-        )
-
-        assertThat(actual).containsExactly(
-            Visit(ROOT_NODE_ONLY_RULE),
-        )
-    }
-
-    @Test
     fun `A run-as-late-as-possible-rule runs later than normal rules`() {
         val actual = testVisitorProvider(
             RuleProvider { NormalRule(RULE_A) },
@@ -167,17 +134,6 @@ class VisitorProviderTest {
             Visit(RULE_A),
             Visit(RULE_C),
             Visit(RULE_B),
-        )
-    }
-
-    @Test
-    fun `A run as late as possible on root node only rule visits the root node only`() {
-        val actual = testVisitorProvider(
-            RuleProvider { RunAsLateAsPossibleOnRootNodeOnlyRule(RUN_AS_LATE_AS_POSSIBLE_RULE) },
-        )
-
-        assertThat(actual).containsExactly(
-            Visit(RUN_AS_LATE_AS_POSSIBLE_RULE),
         )
     }
 
@@ -277,8 +233,6 @@ class VisitorProviderTest {
         const val STANDARD = "standard"
         const val EXPERIMENTAL = "experimental"
         const val CUSTOM_RULE_SET_A = "custom-rule-set-a"
-        const val ROOT_NODE_ONLY_RULE = "root-node-only-rule"
-        const val RUN_AS_LATE_AS_POSSIBLE_RULE = "run-as-late-as-possible-rule"
         const val RULE_A = "rule-a"
         const val RULE_B = "rule-b"
         const val RULE_C = "rule-c"
@@ -289,24 +243,9 @@ class VisitorProviderTest {
 
     open class NormalRule(id: String) : R(id)
 
-    class RootNodeOnlyRule(id: String) : R(
-        id = id,
-        visitorModifiers = setOf(
-            VisitorModifier.RunOnRootNodeOnly,
-        ),
-    )
-
     class RunAsLateAsPossibleRule(id: String) : R(
         id = id,
         visitorModifiers = setOf(
-            VisitorModifier.RunAsLateAsPossible,
-        ),
-    )
-
-    class RunAsLateAsPossibleOnRootNodeOnlyRule(id: String) : R(
-        id = id,
-        visitorModifiers = setOf(
-            VisitorModifier.RunOnRootNodeOnly,
             VisitorModifier.RunAsLateAsPossible,
         ),
     )
