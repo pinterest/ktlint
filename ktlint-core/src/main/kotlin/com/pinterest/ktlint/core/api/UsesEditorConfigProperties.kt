@@ -85,8 +85,11 @@ public interface UsesEditorConfigProperties {
         editorConfigProperty: EditorConfigProperty<T>,
         codeStyleValue: CodeStyleValue,
     ): T {
-        if (editorConfigProperty.deprecationWarning != null) {
-            LOGGER.warn { "Property '${editorConfigProperty.type.name}' is deprecated: ${editorConfigProperty.deprecationWarning}" }
+        when {
+            editorConfigProperty.deprecationError != null ->
+                throw DeprecatedEditorConfigPropertyException("Property '${editorConfigProperty.type.name}' is disallowed: ${editorConfigProperty.deprecationError}")
+            editorConfigProperty.deprecationWarning != null ->
+                LOGGER.warn { "Property '${editorConfigProperty.type.name}' is deprecated: ${editorConfigProperty.deprecationWarning}" }
         }
 
         val property = get(editorConfigProperty.type.name)
@@ -202,8 +205,15 @@ public interface UsesEditorConfigProperties {
          * Optional message to be displayed whenever the value of the property is being retrieved.
          */
         internal val deprecationWarning: String? = null,
+
+        /**
+         * Optional message to be displayed whenever the value of the property is being retrieved.
+         */
+        internal val deprecationError: String? = null,
     )
 }
+
+public class DeprecatedEditorConfigPropertyException(message: String) : RuntimeException(message)
 
 /**
  * Defines KtLint properties which are based on default property types provided by [org.ec4j.core.model.PropertyType].
@@ -239,8 +249,11 @@ public object DefaultEditorConfigProperties : UsesEditorConfigProperties {
         CODE_STYLE_PROPERTY
 
     @Deprecated(
-        message = "Marked for removal in KtLint 0.48",
-        replaceWith = ReplaceWith("ktlintDisabledRulesProperty"),
+        // Keep postponing the deprecation period until around 0.50. Some projects irregular update to newer KtLint
+        // version and skipping intermediate version. As of such they might have missed the deprecation warning in
+        // KtLint 0.47.
+        message = "Marked for removal in KtLint 0.49",
+        replaceWith = ReplaceWith("KTLINT_DISABLED_RULES_PROPERTY"),
     )
     public val DISABLED_RULES_PROPERTY: UsesEditorConfigProperties.EditorConfigProperty<String> =
         UsesEditorConfigProperties.EditorConfigProperty(
@@ -263,7 +276,7 @@ public object DefaultEditorConfigProperties : UsesEditorConfigProperties {
                     else -> property?.getValueAs()
                 }
             },
-            deprecationWarning = "Rename property 'disabled_rules' to 'ktlint_disabled_rules' in all '.editorconfig' files.",
+            deprecationError = "Rename property 'disabled_rules' to 'ktlint_disabled_rules' in all '.editorconfig' files.",
         )
 
     public val KTLINT_DISABLED_RULES_PROPERTY: UsesEditorConfigProperties.EditorConfigProperty<String> =

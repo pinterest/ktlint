@@ -8,6 +8,10 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 The `indent` rule has been rewritten from scratch. Solving problems in the old algorithm was very difficult. With the new algorithm this becomes a lot easier. Although the new implementation of the rule has been compared against several open source projects containing over 400,000 lines of code, it is still likely that new issues will be discovered. Please report your indentation issues so that these can be fixed as well.
 
+### `.editorconfig` property `disabled_rules`
+
+Usage of `.editorconfig` property `disabled_rules` results in a `DeprecatedEditorConfigPropertyException`. This property should be renamed to `ktlint_disabled_rules`.
+
 ### API Changes & RuleSet providers
 
 #### Retrieve `.editorconfig`s

@@ -82,6 +82,7 @@ internal class EditorConfigGenerator(
         codeStyle: DefaultEditorConfigProperties.CodeStyleValue,
     ) = DefaultEditorConfigProperties
         .editorConfigProperties
+        .filter { it.deprecationError == null }
         .map { editorConfigProperty ->
             val value = with((DefaultEditorConfigProperties as UsesEditorConfigProperties)) {
                 editorConfig.writeEditorConfigProperty(
