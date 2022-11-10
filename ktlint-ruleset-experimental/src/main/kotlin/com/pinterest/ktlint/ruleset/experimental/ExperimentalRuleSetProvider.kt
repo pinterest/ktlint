@@ -1,8 +1,6 @@
 package com.pinterest.ktlint.ruleset.experimental
 
 import com.pinterest.ktlint.core.RuleProvider
-import com.pinterest.ktlint.core.RuleSet
-import com.pinterest.ktlint.core.RuleSetProvider
 import com.pinterest.ktlint.core.RuleSetProviderV2
 
 public const val EXPERIMENTAL_RULE_SET_ID: String = "experimental"
@@ -17,38 +15,7 @@ public class ExperimentalRuleSetProvider :
             repositoryUrl = "https://github.com/pinterest/ktlint",
             issueTrackerUrl = "https://github.com/pinterest/ktlint/issues",
         ),
-    ),
-    RuleSetProvider {
-    @Deprecated(
-        message = "Marked for removal in KtLint 0.48. See changelog for more information.",
-        replaceWith = ReplaceWith("getRuleProviders()"),
-    )
-    override fun get(): RuleSet = RuleSet(
-        EXPERIMENTAL_RULE_SET_ID,
-        UnnecessaryParenthesesBeforeTrailingLambdaRule(),
-        TypeParameterListSpacingRule(),
-        TypeArgumentListSpacingRule(),
-        BlockCommentInitialStarAlignmentRule(),
-        DiscouragedCommentLocationRule(),
-        FunKeywordSpacingRule(),
-        FunctionTypeReferenceSpacingRule(),
-        ModifierListSpacingRule(),
-        CommentWrappingRule(),
-        KdocWrappingRule(),
-        SpacingBetweenFunctionNameAndOpeningParenthesisRule(),
-        ParameterListSpacingRule(),
-        FunctionReturnTypeSpacingRule(),
-        FunctionStartOfBodySpacingRule(),
-        NullableTypeSpacingRule(),
-        FunctionSignatureRule(),
-        ContextReceiverWrappingRule(),
-        ClassNamingRule(),
-        FunctionNamingRule(),
-        ObjectNamingRule(),
-        PackageNamingRule(),
-        PropertyNamingRule(),
-    )
-
+    ) {
     override fun getRuleProviders(): Set<RuleProvider> =
         setOf(
             RuleProvider { UnnecessaryParenthesesBeforeTrailingLambdaRule() },
