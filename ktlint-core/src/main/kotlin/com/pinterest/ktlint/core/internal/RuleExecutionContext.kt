@@ -64,10 +64,6 @@ internal fun createRuleExecutionContext(params: KtLint.ExperimentalParams): Rule
         rootNode.putUserData(KtLint.FILE_PATH_USER_DATA_KEY, params.normalizedFilePath.toString())
     }
 
-    // Keep for backwards compatibility in Ktlint 0.47.0 until ASTNode.getEditorConfigValue in UsesEditorConfigProperties
-    // is removed
-    rootNode.putUserData(KtLint.EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY, editorConfigProperties)
-
     return RuleExecutionContext(
         rootNode,
         editorConfigProperties,

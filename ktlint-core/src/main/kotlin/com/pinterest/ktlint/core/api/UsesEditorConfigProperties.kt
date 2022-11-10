@@ -1,7 +1,6 @@
 package com.pinterest.ktlint.core.api
 
 import com.pinterest.ktlint.core.IndentConfig
-import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.CodeStyleValue
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.CodeStyleValue.android
@@ -11,7 +10,6 @@ import mu.KotlinLogging
 import org.ec4j.core.model.Property
 import org.ec4j.core.model.PropertyType
 import org.ec4j.core.model.PropertyType.PropertyValueParser.EnumValueParser
-import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
@@ -33,23 +31,12 @@ private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
  */
 public interface UsesEditorConfigProperties {
     /**
-     * Provide a list of editorconfig properties used by a class (most ofter a [com.pinterest.ktlint.core.Rule].
-     * Retrieval of an editorconfig property is prohibited when the property has not been registered in [editorConfigProperties].
-     * The [editorConfigProperties] is used to generate a complete set of ".editorconfig" properties.
+     * Provide a list of editorconfig properties used by a class (most often a [com.pinterest.ktlint.core.Rule]).
+     * Retrieval of an editorconfig property is prohibited when the property has not been registered in
+     * [editorConfigProperties]. The [editorConfigProperties] is used to generate a complete set of ".editorconfig"
+     * properties.
      */
     public val editorConfigProperties: List<EditorConfigProperty<*>>
-
-    /**
-     * Get the value of [EditorConfigProperty] based on loaded [EditorConfigProperties] content for the current
-     * [ASTNode].
-     */
-    public fun <T> EditorConfigProperties.getEditorConfigValue(editorConfigProperty: EditorConfigProperty<T>): T {
-        require(editorConfigProperties.contains(editorConfigProperty)) {
-            "EditorConfigProperty '${editorConfigProperty.type.name}' may only be retrieved when it is registered in the editorConfigProperties."
-        }
-
-        return getEditorConfigValue(editorConfigProperty, getEditorConfigCodeStyle())
-    }
 
     /**
      * The code style property does not need to be defined in the [editorConfigProperties] of the class that defines
@@ -66,25 +53,12 @@ public interface UsesEditorConfigProperties {
             ?: official
 
     /**
-     * Get the value of [EditorConfigProperty] based on loaded [EditorConfigProperties] content for the current
-     * [ASTNode].
+     * Get the value of [editorConfigProperty] from [EditorConfigProperties].
      */
-    @Deprecated(message = "Marked for deletion in Ktlint 0.48. EditorConfigProperties are now supplied to Rule via call on method beforeFirstNode")
-    public fun <T> ASTNode.getEditorConfigValue(editorConfigProperty: EditorConfigProperty<T>): T {
+    public fun <T> EditorConfigProperties.getEditorConfigValue(editorConfigProperty: EditorConfigProperty<T>): T {
         require(editorConfigProperties.contains(editorConfigProperty)) {
             "EditorConfigProperty '${editorConfigProperty.type.name}' may only be retrieved when it is registered in the editorConfigProperties."
         }
-        val editorConfigPropertyValues = getUserData(KtLint.EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY)!!
-        return editorConfigPropertyValues.getEditorConfigValue(
-            editorConfigProperty,
-            editorConfigPropertyValues.getEditorConfigCodeStyle(),
-        )
-    }
-
-    private fun <T> EditorConfigProperties.getEditorConfigValue(
-        editorConfigProperty: EditorConfigProperty<T>,
-        codeStyleValue: CodeStyleValue,
-    ): T {
         when {
             editorConfigProperty.deprecationError != null ->
                 throw DeprecatedEditorConfigPropertyException("Property '${editorConfigProperty.type.name}' is disallowed: ${editorConfigProperty.deprecationError}")
@@ -93,6 +67,7 @@ public interface UsesEditorConfigProperties {
         }
 
         val property = get(editorConfigProperty.type.name)
+        val codeStyleValue = getEditorConfigCodeStyle()
 
         if (property != null) {
             editorConfigProperty
@@ -154,28 +129,31 @@ public interface UsesEditorConfigProperties {
     public fun <T> EditorConfigProperties.writeEditorConfigProperty(
         editorConfigProperty: EditorConfigProperty<T>,
         codeStyleValue: CodeStyleValue,
-    ): String {
-        return editorConfigProperty.propertyWriter(getEditorConfigValue(editorConfigProperty, codeStyleValue))
-    }
+    ): String =
+        editorConfigProperty.propertyWriter(
+            getEditorConfigValue(editorConfigProperty),
+        )
 
     /**
-     * Supported `.editorconfig` property.
-     *
-     * [Rule] preferably should expose it with `public` visibility in `companion object`,
-     * so it will be possible to add/replace via [com.pinterest.ktlint.core.KtLint.ExperimentalParams].
-     *
-     * @param type type of property. Could be one of default ones (see [PropertyType.STANDARD_TYPES]) or custom one.
-     * @param defaultValue default value for property if it does not exist in loaded properties.
-     * @param defaultAndroidValue default value for android codestyle. You should set different value only when it
-     * differs from [defaultValue].
-     * @param propertyWriter custom function that represents [T] as String. Defaults to the standard `toString()` call.
-     * You should override the default implementation in case you need a different behavior than the standard `toString()`
-     * (e.g. for collections joinToString() is more applicable).
+     * Definition of '.editorconfig' property enriched with KtLint specific fields.
      */
     public data class EditorConfigProperty<T>(
+        /**
+         * Type of property. Could be one of default ones (see [PropertyType.STANDARD_TYPES]) or custom one.
+         */
         public val type: PropertyType<T>,
+
+        /**
+         * Default value for property if it does not exist in loaded properties and codestyle 'official'.
+         */
         public val defaultValue: T,
+
+        /**
+         * Default value for property if it does not exist in loaded properties and codestyle 'android'. This property
+         * is to be set only when its value does not equal [defaultValue].
+         */
         public val defaultAndroidValue: T = defaultValue,
+
         /**
          * If set, it maps the actual value set for the property, to another valid value for that property. See example
          * below where
@@ -199,6 +177,12 @@ public interface UsesEditorConfigProperties {
          * value of the property. The
          */
         public val propertyMapper: ((Property?, CodeStyleValue) -> T?)? = null,
+
+        /**
+         * Custom function that represents [T] as String. Defaults to the standard `toString()` call. Override the
+         * default implementation in case you need a different behavior than the standard `toString()` (e.g. for
+         * collections joinToString() is more applicable).
+         */
         public val propertyWriter: (T) -> String = { it.toString() },
 
         /**
