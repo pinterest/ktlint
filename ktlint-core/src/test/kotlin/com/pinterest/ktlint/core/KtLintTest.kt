@@ -358,203 +358,114 @@ class KtLintTest {
         }
     }
 
-    @DisplayName("Calls to rules using 'visit' life cycle hook")
-    @Nested
-    @Deprecated("Marked for deleting in KtLint 0.48 after removal of 'visit' life cycle hook")
-    inner class RuleExecutionCallsLegacy {
-        @Test
-        fun `Given a normal rule then execute on root node and child nodes`() {
-            val ruleExecutionCalls = mutableListOf<RuleExecutionCall>()
-            KtLint.lint(
-                KtLint.ExperimentalParams(
-                    // An empty file results in nodes with elementTypes FILE, PACKAGE_DIRECTIVE and IMPORT_LIST respectively
-                    text = "",
-                    ruleProviders = setOf(
-                        RuleProvider {
-                            SimpleTestRuleLegacy(
-                                ruleExecutionCalls = ruleExecutionCalls,
-                                id = "a",
-                                visitorModifiers = setOf(),
-                            )
-                        },
-                        RuleProvider {
-                            SimpleTestRuleLegacy(
-                                ruleExecutionCalls = ruleExecutionCalls,
-                                id = "b",
-                                visitorModifiers = setOf(RunAsLateAsPossible),
-                            )
-                        },
-                    ),
-                    cb = { _, _ -> },
+    @Test
+    fun `Given a normal rule then execute on root node and child nodes`() {
+        val ruleExecutionCalls = mutableListOf<RuleExecutionCall>()
+        KtLint.lint(
+            KtLint.ExperimentalParams(
+                // An empty file results in nodes with elementTypes FILE, PACKAGE_DIRECTIVE and IMPORT_LIST respectively
+                text = "",
+                ruleProviders = setOf(
+                    RuleProvider {
+                        SimpleTestRule(
+                            ruleExecutionCalls = ruleExecutionCalls,
+                            id = "a",
+                            visitorModifiers = setOf(),
+                        )
+                    },
+                    RuleProvider {
+                        SimpleTestRule(
+                            ruleExecutionCalls = ruleExecutionCalls,
+                            id = "b",
+                            visitorModifiers = setOf(RunAsLateAsPossible),
+                        )
+                    },
                 ),
-            )
-            assertThat(ruleExecutionCalls).containsExactly(
-                RuleExecutionCall("a", VISIT, ROOT, FILE),
-                RuleExecutionCall("a", VISIT, CHILD, PACKAGE_DIRECTIVE),
-                RuleExecutionCall("a", VISIT, CHILD, IMPORT_LIST),
-                RuleExecutionCall("b", VISIT, ROOT, FILE),
-                RuleExecutionCall("b", VISIT, CHILD, PACKAGE_DIRECTIVE),
-                RuleExecutionCall("b", VISIT, CHILD, IMPORT_LIST),
-            )
-        }
-
-        @Test
-        fun `Given multiple rules which have to run in a certain order`() {
-            val ruleExecutionCalls = mutableListOf<RuleExecutionCall>()
-            KtLint.lint(
-                KtLint.ExperimentalParams(
-                    // An empty file results in nodes with elementTypes FILE, PACKAGE_DIRECTIVE and IMPORT_LIST respectively
-                    text = "",
-                    ruleProviders = setOf(
-                        RuleProvider {
-                            SimpleTestRuleLegacy(
-                                ruleExecutionCalls = ruleExecutionCalls,
-                                id = "d",
-                                visitorModifiers = setOf(RunAsLateAsPossible),
-                            )
-                        },
-                        RuleProvider {
-                            SimpleTestRuleLegacy(
-                                ruleExecutionCalls = ruleExecutionCalls,
-                                id = "b",
-                            )
-                        },
-                        RuleProvider {
-                            SimpleTestRuleLegacy(
-                                ruleExecutionCalls = ruleExecutionCalls,
-                                id = "c",
-                            )
-                        },
-                    ),
-                    cb = { _, _ -> },
-                ),
-            )
-            assertThat(ruleExecutionCalls).containsExactly(
-                RuleExecutionCall("b", VISIT, ROOT, FILE),
-                RuleExecutionCall("b", VISIT, CHILD, PACKAGE_DIRECTIVE),
-                RuleExecutionCall("b", VISIT, CHILD, IMPORT_LIST),
-                RuleExecutionCall("c", VISIT, ROOT, FILE),
-                RuleExecutionCall("c", VISIT, CHILD, PACKAGE_DIRECTIVE),
-                RuleExecutionCall("c", VISIT, CHILD, IMPORT_LIST),
-                RuleExecutionCall("d", VISIT, ROOT, FILE),
-                RuleExecutionCall("d", VISIT, CHILD, PACKAGE_DIRECTIVE),
-                RuleExecutionCall("d", VISIT, CHILD, IMPORT_LIST),
-            )
-        }
+                cb = { _, _ -> },
+            ),
+        )
+        assertThat(ruleExecutionCalls).containsExactly(
+            // File a
+            RuleExecutionCall("a", BEFORE_FIRST),
+            RuleExecutionCall("a", BEFORE_CHILDREN, ROOT, FILE),
+            RuleExecutionCall("a", BEFORE_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
+            RuleExecutionCall("a", AFTER_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
+            RuleExecutionCall("a", BEFORE_CHILDREN, CHILD, IMPORT_LIST),
+            RuleExecutionCall("a", AFTER_CHILDREN, CHILD, IMPORT_LIST),
+            RuleExecutionCall("a", AFTER_CHILDREN, ROOT, FILE),
+            RuleExecutionCall("a", AFTER_LAST),
+            // File b
+            RuleExecutionCall("b", BEFORE_FIRST),
+            RuleExecutionCall("b", BEFORE_CHILDREN, ROOT, FILE),
+            RuleExecutionCall("b", BEFORE_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
+            RuleExecutionCall("b", AFTER_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
+            RuleExecutionCall("b", BEFORE_CHILDREN, CHILD, IMPORT_LIST),
+            RuleExecutionCall("b", AFTER_CHILDREN, CHILD, IMPORT_LIST),
+            RuleExecutionCall("b", AFTER_CHILDREN, ROOT, FILE),
+            RuleExecutionCall("b", AFTER_LAST),
+        )
     }
 
-    @DisplayName("Calls to rules defined in ktlint 0.47 and after")
-    @Nested
-    inner class RuleExecutionCalls {
-        @Test
-        fun `Given a normal rule then execute on root node and child nodes`() {
-            val ruleExecutionCalls = mutableListOf<RuleExecutionCall>()
-            KtLint.lint(
-                KtLint.ExperimentalParams(
-                    // An empty file results in nodes with elementTypes FILE, PACKAGE_DIRECTIVE and IMPORT_LIST respectively
-                    text = "",
-                    ruleProviders = setOf(
-                        RuleProvider {
-                            SimpleTestRule(
-                                ruleExecutionCalls = ruleExecutionCalls,
-                                id = "a",
-                                visitorModifiers = setOf(),
-                            )
-                        },
-                        RuleProvider {
-                            SimpleTestRule(
-                                ruleExecutionCalls = ruleExecutionCalls,
-                                id = "b",
-                                visitorModifiers = setOf(RunAsLateAsPossible),
-                            )
-                        },
-                    ),
-                    cb = { _, _ -> },
+    @Test
+    fun `Given multiple rules which have to run in a certain order`() {
+        val ruleExecutionCalls = mutableListOf<RuleExecutionCall>()
+        KtLint.lint(
+            KtLint.ExperimentalParams(
+                // An empty file results in nodes with elementTypes FILE, PACKAGE_DIRECTIVE and IMPORT_LIST respectively
+                text = "",
+                ruleProviders = setOf(
+                    RuleProvider {
+                        SimpleTestRule(
+                            ruleExecutionCalls = ruleExecutionCalls,
+                            id = "d",
+                            visitorModifiers = setOf(RunAsLateAsPossible),
+                        )
+                    },
+                    RuleProvider {
+                        SimpleTestRule(
+                            ruleExecutionCalls = ruleExecutionCalls,
+                            id = "b",
+                        )
+                    },
+                    RuleProvider {
+                        SimpleTestRule(
+                            ruleExecutionCalls = ruleExecutionCalls,
+                            id = "c",
+                        )
+                    },
                 ),
-            )
-            assertThat(ruleExecutionCalls).containsExactly(
-                // File a
-                RuleExecutionCall("a", BEFORE_FIRST),
-                RuleExecutionCall("a", BEFORE_CHILDREN, ROOT, FILE),
-                RuleExecutionCall("a", BEFORE_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
-                RuleExecutionCall("a", AFTER_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
-                RuleExecutionCall("a", BEFORE_CHILDREN, CHILD, IMPORT_LIST),
-                RuleExecutionCall("a", AFTER_CHILDREN, CHILD, IMPORT_LIST),
-                RuleExecutionCall("a", AFTER_CHILDREN, ROOT, FILE),
-                RuleExecutionCall("a", AFTER_LAST),
-                // File b
-                RuleExecutionCall("b", BEFORE_FIRST),
-                RuleExecutionCall("b", BEFORE_CHILDREN, ROOT, FILE),
-                RuleExecutionCall("b", BEFORE_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
-                RuleExecutionCall("b", AFTER_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
-                RuleExecutionCall("b", BEFORE_CHILDREN, CHILD, IMPORT_LIST),
-                RuleExecutionCall("b", AFTER_CHILDREN, CHILD, IMPORT_LIST),
-                RuleExecutionCall("b", AFTER_CHILDREN, ROOT, FILE),
-                RuleExecutionCall("b", AFTER_LAST),
-            )
-        }
-
-        @Test
-        fun `Given multiple rules which have to run in a certain order`() {
-            val ruleExecutionCalls = mutableListOf<RuleExecutionCall>()
-            KtLint.lint(
-                KtLint.ExperimentalParams(
-                    // An empty file results in nodes with elementTypes FILE, PACKAGE_DIRECTIVE and IMPORT_LIST respectively
-                    text = "",
-                    ruleProviders = setOf(
-                        RuleProvider {
-                            SimpleTestRule(
-                                ruleExecutionCalls = ruleExecutionCalls,
-                                id = "d",
-                                visitorModifiers = setOf(RunAsLateAsPossible),
-                            )
-                        },
-                        RuleProvider {
-                            SimpleTestRule(
-                                ruleExecutionCalls = ruleExecutionCalls,
-                                id = "b",
-                            )
-                        },
-                        RuleProvider {
-                            SimpleTestRule(
-                                ruleExecutionCalls = ruleExecutionCalls,
-                                id = "c",
-                            )
-                        },
-                    ),
-                    cb = { _, _ -> },
-                ),
-            )
-            assertThat(ruleExecutionCalls).containsExactly(
-                // File b
-                RuleExecutionCall("b", BEFORE_FIRST),
-                RuleExecutionCall("b", BEFORE_CHILDREN, ROOT, FILE),
-                RuleExecutionCall("b", BEFORE_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
-                RuleExecutionCall("b", AFTER_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
-                RuleExecutionCall("b", BEFORE_CHILDREN, CHILD, IMPORT_LIST),
-                RuleExecutionCall("b", AFTER_CHILDREN, CHILD, IMPORT_LIST),
-                RuleExecutionCall("b", AFTER_CHILDREN, ROOT, FILE),
-                RuleExecutionCall("b", AFTER_LAST),
-                // File c
-                RuleExecutionCall("c", BEFORE_FIRST),
-                RuleExecutionCall("c", BEFORE_CHILDREN, ROOT, FILE),
-                RuleExecutionCall("c", BEFORE_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
-                RuleExecutionCall("c", AFTER_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
-                RuleExecutionCall("c", BEFORE_CHILDREN, CHILD, IMPORT_LIST),
-                RuleExecutionCall("c", AFTER_CHILDREN, CHILD, IMPORT_LIST),
-                RuleExecutionCall("c", AFTER_CHILDREN, ROOT, FILE),
-                RuleExecutionCall("c", AFTER_LAST),
-                // File d
-                RuleExecutionCall("d", BEFORE_FIRST),
-                RuleExecutionCall("d", BEFORE_CHILDREN, ROOT, FILE),
-                RuleExecutionCall("d", BEFORE_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
-                RuleExecutionCall("d", AFTER_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
-                RuleExecutionCall("d", BEFORE_CHILDREN, CHILD, IMPORT_LIST),
-                RuleExecutionCall("d", AFTER_CHILDREN, CHILD, IMPORT_LIST),
-                RuleExecutionCall("d", AFTER_CHILDREN, ROOT, FILE),
-                RuleExecutionCall("d", AFTER_LAST),
-            )
-        }
+                cb = { _, _ -> },
+            ),
+        )
+        assertThat(ruleExecutionCalls).containsExactly(
+            // File b
+            RuleExecutionCall("b", BEFORE_FIRST),
+            RuleExecutionCall("b", BEFORE_CHILDREN, ROOT, FILE),
+            RuleExecutionCall("b", BEFORE_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
+            RuleExecutionCall("b", AFTER_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
+            RuleExecutionCall("b", BEFORE_CHILDREN, CHILD, IMPORT_LIST),
+            RuleExecutionCall("b", AFTER_CHILDREN, CHILD, IMPORT_LIST),
+            RuleExecutionCall("b", AFTER_CHILDREN, ROOT, FILE),
+            RuleExecutionCall("b", AFTER_LAST),
+            // File c
+            RuleExecutionCall("c", BEFORE_FIRST),
+            RuleExecutionCall("c", BEFORE_CHILDREN, ROOT, FILE),
+            RuleExecutionCall("c", BEFORE_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
+            RuleExecutionCall("c", AFTER_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
+            RuleExecutionCall("c", BEFORE_CHILDREN, CHILD, IMPORT_LIST),
+            RuleExecutionCall("c", AFTER_CHILDREN, CHILD, IMPORT_LIST),
+            RuleExecutionCall("c", AFTER_CHILDREN, ROOT, FILE),
+            RuleExecutionCall("c", AFTER_LAST),
+            // File d
+            RuleExecutionCall("d", BEFORE_FIRST),
+            RuleExecutionCall("d", BEFORE_CHILDREN, ROOT, FILE),
+            RuleExecutionCall("d", BEFORE_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
+            RuleExecutionCall("d", AFTER_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
+            RuleExecutionCall("d", BEFORE_CHILDREN, CHILD, IMPORT_LIST),
+            RuleExecutionCall("d", AFTER_CHILDREN, CHILD, IMPORT_LIST),
+            RuleExecutionCall("d", AFTER_CHILDREN, ROOT, FILE),
+            RuleExecutionCall("d", AFTER_LAST),
+        )
     }
 
     @Test
