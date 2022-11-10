@@ -30,11 +30,17 @@ if (node.isRoot()) {
 
 #### ParseException
 
-The `com.pinterest.ktlint.core.KtLintParseException` has been replaced with `com.pinterest.ktlint.core.api.KtLintParseException`.
+Class `com.pinterest.ktlint.core.KtLintParseException` has been replaced with `com.pinterest.ktlint.core.api.KtLintParseException`.
 
 #### RuleExecutionException
 
-The `com.pinterest.ktlint.core.KtLintRuleExecutionException` has been replaced with `com.pinterest.ktlint.core.api.KtLintRuleExecutionException`.
+Class `com.pinterest.ktlint.core.KtLintRuleExecutionException` has been replaced with `com.pinterest.ktlint.core.api.KtLintRuleExecutionException`.
+
+#### Color
+
+Class `com.pinterest.ktlint.reporter.format.internal.Color` has been moved to `com.pinterest.ktlint.reporter.format.Color`.
+
+Class `com.pinterest.ktlint.reporter.plain.internal.Color` has been moved to `com.pinterest.ktlint.reporter.plain.Color`.
 
 ### Added
 * Wrap blocks in case the max line length is exceeded or in case the block contains a new line `wrapping` ([#1643](https://github.com/pinterest/ktlint/issue/1643))

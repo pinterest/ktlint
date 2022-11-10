@@ -2,11 +2,8 @@ package com.pinterest.ktlint.reporter.plain
 
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.Reporter
-import com.pinterest.ktlint.reporter.plain.internal.Color
-import com.pinterest.ktlint.reporter.plain.internal.color
 import java.io.File
 import java.io.PrintStream
-import java.util.ArrayList
 import java.util.concurrent.ConcurrentHashMap
 
 public class PlainReporter(
@@ -62,3 +59,6 @@ public class PlainReporter(
     private fun String.colored() =
         if (shouldColorOutput) this.color(outputColor) else this
 }
+
+internal fun String.color(foreground: Color): String =
+    "\u001B[${foreground.code}m$this\u001B[0m"

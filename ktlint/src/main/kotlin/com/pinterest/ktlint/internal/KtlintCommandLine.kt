@@ -21,7 +21,7 @@ import com.pinterest.ktlint.core.api.loadBaseline
 import com.pinterest.ktlint.core.api.relativeRoute
 import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ktlint.core.setDefaultLoggerModifier
-import com.pinterest.ktlint.reporter.plain.internal.Color
+import com.pinterest.ktlint.reporter.plain.Color
 import java.io.File
 import java.io.IOException
 import java.io.PrintStream
