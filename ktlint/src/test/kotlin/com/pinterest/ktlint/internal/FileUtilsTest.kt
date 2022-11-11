@@ -17,7 +17,7 @@ import org.junit.jupiter.api.condition.OS
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 
-private val logger = KotlinLogging.logger {}.initKtLintKLogger()
+private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
 /**
  * Tests for [fileSequence] method.
@@ -248,7 +248,7 @@ internal class FileUtilsTest {
 
     @Test
     fun `Given a (relative) directory path (but not a glob) from the workdir then find all files in that workdir and it subdirectories having the default kotlin extensions`() {
-        logger.info {
+        LOGGER.info {
             val patterns = "src/main/kotlin"
             val dir = "${rootDir}project1".normalizePath()
             "`Given a (relative) directory path (but not a glob) from the workdir then find all files in that workdir and it subdirectories having the default kotlin extensions`\n" +
@@ -388,7 +388,7 @@ internal class FileUtilsTest {
         .map { it.normalize().toString() }
         .toList()
         .also {
-            logger.info {
+            LOGGER.info {
                 "Getting files with [patterns = $patterns] and [rootdir = $rootDir] returns [files = $it]"
             }
         }

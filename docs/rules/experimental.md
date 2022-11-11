@@ -37,6 +37,38 @@ Rewrites the function signature to a single line when possible (e.g. when not ex
 
 Rule id: `function-signature`
 
+## Naming
+
+### Class naming
+
+Enforce naming of class.
+
+Rule id: `experimental:class-naming`
+
+### Function naming
+
+Enforce naming of function.
+
+Rule id: `experimental:function-naming`
+
+### Object naming
+
+Enforce naming of object.
+
+Rule id: `experimental:object-naming`
+
+### Package naming
+
+Enforce naming of package.
+
+Rule id: `experimental:package-naming`
+
+### Property naming
+
+Enforce naming of property.
+
+Rule id: `experimental:property-naming`
+
 ## Spacing
 
 ### Fun keyword spacing

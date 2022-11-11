@@ -1,7 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.maxLineLengthProperty
-import com.pinterest.ktlint.ruleset.standard.MaxLineLengthRule.Companion.ignoreBackTickedIdentifierProperty
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.MAX_LINE_LENGTH_PROPERTY
+import com.pinterest.ktlint.ruleset.standard.MaxLineLengthRule.Companion.IGNORE_BACKTICKED_IDENTIFIER_PROPERTY
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
@@ -160,7 +160,7 @@ class MaxLineLengthRuleTest {
                 """.trimIndent()
             maxLineLengthRuleAssertThat(code)
                 .setMaxLineLength()
-                .withEditorConfigOverride(ignoreBackTickedIdentifierProperty to true)
+                .withEditorConfigOverride(IGNORE_BACKTICKED_IDENTIFIER_PROPERTY to true)
                 // Note that no error was generated on line 2 with the long fun name but on another line
                 .hasLintViolationWithoutAutoCorrect(4, 1, "Exceeded max line length (37)")
         }
@@ -177,7 +177,7 @@ class MaxLineLengthRuleTest {
                 """.trimIndent()
             maxLineLengthRuleAssertThat(code)
                 .setMaxLineLength()
-                .withEditorConfigOverride(ignoreBackTickedIdentifierProperty to true)
+                .withEditorConfigOverride(IGNORE_BACKTICKED_IDENTIFIER_PROPERTY to true)
                 .hasLintViolationsWithoutAutoCorrect(
                     // Note that no error was generated on line 2 with the long fun name but on another line
                     LintViolation(3, 1, "Exceeded max line length (37)"),
@@ -190,7 +190,7 @@ class MaxLineLengthRuleTest {
     fun testLintOff() {
         val code = "// some" + " long ".repeat(100) + "comment" // Total length of line is 7 + 600 + 7 = 614 characters
         maxLineLengthRuleAssertThat(code)
-            .withEditorConfigOverride(maxLineLengthProperty to "off")
+            .withEditorConfigOverride(MAX_LINE_LENGTH_PROPERTY to "off")
             .hasNoLintViolations()
     }
 

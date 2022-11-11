@@ -44,8 +44,8 @@ public class ChainWrappingRule :
     UsesEditorConfigProperties {
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> =
         listOf(
-            DefaultEditorConfigProperties.indentSizeProperty,
-            DefaultEditorConfigProperties.indentStyleProperty,
+            DefaultEditorConfigProperties.INDENT_SIZE_PROPERTY,
+            DefaultEditorConfigProperties.INDENT_STYLE_PROPERTY,
         )
 
     private var indent: String? = null
@@ -57,8 +57,8 @@ public class ChainWrappingRule :
     override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
         with(editorConfigProperties) {
             val indentConfig = IndentConfig(
-                indentStyle = getEditorConfigValue(com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentStyleProperty),
-                tabWidth = getEditorConfigValue(com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentSizeProperty),
+                indentStyle = getEditorConfigValue(com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.INDENT_STYLE_PROPERTY),
+                tabWidth = getEditorConfigValue(com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.INDENT_SIZE_PROPERTY),
             )
             indent = indentConfig.indent
         }

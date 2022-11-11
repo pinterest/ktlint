@@ -18,23 +18,23 @@ import org.ec4j.core.ResourcePropertiesService
 import org.ec4j.core.model.Version
 import org.jetbrains.kotlin.konan.file.File
 
-private val logger = KotlinLogging.logger {}.initKtLintKLogger()
+private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
 internal class EditorConfigFinder {
     /**
      * Finds all relevant ".editorconfig" files for the given path.
      */
     fun findEditorConfigs(path: Path): List<Path> {
-        readWriteLock.read {
-            val cacheValue = inMemoryMap[path]
+        READ_WRITE_LOCK.read {
+            val cacheValue = IN_MEMORY_CACHE[path]
                 ?.also {
-                    logger.info { "Retrieving EditorConfig cache entry for path $path" }
+                    LOGGER.info { "Retrieving EditorConfig cache entry for path $path" }
                 }
             return cacheValue
-                ?: readWriteLock.write {
+                ?: READ_WRITE_LOCK.write {
                     cacheEditorConfigs(path)
                         .also { cacheValue ->
-                            logger.info { "Creating cache entry for path $path with value $cacheValue" }
+                            LOGGER.info { "Creating cache entry for path $path with value $cacheValue" }
                         }
                 }
         }
@@ -54,7 +54,7 @@ internal class EditorConfigFinder {
                     // Resolve against original path as the drive letter seems to get lost on WindowsOs
                     path.resolve(it)
                 }.toList()
-        inMemoryMap[path] = editorConfigPaths
+        IN_MEMORY_CACHE[path] = editorConfigPaths
 
         return editorConfigPaths
     }
@@ -72,7 +72,7 @@ internal class EditorConfigFinder {
                         fileAttrs: BasicFileAttributes,
                     ): FileVisitResult {
                         if (filePath.File().name == ".editorconfig") {
-                            logger.trace { "- File: $filePath: add to list of accessed files" }
+                            LOGGER.trace { "- File: $filePath: add to list of accessed files" }
                             result.add(filePath)
                         }
                         return FileVisitResult.CONTINUE
@@ -84,10 +84,10 @@ internal class EditorConfigFinder {
                     ): FileVisitResult {
                         visitedDirectoryCount++
                         return if (Files.isHidden(dirPath)) {
-                            logger.trace { "- Dir: $dirPath: Ignore" }
+                            LOGGER.trace { "- Dir: $dirPath: Ignore" }
                             FileVisitResult.SKIP_SUBTREE
                         } else {
-                            logger.trace { "- Dir: $dirPath: Traverse" }
+                            LOGGER.trace { "- Dir: $dirPath: Traverse" }
                             FileVisitResult.CONTINUE
                         }
                     }
@@ -95,7 +95,7 @@ internal class EditorConfigFinder {
             )
         }.also { duration ->
             // TODO: Remove (or reduce loglevel to debug/trace) before release 0.48
-            logger.info {
+            LOGGER.info {
                 "Scanning file system to find all '.editorconfig' files in directory '$path' scanned $visitedDirectoryCount directories in $duration ms"
             }
         }
@@ -108,7 +108,7 @@ internal class EditorConfigFinder {
         // cache provided by KtLint. As of this the list of parental ".editorconfig" files can be extracted from the
         // cache.
         createLoaderService().queryProperties(path.resource())
-        return editorConfigCache.getPaths()
+        return EDITOR_CONFIG_CACHE.getPaths()
     }
 
     private fun Path?.resource() =
@@ -116,16 +116,16 @@ internal class EditorConfigFinder {
 
     private fun createLoaderService() =
         ResourcePropertiesService.builder()
-            .cache(editorConfigCache)
+            .cache(EDITOR_CONFIG_CACHE)
             .loader(org.ec4j.core.EditorConfigLoader.of(Version.CURRENT))
             .build()
 
     private companion object {
         // Do not reuse the generic threadSafeEditorConfigCache to prevent that results are incorrect due to other
         // calls to KtLint that result in changing the cache
-        val editorConfigCache = ThreadSafeEditorConfigCache()
+        val EDITOR_CONFIG_CACHE = ThreadSafeEditorConfigCache()
 
-        private val readWriteLock = ReentrantReadWriteLock()
-        private val inMemoryMap = HashMap<Path, List<Path>>()
+        private val READ_WRITE_LOCK = ReentrantReadWriteLock()
+        private val IN_MEMORY_CACHE = HashMap<Path, List<Path>>()
     }
 }

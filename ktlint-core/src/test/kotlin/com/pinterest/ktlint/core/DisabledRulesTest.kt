@@ -1,7 +1,7 @@
 package com.pinterest.ktlint.core
 
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.disabledRulesProperty
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.ktlintDisabledRulesProperty
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.DISABLED_RULES_PROPERTY
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.KTLINT_DISABLED_RULES_PROPERTY
 import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.ast.ElementType
 import org.assertj.core.api.Assertions.assertThat
@@ -60,7 +60,7 @@ class DisabledRulesTest {
                                 RuleProvider { NoVarRule(ruleId) },
                             ),
                             cb = { e, _ -> add(e) },
-                            editorConfigOverride = EditorConfigOverride.from(disabledRulesProperty to disabledRuleId),
+                            editorConfigOverride = EditorConfigOverride.from(DISABLED_RULES_PROPERTY to disabledRuleId),
                         ),
                     )
                 },
@@ -78,7 +78,7 @@ class DisabledRulesTest {
                                 RuleProvider { NoVarRule("no-var") },
                             ),
                             cb = { e, _ -> add(e) },
-                            editorConfigOverride = EditorConfigOverride.from(disabledRulesProperty to "no-var"),
+                            editorConfigOverride = EditorConfigOverride.from(DISABLED_RULES_PROPERTY to "no-var"),
                         ),
                     )
                 },
@@ -96,7 +96,7 @@ class DisabledRulesTest {
                                 RuleProvider { NoVarRule("experimental:no-var") },
                             ),
                             cb = { e, _ -> add(e) },
-                            editorConfigOverride = EditorConfigOverride.from(disabledRulesProperty to "experimental:no-var"),
+                            editorConfigOverride = EditorConfigOverride.from(DISABLED_RULES_PROPERTY to "experimental:no-var"),
                         ),
                     )
                 },
@@ -130,7 +130,7 @@ class DisabledRulesTest {
                                 RuleProvider { NoVarRule(ruleId) },
                             ),
                             cb = { e, _ -> add(e) },
-                            editorConfigOverride = EditorConfigOverride.from(ktlintDisabledRulesProperty to disabledRuleId),
+                            editorConfigOverride = EditorConfigOverride.from(KTLINT_DISABLED_RULES_PROPERTY to disabledRuleId),
                         ),
                     )
                 },
@@ -148,7 +148,7 @@ class DisabledRulesTest {
                                 RuleProvider { NoVarRule("no-var") },
                             ),
                             cb = { e, _ -> add(e) },
-                            editorConfigOverride = EditorConfigOverride.from(ktlintDisabledRulesProperty to "no-var"),
+                            editorConfigOverride = EditorConfigOverride.from(KTLINT_DISABLED_RULES_PROPERTY to "no-var"),
                         ),
                     )
                 },
@@ -166,7 +166,7 @@ class DisabledRulesTest {
                                 RuleProvider { NoVarRule("experimental:no-var") },
                             ),
                             cb = { e, _ -> add(e) },
-                            editorConfigOverride = EditorConfigOverride.from(ktlintDisabledRulesProperty to "experimental:no-var"),
+                            editorConfigOverride = EditorConfigOverride.from(KTLINT_DISABLED_RULES_PROPERTY to "experimental:no-var"),
                         ),
                     )
                 },

@@ -65,7 +65,7 @@ public class TrailingCommaOnDeclarationSiteRule :
     UsesEditorConfigProperties {
 
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
-        allowTrailingCommaProperty,
+        TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY,
     )
 
     private var allowTrailingComma by Delegates.notNull<Boolean>()
@@ -74,7 +74,7 @@ public class TrailingCommaOnDeclarationSiteRule :
         elementType in TYPES_ON_DECLARATION_SITE && allowTrailingComma
 
     override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
-        allowTrailingComma = editorConfigProperties.getEditorConfigValue(allowTrailingCommaProperty)
+        allowTrailingComma = editorConfigProperties.getEditorConfigValue(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY)
     }
 
     override fun beforeVisitChildNodes(
@@ -418,26 +418,31 @@ public class TrailingCommaOnDeclarationSiteRule :
     }
 
     public companion object {
-
-        internal const val ALLOW_TRAILING_COMMA_NAME = "ij_kotlin_allow_trailing_comma"
-        private const val ALLOW_TRAILING_COMMA_DESCRIPTION = "Defines whether a trailing comma (or no trailing comma)" +
-            "should be enforced on the defining side," +
-            "e.g. parameter-list, type-argument-list, lambda-value-parameters, enum-entries, etc."
-
         private val BOOLEAN_VALUES_SET = setOf("true", "false")
 
-        // TODO: Rename property to trailingCommaOnDeclarationSite. The word 'allow' is misleading as the comma is
-        //       enforced when the property is enabled and prohibited when disabled.
-        public val allowTrailingCommaProperty: UsesEditorConfigProperties.EditorConfigProperty<Boolean> =
+        public val TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY: UsesEditorConfigProperties.EditorConfigProperty<Boolean> =
             UsesEditorConfigProperties.EditorConfigProperty(
                 type = PropertyType.LowerCasingPropertyType(
-                    ALLOW_TRAILING_COMMA_NAME,
-                    ALLOW_TRAILING_COMMA_DESCRIPTION,
+                    "ij_kotlin_allow_trailing_comma",
+                    "Defines whether a trailing comma (or no trailing comma) should be enforced on the defining " +
+                        "side, e.g. parameter-list, type-argument-list, lambda-value-parameters, enum-entries, etc." +
+                        "When set, IntelliJ IDEA uses this property to allow usage of a trailing comma by discretion " +
+                        "of the developer. KtLint however uses this setting to enforce consistent usage of the " +
+                        "trailing comma when set.",
                     PropertyValueParser.BOOLEAN_VALUE_PARSER,
                     BOOLEAN_VALUES_SET,
                 ),
-                defaultValue = false,
+                defaultValue = true,
+                defaultAndroidValue = false,
             )
+
+        @Deprecated(
+            message = "Marked for removal in KtLint 0.49",
+            replaceWith = ReplaceWith("TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY"),
+        )
+        @Suppress("ktlint:experimental:property-naming")
+        public val allowTrailingCommaProperty: UsesEditorConfigProperties.EditorConfigProperty<Boolean> =
+            TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY
 
         private val TYPES_ON_DECLARATION_SITE = TokenSet.create(
             CLASS,

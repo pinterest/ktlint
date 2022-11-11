@@ -5,8 +5,8 @@ package com.pinterest.ktlint.core.internal
  */
 internal object IdNamingPolicy {
     private const val SIMPLE_ID_REGEX = "[a-z]+(-[a-z]+)*"
-    private val ruleIdRegex = "($SIMPLE_ID_REGEX:)?($SIMPLE_ID_REGEX)".toRegex()
-    private val ruleSetIdRegex = "($SIMPLE_ID_REGEX)".toRegex()
+    private val RULE_ID_REGEX = "($SIMPLE_ID_REGEX:)?($SIMPLE_ID_REGEX)".toRegex()
+    private val RULE_SET_ID_REGEX = "($SIMPLE_ID_REGEX)".toRegex()
 
     /**
      * Checks provided [ruleId] is valid.
@@ -14,7 +14,7 @@ internal object IdNamingPolicy {
      * Will throw [IllegalArgumentException] on invalid [ruleId] name.
      */
     internal fun enforceRuleIdNaming(ruleId: String) =
-        require(ruleId.matches(ruleIdRegex)) { "Rule id '$ruleId' must match '${ruleIdRegex.pattern}'" }
+        require(ruleId.matches(RULE_ID_REGEX)) { "Rule id '$ruleId' must match '${RULE_ID_REGEX.pattern}'" }
 
     /**
      * Checks provided [ruleSetId] is valid.
@@ -22,5 +22,5 @@ internal object IdNamingPolicy {
      * Will throw [IllegalArgumentException] on invalid [ruleSetId] name.
      */
     internal fun enforceRuleSetIdNaming(ruleSetId: String) =
-        require(ruleSetId.matches(ruleSetIdRegex)) { "RuleSet id '$ruleSetId' must match '${ruleSetIdRegex.pattern}'" }
+        require(ruleSetId.matches(RULE_SET_ID_REGEX)) { "RuleSet id '$ruleSetId' must match '${RULE_SET_ID_REGEX.pattern}'" }
 }

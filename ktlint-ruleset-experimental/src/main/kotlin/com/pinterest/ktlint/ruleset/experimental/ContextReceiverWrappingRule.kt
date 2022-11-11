@@ -30,13 +30,13 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
  * whenever the max line length is exceeded.
  */
 public class ContextReceiverWrappingRule :
-    Rule("$experimentalRulesetId:context-receiver-wrapping"),
+    Rule("$EXPERIMENTAL_RULE_SET_ID:context-receiver-wrapping"),
     UsesEditorConfigProperties {
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> =
         listOf(
-            DefaultEditorConfigProperties.indentSizeProperty,
-            DefaultEditorConfigProperties.indentStyleProperty,
-            DefaultEditorConfigProperties.maxLineLengthProperty,
+            DefaultEditorConfigProperties.INDENT_SIZE_PROPERTY,
+            DefaultEditorConfigProperties.INDENT_STYLE_PROPERTY,
+            DefaultEditorConfigProperties.MAX_LINE_LENGTH_PROPERTY,
         )
 
     private lateinit var indent: String
@@ -45,11 +45,11 @@ public class ContextReceiverWrappingRule :
     override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
         with(editorConfigProperties) {
             val indentConfig = IndentConfig(
-                indentStyle = getEditorConfigValue(DefaultEditorConfigProperties.indentStyleProperty),
-                tabWidth = getEditorConfigValue(DefaultEditorConfigProperties.indentSizeProperty),
+                indentStyle = getEditorConfigValue(DefaultEditorConfigProperties.INDENT_STYLE_PROPERTY),
+                tabWidth = getEditorConfigValue(DefaultEditorConfigProperties.INDENT_SIZE_PROPERTY),
             )
             indent = indentConfig.indent
-            maxLineLength = getEditorConfigValue(DefaultEditorConfigProperties.maxLineLengthProperty)
+            maxLineLength = getEditorConfigValue(DefaultEditorConfigProperties.MAX_LINE_LENGTH_PROPERTY)
         }
     }
 

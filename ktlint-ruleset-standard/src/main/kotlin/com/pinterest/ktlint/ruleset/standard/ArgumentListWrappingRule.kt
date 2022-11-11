@@ -2,9 +2,9 @@ package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.IndentConfig
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentSizeProperty
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentStyleProperty
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.maxLineLengthProperty
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.INDENT_SIZE_PROPERTY
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.INDENT_STYLE_PROPERTY
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType
@@ -52,9 +52,9 @@ public class ArgumentListWrappingRule :
     UsesEditorConfigProperties {
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> =
         listOf(
-            indentSizeProperty,
-            indentStyleProperty,
-            maxLineLengthProperty,
+            INDENT_SIZE_PROPERTY,
+            INDENT_STYLE_PROPERTY,
+            MAX_LINE_LENGTH_PROPERTY,
         )
 
     private var editorConfigIndent = IndentConfig.DEFAULT_INDENT_CONFIG
@@ -63,10 +63,10 @@ public class ArgumentListWrappingRule :
 
     override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
         editorConfigIndent = IndentConfig(
-            indentStyle = editorConfigProperties.getEditorConfigValue(indentStyleProperty),
-            tabWidth = editorConfigProperties.getEditorConfigValue(indentSizeProperty),
+            indentStyle = editorConfigProperties.getEditorConfigValue(INDENT_STYLE_PROPERTY),
+            tabWidth = editorConfigProperties.getEditorConfigValue(INDENT_SIZE_PROPERTY),
         )
-        maxLineLength = editorConfigProperties.getEditorConfigValue(maxLineLengthProperty)
+        maxLineLength = editorConfigProperties.getEditorConfigValue(MAX_LINE_LENGTH_PROPERTY)
     }
 
     override fun beforeVisitChildNodes(

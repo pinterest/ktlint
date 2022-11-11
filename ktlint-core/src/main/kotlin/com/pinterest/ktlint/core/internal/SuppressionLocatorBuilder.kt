@@ -19,15 +19,15 @@ internal object SuppressionLocatorBuilder {
     /**
      * No suppression is detected. Always returns `false`.
      */
-    val noSuppression: SuppressionLocator = { _, _, _ -> false }
+    val NO_SUPPRESSION: SuppressionLocator = { _, _, _ -> false }
 
-    private val suppressAnnotationRuleMap = mapOf(
+    private val SUPPRESS_ANNOTATION_RULE_MAP = mapOf(
         "RemoveCurlyBracesFromTemplate" to "string-template",
     )
-    private val suppressAnnotations = setOf("Suppress", "SuppressWarnings")
-    private const val suppressAllKtlintRules = "ktlint-all"
+    private val SUPPRESS_ANNOTATIONS = setOf("Suppress", "SuppressWarnings")
+    private const val SUPPRESS_ALL_KTLINT_RULES = "ktlint-all"
 
-    private val commentRegex = Regex("\\s")
+    private val COMMENT_REGEX = Regex("\\s")
 
     /**
      * Builds [SuppressionLocator] for given [rootNode] of AST tree.
@@ -37,7 +37,7 @@ internal object SuppressionLocatorBuilder {
     ): SuppressionLocator {
         val hintsList = collect(rootNode)
         return if (hintsList.isEmpty()) {
-            noSuppression
+            NO_SUPPRESSION
         } else {
             toSuppressedRegionsLocator(hintsList)
         }
@@ -99,7 +99,7 @@ internal object SuppressionLocatorBuilder {
             // Extract all Suppress annotations and create SuppressionHints
             val psi = node.psi
             if (psi is KtAnnotated) {
-                createSuppressionHintFromAnnotations(psi, suppressAnnotations, suppressAnnotationRuleMap)
+                createSuppressionHintFromAnnotations(psi, SUPPRESS_ANNOTATIONS, SUPPRESS_ANNOTATION_RULE_MAP)
                     ?.let {
                         result.add(it)
                     }
@@ -137,7 +137,7 @@ internal object SuppressionLocatorBuilder {
     private fun splitCommentBySpace(
         comment: String,
     ) = comment
-        .replace(commentRegex, " ")
+        .replace(COMMENT_REGEX, " ")
         .replace(" {2,}", " ")
         .split(" ")
 
@@ -164,7 +164,7 @@ internal object SuppressionLocatorBuilder {
             .let { suppressedRules ->
                 when {
                     suppressedRules.isEmpty() -> null
-                    suppressedRules.contains(suppressAllKtlintRules) ->
+                    suppressedRules.contains(SUPPRESS_ALL_KTLINT_RULES) ->
                         SuppressionHint(
                             IntRange(psi.startOffset, psi.endOffset),
                             emptySet(),
@@ -185,7 +185,7 @@ internal object SuppressionLocatorBuilder {
                 when {
                     it == "ktlint" -> {
                         // Disable all rules
-                        suppressAllKtlintRules
+                        SUPPRESS_ALL_KTLINT_RULES
                     }
                     it.startsWith("ktlint:") -> {
                         // Disable specific rule

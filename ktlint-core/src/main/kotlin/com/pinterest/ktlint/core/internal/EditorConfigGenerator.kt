@@ -8,7 +8,7 @@ import java.nio.file.Path
 import mu.KotlinLogging
 import org.ec4j.core.model.Property
 
-private val logger = KotlinLogging.logger {}.initKtLintKLogger()
+private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
 /**
  * Generates Kotlin section content for `.editorconfig` file.
@@ -69,7 +69,7 @@ internal class EditorConfigGenerator(
                                 codeStyle,
                             )
                         }
-                        logger.debug {
+                        LOGGER.debug {
                             "Rule '${rule.id}' uses property '${property.type.name}' with default value '$value'"
                         }
                         ConfigurationSetting(
@@ -95,7 +95,7 @@ internal class EditorConfigGenerator(
                     codeStyle,
                 )
             }
-            logger.debug {
+            LOGGER.debug {
                 "Class '${DefaultEditorConfigProperties::class.simpleName}' uses property '${editorConfigProperty.type.name}' with default value '$value'"
             }
             ConfigurationSetting(
@@ -109,7 +109,7 @@ internal class EditorConfigGenerator(
         groupBy { it.key }
             .filter { (_, configurationSettingsGroup) -> configurationSettingsGroup.countDistinctValues() > 1 }
             .forEach {
-                logger.error {
+                LOGGER.error {
                     val usages = it.value.joinToString { it.usage }.toList().sorted()
                     "Property '${it.key}' has multiple usages ($usages) which defines different default values for the property. Check the resulting '.editorcconfig' file carefully."
                 }

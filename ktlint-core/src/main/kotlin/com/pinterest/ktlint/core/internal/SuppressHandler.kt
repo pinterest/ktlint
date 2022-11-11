@@ -20,7 +20,7 @@ internal class SuppressHandler(
         )
         val autoCorrect = this.autoCorrect && !suppress
         val emit = if (suppress) {
-            suppressEmit
+            SUPPRESS_EMIT
         } else {
             this.emit
         }
@@ -29,6 +29,6 @@ internal class SuppressHandler(
 
     private companion object {
         // Swallow violation so that it is not emitted
-        val suppressEmit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit = { _, _, _ -> }
+        val SUPPRESS_EMIT: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit = { _, _, _ -> }
     }
 }

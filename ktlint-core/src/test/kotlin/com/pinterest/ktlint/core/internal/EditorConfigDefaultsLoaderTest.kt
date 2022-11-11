@@ -3,7 +3,7 @@ package com.pinterest.ktlint.core.internal
 import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
 import com.pinterest.ktlint.core.api.EditorConfigDefaults
-import com.pinterest.ktlint.core.api.EditorConfigDefaults.Companion.emptyEditorConfigDefaults
+import com.pinterest.ktlint.core.api.EditorConfigDefaults.Companion.EMPTY_EDITOR_CONFIG_DEFAULTS
 import java.nio.file.FileSystem
 import java.nio.file.Files
 import java.nio.file.Path
@@ -33,7 +33,7 @@ class EditorConfigDefaultsLoaderTest {
     fun `Given a null path then return empty editor config default`() {
         val actual = editorConfigDefaultsLoader.load(null)
 
-        assertThat(actual).isEqualTo(emptyEditorConfigDefaults)
+        assertThat(actual).isEqualTo(EMPTY_EDITOR_CONFIG_DEFAULTS)
     }
 
     @Test
@@ -42,7 +42,7 @@ class EditorConfigDefaultsLoaderTest {
             fileSystemMock.normalizedPath(""),
         )
 
-        assertThat(actual).isEqualTo(emptyEditorConfigDefaults)
+        assertThat(actual).isEqualTo(EMPTY_EDITOR_CONFIG_DEFAULTS)
     }
 
     @Test
@@ -52,7 +52,7 @@ class EditorConfigDefaultsLoaderTest {
             fileSystemMock.normalizedPath("  "),
         )
 
-        assertThat(actual).isEqualTo(emptyEditorConfigDefaults)
+        assertThat(actual).isEqualTo(EMPTY_EDITOR_CONFIG_DEFAULTS)
     }
 
     @Test
@@ -61,7 +61,7 @@ class EditorConfigDefaultsLoaderTest {
             fileSystemMock.normalizedPath("/path/to/non/existing/file.kt"),
         )
 
-        assertThat(actual).isEqualTo(emptyEditorConfigDefaults)
+        assertThat(actual).isEqualTo(EMPTY_EDITOR_CONFIG_DEFAULTS)
     }
 
     @ParameterizedTest(name = "Filename: {0}")

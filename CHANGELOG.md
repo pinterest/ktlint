@@ -32,6 +32,7 @@ if (node.isRoot()) {
 * Wrap blocks in case the max line length is exceeded or in case the block contains a new line `wrapping` ([#1643](https://github.com/pinterest/ktlint/issue/1643))
 * patterns can be read in from `stdin` with the `--patterns-from-stdin` command line options/flags ([#1606](https://github.com/pinterest/ktlint/pull/1606))
 * Add basic formatting for context receiver in `indent` rule and new experimental rule `context-receiver-wrapping` ([#1672](https://github.com/pinterest/ktlint/issue/1672))
+* Add naming rules for packages (`package-naming`), classes (`class-naming`), objects (`object-naming`), functions (`function-naming`) and properties (`property-naming`) ([#44](https://github.com/pinterest/ktlint/issue/44))
 
 ### Fixed
 
@@ -43,13 +44,16 @@ if (node.isRoot()) {
 * A function signature preceded by an annotation array should be handled similar as function preceded by a singular annotation `function-signature` ([#1690](https://github.com/pinterest/ktlint/issue/1690))
 
 ### Changed
-* Update Kotlin development version to `1.7.20` and Kotlin version to `1.7.20`.
+* Update Kotlin development version to `1.7.21` and Kotlin version to `1.7.21`.
+* The default value for trailing comma's on call site is changed to `true` unless the `android codestyle` is enabled. Note that KtLint from a consistency viewpoint *enforces* the trailing comma on call site while default IntelliJ IDEA formatting only *allows* the trailing comma but leaves it up to the developer's discretion. ([#1670](https://github.com/pinterest/ktlint/pull/1670))
+* The default value for trailing comma's on declaration site is changed to `true` unless the `android codestyle` is enabled. Note that KtLint from a consistency viewpoint *enforces* the trailing comma on declaration site while default IntelliJ IDEA formatting only *allows* the trailing comma but leaves it up to the developer's discretion. ([#1669](https://github.com/pinterest/ktlint/pull/1669))
 * CLI options `--debug`, `--trace`, `--verbose` and `-v` are replaced with `--log-level=<level>` or the short version `-l=<level>, see [CLI log-level](https://pinterest.github.io/ktlint/install/cli/#logging). ([#1632](https://github.com/pinterest/ktlint/issue/1632))
 * In CLI, disable logging entirely by setting `--log-level=none` or `-l=none` ([#1652](https://github.com/pinterest/ktlint/issue/1652))
 * Rewrite `indent` rule. Solving problems in the old algorithm was very difficult. With the new algorithm this becomes a lot easier. Although the new implementation of the rule has been compared against several open source projects containing over 400,000 lines of code, it is still likely that new issues will be discovered. Please report your indentation issues so that these can be fixed as well. ([#1682](https://github.com/pinterest/ktlint/pull/1682), [#1321](https://github.com/pinterest/ktlint/issues/1321), [#1200](https://github.com/pinterest/ktlint/issues/1200), [#1562](https://github.com/pinterest/ktlint/issues/1562), [#1563](https://github.com/pinterest/ktlint/issues/1563), [#1639](https://github.com/pinterest/ktlint/issues/1639))
 * Add methods "ASTNode.upsertWhitespaceBeforeMe" and "ASTNode.upsertWhitespaceAfterMe" as replacements for "LeafElement.upsertWhitespaceBeforeMe" and "LeafElement.upsertWhitespaceAfterMe". The new methods are more versatile and allow code to be written more readable in most places. ([#1687](https://github.com/pinterest/ktlint/pull/1687))
 * Rewrite `indent` rule. Solving problems in the old algorithm was very difficult. With the new algorithm this becomes a lot easier. Although the new implementation of the rule has been compared against several open source projects containing over 400,000 lines of code, it is still likely that new issues will be discovered. Please report your indentation issues so that these can be fixed as well. ([#1682](https://github.com/pinterest/ktlint/pull/1682), [#1321](https://github.com/pinterest/ktlint/issues/1321), [#1200](https://github.com/pinterest/ktlint/issues/1200), [#1562](https://github.com/pinterest/ktlint/issues/1562), [#1563](https://github.com/pinterest/ktlint/issues/1563), [#1639](https://github.com/pinterest/ktlint/issues/1639), [#1688](https://github.com/pinterest/ktlint/issues/1688))
 * Add support for running tests on `java 19`, remove support for running tests on `java 18`.
+* Update `io.github.detekt.sarif4k:sarif4k` version to `0.2.0` ([#1701](https://github.com/pinterest/ktlint/issues/1701)).
 
 ## [0.47.1] - 2022-09-07
 

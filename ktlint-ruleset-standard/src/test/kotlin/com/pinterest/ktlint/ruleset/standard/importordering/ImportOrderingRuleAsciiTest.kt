@@ -191,6 +191,6 @@ class ImportOrderingRuleAsciiTest {
     }
 
     private companion object {
-        val ASCII_IMPORT_ORDERING = ImportOrderingRule.ideaImportsLayoutProperty to "*"
+        val ASCII_IMPORT_ORDERING = ImportOrderingRule.IJ_KOTLIN_IMPORTS_LAYOUT_PROPERTY to "*"
     }
 }

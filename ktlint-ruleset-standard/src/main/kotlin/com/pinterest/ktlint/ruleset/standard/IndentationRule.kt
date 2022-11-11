@@ -4,8 +4,8 @@ import com.pinterest.ktlint.core.IndentConfig
 import com.pinterest.ktlint.core.IndentConfig.IndentStyle.SPACE
 import com.pinterest.ktlint.core.IndentConfig.IndentStyle.TAB
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentSizeProperty
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentStyleProperty
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.INDENT_SIZE_PROPERTY
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType.ANNOTATED_EXPRESSION
@@ -106,7 +106,7 @@ import org.jetbrains.kotlin.psi.KtStringTemplateExpression
 import org.jetbrains.kotlin.psi.psiUtil.leaves
 import org.jetbrains.kotlin.psi.psiUtil.parents
 
-private val logger = KotlinLogging.logger {}.initKtLintKLogger()
+private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
 public class IndentationRule :
     Rule(
@@ -123,8 +123,8 @@ public class IndentationRule :
     UsesEditorConfigProperties {
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> =
         listOf(
-            indentSizeProperty,
-            indentStyleProperty,
+            INDENT_SIZE_PROPERTY,
+            INDENT_STYLE_PROPERTY,
         )
     private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
 
@@ -136,8 +136,8 @@ public class IndentationRule :
 
     override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
         indentConfig = IndentConfig(
-            indentStyle = editorConfigProperties.getEditorConfigValue(indentStyleProperty),
-            tabWidth = editorConfigProperties.getEditorConfigValue(indentSizeProperty),
+            indentStyle = editorConfigProperties.getEditorConfigValue(INDENT_STYLE_PROPERTY),
+            tabWidth = editorConfigProperties.getEditorConfigValue(INDENT_SIZE_PROPERTY),
         )
         if (indentConfig.disabled) {
             stopTraversalOfAST()
@@ -284,7 +284,7 @@ public class IndentationRule :
             node.elementType == DESTRUCTURING_DECLARATION -> visitDestructuringDeclaration(node)
 
             else -> {
-                logger.trace { "No processing for ${node.elementType}: ${node.textWithEscapedTabAndNewline()}" }
+                LOGGER.trace { "No processing for ${node.elementType}: ${node.textWithEscapedTabAndNewline()}" }
             }
         }
     }
@@ -739,7 +739,7 @@ public class IndentationRule :
             childIndent = childIndent,
             lastChildIndent = lastChildIndent,
         ).also { newIndentContext ->
-            logger.trace {
+            LOGGER.trace {
                 val nodeIndentLevel = indentConfig.indentLevelFrom(newIndentContext.nodeIndent)
                 val childIndentLevel = indentConfig.indentLevelFrom(newIndentContext.childIndent)
                 "Create new indent context (same as parent) with level ($nodeIndentLevel, $childIndentLevel) for ${fromAstNode.elementType}: ${newIndentContext.nodes}"
@@ -753,7 +753,7 @@ public class IndentationRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         while (indentContextStack.peekLast()?.toASTNode == node) {
-            logger.trace {
+            LOGGER.trace {
                 val indentContext = indentContextStack.peekLast()
                 val nodeIndentLevel = indentConfig.indentLevelFrom(indentContext.nodeIndent)
                 val childIndentLevel = indentConfig.indentLevelFrom(indentContext.childIndent)
@@ -762,7 +762,7 @@ public class IndentationRule :
             indentContextStack
                 .removeLast()
                 .also {
-                    logger.trace {
+                    LOGGER.trace {
                         val indentContext = indentContextStack.peekLast()
                         val nodeIndentLevel = indentConfig.indentLevelFrom(indentContext.nodeIndent)
                         val childIndentLevel = indentConfig.indentLevelFrom(indentContext.childIndent)
@@ -803,7 +803,7 @@ public class IndentationRule :
                 // Indentation was at correct level but contained invalid indent characters. This violation has already
                 // been emitted.
             }
-            logger.trace {
+            LOGGER.trace {
                 "Line $line: " + (if (!autoCorrect) "would have " else "") + "changed indentation to ${expectedIndentation.length} (from ${normalizedNodeIndent.length}) for ${node.elementType}: ${node.textWithEscapedTabAndNewline()}"
             }
             if (autoCorrect) {
@@ -844,7 +844,7 @@ public class IndentationRule :
         this != null && this.elementType == OPEN_QUOTE && this.text == "\"\"\""
 
     private fun ASTNode.processedButNoIndentationChangedNeeded() =
-        logger.trace { "No indentation change required for $elementType: ${textWithEscapedTabAndNewline()}" }
+        LOGGER.trace { "No indentation change required for $elementType: ${textWithEscapedTabAndNewline()}" }
 
     private fun ASTNode.expectedIndent(): String {
         val lastIndexContext = indentContextStack.peekLast()

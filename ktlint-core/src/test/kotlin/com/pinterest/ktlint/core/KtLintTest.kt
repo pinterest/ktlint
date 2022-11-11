@@ -1,7 +1,7 @@
 package com.pinterest.ktlint.core
 
 import com.pinterest.ktlint.core.AutoCorrectErrorRule.Companion.STRING_VALUE_AFTER_AUTOCORRECT
-import com.pinterest.ktlint.core.DummyRuleWithCustomEditorConfigProperty.Companion.SOME_CUSTOM_RULE_PROPERTY
+import com.pinterest.ktlint.core.DummyRuleWithCustomEditorConfigProperty.Companion.SOME_CUSTOM_RULE_PROPERTY_NAME
 import com.pinterest.ktlint.core.Rule.VisitorModifier.RunAsLateAsPossible
 import com.pinterest.ktlint.core.Rule.VisitorModifier.RunOnRootNodeOnly
 import com.pinterest.ktlint.core.RuleExecutionCall.RuleMethod.AFTER_CHILDREN
@@ -179,7 +179,7 @@ class KtLintTest {
                                 ruleSets = listOf(
                                     RuleSet("standard", DummyRuleWithCustomEditorConfigProperty()),
                                 ),
-                                userData = mapOf(SOME_CUSTOM_RULE_PROPERTY to "false"),
+                                userData = mapOf(SOME_CUSTOM_RULE_PROPERTY_NAME to "false"),
                                 cb = { _, _ -> },
                                 script = false,
                                 editorConfigPath = null,
@@ -188,7 +188,7 @@ class KtLintTest {
                         )
                     }.isInstanceOf(IllegalStateException::class.java)
                         .hasMessage(
-                            "UserData should not contain '.editorconfig' properties [$SOME_CUSTOM_RULE_PROPERTY]. Such" +
+                            "UserData should not contain '.editorconfig' properties [$SOME_CUSTOM_RULE_PROPERTY_NAME]. Such" +
                                 " properties should be passed via the 'ExperimentalParams.editorConfigOverride' field. " +
                                 "Note that this is only required for properties that (potentially) contain a value that " +
                                 "differs from the actual value in the '.editorconfig' file.",
@@ -342,7 +342,7 @@ class KtLintTest {
                                 ruleProviders = setOf(
                                     RuleProvider { DummyRuleWithCustomEditorConfigProperty() },
                                 ),
-                                userData = mapOf(SOME_CUSTOM_RULE_PROPERTY to "false"),
+                                userData = mapOf(SOME_CUSTOM_RULE_PROPERTY_NAME to "false"),
                                 cb = { _, _ -> },
                                 script = false,
                                 editorConfigPath = null,
@@ -351,7 +351,7 @@ class KtLintTest {
                         )
                     }.isInstanceOf(IllegalStateException::class.java)
                         .hasMessage(
-                            "UserData should not contain '.editorconfig' properties [$SOME_CUSTOM_RULE_PROPERTY]. Such" +
+                            "UserData should not contain '.editorconfig' properties [$SOME_CUSTOM_RULE_PROPERTY_NAME]. Such" +
                                 " properties should be passed via the 'ExperimentalParams.editorConfigOverride' field. " +
                                 "Note that this is only required for properties that (potentially) contain a value that " +
                                 "differs from the actual value in the '.editorconfig' file.",
@@ -606,7 +606,7 @@ class KtLintTest {
                                 ruleSets = listOf(
                                     RuleSet("standard", DummyRuleWithCustomEditorConfigProperty()),
                                 ),
-                                userData = mapOf(SOME_CUSTOM_RULE_PROPERTY to "false"),
+                                userData = mapOf(SOME_CUSTOM_RULE_PROPERTY_NAME to "false"),
                                 cb = { _, _ -> },
                                 script = false,
                                 editorConfigPath = null,
@@ -615,7 +615,7 @@ class KtLintTest {
                         )
                     }.isInstanceOf(IllegalStateException::class.java)
                         .hasMessage(
-                            "UserData should not contain '.editorconfig' properties [$SOME_CUSTOM_RULE_PROPERTY]. Such" +
+                            "UserData should not contain '.editorconfig' properties [$SOME_CUSTOM_RULE_PROPERTY_NAME]. Such" +
                                 " properties should be passed via the 'ExperimentalParams.editorConfigOverride' field. " +
                                 "Note that this is only required for properties that (potentially) contain a value that " +
                                 "differs from the actual value in the '.editorconfig' file.",
@@ -835,7 +835,7 @@ class KtLintTest {
                         ruleProviders = setOf(
                             RuleProvider { DummyRuleWithCustomEditorConfigProperty() },
                         ),
-                        userData = mapOf(SOME_CUSTOM_RULE_PROPERTY to "false"),
+                        userData = mapOf(SOME_CUSTOM_RULE_PROPERTY_NAME to "false"),
                         cb = { _, _ -> },
                         script = false,
                         editorConfigPath = null,
@@ -844,7 +844,7 @@ class KtLintTest {
                 )
             }.isInstanceOf(IllegalStateException::class.java)
                 .hasMessage(
-                    "UserData should not contain '.editorconfig' properties [$SOME_CUSTOM_RULE_PROPERTY]. Such" +
+                    "UserData should not contain '.editorconfig' properties [$SOME_CUSTOM_RULE_PROPERTY_NAME]. Such" +
                         " properties should be passed via the 'ExperimentalParams.editorConfigOverride' field. " +
                         "Note that this is only required for properties that (potentially) contain a value that " +
                         "differs from the actual value in the '.editorconfig' file.",
@@ -1467,15 +1467,15 @@ private class DummyRuleWithCustomEditorConfigProperty :
     Rule("dummy-rule-with-custom-editor-config-property"),
     UsesEditorConfigProperties {
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> =
-        listOf(someCustomRuleProperty)
+        listOf(SOME_CUSTOM_RULE_PROPERTY)
 
     companion object {
-        const val SOME_CUSTOM_RULE_PROPERTY = "some-custom-rule-property"
+        const val SOME_CUSTOM_RULE_PROPERTY_NAME = "some-custom-rule-property"
 
-        val someCustomRuleProperty: UsesEditorConfigProperties.EditorConfigProperty<Boolean> =
+        val SOME_CUSTOM_RULE_PROPERTY: UsesEditorConfigProperties.EditorConfigProperty<Boolean> =
             UsesEditorConfigProperties.EditorConfigProperty(
                 type = PropertyType.LowerCasingPropertyType(
-                    SOME_CUSTOM_RULE_PROPERTY,
+                    SOME_CUSTOM_RULE_PROPERTY_NAME,
                     "some-custom-rule-property-description",
                     PropertyType.PropertyValueParser.BOOLEAN_VALUE_PARSER,
                     setOf(true.toString(), false.toString()),

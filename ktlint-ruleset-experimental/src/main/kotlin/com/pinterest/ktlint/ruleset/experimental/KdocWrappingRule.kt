@@ -18,12 +18,12 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
  * Checks external wrapping of KDoc comment. Wrapping inside the KDoc comment is not altered.
  */
 public class KdocWrappingRule :
-    Rule("$experimentalRulesetId:kdoc-wrapping"),
+    Rule("$EXPERIMENTAL_RULE_SET_ID:kdoc-wrapping"),
     UsesEditorConfigProperties {
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> =
         listOf(
-            DefaultEditorConfigProperties.indentSizeProperty,
-            DefaultEditorConfigProperties.indentStyleProperty,
+            DefaultEditorConfigProperties.INDENT_SIZE_PROPERTY,
+            DefaultEditorConfigProperties.INDENT_STYLE_PROPERTY,
         )
 
     override fun beforeVisitChildNodes(

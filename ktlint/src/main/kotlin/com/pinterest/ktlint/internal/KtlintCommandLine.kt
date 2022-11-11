@@ -11,8 +11,8 @@ import com.pinterest.ktlint.core.RuleExecutionException
 import com.pinterest.ktlint.core.RuleProvider
 import com.pinterest.ktlint.core.api.Baseline.Status.INVALID
 import com.pinterest.ktlint.core.api.Baseline.Status.NOT_FOUND
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.codeStyleSetProperty
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.ktlintDisabledRulesProperty
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.CODE_STYLE_PROPERTY
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.KTLINT_DISABLED_RULES_PROPERTY
 import com.pinterest.ktlint.core.api.EditorConfigDefaults
 import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.plus
@@ -263,8 +263,8 @@ internal class KtlintCommandLine {
         // Set default value to patterns only after the logger has been configured to avoid a warning about initializing
         // the logger multiple times
         if (patterns.isEmpty()) {
-            logger.info { "Enable default patterns $defaultPatterns" }
-            patterns = ArrayList(defaultPatterns)
+            logger.info { "Enable default patterns $DEFAULT_PATTERNS" }
+            patterns = ArrayList(DEFAULT_PATTERNS)
         }
 
         val start = System.currentTimeMillis()
@@ -292,11 +292,11 @@ internal class KtlintCommandLine {
         )
         val editorConfigOverride =
             EditorConfigOverride
-                .emptyEditorConfigOverride
+                .EMPTY_EDITOR_CONFIG_OVERRIDE
                 .applyIf(disabledRules.isNotBlank()) {
-                    plus(ktlintDisabledRulesProperty to disabledRules)
+                    plus(KTLINT_DISABLED_RULES_PROPERTY to disabledRules)
                 }.applyIf(android) {
-                    plus(codeStyleSetProperty to android)
+                    plus(CODE_STYLE_PROPERTY to android)
                 }
 
         reporter.beforeAll()

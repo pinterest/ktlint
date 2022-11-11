@@ -69,6 +69,13 @@ public class EditorConfigOverride {
          * Get the empty [EditorConfigOverride]. As it does not contain any properties, all properties fall back on
          * their respective default values.
          */
-        public val emptyEditorConfigOverride: EditorConfigOverride = EditorConfigOverride()
+        public val EMPTY_EDITOR_CONFIG_OVERRIDE: EditorConfigOverride = EditorConfigOverride()
+
+        @Deprecated(
+            message = "Marked for removal in KtLint 0.49",
+            replaceWith = ReplaceWith("EMPTY_EDITOR_CONFIG_OVERRIDE"),
+        )
+        @Suppress("ktlint:experimental:property-naming")
+        public val emptyEditorConfigOverride: EditorConfigOverride = EMPTY_EDITOR_CONFIG_OVERRIDE
     }
 }

@@ -1,7 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.RuleProvider
-import com.pinterest.ktlint.ruleset.standard.TrailingCommaOnDeclarationSiteRule.Companion.allowTrailingCommaProperty
+import com.pinterest.ktlint.ruleset.standard.TrailingCommaOnDeclarationSiteRule.Companion.TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY
 import com.pinterest.ktlint.test.KtLintAssertThat
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Nested
@@ -97,7 +97,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             )
             """.trimIndent()
         ruleAssertThat(code)
-            .withEditorConfigOverride(allowTrailingCommaProperty to false)
+            .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to false)
             .hasLintViolations(
                 LintViolation(1, 29, "Unnecessary trailing comma before \")\""),
                 LintViolation(3, 17, "Unnecessary trailing comma before \")\""),
@@ -128,7 +128,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             )
             """.trimIndent()
         ruleAssertThat(code)
-            .withEditorConfigOverride(allowTrailingCommaProperty to true)
+            .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to true)
             .hasLintViolations(
                 LintViolation(3, 17, "Missing trailing comma before \")\""),
                 LintViolation(6, 17, "Missing trailing comma before \")\""),
@@ -162,7 +162,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
                 > {}
             """.trimIndent()
         ruleAssertThat(code)
-            .withEditorConfigOverride(allowTrailingCommaProperty to false)
+            .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to false)
             .hasLintViolations(
                 LintViolation(1, 16, "Unnecessary trailing comma before \">\""),
                 LintViolation(4, 6, "Unnecessary trailing comma before \">\""),
@@ -197,7 +197,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
                 > {}
             """.trimIndent()
         ruleAssertThat(code)
-            .withEditorConfigOverride(allowTrailingCommaProperty to true)
+            .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to true)
             .hasLintViolations(
                 LintViolation(4, 6, "Missing trailing comma before \">\""),
                 LintViolation(8, 6, "Missing trailing comma before \">\""),
@@ -231,7 +231,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             }
             """.trimIndent()
         ruleAssertThat(code)
-            .withEditorConfigOverride(allowTrailingCommaProperty to false)
+            .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to false)
             .hasLintViolations(
                 LintViolation(2, 9, "Unnecessary trailing comma before \"->\""),
                 LintViolation(3, 9, "Unnecessary trailing comma before \"->\""),
@@ -266,7 +266,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             }
             """.trimIndent()
         ruleAssertThat(code)
-            .withEditorConfigOverride(allowTrailingCommaProperty to true)
+            .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to true)
             .hasLintViolations(
                 LintViolation(3, 9, "Missing trailing comma before \"->\""),
                 LintViolation(6, 6, "Missing trailing comma before \"->\""),
@@ -300,7 +300,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             }
             """.trimIndent()
         ruleAssertThat(code)
-            .withEditorConfigOverride(allowTrailingCommaProperty to true)
+            .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to true)
             .hasLintViolations(
                 LintViolation(3, 33, "Missing trailing comma before \"->\""),
                 LintViolation(6, 18, "Missing trailing comma before \"->\""),
@@ -353,7 +353,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             }
             """.trimIndent()
         ruleAssertThat(code)
-            .withEditorConfigOverride(allowTrailingCommaProperty to true)
+            .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to true)
             .hasLintViolations(
                 LintViolation(3, 6, "Expected a newline between the trailing comma and  \"->\""),
                 LintViolation(7, 6, "Expected a newline between the trailing comma and  \"->\""),
@@ -396,7 +396,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             }
             """.trimIndent()
         ruleAssertThat(code)
-            .withEditorConfigOverride(allowTrailingCommaProperty to false)
+            .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to false)
             .hasLintViolations(
                 LintViolation(4, 14, "Unnecessary trailing comma before \")\""),
                 LintViolation(7, 10, "Unnecessary trailing comma before \")\""),
@@ -439,7 +439,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             }
             """.trimIndent()
         ruleAssertThat(code)
-            .withEditorConfigOverride(allowTrailingCommaProperty to true)
+            .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to true)
             .hasLintViolations(
                 LintViolation(7, 10, "Missing trailing comma before \")\""),
                 LintViolation(11, 10, "Missing trailing comma before \")\""),
@@ -477,7 +477,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             }
             """.trimIndent()
         ruleAssertThat(code)
-            .withEditorConfigOverride(allowTrailingCommaProperty to false)
+            .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to false)
             .hasLintViolations(
                 LintViolation(1, 44, "Unnecessary trailing comma before \"->\""),
                 LintViolation(4, 12, "Unnecessary trailing comma before \"->\""),
@@ -516,7 +516,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             }
             """.trimIndent()
         ruleAssertThat(code)
-            .withEditorConfigOverride(allowTrailingCommaProperty to true)
+            .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to true)
             .hasLintViolations(
                 LintViolation(4, 12, "Missing trailing comma before \"->\""),
                 LintViolation(9, 12, "Missing trailing comma before \"->\""),
@@ -550,7 +550,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             }
             """.trimIndent()
         ruleAssertThat(code)
-            .withEditorConfigOverride(allowTrailingCommaProperty to true)
+            .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to true)
             .hasLintViolations(
                 LintViolation(4, 29, "Missing trailing comma before \")\""),
                 LintViolation(6, 13, "Missing trailing comma before \")\""),
@@ -568,7 +568,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             }
             """.trimIndent()
         ruleAssertThat(code)
-            .withEditorConfigOverride(allowTrailingCommaProperty to true)
+            .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to true)
             .hasNoLintViolations()
     }
 
@@ -599,7 +599,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             }
             """.trimIndent()
         ruleAssertThat(code)
-            .withEditorConfigOverride(allowTrailingCommaProperty to true)
+            .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to true)
             .hasLintViolations(
                 LintViolation(4, 6, "Missing trailing comma and newline before \"->\""),
                 LintViolation(6, 6, "Missing trailing comma and newline before \"->\""),
@@ -643,7 +643,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             // trailing comma was added) which in turn resulted in not recognizing that the import of EnumThree actually
             // was used.
             .addAdditionalRuleProvider { NoUnusedImportsRule() }
-            .withEditorConfigOverride(allowTrailingCommaProperty to true)
+            .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to true)
             .hasLintViolation(9, 24, "Missing trailing comma before \")\"")
             .isFormattedAs(formattedCode)
     }
@@ -665,7 +665,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             }
             """.trimIndent()
         ruleAssertThat(code)
-            .withEditorConfigOverride(allowTrailingCommaProperty to false)
+            .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to false)
             .hasLintViolation(3, 13, "Unnecessary trailing comma before \"}\"")
             .isFormattedAs(formattedCode)
     }
@@ -691,7 +691,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             }
             """.trimIndent()
         ruleAssertThat(code)
-            .withEditorConfigOverride(allowTrailingCommaProperty to false)
+            .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to false)
             .hasLintViolation(3, 13, "Unnecessary trailing comma before \";\"")
             .isFormattedAs(formattedCode)
     }
@@ -705,7 +705,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             }
             """.trimIndent()
         ruleAssertThat(code)
-            .withEditorConfigOverride(allowTrailingCommaProperty to false)
+            .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to false)
             .hasNoLintViolations()
     }
 
@@ -720,7 +720,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
                 }
                 """.trimIndent()
             ruleAssertThat(code)
-                .withEditorConfigOverride(allowTrailingCommaProperty to true)
+                .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to true)
                 .hasNoLintViolations()
         }
 
@@ -733,7 +733,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
                 )
                 """.trimIndent()
             ruleAssertThat(code)
-                .withEditorConfigOverride(allowTrailingCommaProperty to true)
+                .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to true)
                 .hasNoLintViolations()
         }
 
@@ -755,7 +755,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
                 }
                 """.trimIndent()
             ruleAssertThat(code)
-                .withEditorConfigOverride(allowTrailingCommaProperty to true)
+                .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to true)
                 .hasLintViolation(3, 13, "Missing trailing comma before \";\"")
                 .isFormattedAs(formattedCode)
         }
@@ -778,7 +778,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
                 }
                 """.trimIndent()
             ruleAssertThat(code)
-                .withEditorConfigOverride(allowTrailingCommaProperty to true)
+                .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to true)
                 .hasLintViolation(3, 13, "Missing trailing comma before \";\"")
                 .isFormattedAs(formattedCode)
         }
@@ -801,7 +801,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
                 }
                 """.trimIndent()
             ruleAssertThat(code)
-                .withEditorConfigOverride(allowTrailingCommaProperty to true)
+                .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to true)
                 .hasLintViolation(3, 13, "Missing trailing comma before \";\"")
                 .isFormattedAs(formattedCode)
         }
@@ -826,7 +826,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
                 }
                 """.trimIndent()
             ruleAssertThat(code)
-                .withEditorConfigOverride(allowTrailingCommaProperty to true)
+                .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to true)
                 .hasLintViolation(3, 13, "Missing trailing comma before \";\"")
                 .isFormattedAs(formattedCode)
         }
@@ -862,7 +862,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
                 }
                 """.trimIndent()
             ruleAssertThat(code)
-                .withEditorConfigOverride(allowTrailingCommaProperty to true)
+                .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to true)
                 .hasLintViolation(10, 6, "Missing trailing comma before \"}\"")
                 .isFormattedAs(formattedCode)
         }
@@ -884,7 +884,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
                 }
                 """.trimIndent()
             ruleAssertThat(code)
-                .withEditorConfigOverride(allowTrailingCommaProperty to true)
+                .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to true)
                 .hasLintViolation(3, 13, "Missing trailing comma before \"}\"")
                 .isFormattedAs(formattedCode)
         }
@@ -927,7 +927,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             )
 
         multiLineIfElseRuleAssertThat(code)
-            .withEditorConfigOverride(allowTrailingCommaProperty to true)
+            .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to true)
             .isFormattedAs(formattedCode)
     }
 
@@ -953,7 +953,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             }
             """.trimIndent()
         ruleAssertThat(code)
-            .withEditorConfigOverride(allowTrailingCommaProperty to true)
+            .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to true)
             .hasLintViolation(3, 15, "Missing trailing comma before \";\"")
             .isFormattedAs(formattedCode)
     }
@@ -977,7 +977,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             )
             """.trimIndent()
         ruleAssertThat(code)
-            .withEditorConfigOverride(allowTrailingCommaProperty to true)
+            .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to true)
             .hasNoLintViolations()
     }
 }

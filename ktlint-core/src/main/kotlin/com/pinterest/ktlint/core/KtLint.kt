@@ -1,11 +1,11 @@
 package com.pinterest.ktlint.core
 
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.codeStyleSetProperty
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.core.api.EditorConfigDefaults
-import com.pinterest.ktlint.core.api.EditorConfigDefaults.Companion.emptyEditorConfigDefaults
+import com.pinterest.ktlint.core.api.EditorConfigDefaults.Companion.EMPTY_EDITOR_CONFIG_DEFAULTS
 import com.pinterest.ktlint.core.api.EditorConfigOverride
-import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.emptyEditorConfigOverride
+import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.EMPTY_EDITOR_CONFIG_OVERRIDE
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.internal.EditorConfigFinder
@@ -13,7 +13,7 @@ import com.pinterest.ktlint.core.internal.EditorConfigGenerator
 import com.pinterest.ktlint.core.internal.EditorConfigLoader
 import com.pinterest.ktlint.core.internal.RuleExecutionContext
 import com.pinterest.ktlint.core.internal.SuppressHandler
-import com.pinterest.ktlint.core.internal.ThreadSafeEditorConfigCache.Companion.threadSafeEditorConfigCache
+import com.pinterest.ktlint.core.internal.ThreadSafeEditorConfigCache.Companion.THREAD_SAFER_EDITOR_CONFIG_CACHE
 import com.pinterest.ktlint.core.internal.VisitorProvider
 import com.pinterest.ktlint.core.internal.createRuleExecutionContext
 import com.pinterest.ktlint.core.internal.toQualifiedRuleId
@@ -47,7 +47,7 @@ public object KtLint {
     internal const val UTF8_BOM = "\uFEFF"
     public const val STDIN_FILE: String = "<stdin>"
 
-    internal val editorConfigLoader = EditorConfigLoader(FileSystems.getDefault())
+    internal val EDITOR_CONFIG_LOADER = EditorConfigLoader(FileSystems.getDefault())
 
     /**
      * Parameters to invoke [KtLint.lint] and [KtLint.format] API's.
@@ -94,8 +94,8 @@ public object KtLint {
         @Deprecated("Marked for removal in KtLint 0.48. Use 'editorConfigDefaults' to specify default property values")
         val editorConfigPath: String? = null,
         val debug: Boolean = false,
-        val editorConfigDefaults: EditorConfigDefaults = emptyEditorConfigDefaults,
-        val editorConfigOverride: EditorConfigOverride = emptyEditorConfigOverride,
+        val editorConfigDefaults: EditorConfigDefaults = EMPTY_EDITOR_CONFIG_DEFAULTS,
+        val editorConfigOverride: EditorConfigOverride = EMPTY_EDITOR_CONFIG_OVERRIDE,
         val isInvokedFromCli: Boolean = false,
     ) {
         internal val ruleRunners: Set<RuleRunner> =
@@ -337,7 +337,7 @@ public object KtLint {
      * Reduce memory usage by cleaning internal caches.
      */
     public fun trimMemory() {
-        threadSafeEditorConfigCache.clear()
+        THREAD_SAFER_EDITOR_CONFIG_CACHE.clear()
     }
 
     /**
@@ -357,7 +357,7 @@ public object KtLint {
      * '.editorconfig' files which need to be observed.
      */
     public fun reloadEditorConfigFile(path: Path) {
-        threadSafeEditorConfigCache.reloadIfExists(
+        THREAD_SAFER_EDITOR_CONFIG_CACHE.reloadIfExists(
             Resource.Resources.ofPath(path, StandardCharsets.UTF_8),
         )
     }
@@ -387,11 +387,11 @@ public object KtLint {
         val codeStyle =
             params
                 .editorConfigOverride
-                .properties[codeStyleSetProperty]
+                .properties[CODE_STYLE_PROPERTY]
                 ?.parsed
                 ?.safeAs<DefaultEditorConfigProperties.CodeStyleValue>()
-                ?: codeStyleSetProperty.defaultValue
-        return EditorConfigGenerator(editorConfigLoader).generateEditorconfig(
+                ?: CODE_STYLE_PROPERTY.defaultValue
+        return EditorConfigGenerator(EDITOR_CONFIG_LOADER).generateEditorconfig(
             filePath,
             params.getRules(),
             params.debug,
