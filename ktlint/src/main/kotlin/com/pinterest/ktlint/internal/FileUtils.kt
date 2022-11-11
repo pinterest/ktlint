@@ -17,10 +17,10 @@ import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
 import java.util.Deque
 import java.util.LinkedList
+import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.isDirectory
 import kotlin.io.path.pathString
-import kotlin.io.path.Path
 import kotlin.io.path.relativeToOrSelf
 import kotlin.system.exitProcess
 import kotlin.system.measureTimeMillis
