@@ -8,9 +8,11 @@ import com.pinterest.ktlint.core.initKtLintKLogger
 import java.io.File
 import java.io.IOException
 import java.io.InputStream
+import java.nio.file.Path
 import java.nio.file.Paths
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.parsers.ParserConfigurationException
+import kotlin.io.path.pathString
 import kotlin.io.path.relativeToOrSelf
 import mu.KotlinLogging
 import org.w3c.dom.Element
@@ -146,9 +148,21 @@ public fun List<LintError>.doesNotContain(lintError: LintError): Boolean =
 /**
  * Gets the relative route of the file for baselines. Also adjusts the slashes for uniformity between file systems
  */
+@Deprecated(
+    message = "Marked for removal in KtLint 0.49",
+    replaceWith = ReplaceWith("toPath().relativeRoute")
+)
 public val File.relativeRoute: String
+    get() = this.toPath().relativeRoute
+
+/**
+ * Gets the relative route of the path. Also adjusts the slashes for uniformity between file systems.
+ */
+public val Path.relativeRoute: String
     get() {
         val rootPath = Paths.get("").toAbsolutePath()
-        val filePath = this.toPath()
-        return filePath.relativeToOrSelf(rootPath).toString().replace(File.separatorChar, '/')
+        return this
+            .relativeToOrSelf(rootPath)
+            .pathString
+            .replace(File.separatorChar, '/')
     }

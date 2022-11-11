@@ -40,14 +40,13 @@ abstract class BaseCLITest {
         executionAssertions: ExecutionResult.() -> Unit,
     ) {
         val projectPath = prepareTestProject(testProjectName)
-        // Forking in a new shell process, so 'ktlint' will pickup new 'PATH' env variable value
-        val processBuilder = ProcessBuilder(*interpreterPathAndArgs(), ktlintCommand(arguments))
-        processBuilder.directory(projectPath.toAbsolutePath().toFile())
-
-        // Overriding user path to java executable to use java version test is running on
-        processBuilder.prependPathWith(Path(System.getProperty("java.home")).resolve("bin"))
-
-        val process = processBuilder.start()
+        // Forking in a new shell process, so 'ktlint' will pick up new 'PATH' env variable value
+        val process =
+            ProcessBuilder(*interpreterPathAndArgs(), ktlintCommand(arguments))
+                .apply {
+                    prependPathWithJavaBinHome()
+                    directory(projectPath.toAbsolutePath().toFile())
+                }.start()
 
         if (stdin != null) {
             process.outputStream.use(stdin::copyTo)
@@ -156,9 +155,9 @@ abstract class BaseCLITest {
         }
 
         val matchResult = JAVA_VERSION_REGEX.matchEntire(this)
-            /*
-             * Java 9+: no more leading `1.`.
-             */
+        /*
+         * Java 9+: no more leading `1.`.
+         */
             ?: return toIntOrNull()
 
         val matchGroup = matchResult.groups["version"]
@@ -167,7 +166,7 @@ abstract class BaseCLITest {
         return matchGroup.value.toIntOrNull()
     }
 
-    private fun ProcessBuilder.prependPathWith(pathEntry: Path) {
+    private fun ProcessBuilder.prependPathWithJavaBinHome() {
         val environment = environment()
         val pathKey = when {
             /*
@@ -180,7 +179,7 @@ abstract class BaseCLITest {
 
             else -> PATH
         }
-        environment[pathKey] = "$pathEntry${File.pathSeparator}${OsEnvironment()[PATH]}"
+        environment[pathKey] = "$JAVA_HOME_BIN_DIR${File.pathSeparator}${OsEnvironment()[PATH]}"
     }
 
     private fun Path.copyRecursively(dest: Path) {
@@ -277,10 +276,13 @@ abstract class BaseCLITest {
     companion object {
         private const val WAIT_INTERVAL_DURATION = 100L
         private const val WAIT_INTERVAL_MAX_OCCURRENCES = 1000
-        val TEST_PROJECTS_PATHS: Path = Path("src", "test", "resources", "cli")
+        private val TEST_PROJECTS_PATHS: Path = Path("src", "test", "resources", "cli")
         const val BASE_DIR_PLACEHOLDER = "__TEMP_DIR__"
         private const val PATH = "PATH"
         private val JAVA_VERSION_REGEX = Regex("""^1\.(?<version>\d+)(?:\.[^.].*)?$""")
+
+        // Path to java bin directory on which tests will be executed
+        private val JAVA_HOME_BIN_DIR = Path(System.getProperty("java.home")).resolve("bin")
     }
 }
 

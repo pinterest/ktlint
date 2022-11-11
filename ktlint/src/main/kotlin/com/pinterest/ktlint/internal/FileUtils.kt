@@ -346,9 +346,12 @@ private val onWindowsOS
             .getProperty("os.name")
             .startsWith("windows", true)
 
-internal fun File.location(
-    relative: Boolean,
-) = if (relative) this.toPath().relativeToOrSelf(Path(WORK_DIR)).toString() else this.path
+internal fun File.location(relative: Boolean) =
+    if (relative) {
+        this.toPath().relativeToOrSelf(Path(WORK_DIR)).pathString
+    } else {
+        this.path
+    }
 
 /**
  * Run lint over common kotlin file or kotlin script file.

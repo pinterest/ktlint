@@ -1,5 +1,7 @@
 package com.pinterest.ktlint.environment
 
+import java.util.TreeMap
+
 /**
  * An immutable OS environment, with support for Windows-specific
  * case-insensitive keys (i.e. `OsEnvironment()["PATH"]` and
@@ -35,3 +37,7 @@ internal class OsEnvironment private constructor(
             }
     }
 }
+
+private class CaseInsensitiveMap<V : Any> :
+    TreeMap<String, V>(java.lang.String.CASE_INSENSITIVE_ORDER), MutableMap<String, V>
+
