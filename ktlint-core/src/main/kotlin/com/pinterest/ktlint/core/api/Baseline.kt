@@ -150,7 +150,7 @@ public fun List<LintError>.doesNotContain(lintError: LintError): Boolean =
  */
 @Deprecated(
     message = "Marked for removal in KtLint 0.49",
-    replaceWith = ReplaceWith("toPath().relativeRoute")
+    replaceWith = ReplaceWith("toPath().relativeRoute"),
 )
 public val File.relativeRoute: String
     get() = this.toPath().relativeRoute
