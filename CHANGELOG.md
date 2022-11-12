@@ -8,6 +8,10 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 The `indent` rule has been rewritten from scratch. Solving problems in the old algorithm was very difficult. With the new algorithm this becomes a lot easier. Although the new implementation of the rule has been compared against several open source projects containing over 400,000 lines of code, it is still likely that new issues will be discovered. Please report your indentation issues so that these can be fixed as well.
 
+### `.editorconfig` property `disabled_rules`
+
+Usage of `.editorconfig` property `disabled_rules` results in a `DeprecatedEditorConfigPropertyException`. This property should be renamed to `ktlint_disabled_rules`.
+
 ### API Changes & RuleSet providers
 
 #### Retrieve `.editorconfig`s
@@ -27,6 +31,20 @@ if (node.isRoot()) {
     ...
 }
 ```
+
+#### ParseException
+
+Class `com.pinterest.ktlint.core.KtLintParseException` has been replaced with `com.pinterest.ktlint.core.api.KtLintParseException`.
+
+#### RuleExecutionException
+
+Class `com.pinterest.ktlint.core.KtLintRuleExecutionException` has been replaced with `com.pinterest.ktlint.core.api.KtLintRuleExecutionException`.
+
+#### Color
+
+Class `com.pinterest.ktlint.reporter.format.internal.Color` has been moved to `com.pinterest.ktlint.reporter.format.Color`.
+
+Class `com.pinterest.ktlint.reporter.plain.internal.Color` has been moved to `com.pinterest.ktlint.reporter.plain.Color`.
 
 ### Added
 * Wrap blocks in case the max line length is exceeded or in case the block contains a new line `wrapping` ([#1643](https://github.com/pinterest/ktlint/issue/1643))

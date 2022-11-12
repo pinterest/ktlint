@@ -376,7 +376,7 @@ class AnnotationRuleTest {
                 package foo.bar
                 """.trimIndent()
             annotationRuleAssertThat(code)
-                .hasLintViolation(1, 13, "File annotations should be separated from file contents with a blank line")
+                .hasLintViolation(1, 15, "File annotations should be separated from file contents with a blank line")
                 .isFormattedAs(formattedCode)
         }
 
@@ -395,7 +395,7 @@ class AnnotationRuleTest {
             annotationRuleAssertThat(code)
                 .hasLintViolations(
                     LintViolation(1, 1, "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct"),
-                    LintViolation(1, 25, "File annotations should be separated from file contents with a blank line"),
+                    LintViolation(1, 27, "File annotations should be separated from file contents with a blank line"),
                 ).isFormattedAs(formattedCode)
         }
 
@@ -413,7 +413,7 @@ class AnnotationRuleTest {
                 package foo.bar
                 """.trimIndent()
             annotationRuleAssertThat(code)
-                .hasLintViolation(1, 13, "File annotations should be separated from file contents with a blank line")
+                .hasLintViolation(2, 1, "File annotations should be separated from file contents with a blank line")
                 .isFormattedAs(formattedCode)
         }
 
@@ -431,7 +431,7 @@ class AnnotationRuleTest {
                 package foo.bar
                 """.trimIndent()
             annotationRuleAssertThat(code)
-                .hasLintViolation(1, 13, "File annotations should be separated from file contents with a blank line")
+                .hasLintViolation(2, 1, "File annotations should be separated from file contents with a blank line")
                 .isFormattedAs(formattedCode)
         }
 
@@ -448,7 +448,7 @@ class AnnotationRuleTest {
                 package foo.bar
                 """.trimIndent()
             annotationRuleAssertThat(code)
-                .hasLintViolation(1, 13, "File annotations should be separated from file contents with a blank line")
+                .hasLintViolation(1, 29, "File annotations should be separated from file contents with a blank line")
                 .isFormattedAs(formattedCode)
         }
 
@@ -469,7 +469,7 @@ class AnnotationRuleTest {
                 """.trimIndent()
             annotationRuleAssertThat(code)
                 .asKotlinScript()
-                .hasLintViolation(1, 34, "File annotations should be separated from file contents with a blank line")
+                .hasLintViolation(2, 1, "File annotations should be separated from file contents with a blank line")
                 .isFormattedAs(formattedCode)
         }
     }

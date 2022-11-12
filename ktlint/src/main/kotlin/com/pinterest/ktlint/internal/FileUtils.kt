@@ -319,7 +319,7 @@ internal typealias JarFiles = List<String>
 internal fun JarFiles.toFilesURIList() = map {
     val jarFile = File(it.expandTildeToFullPath())
     if (!jarFile.exists()) {
-        LOGGER.error { "File $it does not exist" }
+        LOGGER.error { "File '$it' does not exist" }
         exitProcess(1)
     }
     jarFile.toURI().toURL()
@@ -373,7 +373,6 @@ internal fun lintFile(
         script = !fileName.endsWith(".kt", ignoreCase = true),
         editorConfigDefaults = editorConfigDefaults,
         editorConfigOverride = editorConfigOverride,
-        editorConfigPath = editorConfigPath,
         cb = { e, _ ->
             lintErrorCallback(e)
         },
@@ -403,7 +402,6 @@ internal fun formatFile(
             script = !fileName.endsWith(".kt", ignoreCase = true),
             editorConfigDefaults = editorConfigDefaults,
             editorConfigOverride = editorConfigOverride,
-            editorConfigPath = editorConfigPath,
             cb = cb,
             debug = debug,
             isInvokedFromCli = true,

@@ -62,56 +62,6 @@ class RuleRunnerSorterTest {
     }
 
     @Test
-    fun `Root only rule is run before non-root-only rule`() {
-        val actual =
-            RuleRunnerSorter()
-                .getSortedRuleRunners(
-                    ruleRunners = createRuleRunners(
-                        RootNodeOnlyRule(ROOT_NODE_ONLY_RULE),
-                        NormalRule(NORMAL_RULE),
-                    ),
-                    debug = true,
-                )
-                .map { it.ruleId }
-
-        assertThat(actual).containsExactly(
-            ROOT_NODE_ONLY_RULE,
-            NORMAL_RULE,
-        )
-    }
-
-    @Test
-    fun `Multiple root only rules in the same rule set are run in alphabetical order`() {
-        val actual =
-            RuleRunnerSorter()
-                .getSortedRuleRunners(
-                    ruleRunners = createRuleRunners(
-                        RootNodeOnlyRule("$EXPERIMENTAL:$RULE_B"),
-                        RootNodeOnlyRule("$EXPERIMENTAL:$RULE_A"),
-                        RootNodeOnlyRule("$CUSTOM_RULE_SET_A:$RULE_B"),
-                        RootNodeOnlyRule("$CUSTOM_RULE_SET_A:$RULE_A"),
-                        RootNodeOnlyRule(RULE_B),
-                        RootNodeOnlyRule(RULE_A),
-                        RootNodeOnlyRule("$CUSTOM_RULE_SET_B:$RULE_B"),
-                        RootNodeOnlyRule("$CUSTOM_RULE_SET_B:$RULE_A"),
-                    ),
-                    debug = true,
-                ).map { it.qualifiedRuleId }
-
-        assertThat(actual).containsExactly(
-            "$STANDARD:$RULE_A",
-            "$STANDARD:$RULE_B",
-            "$EXPERIMENTAL:$RULE_A",
-            "$EXPERIMENTAL:$RULE_B",
-            // Rules from custom rule sets are all grouped together
-            "$CUSTOM_RULE_SET_A:$RULE_A",
-            "$CUSTOM_RULE_SET_A:$RULE_B",
-            "$CUSTOM_RULE_SET_B:$RULE_A",
-            "$CUSTOM_RULE_SET_B:$RULE_B",
-        )
-    }
-
-    @Test
     fun `A run as late as possible rule runs after the rules not marked to run as late as possible`() {
         val actual =
             RuleRunnerSorter()
@@ -160,27 +110,6 @@ class RuleRunnerSorterTest {
             "$CUSTOM_RULE_SET_A:$RULE_B",
             "$CUSTOM_RULE_SET_B:$RULE_A",
             "$CUSTOM_RULE_SET_B:$RULE_B",
-        )
-    }
-
-    @Test
-    fun `A run as late as possible rule on root node only runs after the rules not marked to run as late as possible`() {
-        val actual =
-            RuleRunnerSorter()
-                .getSortedRuleRunners(
-                    ruleRunners = createRuleRunners(
-                        NormalRule(RULE_C),
-                        RunAsLateAsPossibleOnRootNodeOnlyRule(RULE_A),
-                        NormalRule(RULE_B),
-                    ),
-                    debug = true,
-                )
-                .map { it.ruleId }
-
-        assertThat(actual).containsExactly(
-            RULE_B,
-            RULE_C,
-            RULE_A,
         )
     }
 
@@ -431,24 +360,9 @@ class RuleRunnerSorterTest {
 
     open class NormalRule(id: String) : R(id)
 
-    class RootNodeOnlyRule(id: String) : R(
-        id = id,
-        visitorModifiers = setOf(
-            VisitorModifier.RunOnRootNodeOnly,
-        ),
-    )
-
     class RunAsLateAsPossibleRule(id: String) : R(
         id = id,
         visitorModifiers = setOf(
-            VisitorModifier.RunAsLateAsPossible,
-        ),
-    )
-
-    class RunAsLateAsPossibleOnRootNodeOnlyRule(id: String) : R(
-        id = id,
-        visitorModifiers = setOf(
-            VisitorModifier.RunOnRootNodeOnly,
             VisitorModifier.RunAsLateAsPossible,
         ),
     )

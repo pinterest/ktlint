@@ -179,9 +179,7 @@ private data class ParsedLine(
     }
 }
 
-@Deprecated("Marked for removal from public API in KtLint 0.48. Please raise an issue if you have a use case to keep it public.")
-public class RangeTree(seq: List<Int> = emptyList()) {
-
+internal class RangeTree(seq: List<Int> = emptyList()) {
     private var emptyArrayView = ArrayView(0, 0)
     private var arr: IntArray = seq.toIntArray()
 
@@ -193,8 +191,7 @@ public class RangeTree(seq: List<Int> = emptyList()) {
 
     // runtime: O(log(n)+k), where k is number of matching points
     // space: O(1)
-    @Deprecated("Marked for removal from public API in KtLint 0.48. Please raise an issue if you have a use case to keep it public.")
-    public fun query(vmin: Int, vmax: Int): RangeTree.ArrayView {
+    fun query(vmin: Int, vmax: Int): RangeTree.ArrayView {
         var r = arr.size - 1
         if (r == -1 || vmax < arr[0] || arr[r] < vmin) {
             return emptyArrayView
@@ -227,26 +224,21 @@ public class RangeTree(seq: List<Int> = emptyList()) {
         return ArrayView(l, k)
     }
 
-    @Deprecated("Marked for removal from public API in KtLint 0.48. Please raise an issue if you have a use case to keep it public.")
-    public fun isEmpty(): Boolean =
+    fun isEmpty(): Boolean =
         arr.isEmpty()
 
-    @Deprecated("Marked for removal from public API in KtLint 0.48. Please raise an issue if you have a use case to keep it public.")
-    public inner class ArrayView(private var l: Int, private val r: Int) {
+    inner class ArrayView(private var l: Int, private val r: Int) {
 
-        @Deprecated("Marked for removal from public API in KtLint 0.48. Please raise an issue if you have a use case to keep it public.")
-        public val size: Int = r - l
+        val size: Int = r - l
 
-        @Deprecated("Marked for removal from public API in KtLint 0.48. Please raise an issue if you have a use case to keep it public.")
-        public fun get(i: Int): Int {
+        fun get(i: Int): Int {
             if (i < 0 || i >= size) {
                 throw IndexOutOfBoundsException()
             }
             return arr[l + i]
         }
 
-        @Deprecated("Marked for removal from public API in KtLint 0.48. Please raise an issue if you have a use case to keep it public.")
-        public inline fun forEach(cb: (v: Int) -> Unit) {
+        inline fun forEach(cb: (v: Int) -> Unit) {
             var i = 0
             while (i < size) {
                 cb(get(i++))

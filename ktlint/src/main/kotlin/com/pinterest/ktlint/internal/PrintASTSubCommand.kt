@@ -1,10 +1,10 @@
 package com.pinterest.ktlint.internal
 
 import com.pinterest.ktlint.core.KtLint
-import com.pinterest.ktlint.core.ParseException
 import com.pinterest.ktlint.core.RuleProvider
 import com.pinterest.ktlint.core.api.EditorConfigDefaults.Companion.EMPTY_EDITOR_CONFIG_DEFAULTS
 import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.EMPTY_EDITOR_CONFIG_OVERRIDE
+import com.pinterest.ktlint.core.api.KtLintParseException
 import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ruleset.test.DumpASTRule
 import java.io.File
@@ -81,8 +81,8 @@ internal class PrintASTSubCommand : Runnable {
                 debug = ktlintCommand.debug,
             )
         } catch (e: Exception) {
-            if (e is ParseException) {
-                throw ParseException(
+            if (e is KtLintParseException) {
+                throw KtLintParseException(
                     e.line,
                     e.col,
                     "Not a valid Kotlin file (${e.message?.lowercase(Locale.getDefault())})",

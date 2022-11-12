@@ -1687,7 +1687,7 @@ internal class WrappingRuleTest {
                 """
                 class Bar {
                     val bar by lazy {${MULTILINE_STRING_QUOTE}foo
-                            foo${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}}
+                            foo$MULTILINE_STRING_QUOTE}
                 }
                 """.trimIndent()
             val formattedCode =
@@ -1695,7 +1695,7 @@ internal class WrappingRuleTest {
                 class Bar {
                     val bar by lazy {
                         ${MULTILINE_STRING_QUOTE}foo
-                            foo${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}
+                            foo$MULTILINE_STRING_QUOTE
                     }
                 }
                 """.trimIndent()

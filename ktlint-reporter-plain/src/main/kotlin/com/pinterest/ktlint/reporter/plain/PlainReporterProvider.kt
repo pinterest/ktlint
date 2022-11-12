@@ -1,7 +1,6 @@
 package com.pinterest.ktlint.reporter.plain
 
 import com.pinterest.ktlint.core.ReporterProvider
-import com.pinterest.ktlint.reporter.plain.internal.Color
 import java.io.PrintStream
 
 public class PlainReporterProvider : ReporterProvider<PlainReporter> {

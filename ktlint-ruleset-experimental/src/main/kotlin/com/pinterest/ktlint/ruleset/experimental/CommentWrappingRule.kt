@@ -6,8 +6,8 @@ import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType.BLOCK_COMMENT
 import com.pinterest.ktlint.core.ast.ElementType.EOL_COMMENT
 import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
+import com.pinterest.ktlint.core.ast.hasNewLineInClosedRange
 import com.pinterest.ktlint.core.ast.lineIndent
-import com.pinterest.ktlint.core.ast.lineNumber
 import com.pinterest.ktlint.core.ast.nextLeaf
 import com.pinterest.ktlint.core.ast.prevLeaf
 import com.pinterest.ktlint.core.ast.upsertWhitespaceBeforeMe
@@ -46,15 +46,7 @@ public class CommentWrappingRule :
             if (nonIndentLeafOnSameLinePrecedingBlockComment != null &&
                 nonIndentLeafOnSameLineFollowingBlockComment != null
             ) {
-                if (nonIndentLeafOnSameLinePrecedingBlockComment.lineNumber() == nonIndentLeafOnSameLineFollowingBlockComment.lineNumber()) {
-                    // Do not try to fix constructs like below:
-                    //    val foo /* some comment */ = "foo"
-                    emit(
-                        node.startOffset,
-                        "A block comment in between other elements on the same line is disallowed",
-                        false,
-                    )
-                } else {
+                if (hasNewLineInClosedRange(nonIndentLeafOnSameLinePrecedingBlockComment, nonIndentLeafOnSameLineFollowingBlockComment)) {
                     // Do not try to fix constructs like below:
                     //    val foo = "foo" /*
                     //    some comment
@@ -62,6 +54,14 @@ public class CommentWrappingRule :
                     emit(
                         node.startOffset,
                         "A block comment starting on same line as another element and ending on another line before another element is disallowed",
+                        false,
+                    )
+                } else {
+                    // Do not try to fix constructs like below:
+                    //    val foo /* some comment */ = "foo"
+                    emit(
+                        node.startOffset,
+                        "A block comment in between other elements on the same line is disallowed",
                         false,
                     )
                 }

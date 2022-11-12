@@ -17,11 +17,9 @@ import com.pinterest.ktlint.core.ast.isPartOfComment
 import com.pinterest.ktlint.core.ast.isWhiteSpace
 import com.pinterest.ktlint.core.ast.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.core.ast.lastChildLeafOrSelf
-import com.pinterest.ktlint.core.ast.lineNumber
 import com.pinterest.ktlint.core.ast.nextCodeLeaf
 import com.pinterest.ktlint.core.ast.nextLeaf
-import com.pinterest.ktlint.core.ast.nextSibling
-import com.pinterest.ktlint.core.ast.prevSibling
+import com.pinterest.ktlint.core.ast.prevLeaf
 import com.pinterest.ktlint.core.ast.upsertWhitespaceBeforeMe
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
@@ -29,9 +27,6 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationUseSiteTarget
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
-import org.jetbrains.kotlin.psi.KtScript
-import org.jetbrains.kotlin.psi.psiUtil.endOffset
-import org.jetbrains.kotlin.psi.psiUtil.getNextSiblingIgnoringWhitespaceAndComments
 import org.jetbrains.kotlin.psi.psiUtil.leaves
 import org.jetbrains.kotlin.psi.psiUtil.siblings
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
@@ -245,34 +240,23 @@ public class AnnotationRule : Rule("annotation") {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
         autoCorrect: Boolean,
     ) {
-        val lineNumber = node.lineNumber()
-        val next = node.nextSibling { it.textLength > 0 }?.let { next ->
-            val psi = next.psi
-            ((psi as? KtScript)?.blockExpression?.firstChildNode ?: next).nextSibling {
-                !it.isWhiteSpace() && !(it.isPartOfComment() && it.lineNumber() == lineNumber)
-            }
-        }
-        val nextLineNumber = next?.lineNumber()
-        if (lineNumber != null && nextLineNumber != null) {
-            val diff = nextLineNumber - lineNumber
-            if (diff < 2) {
-                val psi = node.psi
-                emit(
-                    psi.endOffset - 1,
-                    "File annotations should be separated from file contents with a blank line",
-                    true,
-                )
-                if (autoCorrect) {
-                    if (diff == 0) {
-                        psi.getNextSiblingIgnoringWhitespaceAndComments(withItself = false)?.node
-                            ?.prevSibling { it.isWhiteSpace() }
-                            ?.let { (it as? LeafPsiElement)?.delete() }
-                        next.treeParent.addChild(PsiWhiteSpaceImpl("\n"), next)
+        node
+            .lastChildLeafOrSelf()
+            .nextCodeLeaf()
+            ?.let { codeLeaf ->
+                val whitespaceBefore = codeLeaf.prevLeaf { it.isWhiteSpace() }
+
+                if (whitespaceBefore == null || whitespaceBefore.text != "\n\n") {
+                    emit(
+                        codeLeaf.startOffset,
+                        "File annotations should be separated from file contents with a blank line",
+                        true,
+                    )
+                    if (autoCorrect) {
+                        codeLeaf.upsertWhitespaceBeforeMe("\n\n")
                     }
-                    next.treeParent.addChild(PsiWhiteSpaceImpl("\n"), next)
                 }
             }
-        }
     }
 
     private fun getNewlineWithIndent(modifierListRoot: ASTNode): String {

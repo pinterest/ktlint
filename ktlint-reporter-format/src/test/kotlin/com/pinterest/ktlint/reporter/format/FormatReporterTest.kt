@@ -1,8 +1,6 @@
 package com.pinterest.ktlint.reporter.format
 
 import com.pinterest.ktlint.core.LintError
-import com.pinterest.ktlint.reporter.format.internal.Color
-import com.pinterest.ktlint.reporter.format.internal.color
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.PrintStream
