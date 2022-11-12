@@ -5,6 +5,8 @@ import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
+import com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE
+import com.pinterest.ktlint.test.TAB
 import org.ec4j.core.model.PropertyType.IndentStyleValue.tab
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -1703,11 +1705,6 @@ internal class WrappingRuleTest {
                     LintViolation(3, 18, "Missing newline before \"}\""),
                 ).isFormattedAs(formattedCode)
         }
-    }
-
-    private companion object {
-        const val MULTILINE_STRING_QUOTE = "${'"'}${'"'}${'"'}"
-        const val TAB = "${'\t'}"
     }
 }
 
