@@ -25,6 +25,7 @@ import org.jetbrains.kotlin.utils.addToStdlib.applyIf
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
+@Deprecated("Marked for removal of public API in KtLint 0.49. Please raise an issue if you use this function.")
 /**
  * Loader for `.editorconfig` properties for files on [fileSystem].
  */
@@ -233,7 +234,7 @@ public class EditorConfigLoader(
         THREAD_SAFER_EDITOR_CONFIG_CACHE.clear()
     }
 
-    public companion object {
+    internal companion object {
         /**
          * List of file extensions, editorconfig lookup will be performed.
          */
