@@ -8,8 +8,8 @@ import com.pinterest.ktlint.core.ast.ElementType.KDOC_END
 import com.pinterest.ktlint.core.ast.ElementType.KDOC_START
 import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.core.ast.lineIndent
-import com.pinterest.ktlint.core.ast.lineNumber
 import com.pinterest.ktlint.core.ast.nextLeaf
+import com.pinterest.ktlint.core.ast.noNewLineInClosedRange
 import com.pinterest.ktlint.core.ast.prevLeaf
 import com.pinterest.ktlint.core.ast.upsertWhitespaceBeforeMe
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -46,7 +46,7 @@ public class KdocWrappingRule :
             if (nonIndentLeafOnSameLinePrecedingKdocComment != null &&
                 nonIndentLeafOnSameLineFollowingKdocComment != null
             ) {
-                if (nonIndentLeafOnSameLinePrecedingKdocComment.lineNumber() == nonIndentLeafOnSameLineFollowingKdocComment.lineNumber()) {
+                if (noNewLineInClosedRange(nonIndentLeafOnSameLinePrecedingKdocComment, nonIndentLeafOnSameLineFollowingKdocComment)) {
                     // Do not try to fix constructs like below:
                     //    val foo /** some comment */ = "foo"
                     emit(

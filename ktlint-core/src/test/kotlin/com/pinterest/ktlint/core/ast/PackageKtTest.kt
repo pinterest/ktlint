@@ -219,21 +219,172 @@ class PackageKtTest {
         }
     }
 
-    @Test
-    fun `Given a range of nodes not containing a whitespace with a newline but having a block comment in between which does contain a newline`() {
-        val enumClassBody =
-            transformCodeToAST(
-                """
-                enum class Shape { FOO, /*
-                newline in a block comment should be ignored as it is not part of a whitespace leaf
-                */ FOOBAR, BAR }
-                """.trimIndent(),
-            ).toEnumClassBodySequence()
+    @Nested
+    inner class HasNewLineInClosedRange {
+        @Test
+        fun `Given an enum class with no whitespace leaf containing a newline between the first and last enum entry`() {
+            val enumEntries =
+                transformCodeToAST(
+                    """
+                    enum class Shape {
+                        FOO, FOOBAR, BAR
+                    }
+                    """.trimIndent(),
+                ).toEnumClassBodySequence()
+                    .filter { it.elementType == ENUM_ENTRY }
 
-        val actual = containsLineBreakInRange(enumClassBody.first().psi, enumClassBody.last().psi)
+            val actual = hasNewLineInClosedRange(enumEntries.first(), enumEntries.last())
 
-        // This method should have returned false instead of true. As of that the method is deprecated.
-        assertThat(actual).isTrue
+            assertThat(actual).isFalse
+        }
+
+        @Test
+        fun `Given a range of nodes starting with a whitespace leaf containing a newline but other whitespace leaves not containing a newline`() {
+            val enumClassBody =
+                transformCodeToAST(
+                    """
+                    enum class Shape {
+                        FOO, FOOBAR, BAR } // Malformed on purpose for test
+                    """.trimIndent(),
+                ).toEnumClassBodySequence()
+
+            val actual = hasNewLineInClosedRange(enumClassBody.first(), enumClassBody.last())
+
+            assertThat(actual).isTrue
+        }
+
+        @Test
+        fun `Given a range of nodes not starting or ending with a whitespace leaf containing a newline but containing another whitespace leaf containing a newline`() {
+            val enumClassBody =
+                transformCodeToAST(
+                    """
+                    enum class Shape {
+                        FOO,
+                        FOOBAR,
+                        BAR
+                    }
+                    """.trimIndent(),
+                ).toEnumClassBodySequence()
+
+            val actual = hasNewLineInClosedRange(enumClassBody.first(), enumClassBody.last())
+
+            assertThat(actual).isTrue
+        }
+
+        @Test
+        fun `Given a range of nodes ending with a whitespace leaf containing a newline but other whitespace leaves not containing a newline`() {
+            val enumClassBody =
+                transformCodeToAST(
+                    """
+                    enum class Shape { FOO, FOOBAR, BAR
+                    } // Malformed on purpose for test
+                    """.trimIndent(),
+                ).toEnumClassBodySequence()
+
+            val actual = hasNewLineInClosedRange(enumClassBody.first(), enumClassBody.last())
+
+            assertThat(actual).isTrue
+        }
+
+        @Test
+        fun `Given a range of nodes not containing a newline inside a block comment in between`() {
+            val enumClassBody =
+                transformCodeToAST(
+                    """
+                    enum class Shape { FOO, /*
+                    newline in a block comment is ignored as it is not part of a whitespace leaf
+                    */ FOOBAR, BAR }
+                    """.trimIndent(),
+                ).toEnumClassBodySequence()
+
+            val actual = hasNewLineInClosedRange(enumClassBody.first(), enumClassBody.last())
+
+            assertThat(actual).isTrue
+        }
+    }
+
+    @Nested
+    inner class NoNewLineInClosedRange {
+        @Test
+        fun `Given an enum class with no whitespace leaf containing a newline between the first and last enum entry`() {
+            val enumEntries =
+                transformCodeToAST(
+                    """
+                    enum class Shape {
+                        FOO, FOOBAR, BAR
+                    }
+                    """.trimIndent(),
+                ).toEnumClassBodySequence()
+                    .filter { it.elementType == ENUM_ENTRY }
+
+            val actual = noNewLineInClosedRange(enumEntries.first(), enumEntries.last())
+
+            assertThat(actual).isTrue
+        }
+
+        @Test
+        fun `Given a range of nodes starting with a whitespace leaf containing a newline but other whitespace leaves not containing a newline`() {
+            val enumClassBody =
+                transformCodeToAST(
+                    """
+                    enum class Shape {
+                        FOO, FOOBAR, BAR } // Malformed on purpose for test
+                    """.trimIndent(),
+                ).toEnumClassBodySequence()
+
+            val actual = noNewLineInClosedRange(enumClassBody.first(), enumClassBody.last())
+
+            assertThat(actual).isFalse
+        }
+
+        @Test
+        fun `Given a range of nodes not starting or ending with a whitespace leaf containing a newline but containing another whitespace leaf containing a newline`() {
+            val enumClassBody =
+                transformCodeToAST(
+                    """
+                    enum class Shape {
+                        FOO,
+                        FOOBAR,
+                        BAR
+                    }
+                    """.trimIndent(),
+                ).toEnumClassBodySequence()
+
+            val actual = noNewLineInClosedRange(enumClassBody.first(), enumClassBody.last())
+
+            assertThat(actual).isFalse
+        }
+
+        @Test
+        fun `Given a range of nodes ending with a whitespace leaf containing a newline but other whitespace leaves not containing a newline`() {
+            val enumClassBody =
+                transformCodeToAST(
+                    """
+                    enum class Shape { FOO, FOOBAR, BAR
+                    } // Malformed on purpose for test
+                    """.trimIndent(),
+                ).toEnumClassBodySequence()
+
+            val actual = noNewLineInClosedRange(enumClassBody.first(), enumClassBody.last())
+
+            assertThat(actual).isFalse
+        }
+
+        @Test
+        fun `Given a range of nodes not containing a newline inside a block comment in between`() {
+            val enumClassBody =
+                transformCodeToAST(
+                    """
+                    enum class Shape { FOO, /*
+                    newline in a block comment is ignored as it is not part of a whitespace leaf
+                    */ FOOBAR, BAR }
+                    """.trimIndent(),
+                ).toEnumClassBodySequence()
+
+            val actual = noNewLineInClosedRange(enumClassBody.first(), enumClassBody.last())
+
+            assertThat(actual).isFalse
+        }
     }
 
     @Nested

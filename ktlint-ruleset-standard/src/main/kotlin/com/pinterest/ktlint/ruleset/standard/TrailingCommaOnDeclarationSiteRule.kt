@@ -14,10 +14,9 @@ import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.core.ast.ElementType.WHEN_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.core.ast.children
-import com.pinterest.ktlint.core.ast.containsLineBreakInRange
 import com.pinterest.ktlint.core.ast.isCodeLeaf
 import com.pinterest.ktlint.core.ast.lineIndent
-import com.pinterest.ktlint.core.ast.noWhiteSpaceWithNewLineInClosedRange
+import com.pinterest.ktlint.core.ast.noNewLineInClosedRange
 import com.pinterest.ktlint.core.ast.prevCodeLeaf
 import com.pinterest.ktlint.core.ast.prevLeaf
 import com.pinterest.ktlint.core.ast.upsertWhitespaceAfterMe
@@ -118,7 +117,7 @@ public class TrailingCommaOnDeclarationSiteRule :
     ) {
         val inspectNode = node
             .children()
-            .lastOrNull { it.elementType == ElementType.ARROW }
+            .lastOrNull { it.elementType == ARROW }
             ?: // lambda w/o an arrow -> no arguments -> no commas
             return
         node.reportAndCorrectTrailingCommaNodeBefore(
@@ -179,7 +178,7 @@ public class TrailingCommaOnDeclarationSiteRule :
 
         val inspectNode = node
             .children()
-            .first { it.elementType == ElementType.ARROW }
+            .first { it.elementType == ARROW }
         node.reportAndCorrectTrailingCommaNodeBefore(
             inspectNode = inspectNode,
             isTrailingCommaAllowed = node.isTrailingCommaAllowed(),
@@ -235,7 +234,7 @@ public class TrailingCommaOnDeclarationSiteRule :
                 .toList()
                 .takeLast(2)
 
-        return lastTwoEnumEntries.count() == 2 && noWhiteSpaceWithNewLineInClosedRange(lastTwoEnumEntries[0], lastTwoEnumEntries[1])
+        return lastTwoEnumEntries.count() == 2 && noNewLineInClosedRange(lastTwoEnumEntries[0], lastTwoEnumEntries[1])
     }
 
     private fun ASTNode.reportAndCorrectTrailingCommaNodeBefore(
@@ -352,9 +351,9 @@ public class TrailingCommaOnDeclarationSiteRule :
 
     private fun isMultiline(element: PsiElement): Boolean = when {
         element.parent is KtFunctionLiteral -> isMultiline(element.parent)
-        element is KtFunctionLiteral -> containsLineBreakInRange(element.valueParameterList!!, element.arrow!!)
-        element is KtWhenEntry -> containsLineBreakInRange(element.firstChild, element.arrow!!)
-        element is KtDestructuringDeclaration -> containsLineBreakInRange(element.lPar!!, element.rPar!!)
+        element is KtFunctionLiteral -> containsLineBreakInLeavesRange(element.valueParameterList!!, element.arrow!!)
+        element is KtWhenEntry -> containsLineBreakInLeavesRange(element.firstChild, element.arrow!!)
+        element is KtDestructuringDeclaration -> containsLineBreakInLeavesRange(element.lPar!!, element.rPar!!)
         element is KtValueArgumentList && element.children.size == 1 && element.anyDescendantOfType<KtCollectionLiteralExpression>() -> {
             // special handling for collection literal
             // @Annotation([

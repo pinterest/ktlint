@@ -64,12 +64,6 @@ internal class RuleRunnerSorter {
                 0
             }
         }.thenBy {
-            if (it.runOnRootNodeOnly) {
-                0
-            } else {
-                1
-            }
-        }.thenBy {
             when (it.ruleSetId) {
                 "standard" -> 0
                 "experimental" -> 1

@@ -2,6 +2,8 @@ package com.pinterest.ktlint.core.internal
 
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.CODE_STYLE_PROPERTY
+import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.initKtLintKLogger
 import java.nio.file.Path
@@ -19,8 +21,7 @@ internal class EditorConfigGenerator(
     private val editorConfigLoader: EditorConfigLoader,
 ) {
     /**
-     * Method loads merged `.editorconfig` content using [com.pinterest.ktlint.core.KtLint.ExperimentalParams.fileName] path,
-     * and then, by querying rules from [com.pinterest.ktlint.core.KtLint.ExperimentalParams.ruleSets]
+     * Method loads merged `.editorconfig` content using [filePath], and then, by querying the set of [Rule]s
      * generates Kotlin section (default is `[*.{kt,kts}]`) content including expected default values.
      *
      * @return Kotlin section editorconfig content. For example:
@@ -32,14 +33,15 @@ internal class EditorConfigGenerator(
     fun generateEditorconfig(
         filePath: Path,
         rules: Set<Rule>,
-        debug: Boolean = false,
         codeStyle: DefaultEditorConfigProperties.CodeStyleValue,
     ): String {
-        val editorConfig: Map<String, Property> = editorConfigLoader.loadPropertiesForFile(
-            filePath = filePath,
-            rules = rules,
-            debug = debug,
-        )
+        val editorConfig: Map<String, Property> =
+            editorConfigLoader
+                .load(
+                    filePath = filePath,
+                    rules = rules,
+                    editorConfigOverride = EditorConfigOverride.from(CODE_STYLE_PROPERTY to codeStyle.name),
+                )
 
         val potentialEditorConfigSettings =
             getConfigurationSettingsForRules(rules, editorConfig, codeStyle)
@@ -86,24 +88,27 @@ internal class EditorConfigGenerator(
     private fun getConfigurationSettingsForDefaultEditorConfigProperties(
         editorConfig: Map<String, Property>,
         codeStyle: DefaultEditorConfigProperties.CodeStyleValue,
-    ) = DefaultEditorConfigProperties
-        .editorConfigProperties
-        .map { editorConfigProperty ->
-            val value = with((DefaultEditorConfigProperties as UsesEditorConfigProperties)) {
-                editorConfig.writeEditorConfigProperty(
-                    editorConfigProperty,
-                    codeStyle,
+    ): List<ConfigurationSetting> {
+        return DefaultEditorConfigProperties
+            .editorConfigProperties
+            .filter { it.deprecationError == null }
+            .map { editorConfigProperty ->
+                val value = with((DefaultEditorConfigProperties as UsesEditorConfigProperties)) {
+                    editorConfig.writeEditorConfigProperty(
+                        editorConfigProperty,
+                        codeStyle,
+                    )
+                }
+                LOGGER.debug {
+                    "Class '${DefaultEditorConfigProperties::class.simpleName}' uses property '${editorConfigProperty.type.name}' with default value '$value'"
+                }
+                ConfigurationSetting(
+                    key = editorConfigProperty.type.name,
+                    value = value,
+                    usage = "Class '${DefaultEditorConfigProperties::class.simpleName}'",
                 )
             }
-            LOGGER.debug {
-                "Class '${DefaultEditorConfigProperties::class.simpleName}' uses property '${editorConfigProperty.type.name}' with default value '$value'"
-            }
-            ConfigurationSetting(
-                key = editorConfigProperty.type.name,
-                value = value,
-                usage = "Class '${DefaultEditorConfigProperties::class.simpleName}'",
-            )
-        }
+    }
 
     private fun List<ConfigurationSetting>.reportSettingsWithMultipleDistinctValues() =
         groupBy { it.key }

@@ -4,7 +4,6 @@ import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType
 import com.pinterest.ktlint.core.ast.isRoot
 import com.pinterest.ktlint.core.ast.lastChildLeafOrSelf
-import com.pinterest.ktlint.core.ast.lineNumber
 import com.pinterest.ruleset.test.internal.Color
 import com.pinterest.ruleset.test.internal.color
 import java.io.PrintStream
@@ -77,7 +76,13 @@ public class DumpASTRule @JvmOverloads constructor(
 
     private fun ASTNode.lineNumberOrUnknown(): String {
         val lineNumber = try {
-            lineNumber().toString()
+            psi
+                .containingFile
+                ?.viewProvider
+                ?.document
+                ?.getLineNumber(this.startOffset)
+                ?.let { it + 1 }
+                ?.toString()
         } catch (e: IndexOutOfBoundsException) {
             // Due to autocorrect mutations in the AST it can happen that the node's offset becomes invalid. As a result
             // the line number can not be determined.
