@@ -363,7 +363,7 @@ internal class KtlintCommandLine {
                         fileContent = file.readText(),
                         editorConfigDefaults = editorConfigDefaults,
                         editorConfigOverride = editorConfigOverride,
-                        baselineLintErrors = lintErrorsPerFile.getOrDefault(file.relativeRoute, emptyList()),
+                        baselineLintErrors = lintErrorsPerFile.getOrDefault(file.toPath().relativeRoute, emptyList()),
                         ruleProviders = ruleProviders,
                     )
                 }

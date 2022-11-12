@@ -1,14 +1,18 @@
 package com.pinterest.ktlint
 
+import com.pinterest.ktlint.environment.OsEnvironment
 import java.io.File
 import java.io.InputStream
 import java.nio.file.FileVisitResult
 import java.nio.file.Files
 import java.nio.file.Path
-import java.nio.file.Paths
 import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
 import java.util.concurrent.TimeUnit
+import kotlin.io.path.Path
+import kotlin.io.path.copyTo
+import kotlin.io.path.createDirectories
+import kotlin.io.path.relativeToOrSelf
 import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.AbstractBooleanAssert
 import org.assertj.core.api.AbstractIntegerAssert
@@ -36,19 +40,13 @@ abstract class BaseCLITest {
         executionAssertions: ExecutionResult.() -> Unit,
     ) {
         val projectPath = prepareTestProject(testProjectName)
-        val ktlintCommand =
-            arguments.joinToString(prefix = "$ktlintCli ", separator = " ") {
-                it.replace(BASE_DIR_PLACEHOLDER, tempDir.toString())
-            }
-        // Forking in a new shell process, so 'ktlint' will pickup new 'PATH' env variable value
-        val processBuilder = ProcessBuilder("/bin/sh", "-c", ktlintCommand)
-        processBuilder.directory(projectPath.toAbsolutePath().toFile())
-
-        // Overriding user path to java executable to use java version test is running on
-        val environment = processBuilder.environment()
-        environment["PATH"] = "${System.getProperty("java.home")}${File.separator}bin${File.pathSeparator}${System.getenv()["PATH"]}"
-
-        val process = processBuilder.start()
+        // Forking in a new shell process, so 'ktlint' will pick up new 'PATH' env variable value
+        val process =
+            ProcessBuilder(*interpreterPathAndArgs(), ktlintCommand(arguments))
+                .apply {
+                    prependPathWithJavaBinHome()
+                    directory(projectPath.toAbsolutePath().toFile())
+                }.start()
 
         if (stdin != null) {
             process.outputStream.use(stdin::copyTo)
@@ -93,6 +91,97 @@ abstract class BaseCLITest {
         return tempDir.resolve(testProjectName).also { testProjectPath.copyRecursively(it) }
     }
 
+    private fun isWindows(): Boolean =
+        System.getProperty("os.name").startsWith("Windows")
+
+    /**
+     * @return the path to the command interpreter along with the necessary
+     *   arguments.
+     */
+    private fun interpreterPathAndArgs(): Array<String> =
+        when {
+            isWindows() -> {
+                val environment = OsEnvironment()
+
+                /*
+                 * Sometimes Windows has ComSpec undefined, so we need to
+                 * provide a default.
+                 */
+                val comSpec = environment["ComSpec"] ?: "cmd.exe"
+                arrayOf(comSpec, "/C")
+            }
+
+            else -> arrayOf("/bin/sh", "-c")
+        }
+
+    private fun ktlintCommand(arguments: List<String>): String {
+        val commandPrefix = when {
+            /*
+             * On Windows, `ktlint` is not executable.
+             */
+            isWindows() -> {
+                val command = mutableListOf("java")
+
+                val javaVersion = System.getProperty("java.specification.version").javaVersionAsInt()
+                if (javaVersion != null) {
+                    // https://docs.gradle.org/7.5/userguide/upgrading_version_7.html#removes_implicit_add_opens_for_test_workers
+                    if (javaVersion >= 16) {
+                        command += "--add-opens=java.base/java.lang=ALL-UNNAMED"
+                        command += "--add-opens=java.base/java.util=ALL-UNNAMED"
+                    }
+
+                    if (javaVersion >= 18) {
+                        // https://openjdk.org/jeps/411
+                        command += "-Djava.security.manager=allow"
+                    }
+                }
+
+                command += "-jar"
+                command += ktlintCli
+                command.joinToString(separator = " ", postfix = " ")
+            }
+
+            else -> "$ktlintCli "
+        }
+
+        return arguments.joinToString(prefix = commandPrefix, separator = " ") {
+            it.replace(BASE_DIR_PLACEHOLDER, tempDir.toString())
+        }
+    }
+
+    private fun String?.javaVersionAsInt(): Int? {
+        if (this == null) {
+            return null
+        }
+
+        val matchResult = JAVA_VERSION_REGEX.matchEntire(this)
+        /*
+         * Java 9+: no more leading `1.`.
+         */
+            ?: return toIntOrNull()
+
+        val matchGroup = matchResult.groups["version"]
+            ?: return null
+
+        return matchGroup.value.toIntOrNull()
+    }
+
+    private fun ProcessBuilder.prependPathWithJavaBinHome() {
+        val environment = environment()
+        val pathKey = when {
+            /*
+             * On Windows, environment keys are case-insensitive, which is not
+             * handled by the JVM.
+             */
+            isWindows() -> environment.keys.firstOrNull { key ->
+                key.equals(PATH, ignoreCase = true)
+            } ?: PATH
+
+            else -> PATH
+        }
+        environment[pathKey] = "$JAVA_HOME_BIN_DIR${File.pathSeparator}${OsEnvironment()[PATH]}"
+    }
+
     private fun Path.copyRecursively(dest: Path) {
         Files.walkFileTree(
             this,
@@ -101,7 +190,8 @@ abstract class BaseCLITest {
                     dir: Path,
                     attrs: BasicFileAttributes,
                 ): FileVisitResult {
-                    Files.createDirectories(dest.resolve(relativize(dir)))
+                    val relativeDir = dir.relativeToOrSelf(this@copyRecursively)
+                    dest.resolve(relativeDir).createDirectories()
                     return FileVisitResult.CONTINUE
                 }
 
@@ -109,7 +199,8 @@ abstract class BaseCLITest {
                     file: Path,
                     attrs: BasicFileAttributes,
                 ): FileVisitResult {
-                    Files.copy(file, dest.resolve(relativize(file)))
+                    val relativeFile = file.relativeToOrSelf(this@copyRecursively)
+                    file.copyTo(dest.resolve(relativeFile))
                     return FileVisitResult.CONTINUE
                 }
             },
@@ -185,8 +276,13 @@ abstract class BaseCLITest {
     companion object {
         private const val WAIT_INTERVAL_DURATION = 100L
         private const val WAIT_INTERVAL_MAX_OCCURRENCES = 1000
-        val TEST_PROJECTS_PATHS: Path = Paths.get("src", "test", "resources", "cli")
+        private val TEST_PROJECTS_PATHS: Path = Path("src", "test", "resources", "cli")
         const val BASE_DIR_PLACEHOLDER = "__TEMP_DIR__"
+        private const val PATH = "PATH"
+        private val JAVA_VERSION_REGEX = Regex("""^1\.(?<version>\d+)(?:\.[^.].*)?$""")
+
+        // Path to java bin directory on which tests will be executed
+        private val JAVA_HOME_BIN_DIR = Path(System.getProperty("java.home")).resolve("bin")
     }
 }
 
