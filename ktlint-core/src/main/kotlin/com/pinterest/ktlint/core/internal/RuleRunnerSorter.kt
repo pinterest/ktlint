@@ -1,7 +1,6 @@
 package com.pinterest.ktlint.core.internal
 
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.RuleRunner
 import com.pinterest.ktlint.core.initKtLintKLogger
 import mu.KotlinLogging
 

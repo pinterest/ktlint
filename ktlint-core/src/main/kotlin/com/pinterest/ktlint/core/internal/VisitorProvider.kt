@@ -2,7 +2,6 @@ package com.pinterest.ktlint.core.internal
 
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.RuleRunner
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.DISABLED_RULES_PROPERTY
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.KTLINT_DISABLED_RULES_PROPERTY
 import com.pinterest.ktlint.core.api.EditorConfigProperties

@@ -2,7 +2,6 @@ package com.pinterest.ktlint.core.internal
 
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.RuleProvider
-import com.pinterest.ktlint.core.RuleRunner
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatIllegalStateException
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode

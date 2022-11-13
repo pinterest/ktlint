@@ -11,12 +11,11 @@ import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.internal.EditorConfigFinder
 import com.pinterest.ktlint.core.internal.EditorConfigGenerator
 import com.pinterest.ktlint.core.internal.EditorConfigLoader
-import com.pinterest.ktlint.core.internal.RuleExecutionContext
-import com.pinterest.ktlint.core.internal.SuppressHandler
+import com.pinterest.ktlint.core.internal.RuleExecutionContext.Companion.createRuleExecutionContext
+import com.pinterest.ktlint.core.internal.RuleExecutionException
+import com.pinterest.ktlint.core.internal.RuleRunner
 import com.pinterest.ktlint.core.internal.ThreadSafeEditorConfigCache.Companion.THREAD_SAFER_EDITOR_CONFIG_CACHE
 import com.pinterest.ktlint.core.internal.VisitorProvider
-import com.pinterest.ktlint.core.internal.createRuleExecutionContext
-import com.pinterest.ktlint.core.internal.toQualifiedRuleId
 import java.nio.charset.StandardCharsets
 import java.nio.file.FileSystems
 import java.nio.file.Path
@@ -24,10 +23,10 @@ import java.nio.file.Paths
 import java.util.Locale
 import org.ec4j.core.Resource
 import org.ec4j.core.model.PropertyType
-import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.openapi.util.Key
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
+@Deprecated("Marked for removal in KtLint 0.49. See changelog or KDoc for more information.")
 @Suppress("MemberVisibilityCanBePrivate")
 public object KtLint {
     @Deprecated(
@@ -171,78 +170,6 @@ public object KtLint {
         errors
             .sortedWith { l, r -> if (l.line != r.line) l.line - r.line else l.col - r.col }
             .forEach { e -> params.cb(e, false) }
-    }
-
-    private fun RuleExecutionContext.executeRule(
-        rule: Rule,
-        fqRuleId: String,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-    ) {
-        rule.startTraversalOfAST()
-        rule.beforeFirstNode(editorConfigProperties)
-        this.executeRuleOnNodeRecursively(rootNode, rule, fqRuleId, autoCorrect, emit)
-        rule.afterLastNode()
-    }
-
-    private fun RuleExecutionContext.executeRuleOnNodeRecursively(
-        node: ASTNode,
-        rule: Rule,
-        fqRuleId: String,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-    ) {
-        /**
-         * The [RuleExecutionContext.suppressionLocator] can be changed during each visit of node when running
-         * [KtLint.format]. So a new handler is to be built before visiting the nodes.
-         */
-        val suppressHandler = SuppressHandler(suppressionLocator, rootNode, autoCorrect, emit)
-        if (rule.shouldContinueTraversalOfAST()) {
-            try {
-                suppressHandler.handle(node, fqRuleId) { autoCorrect, emit ->
-                    rule.beforeVisitChildNodes(node, autoCorrect, emit)
-                }
-                if (rule.shouldContinueTraversalOfAST()) {
-                    node
-                        .getChildren(null)
-                        .forEach { childNode ->
-                            suppressHandler.handle(childNode, fqRuleId) { autoCorrect, emit ->
-                                this.executeRuleOnNodeRecursively(
-                                    childNode,
-                                    rule,
-                                    fqRuleId,
-                                    autoCorrect,
-                                    emit,
-                                )
-                            }
-                        }
-                }
-                suppressHandler.handle(node, fqRuleId) { autoCorrect, emit ->
-                    rule.afterVisitChildNodes(node, autoCorrect, emit)
-                }
-            } catch (e: Exception) {
-                if (autoCorrect) {
-                    // line/col cannot be reliably mapped as exception might originate from a node not present in the
-                    // original AST
-                    throw RuleExecutionException(
-                        0,
-                        0,
-                        fqRuleId,
-                        // Prevent extreme long stack trace caused by recursive call and only pass root cause
-                        e.cause ?: e,
-                    )
-                } else {
-                    val (line, col) = positionInTextLocator(node.startOffset)
-                    throw RuleExecutionException(
-                        line,
-                        col,
-                        fqRuleId,
-                        // Prevent extreme long stack trace caused by recursive call and only pass root cause
-                        e.cause ?: e,
-                    )
-                }
-            }
-        }
     }
 
     /**
@@ -407,13 +334,6 @@ public object KtLint {
     }
 }
 
-private class RuleExecutionException(
-    val line: Int,
-    val col: Int,
-    val ruleId: String,
-    override val cause: Throwable,
-) : Throwable(cause)
-
 private fun RuleExecutionException.toKtLintRuleException(fileName: String?) =
     KtLintRuleException(
         line,
@@ -422,54 +342,3 @@ private fun RuleExecutionException.toKtLintRuleException(fileName: String?) =
         "Rule '$ruleId' throws exception in file '$fileName' at position ($line:$col)",
         cause,
     )
-
-internal class RuleRunner(private val provider: RuleProvider) {
-    private var rule = provider.createNewRuleInstance()
-
-    internal val qualifiedRuleId = rule.toQualifiedRuleId()
-    internal val shortenedQualifiedRuleId = qualifiedRuleId.removePrefix("standard:")
-
-    internal val ruleId = rule.id
-    internal val ruleSetId = qualifiedRuleId.substringBefore(':')
-
-    val runAsLateAsPossible = rule.visitorModifiers.contains(Rule.VisitorModifier.RunAsLateAsPossible)
-    var runAfterRule = setRunAfterRule()
-
-    /**
-     * Gets the [Rule]. If the [Rule] has already been used for traversal of the AST, a new instance of the [Rule] is
-     * provided. This prevents leakage of the state of the Rule between executions.
-     */
-    internal fun getRule(): Rule {
-        if (rule.isUsedForTraversalOfAST()) {
-            rule = provider.createNewRuleInstance()
-        }
-        return rule
-    }
-
-    private fun setRunAfterRule(): Rule.VisitorModifier.RunAfterRule? =
-        rule
-            .visitorModifiers
-            .find { it is Rule.VisitorModifier.RunAfterRule }
-            ?.let {
-                val runAfterRuleVisitorModifier = it as Rule.VisitorModifier.RunAfterRule
-                val qualifiedAfterRuleId = runAfterRuleVisitorModifier.ruleId.toQualifiedRuleId()
-                check(qualifiedRuleId != qualifiedAfterRuleId) {
-                    // Do not print the fully qualified rule id in the error message as it might not appear in the code
-                    // in case it is a rule from the 'standard' rule set.
-                    "Rule with id '${rule.id}' has a visitor modifier of type " +
-                        "'${Rule.VisitorModifier.RunAfterRule::class.simpleName}' but it is not referring to another " +
-                        "rule but to the rule itself. A rule can not run after itself. This should be fixed by the " +
-                        "maintainer of the rule."
-                }
-                runAfterRuleVisitorModifier.copy(
-                    ruleId = qualifiedAfterRuleId,
-                )
-            }
-
-    internal fun clearRunAfterRule() {
-        require(!rule.isUsedForTraversalOfAST()) {
-            "RunAfterRule can not be cleared when rule has already been used for traversal of the AST"
-        }
-        runAfterRule = null
-    }
-}
