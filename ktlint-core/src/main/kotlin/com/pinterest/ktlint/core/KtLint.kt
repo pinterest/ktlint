@@ -6,7 +6,7 @@ import com.pinterest.ktlint.core.api.EditorConfigDefaults
 import com.pinterest.ktlint.core.api.EditorConfigDefaults.Companion.EMPTY_EDITOR_CONFIG_DEFAULTS
 import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.EMPTY_EDITOR_CONFIG_OVERRIDE
-import com.pinterest.ktlint.core.api.KtLintRuleExecutionException
+import com.pinterest.ktlint.core.api.KtLintRuleException
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.internal.EditorConfigFinder
 import com.pinterest.ktlint.core.internal.EditorConfigGenerator
@@ -149,20 +149,24 @@ public object KtLint {
      * Check source for lint errors.
      *
      * @throws KtLintParseException if text is not a valid Kotlin code
-     * @throws KtLintRuleExecutionException in case of internal failure caused by a bug in rule implementation
+     * @throws KtLintRuleException in case of internal failure caused by a bug in rule implementation
      */
     public fun lint(params: ExperimentalParams) {
         val ruleExecutionContext = createRuleExecutionContext(params)
         val errors = mutableListOf<LintError>()
 
-        VisitorProvider(params)
-            .visitor(ruleExecutionContext.editorConfigProperties)
-            .invoke { rule, fqRuleId ->
-                ruleExecutionContext.executeRule(rule, fqRuleId, false) { offset, errorMessage, canBeAutoCorrected ->
-                    val (line, col) = ruleExecutionContext.positionInTextLocator(offset)
-                    errors.add(LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected))
+        try {
+            VisitorProvider(params)
+                .visitor(ruleExecutionContext.editorConfigProperties)
+                .invoke { rule, fqRuleId ->
+                    ruleExecutionContext.executeRule(rule, fqRuleId, false) { offset, errorMessage, canBeAutoCorrected ->
+                        val (line, col) = ruleExecutionContext.positionInTextLocator(offset)
+                        errors.add(LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected))
+                    }
                 }
-            }
+        } catch (e: RuleExecutionException) {
+            throw e.toKtLintRuleException(params.fileName)
+        }
 
         errors
             .sortedWith { l, r -> if (l.line != r.line) l.line - r.line else l.col - r.col }
@@ -220,10 +224,22 @@ public object KtLint {
                 if (autoCorrect) {
                     // line/col cannot be reliably mapped as exception might originate from a node not present in the
                     // original AST
-                    throw KtLintRuleExecutionException(0, 0, fqRuleId, e)
+                    throw RuleExecutionException(
+                        0,
+                        0,
+                        fqRuleId,
+                        // Prevent extreme long stack trace caused by recursive call and only pass root cause
+                        e.cause ?: e,
+                    )
                 } else {
                     val (line, col) = positionInTextLocator(node.startOffset)
-                    throw KtLintRuleExecutionException(line, col, fqRuleId, e)
+                    throw RuleExecutionException(
+                        line,
+                        col,
+                        fqRuleId,
+                        // Prevent extreme long stack trace caused by recursive call and only pass root cause
+                        e.cause ?: e,
+                    )
                 }
             }
         }
@@ -233,7 +249,7 @@ public object KtLint {
      * Fix style violations.
      *
      * @throws KtLintParseException if text is not a valid Kotlin code
-     * @throws KtLintRuleExecutionException in case of internal failure caused by a bug in rule implementation
+     * @throws KtLintRuleException in case of internal failure caused by a bug in rule implementation
      */
     public fun format(params: ExperimentalParams): String {
         val hasUTF8BOM = params.text.startsWith(UTF8_BOM)
@@ -243,31 +259,36 @@ public object KtLint {
         var mutated = false
         val errors = mutableSetOf<Pair<LintError, Boolean>>()
         val visitorProvider = VisitorProvider(params = params)
-        visitorProvider
-            .visitor(ruleExecutionContext.editorConfigProperties)
-            .invoke { rule, fqRuleId ->
-                ruleExecutionContext.executeRule(rule, fqRuleId, true) { offset, errorMessage, canBeAutoCorrected ->
-                    tripped = true
-                    if (canBeAutoCorrected) {
-                        mutated = true
-                        /**
-                         * Rebuild the suppression locator after each change in the AST as the offsets of the
-                         * suppression hints might have changed.
-                         */
-                        ruleExecutionContext.rebuildSuppressionLocator()
+        try {
+            visitorProvider
+                .visitor(ruleExecutionContext.editorConfigProperties)
+                .invoke { rule, fqRuleId ->
+                    ruleExecutionContext.executeRule(rule, fqRuleId, true) { offset, errorMessage, canBeAutoCorrected ->
+                        tripped = true
+                        if (canBeAutoCorrected) {
+                            mutated = true
+                            /**
+                             * Rebuild the suppression locator after each change in the AST as the offsets of the
+                             * suppression hints might have changed.
+                             */
+                            ruleExecutionContext.rebuildSuppressionLocator()
+                        }
+                        val (line, col) = ruleExecutionContext.positionInTextLocator(offset)
+                        errors.add(
+                            Pair(
+                                LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected),
+                                // It is assumed that a rule that emits that an error can be autocorrected, also
+                                // does correct the error.
+                                canBeAutoCorrected,
+                            ),
+                        )
                     }
-                    val (line, col) = ruleExecutionContext.positionInTextLocator(offset)
-                    errors.add(
-                        Pair(
-                            LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected),
-                            // It is assumed that a rule that emits that an error can be autocorrected, also
-                            // does correct the error.
-                            canBeAutoCorrected,
-                        ),
-                    )
                 }
-            }
+        } catch (e: RuleExecutionException) {
+            throw e.toKtLintRuleException(params.fileName)
+        }
         if (tripped) {
+            try {
             visitorProvider
                 .visitor(ruleExecutionContext.editorConfigProperties)
                 .invoke { rule, fqRuleId ->
@@ -283,6 +304,9 @@ public object KtLint {
                         )
                     }
                 }
+            } catch (e: RuleExecutionException) {
+                throw e.toKtLintRuleException(params.fileName)
+            }
         }
 
         errors
@@ -378,6 +402,22 @@ public object KtLint {
         }
     }
 }
+
+private class RuleExecutionException(
+    val line: Int,
+    val col: Int,
+    val ruleId: String,
+    override val cause: Throwable,
+) : Throwable(cause)
+
+private fun RuleExecutionException.toKtLintRuleException(fileName: String?) =
+    KtLintRuleException(
+        line,
+        col,
+        ruleId,
+        "Rule '$ruleId' throws exception in file '$fileName' at position ($line:$col)",
+        cause,
+    )
 
 internal class RuleRunner(private val provider: RuleProvider) {
     private var rule = provider.createNewRuleInstance()
