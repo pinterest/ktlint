@@ -38,7 +38,7 @@ Class `com.pinterest.ktlint.core.KtLintParseException` has been replaced with `c
 
 #### RuleExecutionException
 
-Class `com.pinterest.ktlint.core.KtLintRuleExecutionException` has been replaced with `com.pinterest.ktlint.core.api.KtLintRuleExecutionException`.
+Class `com.pinterest.ktlint.core.RuleExecutionException` has been replaced with `com.pinterest.ktlint.core.api.KtLintRuleException`.
 
 #### Color
 
