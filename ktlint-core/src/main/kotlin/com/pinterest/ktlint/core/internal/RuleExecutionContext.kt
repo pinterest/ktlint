@@ -1,6 +1,10 @@
 package com.pinterest.ktlint.core.internal
 
+import com.pinterest.ktlint.core.Code
 import com.pinterest.ktlint.core.KtLint
+import com.pinterest.ktlint.core.KtLintRuleEngine.Companion.EDITOR_CONFIG_LOADER
+import com.pinterest.ktlint.core.KtLintRuleEngine.Companion.UTF8_BOM
+import com.pinterest.ktlint.core.KtLintRuleEngineConfiguration
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.KtLintParseException
@@ -102,14 +106,17 @@ internal class RuleExecutionContext private constructor(
     }
 
     companion object {
-        internal fun createRuleExecutionContext(params: KtLint.ExperimentalParams): RuleExecutionContext {
-            val psiFileFactory = KOTLIN_PSI_FILE_FACTORY_PROVIDER.getKotlinPsiFileFactory(params.isInvokedFromCli)
-            val normalizedText = normalizeText(params.text)
+        internal fun createRuleExecutionContext(
+            ktLintRuleEngineConfiguration: KtLintRuleEngineConfiguration,
+            code: Code,
+        ): RuleExecutionContext {
+            val psiFileFactory = KOTLIN_PSI_FILE_FACTORY_PROVIDER.getKotlinPsiFileFactory(ktLintRuleEngineConfiguration.isInvokedFromCli)
+            val normalizedText = normalizeText(code.content)
             val positionInTextLocator = buildPositionInTextLocator(normalizedText)
 
             val psiFileName = when {
-                params.fileName != null -> params.fileName
-                params.script -> "file.kts"
+                code.fileName != null -> code.fileName
+                code.script -> "file.kts"
                 else -> "file.kt"
             }
             val psiFile = psiFileFactory.createFileFromText(
@@ -127,15 +134,16 @@ internal class RuleExecutionContext private constructor(
 
             val rootNode = psiFile.node
 
-            val editorConfigProperties = KtLint.EDITOR_CONFIG_LOADER.load(
-                filePath = params.normalizedFilePath,
-                rules = params.getRules(),
-                editorConfigDefaults = params.editorConfigDefaults,
-                editorConfigOverride = params.editorConfigOverride,
+            val editorConfigProperties = EDITOR_CONFIG_LOADER.load(
+                filePath = code.filePath,
+                rules = ktLintRuleEngineConfiguration.getRules(),
+                editorConfigDefaults = ktLintRuleEngineConfiguration.editorConfigDefaults,
+                editorConfigOverride = ktLintRuleEngineConfiguration.editorConfigOverride,
             )
 
-            if (!params.isStdIn) {
-                rootNode.putUserData(KtLint.FILE_PATH_USER_DATA_KEY, params.normalizedFilePath.toString())
+            if (!code.isStdIn) {
+                // TODO: Remove in KtLint 0.49
+                rootNode.putUserData(KtLint.FILE_PATH_USER_DATA_KEY, code.filePath.toString())
             }
 
             return RuleExecutionContext(
@@ -149,7 +157,7 @@ internal class RuleExecutionContext private constructor(
             return text
                 .replace("\r\n", "\n")
                 .replace("\r", "\n")
-                .replaceFirst(KtLint.UTF8_BOM, "")
+                .replaceFirst(UTF8_BOM, "")
         }
 
         private fun PsiElement.findErrorElement(): PsiErrorElement? {

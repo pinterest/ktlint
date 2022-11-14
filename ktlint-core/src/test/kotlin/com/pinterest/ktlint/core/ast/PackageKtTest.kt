@@ -1,6 +1,8 @@
 package com.pinterest.ktlint.core.ast
 
+import com.pinterest.ktlint.core.Code
 import com.pinterest.ktlint.core.KtLint
+import com.pinterest.ktlint.core.KtLintRuleEngineConfiguration
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.RuleProvider
 import com.pinterest.ktlint.core.ast.ElementType.CLASS
@@ -613,14 +615,12 @@ class PackageKtTest {
 
     private fun transformCodeToAST(code: String) =
         createRuleExecutionContext(
-            KtLint.ExperimentalParams(
-                text =
-                code,
+            ktLintRuleEngineConfiguration = KtLintRuleEngineConfiguration(
                 ruleProviders = setOf(
                     RuleProvider { DummyRule() },
                 ),
-                cb = { _, _ -> },
             ),
+            code = Code(code)
         ).rootNode
 
     private fun FileASTNode.toEnumClassBodySequence() =

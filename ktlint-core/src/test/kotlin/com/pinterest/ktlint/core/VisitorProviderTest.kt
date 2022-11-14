@@ -75,9 +75,7 @@ class VisitorProviderTest {
      */
     private fun testVisitorProvider(vararg ruleProviders: RuleProvider): MutableList<Visit>? {
         return VisitorProvider(
-            params = KtLint.ExperimentalParams(
-                text = "",
-                cb = { _, _ -> },
+            KtLintRuleEngineConfiguration(
                 ruleProviders = ruleProviders.toSet(),
                 // Enable debug mode as it is helpful when a test fails
                 debug = true,

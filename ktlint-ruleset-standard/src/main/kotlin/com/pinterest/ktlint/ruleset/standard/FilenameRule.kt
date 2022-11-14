@@ -17,6 +17,7 @@ import java.nio.file.Paths
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
+import org.jetbrains.kotlin.psi.KtFile
 
 /**
  * [Kotlin lang documentation](https://kotlinlang.org/docs/coding-conventions.html#source-file-names):
@@ -50,7 +51,7 @@ public class FilenameRule : Rule("filename") {
         if (node.isRoot()) {
             node as FileASTNode? ?: error("node is not ${FileASTNode::class} but ${node::class}")
 
-            val filePath = node.getUserData(KtLint.FILE_PATH_USER_DATA_KEY)
+            val filePath = (node.psi as? KtFile)?.virtualFilePath
             if (filePath?.endsWith(".kt") != true) {
                 // ignore all non ".kt" files (including ".kts")
                 stopTraversalOfAST()

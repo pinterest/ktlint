@@ -9,7 +9,7 @@ import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.EMPTY_EDITOR
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.initKtLintKLogger
-import com.pinterest.ktlint.core.internal.ThreadSafeEditorConfigCache.Companion.THREAD_SAFER_EDITOR_CONFIG_CACHE
+import com.pinterest.ktlint.core.internal.ThreadSafeEditorConfigCache.Companion.THREAD_SAFE_EDITOR_CONFIG_CACHE
 import java.nio.charset.StandardCharsets
 import java.nio.file.FileSystem
 import java.nio.file.FileSystems
@@ -122,7 +122,7 @@ public class EditorConfigLoader(
     ) =
         ResourcePropertiesService.builder()
             .keepUnset(true)
-            .cache(THREAD_SAFER_EDITOR_CONFIG_CACHE)
+            .cache(THREAD_SAFE_EDITOR_CONFIG_CACHE)
             .loader(editorConfigLoader)
             .applyIf(editorConfigDefaults != EMPTY_EDITOR_CONFIG_DEFAULTS) {
                 defaultEditorConfigs(editorConfigDefaults.value)

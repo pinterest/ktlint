@@ -1,5 +1,8 @@
 package com.pinterest.ktlint.core
 
+import com.pinterest.ktlint.core.KtLint.ExperimentalParams
+import com.pinterest.ktlint.core.KtLint.format
+import com.pinterest.ktlint.core.KtLint.lint
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.core.api.EditorConfigDefaults
@@ -11,16 +14,17 @@ import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.internal.EditorConfigFinder
 import com.pinterest.ktlint.core.internal.EditorConfigGenerator
 import com.pinterest.ktlint.core.internal.EditorConfigLoader
+import com.pinterest.ktlint.core.internal.RuleExecutionContext
 import com.pinterest.ktlint.core.internal.RuleExecutionContext.Companion.createRuleExecutionContext
 import com.pinterest.ktlint.core.internal.RuleExecutionException
 import com.pinterest.ktlint.core.internal.RuleRunner
-import com.pinterest.ktlint.core.internal.ThreadSafeEditorConfigCache.Companion.THREAD_SAFER_EDITOR_CONFIG_CACHE
+import com.pinterest.ktlint.core.internal.ThreadSafeEditorConfigCache.Companion.THREAD_SAFE_EDITOR_CONFIG_CACHE
 import com.pinterest.ktlint.core.internal.VisitorProvider
+import java.io.File
 import java.nio.charset.StandardCharsets
 import java.nio.file.FileSystems
 import java.nio.file.Path
 import java.nio.file.Paths
-import java.util.Locale
 import org.ec4j.core.Resource
 import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.openapi.util.Key
@@ -40,13 +44,17 @@ public object KtLint {
     )
     public val FILE_PATH_USER_DATA_KEY: Key<String> = Key<String>("FILE_PATH")
 
-    internal const val UTF8_BOM = "\uFEFF"
+    @Deprecated(
+        message = "Marked for removal in KtLint 0.49",
+        replaceWith = ReplaceWith("KtLintRuleEngine.Companion.STDIN_FILE"),
+    )
     public const val STDIN_FILE: String = "<stdin>"
 
-    internal val EDITOR_CONFIG_LOADER = EditorConfigLoader(FileSystems.getDefault())
-
     /**
-     * Parameters to invoke [KtLint.lint] and [KtLint.format] API's.
+     * Parameters to invoke [KtLint.lint] and [KtLint.format] APIs.
+     *
+     * Marked for removal in KtLint 0.49. See deprecations of methods [KtLint.lint], [KtLint.format], and
+     * [KtLint.generateKotlinEditorConfigSection].
      *
      * [fileName] path of file to lint/format
      * [text] Contents of file to lint/format
@@ -71,6 +79,7 @@ public object KtLint {
      * Enables some internals workarounds for Kotlin Compiler initialization.
      * Usually you don't need to use it and most probably it will be removed in one of next versions.
      */
+    @Deprecated("Marked for removal in KtLint 0.49")
     public data class ExperimentalParams(
         val fileName: String? = null,
         val text: String,
@@ -147,15 +156,193 @@ public object KtLint {
     /**
      * Check source for lint errors.
      *
+     * Marked for removal in KtLint 0.49. The static object [KtLint] is replaced by class [KtLintRuleEngine]. Main
+     * difference is that the class needs to be instantiated once with the [KtLintRuleEngineConfiguration] and is reused
+     * for all subsequent calls. The call to [KtLintRuleEngine.lint] only takes a reference to the code that needs to be
+     * linted instead of all configuration parameter as well.
+     *
      * @throws KtLintParseException if text is not a valid Kotlin code
      * @throws KtLintRuleException in case of internal failure caused by a bug in rule implementation
      */
+    @Deprecated("Marked for removal in KtLint 0.49. See changelog or KDOC for migration to KtLintRuleEngine.")
     public fun lint(params: ExperimentalParams) {
-        val ruleExecutionContext = createRuleExecutionContext(params)
+        val ktLintRuleEngine = KtLintRuleEngine(
+            KtLintRuleEngineConfiguration(
+                params.ruleProviders,
+                params.editorConfigDefaults,
+                params.editorConfigOverride,
+                params.isInvokedFromCli,
+                params.debug,
+            ),
+        )
+        ktLintRuleEngine.lint(
+            Code(
+                text = params.text,
+                fileName = params.fileName,
+                script = params.script,
+                isStdIn = params.isStdIn
+            ),
+        ) { params.cb(it, false) }
+    }
+
+    /**
+     * Fix style violations.
+     *
+     * Marked for removal in KtLint 0.49. The static object [KtLint] is replaced by class [KtLintRuleEngine]. Main
+     * difference is that the class needs to be instantiated once with the [KtLintRuleEngineConfiguration] and is reused
+     * for all subsequent calls. The call to [KtLintRuleEngine.format] only takes a reference to the code that needs to
+     * be formatted instead of all configuration parameter as well.
+     *
+     * @throws KtLintParseException if text is not a valid Kotlin code
+     * @throws KtLintRuleException in case of internal failure caused by a bug in rule implementation
+     */
+    @Deprecated("Marked for removal in KtLint 0.49. See changelog or KDOC for migration to KtLintRuleEngine.")
+    public fun format(params: ExperimentalParams): String {
+        val ktLintRuleEngineConfiguration = KtLintRuleEngineConfiguration(
+            params.ruleProviders,
+            params.editorConfigDefaults,
+            params.editorConfigOverride,
+            params.isInvokedFromCli,
+            params.debug
+        )
+        return KtLintRuleEngine(ktLintRuleEngineConfiguration)
+            .format(
+                Code(
+                    text = params.text,
+                    fileName = params.fileName,
+                    script = params.script,
+                    isStdIn = params.isStdIn
+                )
+            ) { lintError, autocorrected -> params.cb(lintError, autocorrected) }
+    }
+
+    /**
+     * Reduce memory usage by cleaning internal caches.
+     */
+    @Deprecated(
+        message = "Marked for removal in KtLint 0.49",
+        replaceWith = ReplaceWith("ktLintRuleEngine.trimMemory"),
+    )
+    public fun trimMemory() {
+        THREAD_SAFE_EDITOR_CONFIG_CACHE.clear()
+    }
+
+    /**
+     * Get the list of files which will be accessed by KtLint when linting or formatting the given file or directory.
+     * The API consumer can use this list to observe changes in '.editorconfig' files. Whenever such a change is
+     * observed, the API consumer should call [reloadEditorConfigFile].
+     * To avoid unnecessary access to the file system, it is best to call this method only once for the root of the
+     * project which is to be [lint] or [format].
+     */
+    @Deprecated(
+        message = "Marked for removal in KtLint 0.49",
+        replaceWith = ReplaceWith("ktLintRuleEngine.editorConfigFilePaths"),
+    )
+    public fun editorConfigFilePaths(path: Path): List<Path> =
+        EditorConfigFinder().findEditorConfigs(path)
+
+    /**
+     * Reloads an '.editorconfig' file given that it is currently loaded into the KtLint cache. This method is intended
+     * to be called by the API consumer when it is aware of changes in the '.editorconfig' file that should be taken
+     * into account with next calls to [lint] and/or [format]. See [editorConfigFilePaths] to get the list of
+     * '.editorconfig' files which need to be observed.
+     */
+    @Deprecated(
+        message = "Marked for removal in KtLint 0.49",
+        replaceWith = ReplaceWith("ktLintRuleEngine.reloadEditorConfigFile"),
+    )
+    public fun reloadEditorConfigFile(path: Path) {
+        THREAD_SAFE_EDITOR_CONFIG_CACHE.reloadIfExists(
+            Resource.Resources.ofPath(path, StandardCharsets.UTF_8),
+        )
+    }
+
+    /**
+     * Generates Kotlin `.editorconfig` file section content based on [ExperimentalParams].
+     *
+     * Method loads merged `.editorconfig` content from [ExperimentalParams] path,
+     * and then, by querying rules from [ExperimentalParams] for missing properties default values,
+     * generates Kotlin section (default is `[*.{kt,kts}]`) new content.
+     *
+     * Rule should implement [UsesEditorConfigProperties] interface to support this.
+     *
+     * @return Kotlin section editorconfig content. For example:
+     * ```properties
+     * final-newline=true
+     * indent-size=4
+     * ```
+     */
+    @Deprecated(
+        message ="Marked for removal in KtLint 0.49.",
+        replaceWith = ReplaceWith("ktLintRuleEngine.generateKotlinEditorConfigSection(path)"),
+    )
+    public fun generateKotlinEditorConfigSection(
+        params: ExperimentalParams,
+    ): String {
+        val filePath = params.normalizedFilePath
+        requireNotNull(filePath) {
+            "Please pass path to existing Kotlin file"
+        }
+        val ktLintRuleEngineConfiguration = KtLintRuleEngineConfiguration(
+            params.ruleProviders,
+            params.editorConfigDefaults,
+            params.editorConfigOverride,
+            params.isInvokedFromCli,
+            params.debug
+        )
+        return KtLintRuleEngine(ktLintRuleEngineConfiguration)
+            .generateKotlinEditorConfigSection(filePath)
+    }
+}
+
+public class Code private constructor(
+    public val content: String,
+    public val fileName: String?,
+    internal val script: Boolean,
+    internal val filePath: Path?,
+    internal val isStdIn: Boolean,
+) {
+    public constructor(file: File) : this(
+        content = file.readText(),
+        fileName = file.name,
+        filePath = file.toPath(),
+        script = file.name.endsWith(".kts", ignoreCase = true),
+        isStdIn = false,
+    )
+
+    public constructor(text: String, fileName: String? = null) : this(
+        content = text,
+        fileName = fileName,
+        filePath = fileName?.let { Paths.get(fileName) },
+        script = fileName?.endsWith(".kts", ignoreCase = true) == true,
+        isStdIn = fileName == KtLintRuleEngine.STDIN_FILE,
+    )
+
+    internal constructor(text: String, fileName: String? = null, script: Boolean, isStdIn: Boolean) : this(
+        content = text,
+        fileName = fileName,
+        filePath = fileName?.let { Paths.get(fileName) },
+        script = script,
+        isStdIn = isStdIn,
+    )
+}
+
+public class KtLintRuleEngine(private val ktLintRuleEngineConfiguration: KtLintRuleEngineConfiguration) {
+    /**
+     * Check source for lint errors.
+     *
+     * @throws KtLintParseException if text is not a valid Kotlin code
+     * @throws KtLintRuleException in case of internal failure caused by a bug in rule implementation
+     */
+    public fun lint(
+        code: Code,
+        callback: (LintError) -> Unit = { },
+    ) {
+        val ruleExecutionContext = createRuleExecutionContext(ktLintRuleEngineConfiguration, code)
         val errors = mutableListOf<LintError>()
 
         try {
-            VisitorProvider(params)
+            VisitorProvider(ktLintRuleEngineConfiguration)
                 .visitor(ruleExecutionContext.editorConfigProperties)
                 .invoke { rule, fqRuleId ->
                     ruleExecutionContext.executeRule(rule, fqRuleId, false) { offset, errorMessage, canBeAutoCorrected ->
@@ -164,12 +351,12 @@ public object KtLint {
                     }
                 }
         } catch (e: RuleExecutionException) {
-            throw e.toKtLintRuleException(params.fileName)
+            throw e.toKtLintRuleException(code.fileName)
         }
 
         errors
             .sortedWith { l, r -> if (l.line != r.line) l.line - r.line else l.col - r.col }
-            .forEach { e -> params.cb(e, false) }
+            .forEach { e -> callback(e) }
     }
 
     /**
@@ -178,14 +365,17 @@ public object KtLint {
      * @throws KtLintParseException if text is not a valid Kotlin code
      * @throws KtLintRuleException in case of internal failure caused by a bug in rule implementation
      */
-    public fun format(params: ExperimentalParams): String {
-        val hasUTF8BOM = params.text.startsWith(UTF8_BOM)
-        val ruleExecutionContext = createRuleExecutionContext(params)
+    public fun format(
+        code: Code,
+        callback: (LintError, Boolean) -> Unit = { _, _ -> },
+    ): String {
+        val hasUTF8BOM = code.content.startsWith(UTF8_BOM)
+        val ruleExecutionContext = createRuleExecutionContext(ktLintRuleEngineConfiguration, code)
 
         var tripped = false
         var mutated = false
         val errors = mutableSetOf<Pair<LintError, Boolean>>()
-        val visitorProvider = VisitorProvider(params = params)
+        val visitorProvider = VisitorProvider(ktLintRuleEngineConfiguration)
         try {
             visitorProvider
                 .visitor(ruleExecutionContext.editorConfigProperties)
@@ -212,7 +402,7 @@ public object KtLint {
                     }
                 }
         } catch (e: RuleExecutionException) {
-            throw e.toKtLintRuleException(params.fileName)
+            throw e.toKtLintRuleException(code.fileName)
         }
         if (tripped) {
             try {
@@ -236,39 +426,78 @@ public object KtLint {
                         }
                     }
             } catch (e: RuleExecutionException) {
-                throw e.toKtLintRuleException(params.fileName)
+                throw e.toKtLintRuleException(code.fileName)
             }
         }
 
         errors
             .sortedWith { (l), (r) -> if (l.line != r.line) l.line - r.line else l.col - r.col }
-            .forEach { (e, corrected) -> params.cb(e, corrected) }
+            .forEach { (e, corrected) -> callback(e, corrected) }
 
         if (!mutated) {
-            return params.text
+            return code.content
         }
 
-        val code = ruleExecutionContext
+        val formattedCode = ruleExecutionContext
             .rootNode
             .text
-            .replace("\n", determineLineSeparator(params.text, params.userData))
+            .replace("\n", ruleExecutionContext.determineLineSeparator(code.content))
         return if (hasUTF8BOM) {
-            UTF8_BOM + code
+            UTF8_BOM + formattedCode
         } else {
-            code
+            formattedCode
         }
+    }
+
+    private fun RuleExecutionContext.determineLineSeparator(fileContent: String): String {
+        val eol =
+            editorConfigProperties["end_of_line"]
+                ?.sourceValue
+        return when {
+            eol == "native" -> System.lineSeparator()
+            eol == "crlf" || eol != "lf" && fileContent.lastIndexOf('\r') != -1 -> "\r\n"
+            else -> "\n"
+        }
+    }
+
+    /**
+     * Generates Kotlin `.editorconfig` file section content based on [ExperimentalParams].
+     *
+     * Method loads merged `.editorconfig` content from [ExperimentalParams] path, and then, by querying rules from
+     * [KtLintRuleEngineConfiguration] for missing properties default values, generates Kotlin section (default is
+     * `[*.{kt,kts}]`) new content.
+     *
+     * @return Kotlin section editorconfig content. For example:
+     * ```properties
+     * final-newline=true
+     * indent-size=4
+     * ```
+     */
+    public fun generateKotlinEditorConfigSection(filePath: Path): String {
+        val codeStyle =
+            ktLintRuleEngineConfiguration
+                .editorConfigOverride
+                .properties[CODE_STYLE_PROPERTY]
+                ?.parsed
+                ?.safeAs<DefaultEditorConfigProperties.CodeStyleValue>()
+                ?: CODE_STYLE_PROPERTY.defaultValue
+        return EditorConfigGenerator(EDITOR_CONFIG_LOADER).generateEditorconfig(
+            filePath,
+            ktLintRuleEngineConfiguration.getRules(),
+            codeStyle,
+        )
     }
 
     /**
      * Reduce memory usage by cleaning internal caches.
      */
     public fun trimMemory() {
-        THREAD_SAFER_EDITOR_CONFIG_CACHE.clear()
+        THREAD_SAFE_EDITOR_CONFIG_CACHE.clear()
     }
 
     /**
      * Get the list of files which will be accessed by KtLint when linting or formatting the given file or directory.
-     * The API consumer can use this list to observe changes in '.editorconfig` files. Whenever such a change is
+     * The API consumer can use this list to observe changes in '.editorconfig' files. Whenever such a change is
      * observed, the API consumer should call [reloadEditorConfigFile].
      * To avoid unnecessary access to the file system, it is best to call this method only once for the root of the
      * project which is to be [lint] or [format].
@@ -283,55 +512,70 @@ public object KtLint {
      * '.editorconfig' files which need to be observed.
      */
     public fun reloadEditorConfigFile(path: Path) {
-        THREAD_SAFER_EDITOR_CONFIG_CACHE.reloadIfExists(
+        THREAD_SAFE_EDITOR_CONFIG_CACHE.reloadIfExists(
             Resource.Resources.ofPath(path, StandardCharsets.UTF_8),
         )
     }
 
+    public companion object {
+        internal const val UTF8_BOM = "\uFEFF"
+
+        public const val STDIN_FILE: String = KtLint.STDIN_FILE
+
+        internal val EDITOR_CONFIG_LOADER = EditorConfigLoader(FileSystems.getDefault())
+    }
+}
+
+/**
+ * The configuration of the [KtLintRuleEngine].
+ */
+public data class KtLintRuleEngineConfiguration(
     /**
-     * Generates Kotlin `.editorconfig` file section content based on [ExperimentalParams].
-     *
-     * Method loads merged `.editorconfig` content from [ExperimentalParams] path,
-     * and then, by querying rules from [ExperimentalParams] for missing properties default values,
-     * generates Kotlin section (default is `[*.{kt,kts}]`) new content.
-     *
-     * Rule should implement [UsesEditorConfigProperties] interface to support this.
-     *
-     * @return Kotlin section editorconfig content. For example:
-     * ```properties
-     * final-newline=true
-     * indent-size=4
-     * ```
+     * The set of [RuleProvider]s to be invoked by the [KtLintRuleEngine]. A [RuleProvider] is able to create a new instance of a [Rule] so
+     * that it can keep internal state and be called thread-safe manner
      */
-    public fun generateKotlinEditorConfigSection(
-        params: ExperimentalParams,
-    ): String {
-        val filePath = params.normalizedFilePath
-        requireNotNull(filePath) {
-            "Please pass path to existing Kotlin file"
+    val ruleProviders: Set<RuleProvider> = emptySet(),
+
+    /**
+     * The default values for `.editorconfig` properties which are not set explicitly in any '.editorconfig' file located on the path of the
+     * file which is processed with the [KtLintRuleEngine]. If a property is set in [editorConfigDefaults] this takes precedence above the
+     * default values defined in the KtLint project.
+     */
+    val editorConfigDefaults: EditorConfigDefaults = EMPTY_EDITOR_CONFIG_DEFAULTS,
+
+    /**
+     * Override values for `.editorconfig` properties. If a property is set in [editorConfigOverride] it takes precedence above the same
+     * property being set in any other way.
+     */
+    val editorConfigOverride: EditorConfigOverride = EMPTY_EDITOR_CONFIG_OVERRIDE,
+
+    /**
+     * **For internal use only**: indicates that linting was invoked from KtLint CLI tool. It enables some internals workarounds for Kotlin
+     * Compiler initialization. This property is likely to be removed in any of next versions without further notice.
+     */
+    val isInvokedFromCli: Boolean = false,
+
+    /**
+     *
+     */
+    val debug: Boolean = false
+) {
+    init {
+        require(ruleProviders.any()) {
+            "A non-empty set of 'ruleProviders' need to be provided"
         }
-        val codeStyle =
-            params
-                .editorConfigOverride
-                .properties[CODE_STYLE_PROPERTY]
-                ?.parsed
-                ?.safeAs<DefaultEditorConfigProperties.CodeStyleValue>()
-                ?: CODE_STYLE_PROPERTY.defaultValue
-        return EditorConfigGenerator(EDITOR_CONFIG_LOADER).generateEditorconfig(
-            filePath,
-            params.getRules(),
-            codeStyle,
-        )
     }
 
-    private fun determineLineSeparator(fileContent: String, userData: Map<String, String>): String {
-        val eol = userData["end_of_line"]?.trim()?.lowercase(Locale.getDefault())
-        return when {
-            eol == "native" -> System.lineSeparator()
-            eol == "crlf" || eol != "lf" && fileContent.lastIndexOf('\r') != -1 -> "\r\n"
-            else -> "\n"
-        }
-    }
+    internal val ruleRunners: Set<RuleRunner> =
+        ruleProviders
+            .map { RuleRunner(it) }
+            .distinctBy { it.ruleId }
+            .toSet()
+
+    internal fun getRules(): Set<Rule> =
+        ruleRunners
+            .map { it.getRule() }
+            .toSet()
 }
 
 private fun RuleExecutionException.toKtLintRuleException(fileName: String?) =

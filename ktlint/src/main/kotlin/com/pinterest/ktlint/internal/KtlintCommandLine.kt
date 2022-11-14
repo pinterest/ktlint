@@ -3,6 +3,7 @@ package com.pinterest.ktlint.internal
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
 import com.pinterest.ktlint.core.KtLint
+import com.pinterest.ktlint.core.KtLintRuleEngine
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.Reporter
 import com.pinterest.ktlint.core.ReporterProvider
@@ -377,9 +378,9 @@ internal class KtlintCommandLine {
         reporter: Reporter,
     ) {
         report(
-            KtLint.STDIN_FILE,
+            KtLintRuleEngine.STDIN_FILE,
             process(
-                fileName = KtLint.STDIN_FILE,
+                fileName = KtLintRuleEngine.STDIN_FILE,
                 fileContent = String(System.`in`.readBytes()),
                 editorConfigDefaults = editorConfigDefaults,
                 editorConfigOverride = editorConfigOverride,

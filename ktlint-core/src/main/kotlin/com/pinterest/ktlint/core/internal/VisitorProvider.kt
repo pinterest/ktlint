@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.core.internal
 
 import com.pinterest.ktlint.core.KtLint
+import com.pinterest.ktlint.core.KtLintRuleEngineConfiguration
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.DISABLED_RULES_PROPERTY
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.KTLINT_DISABLED_RULES_PROPERTY
@@ -20,7 +21,7 @@ private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 private val RULE_RUNNER_SORTER = RuleRunnerSorter()
 
 internal class VisitorProvider(
-    private val params: KtLint.ExperimentalParams,
+    ktLintRuleEngineConfiguration: KtLintRuleEngineConfiguration,
     /**
      * Creates a new [RuleRunnerSorter]. Only to be used in unit tests where the same set of rules are used with distinct [Rule.VisitorModifier]s.
      */
@@ -39,7 +40,7 @@ internal class VisitorProvider(
             RuleRunnerSorter()
         } else {
             RULE_RUNNER_SORTER
-        }.getSortedRuleRunners(params.ruleRunners, params.debug)
+        }.getSortedRuleRunners(ktLintRuleEngineConfiguration.ruleRunners, ktLintRuleEngineConfiguration.debug)
 
     internal fun visitor(editorConfigProperties: EditorConfigProperties): ((rule: Rule, fqRuleId: String) -> Unit) -> Unit {
         val enabledRuleRunners =
