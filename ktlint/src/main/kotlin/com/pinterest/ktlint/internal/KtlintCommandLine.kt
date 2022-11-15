@@ -2,8 +2,6 @@ package com.pinterest.ktlint.internal
 
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
-import com.pinterest.ktlint.core.Code
-import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.KtLintRuleEngine
 import com.pinterest.ktlint.core.KtLintRuleEngineConfiguration
 import com.pinterest.ktlint.core.LintError
@@ -245,20 +243,22 @@ internal class KtlintCommandLine {
         get() = Level.DEBUG.isGreaterOrEqual(minLogLevel)
         private set
 
-    internal val editorConfigDefaults = EditorConfigDefaults.load(
-        editorConfigPath
-            ?.expandTildeToFullPath()
-            ?.let { path -> Paths.get(path) },
-    )
+    internal val editorConfigDefaults: EditorConfigDefaults
+        get() = EditorConfigDefaults.load(
+            editorConfigPath
+                ?.expandTildeToFullPath()
+                ?.let { path -> Paths.get(path) },
+        )
 
-    internal val editorConfigOverride =
-        EditorConfigOverride
-            .EMPTY_EDITOR_CONFIG_OVERRIDE
-            .applyIf(disabledRules.isNotBlank()) {
-                plus(KTLINT_DISABLED_RULES_PROPERTY to disabledRules)
-            }.applyIf(android) {
-                plus(CODE_STYLE_PROPERTY to android)
-            }
+    internal val editorConfigOverride: EditorConfigOverride
+        get() =
+            EditorConfigOverride
+                .EMPTY_EDITOR_CONFIG_OVERRIDE
+                .applyIf(disabledRules.isNotBlank()) {
+                    plus(KTLINT_DISABLED_RULES_PROPERTY to disabledRules)
+                }.applyIf(android) {
+                    plus(CODE_STYLE_PROPERTY to android)
+                }
 
     fun run() {
         if (debugOld != null || trace != null || verbose != null) {
@@ -289,20 +289,6 @@ internal class KtlintCommandLine {
 
         val ruleProviders = rulesetJarFiles.loadRuleProviders(experimental, debug, disabledRules)
         var reporter = loadReporter()
-
-        val editorConfigDefaults = EditorConfigDefaults.load(
-            editorConfigPath
-                ?.expandTildeToFullPath()
-                ?.let { path -> Paths.get(path) },
-        )
-        val editorConfigOverride =
-            EditorConfigOverride
-                .EMPTY_EDITOR_CONFIG_OVERRIDE
-                .applyIf(disabledRules.isNotBlank()) {
-                    plus(KTLINT_DISABLED_RULES_PROPERTY to disabledRules)
-                }.applyIf(android) {
-                    plus(CODE_STYLE_PROPERTY to android)
-                }
 
         val ktLintRuleEngine = KtLintRuleEngine(
             KtLintRuleEngineConfiguration(
