@@ -303,6 +303,7 @@ internal class KtlintCommandLine {
         reporter.beforeAll()
         if (stdin) {
             lintStdin(
+                ktLintRuleEngine,
                 ruleProviders,
                 editorConfigDefaults,
                 editorConfigOverride,
@@ -323,6 +324,7 @@ internal class KtlintCommandLine {
                         }.lintErrorsPerFile
                 }
             lintFiles(
+                ktLintRuleEngine,
                 ruleProviders,
                 editorConfigDefaults,
                 editorConfigOverride,
@@ -360,6 +362,7 @@ internal class KtlintCommandLine {
     }
 
     private fun lintFiles(
+        ktLintRuleEngine: KtLintRuleEngine,
         ruleProviders: Set<RuleProvider>,
         editorConfigDefaults: EditorConfigDefaults,
         editorConfigOverride: EditorConfigOverride,
@@ -373,6 +376,7 @@ internal class KtlintCommandLine {
             .map { file ->
                 Callable {
                     file to process(
+                        ktLintRuleEngine = ktLintRuleEngine,
                         fileName = file.path,
                         fileContent = file.readText(),
                         editorConfigDefaults = editorConfigDefaults,
@@ -385,6 +389,7 @@ internal class KtlintCommandLine {
     }
 
     private fun lintStdin(
+        ktLintRuleEngine: KtLintRuleEngine,
         ruleProviders: Set<RuleProvider>,
         editorConfigDefaults: EditorConfigDefaults,
         editorConfigOverride: EditorConfigOverride,
@@ -393,6 +398,7 @@ internal class KtlintCommandLine {
         report(
             KtLintRuleEngine.STDIN_FILE,
             process(
+                ktLintRuleEngine = ktLintRuleEngine,
                 fileName = KtLintRuleEngine.STDIN_FILE,
                 fileContent = String(System.`in`.readBytes()),
                 editorConfigDefaults = editorConfigDefaults,
@@ -425,6 +431,7 @@ internal class KtlintCommandLine {
     }
 
     private fun process(
+        ktLintRuleEngine: KtLintRuleEngine,
         fileName: String,
         fileContent: String,
         editorConfigDefaults: EditorConfigDefaults,
