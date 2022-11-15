@@ -2,8 +2,10 @@ package com.pinterest.ktlint.internal
 
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
+import com.pinterest.ktlint.core.Code
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.KtLintRuleEngine
+import com.pinterest.ktlint.core.KtLintRuleEngineConfiguration
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.Reporter
 import com.pinterest.ktlint.core.ReporterProvider
@@ -243,6 +245,21 @@ internal class KtlintCommandLine {
         get() = Level.DEBUG.isGreaterOrEqual(minLogLevel)
         private set
 
+    internal val editorConfigDefaults = EditorConfigDefaults.load(
+        editorConfigPath
+            ?.expandTildeToFullPath()
+            ?.let { path -> Paths.get(path) },
+    )
+
+    internal val editorConfigOverride =
+        EditorConfigOverride
+            .EMPTY_EDITOR_CONFIG_OVERRIDE
+            .applyIf(disabledRules.isNotBlank()) {
+                plus(KTLINT_DISABLED_RULES_PROPERTY to disabledRules)
+            }.applyIf(android) {
+                plus(CODE_STYLE_PROPERTY to android)
+            }
+
     fun run() {
         if (debugOld != null || trace != null || verbose != null) {
             if (minLogLevel == Level.OFF) {
@@ -272,19 +289,6 @@ internal class KtlintCommandLine {
 
         val ruleProviders = rulesetJarFiles.loadRuleProviders(experimental, debug, disabledRules)
         var reporter = loadReporter()
-        val baselineLintErrorsPerFile =
-            if (baselinePath == "") {
-                emptyMap()
-            } else {
-                loadBaseline(baselinePath)
-                    .also { baseline ->
-                        if (baseline.status == INVALID || baseline.status == NOT_FOUND) {
-                            val baselineReporter = ReporterTemplate("baseline", null, emptyMap(), baselinePath)
-                            val reporterProviderById = loadReporters(emptyList())
-                            reporter = Reporter.from(reporter, baselineReporter.toReporter(reporterProviderById))
-                        }
-                    }.lintErrorsPerFile
-            }
 
         val editorConfigDefaults = EditorConfigDefaults.load(
             editorConfigPath
@@ -300,6 +304,16 @@ internal class KtlintCommandLine {
                     plus(CODE_STYLE_PROPERTY to android)
                 }
 
+        val ktLintRuleEngine = KtLintRuleEngine(
+            KtLintRuleEngineConfiguration(
+                ruleProviders = ruleProviders,
+                editorConfigDefaults = editorConfigDefaults,
+                editorConfigOverride = editorConfigOverride,
+                isInvokedFromCli = true,
+                debug = debug,
+            ),
+        )
+
         reporter.beforeAll()
         if (stdin) {
             lintStdin(
@@ -309,6 +323,19 @@ internal class KtlintCommandLine {
                 reporter,
             )
         } else {
+            val baselineLintErrorsPerFile =
+                if (baselinePath == "") {
+                    emptyMap()
+                } else {
+                    loadBaseline(baselinePath)
+                        .also { baseline ->
+                            if (baseline.status == INVALID || baseline.status == NOT_FOUND) {
+                                val baselineReporter = ReporterTemplate("baseline", null, emptyMap(), baselinePath)
+                                val reporterProviderById = loadReporters(emptyList())
+                                reporter = Reporter.from(reporter, baselineReporter.toReporter(reporterProviderById))
+                            }
+                        }.lintErrorsPerFile
+                }
             lintFiles(
                 ruleProviders,
                 editorConfigDefaults,
@@ -317,7 +344,7 @@ internal class KtlintCommandLine {
                 reporter,
             )
         }
-        reporter.afterAll()
+
         logger.debug { "${System.currentTimeMillis() - start}ms / $fileNumber file(s) / $errorNumber error(s)" }
         if (fileNumber.get() == 0) {
             // Do not return an error as this would implicate that in a multi-module project, each module has to contain
@@ -420,7 +447,7 @@ internal class KtlintCommandLine {
         ruleProviders: Set<RuleProvider>,
     ): List<LintErrorWithCorrectionInfo> {
         logger.trace {
-            val fileLocation = if (fileName != KtLint.STDIN_FILE) File(fileName).location(relative) else fileName
+            val fileLocation = if (fileName != KtLintRuleEngine.STDIN_FILE) File(fileName).location(relative) else fileName
             "Checking $fileLocation"
         }
         val result = ArrayList<LintErrorWithCorrectionInfo>()
