@@ -2,6 +2,8 @@ package com.pinterest.ktlint.internal
 
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
+import com.pinterest.ktlint.core.Code
+import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.KtLintRuleEngine
 import com.pinterest.ktlint.core.KtLintRuleEngineConfiguration
 import com.pinterest.ktlint.core.LintError
@@ -476,20 +478,18 @@ internal class KtlintCommandLine {
             }
         } else {
             try {
-                lintFile(
-                    fileName,
-                    fileContent,
-                    ruleProviders,
-                    editorConfigDefaults,
-                    editorConfigOverride,
-                    editorConfigPath,
-                    debug,
-                ) { lintError ->
-                    if (baselineLintErrors.doesNotContain(lintError)) {
-                        result.add(LintErrorWithCorrectionInfo(lintError, false))
-                        tripped.set(true)
+                ktLintRuleEngine
+                    .lint(
+                        Code(
+                            text = fileContent,
+                            fileName = fileName
+                        )
+                    ) { lintError ->
+                        if (baselineLintErrors.doesNotContain(lintError)) {
+                            result.add(LintErrorWithCorrectionInfo(lintError, false))
+                            tripped.set(true)
+                        }
                     }
-                }
             } catch (e: Exception) {
                 result.add(LintErrorWithCorrectionInfo(e.toLintError(fileName), false))
                 tripped.set(true)
