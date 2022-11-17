@@ -25,10 +25,13 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.FileSystems
 import java.nio.file.Path
 import java.nio.file.Paths
+import mu.KotlinLogging
 import org.ec4j.core.Resource
 import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.openapi.util.Key
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
+
+private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
 @Deprecated("Marked for removal in KtLint 0.49. See changelog or KDoc for more information.")
 @Suppress("MemberVisibilityCanBePrivate")
@@ -327,7 +330,9 @@ public class Code private constructor(
     )
 }
 
-public class KtLintRuleEngine(private val ktLintRuleEngineConfiguration: KtLintRuleEngineConfiguration) {
+public class KtLintRuleEngine(internal val ktLintRuleEngineConfiguration: KtLintRuleEngineConfiguration) {
+    internal val editorConfigLoader = EditorConfigLoader(FileSystems.getDefault())
+
     /**
      * Check source for lint errors.
      *
@@ -338,7 +343,7 @@ public class KtLintRuleEngine(private val ktLintRuleEngineConfiguration: KtLintR
         code: Code,
         callback: (LintError) -> Unit = { },
     ) {
-        val ruleExecutionContext = createRuleExecutionContext(ktLintRuleEngineConfiguration, code)
+        val ruleExecutionContext = createRuleExecutionContext(this, code)
         val errors = mutableListOf<LintError>()
 
         try {
@@ -357,6 +362,8 @@ public class KtLintRuleEngine(private val ktLintRuleEngineConfiguration: KtLintR
         errors
             .sortedWith { l, r -> if (l.line != r.line) l.line - r.line else l.col - r.col }
             .forEach { e -> callback(e) }
+
+        LOGGER.debug("Finished with linting file '${code.fileName}'")
     }
 
     /**
@@ -370,7 +377,7 @@ public class KtLintRuleEngine(private val ktLintRuleEngineConfiguration: KtLintR
         callback: (LintError, Boolean) -> Unit = { _, _ -> },
     ): String {
         val hasUTF8BOM = code.content.startsWith(UTF8_BOM)
-        val ruleExecutionContext = createRuleExecutionContext(ktLintRuleEngineConfiguration, code)
+        val ruleExecutionContext = createRuleExecutionContext(this, code)
 
         var tripped = false
         var mutated = false
@@ -446,6 +453,8 @@ public class KtLintRuleEngine(private val ktLintRuleEngineConfiguration: KtLintR
             UTF8_BOM + formattedCode
         } else {
             formattedCode
+        }.also {
+            LOGGER.debug("Finished with formatting file '${code.fileName}'")
         }
     }
 
@@ -481,7 +490,7 @@ public class KtLintRuleEngine(private val ktLintRuleEngineConfiguration: KtLintR
                 ?.parsed
                 ?.safeAs<DefaultEditorConfigProperties.CodeStyleValue>()
                 ?: CODE_STYLE_PROPERTY.defaultValue
-        return EditorConfigGenerator(EDITOR_CONFIG_LOADER).generateEditorconfig(
+        return EditorConfigGenerator(this.editorConfigLoader).generateEditorconfig(
             filePath,
             ktLintRuleEngineConfiguration.getRules(),
             codeStyle,
@@ -521,8 +530,6 @@ public class KtLintRuleEngine(private val ktLintRuleEngineConfiguration: KtLintR
         internal const val UTF8_BOM = "\uFEFF"
 
         public const val STDIN_FILE: String = KtLint.STDIN_FILE
-
-        internal val EDITOR_CONFIG_LOADER = EditorConfigLoader(FileSystems.getDefault())
     }
 }
 

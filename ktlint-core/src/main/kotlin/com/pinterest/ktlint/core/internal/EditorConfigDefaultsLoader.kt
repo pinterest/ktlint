@@ -46,7 +46,7 @@ internal class EditorConfigDefaultsLoader {
         return THREAD_SAFE_EDITOR_CONFIG_CACHE
             .get(editorConfigFilePath.resource(), editorConfigLoader)
             .also {
-                LOGGER.trace {
+                LOGGER.debug {
                     it
                         .toString()
                         .split("\n")

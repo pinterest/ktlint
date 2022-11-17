@@ -21,9 +21,9 @@ internal class RuleRunner(private val provider: RuleProvider) {
      * provided. This prevents leakage of the state of the Rule between executions.
      */
     fun getRule(): Rule {
-        if (rule.isUsedForTraversalOfAST()) {
+//        if (rule.isUsedForTraversalOfAST()) {
             rule = provider.createNewRuleInstance()
-        }
+//        }
         return rule
     }
 

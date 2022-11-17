@@ -2,12 +2,13 @@ package com.pinterest.ktlint.core.internal
 
 import com.pinterest.ktlint.core.Code
 import com.pinterest.ktlint.core.KtLint
-import com.pinterest.ktlint.core.KtLintRuleEngine.Companion.EDITOR_CONFIG_LOADER
+import com.pinterest.ktlint.core.KtLintRuleEngine
 import com.pinterest.ktlint.core.KtLintRuleEngine.Companion.UTF8_BOM
-import com.pinterest.ktlint.core.KtLintRuleEngineConfiguration
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.KtLintParseException
+import com.pinterest.ktlint.core.initKtLintKLogger
+import mu.KotlinLogging
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
@@ -16,6 +17,8 @@ import org.jetbrains.kotlin.idea.KotlinLanguage
 import org.jetbrains.kotlin.psi.KtFile
 
 private val KOTLIN_PSI_FILE_FACTORY_PROVIDER = KotlinPsiFileFactoryProvider()
+
+private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
 internal class RuleExecutionContext private constructor(
     val rootNode: FileASTNode,
@@ -107,10 +110,10 @@ internal class RuleExecutionContext private constructor(
 
     companion object {
         internal fun createRuleExecutionContext(
-            ktLintRuleEngineConfiguration: KtLintRuleEngineConfiguration,
+            ktLintRuleEngine: KtLintRuleEngine,
             code: Code,
         ): RuleExecutionContext {
-            val psiFileFactory = KOTLIN_PSI_FILE_FACTORY_PROVIDER.getKotlinPsiFileFactory(ktLintRuleEngineConfiguration.isInvokedFromCli)
+            val psiFileFactory = KOTLIN_PSI_FILE_FACTORY_PROVIDER.getKotlinPsiFileFactory(ktLintRuleEngine.ktLintRuleEngineConfiguration.isInvokedFromCli)
             val normalizedText = normalizeText(code.content)
             val positionInTextLocator = buildPositionInTextLocator(normalizedText)
 
@@ -134,12 +137,17 @@ internal class RuleExecutionContext private constructor(
 
             val rootNode = psiFile.node
 
-            val editorConfigProperties = EDITOR_CONFIG_LOADER.load(
-                filePath = code.filePath,
-                rules = ktLintRuleEngineConfiguration.getRules(),
-                editorConfigDefaults = ktLintRuleEngineConfiguration.editorConfigDefaults,
-                editorConfigOverride = ktLintRuleEngineConfiguration.editorConfigOverride,
-            )
+            val editorConfigProperties = with(ktLintRuleEngine.ktLintRuleEngineConfiguration) {
+                ktLintRuleEngine.editorConfigLoader.load(
+                    filePath = code.filePath,
+                    rules = getRules(),
+                    editorConfigDefaults = editorConfigDefaults,
+                    editorConfigOverride = editorConfigOverride,
+                )
+            }
+            LOGGER.debug {
+                "Editor config properties for file '${code.filePath}': $editorConfigProperties"
+            }
 
             if (!code.isStdIn) {
                 // TODO: Remove in KtLint 0.49

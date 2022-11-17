@@ -1,5 +1,6 @@
 package com.pinterest.ktlint
 
+import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ktlint.environment.OsEnvironment
 import java.io.File
 import java.io.InputStream
@@ -13,19 +14,18 @@ import kotlin.io.path.Path
 import kotlin.io.path.copyTo
 import kotlin.io.path.createDirectories
 import kotlin.io.path.relativeToOrSelf
+import mu.KotlinLogging
 import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.AbstractBooleanAssert
 import org.assertj.core.api.AbstractIntegerAssert
-import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions
 import org.assertj.core.api.ListAssert
 import org.junit.jupiter.api.fail
-import org.junit.jupiter.api.io.TempDir
 
-abstract class BaseCLITest {
+private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
+
+class CommandLineTestRunner(private val tempDir: Path) {
     private val ktlintCli: String = System.getProperty("ktlint-cli")
-
-    @TempDir
-    private lateinit var tempDir: Path
 
     /**
      * Run ktlint CLI in a separate process. All files in directory [testProjectName] are copied to a temporary
@@ -33,7 +33,7 @@ abstract class BaseCLITest {
      * the placeholder [BASE_DIR_PLACEHOLDER] to obtain a fully qualified path. During the test execution this
      * placeholder is replaces with the actual directory name that is created for that unit test.
      */
-    fun runKtLintCliProcess(
+    fun run(
         testProjectName: String,
         arguments: List<String> = emptyList(),
         stdin: InputStream? = null,
@@ -144,9 +144,7 @@ abstract class BaseCLITest {
             else -> "$ktlintCli -l=debug "
         }
 
-        return arguments.joinToString(prefix = commandPrefix, separator = " ") {
-            it.replace(BASE_DIR_PLACEHOLDER, tempDir.toString())
-        }
+        return arguments.joinToString(prefix = commandPrefix, separator = " ")
     }
 
     private fun String?.javaVersionAsInt(): Int? {
@@ -200,32 +198,14 @@ abstract class BaseCLITest {
                     attrs: BasicFileAttributes,
                 ): FileVisitResult {
                     val relativeFile = file.relativeToOrSelf(this@copyRecursively)
-                    file.copyTo(dest.resolve(relativeFile))
+                    val destinationFile = dest.resolve(relativeFile)
+                    LOGGER.trace { "Copy '$relativeFile' to '$destinationFile'" }
+                    file.copyTo(destinationFile)
                     return FileVisitResult.CONTINUE
                 }
             },
         )
     }
-
-    protected fun ListAssert<String>.containsLineMatching(string: String): ListAssert<String> =
-        this.anyMatch {
-            it.contains(string)
-        }
-
-    protected fun ListAssert<String>.containsLineMatching(regex: Regex): ListAssert<String> =
-        this.anyMatch {
-            it.matches(regex)
-        }
-
-    protected fun ListAssert<String>.doesNotContainLineMatching(string: String): ListAssert<String> =
-        this.noneMatch {
-            it.contains(string)
-        }
-
-    protected fun ListAssert<String>.doesNotContainLineMatching(regex: Regex): ListAssert<String> =
-        this.noneMatch {
-            it.matches(regex)
-        }
 
     data class ExecutionResult(
         val exitCode: Int,
@@ -234,7 +214,7 @@ abstract class BaseCLITest {
         val testProject: Path,
     ) {
         fun assertNormalExitCode(): AbstractIntegerAssert<*> =
-            assertThat(exitCode)
+            Assertions.assertThat(exitCode)
                 .withFailMessage(
                     "Expected process to exit with exitCode 0, but was $exitCode."
                         .followedByIndentedList(
@@ -246,12 +226,12 @@ abstract class BaseCLITest {
                 ).isEqualTo(0)
 
         fun assertErrorExitCode(): AbstractIntegerAssert<*> =
-            assertThat(exitCode)
+            Assertions.assertThat(exitCode)
                 .withFailMessage("Execution was expected to finish with error. However, exitCode is $exitCode")
                 .isNotEqualTo(0)
 
         fun assertErrorOutputIsEmpty(): AbstractBooleanAssert<*> =
-            assertThat(errorOutput.isEmpty())
+            Assertions.assertThat(errorOutput.isEmpty())
                 .withFailMessage(
                     "Expected error output to be empty but was:".followedByIndentedList(errorOutput),
                 ).isTrue
@@ -269,7 +249,7 @@ abstract class BaseCLITest {
                     .toFile()
                     .readText()
 
-            return assertThat(formattedCode).isNotEqualTo(originalCode)
+            return Assertions.assertThat(formattedCode).isNotEqualTo(originalCode)
         }
     }
 
@@ -277,7 +257,6 @@ abstract class BaseCLITest {
         private const val WAIT_INTERVAL_DURATION = 100L
         private const val WAIT_INTERVAL_MAX_OCCURRENCES = 1000
         private val TEST_PROJECTS_PATHS: Path = Path("src", "test", "resources", "cli")
-        const val BASE_DIR_PLACEHOLDER = "__TEMP_DIR__"
         private const val PATH = "PATH"
         private val JAVA_VERSION_REGEX = Regex("""^1\.(?<version>\d+)(?:\.[^.].*)?$""")
 
@@ -286,9 +265,34 @@ abstract class BaseCLITest {
     }
 }
 
+@Suppress("unused")
 private fun String.followedByIndentedList(lines: List<String>, indentLevel: Int = 1): String =
     lines
         .ifEmpty { listOf("<empty>") }
         .joinToString(prefix = "$this\n", separator = "\n") {
             "    ".repeat(indentLevel).plus(it)
         }
+
+@Suppress("unused")
+internal fun ListAssert<String>.containsLineMatching(string: String): ListAssert<String> =
+    this.anyMatch {
+        it.contains(string)
+    }
+
+@Suppress("unused")
+internal fun ListAssert<String>.containsLineMatching(regex: Regex): ListAssert<String> =
+    this.anyMatch {
+        it.matches(regex)
+    }
+
+@Suppress("unused")
+internal fun ListAssert<String>.doesNotContainLineMatching(string: String): ListAssert<String> =
+    this.noneMatch {
+        it.contains(string)
+    }
+
+@Suppress("unused")
+internal fun ListAssert<String>.doesNotContainLineMatching(regex: Regex): ListAssert<String> =
+    this.noneMatch {
+        it.matches(regex)
+    }

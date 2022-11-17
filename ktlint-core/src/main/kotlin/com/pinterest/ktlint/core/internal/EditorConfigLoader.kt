@@ -77,7 +77,7 @@ public class EditorConfigLoader(
                         loaded[it.key.type.name] = property(it.key, it.value)
                     }
             }.also { editorConfigProperties ->
-                LOGGER.trace { editorConfigProperties.prettyPrint(normalizedFilePath) }
+                LOGGER.debug { editorConfigProperties.prettyPrint(normalizedFilePath) }
             }
     }
 

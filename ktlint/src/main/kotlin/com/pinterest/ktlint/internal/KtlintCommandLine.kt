@@ -3,13 +3,11 @@ package com.pinterest.ktlint.internal
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
 import com.pinterest.ktlint.core.Code
-import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.KtLintRuleEngine
 import com.pinterest.ktlint.core.KtLintRuleEngineConfiguration
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.Reporter
 import com.pinterest.ktlint.core.ReporterProvider
-import com.pinterest.ktlint.core.RuleProvider
 import com.pinterest.ktlint.core.api.Baseline.Status.INVALID
 import com.pinterest.ktlint.core.api.Baseline.Status.NOT_FOUND
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.CODE_STYLE_PROPERTY
@@ -245,14 +243,14 @@ internal class KtlintCommandLine {
         get() = Level.DEBUG.isGreaterOrEqual(minLogLevel)
         private set
 
-    internal val editorConfigDefaults: EditorConfigDefaults
+    private val editorConfigDefaults: EditorConfigDefaults
         get() = EditorConfigDefaults.load(
             editorConfigPath
                 ?.expandTildeToFullPath()
                 ?.let { path -> Paths.get(path) },
         )
 
-    internal val editorConfigOverride: EditorConfigOverride
+    private val editorConfigOverride: EditorConfigOverride
         get() =
             EditorConfigOverride
                 .EMPTY_EDITOR_CONFIG_OVERRIDE
@@ -306,9 +304,6 @@ internal class KtlintCommandLine {
         if (stdin) {
             lintStdin(
                 ktLintRuleEngine,
-                ruleProviders,
-                editorConfigDefaults,
-                editorConfigOverride,
                 reporter,
             )
         } else {
@@ -327,9 +322,6 @@ internal class KtlintCommandLine {
                 }
             lintFiles(
                 ktLintRuleEngine,
-                ruleProviders,
-                editorConfigDefaults,
-                editorConfigOverride,
                 baselineLintErrorsPerFile,
                 reporter,
             )
@@ -365,9 +357,6 @@ internal class KtlintCommandLine {
 
     private fun lintFiles(
         ktLintRuleEngine: KtLintRuleEngine,
-        ruleProviders: Set<RuleProvider>,
-        editorConfigDefaults: EditorConfigDefaults,
-        editorConfigOverride: EditorConfigOverride,
         lintErrorsPerFile: Map<String, List<LintError>>,
         reporter: Reporter,
     ) {
@@ -379,12 +368,11 @@ internal class KtlintCommandLine {
                 Callable {
                     file to process(
                         ktLintRuleEngine = ktLintRuleEngine,
-                        fileName = file.path,
-                        fileContent = file.readText(),
-                        editorConfigDefaults = editorConfigDefaults,
-                        editorConfigOverride = editorConfigOverride,
+                        code = Code(
+                            text = file.readText(),
+                            fileName = file.path
+                        ),
                         baselineLintErrors = lintErrorsPerFile.getOrDefault(file.toPath().relativeRoute, emptyList()),
-                        ruleProviders = ruleProviders,
                     )
                 }
             }.parallel({ (file, errList) -> report(file.location(relative), errList, reporter) })
@@ -392,21 +380,17 @@ internal class KtlintCommandLine {
 
     private fun lintStdin(
         ktLintRuleEngine: KtLintRuleEngine,
-        ruleProviders: Set<RuleProvider>,
-        editorConfigDefaults: EditorConfigDefaults,
-        editorConfigOverride: EditorConfigOverride,
         reporter: Reporter,
     ) {
         report(
             KtLintRuleEngine.STDIN_FILE,
             process(
                 ktLintRuleEngine = ktLintRuleEngine,
-                fileName = KtLintRuleEngine.STDIN_FILE,
-                fileContent = String(System.`in`.readBytes()),
-                editorConfigDefaults = editorConfigDefaults,
-                editorConfigOverride = editorConfigOverride,
+                code = Code(
+                    text = String(System.`in`.readBytes()),
+                    fileName = KtLintRuleEngine.STDIN_FILE
+                ),
                 baselineLintErrors = emptyList(),
-                ruleProviders = ruleProviders,
             ),
             reporter,
         )
@@ -434,13 +418,10 @@ internal class KtlintCommandLine {
 
     private fun process(
         ktLintRuleEngine: KtLintRuleEngine,
-        fileName: String,
-        fileContent: String,
-        editorConfigDefaults: EditorConfigDefaults,
-        editorConfigOverride: EditorConfigOverride,
+        code: Code,
         baselineLintErrors: List<LintError>,
-        ruleProviders: Set<RuleProvider>,
     ): List<LintErrorWithCorrectionInfo> {
+        val fileName = code.fileName
         logger.trace {
             val fileLocation = if (fileName != KtLintRuleEngine.STDIN_FILE) File(fileName).location(relative) else fileName
             "Checking $fileLocation"
@@ -448,15 +429,7 @@ internal class KtlintCommandLine {
         val result = ArrayList<LintErrorWithCorrectionInfo>()
         if (format) {
             val formattedFileContent = try {
-                formatFile(
-                    fileName,
-                    fileContent,
-                    ruleProviders,
-                    editorConfigDefaults,
-                    editorConfigOverride,
-                    editorConfigPath,
-                    debug,
-                ) { lintError, corrected ->
+                ktLintRuleEngine.format(code) { lintError, corrected ->
                     if (baselineLintErrors.doesNotContain(lintError)) {
                         result.add(LintErrorWithCorrectionInfo(lintError, corrected))
                         if (!corrected) {
@@ -467,29 +440,23 @@ internal class KtlintCommandLine {
             } catch (e: Exception) {
                 result.add(LintErrorWithCorrectionInfo(e.toLintError(fileName), false))
                 tripped.set(true)
-                fileContent // making sure `cat file | ktlint --stdint > file` is (relatively) safe
+                code.content // making sure `cat file | ktlint --stdin > file` is (relatively) safe
             }
             if (stdin) {
                 print(formattedFileContent)
             } else {
-                if (fileContent !== formattedFileContent) {
+                if (code.content !== formattedFileContent) {
                     File(fileName).writeText(formattedFileContent, charset("UTF-8"))
                 }
             }
         } else {
             try {
-                ktLintRuleEngine
-                    .lint(
-                        Code(
-                            text = fileContent,
-                            fileName = fileName
-                        )
-                    ) { lintError ->
-                        if (baselineLintErrors.doesNotContain(lintError)) {
-                            result.add(LintErrorWithCorrectionInfo(lintError, false))
-                            tripped.set(true)
-                        }
+                ktLintRuleEngine.lint(code) { lintError ->
+                    if (baselineLintErrors.doesNotContain(lintError)) {
+                        result.add(LintErrorWithCorrectionInfo(lintError, false))
+                        tripped.set(true)
                     }
+                }
             } catch (e: Exception) {
                 result.add(LintErrorWithCorrectionInfo(e.toLintError(fileName), false))
                 tripped.set(true)

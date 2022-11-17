@@ -1,10 +1,5 @@
 package com.pinterest.ktlint.internal
 
-import com.pinterest.ktlint.core.KtLint
-import com.pinterest.ktlint.core.LintError
-import com.pinterest.ktlint.core.RuleProvider
-import com.pinterest.ktlint.core.api.EditorConfigDefaults
-import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.initKtLintKLogger
 import java.io.File
 import java.nio.file.FileSystem
@@ -353,57 +348,3 @@ internal fun File.location(relative: Boolean) =
         this.path
     }
 
-/**
- * Run lint over common kotlin file or kotlin script file.
- */
-internal fun lintFile(
-    fileName: String,
-    fileContents: String,
-    ruleProviders: Set<RuleProvider>,
-    editorConfigDefaults: EditorConfigDefaults,
-    editorConfigOverride: EditorConfigOverride,
-    editorConfigPath: String? = null,
-    debug: Boolean = false,
-    lintErrorCallback: (LintError) -> Unit = {},
-) = KtLint.lint(
-    KtLint.ExperimentalParams(
-        fileName = fileName,
-        text = fileContents,
-        ruleProviders = ruleProviders,
-        script = !fileName.endsWith(".kt", ignoreCase = true),
-        editorConfigDefaults = editorConfigDefaults,
-        editorConfigOverride = editorConfigOverride,
-        cb = { e, _ ->
-            lintErrorCallback(e)
-        },
-        debug = debug,
-        isInvokedFromCli = true,
-    ),
-)
-
-/**
- * Format a kotlin file or script file
- */
-internal fun formatFile(
-    fileName: String,
-    fileContents: String,
-    ruleProviders: Set<RuleProvider>,
-    editorConfigDefaults: EditorConfigDefaults,
-    editorConfigOverride: EditorConfigOverride,
-    editorConfigPath: String?,
-    debug: Boolean,
-    cb: (e: LintError, corrected: Boolean) -> Unit,
-): String =
-    KtLint.format(
-        KtLint.ExperimentalParams(
-            fileName = fileName,
-            text = fileContents,
-            ruleProviders = ruleProviders,
-            script = !fileName.endsWith(".kt", ignoreCase = true),
-            editorConfigDefaults = editorConfigDefaults,
-            editorConfigOverride = editorConfigOverride,
-            cb = cb,
-            debug = debug,
-            isInvokedFromCli = true,
-        ),
-    )

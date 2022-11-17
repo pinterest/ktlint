@@ -1,6 +1,9 @@
 package com.pinterest.ktlint.internal
 
+import com.pinterest.ktlint.core.Code
 import com.pinterest.ktlint.core.KtLint
+import com.pinterest.ktlint.core.KtLintRuleEngine
+import com.pinterest.ktlint.core.KtLintRuleEngineConfiguration
 import com.pinterest.ktlint.core.RuleProvider
 import com.pinterest.ktlint.core.api.EditorConfigDefaults.Companion.EMPTY_EDITOR_CONFIG_DEFAULTS
 import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.EMPTY_EDITOR_CONFIG_OVERRIDE
@@ -70,15 +73,18 @@ internal class PrintASTSubCommand : Runnable {
         }
 
         try {
-            lintFile(
-                fileName = fileName,
-                fileContents = fileContent,
-                ruleProviders = setOf(
-                    RuleProvider { DumpASTRule(System.out, ktlintCommand.color) },
+            KtLintRuleEngine(
+                KtLintRuleEngineConfiguration(
+                    ruleProviders = setOf(
+                        RuleProvider { DumpASTRule(System.out, ktlintCommand.color) },
+                    ),
+                    debug = ktlintCommand.debug,
                 ),
-                editorConfigDefaults = EMPTY_EDITOR_CONFIG_DEFAULTS,
-                editorConfigOverride = EMPTY_EDITOR_CONFIG_OVERRIDE,
-                debug = ktlintCommand.debug,
+            ).lint(
+                Code(
+                    text = fileContent,
+                    fileName = fileName
+                )
             )
         } catch (e: Exception) {
             if (e is KtLintParseException) {
