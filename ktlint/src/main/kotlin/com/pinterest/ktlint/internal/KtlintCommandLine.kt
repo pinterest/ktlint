@@ -15,7 +15,7 @@ import com.pinterest.ktlint.core.api.EditorConfigDefaults
 import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.plus
 import com.pinterest.ktlint.core.api.KtLintParseException
-import com.pinterest.ktlint.core.api.KtLintRuleExecutionException
+import com.pinterest.ktlint.core.api.KtLintRuleException
 import com.pinterest.ktlint.core.api.doesNotContain
 import com.pinterest.ktlint.core.api.loadBaseline
 import com.pinterest.ktlint.core.api.relativeRoute
@@ -554,7 +554,7 @@ internal class KtlintCommandLine {
                     "",
                     "Not a valid Kotlin file (${e.message?.lowercase(Locale.getDefault())})",
                 )
-            is KtLintRuleExecutionException -> {
+            is KtLintRuleException -> {
                 logger.debug("Internal Error (${e.ruleId}) in file '$filename' at position '${e.line}:${e.col}", e)
                 LintError(
                     e.line,
