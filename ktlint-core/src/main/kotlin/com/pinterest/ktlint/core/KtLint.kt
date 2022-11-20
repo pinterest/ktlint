@@ -347,7 +347,7 @@ public class KtLintRuleEngine(internal val ktLintRuleEngineConfiguration: KtLint
         val errors = mutableListOf<LintError>()
 
         try {
-            VisitorProvider(ktLintRuleEngineConfiguration)
+            VisitorProvider(ruleExecutionContext.ruleRunners)
                 .visitor(ruleExecutionContext.editorConfigProperties)
                 .invoke { rule, fqRuleId ->
                     ruleExecutionContext.executeRule(rule, fqRuleId, false) { offset, errorMessage, canBeAutoCorrected ->
@@ -382,7 +382,12 @@ public class KtLintRuleEngine(internal val ktLintRuleEngineConfiguration: KtLint
         var tripped = false
         var mutated = false
         val errors = mutableSetOf<Pair<LintError, Boolean>>()
-        val visitorProvider = VisitorProvider(ktLintRuleEngineConfiguration)
+        val visitorProvider = VisitorProvider(
+            ruleRunners = ktLintRuleEngineConfiguration.ruleProviders
+                .map { RuleRunner(it) }
+                .distinctBy { it.ruleId }
+                .toSet()
+        )
         try {
             visitorProvider
                 .visitor(ruleExecutionContext.editorConfigProperties)
@@ -490,9 +495,17 @@ public class KtLintRuleEngine(internal val ktLintRuleEngineConfiguration: KtLint
                 ?.parsed
                 ?.safeAs<DefaultEditorConfigProperties.CodeStyleValue>()
                 ?: CODE_STYLE_PROPERTY.defaultValue
+        val rules =
+            ktLintRuleEngineConfiguration
+                .ruleProviders
+                .map { RuleRunner(it) }
+                .distinctBy { it.ruleId }
+                .toSet()
+                .map { it.getRule() }
+                .toSet()
         return EditorConfigGenerator(this.editorConfigLoader).generateEditorconfig(
             filePath,
-            ktLintRuleEngineConfiguration.getRules(),
+            rules,
             codeStyle,
         )
     }
@@ -572,17 +585,6 @@ public data class KtLintRuleEngineConfiguration(
             "A non-empty set of 'ruleProviders' need to be provided"
         }
     }
-
-    internal val ruleRunners: Set<RuleRunner> =
-        ruleProviders
-            .map { RuleRunner(it) }
-            .distinctBy { it.ruleId }
-            .toSet()
-
-    internal fun getRules(): Set<Rule> =
-        ruleRunners
-            .map { it.getRule() }
-            .toSet()
 }
 
 private fun RuleExecutionException.toKtLintRuleException(fileName: String?) =

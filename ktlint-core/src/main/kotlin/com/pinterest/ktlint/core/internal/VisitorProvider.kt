@@ -1,6 +1,5 @@
 package com.pinterest.ktlint.core.internal
 
-import com.pinterest.ktlint.core.KtLintRuleEngineConfiguration
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.DISABLED_RULES_PROPERTY
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.KTLINT_DISABLED_RULES_PROPERTY
@@ -20,37 +19,37 @@ private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 private val RULE_RUNNER_SORTER = RuleRunnerSorter()
 
 internal class VisitorProvider(
-    ktLintRuleEngineConfiguration: KtLintRuleEngineConfiguration,
+    ruleRunners: Set<RuleRunner>,
     /**
      * Creates a new [RuleRunnerSorter]. Only to be used in unit tests where the same set of rules are used with distinct [Rule.VisitorModifier]s.
      */
     recreateRuleSorter: Boolean = false,
-) : UsesEditorConfigProperties {
+    ) : UsesEditorConfigProperties {
     override val editorConfigProperties: List<EditorConfigProperty<*>> = listOf(
         KTLINT_DISABLED_RULES_PROPERTY,
         DISABLED_RULES_PROPERTY,
     )
 
     /**
-     * The list of [ruleRunners] is sorted based on the [Rule.VisitorModifier] of the rules.
+     * The list of [ruleRunnersSorted] is sorted based on the [Rule.VisitorModifier] of the rules.
      */
-    private val ruleRunners: List<RuleRunner> =
+    private val ruleRunnersSorted: List<RuleRunner> =
         if (recreateRuleSorter) {
             RuleRunnerSorter()
         } else {
             RULE_RUNNER_SORTER
-        }.getSortedRuleRunners(ktLintRuleEngineConfiguration.ruleRunners, ktLintRuleEngineConfiguration.debug)
+        }.getSortedRuleRunners(ruleRunners)
 
     internal fun visitor(editorConfigProperties: EditorConfigProperties): ((rule: Rule, fqRuleId: String) -> Unit) -> Unit {
         val enabledRuleRunners =
-            ruleRunners
+            ruleRunnersSorted
                 .filter { ruleRunner -> isNotDisabled(editorConfigProperties, ruleRunner.qualifiedRuleId) }
         if (enabledRuleRunners.isEmpty()) {
             LOGGER.debug { "Skipping file as no enabled rules are found to be executed" }
             return { _ -> }
         }
         val ruleRunnersToBeSkipped =
-            ruleRunners
+            ruleRunnersSorted
                 .filter { ruleRunner ->
                     val runAfterRule = ruleRunner.runAfterRule
                     runAfterRule != null &&

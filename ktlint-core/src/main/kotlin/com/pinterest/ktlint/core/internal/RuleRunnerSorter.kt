@@ -17,39 +17,39 @@ internal class RuleRunnerSorter {
     private val debugLogCache = mutableMapOf<Int, Boolean>()
 
     @Synchronized
-    fun getSortedRuleRunners(
-        ruleRunners: Set<RuleRunner>,
-        debug: Boolean,
-    ): List<RuleRunner> {
-        val wasNotYetCached =
-            debug &&
-                debugLogCache
-                    .putIfAbsent(createHashCode(ruleRunners, debug), false)
-                    .let { previousValue -> previousValue == null }
+    fun getSortedRuleRunners(ruleRunners: Set<RuleRunner>): List<RuleRunner> {
         return ruleRunners
             .sortedWith(defaultRuleExecutionOrderComparator())
-            .applyRunAfterRuleToRuleExecutionOrder(wasNotYetCached)
+            .applyRunAfterRuleToRuleExecutionOrder()
             .also { ruleReferences ->
-                if (wasNotYetCached) {
-                    ruleReferences
-                        .map { toQualifiedRuleId(it.ruleSetId, it.ruleId) }
-                        .joinToString(prefix = "Rules will be executed in order below (unless disabled):") {
-                            "\n           - $it"
-                        }
-                        .let { LOGGER.debug(it) }
+                if (LOGGER.isDebugEnabled) {
+                    logSortedRuleRunners(ruleRunners, ruleReferences)
                 }
             }
     }
 
-    private fun createHashCode(
+    private fun logSortedRuleRunners(
         ruleRunners: Set<RuleRunner>,
-        debug: Boolean,
-    ): Int {
+        ruleReferences: List<RuleRunner>,
+    ) {
+        debugLogCache
+            .putIfAbsent(createHashCode(ruleRunners), true)
+            .takeIf { it == null || it == false }
+            ?.let {
+                // Logging was not printed for this combination of rule runners
+                ruleReferences
+                    .map { toQualifiedRuleId(it.ruleSetId, it.ruleId) }
+                    .joinToString(prefix = "Rules will be executed in order below (unless disabled):") {
+                        "\n           - $it"
+                    }.also { LOGGER.debug(it) }
+            }
+    }
+
+    private fun createHashCode(ruleRunners: Set<RuleRunner>): Int {
         val cacheKey = ruleRunners
             .map { it.qualifiedRuleId }
             .sorted()
             .joinToString(prefix = "rule-ids=[", separator = ",", postfix = "]")
-            .plus(",debug=$debug")
         return cacheKey.hashCode()
     }
 
@@ -70,7 +70,7 @@ internal class RuleRunnerSorter {
             }
         }.thenBy { it.qualifiedRuleId }
 
-    private fun List<RuleRunner>.applyRunAfterRuleToRuleExecutionOrder(debug: Boolean): List<RuleRunner> {
+    private fun List<RuleRunner>.applyRunAfterRuleToRuleExecutionOrder(): List<RuleRunner> {
         // The new list of rule runners retains the order of the original list of rule runners as much as possible. Rule
         // runners will only be deferred till later in the list when needed.
         val newRuleRunners = mutableListOf<RuleRunner>()

@@ -22,6 +22,7 @@ private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
 internal class RuleExecutionContext private constructor(
     val rootNode: FileASTNode,
+    val ruleRunners: Set<RuleRunner>,
     val editorConfigProperties: EditorConfigProperties,
     val positionInTextLocator: (offset: Int) -> LineAndColumn,
 ) {
@@ -137,10 +138,21 @@ internal class RuleExecutionContext private constructor(
 
             val rootNode = psiFile.node
 
+            val ruleRunners =
+                ktLintRuleEngine
+                    .ktLintRuleEngineConfiguration
+                    .ruleProviders
+                    .map { RuleRunner(it) }
+                    .distinctBy { it.ruleId }
+                    .toSet()
             val editorConfigProperties = with(ktLintRuleEngine.ktLintRuleEngineConfiguration) {
+                val rules =
+                    ruleRunners
+                        .map { it.getRule() }
+                        .toSet()
                 ktLintRuleEngine.editorConfigLoader.load(
                     filePath = code.filePath,
-                    rules = getRules(),
+                    rules = rules,
                     editorConfigDefaults = editorConfigDefaults,
                     editorConfigOverride = editorConfigOverride,
                 )
@@ -156,6 +168,7 @@ internal class RuleExecutionContext private constructor(
 
             return RuleExecutionContext(
                 rootNode,
+                ruleRunners,
                 editorConfigProperties,
                 positionInTextLocator,
             )
