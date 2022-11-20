@@ -295,7 +295,6 @@ internal class KtlintCommandLine {
                 editorConfigDefaults = editorConfigDefaults,
                 editorConfigOverride = editorConfigOverride,
                 isInvokedFromCli = true,
-                debug = debug,
             ),
         )
 

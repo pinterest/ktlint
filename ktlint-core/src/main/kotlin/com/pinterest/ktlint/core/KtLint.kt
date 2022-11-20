@@ -178,7 +178,6 @@ public object KtLint {
                 params.editorConfigDefaults,
                 params.editorConfigOverride,
                 params.isInvokedFromCli,
-                params.debug,
             ),
         )
         ktLintRuleEngine.lint(
@@ -209,7 +208,6 @@ public object KtLint {
             params.editorConfigDefaults,
             params.editorConfigOverride,
             params.isInvokedFromCli,
-            params.debug
         )
         return KtLintRuleEngine(ktLintRuleEngineConfiguration)
             .format(
@@ -294,7 +292,6 @@ public object KtLint {
             params.editorConfigDefaults,
             params.editorConfigOverride,
             params.isInvokedFromCli,
-            params.debug
         )
         return KtLintRuleEngine(ktLintRuleEngineConfiguration)
             .generateKotlinEditorConfigSection(filePath)
@@ -644,11 +641,6 @@ public data class KtLintRuleEngineConfiguration(
      * Compiler initialization. This property is likely to be removed in any of next versions without further notice.
      */
     val isInvokedFromCli: Boolean = false,
-
-    /**
-     *
-     */
-    val debug: Boolean = false
 ) {
     init {
         require(ruleProviders.any()) {

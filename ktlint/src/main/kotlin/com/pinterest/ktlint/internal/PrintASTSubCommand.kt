@@ -74,7 +74,6 @@ internal class PrintASTSubCommand : Runnable {
                     ruleProviders = setOf(
                         RuleProvider { DumpASTRule(System.out, ktlintCommand.color) },
                     ),
-                    debug = ktlintCommand.debug,
                 ),
             ).lint(
                 code = fileContent,
