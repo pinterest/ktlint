@@ -1,3 +1,5 @@
+@file:Suppress("MemberVisibilityCanBePrivate")
+
 package com.pinterest.ktlint.core
 
 import com.pinterest.ktlint.core.KtLint.ExperimentalParams
@@ -25,6 +27,7 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.FileSystems
 import java.nio.file.Path
 import java.nio.file.Paths
+import kotlin.io.path.absolutePathString
 import mu.KotlinLogging
 import org.ec4j.core.Resource
 import org.ec4j.core.model.PropertyType
@@ -298,14 +301,17 @@ public object KtLint {
     }
 }
 
-public class Code private constructor(
-    public val content: String,
-    public val fileName: String?,
-    internal val script: Boolean,
-    internal val filePath: Path?,
-    internal val isStdIn: Boolean,
+/**
+ * To be removed in KtLint 0.49 when class ExperimentalParams is removed.
+ */
+internal class Code private constructor(
+    val content: String,
+    val fileName: String?,
+    val script: Boolean,
+    val filePath: Path?,
+    val isStdIn: Boolean,
 ) {
-    public constructor(file: File) : this(
+    constructor(file: File) : this(
         content = file.readText(),
         fileName = file.name,
         filePath = file.toPath(),
@@ -313,7 +319,7 @@ public class Code private constructor(
         isStdIn = false,
     )
 
-    public constructor(text: String, fileName: String? = null) : this(
+    constructor(text: String, fileName: String? = null) : this(
         content = text,
         fileName = fileName,
         filePath = fileName?.let { Paths.get(fileName) },
@@ -321,7 +327,7 @@ public class Code private constructor(
         isStdIn = fileName == KtLintRuleEngine.STDIN_FILE,
     )
 
-    internal constructor(text: String, fileName: String? = null, script: Boolean, isStdIn: Boolean) : this(
+    constructor(text: String, fileName: String? = null, script: Boolean, isStdIn: Boolean) : this(
         content = text,
         fileName = fileName,
         filePath = fileName?.let { Paths.get(fileName) },
@@ -334,12 +340,45 @@ public class KtLintRuleEngine(internal val ktLintRuleEngineConfiguration: KtLint
     internal val editorConfigLoader = EditorConfigLoader(FileSystems.getDefault())
 
     /**
-     * Check source for lint errors.
+     * Check [code] for lint errors. When [filePath] is provided, the '.editorconfig' files on the path are taken into
+     * account. For each lint violation found, the [callback] is invoked.
      *
      * @throws KtLintParseException if text is not a valid Kotlin code
      * @throws KtLintRuleException in case of internal failure caused by a bug in rule implementation
      */
     public fun lint(
+        code: String,
+        filePath: Path? = null,
+        callback: (LintError) -> Unit = { },
+    ) {
+        lint(
+            Code(
+                text = code,
+                fileName = filePath?.absolutePathString(),
+            ),
+            callback,
+        )
+    }
+
+    /**
+     * Check the code in file [filePath] for lint errors. The '.editorconfig' files on the path to file are taken into
+     * account. For each lint violation found, the [callback] is invoked.
+     *
+     * @throws KtLintParseException if text is not a valid Kotlin code
+     * @throws KtLintRuleException in case of internal failure caused by a bug in rule implementation
+     */
+    public fun lint(
+        filePath: Path,
+        callback: (LintError) -> Unit = { },
+    ) {
+        lint(
+            Code(filePath.toFile()),
+            callback,
+        )
+    }
+
+    @Deprecated(message = "To be removed in KtLint 0.49 when ExperimentalParams is removed")
+    internal fun lint(
         code: Code,
         callback: (LintError) -> Unit = { },
     ) {
@@ -367,12 +406,43 @@ public class KtLintRuleEngine(internal val ktLintRuleEngineConfiguration: KtLint
     }
 
     /**
-     * Fix style violations.
+     * Fix style violations in [code] for lint errors when possible. When [filePath] is provided, the '.editorconfig'
+     * files on the path are taken into account. For each lint violation found, the [callback] is invoked.
      *
      * @throws KtLintParseException if text is not a valid Kotlin code
      * @throws KtLintRuleException in case of internal failure caused by a bug in rule implementation
      */
     public fun format(
+        code: String,
+        filePath: Path? = null,
+        callback: (LintError, Boolean) -> Unit = { _, _ -> },
+    ): String =
+        format(
+            Code(
+                text = code,
+                fileName = filePath?.absolutePathString(),
+            ),
+            callback,
+        )
+
+    /**
+     * Fix style violations in code of file [filePath] for lint errors when possible. The '.editorconfig' files on the
+     * path are taken into account. For each lint violation found, the [callback] is invoked.
+     *
+     * @throws KtLintParseException if text is not a valid Kotlin code
+     * @throws KtLintRuleException in case of internal failure caused by a bug in rule implementation
+     */
+    public fun format(
+        filePath: Path,
+        callback: (LintError, Boolean) -> Unit = { _, _ -> },
+    ): String =
+        format(
+            Code(filePath.toFile()),
+            callback,
+        )
+
+    @Deprecated(message = "To be removed or refactored in KtLint when class ExperimentalParams is removed")
+    internal fun format(
         code: Code,
         callback: (LintError, Boolean) -> Unit = { _, _ -> },
     ): String {

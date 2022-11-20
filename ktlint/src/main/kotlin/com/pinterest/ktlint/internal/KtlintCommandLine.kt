@@ -2,7 +2,6 @@ package com.pinterest.ktlint.internal
 
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
-import com.pinterest.ktlint.core.Code
 import com.pinterest.ktlint.core.KtLintRuleEngine
 import com.pinterest.ktlint.core.KtLintRuleEngineConfiguration
 import com.pinterest.ktlint.core.LintError
@@ -368,10 +367,8 @@ internal class KtlintCommandLine {
                 Callable {
                     file to process(
                         ktLintRuleEngine = ktLintRuleEngine,
-                        code = Code(
-                            text = file.readText(),
-                            fileName = file.path
-                        ),
+                        code = file.readText(),
+                        fileName = file.path,
                         baselineLintErrors = lintErrorsPerFile.getOrDefault(file.toPath().relativeRoute, emptyList()),
                     )
                 }
@@ -386,10 +383,7 @@ internal class KtlintCommandLine {
             KtLintRuleEngine.STDIN_FILE,
             process(
                 ktLintRuleEngine = ktLintRuleEngine,
-                code = Code(
-                    text = String(System.`in`.readBytes()),
-                    fileName = KtLintRuleEngine.STDIN_FILE
-                ),
+                code = String(System.`in`.readBytes()),
                 baselineLintErrors = emptyList(),
             ),
             reporter,
@@ -418,18 +412,18 @@ internal class KtlintCommandLine {
 
     private fun process(
         ktLintRuleEngine: KtLintRuleEngine,
-        code: Code,
+        code: String,
+        fileName: String? = null,
         baselineLintErrors: List<LintError>,
     ): List<LintErrorWithCorrectionInfo> {
-        val fileName = code.fileName
-        logger.trace {
-            val fileLocation = if (fileName != KtLintRuleEngine.STDIN_FILE) File(fileName).location(relative) else fileName
-            "Checking $fileLocation"
+        if (fileName != null) {
+            logger.trace { "Checking ${File(fileName).location(relative)}" }
         }
+        val filePath = fileName?.let { Paths.get(it) }
         val result = ArrayList<LintErrorWithCorrectionInfo>()
         if (format) {
             val formattedFileContent = try {
-                ktLintRuleEngine.format(code) { lintError, corrected ->
+                ktLintRuleEngine.format(code, filePath) { lintError, corrected ->
                     if (baselineLintErrors.doesNotContain(lintError)) {
                         result.add(LintErrorWithCorrectionInfo(lintError, corrected))
                         if (!corrected) {
@@ -440,18 +434,18 @@ internal class KtlintCommandLine {
             } catch (e: Exception) {
                 result.add(LintErrorWithCorrectionInfo(e.toLintError(fileName), false))
                 tripped.set(true)
-                code.content // making sure `cat file | ktlint --stdin > file` is (relatively) safe
+                code // making sure `cat file | ktlint --stdin > file` is (relatively) safe
             }
             if (stdin) {
                 print(formattedFileContent)
             } else {
-                if (code.content !== formattedFileContent) {
+                if (code !== formattedFileContent) {
                     File(fileName).writeText(formattedFileContent, charset("UTF-8"))
                 }
             }
         } else {
             try {
-                ktLintRuleEngine.lint(code) { lintError ->
+                ktLintRuleEngine.lint(code, filePath) { lintError ->
                     if (baselineLintErrors.doesNotContain(lintError)) {
                         result.add(LintErrorWithCorrectionInfo(lintError, false))
                         tripped.set(true)
