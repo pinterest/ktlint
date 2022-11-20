@@ -18,15 +18,13 @@ class DisabledRulesTest {
     fun `Given some code and a enabled standard rule resulting in a violation then the violation is reported`() {
         assertThat(
             ArrayList<LintError>().apply {
-                KtLint.lint(
-                    KtLint.ExperimentalParams(
-                        text = "var foo",
+                KtLintRuleEngine(
+                    KtLintRuleEngineConfiguration(
                         ruleProviders = setOf(
                             RuleProvider { NoVarRule("no-var") },
                         ),
-                        cb = { e, _ -> add(e) },
                     ),
-                )
+                ).lint("var foo") { e -> add(e) }
             },
         ).isEqualTo(
             listOf(
@@ -41,16 +39,16 @@ class DisabledRulesTest {
         @Test
         fun `Given some code and a disabled standard rule then no violation is reported`() {
             assertThatThrownBy {
-                KtLint.lint(
-                    KtLint.ExperimentalParams(
-                        text = "var foo",
-                        ruleProviders = setOf(
-                            RuleProvider { NoVarRule("no-var") },
+                ArrayList<LintError>().apply {
+                    KtLintRuleEngine(
+                        KtLintRuleEngineConfiguration(
+                            ruleProviders = setOf(
+                                RuleProvider { NoVarRule("no-var") },
+                            ),
+                            editorConfigOverride = EditorConfigOverride.from(DISABLED_RULES_PROPERTY to "no-var"),
                         ),
-                        cb = { _, _ -> },
-                        editorConfigOverride = EditorConfigOverride.from(DISABLED_RULES_PROPERTY to "no-var"),
-                    ),
-                )
+                    ).lint("var foo") { e -> add(e) }
+                }
             }.isInstanceOf(DeprecatedEditorConfigPropertyException::class.java)
                 .hasMessage("Property 'disabled_rules' is disallowed: Rename property 'disabled_rules' to 'ktlint_disabled_rules' in all '.editorconfig' files.")
         }
@@ -75,16 +73,14 @@ class DisabledRulesTest {
         ) {
             assertThat(
                 ArrayList<LintError>().apply {
-                    KtLint.lint(
-                        KtLint.ExperimentalParams(
-                            text = "var foo",
+                    KtLintRuleEngine(
+                        KtLintRuleEngineConfiguration(
                             ruleProviders = setOf(
                                 RuleProvider { NoVarRule(ruleId) },
                             ),
-                            cb = { e, _ -> add(e) },
                             editorConfigOverride = EditorConfigOverride.from(KTLINT_DISABLED_RULES_PROPERTY to disabledRuleId),
                         ),
-                    )
+                    ).lint("var foo") { e -> add(e) }
                 },
             ).isEmpty()
         }
@@ -93,16 +89,14 @@ class DisabledRulesTest {
         fun `Given some code and a disabled standard rule then no violation is reported`() {
             assertThat(
                 ArrayList<LintError>().apply {
-                    KtLint.lint(
-                        KtLint.ExperimentalParams(
-                            text = "var foo",
+                    KtLintRuleEngine(
+                        KtLintRuleEngineConfiguration(
                             ruleProviders = setOf(
                                 RuleProvider { NoVarRule("no-var") },
                             ),
-                            cb = { e, _ -> add(e) },
                             editorConfigOverride = EditorConfigOverride.from(KTLINT_DISABLED_RULES_PROPERTY to "no-var"),
                         ),
-                    )
+                    ).lint("var foo") { e -> add(e) }
                 },
             ).isEmpty()
         }
@@ -111,16 +105,14 @@ class DisabledRulesTest {
         fun `Given some code and a disabled experimental rule then no violation is reported`() {
             assertThat(
                 ArrayList<LintError>().apply {
-                    KtLint.lint(
-                        KtLint.ExperimentalParams(
-                            text = "var foo",
+                    KtLintRuleEngine(
+                        KtLintRuleEngineConfiguration(
                             ruleProviders = setOf(
                                 RuleProvider { NoVarRule("experimental:no-var") },
                             ),
-                            cb = { e, _ -> add(e) },
                             editorConfigOverride = EditorConfigOverride.from(KTLINT_DISABLED_RULES_PROPERTY to "experimental:no-var"),
                         ),
-                    )
+                    ).lint("var foo") { e -> add(e) }
                 },
             ).isEmpty()
         }

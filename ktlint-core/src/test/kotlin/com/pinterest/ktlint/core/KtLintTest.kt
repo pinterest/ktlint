@@ -41,6 +41,454 @@ class KtLintTest {
             @Test
             fun `Given a non empty rule providers and empty userData then do not throw an error`() {
                 var numberOfRootNodesVisited = 0
+                KtLintRuleEngine(
+                    KtLintRuleEngineConfiguration(
+                        ruleProviders = setOf(
+                            RuleProvider {
+                                DummyRule { node ->
+                                    if (node.isRoot()) {
+                                        numberOfRootNodesVisited++
+                                    }
+                                }
+                            },
+                        ),
+                    ),
+                ).lint("fun main() {}")
+                assertThat(numberOfRootNodesVisited).isEqualTo(1)
+            }
+
+            @Test
+            fun `Given a rule returning errors which can and can not be autocorrected than that state of the error can be retrieved in the callback`() {
+                val code =
+                    """
+                    val foo = "${AutoCorrectErrorRule.STRING_VALUE_NOT_TO_BE_CORRECTED}"
+                    val bar = "${AutoCorrectErrorRule.STRING_VALUE_TO_BE_AUTOCORRECTED}"
+                    """.trimIndent()
+                val callbacks = mutableListOf<CallbackResult>()
+                KtLintRuleEngine(
+                    KtLintRuleEngineConfiguration(
+                        ruleProviders = setOf(
+                            RuleProvider { AutoCorrectErrorRule() },
+                        ),
+                    ),
+                ).lint(code) { e ->
+                    callbacks.add(
+                        CallbackResult(
+                            line = e.line,
+                            col = e.col,
+                            ruleId = e.ruleId,
+                            detail = e.detail,
+                            canBeAutoCorrected = e.canBeAutoCorrected,
+                            corrected = false,
+                        ),
+                    )
+                }
+                assertThat(callbacks).containsExactly(
+                    CallbackResult(
+                        line = 1,
+                        col = 12,
+                        ruleId = "auto-correct",
+                        detail = AutoCorrectErrorRule.ERROR_MESSAGE_CAN_NOT_BE_AUTOCORRECTED,
+                        canBeAutoCorrected = false,
+                        corrected = false,
+                    ),
+                    CallbackResult(
+                        line = 2,
+                        col = 12,
+                        ruleId = "auto-correct",
+                        detail = AutoCorrectErrorRule.ERROR_MESSAGE_CAN_BE_AUTOCORRECTED,
+                        canBeAutoCorrected = true,
+                        corrected = false,
+                    ),
+                )
+            }
+        }
+
+        @DisplayName("Format called with rule providers")
+        @Nested
+        inner class FormatWithRuleProviders {
+            @Test
+            fun `Given a non empty rule providers and empty userData then do not throw an error`() {
+                var numberOfRootNodesVisited = 0
+                KtLintRuleEngine(
+                    KtLintRuleEngineConfiguration(
+                        ruleProviders = setOf(
+                            RuleProvider {
+                                DummyRule { node ->
+                                    if (node.isRoot()) {
+                                        numberOfRootNodesVisited++
+                                    }
+                                }
+                            },
+                        ),
+                    ),
+                ).format("fun main() {}")
+                assertThat(numberOfRootNodesVisited).isEqualTo(1)
+            }
+
+            @Test
+            fun `Given a rule returning errors which can and can not be autocorrected than that state of the error can be retrieved in the callback`() {
+                val code =
+                    """
+                    val foo = "${AutoCorrectErrorRule.STRING_VALUE_NOT_TO_BE_CORRECTED}"
+                    val bar = "${AutoCorrectErrorRule.STRING_VALUE_TO_BE_AUTOCORRECTED}"
+                    """.trimIndent()
+                val formattedCode =
+                    """
+                    val foo = "${AutoCorrectErrorRule.STRING_VALUE_NOT_TO_BE_CORRECTED}"
+                    val bar = "$STRING_VALUE_AFTER_AUTOCORRECT"
+                    """.trimIndent()
+                val callbacks = mutableListOf<CallbackResult>()
+                val actualFormattedCode = KtLintRuleEngine(
+                    KtLintRuleEngineConfiguration(
+                        ruleProviders = setOf(
+                            RuleProvider { AutoCorrectErrorRule() },
+                        ),
+                    ),
+                ).format(code) { e, corrected ->
+                    callbacks.add(
+                        CallbackResult(
+                            line = e.line,
+                            col = e.col,
+                            ruleId = e.ruleId,
+                            detail = e.detail,
+                            canBeAutoCorrected = e.canBeAutoCorrected,
+                            corrected = corrected,
+                        ),
+                    )
+                }
+                assertThat(actualFormattedCode).isEqualTo(formattedCode)
+                assertThat(callbacks).containsExactly(
+                    CallbackResult(
+                        line = 1,
+                        col = 12,
+                        ruleId = "auto-correct",
+                        detail = AutoCorrectErrorRule.ERROR_MESSAGE_CAN_NOT_BE_AUTOCORRECTED,
+                        canBeAutoCorrected = false,
+                        corrected = false,
+                    ),
+                    CallbackResult(
+                        line = 2,
+                        col = 12,
+                        ruleId = "auto-correct",
+                        detail = AutoCorrectErrorRule.ERROR_MESSAGE_CAN_BE_AUTOCORRECTED,
+                        canBeAutoCorrected = true,
+                        corrected = true,
+                    ),
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `Given a normal rule then execute on root node and child nodes`() {
+        val ruleExecutionCalls = mutableListOf<RuleExecutionCall>()
+        KtLintRuleEngine(
+            KtLintRuleEngineConfiguration(
+                ruleProviders = setOf(
+                    RuleProvider {
+                        SimpleTestRule(
+                            ruleExecutionCalls = ruleExecutionCalls,
+                            id = "a",
+                            visitorModifiers = setOf(),
+                        )
+                    },
+                    RuleProvider {
+                        SimpleTestRule(
+                            ruleExecutionCalls = ruleExecutionCalls,
+                            id = "b",
+                            visitorModifiers = setOf(RunAsLateAsPossible),
+                        )
+                    },
+                ),
+            ),
+        ).lint(
+            // An empty file results in nodes with elementTypes FILE, PACKAGE_DIRECTIVE and IMPORT_LIST respectively
+            code = "",
+        )
+        assertThat(ruleExecutionCalls).containsExactly(
+            // File a
+            RuleExecutionCall("a", BEFORE_FIRST),
+            RuleExecutionCall("a", BEFORE_CHILDREN, ROOT, FILE),
+            RuleExecutionCall("a", BEFORE_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
+            RuleExecutionCall("a", AFTER_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
+            RuleExecutionCall("a", BEFORE_CHILDREN, CHILD, IMPORT_LIST),
+            RuleExecutionCall("a", AFTER_CHILDREN, CHILD, IMPORT_LIST),
+            RuleExecutionCall("a", AFTER_CHILDREN, ROOT, FILE),
+            RuleExecutionCall("a", AFTER_LAST),
+            // File b
+            RuleExecutionCall("b", BEFORE_FIRST),
+            RuleExecutionCall("b", BEFORE_CHILDREN, ROOT, FILE),
+            RuleExecutionCall("b", BEFORE_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
+            RuleExecutionCall("b", AFTER_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
+            RuleExecutionCall("b", BEFORE_CHILDREN, CHILD, IMPORT_LIST),
+            RuleExecutionCall("b", AFTER_CHILDREN, CHILD, IMPORT_LIST),
+            RuleExecutionCall("b", AFTER_CHILDREN, ROOT, FILE),
+            RuleExecutionCall("b", AFTER_LAST),
+        )
+    }
+
+    @Test
+    fun `Given multiple rules which have to run in a certain order`() {
+        val ruleExecutionCalls = mutableListOf<RuleExecutionCall>()
+        KtLintRuleEngine(
+            KtLintRuleEngineConfiguration(
+                ruleProviders = setOf(
+                    RuleProvider {
+                        SimpleTestRule(
+                            ruleExecutionCalls = ruleExecutionCalls,
+                            id = "d",
+                            visitorModifiers = setOf(RunAsLateAsPossible),
+                        )
+                    },
+                    RuleProvider {
+                        SimpleTestRule(
+                            ruleExecutionCalls = ruleExecutionCalls,
+                            id = "b",
+                        )
+                    },
+                    RuleProvider {
+                        SimpleTestRule(
+                            ruleExecutionCalls = ruleExecutionCalls,
+                            id = "c",
+                        )
+                    },
+                ),
+            ),
+        ).lint(
+            // An empty file results in nodes with elementTypes FILE, PACKAGE_DIRECTIVE and IMPORT_LIST respectively
+            code = "",
+        )
+        assertThat(ruleExecutionCalls).containsExactly(
+            // File b
+            RuleExecutionCall("b", BEFORE_FIRST),
+            RuleExecutionCall("b", BEFORE_CHILDREN, ROOT, FILE),
+            RuleExecutionCall("b", BEFORE_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
+            RuleExecutionCall("b", AFTER_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
+            RuleExecutionCall("b", BEFORE_CHILDREN, CHILD, IMPORT_LIST),
+            RuleExecutionCall("b", AFTER_CHILDREN, CHILD, IMPORT_LIST),
+            RuleExecutionCall("b", AFTER_CHILDREN, ROOT, FILE),
+            RuleExecutionCall("b", AFTER_LAST),
+            // File c
+            RuleExecutionCall("c", BEFORE_FIRST),
+            RuleExecutionCall("c", BEFORE_CHILDREN, ROOT, FILE),
+            RuleExecutionCall("c", BEFORE_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
+            RuleExecutionCall("c", AFTER_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
+            RuleExecutionCall("c", BEFORE_CHILDREN, CHILD, IMPORT_LIST),
+            RuleExecutionCall("c", AFTER_CHILDREN, CHILD, IMPORT_LIST),
+            RuleExecutionCall("c", AFTER_CHILDREN, ROOT, FILE),
+            RuleExecutionCall("c", AFTER_LAST),
+            // File d
+            RuleExecutionCall("d", BEFORE_FIRST),
+            RuleExecutionCall("d", BEFORE_CHILDREN, ROOT, FILE),
+            RuleExecutionCall("d", BEFORE_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
+            RuleExecutionCall("d", AFTER_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
+            RuleExecutionCall("d", BEFORE_CHILDREN, CHILD, IMPORT_LIST),
+            RuleExecutionCall("d", AFTER_CHILDREN, CHILD, IMPORT_LIST),
+            RuleExecutionCall("d", AFTER_CHILDREN, ROOT, FILE),
+            RuleExecutionCall("d", AFTER_LAST),
+        )
+    }
+
+    @Test
+    fun testFormatUnicodeBom() {
+        val code = getResourceAsText("spec/format-unicode-bom.kt.spec")
+
+        val actual = KtLintRuleEngine(
+            KtLintRuleEngineConfiguration(
+                ruleProviders = setOf(
+                    RuleProvider { DummyRule() },
+                ),
+            ),
+        ).format(code)
+
+        assertThat(actual).isEqualTo(code)
+    }
+
+    @Nested
+    inner class StopTraversal {
+        @Test
+        fun `Given that the traversal is stopped in the beforeFirstNode hook then do no traverse the AST but do call the afterLastNode hook`() {
+            val ruleExecutionCalls = mutableListOf<RuleExecutionCall>()
+            KtLintRuleEngine(
+                KtLintRuleEngineConfiguration(
+                    ruleProviders = setOf(
+                        RuleProvider {
+                            SimpleTestRule(
+                                id = "stop-traversal",
+                                ruleExecutionCalls = ruleExecutionCalls,
+                                stopTraversalInBeforeFirstNode = true,
+                            )
+                        },
+                    ),
+                ),
+            ).format("class Foo")
+
+            assertThat(ruleExecutionCalls).containsExactly(
+                RuleExecutionCall("stop-traversal", BEFORE_FIRST),
+                RuleExecutionCall("stop-traversal", AFTER_LAST),
+            )
+        }
+
+        @Test
+        fun `Given that the traversal is stopped in the beforeVisitChildNodes when encountering the class with name Foo then classes InsideFoo and AfterFoo are not traversed`() {
+            val ruleExecutionCalls = mutableListOf<RuleExecutionCall>()
+            val code =
+                """
+                class FooBar {
+                    class Foo {
+                        class InsideFoo // Won't be visited as traversal is stopped when entering class Foo
+                    }
+
+                    class AfterFoo // Won't be visited as traversal is stopped when entering class Foo
+                }
+                """.trimIndent()
+            KtLintRuleEngine(
+                KtLintRuleEngineConfiguration(
+                    ruleProviders = setOf(
+                        RuleProvider {
+                            SimpleTestRule(
+                                id = "stop-traversal",
+                                ruleExecutionCalls = ruleExecutionCalls,
+                                stopTraversalInBeforeVisitChildNodes = { node ->
+                                    // Stop when Class Foo has been entered
+                                    node.elementType == CLASS && node.findChildByType(IDENTIFIER)?.text == "Foo"
+                                },
+                            )
+                        },
+                    ),
+                ),
+            ).format(code)
+
+            assertThat(ruleExecutionCalls)
+                .filteredOn { it.elementType == null || it.classIdentifier != null }
+                .containsExactly(
+                    RuleExecutionCall("stop-traversal", BEFORE_FIRST),
+                    RuleExecutionCall("stop-traversal", BEFORE_CHILDREN, CHILD, CLASS, "FooBar"),
+                    RuleExecutionCall("stop-traversal", BEFORE_CHILDREN, CHILD, CLASS, "Foo"),
+                    RuleExecutionCall("stop-traversal", AFTER_CHILDREN, CHILD, CLASS, "Foo"),
+                    RuleExecutionCall("stop-traversal", AFTER_CHILDREN, CHILD, CLASS, "FooBar"),
+                    RuleExecutionCall("stop-traversal", AFTER_LAST),
+                )
+        }
+
+        @Test
+        fun `Given that the traversal is stopped in the afterVisitChildNodes when encountering the class with name Foo then class AfterFoo is not traversed`() {
+            val ruleExecutionCalls = mutableListOf<RuleExecutionCall>()
+            val code =
+                """
+                class FooBar {
+                    class Foo {
+                        class InsideFoo // Is visited as traversal is stopped when after leaving class Foo
+                    }
+
+                    class AfterFoo // Won't be visited as traversal is stopped when entering class Foo
+                }
+                """.trimIndent()
+            KtLintRuleEngine(
+                KtLintRuleEngineConfiguration(
+                    ruleProviders = setOf(
+                        RuleProvider {
+                            SimpleTestRule(
+                                id = "stop-traversal",
+                                ruleExecutionCalls = ruleExecutionCalls,
+                                stopTraversalInAfterVisitChildNodes = { node ->
+                                    // Stop when Class Foo has been visited
+                                    node.elementType == CLASS && node.findChildByType(IDENTIFIER)?.text == "Foo"
+                                },
+                            )
+                        },
+                    ),
+                ),
+            ).format(code)
+
+            assertThat(ruleExecutionCalls)
+                .filteredOn { it.elementType == null || it.classIdentifier != null }
+                .containsExactly(
+                    RuleExecutionCall("stop-traversal", BEFORE_FIRST),
+                    RuleExecutionCall("stop-traversal", BEFORE_CHILDREN, CHILD, CLASS, "FooBar"),
+                    RuleExecutionCall("stop-traversal", BEFORE_CHILDREN, CHILD, CLASS, "Foo"),
+                    RuleExecutionCall("stop-traversal", BEFORE_CHILDREN, CHILD, CLASS, "InsideFoo"),
+                    RuleExecutionCall("stop-traversal", AFTER_CHILDREN, CHILD, CLASS, "InsideFoo"),
+                    RuleExecutionCall("stop-traversal", AFTER_CHILDREN, CHILD, CLASS, "Foo"),
+                    RuleExecutionCall("stop-traversal", AFTER_CHILDREN, CHILD, CLASS, "FooBar"),
+                    RuleExecutionCall("stop-traversal", AFTER_LAST),
+                )
+        }
+
+        @Test
+        fun `Given that the traversal is stopped in the afterLastNode hook then do nothing special as traversal is already stopped`() {
+            val ruleExecutionCalls = mutableListOf<RuleExecutionCall>()
+            KtLintRuleEngine(
+                KtLintRuleEngineConfiguration(
+                    ruleProviders = setOf(
+                        RuleProvider {
+                            SimpleTestRule(
+                                id = "stop-traversal",
+                                ruleExecutionCalls = ruleExecutionCalls,
+                                stopTraversalInBeforeFirstNode = true,
+                            )
+                        },
+                    ),
+                ),
+            ).format("class Foo")
+
+            assertThat(ruleExecutionCalls).containsExactly(
+                RuleExecutionCall("stop-traversal", BEFORE_FIRST),
+                RuleExecutionCall("stop-traversal", AFTER_LAST),
+            )
+        }
+    }
+
+    @Test
+    fun `Given that format is started using the ruleProviders parameter then NO exception is thrown`() {
+        /**
+         * Formatting some code with the [WithStateRule] using the [KtLint.ExperimentalParams.ruleProviders] parameter
+         * does not result in a [KtLintRuleException] because [KtLint.format] now is able to request a new instance of
+         * the rule whenever the instance has been used before to traverse the AST.
+         */
+        KtLintRuleEngine(
+            KtLintRuleEngineConfiguration(
+                ruleProviders = setOf(
+                    RuleProvider { WithStateRule() },
+                ),
+            ),
+        ).format(code = "")
+    }
+
+    @Test
+    fun `Issue 1623 - Given a file with multiple top-level declarations then a file suppression annotation should be applied on each top level declaration`() {
+        val code =
+            """
+            @file:Suppress("ktlint:auto-correct")
+            val foo = "${AutoCorrectErrorRule.STRING_VALUE_TO_BE_AUTOCORRECTED}" // Won't be auto corrected due to suppress annotation
+            val bar = "${AutoCorrectErrorRule.STRING_VALUE_TO_BE_AUTOCORRECTED}" // Won't be auto corrected due to suppress annotation
+            """.trimIndent()
+        val actualFormattedCode =
+            KtLintRuleEngine(
+                KtLintRuleEngineConfiguration(
+                    ruleProviders = setOf(
+                        RuleProvider { AutoCorrectErrorRule() },
+                    ),
+                ),
+            ).format(code)
+        assertThat(actualFormattedCode).isEqualTo(code)
+    }
+}
+
+@Deprecated("Marked for removal in KtLint 0.49 when KtLint is removed")
+class KtLintLegacyTest {
+    /**
+     * API Consumers directly use the ktlint-core module. Tests in this module should guarantee that the API is kept
+     * stable.
+     */
+    @Nested
+    inner class ApiConsumer {
+        @Nested
+        inner class LintViaExperimentalParams {
+            @Test
+            fun `Given a non empty rule providers and empty userData then do not throw an error`() {
+                var numberOfRootNodesVisited = 0
                 KtLint.lint(
                     KtLint.ExperimentalParams(
                         fileName = "some-filename",
@@ -632,8 +1080,8 @@ class KtLintTest {
     fun `Given that format is started using the ruleProviders parameter then NO exception is thrown`() {
         /**
          * Formatting some code with the [WithStateRule] using the [KtLint.ExperimentalParams.ruleProviders] parameter
-         * does not result in a [KtLintRuleExecutionException] because [KtLint.format] now is able to request a new instance
-         * of the rule whenever the instance has been used before to traverse the AST.
+         * does not result in a [KtLintRuleException] because [KtLint.format] now is able to request a new instance of
+         * the rule whenever the instance has been used before to traverse the AST.
          */
         KtLint.format(
             KtLint.ExperimentalParams(

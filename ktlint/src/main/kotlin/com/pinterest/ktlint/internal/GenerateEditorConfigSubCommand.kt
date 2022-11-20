@@ -1,10 +1,12 @@
 package com.pinterest.ktlint.internal
 
-import com.pinterest.ktlint.core.KtLint
+import com.pinterest.ktlint.core.KtLintRuleEngine
+import com.pinterest.ktlint.core.KtLintRuleEngineConfiguration
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.initKtLintKLogger
+import java.nio.file.Paths
 import mu.KotlinLogging
 import picocli.CommandLine
 
@@ -28,26 +30,24 @@ internal class GenerateEditorConfigSubCommand : Runnable {
     override fun run() {
         commandSpec.commandLine().printCommandLineHelpOrVersionUsage()
 
-        // For now we are using CLI invocation dir as path to load existing '.editorconfig'
-        val generatedEditorConfig = KtLint.generateKotlinEditorConfigSection(
-            KtLint.ExperimentalParams(
-                fileName = "./test.kt",
-                text = "",
-                ruleProviders = ktlintCommand
-                    .rulesetJarFiles
-                    .loadRuleProviders(
-                        ktlintCommand.experimental,
-                        ktlintCommand.debug,
-                        ktlintCommand.disabledRules,
-                    ),
-                editorConfigOverride = EditorConfigOverride.from(CODE_STYLE_PROPERTY to codeStyle()),
-                debug = ktlintCommand.debug,
-                cb = { _, _ -> },
-            ),
+        val ruleProviders =
+            ktlintCommand
+                .rulesetJarFiles
+                .loadRuleProviders(
+                    ktlintCommand.experimental,
+                    ktlintCommand.debug,
+                    ktlintCommand.disabledRules,
+                )
+        val ktLintRuleEngineConfiguration = KtLintRuleEngineConfiguration(
+            ruleProviders = ruleProviders,
+            editorConfigOverride = EditorConfigOverride.from(CODE_STYLE_PROPERTY to codeStyle()),
+            isInvokedFromCli = true,
         )
+        val ktLintRuleEngine = KtLintRuleEngine(ktLintRuleEngineConfiguration)
+        val generatedEditorConfig = ktLintRuleEngine.generateKotlinEditorConfigSection(Paths.get("."))
 
         if (generatedEditorConfig.isNotBlank()) {
-            // Do not print to logging on purpose. Output below is intended to be copied to ".editofconfig". Users
+            // Do not print to logging on purpose. Output below is intended to be copied to ".editorconfig". Users
             // should not be confused with logging markers.
             println("[*.{kt,kts}]\n$generatedEditorConfig")
         } else {
