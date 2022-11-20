@@ -62,7 +62,7 @@ internal class PrintASTSubCommand : Runnable {
 
     private fun printAST(
         fileContent: String,
-        fileName: String? = null
+        fileName: String? = null,
     ) {
         if (fileName != null) {
             LOGGER.debug { "Analyzing ${File(fileName).location(ktlintCommand.relative)}" }
@@ -77,7 +77,7 @@ internal class PrintASTSubCommand : Runnable {
                 ),
             ).lint(
                 code = fileContent,
-                filePath = fileName?.let { Paths.get(it) }
+                filePath = fileName?.let { Paths.get(it) },
             )
         } catch (e: Exception) {
             if (e is KtLintParseException) {

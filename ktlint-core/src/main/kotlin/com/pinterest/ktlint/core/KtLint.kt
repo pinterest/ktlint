@@ -185,7 +185,7 @@ public object KtLint {
                 text = params.text,
                 fileName = params.fileName,
                 script = params.script,
-                isStdIn = params.isStdIn
+                isStdIn = params.isStdIn,
             ),
         ) { params.cb(it, false) }
     }
@@ -215,8 +215,8 @@ public object KtLint {
                     text = params.text,
                     fileName = params.fileName,
                     script = params.script,
-                    isStdIn = params.isStdIn
-                )
+                    isStdIn = params.isStdIn,
+                ),
             ) { lintError, autocorrected -> params.cb(lintError, autocorrected) }
     }
 
@@ -277,7 +277,7 @@ public object KtLint {
      * ```
      */
     @Deprecated(
-        message ="Marked for removal in KtLint 0.49.",
+        message = "Marked for removal in KtLint 0.49.",
         replaceWith = ReplaceWith("ktLintRuleEngine.generateKotlinEditorConfigSection(path)"),
     )
     public fun generateKotlinEditorConfigSection(
@@ -449,12 +449,13 @@ public class KtLintRuleEngine(internal val ktLintRuleEngineConfiguration: KtLint
         var tripped = false
         var mutated = false
         val errors = mutableSetOf<Pair<LintError, Boolean>>()
-        val visitorProvider = VisitorProvider(
-            ruleRunners = ktLintRuleEngineConfiguration.ruleProviders
+        val ruleRunners =
+            ktLintRuleEngineConfiguration
+                .ruleProviders
                 .map { RuleRunner(it) }
                 .distinctBy { it.ruleId }
                 .toSet()
-        )
+        val visitorProvider = VisitorProvider(ruleRunners)
         try {
             visitorProvider
                 .visitor(ruleExecutionContext.editorConfigProperties)

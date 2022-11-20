@@ -24,7 +24,7 @@ internal class VisitorProvider(
      * Creates a new [RuleRunnerSorter]. Only to be used in unit tests where the same set of rules are used with distinct [Rule.VisitorModifier]s.
      */
     recreateRuleSorter: Boolean = false,
-    ) : UsesEditorConfigProperties {
+) : UsesEditorConfigProperties {
     override val editorConfigProperties: List<EditorConfigProperty<*>> = listOf(
         KTLINT_DISABLED_RULES_PROPERTY,
         DISABLED_RULES_PROPERTY,
