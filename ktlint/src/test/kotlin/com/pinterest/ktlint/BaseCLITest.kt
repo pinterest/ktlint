@@ -138,10 +138,11 @@ abstract class BaseCLITest {
 
                 command += "-jar"
                 command += ktlintCli
+                command += "-l=debug" // Always run with debug logging as this is convenient when test fails
                 command.joinToString(separator = " ", postfix = " ")
             }
 
-            else -> "$ktlintCli -l=debug "
+            else -> "$ktlintCli -l=debug " // Always run with debug logging as this is convenient when test fails
         }
 
         return arguments.joinToString(prefix = commandPrefix, separator = " ") {

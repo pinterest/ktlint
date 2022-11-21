@@ -138,6 +138,17 @@ internal class RuleExecutionContext private constructor(
 
             val rootNode = psiFile.node
 
+            // TODO: Remove - just checking whether virtualFilePath can be determined here while it causes problems in
+            // FilenameRule (on Windows)
+            try {
+                val virtualPath = psiFile.virtualFilePath
+                if (virtualPath != code.fileName) {
+                    LOGGER.debug { "Virtual filePath '$virtualPath' not equal to '${code.fileName}'" }
+                }
+            } catch (t: Throwable) {
+                LOGGER.debug { "Can not determine virtual file path for code with filename '${code.fileName}'" }
+            }
+
             val ruleRunners =
                 ktLintRuleEngine
                     .ktLintRuleEngineConfiguration

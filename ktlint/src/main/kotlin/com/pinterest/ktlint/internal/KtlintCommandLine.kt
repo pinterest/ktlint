@@ -541,10 +541,10 @@ internal class KtlintCommandLine {
                     e.line,
                     e.col,
                     "",
-                    "Internal Error (${e.ruleId}) in file '$filename' at position '${e.line}:${e.col}. " +
+                    "Internal Error (rule '${e.ruleId}') in file '$filename' at position '${e.line}:${e.col}. " +
                         "Please create a ticket at https://github.com/pinterest/ktlint/issues " +
-                        "(if possible, please re-run with the --log-level=debug flag to get the stacktrace " +
-                        "and provide the source code that triggered an error)",
+                        "and provide the source code that triggered an error.\n" +
+                        e.stackTraceToString(),
                 )
             }
             else -> throw e
