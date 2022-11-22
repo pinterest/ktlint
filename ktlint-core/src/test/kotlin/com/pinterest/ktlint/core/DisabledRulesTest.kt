@@ -19,10 +19,8 @@ class DisabledRulesTest {
         assertThat(
             ArrayList<LintError>().apply {
                 KtLintRuleEngine(
-                    KtLintRuleEngineConfiguration(
-                        ruleProviders = setOf(
-                            RuleProvider { NoVarRule("no-var") },
-                        ),
+                    ruleProviders = setOf(
+                        RuleProvider { NoVarRule("no-var") },
                     ),
                 ).lint("var foo") { e -> add(e) }
             },
@@ -41,12 +39,10 @@ class DisabledRulesTest {
             assertThatThrownBy {
                 ArrayList<LintError>().apply {
                     KtLintRuleEngine(
-                        KtLintRuleEngineConfiguration(
-                            ruleProviders = setOf(
-                                RuleProvider { NoVarRule("no-var") },
-                            ),
-                            editorConfigOverride = EditorConfigOverride.from(DISABLED_RULES_PROPERTY to "no-var"),
+                        ruleProviders = setOf(
+                            RuleProvider { NoVarRule("no-var") },
                         ),
+                        editorConfigOverride = EditorConfigOverride.from(DISABLED_RULES_PROPERTY to "no-var"),
                     ).lint("var foo") { e -> add(e) }
                 }
             }.isInstanceOf(DeprecatedEditorConfigPropertyException::class.java)
@@ -74,12 +70,10 @@ class DisabledRulesTest {
             assertThat(
                 ArrayList<LintError>().apply {
                     KtLintRuleEngine(
-                        KtLintRuleEngineConfiguration(
-                            ruleProviders = setOf(
-                                RuleProvider { NoVarRule(ruleId) },
-                            ),
-                            editorConfigOverride = EditorConfigOverride.from(KTLINT_DISABLED_RULES_PROPERTY to disabledRuleId),
+                        ruleProviders = setOf(
+                            RuleProvider { NoVarRule(ruleId) },
                         ),
+                        editorConfigOverride = EditorConfigOverride.from(KTLINT_DISABLED_RULES_PROPERTY to disabledRuleId),
                     ).lint("var foo") { e -> add(e) }
                 },
             ).isEmpty()
@@ -90,12 +84,10 @@ class DisabledRulesTest {
             assertThat(
                 ArrayList<LintError>().apply {
                     KtLintRuleEngine(
-                        KtLintRuleEngineConfiguration(
-                            ruleProviders = setOf(
-                                RuleProvider { NoVarRule("no-var") },
-                            ),
-                            editorConfigOverride = EditorConfigOverride.from(KTLINT_DISABLED_RULES_PROPERTY to "no-var"),
+                        ruleProviders = setOf(
+                            RuleProvider { NoVarRule("no-var") },
                         ),
+                        editorConfigOverride = EditorConfigOverride.from(KTLINT_DISABLED_RULES_PROPERTY to "no-var"),
                     ).lint("var foo") { e -> add(e) }
                 },
             ).isEmpty()
@@ -106,12 +98,10 @@ class DisabledRulesTest {
             assertThat(
                 ArrayList<LintError>().apply {
                     KtLintRuleEngine(
-                        KtLintRuleEngineConfiguration(
-                            ruleProviders = setOf(
-                                RuleProvider { NoVarRule("experimental:no-var") },
-                            ),
-                            editorConfigOverride = EditorConfigOverride.from(KTLINT_DISABLED_RULES_PROPERTY to "experimental:no-var"),
+                        ruleProviders = setOf(
+                            RuleProvider { NoVarRule("experimental:no-var") },
                         ),
+                        editorConfigOverride = EditorConfigOverride.from(KTLINT_DISABLED_RULES_PROPERTY to "experimental:no-var"),
                     ).lint("var foo") { e -> add(e) }
                 },
             ).isEmpty()

@@ -2,7 +2,6 @@ package com.pinterest.ktlint.test
 
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.KtLintRuleEngine
-import com.pinterest.ktlint.core.KtLintRuleEngineConfiguration
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.RuleProvider
 import com.pinterest.ktlint.core.api.EditorConfigOverride
@@ -91,16 +90,14 @@ public fun Set<RuleProvider>.lint(
     filePath: String? = null,
     editorConfigOverride: EditorConfigOverride = EditorConfigOverride.EMPTY_EDITOR_CONFIG_OVERRIDE,
 ): List<LintError> {
-    val ktLintRuleEngineConfiguration = KtLintRuleEngineConfiguration(
-        ruleProviders = this.toRuleProviders(),
-        editorConfigOverride = editorConfigOverride,
-    )
     val lintErrors = ArrayList<LintError>()
-    KtLintRuleEngine(ktLintRuleEngineConfiguration)
-        .lint(
-            code = text,
-            filePath = filePath?.let { Paths.get(filePath) },
-        ) { lintError -> lintErrors.add(lintError) }
+    KtLintRuleEngine(
+        ruleProviders = toRuleProviders(),
+        editorConfigOverride = editorConfigOverride,
+    ).lint(
+        code = text,
+        filePath = filePath?.let { Paths.get(filePath) },
+    ) { lintError -> lintErrors.add(lintError) }
     return lintErrors
 }
 
@@ -136,16 +133,14 @@ public fun Set<RuleProvider>.format(
     filePath: String?,
     editorConfigOverride: EditorConfigOverride = EditorConfigOverride.EMPTY_EDITOR_CONFIG_OVERRIDE,
 ): Pair<String, List<LintError>> {
-    val ktLintRuleEngineConfiguration = KtLintRuleEngineConfiguration(
-        ruleProviders = this.toRuleProviders(),
-        editorConfigOverride = editorConfigOverride,
-    )
     val lintErrors = ArrayList<LintError>()
     val formattedCode =
-        KtLintRuleEngine(ktLintRuleEngineConfiguration)
-            .format(
-                code = text,
-                filePath = filePath?.let { Paths.get(filePath) },
-            ) { lintError, _ -> lintErrors.add(lintError) }
+        KtLintRuleEngine(
+            ruleProviders = toRuleProviders(),
+            editorConfigOverride = editorConfigOverride,
+        ).format(
+            code = text,
+            filePath = filePath?.let { Paths.get(filePath) },
+        ) { lintError, _ -> lintErrors.add(lintError) }
     return Pair(formattedCode, lintErrors)
 }

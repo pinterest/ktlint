@@ -3,7 +3,6 @@ package com.pinterest.ktlint.internal
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
 import com.pinterest.ktlint.core.KtLintRuleEngine
-import com.pinterest.ktlint.core.KtLintRuleEngineConfiguration
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.Reporter
 import com.pinterest.ktlint.core.ReporterProvider
@@ -290,12 +289,10 @@ internal class KtlintCommandLine {
         var reporter = loadReporter()
 
         val ktLintRuleEngine = KtLintRuleEngine(
-            KtLintRuleEngineConfiguration(
-                ruleProviders = ruleProviders,
-                editorConfigDefaults = editorConfigDefaults,
-                editorConfigOverride = editorConfigOverride,
-                isInvokedFromCli = true,
-            ),
+            ruleProviders = ruleProviders,
+            editorConfigDefaults = editorConfigDefaults,
+            editorConfigOverride = editorConfigOverride,
+            isInvokedFromCli = true,
         )
 
         reporter.beforeAll()

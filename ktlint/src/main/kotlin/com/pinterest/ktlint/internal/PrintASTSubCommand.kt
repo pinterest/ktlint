@@ -1,7 +1,6 @@
 package com.pinterest.ktlint.internal
 
 import com.pinterest.ktlint.core.KtLintRuleEngine
-import com.pinterest.ktlint.core.KtLintRuleEngineConfiguration
 import com.pinterest.ktlint.core.RuleProvider
 import com.pinterest.ktlint.core.api.KtLintParseException
 import com.pinterest.ktlint.core.initKtLintKLogger
@@ -70,10 +69,8 @@ internal class PrintASTSubCommand : Runnable {
 
         try {
             KtLintRuleEngine(
-                KtLintRuleEngineConfiguration(
-                    ruleProviders = setOf(
-                        RuleProvider { DumpASTRule(System.out, ktlintCommand.color) },
-                    ),
+                ruleProviders = setOf(
+                    RuleProvider { DumpASTRule(System.out, ktlintCommand.color) },
                 ),
             ).lint(
                 code = fileContent,

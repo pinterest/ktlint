@@ -2,7 +2,6 @@ package com.pinterest.ktlint.core.ast
 
 import com.pinterest.ktlint.core.Code
 import com.pinterest.ktlint.core.KtLintRuleEngine
-import com.pinterest.ktlint.core.KtLintRuleEngineConfiguration
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.RuleProvider
 import com.pinterest.ktlint.core.ast.ElementType.CLASS
@@ -616,10 +615,8 @@ class PackageKtTest {
     private fun transformCodeToAST(code: String) =
         createRuleExecutionContext(
             ktLintRuleEngine = KtLintRuleEngine(
-                KtLintRuleEngineConfiguration(
-                    ruleProviders = setOf(
-                        RuleProvider { DummyRule() },
-                    ),
+                ruleProviders = setOf(
+                    RuleProvider { DummyRule() },
                 ),
             ),
             code = Code(code),

@@ -42,16 +42,14 @@ class KtLintTest {
             fun `Given a non empty rule providers and empty userData then do not throw an error`() {
                 var numberOfRootNodesVisited = 0
                 KtLintRuleEngine(
-                    KtLintRuleEngineConfiguration(
-                        ruleProviders = setOf(
-                            RuleProvider {
-                                DummyRule { node ->
-                                    if (node.isRoot()) {
-                                        numberOfRootNodesVisited++
-                                    }
+                    ruleProviders = setOf(
+                        RuleProvider {
+                            DummyRule { node ->
+                                if (node.isRoot()) {
+                                    numberOfRootNodesVisited++
                                 }
-                            },
-                        ),
+                            }
+                        },
                     ),
                 ).lint("fun main() {}")
                 assertThat(numberOfRootNodesVisited).isEqualTo(1)
@@ -66,10 +64,8 @@ class KtLintTest {
                     """.trimIndent()
                 val callbacks = mutableListOf<CallbackResult>()
                 KtLintRuleEngine(
-                    KtLintRuleEngineConfiguration(
-                        ruleProviders = setOf(
-                            RuleProvider { AutoCorrectErrorRule() },
-                        ),
+                    ruleProviders = setOf(
+                        RuleProvider { AutoCorrectErrorRule() },
                     ),
                 ).lint(code) { e ->
                     callbacks.add(
@@ -111,16 +107,14 @@ class KtLintTest {
             fun `Given a non empty rule providers and empty userData then do not throw an error`() {
                 var numberOfRootNodesVisited = 0
                 KtLintRuleEngine(
-                    KtLintRuleEngineConfiguration(
-                        ruleProviders = setOf(
-                            RuleProvider {
-                                DummyRule { node ->
-                                    if (node.isRoot()) {
-                                        numberOfRootNodesVisited++
-                                    }
+                    ruleProviders = setOf(
+                        RuleProvider {
+                            DummyRule { node ->
+                                if (node.isRoot()) {
+                                    numberOfRootNodesVisited++
                                 }
-                            },
-                        ),
+                            }
+                        },
                     ),
                 ).format("fun main() {}")
                 assertThat(numberOfRootNodesVisited).isEqualTo(1)
@@ -140,10 +134,8 @@ class KtLintTest {
                     """.trimIndent()
                 val callbacks = mutableListOf<CallbackResult>()
                 val actualFormattedCode = KtLintRuleEngine(
-                    KtLintRuleEngineConfiguration(
-                        ruleProviders = setOf(
-                            RuleProvider { AutoCorrectErrorRule() },
-                        ),
+                    ruleProviders = setOf(
+                        RuleProvider { AutoCorrectErrorRule() },
                     ),
                 ).format(code) { e, corrected ->
                     callbacks.add(
@@ -184,23 +176,21 @@ class KtLintTest {
     fun `Given a normal rule then execute on root node and child nodes`() {
         val ruleExecutionCalls = mutableListOf<RuleExecutionCall>()
         KtLintRuleEngine(
-            KtLintRuleEngineConfiguration(
-                ruleProviders = setOf(
-                    RuleProvider {
-                        SimpleTestRule(
-                            ruleExecutionCalls = ruleExecutionCalls,
-                            id = "a",
-                            visitorModifiers = setOf(),
-                        )
-                    },
-                    RuleProvider {
-                        SimpleTestRule(
-                            ruleExecutionCalls = ruleExecutionCalls,
-                            id = "b",
-                            visitorModifiers = setOf(RunAsLateAsPossible),
-                        )
-                    },
-                ),
+            ruleProviders = setOf(
+                RuleProvider {
+                    SimpleTestRule(
+                        ruleExecutionCalls = ruleExecutionCalls,
+                        id = "a",
+                        visitorModifiers = setOf(),
+                    )
+                },
+                RuleProvider {
+                    SimpleTestRule(
+                        ruleExecutionCalls = ruleExecutionCalls,
+                        id = "b",
+                        visitorModifiers = setOf(RunAsLateAsPossible),
+                    )
+                },
             ),
         ).lint(
             // An empty file results in nodes with elementTypes FILE, PACKAGE_DIRECTIVE and IMPORT_LIST respectively
@@ -232,28 +222,26 @@ class KtLintTest {
     fun `Given multiple rules which have to run in a certain order`() {
         val ruleExecutionCalls = mutableListOf<RuleExecutionCall>()
         KtLintRuleEngine(
-            KtLintRuleEngineConfiguration(
-                ruleProviders = setOf(
-                    RuleProvider {
-                        SimpleTestRule(
-                            ruleExecutionCalls = ruleExecutionCalls,
-                            id = "d",
-                            visitorModifiers = setOf(RunAsLateAsPossible),
-                        )
-                    },
-                    RuleProvider {
-                        SimpleTestRule(
-                            ruleExecutionCalls = ruleExecutionCalls,
-                            id = "b",
-                        )
-                    },
-                    RuleProvider {
-                        SimpleTestRule(
-                            ruleExecutionCalls = ruleExecutionCalls,
-                            id = "c",
-                        )
-                    },
-                ),
+            ruleProviders = setOf(
+                RuleProvider {
+                    SimpleTestRule(
+                        ruleExecutionCalls = ruleExecutionCalls,
+                        id = "d",
+                        visitorModifiers = setOf(RunAsLateAsPossible),
+                    )
+                },
+                RuleProvider {
+                    SimpleTestRule(
+                        ruleExecutionCalls = ruleExecutionCalls,
+                        id = "b",
+                    )
+                },
+                RuleProvider {
+                    SimpleTestRule(
+                        ruleExecutionCalls = ruleExecutionCalls,
+                        id = "c",
+                    )
+                },
             ),
         ).lint(
             // An empty file results in nodes with elementTypes FILE, PACKAGE_DIRECTIVE and IMPORT_LIST respectively
@@ -295,10 +283,8 @@ class KtLintTest {
         val code = getResourceAsText("spec/format-unicode-bom.kt.spec")
 
         val actual = KtLintRuleEngine(
-            KtLintRuleEngineConfiguration(
-                ruleProviders = setOf(
-                    RuleProvider { DummyRule() },
-                ),
+            ruleProviders = setOf(
+                RuleProvider { DummyRule() },
             ),
         ).format(code)
 
@@ -311,16 +297,14 @@ class KtLintTest {
         fun `Given that the traversal is stopped in the beforeFirstNode hook then do no traverse the AST but do call the afterLastNode hook`() {
             val ruleExecutionCalls = mutableListOf<RuleExecutionCall>()
             KtLintRuleEngine(
-                KtLintRuleEngineConfiguration(
-                    ruleProviders = setOf(
-                        RuleProvider {
-                            SimpleTestRule(
-                                id = "stop-traversal",
-                                ruleExecutionCalls = ruleExecutionCalls,
-                                stopTraversalInBeforeFirstNode = true,
-                            )
-                        },
-                    ),
+                ruleProviders = setOf(
+                    RuleProvider {
+                        SimpleTestRule(
+                            id = "stop-traversal",
+                            ruleExecutionCalls = ruleExecutionCalls,
+                            stopTraversalInBeforeFirstNode = true,
+                        )
+                    },
                 ),
             ).format("class Foo")
 
@@ -344,19 +328,17 @@ class KtLintTest {
                 }
                 """.trimIndent()
             KtLintRuleEngine(
-                KtLintRuleEngineConfiguration(
-                    ruleProviders = setOf(
-                        RuleProvider {
-                            SimpleTestRule(
-                                id = "stop-traversal",
-                                ruleExecutionCalls = ruleExecutionCalls,
-                                stopTraversalInBeforeVisitChildNodes = { node ->
-                                    // Stop when Class Foo has been entered
-                                    node.elementType == CLASS && node.findChildByType(IDENTIFIER)?.text == "Foo"
-                                },
-                            )
-                        },
-                    ),
+                ruleProviders = setOf(
+                    RuleProvider {
+                        SimpleTestRule(
+                            id = "stop-traversal",
+                            ruleExecutionCalls = ruleExecutionCalls,
+                            stopTraversalInBeforeVisitChildNodes = { node ->
+                                // Stop when Class Foo has been entered
+                                node.elementType == CLASS && node.findChildByType(IDENTIFIER)?.text == "Foo"
+                            },
+                        )
+                    },
                 ),
             ).format(code)
 
@@ -386,19 +368,17 @@ class KtLintTest {
                 }
                 """.trimIndent()
             KtLintRuleEngine(
-                KtLintRuleEngineConfiguration(
-                    ruleProviders = setOf(
-                        RuleProvider {
-                            SimpleTestRule(
-                                id = "stop-traversal",
-                                ruleExecutionCalls = ruleExecutionCalls,
-                                stopTraversalInAfterVisitChildNodes = { node ->
-                                    // Stop when Class Foo has been visited
-                                    node.elementType == CLASS && node.findChildByType(IDENTIFIER)?.text == "Foo"
-                                },
-                            )
-                        },
-                    ),
+                ruleProviders = setOf(
+                    RuleProvider {
+                        SimpleTestRule(
+                            id = "stop-traversal",
+                            ruleExecutionCalls = ruleExecutionCalls,
+                            stopTraversalInAfterVisitChildNodes = { node ->
+                                // Stop when Class Foo has been visited
+                                node.elementType == CLASS && node.findChildByType(IDENTIFIER)?.text == "Foo"
+                            },
+                        )
+                    },
                 ),
             ).format(code)
 
@@ -420,16 +400,14 @@ class KtLintTest {
         fun `Given that the traversal is stopped in the afterLastNode hook then do nothing special as traversal is already stopped`() {
             val ruleExecutionCalls = mutableListOf<RuleExecutionCall>()
             KtLintRuleEngine(
-                KtLintRuleEngineConfiguration(
-                    ruleProviders = setOf(
-                        RuleProvider {
-                            SimpleTestRule(
-                                id = "stop-traversal",
-                                ruleExecutionCalls = ruleExecutionCalls,
-                                stopTraversalInBeforeFirstNode = true,
-                            )
-                        },
-                    ),
+                ruleProviders = setOf(
+                    RuleProvider {
+                        SimpleTestRule(
+                            id = "stop-traversal",
+                            ruleExecutionCalls = ruleExecutionCalls,
+                            stopTraversalInBeforeFirstNode = true,
+                        )
+                    },
                 ),
             ).format("class Foo")
 
@@ -448,10 +426,8 @@ class KtLintTest {
          * the rule whenever the instance has been used before to traverse the AST.
          */
         KtLintRuleEngine(
-            KtLintRuleEngineConfiguration(
-                ruleProviders = setOf(
-                    RuleProvider { WithStateRule() },
-                ),
+            ruleProviders = setOf(
+                RuleProvider { WithStateRule() },
             ),
         ).format(code = "")
     }
@@ -466,10 +442,8 @@ class KtLintTest {
             """.trimIndent()
         val actualFormattedCode =
             KtLintRuleEngine(
-                KtLintRuleEngineConfiguration(
-                    ruleProviders = setOf(
-                        RuleProvider { AutoCorrectErrorRule() },
-                    ),
+                ruleProviders = setOf(
+                    RuleProvider { AutoCorrectErrorRule() },
                 ),
             ).format(code)
         assertThat(actualFormattedCode).isEqualTo(code)

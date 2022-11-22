@@ -1,7 +1,6 @@
 package com.pinterest.ktlint.internal
 
 import com.pinterest.ktlint.core.KtLintRuleEngine
-import com.pinterest.ktlint.core.KtLintRuleEngineConfiguration
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.core.api.EditorConfigOverride
@@ -38,12 +37,11 @@ internal class GenerateEditorConfigSubCommand : Runnable {
                     ktlintCommand.debug,
                     ktlintCommand.disabledRules,
                 )
-        val ktLintRuleEngineConfiguration = KtLintRuleEngineConfiguration(
+        val ktLintRuleEngine = KtLintRuleEngine(
             ruleProviders = ruleProviders,
             editorConfigOverride = EditorConfigOverride.from(CODE_STYLE_PROPERTY to codeStyle()),
             isInvokedFromCli = true,
         )
-        val ktLintRuleEngine = KtLintRuleEngine(ktLintRuleEngineConfiguration)
         val generatedEditorConfig = ktLintRuleEngine.generateKotlinEditorConfigSection(Paths.get("."))
 
         if (generatedEditorConfig.isNotBlank()) {

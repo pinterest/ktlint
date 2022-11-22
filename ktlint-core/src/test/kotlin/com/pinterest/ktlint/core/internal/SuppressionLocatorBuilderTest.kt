@@ -1,7 +1,6 @@
 package com.pinterest.ktlint.core.internal
 
 import com.pinterest.ktlint.core.KtLintRuleEngine
-import com.pinterest.ktlint.core.KtLintRuleEngineConfiguration
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.RuleProvider
@@ -224,13 +223,11 @@ class SuppressionLocatorBuilderTest {
     private companion object {
         const val NON_STANDARD_RULE_SET_ID = "custom" // Can be any value other than "standard"
         val KTLINT_RULE_ENGINE = KtLintRuleEngine(
-            KtLintRuleEngineConfiguration(
-                ruleProviders = setOf(
-                    // The same rule is supplied once a standard rule and once as non-standard rule. Note that the
-                    // ruleIds are different.
-                    RuleProvider { NoFooIdentifierRule("no-foo-identifier-standard") },
-                    RuleProvider { NoFooIdentifierRule("$NON_STANDARD_RULE_SET_ID:no-foo-identifier") },
-                ),
+            ruleProviders = setOf(
+                // The same rule is supplied once a standard rule and once as non-standard rule. Note that the
+                // ruleIds are different.
+                RuleProvider { NoFooIdentifierRule("no-foo-identifier-standard") },
+                RuleProvider { NoFooIdentifierRule("$NON_STANDARD_RULE_SET_ID:no-foo-identifier") },
             ),
         )
     }

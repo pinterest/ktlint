@@ -27,9 +27,7 @@ import java.io.File
 
 // Define a reusable instance of the KtLint Rule Engine
 val ktLintRuleEngine = KtLintRuleEngine(
-  KtLintRuleEngineConfiguration(
-    // Define configuration
-  )
+  // Define configuration
 )
 
 

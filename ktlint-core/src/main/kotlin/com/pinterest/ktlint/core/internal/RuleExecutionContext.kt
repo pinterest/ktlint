@@ -26,8 +26,7 @@ internal class RuleExecutionContext private constructor(
     val editorConfigProperties: EditorConfigProperties,
     val positionInTextLocator: (offset: Int) -> LineAndColumn,
 ) {
-    lateinit var suppressionLocator: SuppressionLocator
-        private set
+    private lateinit var suppressionLocator: SuppressionLocator
 
     init {
         rebuildSuppressionLocator()
@@ -114,7 +113,7 @@ internal class RuleExecutionContext private constructor(
             ktLintRuleEngine: KtLintRuleEngine,
             code: Code,
         ): RuleExecutionContext {
-            val psiFileFactory = KOTLIN_PSI_FILE_FACTORY_PROVIDER.getKotlinPsiFileFactory(ktLintRuleEngine.ktLintRuleEngineConfiguration.isInvokedFromCli)
+            val psiFileFactory = KOTLIN_PSI_FILE_FACTORY_PROVIDER.getKotlinPsiFileFactory(ktLintRuleEngine.isInvokedFromCli)
             val normalizedText = normalizeText(code.content)
             val positionInTextLocator = buildPositionInTextLocator(normalizedText)
 
@@ -140,12 +139,11 @@ internal class RuleExecutionContext private constructor(
 
             val ruleRunners =
                 ktLintRuleEngine
-                    .ktLintRuleEngineConfiguration
                     .ruleProviders
                     .map { RuleRunner(it) }
                     .distinctBy { it.ruleId }
                     .toSet()
-            val editorConfigProperties = with(ktLintRuleEngine.ktLintRuleEngineConfiguration) {
+            val editorConfigProperties = with(ktLintRuleEngine) {
                 val rules =
                     ruleRunners
                         .map { it.getRule() }
