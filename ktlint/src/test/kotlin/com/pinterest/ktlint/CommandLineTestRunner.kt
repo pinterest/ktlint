@@ -137,6 +137,7 @@ class CommandLineTestRunner(private val tempDir: Path) {
                 }
 
                 command += "-jar"
+                command += ktlintCli
                 command += "-l=debug" // Always run with debug logging as this is convenient when test fails
                 command.joinToString(separator = " ", postfix = " ")
             }
