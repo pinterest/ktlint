@@ -12,7 +12,7 @@ import com.pinterest.ktlint.core.ast.ElementType.TYPE_REFERENCE
 import com.pinterest.ktlint.core.ast.children
 import com.pinterest.ktlint.core.ast.isRoot
 import com.pinterest.ktlint.ruleset.standard.internal.regExIgnoringDiacriticsAndStrokesOnLetters
-import java.nio.file.Paths
+import java.io.File
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
@@ -51,18 +51,16 @@ public class FilenameRule : Rule("filename") {
             node as FileASTNode? ?: error("node is not ${FileASTNode::class} but ${node::class}")
 
             val filePath = (node.psi as? KtFile)?.virtualFilePath
-            if (filePath?.endsWith(".kt") != true) {
+            if (filePath?.endsWith(".kt") != true || filePath.endsWith("package.kt")) {
                 // ignore all non ".kt" files (including ".kts")
                 stopTraversalOfAST()
                 return
             }
 
-            val fileName = Paths.get(filePath).fileName.toString().substringBefore(".")
-            if (fileName == "package") {
-                // ignore package.kt filename
-                stopTraversalOfAST()
-                return
-            }
+            val fileName =
+                filePath
+                    .substringAfterLast(File.separator)
+                    .substringBefore(".")
 
             val topLevelClassDeclarations = node.topLevelDeclarations(CLASS)
             if (topLevelClassDeclarations.size == 1) {
