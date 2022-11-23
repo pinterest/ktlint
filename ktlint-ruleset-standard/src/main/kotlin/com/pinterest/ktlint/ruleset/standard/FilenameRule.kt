@@ -59,7 +59,7 @@ public class FilenameRule : Rule("filename") {
 
             val fileName =
                 filePath
-                    .substringAfterLast(File.separator)
+                    .substringAfterLast("/")
                     .substringBefore(".")
 
             val topLevelClassDeclarations = node.topLevelDeclarations(CLASS)
