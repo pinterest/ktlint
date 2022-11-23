@@ -52,43 +52,45 @@ class CommandLineTestRunner(private val tempDir: Path) {
             process.outputStream.use(stdin::copyTo)
         }
 
-        if (process.completedInAllowedDuration()) {
-            val output = process.inputStream.bufferedReader().use { it.readLines() }
-            val error = process.errorStream.bufferedReader().use { it.readLines() }
+        // Give the process some time to complete
+        (0..WAIT_INTERVAL_MAX_OCCURRENCES).forEach { _ ->
+            if (process.isAlive) {
+                // Check regularly whether the ktlint command has finished to speed up the unit testing
+                process.waitFor(WAIT_INTERVAL_DURATION, TimeUnit.MILLISECONDS)
+            }
+        }
 
-            executionAssertions(ExecutionResult(process.exitValue(), output, error, projectPath))
+        // Get the output from the process before destroying it as otherwise the streams are not collected completely
+        val output = process.inputStream.bufferedReader().use { it.readLines() }
+        val error = process.errorStream.bufferedReader().use { it.readLines() }
 
-            // Destroy process only after output is collected as otherwise the streams are not completed.
-            process.destroy()
-        } else {
-            val output = process.inputStream.bufferedReader().use { it.readLines() }
-            val error = process.errorStream.bufferedReader().use { it.readLines() }
-
-            // Destroy before failing the test as the process otherwise keeps running
+        if (process.isAlive) {
+            // Destroy the process as it is still running
             process.destroyForcibly()
 
-            val maxDurationInSeconds = (WAIT_INTERVAL_DURATION * WAIT_INTERVAL_MAX_OCCURRENCES).div(1000.0)
-            fail {
-                "CLI test has been aborted as it could not be completed in $maxDurationInSeconds seconds"
-                    .followedByIndentedList(
-                        listOf(
-                            "RESULTS OF STDOUT:".followedByIndentedList(output, 2),
-                            "RESULTS OF STDERR:".followedByIndentedList(error, 2),
-                        ),
-                    )
-            }
-        }
-    }
-
-    private fun Process.completedInAllowedDuration(): Boolean {
-        (0..WAIT_INTERVAL_MAX_OCCURRENCES).forEach { _ ->
-            if (isAlive) {
-                waitFor(WAIT_INTERVAL_DURATION, TimeUnit.MILLISECONDS)
+            if (output.contains("Exit ktlint with exit code: 0")) {
+                // For unknown reasons the process sometimes results in a timeout although the ktlint command is
+                // terminated successfully.
+                executionAssertions(ExecutionResult(0, output, error, projectPath))
             } else {
-                return true
+                // Ktlint is either not terminated or is terminated with a non-zero exit code.
+                val maxDurationInSeconds = (WAIT_INTERVAL_DURATION * WAIT_INTERVAL_MAX_OCCURRENCES).div(1000.0)
+                fail {
+                    "CLI test has been aborted as it could not be completed in $maxDurationInSeconds seconds"
+                        .followedByIndentedList(
+                            listOf(
+                                "RESULTS OF STDOUT:".followedByIndentedList(output, 2),
+                                "RESULTS OF STDERR:".followedByIndentedList(error, 2),
+                            ),
+                        )
+                }
             }
+        } else {
+            executionAssertions(ExecutionResult(process.exitValue(), output, error, projectPath))
+
+            // Only destroy the process when it is no longer needed (so after asserting)
+            process.destroy()
         }
-        return false
     }
 
     private fun prepareTestProject(testProjectName: String): Path {
@@ -123,39 +125,39 @@ class CommandLineTestRunner(private val tempDir: Path) {
             else -> arrayOf("/bin/sh", "-c")
         }
 
-    private fun ktlintCommand(arguments: List<String>): String {
-        val commandPrefix = when {
-            /*
-             * On Windows, `ktlint` is not executable.
-             */
-            isWindows() -> {
-                val command = mutableListOf("java")
+    private fun ktlintCommand(arguments: List<String>): String =
+        mutableListOf<String>()
+            .apply {
+                if (isWindows()) {
+                    // KtLint is not an executable command on Windows OS
+                    add("java")
 
-                val javaVersion = System.getProperty("java.specification.version").javaVersionAsInt()
-                if (javaVersion != null) {
-                    // https://docs.gradle.org/7.5/userguide/upgrading_version_7.html#removes_implicit_add_opens_for_test_workers
-                    if (javaVersion >= 16) {
-                        command += "--add-opens=java.base/java.lang=ALL-UNNAMED"
-                        command += "--add-opens=java.base/java.util=ALL-UNNAMED"
-                    }
+                    val javaVersion = System.getProperty("java.specification.version").javaVersionAsInt()
+                    if (javaVersion != null) {
+                        // https://docs.gradle.org/7.5/userguide/upgrading_version_7.html#removes_implicit_add_opens_for_test_workers
+                        if (javaVersion >= 16) {
+                            add("--add-opens=java.base/java.lang=ALL-UNNAMED")
+                            add("--add-opens=java.base/java.util=ALL-UNNAMED")
+                        }
 
-                    if (javaVersion >= 18) {
-                        // https://openjdk.org/jeps/411
-                        command += "-Djava.security.manager=allow"
+                        if (javaVersion >= 18) {
+                            // https://openjdk.org/jeps/411
+                            add("-Djava.security.manager=allow")
+                        }
                     }
+                    add("-jar")
                 }
 
-                command += "-jar"
-                command += ktlintCli
-                command += "-l=debug" // Always run with debug logging as this is convenient when test fails
-                command.joinToString(separator = " ", postfix = " ")
-            }
+                add(ktlintCli)
 
-            else -> "$ktlintCli -l=debug " // Always run with debug logging as this is convenient when test fails
-        }
+                // Always run with debug logging as this is convenient when test fails and when ktlint is finished it
+                // prints the log line "Finished in ###ms / ... " which is used as fallback to determine whether ktlint
+                // did finish correctly.
+                add("-l=debug")
 
-        return arguments.joinToString(prefix = commandPrefix, separator = " ")
-    }
+                addAll(arguments)
+            }.joinToString(separator = " ", postfix = " ")
+            .also { LOGGER.debug("Command to be executed: $it") }
 
     private fun String?.javaVersionAsInt(): Int? {
         if (this == null) {
@@ -265,7 +267,7 @@ class CommandLineTestRunner(private val tempDir: Path) {
 
     companion object {
         private const val WAIT_INTERVAL_DURATION = 100L
-        private const val WAIT_INTERVAL_MAX_OCCURRENCES = 1000
+        private const val WAIT_INTERVAL_MAX_OCCURRENCES = 300
         private val TEST_PROJECTS_PATHS: Path = Path("src", "test", "resources", "cli")
         private const val PATH = "PATH"
         private val JAVA_VERSION_REGEX = Regex("""^1\.(?<version>\d+)(?:\.[^.].*)?$""")

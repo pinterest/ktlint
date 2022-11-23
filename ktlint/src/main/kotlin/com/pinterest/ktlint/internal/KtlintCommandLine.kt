@@ -266,7 +266,7 @@ internal class KtlintCommandLine {
             configureLogger().error {
                 "Options '--debug', '--trace', '--verbose' and '-v' are deprecated and replaced with option '--log-level=<level>' or '-l=<level>'."
             }
-            exitProcess(1)
+            exitKtLintProcess(1)
         }
 
         logger = configureLogger()
@@ -322,14 +322,16 @@ internal class KtlintCommandLine {
             )
         }
 
-        logger.debug { "${System.currentTimeMillis() - start}ms / $fileNumber file(s) / $errorNumber error(s)" }
+        logger.debug { "Finished processing in ${System.currentTimeMillis() - start}ms / $fileNumber file(s) scanned / $errorNumber error(s) found" }
         if (fileNumber.get() == 0) {
             // Do not return an error as this would implicate that in a multi-module project, each module has to contain
             // at least one kotlin file.
             logger.warn { "No files matched $patterns" }
         }
         if (tripped.get()) {
-            exitProcess(1)
+            exitKtLintProcess(1)
+        } else {
+            exitKtLintProcess(0)
         }
     }
 
@@ -493,7 +495,7 @@ internal class KtlintCommandLine {
                         postfix = ")",
                     )
             }
-            exitProcess(1)
+            exitKtLintProcess(1)
         }
         logger.debug {
             "Initializing \"$id\" reporter with $config" +
@@ -688,4 +690,13 @@ private class LogLevelConverter : CommandLine.ITypeConverter<Level> {
             "NONE" -> Level.OFF
             else -> Level.INFO
         }
+}
+
+/**
+ * Wrapper around exitProcess which ensure that a proper log line is written which can be used in unit tests for
+ * validating the result of the test.
+ */
+internal fun exitKtLintProcess(status: Int): Nothing {
+    logger.debug { "Exit ktlint with exit code: $status" }
+    exitProcess(status)
 }

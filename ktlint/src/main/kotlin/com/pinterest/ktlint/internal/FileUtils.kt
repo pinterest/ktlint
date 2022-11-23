@@ -17,7 +17,6 @@ import kotlin.io.path.absolutePathString
 import kotlin.io.path.isDirectory
 import kotlin.io.path.pathString
 import kotlin.io.path.relativeToOrSelf
-import kotlin.system.exitProcess
 import kotlin.system.measureTimeMillis
 import mu.KotlinLogging
 import org.jetbrains.kotlin.util.prefixIfNot
@@ -315,7 +314,7 @@ internal fun JarFiles.toFilesURIList() = map {
     val jarFile = File(it.expandTildeToFullPath())
     if (!jarFile.exists()) {
         LOGGER.error { "File '$it' does not exist" }
-        exitProcess(1)
+        exitKtLintProcess(1)
     }
     jarFile.toURI().toURL()
 }

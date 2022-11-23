@@ -5,16 +5,10 @@ import java.nio.file.Path
 import org.assertj.core.api.SoftAssertions
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.condition.DisabledOnOs
-import org.junit.jupiter.api.condition.OS
 import org.junit.jupiter.api.io.TempDir
 
 @DisplayName("CLI basic checks")
 class SimpleCLITest {
-    /**
-     * For some reason, the external `ktlint --help` process hangs on Windows.
-     */
-    @DisabledOnOs(OS.WINDOWS)
     @Test
     fun `Given CLI argument --help then return the help output`(
         @TempDir
@@ -26,8 +20,7 @@ class SimpleCLITest {
                 listOf("--help"),
             ) {
                 SoftAssertions().apply {
-                    assertNormalExitCode()
-                    assertErrorOutputIsEmpty()
+                    assertErrorExitCode()
                     assertThat(normalOutput).containsLineMatching("An anti-bikeshedding Kotlin linter with built-in formatter.")
                     assertThat(normalOutput).containsLineMatching("Usage:")
                     assertThat(normalOutput).containsLineMatching("Examples:")
@@ -46,8 +39,7 @@ class SimpleCLITest {
                 listOf("--version"),
             ) {
                 SoftAssertions().apply {
-                    assertNormalExitCode()
-                    assertErrorOutputIsEmpty()
+                    assertErrorExitCode()
                     assertThat(normalOutput).containsExactly(System.getProperty("ktlint-version"))
                 }.assertAll()
             }
