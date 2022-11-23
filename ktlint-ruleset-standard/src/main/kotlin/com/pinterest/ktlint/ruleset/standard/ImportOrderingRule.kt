@@ -17,7 +17,7 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.psi.KtImportDirective
 
-private val logger = KotlinLogging.logger {}.initKtLintKLogger()
+private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
 /**
  * Import ordering is configured via EditorConfig's property `ij_kotlin_imports_layout`, so the Kotlin IDE plugin also recongizes it. Supported values:
@@ -41,14 +41,14 @@ public class ImportOrderingRule :
     UsesEditorConfigProperties {
 
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
-        ideaImportsLayoutProperty,
+        IJ_KOTLIN_IMPORTS_LAYOUT_PROPERTY,
     )
 
     private lateinit var importsLayout: List<PatternEntry>
     private lateinit var importSorter: ImportSorter
 
     override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
-        importsLayout = editorConfigProperties.getEditorConfigValue(ideaImportsLayoutProperty)
+        importsLayout = editorConfigProperties.getEditorConfigValue(IJ_KOTLIN_IMPORTS_LAYOUT_PROPERTY)
         importSorter = ImportSorter(importsLayout)
     }
 
@@ -97,7 +97,7 @@ public class ImportOrderingRule :
                 if (hasComments) {
                     emit(
                         node.startOffset,
-                        errorMessages.getOrDefault(importsLayout, CUSTOM_ERROR_MESSAGE) +
+                        ERROR_MESSAGES.getOrDefault(importsLayout, CUSTOM_ERROR_MESSAGE) +
                             " -- no autocorrection due to comments in the import list",
                         false,
                     )
@@ -107,7 +107,7 @@ public class ImportOrderingRule :
                     if (autoCorrectSortOrder || autoCorrectWhitespace) {
                         emit(
                             node.startOffset,
-                            errorMessages.getOrDefault(importsLayout, CUSTOM_ERROR_MESSAGE),
+                            ERROR_MESSAGES.getOrDefault(importsLayout, CUSTOM_ERROR_MESSAGE),
                             true,
                         )
                     }
@@ -176,9 +176,6 @@ public class ImportOrderingRule :
     }
 
     public companion object {
-        internal const val IDEA_IMPORTS_LAYOUT_PROPERTY_NAME = "ij_kotlin_imports_layout"
-        private const val PROPERTY_DESCRIPTION = "Defines imports order layout for Kotlin files"
-
         /**
          * Alphabetical with capital letters before lower case letters (e.g. Z before a).
          * No blank lines between major groups (android, com, junit, net, org, java, javax).
@@ -203,12 +200,12 @@ public class ImportOrderingRule :
         private const val ASCII_ERROR_MESSAGE = "Imports must be ordered in lexicographic order without any empty lines in-between"
         private const val CUSTOM_ERROR_MESSAGE = "Imports must be ordered according to the pattern specified in .editorconfig"
 
-        private val errorMessages = mapOf(
+        private val ERROR_MESSAGES = mapOf(
             IDEA_PATTERN to IDEA_ERROR_MESSAGE,
             ASCII_PATTERN to ASCII_ERROR_MESSAGE,
         )
 
-        private val editorConfigPropertyParser: (String, String?) -> PropertyType.PropertyValue<List<PatternEntry>> =
+        private val EDITOR_CONFIG_PROPERTY_PARSER: (String, String?) -> PropertyType.PropertyValue<List<PatternEntry>> =
             { _, value ->
                 when {
                     value.isNullOrBlank() -> PropertyType.PropertyValue.invalid(
@@ -216,14 +213,14 @@ public class ImportOrderingRule :
                         "Import layout must contain at least one entry of a wildcard symbol (*)",
                     )
                     value == "idea" -> {
-                        logger.warn { "`idea` is deprecated! Please use `*,java.**,javax.**,kotlin.**,^` instead to ensure that the Kotlin IDE plugin recognizes the value" }
+                        LOGGER.warn { "`idea` is deprecated! Please use `*,java.**,javax.**,kotlin.**,^` instead to ensure that the Kotlin IDE plugin recognizes the value" }
                         PropertyType.PropertyValue.valid(
                             value,
                             IDEA_PATTERN,
                         )
                     }
                     value == "ascii" -> {
-                        logger.warn { "`ascii` is deprecated! Please use `*` instead to ensure that the Kotlin IDE plugin recognizes the value" }
+                        LOGGER.warn { "`ascii` is deprecated! Please use `*` instead to ensure that the Kotlin IDE plugin recognizes the value" }
                         PropertyType.PropertyValue.valid(
                             value,
                             ASCII_PATTERN,
@@ -243,16 +240,24 @@ public class ImportOrderingRule :
                 }
             }
 
-        public val ideaImportsLayoutProperty: UsesEditorConfigProperties.EditorConfigProperty<List<PatternEntry>> =
+        public val IJ_KOTLIN_IMPORTS_LAYOUT_PROPERTY: UsesEditorConfigProperties.EditorConfigProperty<List<PatternEntry>> =
             UsesEditorConfigProperties.EditorConfigProperty<List<PatternEntry>>(
                 type = PropertyType(
-                    IDEA_IMPORTS_LAYOUT_PROPERTY_NAME,
-                    PROPERTY_DESCRIPTION,
-                    editorConfigPropertyParser,
+                    "ij_kotlin_imports_layout",
+                    "Defines imports order layout for Kotlin files",
+                    EDITOR_CONFIG_PROPERTY_PARSER,
                 ),
                 defaultValue = IDEA_PATTERN,
                 defaultAndroidValue = ASCII_PATTERN,
                 propertyWriter = { it.joinToString(separator = ",") },
             )
+
+        @Deprecated(
+            message = "Marked for removal in KtLint 0.49",
+            replaceWith = ReplaceWith("IJ_KOTLIN_IMPORTS_LAYOUT_PROPERTY"),
+        )
+        @Suppress("ktlint:experimental:property-naming")
+        public val ideaImportsLayoutProperty: UsesEditorConfigProperties.EditorConfigProperty<List<PatternEntry>> =
+            IJ_KOTLIN_IMPORTS_LAYOUT_PROPERTY
     }
 }

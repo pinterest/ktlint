@@ -6,8 +6,8 @@ import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType.BLOCK_COMMENT
 import com.pinterest.ktlint.core.ast.ElementType.EOL_COMMENT
 import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
+import com.pinterest.ktlint.core.ast.hasNewLineInClosedRange
 import com.pinterest.ktlint.core.ast.lineIndent
-import com.pinterest.ktlint.core.ast.lineNumber
 import com.pinterest.ktlint.core.ast.nextLeaf
 import com.pinterest.ktlint.core.ast.prevLeaf
 import com.pinterest.ktlint.core.ast.upsertWhitespaceBeforeMe
@@ -20,12 +20,12 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiCommentImpl
  * another element on the same line is replaced with an EOL comment, if possible.
  */
 public class CommentWrappingRule :
-    Rule("$experimentalRulesetId:comment-wrapping"),
+    Rule("$EXPERIMENTAL_RULE_SET_ID:comment-wrapping"),
     UsesEditorConfigProperties {
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> =
         listOf(
-            DefaultEditorConfigProperties.indentSizeProperty,
-            DefaultEditorConfigProperties.indentStyleProperty,
+            DefaultEditorConfigProperties.INDENT_SIZE_PROPERTY,
+            DefaultEditorConfigProperties.INDENT_STYLE_PROPERTY,
         )
 
     override fun beforeVisitChildNodes(
@@ -46,15 +46,7 @@ public class CommentWrappingRule :
             if (nonIndentLeafOnSameLinePrecedingBlockComment != null &&
                 nonIndentLeafOnSameLineFollowingBlockComment != null
             ) {
-                if (nonIndentLeafOnSameLinePrecedingBlockComment.lineNumber() == nonIndentLeafOnSameLineFollowingBlockComment.lineNumber()) {
-                    // Do not try to fix constructs like below:
-                    //    val foo /* some comment */ = "foo"
-                    emit(
-                        node.startOffset,
-                        "A block comment in between other elements on the same line is disallowed",
-                        false,
-                    )
-                } else {
+                if (hasNewLineInClosedRange(nonIndentLeafOnSameLinePrecedingBlockComment, nonIndentLeafOnSameLineFollowingBlockComment)) {
                     // Do not try to fix constructs like below:
                     //    val foo = "foo" /*
                     //    some comment
@@ -62,6 +54,14 @@ public class CommentWrappingRule :
                     emit(
                         node.startOffset,
                         "A block comment starting on same line as another element and ending on another line before another element is disallowed",
+                        false,
+                    )
+                } else {
+                    // Do not try to fix constructs like below:
+                    //    val foo /* some comment */ = "foo"
+                    emit(
+                        node.startOffset,
+                        "A block comment in between other elements on the same line is disallowed",
                         false,
                     )
                 }
@@ -115,11 +115,7 @@ public class CommentWrappingRule :
     ) {
         emit(startOffset, "A block comment may not be followed by any other element on that same line", true)
         if (autoCorrect) {
-            if (elementType == WHITE_SPACE) {
-                (this as LeafPsiElement).rawReplaceWithText("\n${blockCommentNode.lineIndent()}")
-            } else {
-                (this as LeafPsiElement).upsertWhitespaceBeforeMe("\n${blockCommentNode.lineIndent()}")
-            }
+            this.upsertWhitespaceBeforeMe("\n${blockCommentNode.lineIndent()}")
         }
     }
 

@@ -2,8 +2,6 @@ package com.pinterest.ktlint.reporter.format
 
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.Reporter
-import com.pinterest.ktlint.reporter.format.internal.Color
-import com.pinterest.ktlint.reporter.format.internal.color
 import java.io.File
 import java.io.PrintStream
 import java.util.concurrent.ConcurrentHashMap
@@ -65,3 +63,6 @@ public class FormatReporter(
     private fun String.colored() =
         if (shouldColorOutput) this.color(outputColor) else this
 }
+
+internal fun String.color(foreground: Color): String =
+    "\u001B[${foreground.code}m$this\u001B[0m"

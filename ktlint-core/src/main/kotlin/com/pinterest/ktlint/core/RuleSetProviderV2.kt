@@ -8,11 +8,6 @@ import java.io.Serializable
  * discover all available `RuleSetProvider`s on the classpath and so each `RuleSetProvider` must be registered using
  * `META-INF/services/com.pinterest.ktlint.core.RuleSetProvider`
  * (see `ktlint-ruleset-standard/src/main/resources` for an example).
- *
- * In a future version of KtLint, the [RuleSetProvider] will be removed. For backward compatability, it is advised that
- * custom rule set providers implement the [RuleSetProviderV2] and [RuleSetProvider] on the same class. In this way, the
- * same rule set JAR file can be used with old (0.46.x and before) and new (0.47.x and beyond) versions of
- * KtLint.
  */
 
 public abstract class RuleSetProviderV2(

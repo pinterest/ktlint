@@ -4,24 +4,24 @@ import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
 import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.LintError
-import com.pinterest.ktlint.core.ParseException
 import com.pinterest.ktlint.core.Reporter
 import com.pinterest.ktlint.core.ReporterProvider
-import com.pinterest.ktlint.core.RuleExecutionException
 import com.pinterest.ktlint.core.RuleProvider
 import com.pinterest.ktlint.core.api.Baseline.Status.INVALID
 import com.pinterest.ktlint.core.api.Baseline.Status.NOT_FOUND
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.codeStyleSetProperty
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.ktlintDisabledRulesProperty
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.CODE_STYLE_PROPERTY
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.KTLINT_DISABLED_RULES_PROPERTY
 import com.pinterest.ktlint.core.api.EditorConfigDefaults
 import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.plus
+import com.pinterest.ktlint.core.api.KtLintParseException
+import com.pinterest.ktlint.core.api.KtLintRuleException
 import com.pinterest.ktlint.core.api.doesNotContain
 import com.pinterest.ktlint.core.api.loadBaseline
 import com.pinterest.ktlint.core.api.relativeRoute
 import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ktlint.core.setDefaultLoggerModifier
-import com.pinterest.ktlint.reporter.plain.internal.Color
+import com.pinterest.ktlint.reporter.plain.Color
 import java.io.File
 import java.io.IOException
 import java.io.PrintStream
@@ -116,15 +116,17 @@ internal class KtlintCommandLine {
 
     @Option(
         names = ["--debug"],
-        description = ["Turn on debug output"],
+        description = ["Turn on debug output. Deprecated, use '--log-level=debug' instead."],
     )
-    var debug: Boolean = false
+    @Deprecated(message = "Replaced with minLogLevel")
+    var debugOld: Boolean? = null
 
     @Option(
         names = ["--trace"],
-        description = ["Turn on trace output"],
+        description = ["Turn on trace output. Deprecated, use '--log-level=trace' instead."],
     )
-    var trace: Boolean = false
+    @Deprecated(message = "Replaced with minLogLevel")
+    var trace: Boolean? = null
 
     @Option(
         names = ["--disabled_rules"],
@@ -194,9 +196,10 @@ internal class KtlintCommandLine {
 
     @Option(
         names = ["--verbose", "-v"],
-        description = ["Show error codes"],
+        description = ["Show error codes. Deprecated, use '--log-level=info' instead."],
     )
-    private var verbose: Boolean = false
+    @Deprecated(message = "Replaced with minLogLevel")
+    private var verbose: Boolean? = null
 
     @Option(
         names = ["--editorconfig"],
@@ -224,14 +227,32 @@ internal class KtlintCommandLine {
     @Parameters(hidden = true)
     private var patterns = ArrayList<String>()
 
+    @Option(
+        names = ["--log-level", "-l"],
+        description = ["Defines the minimum log level (trace, debug, info, warn, error) or none to suppress all logging"],
+        converter = [LogLevelConverter::class],
+    )
+    private var minLogLevel: Level = Level.INFO
+
     private val tripped = AtomicBoolean()
     private val fileNumber = AtomicInteger()
     private val errorNumber = AtomicInteger()
 
+    internal var debug: Boolean = false
+        get() = Level.DEBUG.isGreaterOrEqual(minLogLevel)
+        private set
+
     fun run() {
-        if (verbose) {
-            debug = true
+        if (debugOld != null || trace != null || verbose != null) {
+            if (minLogLevel == Level.OFF) {
+                minLogLevel = Level.ERROR
+            }
+            configureLogger().error {
+                "Options '--debug', '--trace', '--verbose' and '-v' are deprecated and replaced with option '--log-level=<level>' or '-l=<level>'."
+            }
+            exitProcess(1)
         }
+
         logger = configureLogger()
 
         assertStdinAndPatternsFromStdinOptionsMutuallyExclusive()
@@ -242,8 +263,8 @@ internal class KtlintCommandLine {
         // Set default value to patterns only after the logger has been configured to avoid a warning about initializing
         // the logger multiple times
         if (patterns.isEmpty()) {
-            logger.info { "Enable default patterns $defaultPatterns" }
-            patterns = ArrayList(defaultPatterns)
+            logger.info { "Enable default patterns $DEFAULT_PATTERNS" }
+            patterns = ArrayList(DEFAULT_PATTERNS)
         }
 
         val start = System.currentTimeMillis()
@@ -271,11 +292,11 @@ internal class KtlintCommandLine {
         )
         val editorConfigOverride =
             EditorConfigOverride
-                .emptyEditorConfigOverride
+                .EMPTY_EDITOR_CONFIG_OVERRIDE
                 .applyIf(disabledRules.isNotBlank()) {
-                    plus(ktlintDisabledRulesProperty to disabledRules)
+                    plus(KTLINT_DISABLED_RULES_PROPERTY to disabledRules)
                 }.applyIf(android) {
-                    plus(codeStyleSetProperty to android)
+                    plus(CODE_STYLE_PROPERTY to android)
                 }
 
         reporter.beforeAll()
@@ -311,11 +332,7 @@ internal class KtlintCommandLine {
         KotlinLogging
             .logger {}
             .setDefaultLoggerModifier { logger ->
-                (logger.underlyingLogger as Logger).level = when {
-                    trace -> Level.TRACE
-                    debug -> Level.DEBUG
-                    else -> Level.INFO
-                }
+                (logger.underlyingLogger as Logger).level = minLogLevel
             }
             .initKtLintKLogger()
 
@@ -346,7 +363,7 @@ internal class KtlintCommandLine {
                         fileContent = file.readText(),
                         editorConfigDefaults = editorConfigDefaults,
                         editorConfigOverride = editorConfigOverride,
-                        baselineLintErrors = lintErrorsPerFile.getOrDefault(file.relativeRoute, emptyList()),
+                        baselineLintErrors = lintErrorsPerFile.getOrDefault(file.toPath().relativeRoute, emptyList()),
                         ruleProviders = ruleProviders,
                     )
                 }
@@ -471,7 +488,6 @@ internal class KtlintCommandLine {
                     reporterId,
                     split.lastOrNull { it.startsWith("artifact=") }?.let { it.split("=")[1] },
                     mapOf(
-                        "verbose" to verbose.toString(),
                         "color" to color.toString(),
                         "color_name" to colorName,
                         "format" to format.toString(),
@@ -490,9 +506,14 @@ internal class KtlintCommandLine {
         val reporterProvider = reporterProviderById[id]
         if (reporterProvider == null) {
             logger.error {
-                "reporter \"$id\" wasn't found (available: ${
-                reporterProviderById.keys.sorted().joinToString(",")
-                })"
+                reporterProviderById
+                    .keys
+                    .sorted()
+                    .joinToString(
+                        separator = ", ",
+                        prefix = "reporter \"$id\" wasn't found (available: ",
+                        postfix = ")",
+                    )
             }
             exitProcess(1)
         }
@@ -526,14 +547,14 @@ internal class KtlintCommandLine {
 
     private fun Exception.toLintError(filename: Any?): LintError = this.let { e ->
         when (e) {
-            is ParseException ->
+            is KtLintParseException ->
                 LintError(
                     e.line,
                     e.col,
                     "",
                     "Not a valid Kotlin file (${e.message?.lowercase(Locale.getDefault())})",
                 )
-            is RuleExecutionException -> {
+            is KtLintRuleException -> {
                 logger.debug("Internal Error (${e.ruleId}) in file '$filename' at position '${e.line}:${e.col}", e)
                 LintError(
                     e.line,
@@ -541,7 +562,7 @@ internal class KtlintCommandLine {
                     "",
                     "Internal Error (${e.ruleId}) in file '$filename' at position '${e.line}:${e.col}. " +
                         "Please create a ticket at https://github.com/pinterest/ktlint/issues " +
-                        "(if possible, please re-run with the --debug flag to get the stacktrace " +
+                        "(if possible, please re-run with the --log-level=debug flag to get the stacktrace " +
                         "and provide the source code that triggered an error)",
                 )
             }
@@ -675,4 +696,18 @@ internal class KtlintCommandLine {
         val config: Map<String, String>,
         val output: String?,
     )
+}
+
+private class LogLevelConverter : CommandLine.ITypeConverter<Level> {
+    @Throws(Exception::class)
+    override fun convert(value: String?): Level =
+        when (value?.uppercase()) {
+            "TRACE" -> Level.TRACE
+            "DEBUG" -> Level.DEBUG
+            "INFO" -> Level.INFO
+            "WARN" -> Level.WARN
+            "ERROR" -> Level.ERROR
+            "NONE" -> Level.OFF
+            else -> Level.INFO
+        }
 }

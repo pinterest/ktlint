@@ -2,9 +2,9 @@ package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.IndentConfig
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentSizeProperty
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentStyleProperty
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.maxLineLengthProperty
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.INDENT_SIZE_PROPERTY
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.INDENT_STYLE_PROPERTY
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType
@@ -29,7 +29,6 @@ import com.pinterest.ktlint.core.ast.ElementType.LT
 import com.pinterest.ktlint.core.ast.ElementType.OBJECT_LITERAL
 import com.pinterest.ktlint.core.ast.ElementType.RBRACE
 import com.pinterest.ktlint.core.ast.ElementType.RBRACKET
-import com.pinterest.ktlint.core.ast.ElementType.REGULAR_STRING_PART
 import com.pinterest.ktlint.core.ast.ElementType.RPAR
 import com.pinterest.ktlint.core.ast.ElementType.STRING_TEMPLATE
 import com.pinterest.ktlint.core.ast.ElementType.SUPER_TYPE_CALL_ENTRY
@@ -69,7 +68,7 @@ import org.jetbrains.kotlin.psi.KtSuperTypeList
 import org.jetbrains.kotlin.psi.psiUtil.leaves
 import org.jetbrains.kotlin.psi.psiUtil.siblings
 
-private val logger = KotlinLogging.logger {}.initKtLintKLogger()
+private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
 /**
  * This rule inserts missing newlines (e.g. between parentheses of a multi-line function call). This logic previously
@@ -84,9 +83,9 @@ public class WrappingRule :
     UsesEditorConfigProperties {
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> =
         listOf(
-            indentSizeProperty,
-            indentStyleProperty,
-            maxLineLengthProperty,
+            INDENT_SIZE_PROPERTY,
+            INDENT_STYLE_PROPERTY,
+            MAX_LINE_LENGTH_PROPERTY,
         )
 
     private var line = 1
@@ -96,10 +95,10 @@ public class WrappingRule :
     override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
         line = 1
         indentConfig = IndentConfig(
-            indentStyle = editorConfigProperties.getEditorConfigValue(indentStyleProperty),
-            tabWidth = editorConfigProperties.getEditorConfigValue(indentSizeProperty),
+            indentStyle = editorConfigProperties.getEditorConfigValue(INDENT_STYLE_PROPERTY),
+            tabWidth = editorConfigProperties.getEditorConfigValue(INDENT_SIZE_PROPERTY),
         )
-        maxLineLength = editorConfigProperties.getEditorConfigValue(maxLineLengthProperty)
+        maxLineLength = editorConfigProperties.getEditorConfigValue(MAX_LINE_LENGTH_PROPERTY)
     }
 
     override fun beforeVisitChildNodes(
@@ -170,7 +169,7 @@ public class WrappingRule :
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
-        val rElementType = matchingRToken[node.elementType]
+        val rElementType = MATCHING_RTOKEN_MAP[node.elementType]
         var newlineInBetween = false
         var parameterListInBetween = false
         var numberOfArgs = 0
@@ -198,7 +197,7 @@ public class WrappingRule :
             (
                 numberOfArgs == 1 &&
                     firstArg?.firstChildNode?.elementType
-                    ?.let { it == OBJECT_LITERAL || it == LAMBDA_EXPRESSION } == true
+                        ?.let { it == OBJECT_LITERAL || it == LAMBDA_EXPRESSION } == true
                 )
         ) {
             return
@@ -219,11 +218,11 @@ public class WrappingRule :
             return
         }
         if (!node.nextCodeLeaf()?.prevLeaf {
-            // Skip comments, whitespace, and empty nodes
-            !it.isPartOfComment() &&
-                !it.isWhiteSpaceWithoutNewline() &&
-                it.textLength > 0
-        }.isWhiteSpaceWithNewline() &&
+                // Skip comments, whitespace, and empty nodes
+                !it.isPartOfComment() &&
+                    !it.isWhiteSpaceWithoutNewline() &&
+                    it.textLength > 0
+            }.isWhiteSpaceWithNewline() &&
             // IDEA quirk:
             // if (true &&
             //     true
@@ -386,9 +385,9 @@ public class WrappingRule :
                 )
                 if (autoCorrect) {
                     node as LeafPsiElement
-                    node.rawInsertBeforeMe(LeafPsiElement(REGULAR_STRING_PART, "\n"))
+                    node.rawInsertBeforeMe(LeafPsiElement(LITERAL_STRING_TEMPLATE_ENTRY, "\n"))
                 }
-                logger.trace { "$line: " + (if (!autoCorrect) "would have " else "") + "inserted newline before (closing) \"\"\"" }
+                LOGGER.trace { "$line: " + (if (!autoCorrect) "would have " else "") + "inserted newline before (closing) \"\"\"" }
             }
     }
 
@@ -400,16 +399,16 @@ public class WrappingRule :
         // return false
         val nextCodeSibling = node.nextCodeSibling() // e.g. BINARY_EXPRESSION
         var lToken = nextCodeSibling?.nextLeaf { it.isWhiteSpaceWithNewline() }?.prevCodeLeaf()
-        if (lToken != null && lToken.elementType !in lTokenSet) {
+        if (lToken != null && lToken.elementType !in LTOKEN_SET) {
             // special cases:
             // x = y.f({ z ->
             // })
             // x = y.f(0, 1,
             // 2, 3)
-            lToken = lToken.prevLeaf { it.elementType in lTokenSet || it == node }
+            lToken = lToken.prevLeaf { it.elementType in LTOKEN_SET || it == node }
         }
-        if (lToken != null && lToken.elementType in lTokenSet) {
-            val rElementType = matchingRToken[lToken.elementType]
+        if (lToken != null && lToken.elementType in LTOKEN_SET) {
+            val rElementType = MATCHING_RTOKEN_MAP[lToken.elementType]
             val rToken = lToken.nextSibling { it.elementType == rElementType }
             return rToken?.treeParent == lToken.treeParent
         }
@@ -470,9 +469,9 @@ public class WrappingRule :
             """Missing newline before "${node.text}"""",
             true,
         )
-        logger.trace { "$line: " + ((if (!autoCorrect) "would have " else "") + "inserted newline before ${node.text}") }
+        LOGGER.trace { "$line: " + ((if (!autoCorrect) "would have " else "") + "inserted newline before ${node.text}") }
         if (autoCorrect) {
-            (node.psi as LeafPsiElement).upsertWhitespaceBeforeMe("\n" + indent)
+            node.upsertWhitespaceBeforeMe("\n" + indent)
         }
     }
 
@@ -488,10 +487,10 @@ public class WrappingRule :
             """Missing newline after "${nodeAfterWhichNewlineIsRequired.text}"""",
             true,
         )
-        logger.trace { "$line: " + (if (!autoCorrect) "would have " else "") + "inserted newline after ${nodeAfterWhichNewlineIsRequired.text}" }
+        LOGGER.trace { "$line: " + (if (!autoCorrect) "would have " else "") + "inserted newline after ${nodeAfterWhichNewlineIsRequired.text}" }
         if (autoCorrect) {
             val tempIndent = indent ?: (nodeToFix.lineIndent() + indentConfig.indent)
-            (nodeToFix.psi as LeafPsiElement).upsertWhitespaceAfterMe("\n" + tempIndent)
+            nodeToFix.upsertWhitespaceAfterMe("\n" + tempIndent)
         }
     }
 
@@ -589,11 +588,11 @@ public class WrappingRule :
     }
 
     private companion object {
-        private val lTokenSet = TokenSet.create(LPAR, LBRACE, LBRACKET, LT)
-        private val rTokenSet = TokenSet.create(RPAR, RBRACE, RBRACKET, GT)
-        private val matchingRToken =
-            lTokenSet.types.zip(
-                rTokenSet.types,
+        private val LTOKEN_SET = TokenSet.create(LPAR, LBRACE, LBRACKET, LT)
+        private val RTOKEN_SET = TokenSet.create(RPAR, RBRACE, RBRACKET, GT)
+        private val MATCHING_RTOKEN_MAP =
+            LTOKEN_SET.types.zip(
+                RTOKEN_SET.types,
             ).toMap()
     }
 }

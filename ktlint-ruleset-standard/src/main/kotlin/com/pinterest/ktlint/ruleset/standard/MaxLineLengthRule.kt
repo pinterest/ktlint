@@ -1,7 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.maxLineLengthProperty
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType
@@ -46,17 +46,17 @@ public class MaxLineLengthRule :
     UsesEditorConfigProperties {
 
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
-        maxLineLengthProperty,
-        ignoreBackTickedIdentifierProperty,
+        MAX_LINE_LENGTH_PROPERTY,
+        IGNORE_BACKTICKED_IDENTIFIER_PROPERTY,
     )
 
-    private var maxLineLength: Int = maxLineLengthProperty.defaultValue
+    private var maxLineLength: Int = MAX_LINE_LENGTH_PROPERTY.defaultValue
     private var rangeTree = RangeTree()
     private var ignoreBackTickedIdentifier by Delegates.notNull<Boolean>()
 
     override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
-        ignoreBackTickedIdentifier = editorConfigProperties.getEditorConfigValue(ignoreBackTickedIdentifierProperty)
-        maxLineLength = editorConfigProperties.getEditorConfigValue(maxLineLengthProperty)
+        ignoreBackTickedIdentifier = editorConfigProperties.getEditorConfigValue(IGNORE_BACKTICKED_IDENTIFIER_PROPERTY)
+        maxLineLength = editorConfigProperties.getEditorConfigValue(MAX_LINE_LENGTH_PROPERTY)
     }
 
     override fun beforeVisitChildNodes(
@@ -116,19 +116,24 @@ public class MaxLineLengthRule :
             ?.let { it.firstChildNode.text == "\"\"\"" && it.textContains('\n') } == true
 
     public companion object {
-        internal const val KTLINT_IGNORE_BACKTICKED_IDENTIFIER_NAME = "ktlint_ignore_back_ticked_identifier"
-        private const val PROPERTY_DESCRIPTION = "Defines whether the backticked identifier (``) should be ignored"
-
-        public val ignoreBackTickedIdentifierProperty: UsesEditorConfigProperties.EditorConfigProperty<Boolean> =
+        public val IGNORE_BACKTICKED_IDENTIFIER_PROPERTY: UsesEditorConfigProperties.EditorConfigProperty<Boolean> =
             UsesEditorConfigProperties.EditorConfigProperty(
                 type = PropertyType.LowerCasingPropertyType(
-                    KTLINT_IGNORE_BACKTICKED_IDENTIFIER_NAME,
-                    PROPERTY_DESCRIPTION,
+                    "ktlint_ignore_back_ticked_identifier",
+                    "Defines whether the backticked identifier (``) should be ignored",
                     PropertyType.PropertyValueParser.BOOLEAN_VALUE_PARSER,
                     setOf(true.toString(), false.toString()),
                 ),
                 defaultValue = false,
             )
+
+        @Deprecated(
+            message = "Marked for removal in KtLint 0.49",
+            replaceWith = ReplaceWith("IGNORE_BACKTICKED_IDENTIFIER_PROPERTY"),
+        )
+        @Suppress("ktlint:experimental:property-naming")
+        public val ignoreBackTickedIdentifierProperty: UsesEditorConfigProperties.EditorConfigProperty<Boolean> =
+            IGNORE_BACKTICKED_IDENTIFIER_PROPERTY
     }
 }
 
@@ -165,18 +170,16 @@ private data class ParsedLine(
     private fun totalLengthBacktickedElements(): Int {
         return elements
             .filterIsInstance(PsiElement::class.java)
-            .filter { it.text.matches(isValueBetweenBackticks) }
+            .filter { it.text.matches(BACKTICKED_IDENTIFIER_REGEX) }
             .sumOf(PsiElement::getTextLength)
     }
 
     private companion object {
-        val isValueBetweenBackticks = Regex("`.*`")
+        val BACKTICKED_IDENTIFIER_REGEX = Regex("`.*`")
     }
 }
 
-@Deprecated("Marked for removal from public API in KtLint 0.48. Please raise an issue if you have a use case to keep it public.")
-public class RangeTree(seq: List<Int> = emptyList()) {
-
+internal class RangeTree(seq: List<Int> = emptyList()) {
     private var emptyArrayView = ArrayView(0, 0)
     private var arr: IntArray = seq.toIntArray()
 
@@ -188,8 +191,7 @@ public class RangeTree(seq: List<Int> = emptyList()) {
 
     // runtime: O(log(n)+k), where k is number of matching points
     // space: O(1)
-    @Deprecated("Marked for removal from public API in KtLint 0.48. Please raise an issue if you have a use case to keep it public.")
-    public fun query(vmin: Int, vmax: Int): RangeTree.ArrayView {
+    fun query(vmin: Int, vmax: Int): RangeTree.ArrayView {
         var r = arr.size - 1
         if (r == -1 || vmax < arr[0] || arr[r] < vmin) {
             return emptyArrayView
@@ -222,26 +224,21 @@ public class RangeTree(seq: List<Int> = emptyList()) {
         return ArrayView(l, k)
     }
 
-    @Deprecated("Marked for removal from public API in KtLint 0.48. Please raise an issue if you have a use case to keep it public.")
-    public fun isEmpty(): Boolean =
+    fun isEmpty(): Boolean =
         arr.isEmpty()
 
-    @Deprecated("Marked for removal from public API in KtLint 0.48. Please raise an issue if you have a use case to keep it public.")
-    public inner class ArrayView(private var l: Int, private val r: Int) {
+    inner class ArrayView(private var l: Int, private val r: Int) {
 
-        @Deprecated("Marked for removal from public API in KtLint 0.48. Please raise an issue if you have a use case to keep it public.")
-        public val size: Int = r - l
+        val size: Int = r - l
 
-        @Deprecated("Marked for removal from public API in KtLint 0.48. Please raise an issue if you have a use case to keep it public.")
-        public fun get(i: Int): Int {
+        fun get(i: Int): Int {
             if (i < 0 || i >= size) {
                 throw IndexOutOfBoundsException()
             }
             return arr[l + i]
         }
 
-        @Deprecated("Marked for removal from public API in KtLint 0.48. Please raise an issue if you have a use case to keep it public.")
-        public inline fun forEach(cb: (v: Int) -> Unit) {
+        inline fun forEach(cb: (v: Int) -> Unit) {
             var i = 0
             while (i < size) {
                 cb(get(i++))

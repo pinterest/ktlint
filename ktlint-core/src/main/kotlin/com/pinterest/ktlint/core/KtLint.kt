@@ -1,19 +1,19 @@
 package com.pinterest.ktlint.core
 
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.codeStyleSetProperty
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.core.api.EditorConfigDefaults
-import com.pinterest.ktlint.core.api.EditorConfigDefaults.Companion.emptyEditorConfigDefaults
+import com.pinterest.ktlint.core.api.EditorConfigDefaults.Companion.EMPTY_EDITOR_CONFIG_DEFAULTS
 import com.pinterest.ktlint.core.api.EditorConfigOverride
-import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.emptyEditorConfigOverride
-import com.pinterest.ktlint.core.api.EditorConfigProperties
+import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.EMPTY_EDITOR_CONFIG_OVERRIDE
+import com.pinterest.ktlint.core.api.KtLintRuleException
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.internal.EditorConfigFinder
 import com.pinterest.ktlint.core.internal.EditorConfigGenerator
 import com.pinterest.ktlint.core.internal.EditorConfigLoader
 import com.pinterest.ktlint.core.internal.RuleExecutionContext
 import com.pinterest.ktlint.core.internal.SuppressHandler
-import com.pinterest.ktlint.core.internal.ThreadSafeEditorConfigCache.Companion.threadSafeEditorConfigCache
+import com.pinterest.ktlint.core.internal.ThreadSafeEditorConfigCache.Companion.THREAD_SAFER_EDITOR_CONFIG_CACHE
 import com.pinterest.ktlint.core.internal.VisitorProvider
 import com.pinterest.ktlint.core.internal.createRuleExecutionContext
 import com.pinterest.ktlint.core.internal.toQualifiedRuleId
@@ -30,30 +30,32 @@ import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
 @Suppress("MemberVisibilityCanBePrivate")
 public object KtLint {
+    @Deprecated(
+        """
+            Marked for removal in KtLint 0.49.0. Use:
+                if (node.isRoot()) {
+                    val fileName = (node.psi as? KtFile)?.name
+                    ...
+                }
+            """,
+    )
     public val FILE_PATH_USER_DATA_KEY: Key<String> = Key<String>("FILE_PATH")
 
-    @Deprecated("Marked for removal in Ktlint 0.48.0")
-    public val EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY: Key<EditorConfigProperties> =
-        Key<EditorConfigProperties>("EDITOR_CONFIG_PROPERTIES")
     internal const val UTF8_BOM = "\uFEFF"
     public const val STDIN_FILE: String = "<stdin>"
 
-    internal val editorConfigLoader = EditorConfigLoader(FileSystems.getDefault())
+    internal val EDITOR_CONFIG_LOADER = EditorConfigLoader(FileSystems.getDefault())
 
     /**
      * Parameters to invoke [KtLint.lint] and [KtLint.format] API's.
      *
      * [fileName] path of file to lint/format
      * [text] Contents of file to lint/format
-     * [ruleSets] a collection of "RuleSet"s used to validate source. This field is deprecated and will be removed in
-     * KtLint 0.48.
      * [ruleProviders] a collection of [RuleProvider]s used to create new instances of [Rule]s so that it can keep
      * internal state and be called thread-safe
      * [userData] Map of user options. This field is deprecated and will be removed in a future version.
      * [cb] callback invoked for each lint error
      * [script] true if this is a Kotlin script file
-     * [editorConfigPath] optional path of the .editorconfig file (otherwise will use working directory). Marked for
-     * removal in KtLint 0.48. Use [editorConfigDefaults] instead
      * [debug] True if invoked with the --debug flag
      * [editorConfigDefaults] contains default values for `.editorconfig` properties which are not set explicitly in
      * any '.editorconfig' file located on the path of the [fileName]. If a property is set in [editorConfigDefaults]
@@ -73,38 +75,19 @@ public object KtLint {
     public data class ExperimentalParams(
         val fileName: String? = null,
         val text: String,
-        @Deprecated(
-            message = "Marked for removal in KtLint 0.48",
-            replaceWith = ReplaceWith("ruleProviders"),
-        )
-        val ruleSets: Iterable<RuleSet> = Iterable { emptySet<RuleSet>().iterator() },
         val ruleProviders: Set<RuleProvider> = emptySet(),
         val userData: Map<String, String> = emptyMap(), // TODO: remove in a future version
         val cb: (e: LintError, corrected: Boolean) -> Unit,
         val script: Boolean = false,
-        @Deprecated("Marked for removal in KtLint 0.48. Use 'editorConfigDefaults' to specify default property values")
-        val editorConfigPath: String? = null,
         val debug: Boolean = false,
-        val editorConfigDefaults: EditorConfigDefaults = emptyEditorConfigDefaults,
-        val editorConfigOverride: EditorConfigOverride = emptyEditorConfigOverride,
+        val editorConfigDefaults: EditorConfigDefaults = EMPTY_EDITOR_CONFIG_DEFAULTS,
+        val editorConfigOverride: EditorConfigOverride = EMPTY_EDITOR_CONFIG_OVERRIDE,
         val isInvokedFromCli: Boolean = false,
     ) {
         internal val ruleRunners: Set<RuleRunner> =
             ruleProviders
                 .map { RuleRunner(it) }
-                .plus(
-                    /** Support backward compatibility for API consumers in KtLint 0.47 by changing rule sets to rule
-                     * providers with limitation that for those rules *no* new instances can be created during
-                     * [KtLint.format].
-                     * KtLint CLI already transforms rules provided by external rule providers to real RuleProviders
-                     * for which new instances can be created. The same workaround is not possible for as
-                     * [KtLint.ExperimentalParams.ruleSets] already contain the created [Rule] instance.
-                     */
-                    // TODO: remove when removing the deprecated ruleSets.
-                    ruleSets
-                        .flatMap { it.rules.toList() }
-                        .map { RuleRunner(createStaticRuleProvider(it)) },
-                ).distinctBy { it.ruleId }
+                .distinctBy { it.ruleId }
                 .toSet()
 
         internal fun getRules(): Set<Rule> =
@@ -113,8 +96,8 @@ public object KtLint {
                 .toSet()
 
         init {
-            require(ruleSets.any() xor ruleProviders.any()) {
-                "Provide exactly one of parameters 'ruleSets' or 'ruleProviders'"
+            require(ruleProviders.any()) {
+                "A non-empty set of 'ruleProviders' need to be provided"
             }
             // Extract all default and custom ".editorconfig" properties which are registered
             val editorConfigProperties =
@@ -165,21 +148,25 @@ public object KtLint {
     /**
      * Check source for lint errors.
      *
-     * @throws ParseException if text is not a valid Kotlin code
-     * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
+     * @throws KtLintParseException if text is not a valid Kotlin code
+     * @throws KtLintRuleException in case of internal failure caused by a bug in rule implementation
      */
     public fun lint(params: ExperimentalParams) {
         val ruleExecutionContext = createRuleExecutionContext(params)
         val errors = mutableListOf<LintError>()
 
-        VisitorProvider(params)
-            .visitor(ruleExecutionContext.editorConfigProperties)
-            .invoke { rule, fqRuleId ->
-                ruleExecutionContext.executeRule(rule, fqRuleId, false) { offset, errorMessage, canBeAutoCorrected ->
-                    val (line, col) = ruleExecutionContext.positionInTextLocator(offset)
-                    errors.add(LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected))
+        try {
+            VisitorProvider(params)
+                .visitor(ruleExecutionContext.editorConfigProperties)
+                .invoke { rule, fqRuleId ->
+                    ruleExecutionContext.executeRule(rule, fqRuleId, false) { offset, errorMessage, canBeAutoCorrected ->
+                        val (line, col) = ruleExecutionContext.positionInTextLocator(offset)
+                        errors.add(LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected))
+                    }
                 }
-            }
+        } catch (e: RuleExecutionException) {
+            throw e.toKtLintRuleException(params.fileName)
+        }
 
         errors
             .sortedWith { l, r -> if (l.line != r.line) l.line - r.line else l.col - r.col }
@@ -215,7 +202,7 @@ public object KtLint {
                 suppressHandler.handle(node, fqRuleId) { autoCorrect, emit ->
                     rule.beforeVisitChildNodes(node, autoCorrect, emit)
                 }
-                if (!rule.runsOnRootNodeOnly() && rule.shouldContinueTraversalOfAST()) {
+                if (rule.shouldContinueTraversalOfAST()) {
                     node
                         .getChildren(null)
                         .forEach { childNode ->
@@ -237,10 +224,22 @@ public object KtLint {
                 if (autoCorrect) {
                     // line/col cannot be reliably mapped as exception might originate from a node not present in the
                     // original AST
-                    throw RuleExecutionException(0, 0, fqRuleId, e)
+                    throw RuleExecutionException(
+                        0,
+                        0,
+                        fqRuleId,
+                        // Prevent extreme long stack trace caused by recursive call and only pass root cause
+                        e.cause ?: e,
+                    )
                 } else {
                     val (line, col) = positionInTextLocator(node.startOffset)
-                    throw RuleExecutionException(line, col, fqRuleId, e)
+                    throw RuleExecutionException(
+                        line,
+                        col,
+                        fqRuleId,
+                        // Prevent extreme long stack trace caused by recursive call and only pass root cause
+                        e.cause ?: e,
+                    )
                 }
             }
         }
@@ -249,8 +248,8 @@ public object KtLint {
     /**
      * Fix style violations.
      *
-     * @throws ParseException if text is not a valid Kotlin code
-     * @throws RuleExecutionException in case of internal failure caused by a bug in rule implementation
+     * @throws KtLintParseException if text is not a valid Kotlin code
+     * @throws KtLintRuleException in case of internal failure caused by a bug in rule implementation
      */
     public fun format(params: ExperimentalParams): String {
         val hasUTF8BOM = params.text.startsWith(UTF8_BOM)
@@ -260,46 +259,58 @@ public object KtLint {
         var mutated = false
         val errors = mutableSetOf<Pair<LintError, Boolean>>()
         val visitorProvider = VisitorProvider(params = params)
-        visitorProvider
-            .visitor(ruleExecutionContext.editorConfigProperties)
-            .invoke { rule, fqRuleId ->
-                ruleExecutionContext.executeRule(rule, fqRuleId, true) { offset, errorMessage, canBeAutoCorrected ->
-                    tripped = true
-                    if (canBeAutoCorrected) {
-                        mutated = true
-                        /**
-                         * Rebuild the suppression locator after each change in the AST as the offsets of the
-                         * suppression hints might have changed.
-                         */
-                        ruleExecutionContext.rebuildSuppressionLocator()
-                    }
-                    val (line, col) = ruleExecutionContext.positionInTextLocator(offset)
-                    errors.add(
-                        Pair(
-                            LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected),
-                            // It is assumed that a rule that emits that an error can be autocorrected, also
-                            // does correct the error.
-                            canBeAutoCorrected,
-                        ),
-                    )
-                }
-            }
-        if (tripped) {
+        try {
             visitorProvider
                 .visitor(ruleExecutionContext.editorConfigProperties)
                 .invoke { rule, fqRuleId ->
-                    ruleExecutionContext.executeRule(rule, fqRuleId, false) { offset, errorMessage, canBeAutoCorrected ->
+                    ruleExecutionContext.executeRule(rule, fqRuleId, true) { offset, errorMessage, canBeAutoCorrected ->
+                        tripped = true
+                        if (canBeAutoCorrected) {
+                            mutated = true
+                            /**
+                             * Rebuild the suppression locator after each change in the AST as the offsets of the
+                             * suppression hints might have changed.
+                             */
+                            ruleExecutionContext.rebuildSuppressionLocator()
+                        }
                         val (line, col) = ruleExecutionContext.positionInTextLocator(offset)
                         errors.add(
                             Pair(
                                 LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected),
-                                // It is assumed that a rule only corrects an error after it has emitted an
-                                // error and indicating that it actually can be autocorrected.
-                                false,
+                                // It is assumed that a rule that emits that an error can be autocorrected, also
+                                // does correct the error.
+                                canBeAutoCorrected,
                             ),
                         )
                     }
                 }
+        } catch (e: RuleExecutionException) {
+            throw e.toKtLintRuleException(params.fileName)
+        }
+        if (tripped) {
+            try {
+                visitorProvider
+                    .visitor(ruleExecutionContext.editorConfigProperties)
+                    .invoke { rule, fqRuleId ->
+                        ruleExecutionContext.executeRule(
+                            rule,
+                            fqRuleId,
+                            false,
+                        ) { offset, errorMessage, canBeAutoCorrected ->
+                            val (line, col) = ruleExecutionContext.positionInTextLocator(offset)
+                            errors.add(
+                                Pair(
+                                    LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected),
+                                    // It is assumed that a rule only corrects an error after it has emitted an
+                                    // error and indicating that it actually can be autocorrected.
+                                    false,
+                                ),
+                            )
+                        }
+                    }
+            } catch (e: RuleExecutionException) {
+                throw e.toKtLintRuleException(params.fileName)
+            }
         }
 
         errors
@@ -321,14 +332,11 @@ public object KtLint {
         }
     }
 
-    private fun Rule.runsOnRootNodeOnly() =
-        visitorModifiers.contains(Rule.VisitorModifier.RunOnRootNodeOnly)
-
     /**
      * Reduce memory usage by cleaning internal caches.
      */
     public fun trimMemory() {
-        threadSafeEditorConfigCache.clear()
+        THREAD_SAFER_EDITOR_CONFIG_CACHE.clear()
     }
 
     /**
@@ -348,7 +356,7 @@ public object KtLint {
      * '.editorconfig' files which need to be observed.
      */
     public fun reloadEditorConfigFile(path: Path) {
-        threadSafeEditorConfigCache.reloadIfExists(
+        THREAD_SAFER_EDITOR_CONFIG_CACHE.reloadIfExists(
             Resource.Resources.ofPath(path, StandardCharsets.UTF_8),
         )
     }
@@ -378,14 +386,13 @@ public object KtLint {
         val codeStyle =
             params
                 .editorConfigOverride
-                .properties[codeStyleSetProperty]
+                .properties[CODE_STYLE_PROPERTY]
                 ?.parsed
                 ?.safeAs<DefaultEditorConfigProperties.CodeStyleValue>()
-                ?: codeStyleSetProperty.defaultValue
-        return EditorConfigGenerator(editorConfigLoader).generateEditorconfig(
+                ?: CODE_STYLE_PROPERTY.defaultValue
+        return EditorConfigGenerator(EDITOR_CONFIG_LOADER).generateEditorconfig(
             filePath,
             params.getRules(),
-            params.debug,
             codeStyle,
         )
     }
@@ -400,6 +407,22 @@ public object KtLint {
     }
 }
 
+private class RuleExecutionException(
+    val line: Int,
+    val col: Int,
+    val ruleId: String,
+    override val cause: Throwable,
+) : Throwable(cause)
+
+private fun RuleExecutionException.toKtLintRuleException(fileName: String?) =
+    KtLintRuleException(
+        line,
+        col,
+        ruleId,
+        "Rule '$ruleId' throws exception in file '$fileName' at position ($line:$col)",
+        cause,
+    )
+
 internal class RuleRunner(private val provider: RuleProvider) {
     private var rule = provider.createNewRuleInstance()
 
@@ -409,8 +432,6 @@ internal class RuleRunner(private val provider: RuleProvider) {
     internal val ruleId = rule.id
     internal val ruleSetId = qualifiedRuleId.substringBefore(':')
 
-    val runOnRootNodeOnly =
-        rule.visitorModifiers.contains(Rule.VisitorModifier.RunOnRootNodeOnly)
     val runAsLateAsPossible = rule.visitorModifiers.contains(Rule.VisitorModifier.RunAsLateAsPossible)
     var runAfterRule = setRunAfterRule()
 
@@ -452,17 +473,3 @@ internal class RuleRunner(private val provider: RuleProvider) {
         runAfterRule = null
     }
 }
-
-/**
- * This provider is added for backward compatibility of KtLint 0.47 so that API consumers can either use
- * [KtLint.ExperimentalParams.ruleSets] or [KtLint.ExperimentalParams.ruleProviders] per [RuleSetProvider]. This method
- * created a [RuleProvider] which returns a *static* instance of a rule and should only be used for rules provided via
- * [KtLint.ExperimentalParams.ruleSets].
- * * Rules provided by this [RuleProvider] might leak state between the first and second invocation of the rule when
- * running [KtLint.format]. It is assumed that [Rule] implementations offered by 'KtLint 0.46.x' and custom rule set
- * providers are not suffering any problems at this moment as this architectural bug exists in KtLint for quite a long
- * * Note that [KtLint.ExperimentalParams.ruleSets] and this helper method will be removed in KtLint 0.48.
- */
-@Deprecated(message = "Remove when 'ruleSets' are removed")
-private fun createStaticRuleProvider(rule: Rule) =
-    RuleProvider { rule }

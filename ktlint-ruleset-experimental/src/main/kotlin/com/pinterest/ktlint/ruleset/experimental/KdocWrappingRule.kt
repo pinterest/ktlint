@@ -8,23 +8,22 @@ import com.pinterest.ktlint.core.ast.ElementType.KDOC_END
 import com.pinterest.ktlint.core.ast.ElementType.KDOC_START
 import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.core.ast.lineIndent
-import com.pinterest.ktlint.core.ast.lineNumber
 import com.pinterest.ktlint.core.ast.nextLeaf
+import com.pinterest.ktlint.core.ast.noNewLineInClosedRange
 import com.pinterest.ktlint.core.ast.prevLeaf
 import com.pinterest.ktlint.core.ast.upsertWhitespaceBeforeMe
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
 /**
  * Checks external wrapping of KDoc comment. Wrapping inside the KDoc comment is not altered.
  */
 public class KdocWrappingRule :
-    Rule("$experimentalRulesetId:kdoc-wrapping"),
+    Rule("$EXPERIMENTAL_RULE_SET_ID:kdoc-wrapping"),
     UsesEditorConfigProperties {
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> =
         listOf(
-            DefaultEditorConfigProperties.indentSizeProperty,
-            DefaultEditorConfigProperties.indentStyleProperty,
+            DefaultEditorConfigProperties.INDENT_SIZE_PROPERTY,
+            DefaultEditorConfigProperties.INDENT_STYLE_PROPERTY,
         )
 
     override fun beforeVisitChildNodes(
@@ -47,7 +46,7 @@ public class KdocWrappingRule :
             if (nonIndentLeafOnSameLinePrecedingKdocComment != null &&
                 nonIndentLeafOnSameLineFollowingKdocComment != null
             ) {
-                if (nonIndentLeafOnSameLinePrecedingKdocComment.lineNumber() == nonIndentLeafOnSameLineFollowingKdocComment.lineNumber()) {
+                if (noNewLineInClosedRange(nonIndentLeafOnSameLinePrecedingKdocComment, nonIndentLeafOnSameLineFollowingKdocComment)) {
                     // Do not try to fix constructs like below:
                     //    val foo /** some comment */ = "foo"
                     emit(
@@ -91,11 +90,7 @@ public class KdocWrappingRule :
     ) {
         emit(startOffset, "A KDoc comment may not be followed by any other element on that same line", true)
         if (autoCorrect) {
-            if (elementType == WHITE_SPACE) {
-                (this as LeafPsiElement).rawReplaceWithText("\n${kdocCommentNode.lineIndent()}")
-            } else {
-                (this as LeafPsiElement).upsertWhitespaceBeforeMe("\n${kdocCommentNode.lineIndent()}")
-            }
+            this.upsertWhitespaceBeforeMe("\n${kdocCommentNode.lineIndent()}")
         }
     }
 

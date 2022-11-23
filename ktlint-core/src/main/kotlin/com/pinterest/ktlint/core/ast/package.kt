@@ -12,7 +12,6 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
 import org.jetbrains.kotlin.psi.psiUtil.leaves
-import org.jetbrains.kotlin.psi.psiUtil.siblings
 
 public fun ASTNode.nextLeaf(includeEmpty: Boolean = false, skipSubtree: Boolean = false): ASTNode? {
     var n = if (skipSubtree) this.lastChildLeafOrSelf().nextLeafAny() else this.nextLeafAny()
@@ -206,12 +205,39 @@ public fun ASTNode?.isWhiteSpaceWithoutNewline(): Boolean =
 public fun ASTNode.isRoot(): Boolean = elementType == ElementType.FILE
 public fun ASTNode.isLeaf(): Boolean = firstChildNode == null
 
+/**
+ * Check if the given [ASTNode] is a code leaf. E.g. it must be a leaf and may not be a whitespace or be part of a
+ * comment.
+ */
+public fun ASTNode.isCodeLeaf(): Boolean =
+    isLeaf() && !isWhiteSpace() && !isPartOfComment()
+
 public fun ASTNode.isPartOfComment(): Boolean =
     parent({ it.psi is PsiComment }, strict = false) != null
 
 public fun ASTNode.children(): Sequence<ASTNode> =
     generateSequence(firstChildNode) { node -> node.treeNext }
 
+@Deprecated(message = """Marked for removal in KtLint 0.49. See KDOC""")
+/**
+ * Marked for removal in KtLint 0.49.
+ *
+ * Use [ASTNode.upsertWhitespaceBeforeMe] which operates on the [ASTNode] instead of the [LeafElement]. The new method
+ * handles more edge case and as of that a lot of code can be simplified.
+ *
+ * *Code using [LeafElement.upsertWhitespaceBeforeMe]*
+ * ```
+ * if (elementType == WHITE_SPACE) {
+ *     (this as LeafPsiElement).rawReplaceWithText("\n${blockCommentNode.lineIndent()}")
+ * } else {
+ *     (this as LeafPsiElement).upsertWhitespaceBeforeMe("\n${blockCommentNode.lineIndent()}")
+ * }
+ *  ```
+ * *Code using [ASTNode.upsertWhitespaceBeforeMe]*
+ * ```
+ * this.upsertWhitespaceBeforeMe(text)
+ *  ```
+ */
 public fun LeafElement.upsertWhitespaceBeforeMe(text: String): LeafElement {
     val s = treePrev
     return if (s != null && s.elementType == WHITE_SPACE) {
@@ -223,6 +249,14 @@ public fun LeafElement.upsertWhitespaceBeforeMe(text: String): LeafElement {
     }
 }
 
+@Deprecated(
+    message =
+    "Marked for removal in KtLint 0.49. The new insertOrReplaceWhitespaceAfterMe is more versatile as it " +
+        "operates on an AstNode instead of a LeafElement. In a lot of cases the code can be simplified as it is " +
+        "no longer needed to check whether the current node is already a whitespace or a leaf element before " +
+        "calling this method or the rawReplaceWithText.",
+    ReplaceWith("insertOrReplaceWhitespaceBeforeMe"),
+)
 public fun LeafElement.upsertWhitespaceAfterMe(text: String): LeafElement {
     val s = treeNext
     return if (s != null && s.elementType == WHITE_SPACE) {
@@ -234,31 +268,62 @@ public fun LeafElement.upsertWhitespaceAfterMe(text: String): LeafElement {
     }
 }
 
-@Deprecated(message = "Marked for removal in Ktlint 0.48. See Ktlint 0.47.0 changelog for more information.")
-public fun ASTNode.visit(enter: (node: ASTNode) -> Unit) {
-    enter(this)
-    this.getChildren(null).forEach { it.visit(enter) }
+/**
+ * Updates or inserts a new whitespace element with [text] before the given node. If the node itself is a whitespace
+ * then its contents is replaced with [text]. If the node is a (nested) composite element, the whitespace element is
+ * added after the previous leaf node.
+ */
+public fun ASTNode.upsertWhitespaceBeforeMe(text: String) {
+    if (this is LeafElement) {
+        if (this.elementType == WHITE_SPACE) {
+            return replaceWhitespaceWith(text)
+        }
+        val previous = treePrev ?: prevLeaf()
+        if (previous != null && previous.elementType == WHITE_SPACE) {
+            previous.replaceWhitespaceWith(text)
+        } else {
+            PsiWhiteSpaceImpl(text).also { psiWhiteSpace ->
+                (psi as LeafElement).rawInsertBeforeMe(psiWhiteSpace)
+            }
+        }
+    } else {
+        val prevLeaf =
+            requireNotNull(prevLeaf()) {
+                "Can not upsert a whitespace if the first node is a non-leaf node"
+            }
+        prevLeaf.upsertWhitespaceAfterMe(text)
+    }
 }
 
-@Deprecated(message = "Marked for removal in Ktlint 0.48. See Ktlint 0.47.0 changelog for more information.")
-public fun ASTNode.visit(enter: (node: ASTNode) -> Unit, exit: (node: ASTNode) -> Unit) {
-    enter(this)
-    this.getChildren(null).forEach { it.visit(enter, exit) }
-    exit(this)
+private fun ASTNode.replaceWhitespaceWith(text: String) {
+    require(this.elementType == WHITE_SPACE)
+    if (this.text != text) {
+        (this.psi as LeafElement).rawReplaceWithText(text)
+    }
 }
 
 /**
- * Get the line number of the node in the original code sample. If the AST, prior to the current node, is changed by
- * adding or removing a node containing a newline, the lineNumber will not be calculated correctly. Either it results in
- * an incorrect lineNumber or an IndexOutOfBoundsException (Wrong offset). is thrown. The rule in which the problem
- * manifest does not need to be the same rule which has changed the prior AST. Debugging such problems can be very hard.
+ * Updates or inserts a new whitespace element with [text] after the given node. If the node itself is a whitespace
+ * then its contents is replaced with [text]. If the node is a (nested) composite element, the whitespace element is
+ * added after the last child leaf.
  */
-@Deprecated(
-    "Marked for removal in KtLint 0.48. The lineNumber is a calculated field. This calculation is not always " +
-        "reliable when formatting code.See KDOC for more information.",
-)
-public fun ASTNode.lineNumber(): Int? =
-    this.psi.containingFile?.viewProvider?.document?.getLineNumber(this.startOffset)?.let { it + 1 }
+public fun ASTNode.upsertWhitespaceAfterMe(text: String) {
+    if (this is LeafElement) {
+        if (this.elementType == WHITE_SPACE) {
+            return replaceWhitespaceWith(text)
+        }
+        val next = treeNext ?: nextLeaf()
+        if (next != null && next.elementType == WHITE_SPACE) {
+            next.replaceWhitespaceWith(text)
+        } else {
+            PsiWhiteSpaceImpl(text).also { psiWhiteSpace ->
+                (psi as LeafElement).rawInsertAfterMe(psiWhiteSpace)
+            }
+        }
+    } else {
+        lastChildLeafOrSelf().upsertWhitespaceAfterMe(text)
+    }
+}
 
 public val ASTNode.column: Int
     get() {
@@ -304,31 +369,48 @@ public fun ASTNode.logStructure(): ASTNode =
 private fun String.replaceTabAndNewline(): String =
     replace("\t", "\\t").replace("\n", "\\n")
 
-@Deprecated(
-    message = "This method is marked for removal in KtLint 0.48.0 as it is not reliable.",
-    replaceWith = ReplaceWith("hasWhiteSpaceWithNewLineInClosedRange(from, to)"),
-)
-public fun containsLineBreakInRange(from: PsiElement, to: PsiElement): Boolean =
-    from.siblings(forward = true, withItself = true)
-        .takeWhile { !it.isEquivalentTo(to) }
-        .any { it.textContains('\n') }
-
 /**
  * Verifies that a whitespace leaf containing a newline exist in the closed range [from] - [to]. Also, returns true in
  * case any of the boundary nodes [from] or [to] is a whitespace leaf containing a newline.
  */
+@Deprecated(
+    message = "Marked for removal in KtLint 0.49",
+    replaceWith = ReplaceWith("hasNewLineInClosedRange(from, to)"),
+)
 public fun hasWhiteSpaceWithNewLineInClosedRange(from: ASTNode, to: ASTNode): Boolean =
     from.isWhiteSpaceWithNewline() ||
         leavesInOpenRange(from, to).any { it.isWhiteSpaceWithNewline() } ||
         to.isWhiteSpaceWithNewline()
 
 /**
+ * Verifies that a leaf containing a newline exist in the closed range [from] - [to]. Also, returns true in case any of
+ * the boundary nodes [from] or [to] contains a newline.
+ */
+public fun hasNewLineInClosedRange(from: ASTNode, to: ASTNode): Boolean =
+    from.isWhiteSpaceWithNewline() ||
+        leavesInOpenRange(from, to).any { it.textContains('\n') } ||
+        to.isWhiteSpaceWithNewline()
+
+/**
  * Verifies that no whitespace leaf contains a newline in the closed range [from] - [to]. Also, the boundary nodes
  * [from] and [to] should not be a whitespace leaf containing a newline.
  */
+@Deprecated(
+    message = "Marked for removal in KtLint 0.49",
+    replaceWith = ReplaceWith("noNewLineInClosedRange(from, to)"),
+)
 public fun noWhiteSpaceWithNewLineInClosedRange(from: ASTNode, to: ASTNode): Boolean =
     !from.isWhiteSpaceWithNewline() &&
         leavesInOpenRange(from, to).none { it.isWhiteSpaceWithNewline() } &&
+        !to.isWhiteSpaceWithNewline()
+
+/**
+ * Verifies that no leaf contains a newline in the closed range [from] - [to]. Also, the boundary nodes [from] and [to]
+ * should not contain a newline.
+ */
+public fun noNewLineInClosedRange(from: ASTNode, to: ASTNode): Boolean =
+    !from.isWhiteSpaceWithNewline() &&
+        leavesInOpenRange(from, to).none { it.textContains('\n') } &&
         !to.isWhiteSpaceWithNewline()
 
 /**

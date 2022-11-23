@@ -7,9 +7,12 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.DisabledOnOs
 import org.junit.jupiter.api.condition.OS
 
-@DisabledOnOs(OS.WINDOWS)
 @DisplayName("CLI basic checks")
 class SimpleCLITest : BaseCLITest() {
+    /**
+     * For some reason, the external `ktlint --help` process hangs on Windows.
+     */
+    @DisabledOnOs(OS.WINDOWS)
     @Test
     fun `Given CLI argument --help then return the help output`() {
         runKtLintCliProcess(
@@ -121,6 +124,19 @@ class SimpleCLITest : BaseCLITest() {
             SoftAssertions().apply {
                 assertNormalExitCode()
                 assertThat(normalOutput).containsLineMatching("No files matched [$somePatternProvidedViaStdin]")
+            }.assertAll()
+        }
+    }
+
+    @Test
+    fun `Issue 1608 - --relative and --reporter=sarif should play well together`() {
+        runKtLintCliProcess(
+            "too-many-empty-lines",
+            listOf("--relative", "--reporter=sarif"),
+        ) {
+            SoftAssertions().apply {
+                assertErrorExitCode()
+                assertThat(errorOutput).doesNotContainLineMatching("Exception in thread \"main\" java.lang.IllegalArgumentException: this and base files have different roots:")
             }.assertAll()
         }
     }

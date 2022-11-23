@@ -31,11 +31,11 @@ internal class EditorConfigGeneratorTest {
         )
 
         assertThat(generatedEditorConfig.lines()).containsExactly(
-            "disabled_rules = ",
             "indent_size = 4",
             "indent_style = space",
             "insert_final_newline = true",
             "ktlint_code_style = official",
+            "ktlint_disabled_rules = ",
             "max_line_length = -1",
         )
     }
@@ -195,12 +195,6 @@ internal class EditorConfigGeneratorTest {
     private class TestRule1 : TestRule("test-rule-one"), UsesEditorConfigProperties {
         override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
             EDITOR_CONFIG_PROPERTY_2,
-            EDITOR_CONFIG_PROPERTY_1,
-        )
-    }
-
-    private class TestRule2 : TestRule("test-rule-two"), UsesEditorConfigProperties {
-        override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
             EDITOR_CONFIG_PROPERTY_1,
         )
     }

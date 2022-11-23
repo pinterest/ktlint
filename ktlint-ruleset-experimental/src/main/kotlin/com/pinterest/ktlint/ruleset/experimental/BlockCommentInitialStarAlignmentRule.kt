@@ -11,7 +11,7 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
  */
 public class BlockCommentInitialStarAlignmentRule :
     Rule(
-        "$experimentalRulesetId:block-comment-initial-star-alignment",
+        "$EXPERIMENTAL_RULE_SET_ID:block-comment-initial-star-alignment",
         visitorModifiers = setOf(
             // The block comment is a node which can contain multiple lines. The indent of the second and later line
             // should be determined based on the indent of the block comment node. This indent is determined by the
@@ -31,7 +31,7 @@ public class BlockCommentInitialStarAlignmentRule :
             val modifiedLines = mutableListOf<String>()
             lines.forEach { line ->
                 val modifiedLine =
-                    continuationCommentRegex
+                    CONTINUATION_COMMENT_REGEX
                         .find(line)
                         ?.let { matchResult ->
                             val (prefix, content) = matchResult.destructured
@@ -56,6 +56,6 @@ public class BlockCommentInitialStarAlignmentRule :
     }
 
     private companion object {
-        val continuationCommentRegex = Regex("^([\t ]+\\*)(.*)$")
+        val CONTINUATION_COMMENT_REGEX = Regex("^([\t ]+\\*)(.*)$")
     }
 }

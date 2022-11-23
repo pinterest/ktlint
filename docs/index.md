@@ -31,7 +31,7 @@
   Several reporters are available out-of-the-box: `plain` (+ `plain?group_by_file`), `json`, `html` and `checkstyle`.
   It's also easy to [create a custom reporter](#creating-a-reporter).
 - **Executable jar**  
-  `ktlint` is releases as a single executable jar with all dependencies included.
+  `ktlint` is released as a single executable jar with all dependencies included.
 
 ## Legal
 

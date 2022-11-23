@@ -2,9 +2,9 @@ package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.IndentConfig
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentSizeProperty
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentStyleProperty
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.maxLineLengthProperty
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.INDENT_SIZE_PROPERTY
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.INDENT_STYLE_PROPERTY
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.ast.ElementType.FUNCTION_LITERAL
@@ -25,7 +25,6 @@ import com.pinterest.ktlint.core.ast.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.core.ast.upsertWhitespaceBeforeMe
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.psi.KtTypeArgumentList
@@ -37,19 +36,19 @@ public class ParameterListWrappingRule :
     UsesEditorConfigProperties {
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> =
         listOf(
-            indentSizeProperty,
-            indentStyleProperty,
-            maxLineLengthProperty,
+            INDENT_SIZE_PROPERTY,
+            INDENT_STYLE_PROPERTY,
+            MAX_LINE_LENGTH_PROPERTY,
         )
 
     private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
     private var maxLineLength = -1
 
     override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
-        maxLineLength = editorConfigProperties.getEditorConfigValue(maxLineLengthProperty)
+        maxLineLength = editorConfigProperties.getEditorConfigValue(MAX_LINE_LENGTH_PROPERTY)
         indentConfig = IndentConfig(
-            indentStyle = editorConfigProperties.getEditorConfigValue(indentStyleProperty),
-            tabWidth = editorConfigProperties.getEditorConfigValue(indentSizeProperty),
+            indentStyle = editorConfigProperties.getEditorConfigValue(INDENT_STYLE_PROPERTY),
+            tabWidth = editorConfigProperties.getEditorConfigValue(INDENT_SIZE_PROPERTY),
         )
         if (indentConfig.disabled) {
             stopTraversalOfAST()
@@ -97,13 +96,13 @@ public class ParameterListWrappingRule :
                                     true,
                                 )
                                 if (autoCorrect) {
-                                    (it as LeafElement).upsertWhitespaceAfterMe("\n${indentConfig.indent}")
+                                    it.upsertWhitespaceAfterMe("\n${indentConfig.indent}")
                                 }
                             }
                             RPAR -> {
                                 emit(it.startOffset, errorMessage(it), true)
                                 if (autoCorrect) {
-                                    (it as LeafElement).upsertWhitespaceBeforeMe("\n")
+                                    it.upsertWhitespaceBeforeMe("\n")
                                 }
                             }
                         }

@@ -1,19 +1,17 @@
 package com.pinterest.ktlint.core.api
 
 import com.pinterest.ktlint.core.IndentConfig
-import com.pinterest.ktlint.core.KtLint
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.CodeStyleValue
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.CodeStyleValue.android
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.CodeStyleValue.official
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.codeStyleSetProperty
 import com.pinterest.ktlint.core.initKtLintKLogger
 import mu.KotlinLogging
 import org.ec4j.core.model.Property
 import org.ec4j.core.model.PropertyType
 import org.ec4j.core.model.PropertyType.PropertyValueParser.EnumValueParser
-import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
-private val logger = KotlinLogging.logger {}.initKtLintKLogger()
+private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
 /**
  * Indicates [com.pinterest.ktlint.core.Rule] uses properties loaded from `.editorconfig` file.
@@ -33,23 +31,12 @@ private val logger = KotlinLogging.logger {}.initKtLintKLogger()
  */
 public interface UsesEditorConfigProperties {
     /**
-     * Provide a list of editorconfig properties used by a class (most ofter a [com.pinterest.ktlint.core.Rule].
-     * Retrieval of an editorconfig property is prohibited when the property has not been registered in [editorConfigProperties].
-     * The [editorConfigProperties] is used to generate a complete set of ".editorconfig" properties.
+     * Provide a list of editorconfig properties used by a class (most often a [com.pinterest.ktlint.core.Rule]).
+     * Retrieval of an editorconfig property is prohibited when the property has not been registered in
+     * [editorConfigProperties]. The [editorConfigProperties] is used to generate a complete set of ".editorconfig"
+     * properties.
      */
     public val editorConfigProperties: List<EditorConfigProperty<*>>
-
-    /**
-     * Get the value of [EditorConfigProperty] based on loaded [EditorConfigProperties] content for the current
-     * [ASTNode].
-     */
-    public fun <T> EditorConfigProperties.getEditorConfigValue(editorConfigProperty: EditorConfigProperty<T>): T {
-        require(editorConfigProperties.contains(editorConfigProperty)) {
-            "EditorConfigProperty '${editorConfigProperty.type.name}' may only be retrieved when it is registered in the editorConfigProperties."
-        }
-
-        return getEditorConfigValue(editorConfigProperty, getEditorConfigCodeStyle())
-    }
 
     /**
      * The code style property does not need to be defined in the [editorConfigProperties] of the class that defines
@@ -58,38 +45,29 @@ public interface UsesEditorConfigProperties {
      * be parsed explicitly to prevent class cast exceptions.
      */
     private fun EditorConfigProperties.getEditorConfigCodeStyle() =
-        codeStyleSetProperty
+        CODE_STYLE_PROPERTY
             .type
             .parse(
-                get(codeStyleSetProperty.type.name)?.sourceValue,
+                get(CODE_STYLE_PROPERTY.type.name)?.sourceValue,
             ).parsed
             ?: official
 
     /**
-     * Get the value of [EditorConfigProperty] based on loaded [EditorConfigProperties] content for the current
-     * [ASTNode].
+     * Get the value of [editorConfigProperty] from [EditorConfigProperties].
      */
-    @Deprecated(message = "Marked for deletion in Ktlint 0.48. EditorConfigProperties are now supplied to Rule via call on method beforeFirstNode")
-    public fun <T> ASTNode.getEditorConfigValue(editorConfigProperty: EditorConfigProperty<T>): T {
+    public fun <T> EditorConfigProperties.getEditorConfigValue(editorConfigProperty: EditorConfigProperty<T>): T {
         require(editorConfigProperties.contains(editorConfigProperty)) {
             "EditorConfigProperty '${editorConfigProperty.type.name}' may only be retrieved when it is registered in the editorConfigProperties."
         }
-        val editorConfigPropertyValues = getUserData(KtLint.EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY)!!
-        return editorConfigPropertyValues.getEditorConfigValue(
-            editorConfigProperty,
-            editorConfigPropertyValues.getEditorConfigCodeStyle(),
-        )
-    }
-
-    private fun <T> EditorConfigProperties.getEditorConfigValue(
-        editorConfigProperty: EditorConfigProperty<T>,
-        codeStyleValue: CodeStyleValue,
-    ): T {
-        if (editorConfigProperty.deprecationWarning != null) {
-            logger.warn { "Property '${editorConfigProperty.type.name}' is deprecated: ${editorConfigProperty.deprecationWarning}" }
+        when {
+            editorConfigProperty.deprecationError != null ->
+                throw DeprecatedEditorConfigPropertyException("Property '${editorConfigProperty.type.name}' is disallowed: ${editorConfigProperty.deprecationError}")
+            editorConfigProperty.deprecationWarning != null ->
+                LOGGER.warn { "Property '${editorConfigProperty.type.name}' is deprecated: ${editorConfigProperty.deprecationWarning}" }
         }
 
         val property = get(editorConfigProperty.type.name)
+        val codeStyleValue = getEditorConfigCodeStyle()
 
         if (property != null) {
             editorConfigProperty
@@ -99,7 +77,7 @@ public interface UsesEditorConfigProperties {
                     // If the property value is remapped to a non-null value then return it immediately.
                     val originalValue = property.sourceValue
                     if (newValue.toString() != originalValue) {
-                        logger.trace {
+                        LOGGER.trace {
                             "Value of '.editorconfig' property '${editorConfigProperty.type.name}' is remapped " +
                                 "from '$originalValue' to '$newValue'"
                         }
@@ -130,7 +108,7 @@ public interface UsesEditorConfigProperties {
             ?: editorConfigProperty
                 .getDefaultValue(codeStyleValue)
                 .also {
-                    logger.trace {
+                    LOGGER.trace {
                         "No value of '.editorconfig' property '${editorConfigProperty.type.name}' was found. Value " +
                             "has been defaulted to '$it'. Setting the value explicitly in '.editorconfig' " +
                             "removes this message from the log."
@@ -151,28 +129,31 @@ public interface UsesEditorConfigProperties {
     public fun <T> EditorConfigProperties.writeEditorConfigProperty(
         editorConfigProperty: EditorConfigProperty<T>,
         codeStyleValue: CodeStyleValue,
-    ): String {
-        return editorConfigProperty.propertyWriter(getEditorConfigValue(editorConfigProperty, codeStyleValue))
-    }
+    ): String =
+        editorConfigProperty.propertyWriter(
+            getEditorConfigValue(editorConfigProperty),
+        )
 
     /**
-     * Supported `.editorconfig` property.
-     *
-     * [Rule] preferably should expose it with `public` visibility in `companion object`,
-     * so it will be possible to add/replace via [com.pinterest.ktlint.core.KtLint.ExperimentalParams].
-     *
-     * @param type type of property. Could be one of default ones (see [PropertyType.STANDARD_TYPES]) or custom one.
-     * @param defaultValue default value for property if it does not exist in loaded properties.
-     * @param defaultAndroidValue default value for android codestyle. You should set different value only when it
-     * differs from [defaultValue].
-     * @param propertyWriter custom function that represents [T] as String. Defaults to the standard `toString()` call.
-     * You should override the default implementation in case you need a different behavior than the standard `toString()`
-     * (e.g. for collections joinToString() is more applicable).
+     * Definition of '.editorconfig' property enriched with KtLint specific fields.
      */
     public data class EditorConfigProperty<T>(
+        /**
+         * Type of property. Could be one of default ones (see [PropertyType.STANDARD_TYPES]) or custom one.
+         */
         public val type: PropertyType<T>,
+
+        /**
+         * Default value for property if it does not exist in loaded properties and codestyle 'official'.
+         */
         public val defaultValue: T,
+
+        /**
+         * Default value for property if it does not exist in loaded properties and codestyle 'android'. This property
+         * is to be set only when its value does not equal [defaultValue].
+         */
         public val defaultAndroidValue: T = defaultValue,
+
         /**
          * If set, it maps the actual value set for the property, to another valid value for that property. See example
          * below where
@@ -196,14 +177,27 @@ public interface UsesEditorConfigProperties {
          * value of the property. The
          */
         public val propertyMapper: ((Property?, CodeStyleValue) -> T?)? = null,
+
+        /**
+         * Custom function that represents [T] as String. Defaults to the standard `toString()` call. Override the
+         * default implementation in case you need a different behavior than the standard `toString()` (e.g. for
+         * collections joinToString() is more applicable).
+         */
         public val propertyWriter: (T) -> String = { it.toString() },
 
         /**
          * Optional message to be displayed whenever the value of the property is being retrieved.
          */
         internal val deprecationWarning: String? = null,
+
+        /**
+         * Optional message to be displayed whenever the value of the property is being retrieved.
+         */
+        internal val deprecationError: String? = null,
     )
 }
+
+public class DeprecatedEditorConfigPropertyException(message: String) : RuntimeException(message)
 
 /**
  * Defines KtLint properties which are based on default property types provided by [org.ec4j.core.model.PropertyType].
@@ -218,7 +212,7 @@ public object DefaultEditorConfigProperties : UsesEditorConfigProperties {
         official,
     }
 
-    public val codeStyleSetProperty: UsesEditorConfigProperties.EditorConfigProperty<CodeStyleValue> =
+    public val CODE_STYLE_PROPERTY: UsesEditorConfigProperties.EditorConfigProperty<CodeStyleValue> =
         UsesEditorConfigProperties.EditorConfigProperty(
             type = PropertyType.LowerCasingPropertyType(
                 "ktlint_code_style",
@@ -231,10 +225,21 @@ public object DefaultEditorConfigProperties : UsesEditorConfigProperties {
         )
 
     @Deprecated(
-        message = "Marked for removal in KtLint 0.48",
-        replaceWith = ReplaceWith("ktlintDisabledRulesProperty"),
+        message = "Marked for removal in KtLint 0.49",
+        replaceWith = ReplaceWith("CODE_STYLE_PROPERTY"),
     )
-    public val disabledRulesProperty: UsesEditorConfigProperties.EditorConfigProperty<String> =
+    @Suppress("ktlint:experimental:property-naming")
+    public val codeStyleSetProperty: UsesEditorConfigProperties.EditorConfigProperty<CodeStyleValue> =
+        CODE_STYLE_PROPERTY
+
+    @Deprecated(
+        // Keep postponing the deprecation period until around 0.50. Some projects irregular update to newer KtLint
+        // version and skipping intermediate version. As of such they might have missed the deprecation warning in
+        // KtLint 0.47.
+        message = "Marked for removal in KtLint 0.49",
+        replaceWith = ReplaceWith("KTLINT_DISABLED_RULES_PROPERTY"),
+    )
+    public val DISABLED_RULES_PROPERTY: UsesEditorConfigProperties.EditorConfigProperty<String> =
         UsesEditorConfigProperties.EditorConfigProperty(
             type = PropertyType.LowerCasingPropertyType(
                 "disabled_rules",
@@ -255,10 +260,10 @@ public object DefaultEditorConfigProperties : UsesEditorConfigProperties {
                     else -> property?.getValueAs()
                 }
             },
-            deprecationWarning = "Rename property 'disabled_rules' to 'ktlint_disabled_rules' in all '.editorconfig' files.",
+            deprecationError = "Rename property 'disabled_rules' to 'ktlint_disabled_rules' in all '.editorconfig' files.",
         )
 
-    public val ktlintDisabledRulesProperty: UsesEditorConfigProperties.EditorConfigProperty<String> =
+    public val KTLINT_DISABLED_RULES_PROPERTY: UsesEditorConfigProperties.EditorConfigProperty<String> =
         UsesEditorConfigProperties.EditorConfigProperty(
             type = PropertyType.LowerCasingPropertyType(
                 "ktlint_disabled_rules",
@@ -281,13 +286,29 @@ public object DefaultEditorConfigProperties : UsesEditorConfigProperties {
             },
         )
 
-    public val indentStyleProperty: UsesEditorConfigProperties.EditorConfigProperty<PropertyType.IndentStyleValue> =
+    @Deprecated(
+        message = "Marked for removal in KtLint 0.49",
+        replaceWith = ReplaceWith("KTLINT_DISABLED_RULES_PROPERTY"),
+    )
+    @Suppress("ktlint:experimental:property-naming")
+    public val ktlintDisabledRulesProperty: UsesEditorConfigProperties.EditorConfigProperty<String> =
+        KTLINT_DISABLED_RULES_PROPERTY
+
+    public val INDENT_STYLE_PROPERTY: UsesEditorConfigProperties.EditorConfigProperty<PropertyType.IndentStyleValue> =
         UsesEditorConfigProperties.EditorConfigProperty(
             type = PropertyType.indent_style,
             defaultValue = PropertyType.IndentStyleValue.space,
         )
 
-    public val indentSizeProperty: UsesEditorConfigProperties.EditorConfigProperty<Int> =
+    @Deprecated(
+        message = "Marked for removal in KtLint 0.49",
+        replaceWith = ReplaceWith("INDENT_STYLE_PROPERTY"),
+    )
+    @Suppress("ktlint:experimental:property-naming")
+    public val indentStyleProperty: UsesEditorConfigProperties.EditorConfigProperty<PropertyType.IndentStyleValue> =
+        INDENT_STYLE_PROPERTY
+
+    public val INDENT_SIZE_PROPERTY: UsesEditorConfigProperties.EditorConfigProperty<Int> =
         UsesEditorConfigProperties.EditorConfigProperty(
             type = PropertyType.indent_size,
             defaultValue = IndentConfig.DEFAULT_INDENT_CONFIG.tabWidth,
@@ -301,13 +322,29 @@ public object DefaultEditorConfigProperties : UsesEditorConfigProperties {
             },
         )
 
-    public val insertNewLineProperty: UsesEditorConfigProperties.EditorConfigProperty<Boolean> =
+    @Deprecated(
+        message = "Marked for removal in KtLint 0.49",
+        replaceWith = ReplaceWith("INDENT_SIZE_PROPERTY"),
+    )
+    @Suppress("ktlint:experimental:property-naming")
+    public val indentSizeProperty: UsesEditorConfigProperties.EditorConfigProperty<Int> =
+        INDENT_SIZE_PROPERTY
+
+    public val INSERT_FINAL_NEWLINE_PROPERTY: UsesEditorConfigProperties.EditorConfigProperty<Boolean> =
         UsesEditorConfigProperties.EditorConfigProperty(
             type = PropertyType.insert_final_newline,
             defaultValue = true,
         )
 
-    public val maxLineLengthProperty: UsesEditorConfigProperties.EditorConfigProperty<Int> =
+    @Deprecated(
+        message = "Marked for removal in KtLint 0.49",
+        replaceWith = ReplaceWith("INSERT_FINAL_NEWLINE_PROPERTY"),
+    )
+    @Suppress("ktlint:experimental:property-naming")
+    public val insertNewLineProperty: UsesEditorConfigProperties.EditorConfigProperty<Boolean> =
+        INSERT_FINAL_NEWLINE_PROPERTY
+
+    public val MAX_LINE_LENGTH_PROPERTY: UsesEditorConfigProperties.EditorConfigProperty<Int> =
         UsesEditorConfigProperties.EditorConfigProperty(
             type = PropertyType.max_line_length,
             defaultValue = -1,
@@ -328,17 +365,21 @@ public object DefaultEditorConfigProperties : UsesEditorConfigProperties {
             },
         )
 
+    @Deprecated(
+        message = "Marked for removal in KtLint 0.49",
+        replaceWith = ReplaceWith("MAX_LINE_LENGTH_PROPERTY"),
+    )
+    @Suppress("ktlint:experimental:property-naming")
+    public val maxLineLengthProperty: UsesEditorConfigProperties.EditorConfigProperty<Int> =
+        MAX_LINE_LENGTH_PROPERTY
+
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
-        codeStyleSetProperty,
-        disabledRulesProperty,
-        indentStyleProperty,
-        indentSizeProperty,
-        insertNewLineProperty,
-        maxLineLengthProperty,
+        CODE_STYLE_PROPERTY,
+        DISABLED_RULES_PROPERTY,
+        KTLINT_DISABLED_RULES_PROPERTY,
+        INDENT_STYLE_PROPERTY,
+        INDENT_SIZE_PROPERTY,
+        INSERT_FINAL_NEWLINE_PROPERTY,
+        MAX_LINE_LENGTH_PROPERTY,
     )
 }
-
-/**
- * Loaded [Property]s from `.editorconfig` files.
- */
-public typealias EditorConfigProperties = Map<String, Property>

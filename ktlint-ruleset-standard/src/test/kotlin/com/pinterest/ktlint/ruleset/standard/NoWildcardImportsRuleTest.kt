@@ -1,6 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.ruleset.standard.NoWildcardImportsRule.Companion.packagesToUseImportOnDemandProperty
+import com.pinterest.ktlint.ruleset.standard.NoWildcardImportsRule.Companion.IJ_KOTLIN_PACKAGES_TO_USE_IMPORT_ON_DEMAND
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.DisplayName
@@ -54,7 +54,7 @@ class NoWildcardImportsRuleTest {
                 import react.dom.*
                 """.trimIndent()
             noWildcardImportsRuleAssertThat(code)
-                .withEditorConfigOverride(packagesToUseImportOnDemandProperty to "unset")
+                .withEditorConfigOverride(IJ_KOTLIN_PACKAGES_TO_USE_IMPORT_ON_DEMAND to "unset")
                 .hasLintViolationsWithoutAutoCorrect(
                     LintViolation(3, 1, "Wildcard import"),
                     LintViolation(4, 1, "Wildcard import"),
@@ -71,7 +71,7 @@ class NoWildcardImportsRuleTest {
                 import react.dom.*
                 """.trimIndent()
             noWildcardImportsRuleAssertThat(code)
-                .withEditorConfigOverride(packagesToUseImportOnDemandProperty to "react.*,react.dom.*")
+                .withEditorConfigOverride(IJ_KOTLIN_PACKAGES_TO_USE_IMPORT_ON_DEMAND to "react.*,react.dom.*")
                 .hasLintViolationWithoutAutoCorrect(2, 1, "Wildcard import")
         }
 
@@ -85,7 +85,7 @@ class NoWildcardImportsRuleTest {
                 import react.dom.*
                 """.trimIndent()
             noWildcardImportsRuleAssertThat(code)
-                .withEditorConfigOverride(packagesToUseImportOnDemandProperty to "react.**")
+                .withEditorConfigOverride(IJ_KOTLIN_PACKAGES_TO_USE_IMPORT_ON_DEMAND to "react.**")
                 .hasLintViolationWithoutAutoCorrect(2, 1, "Wildcard import")
         }
 
@@ -97,7 +97,7 @@ class NoWildcardImportsRuleTest {
                 import kotlinx.android.synthetic.main.layout_name.*
                 """.trimIndent()
             noWildcardImportsRuleAssertThat(code)
-                .withEditorConfigOverride(packagesToUseImportOnDemandProperty to "")
+                .withEditorConfigOverride(IJ_KOTLIN_PACKAGES_TO_USE_IMPORT_ON_DEMAND to "")
                 .hasLintViolationWithoutAutoCorrect(2, 1, "Wildcard import")
         }
     }

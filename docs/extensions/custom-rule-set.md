@@ -1,10 +1,9 @@
 !!! Tip
     See [Writing your first ktlint rule](https://medium.com/@vanniktech/writing-your-first-ktlint-rule-5a1707f4ca5b) by [Niklas Baudy](https://github.com/vanniktech).
 
-In a nutshell: a "rule set" is a JAR containing one or more [Rule](/ktlint-core/src/main/kotlin/com/pinterest/ktlint/core/Rule.kt)s gathered together in a [RuleSet](/ktlint-core/src/main/kotlin/com/pinterest/ktlint/core/RuleSet.kt). `ktlint` is relying on the
-[ServiceLoader](https://docs.oracle.com/javase/8/docs/api/java/util/ServiceLoader.html) to discover all available "RuleSet"s
-on the classpath (as a ruleset author, all you need to do is to include a `META-INF/services/com.pinterest.ktlint.core.RuleSetProvider` file
-containing a fully qualified name of your [RuleSetProvider](/ktlint-core/src/main/kotlin/com/pinterest/ktlint/core/RuleSetProvider.kt) implementation).
+In a nutshell: a "rule set" is a JAR containing one or more [Rule](/ktlint-core/src/main/kotlin/com/pinterest/ktlint/core/Rule.kt)s. `ktlint` is relying on the
+[ServiceLoader](https://docs.oracle.com/javase/8/docs/api/java/util/ServiceLoader.html) to discover all available "RuleSet"s on the classpath. As a ruleset author, all you need to do is to include a `META-INF/services/com.pinterest.ktlint.core.RuleSetProviderV2` file
+containing a fully qualified name of your [RuleSetProviderV2](/ktlint-core/src/main/kotlin/com/pinterest/ktlint/core/RuleSetProviderV2.kt) implementation.
 
 ## ktlint-ruleset-template
 
@@ -20,7 +19,7 @@ $ echo 'var v = 0' > test.kt
 ```
 
 ```shell title="Running the ktlint-ruleset-template" hl_lines="1 40 43"
-$ ktlint -R build/libs/ktlint-ruleset-template.jar --debug --relative test.kt
+$ ktlint -R build/libs/ktlint-ruleset-template.jar --log-level=debug --relative test.kt
 
 18:13:21.026 [main] DEBUG com.pinterest.ktlint.internal.RuleSetsLoader - JAR ruleset provided with path "/../ktlint/ktlint-ruleset-template/build/libs/ktlint-ruleset-template.jar"
 18:13:21.241 [main] DEBUG com.pinterest.ktlint.Main - Discovered reporter with "baseline" id.

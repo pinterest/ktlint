@@ -5,6 +5,8 @@ import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
+import com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE
+import com.pinterest.ktlint.test.TAB
 import org.ec4j.core.model.PropertyType.IndentStyleValue.tab
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -32,7 +34,7 @@ internal class WrappingRuleTest {
             fun foo() {
                 println(
                     "$.{
-                    true
+                        true
                     }"
                 )
             }
@@ -51,28 +53,28 @@ internal class WrappingRuleTest {
         val code =
             """
             fun foo() {
-                println(${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}
-                ${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE})
-                println(${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}
-                ${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}.trimIndent())
-                println(${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}
-                ${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}.trimMargin())
+                println($MULTILINE_STRING_QUOTE
+                $MULTILINE_STRING_QUOTE)
+                println($MULTILINE_STRING_QUOTE
+                $MULTILINE_STRING_QUOTE.trimIndent())
+                println($MULTILINE_STRING_QUOTE
+                $MULTILINE_STRING_QUOTE.trimMargin())
             }
             """.trimIndent()
         val formattedCode =
             """
             fun foo() {
                 println(
-                    ${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}
-                ${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}
+                    $MULTILINE_STRING_QUOTE
+                $MULTILINE_STRING_QUOTE
                 )
                 println(
-                    ${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}
-                    ${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}.trimIndent()
+                    $MULTILINE_STRING_QUOTE
+                    $MULTILINE_STRING_QUOTE.trimIndent()
                 )
                 println(
-                    ${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}
-                    ${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}.trimMargin()
+                    $MULTILINE_STRING_QUOTE
+                    $MULTILINE_STRING_QUOTE.trimMargin()
                 )
             }
             """.trimIndent()
@@ -93,13 +95,13 @@ internal class WrappingRuleTest {
         val code =
             """
             fun foo1() {
-                foo2(${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}$.{
+                foo2($MULTILINE_STRING_QUOTE$.{
             true
                 }
                 text
             _$.{
             true
-                }${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}.trimIndent(), ${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}text${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE})
+                }$MULTILINE_STRING_QUOTE.trimIndent(), ${MULTILINE_STRING_QUOTE}text$MULTILINE_STRING_QUOTE)
             }
             """.trimIndent()
                 .replacePlaceholderWithStringTemplate()
@@ -107,15 +109,15 @@ internal class WrappingRuleTest {
             """
             fun foo1() {
                 foo2(
-                    ${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}$.{
-                    true
+                    $MULTILINE_STRING_QUOTE$.{
+                        true
                     }
                 text
             _$.{
-                    true
+                        true
                     }
-                    ${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}.trimIndent(),
-                    ${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}text${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}
+                    $MULTILINE_STRING_QUOTE.trimIndent(),
+                    ${MULTILINE_STRING_QUOTE}text$MULTILINE_STRING_QUOTE
                 )
             }
             """.trimIndent()
@@ -135,22 +137,22 @@ internal class WrappingRuleTest {
         val code =
             """
             fun foo() {
-            println(${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}
+            println($MULTILINE_STRING_QUOTE
                 text
 
                     text
-            ${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}.trimIndent().toByteArray())
+            $MULTILINE_STRING_QUOTE.trimIndent().toByteArray())
             }
             """.trimIndent()
         val formattedCode =
             """
             fun foo() {
                 println(
-                    ${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}
+                    $MULTILINE_STRING_QUOTE
                 text
 
                     text
-                    ${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}.trimIndent().toByteArray()
+                    $MULTILINE_STRING_QUOTE.trimIndent().toByteArray()
                 )
             }
             """.trimIndent()
@@ -167,11 +169,11 @@ internal class WrappingRuleTest {
         val code =
             """
             fun foo() {
-                write(fs.getPath("/projects/.editorconfig"), ${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}
+                write(fs.getPath("/projects/.editorconfig"), $MULTILINE_STRING_QUOTE
                     root = true
                     [*]
                     end_of_line = lf
-                ${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}.trimIndent().toByteArray())
+                $MULTILINE_STRING_QUOTE.trimIndent().toByteArray())
             }
             """.trimIndent()
         val formattedCode =
@@ -179,11 +181,11 @@ internal class WrappingRuleTest {
             fun foo() {
                 write(
                     fs.getPath("/projects/.editorconfig"),
-                    ${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}
+                    $MULTILINE_STRING_QUOTE
                     root = true
                     [*]
                     end_of_line = lf
-                    ${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}.trimIndent().toByteArray()
+                    $MULTILINE_STRING_QUOTE.trimIndent().toByteArray()
                 )
             }
             """.trimIndent()
@@ -544,7 +546,7 @@ internal class WrappingRuleTest {
             }
             """.trimIndent()
         wrappingRuleAssertThat(code)
-            .withEditorConfigOverride(DefaultEditorConfigProperties.indentStyleProperty to tab)
+            .withEditorConfigOverride(DefaultEditorConfigProperties.INDENT_STYLE_PROPERTY to tab)
             .hasLintViolations(
                 LintViolation(2, 10, "Missing newline after \"(\""),
                 LintViolation(5, 18, "Missing newline before \")\""),
@@ -1104,7 +1106,7 @@ internal class WrappingRuleTest {
     }
 
     @Test
-    fun `Issue 1127 - multiline string followed by trimIndent in parameter list`() {
+    fun `Issue 1127 - Given a raw string literal followed by trimIndent in parameter list`() {
         val code =
             """
             interface UserRepository : JpaRepository<User, UUID> {
@@ -1112,7 +1114,7 @@ internal class WrappingRuleTest {
                     select u from User u
                     inner join Organization o on u.organization = o
                     where o = :organization
-                    $MULTILINE_STRING_QUOTE.trimIndent())
+                $MULTILINE_STRING_QUOTE.trimIndent())
                 fun findByOrganization(organization: Organization, pageable: Pageable): Page<User>
             }
             """.trimIndent()
@@ -1130,15 +1132,15 @@ internal class WrappingRuleTest {
             }
             """.trimIndent()
         wrappingRuleAssertThat(code)
+            .addAdditionalRuleProvider { IndentationRule() }
             .hasLintViolations(
                 LintViolation(2, 12, "Missing newline after \"(\""),
-                LintViolation(6, 24, "Missing newline before \")\""),
+                LintViolation(6, 20, "Missing newline before \")\""),
             ).isFormattedAs(formattedCode)
     }
 
     @Test
     fun `format kdoc with spaces`() {
-        @Suppress("RemoveCurlyBracesFromTemplate")
         val code =
             """
             /**
@@ -1178,8 +1180,8 @@ internal class WrappingRuleTest {
             ${TAB}}
             }
             """.trimIndent()
-        wrappingRuleAssertThat(code)
-            .withEditorConfigOverride(DefaultEditorConfigProperties.indentStyleProperty to tab)
+        wrappingRuleAssertThat(codeTabs)
+            .withEditorConfigOverride(DefaultEditorConfigProperties.INDENT_STYLE_PROPERTY to tab)
             .hasNoLintViolations()
     }
 
@@ -1205,7 +1207,7 @@ internal class WrappingRuleTest {
             }
             """.trimIndent()
         wrappingRuleAssertThat(code)
-            .withEditorConfigOverride(DefaultEditorConfigProperties.indentStyleProperty to tab)
+            .withEditorConfigOverride(DefaultEditorConfigProperties.INDENT_STYLE_PROPERTY to tab)
             .hasNoLintViolations()
     }
 
@@ -1685,7 +1687,7 @@ internal class WrappingRuleTest {
                 """
                 class Bar {
                     val bar by lazy {${MULTILINE_STRING_QUOTE}foo
-                            foo${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}}
+                            foo$MULTILINE_STRING_QUOTE}
                 }
                 """.trimIndent()
             val formattedCode =
@@ -1693,7 +1695,7 @@ internal class WrappingRuleTest {
                 class Bar {
                     val bar by lazy {
                         ${MULTILINE_STRING_QUOTE}foo
-                            foo${com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE}
+                            foo$MULTILINE_STRING_QUOTE
                     }
                 }
                 """.trimIndent()
@@ -1703,11 +1705,6 @@ internal class WrappingRuleTest {
                     LintViolation(3, 18, "Missing newline before \"}\""),
                 ).isFormattedAs(formattedCode)
         }
-    }
-
-    private companion object {
-        const val MULTILINE_STRING_QUOTE = "${'"'}${'"'}${'"'}"
-        const val TAB = "${'\t'}"
     }
 }
 

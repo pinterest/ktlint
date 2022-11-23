@@ -14,9 +14,9 @@ import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.core.ast.ElementType.WHEN_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.core.ast.children
-import com.pinterest.ktlint.core.ast.containsLineBreakInRange
+import com.pinterest.ktlint.core.ast.isCodeLeaf
 import com.pinterest.ktlint.core.ast.lineIndent
-import com.pinterest.ktlint.core.ast.noWhiteSpaceWithNewLineInClosedRange
+import com.pinterest.ktlint.core.ast.noNewLineInClosedRange
 import com.pinterest.ktlint.core.ast.prevCodeLeaf
 import com.pinterest.ktlint.core.ast.prevLeaf
 import com.pinterest.ktlint.core.ast.upsertWhitespaceAfterMe
@@ -26,7 +26,6 @@ import org.ec4j.core.model.PropertyType.PropertyValueParser
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtCollectionLiteralExpression
@@ -65,7 +64,7 @@ public class TrailingCommaOnDeclarationSiteRule :
     UsesEditorConfigProperties {
 
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
-        allowTrailingCommaProperty,
+        TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY,
     )
 
     private var allowTrailingComma by Delegates.notNull<Boolean>()
@@ -74,7 +73,7 @@ public class TrailingCommaOnDeclarationSiteRule :
         elementType in TYPES_ON_DECLARATION_SITE && allowTrailingComma
 
     override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
-        allowTrailingComma = editorConfigProperties.getEditorConfigValue(allowTrailingCommaProperty)
+        allowTrailingComma = editorConfigProperties.getEditorConfigValue(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY)
     }
 
     override fun beforeVisitChildNodes(
@@ -118,7 +117,7 @@ public class TrailingCommaOnDeclarationSiteRule :
     ) {
         val inspectNode = node
             .children()
-            .lastOrNull { it.elementType == ElementType.ARROW }
+            .lastOrNull { it.elementType == ARROW }
             ?: // lambda w/o an arrow -> no arguments -> no commas
             return
         node.reportAndCorrectTrailingCommaNodeBefore(
@@ -179,7 +178,7 @@ public class TrailingCommaOnDeclarationSiteRule :
 
         val inspectNode = node
             .children()
-            .first { it.elementType == ElementType.ARROW }
+            .first { it.elementType == ARROW }
         node.reportAndCorrectTrailingCommaNodeBefore(
             inspectNode = inspectNode,
             isTrailingCommaAllowed = node.isTrailingCommaAllowed(),
@@ -235,7 +234,7 @@ public class TrailingCommaOnDeclarationSiteRule :
                 .toList()
                 .takeLast(2)
 
-        return lastTwoEnumEntries.count() == 2 && noWhiteSpaceWithNewLineInClosedRange(lastTwoEnumEntries[0], lastTwoEnumEntries[1])
+        return lastTwoEnumEntries.count() == 2 && noNewLineInClosedRange(lastTwoEnumEntries[0], lastTwoEnumEntries[1])
     }
 
     private fun ASTNode.reportAndCorrectTrailingCommaNodeBefore(
@@ -245,7 +244,7 @@ public class TrailingCommaOnDeclarationSiteRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         val prevLeaf = inspectNode.prevLeaf()
-        val trailingCommaNode = prevLeaf.findPreviousTrailingCommaNodeOrNull()
+        val trailingCommaNode = prevLeaf?.findPreviousTrailingCommaNodeOrNull()
         val trailingCommaState = when {
             isMultiline(psi) -> if (trailingCommaNode != null) TrailingCommaState.EXISTS else TrailingCommaState.MISSING
             else -> if (trailingCommaNode != null) TrailingCommaState.REDUNDANT else TrailingCommaState.NOT_EXISTS
@@ -267,11 +266,7 @@ public class TrailingCommaOnDeclarationSiteRule :
                                 )
                                 if (autoCorrect) {
                                     val parentIndent = "\n" + inspectNode.getWhenEntryIndent()
-                                    if (lastNodeBeforeArrow.elementType == WHITE_SPACE) {
-                                        (lastNodeBeforeArrow as LeafPsiElement).rawReplaceWithText(parentIndent)
-                                    } else {
-                                        (lastNodeBeforeArrow as LeafPsiElement).upsertWhitespaceAfterMe(parentIndent)
-                                    }
+                                    lastNodeBeforeArrow.upsertWhitespaceAfterMe(parentIndent)
                                 }
                             }
                         }
@@ -356,9 +351,9 @@ public class TrailingCommaOnDeclarationSiteRule :
 
     private fun isMultiline(element: PsiElement): Boolean = when {
         element.parent is KtFunctionLiteral -> isMultiline(element.parent)
-        element is KtFunctionLiteral -> containsLineBreakInRange(element.valueParameterList!!, element.arrow!!)
-        element is KtWhenEntry -> containsLineBreakInRange(element.firstChild, element.arrow!!)
-        element is KtDestructuringDeclaration -> containsLineBreakInRange(element.lPar!!, element.rPar!!)
+        element is KtFunctionLiteral -> containsLineBreakInLeavesRange(element.valueParameterList!!, element.arrow!!)
+        element is KtWhenEntry -> containsLineBreakInLeavesRange(element.firstChild, element.arrow!!)
+        element is KtDestructuringDeclaration -> containsLineBreakInLeavesRange(element.lPar!!, element.rPar!!)
         element is KtValueArgumentList && element.children.size == 1 && element.anyDescendantOfType<KtCollectionLiteralExpression>() -> {
             // special handling for collection literal
             // @Annotation([
@@ -379,16 +374,13 @@ public class TrailingCommaOnDeclarationSiteRule :
             false
         }
 
-    private fun ASTNode?.findPreviousTrailingCommaNodeOrNull(): ASTNode? {
-        var node = this
-        while (node?.isIgnorable() == true) {
-            node = node.prevLeaf()
-        }
-        return if (node?.elementType == ElementType.COMMA) {
-            node
+    private fun ASTNode.findPreviousTrailingCommaNodeOrNull(): ASTNode? {
+        val codeLeaf = if (isCodeLeaf()) {
+            this
         } else {
-            null
+            prevCodeLeaf()
         }
+        return codeLeaf?.takeIf { it.elementType == ElementType.COMMA }
     }
 
     private fun containsLineBreakInLeavesRange(from: PsiElement, to: PsiElement): Boolean {
@@ -401,11 +393,6 @@ public class TrailingCommaOnDeclarationSiteRule :
         }
         return leaf?.textContains('\n') ?: false
     }
-
-    private fun ASTNode.isIgnorable(): Boolean =
-        elementType == ElementType.WHITE_SPACE ||
-            elementType == ElementType.EOL_COMMENT ||
-            elementType == ElementType.BLOCK_COMMENT
 
     private enum class TrailingCommaState {
         /**
@@ -430,26 +417,31 @@ public class TrailingCommaOnDeclarationSiteRule :
     }
 
     public companion object {
-
-        internal const val ALLOW_TRAILING_COMMA_NAME = "ij_kotlin_allow_trailing_comma"
-        private const val ALLOW_TRAILING_COMMA_DESCRIPTION = "Defines whether a trailing comma (or no trailing comma)" +
-            "should be enforced on the defining side," +
-            "e.g. parameter-list, type-argument-list, lambda-value-parameters, enum-entries, etc."
-
         private val BOOLEAN_VALUES_SET = setOf("true", "false")
 
-        // TODO: Rename property to trailingCommaOnDeclarationSite. The word 'allow' is misleading as the comma is
-        //       enforced when the property is enabled and prohibited when disabled.
-        public val allowTrailingCommaProperty: UsesEditorConfigProperties.EditorConfigProperty<Boolean> =
+        public val TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY: UsesEditorConfigProperties.EditorConfigProperty<Boolean> =
             UsesEditorConfigProperties.EditorConfigProperty(
                 type = PropertyType.LowerCasingPropertyType(
-                    ALLOW_TRAILING_COMMA_NAME,
-                    ALLOW_TRAILING_COMMA_DESCRIPTION,
+                    "ij_kotlin_allow_trailing_comma",
+                    "Defines whether a trailing comma (or no trailing comma) should be enforced on the defining " +
+                        "side, e.g. parameter-list, type-argument-list, lambda-value-parameters, enum-entries, etc." +
+                        "When set, IntelliJ IDEA uses this property to allow usage of a trailing comma by discretion " +
+                        "of the developer. KtLint however uses this setting to enforce consistent usage of the " +
+                        "trailing comma when set.",
                     PropertyValueParser.BOOLEAN_VALUE_PARSER,
                     BOOLEAN_VALUES_SET,
                 ),
-                defaultValue = false,
+                defaultValue = true,
+                defaultAndroidValue = false,
             )
+
+        @Deprecated(
+            message = "Marked for removal in KtLint 0.49",
+            replaceWith = ReplaceWith("TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY"),
+        )
+        @Suppress("ktlint:experimental:property-naming")
+        public val allowTrailingCommaProperty: UsesEditorConfigProperties.EditorConfigProperty<Boolean> =
+            TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY
 
         private val TYPES_ON_DECLARATION_SITE = TokenSet.create(
             CLASS,

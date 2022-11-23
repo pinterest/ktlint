@@ -28,7 +28,7 @@ public class SpacingAroundAngleBracketsRule : Rule("spacing-around-angle-bracket
                 val beforeLeftAngle = openingBracket.prevLeaf()
                 if (beforeLeftAngle?.elementType == WHITE_SPACE) {
                     // Ignore when the whitespace is preceded by certain keywords, e.g. fun <T> func(arg: T) {}
-                    if (!typesOkWithPrecedingWhitespace.contains(beforeLeftAngle.prevLeaf()?.elementType)) {
+                    if (!ELEMENT_TYPES_ALLOWING_PRECEDING_WHITESPACE.contains(beforeLeftAngle.prevLeaf()?.elementType)) {
                         emit(beforeLeftAngle.startOffset, "Unexpected spacing before \"<\"", true)
                         if (autoCorrect) {
                             beforeLeftAngle.treeParent.removeChild(beforeLeftAngle)
@@ -91,6 +91,6 @@ public class SpacingAroundAngleBracketsRule : Rule("spacing-around-angle-bracket
     }
 
     private companion object {
-        val typesOkWithPrecedingWhitespace = setOf(VAL_KEYWORD, VAR_KEYWORD, FUN_KEYWORD)
+        val ELEMENT_TYPES_ALLOWING_PRECEDING_WHITESPACE = setOf(VAL_KEYWORD, VAR_KEYWORD, FUN_KEYWORD)
     }
 }

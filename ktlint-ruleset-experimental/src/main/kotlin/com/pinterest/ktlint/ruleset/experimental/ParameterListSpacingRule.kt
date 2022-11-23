@@ -25,7 +25,7 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
  * comma's and colons. However, it does have a more complete view on the higher concept of the parameter-list without
  * interfering of the parameter-list-wrapping rule.
  */
-public class ParameterListSpacingRule : Rule("$experimentalRulesetId:parameter-list-spacing") {
+public class ParameterListSpacingRule : Rule("$EXPERIMENTAL_RULE_SET_ID:parameter-list-spacing") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
@@ -204,7 +204,7 @@ public class ParameterListSpacingRule : Rule("$experimentalRulesetId:parameter-l
         require(node.elementType == COLON || node.elementType == COMMA)
         emit(node.startOffset, "Whitespace after '${node.text}' is missing", true)
         if (autoCorrect) {
-            (node as LeafElement).upsertWhitespaceAfterMe(" ")
+            node.upsertWhitespaceAfterMe(" ")
         }
     }
 

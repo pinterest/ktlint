@@ -1,9 +1,9 @@
 package com.pinterest.ktlint.core.internal
 
 import com.pinterest.ktlint.core.api.EditorConfigDefaults
-import com.pinterest.ktlint.core.api.EditorConfigDefaults.Companion.emptyEditorConfigDefaults
+import com.pinterest.ktlint.core.api.EditorConfigDefaults.Companion.EMPTY_EDITOR_CONFIG_DEFAULTS
 import com.pinterest.ktlint.core.initKtLintKLogger
-import com.pinterest.ktlint.core.internal.ThreadSafeEditorConfigCache.Companion.threadSafeEditorConfigCache
+import com.pinterest.ktlint.core.internal.ThreadSafeEditorConfigCache.Companion.THREAD_SAFER_EDITOR_CONFIG_CACHE
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 import kotlin.io.path.isDirectory
@@ -14,7 +14,7 @@ import org.ec4j.core.EditorConfigLoader
 import org.ec4j.core.Resource
 import org.ec4j.core.model.Version
 
-private val logger = KotlinLogging.logger {}.initKtLintKLogger()
+private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
 /**
  * Load all properties from an ".editorconfig" file without filtering on a glob.
@@ -27,26 +27,26 @@ internal class EditorConfigDefaultsLoader {
      * than ".editorconfig") or a directory in which a file with name ".editorconfig" is expected to exist. Properties
      * from all globs are returned.
      *
-     * If [path] is not valid then the [emptyEditorConfigDefaults] is returned.
+     * If [path] is not valid then the [EMPTY_EDITOR_CONFIG_DEFAULTS] is returned.
      *
      * The property "root" which denotes whether the parent directory is to be checked for the existence of a fallback
      * ".editorconfig" is ignored entirely.
      */
     fun load(path: Path?): EditorConfigDefaults {
         if (path == null || path.pathString.isBlank()) {
-            return emptyEditorConfigDefaults
+            return EMPTY_EDITOR_CONFIG_DEFAULTS
         }
 
         val editorConfigFilePath = path.editorConfigFilePath()
         if (editorConfigFilePath.notExists()) {
-            logger.warn { "File or directory '$path' is not found. Can not load '.editorconfig' properties" }
-            return emptyEditorConfigDefaults
+            LOGGER.warn { "File or directory '$path' is not found. Can not load '.editorconfig' properties" }
+            return EMPTY_EDITOR_CONFIG_DEFAULTS
         }
 
-        return threadSafeEditorConfigCache
+        return THREAD_SAFER_EDITOR_CONFIG_CACHE
             .get(editorConfigFilePath.resource(), editorConfigLoader)
             .also {
-                logger.trace {
+                LOGGER.trace {
                     it
                         .toString()
                         .split("\n")

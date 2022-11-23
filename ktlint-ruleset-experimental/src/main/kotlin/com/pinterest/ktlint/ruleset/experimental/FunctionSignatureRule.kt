@@ -2,11 +2,12 @@ package com.pinterest.ktlint.ruleset.experimental
 
 import com.pinterest.ktlint.core.IndentConfig
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentSizeProperty
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.indentStyleProperty
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.maxLineLengthProperty
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.INDENT_SIZE_PROPERTY
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.INDENT_STYLE_PROPERTY
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
+import com.pinterest.ktlint.core.ast.ElementType.ANNOTATION
 import com.pinterest.ktlint.core.ast.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.BLOCK
 import com.pinterest.ktlint.core.ast.ElementType.BLOCK_COMMENT
@@ -45,7 +46,7 @@ import org.jetbrains.kotlin.utils.addToStdlib.ifTrue
 
 public class FunctionSignatureRule :
     Rule(
-        id = "$experimentalRulesetId:function-signature",
+        id = "$EXPERIMENTAL_RULE_SET_ID:function-signature",
         visitorModifiers = setOf(
             // Run after wrapping and spacing rules
             VisitorModifier.RunAsLateAsPossible,
@@ -54,11 +55,11 @@ public class FunctionSignatureRule :
     UsesEditorConfigProperties {
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> =
         listOf(
-            indentSizeProperty,
-            indentStyleProperty,
-            maxLineLengthProperty,
-            forceMultilineWhenParameterCountGreaterOrEqualThanProperty,
-            functionBodyExpressionWrappingProperty,
+            INDENT_SIZE_PROPERTY,
+            INDENT_STYLE_PROPERTY,
+            MAX_LINE_LENGTH_PROPERTY,
+            FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY,
+            FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY,
         )
 
     private var indent: String? = null
@@ -68,14 +69,14 @@ public class FunctionSignatureRule :
 
     override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
         with(editorConfigProperties) {
-            functionSignatureWrappingMinimumParameters = getEditorConfigValue(forceMultilineWhenParameterCountGreaterOrEqualThanProperty)
-            functionBodyExpressionWrapping = getEditorConfigValue(functionBodyExpressionWrappingProperty)
+            functionSignatureWrappingMinimumParameters = getEditorConfigValue(FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY)
+            functionBodyExpressionWrapping = getEditorConfigValue(FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY)
             val indentConfig = IndentConfig(
-                indentStyle = getEditorConfigValue(indentStyleProperty),
-                tabWidth = getEditorConfigValue(indentSizeProperty),
+                indentStyle = getEditorConfigValue(INDENT_STYLE_PROPERTY),
+                tabWidth = getEditorConfigValue(INDENT_SIZE_PROPERTY),
             )
             indent = indentConfig.indent
-            maxLineLength = getEditorConfigValue(maxLineLengthProperty)
+            maxLineLength = getEditorConfigValue(MAX_LINE_LENGTH_PROPERTY)
         }
     }
 
@@ -132,7 +133,10 @@ public class FunctionSignatureRule :
                 var currentNode: ASTNode
                 while (iterator.hasNext()) {
                     currentNode = iterator.next()
-                    if (currentNode.elementType != ANNOTATION_ENTRY && currentNode.elementType != WHITE_SPACE) {
+                    if (currentNode.elementType != ANNOTATION &&
+                        currentNode.elementType != ANNOTATION_ENTRY &&
+                        currentNode.elementType != WHITE_SPACE
+                    ) {
                         return currentNode
                     }
                 }
@@ -324,13 +328,7 @@ public class FunctionSignatureRule :
                             )
                         }
                         if (autoCorrect && !dryRun) {
-                            if (whiteSpaceBeforeIdentifier == null) {
-                                (valueParameterList.firstChildNode as LeafElement).upsertWhitespaceAfterMe(expectedParameterIndent)
-                            } else {
-                                (whiteSpaceBeforeIdentifier as LeafElement).rawReplaceWithText(
-                                    expectedParameterIndent,
-                                )
-                            }
+                            valueParameterList.firstChildNode.upsertWhitespaceAfterMe(expectedParameterIndent)
                         } else {
                             whiteSpaceCorrection += expectedParameterIndent.length - (whiteSpaceBeforeIdentifier?.textLength ?: 0)
                         }
@@ -394,13 +392,7 @@ public class FunctionSignatureRule :
                                     )
                                 }
                                 if (autoCorrect && !dryRun) {
-                                    if (whiteSpaceBeforeIdentifier == null) {
-                                        (firstChildNodeInValueParameter as LeafElement).upsertWhitespaceBeforeMe(expectedParameterIndent)
-                                    } else {
-                                        (whiteSpaceBeforeIdentifier as LeafElement).rawReplaceWithText(
-                                            expectedParameterIndent,
-                                        )
-                                    }
+                                    firstChildNodeInValueParameter.upsertWhitespaceBeforeMe(expectedParameterIndent)
                                 } else {
                                     whiteSpaceCorrection += expectedParameterIndent.length - (whiteSpaceBeforeIdentifier?.textLength ?: 0)
                                 }
@@ -415,11 +407,7 @@ public class FunctionSignatureRule :
                                     )
                                 }
                                 if (autoCorrect && !dryRun) {
-                                    if (whiteSpaceBeforeIdentifier == null) {
-                                        (firstChildNodeInValueParameter as LeafElement).upsertWhitespaceBeforeMe(" ")
-                                    } else {
-                                        (whiteSpaceBeforeIdentifier as LeafElement).rawReplaceWithText(" ")
-                                    }
+                                    firstChildNodeInValueParameter.upsertWhitespaceBeforeMe(" ")
                                 } else {
                                     whiteSpaceCorrection += 1 - (whiteSpaceBeforeIdentifier?.textLength ?: 0)
                                 }
@@ -460,7 +448,7 @@ public class FunctionSignatureRule :
                             )
                         }
                         if (autoCorrect && !dryRun) {
-                            (closingParenthesis as LeafElement).upsertWhitespaceBeforeMe(newlineAndIndent)
+                            closingParenthesis!!.upsertWhitespaceBeforeMe(newlineAndIndent)
                         } else {
                             whiteSpaceCorrection += newlineAndIndent.length - (whiteSpaceBeforeClosingParenthesis?.textLength ?: 0)
                         }
@@ -553,11 +541,9 @@ public class FunctionSignatureRule :
                                 true,
                             )
                             if (autoCorrect) {
-                                if (whiteSpaceBeforeFunctionBodyExpression != null) {
-                                    (whiteSpaceBeforeFunctionBodyExpression as LeafPsiElement).rawReplaceWithText(" ")
-                                } else {
-                                    (functionBodyExpressionNodes.first() as LeafPsiElement).upsertWhitespaceBeforeMe(" ")
-                                }
+                                functionBodyExpressionNodes
+                                    .first()
+                                    .upsertWhitespaceBeforeMe(" ")
                             }
                         }
                     } else if (firstLineOfBodyExpression.length + 1 > maxLengthRemainingForFirstLineOfBodyExpression ||
@@ -570,12 +556,9 @@ public class FunctionSignatureRule :
                             true,
                         )
                         if (autoCorrect) {
-                            val newLineAndIndent = "\n" + node.lineIndent() + indent
-                            if (whiteSpaceBeforeFunctionBodyExpression != null) {
-                                (whiteSpaceBeforeFunctionBodyExpression as LeafPsiElement).rawReplaceWithText(newLineAndIndent)
-                            } else {
-                                (functionBodyExpressionNodes.first() as LeafPsiElement).upsertWhitespaceBeforeMe(newLineAndIndent)
-                            }
+                            functionBodyExpressionNodes
+                                .first()
+                                .upsertWhitespaceBeforeMe("\n" + node.lineIndent() + indent)
                         }
                     }
                 }
@@ -614,15 +597,13 @@ public class FunctionSignatureRule :
             .split("\n")
             .firstOrNull()
             ?.also {
-                if (whiteSpaceBeforeFunctionBodyExpression == null) {
+                if (whiteSpaceBeforeFunctionBodyExpression?.text != " ") {
                     emit(functionBodyBlock.first().startOffset, "Expected a single space before body block", true)
                     if (autoCorrect) {
-                        (functionBodyBlock.first().prevLeaf(true) as LeafPsiElement).upsertWhitespaceAfterMe(" ")
-                    }
-                } else if (whiteSpaceBeforeFunctionBodyExpression.text != " ") {
-                    emit(whiteSpaceBeforeFunctionBodyExpression.startOffset, "Expected a single space", true)
-                    if (autoCorrect) {
-                        (whiteSpaceBeforeFunctionBodyExpression as LeafPsiElement).rawReplaceWithText(" ")
+                        functionBodyBlock
+                            .first()
+                            .prevLeaf(true)
+                            ?.upsertWhitespaceAfterMe(" ")
                     }
                 }
             }
@@ -706,7 +687,7 @@ public class FunctionSignatureRule :
             ?.prevCodeLeaf()
 
     public companion object {
-        public val forceMultilineWhenParameterCountGreaterOrEqualThanProperty: UsesEditorConfigProperties.EditorConfigProperty<Int> =
+        public val FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY: UsesEditorConfigProperties.EditorConfigProperty<Int> =
             UsesEditorConfigProperties.EditorConfigProperty(
                 type = PropertyType.LowerCasingPropertyType(
                     "ktlint_function_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than",
@@ -719,7 +700,15 @@ public class FunctionSignatureRule :
                 defaultValue = -1,
             )
 
-        public val functionBodyExpressionWrappingProperty: UsesEditorConfigProperties.EditorConfigProperty<FunctionBodyExpressionWrapping> =
+        @Deprecated(
+            message = "Marked for removal in KtLint 0.49",
+            replaceWith = ReplaceWith("FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY"),
+        )
+        @Suppress("ktlint:experimental:property-naming")
+        public val forceMultilineWhenParameterCountGreaterOrEqualThanProperty: UsesEditorConfigProperties.EditorConfigProperty<Int> =
+            FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY
+
+        public val FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY: UsesEditorConfigProperties.EditorConfigProperty<FunctionBodyExpressionWrapping> =
             UsesEditorConfigProperties.EditorConfigProperty(
                 type = PropertyType.LowerCasingPropertyType(
                     "ktlint_function_signature_body_expression_wrapping",
@@ -732,6 +721,14 @@ public class FunctionSignatureRule :
                 ),
                 defaultValue = default,
             )
+
+        @Deprecated(
+            message = "Marked for removal in KtLint 0.49",
+            replaceWith = ReplaceWith("FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY"),
+        )
+        @Suppress("ktlint:experimental:property-naming")
+        public val functionBodyExpressionWrappingProperty: UsesEditorConfigProperties.EditorConfigProperty<FunctionBodyExpressionWrapping> =
+            FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY
 
         private val INDENT_WITH_CLOSING_PARENTHESIS = Regex("\\s*\\) =")
     }

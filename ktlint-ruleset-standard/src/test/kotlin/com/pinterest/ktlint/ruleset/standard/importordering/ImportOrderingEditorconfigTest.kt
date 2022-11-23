@@ -12,7 +12,7 @@ class ImportOrderingEditorconfigTest {
         val properties: EditorConfigProperties = emptyMap()
         val rule = ImportOrderingRule()
         with(rule) {
-            val raw = properties.writeEditorConfigProperty(ImportOrderingRule.ideaImportsLayoutProperty, official)
+            val raw = properties.writeEditorConfigProperty(ImportOrderingRule.IJ_KOTLIN_IMPORTS_LAYOUT_PROPERTY, official)
             assertThat(raw).isEqualTo("*,java.**,javax.**,kotlin.**,^")
         }
     }

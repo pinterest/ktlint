@@ -13,7 +13,6 @@ import com.pinterest.ktlint.core.ast.ElementType.LBRACE
 import com.pinterest.ktlint.core.ast.ElementType.RBRACE
 import com.pinterest.ktlint.core.ast.ElementType.RPAR
 import com.pinterest.ktlint.core.ast.ElementType.THEN
-import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.core.ast.isPartOfComment
 import com.pinterest.ktlint.core.ast.isWhiteSpace
 import com.pinterest.ktlint.core.ast.isWhiteSpaceWithoutNewline
@@ -34,15 +33,15 @@ public class MultiLineIfElseRule :
     UsesEditorConfigProperties {
     override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> =
         listOf(
-            DefaultEditorConfigProperties.indentSizeProperty,
-            DefaultEditorConfigProperties.indentStyleProperty,
+            DefaultEditorConfigProperties.INDENT_SIZE_PROPERTY,
+            DefaultEditorConfigProperties.INDENT_STYLE_PROPERTY,
         )
     private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
 
     override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
         indentConfig = IndentConfig(
-            indentStyle = editorConfigProperties.getEditorConfigValue(DefaultEditorConfigProperties.indentStyleProperty),
-            tabWidth = editorConfigProperties.getEditorConfigValue(DefaultEditorConfigProperties.indentSizeProperty),
+            indentStyle = editorConfigProperties.getEditorConfigValue(DefaultEditorConfigProperties.INDENT_STYLE_PROPERTY),
+            tabWidth = editorConfigProperties.getEditorConfigValue(DefaultEditorConfigProperties.INDENT_SIZE_PROPERTY),
         )
     }
 
@@ -115,14 +114,7 @@ public class MultiLineIfElseRule :
         if (node.elementType == THEN) {
             node
                 .nextSibling { !it.isPartOfComment() }
-                ?.let { nextSibling ->
-                    if (nextSibling.elementType == ELSE_KEYWORD) {
-                        (nextSibling as LeafPsiElement).upsertWhitespaceBeforeMe(" ")
-                    }
-                    if (nextSibling.elementType == WHITE_SPACE && nextSibling.text != " ") {
-                        (nextSibling as LeafPsiElement).rawReplaceWithText(" ")
-                    }
-                }
+                ?.upsertWhitespaceBeforeMe(" ")
         }
     }
 }

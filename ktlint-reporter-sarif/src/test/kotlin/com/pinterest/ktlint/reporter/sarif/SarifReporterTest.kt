@@ -5,11 +5,9 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.PrintStream
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
 class SarifReporterTest {
-    @Disabled("https://github.com/pinterest/ktlint/issues/1191")
     @Test
     fun testReportGeneration() {
         val workingDirectory = System.getProperty("user.home").sanitize()

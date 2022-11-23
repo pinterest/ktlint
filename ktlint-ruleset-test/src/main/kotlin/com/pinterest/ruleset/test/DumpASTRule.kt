@@ -4,7 +4,6 @@ import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType
 import com.pinterest.ktlint.core.ast.isRoot
 import com.pinterest.ktlint.core.ast.lastChildLeafOrSelf
-import com.pinterest.ktlint.core.ast.lineNumber
 import com.pinterest.ruleset.test.internal.Color
 import com.pinterest.ruleset.test.internal.color
 import java.io.PrintStream
@@ -19,7 +18,7 @@ public class DumpASTRule @JvmOverloads constructor(
 ) : Rule("dump") {
 
     private companion object {
-        val elementTypeSet = ElementType::class.members.map { it.name }.toSet()
+        val ELEMENT_TYPE_SET = ElementType::class.members.map { it.name }.toSet()
     }
 
     private var lineNumberColumnLength: Int = 0
@@ -77,7 +76,13 @@ public class DumpASTRule @JvmOverloads constructor(
 
     private fun ASTNode.lineNumberOrUnknown(): String {
         val lineNumber = try {
-            lineNumber().toString()
+            psi
+                .containingFile
+                ?.viewProvider
+                ?.document
+                ?.getLineNumber(this.startOffset)
+                ?.let { it + 1 }
+                ?.toString()
         } catch (e: IndexOutOfBoundsException) {
             // Due to autocorrect mutations in the AST it can happen that the node's offset becomes invalid. As a result
             // the line number can not be determined.
@@ -95,7 +100,7 @@ public class DumpASTRule @JvmOverloads constructor(
         if (KtTokens.KEYWORDS.contains(elementType) || KtTokens.SOFT_KEYWORDS.contains(elementType)) {
             name = "${name}_KEYWORD"
         }
-        return if (elementTypeSet.contains(name)) name else elementType.className + "." + elementType
+        return if (ELEMENT_TYPE_SET.contains(name)) name else elementType.className + "." + elementType
     }
 
     private fun colorClassName(className: String): String {

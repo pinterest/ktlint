@@ -10,7 +10,7 @@ import com.pinterest.ruleset.test.DumpASTRule
 import mu.KotlinLogging
 import org.jetbrains.kotlin.utils.addToStdlib.ifTrue
 
-private val logger =
+private val LOGGER =
     KotlinLogging
         .logger {}
         .setDefaultLoggerModifier { logger ->
@@ -45,7 +45,7 @@ private fun Set<RuleProvider>.toRuleProviders(): Set<RuleProvider> {
         .orEmpty()
         .equals(KTLINT_UNIT_TEST_ON_PROPERTY, ignoreCase = true)
         .ifTrue {
-            logger.info { "Dump AST of code before processing as System environment variable $KTLINT_UNIT_TEST_DUMP_AST is set to 'on'" }
+            LOGGER.info { "Dump AST of code before processing as System environment variable $KTLINT_UNIT_TEST_DUMP_AST is set to 'on'" }
             RuleProvider {
                 DumpASTRule(
                     // Write to STDOUT. The focus in a failed unit test should first go to the error in the rule that is
@@ -60,11 +60,11 @@ private fun Set<RuleProvider>.toRuleProviders(): Set<RuleProvider> {
 public fun Set<RuleProvider>.lint(
     lintedFilePath: String? = null,
     text: String,
-    editorConfigOverride: EditorConfigOverride = EditorConfigOverride.emptyEditorConfigOverride,
+    editorConfigOverride: EditorConfigOverride = EditorConfigOverride.EMPTY_EDITOR_CONFIG_OVERRIDE,
     userData: Map<String, String> = emptyMap(),
     script: Boolean = false,
 ): List<LintError> {
-    val res = ArrayList<LintError>()
+    val lintErrors = ArrayList<LintError>()
     val experimentalParams = KtLint.ExperimentalParams(
         fileName = lintedFilePath,
         text = text,
@@ -72,23 +72,22 @@ public fun Set<RuleProvider>.lint(
         editorConfigOverride = editorConfigOverride,
         userData = userData,
         script = script,
-        cb = { e, _ -> res.add(e) },
+        cb = { lintError, _ -> lintErrors.add(lintError) },
         debug = true,
     )
-    KtLint.lint(
-        experimentalParams,
-    )
-    return res
+    KtLint.lint(experimentalParams)
+    return lintErrors
 }
 
 public fun Set<RuleProvider>.format(
     lintedFilePath: String?,
     text: String,
-    editorConfigOverride: EditorConfigOverride = EditorConfigOverride.emptyEditorConfigOverride,
+    editorConfigOverride: EditorConfigOverride = EditorConfigOverride.EMPTY_EDITOR_CONFIG_OVERRIDE,
     userData: Map<String, String> = emptyMap(),
     cb: (e: LintError, corrected: Boolean) -> Unit = { _, _ -> },
     script: Boolean = false,
-): String {
+): Pair<String, List<LintError>> {
+    val lintErrors = ArrayList<LintError>()
     val experimentalParams = KtLint.ExperimentalParams(
         fileName = lintedFilePath,
         text = text,
@@ -96,8 +95,9 @@ public fun Set<RuleProvider>.format(
         editorConfigOverride = editorConfigOverride,
         userData = userData,
         script = script,
-        cb = cb,
+        cb = { lintError, _ -> lintErrors.add(lintError) },
         debug = true,
     )
-    return KtLint.format(experimentalParams)
+    val formattedCode = KtLint.format(experimentalParams)
+    return Pair(formattedCode, lintErrors)
 }

@@ -1,7 +1,7 @@
 package com.pinterest.ktlint.ruleset.experimental
 
-import com.pinterest.ktlint.ruleset.experimental.FunctionSignatureRule.Companion.forceMultilineWhenParameterCountGreaterOrEqualThanProperty
-import com.pinterest.ktlint.ruleset.experimental.FunctionSignatureRule.Companion.functionBodyExpressionWrappingProperty
+import com.pinterest.ktlint.ruleset.experimental.FunctionSignatureRule.Companion.FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY
+import com.pinterest.ktlint.ruleset.experimental.FunctionSignatureRule.Companion.FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY
 import com.pinterest.ktlint.ruleset.standard.IndentationRule
 import com.pinterest.ktlint.ruleset.standard.NoMultipleSpacesRule
 import com.pinterest.ktlint.ruleset.standard.SpacingAroundAngleBracketsRule
@@ -10,6 +10,7 @@ import com.pinterest.ktlint.ruleset.standard.SpacingAroundCommaRule
 import com.pinterest.ktlint.ruleset.standard.SpacingAroundDotRule
 import com.pinterest.ktlint.ruleset.standard.SpacingAroundOperatorsRule
 import com.pinterest.ktlint.ruleset.standard.SpacingAroundParensRule
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
@@ -442,7 +443,7 @@ class FunctionSignatureRuleTest {
                 """.trimIndent()
             functionSignatureWrappingRuleAssertThat(code)
                 .setMaxLineLength()
-                .withEditorConfigOverride(forceMultilineWhenParameterCountGreaterOrEqualThanProperty to 2)
+                .withEditorConfigOverride(FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to 2)
                 .hasLintViolations(
                     LintViolation(2, 7, "Newline expected after opening parenthesis"),
                     LintViolation(2, 15, "Parameter should start on a newline"),
@@ -470,7 +471,7 @@ class FunctionSignatureRuleTest {
                 }
                 """.trimIndent()
             functionSignatureWrappingRuleAssertThat(code)
-                .withEditorConfigOverride(forceMultilineWhenParameterCountGreaterOrEqualThanProperty to 2)
+                .withEditorConfigOverride(FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to 2)
                 .hasLintViolations(
                     LintViolation(1, 7, "Newline expected after opening parenthesis"),
                     LintViolation(1, 15, "Parameter should start on a newline"),
@@ -688,7 +689,7 @@ class FunctionSignatureRuleTest {
                 """.trimIndent()
             functionSignatureWrappingRuleAssertThat(code)
                 .setMaxLineLength()
-                .withEditorConfigOverride(functionBodyExpressionWrappingProperty to bodyExpressionWrapping)
+                .withEditorConfigOverride(FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY to bodyExpressionWrapping)
                 .hasNoLintViolations()
         }
 
@@ -713,7 +714,7 @@ class FunctionSignatureRuleTest {
                 """.trimIndent()
             functionSignatureWrappingRuleAssertThat(code)
                 .setMaxLineLength()
-                .withEditorConfigOverride(functionBodyExpressionWrappingProperty to bodyExpressionWrapping)
+                .withEditorConfigOverride(FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY to bodyExpressionWrapping)
                 .addAdditionalRuleProvider { IndentationRule() }
                 .hasLintViolation(2, 33, "Newline expected before expression body")
                 .isFormattedAs(formattedCode)
@@ -742,7 +743,7 @@ class FunctionSignatureRuleTest {
                 """.trimIndent()
             functionSignatureWrappingRuleAssertThat(code)
                 .setMaxLineLength()
-                .withEditorConfigOverride(functionBodyExpressionWrappingProperty to bodyExpressionWrapping)
+                .withEditorConfigOverride(FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY to bodyExpressionWrapping)
                 .addAdditionalRuleProvider { IndentationRule() }
                 .hasLintViolation(2, 33, "Newline expected before expression body")
                 .isFormattedAs(formattedCode)
@@ -776,7 +777,7 @@ class FunctionSignatureRuleTest {
                 """.trimIndent()
             functionSignatureWrappingRuleAssertThat(code)
                 .setMaxLineLength()
-                .withEditorConfigOverride(functionBodyExpressionWrappingProperty to bodyExpressionWrapping)
+                .withEditorConfigOverride(FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY to bodyExpressionWrapping)
                 .addAdditionalRuleProvider { IndentationRule() }
                 .hasLintViolations(
                     LintViolation(3, 5, "No whitespace expected between opening parenthesis and first parameter name"),
@@ -810,7 +811,7 @@ class FunctionSignatureRuleTest {
                 """.trimIndent()
             functionSignatureWrappingRuleAssertThat(code)
                 .setMaxLineLength()
-                .withEditorConfigOverride(functionBodyExpressionWrappingProperty to bodyExpressionWrapping)
+                .withEditorConfigOverride(FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY to bodyExpressionWrapping)
                 .addAdditionalRuleProvider { IndentationRule() }
                 .hasLintViolations(
                     LintViolation(3, 5, "No whitespace expected between opening parenthesis and first parameter name"),
@@ -847,7 +848,7 @@ class FunctionSignatureRuleTest {
                 """.trimIndent()
             functionSignatureWrappingRuleAssertThat(code)
                 .setMaxLineLength()
-                .withEditorConfigOverride(functionBodyExpressionWrappingProperty to bodyExpressionWrapping)
+                .withEditorConfigOverride(FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY to bodyExpressionWrapping)
                 .addAdditionalRuleProvider { IndentationRule() }
                 .hasLintViolations(
                     LintViolation(3, 5, "No whitespace expected between opening parenthesis and first parameter name"),
@@ -882,7 +883,7 @@ class FunctionSignatureRuleTest {
                 """.trimIndent()
             functionSignatureWrappingRuleAssertThat(code)
                 .setMaxLineLength()
-                .withEditorConfigOverride(functionBodyExpressionWrappingProperty to bodyExpressionWrapping)
+                .withEditorConfigOverride(FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY to bodyExpressionWrapping)
                 .addAdditionalRuleProvider { IndentationRule() }
                 .hasLintViolations(
                     LintViolation(3, 5, "No whitespace expected between opening parenthesis and first parameter name"),
@@ -919,7 +920,7 @@ class FunctionSignatureRuleTest {
                 """.trimIndent()
             functionSignatureWrappingRuleAssertThat(code)
                 .setMaxLineLength()
-                .withEditorConfigOverride(functionBodyExpressionWrappingProperty to bodyExpressionWrapping)
+                .withEditorConfigOverride(FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY to bodyExpressionWrapping)
                 .addAdditionalRuleProvider { IndentationRule() }
                 .hasLintViolations(
                     LintViolation(3, 5, "No whitespace expected between opening parenthesis and first parameter name"),
@@ -957,7 +958,7 @@ class FunctionSignatureRuleTest {
             """.trimIndent()
         functionSignatureWrappingRuleAssertThat(code)
             .setMaxLineLength()
-            .withEditorConfigOverride(functionBodyExpressionWrappingProperty to bodyExpressionWrapping)
+            .withEditorConfigOverride(FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY to bodyExpressionWrapping)
             .addAdditionalRuleProvider { IndentationRule() }
             .hasLintViolation(5, 4, "First line of body expression fits on same line as function signature")
             .isFormattedAs(formattedCode)
@@ -981,7 +982,7 @@ class FunctionSignatureRuleTest {
             """.trimIndent()
         functionSignatureWrappingRuleAssertThat(code)
             .setMaxLineLength()
-            .withEditorConfigOverride(functionBodyExpressionWrappingProperty to bodyExpressionWrapping)
+            .withEditorConfigOverride(FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY to bodyExpressionWrapping)
             .addAdditionalRuleProvider { IndentationRule() }
             .hasNoLintViolations()
     }
@@ -1045,8 +1046,37 @@ class FunctionSignatureRuleTest {
             .hasNoLintViolations()
     }
 
+    @Test
+    fun `Issue 1690 - Given a function preceded by an annotation array`() {
+        val code =
+            """
+            // $MAX_LINE_LENGTH_MARKER                   $EOL_CHAR
+            internal fun foo1(foo1: Foo, foo2: Foo): Foo =
+                "foooooooooooooooooooooooooooooooooooooo"
+
+            @Bar
+            internal fun foo2(foo1: Foo, foo2: Foo): Foo =
+                "foooooooooooooooooooooooooooooooooooooo"
+
+            @[Bar]
+            internal fun foo2(foo1: Foo, foo2: Foo): Foo =
+                "foooooooooooooooooooooooooooooooooooooo"
+
+            @[Bar1 Bar2 Bar3 Bar4 Bar5 Bar6 Bar7 Bar8 Bar9]
+            internal fun foo2(foo1: Foo, foo2: Foo): Foo =
+                "foooooooooooooooooooooooooooooooooooooo"
+
+            @[Bar1 // some comment
+            Bar2]
+            internal fun foo2(foo1: Foo, foo2: Foo): Foo =
+                "foooooooooooooooooooooooooooooooooooooo"
+            """.trimIndent()
+        functionSignatureWrappingRuleAssertThat(code)
+            .setMaxLineLength()
+            .hasNoLintViolations()
+    }
+
     private companion object {
-        const val EOL_CHAR = '#'
         const val UNEXPECTED_SPACES = "  "
         const val NO_SPACE = ""
     }

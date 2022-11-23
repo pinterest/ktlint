@@ -5,7 +5,7 @@ import com.pinterest.ktlint.core.RuleRunner
 import com.pinterest.ktlint.core.initKtLintKLogger
 import mu.KotlinLogging
 
-private val logger = KotlinLogging.logger {}.initKtLintKLogger()
+private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
 /**
  * Sorts the [RuleRunner]s based on [Rule.VisitorModifier]s.
@@ -37,7 +37,7 @@ internal class RuleRunnerSorter {
                         .joinToString(prefix = "Rules will be executed in order below (unless disabled):") {
                             "\n           - $it"
                         }
-                        .let { logger.debug(it) }
+                        .let { LOGGER.debug(it) }
                 }
             }
     }
@@ -62,12 +62,6 @@ internal class RuleRunnerSorter {
                 1
             } else {
                 0
-            }
-        }.thenBy {
-            if (it.runOnRootNodeOnly) {
-                0
-            } else {
-                1
             }
         }.thenBy {
             when (it.ruleSetId) {
@@ -96,14 +90,14 @@ internal class RuleRunnerSorter {
                 if (this.none { it.runsAfter(currentRuleRunner) }) {
                     // The RunAfterRule refers to a rule which is not loaded at all.
                     if (runAfterRule.loadOnlyWhenOtherRuleIsLoaded) {
-                        logger.warn {
+                        LOGGER.warn {
                             "Skipping rule with id '${currentRuleRunner.qualifiedRuleId}' as it requires " +
                                 "that the rule with id '${runAfterRule.ruleId}' is loaded. However, " +
                                 "no rule with this id is loaded."
                         }
                         continue
                     } else {
-                        logger.debug {
+                        LOGGER.debug {
                             "Rule with id '${currentRuleRunner.qualifiedRuleId}' should run after the " +
                                 "rule with id '${runAfterRule.ruleId}'. However, the latter " +
                                 "rule is not loaded and is allowed to be ignored. For best results, it is " +

@@ -1,15 +1,15 @@
 package com.pinterest.ktlint.core.internal
 
 import com.pinterest.ktlint.core.KtLint
-import com.pinterest.ktlint.core.ParseException
 import com.pinterest.ktlint.core.api.EditorConfigProperties
+import com.pinterest.ktlint.core.api.KtLintParseException
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.PsiErrorElement
 import org.jetbrains.kotlin.idea.KotlinLanguage
 import org.jetbrains.kotlin.psi.KtFile
 
-private val kotlinPsiFileFactoryProvider = KotlinPsiFileFactoryProvider()
+private val KOTLIN_PSI_FILE_FACTORY_PROVIDER = KotlinPsiFileFactoryProvider()
 
 internal class RuleExecutionContext(
     val rootNode: FileASTNode,
@@ -29,14 +29,14 @@ internal class RuleExecutionContext(
 }
 
 internal fun createRuleExecutionContext(params: KtLint.ExperimentalParams): RuleExecutionContext {
-    val psiFileFactory = kotlinPsiFileFactoryProvider.getKotlinPsiFileFactory(params.isInvokedFromCli)
+    val psiFileFactory = KOTLIN_PSI_FILE_FACTORY_PROVIDER.getKotlinPsiFileFactory(params.isInvokedFromCli)
     val normalizedText = normalizeText(params.text)
     val positionInTextLocator = buildPositionInTextLocator(normalizedText)
 
-    val psiFileName = if (params.script) {
-        "file.kts"
-    } else {
-        "file.kt"
+    val psiFileName = when {
+        params.fileName != null -> params.fileName
+        params.script -> "file.kts"
+        else -> "file.kt"
     }
     val psiFile = psiFileFactory.createFileFromText(
         psiFileName,
@@ -44,15 +44,16 @@ internal fun createRuleExecutionContext(params: KtLint.ExperimentalParams): Rule
         normalizedText,
     ) as KtFile
 
-    val errorElement = psiFile.findErrorElement()
-    if (errorElement != null) {
-        val (line, col) = positionInTextLocator(errorElement.textOffset)
-        throw ParseException(line, col, errorElement.errorDescription)
-    }
+    psiFile
+        .findErrorElement()
+        ?.let { errorElement ->
+            val (line, col) = positionInTextLocator(errorElement.textOffset)
+            throw KtLintParseException(line, col, errorElement.errorDescription)
+        }
 
     val rootNode = psiFile.node
 
-    val editorConfigProperties = KtLint.editorConfigLoader.load(
+    val editorConfigProperties = KtLint.EDITOR_CONFIG_LOADER.load(
         filePath = params.normalizedFilePath,
         rules = params.getRules(),
         editorConfigDefaults = params.editorConfigDefaults,
@@ -62,10 +63,6 @@ internal fun createRuleExecutionContext(params: KtLint.ExperimentalParams): Rule
     if (!params.isStdIn) {
         rootNode.putUserData(KtLint.FILE_PATH_USER_DATA_KEY, params.normalizedFilePath.toString())
     }
-
-    // Keep for backwards compatibility in Ktlint 0.47.0 until ASTNode.getEditorConfigValue in UsesEditorConfigProperties
-    // is removed
-    rootNode.putUserData(KtLint.EDITOR_CONFIG_PROPERTIES_USER_DATA_KEY, editorConfigProperties)
 
     return RuleExecutionContext(
         rootNode,
