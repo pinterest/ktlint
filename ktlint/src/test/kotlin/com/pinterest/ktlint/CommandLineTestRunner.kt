@@ -58,15 +58,24 @@ class CommandLineTestRunner(private val tempDir: Path) {
 
             executionAssertions(ExecutionResult(process.exitValue(), output, error, projectPath))
 
-            // Destroy process only after output is collected as other the streams are not completed.
+            // Destroy process only after output is collected as otherwise the streams are not completed.
             process.destroy()
         } else {
+            val output = process.inputStream.bufferedReader().use { it.readLines() }
+            val error = process.errorStream.bufferedReader().use { it.readLines() }
+
             // Destroy before failing the test as the process otherwise keeps running
             process.destroyForcibly()
 
             val maxDurationInSeconds = (WAIT_INTERVAL_DURATION * WAIT_INTERVAL_MAX_OCCURRENCES).div(1000.0)
             fail {
                 "CLI test has been aborted as it could not be completed in $maxDurationInSeconds seconds"
+                    .followedByIndentedList(
+                        listOf(
+                            "RESULTS OF STDOUT:".followedByIndentedList(output, 2),
+                            "RESULTS OF STDERR:".followedByIndentedList(error, 2),
+                        ),
+                    )
             }
         }
     }
