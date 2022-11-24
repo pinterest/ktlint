@@ -58,6 +58,7 @@ public class FilenameRule : Rule("filename") {
 
             val fileName =
                 filePath
+                    .replace('\\', '/') // Ensure compatibility with Windows OS
                     .substringAfterLast("/")
                     .substringBefore(".")
 
@@ -67,7 +68,7 @@ public class FilenameRule : Rule("filename") {
                 if (node.hasTopLevelDeclarationNotExtending(topLevelClassDeclaration.identifier)) {
                     fileName.shouldMatchPascalCase(emit)
                 } else {
-                    // If the file only contains one (non private) top level class and possibly some extension functions of
+                    // If the file only contains one (non-private) top level class and possibly some extension functions of
                     // that class, then its filename should be identical to the class name.
                     fileName.shouldMatchClassName(topLevelClassDeclaration.identifier, emit)
                 }
