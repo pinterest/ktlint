@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.core.ast
 
-import com.pinterest.ktlint.core.KtLint
+import com.pinterest.ktlint.core.Code
+import com.pinterest.ktlint.core.KtLintRuleEngine
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.RuleProvider
 import com.pinterest.ktlint.core.ast.ElementType.CLASS
@@ -12,7 +13,7 @@ import com.pinterest.ktlint.core.ast.ElementType.RPAR
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER
 import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
-import com.pinterest.ktlint.core.internal.createRuleExecutionContext
+import com.pinterest.ktlint.core.internal.RuleExecutionContext.Companion.createRuleExecutionContext
 import org.assertj.core.api.Assertions.assertThat
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
@@ -613,14 +614,12 @@ class PackageKtTest {
 
     private fun transformCodeToAST(code: String) =
         createRuleExecutionContext(
-            KtLint.ExperimentalParams(
-                text =
-                code,
+            ktLintRuleEngine = KtLintRuleEngine(
                 ruleProviders = setOf(
                     RuleProvider { DummyRule() },
                 ),
-                cb = { _, _ -> },
             ),
+            code = Code(code),
         ).rootNode
 
     private fun FileASTNode.toEnumClassBodySequence() =

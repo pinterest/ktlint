@@ -2,7 +2,6 @@ package com.pinterest.ktlint.core.internal
 
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.RuleProvider
-import com.pinterest.ktlint.core.RuleRunner
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatIllegalStateException
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -20,7 +19,6 @@ class RuleRunnerSorterTest {
                         NormalRule(RULE_B),
                         NormalRule(RULE_A),
                     ),
-                    debug = true,
                 )
                 .map { it.ruleId }
 
@@ -45,7 +43,6 @@ class RuleRunnerSorterTest {
                         NormalRule("$CUSTOM_RULE_SET_B:$RULE_B"),
                         NormalRule("$CUSTOM_RULE_SET_B:$RULE_A"),
                     ),
-                    debug = true,
                 ).map { it.qualifiedRuleId }
 
         assertThat(actual).containsExactly(
@@ -71,7 +68,6 @@ class RuleRunnerSorterTest {
                         RunAsLateAsPossibleRule(RULE_A),
                         NormalRule(RULE_B),
                     ),
-                    debug = true,
                 )
                 .map { it.ruleId }
 
@@ -97,7 +93,6 @@ class RuleRunnerSorterTest {
                         RunAsLateAsPossibleRule("$CUSTOM_RULE_SET_B:$RULE_B"),
                         RunAsLateAsPossibleRule("$CUSTOM_RULE_SET_B:$RULE_A"),
                     ),
-                    debug = true,
                 ).map { it.qualifiedRuleId }
 
         assertThat(actual).containsExactly(
@@ -128,7 +123,6 @@ class RuleRunnerSorterTest {
                         RunAsLateAsPossibleRule("$CUSTOM_RULE_SET_B:$RULE_B"),
                         RunAsLateAsPossibleRule("$CUSTOM_RULE_SET_B:$RULE_A"),
                     ),
-                    debug = true,
                 ).map { it.qualifiedRuleId }
 
         assertThat(actual).containsExactly(
@@ -161,7 +155,6 @@ class RuleRunnerSorterTest {
                             visitorModifier = VisitorModifier.RunAfterRule(ruleId),
                         ) {},
                     ),
-                    debug = true,
                 )
         }.withMessage(
             "Rule with id '$ruleId' has a visitor modifier of type 'RunAfterRule' but it is not referring to another " +
@@ -190,7 +183,6 @@ class RuleRunnerSorterTest {
                             visitorModifier = VisitorModifier.RunAfterRule(RULE_B),
                         ) {},
                     ),
-                    debug = true,
                 ).map { it.qualifiedRuleId }
 
         assertThat(actual).containsExactly(
@@ -223,7 +215,6 @@ class RuleRunnerSorterTest {
                             visitorModifier = VisitorModifier.RunAfterRule(RULE_C),
                         ) {},
                     ),
-                    debug = true,
                 ).map { it.qualifiedRuleId }
 
         assertThat(actual).containsExactly(
@@ -248,7 +239,6 @@ class RuleRunnerSorterTest {
                             ),
                         ) {},
                     ),
-                    debug = true,
                 )
         }.withMessage("No runnable rules found. Please ensure that at least one is enabled.")
     }
@@ -267,7 +257,6 @@ class RuleRunnerSorterTest {
                             ),
                         ) {},
                     ),
-                    debug = true,
                 ).map { it.qualifiedRuleId }
 
         assertThat(actual).containsExactly(
@@ -294,7 +283,6 @@ class RuleRunnerSorterTest {
                             visitorModifier = VisitorModifier.RunAfterRule(RULE_A),
                         ) {},
                     ),
-                    debug = true,
                 )
         }.withMessage(
             """
@@ -325,7 +313,6 @@ class RuleRunnerSorterTest {
                             visitorModifier = VisitorModifier.RunAfterRule("$STANDARD:$RULE_C"),
                         ) {},
                     ),
-                    debug = true,
                 )
         }.withMessage(
             """

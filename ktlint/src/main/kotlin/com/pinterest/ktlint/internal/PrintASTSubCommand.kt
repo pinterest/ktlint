@@ -1,14 +1,13 @@
 package com.pinterest.ktlint.internal
 
-import com.pinterest.ktlint.core.KtLint
+import com.pinterest.ktlint.core.KtLintRuleEngine
 import com.pinterest.ktlint.core.RuleProvider
-import com.pinterest.ktlint.core.api.EditorConfigDefaults.Companion.EMPTY_EDITOR_CONFIG_DEFAULTS
-import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.EMPTY_EDITOR_CONFIG_OVERRIDE
 import com.pinterest.ktlint.core.api.KtLintParseException
 import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ruleset.test.DumpASTRule
 import java.io.File
 import java.nio.file.FileSystems
+import java.nio.file.Paths
 import java.util.Locale
 import mu.KotlinLogging
 import picocli.CommandLine
@@ -46,39 +45,36 @@ internal class PrintASTSubCommand : Runnable {
         commandSpec.commandLine().printCommandLineHelpOrVersionUsage()
 
         if (stdin) {
-            printAST(KtLint.STDIN_FILE, String(System.`in`.readBytes()))
+            printAST(fileContent = String(System.`in`.readBytes()))
         } else {
             FileSystems.getDefault()
                 .fileSequence(patterns)
                 .map { it.toFile() }
                 .forEach {
-                    printAST(it.path, it.readText())
+                    printAST(
+                        fileName = it.path,
+                        fileContent = it.readText(),
+                    )
                 }
         }
     }
 
     private fun printAST(
-        fileName: String,
         fileContent: String,
+        fileName: String? = null,
     ) {
-        LOGGER.debug {
-            "Analyzing " + if (fileName != KtLint.STDIN_FILE) {
-                File(fileName).location(ktlintCommand.relative)
-            } else {
-                "stdin"
-            }
+        if (fileName != null) {
+            LOGGER.debug { "Analyzing ${File(fileName).location(ktlintCommand.relative)}" }
         }
 
         try {
-            lintFile(
-                fileName = fileName,
-                fileContents = fileContent,
+            KtLintRuleEngine(
                 ruleProviders = setOf(
                     RuleProvider { DumpASTRule(System.out, ktlintCommand.color) },
                 ),
-                editorConfigDefaults = EMPTY_EDITOR_CONFIG_DEFAULTS,
-                editorConfigOverride = EMPTY_EDITOR_CONFIG_OVERRIDE,
-                debug = ktlintCommand.debug,
+            ).lint(
+                code = fileContent,
+                filePath = fileName?.let { Paths.get(it) },
             )
         } catch (e: Exception) {
             if (e is KtLintParseException) {

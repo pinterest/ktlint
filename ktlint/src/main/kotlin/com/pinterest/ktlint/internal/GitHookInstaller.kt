@@ -5,7 +5,6 @@ import java.io.File
 import java.io.IOException
 import java.math.BigInteger
 import java.security.MessageDigest
-import kotlin.system.exitProcess
 import mu.KotlinLogging
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
@@ -21,7 +20,7 @@ internal object GitHookInstaller {
             resolveGitHooksDir()
         } catch (e: IOException) {
             LOGGER.error { e.message }
-            exitProcess(1)
+            exitKtLintProcess(1)
         }
 
         val gitHookFile = gitHooksDir.resolve(gitHookName)

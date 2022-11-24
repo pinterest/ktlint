@@ -14,6 +14,40 @@ Usage of `.editorconfig` property `disabled_rules` results in a `DeprecatedEdito
 
 ### API Changes & RuleSet providers
 
+#### Invoking `lint` and `format`
+
+This is the last release that supports the `ExperimentalParams` to invoke the `lint` and `format` functions of KtLint. The `ExperimentalParams` contains a mix of configuration settings which are not dependent on the file/code which is to be processed. Other parameters in that class describe the code/file to be processed but can be configured inconsistently (for example a file with name "foo.kt" could be marked as a Kotlin Script file).
+
+The static object `KtLint` is deprecated and replaced by class `KtLintRuleEngine` which is configured with `KtLintRuleEngineConfiguration`. The instance of the `KtLintRuleEngine` is intended to be reused for scanning all files in a project and should not be recreated per file.
+
+Both `lint` and `format` are simplified and can now be called for a code block or for an entire file.
+
+```kotlin
+import java.io.File
+
+// Define a reusable instance of the KtLint Rule Engine
+val ktLintRuleEngine = KtLintRuleEngine(
+  // Define configuration
+)
+
+
+// Process a collection of files
+val files: Set<File> // Collect files in a convenient way
+files.forEach(file in files) {
+    ktLintRuleEngine.lint(file) {
+        // Handle lint violations
+    }
+}
+
+// or process a code sample for a given filepath
+ktLintRuleEngine.lint(
+  code = "code to be linted",
+  filePath = Path("/path/to/source/file")
+) {
+  // Handle lint violations
+}
+```
+
 #### Retrieve `.editorconfig`s
 
 The list of `.editorconfig` files which will be accessed by KtLint when linting or formatting a given path can now be retrieved with the new API `KtLint.editorConfigFilePaths(path: Path): List<Path>`. 

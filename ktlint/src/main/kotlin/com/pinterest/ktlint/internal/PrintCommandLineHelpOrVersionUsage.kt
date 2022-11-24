@@ -1,6 +1,5 @@
 package com.pinterest.ktlint.internal
 
-import kotlin.system.exitProcess
 import picocli.CommandLine
 
 /**
@@ -12,9 +11,9 @@ internal fun CommandLine.printCommandLineHelpOrVersionUsage(
 ) {
     if (isUsageHelpRequested) {
         usage(System.out, CommandLine.Help.Ansi.OFF)
-        exitProcess(exitCode)
+        exitKtLintProcess(exitCode)
     } else if (isVersionHelpRequested) {
         printVersionHelp(System.out, CommandLine.Help.Ansi.OFF)
-        exitProcess(exitCode)
+        exitKtLintProcess(exitCode)
     }
 }

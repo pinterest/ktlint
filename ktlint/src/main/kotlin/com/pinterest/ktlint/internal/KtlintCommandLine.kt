@@ -2,11 +2,10 @@ package com.pinterest.ktlint.internal
 
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
-import com.pinterest.ktlint.core.KtLint
+import com.pinterest.ktlint.core.KtLintRuleEngine
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.Reporter
 import com.pinterest.ktlint.core.ReporterProvider
-import com.pinterest.ktlint.core.RuleProvider
 import com.pinterest.ktlint.core.api.Baseline.Status.INVALID
 import com.pinterest.ktlint.core.api.Baseline.Status.NOT_FOUND
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.CODE_STYLE_PROPERTY
@@ -242,6 +241,23 @@ internal class KtlintCommandLine {
         get() = Level.DEBUG.isGreaterOrEqual(minLogLevel)
         private set
 
+    private val editorConfigDefaults: EditorConfigDefaults
+        get() = EditorConfigDefaults.load(
+            editorConfigPath
+                ?.expandTildeToFullPath()
+                ?.let { path -> Paths.get(path) },
+        )
+
+    private val editorConfigOverride: EditorConfigOverride
+        get() =
+            EditorConfigOverride
+                .EMPTY_EDITOR_CONFIG_OVERRIDE
+                .applyIf(disabledRules.isNotBlank()) {
+                    plus(KTLINT_DISABLED_RULES_PROPERTY to disabledRules)
+                }.applyIf(android) {
+                    plus(CODE_STYLE_PROPERTY to android)
+                }
+
     fun run() {
         if (debugOld != null || trace != null || verbose != null) {
             if (minLogLevel == Level.OFF) {
@@ -250,7 +266,7 @@ internal class KtlintCommandLine {
             configureLogger().error {
                 "Options '--debug', '--trace', '--verbose' and '-v' are deprecated and replaced with option '--log-level=<level>' or '-l=<level>'."
             }
-            exitProcess(1)
+            exitKtLintProcess(1)
         }
 
         logger = configureLogger()
@@ -271,60 +287,51 @@ internal class KtlintCommandLine {
 
         val ruleProviders = rulesetJarFiles.loadRuleProviders(experimental, debug, disabledRules)
         var reporter = loadReporter()
-        val baselineLintErrorsPerFile =
-            if (baselinePath == "") {
-                emptyMap()
-            } else {
-                loadBaseline(baselinePath)
-                    .also { baseline ->
-                        if (baseline.status == INVALID || baseline.status == NOT_FOUND) {
-                            val baselineReporter = ReporterTemplate("baseline", null, emptyMap(), baselinePath)
-                            val reporterProviderById = loadReporters(emptyList())
-                            reporter = Reporter.from(reporter, baselineReporter.toReporter(reporterProviderById))
-                        }
-                    }.lintErrorsPerFile
-            }
 
-        val editorConfigDefaults = EditorConfigDefaults.load(
-            editorConfigPath
-                ?.expandTildeToFullPath()
-                ?.let { path -> Paths.get(path) },
+        val ktLintRuleEngine = KtLintRuleEngine(
+            ruleProviders = ruleProviders,
+            editorConfigDefaults = editorConfigDefaults,
+            editorConfigOverride = editorConfigOverride,
+            isInvokedFromCli = true,
         )
-        val editorConfigOverride =
-            EditorConfigOverride
-                .EMPTY_EDITOR_CONFIG_OVERRIDE
-                .applyIf(disabledRules.isNotBlank()) {
-                    plus(KTLINT_DISABLED_RULES_PROPERTY to disabledRules)
-                }.applyIf(android) {
-                    plus(CODE_STYLE_PROPERTY to android)
-                }
 
         reporter.beforeAll()
         if (stdin) {
             lintStdin(
-                ruleProviders,
-                editorConfigDefaults,
-                editorConfigOverride,
+                ktLintRuleEngine,
                 reporter,
             )
         } else {
+            val baselineLintErrorsPerFile =
+                if (baselinePath == "") {
+                    emptyMap()
+                } else {
+                    loadBaseline(baselinePath)
+                        .also { baseline ->
+                            if (baseline.status == INVALID || baseline.status == NOT_FOUND) {
+                                val baselineReporter = ReporterTemplate("baseline", null, emptyMap(), baselinePath)
+                                val reporterProviderById = loadReporters(emptyList())
+                                reporter = Reporter.from(reporter, baselineReporter.toReporter(reporterProviderById))
+                            }
+                        }.lintErrorsPerFile
+                }
             lintFiles(
-                ruleProviders,
-                editorConfigDefaults,
-                editorConfigOverride,
+                ktLintRuleEngine,
                 baselineLintErrorsPerFile,
                 reporter,
             )
         }
-        reporter.afterAll()
-        logger.debug { "${System.currentTimeMillis() - start}ms / $fileNumber file(s) / $errorNumber error(s)" }
+
+        logger.debug { "Finished processing in ${System.currentTimeMillis() - start}ms / $fileNumber file(s) scanned / $errorNumber error(s) found" }
         if (fileNumber.get() == 0) {
             // Do not return an error as this would implicate that in a multi-module project, each module has to contain
             // at least one kotlin file.
             logger.warn { "No files matched $patterns" }
         }
         if (tripped.get()) {
-            exitProcess(1)
+            exitKtLintProcess(1)
+        } else {
+            exitKtLintProcess(0)
         }
     }
 
@@ -346,9 +353,7 @@ internal class KtlintCommandLine {
     }
 
     private fun lintFiles(
-        ruleProviders: Set<RuleProvider>,
-        editorConfigDefaults: EditorConfigDefaults,
-        editorConfigOverride: EditorConfigOverride,
+        ktLintRuleEngine: KtLintRuleEngine,
         lintErrorsPerFile: Map<String, List<LintError>>,
         reporter: Reporter,
     ) {
@@ -359,32 +364,25 @@ internal class KtlintCommandLine {
             .map { file ->
                 Callable {
                     file to process(
+                        ktLintRuleEngine = ktLintRuleEngine,
+                        code = file.readText(),
                         fileName = file.path,
-                        fileContent = file.readText(),
-                        editorConfigDefaults = editorConfigDefaults,
-                        editorConfigOverride = editorConfigOverride,
                         baselineLintErrors = lintErrorsPerFile.getOrDefault(file.toPath().relativeRoute, emptyList()),
-                        ruleProviders = ruleProviders,
                     )
                 }
             }.parallel({ (file, errList) -> report(file.location(relative), errList, reporter) })
     }
 
     private fun lintStdin(
-        ruleProviders: Set<RuleProvider>,
-        editorConfigDefaults: EditorConfigDefaults,
-        editorConfigOverride: EditorConfigOverride,
+        ktLintRuleEngine: KtLintRuleEngine,
         reporter: Reporter,
     ) {
         report(
-            KtLint.STDIN_FILE,
+            KtLintRuleEngine.STDIN_FILE,
             process(
-                fileName = KtLint.STDIN_FILE,
-                fileContent = String(System.`in`.readBytes()),
-                editorConfigDefaults = editorConfigDefaults,
-                editorConfigOverride = editorConfigOverride,
+                ktLintRuleEngine = ktLintRuleEngine,
+                code = String(System.`in`.readBytes()),
                 baselineLintErrors = emptyList(),
-                ruleProviders = ruleProviders,
             ),
             reporter,
         )
@@ -411,29 +409,19 @@ internal class KtlintCommandLine {
     }
 
     private fun process(
-        fileName: String,
-        fileContent: String,
-        editorConfigDefaults: EditorConfigDefaults,
-        editorConfigOverride: EditorConfigOverride,
+        ktLintRuleEngine: KtLintRuleEngine,
+        code: String,
+        fileName: String? = null,
         baselineLintErrors: List<LintError>,
-        ruleProviders: Set<RuleProvider>,
     ): List<LintErrorWithCorrectionInfo> {
-        logger.trace {
-            val fileLocation = if (fileName != KtLint.STDIN_FILE) File(fileName).location(relative) else fileName
-            "Checking $fileLocation"
+        if (fileName != null) {
+            logger.trace { "Checking ${File(fileName).location(relative)}" }
         }
+        val filePath = fileName?.let { Paths.get(it) }
         val result = ArrayList<LintErrorWithCorrectionInfo>()
         if (format) {
             val formattedFileContent = try {
-                formatFile(
-                    fileName,
-                    fileContent,
-                    ruleProviders,
-                    editorConfigDefaults,
-                    editorConfigOverride,
-                    editorConfigPath,
-                    debug,
-                ) { lintError, corrected ->
+                ktLintRuleEngine.format(code, filePath) { lintError, corrected ->
                     if (baselineLintErrors.doesNotContain(lintError)) {
                         result.add(LintErrorWithCorrectionInfo(lintError, corrected))
                         if (!corrected) {
@@ -444,26 +432,18 @@ internal class KtlintCommandLine {
             } catch (e: Exception) {
                 result.add(LintErrorWithCorrectionInfo(e.toLintError(fileName), false))
                 tripped.set(true)
-                fileContent // making sure `cat file | ktlint --stdint > file` is (relatively) safe
+                code // making sure `cat file | ktlint --stdin > file` is (relatively) safe
             }
             if (stdin) {
                 print(formattedFileContent)
             } else {
-                if (fileContent !== formattedFileContent) {
+                if (code !== formattedFileContent) {
                     File(fileName).writeText(formattedFileContent, charset("UTF-8"))
                 }
             }
         } else {
             try {
-                lintFile(
-                    fileName,
-                    fileContent,
-                    ruleProviders,
-                    editorConfigDefaults,
-                    editorConfigOverride,
-                    editorConfigPath,
-                    debug,
-                ) { lintError ->
+                ktLintRuleEngine.lint(code, filePath) { lintError ->
                     if (baselineLintErrors.doesNotContain(lintError)) {
                         result.add(LintErrorWithCorrectionInfo(lintError, false))
                         tripped.set(true)
@@ -515,7 +495,7 @@ internal class KtlintCommandLine {
                         postfix = ")",
                     )
             }
-            exitProcess(1)
+            exitKtLintProcess(1)
         }
         logger.debug {
             "Initializing \"$id\" reporter with $config" +
@@ -560,10 +540,10 @@ internal class KtlintCommandLine {
                     e.line,
                     e.col,
                     "",
-                    "Internal Error (${e.ruleId}) in file '$filename' at position '${e.line}:${e.col}. " +
+                    "Internal Error (rule '${e.ruleId}') in file '$filename' at position '${e.line}:${e.col}. " +
                         "Please create a ticket at https://github.com/pinterest/ktlint/issues " +
-                        "(if possible, please re-run with the --log-level=debug flag to get the stacktrace " +
-                        "and provide the source code that triggered an error)",
+                        "and provide the source code that triggered an error.\n" +
+                        e.stackTraceToString(),
                 )
             }
             else -> throw e
@@ -710,4 +690,13 @@ private class LogLevelConverter : CommandLine.ITypeConverter<Level> {
             "NONE" -> Level.OFF
             else -> Level.INFO
         }
+}
+
+/**
+ * Wrapper around exitProcess which ensure that a proper log line is written which can be used in unit tests for
+ * validating the result of the test.
+ */
+internal fun exitKtLintProcess(status: Int): Nothing {
+    logger.debug { "Exit ktlint with exit code: $status" }
+    exitProcess(status)
 }
