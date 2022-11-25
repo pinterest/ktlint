@@ -95,6 +95,6 @@ internal class ThreadSafeEditorConfigCache : Cache {
     }
 
     internal companion object {
-        val THREAD_SAFER_EDITOR_CONFIG_CACHE = ThreadSafeEditorConfigCache()
+        val THREAD_SAFE_EDITOR_CONFIG_CACHE = ThreadSafeEditorConfigCache()
     }
 }

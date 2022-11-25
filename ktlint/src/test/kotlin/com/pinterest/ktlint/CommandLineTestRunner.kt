@@ -1,5 +1,6 @@
 package com.pinterest.ktlint
 
+import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ktlint.environment.OsEnvironment
 import java.io.File
 import java.io.InputStream
@@ -13,19 +14,18 @@ import kotlin.io.path.Path
 import kotlin.io.path.copyTo
 import kotlin.io.path.createDirectories
 import kotlin.io.path.relativeToOrSelf
+import mu.KotlinLogging
 import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.AbstractBooleanAssert
 import org.assertj.core.api.AbstractIntegerAssert
-import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions
 import org.assertj.core.api.ListAssert
 import org.junit.jupiter.api.fail
-import org.junit.jupiter.api.io.TempDir
 
-abstract class BaseCLITest {
+private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
+
+class CommandLineTestRunner(private val tempDir: Path) {
     private val ktlintCli: String = System.getProperty("ktlint-cli")
-
-    @TempDir
-    private lateinit var tempDir: Path
 
     /**
      * Run ktlint CLI in a separate process. All files in directory [testProjectName] are copied to a temporary
@@ -33,7 +33,7 @@ abstract class BaseCLITest {
      * the placeholder [BASE_DIR_PLACEHOLDER] to obtain a fully qualified path. During the test execution this
      * placeholder is replaces with the actual directory name that is created for that unit test.
      */
-    fun runKtLintCliProcess(
+    fun run(
         testProjectName: String,
         arguments: List<String> = emptyList(),
         stdin: InputStream? = null,
@@ -52,34 +52,45 @@ abstract class BaseCLITest {
             process.outputStream.use(stdin::copyTo)
         }
 
-        if (process.completedInAllowedDuration()) {
-            val output = process.inputStream.bufferedReader().use { it.readLines() }
-            val error = process.errorStream.bufferedReader().use { it.readLines() }
+        // Give the process some time to complete
+        (0..WAIT_INTERVAL_MAX_OCCURRENCES).forEach { _ ->
+            if (process.isAlive) {
+                // Check regularly whether the ktlint command has finished to speed up the unit testing
+                process.waitFor(WAIT_INTERVAL_DURATION, TimeUnit.MILLISECONDS)
+            }
+        }
 
-            executionAssertions(ExecutionResult(process.exitValue(), output, error, projectPath))
+        // Get the output from the process before destroying it as otherwise the streams are not collected completely
+        val output = process.inputStream.bufferedReader().use { it.readLines() }
+        val error = process.errorStream.bufferedReader().use { it.readLines() }
 
-            // Destroy process only after output is collected as other the streams are not completed.
-            process.destroy()
-        } else {
-            // Destroy before failing the test as the process otherwise keeps running
+        if (process.isAlive) {
+            // Destroy the process as it is still running
             process.destroyForcibly()
 
-            val maxDurationInSeconds = (WAIT_INTERVAL_DURATION * WAIT_INTERVAL_MAX_OCCURRENCES).div(1000.0)
-            fail {
-                "CLI test has been aborted as it could not be completed in $maxDurationInSeconds seconds"
-            }
-        }
-    }
-
-    private fun Process.completedInAllowedDuration(): Boolean {
-        (0..WAIT_INTERVAL_MAX_OCCURRENCES).forEach { _ ->
-            if (isAlive) {
-                waitFor(WAIT_INTERVAL_DURATION, TimeUnit.MILLISECONDS)
+            if (output.contains("Exit ktlint with exit code: 0")) {
+                // For unknown reasons the process sometimes results in a timeout although the ktlint command is
+                // terminated successfully.
+                executionAssertions(ExecutionResult(0, output, error, projectPath))
             } else {
-                return true
+                // Ktlint is either not terminated or is terminated with a non-zero exit code.
+                val maxDurationInSeconds = (WAIT_INTERVAL_DURATION * WAIT_INTERVAL_MAX_OCCURRENCES).div(1000.0)
+                fail {
+                    "CLI test has been aborted as it could not be completed in $maxDurationInSeconds seconds"
+                        .followedByIndentedList(
+                            listOf(
+                                "RESULTS OF STDOUT:".followedByIndentedList(output, 2),
+                                "RESULTS OF STDERR:".followedByIndentedList(error, 2),
+                            ),
+                        )
+                }
             }
+        } else {
+            executionAssertions(ExecutionResult(process.exitValue(), output, error, projectPath))
+
+            // Only destroy the process when it is no longer needed (so after asserting)
+            process.destroy()
         }
-        return false
     }
 
     private fun prepareTestProject(testProjectName: String): Path {
@@ -114,40 +125,39 @@ abstract class BaseCLITest {
             else -> arrayOf("/bin/sh", "-c")
         }
 
-    private fun ktlintCommand(arguments: List<String>): String {
-        val commandPrefix = when {
-            /*
-             * On Windows, `ktlint` is not executable.
-             */
-            isWindows() -> {
-                val command = mutableListOf("java")
+    private fun ktlintCommand(arguments: List<String>): String =
+        mutableListOf<String>()
+            .apply {
+                if (isWindows()) {
+                    // KtLint is not an executable command on Windows OS
+                    add("java")
 
-                val javaVersion = System.getProperty("java.specification.version").javaVersionAsInt()
-                if (javaVersion != null) {
-                    // https://docs.gradle.org/7.5/userguide/upgrading_version_7.html#removes_implicit_add_opens_for_test_workers
-                    if (javaVersion >= 16) {
-                        command += "--add-opens=java.base/java.lang=ALL-UNNAMED"
-                        command += "--add-opens=java.base/java.util=ALL-UNNAMED"
-                    }
+                    val javaVersion = System.getProperty("java.specification.version").javaVersionAsInt()
+                    if (javaVersion != null) {
+                        // https://docs.gradle.org/7.5/userguide/upgrading_version_7.html#removes_implicit_add_opens_for_test_workers
+                        if (javaVersion >= 16) {
+                            add("--add-opens=java.base/java.lang=ALL-UNNAMED")
+                            add("--add-opens=java.base/java.util=ALL-UNNAMED")
+                        }
 
-                    if (javaVersion >= 18) {
-                        // https://openjdk.org/jeps/411
-                        command += "-Djava.security.manager=allow"
+                        if (javaVersion >= 18) {
+                            // https://openjdk.org/jeps/411
+                            add("-Djava.security.manager=allow")
+                        }
                     }
+                    add("-jar")
                 }
 
-                command += "-jar"
-                command += ktlintCli
-                command.joinToString(separator = " ", postfix = " ")
-            }
+                add(ktlintCli)
 
-            else -> "$ktlintCli "
-        }
+                // Always run with debug logging as this is convenient when test fails and when ktlint is finished it
+                // prints the log line "Finished in ###ms / ... " which is used as fallback to determine whether ktlint
+                // did finish correctly.
+                add("-l=debug")
 
-        return arguments.joinToString(prefix = commandPrefix, separator = " ") {
-            it.replace(BASE_DIR_PLACEHOLDER, tempDir.toString())
-        }
-    }
+                addAll(arguments)
+            }.joinToString(separator = " ", postfix = " ")
+            .also { LOGGER.debug("Command to be executed: $it") }
 
     private fun String?.javaVersionAsInt(): Int? {
         if (this == null) {
@@ -200,32 +210,14 @@ abstract class BaseCLITest {
                     attrs: BasicFileAttributes,
                 ): FileVisitResult {
                     val relativeFile = file.relativeToOrSelf(this@copyRecursively)
-                    file.copyTo(dest.resolve(relativeFile))
+                    val destinationFile = dest.resolve(relativeFile)
+                    LOGGER.trace { "Copy '$relativeFile' to '$destinationFile'" }
+                    file.copyTo(destinationFile)
                     return FileVisitResult.CONTINUE
                 }
             },
         )
     }
-
-    protected fun ListAssert<String>.containsLineMatching(string: String): ListAssert<String> =
-        this.anyMatch {
-            it.contains(string)
-        }
-
-    protected fun ListAssert<String>.containsLineMatching(regex: Regex): ListAssert<String> =
-        this.anyMatch {
-            it.matches(regex)
-        }
-
-    protected fun ListAssert<String>.doesNotContainLineMatching(string: String): ListAssert<String> =
-        this.noneMatch {
-            it.contains(string)
-        }
-
-    protected fun ListAssert<String>.doesNotContainLineMatching(regex: Regex): ListAssert<String> =
-        this.noneMatch {
-            it.matches(regex)
-        }
 
     data class ExecutionResult(
         val exitCode: Int,
@@ -234,7 +226,7 @@ abstract class BaseCLITest {
         val testProject: Path,
     ) {
         fun assertNormalExitCode(): AbstractIntegerAssert<*> =
-            assertThat(exitCode)
+            Assertions.assertThat(exitCode)
                 .withFailMessage(
                     "Expected process to exit with exitCode 0, but was $exitCode."
                         .followedByIndentedList(
@@ -246,12 +238,12 @@ abstract class BaseCLITest {
                 ).isEqualTo(0)
 
         fun assertErrorExitCode(): AbstractIntegerAssert<*> =
-            assertThat(exitCode)
+            Assertions.assertThat(exitCode)
                 .withFailMessage("Execution was expected to finish with error. However, exitCode is $exitCode")
                 .isNotEqualTo(0)
 
         fun assertErrorOutputIsEmpty(): AbstractBooleanAssert<*> =
-            assertThat(errorOutput.isEmpty())
+            Assertions.assertThat(errorOutput.isEmpty())
                 .withFailMessage(
                     "Expected error output to be empty but was:".followedByIndentedList(errorOutput),
                 ).isTrue
@@ -269,15 +261,14 @@ abstract class BaseCLITest {
                     .toFile()
                     .readText()
 
-            return assertThat(formattedCode).isNotEqualTo(originalCode)
+            return Assertions.assertThat(formattedCode).isNotEqualTo(originalCode)
         }
     }
 
     companion object {
         private const val WAIT_INTERVAL_DURATION = 100L
-        private const val WAIT_INTERVAL_MAX_OCCURRENCES = 1000
+        private const val WAIT_INTERVAL_MAX_OCCURRENCES = 300
         private val TEST_PROJECTS_PATHS: Path = Path("src", "test", "resources", "cli")
-        const val BASE_DIR_PLACEHOLDER = "__TEMP_DIR__"
         private const val PATH = "PATH"
         private val JAVA_VERSION_REGEX = Regex("""^1\.(?<version>\d+)(?:\.[^.].*)?$""")
 
@@ -286,9 +277,34 @@ abstract class BaseCLITest {
     }
 }
 
+@Suppress("unused")
 private fun String.followedByIndentedList(lines: List<String>, indentLevel: Int = 1): String =
     lines
         .ifEmpty { listOf("<empty>") }
         .joinToString(prefix = "$this\n", separator = "\n") {
             "    ".repeat(indentLevel).plus(it)
         }
+
+@Suppress("unused")
+internal fun ListAssert<String>.containsLineMatching(string: String): ListAssert<String> =
+    this.anyMatch {
+        it.contains(string)
+    }
+
+@Suppress("unused")
+internal fun ListAssert<String>.containsLineMatching(regex: Regex): ListAssert<String> =
+    this.anyMatch {
+        it.matches(regex)
+    }
+
+@Suppress("unused")
+internal fun ListAssert<String>.doesNotContainLineMatching(string: String): ListAssert<String> =
+    this.noneMatch {
+        it.contains(string)
+    }
+
+@Suppress("unused")
+internal fun ListAssert<String>.doesNotContainLineMatching(regex: Regex): ListAssert<String> =
+    this.noneMatch {
+        it.matches(regex)
+    }

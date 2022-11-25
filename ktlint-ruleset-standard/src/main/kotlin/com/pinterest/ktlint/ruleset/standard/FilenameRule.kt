@@ -1,6 +1,5 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.CLASS
 import com.pinterest.ktlint.core.ast.ElementType.FUN
@@ -13,10 +12,10 @@ import com.pinterest.ktlint.core.ast.ElementType.TYPE_REFERENCE
 import com.pinterest.ktlint.core.ast.children
 import com.pinterest.ktlint.core.ast.isRoot
 import com.pinterest.ktlint.ruleset.standard.internal.regExIgnoringDiacriticsAndStrokesOnLetters
-import java.nio.file.Paths
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
+import org.jetbrains.kotlin.psi.KtFile
 
 /**
  * [Kotlin lang documentation](https://kotlinlang.org/docs/coding-conventions.html#source-file-names):
@@ -50,19 +49,18 @@ public class FilenameRule : Rule("filename") {
         if (node.isRoot()) {
             node as FileASTNode? ?: error("node is not ${FileASTNode::class} but ${node::class}")
 
-            val filePath = node.getUserData(KtLint.FILE_PATH_USER_DATA_KEY)
-            if (filePath?.endsWith(".kt") != true) {
+            val filePath = (node.psi as? KtFile)?.virtualFilePath
+            if (filePath?.endsWith(".kt") != true || filePath.endsWith("package.kt")) {
                 // ignore all non ".kt" files (including ".kts")
                 stopTraversalOfAST()
                 return
             }
 
-            val fileName = Paths.get(filePath).fileName.toString().substringBefore(".")
-            if (fileName == "package") {
-                // ignore package.kt filename
-                stopTraversalOfAST()
-                return
-            }
+            val fileName =
+                filePath
+                    .replace('\\', '/') // Ensure compatibility with Windows OS
+                    .substringAfterLast("/")
+                    .substringBefore(".")
 
             val topLevelClassDeclarations = node.topLevelDeclarations(CLASS)
             if (topLevelClassDeclarations.size == 1) {
@@ -70,7 +68,7 @@ public class FilenameRule : Rule("filename") {
                 if (node.hasTopLevelDeclarationNotExtending(topLevelClassDeclaration.identifier)) {
                     fileName.shouldMatchPascalCase(emit)
                 } else {
-                    // If the file only contains one (non private) top level class and possibly some extension functions of
+                    // If the file only contains one (non-private) top level class and possibly some extension functions of
                     // that class, then its filename should be identical to the class name.
                     fileName.shouldMatchClassName(topLevelClassDeclaration.identifier, emit)
                 }

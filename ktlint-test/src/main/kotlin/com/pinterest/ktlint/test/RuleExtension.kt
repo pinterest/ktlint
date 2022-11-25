@@ -1,12 +1,14 @@
 package com.pinterest.ktlint.test
 
 import com.pinterest.ktlint.core.KtLint
+import com.pinterest.ktlint.core.KtLintRuleEngine
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.RuleProvider
 import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ktlint.core.setDefaultLoggerModifier
 import com.pinterest.ruleset.test.DumpASTRule
+import java.nio.file.Paths
 import mu.KotlinLogging
 import org.jetbrains.kotlin.utils.addToStdlib.ifTrue
 
@@ -57,6 +59,10 @@ private fun Set<RuleProvider>.toRuleProviders(): Set<RuleProvider> {
     return this.plus(setOfNotNull(dumpAstRuleProvider))
 }
 
+@Deprecated(
+    message = "Marked for removal in KtLint 0.49",
+    replaceWith = ReplaceWith("lint(filePath,text,editorConfigOverride)"),
+)
 public fun Set<RuleProvider>.lint(
     lintedFilePath: String? = null,
     text: String,
@@ -79,6 +85,26 @@ public fun Set<RuleProvider>.lint(
     return lintErrors
 }
 
+public fun Set<RuleProvider>.lint(
+    text: String,
+    filePath: String? = null,
+    editorConfigOverride: EditorConfigOverride = EditorConfigOverride.EMPTY_EDITOR_CONFIG_OVERRIDE,
+): List<LintError> {
+    val lintErrors = ArrayList<LintError>()
+    KtLintRuleEngine(
+        ruleProviders = toRuleProviders(),
+        editorConfigOverride = editorConfigOverride,
+    ).lint(
+        code = text,
+        filePath = filePath?.let { Paths.get(filePath) },
+    ) { lintError -> lintErrors.add(lintError) }
+    return lintErrors
+}
+
+@Deprecated(
+    message = "Marked for removal in KtLint 0.49",
+    replaceWith = ReplaceWith("format(filePath,text,editorConfigOverride)"),
+)
 public fun Set<RuleProvider>.format(
     lintedFilePath: String?,
     text: String,
@@ -99,5 +125,22 @@ public fun Set<RuleProvider>.format(
         debug = true,
     )
     val formattedCode = KtLint.format(experimentalParams)
+    return Pair(formattedCode, lintErrors)
+}
+
+public fun Set<RuleProvider>.format(
+    text: String,
+    filePath: String?,
+    editorConfigOverride: EditorConfigOverride = EditorConfigOverride.EMPTY_EDITOR_CONFIG_OVERRIDE,
+): Pair<String, List<LintError>> {
+    val lintErrors = ArrayList<LintError>()
+    val formattedCode =
+        KtLintRuleEngine(
+            ruleProviders = toRuleProviders(),
+            editorConfigOverride = editorConfigOverride,
+        ).format(
+            code = text,
+            filePath = filePath?.let { Paths.get(filePath) },
+        ) { lintError, _ -> lintErrors.add(lintError) }
     return Pair(formattedCode, lintErrors)
 }

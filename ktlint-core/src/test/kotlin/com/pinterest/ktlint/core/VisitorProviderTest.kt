@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.core
 
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.KTLINT_DISABLED_RULES_PROPERTY
+import com.pinterest.ktlint.core.internal.RuleRunner
 import com.pinterest.ktlint.core.internal.VisitorProvider
 import org.assertj.core.api.Assertions.assertThat
 import org.ec4j.core.model.Property
@@ -75,15 +76,12 @@ class VisitorProviderTest {
      */
     private fun testVisitorProvider(vararg ruleProviders: RuleProvider): MutableList<Visit>? {
         return VisitorProvider(
-            params = KtLint.ExperimentalParams(
-                text = "",
-                cb = { _, _ -> },
-                ruleProviders = ruleProviders.toSet(),
-                // Enable debug mode as it is helpful when a test fails
-                debug = true,
-            ),
             // Creates a new VisitorProviderFactory for each unit test to prevent that tests for the exact same set of
             // ruleIds are influencing each other.
+            ruleProviders
+                .map { RuleRunner(it) }
+                .distinctBy { it.ruleId }
+                .toSet(),
             recreateRuleSorter = true,
         ).run {
             var visits: MutableList<Visit>? = null

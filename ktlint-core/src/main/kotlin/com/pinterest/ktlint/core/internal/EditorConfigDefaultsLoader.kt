@@ -3,7 +3,7 @@ package com.pinterest.ktlint.core.internal
 import com.pinterest.ktlint.core.api.EditorConfigDefaults
 import com.pinterest.ktlint.core.api.EditorConfigDefaults.Companion.EMPTY_EDITOR_CONFIG_DEFAULTS
 import com.pinterest.ktlint.core.initKtLintKLogger
-import com.pinterest.ktlint.core.internal.ThreadSafeEditorConfigCache.Companion.THREAD_SAFER_EDITOR_CONFIG_CACHE
+import com.pinterest.ktlint.core.internal.ThreadSafeEditorConfigCache.Companion.THREAD_SAFE_EDITOR_CONFIG_CACHE
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 import kotlin.io.path.isDirectory
@@ -43,10 +43,10 @@ internal class EditorConfigDefaultsLoader {
             return EMPTY_EDITOR_CONFIG_DEFAULTS
         }
 
-        return THREAD_SAFER_EDITOR_CONFIG_CACHE
+        return THREAD_SAFE_EDITOR_CONFIG_CACHE
             .get(editorConfigFilePath.resource(), editorConfigLoader)
             .also {
-                LOGGER.trace {
+                LOGGER.debug {
                     it
                         .toString()
                         .split("\n")
