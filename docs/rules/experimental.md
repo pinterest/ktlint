@@ -20,13 +20,13 @@ An empty parentheses block before a lambda is redundant.
 === "[:material-heart:](#) Ktlint"
 
     ```kotlin
-    some-string".count { it == '-' }
+    "some-string".count { it == '-' }
     ```
 
 === "[:material-heart-off-outline:](#) Disallowed"
 
     ```kotlin
-    some-string".count() { it == '-' }
+    "some-string".count() { it == '-' }
     ```
 
 Rule id: `experimental:unnecessary-parentheses-before-trailing-lambda`
