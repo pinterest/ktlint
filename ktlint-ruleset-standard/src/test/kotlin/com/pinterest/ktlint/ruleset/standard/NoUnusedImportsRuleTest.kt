@@ -163,7 +163,7 @@ class NoUnusedImportsRuleTest {
     }
 
     @Nested
-    inner class DestructuringDeclaration {
+    inner class `Given a destructuring declaration` {
         @Test
         fun `Given a destructuring declaration then do not remove imports ending with 'componentN' where 'N' is any number`() {
             val code =
@@ -367,7 +367,7 @@ class NoUnusedImportsRuleTest {
     }
 
     @Nested
-    inner class ParentImport {
+    inner class `Given a parent import` {
         @Test
         fun `Given that no package statement is present and an import is used for which the parent is also imported then remove the direct import`() {
             val code =
@@ -497,7 +497,7 @@ class NoUnusedImportsRuleTest {
     }
 
     @Nested
-    inner class ProvideDelegate {
+    inner class `Given a provide delegate` {
         @Test
         fun `Issue 513 - provideDelegate is allowed if there is a by keyword`() {
             val code =
@@ -760,7 +760,7 @@ class NoUnusedImportsRuleTest {
     }
 
     @Nested
-    inner class WildcardImports {
+    inner class `Given a wildcard import` {
         // Solution for #1256 has been reverted as it can lead to removal of imports which are actually used (see test for
         // #1277). For now, there seems to be no reliable way to determine whether the wildcard import is actually used or
         // not.

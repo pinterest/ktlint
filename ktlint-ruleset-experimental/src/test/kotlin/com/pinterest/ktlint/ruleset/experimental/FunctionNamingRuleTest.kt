@@ -1,7 +1,6 @@
 package com.pinterest.ktlint.ruleset.experimental
 
 import com.pinterest.ktlint.test.KtLintAssertThat
-import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -27,15 +26,15 @@ class FunctionNamingRuleTest {
             interface Foo
             class FooImpl : Foo
             fun Foo(): Foo = FooImpl()
+            fun Bar.Foo(): Foo = FooImpl()
             """.trimIndent()
         functionNamingRuleAssertThat(code).hasNoLintViolations()
     }
 
-    @DisplayName("Given a method with name between backticks")
     @Nested
-    inner class BackTickedFunction {
+    inner class `Given a function name between backticks` {
         @Test
-        fun `Given a function not annotated with a Test annotation then do emit`() {
+        fun `Given a file that does not import a class from the JUnit Jupiter then do emit`() {
             val code =
                 """
                 fun `Some name`() {}
@@ -44,12 +43,65 @@ class FunctionNamingRuleTest {
                 .hasLintViolationWithoutAutoCorrect(1, 5, "Function name should start with a lowercase letter (except factory methods) and use camel case")
         }
 
-        @Test
-        fun `Given a function annotated with a Test annotation then do not emit`() {
+        @ParameterizedTest(name = "Junit import: {0}")
+        @ValueSource(
+            strings = [
+                "org.junit.jupiter.api.Test",
+                "org.junit.jupiter.api.*",
+                "org.junit.jupiter.*",
+                "org.junit.*",
+            ],
+        )
+        fun `Given file which imports a class from the JUnit Jupiter then do not emit`(
+            import: String,
+        ) {
             val code =
                 """
-                @Test
-                fun `Some descriptive test name`() {}
+                import $import
+
+                class FunTest {
+                    @Test
+                    fun `Some descriptive test name`() {}
+                }
+                """.trimIndent()
+            functionNamingRuleAssertThat(code).hasNoLintViolations()
+        }
+    }
+
+    @Nested
+    inner class `Given a function name containing an underscore` {
+        @Test
+        fun `Given a file that does not import a class from the JUnit Jupiter then do emit`() {
+            val code =
+                """
+                fun do_something() {}
+                """.trimIndent()
+            functionNamingRuleAssertThat(code)
+                .hasLintViolationWithoutAutoCorrect(1, 5, "Function name should start with a lowercase letter (except factory methods) and use camel case")
+        }
+
+        @ParameterizedTest(name = "Junit import: {0}")
+        @ValueSource(
+            strings = [
+                "org.junit.jupiter.api.Test",
+                "org.junit.jupiter.api.*",
+                "org.junit.jupiter.*",
+                "org.junit.*",
+                "kotlin.test.*",
+                "org.testng.*",
+            ],
+        )
+        fun `Given file which imports a class from the JUnit Jupiter then do not emit`(
+            import: String,
+        ) {
+            val code =
+                """
+                import $import
+
+                class FunTest {
+                    @Test
+                    fun givenSomeCondition_whenSomeAction_thenExpectation() {}
+                }
                 """.trimIndent()
             functionNamingRuleAssertThat(code).hasNoLintViolations()
         }

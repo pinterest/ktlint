@@ -51,7 +51,7 @@ class DisabledRulesTest {
     }
 
     @Nested
-    inner class KtlintDisabledRulesProperty {
+    inner class `Given the ktlint_disabled_property is set` {
         @ParameterizedTest(name = "RuleId: {0}, Disabled ruleId: {1}")
         @CsvSource(
             value = [

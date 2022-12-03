@@ -2,13 +2,11 @@ package com.pinterest.ktlint
 
 import java.nio.file.Path
 import org.assertj.core.api.SoftAssertions
-import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 
-@DisplayName("CLI default editorconfig loading")
 class EditorConfigDefaultsLoaderCLITest {
     @Test
     fun `When no default editorconfig is specified only the normal editorconfig file(s) on the file paths are used`(

@@ -3,11 +3,9 @@ package com.pinterest.ktlint
 import java.io.ByteArrayInputStream
 import java.nio.file.Path
 import org.assertj.core.api.SoftAssertions
-import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 
-@DisplayName("CLI basic checks")
 class SimpleCLITest {
     @Test
     fun `Given CLI argument --help then return the help output`(

@@ -119,7 +119,7 @@ class StringTemplateRuleTest {
     }
 
     @Nested
-    inner class SuppressRemoveCurlyBracesFromTemplate {
+    inner class `Given the Suppress annotation on RemoveCurlyBracesFromTemplate` {
         @Test
         fun `Given a function declaration annotated with Suppress RemoveCurlyBracesFromTemplate`() {
             val code =

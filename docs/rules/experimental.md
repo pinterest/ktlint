@@ -43,11 +43,27 @@ Rule id: `function-signature`
 
 Enforce naming of class.
 
+!!! note
+    Functions in files which import a class from package `org.junit.jupiter.api` are considered to be test functions and are allowed to have a name specified between backticks and do not need to adhere to the normal naming convention. Although, the [Kotlin coding conventions](https://kotlinlang.org/docs/coding-conventions.html) does not allow this explicitly for class identifiers, `ktlint` does allow it as this makes it possible to write code like below:
+     ```kotlin
+     @Nested
+     inner class `Some descriptive class name` {
+         @Test
+         fun `Some descriptive test name`() {
+             // do something
+         }
+     }
+     ```
+
+
 Rule id: `experimental:class-naming`
 
 ### Function naming
 
-Enforce naming of function.
+Enforce naming of function. 
+
+!!! note
+    Functions in files which import a class from package `org.junit`, `org.testng` or `kotlin.test` are considered to be test functions. Functions in such classes are allowed to have underscores in the name. Or function names can be specified between backticks and do not need to adhere to the normal naming convention.
 
 Rule id: `experimental:function-naming`
 

@@ -2,11 +2,9 @@ package com.pinterest.ktlint
 
 import java.nio.file.Path
 import org.assertj.core.api.SoftAssertions
-import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 
-@DisplayName("CLI ruleset loader checks")
 class RuleSetsLoaderCLITest {
     @Test
     fun `Display warning when the provided custom ruleset does not contains a ruleset provider`(

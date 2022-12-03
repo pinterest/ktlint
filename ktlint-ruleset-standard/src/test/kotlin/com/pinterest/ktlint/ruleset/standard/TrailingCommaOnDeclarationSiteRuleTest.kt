@@ -710,7 +710,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
     }
 
     @Nested
-    inner class MissingRequiredTrailingComma {
+    inner class `Given that a required trailing comma is missing` {
         @Test
         fun `Given that last two enumeration entries are on same line, do not add a trailing comma`() {
             val code =

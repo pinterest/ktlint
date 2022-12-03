@@ -80,7 +80,7 @@ class NoLineBreakBeforeAssignmentRuleTest {
     }
 
     @Nested
-    inner class Comments {
+    inner class `Given an EOL comment` {
         @Test
         fun `Given an EOL comment on a separate line between the function return type and the equals sign then do return a lint error`() {
             val code =

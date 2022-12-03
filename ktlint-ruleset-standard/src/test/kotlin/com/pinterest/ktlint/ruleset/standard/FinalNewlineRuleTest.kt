@@ -2,16 +2,14 @@ package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.INSERT_FINAL_NEWLINE_PROPERTY
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
-import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class FinalNewlineRuleTest {
     private val finalNewlineRuleAssertThat = assertThatRule { FinalNewlineRule() }
 
-    @DisplayName("Given that the final new line is required (default)")
     @Nested
-    inner class FinalNewLineRequired {
+    inner class `Given that the final new line is required (default)` {
         @Test
         fun `Given an empty file then do not return lint errors`() {
             finalNewlineRuleAssertThat("")
@@ -66,9 +64,8 @@ class FinalNewlineRuleTest {
         }
     }
 
-    @DisplayName("Given that the final new line is not required")
     @Nested
-    inner class FinalNewLineIsNotRequired {
+    inner class `Given that the final new line is not required` {
         @Test
         fun `Given an empty file then do not return lint errors`() {
             finalNewlineRuleAssertThat("")
