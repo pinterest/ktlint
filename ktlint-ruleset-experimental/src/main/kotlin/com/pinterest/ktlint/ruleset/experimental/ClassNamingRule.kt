@@ -4,6 +4,7 @@ import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType
 import com.pinterest.ktlint.core.ast.ElementType.CLASS
 import com.pinterest.ktlint.core.ast.ElementType.IDENTIFIER
+import com.pinterest.ktlint.core.ast.ElementType.OBJECT_DECLARATION
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 /**
@@ -32,11 +33,11 @@ public class ClassNamingRule : Rule("$EXPERIMENTAL_RULE_SET_ID:class-naming") {
         }
 
         node
-            .takeIf { node.elementType == CLASS }
+            .takeIf { node.elementType == CLASS || node.elementType == OBJECT_DECLARATION }
             ?.findChildByType(IDENTIFIER)
             ?.takeUnless { it.isValidFunctionName() || it.isTestClass() }
             ?.let {
-                emit(it.startOffset, "Class name should start with an uppercase letter and use camel case", false)
+                emit(it.startOffset, "Class or object name should start with an uppercase letter and use camel case", false)
             }
     }
 

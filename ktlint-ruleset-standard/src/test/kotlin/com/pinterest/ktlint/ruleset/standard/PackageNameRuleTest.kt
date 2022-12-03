@@ -64,11 +64,19 @@ class PackageNameRuleTest {
             .hasLintViolationWithoutAutoCorrect(1, 9, "Package name contains a disallowed character")
     }
 
-    @Test
-    fun `Given a package name containing an forbidden character and the rule is suppressed then do not emit`() {
+    @ParameterizedTest(name = "Suppression annotation: {0}")
+    @ValueSource(
+        strings = [
+            "ktlint:package-name",
+            "PackageName", // IntelliJ IDEA suppression
+        ],
+    )
+    fun `Given class with a disallowed name which is suppressed`(
+        suppressionName: String,
+    ) {
         val code =
             """
-            @file:Suppress("ktlint:package-name")
+            @file:Suppress("$suppressionName")
             package foo.foo_bar
             """.trimIndent()
         packageNameRuleAssertThat(code).hasNoLintViolations()

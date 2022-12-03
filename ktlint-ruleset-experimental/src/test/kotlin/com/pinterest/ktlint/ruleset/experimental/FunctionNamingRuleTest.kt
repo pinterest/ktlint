@@ -122,4 +122,22 @@ class FunctionNamingRuleTest {
         functionNamingRuleAssertThat(code)
             .hasLintViolationWithoutAutoCorrect(1, 5, "Function name should start with a lowercase letter (except factory methods) and use camel case")
     }
+
+    @ParameterizedTest(name = "Suppression annotation: {0}")
+    @ValueSource(
+        strings = [
+            "ktlint:experimental:function-naming",
+            "FunctionName", // IntelliJ IDEA suppression
+        ],
+    )
+    fun `Given method with a disallowed name which is suppressed`(
+        suppressionName: String,
+    ) {
+        val code =
+            """
+            @Suppress("$suppressionName")
+            fun Foo() {}
+            """.trimIndent()
+        functionNamingRuleAssertThat(code).hasNoLintViolations()
+    }
 }

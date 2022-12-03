@@ -20,10 +20,14 @@ internal object SuppressionLocatorBuilder {
     /**
      * No suppression is detected. Always returns `false`.
      */
-    val NO_SUPPRESSION: SuppressionLocator = { _, _ -> false }
+    private val NO_SUPPRESSION: SuppressionLocator = { _, _ -> false }
 
     private val SUPPRESS_ANNOTATION_RULE_MAP = mapOf(
         "RemoveCurlyBracesFromTemplate" to "string-template",
+        "ClassName" to "experimental:class-naming",
+        "FunctionName" to "experimental:function-naming",
+        "PackageName" to "package-name",
+        "PropertyName" to "experimental:property-naming",
     )
     private val SUPPRESS_ANNOTATIONS = setOf("Suppress", "SuppressWarnings")
     private const val SUPPRESS_ALL_KTLINT_RULES = "ktlint-all"
@@ -190,7 +194,7 @@ internal object SuppressionLocatorBuilder {
                         it.removePrefix("ktlint:")
                     }
                     else -> {
-                        // Disable specific rule if it the annotion value is mapped to a specific rule
+                        // Disable specific rule if the annotation value is mapped to a specific rule
                         annotationValueToRuleMapping[it]
                     }
                 }

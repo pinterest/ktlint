@@ -37,7 +37,6 @@ public class ExperimentalRuleSetProvider :
             RuleProvider { ContextReceiverWrappingRule() },
             RuleProvider { ClassNamingRule() },
             RuleProvider { FunctionNamingRule() },
-            RuleProvider { ObjectNamingRule() },
             RuleProvider { PropertyNamingRule() },
         )
 }
