@@ -38,7 +38,6 @@ public class ExperimentalRuleSetProvider :
             RuleProvider { ClassNamingRule() },
             RuleProvider { FunctionNamingRule() },
             RuleProvider { ObjectNamingRule() },
-            RuleProvider { PackageNamingRule() },
             RuleProvider { PropertyNamingRule() },
         )
 }
