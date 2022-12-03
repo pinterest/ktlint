@@ -17,6 +17,8 @@ public fun main(args: Array<String>) {
         .addSubcommand(GitPrePushHookSubCommand.COMMAND_NAME, GitPrePushHookSubCommand())
         .addSubcommand(PrintASTSubCommand.COMMAND_NAME, PrintASTSubCommand())
         .addSubcommand(GenerateEditorConfigSubCommand.COMMAND_NAME, GenerateEditorConfigSubCommand())
+        // Keep setUsageHelpAutoWidth after all addSubcommands
+        .setUsageHelpAutoWidth(true)
     val parseResult = commandLine.parseArgs(*args)
 
     commandLine.printCommandLineHelpOrVersionUsage()
