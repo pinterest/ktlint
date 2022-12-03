@@ -69,15 +69,15 @@ class PlainReporterTest {
 
         assertThat(String(out.toByteArray())).isEqualTo(
             """
-            file-1.kt:1:1: description-error-at-position-1:1 (rule-1)
-            file-2.kt:1:10: description-error-at-position-1:10 (rule-1)
-            file-2.kt:2:20: description-error-at-position-2:20 (rule-2)
-
-            Summary error count (descending) by rule:
-              rule-1: 2
-              rule-2: 1
-
-            """.trimIndent().replace("\n", System.lineSeparator()),
+            |file-1.kt:1:1: description-error-at-position-1:1 (rule-1)
+            |file-2.kt:1:10: description-error-at-position-1:10 (rule-1)
+            |file-2.kt:2:20: description-error-at-position-2:20 (rule-2)
+            |
+            |Summary error count (descending) by rule:
+            |  rule-1: 2
+            |  rule-2: 1
+            |
+            """.trimMargin().replace("\n", System.lineSeparator()),
         )
     }
 
