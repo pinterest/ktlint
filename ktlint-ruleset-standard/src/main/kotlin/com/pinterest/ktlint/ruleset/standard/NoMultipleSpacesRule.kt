@@ -15,18 +15,21 @@ public class NoMultipleSpacesRule : Rule("no-multi-spaces") {
     ) {
         node
             .takeIf { node is PsiWhiteSpace }
-            .takeUnless { node.isIndentation() }
-            .takeIf { node.textLength > 1 }
             .takeUnless { node.isPossibleAlignmentOfKdocTag() }
             ?.let {
-                emit(node.startOffset + 1, "Unnecessary long whitespace", true)
-                if (autoCorrect) {
-                    (node as LeafPsiElement).rawReplaceWithText(" ")
+                val beforeIndentation = node.removeIndentation()
+                if (beforeIndentation.length > 1) {
+                    emit(node.startOffset + 1, "Unnecessary long whitespace", true)
+                    if (autoCorrect) {
+                        val remainder = node.text.substring(beforeIndentation.length)
+                        (node as LeafPsiElement).rawReplaceWithText(" $remainder")
+                    }
                 }
             }
     }
 
-    private fun ASTNode.isIndentation() = this.text.startsWith("\n")
+    private fun ASTNode.removeIndentation() =
+        this.text.substringBefore("\n")
 
     // allow multiple spaces in KDoc in case of KDOC_TAG for alignment, e.g.
     // @param foo      stuff
