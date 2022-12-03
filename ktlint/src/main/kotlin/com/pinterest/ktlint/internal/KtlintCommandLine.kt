@@ -167,13 +167,13 @@ internal class KtlintCommandLine {
                 "To override reporter output, use ',output=' option.",
         ],
     )
-    private var reporters: JarFiles = ArrayList()
+    private var reporterJarPaths: List<String> = ArrayList()
 
     @Option(
         names = ["--ruleset", "-R"],
         description = ["A path to a JAR file containing additional ruleset(s)"],
     )
-    var rulesetJarFiles: JarFiles = ArrayList()
+    var rulesetJarPaths: List<String> = ArrayList()
 
     @Option(
         names = ["--stdin"],
@@ -289,11 +289,10 @@ internal class KtlintCommandLine {
 
         val start = System.currentTimeMillis()
 
-        val ruleProviders = rulesetJarFiles.loadRuleProviders(experimental, debug, disabledRules)
         var reporter = loadReporter()
 
         val ktLintRuleEngine = KtLintRuleEngine(
-            ruleProviders = ruleProviders,
+            ruleProviders = ruleProviders(),
             editorConfigDefaults = editorConfigDefaults,
             editorConfigOverride = editorConfigOverride,
             isInvokedFromCli = true,
@@ -338,6 +337,21 @@ internal class KtlintCommandLine {
             exitKtLintProcess(0)
         }
     }
+
+    internal fun ruleProviders() =
+        rulesetJarPaths
+            .toFilesURIList()
+            .loadRuleProviders(experimental, debug, disabledRules)
+
+    private fun List<String>.toFilesURIList() =
+        map {
+            val jarFile = File(it.expandTildeToFullPath())
+            if (!jarFile.exists()) {
+                logger.error { "File '$it' does not exist" }
+                exitKtLintProcess(1)
+            }
+            jarFile.toURI().toURL()
+        }
 
     private fun configureLogger() =
         KotlinLogging
@@ -462,7 +476,7 @@ internal class KtlintCommandLine {
     }
 
     private fun loadReporter(): Reporter {
-        val configuredReporters = reporters.ifEmpty { listOf("plain") }
+        val configuredReporters = reporterJarPaths.ifEmpty { listOf("plain") }
 
         val tpls = configuredReporters
             .map { reporter ->
