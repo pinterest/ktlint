@@ -3,6 +3,7 @@ package com.pinterest.ktlint.core.internal
 import com.pinterest.ktlint.core.ast.prevLeaf
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
+import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.psi.KtAnnotated
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
@@ -13,13 +14,13 @@ import org.jetbrains.kotlin.psi.psiUtil.startOffset
 /**
  * Detects if given `ruleId` at given `offset` is suppressed.
  */
-internal typealias SuppressionLocator = (offset: Int, ruleId: String, isRoot: Boolean) -> Boolean
+internal typealias SuppressionLocator = (offset: Int, ruleId: String) -> Boolean
 
 internal object SuppressionLocatorBuilder {
     /**
      * No suppression is detected. Always returns `false`.
      */
-    val NO_SUPPRESSION: SuppressionLocator = { _, _, _ -> false }
+    val NO_SUPPRESSION: SuppressionLocator = { _, _ -> false }
 
     private val SUPPRESS_ANNOTATION_RULE_MAP = mapOf(
         "RemoveCurlyBracesFromTemplate" to "string-template",
@@ -44,7 +45,7 @@ internal object SuppressionLocatorBuilder {
     }
 
     private fun toSuppressedRegionsLocator(hintsList: List<SuppressionHint>): SuppressionLocator =
-        { offset, ruleId, isRoot -> // TODO: Remove unused parameter isRoot
+        { offset, ruleId ->
             hintsList
                 .filter { offset in it.range }
                 .any { hint -> hint.disabledRules.isEmpty() || hint.disabledRules.contains(ruleId) }
