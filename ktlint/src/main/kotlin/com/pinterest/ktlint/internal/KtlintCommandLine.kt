@@ -258,7 +258,7 @@ internal class KtlintCommandLine {
                     plus(CODE_STYLE_PROPERTY to android)
                 }
 
-    fun run() {
+    init {
         if (debugOld != null || trace != null || verbose != null) {
             if (minLogLevel == Level.OFF) {
                 minLogLevel = Level.ERROR
@@ -269,8 +269,12 @@ internal class KtlintCommandLine {
             exitKtLintProcess(1)
         }
 
+        // Ensure that logger is initialized even when the run method is not executed because a subcommand like (--help)
+        // is executed so that method exitKtLintProcess only prints a log line when the appropriate loglevel is set.
         logger = configureLogger()
+    }
 
+    fun run() {
         assertStdinAndPatternsFromStdinOptionsMutuallyExclusive()
 
         val stdinPatterns: Set<String> = readPatternsFromStdin()

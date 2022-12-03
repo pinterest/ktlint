@@ -20,7 +20,7 @@ class SimpleCLITest {
                 listOf("--help"),
             ) {
                 SoftAssertions().apply {
-                    assertErrorExitCode()
+                    assertNormalExitCode()
                     assertThat(normalOutput).containsLineMatching("An anti-bikeshedding Kotlin linter with built-in formatter.")
                     assertThat(normalOutput).containsLineMatching("Usage:")
                     assertThat(normalOutput).containsLineMatching("Examples:")
@@ -39,8 +39,8 @@ class SimpleCLITest {
                 listOf("--version"),
             ) {
                 SoftAssertions().apply {
-                    assertErrorExitCode()
-                    assertThat(normalOutput).containsExactly(System.getProperty("ktlint-version"))
+                    assertNormalExitCode()
+                    assertThat(normalOutput).contains(System.getProperty("ktlint-version"))
                 }.assertAll()
             }
     }
