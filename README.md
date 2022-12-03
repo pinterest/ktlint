@@ -12,7 +12,7 @@
 </p>
 
 <p align="center">
-<a href="https://kotlinlang.org/">Kotlin</a> linter in spirit of <a href="https://github.com/feross/standard">feross/standard</a> (JavaScript) and <a href="https://golang.org/cmd/gofmt/">gofmt</a> (Go).  
+<a href="https://kotlinlang.org/">Kotlin</a> linter in spirit of <a href="https://github.com/standard/standard">standard/standard</a> (JavaScript) and <a href="https://golang.org/cmd/gofmt/">gofmt</a> (Go).  
 </p>
 
 ## Key features
