@@ -13,9 +13,16 @@ allprojects {
         ext["VERSION_NAME"] = "$definedVersion-kotlin-dev-SNAPSHOT"
     }
 
-    tasks.withType<Test>().configureEach {
-        useJUnitPlatform()
-    }
+    val skipTests: String = System.getProperty("skipTests", "false")
+    tasks
+        .withType<Test>()
+        .configureEach {
+            if (skipTests == "false") {
+                useJUnitPlatform()
+            } else {
+                logger.warn("Skipping tests for task '$name' as system property 'skipTests=$skipTests'")
+            }
+        }
 }
 
 val ktlint: Configuration = configurations.create("ktlint")
