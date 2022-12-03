@@ -104,6 +104,11 @@ ktlint "src/**/*.kt" "!src/**/generated/**"
 $ ktlint --reporter=plain?group_by_file
 ```
 
+When using `ktlint` on an existing project, the number of violations can be huge. To get more insights in which rules are causing the most violations, the `plain-summary` reporter can be used.
+```shell title="Style violations counted per rule"
+$ ktlint --reporter=plain-summary
+```
+
 Other built-in reporters are: `json`, `sarif`, `checkstyle`, and `html`
 
 Style violations can be written to an output file which is convenient when multiple reporters are specified. In example below, the plain reporter is used to write to the console while the checkstyle reports is written to a file:

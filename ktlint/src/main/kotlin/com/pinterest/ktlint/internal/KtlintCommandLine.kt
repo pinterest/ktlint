@@ -162,9 +162,9 @@ internal class KtlintCommandLine {
     @Option(
         names = ["--reporter"],
         description = [
-            "A reporter to use (built-in: plain (default), plain?group_by_file, json, sarif, checkstyle, html). " +
-                "To use a third-party reporter specify a path to a JAR file on the filesystem via ',artifact=' option. " +
-                "To override reporter output, use ',output=' option.",
+            "A reporter to use (built-in: plain (default), plain?group_by_file, plain-summary, json, sarif, " +
+                "checkstyle, html). To use a third-party reporter specify a path to a JAR file on the filesystem " +
+                "via ',artifact=' option. To override reporter output, use ',output=' option.",
         ],
     )
     private var reporterJarPaths: List<String> = ArrayList()
