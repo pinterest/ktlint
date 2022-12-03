@@ -1704,6 +1704,17 @@ internal class WrappingRuleTest {
                 ).isFormattedAs(formattedCode)
         }
     }
+
+    @Test
+    fun `Given a block with an EOL comment on the same line as the opening brace then the EOL comment should not be wrapped`() {
+        val code =
+            """
+            val foo = fooBar { // some EOL comment
+                bar()
+            }
+            """.trimIndent()
+        wrappingRuleAssertThat(code).hasNoLintViolations()
+    }
 }
 
 // Replace the "$." placeholder with an actual "$" so that string "$.{expression}" is transformed to a String template
