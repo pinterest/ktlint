@@ -19,7 +19,7 @@ import org.junit.jupiter.params.provider.ValueSource
 internal class IndentationRuleTest {
     @BeforeEach
     internal fun setUp() {
-        // The system property below can be set to "on" to enable extensice trace logging. Do not commit/push such
+        // The system property below can be set to "on" to enable extensive trace logging. Do not commit/push such
         // change to any branch as it pollutes the build output too much!
         System.setProperty("KTLINT_UNIT_TEST_TRACE", "off")
     }

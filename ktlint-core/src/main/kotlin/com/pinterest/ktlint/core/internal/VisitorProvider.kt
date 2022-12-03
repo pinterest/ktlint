@@ -51,19 +51,22 @@ internal class VisitorProvider(
         val ruleRunnersToBeSkipped =
             ruleRunnersSorted
                 .filter { ruleRunner ->
-                    val runAfterRule = ruleRunner.runAfterRule
-                    runAfterRule != null &&
-                        runAfterRule.runOnlyWhenOtherRuleIsEnabled &&
-                        enabledRuleRunners.none { it.qualifiedRuleId == runAfterRule.ruleId.toQualifiedRuleId() }
+                    val runAfterRules = ruleRunner.runAfterRules
+                    val runAfterRuleIds = runAfterRules.map { it.ruleId.toQualifiedRuleId() }
+                    runAfterRules
+                        .any {
+                            it.runOnlyWhenOtherRuleIsEnabled &&
+                                enabledRuleRunners.none { it.qualifiedRuleId in runAfterRuleIds }
+                        }
                 }
         if (ruleRunnersToBeSkipped.isNotEmpty()) {
             LOGGER.debug {
                 ruleRunnersToBeSkipped
                     .forEach {
                         println(
-                            "Skipping rule with id '${it.qualifiedRuleId}'. This rule has to run after rule with " +
-                                "id '${it.runAfterRule?.ruleId?.toQualifiedRuleId()}' and will not run in case that rule is " +
-                                "disabled.",
+                            "Skipping rule with id '${it.qualifiedRuleId}'. This rule has to run after rules with " +
+                                "ids '${it.runAfterRules.joinToString { it.ruleId.toQualifiedRuleId() }}' and will " +
+                                "not run in case that rule is disabled.",
                         )
                     }
             }

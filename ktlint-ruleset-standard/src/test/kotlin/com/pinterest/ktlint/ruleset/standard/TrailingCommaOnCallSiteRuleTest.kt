@@ -4,6 +4,7 @@ import com.pinterest.ktlint.core.RuleProvider
 import com.pinterest.ktlint.ruleset.standard.TrailingCommaOnCallSiteRule.Companion.TRAILING_COMMA_ON_CALL_SITE_PROPERTY
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class TrailingCommaOnCallSiteRuleTest {
@@ -11,6 +12,8 @@ class TrailingCommaOnCallSiteRuleTest {
         assertThatRule(
             provider = { TrailingCommaOnCallSiteRule() },
             additionalRuleProviders = setOf(
+                // WrappingRule must be loaded in order to run TrailingCommaOnCallSiteRule
+                RuleProvider { WrappingRule() },
                 // Apply the IndentationRule always as additional rule, so that the formattedCode in the unit test looks
                 // correct.
                 RuleProvider { IndentationRule() },
@@ -282,16 +285,20 @@ class TrailingCommaOnCallSiteRuleTest {
             @Annotation([1, 2])
             val foo1: Int = 0
 
-            @Annotation([
-                1,
-                2 // The comma before the comment should be removed without removing the comment itself
-            ])
+            @Annotation(
+                [
+                    1,
+                    2 // The comma before the comment should be removed without removing the comment itself
+                ]
+            )
             val foo2: Int = 0
 
-            @Annotation([
-                1,
-                2 /* The comma before the comment should be removed without removing the comment itself */
-            ])
+            @Annotation(
+                [
+                    1,
+                    2 /* The comma before the comment should be removed without removing the comment itself */
+                ]
+            )
             val foo3: Int = 0
             """.trimIndent()
         trailingCommaOnCallSiteRuleAssertThat(code)
@@ -343,16 +350,20 @@ class TrailingCommaOnCallSiteRuleTest {
             @Annotation([1, 2])
             val foo1: Int = 0
 
-            @Annotation([
-                1,
-                2, // The comma should be inserted before the comment
-            ])
+            @Annotation(
+                [
+                    1,
+                    2, // The comma should be inserted before the comment
+                ],
+            )
             val foo2: Int = 0
 
-            @Annotation([
-                1,
-                2, /* The comma should be inserted before the comment */
-            ])
+            @Annotation(
+                [
+                    1,
+                    2, /* The comma should be inserted before the comment */
+                ],
+            )
             val foo3: Int = 0
 
             @Annotation(
@@ -487,31 +498,66 @@ class TrailingCommaOnCallSiteRuleTest {
             .hasNoLintViolations()
     }
 
-    @Test
-    fun `Issue 1642 - Given a multiline argument then ignore the newline character and do not add a trailing comma`() {
-        val code =
-            """
-            fun main() {
-                bar(object : Foo {
-                    override fun foo() {
-                        TODO("Not yet implemented")
-                    }
-                })
-                bar("foo", object : Foo {
-                    override fun foo() {
-                        TODO("Not yet implemented")
-                    }
-                })
-                bar(object : Foo {
-                    override fun foo() {
-                        TODO("Not yet implemented")
-                    }
-                }, "foo")
-            }
-            """.trimIndent()
-        trailingCommaOnCallSiteRuleAssertThat(code)
-            .withEditorConfigOverride(TRAILING_COMMA_ON_CALL_SITE_PROPERTY to true)
-            .hasNoLintViolations()
+    @Nested
+    inner class `Issue 1642 - Given a multiline argument` {
+        @Test
+        fun `Issue 1642 - Given a single multiline argument then do not add a trailing comma`() {
+            val code =
+                """
+                fun main() {
+                    bar(
+                        object : Foo {
+                            override fun foo() {
+                                TODO("Not yet implemented")
+                            }
+                        },
+                    )
+                }
+                """.trimIndent()
+            trailingCommaOnCallSiteRuleAssertThat(code)
+                .withEditorConfigOverride(TRAILING_COMMA_ON_CALL_SITE_PROPERTY to true)
+                .hasNoLintViolations()
+        }
+
+        @Test
+        fun `Issue 1642 - Given an argument followed by multiline argument then add a trailing comma`() {
+            val code =
+                """
+                fun main() {
+                    bar(
+                        "foo",
+                        object : Foo {
+                            override fun foo() {
+                                TODO("Not yet implemented")
+                            }
+                        }
+                    )
+                }
+                """.trimIndent()
+            trailingCommaOnCallSiteRuleAssertThat(code)
+                .withEditorConfigOverride(TRAILING_COMMA_ON_CALL_SITE_PROPERTY to true)
+                .hasLintViolation(8, 10, "Missing trailing comma before \")\"")
+        }
+
+        @Test
+        fun `Issue 1642 - Given a multiline argument followed by another argument then add a trailing comma`() {
+            val code =
+                """
+                fun main() {
+                    bar(
+                        object : Foo {
+                            override fun foo() {
+                                TODO("Not yet implemented")
+                            }
+                        },
+                        "foo"
+                    )
+                }
+                """.trimIndent()
+            trailingCommaOnCallSiteRuleAssertThat(code)
+                .withEditorConfigOverride(TRAILING_COMMA_ON_CALL_SITE_PROPERTY to true)
+                .hasLintViolation(8, 14, "Missing trailing comma before \")\"")
+        }
     }
 
     @Test
@@ -533,7 +579,58 @@ class TrailingCommaOnCallSiteRuleTest {
             )
             """.trimIndent()
         trailingCommaOnCallSiteRuleAssertThat(code)
-            .withEditorConfigOverride(TrailingCommaOnDeclarationSiteRule.allowTrailingCommaProperty to true)
+            .withEditorConfigOverride(TRAILING_COMMA_ON_CALL_SITE_PROPERTY to true)
             .hasNoLintViolations()
+    }
+
+    // The test below covers for a bug which was quite hard to track down as it was a combination of two distinct bugs.
+    // Code sample before formatting:
+    //     val foo = foo(
+    //         listOf(
+    //             "bar",
+    //         )
+    //     )
+    // Code sample after formatting (not wrong indenting of closing parenthesis after element "bar"):
+    //     val foo = foo(
+    //         listOf(
+    //             "bar",
+    //             ),
+    //     )
+    // The problem could not be reproduced within the IndentationRuleTest. This was caused by a problem regarding the
+    // sort order of the rules. The code sample above was formatted with CLI parameter "--experimental" while in the
+    // IndentationRuleTest the "experimental function-signature" was not added as additional rule. Without the
+    // FunctionSignatureRule the effective order of the rules became:
+    //   - standard:wrapping,
+    //   - standard:indent,
+    //   - standard:trailing-comma-on-call-site,
+    // This is wrong as the indent rule may only run after the trailing comma rules. The problem was that the Rule
+    // sorter did not take rules having multiple RunAfterRule modifier into account.
+    //
+    // The second problem was a problem in the TrailingCommaOnCallSiteRule. The problem can only be visualized by
+    // inspecting the actual Psi which was generated. Before fixing this bug, the trailing comma was added as an element
+    // of the PsiElement representing the 'listOf("bar")' instead of as an element of the PsiElement representing the
+    // 'foo(...)'. This caused the IndentationRule to format the closing parenthesis after element "bar" incorrectly.
+    @Test
+    fun `Given a function call with a list parameter then add the trailing comma after the PsiElement representing the list`() {
+        val code =
+            """
+            val foo = foo(
+                listOf(
+                    "bar",
+                )
+            )
+            """.trimIndent()
+        val formattedCode =
+            """
+            val foo = foo(
+                listOf(
+                    "bar",
+                ),
+            )
+            """.trimIndent()
+        trailingCommaOnCallSiteRuleAssertThat(code)
+            .withEditorConfigOverride(TRAILING_COMMA_ON_CALL_SITE_PROPERTY to true)
+            .hasLintViolation(4, 6, "Missing trailing comma before \")\"")
+            .isFormattedAs(formattedCode)
     }
 }

@@ -12,7 +12,9 @@ import com.pinterest.ktlint.core.ast.ElementType.VALUE_ARGUMENT_LIST
 import com.pinterest.ktlint.core.ast.children
 import com.pinterest.ktlint.core.ast.isCodeLeaf
 import com.pinterest.ktlint.core.ast.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.core.ast.nextSibling
 import com.pinterest.ktlint.core.ast.prevCodeLeaf
+import com.pinterest.ktlint.core.ast.prevCodeSibling
 import com.pinterest.ktlint.core.ast.prevLeaf
 import kotlin.properties.Delegates
 import org.ec4j.core.model.PropertyType
@@ -31,7 +33,7 @@ public class TrailingCommaOnCallSiteRule :
         id = "trailing-comma-on-call-site",
         visitorModifiers = setOf(
             VisitorModifier.RunAfterRule(
-                ruleId = "standard:indent",
+                ruleId = "standard:wrapping",
                 loadOnlyWhenOtherRuleIsLoaded = true,
                 runOnlyWhenOtherRuleIsEnabled = true,
             ),
@@ -168,8 +170,10 @@ public class TrailingCommaOnCallSiteRule :
                     true,
                 )
                 if (autoCorrect) {
-                    val comma = KtPsiFactory(prevNode.psi).createComma()
-                    prevNode.psi.parent.addAfter(comma, prevNode.psi)
+                    val prevPsi = inspectNode.prevCodeSibling()!!.psi
+                    val parentPsi = prevPsi.parent
+                    val psiFactory = KtPsiFactory(prevPsi)
+                    parentPsi.addAfter(psiFactory.createComma(), prevPsi)
                 }
             }
             TrailingCommaState.REDUNDANT -> {
@@ -188,13 +192,18 @@ public class TrailingCommaOnCallSiteRule :
 
     private fun ASTNode.isMultiline(): Boolean =
         if (elementType == VALUE_ARGUMENT_LIST) {
-            hasAtLeastOneArgument() && hasAtLeastOneWhiteSpaceWithNewLine()
+            hasAtLeastOneArgument() && hasValueArgumentFollowedByWhiteSpaceWithNewline()
         } else {
             textContains('\n')
         }
 
-    private fun ASTNode.hasAtLeastOneWhiteSpaceWithNewLine() =
-        children().any { it.isWhiteSpaceWithNewline() }
+    private fun ASTNode.hasValueArgumentFollowedByWhiteSpaceWithNewline(): Boolean =
+        findValueArgumentFollowedByWhiteSpaceWithNewline() != null
+
+    private fun ASTNode.findValueArgumentFollowedByWhiteSpaceWithNewline() =
+        this
+            .findChildByType(VALUE_ARGUMENT)
+            ?.nextSibling { it.isWhiteSpaceWithNewline() }
 
     private fun ASTNode.hasAtLeastOneArgument() =
         children().any { it.elementType == VALUE_ARGUMENT }
