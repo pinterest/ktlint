@@ -324,6 +324,7 @@ internal class KtlintCommandLine {
                 reporter,
             )
         }
+        reporter.afterAll()
 
         logger.debug { "Finished processing in ${System.currentTimeMillis() - start}ms / $fileNumber file(s) scanned / $errorNumber error(s) found" }
         if (fileNumber.get() == 0) {

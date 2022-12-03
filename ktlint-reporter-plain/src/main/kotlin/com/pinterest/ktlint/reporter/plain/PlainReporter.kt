@@ -6,6 +6,9 @@ import java.io.File
 import java.io.PrintStream
 import java.util.concurrent.ConcurrentHashMap
 
+/**
+ * Reports [LintError]s which have not been autocorrected
+ */
 public class PlainReporter(
     private val out: PrintStream,
     private val groupByFile: Boolean = false,
@@ -15,11 +18,12 @@ public class PlainReporter(
 ) : Reporter {
 
     private val acc = ConcurrentHashMap<String, MutableList<LintError>>()
+    private val ruleViolationCount = ConcurrentHashMap<String, Long>()
 
     override fun onLintError(file: String, err: LintError, corrected: Boolean) {
         if (!corrected) {
             if (groupByFile) {
-                acc.getOrPut(file) { ArrayList<LintError>() }.add(err)
+                acc.getOrPut(file) { ArrayList() }.add(err)
             } else {
                 val column =
                     if (pad) {
@@ -31,6 +35,10 @@ public class PlainReporter(
                     "${colorFileName(file)}${":".colored()}${err.line}${":$column:".colored()} ${err.detail} ${"(${err.ruleId})".colored()}",
                 )
             }
+            ruleViolationCount
+                .merge(err.ruleId, 1) { previousValue, _ ->
+                    previousValue + 1
+                }
         }
     }
 
@@ -51,13 +59,41 @@ public class PlainReporter(
         }
     }
 
+    override fun afterAll() {
+        if (ruleViolationCount.isNotEmpty()) {
+            ruleViolationCount.printSummary("\nSummary error count (descending) by rule:")
+        }
+    }
+
+    private fun ConcurrentHashMap<String, Long>.printSummary(header: String) {
+        out.println(header)
+        toList()
+            .sortedWith(COUNT_DESC_AND_RULE_ID_ASC_COMPARATOR)
+            .map { out.println("  ${it.first}: ${it.second}") }
+    }
+
     private fun colorFileName(fileName: String): String {
         val name = fileName.substringAfterLast(File.separator)
         return fileName.substring(0, fileName.length - name.length).colored() + name
     }
 
     private fun String.colored() =
-        if (shouldColorOutput) this.color(outputColor) else this
+        if (shouldColorOutput) {
+            this.color(outputColor)
+        } else {
+            this
+        }
+
+    private companion object {
+        val COUNT_DESC_AND_RULE_ID_ASC_COMPARATOR =
+            kotlin
+                .Comparator<Pair<String, Long>> { left, right ->
+                    compareValuesBy(left, right) { it.second }
+                }.reversed()
+                .thenComparator { left, right ->
+                    compareValuesBy(left, right) { it.first }
+                }
+    }
 }
 
 internal fun String.color(foreground: Color): String =

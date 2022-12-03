@@ -106,6 +106,7 @@ Class `com.pinterest.ktlint.reporter.plain.internal.Color` has been moved to `co
 * Rewrite `indent` rule. Solving problems in the old algorithm was very difficult. With the new algorithm this becomes a lot easier. Although the new implementation of the rule has been compared against several open source projects containing over 400,000 lines of code, it is still likely that new issues will be discovered. Please report your indentation issues so that these can be fixed as well. ([#1682](https://github.com/pinterest/ktlint/pull/1682), [#1321](https://github.com/pinterest/ktlint/issues/1321), [#1200](https://github.com/pinterest/ktlint/issues/1200), [#1562](https://github.com/pinterest/ktlint/issues/1562), [#1563](https://github.com/pinterest/ktlint/issues/1563), [#1639](https://github.com/pinterest/ktlint/issues/1639), [#1688](https://github.com/pinterest/ktlint/issues/1688))
 * Add support for running tests on `java 19`, remove support for running tests on `java 18`.
 * Update `io.github.detekt.sarif4k:sarif4k` version to `0.2.0` ([#1701](https://github.com/pinterest/ktlint/issues/1701)).
+* Print a summary of the number of errors per rule which could not be autocorrected at the end of the `plain` reporter
 
 ## [0.47.1] - 2022-09-07
 
