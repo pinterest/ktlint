@@ -51,7 +51,7 @@ class NoConsecutiveBlankLinesRuleTest {
     }
 
     @Nested
-    inner class BlankLinesAtEndOfFile {
+    inner class `Given some blank lines at the end of the file` {
         @Test
         fun `Given two blank lines at end of file then do return lint errors`() {
             val code =
@@ -111,7 +111,7 @@ class NoConsecutiveBlankLinesRuleTest {
     }
 
     @Nested
-    inner class BlankLinesBetweenClassNameAndPrimaryConstructor {
+    inner class `Given some blank line between the class name and the primary constructor` {
         @Test
         fun `Given one or more blank line between the class name and primary constructor then do return a lint error`() {
             val code =

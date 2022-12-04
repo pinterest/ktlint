@@ -59,7 +59,7 @@ internal class RuleExecutionContext private constructor(
          * The [suppressionLocator] can be changed during each visit of node when running [KtLint.format]. So a new handler is to be built
          * before visiting the nodes.
          */
-        val suppressHandler = SuppressHandler(suppressionLocator, rootNode, autoCorrect, emit)
+        val suppressHandler = SuppressHandler(suppressionLocator, autoCorrect, emit)
         if (rule.shouldContinueTraversalOfAST()) {
             try {
                 suppressHandler.handle(node, fqRuleId) { autoCorrect, emit ->

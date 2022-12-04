@@ -3,16 +3,14 @@ package com.pinterest.ktlint.ruleset.standard
 import com.pinterest.ktlint.ruleset.standard.NoWildcardImportsRule.Companion.IJ_KOTLIN_PACKAGES_TO_USE_IMPORT_ON_DEMAND
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
-import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class NoWildcardImportsRuleTest {
     private val noWildcardImportsRuleAssertThat = assertThatRule { NoWildcardImportsRule() }
 
-    @DisplayName("Given that .editorconfig property packagesToUseImportOnDemandProperty is not set")
     @Nested
-    inner class PackagesToUseImportOnDemandPropertyNotSet {
+    inner class `Given that editorconfig property packagesToUseImportOnDemandProperty is not set` {
         @Test
         fun `Wildcard imports are detected`() {
             val code =
@@ -41,9 +39,8 @@ class NoWildcardImportsRuleTest {
         }
     }
 
-    @DisplayName("Given that .editorconfig property packagesToUseImportOnDemandProperty is set")
     @Nested
-    inner class PackagesToUseImportOnDemandPropertySet {
+    inner class `Given that editorconfig property packagesToUseImportOnDemandProperty is set` {
         @Test
         fun `Given that the property is set with value 'unset' then packages which are accepted by IntelliJ Default are not detected`() {
             val code =

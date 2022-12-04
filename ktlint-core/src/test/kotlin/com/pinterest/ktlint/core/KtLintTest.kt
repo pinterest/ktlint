@@ -25,7 +25,6 @@ import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
-import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
@@ -35,9 +34,9 @@ class KtLintTest {
      * stable.
      */
     @Nested
-    inner class ApiConsumer {
+    inner class `Given an API consumer` {
         @Nested
-        inner class LintViaExperimentalParams {
+        inner class `Given that lint is invoked via the KtLintRuleEngine` {
             @Test
             fun `Given a non empty rule providers and empty userData then do not throw an error`() {
                 var numberOfRootNodesVisited = 0
@@ -100,9 +99,8 @@ class KtLintTest {
             }
         }
 
-        @DisplayName("Format called with rule providers")
         @Nested
-        inner class FormatWithRuleProviders {
+        inner class `Given that format is invoked via the KtLintRuleEngine` {
             @Test
             fun `Given a non empty rule providers and empty userData then do not throw an error`() {
                 var numberOfRootNodesVisited = 0
@@ -292,7 +290,7 @@ class KtLintTest {
     }
 
     @Nested
-    inner class StopTraversal {
+    inner class `Given that the traversal is stopped` {
         @Test
         fun `Given that the traversal is stopped in the beforeFirstNode hook then do no traverse the AST but do call the afterLastNode hook`() {
             val ruleExecutionCalls = mutableListOf<RuleExecutionCall>()
@@ -615,9 +613,8 @@ class KtLintLegacyTest {
             }
         }
 
-        @DisplayName("Format called with rule providers")
         @Nested
-        inner class FormatWithRuleProviders {
+        inner class `Format called with rule providers` {
             @Test
             fun `Given a non empty rule providers and empty userData then do not throw an error`() {
                 var numberOfRootNodesVisited = 0

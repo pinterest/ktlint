@@ -125,4 +125,22 @@ class PropertyNamingRuleTest {
             """.trimIndent()
         propertyNamingRuleAssertThat(code).hasNoLintViolations()
     }
+
+    @ParameterizedTest(name = "Suppression annotation: {0}")
+    @ValueSource(
+        strings = [
+            "ktlint:experimental:property-naming",
+            "PropertyName", // IntelliJ IDEA suppression
+        ],
+    )
+    fun `Given class with a disallowed name which is suppressed`(
+        suppressionName: String,
+    ) {
+        val code =
+            """
+            @Suppress("$suppressionName")
+            val foo = Foo()
+            """.trimIndent()
+        propertyNamingRuleAssertThat(code).hasNoLintViolations()
+    }
 }

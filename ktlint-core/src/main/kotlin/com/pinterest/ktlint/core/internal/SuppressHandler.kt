@@ -4,7 +4,6 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 internal class SuppressHandler(
     private val suppressionLocator: SuppressionLocator,
-    private val rootNode: ASTNode,
     private val autoCorrect: Boolean,
     private val emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
 ) {
@@ -16,7 +15,6 @@ internal class SuppressHandler(
         val suppress = suppressionLocator(
             node.startOffset,
             ruleId,
-            node == rootNode,
         )
         val autoCorrect = this.autoCorrect && !suppress
         val emit = if (suppress) {

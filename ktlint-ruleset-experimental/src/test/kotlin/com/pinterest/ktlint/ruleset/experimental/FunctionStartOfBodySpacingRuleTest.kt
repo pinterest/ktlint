@@ -2,7 +2,6 @@ package com.pinterest.ktlint.ruleset.experimental
 
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
-import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
@@ -10,8 +9,7 @@ class FunctionStartOfBodySpacingRuleTest {
     private val functionStartOfBodySpacingRuleAssertThat = assertThatRule { FunctionStartOfBodySpacingRule() }
 
     @Nested
-    @DisplayName("Given a function signature followed by an expression body")
-    inner class ExpressionBody {
+    inner class `Given a function signature followed by an expression body` {
         @Test
         fun `Given that the signature contains required spacing then do not reformat`() {
             val code =
@@ -23,8 +21,7 @@ class FunctionStartOfBodySpacingRuleTest {
         }
 
         @Nested
-        @DisplayName("Given the spacing before the equality sign")
-        inner class SpacingBeforeEqualitySignInExpressionBody {
+        inner class `Given the spacing before the equality sign` {
             @Test
             fun `Given that no space is found before the equals sign then reformat`() {
                 val code =
@@ -86,8 +83,7 @@ class FunctionStartOfBodySpacingRuleTest {
         }
 
         @Nested
-        @DisplayName("Given the spacing after the equality sign")
-        inner class SpacingAfterEqualitySignInExpressionBody {
+        inner class `Given the spacing after the equality sign` {
             @Test
             fun `Given that no space is found between the equals sign and expression body on the same line then reformat`() {
                 val code =
@@ -141,8 +137,7 @@ class FunctionStartOfBodySpacingRuleTest {
     }
 
     @Nested
-    @DisplayName("Given a function signature followed by a body block")
-    inner class BodyBlock {
+    inner class `Given a function signature followed by a body block` {
         @Test
         fun `Given that the signature contains required spacing then do not reformat`() {
             val code =

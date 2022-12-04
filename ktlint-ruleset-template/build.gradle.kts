@@ -36,8 +36,13 @@ dependencies {
     testImplementation(libs.assertj)
 }
 
+val skipTests: String = System.getProperty("skipTests", "false")
 tasks.test {
-    useJUnitPlatform()
+    if (skipTests == "false") {
+        useJUnitPlatform()
+    } else {
+        logger.warn("Skipping tests for task '$name' as system property 'skipTests=$skipTests'")
+    }
 }
 
 tasks.register<JavaExec>("ktlint") {

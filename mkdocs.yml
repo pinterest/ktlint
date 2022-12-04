@@ -40,6 +40,7 @@ nav:
   - Rules:
     - Standard rules: rules/standard.md
     - Experimental rules: rules/experimental.md
+    - Dependencies: rules/dependencies.md
     - KtLint configuration: rules/configuration-ktlint.md
     - IntelliJ IDEA configuration: rules/configuration-intellij-idea.md
   - Extensions:

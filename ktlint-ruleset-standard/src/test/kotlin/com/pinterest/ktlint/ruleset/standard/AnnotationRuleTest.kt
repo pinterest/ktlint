@@ -362,7 +362,7 @@ class AnnotationRuleTest {
     }
 
     @Nested
-    inner class FileAnnotation {
+    inner class `Given an annotation at file level` {
         @Test
         fun `Issue 714 - Given a file annotation without parameter on same line as package`() {
             val code =

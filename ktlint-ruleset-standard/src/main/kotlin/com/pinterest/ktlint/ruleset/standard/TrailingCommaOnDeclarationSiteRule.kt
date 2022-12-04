@@ -54,7 +54,7 @@ public class TrailingCommaOnDeclarationSiteRule :
         id = "trailing-comma-on-declaration-site",
         visitorModifiers = setOf(
             VisitorModifier.RunAfterRule(
-                ruleId = "standard:indent",
+                ruleId = "standard:wrapping",
                 loadOnlyWhenOtherRuleIsLoaded = true,
                 runOnlyWhenOtherRuleIsEnabled = true,
             ),

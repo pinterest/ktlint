@@ -418,9 +418,8 @@ class FunctionSignatureRuleTest {
             ).isFormattedAs(formattedCode)
     }
 
-    @DisplayName("Given a single line function signature having too many parameters then do reformat as multiline signature")
     @Nested
-    inner class MinimumNumberOfParameters {
+    inner class `Given a single line function signature having too many parameters then do reformat as multiline signature` {
         @Test
         fun `Given a single line function signature which is smaller than or equal to the max line length but having too many parameters then do reformat as multiline signature`() {
             val code =

@@ -161,7 +161,7 @@ class SpacingAroundOperatorsRuleTest {
     }
 
     @Nested
-    inner class AugmentedAssignmentOperators {
+    inner class `Given an augmented assignment operator` {
         @Test
         fun `Given some augmented assignment operators missing spaces around the operator`() {
             val code =

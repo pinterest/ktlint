@@ -290,9 +290,9 @@ class ArgumentListWrappingRuleTest {
     }
 
     @Nested
-    inner class IgnoreFunctionCallWithTooManyArguments {
+    inner class `Given a function call with too man (eg more than 8) arguments` {
         @Test
-        fun `Given many (eg more than 8) arguments spread on a single line but exceeding max line length`() {
+        fun `Given that arguments are on a single line but exceeding max line length`() {
             val code =
                 """
                 val foo = foo(1, 2, 3, 4, 5, 6, 7, 8, 9)
@@ -303,7 +303,7 @@ class ArgumentListWrappingRuleTest {
         }
 
         @Test
-        fun `Given many (eg more than 8) arguments spread on multiple lines and not exceeding max line length`() {
+        fun `Given that arguments are spread on multiple lines and not exceeding max line length`() {
             val code =
                 """
                 val foo = foo(
@@ -380,7 +380,7 @@ class ArgumentListWrappingRuleTest {
     }
 
     @Nested
-    inner class IfStatement {
+    inner class `Given an if statement` {
         @Test
         fun `Issue 929 - Given some if condition calling a function with indented parameters`() {
             val code =
@@ -586,7 +586,7 @@ class ArgumentListWrappingRuleTest {
     }
 
     @Nested
-    inner class MultilineDotQualifiedExpression {
+    inner class `Given a multiline dot qualified expression` {
         @Test
         fun `Issue 1025 - Given an argument list after multiline dot qualified expression`() {
             val code =

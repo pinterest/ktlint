@@ -83,7 +83,7 @@ class ChainWrappingRuleTest {
     }
 
     @Nested
-    inner class NegativeNumber {
+    inner class `Given an expression containing a negative number` {
         @Test
         fun `Given a newline after an plus operator`() {
             val code =

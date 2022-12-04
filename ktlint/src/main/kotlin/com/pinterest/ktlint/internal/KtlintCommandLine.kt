@@ -162,18 +162,18 @@ internal class KtlintCommandLine {
     @Option(
         names = ["--reporter"],
         description = [
-            "A reporter to use (built-in: plain (default), plain?group_by_file, json, sarif, checkstyle, html). " +
-                "To use a third-party reporter specify a path to a JAR file on the filesystem via ',artifact=' option. " +
-                "To override reporter output, use ',output=' option.",
+            "A reporter to use (built-in: plain (default), plain?group_by_file, plain-summary, json, sarif, " +
+                "checkstyle, html). To use a third-party reporter specify a path to a JAR file on the filesystem " +
+                "via ',artifact=' option. To override reporter output, use ',output=' option.",
         ],
     )
-    private var reporters: JarFiles = ArrayList()
+    private var reporterJarPaths: List<String> = ArrayList()
 
     @Option(
         names = ["--ruleset", "-R"],
         description = ["A path to a JAR file containing additional ruleset(s)"],
     )
-    var rulesetJarFiles: JarFiles = ArrayList()
+    var rulesetJarPaths: List<String> = ArrayList()
 
     @Option(
         names = ["--stdin"],
@@ -258,7 +258,7 @@ internal class KtlintCommandLine {
                     plus(CODE_STYLE_PROPERTY to android)
                 }
 
-    fun run() {
+    init {
         if (debugOld != null || trace != null || verbose != null) {
             if (minLogLevel == Level.OFF) {
                 minLogLevel = Level.ERROR
@@ -269,8 +269,12 @@ internal class KtlintCommandLine {
             exitKtLintProcess(1)
         }
 
+        // Ensure that logger is initialized even when the run method is not executed because a subcommand like (--help)
+        // is executed so that method exitKtLintProcess only prints a log line when the appropriate loglevel is set.
         logger = configureLogger()
+    }
 
+    fun run() {
         assertStdinAndPatternsFromStdinOptionsMutuallyExclusive()
 
         val stdinPatterns: Set<String> = readPatternsFromStdin()
@@ -285,11 +289,10 @@ internal class KtlintCommandLine {
 
         val start = System.currentTimeMillis()
 
-        val ruleProviders = rulesetJarFiles.loadRuleProviders(experimental, debug, disabledRules)
         var reporter = loadReporter()
 
         val ktLintRuleEngine = KtLintRuleEngine(
-            ruleProviders = ruleProviders,
+            ruleProviders = ruleProviders(),
             editorConfigDefaults = editorConfigDefaults,
             editorConfigOverride = editorConfigOverride,
             isInvokedFromCli = true,
@@ -321,6 +324,7 @@ internal class KtlintCommandLine {
                 reporter,
             )
         }
+        reporter.afterAll()
 
         logger.debug { "Finished processing in ${System.currentTimeMillis() - start}ms / $fileNumber file(s) scanned / $errorNumber error(s) found" }
         if (fileNumber.get() == 0) {
@@ -334,6 +338,21 @@ internal class KtlintCommandLine {
             exitKtLintProcess(0)
         }
     }
+
+    internal fun ruleProviders() =
+        rulesetJarPaths
+            .toFilesURIList()
+            .loadRuleProviders(experimental, debug, disabledRules)
+
+    private fun List<String>.toFilesURIList() =
+        map {
+            val jarFile = File(it.expandTildeToFullPath())
+            if (!jarFile.exists()) {
+                logger.error { "File '$it' does not exist" }
+                exitKtLintProcess(1)
+            }
+            jarFile.toURI().toURL()
+        }
 
     private fun configureLogger() =
         KotlinLogging
@@ -458,7 +477,7 @@ internal class KtlintCommandLine {
     }
 
     private fun loadReporter(): Reporter {
-        val configuredReporters = reporters.ifEmpty { listOf("plain") }
+        val configuredReporters = reporterJarPaths.ifEmpty { listOf("plain") }
 
         val tpls = configuredReporters
             .map { reporter ->

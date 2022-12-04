@@ -150,7 +150,9 @@ No wildcard imports except imports listed in `.editorconfig` property `ij_kotlin
 
 Rule id: `no-wildcard-imports`
 
-## No underscores in package names
+## Package name
+
+Validates that the package name matches the regular expression `[a-z][a-zA-Z\d]*(\.[a-z][a-zA-Z\d]*)*`.
 
 Rule id: `package-name`
 

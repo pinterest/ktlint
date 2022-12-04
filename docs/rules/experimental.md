@@ -39,33 +39,50 @@ Rule id: `function-signature`
 
 ## Naming
 
-### Class naming
+### Class/object naming
 
 Enforce naming of class.
+
+!!! note
+    Functions in files which import a class from package `org.junit.jupiter.api` are considered to be test functions and are allowed to have a name specified between backticks and do not need to adhere to the normal naming convention. Although, the [Kotlin coding conventions](https://kotlinlang.org/docs/coding-conventions.html) does not allow this explicitly for class identifiers, `ktlint` does allow it as this makes it possible to write code like below:
+     ```kotlin
+     @Nested
+     inner class `Some descriptive class name` {
+         @Test
+         fun `Some descriptive test name`() {
+             // do something
+         }
+     }
+     ```
+
+This rule can also be suppressed with the IntelliJ IDEA inspection suppression `ClassName`.
 
 Rule id: `experimental:class-naming`
 
 ### Function naming
 
-Enforce naming of function.
+Enforce naming of function. 
+
+!!! note
+    Functions in files which import a class from package `org.junit`, `org.testng` or `kotlin.test` are considered to be test functions. Functions in such classes are allowed to have underscores in the name. Or function names can be specified between backticks and do not need to adhere to the normal naming convention.
+
+This rule can also be suppressed with the IntelliJ IDEA inspection suppression `FunctionName`.
 
 Rule id: `experimental:function-naming`
-
-### Object naming
-
-Enforce naming of object.
-
-Rule id: `experimental:object-naming`
 
 ### Package naming
 
 Enforce naming of package.
+
+This rule can also be suppressed with the IntelliJ IDEA inspection suppression `PackageName`.
 
 Rule id: `experimental:package-naming`
 
 ### Property naming
 
 Enforce naming of property.
+
+This rule can also be suppressed with the IntelliJ IDEA inspection suppression `PropertyName`.
 
 Rule id: `experimental:property-naming`
 
