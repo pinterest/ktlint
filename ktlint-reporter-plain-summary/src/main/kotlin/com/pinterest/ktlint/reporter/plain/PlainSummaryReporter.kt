@@ -33,7 +33,10 @@ public class PlainSummaryReporter(
             ruleViolationCountAutocorrected.printSummary("Count (descending) of autocorrected errors by rule:")
         }
         if (ruleViolationCountNoAutocorrection.isNotEmpty()) {
-            ruleViolationCountNoAutocorrection.printSummary("\nCount (descending) of errors not autocorrected by rule:")
+            if (ruleViolationCountAutocorrected.isNotEmpty()) {
+                out.println("")
+            }
+            ruleViolationCountNoAutocorrection.printSummary("Count (descending) of errors not autocorrected by rule:")
         }
     }
 

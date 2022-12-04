@@ -61,7 +61,8 @@ public class PlainReporter(
 
     override fun afterAll() {
         if (ruleViolationCount.isNotEmpty()) {
-            ruleViolationCount.printSummary("\nSummary error count (descending) by rule:")
+            out.println("")
+            ruleViolationCount.printSummary("Summary error count (descending) by rule:")
         }
     }
 
