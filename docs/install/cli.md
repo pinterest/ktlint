@@ -131,7 +131,7 @@ By default, the `info` log level is used meaning that all log lines at level `in
 
 ### Rule configuration (`.editorconfig`)
 
-Some rules can be tweaked via the [`editorconfig file`](rules/configuration-ktlint/).
+Some rules can be tweaked via the [`editorconfig file`](../../rules/configuration-ktlint/).
 
 A scaffold of the `.editorconfig file` can be generated with command below. Note: that the generated file only contains configuration settings which are actively used by the [rules which are loaded](#rule-sets):
 
