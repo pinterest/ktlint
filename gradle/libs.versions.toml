@@ -1,6 +1,6 @@
 [versions]
 kotlin = "1.7.21"
-kotlinDev = "1.8.0-Beta"
+kotlinDev = "1.8.0-RC"
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
