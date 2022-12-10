@@ -97,6 +97,7 @@ if (node.isRoot()) {
 * Do not add a second trailing comma, if the original trailing comma is followed by a KDOC `trailing-comma-on-declaration-site` and `trailing-comma-on-call-site` ([#1676](https://github.com/pinterest/ktlint/issue/1676))
 * A function signature preceded by an annotation array should be handled similar as function preceded by a singular annotation `function-signature` ([#1690](https://github.com/pinterest/ktlint/issue/1690))
 * Fix offset of annotation violations
+* Fix line offset when blank line found between class and primary constructor
 
 ### Changed
 * Update Kotlin development version to `1.8.0-RC` and Kotlin version to `1.7.21`.

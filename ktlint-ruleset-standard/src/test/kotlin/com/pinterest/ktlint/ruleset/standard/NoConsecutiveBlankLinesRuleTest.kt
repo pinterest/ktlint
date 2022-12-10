@@ -135,10 +135,8 @@ class NoConsecutiveBlankLinesRuleTest {
                 """.trimIndent()
             noConsecutiveBlankLinesRuleAssertThat(code)
                 .hasLintViolations(
-                    // TODO: Line number is incorrect
-                    LintViolation(3, 1, "Needless blank line(s)"),
-                    // TODO: Line number is incorrect
-                    LintViolation(7, 1, "Needless blank line(s)"),
+                    LintViolation(2, 1, "Needless blank line(s)"),
+                    LintViolation(6, 1, "Needless blank line(s)"),
                 ).isFormattedAs(formattedCode)
         }
 
