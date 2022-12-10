@@ -3,6 +3,7 @@ package com.pinterest.ktlint.ruleset.standard
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
+import com.pinterest.ktlint.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.core.ast.ElementType
 import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ktlint.ruleset.standard.ImportOrderingRule.Companion.ASCII_PATTERN
@@ -40,7 +41,7 @@ public class ImportOrderingRule :
     Rule("import-ordering"),
     UsesEditorConfigProperties {
 
-    override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
+    override val editorConfigProperties: List<EditorConfigProperty<*>> = listOf(
         IJ_KOTLIN_IMPORTS_LAYOUT_PROPERTY,
     )
 
@@ -240,8 +241,8 @@ public class ImportOrderingRule :
                 }
             }
 
-        public val IJ_KOTLIN_IMPORTS_LAYOUT_PROPERTY: UsesEditorConfigProperties.EditorConfigProperty<List<PatternEntry>> =
-            UsesEditorConfigProperties.EditorConfigProperty<List<PatternEntry>>(
+        public val IJ_KOTLIN_IMPORTS_LAYOUT_PROPERTY: EditorConfigProperty<List<PatternEntry>> =
+            EditorConfigProperty<List<PatternEntry>>(
                 type = PropertyType(
                     "ij_kotlin_imports_layout",
                     "Defines imports order layout for Kotlin files",
@@ -257,7 +258,7 @@ public class ImportOrderingRule :
             replaceWith = ReplaceWith("IJ_KOTLIN_IMPORTS_LAYOUT_PROPERTY"),
         )
         @Suppress("ktlint:experimental:property-naming")
-        public val ideaImportsLayoutProperty: UsesEditorConfigProperties.EditorConfigProperty<List<PatternEntry>> =
+        public val ideaImportsLayoutProperty: EditorConfigProperty<List<PatternEntry>> =
             IJ_KOTLIN_IMPORTS_LAYOUT_PROPERTY
     }
 }

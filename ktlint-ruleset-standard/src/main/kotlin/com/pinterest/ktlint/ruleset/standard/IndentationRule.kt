@@ -4,10 +4,9 @@ import com.pinterest.ktlint.core.IndentConfig
 import com.pinterest.ktlint.core.IndentConfig.IndentStyle.SPACE
 import com.pinterest.ktlint.core.IndentConfig.IndentStyle.TAB
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.INDENT_SIZE_PROPERTY
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
+import com.pinterest.ktlint.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.core.ast.ElementType.ANNOTATED_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.ANNOTATION
 import com.pinterest.ktlint.core.ast.ElementType.ANNOTATION_ENTRY
@@ -131,10 +130,10 @@ public class IndentationRule :
         ),
     ),
     UsesEditorConfigProperties {
-    override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> =
+    override val editorConfigProperties: List<EditorConfigProperty<*>> =
         listOf(
-            INDENT_SIZE_PROPERTY,
-            INDENT_STYLE_PROPERTY,
+            com.pinterest.ktlint.core.api.editorconfig.INDENT_SIZE_PROPERTY,
+            com.pinterest.ktlint.core.api.editorconfig.INDENT_STYLE_PROPERTY,
         )
     private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
 
@@ -146,8 +145,8 @@ public class IndentationRule :
 
     override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
         indentConfig = IndentConfig(
-            indentStyle = editorConfigProperties.getEditorConfigValue(INDENT_STYLE_PROPERTY),
-            tabWidth = editorConfigProperties.getEditorConfigValue(INDENT_SIZE_PROPERTY),
+            indentStyle = editorConfigProperties.getEditorConfigValue(com.pinterest.ktlint.core.api.editorconfig.INDENT_STYLE_PROPERTY),
+            tabWidth = editorConfigProperties.getEditorConfigValue(com.pinterest.ktlint.core.api.editorconfig.INDENT_SIZE_PROPERTY),
         )
         if (indentConfig.disabled) {
             stopTraversalOfAST()

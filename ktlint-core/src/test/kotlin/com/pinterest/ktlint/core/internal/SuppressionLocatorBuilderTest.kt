@@ -4,6 +4,9 @@ import com.pinterest.ktlint.core.KtLintRuleEngine
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.RuleProvider
+import com.pinterest.ktlint.core.api.EditorConfigOverride
+import com.pinterest.ktlint.core.api.editorconfig.RuleExecution
+import com.pinterest.ktlint.core.api.editorconfig.createRuleSetExecutionEditorConfigProperty
 import com.pinterest.ktlint.core.ast.ElementType
 import org.assertj.core.api.Assertions.assertThat
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -19,9 +22,9 @@ class SuppressionLocatorBuilderTest {
             """.trimIndent()
         assertThat(lint(code)).containsExactly(
             LintError(1, 5, "no-foo-identifier-standard", "Line should not contain a foo identifier"),
-            LintError(1, 5, "custom:no-foo-identifier", "Line should not contain a foo identifier"),
+            LintError(1, 5, "$NON_STANDARD_RULE_SET_ID:no-foo-identifier", "Line should not contain a foo identifier"),
             LintError(2, 5, "no-foo-identifier-standard", "Line should not contain a foo identifier"),
-            LintError(2, 5, "custom:no-foo-identifier", "Line should not contain a foo identifier"),
+            LintError(2, 5, "$NON_STANDARD_RULE_SET_ID:no-foo-identifier", "Line should not contain a foo identifier"),
         )
     }
 
@@ -38,7 +41,7 @@ class SuppressionLocatorBuilderTest {
     fun `Given that a NoFooIdentifierRule violation is suppressed with an EOL-comment for the specific rule then do not find a violation`() {
         val code =
             """
-            val foo = "foo" // ktlint-disable no-foo-identifier-standard custom:no-foo-identifier
+            val foo = "foo" // ktlint-disable no-foo-identifier-standard $NON_STANDARD_RULE_SET_ID:no-foo-identifier
             """.trimIndent()
         assertThat(lint(code)).isEmpty()
     }
@@ -54,7 +57,7 @@ class SuppressionLocatorBuilderTest {
             """.trimIndent()
         assertThat(lint(code)).containsExactly(
             LintError(4, 5, "no-foo-identifier-standard", "Line should not contain a foo identifier"),
-            LintError(4, 5, "custom:no-foo-identifier", "Line should not contain a foo identifier"),
+            LintError(4, 5, "$NON_STANDARD_RULE_SET_ID:no-foo-identifier", "Line should not contain a foo identifier"),
         )
     }
 
@@ -62,14 +65,14 @@ class SuppressionLocatorBuilderTest {
     fun `Given that a NoFooIdentifierRule violation is suppressed with a block comment for a specific rule then do not find a violation for that rule in that block`() {
         val code =
             """
-            /* ktlint-disable no-foo-identifier-standard custom:no-foo-identifier */
+            /* ktlint-disable no-foo-identifier-standard $NON_STANDARD_RULE_SET_ID:no-foo-identifier */
             val fooNotReported = "foo"
-            /* ktlint-enable no-foo-identifier-standard custom:no-foo-identifier */
+            /* ktlint-enable no-foo-identifier-standard $NON_STANDARD_RULE_SET_ID:no-foo-identifier */
             val fooReported = "foo"
             """.trimIndent()
         assertThat(lint(code)).containsExactly(
             LintError(4, 5, "no-foo-identifier-standard", "Line should not contain a foo identifier"),
-            LintError(4, 5, "custom:no-foo-identifier", "Line should not contain a foo identifier"),
+            LintError(4, 5, "$NON_STANDARD_RULE_SET_ID:no-foo-identifier", "Line should not contain a foo identifier"),
         )
     }
 
@@ -84,7 +87,7 @@ class SuppressionLocatorBuilderTest {
             """.trimIndent()
         assertThat(lint(code)).containsExactly(
             LintError(4, 5, "no-foo-identifier-standard", "Line should not contain a foo identifier"),
-            LintError(4, 5, "custom:no-foo-identifier", "Line should not contain a foo identifier"),
+            LintError(4, 5, "$NON_STANDARD_RULE_SET_ID:no-foo-identifier", "Line should not contain a foo identifier"),
         )
     }
 
@@ -92,14 +95,14 @@ class SuppressionLocatorBuilderTest {
     fun `Given that a NoFooIdentifierRule violation is suppressed with @Suppress at statement level for a specific rule then do not find a violation for that rule`() {
         val code =
             """
-            @Suppress("ktlint:no-foo-identifier-standard", "ktlint:custom:no-foo-identifier")
+            @Suppress("ktlint:no-foo-identifier-standard", "ktlint:$NON_STANDARD_RULE_SET_ID:no-foo-identifier")
             val fooNotReported = "foo"
 
             val fooReported = "foo"
             """.trimIndent()
         assertThat(lint(code)).containsExactly(
             LintError(4, 5, "no-foo-identifier-standard", "Line should not contain a foo identifier"),
-            LintError(4, 5, "custom:no-foo-identifier", "Line should not contain a foo identifier"),
+            LintError(4, 5, "$NON_STANDARD_RULE_SET_ID:no-foo-identifier", "Line should not contain a foo identifier"),
         )
     }
 
@@ -107,7 +110,7 @@ class SuppressionLocatorBuilderTest {
     fun `Given that a NoFooIdentifierRule violation is suppressed with @Suppress at function level then do not find a violation for that rule in that function`() {
         val code =
             """
-            @Suppress("ktlint:no-foo-identifier-standard", "ktlint:custom:no-foo-identifier")
+            @Suppress("ktlint:no-foo-identifier-standard", "ktlint:$NON_STANDARD_RULE_SET_ID:no-foo-identifier")
             fun foo() {
                 val fooNotReported = "foo"
             }
@@ -116,7 +119,7 @@ class SuppressionLocatorBuilderTest {
             """.trimIndent()
         assertThat(lint(code)).containsExactly(
             LintError(6, 5, "no-foo-identifier-standard", "Line should not contain a foo identifier"),
-            LintError(6, 5, "custom:no-foo-identifier", "Line should not contain a foo identifier"),
+            LintError(6, 5, "$NON_STANDARD_RULE_SET_ID:no-foo-identifier", "Line should not contain a foo identifier"),
         )
     }
 
@@ -133,7 +136,7 @@ class SuppressionLocatorBuilderTest {
             """.trimIndent()
         assertThat(lint(code)).containsExactly(
             LintError(6, 5, "no-foo-identifier-standard", "Line should not contain a foo identifier"),
-            LintError(6, 5, "custom:no-foo-identifier", "Line should not contain a foo identifier"),
+            LintError(6, 5, "$NON_STANDARD_RULE_SET_ID:no-foo-identifier", "Line should not contain a foo identifier"),
         )
     }
 
@@ -141,7 +144,7 @@ class SuppressionLocatorBuilderTest {
     fun `Given that a NoFooIdentifierRule violation is suppressed with @Suppress at class level then do not find a violation for that rule in that class`() {
         val code =
             """
-            @Suppress("ktlint:no-foo-identifier-standard", "ktlint:custom:no-foo-identifier")
+            @Suppress("ktlint:no-foo-identifier-standard", "ktlint:$NON_STANDARD_RULE_SET_ID:no-foo-identifier")
             class Foo {
                 fun foo() {
                     val fooNotReported = "foo"
@@ -173,7 +176,7 @@ class SuppressionLocatorBuilderTest {
     fun `Given that the NoFooIdentifierRule is suppressed in the entire file with @file-colon-Suppress then do not find any NoFooIdentifierRule violation`() {
         val code =
             """
-            @file:Suppress("ktlint:no-foo-identifier-standard", "ktlint:custom:no-foo-identifier")
+            @file:Suppress("ktlint:no-foo-identifier-standard", "ktlint:$NON_STANDARD_RULE_SET_ID:no-foo-identifier")
 
             class Foo {
                 fun foo() {
@@ -228,6 +231,10 @@ class SuppressionLocatorBuilderTest {
                 // ruleIds are different.
                 RuleProvider { NoFooIdentifierRule("no-foo-identifier-standard") },
                 RuleProvider { NoFooIdentifierRule("$NON_STANDARD_RULE_SET_ID:no-foo-identifier") },
+            ),
+            editorConfigOverride = EditorConfigOverride.from(
+                createRuleSetExecutionEditorConfigProperty("no-foo-identifier-standard") to RuleExecution.enabled,
+                createRuleSetExecutionEditorConfigProperty("$NON_STANDARD_RULE_SET_ID:no-foo-identifier") to RuleExecution.enabled,
             ),
         )
     }

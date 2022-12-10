@@ -114,6 +114,50 @@ Like with other `@Suppress` annotations, it can be placed on targets supported b
 
 
 ## How do I globally disable a rule?
-With [`.editorConfig` property `ktlint_disabled_rules`](../rules/configuration-ktlint#disabled-rules) a rule can be disabled globally.
+With [`.editorConfig` property `disabled_rules`](../rules/configuration-ktlint#disabled-rules) a rule can be disabled globally.
 
 You may also pass a list of disabled rules via the `--disabled_rules` command line flag. It has the same syntax as the EditorConfig property.
+
+
+## Why is `.editorconfig` property `disabled_rules` deprecated and how do I resolve this?
+The `.editorconfig` properties `disabled_rules` and `ktlint_disbaled_rules` are deprecated as of KtLint version `0.48` and are marked for removal in version `0.49`. Those properties contain a comma separated list of rules which are disabled. Using a comma separated list of values has some disadvantages.
+
+A big disadvantage is that it is not possible to override the property partially in an `.editorconfig` file in a subpackage. Another disadvantage is that it is not possible to express explicitly that a rule is enabled. Lastly, (qualified) rule ids can be 20 characters or longer, which makes a list with multiple entries hard to read.
+
+*Root `.editorconfig`*
+```editorconfig
+root = true
+
+[*.kt]
+disabled_rules=rule-1,rule-2,rule-3
+```
+This `.editorconfig` defines that all rules except `rule-1`, `rule-2` and `rule-3` should be run in all packages. Suppose that we want to enable `rule-1` but disable `rule-4` in certain subpackage, then we would need to define an `.editorconfig` file like below:
+
+*Secondary `.editorconfig`*
+```editorconfig
+[*.kt]
+disabled_rules=rule-2,rule-4,rule-3
+```
+Disabling another rule in the root `.editorconfig` file, does not have effect on this subpackage as long as that rule has not been added to the `.editorconfig` file in the subpackage. 
+
+Starting with KtLint `0.48` entire rule sets and individual rules can be disabled / enabled with a separate property per rule (set). 
+
+All rules in a rule set can be enabled or disabled with a rule set property. The name of the rule set property consists of the `ktlint_` prefix followed by the rule set id. Examples:
+```editorconfig
+ktlint_standard = disabled # Disable all rules from the `standard` rule set provided by KtLint
+ktlint_experimental = enabled # Enable all rules from the `experimental` rule set provided by KtLint
+ktlint_your-custom-rule-set_custom-rule = enabled # Enable all rules in the `custom-rule-set` rule set (not provided by KtLint)
+```
+
+!!! note
+    All rules from the `standard` rule set are *enabled* by default and can optionally be disabled in the `.editorconfig`. All rules from the `experimental` and *custom* rule sets are *disabled* by default and can optionally be enabled in the `.editorconfig`.
+
+An individual property can be enabled or disabled with a rule property. The name of the rule property consists of the `ktlint_` prefix followed by the rule set id followed by a `_` and the rule id. Examples:
+```editorconfig
+ktlint_standard_final-newline = disabled # Disables the `final-newline` rule in the `standard` rule set provided by KtLint
+ktlint_experimental_type-argument-list-spacing = enabled # Enables the `type-argument-list-spacing` rule in the `experimental` rule set provided by KtLint
+ktlint_custom-rule-set_custom-rule = disabled # Disables the `custom-rule` rule in the `custom-rule-set` rule set (not provided by KtLint)
+```
+
+!!! note
+    The *rule* properties are applied after applying the *rule set* properties and take precedence. So if a rule set is disabled but a specific rule of that rule set is enabled, then the rule will be executed.  

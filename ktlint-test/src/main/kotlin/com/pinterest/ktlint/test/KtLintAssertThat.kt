@@ -3,9 +3,8 @@ package com.pinterest.ktlint.test
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.RuleProvider
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.core.api.EditorConfigOverride
-import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
+import com.pinterest.ktlint.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
 import org.assertj.core.api.AbstractAssert
@@ -47,14 +46,14 @@ public class KtLintAssertThat(
 ) {
     private var filePath: String? = null
     private var kotlinScript = false
-    private var editorConfigProperties = emptySet<Pair<UsesEditorConfigProperties.EditorConfigProperty<*>, *>>()
+    private var editorConfigProperties = emptySet<Pair<EditorConfigProperty<*>, *>>()
 
     /**
      * Set the [EditorConfigOverride] properties to be used by the rule. This function can be called multiple times.
      * Properties which have been set before, are silently overwritten with the new vale.
      */
     public fun withEditorConfigOverride(
-        vararg properties: Pair<UsesEditorConfigProperties.EditorConfigProperty<*>, *>,
+        vararg properties: Pair<EditorConfigProperty<*>, *>,
     ): KtLintAssertThat {
         editorConfigProperties = editorConfigProperties + properties.toSet()
 
@@ -86,7 +85,7 @@ public class KtLintAssertThat(
             ?.indexOf(EOL_CHAR)
             ?.let { index ->
                 editorConfigProperties =
-                    editorConfigProperties + setOf(MAX_LINE_LENGTH_PROPERTY to (index + 1).toString())
+                    editorConfigProperties + setOf(com.pinterest.ktlint.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY to (index + 1).toString())
             } ?: throw MissingEolMarker()
 
         return this

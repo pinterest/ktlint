@@ -1,11 +1,14 @@
 package com.pinterest.ktlint.core.internal
 
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.DISABLED_RULES_PROPERTY
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.KTLINT_DISABLED_RULES_PROPERTY
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
-import com.pinterest.ktlint.core.api.UsesEditorConfigProperties.EditorConfigProperty
+import com.pinterest.ktlint.core.api.editorconfig.EditorConfigProperty
+import com.pinterest.ktlint.core.api.editorconfig.RULE_EXECUTION_PROPERTY_TYPE
+import com.pinterest.ktlint.core.api.editorconfig.RuleExecution
+import com.pinterest.ktlint.core.api.editorconfig.createRuleExecutionEditorConfigProperty
+import com.pinterest.ktlint.core.api.editorconfig.ktLintRuleExecutionPropertyName
+import com.pinterest.ktlint.core.api.editorconfig.ktLintRuleSetExecutionPropertyName
 import com.pinterest.ktlint.core.initKtLintKLogger
 import mu.KotlinLogging
 
@@ -26,8 +29,12 @@ internal class VisitorProvider(
     recreateRuleSorter: Boolean = false,
 ) : UsesEditorConfigProperties {
     override val editorConfigProperties: List<EditorConfigProperty<*>> = listOf(
-        KTLINT_DISABLED_RULES_PROPERTY,
-        DISABLED_RULES_PROPERTY,
+        com.pinterest.ktlint.core.api.editorconfig.KTLINT_DISABLED_RULES_PROPERTY,
+        com.pinterest.ktlint.core.api.editorconfig.DISABLED_RULES_PROPERTY,
+    ).plus(
+        ruleRunners.map {
+            createRuleExecutionEditorConfigProperty(toQualifiedRuleId(it.ruleSetId, it.ruleId))
+        },
     )
 
     /**
@@ -43,7 +50,7 @@ internal class VisitorProvider(
     internal fun visitor(editorConfigProperties: EditorConfigProperties): ((rule: Rule, fqRuleId: String) -> Unit) -> Unit {
         val enabledRuleRunners =
             ruleRunnersSorted
-                .filter { ruleRunner -> isNotDisabled(editorConfigProperties, ruleRunner.qualifiedRuleId) }
+                .filter { ruleRunner -> isEnabled(editorConfigProperties, ruleRunner.qualifiedRuleId) }
         if (enabledRuleRunners.isEmpty()) {
             LOGGER.debug { "Skipping file as no enabled rules are found to be executed" }
             return { _ -> }
@@ -83,21 +90,65 @@ internal class VisitorProvider(
         }
     }
 
-    private fun isNotDisabled(editorConfigProperties: EditorConfigProperties, qualifiedRuleId: String): Boolean {
-        val ktlintDisabledRulesProperty =
-            if (editorConfigProperties.containsKey(KTLINT_DISABLED_RULES_PROPERTY.type.name) ||
-                !editorConfigProperties.containsKey(DISABLED_RULES_PROPERTY.type.name)
-            ) {
-                // New property takes precedence when defined, or, when both old and new property are not defined.
-                editorConfigProperties.getEditorConfigValue(KTLINT_DISABLED_RULES_PROPERTY)
-            } else {
-                editorConfigProperties.getEditorConfigValue(DISABLED_RULES_PROPERTY)
+    private fun isEnabled(editorConfigProperties: EditorConfigProperties, qualifiedRuleId: String): Boolean =
+        // For backwards compatibility all different properties which affects enabling/disabling of properties have to
+        // be checked. Note that properties are checked in order of precedence. If a property of higher precedence has
+        // been defined, all properties with lower precedence are ignore entirely.
+        when {
+            editorConfigProperties.containsKey(ktLintRuleExecutionPropertyName(qualifiedRuleId)) ||
+                editorConfigProperties.containsKey(ktLintRuleSetExecutionPropertyName(qualifiedRuleId)) ->
+                editorConfigProperties.isRuleEnabled(qualifiedRuleId)
+
+            editorConfigProperties.containsKey(com.pinterest.ktlint.core.api.editorconfig.KTLINT_DISABLED_RULES_PROPERTY.name) ->
+                editorConfigProperties.isEnabled(
+                    com.pinterest.ktlint.core.api.editorconfig.KTLINT_DISABLED_RULES_PROPERTY,
+                    qualifiedRuleId,
+                )
+
+            editorConfigProperties.containsKey(com.pinterest.ktlint.core.api.editorconfig.DISABLED_RULES_PROPERTY.name) ->
+                editorConfigProperties.isEnabled(
+                    com.pinterest.ktlint.core.api.editorconfig.DISABLED_RULES_PROPERTY,
+                    qualifiedRuleId,
+                )
+
+            else ->
+                ruleSetId(qualifiedRuleId) == "standard"
+        }
+
+    private fun EditorConfigProperties.isRuleEnabled(qualifiedRuleId: String) =
+        ruleExecution(ktLintRuleExecutionPropertyName(qualifiedRuleId))
+            ?.let { it == RuleExecution.enabled }
+            ?: isRuleSetEnabled(qualifiedRuleId)
+
+    private fun EditorConfigProperties.isRuleSetEnabled(qualifiedRuleId: String) =
+        ruleExecution(ktLintRuleSetExecutionPropertyName(qualifiedRuleId))
+            .let { ruleSetExecution ->
+                if (ruleSetExecution.name == "ktlint_standard") {
+                    // Rules in the standard rule set are enabled by default. So those rule should run unless the rule set
+                    // is disabled explicitly.
+                    ruleSetExecution != RuleExecution.disabled
+                } else {
+                    // Rules in non-standard rule set are disabled by default. So rules may only run when the rule set is
+                    // enabled explicitly.
+                    ruleSetExecution == RuleExecution.enabled
+                }
             }
-        return ktlintDisabledRulesProperty
+
+    private fun EditorConfigProperties.ruleExecution(ruleExecutionPropertyName: String) =
+        RULE_EXECUTION_PROPERTY_TYPE
+            .parse(
+                this[ruleExecutionPropertyName]?.sourceValue,
+            ).parsed
+
+    private fun EditorConfigProperties.isEnabled(
+        disabledRulesProperty: EditorConfigProperty<String>,
+        qualifiedRuleId: String,
+    ) =
+        this
+            .getEditorConfigValue(disabledRulesProperty)
             .split(",")
             .none {
                 // The rule set id in the disabled_rules setting may be omitted for rules in the standard rule set
                 it.toQualifiedRuleId() == qualifiedRuleId
             }
-    }
 }

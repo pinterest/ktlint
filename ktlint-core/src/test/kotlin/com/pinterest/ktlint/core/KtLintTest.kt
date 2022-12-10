@@ -12,6 +12,7 @@ import com.pinterest.ktlint.core.RuleExecutionCall.VisitNodeType.CHILD
 import com.pinterest.ktlint.core.RuleExecutionCall.VisitNodeType.ROOT
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
+import com.pinterest.ktlint.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.core.ast.ElementType.CLASS
 import com.pinterest.ktlint.core.ast.ElementType.FILE
 import com.pinterest.ktlint.core.ast.ElementType.IDENTIFIER
@@ -1092,14 +1093,15 @@ class KtLintLegacyTest {
 private class DummyRuleWithCustomEditorConfigProperty :
     Rule("dummy-rule-with-custom-editor-config-property"),
     UsesEditorConfigProperties {
-    override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> =
+    override val editorConfigProperties: List<EditorConfigProperty<*>> =
         listOf(SOME_CUSTOM_RULE_PROPERTY)
 
     companion object {
         const val SOME_CUSTOM_RULE_PROPERTY_NAME = "some-custom-rule-property"
 
-        val SOME_CUSTOM_RULE_PROPERTY: UsesEditorConfigProperties.EditorConfigProperty<Boolean> =
-            UsesEditorConfigProperties.EditorConfigProperty(
+        val SOME_CUSTOM_RULE_PROPERTY: EditorConfigProperty<Boolean> =
+            EditorConfigProperty(
+                name = SOME_CUSTOM_RULE_PROPERTY_NAME,
                 type = PropertyType.LowerCasingPropertyType(
                     SOME_CUSTOM_RULE_PROPERTY_NAME,
                     "some-custom-rule-property-description",

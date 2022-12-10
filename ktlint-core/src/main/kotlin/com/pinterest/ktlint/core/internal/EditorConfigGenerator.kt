@@ -1,10 +1,11 @@
 package com.pinterest.ktlint.core.internal
 
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.CODE_STYLE_PROPERTY
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.writeEditorConfigProperty
 import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
+import com.pinterest.ktlint.core.api.editorconfig.CodeStyleValue
+import com.pinterest.ktlint.core.api.editorconfig.DEFAULT_EDITOR_CONFIG_PROPERTIES
 import com.pinterest.ktlint.core.initKtLintKLogger
 import java.nio.file.Path
 import mu.KotlinLogging
@@ -33,14 +34,14 @@ internal class EditorConfigGenerator(
     fun generateEditorconfig(
         filePath: Path,
         rules: Set<Rule>,
-        codeStyle: DefaultEditorConfigProperties.CodeStyleValue,
+        codeStyle: CodeStyleValue,
     ): String {
         val editorConfig: Map<String, Property> =
             editorConfigLoader
                 .load(
                     filePath = filePath,
                     rules = rules,
-                    editorConfigOverride = EditorConfigOverride.from(CODE_STYLE_PROPERTY to codeStyle.name),
+                    editorConfigOverride = EditorConfigOverride.from(com.pinterest.ktlint.core.api.editorconfig.CODE_STYLE_PROPERTY to codeStyle.name),
                 )
 
         val potentialEditorConfigSettings =
@@ -58,7 +59,7 @@ internal class EditorConfigGenerator(
     private fun getConfigurationSettingsForRules(
         rules: Set<Rule>,
         editorConfig: Map<String, Property>,
-        codeStyle: DefaultEditorConfigProperties.CodeStyleValue,
+        codeStyle: CodeStyleValue,
     ) = rules
         .mapNotNull { rule ->
             if (rule is UsesEditorConfigProperties && rule.editorConfigProperties.isNotEmpty()) {
@@ -72,7 +73,7 @@ internal class EditorConfigGenerator(
                             )
                         }
                         LOGGER.debug {
-                            "Rule '${rule.id}' uses property '${property.type.name}' with default value '$value'"
+                            "Rule '${rule.id}' uses property '${property.type.name}' with value '$value'"
                         }
                         ConfigurationSetting(
                             key = property.type.name,
@@ -87,25 +88,23 @@ internal class EditorConfigGenerator(
 
     private fun getConfigurationSettingsForDefaultEditorConfigProperties(
         editorConfig: Map<String, Property>,
-        codeStyle: DefaultEditorConfigProperties.CodeStyleValue,
+        codeStyle: CodeStyleValue,
     ): List<ConfigurationSetting> {
-        return DefaultEditorConfigProperties
-            .editorConfigProperties
-            .filter { it.deprecationError == null }
+        return DEFAULT_EDITOR_CONFIG_PROPERTIES
+            .filter { it.deprecationWarning == null && it.deprecationError == null }
             .map { editorConfigProperty ->
-                val value = with((DefaultEditorConfigProperties as UsesEditorConfigProperties)) {
-                    editorConfig.writeEditorConfigProperty(
-                        editorConfigProperty,
-                        codeStyle,
-                    )
-                }
+                val value = editorConfig.writeEditorConfigProperty(
+                    editorConfigProperty,
+                    codeStyle,
+                )
+
                 LOGGER.debug {
-                    "Class '${DefaultEditorConfigProperties::class.simpleName}' uses property '${editorConfigProperty.type.name}' with default value '$value'"
+                    "Editor config property '${editorConfigProperty.name}' has default value '$value'"
                 }
                 ConfigurationSetting(
-                    key = editorConfigProperty.type.name,
+                    key = editorConfigProperty.name,
                     value = value,
-                    usage = "Class '${DefaultEditorConfigProperties::class.simpleName}'",
+                    usage = "Default value",
                 )
             }
     }
