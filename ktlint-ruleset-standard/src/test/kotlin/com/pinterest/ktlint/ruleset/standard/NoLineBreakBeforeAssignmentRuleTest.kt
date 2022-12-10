@@ -40,7 +40,7 @@ class NoLineBreakBeforeAssignmentRuleTest {
                   ""
             """.trimIndent()
         noLineBreakBeforeAssignmentRuleAssertThat(code)
-            .hasLintViolation(2, 7, "Line break before assignment is not allowed")
+            .hasLintViolation(1, 9, "Line break before assignment is not allowed")
             .isFormattedAs(formattedCode)
     }
 
@@ -57,7 +57,7 @@ class NoLineBreakBeforeAssignmentRuleTest {
                   ""
             """.trimIndent()
         noLineBreakBeforeAssignmentRuleAssertThat(code)
-            .hasLintViolation(2, 7, "Line break before assignment is not allowed")
+            .hasLintViolation(1, 11, "Line break before assignment is not allowed")
             .isFormattedAs(formattedCode)
     }
 
@@ -74,8 +74,7 @@ class NoLineBreakBeforeAssignmentRuleTest {
                     f()
             """.trimIndent()
         noLineBreakBeforeAssignmentRuleAssertThat(code)
-            // TODO: The error description is not correct
-            .hasLintViolation(2, 9, "Line break before assignment is not allowed")
+            .hasLintViolation(1, 8, "Line break before assignment is not allowed")
             .isFormattedAs(formattedCode)
     }
 
@@ -96,8 +95,7 @@ class NoLineBreakBeforeAssignmentRuleTest {
                     a + b
                 """.trimIndent()
             noLineBreakBeforeAssignmentRuleAssertThat(code)
-                // TODO: The error description is not correct
-                .hasLintViolation(3, 5, "Line break before assignment is not allowed")
+                .hasLintViolation(2, 15, "Line break before assignment is not allowed")
                 .isFormattedAs(formattedCode)
         }
 
@@ -119,9 +117,8 @@ class NoLineBreakBeforeAssignmentRuleTest {
                 """.trimIndent()
             noLineBreakBeforeAssignmentRuleAssertThat(code)
                 .hasLintViolations(
-                    // TODO: The error description is not correct
-                    LintViolation(2, 5, "Line break before assignment is not allowed"),
-                    LintViolation(4, 5, "Line break before assignment is not allowed"),
+                    LintViolation(1, 41, "Line break before assignment is not allowed"),
+                    LintViolation(3, 40, "Line break before assignment is not allowed"),
                 ).isFormattedAs(formattedCode)
         }
     }
@@ -139,7 +136,7 @@ class NoLineBreakBeforeAssignmentRuleTest {
             null): Int = 3
             """.trimIndent()
         noLineBreakBeforeAssignmentRuleAssertThat(code)
-            .hasLintViolation(2, 1, "Line break before assignment is not allowed")
+            .hasLintViolation(1, 21, "Line break before assignment is not allowed")
             .isFormattedAs(formattedCode)
     }
 }

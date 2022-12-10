@@ -99,6 +99,7 @@ if (node.isRoot()) {
 * Fix offset of annotation violations
 * Fix line offset when blank line found between class and primary constructor
 * Remove needless blank line between class followed by EOL, and primary constructor
+* Fix offset of unexpected linebreak before assignment
 
 ### Changed
 * Update Kotlin development version to `1.8.0-RC` and Kotlin version to `1.7.21`.
