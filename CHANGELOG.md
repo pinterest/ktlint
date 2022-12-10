@@ -98,6 +98,7 @@ if (node.isRoot()) {
 * A function signature preceded by an annotation array should be handled similar as function preceded by a singular annotation `function-signature` ([#1690](https://github.com/pinterest/ktlint/issue/1690))
 * Fix offset of annotation violations
 * Fix line offset when blank line found between class and primary constructor
+* Remove needless blank line between class followed by EOL, and primary constructor
 
 ### Changed
 * Update Kotlin development version to `1.8.0-RC` and Kotlin version to `1.7.21`.

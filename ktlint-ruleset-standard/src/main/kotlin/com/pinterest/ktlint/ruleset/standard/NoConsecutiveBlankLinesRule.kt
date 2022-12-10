@@ -5,6 +5,7 @@ import com.pinterest.ktlint.core.ast.ElementType.CLASS
 import com.pinterest.ktlint.core.ast.ElementType.IDENTIFIER
 import com.pinterest.ktlint.core.ast.ElementType.PRIMARY_CONSTRUCTOR
 import com.pinterest.ktlint.core.ast.nextLeaf
+import com.pinterest.ktlint.core.ast.prevCodeLeaf
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
@@ -25,10 +26,7 @@ public class NoConsecutiveBlankLinesRule : Rule("no-consecutive-blank-lines") {
             }
 
             val eof = node.nextLeaf() == null
-            val prevNode = node.treePrev
-            val betweenClassAndPrimaryConstructor = prevNode.elementType == IDENTIFIER &&
-                prevNode.treeParent.elementType == CLASS &&
-                node.treeNext.elementType == PRIMARY_CONSTRUCTOR
+            val betweenClassAndPrimaryConstructor = node.isBetweenClassAndPrimaryConstructor()
 
             if (newLineCount > 2 || eof || betweenClassAndPrimaryConstructor) {
                 val split = text.split("\n")
@@ -54,4 +52,13 @@ public class NoConsecutiveBlankLinesRule : Rule("no-consecutive-blank-lines") {
             }
         }
     }
+
+    private fun ASTNode.isBetweenClassAndPrimaryConstructor() =
+        prevCodeLeaf()
+            ?.let { prevNode ->
+                prevNode.elementType == IDENTIFIER &&
+                    prevNode.treeParent.elementType == CLASS &&
+                    this.treeNext.elementType == PRIMARY_CONSTRUCTOR
+            }
+            ?: false
 }
