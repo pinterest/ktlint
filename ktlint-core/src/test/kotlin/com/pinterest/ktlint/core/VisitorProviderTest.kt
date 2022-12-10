@@ -1,9 +1,7 @@
 package com.pinterest.ktlint.core
 
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.DISABLED_RULES_PROPERTY
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.KTLINT_DISABLED_RULES_PROPERTY
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.RuleExecution
+import com.pinterest.ktlint.core.api.editorconfig.RULE_EXECUTION_PROPERTY_TYPE
+import com.pinterest.ktlint.core.api.editorconfig.RuleExecution
 import com.pinterest.ktlint.core.internal.RuleRunner
 import com.pinterest.ktlint.core.internal.VisitorProvider
 import org.assertj.core.api.Assertions.assertThat
@@ -105,7 +103,7 @@ class VisitorProviderTest {
         }
 
         private fun ktlintDisabledRulesEditorConfigProperties(vararg ruleIds: String) =
-            with(DISABLED_RULES_PROPERTY) {
+            with(com.pinterest.ktlint.core.api.editorconfig.DISABLED_RULES_PROPERTY) {
                 mapOf(
                     name to
                         Property.builder()
@@ -209,7 +207,7 @@ class VisitorProviderTest {
         }
 
         private fun ktlintDisabledRulesEditorConfigProperties(vararg ruleIds: String) =
-            with(KTLINT_DISABLED_RULES_PROPERTY) {
+            with(com.pinterest.ktlint.core.api.editorconfig.KTLINT_DISABLED_RULES_PROPERTY) {
                 mapOf(
                     name to
                         Property.builder()
@@ -432,7 +430,7 @@ class VisitorProviderTest {
                 .let { propertyName ->
                     propertyName to Property.builder()
                         .name(propertyName)
-                        .type(DefaultEditorConfigProperties.RULE_EXECUTION_PROPERTY_TYPE)
+                        .type(RULE_EXECUTION_PROPERTY_TYPE)
                         .value(ruleExecution.name)
                         .build()
                 }

@@ -1,6 +1,6 @@
 package com.pinterest.ktlint.core.api
 
-import com.pinterest.ktlint.core.api.UsesEditorConfigProperties.EditorConfigProperty
+import com.pinterest.ktlint.core.api.editorconfig.EditorConfigProperty
 import org.ec4j.core.model.PropertyType.PropertyValue
 
 /**

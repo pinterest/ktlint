@@ -1,7 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.RuleProvider
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
@@ -55,7 +54,7 @@ class ParameterListWrappingRuleTest {
             )
             """.trimIndent()
         parameterListWrappingRuleAssertThat(code)
-            .withEditorConfigOverride(MAX_LINE_LENGTH_PROPERTY to 10)
+            .withEditorConfigOverride(com.pinterest.ktlint.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY to 10)
             .hasLintViolations(
                 LintViolation(1, 14, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
                 LintViolation(1, 30, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
@@ -71,7 +70,7 @@ class ParameterListWrappingRuleTest {
             class ClassAWithALongName()
             """.trimIndent()
         parameterListWrappingRuleAssertThat(code)
-            .withEditorConfigOverride(MAX_LINE_LENGTH_PROPERTY to 10)
+            .withEditorConfigOverride(com.pinterest.ktlint.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY to 10)
             .hasNoLintViolations()
     }
 
@@ -165,7 +164,7 @@ class ParameterListWrappingRuleTest {
             }
             """.trimIndent()
         parameterListWrappingRuleAssertThat(code)
-            .withEditorConfigOverride(MAX_LINE_LENGTH_PROPERTY to 10)
+            .withEditorConfigOverride(com.pinterest.ktlint.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY to 10)
             .hasLintViolations(
                 LintViolation(1, 7, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
                 LintViolation(1, 15, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
@@ -220,7 +219,7 @@ class ParameterListWrappingRuleTest {
             }
             """.trimIndent()
         parameterListWrappingRuleAssertThat(code)
-            .withEditorConfigOverride(MAX_LINE_LENGTH_PROPERTY to 10)
+            .withEditorConfigOverride(com.pinterest.ktlint.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY to 10)
             .hasLintViolations(
                 LintViolation(2, 11, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
                 LintViolation(6, 19, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
@@ -310,7 +309,7 @@ class ParameterListWrappingRuleTest {
             ) {}
             """.trimIndent()
         parameterListWrappingRuleAssertThat(code)
-            .withEditorConfigOverride(MAX_LINE_LENGTH_PROPERTY to 10)
+            .withEditorConfigOverride(com.pinterest.ktlint.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY to 10)
             .hasLintViolations(
                 LintViolation(1, 11, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
                 LintViolation(1, 26, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
@@ -476,7 +475,7 @@ class ParameterListWrappingRuleTest {
             )? = null
             """.trimIndent()
         parameterListWrappingRuleAssertThat(code)
-            .withEditorConfigOverride(MAX_LINE_LENGTH_PROPERTY to 80)
+            .withEditorConfigOverride(com.pinterest.ktlint.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY to 80)
             .hasLintViolations(
                 LintViolation(1, 22, "Parameter of nullable type should be on a separate line (unless the type fits on a single line)"),
                 LintViolation(1, 95, """Missing newline before ")""""),

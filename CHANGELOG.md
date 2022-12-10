@@ -18,6 +18,16 @@ The KtLint CLI has not been changed. Although you can still use parameter `--exp
 
 If you are not an API consumer or Rule Set provider then you can skip this section.
 
+#### Class relocations
+
+Classes below have been relocated:
+
+* Class `com.pinterest.ktlint.core.api.UsesEditorConfigProperties.EditorConfigProperty` has been replaced with `com.pinterest.ktlint.core.api.editorconfig.EditorConfigProperty`. 
+* Class `com.pinterest.ktlint.core.KtLintParseException` has been replaced with `com.pinterest.ktlint.core.api.KtLintParseException`.
+* Class `com.pinterest.ktlint.core.RuleExecutionException` has been replaced with `com.pinterest.ktlint.core.api.KtLintRuleException`.
+* Class `com.pinterest.ktlint.reporter.format.internal.Color` has been moved to `com.pinterest.ktlint.reporter.format.Color`.
+* Class `com.pinterest.ktlint.reporter.plain.internal.Color` has been moved to `com.pinterest.ktlint.reporter.plain.Color`.
+
 #### Invoking `lint` and `format`
 
 This is the last release that supports the `ExperimentalParams` to invoke the `lint` and `format` functions of KtLint. The `ExperimentalParams` contains a mix of configuration settings which are not dependent on the file/code which is to be processed. Other parameters in that class describe the code/file to be processed but can be configured inconsistently (for example a file with name "foo.kt" could be marked as a Kotlin Script file).
@@ -69,20 +79,6 @@ if (node.isRoot()) {
     ...
 }
 ```
-
-#### ParseException
-
-Class `com.pinterest.ktlint.core.KtLintParseException` has been replaced with `com.pinterest.ktlint.core.api.KtLintParseException`.
-
-#### RuleExecutionException
-
-Class `com.pinterest.ktlint.core.RuleExecutionException` has been replaced with `com.pinterest.ktlint.core.api.KtLintRuleException`.
-
-#### Color
-
-Class `com.pinterest.ktlint.reporter.format.internal.Color` has been moved to `com.pinterest.ktlint.reporter.format.Color`.
-
-Class `com.pinterest.ktlint.reporter.plain.internal.Color` has been moved to `com.pinterest.ktlint.reporter.plain.Color`.
 
 ### Added
 * Wrap blocks in case the max line length is exceeded or in case the block contains a new line `wrapping` ([#1643](https://github.com/pinterest/ktlint/issue/1643))

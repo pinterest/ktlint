@@ -1,9 +1,8 @@
 package com.pinterest.ktlint.internal
 
 import com.pinterest.ktlint.core.KtLintRuleEngine
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.core.api.EditorConfigOverride
+import com.pinterest.ktlint.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.core.initKtLintKLogger
 import java.nio.file.Paths
 import mu.KotlinLogging
@@ -39,7 +38,7 @@ internal class GenerateEditorConfigSubCommand : Runnable {
                 )
         val ktLintRuleEngine = KtLintRuleEngine(
             ruleProviders = ruleProviders,
-            editorConfigOverride = EditorConfigOverride.from(CODE_STYLE_PROPERTY to codeStyle()),
+            editorConfigOverride = EditorConfigOverride.from(com.pinterest.ktlint.core.api.editorconfig.CODE_STYLE_PROPERTY to codeStyle()),
             isInvokedFromCli = true,
         )
         val generatedEditorConfig = ktLintRuleEngine.generateKotlinEditorConfigSection(Paths.get("."))
@@ -55,9 +54,9 @@ internal class GenerateEditorConfigSubCommand : Runnable {
 
     private fun codeStyle() =
         if (ktlintCommand.android) {
-            DefaultEditorConfigProperties.CodeStyleValue.android
+            CodeStyleValue.android
         } else {
-            DefaultEditorConfigProperties.CodeStyleValue.official
+            CodeStyleValue.official
         }
 
     internal companion object {

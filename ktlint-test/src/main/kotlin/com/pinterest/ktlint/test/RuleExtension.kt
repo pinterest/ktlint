@@ -4,10 +4,10 @@ import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.KtLintRuleEngine
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.RuleProvider
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.RuleExecution
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.createRuleSetExecutionEditorConfigProperty
 import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.plus
+import com.pinterest.ktlint.core.api.editorconfig.RuleExecution
+import com.pinterest.ktlint.core.api.editorconfig.createRuleSetExecutionEditorConfigProperty
 import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ktlint.core.setDefaultLoggerModifier
 import com.pinterest.ruleset.test.DumpASTRule

@@ -5,14 +5,14 @@ package com.pinterest.ktlint.core
 import com.pinterest.ktlint.core.KtLint.ExperimentalParams
 import com.pinterest.ktlint.core.KtLint.format
 import com.pinterest.ktlint.core.KtLint.lint
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.core.api.EditorConfigDefaults
 import com.pinterest.ktlint.core.api.EditorConfigDefaults.Companion.EMPTY_EDITOR_CONFIG_DEFAULTS
 import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.EMPTY_EDITOR_CONFIG_OVERRIDE
 import com.pinterest.ktlint.core.api.KtLintRuleException
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
+import com.pinterest.ktlint.core.api.editorconfig.CodeStyleValue
+import com.pinterest.ktlint.core.api.editorconfig.DEFAULT_EDITOR_CONFIG_PROPERTIES
 import com.pinterest.ktlint.core.internal.EditorConfigFinder
 import com.pinterest.ktlint.core.internal.EditorConfigGenerator
 import com.pinterest.ktlint.core.internal.EditorConfigLoader
@@ -120,7 +120,7 @@ public object KtLint {
                     .filterIsInstance<UsesEditorConfigProperties>()
                     .map { it.editorConfigProperties }
                     .flatten()
-                    .plus(DefaultEditorConfigProperties.editorConfigProperties)
+                    .plus(DEFAULT_EDITOR_CONFIG_PROPERTIES)
                     .map { it.name }
                     .distinct()
                     .toSet()
@@ -580,10 +580,10 @@ public class KtLintRuleEngine(
     public fun generateKotlinEditorConfigSection(filePath: Path): String {
         val codeStyle =
             editorConfigOverride
-                .properties[CODE_STYLE_PROPERTY]
+                .properties[com.pinterest.ktlint.core.api.editorconfig.CODE_STYLE_PROPERTY]
                 ?.parsed
-                ?.safeAs<DefaultEditorConfigProperties.CodeStyleValue>()
-                ?: CODE_STYLE_PROPERTY.defaultValue
+                ?.safeAs<CodeStyleValue>()
+                ?: com.pinterest.ktlint.core.api.editorconfig.CODE_STYLE_PROPERTY.defaultValue
         val rules =
             ruleProviders
                 .map { RuleRunner(it) }

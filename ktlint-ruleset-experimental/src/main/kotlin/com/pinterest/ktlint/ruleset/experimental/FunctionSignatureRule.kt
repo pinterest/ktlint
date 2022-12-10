@@ -2,11 +2,9 @@ package com.pinterest.ktlint.ruleset.experimental
 
 import com.pinterest.ktlint.core.IndentConfig
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.INDENT_SIZE_PROPERTY
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.INDENT_STYLE_PROPERTY
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
+import com.pinterest.ktlint.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.core.ast.ElementType.ANNOTATION
 import com.pinterest.ktlint.core.ast.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.BLOCK
@@ -53,11 +51,11 @@ public class FunctionSignatureRule :
         ),
     ),
     UsesEditorConfigProperties {
-    override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> =
+    override val editorConfigProperties: List<EditorConfigProperty<*>> =
         listOf(
-            INDENT_SIZE_PROPERTY,
-            INDENT_STYLE_PROPERTY,
-            MAX_LINE_LENGTH_PROPERTY,
+            com.pinterest.ktlint.core.api.editorconfig.INDENT_SIZE_PROPERTY,
+            com.pinterest.ktlint.core.api.editorconfig.INDENT_STYLE_PROPERTY,
+            com.pinterest.ktlint.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY,
             FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY,
             FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY,
         )
@@ -72,11 +70,11 @@ public class FunctionSignatureRule :
             functionSignatureWrappingMinimumParameters = getEditorConfigValue(FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY)
             functionBodyExpressionWrapping = getEditorConfigValue(FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY)
             val indentConfig = IndentConfig(
-                indentStyle = getEditorConfigValue(INDENT_STYLE_PROPERTY),
-                tabWidth = getEditorConfigValue(INDENT_SIZE_PROPERTY),
+                indentStyle = getEditorConfigValue(com.pinterest.ktlint.core.api.editorconfig.INDENT_STYLE_PROPERTY),
+                tabWidth = getEditorConfigValue(com.pinterest.ktlint.core.api.editorconfig.INDENT_SIZE_PROPERTY),
             )
             indent = indentConfig.indent
-            maxLineLength = getEditorConfigValue(MAX_LINE_LENGTH_PROPERTY)
+            maxLineLength = getEditorConfigValue(com.pinterest.ktlint.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY)
         }
     }
 
@@ -687,8 +685,8 @@ public class FunctionSignatureRule :
             ?.prevCodeLeaf()
 
     public companion object {
-        public val FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY: UsesEditorConfigProperties.EditorConfigProperty<Int> =
-            UsesEditorConfigProperties.EditorConfigProperty(
+        public val FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY: EditorConfigProperty<Int> =
+            EditorConfigProperty(
                 type = PropertyType.LowerCasingPropertyType(
                     "ktlint_function_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than",
                     "Force wrapping the parameters of the function signature in case it contains at least the specified " +
@@ -705,11 +703,11 @@ public class FunctionSignatureRule :
             replaceWith = ReplaceWith("FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY"),
         )
         @Suppress("ktlint:experimental:property-naming")
-        public val forceMultilineWhenParameterCountGreaterOrEqualThanProperty: UsesEditorConfigProperties.EditorConfigProperty<Int> =
+        public val forceMultilineWhenParameterCountGreaterOrEqualThanProperty: EditorConfigProperty<Int> =
             FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY
 
-        public val FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY: UsesEditorConfigProperties.EditorConfigProperty<FunctionBodyExpressionWrapping> =
-            UsesEditorConfigProperties.EditorConfigProperty(
+        public val FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY: EditorConfigProperty<FunctionBodyExpressionWrapping> =
+            EditorConfigProperty(
                 type = PropertyType.LowerCasingPropertyType(
                     "ktlint_function_signature_body_expression_wrapping",
                     "Determines how to wrap the body of function in case it is an expression. Use 'default' " +
@@ -727,7 +725,7 @@ public class FunctionSignatureRule :
             replaceWith = ReplaceWith("FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY"),
         )
         @Suppress("ktlint:experimental:property-naming")
-        public val functionBodyExpressionWrappingProperty: UsesEditorConfigProperties.EditorConfigProperty<FunctionBodyExpressionWrapping> =
+        public val functionBodyExpressionWrappingProperty: EditorConfigProperty<FunctionBodyExpressionWrapping> =
             FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY
 
         private val INDENT_WITH_CLOSING_PARENTHESIS = Regex("\\s*\\) =")

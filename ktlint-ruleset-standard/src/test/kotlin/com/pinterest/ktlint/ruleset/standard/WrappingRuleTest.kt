@@ -1,6 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties
+import com.pinterest.ktlint.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
@@ -546,7 +546,7 @@ internal class WrappingRuleTest {
             }
             """.trimIndent()
         wrappingRuleAssertThat(code)
-            .withEditorConfigOverride(DefaultEditorConfigProperties.INDENT_STYLE_PROPERTY to tab)
+            .withEditorConfigOverride(INDENT_STYLE_PROPERTY to tab)
             .hasLintViolations(
                 LintViolation(2, 10, "Missing newline after \"(\""),
                 LintViolation(5, 18, "Missing newline before \")\""),
@@ -1181,7 +1181,7 @@ internal class WrappingRuleTest {
             }
             """.trimIndent()
         wrappingRuleAssertThat(codeTabs)
-            .withEditorConfigOverride(DefaultEditorConfigProperties.INDENT_STYLE_PROPERTY to tab)
+            .withEditorConfigOverride(INDENT_STYLE_PROPERTY to tab)
             .hasNoLintViolations()
     }
 
@@ -1207,7 +1207,7 @@ internal class WrappingRuleTest {
             }
             """.trimIndent()
         wrappingRuleAssertThat(code)
-            .withEditorConfigOverride(DefaultEditorConfigProperties.INDENT_STYLE_PROPERTY to tab)
+            .withEditorConfigOverride(INDENT_STYLE_PROPERTY to tab)
             .hasNoLintViolations()
     }
 

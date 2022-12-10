@@ -3,6 +3,7 @@ package com.pinterest.ktlint.ruleset.standard
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
+import com.pinterest.ktlint.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.core.ast.ElementType.IMPORT_DIRECTIVE
 import com.pinterest.ktlint.ruleset.standard.internal.importordering.PatternEntry
 import org.ec4j.core.model.PropertyType
@@ -12,7 +13,7 @@ import org.jetbrains.kotlin.psi.KtImportDirective
 public class NoWildcardImportsRule :
     Rule("no-wildcard-imports"),
     UsesEditorConfigProperties {
-    override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
+    override val editorConfigProperties: List<EditorConfigProperty<*>> = listOf(
         IJ_KOTLIN_PACKAGES_TO_USE_IMPORT_ON_DEMAND,
     )
 
@@ -78,13 +79,19 @@ public class NoWildcardImportsRule :
                 }
             }
 
-        public val IJ_KOTLIN_PACKAGES_TO_USE_IMPORT_ON_DEMAND: UsesEditorConfigProperties.EditorConfigProperty<List<PatternEntry>> =
-            UsesEditorConfigProperties.EditorConfigProperty(
+        public val IJ_KOTLIN_PACKAGES_TO_USE_IMPORT_ON_DEMAND: EditorConfigProperty<List<PatternEntry>> =
+            EditorConfigProperty(
                 type = PropertyType(
                     "ij_kotlin_packages_to_use_import_on_demand",
                     "Defines allowed wildcard imports",
                     PACKAGES_TO_USE_ON_DEMAND_IMPORT_PROPERTY_PARSER,
                 ),
+                /**
+                 * Default IntelliJ IDEA style: Use wildcard imports for packages in "java.util", "kotlin.android.synthetic" and
+                 * it's subpackages.
+                 *
+                 * https://github.com/JetBrains/kotlin/blob/ffdab473e28d0d872136b910eb2e0f4beea2e19c/idea/formatter/src/org/jetbrains/kotlin/idea/core/formatter/KotlinCodeStyleSettings.java#L81-L82
+                 */
                 /**
                  * Default IntelliJ IDEA style: Use wildcard imports for packages in "java.util", "kotlin.android.synthetic" and
                  * it's subpackages.
@@ -100,7 +107,7 @@ public class NoWildcardImportsRule :
             replaceWith = ReplaceWith("IJ_KOTLIN_PACKAGES_TO_USE_IMPORT_ON_DEMAND"),
         )
         @Suppress("ktlint:experimental:property-naming")
-        public val packagesToUseImportOnDemandProperty: UsesEditorConfigProperties.EditorConfigProperty<List<PatternEntry>> =
+        public val packagesToUseImportOnDemandProperty: EditorConfigProperty<List<PatternEntry>> =
             IJ_KOTLIN_PACKAGES_TO_USE_IMPORT_ON_DEMAND
     }
 }
