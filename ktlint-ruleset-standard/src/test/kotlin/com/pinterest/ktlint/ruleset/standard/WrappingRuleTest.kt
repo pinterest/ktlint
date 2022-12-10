@@ -8,7 +8,6 @@ import com.pinterest.ktlint.test.LintViolation
 import com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE
 import com.pinterest.ktlint.test.TAB
 import org.ec4j.core.model.PropertyType.IndentStyleValue.tab
-import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
@@ -1596,9 +1595,8 @@ internal class WrappingRuleTest {
         wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
-    @DisplayName("Given a block not starting and/or ending on a separate line")
     @Nested
-    inner class WrapBlock {
+    inner class `Given a block starting and ending on the same line` {
         @Test
         fun `A single line block on a line which does not exceed the max line length is not wrapped`() {
             val code =
@@ -1705,6 +1703,17 @@ internal class WrappingRuleTest {
                     LintViolation(3, 18, "Missing newline before \"}\""),
                 ).isFormattedAs(formattedCode)
         }
+    }
+
+    @Test
+    fun `Given a block with an EOL comment on the same line as the opening brace then the EOL comment should not be wrapped`() {
+        val code =
+            """
+            val foo = fooBar { // some EOL comment
+                bar()
+            }
+            """.trimIndent()
+        wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 }
 

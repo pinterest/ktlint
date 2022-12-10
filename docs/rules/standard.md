@@ -30,7 +30,7 @@ Rule id: `filename`
 
 Ensures consistent usage of a newline at the end of each file. 
 
-This rule can be configured with `.editorconfig` property [`insert_final_newline`](../configuration/#final-newline).
+This rule can be configured with `.editorconfig` property [`insert_final_newline`](../configuration-ktlint/#final-newline).
 
 Rule id: `final-newline`
 
@@ -42,13 +42,13 @@ Rule id: `import-ordering`
 
 ## Indentation
 
-Indentation formatting - respects `.editorconfig` `indent_size` with no continuation indent (see [EditorConfig](#editorconfig) section for more).
+Indentation formatting - respects `.editorconfig` `indent_size` with no continuation indent (see [EditorConfig](../configuration-ktlint/) section for more).
 
 Rule id: `indent`
 
 ## Max line length
 
-Ensures that lines do not exceed the given length of `.editorconfig` property `max_line_length` (see [EditorConfig](#editorconfig) section for more). This rule does not apply in a number of situations. For example, in the case a line exceeds the maximum line length due to and comment that disables ktlint rules than that comment is being ignored when validating the length of the line. The `.editorconfig` property `ktlint_ignore_back_ticked_identifier` can be set to ignore identifiers which are enclosed in backticks, which for example is very useful when you want to allow longer names for unit tests.
+Ensures that lines do not exceed the given length of `.editorconfig` property `max_line_length` (see [EditorConfig](../configuration-ktlint/) section for more). This rule does not apply in a number of situations. For example, in the case a line exceeds the maximum line length due to and comment that disables ktlint rules than that comment is being ignored when validating the length of the line. The `.editorconfig` property `ktlint_ignore_back_ticked_identifier` can be set to ignore identifiers which are enclosed in backticks, which for example is very useful when you want to allow longer names for unit tests.
 
 Rule id: `max-line-length`
 
@@ -150,7 +150,9 @@ No wildcard imports except imports listed in `.editorconfig` property `ij_kotlin
 
 Rule id: `no-wildcard-imports`
 
-## No underscores in package names
+## Package name
+
+Validates that the package name matches the regular expression `[a-z][a-zA-Z\d]*(\.[a-z][a-zA-Z\d]*)*`.
 
 Rule id: `package-name`
 

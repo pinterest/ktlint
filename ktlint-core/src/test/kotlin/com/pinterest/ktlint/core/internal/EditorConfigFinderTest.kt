@@ -12,9 +12,9 @@ import org.junit.jupiter.api.io.TempDir
 
 class EditorConfigFinderTest {
     @Nested
-    inner class FindByFile {
+    inner class `Given a kotlin file in a subdirectory ` {
         @Test
-        fun `Given a kotlin file in a subdirectory and a root-editorconfig file in the same directory then get the path of that editorconfig file`(
+        fun `Given a root-editorconfig file in the same directory then get the path of that editorconfig file`(
             @TempDir
             tempDir: Path,
         ) {
@@ -30,7 +30,7 @@ class EditorConfigFinderTest {
         }
 
         @Test
-        fun `Given a kotlin file in a subdirectory and a root-editorconfig file in a parent directory then get the path of that parent editorconfig file`(
+        fun `Given a root-editorconfig file in a parent directory then get the path of that parent editorconfig file`(
             @TempDir
             tempDir: Path,
         ) {
@@ -46,7 +46,7 @@ class EditorConfigFinderTest {
         }
 
         @Test
-        fun `Given a kotlin file in a subdirectory and a non-root-editorconfig file in that same directory and a root-editorconfig file in a parent directory then get the paths of both editorconfig files`(
+        fun `Given a non-root-editorconfig file in that same directory and a root-editorconfig file in a parent directory then get the paths of both editorconfig files`(
             @TempDir
             tempDir: Path,
         ) {
@@ -64,7 +64,7 @@ class EditorConfigFinderTest {
         }
 
         @Test
-        fun `Given a kotlin file in a subdirectory and a root-editorconfig file in the parent directory and another root-editorconfig file in a great-parent directory then get the paths of editorconfig files excluding root-editorconfig once the first one is found`(
+        fun `Given a root-editorconfig file in the parent directory and another root-editorconfig file in a great-parent directory then get the paths of editorconfig files excluding root-editorconfig once the first one is found`(
             @TempDir
             tempDir: Path,
         ) {
@@ -87,9 +87,9 @@ class EditorConfigFinderTest {
     }
 
     @Nested
-    inner class FindByDirectory {
+    inner class `Given a directory` {
         @Test
-        fun `Given a directory containing a root-editorconfig file and a subdirectory containing a editorconfig file then get the paths of both editorconfig files`(
+        fun `Given a root-editorconfig file and a subdirectory containing a editorconfig file then get the paths of both editorconfig files`(
             @TempDir
             tempDir: Path,
         ) {
@@ -106,7 +106,7 @@ class EditorConfigFinderTest {
         }
 
         @Test
-        fun `Given a subdirectory containing an editorconfig file and a sibling subdirectory contain a editorconfig file in a parent directory then get the path of all editorconfig file except of the sibling subdirectory`(
+        fun `Given an editorconfig file and a sibling subdirectory contain a editorconfig file in a parent directory then get the path of all editorconfig file except of the sibling subdirectory`(
             @TempDir
             tempDir: Path,
         ) {
@@ -127,7 +127,7 @@ class EditorConfigFinderTest {
         }
 
         @Test
-        fun `Given a directory containing an editorconfig file and multiple subdirectories containing a editorconfig file then get the path of all editorconfig files`(
+        fun `Given an editorconfig file and multiple subdirectories containing a editorconfig file then get the path of all editorconfig files`(
             @TempDir
             tempDir: Path,
         ) {

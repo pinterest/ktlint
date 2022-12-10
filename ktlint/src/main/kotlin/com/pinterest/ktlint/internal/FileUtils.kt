@@ -305,20 +305,6 @@ private fun Path.expandPathToDefaultPatterns() =
             )
         }
 
-/**
- * List of paths to Java `jar` files.
- */
-internal typealias JarFiles = List<String>
-
-internal fun JarFiles.toFilesURIList() = map {
-    val jarFile = File(it.expandTildeToFullPath())
-    if (!jarFile.exists()) {
-        LOGGER.error { "File '$it' does not exist" }
-        exitKtLintProcess(1)
-    }
-    jarFile.toURI().toURL()
-}
-
 // a complete solution would be to implement https://www.gnu.org/software/bash/manual/html_node/Tilde-Expansion.html
 // this implementation takes care only of the most commonly used case (~/)
 internal fun String.expandTildeToFullPath(): String =

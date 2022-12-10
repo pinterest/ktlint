@@ -27,6 +27,7 @@ dependencies {
     implementation(projects.ktlintReporterFormat)
     implementation(projects.ktlintReporterHtml)
     implementation(projects.ktlintReporterPlain)
+    implementation(projects.ktlintReporterPlainSummary)
     implementation(projects.ktlintReporterSarif)
     implementation(projects.ktlintRulesetExperimental)
     implementation(projects.ktlintRulesetStandard)
@@ -82,9 +83,14 @@ tasks.register<Checksum>("shadowJarExecutableChecksum") {
     checksumAlgorithm.set(Checksum.Algorithm.MD5)
 }
 
+val skipTests: String = System.getProperty("skipTests", "false")
 tasks.withType<Test>().configureEach {
     dependsOn(shadowJarExecutable)
-    useJUnitPlatform()
+    if (skipTests == "false") {
+        useJUnitPlatform()
+    } else {
+        logger.warn("Skipping tests for task '$name' as system property 'skipTests=$skipTests'")
+    }
 
     doFirst {
         systemProperty(

@@ -7,39 +7,33 @@ import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class MaxLineLengthRuleTest {
     private val maxLineLengthRuleAssertThat = assertThatRule { MaxLineLengthRule() }
 
-    @DisplayName("Given code that exceeds the max line length but for which no lint error should be returned")
-    @Nested
-    inner class LintError {
-        @Test
-        fun `Given some code that exceeds the max line length then return a lint error`() {
-            val code =
-                """
-                // $MAX_LINE_LENGTH_MARKER                   $EOL_CHAR
-                val fooooooooooooooo = "fooooooooooooooooooooo"
-                val foooooooooooooo = "foooooooooooooooooooo" // some comment
-                val fooooooooooooo =
-                    "foooooooooooooooooooooooooooooooooooooooo"
-                """.trimIndent()
-            maxLineLengthRuleAssertThat(code)
-                .setMaxLineLength()
-                .hasLintViolationsWithoutAutoCorrect(
-                    LintViolation(2, 1, "Exceeded max line length (46)"),
-                    LintViolation(3, 1, "Exceeded max line length (46)"),
-                    LintViolation(5, 1, "Exceeded max line length (46)"),
-                )
-        }
+    @Test
+    fun `Given some code that exceeds the max line length then return a lint error`() {
+        val code =
+            """
+            // $MAX_LINE_LENGTH_MARKER                   $EOL_CHAR
+            val fooooooooooooooo = "fooooooooooooooooooooo"
+            val foooooooooooooo = "foooooooooooooooooooo" // some comment
+            val fooooooooooooo =
+                "foooooooooooooooooooooooooooooooooooooooo"
+            """.trimIndent()
+        maxLineLengthRuleAssertThat(code)
+            .setMaxLineLength()
+            .hasLintViolationsWithoutAutoCorrect(
+                LintViolation(2, 1, "Exceeded max line length (46)"),
+                LintViolation(3, 1, "Exceeded max line length (46)"),
+                LintViolation(5, 1, "Exceeded max line length (46)"),
+            )
     }
 
-    @DisplayName("Given code that exceeds the max line length but for which no lint error should be returned")
     @Nested
-    inner class NoLintErrorWhenExceedingMaxLineLength {
+    inner class `Given code that exceeds the max line length but for which no lint error should be returned` {
         @Test
         fun `Given a package statement that that exceeds the max line length then do not return a lint error`() {
             val code =
@@ -109,7 +103,7 @@ class MaxLineLengthRuleTest {
     }
 
     @Nested
-    inner class ErrorSuppression {
+    inner class `Given some error suppression` {
         @Test
         fun `Given some code followed by a ktlint-disable directive which causes the line length to be exceeded then do not return a lint error for that line`() {
             val code =
@@ -146,7 +140,7 @@ class MaxLineLengthRuleTest {
     }
 
     @Nested
-    inner class BacktickedStrings {
+    inner class `Given a string between backticks` {
         @Test
         fun `Given some text wrapped between backticks which causes the line length to be exceeded then do not return a lint error for that line`() {
             val code =

@@ -1,5 +1,5 @@
 site_name: Ktlint
-site_url: https://ktlint.github.io
+site_url: https://pinterest.github.io/ktlint/
 
 theme:
   name: material
@@ -40,6 +40,7 @@ nav:
   - Rules:
     - Standard rules: rules/standard.md
     - Experimental rules: rules/experimental.md
+    - Dependencies: rules/dependencies.md
     - KtLint configuration: rules/configuration-ktlint.md
     - IntelliJ IDEA configuration: rules/configuration-intellij-idea.md
   - Extensions:

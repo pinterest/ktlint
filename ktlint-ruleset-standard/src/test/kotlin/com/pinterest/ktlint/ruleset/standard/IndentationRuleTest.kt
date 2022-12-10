@@ -8,7 +8,6 @@ import com.pinterest.ktlint.test.TAB
 import org.ec4j.core.model.PropertyType
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
-import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -18,7 +17,7 @@ import org.junit.jupiter.params.provider.ValueSource
 internal class IndentationRuleTest {
     @BeforeEach
     internal fun setUp() {
-        // The system property below can be set to "on" to enable extensice trace logging. Do not commit/push such
+        // The system property below can be set to "on" to enable extensive trace logging. Do not commit/push such
         // change to any branch as it pollutes the build output too much!
         System.setProperty("KTLINT_UNIT_TEST_TRACE", "off")
     }
@@ -26,9 +25,9 @@ internal class IndentationRuleTest {
     private val indentationRuleAssertThat = assertThatRule { IndentationRule() }
 
     @Nested
-    inner class BasicConstructs {
+    inner class `Given a basic construct` {
         @Nested
-        inner class VariableDeclarations {
+        inner class `Given a variable declaration` {
             @Test
             fun `Given a variable declaration with primitive value on same line`() {
                 val code =
@@ -146,7 +145,7 @@ internal class IndentationRuleTest {
         }
 
         @Nested
-        inner class FunctionDeclarations {
+        inner class `Given a function declarations` {
             @Test
             fun `Given a function not returning a value`() {
                 val code =
@@ -201,7 +200,7 @@ internal class IndentationRuleTest {
         }
 
         @Nested
-        inner class FunctionCalls {
+        inner class `Given a function call` {
             @Test
             fun `Given a function call without parameters`() {
                 val code =
@@ -299,7 +298,7 @@ internal class IndentationRuleTest {
     }
 
     @Nested
-    inner class MultilineValueDeclaration {
+    inner class `Given a multiline value declaration` {
         val code =
             """
             class Foo {
@@ -353,7 +352,7 @@ internal class IndentationRuleTest {
     }
 
     @Nested
-    inner class AnnotatedFunctionDeclaration {
+    inner class `Given an annotated function declaration` {
         val code =
             """
             class Foo {
@@ -406,7 +405,7 @@ internal class IndentationRuleTest {
     }
 
     @Nested
-    inner class FunctionDeclarationWithParametersWrappedToSeparateLines {
+    inner class `Given a function declaration with parameters wrapped on separate lines` {
         val code =
             """
             class Foo {
@@ -460,7 +459,7 @@ internal class IndentationRuleTest {
     }
 
     @Nested
-    inner class WhenStatement {
+    inner class `Given a when statement` {
         val code =
             """
             fun foo(bar: Any) =
@@ -511,7 +510,7 @@ internal class IndentationRuleTest {
     }
 
     @Nested
-    inner class IfStatement {
+    inner class `Given a if statement` {
         val code =
             """
             fun foo(i1: Int, i2: Int) =
@@ -577,7 +576,7 @@ internal class IndentationRuleTest {
     }
 
     @Nested
-    inner class EndOfLineCommentStartingAtPosition0 {
+    inner class `Given an EOL comment start at position 0 of the line` {
         val code =
             """
             fun foo() =
@@ -614,7 +613,7 @@ internal class IndentationRuleTest {
     }
 
     @Nested
-    inner class FunctionCallWithParametersWrappedToSeparateLines {
+    inner class `Given a function call with parameters wrapped on separate lines` {
         val code =
             """
             fun bar() =
@@ -665,7 +664,7 @@ internal class IndentationRuleTest {
     }
 
     @Nested
-    inner class TryCatchFinallyStatement {
+    inner class `Given a try-catch-finally statement` {
         val code =
             """
             fun foo() =
@@ -731,7 +730,7 @@ internal class IndentationRuleTest {
     }
 
     @Nested
-    inner class ChainedMethodCalls {
+    inner class `Given a chained method` {
         val code: String =
             """
             fun foo1(bar: String) =
@@ -787,7 +786,7 @@ internal class IndentationRuleTest {
     }
 
     @Nested
-    inner class AnnotatedFunctionParameter {
+    inner class `Given a function with an annotated parameter` {
         val code =
             """
             fun foo(
@@ -831,7 +830,7 @@ internal class IndentationRuleTest {
     }
 
     @Nested
-    inner class AnnotatedValueDeclaration {
+    inner class `Given a claas with an annotated property` {
         val code =
             """
             class Foo {
@@ -892,7 +891,7 @@ internal class IndentationRuleTest {
     }
 
     @Nested
-    inner class FunctionDeclarationNestedElvisOperator {
+    inner class `Given a function declaration with a nexted elvis operator` {
         val code =
             """
             fun foo1(bar: String?) =
@@ -951,7 +950,7 @@ internal class IndentationRuleTest {
     }
 
     @Nested
-    inner class ClassDeclarationWithSupertypeUsingGenerics {
+    inner class `Given a class declaration having a supertype which uses generics` {
         val code =
             """
             open class Foo<K, V>
@@ -1016,7 +1015,7 @@ internal class IndentationRuleTest {
     }
 
     @Nested
-    inner class ClassDeclarationMultipleSuperTypes {
+    inner class `Given a class declaration having multiple supertypes` {
         val code =
             """
             abstract class Foo :
@@ -1065,7 +1064,7 @@ internal class IndentationRuleTest {
     }
 
     @Nested
-    inner class AnnotatedClassDefinition {
+    inner class `Given a class which is annotated` {
         val code =
             """
             @Deprecated("Foo")
@@ -1086,7 +1085,7 @@ internal class IndentationRuleTest {
     }
 
     @Nested
-    inner class EnumerationClass {
+    inner class `Given an enumeration class` {
         val code =
             """
             enum class FooBar {
@@ -1291,7 +1290,7 @@ internal class IndentationRuleTest {
     }
 
     @Nested
-    inner class EndOfLineComment {
+    inner class `Given an EOL comment` {
         @Test
         fun `Given some correctly indented EOL comment`() {
             val code =
@@ -1335,7 +1334,7 @@ internal class IndentationRuleTest {
     }
 
     @Nested
-    inner class BlockComment {
+    inner class `Given a block comment` {
         @Test
         fun `Given some correctly indented block comment`() {
             val code =
@@ -1410,7 +1409,7 @@ internal class IndentationRuleTest {
     }
 
     @Nested
-    inner class KDoc {
+    inner class `Given a KDoc` {
         @Test
         fun `Given some correctly indented KDoc`() {
             val code =
@@ -1485,7 +1484,7 @@ internal class IndentationRuleTest {
     }
 
     @Nested
-    inner class NestedConditionals {
+    inner class `Given a nested conditional` {
         @Test
         fun `Given a simple nested conditional`() {
             val code =
@@ -1851,7 +1850,7 @@ internal class IndentationRuleTest {
     }
 
     @Nested
-    inner class TestLintFirstLine {
+    inner class `Given that the first line in a file contains a non-code element` {
         @Test
         fun `Given a file with indented code on the first line then report unexpected indentation on first line`() {
             val code =
@@ -1890,7 +1889,7 @@ internal class IndentationRuleTest {
     }
 
     @Nested
-    inner class BinaryExpression {
+    inner class `Given a binary expression` {
         @Test
         fun `Given a multiline binary expression of simple additions`() {
             val code =
@@ -2888,7 +2887,7 @@ internal class IndentationRuleTest {
     }
 
     @Nested
-    inner class RawStringLiterals {
+    inner class `Given a raw string literals` {
         @Test
         fun `Given a raw string literal with an indented string template`() {
             val code =
@@ -3229,7 +3228,7 @@ internal class IndentationRuleTest {
     }
 
     @Nested
-    inner class PropertyDelegate {
+    inner class `Given a property delegate` {
         @Test
         fun `Property delegate is indented properly 1`() {
             val code =
@@ -3382,7 +3381,7 @@ internal class IndentationRuleTest {
     }
 
     @Nested
-    inner class Delegation {
+    inner class `Given some delegation construction` {
         @Test
         fun `Delegation 1`() {
             val code =
@@ -4083,7 +4082,7 @@ internal class IndentationRuleTest {
     }
 
     @Nested
-    inner class Issue1350 {
+    inner class `Issue1350 - Given a for-loop` {
         @Test
         fun `Issue 1350 - Given a for-loop containing a newline before the declaration then do not indent it to keep it in sync with IntelliJ default formatting`() {
             val code =
@@ -4152,11 +4151,10 @@ internal class IndentationRuleTest {
         }
     }
 
-    @DisplayName("Issue 1335 - Given a property with an i")
     @Nested
-    inner class Issue1335 {
+    inner class `Issue 1335 - Given a property with an initializer on a separate line` {
         @Test
-        fun `Issue 1335 Given a property with an initializer on a separate line followed by a getter with a multiline body expression`() {
+        fun `Issue 1335 - Given the initializer is followed by a getter with a multiline body expression`() {
             val code =
                 """
                 private val foo: String =
@@ -4170,7 +4168,7 @@ internal class IndentationRuleTest {
         }
 
         @Test
-        fun `Issue 1335 Given a property with an initializer on a separate line followed by a getter with a block body containing a multiline dot qualified expression`() {
+        fun `Issue 1335 - Given the initializer is followed by a getter with a block body containing a multiline dot qualified expression`() {
             val code =
                 """
                 private val foo1: String =
@@ -4185,7 +4183,7 @@ internal class IndentationRuleTest {
         }
 
         @Test
-        fun `Issue 1335 - Given a property with an initializer on a separate line followed by a setter with a block body a multiline dot qualified expression`() {
+        fun `Issue 1335 - Given a the initializer is followed by a setter with a block body a multiline dot qualified expression`() {
             val code =
                 """
                 private var foo: String =
@@ -4201,7 +4199,7 @@ internal class IndentationRuleTest {
     }
 
     @Nested
-    inner class SuppressionInMiddleOfFile {
+    inner class `Issue 631 - Given some suppression directive in the middle of a file` {
         @Test
         fun `Issue 631 - Given some code for which indentation is disabled with ktlint-disable-enable-block then do not fix indentation of that block only`() {
             val code =
@@ -4253,7 +4251,7 @@ internal class IndentationRuleTest {
     }
 
     @Nested
-    inner class SafeAccessExpression {
+    inner class `Given a safe access expression` {
         @Test
         fun `Given a safe access expression as function parameter`() {
             val code =
@@ -4395,7 +4393,7 @@ internal class IndentationRuleTest {
     }
 
     @Nested
-    inner class TypeParameterList {
+    inner class `Given a type parameter list` {
         @Test
         fun `Given type parameter list`() {
             val code =
@@ -4684,9 +4682,8 @@ internal class IndentationRuleTest {
         indentationRuleAssertThat(code).hasNoLintViolations()
     }
 
-    @DisplayName("Issue 1639 - Context receivers")
     @Nested
-    inner class ContextReceivers {
+    inner class `Issue 1639 - Context receivers` {
         @Test
         fun `Given a context receiver with multiple parameters`() {
             val code =

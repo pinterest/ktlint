@@ -117,6 +117,16 @@ public class IndentationRule :
                 loadOnlyWhenOtherRuleIsLoaded = false,
                 runOnlyWhenOtherRuleIsEnabled = false,
             ),
+            VisitorModifier.RunAfterRule(
+                ruleId = "trailing-comma-on-call-site",
+                loadOnlyWhenOtherRuleIsLoaded = false,
+                runOnlyWhenOtherRuleIsEnabled = false,
+            ),
+            VisitorModifier.RunAfterRule(
+                ruleId = "trailing-comma-on-declaration-site",
+                loadOnlyWhenOtherRuleIsLoaded = false,
+                runOnlyWhenOtherRuleIsEnabled = false,
+            ),
         ),
     ),
     UsesEditorConfigProperties {

@@ -90,7 +90,7 @@ public object KtLint {
         val fileName: String? = null,
         val text: String,
         val ruleProviders: Set<RuleProvider> = emptySet(),
-        val userData: Map<String, String> = emptyMap(), // TODO: remove in a future version
+        val userData: Map<String, String> = emptyMap(),
         val cb: (e: LintError, corrected: Boolean) -> Unit,
         val script: Boolean = false,
         val debug: Boolean = false,

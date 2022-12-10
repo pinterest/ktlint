@@ -3,11 +3,9 @@ package com.pinterest.ktlint
 import java.io.ByteArrayInputStream
 import java.nio.file.Path
 import org.assertj.core.api.SoftAssertions
-import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 
-@DisplayName("CLI basic checks")
 class SimpleCLITest {
     @Test
     fun `Given CLI argument --help then return the help output`(
@@ -20,7 +18,7 @@ class SimpleCLITest {
                 listOf("--help"),
             ) {
                 SoftAssertions().apply {
-                    assertErrorExitCode()
+                    assertNormalExitCode()
                     assertThat(normalOutput).containsLineMatching("An anti-bikeshedding Kotlin linter with built-in formatter.")
                     assertThat(normalOutput).containsLineMatching("Usage:")
                     assertThat(normalOutput).containsLineMatching("Examples:")
@@ -39,8 +37,8 @@ class SimpleCLITest {
                 listOf("--version"),
             ) {
                 SoftAssertions().apply {
-                    assertErrorExitCode()
-                    assertThat(normalOutput).containsExactly(System.getProperty("ktlint-version"))
+                    assertNormalExitCode()
+                    assertThat(normalOutput).contains(System.getProperty("ktlint-version"))
                 }.assertAll()
             }
     }

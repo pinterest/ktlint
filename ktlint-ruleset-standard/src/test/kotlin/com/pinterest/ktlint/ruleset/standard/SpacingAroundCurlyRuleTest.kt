@@ -88,7 +88,7 @@ class SpacingAroundCurlyRuleTest {
     }
 
     @Nested
-    inner class Lamda {
+    inner class `Given a lamda` {
         @Test
         fun `Given a lambda missing space around opening curly brace`() {
             val code =
@@ -294,7 +294,7 @@ class SpacingAroundCurlyRuleTest {
     }
 
     @Nested
-    inner class OpeningCurlyBraceOnSameLineAsControllingStatement {
+    inner class `Given an opening curly brace on the same line as the controlling statement` {
         @Test
         fun `Given a class with the opening curly brace on a new line`() {
             val code =

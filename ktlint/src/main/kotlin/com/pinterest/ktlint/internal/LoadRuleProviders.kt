@@ -14,12 +14,12 @@ private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 /**
  * Loads given list of paths to jar files. For files containing a [RuleSetProviderV2] class, get all [RuleProvider]s.
  */
-internal fun JarFiles.loadRuleProviders(
+internal fun List<URL>.loadRuleProviders(
     loadExperimental: Boolean,
     debug: Boolean,
     disabledRules: String,
 ): Set<RuleProvider> =
-    toFilesURIList()
+    this
         .plus(
             // Ensure that always at least one element exists in this list so that the rule sets provided by the KtLint
             // CLI module itself will be found even in case no JAR files are specified

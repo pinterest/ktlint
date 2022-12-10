@@ -12,6 +12,8 @@ class TrailingCommaOnDeclarationSiteRuleTest {
         KtLintAssertThat.assertThatRule(
             provider = { TrailingCommaOnDeclarationSiteRule() },
             additionalRuleProviders = setOf(
+                // WrappingRule must be loaded in order to run TrailingCommaOnCallSiteRule
+                RuleProvider { WrappingRule() },
                 // Apply the IndentationRule always as additional rule, so that the formattedCode in the unit test looks
                 // correct.
                 RuleProvider { IndentationRule() },
@@ -454,12 +456,14 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             val fooBar2: (Int, Int) -> Int = {
                     foo,
                     bar, // The comma before the comment should be removed without removing the comment itself
-                -> foo * bar
+                ->
+                foo * bar
             }
             val fooBar3: (Int, Int) -> Int = {
                     foo,
                     bar, /* The comma before the comment should be removed without removing the comment itself */
-                -> foo * bar
+                ->
+                foo * bar
             }
             """.trimIndent()
         val formattedCode =
@@ -468,12 +472,14 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             val fooBar2: (Int, Int) -> Int = {
                     foo,
                     bar // The comma before the comment should be removed without removing the comment itself
-                -> foo * bar
+                ->
+                foo * bar
             }
             val fooBar3: (Int, Int) -> Int = {
                     foo,
                     bar /* The comma before the comment should be removed without removing the comment itself */
-                -> foo * bar
+                ->
+                foo * bar
             }
             """.trimIndent()
         trailingCommaOnDeclarationSiteRuleAssertThat(code)
@@ -481,7 +487,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             .hasLintViolations(
                 LintViolation(1, 44, "Unnecessary trailing comma before \"->\""),
                 LintViolation(4, 12, "Unnecessary trailing comma before \"->\""),
-                LintViolation(9, 12, "Unnecessary trailing comma before \"->\""),
+                LintViolation(10, 12, "Unnecessary trailing comma before \"->\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -493,12 +499,14 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             val fooBar2: (Int, Int) -> Int = {
                     foo,
                     bar // The comma should be inserted before the comment
-                -> foo * bar
+                ->
+                foo * bar
             }
             val fooBar3: (Int, Int) -> Int = {
                     foo,
                     bar /* The comma should be inserted before the comment */
-                -> foo * bar
+                ->
+                foo * bar
             }
             """.trimIndent()
         val formattedCode =
@@ -507,19 +515,21 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             val fooBar2: (Int, Int) -> Int = {
                     foo,
                     bar, // The comma should be inserted before the comment
-                -> foo * bar
+                ->
+                foo * bar
             }
             val fooBar3: (Int, Int) -> Int = {
                     foo,
                     bar, /* The comma should be inserted before the comment */
-                -> foo * bar
+                ->
+                foo * bar
             }
             """.trimIndent()
         trailingCommaOnDeclarationSiteRuleAssertThat(code)
             .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to true)
             .hasLintViolations(
                 LintViolation(4, 12, "Missing trailing comma before \"->\""),
-                LintViolation(9, 12, "Missing trailing comma before \"->\""),
+                LintViolation(10, 12, "Missing trailing comma before \"->\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -710,7 +720,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
     }
 
     @Nested
-    inner class MissingRequiredTrailingComma {
+    inner class `Given that a required trailing comma is missing` {
         @Test
         fun `Given that last two enumeration entries are on same line, do not add a trailing comma`() {
             val code =
@@ -922,7 +932,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
                 provider = { MultiLineIfElseRule() },
                 additionalRuleProviders = setOf(
                     RuleProvider { TrailingCommaOnDeclarationSiteRule() },
-                    RuleProvider { IndentationRule() }, // Required for TrailingCommaOnDeclarationSiteRule
+                    RuleProvider { WrappingRule() }, // Required for TrailingCommaOnDeclarationSiteRule
                 ),
             )
 

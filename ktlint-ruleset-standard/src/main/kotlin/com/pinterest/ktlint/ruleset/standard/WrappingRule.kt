@@ -15,6 +15,7 @@ import com.pinterest.ktlint.core.ast.ElementType.COMMA
 import com.pinterest.ktlint.core.ast.ElementType.CONDITION
 import com.pinterest.ktlint.core.ast.ElementType.DESTRUCTURING_DECLARATION
 import com.pinterest.ktlint.core.ast.ElementType.DOT
+import com.pinterest.ktlint.core.ast.ElementType.EOL_COMMENT
 import com.pinterest.ktlint.core.ast.ElementType.FUN
 import com.pinterest.ktlint.core.ast.ElementType.FUNCTION_LITERAL
 import com.pinterest.ktlint.core.ast.ElementType.GT
@@ -39,6 +40,7 @@ import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.core.ast.ElementType.WHEN_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.core.ast.children
+import com.pinterest.ktlint.core.ast.firstChildLeafOrSelf
 import com.pinterest.ktlint.core.ast.isPartOfComment
 import com.pinterest.ktlint.core.ast.isWhiteSpace
 import com.pinterest.ktlint.core.ast.isWhiteSpaceWithNewline
@@ -133,8 +135,8 @@ public class WrappingRule :
             when {
                 blockIsPrecededByWhitespaceContainingNewline -> false
                 node.textContains('\n') || blockIsFollowedByWhitespaceContainingNewline -> {
-                    // A multiline block should always be wrapped
-                    true
+                    // A multiline block should always be wrapped unless it starts with an EOL comment
+                    node.firstChildLeafOrSelf().elementType != EOL_COMMENT
                 }
                 maxLineLength > 0 -> {
                     val startOfLine = node.prevLeaf { it.isWhiteSpaceWithNewline() }
@@ -151,7 +153,7 @@ public class WrappingRule :
             }
         if (wrapBlock) {
             startOfBlock
-                ?.takeIf { !it.nextLeaf().isWhiteSpaceWithNewline() }
+                .takeIf { !it.nextLeaf().isWhiteSpaceWithNewline() }
                 ?.let { leafNodeBeforeBlock ->
                     requireNewlineAfterLeaf(
                         leafNodeBeforeBlock,

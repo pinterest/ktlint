@@ -1,6 +1,6 @@
 # Release testing
 
-Before releasing a new version of KtLint, the release candidate is tested on a selection of open source projects to improve the quality of the release.
+Before releasing a new version of KtLint, the release candidate is tested on a selection of open source projects to improve the quality of the release, and the documentation is tested for dead links.
 
 ## Setup infrastructure
 
@@ -114,3 +114,7 @@ Formatting projects in which ktlint is not used may result in a huge amount of f
    ktlint-dev --experimental --baseline=baseline.xml --relative # Do not call this command via the "./exec-in-each-project.sh" script as we want to use the one combined baseline.xml file for all projects.
    ```
    No violations should be expected.
+
+## Checking documentation
+[The documentation for KtLint](https://pinterest.github.io/ktlint/) should be checked for dead links.
+Follow the instructions for building the documentation in `/docs/readme.md`, and use a tool such as [Broken Link Checker Tool](https://www.deadlinkchecker.com/website-dead-link-checker.asp) to find broken links.

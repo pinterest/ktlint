@@ -1,9 +1,10 @@
 package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.ast.ElementType
 import com.pinterest.ktlint.core.ast.ElementType.PACKAGE_DIRECTIVE
+import com.pinterest.ktlint.core.ast.nextCodeSibling
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.psi.KtPackageDirective
 
 /**
  * https://kotlinlang.org/docs/coding-conventions.html#naming-rules
@@ -14,16 +15,24 @@ public class PackageNameRule : Rule("package-name") {
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
-        if (node.elementType == PACKAGE_DIRECTIVE) {
-            val qualifiedName = (node.psi as KtPackageDirective).qualifiedName
-            if (qualifiedName.isEmpty()) {
-                return
+        node
+            .takeIf { node.elementType == PACKAGE_DIRECTIVE }
+            ?.firstChildNode
+            ?.nextCodeSibling()
+            ?.takeIf { it.elementType == ElementType.DOT_QUALIFIED_EXPRESSION || it.elementType == ElementType.REFERENCE_EXPRESSION }
+            ?.let { expression ->
+                if (expression.text.contains('_')) {
+                    // The Kotlin inspections (preference > Editor > Inspections) for 'Package naming convention' allows
+                    // underscores as well. But as this has been forbidden by KtLint since early versions, this is still
+                    // prohibited.
+                    emit(expression.startOffset, "Package name must not contain underscore", false)
+                } else if (!expression.text.matches(VALID_PACKAGE_NAME_REGEXP)) {
+                    emit(expression.startOffset, "Package name contains a disallowed character", false)
+                }
             }
+    }
 
-            if (qualifiedName.contains('_')) {
-                emit(node.startOffset, "Package name must not contain underscore", false)
-                // "package name must be in lowercase" is violated by too many to projects in the wild to forbid
-            }
-        }
+    private companion object {
+        val VALID_PACKAGE_NAME_REGEXP = Regex("[a-z_][a-zA-Z\\d_]*(\\.[a-z_][a-zA-Z\\d_]*)*")
     }
 }

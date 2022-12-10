@@ -248,7 +248,7 @@ class NoSemicolonsRuleTest {
     }
 
     @Nested
-    inner class Enumeration {
+    inner class `Given an enumeration` {
         @Test
         fun `Given an enumeration and the list of values is followed by a declaration then do not return a lint error`() {
             val code =

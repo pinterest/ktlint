@@ -54,13 +54,13 @@ On Arch Linux install package [ktlint <sup>AUR</sup>](https://aur.archlinux.org/
 
 ### Rule set(s)
 
-When no arguments are specified, the style of all Kotlin files (ending with '.kt' or '.kts') inside the current dir (recursively) are validated with the rules from the [standard ruleset](https://pinterest.github.io/ktlint/rules/standard/). Hidden folders will be skipped.
+When no arguments are specified, the style of all Kotlin files (ending with '.kt' or '.kts') inside the current dir (recursively) are validated with the rules from the [standard ruleset](../../rules/standard/). Hidden folders will be skipped.
 
 ```shell title="Default validation with standard ruleset"
 ktlint
 ```
 
-To validate with the [standard ruleset](https://pinterest.github.io/ktlint/rules/standard/) and the [experimental rulesset](https://pinterest.github.io/ktlint/rules/experimental/) run command below: 
+To validate with the [standard ruleset](../../rules/standard/) and the [experimental rulesset](../../rules/experimental/) run command below: 
 
 ```shell title="Validation with standard and experimental ruleset"
 ktlint --experimental
@@ -69,7 +69,7 @@ ktlint --experimental
 !!! note
     Instead of using this command line flag, you can also set `.editorconfig` property `ktlint_experimental = enabled`.
 
-To validate with a [custom ruleset](https://pinterest.github.io/ktlint/extensions/custom-rule-set/) run command below:  
+To validate with a [custom ruleset](../../extensions/custom-rule-set/) run command below:  
 
 ```shell title="Validation with standard and a custom ruleset"
 ktlint --ruleset=/path/to/custom-ruleset.jar
@@ -107,6 +107,11 @@ ktlint "src/**/*.kt" "!src/**/generated/**"
 $ ktlint --reporter=plain?group_by_file
 ```
 
+When using `ktlint` on an existing project, the number of violations can be huge. To get more insights in which rules are causing the most violations, the `plain-summary` reporter can be used.
+```shell title="Style violations counted per rule"
+$ ktlint --reporter=plain-summary
+```
+
 Other built-in reporters are: `json`, `sarif`, `checkstyle`, and `html`
 
 Style violations can be written to an output file which is convenient when multiple reporters are specified. In example below, the plain reporter is used to write to the console while the checkstyle reports is written to a file:
@@ -129,7 +134,7 @@ By default, the `info` log level is used meaning that all log lines at level `in
 
 ### Rule configuration (`.editorconfig`)
 
-Some rules can be tweaked via the [`editorconfig file`](https://pinterest.github.io/ktlint/rules/configuration/).
+Some rules can be tweaked via the [`editorconfig file`](../../rules/configuration-ktlint/).
 
 A scaffold of the `.editorconfig file` can be generated with command below. Note: that the generated file only contains configuration settings which are actively used by the [rules which are loaded](#rule-sets):
 
@@ -168,7 +173,7 @@ ktlint --stdin -F
 
 !!! tip Suppress logging and error output
     Logging output printed to `stdout` can be suppressed by setting `--log-level=none` (see [logging](#logging)).
-    Output printed to `stderr` can be suppressed in different ways. To ignore all error output, add `2> /dev/null` to the end of the command line. Otherwise, specify a [reporter](#error-reporting) to write the error output to a file.
+    Output printed to `stderr` can be suppressed in different ways. To ignore all error output, add `2> /dev/null` to the end of the command line. Otherwise, specify a [reporter](#violation-reporting) to write the error output to a file.
 
 
 ### Git hooks
@@ -185,11 +190,11 @@ ktlint installGitPrePushHook
 
 ### Miscellaneous flags and commands
 
-`-a` or `--android`: Turn on Android Kotlin Style Guide compatibility. This flag is most likely to be removed in a future version. Use `.editorconfig ktlint_code_style`(https://pinterest.github.io/ktlint/rules/configuration/#code-style). 
+`-a` or `--android`: Turn on Android Kotlin Style Guide compatibility. This flag is most likely to be removed in a future version. Use [`.editorconfig ktlint_code_style`](../../rules/configuration-ktlint/#code-style). 
 
 `--color` and `--color-name=<colorName>`: Make output colorful and optionally set the color name to use.
 
-`--disabled_rules=<disabledRules>`: A comma-separated list of rules to globally disable. To disable the standard ktlint rule-set use `--disabled_rules=standard`.  This flag is most likely to be removed in a future version. Use `.editorconfig disabled_rules`(https://pinterest.github.io/ktlint/rules/configuration/#disabled-rules).
+`--disabled_rules=<disabledRules>`: A comma-separated list of rules to globally disable. To disable the standard ktlint rule-set use `--disabled_rules=standard`.  This flag is most likely to be removed in a future version. Use [`.editorconfig disabled_rules`](../../rules/configuration-ktlint/#disabled-rules).
 
 `-h` or `--help`: Prints help information.
 

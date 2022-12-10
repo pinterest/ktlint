@@ -28,16 +28,8 @@ internal class GenerateEditorConfigSubCommand : Runnable {
     override fun run() {
         commandSpec.commandLine().printCommandLineHelpOrVersionUsage()
 
-        val ruleProviders =
-            ktlintCommand
-                .rulesetJarFiles
-                .loadRuleProviders(
-                    ktlintCommand.experimental,
-                    ktlintCommand.debug,
-                    ktlintCommand.disabledRules,
-                )
         val ktLintRuleEngine = KtLintRuleEngine(
-            ruleProviders = ruleProviders,
+            ruleProviders = ktlintCommand.ruleProviders(),
             editorConfigOverride = EditorConfigOverride.from(com.pinterest.ktlint.core.api.editorconfig.CODE_STYLE_PROPERTY to codeStyle()),
             isInvokedFromCli = true,
         )
