@@ -11,6 +11,7 @@ import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.EMPTY_EDITOR_CONFIG_OVERRIDE
 import com.pinterest.ktlint.core.api.KtLintRuleException
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
+import com.pinterest.ktlint.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.core.api.editorconfig.DEFAULT_EDITOR_CONFIG_PROPERTIES
 import com.pinterest.ktlint.core.internal.EditorConfigFinder
@@ -580,10 +581,10 @@ public class KtLintRuleEngine(
     public fun generateKotlinEditorConfigSection(filePath: Path): String {
         val codeStyle =
             editorConfigOverride
-                .properties[com.pinterest.ktlint.core.api.editorconfig.CODE_STYLE_PROPERTY]
+                .properties[CODE_STYLE_PROPERTY]
                 ?.parsed
                 ?.safeAs<CodeStyleValue>()
-                ?: com.pinterest.ktlint.core.api.editorconfig.CODE_STYLE_PROPERTY.defaultValue
+                ?: CODE_STYLE_PROPERTY.defaultValue
         val rules =
             ruleProviders
                 .map { RuleRunner(it) }

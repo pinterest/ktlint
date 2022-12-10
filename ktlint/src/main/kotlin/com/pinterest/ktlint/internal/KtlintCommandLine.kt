@@ -14,6 +14,7 @@ import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.plus
 import com.pinterest.ktlint.core.api.KtLintParseException
 import com.pinterest.ktlint.core.api.KtLintRuleException
 import com.pinterest.ktlint.core.api.doesNotContain
+import com.pinterest.ktlint.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.core.api.editorconfig.RuleExecution
 import com.pinterest.ktlint.core.api.editorconfig.createRuleExecutionEditorConfigProperty
@@ -256,7 +257,7 @@ internal class KtlintCommandLine {
                 .applyIf(disabledRules.isNotBlank()) {
                     plus(*disabledRulesEditorConfigOverrides())
                 }.applyIf(android) {
-                    plus(com.pinterest.ktlint.core.api.editorconfig.CODE_STYLE_PROPERTY to CodeStyleValue.android)
+                    plus(CODE_STYLE_PROPERTY to CodeStyleValue.android)
                 }
 
     private fun disabledRulesEditorConfigOverrides() =

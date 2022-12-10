@@ -5,6 +5,7 @@ import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.RuleProvider
 import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.api.editorconfig.EditorConfigProperty
+import com.pinterest.ktlint.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
 import org.assertj.core.api.AbstractAssert
@@ -85,7 +86,7 @@ public class KtLintAssertThat(
             ?.indexOf(EOL_CHAR)
             ?.let { index ->
                 editorConfigProperties =
-                    editorConfigProperties + setOf(com.pinterest.ktlint.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY to (index + 1).toString())
+                    editorConfigProperties + setOf(MAX_LINE_LENGTH_PROPERTY to (index + 1).toString())
             } ?: throw MissingEolMarker()
 
         return this

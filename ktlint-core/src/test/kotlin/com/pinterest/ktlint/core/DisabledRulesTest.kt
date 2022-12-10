@@ -1,6 +1,8 @@
 package com.pinterest.ktlint.core
 
 import com.pinterest.ktlint.core.api.EditorConfigOverride
+import com.pinterest.ktlint.core.api.editorconfig.DISABLED_RULES_PROPERTY
+import com.pinterest.ktlint.core.api.editorconfig.KTLINT_DISABLED_RULES_PROPERTY
 import com.pinterest.ktlint.core.api.editorconfig.RuleExecution
 import com.pinterest.ktlint.core.api.editorconfig.createRuleExecutionEditorConfigProperty
 import com.pinterest.ktlint.core.ast.ElementType
@@ -50,7 +52,7 @@ class DisabledRulesTest {
                     ruleProviders = setOf(
                         RuleProvider { NoVarRule(ruleId) },
                     ),
-                    editorConfigOverride = EditorConfigOverride.from(com.pinterest.ktlint.core.api.editorconfig.DISABLED_RULES_PROPERTY to disabledRuleId),
+                    editorConfigOverride = EditorConfigOverride.from(DISABLED_RULES_PROPERTY to disabledRuleId),
                 ).lint("var foo") { e -> add(e) }
             },
         ).isEmpty()
@@ -78,7 +80,7 @@ class DisabledRulesTest {
                     ruleProviders = setOf(
                         RuleProvider { NoVarRule(ruleId) },
                     ),
-                    editorConfigOverride = EditorConfigOverride.from(com.pinterest.ktlint.core.api.editorconfig.KTLINT_DISABLED_RULES_PROPERTY to disabledRuleId),
+                    editorConfigOverride = EditorConfigOverride.from(KTLINT_DISABLED_RULES_PROPERTY to disabledRuleId),
                 ).lint("var foo") { e -> add(e) }
             },
         ).isEmpty()

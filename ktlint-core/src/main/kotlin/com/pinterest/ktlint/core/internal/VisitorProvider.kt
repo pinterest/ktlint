@@ -3,7 +3,9 @@ package com.pinterest.ktlint.core.internal
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
+import com.pinterest.ktlint.core.api.editorconfig.DISABLED_RULES_PROPERTY
 import com.pinterest.ktlint.core.api.editorconfig.EditorConfigProperty
+import com.pinterest.ktlint.core.api.editorconfig.KTLINT_DISABLED_RULES_PROPERTY
 import com.pinterest.ktlint.core.api.editorconfig.RULE_EXECUTION_PROPERTY_TYPE
 import com.pinterest.ktlint.core.api.editorconfig.RuleExecution
 import com.pinterest.ktlint.core.api.editorconfig.createRuleExecutionEditorConfigProperty
@@ -29,8 +31,8 @@ internal class VisitorProvider(
     recreateRuleSorter: Boolean = false,
 ) : UsesEditorConfigProperties {
     override val editorConfigProperties: List<EditorConfigProperty<*>> = listOf(
-        com.pinterest.ktlint.core.api.editorconfig.KTLINT_DISABLED_RULES_PROPERTY,
-        com.pinterest.ktlint.core.api.editorconfig.DISABLED_RULES_PROPERTY,
+        KTLINT_DISABLED_RULES_PROPERTY,
+        DISABLED_RULES_PROPERTY,
     ).plus(
         ruleRunners.map {
             createRuleExecutionEditorConfigProperty(toQualifiedRuleId(it.ruleSetId, it.ruleId))
@@ -99,15 +101,15 @@ internal class VisitorProvider(
                 editorConfigProperties.containsKey(ktLintRuleSetExecutionPropertyName(qualifiedRuleId)) ->
                 editorConfigProperties.isRuleEnabled(qualifiedRuleId)
 
-            editorConfigProperties.containsKey(com.pinterest.ktlint.core.api.editorconfig.KTLINT_DISABLED_RULES_PROPERTY.name) ->
+            editorConfigProperties.containsKey(KTLINT_DISABLED_RULES_PROPERTY.name) ->
                 editorConfigProperties.isEnabled(
-                    com.pinterest.ktlint.core.api.editorconfig.KTLINT_DISABLED_RULES_PROPERTY,
+                    KTLINT_DISABLED_RULES_PROPERTY,
                     qualifiedRuleId,
                 )
 
-            editorConfigProperties.containsKey(com.pinterest.ktlint.core.api.editorconfig.DISABLED_RULES_PROPERTY.name) ->
+            editorConfigProperties.containsKey(DISABLED_RULES_PROPERTY.name) ->
                 editorConfigProperties.isEnabled(
-                    com.pinterest.ktlint.core.api.editorconfig.DISABLED_RULES_PROPERTY,
+                    DISABLED_RULES_PROPERTY,
                     qualifiedRuleId,
                 )
 

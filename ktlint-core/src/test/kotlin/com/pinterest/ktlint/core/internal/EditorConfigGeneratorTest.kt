@@ -5,7 +5,9 @@ import com.google.common.jimfs.Jimfs
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.api.editorconfig.CodeStyleValue
+import com.pinterest.ktlint.core.api.editorconfig.DISABLED_RULES_PROPERTY
 import com.pinterest.ktlint.core.api.editorconfig.EditorConfigProperty
+import com.pinterest.ktlint.core.api.editorconfig.KTLINT_DISABLED_RULES_PROPERTY
 import java.nio.file.FileSystem
 import java.nio.file.Files
 import java.nio.file.Path
@@ -37,8 +39,8 @@ internal class EditorConfigGeneratorTest {
             "ktlint_code_style = official",
             "max_line_length = -1",
         ).doesNotContain(
-            "${com.pinterest.ktlint.core.api.editorconfig.DISABLED_RULES_PROPERTY.name} = ",
-            "${com.pinterest.ktlint.core.api.editorconfig.KTLINT_DISABLED_RULES_PROPERTY.name} = ",
+            "${DISABLED_RULES_PROPERTY.name} = ",
+            "${KTLINT_DISABLED_RULES_PROPERTY.name} = ",
         )
     }
 

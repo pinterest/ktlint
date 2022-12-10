@@ -7,6 +7,8 @@ import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.api.editorconfig.EditorConfigProperty
+import com.pinterest.ktlint.core.api.editorconfig.INDENT_SIZE_PROPERTY
+import com.pinterest.ktlint.core.api.editorconfig.INSERT_FINAL_NEWLINE_PROPERTY
 import com.pinterest.ktlint.ruleset.standard.FinalNewlineRule
 import java.nio.file.FileSystem
 import java.nio.file.Files
@@ -210,7 +212,7 @@ internal class EditorConfigLoaderTest {
         val parsedEditorConfig = editorConfigLoader.load(
             filePath = null,
             rules = rules,
-            editorConfigOverride = EditorConfigOverride.from(com.pinterest.ktlint.core.api.editorconfig.INSERT_FINAL_NEWLINE_PROPERTY to "true"),
+            editorConfigOverride = EditorConfigOverride.from(INSERT_FINAL_NEWLINE_PROPERTY to "true"),
         )
 
         assertThat(parsedEditorConfig.convertToPropertyValues()).containsExactlyInAnyOrder(
@@ -223,7 +225,7 @@ internal class EditorConfigLoaderTest {
         val parsedEditorConfig = editorConfigLoader.load(
             filePath = null,
             rules = rules,
-            editorConfigOverride = EditorConfigOverride.from(com.pinterest.ktlint.core.api.editorconfig.INSERT_FINAL_NEWLINE_PROPERTY to "true"),
+            editorConfigOverride = EditorConfigOverride.from(INSERT_FINAL_NEWLINE_PROPERTY to "true"),
         )
 
         assertThat(parsedEditorConfig.convertToPropertyValues()).containsExactlyInAnyOrder(
@@ -247,7 +249,7 @@ internal class EditorConfigLoaderTest {
         val editorConfigProperties = editorConfigLoader.load(
             filePath = null,
             rules = rules,
-            editorConfigOverride = EditorConfigOverride.from(com.pinterest.ktlint.core.api.editorconfig.INSERT_FINAL_NEWLINE_PROPERTY to true),
+            editorConfigOverride = EditorConfigOverride.from(INSERT_FINAL_NEWLINE_PROPERTY to true),
         )
 
         assertThat(editorConfigProperties.convertToPropertyValues())
@@ -294,7 +296,7 @@ internal class EditorConfigLoaderTest {
                 .load(
                     filePath = lintFile,
                     rules = rules,
-                    editorConfigOverride = EditorConfigOverride.from(com.pinterest.ktlint.core.api.editorconfig.INDENT_SIZE_PROPERTY to 2),
+                    editorConfigOverride = EditorConfigOverride.from(INDENT_SIZE_PROPERTY to 2),
                 )
 
         assertThat(editorConfigProperties.convertToPropertyValues())
@@ -321,7 +323,7 @@ internal class EditorConfigLoaderTest {
         val editorConfigProperties = editorConfigLoader.load(
             filePath = null,
             rules = rules,
-            editorConfigOverride = EditorConfigOverride.from(com.pinterest.ktlint.core.api.editorconfig.INDENT_SIZE_PROPERTY to 2),
+            editorConfigOverride = EditorConfigOverride.from(INDENT_SIZE_PROPERTY to 2),
         )
 
         assertThat(editorConfigProperties.convertToPropertyValues()).containsExactlyInAnyOrder(
@@ -383,7 +385,7 @@ internal class EditorConfigLoaderTest {
         val editorConfigProperties = editorConfigLoader.load(
             lintFile,
             rules = rules.plus(FinalNewlineRule()),
-            editorConfigOverride = EditorConfigOverride.from(com.pinterest.ktlint.core.api.editorconfig.INSERT_FINAL_NEWLINE_PROPERTY to "true"),
+            editorConfigOverride = EditorConfigOverride.from(INSERT_FINAL_NEWLINE_PROPERTY to "true"),
         )
 
         assertThat(editorConfigProperties.convertToPropertyValues()).containsExactlyInAnyOrder(
@@ -412,7 +414,7 @@ internal class EditorConfigLoaderTest {
         val editorConfigProperties = editorConfigLoader.load(
             lintFile,
             rules = rules.plus(FinalNewlineRule()),
-            editorConfigOverride = EditorConfigOverride.from(com.pinterest.ktlint.core.api.editorconfig.INSERT_FINAL_NEWLINE_PROPERTY to "false"),
+            editorConfigOverride = EditorConfigOverride.from(INSERT_FINAL_NEWLINE_PROPERTY to "false"),
         )
 
         assertThat(editorConfigProperties.convertToPropertyValues()).containsExactlyInAnyOrder(

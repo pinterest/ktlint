@@ -8,6 +8,7 @@ import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.EMPTY_EDITOR
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.api.editorconfig.EditorConfigProperty
+import com.pinterest.ktlint.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ktlint.core.internal.ThreadSafeEditorConfigCache.Companion.THREAD_SAFE_EDITOR_CONFIG_CACHE
 import java.nio.charset.StandardCharsets
@@ -58,8 +59,8 @@ public class EditorConfigLoader(
             .queryProperties(normalizedFilePath.resource())
             .properties
             .also { loaded ->
-                if (loaded[TAB_WIDTH_PROPERTY_NAME]?.sourceValue == loaded[com.pinterest.ktlint.core.api.editorconfig.INDENT_SIZE_PROPERTY.name]?.sourceValue &&
-                    editorConfigOverride.properties[com.pinterest.ktlint.core.api.editorconfig.INDENT_SIZE_PROPERTY] != null
+                if (loaded[TAB_WIDTH_PROPERTY_NAME]?.sourceValue == loaded[INDENT_SIZE_PROPERTY.name]?.sourceValue &&
+                    editorConfigOverride.properties[INDENT_SIZE_PROPERTY] != null
                 ) {
                     // The tab_width property can not be overridden via the editorConfigOverride. So if it has been
                     // set to the same value as the indent_size property then keep its value in sync with that
@@ -68,7 +69,7 @@ public class EditorConfigLoader(
                         .builder()
                         .name(TAB_WIDTH_PROPERTY_NAME)
                         .type(PropertyType.tab_width)
-                        .value(editorConfigOverride.properties[com.pinterest.ktlint.core.api.editorconfig.INDENT_SIZE_PROPERTY]?.source)
+                        .value(editorConfigOverride.properties[INDENT_SIZE_PROPERTY]?.source)
                         .build()
                 }
                 editorConfigOverride
