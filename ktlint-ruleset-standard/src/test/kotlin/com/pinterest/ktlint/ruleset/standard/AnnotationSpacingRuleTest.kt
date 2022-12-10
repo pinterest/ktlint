@@ -78,11 +78,8 @@ class AnnotationSpacingRuleTest {
             fun foo() = Unit
             """.trimIndent()
         annotationSpacingRuleAssertThat(code)
-            .hasLintViolations(
-                // TODO: It is not correct that the error is reported twice
-                LintViolation(1, 20, "Annotations should occur immediately before the annotated construct"),
-                LintViolation(1, 20, "Annotations should occur immediately before the annotated construct"),
-            ).isFormattedAs(formattedCode)
+            .hasLintViolation(1, 20, "Annotations should occur immediately before the annotated construct")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -101,11 +98,8 @@ class AnnotationSpacingRuleTest {
             fun foo() = Unit
             """.trimIndent()
         annotationSpacingRuleAssertThat(code)
-            .hasLintViolations(
-                // TODO: It is not correct that the error is reported twice
-                LintViolation(2, 10, "Annotations should occur immediately before the annotated construct"),
-                LintViolation(2, 10, "Annotations should occur immediately before the annotated construct"),
-            ).isFormattedAs(formattedCode)
+            .hasLintViolation(2, 10, "Annotations should occur immediately before the annotated construct")
+            .isFormattedAs(formattedCode)
     }
 
     @Test

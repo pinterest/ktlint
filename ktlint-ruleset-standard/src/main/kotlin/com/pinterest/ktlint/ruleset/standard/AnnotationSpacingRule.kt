@@ -79,46 +79,43 @@ public class AnnotationSpacingRule : Rule("annotation-spacing") {
             },
         )
         if (next != null) {
-            if (node.elementType != ElementType.FILE_ANNOTATION_LIST) {
+            if (node.elementType != ElementType.FILE_ANNOTATION_LIST && next.isPartOfComment()) {
                 val psi = node.psi
                 emit(psi.endOffset - 1, ERROR_MESSAGE, true)
                 if (autoCorrect) {
                     // Special-case autocorrection when the annotation is separated from the annotated construct
                     // by a comment: we need to swap the order of the comment and the annotation
-                    if (next.isPartOfComment()) {
-                        // Remove the annotation and the following whitespace
-                        val eolComment = node.nextSibling { it.isCommentOnSameLineAsPrevLeaf() }
-                        if (eolComment != null) {
-                            eolComment.prevSibling { it.isWhiteSpace() }?.let { it.treeParent.removeChild(it) }
-                            eolComment.nextSibling { it.isWhiteSpace() }?.let { it.treeParent.removeChild(it) }
-                            eolComment.treeParent?.removeChild(eolComment)
-                        } else {
-                            node.nextSibling { it.isWhiteSpace() }?.let { it.treeParent?.removeChild(it) }
-                        }
-                        node.treeParent.removeChild(node)
-
-                        // Insert the annotation prior to the annotated construct
-                        val beforeAnchor = next.nextCodeSibling()
-                        val treeParent = next.treeParent
-                        treeParent.addChild(node, beforeAnchor)
-                        if (eolComment != null) {
-                            treeParent.addChild(PsiWhiteSpaceImpl(" "), beforeAnchor)
-                            treeParent.addChild(eolComment, beforeAnchor)
-                        }
-                        treeParent.addChild(PsiWhiteSpaceImpl("\n"), beforeAnchor)
+                    // Remove the annotation and the following whitespace
+                    val eolComment = node.nextSibling { it.isCommentOnSameLineAsPrevLeaf() }
+                    if (eolComment != null) {
+                        eolComment.prevSibling { it.isWhiteSpace() }?.let { it.treeParent.removeChild(it) }
+                        eolComment.nextSibling { it.isWhiteSpace() }?.let { it.treeParent.removeChild(it) }
+                        eolComment.treeParent?.removeChild(eolComment)
                     } else {
-                        removeExtraLineBreaks(node)
+                        node.nextSibling { it.isWhiteSpace() }?.let { it.treeParent?.removeChild(it) }
                     }
+                    node.treeParent.removeChild(node)
+
+                    // Insert the annotation prior to the annotated construct
+                    val beforeAnchor = next.nextCodeSibling()
+                    val treeParent = next.treeParent
+                    treeParent.addChild(node, beforeAnchor)
+                    if (eolComment != null) {
+                        treeParent.addChild(PsiWhiteSpaceImpl(" "), beforeAnchor)
+                        treeParent.addChild(eolComment, beforeAnchor)
+                    }
+                    treeParent.addChild(PsiWhiteSpaceImpl("\n"), beforeAnchor)
                 }
             }
         }
-        if (whiteSpaces.isNotEmpty() && annotations.size > 1 && node.elementType != ElementType.FILE_ANNOTATION_LIST) {
+        if (whiteSpaces.isNotEmpty() && node.elementType != ElementType.FILE_ANNOTATION_LIST) {
             // Check to make sure there are multi breaks between annotations
             if (whiteSpaces.any { psi -> psi.textToCharArray().count { it == '\n' } > 1 }) {
                 val psi = node.psi
                 emit(psi.endOffset - 1, ERROR_MESSAGE, true)
                 if (autoCorrect) {
                     removeIntraLineBreaks(node, annotations.last())
+                    removeExtraLineBreaks(node)
                 }
             }
         }
