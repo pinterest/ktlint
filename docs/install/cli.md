@@ -66,6 +66,9 @@ To validate with the [standard ruleset](../../rules/standard/) and the [experime
 ktlint --experimental
 ```
 
+!!! note
+    Instead of using this command line flag, you can also set `.editorconfig` property `ktlint_experimental = enabled`.
+
 To validate with a [custom ruleset](../../extensions/custom-rule-set/) run command below:  
 
 ```shell title="Validation with standard and a custom ruleset"

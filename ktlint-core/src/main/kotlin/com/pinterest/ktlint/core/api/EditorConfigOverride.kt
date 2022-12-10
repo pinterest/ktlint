@@ -1,7 +1,7 @@
 package com.pinterest.ktlint.core.api
 
-import com.pinterest.ktlint.core.api.UsesEditorConfigProperties.EditorConfigProperty
-import org.ec4j.core.model.PropertyType
+import com.pinterest.ktlint.core.api.editorconfig.EditorConfigProperty
+import org.ec4j.core.model.PropertyType.PropertyValue
 
 /**
  * The [EditorConfigOverride] allows to add or replace properties which are loaded from the ".editorconfig" file. It
@@ -15,16 +15,23 @@ import org.ec4j.core.model.PropertyType
  * having to access an ".editorconfig" file from physical storage. This also improves readability of the tests.
  */
 public class EditorConfigOverride {
-    private val _properties = mutableMapOf<EditorConfigProperty<*>, PropertyType.PropertyValue<*>>()
+    private val _properties = mutableMapOf<EditorConfigProperty<*>, PropertyValue<*>>()
 
     /**
      * Gets a safe copy of the [EditorConfigProperty] set.
      */
-    public val properties: Map<EditorConfigProperty<*>, PropertyType.PropertyValue<*>>
+    public val properties: Map<EditorConfigProperty<*>, PropertyValue<*>>
         get() = _properties.toMap()
 
     private fun add(property: EditorConfigProperty<*>, value: Any?) =
-        _properties.put(property, property.type.parse(value?.toString()))
+        _properties.put(
+            property,
+            if (value is PropertyValue<*>) {
+                value
+            } else {
+                property.type.parse(value?.toString())
+            },
+        )
 
     public companion object {
         /**

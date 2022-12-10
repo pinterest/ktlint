@@ -3,6 +3,7 @@ package com.pinterest.ktlint.ruleset.standard
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
+import com.pinterest.ktlint.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.core.ast.ElementType
 import com.pinterest.ktlint.core.ast.ElementType.COLLECTION_LITERAL_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.INDICES
@@ -42,7 +43,7 @@ public class TrailingCommaOnCallSiteRule :
     ),
     UsesEditorConfigProperties {
 
-    override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = listOf(
+    override val editorConfigProperties: List<EditorConfigProperty<*>> = listOf(
         TRAILING_COMMA_ON_CALL_SITE_PROPERTY,
     )
 
@@ -242,8 +243,8 @@ public class TrailingCommaOnCallSiteRule :
     public companion object {
         private val BOOLEAN_VALUES_SET = setOf("true", "false")
 
-        public val TRAILING_COMMA_ON_CALL_SITE_PROPERTY: UsesEditorConfigProperties.EditorConfigProperty<Boolean> =
-            UsesEditorConfigProperties.EditorConfigProperty(
+        public val TRAILING_COMMA_ON_CALL_SITE_PROPERTY: EditorConfigProperty<Boolean> =
+            EditorConfigProperty(
                 type = PropertyType.LowerCasingPropertyType(
                     "ij_kotlin_allow_trailing_comma_on_call_site",
                     "Defines whether a trailing comma (or no trailing comma) should be enforced on the calling side," +
@@ -263,7 +264,7 @@ public class TrailingCommaOnCallSiteRule :
             replaceWith = ReplaceWith("TRAILING_COMMA_ON_CALL_SITE_PROPERTY"),
         )
         @Suppress("ktlint:experimental:property-naming")
-        public val allowTrailingCommaOnCallSiteProperty: UsesEditorConfigProperties.EditorConfigProperty<Boolean> =
+        public val allowTrailingCommaOnCallSiteProperty: EditorConfigProperty<Boolean> =
             TRAILING_COMMA_ON_CALL_SITE_PROPERTY
 
         private val TYPES_ON_CALL_SITE = TokenSet.create(

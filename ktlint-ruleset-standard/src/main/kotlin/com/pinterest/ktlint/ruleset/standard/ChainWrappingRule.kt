@@ -2,9 +2,11 @@ package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.IndentConfig
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
+import com.pinterest.ktlint.core.api.editorconfig.EditorConfigProperty
+import com.pinterest.ktlint.core.api.editorconfig.INDENT_SIZE_PROPERTY
+import com.pinterest.ktlint.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.core.ast.ElementType.ANDAND
 import com.pinterest.ktlint.core.ast.ElementType.COMMA
 import com.pinterest.ktlint.core.ast.ElementType.DIV
@@ -42,10 +44,10 @@ import org.jetbrains.kotlin.psi.psiUtil.leaves
 public class ChainWrappingRule :
     Rule("chain-wrapping"),
     UsesEditorConfigProperties {
-    override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> =
+    override val editorConfigProperties: List<EditorConfigProperty<*>> =
         listOf(
-            DefaultEditorConfigProperties.INDENT_SIZE_PROPERTY,
-            DefaultEditorConfigProperties.INDENT_STYLE_PROPERTY,
+            INDENT_SIZE_PROPERTY,
+            INDENT_STYLE_PROPERTY,
         )
 
     private var indent: String? = null
@@ -57,8 +59,8 @@ public class ChainWrappingRule :
     override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
         with(editorConfigProperties) {
             val indentConfig = IndentConfig(
-                indentStyle = getEditorConfigValue(com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.INDENT_STYLE_PROPERTY),
-                tabWidth = getEditorConfigValue(com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.INDENT_SIZE_PROPERTY),
+                indentStyle = getEditorConfigValue(INDENT_STYLE_PROPERTY),
+                tabWidth = getEditorConfigValue(INDENT_SIZE_PROPERTY),
             )
             indent = indentConfig.indent
         }

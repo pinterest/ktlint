@@ -3,11 +3,10 @@ package com.pinterest.ktlint.core.internal
 import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.INDENT_SIZE_PROPERTY
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.INSERT_FINAL_NEWLINE_PROPERTY
 import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
+import com.pinterest.ktlint.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.ruleset.standard.FinalNewlineRule
 import java.nio.file.FileSystem
 import java.nio.file.Files
@@ -146,7 +145,9 @@ internal class EditorConfigLoaderTest {
             """
             [*.{kt,kts}]
             insert_final_newline = true
+            disabled_rules = import-ordering
             ktlint_disabled_rules = import-ordering
+            ktlint_standard_import-ordering = disabled
             """.trimIndent()
         fileSystemMock.writeEditorConfigFile(projectDir, editorconfigFile)
 
@@ -155,7 +156,9 @@ internal class EditorConfigLoaderTest {
 
         assertThat(editorConfigProperties.convertToPropertyValues()).containsExactlyInAnyOrder(
             "insert_final_newline = true",
+            "disabled_rules = import-ordering",
             "ktlint_disabled_rules = import-ordering",
+            "ktlint_standard_import-ordering = disabled",
         )
     }
 
@@ -188,6 +191,7 @@ internal class EditorConfigLoaderTest {
         val editorconfigFile =
             """
             [*.{kt,kts}]
+            disabled_rules=import-ordering, no-wildcard-imports
             ktlint_disabled_rules=import-ordering, no-wildcard-imports
             """.trimIndent()
         fileSystemMock.writeEditorConfigFile(projectDir, editorconfigFile)
@@ -196,6 +200,7 @@ internal class EditorConfigLoaderTest {
         val editorConfigProperties = editorConfigLoader.load(lintFile, rules = rules)
 
         assertThat(editorConfigProperties.convertToPropertyValues()).containsExactlyInAnyOrder(
+            "disabled_rules = import-ordering, no-wildcard-imports",
             "ktlint_disabled_rules = import-ordering, no-wildcard-imports",
         )
     }
@@ -205,7 +210,7 @@ internal class EditorConfigLoaderTest {
         val parsedEditorConfig = editorConfigLoader.load(
             filePath = null,
             rules = rules,
-            editorConfigOverride = EditorConfigOverride.from(INSERT_FINAL_NEWLINE_PROPERTY to "true"),
+            editorConfigOverride = EditorConfigOverride.from(com.pinterest.ktlint.core.api.editorconfig.INSERT_FINAL_NEWLINE_PROPERTY to "true"),
         )
 
         assertThat(parsedEditorConfig.convertToPropertyValues()).containsExactlyInAnyOrder(
@@ -218,7 +223,7 @@ internal class EditorConfigLoaderTest {
         val parsedEditorConfig = editorConfigLoader.load(
             filePath = null,
             rules = rules,
-            editorConfigOverride = EditorConfigOverride.from(INSERT_FINAL_NEWLINE_PROPERTY to "true"),
+            editorConfigOverride = EditorConfigOverride.from(com.pinterest.ktlint.core.api.editorconfig.INSERT_FINAL_NEWLINE_PROPERTY to "true"),
         )
 
         assertThat(parsedEditorConfig.convertToPropertyValues()).containsExactlyInAnyOrder(
@@ -233,20 +238,24 @@ internal class EditorConfigLoaderTest {
             """
             [*.{kt,kts}]
             insert_final_newline = false
+            disabled_rules = import-ordering
             ktlint_disabled_rules = import-ordering
+            ktlint_standard_import-ordering = disabled
             """.trimIndent()
         fileSystemMock.writeEditorConfigFile(".", editorconfigFile)
 
         val editorConfigProperties = editorConfigLoader.load(
             filePath = null,
             rules = rules,
-            editorConfigOverride = EditorConfigOverride.from(INSERT_FINAL_NEWLINE_PROPERTY to true),
+            editorConfigOverride = EditorConfigOverride.from(com.pinterest.ktlint.core.api.editorconfig.INSERT_FINAL_NEWLINE_PROPERTY to true),
         )
 
         assertThat(editorConfigProperties.convertToPropertyValues())
             .containsExactlyInAnyOrder(
                 "insert_final_newline = true",
+                "disabled_rules = import-ordering",
                 "ktlint_disabled_rules = import-ordering",
+                "ktlint_standard_import-ordering = disabled",
             )
     }
 
@@ -285,7 +294,7 @@ internal class EditorConfigLoaderTest {
                 .load(
                     filePath = lintFile,
                     rules = rules,
-                    editorConfigOverride = EditorConfigOverride.from(INDENT_SIZE_PROPERTY to 2),
+                    editorConfigOverride = EditorConfigOverride.from(com.pinterest.ktlint.core.api.editorconfig.INDENT_SIZE_PROPERTY to 2),
                 )
 
         assertThat(editorConfigProperties.convertToPropertyValues())
@@ -312,7 +321,7 @@ internal class EditorConfigLoaderTest {
         val editorConfigProperties = editorConfigLoader.load(
             filePath = null,
             rules = rules,
-            editorConfigOverride = EditorConfigOverride.from(INDENT_SIZE_PROPERTY to 2),
+            editorConfigOverride = EditorConfigOverride.from(com.pinterest.ktlint.core.api.editorconfig.INDENT_SIZE_PROPERTY to 2),
         )
 
         assertThat(editorConfigProperties.convertToPropertyValues()).containsExactlyInAnyOrder(
@@ -331,9 +340,12 @@ internal class EditorConfigLoaderTest {
             """
             [*.{kt,kts}]
             insert_final_newline = true
+            disabled_rules = import-ordering
             ktlint_disabled_rules = import-ordering
+            ktlint_standard_import-ordering = disabled
 
             [api/*.{kt,kts}]
+            disabled_rules = class-must-be-internal
             ktlint_disabled_rules = class-must-be-internal
             """.trimIndent()
         fileSystemMock.writeEditorConfigFile(projectDir, editorconfigFile)
@@ -345,7 +357,9 @@ internal class EditorConfigLoaderTest {
 
         assertThat(editorConfigProperties.convertToPropertyValues()).containsExactlyInAnyOrder(
             "insert_final_newline = true",
+            "disabled_rules = class-must-be-internal",
             "ktlint_disabled_rules = class-must-be-internal",
+            "ktlint_standard_import-ordering = disabled",
         )
     }
 
@@ -357,7 +371,10 @@ internal class EditorConfigLoaderTest {
         val editorconfigFile =
             """
             [*.{kt,kts}]
+            disabled_rules=import-ordering, no-wildcard-imports
             ktlint_disabled_rules=import-ordering, no-wildcard-imports
+            ktlint_standard_import-ordering=disabled
+            ktlint_standard_no-wildcard-imports=disabled
             """.trimIndent()
         fileSystemMock.writeEditorConfigFile(projectDir, editorconfigFile)
 
@@ -366,10 +383,13 @@ internal class EditorConfigLoaderTest {
         val editorConfigProperties = editorConfigLoader.load(
             lintFile,
             rules = rules.plus(FinalNewlineRule()),
-            editorConfigOverride = EditorConfigOverride.from(INSERT_FINAL_NEWLINE_PROPERTY to "true"),
+            editorConfigOverride = EditorConfigOverride.from(com.pinterest.ktlint.core.api.editorconfig.INSERT_FINAL_NEWLINE_PROPERTY to "true"),
         )
 
         assertThat(editorConfigProperties.convertToPropertyValues()).containsExactlyInAnyOrder(
+            "disabled_rules = import-ordering, no-wildcard-imports",
+            "ktlint_standard_import-ordering = disabled",
+            "ktlint_standard_no-wildcard-imports = disabled",
             "ktlint_disabled_rules = import-ordering, no-wildcard-imports",
             "insert_final_newline = true",
         )
@@ -392,7 +412,7 @@ internal class EditorConfigLoaderTest {
         val editorConfigProperties = editorConfigLoader.load(
             lintFile,
             rules = rules.plus(FinalNewlineRule()),
-            editorConfigOverride = EditorConfigOverride.from(INSERT_FINAL_NEWLINE_PROPERTY to "false"),
+            editorConfigOverride = EditorConfigOverride.from(com.pinterest.ktlint.core.api.editorconfig.INSERT_FINAL_NEWLINE_PROPERTY to "false"),
         )
 
         assertThat(editorConfigProperties.convertToPropertyValues()).containsExactlyInAnyOrder(
@@ -429,7 +449,7 @@ internal class EditorConfigLoaderTest {
     }
 
     private class TestRule : Rule("editorconfig-test"), UsesEditorConfigProperties {
-        override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> = emptyList()
+        override val editorConfigProperties: List<EditorConfigProperty<*>> = emptyList()
 
         override fun beforeVisitChildNodes(
             node: ASTNode,

@@ -1,8 +1,10 @@
 package com.pinterest.ktlint.ruleset.experimental
 
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
+import com.pinterest.ktlint.core.api.editorconfig.EditorConfigProperty
+import com.pinterest.ktlint.core.api.editorconfig.INDENT_SIZE_PROPERTY
+import com.pinterest.ktlint.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.core.ast.ElementType.KDOC
 import com.pinterest.ktlint.core.ast.ElementType.KDOC_END
 import com.pinterest.ktlint.core.ast.ElementType.KDOC_START
@@ -20,10 +22,10 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 public class KdocWrappingRule :
     Rule("$EXPERIMENTAL_RULE_SET_ID:kdoc-wrapping"),
     UsesEditorConfigProperties {
-    override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> =
+    override val editorConfigProperties: List<EditorConfigProperty<*>> =
         listOf(
-            DefaultEditorConfigProperties.INDENT_SIZE_PROPERTY,
-            DefaultEditorConfigProperties.INDENT_STYLE_PROPERTY,
+            INDENT_SIZE_PROPERTY,
+            INDENT_STYLE_PROPERTY,
         )
 
     override fun beforeVisitChildNodes(

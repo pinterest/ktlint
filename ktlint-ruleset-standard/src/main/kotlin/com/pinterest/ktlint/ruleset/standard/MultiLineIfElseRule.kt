@@ -2,9 +2,11 @@ package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.IndentConfig
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
+import com.pinterest.ktlint.core.api.editorconfig.EditorConfigProperty
+import com.pinterest.ktlint.core.api.editorconfig.INDENT_SIZE_PROPERTY
+import com.pinterest.ktlint.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.core.ast.ElementType.BLOCK
 import com.pinterest.ktlint.core.ast.ElementType.ELSE
 import com.pinterest.ktlint.core.ast.ElementType.ELSE_KEYWORD
@@ -31,17 +33,17 @@ import org.jetbrains.kotlin.psi.psiUtil.leaves
 public class MultiLineIfElseRule :
     Rule("multiline-if-else"),
     UsesEditorConfigProperties {
-    override val editorConfigProperties: List<UsesEditorConfigProperties.EditorConfigProperty<*>> =
+    override val editorConfigProperties: List<EditorConfigProperty<*>> =
         listOf(
-            DefaultEditorConfigProperties.INDENT_SIZE_PROPERTY,
-            DefaultEditorConfigProperties.INDENT_STYLE_PROPERTY,
+            INDENT_SIZE_PROPERTY,
+            INDENT_STYLE_PROPERTY,
         )
     private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
 
     override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
         indentConfig = IndentConfig(
-            indentStyle = editorConfigProperties.getEditorConfigValue(DefaultEditorConfigProperties.INDENT_STYLE_PROPERTY),
-            tabWidth = editorConfigProperties.getEditorConfigValue(DefaultEditorConfigProperties.INDENT_SIZE_PROPERTY),
+            indentStyle = editorConfigProperties.getEditorConfigValue(INDENT_STYLE_PROPERTY),
+            tabWidth = editorConfigProperties.getEditorConfigValue(INDENT_SIZE_PROPERTY),
         )
     }
 

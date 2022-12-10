@@ -1,6 +1,5 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.INSERT_FINAL_NEWLINE_PROPERTY
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -106,7 +105,8 @@ class FinalNewlineRuleTest {
     }
 
     private companion object {
-        val FINAL_NEW_LINE_REQUIRED = INSERT_FINAL_NEWLINE_PROPERTY to true
-        val FINAL_NEW_LINE_NOT_REQUIRED = INSERT_FINAL_NEWLINE_PROPERTY to false
+        val FINAL_NEW_LINE_REQUIRED = com.pinterest.ktlint.core.api.editorconfig.INSERT_FINAL_NEWLINE_PROPERTY to true
+        val FINAL_NEW_LINE_NOT_REQUIRED =
+            com.pinterest.ktlint.core.api.editorconfig.INSERT_FINAL_NEWLINE_PROPERTY to false
     }
 }
