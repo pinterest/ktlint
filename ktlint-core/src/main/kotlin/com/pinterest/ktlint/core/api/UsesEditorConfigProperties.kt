@@ -215,7 +215,7 @@ public object DefaultEditorConfigProperties : UsesEditorConfigProperties {
     /**
      * Code style to be used while linting and formatting. Note that the [EnumValueParser] requires values to be lowercase.
      */
-    @Suppress("EnumEntryName", "ktlint:enum-entry-name-case")
+    @Suppress("EnumEntryName")
     public enum class CodeStyleValue {
         android,
         official,
@@ -324,7 +324,7 @@ public object DefaultEditorConfigProperties : UsesEditorConfigProperties {
                 "for more information",
         )
 
-    @Suppress("EnumEntryName", "ktlint:enum-entry-name-case")
+    @Suppress("EnumEntryName")
     public enum class RuleExecution {
         enabled,
         disabled,

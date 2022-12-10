@@ -21,7 +21,13 @@ internal object SuppressionLocatorBuilder {
      */
     val NO_SUPPRESSION: SuppressionLocator = { _, _, _ -> false }
 
+    /**
+     * Mapping of non-ktlint annotations to ktlint-annotation so that ktlint rules will be suppressed automatically
+     * when specific non-ktlint annotations are found. The prevents that developers have to specify multiple annotations
+     * for the same violation.
+     */
     private val SUPPRESS_ANNOTATION_RULE_MAP = mapOf(
+        "EnumEntryName" to "enum-entry-name-case",
         "RemoveCurlyBracesFromTemplate" to "string-template",
     )
     private val SUPPRESS_ANNOTATIONS = setOf("Suppress", "SuppressWarnings")

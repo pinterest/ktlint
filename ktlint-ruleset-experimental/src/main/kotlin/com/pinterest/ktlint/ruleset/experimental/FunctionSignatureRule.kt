@@ -736,7 +736,7 @@ public class FunctionSignatureRule :
     /**
      * Code style to be used while linting and formatting. Note that the [EnumValueParser] requires values to be lowercase.
      */
-    @Suppress("EnumEntryName", "ktlint:enum-entry-name-case")
+    @Suppress("EnumEntryName")
     public enum class FunctionBodyExpressionWrapping {
         /**
          * Keep the first line of the body expression on the same line as the function signature if max line length is
