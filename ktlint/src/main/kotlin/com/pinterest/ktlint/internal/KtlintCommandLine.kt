@@ -9,7 +9,9 @@ import com.pinterest.ktlint.core.ReporterProvider
 import com.pinterest.ktlint.core.api.Baseline.Status.INVALID
 import com.pinterest.ktlint.core.api.Baseline.Status.NOT_FOUND
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.CODE_STYLE_PROPERTY
-import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.KTLINT_DISABLED_RULES_PROPERTY
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.CodeStyleValue
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.RuleExecution
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.createRuleExecutionEditorConfigProperty
 import com.pinterest.ktlint.core.api.EditorConfigDefaults
 import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.plus
@@ -253,10 +255,17 @@ internal class KtlintCommandLine {
             EditorConfigOverride
                 .EMPTY_EDITOR_CONFIG_OVERRIDE
                 .applyIf(disabledRules.isNotBlank()) {
-                    plus(KTLINT_DISABLED_RULES_PROPERTY to disabledRules)
+                    plus(*disabledRulesEditorConfigOverrides())
                 }.applyIf(android) {
-                    plus(CODE_STYLE_PROPERTY to android)
+                    plus(CODE_STYLE_PROPERTY to CodeStyleValue.android)
                 }
+
+    private fun disabledRulesEditorConfigOverrides() =
+        disabledRules
+            .split(",")
+            .filter { it.isNotBlank() }
+            .map { ruleId -> createRuleExecutionEditorConfigProperty(ruleId) to RuleExecution.disabled }
+            .toTypedArray()
 
     fun run() {
         if (debugOld != null || trace != null || verbose != null) {

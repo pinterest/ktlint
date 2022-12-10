@@ -1,0 +1,3 @@
+# Empty editorconfig file which should prevent that cli tests are influenced by an '.editorconfig' file in the
+# of the filesystem in case that the cli test project has not defined an '.editorconfig'
+root = true

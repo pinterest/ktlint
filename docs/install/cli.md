@@ -66,6 +66,9 @@ To validate with the [standard ruleset](https://pinterest.github.io/ktlint/rules
 ktlint --experimental
 ```
 
+!!! note
+    Instead of using this command line flag, you can also set `.editorconfig` property `ktlint_experimental = enabled`.
+
 To validate with a [custom ruleset](https://pinterest.github.io/ktlint/extensions/custom-rule-set/) run command below:  
 
 ```shell title="Validation with standard and a custom ruleset"

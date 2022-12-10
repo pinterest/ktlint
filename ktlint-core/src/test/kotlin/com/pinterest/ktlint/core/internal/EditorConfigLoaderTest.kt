@@ -146,7 +146,9 @@ internal class EditorConfigLoaderTest {
             """
             [*.{kt,kts}]
             insert_final_newline = true
+            disabled_rules = import-ordering
             ktlint_disabled_rules = import-ordering
+            ktlint_standard_import-ordering = disabled
             """.trimIndent()
         fileSystemMock.writeEditorConfigFile(projectDir, editorconfigFile)
 
@@ -155,7 +157,9 @@ internal class EditorConfigLoaderTest {
 
         assertThat(editorConfigProperties.convertToPropertyValues()).containsExactlyInAnyOrder(
             "insert_final_newline = true",
+            "disabled_rules = import-ordering",
             "ktlint_disabled_rules = import-ordering",
+            "ktlint_standard_import-ordering = disabled",
         )
     }
 
@@ -188,6 +192,7 @@ internal class EditorConfigLoaderTest {
         val editorconfigFile =
             """
             [*.{kt,kts}]
+            disabled_rules=import-ordering, no-wildcard-imports
             ktlint_disabled_rules=import-ordering, no-wildcard-imports
             """.trimIndent()
         fileSystemMock.writeEditorConfigFile(projectDir, editorconfigFile)
@@ -196,6 +201,7 @@ internal class EditorConfigLoaderTest {
         val editorConfigProperties = editorConfigLoader.load(lintFile, rules = rules)
 
         assertThat(editorConfigProperties.convertToPropertyValues()).containsExactlyInAnyOrder(
+            "disabled_rules = import-ordering, no-wildcard-imports",
             "ktlint_disabled_rules = import-ordering, no-wildcard-imports",
         )
     }
@@ -233,7 +239,9 @@ internal class EditorConfigLoaderTest {
             """
             [*.{kt,kts}]
             insert_final_newline = false
+            disabled_rules = import-ordering
             ktlint_disabled_rules = import-ordering
+            ktlint_standard_import-ordering = disabled
             """.trimIndent()
         fileSystemMock.writeEditorConfigFile(".", editorconfigFile)
 
@@ -246,7 +254,9 @@ internal class EditorConfigLoaderTest {
         assertThat(editorConfigProperties.convertToPropertyValues())
             .containsExactlyInAnyOrder(
                 "insert_final_newline = true",
+                "disabled_rules = import-ordering",
                 "ktlint_disabled_rules = import-ordering",
+                "ktlint_standard_import-ordering = disabled",
             )
     }
 
@@ -331,9 +341,12 @@ internal class EditorConfigLoaderTest {
             """
             [*.{kt,kts}]
             insert_final_newline = true
+            disabled_rules = import-ordering
             ktlint_disabled_rules = import-ordering
+            ktlint_standard_import-ordering = disabled
 
             [api/*.{kt,kts}]
+            disabled_rules = class-must-be-internal
             ktlint_disabled_rules = class-must-be-internal
             """.trimIndent()
         fileSystemMock.writeEditorConfigFile(projectDir, editorconfigFile)
@@ -345,7 +358,9 @@ internal class EditorConfigLoaderTest {
 
         assertThat(editorConfigProperties.convertToPropertyValues()).containsExactlyInAnyOrder(
             "insert_final_newline = true",
+            "disabled_rules = class-must-be-internal",
             "ktlint_disabled_rules = class-must-be-internal",
+            "ktlint_standard_import-ordering = disabled",
         )
     }
 
@@ -357,7 +372,10 @@ internal class EditorConfigLoaderTest {
         val editorconfigFile =
             """
             [*.{kt,kts}]
+            disabled_rules=import-ordering, no-wildcard-imports
             ktlint_disabled_rules=import-ordering, no-wildcard-imports
+            ktlint_standard_import-ordering=disabled
+            ktlint_standard_no-wildcard-imports=disabled
             """.trimIndent()
         fileSystemMock.writeEditorConfigFile(projectDir, editorconfigFile)
 
@@ -370,6 +388,9 @@ internal class EditorConfigLoaderTest {
         )
 
         assertThat(editorConfigProperties.convertToPropertyValues()).containsExactlyInAnyOrder(
+            "disabled_rules = import-ordering, no-wildcard-imports",
+            "ktlint_standard_import-ordering = disabled",
+            "ktlint_standard_no-wildcard-imports = disabled",
             "ktlint_disabled_rules = import-ordering, no-wildcard-imports",
             "insert_final_newline = true",
         )

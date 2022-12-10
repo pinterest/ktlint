@@ -91,7 +91,7 @@ internal class EditorConfigGenerator(
     ): List<ConfigurationSetting> {
         return DefaultEditorConfigProperties
             .editorConfigProperties
-            .filter { it.deprecationError == null }
+            .filter { it.deprecationWarning == null && it.deprecationError == null }
             .map { editorConfigProperty ->
                 val value = with((DefaultEditorConfigProperties as UsesEditorConfigProperties)) {
                     editorConfig.writeEditorConfigProperty(
@@ -100,10 +100,10 @@ internal class EditorConfigGenerator(
                     )
                 }
                 LOGGER.debug {
-                    "Class '${DefaultEditorConfigProperties::class.simpleName}' uses property '${editorConfigProperty.type.name}' with default value '$value'"
+                    "Class '${DefaultEditorConfigProperties::class.simpleName}' uses property '${editorConfigProperty.name}' with default value '$value'"
                 }
                 ConfigurationSetting(
-                    key = editorConfigProperty.type.name,
+                    key = editorConfigProperty.name,
                     value = value,
                     usage = "Class '${DefaultEditorConfigProperties::class.simpleName}'",
                 )

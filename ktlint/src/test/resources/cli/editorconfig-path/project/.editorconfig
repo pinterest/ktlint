@@ -4,4 +4,4 @@ root = true
 max_line_length = 30
 
 [src/**/example/*.kt]
-ktlint_disabled_rules = filename
+ktlint_standard_filename = disabled

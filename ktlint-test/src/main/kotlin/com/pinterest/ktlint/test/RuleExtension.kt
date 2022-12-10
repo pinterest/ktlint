@@ -4,7 +4,10 @@ import com.pinterest.ktlint.core.KtLint
 import com.pinterest.ktlint.core.KtLintRuleEngine
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.RuleProvider
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.RuleExecution
+import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.createRuleSetExecutionEditorConfigProperty
 import com.pinterest.ktlint.core.api.EditorConfigOverride
+import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.plus
 import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ktlint.core.setDefaultLoggerModifier
 import com.pinterest.ruleset.test.DumpASTRule
@@ -71,11 +74,12 @@ public fun Set<RuleProvider>.lint(
     script: Boolean = false,
 ): List<LintError> {
     val lintErrors = ArrayList<LintError>()
+    val ruleProviders = toRuleProviders()
     val experimentalParams = KtLint.ExperimentalParams(
         fileName = lintedFilePath,
         text = text,
         ruleProviders = this.toRuleProviders(),
-        editorConfigOverride = editorConfigOverride,
+        editorConfigOverride = editorConfigOverride.extendWithRuleSetRuleExecutionsFor(ruleProviders),
         userData = userData,
         script = script,
         cb = { lintError, _ -> lintErrors.add(lintError) },
@@ -91,14 +95,32 @@ public fun Set<RuleProvider>.lint(
     editorConfigOverride: EditorConfigOverride = EditorConfigOverride.EMPTY_EDITOR_CONFIG_OVERRIDE,
 ): List<LintError> {
     val lintErrors = ArrayList<LintError>()
+    val ruleProviders = toRuleProviders()
     KtLintRuleEngine(
-        ruleProviders = toRuleProviders(),
-        editorConfigOverride = editorConfigOverride,
+        ruleProviders = ruleProviders,
+        editorConfigOverride = editorConfigOverride.extendWithRuleSetRuleExecutionsFor(ruleProviders),
     ).lint(
         code = text,
         filePath = filePath?.let { Paths.get(filePath) },
     ) { lintError -> lintErrors.add(lintError) }
     return lintErrors
+}
+
+/**
+ * Enables the rule sets for the given set of [ruleProviders] unless the rule execution of that rule set was already
+ * provided.
+ */
+private fun EditorConfigOverride.extendWithRuleSetRuleExecutionsFor(ruleProviders: Set<RuleProvider>): EditorConfigOverride {
+    val ruleSetRuleExecutions = ruleProviders
+        .asSequence()
+        .map { it.createNewRuleInstance().id }
+        .map { ruleId -> createRuleSetExecutionEditorConfigProperty(ruleId) }
+        .distinct()
+        .filter { editorConfigProperty -> this.properties[editorConfigProperty] == null }
+        .map { it to RuleExecution.enabled }
+        .toList()
+        .toTypedArray()
+    return this.plus(*ruleSetRuleExecutions)
 }
 
 @Deprecated(
@@ -114,11 +136,12 @@ public fun Set<RuleProvider>.format(
     script: Boolean = false,
 ): Pair<String, List<LintError>> {
     val lintErrors = ArrayList<LintError>()
+    val ruleProviders = toRuleProviders()
     val experimentalParams = KtLint.ExperimentalParams(
         fileName = lintedFilePath,
         text = text,
-        ruleProviders = this.toRuleProviders(),
-        editorConfigOverride = editorConfigOverride,
+        ruleProviders = ruleProviders,
+        editorConfigOverride = editorConfigOverride.extendWithRuleSetRuleExecutionsFor(ruleProviders),
         userData = userData,
         script = script,
         cb = { lintError, _ -> lintErrors.add(lintError) },
@@ -134,10 +157,11 @@ public fun Set<RuleProvider>.format(
     editorConfigOverride: EditorConfigOverride = EditorConfigOverride.EMPTY_EDITOR_CONFIG_OVERRIDE,
 ): Pair<String, List<LintError>> {
     val lintErrors = ArrayList<LintError>()
+    val ruleProviders = toRuleProviders()
     val formattedCode =
         KtLintRuleEngine(
-            ruleProviders = toRuleProviders(),
-            editorConfigOverride = editorConfigOverride,
+            ruleProviders = ruleProviders,
+            editorConfigOverride = editorConfigOverride.extendWithRuleSetRuleExecutionsFor(ruleProviders),
         ).format(
             code = text,
             filePath = filePath?.let { Paths.get(filePath) },

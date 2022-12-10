@@ -1103,6 +1103,7 @@ private class DummyRuleWithCustomEditorConfigProperty :
 
         val SOME_CUSTOM_RULE_PROPERTY: UsesEditorConfigProperties.EditorConfigProperty<Boolean> =
             UsesEditorConfigProperties.EditorConfigProperty(
+                name = SOME_CUSTOM_RULE_PROPERTY_NAME,
                 type = PropertyType.LowerCasingPropertyType(
                     SOME_CUSTOM_RULE_PROPERTY_NAME,
                     "some-custom-rule-property-description",

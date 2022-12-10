@@ -121,7 +121,7 @@ public object KtLint {
                     .map { it.editorConfigProperties }
                     .flatten()
                     .plus(DefaultEditorConfigProperties.editorConfigProperties)
-                    .map { it.type.name }
+                    .map { it.name }
                     .distinct()
                     .toSet()
 

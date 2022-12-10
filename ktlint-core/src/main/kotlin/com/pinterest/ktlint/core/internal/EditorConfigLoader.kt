@@ -58,7 +58,7 @@ public class EditorConfigLoader(
             .queryProperties(normalizedFilePath.resource())
             .properties
             .also { loaded ->
-                if (loaded[TAB_WIDTH_PROPERTY_NAME]?.sourceValue == loaded[INDENT_SIZE_PROPERTY_NAME]?.sourceValue &&
+                if (loaded[TAB_WIDTH_PROPERTY_NAME]?.sourceValue == loaded[INDENT_SIZE_PROPERTY.name]?.sourceValue &&
                     editorConfigOverride.properties[INDENT_SIZE_PROPERTY] != null
                 ) {
                     // The tab_width property can not be overridden via the editorConfigOverride. So if it has been
@@ -74,7 +74,7 @@ public class EditorConfigLoader(
                 editorConfigOverride
                     .properties
                     .forEach {
-                        loaded[it.key.type.name] = property(it.key, it.value)
+                        loaded[it.key.name] = property(it.key, it.value)
                     }
             }.also { editorConfigProperties ->
                 LOGGER.debug { editorConfigProperties.prettyPrint(normalizedFilePath) }
@@ -97,7 +97,7 @@ public class EditorConfigLoader(
         value: PropertyType.PropertyValue<*>,
     ) = Property
         .builder()
-        .name(property.type.name)
+        .name(property.name)
         .type(property.type)
         .value(value)
         .build()
@@ -154,7 +154,6 @@ public class EditorConfigLoader(
             ".kts",
         )
 
-        private val INDENT_SIZE_PROPERTY_NAME = INDENT_SIZE_PROPERTY.type.name
         private const val TAB_WIDTH_PROPERTY_NAME = "tab_width"
     }
 }

@@ -15,13 +15,39 @@ ktlint_code_style = official
 
 ## Disabled rules
 
-By default, no rules are disabled. The property `ktlint_disabled_rules` holds a comma separated list (without spaces). Rules which are not defined in the `standard` ruleset have to be prefixed. Rules defined in the `standard` ruleset may optionally be prefixed.
+!!! warning
+    Properties `disabled_rules` and `ktlint_disabled_rules` are deprecated in KtLint `0.48` and are marked for removal in KtLint `0.49`.
+
+By default, no rules are disabled. The properties `disabled_rules` and `ktlint_disabled_rules` hold a comma separated list (without spaces). Rules which are not defined in the `standard` ruleset have to be prefixed. Rules defined in the `standard` ruleset may optionally be prefixed.
 
 Example:
-```ini
+```editorconfig
 [*.{kt,kts}]
-ktlint_disabled_rules = some-standard-rule,experimental:some-experimental-rule,my-custom-ruleset:my-custom-rule
+disabled_rules = some-standard-rule,experimental:some-experimental-rule,my-custom-ruleset:my-custom-rule
 ```
+
+Starting with KtLint `0.48` entire rule sets and individual rules can be disabled / enabled with a separate property per rule (set).
+
+All rules in a rule set can be enabled or disabled with a rule set property. The name of the rule set property consists of the `ktlint_` prefix followed by the rule set id. Examples:
+```editorconfig
+ktlint_standard = disabled # Disable all rules from the `standard` rule set provided by KtLint
+ktlint_experimental = enabled # Enable all rules from the `experimental` rule set provided by KtLint
+ktlint_your-custom-rule-set_custom-rule = enabled # Enable all rules in the `custom-rule-set` rule set (not provided by KtLint)
+```
+
+!!! note
+    All rules from the `standard` rule set are *enabled* by default and can optionally be disabled in the `.editorconfig`. All rules from the `experimental` and *custom* rule sets are *disabled* by default and can optionally be enabled in the `.editorconfig`.
+
+An individual property can be enabled or disabled with a rule property. The name of the rule property consists of the `ktlint_` prefix followed by the rule set id followed by a `_` and the rule id. Examples:
+```editorconfig
+ktlint_standard_final-newline = disabled # Disables the `final-newline` rule in the `standard` rule set provided by KtLint
+ktlint_experimental_type-argument-list-spacing = enabled # Enables the `type-argument-list-spacing` rule in the `experimental` rule set provided by KtLint
+ktlint_custom-rule-set_custom-rule = disabled # Disables the `custom-rule` rule in the `custom-rule-set` rule set (not provided by KtLint)
+```
+
+!!! note
+    The *rule* properties are applied after applying the *rule set* properties and take precedence. So if a rule set is disabled but a specific rule of that rule set is enabled, then the rule will be executed.
+
 
 ## Final newline
 
@@ -205,9 +231,10 @@ This setting only takes effect when rule `trailing-comma-on-declaration-site` is
 You can [override](https://editorconfig.org/#file-format-details) properties for specific directories inside your project:
 ```ini
 [*.{kt,kts}]
-ktlint_disabled_rules=import-ordering
+ktlint_standard_import-ordering = disabled
 
- Note that in this case 'import-ordering' rule will be active and 'indent' will be disabled
 [api/*.{kt,kts}]
-ktlint_disabled_rules=indent
+ktlint_standard_indent = disabled
 ```
+
+Note that the `import-ordering` rule is disabled for *all* packages including the `api` sub package. Next to this the `indent` rule is disabled for the `api` package and its sub packages.
