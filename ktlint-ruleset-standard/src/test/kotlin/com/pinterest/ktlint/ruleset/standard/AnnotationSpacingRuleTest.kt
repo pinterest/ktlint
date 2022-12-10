@@ -1,7 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
-import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 class AnnotationSpacingRuleTest {
@@ -32,7 +31,7 @@ class AnnotationSpacingRuleTest {
             fun foo() {}
             """.trimIndent()
         annotationSpacingRuleAssertThat(code)
-            .hasLintViolation(1, 9, "Annotations should occur immediately before the annotated construct")
+            .hasLintViolation(1, 10, "Annotations should occur immediately before the annotated construct")
             .isFormattedAs(formattedCode)
     }
 
@@ -51,7 +50,7 @@ class AnnotationSpacingRuleTest {
             fun foo() {}
             """.trimIndent()
         annotationSpacingRuleAssertThat(code)
-            .hasLintViolation(1, 9, "Annotations should occur immediately before the annotated construct")
+            .hasLintViolation(1, 10, "Annotations should occur immediately before the annotated construct")
             .isFormattedAs(formattedCode)
     }
 
@@ -78,7 +77,7 @@ class AnnotationSpacingRuleTest {
             fun foo() = Unit
             """.trimIndent()
         annotationSpacingRuleAssertThat(code)
-            .hasLintViolation(1, 20, "Annotations should occur immediately before the annotated construct")
+            .hasLintViolation(1, 21, "Annotations should occur immediately before the annotated construct")
             .isFormattedAs(formattedCode)
     }
 
@@ -98,7 +97,7 @@ class AnnotationSpacingRuleTest {
             fun foo() = Unit
             """.trimIndent()
         annotationSpacingRuleAssertThat(code)
-            .hasLintViolation(2, 10, "Annotations should occur immediately before the annotated construct")
+            .hasLintViolation(2, 11, "Annotations should occur immediately before the annotated construct")
             .isFormattedAs(formattedCode)
     }
 
@@ -118,7 +117,7 @@ class AnnotationSpacingRuleTest {
             fun foo() = Unit
             """.trimIndent()
         annotationSpacingRuleAssertThat(code)
-            .hasLintViolation(3, 10, "Annotations should occur immediately before the annotated construct")
+            .hasLintViolation(3, 11, "Annotations should occur immediately before the annotated construct")
             .isFormattedAs(formattedCode)
     }
 
@@ -136,8 +135,7 @@ class AnnotationSpacingRuleTest {
             @JvmStatic fun foo() = Unit
             """.trimIndent()
         annotationSpacingRuleAssertThat(code)
-            // TODO: Offset of error is not correct
-            .hasLintViolation(3, 10, "Annotations should occur immediately before the annotated construct")
+            .hasLintViolation(3, 11, "Annotations should occur immediately before the annotated construct")
             .isFormattedAs(formattedCode)
     }
 
@@ -162,7 +160,7 @@ class AnnotationSpacingRuleTest {
             }
             """.trimIndent()
         annotationSpacingRuleAssertThat(code)
-            .hasLintViolation(1, 31, "Annotations should occur immediately before the annotated construct")
+            .hasLintViolation(1, 32, "Annotations should occur immediately before the annotated construct")
             .isFormattedAs(formattedCode)
     }
 
@@ -183,7 +181,7 @@ class AnnotationSpacingRuleTest {
             }
             """.trimIndent()
         annotationSpacingRuleAssertThat(code)
-            .hasLintViolation(1, 31, "Annotations should occur immediately before the annotated construct")
+            .hasLintViolation(1, 32, "Annotations should occur immediately before the annotated construct")
             .isFormattedAs(formattedCode)
     }
 
