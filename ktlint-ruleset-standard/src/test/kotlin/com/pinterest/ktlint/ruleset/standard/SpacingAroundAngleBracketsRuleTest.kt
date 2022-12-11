@@ -4,7 +4,7 @@ import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
-class SpacingAroundAngleBracketRuleTest {
+class SpacingAroundAngleBracketsRuleTest {
     private val spacingAroundAngleBracketsRuleAssertThat = assertThatRule { SpacingAroundAngleBracketsRule() }
 
     @Test
@@ -134,8 +134,9 @@ class SpacingAroundAngleBracketRuleTest {
             }
             """.trimIndent()
         spacingAroundAngleBracketsRuleAssertThat(code)
-            // TODO: This is not consistent with other rules that do not allow to align columns
-            .hasNoLintViolations()
+            .hasNoLintViolations(
+                // The redundant spaces before the angle bracket are cleared by the 'no-multi-spaces' rule
+            )
     }
 
     @Test
