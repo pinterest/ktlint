@@ -14,7 +14,7 @@ internal val RULE_EXECUTION_PROPERTY_TYPE =
     PropertyType.LowerCasingPropertyType(
         "ktlint_rule_execution",
         "When enabled, the rule is being executed.",
-        PropertyType.PropertyValueParser.EnumValueParser(RuleExecution::class.java),
+        SafeEnumValueParser(RuleExecution::class.java),
         CodeStyleValue.values().map { it.name }.toSet(),
     )
 

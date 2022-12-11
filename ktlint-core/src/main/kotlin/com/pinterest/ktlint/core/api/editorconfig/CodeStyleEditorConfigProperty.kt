@@ -17,7 +17,7 @@ public val CODE_STYLE_PROPERTY: EditorConfigProperty<CodeStyleValue> =
         type = PropertyType.LowerCasingPropertyType(
             "ktlint_code_style",
             "The code style ('official' or 'android') to be applied. Defaults to 'official' when not set.",
-            EnumValueParser(CodeStyleValue::class.java),
+            SafeEnumValueParser(CodeStyleValue::class.java),
             CodeStyleValue.values().map { it.name }.toSet(),
         ),
         defaultValue = CodeStyleValue.official,
