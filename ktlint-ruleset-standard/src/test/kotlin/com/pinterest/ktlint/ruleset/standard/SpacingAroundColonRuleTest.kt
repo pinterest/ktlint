@@ -215,7 +215,6 @@ class SpacingAroundColonRuleTest {
             fun foo(bar: String) {}
             """.trimIndent()
         spacingAroundColonRuleAssertThat(code)
-            // TODO: Offset col is not correct.
             .hasLintViolation(1, 13, "Unexpected spacing before \":\"")
             .isFormattedAs(formattedCode)
     }

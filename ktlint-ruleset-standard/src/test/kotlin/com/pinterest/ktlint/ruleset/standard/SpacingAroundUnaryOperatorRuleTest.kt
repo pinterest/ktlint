@@ -149,7 +149,7 @@ class SpacingAroundUnaryOperatorRuleTest {
         spacingAroundUnaryOperatorRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(2, 17, "Unexpected spacing in \"foo\" !!"),
-                // TODO: "foo3" should also be disallowed
+                // Space between the unary operator (!!) and the . is cleared by 'dot-spacing' rule
             ).isFormattedAs(formattedCode)
     }
 

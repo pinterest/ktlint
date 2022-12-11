@@ -20,7 +20,6 @@ class SpacingAroundCommaRuleTest {
             val foo2 = Foo(1, 3)
             """.trimIndent()
         spacingAroundCommaRuleAssertThat(code)
-            // TODO: Col offset is not correct
             .hasLintViolation(1, 18, "Missing spacing after \",\"")
             .isFormattedAs(formattedCode)
     }
@@ -50,7 +49,6 @@ class SpacingAroundCommaRuleTest {
             }
             """.trimIndent()
         spacingAroundCommaRuleAssertThat(code)
-            // TODO: Col offset is not correct
             .hasLintViolation(2, 10, "Missing spacing after \",\"")
             .isFormattedAs(formattedCode)
     }
