@@ -86,4 +86,50 @@ class PlainSummaryReporterTest {
             """.trimIndent().replace("\n", System.lineSeparator()),
         )
     }
+
+    @Test
+    fun `Report other violations`() {
+        val out = ByteArrayOutputStream()
+        val reporter = PlainSummaryReporter(PrintStream(out, true))
+        reporter.onLintError(
+            "file-1.kt",
+            LintError(
+                18,
+                51,
+                "",
+                "Not a valid Kotlin file (18:51 unexpected tokens (use ';' to separate expressions on the same line)) (cannot be auto-corrected) ()",
+            ),
+            false,
+        )
+        reporter.onLintError(
+            "file-2.kt",
+            LintError(
+                18,
+                51,
+                "",
+                "Not a valid Kotlin file (18:51 unexpected tokens (use ';' to separate expressions on the same line)) (cannot be auto-corrected) ()",
+            ),
+            false,
+        )
+        reporter.onLintError(
+            "file-3.kt",
+            LintError(
+                18,
+                51,
+                "",
+                "Something else",
+            ),
+            false,
+        )
+        reporter.afterAll()
+
+        assertThat(String(out.toByteArray())).isEqualTo(
+            """
+            |Count (descending) of errors not autocorrected by rule:
+            |  Not a valid Kotlin file: 2
+            |  Unknown: 1
+            |
+            """.trimMargin().replace("\n", System.lineSeparator()),
+        )
+    }
 }
