@@ -34,16 +34,48 @@ class NoSemicolonsRuleTest {
         noSemicolonsRuleAssertThat(code).hasNoLintViolations()
     }
 
+    @Test
+    fun `Given a semi colon at the start of a line and not followed by code or comment on the same line then do report a lint error`() {
+        val code =
+            """
+            fun foo() {
+                ;
+                bar()
+                ;
+
+                bar()
+
+                ;
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun foo() {
+                bar()
+
+                bar()
+            }
+            """.trimIndent()
+        noSemicolonsRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(2, 5, "Unnecessary semicolon"),
+                LintViolation(4, 5, "Unnecessary semicolon"),
+                LintViolation(8, 5, "Unnecessary semicolon"),
+            ).isFormattedAs(formattedCode)
+    }
+
     @Disabled("To be implemented")
     @Test
-    fun `Given a semi colon at the start of a line then do report a lint error`() {
+    fun `Given a semi colon at the start of a line and followed by code or comment on the same line then do report a lint error`() {
         val code =
             """
             ;val fooBar = "fooBar"
+            ;// some comment
             """.trimIndent()
         val formattedCode =
             """
             val fooBar = "fooBar"
+            // some comment
             """.trimIndent()
         noSemicolonsRuleAssertThat(code)
             .hasLintViolation(1, 1, "Unnecessary semicolon")
@@ -275,11 +307,20 @@ class NoSemicolonsRuleTest {
                     ;
                 }
                 """.trimIndent()
-            noSemicolonsRuleAssertThat(code).hasNoLintViolations()
+            val formattedCode =
+                """
+                enum class Test {
+                    ONE
+                    // comment
+                }
+                """.trimIndent()
+            noSemicolonsRuleAssertThat(code)
+                .hasLintViolation(4, 5, "Unnecessary semicolon")
+                .isFormattedAs(formattedCode)
         }
 
         @Test
-        fun `Given an enumeration and the list of values is closed with a semicolon not followed by statements then do not return a lint error`() {
+        fun `Given an enumeration and the list of values is closed with a semicolon not followed by statements then do return a lint error`() {
             val code =
                 """
                 enum class E1 {
@@ -300,8 +341,9 @@ class NoSemicolonsRuleTest {
                 }
                 """.trimIndent()
             noSemicolonsRuleAssertThat(code)
-                // TODO: It is not consistent that the semicolon is only reported in one of cases above
                 .hasLintViolations(
+                    LintViolation(3, 6, "Unnecessary semicolon"),
+                    LintViolation(8, 5, "Unnecessary semicolon"),
                     LintViolation(11, 5, "Unnecessary semicolon"),
                     LintViolation(15, 5, "Unnecessary semicolon"),
                 )
