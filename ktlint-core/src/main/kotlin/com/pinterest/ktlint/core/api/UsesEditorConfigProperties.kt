@@ -180,6 +180,7 @@ public object DefaultEditorConfigProperties : UsesEditorConfigProperties {
         // ReplaceWith is not specified as the property should not be migrated to KTLINT_DISABLED_RULES_PROPERTY but to
         // the RuleExecution property.
     )
+    @Suppress("ktlint:experimental:property-naming")
     public val disabledRulesProperty: EditorConfigProperty<String> =
         DISABLED_RULES_PROPERTY
 
