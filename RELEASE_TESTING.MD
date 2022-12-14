@@ -54,7 +54,10 @@ Before releasing a new version of KtLint, the release candidate is tested on a s
    ```shell
    ./exec-in-each-project.sh "git pull"
    ```
-3. Remove file `baseline.xml`
+3. Remove baseline file
+   ```shell
+   rm baseline.xml
+   ```
 
 ## Testing a new release
 
@@ -68,6 +71,8 @@ Pre-requisites:
 
 Formatting projects in which ktlint is not used may result in a huge amount of fixes. The main focus of this test is to see what the effects are when upgrading ktlint in a project already formatted with latest released ktlint version.
 
+TODO: After release 0.48, update procedure below as the parameter "--experimental" does not need to be specified anymore when it is stored correctly in the `.editorconfig` file(s).
+
 1. Format the sample projects with the *latest released* ktlint version:
    ```shell
    ktlint -F --experimental --relative # Do not call this command via the "./exec-in-each-project.sh" script.
@@ -77,25 +82,53 @@ Formatting projects in which ktlint is not used may result in a huge amount of f
    ```shell
    ./exec-in-each-project.sh "git add --all && git commit -m \"Format with ktlint (xx.yy.zz) -F --experimental\""
    ```
-3. Create a baseline file with the *latest released* ktlint version:
+   Repeat step 1 and 2 until no files are changed anymore.
+3. Create a new baseline file with the *latest released* ktlint version to ignore all lint violations that could not be autocorrected using the latest ktlint version:
    ```shell
+   rm baseline.xml
    ktlint --experimental --baseline=baseline.xml --relative # Do not call this command via the "./exec-in-each-project.sh" script as we want one combined baseline.xml file for all projects.
    ```
-4. Rerun previous command. As all violations were stored in file `baseline.xml` it is to be expected that no violations will be reported anymore. However, if violations are reported, this should be investigated and fixed before proceeding as otherwise you might falsely interpret them as caused by changed in the new release. You might want to add some `.editorconfig` configuration to suppress violations which can not be autocorrected. Commit your changes:
+4. Check that besides the `baseline.xml` no files are changed (in step 1 and 2 all violations which could be autocorrected have already been committed). Remaining violations which could not be autocorrected are saved in the `baseline.xml` which is stored outside the project directories.
    ```shell
-   ./exec-in-each-project.sh "git add --all && git commit -m \"Fix for some reason\""
+   ./exec-in-each-project.sh "git status"
    ```
-   Repeat until no new violations are reported.
-5. Lint with *latest development* version:
+   The `baseline.xml` file should only contain errors which can not be autocorrected.
+5. Define `.editorconfig` in the integration test directory with content below. Also follow up the instructions mentioned:
+   ```editorconfig
+   root = true
+   [*.{kt,kts}]
+   # The open source projects that are used for release testing of ktlint contain a few '.editorconfig' files which need to
+   # be changed:
+   #   1) Disable the "root = true" property so that each project ultimately falls back on this file. In this way offending
+   #      rules can be easily enabled/disabled for all test projects
+   #   2) Add specific rules to project below
+   #        graphql
+   #          ktlint_standard_import-ordering = disabled
+   #          ktlint_standard_package-name = disabled
+   ktlint_standard = enabled
+   ktlint_standard_filename = disabled
+   ktlint_standard_no-wildcard-imports = disabled
+
+   ktlint_experimental = enabled
+   ktlint_experimental_function-naming = disabled
+   ktlint_experimental_property-naming = disabled
+   ```
+6. Commit changes:
    ```shell
-   ktlint-dev --experimental --baseline=baseline.xml --relative # Do not call this command via the "./exec-in-each-project.sh" script as we want to use the one combined baseline.xml file for all projects.
+   ./exec-in-each-project.sh "git add --all && git commit -m \"Update .editorconfig to fallback to integration test settings\""
+   ```
+7. Lint with *latest development* version:
+   ```shell
+   ktlint-dev --baseline=baseline.xml --relative # Do not call this command via the "./exec-in-each-project.sh" script as we want to use the one combined baseline.xml file for all projects.
+   # or when lots are violations are reported
+   ktlint-dev --baseline=baseline.xml --relative --reporter=plain-summary # Do not call this command via the "./exec-in-each-project.sh" script as we want to use the one combined baseline.xml file for all projects.
    ```
    Inspect the output roughly (detailed inspection is done when formatting):
    * Is the amount of logging messages comparable to before? If not, are the changes intended?
    * Are violations related to rules that have actually been added or changed?
-6. Format with *latest development* version:
+8. Format with *latest development* version:
    ```shell
-   ktlint-dev -F --experimental --baseline=baseline.xml --relative # Do not call this command via the "./exec-in-each-project.sh" script as we want to use the one combined baseline.xml file for all projects.
+   ktlint-dev -F --baseline=baseline.xml --relative # Do not call this command via the "./exec-in-each-project.sh" script as we want to use the one combined baseline.xml file for all projects.
    ```
    Inspect the output carefully:
     * If you see an error like below, then this version obviously may *not* be released. It is best to fix this error before continuing with testing and validating!
@@ -105,15 +138,15 @@ Formatting projects in which ktlint is not used may result in a huge amount of f
    * Ideally, no violations are shown. This means that all violations have been autocorrected.
    * Violations which could not be autocorrected should be validated for correctness but do not block the release as most likely this is intended behavior.
    * If a violation is shown which is not marked as being "can not be autocorrected" this means that during autocorrect of another violation a new violations has been introduced. This should be fixed before releasing especially when the next format introduces the original violation again which of course would result in an endless loop.
-7. Inspect all fixed violations, Of course inspection similar violations tens of times does not make sense. At least check different types of violations a couple of times. Commit changes which do not need to be inspected again:
+9. Inspect all fixed violations, Of course inspection similar violations tens of times does not make sense. At least check different types of violations a couple of times. Commit changes which do not need to be inspected again:
    ```shell
    ./exec-in-each-project.sh "git add --all && git commit -m \"Fixed with latest development version\""
    ```
-8. Rerun lint with *latest development* version:
-   ```shell
-   ktlint-dev --experimental --baseline=baseline.xml --relative # Do not call this command via the "./exec-in-each-project.sh" script as we want to use the one combined baseline.xml file for all projects.
-   ```
-   No violations should be expected.
+10. Rerun lint with *latest development* version:
+    ```shell
+    ktlint-dev --experimental --baseline=baseline.xml --relative # Do not call this command via the "./exec-in-each-project.sh" script as we want to use the one combined baseline.xml file for all projects.
+    ```
+    No violations, except error that can not be autocorrected, should be expected.
 
 ## Checking documentation
 [The documentation for KtLint](https://pinterest.github.io/ktlint/) should be checked for dead links.
