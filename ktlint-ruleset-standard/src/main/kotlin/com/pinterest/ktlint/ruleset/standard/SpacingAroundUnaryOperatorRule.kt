@@ -24,9 +24,14 @@ public class SpacingAroundUnaryOperatorRule : Rule("unary-op-spacing") {
             val children = node.children().toList()
 
             // ignore: var a = + /* comment */ 1
-            if (children.any { it.isPartOfComment() }) return
+            if (children.any { it.isPartOfComment() }) {
+                return
+            }
 
-            val whiteSpace = children.firstOrNull { it.isWhiteSpace() } ?: return
+            val whiteSpace =
+                children
+                    .firstOrNull { it.isWhiteSpace() }
+                    ?: return
             emit(whiteSpace.startOffset, "Unexpected spacing in ${node.text.replace("\n", "\\n")}", true)
 
             if (autoCorrect) {

@@ -5,12 +5,12 @@ import com.pinterest.ktlint.core.ast.ElementType.CLASS
 import com.pinterest.ktlint.core.ast.ElementType.IDENTIFIER
 import com.pinterest.ktlint.core.ast.ElementType.PRIMARY_CONSTRUCTOR
 import com.pinterest.ktlint.core.ast.nextLeaf
+import com.pinterest.ktlint.core.ast.prevCodeLeaf
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
 public class NoConsecutiveBlankLinesRule : Rule("no-consecutive-blank-lines") {
-
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
@@ -20,20 +20,26 @@ public class NoConsecutiveBlankLinesRule : Rule("no-consecutive-blank-lines") {
             node.prevSibling != null
         ) {
             val text = node.getText()
-            val lfcount = text.count { it == '\n' }
-            if (lfcount < 2) {
+            val newLineCount = text.count { it == '\n' }
+            if (newLineCount < 2) {
                 return
             }
 
             val eof = node.nextLeaf() == null
-            val prevNode = node.treePrev
-            val betweenClassAndPrimaryConstructor = prevNode.elementType == IDENTIFIER &&
-                prevNode.treeParent.elementType == CLASS &&
-                node.treeNext.elementType == PRIMARY_CONSTRUCTOR
+            val betweenClassAndPrimaryConstructor = node.isBetweenClassAndPrimaryConstructor()
 
-            if (lfcount > 2 || eof || betweenClassAndPrimaryConstructor) {
+            if (newLineCount > 2 || eof || betweenClassAndPrimaryConstructor) {
                 val split = text.split("\n")
-                emit(node.startOffset + split[0].length + split[1].length + 2, "Needless blank line(s)", true)
+                val offset =
+                    node.startOffset +
+                        split[0].length +
+                        split[1].length +
+                        if (betweenClassAndPrimaryConstructor) {
+                            1
+                        } else {
+                            2
+                        }
+                emit(offset, "Needless blank line(s)", true)
                 if (autoCorrect) {
                     val newText = buildString {
                         append(split.first())
@@ -46,4 +52,13 @@ public class NoConsecutiveBlankLinesRule : Rule("no-consecutive-blank-lines") {
             }
         }
     }
+
+    private fun ASTNode.isBetweenClassAndPrimaryConstructor() =
+        prevCodeLeaf()
+            ?.let { prevNode ->
+                prevNode.elementType == IDENTIFIER &&
+                    prevNode.treeParent.elementType == CLASS &&
+                    this.treeNext.elementType == PRIMARY_CONSTRUCTOR
+            }
+            ?: false
 }

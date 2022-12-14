@@ -5,6 +5,9 @@ import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.api.editorconfig.EditorConfigProperty
+import com.pinterest.ktlint.core.api.editorconfig.INDENT_SIZE_PROPERTY
+import com.pinterest.ktlint.core.api.editorconfig.INDENT_STYLE_PROPERTY
+import com.pinterest.ktlint.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.core.ast.ElementType.FUNCTION_LITERAL
 import com.pinterest.ktlint.core.ast.ElementType.FUNCTION_TYPE
 import com.pinterest.ktlint.core.ast.ElementType.LPAR
@@ -34,19 +37,19 @@ public class ParameterListWrappingRule :
     UsesEditorConfigProperties {
     override val editorConfigProperties: List<EditorConfigProperty<*>> =
         listOf(
-            com.pinterest.ktlint.core.api.editorconfig.INDENT_SIZE_PROPERTY,
-            com.pinterest.ktlint.core.api.editorconfig.INDENT_STYLE_PROPERTY,
-            com.pinterest.ktlint.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY,
+            INDENT_SIZE_PROPERTY,
+            INDENT_STYLE_PROPERTY,
+            MAX_LINE_LENGTH_PROPERTY,
         )
 
     private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
     private var maxLineLength = -1
 
     override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
-        maxLineLength = editorConfigProperties.getEditorConfigValue(com.pinterest.ktlint.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY)
+        maxLineLength = editorConfigProperties.getEditorConfigValue(MAX_LINE_LENGTH_PROPERTY)
         indentConfig = IndentConfig(
-            indentStyle = editorConfigProperties.getEditorConfigValue(com.pinterest.ktlint.core.api.editorconfig.INDENT_STYLE_PROPERTY),
-            tabWidth = editorConfigProperties.getEditorConfigValue(com.pinterest.ktlint.core.api.editorconfig.INDENT_SIZE_PROPERTY),
+            indentStyle = editorConfigProperties.getEditorConfigValue(INDENT_STYLE_PROPERTY),
+            tabWidth = editorConfigProperties.getEditorConfigValue(INDENT_SIZE_PROPERTY),
         )
         if (indentConfig.disabled) {
             stopTraversalOfAST()

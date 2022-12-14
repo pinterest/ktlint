@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.experimental
 
+import com.pinterest.ktlint.ruleset.standard.SpacingAroundDotRule
 import com.pinterest.ktlint.ruleset.standard.SpacingAroundUnaryOperatorRule
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
@@ -143,15 +144,15 @@ class SpacingAroundUnaryOperatorRuleTest {
             """
             val foo1 = "foo"!!.length
             val foo2 = "foo"!!.length
-            val foo3 = "foo"!! .length
+            val foo3 = "foo"!!.length
             val foo4 = "foo"!!
                 .length
             """.trimIndent()
         spacingAroundUnaryOperatorRuleAssertThat(code)
-            .hasLintViolations(
-                LintViolation(2, 17, "Unexpected spacing in \"foo\" !!"),
-                // TODO: "foo3" should also be disallowed
-            ).isFormattedAs(formattedCode)
+            .addAdditionalRuleProvider { SpacingAroundDotRule() }
+            .hasLintViolation(2, 17, "Unexpected spacing in \"foo\" !!")
+            .hasLintViolationForAdditionalRule(3, 19, "Unexpected spacing before \".\"")
+            .isFormattedAs(formattedCode)
     }
 
     @Test

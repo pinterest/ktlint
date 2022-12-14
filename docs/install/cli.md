@@ -60,7 +60,7 @@ When no arguments are specified, the style of all Kotlin files (ending with '.kt
 ktlint
 ```
 
-To validate with the [standard ruleset](../../rules/standard/) and the [experimental rulesset](../../rules/experimental/) run command below: 
+To validate with the [standard ruleset](../../rules/standard/) and the [experimental ruleset](../../rules/experimental/) run command below: 
 
 ```shell title="Validation with standard and experimental ruleset"
 ktlint --experimental

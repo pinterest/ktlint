@@ -135,10 +135,8 @@ class NoConsecutiveBlankLinesRuleTest {
                 """.trimIndent()
             noConsecutiveBlankLinesRuleAssertThat(code)
                 .hasLintViolations(
-                    // TODO: Line number is incorrect
-                    LintViolation(3, 1, "Needless blank line(s)"),
-                    // TODO: Line number is incorrect
-                    LintViolation(7, 1, "Needless blank line(s)"),
+                    LintViolation(2, 1, "Needless blank line(s)"),
+                    LintViolation(6, 1, "Needless blank line(s)"),
                 ).isFormattedAs(formattedCode)
         }
 
@@ -150,9 +148,14 @@ class NoConsecutiveBlankLinesRuleTest {
 
                 constructor(a: Int)
                 """.trimIndent()
+            val formattedCode =
+                """
+                class A // comment
+                constructor(a: Int)
+                """.trimIndent()
             noConsecutiveBlankLinesRuleAssertThat(code)
-                // TODO: Check why no error is reported here
-                .hasNoLintViolations()
+                .hasLintViolation(2, 1, "Needless blank line(s)")
+                .isFormattedAs(formattedCode)
         }
     }
 

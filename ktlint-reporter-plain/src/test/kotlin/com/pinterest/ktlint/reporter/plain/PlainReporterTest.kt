@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 
 class PlainReporterTest {
     @Test
-    fun testReportGeneration() {
+    fun `Report normal rule violations`() {
         val out = ByteArrayOutputStream()
         val reporter = PlainReporter(PrintStream(out, true))
         reporter.onLintError(
@@ -76,6 +76,56 @@ class PlainReporterTest {
             |Summary error count (descending) by rule:
             |  rule-1: 2
             |  rule-2: 1
+            |
+            """.trimMargin().replace("\n", System.lineSeparator()),
+        )
+    }
+
+    @Test
+    fun `Report other violations`() {
+        val out = ByteArrayOutputStream()
+        val reporter = PlainReporter(PrintStream(out, true))
+        reporter.onLintError(
+            "file-1.kt",
+            LintError(
+                18,
+                51,
+                "",
+                "Not a valid Kotlin file (18:51 unexpected tokens (use ';' to separate expressions on the same line)) (cannot be auto-corrected) ()",
+            ),
+            false,
+        )
+        reporter.onLintError(
+            "file-2.kt",
+            LintError(
+                18,
+                51,
+                "",
+                "Not a valid Kotlin file (18:51 unexpected tokens (use ';' to separate expressions on the same line)) (cannot be auto-corrected) ()",
+            ),
+            false,
+        )
+        reporter.onLintError(
+            "file-3.kt",
+            LintError(
+                18,
+                51,
+                "",
+                "Something else",
+            ),
+            false,
+        )
+        reporter.afterAll()
+
+        assertThat(String(out.toByteArray())).isEqualTo(
+            """
+            |file-1.kt:18:51: Not a valid Kotlin file (18:51 unexpected tokens (use ';' to separate expressions on the same line)) (cannot be auto-corrected) () ()
+            |file-2.kt:18:51: Not a valid Kotlin file (18:51 unexpected tokens (use ';' to separate expressions on the same line)) (cannot be auto-corrected) () ()
+            |file-3.kt:18:51: Something else ()
+            |
+            |Summary error count (descending) by rule:
+            |  Not a valid Kotlin file: 2
+            |  Unknown: 1
             |
             """.trimMargin().replace("\n", System.lineSeparator()),
         )

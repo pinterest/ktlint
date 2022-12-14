@@ -4,6 +4,7 @@ import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.DefaultEditorConfigProperties.writeEditorConfigProperty
 import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
+import com.pinterest.ktlint.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.core.api.editorconfig.DEFAULT_EDITOR_CONFIG_PROPERTIES
 import com.pinterest.ktlint.core.initKtLintKLogger
@@ -41,7 +42,7 @@ internal class EditorConfigGenerator(
                 .load(
                     filePath = filePath,
                     rules = rules,
-                    editorConfigOverride = EditorConfigOverride.from(com.pinterest.ktlint.core.api.editorconfig.CODE_STYLE_PROPERTY to codeStyle.name),
+                    editorConfigOverride = EditorConfigOverride.from(CODE_STYLE_PROPERTY to codeStyle.name),
                 )
 
         val potentialEditorConfigSettings =

@@ -22,7 +22,7 @@ public class PlainSummaryReporter(
                 }
         } else {
             ruleViolationCountNoAutocorrection
-                .merge(err.ruleId, 1) { previousValue, _ ->
+                .merge(err.causedBy(), 1) { previousValue, _ ->
                     previousValue + 1
                 }
         }
@@ -47,6 +47,13 @@ public class PlainSummaryReporter(
             .map { out.println("  ${it.first}: ${it.second}") }
     }
 
+    private fun LintError.causedBy() =
+        when {
+            ruleId.isNotEmpty() -> ruleId
+            detail.startsWith(NOT_A_VALID_KOTLIN_FILE) -> NOT_A_VALID_KOTLIN_FILE
+            else -> "Unknown"
+        }
+
     private companion object {
         val COUNT_DESC_AND_RULE_ID_ASC_COMPARATOR =
             kotlin
@@ -56,5 +63,7 @@ public class PlainSummaryReporter(
                 .thenComparator { left, right ->
                     compareValuesBy(left, right) { it.first }
                 }
+
+        const val NOT_A_VALID_KOTLIN_FILE = "Not a valid Kotlin file"
     }
 }

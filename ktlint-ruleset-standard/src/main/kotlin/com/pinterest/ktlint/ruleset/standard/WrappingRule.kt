@@ -5,6 +5,9 @@ import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.api.editorconfig.EditorConfigProperty
+import com.pinterest.ktlint.core.api.editorconfig.INDENT_SIZE_PROPERTY
+import com.pinterest.ktlint.core.api.editorconfig.INDENT_STYLE_PROPERTY
+import com.pinterest.ktlint.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.core.ast.ElementType
 import com.pinterest.ktlint.core.ast.ElementType.ANNOTATION
 import com.pinterest.ktlint.core.ast.ElementType.ARROW
@@ -83,9 +86,9 @@ public class WrappingRule :
     UsesEditorConfigProperties {
     override val editorConfigProperties: List<EditorConfigProperty<*>> =
         listOf(
-            com.pinterest.ktlint.core.api.editorconfig.INDENT_SIZE_PROPERTY,
-            com.pinterest.ktlint.core.api.editorconfig.INDENT_STYLE_PROPERTY,
-            com.pinterest.ktlint.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY,
+            INDENT_SIZE_PROPERTY,
+            INDENT_STYLE_PROPERTY,
+            MAX_LINE_LENGTH_PROPERTY,
         )
 
     private var line = 1
@@ -95,10 +98,10 @@ public class WrappingRule :
     override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
         line = 1
         indentConfig = IndentConfig(
-            indentStyle = editorConfigProperties.getEditorConfigValue(com.pinterest.ktlint.core.api.editorconfig.INDENT_STYLE_PROPERTY),
-            tabWidth = editorConfigProperties.getEditorConfigValue(com.pinterest.ktlint.core.api.editorconfig.INDENT_SIZE_PROPERTY),
+            indentStyle = editorConfigProperties.getEditorConfigValue(INDENT_STYLE_PROPERTY),
+            tabWidth = editorConfigProperties.getEditorConfigValue(INDENT_SIZE_PROPERTY),
         )
-        maxLineLength = editorConfigProperties.getEditorConfigValue(com.pinterest.ktlint.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY)
+        maxLineLength = editorConfigProperties.getEditorConfigValue(MAX_LINE_LENGTH_PROPERTY)
     }
 
     override fun beforeVisitChildNodes(

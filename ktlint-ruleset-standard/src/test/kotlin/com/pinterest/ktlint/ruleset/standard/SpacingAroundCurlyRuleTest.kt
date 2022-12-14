@@ -81,7 +81,6 @@ class SpacingAroundCurlyRuleTest {
             """.trimIndent()
         spacingAroundCurlyRuleAssertThat(code)
             .hasLintViolations(
-                // TODO: Col offset is not correct
                 LintViolation(1, 17, "Missing spacing after \"{\""),
                 LintViolation(1, 23, "Missing spacing before \"}\""),
             ).isFormattedAs(formattedCode)
@@ -176,7 +175,6 @@ class SpacingAroundCurlyRuleTest {
             fun <T> Array<T>.getFoo(): T = this[this.count { it == "foo" }]
             """.trimIndent()
         spacingAroundCurlyRuleAssertThat(code)
-            // TODO: Col offset is not correct
             .hasLintViolation(1, 62, "Unexpected space after \"}\"")
             .isFormattedAs(formattedCode)
     }
@@ -213,12 +211,10 @@ class SpacingAroundCurlyRuleTest {
                 LintViolation(2, 15, "Missing spacing around \"{\""),
                 LintViolation(2, 26, "Missing spacing around \"}\""),
                 LintViolation(2, 47, "Missing spacing before \"{\""),
-                // TODO: Col offset is not correct
                 LintViolation(3, 13, "Missing spacing after \"{\""),
                 LintViolation(3, 31, "Missing spacing around \"{\""),
                 LintViolation(3, 40, "Missing spacing around \"}\""),
                 LintViolation(3, 61, "Missing spacing before \"{\""),
-                // TODO: Col offset is not correct
                 LintViolation(3, 63, "Missing spacing after \"}\""),
                 LintViolation(3, 63, "Missing spacing before \"}\""),
             ).isFormattedAs(formattedCode)

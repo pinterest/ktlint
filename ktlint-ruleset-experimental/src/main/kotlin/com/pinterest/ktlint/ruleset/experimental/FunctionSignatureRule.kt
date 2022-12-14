@@ -5,6 +5,9 @@ import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.api.editorconfig.EditorConfigProperty
+import com.pinterest.ktlint.core.api.editorconfig.INDENT_SIZE_PROPERTY
+import com.pinterest.ktlint.core.api.editorconfig.INDENT_STYLE_PROPERTY
+import com.pinterest.ktlint.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.core.ast.ElementType.ANNOTATION
 import com.pinterest.ktlint.core.ast.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.BLOCK
@@ -53,9 +56,9 @@ public class FunctionSignatureRule :
     UsesEditorConfigProperties {
     override val editorConfigProperties: List<EditorConfigProperty<*>> =
         listOf(
-            com.pinterest.ktlint.core.api.editorconfig.INDENT_SIZE_PROPERTY,
-            com.pinterest.ktlint.core.api.editorconfig.INDENT_STYLE_PROPERTY,
-            com.pinterest.ktlint.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY,
+            INDENT_SIZE_PROPERTY,
+            INDENT_STYLE_PROPERTY,
+            MAX_LINE_LENGTH_PROPERTY,
             FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY,
             FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY,
         )
@@ -70,11 +73,11 @@ public class FunctionSignatureRule :
             functionSignatureWrappingMinimumParameters = getEditorConfigValue(FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY)
             functionBodyExpressionWrapping = getEditorConfigValue(FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY)
             val indentConfig = IndentConfig(
-                indentStyle = getEditorConfigValue(com.pinterest.ktlint.core.api.editorconfig.INDENT_STYLE_PROPERTY),
-                tabWidth = getEditorConfigValue(com.pinterest.ktlint.core.api.editorconfig.INDENT_SIZE_PROPERTY),
+                indentStyle = getEditorConfigValue(INDENT_STYLE_PROPERTY),
+                tabWidth = getEditorConfigValue(INDENT_SIZE_PROPERTY),
             )
             indent = indentConfig.indent
-            maxLineLength = getEditorConfigValue(com.pinterest.ktlint.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY)
+            maxLineLength = getEditorConfigValue(MAX_LINE_LENGTH_PROPERTY)
         }
     }
 

@@ -17,12 +17,13 @@ public class NoLineBreakBeforeAssignmentRule : Rule("no-line-break-before-assign
     override fun beforeVisitChildNodes(node: ASTNode, autoCorrect: Boolean, emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
         if (node.elementType == EQ) {
             val prevCodeSibling = node.prevCodeSibling()
-            val hasLineBreakBeforeAssignment = prevCodeSibling
-                ?.siblings()
-                ?.takeWhile { it.isWhiteSpace() || it.isPartOfComment() }
-                ?.any { it.isWhiteSpaceWithNewline() }
-            if (hasLineBreakBeforeAssignment == true) {
-                emit(node.startOffset, "Line break before assignment is not allowed", true)
+            val unexpectedLinebreak =
+                prevCodeSibling
+                    ?.siblings()
+                    ?.takeWhile { it.isWhiteSpace() || it.isPartOfComment() }
+                    ?.lastOrNull { it.isWhiteSpaceWithNewline() }
+            if (unexpectedLinebreak != null) {
+                emit(unexpectedLinebreak.startOffset, "Line break before assignment is not allowed", true)
                 if (autoCorrect) {
                     val prevPsi = prevCodeSibling.psi
                     val parentPsi = prevPsi.parent

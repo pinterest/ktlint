@@ -4,6 +4,7 @@ import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.api.editorconfig.EditorConfigProperty
+import com.pinterest.ktlint.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.core.ast.ElementType
 import com.pinterest.ktlint.core.ast.isPartOf
 import com.pinterest.ktlint.core.ast.isRoot
@@ -46,17 +47,17 @@ public class MaxLineLengthRule :
     UsesEditorConfigProperties {
 
     override val editorConfigProperties: List<EditorConfigProperty<*>> = listOf(
-        com.pinterest.ktlint.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY,
+        MAX_LINE_LENGTH_PROPERTY,
         IGNORE_BACKTICKED_IDENTIFIER_PROPERTY,
     )
 
-    private var maxLineLength: Int = com.pinterest.ktlint.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY.defaultValue
+    private var maxLineLength: Int = MAX_LINE_LENGTH_PROPERTY.defaultValue
     private var rangeTree = RangeTree()
     private var ignoreBackTickedIdentifier by Delegates.notNull<Boolean>()
 
     override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
         ignoreBackTickedIdentifier = editorConfigProperties.getEditorConfigValue(IGNORE_BACKTICKED_IDENTIFIER_PROPERTY)
-        maxLineLength = editorConfigProperties.getEditorConfigValue(com.pinterest.ktlint.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY)
+        maxLineLength = editorConfigProperties.getEditorConfigValue(MAX_LINE_LENGTH_PROPERTY)
     }
 
     override fun beforeVisitChildNodes(

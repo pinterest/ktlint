@@ -14,11 +14,7 @@ private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 /**
  * Loads given list of paths to jar files. For files containing a [RuleSetProviderV2] class, get all [RuleProvider]s.
  */
-internal fun List<URL>.loadRuleProviders(
-    loadExperimental: Boolean,
-    debug: Boolean,
-    disabledRules: String,
-): Set<RuleProvider> =
+internal fun List<URL>.loadRuleProviders(debug: Boolean): Set<RuleProvider> =
     this
         .plus(
             // Ensure that always at least one element exists in this list so that the rule sets provided by the KtLint
@@ -27,14 +23,7 @@ internal fun List<URL>.loadRuleProviders(
         )
         // Remove JAR files which were provided multiple times
         .distinct()
-        .map { getRuleProvidersFromJar(it, debug) }
-        .flatMap { rulesProvidersFromJar ->
-            // Remove disabled rule sets
-            rulesProvidersFromJar
-                .filterKeys { loadExperimental || it != "experimental" }
-                .filterKeys { !(disabledRules.isStandardRuleSetDisabled() && it == "standard") }
-                .values
-        }
+        .flatMap { getRuleProvidersFromJar(it, debug).values }
         .flatten()
         .toSet()
 
@@ -73,8 +62,5 @@ private fun getRuleProvidersFromJar(
         emptyMap()
     }
 }
-
-private fun String.isStandardRuleSetDisabled() =
-    this.split(",").map { it.trim() }.toSet().contains("standard")
 
 private val KTLINT_RULE_SETS = listOf("standard", "experimental")
