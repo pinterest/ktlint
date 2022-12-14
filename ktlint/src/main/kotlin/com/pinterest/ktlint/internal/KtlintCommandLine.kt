@@ -18,6 +18,7 @@ import com.pinterest.ktlint.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.core.api.editorconfig.RuleExecution
 import com.pinterest.ktlint.core.api.editorconfig.createRuleExecutionEditorConfigProperty
+import com.pinterest.ktlint.core.api.editorconfig.createRuleSetExecutionEditorConfigProperty
 import com.pinterest.ktlint.core.api.loadBaseline
 import com.pinterest.ktlint.core.api.relativeRoute
 import com.pinterest.ktlint.core.initKtLintKLogger
@@ -254,7 +255,9 @@ internal class KtlintCommandLine {
         get() =
             EditorConfigOverride
                 .EMPTY_EDITOR_CONFIG_OVERRIDE
-                .applyIf(disabledRules.isNotBlank()) {
+                .applyIf(experimental) {
+                    plus(createRuleSetExecutionEditorConfigProperty("experimental:all") to RuleExecution.enabled)
+                }.applyIf(disabledRules.isNotBlank()) {
                     plus(*disabledRulesEditorConfigOverrides())
                 }.applyIf(android) {
                     plus(CODE_STYLE_PROPERTY to CodeStyleValue.android)
@@ -351,7 +354,7 @@ internal class KtlintCommandLine {
     internal fun ruleProviders() =
         rulesetJarPaths
             .toFilesURIList()
-            .loadRuleProviders(experimental, debug, disabledRules)
+            .loadRuleProviders(debug)
 
     private fun List<String>.toFilesURIList() =
         map {
