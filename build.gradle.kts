@@ -65,9 +65,14 @@ val shadowJarExecutable: TaskProvider<Task> by lazy {
     projects.ktlint.dependencyProject.tasks.named("shadowJarExecutable")
 }
 
+val shadowJarExecutableChecksum: TaskProvider<Task> by lazy {
+    projects.ktlint.dependencyProject.tasks.named("shadowJarExecutableChecksum")
+}
+
 // Explicitly adding dependency on "shadowJarExecutable" as Gradle does not it set via "releaseAssets" property
 tasks.githubRelease {
     dependsOn(provider { shadowJarExecutable })
+    dependsOn(provider { shadowJarExecutableChecksum })
 }
 
 githubRelease {
@@ -77,7 +82,13 @@ githubRelease {
     tagName(project.property("VERSION_NAME").toString())
     releaseName(project.property("VERSION_NAME").toString())
     targetCommitish("master")
-    releaseAssets.from(provider { shadowJarExecutable.get().outputs.files.files.first().parentFile })
+    releaseAssets.from(
+        // Temp: Hardcode the list of files to upload
+        project.file("ktlint/build/run/ktlint"),
+        project.file("ktlint/build/run/ktlint.md5"),
+        project.file("ktlint/build/run/ktlint.asc"),
+        project.file("ktlint/build/run/ktlint.asc.md5"),
+    )
     overwrite(true)
     dryRun(false)
     body {
