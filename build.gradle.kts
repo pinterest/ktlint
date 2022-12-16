@@ -53,6 +53,7 @@ tasks.register<JavaExec>("ktlint") {
     )
 }
 
+// Deployment tasks
 val githubToken: String = if (project.hasProperty("servers.github.privKey")) {
     project.property("servers.github.privKey").toString()
 } else {
