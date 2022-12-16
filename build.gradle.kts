@@ -82,13 +82,7 @@ githubRelease {
     tagName(project.property("VERSION_NAME").toString())
     releaseName(project.property("VERSION_NAME").toString())
     targetCommitish("master")
-    releaseAssets.from(
-        // Temp: Hardcode the list of files to upload
-        project.file("ktlint/build/run/ktlint"),
-        project.file("ktlint/build/run/ktlint.md5"),
-        project.file("ktlint/build/run/ktlint.asc"),
-        project.file("ktlint/build/run/ktlint.asc.md5"),
-    )
+    releaseAssets.from(provider { shadowJarExecutable.get().outputs.files.files.first().parentFile.listFiles() })
     overwrite(true)
     dryRun(false)
     body {
