@@ -65,14 +65,10 @@ val shadowJarExecutable: TaskProvider<Task> by lazy {
     projects.ktlint.dependencyProject.tasks.named("shadowJarExecutable")
 }
 
-val shadowJarExecutableChecksum: TaskProvider<Task> by lazy {
-    projects.ktlint.dependencyProject.tasks.named("shadowJarExecutableChecksum")
-}
-
 // Explicitly adding dependency on "shadowJarExecutable" as Gradle does not it set via "releaseAssets" property
 tasks.githubRelease {
     dependsOn(provider { shadowJarExecutable })
-    dependsOn(provider { shadowJarExecutableChecksum })
+    dependsOn(provider { projects.ktlint.dependencyProject.tasks.named("shadowJarExecutableChecksum") })
 }
 
 githubRelease {
@@ -111,13 +107,13 @@ val homebrewBumpFormula by tasks.registering(Exec::class) {
     description = "Runs brew bump-forumula-pr"
     commandLine("./.homebrew")
     environment("VERSION" to "${project.property("VERSION_NAME")}")
-    dependsOn(tasks.named("githubRelease"))
+    dependsOn(tasks.githubRelease)
 }
 
 tasks.register<DefaultTask>("publishNewRelease") {
     group = "Help"
     description = "Triggers uploading new archives and publish announcements"
-    dependsOn(announceRelease, homebrewBumpFormula, tasks.named("githubRelease"))
+    dependsOn(announceRelease, homebrewBumpFormula, tasks.githubRelease)
 }
 
 tasks.wrapper {
