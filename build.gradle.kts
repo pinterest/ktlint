@@ -66,7 +66,7 @@ tasks.githubRelease {
         provider {
             projects.ktlint.dependencyProject.tasks.named("shadowJarExecutable")
                 .map { it.outputs.files.files.first().parentFile.listFiles() }
-        }
+        },
     )
 }
 
