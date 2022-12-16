@@ -53,7 +53,6 @@ tasks.register<JavaExec>("ktlint") {
     )
 }
 
-// Deployment tasks
 val githubToken: String = if (project.hasProperty("servers.github.privKey")) {
     project.property("servers.github.privKey").toString()
 } else {
@@ -69,6 +68,7 @@ val shadowJarExecutable: TaskProvider<Task> by lazy {
 tasks.githubRelease {
     dependsOn(provider { shadowJarExecutable })
     dependsOn(provider { projects.ktlint.dependencyProject.tasks.named("shadowJarExecutableChecksum") })
+    setReleaseAssets(provider { shadowJarExecutable.map { it.outputs.files.files.first().parentFile.listFiles() } })
 }
 
 githubRelease {
@@ -78,7 +78,6 @@ githubRelease {
     tagName(project.property("VERSION_NAME").toString())
     releaseName(project.property("VERSION_NAME").toString())
     targetCommitish("master")
-    releaseAssets.from(provider { shadowJarExecutable.get().outputs.files.files.first().parentFile.listFiles() })
     overwrite(true)
     dryRun(false)
     body {
