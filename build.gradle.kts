@@ -1,4 +1,5 @@
 import java.net.URL
+import org.gradle.crypto.checksum.Checksum
 
 plugins {
     alias(libs.plugins.kotlin.jvm) apply false
@@ -64,8 +65,8 @@ val githubToken: String = if (project.hasProperty("servers.github.privKey")) {
 tasks.githubRelease {
     setReleaseAssets(
         provider {
-            projects.ktlint.dependencyProject.tasks.named("shadowJarExecutable")
-                .map { it.outputs.files.files.first().parentFile.listFiles() }
+            projects.ktlint.dependencyProject.tasks.named<Checksum>("shadowJarExecutableChecksum")
+                .map { it.outputDirectory }
         },
     )
 }
