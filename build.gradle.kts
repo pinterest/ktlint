@@ -60,15 +60,13 @@ val githubToken: String = if (project.hasProperty("servers.github.privKey")) {
     ""
 }
 
-val shadowJarExecutable: TaskProvider<Task> by lazy {
-    projects.ktlint.dependencyProject.tasks.named("shadowJarExecutable")
-}
-
-// Explicitly adding dependency on "shadowJarExecutable" as Gradle does not it set via "releaseAssets" property
 tasks.githubRelease {
-    dependsOn(provider { shadowJarExecutable })
-    dependsOn(provider { projects.ktlint.dependencyProject.tasks.named("shadowJarExecutableChecksum") })
-    setReleaseAssets(provider { shadowJarExecutable.map { it.outputs.files.files.first().parentFile.listFiles() } })
+    setReleaseAssets(
+        provider {
+            projects.ktlint.dependencyProject.tasks.named("shadowJarExecutable")
+                .map { it.outputs.files.files.first().parentFile.listFiles() }
+        }
+    )
 }
 
 githubRelease {
