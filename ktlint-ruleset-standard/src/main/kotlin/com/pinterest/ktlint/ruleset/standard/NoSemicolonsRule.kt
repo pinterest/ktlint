@@ -107,5 +107,4 @@ public class NoSemicolonsRule : Rule("no-semi") {
             ?.parent(CLASS_BODY)
             ?.lastChildLeafOrSelf()
             ?.prevCodeLeaf()
-
 }
