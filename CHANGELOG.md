@@ -12,7 +12,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
-## [0.48.0] - 2022-10-15
+## [0.48.0] - 2022-12-15
 
 ### Indent rule
 
