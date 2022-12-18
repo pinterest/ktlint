@@ -126,6 +126,7 @@ public class MaxLineLengthRule :
                     setOf(true.toString(), false.toString()),
                 ),
                 defaultValue = false,
+                ktlintOfficialCodeStyleDefaultValue = true,
             )
 
         @Deprecated(

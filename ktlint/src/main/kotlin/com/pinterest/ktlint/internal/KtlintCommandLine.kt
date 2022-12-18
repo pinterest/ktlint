@@ -98,11 +98,19 @@ internal class KtlintCommandLine {
     @CommandLine.Spec
     private lateinit var commandSpec: CommandLine.Model.CommandSpec
 
+    @Deprecated(message = "Marked for removal in KtLint 0.50")
     @Option(
         names = ["--android", "-a"],
         description = ["Turn on Android Kotlin Style Guide compatibility"],
     )
     var android: Boolean = false
+
+    @Option(
+        names = ["--code-style"],
+        description = ["Defines the code style (ktlint_official, intellij_idea or android_studio) to be used for formatting the code. It is advised to define '.editorconfig' property 'ktlint_code_style'."],
+        converter = [CodeStyleValueConverter::class],
+    )
+    var codeStyle: CodeStyleValue = CodeStyleValue.ktlint_official
 
     @Option(
         names = ["--color"],
@@ -260,7 +268,7 @@ internal class KtlintCommandLine {
                 }.applyIf(disabledRules.isNotBlank()) {
                     plus(*disabledRulesEditorConfigOverrides())
                 }.applyIf(android) {
-                    plus(CODE_STYLE_PROPERTY to CodeStyleValue.android)
+                    plus(CODE_STYLE_PROPERTY to CodeStyleValue.android_studio)
                 }
 
     private fun disabledRulesEditorConfigOverrides() =
@@ -271,6 +279,7 @@ internal class KtlintCommandLine {
             .toTypedArray()
 
     init {
+        // TODO: Remove in KtLint 0.49
         if (debugOld != null || trace != null || verbose != null) {
             if (minLogLevel == Level.OFF) {
                 minLogLevel = Level.ERROR
@@ -287,6 +296,11 @@ internal class KtlintCommandLine {
     }
 
     fun run() {
+        if (android != null) {
+            logger.error {
+                "Option '--android' / '-a' is deprecated and replace with option '--code-style=android_studio'. Setting '.editorconfig' property 'ktlint_code_style=android_studio' might be a better idea for a project that is always to formatted with this code style."
+            }
+        }
         assertStdinAndPatternsFromStdinOptionsMutuallyExclusive()
 
         val stdinPatterns: Set<String> = readPatternsFromStdin()
@@ -707,6 +721,18 @@ internal class KtlintCommandLine {
         val config: Map<String, String>,
         val output: String?,
     )
+}
+
+private class CodeStyleValueConverter : CommandLine.ITypeConverter<CodeStyleValue> {
+    @Throws(Exception::class)
+    override fun convert(value: String?): CodeStyleValue =
+        when (value?.lowercase()?.replace("-", "_")) {
+            null -> CODE_STYLE_PROPERTY.defaultValue
+            "ktlint_official" -> CodeStyleValue.ktlint_official
+            "android_studio" -> CodeStyleValue.android_studio
+            "intellij_idea" -> CodeStyleValue.intellij_idea
+            else -> throw IllegalArgumentException("Invalid code style value")
+        }
 }
 
 private class LogLevelConverter : CommandLine.ITypeConverter<Level> {

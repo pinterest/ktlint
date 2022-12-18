@@ -4,6 +4,23 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+### API changes
+
+#### EditorConfigProperty
+
+Field `defaultAndroidValue` has been renamed to `intellijIdeaCodeStyleDefaultValue`. Note that also new fields `ktlintOfficialCodeStyleDefaultValue` and `intellijIdeaCodeStyleDefaultValue`. Read more about this in the section "Ktlint Official code style".
+
+
+### 'Ktlint Official` code style and renaming of existing code styles
+
+A new code style with name `ktlint_offical` has been added. This code style makes it possible to innovate ktlint beyond current expectations of users that are familiar with the existing code styles. 
+
+The `ktlint_official` code style combines the best elements from the Kotlin Coding conventions (https://kotlinlang.org/docs/coding-conventions.html) and Android's Kotlin styleguide (https://developer.android.com/kotlin/style-guide). This codestyle also provides additional formatting on topics which are not (explicitly) mentioned in the before mentioned styleguide. Also, this code style sometimes formats code in a way which is not accepted by the default code formatters in IntelliJ IDEA and Android Studio. The formatters of those editors produce nicely formatted code in the vast majority of cases. But in a number of edge cases, the formatting contains bugs which are waiting to be fixed for several years. The new code style formats code in a way which is compatible with the default formatting of the editors whenever possible. When using this codestyle, it is best to disable (e.g. not use) code formatting in the editor. In the long run, this code style becomes the default code style provided by KtLint.
+
+The `official` code style has been renamed to `intellij_idea`. Code formatted with this code style aims to be compatible with default formatter of IntelliJ IDEA. This code style is based on Kotlin Coding conventions (https://kotlinlang.org/docs/coding-conventions.html). If `.editorconfig` property `ktlint_code_style` has been set to then do not forget to change the value of that property to `intellij_idea`. When not set, this is still the default code style of ktlint. Note that in the long run, the default code style is changed to `ktlint_official`.
+
+Code style `android` has been renamed to `android_studio`. Code formatted with this code style aims to be compatible with default formatter of Android Studio. This code style is based on Android's Kotlin styleguide (https://developer.android.com/kotlin/style-guide). If `.editorconfig` property `ktlint_code_style` has been set to then do not forget to change the value of that property to `android_studio`.
+
 ### Added
 
 ### Removed

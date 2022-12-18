@@ -249,7 +249,7 @@ public class ImportOrderingRule :
                     EDITOR_CONFIG_PROPERTY_PARSER,
                 ),
                 defaultValue = IDEA_PATTERN,
-                defaultAndroidValue = ASCII_PATTERN,
+                androidStudioCodeStyleDefaultValue = ASCII_PATTERN,
                 propertyWriter = { it.joinToString(separator = ",") },
             )
 

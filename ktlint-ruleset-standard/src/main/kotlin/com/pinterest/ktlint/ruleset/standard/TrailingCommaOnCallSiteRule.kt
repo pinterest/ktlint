@@ -256,7 +256,7 @@ public class TrailingCommaOnCallSiteRule :
                     BOOLEAN_VALUES_SET,
                 ),
                 defaultValue = true,
-                defaultAndroidValue = false,
+                androidStudioCodeStyleDefaultValue = false,
             )
 
         @Deprecated(

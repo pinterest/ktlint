@@ -699,6 +699,7 @@ public class FunctionSignatureRule :
                     setOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "unset"),
                 ),
                 defaultValue = -1,
+                ktlintOfficialCodeStyleDefaultValue = 2,
             )
 
         @Deprecated(
@@ -721,6 +722,7 @@ public class FunctionSignatureRule :
                     FunctionBodyExpressionWrapping.values().map { it.name }.toSet(),
                 ),
                 defaultValue = default,
+                ktlintOfficialCodeStyleDefaultValue = multiline,
             )
 
         @Deprecated(
