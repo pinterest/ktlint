@@ -28,6 +28,11 @@ internal class GenerateEditorConfigSubCommand : Runnable {
     override fun run() {
         commandSpec.commandLine().printCommandLineHelpOrVersionUsage()
 
+        if (ktlintCommand.codeStyle == null) {
+            System.err.println("Option --code-style must be set as to generate the '.editorconfig' correctly")
+            exitKtLintProcess(1)
+        }
+
         val ktLintRuleEngine = KtLintRuleEngine(
             ruleProviders = ktlintCommand.ruleProviders(),
             editorConfigOverride = EditorConfigOverride.from(CODE_STYLE_PROPERTY to ktlintCommand.codeStyle),
