@@ -3,6 +3,7 @@ package com.pinterest.ktlint
 import java.io.ByteArrayInputStream
 import java.nio.file.Path
 import org.assertj.core.api.SoftAssertions
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 
@@ -167,5 +168,175 @@ class SimpleCLITest {
                     assertThat(errorOutput).doesNotContainLineMatching("Exception in thread \"main\" java.lang.IllegalArgumentException: this and base files have different roots:")
                 }.assertAll()
             }
+    }
+
+    @Nested
+    inner class `Generate git pre commit hook` {
+        @Test
+        fun `Given that the code-style option is specified before the command`(
+            @TempDir
+            tempDir: Path,
+        ) {
+            CommandLineTestRunner(tempDir)
+                .run(
+                    "too-many-empty-lines",
+                    listOf("--code-style=ktlint_official", "installGitPreCommitHook"),
+                ) {
+                    SoftAssertions().apply {
+                        // The command will throw an error because the testProjectName directory does not contain a
+                        // '.git' directory. This is sufficient to know that the ktlint command was recognized.
+                        assertErrorExitCode()
+                        assertThat(errorOutput).containsLineMatching("git directory not found. Are you sure you are inside project directory?")
+                    }.assertAll()
+                }
+        }
+
+        @Test
+        fun `Given that the code-style option is specified after the command`(
+            @TempDir
+            tempDir: Path,
+        ) {
+            CommandLineTestRunner(tempDir)
+                .run(
+                    "too-many-empty-lines",
+                    listOf("installGitPreCommitHook", "--code-style=ktlint_official"),
+                ) {
+                    SoftAssertions().apply {
+                        // The command will throw an error because the testProjectName directory does not contain a
+                        // '.git' directory. This is sufficient to know that the ktlint command was recognized.
+                        assertErrorExitCode()
+                        assertThat(errorOutput).containsLineMatching("git directory not found. Are you sure you are inside project directory?")
+                    }.assertAll()
+                }
+        }
+
+        @Test
+        fun `Given that no code-style option is specified then the command should fail`(
+            @TempDir
+            tempDir: Path,
+        ) {
+            CommandLineTestRunner(tempDir)
+                .run(
+                    "too-many-empty-lines",
+                    listOf("installGitPreCommitHook"),
+                ) {
+                    SoftAssertions().apply {
+                        assertErrorExitCode()
+                        assertThat(errorOutput).containsLineMatching("Option --code-style must be set as to generate the git pre commit hook correctly")
+                    }.assertAll()
+                }
+        }
+    }
+
+    @Nested
+    inner class `Generate git pre push hook` {
+        @Test
+        fun `Given that the code-style option is specified before the command`(
+            @TempDir
+            tempDir: Path,
+        ) {
+            CommandLineTestRunner(tempDir)
+                .run(
+                    "too-many-empty-lines",
+                    listOf("--code-style=ktlint_official", "installGitPrePushHook"),
+                ) {
+                    SoftAssertions().apply {
+                        // The command will throw an error because the testProjectName directory does not contain a
+                        // '.git' directory. This is sufficient to know that the ktlint command was recognized.
+                        assertErrorExitCode()
+                        assertThat(errorOutput).containsLineMatching("git directory not found. Are you sure you are inside project directory?")
+                    }.assertAll()
+                }
+        }
+
+        @Test
+        fun `Given that the code-style option is specified after the command`(
+            @TempDir
+            tempDir: Path,
+        ) {
+            CommandLineTestRunner(tempDir)
+                .run(
+                    "too-many-empty-lines",
+                    listOf("installGitPrePushHook", "--code-style=ktlint_official"),
+                ) {
+                    SoftAssertions().apply {
+                        // The command will throw an error because the testProjectName directory does not contain a
+                        // '.git' directory. This is sufficient to know that the ktlint command was recognized.
+                        assertErrorExitCode()
+                        assertThat(errorOutput).containsLineMatching("git directory not found. Are you sure you are inside project directory?")
+                    }.assertAll()
+                }
+        }
+
+        @Test
+        fun `Given that no code-style option is specified then the command should fail`(
+            @TempDir
+            tempDir: Path,
+        ) {
+            CommandLineTestRunner(tempDir)
+                .run(
+                    "too-many-empty-lines",
+                    listOf("installGitPrePushHook"),
+                ) {
+                    SoftAssertions().apply {
+                        assertErrorExitCode()
+                        assertThat(errorOutput).containsLineMatching("Option --code-style must be set as to generate the git pre push hook correctly")
+                    }.assertAll()
+                }
+        }
+    }
+
+    @Nested
+    inner class `Generate 'editorconfig' file` {
+        @Test
+        fun `Given that the code-style option is specified before the command`(
+            @TempDir
+            tempDir: Path,
+        ) {
+            CommandLineTestRunner(tempDir)
+                .run(
+                    "too-many-empty-lines",
+                    listOf("--code-style=ktlint_official", "generateEditorConfig"),
+                ) {
+                    SoftAssertions().apply {
+                        assertNormalExitCode()
+                        assertThat(normalOutput).containsLineMatching("ktlint_code_style = ktlint_official")
+                    }.assertAll()
+                }
+        }
+
+        @Test
+        fun `Given that the code-style option is specified after the command`(
+            @TempDir
+            tempDir: Path,
+        ) {
+            CommandLineTestRunner(tempDir)
+                .run(
+                    "too-many-empty-lines",
+                    listOf("generateEditorConfig", "--code-style=ktlint_official"),
+                ) {
+                    SoftAssertions().apply {
+                        assertNormalExitCode()
+                        assertThat(normalOutput).containsLineMatching("ktlint_code_style = ktlint_official")
+                    }.assertAll()
+                }
+        }
+
+        @Test
+        fun `Given that no code-style option is specified then the command should fail`(
+            @TempDir
+            tempDir: Path,
+        ) {
+            CommandLineTestRunner(tempDir)
+                .run(
+                    "too-many-empty-lines",
+                    listOf("generateEditorConfig"),
+                ) {
+                    SoftAssertions().apply {
+                        assertErrorExitCode()
+                        assertThat(errorOutput).containsLineMatching("Option --code-style must be set as to generate the '.editorconfig' correctly")
+                    }.assertAll()
+                }
+        }
     }
 }

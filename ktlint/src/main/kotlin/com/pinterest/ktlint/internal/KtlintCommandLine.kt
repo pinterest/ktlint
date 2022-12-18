@@ -102,15 +102,18 @@ internal class KtlintCommandLine {
     @Option(
         names = ["--android", "-a"],
         description = ["Turn on Android Kotlin Style Guide compatibility"],
+        hidden = true,
     )
     var android: Boolean = false
 
     @Option(
+        // Ensure that the code-style can be set on sub commands and is visible in the help documentation
+        scope = CommandLine.ScopeType.INHERIT,
         names = ["--code-style"],
         description = ["Defines the code style (ktlint_official, intellij_idea or android_studio) to be used for formatting the code. It is advised to define '.editorconfig' property 'ktlint_code_style'."],
         converter = [CodeStyleValueConverter::class],
     )
-    var codeStyle: CodeStyleValue = CodeStyleValue.ktlint_official
+    var codeStyle: CodeStyleValue? = null
 
     @Option(
         names = ["--color"],
@@ -296,9 +299,9 @@ internal class KtlintCommandLine {
     }
 
     fun run() {
-        if (android != null) {
+        if (android) {
             logger.error {
-                "Option '--android' / '-a' is deprecated and replace with option '--code-style=android_studio'. Setting '.editorconfig' property 'ktlint_code_style=android_studio' might be a better idea for a project that is always to formatted with this code style."
+                "Option '--android' / '-a' is deprecated and replaced with option '--code-style=android_studio'. Setting '.editorconfig' property 'ktlint_code_style=android_studio' might be a better idea for a project that is always to formatted with this code style."
             }
         }
         assertStdinAndPatternsFromStdinOptionsMutuallyExclusive()

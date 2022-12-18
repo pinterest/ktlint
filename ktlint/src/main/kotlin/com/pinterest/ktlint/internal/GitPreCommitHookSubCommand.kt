@@ -19,6 +19,11 @@ internal class GitPreCommitHookSubCommand : Runnable {
     override fun run() {
         commandSpec.commandLine().printCommandLineHelpOrVersionUsage()
 
+        if (ktlintCommand.codeStyle == null) {
+            System.err.println("Option --code-style must be set as to generate the git pre commit hook correctly")
+            exitKtLintProcess(1)
+        }
+
         GitHookInstaller.installGitHook("pre-commit") {
             """
             #!/bin/sh
