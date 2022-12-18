@@ -156,6 +156,7 @@ public fun ASTNode.parent(elementType: IElementType, strict: Boolean = true): AS
     return null
 }
 
+// TODO in ktlint 0.49 deprecate and replace with "ASTNode.parent(strict: Boolean = true, p: (ASTNode) -> Boolean): ASTNode?"
 public fun ASTNode.parent(p: (ASTNode) -> Boolean, strict: Boolean = true): ASTNode? {
     var n: ASTNode? = if (strict) this.treeParent else this
     while (n != null) {
