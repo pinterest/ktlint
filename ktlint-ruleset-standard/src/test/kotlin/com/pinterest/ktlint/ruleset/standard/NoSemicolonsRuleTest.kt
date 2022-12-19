@@ -293,6 +293,37 @@ class NoSemicolonsRuleTest {
                     ONE, TWO;
                     val foo = "foo"
                 }
+                enum class E3 {
+                    ONE, TWO;
+                    private companion object {
+                       val foo = "foo"
+                   }
+                }
+                """.trimIndent()
+            noSemicolonsRuleAssertThat(code).hasNoLintViolations()
+        }
+
+        @Test
+        fun `Issue 1733 - Given an enumeration with primary constructor and the list of values is followed by a code element then do not return a lint error`() {
+            val code =
+                """
+                enum class E1(bar: String) {
+                    ONE("one"),
+                    TWO("two");
+                    fun fn() {}
+                }
+                enum class E2(bar: String) {
+                    ONE("one"),
+                    TWO("two");
+                    val foo = "foo"
+                }
+                enum class E3(bar: String) {
+                    ONE("one"),
+                    TWO("two");
+                    private companion object {
+                       val foo = "foo"
+                   }
+                }
                 """.trimIndent()
             noSemicolonsRuleAssertThat(code).hasNoLintViolations()
         }
@@ -306,6 +337,11 @@ class NoSemicolonsRuleTest {
                     // comment
                     ;
                 }
+                enum class Foo(bar: String) {
+                    ONE("one")
+                    // comment
+                    ;
+                }
                 """.trimIndent()
             val formattedCode =
                 """
@@ -313,10 +349,16 @@ class NoSemicolonsRuleTest {
                     ONE
                     // comment
                 }
+                enum class Foo(bar: String) {
+                    ONE("one")
+                    // comment
+                }
                 """.trimIndent()
             noSemicolonsRuleAssertThat(code)
-                .hasLintViolation(4, 5, "Unnecessary semicolon")
-                .isFormattedAs(formattedCode)
+                .hasLintViolations(
+                    LintViolation(4, 5, "Unnecessary semicolon"),
+                    LintViolation(9, 5, "Unnecessary semicolon"),
+                ).isFormattedAs(formattedCode)
         }
 
         @Test
@@ -343,6 +385,36 @@ class NoSemicolonsRuleTest {
             noSemicolonsRuleAssertThat(code)
                 .hasLintViolations(
                     LintViolation(3, 6, "Unnecessary semicolon"),
+                    LintViolation(8, 5, "Unnecessary semicolon"),
+                    LintViolation(11, 5, "Unnecessary semicolon"),
+                    LintViolation(15, 5, "Unnecessary semicolon"),
+                )
+        }
+
+        @Test
+        fun `Given an enumeration with a primary constructor and the list of values is closed with a semicolon not followed by statements then do return a lint error`() {
+            val code =
+                """
+                enum class Foo1(bar: String) {
+                    A(1),
+                    B(2);
+                }
+                enum class Foo2(bar: String) {
+                    A(1),
+                    B(2) // comment
+                    ;
+                }
+                enum class Foo3(bar: String) {
+                    ;
+                }
+                enum class Foo4(bar: String) {
+                    // comment
+                    ;
+                }
+                """.trimIndent()
+            noSemicolonsRuleAssertThat(code)
+                .hasLintViolations(
+                    LintViolation(3, 9, "Unnecessary semicolon"),
                     LintViolation(8, 5, "Unnecessary semicolon"),
                     LintViolation(11, 5, "Unnecessary semicolon"),
                     LintViolation(15, 5, "Unnecessary semicolon"),

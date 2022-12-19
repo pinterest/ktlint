@@ -1,11 +1,14 @@
 package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.core.ast.ElementType.CLASS_BODY
+import com.pinterest.ktlint.core.ast.ElementType.ENUM_ENTRY
 import com.pinterest.ktlint.core.ast.ElementType.OBJECT_KEYWORD
 import com.pinterest.ktlint.core.ast.ElementType.SEMICOLON
 import com.pinterest.ktlint.core.ast.isWhiteSpace
-import com.pinterest.ktlint.core.ast.nextCodeLeaf
+import com.pinterest.ktlint.core.ast.lastChildLeafOrSelf
 import com.pinterest.ktlint.core.ast.nextLeaf
+import com.pinterest.ktlint.core.ast.parent
 import com.pinterest.ktlint.core.ast.prevCodeLeaf
 import com.pinterest.ktlint.core.ast.prevLeaf
 import com.pinterest.ktlint.core.ast.upsertWhitespaceAfterMe
@@ -16,7 +19,6 @@ import org.jetbrains.kotlin.kdoc.psi.api.KDoc
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
 import org.jetbrains.kotlin.psi.KtDoWhileExpression
-import org.jetbrains.kotlin.psi.KtEnumEntry
 import org.jetbrains.kotlin.psi.KtIfExpression
 import org.jetbrains.kotlin.psi.KtLoopExpression
 import org.jetbrains.kotlin.psi.psiUtil.getStrictParentOfType
@@ -32,7 +34,7 @@ public class NoSemicolonsRule : Rule("no-semi") {
         }
         val nextLeaf = node.nextLeaf()
         val prevCodeLeaf = node.prevCodeLeaf()
-        if (nextLeaf.doesNotRequirePreSemi() && prevCodeLeaf.doesNotRequirePostSemi()) {
+        if (nextLeaf.doesNotRequirePreSemi() && isNoSemicolonRequiredAfter(node)) {
             emit(node.startOffset, "Unnecessary semicolon", true)
             if (autoCorrect) {
                 val prevLeaf = node.prevLeaf(true)
@@ -72,15 +74,16 @@ public class NoSemicolonsRule : Rule("no-semi") {
         return false
     }
 
-    private fun ASTNode?.doesNotRequirePostSemi(): Boolean {
-        if (this == null) {
-            return true
-        }
-        if (this.elementType == OBJECT_KEYWORD) {
+    private fun isNoSemicolonRequiredAfter(node: ASTNode): Boolean {
+        val prevCodeLeaf =
+            node.prevCodeLeaf()
+                ?: return true
+        if (prevCodeLeaf.elementType == OBJECT_KEYWORD) {
             // https://github.com/pinterest/ktlint/issues/281
             return false
         }
-        val parent = this.treeParent?.psi
+
+        val parent = prevCodeLeaf.treeParent?.psi
         if (parent is KtLoopExpression && parent !is KtDoWhileExpression && parent.body == null) {
             // https://github.com/pinterest/ktlint/issues/955
             return false
@@ -88,11 +91,20 @@ public class NoSemicolonsRule : Rule("no-semi") {
         if (parent is KtIfExpression && parent.then == null) {
             return false
         }
-        if (parent is KtEnumEntry) {
-            return this.nextCodeLeaf()?.nextCodeLeaf() ==
-                parent.parent.lastChild
+        // In case of an enum entry the semicolon (e.g. the node) is a direct child node of enum entry
+        if (node.treeParent.elementType == ENUM_ENTRY) {
+            return node.isLastCodeLeafBeforeClosingOfClassBody()
         }
 
         return true
     }
+
+    private fun ASTNode?.isLastCodeLeafBeforeClosingOfClassBody() =
+        getLastCodeLeafBeforeClosingOfClassBody() == this
+
+    private fun ASTNode?.getLastCodeLeafBeforeClosingOfClassBody() =
+        this
+            ?.parent(CLASS_BODY)
+            ?.lastChildLeafOrSelf()
+            ?.prevCodeLeaf()
 }
