@@ -72,7 +72,6 @@ tasks.githubRelease {
 }
 
 githubRelease {
-    dryRun(true)
     token(githubToken)
     owner("pinterest")
     repo("ktlint")
