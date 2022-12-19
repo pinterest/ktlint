@@ -66,7 +66,7 @@ tasks.githubRelease {
     setReleaseAssets(
         provider {
             projects.ktlint.dependencyProject.tasks.named<Checksum>("shadowJarExecutableChecksum")
-                .map { it.outputDirectory }
+                .map { it.outputDirectory.asFileTree.files.toTypedArray() }
         },
     )
 }
