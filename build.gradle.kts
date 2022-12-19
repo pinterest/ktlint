@@ -1,4 +1,5 @@
 import java.net.URL
+import org.gradle.crypto.checksum.Checksum
 
 plugins {
     alias(libs.plugins.kotlin.jvm) apply false
@@ -61,18 +62,13 @@ val githubToken: String = if (project.hasProperty("servers.github.privKey")) {
     ""
 }
 
-val shadowJarExecutable: TaskProvider<Task> by lazy {
-    projects.ktlint.dependencyProject.tasks.named("shadowJarExecutable")
-}
-
-val shadowJarExecutableChecksum: TaskProvider<Task> by lazy {
-    projects.ktlint.dependencyProject.tasks.named("shadowJarExecutableChecksum")
-}
-
-// Explicitly adding dependency on "shadowJarExecutable" as Gradle does not it set via "releaseAssets" property
 tasks.githubRelease {
-    dependsOn(provider { shadowJarExecutable })
-    dependsOn(provider { shadowJarExecutableChecksum })
+    setReleaseAssets(
+        provider {
+            projects.ktlint.dependencyProject.tasks.named<Checksum>("shadowJarExecutableChecksum")
+                .map { it.outputDirectory.asFileTree.files.toTypedArray() }
+        },
+    )
 }
 
 githubRelease {
@@ -82,13 +78,6 @@ githubRelease {
     tagName(project.property("VERSION_NAME").toString())
     releaseName(project.property("VERSION_NAME").toString())
     targetCommitish("master")
-    releaseAssets.from(
-        // Temp: Hardcode the list of files to upload
-        project.file("ktlint/build/run/ktlint"),
-        project.file("ktlint/build/run/ktlint.md5"),
-        project.file("ktlint/build/run/ktlint.asc"),
-        project.file("ktlint/build/run/ktlint.asc.md5"),
-    )
     overwrite(true)
     dryRun(false)
     body {
@@ -117,13 +106,13 @@ val homebrewBumpFormula by tasks.registering(Exec::class) {
     description = "Runs brew bump-forumula-pr"
     commandLine("./.homebrew")
     environment("VERSION" to "${project.property("VERSION_NAME")}")
-    dependsOn(tasks.named("githubRelease"))
+    dependsOn(tasks.githubRelease)
 }
 
 tasks.register<DefaultTask>("publishNewRelease") {
     group = "Help"
     description = "Triggers uploading new archives and publish announcements"
-    dependsOn(announceRelease, homebrewBumpFormula, tasks.named("githubRelease"))
+    dependsOn(announceRelease, homebrewBumpFormula, tasks.githubRelease)
 }
 
 tasks.wrapper {
