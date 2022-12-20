@@ -11,11 +11,6 @@ else
   AUTOACCEPT=false
 fi
 
-ls -al
-
-FOO=$(grep -e "## \[\d+\.\d+\.\d+\]" CHANGELOG.md)
-echo "$FOO"
-
 BAR=$(grep fix CHANGELOG.md)
 grep fix CHANGELOG.md
 echo "$BAR"
