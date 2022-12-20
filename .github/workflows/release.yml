@@ -1,0 +1,70 @@
+name: Release (WIP)
+
+on :
+  push :
+    tags :
+      - '*.*.*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    if: github.repository == 'shashachu/ktlint'
+    
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: 'master'
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: 19
+      - uses: gradle/gradle-build-action@v2
+      - name: Build executable
+        if: false
+        run: ./gradlew clean shadowJarExecutable
+        env:
+          SONATYPE_NEXUS_USERNAME: ${{ secrets.SONATYPE_NEXUS_USERNAME }}
+          SONATYPE_NEXUS_PASSWORD: ${{ secrets.SONATYPE_NEXUS_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingKey : ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEY }}
+          ORG_GRADLE_PROJECT_signingKeyId: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEYID }}
+          ORG_GRADLE_PROJECT_signingKeyPassword : ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGPASSWORD }}
+      
+      - name : Extract release notes
+        if: false
+        id : release_notes
+        uses : ffurrer2/extract-release-notes@v1
+
+      - name : Create release
+        if: false
+        id: github_release
+        uses : softprops/action-gh-release@v1
+        with :
+          draft: false
+          prerelease: true
+          body : ${{ steps.release_notes.outputs.release_notes }}
+          files: |
+            ktlint/build/run/*
+          
+        env :
+          GITHUB_TOKEN : ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Get version
+        id: get_version
+        run: echo "version=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
+        
+      - name: Announce Release
+        run: | 
+          git config --global user.name "Ktlint Release Workflow" |
+          ./.announce -y
+        env:
+          VERSION: ${{ env.version }}
+          
+      - name: Bump Homebrew Formula
+        if: false
+        uses: mislav/bump-homebrew-formula-action@v1
+        env:
+          COMMITTER_TOKEN: ${{ secrets.HOMEBREW_TOKEN }}
+        with:
+          formula-name: ktlint
+          download-url: https://github.com/shashachu/ktlint/releases/download/${{ env.version }}/ktlint
+          

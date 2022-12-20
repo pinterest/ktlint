@@ -9,7 +9,13 @@ else
   AUTOACCEPT=false
 fi
 
-PREVIOUS_VERSION=$(cat CHANGELOG.md | grep -E "## \[\d+[.]\d+[.]\d+\]" | awk '{gsub(/\[|\]/,"",$2); print $2}' | awk 'NR == 2')
+PREVIOUS_VERSION=$(grep -E "## \[[0-9]+\.[0-9]+\.[0-9]+\]" CHANGELOG.md | awk '{gsub(/\[|\]/,"",$2); print $2}' | awk 'NR == 2')
+
+if [ -z "$PREVIOUS_VERSION" ]; then
+  echo "Cannot find PREVIOUS_VERSION."
+  exit 1
+fi
+
 if [ "$VERSION" == "$PREVIOUS_VERSION" ]; then
   echo "VERSION $VERSION equal to PREVIOUS_VERSION $PREVIOUS_VERSION"
   exit 1
@@ -30,12 +36,12 @@ if [ "$(git status --porcelain=v1 docs/install/cli.md docs/install/integrations.
   fi
 fi
 
-escape_for_sed() { echo $1 | sed -e 's/[]\/$*.^|[]/\\&/g'; }
+escape_for_sed() { echo "$1" | sed -e 's/[]\/$*.^|[]/\\&/g'; }
 
 # update Docs
 
-sed -i "" "s/$(escape_for_sed $PREVIOUS_VERSION)/$(escape_for_sed $VERSION)/g" docs/install/cli.md
-sed -i "" "s/$(escape_for_sed $PREVIOUS_VERSION)/$(escape_for_sed $VERSION)/g" docs/install/integrations.md
+sed -i -e "s/$PREVIOUS_VERSION/$VERSION/g" docs/install/cli.md
+sed -i -e "s/$PREVIOUS_VERSION/$VERSION/g" docs/install/integrations.md
 git --no-pager diff docs/install/cli.md docs/install/integrations.md
 
 # ask for user confirmation
@@ -57,6 +63,3 @@ fi
 
 # Make a separate branch because master branch is protected
 git checkout --track origin/master -b $BRANCH && git commit -m "$COMMIT_MESSAGE" docs/install/cli.md docs/install/integrations.md && git push origin $BRANCH
-
-open "https://github.com/pinterest/ktlint/compare/$BRANCH?expand=1"
-
