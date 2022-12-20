@@ -4,7 +4,6 @@ kotlinDev = "1.8.0-RC"
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
-githubRelease = "com.github.breadmoirai.github-release:2.4.1"
 checksum = "org.gradle.crypto.checksum:1.4.0"
 shadow = "com.github.johnrengelman.shadow:7.1.2"
 
