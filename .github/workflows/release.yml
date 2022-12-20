@@ -51,7 +51,8 @@ jobs:
 
       - name: Announce Release
         run: |
-          git config --global user.name "Ktlint Release Workflow" |
+          git config user.email "<>>" |
+          git config user.name "Ktlint Release Workflow" |
           ./.announce -y
         env:
           VERSION: ${{ env.version }}
