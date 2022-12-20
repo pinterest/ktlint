@@ -46,6 +46,11 @@ jobs:
       - name: Get version
         id: get_version
         run: echo ::set-output name=version::${GITHUB_REF/refs\/tags\//}
+        
+      - name: Announce Release
+        run: .announce -y
+        env:
+          VERSION: ${{ steps.get_version.outputs.version }}
           
       - name: Bump Homebrew Formula
         uses: mislav/bump-homebrew-formula-action@v1
