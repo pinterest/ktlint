@@ -18,6 +18,7 @@ jobs:
           java-version: 19
       - uses: gradle/gradle-build-action@v2
       - name: Build executable
+        if: false
         run: ./gradlew clean shadowJarExecutable
         env:
           SONATYPE_NEXUS_USERNAME: ${{ secrets.SONATYPE_NEXUS_USERNAME }}
@@ -27,10 +28,12 @@ jobs:
           ORG_GRADLE_PROJECT_signingKeyPassword : ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGPASSWORD }}
       
       - name : Extract release notes
+        if: false
         id : release_notes
         uses : ffurrer2/extract-release-notes@v1
 
       - name : Create release
+        if: false
         id: github_release
         uses : softprops/action-gh-release@v1
         with :
@@ -45,18 +48,19 @@ jobs:
       
       - name: Get version
         id: get_version
-        run: echo ::set-output name=version::${GITHUB_REF/refs\/tags\//}
+        run: echo "version=$GITHUB_ENV${GITHUB_REF/refs\/tags\//}" >> 
         
       - name: Announce Release
         run: ./.announce -y
         env:
-          VERSION: ${{ steps.get_version.outputs.version }}
+          VERSION: ${{ env.version }}
           
       - name: Bump Homebrew Formula
+        if: false
         uses: mislav/bump-homebrew-formula-action@v1
         env:
           COMMITTER_TOKEN: ${{ secrets.HOMEBREW_TOKEN }}
         with:
           formula-name: ktlint
-          download-url: https://github.com/shashachu/ktlint/releases/download/${{ steps.get_version.outputs.version }}/ktlint
+          download-url: https://github.com/shashachu/ktlint/releases/download/${{ env.version }}/ktlint
           
