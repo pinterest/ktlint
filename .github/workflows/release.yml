@@ -48,7 +48,7 @@ jobs:
       
       - name: Get version
         id: get_version
-        run: echo "version=$GITHUB_ENV${GITHUB_REF/refs\/tags\//}" >> 
+        run: echo "version=$GITHUB_ENV${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
         
       - name: Announce Release
         run: ./.announce -y
