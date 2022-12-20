@@ -13,12 +13,10 @@ fi
 
 ls -al
 
-cat CHANGELOG.md
-
-FOO=$(grep -E "## \[\d+[.]\d+[.]\d+\]" CHANGELOG.md)
+FOO=$(grep -E "## \[\d+\.\d+\.\d+\]" CHANGELOG.md)
 echo "$FOO"
 
-PREVIOUS_VERSION=$(cat CHANGELOG.md | grep -E "## \[\d+[.]\d+[.]\d+\]" | awk '{gsub(/\[|\]/,"",$2); print $2}' | awk 'NR == 2')
+PREVIOUS_VERSION=$(cat CHANGELOG.md | grep -E "## \[\d+\.\d+\.\d+\]" | awk '{gsub(/\[|\]/,"",$2); print $2}' | awk 'NR == 2')
 
 if [ -z "$PREVIOUS_VERSION" ]; then
   echo "Cannot find PREVIOUS_VERSION."
