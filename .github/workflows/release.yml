@@ -48,7 +48,7 @@ jobs:
         run: echo ::set-output name=version::${GITHUB_REF/refs\/tags\//}
         
       - name: Announce Release
-        run: .announce -y
+        run: ./.announce -y
         env:
           VERSION: ${{ steps.get_version.outputs.version }}
           
