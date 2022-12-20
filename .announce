@@ -11,9 +11,8 @@ else
   AUTOACCEPT=false
 fi
 
-BAR=$(grep fix CHANGELOG.md)
-grep fix CHANGELOG.md
-echo "$BAR"
+echo "HELLOOOOO"
+grep -E "## \[\d+\.\d+\.\d+\]" CHANGELOG.md
 
 PREVIOUS_VERSION=$(cat CHANGELOG.md | grep -E "## \[\d+\.\d+\.\d+\]" | awk '{gsub(/\[|\]/,"",$2); print $2}' | awk 'NR == 2')
 
