@@ -8,7 +8,7 @@ on :
 jobs:
   publish:
     runs-on: ubuntu-latest
-    if: github.repository == 'pinterest/ktlint'
+    if: github.repository == 'shashachu/ktlint'
     
     steps:
       - uses: actions/checkout@v3
