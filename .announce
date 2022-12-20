@@ -11,6 +11,10 @@ else
   AUTOACCEPT=false
 fi
 
+ls -al
+
+cat CHANGELOG.md
+
 FOO=$(grep -E "## \[\d+[.]\d+[.]\d+\]" CHANGELOG.md)
 echo "$FOO"
 
