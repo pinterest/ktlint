@@ -12,9 +12,9 @@ else
 fi
 
 echo "HELLOOOOO"
-grep -E "## \[\d+\.\d+\.\d+\]" CHANGELOG.md
+grep -E "## \[[0-9]+\.[0-9]+\.[0-9]+\]" CHANGELOG.md
 
-PREVIOUS_VERSION=$(cat CHANGELOG.md | grep -E "## \[\d+\.\d+\.\d+\]" | awk '{gsub(/\[|\]/,"",$2); print $2}' | awk 'NR == 2')
+PREVIOUS_VERSION=$(cat CHANGELOG.md | grep -E "## \[[0-9]+\.[0-9]+\.[0-9]+\]" | awk '{gsub(/\[|\]/,"",$2); print $2}' | awk 'NR == 2')
 
 if [ -z "$PREVIOUS_VERSION" ]; then
   echo "Cannot find PREVIOUS_VERSION."
