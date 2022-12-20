@@ -2,11 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## Unreleased
-
-### Added
-
-### Removed
+## [0.49.0] - 2022-12-19
 
 ### Fixed
 
