@@ -92,6 +92,10 @@ signing {
     // See https://docs.gradle.org/current/userguide/signing_plugin.html#sec:using_gpg_agent how to configure it
     // useGpgCmd()
 
+    val signingKey: String? by project
+    val signingPassword: String? by project
+    useInMemoryPgpKeys(signingKey, signingPassword)
+
     sign(publishing.publications["maven"])
     isRequired = !version.toString().endsWith("SNAPSHOT")
 }
