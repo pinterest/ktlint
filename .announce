@@ -58,5 +58,5 @@ fi
 # Make a separate branch because master branch is protected
 git checkout --track origin/master -b $BRANCH && git commit -m "$COMMIT_MESSAGE" docs/install/cli.md docs/install/integrations.md && git push origin $BRANCH
 
-open "https://github.com/pinterest/ktlint/compare/$BRANCH?expand=1"
+#open "https://github.com/pinterest/ktlint/compare/$BRANCH?expand=1"
 
