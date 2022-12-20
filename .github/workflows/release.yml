@@ -1,18 +1,15 @@
 name: Release (WIP)
 
-on: [workflow_dispatch]
-
-env:
-  SONATYPE_NEXUS_USERNAME: ${{ secrets.SONATYPE_NEXUS_USERNAME }}
-  SONATYPE_NEXUS_PASSWORD: ${{ secrets.SONATYPE_NEXUS_PASSWORD }}
-  ORG_GRADLE_PROJECT_signingKey : ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEY }}
-  ORG_GRADLE_PROJECT_signingKeyId: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEYID }}
-  ORG_GRADLE_PROJECT_signingPassword : ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGPASSWORD }}
+on :
+  push :
+    tags :
+      - '*.*.*'
 
 jobs:
   publish:
     runs-on: ubuntu-latest
     if: github.repository == 'pinterest/ktlint'
+    
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-java@v3
@@ -20,5 +17,41 @@ jobs:
           distribution: 'zulu'
           java-version: 19
       - uses: gradle/gradle-build-action@v2
-      - name: Publish to GitHub
-        run: ./gradlew clean githubRelease --no-daemon --no-parallel
+      - name: Build executable
+        run: ./gradlew clean shadowJarExecutable
+        env:
+          SONATYPE_NEXUS_USERNAME: ${{ secrets.SONATYPE_NEXUS_USERNAME }}
+          SONATYPE_NEXUS_PASSWORD: ${{ secrets.SONATYPE_NEXUS_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingKey : ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEY }}
+          ORG_GRADLE_PROJECT_signingKeyId: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEYID }}
+          ORG_GRADLE_PROJECT_signingPassword : ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGPASSWORD }}
+      
+      - name : Extract release notes
+        id : release_notes
+        uses : ffurrer2/extract-release-notes@v1
+
+      - name : Create release
+        id: github_release
+        uses : softprops/action-gh-release@v1
+        with :
+          draft: false
+          prerelease: true
+          body : ${{ steps.release_notes.outputs.release_notes }}
+          files: |
+            ktlint/build/run/*
+          
+        env :
+          GITHUB_TOKEN : ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Get version
+        id: get_version
+        run: echo ::set-output name=version::${GITHUB_REF/refs\/tags\//}
+          
+      - name: Bump Homebrew Formula
+        uses: mislav/bump-homebrew-formula-action@v1
+        env:
+          COMMITTER_TOKEN: ${{ secrets.HOMEBREW_TOKEN }}
+        with:
+          formula-name: ktlint
+          download-url: https://github.com/pinterest/ktlint/releases/download/${{ steps.get_version.outputs.version }}/ktlint
+          
