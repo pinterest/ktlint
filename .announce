@@ -42,8 +42,8 @@ escape_for_sed() { echo "$1" | sed -e 's/[]\/$*.^|[]/\\&/g'; }
 
 # update Docs
 
-sed -i "" -e "s/$PREVIOUS_VERSION/$VERSION/g" docs/install/cli.md
-sed -i "" -e "s/$PREVIOUS_VERSION/$VERSION/g" docs/install/integrations.md
+sed -i -e "s/$PREVIOUS_VERSION/$VERSION/g" docs/install/cli.md
+sed -i -e "s/$PREVIOUS_VERSION/$VERSION/g" docs/install/integrations.md
 git --no-pager diff docs/install/cli.md docs/install/integrations.md
 
 # ask for user confirmation
