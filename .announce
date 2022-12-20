@@ -11,11 +11,15 @@ else
   AUTOACCEPT=false
 fi
 
+FOO=$(grep -E "## \[\d+[.]\d+[.]\d+\]" CHANGELOG.md)
+echo "$FOO"
+
 PREVIOUS_VERSION=$(cat CHANGELOG.md | grep -E "## \[\d+[.]\d+[.]\d+\]" | awk '{gsub(/\[|\]/,"",$2); print $2}' | awk 'NR == 2')
 
 if [ -z "$PREVIOUS_VERSION" ]; then
   echo "Cannot find PREVIOUS_VERSION."
   exit 1
+fi
 
 if [ "$VERSION" == "$PREVIOUS_VERSION" ]; then
   echo "VERSION $VERSION equal to PREVIOUS_VERSION $PREVIOUS_VERSION"
@@ -64,6 +68,3 @@ fi
 
 # Make a separate branch because master branch is protected
 git checkout --track origin/master -b $BRANCH && git commit -m "$COMMIT_MESSAGE" docs/install/cli.md docs/install/integrations.md && git push origin $BRANCH
-
-#open "https://github.com/pinterest/ktlint/compare/$BRANCH?expand=1"
-
