@@ -53,5 +53,5 @@ jobs:
           COMMITTER_TOKEN: ${{ secrets.HOMEBREW_TOKEN }}
         with:
           formula-name: ktlint
-          download-url: https://github.com/pinterest/ktlint/releases/download/${{ steps.get_version.outputs.version }}/ktlint
+          download-url: https://github.com/shashachu/ktlint/releases/download/${{ steps.get_version.outputs.version }}/ktlint
           
