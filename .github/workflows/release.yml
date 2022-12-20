@@ -51,7 +51,7 @@ jobs:
 
       - name: Announce Release
         run: |
-          git config user.email "<>>" |
+          git config user.email "<>" |
           git config user.name "Ktlint Release Workflow" |
           ./.announce -y
         env:
