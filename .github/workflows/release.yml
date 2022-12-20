@@ -53,7 +53,9 @@ jobs:
         run: echo "version=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
         
       - name: Announce Release
-        run: ./.announce -y
+        run: | 
+          git config --global user.name "Ktlint Release Workflow" |
+          ./.announce -y
         env:
           VERSION: ${{ env.version }}
           
