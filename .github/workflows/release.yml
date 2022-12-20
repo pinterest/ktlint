@@ -1,4 +1,4 @@
-name: Release (WIP)
+name: Publish Release
 
 on :
   push :
@@ -37,7 +37,7 @@ jobs:
         uses : softprops/action-gh-release@v1
         with :
           draft: false
-          prerelease: true
+          prerelease: true # Remove this after testing
           body : ${{ steps.release_notes.outputs.release_notes }}
           files: |
             ktlint/build/run/*
