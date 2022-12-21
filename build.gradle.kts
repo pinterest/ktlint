@@ -26,7 +26,7 @@ allprojects {
         }
 }
 
-val ktlint: Configuration = configurations.create("ktlint")
+val ktlint: Configuration by configurations.creating
 
 dependencies {
     ktlint(projects.ktlint)
