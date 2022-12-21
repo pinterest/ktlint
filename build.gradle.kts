@@ -2,8 +2,8 @@ import java.net.URL
 
 plugins {
     alias(libs.plugins.kotlin.jvm) apply false
-    alias(libs.plugins.checksum)
-    alias(libs.plugins.shadow)
+    alias(libs.plugins.checksum) apply false
+    alias(libs.plugins.shadow) apply false
 }
 
 val isKotlinDev: Boolean = project.hasProperty("isKotlinDev")
