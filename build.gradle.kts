@@ -6,24 +6,20 @@ plugins {
     alias(libs.plugins.shadow) apply false
 }
 
-val isKotlinDev: Boolean = project.hasProperty("isKotlinDev")
-
 allprojects {
-    if (isKotlinDev) {
+    if (project.hasProperty("isKotlinDev")) {
         val definedVersion = ext["VERSION_NAME"].toString().removeSuffix("-SNAPSHOT")
         ext["VERSION_NAME"] = "$definedVersion-kotlin-dev-SNAPSHOT"
     }
 
     val skipTests: String = System.getProperty("skipTests", "false")
-    tasks
-        .withType<Test>()
-        .configureEach {
-            if (skipTests == "false") {
-                useJUnitPlatform()
-            } else {
-                logger.warn("Skipping tests for task '$name' as system property 'skipTests=$skipTests'")
-            }
+    tasks.withType<Test>().configureEach {
+        if (skipTests == "false") {
+            useJUnitPlatform()
+        } else {
+            logger.warn("Skipping tests for task '$name' as system property 'skipTests=$skipTests'")
         }
+    }
 }
 
 val ktlint: Configuration by configurations.creating
