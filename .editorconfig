@@ -14,9 +14,12 @@ insert_final_newline = true
 indent_size = 4
 
 [*.{kt,kts}]
-ij_kotlin_imports_layout=*
-ij_kotlin_allow_trailing_comma=true
-ij_kotlin_allow_trailing_comma_on_call_site=true
+ktlint_code_style = ktlint_official
+ktlint_standard = enabled
+
+# Experimental rules run by default run on the ktlint code base itself. Experimental rules should not be released if
+# we are not pleased ourselves with the results on the ktlint code base.
+ktlint_experimental = enabled
 
 [*.md]
 trim_trailing_whitespace = false
