@@ -52,12 +52,18 @@ public class EditorConfigLoader(
         rules: Set<Rule> = emptySet(),
         editorConfigDefaults: EditorConfigDefaults = EMPTY_EDITOR_CONFIG_DEFAULTS,
         editorConfigOverride: EditorConfigOverride = EMPTY_EDITOR_CONFIG_OVERRIDE,
+        ignoreEditorConfigOnFileSystem: Boolean = false,
     ): EditorConfigProperties {
         val normalizedFilePath = filePath ?: defaultFilePath()
-
-        return createLoaderService(rules, editorConfigDefaults)
-            .queryProperties(normalizedFilePath.resource())
-            .properties
+        val properties: MutableMap<String, Property> =
+            if (ignoreEditorConfigOnFileSystem) {
+                mutableMapOf()
+            } else {
+                createLoaderService(rules, editorConfigDefaults)
+                    .queryProperties(normalizedFilePath.resource())
+                    .properties
+            }
+        return properties
             .also { loaded ->
                 if (loaded[TAB_WIDTH_PROPERTY_NAME]?.sourceValue == loaded[INDENT_SIZE_PROPERTY.name]?.sourceValue &&
                     editorConfigOverride.properties[INDENT_SIZE_PROPERTY] != null
@@ -78,7 +84,7 @@ public class EditorConfigLoader(
                         loaded[it.key.name] = property(it.key, it.value)
                     }
             }.also { editorConfigProperties ->
-                LOGGER.debug { editorConfigProperties.prettyPrint(normalizedFilePath) }
+                LOGGER.debug { editorConfigProperties.prettyPrint(filePath) }
             }
     }
 
@@ -86,7 +92,13 @@ public class EditorConfigLoader(
         normalizedFilePath: Path?,
     ) = map { entry -> "${entry.key}: ${entry.value.sourceValue}" }
         .joinToString(
-            prefix = "Resolving .editorconfig files for $normalizedFilePath file path:\n\t",
+            prefix = "Effective editorconfig properties${
+                if (normalizedFilePath == null) {
+                    ""
+                } else {
+                    " for file '$normalizedFilePath'"
+                }
+            }:\n\t",
             separator = "\n\t",
         )
 

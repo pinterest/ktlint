@@ -153,10 +153,8 @@ internal class RuleExecutionContext private constructor(
                     rules = rules,
                     editorConfigDefaults = editorConfigDefaults,
                     editorConfigOverride = editorConfigOverride,
+                    ignoreEditorConfigOnFileSystem = ignoreEditorConfigOnFileSystem,
                 )
-            }
-            LOGGER.debug {
-                "Editor config properties for file '${code.filePath}': $editorConfigProperties"
             }
 
             if (!code.isStdIn) {

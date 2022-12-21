@@ -351,6 +351,13 @@ public class KtLintRuleEngine(
      * Compiler initialization. This property is likely to be removed in any of next versions without further notice.
      */
     public val isInvokedFromCli: Boolean = false,
+
+    /**
+     * **For internal use only**: indicates that the '.editorconfig' on the file system has to be ignored. This primarily is used to prevent
+     * that code snippets in unit test are linted/formatted based on values in the '.editorconfig' which might interfere with the actual
+     * set up of the test. This property can be removed in any of next versions without further notice and without providing a fallback.
+     */
+    internal val ignoreEditorConfigOnFileSystem: Boolean = false
 ) {
     init {
         require(ruleProviders.any()) {

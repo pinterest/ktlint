@@ -522,14 +522,21 @@ public class KtLintAssertThatAssertable(
             )
         }.toTypedArray()
 
+    private val filePathOrSnippetName: String
+        get() =
+            when {
+                filePath != null -> filePath
+                kotlinScript -> "snippet.kts"
+                else -> "snippet.kt"
+            }
+
     private fun lint(): List<LintError> {
         return setOf(ruleProvider)
             // Also run the additional rules as the main rule might have a VisitorModifier which requires one or more of
             // the additional rules to be loaded and enabled as well.
             .plus(additionalRuleProviders)
             .lint(
-                lintedFilePath = filePath,
-                script = kotlinScript,
+                filePath = filePathOrSnippetName,
                 text = code,
                 editorConfigOverride = editorConfigOverride,
             )
@@ -539,8 +546,7 @@ public class KtLintAssertThatAssertable(
         setOf(ruleProvider)
             .plus(additionalRuleProviders)
             .format(
-                lintedFilePath = filePath,
-                script = kotlinScript,
+                filePath = filePathOrSnippetName,
                 text = code,
                 editorConfigOverride = editorConfigOverride,
             )

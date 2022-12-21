@@ -156,7 +156,7 @@ class CommandLineTestRunner(private val tempDir: Path) {
                 add("-l=debug")
 
                 addAll(arguments)
-            }.joinToString(separator = " ", postfix = " ")
+            }.joinToString(separator = " ")
             .also { LOGGER.debug("Command to be executed: $it") }
 
     private fun String?.javaVersionAsInt(): Int? {

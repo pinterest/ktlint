@@ -116,7 +116,7 @@ internal class EditorConfigGenerator(
             .forEach {
                 LOGGER.error {
                     val usages = it.value.joinToString { it.usage }.toList().sorted()
-                    "Property '${it.key}' has multiple usages ($usages) which defines different default values for the property. Check the resulting '.editorcconfig' file carefully."
+                    "Property '${it.key}' has multiple usages ($usages) which defines different default values for the property. Check the resulting '.editorconfig' file carefully."
                 }
             }
 
