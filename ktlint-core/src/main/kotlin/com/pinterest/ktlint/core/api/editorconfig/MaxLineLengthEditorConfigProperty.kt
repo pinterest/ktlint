@@ -3,7 +3,7 @@ package com.pinterest.ktlint.core.api.editorconfig
 import org.ec4j.core.model.PropertyType
 
 private const val MAX_LINE_LENGTH_PROPERTY_ANDROID_STUDIO_CODE_STYLE = 100 // https://developer.android.com/kotlin/style-guide#line_wrapping
-private const val MAX_LINE_LENGTH_PROPERTY_KTLINT_OFFICIAL_CODE_STYLE = 120
+private const val MAX_LINE_LENGTH_PROPERTY_KTLINT_OFFICIAL_CODE_STYLE = 140
 private const val MAX_LINE_LENGTH_PROPERTY_NONE = -1
 
 public val MAX_LINE_LENGTH_PROPERTY: EditorConfigProperty<Int> =

@@ -250,6 +250,7 @@ public class ImportOrderingRule :
                 ),
                 defaultValue = IDEA_PATTERN,
                 androidStudioCodeStyleDefaultValue = ASCII_PATTERN,
+                ktlintOfficialCodeStyleDefaultValue = ASCII_PATTERN,
                 propertyWriter = { it.joinToString(separator = ",") },
             )
 
