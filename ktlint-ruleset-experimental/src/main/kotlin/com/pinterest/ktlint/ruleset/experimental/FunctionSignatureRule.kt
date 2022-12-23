@@ -70,7 +70,9 @@ public class FunctionSignatureRule :
 
     override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
         with(editorConfigProperties) {
-            functionSignatureWrappingMinimumParameters = getEditorConfigValue(FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY)
+            functionSignatureWrappingMinimumParameters = getEditorConfigValue(
+                FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY,
+            )
             functionBodyExpressionWrapping = getEditorConfigValue(FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY)
             val indentConfig = IndentConfig(
                 indentStyle = getEditorConfigValue(INDENT_STYLE_PROPERTY),
@@ -228,9 +230,10 @@ public class FunctionSignatureRule :
 
     private fun ASTNode.getFunctionSignatureLength() = lineIndent().length + getFunctionSignatureNodesLength()
 
-    private fun ASTNode.getFunctionSignatureNodesLength() = functionSignatureNodes()
-        .joinTextToString()
-        .length
+    private fun ASTNode.getFunctionSignatureNodesLength() =
+        functionSignatureNodes()
+            .joinTextToString()
+            .length
 
     private fun fixWhiteSpacesInValueParameterList(
         node: ASTNode,
@@ -516,7 +519,7 @@ public class FunctionSignatureRule :
                             functionBodyExpressionWrapping == default ||
                                 (functionBodyExpressionWrapping == multiline && functionBodyExpressionLines.size == 1) ||
                                 node.isMultilineFunctionSignatureWithoutExplicitReturnType(
-                                    lastNodeOfFunctionSignatureWithBodyExpression
+                                    lastNodeOfFunctionSignatureWithBodyExpression,
                                 )
                         } else {
                             false
@@ -570,17 +573,16 @@ public class FunctionSignatureRule :
             }
     }
 
-    private fun ASTNode.isMultilineFunctionSignatureWithoutExplicitReturnType(
-        lastNodeOfFunctionSignatureWithBodyExpression: ASTNode?,
-    ) = functionSignatureNodes()
-        .childrenBetween(
-            startASTNodePredicate = { true },
-            endASTNodePredicate = { it == lastNodeOfFunctionSignatureWithBodyExpression },
-        ).joinToString(separator = "") { it.text }
-        .split("\n")
-        .lastOrNull()
-        ?.matches(INDENT_WITH_CLOSING_PARENTHESIS)
-        ?: false
+    private fun ASTNode.isMultilineFunctionSignatureWithoutExplicitReturnType(lastNodeOfFunctionSignatureWithBodyExpression: ASTNode?) =
+        functionSignatureNodes()
+            .childrenBetween(
+                startASTNodePredicate = { true },
+                endASTNodePredicate = { it == lastNodeOfFunctionSignatureWithBodyExpression },
+            ).joinToString(separator = "") { it.text }
+            .split("\n")
+            .lastOrNull()
+            ?.matches(INDENT_WITH_CLOSING_PARENTHESIS)
+            ?: false
 
     private fun fixFunctionBodyBlock(
         node: ASTNode,
@@ -630,20 +632,20 @@ public class FunctionSignatureRule :
             .firstOrNull()
             ?.takeIf { first -> first.isWhiteSpace() }
 
-    private fun List<ASTNode>.getBody() =
-        this.dropWhile { it.isWhiteSpace() }
+    private fun List<ASTNode>.getBody() = this.dropWhile { it.isWhiteSpace() }
 
     private fun isMaxLineLengthSet() = maxLineLength > -1
 
     private fun List<ASTNode>.collectLeavesRecursively(): List<ASTNode> = flatMap { it.collectLeavesRecursively() }
 
-    private fun ASTNode.collectLeavesRecursively(): List<ASTNode> = if (psi is LeafElement) {
-        listOf(this)
-    } else {
-        children()
-            .flatMap { it.collectLeavesRecursively() }
-            .toList()
-    }
+    private fun ASTNode.collectLeavesRecursively(): List<ASTNode> =
+        if (psi is LeafElement) {
+            listOf(this)
+        } else {
+            children()
+                .flatMap { it.collectLeavesRecursively() }
+                .toList()
+        }
 
     private fun List<ASTNode>.childrenBetween(
         startASTNodePredicate: (ASTNode) -> Boolean = { _ -> true },
@@ -761,7 +763,5 @@ public class FunctionSignatureRule :
          * Always force the body expression to start on a separate line.
          */
         always,
-
-        ;
     }
 }

@@ -851,8 +851,7 @@ public class IndentationRule :
         return false
     }
 
-    private fun ASTNode?.isStartOfRawStringLiteral(): Boolean =
-        this != null && this.elementType == OPEN_QUOTE && this.text == "\"\"\""
+    private fun ASTNode?.isStartOfRawStringLiteral(): Boolean = this != null && this.elementType == OPEN_QUOTE && this.text == "\"\"\""
 
     private fun ASTNode.processedButNoIndentationChangedNeeded() =
         LOGGER.trace { "No indentation change required for $elementType: ${textWithEscapedTabAndNewline()}" }
@@ -875,9 +874,7 @@ public class IndentationRule :
         return lastIndexContext.nodeIndent + adjustedChildIndent
     }
 
-    private fun ASTNode.normalizedIndent(
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-    ): String {
+    private fun ASTNode.normalizedIndent(emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit): String {
         val nodeIndent = text.substringAfterLast("\n")
         return when (indentConfig.indentStyle) {
             SPACE -> {
@@ -1028,13 +1025,11 @@ public class IndentationRule :
                 nodeIndent
             }
 
-        fun prevCodeLeaf() =
-            fromASTNode.prevCodeLeaf()!!
+        fun prevCodeLeaf() = fromASTNode.prevCodeLeaf()!!
     }
 }
 
-private fun ASTNode.textWithEscapedTabAndNewline() =
-    text.textWithEscapedTabAndNewline()
+private fun ASTNode.textWithEscapedTabAndNewline() = text.textWithEscapedTabAndNewline()
 
 private fun String.textWithEscapedTabAndNewline(): String {
     val (prefix, suffix) = if (this.all { it.isWhitespace() }) {
@@ -1204,17 +1199,14 @@ private class StringTemplateIndenter(private val indentConfig: IndentConfig) {
     private fun ASTNode.isIndentBeforeClosingQuote() =
         elementType == CLOSING_QUOTE || (text.isBlank() && nextCodeSibling()?.elementType == CLOSING_QUOTE)
 
-    private fun ASTNode.isLiteralStringTemplateEntry() =
-        elementType == LITERAL_STRING_TEMPLATE_ENTRY && text != "\n"
+    private fun ASTNode.isLiteralStringTemplateEntry() = elementType == LITERAL_STRING_TEMPLATE_ENTRY && text != "\n"
 
     private fun ASTNode.isVariableStringTemplateEntry() =
         elementType == LONG_STRING_TEMPLATE_ENTRY || elementType == SHORT_STRING_TEMPLATE_ENTRY
 
-    private fun ASTNode.isClosingQuote() =
-        elementType == CLOSING_QUOTE
+    private fun ASTNode.isClosingQuote() = elementType == CLOSING_QUOTE
 
-    private fun String.indentLength() =
-        indexOfFirst { !it.isWhitespace() }.let { if (it == -1) length else it }
+    private fun String.indentLength() = indexOfFirst { !it.isWhitespace() }.let { if (it == -1) length else it }
 
     /**
      * Splits the string at the given index or at the first non-white space character before that index. The returned pair
@@ -1255,6 +1247,5 @@ private class StringTemplateIndenter(private val indentConfig: IndentConfig) {
         return node != this
     }
 
-    private fun String.isWhitespace() =
-        none { !it.isWhitespace() }
+    private fun String.isWhitespace() = none { !it.isWhitespace() }
 }

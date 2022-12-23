@@ -237,8 +237,7 @@ public object KtLint {
         message = "Marked for removal in KtLint 0.49",
         replaceWith = ReplaceWith("ktLintRuleEngine.editorConfigFilePaths"),
     )
-    public fun editorConfigFilePaths(path: Path): List<Path> =
-        EditorConfigFinder().findEditorConfigs(path)
+    public fun editorConfigFilePaths(path: Path): List<Path> = EditorConfigFinder().findEditorConfigs(path)
 
     /**
      * Reloads an '.editorconfig' file given that it is currently loaded into the KtLint cache. This method is intended
@@ -275,9 +274,7 @@ public object KtLint {
         message = "Marked for removal in KtLint 0.49.",
         replaceWith = ReplaceWith("ktLintRuleEngine.generateKotlinEditorConfigSection(path)"),
     )
-    public fun generateKotlinEditorConfigSection(
-        params: ExperimentalParams,
-    ): String {
+    public fun generateKotlinEditorConfigSection(params: ExperimentalParams): String {
         val filePath = params.normalizedFilePath
         requireNotNull(filePath) {
             "Please pass path to existing Kotlin file"
@@ -357,7 +354,7 @@ public class KtLintRuleEngine(
      * that code snippets in unit test are linted/formatted based on values in the '.editorconfig' which might interfere with the actual
      * set up of the test. This property can be removed in any of next versions without further notice and without providing a fallback.
      */
-    internal val ignoreEditorConfigOnFileSystem: Boolean = false
+    internal val ignoreEditorConfigOnFileSystem: Boolean = false,
 ) {
     init {
         require(ruleProviders.any()) {
@@ -624,8 +621,7 @@ public class KtLintRuleEngine(
      * To avoid unnecessary access to the file system, it is best to call this method only once for the root of the
      * project which is to be [lint] or [format].
      */
-    public fun editorConfigFilePaths(path: Path): List<Path> =
-        EditorConfigFinder().findEditorConfigs(path)
+    public fun editorConfigFilePaths(path: Path): List<Path> = EditorConfigFinder().findEditorConfigs(path)
 
     /**
      * Reloads an '.editorconfig' file given that it is currently loaded into the KtLint cache. This method is intended

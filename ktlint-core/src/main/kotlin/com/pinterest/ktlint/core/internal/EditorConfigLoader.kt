@@ -88,22 +88,20 @@ public class EditorConfigLoader(
             }
     }
 
-    private fun MutableMap<String, Property>.prettyPrint(
-        normalizedFilePath: Path?,
-    ) = map { entry -> "${entry.key}: ${entry.value.sourceValue}" }
-        .joinToString(
-            prefix = "Effective editorconfig properties${
-                if (normalizedFilePath == null) {
-                    ""
-                } else {
-                    " for file '$normalizedFilePath'"
-                }
-            }:\n\t",
-            separator = "\n\t",
-        )
+    private fun MutableMap<String, Property>.prettyPrint(normalizedFilePath: Path?) =
+        map { entry -> "${entry.key}: ${entry.value.sourceValue}" }
+            .joinToString(
+                prefix = "Effective editorconfig properties${
+                    if (normalizedFilePath == null) {
+                        ""
+                    } else {
+                        " for file '$normalizedFilePath'"
+                    }
+                }:\n\t",
+                separator = "\n\t",
+            )
 
-    private fun Path?.resource() =
-        Resource.Resources.ofPath(this, StandardCharsets.UTF_8)
+    private fun Path?.resource() = Resource.Resources.ofPath(this, StandardCharsets.UTF_8)
 
     private fun property(
         property: EditorConfigProperty<*>,
@@ -132,14 +130,14 @@ public class EditorConfigLoader(
     private fun createResourcePropertiesService(
         editorConfigLoader: EditorConfigLoader,
         editorConfigDefaults: EditorConfigDefaults,
-    ) =
-        ResourcePropertiesService.builder()
-            .keepUnset(true)
-            .cache(THREAD_SAFE_EDITOR_CONFIG_CACHE)
-            .loader(editorConfigLoader)
-            .applyIf(editorConfigDefaults != EMPTY_EDITOR_CONFIG_DEFAULTS) {
-                defaultEditorConfigs(editorConfigDefaults.value)
-            }.build()
+    ) = ResourcePropertiesService
+        .builder()
+        .keepUnset(true)
+        .cache(THREAD_SAFE_EDITOR_CONFIG_CACHE)
+        .loader(editorConfigLoader)
+        .applyIf(editorConfigDefaults != EMPTY_EDITOR_CONFIG_DEFAULTS) {
+            defaultEditorConfigs(editorConfigDefaults.value)
+        }.build()
 
     private fun editorConfigLoader(rules: Set<Rule>) =
         EditorConfigLoader

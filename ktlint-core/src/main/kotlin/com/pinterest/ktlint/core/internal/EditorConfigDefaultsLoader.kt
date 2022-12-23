@@ -68,6 +68,5 @@ internal class EditorConfigDefaultsLoader {
             this
         }
 
-    private fun Path.resource() =
-        Resource.Resources.ofPath(this, StandardCharsets.UTF_8)
+    private fun Path.resource() = Resource.Resources.ofPath(this, StandardCharsets.UTF_8)
 }

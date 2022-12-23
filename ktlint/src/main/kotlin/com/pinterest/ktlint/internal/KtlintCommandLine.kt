@@ -355,7 +355,9 @@ internal class KtlintCommandLine {
         }
         reporter.afterAll()
 
-        logger.debug { "Finished processing in ${System.currentTimeMillis() - start}ms / $fileNumber file(s) scanned / $errorNumber error(s) found" }
+        logger.debug {
+            "Finished processing in ${System.currentTimeMillis() - start}ms / $fileNumber file(s) scanned / $errorNumber error(s) found"
+        }
         if (fileNumber.get() == 0) {
             // Do not return an error as this would implicate that in a multi-module project, each module has to contain
             // at least one kotlin file.
@@ -528,9 +530,7 @@ internal class KtlintCommandLine {
         return Reporter.from(*tpls.map { it.toReporter(reporterProviderById) }.toTypedArray())
     }
 
-    private fun ReporterTemplate.toReporter(
-        reporterProviderById: Map<String, ReporterProvider<*>>,
-    ): Reporter {
+    private fun ReporterTemplate.toReporter(reporterProviderById: Map<String, ReporterProvider<*>>): Reporter {
         val reporterProvider = reporterProviderById[id]
         if (reporterProvider == null) {
             logger.error {
@@ -573,30 +573,31 @@ internal class KtlintCommandLine {
             }
     }
 
-    private fun Exception.toLintError(filename: Any?): LintError = this.let { e ->
-        when (e) {
-            is KtLintParseException ->
-                LintError(
-                    e.line,
-                    e.col,
-                    "",
-                    "Not a valid Kotlin file (${e.message?.lowercase(Locale.getDefault())})",
-                )
-            is KtLintRuleException -> {
-                logger.debug("Internal Error (${e.ruleId}) in file '$filename' at position '${e.line}:${e.col}", e)
-                LintError(
-                    e.line,
-                    e.col,
-                    "",
-                    "Internal Error (rule '${e.ruleId}') in file '$filename' at position '${e.line}:${e.col}. " +
-                        "Please create a ticket at https://github.com/pinterest/ktlint/issues " +
-                        "and provide the source code that triggered an error.\n" +
-                        e.stackTraceToString(),
-                )
+    private fun Exception.toLintError(filename: Any?): LintError =
+        this.let { e ->
+            when (e) {
+                is KtLintParseException ->
+                    LintError(
+                        e.line,
+                        e.col,
+                        "",
+                        "Not a valid Kotlin file (${e.message?.lowercase(Locale.getDefault())})",
+                    )
+                is KtLintRuleException -> {
+                    logger.debug("Internal Error (${e.ruleId}) in file '$filename' at position '${e.line}:${e.col}", e)
+                    LintError(
+                        e.line,
+                        e.col,
+                        "",
+                        "Internal Error (rule '${e.ruleId}') in file '$filename' at position '${e.line}:${e.col}. " +
+                            "Please create a ticket at https://github.com/pinterest/ktlint/issues " +
+                            "and provide the source code that triggered an error.\n" +
+                            e.stackTraceToString(),
+                    )
+                }
+                else -> throw e
             }
-            else -> throw e
         }
-    }
 
     private fun parseQuery(query: String) =
         query.split("&")
@@ -662,7 +663,10 @@ internal class KtlintCommandLine {
                 throw UnsupportedOperationException()
             }
 
-            override fun get(timeout: Long, unit: TimeUnit): T {
+            override fun get(
+                timeout: Long,
+                unit: TimeUnit,
+            ): T {
                 throw UnsupportedOperationException()
             }
 
@@ -703,15 +707,16 @@ internal class KtlintCommandLine {
         }
     }
 
-    private fun loadReporters(externalReportersJarPaths: List<String>) = ServiceLoader
-        .load(
-            ReporterProvider::class.java,
-            URLClassLoader(externalReportersJarPaths.toFilesURIList().toTypedArray()),
-        )
-        .associateBy { it.id }
-        .onEach { entry ->
-            logger.debug { "Discovered reporter with \"${entry.key}\" id." }
-        }
+    private fun loadReporters(externalReportersJarPaths: List<String>) =
+        ServiceLoader
+            .load(
+                ReporterProvider::class.java,
+                URLClassLoader(externalReportersJarPaths.toFilesURIList().toTypedArray()),
+            )
+            .associateBy { it.id }
+            .onEach { entry ->
+                logger.debug { "Discovered reporter with \"${entry.key}\" id." }
+            }
 
     private data class LintErrorWithCorrectionInfo(
         val err: LintError,

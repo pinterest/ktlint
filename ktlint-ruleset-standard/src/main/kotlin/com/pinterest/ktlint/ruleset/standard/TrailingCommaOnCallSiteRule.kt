@@ -49,8 +49,7 @@ public class TrailingCommaOnCallSiteRule :
 
     private var allowTrailingCommaOnCallSite by Delegates.notNull<Boolean>()
 
-    private fun ASTNode.isTrailingCommaAllowed() =
-        elementType in TYPES_ON_CALL_SITE && allowTrailingCommaOnCallSite
+    private fun ASTNode.isTrailingCommaAllowed() = elementType in TYPES_ON_CALL_SITE && allowTrailingCommaOnCallSite
 
     override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
         allowTrailingCommaOnCallSite = editorConfigProperties.getEditorConfigValue(TRAILING_COMMA_ON_CALL_SITE_PROPERTY)
@@ -206,8 +205,7 @@ public class TrailingCommaOnCallSiteRule :
             .findChildByType(VALUE_ARGUMENT)
             ?.nextSibling { it.isWhiteSpaceWithNewline() }
 
-    private fun ASTNode.hasAtLeastOneArgument() =
-        children().any { it.elementType == VALUE_ARGUMENT }
+    private fun ASTNode.hasAtLeastOneArgument() = children().any { it.elementType == VALUE_ARGUMENT }
 
     private fun ASTNode.findPreviousTrailingCommaNodeOrNull(): ASTNode? {
         val codeLeaf = if (isCodeLeaf()) {

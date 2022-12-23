@@ -607,6 +607,7 @@ class FunctionSignatureRuleTest {
                 fun f28(block: (T) -> String) = "some-result"
                 fun f29(block: (T) -> String) = "some-result"
                 """.trimIndent()
+            @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
             functionSignatureWrappingRuleAssertThat(code)
                 .addAdditionalRuleProviders(
                     { NoMultipleSpacesRule() },
@@ -618,11 +619,7 @@ class FunctionSignatureRuleTest {
                 ).hasLintViolations(
                     LintViolation(3, 10, "No whitespace expected between opening parenthesis and first parameter name"),
                     LintViolation(7, 17, "Single whitespace expected before parameter"),
-                    LintViolation(
-                        8,
-                        22,
-                        "No whitespace expected between last parameter and closing parenthesis",
-                    ),
+                    LintViolation(8, 22, "No whitespace expected between last parameter and closing parenthesis"),
                     LintViolation(9, 10, "No whitespace expected between opening parenthesis and first parameter name"),
                 ).isFormattedAs(formattedCode)
         }

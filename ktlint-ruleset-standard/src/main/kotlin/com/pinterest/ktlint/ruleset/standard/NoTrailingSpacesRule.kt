@@ -63,8 +63,7 @@ public class NoTrailingSpacesRule : Rule("no-trailing-spaces") {
 
     private fun ASTNode.isPartOfKDoc() = parent({ it.psi is KDoc }, strict = false) != null
 
-    private fun ASTNode.hasTrailingSpacesBeforeNewline() =
-        text.contains(SPACE_OR_TAB_BEFORE_NEWLINE_REGEX)
+    private fun ASTNode.hasTrailingSpacesBeforeNewline() = text.contains(SPACE_OR_TAB_BEFORE_NEWLINE_REGEX)
 
     private fun ASTNode.removeTrailingSpacesBeforeNewline() {
         val newText = text.replace(
@@ -74,8 +73,7 @@ public class NoTrailingSpacesRule : Rule("no-trailing-spaces") {
         (this as LeafPsiElement).replaceWithText(newText)
     }
 
-    private fun String.hasTrailingSpace() =
-        takeLast(1) == " "
+    private fun String.hasTrailingSpace() = takeLast(1) == " "
 
     private companion object {
         val SPACE_OR_TAB_BEFORE_NEWLINE_REGEX = Regex(" +\\n")

@@ -536,7 +536,11 @@ class AnnotationRuleTest {
             fun foo() = @Suppress("DEPRECATION") bar()
             """.trimIndent()
         annotationRuleAssertThat(code)
-            .hasLintViolationWithoutAutoCorrect(1, 13, "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct")
+            .hasLintViolationWithoutAutoCorrect(
+                1,
+                13,
+                "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct",
+            )
     }
 
     @Test

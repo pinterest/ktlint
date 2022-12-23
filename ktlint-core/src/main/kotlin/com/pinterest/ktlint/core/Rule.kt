@@ -70,8 +70,7 @@ public open class Rule(
     /**
      * Checks whether [Rule] instance has not yet being used for traversal of the AST.
      */
-    internal fun isUsedForTraversalOfAST() =
-        traversalState != TraversalState.NOT_STARTED
+    internal fun isUsedForTraversalOfAST() = traversalState != TraversalState.NOT_STARTED
 
     /**
      * Marks the [Rule] instance as being used for traversal of an AST. From this moment on, this instance of the [Rule]
@@ -84,8 +83,7 @@ public open class Rule(
     /**
      * Checks whether the next node in the AST is to be traversed. By default, the entire AST is traversed.
      */
-    internal fun shouldContinueTraversalOfAST() =
-        traversalState == TraversalState.CONTINUE
+    internal fun shouldContinueTraversalOfAST() = traversalState == TraversalState.CONTINUE
 
     /**
      * Stops traversal of the AST. Intended usage it to prevent parsing of the remainder of the AST once the goal of the

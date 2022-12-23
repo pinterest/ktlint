@@ -19,7 +19,9 @@ class RuleSetsLoaderCLITest {
             ) {
                 SoftAssertions().apply {
                     assertNormalExitCode()
-                    assertThat(normalOutput).containsLineMatching("$jarWithoutRulesetProvider, provided as command line argument, does not contain a custom ruleset provider.")
+                    assertThat(normalOutput).containsLineMatching(
+                        "$jarWithoutRulesetProvider, provided as command line argument, does not contain a custom ruleset provider.",
+                    )
                 }.assertAll()
             }
     }

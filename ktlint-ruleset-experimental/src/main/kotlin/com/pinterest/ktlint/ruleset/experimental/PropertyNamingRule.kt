@@ -77,7 +77,11 @@ public class PropertyNamingRule : Rule("$EXPERIMENTAL_RULE_SET_ID:property-namin
             .text
             .takeUnless { it.matches(SCREAMING_SNAKE_CASE_REGEXP) }
             ?.let {
-                emit(identifier.startOffset, "Property name should use the screaming snake case notation when the value can not be changed", false)
+                emit(
+                    identifier.startOffset,
+                    "Property name should use the screaming snake case notation when the value can not be changed",
+                    false,
+                )
             }
     }
 
@@ -98,8 +102,7 @@ public class PropertyNamingRule : Rule("$EXPERIMENTAL_RULE_SET_ID:property-namin
             ?.firstChildNode
             ?.text == "get"
 
-    private fun ASTNode.hasConstModifier() =
-        hasModifier(CONST_KEYWORD)
+    private fun ASTNode.hasConstModifier() = hasModifier(CONST_KEYWORD)
 
     private fun ASTNode.hasModifier(iElementType: IElementType) =
         findChildByType(MODIFIER_LIST)
@@ -107,11 +110,9 @@ public class PropertyNamingRule : Rule("$EXPERIMENTAL_RULE_SET_ID:property-namin
             .orEmpty()
             .any { it.elementType == iElementType }
 
-    private fun ASTNode.isTopLevelValue() =
-        treeParent.elementType == FILE && containsValKeyword()
+    private fun ASTNode.isTopLevelValue() = treeParent.elementType == FILE && containsValKeyword()
 
-    private fun ASTNode.containsValKeyword() =
-        children().any { it.elementType == VAL_KEYWORD }
+    private fun ASTNode.containsValKeyword() = children().any { it.elementType == VAL_KEYWORD }
 
     private fun ASTNode.isObjectValue() =
         treeParent.elementType == CLASS_BODY &&

@@ -66,12 +66,13 @@ internal class ThreadSafeEditorConfigCache : Cache {
     /**
      * Clears entire cache to free-up memory.
      */
-    fun clear() = readWriteLock.write {
-        inMemoryMap
-            .also {
-                LOGGER.trace { "Removing ${it.size} entries from the EditorConfig cache" }
-            }.clear()
-    }
+    fun clear() =
+        readWriteLock.write {
+            inMemoryMap
+                .also {
+                    LOGGER.trace { "Removing ${it.size} entries from the EditorConfig cache" }
+                }.clear()
+        }
 
     /**
      * Get the paths of files stored in the cache.

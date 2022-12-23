@@ -13,7 +13,10 @@ internal class ImportSorter(
     val patterns: List<PatternEntry>,
 ) : Comparator<KtImportDirective> {
 
-    override fun compare(import1: KtImportDirective, import2: KtImportDirective): Int {
+    override fun compare(
+        import1: KtImportDirective,
+        import2: KtImportDirective,
+    ): Int {
         val importPath1 = import1.importPath!!
         val importPath2 = import2.importPath!!
 

@@ -110,8 +110,7 @@ internal class EditorConfigFinder {
         return EDITOR_CONFIG_CACHE.getPaths()
     }
 
-    private fun Path?.resource() =
-        Resource.Resources.ofPath(this, StandardCharsets.UTF_8)
+    private fun Path?.resource() = Resource.Resources.ofPath(this, StandardCharsets.UTF_8)
 
     private fun createLoaderService() =
         ResourcePropertiesService.builder()

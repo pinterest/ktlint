@@ -92,7 +92,10 @@ internal class VisitorProvider(
         }
     }
 
-    private fun isEnabled(editorConfigProperties: EditorConfigProperties, qualifiedRuleId: String): Boolean =
+    private fun isEnabled(
+        editorConfigProperties: EditorConfigProperties,
+        qualifiedRuleId: String,
+    ): Boolean =
         // For backwards compatibility all different properties which affects enabling/disabling of properties have to
         // be checked. Note that properties are checked in order of precedence. If a property of higher precedence has
         // been defined, all properties with lower precedence are ignore entirely.
@@ -145,12 +148,11 @@ internal class VisitorProvider(
     private fun EditorConfigProperties.isEnabled(
         disabledRulesProperty: EditorConfigProperty<String>,
         qualifiedRuleId: String,
-    ) =
-        this
-            .getEditorConfigValue(disabledRulesProperty)
-            .split(",")
-            .none {
-                // The rule set id in the disabled_rules setting may be omitted for rules in the standard rule set
-                it.toQualifiedRuleId() == qualifiedRuleId
-            }
+    ) = this
+        .getEditorConfigValue(disabledRulesProperty)
+        .split(",")
+        .none {
+            // The rule set id in the disabled_rules setting may be omitted for rules in the standard rule set
+            it.toQualifiedRuleId() == qualifiedRuleId
+        }
 }

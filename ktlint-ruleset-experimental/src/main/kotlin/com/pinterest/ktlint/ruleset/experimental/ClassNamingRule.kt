@@ -41,14 +41,11 @@ public class ClassNamingRule : Rule("$EXPERIMENTAL_RULE_SET_ID:class-naming") {
             }
     }
 
-    private fun ASTNode.isValidFunctionName() =
-        text.matches(VALID_CLASS_NAME_REGEXP)
+    private fun ASTNode.isValidFunctionName() = text.matches(VALID_CLASS_NAME_REGEXP)
 
-    private fun ASTNode.isTestClass() =
-        allowBacktickedClassName && hasBackTickedIdentifier()
+    private fun ASTNode.isTestClass() = allowBacktickedClassName && hasBackTickedIdentifier()
 
-    private fun ASTNode.hasBackTickedIdentifier() =
-        text.matches(BACK_TICKED_FUNCTION_NAME_REGEXP)
+    private fun ASTNode.hasBackTickedIdentifier() = text.matches(BACK_TICKED_FUNCTION_NAME_REGEXP)
 
     private companion object {
         val VALID_CLASS_NAME_REGEXP = Regex("[A-Z][A-Za-z\\d]*")

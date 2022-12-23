@@ -99,7 +99,7 @@ class EditorConfigDefaultsLoaderCLITest {
                 testProjectName = "editorconfig-path",
                 arguments = listOf(
                     "**/*.test",
-                    "--editorconfig=$tempDir/editorconfig-path/project/.editorconfig-disable-no-wildcard-imports-rule"
+                    "--editorconfig=$tempDir/editorconfig-path/project/.editorconfig-disable-no-wildcard-imports-rule",
                 ),
             ) {
                 SoftAssertions().apply {
@@ -121,13 +121,13 @@ class EditorConfigDefaultsLoaderCLITest {
                 testProjectName = "editorconfig-path",
                 arguments = listOf(
                     "**/*.test",
-                    "--editorconfig=$tempDir/editorconfig-path/project/editorconfig-boolean-setting"
+                    "--editorconfig=$tempDir/editorconfig-path/project/editorconfig-boolean-setting",
                 ),
             ) {
                 SoftAssertions().apply {
                     assertErrorExitCode()
                     assertThat(errorOutput).doesNotContainLineMatching(
-                        Regex(".*java.lang.ClassCastException: java.lang.String cannot be cast to java.lang.Boolean.*")
+                        Regex(".*java.lang.ClassCastException: java.lang.String cannot be cast to java.lang.Boolean.*"),
                     )
                 }.assertAll()
             }

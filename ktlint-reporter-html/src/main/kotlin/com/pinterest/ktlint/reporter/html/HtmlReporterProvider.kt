@@ -29,5 +29,8 @@ import java.io.PrintStream
 
 public class HtmlReporterProvider : ReporterProvider<HtmlReporter> {
     override val id: String = "html"
-    override fun get(out: PrintStream, opt: Map<String, String>): HtmlReporter = HtmlReporter(out)
+    override fun get(
+        out: PrintStream,
+        opt: Map<String, String>,
+    ): HtmlReporter = HtmlReporter(out)
 }

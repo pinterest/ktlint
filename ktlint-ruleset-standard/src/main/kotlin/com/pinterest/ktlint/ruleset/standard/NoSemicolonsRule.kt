@@ -99,8 +99,7 @@ public class NoSemicolonsRule : Rule("no-semi") {
         return true
     }
 
-    private fun ASTNode?.isLastCodeLeafBeforeClosingOfClassBody() =
-        getLastCodeLeafBeforeClosingOfClassBody() == this
+    private fun ASTNode?.isLastCodeLeafBeforeClosingOfClassBody() = getLastCodeLeafBeforeClosingOfClassBody() == this
 
     private fun ASTNode?.getLastCodeLeafBeforeClosingOfClassBody() =
         this

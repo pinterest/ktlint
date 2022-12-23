@@ -102,8 +102,7 @@ class CommandLineTestRunner(private val tempDir: Path) {
         return tempDir.resolve(testProjectName).also { testProjectPath.copyRecursively(it) }
     }
 
-    private fun isWindows(): Boolean =
-        System.getProperty("os.name").startsWith("Windows")
+    private fun isWindows(): Boolean = System.getProperty("os.name").startsWith("Windows")
 
     /**
      * @return the path to the command interpreter along with the necessary
@@ -278,7 +277,10 @@ class CommandLineTestRunner(private val tempDir: Path) {
 }
 
 @Suppress("unused")
-private fun String.followedByIndentedList(lines: List<String>, indentLevel: Int = 1): String =
+private fun String.followedByIndentedList(
+    lines: List<String>,
+    indentLevel: Int = 1,
+): String =
     lines
         .ifEmpty { listOf("<empty>") }
         .joinToString(prefix = "$this\n", separator = "\n") {

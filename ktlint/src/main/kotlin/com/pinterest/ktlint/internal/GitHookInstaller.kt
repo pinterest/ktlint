@@ -73,16 +73,17 @@ internal object GitHookInstaller {
         return gitDir
     }
 
-    private fun getHooksDirName() = try {
-        Runtime.getRuntime().exec("git config --get core.hooksPath")
-            .inputStream
-            .bufferedReader()
-            .readText()
-            .trim()
-            .ifEmpty { DEFAULT_GIT_HOOKS_DIR }
-    } catch (_: IOException) {
-        DEFAULT_GIT_HOOKS_DIR
-    }
+    private fun getHooksDirName() =
+        try {
+            Runtime.getRuntime().exec("git config --get core.hooksPath")
+                .inputStream
+                .bufferedReader()
+                .readText()
+                .trim()
+                .ifEmpty { DEFAULT_GIT_HOOKS_DIR }
+        } catch (_: IOException) {
+            DEFAULT_GIT_HOOKS_DIR
+        }
 
     private fun backupExistingHook(
         hooksDir: File,

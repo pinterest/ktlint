@@ -14,7 +14,11 @@ public class PlainSummaryReporter(
     private val ruleViolationCountAutocorrected = ConcurrentHashMap<String, Long>()
     private val ruleViolationCountNoAutocorrection = ConcurrentHashMap<String, Long>()
 
-    override fun onLintError(file: String, err: LintError, corrected: Boolean) {
+    override fun onLintError(
+        file: String,
+        err: LintError,
+        corrected: Boolean,
+    ) {
         if (corrected) {
             ruleViolationCountAutocorrected
                 .merge(err.ruleId, 1) { previousValue, _ ->

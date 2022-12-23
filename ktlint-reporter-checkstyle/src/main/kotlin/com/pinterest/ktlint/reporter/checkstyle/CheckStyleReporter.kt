@@ -10,7 +10,11 @@ public class CheckStyleReporter(private val out: PrintStream) : Reporter {
 
     private val acc = ConcurrentHashMap<String, MutableList<LintError>>()
 
-    override fun onLintError(file: String, err: LintError, corrected: Boolean) {
+    override fun onLintError(
+        file: String,
+        err: LintError,
+        corrected: Boolean,
+    ) {
         if (!corrected) {
             acc.getOrPut(file) { ArrayList<LintError>() }.add(err)
         }

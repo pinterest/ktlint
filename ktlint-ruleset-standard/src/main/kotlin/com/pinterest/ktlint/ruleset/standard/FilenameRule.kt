@@ -114,8 +114,7 @@ public class FilenameRule : Rule("filename") {
             .filter { it.doesNotHavePrivateModifier() }
             .any { it.isNotClassRelatedTopLevelDeclaration() || it.isFunctionNotExtending(className) }
 
-    private fun ASTNode.isNotClassRelatedTopLevelDeclaration() =
-        elementType in NON_CLASS_RELATED_TOP_LEVEL_DECLARATION_TYPES
+    private fun ASTNode.isNotClassRelatedTopLevelDeclaration() = elementType in NON_CLASS_RELATED_TOP_LEVEL_DECLARATION_TYPES
 
     private fun ASTNode.isFunctionNotExtending(className: String) =
         elementType == FUN &&
@@ -134,8 +133,7 @@ public class FilenameRule : Rule("filename") {
         }
     }
 
-    private fun String.toPascalCase() =
-        replaceFirstChar { it.uppercaseChar() }
+    private fun String.toPascalCase() = replaceFirstChar { it.uppercaseChar() }
 
     private fun String.shouldMatchFileName(
         filename: String,
@@ -150,9 +148,7 @@ public class FilenameRule : Rule("filename") {
         }
     }
 
-    private fun String.shouldMatchPascalCase(
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-    ) {
+    private fun String.shouldMatchPascalCase(emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
         if (!this.matches(PASCAL_CASE_REGEX)) {
             emit(0, "File name '$this.kt' should conform PascalCase", false)
         }

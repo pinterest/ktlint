@@ -130,8 +130,7 @@ private fun Element.parseBaselineErrorsByFile(): List<LintError> {
  * Checks if the list contains the given [LintError]. The [List.contains] function can not be used as [LintError.detail]
  * is not available in the baseline file and a normal equality check on the [LintErrpr] fails.
  */
-public fun List<LintError>.containsLintError(lintError: LintError): Boolean =
-    any { it.isSameAs(lintError) }
+public fun List<LintError>.containsLintError(lintError: LintError): Boolean = any { it.isSameAs(lintError) }
 
 private fun LintError.isSameAs(lintError: LintError) =
     col == lintError.col &&
@@ -142,8 +141,7 @@ private fun LintError.isSameAs(lintError: LintError) =
  * Checks if the list does not contain the given [LintError]. The [List.contains] function can not be used as
  * [LintError.detail] is not available in the baseline file and a normal equality check on the [LintErrpr] fails.
  */
-public fun List<LintError>.doesNotContain(lintError: LintError): Boolean =
-    none { it.isSameAs(lintError) }
+public fun List<LintError>.doesNotContain(lintError: LintError): Boolean = none { it.isSameAs(lintError) }
 
 /**
  * Gets the relative route of the file for baselines. Also adjusts the slashes for uniformity between file systems

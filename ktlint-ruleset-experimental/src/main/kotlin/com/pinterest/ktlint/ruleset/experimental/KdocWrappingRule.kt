@@ -96,6 +96,5 @@ public class KdocWrappingRule :
         }
     }
 
-    private fun isNonIndentLeafOnSameLine(it: ASTNode) =
-        it.elementType != WHITE_SPACE || !it.textContains('\n')
+    private fun isNonIndentLeafOnSameLine(it: ASTNode) = it.elementType != WHITE_SPACE || !it.textContains('\n')
 }

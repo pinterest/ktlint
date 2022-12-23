@@ -80,6 +80,5 @@ public class ModifierListSpacingRule : Rule("$EXPERIMENTAL_RULE_SET_ID:modifier-
             }
     }
 
-    private fun ASTNode?.isAnnotationElement() =
-        this != null && (elementType == ANNOTATION || elementType == ANNOTATION_ENTRY)
+    private fun ASTNode?.isAnnotationElement() = this != null && (elementType == ANNOTATION || elementType == ANNOTATION_ENTRY)
 }

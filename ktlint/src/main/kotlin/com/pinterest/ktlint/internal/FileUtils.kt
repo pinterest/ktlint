@@ -82,7 +82,9 @@ internal fun FileSystem.fileSequence(
         """
         Start walkFileTree for rootDir: '$rootDir'
            include:
-        ${pathMatchers.map { "      - $it" }}
+        ${pathMatchers.map {
+            "      - $it"
+        }}
            exclude:
         ${negatedPathMatchers.map { "      - $it" }}
         """.trimIndent()
@@ -143,29 +145,28 @@ internal fun FileSystem.fileSequence(
 private fun FileSystem.expand(
     patterns: List<String>,
     rootDir: Path,
-) =
-    patterns
-        .mapNotNull {
-            if (onWindowsOS) {
-                it.normalizeWindowsPattern()
-            } else {
-                it
-            }
-        }.map { it.expandTildeToFullPath() }
-        .map {
-            if (onWindowsOS) {
-                // By definition the globs should use "/" as separator. Out of courtesy replace "\" with "/"
-                it
-                    .replace(File.separator, "/")
-                    .also { transformedPath ->
-                        if (it != transformedPath) {
-                            LOGGER.trace { "On WindowsOS transform '$it' to '$transformedPath'" }
-                        }
+) = patterns
+    .mapNotNull {
+        if (onWindowsOS) {
+            it.normalizeWindowsPattern()
+        } else {
+            it
+        }
+    }.map { it.expandTildeToFullPath() }
+    .map {
+        if (onWindowsOS) {
+            // By definition the globs should use "/" as separator. Out of courtesy replace "\" with "/"
+            it
+                .replace(File.separator, "/")
+                .also { transformedPath ->
+                    if (it != transformedPath) {
+                        LOGGER.trace { "On WindowsOS transform '$it' to '$transformedPath'" }
                     }
-            } else {
-                it
-            }
-        }.flatMap { path -> toGlob(path, rootDir) }
+                }
+        } else {
+            it
+        }
+    }.flatMap { path -> toGlob(path, rootDir) }
 
 private fun FileSystem.toGlob(
     path: String,

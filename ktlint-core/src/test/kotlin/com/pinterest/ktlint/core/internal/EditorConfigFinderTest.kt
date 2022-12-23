@@ -146,7 +146,10 @@ class EditorConfigFinderTest {
         }
     }
 
-    private fun Path.createFile(fileName: String, content: String): Path {
+    private fun Path.createFile(
+        fileName: String,
+        content: String,
+    ): Path {
         val dirPath = fileName.substringBeforeLast("/", "")
         Files.createDirectories(this.plus(dirPath))
         return Files

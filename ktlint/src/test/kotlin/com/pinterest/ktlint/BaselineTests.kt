@@ -15,7 +15,10 @@ class BaselineTests {
                 override fun checkPermission(perm: Permission?) { // allow anything.
                 }
 
-                override fun checkPermission(perm: Permission?, context: Any?) { // allow anything.
+                override fun checkPermission(
+                    perm: Permission?,
+                    context: Any?,
+                ) { // allow anything.
                 }
 
                 override fun checkExit(status: Int) {
@@ -50,7 +53,13 @@ class BaselineTests {
         System.setOut(ps)
 
         try {
-            main(arrayOf("src/test/resources/cli/baseline/TestBaselineFile.kt.test", "--log-level=debug", "--baseline=src/test/resources/cli/baseline/test-baseline.xml"))
+            main(
+                arrayOf(
+                    "src/test/resources/cli/baseline/TestBaselineFile.kt.test",
+                    "--log-level=debug",
+                    "--baseline=src/test/resources/cli/baseline/test-baseline.xml",
+                ),
+            )
         } catch (e: ExitException) {
             // handle System.exit
         }
@@ -67,7 +76,13 @@ class BaselineTests {
         System.setOut(ps)
 
         try {
-            main(arrayOf("src/test/resources/cli/baseline/TestBaselineExtraErrorFile.kt.test", "--baseline=src/test/resources/cli/baseline/test-baseline.xml", "-l=debug"))
+            main(
+                arrayOf(
+                    "src/test/resources/cli/baseline/TestBaselineExtraErrorFile.kt.test",
+                    "--baseline=src/test/resources/cli/baseline/test-baseline.xml",
+                    "-l=debug",
+                ),
+            )
         } catch (e: ExitException) {
             // handle System.exit
         }

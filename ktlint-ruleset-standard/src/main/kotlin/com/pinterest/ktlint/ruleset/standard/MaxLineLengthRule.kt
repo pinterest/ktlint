@@ -193,7 +193,10 @@ internal class RangeTree(seq: List<Int> = emptyList()) {
 
     // runtime: O(log(n)+k), where k is number of matching points
     // space: O(1)
-    fun query(vmin: Int, vmax: Int): RangeTree.ArrayView {
+    fun query(
+        vmin: Int,
+        vmax: Int,
+    ): RangeTree.ArrayView {
         var r = arr.size - 1
         if (r == -1 || vmax < arr[0] || arr[r] < vmin) {
             return emptyArrayView
@@ -226,8 +229,7 @@ internal class RangeTree(seq: List<Int> = emptyList()) {
         return ArrayView(l, k)
     }
 
-    fun isEmpty(): Boolean =
-        arr.isEmpty()
+    fun isEmpty(): Boolean = arr.isEmpty()
 
     inner class ArrayView(private var l: Int, private val r: Int) {
 

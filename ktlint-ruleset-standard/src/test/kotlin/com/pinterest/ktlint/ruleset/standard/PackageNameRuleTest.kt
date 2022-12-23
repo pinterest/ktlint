@@ -71,9 +71,7 @@ class PackageNameRuleTest {
             "PackageName", // IntelliJ IDEA suppression
         ],
     )
-    fun `Given class with a disallowed name which is suppressed`(
-        suppressionName: String,
-    ) {
+    fun `Given class with a disallowed name which is suppressed`(suppressionName: String) {
         val code =
             """
             @file:Suppress("$suppressionName")

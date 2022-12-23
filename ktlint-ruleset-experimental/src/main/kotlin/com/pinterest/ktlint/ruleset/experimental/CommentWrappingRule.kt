@@ -121,9 +121,7 @@ public class CommentWrappingRule :
         }
     }
 
-    private fun isNonIndentLeafOnSameLine(it: ASTNode) =
-        it.elementType != WHITE_SPACE || !it.textContains('\n')
+    private fun isNonIndentLeafOnSameLine(it: ASTNode) = it.elementType != WHITE_SPACE || !it.textContains('\n')
 
-    private fun ASTNode?.isLastElementOnLine() =
-        this == null || (elementType == WHITE_SPACE && textContains('\n'))
+    private fun ASTNode?.isLastElementOnLine() = this == null || (elementType == WHITE_SPACE && textContains('\n'))
 }

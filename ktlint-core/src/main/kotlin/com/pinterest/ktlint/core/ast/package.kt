@@ -13,7 +13,10 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
 import org.jetbrains.kotlin.psi.psiUtil.leaves
 
-public fun ASTNode.nextLeaf(includeEmpty: Boolean = false, skipSubtree: Boolean = false): ASTNode? {
+public fun ASTNode.nextLeaf(
+    includeEmpty: Boolean = false,
+    skipSubtree: Boolean = false,
+): ASTNode? {
     var n = if (skipSubtree) this.lastChildLeafOrSelf().nextLeafAny() else this.nextLeafAny()
     if (!includeEmpty) {
         while (n != null && n.textLength == 0) {
@@ -106,7 +109,10 @@ public fun ASTNode.prevCodeLeaf(includeEmpty: Boolean = false): ASTNode? {
     return n
 }
 
-public fun ASTNode.nextCodeLeaf(includeEmpty: Boolean = false, skipSubtree: Boolean = false): ASTNode? {
+public fun ASTNode.nextCodeLeaf(
+    includeEmpty: Boolean = false,
+    skipSubtree: Boolean = false,
+): ASTNode? {
     var n = nextLeaf(includeEmpty, skipSubtree)
     while (n != null && (n.elementType == WHITE_SPACE || n.isPartOfComment())) {
         n = n.nextLeaf(includeEmpty, skipSubtree)
@@ -114,8 +120,7 @@ public fun ASTNode.nextCodeLeaf(includeEmpty: Boolean = false, skipSubtree: Bool
     return n
 }
 
-public fun ASTNode.prevCodeSibling(): ASTNode? =
-    prevSibling { it.elementType != WHITE_SPACE && !it.isPartOfComment() }
+public fun ASTNode.prevCodeSibling(): ASTNode? = prevSibling { it.elementType != WHITE_SPACE && !it.isPartOfComment() }
 
 public inline fun ASTNode.prevSibling(p: (ASTNode) -> Boolean): ASTNode? {
     var n = this.treePrev
@@ -128,8 +133,7 @@ public inline fun ASTNode.prevSibling(p: (ASTNode) -> Boolean): ASTNode? {
     return null
 }
 
-public fun ASTNode.nextCodeSibling(): ASTNode? =
-    nextSibling { it.elementType != WHITE_SPACE && !it.isPartOfComment() }
+public fun ASTNode.nextCodeSibling(): ASTNode? = nextSibling { it.elementType != WHITE_SPACE && !it.isPartOfComment() }
 
 public inline fun ASTNode.nextSibling(p: (ASTNode) -> Boolean): ASTNode? {
     var n = this.treeNext
@@ -145,7 +149,10 @@ public inline fun ASTNode.nextSibling(p: (ASTNode) -> Boolean): ASTNode? {
 /**
  * @param elementType [ElementType].*
  */
-public fun ASTNode.parent(elementType: IElementType, strict: Boolean = true): ASTNode? {
+public fun ASTNode.parent(
+    elementType: IElementType,
+    strict: Boolean = true,
+): ASTNode? {
     var n: ASTNode? = if (strict) this.treeParent else this
     while (n != null) {
         if (n.elementType == elementType) {
@@ -157,7 +164,10 @@ public fun ASTNode.parent(elementType: IElementType, strict: Boolean = true): AS
 }
 
 // TODO in ktlint 0.49 deprecate and replace with "ASTNode.parent(strict: Boolean = true, p: (ASTNode) -> Boolean): ASTNode?"
-public fun ASTNode.parent(p: (ASTNode) -> Boolean, strict: Boolean = true): ASTNode? {
+public fun ASTNode.parent(
+    p: (ASTNode) -> Boolean,
+    strict: Boolean = true,
+): ASTNode? {
     var n: ASTNode? = if (strict) this.treeParent else this
     while (n != null) {
         if (p(n)) {
@@ -171,8 +181,7 @@ public fun ASTNode.parent(p: (ASTNode) -> Boolean, strict: Boolean = true): ASTN
 /**
  * @param elementType [ElementType].*
  */
-public fun ASTNode.isPartOf(elementType: IElementType): Boolean =
-    parent(elementType, strict = false) != null
+public fun ASTNode.isPartOf(elementType: IElementType): Boolean = parent(elementType, strict = false) != null
 
 public fun ASTNode.isPartOf(klass: KClass<out PsiElement>): Boolean {
     var n: ASTNode? = this
@@ -191,17 +200,13 @@ public fun ASTNode.isPartOfCompositeElementOfType(iElementType: IElementType): B
 public fun findCompositeElementOfType(iElementType: IElementType): (ASTNode) -> Boolean =
     { it.elementType == iElementType || it !is CompositeElement }
 
-public fun ASTNode.isPartOfString(): Boolean =
-    parent(STRING_TEMPLATE, strict = false) != null
+public fun ASTNode.isPartOfString(): Boolean = parent(STRING_TEMPLATE, strict = false) != null
 
-public fun ASTNode?.isWhiteSpace(): Boolean =
-    this != null && elementType == WHITE_SPACE
+public fun ASTNode?.isWhiteSpace(): Boolean = this != null && elementType == WHITE_SPACE
 
-public fun ASTNode?.isWhiteSpaceWithNewline(): Boolean =
-    this != null && elementType == WHITE_SPACE && textContains('\n')
+public fun ASTNode?.isWhiteSpaceWithNewline(): Boolean = this != null && elementType == WHITE_SPACE && textContains('\n')
 
-public fun ASTNode?.isWhiteSpaceWithoutNewline(): Boolean =
-    this != null && elementType == WHITE_SPACE && !textContains('\n')
+public fun ASTNode?.isWhiteSpaceWithoutNewline(): Boolean = this != null && elementType == WHITE_SPACE && !textContains('\n')
 
 public fun ASTNode.isRoot(): Boolean = elementType == ElementType.FILE
 public fun ASTNode.isLeaf(): Boolean = firstChildNode == null
@@ -210,14 +215,11 @@ public fun ASTNode.isLeaf(): Boolean = firstChildNode == null
  * Check if the given [ASTNode] is a code leaf. E.g. it must be a leaf and may not be a whitespace or be part of a
  * comment.
  */
-public fun ASTNode.isCodeLeaf(): Boolean =
-    isLeaf() && !isWhiteSpace() && !isPartOfComment()
+public fun ASTNode.isCodeLeaf(): Boolean = isLeaf() && !isWhiteSpace() && !isPartOfComment()
 
-public fun ASTNode.isPartOfComment(): Boolean =
-    parent({ it.psi is PsiComment }, strict = false) != null
+public fun ASTNode.isPartOfComment(): Boolean = parent({ it.psi is PsiComment }, strict = false) != null
 
-public fun ASTNode.children(): Sequence<ASTNode> =
-    generateSequence(firstChildNode) { node -> node.treeNext }
+public fun ASTNode.children(): Sequence<ASTNode> = generateSequence(firstChildNode) { node -> node.treeNext }
 
 @Deprecated(message = """Marked for removal in KtLint 0.49. See KDOC""")
 /**
@@ -367,8 +369,7 @@ public fun ASTNode.logStructure(): ASTNode =
             }
     }
 
-private fun String.replaceTabAndNewline(): String =
-    replace("\t", "\\t").replace("\n", "\\n")
+private fun String.replaceTabAndNewline(): String = replace("\t", "\\t").replace("\n", "\\n")
 
 /**
  * Verifies that a whitespace leaf containing a newline exist in the closed range [from] - [to]. Also, returns true in
@@ -378,7 +379,10 @@ private fun String.replaceTabAndNewline(): String =
     message = "Marked for removal in KtLint 0.49",
     replaceWith = ReplaceWith("hasNewLineInClosedRange(from, to)"),
 )
-public fun hasWhiteSpaceWithNewLineInClosedRange(from: ASTNode, to: ASTNode): Boolean =
+public fun hasWhiteSpaceWithNewLineInClosedRange(
+    from: ASTNode,
+    to: ASTNode,
+): Boolean =
     from.isWhiteSpaceWithNewline() ||
         leavesInOpenRange(from, to).any { it.isWhiteSpaceWithNewline() } ||
         to.isWhiteSpaceWithNewline()
@@ -387,7 +391,10 @@ public fun hasWhiteSpaceWithNewLineInClosedRange(from: ASTNode, to: ASTNode): Bo
  * Verifies that a leaf containing a newline exist in the closed range [from] - [to]. Also, returns true in case any of
  * the boundary nodes [from] or [to] contains a newline.
  */
-public fun hasNewLineInClosedRange(from: ASTNode, to: ASTNode): Boolean =
+public fun hasNewLineInClosedRange(
+    from: ASTNode,
+    to: ASTNode,
+): Boolean =
     from.isWhiteSpaceWithNewline() ||
         leavesInOpenRange(from, to).any { it.textContains('\n') } ||
         to.isWhiteSpaceWithNewline()
@@ -400,7 +407,10 @@ public fun hasNewLineInClosedRange(from: ASTNode, to: ASTNode): Boolean =
     message = "Marked for removal in KtLint 0.49",
     replaceWith = ReplaceWith("noNewLineInClosedRange(from, to)"),
 )
-public fun noWhiteSpaceWithNewLineInClosedRange(from: ASTNode, to: ASTNode): Boolean =
+public fun noWhiteSpaceWithNewLineInClosedRange(
+    from: ASTNode,
+    to: ASTNode,
+): Boolean =
     !from.isWhiteSpaceWithNewline() &&
         leavesInOpenRange(from, to).none { it.isWhiteSpaceWithNewline() } &&
         !to.isWhiteSpaceWithNewline()
@@ -409,7 +419,10 @@ public fun noWhiteSpaceWithNewLineInClosedRange(from: ASTNode, to: ASTNode): Boo
  * Verifies that no leaf contains a newline in the closed range [from] - [to]. Also, the boundary nodes [from] and [to]
  * should not contain a newline.
  */
-public fun noNewLineInClosedRange(from: ASTNode, to: ASTNode): Boolean =
+public fun noNewLineInClosedRange(
+    from: ASTNode,
+    to: ASTNode,
+): Boolean =
     !from.isWhiteSpaceWithNewline() &&
         leavesInOpenRange(from, to).none { it.textContains('\n') } &&
         !to.isWhiteSpaceWithNewline()
@@ -420,7 +433,10 @@ public fun noNewLineInClosedRange(from: ASTNode, to: ASTNode): Boolean =
  * leaf node in the sequence is the first leaf node in this [CompositeElement]. In case [to] is a [CompositeElement]
  * than the last node in the sequence is the last leaf node prior to this [CompositeElement].
  */
-public fun leavesInOpenRange(from: ASTNode, to: ASTNode): Sequence<ASTNode> =
+public fun leavesInOpenRange(
+    from: ASTNode,
+    to: ASTNode,
+): Sequence<ASTNode> =
     from
         .leaves()
         .takeWhile { it != to && it != to.firstChildNode }

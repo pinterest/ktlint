@@ -139,12 +139,9 @@ class ParameterListWrappingRuleTest {
                 c: Any
             )
             """.trimIndent()
+        @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
         parameterListWrappingRuleAssertThat(code)
-            .hasLintViolation(
-                3,
-                13,
-                "Parameter should be on a separate line (unless all parameters can fit a single line)",
-            )
+            .hasLintViolation(3, 13, "Parameter should be on a separate line (unless all parameters can fit a single line)")
             .isFormattedAs(formattedCode)
     }
 
@@ -251,12 +248,9 @@ class ParameterListWrappingRuleTest {
                 }
             }
             """.trimIndent()
+        @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
         parameterListWrappingRuleAssertThat(code)
-            .hasLintViolation(
-                2,
-                11,
-                "Parameter should be on a separate line (unless all parameters can fit a single line)",
-            )
+            .hasLintViolation(2, 11, "Parameter should be on a separate line (unless all parameters can fit a single line)")
             .isFormattedAs(formattedCode)
     }
 

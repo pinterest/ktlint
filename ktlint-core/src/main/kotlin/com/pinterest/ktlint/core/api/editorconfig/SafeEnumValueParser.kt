@@ -22,7 +22,10 @@ internal class SafeEnumValueParser<T : Enum<*>?>(enumType: Class<out T?>) : Prop
         this.enumType = enumType
     }
 
-    override fun parse(name: String?, value: String?): PropertyType.PropertyValue<T> =
+    override fun parse(
+        name: String?,
+        value: String?,
+    ): PropertyType.PropertyValue<T> =
         if (value == null) {
             PropertyType.PropertyValue.invalid(value, "Cannot make enum " + enumType.name + " out of null")
         } else {

@@ -68,7 +68,7 @@ class SimpleCLITest {
         CommandLineTestRunner(tempDir)
             .run(
                 "too-many-empty-lines",
-                listOf("**/*.test")
+                listOf("**/*.test"),
             ) {
                 SoftAssertions().apply {
                     assertErrorExitCode()
@@ -166,7 +166,9 @@ class SimpleCLITest {
             ) {
                 SoftAssertions().apply {
                     assertErrorExitCode()
-                    assertThat(errorOutput).doesNotContainLineMatching("Exception in thread \"main\" java.lang.IllegalArgumentException: this and base files have different roots:")
+                    assertThat(errorOutput).doesNotContainLineMatching(
+                        "Exception in thread \"main\" java.lang.IllegalArgumentException: this and base files have different roots:",
+                    )
                 }.assertAll()
             }
     }
@@ -187,7 +189,9 @@ class SimpleCLITest {
                         // The command will throw an error because the testProjectName directory does not contain a
                         // '.git' directory. This is sufficient to know that the ktlint command was recognized.
                         assertErrorExitCode()
-                        assertThat(errorOutput).containsLineMatching("git directory not found. Are you sure you are inside project directory?")
+                        assertThat(errorOutput).containsLineMatching(
+                            "git directory not found. Are you sure you are inside project directory?",
+                        )
                     }.assertAll()
                 }
         }
@@ -206,7 +210,9 @@ class SimpleCLITest {
                         // The command will throw an error because the testProjectName directory does not contain a
                         // '.git' directory. This is sufficient to know that the ktlint command was recognized.
                         assertErrorExitCode()
-                        assertThat(errorOutput).containsLineMatching("git directory not found. Are you sure you are inside project directory?")
+                        assertThat(errorOutput).containsLineMatching(
+                            "git directory not found. Are you sure you are inside project directory?",
+                        )
                     }.assertAll()
                 }
         }
@@ -223,7 +229,9 @@ class SimpleCLITest {
                 ) {
                     SoftAssertions().apply {
                         assertErrorExitCode()
-                        assertThat(errorOutput).containsLineMatching("Option --code-style must be set as to generate the git pre commit hook correctly")
+                        assertThat(errorOutput).containsLineMatching(
+                            "Option --code-style must be set as to generate the git pre commit hook correctly",
+                        )
                     }.assertAll()
                 }
         }
@@ -245,7 +253,9 @@ class SimpleCLITest {
                         // The command will throw an error because the testProjectName directory does not contain a
                         // '.git' directory. This is sufficient to know that the ktlint command was recognized.
                         assertErrorExitCode()
-                        assertThat(errorOutput).containsLineMatching("git directory not found. Are you sure you are inside project directory?")
+                        assertThat(errorOutput).containsLineMatching(
+                            "git directory not found. Are you sure you are inside project directory?",
+                        )
                     }.assertAll()
                 }
         }
@@ -264,7 +274,9 @@ class SimpleCLITest {
                         // The command will throw an error because the testProjectName directory does not contain a
                         // '.git' directory. This is sufficient to know that the ktlint command was recognized.
                         assertErrorExitCode()
-                        assertThat(errorOutput).containsLineMatching("git directory not found. Are you sure you are inside project directory?")
+                        assertThat(errorOutput).containsLineMatching(
+                            "git directory not found. Are you sure you are inside project directory?",
+                        )
                     }.assertAll()
                 }
         }
@@ -281,7 +293,9 @@ class SimpleCLITest {
                 ) {
                     SoftAssertions().apply {
                         assertErrorExitCode()
-                        assertThat(errorOutput).containsLineMatching("Option --code-style must be set as to generate the git pre push hook correctly")
+                        assertThat(errorOutput).containsLineMatching(
+                            "Option --code-style must be set as to generate the git pre push hook correctly",
+                        )
                     }.assertAll()
                 }
         }
@@ -335,7 +349,9 @@ class SimpleCLITest {
                 ) {
                     SoftAssertions().apply {
                         assertErrorExitCode()
-                        assertThat(errorOutput).containsLineMatching("Option --code-style must be set as to generate the '.editorconfig' correctly")
+                        assertThat(errorOutput).containsLineMatching(
+                            "Option --code-style must be set as to generate the '.editorconfig' correctly",
+                        )
                     }.assertAll()
                 }
         }

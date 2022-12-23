@@ -33,7 +33,9 @@ public open class RuleSetProviderTest(
                 .minus(providerRules.toSet())
                 .joinToString(separator = NEWLINE_AND_INDENT)
         assertThat(missingRules)
-            .withFailMessage("${ruleSetProvider::class.simpleName} is missing to provide the following rules:${NEWLINE_AND_INDENT}$missingRules")
+            .withFailMessage(
+                "${ruleSetProvider::class.simpleName} is missing to provide the following rules:${NEWLINE_AND_INDENT}$missingRules",
+            )
             .isEmpty()
     }
 

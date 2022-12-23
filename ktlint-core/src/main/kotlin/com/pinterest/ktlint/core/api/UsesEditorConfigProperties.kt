@@ -67,7 +67,9 @@ public interface UsesEditorConfigProperties {
         }
         when {
             editorConfigProperty.deprecationError != null ->
-                throw DeprecatedEditorConfigPropertyException("Property '${editorConfigProperty.name}' is disallowed: ${editorConfigProperty.deprecationError}")
+                throw DeprecatedEditorConfigPropertyException(
+                    "Property '${editorConfigProperty.name}' is disallowed: ${editorConfigProperty.deprecationError}",
+                )
             editorConfigProperty.deprecationWarning != null ->
                 LOGGER.warn { "Property '${editorConfigProperty.name}' is deprecated: ${editorConfigProperty.deprecationWarning}" }
         }

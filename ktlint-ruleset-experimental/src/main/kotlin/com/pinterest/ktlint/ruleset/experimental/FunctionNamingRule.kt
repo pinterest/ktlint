@@ -44,7 +44,11 @@ public class FunctionNamingRule : Rule("$EXPERIMENTAL_RULE_SET_ID:function-namin
                         .findChildByType(IDENTIFIER)
                         ?.startOffset
                         ?: 1
-                emit(identifierOffset, "Function name should start with a lowercase letter (except factory methods) and use camel case", false)
+                emit(
+                    identifierOffset,
+                    "Function name should start with a lowercase letter (except factory methods) and use camel case",
+                    false,
+                )
             }
     }
 
@@ -52,8 +56,7 @@ public class FunctionNamingRule : Rule("$EXPERIMENTAL_RULE_SET_ID:function-namin
         (this.psi as KtFunction)
             .let { it.hasDeclaredReturnType() && it.name == it.typeReference?.text }
 
-    private fun ASTNode.isTestMethod() =
-        isTestClass && hasValidTestFunctionName()
+    private fun ASTNode.isTestMethod() = isTestClass && hasValidTestFunctionName()
 
     private fun ASTNode.hasValidTestFunctionName() =
         findChildByType(IDENTIFIER)

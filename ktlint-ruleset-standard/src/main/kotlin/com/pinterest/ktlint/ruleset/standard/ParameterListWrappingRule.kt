@@ -222,8 +222,7 @@ public class ParameterListWrappingRule :
         }
     }
 
-    private fun ASTNode.exceedsMaxLineLength() =
-        maxLineLength > -1 && (column - 1 + textLength) > maxLineLength && !textContains('\n')
+    private fun ASTNode.exceedsMaxLineLength() = maxLineLength > -1 && (column - 1 + textLength) > maxLineLength && !textContains('\n')
 
     private fun errorMessage(node: ASTNode) =
         when (node.elementType) {

@@ -43,7 +43,11 @@ class PropertyNamingRuleTest {
             const val FOO_BAR_2 = "foo-bar-2"
             """.trimIndent()
         propertyNamingRuleAssertThat(code)
-            .hasLintViolationWithoutAutoCorrect(1, 11, "Property name should use the screaming snake case notation when the value can not be changed")
+            .hasLintViolationWithoutAutoCorrect(
+                1,
+                11,
+                "Property name should use the screaming snake case notation when the value can not be changed",
+            )
     }
 
     @Test
@@ -54,7 +58,11 @@ class PropertyNamingRuleTest {
             val FOO_BAR = FooBar()
             """.trimIndent()
         propertyNamingRuleAssertThat(code)
-            .hasLintViolationWithoutAutoCorrect(1, 5, "Property name should use the screaming snake case notation when the value can not be changed")
+            .hasLintViolationWithoutAutoCorrect(
+                1,
+                5,
+                "Property name should use the screaming snake case notation when the value can not be changed",
+            )
     }
 
     @Test
@@ -69,7 +77,11 @@ class PropertyNamingRuleTest {
             }
             """.trimIndent()
         propertyNamingRuleAssertThat(code)
-            .hasLintViolationWithoutAutoCorrect(3, 13, "Property name should use the screaming snake case notation when the value can not be changed")
+            .hasLintViolationWithoutAutoCorrect(
+                3,
+                13,
+                "Property name should use the screaming snake case notation when the value can not be changed",
+            )
     }
 
     @Test
@@ -133,9 +145,7 @@ class PropertyNamingRuleTest {
             "PropertyName", // IntelliJ IDEA suppression
         ],
     )
-    fun `Given class with a disallowed name which is suppressed`(
-        suppressionName: String,
-    ) {
+    fun `Given class with a disallowed name which is suppressed`(suppressionName: String) {
         val code =
             """
             @Suppress("$suppressionName")

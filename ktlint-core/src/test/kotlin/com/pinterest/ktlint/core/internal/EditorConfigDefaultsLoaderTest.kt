@@ -71,9 +71,7 @@ class EditorConfigDefaultsLoaderTest {
             "some-alternative-file-name",
         ],
     )
-    fun `Given an existing editor config file then load all settings from it`(
-        fileName: String,
-    ) {
+    fun `Given an existing editor config file then load all settings from it`(fileName: String) {
         val existingEditorConfigFileName = "/some/path/to/existing/$fileName"
         fileSystemMock.writeEditorConfigFile(
             existingEditorConfigFileName,

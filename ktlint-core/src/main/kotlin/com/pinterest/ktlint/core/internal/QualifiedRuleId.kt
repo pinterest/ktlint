@@ -2,8 +2,7 @@ package com.pinterest.ktlint.core.internal
 
 import com.pinterest.ktlint.core.Rule
 
-internal fun Rule.toQualifiedRuleId() =
-    id.toQualifiedRuleId()
+internal fun Rule.toQualifiedRuleId() = id.toQualifiedRuleId()
 
 internal fun String.toQualifiedRuleId(): String {
     val ruleId = if (contains(":")) {
@@ -30,11 +29,8 @@ internal fun toQualifiedRuleId(
     }
 }
 
-private fun String.removeSpaces() =
-    this.replace(" ", "")
+private fun String.removeSpaces() = this.replace(" ", "")
 
-internal fun ruleId(qualifiedRuleId: String) =
-    qualifiedRuleId.substringAfter(":", qualifiedRuleId)
+internal fun ruleId(qualifiedRuleId: String) = qualifiedRuleId.substringAfter(":", qualifiedRuleId)
 
-internal fun ruleSetId(qualifiedRuleId: String) =
-    qualifiedRuleId.substringBefore(":", "standard")
+internal fun ruleSetId(qualifiedRuleId: String) = qualifiedRuleId.substringBefore(":", "standard")

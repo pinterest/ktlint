@@ -118,6 +118,5 @@ public class DumpASTRule @JvmOverloads constructor(
                 .replace("org.jetbrains.kotlin.", "~.")
                 .replace("com.intellij.psi.", "c.i.p.")
 
-    private fun String.escape() =
-        this.replace("\\", "\\\\").replace("\n", "\\n").replace("\t", "\\t").replace("\r", "\\r")
+    private fun String.escape() = this.replace("\\", "\\\\").replace("\n", "\\n").replace("\t", "\\t").replace("\r", "\\r")
 }

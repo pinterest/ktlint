@@ -120,8 +120,7 @@ internal class EditorConfigGenerator(
                 }
             }
 
-    private fun List<ConfigurationSetting>.countDistinctValues() =
-        map { it.value }.distinct().size
+    private fun List<ConfigurationSetting>.countDistinctValues() = map { it.value }.distinct().size
 
     private data class ConfigurationSetting(
         val key: String,
