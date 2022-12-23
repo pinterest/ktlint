@@ -66,7 +66,7 @@ public class FunctionSignatureRule :
     private var indent: String? = null
     private var maxLineLength = -1
     private var functionSignatureWrappingMinimumParameters = -1
-    private var functionBodyExpressionWrapping = default
+    private lateinit var functionBodyExpressionWrapping: FunctionBodyExpressionWrapping
 
     override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
         with(editorConfigProperties) {
@@ -512,12 +512,16 @@ public class FunctionSignatureRule :
             ?.also { firstLineOfBodyExpression ->
                 if (whiteSpaceBeforeFunctionBodyExpression.isWhiteSpaceWithNewline()) {
                     val mergeWithFunctionSignature =
-                        functionBodyExpressionWrapping.keepFirstLineOfBodyExpressionTogetherWithFunctionSignature(
-                            firstLineOfBodyExpression.length < maxLengthRemainingForFirstLineOfBodyExpression,
-                        )
-                    if (mergeWithFunctionSignature ||
-                        node.isMultilineFunctionSignatureWithoutExplicitReturnType(lastNodeOfFunctionSignatureWithBodyExpression)
-                    ) {
+                        if (firstLineOfBodyExpression.length < maxLengthRemainingForFirstLineOfBodyExpression) {
+                            functionBodyExpressionWrapping == default ||
+                                (functionBodyExpressionWrapping == multiline && functionBodyExpressionLines.size == 1) ||
+                                node.isMultilineFunctionSignatureWithoutExplicitReturnType(
+                                    lastNodeOfFunctionSignatureWithBodyExpression
+                                )
+                        } else {
+                            false
+                        }
+                    if (mergeWithFunctionSignature) {
                         emit(
                             whiteSpaceBeforeFunctionBodyExpression!!.startOffset,
                             "First line of body expression fits on same line as function signature",
@@ -759,12 +763,5 @@ public class FunctionSignatureRule :
         always,
 
         ;
-
-        internal fun keepFirstLineOfBodyExpressionTogetherWithFunctionSignature(fitOnSameLine: Boolean) =
-            if (this == default || this == multiline) {
-                fitOnSameLine
-            } else {
-                false
-            }
     }
 }

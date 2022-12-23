@@ -823,7 +823,7 @@ class FunctionSignatureRuleTest {
         @ParameterizedTest(name = "bodyExpressionWrapping: {0}")
         @EnumSource(
             value = FunctionSignatureRule.FunctionBodyExpressionWrapping::class,
-            names = ["always"],
+            names = ["multiline", "always"],
         )
         fun `Given that the function signature and the first line of a multi line body expression body fit on the same line then reformat to single line signature but keep body expression on separate line`(
             bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping,
@@ -859,7 +859,7 @@ class FunctionSignatureRuleTest {
         @ParameterizedTest(name = "bodyExpressionWrapping: {0}")
         @EnumSource(
             value = FunctionSignatureRule.FunctionBodyExpressionWrapping::class,
-            names = ["default", "multiline"],
+            names = ["default"],
         )
         fun `Given that the function signature and first line of a multiline body expression body fit on the same line then do reformat as single line signature`(
             bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping,
