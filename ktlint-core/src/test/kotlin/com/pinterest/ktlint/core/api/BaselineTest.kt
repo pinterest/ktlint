@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 class BaselineTest {
     @Test
     fun testParseBaselineFile() {
-        val filename = "TestBaselineFile.kt"
+        val filename = "baseline/TestBaselineFile.kt"
         val errorOne = LintError(
             line = 1,
             col = 1,

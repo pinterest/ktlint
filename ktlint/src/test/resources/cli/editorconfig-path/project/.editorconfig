@@ -1,7 +1,7 @@
 root = true
 
-[Foo*.{kt,kts}]
+[Foo*.{kt,kts}.test]
 max_line_length = 30
 
-[src/**/example/*.kt]
-ktlint_standard_filename = disabled
+[src/**/example/*.kt.test]
+ktlint_standard_no-wildcard-imports = disabled

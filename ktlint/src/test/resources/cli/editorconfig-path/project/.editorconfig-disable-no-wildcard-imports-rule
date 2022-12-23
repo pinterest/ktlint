@@ -1,0 +1,4 @@
+root = true
+
+[**/*-example/*.{kt,kts}.test]
+ktlint_standard_no-wildcard-imports = disabled

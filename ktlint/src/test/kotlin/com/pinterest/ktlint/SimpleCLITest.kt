@@ -68,6 +68,7 @@ class SimpleCLITest {
         CommandLineTestRunner(tempDir)
             .run(
                 "too-many-empty-lines",
+                listOf("**/*.test")
             ) {
                 SoftAssertions().apply {
                     assertErrorExitCode()
@@ -102,14 +103,14 @@ class SimpleCLITest {
         CommandLineTestRunner(tempDir)
             .run(
                 "too-many-empty-lines",
-                listOf("-F"),
+                listOf("-F", "**/*.test"),
             ) {
                 SoftAssertions().apply {
                     assertNormalExitCode()
                     // on JDK11+ contains warning about illegal reflective access operation
                     // assertErrorOutputIsEmpty()
 
-                    assertSourceFileWasFormatted("Main.kt")
+                    assertSourceFileWasFormatted("Main.kt.test")
                 }.assertAll()
             }
     }
@@ -161,7 +162,7 @@ class SimpleCLITest {
         CommandLineTestRunner(tempDir)
             .run(
                 "too-many-empty-lines",
-                listOf("--relative", "--reporter=sarif"),
+                listOf("**/*.test", "--relative", "--reporter=sarif"),
             ) {
                 SoftAssertions().apply {
                     assertErrorExitCode()

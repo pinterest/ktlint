@@ -42,9 +42,6 @@ tasks.register<JavaExec>("ktlint") {
         "**/src/**/*.kt",
         "**.kts",
         "!**/build/**",
-        // Exclude sources which contain lint violations for the purpose of testing.
-        "!ktlint/src/test/resources/**",
-        "--baseline=ktlint/src/test/resources/test-baseline.xml",
         // Do not run with option "--log-level=debug" or "--log-level=trace" as the lint violations will be difficult
         // to spot between the amount of output lines.
     )
@@ -60,9 +57,6 @@ tasks.register<JavaExec>("ktlint format") {
         "**/src/**/*.kt",
         "**.kts",
         "!**/build/**",
-        // Exclude sources which contain lint violations for the purpose of testing.
-        "!ktlint/src/test/resources/**",
-        "--baseline=ktlint/src/test/resources/test-baseline.xml",
         "--format",
         // Do not run with option "--log-level=debug" or "--log-level=trace" as the lint violations will be difficult
         // to spot between the amount of output lines.

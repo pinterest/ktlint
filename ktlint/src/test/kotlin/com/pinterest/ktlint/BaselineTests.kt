@@ -27,13 +27,13 @@ class BaselineTests {
     }
 
     @Test
-    fun testNoBaseline() {
+    fun `Given a file containing lint errors then find those errors`() {
         val stream = ByteArrayOutputStream()
         val ps = PrintStream(stream)
         System.setOut(ps)
 
         try {
-            main(arrayOf("src/test/resources/TestBaselineFile.kt"))
+            main(arrayOf("src/test/resources/cli/baseline/TestBaselineFile.kt.test"))
         } catch (e: ExitException) {
             // handle System.exit
         }
@@ -50,7 +50,7 @@ class BaselineTests {
         System.setOut(ps)
 
         try {
-            main(arrayOf("src/test/resources/TestBaselineFile.kt", "--baseline=src/test/resources/test-baseline.xml"))
+            main(arrayOf("src/test/resources/cli/baseline/TestBaselineFile.kt.test", "--log-level=debug", "--baseline=src/test/resources/cli/baseline/test-baseline.xml"))
         } catch (e: ExitException) {
             // handle System.exit
         }
@@ -67,7 +67,7 @@ class BaselineTests {
         System.setOut(ps)
 
         try {
-            main(arrayOf("src/test/resources/TestBaselineExtraErrorFile.kt", "--baseline=src/test/resources/test-baseline.xml"))
+            main(arrayOf("src/test/resources/cli/baseline/TestBaselineExtraErrorFile.kt.test", "--baseline=src/test/resources/cli/baseline/test-baseline.xml", "-l=debug"))
         } catch (e: ExitException) {
             // handle System.exit
         }
