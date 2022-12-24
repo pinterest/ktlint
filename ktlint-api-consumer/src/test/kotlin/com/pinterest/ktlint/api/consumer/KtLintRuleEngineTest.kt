@@ -12,6 +12,11 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 
+/**
+ * The KtLintRuleEngine is use by the Ktlint CLI and external API Consumers. Although most functionalities of the RuleEngine are already
+ * tested via the Ktlint CLI Tests and normal unit tests in KtLint Core, some functionalities need additional testing from the perspective
+ * of an API Consumer to ensure that the API is usable and stable across releases.
+ */
 class KtLintRuleEngineTest {
     @Nested
     inner class `Lint with KtLintRuleEngine` {
