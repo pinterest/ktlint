@@ -2,7 +2,6 @@ package com.pinterest.ktlint
 
 import java.io.ByteArrayInputStream
 import java.nio.file.Path
-import javax.annotation.RegEx
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.SoftAssertions
 import org.junit.jupiter.api.Test
