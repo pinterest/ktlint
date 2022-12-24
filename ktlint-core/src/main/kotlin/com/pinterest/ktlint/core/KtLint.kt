@@ -179,8 +179,8 @@ public object KtLint {
             params.editorConfigOverride,
             params.isInvokedFromCli,
         ).lint(
-            Code(
-                text = params.text,
+            Code.CodeSnippetLegacy(
+                content = params.text,
                 fileName = params.fileName,
                 script = params.script,
                 isStdIn = params.isStdIn,
@@ -207,8 +207,8 @@ public object KtLint {
             params.editorConfigOverride,
             params.isInvokedFromCli,
         ).format(
-            Code(
-                text = params.text,
+            Code.CodeSnippetLegacy(
+                content = params.text,
                 fileName = params.fileName,
                 script = params.script,
                 isStdIn = params.isStdIn,
@@ -291,17 +291,19 @@ public object KtLint {
     }
 }
 
-/**
- * To be removed in KtLint 0.49 when class ExperimentalParams is removed.
- */
-internal class Code private constructor(
-    val content: String,
-    val fileName: String?,
-    val script: Boolean,
-    val filePath: Path?,
-    val isStdIn: Boolean,
+public sealed class Code(
+    internal open val content: String,
+    internal open val fileName: String?,
+    internal open val filePath: Path?,
+    internal open val script: Boolean,
+    internal open val isStdIn: Boolean,
 ) {
-    constructor(file: File) : this(
+    /**
+     * A [file] containing valid Kotlin code or script. The '.editorconfig' files on the path to [file] are taken into account.
+     */
+    public class CodeFile(
+        private val file: File,
+    ) : Code(
         content = file.readText(),
         fileName = file.name,
         filePath = file.toPath(),
@@ -309,16 +311,30 @@ internal class Code private constructor(
         isStdIn = false,
     )
 
-    constructor(text: String, fileName: String? = null) : this(
-        content = text,
-        fileName = fileName,
-        filePath = fileName?.let { Paths.get(fileName) },
-        script = fileName?.endsWith(".kts", ignoreCase = true) == true,
-        isStdIn = fileName == KtLintRuleEngine.STDIN_FILE,
+    /**
+     * The [content] represent a valid piece of Kotlin code or Kotlin script. The '.editorconfig' files on the filesystem are ignored as the
+     * snippet is not associated with a file path. Use [CodeFile] for scanning a file while at the same time respecting the '.editorconfig'
+     * files on the path to the file.
+     */
+    public class CodeSnippet(
+        override val content: String,
+        override val script: Boolean = false,
+    ) : Code(
+        content = content,
+        filePath = null,
+        fileName = null,
+        script = script,
+        isStdIn = true,
     )
 
-    constructor(text: String, fileName: String? = null, script: Boolean, isStdIn: Boolean) : this(
-        content = text,
+    @Deprecated(message = "Remove in KtLint 0.49 when class ExperimentalParams is removed")
+    internal class CodeSnippetLegacy(
+        override val content: String,
+        override val fileName: String? = null,
+        override val script: Boolean = fileName?.endsWith(".kts", ignoreCase = true) == true,
+        override val isStdIn: Boolean = fileName == KtLintRuleEngine.STDIN_FILE,
+    ) : Code(
+        content = content,
         fileName = fileName,
         filePath = fileName?.let { Paths.get(fileName) },
         script = script,
@@ -367,14 +383,15 @@ public class KtLintRuleEngine(
      * @throws KtLintParseException if text is not a valid Kotlin code
      * @throws KtLintRuleException in case of internal failure caused by a bug in rule implementation
      */
+    @Deprecated(message = "Marked for removal in Ktlint 0.49")
     public fun lint(
         code: String,
         filePath: Path? = null,
         callback: (LintError) -> Unit = { },
     ) {
         lint(
-            Code(
-                text = code,
+            Code.CodeSnippetLegacy(
+                content = code,
                 fileName = filePath?.absolutePathString(),
             ),
             callback,
@@ -388,18 +405,25 @@ public class KtLintRuleEngine(
      * @throws KtLintParseException if text is not a valid Kotlin code
      * @throws KtLintRuleException in case of internal failure caused by a bug in rule implementation
      */
+    @Deprecated(message = "Marked for removal in Ktlint 0.49")
     public fun lint(
         filePath: Path,
         callback: (LintError) -> Unit = { },
     ) {
         lint(
-            Code(filePath.toFile()),
+            Code.CodeFile(filePath.toFile()),
             callback,
         )
     }
 
-    @Deprecated(message = "To be removed in KtLint 0.49 when ExperimentalParams is removed")
-    internal fun lint(
+    /**
+     * Check the [code] for lint errors. If [code] is path as file reference then the '.editorconfig' files on the path to file are taken
+     * into account. For each lint violation found, the [callback] is invoked.
+     *
+     * @throws KtLintParseException if text is not a valid Kotlin code
+     * @throws KtLintRuleException in case of internal failure caused by a bug in rule implementation
+     */
+    public fun lint(
         code: Code,
         callback: (LintError) -> Unit = { },
     ) {
@@ -433,14 +457,15 @@ public class KtLintRuleEngine(
      * @throws KtLintParseException if text is not a valid Kotlin code
      * @throws KtLintRuleException in case of internal failure caused by a bug in rule implementation
      */
+    @Deprecated(message = "Marked for removal in Ktlint 0.49")
     public fun format(
         code: String,
         filePath: Path? = null,
         callback: (LintError, Boolean) -> Unit = { _, _ -> },
     ): String =
         format(
-            Code(
-                text = code,
+            Code.CodeSnippetLegacy(
+                content = code,
                 fileName = filePath?.absolutePathString(),
             ),
             callback,
@@ -458,12 +483,18 @@ public class KtLintRuleEngine(
         callback: (LintError, Boolean) -> Unit = { _, _ -> },
     ): String =
         format(
-            Code(filePath.toFile()),
+            Code.CodeFile(filePath.toFile()),
             callback,
         )
 
-    @Deprecated(message = "To be removed or refactored in KtLint when class ExperimentalParams is removed")
-    internal fun format(
+    /**
+     * Fix style violations in [code] for lint errors when possible. If [code] is passed as file reference then the '.editorconfig' files on
+     * the path are taken into account. For each lint violation found, the [callback] is invoked.
+     *
+     * @throws KtLintParseException if text is not a valid Kotlin code
+     * @throws KtLintRuleException in case of internal failure caused by a bug in rule implementation
+     */
+    public fun format(
         code: Code,
         callback: (LintError, Boolean) -> Unit = { _, _ -> },
     ): String {
