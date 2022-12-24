@@ -127,7 +127,8 @@ public class FilenameRule : Rule("filename") {
         if (this != className) {
             emit(
                 0,
-                "File '$this.kt' contains a single class and possibly also extension functions for that class and should be named same after that class '$className.kt'",
+                "File '$this.kt' contains a single class and possibly also extension functions for that class and should be named same " +
+                    "after that class '$className.kt'",
                 false,
             )
         }

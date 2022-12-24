@@ -95,7 +95,8 @@ internal class EditorConfigFinder {
             )
         }.also { duration ->
             LOGGER.debug {
-                "Scanning file system to find all '.editorconfig' files in directory '$path' scanned $visitedDirectoryCount directories in $duration ms"
+                "Scanning file system to find all '.editorconfig' files in directory '$path' scanned $visitedDirectoryCount directories " +
+                    "in $duration ms"
             }
         }
 

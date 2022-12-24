@@ -351,11 +351,17 @@ public class TrailingCommaOnDeclarationSiteRule :
 
     private fun isMultiline(element: PsiElement): Boolean =
         when {
-            element.parent is KtFunctionLiteral -> isMultiline(element.parent)
-            element is KtFunctionLiteral -> containsLineBreakInLeavesRange(element.valueParameterList!!, element.arrow!!)
-            element is KtWhenEntry -> containsLineBreakInLeavesRange(element.firstChild, element.arrow!!)
-            element is KtDestructuringDeclaration -> containsLineBreakInLeavesRange(element.lPar!!, element.rPar!!)
-            element is KtValueArgumentList && element.children.size == 1 && element.anyDescendantOfType<KtCollectionLiteralExpression>() -> {
+            element.parent is KtFunctionLiteral ->
+                isMultiline(element.parent)
+            element is KtFunctionLiteral ->
+                containsLineBreakInLeavesRange(element.valueParameterList!!, element.arrow!!)
+            element is KtWhenEntry ->
+                containsLineBreakInLeavesRange(element.firstChild, element.arrow!!)
+            element is KtDestructuringDeclaration ->
+                containsLineBreakInLeavesRange(element.lPar!!, element.rPar!!)
+            element is KtValueArgumentList &&
+                element.children.size == 1 &&
+                element.anyDescendantOfType<KtCollectionLiteralExpression>() -> {
                 // special handling for collection literal
                 // @Annotation([
                 //    "something",
@@ -363,8 +369,10 @@ public class TrailingCommaOnDeclarationSiteRule :
                 val lastChild = element.collectDescendantsOfType<KtCollectionLiteralExpression>().last()
                 containsLineBreakInLeavesRange(lastChild.rightBracket!!, element.rightParenthesis!!)
             }
-            element is KtParameterList && element.parameters.isEmpty() -> false
-            else -> element.textContains('\n')
+            element is KtParameterList && element.parameters.isEmpty() ->
+                false
+            else ->
+                element.textContains('\n')
         }
 
     private fun ASTNode.addNewLineBeforeArrowInWhen() =

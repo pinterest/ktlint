@@ -14,54 +14,34 @@ class PlainReporterTest {
         val reporter = PlainReporter(PrintStream(out, true))
         reporter.onLintError(
             "file-1.kt",
-            LintError(
-                1,
-                1,
-                "rule-1",
-                "description-error-at-position-1:1",
-            ),
+            @Suppress("ktlint:argument-list-wrapping")
+            LintError(1, 1, "rule-1", "description-error-at-position-1:1"),
             false,
         )
         reporter.onLintError(
             "file-1.kt",
-            LintError(
-                2,
-                1,
-                "rule-2",
-                "description-error-at-position-2:1",
-            ),
+            @Suppress("ktlint:argument-list-wrapping")
+            LintError(2, 1, "rule-2", "description-error-at-position-2:1"),
             true,
         )
 
         reporter.onLintError(
             "file-2.kt",
-            LintError(
-                1,
-                10,
-                "rule-1",
-                "description-error-at-position-1:10",
-            ),
+            @Suppress("ktlint:argument-list-wrapping")
+            LintError(1, 10, "rule-1", "description-error-at-position-1:10"),
             false,
         )
         reporter.onLintError(
             "file-2.kt",
-            LintError(
-                2,
-                20,
-                "rule-2",
-                "description-error-at-position-2:20",
-            ),
+            @Suppress("ktlint:argument-list-wrapping")
+            LintError(2, 20, "rule-2", "description-error-at-position-2:20"),
             false,
         )
 
         reporter.onLintError(
             "file-3.kt",
-            LintError(
-                1,
-                1,
-                "rule-1",
-                "description-error-at-position-1:1",
-            ),
+            @Suppress("ktlint:argument-list-wrapping")
+            LintError(1, 1, "rule-1", "description-error-at-position-1:1"),
             true,
         )
 
@@ -87,32 +67,20 @@ class PlainReporterTest {
         val reporter = PlainReporter(PrintStream(out, true))
         reporter.onLintError(
             "file-1.kt",
-            LintError(
-                18,
-                51,
-                "",
-                "Not a valid Kotlin file (18:51 unexpected tokens (use ';' to separate expressions on the same line)) (cannot be auto-corrected) ()",
-            ),
+            @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
+            LintError(18, 51, "", "Not a valid Kotlin file (18:51 unexpected tokens (use ';' to separate expressions on the same line)) (cannot be auto-corrected) ()"),
             false,
         )
         reporter.onLintError(
             "file-2.kt",
-            LintError(
-                18,
-                51,
-                "",
-                "Not a valid Kotlin file (18:51 unexpected tokens (use ';' to separate expressions on the same line)) (cannot be auto-corrected) ()",
-            ),
+            @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
+            LintError(18, 51, "", "Not a valid Kotlin file (18:51 unexpected tokens (use ';' to separate expressions on the same line)) (cannot be auto-corrected) ()"),
             false,
         )
         reporter.onLintError(
             "file-3.kt",
-            LintError(
-                18,
-                51,
-                "",
-                "Something else",
-            ),
+            @Suppress("ktlint:argument-list-wrapping")
+            LintError(18, 51, "", "Something else"),
             false,
         )
         reporter.afterAll()
@@ -142,12 +110,8 @@ class PlainReporterTest {
         )
         reporter.onLintError(
             File.separator + "one-fixed-and-one-not.kt",
-            LintError(
-                1,
-                1,
-                "rule-1",
-                "<\"&'>",
-            ),
+            @Suppress("ktlint:argument-list-wrapping")
+            LintError(1, 1, "rule-1", "<\"&'>"),
             false,
         )
         val outputString = String(out.toByteArray())
@@ -171,54 +135,34 @@ class PlainReporterTest {
         val reporter = PlainReporter(PrintStream(out, true), groupByFile = true)
         reporter.onLintError(
             "/one-fixed-and-one-not.kt",
-            LintError(
-                1,
-                1,
-                "rule-1",
-                "<\"&'>",
-            ),
+            @Suppress("ktlint:argument-list-wrapping")
+            LintError(1, 1, "rule-1", "<\"&'>"),
             false,
         )
         reporter.onLintError(
             "/one-fixed-and-one-not.kt",
-            LintError(
-                2,
-                1,
-                "rule-2",
-                "And if you see my friend",
-            ),
+            @Suppress("ktlint:argument-list-wrapping")
+            LintError(2, 1, "rule-2", "And if you see my friend"),
             true,
         )
 
         reporter.onLintError(
             "/two-not-fixed.kt",
-            LintError(
-                1,
-                10,
-                "rule-1",
-                "I thought I would again",
-            ),
+            @Suppress("ktlint:argument-list-wrapping")
+            LintError(1, 10, "rule-1", "I thought I would again"),
             false,
         )
         reporter.onLintError(
             "/two-not-fixed.kt",
-            LintError(
-                2,
-                20,
-                "rule-2",
-                "A single thin straight line",
-            ),
+            @Suppress("ktlint:argument-list-wrapping")
+            LintError(2, 20, "rule-2", "A single thin straight line"),
             false,
         )
 
         reporter.onLintError(
             "/all-corrected.kt",
-            LintError(
-                1,
-                1,
-                "rule-1",
-                "I thought we had more time",
-            ),
+            @Suppress("ktlint:argument-list-wrapping")
+            LintError(1, 1, "rule-1", "I thought we had more time"),
             true,
         )
         reporter.after("/one-fixed-and-one-not.kt")

@@ -218,7 +218,8 @@ public class ImportOrderingRule :
                     )
                     value == "idea" -> {
                         LOGGER.warn {
-                            "`idea` is deprecated! Please use `*,java.**,javax.**,kotlin.**,^` instead to ensure that the Kotlin IDE plugin recognizes the value"
+                            "`idea` is deprecated! Please use `*,java.**,javax.**,kotlin.**,^` instead to ensure that the Kotlin IDE " +
+                                "plugin recognizes the value"
                         }
                         PropertyType.PropertyValue.valid(
                             value,

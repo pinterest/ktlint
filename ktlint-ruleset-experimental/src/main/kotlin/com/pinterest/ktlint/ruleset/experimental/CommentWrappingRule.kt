@@ -55,7 +55,8 @@ public class CommentWrappingRule :
                     //    */ val bar = "bar"
                     emit(
                         node.startOffset,
-                        "A block comment starting on same line as another element and ending on another line before another element is disallowed",
+                        "A block comment starting on same line as another element and ending on another line before another element is " +
+                            "disallowed",
                         false,
                     )
                 } else {

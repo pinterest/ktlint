@@ -753,7 +753,8 @@ public class IndentationRule :
             LOGGER.trace {
                 val nodeIndentLevel = indentConfig.indentLevelFrom(newIndentContext.nodeIndent)
                 val childIndentLevel = indentConfig.indentLevelFrom(newIndentContext.childIndent)
-                "Create new indent context (same as parent) with level ($nodeIndentLevel, $childIndentLevel) for ${fromAstNode.elementType}: ${newIndentContext.nodes}"
+                "Create new indent context (same as parent) with level ($nodeIndentLevel, $childIndentLevel) for " +
+                    "${fromAstNode.elementType}: ${newIndentContext.nodes}"
             }
             indentContextStack.addLast(newIndentContext)
         }
@@ -768,7 +769,8 @@ public class IndentationRule :
                 val indentContext = indentContextStack.peekLast()
                 val nodeIndentLevel = indentConfig.indentLevelFrom(indentContext.nodeIndent)
                 val childIndentLevel = indentConfig.indentLevelFrom(indentContext.childIndent)
-                "Remove indent context with level ($nodeIndentLevel, $childIndentLevel) for ${indentContext.fromASTNode.elementType}: ${indentContext.nodes}"
+                "Remove indent context with level ($nodeIndentLevel, $childIndentLevel) for ${indentContext.fromASTNode.elementType}: " +
+                    "${indentContext.nodes}"
             }
             indentContextStack
                 .removeLast()
@@ -777,7 +779,8 @@ public class IndentationRule :
                         val indentContext = indentContextStack.peekLast()
                         val nodeIndentLevel = indentConfig.indentLevelFrom(indentContext.nodeIndent)
                         val childIndentLevel = indentConfig.indentLevelFrom(indentContext.childIndent)
-                        "Last indent context with level ($nodeIndentLevel, $childIndentLevel) for ${indentContext.fromASTNode.elementType}: ${indentContext.nodes}"
+                        "Last indent context with level ($nodeIndentLevel, $childIndentLevel) for " +
+                            "${indentContext.fromASTNode.elementType}: ${indentContext.nodes}"
                     }
                 }
         }
@@ -815,7 +818,8 @@ public class IndentationRule :
                 // been emitted.
             }
             LOGGER.trace {
-                "Line $line: " + (if (!autoCorrect) "would have " else "") + "changed indentation to ${expectedIndentation.length} (from ${normalizedNodeIndent.length}) for ${node.elementType}: ${node.textWithEscapedTabAndNewline()}"
+                "Line $line: " + (if (!autoCorrect) "would have " else "") + "changed indentation to ${expectedIndentation.length} " +
+                    "(from ${normalizedNodeIndent.length}) for ${node.elementType}: ${node.textWithEscapedTabAndNewline()}"
             }
             if (autoCorrect) {
                 (node as LeafPsiElement).rawReplaceWithText(
@@ -1101,7 +1105,8 @@ private class StringTemplateIndenter(private val indentConfig: IndentConfig) {
                                     indentConfig.indexOfFirstUnexpectedIndentChar(actualIndent)
                                 emit(
                                     it.startOffset + offsetFirstWrongIndentChar,
-                                    "Unexpected '${indentConfig.unexpectedIndentCharDescription}' character(s) in margin of multiline string",
+                                    "Unexpected '${indentConfig.unexpectedIndentCharDescription}' character(s) in margin of multiline " +
+                                        "string",
                                     true,
                                 )
                                 if (autoCorrect) {

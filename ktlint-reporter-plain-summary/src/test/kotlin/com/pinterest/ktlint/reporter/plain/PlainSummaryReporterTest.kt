@@ -15,54 +15,34 @@ class PlainSummaryReporterTest {
         ).apply {
             onLintError(
                 "file-1.kt",
-                LintError(
-                    1,
-                    1,
-                    "rule-1",
-                    "description-error-at-position-1:1 (cannot be auto-corrected)",
-                ),
+                @Suppress("ktlint:argument-list-wrapping")
+                LintError(1, 1, "rule-1", "description-error-at-position-1:1 (cannot be auto-corrected)"),
                 false,
             )
             onLintError(
                 "file-1.kt",
-                LintError(
-                    2,
-                    1,
-                    "rule-2",
-                    "description-error-at-position-2:1",
-                ),
+                @Suppress("ktlint:argument-list-wrapping")
+                LintError(2, 1, "rule-2", "description-error-at-position-2:1"),
                 true,
             )
 
             onLintError(
                 "file-2.kt",
-                LintError(
-                    1,
-                    10,
-                    "rule-1",
-                    "description-error-at-position-1:10 (cannot be auto-corrected)",
-                ),
+                @Suppress("ktlint:argument-list-wrapping")
+                LintError(1, 10, "rule-1", "description-error-at-position-1:10 (cannot be auto-corrected)"),
                 false,
             )
             onLintError(
                 "file-2.kt",
-                LintError(
-                    2,
-                    20,
-                    "rule-2",
-                    "description-error-at-position-2:20 (cannot be auto-corrected)",
-                ),
+                @Suppress("ktlint:argument-list-wrapping")
+                LintError(2, 20, "rule-2", "description-error-at-position-2:20 (cannot be auto-corrected)"),
                 false,
             )
 
             onLintError(
                 "file-3.kt",
-                LintError(
-                    1,
-                    1,
-                    "rule-1",
-                    "description-error-at-position-1:1",
-                ),
+                @Suppress("ktlint:argument-list-wrapping")
+                LintError(1, 1, "rule-1", "description-error-at-position-1:1"),
                 true,
             )
 
@@ -93,32 +73,20 @@ class PlainSummaryReporterTest {
         val reporter = PlainSummaryReporter(PrintStream(out, true))
         reporter.onLintError(
             "file-1.kt",
-            LintError(
-                18,
-                51,
-                "",
-                "Not a valid Kotlin file (18:51 unexpected tokens (use ';' to separate expressions on the same line)) (cannot be auto-corrected) ()",
-            ),
+            @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
+            LintError(18, 51, "", "Not a valid Kotlin file (18:51 unexpected tokens (use ';' to separate expressions on the same line)) (cannot be auto-corrected) ()"),
             false,
         )
         reporter.onLintError(
             "file-2.kt",
-            LintError(
-                18,
-                51,
-                "",
-                "Not a valid Kotlin file (18:51 unexpected tokens (use ';' to separate expressions on the same line)) (cannot be auto-corrected) ()",
-            ),
+            @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
+            LintError(18, 51, "", "Not a valid Kotlin file (18:51 unexpected tokens (use ';' to separate expressions on the same line)) (cannot be auto-corrected) ()"),
             false,
         )
         reporter.onLintError(
             "file-3.kt",
-            LintError(
-                18,
-                51,
-                "",
-                "Something else",
-            ),
+            @Suppress("ktlint:argument-list-wrapping")
+            LintError(18, 51, "", "Something else"),
             false,
         )
         reporter.afterAll()

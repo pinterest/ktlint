@@ -392,6 +392,7 @@ class AnnotationRuleTest {
 
                 package foo.bar
                 """.trimIndent()
+            @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
             annotationRuleAssertThat(code)
                 .hasLintViolations(
                     LintViolation(1, 1, "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct"),

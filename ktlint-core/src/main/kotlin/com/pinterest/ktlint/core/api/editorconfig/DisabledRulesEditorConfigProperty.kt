@@ -30,7 +30,8 @@ private fun createDisabledRulesEditorConfigProperty(name: String) =
         name = name,
         type = PropertyType.LowerCasingPropertyType(
             "disabled_rules",
-            "A comma separated list of rule ids which should not be run. For rules not defined in the 'standard' ruleset, the qualified rule-id should be used.",
+            "A comma separated list of rule ids which should not be run. For rules not defined in the 'standard' ruleset, the qualified " +
+                "rule-id should be used.",
             PropertyType.PropertyValueParser.IDENTITY_VALUE_PARSER,
             emptySet(),
         ),

@@ -36,7 +36,8 @@ public class PlainReporter(
                         err.col
                     }
                 out.println(
-                    "${colorFileName(file)}${":".colored()}${err.line}${":$column:".colored()} ${err.detail} ${"(${err.ruleId})".colored()}",
+                    "${colorFileName(file)}${":".colored()}${err.line}${":$column:".colored()} " +
+                        "${err.detail} ${"(${err.ruleId})".colored()}",
                 )
             }
             ruleViolationCount
