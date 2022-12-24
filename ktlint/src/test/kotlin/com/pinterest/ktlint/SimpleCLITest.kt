@@ -2,6 +2,7 @@ package com.pinterest.ktlint
 
 import java.io.ByteArrayInputStream
 import java.nio.file.Path
+import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.SoftAssertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
@@ -166,6 +167,21 @@ class SimpleCLITest {
                     assertErrorExitCode()
                     assertThat(errorOutput).doesNotContainLineMatching("Exception in thread \"main\" java.lang.IllegalArgumentException: this and base files have different roots:")
                 }.assertAll()
+            }
+    }
+
+    @Test
+    fun `Issue 1742 - Disable the filename rule when --stdin is used`(
+        @TempDir
+        tempDir: Path,
+    ) {
+        CommandLineTestRunner(tempDir)
+            .run(
+                testProjectName = "too-many-empty-lines",
+                arguments = listOf("--stdin"),
+                stdin = ByteArrayInputStream("fun foo() = 42".toByteArray()),
+            ) {
+                assertThat(normalOutput).containsLineMatching(Regex(".*ktlint_standard_filename: disabled.*"))
             }
     }
 }

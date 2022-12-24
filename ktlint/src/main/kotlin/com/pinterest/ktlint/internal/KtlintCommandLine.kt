@@ -261,6 +261,8 @@ internal class KtlintCommandLine {
                     plus(*disabledRulesEditorConfigOverrides())
                 }.applyIf(android) {
                     plus(CODE_STYLE_PROPERTY to CodeStyleValue.android)
+                }.applyIf(stdin) {
+                    plus(createRuleExecutionEditorConfigProperty("standard:filename") to RuleExecution.disabled)
                 }
 
     private fun disabledRulesEditorConfigOverrides() =
