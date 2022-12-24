@@ -236,6 +236,22 @@ internal class KtlintCommandLine {
     )
     private var minLogLevel: Level = Level.INFO
 
+    init {
+        if (debugOld != null || trace != null || verbose != null) {
+            if (minLogLevel == Level.OFF) {
+                minLogLevel = Level.ERROR
+            }
+            configureLogger().error {
+                "Options '--debug', '--trace', '--verbose' and '-v' are deprecated and replaced with option '--log-level=<level>' or '-l=<level>'."
+            }
+            exitKtLintProcess(1)
+        }
+
+        // Ensure that logger is initialized even when the run method is not executed because a subcommand like (--help)
+        // is executed so that method exitKtLintProcess only prints a log line when the appropriate loglevel is set.
+        logger = configureLogger()
+    }
+
     private val tripped = AtomicBoolean()
     private val fileNumber = AtomicInteger()
     private val errorNumber = AtomicInteger()
@@ -261,6 +277,8 @@ internal class KtlintCommandLine {
                     plus(*disabledRulesEditorConfigOverrides())
                 }.applyIf(android) {
                     plus(CODE_STYLE_PROPERTY to CodeStyleValue.android)
+                }.applyIf(stdin) {
+                    plus(createRuleExecutionEditorConfigProperty("standard:filename") to RuleExecution.disabled)
                 }
 
     private fun disabledRulesEditorConfigOverrides() =
@@ -269,22 +287,6 @@ internal class KtlintCommandLine {
             .filter { it.isNotBlank() }
             .map { ruleId -> createRuleExecutionEditorConfigProperty(ruleId) to RuleExecution.disabled }
             .toTypedArray()
-
-    init {
-        if (debugOld != null || trace != null || verbose != null) {
-            if (minLogLevel == Level.OFF) {
-                minLogLevel = Level.ERROR
-            }
-            configureLogger().error {
-                "Options '--debug', '--trace', '--verbose' and '-v' are deprecated and replaced with option '--log-level=<level>' or '-l=<level>'."
-            }
-            exitKtLintProcess(1)
-        }
-
-        // Ensure that logger is initialized even when the run method is not executed because a subcommand like (--help)
-        // is executed so that method exitKtLintProcess only prints a log line when the appropriate loglevel is set.
-        logger = configureLogger()
-    }
 
     fun run() {
         assertStdinAndPatternsFromStdinOptionsMutuallyExclusive()
