@@ -23,7 +23,7 @@ artifacts {
     archives(javadocJar)
 }
 
-val ktlint: Configuration = configurations.create("ktlint")
+val ktlint: Configuration by configurations.creating
 
 dependencies {
     ktlint(projects.ktlint)
@@ -59,17 +59,15 @@ tasks.register<JavaExec>("ktlint") {
     }
 }
 
-afterEvaluate {
-    publishing {
-        publications {
-            create<MavenPublication>("mavenJava") {
-                pom {
-                    licenses {
-                        license {
-                            name.set("The Apache Software License, Version 2.0")
-                            url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
-                            distribution.set("repo")
-                        }
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            pom {
+                licenses {
+                    license {
+                        name.set("The Apache Software License, Version 2.0")
+                        url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
+                        distribution.set("repo")
                     }
                 }
             }
