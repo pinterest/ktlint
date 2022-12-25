@@ -2,14 +2,14 @@ package com.pinterest.ktlint.ruleset.experimental
 
 import com.pinterest.ktlint.ruleset.experimental.FunctionSignatureRule.Companion.FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY
 import com.pinterest.ktlint.ruleset.experimental.FunctionSignatureRule.Companion.FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY
-import com.pinterest.ktlint.ruleset.standard.IndentationRule
-import com.pinterest.ktlint.ruleset.standard.NoMultipleSpacesRule
-import com.pinterest.ktlint.ruleset.standard.SpacingAroundAngleBracketsRule
-import com.pinterest.ktlint.ruleset.standard.SpacingAroundColonRule
-import com.pinterest.ktlint.ruleset.standard.SpacingAroundCommaRule
-import com.pinterest.ktlint.ruleset.standard.SpacingAroundDotRule
-import com.pinterest.ktlint.ruleset.standard.SpacingAroundOperatorsRule
-import com.pinterest.ktlint.ruleset.standard.SpacingAroundParensRule
+import com.pinterest.ktlint.ruleset.standard.rules.IndentationRule
+import com.pinterest.ktlint.ruleset.standard.rules.NoMultipleSpacesRule
+import com.pinterest.ktlint.ruleset.standard.rules.SpacingAroundAngleBracketsRule
+import com.pinterest.ktlint.ruleset.standard.rules.SpacingAroundColonRule
+import com.pinterest.ktlint.ruleset.standard.rules.SpacingAroundCommaRule
+import com.pinterest.ktlint.ruleset.standard.rules.SpacingAroundDotRule
+import com.pinterest.ktlint.ruleset.standard.rules.SpacingAroundOperatorsRule
+import com.pinterest.ktlint.ruleset.standard.rules.SpacingAroundParensRule
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule

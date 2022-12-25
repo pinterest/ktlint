@@ -1,7 +1,5 @@
-package com.pinterest.ktlint.ruleset.experimental
+package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.standard.rules.SpacingAroundDotRule
-import com.pinterest.ktlint.ruleset.standard.rules.SpacingAroundUnaryOperatorRule
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
@@ -144,15 +142,15 @@ class SpacingAroundUnaryOperatorRuleTest {
             """
             val foo1 = "foo"!!.length
             val foo2 = "foo"!!.length
-            val foo3 = "foo"!!.length
+            val foo3 = "foo"!! .length
             val foo4 = "foo"!!
                 .length
             """.trimIndent()
         spacingAroundUnaryOperatorRuleAssertThat(code)
-            .addAdditionalRuleProvider { SpacingAroundDotRule() }
-            .hasLintViolation(2, 17, "Unexpected spacing in \"foo\" !!")
-            .hasLintViolationForAdditionalRule(3, 19, "Unexpected spacing before \".\"")
-            .isFormattedAs(formattedCode)
+            .hasLintViolations(
+                LintViolation(2, 17, "Unexpected spacing in \"foo\" !!"),
+                // Space between the unary operator (!!) and the . is cleared by 'dot-spacing' rule
+            ).isFormattedAs(formattedCode)
     }
 
     @Test

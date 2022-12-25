@@ -1,6 +1,6 @@
 package com.pinterest.ktlint.ruleset.experimental
 
-import com.pinterest.ktlint.ruleset.standard.CommentSpacingRule
+import com.pinterest.ktlint.ruleset.standard.rules.CommentSpacingRule
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test

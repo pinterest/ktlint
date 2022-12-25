@@ -2,6 +2,51 @@ package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.core.RuleProvider
 import com.pinterest.ktlint.core.RuleSetProviderV2
+import com.pinterest.ktlint.ruleset.standard.rules.AnnotationRule
+import com.pinterest.ktlint.ruleset.standard.rules.AnnotationSpacingRule
+import com.pinterest.ktlint.ruleset.standard.rules.ArgumentListWrappingRule
+import com.pinterest.ktlint.ruleset.standard.rules.ChainWrappingRule
+import com.pinterest.ktlint.ruleset.standard.rules.CommentSpacingRule
+import com.pinterest.ktlint.ruleset.standard.rules.EnumEntryNameCaseRule
+import com.pinterest.ktlint.ruleset.standard.rules.FilenameRule
+import com.pinterest.ktlint.ruleset.standard.rules.FinalNewlineRule
+import com.pinterest.ktlint.ruleset.standard.rules.ImportOrderingRule
+import com.pinterest.ktlint.ruleset.standard.rules.IndentationRule
+import com.pinterest.ktlint.ruleset.standard.rules.MaxLineLengthRule
+import com.pinterest.ktlint.ruleset.standard.rules.ModifierOrderRule
+import com.pinterest.ktlint.ruleset.standard.rules.MultiLineIfElseRule
+import com.pinterest.ktlint.ruleset.standard.rules.NoBlankLineBeforeRbraceRule
+import com.pinterest.ktlint.ruleset.standard.rules.NoBlankLinesInChainedMethodCallsRule
+import com.pinterest.ktlint.ruleset.standard.rules.NoConsecutiveBlankLinesRule
+import com.pinterest.ktlint.ruleset.standard.rules.NoEmptyClassBodyRule
+import com.pinterest.ktlint.ruleset.standard.rules.NoEmptyFirstLineInMethodBlockRule
+import com.pinterest.ktlint.ruleset.standard.rules.NoLineBreakAfterElseRule
+import com.pinterest.ktlint.ruleset.standard.rules.NoLineBreakBeforeAssignmentRule
+import com.pinterest.ktlint.ruleset.standard.rules.NoMultipleSpacesRule
+import com.pinterest.ktlint.ruleset.standard.rules.NoSemicolonsRule
+import com.pinterest.ktlint.ruleset.standard.rules.NoTrailingSpacesRule
+import com.pinterest.ktlint.ruleset.standard.rules.NoUnitReturnRule
+import com.pinterest.ktlint.ruleset.standard.rules.NoUnusedImportsRule
+import com.pinterest.ktlint.ruleset.standard.rules.NoWildcardImportsRule
+import com.pinterest.ktlint.ruleset.standard.rules.PackageNameRule
+import com.pinterest.ktlint.ruleset.standard.rules.ParameterListWrappingRule
+import com.pinterest.ktlint.ruleset.standard.rules.SpacingAroundAngleBracketsRule
+import com.pinterest.ktlint.ruleset.standard.rules.SpacingAroundColonRule
+import com.pinterest.ktlint.ruleset.standard.rules.SpacingAroundCommaRule
+import com.pinterest.ktlint.ruleset.standard.rules.SpacingAroundCurlyRule
+import com.pinterest.ktlint.ruleset.standard.rules.SpacingAroundDotRule
+import com.pinterest.ktlint.ruleset.standard.rules.SpacingAroundDoubleColonRule
+import com.pinterest.ktlint.ruleset.standard.rules.SpacingAroundKeywordRule
+import com.pinterest.ktlint.ruleset.standard.rules.SpacingAroundOperatorsRule
+import com.pinterest.ktlint.ruleset.standard.rules.SpacingAroundParensRule
+import com.pinterest.ktlint.ruleset.standard.rules.SpacingAroundRangeOperatorRule
+import com.pinterest.ktlint.ruleset.standard.rules.SpacingAroundUnaryOperatorRule
+import com.pinterest.ktlint.ruleset.standard.rules.SpacingBetweenDeclarationsWithAnnotationsRule
+import com.pinterest.ktlint.ruleset.standard.rules.SpacingBetweenDeclarationsWithCommentsRule
+import com.pinterest.ktlint.ruleset.standard.rules.StringTemplateRule
+import com.pinterest.ktlint.ruleset.standard.rules.TrailingCommaOnCallSiteRule
+import com.pinterest.ktlint.ruleset.standard.rules.TrailingCommaOnDeclarationSiteRule
+import com.pinterest.ktlint.ruleset.standard.rules.WrappingRule
 
 public class StandardRuleSetProvider :
     RuleSetProviderV2(
