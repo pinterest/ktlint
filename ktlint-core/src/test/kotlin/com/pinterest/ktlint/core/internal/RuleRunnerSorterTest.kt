@@ -35,8 +35,8 @@ class RuleRunnerSorterTest {
             RuleRunnerSorter()
                 .getSortedRuleRunners(
                     ruleRunners = createRuleRunners(
-                        NormalRule("$EXPERIMENTAL:$RULE_B"),
-                        NormalRule("$EXPERIMENTAL:$RULE_A"),
+                        ExperimentalRule("$EXPERIMENTAL:$RULE_B"),
+                        ExperimentalRule("$EXPERIMENTAL:$RULE_A"),
                         NormalRule("$CUSTOM_RULE_SET_A:$RULE_B"),
                         NormalRule("$CUSTOM_RULE_SET_A:$RULE_A"),
                         NormalRule(RULE_B),
@@ -85,8 +85,8 @@ class RuleRunnerSorterTest {
             RuleRunnerSorter()
                 .getSortedRuleRunners(
                     ruleRunners = createRuleRunners(
-                        RunAsLateAsPossibleRule("$EXPERIMENTAL:$RULE_B"),
-                        RunAsLateAsPossibleRule("$EXPERIMENTAL:$RULE_A"),
+                        RunAsLateAsPossibleExperimentalRule("$EXPERIMENTAL:$RULE_B"),
+                        RunAsLateAsPossibleExperimentalRule("$EXPERIMENTAL:$RULE_A"),
                         RunAsLateAsPossibleRule("$CUSTOM_RULE_SET_A:$RULE_B"),
                         RunAsLateAsPossibleRule("$CUSTOM_RULE_SET_A:$RULE_A"),
                         RunAsLateAsPossibleRule(RULE_B),
@@ -115,8 +115,8 @@ class RuleRunnerSorterTest {
             RuleRunnerSorter()
                 .getSortedRuleRunners(
                     ruleRunners = createRuleRunners(
-                        RunAsLateAsPossibleRule("$EXPERIMENTAL:$RULE_B"),
-                        RunAsLateAsPossibleRule("$EXPERIMENTAL:$RULE_A"),
+                        RunAsLateAsPossibleExperimentalRule("$EXPERIMENTAL:$RULE_B"),
+                        RunAsLateAsPossibleExperimentalRule("$EXPERIMENTAL:$RULE_A"),
                         RunAsLateAsPossibleRule("$CUSTOM_RULE_SET_A:$RULE_B"),
                         RunAsLateAsPossibleRule("$CUSTOM_RULE_SET_A:$RULE_A"),
                         RunAsLateAsPossibleRule(RULE_B),
@@ -247,7 +247,7 @@ class RuleRunnerSorterTest {
                         object : R(
                             id = "$EXPERIMENTAL:$RULE_A",
                             visitorModifier = VisitorModifier.RunAfterRule(RULE_C),
-                        ) {},
+                        ), Rule.Experimental {},
                     ),
                 ).map { it.qualifiedRuleId }
 
@@ -305,7 +305,7 @@ class RuleRunnerSorterTest {
                     // Run after wrapping and spacing rules
                     VisitorModifier.RunAsLateAsPossible,
                 ),
-            ) {}
+            ), Rule.Experimental {}
 
         @Test
         fun `Given that the experimental FunctionSignatureRule is not included in the rules to be sorted`() {
@@ -369,7 +369,7 @@ class RuleRunnerSorterTest {
                                     ruleId = "$EXPERIMENTAL:$RULE_B",
                                     loadOnlyWhenOtherRuleIsLoaded = true,
                                 ),
-                            ) {},
+                            ), Rule.Experimental {},
                         ),
                     )
             }.withMessage(
@@ -405,7 +405,7 @@ class RuleRunnerSorterTest {
                                         loadOnlyWhenOtherRuleIsLoaded = true,
                                     ),
                                 ),
-                            ) {},
+                            ), Rule.Experimental {},
                         ),
                     )
             }.withMessage(
@@ -487,7 +487,7 @@ class RuleRunnerSorterTest {
                             object : R(
                                 id = "$EXPERIMENTAL:$RULE_C",
                                 visitorModifier = VisitorModifier.RunAfterRule(RULE_A),
-                            ) {},
+                            ), Rule.Experimental {},
                         ),
                     )
             }.withMessage(
@@ -523,7 +523,7 @@ class RuleRunnerSorterTest {
                             object : R(
                                 id = "$EXPERIMENTAL:$RULE_C",
                                 visitorModifier = VisitorModifier.RunAfterRule(RULE_A),
-                            ) {},
+                            ), Rule.Experimental {},
                         ),
                     )
             }.withMessage(
@@ -625,16 +625,25 @@ class RuleRunnerSorterTest {
         const val RULE_D = "rule-d"
     }
 
-    open class NormalRule(id: String) : R(id)
+    private open class NormalRule(id: String) : R(id)
 
-    class RunAsLateAsPossibleRule(id: String) : R(
+    private open class ExperimentalRule(id: String) : R(id), Rule.Experimental
+
+    private class RunAsLateAsPossibleRule(id: String) : R(
         id = id,
         visitorModifiers = setOf(
             VisitorModifier.RunAsLateAsPossible,
         ),
     )
 
-    open class R(
+    private class RunAsLateAsPossibleExperimentalRule(id: String) : R(
+        id = id,
+        visitorModifiers = setOf(
+            VisitorModifier.RunAsLateAsPossible,
+        ),
+    ), Rule.Experimental
+
+    private open class R(
         id: String,
         visitorModifiers: Set<VisitorModifier> = emptySet(),
     ) : Rule(id, visitorModifiers) {

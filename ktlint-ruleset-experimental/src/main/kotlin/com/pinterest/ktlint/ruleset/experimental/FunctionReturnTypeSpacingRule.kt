@@ -9,7 +9,9 @@ import com.pinterest.ktlint.core.ast.prevLeaf
 import com.pinterest.ktlint.core.ast.upsertWhitespaceAfterMe
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
-public class FunctionReturnTypeSpacingRule : Rule("$EXPERIMENTAL_RULE_SET_ID:function-return-type-spacing") {
+public class FunctionReturnTypeSpacingRule :
+    Rule("$EXPERIMENTAL_RULE_SET_ID:function-return-type-spacing"),
+    Rule.Experimental {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,

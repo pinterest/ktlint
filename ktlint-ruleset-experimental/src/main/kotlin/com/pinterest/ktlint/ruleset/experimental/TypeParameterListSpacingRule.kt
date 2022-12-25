@@ -24,7 +24,9 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 /**
  * Lints and formats the spacing before and after the angle brackets of a type parameter list.
  */
-public class TypeParameterListSpacingRule : Rule("$EXPERIMENTAL_RULE_SET_ID:type-parameter-list-spacing") {
+public class TypeParameterListSpacingRule :
+    Rule("$EXPERIMENTAL_RULE_SET_ID:type-parameter-list-spacing"),
+    Rule.Experimental {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,

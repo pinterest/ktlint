@@ -42,7 +42,7 @@ internal class RuleRunnerSorter {
                 if (previousValue == null) {
                     // Logging was not printed for this combination of rule runners as no entry was found in the cache
                     ruleReferences
-                        .map { toQualifiedRuleId(it.ruleSetId, it.ruleId) }
+                        .map { it.qualifiedRuleId }
                         .joinToString(prefix = "Rules will be executed in order below (unless disabled):") {
                             "\n           - $it"
                         }.also { LOGGER.debug(it) }
@@ -69,10 +69,16 @@ internal class RuleRunnerSorter {
                 0
             }
         }.thenBy {
-            when (it.ruleSetId) {
-                "standard" -> 0
-                "experimental" -> 1
-                else -> 2
+            if (it.ruleSetId == "standard" || it.ruleSetId == "experimental") {
+                0
+            } else {
+                1
+            }
+        }.thenBy {
+            if (it.getRule() is Rule.Experimental) {
+                1
+            } else {
+                0
             }
         }.thenBy { it.qualifiedRuleId }
 

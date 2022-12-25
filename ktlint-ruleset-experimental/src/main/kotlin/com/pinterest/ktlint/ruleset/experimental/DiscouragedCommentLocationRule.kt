@@ -27,7 +27,9 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
  *         foo(t: T) = "some-result"
  * ```
  */
-public class DiscouragedCommentLocationRule : Rule("$EXPERIMENTAL_RULE_SET_ID:discouraged-comment-location") {
+public class DiscouragedCommentLocationRule :
+    Rule("$EXPERIMENTAL_RULE_SET_ID:discouraged-comment-location"),
+    Rule.Experimental {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,

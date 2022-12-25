@@ -53,6 +53,7 @@ public class FunctionSignatureRule :
             VisitorModifier.RunAsLateAsPossible,
         ),
     ),
+    Rule.Experimental,
     UsesEditorConfigProperties {
     override val editorConfigProperties: List<EditorConfigProperty<*>> =
         listOf(

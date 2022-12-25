@@ -18,7 +18,7 @@ public class BlockCommentInitialStarAlignmentRule :
             // indentation rule.
             VisitorModifier.RunAfterRule("standard:indent"),
         ),
-    ) {
+    ), Rule.Experimental {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,

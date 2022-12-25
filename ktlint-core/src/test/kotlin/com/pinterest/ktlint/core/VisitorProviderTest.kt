@@ -35,7 +35,7 @@ class VisitorProviderTest {
             val actual = testVisitorProvider(
                 RuleProvider { NormalRule(RULE_A) },
                 RuleProvider { NormalRule(SOME_DISABLED_RULE_IN_STANDARD_RULE_SET) },
-                RuleProvider { NormalRule("$EXPERIMENTAL:$RULE_B") },
+                RuleProvider { ExperimentalRule("$EXPERIMENTAL:$RULE_B") },
                 RuleProvider { NormalRule(SOME_DISABLED_RULE_IN_EXPERIMENTAL_RULE_SET) },
                 RuleProvider { NormalRule("$CUSTOM_RULE_SET_A:$RULE_C") },
                 RuleProvider { NormalRule(SOME_DISABLED_RULE_IN_CUSTOM_RULE_SET_A) },
@@ -139,7 +139,7 @@ class VisitorProviderTest {
             val actual = testVisitorProvider(
                 RuleProvider { NormalRule(RULE_A) },
                 RuleProvider { NormalRule(SOME_DISABLED_RULE_IN_STANDARD_RULE_SET) },
-                RuleProvider { NormalRule("$EXPERIMENTAL:$RULE_B") },
+                RuleProvider { ExperimentalRule("$EXPERIMENTAL:$RULE_B") },
                 RuleProvider { NormalRule(SOME_DISABLED_RULE_IN_EXPERIMENTAL_RULE_SET) },
                 RuleProvider { NormalRule("$CUSTOM_RULE_SET_A:$RULE_C") },
                 RuleProvider { NormalRule(SOME_DISABLED_RULE_IN_CUSTOM_RULE_SET_A) },
@@ -295,8 +295,8 @@ class VisitorProviderTest {
         @Test
         fun `Given that a non-standard rule set is not disabled explicitly then only run rules that are enabled explicitly`() {
             val actual = testVisitorProvider(
-                RuleProvider { NormalRule("$EXPERIMENTAL:$RULE_B") },
-                RuleProvider { NormalRule("$EXPERIMENTAL:$RULE_C") },
+                RuleProvider { ExperimentalRule("$EXPERIMENTAL:$RULE_B") },
+                RuleProvider { ExperimentalRule("$EXPERIMENTAL:$RULE_C") },
                 RuleProvider { NormalRule("$CUSTOM_RULE_SET_A:$RULE_B") },
                 RuleProvider { NormalRule("$CUSTOM_RULE_SET_A:$RULE_C") },
                 editorConfigProperties = mapOf(
@@ -314,8 +314,8 @@ class VisitorProviderTest {
         @Test
         fun `Given that a non-standard rule set is disabled explicitly then only run rules that are enabled explicitly`() {
             val actual = testVisitorProvider(
-                RuleProvider { NormalRule("$EXPERIMENTAL:$RULE_B") },
-                RuleProvider { NormalRule("$EXPERIMENTAL:$RULE_C") },
+                RuleProvider { ExperimentalRule("$EXPERIMENTAL:$RULE_B") },
+                RuleProvider { ExperimentalRule("$EXPERIMENTAL:$RULE_C") },
                 RuleProvider { NormalRule("$CUSTOM_RULE_SET_A:$RULE_B") },
                 RuleProvider { NormalRule("$CUSTOM_RULE_SET_A:$RULE_C") },
                 editorConfigProperties = mapOf(
@@ -333,12 +333,12 @@ class VisitorProviderTest {
         }
 
         @Test
-        fun `Given that a non-standard rule set is enabled explicitly then only run rules that are not disabled explicitly`() {
+        fun `Given that the experimental rules are enabled then only run rules that are not disabled explicitly`() {
             val actual = testVisitorProvider(
-                RuleProvider { NormalRule("$EXPERIMENTAL:$RULE_B") },
-                RuleProvider { NormalRule("$EXPERIMENTAL:$RULE_C") },
-                RuleProvider { NormalRule("$CUSTOM_RULE_SET_A:$RULE_B") },
-                RuleProvider { NormalRule("$CUSTOM_RULE_SET_A:$RULE_C") },
+                RuleProvider { ExperimentalRule("$EXPERIMENTAL:$RULE_B") },
+                RuleProvider { ExperimentalRule("$EXPERIMENTAL:$RULE_C") },
+                RuleProvider { ExperimentalRule("$CUSTOM_RULE_SET_A:$RULE_B") },
+                RuleProvider { ExperimentalRule("$CUSTOM_RULE_SET_A:$RULE_C") },
                 editorConfigProperties = mapOf(
                     ktLintRuleExecutionEditorConfigProperty("ktlint_$EXPERIMENTAL", RuleExecution.enabled),
                     ktLintRuleExecutionEditorConfigProperty("ktlint_$EXPERIMENTAL:$RULE_C", RuleExecution.disabled),
@@ -450,16 +450,18 @@ class VisitorProviderTest {
         const val SOME_DISABLED_RULE_IN_CUSTOM_RULE_SET_A = "$CUSTOM_RULE_SET_A:some-disabled-rule-in-custom-rule-set"
     }
 
-    open class NormalRule(id: String) : R(id)
+    private open class NormalRule(id: String) : R(id)
 
-    class RunAsLateAsPossibleRule(id: String) : R(
+    private open class ExperimentalRule(id: String) : R(id), Rule.Experimental
+
+    private class RunAsLateAsPossibleRule(id: String) : R(
         id = id,
         visitorModifiers = setOf(
             VisitorModifier.RunAsLateAsPossible,
         ),
     )
 
-    open class R(
+    private open class R(
         id: String,
         visitorModifiers: Set<VisitorModifier> = emptySet(),
     ) : Rule(id, visitorModifiers) {

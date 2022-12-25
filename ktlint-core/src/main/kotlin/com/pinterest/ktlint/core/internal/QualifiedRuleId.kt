@@ -1,10 +1,6 @@
 package com.pinterest.ktlint.core.internal
 
-import com.pinterest.ktlint.core.Rule
-
-internal fun Rule.toQualifiedRuleId() =
-    id.toQualifiedRuleId()
-
+// TODO: Remove once the experimental ruleset is merged into the standard ruleset
 internal fun String.toQualifiedRuleId(): String {
     val ruleId = if (contains(":")) {
         this
@@ -16,25 +12,5 @@ internal fun String.toQualifiedRuleId(): String {
     return ruleId.removeSpaces()
 }
 
-internal fun toQualifiedRuleId(
-    ruleSetId: String,
-    ruleId: String,
-): String {
-    if (ruleSetId.contains(" ") || ruleId.contains(" ")) {
-        return toQualifiedRuleId(ruleSetId.removeSpaces(), ruleId.removeSpaces())
-    }
-    return if (ruleSetId == "" || ruleId.startsWith("$ruleSetId:")) {
-        ruleId.toQualifiedRuleId()
-    } else {
-        "$ruleSetId:$ruleId"
-    }
-}
-
 private fun String.removeSpaces() =
     this.replace(" ", "")
-
-internal fun ruleId(qualifiedRuleId: String) =
-    qualifiedRuleId.substringAfter(":", qualifiedRuleId)
-
-internal fun ruleSetId(qualifiedRuleId: String) =
-    qualifiedRuleId.substringBefore(":", "standard")

@@ -11,7 +11,9 @@ import org.jetbrains.kotlin.psi.KtImportDirective
 /**
  * https://kotlinlang.org/docs/coding-conventions.html#function-names
  */
-public class FunctionNamingRule : Rule("$EXPERIMENTAL_RULE_SET_ID:function-naming") {
+public class FunctionNamingRule :
+    Rule("$EXPERIMENTAL_RULE_SET_ID:function-naming"),
+    Rule.Experimental {
     private var isTestClass = false
 
     override fun beforeVisitChildNodes(

@@ -21,6 +21,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
  */
 public class KdocWrappingRule :
     Rule("$EXPERIMENTAL_RULE_SET_ID:kdoc-wrapping"),
+    Rule.Experimental,
     UsesEditorConfigProperties {
     override val editorConfigProperties: List<EditorConfigProperty<*>> =
         listOf(

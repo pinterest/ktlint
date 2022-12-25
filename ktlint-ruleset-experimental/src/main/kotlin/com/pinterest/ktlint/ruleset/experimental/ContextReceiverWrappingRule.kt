@@ -34,6 +34,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
  */
 public class ContextReceiverWrappingRule :
     Rule("$EXPERIMENTAL_RULE_SET_ID:context-receiver-wrapping"),
+    Rule.Experimental,
     UsesEditorConfigProperties {
     override val editorConfigProperties: List<EditorConfigProperty<*>> =
         listOf(

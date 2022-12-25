@@ -13,7 +13,9 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
  * The Kotlin convention does not allow explicitly to use backticked class name but it makes sense to allow this as
  * well as it is more consistent with name of test functions.
  */
-public class ClassNamingRule : Rule("$EXPERIMENTAL_RULE_SET_ID:class-naming") {
+public class ClassNamingRule :
+    Rule("$EXPERIMENTAL_RULE_SET_ID:class-naming"),
+    Rule.Experimental {
     private var allowBacktickedClassName = false
 
     override fun beforeVisitChildNodes(

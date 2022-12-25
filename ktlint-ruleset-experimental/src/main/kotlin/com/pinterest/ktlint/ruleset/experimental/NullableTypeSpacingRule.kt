@@ -7,7 +7,9 @@ import com.pinterest.ktlint.core.ast.prevLeaf
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
-public class NullableTypeSpacingRule : Rule("$EXPERIMENTAL_RULE_SET_ID:nullable-type-spacing") {
+public class NullableTypeSpacingRule :
+    Rule("$EXPERIMENTAL_RULE_SET_ID:nullable-type-spacing"),
+    Rule.Experimental {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,

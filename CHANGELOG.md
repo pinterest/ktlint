@@ -4,6 +4,14 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+### API Changes & RuleSet providers
+
+#### Experimental rules
+
+Rules in custom rule sets can be marked as experimental by implementing the `Rule.Experimental` interface on the rule. Rules marked with this interface will only be executed by Ktlint whenever the `.editorconfig` property `ktlint_experimental` is enabled.
+
+When using this feature, experimental rules should *not* be defined in a separate rule set. A rule is identified by its qualified rule id that includes the rule set id. Moving a rule from an experimental rule set to a non-experimental rule set has the downside that the qualified rule id changes. For users of such rules this means that ktlint directives to suppress the rule and properties in the `.editorconfig` files have to be changed.
+
 ### Added
 
 ### Removed

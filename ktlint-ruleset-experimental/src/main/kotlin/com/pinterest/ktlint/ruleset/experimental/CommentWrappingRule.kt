@@ -23,6 +23,7 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiCommentImpl
  */
 public class CommentWrappingRule :
     Rule("$EXPERIMENTAL_RULE_SET_ID:comment-wrapping"),
+    Rule.Experimental,
     UsesEditorConfigProperties {
     override val editorConfigProperties: List<EditorConfigProperty<*>> =
         listOf(

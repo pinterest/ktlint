@@ -20,7 +20,9 @@ import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
  * https://kotlinlang.org/docs/coding-conventions.html#function-names
  * https://kotlinlang.org/docs/coding-conventions.html#property-names
  */
-public class PropertyNamingRule : Rule("$EXPERIMENTAL_RULE_SET_ID:property-naming") {
+public class PropertyNamingRule :
+    Rule("$EXPERIMENTAL_RULE_SET_ID:property-naming"),
+    Rule.Experimental {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
