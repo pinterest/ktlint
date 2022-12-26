@@ -272,23 +272,17 @@ internal class KtlintCommandLine {
             .map { ruleId -> createRuleExecutionEditorConfigProperty(ruleId) to RuleExecution.disabled }
             .toTypedArray()
 
-    init {
+    fun run() {
         if (debugOld != null || trace != null || verbose != null) {
             if (minLogLevel == Level.OFF) {
                 minLogLevel = Level.ERROR
             }
-            configureLogger().error {
+            logger.error {
                 "Options '--debug', '--trace', '--verbose' and '-v' are deprecated and replaced with option '--log-level=<level>' or '-l=<level>'."
             }
             exitKtLintProcess(1)
         }
 
-        // Ensure that logger is initialized even when the run method is not executed because a subcommand like (--help)
-        // is executed so that method exitKtLintProcess only prints a log line when the appropriate loglevel is set.
-        logger = configureLogger()
-    }
-
-    fun run() {
         assertStdinAndPatternsFromStdinOptionsMutuallyExclusive()
 
         val stdinPatterns: Set<String> = readPatternsFromStdin()
@@ -368,13 +362,14 @@ internal class KtlintCommandLine {
             jarFile.toURI().toURL()
         }
 
-    private fun configureLogger() =
-        KotlinLogging
+    internal fun configureLogger() {
+        logger = KotlinLogging
             .logger {}
             .setDefaultLoggerModifier { logger ->
                 (logger.underlyingLogger as Logger).level = minLogLevel
             }
             .initKtLintKLogger()
+    }
 
     private fun assertStdinAndPatternsFromStdinOptionsMutuallyExclusive() {
         if (stdin && stdinDelimiter != null) {
@@ -721,7 +716,7 @@ private class LogLevelConverter : CommandLine.ITypeConverter<Level> {
             "WARN" -> Level.WARN
             "ERROR" -> Level.ERROR
             "NONE" -> Level.OFF
-            else -> Level.INFO
+            else -> throw IllegalStateException("Invalid log level '$value'")
         }
 }
 

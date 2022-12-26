@@ -21,6 +21,10 @@ public fun main(args: Array<String>) {
         .setUsageHelpAutoWidth(true)
     val parseResult = commandLine.parseArgs(*args)
 
+    // The logger needs to be configured for the ktlintCommand and all subcommands. The logger can however not be configured before the
+    // commandline has been parsed as otherwise the loglevel conversion is not yet executed.
+    ktlintCommand.configureLogger()
+
     commandLine.printCommandLineHelpOrVersionUsage()
 
     if (parseResult.hasSubcommand()) {
