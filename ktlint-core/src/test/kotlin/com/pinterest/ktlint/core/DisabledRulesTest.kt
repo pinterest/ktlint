@@ -38,7 +38,6 @@ class DisabledRulesTest {
             "no-var,standard:no-var",
             "standard:no-var,no-var",
             "standard:no-var,standard:no-var",
-            "experimental:no-var,experimental:no-var",
             "custom:no-var,custom:no-var",
         ],
     )
@@ -66,7 +65,6 @@ class DisabledRulesTest {
             "no-var,standard:no-var",
             "standard:no-var,no-var",
             "standard:no-var,standard:no-var",
-            "experimental:no-var,experimental:no-var",
             "custom:no-var,custom:no-var",
         ],
     )
@@ -93,7 +91,6 @@ class DisabledRulesTest {
             "no-var,standard:no-var",
             "standard:no-var,no-var",
             "standard:no-var,standard:no-var",
-            "experimental:no-var,experimental:no-var",
             "custom:no-var,custom:no-var",
         ],
     )

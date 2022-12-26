@@ -216,7 +216,7 @@ internal class KtlintCommandLine {
 
     @Option(
         names = ["--experimental"],
-        description = ["Enabled experimental rules (ktlint-ruleset-experimental)"],
+        description = ["Enable experimental rules"],
     )
     var experimental: Boolean = false
 

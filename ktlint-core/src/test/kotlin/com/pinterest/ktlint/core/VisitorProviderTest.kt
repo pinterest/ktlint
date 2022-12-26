@@ -34,16 +34,16 @@ class VisitorProviderTest {
         fun `Disabled rules in any type of rule set are not executed`() {
             val actual = testVisitorProvider(
                 RuleProvider { NormalRule(RULE_A) },
-                RuleProvider { NormalRule(SOME_DISABLED_RULE_IN_STANDARD_RULE_SET) },
-                RuleProvider { ExperimentalRule("$EXPERIMENTAL:$RULE_B") },
-                RuleProvider { NormalRule(SOME_DISABLED_RULE_IN_EXPERIMENTAL_RULE_SET) },
+                RuleProvider { NormalRule(SOME_DISABLED_RULE_A_IN_STANDARD_RULE_SET) },
+                RuleProvider { ExperimentalRule(RULE_B) },
+                RuleProvider { ExperimentalRule(SOME_DISABLED_RULE_B_IN_STANDARD_RULE_SET) },
                 RuleProvider { NormalRule("$CUSTOM_RULE_SET_A:$RULE_C") },
                 RuleProvider { NormalRule(SOME_DISABLED_RULE_IN_CUSTOM_RULE_SET_A) },
             )
 
             assertThat(actual).containsExactly(
                 Visit(RULE_A),
-                Visit(EXPERIMENTAL, RULE_B),
+                Visit(RULE_B),
                 Visit(CUSTOM_RULE_SET_A, RULE_C),
             )
         }
@@ -51,7 +51,7 @@ class VisitorProviderTest {
         @Test
         fun `When no enabled rules are found for the root node, the visit function on the root node is not executed`() {
             val actual = testVisitorProvider(
-                RuleProvider { NormalRule(SOME_DISABLED_RULE_IN_STANDARD_RULE_SET) },
+                RuleProvider { NormalRule(SOME_DISABLED_RULE_A_IN_STANDARD_RULE_SET) },
             )
 
             assertThat(actual).isEmpty()
@@ -60,12 +60,12 @@ class VisitorProviderTest {
         @Test
         fun `When no runnable rules are found for the root node, the visit function on the root node is not executed`() {
             val actual = testVisitorProvider(
-                RuleProvider { NormalRule(SOME_DISABLED_RULE_IN_STANDARD_RULE_SET) },
+                RuleProvider { NormalRule(SOME_DISABLED_RULE_A_IN_STANDARD_RULE_SET) },
                 RuleProvider {
                     object : R(
                         id = RULE_A,
                         visitorModifier = VisitorModifier.RunAfterRule(
-                            ruleId = SOME_DISABLED_RULE_IN_STANDARD_RULE_SET,
+                            ruleId = SOME_DISABLED_RULE_A_IN_STANDARD_RULE_SET,
                             runOnlyWhenOtherRuleIsEnabled = true,
                         ),
                     ) {}
@@ -93,8 +93,8 @@ class VisitorProviderTest {
                 val visits = mutableListOf<Visit>()
                 visitor(
                     ktlintDisabledRulesEditorConfigProperties(
-                        SOME_DISABLED_RULE_IN_STANDARD_RULE_SET,
-                        SOME_DISABLED_RULE_IN_EXPERIMENTAL_RULE_SET,
+                        SOME_DISABLED_RULE_A_IN_STANDARD_RULE_SET,
+                        SOME_DISABLED_RULE_B_IN_STANDARD_RULE_SET,
                         SOME_DISABLED_RULE_IN_CUSTOM_RULE_SET_A,
                     ),
                 ).invoke { _, fqRuleId ->
@@ -138,16 +138,16 @@ class VisitorProviderTest {
         fun `Disabled rules in any type of rule set are not executed`() {
             val actual = testVisitorProvider(
                 RuleProvider { NormalRule(RULE_A) },
-                RuleProvider { NormalRule(SOME_DISABLED_RULE_IN_STANDARD_RULE_SET) },
-                RuleProvider { ExperimentalRule("$EXPERIMENTAL:$RULE_B") },
-                RuleProvider { NormalRule(SOME_DISABLED_RULE_IN_EXPERIMENTAL_RULE_SET) },
+                RuleProvider { NormalRule(SOME_DISABLED_RULE_A_IN_STANDARD_RULE_SET) },
+                RuleProvider { ExperimentalRule(RULE_B) },
+                RuleProvider { ExperimentalRule(SOME_DISABLED_RULE_B_IN_STANDARD_RULE_SET) },
                 RuleProvider { NormalRule("$CUSTOM_RULE_SET_A:$RULE_C") },
                 RuleProvider { NormalRule(SOME_DISABLED_RULE_IN_CUSTOM_RULE_SET_A) },
             )
 
             assertThat(actual).containsExactly(
                 Visit(RULE_A),
-                Visit(EXPERIMENTAL, RULE_B),
+                Visit(RULE_B),
                 Visit(CUSTOM_RULE_SET_A, RULE_C),
             )
         }
@@ -155,7 +155,7 @@ class VisitorProviderTest {
         @Test
         fun `When no enabled rules are found for the root node, the visit function on the root node is not executed`() {
             val actual = testVisitorProvider(
-                RuleProvider { NormalRule(SOME_DISABLED_RULE_IN_STANDARD_RULE_SET) },
+                RuleProvider { NormalRule(SOME_DISABLED_RULE_A_IN_STANDARD_RULE_SET) },
             )
 
             assertThat(actual).isEmpty()
@@ -164,12 +164,12 @@ class VisitorProviderTest {
         @Test
         fun `When no runnable rules are found for the root node, the visit function on the root node is not executed`() {
             val actual = testVisitorProvider(
-                RuleProvider { NormalRule(SOME_DISABLED_RULE_IN_STANDARD_RULE_SET) },
+                RuleProvider { NormalRule(SOME_DISABLED_RULE_A_IN_STANDARD_RULE_SET) },
                 RuleProvider {
                     object : R(
                         id = RULE_A,
                         visitorModifier = VisitorModifier.RunAfterRule(
-                            ruleId = SOME_DISABLED_RULE_IN_STANDARD_RULE_SET,
+                            ruleId = SOME_DISABLED_RULE_A_IN_STANDARD_RULE_SET,
                             runOnlyWhenOtherRuleIsEnabled = true,
                         ),
                     ) {}
@@ -197,8 +197,8 @@ class VisitorProviderTest {
                 val visits = mutableListOf<Visit>()
                 visitor(
                     ktlintDisabledRulesEditorConfigProperties(
-                        SOME_DISABLED_RULE_IN_STANDARD_RULE_SET,
-                        SOME_DISABLED_RULE_IN_EXPERIMENTAL_RULE_SET,
+                        SOME_DISABLED_RULE_A_IN_STANDARD_RULE_SET,
+                        SOME_DISABLED_RULE_B_IN_STANDARD_RULE_SET,
                         SOME_DISABLED_RULE_IN_CUSTOM_RULE_SET_A,
                     ),
                 ).invoke { _, fqRuleId ->
@@ -246,7 +246,7 @@ class VisitorProviderTest {
                 RuleProvider { NormalRule("$STANDARD:$RULE_C") },
                 editorConfigProperties = mapOf(
                     ktLintRuleExecutionEditorConfigProperty("ktlint_$STANDARD", RuleExecution.enabled),
-                    ktLintRuleExecutionEditorConfigProperty("ktlint_$STANDARD:$RULE_C", RuleExecution.disabled),
+                    ktLintRuleExecutionEditorConfigProperty("ktlint_${STANDARD}_$RULE_C", RuleExecution.disabled),
                 ),
             )
 
@@ -257,19 +257,20 @@ class VisitorProviderTest {
         }
 
         @Test
-        fun `Given that standard rule set is not enabled explicitly then run all standard rules except those that are disabled explicitly`() {
+        fun `Given that standard rule set is not enabled explicitly then run all standard rules except experimental and explicitly disabled rules`() {
             val actual = testVisitorProvider(
                 RuleProvider { NormalRule(RULE_A) },
-                RuleProvider { NormalRule("$STANDARD:$RULE_B") },
+                RuleProvider { ExperimentalRule(RULE_B) },
                 RuleProvider { NormalRule("$STANDARD:$RULE_C") },
+                RuleProvider { NormalRule("$STANDARD:$RULE_D") },
                 editorConfigProperties = mapOf(
-                    ktLintRuleExecutionEditorConfigProperty("ktlint_$STANDARD:$RULE_C", RuleExecution.disabled),
+                    ktLintRuleExecutionEditorConfigProperty("ktlint_${STANDARD}_$RULE_C", RuleExecution.disabled),
                 ),
             )
 
             assertThat(actual).containsExactly(
                 Visit(RULE_A),
-                Visit(RULE_B),
+                Visit(RULE_D),
             )
         }
 
@@ -281,8 +282,8 @@ class VisitorProviderTest {
                 RuleProvider { NormalRule("$STANDARD:$RULE_C") },
                 editorConfigProperties = mapOf(
                     ktLintRuleExecutionEditorConfigProperty("ktlint_$STANDARD", RuleExecution.disabled),
-                    ktLintRuleExecutionEditorConfigProperty("ktlint_$STANDARD:$RULE_A", RuleExecution.enabled),
-                    ktLintRuleExecutionEditorConfigProperty("ktlint_$STANDARD:$RULE_B", RuleExecution.enabled),
+                    ktLintRuleExecutionEditorConfigProperty("ktlint_${STANDARD}_$RULE_A", RuleExecution.enabled),
+                    ktLintRuleExecutionEditorConfigProperty("ktlint_${STANDARD}_$RULE_B", RuleExecution.enabled),
                 ),
             )
 
@@ -293,41 +294,41 @@ class VisitorProviderTest {
         }
 
         @Test
-        fun `Given that a non-standard rule set is not disabled explicitly then only run rules that are enabled explicitly`() {
+        fun `Given that the experimental rules are not disabled explicitly then only run rules that are enabled explicitly`() {
             val actual = testVisitorProvider(
-                RuleProvider { ExperimentalRule("$EXPERIMENTAL:$RULE_B") },
-                RuleProvider { ExperimentalRule("$EXPERIMENTAL:$RULE_C") },
-                RuleProvider { NormalRule("$CUSTOM_RULE_SET_A:$RULE_B") },
-                RuleProvider { NormalRule("$CUSTOM_RULE_SET_A:$RULE_C") },
+                RuleProvider { ExperimentalRule(RULE_B) },
+                RuleProvider { ExperimentalRule(RULE_C) },
+                RuleProvider { ExperimentalRule("$CUSTOM_RULE_SET_A:$RULE_B") },
+                RuleProvider { ExperimentalRule("$CUSTOM_RULE_SET_A:$RULE_C") },
                 editorConfigProperties = mapOf(
-                    ktLintRuleExecutionEditorConfigProperty("ktlint_$EXPERIMENTAL:$RULE_B", RuleExecution.enabled),
-                    ktLintRuleExecutionEditorConfigProperty("ktlint_$CUSTOM_RULE_SET_A:$RULE_B", RuleExecution.enabled),
+                    ktLintRuleExecutionEditorConfigProperty("ktlint_${STANDARD}_$RULE_B", RuleExecution.enabled),
+                    ktLintRuleExecutionEditorConfigProperty("ktlint_${CUSTOM_RULE_SET_A}_$RULE_B", RuleExecution.enabled),
                 ),
             )
 
             assertThat(actual).containsExactly(
-                Visit(EXPERIMENTAL, RULE_B),
+                Visit(RULE_B),
                 Visit(CUSTOM_RULE_SET_A, RULE_B),
             )
         }
 
         @Test
-        fun `Given that a non-standard rule set is disabled explicitly then only run rules that are enabled explicitly`() {
+        fun `Given that a experimental rules are disabled explicitly then only run rules that are enabled explicitly`() {
             val actual = testVisitorProvider(
-                RuleProvider { ExperimentalRule("$EXPERIMENTAL:$RULE_B") },
-                RuleProvider { ExperimentalRule("$EXPERIMENTAL:$RULE_C") },
-                RuleProvider { NormalRule("$CUSTOM_RULE_SET_A:$RULE_B") },
-                RuleProvider { NormalRule("$CUSTOM_RULE_SET_A:$RULE_C") },
+                RuleProvider { ExperimentalRule(RULE_B) },
+                RuleProvider { ExperimentalRule(RULE_C) },
+                RuleProvider { ExperimentalRule("$CUSTOM_RULE_SET_A:$RULE_B") },
+                RuleProvider { ExperimentalRule("$CUSTOM_RULE_SET_A:$RULE_C") },
                 editorConfigProperties = mapOf(
-                    ktLintRuleExecutionEditorConfigProperty("ktlint_$EXPERIMENTAL", RuleExecution.disabled),
-                    ktLintRuleExecutionEditorConfigProperty("ktlint_$EXPERIMENTAL:$RULE_B", RuleExecution.enabled),
+                    ktLintRuleExecutionEditorConfigProperty("ktlint_experimental", RuleExecution.disabled),
+                    ktLintRuleExecutionEditorConfigProperty("ktlint_${STANDARD}_$RULE_B", RuleExecution.enabled),
                     ktLintRuleExecutionEditorConfigProperty("ktlint_$CUSTOM_RULE_SET_A", RuleExecution.disabled),
-                    ktLintRuleExecutionEditorConfigProperty("ktlint_$CUSTOM_RULE_SET_A:$RULE_B", RuleExecution.enabled),
+                    ktLintRuleExecutionEditorConfigProperty("ktlint_${CUSTOM_RULE_SET_A}_$RULE_B", RuleExecution.enabled),
                 ),
             )
 
             assertThat(actual).containsExactly(
-                Visit(EXPERIMENTAL, RULE_B),
+                Visit(RULE_B),
                 Visit(CUSTOM_RULE_SET_A, RULE_B),
             )
         }
@@ -335,20 +336,20 @@ class VisitorProviderTest {
         @Test
         fun `Given that the experimental rules are enabled then only run rules that are not disabled explicitly`() {
             val actual = testVisitorProvider(
-                RuleProvider { ExperimentalRule("$EXPERIMENTAL:$RULE_B") },
-                RuleProvider { ExperimentalRule("$EXPERIMENTAL:$RULE_C") },
+                RuleProvider { ExperimentalRule(RULE_B) },
+                RuleProvider { ExperimentalRule(RULE_C) },
                 RuleProvider { ExperimentalRule("$CUSTOM_RULE_SET_A:$RULE_B") },
                 RuleProvider { ExperimentalRule("$CUSTOM_RULE_SET_A:$RULE_C") },
                 editorConfigProperties = mapOf(
-                    ktLintRuleExecutionEditorConfigProperty("ktlint_$EXPERIMENTAL", RuleExecution.enabled),
-                    ktLintRuleExecutionEditorConfigProperty("ktlint_$EXPERIMENTAL:$RULE_C", RuleExecution.disabled),
+                    ktLintRuleExecutionEditorConfigProperty("ktlint_experimental", RuleExecution.enabled),
+                    ktLintRuleExecutionEditorConfigProperty("ktlint_${STANDARD}_$RULE_C", RuleExecution.disabled),
                     ktLintRuleExecutionEditorConfigProperty("ktlint_$CUSTOM_RULE_SET_A", RuleExecution.enabled),
-                    ktLintRuleExecutionEditorConfigProperty("ktlint_$CUSTOM_RULE_SET_A:$RULE_C", RuleExecution.disabled),
+                    ktLintRuleExecutionEditorConfigProperty("ktlint_${CUSTOM_RULE_SET_A}_$RULE_C", RuleExecution.disabled),
                 ),
             )
 
             assertThat(actual).containsExactly(
-                Visit(EXPERIMENTAL, RULE_B),
+                Visit(RULE_B),
                 Visit(CUSTOM_RULE_SET_A, RULE_B),
             )
         }
@@ -390,7 +391,7 @@ class VisitorProviderTest {
                     ) {}
                 },
                 editorConfigProperties = mapOf(
-                    ktLintRuleExecutionEditorConfigProperty("ktlint_$STANDARD:$RULE_C", RuleExecution.disabled),
+                    ktLintRuleExecutionEditorConfigProperty("ktlint_${STANDARD}_$RULE_C", RuleExecution.disabled),
                 ),
             )
 
@@ -440,13 +441,13 @@ class VisitorProviderTest {
 
     private companion object {
         const val STANDARD = "standard"
-        const val EXPERIMENTAL = "experimental"
         const val CUSTOM_RULE_SET_A = "custom-rule-set-a"
         const val RULE_A = "rule-a"
         const val RULE_B = "rule-b"
         const val RULE_C = "rule-c"
-        const val SOME_DISABLED_RULE_IN_STANDARD_RULE_SET = "some-disabled-rule-in-standard-rule-set"
-        const val SOME_DISABLED_RULE_IN_EXPERIMENTAL_RULE_SET = "$EXPERIMENTAL:some-disabled-rule-in-experimental-rule-set"
+        const val RULE_D = "rule-d"
+        const val SOME_DISABLED_RULE_A_IN_STANDARD_RULE_SET = "some-disabled-rule-a-in-standard-rule-set"
+        const val SOME_DISABLED_RULE_B_IN_STANDARD_RULE_SET = "some-disabled-rule-b-in-standard-rule-set"
         const val SOME_DISABLED_RULE_IN_CUSTOM_RULE_SET_A = "$CUSTOM_RULE_SET_A:some-disabled-rule-in-custom-rule-set"
     }
 

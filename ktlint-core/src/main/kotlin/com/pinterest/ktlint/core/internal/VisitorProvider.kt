@@ -116,18 +116,27 @@ internal class VisitorProvider(
                 )
 
             else ->
-                this.ruleSetId == "standard" && this !is Rule.Experimental
+                editorConfigProperties.isRuleEnabled(this)
         }
 
     private fun EditorConfigProperties.isRuleEnabled(rule: Rule) =
         ruleExecution(rule.ktLintRuleExecutionPropertyName())
             ?.let { it == RuleExecution.enabled }
-            ?: isRuleSetEnabled(rule) || isExperimentalEnabled(rule)
+            ?: if (rule is Rule.Experimental) {
+                isExperimentalEnabled(rule)
+            } else {
+                isRuleSetEnabled(rule)
+            }
+
+    private fun EditorConfigProperties.isExperimentalEnabled(rule: Rule) =
+        ruleExecution(EXPERIMENTAL_RULES_EXECUTION_PROPERTY.name) == RuleExecution.enabled &&
+            ruleExecution(rule.ktLintRuleSetExecutionPropertyName()) != RuleExecution.disabled &&
+            ruleExecution(rule.ktLintRuleExecutionPropertyName()) != RuleExecution.disabled
 
     private fun EditorConfigProperties.isRuleSetEnabled(rule: Rule) =
         ruleExecution(rule.ktLintRuleSetExecutionPropertyName())
-            ?.let { ruleSetExecution ->
-                if (ruleSetExecution.name == "ktlint_standard") {
+            .let { ruleSetExecution ->
+                if (rule.ruleSetId == "standard") {
                     // Rules in the standard rule set are enabled by default. So those rules should run unless the rule set
                     // is disabled explicitly.
                     ruleSetExecution != RuleExecution.disabled
@@ -138,11 +147,6 @@ internal class VisitorProvider(
                 }
             }
             ?: false
-
-    private fun EditorConfigProperties.isExperimentalEnabled(rule: Rule) =
-        rule is Rule.Experimental &&
-            ruleExecution(EXPERIMENTAL_RULES_EXECUTION_PROPERTY.name) == RuleExecution.enabled &&
-            ruleExecution(rule.ktLintRuleExecutionPropertyName()) != RuleExecution.disabled
 
     private fun EditorConfigProperties.ruleExecution(ruleExecutionPropertyName: String) =
         RULE_EXECUTION_PROPERTY_TYPE

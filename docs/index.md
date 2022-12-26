@@ -20,7 +20,7 @@
 - **No configuration required**  
  `ktlint` aims to capture the [official Kotlin coding conventions](https://kotlinlang.org/docs/reference/coding-conventions.html) and [Android Kotlin Style Guide](https://android.github.io/kotlin-guides/style.html). In some aspects `ktlint` is a bit more strict[*](https://github.com/pinterest/ktlint/issues/284#issuecomment-425177186).
 - **Rule sets**  
-  `ktlint` offers a `standard` and an `experimental` rule set. Next to this, it is easy to provide [custom rule sets](extensions/custom-rule-set/).
+  `ktlint` offers a `standard` rule set. Next to this, it is easy to provide [custom rule sets](extensions/custom-rule-set/).
 - **.editorconfig**  
   Some rules do allow further configuration, but in all cases a reasonable default is set when not provided. `ktlint` primarily uses the [.editorconfig file](rules/configuration-ktlint/) to read default `.editorconfig`, IntelliJ IDEA specific and Ktlint specific properties.
 - **Disable rules**  

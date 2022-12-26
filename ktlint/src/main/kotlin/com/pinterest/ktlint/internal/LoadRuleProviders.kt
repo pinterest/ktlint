@@ -40,9 +40,9 @@ private fun getRuleProvidersFromJar(
                 RuleSetProviderV2::class.java,
                 URLClassLoader(listOfNotNull(url).toTypedArray()),
             ).filter {
-                // The KtLint-root (CLI) module includes the standard and experimental rule sets. When those rule sets
-                // are also included in the specified JAR (url != null) then ignore them.
-                url == null || it.id !in KTLINT_RULE_SETS
+                // The KtLint-root (CLI) module includes the standard rule set. When this rule set is also included in the specified JAR
+                // (url != null) then ignore the rule set.
+                url == null || it.id != "standard"
             }.associate { ruleSetProviderV2 -> ruleSetProviderV2.id to ruleSetProviderV2.getRuleProviders() }
             .also { ruleSetIdMap ->
                 if (url != null && ruleSetIdMap.isEmpty()) {
@@ -62,5 +62,3 @@ private fun getRuleProvidersFromJar(
         emptyMap()
     }
 }
-
-private val KTLINT_RULE_SETS = listOf("standard", "experimental")

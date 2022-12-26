@@ -10,7 +10,6 @@ class RuleKtTest {
         value = [
             "rule-id,rule-id",
             "standard:rule-id,rule-id",
-            "experimental:rule-id,rule-id",
             "custom:rule-id,rule-id",
         ],
     )
@@ -28,7 +27,6 @@ class RuleKtTest {
         value = [
             "rule-id,standard",
             "standard:rule-id,standard",
-            "experimental:rule-id,experimental",
             "custom:rule-id,custom",
         ],
     )

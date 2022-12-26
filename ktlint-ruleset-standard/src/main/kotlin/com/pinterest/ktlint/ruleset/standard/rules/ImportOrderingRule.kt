@@ -257,7 +257,7 @@ public class ImportOrderingRule :
             message = "Marked for removal in KtLint 0.49",
             replaceWith = ReplaceWith("IJ_KOTLIN_IMPORTS_LAYOUT_PROPERTY"),
         )
-        @Suppress("ktlint:experimental:property-naming")
+        @Suppress("ktlint:property-naming")
         public val ideaImportsLayoutProperty: EditorConfigProperty<List<PatternEntry>> =
             IJ_KOTLIN_IMPORTS_LAYOUT_PROPERTY
     }

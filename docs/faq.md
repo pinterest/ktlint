@@ -19,7 +19,7 @@ See [adding a custom rule set](../extensions/custom-rule-set/) for more informat
 !!! tip
     Suppressing a `ktlint` violation is meant primarily as an escape latch for the rare cases when **ktlint** is not able to produce the correct result. Please report any such instances using [GitHub Issues](https://github.com/pinterest/ktlint/issues)).
 
-To disable a specific rule you'll need the rule identifier which is displayed at the end of the lint error. Note that when the rule id is prefixed with a rule set id like `experimental`, you will need to use that fully qualified rule id.
+To disable a specific rule you'll need the rule identifier which is displayed at the end of the lint error.
 
 An error can be suppressed using:
 
@@ -29,27 +29,24 @@ An error can be suppressed using:
 
 From a consistency perspective seen, it might be best to **not** mix the (EOL/Block) comment style with the annotation style in the same project.
 
-!!! warning
-    Some rules like the `indent` rule do not (yet) support disabling of the rule per line or block. It can be disabled for an entire file though. 
-
 ### Disabling for one specific line using EOL comment
 
 An error for a specific rule on a specific line can be disabled with an EOL comment on that line:
 
 ```kotlin
-import package.* // ktlint-disable no-wildcard-imports
+import foo.* // ktlint-disable no-wildcard-imports
 ```
 
 In case lint errors for different rules on the same line need to be ignored, then specify multiple rule ids (separated by a space):
 
 ```kotlin
-import package.* // ktlint-disable no-wildcard-imports other-rule-id
+import foo.* // ktlint-disable no-wildcard-imports other-rule-id
 ```
 
 In case all lint errors on a line need to be ignored, then do not specify the rule id at all:
 
 ```kotlin
-import package.* // ktlint-disable
+import foo.* // ktlint-disable
 ```
 
 ### Disabling for a block of lines using Block comments
@@ -91,13 +88,13 @@ import package.b.*
 An error for a specific rule on a specific line can be disabled with a `@Suppress` annotation:
 
 ```kotlin
-@Suppress("ktlint:max-line-length","ktlint:experimental:trailing-comma-on-call-site")
+@Suppress("ktlint:max-line-length", "ktlint:some-custom-rule-set-id:some-custom-rule-id")
 val foo = listOf(
     "some really looooooooooooooooong string exceeding the max line length",
   )
 ```
 
-Note that when using `@Suppress` each qualified rule id needs to be prefixed with `ktlint:`.
+Note that when using `@Suppress` each rule id needs to be prefixed with `ktlint:` in case of standard rules provided by ktlint and with `ktlint:some-custom-rule-set-id:` in case the rule is provided by the custom rule set with id `some-custom-rule-set-id`. 
 
 To suppress the violations of all ktlint rules, use:
 ```kotlin
@@ -109,9 +106,8 @@ Like with other `@Suppress` annotations, it can be placed on targets supported b
 ```kotlin
 @file:Suppress("ktlint") // Suppressing all rules for the entire file
 // or
-@file:Suppress("ktlint:max-line-length","ktlint:experimental:trailing-comma") // Suppressing specific rules for the entire file
+@file:Suppress("ktlint:max-line-length", "ktlint:some-custom-rule-set-id:some-custom-rule-id") // Suppressing specific rules for the entire file
 ```
-
 
 ## How do I globally disable a rule?
 With [`.editorConfig` property `disabled_rules`](../rules/configuration-ktlint#disabled-rules) a rule can be disabled globally.
@@ -145,7 +141,7 @@ Starting with KtLint `0.48` entire rule sets and individual rules can be disable
 All rules in a rule set can be enabled or disabled with a rule set property. The name of the rule set property consists of the `ktlint_` prefix followed by the rule set id. Examples:
 ```editorconfig
 ktlint_standard = disabled # Disable all rules from the `standard` rule set provided by KtLint
-ktlint_experimental = enabled # Enable all rules from the `experimental` rule set provided by KtLint
+ktlint_experimental = enabled # Enable rules marked as experimental for all rule sets that are enabled
 ktlint_your-custom-rule-set_custom-rule = enabled # Enable all rules in the `custom-rule-set` rule set (not provided by KtLint)
 ```
 
@@ -155,7 +151,7 @@ ktlint_your-custom-rule-set_custom-rule = enabled # Enable all rules in the `cus
 An individual property can be enabled or disabled with a rule property. The name of the rule property consists of the `ktlint_` prefix followed by the rule set id followed by a `_` and the rule id. Examples:
 ```editorconfig
 ktlint_standard_final-newline = disabled # Disables the `final-newline` rule in the `standard` rule set provided by KtLint
-ktlint_experimental_type-argument-list-spacing = enabled # Enables the `type-argument-list-spacing` rule in the `experimental` rule set provided by KtLint
+ktlint_standard_some-experimental-rule = enabled # Enables the (experimental) `some-experimental-rule` in the `standard` rule set provided by KtLint
 ktlint_custom-rule-set_custom-rule = disabled # Disables the `custom-rule` rule in the `custom-rule-set` rule set (not provided by KtLint)
 ```
 

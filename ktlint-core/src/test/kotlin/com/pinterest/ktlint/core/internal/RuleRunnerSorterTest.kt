@@ -35,12 +35,12 @@ class RuleRunnerSorterTest {
             RuleRunnerSorter()
                 .getSortedRuleRunners(
                     ruleRunners = createRuleRunners(
-                        ExperimentalRule("$EXPERIMENTAL:$RULE_B"),
-                        ExperimentalRule("$EXPERIMENTAL:$RULE_A"),
+                        ExperimentalRule(RULE_B),
+                        ExperimentalRule(RULE_A),
                         NormalRule("$CUSTOM_RULE_SET_A:$RULE_B"),
                         NormalRule("$CUSTOM_RULE_SET_A:$RULE_A"),
-                        NormalRule(RULE_B),
-                        NormalRule(RULE_A),
+                        NormalRule(RULE_D),
+                        NormalRule(RULE_C),
                         NormalRule("$CUSTOM_RULE_SET_B:$RULE_B"),
                         NormalRule("$CUSTOM_RULE_SET_B:$RULE_A"),
                     ),
@@ -49,8 +49,8 @@ class RuleRunnerSorterTest {
         assertThat(actual).containsExactly(
             "$STANDARD:$RULE_A",
             "$STANDARD:$RULE_B",
-            "$EXPERIMENTAL:$RULE_A",
-            "$EXPERIMENTAL:$RULE_B",
+            "$STANDARD:$RULE_C",
+            "$STANDARD:$RULE_D",
             // Rules from custom rule sets are all grouped together
             "$CUSTOM_RULE_SET_A:$RULE_A",
             "$CUSTOM_RULE_SET_A:$RULE_B",
@@ -85,12 +85,12 @@ class RuleRunnerSorterTest {
             RuleRunnerSorter()
                 .getSortedRuleRunners(
                     ruleRunners = createRuleRunners(
-                        RunAsLateAsPossibleExperimentalRule("$EXPERIMENTAL:$RULE_B"),
-                        RunAsLateAsPossibleExperimentalRule("$EXPERIMENTAL:$RULE_A"),
+                        RunAsLateAsPossibleExperimentalRule(RULE_B),
+                        RunAsLateAsPossibleExperimentalRule(RULE_A),
                         RunAsLateAsPossibleRule("$CUSTOM_RULE_SET_A:$RULE_B"),
                         RunAsLateAsPossibleRule("$CUSTOM_RULE_SET_A:$RULE_A"),
-                        RunAsLateAsPossibleRule(RULE_B),
-                        RunAsLateAsPossibleRule(RULE_A),
+                        RunAsLateAsPossibleRule(RULE_D),
+                        RunAsLateAsPossibleRule(RULE_C),
                         RunAsLateAsPossibleRule("$CUSTOM_RULE_SET_B:$RULE_B"),
                         RunAsLateAsPossibleRule("$CUSTOM_RULE_SET_B:$RULE_A"),
                     ),
@@ -99,8 +99,8 @@ class RuleRunnerSorterTest {
         assertThat(actual).containsExactly(
             "$STANDARD:$RULE_A",
             "$STANDARD:$RULE_B",
-            "$EXPERIMENTAL:$RULE_A",
-            "$EXPERIMENTAL:$RULE_B",
+            "$STANDARD:$RULE_C",
+            "$STANDARD:$RULE_D",
             // Rules from custom rule sets are all grouped together
             "$CUSTOM_RULE_SET_A:$RULE_A",
             "$CUSTOM_RULE_SET_A:$RULE_B",
@@ -115,12 +115,12 @@ class RuleRunnerSorterTest {
             RuleRunnerSorter()
                 .getSortedRuleRunners(
                     ruleRunners = createRuleRunners(
-                        RunAsLateAsPossibleExperimentalRule("$EXPERIMENTAL:$RULE_B"),
-                        RunAsLateAsPossibleExperimentalRule("$EXPERIMENTAL:$RULE_A"),
+                        RunAsLateAsPossibleExperimentalRule(RULE_B),
+                        RunAsLateAsPossibleExperimentalRule(RULE_A),
                         RunAsLateAsPossibleRule("$CUSTOM_RULE_SET_A:$RULE_B"),
                         RunAsLateAsPossibleRule("$CUSTOM_RULE_SET_A:$RULE_A"),
-                        RunAsLateAsPossibleRule(RULE_B),
-                        RunAsLateAsPossibleRule(RULE_A),
+                        RunAsLateAsPossibleRule(RULE_D),
+                        RunAsLateAsPossibleRule(RULE_C),
                         RunAsLateAsPossibleRule("$CUSTOM_RULE_SET_B:$RULE_B"),
                         RunAsLateAsPossibleRule("$CUSTOM_RULE_SET_B:$RULE_A"),
                     ),
@@ -129,8 +129,8 @@ class RuleRunnerSorterTest {
         assertThat(actual).containsExactly(
             "$STANDARD:$RULE_A",
             "$STANDARD:$RULE_B",
-            "$EXPERIMENTAL:$RULE_A",
-            "$EXPERIMENTAL:$RULE_B",
+            "$STANDARD:$RULE_C",
+            "$STANDARD:$RULE_D",
             // Rules from custom rule sets are all grouped together
             "$CUSTOM_RULE_SET_A:$RULE_A",
             "$CUSTOM_RULE_SET_A:$RULE_B",
@@ -244,10 +244,12 @@ class RuleRunnerSorterTest {
                             id = RULE_C,
                             visitorModifier = VisitorModifier.RunAfterRule(RULE_B),
                         ) {},
-                        object : R(
-                            id = "$EXPERIMENTAL:$RULE_A",
-                            visitorModifier = VisitorModifier.RunAfterRule(RULE_C),
-                        ), Rule.Experimental {},
+                        object :
+                            R(
+                                id = "$EXPERIMENTAL:$RULE_A",
+                                visitorModifier = VisitorModifier.RunAfterRule(RULE_C),
+                            ),
+                            Rule.Experimental {},
                     ),
                 ).map { it.qualifiedRuleId }
 
@@ -269,7 +271,7 @@ class RuleRunnerSorterTest {
                 visitorModifiers = setOf(
                     VisitorModifier.RunAsLateAsPossible,
                     VisitorModifier.RunAfterRule(
-                        ruleId = "experimental:function-signature",
+                        ruleId = "function-signature",
                         loadOnlyWhenOtherRuleIsLoaded = false,
                         runOnlyWhenOtherRuleIsEnabled = false,
                     ),
@@ -299,13 +301,15 @@ class RuleRunnerSorterTest {
             ) {}
         private val wrappingRule = object : Rule("wrapping") {}
         private val functionSignatureRule =
-            object : Rule(
-                id = "experimental:function-signature",
-                visitorModifiers = setOf(
-                    // Run after wrapping and spacing rules
-                    VisitorModifier.RunAsLateAsPossible,
+            object :
+                Rule(
+                    id = "function-signature",
+                    visitorModifiers = setOf(
+                        // Run after wrapping and spacing rules
+                        VisitorModifier.RunAsLateAsPossible,
+                    ),
                 ),
-            ), Rule.Experimental {}
+                Rule.Experimental {}
 
         @Test
         fun `Given that the experimental FunctionSignatureRule is not included in the rules to be sorted`() {
@@ -341,8 +345,8 @@ class RuleRunnerSorterTest {
 
             assertThat(actual).containsExactly(
                 "standard:wrapping",
+                "standard:function-signature",
                 "standard:trailing-comma-on-call-site",
-                "experimental:function-signature",
                 "standard:indent",
             )
         }
@@ -363,13 +367,15 @@ class RuleRunnerSorterTest {
                                     loadOnlyWhenOtherRuleIsLoaded = true,
                                 ),
                             ) {},
-                            object : R(
-                                id = "$EXPERIMENTAL:$RULE_C",
-                                visitorModifier = VisitorModifier.RunAfterRule(
-                                    ruleId = "$EXPERIMENTAL:$RULE_B",
-                                    loadOnlyWhenOtherRuleIsLoaded = true,
+                            object :
+                                R(
+                                    id = "$EXPERIMENTAL:$RULE_C",
+                                    visitorModifier = VisitorModifier.RunAfterRule(
+                                        ruleId = "$EXPERIMENTAL:$RULE_B",
+                                        loadOnlyWhenOtherRuleIsLoaded = true,
+                                    ),
                                 ),
-                            ), Rule.Experimental {},
+                                Rule.Experimental {},
                         ),
                     )
             }.withMessage(
@@ -397,15 +403,17 @@ class RuleRunnerSorterTest {
                                     ),
                                 ),
                             ) {},
-                            object : R(
-                                id = "$EXPERIMENTAL:$RULE_B",
-                                visitorModifiers = setOf(
-                                    VisitorModifier.RunAfterRule(
-                                        ruleId = "$EXPERIMENTAL:$RULE_C",
-                                        loadOnlyWhenOtherRuleIsLoaded = true,
+                            object :
+                                R(
+                                    id = "$EXPERIMENTAL:$RULE_B",
+                                    visitorModifiers = setOf(
+                                        VisitorModifier.RunAfterRule(
+                                            ruleId = "$EXPERIMENTAL:$RULE_C",
+                                            loadOnlyWhenOtherRuleIsLoaded = true,
+                                        ),
                                     ),
                                 ),
-                            ), Rule.Experimental {},
+                                Rule.Experimental {},
                         ),
                     )
             }.withMessage(
@@ -471,7 +479,7 @@ class RuleRunnerSorterTest {
     @Nested
     inner class `Given some rules that have a cyclic dependency and no custom rules sets involved` {
         @Test
-        fun `Given some rules having only a single RunAfterRule visitor modifier then throw an exception`() {
+        fun `Given some rules, including an experimental rule, having only a single RunAfterRule visitor modifier then throw an exception`() {
             assertThatIllegalStateException().isThrownBy {
                 RuleRunnerSorter()
                     .getSortedRuleRunners(
@@ -482,20 +490,22 @@ class RuleRunnerSorterTest {
                             ) {},
                             object : R(
                                 id = RULE_B,
-                                visitorModifier = VisitorModifier.RunAfterRule("$EXPERIMENTAL:$RULE_C"),
+                                visitorModifier = VisitorModifier.RunAfterRule(RULE_C),
                             ) {},
-                            object : R(
-                                id = "$EXPERIMENTAL:$RULE_C",
-                                visitorModifier = VisitorModifier.RunAfterRule(RULE_A),
-                            ), Rule.Experimental {},
+                            object :
+                                R(
+                                    id = RULE_C,
+                                    visitorModifier = VisitorModifier.RunAfterRule(RULE_A),
+                                ),
+                                Rule.Experimental {},
                         ),
                     )
             }.withMessage(
                 """
                 Found cyclic dependencies between rules that should run after another rule:
                   - Rule with id '$STANDARD:$RULE_A' should run after rule(s) with id '$STANDARD:$RULE_B'
-                  - Rule with id '$STANDARD:$RULE_B' should run after rule(s) with id '$EXPERIMENTAL:$RULE_C'
-                  - Rule with id '$EXPERIMENTAL:$RULE_C' should run after rule(s) with id '$STANDARD:$RULE_A'
+                  - Rule with id '$STANDARD:$RULE_B' should run after rule(s) with id '$STANDARD:$RULE_C'
+                  - Rule with id '$STANDARD:$RULE_C' should run after rule(s) with id '$STANDARD:$RULE_A'
                 """.trimIndent(),
             )
         }
@@ -509,7 +519,7 @@ class RuleRunnerSorterTest {
                             object : R(
                                 id = RULE_A,
                                 visitorModifiers = setOf(
-                                    VisitorModifier.RunAfterRule("$EXPERIMENTAL:$RULE_B"),
+                                    VisitorModifier.RunAfterRule("$CUSTOM_RULE_SET_A:$RULE_B"),
                                     VisitorModifier.RunAfterRule(RULE_B),
                                 ),
                             ) {},
@@ -517,21 +527,23 @@ class RuleRunnerSorterTest {
                                 id = RULE_B,
                                 visitorModifiers = setOf(
                                     VisitorModifier.RunAfterRule(RULE_C),
-                                    VisitorModifier.RunAfterRule("$EXPERIMENTAL:$RULE_C"),
+                                    VisitorModifier.RunAfterRule("$CUSTOM_RULE_SET_A:$RULE_C"),
                                 ),
                             ) {},
-                            object : R(
-                                id = "$EXPERIMENTAL:$RULE_C",
-                                visitorModifier = VisitorModifier.RunAfterRule(RULE_A),
-                            ), Rule.Experimental {},
+                            object :
+                                R(
+                                    id = "$CUSTOM_RULE_SET_A:$RULE_C",
+                                    visitorModifier = VisitorModifier.RunAfterRule(RULE_A),
+                                ),
+                                Rule.Experimental {},
                         ),
                     )
             }.withMessage(
                 """
-                Found cyclic dependencies between rules that should run after another rule:
-                  - Rule with id '$STANDARD:$RULE_A' should run after rule(s) with id '$EXPERIMENTAL:$RULE_B, $STANDARD:$RULE_B'
-                  - Rule with id '$STANDARD:$RULE_B' should run after rule(s) with id '$STANDARD:$RULE_C, $EXPERIMENTAL:$RULE_C'
-                  - Rule with id '$EXPERIMENTAL:$RULE_C' should run after rule(s) with id '$STANDARD:$RULE_A'
+                Found cyclic dependencies between rules that should run after another rule. Please contact the maintainer(s) of the custom rule set(s) [custom-rule-set-a] before creating an issue in the KtLint project. Dependencies:
+                  - Rule with id '$STANDARD:$RULE_A' should run after rule(s) with id '$CUSTOM_RULE_SET_A:$RULE_B, $STANDARD:$RULE_B'
+                  - Rule with id '$STANDARD:$RULE_B' should run after rule(s) with id '$STANDARD:$RULE_C, $CUSTOM_RULE_SET_A:$RULE_C'
+                  - Rule with id '$CUSTOM_RULE_SET_A:$RULE_C' should run after rule(s) with id '$STANDARD:$RULE_A'
                 """.trimIndent(),
             )
         }
@@ -636,12 +648,14 @@ class RuleRunnerSorterTest {
         ),
     )
 
-    private class RunAsLateAsPossibleExperimentalRule(id: String) : R(
-        id = id,
-        visitorModifiers = setOf(
-            VisitorModifier.RunAsLateAsPossible,
+    private class RunAsLateAsPossibleExperimentalRule(id: String) :
+        R(
+            id = id,
+            visitorModifiers = setOf(
+                VisitorModifier.RunAsLateAsPossible,
+            ),
         ),
-    ), Rule.Experimental
+        Rule.Experimental
 
     private open class R(
         id: String,

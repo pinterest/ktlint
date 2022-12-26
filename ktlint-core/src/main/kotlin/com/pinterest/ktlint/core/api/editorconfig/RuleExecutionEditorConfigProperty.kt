@@ -75,7 +75,7 @@ internal fun ktLintRuleExecutionPropertyName(qualifiedRuleId: String): String =
  * Constructs the name of the '.editorconfig' property that determines whether the given [Rule] is to be executed.
  */
 internal fun Rule.ktLintRuleExecutionPropertyName(): String =
-    "ktlint_${ruleSetId}_${ruleId}"
+    "ktlint_${ruleSetId}_$ruleId"
 
 /**
  * Constructs the name of the '.editorconfig' property that determines whether the rule set of the given

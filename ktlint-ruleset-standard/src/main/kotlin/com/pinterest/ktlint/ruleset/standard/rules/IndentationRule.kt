@@ -115,7 +115,7 @@ public class IndentationRule :
         visitorModifiers = setOf(
             VisitorModifier.RunAsLateAsPossible,
             VisitorModifier.RunAfterRule(
-                ruleId = "experimental:function-signature",
+                ruleId = "function-signature",
                 loadOnlyWhenOtherRuleIsLoaded = false,
                 runOnlyWhenOtherRuleIsEnabled = false,
             ),

@@ -6,6 +6,7 @@ import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.RuleProvider
 import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.plus
+import com.pinterest.ktlint.core.api.editorconfig.EXPERIMENTAL_RULES_EXECUTION_PROPERTY
 import com.pinterest.ktlint.core.api.editorconfig.RuleExecution
 import com.pinterest.ktlint.core.api.editorconfig.createRuleSetExecutionEditorConfigProperty
 import com.pinterest.ktlint.core.initKtLintKLogger
@@ -79,7 +80,9 @@ public fun Set<RuleProvider>.lint(
         fileName = lintedFilePath,
         text = text,
         ruleProviders = this.toRuleProviders(),
-        editorConfigOverride = editorConfigOverride.extendWithRuleSetRuleExecutionsFor(ruleProviders),
+        editorConfigOverride = editorConfigOverride
+            .enableExperimentalRules()
+            .extendWithRuleSetRuleExecutionsFor(ruleProviders),
         userData = userData,
         script = script,
         cb = { lintError, _ -> lintErrors.add(lintError) },
@@ -98,7 +101,9 @@ public fun Set<RuleProvider>.lint(
     val ruleProviders = toRuleProviders()
     KtLintRuleEngine(
         ruleProviders = ruleProviders,
-        editorConfigOverride = editorConfigOverride.extendWithRuleSetRuleExecutionsFor(ruleProviders),
+        editorConfigOverride = editorConfigOverride
+            .enableExperimentalRules()
+            .extendWithRuleSetRuleExecutionsFor(ruleProviders),
     ).lint(
         code = text,
         filePath = filePath?.let { Paths.get(filePath) },
@@ -122,6 +127,9 @@ private fun EditorConfigOverride.extendWithRuleSetRuleExecutionsFor(ruleProvider
     return this.plus(*ruleSetRuleExecutions)
 }
 
+private fun EditorConfigOverride.enableExperimentalRules(): EditorConfigOverride =
+    plus(EXPERIMENTAL_RULES_EXECUTION_PROPERTY to RuleExecution.enabled)
+
 @Deprecated(
     message = "Marked for removal in KtLint 0.49",
     replaceWith = ReplaceWith("format(filePath,text,editorConfigOverride)"),
@@ -140,7 +148,9 @@ public fun Set<RuleProvider>.format(
         fileName = lintedFilePath,
         text = text,
         ruleProviders = ruleProviders,
-        editorConfigOverride = editorConfigOverride.extendWithRuleSetRuleExecutionsFor(ruleProviders),
+        editorConfigOverride = editorConfigOverride
+            .enableExperimentalRules()
+            .extendWithRuleSetRuleExecutionsFor(ruleProviders),
         userData = userData,
         script = script,
         cb = { lintError, _ -> lintErrors.add(lintError) },
@@ -160,7 +170,9 @@ public fun Set<RuleProvider>.format(
     val formattedCode =
         KtLintRuleEngine(
             ruleProviders = ruleProviders,
-            editorConfigOverride = editorConfigOverride.extendWithRuleSetRuleExecutionsFor(ruleProviders),
+            editorConfigOverride = editorConfigOverride
+                .enableExperimentalRules()
+                .extendWithRuleSetRuleExecutionsFor(ruleProviders),
         ).format(
             code = text,
             filePath = filePath?.let { Paths.get(filePath) },

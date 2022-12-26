@@ -69,16 +69,10 @@ internal class RuleRunnerSorter {
                 0
             }
         }.thenBy {
-            if (it.ruleSetId == "standard" || it.ruleSetId == "experimental") {
+            if (it.ruleSetId == "standard") {
                 0
             } else {
                 1
-            }
-        }.thenBy {
-            if (it.getRule() is Rule.Experimental) {
-                1
-            } else {
-                0
             }
         }.thenBy { it.qualifiedRuleId }
 
@@ -201,7 +195,7 @@ internal class RuleRunnerSorter {
             val customRuleSetIds =
                 blockedRuleRunners
                     .map { it.ruleSetId }
-                    .filterNot { it == "standard" || it == "experimental" }
+                    .filterNot { it == "standard" }
                     .distinct()
                     .sorted()
             val prefix =

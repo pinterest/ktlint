@@ -106,7 +106,7 @@ public class NoWildcardImportsRule :
             message = "Marked for removal in KtLint 0.49",
             replaceWith = ReplaceWith("IJ_KOTLIN_PACKAGES_TO_USE_IMPORT_ON_DEMAND"),
         )
-        @Suppress("ktlint:experimental:property-naming")
+        @Suppress("ktlint:property-naming")
         public val packagesToUseImportOnDemandProperty: EditorConfigProperty<List<PatternEntry>> =
             IJ_KOTLIN_PACKAGES_TO_USE_IMPORT_ON_DEMAND
     }
