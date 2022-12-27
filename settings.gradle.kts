@@ -32,6 +32,7 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 include(
     ":ktlint",
     ":ktlint-core",
+    ":ktlint-api-consumer",
     ":ktlint-reporter-baseline",
     ":ktlint-reporter-checkstyle",
     ":ktlint-reporter-format",

@@ -619,7 +619,7 @@ class PackageKtTest {
                     RuleProvider { DummyRule() },
                 ),
             ),
-            code = Code(code),
+            code = Code.CodeSnippetLegacy(code),
         ).rootNode
 
     private fun FileASTNode.toEnumClassBodySequence() =

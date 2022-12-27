@@ -117,11 +117,13 @@ internal class RuleExecutionContext private constructor(
             val normalizedText = normalizeText(code.content)
             val positionInTextLocator = buildPositionInTextLocator(normalizedText)
 
-            val psiFileName = when {
-                code.fileName != null -> code.fileName
-                code.script -> "file.kts"
-                else -> "file.kt"
-            }
+            val psiFileName =
+                code.fileName
+                    ?: if (code.script) {
+                        "file.kts"
+                    } else {
+                        "file.kt"
+                    }
             val psiFile = psiFileFactory.createFileFromText(
                 psiFileName,
                 KotlinLanguage.INSTANCE,
