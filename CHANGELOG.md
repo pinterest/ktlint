@@ -17,6 +17,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+* Update Kotlin development version to `1.8.0` and Kotlin version to `1.8.0`.
+
 ## [0.48.0] - 2022-12-15
 
 ### Indent rule
