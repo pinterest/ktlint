@@ -17,13 +17,12 @@ private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 internal fun List<URL>.loadRuleProvidersByRuleSetId(debug: Boolean): Map<String, Set<RuleProvider>> =
     getKtlintRulesets()
         .plus(
-            getRuleProvidersFromCustomRuleSetJars(debug)
+            getRuleProvidersFromCustomRuleSetJars(debug),
         )
 
 private fun getKtlintRulesets(): Map<String, Set<RuleProvider>> {
     return loadRulesetsFrom()
 }
-
 
 private fun loadRulesetsFrom(url: URL? = null): Map<String, Set<RuleProvider>> =
     try {
@@ -59,13 +58,13 @@ private fun getRuleProvidersFromCustomRuleSetJar(
             if (ruleSetIdMap.isEmpty()) {
                 LOGGER.warn {
                     """
-                        JAR ${url.path}, provided as command line argument, does not contain a custom ruleset provider.
-                            Check following:
-                              - Does the jar contain an implementation of the RuleSetProviderV2 interface?
-                              - Does the jar contain a resource file with name "com.pinterest.ktlint.core.RuleSetProviderV2"?
-                              - Is the resource file located in directory "src/main/resources/META-INF/services"?
-                              - Does the resource file contain the fully qualified class name of the class implementing the RuleSetProviderV2 interface?
-                        """.trimIndent()
+                    JAR ${url.path}, provided as command line argument, does not contain a custom ruleset provider.
+                        Check following:
+                          - Does the jar contain an implementation of the RuleSetProviderV2 interface?
+                          - Does the jar contain a resource file with name "com.pinterest.ktlint.core.RuleSetProviderV2"?
+                          - Is the resource file located in directory "src/main/resources/META-INF/services"?
+                          - Does the resource file contain the fully qualified class name of the class implementing the RuleSetProviderV2 interface?
+                    """.trimIndent()
                 }
             }
         }
