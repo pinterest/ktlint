@@ -222,10 +222,11 @@ class RuleRunnerSorterTest {
         assertThat(actual).containsExactly(
             "$STANDARD:$RULE_B",
             "$STANDARD:$RULE_C",
-            "$STANDARD:$RULE_A",
-            // Although RULE_D like RULE_C depends on RULE_B it still comes after RULE_A because that rules according to
-            // the default sort order comes before rule D
             "$STANDARD:$RULE_D",
+            // RULE_D is ordered before RULE_A because rules are evaluated in order of the initial sorting (A, B, C, D). In the first
+            // iteration of the rules, RULE_A is blocked because rule C is not yet added. RULE_B, RULE_C and RULE_D can be added during the
+            // first iteration as the rules are not blocked when they are evaluated. In the second iteration, RULE_A can be added as well.
+            "$STANDARD:$RULE_A",
         )
     }
 
@@ -492,7 +493,7 @@ class RuleRunnerSorterTest {
                     )
             }.withMessage(
                 """
-                Found cyclic dependencies between rules that should run after another rule:
+                Found cyclic dependencies between required rules that should run after another rule:
                   - Rule with id '$STANDARD:$RULE_A' should run after rule(s) with id '$STANDARD:$RULE_B'
                   - Rule with id '$STANDARD:$RULE_B' should run after rule(s) with id '$EXPERIMENTAL:$RULE_C'
                   - Rule with id '$EXPERIMENTAL:$RULE_C' should run after rule(s) with id '$STANDARD:$RULE_A'
@@ -509,7 +510,7 @@ class RuleRunnerSorterTest {
                             object : R(
                                 id = RULE_A,
                                 visitorModifiers = setOf(
-                                    VisitorModifier.RunAfterRule("$EXPERIMENTAL:$RULE_B"),
+                                    VisitorModifier.RunAfterRule("$CUSTOM_RULE_SET_A:$RULE_B"),
                                     VisitorModifier.RunAfterRule(RULE_B),
                                 ),
                             ) {},
@@ -517,21 +518,21 @@ class RuleRunnerSorterTest {
                                 id = RULE_B,
                                 visitorModifiers = setOf(
                                     VisitorModifier.RunAfterRule(RULE_C),
-                                    VisitorModifier.RunAfterRule("$EXPERIMENTAL:$RULE_C"),
+                                    VisitorModifier.RunAfterRule("$CUSTOM_RULE_SET_A:$RULE_C"),
                                 ),
                             ) {},
                             object : R(
-                                id = "$EXPERIMENTAL:$RULE_C",
+                                id = "$CUSTOM_RULE_SET_A:$RULE_C",
                                 visitorModifier = VisitorModifier.RunAfterRule(RULE_A),
                             ) {},
                         ),
                     )
             }.withMessage(
                 """
-                Found cyclic dependencies between rules that should run after another rule:
-                  - Rule with id '$STANDARD:$RULE_A' should run after rule(s) with id '$EXPERIMENTAL:$RULE_B, $STANDARD:$RULE_B'
-                  - Rule with id '$STANDARD:$RULE_B' should run after rule(s) with id '$STANDARD:$RULE_C, $EXPERIMENTAL:$RULE_C'
-                  - Rule with id '$EXPERIMENTAL:$RULE_C' should run after rule(s) with id '$STANDARD:$RULE_A'
+                Found cyclic dependencies between required rules that should run after another rule. Please contact the maintainer(s) of the custom rule set(s) [custom-rule-set-a] before creating an issue in the KtLint project. Dependencies:
+                  - Rule with id '$STANDARD:$RULE_A' should run after rule(s) with id '$STANDARD:$RULE_B'
+                  - Rule with id '$STANDARD:$RULE_B' should run after rule(s) with id '$CUSTOM_RULE_SET_A:$RULE_C'
+                  - Rule with id '$CUSTOM_RULE_SET_A:$RULE_C' should run after rule(s) with id '$STANDARD:$RULE_A'
                 """.trimIndent(),
             )
         }
@@ -561,7 +562,7 @@ class RuleRunnerSorterTest {
                     )
             }.withMessage(
                 """
-                Found cyclic dependencies between rules that should run after another rule. Please contact the maintainer(s) of the custom rule set(s) [$CUSTOM_RULE_SET_A, $CUSTOM_RULE_SET_B] before creating an issue in the KtLint project. Dependencies:
+                Found cyclic dependencies between required rules that should run after another rule. Please contact the maintainer(s) of the custom rule set(s) [$CUSTOM_RULE_SET_A, $CUSTOM_RULE_SET_B] before creating an issue in the KtLint project. Dependencies:
                   - Rule with id '$STANDARD:$RULE_C' should run after rule(s) with id '$CUSTOM_RULE_SET_B:$RULE_B'
                   - Rule with id '$CUSTOM_RULE_SET_A:$RULE_A' should run after rule(s) with id '$STANDARD:$RULE_C'
                   - Rule with id '$CUSTOM_RULE_SET_B:$RULE_B' should run after rule(s) with id '$CUSTOM_RULE_SET_A:$RULE_A'
@@ -597,10 +598,10 @@ class RuleRunnerSorterTest {
                     )
             }.withMessage(
                 """
-                Found cyclic dependencies between rules that should run after another rule. Please contact the maintainer(s) of the custom rule set(s) [$CUSTOM_RULE_SET_A, $CUSTOM_RULE_SET_B] before creating an issue in the KtLint project. Dependencies:
-                  - Rule with id '$STANDARD:$RULE_C' should run after rule(s) with id '$CUSTOM_RULE_SET_B:$RULE_B, $STANDARD:$RULE_B'
+                Found cyclic dependencies between required rules that should run after another rule. Please contact the maintainer(s) of the custom rule set(s) [$CUSTOM_RULE_SET_A, $CUSTOM_RULE_SET_B] before creating an issue in the KtLint project. Dependencies:
+                  - Rule with id '$STANDARD:$RULE_C' should run after rule(s) with id '$CUSTOM_RULE_SET_B:$RULE_B'
                   - Rule with id '$CUSTOM_RULE_SET_A:$RULE_A' should run after rule(s) with id '$STANDARD:$RULE_C'
-                  - Rule with id '$CUSTOM_RULE_SET_B:$RULE_B' should run after rule(s) with id '$STANDARD:$RULE_A, $CUSTOM_RULE_SET_A:$RULE_A'
+                  - Rule with id '$CUSTOM_RULE_SET_B:$RULE_B' should run after rule(s) with id '$CUSTOM_RULE_SET_A:$RULE_A'
                 """.trimIndent(),
             )
         }

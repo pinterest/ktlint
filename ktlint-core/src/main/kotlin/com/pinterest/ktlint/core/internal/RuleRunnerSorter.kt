@@ -93,8 +93,10 @@ internal class RuleRunnerSorter {
         do {
             if (newRuleRunnersAdded) {
                 newRuleRunnersAdded = false
+                // All rule runners which were (previously) blocked can now be checked again
                 ruleRunnersIterator =
                     blockedRuleRunners
+                        .canRunWith(newRuleRunners)
                         .toSet()
                         .iterator()
                 blockedRuleRunners.clear()
@@ -157,13 +159,6 @@ internal class RuleRunnerSorter {
                         // already added to the new list of rule which will be loaded before the current rule.
                         newRuleRunners.add(currentRuleRunner)
                         newRuleRunnersAdded = true
-                        // All rule runners which were (recursively) blocked because they need to be run after the newly added rule
-                        // runner can now be added to the new list of rule runners as well.
-                        val ruleReferencesToUnblock = blockedRuleRunners.canRunWith(newRuleRunners)
-                        if (ruleReferencesToUnblock.isNotEmpty()) {
-                            newRuleRunners.addAll(ruleReferencesToUnblock)
-                            blockedRuleRunners.removeAll(ruleReferencesToUnblock.toSet())
-                        }
                     }
 
                     BLOCK_UNTIL_RUN_AFTER_RULE_IS_LOADED -> {
@@ -200,9 +195,9 @@ internal class RuleRunnerSorter {
                     .sorted()
             val prefix =
                 if (customRuleSetIds.isEmpty()) {
-                    "Found cyclic dependencies between rules that should run after another rule:"
+                    "Found cyclic dependencies between required rules that should run after another rule:"
                 } else {
-                    "Found cyclic dependencies between rules that should run after another rule. Please contact " +
+                    "Found cyclic dependencies between required rules that should run after another rule. Please contact " +
                         "the maintainer(s) of the custom rule set(s) [${customRuleSetIds.joinToString()}] before " +
                         "creating an issue in the KtLint project. Dependencies:"
                 }
@@ -215,13 +210,6 @@ internal class RuleRunnerSorter {
             "No runnable rules found. Please ensure that at least one is enabled."
         }
         return newRuleRunners
-    }
-
-    private fun Set<RuleRunner>.findRuleRunnersBlockedBy(qualifiedRuleId: String): List<RuleRunner> {
-        return this
-            .filter { it.runAfterRules.any { it.ruleId == qualifiedRuleId } }
-            .map { listOf(it) + this.findRuleRunnersBlockedBy(it.qualifiedRuleId) }
-            .flatten()
     }
 
     private fun Set<RuleRunner>.canRunWith(loadedRuleRunners: List<RuleRunner>): List<RuleRunner> =
