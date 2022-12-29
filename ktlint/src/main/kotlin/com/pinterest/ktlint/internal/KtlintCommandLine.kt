@@ -270,14 +270,6 @@ internal class KtlintCommandLine {
             exitKtLintProcess(1)
         }
 
-        val ruleProvidersByRuleSetId = ruleProvidersByRuleSetId()
-        val customRuleSetIds =
-            ruleProvidersByRuleSetId
-                .filterKeys {
-                    // Exclude the standard and experimental rule sets from Ktlint itself
-                    it != "standard" && it != "experimental"
-                }.map { it.key }
-
         val editorConfigOverride = EditorConfigOverride
             .EMPTY_EDITOR_CONFIG_OVERRIDE
             .applyIf(experimental) {
@@ -292,13 +284,6 @@ internal class KtlintCommandLine {
             }.applyIf(stdin) {
                 logger.debug { "Add editor config override to disable 'filename' rule which can not be used in combination with reading from <stdin>" }
                 plus(createRuleExecutionEditorConfigProperty("standard:filename") to RuleExecution.disabled)
-            }.applyIf(customRuleSetIds.isNotEmpty()) {
-                logger.debug { "Add editor config override to enable rule set(s) '$customRuleSetIds' from custom rule set JAR('s): '$rulesetJarPaths'" }
-                val ruleSetExecutionEditorConfigProperties =
-                    customRuleSetIds
-                        .map { createRuleSetExecutionEditorConfigProperty("$it:all") to RuleExecution.enabled }
-                        .toTypedArray()
-                plus(*ruleSetExecutionEditorConfigProperties)
             }
 
         assertStdinAndPatternsFromStdinOptionsMutuallyExclusive()
@@ -317,14 +302,8 @@ internal class KtlintCommandLine {
 
         var reporter = loadReporter()
 
-        val ruleProviders =
-            ruleProvidersByRuleSetId
-                .values
-                .flatten()
-                .toSet()
-
         val ktLintRuleEngine = KtLintRuleEngine(
-            ruleProviders = ruleProviders,
+            ruleProviders = ruleProviders(),
             editorConfigDefaults = editorConfigDefaults,
             editorConfigOverride = editorConfigOverride,
             isInvokedFromCli = true,
@@ -372,10 +351,10 @@ internal class KtlintCommandLine {
     }
 
     // Do not convert to "val" as the function depends on PicoCli options which are not fully instantiated until the "run" method is started
-    internal fun ruleProvidersByRuleSetId(): Map<String, Set<RuleProvider>> =
+    internal fun ruleProviders(): Set<RuleProvider> =
         rulesetJarPaths
             .toFilesURIList()
-            .loadRuleProvidersByRuleSetId(debug)
+            .loadRuleProviders(debug)
 
     // Do not convert to "val" as the function depends on PicoCli options which are not fully instantiated until the "run" method is started
     private fun List<String>.toFilesURIList() =

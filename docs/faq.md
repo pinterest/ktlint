@@ -150,7 +150,7 @@ ktlint_your-custom-rule-set_custom-rule = enabled # Enable all rules in the `cus
 ```
 
 !!! note
-    All rules from the `standard` rule set are *enabled* by default and can optionally be disabled in the `.editorconfig`. All rules from the `experimental` and *custom* rule sets are *disabled* by default and can optionally be enabled in the `.editorconfig`.
+    All rules from the `standard` and custom rule sets are *enabled* by default and can optionally be disabled in the `.editorconfig`. All rules from the `experimental` rule set are *disabled* by default and can optionally be enabled in the `.editorconfig`.
 
 An individual property can be enabled or disabled with a rule property. The name of the rule property consists of the `ktlint_` prefix followed by the rule set id followed by a `_` and the rule id. Examples:
 ```editorconfig
