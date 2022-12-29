@@ -65,13 +65,13 @@ public abstract class RuleSetProviderV2(
             require(description == null || description.length <= 400) {
                 "Length of description should be 400 characters or less"
             }
-            require(license == null || license.length <= 80) {
-                "Length of license should be 80 characters or less"
+            require(license == null || license.length <= 120) {
+                "Length of license url should be 80 characters or less"
             }
-            require(repositoryUrl == null || repositoryUrl.length <= 80) {
+            require(repositoryUrl == null || repositoryUrl.length <= 120) {
                 "Length of repository url should be 80 characters or less"
             }
-            require(issueTrackerUrl == null || issueTrackerUrl.length <= 80) {
+            require(issueTrackerUrl == null || issueTrackerUrl.length <= 120) {
                 "Length of repository url should be 80 characters or less"
             }
         }

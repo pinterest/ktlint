@@ -29,8 +29,15 @@ internal class GenerateEditorConfigSubCommand : Runnable {
     override fun run() {
         commandSpec.commandLine().printCommandLineHelpOrVersionUsage()
 
+        val ruleProviders =
+            ktlintCommand
+                .ruleProvidersByRuleSetId()
+                .values
+                .flatten()
+                .toSet()
+
         val ktLintRuleEngine = KtLintRuleEngine(
-            ruleProviders = ktlintCommand.ruleProviders(),
+            ruleProviders = ruleProviders,
             editorConfigOverride = EditorConfigOverride.from(CODE_STYLE_PROPERTY to codeStyle()),
             isInvokedFromCli = true,
         )

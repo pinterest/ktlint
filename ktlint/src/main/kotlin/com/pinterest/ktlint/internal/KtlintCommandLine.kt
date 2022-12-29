@@ -6,6 +6,7 @@ import com.pinterest.ktlint.core.KtLintRuleEngine
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.Reporter
 import com.pinterest.ktlint.core.ReporterProvider
+import com.pinterest.ktlint.core.RuleProvider
 import com.pinterest.ktlint.core.api.Baseline.Status.INVALID
 import com.pinterest.ktlint.core.api.Baseline.Status.NOT_FOUND
 import com.pinterest.ktlint.core.api.EditorConfigDefaults
@@ -251,20 +252,6 @@ internal class KtlintCommandLine {
                 ?.let { path -> Paths.get(path) },
         )
 
-    private val editorConfigOverride: EditorConfigOverride
-        get() =
-            EditorConfigOverride
-                .EMPTY_EDITOR_CONFIG_OVERRIDE
-                .applyIf(experimental) {
-                    plus(createRuleSetExecutionEditorConfigProperty("experimental:all") to RuleExecution.enabled)
-                }.applyIf(disabledRules.isNotBlank()) {
-                    plus(*disabledRulesEditorConfigOverrides())
-                }.applyIf(android) {
-                    plus(CODE_STYLE_PROPERTY to CodeStyleValue.android)
-                }.applyIf(stdin) {
-                    plus(createRuleExecutionEditorConfigProperty("standard:filename") to RuleExecution.disabled)
-                }
-
     private fun disabledRulesEditorConfigOverrides() =
         disabledRules
             .split(",")
@@ -283,6 +270,37 @@ internal class KtlintCommandLine {
             exitKtLintProcess(1)
         }
 
+        val ruleProvidersByRuleSetId = ruleProvidersByRuleSetId()
+        val customRuleSetIds =
+            ruleProvidersByRuleSetId
+                .filterKeys {
+                    // Exclude the standard and experimental rule sets from Ktlint itself
+                    it != "standard" && it != "experimental"
+                }.map { it.key }
+
+        val editorConfigOverride = EditorConfigOverride
+            .EMPTY_EDITOR_CONFIG_OVERRIDE
+            .applyIf(experimental) {
+                logger.debug { "Add editor config override to allow the experimental rule set" }
+                plus(createRuleSetExecutionEditorConfigProperty("experimental:all") to RuleExecution.enabled)
+            }.applyIf(disabledRules.isNotBlank()) {
+                logger.debug { "Add editor config override to disable rules: '$disabledRules'" }
+                plus(*disabledRulesEditorConfigOverrides())
+            }.applyIf(android) {
+                logger.debug { "Add editor config override to set code style to 'android'" }
+                plus(CODE_STYLE_PROPERTY to CodeStyleValue.android)
+            }.applyIf(stdin) {
+                logger.debug { "Add editor config override to disable 'filename' rule which can not be used in combination with reading from <stdin>" }
+                plus(createRuleExecutionEditorConfigProperty("standard:filename") to RuleExecution.disabled)
+            }.applyIf(customRuleSetIds.isNotEmpty()) {
+                logger.debug { "Add editor config override to enable rule set(s) '$customRuleSetIds' from custom rule set JAR('s): '$rulesetJarPaths'" }
+                val ruleSetExecutionEditorConfigProperties =
+                    customRuleSetIds
+                        .map { createRuleSetExecutionEditorConfigProperty("$it:all") to RuleExecution.enabled }
+                        .toTypedArray()
+                plus(*ruleSetExecutionEditorConfigProperties)
+            }
+
         assertStdinAndPatternsFromStdinOptionsMutuallyExclusive()
 
         val stdinPatterns: Set<String> = readPatternsFromStdin()
@@ -299,8 +317,14 @@ internal class KtlintCommandLine {
 
         var reporter = loadReporter()
 
+        val ruleProviders =
+            ruleProvidersByRuleSetId
+                .values
+                .flatten()
+                .toSet()
+
         val ktLintRuleEngine = KtLintRuleEngine(
-            ruleProviders = ruleProviders(),
+            ruleProviders = ruleProviders,
             editorConfigDefaults = editorConfigDefaults,
             editorConfigOverride = editorConfigOverride,
             isInvokedFromCli = true,
@@ -347,11 +371,13 @@ internal class KtlintCommandLine {
         }
     }
 
-    internal fun ruleProviders() =
+    // Do not convert to "val" as the function depends on PicoCli options which are not fully instantiated until the "run" method is started
+    internal fun ruleProvidersByRuleSetId(): Map<String, Set<RuleProvider>> =
         rulesetJarPaths
             .toFilesURIList()
-            .loadRuleProviders(debug)
+            .loadRuleProvidersByRuleSetId(debug)
 
+    // Do not convert to "val" as the function depends on PicoCli options which are not fully instantiated until the "run" method is started
     private fun List<String>.toFilesURIList() =
         map {
             val jarFile = File(it.expandTildeToFullPath())
@@ -362,6 +388,7 @@ internal class KtlintCommandLine {
             jarFile.toURI().toURL()
         }
 
+    // Do not convert to "val" as the function depends on PicoCli options which are not fully instantiated until the "run" method is started
     internal fun configureLogger() {
         logger = KotlinLogging
             .logger {}

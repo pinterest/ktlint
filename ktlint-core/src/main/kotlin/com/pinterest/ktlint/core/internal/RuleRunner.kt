@@ -51,6 +51,6 @@ internal class RuleRunner(private val provider: RuleProvider) {
         require(!rule.isUsedForTraversalOfAST()) {
             "RunAfterRules can not be removed when RuleRunner has already been used for traversal of the AST"
         }
-        this.runAfterRules - runAfterRules
+        this.runAfterRules = this.runAfterRules - runAfterRules
     }
 }
