@@ -252,11 +252,11 @@ public fun LeafElement.upsertWhitespaceBeforeMe(text: String): LeafElement {
 
 @Deprecated(
     message =
-    "Marked for removal in KtLint 0.49. The new insertOrReplaceWhitespaceAfterMe is more versatile as it " +
+    "Marked for removal in KtLint 0.49. The new upsertWhitespaceAfterMe is more versatile as it " +
         "operates on an AstNode instead of a LeafElement. In a lot of cases the code can be simplified as it is " +
         "no longer needed to check whether the current node is already a whitespace or a leaf element before " +
         "calling this method or the rawReplaceWithText.",
-    ReplaceWith("insertOrReplaceWhitespaceBeforeMe"),
+    ReplaceWith("upsertWhitespaceAfterMe"),
 )
 public fun LeafElement.upsertWhitespaceAfterMe(text: String): LeafElement {
     val s = treeNext
