@@ -39,7 +39,7 @@ class RuleSetsLoaderCLITest {
                     assertErrorExitCode()
                     assertThat(normalOutput)
                         .containsLineMatching(Regex(".* JAR ruleset provided with path .*$jarWithRulesetProviderV2.*"))
-                        .containsLineMatching(Regex(".*/custom-ruleset/rule-set-provider-v2/Main.kt:1:1: Unexpected var, use val instead.*custom-rule-set-id:no-var.*"))
+                        .containsLineMatching(Regex(".*custom-ruleset.rule-set-provider-v2.Main.kt:1:1: Unexpected var, use val instead.*custom-rule-set-id:no-var.*"))
                 }.assertAll()
             }
     }
