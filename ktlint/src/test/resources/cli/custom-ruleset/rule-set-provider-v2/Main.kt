@@ -1,3 +1,5 @@
+var helloWorld = "Hello world!"
+
 fun main() {
-    println("Hello world!")
+    println(helloWorld)
 }

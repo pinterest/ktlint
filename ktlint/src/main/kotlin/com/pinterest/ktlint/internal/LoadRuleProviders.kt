@@ -14,11 +14,13 @@ private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 /**
  * Loads given list of paths to jar files. For files containing a [RuleSetProviderV2] class, get all [RuleProvider]s.
  */
-internal fun List<URL>.loadRuleProvidersByRuleSetId(debug: Boolean): Map<String, Set<RuleProvider>> =
+internal fun List<URL>.loadRuleProviders(debug: Boolean): Set<RuleProvider> =
     getKtlintRulesets()
         .plus(
             getRuleProvidersFromCustomRuleSetJars(debug),
-        )
+        ).values
+        .flatten()
+        .toSet()
 
 private fun getKtlintRulesets(): Map<String, Set<RuleProvider>> {
     return loadRulesetsFrom()

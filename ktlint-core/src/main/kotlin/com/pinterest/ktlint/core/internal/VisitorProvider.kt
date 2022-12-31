@@ -114,7 +114,7 @@ internal class VisitorProvider(
                 )
 
             else ->
-                ruleSetId(qualifiedRuleId) == "standard"
+                ruleSetId(qualifiedRuleId) != "experimental"
         }
 
     private fun EditorConfigProperties.isRuleEnabled(qualifiedRuleId: String) =
@@ -125,14 +125,12 @@ internal class VisitorProvider(
     private fun EditorConfigProperties.isRuleSetEnabled(qualifiedRuleId: String) =
         ruleExecution(ktLintRuleSetExecutionPropertyName(qualifiedRuleId))
             .let { ruleSetExecution ->
-                if (ruleSetExecution.name == "ktlint_standard") {
-                    // Rules in the standard rule set are enabled by default. So those rule should run unless the rule set
-                    // is disabled explicitly.
-                    ruleSetExecution != RuleExecution.disabled
-                } else {
-                    // Rules in non-standard rule set are disabled by default. So rules may only run when the rule set is
-                    // enabled explicitly.
+                if (ruleSetExecution.name == "ktlint_experimental") {
+                    // Rules in the experimental rule set are only run when enabled explicitly.
                     ruleSetExecution == RuleExecution.enabled
+                } else {
+                    // Rules in other rule sets are enabled by default.
+                    ruleSetExecution != RuleExecution.disabled
                 }
             }
 

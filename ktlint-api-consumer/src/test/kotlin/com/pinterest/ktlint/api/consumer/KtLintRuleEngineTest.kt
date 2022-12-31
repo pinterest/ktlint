@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.api.consumer
 
+import com.example.ktlint.api.consumer.rules.NoVarRule
 import com.pinterest.ktlint.core.Code
 import com.pinterest.ktlint.core.KtLintRuleEngine
 import com.pinterest.ktlint.core.LintError
@@ -13,7 +14,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 
 /**
- * The KtLintRuleEngine is use by the Ktlint CLI and external API Consumers. Although most functionalities of the RuleEngine are already
+ * The KtLintRuleEngine is used by the Ktlint CLI and external API Consumers. Although most functionalities of the RuleEngine are already
  * tested via the Ktlint CLI Tests and normal unit tests in KtLint Core, some functionalities need additional testing from the perspective
  * of an API Consumer to ensure that the API is usable and stable across releases.
  */
@@ -66,7 +67,7 @@ class KtLintRuleEngineTest {
         }
 
         @Test
-        fun `Givens a kotlin script code snippet that does not contain an error`() {
+        fun `Given a kotlin script code snippet that does not contain an error`() {
             val ktLintRuleEngine = KtLintRuleEngine(
                 ruleProviders = setOf(
                     RuleProvider { IndentationRule() },
@@ -88,6 +89,27 @@ class KtLintRuleEngineTest {
             )
 
             assertThat(lintErrors).isEmpty()
+        }
+
+        @Test
+        fun `Given a code snippet that violates a custom rule prefixed by a rule set id`() {
+            val ktLintRuleEngine = KtLintRuleEngine(
+                ruleProviders = setOf(
+                    RuleProvider { NoVarRule() },
+                ),
+            )
+
+            val lintErrors = mutableListOf<LintError>()
+            ktLintRuleEngine.lint(
+                code = Code.CodeSnippet(
+                    """
+                    var foo = "foo"
+                    """.trimIndent(),
+                ),
+                callback = { lintErrors.add(it) },
+            )
+
+            assertThat(lintErrors).isNotEmpty
         }
     }
 
