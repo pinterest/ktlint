@@ -2,11 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## Unreleased
-
-### Added
-
-### Removed
+## [0.48.1] - 2022-12-31
 
 ### Fixed
 
@@ -1453,6 +1449,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.48.1]: https://github.com/pinterest/ktlint/compare/0.48.0...0.48.1
 [0.48.0]: https://github.com/pinterest/ktlint/compare/0.47.1...0.48.0
 [0.47.1]: https://github.com/pinterest/ktlint/compare/0.47.0...0.47.1
 [0.47.0]: https://github.com/pinterest/ktlint/compare/0.46.1...0.47.0
