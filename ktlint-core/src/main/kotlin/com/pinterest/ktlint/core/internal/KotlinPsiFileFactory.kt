@@ -125,7 +125,6 @@ private fun MockProject.enableASTMutations() {
 }
 
 private class FormatPomModel : UserDataHolderBase(), PomModel {
-
     override fun runTransaction(transaction: PomTransaction) {
         (transaction as PomTransactionBase).run()
     }

@@ -8,7 +8,6 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
 public class NoBlankLineBeforeRbraceRule : Rule("no-blank-line-before-rbrace") {
-
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,

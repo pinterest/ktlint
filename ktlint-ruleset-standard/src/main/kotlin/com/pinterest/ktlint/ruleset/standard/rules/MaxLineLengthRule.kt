@@ -45,7 +45,6 @@ public class MaxLineLengthRule :
         ),
     ),
     UsesEditorConfigProperties {
-
     override val editorConfigProperties: List<EditorConfigProperty<*>> = listOf(
         MAX_LINE_LENGTH_PROPERTY,
         IGNORE_BACKTICKED_IDENTIFIER_PROPERTY,
@@ -231,7 +230,6 @@ internal class RangeTree(seq: List<Int> = emptyList()) {
     fun isEmpty(): Boolean = arr.isEmpty()
 
     inner class ArrayView(private var l: Int, private val r: Int) {
-
         val size: Int = r - l
 
         fun get(i: Int): Int {

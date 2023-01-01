@@ -12,6 +12,15 @@ Detect discouraged comment locations (no autocorrect).
 
 Rule id: `discouraged-comment-location`
 
+## Disallow empty lines at start of class body
+
+Detect blank lines at start of a class body.
+
+Rule id: `no-empty-first-line-in-class-body`
+
+!!! Note
+    This rule is only run when `ktlint_code_style` is set to `ktlint_official`. 
+
 ## Unnecessary parenthesis before trailing lambda
 
 An empty parentheses block before a lambda is redundant.

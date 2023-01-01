@@ -25,7 +25,6 @@ import org.jetbrains.kotlin.psi.psiUtil.leaves
  * https://kotlinlang.org/docs/reference/coding-conventions.html#annotation-formatting
  */
 public class AnnotationSpacingRule : Rule("annotation-spacing") {
-
     private companion object {
         const val ERROR_MESSAGE = "Annotations should occur immediately before the annotated construct"
     }

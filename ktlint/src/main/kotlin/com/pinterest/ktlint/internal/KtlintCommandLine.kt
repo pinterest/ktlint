@@ -95,7 +95,6 @@ Flags:
     versionProvider = KtlintVersionProvider::class,
 )
 internal class KtlintCommandLine {
-
     @CommandLine.Spec
     private lateinit var commandSpec: CommandLine.Model.CommandSpec
 

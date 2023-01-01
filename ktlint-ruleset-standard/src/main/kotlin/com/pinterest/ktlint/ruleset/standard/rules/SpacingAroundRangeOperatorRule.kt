@@ -8,7 +8,6 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 
 public class SpacingAroundRangeOperatorRule : Rule("range-spacing") {
-
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,

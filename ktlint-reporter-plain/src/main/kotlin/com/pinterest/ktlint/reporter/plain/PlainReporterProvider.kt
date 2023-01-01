@@ -4,7 +4,6 @@ import com.pinterest.ktlint.core.ReporterProvider
 import java.io.PrintStream
 
 public class PlainReporterProvider : ReporterProvider<PlainReporter> {
-
     override val id: String = "plain"
 
     override fun get(

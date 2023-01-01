@@ -14,7 +14,6 @@ public abstract class RuleSetProviderV2(
     public val id: String,
     public val about: About,
 ) : Serializable {
-
     init {
         IdNamingPolicy.enforceRuleSetIdNaming(id)
     }

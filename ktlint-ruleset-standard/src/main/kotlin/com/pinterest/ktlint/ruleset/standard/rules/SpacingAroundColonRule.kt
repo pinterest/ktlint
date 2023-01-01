@@ -27,7 +27,6 @@ import org.jetbrains.kotlin.psi.psiUtil.siblings
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 
 public class SpacingAroundColonRule : Rule("colon-spacing") {
-
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,

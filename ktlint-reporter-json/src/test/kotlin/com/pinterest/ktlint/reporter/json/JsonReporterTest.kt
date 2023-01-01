@@ -7,7 +7,6 @@ import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 
 class JsonReporterTest {
-
     @Test
     fun testReportGeneration() {
         val out = ByteArrayOutputStream()

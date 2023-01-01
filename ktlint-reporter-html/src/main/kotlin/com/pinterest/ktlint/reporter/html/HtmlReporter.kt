@@ -30,7 +30,6 @@ import java.io.PrintStream
 import java.util.concurrent.ConcurrentHashMap
 
 public class HtmlReporter(private val out: PrintStream) : Reporter {
-
     private val acc = ConcurrentHashMap<String, MutableList<LintError>>()
     private var issueCount = 0
     private var correctedCount = 0

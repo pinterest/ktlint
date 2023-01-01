@@ -37,6 +37,8 @@ Code style `android` has been renamed to `android_studio`. Code formatted with t
 
 ### Added
 
+* Add new experimental rule for `ktlint_official` code style that disallows a class to start with a blank line `no-empty-first-line-in-class-body`.
+
 ### Removed
 
 ### Fixed
