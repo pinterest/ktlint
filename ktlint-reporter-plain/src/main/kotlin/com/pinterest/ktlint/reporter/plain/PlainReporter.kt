@@ -16,7 +16,6 @@ public class PlainReporter(
     private val outputColor: Color = Color.DARK_GRAY,
     private val pad: Boolean = false,
 ) : Reporter {
-
     private val acc = ConcurrentHashMap<String, MutableList<LintError>>()
     private val ruleViolationCount = ConcurrentHashMap<String, Long>()
 

@@ -14,7 +14,6 @@ import kotlin.properties.Delegates
 public class FinalNewlineRule :
     Rule("final-newline"),
     UsesEditorConfigProperties {
-
     override val editorConfigProperties: List<EditorConfigProperty<*>> = listOf(
         INSERT_FINAL_NEWLINE_PROPERTY,
     )

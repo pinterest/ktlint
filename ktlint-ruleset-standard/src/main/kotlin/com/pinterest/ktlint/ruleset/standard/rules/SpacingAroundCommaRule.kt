@@ -18,7 +18,6 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 
 public class SpacingAroundCommaRule : Rule("comma-spacing") {
-
     private val rTokenSet = TokenSet.create(RPAR, RBRACKET, GT)
 
     override fun beforeVisitChildNodes(

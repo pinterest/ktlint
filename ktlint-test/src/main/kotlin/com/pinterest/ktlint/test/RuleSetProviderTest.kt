@@ -26,6 +26,9 @@ public open class RuleSetProviderTest(
             ?.map { it.name.removeSuffix(".class") }
             ?.filter { it.endsWith("Rule") }
             ?: arrayListOf()
+        assertThat(packageRules)
+            .withFailMessage("No rules were found in package '$rulesDir'. Is the packagname '$packageName' correct?")
+            .isNotEmpty
 
         val providerRules = rules.map { it::class.java.simpleName }
         val missingRules =

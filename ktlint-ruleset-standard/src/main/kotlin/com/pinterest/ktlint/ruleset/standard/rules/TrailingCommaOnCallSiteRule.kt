@@ -42,7 +42,6 @@ public class TrailingCommaOnCallSiteRule :
         ),
     ),
     UsesEditorConfigProperties {
-
     override val editorConfigProperties: List<EditorConfigProperty<*>> = listOf(
         TRAILING_COMMA_ON_CALL_SITE_PROPERTY,
     )

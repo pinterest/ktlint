@@ -40,7 +40,6 @@ private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 public class ImportOrderingRule :
     Rule("import-ordering"),
     UsesEditorConfigProperties {
-
     override val editorConfigProperties: List<EditorConfigProperty<*>> = listOf(
         IJ_KOTLIN_IMPORTS_LAYOUT_PROPERTY,
     )

@@ -13,7 +13,6 @@ public class PatternEntry(
     public val withSubpackages: Boolean,
     public val hasAlias: Boolean,
 ) {
-
     private val packageName = packageName.removeSuffix(".*")
 
     private fun matchesPackageName(otherPackageName: String): Boolean {

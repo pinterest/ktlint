@@ -63,7 +63,6 @@ public class TrailingCommaOnDeclarationSiteRule :
         ),
     ),
     UsesEditorConfigProperties {
-
     override val editorConfigProperties: List<EditorConfigProperty<*>> = listOf(
         TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY,
     )

@@ -16,7 +16,6 @@ public data class LintError(
     val ruleId: String,
     val detail: String,
 ) : Serializable {
-
     // fixme:
     // not included in equals/hashCode for backward-compatibility with ktlint < 0.25.0
     // subject to change in 1.0.0

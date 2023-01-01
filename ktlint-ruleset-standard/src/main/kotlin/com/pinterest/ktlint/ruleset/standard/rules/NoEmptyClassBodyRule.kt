@@ -12,7 +12,6 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.psi.KtObjectLiteralExpression
 
 public class NoEmptyClassBodyRule : Rule("no-empty-class-body") {
-
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,

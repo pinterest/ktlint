@@ -34,7 +34,6 @@ import org.jetbrains.kotlin.psi.KtDeclarationModifierList
 import java.util.Arrays
 
 public class ModifierOrderRule : Rule("modifier-order") {
-
     // subset of ElementType.MODIFIER_KEYWORDS_ARRAY (+ annotations entries)
     private val order = arrayOf(
         ANNOTATION_ENTRY,

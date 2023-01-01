@@ -33,7 +33,6 @@ internal fun buildPositionInTextLocator(text: String): (offset: Int) -> LineAndC
 private class SegmentTree(
     sortedArray: Array<Int>,
 ) {
-
     init {
         require(sortedArray.size > 1) { "At least two data points are required" }
         sortedArray.reduce { current, next ->

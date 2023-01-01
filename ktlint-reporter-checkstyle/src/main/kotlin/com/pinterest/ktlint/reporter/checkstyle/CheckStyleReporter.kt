@@ -7,7 +7,6 @@ import java.util.ArrayList
 import java.util.concurrent.ConcurrentHashMap
 
 public class CheckStyleReporter(private val out: PrintStream) : Reporter {
-
     private val acc = ConcurrentHashMap<String, MutableList<LintError>>()
 
     override fun onLintError(

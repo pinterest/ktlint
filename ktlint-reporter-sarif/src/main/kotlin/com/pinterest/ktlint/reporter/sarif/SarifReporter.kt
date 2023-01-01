@@ -30,7 +30,6 @@ internal fun String.sanitize(): String =
         }
 
 public class SarifReporter(private val out: PrintStream) : Reporter {
-
     private val results: MutableList<Result> = mutableListOf()
     private var workingDirectory: File? = null
 

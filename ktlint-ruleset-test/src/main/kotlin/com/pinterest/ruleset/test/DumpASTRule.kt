@@ -16,7 +16,6 @@ public class DumpASTRule @JvmOverloads constructor(
     private val out: PrintStream = System.err,
     private val color: Boolean = false,
 ) : Rule("dump") {
-
     private companion object {
         val ELEMENT_TYPE_SET = ElementType::class.members.map { it.name }.toSet()
     }

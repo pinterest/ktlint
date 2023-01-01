@@ -12,7 +12,6 @@ import org.jetbrains.kotlin.resolve.ImportPath
 internal class ImportSorter(
     val patterns: List<PatternEntry>,
 ) : Comparator<KtImportDirective> {
-
     override fun compare(
         import1: KtImportDirective,
         import2: KtImportDirective,
