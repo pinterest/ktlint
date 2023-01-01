@@ -1,10 +1,16 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.core.RuleProvider
+import com.pinterest.ktlint.core.api.editorconfig.CODE_STYLE_PROPERTY
+import com.pinterest.ktlint.core.api.editorconfig.CodeStyleValue
+import com.pinterest.ktlint.core.api.editorconfig.CodeStyleValue.ktlint_official
 import com.pinterest.ktlint.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EnumSource
 
 class ParameterListWrappingRuleTest {
     private val parameterListWrappingRuleAssertThat =
@@ -171,9 +177,9 @@ class ParameterListWrappingRuleTest {
             ).isFormattedAs(formattedCode)
     }
 
-    @Test
-    fun `Given a function with lambda parameters then do not reformat`() {
-        val code =
+    @Nested
+    inner class `Given a function literal having a multiline parameter list` {
+        private val code =
             """
             val fieldExample =
                 LongNameClass { paramA,
@@ -182,11 +188,42 @@ class ParameterListWrappingRuleTest {
                     ClassB(paramA, paramB, paramC)
                 }
             """.trimIndent()
-        val parameterListWrappingRuleWithoutIndentationRule = assertThatRule { ParameterListWrappingRule() }
-        parameterListWrappingRuleWithoutIndentationRule(code).hasNoLintViolations()
-        // IndentationRule does alter the code while the code is accepted by the Default IDEA formatter. So statement
-        // below would fail!
-        // parameterListWrappingRuleAssertThat(code).hasNoLintViolations()
+
+        @Test
+        fun `Given ktlint_official code style then reformat`() {
+            val formattedCode =
+                """
+                val fieldExample =
+                    LongNameClass {
+                            paramA,
+                            paramB,
+                            paramC ->
+                        ClassB(paramA, paramB, paramC)
+                    }
+                """.trimIndent()
+            parameterListWrappingRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                .hasLintViolationsForAdditionalRule(
+                    LintViolation(3, 1, "Unexpected indentation (20) (should be 12)"),
+                    LintViolation(4, 1, "Unexpected indentation (20) (should be 12)"),
+                ).isFormattedAs(formattedCode)
+        }
+
+        @ParameterizedTest(name = "Code style = {0}")
+        @EnumSource(
+            value = CodeStyleValue::class,
+            mode = EnumSource.Mode.EXCLUDE,
+            names = ["ktlint_official"],
+        )
+        fun `Given another than ktlint_official code style then do not reformat`(codeStyleValue: CodeStyleValue) {
+            parameterListWrappingRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to codeStyleValue)
+                .hasNoLintViolations()
+//                .hasLintViolationsForAdditionalRule(
+//                    LintViolation(3, 1, "Unexpected indentation (20) (should be 12)"),
+//                    LintViolation(4, 1, "Unexpected indentation (20) (should be 12)"),
+//                )
+        }
     }
 
     @Test

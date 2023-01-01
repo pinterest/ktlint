@@ -1,5 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.core.api.editorconfig.CODE_STYLE_PROPERTY
+import com.pinterest.ktlint.core.api.editorconfig.CodeStyleValue.ktlint_official
 import com.pinterest.ktlint.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
@@ -4754,6 +4756,44 @@ internal class IndentationRuleTest {
                 public fun <T> T.compareTo(other: T) = compare(this, other)
                 """.trimIndent()
             indentationRuleAssertThat(code).hasNoLintViolations()
+        }
+    }
+
+    @Nested
+    inner class `Given the ktlint_official code style is enabled` {
+        @Test
+        fun `Issue 1681 - Given a lambda having multiple arguments on different lines`() {
+            val code =
+                """
+                val bar =
+                    BarBarBarBar { paramA,
+                                   paramB,
+                                   paramC ->
+                        Bar(paramA, paramB, paramC)
+                    }
+                """.trimIndent()
+            val formattedCode =
+                """
+                val bar =
+                    BarBarBarBar {
+                            paramA,
+                            paramB,
+                            paramC ->
+                        Bar(paramA, paramB, paramC)
+                    }
+                """.trimIndent()
+            indentationRuleAssertThat(code)
+                .addAdditionalRuleProvider { ParameterListWrappingRule() }
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                .hasLintViolationForAdditionalRule(
+                    2,
+                    20,
+                    "Parameter should be on a separate line (unless all parameters can fit a single line)",
+                )
+                .hasLintViolations(
+                    LintViolation(3, 1, "Unexpected indentation (19) (should be 12)"),
+                    LintViolation(4, 1, "Unexpected indentation (19) (should be 12)"),
+                ).isFormattedAs(formattedCode)
         }
     }
 

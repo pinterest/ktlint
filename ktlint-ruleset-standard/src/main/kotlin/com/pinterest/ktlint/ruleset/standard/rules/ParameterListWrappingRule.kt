@@ -4,6 +4,8 @@ import com.pinterest.ktlint.core.IndentConfig
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
+import com.pinterest.ktlint.core.api.editorconfig.CODE_STYLE_PROPERTY
+import com.pinterest.ktlint.core.api.editorconfig.CodeStyleValue.ktlint_official
 import com.pinterest.ktlint.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.core.api.editorconfig.INDENT_STYLE_PROPERTY
@@ -37,15 +39,18 @@ public class ParameterListWrappingRule :
     UsesEditorConfigProperties {
     override val editorConfigProperties: List<EditorConfigProperty<*>> =
         listOf(
+            CODE_STYLE_PROPERTY,
             INDENT_SIZE_PROPERTY,
             INDENT_STYLE_PROPERTY,
             MAX_LINE_LENGTH_PROPERTY,
         )
 
+    private var codeStyle = CODE_STYLE_PROPERTY.defaultValue
     private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
     private var maxLineLength = -1
 
     override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
+        codeStyle = editorConfigProperties.getEditorConfigValue(CODE_STYLE_PROPERTY)
         maxLineLength = editorConfigProperties.getEditorConfigValue(MAX_LINE_LENGTH_PROPERTY)
         indentConfig = IndentConfig(
             indentStyle = editorConfigProperties.getEditorConfigValue(INDENT_STYLE_PROPERTY),
@@ -112,22 +117,33 @@ public class ParameterListWrappingRule :
     }
 
     private fun ASTNode.needToWrapParameterList() =
-        if ( // skip when there are no parameters
-            firstChildNode?.treeNext?.elementType != RPAR &&
-            // skip lambda parameters
-            treeParent?.elementType != FUNCTION_LITERAL &&
-            // skip when function type is wrapped in a nullable type [which was already when processing the nullable
-            // type node itself.
-            !(treeParent.elementType == FUNCTION_TYPE && treeParent?.treeParent?.elementType == NULLABLE_TYPE)
+        if (hasNoParameters() ||
+            isPartOfFunctionLiteralInNonKtlintOfficialCodeStyle() ||
+            isFunctionTypeWrappedInNullableType()
         ) {
+            false
+        } else {
             // each parameter should be on a separate line if
             // - at least one of the parameters is
             // - maxLineLength exceeded (and separating parameters with \n would actually help)
             // in addition, "(" and ")" must be on separates line if any of the parameters are (otherwise on the same)
             textContains('\n') || this.exceedsMaxLineLength()
-        } else {
-            false
         }
+
+    private fun ASTNode.hasNoParameters(): Boolean {
+        require(elementType == VALUE_PARAMETER_LIST)
+        return firstChildNode?.treeNext?.elementType == RPAR
+    }
+
+    private fun ASTNode.isPartOfFunctionLiteralInNonKtlintOfficialCodeStyle(): Boolean {
+        require(elementType == VALUE_PARAMETER_LIST)
+        return codeStyle != ktlint_official && treeParent?.elementType == FUNCTION_LITERAL
+    }
+
+    private fun ASTNode.isFunctionTypeWrappedInNullableType(): Boolean {
+        require(elementType == VALUE_PARAMETER_LIST)
+        return treeParent.elementType == FUNCTION_TYPE && treeParent?.treeParent?.elementType == NULLABLE_TYPE
+    }
 
     private fun wrapParameterList(
         node: ASTNode,
