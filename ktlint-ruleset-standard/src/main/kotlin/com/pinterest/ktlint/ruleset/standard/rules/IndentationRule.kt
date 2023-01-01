@@ -6,6 +6,8 @@ import com.pinterest.ktlint.core.IndentConfig.IndentStyle.TAB
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
+import com.pinterest.ktlint.core.api.editorconfig.CODE_STYLE_PROPERTY
+import com.pinterest.ktlint.core.api.editorconfig.CodeStyleValue.ktlint_official
 import com.pinterest.ktlint.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.core.api.editorconfig.INDENT_STYLE_PROPERTY
@@ -56,6 +58,7 @@ import com.pinterest.ktlint.core.ast.ElementType.PROPERTY
 import com.pinterest.ktlint.core.ast.ElementType.PROPERTY_ACCESSOR
 import com.pinterest.ktlint.core.ast.ElementType.RBRACE
 import com.pinterest.ktlint.core.ast.ElementType.RBRACKET
+import com.pinterest.ktlint.core.ast.ElementType.REFERENCE_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.REGULAR_STRING_PART
 import com.pinterest.ktlint.core.ast.ElementType.RPAR
 import com.pinterest.ktlint.core.ast.ElementType.SAFE_ACCESS_EXPRESSION
@@ -134,9 +137,12 @@ public class IndentationRule :
     UsesEditorConfigProperties {
     override val editorConfigProperties: List<EditorConfigProperty<*>> =
         listOf(
+            CODE_STYLE_PROPERTY,
             INDENT_SIZE_PROPERTY,
             INDENT_STYLE_PROPERTY,
         )
+
+    private var codeStyle = CODE_STYLE_PROPERTY.defaultValue
     private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
 
     private var line = 1
@@ -146,6 +152,7 @@ public class IndentationRule :
     private lateinit var stringTemplateIndenter: StringTemplateIndenter
 
     override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
+        codeStyle = editorConfigProperties.getEditorConfigValue(CODE_STYLE_PROPERTY)
         indentConfig = IndentConfig(
             indentStyle = editorConfigProperties.getEditorConfigValue(INDENT_STYLE_PROPERTY),
             tabWidth = editorConfigProperties.getEditorConfigValue(INDENT_SIZE_PROPERTY),
@@ -384,10 +391,43 @@ public class IndentationRule :
                 startIndentContext(
                     fromAstNode = node,
                     toAstNode = arrow.prevCodeLeaf()!!,
-                    childIndent = indentConfig.indent.repeat(2),
+                    childIndent = arrow.calculateIndentOfFunctionLiteralParameters(),
                 )
             }
     }
+
+    private fun ASTNode.calculateIndentOfFunctionLiteralParameters() =
+        if (codeStyle == ktlint_official || isFirstParameterOfFunctionLiteralPrecededByNewLine()) {
+            // val fieldExample =
+            //      LongNameClass {
+            //              paramA,
+            //              paramB,
+            //              paramC ->
+            //          ClassB(paramA, paramB, paramC)
+            //      }
+            indentConfig.indent.repeat(2)
+        } else {
+            // Allow default IntelliJ IDEA formatting:
+            // val fieldExample =
+            //     LongNameClass { paramA,
+            //                     paramB,
+            //                     paramC ->
+            //         ClassB(paramA, paramB, paramC)
+            //     }
+            parent(CALL_EXPRESSION)
+                ?.let { callExpression ->
+                    val textBeforeFirstParameter =
+                        callExpression.findChildByType(REFERENCE_EXPRESSION)?.text +
+                            " { "
+                    " ".repeat(textBeforeFirstParameter.length)
+                }
+                ?: indentConfig.indent.repeat(2)
+        }
+
+    private fun ASTNode.isFirstParameterOfFunctionLiteralPrecededByNewLine() =
+        parent(FUNCTION_LITERAL)
+            ?.findChildByType(VALUE_PARAMETER_LIST)
+            ?.prevSibling { it.textContains('\n') } != null
 
     private fun visitLparBeforeCondition(node: ASTNode) {
         startIndentContext(
