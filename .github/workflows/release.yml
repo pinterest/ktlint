@@ -53,7 +53,7 @@ jobs:
       
       - name: Bump Homebrew Formula
         if: ${{ success() }}
-        uses: mislav/bump-homebrew-formula-action@v1
+        uses: mislav/bump-homebrew-formula-action@v2
         env:
           COMMITTER_TOKEN: ${{ secrets.HOMEBREW_TOKEN }}
         with:
