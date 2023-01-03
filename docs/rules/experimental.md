@@ -45,6 +45,37 @@ Rewrites the function signature to a single line when possible (e.g. when not ex
 
 Rule id: `function-signature`
 
+## If else bracing
+
+If at least one branch of an if-else statement or an if-else-if statement is wrapped between curly braces then all branches should be wrapped between braces.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    fun foo(value: int) {
+        if (value > 0) {
+            doSomething()
+        } else if (value < 0) {
+            doSomethingElse()
+        } else {
+            doSomethingElse2()
+        }
+    }
+    ```
+
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    fun foo(value: int) {
+        if (value > 0)
+            doSomething()
+        else if (value < 0) {
+            doSomethingElse()
+        } else
+            doSomethingElse2()
+    }
+    ```
+
 ## Naming
 
 ### Class/object naming

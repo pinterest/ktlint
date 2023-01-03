@@ -559,9 +559,17 @@ internal class KtlintCommandLine {
             "Initializing \"$id\" reporter with $config" +
                 (output?.let { ", output=$it" } ?: "")
         }
-        val stream = if (output != null) {
-            File(output).parentFile?.mkdirsOrFail(); PrintStream(output, "UTF-8")
-        } else if (stdin) System.err else System.out
+        val stream = when {
+            output != null -> {
+                File(output).parentFile?.mkdirsOrFail(); PrintStream(output, "UTF-8")
+            }
+            stdin -> {
+                System.err
+            }
+            else -> {
+                System.out
+            }
+        }
         return reporterProvider.get(stream, config)
             .let { reporter ->
                 if (output != null) {
