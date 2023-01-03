@@ -30,10 +30,12 @@ jobs:
 
       - name : Extract release notes
         id : release_notes
+        if: ${{ success() }}
         uses : ffurrer2/extract-release-notes@v1
 
       - name : Create release
         id: github_release
+        if: ${{ success() }}
         uses : softprops/action-gh-release@v1
         with :
           draft: false
@@ -41,27 +43,29 @@ jobs:
           body : ${{ steps.release_notes.outputs.release_notes }}
           files: |
             ktlint/build/run/*
-
         env :
           GITHUB_TOKEN : ${{ secrets.GITHUB_TOKEN }}
 
       - name: Get version
         id: get_version
+        if: ${{ success() }}
         run: echo "version=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
-
-      - name: Announce Release
-        run: |
-          git config user.email "<>" |
-          git config user.name "Ktlint Release Workflow" |
-          ./.announce -y
-        env:
-          VERSION: ${{ env.version }}
-
+      
       - name: Bump Homebrew Formula
+        if: ${{ success() }}
         uses: mislav/bump-homebrew-formula-action@v1
         env:
           COMMITTER_TOKEN: ${{ secrets.HOMEBREW_TOKEN }}
         with:
           formula-name: ktlint
           download-url: https://github.com/pinterest/ktlint/releases/download/${{ env.version }}/ktlint
+
+      - name: Announce Release
+        if: ${{ success() }}
+        run: |
+          git config user.email "<>" |
+          git config user.name "Ktlint Release Workflow" |
+          ./.announce -y
+        env:
+          VERSION: ${{ env.version }}
 
