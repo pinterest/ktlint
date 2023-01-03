@@ -20,7 +20,7 @@ jobs:
           java-version: 19
       - uses: gradle/gradle-build-action@v2
       - name: Build executable
-        run: ./gradlew clean shadowJarExecutable
+        run: ./gradlew clean shadowJarExecutable && ./gradlew clean publishMavenPublicationToMavenCentralRepository --no-daemon --no-parallel
         env:
           SONATYPE_NEXUS_USERNAME: ${{ secrets.SONATYPE_NEXUS_USERNAME }}
           SONATYPE_NEXUS_PASSWORD: ${{ secrets.SONATYPE_NEXUS_PASSWORD }}
