@@ -12,10 +12,21 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
  * instance once is has been used for traversal of the AST of a file.
  */
 public open class Rule(
+    // TODO: Breaking changes to be applied in a future version
+    //  * Add field "about: About" so that it is clear who is the maintainer of a rule. Part of this about information is also a unique rule
+    //    set id. Once implemented, the "id" can be changed back to a simple id that no longer contains the rule set id.
+
     /**
      * Identification of the rule. Except for rules in the "standard" rule set, this id needs to be prefixed with the
      * identifier of the rule set (e.g. "some-rule-set-id:some-rule-id") to avoid naming conflicts with referring to the
      * rule (e.g. in [Rule.VisitorModifier.RunAfterRule] and in enable/disable rule suppression directives).
+     *
+     * In a future version of Ktlint this field is likely to be split into separate fields for the "rule-set-id" and the "rule-id". For now,
+     * the following fields are supported:
+     *   - id: the id as given during construction of the rule. It may (preferred) or may not contain a rule set id.
+     *   - ruleId: the id of the rule without the rule set id prefix.
+     *   - ruleSetId: the rule set if of the rule. Defaults to "standard" when not specified during construction of the rule.
+     *   - qualifiedRuleId: the guaranteed fully qualified rule id containing the rule set id as prefix.
      */
     public val id: String,
 
@@ -30,6 +41,22 @@ public open class Rule(
     init {
         IdNamingPolicy.enforceRuleIdNaming(id)
     }
+
+    /**
+     * The id of the rule without the rule set id as prefix.
+     */
+    public val ruleId: String = id.ruleId()
+
+    /**
+     * The rule set id of the rule. Defaults to "standard" when not specified during construction of the rule.
+     */
+    public val ruleSetId: String = id.ruleSetId()
+
+    /**
+     * The guaranteed fully qualified rule id containing the rule set id as prefix. The rule set id defaults to "standard" when not
+     * specified during construction of the rule.
+     */
+    public val qualifiedRuleId: String = qualifiedRuleId(ruleSetId, ruleId)
 
     /**
      * This method is called once before the first node is visited. It can be used to initialize the state of the rule
@@ -127,7 +154,6 @@ public open class Rule(
     }
 
     public sealed class VisitorModifier {
-
         public data class RunAfterRule(
             /**
              * Qualified ruleId in format "ruleSetId:ruleId". For a rule in the standard rule set it suffices to specify
@@ -142,8 +168,41 @@ public open class Rule(
              * The annotated rule will only be run in case the other rule is enabled.
              */
             val runOnlyWhenOtherRuleIsEnabled: Boolean = false,
-        ) : VisitorModifier()
+        ) : VisitorModifier() {
+            init {
+                IdNamingPolicy.enforceRuleIdNaming(ruleId)
+            }
+
+            /**
+             * The guaranteed fully qualified rule id containing the rule set id as prefix. The rule set id defaults to "standard" when not
+             * specified during construction of the RunAfterRule.
+             */
+            internal val qualifiedRuleId = ruleId.qualifiedRuleId()
+        }
 
         public object RunAsLateAsPossible : VisitorModifier()
     }
+
+    /**
+     * This interface marks a rule as an 'experimental' rule. A rule marked with this interface will only be executed by ktlint in case the
+     * '.editorconfig' allows this rule specifically or all experimental rules. This interface is used by Ktlint internally but is also
+     * explicitly meant to be used by custom rule providers.
+     */
+    public interface Experimental
+}
+
+private const val STANDARD_RULE_SET_ID = "standard"
+private const val DELIMITER = ":"
+
+internal fun String.ruleId() =
+    this.substringAfter(DELIMITER, this)
+
+internal fun String.ruleSetId() =
+    substringBefore(DELIMITER, STANDARD_RULE_SET_ID)
+
+internal fun String.qualifiedRuleId() =
+    "${ruleSetId()}$DELIMITER${ruleId()}"
+
+private fun qualifiedRuleId(ruleSetId: String, ruleId: String): String {
+    return "$ruleSetId$DELIMITER$ruleId"
 }

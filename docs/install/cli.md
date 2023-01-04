@@ -54,20 +54,20 @@ On Arch Linux install package [ktlint <sup>AUR</sup>](https://aur.archlinux.org/
 
 ### Rule set(s)
 
-When no arguments are specified, the style of all Kotlin files (ending with '.kt' or '.kts') inside the current dir (recursively) are validated with the rules from the [standard ruleset](../../rules/standard/). Hidden folders will be skipped.
+When no arguments are specified, the style of all Kotlin files (ending with '.kt' or '.kts') inside the current dir (recursively) are validated with the (non-experimental) rules from the [standard ruleset](../../rules/standard/). Hidden folders will be skipped.
 
 ```shell title="Default validation with standard ruleset"
 ktlint
 ```
 
-To validate with the [standard ruleset](../../rules/standard/) and the [experimental ruleset](../../rules/experimental/) run command below: 
+To validate with the [standard ruleset](../../rules/standard/) including the experimental rules run command below: 
 
-```shell title="Validation with standard and experimental ruleset"
+```shell title="Validation with standard ruleset including the experimental rules"
 ktlint --experimental
 ```
 
 !!! note
-    Instead of using this command line flag, you can also set `.editorconfig` property `ktlint_experimental = enabled`.
+    Instead of using this command line flag, it is advised to set `.editorconfig` property `ktlint_experimental = enabled` if you want the project always to be checked with the experimental rules.
 
 To validate with a [custom ruleset](../../extensions/custom-rule-set/) run command below:  
 
@@ -76,6 +76,9 @@ ktlint --ruleset=/path/to/custom-ruleset.jar
 # or
 ktlint -R /path/to/custom-ruleset.jar
 ```
+
+!!! note
+    If the custom rule set contains rules that are marked as experimental, those rule will only be run when `.editorconfig` property `ktlint_experimental = enabled` is set (or command line parameter `--experimental` is specified).
 
 ### Format (autocorrect)
 

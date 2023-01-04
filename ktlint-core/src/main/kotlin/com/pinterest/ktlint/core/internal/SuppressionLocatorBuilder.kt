@@ -30,10 +30,10 @@ internal object SuppressionLocatorBuilder {
     private val SUPPRESS_ANNOTATION_RULE_MAP = mapOf(
         "EnumEntryName" to "enum-entry-name-case",
         "RemoveCurlyBracesFromTemplate" to "string-template",
-        "ClassName" to "experimental:class-naming",
-        "FunctionName" to "experimental:function-naming",
+        "ClassName" to "class-naming",
+        "FunctionName" to "function-naming",
         "PackageName" to "package-name",
-        "PropertyName" to "experimental:property-naming",
+        "PropertyName" to "property-naming",
     )
     private val SUPPRESS_ANNOTATIONS = setOf("Suppress", "SuppressWarnings")
     private const val SUPPRESS_ALL_KTLINT_RULES = "ktlint-all"

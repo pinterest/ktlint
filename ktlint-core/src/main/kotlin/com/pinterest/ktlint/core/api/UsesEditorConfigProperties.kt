@@ -155,7 +155,7 @@ public object DefaultEditorConfigProperties : UsesEditorConfigProperties {
             imports = ["com.pinterest.ktlint.core.api.editorconfig.CODE_STYLE_PROPERTY"],
         ),
     )
-    @Suppress("ktlint:experimental:property-naming")
+    @Suppress("ktlint:property-naming")
     public val codeStyleSetProperty: EditorConfigProperty<CodeStyleValue> =
         CODE_STYLE_PROPERTY
 
@@ -180,7 +180,7 @@ public object DefaultEditorConfigProperties : UsesEditorConfigProperties {
         // ReplaceWith is not specified as the property should not be migrated to KTLINT_DISABLED_RULES_PROPERTY but to
         // the RuleExecution property.
     )
-    @Suppress("ktlint:experimental:property-naming")
+    @Suppress("ktlint:property-naming")
     public val disabledRulesProperty: EditorConfigProperty<String> =
         DISABLED_RULES_PROPERTY
 
@@ -191,7 +191,7 @@ public object DefaultEditorConfigProperties : UsesEditorConfigProperties {
             imports = ["com.pinterest.ktlint.core.api.editorconfig.INDENT_STYLE_PROPERTY"],
         ),
     )
-    @Suppress("ktlint:experimental:property-naming")
+    @Suppress("ktlint:property-naming")
     public val ktlintDisabledRulesProperty: EditorConfigProperty<String> =
         KTLINT_DISABLED_RULES_PROPERTY
 
@@ -202,7 +202,7 @@ public object DefaultEditorConfigProperties : UsesEditorConfigProperties {
             imports = ["com.pinterest.ktlint.core.api.editorconfig.INDENT_STYLE_PROPERTY"],
         ),
     )
-    @Suppress("ktlint:experimental:property-naming")
+    @Suppress("ktlint:property-naming")
     public val indentStyleProperty: EditorConfigProperty<PropertyType.IndentStyleValue> =
         INDENT_STYLE_PROPERTY
 
@@ -213,7 +213,7 @@ public object DefaultEditorConfigProperties : UsesEditorConfigProperties {
             imports = ["com.pinterest.ktlint.core.api.editorconfig.INDENT_SIZE_PROPERTY"],
         ),
     )
-    @Suppress("ktlint:experimental:property-naming")
+    @Suppress("ktlint:property-naming")
     public val indentSizeProperty: EditorConfigProperty<Int> =
         INDENT_SIZE_PROPERTY
 
@@ -224,7 +224,7 @@ public object DefaultEditorConfigProperties : UsesEditorConfigProperties {
             imports = ["com.pinterest.ktlint.core.api.editorconfig.INSERT_FINAL_NEWLINE_PROPERTY"],
         ),
     )
-    @Suppress("ktlint:experimental:property-naming")
+    @Suppress("ktlint:property-naming")
     public val insertNewLineProperty: EditorConfigProperty<Boolean> =
         INSERT_FINAL_NEWLINE_PROPERTY
 
@@ -235,7 +235,7 @@ public object DefaultEditorConfigProperties : UsesEditorConfigProperties {
             imports = ["com.pinterest.ktlint.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY"],
         ),
     )
-    @Suppress("ktlint:experimental:property-naming")
+    @Suppress("ktlint:property-naming")
     public val maxLineLengthProperty: EditorConfigProperty<Int> =
         MAX_LINE_LENGTH_PROPERTY
 

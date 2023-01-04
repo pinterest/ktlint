@@ -29,7 +29,6 @@ dependencies {
     implementation(projects.ktlintReporterPlain)
     implementation(projects.ktlintReporterPlainSummary)
     implementation(projects.ktlintReporterSarif)
-    implementation(projects.ktlintRulesetExperimental)
     implementation(projects.ktlintRulesetStandard)
     implementation(projects.ktlintRulesetTest)
     implementation(libs.kotlin.compiler)

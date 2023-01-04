@@ -6,7 +6,7 @@ import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.RuleProvider
 import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.api.editorconfig.RuleExecution
-import com.pinterest.ktlint.core.api.editorconfig.createRuleSetExecutionEditorConfigProperty
+import com.pinterest.ktlint.core.api.editorconfig.createRuleExecutionEditorConfigProperty
 import com.pinterest.ktlint.core.ast.ElementType
 import org.assertj.core.api.Assertions.assertThat
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -233,8 +233,8 @@ class SuppressionLocatorBuilderTest {
                 RuleProvider { NoFooIdentifierRule("$NON_STANDARD_RULE_SET_ID:no-foo-identifier") },
             ),
             editorConfigOverride = EditorConfigOverride.from(
-                createRuleSetExecutionEditorConfigProperty("no-foo-identifier-standard") to RuleExecution.enabled,
-                createRuleSetExecutionEditorConfigProperty("$NON_STANDARD_RULE_SET_ID:no-foo-identifier") to RuleExecution.enabled,
+                createRuleExecutionEditorConfigProperty("no-foo-identifier-standard") to RuleExecution.enabled,
+                createRuleExecutionEditorConfigProperty("$NON_STANDARD_RULE_SET_ID:no-foo-identifier") to RuleExecution.enabled,
             ),
         )
     }

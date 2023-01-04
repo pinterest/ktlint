@@ -8,7 +8,7 @@ import com.pinterest.ktlint.core.RuleProvider
 import com.pinterest.ktlint.core.api.EditorConfigDefaults
 import com.pinterest.ktlint.ruleset.experimental.UnnecessaryParenthesesBeforeTrailingLambdaRule
 import com.pinterest.ktlint.ruleset.standard.FilenameRule
-import com.pinterest.ktlint.ruleset.standard.IndentationRule
+import com.pinterest.ktlint.ruleset.standard.rules.IndentationRule
 import java.io.File
 import java.nio.file.Path
 import org.assertj.core.api.Assertions.assertThat

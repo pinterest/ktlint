@@ -42,7 +42,7 @@ internal class RuleRunnerSorter {
                 if (previousValue == null) {
                     // Logging was not printed for this combination of rule runners as no entry was found in the cache
                     ruleReferences
-                        .map { toQualifiedRuleId(it.ruleSetId, it.ruleId) }
+                        .map { it.qualifiedRuleId }
                         .joinToString(prefix = "Rules will be executed in order below (unless disabled):") {
                             "\n           - $it"
                         }.also { LOGGER.debug(it) }
@@ -69,10 +69,10 @@ internal class RuleRunnerSorter {
                 0
             }
         }.thenBy {
-            when (it.ruleSetId) {
-                "standard" -> 0
-                "experimental" -> 1
-                else -> 2
+            if (it.ruleSetId == "standard") {
+                0
+            } else {
+                1
             }
         }.thenBy { it.qualifiedRuleId }
 
@@ -190,7 +190,7 @@ internal class RuleRunnerSorter {
             val customRuleSetIds =
                 blockedRuleRunners
                     .map { it.ruleSetId }
-                    .filterNot { it == "standard" || it == "experimental" }
+                    .filterNot { it == "standard" }
                     .distinct()
                     .sorted()
             val prefix =

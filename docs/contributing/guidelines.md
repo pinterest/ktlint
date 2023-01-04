@@ -44,7 +44,7 @@ To increase the chances that your pull request will be accepted:
 - Write a good commit message
 - Provide context in the pull request description.
 
-New rules will be added first to the `experimental` rule set before being promoted to the `standard` rule set.
+New rules have to implement the `Rule.Experimental` interface so that the rule will only be run for user who have opted in to use experimental rules. Once the rule is stable, the marker interface `Rule.Experimental` can be removed.
 
 ## Updating dependencies
 

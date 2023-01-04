@@ -105,13 +105,12 @@ TODO: After release 0.48, update procedure below as the parameter "--experimenta
    #        graphql
    #          ktlint_standard_import-ordering = disabled
    #          ktlint_standard_package-name = disabled
+   ktlint_experimental = enabled
    ktlint_standard = enabled
    ktlint_standard_filename = disabled
    ktlint_standard_no-wildcard-imports = disabled
-
-   ktlint_experimental = enabled
-   ktlint_experimental_function-naming = disabled
-   ktlint_experimental_property-naming = disabled
+   ktlint_standard_function-naming = disabled
+   ktlint_standard_property-naming = disabled
    ```
 6. Commit changes:
    ```shell

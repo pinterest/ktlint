@@ -17,9 +17,9 @@ import com.pinterest.ktlint.core.api.KtLintRuleException
 import com.pinterest.ktlint.core.api.doesNotContain
 import com.pinterest.ktlint.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.core.api.editorconfig.CodeStyleValue
+import com.pinterest.ktlint.core.api.editorconfig.EXPERIMENTAL_RULES_EXECUTION_PROPERTY
 import com.pinterest.ktlint.core.api.editorconfig.RuleExecution
 import com.pinterest.ktlint.core.api.editorconfig.createRuleExecutionEditorConfigProperty
-import com.pinterest.ktlint.core.api.editorconfig.createRuleSetExecutionEditorConfigProperty
 import com.pinterest.ktlint.core.api.loadBaseline
 import com.pinterest.ktlint.core.api.relativeRoute
 import com.pinterest.ktlint.core.initKtLintKLogger
@@ -217,7 +217,7 @@ internal class KtlintCommandLine {
 
     @Option(
         names = ["--experimental"],
-        description = ["Enabled experimental rules (ktlint-ruleset-experimental)"],
+        description = ["Enable experimental rules"],
     )
     var experimental: Boolean = false
 
@@ -274,7 +274,7 @@ internal class KtlintCommandLine {
             .EMPTY_EDITOR_CONFIG_OVERRIDE
             .applyIf(experimental) {
                 logger.debug { "Add editor config override to allow the experimental rule set" }
-                plus(createRuleSetExecutionEditorConfigProperty("experimental:all") to RuleExecution.enabled)
+                plus(EXPERIMENTAL_RULES_EXECUTION_PROPERTY to RuleExecution.enabled)
             }.applyIf(disabledRules.isNotBlank()) {
                 logger.debug { "Add editor config override to disable rules: '$disabledRules'" }
                 plus(*disabledRulesEditorConfigOverrides())

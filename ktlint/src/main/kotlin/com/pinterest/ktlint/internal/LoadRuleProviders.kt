@@ -54,8 +54,8 @@ private fun getRuleProvidersFromCustomRuleSetJar(
     }
     return loadRulesetsFrom(url)
         .filterKeys {
-            // Ignore the Ktlint rule sets when they are included in the custom rule set.
-            it !in KTLINT_RULE_SETS
+            // Ignore the Ktlint rule set when it is included in the custom rule set
+            it != "standard"
         }.also { ruleSetIdMap ->
             if (ruleSetIdMap.isEmpty()) {
                 LOGGER.warn {
@@ -71,5 +71,3 @@ private fun getRuleProvidersFromCustomRuleSetJar(
             }
         }
 }
-
-private val KTLINT_RULE_SETS = listOf("standard", "experimental")
