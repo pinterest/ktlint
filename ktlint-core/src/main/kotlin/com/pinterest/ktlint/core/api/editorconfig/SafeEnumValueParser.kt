@@ -1,8 +1,8 @@
 package com.pinterest.ktlint.core.api.editorconfig
 
-import java.util.Locale
 import org.ec4j.core.model.PropertyType
 import org.ec4j.core.model.PropertyType.PropertyValueParser
+import java.util.Locale
 
 /**
  * A [PropertyValueParser] implementation that allows only members of a given [Enum] type. This class is almost
@@ -22,7 +22,10 @@ internal class SafeEnumValueParser<T : Enum<*>?>(enumType: Class<out T?>) : Prop
         this.enumType = enumType
     }
 
-    override fun parse(name: String?, value: String?): PropertyType.PropertyValue<T> =
+    override fun parse(
+        name: String?,
+        value: String?,
+    ): PropertyType.PropertyValue<T> =
         if (value == null) {
             PropertyType.PropertyValue.invalid(value, "Cannot make enum " + enumType.name + " out of null")
         } else {

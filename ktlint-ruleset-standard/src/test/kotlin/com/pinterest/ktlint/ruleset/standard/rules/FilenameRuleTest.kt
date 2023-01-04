@@ -72,6 +72,7 @@ class FilenameRuleTest {
         ],
     )
     fun `Given a file containing a single declaration of a class type then the filename should match the class name`(code: String) {
+        @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
         fileNameRuleAssertThat(code)
             .asFileWithPath("/some/path/$UNEXPECTED_FILE_NAME")
             .hasLintViolationWithoutAutoCorrect(1, 1, "File '$UNEXPECTED_FILE_NAME' contains a single class and possibly also extension functions for that class and should be named same after that class 'Foo.kt'")
@@ -84,12 +85,14 @@ class FilenameRuleTest {
             "typealias Foo = String",
         ],
     )
-    fun `Given a file containing one top level declaration then the file should be named after the identifier`(
-        code: String,
-    ) {
+    fun `Given a file containing one top level declaration then the file should be named after the identifier`(code: String) {
         fileNameRuleAssertThat(code)
             .asFileWithPath(UNEXPECTED_FILE_NAME)
-            .hasLintViolationWithoutAutoCorrect(1, 1, "File '$UNEXPECTED_FILE_NAME' contains a single top level declaration and should be named 'Foo.kt'")
+            .hasLintViolationWithoutAutoCorrect(
+                1,
+                1,
+                "File '$UNEXPECTED_FILE_NAME' contains a single top level declaration and should be named 'Foo.kt'",
+            )
     }
 
     @ParameterizedTest(name = "Top level declaration: {0}")
@@ -102,9 +105,7 @@ class FilenameRuleTest {
             "operator fun Foo.plus(other: Foo): Foo { /* ... */ }",
         ],
     )
-    fun `Given a file containing one top level then the file should conform to PascalCase`(
-        code: String,
-    ) {
+    fun `Given a file containing one top level then the file should conform to PascalCase`(code: String) {
         fileNameRuleAssertThat(code)
             .asFileWithPath(NON_PASCAL_CASE_NAME)
             .hasLintViolationWithoutAutoCorrect(1, 1, "File name '$NON_PASCAL_CASE_NAME' should conform PascalCase")
@@ -169,6 +170,7 @@ class FilenameRuleTest {
             class Foo
             $otherTopLevelDeclaration
             """.trimIndent()
+        @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
         fileNameRuleAssertThat(code)
             .asFileWithPath(UNEXPECTED_FILE_NAME)
             .hasLintViolationWithoutAutoCorrect(1, 1, "File '$UNEXPECTED_FILE_NAME' contains a single class and possibly also extension functions for that class and should be named same after that class 'Foo.kt'")

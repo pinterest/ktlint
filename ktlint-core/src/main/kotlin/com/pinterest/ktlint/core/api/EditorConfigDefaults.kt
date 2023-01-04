@@ -1,8 +1,8 @@
 package com.pinterest.ktlint.core.api
 
 import com.pinterest.ktlint.core.internal.EditorConfigDefaultsLoader
-import java.nio.file.Path
 import org.ec4j.core.model.EditorConfig
+import java.nio.file.Path
 
 /**
  * Wrapper around the [EditorConfig]. Only to be used only for the default value of properties.

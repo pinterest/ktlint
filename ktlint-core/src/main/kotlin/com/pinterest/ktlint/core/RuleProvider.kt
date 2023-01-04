@@ -12,6 +12,5 @@ public class RuleProvider(
      */
     private val provider: () -> Rule,
 ) {
-    public fun createNewRuleInstance(): Rule =
-        provider()
+    public fun createNewRuleInstance(): Rule = provider()
 }

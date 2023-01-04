@@ -1,6 +1,11 @@
 package com.pinterest.ktlint.core.internal
 
 import com.pinterest.ktlint.core.initKtLintKLogger
+import mu.KotlinLogging
+import org.ec4j.core.Resource
+import org.ec4j.core.ResourcePropertiesService
+import org.ec4j.core.model.Version
+import org.jetbrains.kotlin.konan.file.File
 import java.nio.charset.StandardCharsets
 import java.nio.file.FileVisitResult
 import java.nio.file.Files
@@ -12,11 +17,6 @@ import kotlin.concurrent.read
 import kotlin.concurrent.write
 import kotlin.io.path.isDirectory
 import kotlin.system.measureTimeMillis
-import mu.KotlinLogging
-import org.ec4j.core.Resource
-import org.ec4j.core.ResourcePropertiesService
-import org.ec4j.core.model.Version
-import org.jetbrains.kotlin.konan.file.File
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
@@ -95,7 +95,8 @@ internal class EditorConfigFinder {
             )
         }.also { duration ->
             LOGGER.debug {
-                "Scanning file system to find all '.editorconfig' files in directory '$path' scanned $visitedDirectoryCount directories in $duration ms"
+                "Scanning file system to find all '.editorconfig' files in directory '$path' scanned $visitedDirectoryCount directories " +
+                    "in $duration ms"
             }
         }
 
@@ -110,8 +111,7 @@ internal class EditorConfigFinder {
         return EDITOR_CONFIG_CACHE.getPaths()
     }
 
-    private fun Path?.resource() =
-        Resource.Resources.ofPath(this, StandardCharsets.UTF_8)
+    private fun Path?.resource() = Resource.Resources.ofPath(this, StandardCharsets.UTF_8)
 
     private fun createLoaderService() =
         ResourcePropertiesService.builder()

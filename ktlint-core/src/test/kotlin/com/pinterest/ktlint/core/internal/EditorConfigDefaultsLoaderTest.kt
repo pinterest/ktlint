@@ -4,10 +4,6 @@ import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
 import com.pinterest.ktlint.core.api.EditorConfigDefaults
 import com.pinterest.ktlint.core.api.EditorConfigDefaults.Companion.EMPTY_EDITOR_CONFIG_DEFAULTS
-import java.nio.file.FileSystem
-import java.nio.file.Files
-import java.nio.file.Path
-import kotlin.io.path.isDirectory
 import org.assertj.core.api.Assertions.assertThat
 import org.ec4j.core.model.EditorConfig
 import org.ec4j.core.model.Glob
@@ -19,6 +15,10 @@ import org.junit.jupiter.api.condition.DisabledOnOs
 import org.junit.jupiter.api.condition.OS
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
+import java.nio.file.FileSystem
+import java.nio.file.Files
+import java.nio.file.Path
+import kotlin.io.path.isDirectory
 
 class EditorConfigDefaultsLoaderTest {
     private val fileSystemMock = Jimfs.newFileSystem(Configuration.forCurrentPlatform())
@@ -71,9 +71,7 @@ class EditorConfigDefaultsLoaderTest {
             "some-alternative-file-name",
         ],
     )
-    fun `Given an existing editor config file then load all settings from it`(
-        fileName: String,
-    ) {
+    fun `Given an existing editor config file then load all settings from it`(fileName: String) {
         val existingEditorConfigFileName = "/some/path/to/existing/$fileName"
         fileSystemMock.writeEditorConfigFile(
             existingEditorConfigFileName,

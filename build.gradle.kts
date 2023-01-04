@@ -30,21 +30,31 @@ dependencies {
 
 tasks.register<JavaExec>("ktlint") {
     group = LifecycleBasePlugin.VERIFICATION_GROUP
-    description = "Check Kotlin code style including experimental rules."
+    description = "Check Kotlin code style"
     classpath = ktlint
     mainClass.set("com.pinterest.ktlint.Main")
     args(
         "**/src/**/*.kt",
         "**.kts",
         "!**/build/**",
-        // Exclude sources which contain lint violations for the purpose of testing.
-        "!ktlint/src/test/resources/**",
-        "--baseline=ktlint/src/test/resources/test-baseline.xml",
-        // Experimental rules run by default run on the ktlint code base itself. Experimental rules should not be released if
-        // we are not pleased ourselves with the results on the ktlint code base.
-        "--experimental",
-        // Do not run with option "--verbose" or "-v" as the lint violations are difficult to spot between the amount of
-        // debug output lines.
+        // Do not run with option "--log-level=debug" or "--log-level=trace" as the lint violations will be difficult
+        // to spot between the amount of output lines.
+    )
+}
+
+tasks.register<JavaExec>("ktlint format") {
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    description = "Check Kotlin code style and format"
+    classpath = ktlint
+    jvmArgs = listOf("--add-opens=java.base/java.lang=ALL-UNNAMED")
+    mainClass.set("com.pinterest.ktlint.Main")
+    args(
+        "**/src/**/*.kt",
+        "**.kts",
+        "!**/build/**",
+        "--format",
+        // Do not run with option "--log-level=debug" or "--log-level=trace" as the lint violations will be difficult
+        // to spot between the amount of output lines.
     )
 }
 

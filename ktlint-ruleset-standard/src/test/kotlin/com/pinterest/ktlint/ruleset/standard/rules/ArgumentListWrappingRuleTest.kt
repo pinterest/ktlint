@@ -29,12 +29,9 @@ class ArgumentListWrappingRuleTest {
                 c
             )
             """.trimIndent()
+        @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
         argumentListWrappingRuleAssertThat(code)
-            .hasLintViolation(
-                3,
-                8,
-                "Argument should be on a separate line (unless all arguments can fit a single line)",
-            )
+            .hasLintViolation(3, 8, "Argument should be on a separate line (unless all arguments can fit a single line)")
             .isFormattedAs(formattedCode)
     }
 

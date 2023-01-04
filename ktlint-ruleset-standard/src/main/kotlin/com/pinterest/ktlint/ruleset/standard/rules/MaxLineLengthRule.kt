@@ -11,7 +11,6 @@ import com.pinterest.ktlint.core.ast.isRoot
 import com.pinterest.ktlint.core.ast.nextLeaf
 import com.pinterest.ktlint.core.ast.parent
 import com.pinterest.ktlint.core.ast.prevCodeSibling
-import kotlin.properties.Delegates
 import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
@@ -20,6 +19,7 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.kdoc.psi.api.KDoc
 import org.jetbrains.kotlin.psi.KtImportDirective
 import org.jetbrains.kotlin.psi.KtPackageDirective
+import kotlin.properties.Delegates
 
 public class MaxLineLengthRule :
     Rule(
@@ -192,7 +192,10 @@ internal class RangeTree(seq: List<Int> = emptyList()) {
 
     // runtime: O(log(n)+k), where k is number of matching points
     // space: O(1)
-    fun query(vmin: Int, vmax: Int): ArrayView {
+    fun query(
+        vmin: Int,
+        vmax: Int,
+    ): ArrayView {
         var r = arr.size - 1
         if (r == -1 || vmax < arr[0] || arr[r] < vmin) {
             return emptyArrayView
@@ -225,8 +228,7 @@ internal class RangeTree(seq: List<Int> = emptyList()) {
         return ArrayView(l, k)
     }
 
-    fun isEmpty(): Boolean =
-        arr.isEmpty()
+    fun isEmpty(): Boolean = arr.isEmpty()
 
     inner class ArrayView(private var l: Int, private val r: Int) {
 

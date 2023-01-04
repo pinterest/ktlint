@@ -144,8 +144,7 @@ public class ChainWrappingRule :
                 KtTokens.OPERATIONS.contains(type)
         } == true
 
-    private fun ASTNode.isInPrefixPosition() =
-        treeParent?.treeParent?.elementType == PREFIX_EXPRESSION
+    private fun ASTNode.isInPrefixPosition() = treeParent?.treeParent?.elementType == PREFIX_EXPRESSION
 
     private fun ASTNode.isElvisOperatorAndComment(): Boolean {
         return elementType == ELVIS &&

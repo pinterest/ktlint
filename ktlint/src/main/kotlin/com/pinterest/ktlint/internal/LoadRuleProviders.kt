@@ -3,11 +3,11 @@ package com.pinterest.ktlint.internal
 import com.pinterest.ktlint.core.RuleProvider
 import com.pinterest.ktlint.core.RuleSetProviderV2
 import com.pinterest.ktlint.core.initKtLintKLogger
+import mu.KotlinLogging
 import java.net.URL
 import java.net.URLClassLoader
 import java.util.ServiceConfigurationError
 import java.util.ServiceLoader
-import mu.KotlinLogging
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 

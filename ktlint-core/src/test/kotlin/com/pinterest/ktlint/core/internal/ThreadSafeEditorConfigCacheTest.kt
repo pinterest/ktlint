@@ -4,8 +4,6 @@ import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
 import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ktlint.core.setDefaultLoggerModifier
-import java.nio.charset.StandardCharsets
-import java.nio.file.Paths
 import mu.KotlinLogging
 import org.assertj.core.api.Assertions.assertThat
 import org.ec4j.core.EditorConfigLoader
@@ -15,6 +13,8 @@ import org.ec4j.core.model.Glob
 import org.ec4j.core.model.Property
 import org.ec4j.core.model.Section
 import org.junit.jupiter.api.Test
+import java.nio.charset.StandardCharsets
+import java.nio.file.Paths
 
 class ThreadSafeEditorConfigCacheTest {
     init {
@@ -98,8 +98,7 @@ class ThreadSafeEditorConfigCacheTest {
     private companion object {
         const val SOME_PROPERTY = "some-property"
 
-        private fun String.resource() =
-            Resource.Resources.ofPath(Paths.get(this), StandardCharsets.UTF_8)
+        private fun String.resource() = Resource.Resources.ofPath(Paths.get(this), StandardCharsets.UTF_8)
         val FILE_1: Resource = "/some/path/to/file/1".resource()
         val FILE_2: Resource = "/some/path/to/file/2".resource()
 

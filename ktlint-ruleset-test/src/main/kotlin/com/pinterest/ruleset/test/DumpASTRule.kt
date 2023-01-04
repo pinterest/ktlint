@@ -6,11 +6,11 @@ import com.pinterest.ktlint.core.ast.isRoot
 import com.pinterest.ktlint.core.ast.lastChildLeafOrSelf
 import com.pinterest.ruleset.test.internal.Color
 import com.pinterest.ruleset.test.internal.color
-import java.io.PrintStream
-import java.util.Locale
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
 import org.jetbrains.kotlin.lexer.KtTokens
+import java.io.PrintStream
+import java.util.Locale
 
 public class DumpASTRule @JvmOverloads constructor(
     private val out: PrintStream = System.err,
@@ -118,6 +118,5 @@ public class DumpASTRule @JvmOverloads constructor(
                 .replace("org.jetbrains.kotlin.", "~.")
                 .replace("com.intellij.psi.", "c.i.p.")
 
-    private fun String.escape() =
-        this.replace("\\", "\\\\").replace("\n", "\\n").replace("\t", "\\t").replace("\r", "\\r")
+    private fun String.escape() = this.replace("\\", "\\\\").replace("\n", "\\n").replace("\t", "\\t").replace("\r", "\\r")
 }

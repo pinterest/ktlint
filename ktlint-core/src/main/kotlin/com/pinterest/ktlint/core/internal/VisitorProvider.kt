@@ -154,15 +154,14 @@ internal class VisitorProvider(
     private fun EditorConfigProperties.isEnabled(
         disabledRulesProperty: EditorConfigProperty<String>,
         rule: Rule,
-    ) =
-        this
-            .getEditorConfigValue(disabledRulesProperty)
-            // When IntelliJ IDEA is reformatting the ".editorconfig" file it sometimes adds a space after the comma in a
-            // comma-separate-list which should not be a part of the ruleId
-            .replace(" ", "")
-            .split(",")
-            .none {
-                // The rule set id in the disabled_rules setting may be omitted for rules in the standard rule set
-                it.qualifiedRuleId() == rule.qualifiedRuleId
-            }
+    ) = this
+        .getEditorConfigValue(disabledRulesProperty)
+        // When IntelliJ IDEA is reformatting the ".editorconfig" file it sometimes adds a space after the comma in a
+        // comma-separate-list which should not be a part of the ruleId
+        .replace(" ", "")
+        .split(",")
+        .none {
+            // The rule set id in the disabled_rules setting may be omitted for rules in the standard rule set
+            it.qualifiedRuleId() == rule.qualifiedRuleId
+        }
 }

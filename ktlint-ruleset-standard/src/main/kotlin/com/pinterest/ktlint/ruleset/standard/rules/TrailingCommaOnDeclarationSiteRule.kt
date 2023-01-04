@@ -21,7 +21,6 @@ import com.pinterest.ktlint.core.ast.noNewLineInClosedRange
 import com.pinterest.ktlint.core.ast.prevCodeLeaf
 import com.pinterest.ktlint.core.ast.prevLeaf
 import com.pinterest.ktlint.core.ast.upsertWhitespaceAfterMe
-import kotlin.properties.Delegates
 import org.ec4j.core.model.PropertyType
 import org.ec4j.core.model.PropertyType.PropertyValueParser
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -44,6 +43,7 @@ import org.jetbrains.kotlin.psi.psiUtil.nextLeaf
 import org.jetbrains.kotlin.psi.psiUtil.parents
 import org.jetbrains.kotlin.psi.psiUtil.prevLeaf
 import org.jetbrains.kotlin.utils.addToStdlib.cast
+import kotlin.properties.Delegates
 
 /**
  * Linting trailing comma for declaration site.
@@ -70,8 +70,7 @@ public class TrailingCommaOnDeclarationSiteRule :
 
     private var allowTrailingComma by Delegates.notNull<Boolean>()
 
-    private fun ASTNode.isTrailingCommaAllowed() =
-        elementType in TYPES_ON_DECLARATION_SITE && allowTrailingComma
+    private fun ASTNode.isTrailingCommaAllowed() = elementType in TYPES_ON_DECLARATION_SITE && allowTrailingComma
 
     override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
         allowTrailingComma = editorConfigProperties.getEditorConfigValue(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY)
@@ -350,22 +349,37 @@ public class TrailingCommaOnDeclarationSiteRule :
             .last { it.elementType == WHEN_ENTRY }
             .lineIndent()
 
-    private fun isMultiline(element: PsiElement): Boolean = when {
-        element.parent is KtFunctionLiteral -> isMultiline(element.parent)
-        element is KtFunctionLiteral -> containsLineBreakInLeavesRange(element.valueParameterList!!, element.arrow!!)
-        element is KtWhenEntry -> containsLineBreakInLeavesRange(element.firstChild, element.arrow!!)
-        element is KtDestructuringDeclaration -> containsLineBreakInLeavesRange(element.lPar!!, element.rPar!!)
-        element is KtValueArgumentList && element.children.size == 1 && element.anyDescendantOfType<KtCollectionLiteralExpression>() -> {
-            // special handling for collection literal
-            // @Annotation([
-            //    "something",
-            // ])
-            val lastChild = element.collectDescendantsOfType<KtCollectionLiteralExpression>().last()
-            containsLineBreakInLeavesRange(lastChild.rightBracket!!, element.rightParenthesis!!)
+    private fun isMultiline(element: PsiElement): Boolean =
+        when {
+            element.parent is KtFunctionLiteral -> {
+                isMultiline(element.parent)
+            }
+            element is KtFunctionLiteral -> {
+                containsLineBreakInLeavesRange(element.valueParameterList!!, element.arrow!!)
+            }
+            element is KtWhenEntry -> {
+                containsLineBreakInLeavesRange(element.firstChild, element.arrow!!)
+            }
+            element is KtDestructuringDeclaration -> {
+                containsLineBreakInLeavesRange(element.lPar!!, element.rPar!!)
+            }
+            element is KtValueArgumentList &&
+                element.children.size == 1 &&
+                element.anyDescendantOfType<KtCollectionLiteralExpression>() -> {
+                // special handling for collection literal
+                // @Annotation([
+                //    "something",
+                // ])
+                val lastChild = element.collectDescendantsOfType<KtCollectionLiteralExpression>().last()
+                containsLineBreakInLeavesRange(lastChild.rightBracket!!, element.rightParenthesis!!)
+            }
+            element is KtParameterList && element.parameters.isEmpty() -> {
+                false
+            }
+            else -> {
+                element.textContains('\n')
+            }
         }
-        element is KtParameterList && element.parameters.isEmpty() -> false
-        else -> element.textContains('\n')
-    }
 
     private fun ASTNode.addNewLineBeforeArrowInWhen() =
         if (psi is KtWhenEntry) {
@@ -384,7 +398,10 @@ public class TrailingCommaOnDeclarationSiteRule :
         return codeLeaf?.takeIf { it.elementType == ElementType.COMMA }
     }
 
-    private fun containsLineBreakInLeavesRange(from: PsiElement, to: PsiElement): Boolean {
+    private fun containsLineBreakInLeavesRange(
+        from: PsiElement,
+        to: PsiElement,
+    ): Boolean {
         var leaf: PsiElement? = from
         while (leaf != null && !leaf.isEquivalentTo(to)) {
             if (leaf.textContains('\n')) {
@@ -433,7 +450,7 @@ public class TrailingCommaOnDeclarationSiteRule :
                     BOOLEAN_VALUES_SET,
                 ),
                 defaultValue = true,
-                defaultAndroidValue = false,
+                androidStudioCodeStyleDefaultValue = false,
             )
 
         @Deprecated(

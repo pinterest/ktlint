@@ -2,6 +2,9 @@ package com.pinterest.ktlint.core.api
 
 import com.pinterest.ktlint.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.core.api.editorconfig.CodeStyleValue
+import com.pinterest.ktlint.core.api.editorconfig.CodeStyleValue.android_studio
+import com.pinterest.ktlint.core.api.editorconfig.CodeStyleValue.intellij_idea
+import com.pinterest.ktlint.core.api.editorconfig.CodeStyleValue.ktlint_official
 import com.pinterest.ktlint.core.api.editorconfig.DEFAULT_EDITOR_CONFIG_PROPERTIES
 import com.pinterest.ktlint.core.api.editorconfig.DISABLED_RULES_PROPERTY
 import com.pinterest.ktlint.core.api.editorconfig.EditorConfigProperty
@@ -53,7 +56,7 @@ public interface UsesEditorConfigProperties {
             .parse(
                 get(CODE_STYLE_PROPERTY.name)?.sourceValue,
             ).parsed
-            ?: CodeStyleValue.official
+            ?: CODE_STYLE_PROPERTY.defaultValue
 
     /**
      * Get the value of [editorConfigProperty] from [EditorConfigProperties].
@@ -64,7 +67,9 @@ public interface UsesEditorConfigProperties {
         }
         when {
             editorConfigProperty.deprecationError != null ->
-                throw DeprecatedEditorConfigPropertyException("Property '${editorConfigProperty.name}' is disallowed: ${editorConfigProperty.deprecationError}")
+                throw DeprecatedEditorConfigPropertyException(
+                    "Property '${editorConfigProperty.name}' is disallowed: ${editorConfigProperty.deprecationError}",
+                )
             editorConfigProperty.deprecationWarning != null ->
                 LOGGER.warn { "Property '${editorConfigProperty.name}' is deprecated: ${editorConfigProperty.deprecationWarning}" }
         }
@@ -120,10 +125,13 @@ public interface UsesEditorConfigProperties {
     }
 
     private fun <T> EditorConfigProperty<T>.getDefaultValue(codeStyleValue: CodeStyleValue) =
-        if (codeStyleValue == CodeStyleValue.android) {
-            defaultAndroidValue
-        } else {
-            defaultValue
+        when (codeStyleValue) {
+            android_studio -> androidStudioCodeStyleDefaultValue
+            intellij_idea -> intellijIdeaCodeStyleDefaultValue
+            ktlint_official -> ktlintOfficialCodeStyleDefaultValue
+            else -> {
+                defaultValue
+            }
         }
 
     /**

@@ -2,6 +2,13 @@ package com.pinterest.ktlint
 
 import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ktlint.environment.OsEnvironment
+import mu.KotlinLogging
+import org.assertj.core.api.AbstractAssert
+import org.assertj.core.api.AbstractBooleanAssert
+import org.assertj.core.api.AbstractIntegerAssert
+import org.assertj.core.api.Assertions
+import org.assertj.core.api.ListAssert
+import org.junit.jupiter.api.fail
 import java.io.File
 import java.io.InputStream
 import java.nio.file.FileVisitResult
@@ -14,13 +21,6 @@ import kotlin.io.path.Path
 import kotlin.io.path.copyTo
 import kotlin.io.path.createDirectories
 import kotlin.io.path.relativeToOrSelf
-import mu.KotlinLogging
-import org.assertj.core.api.AbstractAssert
-import org.assertj.core.api.AbstractBooleanAssert
-import org.assertj.core.api.AbstractIntegerAssert
-import org.assertj.core.api.Assertions
-import org.assertj.core.api.ListAssert
-import org.junit.jupiter.api.fail
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
@@ -102,8 +102,7 @@ class CommandLineTestRunner(private val tempDir: Path) {
         return tempDir.resolve(testProjectName).also { testProjectPath.copyRecursively(it) }
     }
 
-    private fun isWindows(): Boolean =
-        System.getProperty("os.name").startsWith("Windows")
+    private fun isWindows(): Boolean = System.getProperty("os.name").startsWith("Windows")
 
     /**
      * @return the path to the command interpreter along with the necessary
@@ -156,7 +155,7 @@ class CommandLineTestRunner(private val tempDir: Path) {
                 add("-l=debug")
 
                 addAll(arguments)
-            }.joinToString(separator = " ", postfix = " ")
+            }.joinToString(separator = " ")
             .also { LOGGER.debug("Command to be executed: $it") }
 
     private fun String?.javaVersionAsInt(): Int? {
@@ -278,7 +277,10 @@ class CommandLineTestRunner(private val tempDir: Path) {
 }
 
 @Suppress("unused")
-private fun String.followedByIndentedList(lines: List<String>, indentLevel: Int = 1): String =
+private fun String.followedByIndentedList(
+    lines: List<String>,
+    indentLevel: Int = 1,
+): String =
     lines
         .ifEmpty { listOf("<empty>") }
         .joinToString(prefix = "$this\n", separator = "\n") {

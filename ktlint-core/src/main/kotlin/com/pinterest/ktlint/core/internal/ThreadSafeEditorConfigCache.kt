@@ -1,15 +1,15 @@
 package com.pinterest.ktlint.core.internal
 
 import com.pinterest.ktlint.core.initKtLintKLogger
-import java.nio.file.Paths
-import java.util.concurrent.locks.ReentrantReadWriteLock
-import kotlin.concurrent.read
-import kotlin.concurrent.write
 import mu.KotlinLogging
 import org.ec4j.core.Cache
 import org.ec4j.core.EditorConfigLoader
 import org.ec4j.core.Resource
 import org.ec4j.core.model.EditorConfig
+import java.nio.file.Paths
+import java.util.concurrent.locks.ReentrantReadWriteLock
+import kotlin.concurrent.read
+import kotlin.concurrent.write
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
@@ -66,12 +66,13 @@ internal class ThreadSafeEditorConfigCache : Cache {
     /**
      * Clears entire cache to free-up memory.
      */
-    fun clear() = readWriteLock.write {
-        inMemoryMap
-            .also {
-                LOGGER.trace { "Removing ${it.size} entries from the EditorConfig cache" }
-            }.clear()
-    }
+    fun clear() =
+        readWriteLock.write {
+            inMemoryMap
+                .also {
+                    LOGGER.trace { "Removing ${it.size} entries from the EditorConfig cache" }
+                }.clear()
+        }
 
     /**
      * Get the paths of files stored in the cache.

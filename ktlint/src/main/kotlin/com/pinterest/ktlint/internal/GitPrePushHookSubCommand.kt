@@ -5,9 +5,7 @@ import picocli.CommandLine
 @CommandLine.Command(
     description = [
         "Install git hook to automatically check files for style violations before push",
-        "Usage of \"--install-git-pre-push-hook\" command line option is deprecated!",
     ],
-    aliases = ["--install-git-pre-push-hook"],
     mixinStandardHelpOptions = true,
     versionProvider = KtlintVersionProvider::class,
 )
@@ -21,17 +19,21 @@ internal class GitPrePushHookSubCommand : Runnable {
     override fun run() {
         commandSpec.commandLine().printCommandLineHelpOrVersionUsage()
 
+        if (ktlintCommand.codeStyle == null) {
+            System.err.println("Option --code-style must be set as to generate the git pre push hook correctly")
+            exitKtLintProcess(1)
+        }
+
         GitHookInstaller.installGitHook("pre-push") {
-            loadHookContent()
+            """
+            #!/bin/sh
+
+            # <https://github.com/pinterest/ktlint> pre-push hook
+
+            git diff --name-only -z HEAD "origin/${'$'}(git rev-parse --abbrev-ref HEAD)" -- '*.kt' '*.kts' | ktlint --code-style=${ktlintCommand.codeStyle} --relative --patterns-from-stdin=''
+            """.trimIndent().toByteArray()
         }
     }
-
-    private fun loadHookContent() = ClassLoader
-        .getSystemClassLoader()
-        .getResourceAsStream(
-            "ktlint-git-pre-push-hook${if (ktlintCommand.android) "-android" else ""}.sh",
-        )
-        .readBytes()
 
     internal companion object {
         internal const val COMMAND_NAME = "installGitPrePushHook"

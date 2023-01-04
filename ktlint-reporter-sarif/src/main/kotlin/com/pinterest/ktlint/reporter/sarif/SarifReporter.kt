@@ -38,7 +38,11 @@ public class SarifReporter(private val out: PrintStream) : Reporter {
         workingDirectory = System.getProperty("user.home")?.let(::File)
     }
 
-    override fun onLintError(file: String, err: LintError, corrected: Boolean) {
+    override fun onLintError(
+        file: String,
+        err: LintError,
+        corrected: Boolean,
+    ) {
         results.add(
             Result(
                 ruleID = err.ruleId,

@@ -1233,18 +1233,20 @@ private class SimpleTestRule(
         }
     }
 
-    private fun ASTNode.toRuleExecutionCall(id: String, ruleMethod: RuleExecutionCall.RuleMethod) =
-        RuleExecutionCall(
-            id,
-            ruleMethod,
-            visitNodeType,
-            elementType,
-            if (elementType == CLASS) {
-                findChildByType(IDENTIFIER)?.text
-            } else {
-                null
-            },
-        )
+    private fun ASTNode.toRuleExecutionCall(
+        id: String,
+        ruleMethod: RuleExecutionCall.RuleMethod,
+    ) = RuleExecutionCall(
+        id,
+        ruleMethod,
+        visitNodeType,
+        elementType,
+        if (elementType == CLASS) {
+            findChildByType(IDENTIFIER)?.text
+        } else {
+            null
+        },
+    )
 }
 
 private data class RuleExecutionCall(

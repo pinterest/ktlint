@@ -188,8 +188,7 @@ public class AnnotationRule : Rule("annotation") {
         }
     }
 
-    private fun ASTNode.isNotReceiverTargetAnnotation() =
-        getAnnotationUseSiteTarget() != AnnotationUseSiteTarget.RECEIVER
+    private fun ASTNode.isNotReceiverTargetAnnotation() = getAnnotationUseSiteTarget() != AnnotationUseSiteTarget.RECEIVER
 
     private fun ASTNode.getAnnotationUseSiteTarget() =
         psi
@@ -197,8 +196,7 @@ public class AnnotationRule : Rule("annotation") {
             ?.useSiteTarget
             ?.getAnnotationUseSiteTarget()
 
-    private fun ASTNode.isAnnotationEntryWithValueArgumentList() =
-        getAnnotationEntryValueArgumentList() != null
+    private fun ASTNode.isAnnotationEntryWithValueArgumentList() = getAnnotationEntryValueArgumentList() != null
 
     private fun ASTNode.getAnnotationEntryValueArgumentList() =
         takeIf { it.elementType == ANNOTATION_ENTRY }
@@ -210,16 +208,14 @@ public class AnnotationRule : Rule("annotation") {
             .lastOrNull { it.elementType == ANNOTATION_ENTRY }
             .let { it == this }
 
-    private fun ASTNode.isPrecededByOtherAnnotationEntry() =
-        siblings(forward = false).any { it.elementType == ANNOTATION_ENTRY }
+    private fun ASTNode.isPrecededByOtherAnnotationEntry() = siblings(forward = false).any { it.elementType == ANNOTATION_ENTRY }
 
     private fun ASTNode.isOnSameLineAsPreviousAnnotationEntry() =
         siblings(forward = false)
             .takeWhile { it.elementType != ANNOTATION_ENTRY }
             .none { it.isWhiteSpaceWithNewline() }
 
-    private fun ASTNode.isFollowedByOtherAnnotationEntry() =
-        siblings(forward = true).any { it.elementType == ANNOTATION_ENTRY }
+    private fun ASTNode.isFollowedByOtherAnnotationEntry() = siblings(forward = true).any { it.elementType == ANNOTATION_ENTRY }
 
     private fun ASTNode.isOnSameLineAsNextAnnotationEntry() =
         siblings(forward = true)

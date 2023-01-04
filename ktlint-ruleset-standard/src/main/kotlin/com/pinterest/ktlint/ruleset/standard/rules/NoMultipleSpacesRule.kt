@@ -28,12 +28,10 @@ public class NoMultipleSpacesRule : Rule("no-multi-spaces") {
             }
     }
 
-    private fun ASTNode.removeIndentation() =
-        this.text.substringBefore("\n")
+    private fun ASTNode.removeIndentation() = this.text.substringBefore("\n")
 
     // allow multiple spaces in KDoc in case of KDOC_TAG for alignment, e.g.
     // @param foo      stuff
     // @param foobar   stuff2
-    private fun ASTNode.isPossibleAlignmentOfKdocTag() =
-        treePrev?.elementType == KDOC_MARKDOWN_LINK && treeParent?.elementType == KDOC_TAG
+    private fun ASTNode.isPossibleAlignmentOfKdocTag() = treePrev?.elementType == KDOC_MARKDOWN_LINK && treeParent?.elementType == KDOC_TAG
 }

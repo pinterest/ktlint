@@ -1,0 +1,1 @@
+The kotlin files in this directory have extension ".test". The kotlin files in this directory contain lint violations which are required for testing. The extension prevents that the file is being picked by ktlint when running it on the project itself. Modifying the files by ktlint format might result in a failing tests in the next run.

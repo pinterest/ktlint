@@ -17,12 +17,12 @@ import com.pinterest.ktlint.core.ast.nextSibling
 import com.pinterest.ktlint.core.ast.prevCodeLeaf
 import com.pinterest.ktlint.core.ast.prevCodeSibling
 import com.pinterest.ktlint.core.ast.prevLeaf
-import kotlin.properties.Delegates
 import org.ec4j.core.model.PropertyType
 import org.ec4j.core.model.PropertyType.PropertyValueParser
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 import org.jetbrains.kotlin.psi.KtPsiFactory
+import kotlin.properties.Delegates
 
 /**
  * Linting trailing comma for call site.
@@ -49,8 +49,7 @@ public class TrailingCommaOnCallSiteRule :
 
     private var allowTrailingCommaOnCallSite by Delegates.notNull<Boolean>()
 
-    private fun ASTNode.isTrailingCommaAllowed() =
-        elementType in TYPES_ON_CALL_SITE && allowTrailingCommaOnCallSite
+    private fun ASTNode.isTrailingCommaAllowed() = elementType in TYPES_ON_CALL_SITE && allowTrailingCommaOnCallSite
 
     override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
         allowTrailingCommaOnCallSite = editorConfigProperties.getEditorConfigValue(TRAILING_COMMA_ON_CALL_SITE_PROPERTY)
@@ -206,8 +205,7 @@ public class TrailingCommaOnCallSiteRule :
             .findChildByType(VALUE_ARGUMENT)
             ?.nextSibling { it.isWhiteSpaceWithNewline() }
 
-    private fun ASTNode.hasAtLeastOneArgument() =
-        children().any { it.elementType == VALUE_ARGUMENT }
+    private fun ASTNode.hasAtLeastOneArgument() = children().any { it.elementType == VALUE_ARGUMENT }
 
     private fun ASTNode.findPreviousTrailingCommaNodeOrNull(): ASTNode? {
         val codeLeaf = if (isCodeLeaf()) {
@@ -256,7 +254,7 @@ public class TrailingCommaOnCallSiteRule :
                     BOOLEAN_VALUES_SET,
                 ),
                 defaultValue = true,
-                defaultAndroidValue = false,
+                androidStudioCodeStyleDefaultValue = false,
             )
 
         @Deprecated(

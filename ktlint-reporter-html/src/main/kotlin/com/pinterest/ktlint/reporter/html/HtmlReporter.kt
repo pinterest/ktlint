@@ -35,7 +35,11 @@ public class HtmlReporter(private val out: PrintStream) : Reporter {
     private var issueCount = 0
     private var correctedCount = 0
 
-    override fun onLintError(file: String, err: LintError, corrected: Boolean) {
+    override fun onLintError(
+        file: String,
+        err: LintError,
+        corrected: Boolean,
+    ) {
         if (!corrected) {
             issueCount += 1
             acc.getOrPut(file) { mutableListOf() }.add(err)

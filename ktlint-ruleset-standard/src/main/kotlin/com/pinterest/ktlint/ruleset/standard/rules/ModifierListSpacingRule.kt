@@ -82,6 +82,5 @@ public class ModifierListSpacingRule :
             }
     }
 
-    private fun ASTNode?.isAnnotationElement() =
-        this != null && (elementType == ANNOTATION || elementType == ANNOTATION_ENTRY)
+    private fun ASTNode?.isAnnotationElement() = this != null && (elementType == ANNOTATION || elementType == ANNOTATION_ENTRY)
 }

@@ -1,9 +1,9 @@
 package com.pinterest.ktlint
 
-import java.nio.file.Path
 import org.assertj.core.api.SoftAssertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
+import java.nio.file.Path
 
 class RuleSetsLoaderCLITest {
     @Test
@@ -19,7 +19,9 @@ class RuleSetsLoaderCLITest {
             ) {
                 SoftAssertions().apply {
                     assertNormalExitCode()
-                    assertThat(normalOutput).containsLineMatching("$jarWithoutRulesetProvider, provided as command line argument, does not contain a custom ruleset provider.")
+                    assertThat(normalOutput).containsLineMatching(
+                        "$jarWithoutRulesetProvider, provided as command line argument, does not contain a custom ruleset provider.",
+                    )
                 }.assertAll()
             }
     }
@@ -33,13 +35,18 @@ class RuleSetsLoaderCLITest {
         CommandLineTestRunner(tempDir)
             .run(
                 "custom-ruleset",
-                listOf("-R", "$tempDir/$jarWithRulesetProviderV2"),
+                listOf("-R", "$tempDir/$jarWithRulesetProviderV2", "**/*.test"),
             ) {
                 SoftAssertions().apply {
                     assertErrorExitCode()
                     assertThat(normalOutput)
                         .containsLineMatching(Regex(".* JAR ruleset provided with path .*$jarWithRulesetProviderV2.*"))
-                        .containsLineMatching(Regex(".*custom-ruleset.rule-set-provider-v2.Main.kt:1:1: Unexpected var, use val instead.*custom-rule-set-id:no-var.*"))
+                        .containsLineMatching(
+                            Regex(
+                                ".*custom-ruleset.rule-set-provider-v2.Main.kt.test:1:1: Unexpected var, use val instead.*" +
+                                    "custom-rule-set-id:no-var.*",
+                            ),
+                        )
                 }.assertAll()
             }
     }

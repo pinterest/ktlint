@@ -4,15 +4,15 @@ import com.pinterest.ktlint.core.api.EditorConfigDefaults
 import com.pinterest.ktlint.core.api.EditorConfigDefaults.Companion.EMPTY_EDITOR_CONFIG_DEFAULTS
 import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ktlint.core.internal.ThreadSafeEditorConfigCache.Companion.THREAD_SAFE_EDITOR_CONFIG_CACHE
+import mu.KotlinLogging
+import org.ec4j.core.EditorConfigLoader
+import org.ec4j.core.Resource
+import org.ec4j.core.model.Version
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 import kotlin.io.path.isDirectory
 import kotlin.io.path.notExists
 import kotlin.io.path.pathString
-import mu.KotlinLogging
-import org.ec4j.core.EditorConfigLoader
-import org.ec4j.core.Resource
-import org.ec4j.core.model.Version
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
@@ -68,6 +68,5 @@ internal class EditorConfigDefaultsLoader {
             this
         }
 
-    private fun Path.resource() =
-        Resource.Resources.ofPath(this, StandardCharsets.UTF_8)
+    private fun Path.resource() = Resource.Resources.ofPath(this, StandardCharsets.UTF_8)
 }

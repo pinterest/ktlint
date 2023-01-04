@@ -491,7 +491,9 @@ public class WrappingRule :
             """Missing newline after "${nodeAfterWhichNewlineIsRequired.text}"""",
             true,
         )
-        LOGGER.trace { "$line: " + (if (!autoCorrect) "would have " else "") + "inserted newline after ${nodeAfterWhichNewlineIsRequired.text}" }
+        LOGGER.trace {
+            "$line: " + (if (!autoCorrect) "would have " else "") + "inserted newline after ${nodeAfterWhichNewlineIsRequired.text}"
+        }
         if (autoCorrect) {
             val tempIndent = indent ?: (nodeToFix.lineIndent() + indentConfig.indent)
             nodeToFix.upsertWhitespaceAfterMe("\n" + tempIndent)

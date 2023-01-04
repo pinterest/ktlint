@@ -20,7 +20,11 @@ public class PlainReporter(
     private val acc = ConcurrentHashMap<String, MutableList<LintError>>()
     private val ruleViolationCount = ConcurrentHashMap<String, Long>()
 
-    override fun onLintError(file: String, err: LintError, corrected: Boolean) {
+    override fun onLintError(
+        file: String,
+        err: LintError,
+        corrected: Boolean,
+    ) {
         if (!corrected) {
             if (groupByFile) {
                 acc.getOrPut(file) { ArrayList() }.add(err)
@@ -32,7 +36,8 @@ public class PlainReporter(
                         err.col
                     }
                 out.println(
-                    "${colorFileName(file)}${":".colored()}${err.line}${":$column:".colored()} ${err.detail} ${"(${err.ruleId})".colored()}",
+                    "${colorFileName(file)}${":".colored()}${err.line}${":$column:".colored()} " +
+                        "${err.detail} ${"(${err.ruleId})".colored()}",
                 )
             }
             ruleViolationCount
@@ -106,5 +111,4 @@ public class PlainReporter(
     }
 }
 
-internal fun String.color(foreground: Color): String =
-    "\u001B[${foreground.code}m$this\u001B[0m"
+internal fun String.color(foreground: Color): String = "\u001B[${foreground.code}m$this\u001B[0m"

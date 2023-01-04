@@ -1,11 +1,11 @@
 package com.pinterest.ktlint.reporter.format
 
 import com.pinterest.ktlint.core.LintError
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.PrintStream
-import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Test
 
 class FormatReporterTest {
     @Test
@@ -123,20 +123,11 @@ class FormatReporterTest {
     }
 
     companion object {
-        val SOME_LINT_ERROR_CORRECTABLE = LintError(
-            1,
-            1,
-            "some-rule",
-            "This error can be autocorrected",
-            true,
-        )
-        val SOME_LINT_ERROR_UNCORRECTABLE = LintError(
-            1,
-            1,
-            "rule-1",
-            "This error can *not* be autocorrected",
-            false,
-        )
+        @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
+        val SOME_LINT_ERROR_CORRECTABLE = LintError(1, 1, "some-rule", "This error can be autocorrected", true)
+
+        @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
+        val SOME_LINT_ERROR_UNCORRECTABLE = LintError(1, 1, "rule-1", "This error can *not* be autocorrected", false)
         const val SOME_FILE_PATH_1 = "/path/to/some-file-1.kt"
         const val SOME_FILE_PATH_2 = "/path/to/some-file-2.kt"
         const val SOME_FILE_PATH_3 = "/path/to/some-file-3.kt"

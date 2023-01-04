@@ -53,7 +53,11 @@ public class FunctionStartOfBodySpacingRule :
                     ?.takeIf { it.elementType == ElementType.WHITE_SPACE }
                     .let { whiteSpaceBeforeAssignment ->
                         if (whiteSpaceBeforeAssignment == null) {
-                            emit(assignmentExpression.startOffset, "Expected a single white space before assignment of expression body", true)
+                            emit(
+                                assignmentExpression.startOffset,
+                                "Expected a single white space before assignment of expression body",
+                                true,
+                            )
                             if (autoCorrect) {
                                 assignmentExpression.upsertWhitespaceBeforeMe(" ")
                             }

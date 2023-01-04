@@ -28,7 +28,9 @@ internal class OsEnvironment private constructor(
 
     companion object {
         private fun isWindows(): Boolean =
-            System.getProperty("os.name").startsWith("Windows")
+            System
+                .getProperty("os.name")
+                .startsWith("Windows")
 
         private fun emptyEnvironment(): MutableMap<String, String> =
             when {

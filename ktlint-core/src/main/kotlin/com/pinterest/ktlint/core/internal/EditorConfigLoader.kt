@@ -11,10 +11,6 @@ import com.pinterest.ktlint.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ktlint.core.internal.ThreadSafeEditorConfigCache.Companion.THREAD_SAFE_EDITOR_CONFIG_CACHE
-import java.nio.charset.StandardCharsets
-import java.nio.file.FileSystem
-import java.nio.file.FileSystems
-import java.nio.file.Path
 import mu.KotlinLogging
 import org.ec4j.core.EditorConfigLoader
 import org.ec4j.core.PropertyTypeRegistry
@@ -24,6 +20,10 @@ import org.ec4j.core.model.Property
 import org.ec4j.core.model.PropertyType
 import org.ec4j.core.model.Version
 import org.jetbrains.kotlin.utils.addToStdlib.applyIf
+import java.nio.charset.StandardCharsets
+import java.nio.file.FileSystem
+import java.nio.file.FileSystems
+import java.nio.file.Path
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
@@ -52,12 +52,18 @@ public class EditorConfigLoader(
         rules: Set<Rule> = emptySet(),
         editorConfigDefaults: EditorConfigDefaults = EMPTY_EDITOR_CONFIG_DEFAULTS,
         editorConfigOverride: EditorConfigOverride = EMPTY_EDITOR_CONFIG_OVERRIDE,
+        ignoreEditorConfigOnFileSystem: Boolean = false,
     ): EditorConfigProperties {
         val normalizedFilePath = filePath ?: defaultFilePath()
-
-        return createLoaderService(rules, editorConfigDefaults)
-            .queryProperties(normalizedFilePath.resource())
-            .properties
+        val properties: MutableMap<String, Property> =
+            if (ignoreEditorConfigOnFileSystem) {
+                mutableMapOf()
+            } else {
+                createLoaderService(rules, editorConfigDefaults)
+                    .queryProperties(normalizedFilePath.resource())
+                    .properties
+            }
+        return properties
             .also { loaded ->
                 if (loaded[TAB_WIDTH_PROPERTY_NAME]?.sourceValue == loaded[INDENT_SIZE_PROPERTY.name]?.sourceValue &&
                     editorConfigOverride.properties[INDENT_SIZE_PROPERTY] != null
@@ -78,20 +84,24 @@ public class EditorConfigLoader(
                         loaded[it.key.name] = property(it.key, it.value)
                     }
             }.also { editorConfigProperties ->
-                LOGGER.debug { editorConfigProperties.prettyPrint(normalizedFilePath) }
+                LOGGER.debug { editorConfigProperties.prettyPrint(filePath) }
             }
     }
 
-    private fun MutableMap<String, Property>.prettyPrint(
-        normalizedFilePath: Path?,
-    ) = map { entry -> "${entry.key}: ${entry.value.sourceValue}" }
-        .joinToString(
-            prefix = "Resolving .editorconfig files for $normalizedFilePath file path:\n\t",
-            separator = "\n\t",
-        )
+    private fun MutableMap<String, Property>.prettyPrint(normalizedFilePath: Path?) =
+        map { entry -> "${entry.key}: ${entry.value.sourceValue}" }
+            .joinToString(
+                prefix = "Effective editorconfig properties${
+                    if (normalizedFilePath == null) {
+                        ""
+                    } else {
+                        " for file '$normalizedFilePath'"
+                    }
+                }:\n\t",
+                separator = "\n\t",
+            )
 
-    private fun Path?.resource() =
-        Resource.Resources.ofPath(this, StandardCharsets.UTF_8)
+    private fun Path?.resource() = Resource.Resources.ofPath(this, StandardCharsets.UTF_8)
 
     private fun property(
         property: EditorConfigProperty<*>,
@@ -120,14 +130,14 @@ public class EditorConfigLoader(
     private fun createResourcePropertiesService(
         editorConfigLoader: EditorConfigLoader,
         editorConfigDefaults: EditorConfigDefaults,
-    ) =
-        ResourcePropertiesService.builder()
-            .keepUnset(true)
-            .cache(THREAD_SAFE_EDITOR_CONFIG_CACHE)
-            .loader(editorConfigLoader)
-            .applyIf(editorConfigDefaults != EMPTY_EDITOR_CONFIG_DEFAULTS) {
-                defaultEditorConfigs(editorConfigDefaults.value)
-            }.build()
+    ) = ResourcePropertiesService
+        .builder()
+        .keepUnset(true)
+        .cache(THREAD_SAFE_EDITOR_CONFIG_CACHE)
+        .loader(editorConfigLoader)
+        .applyIf(editorConfigDefaults != EMPTY_EDITOR_CONFIG_DEFAULTS) {
+            defaultEditorConfigs(editorConfigDefaults.value)
+        }.build()
 
     private fun editorConfigLoader(rules: Set<Rule>) =
         EditorConfigLoader

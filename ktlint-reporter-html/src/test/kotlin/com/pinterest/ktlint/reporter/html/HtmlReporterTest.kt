@@ -25,10 +25,10 @@
 package com.pinterest.ktlint.reporter.html
 
 import com.pinterest.ktlint.core.LintError
-import java.io.ByteArrayOutputStream
-import java.io.PrintStream
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import java.io.ByteArrayOutputStream
+import java.io.PrintStream
 
 class HtmlReporterTest {
     @Test

@@ -203,7 +203,9 @@ internal class RuleRunnerSorter {
                 }
             val separator = "\n  - "
             blockedRuleRunners.joinToString(prefix = prefix + separator, separator = separator) {
-                "Rule with id '${it.qualifiedRuleId}' should run after rule(s) with id '${it.runAfterRules.joinToString(separator = ", ") { it.ruleId } }'"
+                "Rule with id '${it.qualifiedRuleId}' should run after rule(s) with id '${it.runAfterRules.joinToString(separator = ", ") {
+                    it.ruleId
+                } }'"
             }
         }
         check(newRuleRunners.isNotEmpty()) {
@@ -232,8 +234,7 @@ internal class RuleRunnerSorter {
             }
     }
 
-    private fun RuleRunner.canRunWith(loadedRuleIds: List<String>): Boolean =
-        this.runAfterRules.all { it.ruleId in loadedRuleIds }
+    private fun RuleRunner.canRunWith(loadedRuleIds: List<String>): Boolean = this.runAfterRules.all { it.ruleId in loadedRuleIds }
 
     private data class RunAfterRuleRequiredButNotLoaded(val ruleId: String, val runAfterRuleId: String)
 

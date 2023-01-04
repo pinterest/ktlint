@@ -5,12 +5,12 @@ import com.pinterest.ktlint.core.RuleProvider
 import com.pinterest.ktlint.core.api.KtLintParseException
 import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ruleset.test.DumpASTRule
+import mu.KotlinLogging
+import picocli.CommandLine
 import java.io.File
 import java.nio.file.FileSystems
 import java.nio.file.Paths
 import java.util.Locale
-import mu.KotlinLogging
-import picocli.CommandLine
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 

@@ -9,8 +9,6 @@ import com.pinterest.ktlint.core.api.EditorConfigDefaults
 import com.pinterest.ktlint.ruleset.experimental.UnnecessaryParenthesesBeforeTrailingLambdaRule
 import com.pinterest.ktlint.ruleset.standard.FilenameRule
 import com.pinterest.ktlint.ruleset.standard.rules.IndentationRule
-import java.io.File
-import java.nio.file.Path
 import org.assertj.core.api.Assertions.assertThat
 import org.ec4j.core.model.EditorConfig
 import org.ec4j.core.model.Glob
@@ -19,6 +17,8 @@ import org.ec4j.core.model.Section
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
+import java.io.File
+import java.nio.file.Path
 
 /**
  * The KtLintRuleEngine is used by the Ktlint CLI and external API Consumers. Although most functionalities of the RuleEngine are already
