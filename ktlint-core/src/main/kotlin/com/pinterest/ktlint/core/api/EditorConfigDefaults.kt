@@ -37,7 +37,7 @@ public data class EditorConfigDefaults(public val value: EditorConfig) {
             message = "Marked for removal in KtLint 0.49",
             replaceWith = ReplaceWith("EMPTY_EDITOR_CONFIG_DEFAULTS"),
         )
-        @Suppress("ktlint:experimental:property-naming")
+        @Suppress("ktlint:property-naming")
         public val emptyEditorConfigDefaults: EditorConfigDefaults = EMPTY_EDITOR_CONFIG_DEFAULTS
     }
 }

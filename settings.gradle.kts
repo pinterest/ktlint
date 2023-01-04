@@ -41,7 +41,6 @@ include(
     ":ktlint-reporter-html",
     ":ktlint-reporter-plain",
     ":ktlint-reporter-plain-summary",
-    ":ktlint-ruleset-experimental",
     ":ktlint-ruleset-standard",
     ":ktlint-ruleset-template",
     ":ktlint-ruleset-test",

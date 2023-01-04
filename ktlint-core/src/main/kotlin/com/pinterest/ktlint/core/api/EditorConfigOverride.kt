@@ -82,7 +82,7 @@ public class EditorConfigOverride {
             message = "Marked for removal in KtLint 0.49",
             replaceWith = ReplaceWith("EMPTY_EDITOR_CONFIG_OVERRIDE"),
         )
-        @Suppress("ktlint:experimental:property-naming")
+        @Suppress("ktlint:property-naming")
         public val emptyEditorConfigOverride: EditorConfigOverride = EMPTY_EDITOR_CONFIG_OVERRIDE
     }
 }

@@ -4,6 +4,23 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+### Moving experimental rules to standard rule set
+
+The `experimental` rule set has been merged with `standard` rule set. The rules which formerly were part of the `experimental` rule set are still being treated as before. The rules will only be run in case `.editorconfig` property `ktlint_experimental` is enabled or in case the rule is explicitly enabled.
+
+Note that the prefix `experimental:` has to be removed from all references to this rule. Check references in:
+* The `.editorconfig` setting `disabled_rules`.
+* KtLint disable and enable directives.
+* The `VisitorModifier.RunAfterRule`.
+
+### API Changes & RuleSet providers
+
+#### Experimental rules
+
+Rules in custom rule sets can be marked as experimental by implementing the `Rule.Experimental` interface on the rule. Rules marked with this interface will only be executed by Ktlint whenever the `.editorconfig` property `ktlint_experimental` is enabled.
+
+When using this feature, experimental rules should *not* be defined in a separate rule set. A rule is identified by its qualified rule id that includes the rule set id. Moving a rule from an experimental rule set to a non-experimental rule set has the downside that the qualified rule id changes. For users of such rules this means that ktlint directives to suppress the rule and properties in the `.editorconfig` files have to be changed.
+
 ### Added
 
 ### Removed

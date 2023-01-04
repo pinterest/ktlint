@@ -23,7 +23,7 @@ By default, no rules are disabled. The properties `disabled_rules` and `ktlint_d
 Example:
 ```editorconfig
 [*.{kt,kts}]
-disabled_rules = some-standard-rule,experimental:some-experimental-rule,my-custom-ruleset:my-custom-rule
+disabled_rules = some-standard-rule,my-custom-ruleset:my-custom-rule
 ```
 
 Starting with KtLint `0.48` entire rule sets and individual rules can be disabled / enabled with a separate property per rule (set).
@@ -31,17 +31,18 @@ Starting with KtLint `0.48` entire rule sets and individual rules can be disable
 All rules in a rule set can be enabled or disabled with a rule set property. The name of the rule set property consists of the `ktlint_` prefix followed by the rule set id. Examples:
 ```editorconfig
 ktlint_standard = disabled # Disable all rules from the `standard` rule set provided by KtLint
-ktlint_experimental = enabled # Enable all rules from the `experimental` rule set provided by KtLint
 ktlint_your-custom-rule-set_custom-rule = enabled # Enable all rules in the `custom-rule-set` rule set (not provided by KtLint)
 ```
 
-!!! note
-    Rules from the `experimental` rule set are *disabled* by default. Either the entire rule set or individual rules from this rule set have to be enabled explicitly. All rules from the `standard` and custom rule sets are *enabled* by default and can optionally be disabled in the `.editorconfig`.
-
-An individual property can be enabled or disabled with a rule property. The name of the rule property consists of the `ktlint_` prefix followed by the rule set id followed by a `_` and the rule id. Examples:
+Rules that are marked as experimental will not be run, unless explicitly enabled:
 ```editorconfig
-ktlint_standard_final-newline = disabled # Disables the `final-newline` rule in the `standard` rule set provided by KtLint
-ktlint_experimental_type-argument-list-spacing = enabled # Enables the `type-argument-list-spacing` rule in the `experimental` rule set provided by KtLint
+ktlint_experimental = enabled # # Enable rules marked as experimental for all rule sets that are enabled
+```
+
+An individual rule can be enabled or disabled with a rule property. The name of the rule property consists of the `ktlint_` prefix followed by the rule set id followed by a `_` and the rule id. Examples:
+```editorconfig
+ktlint_standard_final-newline = disabled # Disables the `final-newline` rule provided by KtLint
+ktlint_standard_some-experimental-rule = enabled # Enables the (experimental) `some-experimental-rule` in the `standard` rule set provided by KtLint
 ktlint_custom-rule-set_custom-rule = disabled # Disables the `custom-rule` rule in the `custom-rule-set` rule set (not provided by KtLint)
 ```
 
@@ -69,7 +70,7 @@ By default, the number of parameters in a function signature is not relevant whe
 ktlint_function_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than= -1
 ```
 
-This setting only takes effect when rule `experimental:function-signature` is enabled.
+This setting only takes effect when rule `function-signature` is enabled.
 
 ## Wrapping the expression body of a function
 
@@ -131,7 +132,7 @@ fun functionWithAVeryLongName(
         .uppercase()
 ```
 
-This setting only takes effect when rule `experimental:function-signature` is enabled.
+This setting only takes effect when rule `function-signature` is enabled.
 
 ## Ignore identifiers enclosed in backticks
 

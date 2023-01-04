@@ -29,7 +29,7 @@ $ ktlint -R build/libs/ktlint-ruleset-template.jar --log-level=debug --relative 
 18:13:21.242 [main] DEBUG com.pinterest.ktlint.Main - Discovered reporter with "plain" id.
 18:13:21.242 [main] DEBUG com.pinterest.ktlint.Main - Discovered reporter with "sarif" id.
 18:13:21.242 [main] DEBUG com.pinterest.ktlint.Main - Initializing "plain" reporter with {verbose=false, color=false, color_name=DARK_GRAY}
-[DEBUG] Rule with id 'standard:max-line-length' should run after the rule with id 'experimental:trailing-comma'. However, the latter rule is not loaded and is allowed to be ignored. For best results, it is advised load the rule.
+[DEBUG] Rule with id 'standard:max-line-length' should run after the rule with id 'trailing-comma'. However, the latter rule is not loaded and is allowed to be ignored. For best results, it is advised load the rule.
 [DEBUG] Rules will be executed in order below (unless disabled):
            - standard:filename, 
            - standard:final-newline, 

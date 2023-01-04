@@ -1,17 +1,16 @@
-New rules will be added into the [experimental ruleset](https://github.com/pinterest/ktlint/tree/master/ktlint-ruleset-experimental), which can be enabled
-by passing the `--experimental` flag to `ktlint`.
+Experimental rules in ktlint are part of the [standard ruleset](https://github.com/pinterest/ktlint/tree/master/ktlint-ruleset-standard). Enabling `.editorconfig` property `ktlint_experimental` to enable all experimental rules. Or, enable a specific experimental rule by setting `.editorconfig` property `ktlint_<rule-id>` where `<rule-id>` is replaced with the id of the rule.
 
 ## Block comment initial star alignment
 
 Lines in a block comment which (exclusive the indentation) start with a `*` should have this `*` aligned with the `*` in the opening of the block comment.
 
-Rule id: `experimental:block-comment-initial-star-alignment`
+Rule id: `block-comment-initial-star-alignment`
 
 ## Discouraged comment location
 
 Detect discouraged comment locations (no autocorrect).
 
-Rule id: `experimental:discouraged-comment-location`
+Rule id: `discouraged-comment-location`
 
 ## Unnecessary parenthesis before trailing lambda
 
@@ -29,7 +28,7 @@ An empty parentheses block before a lambda is redundant.
     "some-string".count() { it == '-' }
     ```
 
-Rule id: `experimental:unnecessary-parentheses-before-trailing-lambda`
+Rule id: `unnecessary-parentheses-before-trailing-lambda`
 
 ## Function signature
 
@@ -57,7 +56,7 @@ Enforce naming of class.
 
 This rule can also be suppressed with the IntelliJ IDEA inspection suppression `ClassName`.
 
-Rule id: `experimental:class-naming`
+Rule id: `class-naming`
 
 ### Function naming
 
@@ -68,7 +67,7 @@ Enforce naming of function.
 
 This rule can also be suppressed with the IntelliJ IDEA inspection suppression `FunctionName`.
 
-Rule id: `experimental:function-naming`
+Rule id: `function-naming`
 
 ### Package naming
 
@@ -76,7 +75,7 @@ Enforce naming of package.
 
 This rule can also be suppressed with the IntelliJ IDEA inspection suppression `PackageName`.
 
-Rule id: `experimental:package-naming`
+Rule id: `package-naming`
 
 ### Property naming
 
@@ -84,7 +83,7 @@ Enforce naming of property.
 
 This rule can also be suppressed with the IntelliJ IDEA inspection suppression `PropertyName`.
 
-Rule id: `experimental:property-naming`
+Rule id: `property-naming`
 
 ## Spacing
 
@@ -92,61 +91,61 @@ Rule id: `experimental:property-naming`
 
 Consistent spacing after the fun keyword.
 
-Rule id: `experimental:fun-keyword-spacing`
+Rule id: `fun-keyword-spacing`
 
 ### Function return type spacing
 
 Consistent spacing around the function return type.
 
-Rule id: `experimental:function-return-type-spacing`
+Rule id: `function-return-type-spacing`
 
 ### Function start of body spacing
 
 Consistent spacing before start of function body.
 
-Rule id: `experimental:function-start-of-body-spacing`:
+Rule id: `function-start-of-body-spacing`:
 
 ### Function type reference spacing
 
 Consistent spacing in the type reference before a function.
 
-Rule id: `experimental:function-type-reference-spacing`
+Rule id: `function-type-reference-spacing`
 
 ### Modifier list spacing
 
 Consistent spacing between modifiers in and after the last modifier in a modifier list.
 
-Rule id: `experimental:modifier-list-spacing`
+Rule id: `modifier-list-spacing`
 
 ### Nullable type spacing
 
 No spaces in a nullable type.
 
-Rule id: `experimental:nullable-type-spacing`
+Rule id: `nullable-type-spacing`
 
 ### Parameter list spacing
 
 Consistent spacing inside the parameter list.
 
-Rule id: `experimental:parameter-list-spacing`
+Rule id: `parameter-list-spacing`
 
 ### Spacing between function name and opening parenthesis
 
 Consistent spacing between function name and opening parenthesis.
 
-Rule id: `experimental:spacing-between-function-name-and-opening-parenthesis`
+Rule id: `spacing-between-function-name-and-opening-parenthesis`
 
 ### Type argument list spacing
 
 Spacing before and after the angle brackets of a type argument list.
 
-Rule id: `experimental:type-argument-list-spacing`
+Rule id: `type-argument-list-spacing`
 
 ### Type parameter list spacing
 
 Spacing after a type parameter list in function and class declarations.
 
-Rule id: `experimental:type-parameter-list-spacing`
+Rule id: `type-parameter-list-spacing`
 
 ## Wrapping
 
@@ -154,7 +153,7 @@ Rule id: `experimental:type-parameter-list-spacing`
 
 A block comment should start and end on a line that does not contain any other element. A block comment should not be used as end of line comment.
 
-Rule id: `experimental:comment-wrapping`
+Rule id: `comment-wrapping`
 
 ### Content receiver wrapping
 
@@ -208,10 +207,10 @@ Wraps the content receiver list to a separate line regardless of maximum line le
     fun fooBar()
     ```
 
-Rule id: `experimental:context-receiver-wrapping`
+Rule id: `context-receiver-wrapping`
 
 ### Kdoc wrapping
 
 A KDoc comment should start and end on a line that does not contain any other element.
 
-Rule id: `experimental:kdoc-wrapping`
+Rule id: `kdoc-wrapping`

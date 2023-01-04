@@ -5,7 +5,7 @@ import com.pinterest.ktlint.core.Code
 import com.pinterest.ktlint.core.KtLintRuleEngine
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.RuleProvider
-import com.pinterest.ktlint.ruleset.standard.IndentationRule
+import com.pinterest.ktlint.ruleset.standard.rules.IndentationRule
 import java.io.File
 import java.nio.file.Path
 import org.assertj.core.api.Assertions.assertThat

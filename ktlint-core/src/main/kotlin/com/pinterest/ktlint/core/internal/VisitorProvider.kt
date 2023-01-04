@@ -4,6 +4,7 @@ import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.api.editorconfig.DISABLED_RULES_PROPERTY
+import com.pinterest.ktlint.core.api.editorconfig.EXPERIMENTAL_RULES_EXECUTION_PROPERTY
 import com.pinterest.ktlint.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.core.api.editorconfig.KTLINT_DISABLED_RULES_PROPERTY
 import com.pinterest.ktlint.core.api.editorconfig.RULE_EXECUTION_PROPERTY_TYPE
@@ -12,6 +13,7 @@ import com.pinterest.ktlint.core.api.editorconfig.createRuleExecutionEditorConfi
 import com.pinterest.ktlint.core.api.editorconfig.ktLintRuleExecutionPropertyName
 import com.pinterest.ktlint.core.api.editorconfig.ktLintRuleSetExecutionPropertyName
 import com.pinterest.ktlint.core.initKtLintKLogger
+import com.pinterest.ktlint.core.qualifiedRuleId
 import mu.KotlinLogging
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
@@ -35,7 +37,7 @@ internal class VisitorProvider(
         DISABLED_RULES_PROPERTY,
     ).plus(
         ruleRunners.map {
-            createRuleExecutionEditorConfigProperty(toQualifiedRuleId(it.ruleSetId, it.ruleId))
+            createRuleExecutionEditorConfigProperty(it.qualifiedRuleId)
         },
     )
 
@@ -52,7 +54,7 @@ internal class VisitorProvider(
     internal fun visitor(editorConfigProperties: EditorConfigProperties): ((rule: Rule, fqRuleId: String) -> Unit) -> Unit {
         val enabledRuleRunners =
             ruleRunnersSorted
-                .filter { ruleRunner -> isEnabled(editorConfigProperties, ruleRunner.qualifiedRuleId) }
+                .filter { ruleRunner -> ruleRunner.getRule().isEnabled(editorConfigProperties) }
         if (enabledRuleRunners.isEmpty()) {
             LOGGER.debug { "Skipping file as no enabled rules are found to be executed" }
             return { _ -> }
@@ -61,7 +63,7 @@ internal class VisitorProvider(
             ruleRunnersSorted
                 .filter { ruleRunner ->
                     val runAfterRules = ruleRunner.runAfterRules
-                    val runAfterRuleIds = runAfterRules.map { it.ruleId.toQualifiedRuleId() }
+                    val runAfterRuleIds = runAfterRules.map { it.qualifiedRuleId }
                     runAfterRules
                         .any {
                             it.runOnlyWhenOtherRuleIsEnabled &&
@@ -71,10 +73,10 @@ internal class VisitorProvider(
         if (ruleRunnersToBeSkipped.isNotEmpty()) {
             LOGGER.debug {
                 ruleRunnersToBeSkipped
-                    .forEach {
+                    .forEach { ruleRunner ->
                         println(
-                            "Skipping rule with id '${it.qualifiedRuleId}'. This rule has to run after rules with " +
-                                "ids '${it.runAfterRules.joinToString { it.ruleId.toQualifiedRuleId() }}' and will " +
+                            "Skipping rule with id '${ruleRunner.qualifiedRuleId}'. This rule has to run after rules with " +
+                                "ids '${ruleRunner.runAfterRules.joinToString { it.qualifiedRuleId }}' and will " +
                                 "not run in case that rule is disabled.",
                         )
                     }
@@ -92,40 +94,49 @@ internal class VisitorProvider(
         }
     }
 
-    private fun isEnabled(editorConfigProperties: EditorConfigProperties, qualifiedRuleId: String): Boolean =
+    private fun Rule.isEnabled(editorConfigProperties: EditorConfigProperties): Boolean =
         // For backwards compatibility all different properties which affects enabling/disabling of properties have to
         // be checked. Note that properties are checked in order of precedence. If a property of higher precedence has
         // been defined, all properties with lower precedence are ignore entirely.
         when {
             editorConfigProperties.containsKey(ktLintRuleExecutionPropertyName(qualifiedRuleId)) ||
                 editorConfigProperties.containsKey(ktLintRuleSetExecutionPropertyName(qualifiedRuleId)) ->
-                editorConfigProperties.isRuleEnabled(qualifiedRuleId)
+                editorConfigProperties.isRuleEnabled(this)
 
             editorConfigProperties.containsKey(KTLINT_DISABLED_RULES_PROPERTY.name) ->
                 editorConfigProperties.isEnabled(
                     KTLINT_DISABLED_RULES_PROPERTY,
-                    qualifiedRuleId,
+                    this,
                 )
 
             editorConfigProperties.containsKey(DISABLED_RULES_PROPERTY.name) ->
                 editorConfigProperties.isEnabled(
                     DISABLED_RULES_PROPERTY,
-                    qualifiedRuleId,
+                    this,
                 )
 
             else ->
-                ruleSetId(qualifiedRuleId) != "experimental"
+                editorConfigProperties.isRuleEnabled(this)
         }
 
-    private fun EditorConfigProperties.isRuleEnabled(qualifiedRuleId: String) =
-        ruleExecution(ktLintRuleExecutionPropertyName(qualifiedRuleId))
+    private fun EditorConfigProperties.isRuleEnabled(rule: Rule) =
+        ruleExecution(rule.ktLintRuleExecutionPropertyName())
             ?.let { it == RuleExecution.enabled }
-            ?: isRuleSetEnabled(qualifiedRuleId)
+            ?: if (rule is Rule.Experimental) {
+                isExperimentalEnabled(rule)
+            } else {
+                isRuleSetEnabled(rule)
+            }
 
-    private fun EditorConfigProperties.isRuleSetEnabled(qualifiedRuleId: String) =
-        ruleExecution(ktLintRuleSetExecutionPropertyName(qualifiedRuleId))
+    private fun EditorConfigProperties.isExperimentalEnabled(rule: Rule) =
+        ruleExecution(EXPERIMENTAL_RULES_EXECUTION_PROPERTY.name) == RuleExecution.enabled &&
+            ruleExecution(rule.ktLintRuleSetExecutionPropertyName()) != RuleExecution.disabled &&
+            ruleExecution(rule.ktLintRuleExecutionPropertyName()) != RuleExecution.disabled
+
+    private fun EditorConfigProperties.isRuleSetEnabled(rule: Rule) =
+        ruleExecution(rule.ktLintRuleSetExecutionPropertyName())
             .let { ruleSetExecution ->
-                if (ruleSetExecution.name == "ktlint_experimental") {
+                if (ruleSetExecution?.name == "ktlint_experimental") {
                     // Rules in the experimental rule set are only run when enabled explicitly.
                     ruleSetExecution == RuleExecution.enabled
                 } else {
@@ -142,13 +153,16 @@ internal class VisitorProvider(
 
     private fun EditorConfigProperties.isEnabled(
         disabledRulesProperty: EditorConfigProperty<String>,
-        qualifiedRuleId: String,
+        rule: Rule,
     ) =
         this
             .getEditorConfigValue(disabledRulesProperty)
+            // When IntelliJ IDEA is reformatting the ".editorconfig" file it sometimes adds a space after the comma in a
+            // comma-separate-list which should not be a part of the ruleId
+            .replace(" ", "")
             .split(",")
             .none {
                 // The rule set id in the disabled_rules setting may be omitted for rules in the standard rule set
-                it.toQualifiedRuleId() == qualifiedRuleId
+                it.qualifiedRuleId() == rule.qualifiedRuleId
             }
 }

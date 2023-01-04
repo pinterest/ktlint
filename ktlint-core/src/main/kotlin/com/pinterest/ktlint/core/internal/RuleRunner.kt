@@ -8,7 +8,7 @@ import com.pinterest.ktlint.core.RuleProvider
 internal class RuleRunner(private val provider: RuleProvider) {
     private var rule = provider.createNewRuleInstance()
 
-    val qualifiedRuleId = rule.toQualifiedRuleId()
+    val qualifiedRuleId = rule.qualifiedRuleId
     val shortenedQualifiedRuleId = qualifiedRuleId.removePrefix("standard:")
 
     val ruleId = rule.id
@@ -32,10 +32,8 @@ internal class RuleRunner(private val provider: RuleProvider) {
         rule
             .visitorModifiers
             .filterIsInstance<RunAfterRule>()
-            .map {
-                val runAfterRuleVisitorModifier = it as RunAfterRule
-                val qualifiedAfterRuleId = runAfterRuleVisitorModifier.ruleId.toQualifiedRuleId()
-                check(qualifiedRuleId != qualifiedAfterRuleId) {
+            .map { runAfterRuleVisitorModifier ->
+                check(qualifiedRuleId != runAfterRuleVisitorModifier.qualifiedRuleId) {
                     // Do not print the fully qualified rule id in the error message as it might not appear in the code
                     // in case it is a rule from the 'standard' rule set.
                     "Rule with id '${rule.id}' has a visitor modifier of type '${RunAfterRule::class.simpleName}' " +
@@ -43,7 +41,7 @@ internal class RuleRunner(private val provider: RuleProvider) {
                         "itself. This should be fixed by the maintainer of the rule."
                 }
                 runAfterRuleVisitorModifier.copy(
-                    ruleId = qualifiedAfterRuleId,
+                    ruleId = runAfterRuleVisitorModifier.qualifiedRuleId,
                 )
             }
 
