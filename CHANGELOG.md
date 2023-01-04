@@ -49,6 +49,7 @@ Code style `android` has been renamed to `android_studio`. Code formatted with t
 * Do not add the first line of a multiline body expression on the same line as the function signature in case function body expression wrapping property is set to `multiline`. `function-signature`. 
 * Disable the `standard:filename` rule whenever Ktlint CLI is run with option `--stdin` ([#1742](https://github.com/pinterest/ktlint/issues/1742))
 * The parameters of a function literal containing a multiline parameter list are aligned with first parameter whenever the first parameter is on the same line as the start of that function literal (not allowed in `ktlint_official` code style) `indent` ([#1756](https://github.com/pinterest/ktlint/issues/1756)).
+* Fix continuation indent for a dot qualified array access expression in `ktlint_official` code style only `indent`  ([#1740](https://github.com/pinterest/ktlint/issues/1540)).
 
 ### Changed
 * Wrap the parameters of a function literal containing a multiline parameter list (only in `ktlint_official` code style) `parameter-list-wrapping` ([#1681](https://github.com/pinterest/ktlint/issues/1681)).
