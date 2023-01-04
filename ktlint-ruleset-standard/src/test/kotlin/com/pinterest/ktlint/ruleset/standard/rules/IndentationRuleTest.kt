@@ -23,7 +23,7 @@ internal class IndentationRuleTest {
     internal fun setUp() {
         // The system property below can be set to "on" to enable extensive trace logging. Do not commit/push such
         // change to any branch as it pollutes the build output too much!
-        System.setProperty("KTLINT_UNIT_TEST_TRACE", "off")
+        System.setProperty("KTLINT_UNIT_TEST_TRACE", "on") // DO _NOT_ COMMIT
     }
 
     private val indentationRuleAssertThat = assertThatRule { IndentationRule() }
@@ -4794,6 +4794,24 @@ internal class IndentationRuleTest {
                     LintViolation(3, 1, "Unexpected indentation (19) (should be 12)"),
                     LintViolation(4, 1, "Unexpected indentation (19) (should be 12)"),
                 ).isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Issue 1540 - Given a DOT_QUALIFIED_EXPRESSION wrapped inside an ARRAY_ACCESS_EXPRESSION`() {
+            val code =
+                """
+                val fooBar1 = foo
+                    .bar {
+                        "foobar"
+                    }
+                val fooBar2 = foo
+                    .bar[0] {
+                        "foobar"
+                    }
+                """.trimIndent()
+            indentationRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                .hasNoLintViolations()
         }
     }
 

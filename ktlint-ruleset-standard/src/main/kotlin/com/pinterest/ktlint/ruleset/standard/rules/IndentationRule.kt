@@ -14,6 +14,7 @@ import com.pinterest.ktlint.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.core.ast.ElementType.ANNOTATED_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.ANNOTATION
 import com.pinterest.ktlint.core.ast.ElementType.ANNOTATION_ENTRY
+import com.pinterest.ktlint.core.ast.ElementType.ARRAY_ACCESS_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.ARROW
 import com.pinterest.ktlint.core.ast.ElementType.BINARY_EXPRESSION
 import com.pinterest.ktlint.core.ast.ElementType.BINARY_WITH_TYPE
@@ -260,7 +261,21 @@ public class IndentationRule :
             node.elementType == DOT_QUALIFIED_EXPRESSION ||
                 node.elementType == SAFE_ACCESS_EXPRESSION ||
                 node.elementType == USER_TYPE -> {
-                if (node.treeParent?.elementType != node.elementType) {
+                if (codeStyle == ktlint_official &&
+                    node.elementType == DOT_QUALIFIED_EXPRESSION &&
+                    node.treeParent?.elementType == ARRAY_ACCESS_EXPRESSION &&
+                    node.treeParent?.treeParent?.elementType == CALL_EXPRESSION
+                ) {
+                    // Issue 1540: Deviate and fix from incorrect formatting in IntelliJ IDEA formatting and produce following:
+                    // val fooBar2 = foo
+                    //    .bar[0] {
+                    //        "foobar"
+                    //    }
+                    startIndentContext(
+                        fromAstNode = node.treeParent,
+                        toAstNode = node.treeParent.treeParent.lastChildLeafOrSelf(),
+                    )
+                } else if (node.treeParent?.elementType != node.elementType) {
                     startIndentContext(node)
                 }
             }
