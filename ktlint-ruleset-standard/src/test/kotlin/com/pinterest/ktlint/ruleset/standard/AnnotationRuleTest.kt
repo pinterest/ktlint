@@ -548,4 +548,14 @@ class AnnotationRuleTest {
             """.trimIndent()
         annotationRuleAssertThat(code).hasNoLintViolations()
     }
+
+    @Test
+    fun `Given an annotation with multiple annotation entries including with parameters then do not force wrapping of the entries`() {
+        val code =
+            """
+            @[JvmStatic Provides Foo("bar")]
+            fun foo() = 42
+            """.trimIndent()
+        annotationRuleAssertThat(code).hasNoLintViolations()
+    }
 }

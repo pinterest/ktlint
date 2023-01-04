@@ -10,6 +10,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+* Issue with the `annotation` rule which would sometimes incorrectly force an array of annotations to be multi-line
+
 ### Changed
 
 ## [0.48.1] - 2023-01-03

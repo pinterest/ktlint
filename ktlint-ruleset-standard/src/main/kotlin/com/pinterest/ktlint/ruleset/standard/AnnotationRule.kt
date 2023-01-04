@@ -61,26 +61,27 @@ public class AnnotationRule : Rule("annotation") {
     ) {
         require(node.elementType == ANNOTATION_ENTRY)
 
-        if (node.isAnnotationEntryWithValueArgumentList() &&
-            node.treeParent.treeParent.elementType != VALUE_PARAMETER && // fun fn(@Ann("blah") a: String)
-            node.treeParent.treeParent.elementType != VALUE_ARGUMENT && // fn(@Ann("blah") "42")
-            !node.isPartOf(TYPE_ARGUMENT_LIST) && // val property: Map<@Ann("blah") String, Int>
-            node.isNotReceiverTargetAnnotation()
-        ) {
-            checkForAnnotationWithParameterToBePlacedOnSeparateLine(node, emit, autoCorrect)
-        }
+        if (node.treeParent.elementType != ANNOTATION) {
+            if (node.isAnnotationEntryWithValueArgumentList() &&
+                node.treeParent.treeParent.elementType != VALUE_PARAMETER && // fun fn(@Ann("blah") a: String)
+                node.treeParent.treeParent.elementType != VALUE_ARGUMENT && // fn(@Ann("blah") "42")
+                !node.isPartOf(TYPE_ARGUMENT_LIST) && // val property: Map<@Ann("blah") String, Int>
+                node.isNotReceiverTargetAnnotation()
+            ) {
+                checkForAnnotationWithParameterToBePlacedOnSeparateLine(node, emit, autoCorrect)
+            }
 
-        if ((node.isFollowedByOtherAnnotationEntry() && node.isOnSameLineAsNextAnnotationEntry()) ||
-            (node.isPrecededByOtherAnnotationEntry() && node.isOnSameLineAsAnnotatedConstruct())
-        ) {
-            checkForAnnotationToBePlacedOnSeparateLine(node, emit, autoCorrect)
-        }
+            if ((node.isFollowedByOtherAnnotationEntry() && node.isOnSameLineAsNextAnnotationEntry()) ||
+                (node.isPrecededByOtherAnnotationEntry() && node.isOnSameLineAsAnnotatedConstruct())
+            ) {
+                checkForAnnotationToBePlacedOnSeparateLine(node, emit, autoCorrect)
+            }
 
-        if (node.treeParent.elementType != ANNOTATION &&
-            node.isPrecededByOtherAnnotationEntry() &&
-            node.isOnSameLineAsAnnotatedConstruct()
-        ) {
-            checkForMultipleAnnotationsOnSameLineAsAnnotatedConstruct(node, emit, autoCorrect)
+            if (node.isPrecededByOtherAnnotationEntry() &&
+                node.isOnSameLineAsAnnotatedConstruct()
+            ) {
+                checkForMultipleAnnotationsOnSameLineAsAnnotatedConstruct(node, emit, autoCorrect)
+            }
         }
     }
 
