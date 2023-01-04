@@ -52,6 +52,7 @@ class DisabledRulesTest {
                         RuleProvider { NoVarRule(ruleId) },
                     ),
                     editorConfigOverride = EditorConfigOverride.from(DISABLED_RULES_PROPERTY to disabledRuleId),
+                    ignoreEditorConfigOnFileSystem = true,
                 ).lint("var foo") { e -> add(e) }
             },
         ).isEmpty()
@@ -79,6 +80,7 @@ class DisabledRulesTest {
                         RuleProvider { NoVarRule(ruleId) },
                     ),
                     editorConfigOverride = EditorConfigOverride.from(KTLINT_DISABLED_RULES_PROPERTY to disabledRuleId),
+                    ignoreEditorConfigOnFileSystem = true,
                 ).lint("var foo") { e -> add(e) }
             },
         ).isEmpty()

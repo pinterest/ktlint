@@ -56,7 +56,8 @@ public class CommentWrappingRule :
                     //    */ val bar = "bar"
                     emit(
                         node.startOffset,
-                        "A block comment starting on same line as another element and ending on another line before another element is disallowed",
+                        "A block comment starting on same line as another element and ending on another line before another element is " +
+                            "disallowed",
                         false,
                     )
                 } else {
@@ -122,9 +123,7 @@ public class CommentWrappingRule :
         }
     }
 
-    private fun isNonIndentLeafOnSameLine(it: ASTNode) =
-        it.elementType != WHITE_SPACE || !it.textContains('\n')
+    private fun isNonIndentLeafOnSameLine(it: ASTNode) = it.elementType != WHITE_SPACE || !it.textContains('\n')
 
-    private fun ASTNode?.isLastElementOnLine() =
-        this == null || (elementType == WHITE_SPACE && textContains('\n'))
+    private fun ASTNode?.isLastElementOnLine() = this == null || (elementType == WHITE_SPACE && textContains('\n'))
 }

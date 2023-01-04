@@ -1,15 +1,15 @@
 package com.pinterest.ktlint.core.api
 
 import com.pinterest.ktlint.core.LintError
-import java.io.ByteArrayInputStream
-import java.io.InputStream
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import java.io.ByteArrayInputStream
+import java.io.InputStream
 
 class BaselineTest {
     @Test
     fun testParseBaselineFile() {
-        val filename = "TestBaselineFile.kt"
+        val filename = "baseline/TestBaselineFile.kt"
         val errorOne = LintError(
             line = 1,
             col = 1,

@@ -23,23 +23,23 @@ public class EditorConfigOverride {
     public val properties: Map<EditorConfigProperty<*>, PropertyValue<*>>
         get() = _properties.toMap()
 
-    private fun add(property: EditorConfigProperty<*>, value: Any?) =
-        _properties.put(
-            property,
-            if (value is PropertyValue<*>) {
-                value
-            } else {
-                property.type.parse(value?.toString())
-            },
-        )
+    private fun add(
+        property: EditorConfigProperty<*>,
+        value: Any?,
+    ) = _properties.put(
+        property,
+        if (value is PropertyValue<*>) {
+            value
+        } else {
+            property.type.parse(value?.toString())
+        },
+    )
 
     public companion object {
         /**
          * Creates the [EditorConfigOverride] based on one or more property-value mappings.
          */
-        public fun from(
-            vararg properties: Pair<EditorConfigProperty<*>, *>,
-        ): EditorConfigOverride {
+        public fun from(vararg properties: Pair<EditorConfigProperty<*>, *>): EditorConfigOverride {
             require(properties.isNotEmpty()) {
                 "Can not create an EditorConfigOverride without properties. Use 'emptyEditorConfigOverride' instead."
             }
@@ -55,9 +55,7 @@ public class EditorConfigOverride {
          * Creates a copy of [EditorConfigOverride] plus given properties. Given properties overwrite the property in
          * the original [EditorConfigOverride] silently.
          */
-        public fun EditorConfigOverride.plus(
-            vararg properties: Pair<EditorConfigProperty<*>, *>,
-        ): EditorConfigOverride {
+        public fun EditorConfigOverride.plus(vararg properties: Pair<EditorConfigProperty<*>, *>): EditorConfigOverride {
             require(properties.isNotEmpty()) {
                 "Can not add EditorConfigOverride without properties."
             }

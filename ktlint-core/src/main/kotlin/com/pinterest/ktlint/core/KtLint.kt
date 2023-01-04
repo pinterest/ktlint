@@ -23,17 +23,17 @@ import com.pinterest.ktlint.core.internal.RuleExecutionException
 import com.pinterest.ktlint.core.internal.RuleRunner
 import com.pinterest.ktlint.core.internal.ThreadSafeEditorConfigCache.Companion.THREAD_SAFE_EDITOR_CONFIG_CACHE
 import com.pinterest.ktlint.core.internal.VisitorProvider
+import mu.KotlinLogging
+import org.ec4j.core.Resource
+import org.ec4j.core.model.PropertyType
+import org.jetbrains.kotlin.com.intellij.openapi.util.Key
+import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import java.io.File
 import java.nio.charset.StandardCharsets
 import java.nio.file.FileSystems
 import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.io.path.absolutePathString
-import mu.KotlinLogging
-import org.ec4j.core.Resource
-import org.ec4j.core.model.PropertyType
-import org.jetbrains.kotlin.com.intellij.openapi.util.Key
-import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
@@ -237,8 +237,7 @@ public object KtLint {
         message = "Marked for removal in KtLint 0.49",
         replaceWith = ReplaceWith("ktLintRuleEngine.editorConfigFilePaths"),
     )
-    public fun editorConfigFilePaths(path: Path): List<Path> =
-        EditorConfigFinder().findEditorConfigs(path)
+    public fun editorConfigFilePaths(path: Path): List<Path> = EditorConfigFinder().findEditorConfigs(path)
 
     /**
      * Reloads an '.editorconfig' file given that it is currently loaded into the KtLint cache. This method is intended
@@ -275,9 +274,7 @@ public object KtLint {
         message = "Marked for removal in KtLint 0.49.",
         replaceWith = ReplaceWith("ktLintRuleEngine.generateKotlinEditorConfigSection(path)"),
     )
-    public fun generateKotlinEditorConfigSection(
-        params: ExperimentalParams,
-    ): String {
+    public fun generateKotlinEditorConfigSection(params: ExperimentalParams): String {
         val filePath = params.normalizedFilePath
         requireNotNull(filePath) {
             "Please pass path to existing Kotlin file"
@@ -367,6 +364,13 @@ public class KtLintRuleEngine(
      * Compiler initialization. This property is likely to be removed in any of next versions without further notice.
      */
     public val isInvokedFromCli: Boolean = false,
+
+    /**
+     * **For internal use only**: indicates that the '.editorconfig' on the file system has to be ignored. This primarily is used to prevent
+     * that code snippets in unit test are linted/formatted based on values in the '.editorconfig' which might interfere with the actual
+     * set up of the test. This property can be removed in any of next versions without further notice and without providing a fallback.
+     */
+    internal val ignoreEditorConfigOnFileSystem: Boolean = false,
 ) {
     init {
         require(ruleProviders.any()) {
@@ -427,6 +431,8 @@ public class KtLintRuleEngine(
         code: Code,
         callback: (LintError) -> Unit = { },
     ) {
+        LOGGER.debug { "Starting with linting file '${code.fileName}'" }
+
         val ruleExecutionContext = createRuleExecutionContext(this, code)
         val errors = mutableListOf<LintError>()
 
@@ -447,7 +453,7 @@ public class KtLintRuleEngine(
             .sortedWith { l, r -> if (l.line != r.line) l.line - r.line else l.col - r.col }
             .forEach { e -> callback(e) }
 
-        LOGGER.debug("Finished with linting file '${code.fileName}'")
+        LOGGER.debug { "Finished with linting file '${code.fileName}'" }
     }
 
     /**
@@ -498,6 +504,8 @@ public class KtLintRuleEngine(
         code: Code,
         callback: (LintError, Boolean) -> Unit = { _, _ -> },
     ): String {
+        LOGGER.debug { "Starting with formatting file '${code.fileName}'" }
+
         val hasUTF8BOM = code.content.startsWith(UTF8_BOM)
         val ruleExecutionContext = createRuleExecutionContext(this, code)
 
@@ -644,8 +652,7 @@ public class KtLintRuleEngine(
      * To avoid unnecessary access to the file system, it is best to call this method only once for the root of the
      * project which is to be [lint] or [format].
      */
-    public fun editorConfigFilePaths(path: Path): List<Path> =
-        EditorConfigFinder().findEditorConfigs(path)
+    public fun editorConfigFilePaths(path: Path): List<Path> = EditorConfigFinder().findEditorConfigs(path)
 
     /**
      * Reloads an '.editorconfig' file given that it is currently loaded into the KtLint cache. This method is intended

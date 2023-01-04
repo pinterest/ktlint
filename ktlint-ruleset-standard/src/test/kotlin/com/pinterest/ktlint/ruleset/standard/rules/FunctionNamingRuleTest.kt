@@ -40,7 +40,11 @@ class FunctionNamingRuleTest {
                 fun `Some name`() {}
                 """.trimIndent()
             functionNamingRuleAssertThat(code)
-                .hasLintViolationWithoutAutoCorrect(1, 5, "Function name should start with a lowercase letter (except factory methods) and use camel case")
+                .hasLintViolationWithoutAutoCorrect(
+                    1,
+                    5,
+                    "Function name should start with a lowercase letter (except factory methods) and use camel case",
+                )
         }
 
         @ParameterizedTest(name = "Junit import: {0}")
@@ -52,9 +56,7 @@ class FunctionNamingRuleTest {
                 "org.junit.*",
             ],
         )
-        fun `Given file which imports a class from the JUnit Jupiter then do not emit`(
-            import: String,
-        ) {
+        fun `Given file which imports a class from the JUnit Jupiter then do not emit`(import: String) {
             val code =
                 """
                 import $import
@@ -77,7 +79,11 @@ class FunctionNamingRuleTest {
                 fun do_something() {}
                 """.trimIndent()
             functionNamingRuleAssertThat(code)
-                .hasLintViolationWithoutAutoCorrect(1, 5, "Function name should start with a lowercase letter (except factory methods) and use camel case")
+                .hasLintViolationWithoutAutoCorrect(
+                    1,
+                    5,
+                    "Function name should start with a lowercase letter (except factory methods) and use camel case",
+                )
         }
 
         @ParameterizedTest(name = "Junit import: {0}")
@@ -91,9 +97,7 @@ class FunctionNamingRuleTest {
                 "org.testng.*",
             ],
         )
-        fun `Given file which imports a class from the JUnit Jupiter then do not emit`(
-            import: String,
-        ) {
+        fun `Given file which imports a class from the JUnit Jupiter then do not emit`(import: String) {
             val code =
                 """
                 import $import
@@ -120,7 +124,11 @@ class FunctionNamingRuleTest {
             fun $functionName() = "foo"
             """.trimIndent()
         functionNamingRuleAssertThat(code)
-            .hasLintViolationWithoutAutoCorrect(1, 5, "Function name should start with a lowercase letter (except factory methods) and use camel case")
+            .hasLintViolationWithoutAutoCorrect(
+                1,
+                5,
+                "Function name should start with a lowercase letter (except factory methods) and use camel case",
+            )
     }
 
     @ParameterizedTest(name = "Suppression annotation: {0}")
@@ -130,9 +138,7 @@ class FunctionNamingRuleTest {
             "FunctionName", // IntelliJ IDEA suppression
         ],
     )
-    fun `Given method with a disallowed name which is suppressed`(
-        suppressionName: String,
-    ) {
+    fun `Given method with a disallowed name which is suppressed`(suppressionName: String) {
         val code =
             """
             @Suppress("$suppressionName")

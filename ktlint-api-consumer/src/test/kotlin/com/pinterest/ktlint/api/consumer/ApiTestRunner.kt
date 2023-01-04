@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.api.consumer
 
 import com.pinterest.ktlint.core.initKtLintKLogger
+import mu.KotlinLogging
 import java.nio.file.FileVisitResult
 import java.nio.file.Files
 import java.nio.file.Path
@@ -10,7 +11,6 @@ import kotlin.io.path.Path
 import kotlin.io.path.copyTo
 import kotlin.io.path.createDirectories
 import kotlin.io.path.relativeToOrSelf
-import mu.KotlinLogging
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 

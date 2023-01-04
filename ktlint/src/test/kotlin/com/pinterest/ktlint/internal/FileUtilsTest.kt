@@ -3,9 +3,6 @@ package com.pinterest.ktlint.internal
 import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
 import com.pinterest.ktlint.core.initKtLintKLogger
-import java.nio.file.FileSystem
-import java.nio.file.Files
-import java.nio.file.Path
 import mu.KotlinLogging
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
@@ -16,6 +13,9 @@ import org.junit.jupiter.api.condition.EnabledOnOs
 import org.junit.jupiter.api.condition.OS
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
+import java.nio.file.FileSystem
+import java.nio.file.Files
+import java.nio.file.Path
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
@@ -337,9 +337,7 @@ internal class FileUtilsTest {
             "src/main/k*/../kotlin/One.kt",
         ],
     )
-    fun `On non-WindowsOS, a pattern containing a wildcard may followed by a double-dot (parent directory) reference`(
-        pattern: String,
-    ) {
+    fun `On non-WindowsOS, a pattern containing a wildcard may followed by a double-dot (parent directory) reference`(pattern: String) {
         val foundFiles = getFiles(
             patterns = listOf(pattern),
             rootDir = tempFileSystem.getPath("${rootDir}project1".normalizePath()),
@@ -357,9 +355,7 @@ internal class FileUtilsTest {
             "src/main/k*/../kotlin/One.kt",
         ],
     )
-    fun `On WindowsOS, a pattern containing a wildcard may followed by a double-dot (parent directory) reference`(
-        pattern: String,
-    ) {
+    fun `On WindowsOS, a pattern containing a wildcard may followed by a double-dot (parent directory) reference`(pattern: String) {
         val foundFiles = getFiles(
             patterns = listOf(
                 pattern,
@@ -383,13 +379,14 @@ internal class FileUtilsTest {
     private fun getFiles(
         patterns: List<String> = emptyList(),
         rootDir: Path = tempFileSystem.rootDirectories.first(),
-    ): List<String> = tempFileSystem
-        .fileSequence(patterns, rootDir)
-        .map { it.normalize().toString() }
-        .toList()
-        .also {
-            LOGGER.info {
-                "Getting files with [patterns = $patterns] and [rootdir = $rootDir] returns [files = $it]"
+    ): List<String> =
+        tempFileSystem
+            .fileSequence(patterns, rootDir)
+            .map { it.normalize().toString() }
+            .toList()
+            .also {
+                LOGGER.info {
+                    "Getting files with [patterns = $patterns] and [rootdir = $rootDir] returns [files = $it]"
+                }
             }
-        }
 }

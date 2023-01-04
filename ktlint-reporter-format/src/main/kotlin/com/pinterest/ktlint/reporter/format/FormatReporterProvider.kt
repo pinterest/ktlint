@@ -6,7 +6,10 @@ import java.io.PrintStream
 public class FormatReporterProvider : ReporterProvider<FormatReporter> {
     override val id: String = "format"
 
-    override fun get(out: PrintStream, opt: Map<String, String>): FormatReporter =
+    override fun get(
+        out: PrintStream,
+        opt: Map<String, String>,
+    ): FormatReporter =
         FormatReporter(
             out,
             format = opt

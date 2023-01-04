@@ -15,7 +15,11 @@ public class FormatReporter(
     private val countAutoCorrectPossibleOrDone = ConcurrentHashMap<String, Int>()
     private val countCanNotBeAutoCorrected = ConcurrentHashMap<String, Int>()
 
-    override fun onLintError(file: String, err: LintError, corrected: Boolean) {
+    override fun onLintError(
+        file: String,
+        err: LintError,
+        corrected: Boolean,
+    ) {
         // Do not report the individual errors, but count only
         if (err.canBeAutoCorrected || corrected) {
             countAutoCorrectPossibleOrDone.putIfAbsent(file, 0)
@@ -60,9 +64,7 @@ public class FormatReporter(
         return fileName.substring(0, fileName.length - name.length).colored() + name
     }
 
-    private fun String.colored() =
-        if (shouldColorOutput) this.color(outputColor) else this
+    private fun String.colored() = if (shouldColorOutput) this.color(outputColor) else this
 }
 
-internal fun String.color(foreground: Color): String =
-    "\u001B[${foreground.code}m$this\u001B[0m"
+internal fun String.color(foreground: Color): String = "\u001B[${foreground.code}m$this\u001B[0m"

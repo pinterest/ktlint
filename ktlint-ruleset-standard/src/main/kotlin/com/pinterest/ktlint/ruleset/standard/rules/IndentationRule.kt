@@ -97,8 +97,6 @@ import com.pinterest.ktlint.core.ast.prevCodeLeaf
 import com.pinterest.ktlint.core.ast.prevLeaf
 import com.pinterest.ktlint.core.ast.prevSibling
 import com.pinterest.ktlint.core.initKtLintKLogger
-import java.util.Deque
-import java.util.LinkedList
 import mu.KotlinLogging
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
@@ -106,6 +104,8 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.psi.KtStringTemplateExpression
 import org.jetbrains.kotlin.psi.psiUtil.leaves
 import org.jetbrains.kotlin.psi.psiUtil.parents
+import java.util.Deque
+import java.util.LinkedList
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
@@ -753,7 +753,8 @@ public class IndentationRule :
             LOGGER.trace {
                 val nodeIndentLevel = indentConfig.indentLevelFrom(newIndentContext.nodeIndent)
                 val childIndentLevel = indentConfig.indentLevelFrom(newIndentContext.childIndent)
-                "Create new indent context (same as parent) with level ($nodeIndentLevel, $childIndentLevel) for ${fromAstNode.elementType}: ${newIndentContext.nodes}"
+                "Create new indent context (same as parent) with level ($nodeIndentLevel, $childIndentLevel) for " +
+                    "${fromAstNode.elementType}: ${newIndentContext.nodes}"
             }
             indentContextStack.addLast(newIndentContext)
         }
@@ -768,7 +769,8 @@ public class IndentationRule :
                 val indentContext = indentContextStack.peekLast()
                 val nodeIndentLevel = indentConfig.indentLevelFrom(indentContext.nodeIndent)
                 val childIndentLevel = indentConfig.indentLevelFrom(indentContext.childIndent)
-                "Remove indent context with level ($nodeIndentLevel, $childIndentLevel) for ${indentContext.fromASTNode.elementType}: ${indentContext.nodes}"
+                "Remove indent context with level ($nodeIndentLevel, $childIndentLevel) for ${indentContext.fromASTNode.elementType}: " +
+                    "${indentContext.nodes}"
             }
             indentContextStack
                 .removeLast()
@@ -777,7 +779,8 @@ public class IndentationRule :
                         val indentContext = indentContextStack.peekLast()
                         val nodeIndentLevel = indentConfig.indentLevelFrom(indentContext.nodeIndent)
                         val childIndentLevel = indentConfig.indentLevelFrom(indentContext.childIndent)
-                        "Last indent context with level ($nodeIndentLevel, $childIndentLevel) for ${indentContext.fromASTNode.elementType}: ${indentContext.nodes}"
+                        "Last indent context with level ($nodeIndentLevel, $childIndentLevel) for " +
+                            "${indentContext.fromASTNode.elementType}: ${indentContext.nodes}"
                     }
                 }
         }
@@ -815,7 +818,8 @@ public class IndentationRule :
                 // been emitted.
             }
             LOGGER.trace {
-                "Line $line: " + (if (!autoCorrect) "would have " else "") + "changed indentation to ${expectedIndentation.length} (from ${normalizedNodeIndent.length}) for ${node.elementType}: ${node.textWithEscapedTabAndNewline()}"
+                "Line $line: " + (if (!autoCorrect) "would have " else "") + "changed indentation to ${expectedIndentation.length} " +
+                    "(from ${normalizedNodeIndent.length}) for ${node.elementType}: ${node.textWithEscapedTabAndNewline()}"
             }
             if (autoCorrect) {
                 (node as LeafPsiElement).rawReplaceWithText(
@@ -851,8 +855,7 @@ public class IndentationRule :
         return false
     }
 
-    private fun ASTNode?.isStartOfRawStringLiteral(): Boolean =
-        this != null && this.elementType == OPEN_QUOTE && this.text == "\"\"\""
+    private fun ASTNode?.isStartOfRawStringLiteral(): Boolean = this != null && this.elementType == OPEN_QUOTE && this.text == "\"\"\""
 
     private fun ASTNode.processedButNoIndentationChangedNeeded() =
         LOGGER.trace { "No indentation change required for $elementType: ${textWithEscapedTabAndNewline()}" }
@@ -875,9 +878,7 @@ public class IndentationRule :
         return lastIndexContext.nodeIndent + adjustedChildIndent
     }
 
-    private fun ASTNode.normalizedIndent(
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-    ): String {
+    private fun ASTNode.normalizedIndent(emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit): String {
         val nodeIndent = text.substringAfterLast("\n")
         return when (indentConfig.indentStyle) {
             SPACE -> {
@@ -1028,13 +1029,11 @@ public class IndentationRule :
                 nodeIndent
             }
 
-        fun prevCodeLeaf() =
-            fromASTNode.prevCodeLeaf()!!
+        fun prevCodeLeaf() = fromASTNode.prevCodeLeaf()!!
     }
 }
 
-private fun ASTNode.textWithEscapedTabAndNewline() =
-    text.textWithEscapedTabAndNewline()
+private fun ASTNode.textWithEscapedTabAndNewline() = text.textWithEscapedTabAndNewline()
 
 private fun String.textWithEscapedTabAndNewline(): String {
     val (prefix, suffix) = if (this.all { it.isWhitespace() }) {
@@ -1106,7 +1105,8 @@ private class StringTemplateIndenter(private val indentConfig: IndentConfig) {
                                     indentConfig.indexOfFirstUnexpectedIndentChar(actualIndent)
                                 emit(
                                     it.startOffset + offsetFirstWrongIndentChar,
-                                    "Unexpected '${indentConfig.unexpectedIndentCharDescription}' character(s) in margin of multiline string",
+                                    "Unexpected '${indentConfig.unexpectedIndentCharDescription}' character(s) in margin of multiline " +
+                                        "string",
                                     true,
                                 )
                                 if (autoCorrect) {
@@ -1204,17 +1204,14 @@ private class StringTemplateIndenter(private val indentConfig: IndentConfig) {
     private fun ASTNode.isIndentBeforeClosingQuote() =
         elementType == CLOSING_QUOTE || (text.isBlank() && nextCodeSibling()?.elementType == CLOSING_QUOTE)
 
-    private fun ASTNode.isLiteralStringTemplateEntry() =
-        elementType == LITERAL_STRING_TEMPLATE_ENTRY && text != "\n"
+    private fun ASTNode.isLiteralStringTemplateEntry() = elementType == LITERAL_STRING_TEMPLATE_ENTRY && text != "\n"
 
     private fun ASTNode.isVariableStringTemplateEntry() =
         elementType == LONG_STRING_TEMPLATE_ENTRY || elementType == SHORT_STRING_TEMPLATE_ENTRY
 
-    private fun ASTNode.isClosingQuote() =
-        elementType == CLOSING_QUOTE
+    private fun ASTNode.isClosingQuote() = elementType == CLOSING_QUOTE
 
-    private fun String.indentLength() =
-        indexOfFirst { !it.isWhitespace() }.let { if (it == -1) length else it }
+    private fun String.indentLength() = indexOfFirst { !it.isWhitespace() }.let { if (it == -1) length else it }
 
     /**
      * Splits the string at the given index or at the first non-white space character before that index. The returned pair
@@ -1255,6 +1252,5 @@ private class StringTemplateIndenter(private val indentConfig: IndentConfig) {
         return node != this
     }
 
-    private fun String.isWhitespace() =
-        none { !it.isWhitespace() }
+    private fun String.isWhitespace() = none { !it.isWhitespace() }
 }

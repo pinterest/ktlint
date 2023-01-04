@@ -83,9 +83,7 @@ class ClassNamingRuleTest {
                 "ClassName", // IntelliJ IDEA suppression
             ],
         )
-        fun `Given class with a disallowed name which is suppressed`(
-            suppressionName: String,
-        ) {
+        fun `Given class with a disallowed name which is suppressed`(suppressionName: String) {
             val code =
                 """
                 @Suppress("$suppressionName")
@@ -129,9 +127,7 @@ class ClassNamingRuleTest {
                 "ClassName", // IntelliJ IDEA suppression
             ],
         )
-        fun `Given object with a disallowed name which is suppressed`(
-            suppressionName: String,
-        ) {
+        fun `Given object with a disallowed name which is suppressed`(suppressionName: String) {
             val code =
                 """
                 @Suppress("$suppressionName")

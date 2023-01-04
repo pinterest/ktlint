@@ -38,13 +38,10 @@ class ImportOrderingRuleIdeaTest {
             import android.content.Context as Ctx
             import androidx.fragment.app.Fragment as F
             """.trimIndent()
+        @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
         importOrderingRuleAssertThat(code)
             .withEditorConfigOverride(IDEA_DEFAULT_IMPORT_ORDERING)
-            .hasLintViolation(
-                1,
-                1,
-                "Imports must be ordered in lexicographic order without any empty lines in-between with \"java\", \"javax\", \"kotlin\" and aliases in the end",
-            )
+            .hasLintViolation(1, 1, "Imports must be ordered in lexicographic order without any empty lines in-between with \"java\", \"javax\", \"kotlin\" and aliases in the end")
             .isFormattedAs(formattedCode)
     }
 
@@ -112,13 +109,10 @@ class ImportOrderingRuleIdeaTest {
             import android.view.ViewGroup
             import java.util.List
             """.trimIndent()
+        @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
         importOrderingRuleAssertThat(code)
             .withEditorConfigOverride(IDEA_DEFAULT_IMPORT_ORDERING)
-            .hasLintViolation(
-                1,
-                1,
-                "Imports must be ordered in lexicographic order without any empty lines in-between with \"java\", \"javax\", \"kotlin\" and aliases in the end",
-            )
+            .hasLintViolation(1, 1, "Imports must be ordered in lexicographic order without any empty lines in-between with \"java\", \"javax\", \"kotlin\" and aliases in the end")
             .isFormattedAs(formattedCode)
     }
 
@@ -152,13 +146,10 @@ class ImportOrderingRuleIdeaTest {
             import android.content.Context as Ctx
             import androidx.fragment.app.Fragment as F // comment 3
             """.trimIndent()
+        @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
         importOrderingRuleAssertThat(code)
             .withEditorConfigOverride(IDEA_DEFAULT_IMPORT_ORDERING)
-            .hasLintViolation(
-                1,
-                1,
-                "Imports must be ordered in lexicographic order without any empty lines in-between with \"java\", \"javax\", \"kotlin\" and aliases in the end",
-            )
+            .hasLintViolation(1, 1, "Imports must be ordered in lexicographic order without any empty lines in-between with \"java\", \"javax\", \"kotlin\" and aliases in the end")
             .isFormattedAs(formattedCode)
     }
 

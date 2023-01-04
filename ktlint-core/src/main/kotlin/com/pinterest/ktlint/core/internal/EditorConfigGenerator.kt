@@ -8,9 +8,9 @@ import com.pinterest.ktlint.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.core.api.editorconfig.DEFAULT_EDITOR_CONFIG_PROPERTIES
 import com.pinterest.ktlint.core.initKtLintKLogger
-import java.nio.file.Path
 import mu.KotlinLogging
 import org.ec4j.core.model.Property
+import java.nio.file.Path
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
@@ -116,12 +116,12 @@ internal class EditorConfigGenerator(
             .forEach {
                 LOGGER.error {
                     val usages = it.value.joinToString { it.usage }.toList().sorted()
-                    "Property '${it.key}' has multiple usages ($usages) which defines different default values for the property. Check the resulting '.editorcconfig' file carefully."
+                    "Property '${it.key}' has multiple usages ($usages) which defines different default values for the property. Check " +
+                        "the resulting '.editorconfig' file carefully."
                 }
             }
 
-    private fun List<ConfigurationSetting>.countDistinctValues() =
-        map { it.value }.distinct().size
+    private fun List<ConfigurationSetting>.countDistinctValues() = map { it.value }.distinct().size
 
     private data class ConfigurationSetting(
         val key: String,

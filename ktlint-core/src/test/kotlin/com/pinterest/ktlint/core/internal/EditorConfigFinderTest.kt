@@ -1,14 +1,14 @@
 package com.pinterest.ktlint.core.internal
 
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.writeText
-import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Nested
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.io.TempDir
 
 class EditorConfigFinderTest {
     @Nested
@@ -146,7 +146,10 @@ class EditorConfigFinderTest {
         }
     }
 
-    private fun Path.createFile(fileName: String, content: String): Path {
+    private fun Path.createFile(
+        fileName: String,
+        content: String,
+    ): Path {
         val dirPath = fileName.substringBeforeLast("/", "")
         Files.createDirectories(this.plus(dirPath))
         return Files

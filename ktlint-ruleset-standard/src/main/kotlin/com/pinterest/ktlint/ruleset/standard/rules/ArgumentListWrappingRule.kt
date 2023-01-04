@@ -106,8 +106,7 @@ public class ArgumentListWrappingRule :
             false
         }
 
-    private fun ASTNode.exceedsMaxLineLength() =
-        maxLineLength > -1 && (column - 1 + textLength) > maxLineLength && !textContains('\n')
+    private fun ASTNode.exceedsMaxLineLength() = maxLineLength > -1 && (column - 1 + textLength) > maxLineLength && !textContains('\n')
 
     private fun ASTNode.getNewIndentLevel(): Int {
         val currentIndentLevel = editorConfigIndent.indentLevelFrom(lineIndent())

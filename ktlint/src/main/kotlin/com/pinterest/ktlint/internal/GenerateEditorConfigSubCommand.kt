@@ -3,18 +3,17 @@ package com.pinterest.ktlint.internal
 import com.pinterest.ktlint.core.KtLintRuleEngine
 import com.pinterest.ktlint.core.api.EditorConfigOverride
 import com.pinterest.ktlint.core.api.editorconfig.CODE_STYLE_PROPERTY
-import com.pinterest.ktlint.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.core.initKtLintKLogger
-import java.nio.file.Paths
 import mu.KotlinLogging
 import picocli.CommandLine
+import java.nio.file.Paths
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
 @CommandLine.Command(
     description = [
-        "EXPERIMENTAL!!! Generate kotlin style section for '.editorconfig' file.",
-        "Add output content into '.editorconfig' file",
+        "Generate kotlin style section for '.editorconfig' file.",
+        "Output should be copied manually to the '.editorconfig' file.",
     ],
     mixinStandardHelpOptions = true,
     versionProvider = KtlintVersionProvider::class,
@@ -29,9 +28,14 @@ internal class GenerateEditorConfigSubCommand : Runnable {
     override fun run() {
         commandSpec.commandLine().printCommandLineHelpOrVersionUsage()
 
+        if (ktlintCommand.codeStyle == null) {
+            System.err.println("Option --code-style must be set as to generate the '.editorconfig' correctly")
+            exitKtLintProcess(1)
+        }
+
         val ktLintRuleEngine = KtLintRuleEngine(
             ruleProviders = ktlintCommand.ruleProviders(),
-            editorConfigOverride = EditorConfigOverride.from(CODE_STYLE_PROPERTY to codeStyle()),
+            editorConfigOverride = EditorConfigOverride.from(CODE_STYLE_PROPERTY to ktlintCommand.codeStyle),
             isInvokedFromCli = true,
         )
         val generatedEditorConfig = ktLintRuleEngine.generateKotlinEditorConfigSection(Paths.get("."))
@@ -44,13 +48,6 @@ internal class GenerateEditorConfigSubCommand : Runnable {
             LOGGER.info { "Nothing to add to .editorconfig file" }
         }
     }
-
-    private fun codeStyle() =
-        if (ktlintCommand.android) {
-            CodeStyleValue.android
-        } else {
-            CodeStyleValue.official
-        }
 
     internal companion object {
         internal const val COMMAND_NAME = "generateEditorConfig"

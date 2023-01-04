@@ -25,6 +25,14 @@ import com.pinterest.ktlint.core.api.relativeRoute
 import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ktlint.core.setDefaultLoggerModifier
 import com.pinterest.ktlint.reporter.plain.Color
+import mu.KLogger
+import mu.KotlinLogging
+import org.jetbrains.kotlin.utils.addToStdlib.applyIf
+import picocli.CommandLine
+import picocli.CommandLine.Command
+import picocli.CommandLine.Option
+import picocli.CommandLine.ParameterException
+import picocli.CommandLine.Parameters
 import java.io.File
 import java.io.IOException
 import java.io.PrintStream
@@ -43,14 +51,6 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.concurrent.thread
 import kotlin.system.exitProcess
-import mu.KLogger
-import mu.KotlinLogging
-import org.jetbrains.kotlin.utils.addToStdlib.applyIf
-import picocli.CommandLine
-import picocli.CommandLine.Command
-import picocli.CommandLine.Option
-import picocli.CommandLine.ParameterException
-import picocli.CommandLine.Parameters
 
 private lateinit var logger: KLogger
 
@@ -99,11 +99,25 @@ internal class KtlintCommandLine {
     @CommandLine.Spec
     private lateinit var commandSpec: CommandLine.Model.CommandSpec
 
+    @Deprecated(message = "Marked for removal in KtLint 0.50")
     @Option(
         names = ["--android", "-a"],
         description = ["Turn on Android Kotlin Style Guide compatibility"],
+        hidden = true,
     )
     var android: Boolean = false
+
+    @Option(
+        // Ensure that the code-style can be set on sub commands and is visible in the help documentation
+        scope = CommandLine.ScopeType.INHERIT,
+        names = ["--code-style"],
+        description = [
+            "Defines the code style (ktlint_official, intellij_idea or android_studio) to be used for formatting the code. It is " +
+                "advised to define '.editorconfig' property 'ktlint_code_style'.",
+        ],
+        converter = [CodeStyleValueConverter::class],
+    )
+    var codeStyle: CodeStyleValue? = null
 
     @Option(
         names = ["--color"],
@@ -260,12 +274,14 @@ internal class KtlintCommandLine {
             .toTypedArray()
 
     fun run() {
+        // TODO: Remove in KtLint 0.49
         if (debugOld != null || trace != null || verbose != null) {
             if (minLogLevel == Level.OFF) {
                 minLogLevel = Level.ERROR
             }
             logger.error {
-                "Options '--debug', '--trace', '--verbose' and '-v' are deprecated and replaced with option '--log-level=<level>' or '-l=<level>'."
+                "Options '--debug', '--trace', '--verbose' and '-v' are deprecated and replaced with option '--log-level=<level>' or " +
+                    "'-l=<level>'."
             }
             exitKtLintProcess(1)
         }
@@ -282,10 +298,19 @@ internal class KtlintCommandLine {
                 logger.debug { "Add editor config override to set code style to 'android'" }
                 plus(CODE_STYLE_PROPERTY to CodeStyleValue.android)
             }.applyIf(stdin) {
-                logger.debug { "Add editor config override to disable 'filename' rule which can not be used in combination with reading from <stdin>" }
+                logger.debug {
+                    "Add editor config override to disable 'filename' rule which can not be used in combination with reading from <stdin>"
+                }
                 plus(createRuleExecutionEditorConfigProperty("standard:filename") to RuleExecution.disabled)
             }
 
+        if (android) {
+            logger.error {
+                "Option '--android' / '-a' is deprecated and replaced with option '--code-style=android_studio'. Setting '.editorconfig' " +
+                    "property 'ktlint_code_style=android_studio' might be a better idea for a project that is always to formatted with " +
+                    "this code style."
+            }
+        }
         assertStdinAndPatternsFromStdinOptionsMutuallyExclusive()
 
         val stdinPatterns: Set<String> = readPatternsFromStdin()
@@ -337,7 +362,9 @@ internal class KtlintCommandLine {
         }
         reporter.afterAll()
 
-        logger.debug { "Finished processing in ${System.currentTimeMillis() - start}ms / $fileNumber file(s) scanned / $errorNumber error(s) found" }
+        logger.debug {
+            "Finished processing in ${System.currentTimeMillis() - start}ms / $fileNumber file(s) scanned / $errorNumber error(s) found"
+        }
         if (fileNumber.get() == 0) {
             // Do not return an error as this would implicate that in a multi-module project, each module has to contain
             // at least one kotlin file.
@@ -514,9 +541,7 @@ internal class KtlintCommandLine {
         return Reporter.from(*tpls.map { it.toReporter(reporterProviderById) }.toTypedArray())
     }
 
-    private fun ReporterTemplate.toReporter(
-        reporterProviderById: Map<String, ReporterProvider<*>>,
-    ): Reporter {
+    private fun ReporterTemplate.toReporter(reporterProviderById: Map<String, ReporterProvider<*>>): Reporter {
         val reporterProvider = reporterProviderById[id]
         if (reporterProvider == null) {
             logger.error {
@@ -559,30 +584,31 @@ internal class KtlintCommandLine {
             }
     }
 
-    private fun Exception.toLintError(filename: Any?): LintError = this.let { e ->
-        when (e) {
-            is KtLintParseException ->
-                LintError(
-                    e.line,
-                    e.col,
-                    "",
-                    "Not a valid Kotlin file (${e.message?.lowercase(Locale.getDefault())})",
-                )
-            is KtLintRuleException -> {
-                logger.debug("Internal Error (${e.ruleId}) in file '$filename' at position '${e.line}:${e.col}", e)
-                LintError(
-                    e.line,
-                    e.col,
-                    "",
-                    "Internal Error (rule '${e.ruleId}') in file '$filename' at position '${e.line}:${e.col}. " +
-                        "Please create a ticket at https://github.com/pinterest/ktlint/issues " +
-                        "and provide the source code that triggered an error.\n" +
-                        e.stackTraceToString(),
-                )
+    private fun Exception.toLintError(filename: Any?): LintError =
+        this.let { e ->
+            when (e) {
+                is KtLintParseException ->
+                    LintError(
+                        e.line,
+                        e.col,
+                        "",
+                        "Not a valid Kotlin file (${e.message?.lowercase(Locale.getDefault())})",
+                    )
+                is KtLintRuleException -> {
+                    logger.debug("Internal Error (${e.ruleId}) in file '$filename' at position '${e.line}:${e.col}", e)
+                    LintError(
+                        e.line,
+                        e.col,
+                        "",
+                        "Internal Error (rule '${e.ruleId}') in file '$filename' at position '${e.line}:${e.col}. " +
+                            "Please create a ticket at https://github.com/pinterest/ktlint/issues " +
+                            "and provide the source code that triggered an error.\n" +
+                            e.stackTraceToString(),
+                    )
+                }
+                else -> throw e
             }
-            else -> throw e
         }
-    }
 
     private fun parseQuery(query: String) =
         query.split("&")
@@ -648,7 +674,10 @@ internal class KtlintCommandLine {
                 throw UnsupportedOperationException()
             }
 
-            override fun get(timeout: Long, unit: TimeUnit): T {
+            override fun get(
+                timeout: Long,
+                unit: TimeUnit,
+            ): T {
                 throw UnsupportedOperationException()
             }
 
@@ -689,15 +718,16 @@ internal class KtlintCommandLine {
         }
     }
 
-    private fun loadReporters(externalReportersJarPaths: List<String>) = ServiceLoader
-        .load(
-            ReporterProvider::class.java,
-            URLClassLoader(externalReportersJarPaths.toFilesURIList().toTypedArray()),
-        )
-        .associateBy { it.id }
-        .onEach { entry ->
-            logger.debug { "Discovered reporter with \"${entry.key}\" id." }
-        }
+    private fun loadReporters(externalReportersJarPaths: List<String>) =
+        ServiceLoader
+            .load(
+                ReporterProvider::class.java,
+                URLClassLoader(externalReportersJarPaths.toFilesURIList().toTypedArray()),
+            )
+            .associateBy { it.id }
+            .onEach { entry ->
+                logger.debug { "Discovered reporter with \"${entry.key}\" id." }
+            }
 
     private data class LintErrorWithCorrectionInfo(
         val err: LintError,
@@ -710,6 +740,18 @@ internal class KtlintCommandLine {
         val config: Map<String, String>,
         val output: String?,
     )
+}
+
+private class CodeStyleValueConverter : CommandLine.ITypeConverter<CodeStyleValue> {
+    @Throws(Exception::class)
+    override fun convert(value: String?): CodeStyleValue =
+        when (value?.lowercase()?.replace("-", "_")) {
+            null -> CODE_STYLE_PROPERTY.defaultValue
+            "ktlint_official" -> CodeStyleValue.ktlint_official
+            "android_studio" -> CodeStyleValue.android_studio
+            "intellij_idea" -> CodeStyleValue.intellij_idea
+            else -> throw IllegalArgumentException("Invalid code style value")
+        }
 }
 
 private class LogLevelConverter : CommandLine.ITypeConverter<Level> {

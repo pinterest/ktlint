@@ -1,15 +1,12 @@
 package com.pinterest.ktlint.core.internal
 
 import com.pinterest.ktlint.core.KtLint
-import java.nio.file.Files
-import java.nio.file.Path
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.com.intellij.mock.MockProject
 import org.jetbrains.kotlin.com.intellij.openapi.diagnostic.DefaultLogger
-import org.jetbrains.kotlin.com.intellij.openapi.diagnostic.Logger as DiagnosticLogger
 import org.jetbrains.kotlin.com.intellij.openapi.extensions.ExtensionPoint
 import org.jetbrains.kotlin.com.intellij.openapi.extensions.Extensions.getRootArea
 import org.jetbrains.kotlin.com.intellij.openapi.util.Disposer
@@ -23,6 +20,9 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiFileFactory
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.TreeCopyHandler
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import sun.reflect.ReflectionFactory
+import java.nio.file.Files
+import java.nio.file.Path
+import org.jetbrains.kotlin.com.intellij.openapi.diagnostic.Logger as DiagnosticLogger
 
 internal class KotlinPsiFileFactoryProvider {
     private lateinit var psiFileFactory: PsiFileFactory
@@ -96,12 +96,17 @@ private fun extractCompilerExtension(): Path {
  * Do not print anything to the stderr when lexer is unable to match input.
  */
 private class LoggerFactory : DiagnosticLogger.Factory {
-    override fun getLoggerInstance(
-        p: String,
-    ): DiagnosticLogger = object : DefaultLogger(null) {
-        override fun warn(message: String?, t: Throwable?) {}
-        override fun error(message: String?, vararg details: String?) {}
-    }
+    override fun getLoggerInstance(p: String): DiagnosticLogger =
+        object : DefaultLogger(null) {
+            override fun warn(
+                message: String?,
+                t: Throwable?,
+            ) {}
+            override fun error(
+                message: String?,
+                vararg details: String?,
+            ) {}
+        }
 }
 
 /**
@@ -121,16 +126,12 @@ private fun MockProject.enableASTMutations() {
 
 private class FormatPomModel : UserDataHolderBase(), PomModel {
 
-    override fun runTransaction(
-        transaction: PomTransaction,
-    ) {
+    override fun runTransaction(transaction: PomTransaction) {
         (transaction as PomTransactionBase).run()
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : PomModelAspect> getModelAspect(
-        aspect: Class<T>,
-    ): T? {
+    override fun <T : PomModelAspect> getModelAspect(aspect: Class<T>): T? {
         if (aspect == TreeAspect::class.java) {
             // using approach described in https://git.io/vKQTo due to the magical bytecode of TreeAspect
             // (check constructor signature and compare it to the source)

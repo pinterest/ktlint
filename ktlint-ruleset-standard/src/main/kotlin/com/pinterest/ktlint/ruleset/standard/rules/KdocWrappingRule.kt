@@ -64,7 +64,8 @@ public class KdocWrappingRule :
                     //    */ val bar = "bar"
                     emit(
                         node.startOffset,
-                        "A KDoc comment starting on same line as another element and ending on another line before another element is disallowed",
+                        "A KDoc comment starting on same line as another element and ending on another line before another element is " +
+                            "disallowed",
                         false,
                     )
                 }
@@ -97,6 +98,5 @@ public class KdocWrappingRule :
         }
     }
 
-    private fun isNonIndentLeafOnSameLine(it: ASTNode) =
-        it.elementType != WHITE_SPACE || !it.textContains('\n')
+    private fun isNonIndentLeafOnSameLine(it: ASTNode) = it.elementType != WHITE_SPACE || !it.textContains('\n')
 }

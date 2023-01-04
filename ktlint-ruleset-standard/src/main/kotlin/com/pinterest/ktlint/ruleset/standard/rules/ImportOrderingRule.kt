@@ -158,7 +158,10 @@ public class ImportOrderingRule :
         return autoCorrectDuplicateImports to imports
     }
 
-    private fun importsAreEqual(actual: List<ASTNode>, expected: List<ASTNode>): Boolean {
+    private fun importsAreEqual(
+        actual: List<ASTNode>,
+        expected: List<ASTNode>,
+    ): Boolean {
         if (actual.size != expected.size) return false
 
         val combined = actual.zip(expected)
@@ -214,14 +217,19 @@ public class ImportOrderingRule :
                         "Import layout must contain at least one entry of a wildcard symbol (*)",
                     )
                     value == "idea" -> {
-                        LOGGER.warn { "`idea` is deprecated! Please use `*,java.**,javax.**,kotlin.**,^` instead to ensure that the Kotlin IDE plugin recognizes the value" }
+                        LOGGER.warn {
+                            "`idea` is deprecated! Please use `*,java.**,javax.**,kotlin.**,^` instead to ensure that the Kotlin IDE " +
+                                "plugin recognizes the value"
+                        }
                         PropertyType.PropertyValue.valid(
                             value,
                             IDEA_PATTERN,
                         )
                     }
                     value == "ascii" -> {
-                        LOGGER.warn { "`ascii` is deprecated! Please use `*` instead to ensure that the Kotlin IDE plugin recognizes the value" }
+                        LOGGER.warn {
+                            "`ascii` is deprecated! Please use `*` instead to ensure that the Kotlin IDE plugin recognizes the value"
+                        }
                         PropertyType.PropertyValue.valid(
                             value,
                             ASCII_PATTERN,
@@ -249,7 +257,7 @@ public class ImportOrderingRule :
                     EDITOR_CONFIG_PROPERTY_PARSER,
                 ),
                 defaultValue = IDEA_PATTERN,
-                defaultAndroidValue = ASCII_PATTERN,
+                androidStudioCodeStyleDefaultValue = ASCII_PATTERN,
                 propertyWriter = { it.joinToString(separator = ",") },
             )
 

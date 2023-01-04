@@ -1,11 +1,11 @@
 package com.pinterest.ktlint
 
-import java.nio.file.Path
 import org.assertj.core.api.SoftAssertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
+import java.nio.file.Path
 
 class EditorConfigDefaultsLoaderCLITest {
     @Test
@@ -14,16 +14,19 @@ class EditorConfigDefaultsLoaderCLITest {
         tempDir: Path,
     ) {
         CommandLineTestRunner(tempDir)
-            .run("editorconfig-path") {
+            .run(
+                testProjectName = "editorconfig-path",
+                arguments = listOf("**/*.test"),
+            ) {
                 SoftAssertions().apply {
                     assertErrorExitCode()
                     assertThat(normalOutput)
                         .containsLineMatching(Regex(".*Foo.*Exceeded max line length \\(30\\).*"))
-                        .containsLineMatching(Regex(".*foobar2.*File name 'foobar2.kt' should conform PascalCase.*"))
+                        .containsLineMatching(Regex(".*Wildcard2.*Wildcard import.*"))
                         // The Bar files are not matched by any glob
                         .doesNotContainLineMatching(Regex(".*Bar.*Exceeded max line length"))
                         // The filename rule is disabled for the examples-directory only
-                        .doesNotContainLineMatching(Regex(".*foobar1.*File name 'foobar1.kt' should conform PascalCase.*"))
+                        .doesNotContainLineMatching(Regex(".*Wildcard1.*Wildcard import.*"))
                 }.assertAll()
             }
     }
@@ -45,7 +48,10 @@ class EditorConfigDefaultsLoaderCLITest {
         CommandLineTestRunner(tempDir)
             .run(
                 testProjectName = "editorconfig-path",
-                arguments = listOf("--editorconfig=$tempDir/editorconfig-path/project/$editorconfigPath"),
+                arguments = listOf(
+                    "**/*.test",
+                    "--editorconfig=$tempDir/editorconfig-path/project/$editorconfigPath",
+                ),
             ) {
                 SoftAssertions().apply {
                     assertErrorExitCode()
@@ -67,7 +73,10 @@ class EditorConfigDefaultsLoaderCLITest {
         CommandLineTestRunner(tempDir)
             .run(
                 testProjectName = "editorconfig-path",
-                arguments = listOf("--editorconfig=$tempDir/editorconfig-path/project/.editorconfig-default-max-line-length-on-tests-only"),
+                arguments = listOf(
+                    "**/*.test",
+                    "--editorconfig=$tempDir/editorconfig-path/project/.editorconfig-default-max-line-length-on-tests-only",
+                ),
             ) {
                 SoftAssertions().apply {
                     assertErrorExitCode()
@@ -81,20 +90,23 @@ class EditorConfigDefaultsLoaderCLITest {
     }
 
     @Test
-    fun `Given that the default editorconfig disables the filename rule for all example files`(
+    fun `Given that the default editorconfig disables no-wildcard-import rule for all example files`(
         @TempDir
         tempDir: Path,
     ) {
         CommandLineTestRunner(tempDir)
             .run(
                 testProjectName = "editorconfig-path",
-                arguments = listOf("--editorconfig=$tempDir/editorconfig-path/project/.editorconfig-disable-filename-rule"),
+                arguments = listOf(
+                    "**/*.test",
+                    "--editorconfig=$tempDir/editorconfig-path/project/.editorconfig-disable-no-wildcard-imports-rule",
+                ),
             ) {
                 SoftAssertions().apply {
                     assertErrorExitCode()
                     assertThat(normalOutput)
-                        .doesNotContainLineMatching(Regex(".*foobar1.*File name 'foobar1.kt' should conform PascalCase.*"))
-                        .doesNotContainLineMatching(Regex(".*foobar2.*File name 'foobar2.kt' should conform PascalCase.*"))
+                        .doesNotContainLineMatching(Regex(".*Wildcard1.*Wildcard import.*"))
+                        .doesNotContainLineMatching(Regex(".*Wildcard2.*Wildcard import.*"))
                 }.assertAll()
             }
     }
@@ -107,11 +119,16 @@ class EditorConfigDefaultsLoaderCLITest {
         CommandLineTestRunner(tempDir)
             .run(
                 testProjectName = "editorconfig-path",
-                arguments = listOf("--editorconfig=$tempDir/editorconfig-path/project/editorconfig-boolean-setting"),
+                arguments = listOf(
+                    "**/*.test",
+                    "--editorconfig=$tempDir/editorconfig-path/project/editorconfig-boolean-setting",
+                ),
             ) {
                 SoftAssertions().apply {
                     assertErrorExitCode()
-                    assertThat(errorOutput).doesNotContainLineMatching(Regex(".*java.lang.ClassCastException: java.lang.String cannot be cast to java.lang.Boolean.*"))
+                    assertThat(errorOutput).doesNotContainLineMatching(
+                        Regex(".*java.lang.ClassCastException: java.lang.String cannot be cast to java.lang.Boolean.*"),
+                    )
                 }.assertAll()
             }
     }

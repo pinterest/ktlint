@@ -7,7 +7,10 @@ public class PlainReporterProvider : ReporterProvider<PlainReporter> {
 
     override val id: String = "plain"
 
-    override fun get(out: PrintStream, opt: Map<String, String>): PlainReporter =
+    override fun get(
+        out: PrintStream,
+        opt: Map<String, String>,
+    ): PlainReporter =
         PlainReporter(
             out,
             groupByFile = opt["group_by_file"]?.emptyOrTrue() ?: false,

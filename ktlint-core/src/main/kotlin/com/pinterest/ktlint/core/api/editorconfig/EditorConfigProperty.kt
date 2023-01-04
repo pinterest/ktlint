@@ -13,15 +13,28 @@ public data class EditorConfigProperty<T>(
     public val type: PropertyType<T>,
 
     /**
-     * Default value for property if it does not exist in loaded properties and codestyle 'official'.
+     * Default value for property if it does not exist in loaded properties. This default applies to all code styles
+     * unless the code style specific default value is set.
      */
     public val defaultValue: T,
 
     /**
-     * Default value for property if it does not exist in loaded properties and codestyle 'android'. This property
-     * is to be set only when its value does not equal [defaultValue].
+     * Default value for property if it does not exist in loaded properties and codestyle 'ktlint_official'. When not
+     * set, it is defaulted to [defaultValue].
      */
-    public val defaultAndroidValue: T = defaultValue,
+    public val ktlintOfficialCodeStyleDefaultValue: T = defaultValue,
+
+    /**
+     * Default value for property if it does not exist in loaded properties and codestyle 'intellij_idea'. When not
+     * set, it is defaulted to [defaultValue].
+     */
+    public val intellijIdeaCodeStyleDefaultValue: T = defaultValue,
+
+    /**
+     * Default value for property if it does not exist in loaded properties and codestyle 'android_studio'. When not
+     * set, it is defaulted to [defaultValue].
+     */
+    public val androidStudioCodeStyleDefaultValue: T = defaultValue,
 
     /**
      * If set, it maps the actual value set for the property, to another valid value for that property. See example
@@ -42,8 +55,8 @@ public data class EditorConfigProperty<T>(
      *     }
      * }
      * ```
-     * In case the lambda returns a null value then, the [defaultValue] or [defaultAndroidValue] will be set as
-     * value of the property. The
+     * In case the lambda returns a null value then, the code style specific default value or the generic [defaultValue]
+     * is used.
      */
     public val propertyMapper: ((Property?, CodeStyleValue) -> T?)? = null,
 

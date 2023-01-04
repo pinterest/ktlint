@@ -406,23 +406,24 @@ class VisitorProviderTest {
         private fun testVisitorProvider(
             vararg ruleProviders: RuleProvider,
             editorConfigProperties: Map<String, Property> = emptyMap(),
-        ): List<Visit> = VisitorProvider(
-            // Creates a new VisitorProviderFactory for each unit test to prevent that tests for the exact same set of
-            // ruleIds are influencing each other.
-            ruleProviders
-                .map { RuleRunner(it) }
-                .distinctBy { it.ruleId }
-                .toSet(),
-            recreateRuleSorter = true,
-        ).run {
-            val visits = mutableListOf<Visit>()
-            visitor(
-                editorConfigProperties,
-            ).invoke { _, fqRuleId ->
-                visits.add(Visit(fqRuleId))
+        ): List<Visit> =
+            VisitorProvider(
+                // Creates a new VisitorProviderFactory for each unit test to prevent that tests for the exact same set of
+                // ruleIds are influencing each other.
+                ruleProviders
+                    .map { RuleRunner(it) }
+                    .distinctBy { it.ruleId }
+                    .toSet(),
+                recreateRuleSorter = true,
+            ).run {
+                val visits = mutableListOf<Visit>()
+                visitor(
+                    editorConfigProperties,
+                ).invoke { _, fqRuleId ->
+                    visits.add(Visit(fqRuleId))
+                }
+                visits
             }
-            visits
-        }
 
         private fun ktLintRuleExecutionEditorConfigProperty(
             ktlintRuleExecutionPropertyName: String,

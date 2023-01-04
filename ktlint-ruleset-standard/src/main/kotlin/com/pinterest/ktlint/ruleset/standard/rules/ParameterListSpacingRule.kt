@@ -103,8 +103,7 @@ public class ParameterListSpacingRule :
         }
     }
 
-    private fun ASTNode.containsNoComments() =
-        children().none { it.isPartOfComment() }
+    private fun ASTNode.containsNoComments() = children().none { it.isPartOfComment() }
 
     private fun visitValueParameter(
         node: ASTNode,

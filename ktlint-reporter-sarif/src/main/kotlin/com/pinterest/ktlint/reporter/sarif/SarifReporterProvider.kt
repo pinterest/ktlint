@@ -7,5 +7,8 @@ public class SarifReporterProvider : ReporterProvider<SarifReporter> {
 
     override val id: String = "sarif"
 
-    override fun get(out: PrintStream, opt: Map<String, String>): SarifReporter = SarifReporter(out)
+    override fun get(
+        out: PrintStream,
+        opt: Map<String, String>,
+    ): SarifReporter = SarifReporter(out)
 }

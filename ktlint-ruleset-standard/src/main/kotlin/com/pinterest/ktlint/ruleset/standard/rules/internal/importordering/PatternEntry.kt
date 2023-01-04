@@ -35,7 +35,10 @@ public class PatternEntry(
         return matchesPackageName(import.pathStr.removeSuffix(".*"))
     }
 
-    internal fun isBetterMatchForPackageThan(entry: PatternEntry?, import: ImportPath): Boolean {
+    internal fun isBetterMatchForPackageThan(
+        entry: PatternEntry?,
+        import: ImportPath,
+    ): Boolean {
         if (hasAlias != import.hasAlias() || !matchesPackageName(import.pathStr)) return false
         if (entry == null) return true
 
@@ -49,11 +52,12 @@ public class PatternEntry(
         return entry.packageName.count { it == '.' } < packageName.count { it == '.' }
     }
 
-    override fun toString(): String = when (this) {
-        ALL_OTHER_IMPORTS_ENTRY -> WILDCARD_CHAR
-        ALL_OTHER_ALIAS_IMPORTS_ENTRY -> ALIAS_CHAR
-        else -> "$packageName.$WILDCARD_CHAR" + if (withSubpackages) WILDCARD_CHAR else ""
-    }
+    override fun toString(): String =
+        when (this) {
+            ALL_OTHER_IMPORTS_ENTRY -> WILDCARD_CHAR
+            ALL_OTHER_ALIAS_IMPORTS_ENTRY -> ALIAS_CHAR
+            else -> "$packageName.$WILDCARD_CHAR" + if (withSubpackages) WILDCARD_CHAR else ""
+        }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

@@ -74,19 +74,16 @@ internal fun ktLintRuleExecutionPropertyName(qualifiedRuleId: String): String =
 /**
  * Constructs the name of the '.editorconfig' property that determines whether the given [Rule] is to be executed.
  */
-internal fun Rule.ktLintRuleExecutionPropertyName(): String =
-    "ktlint_${ruleSetId}_$ruleId"
+internal fun Rule.ktLintRuleExecutionPropertyName(): String = "ktlint_${ruleSetId}_$ruleId"
 
 /**
  * Constructs the name of the '.editorconfig' property that determines whether the rule set of the given
  * [qualifiedRuleId] is to be executed.
  */
-internal fun ktLintRuleSetExecutionPropertyName(qualifiedRuleId: String): String =
-    "ktlint_${qualifiedRuleId.ruleSetId()}"
+internal fun ktLintRuleSetExecutionPropertyName(qualifiedRuleId: String): String = "ktlint_${qualifiedRuleId.ruleSetId()}"
 
 /**
  * Constructs the name of the '.editorconfig' property that determines whether the rule set of the given
  * [Rule] is to be executed.
  */
-internal fun Rule.ktLintRuleSetExecutionPropertyName(): String =
-    "ktlint_$ruleSetId"
+internal fun Rule.ktLintRuleSetExecutionPropertyName(): String = "ktlint_$ruleSetId"

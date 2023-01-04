@@ -1,11 +1,11 @@
 package com.pinterest.ktlint.internal
 
 import com.pinterest.ktlint.core.initKtLintKLogger
+import mu.KotlinLogging
 import java.io.File
 import java.io.IOException
 import java.math.BigInteger
 import java.security.MessageDigest
-import mu.KotlinLogging
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
@@ -14,17 +14,17 @@ private const val DEFAULT_GIT_HOOKS_DIR = "hooks"
 internal object GitHookInstaller {
     fun installGitHook(
         gitHookName: String,
-        gitHookLoader: () -> ByteArray,
+        hookContentProvider: () -> ByteArray,
     ) {
         val gitHooksDir = try {
             resolveGitHooksDir()
         } catch (e: IOException) {
-            LOGGER.error { e.message }
+            System.err.println(e.message)
             exitKtLintProcess(1)
         }
 
         val gitHookFile = gitHooksDir.resolve(gitHookName)
-        val hookContent = gitHookLoader()
+        val hookContent = hookContentProvider()
 
         if (gitHookFile.exists()) {
             backupExistingHook(gitHooksDir, gitHookFile, hookContent, gitHookName)
@@ -33,10 +33,9 @@ internal object GitHookInstaller {
         gitHookFile.writeBytes(hookContent)
         gitHookFile.setExecutable(true)
         LOGGER.info {
-            """
-            ${gitHookFile.path} is installed. Be aware that this hook assumes to find ktlint on the PATH. Either
-            ensure that ktlint is actually added to the path or expand the ktlint command in the hook with the path.
-            """.trimIndent()
+            "${gitHookFile.path} is installed. Be aware that this hook assumes to find ktlint on the PATH. Either " +
+                "ensure that ktlint is actually added to the path or expand the ktlint command in the hook with the " +
+                "path."
         }
     }
 
@@ -74,16 +73,17 @@ internal object GitHookInstaller {
         return gitDir
     }
 
-    private fun getHooksDirName() = try {
-        Runtime.getRuntime().exec("git config --get core.hooksPath")
-            .inputStream
-            .bufferedReader()
-            .readText()
-            .trim()
-            .ifEmpty { DEFAULT_GIT_HOOKS_DIR }
-    } catch (_: IOException) {
-        DEFAULT_GIT_HOOKS_DIR
-    }
+    private fun getHooksDirName() =
+        try {
+            Runtime.getRuntime().exec("git config --get core.hooksPath")
+                .inputStream
+                .bufferedReader()
+                .readText()
+                .trim()
+                .ifEmpty { DEFAULT_GIT_HOOKS_DIR }
+        } catch (_: IOException) {
+            DEFAULT_GIT_HOOKS_DIR
+        }
 
     private fun backupExistingHook(
         hooksDir: File,

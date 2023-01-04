@@ -1,9 +1,9 @@
 package com.pinterest.ktlint.reporter.plain
 
-import java.io.PrintStream
-import java.lang.System.out
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import java.io.PrintStream
+import java.lang.System.out
 
 class PlainSummaryReporterProviderTest {
     @Test

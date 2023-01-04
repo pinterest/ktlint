@@ -12,9 +12,9 @@ import com.pinterest.ktlint.core.api.editorconfig.createRuleSetExecutionEditorCo
 import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ktlint.core.setDefaultLoggerModifier
 import com.pinterest.ruleset.test.DumpASTRule
-import java.nio.file.Paths
 import mu.KotlinLogging
 import org.jetbrains.kotlin.utils.addToStdlib.ifTrue
+import java.nio.file.Paths
 
 private val LOGGER =
     KotlinLogging
@@ -92,6 +92,14 @@ public fun Set<RuleProvider>.lint(
     return lintErrors
 }
 
+/**
+ * Execute [KtLintRuleEngine.lint] on given code snippet. To test a kotlin script file, provide a filepath ending with
+ * ".kts". For each invocation of this method, a fresh instance of the [KtLintRuleEngine] is instantiated for the given
+ * set of rules.
+ * This method is intended to be executed in a unit test environment only. If the project that is containing the unit
+ * test contains an '.editorconfig' file, then it will be ignored entirely. Provide '.editorconfig' properties that have
+ * to be applied on the code snippet via [editorConfigOverride].
+ */
 public fun Set<RuleProvider>.lint(
     text: String,
     filePath: String? = null,
@@ -104,6 +112,9 @@ public fun Set<RuleProvider>.lint(
         editorConfigOverride = editorConfigOverride
             .enableExperimentalRules()
             .extendWithRuleSetRuleExecutionsFor(ruleProviders),
+        // The unit test itself has to obey with the ktlint configuration in the '.editorconfig' file. The code snippets
+        // inside the unit may not be affected by the '.editorconfig' configuration of the ktlint project itself.
+        ignoreEditorConfigOnFileSystem = true,
     ).lint(
         code = text,
         filePath = filePath?.let { Paths.get(filePath) },
@@ -160,6 +171,14 @@ public fun Set<RuleProvider>.format(
     return Pair(formattedCode, lintErrors)
 }
 
+/**
+ * Execute [KtLintRuleEngine.format] on given code snippet. To test a kotlin script file, provide a filepath ending with
+ * ".kts". For each invocation of this method, a fresh instance of the [KtLintRuleEngine] is instantiated for the given
+ * set of rules.
+ * This method is intended to be executed in a unit test environment only. If the project that is containing the unit
+ * test contains an '.editorconfig' file, then it will be ignored entirely. Provide '.editorconfig' properties that have
+ * to be applied on the code snippet via [editorConfigOverride].
+ */
 public fun Set<RuleProvider>.format(
     text: String,
     filePath: String?,
@@ -173,6 +192,9 @@ public fun Set<RuleProvider>.format(
             editorConfigOverride = editorConfigOverride
                 .enableExperimentalRules()
                 .extendWithRuleSetRuleExecutionsFor(ruleProviders),
+            // The unit test itself has to obey with the ktlint configuration in the '.editorconfig' file. The code snippets
+            // inside the unit may not be affected by the '.editorconfig' configuration of the ktlint project itself.
+            ignoreEditorConfigOnFileSystem = true,
         ).format(
             code = text,
             filePath = filePath?.let { Paths.get(filePath) },

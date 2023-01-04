@@ -55,14 +55,23 @@ val shadowJarExecutable by tasks.registering(DefaultTask::class) {
 
     doLast {
         val execFile = outputs.files.files.first()
-        // From this SO answer: https://stackoverflow.com/a/56243046
-        // First we get the major Java version as an integer, e.g. 8, 11, 16. It has special handling for the leading 1
-        // of older java versions, e.g. 1.8 = Java 8
-        // JV = $(java -version 2>&1 | head -1 | cut -d'"' -f2 | sed '/^1\./s///' | cut -d'.' -f1)
-        // Then if that java version is >= 16, we add the --add-opens command
-        // X = X=$( [ "$JV" -ge "16" ] && echo "--add-opens java.base/java.lang=ALL-UNNAMED" || echo "")
-        // exec java $X -Xmx512m -jar "$0" "$@"
-        execFile.appendText("#!/bin/sh\n\nJV=\$(java -version 2>&1 | sed -E -n 's/.* version \"([^.-]*).*\".*/\\1/p')\n\nX=\$( [ \"\$JV\" -ge \"16\" ] && echo \"--add-opens java.base/java.lang=ALL-UNNAMED\" || echo \"\")\n\nexec java \$X -Xmx512m -jar \"\$0\" \"\$@\"\n\n")
+        execFile.appendText(
+            """#!/bin/sh
+
+            # From this SO answer: https://stackoverflow.com/a/56243046
+
+            # First we get the major Java version as an integer, e.g. 8, 11, 16. It has special handling for the leading 1 of older java
+            # versions, e.g. 1.8 = Java 8
+            JV=$(java -version 2>&1 | sed -E -n 's/.* version "([^.-]*).*".*/\1/p')
+
+            # Add --add-opens for java version 16 and above
+            X=$( [ "${"$"}JV" -ge "16" ] && echo "--add-opens java.base/java.lang=ALL-UNNAMED" || echo "")
+
+            exec java ${"$"}X -Xmx512m -jar "$0" "$@"
+
+            """.trimIndent(),
+        )
+
         execFile.appendBytes(inputs.files.singleFile.readBytes())
         execFile.setExecutable(true, false)
         if (!version.toString().endsWith("SNAPSHOT")) {

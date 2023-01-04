@@ -1,4 +1,4 @@
 root = true
 
-[Bar*.{kt,kts}]
+[Bar*.{kt,kts}.test]
 max_line_length = 20

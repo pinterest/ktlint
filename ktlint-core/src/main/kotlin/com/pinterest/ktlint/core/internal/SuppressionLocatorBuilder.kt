@@ -43,9 +43,7 @@ internal object SuppressionLocatorBuilder {
     /**
      * Builds [SuppressionLocator] for given [rootNode] of AST tree.
      */
-    fun buildSuppressedRegionsLocator(
-        rootNode: ASTNode,
-    ): SuppressionLocator {
+    fun buildSuppressedRegionsLocator(rootNode: ASTNode): SuppressionLocator {
         val hintsList = collect(rootNode)
         return if (hintsList.isEmpty()) {
             NO_SUPPRESSION
@@ -70,9 +68,7 @@ internal object SuppressionLocatorBuilder {
         val disabledRules: Set<String> = emptySet(),
     )
 
-    private fun collect(
-        rootNode: ASTNode,
-    ): List<SuppressionHint> {
+    private fun collect(rootNode: ASTNode): List<SuppressionHint> {
         val result = ArrayList<SuppressionHint>()
         val open = ArrayList<SuppressionHint>()
         rootNode.collect { node ->
@@ -144,12 +140,11 @@ internal object SuppressionLocatorBuilder {
         return null
     }
 
-    private fun splitCommentBySpace(
-        comment: String,
-    ) = comment
-        .replace(COMMENT_REGEX, " ")
-        .replace(" {2,}", " ")
-        .split(" ")
+    private fun splitCommentBySpace(comment: String) =
+        comment
+            .replace(COMMENT_REGEX, " ")
+            .replace(" {2,}", " ")
+            .split(" ")
 
     private fun <T> List<T>.tail() = this.subList(1, this.size)
 

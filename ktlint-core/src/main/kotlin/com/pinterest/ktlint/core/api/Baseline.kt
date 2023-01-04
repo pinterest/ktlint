@@ -5,6 +5,9 @@ import com.pinterest.ktlint.core.api.Baseline.Status.INVALID
 import com.pinterest.ktlint.core.api.Baseline.Status.NOT_FOUND
 import com.pinterest.ktlint.core.api.Baseline.Status.VALID
 import com.pinterest.ktlint.core.initKtLintKLogger
+import mu.KotlinLogging
+import org.w3c.dom.Element
+import org.xml.sax.SAXException
 import java.io.File
 import java.io.IOException
 import java.io.InputStream
@@ -14,9 +17,6 @@ import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.parsers.ParserConfigurationException
 import kotlin.io.path.pathString
 import kotlin.io.path.relativeToOrSelf
-import mu.KotlinLogging
-import org.w3c.dom.Element
-import org.xml.sax.SAXException
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
@@ -130,8 +130,7 @@ private fun Element.parseBaselineErrorsByFile(): List<LintError> {
  * Checks if the list contains the given [LintError]. The [List.contains] function can not be used as [LintError.detail]
  * is not available in the baseline file and a normal equality check on the [LintErrpr] fails.
  */
-public fun List<LintError>.containsLintError(lintError: LintError): Boolean =
-    any { it.isSameAs(lintError) }
+public fun List<LintError>.containsLintError(lintError: LintError): Boolean = any { it.isSameAs(lintError) }
 
 private fun LintError.isSameAs(lintError: LintError) =
     col == lintError.col &&
@@ -142,8 +141,7 @@ private fun LintError.isSameAs(lintError: LintError) =
  * Checks if the list does not contain the given [LintError]. The [List.contains] function can not be used as
  * [LintError.detail] is not available in the baseline file and a normal equality check on the [LintErrpr] fails.
  */
-public fun List<LintError>.doesNotContain(lintError: LintError): Boolean =
-    none { it.isSameAs(lintError) }
+public fun List<LintError>.doesNotContain(lintError: LintError): Boolean = none { it.isSameAs(lintError) }
 
 /**
  * Gets the relative route of the file for baselines. Also adjusts the slashes for uniformity between file systems
