@@ -9,6 +9,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Removed
 
 ### Fixed
+* Issue with array-syntax annotations on the same line as other annotations. ([#1765](https://github.com/pinterest/ktlint/issues/1765)).
 
 ### Changed
 

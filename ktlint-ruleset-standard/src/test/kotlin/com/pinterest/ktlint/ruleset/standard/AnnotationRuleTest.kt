@@ -548,4 +548,43 @@ class AnnotationRuleTest {
             """.trimIndent()
         annotationRuleAssertThat(code).hasNoLintViolations()
     }
+
+    @Test
+    fun `Array syntax annotations on the same line as other annotations, Issue #1765`() {
+        val code =
+            """
+            class Main {
+                @[Foo1 Foo2] @Foo3
+                fun foo() {}
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            class Main {
+                @[Foo1 Foo2]
+                @Foo3
+                fun foo() {}
+            }
+            """.trimIndent()
+        annotationRuleAssertThat(code)
+            .asKotlinScript()
+            .hasLintViolation(2, 5, "@[...] style annotations should be on a separate line from other annotations.")
+            .isFormattedAs(formattedCode)
+
+        val code2 =
+            """
+            @Foo3 @[Foo1 Foo2]
+            fun foo() {}
+            """.trimIndent()
+        val formattedCode2 =
+            """
+            @Foo3
+            @[Foo1 Foo2]
+            fun foo() {}
+            """.trimIndent()
+        annotationRuleAssertThat(code2)
+            .asKotlinScript()
+            .hasLintViolation(1, 7, "@[...] style annotations should be on a separate line from other annotations.")
+            .isFormattedAs(formattedCode2)
+    }
 }
