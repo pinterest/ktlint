@@ -16,6 +16,7 @@ public open class Rule(
     //  * Add field "about: About" so that it is clear who is the maintainer of a rule. Part of this about information is also a unique rule
     //    set id. Once implemented, the "id" can be changed back to a simple id that no longer contains the rule set id.
 
+    @Suppress("ktlint:no-consecutive-comments")
     /**
      * Identification of the rule. Except for rules in the "standard" rule set, this id needs to be prefixed with the
      * identifier of the rule set (e.g. "some-rule-set-id:some-rule-id") to avoid naming conflicts with referring to the

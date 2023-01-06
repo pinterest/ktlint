@@ -21,6 +21,42 @@ Rule id: `no-empty-first-line-in-class-body`
 !!! Note
     This rule is only run when `ktlint_code_style` is set to `ktlint_official`. 
 
+## Disallow consecutive comments
+
+Disallow consecutive comments (EOL comments, block comments or KDoc) except EOL comments. Comments need to be separated by at least one code element.
+
+=== "[:material-heart:](#) Ktlint (ktlint_official code style)"
+
+    ```kotlin
+    // An EOL comment
+    // may be followed by another EOL comment
+    val foo = "foo"
+
+    // An EOL comment
+    /* followed by a block comment */
+    /** or a KDoc
+     * will be reported as a violation when '.editorconfig' property 'ktlint_code_style = ktlint_official` is set
+     */
+    val bar = "bar" 
+    ```
+
+=== "[:material-heart:](#) Ktlint (non ktlint_official code style)"
+
+    ```kotlin
+    // An EOL comment
+    /* followed by a block comment */
+    /** or a KDoc
+     * will not be reported as a violation
+     */
+    val bar = "bar" 
+    ```
+
+
+Rule id: `no-consecutive-comments`
+
+!!! Note
+    This rule is only run when `ktlint_code_style` is set to `ktlint_official`. 
+
 ## Unnecessary parenthesis before trailing lambda
 
 An empty parentheses block before a lambda is redundant.

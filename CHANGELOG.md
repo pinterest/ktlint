@@ -39,6 +39,7 @@ Code style `android` has been renamed to `android_studio`. Code formatted with t
 
 * Add new experimental rule for `ktlint_official` code style that disallows a class to start with a blank line `no-empty-first-line-in-class-body`.
 * Add new experimental rule for `ktlint_official` code style that enforces consistent usage of braces in all branches of a singe if or if-else-if statement `if-else-bracing`.
+* Add new experimental rule for `ktlint_official` code style that disallows consecutive comments except EOL comments `no-consecutive-comments`
 
 ### Removed
 

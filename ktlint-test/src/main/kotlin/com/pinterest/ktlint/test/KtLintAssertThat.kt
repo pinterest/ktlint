@@ -273,12 +273,28 @@ public class KtLintAssertThat(
         /**
          * See [setMaxLineLength] for intended usage.
          */
-        public const val MAX_LINE_LENGTH_MARKER: String = "Max line length marker:" // Keep length of constant name same as length of value
+        public const val MAX_LINE_LENGTH_MARKER: String = "Max line length marker:"
 
         /**
          * See [setMaxLineLength] for intended usage.
          */
         public const val EOL_CHAR: Char = '#'
+
+        init {
+            /* A unit test using the max line length marker typically looks like:
+             * val code =
+             *     """
+             *     // $MAX_LINE_LENGTH_MARKER                   $EOL_CHAR
+             *     val fooooooooooooooo = "fooooooooooooooooooooo"
+             *     """.trimIndent()
+             * In order for this to work properly, the length of "$MAX_LINE_LENGTH_MARKER" must be identical to the length of the real value
+             * of the constant MAX_LINE_LENGTH_MARKER.
+             */
+            require("$".plus(::MAX_LINE_LENGTH_MARKER.name).length == MAX_LINE_LENGTH_MARKER.length) {
+                "Length of the value of the string '${'$'}MAX_LINE_LENGTH_MARKER' must be identical to length of the value of the " +
+                    "constant. Tests using this constant will not work as intended otherwise."
+            }
+        }
     }
 }
 
