@@ -32,6 +32,7 @@ import com.pinterest.ktlint.ruleset.standard.rules.MultiLineIfElseRule
 import com.pinterest.ktlint.ruleset.standard.rules.NoBlankLineBeforeRbraceRule
 import com.pinterest.ktlint.ruleset.standard.rules.NoBlankLinesInChainedMethodCallsRule
 import com.pinterest.ktlint.ruleset.standard.rules.NoConsecutiveBlankLinesRule
+import com.pinterest.ktlint.ruleset.standard.rules.NoConsecutiveCommentsRule
 import com.pinterest.ktlint.ruleset.standard.rules.NoEmptyClassBodyRule
 import com.pinterest.ktlint.ruleset.standard.rules.NoEmptyFirstLineInClassBodyRule
 import com.pinterest.ktlint.ruleset.standard.rules.NoEmptyFirstLineInMethodBlockRule
@@ -114,6 +115,7 @@ public class StandardRuleSetProvider :
             RuleProvider { NoBlankLineBeforeRbraceRule() },
             RuleProvider { NoBlankLinesInChainedMethodCallsRule() },
             RuleProvider { NoConsecutiveBlankLinesRule() },
+            RuleProvider { NoConsecutiveCommentsRule() },
             RuleProvider { NoEmptyClassBodyRule() },
             RuleProvider { NoEmptyFirstLineInClassBodyRule() },
             RuleProvider { NoEmptyFirstLineInMethodBlockRule() },

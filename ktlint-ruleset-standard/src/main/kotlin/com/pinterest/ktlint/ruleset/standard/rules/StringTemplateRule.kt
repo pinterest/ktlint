@@ -26,14 +26,12 @@ public class StringTemplateRule : Rule("string-template") {
         // code below is commented out because (setting aside potentially dangerous replaceChild part)
         // `val v: String = "$elementType"` would be rewritten to `val v: String = elementType.toString()` and it's not
         // immediately clear which is better
-/*
-        if (elementType === SHORT_STRING_TEMPLATE_ENTRY || elementType == LONG_STRING_TEMPLATE_ENTRY) {
-            if (node.treePrev.elementType == OPEN_QUOTE && node.treeNext.elementType == CLOSING_QUOTE) {
-                emit(node.treePrev.startOffset, "Redundant string template", true)
-                val entryStart = node.psi.firstChild
-                node.treeParent.treeParent.replaceChild(node.treeParent, entryStart.nextSibling.node)
-            }
-*/
+        // if (elementType === SHORT_STRING_TEMPLATE_ENTRY || elementType == LONG_STRING_TEMPLATE_ENTRY) {
+        //    if (node.treePrev.elementType == OPEN_QUOTE && node.treeNext.elementType == CLOSING_QUOTE) {
+        //        emit(node.treePrev.startOffset, "Redundant string template", true)
+        //        val entryStart = node.psi.firstChild
+        //        node.treeParent.treeParent.replaceChild(node.treeParent, entryStart.nextSibling.node)
+        //    }
         if (elementType == LONG_STRING_TEMPLATE_ENTRY) {
             var entryExpression = (node.psi as? KtBlockStringTemplateEntry)?.expression
             if (entryExpression is KtDotQualifiedExpression) {
