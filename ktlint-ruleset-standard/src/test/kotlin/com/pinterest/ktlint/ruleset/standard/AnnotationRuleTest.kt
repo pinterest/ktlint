@@ -549,42 +549,45 @@ class AnnotationRuleTest {
         annotationRuleAssertThat(code).hasNoLintViolations()
     }
 
-    @Test
-    fun `Array syntax annotations on the same line as other annotations, Issue #1765`() {
-        val code =
-            """
+    @Nested inner class `Array syntax annotations, Issue #1765` {
+        @Test
+        fun `annotation preceded by array syntax annotation`() {
+            val code =
+                """
             class Main {
                 @[Foo1 Foo2] @Foo3
                 fun foo() {}
             }
             """.trimIndent()
-        val formattedCode =
-            """
+            val formattedCode =
+                """
             class Main {
                 @[Foo1 Foo2]
                 @Foo3
                 fun foo() {}
             }
             """.trimIndent()
-        annotationRuleAssertThat(code)
-            .asKotlinScript()
-            .hasLintViolation(2, 5, "@[...] style annotations should be on a separate line from other annotations.")
-            .isFormattedAs(formattedCode)
+            annotationRuleAssertThat(code)
+                .hasLintViolation(2, 5, "@[...] style annotations should be on a separate line from other annotations.")
+                .isFormattedAs(formattedCode)
+        }
 
-        val code2 =
-            """
+        @Test
+        fun `annotation followed by array syntax annotation`() {
+            val code =
+                """
             @Foo3 @[Foo1 Foo2]
             fun foo() {}
             """.trimIndent()
-        val formattedCode2 =
-            """
+            val formattedCode =
+                """
             @Foo3
             @[Foo1 Foo2]
             fun foo() {}
             """.trimIndent()
-        annotationRuleAssertThat(code2)
-            .asKotlinScript()
-            .hasLintViolation(1, 7, "@[...] style annotations should be on a separate line from other annotations.")
-            .isFormattedAs(formattedCode2)
+            annotationRuleAssertThat(code)
+                .hasLintViolation(1, 7, "@[...] style annotations should be on a separate line from other annotations.")
+                .isFormattedAs(formattedCode)
+        }
     }
 }
