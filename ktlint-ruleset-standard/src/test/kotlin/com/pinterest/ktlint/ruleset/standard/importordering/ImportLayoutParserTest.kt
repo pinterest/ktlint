@@ -37,4 +37,10 @@ class ImportLayoutParserTest {
 
         assertThat(actual).isEqualTo(expected)
     }
+
+    @Test
+    fun `trims spaces in entries`() {
+        assertThat(parseImportsLayout("android.**,|,org.junit.**,|,^android.**,*,kotlin.io.Closeable.*,^"))
+            .isEqualTo(parseImportsLayout("android.**, |, org.junit.**, |, ^android.**, *, kotlin.io.Closeable.*, ^"))
+    }
 }
