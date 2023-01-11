@@ -105,13 +105,13 @@ internal class VisitorProvider(
                 editorConfigProperties.isEnabled(
                     KTLINT_DISABLED_RULES_PROPERTY,
                     qualifiedRuleId,
-                )
+                ) && ruleSetId(qualifiedRuleId) != "experimental"
 
             editorConfigProperties.containsKey(DISABLED_RULES_PROPERTY.name) ->
                 editorConfigProperties.isEnabled(
                     DISABLED_RULES_PROPERTY,
                     qualifiedRuleId,
-                )
+                ) && ruleSetId(qualifiedRuleId) != "experimental"
 
             else ->
                 ruleSetId(qualifiedRuleId) != "experimental"

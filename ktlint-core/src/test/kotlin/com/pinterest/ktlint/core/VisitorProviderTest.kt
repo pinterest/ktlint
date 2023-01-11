@@ -31,7 +31,7 @@ class VisitorProviderTest {
         }
 
         @Test
-        fun `Disabled rules in any type of rule set are not executed`() {
+        fun `Disabled rules in any type of rule set and experimental rules are not executed`() {
             val actual = testVisitorProvider(
                 RuleProvider { NormalRule(RULE_A) },
                 RuleProvider { NormalRule(SOME_DISABLED_RULE_IN_STANDARD_RULE_SET) },
@@ -43,7 +43,6 @@ class VisitorProviderTest {
 
             assertThat(actual).containsExactly(
                 Visit(RULE_A),
-                Visit(EXPERIMENTAL, RULE_B),
                 Visit(CUSTOM_RULE_SET_A, RULE_C),
             )
         }
@@ -135,7 +134,7 @@ class VisitorProviderTest {
         }
 
         @Test
-        fun `Disabled rules in any type of rule set are not executed`() {
+        fun `Disabled rules in any type of rule set and experimental rules are not executed`() {
             val actual = testVisitorProvider(
                 RuleProvider { NormalRule(RULE_A) },
                 RuleProvider { NormalRule(SOME_DISABLED_RULE_IN_STANDARD_RULE_SET) },
@@ -147,7 +146,6 @@ class VisitorProviderTest {
 
             assertThat(actual).containsExactly(
                 Visit(RULE_A),
-                Visit(EXPERIMENTAL, RULE_B),
                 Visit(CUSTOM_RULE_SET_A, RULE_C),
             )
         }
@@ -406,6 +404,31 @@ class VisitorProviderTest {
             )
 
             assertThat(actual).isEmpty()
+        }
+
+        @Test
+        fun `Given the disabled rule property is set then only run experimental rules if enabled`() {
+            val disabledRuleProperty: Pair<String, Property> = with(KTLINT_DISABLED_RULES_PROPERTY) {
+                name to
+                    Property.builder()
+                        .name(name)
+                        .type(type)
+                        .value(SOME_DISABLED_RULE_IN_STANDARD_RULE_SET)
+                        .build()
+            }
+
+            val actual = testVisitorProvider(
+                RuleProvider { NormalRule("$EXPERIMENTAL:$RULE_B") },
+                RuleProvider { NormalRule("$EXPERIMENTAL:$RULE_C") },
+                editorConfigProperties = mapOf(
+                    disabledRuleProperty,
+                    ktLintRuleExecutionEditorConfigProperty("ktlint_$EXPERIMENTAL:$RULE_B", RuleExecution.enabled),
+                ),
+            )
+
+            assertThat(actual).containsExactly(
+                Visit(EXPERIMENTAL, RULE_B),
+            )
         }
 
         /**
