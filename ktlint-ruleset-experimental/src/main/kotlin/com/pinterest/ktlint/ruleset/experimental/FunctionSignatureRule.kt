@@ -159,7 +159,7 @@ public class FunctionSignatureRule :
         if (isMaxLineLengthSet()) {
             val singleLineFunctionSignatureLength = calculateFunctionSignatureLengthAsSingleLineSignature(node, emit, autoCorrect)
             if (forceMultilineSignature ||
-                singleLineFunctionSignatureLength > maxLineLength ||
+                (singleLineFunctionSignatureLength > maxLineLength && node.countParameters() > 0) ||
                 node.hasMinimumNumberOfParameters()
             ) {
                 fixWhiteSpacesInValueParameterList(node, emit, autoCorrect, multiline = true, dryRun = false)
