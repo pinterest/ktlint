@@ -1715,6 +1715,70 @@ internal class WrappingRuleTest {
             """.trimIndent()
         wrappingRuleAssertThat(code).hasNoLintViolations()
     }
+
+    @Nested
+    inner class `Issue 1776 - Given a string template containing a block` {
+        @Test
+        fun `Given that the string template is on a separate line in the raw string literal`() {
+            val code =
+                """
+                // $MAX_LINE_LENGTH_MARKER                        $EOL_CHAR
+                fun getQueryString(query: QueryRequest): String {
+                    val q = $MULTILINE_STRING_QUOTE
+                        SELECT *
+                        FROM table
+                        WHERE 1 = 1
+                        $.{query.gameId?.let { "AND id = ?" } ?: ""}
+                    $MULTILINE_STRING_QUOTE
+                    return q
+                }
+                """.replacePlaceholderWithStringTemplate()
+                    .trimIndent()
+            wrappingRuleAssertThat(code)
+                .setMaxLineLength()
+                .hasNoLintViolations()
+        }
+
+        @Test
+        fun `Given that the string template is preceded by some text on the same line in the raw string literal`() {
+            val code =
+                """
+                // $MAX_LINE_LENGTH_MARKER                               $EOL_CHAR
+                fun getQueryString(query: QueryRequest): String {
+                    val q = $MULTILINE_STRING_QUOTE
+                        SELECT *
+                        FROM table
+                        WHERE $.{query.gameId?.let { "id = ?" } ?: "1 = 1"}
+                    $MULTILINE_STRING_QUOTE
+                    return q
+                }
+                """.replacePlaceholderWithStringTemplate()
+                    .trimIndent()
+            wrappingRuleAssertThat(code)
+                .setMaxLineLength()
+                .hasNoLintViolations()
+        }
+
+        @Test
+        fun `Given that the string template is followed by some text on the same line in the raw string literal`() {
+            val code =
+                """
+                // $MAX_LINE_LENGTH_MARKER                                            $EOL_CHAR
+                fun getQueryString(query: QueryRequest): String {
+                    val q = $MULTILINE_STRING_QUOTE
+                        SELECT *
+                        FROM table
+                        WHERE $.{query.gameId?.let { "id = ?" } ?: "1 = 1"} OR level = ?
+                    $MULTILINE_STRING_QUOTE
+                    return q
+                }
+                """.replacePlaceholderWithStringTemplate()
+                    .trimIndent()
+            wrappingRuleAssertThat(code)
+                .setMaxLineLength()
+                .hasNoLintViolations()
+        }
+    }
 }
 
 // Replace the "$." placeholder with an actual "$" so that string "$.{expression}" is transformed to a String template
