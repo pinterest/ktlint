@@ -5,6 +5,7 @@ import com.pinterest.ktlint.core.Code
 import com.pinterest.ktlint.core.KtLintRuleEngine
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.RuleProvider
+import com.pinterest.ktlint.ruleset.standard.FilenameRule
 import com.pinterest.ktlint.ruleset.standard.IndentationRule
 import java.io.File
 import java.nio.file.Path
@@ -110,6 +111,26 @@ class KtLintRuleEngineTest {
             )
 
             assertThat(lintErrors).isNotEmpty
+        }
+
+        @Test
+        fun `Given a code snippet then the file name rule may not result in a Lint violation`() {
+            val ktLintRuleEngine = KtLintRuleEngine(
+                ruleProviders = setOf(
+                    RuleProvider { FilenameRule() },
+                ),
+            )
+            val lintErrors = mutableListOf<LintError>()
+            ktLintRuleEngine.lint(
+                code = Code.CodeSnippet(
+                    """
+                    var foo = "foo"
+                    """.trimIndent(),
+                ),
+                callback = { lintErrors.add(it) },
+            )
+
+            assertThat(lintErrors).isEmpty()
         }
     }
 
