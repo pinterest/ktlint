@@ -1075,17 +1075,47 @@ class FunctionSignatureRuleTest {
             .hasNoLintViolations()
     }
 
-    @Test
-    fun `Issue 1773 - Given a back ticked function signature with an expression body which does not fit on the same line as the signature then do not reformat`() {
-        val code =
-            """
-            // $MAX_LINE_LENGTH_MARKER        $EOL_CHAR
-            fun `a very long function name as found in a test case`() =
-                "some-result"
-            """.trimIndent()
-        functionSignatureWrappingRuleAssertThat(code)
-            .setMaxLineLength()
-            .hasNoLintViolations()
+    @Nested
+    inner class `Issue 1773 - Given a unction signature without parameters exceeding the max line length` {
+        @Test
+        fun `Given a function name between backticks and expression body`() {
+            val code =
+                """
+                // $MAX_LINE_LENGTH_MARKER                $EOL_CHAR
+                fun `a very long function name as found in a test case`() =
+                    "some-result"
+                """.trimIndent()
+            functionSignatureWrappingRuleAssertThat(code)
+                .setMaxLineLength()
+                .hasNoLintViolations()
+        }
+
+        @Test
+        fun `Given a function name not between backticks and expression body`() {
+            val code =
+                """
+                // $MAX_LINE_LENGTH_MARKER                $EOL_CHAR
+                fun aVeryLongFunctionNameAsFoundInATestCase() =
+                    "some-result"
+                """.trimIndent()
+            functionSignatureWrappingRuleAssertThat(code)
+                .setMaxLineLength()
+                .hasNoLintViolations()
+        }
+
+        @Test
+        fun `Given a function name not between backticks and a return type and body block`() {
+            val code =
+                """
+                // $MAX_LINE_LENGTH_MARKER                        $EOL_CHAR
+                fun aVeryLongFunctionNameAsFoundInATestCase(): String {
+                    return "some-result"
+                }
+                """.trimIndent()
+            functionSignatureWrappingRuleAssertThat(code)
+                .setMaxLineLength()
+                .hasNoLintViolations()
+        }
     }
 
     private companion object {

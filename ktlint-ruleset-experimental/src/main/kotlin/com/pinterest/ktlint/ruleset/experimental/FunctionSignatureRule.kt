@@ -158,10 +158,17 @@ public class FunctionSignatureRule :
                 node.containsParameterPrecededByAnnotationOnSeparateLine()
         if (isMaxLineLengthSet()) {
             val singleLineFunctionSignatureLength = calculateFunctionSignatureLengthAsSingleLineSignature(node, emit, autoCorrect)
-            if (forceMultilineSignature ||
-                (singleLineFunctionSignatureLength > maxLineLength && node.countParameters() > 0) ||
-                node.hasMinimumNumberOfParameters()
-            ) {
+            // Function signatures not having parameters, should not be reformatted automatically. It would result in function signatures
+            // like below, which are not acceptable:
+            //     fun aVeryLongFunctionName(
+            //     ) = "some-value"
+            //
+            //     fun aVeryLongFunctionName(
+            //     ): SomeVeryLongTypeName =
+            //         SomeVeryLongTypeName(...)
+            // Leave it up to the max-line-length rule to detect those violations so that the developer can handle it manually.
+            val rewriteFunctionSignatureWithParameters = node.countParameters() > 0 && singleLineFunctionSignatureLength > maxLineLength
+            if (forceMultilineSignature || rewriteFunctionSignatureWithParameters) {
                 fixWhiteSpacesInValueParameterList(node, emit, autoCorrect, multiline = true, dryRun = false)
                 // Due to rewriting the function signature, the remaining length on the last line of the multiline
                 // signature needs to be recalculated
