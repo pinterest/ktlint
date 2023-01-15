@@ -31,7 +31,7 @@ class VisitorProviderTest {
         }
 
         @Test
-        fun `Disabled rules in any type of rule set are not executed`() {
+        fun `Disabled rules in any type of rule set and experimental rules are not executed`() {
             val actual = testVisitorProvider(
                 RuleProvider { NormalRule(RULE_A) },
                 RuleProvider { NormalRule(SOME_DISABLED_RULE_IN_STANDARD_RULE_SET) },
@@ -43,7 +43,6 @@ class VisitorProviderTest {
 
             assertThat(actual).containsExactly(
                 Visit(RULE_A),
-                Visit(EXPERIMENTAL, RULE_B),
                 Visit(CUSTOM_RULE_SET_A, RULE_C),
             )
         }
@@ -135,7 +134,7 @@ class VisitorProviderTest {
         }
 
         @Test
-        fun `Disabled rules in any type of rule set are not executed`() {
+        fun `Disabled rules in any type of rule set and experimental rules are not executed`() {
             val actual = testVisitorProvider(
                 RuleProvider { NormalRule(RULE_A) },
                 RuleProvider { NormalRule(SOME_DISABLED_RULE_IN_STANDARD_RULE_SET) },
@@ -147,7 +146,6 @@ class VisitorProviderTest {
 
             assertThat(actual).containsExactly(
                 Visit(RULE_A),
-                Visit(EXPERIMENTAL, RULE_B),
                 Visit(CUSTOM_RULE_SET_A, RULE_C),
             )
         }
