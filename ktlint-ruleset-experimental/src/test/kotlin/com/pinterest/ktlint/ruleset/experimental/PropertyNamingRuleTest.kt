@@ -41,6 +41,7 @@ class PropertyNamingRuleTest {
             """
             const val foo = "foo"
             const val FOO_BAR_2 = "foo-bar-2"
+            const val ŸÈŠ_THÎS_IS_ALLOWED_123 = "Yes this is allowed"
             """.trimIndent()
         propertyNamingRuleAssertThat(code)
             .hasLintViolationWithoutAutoCorrect(1, 11, "Property name should use the screaming snake case notation when the value can not be changed")
@@ -106,9 +107,23 @@ class PropertyNamingRuleTest {
         val code =
             """
             class Foo {
-                private val _element2List = mutableListOf<Element>()
+                private val _elementList = mutableListOf<Element>()
 
-                val element2List: List<Element>
+                val elementList: List<Element>
+                    get() = _elementList
+            }
+            """.trimIndent()
+        propertyNamingRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Given a backing val property name containing diacritics having a custom get function and not in screaming case notation then do not emit`() {
+        val code =
+            """
+            class Foo {
+                private val _elementŁîšt = mutableListOf<Element>()
+
+                val elementŁîšt: List<Element>
                     get() = _elementList
             }
             """.trimIndent()

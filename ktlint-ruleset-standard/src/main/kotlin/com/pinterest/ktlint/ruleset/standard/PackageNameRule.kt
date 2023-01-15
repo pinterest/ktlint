@@ -4,6 +4,7 @@ import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType
 import com.pinterest.ktlint.core.ast.ElementType.PACKAGE_DIRECTIVE
 import com.pinterest.ktlint.core.ast.nextCodeSibling
+import com.pinterest.ktlint.ruleset.standard.internal.regExIgnoringDiacriticsAndStrokesOnLetters
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 /**
@@ -33,6 +34,6 @@ public class PackageNameRule : Rule("package-name") {
     }
 
     private companion object {
-        val VALID_PACKAGE_NAME_REGEXP = Regex("[a-z_][a-zA-Z\\d_]*(\\.[a-z_][a-zA-Z\\d_]*)*")
+        val VALID_PACKAGE_NAME_REGEXP = "[a-z_][a-zA-Z\\d_]*(\\.[a-z_][a-zA-Z\\d_]*)*".regExIgnoringDiacriticsAndStrokesOnLetters()
     }
 }

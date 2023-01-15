@@ -4,6 +4,7 @@ import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.ast.ElementType.FUN
 import com.pinterest.ktlint.core.ast.ElementType.IDENTIFIER
 import com.pinterest.ktlint.core.ast.ElementType.IMPORT_DIRECTIVE
+import com.pinterest.ktlint.ruleset.experimental.internal.regExIgnoringDiacriticsAndStrokesOnLetters
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.psi.KtFunction
 import org.jetbrains.kotlin.psi.KtImportDirective
@@ -68,8 +69,8 @@ public class FunctionNamingRule : Rule("$EXPERIMENTAL_RULE_SET_ID:function-namin
             .matches(VALID_FUNCTION_NAME_REGEXP)
 
     private companion object {
-        val VALID_FUNCTION_NAME_REGEXP = Regex("[a-z][A-Za-z\\d]*")
-        val VALID_TEST_FUNCTION_NAME_REGEXP = Regex("(`.*`)|([a-z][A-Za-z\\d_]*)")
+        val VALID_FUNCTION_NAME_REGEXP = "[a-z][A-Za-z\\d]*".regExIgnoringDiacriticsAndStrokesOnLetters()
+        val VALID_TEST_FUNCTION_NAME_REGEXP = "(`.*`)|([a-z][A-Za-z\\d_]*)".regExIgnoringDiacriticsAndStrokesOnLetters()
         private const val KOTLIN_TEST = "kotlin.test"
         private const val ORG_JUNIT = "org.junit"
         private const val ORG_TESTNG = "org.testng"

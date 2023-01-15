@@ -140,4 +140,13 @@ class ClassNamingRuleTest {
             classNamingRuleAssertThat(code).hasNoLintViolations()
         }
     }
+
+    @Test
+    fun `Issue 1757 - Given a class name containing diacritics is allowed`() {
+        val code =
+            """
+            class ŸèśThîsIsAllowed123
+            """.trimIndent()
+        classNamingRuleAssertThat(code).hasNoLintViolations()
+    }
 }

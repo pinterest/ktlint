@@ -140,4 +140,39 @@ class FunctionNamingRuleTest {
             """.trimIndent()
         functionNamingRuleAssertThat(code).hasNoLintViolations()
     }
+
+    @Test
+    fun `Issue 1757 - Given a function name containing diacritics then do not report a violation on the diacritics`() {
+        val code =
+            """
+            fun ÿèśThîsIsAllowed123() = "foo"
+            """.trimIndent()
+        functionNamingRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @ParameterizedTest(name = "Junit import: {0}")
+    @ValueSource(
+        strings = [
+            "org.junit.jupiter.api.Test",
+            "org.junit.jupiter.api.*",
+            "org.junit.jupiter.*",
+            "org.junit.*",
+            "kotlin.test.*",
+            "org.testng.*",
+        ],
+    )
+    fun `Given file which imports a class from the JUnit Jupiter then do not emit`(
+        import: String,
+    ) {
+        val code =
+            """
+            import $import
+
+            class FunTest {
+                @Test
+                fun `Ÿèś thîs is allowed 123`() {}
+            }
+            """.trimIndent()
+        functionNamingRuleAssertThat(code).hasNoLintViolations()
+    }
 }

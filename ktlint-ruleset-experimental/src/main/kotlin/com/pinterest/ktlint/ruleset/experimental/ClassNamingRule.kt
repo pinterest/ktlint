@@ -5,6 +5,7 @@ import com.pinterest.ktlint.core.ast.ElementType
 import com.pinterest.ktlint.core.ast.ElementType.CLASS
 import com.pinterest.ktlint.core.ast.ElementType.IDENTIFIER
 import com.pinterest.ktlint.core.ast.ElementType.OBJECT_DECLARATION
+import com.pinterest.ktlint.ruleset.experimental.internal.regExIgnoringDiacriticsAndStrokesOnLetters
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 /**
@@ -51,7 +52,7 @@ public class ClassNamingRule : Rule("$EXPERIMENTAL_RULE_SET_ID:class-naming") {
         text.matches(BACK_TICKED_FUNCTION_NAME_REGEXP)
 
     private companion object {
-        val VALID_CLASS_NAME_REGEXP = Regex("[A-Z][A-Za-z\\d]*")
+        val VALID_CLASS_NAME_REGEXP = "[A-Z][A-Za-z\\d]*".regExIgnoringDiacriticsAndStrokesOnLetters()
         val BACK_TICKED_FUNCTION_NAME_REGEXP = Regex("`.*`")
     }
 }
