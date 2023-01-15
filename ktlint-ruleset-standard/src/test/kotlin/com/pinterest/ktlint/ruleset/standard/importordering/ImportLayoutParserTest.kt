@@ -5,6 +5,8 @@ import com.pinterest.ktlint.ruleset.standard.internal.importordering.parseImport
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 
 class ImportLayoutParserTest {
     @Test
@@ -21,9 +23,17 @@ class ImportLayoutParserTest {
         }.isInstanceOf(IllegalArgumentException::class.java)
     }
 
-    @Test
-    fun `parses correctly`() {
-        val expected = listOf(
+    @ParameterizedTest(name = "Imports layout: {0}")
+    @ValueSource(
+        strings = [
+            "android.**,|,org.junit.**,|,^android.**,*,kotlin.io.Closeable.*,^",
+            "android.**, |, org.junit.**, |, ^android.**, *, kotlin.io.Closeable.*, ^",
+        ],
+    )
+    fun `Given some imports layout then parse it correctly`(importsLayout: String) {
+        val actual = parseImportsLayout(importsLayout)
+
+        assertThat(actual).containsExactly(
             PatternEntry("android.*", withSubpackages = true, hasAlias = false),
             PatternEntry.BLANK_LINE_ENTRY,
             PatternEntry("org.junit.*", withSubpackages = true, hasAlias = false),
@@ -33,14 +43,5 @@ class ImportLayoutParserTest {
             PatternEntry("kotlin.io.Closeable.*", withSubpackages = false, hasAlias = false),
             PatternEntry.ALL_OTHER_ALIAS_IMPORTS_ENTRY,
         )
-        val actual = parseImportsLayout("android.**,|,org.junit.**,|,^android.**,*,kotlin.io.Closeable.*,^")
-
-        assertThat(actual).isEqualTo(expected)
-    }
-
-    @Test
-    fun `trims spaces in entries`() {
-        assertThat(parseImportsLayout("android.**,|,org.junit.**,|,^android.**,*,kotlin.io.Closeable.*,^"))
-            .isEqualTo(parseImportsLayout("android.**, |, org.junit.**, |, ^android.**, *, kotlin.io.Closeable.*, ^"))
     }
 }
