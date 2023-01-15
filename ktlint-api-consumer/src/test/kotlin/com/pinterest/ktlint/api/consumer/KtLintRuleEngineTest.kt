@@ -5,11 +5,17 @@ import com.pinterest.ktlint.core.Code
 import com.pinterest.ktlint.core.KtLintRuleEngine
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.RuleProvider
+import com.pinterest.ktlint.core.api.EditorConfigDefaults
+import com.pinterest.ktlint.ruleset.experimental.UnnecessaryParenthesesBeforeTrailingLambdaRule
 import com.pinterest.ktlint.ruleset.standard.FilenameRule
 import com.pinterest.ktlint.ruleset.standard.IndentationRule
 import java.io.File
 import java.nio.file.Path
 import org.assertj.core.api.Assertions.assertThat
+import org.ec4j.core.model.EditorConfig
+import org.ec4j.core.model.Glob
+import org.ec4j.core.model.Property
+import org.ec4j.core.model.Section
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
@@ -214,5 +220,43 @@ class KtLintRuleEngineTest {
                 """.trimIndent(),
             )
         }
+    }
+
+    @Test
+    fun `Given that all experimental rules are enabled`() {
+        val ktLintEngine = KtLintRuleEngine(
+            ruleProviders = setOf(
+                RuleProvider { UnnecessaryParenthesesBeforeTrailingLambdaRule() },
+            ),
+            editorConfigDefaults = EditorConfigDefaults(
+                EditorConfig
+                    .builder()
+                    .section(
+                        Section
+                            .builder()
+                            .glob(Glob("*.{kt,kts}"))
+                            .properties(
+                                Property
+                                    .builder()
+                                    .name("ktlint_experimental")
+                                    .value("enabled"),
+                            ),
+                    )
+                    .build(),
+            ),
+        )
+        val errors = mutableListOf<LintError>()
+        ktLintEngine.lint(
+            code = Code.CodeSnippet(
+                """
+                val variable = "should not contain'()'".count() { it == 'x' }
+
+                """.trimIndent(),
+            ),
+            callback = errors::add,
+        )
+
+        val failedRules = errors.map { it.ruleId }
+        check(failedRules.contains("experimental:unnecessary-parentheses-before-trailing-lambda"))
     }
 }
