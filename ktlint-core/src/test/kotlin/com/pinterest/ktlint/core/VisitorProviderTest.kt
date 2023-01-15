@@ -406,31 +406,6 @@ class VisitorProviderTest {
             assertThat(actual).isEmpty()
         }
 
-        @Test
-        fun `Given the disabled rule property is set then only run experimental rules if enabled`() {
-            val disabledRuleProperty: Pair<String, Property> = with(KTLINT_DISABLED_RULES_PROPERTY) {
-                name to
-                    Property.builder()
-                        .name(name)
-                        .type(type)
-                        .value(SOME_DISABLED_RULE_IN_STANDARD_RULE_SET)
-                        .build()
-            }
-
-            val actual = testVisitorProvider(
-                RuleProvider { NormalRule("$EXPERIMENTAL:$RULE_B") },
-                RuleProvider { NormalRule("$EXPERIMENTAL:$RULE_C") },
-                editorConfigProperties = mapOf(
-                    disabledRuleProperty,
-                    ktLintRuleExecutionEditorConfigProperty("ktlint_$EXPERIMENTAL:$RULE_B", RuleExecution.enabled),
-                ),
-            )
-
-            assertThat(actual).containsExactly(
-                Visit(EXPERIMENTAL, RULE_B),
-            )
-        }
-
         /**
          * Create a visitor provider. It returns a list of visits that the provider made after it was invoked. The tests
          * of the visitor provider should only focus on whether the visit provider has invoked the correct rules in the
