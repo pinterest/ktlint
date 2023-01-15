@@ -31,6 +31,7 @@ import com.pinterest.ktlint.core.ast.ElementType.LT
 import com.pinterest.ktlint.core.ast.ElementType.OBJECT_LITERAL
 import com.pinterest.ktlint.core.ast.ElementType.RBRACE
 import com.pinterest.ktlint.core.ast.ElementType.RBRACKET
+import com.pinterest.ktlint.core.ast.ElementType.REGULAR_STRING_PART
 import com.pinterest.ktlint.core.ast.ElementType.RPAR
 import com.pinterest.ktlint.core.ast.ElementType.STRING_TEMPLATE
 import com.pinterest.ktlint.core.ast.ElementType.SUPER_TYPE_CALL_ENTRY
@@ -142,8 +143,8 @@ public class WrappingRule :
                     node.firstChildLeafOrSelf().elementType != EOL_COMMENT
                 }
                 maxLineLength > 0 -> {
-                    val startOfLine = node.prevLeaf { it.isWhiteSpaceWithNewline() }
-                    val endOfLine = node.nextLeaf { it.isWhiteSpaceWithNewline() }
+                    val startOfLine = node.prevLeaf { it.isWhiteSpaceWithNewline() || (it.elementType == REGULAR_STRING_PART && it.text == "\n") }
+                    val endOfLine = node.nextLeaf { it.isWhiteSpaceWithNewline() || (it.elementType == REGULAR_STRING_PART && it.text == "\n") }
                     val line =
                         startOfLine
                             ?.leaves()
