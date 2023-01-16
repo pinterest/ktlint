@@ -20,6 +20,7 @@ import com.pinterest.ktlint.core.ast.lastChildLeafOrSelf
 import com.pinterest.ktlint.core.ast.nextCodeLeaf
 import com.pinterest.ktlint.core.ast.nextLeaf
 import com.pinterest.ktlint.core.ast.prevLeaf
+import com.pinterest.ktlint.core.ast.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.core.ast.upsertWhitespaceBeforeMe
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
@@ -48,6 +49,9 @@ public class AnnotationRule : Rule("annotation") {
         when (node.elementType) {
             FILE_ANNOTATION_LIST -> {
                 visitFileAnnotationList(node, emit, autoCorrect)
+            }
+            ANNOTATION -> {
+                visitAnnotation(node, emit, autoCorrect)
             }
             ANNOTATION_ENTRY ->
                 visitAnnotationEntry(node, emit, autoCorrect)
@@ -257,6 +261,31 @@ public class AnnotationRule : Rule("annotation") {
                     }
                 }
             }
+    }
+
+    private fun visitAnnotation(
+        node: ASTNode,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        autoCorrect: Boolean,
+    ) {
+        require(node.elementType == ANNOTATION)
+
+        if ((node.isFollowedByOtherAnnotationEntry() && node.isOnSameLineAsNextAnnotationEntry()) ||
+            (node.isPrecededByOtherAnnotationEntry() && node.isOnSameLineAsPreviousAnnotationEntry())
+        ) {
+            emit(
+                node.startOffset,
+                "@[...] style annotations should be on a separate line from other annotations.",
+                true,
+            )
+            if (autoCorrect) {
+                if (node.isFollowedByOtherAnnotationEntry()) {
+                    node.upsertWhitespaceAfterMe(getNewlineWithIndent(node.treeParent))
+                } else if (node.isPrecededByOtherAnnotationEntry()) {
+                    node.upsertWhitespaceBeforeMe(getNewlineWithIndent(node.treeParent))
+                }
+            }
+        }
     }
 
     private fun getNewlineWithIndent(modifierListRoot: ASTNode): String {

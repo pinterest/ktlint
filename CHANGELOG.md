@@ -4,14 +4,63 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+### Additional clarification on API Changes in `0.48.0` and `0.48.1`
+
+Starting with Ktlint `0.48.x`, rule and rule sets can be enabled/disabled with a separate property per rule (set). Please read [deprecation of (ktlint_)disable_rules property](https://pinterest.github.io/ktlint/faq/#why-is-editorconfig-property-disabled_rules-deprecated-and-how-do-i-resolve-this) for more information.
+
+API Consumers that provide experimental rules to the KtLintRuleEngine, must also enable the experimental rules or instruct their users to do so in the `.editorconfig` file. From the perspective of the API Consumer it might be confusing or unnecessary to do so as the experimental rule was already provided explicitly.
+
+Ktlint wants to provide the user (e.g. a developer) a uniform and consistent user experience. The `.editorconfig` becomes more and more central to store configuration for Ktlint. This to ensure that all team members use the exact same configuration when running ktlint regardless whether the Ktlint CLI or an API Consumer is being used.
+
+The `.editorconfig` is a powerful configuration tool which can be used in very different ways. Most projects use a single `.editorconfig` file containing one common section for kotlin and kotlin scripts files. For example, the `.editorconfig` file of the Ktlint project contains following section:
+```editorconfig
+[*.{kt,kts}]
+ij_kotlin_imports_layout = *
+ij_kotlin_allow_trailing_comma = true
+ij_kotlin_allow_trailing_comma_on_call_site = true
+```
+Other projects might contain multiple `.editorconfig` files for different parts of the project directory hierarchy. Or, use a single `.editorconfig` file containing multiple sections with different globs. Like all other configuration settings in Ktlint, the user should be able to enable and disable the experimental rules. Both for the entire set of experimental rules and for individual experimental rules.
+
+Ktlint allows API Consumers to set default values and override values for the `.editorconfig`. Specifying a default value means that the user does not need to define the property in the `.editorconfig` file but if the user specifies the value, it will take precedence. Specifying the override value ensures that this takes precedence on a value specified by the user in the `.editorconfig`.
+
+From the Ktlint perspective, it is advised that API Consumers provide the default value. See example below, for how to specify the `editorConfigDefault` property:
+```
+KtLintRuleEngine(
+    ruleProviders = ruleProviders,
+    editorConfigDefaults = EditorConfigDefaults(
+        EditorConfig
+            .builder()
+            .section(
+                Section
+                    .builder()
+                    .glob(Glob("*.{kt,kts}"))
+                    .properties(
+                        Property
+                            .builder()
+                            .name("ktlint_experimental")
+                            .value("enabled"),
+                    ),
+            )
+            .build()
+    )
+)
+```
+If the user has set property `ktlint_experimental` explicitly than that value will be used. If the value is not defined, the value provided via `editorConfigDefaults` will be used.
+
+If you do want to ignore the value of `ktlint_experimental` as set by the user, than you can set the EditorConfigOverride property. But as said before that is discouraged as the user might not understand why the `.editorconfig` property is being ignored (provided that the value set is not equal to the value provided by the API Consumer).
+
 ### Added
 
 ### Removed
 
 ### Fixed
+* Fix with array-syntax annotations on the same line as other annotations `annotation` ([#1765](https://github.com/pinterest/ktlint/issues/1765))
 * Do not enable the experimental rules by default when `.editorconfig` properties `disabled_rules` or `ktlint_disabled_rules` are set. ([#1771](https://github.com/pinterest/ktlint/issues/1771))
 * A function signature not having any parameters which exceeds the `max-line-length` should be ignored by rule `function-signature` ([#1773](https://github.com/pinterest/ktlint/issues/1773))
 * Allow diacritics in names of classes, functions packages, and properties `class-naming`, `function-naming`, `package-name`, `property-naming` ([#1757](https://github.com/pinterest/ktlint/issues/1757))
+* Prevent violation of `file-name` rule on code snippets ([#1768](https://github.com/pinterest/ktlint/issues/1768))
+* Clarify that API Consumers have to enable experimental rules ([#1768](https://github.com/pinterest/ktlint/issues/1768))
+* Trim spaces in the `.editorconfig` property `ij_kotlin_imports_layout`'s entries ([#1770](https://github.com/pinterest/ktlint/pull/1770))
 
 ### Changed
 

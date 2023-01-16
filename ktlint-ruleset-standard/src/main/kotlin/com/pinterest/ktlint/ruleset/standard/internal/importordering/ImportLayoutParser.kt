@@ -8,7 +8,7 @@ internal const val ALIAS_CHAR = "^"
  * Adapted from https://github.com/JetBrains/intellij-kotlin/blob/73b5a484198f02518c9ece2fb453d27cead680fb/idea/src/org/jetbrains/kotlin/idea/formatter/KotlinPackageEntryTableAccessor.kt#L27-L43
  */
 internal fun parseImportsLayout(importsLayout: String): List<PatternEntry> {
-    val importsList = importsLayout.split(",").onEach { it.trim() }
+    val importsList = importsLayout.split(",").map { it.trim() }
 
     if (importsList.first() == BLANK_LINE_CHAR || importsList.last() == BLANK_LINE_CHAR) {
         throw IllegalArgumentException("Blank lines are not supported in the beginning or end of import list")
