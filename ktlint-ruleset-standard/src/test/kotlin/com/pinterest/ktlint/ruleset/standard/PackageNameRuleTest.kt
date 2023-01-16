@@ -90,4 +90,13 @@ class PackageNameRuleTest {
             """.trimIndent()
         packageNameRuleAssertThat(code).hasNoLintViolations()
     }
+
+    @Test
+    fun `Issue 1757 - Given a package name containing diacritics then do no report a violation`() {
+        val code =
+            """
+            package ÿèś.thîs.can.be.used
+            """.trimIndent()
+        packageNameRuleAssertThat(code).hasNoLintViolations()
+    }
 }

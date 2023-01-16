@@ -13,6 +13,7 @@ import com.pinterest.ktlint.core.ast.ElementType.PROPERTY
 import com.pinterest.ktlint.core.ast.ElementType.PROPERTY_ACCESSOR
 import com.pinterest.ktlint.core.ast.ElementType.VAL_KEYWORD
 import com.pinterest.ktlint.core.ast.children
+import com.pinterest.ktlint.ruleset.experimental.internal.regExIgnoringDiacriticsAndStrokesOnLetters
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
 
@@ -136,8 +137,8 @@ public class PropertyNamingRule : Rule("$EXPERIMENTAL_RULE_SET_ID:property-namin
             .any { it.text == identifier }
 
     private companion object {
-        val LOWER_CAMEL_CASE_REGEXP = Regex("[a-z][a-zA-Z0-9]*")
-        val SCREAMING_SNAKE_CASE_REGEXP = Regex("[A-Z][_A-Z0-9]*")
-        val BACKING_PROPERTY_LOWER_CAMEL_CASE_REGEXP = Regex("_[a-z][a-zA-Z0-9]*")
+        val LOWER_CAMEL_CASE_REGEXP = "[a-z][a-zA-Z0-9]*".regExIgnoringDiacriticsAndStrokesOnLetters()
+        val SCREAMING_SNAKE_CASE_REGEXP = "[A-Z][_A-Z0-9]*".regExIgnoringDiacriticsAndStrokesOnLetters()
+        val BACKING_PROPERTY_LOWER_CAMEL_CASE_REGEXP = "_[a-z][a-zA-Z0-9]*".regExIgnoringDiacriticsAndStrokesOnLetters()
     }
 }
