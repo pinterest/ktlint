@@ -548,4 +548,46 @@ class AnnotationRuleTest {
             """.trimIndent()
         annotationRuleAssertThat(code).hasNoLintViolations()
     }
+
+    @Nested inner class `Array syntax annotations, Issue #1765` {
+        @Test
+        fun `annotation preceded by array syntax annotation`() {
+            val code =
+                """
+                class Main {
+                    @[Foo1 Foo2] @Foo3
+                    fun foo() {}
+                }
+                """.trimIndent()
+            val formattedCode =
+                """
+                class Main {
+                    @[Foo1 Foo2]
+                    @Foo3
+                    fun foo() {}
+                }
+                """.trimIndent()
+            annotationRuleAssertThat(code)
+                .hasLintViolation(2, 5, "@[...] style annotations should be on a separate line from other annotations.")
+                .isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `annotation followed by array syntax annotation`() {
+            val code =
+                """
+                @Foo3 @[Foo1 Foo2]
+                fun foo() {}
+                """.trimIndent()
+            val formattedCode =
+                """
+                @Foo3
+                @[Foo1 Foo2]
+                fun foo() {}
+                """.trimIndent()
+            annotationRuleAssertThat(code)
+                .hasLintViolation(1, 7, "@[...] style annotations should be on a separate line from other annotations.")
+                .isFormattedAs(formattedCode)
+        }
+    }
 }
