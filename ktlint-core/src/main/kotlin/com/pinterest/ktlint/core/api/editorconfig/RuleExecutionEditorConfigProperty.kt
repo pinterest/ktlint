@@ -15,7 +15,7 @@ internal val RULE_EXECUTION_PROPERTY_TYPE =
         "ktlint_rule_execution",
         "When enabled, the rule is being executed.",
         SafeEnumValueParser(RuleExecution::class.java),
-        CodeStyleValue.values().map { it.name }.toSet(),
+        RuleExecution.values().map { it.name }.toSet(),
     )
 
 /**

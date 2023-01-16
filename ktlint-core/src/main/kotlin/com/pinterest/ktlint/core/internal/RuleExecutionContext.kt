@@ -120,9 +120,9 @@ internal class RuleExecutionContext private constructor(
             val psiFileName =
                 code.fileName
                     ?: if (code.script) {
-                        "file.kts"
+                        "File.kts"
                     } else {
-                        "file.kt"
+                        "File.kt"
                     }
             val psiFile = psiFileFactory.createFileFromText(
                 psiFileName,
