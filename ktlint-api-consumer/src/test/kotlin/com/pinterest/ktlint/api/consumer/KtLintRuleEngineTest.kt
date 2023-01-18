@@ -1,19 +1,20 @@
 package com.pinterest.ktlint.api.consumer
 
-import com.example.ktlint.api.consumer.rules.NoVarRule
 import com.pinterest.ktlint.core.Code
 import com.pinterest.ktlint.core.KtLintRuleEngine
 import com.pinterest.ktlint.core.LintError
+import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.RuleProvider
 import com.pinterest.ktlint.core.api.EditorConfigDefaults
-import com.pinterest.ktlint.ruleset.experimental.UnnecessaryParenthesesBeforeTrailingLambdaRule
-import com.pinterest.ktlint.ruleset.standard.FilenameRule
+import com.pinterest.ktlint.core.ast.ElementType
+import com.pinterest.ktlint.ruleset.standard.rules.FilenameRule
 import com.pinterest.ktlint.ruleset.standard.rules.IndentationRule
 import org.assertj.core.api.Assertions.assertThat
 import org.ec4j.core.model.EditorConfig
 import org.ec4j.core.model.Glob
 import org.ec4j.core.model.Property
 import org.ec4j.core.model.Section
+import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
@@ -226,7 +227,7 @@ class KtLintRuleEngineTest {
     fun `Given that all experimental rules are enabled`() {
         val ktLintEngine = KtLintRuleEngine(
             ruleProviders = setOf(
-                RuleProvider { UnnecessaryParenthesesBeforeTrailingLambdaRule() },
+                RuleProvider { NoVarRule() },
             ),
             editorConfigDefaults = EditorConfigDefaults(
                 EditorConfig
@@ -249,14 +250,31 @@ class KtLintRuleEngineTest {
         ktLintEngine.lint(
             code = Code.CodeSnippet(
                 """
-                val variable = "should not contain'()'".count() { it == 'x' }
-
+                var foo = "foo"
                 """.trimIndent(),
             ),
             callback = errors::add,
         )
 
         val failedRules = errors.map { it.ruleId }
-        check(failedRules.contains("experimental:unnecessary-parentheses-before-trailing-lambda"))
+        check(failedRules.contains(NoVarRule.NO_VAR_RULE_ID))
+    }
+
+    private class NoVarRule():
+        Rule(NO_VAR_RULE_ID),
+        Rule.Experimental {
+        override fun beforeVisitChildNodes(
+            node: ASTNode,
+            autoCorrect: Boolean,
+            emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        ) {
+            if (node.elementType == ElementType.VAR_KEYWORD) {
+                emit(node.startOffset, "Unexpected var, use val instead", false)
+            }
+        }
+
+        companion object {
+            const val NO_VAR_RULE_ID = "no-var-rule"
+        }
     }
 }
