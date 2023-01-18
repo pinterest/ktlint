@@ -167,9 +167,7 @@ class FunctionNamingRuleTest {
             "org.testng.*",
         ],
     )
-    fun `Given file which imports a class from the JUnit Jupiter then do not emit`(
-        import: String,
-    ) {
+    fun `Given file which imports a class from the JUnit Jupiter then do not emit`(import: String) {
         val code =
             """
             import $import

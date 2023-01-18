@@ -143,8 +143,12 @@ public class WrappingRule :
                     node.firstChildLeafOrSelf().elementType != EOL_COMMENT
                 }
                 maxLineLength > 0 -> {
-                    val startOfLine = node.prevLeaf { it.isWhiteSpaceWithNewline() || (it.elementType == REGULAR_STRING_PART && it.text == "\n") }
-                    val endOfLine = node.nextLeaf { it.isWhiteSpaceWithNewline() || (it.elementType == REGULAR_STRING_PART && it.text == "\n") }
+                    val startOfLine = node.prevLeaf {
+                        it.isWhiteSpaceWithNewline() || (it.elementType == REGULAR_STRING_PART && it.text == "\n")
+                    }
+                    val endOfLine = node.nextLeaf {
+                        it.isWhiteSpaceWithNewline() || (it.elementType == REGULAR_STRING_PART && it.text == "\n")
+                    }
                     val line =
                         startOfLine
                             ?.leaves()

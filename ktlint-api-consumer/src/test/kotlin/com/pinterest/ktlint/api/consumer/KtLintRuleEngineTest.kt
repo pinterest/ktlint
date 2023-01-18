@@ -260,7 +260,7 @@ class KtLintRuleEngineTest {
         check(failedRules.contains(NoVarRule.NO_VAR_RULE_ID))
     }
 
-    private class NoVarRule():
+    private class NoVarRule :
         Rule(NO_VAR_RULE_ID),
         Rule.Experimental {
         override fun beforeVisitChildNodes(
