@@ -2,6 +2,8 @@ package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.core.api.editorconfig.CodeStyleValue
+import com.pinterest.ktlint.core.api.editorconfig.RuleExecution
+import com.pinterest.ktlint.core.api.editorconfig.createRuleExecutionEditorConfigProperty
 import com.pinterest.ktlint.test.KtLintAssertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -101,5 +103,34 @@ class NoEmptyFirstLineInClassBodyRuleTest {
         noEmptyFirstLineInClassBodyRuleAssertThat(code)
             .withEditorConfigOverride(CODE_STYLE_PROPERTY to codeStyleValue)
             .hasNoLintViolations()
+    }
+
+    @ParameterizedTest(name = "Code style: {0}")
+    @EnumSource(
+        value = CodeStyleValue::class,
+        mode = EnumSource.Mode.EXCLUDE,
+        names = ["ktlint_official"],
+    )
+    fun `Given a non-ktlint-official code style, and the rule has been enabled explicitly, and a class body starting with a blank line then do report a lint violation`(
+        codeStyleValue: CodeStyleValue,
+    ) {
+        val code =
+            """
+            class Foo {
+
+                val foo = "foo"
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            class Foo {
+                val foo = "foo"
+            }
+            """.trimIndent()
+        noEmptyFirstLineInClassBodyRuleAssertThat(code)
+            .withEditorConfigOverride(CODE_STYLE_PROPERTY to codeStyleValue)
+            .withEditorConfigOverride(createRuleExecutionEditorConfigProperty("no-empty-first-line-in-class-body") to RuleExecution.enabled)
+            .hasLintViolation(2, 1, "Class body should not start with blank line")
+            .isFormattedAs(formattedCode)
     }
 }

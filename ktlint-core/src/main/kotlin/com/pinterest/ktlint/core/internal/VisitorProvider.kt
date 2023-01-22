@@ -3,6 +3,8 @@ package com.pinterest.ktlint.core.internal
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
+import com.pinterest.ktlint.core.api.editorconfig.CODE_STYLE_PROPERTY_TYPE
+import com.pinterest.ktlint.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.core.api.editorconfig.EXPERIMENTAL_RULES_EXECUTION_PROPERTY
 import com.pinterest.ktlint.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.core.api.editorconfig.RULE_EXECUTION_PROPERTY_TYPE
@@ -11,7 +13,6 @@ import com.pinterest.ktlint.core.api.editorconfig.createRuleExecutionEditorConfi
 import com.pinterest.ktlint.core.api.editorconfig.ktLintRuleExecutionPropertyName
 import com.pinterest.ktlint.core.api.editorconfig.ktLintRuleSetExecutionPropertyName
 import com.pinterest.ktlint.core.initKtLintKLogger
-import com.pinterest.ktlint.core.qualifiedRuleId
 import mu.KotlinLogging
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
@@ -89,16 +90,32 @@ internal class VisitorProvider(
     }
 
     private fun EditorConfigProperties.isRuleEnabled(rule: Rule) =
+        // If set for the rule, the rule execution property takes precedence above other checks. This allows for execution of a specific
+        // experimental or ktlint_official code style rule without enabling them all. Also, this allows to disable a specific rule in case
+        // the experimental and/or ktlint_official code style rules are enabled.
         ruleExecution(rule.ktLintRuleExecutionPropertyName())
             ?.let { it == RuleExecution.enabled }
-            ?: if (rule is Rule.Experimental) {
+            ?: isRuleConditionallyEnabled(rule)
+
+    private fun EditorConfigProperties.isRuleConditionallyEnabled(rule: Rule) =
+        when {
+            rule is Rule.Experimental && rule is Rule.OfficialCodeStyle ->
+                isExperimentalEnabled(rule) && isOfficialCodeStyleEnabled(rule)
+            rule is Rule.Experimental ->
                 isExperimentalEnabled(rule)
-            } else {
+            rule is Rule.OfficialCodeStyle ->
+                isOfficialCodeStyleEnabled(rule)
+            else ->
                 isRuleSetEnabled(rule)
-            }
+        }
 
     private fun EditorConfigProperties.isExperimentalEnabled(rule: Rule) =
         ruleExecution(EXPERIMENTAL_RULES_EXECUTION_PROPERTY.name) == RuleExecution.enabled &&
+            ruleExecution(rule.ktLintRuleSetExecutionPropertyName()) != RuleExecution.disabled &&
+            ruleExecution(rule.ktLintRuleExecutionPropertyName()) != RuleExecution.disabled
+
+    private fun EditorConfigProperties.isOfficialCodeStyleEnabled(rule: Rule) =
+        codeStyle() == CodeStyleValue.ktlint_official &&
             ruleExecution(rule.ktLintRuleSetExecutionPropertyName()) != RuleExecution.disabled &&
             ruleExecution(rule.ktLintRuleExecutionPropertyName()) != RuleExecution.disabled
 
@@ -120,17 +137,9 @@ internal class VisitorProvider(
                 this[ruleExecutionPropertyName]?.sourceValue,
             ).parsed
 
-    private fun EditorConfigProperties.isEnabled(
-        disabledRulesProperty: EditorConfigProperty<String>,
-        rule: Rule,
-    ) = this
-        .getEditorConfigValue(disabledRulesProperty)
-        // When IntelliJ IDEA is reformatting the ".editorconfig" file it sometimes adds a space after the comma in a
-        // comma-separate-list which should not be a part of the ruleId
-        .replace(" ", "")
-        .split(",")
-        .none {
-            // The rule set id in the disabled_rules setting may be omitted for rules in the standard rule set
-            it.qualifiedRuleId() == rule.qualifiedRuleId
-        }
+    private fun EditorConfigProperties.codeStyle() =
+        CODE_STYLE_PROPERTY_TYPE
+            .parse(
+                this[CODE_STYLE_PROPERTY_TYPE.name]?.sourceValue,
+            ).parsed
 }

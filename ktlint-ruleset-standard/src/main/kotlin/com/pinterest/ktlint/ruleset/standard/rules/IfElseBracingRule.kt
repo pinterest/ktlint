@@ -4,8 +4,6 @@ import com.pinterest.ktlint.core.IndentConfig
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
-import com.pinterest.ktlint.core.api.editorconfig.CODE_STYLE_PROPERTY
-import com.pinterest.ktlint.core.api.editorconfig.CodeStyleValue.ktlint_official
 import com.pinterest.ktlint.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.core.api.editorconfig.INDENT_STYLE_PROPERTY
@@ -34,21 +32,17 @@ import org.jetbrains.kotlin.psi.psiUtil.leaves
  */
 public class IfElseBracingRule :
     Rule("if-else-bracing"),
+    Rule.Experimental,
+    Rule.OfficialCodeStyle,
     UsesEditorConfigProperties {
     override val editorConfigProperties: List<EditorConfigProperty<*>> =
         listOf(
-            CODE_STYLE_PROPERTY,
             INDENT_SIZE_PROPERTY,
             INDENT_STYLE_PROPERTY,
         )
     private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
 
     override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
-        if (editorConfigProperties.getEditorConfigValue(CODE_STYLE_PROPERTY) != ktlint_official) {
-            stopTraversalOfAST()
-            return
-        }
-
         indentConfig = IndentConfig(
             indentStyle = editorConfigProperties.getEditorConfigValue(INDENT_STYLE_PROPERTY),
             tabWidth = editorConfigProperties.getEditorConfigValue(INDENT_SIZE_PROPERTY),

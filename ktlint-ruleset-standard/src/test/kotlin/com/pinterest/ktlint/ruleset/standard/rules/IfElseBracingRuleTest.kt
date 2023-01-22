@@ -3,6 +3,8 @@ package com.pinterest.ktlint.ruleset.standard.rules
 import com.pinterest.ktlint.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.core.api.editorconfig.CodeStyleValue.ktlint_official
+import com.pinterest.ktlint.core.api.editorconfig.RuleExecution
+import com.pinterest.ktlint.core.api.editorconfig.createRuleExecutionEditorConfigProperty
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Nested
@@ -29,6 +31,41 @@ class IfElseBracingRuleTest {
                 }
             """.trimIndent()
         multiLineIfElseRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @ParameterizedTest(name = "CodeStyleValue: {0}")
+    @EnumSource(
+        value = CodeStyleValue::class,
+        mode = EnumSource.Mode.EXCLUDE,
+        names = ["ktlint_official"],
+    )
+    fun `Given another code style then ktlint_official, and the rule has been enabled explicitly, and IF with inconsistent bracing of the branches`(
+        codeStyle: CodeStyleValue,
+    ) {
+        val code =
+            """
+                fun foo() {
+                    if (true) {
+                        doSomething()
+                    } else doSomethingElse()
+                }
+            """.trimIndent()
+        val formattedCode =
+            """
+                fun foo() {
+                    if (true) {
+                        doSomething()
+                    } else {
+                        doSomethingElse()
+                    }
+                }
+            """.trimIndent()
+        @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
+        multiLineIfElseRuleAssertThat(code)
+            .withEditorConfigOverride(CODE_STYLE_PROPERTY to codeStyle)
+            .withEditorConfigOverride(createRuleExecutionEditorConfigProperty("if-else-bracing") to RuleExecution.enabled)
+            .hasLintViolation(4, 12, "All branches of the if statement should be wrapped between braces if at least one branch is wrapped between braces")
+            .isFormattedAs(formattedCode)
     }
 
     @Nested

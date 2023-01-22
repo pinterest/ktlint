@@ -188,6 +188,13 @@ public open class Rule(
      * explicitly meant to be used by custom rule providers.
      */
     public interface Experimental
+
+    /**
+     * This interface marks a rule as an Official rule. A rule marked with this interface will only be executed when by ktlint in case the
+     * '.editorconfig' contains property "code_style = ktlint_official" or when enabled explicitly. This interface is intended to be used
+     * in Ktlint internally only. It may be subject to change at any time without providing any backward compatibility.
+     */
+    public interface OfficialCodeStyle
 }
 
 private const val STANDARD_RULE_SET_ID = "standard"

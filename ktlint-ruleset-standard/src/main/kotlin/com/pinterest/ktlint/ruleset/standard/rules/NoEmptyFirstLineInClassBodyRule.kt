@@ -4,8 +4,6 @@ import com.pinterest.ktlint.core.IndentConfig
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
-import com.pinterest.ktlint.core.api.editorconfig.CODE_STYLE_PROPERTY
-import com.pinterest.ktlint.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.core.api.editorconfig.INDENT_STYLE_PROPERTY
@@ -19,19 +17,16 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 public class NoEmptyFirstLineInClassBodyRule :
     Rule("no-empty-first-line-in-class-body"),
     Rule.Experimental,
+    Rule.OfficialCodeStyle,
     UsesEditorConfigProperties {
     override val editorConfigProperties: List<EditorConfigProperty<*>> =
         listOf(
             INDENT_SIZE_PROPERTY,
             INDENT_STYLE_PROPERTY,
-            CODE_STYLE_PROPERTY,
         )
     private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
 
     override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
-        if (editorConfigProperties.getEditorConfigValue(CODE_STYLE_PROPERTY) != CodeStyleValue.ktlint_official) {
-            stopTraversalOfAST()
-        }
         indentConfig = IndentConfig(
             indentStyle = editorConfigProperties.getEditorConfigValue(INDENT_STYLE_PROPERTY),
             tabWidth = editorConfigProperties.getEditorConfigValue(INDENT_SIZE_PROPERTY),

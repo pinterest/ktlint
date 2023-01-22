@@ -3,6 +3,8 @@ package com.pinterest.ktlint.ruleset.standard.rules
 import com.pinterest.ktlint.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.core.api.editorconfig.CodeStyleValue.ktlint_official
+import com.pinterest.ktlint.core.api.editorconfig.RuleExecution
+import com.pinterest.ktlint.core.api.editorconfig.createRuleExecutionEditorConfigProperty
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
@@ -31,6 +33,32 @@ class NoConsecutiveCommentsRuleTest {
         noConsecutiveBlankLinesRuleAssertThat(code)
             .withEditorConfigOverride(CODE_STYLE_PROPERTY to codeStyle)
             .hasNoLintViolations()
+    }
+
+    @ParameterizedTest(name = "Code style: {0}")
+    @EnumSource(
+        value = CodeStyleValue::class,
+        mode = EnumSource.Mode.EXCLUDE,
+        names = ["ktlint_official"],
+    )
+    fun `Given a code style other than ktlint_official, and the rule has been enabled explicitly, and some consecutive block comments then do report a violation`(
+        codeStyle: CodeStyleValue,
+    ) {
+        val code =
+            """
+            // EOL comment
+            /* Block comment 1 */
+            /** KDoc 1 */
+            /* Block comment 2 */
+            """.trimIndent()
+        noConsecutiveBlankLinesRuleAssertThat(code)
+            .withEditorConfigOverride(CODE_STYLE_PROPERTY to codeStyle)
+            .withEditorConfigOverride(createRuleExecutionEditorConfigProperty("no-consecutive-comments") to RuleExecution.enabled)
+            .hasLintViolationsWithoutAutoCorrect(
+                LintViolation(2, 1, "a block comment may not be preceded by an EOL comment"),
+                LintViolation(3, 1, "a KDoc may not be preceded by a block comment"),
+                LintViolation(4, 1, "a block comment may not be preceded by a KDoc"),
+            )
     }
 
     @Test

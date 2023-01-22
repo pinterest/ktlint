@@ -1,11 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.api.EditorConfigProperties
-import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
-import com.pinterest.ktlint.core.api.editorconfig.CODE_STYLE_PROPERTY
-import com.pinterest.ktlint.core.api.editorconfig.CodeStyleValue.ktlint_official
-import com.pinterest.ktlint.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.core.ast.ElementType.BLOCK_COMMENT
 import com.pinterest.ktlint.core.ast.ElementType.EOL_COMMENT
 import com.pinterest.ktlint.core.ast.ElementType.KDOC_END
@@ -17,17 +12,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 public class NoConsecutiveCommentsRule :
     Rule("no-consecutive-comments"),
     Rule.Experimental,
-    UsesEditorConfigProperties {
-    override val editorConfigProperties: List<EditorConfigProperty<*>> = listOf(
-        CODE_STYLE_PROPERTY,
-    )
-
-    override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
-        if (editorConfigProperties.getEditorConfigValue(CODE_STYLE_PROPERTY) != ktlint_official) {
-            stopTraversalOfAST()
-        }
-    }
-
+    Rule.OfficialCodeStyle {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
