@@ -1,8 +1,6 @@
 package com.pinterest.ktlint.core
 
 import com.pinterest.ktlint.core.api.EditorConfigOverride
-import com.pinterest.ktlint.core.api.editorconfig.DISABLED_RULES_PROPERTY
-import com.pinterest.ktlint.core.api.editorconfig.KTLINT_DISABLED_RULES_PROPERTY
 import com.pinterest.ktlint.core.api.editorconfig.RuleExecution
 import com.pinterest.ktlint.core.api.editorconfig.createRuleExecutionEditorConfigProperty
 import com.pinterest.ktlint.core.ast.ElementType
@@ -28,62 +26,6 @@ class DisabledRulesTest {
                 LintError(1, 1, "no-var", "Unexpected var, use val instead"),
             ),
         )
-    }
-
-    @Deprecated("To be removed when deprecated property 'disabled_rules` is removed")
-    @ParameterizedTest(name = "RuleId: {0}, Disabled ruleId: {1}")
-    @CsvSource(
-        value = [
-            "no-var,no-var",
-            "no-var,standard:no-var",
-            "standard:no-var,no-var",
-            "standard:no-var,standard:no-var",
-            "custom:no-var,custom:no-var",
-        ],
-    )
-    fun `Given a rule that is disabled via property 'disabled_rules' and some code then no violation is reported`(
-        ruleId: String,
-        disabledRuleId: String,
-    ) {
-        assertThat(
-            ArrayList<LintError>().apply {
-                KtLintRuleEngine(
-                    ruleProviders = setOf(
-                        RuleProvider { NoVarRule(ruleId) },
-                    ),
-                    editorConfigOverride = EditorConfigOverride.from(DISABLED_RULES_PROPERTY to disabledRuleId),
-                    ignoreEditorConfigOnFileSystem = true,
-                ).lint("var foo") { e -> add(e) }
-            },
-        ).isEmpty()
-    }
-
-    @Deprecated("To be removed when deprecated property 'ktlint_disabled_rules` is removed")
-    @ParameterizedTest(name = "RuleId: {0}, Disabled ruleId: {1}")
-    @CsvSource(
-        value = [
-            "no-var,no-var",
-            "no-var,standard:no-var",
-            "standard:no-var,no-var",
-            "standard:no-var,standard:no-var",
-            "custom:no-var,custom:no-var",
-        ],
-    )
-    fun `Given a rule that is disabled via property 'ktlint_disabled_rules' and some code then no violation is reported`(
-        ruleId: String,
-        disabledRuleId: String,
-    ) {
-        assertThat(
-            ArrayList<LintError>().apply {
-                KtLintRuleEngine(
-                    ruleProviders = setOf(
-                        RuleProvider { NoVarRule(ruleId) },
-                    ),
-                    editorConfigOverride = EditorConfigOverride.from(KTLINT_DISABLED_RULES_PROPERTY to disabledRuleId),
-                    ignoreEditorConfigOnFileSystem = true,
-                ).lint("var foo") { e -> add(e) }
-            },
-        ).isEmpty()
     }
 
     @ParameterizedTest(name = "RuleId: {0}, Disabled ruleId: {1}")

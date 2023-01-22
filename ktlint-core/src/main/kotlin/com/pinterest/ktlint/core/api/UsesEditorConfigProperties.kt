@@ -6,12 +6,10 @@ import com.pinterest.ktlint.core.api.editorconfig.CodeStyleValue.android_studio
 import com.pinterest.ktlint.core.api.editorconfig.CodeStyleValue.intellij_idea
 import com.pinterest.ktlint.core.api.editorconfig.CodeStyleValue.ktlint_official
 import com.pinterest.ktlint.core.api.editorconfig.DEFAULT_EDITOR_CONFIG_PROPERTIES
-import com.pinterest.ktlint.core.api.editorconfig.DISABLED_RULES_PROPERTY
 import com.pinterest.ktlint.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.core.api.editorconfig.INSERT_FINAL_NEWLINE_PROPERTY
-import com.pinterest.ktlint.core.api.editorconfig.KTLINT_DISABLED_RULES_PROPERTY
 import com.pinterest.ktlint.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.core.initKtLintKLogger
 import mu.KotlinLogging
@@ -166,42 +164,6 @@ public object DefaultEditorConfigProperties : UsesEditorConfigProperties {
     @Suppress("ktlint:property-naming")
     public val codeStyleSetProperty: EditorConfigProperty<CodeStyleValue> =
         CODE_STYLE_PROPERTY
-
-    /**
-     * Marked for removal in KtLint 0.49.
-     *
-     * The current property consist of a comma separated list of rules that have to be disabled. This has the following
-     * disadvantages:
-     * - If the property is overridden in an '.editorconfig' in a subpackage then it is not possible to change the
-     *   for specific ruleId's. All ruleIds which were set in an '.editorconfig' file at a higher package level need to
-     *   be set again.
-     * - The property is more difficult to be commented when multiple rules are disabled.
-     *
-     * This property is replaced with a separate property per rule (set). In this way a single line per disabled
-     * property is required in the '.editorconfig'. It allows to enable/disable a specific rule (set) on package level
-     * by setting the property of that rule (set) in an '.editorconfig' in that package.
-     */
-    @Deprecated(
-        "Marked for removal in KtLint 0.49. Update all your all '.editorconfig' files. See " +
-            "https://pinterest.github.io/ktlint/faq/#why-is-editorconfig-property-disabled_rules-deprecated-and-how-do-i-resolve-this " +
-            "for more information",
-        // ReplaceWith is not specified as the property should not be migrated to KTLINT_DISABLED_RULES_PROPERTY but to
-        // the RuleExecution property.
-    )
-    @Suppress("ktlint:property-naming")
-    public val disabledRulesProperty: EditorConfigProperty<String> =
-        DISABLED_RULES_PROPERTY
-
-    @Deprecated(
-        message = "Marked for removal in KtLint 0.49",
-        replaceWith = ReplaceWith(
-            expression = "KTLINT_DISABLED_RULES_PROPERTY",
-            imports = ["com.pinterest.ktlint.core.api.editorconfig.INDENT_STYLE_PROPERTY"],
-        ),
-    )
-    @Suppress("ktlint:property-naming")
-    public val ktlintDisabledRulesProperty: EditorConfigProperty<String> =
-        KTLINT_DISABLED_RULES_PROPERTY
 
     @Deprecated(
         message = "Marked for removal in KtLint 0.49",

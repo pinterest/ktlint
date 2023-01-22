@@ -156,7 +156,12 @@ internal class RuleExecutionContext private constructor(
                     editorConfigDefaults = editorConfigDefaults,
                     editorConfigOverride = editorConfigOverride,
                     ignoreEditorConfigOnFileSystem = ignoreEditorConfigOnFileSystem,
-                )
+                ).also {
+                    // TODO: Remove warning below in KtLint 0.52 or later as some users skips multiple versions
+                    it.warnIfPropertyIsObsolete("disabled_rules", "0.49")
+                    // TODO: Remove warning below in KtLint 0.52 or later as some users skips multiple versions
+                    it.warnIfPropertyIsObsolete("ktlint_disabled_rules", "0.49")
+                }
             }
 
             if (!code.isStdIn) {
@@ -190,6 +195,18 @@ internal class RuleExecutionContext private constructor(
                 }
             }
             return null
+        }
+    }
+}
+
+private fun EditorConfigProperties.warnIfPropertyIsObsolete(
+    propertyName: String,
+    ktlintVersion: String,
+) {
+    if (this.contains(propertyName)) {
+        LOGGER.warn {
+            "Editorconfig property '$propertyName' is obsolete and is not used by KtLint starting from version $ktlintVersion. Remove " +
+                "the property from all '.editorconfig' files."
         }
     }
 }

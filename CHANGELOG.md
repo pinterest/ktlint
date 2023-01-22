@@ -21,9 +21,11 @@ Rules in custom rule sets can be marked as experimental by implementing the `Rul
 
 When using this feature, experimental rules should *not* be defined in a separate rule set. A rule is identified by its qualified rule id that includes the rule set id. Moving a rule from an experimental rule set to a non-experimental rule set has the downside that the qualified rule id changes. For users of such rules this means that ktlint directives to suppress the rule and properties in the `.editorconfig` files have to be changed.
 
-#### EditorConfigProperty
+#### EditorConfig
 
-Field `defaultAndroidValue` has been renamed to `androidStudioCodeStyleDefaultValue`. Note that also new fields `ktlintOfficialCodeStyleDefaultValue` and `intellijIdeaCodeStyleDefaultValue` have been added. Read more about this in the section "Ktlint Official code style".
+Field `defaultAndroidValue` in class `EditorConfigProperty` has been renamed to `androidStudioCodeStyleDefaultValue`. Note that also new fields `ktlintOfficialCodeStyleDefaultValue` and `intellijIdeaCodeStyleDefaultValue` have been added. Read more about this in the section "Ktlint Official code style".
+
+The `.editorconfig` properties `disabled_rules` and `ktlint_disabled_rules` are no longer supported. Specifying those properties in the `editorConfigOverride` or `editorConfigDefaults` result in warnings at runtime.
 
 ### 'Ktlint Official` code style and renaming of existing code styles
 
@@ -42,6 +44,8 @@ Code style `android` has been renamed to `android_studio`. Code formatted with t
 * Add new experimental rule for `ktlint_official` code style that disallows consecutive comments except EOL comments `no-consecutive-comments`
 
 ### Removed
+
+* Remove support of the `.editorconfig` properties `disabled_rules` and `ktlint_disabled_rules`. See [disabled rules](https://pinterest.github.io/ktlint/rules/configuration-ktlint/#disabled-rules) for more information.
 
 ### Fixed
 

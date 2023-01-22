@@ -5,9 +5,7 @@ import com.google.common.jimfs.Jimfs
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.api.editorconfig.CodeStyleValue
-import com.pinterest.ktlint.core.api.editorconfig.DISABLED_RULES_PROPERTY
 import com.pinterest.ktlint.core.api.editorconfig.EditorConfigProperty
-import com.pinterest.ktlint.core.api.editorconfig.KTLINT_DISABLED_RULES_PROPERTY
 import org.assertj.core.api.Assertions.assertThat
 import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -23,26 +21,6 @@ internal class EditorConfigGeneratorTest {
 
     private val rootDir = "/project"
     private val rules = setOf<Rule>(TestRule1())
-
-    @Test
-    fun `Should contain the default editor config properties but not the properties which are deprecated`() {
-        val generatedEditorConfig = editorConfigGenerator.generateEditorconfig(
-            filePath = tempFileSystem.normalizedPath(rootDir).resolve("test.kt"),
-            rules = emptySet(),
-            codeStyle = CodeStyleValue.intellij_idea,
-        )
-
-        assertThat(generatedEditorConfig.lines()).containsExactly(
-            "indent_size = 4",
-            "indent_style = space",
-            "insert_final_newline = true",
-            "ktlint_code_style = intellij_idea",
-            "max_line_length = -1",
-        ).doesNotContain(
-            "${DISABLED_RULES_PROPERTY.name} = ",
-            "${KTLINT_DISABLED_RULES_PROPERTY.name} = ",
-        )
-    }
 
     @Test
     fun `Should use default rule value if property is missing`() {

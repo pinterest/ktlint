@@ -15,18 +15,10 @@ ktlint_code_style = official
 
 ## Disabled rules
 
-!!! warning
-    Properties `disabled_rules` and `ktlint_disabled_rules` are deprecated in KtLint `0.48` and are marked for removal in KtLint `0.49`.
+!!! note
+    Support of properties `disabled_rules` and `ktlint_disabled_rules` has been removed in KtLint `0.49`.
 
-By default, no rules are disabled. The properties `disabled_rules` and `ktlint_disabled_rules` hold a comma separated list (without spaces). Rules which are not defined in the `standard` ruleset have to be prefixed. Rules defined in the `standard` ruleset may optionally be prefixed.
-
-Example:
-```editorconfig
-[*.{kt,kts}]
-disabled_rules = some-standard-rule,my-custom-ruleset:my-custom-rule
-```
-
-Starting with KtLint `0.48` entire rule sets and individual rules can be disabled / enabled with a separate property per rule (set).
+Rule sets and individual rules can be disabled / enabled with a separate property per rule (set).
 
 All rules in a rule set can be enabled or disabled with a rule set property. The name of the rule set property consists of the `ktlint_` prefix followed by the rule set id. Examples:
 ```editorconfig
@@ -36,7 +28,7 @@ ktlint_your-custom-rule-set_custom-rule = enabled # Enable all rules in the `cus
 
 Rules that are marked as experimental will not be run, unless explicitly enabled:
 ```editorconfig
-ktlint_experimental = enabled # # Enable rules marked as experimental for all rule sets that are enabled
+ktlint_experimental = enabled # Enable rules marked as experimental for all rule sets that are enabled
 ```
 
 An individual rule can be enabled or disabled with a rule property. The name of the rule property consists of the `ktlint_` prefix followed by the rule set id followed by a `_` and the rule id. Examples:

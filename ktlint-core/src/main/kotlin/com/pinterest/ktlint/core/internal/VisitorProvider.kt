@@ -3,10 +3,8 @@ package com.pinterest.ktlint.core.internal
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
-import com.pinterest.ktlint.core.api.editorconfig.DISABLED_RULES_PROPERTY
 import com.pinterest.ktlint.core.api.editorconfig.EXPERIMENTAL_RULES_EXECUTION_PROPERTY
 import com.pinterest.ktlint.core.api.editorconfig.EditorConfigProperty
-import com.pinterest.ktlint.core.api.editorconfig.KTLINT_DISABLED_RULES_PROPERTY
 import com.pinterest.ktlint.core.api.editorconfig.RULE_EXECUTION_PROPERTY_TYPE
 import com.pinterest.ktlint.core.api.editorconfig.RuleExecution
 import com.pinterest.ktlint.core.api.editorconfig.createRuleExecutionEditorConfigProperty
@@ -32,14 +30,10 @@ internal class VisitorProvider(
      */
     recreateRuleSorter: Boolean = false,
 ) : UsesEditorConfigProperties {
-    override val editorConfigProperties: List<EditorConfigProperty<*>> = listOf(
-        KTLINT_DISABLED_RULES_PROPERTY,
-        DISABLED_RULES_PROPERTY,
-    ).plus(
+    override val editorConfigProperties: List<EditorConfigProperty<*>> =
         ruleRunners.map {
             createRuleExecutionEditorConfigProperty(it.qualifiedRuleId)
-        },
-    )
+        }
 
     /**
      * The list of [ruleRunnersSorted] is sorted based on the [Rule.VisitorModifier] of the rules.
@@ -54,7 +48,7 @@ internal class VisitorProvider(
     internal fun visitor(editorConfigProperties: EditorConfigProperties): ((rule: Rule, fqRuleId: String) -> Unit) -> Unit {
         val enabledRuleRunners =
             ruleRunnersSorted
-                .filter { ruleRunner -> ruleRunner.getRule().isEnabled(editorConfigProperties) }
+                .filter { ruleRunner -> editorConfigProperties.isRuleEnabled(ruleRunner.getRule()) }
         if (enabledRuleRunners.isEmpty()) {
             LOGGER.debug { "Skipping file as no enabled rules are found to be executed" }
             return { _ -> }
@@ -93,31 +87,6 @@ internal class VisitorProvider(
             }
         }
     }
-
-    private fun Rule.isEnabled(editorConfigProperties: EditorConfigProperties): Boolean =
-        // For backwards compatibility all different properties which affects enabling/disabling of properties have to
-        // be checked. Note that properties are checked in order of precedence. If a property of higher precedence has
-        // been defined, all properties with lower precedence are ignore entirely.
-        when {
-            editorConfigProperties.containsKey(ktLintRuleExecutionPropertyName(qualifiedRuleId)) ||
-                editorConfigProperties.containsKey(ktLintRuleSetExecutionPropertyName(qualifiedRuleId)) ->
-                editorConfigProperties.isRuleEnabled(this)
-
-            editorConfigProperties.containsKey(KTLINT_DISABLED_RULES_PROPERTY.name) ->
-                editorConfigProperties.isEnabled(
-                    KTLINT_DISABLED_RULES_PROPERTY,
-                    this,
-                ) && this !is Rule.Experimental
-
-            editorConfigProperties.containsKey(DISABLED_RULES_PROPERTY.name) ->
-                editorConfigProperties.isEnabled(
-                    DISABLED_RULES_PROPERTY,
-                    this,
-                ) && this !is Rule.Experimental
-
-            else ->
-                editorConfigProperties.isRuleEnabled(this)
-        }
 
     private fun EditorConfigProperties.isRuleEnabled(rule: Rule) =
         ruleExecution(rule.ktLintRuleExecutionPropertyName())
