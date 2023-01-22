@@ -9,7 +9,6 @@ import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.core.api.editorconfig.INSERT_FINAL_NEWLINE_PROPERTY
-import com.pinterest.ktlint.ruleset.standard.rules.FinalNewlineRule
 import org.assertj.core.api.Assertions.assertThat
 import org.intellij.lang.annotations.Language
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -384,7 +383,7 @@ internal class EditorConfigLoaderTest {
 
         val editorConfigProperties = editorConfigLoader.load(
             lintFile,
-            rules = rules.plus(FinalNewlineRule()),
+            rules = rules, // For the test it is not relevant that the FinalNewLineRule is not in the list of rules
             editorConfigOverride = EditorConfigOverride.from(INSERT_FINAL_NEWLINE_PROPERTY to "true"),
         )
 
@@ -413,7 +412,7 @@ internal class EditorConfigLoaderTest {
 
         val editorConfigProperties = editorConfigLoader.load(
             lintFile,
-            rules = rules.plus(FinalNewlineRule()),
+            rules = rules, // For the test it is not relevant that the FinalNewLineRule is not in the list of rules
             editorConfigOverride = EditorConfigOverride.from(INSERT_FINAL_NEWLINE_PROPERTY to "false"),
         )
 

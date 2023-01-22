@@ -5,6 +5,7 @@ plugins {
 
 dependencies {
     implementation(projects.ktlintCore)
+    implementation(projects.ktlintRulesetCore)
     implementation(libs.logging)
 
     testImplementation(projects.ktlintTest)
