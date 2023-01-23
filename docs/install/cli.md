@@ -93,10 +93,10 @@ Globs can be used to specify more exactly what files and directories are to be v
 
 ```shell title="Check only certain locations starting from the current directory"
 # Check all '.kt' files in 'src/' directory, but ignore files ending with 'Test.kt':
-ktlint "src/**/*.kt" "!src/**/*Test.kt"
+ktlint 'src/**/*.kt' '!src/**/*Test.kt'
 
 # Check all '.kt' files in 'src/' directory, but ignore 'generated' directory and its subdirectories:
-ktlint "src/**/*.kt" "!src/**/generated/**"
+ktlint 'src/**/*.kt' '!src/**/generated/**'
 ```
 
 ### Violation reporting
