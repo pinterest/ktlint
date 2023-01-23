@@ -10,5 +10,3 @@ kotlin {
     // All modules, the CLI included, must have an explicit API
     explicitApi()
 }
-
-addAdditionalJdkVersionTests()
