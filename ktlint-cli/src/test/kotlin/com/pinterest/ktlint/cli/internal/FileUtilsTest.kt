@@ -2,7 +2,6 @@ package com.pinterest.ktlint.cli.internal
 
 import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
-import com.pinterest.ktlint.cli.internal.fileSequence
 import com.pinterest.ktlint.core.initKtLintKLogger
 import mu.KotlinLogging
 import org.assertj.core.api.Assertions.assertThat

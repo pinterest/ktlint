@@ -1,10 +1,10 @@
 ## Build a custom reporter
-Take a look at [ktlint-reporter-plain](https://github.com/pinterest/ktlint/tree/master/ktlint-reporter-plain).
+Take a look at [ktlint-cli-reporter-plain](https://github.com/pinterest/ktlint/tree/master/ktlint-cli-reporter-plain).
 
 In short, all you need to do is to implement a
 [Reporter](https://github.com/pinterest/ktlint/blob/master/ktlint-core/src/main/kotlin/com/pinterest/ktlint/core/Reporter.kt) and make it available by registering
 a custom [ReporterProvider](https://github.com/pinterest/ktlint/blob/master/ktlint-core/src/main/kotlin/com/pinterest/ktlint/core/ReporterProvider.kt) using
-`META-INF/services/com.pinterest.ktlint.core.ReporterProvider`. Pack all of that into a JAR and you're done.
+`META-INF/services/com.pinterest.ktlint.cli.reporter.core.api.ReporterProvider`. Pack all of that into a JAR and you're done.
 
 To load a custom (3rd party) reporter use `ktlint --reporter=name,artifact=/path/to/custom-ktlint-reporter.jar`
 (see `ktlint --help` for more).

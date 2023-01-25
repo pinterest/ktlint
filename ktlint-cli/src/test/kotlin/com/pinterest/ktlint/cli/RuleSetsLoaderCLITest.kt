@@ -11,7 +11,7 @@ class RuleSetsLoaderCLITest {
         @TempDir
         tempDir: Path,
     ) {
-        val jarWithoutRulesetProvider = "custom-ruleset/rule-set-provider-v2/ktlint-reporter-html.jar"
+        val jarWithoutRulesetProvider = "custom-ruleset/rule-set-provider-v2/ktlint-cli-reporter-html.jar"
         CommandLineTestRunner(tempDir)
             .run(
                 "custom-ruleset",

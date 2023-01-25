@@ -1,9 +1,9 @@
 package com.pinterest.ktlint.cli.api
 
-import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.cli.api.Baseline.Status.INVALID
 import com.pinterest.ktlint.cli.api.Baseline.Status.NOT_FOUND
 import com.pinterest.ktlint.cli.api.Baseline.Status.VALID
+import com.pinterest.ktlint.core.api.LintError
 import com.pinterest.ktlint.core.initKtLintKLogger
 import mu.KotlinLogging
 import org.w3c.dom.Element

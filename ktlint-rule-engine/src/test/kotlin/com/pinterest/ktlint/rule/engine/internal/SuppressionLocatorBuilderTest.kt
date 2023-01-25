@@ -1,8 +1,8 @@
 package com.pinterest.ktlint.rule.engine.internal
 
-import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.RuleProvider
+import com.pinterest.ktlint.core.api.LintError
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.api.editorconfig.RuleExecution

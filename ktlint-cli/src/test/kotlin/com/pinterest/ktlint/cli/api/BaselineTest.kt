@@ -1,7 +1,6 @@
 package com.pinterest.ktlint.cli.api
 
-import com.pinterest.ktlint.cli.api.parseBaseline
-import com.pinterest.ktlint.core.LintError
+import com.pinterest.ktlint.core.api.LintError
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayInputStream

@@ -39,11 +39,11 @@ Code style `android` has been renamed to `android_studio`. Code formatted with t
 
 #### Package restructuring and class relocation
 
-The `ktlint-core` package is split into separate packages `ktlint-rule-engine`, `ktlint-ruleset-core`.
+Class `LintError` has been relocated from `com.pinterest.ktlint.core` to `com.pinterest.ktlint.core.api`.
 
-Classes below have been moved to `ktlint-rule-engine`:
+Classes below have been moved to the new module `ktlint-rule-engine`:
 
-| Old package name in `ktlint-core`                             | New package name in `ktlint-rule-engine`                        |
+| Old class/package name in `ktlint-core`                       | New class/package name in `ktlint-rule-engine`                  |
 |---------------------------------------------------------------|-----------------------------------------------------------------|
 | com.pinterest.ktlint.rule.core.api.editorconfig               | com.pinterest.ktlint.rule.engine.api.editorconfig               |
 | com.pinterest.ktlint.rule.core.api.EditorConfigDefaults       | com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults       |
@@ -54,18 +54,71 @@ Classes below have been moved to `ktlint-rule-engine`:
 | com.pinterest.ktlint.rule.core.api.KtLintRuleException        | com.pinterest.ktlint.rule.engine.api.KtLintRuleException        |
 | com.pinterest.ktlint.rule.core.api.UsesEditorConfigProperties | com.pinterest.ktlint.rule.engine.api.UsesEditorConfigProperties |
 
-Classes below have been moved to `ktlint-ruleset-core`:
+Classes below have been moved to the new module `ktlint-ruleset-core`:
 
-| Old package name in `ktlint-core`              | New package name in `ktlint-ruleset-core`              |
+| Old class/package name in `ktlint-core`        | New class/package name in `ktlint-ruleset-core`        |
 |------------------------------------------------|--------------------------------------------------------|
 | com.pinterest.ktlint.rule.core.ast.ElementType | com.pinterest.ktlint.ruleset.core.api.ElementType      |
 | com.pinterest.ktlint.rule.core.ast.package     | com.pinterest.ktlint.ruleset.core.api.ASTNodeExtension |
 
-Classes below have been moved to `ktlint-cli`:
+Module `ktlint` has been renamed to `ktlint-cli`. Classes below have been relocated in this module:
 
-| Old package name in `ktlint-core`      | New package name in `ktlint-cli`      |
-|----------------------------------------|---------------------------------------|
-| com.pinterest.ktlint.core.api.Baseline | com.pinterest.ktlint.cli.api.Baseline |
+| Old class/package name in `ktlint-core` | New class/package name in `ktlint-core` |
+|-----------------------------------------|-----------------------------------------|
+| com.pinterest.ktlint.core.api.Baseline  | com.pinterest.ktlint.cli.api.Baseline   |
+
+Module `ktlint-reporter-baseline` has been renamed to `ktlint-cli-reporter-baseline`. Classes below have been relocated:
+
+| Old class/package name in `ktlint-reporter-baseline` | New class/package name in `ktlint-cli-reporter-baseline` |
+|------------------------------------------------------|----------------------------------------------------------|
+| com.pinterest.ktlint.reporter.baseline               | com.pinterest.ktlint.cli.reporter.baseline               |
+
+Module `ktlint-reporter-checkstyle` has been renamed to `ktlint-cli-reporter-checkstyle`. Classes below have been relocated:
+
+| Old class/package name in `ktlint-reporter-checkstyle` | New class/package name in `ktlint-cli-reporter-checkstyle` |
+|--------------------------------------------------------|------------------------------------------------------------|
+| com.pinterest.ktlint.reporter.checkstyle               | com.pinterest.ktlint.cli.reporter.checkstyle               |
+
+Module `ktlint-reporter-format` has been renamed to `ktlint-cli-reporter-format`. Classes below have been relocated:
+
+| Old class/package name in `ktlint-reporter-format` | New class/package name in `ktlint-cli-reporter-format` |
+|----------------------------------------------------|--------------------------------------------------------|
+| com.pinterest.ktlint.reporter.format               | com.pinterest.ktlint.cli.reporter.format               |
+
+Module `ktlint-reporter-html` has been renamed to `ktlint-cli-reporter-html`. Classes below have been relocated:
+
+| Old class/package name in `ktlint-reporter-html` | New class/package name in `ktlint-cli-reporter-html` |
+|--------------------------------------------------|------------------------------------------------------|
+| com.pinterest.ktlint.reporter.html               | com.pinterest.ktlint.cli.reporter.html               |
+
+Module `ktlint-reporter-json` has been renamed to `ktlint-cli-reporter-json`. Classes below have been relocated:
+
+| Old class/package name in `ktlint-reporter-json` | New class/package name in `ktlint-cli-reporter-json` |
+|--------------------------------------------------|------------------------------------------------------|
+| com.pinterest.ktlint.reporter.json               | com.pinterest.ktlint.cli.reporter.json               |
+
+Module `ktlint-reporter-plain` has been renamed to `ktlint-cli-reporter-plain`. Classes below have been relocated:
+
+| Old class/package name in `ktlint-reporter-plain` | New class/package name in `ktlint-cli-reporter-plain` |
+|---------------------------------------------------|-------------------------------------------------------|
+| com.pinterest.ktlint.reporter.plain               | com.pinterest.ktlint.cli.reporter.plain               |
+
+Module `ktlint-reporter-plain-summary` has been renamed to `ktlint-cli-reporter-plain-summary`. Classes below have been relocated:
+
+| Old class/package name in `ktlint-reporter-plain-summary` | New class/package name in `ktlint-cli-reporter-plain-summary` |
+|-----------------------------------------------------------|---------------------------------------------------------------|
+| com.pinterest.ktlint.reporter.plain                       | com.pinterest.ktlint.cli.reporter.plainsummary                |
+
+Module `ktlint-reporter-sarif` has been renamed to `ktlint-cli-reporter-sarif`. Classes below have been relocated:
+
+| Old class/package name in `ktlint-reporter-sarif` | New class/package name in `ktlint-cli-reporter-sarif` |
+|---------------------------------------------------|-------------------------------------------------------|
+| com.pinterest.ktlint.reporter.sarif               | com.pinterest.ktlint.cli.reporter.sarif               |
+
+
+### Custom Reporter Provider
+
+Due to the relocation of the `ReporterProvider` interface the name of the service provider in the custom ruleset needs to be changed from `resources/META-INF/services/com.pinterest.ktlint.core.ReporterProvider` to `resources/META-INF/services/com.pinterest.ktlint.cli.reporter.core.api.ReporterProvider`.
 
 ### Added
 

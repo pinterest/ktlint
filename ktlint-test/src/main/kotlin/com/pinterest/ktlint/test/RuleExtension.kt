@@ -1,7 +1,7 @@
 package com.pinterest.ktlint.test
 
-import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.RuleProvider
+import com.pinterest.ktlint.core.api.LintError
 import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ktlint.core.setDefaultLoggerModifier
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride

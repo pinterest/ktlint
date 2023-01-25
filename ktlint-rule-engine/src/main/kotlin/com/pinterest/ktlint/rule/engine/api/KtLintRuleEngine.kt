@@ -2,9 +2,9 @@
 
 package com.pinterest.ktlint.rule.engine.api
 
-import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.RuleProvider
+import com.pinterest.ktlint.core.api.LintError
 import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults.Companion.EMPTY_EDITOR_CONFIG_DEFAULTS
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride.Companion.EMPTY_EDITOR_CONFIG_OVERRIDE

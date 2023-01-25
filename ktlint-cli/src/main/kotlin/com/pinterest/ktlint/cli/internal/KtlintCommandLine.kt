@@ -2,19 +2,18 @@ package com.pinterest.ktlint.cli.internal
 
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
-import com.pinterest.ktlint.core.LintError
-import com.pinterest.ktlint.core.Reporter
-import com.pinterest.ktlint.core.ReporterProvider
-import com.pinterest.ktlint.core.RuleProvider
 import com.pinterest.ktlint.cli.api.Baseline.Status.INVALID
 import com.pinterest.ktlint.cli.api.Baseline.Status.NOT_FOUND
-import com.pinterest.ktlint.cli.api.Baseline.Status.VALID
 import com.pinterest.ktlint.cli.api.doesNotContain
 import com.pinterest.ktlint.cli.api.loadBaseline
 import com.pinterest.ktlint.cli.api.relativeRoute
+import com.pinterest.ktlint.cli.reporter.core.api.Reporter
+import com.pinterest.ktlint.cli.reporter.core.api.ReporterProvider
+import com.pinterest.ktlint.cli.reporter.plain.Color
+import com.pinterest.ktlint.core.RuleProvider
+import com.pinterest.ktlint.core.api.LintError
 import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ktlint.core.setDefaultLoggerModifier
-import com.pinterest.ktlint.reporter.plain.Color
 import com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride.Companion.plus

@@ -25,7 +25,7 @@ allprojects {
 val ktlint: Configuration by configurations.creating
 
 dependencies {
-    ktlint(projects.ktlintRoot)
+    ktlint(projects.ktlintCli)
 }
 
 tasks.register<JavaExec>("ktlint") {
