@@ -1,8 +1,8 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.core.IndentConfig
-import com.pinterest.ktlint.core.IndentConfig.IndentStyle.SPACE
-import com.pinterest.ktlint.core.IndentConfig.IndentStyle.TAB
+import com.pinterest.ktlint.ruleset.core.api.IndentConfig
+import com.pinterest.ktlint.ruleset.core.api.IndentConfig.IndentStyle.SPACE
+import com.pinterest.ktlint.ruleset.core.api.IndentConfig.IndentStyle.TAB
 import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.initKtLintKLogger

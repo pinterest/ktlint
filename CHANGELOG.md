@@ -56,10 +56,11 @@ Classes below have been moved to the new module `ktlint-rule-engine`:
 
 Classes below have been moved to the new module `ktlint-ruleset-core`:
 
-| Old class/package name in `ktlint-core`        | New class/package name in `ktlint-ruleset-core`        |
-|------------------------------------------------|--------------------------------------------------------|
-| com.pinterest.ktlint.rule.core.ast.ElementType | com.pinterest.ktlint.ruleset.core.api.ElementType      |
-| com.pinterest.ktlint.rule.core.ast.package     | com.pinterest.ktlint.ruleset.core.api.ASTNodeExtension |
+| Old class/package name in `ktlint-core`   | New class/package name in `ktlint-ruleset-core`        |
+|-------------------------------------------|--------------------------------------------------------|
+| com.pinterest.ktlint.core.ast.ElementType | com.pinterest.ktlint.ruleset.core.api.ElementType      |
+| com.pinterest.ktlint.core.ast.package     | com.pinterest.ktlint.ruleset.core.api.ASTNodeExtension |
+| com.pinterest.ktlint.core.IndentConfig    | com.pinterest.ktlint.ruleset.core.api.IndentConfig     |
 
 Module `ktlint` has been renamed to `ktlint-cli`. Classes below have been relocated in this module:
 

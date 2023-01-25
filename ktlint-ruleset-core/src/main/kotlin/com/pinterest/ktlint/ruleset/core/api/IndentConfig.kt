@@ -1,7 +1,9 @@
-package com.pinterest.ktlint.core
+package com.pinterest.ktlint.ruleset.core.api
 
-import com.pinterest.ktlint.core.IndentConfig.IndentStyle.SPACE
-import com.pinterest.ktlint.core.IndentConfig.IndentStyle.TAB
+import com.pinterest.ktlint.rule.engine.api.editorconfig.INDENT_SIZE_PROPERTY
+import com.pinterest.ktlint.rule.engine.api.editorconfig.INDENT_STYLE_PROPERTY
+import com.pinterest.ktlint.ruleset.core.api.IndentConfig.IndentStyle.SPACE
+import com.pinterest.ktlint.ruleset.core.api.IndentConfig.IndentStyle.TAB
 import org.ec4j.core.model.PropertyType
 
 public data class IndentConfig(
@@ -142,8 +144,8 @@ public data class IndentConfig(
         private val TABS_AND_SPACES = Regex("[ \t]*")
 
         public val DEFAULT_INDENT_CONFIG: IndentConfig = IndentConfig(
-            indentStyle = SPACE,
-            tabWidth = 4,
+            indentStyle = INDENT_STYLE_PROPERTY.defaultValue,
+            tabWidth = INDENT_SIZE_PROPERTY.defaultValue,
         )
     }
 }
