@@ -1,16 +1,16 @@
 package com.pinterest.ktlint.test
 
-import com.pinterest.ktlint.core.KtLint
-import com.pinterest.ktlint.core.KtLintRuleEngine
 import com.pinterest.ktlint.core.LintError
 import com.pinterest.ktlint.core.RuleProvider
-import com.pinterest.ktlint.core.api.EditorConfigOverride
-import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.plus
-import com.pinterest.ktlint.core.api.editorconfig.EXPERIMENTAL_RULES_EXECUTION_PROPERTY
-import com.pinterest.ktlint.core.api.editorconfig.RuleExecution
-import com.pinterest.ktlint.core.api.editorconfig.createRuleSetExecutionEditorConfigProperty
 import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ktlint.core.setDefaultLoggerModifier
+import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride
+import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride.Companion.plus
+import com.pinterest.ktlint.rule.engine.api.KtLint
+import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
+import com.pinterest.ktlint.rule.engine.api.editorconfig.EXPERIMENTAL_RULES_EXECUTION_PROPERTY
+import com.pinterest.ktlint.rule.engine.api.editorconfig.RuleExecution
+import com.pinterest.ktlint.rule.engine.api.editorconfig.createRuleSetExecutionEditorConfigProperty
 import com.pinterest.ruleset.test.DumpASTRule
 import mu.KotlinLogging
 import org.jetbrains.kotlin.utils.addToStdlib.ifTrue

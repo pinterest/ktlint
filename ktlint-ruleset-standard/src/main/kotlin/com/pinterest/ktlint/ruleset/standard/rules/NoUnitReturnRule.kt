@@ -1,11 +1,11 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.ast.ElementType.FUN
-import com.pinterest.ktlint.core.ast.ElementType.LBRACE
-import com.pinterest.ktlint.core.ast.ElementType.TYPE_REFERENCE
-import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER_LIST
-import com.pinterest.ktlint.core.ast.nextCodeLeaf
+import com.pinterest.ktlint.ruleset.core.api.ElementType.FUN
+import com.pinterest.ktlint.ruleset.core.api.ElementType.LBRACE
+import com.pinterest.ktlint.ruleset.core.api.ElementType.TYPE_REFERENCE
+import com.pinterest.ktlint.ruleset.core.api.ElementType.VALUE_PARAMETER_LIST
+import com.pinterest.ktlint.ruleset.core.api.nextCodeLeaf
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 public class NoUnitReturnRule : Rule("no-unit-return") {

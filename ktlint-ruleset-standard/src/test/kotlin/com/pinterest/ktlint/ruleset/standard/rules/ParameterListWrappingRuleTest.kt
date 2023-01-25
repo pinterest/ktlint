@@ -1,10 +1,10 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.core.RuleProvider
-import com.pinterest.ktlint.core.api.editorconfig.CODE_STYLE_PROPERTY
-import com.pinterest.ktlint.core.api.editorconfig.CodeStyleValue
-import com.pinterest.ktlint.core.api.editorconfig.CodeStyleValue.ktlint_official
-import com.pinterest.ktlint.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
+import com.pinterest.ktlint.rule.engine.api.editorconfig.CODE_STYLE_PROPERTY
+import com.pinterest.ktlint.rule.engine.api.editorconfig.CodeStyleValue
+import com.pinterest.ktlint.rule.engine.api.editorconfig.CodeStyleValue.ktlint_official
+import com.pinterest.ktlint.rule.engine.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Nested

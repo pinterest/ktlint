@@ -30,7 +30,7 @@ rootProject.name = "ktlint-root"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 include(
-    ":ktlint",
+    ":ktlint-cli",
     ":ktlint-core",
     ":ktlint-api-consumer",
     ":ktlint-reporter-baseline",
@@ -41,6 +41,7 @@ include(
     ":ktlint-reporter-html",
     ":ktlint-reporter-plain",
     ":ktlint-reporter-plain-summary",
+    ":ktlint-rule-engine",
     ":ktlint-ruleset-core",
     ":ktlint-ruleset-standard",
     ":ktlint-ruleset-template",

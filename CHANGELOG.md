@@ -27,7 +27,7 @@ Field `defaultAndroidValue` in class `EditorConfigProperty` has been renamed to 
 
 The `.editorconfig` properties `disabled_rules` and `ktlint_disabled_rules` are no longer supported. Specifying those properties in the `editorConfigOverride` or `editorConfigDefaults` result in warnings at runtime.
 
-### 'Ktlint Official` code style and renaming of existing code styles
+#### 'Ktlint Official` code style and renaming of existing code styles
 
 A new code style with name `ktlint_offical` has been added. This code style makes it possible to innovate ktlint beyond current expectations of users that are familiar with the existing code styles. 
 
@@ -36,6 +36,36 @@ The `ktlint_official` code style combines the best elements from the Kotlin Codi
 The `official` code style has been renamed to `intellij_idea`. Code formatted with this code style aims to be compatible with default formatter of IntelliJ IDEA. This code style is based on Kotlin Coding conventions (https://kotlinlang.org/docs/coding-conventions.html). If `.editorconfig` property `ktlint_code_style` has been set to then do not forget to change the value of that property to `intellij_idea`. When not set, this is still the default code style of ktlint. Note that in the long run, the default code style is changed to `ktlint_official`.
 
 Code style `android` has been renamed to `android_studio`. Code formatted with this code style aims to be compatible with default formatter of Android Studio. This code style is based on Android's Kotlin styleguide (https://developer.android.com/kotlin/style-guide). If `.editorconfig` property `ktlint_code_style` has been set to then do not forget to change the value of that property to `android_studio`.
+
+#### Package restructuring and class relocation
+
+The `ktlint-core` package is split into separate packages `ktlint-rule-engine`, `ktlint-ruleset-core`.
+
+Classes below have been moved to `ktlint-rule-engine`:
+
+| Old package name in `ktlint-core`                             | New package name in `ktlint-rule-engine`                        |
+|---------------------------------------------------------------|-----------------------------------------------------------------|
+| com.pinterest.ktlint.rule.core.api.editorconfig               | com.pinterest.ktlint.rule.engine.api.editorconfig               |
+| com.pinterest.ktlint.rule.core.api.EditorConfigDefaults       | com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults       |
+| com.pinterest.ktlint.rule.core.api.EditorConfigOverride       | com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults       |
+| com.pinterest.ktlint.rule.core.KtLintRuleEngine               | com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine           |
+| com.pinterest.ktlint.rule.core.api.Code                       | com.pinterest.ktlint.rule.engine.api.Code                       |
+| com.pinterest.ktlint.rule.core.api.KtLintParseException       | com.pinterest.ktlint.rule.engine.api.KtLintParseException       |
+| com.pinterest.ktlint.rule.core.api.KtLintRuleException        | com.pinterest.ktlint.rule.engine.api.KtLintRuleException        |
+| com.pinterest.ktlint.rule.core.api.UsesEditorConfigProperties | com.pinterest.ktlint.rule.engine.api.UsesEditorConfigProperties |
+
+Classes below have been moved to `ktlint-ruleset-core`:
+
+| Old package name in `ktlint-core`              | New package name in `ktlint-ruleset-core`              |
+|------------------------------------------------|--------------------------------------------------------|
+| com.pinterest.ktlint.rule.core.ast.ElementType | com.pinterest.ktlint.ruleset.core.api.ElementType      |
+| com.pinterest.ktlint.rule.core.ast.package     | com.pinterest.ktlint.ruleset.core.api.ASTNodeExtension |
+
+Classes below have been moved to `ktlint-cli`:
+
+| Old package name in `ktlint-core`      | New package name in `ktlint-cli`      |
+|----------------------------------------|---------------------------------------|
+| com.pinterest.ktlint.core.api.Baseline | com.pinterest.ktlint.cli.api.Baseline |
 
 ### Added
 

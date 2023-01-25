@@ -1,19 +1,19 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.api.UsesEditorConfigProperties
-import com.pinterest.ktlint.core.api.editorconfig.EditorConfigProperty
-import com.pinterest.ktlint.core.api.editorconfig.INDENT_SIZE_PROPERTY
-import com.pinterest.ktlint.core.api.editorconfig.INDENT_STYLE_PROPERTY
-import com.pinterest.ktlint.core.ast.ElementType.KDOC
-import com.pinterest.ktlint.core.ast.ElementType.KDOC_END
-import com.pinterest.ktlint.core.ast.ElementType.KDOC_START
-import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
-import com.pinterest.ktlint.core.ast.lineIndent
-import com.pinterest.ktlint.core.ast.nextLeaf
-import com.pinterest.ktlint.core.ast.noNewLineInClosedRange
-import com.pinterest.ktlint.core.ast.prevLeaf
-import com.pinterest.ktlint.core.ast.upsertWhitespaceBeforeMe
+import com.pinterest.ktlint.rule.engine.api.UsesEditorConfigProperties
+import com.pinterest.ktlint.rule.engine.api.editorconfig.EditorConfigProperty
+import com.pinterest.ktlint.rule.engine.api.editorconfig.INDENT_SIZE_PROPERTY
+import com.pinterest.ktlint.rule.engine.api.editorconfig.INDENT_STYLE_PROPERTY
+import com.pinterest.ktlint.ruleset.core.api.ElementType.KDOC
+import com.pinterest.ktlint.ruleset.core.api.ElementType.KDOC_END
+import com.pinterest.ktlint.ruleset.core.api.ElementType.KDOC_START
+import com.pinterest.ktlint.ruleset.core.api.ElementType.WHITE_SPACE
+import com.pinterest.ktlint.ruleset.core.api.lineIndent
+import com.pinterest.ktlint.ruleset.core.api.nextLeaf
+import com.pinterest.ktlint.ruleset.core.api.noNewLineInClosedRange
+import com.pinterest.ktlint.ruleset.core.api.prevLeaf
+import com.pinterest.ktlint.ruleset.core.api.upsertWhitespaceBeforeMe
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 /**

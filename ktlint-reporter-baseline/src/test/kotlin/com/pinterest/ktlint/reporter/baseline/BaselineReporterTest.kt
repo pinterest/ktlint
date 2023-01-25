@@ -10,33 +10,32 @@ import java.nio.file.Paths
 class BaselineReporterTest {
     @Test
     fun testReportGeneration() {
-        val basePath = Paths.get("").toAbsolutePath()
         val out = ByteArrayOutputStream()
         val reporter = BaselineReporter(PrintStream(out, true))
         reporter.onLintError(
-            "$basePath/one-fixed-and-one-not.kt",
+            "one-fixed-and-one-not.kt",
             LintError(1, 1, "rule-1", "<\"&'>"),
             false,
         )
         reporter.onLintError(
-            "$basePath/one-fixed-and-one-not.kt",
+            "one-fixed-and-one-not.kt",
             LintError(2, 1, "rule-2", "And if you see my friend"),
             true,
         )
 
         reporter.onLintError(
-            "$basePath/two-not-fixed.kt",
+            "two-not-fixed.kt",
             LintError(1, 10, "rule-1", "I thought I would again"),
             false,
         )
         reporter.onLintError(
-            "$basePath/two-not-fixed.kt",
+            "two-not-fixed.kt",
             LintError(2, 20, "rule-2", "A single thin straight line"),
             false,
         )
 
         reporter.onLintError(
-            "$basePath/all-corrected.kt",
+            "all-corrected.kt",
             LintError(1, 1, "rule-1", "I thought we had more time"),
             true,
         )

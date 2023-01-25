@@ -1,9 +1,9 @@
 package com.pinterest.ruleset.test
 
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.ast.ElementType
-import com.pinterest.ktlint.core.ast.isRoot
-import com.pinterest.ktlint.core.ast.lastChildLeafOrSelf
+import com.pinterest.ktlint.ruleset.core.api.ElementType
+import com.pinterest.ktlint.ruleset.core.api.isRoot
+import com.pinterest.ktlint.ruleset.core.api.lastChildLeafOrSelf
 import com.pinterest.ruleset.test.internal.Color
 import com.pinterest.ruleset.test.internal.color
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode

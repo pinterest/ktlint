@@ -26,9 +26,9 @@ artifacts {
 val ktlint: Configuration by configurations.creating
 
 dependencies {
-    ktlint(projects.ktlint)
+    ktlint(projects.ktlintRoot)
 
-    compileOnly(projects.ktlintCore)
+    api(projects.ktlintRulesetCore)
 
     testImplementation(projects.ktlintCore)
     testImplementation(projects.ktlintTest)

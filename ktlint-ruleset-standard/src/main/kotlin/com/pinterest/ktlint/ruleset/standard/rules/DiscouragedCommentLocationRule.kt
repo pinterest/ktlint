@@ -1,9 +1,9 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.ast.ElementType.TYPE_PARAMETER_LIST
-import com.pinterest.ktlint.core.ast.isPartOfComment
-import com.pinterest.ktlint.core.ast.prevCodeSibling
+import com.pinterest.ktlint.ruleset.core.api.ElementType.TYPE_PARAMETER_LIST
+import com.pinterest.ktlint.ruleset.core.api.isPartOfComment
+import com.pinterest.ktlint.ruleset.core.api.prevCodeSibling
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 /**

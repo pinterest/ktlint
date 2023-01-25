@@ -1,8 +1,8 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.ast.ElementType.KDOC_MARKDOWN_LINK
-import com.pinterest.ktlint.core.ast.ElementType.KDOC_TAG
+import com.pinterest.ktlint.ruleset.core.api.ElementType.KDOC_MARKDOWN_LINK
+import com.pinterest.ktlint.ruleset.core.api.ElementType.KDOC_TAG
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement

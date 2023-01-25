@@ -5,6 +5,7 @@ plugins {
 
 dependencies {
     implementation(projects.ktlintCore)
+    implementation(projects.ktlintRuleEngine)
     implementation(projects.ktlintRulesetStandard)
     implementation(libs.logback)
 

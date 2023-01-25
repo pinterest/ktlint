@@ -1,11 +1,11 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.ast.ElementType.CLASS
-import com.pinterest.ktlint.core.ast.ElementType.DOT_QUALIFIED_EXPRESSION
-import com.pinterest.ktlint.core.ast.ElementType.IDENTIFIER
-import com.pinterest.ktlint.core.ast.ElementType.IMPORT_DIRECTIVE
-import com.pinterest.ktlint.core.ast.ElementType.OBJECT_DECLARATION
+import com.pinterest.ktlint.ruleset.core.api.ElementType.CLASS
+import com.pinterest.ktlint.ruleset.core.api.ElementType.DOT_QUALIFIED_EXPRESSION
+import com.pinterest.ktlint.ruleset.core.api.ElementType.IDENTIFIER
+import com.pinterest.ktlint.ruleset.core.api.ElementType.IMPORT_DIRECTIVE
+import com.pinterest.ktlint.ruleset.core.api.ElementType.OBJECT_DECLARATION
 import com.pinterest.ktlint.ruleset.standard.rules.internal.regExIgnoringDiacriticsAndStrokesOnLetters
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 

@@ -1,12 +1,12 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.ast.ElementType.FUN
-import com.pinterest.ktlint.core.ast.ElementType.NULLABLE_TYPE
-import com.pinterest.ktlint.core.ast.ElementType.TYPE_REFERENCE
-import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER_LIST
-import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
-import com.pinterest.ktlint.core.ast.nextSibling
+import com.pinterest.ktlint.ruleset.core.api.ElementType.FUN
+import com.pinterest.ktlint.ruleset.core.api.ElementType.NULLABLE_TYPE
+import com.pinterest.ktlint.ruleset.core.api.ElementType.TYPE_REFERENCE
+import com.pinterest.ktlint.ruleset.core.api.ElementType.VALUE_PARAMETER_LIST
+import com.pinterest.ktlint.ruleset.core.api.ElementType.WHITE_SPACE
+import com.pinterest.ktlint.ruleset.core.api.nextSibling
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 public class FunctionTypeReferenceSpacingRule :

@@ -1,19 +1,19 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.ast.ElementType.BLOCK_COMMENT
-import com.pinterest.ktlint.core.ast.ElementType.EOL_COMMENT
-import com.pinterest.ktlint.core.ast.ElementType.FUNCTION_TYPE
-import com.pinterest.ktlint.core.ast.ElementType.IDENTIFIER
-import com.pinterest.ktlint.core.ast.ElementType.KDOC_START
-import com.pinterest.ktlint.core.ast.ElementType.LPAR
-import com.pinterest.ktlint.core.ast.ElementType.PRIMARY_CONSTRUCTOR
-import com.pinterest.ktlint.core.ast.ElementType.RPAR
-import com.pinterest.ktlint.core.ast.ElementType.SUPER_KEYWORD
-import com.pinterest.ktlint.core.ast.ElementType.VALUE_ARGUMENT_LIST
-import com.pinterest.ktlint.core.ast.ElementType.VALUE_PARAMETER_LIST
-import com.pinterest.ktlint.core.ast.nextLeaf
-import com.pinterest.ktlint.core.ast.prevLeaf
+import com.pinterest.ktlint.ruleset.core.api.ElementType.BLOCK_COMMENT
+import com.pinterest.ktlint.ruleset.core.api.ElementType.EOL_COMMENT
+import com.pinterest.ktlint.ruleset.core.api.ElementType.FUNCTION_TYPE
+import com.pinterest.ktlint.ruleset.core.api.ElementType.IDENTIFIER
+import com.pinterest.ktlint.ruleset.core.api.ElementType.KDOC_START
+import com.pinterest.ktlint.ruleset.core.api.ElementType.LPAR
+import com.pinterest.ktlint.ruleset.core.api.ElementType.PRIMARY_CONSTRUCTOR
+import com.pinterest.ktlint.ruleset.core.api.ElementType.RPAR
+import com.pinterest.ktlint.ruleset.core.api.ElementType.SUPER_KEYWORD
+import com.pinterest.ktlint.ruleset.core.api.ElementType.VALUE_ARGUMENT_LIST
+import com.pinterest.ktlint.ruleset.core.api.ElementType.VALUE_PARAMETER_LIST
+import com.pinterest.ktlint.ruleset.core.api.nextLeaf
+import com.pinterest.ktlint.ruleset.core.api.prevLeaf
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 

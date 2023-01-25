@@ -1,16 +1,16 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.ast.ElementType.CLASS
-import com.pinterest.ktlint.core.ast.ElementType.FUN
-import com.pinterest.ktlint.core.ast.ElementType.IDENTIFIER
-import com.pinterest.ktlint.core.ast.ElementType.MODIFIER_LIST
-import com.pinterest.ktlint.core.ast.ElementType.OBJECT_DECLARATION
-import com.pinterest.ktlint.core.ast.ElementType.PROPERTY
-import com.pinterest.ktlint.core.ast.ElementType.TYPEALIAS
-import com.pinterest.ktlint.core.ast.ElementType.TYPE_REFERENCE
-import com.pinterest.ktlint.core.ast.children
-import com.pinterest.ktlint.core.ast.isRoot
+import com.pinterest.ktlint.ruleset.core.api.ElementType.CLASS
+import com.pinterest.ktlint.ruleset.core.api.ElementType.FUN
+import com.pinterest.ktlint.ruleset.core.api.ElementType.IDENTIFIER
+import com.pinterest.ktlint.ruleset.core.api.ElementType.MODIFIER_LIST
+import com.pinterest.ktlint.ruleset.core.api.ElementType.OBJECT_DECLARATION
+import com.pinterest.ktlint.ruleset.core.api.ElementType.PROPERTY
+import com.pinterest.ktlint.ruleset.core.api.ElementType.TYPEALIAS
+import com.pinterest.ktlint.ruleset.core.api.ElementType.TYPE_REFERENCE
+import com.pinterest.ktlint.ruleset.core.api.children
+import com.pinterest.ktlint.ruleset.core.api.isRoot
 import com.pinterest.ktlint.ruleset.standard.rules.internal.regExIgnoringDiacriticsAndStrokesOnLetters
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode

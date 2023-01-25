@@ -9,6 +9,7 @@ package com.pinterest.ktlint.core.api
     AnnotationTarget.CLASS,
     AnnotationTarget.FUNCTION,
     AnnotationTarget.TYPEALIAS,
+    AnnotationTarget.PROPERTY,
 )
 public annotation class FeatureInAlphaState
 

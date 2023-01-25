@@ -1,8 +1,12 @@
 package com.pinterest.ktlint.core
 
 import com.pinterest.ktlint.core.api.EditorConfigProperties
+import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.internal.IdNamingPolicy
+import mu.KotlinLogging
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
+
+private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
 /**
  * The [Rule] contains the life cycle hooks which are needed for the KtLint rule engine.
@@ -46,11 +50,13 @@ public open class Rule(
     /**
      * The id of the rule without the rule set id as prefix.
      */
+    @OptIn(FeatureInAlphaState::class)
     public val ruleId: String = id.ruleId()
 
     /**
      * The rule set id of the rule. Defaults to "standard" when not specified during construction of the rule.
      */
+    @OptIn(FeatureInAlphaState::class)
     public val ruleSetId: String = id.ruleSetId()
 
     /**
@@ -96,22 +102,24 @@ public open class Rule(
     public open fun afterLastNode() {}
 
     /**
-     * Checks whether [Rule] instance has not yet being used for traversal of the AST.
+     * Checks whether the [Rule] instance is used for traversal of the AST and as of that potentially has changed the state of the [Rule]
+     * provided that it has state.
      */
-    internal fun isUsedForTraversalOfAST() = traversalState != TraversalState.NOT_STARTED
+    public fun isUsedForTraversalOfAST(): Boolean = traversalState != TraversalState.NOT_STARTED
 
     /**
      * Marks the [Rule] instance as being used for traversal of an AST. From this moment on, this instance of the [Rule]
      * can not be used to start a new traversal of the same or another AST as the instance might contain state.
      */
-    internal fun startTraversalOfAST() {
+    public fun startTraversalOfAST() {
+        require(traversalState == TraversalState.NOT_STARTED)
         traversalState = TraversalState.CONTINUE
     }
 
     /**
      * Checks whether the next node in the AST is to be traversed. By default, the entire AST is traversed.
      */
-    internal fun shouldContinueTraversalOfAST() = traversalState == TraversalState.CONTINUE
+    public fun shouldContinueTraversalOfAST(): Boolean = traversalState == TraversalState.CONTINUE
 
     /**
      * Stops traversal of the AST. Intended usage it to prevent parsing of the remainder of the AST once the goal of the
@@ -176,7 +184,8 @@ public open class Rule(
              * The guaranteed fully qualified rule id containing the rule set id as prefix. The rule set id defaults to "standard" when not
              * specified during construction of the RunAfterRule.
              */
-            internal val qualifiedRuleId = ruleId.qualifiedRuleId()
+            @FeatureInAlphaState
+            public val qualifiedRuleId: String = ruleId.qualifiedRuleId()
         }
 
         public object RunAsLateAsPossible : VisitorModifier()
@@ -200,11 +209,14 @@ public open class Rule(
 private const val STANDARD_RULE_SET_ID = "standard"
 private const val DELIMITER = ":"
 
-internal fun String.ruleId() = this.substringAfter(DELIMITER, this)
+@FeatureInAlphaState
+public fun String.ruleId(): String = this.substringAfter(DELIMITER, this)
 
-internal fun String.ruleSetId() = substringBefore(DELIMITER, STANDARD_RULE_SET_ID)
+@FeatureInAlphaState
+public fun String.ruleSetId(): String = substringBefore(DELIMITER, STANDARD_RULE_SET_ID)
 
-internal fun String.qualifiedRuleId() = "${ruleSetId()}$DELIMITER${ruleId()}"
+@FeatureInAlphaState
+public fun String.qualifiedRuleId(): String = "${ruleSetId()}$DELIMITER${ruleId()}"
 
 private fun qualifiedRuleId(
     ruleSetId: String,

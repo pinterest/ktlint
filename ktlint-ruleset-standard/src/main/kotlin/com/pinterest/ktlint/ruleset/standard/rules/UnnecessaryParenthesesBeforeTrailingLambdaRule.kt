@@ -1,14 +1,14 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.ast.ElementType.CALL_EXPRESSION
-import com.pinterest.ktlint.core.ast.ElementType.LAMBDA_ARGUMENT
-import com.pinterest.ktlint.core.ast.ElementType.LPAR
-import com.pinterest.ktlint.core.ast.ElementType.RPAR
-import com.pinterest.ktlint.core.ast.ElementType.VALUE_ARGUMENT_LIST
-import com.pinterest.ktlint.core.ast.children
-import com.pinterest.ktlint.core.ast.isPartOf
-import com.pinterest.ktlint.core.ast.nextCodeSibling
+import com.pinterest.ktlint.ruleset.core.api.ElementType.CALL_EXPRESSION
+import com.pinterest.ktlint.ruleset.core.api.ElementType.LAMBDA_ARGUMENT
+import com.pinterest.ktlint.ruleset.core.api.ElementType.LPAR
+import com.pinterest.ktlint.ruleset.core.api.ElementType.RPAR
+import com.pinterest.ktlint.ruleset.core.api.ElementType.VALUE_ARGUMENT_LIST
+import com.pinterest.ktlint.ruleset.core.api.children
+import com.pinterest.ktlint.ruleset.core.api.isPartOf
+import com.pinterest.ktlint.ruleset.core.api.nextCodeSibling
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 /**

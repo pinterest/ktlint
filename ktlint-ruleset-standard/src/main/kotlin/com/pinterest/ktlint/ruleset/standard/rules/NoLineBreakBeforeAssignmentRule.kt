@@ -1,11 +1,11 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.ast.ElementType.EQ
-import com.pinterest.ktlint.core.ast.isPartOfComment
-import com.pinterest.ktlint.core.ast.isWhiteSpace
-import com.pinterest.ktlint.core.ast.isWhiteSpaceWithNewline
-import com.pinterest.ktlint.core.ast.prevCodeSibling
+import com.pinterest.ktlint.ruleset.core.api.ElementType.EQ
+import com.pinterest.ktlint.ruleset.core.api.isPartOfComment
+import com.pinterest.ktlint.ruleset.core.api.isWhiteSpace
+import com.pinterest.ktlint.ruleset.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.ruleset.core.api.prevCodeSibling
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement

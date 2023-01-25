@@ -1,16 +1,16 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.ast.ElementType.ANNOTATION
-import com.pinterest.ktlint.core.ast.ElementType.ANNOTATION_ENTRY
-import com.pinterest.ktlint.core.ast.ElementType.MODIFIER_LIST
-import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
-import com.pinterest.ktlint.core.ast.children
-import com.pinterest.ktlint.core.ast.isPartOfComment
-import com.pinterest.ktlint.core.ast.lineIndent
-import com.pinterest.ktlint.core.ast.nextLeaf
-import com.pinterest.ktlint.core.ast.nextSibling
-import com.pinterest.ktlint.core.ast.prevLeaf
+import com.pinterest.ktlint.ruleset.core.api.ElementType.ANNOTATION
+import com.pinterest.ktlint.ruleset.core.api.ElementType.ANNOTATION_ENTRY
+import com.pinterest.ktlint.ruleset.core.api.ElementType.MODIFIER_LIST
+import com.pinterest.ktlint.ruleset.core.api.ElementType.WHITE_SPACE
+import com.pinterest.ktlint.ruleset.core.api.children
+import com.pinterest.ktlint.ruleset.core.api.isPartOfComment
+import com.pinterest.ktlint.ruleset.core.api.lineIndent
+import com.pinterest.ktlint.ruleset.core.api.nextLeaf
+import com.pinterest.ktlint.ruleset.core.api.nextSibling
+import com.pinterest.ktlint.ruleset.core.api.prevLeaf
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 

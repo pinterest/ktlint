@@ -1,9 +1,9 @@
 package com.example.ktlint.api.consumer
 
 import com.example.ktlint.api.consumer.rules.KTLINT_API_CONSUMER_RULE_PROVIDERS
-import com.pinterest.ktlint.core.Code
-import com.pinterest.ktlint.core.KtLintRuleEngine
 import com.pinterest.ktlint.core.initKtLintKLogger
+import com.pinterest.ktlint.rule.engine.api.Code
+import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import mu.KotlinLogging
 import java.io.File
 

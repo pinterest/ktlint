@@ -1,9 +1,9 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.ast.ElementType.RANGE
-import com.pinterest.ktlint.core.ast.nextLeaf
-import com.pinterest.ktlint.core.ast.prevLeaf
+import com.pinterest.ktlint.ruleset.core.api.ElementType.RANGE
+import com.pinterest.ktlint.ruleset.core.api.nextLeaf
+import com.pinterest.ktlint.ruleset.core.api.prevLeaf
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 

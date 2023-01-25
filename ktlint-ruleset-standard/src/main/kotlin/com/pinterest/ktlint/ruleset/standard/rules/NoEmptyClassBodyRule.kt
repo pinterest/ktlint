@@ -1,13 +1,13 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.ast.ElementType.CLASS_BODY
-import com.pinterest.ktlint.core.ast.ElementType.LBRACE
-import com.pinterest.ktlint.core.ast.ElementType.RBRACE
-import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
-import com.pinterest.ktlint.core.ast.children
-import com.pinterest.ktlint.core.ast.isPartOf
-import com.pinterest.ktlint.core.ast.nextLeaf
+import com.pinterest.ktlint.ruleset.core.api.ElementType.CLASS_BODY
+import com.pinterest.ktlint.ruleset.core.api.ElementType.LBRACE
+import com.pinterest.ktlint.ruleset.core.api.ElementType.RBRACE
+import com.pinterest.ktlint.ruleset.core.api.ElementType.WHITE_SPACE
+import com.pinterest.ktlint.ruleset.core.api.children
+import com.pinterest.ktlint.ruleset.core.api.isPartOf
+import com.pinterest.ktlint.ruleset.core.api.nextLeaf
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.psi.KtObjectLiteralExpression
 

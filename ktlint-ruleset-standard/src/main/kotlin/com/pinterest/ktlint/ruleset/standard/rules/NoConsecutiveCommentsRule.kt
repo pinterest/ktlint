@@ -1,12 +1,12 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.ast.ElementType.BLOCK_COMMENT
-import com.pinterest.ktlint.core.ast.ElementType.EOL_COMMENT
-import com.pinterest.ktlint.core.ast.ElementType.KDOC_END
-import com.pinterest.ktlint.core.ast.ElementType.KDOC_START
-import com.pinterest.ktlint.core.ast.isWhiteSpace
-import com.pinterest.ktlint.core.ast.prevLeaf
+import com.pinterest.ktlint.ruleset.core.api.ElementType.BLOCK_COMMENT
+import com.pinterest.ktlint.ruleset.core.api.ElementType.EOL_COMMENT
+import com.pinterest.ktlint.ruleset.core.api.ElementType.KDOC_END
+import com.pinterest.ktlint.ruleset.core.api.ElementType.KDOC_START
+import com.pinterest.ktlint.ruleset.core.api.isWhiteSpace
+import com.pinterest.ktlint.ruleset.core.api.prevLeaf
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 public class NoConsecutiveCommentsRule :

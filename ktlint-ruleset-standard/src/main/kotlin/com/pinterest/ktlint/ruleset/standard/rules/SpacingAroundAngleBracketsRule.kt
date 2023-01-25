@@ -1,15 +1,15 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.ast.ElementType.FUN_KEYWORD
-import com.pinterest.ktlint.core.ast.ElementType.TYPE_ARGUMENT_LIST
-import com.pinterest.ktlint.core.ast.ElementType.TYPE_PARAMETER_LIST
-import com.pinterest.ktlint.core.ast.ElementType.VAL_KEYWORD
-import com.pinterest.ktlint.core.ast.ElementType.VAR_KEYWORD
-import com.pinterest.ktlint.core.ast.ElementType.WHITE_SPACE
-import com.pinterest.ktlint.core.ast.isWhiteSpaceWithoutNewline
-import com.pinterest.ktlint.core.ast.nextLeaf
-import com.pinterest.ktlint.core.ast.prevLeaf
+import com.pinterest.ktlint.ruleset.core.api.ElementType.FUN_KEYWORD
+import com.pinterest.ktlint.ruleset.core.api.ElementType.TYPE_ARGUMENT_LIST
+import com.pinterest.ktlint.ruleset.core.api.ElementType.TYPE_PARAMETER_LIST
+import com.pinterest.ktlint.ruleset.core.api.ElementType.VAL_KEYWORD
+import com.pinterest.ktlint.ruleset.core.api.ElementType.VAR_KEYWORD
+import com.pinterest.ktlint.ruleset.core.api.ElementType.WHITE_SPACE
+import com.pinterest.ktlint.ruleset.core.api.isWhiteSpaceWithoutNewline
+import com.pinterest.ktlint.ruleset.core.api.nextLeaf
+import com.pinterest.ktlint.ruleset.core.api.prevLeaf
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 

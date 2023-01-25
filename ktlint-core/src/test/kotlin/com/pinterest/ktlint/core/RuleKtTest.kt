@@ -1,9 +1,11 @@
 package com.pinterest.ktlint.core
 
+import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 
+@OptIn(FeatureInAlphaState::class)
 class RuleKtTest {
     @ParameterizedTest(name = "Qualified rule id: `{0}`, expected rule id: `{1}`")
     @CsvSource(

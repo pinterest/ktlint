@@ -1,12 +1,12 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.ast.ElementType.CALLABLE_REFERENCE_EXPRESSION
-import com.pinterest.ktlint.core.ast.ElementType.CLASS_LITERAL_EXPRESSION
-import com.pinterest.ktlint.core.ast.ElementType.COLONCOLON
-import com.pinterest.ktlint.core.ast.isPartOf
-import com.pinterest.ktlint.core.ast.nextLeaf
-import com.pinterest.ktlint.core.ast.prevLeaf
+import com.pinterest.ktlint.ruleset.core.api.ElementType.CALLABLE_REFERENCE_EXPRESSION
+import com.pinterest.ktlint.ruleset.core.api.ElementType.CLASS_LITERAL_EXPRESSION
+import com.pinterest.ktlint.ruleset.core.api.ElementType.COLONCOLON
+import com.pinterest.ktlint.ruleset.core.api.isPartOf
+import com.pinterest.ktlint.ruleset.core.api.nextLeaf
+import com.pinterest.ktlint.ruleset.core.api.prevLeaf
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
