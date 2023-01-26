@@ -3,6 +3,11 @@ name: PR Build
 on:
   pull_request:
 
+env:
+  ORG_GRADLE_PROJECT_signingKey : ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEY }}
+  ORG_GRADLE_PROJECT_signingKeyId: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEYID }}
+  ORG_GRADLE_PROJECT_signingKeyPassword : ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGPASSWORD }}
+
 jobs:
   build:
     strategy:
@@ -19,16 +24,8 @@ jobs:
       - uses: gradle/gradle-build-action@v2
       - name: Build with release Kotlin version
         run: ./gradlew clean build ktlint --no-daemon
-        env:
-          ORG_GRADLE_PROJECT_signingKey : ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEY }}
-          ORG_GRADLE_PROJECT_signingKeyId: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEYID }}
-          ORG_GRADLE_PROJECT_signingKeyPassword : ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGPASSWORD }}
       - name: Build with dev Kotlin version
         run: ./gradlew -PkotlinDev clean build ktlint --no-daemon
-        env:
-          ORG_GRADLE_PROJECT_signingKey : ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEY }}
-          ORG_GRADLE_PROJECT_signingKeyId: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEYID }}
-          ORG_GRADLE_PROJECT_signingKeyPassword : ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGPASSWORD }}
       - name: Upload test results
         uses: actions/upload-artifact@v3
         if: failure()
