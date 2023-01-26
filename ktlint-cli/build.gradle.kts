@@ -21,20 +21,20 @@ tasks.shadowJar {
 
 dependencies {
     implementation(projects.ktlintCore)
-    implementation(projects.ktlintCliReporterBaseline)
-    implementation(projects.ktlintCliReporterCheckstyle)
-    implementation(projects.ktlintCliReporterJson)
-    implementation(projects.ktlintCliReporterFormat)
-    implementation(projects.ktlintCliReporterHtml)
+    implementation(projects.ktlintCliReporterCore)
     implementation(projects.ktlintCliReporterPlain)
-    implementation(projects.ktlintCliReporterPlainSummary)
-    implementation(projects.ktlintCliReporterSarif)
     implementation(projects.ktlintRulesetStandard)
-    implementation(projects.ktlintRulesetTest)
-    implementation(libs.kotlin.compiler)
-    implementation(libs.klob)
+    implementation(projects.ktlintRulesetTest) // Ruleset for dumping the AST of a file
     implementation(libs.picocli)
     implementation(libs.logback)
+
+    runtimeOnly(projects.ktlintCliReporterBaseline)
+    runtimeOnly(projects.ktlintCliReporterCheckstyle)
+    runtimeOnly(projects.ktlintCliReporterJson)
+    runtimeOnly(projects.ktlintCliReporterFormat)
+    runtimeOnly(projects.ktlintCliReporterHtml)
+    runtimeOnly(projects.ktlintCliReporterPlainSummary)
+    runtimeOnly(projects.ktlintCliReporterSarif)
 
     testImplementation(libs.junit5)
     testImplementation(libs.assertj)
