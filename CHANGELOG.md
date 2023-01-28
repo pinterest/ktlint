@@ -2,6 +2,16 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+### Added
+
+### Removed
+
+### Fixed
+
+### Changed
+
 ## [0.48.2] - 2023-01-21
 
 ### Additional clarification on API Changes in `0.48.0` and `0.48.1`
