@@ -164,4 +164,4 @@ ktlint_custom-rule-set_custom-rule = disabled # Disables the `custom-rule` rule 
 
 ## Why is wildcard import `java.util.*` not reported by the `no-wildcard-imports` rule?
 
-The `no-wildcard-imports` rule forbids wild imports, except for imports defined in `.editorconfig` property `ij_kotlin_packages_to_use_import_on_demand`. If ths property is not set explicitly set, it allows wildcards imports like `java.util.*` by default to keep in sync with IntelliJ IDEA behavior.
+The `no-wildcard-imports` rule forbids wildcard imports, except for imports defined in `.editorconfig` property `ij_kotlin_packages_to_use_import_on_demand`. If ths property is not set explicitly set, it allows wildcards imports like `java.util.*` by default to keep in sync with IntelliJ IDEA behavior.
