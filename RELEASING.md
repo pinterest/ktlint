@@ -13,4 +13,15 @@ Note: These steps should be done directly in the pinterest/ktlint repository, no
 7. Add a tag with the new release version, and push it directly to remote (e.g. `git tag 0.50.0 && git push origin 0.50.0`). This will kick off the [Release workflow](https://github.com/pinterest/ktlint/actions/workflows/release.yml).
 9. Close and release the repo on Sonatype. (Only Pinterest employees can do this.)
 10. Find the `<release>-update-refs` branch in the repo (created by the `.announce` script) and merge it.
-11. Update `gradle.properties` with the new `SNAPSHOT` version, and add a new empty `Unreleased` section to the top of `CHANGELOG.md` and commit. (This can be done directly in the main repo or in your fork.)
+11. Update `gradle.properties` with the new `SNAPSHOT` version, and add the section below to the top of `CHANGELOG.md` and commit. (This can be done directly in the main repo or in your fork.)
+```markdown
+## Unreleased
+
+### Added
+
+### Removed
+
+### Fixed
+
+### Changed
+```
