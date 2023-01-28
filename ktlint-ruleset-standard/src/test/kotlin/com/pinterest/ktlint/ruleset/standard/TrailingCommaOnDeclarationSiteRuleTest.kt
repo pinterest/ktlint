@@ -990,4 +990,47 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to true)
             .hasNoLintViolations()
     }
+
+    @Test
+    fun `Issue 1786 - Given an enumeration containing a companion object, and that a trailing comma is inserted then do not report a unnecessary semicolon`() {
+        val code =
+            """
+            enum class TestEnum() {
+                A,
+                B;
+
+                companion object {
+                    const val A_NUMBER = 1L
+                }
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            enum class TestEnum() {
+                A,
+                B,
+                ;
+
+                companion object {
+                    const val A_NUMBER = 1L
+                }
+            }
+            """.trimIndent()
+        val noSemicolonsRuleAssertThat =
+            KtLintAssertThat.assertThatRule(
+                provider = { NoSemicolonsRule() },
+                additionalRuleProviders = setOf(
+                    // WrappingRule must be loaded in order to run TrailingCommaOnCallSiteRule
+                    RuleProvider { WrappingRule() },
+                    // Apply the IndentationRule always as additional rule, so that the formattedCode in the unit test looks
+                    // correct.
+                    RuleProvider { IndentationRule() },
+                    RuleProvider { TrailingCommaOnDeclarationSiteRule() },
+                ),
+            )
+        noSemicolonsRuleAssertThat(code)
+            .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to true)
+            .hasNoLintViolationsForRuleId("no-semi")
+            .isFormattedAs(formattedCode)
+    }
 }
