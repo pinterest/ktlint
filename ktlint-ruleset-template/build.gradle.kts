@@ -26,7 +26,7 @@ artifacts {
 val ktlint: Configuration by configurations.creating
 
 dependencies {
-    ktlint(projects.ktlintRoot)
+    ktlint(projects.ktlintCli) // was ktlintRoot
 
     api(projects.ktlintRulesetCore)
 

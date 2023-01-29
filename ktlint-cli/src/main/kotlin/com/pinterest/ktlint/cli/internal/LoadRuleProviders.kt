@@ -1,73 +1,20 @@
 package com.pinterest.ktlint.cli.internal
 
-import com.pinterest.ktlint.core.RuleProvider
+import com.pinterest.ktlint.cli.internal.CustomJarProviderCheck.ERROR_WHEN_DEPRECATED_PROVIDER_IS_FOUND
+import com.pinterest.ktlint.cli.internal.CustomJarProviderCheck.ERROR_WHEN_REQUIRED_PROVIDER_IS_MISSING
 import com.pinterest.ktlint.core.RuleSetProviderV2
-import com.pinterest.ktlint.core.initKtLintKLogger
-import mu.KotlinLogging
+import com.pinterest.ktlint.ruleset.core.api.RuleProvider
+import com.pinterest.ktlint.ruleset.core.api.RuleSetProviderV3
 import java.net.URL
-import java.net.URLClassLoader
-import java.util.ServiceConfigurationError
-import java.util.ServiceLoader
-
-private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
 /**
- * Loads given list of paths to jar files. For files containing a [RuleSetProviderV2] class, get all [RuleProvider]s.
+ * Loads given list of paths to jar files. For files containing a [RuleSetProviderV3] class, get all [RuleProvider]s.
  */
-internal fun List<URL>.loadRuleProviders(debug: Boolean): Set<RuleProvider> =
-    getKtlintRulesets()
-        .plus(
-            getRuleProvidersFromCustomRuleSetJars(debug),
-        ).values
-        .flatten()
+internal fun loadRuleProviders(urls: List<URL>): Set<RuleProvider> {
+    // An error about finding a deprecated RuleSetProviderV2 is more important than reporting an error about a missing RuleSetProviderV3
+    RuleSetProviderV2::class.java.loadFromJarFiles(urls, providerId = { it.id }, ERROR_WHEN_DEPRECATED_PROVIDER_IS_FOUND)
+
+    return RuleSetProviderV3::class.java.loadFromJarFiles(urls, providerId = { it.id }, ERROR_WHEN_REQUIRED_PROVIDER_IS_MISSING)
+        .flatMap { it.getRuleProviders()  }
         .toSet()
-
-private fun getKtlintRulesets(): Map<String, Set<RuleProvider>> {
-    return loadRulesetsFrom()
-}
-
-private fun loadRulesetsFrom(url: URL? = null): Map<String, Set<RuleProvider>> =
-    try {
-        ServiceLoader
-            .load(
-                RuleSetProviderV2::class.java,
-                URLClassLoader(listOfNotNull(url).toTypedArray()),
-            ).associate { ruleSetProviderV2 -> ruleSetProviderV2.id to ruleSetProviderV2.getRuleProviders() }
-    } catch (e: ServiceConfigurationError) {
-        LOGGER.warn { "Error while loading rule set JAR '$url':\n${e.printStackTrace()}" }
-        emptyMap()
-    }
-
-private fun List<URL>.getRuleProvidersFromCustomRuleSetJars(debug: Boolean): Map<String, Set<RuleProvider>> =
-    this
-        // Remove JAR files which were provided multiple times
-        .distinct()
-        .flatMap { getRuleProvidersFromCustomRuleSetJar(it, debug).entries }
-        .associate { it.key to it.value }
-
-private fun getRuleProvidersFromCustomRuleSetJar(
-    url: URL,
-    debug: Boolean,
-): Map<String, Set<RuleProvider>> {
-    if (debug) {
-        LOGGER.debug { "JAR ruleset provided with path \"${url.path}\"" }
-    }
-    return loadRulesetsFrom(url)
-        .filterKeys {
-            // Ignore the Ktlint rule set when it is included in the custom rule set
-            it != "standard"
-        }.also { ruleSetIdMap ->
-            if (ruleSetIdMap.isEmpty()) {
-                LOGGER.warn {
-                    """
-                    JAR ${url.path}, provided as command line argument, does not contain a custom ruleset provider.
-                        Check following:
-                          - Does the jar contain an implementation of the RuleSetProviderV2 interface?
-                          - Does the jar contain a resource file with name "com.pinterest.ktlint.core.RuleSetProviderV2"?
-                          - Is the resource file located in directory "src/main/resources/META-INF/services"?
-                          - Does the resource file contain the fully qualified class name of the class implementing the RuleSetProviderV2 interface?
-                    """.trimIndent()
-                }
-            }
-        }
 }

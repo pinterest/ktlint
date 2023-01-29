@@ -1,9 +1,9 @@
 package com.pinterest.ktlint.rule.engine.internal
 
-import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.RuleProvider
-import com.pinterest.ktlint.rule.engine.api.editorconfig.RULE_EXECUTION_PROPERTY_TYPE
-import com.pinterest.ktlint.rule.engine.api.editorconfig.RuleExecution
+import com.pinterest.ktlint.ruleset.core.api.Rule
+import com.pinterest.ktlint.ruleset.core.api.RuleProvider
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.RULE_EXECUTION_PROPERTY_TYPE
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.RuleExecution
 import org.assertj.core.api.Assertions.assertThat
 import org.ec4j.core.model.Property
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode

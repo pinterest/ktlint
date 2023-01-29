@@ -1,7 +1,9 @@
 package com.pinterest.ktlint.cli.reporter.format
 
-import com.pinterest.ktlint.cli.reporter.core.api.Reporter
-import com.pinterest.ktlint.core.api.LintError
+import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError
+import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError.Status.FORMAT_IS_AUTOCORRECTED
+import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError.Status.LINT_CAN_BE_AUTOCORRECTED
+import com.pinterest.ktlint.cli.reporter.core.api.ReporterV2
 import java.io.File
 import java.io.PrintStream
 import java.util.concurrent.ConcurrentHashMap
@@ -11,22 +13,26 @@ public class FormatReporter(
     private val format: Boolean,
     private val shouldColorOutput: Boolean = false,
     private val outputColor: Color = Color.DARK_GRAY,
-) : Reporter {
+) : ReporterV2 {
     private val countAutoCorrectPossibleOrDone = ConcurrentHashMap<String, Int>()
     private val countCanNotBeAutoCorrected = ConcurrentHashMap<String, Int>()
 
     override fun onLintError(
         file: String,
-        err: LintError,
-        corrected: Boolean,
+        ktlintCliError: KtlintCliError,
     ) {
         // Do not report the individual errors, but count only
-        if (err.canBeAutoCorrected || corrected) {
-            countAutoCorrectPossibleOrDone.putIfAbsent(file, 0)
-            countAutoCorrectPossibleOrDone.replace(file, countAutoCorrectPossibleOrDone.getOrDefault(file, 0) + 1)
-        } else {
-            countCanNotBeAutoCorrected.putIfAbsent(file, 0)
-            countCanNotBeAutoCorrected.replace(file, countCanNotBeAutoCorrected.getOrDefault(file, 0) + 1)
+        when (ktlintCliError.status) {
+            LINT_CAN_BE_AUTOCORRECTED,
+            FORMAT_IS_AUTOCORRECTED,
+            -> {
+                countAutoCorrectPossibleOrDone.putIfAbsent(file, 0)
+                countAutoCorrectPossibleOrDone.replace(file, countAutoCorrectPossibleOrDone.getOrDefault(file, 0) + 1)
+            }
+            else -> {
+                countCanNotBeAutoCorrected.putIfAbsent(file, 0)
+                countCanNotBeAutoCorrected.replace(file, countCanNotBeAutoCorrected.getOrDefault(file, 0) + 1)
+            }
         }
     }
 

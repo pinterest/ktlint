@@ -1,6 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType.CLASS_BODY
 import com.pinterest.ktlint.ruleset.core.api.ElementType.LBRACE
 import com.pinterest.ktlint.ruleset.core.api.ElementType.RBRACE

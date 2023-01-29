@@ -1,6 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType.ELSE_KEYWORD
 import com.pinterest.ktlint.ruleset.core.api.ElementType.IF_KEYWORD
 import com.pinterest.ktlint.ruleset.core.api.ElementType.LBRACE

@@ -1,8 +1,8 @@
 package com.pinterest.ktlint.rule.engine.api
 
-import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.Rule.VisitorModifier.RunAsLateAsPossible
-import com.pinterest.ktlint.core.RuleProvider
+import com.pinterest.ktlint.ruleset.core.api.Rule
+import com.pinterest.ktlint.ruleset.core.api.Rule.VisitorModifier.RunAsLateAsPossible
+import com.pinterest.ktlint.ruleset.core.api.RuleProvider
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.rule.engine.api.AutoCorrectErrorRule.Companion.STRING_VALUE_AFTER_AUTOCORRECT
 import com.pinterest.ktlint.rule.engine.api.DummyRuleWithCustomEditorConfigProperty.Companion.SOME_CUSTOM_RULE_PROPERTY_NAME
@@ -13,7 +13,7 @@ import com.pinterest.ktlint.rule.engine.api.RuleExecutionCall.RuleMethod.BEFORE_
 import com.pinterest.ktlint.rule.engine.api.RuleExecutionCall.RuleMethod.VISIT
 import com.pinterest.ktlint.rule.engine.api.RuleExecutionCall.VisitNodeType.CHILD
 import com.pinterest.ktlint.rule.engine.api.RuleExecutionCall.VisitNodeType.ROOT
-import com.pinterest.ktlint.rule.engine.api.editorconfig.EditorConfigProperty
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.ruleset.core.api.ElementType.CLASS
 import com.pinterest.ktlint.ruleset.core.api.ElementType.FILE
 import com.pinterest.ktlint.ruleset.core.api.ElementType.IDENTIFIER

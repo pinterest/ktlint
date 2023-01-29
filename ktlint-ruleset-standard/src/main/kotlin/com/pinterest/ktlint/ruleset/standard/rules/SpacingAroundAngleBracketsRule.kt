@@ -1,6 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType.FUN_KEYWORD
 import com.pinterest.ktlint.ruleset.core.api.ElementType.TYPE_ARGUMENT_LIST
 import com.pinterest.ktlint.ruleset.core.api.ElementType.TYPE_PARAMETER_LIST

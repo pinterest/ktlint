@@ -1,13 +1,12 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.IndentConfig
-import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.rule.engine.api.UsesEditorConfigProperties
-import com.pinterest.ktlint.rule.engine.api.editorconfig.EditorConfigProperty
-import com.pinterest.ktlint.rule.engine.api.editorconfig.INDENT_SIZE_PROPERTY
-import com.pinterest.ktlint.rule.engine.api.editorconfig.INDENT_STYLE_PROPERTY
-import com.pinterest.ktlint.rule.engine.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.EditorConfigProperty
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.INDENT_SIZE_PROPERTY
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.INDENT_STYLE_PROPERTY
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.ruleset.core.api.ElementType.ANNOTATION
 import com.pinterest.ktlint.ruleset.core.api.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.ruleset.core.api.ElementType.BLOCK
@@ -22,6 +21,7 @@ import com.pinterest.ktlint.ruleset.core.api.ElementType.RPAR
 import com.pinterest.ktlint.ruleset.core.api.ElementType.VALUE_PARAMETER
 import com.pinterest.ktlint.ruleset.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.ruleset.core.api.ElementType.WHITE_SPACE
+import com.pinterest.ktlint.ruleset.core.api.IndentConfig
 import com.pinterest.ktlint.ruleset.core.api.children
 import com.pinterest.ktlint.ruleset.core.api.isWhiteSpace
 import com.pinterest.ktlint.ruleset.core.api.isWhiteSpaceWithNewline

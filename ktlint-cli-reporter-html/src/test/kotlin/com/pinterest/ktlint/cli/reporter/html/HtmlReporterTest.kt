@@ -24,7 +24,9 @@
 
 package com.pinterest.ktlint.cli.reporter.html
 
-import com.pinterest.ktlint.core.api.LintError
+import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError
+import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError.Status.FORMAT_IS_AUTOCORRECTED
+import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError.Status.LINT_CAN_BE_AUTOCORRECTED
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayOutputStream
@@ -68,8 +70,7 @@ class HtmlReporterTest {
 
         reporter.onLintError(
             "/file1.kt",
-            LintError(1, 1, "rule-1", "rule-1 broken"),
-            false,
+            KtlintCliError(1, 1, "rule-1", "rule-1 broken", LINT_CAN_BE_AUTOCORRECTED),
         )
 
         reporter.afterAll()
@@ -111,14 +112,12 @@ class HtmlReporterTest {
 
         reporter.onLintError(
             "/file1.kt",
-            LintError(1, 1, "rule-1", "rule-1 broken"),
-            false,
+            KtlintCliError(1, 1, "rule-1", "rule-1 broken", LINT_CAN_BE_AUTOCORRECTED),
         )
 
         reporter.onLintError(
             "/file2.kt",
-            LintError(1, 1, "rule-1", "rule-1 broken"),
-            true,
+            KtlintCliError(1, 1, "rule-1", "rule-1 broken", FORMAT_IS_AUTOCORRECTED),
         )
 
         reporter.afterAll()
@@ -158,16 +157,16 @@ class HtmlReporterTest {
         val out = ByteArrayOutputStream()
         val reporter = HtmlReporter(PrintStream(out, true))
 
+        @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
         reporter.onLintError(
             "/file1.kt",
-            LintError(1, 1, "rule-1", "Error message contains a generic type like List<Int> (cannot be auto-corrected)"),
-            false,
+            KtlintCliError(1, 1, "rule-1", "Error message contains a generic type like List<Int> (cannot be auto-corrected)", LINT_CAN_BE_AUTOCORRECTED),
         )
 
+        @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
         reporter.onLintError(
             "/file1.kt",
-            LintError(2, 1, "rule-2", "Error message contains special html symbols like a<b>c\"d'e&f (cannot be auto-corrected)"),
-            false,
+            KtlintCliError(2, 1, "rule-2", "Error message contains special html symbols like a<b>c\"d'e&f (cannot be auto-corrected)", LINT_CAN_BE_AUTOCORRECTED),
         )
 
         reporter.afterAll()

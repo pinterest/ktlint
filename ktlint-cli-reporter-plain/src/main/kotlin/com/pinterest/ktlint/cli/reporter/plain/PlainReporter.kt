@@ -1,13 +1,16 @@
 package com.pinterest.ktlint.cli.reporter.plain
 
-import com.pinterest.ktlint.cli.reporter.core.api.Reporter
-import com.pinterest.ktlint.core.api.LintError
+import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError
+import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError.Status.FORMAT_IS_AUTOCORRECTED
+import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError.Status.KOTLIN_PARSE_EXCEPTION
+import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError.Status.KTLINT_RULE_ENGINE_EXCEPTION
+import com.pinterest.ktlint.cli.reporter.core.api.ReporterV2
 import java.io.File
 import java.io.PrintStream
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- * Reports [LintError]s which have not been autocorrected
+ * Reports [KtlintCliError]s which have not been autocorrected and pints a summary (count per rule) of the violations found.
  */
 public class PlainReporter(
     private val out: PrintStream,
@@ -15,32 +18,31 @@ public class PlainReporter(
     private val shouldColorOutput: Boolean = false,
     private val outputColor: Color = Color.DARK_GRAY,
     private val pad: Boolean = false,
-) : Reporter {
-    private val acc = ConcurrentHashMap<String, MutableList<LintError>>()
+) : ReporterV2 {
+    private val acc = ConcurrentHashMap<String, MutableList<KtlintCliError>>()
     private val ruleViolationCount = ConcurrentHashMap<String, Long>()
 
     override fun onLintError(
         file: String,
-        err: LintError,
-        corrected: Boolean,
+        ktlintCliError: KtlintCliError,
     ) {
-        if (!corrected) {
+        if (ktlintCliError.status != FORMAT_IS_AUTOCORRECTED) {
             if (groupByFile) {
-                acc.getOrPut(file) { ArrayList() }.add(err)
+                acc.getOrPut(file) { ArrayList() }.add(ktlintCliError)
             } else {
                 val column =
                     if (pad) {
-                        String.format("%-4s", err.col)
+                        String.format("%-4s", ktlintCliError.col)
                     } else {
-                        err.col
+                        ktlintCliError.col
                     }
                 out.println(
-                    "${colorFileName(file)}${":".colored()}${err.line}${":$column:".colored()} " +
-                        "${err.detail} ${"(${err.ruleId})".colored()}",
+                    "${colorFileName(file)}${":".colored()}${ktlintCliError.line}${":$column:".colored()} " +
+                        "${ktlintCliError.detail} ${"(${ktlintCliError.ruleId})".colored()}",
                 )
             }
             ruleViolationCount
-                .merge(err.causedBy(), 1) { previousValue, _ ->
+                .merge(ktlintCliError.causedBy(), 1) { previousValue, _ ->
                     previousValue + 1
                 }
         }
@@ -89,11 +91,11 @@ public class PlainReporter(
             this
         }
 
-    private fun LintError.causedBy() =
-        when {
-            ruleId.isNotEmpty() -> ruleId
-            detail.startsWith(NOT_A_VALID_KOTLIN_FILE) -> NOT_A_VALID_KOTLIN_FILE
-            else -> "Unknown"
+    private fun KtlintCliError.causedBy() =
+        when (status) {
+            KOTLIN_PARSE_EXCEPTION -> KOTLIN_PARSE_EXCEPTION_MESSAGE
+            KTLINT_RULE_ENGINE_EXCEPTION -> KTLINT_RULE_ENGINE_EXCEPTION_MESSAGE
+            else -> ruleId.ifEmpty { UNKNOWN_CAUSE_MESSAGE }
         }
 
     private companion object {
@@ -106,7 +108,9 @@ public class PlainReporter(
                     compareValuesBy(left, right) { it.first }
                 }
 
-        const val NOT_A_VALID_KOTLIN_FILE = "Not a valid Kotlin file"
+        const val KOTLIN_PARSE_EXCEPTION_MESSAGE = "Not a valid Kotlin file"
+        const val KTLINT_RULE_ENGINE_EXCEPTION_MESSAGE = "An internal error occurred in the Ktlint Rule Engine"
+        const val UNKNOWN_CAUSE_MESSAGE = "Unknown"
     }
 }
 

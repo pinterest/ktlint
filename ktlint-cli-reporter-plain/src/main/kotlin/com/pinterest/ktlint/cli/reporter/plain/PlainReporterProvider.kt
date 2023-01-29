@@ -1,9 +1,9 @@
 package com.pinterest.ktlint.cli.reporter.plain
 
-import com.pinterest.ktlint.cli.reporter.core.api.ReporterProvider
+import com.pinterest.ktlint.cli.reporter.core.api.ReporterProviderV2
 import java.io.PrintStream
 
-public class PlainReporterProvider : ReporterProvider<PlainReporter> {
+public class PlainReporterProvider : ReporterProviderV2<PlainReporter> {
     override val id: String = "plain"
 
     override fun get(

@@ -1,9 +1,9 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.rule.engine.api.editorconfig.CODE_STYLE_PROPERTY
-import com.pinterest.ktlint.rule.engine.api.editorconfig.CodeStyleValue
-import com.pinterest.ktlint.rule.engine.api.editorconfig.RuleExecution
-import com.pinterest.ktlint.rule.engine.api.editorconfig.createRuleExecutionEditorConfigProperty
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.CODE_STYLE_PROPERTY
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.CodeStyleValue
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.RuleExecution
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.createRuleExecutionEditorConfigProperty
 import com.pinterest.ktlint.test.KtLintAssertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest

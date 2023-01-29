@@ -1,10 +1,10 @@
 package com.pinterest.ktlint.cli.internal
 
-import com.pinterest.ktlint.core.RuleProvider
+import com.pinterest.ktlint.ruleset.core.api.RuleProvider
 import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.api.KtLintParseException
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
-import com.pinterest.ruleset.test.DumpASTRule
+import com.pinterest.ruleset.testtooling.DumpASTRule
 import mu.KotlinLogging
 import picocli.CommandLine
 import java.io.File

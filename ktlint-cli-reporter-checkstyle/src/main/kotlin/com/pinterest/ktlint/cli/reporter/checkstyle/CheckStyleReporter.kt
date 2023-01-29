@@ -1,21 +1,21 @@
 package com.pinterest.ktlint.cli.reporter.checkstyle
 
-import com.pinterest.ktlint.cli.reporter.core.api.Reporter
-import com.pinterest.ktlint.core.api.LintError
+import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError
+import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError.Status.FORMAT_IS_AUTOCORRECTED
+import com.pinterest.ktlint.cli.reporter.core.api.ReporterV2
 import java.io.PrintStream
 import java.util.ArrayList
 import java.util.concurrent.ConcurrentHashMap
 
-public class CheckStyleReporter(private val out: PrintStream) : Reporter {
-    private val acc = ConcurrentHashMap<String, MutableList<LintError>>()
+public class CheckStyleReporter(private val out: PrintStream) : ReporterV2 {
+    private val acc = ConcurrentHashMap<String, MutableList<KtlintCliError>>()
 
     override fun onLintError(
         file: String,
-        err: LintError,
-        corrected: Boolean,
+        ktlintCliError: KtlintCliError,
     ) {
-        if (!corrected) {
-            acc.getOrPut(file) { ArrayList<LintError>() }.add(err)
+        if (ktlintCliError.status != FORMAT_IS_AUTOCORRECTED) {
+            acc.getOrPut(file) { ArrayList() }.add(ktlintCliError)
         }
     }
 

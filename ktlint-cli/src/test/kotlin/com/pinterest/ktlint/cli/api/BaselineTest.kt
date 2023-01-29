@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.cli.api
 
-import com.pinterest.ktlint.core.api.LintError
+import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError
+import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError.Status.BASELINE_IGNORED
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayInputStream
@@ -10,17 +11,19 @@ class BaselineTest {
     @Test
     fun testParseBaselineFile() {
         val filename = "baseline/TestBaselineFile.kt"
-        val errorOne = LintError(
+        val errorOne = KtlintCliError(
             line = 1,
             col = 1,
             ruleId = "final-new-line",
             detail = "",
+            status = BASELINE_IGNORED,
         )
-        val errorTwo = LintError(
+        val errorTwo = KtlintCliError(
             line = 62,
             col = 1,
             ruleId = "no-blank-line-before-rbrace",
             detail = "",
+            status = BASELINE_IGNORED,
         )
 
         val baseline: InputStream =
@@ -34,7 +37,7 @@ class BaselineTest {
                     .toByteArray(),
             )
 
-        val baselineFiles = parseBaseline(baseline)
+        val baselineFiles = baseline.parseBaseline()
 
         assertThat(baselineFiles).containsEntry(
             filename,

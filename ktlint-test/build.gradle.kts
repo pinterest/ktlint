@@ -5,7 +5,7 @@ plugins {
 
 dependencies {
     api(projects.ktlintRuleEngine)
-    api(projects.ktlintRulesetTest)
+    api(projects.ktlintRulesetTestTooling)
     api(projects.ktlintTestLogging)
     api(libs.assertj)
 

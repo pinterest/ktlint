@@ -1,10 +1,10 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.rule.engine.api.UsesEditorConfigProperties
-import com.pinterest.ktlint.rule.engine.api.editorconfig.EditorConfigProperty
-import com.pinterest.ktlint.rule.engine.api.editorconfig.INDENT_SIZE_PROPERTY
-import com.pinterest.ktlint.rule.engine.api.editorconfig.INDENT_STYLE_PROPERTY
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.EditorConfigProperty
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.INDENT_SIZE_PROPERTY
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.ruleset.core.api.ElementType.BLOCK_COMMENT
 import com.pinterest.ktlint.ruleset.core.api.ElementType.EOL_COMMENT
 import com.pinterest.ktlint.ruleset.core.api.ElementType.WHITE_SPACE

@@ -1,7 +1,5 @@
 package com.pinterest.ktlint.ruleset.core.api
 
-import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.RuleProvider
 import com.pinterest.ktlint.rule.engine.api.Code
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.ruleset.core.api.ElementType.CLASS

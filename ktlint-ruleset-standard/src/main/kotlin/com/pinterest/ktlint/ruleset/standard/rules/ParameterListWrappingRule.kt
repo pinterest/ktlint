@@ -1,15 +1,14 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.IndentConfig
-import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.rule.engine.api.UsesEditorConfigProperties
-import com.pinterest.ktlint.rule.engine.api.editorconfig.CODE_STYLE_PROPERTY
-import com.pinterest.ktlint.rule.engine.api.editorconfig.CodeStyleValue.ktlint_official
-import com.pinterest.ktlint.rule.engine.api.editorconfig.EditorConfigProperty
-import com.pinterest.ktlint.rule.engine.api.editorconfig.INDENT_SIZE_PROPERTY
-import com.pinterest.ktlint.rule.engine.api.editorconfig.INDENT_STYLE_PROPERTY
-import com.pinterest.ktlint.rule.engine.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.CODE_STYLE_PROPERTY
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.CodeStyleValue.ktlint_official
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.EditorConfigProperty
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.INDENT_SIZE_PROPERTY
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.INDENT_STYLE_PROPERTY
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.ruleset.core.api.ElementType.FUNCTION_LITERAL
 import com.pinterest.ktlint.ruleset.core.api.ElementType.FUNCTION_TYPE
 import com.pinterest.ktlint.ruleset.core.api.ElementType.LPAR
@@ -19,6 +18,7 @@ import com.pinterest.ktlint.ruleset.core.api.ElementType.RPAR
 import com.pinterest.ktlint.ruleset.core.api.ElementType.TYPE_PARAMETER_LIST
 import com.pinterest.ktlint.ruleset.core.api.ElementType.VALUE_PARAMETER
 import com.pinterest.ktlint.ruleset.core.api.ElementType.VALUE_PARAMETER_LIST
+import com.pinterest.ktlint.ruleset.core.api.IndentConfig
 import com.pinterest.ktlint.ruleset.core.api.column
 import com.pinterest.ktlint.ruleset.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.ruleset.core.api.lineIndent

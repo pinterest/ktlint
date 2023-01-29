@@ -2,16 +2,18 @@ package com.pinterest.ktlint.cli.internal
 
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
-import com.pinterest.ktlint.cli.api.Baseline.Status.INVALID
-import com.pinterest.ktlint.cli.api.Baseline.Status.NOT_FOUND
+import com.pinterest.ktlint.cli.api.Baseline
 import com.pinterest.ktlint.cli.api.doesNotContain
 import com.pinterest.ktlint.cli.api.loadBaseline
-import com.pinterest.ktlint.cli.api.relativeRoute
-import com.pinterest.ktlint.cli.reporter.core.api.Reporter
-import com.pinterest.ktlint.cli.reporter.core.api.ReporterProvider
+import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError
+import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError.Status.FORMAT_IS_AUTOCORRECTED
+import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError.Status.KOTLIN_PARSE_EXCEPTION
+import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError.Status.KTLINT_RULE_ENGINE_EXCEPTION
+import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError.Status.LINT_CAN_BE_AUTOCORRECTED
+import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError.Status.LINT_CAN_NOT_BE_AUTOCORRECTED
+import com.pinterest.ktlint.cli.reporter.core.api.ReporterV2
 import com.pinterest.ktlint.cli.reporter.plain.Color
-import com.pinterest.ktlint.core.RuleProvider
-import com.pinterest.ktlint.core.api.LintError
+import com.pinterest.ktlint.ruleset.core.api.RuleProvider
 import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ktlint.core.setDefaultLoggerModifier
 import com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults
@@ -20,11 +22,11 @@ import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride.Companion.plus
 import com.pinterest.ktlint.rule.engine.api.KtLintParseException
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleException
-import com.pinterest.ktlint.rule.engine.api.editorconfig.CODE_STYLE_PROPERTY
-import com.pinterest.ktlint.rule.engine.api.editorconfig.CodeStyleValue
-import com.pinterest.ktlint.rule.engine.api.editorconfig.EXPERIMENTAL_RULES_EXECUTION_PROPERTY
-import com.pinterest.ktlint.rule.engine.api.editorconfig.RuleExecution
-import com.pinterest.ktlint.rule.engine.api.editorconfig.createRuleExecutionEditorConfigProperty
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.CODE_STYLE_PROPERTY
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.CodeStyleValue
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.EXPERIMENTAL_RULES_EXECUTION_PROPERTY
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.RuleExecution
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.createRuleExecutionEditorConfigProperty
 import mu.KLogger
 import mu.KotlinLogging
 import org.jetbrains.kotlin.utils.addToStdlib.applyIf
@@ -34,14 +36,10 @@ import picocli.CommandLine.Option
 import picocli.CommandLine.ParameterException
 import picocli.CommandLine.Parameters
 import java.io.File
-import java.io.IOException
-import java.io.PrintStream
-import java.net.URLClassLoader
-import java.net.URLDecoder
 import java.nio.file.FileSystems
+import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.Locale
-import java.util.ServiceLoader
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.Callable
 import java.util.concurrent.Executors
@@ -50,6 +48,8 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.concurrent.thread
+import kotlin.io.path.pathString
+import kotlin.io.path.relativeToOrSelf
 import kotlin.system.exitProcess
 
 private lateinit var logger: KLogger
@@ -184,7 +184,7 @@ internal class KtlintCommandLine {
                 "via ',artifact=' option. To override reporter output, use ',output=' option.",
         ],
     )
-    private var reporterJarPaths: List<String> = ArrayList()
+    private var reporterConfigurations: List<String> = ArrayList()
 
     @Option(
         names = ["--ruleset", "-R"],
@@ -324,8 +324,6 @@ internal class KtlintCommandLine {
 
         val start = System.currentTimeMillis()
 
-        var reporter = loadReporter()
-
         val ktLintRuleEngine = KtLintRuleEngine(
             ruleProviders = ruleProviders(),
             editorConfigDefaults = editorConfigDefaults,
@@ -333,33 +331,36 @@ internal class KtlintCommandLine {
             isInvokedFromCli = true,
         )
 
-        reporter.beforeAll()
+        val baseline = if (stdin || baselinePath.isBlank()) {
+            Baseline(status = Baseline.Status.DISABLED)
+        } else {
+            loadBaseline(baselinePath)
+        }
+
+        val aggregatedReporter = ReporterAggregator(
+            baseline,
+            reporterConfigurations,
+            color,
+            colorName,
+            stdin,
+            format,
+            relative,
+        ).aggregatedReporter()
+
+        aggregatedReporter.beforeAll()
         if (stdin) {
             lintStdin(
                 ktLintRuleEngine,
-                reporter,
+                aggregatedReporter,
             )
         } else {
-            val baselineLintErrorsPerFile =
-                if (baselinePath == "") {
-                    emptyMap()
-                } else {
-                    loadBaseline(baselinePath)
-                        .also { baseline ->
-                            if (baseline.status == INVALID || baseline.status == NOT_FOUND) {
-                                val baselineReporter = ReporterTemplate("baseline", null, emptyMap(), baselinePath)
-                                val reporterProviderById = loadReporters(emptyList())
-                                reporter = Reporter.from(reporter, baselineReporter.toReporter(reporterProviderById))
-                            }
-                        }.lintErrorsPerFile
-                }
             lintFiles(
                 ktLintRuleEngine,
-                baselineLintErrorsPerFile,
-                reporter,
+                baseline.lintErrorsPerFile,
+                aggregatedReporter,
             )
         }
-        reporter.afterAll()
+        aggregatedReporter.afterAll()
 
         logger.debug {
             "Finished processing in ${System.currentTimeMillis() - start}ms / $fileNumber file(s) scanned / $errorNumber error(s) found"
@@ -377,21 +378,7 @@ internal class KtlintCommandLine {
     }
 
     // Do not convert to "val" as the function depends on PicoCli options which are not fully instantiated until the "run" method is started
-    internal fun ruleProviders(): Set<RuleProvider> =
-        rulesetJarPaths
-            .toFilesURIList()
-            .loadRuleProviders(debug)
-
-    // Do not convert to "val" as the function depends on PicoCli options which are not fully instantiated until the "run" method is started
-    private fun List<String>.toFilesURIList() =
-        map {
-            val jarFile = File(it.expandTildeToFullPath())
-            if (!jarFile.exists()) {
-                logger.error { "File '$it' does not exist" }
-                exitKtLintProcess(1)
-            }
-            jarFile.toURI().toURL()
-        }
+    internal fun ruleProviders(): Set<RuleProvider> = loadRuleProviders(rulesetJarPaths.toFilesURIList())
 
     // Do not convert to "val" as the function depends on PicoCli options which are not fully instantiated until the "run" method is started
     internal fun configureLogger() {
@@ -414,8 +401,8 @@ internal class KtlintCommandLine {
 
     private fun lintFiles(
         ktLintRuleEngine: KtLintRuleEngine,
-        lintErrorsPerFile: Map<String, List<LintError>>,
-        reporter: Reporter,
+        lintErrorsPerFile: Map<String, List<KtlintCliError>>,
+        reporter: ReporterV2,
     ) {
         FileSystems.getDefault()
             .fileSequence(patterns)
@@ -435,7 +422,7 @@ internal class KtlintCommandLine {
 
     private fun lintStdin(
         ktLintRuleEngine: KtLintRuleEngine,
-        reporter: Reporter,
+        reporter: ReporterV2,
     ) {
         report(
             KtLintRuleEngine.STDIN_FILE,
@@ -450,22 +437,18 @@ internal class KtlintCommandLine {
 
     private fun report(
         fileName: String,
-        errList: List<LintErrorWithCorrectionInfo>,
-        reporter: Reporter,
+        ktlintCliErrors: List<KtlintCliError>,
+        reporter: ReporterV2,
     ) {
         fileNumber.incrementAndGet()
-        val errListLimit = minOf(errList.size, maxOf(limit - errorNumber.get(), 0))
+        val errListLimit = minOf(ktlintCliErrors.size, maxOf(limit - errorNumber.get(), 0))
         errorNumber.addAndGet(errListLimit)
 
         val relativeRoute = Paths.get(fileName).relativeRoute
         reporter.before(relativeRoute)
-        errList.take(errListLimit).forEach { (err, corrected) ->
-            reporter.onLintError(
-                relativeRoute,
-                if (!err.canBeAutoCorrected) err.copy(detail = err.detail + " (cannot be auto-corrected)") else err,
-                corrected,
-            )
-        }
+        ktlintCliErrors
+            .take(errListLimit)
+            .forEach { reporter.onLintError(relativeRoute, it) }
         reporter.after(relativeRoute)
     }
 
@@ -473,25 +456,38 @@ internal class KtlintCommandLine {
         ktLintRuleEngine: KtLintRuleEngine,
         code: String,
         fileName: String? = null,
-        baselineLintErrors: List<LintError>,
-    ): List<LintErrorWithCorrectionInfo> {
+        baselineLintErrors: List<KtlintCliError>,
+    ): List<KtlintCliError> {
         if (fileName != null) {
             logger.trace { "Checking ${File(fileName).location(relative)}" }
         }
         val filePath = fileName?.let { Paths.get(it) }
-        val result = ArrayList<LintErrorWithCorrectionInfo>()
+        val result = ArrayList<KtlintCliError>()
         if (format) {
             val formattedFileContent = try {
                 ktLintRuleEngine.format(code, filePath) { lintError, corrected ->
-                    if (baselineLintErrors.doesNotContain(lintError)) {
-                        result.add(LintErrorWithCorrectionInfo(lintError, corrected))
+                    val ktlintCliError = KtlintCliError(
+                        line = lintError.line,
+                        col = lintError.col,
+                        ruleId = lintError.ruleId,
+                        detail = lintError
+                            .detail
+                            .applyIf(corrected) { "$this (cannot be auto-corrected)" },
+                        status = if (corrected) {
+                            FORMAT_IS_AUTOCORRECTED
+                        } else {
+                            LINT_CAN_NOT_BE_AUTOCORRECTED
+                        },
+                    )
+                    if (baselineLintErrors.doesNotContain(ktlintCliError)) {
+                        result.add(ktlintCliError)
                         if (!corrected) {
                             tripped.set(true)
                         }
                     }
                 }
             } catch (e: Exception) {
-                result.add(LintErrorWithCorrectionInfo(e.toLintError(fileName), false))
+                result.add(e.toKtlintCliError(fileName))
                 tripped.set(true)
                 code // making sure `cat file | ktlint --stdin > file` is (relatively) safe
             }
@@ -505,132 +501,57 @@ internal class KtlintCommandLine {
         } else {
             try {
                 ktLintRuleEngine.lint(code, filePath) { lintError ->
-                    if (baselineLintErrors.doesNotContain(lintError)) {
-                        result.add(LintErrorWithCorrectionInfo(lintError, false))
+                    val ktlintCliError = KtlintCliError(
+                        line = lintError.line,
+                        col = lintError.col,
+                        ruleId = lintError.ruleId,
+                        detail = lintError.detail,
+                        status = if (lintError.canBeAutoCorrected) {
+                            LINT_CAN_BE_AUTOCORRECTED
+                        } else {
+                            LINT_CAN_NOT_BE_AUTOCORRECTED
+                        },
+                    )
+                    if (baselineLintErrors.doesNotContain(ktlintCliError)) {
+                        result.add(ktlintCliError)
                         tripped.set(true)
                     }
                 }
             } catch (e: Exception) {
-                result.add(LintErrorWithCorrectionInfo(e.toLintError(fileName), false))
+                result.add(e.toKtlintCliError(fileName))
                 tripped.set(true)
             }
         }
         return result
     }
 
-    private fun loadReporter(): Reporter {
-        val configuredReporters = reporterJarPaths.ifEmpty { listOf("plain") }
-
-        val tpls = configuredReporters
-            .map { reporter ->
-                val split = reporter.split(",")
-                val (reporterId, rawReporterConfig) = split[0].split("?", limit = 2) + listOf("")
-                ReporterTemplate(
-                    reporterId,
-                    split.lastOrNull { it.startsWith("artifact=") }?.let { it.split("=")[1] },
-                    mapOf(
-                        "color" to color.toString(),
-                        "color_name" to colorName,
-                        "format" to format.toString(),
-                    ) + parseQuery(rawReporterConfig),
-                    split.lastOrNull { it.startsWith("output=") }?.let { it.split("=")[1] },
-                )
-            }
-            .distinct()
-        val reporterProviderById = loadReporters(tpls.mapNotNull { it.artifact })
-        return Reporter.from(*tpls.map { it.toReporter(reporterProviderById) }.toTypedArray())
-    }
-
-    private fun ReporterTemplate.toReporter(reporterProviderById: Map<String, ReporterProvider<*>>): Reporter {
-        val reporterProvider = reporterProviderById[id]
-        if (reporterProvider == null) {
-            logger.error {
-                reporterProviderById
-                    .keys
-                    .sorted()
-                    .joinToString(
-                        separator = ", ",
-                        prefix = "reporter \"$id\" wasn't found (available: ",
-                        postfix = ")",
-                    )
-            }
-            exitKtLintProcess(1)
-        }
-        logger.debug {
-            "Initializing \"$id\" reporter with $config" +
-                (output?.let { ", output=$it" } ?: "")
-        }
-        val stream = when {
-            output != null -> {
-                File(output).parentFile?.mkdirsOrFail(); PrintStream(output, "UTF-8")
-            }
-            stdin -> {
-                System.err
-            }
-            else -> {
-                System.out
-            }
-        }
-        return reporterProvider.get(stream, config)
-            .let { reporter ->
-                if (output != null) {
-                    object : Reporter by reporter {
-                        override fun afterAll() {
-                            reporter.afterAll()
-                            stream.close()
-                            if (tripped.get()) {
-                                val outputLocation = File(output).absoluteFile.location(relative)
-                                logger.info {
-                                    "\"$id\" report written to $outputLocation"
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    reporter
-                }
-            }
-    }
-
-    private fun Exception.toLintError(filename: Any?): LintError =
+    private fun Exception.toKtlintCliError(filename: Any?): KtlintCliError =
         this.let { e ->
             when (e) {
                 is KtLintParseException ->
-                    LintError(
-                        e.line,
-                        e.col,
-                        "",
-                        "Not a valid Kotlin file (${e.message?.lowercase(Locale.getDefault())})",
+                    KtlintCliError(
+                        line = e.line,
+                        col = e.col,
+                        ruleId = "",
+                        detail = "Not a valid Kotlin file (${e.message?.lowercase(Locale.getDefault())})",
+                        status = KOTLIN_PARSE_EXCEPTION,
                     )
                 is KtLintRuleException -> {
                     logger.debug("Internal Error (${e.ruleId}) in file '$filename' at position '${e.line}:${e.col}", e)
-                    LintError(
-                        e.line,
-                        e.col,
-                        "",
-                        "Internal Error (rule '${e.ruleId}') in file '$filename' at position '${e.line}:${e.col}. " +
+                    KtlintCliError(
+                        line = e.line,
+                        col = e.col,
+                        ruleId = "",
+                        detail = "Internal Error (rule '${e.ruleId}') in file '$filename' at position '${e.line}:${e.col}. " +
                             "Please create a ticket at https://github.com/pinterest/ktlint/issues " +
                             "and provide the source code that triggered an error.\n" +
                             e.stackTraceToString(),
+                        status = KTLINT_RULE_ENGINE_EXCEPTION,
                     )
                 }
                 else -> throw e
             }
         }
-
-    private fun parseQuery(query: String) =
-        query.split("&")
-            .fold(LinkedHashMap<String, String>()) { map, s ->
-                if (s.isNotEmpty()) {
-                    s.split("=", limit = 2).let { e ->
-                        map.put(
-                            e[0],
-                            URLDecoder.decode(e.getOrElse(1) { "true" }, "UTF-8"),
-                        )
-                    }
-                }
-                map
-            }
 
     private fun readPatternsFromStdin(): Set<String> {
         val delimiter: String = stdinDelimiter
@@ -642,12 +563,6 @@ internal class KtlintCommandLine {
             .let { patterns: List<String> ->
                 patterns.filterTo(LinkedHashSet(patterns.size), String::isNotEmpty)
             }
-    }
-
-    private fun File.mkdirsOrFail() {
-        if (!mkdirs() && !isDirectory) {
-            throw IOException("Unable to create \"${this}\" directory")
-        }
     }
 
     /**
@@ -725,29 +640,6 @@ internal class KtlintCommandLine {
             producer.join()
         }
     }
-
-    private fun loadReporters(externalReportersJarPaths: List<String>) =
-        ServiceLoader
-            .load(
-                ReporterProvider::class.java,
-                URLClassLoader(externalReportersJarPaths.toFilesURIList().toTypedArray()),
-            )
-            .associateBy { it.id }
-            .onEach { entry ->
-                logger.debug { "Discovered reporter with \"${entry.key}\" id." }
-            }
-
-    private data class LintErrorWithCorrectionInfo(
-        val err: LintError,
-        val corrected: Boolean,
-    )
-
-    private data class ReporterTemplate(
-        val id: String,
-        val artifact: String?,
-        val config: Map<String, String>,
-        val output: String?,
-    )
 }
 
 private class CodeStyleValueConverter : CommandLine.ITypeConverter<CodeStyleValue> {
@@ -775,6 +667,29 @@ private class LogLevelConverter : CommandLine.ITypeConverter<Level> {
             else -> throw IllegalStateException("Invalid log level '$value'")
         }
 }
+
+// Do not convert to "val" as the function depends on PicoCli options which are not fully instantiated until the "run" method is started
+internal fun List<String>.toFilesURIList() =
+    map {
+        val jarFile = File(it.expandTildeToFullPath())
+        if (!jarFile.exists()) {
+            logger.error { "File '$it' does not exist" }
+            exitKtLintProcess(1)
+        }
+        jarFile.toURI().toURL()
+    }
+
+/**
+ * Gets the relative route of the path. Also adjusts the slashes for uniformity between file systems.
+ */
+internal val Path.relativeRoute: String
+    get() {
+        val rootPath = Paths.get("").toAbsolutePath()
+        return this
+            .relativeToOrSelf(rootPath)
+            .pathString
+            .replace(File.separatorChar, '/')
+    }
 
 /**
  * Wrapper around exitProcess which ensure that a proper log line is written which can be used in unit tests for

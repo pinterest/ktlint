@@ -1,8 +1,8 @@
 package com.pinterest.ktlint.rule.engine.internal
 
-import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.Rule.VisitorModifier.RunAfterRule
-import com.pinterest.ktlint.core.RuleProvider
+import com.pinterest.ktlint.ruleset.core.api.Rule
+import com.pinterest.ktlint.ruleset.core.api.Rule.VisitorModifier.RunAfterRule
+import com.pinterest.ktlint.ruleset.core.api.RuleProvider
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 
 // TODO: Rename to RuleInstanceProvider. Also rename RuleRunnerSorter.

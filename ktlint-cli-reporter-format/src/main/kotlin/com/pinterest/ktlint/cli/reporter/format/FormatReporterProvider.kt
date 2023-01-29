@@ -1,9 +1,9 @@
 package com.pinterest.ktlint.cli.reporter.format
 
-import com.pinterest.ktlint.cli.reporter.core.api.ReporterProvider
+import com.pinterest.ktlint.cli.reporter.core.api.ReporterProviderV2
 import java.io.PrintStream
 
-public class FormatReporterProvider : ReporterProvider<FormatReporter> {
+public class FormatReporterProvider : ReporterProviderV2<FormatReporter> {
     override val id: String = "format"
 
     override fun get(

@@ -1,6 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType.CLOSING_QUOTE
 import com.pinterest.ktlint.ruleset.core.api.ElementType.DOT_QUALIFIED_EXPRESSION
 import com.pinterest.ktlint.ruleset.core.api.ElementType.LITERAL_STRING_TEMPLATE_ENTRY

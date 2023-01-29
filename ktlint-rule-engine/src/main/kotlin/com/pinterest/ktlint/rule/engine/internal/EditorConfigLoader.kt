@@ -1,6 +1,6 @@
 package com.pinterest.ktlint.rule.engine.internal
 
-import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults
@@ -8,8 +8,8 @@ import com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults.Companion.EMPTY
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride.Companion.EMPTY_EDITOR_CONFIG_OVERRIDE
 import com.pinterest.ktlint.rule.engine.api.UsesEditorConfigProperties
-import com.pinterest.ktlint.rule.engine.api.editorconfig.EditorConfigProperty
-import com.pinterest.ktlint.rule.engine.api.editorconfig.INDENT_SIZE_PROPERTY
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.EditorConfigProperty
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.internal.ThreadSafeEditorConfigCache.Companion.THREAD_SAFE_EDITOR_CONFIG_CACHE
 import mu.KotlinLogging
 import org.ec4j.core.EditorConfigLoader

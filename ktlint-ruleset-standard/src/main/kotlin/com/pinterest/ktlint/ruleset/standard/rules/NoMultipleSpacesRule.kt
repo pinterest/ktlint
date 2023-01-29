@@ -1,6 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType.KDOC_MARKDOWN_LINK
 import com.pinterest.ktlint.ruleset.core.api.ElementType.KDOC_TAG
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode

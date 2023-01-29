@@ -1,17 +1,14 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.IndentConfig
-import com.pinterest.ktlint.ruleset.core.api.IndentConfig.IndentStyle.SPACE
-import com.pinterest.ktlint.ruleset.core.api.IndentConfig.IndentStyle.TAB
-import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.api.UsesEditorConfigProperties
-import com.pinterest.ktlint.rule.engine.api.editorconfig.CODE_STYLE_PROPERTY
-import com.pinterest.ktlint.rule.engine.api.editorconfig.CodeStyleValue.ktlint_official
-import com.pinterest.ktlint.rule.engine.api.editorconfig.EditorConfigProperty
-import com.pinterest.ktlint.rule.engine.api.editorconfig.INDENT_SIZE_PROPERTY
-import com.pinterest.ktlint.rule.engine.api.editorconfig.INDENT_STYLE_PROPERTY
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.CODE_STYLE_PROPERTY
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.CodeStyleValue.ktlint_official
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.EditorConfigProperty
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.INDENT_SIZE_PROPERTY
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.ruleset.core.api.ElementType.ANNOTATED_EXPRESSION
 import com.pinterest.ktlint.ruleset.core.api.ElementType.ANNOTATION
 import com.pinterest.ktlint.ruleset.core.api.ElementType.ANNOTATION_ENTRY
@@ -85,6 +82,9 @@ import com.pinterest.ktlint.ruleset.core.api.ElementType.WHEN_ENTRY
 import com.pinterest.ktlint.ruleset.core.api.ElementType.WHERE_KEYWORD
 import com.pinterest.ktlint.ruleset.core.api.ElementType.WHILE
 import com.pinterest.ktlint.ruleset.core.api.ElementType.WHITE_SPACE
+import com.pinterest.ktlint.ruleset.core.api.IndentConfig
+import com.pinterest.ktlint.ruleset.core.api.IndentConfig.IndentStyle.SPACE
+import com.pinterest.ktlint.ruleset.core.api.IndentConfig.IndentStyle.TAB
 import com.pinterest.ktlint.ruleset.core.api.children
 import com.pinterest.ktlint.ruleset.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.ruleset.core.api.isPartOfComment

@@ -1,7 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.core.RuleProvider
-import com.pinterest.ktlint.core.RuleSetProviderV2
+import com.pinterest.ktlint.ruleset.core.api.RuleProvider
+import com.pinterest.ktlint.ruleset.core.api.RuleSetProviderV3
 import com.pinterest.ktlint.ruleset.standard.rules.AnnotationRule
 import com.pinterest.ktlint.ruleset.standard.rules.AnnotationSpacingRule
 import com.pinterest.ktlint.ruleset.standard.rules.ArgumentListWrappingRule
@@ -72,7 +72,7 @@ import com.pinterest.ktlint.ruleset.standard.rules.UnnecessaryParenthesesBeforeT
 import com.pinterest.ktlint.ruleset.standard.rules.WrappingRule
 
 public class StandardRuleSetProvider :
-    RuleSetProviderV2(
+    RuleSetProviderV3(
         id = "standard",
         about = About(
             maintainer = "KtLint",

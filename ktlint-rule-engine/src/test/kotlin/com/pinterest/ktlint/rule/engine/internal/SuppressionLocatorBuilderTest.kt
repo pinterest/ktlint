@@ -1,12 +1,12 @@
 package com.pinterest.ktlint.rule.engine.internal
 
-import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.RuleProvider
-import com.pinterest.ktlint.core.api.LintError
+import com.pinterest.ktlint.ruleset.core.api.Rule
+import com.pinterest.ktlint.ruleset.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
-import com.pinterest.ktlint.rule.engine.api.editorconfig.RuleExecution
-import com.pinterest.ktlint.rule.engine.api.editorconfig.createRuleExecutionEditorConfigProperty
+import com.pinterest.ktlint.rule.engine.api.LintError
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.RuleExecution
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.createRuleExecutionEditorConfigProperty
 import com.pinterest.ktlint.ruleset.core.api.ElementType
 import org.assertj.core.api.Assertions.assertThat
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -21,10 +21,10 @@ class SuppressionLocatorBuilderTest {
             val fooWithSuffix = "fooWithSuffix"
             """.trimIndent()
         assertThat(lint(code)).containsExactly(
-            LintError(1, 5, "no-foo-identifier-standard", "Line should not contain a foo identifier"),
-            LintError(1, 5, "$NON_STANDARD_RULE_SET_ID:no-foo-identifier", "Line should not contain a foo identifier"),
-            LintError(2, 5, "no-foo-identifier-standard", "Line should not contain a foo identifier"),
-            LintError(2, 5, "$NON_STANDARD_RULE_SET_ID:no-foo-identifier", "Line should not contain a foo identifier"),
+            lintError(1, 5, "no-foo-identifier-standard"),
+            lintError(1, 5, "$NON_STANDARD_RULE_SET_ID:no-foo-identifier"),
+            lintError(2, 5, "no-foo-identifier-standard"),
+            lintError(2, 5, "$NON_STANDARD_RULE_SET_ID:no-foo-identifier"),
         )
     }
 
@@ -56,8 +56,8 @@ class SuppressionLocatorBuilderTest {
             val fooReported = "foo"
             """.trimIndent()
         assertThat(lint(code)).containsExactly(
-            LintError(4, 5, "no-foo-identifier-standard", "Line should not contain a foo identifier"),
-            LintError(4, 5, "$NON_STANDARD_RULE_SET_ID:no-foo-identifier", "Line should not contain a foo identifier"),
+            lintError(4, 5, "no-foo-identifier-standard"),
+            lintError(4, 5, "$NON_STANDARD_RULE_SET_ID:no-foo-identifier"),
         )
     }
 
@@ -71,8 +71,8 @@ class SuppressionLocatorBuilderTest {
             val fooReported = "foo"
             """.trimIndent()
         assertThat(lint(code)).containsExactly(
-            LintError(4, 5, "no-foo-identifier-standard", "Line should not contain a foo identifier"),
-            LintError(4, 5, "$NON_STANDARD_RULE_SET_ID:no-foo-identifier", "Line should not contain a foo identifier"),
+            lintError(4, 5, "no-foo-identifier-standard"),
+            lintError(4, 5, "$NON_STANDARD_RULE_SET_ID:no-foo-identifier"),
         )
     }
 
@@ -86,8 +86,8 @@ class SuppressionLocatorBuilderTest {
             val fooReported = "foo"
             """.trimIndent()
         assertThat(lint(code)).containsExactly(
-            LintError(4, 5, "no-foo-identifier-standard", "Line should not contain a foo identifier"),
-            LintError(4, 5, "$NON_STANDARD_RULE_SET_ID:no-foo-identifier", "Line should not contain a foo identifier"),
+            lintError(4, 5, "no-foo-identifier-standard"),
+            lintError(4, 5, "$NON_STANDARD_RULE_SET_ID:no-foo-identifier"),
         )
     }
 
@@ -101,8 +101,8 @@ class SuppressionLocatorBuilderTest {
             val fooReported = "foo"
             """.trimIndent()
         assertThat(lint(code)).containsExactly(
-            LintError(4, 5, "no-foo-identifier-standard", "Line should not contain a foo identifier"),
-            LintError(4, 5, "$NON_STANDARD_RULE_SET_ID:no-foo-identifier", "Line should not contain a foo identifier"),
+            lintError(4, 5, "no-foo-identifier-standard"),
+            lintError(4, 5, "$NON_STANDARD_RULE_SET_ID:no-foo-identifier"),
         )
     }
 
@@ -118,8 +118,8 @@ class SuppressionLocatorBuilderTest {
             val fooReported = "foo"
             """.trimIndent()
         assertThat(lint(code)).containsExactly(
-            LintError(6, 5, "no-foo-identifier-standard", "Line should not contain a foo identifier"),
-            LintError(6, 5, "$NON_STANDARD_RULE_SET_ID:no-foo-identifier", "Line should not contain a foo identifier"),
+            lintError(6, 5, "no-foo-identifier-standard"),
+            lintError(6, 5, "$NON_STANDARD_RULE_SET_ID:no-foo-identifier"),
         )
     }
 
@@ -135,8 +135,8 @@ class SuppressionLocatorBuilderTest {
             val fooReported = "foo"
             """.trimIndent()
         assertThat(lint(code)).containsExactly(
-            LintError(6, 5, "no-foo-identifier-standard", "Line should not contain a foo identifier"),
-            LintError(6, 5, "$NON_STANDARD_RULE_SET_ID:no-foo-identifier", "Line should not contain a foo identifier"),
+            lintError(6, 5, "no-foo-identifier-standard"),
+            lintError(6, 5, "$NON_STANDARD_RULE_SET_ID:no-foo-identifier"),
         )
     }
 
@@ -222,6 +222,9 @@ class SuppressionLocatorBuilderTest {
         ArrayList<LintError>().apply {
             KTLINT_RULE_ENGINE.lint(code) { e -> add(e) }
         }
+
+    private fun lintError(line: Int, col: Int, ruleId: String) =
+        LintError(line, col, ruleId, "Line should not contain a foo identifier", false)
 
     private companion object {
         const val NON_STANDARD_RULE_SET_ID = "custom" // Can be any value other than "standard"

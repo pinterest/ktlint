@@ -2,8 +2,8 @@
     See [Writing your first ktlint rule](https://medium.com/@vanniktech/writing-your-first-ktlint-rule-5a1707f4ca5b) by [Niklas Baudy](https://github.com/vanniktech).
 
 In a nutshell: a "rule set" is a JAR containing one or more [Rule](https://github.com/pinterest/ktlint/blob/master/ktlint-core/src/main/kotlin/com/pinterest/ktlint/core/Rule.kt)s. `ktlint` is relying on the
-[ServiceLoader](https://docs.oracle.com/javase/8/docs/api/java/util/ServiceLoader.html) to discover all available "RuleSet"s on the classpath. As a ruleset author, all you need to do is to include a `META-INF/services/com.pinterest.ktlint.core.RuleSetProviderV2` file
-containing a fully qualified name of your [RuleSetProviderV2](https://github.com/pinterest/ktlint/blob/master/ktlint-core/src/main/kotlin/com/pinterest/ktlint/core/RuleSetProviderV2.kt) implementation.
+[ServiceLoader](https://docs.oracle.com/javase/8/docs/api/java/util/ServiceLoader.html) to discover all available "RuleSet"s on the classpath. As a ruleset author, all you need to do is to include a `META-INF/services/com.pinterest.ktlint.ruleset.core.api.RuleSetProviderV3` file
+containing a fully qualified name of your [RuleSetProviderV3](https://github.com/pinterest/ktlint/blob/master/ktlint-cli-core/src/main/kotlin/com/pinterest/ktlint/cli/core/RuleSetProviderV3.kt) implementation.
 
 ## ktlint-ruleset-template
 

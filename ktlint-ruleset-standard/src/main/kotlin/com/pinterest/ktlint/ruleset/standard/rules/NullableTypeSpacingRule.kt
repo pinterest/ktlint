@@ -1,6 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType.QUEST
 import com.pinterest.ktlint.ruleset.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.ruleset.core.api.prevLeaf

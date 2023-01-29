@@ -33,6 +33,7 @@ include(
     ":ktlint-core",
     ":ktlint-api-consumer",
     ":ktlint-cli",
+    ":ktlint-cli-core",
     ":ktlint-cli-reporter-baseline",
     ":ktlint-cli-reporter-checkstyle",
     ":ktlint-cli-reporter-core",
@@ -46,7 +47,8 @@ include(
     ":ktlint-ruleset-core",
     ":ktlint-ruleset-standard",
     ":ktlint-ruleset-template",
-    ":ktlint-ruleset-test",
+    ":ktlint-ruleset-test-tooling",
     ":ktlint-test",
     ":ktlint-test-logging",
+    ":ktlint-test-ruleset-provider-v2-deprecated",
 )

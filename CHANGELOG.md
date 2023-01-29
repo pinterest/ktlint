@@ -4,6 +4,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+WARNING: This version on KtLint contains a number of breaking changes int KtLint CLI and KtLint API. If you are using KtLint with custom ruleset jars or custom reporter jars, then those need to be upgrade before you can use them with this version of ktlint. Please contact the maintainers of those jars and ask them to upgrade a.s.a.p.
+
 ### Moving experimental rules to standard rule set
 
 The `experimental` rule set has been merged with `standard` rule set. The rules which formerly were part of the `experimental` rule set are still being treated as before. The rules will only be run in case `.editorconfig` property `ktlint_experimental` is enabled or in case the rule is explicitly enabled.
@@ -13,7 +15,7 @@ Note that the prefix `experimental:` has to be removed from all references to th
 * KtLint disable and enable directives.
 * The `VisitorModifier.RunAfterRule`.
 
-### API Changes & RuleSet providers
+### API Changes & RuleSet providers & Reporter Providers
 
 #### Experimental rules
 
@@ -39,7 +41,11 @@ Code style `android` has been renamed to `android_studio`. Code formatted with t
 
 #### Package restructuring and class relocation
 
-Class `LintError` has been relocated from `com.pinterest.ktlint.core` to `com.pinterest.ktlint.core.api`.
+The internal structure of the Ktlint project has been revised. The Ktlint CLI and KtLint API modules have been decoupled where possible. Modules have been restructured and renamed.
+
+This is the last release that contains module `ktlint-core` as it had to many responsibilities. Responsibilities which are specific to the Ktlint CLI or the KtLint Rule Engine are moved to one of the new modules `ktlint-cli-core` and `ktlint-rule-engine`.
+
+Some classes are left behind in the `ktlint-core` module but are deprecated. The `ktlint-core` module will be removed in Ktlint `0.50.x`.
 
 Classes below have been moved to the new module `ktlint-rule-engine`:
 
@@ -48,7 +54,8 @@ Classes below have been moved to the new module `ktlint-rule-engine`:
 | com.pinterest.ktlint.rule.core.api.editorconfig               | com.pinterest.ktlint.rule.engine.api.editorconfig               |
 | com.pinterest.ktlint.rule.core.api.EditorConfigDefaults       | com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults       |
 | com.pinterest.ktlint.rule.core.api.EditorConfigOverride       | com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults       |
-| com.pinterest.ktlint.rule.core.KtLintRuleEngine               | com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine           |
+| com.pinterest.ktlint.rule.core.KtLint                         | com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine           |
+| com.pinterest.ktlint.rule.core.LintError                      | com.pinterest.ktlint.rule.engine.api.LintError                  |
 | com.pinterest.ktlint.rule.core.api.Code                       | com.pinterest.ktlint.rule.engine.api.Code                       |
 | com.pinterest.ktlint.rule.core.api.KtLintParseException       | com.pinterest.ktlint.rule.engine.api.KtLintParseException       |
 | com.pinterest.ktlint.rule.core.api.KtLintRuleException        | com.pinterest.ktlint.rule.engine.api.KtLintRuleException        |
@@ -116,10 +123,19 @@ Module `ktlint-reporter-sarif` has been renamed to `ktlint-cli-reporter-sarif`. 
 |---------------------------------------------------|-------------------------------------------------------|
 | com.pinterest.ktlint.reporter.sarif               | com.pinterest.ktlint.cli.reporter.sarif               |
 
+### Custom Ruleset Provider `RuleSetProviderV2`
 
-### Custom Reporter Provider
+Custom Rule Sets build for older versions of KtLint no longer supported by this version of KtLint. The `com.pinterest.ktlint.core.RuleSetProviderV2` interface has been replaced with `com.pinterest.ktlint.ruleset.core.api.RuleSetProviderV3`. The accompanying interfaces `com.pinterest.ktlint.core.RuleProvider` and `com.pinterest.ktlint.core.Rule` have been replaced with `com.pinterest.ktlint.ruleset.core.api.RuleProvider` and `com.pinterest.ktlint.ruleset.core.api.Rule` respectively.
 
-Due to the relocation of the `ReporterProvider` interface the name of the service provider in the custom ruleset needs to be changed from `resources/META-INF/services/com.pinterest.ktlint.core.ReporterProvider` to `resources/META-INF/services/com.pinterest.ktlint.cli.reporter.core.api.ReporterProvider`.
+Note that due to renaming and relocation of the `RuleSetProviderV3` interface the name of the service provider in the custom reporter needs to be changed from `resources/META-INF/services/com.pinterest.ktlint.core.RuleSetProviderV2` to `resources/META-INF/services/com.pinterest.ktlint.ruleset.core.api.RuleSetProviderV3`.
+
+### Custom Reporter Provider `ReporterProvider`
+
+Custom Reporters build for older versions of KtLint are no longer supported by this version of KtLint. The `com.pinterest.ktlint.core.ReporterProvider` interface has been replaced with `com.pinterest.ktlint.cli.reporter.core.api.ReporterProviderV2`. The accompanying interface `com.pinterest.ktlint.core.Reporter` has been replaced with `com.pinterest.ktlint.cli.reporter.core.api.ReporterV2`.
+
+Note that due to renaming and relocation of the `ReporterProviderV2` interface the name of the service provider in the custom reporter needs to be changed from `resources/META-INF/services/com.pinterest.ktlint.core.ReporterProvider` to `resources/META-INF/services/com.pinterest.ktlint.cli.reporter.core.api.ReporterProviderV2`.
+
+The biggest change in the `ReporterV2` is the replacement of the `LintError` class with `KtlintCliError` class. The latter class now contains a status field which more clearly explains the difference between a lint error which can be autocorrected versus a lint error that actually has been autocorrected.    
 
 ### Added
 
@@ -142,6 +158,12 @@ Due to the relocation of the `ReporterProvider` interface the name of the servic
 
 ### Changed
 * Wrap the parameters of a function literal containing a multiline parameter list (only in `ktlint_official` code style) `parameter-list-wrapping` ([#1681](https://github.com/pinterest/ktlint/issues/1681)).
+  Changelog:
+* KtLint CLI exits with an error in any of following cases (this list is not exhaustive):
+  - A custom ruleset jar is to be loaded and that jar contains a deprecated RuleSetProviderV2.
+  - A custom ruleset jar is to be loaded and that jar does not contain the required RuleSetProviderV3.
+  - A custom reporter jar is to be loaded and that jar contains a deprecated ReporterProvider.
+  - A custom reporter jar is to be loaded and that jar does not contain the required ReporterProviderV2.
 
 ## [0.48.2] - Unreleased
 

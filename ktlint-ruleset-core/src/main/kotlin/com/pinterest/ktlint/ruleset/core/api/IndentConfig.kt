@@ -1,9 +1,9 @@
 package com.pinterest.ktlint.ruleset.core.api
 
-import com.pinterest.ktlint.rule.engine.api.editorconfig.INDENT_SIZE_PROPERTY
-import com.pinterest.ktlint.rule.engine.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.ruleset.core.api.IndentConfig.IndentStyle.SPACE
 import com.pinterest.ktlint.ruleset.core.api.IndentConfig.IndentStyle.TAB
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.INDENT_SIZE_PROPERTY
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import org.ec4j.core.model.PropertyType
 
 public data class IndentConfig(

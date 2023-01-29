@@ -1,7 +1,7 @@
 package com.pinterest.ktlint.cli.reporter.sarif
 
-import com.pinterest.ktlint.cli.reporter.core.api.Reporter
-import com.pinterest.ktlint.core.api.LintError
+import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError
+import com.pinterest.ktlint.cli.reporter.core.api.ReporterV2
 import com.pinterest.ktlint.core.ktlintVersion
 import io.github.detekt.sarif4k.ArtifactLocation
 import io.github.detekt.sarif4k.Level
@@ -29,7 +29,7 @@ internal fun String.sanitize(): String =
             if (it.endsWith('/')) it else "$it/"
         }
 
-public class SarifReporter(private val out: PrintStream) : Reporter {
+public class SarifReporter(private val out: PrintStream) : ReporterV2 {
     private val results: MutableList<Result> = mutableListOf()
     private var workingDirectory: File? = null
 
@@ -39,19 +39,18 @@ public class SarifReporter(private val out: PrintStream) : Reporter {
 
     override fun onLintError(
         file: String,
-        err: LintError,
-        corrected: Boolean,
+        ktlintCliError: KtlintCliError,
     ) {
         results.add(
             Result(
-                ruleID = err.ruleId,
+                ruleID = ktlintCliError.ruleId,
                 level = Level.Error,
                 locations = listOf(
                     Location(
                         physicalLocation = PhysicalLocation(
                             region = Region(
-                                startLine = err.line.toLong(),
-                                startColumn = err.col.toLong(),
+                                startLine = ktlintCliError.line.toLong(),
+                                startColumn = ktlintCliError.col.toLong(),
                             ),
                             artifactLocation = workingDirectory?.let { workingDirectory ->
                                 ArtifactLocation(
@@ -64,7 +63,7 @@ public class SarifReporter(private val out: PrintStream) : Reporter {
                         ),
                     ),
                 ),
-                message = Message(text = err.detail),
+                message = Message(text = ktlintCliError.detail),
             ),
         )
     }

@@ -1,7 +1,10 @@
 package com.pinterest.ktlint.cli.reporter.plain
 
+import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError
+import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError.Status.FORMAT_IS_AUTOCORRECTED
+import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError.Status.KOTLIN_PARSE_EXCEPTION
+import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError.Status.LINT_CAN_BE_AUTOCORRECTED
 import com.pinterest.ktlint.cli.reporter.plainsummary.PlainSummaryReporter
-import com.pinterest.ktlint.core.api.LintError
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayOutputStream
@@ -17,34 +20,29 @@ class PlainSummaryReporterTest {
             onLintError(
                 "file-1.kt",
                 @Suppress("ktlint:argument-list-wrapping")
-                LintError(1, 1, "rule-1", "description-error-at-position-1:1 (cannot be auto-corrected)"),
-                false,
+                KtlintCliError(1, 1, "rule-1", "description-error-at-position-1:1 (cannot be auto-corrected)", LINT_CAN_BE_AUTOCORRECTED),
             )
             onLintError(
                 "file-1.kt",
                 @Suppress("ktlint:argument-list-wrapping")
-                LintError(2, 1, "rule-2", "description-error-at-position-2:1"),
-                true,
+                KtlintCliError(2, 1, "rule-2", "description-error-at-position-2:1", FORMAT_IS_AUTOCORRECTED),
             )
 
             onLintError(
                 "file-2.kt",
                 @Suppress("ktlint:argument-list-wrapping")
-                LintError(1, 10, "rule-1", "description-error-at-position-1:10 (cannot be auto-corrected)"),
-                false,
+                KtlintCliError(1, 10, "rule-1", "description-error-at-position-1:10 (cannot be auto-corrected)", LINT_CAN_BE_AUTOCORRECTED),
             )
             onLintError(
                 "file-2.kt",
                 @Suppress("ktlint:argument-list-wrapping")
-                LintError(2, 20, "rule-2", "description-error-at-position-2:20 (cannot be auto-corrected)"),
-                false,
+                KtlintCliError(2, 20, "rule-2", "description-error-at-position-2:20 (cannot be auto-corrected)", LINT_CAN_BE_AUTOCORRECTED),
             )
 
             onLintError(
                 "file-3.kt",
                 @Suppress("ktlint:argument-list-wrapping")
-                LintError(1, 1, "rule-1", "description-error-at-position-1:1"),
-                true,
+                KtlintCliError(1, 1, "rule-1", "description-error-at-position-1:1", FORMAT_IS_AUTOCORRECTED),
             )
 
             after("file-1.kt")
@@ -75,20 +73,17 @@ class PlainSummaryReporterTest {
         reporter.onLintError(
             "file-1.kt",
             @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
-            LintError(18, 51, "", "Not a valid Kotlin file (18:51 unexpected tokens (use ';' to separate expressions on the same line)) (cannot be auto-corrected) ()"),
-            false,
+            KtlintCliError(18, 51, "", "Not a valid Kotlin file (18:51 unexpected tokens (use ';' to separate expressions on the same line)) (cannot be auto-corrected) ()", KOTLIN_PARSE_EXCEPTION),
         )
         reporter.onLintError(
             "file-2.kt",
             @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
-            LintError(18, 51, "", "Not a valid Kotlin file (18:51 unexpected tokens (use ';' to separate expressions on the same line)) (cannot be auto-corrected) ()"),
-            false,
+            KtlintCliError(18, 51, "", "Not a valid Kotlin file (18:51 unexpected tokens (use ';' to separate expressions on the same line)) (cannot be auto-corrected) ()", KOTLIN_PARSE_EXCEPTION),
         )
         reporter.onLintError(
             "file-3.kt",
             @Suppress("ktlint:argument-list-wrapping")
-            LintError(18, 51, "", "Something else"),
-            false,
+            KtlintCliError(18, 51, "", "Something else", LINT_CAN_BE_AUTOCORRECTED),
         )
         reporter.afterAll()
 

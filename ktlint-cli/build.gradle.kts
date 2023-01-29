@@ -21,14 +21,14 @@ tasks.shadowJar {
 
 dependencies {
     implementation(projects.ktlintCore)
+    implementation(projects.ktlintCliReporterBaseline)
     implementation(projects.ktlintCliReporterCore)
     implementation(projects.ktlintCliReporterPlain)
     implementation(projects.ktlintRulesetStandard)
-    implementation(projects.ktlintRulesetTest) // Ruleset for dumping the AST of a file
+    implementation(projects.ktlintRulesetTestTooling)
     implementation(libs.picocli)
     implementation(libs.logback)
 
-    runtimeOnly(projects.ktlintCliReporterBaseline)
     runtimeOnly(projects.ktlintCliReporterCheckstyle)
     runtimeOnly(projects.ktlintCliReporterJson)
     runtimeOnly(projects.ktlintCliReporterFormat)

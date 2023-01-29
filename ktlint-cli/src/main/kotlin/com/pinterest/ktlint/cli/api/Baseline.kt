@@ -3,7 +3,8 @@ package com.pinterest.ktlint.cli.api
 import com.pinterest.ktlint.cli.api.Baseline.Status.INVALID
 import com.pinterest.ktlint.cli.api.Baseline.Status.NOT_FOUND
 import com.pinterest.ktlint.cli.api.Baseline.Status.VALID
-import com.pinterest.ktlint.core.api.LintError
+import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError
+import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError.Status.BASELINE_IGNORED
 import com.pinterest.ktlint.core.initKtLintKLogger
 import mu.KotlinLogging
 import org.w3c.dom.Element
@@ -25,16 +26,26 @@ private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
  */
 public class Baseline(
     /**
-     * Lint errors grouped by (relative) file path.
+     * Path to the baseline file.
      */
-    public val lintErrorsPerFile: Map<String, List<LintError>> = emptyMap(),
+    public val path: String? = null,
 
     /**
      * Status of the baseline file.
      */
     public val status: Status,
+
+    /**
+     * Lint errors grouped by (relative) file path.
+     */
+    public val lintErrorsPerFile: Map<String, List<KtlintCliError>> = emptyMap(),
 ) {
     public enum class Status {
+        /**
+         * Consumer did not request the Baseline file to be loaded.
+         */
+        DISABLED,
+
         /**
          * Baseline file is successfully parsed.
          */
@@ -56,6 +67,8 @@ public class Baseline(
  * Loads the [Baseline] from the file located on [path].
  */
 public fun loadBaseline(path: String): Baseline {
+    require(path.isNotBlank()) { "Path for loading baseline may not be blank or empty" }
+
     Paths
         .get(path)
         .toFile()
@@ -63,7 +76,8 @@ public fun loadBaseline(path: String): Baseline {
         ?.let { baselineFile ->
             try {
                 return Baseline(
-                    lintErrorsPerFile = parseBaseline(baselineFile.inputStream()),
+                    path = path,
+                    lintErrorsPerFile = baselineFile.inputStream().parseBaseline(),
                     status = VALID,
                 )
             } catch (e: IOException) {
@@ -80,68 +94,78 @@ public fun loadBaseline(path: String): Baseline {
             } catch (e: IOException) {
                 LOGGER.error { "Unable to delete baseline file: $path" }
             }
-            return Baseline(status = INVALID)
+            return Baseline(path = path, status = INVALID)
         }
 
-    return Baseline(status = NOT_FOUND)
+    return Baseline(path = path, status = NOT_FOUND)
 }
 
 /**
- * Parses the [inputStream] of a baseline file and return the lint errors grouped by the relative file names.
+ * Parses the [InputStream] of a baseline file and return the lint errors grouped by the relative file names.
  */
-internal fun parseBaseline(inputStream: InputStream): Map<String, List<LintError>> {
-    val lintErrorsPerFile = HashMap<String, List<LintError>>()
-    val fileNodeList =
-        DocumentBuilderFactory
-            .newInstance()
-            .newDocumentBuilder()
-            .parse(inputStream)
-            .getElementsByTagName("file")
-    for (i in 0 until fileNodeList.length) {
-        with(fileNodeList.item(i) as Element) {
-            lintErrorsPerFile[getAttribute("name")] = parseBaselineErrorsByFile()
+internal fun InputStream.parseBaseline(): Map<String, List<KtlintCliError>> {
+    val lintErrorsPerFile = HashMap<String, List<KtlintCliError>>()
+    with(parseDocument().getElementsByTagName("file")) {
+        for (i in 0 until length) {
+            with(item(i) as Element) {
+                lintErrorsPerFile[getAttribute("name")] = parseBaselineFileElement()
+            }
         }
     }
     return lintErrorsPerFile
 }
 
+private fun InputStream.parseDocument() =
+    DocumentBuilderFactory
+        .newInstance()
+        .newDocumentBuilder()
+        .parse(this)
+
 /**
- * Parses the [LintError]s inside a file element in the xml
+ * Parses a "file" [Element] in the baseline file.
  */
-private fun Element.parseBaselineErrorsByFile(): List<LintError> {
-    val errors = mutableListOf<LintError>()
-    val errorsList = getElementsByTagName("error")
-    for (i in 0 until errorsList.length) {
-        errors.add(
-            with(errorsList.item(i) as Element) {
-                LintError(
-                    line = getAttribute("line").toInt(),
-                    col = getAttribute("column").toInt(),
-                    ruleId = getAttribute("source"),
-                    detail = "", // Not available in the baseline file
-                )
-            },
-        )
+private fun Element.parseBaselineFileElement(): List<KtlintCliError> {
+    val ktlintCliErrorsInFileElement = mutableListOf<KtlintCliError>()
+    with (getElementsByTagName("error")) {
+        for (i in 0 until length) {
+            ktlintCliErrorsInFileElement.add(
+                with(item(i) as Element) {
+                    parseBaselineErrorElement()
+                },
+            )
+        }
     }
-    return errors
+    return ktlintCliErrorsInFileElement
 }
 
 /**
- * Checks if the list contains the given [LintError]. The [List.contains] function can not be used as [LintError.detail]
- * is not available in the baseline file and a normal equality check on the [LintErrpr] fails.
+ * Parses an "error" [Element] in the baseline file.
  */
-public fun List<LintError>.containsLintError(lintError: LintError): Boolean = any { it.isSameAs(lintError) }
+private fun Element.parseBaselineErrorElement() =
+    KtlintCliError(
+        line = getAttribute("line").toInt(),
+        col = getAttribute("column").toInt(),
+        ruleId = getAttribute("source"),
+        detail = "", // Not available in the baseline
+        status = BASELINE_IGNORED,
+    )
 
-private fun LintError.isSameAs(lintError: LintError) =
+/**
+ * Checks if the list contains the given [KtlintCliError]. The [List.contains] function can not be used as [KtlintCliError.detail] is not
+ * available in the baseline file and a normal equality check on the [KtlintCliError] fails.
+ */
+public fun List<KtlintCliError>.containsLintError(ktlintCliError: KtlintCliError): Boolean = any { it.isSameAs(ktlintCliError) }
+
+private fun KtlintCliError.isSameAs(lintError: KtlintCliError) =
     col == lintError.col &&
         line == lintError.line &&
         ruleId == lintError.ruleId
 
 /**
- * Checks if the list does not contain the given [LintError]. The [List.contains] function can not be used as
- * [LintError.detail] is not available in the baseline file and a normal equality check on the [LintErrpr] fails.
+ * Checks if the list does not contain the given [KtlintCliError]. The [List.contains] function can not be used as [KtlintCliError.detail]
+ * is not available in the baseline file and a normal equality check on the [KtlintCliError] fails.
  */
-public fun List<LintError>.doesNotContain(lintError: LintError): Boolean = none { it.isSameAs(lintError) }
+public fun List<KtlintCliError>.doesNotContain(ktlintCliError: KtlintCliError): Boolean = none { it.isSameAs(ktlintCliError) }
 
 /**
  * Gets the relative route of the file for baselines. Also adjusts the slashes for uniformity between file systems
@@ -156,6 +180,7 @@ public val File.relativeRoute: String
 /**
  * Gets the relative route of the path. Also adjusts the slashes for uniformity between file systems.
  */
+@Deprecated("Marked for removal from public API in KtLint 0.50")
 public val Path.relativeRoute: String
     get() {
         val rootPath = Paths.get("").toAbsolutePath()

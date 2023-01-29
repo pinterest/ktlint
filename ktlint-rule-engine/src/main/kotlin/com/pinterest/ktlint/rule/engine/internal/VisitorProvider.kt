@@ -1,19 +1,19 @@
 package com.pinterest.ktlint.rule.engine.internal
 
-import com.pinterest.ktlint.core.Rule
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.api.UsesEditorConfigProperties
-import com.pinterest.ktlint.rule.engine.api.editorconfig.CODE_STYLE_PROPERTY_TYPE
-import com.pinterest.ktlint.rule.engine.api.editorconfig.CodeStyleValue
-import com.pinterest.ktlint.rule.engine.api.editorconfig.EXPERIMENTAL_RULES_EXECUTION_PROPERTY
-import com.pinterest.ktlint.rule.engine.api.editorconfig.EditorConfigProperty
-import com.pinterest.ktlint.rule.engine.api.editorconfig.RULE_EXECUTION_PROPERTY_TYPE
-import com.pinterest.ktlint.rule.engine.api.editorconfig.RuleExecution
-import com.pinterest.ktlint.rule.engine.api.editorconfig.createRuleExecutionEditorConfigProperty
-import com.pinterest.ktlint.rule.engine.api.editorconfig.ktLintRuleExecutionPropertyName
-import com.pinterest.ktlint.rule.engine.api.editorconfig.ktLintRuleSetExecutionPropertyName
+import com.pinterest.ktlint.ruleset.core.api.Rule
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.CODE_STYLE_PROPERTY_TYPE
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.CodeStyleValue
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.EXPERIMENTAL_RULES_EXECUTION_PROPERTY
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.EditorConfigProperty
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.RULE_EXECUTION_PROPERTY_TYPE
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.RuleExecution
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.createRuleExecutionEditorConfigProperty
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.ktLintRuleExecutionPropertyName
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.ktLintRuleSetExecutionPropertyName
 import mu.KotlinLogging
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()

@@ -1,6 +1,6 @@
 package com.example.ktlint.api.consumer.rules
 
-import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 

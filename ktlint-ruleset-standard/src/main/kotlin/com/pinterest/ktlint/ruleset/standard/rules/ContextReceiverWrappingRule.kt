@@ -1,19 +1,19 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.IndentConfig
-import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.rule.engine.api.UsesEditorConfigProperties
-import com.pinterest.ktlint.rule.engine.api.editorconfig.EditorConfigProperty
-import com.pinterest.ktlint.rule.engine.api.editorconfig.INDENT_SIZE_PROPERTY
-import com.pinterest.ktlint.rule.engine.api.editorconfig.INDENT_STYLE_PROPERTY
-import com.pinterest.ktlint.rule.engine.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.EditorConfigProperty
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.INDENT_SIZE_PROPERTY
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.INDENT_STYLE_PROPERTY
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.ruleset.core.api.ElementType.CONTEXT_RECEIVER
 import com.pinterest.ktlint.ruleset.core.api.ElementType.CONTEXT_RECEIVER_LIST
 import com.pinterest.ktlint.ruleset.core.api.ElementType.GT
 import com.pinterest.ktlint.ruleset.core.api.ElementType.RPAR
 import com.pinterest.ktlint.ruleset.core.api.ElementType.TYPE_ARGUMENT_LIST
 import com.pinterest.ktlint.ruleset.core.api.ElementType.TYPE_PROJECTION
+import com.pinterest.ktlint.ruleset.core.api.IndentConfig
 import com.pinterest.ktlint.ruleset.core.api.children
 import com.pinterest.ktlint.ruleset.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.ruleset.core.api.isPartOf

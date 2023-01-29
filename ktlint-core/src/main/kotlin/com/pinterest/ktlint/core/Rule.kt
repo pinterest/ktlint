@@ -2,11 +2,8 @@ package com.pinterest.ktlint.core
 
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.api.FeatureInAlphaState
-import com.pinterest.ktlint.core.internal.IdNamingPolicy
-import mu.KotlinLogging
+import com.pinterest.ktlint.core.internal.IdNamingPolicyLegacy
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-
-private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
 /**
  * The [Rule] contains the life cycle hooks which are needed for the KtLint rule engine.
@@ -15,12 +12,8 @@ private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
  * instance of the [Rule] on each call to [RuleProvider.createNewRuleInstance]. The KtLint engine never re-uses a [Rule]
  * instance once is has been used for traversal of the AST of a file.
  */
+@Deprecated("Deprecated since ktlint 0.49.0. Custom rulesets have to be migrated to RuleSetProviderV3. See changelog 0.49.")
 public open class Rule(
-    // TODO: Breaking changes to be applied in a future version
-    //  * Add field "about: About" so that it is clear who is the maintainer of a rule. Part of this about information is also a unique rule
-    //    set id. Once implemented, the "id" can be changed back to a simple id that no longer contains the rule set id.
-
-    @Suppress("ktlint:no-consecutive-comments")
     /**
      * Identification of the rule. Except for rules in the "standard" rule set, this id needs to be prefixed with the
      * identifier of the rule set (e.g. "some-rule-set-id:some-rule-id") to avoid naming conflicts with referring to the
@@ -44,7 +37,7 @@ public open class Rule(
     private var traversalState = TraversalState.NOT_STARTED
 
     init {
-        IdNamingPolicy.enforceRuleIdNaming(id)
+        IdNamingPolicyLegacy.enforceRuleIdNaming(id)
     }
 
     /**
@@ -177,14 +170,13 @@ public open class Rule(
             val runOnlyWhenOtherRuleIsEnabled: Boolean = false,
         ) : VisitorModifier() {
             init {
-                IdNamingPolicy.enforceRuleIdNaming(ruleId)
+                IdNamingPolicyLegacy.enforceRuleIdNaming(ruleId)
             }
 
             /**
              * The guaranteed fully qualified rule id containing the rule set id as prefix. The rule set id defaults to "standard" when not
              * specified during construction of the RunAfterRule.
              */
-            @FeatureInAlphaState
             public val qualifiedRuleId: String = ruleId.qualifiedRuleId()
         }
 
@@ -209,14 +201,11 @@ public open class Rule(
 private const val STANDARD_RULE_SET_ID = "standard"
 private const val DELIMITER = ":"
 
-@FeatureInAlphaState
-public fun String.ruleId(): String = this.substringAfter(DELIMITER, this)
+private fun String.ruleId(): String = this.substringAfter(DELIMITER, this)
 
-@FeatureInAlphaState
-public fun String.ruleSetId(): String = substringBefore(DELIMITER, STANDARD_RULE_SET_ID)
+private fun String.ruleSetId(): String = substringBefore(DELIMITER, STANDARD_RULE_SET_ID)
 
-@FeatureInAlphaState
-public fun String.qualifiedRuleId(): String = "${ruleSetId()}$DELIMITER${ruleId()}"
+private fun String.qualifiedRuleId(): String = "${ruleSetId()}$DELIMITER${ruleId()}"
 
 private fun qualifiedRuleId(
     ruleSetId: String,

@@ -1,6 +1,8 @@
 package com.pinterest.ktlint.cli.reporter.json
 
-import com.pinterest.ktlint.core.api.LintError
+import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError
+import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError.Status.FORMAT_IS_AUTOCORRECTED
+import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError.Status.LINT_CAN_BE_AUTOCORRECTED
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayOutputStream
@@ -14,34 +16,29 @@ class JsonReporterTest {
         reporter.onLintError(
             "/one-fixed-and-one-not.kt",
             @Suppress("ktlint:argument-list-wrapping")
-            LintError(1, 1, "rule-1", "<\"&'>"),
-            false,
+            KtlintCliError(1, 1, "rule-1", "<\"&'>", LINT_CAN_BE_AUTOCORRECTED),
         )
         reporter.onLintError(
             "/one-fixed-and-one-not.kt",
             @Suppress("ktlint:argument-list-wrapping")
-            LintError(2, 1, "rule-2", "And if you see my friend"),
-            true,
+            KtlintCliError(2, 1, "rule-2", "And if you see my friend", FORMAT_IS_AUTOCORRECTED),
         )
 
         reporter.onLintError(
             "/two-not-fixed.kt",
             @Suppress("ktlint:argument-list-wrapping")
-            LintError(1, 10, "rule-1", "I thought I would again"),
-            false,
+            KtlintCliError(1, 10, "rule-1", "I thought I would again", LINT_CAN_BE_AUTOCORRECTED),
         )
         reporter.onLintError(
             "/two-not-fixed.kt",
             @Suppress("ktlint:argument-list-wrapping")
-            LintError(2, 20, "rule-2", "A single thin straight line"),
-            false,
+            KtlintCliError(2, 20, "rule-2", "A single thin straight line", LINT_CAN_BE_AUTOCORRECTED),
         )
 
         reporter.onLintError(
             "/all-corrected.kt",
             @Suppress("ktlint:argument-list-wrapping")
-            LintError(1, 1, "rule-1", "I thought we had more time"),
-            true,
+            KtlintCliError(1, 1, "rule-1", "I thought we had more time", FORMAT_IS_AUTOCORRECTED),
         )
         reporter.afterAll()
         assertThat(String(out.toByteArray())).isEqualTo(
@@ -86,7 +83,10 @@ class JsonReporterTest {
     fun testProperEscaping() {
         val out = ByteArrayOutputStream()
         val reporter = JsonReporter(PrintStream(out, true))
-        reporter.onLintError("src\\main\\all\\corrected.kt", LintError(4, 7, "rule-7", "\\n\n\r\t\""), false)
+        reporter.onLintError(
+            "src\\main\\all\\corrected.kt",
+            KtlintCliError(4, 7, "rule-7", "\\n\n\r\t\"", LINT_CAN_BE_AUTOCORRECTED),
+        )
         reporter.afterAll()
         assertThat(String(out.toByteArray())).isEqualTo(
             """

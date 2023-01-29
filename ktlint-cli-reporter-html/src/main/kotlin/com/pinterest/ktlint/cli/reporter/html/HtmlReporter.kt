@@ -24,24 +24,24 @@
 
 package com.pinterest.ktlint.cli.reporter.html
 
-import com.pinterest.ktlint.cli.reporter.core.api.Reporter
-import com.pinterest.ktlint.core.api.LintError
+import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError
+import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError.Status.FORMAT_IS_AUTOCORRECTED
+import com.pinterest.ktlint.cli.reporter.core.api.ReporterV2
 import java.io.PrintStream
 import java.util.concurrent.ConcurrentHashMap
 
-public class HtmlReporter(private val out: PrintStream) : Reporter {
-    private val acc = ConcurrentHashMap<String, MutableList<LintError>>()
+public class HtmlReporter(private val out: PrintStream) : ReporterV2 {
+    private val acc = ConcurrentHashMap<String, MutableList<KtlintCliError>>()
     private var issueCount = 0
     private var correctedCount = 0
 
     override fun onLintError(
         file: String,
-        err: LintError,
-        corrected: Boolean,
+        ktlintCliError: KtlintCliError,
     ) {
-        if (!corrected) {
+        if (ktlintCliError.status != FORMAT_IS_AUTOCORRECTED) {
             issueCount += 1
-            acc.getOrPut(file) { mutableListOf() }.add(err)
+            acc.getOrPut(file) { mutableListOf() }.add(ktlintCliError)
         } else {
             correctedCount += 1
         }
@@ -73,10 +73,10 @@ public class HtmlReporter(private val out: PrintStream) : Reporter {
                         text("Issues corrected: $correctedCount")
                     }
 
-                    acc.forEach { (file: String, errors: MutableList<LintError>) ->
+                    acc.forEach { (file: String, ktlintCliErrors: MutableList<KtlintCliError>) ->
                         h3 { text(file) }
                         ul {
-                            errors.forEach { (line, col, ruleId, detail) ->
+                            ktlintCliErrors.forEach { (line, col, ruleId, detail) ->
                                 item("($line, $col): $detail  ($ruleId)")
                             }
                         }

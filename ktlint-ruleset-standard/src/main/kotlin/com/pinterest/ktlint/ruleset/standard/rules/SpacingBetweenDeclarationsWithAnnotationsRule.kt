@@ -1,6 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.ruleset.core.api.children
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode

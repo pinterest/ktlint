@@ -1,5 +1,12 @@
 package com.pinterest.ktlint.rule.engine.api.editorconfig
 
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.CODE_STYLE_PROPERTY
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.EditorConfigProperty
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.INDENT_SIZE_PROPERTY
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.INDENT_STYLE_PROPERTY
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.INSERT_FINAL_NEWLINE_PROPERTY
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
+
 internal val DEFAULT_EDITOR_CONFIG_PROPERTIES: List<EditorConfigProperty<*>> =
     listOf(
         CODE_STYLE_PROPERTY,

@@ -2,17 +2,12 @@
 
 package com.pinterest.ktlint.rule.engine.api
 
-import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.RuleProvider
-import com.pinterest.ktlint.core.api.LintError
 import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults.Companion.EMPTY_EDITOR_CONFIG_DEFAULTS
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride.Companion.EMPTY_EDITOR_CONFIG_OVERRIDE
 import com.pinterest.ktlint.rule.engine.api.KtLint.ExperimentalParams
 import com.pinterest.ktlint.rule.engine.api.KtLint.format
 import com.pinterest.ktlint.rule.engine.api.KtLint.lint
-import com.pinterest.ktlint.rule.engine.api.editorconfig.CODE_STYLE_PROPERTY
-import com.pinterest.ktlint.rule.engine.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.rule.engine.api.editorconfig.DEFAULT_EDITOR_CONFIG_PROPERTIES
 import com.pinterest.ktlint.rule.engine.internal.EditorConfigFinder
 import com.pinterest.ktlint.rule.engine.internal.EditorConfigGenerator
@@ -23,6 +18,10 @@ import com.pinterest.ktlint.rule.engine.internal.RuleExecutionException
 import com.pinterest.ktlint.rule.engine.internal.RuleRunner
 import com.pinterest.ktlint.rule.engine.internal.ThreadSafeEditorConfigCache.Companion.THREAD_SAFE_EDITOR_CONFIG_CACHE
 import com.pinterest.ktlint.rule.engine.internal.VisitorProvider
+import com.pinterest.ktlint.ruleset.core.api.Rule
+import com.pinterest.ktlint.ruleset.core.api.RuleProvider
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.CODE_STYLE_PROPERTY
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.CodeStyleValue
 import mu.KotlinLogging
 import org.ec4j.core.Resource
 import org.ec4j.core.model.PropertyType

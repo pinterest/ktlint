@@ -7,31 +7,30 @@ import java.nio.file.Path
 
 class RuleSetsLoaderCLITest {
     @Test
-    fun `Display warning when the provided custom ruleset does not contains a ruleset provider`(
+    fun `Given a custom jar that does not contain the required RuleSetProviderV3 then display an error and exit`(
         @TempDir
         tempDir: Path,
     ) {
-        val jarWithoutRulesetProvider = "custom-ruleset/rule-set-provider-v2/ktlint-cli-reporter-html.jar"
+        val jarWithoutRulesetProviderV3 = "custom-ruleset/rule-set-provider-v2/ktlint-cli-reporter-html.jar"
         CommandLineTestRunner(tempDir)
             .run(
                 "custom-ruleset",
-                listOf("-R", "$tempDir/$jarWithoutRulesetProvider"),
+                listOf("-R", "$tempDir/$jarWithoutRulesetProviderV3", "**/*.test"),
             ) {
                 SoftAssertions().apply {
-                    assertNormalExitCode()
-                    assertThat(normalOutput).containsLineMatching(
-                        "$jarWithoutRulesetProvider, provided as command line argument, does not contain a custom ruleset provider.",
-                    )
+                    assertErrorExitCode()
+                    assertThat(normalOutput + errorOutput)
+                        .containsLineMatching(Regex(".*ERROR.* JAR file '.*$jarWithoutRulesetProviderV3' is missing a class implementing interface 'com.pinterest.ktlint.ruleset.core.api.RuleSetProviderV3'"))
                 }.assertAll()
             }
     }
 
     @Test
-    fun `Given a custom rule set with RulesetProviderV2 defined`(
+    fun `Given a custom ruleset jar that contains the deprecated RuleSetProviderV2 then display an error and exit`(
         @TempDir
         tempDir: Path,
     ) {
-        val jarWithRulesetProviderV2 = "custom-ruleset/rule-set-provider-v2/ktlint-ruleset-template.jar"
+        val jarWithRulesetProviderV2 = "custom-ruleset/rule-set-provider-v2/ktlint-test-ruleset-provider-v2-deprecated.jar"
         CommandLineTestRunner(tempDir)
             .run(
                 "custom-ruleset",
@@ -40,13 +39,7 @@ class RuleSetsLoaderCLITest {
                 SoftAssertions().apply {
                     assertErrorExitCode()
                     assertThat(normalOutput + errorOutput)
-                        .containsLineMatching(Regex(".* JAR ruleset provided with path .*$jarWithRulesetProviderV2.*"))
-                        .containsLineMatching(
-                            Regex(
-                                ".*rule-set-provider-v2.Main.kt.test:1:1: Unexpected var, use val instead.*" +
-                                    "custom-rule-set-id:no-var.*",
-                            ),
-                        )
+                        .containsLineMatching(Regex(".*ERROR.* JAR file '.*$jarWithRulesetProviderV2' contains a class implementing an unsupported interface 'com.pinterest.ktlint.core.RuleSetProviderV2'"))
                 }.assertAll()
             }
     }

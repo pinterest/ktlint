@@ -24,10 +24,10 @@
 
 package com.pinterest.ktlint.cli.reporter.html
 
-import com.pinterest.ktlint.cli.reporter.core.api.ReporterProvider
+import com.pinterest.ktlint.cli.reporter.core.api.ReporterProviderV2
 import java.io.PrintStream
 
-public class HtmlReporterProvider : ReporterProvider<HtmlReporter> {
+public class HtmlReporterProvider : ReporterProviderV2<HtmlReporter> {
     override val id: String = "html"
     override fun get(
         out: PrintStream,

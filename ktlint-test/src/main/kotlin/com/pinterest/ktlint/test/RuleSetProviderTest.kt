@@ -1,12 +1,12 @@
 package com.pinterest.ktlint.test
 
-import com.pinterest.ktlint.core.RuleSetProviderV2
+import com.pinterest.ktlint.ruleset.core.api.RuleSetProviderV3
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.io.File
 
 public open class RuleSetProviderTest(
-    private val rulesetClass: Class<out RuleSetProviderV2>,
+    private val rulesetClass: Class<out RuleSetProviderV3>,
     private val packageName: String,
 ) {
     private val ruleSetProvider =

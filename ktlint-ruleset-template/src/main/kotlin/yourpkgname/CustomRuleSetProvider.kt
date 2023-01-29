@@ -1,12 +1,12 @@
 package yourpkgname
 
-import com.pinterest.ktlint.core.RuleProvider
-import com.pinterest.ktlint.core.RuleSetProviderV2
+import com.pinterest.ktlint.ruleset.core.api.RuleProvider
+import com.pinterest.ktlint.ruleset.core.api.RuleSetProviderV3
 
 internal val CUSTOM_RULE_SET_ID = "custom-rule-set-id"
 
 public class CustomRuleSetProvider :
-    RuleSetProviderV2(
+    RuleSetProviderV3(
         id = CUSTOM_RULE_SET_ID,
         about = About(
             maintainer = "KtLint",

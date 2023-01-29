@@ -1,6 +1,9 @@
 package com.pinterest.ktlint.cli.reporter.format
 
-import com.pinterest.ktlint.core.api.LintError
+import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError
+import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError.Status.FORMAT_IS_AUTOCORRECTED
+import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError.Status.LINT_CAN_BE_AUTOCORRECTED
+import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError.Status.LINT_CAN_NOT_BE_AUTOCORRECTED
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayOutputStream
@@ -19,27 +22,23 @@ class FormatReporterTest {
         // File 1: 1 violation not autocorrected
         reporter.onLintError(
             SOME_FILE_PATH_1,
-            SOME_LINT_ERROR_UNCORRECTABLE,
-            false,
+            SOME_LINT_ERROR_CAN_NOT_BE_AUTOCORRECTED,
         )
 
         // File 2: 2 violations not autocorrected
         reporter.onLintError(
             SOME_FILE_PATH_2,
-            SOME_LINT_ERROR_UNCORRECTABLE,
-            false,
+            SOME_LINT_ERROR_CAN_NOT_BE_AUTOCORRECTED,
         )
         reporter.onLintError(
             SOME_FILE_PATH_2,
-            SOME_LINT_ERROR_UNCORRECTABLE,
-            false,
+            SOME_LINT_ERROR_CAN_NOT_BE_AUTOCORRECTED,
         )
 
         // File 3: At least 1 violation autocorrected
         reporter.onLintError(
             SOME_FILE_PATH_3,
-            SOME_LINT_ERROR_CORRECTABLE,
-            true,
+            SOME_FORMAT_ERROR_IS_AUTOCORRECTED,
         )
 
         reporter.after(SOME_FILE_PATH_1)
@@ -71,8 +70,7 @@ class FormatReporterTest {
         // File 1: At least 1 violation can be autocorrected but is not (e.g. lint is running)
         reporter.onLintError(
             SOME_FILE_PATH_1,
-            SOME_LINT_ERROR_CORRECTABLE,
-            false,
+            SOME_LINT_ERROR_CAN_BE_AUTOCORRECTED,
         )
 
         reporter.after(SOME_FILE_PATH_1)
@@ -102,8 +100,7 @@ class FormatReporterTest {
 
         reporter.onLintError(
             File.separator.plus(SOME_FILE_NAME),
-            SOME_LINT_ERROR_UNCORRECTABLE,
-            false,
+            SOME_LINT_ERROR_CAN_NOT_BE_AUTOCORRECTED,
         )
         reporter.after(
             File.separator.plus(SOME_FILE_NAME),
@@ -124,10 +121,14 @@ class FormatReporterTest {
 
     companion object {
         @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
-        val SOME_LINT_ERROR_CORRECTABLE = LintError(1, 1, "some-rule", "This error can be autocorrected", true)
+        val SOME_LINT_ERROR_CAN_BE_AUTOCORRECTED = KtlintCliError(1, 1, "some-rule", "This error can be autocorrected", LINT_CAN_BE_AUTOCORRECTED)
 
         @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
-        val SOME_LINT_ERROR_UNCORRECTABLE = LintError(1, 1, "rule-1", "This error can *not* be autocorrected", false)
+        val SOME_LINT_ERROR_CAN_NOT_BE_AUTOCORRECTED = KtlintCliError(1, 1, "rule-1", "This error can *not* be autocorrected", LINT_CAN_NOT_BE_AUTOCORRECTED)
+
+        @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
+        val SOME_FORMAT_ERROR_IS_AUTOCORRECTED = KtlintCliError(1, 1, "rule-1", "This error can *not* be autocorrected", FORMAT_IS_AUTOCORRECTED)
+
         const val SOME_FILE_PATH_1 = "/path/to/some-file-1.kt"
         const val SOME_FILE_PATH_2 = "/path/to/some-file-2.kt"
         const val SOME_FILE_PATH_3 = "/path/to/some-file-3.kt"

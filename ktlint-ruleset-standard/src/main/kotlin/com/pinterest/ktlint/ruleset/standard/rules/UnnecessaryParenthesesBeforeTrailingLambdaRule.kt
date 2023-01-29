@@ -1,6 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.core.Rule
+import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType.CALL_EXPRESSION
 import com.pinterest.ktlint.ruleset.core.api.ElementType.LAMBDA_ARGUMENT
 import com.pinterest.ktlint.ruleset.core.api.ElementType.LPAR

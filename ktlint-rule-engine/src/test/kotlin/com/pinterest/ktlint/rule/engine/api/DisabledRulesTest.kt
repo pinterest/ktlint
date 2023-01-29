@@ -1,10 +1,9 @@
 package com.pinterest.ktlint.rule.engine.api
 
-import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.RuleProvider
-import com.pinterest.ktlint.core.api.LintError
-import com.pinterest.ktlint.rule.engine.api.editorconfig.RuleExecution
-import com.pinterest.ktlint.rule.engine.api.editorconfig.createRuleExecutionEditorConfigProperty
+import com.pinterest.ktlint.ruleset.core.api.Rule
+import com.pinterest.ktlint.ruleset.core.api.RuleProvider
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.RuleExecution
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.createRuleExecutionEditorConfigProperty
 import org.assertj.core.api.Assertions.assertThat
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.junit.jupiter.api.Test
@@ -23,7 +22,7 @@ class DisabledRulesTest {
                 ).lint("var foo") { e -> add(e) }
             },
         ).contains(
-            LintError(1, 1, "no-var", NoVarRule.SOME_NO_VAR_RULE_VIOLATION),
+            LintError(1, 1, "no-var", NoVarRule.SOME_NO_VAR_RULE_VIOLATION, false),
         )
     }
 
