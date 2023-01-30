@@ -291,13 +291,6 @@ internal class KtlintCommandLine {
         val stdinPatterns: Set<String> = readPatternsFromStdin()
         patterns.addAll(stdinPatterns)
 
-        // Set default value to patterns only after the logger has been configured to avoid a warning about initializing
-        // the logger multiple times
-        if (patterns.isEmpty()) {
-            logger.info { "Enable default patterns $DEFAULT_PATTERNS" }
-            patterns = ArrayList(DEFAULT_PATTERNS)
-        }
-
         val start = System.currentTimeMillis()
 
         var reporter = loadReporter()

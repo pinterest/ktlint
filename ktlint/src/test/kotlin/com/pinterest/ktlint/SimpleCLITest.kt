@@ -95,6 +95,25 @@ class SimpleCLITest {
     }
 
     @Test
+    fun `Given some code with an error but no patterns given return from lint with the error exit code and error output (default patterns)`(
+        @TempDir
+        tempDir: Path,
+    ) {
+        CommandLineTestRunner(tempDir)
+            .run(
+                "too-many-empty-lines",
+                emptyList(),
+            ) {
+                SoftAssertions()
+                    .apply {
+                        assertErrorExitCode()
+                        assertThat(normalOutput).containsLineMatching("Needless blank line(s)")
+                    }
+                    .assertAll()
+            }
+    }
+
+    @Test
     fun `Given some code with an error which can be autocorrected then return from from with the normal exit code`(
         @TempDir
         tempDir: Path,

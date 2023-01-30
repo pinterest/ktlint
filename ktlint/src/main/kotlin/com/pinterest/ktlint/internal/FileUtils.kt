@@ -31,7 +31,7 @@ private const val NEGATION_PREFIX = "!"
 private val USER_HOME = System.getProperty("user.home")
 
 private val DEFAULT_KOTLIN_FILE_EXTENSIONS = setOf("kt", "kts")
-internal val DEFAULT_PATTERNS = DEFAULT_KOTLIN_FILE_EXTENSIONS.map { "**/*.$it" }
+private val DEFAULT_PATTERNS = DEFAULT_KOTLIN_FILE_EXTENSIONS.map { "**/*.$it" }
 
 /**
  * Transform the [patterns] to a sequence of files. Each element in [patterns] can be a glob, a file or directory path
@@ -61,6 +61,7 @@ internal fun FileSystem.fileSequence(
     val globs = expand(patternsExclusiveExistingFiles, rootDir)
 
     val pathMatchers = if (globs.isEmpty()) {
+        LOGGER.info { "Enable default patterns $DEFAULT_PATTERNS" }
         DEFAULT_PATTERNS
             .map { getPathMatcher("glob:$it") }
             .toSet()
