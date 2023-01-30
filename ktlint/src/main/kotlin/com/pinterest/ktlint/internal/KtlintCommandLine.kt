@@ -381,7 +381,7 @@ internal class KtlintCommandLine {
         if (stdin && stdinDelimiter != null) {
             throw ParameterException(
                 commandSpec.commandLine(),
-                "Options --stdin and --patterns-from-stdin mutually exclusive",
+                "Options --stdin and --patterns-from-stdin are mutually exclusive",
             )
         }
     }
