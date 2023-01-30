@@ -14,6 +14,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+* Revert to matrix build to speed up build, especially for the Windows related build ([#1786](https://github.com/pinterest/ktlint/pull/1787))
+
 ## [0.48.2] - 2023-01-21
 
 ### Additional clarification on API Changes in `0.48.0` and `0.48.1`
