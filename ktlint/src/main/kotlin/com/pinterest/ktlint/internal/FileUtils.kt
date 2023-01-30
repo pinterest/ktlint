@@ -40,6 +40,7 @@ private val DEFAULT_PATTERNS = DEFAULT_KOTLIN_FILE_EXTENSIONS.map { "**/*.$it" }
 internal fun FileSystem.fileSequence(
     patterns: List<String>,
     rootDir: Path = Paths.get(".").toAbsolutePath().normalize(),
+    enableDefaultPatterns: Boolean = true,
 ): Sequence<Path> {
     val result = mutableListOf<Path>()
 
@@ -60,7 +61,7 @@ internal fun FileSystem.fileSequence(
 
     val globs = expand(patternsExclusiveExistingFiles, rootDir)
 
-    val pathMatchers = if (globs.isEmpty()) {
+    val pathMatchers = if (globs.isEmpty() && enableDefaultPatterns) {
         LOGGER.info { "Enable default patterns $DEFAULT_PATTERNS" }
         DEFAULT_PATTERNS
             .map { getPathMatcher("glob:$it") }
