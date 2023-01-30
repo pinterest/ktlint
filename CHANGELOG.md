@@ -14,6 +14,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+* Disable the default patterns if the option `--patterns-from-stdin` is specified ([#1793](https://github.com/pinterest/ktlint/issues/1793))
+
 ## [0.48.2] - 2023-01-21
 
 ### Additional clarification on API Changes in `0.48.0` and `0.48.1`
