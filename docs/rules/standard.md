@@ -187,7 +187,7 @@ Consistent removal (default) or adding of trailing comma's on call site.
 !!! note
     Trailing comma on call site is automatically disabled if the [Wrapping](#wrapping) rule (or, before version `0.45.0`, the [Indentation](#indentation) rule) is disabled or not loaded. Because it cannot provide proper formatting with unwrapped calls. (see [dependencies](./dependencies.md)).
 
-    === "[:material-heart:](#) Trailing comma with wrapping"
+    === "[:material-heart:](#) Ktlint"
 
         ```kotlin
         FooWrapper(
@@ -197,7 +197,7 @@ Consistent removal (default) or adding of trailing comma's on call site.
             ),
         )
         ```
-    === "[:material-heart-off-outline:](#) Trailing comma without wrapping"
+    === "[:material-heart-off-outline:](#) Disallowed"
 
         ```kotlin
         FooWrapper(Foo(
@@ -228,7 +228,7 @@ Consistent removal (default) or adding of trailing comma's on declaration site.
 !!! note
     Trailing comma on declaration site is automatically disabled if the [Wrapping](#wrapping) rule (or, before version `0.45.0`, the [Indentation](#indentation) rule) is disabled or not loaded. Because it cannot provide proper formatting with unwrapped declarations. (see [dependencies](./dependencies.md)).
 
-    === "[:material-heart:](#) Trailing comma with wrapping"
+    === "[:material-heart:](#) Ktlint"
 
         ```kotlin
         class FooWrapper(
@@ -238,7 +238,7 @@ Consistent removal (default) or adding of trailing comma's on declaration site.
             ),
         )
         ```
-    === "[:material-heart-off-outline:](#) Trailing comma without wrapping"
+    === "[:material-heart-off-outline:](#) Disallowed"
 
         ```kotlin
         class FooWrapper(val foo = Foo(
