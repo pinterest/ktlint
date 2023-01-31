@@ -184,25 +184,27 @@ Consistent removal (default) or adding of trailing comma's on call site.
      * It makes it easy to add and reorder elements – there is no need to add or delete the comma if you manipulate elements.
      * It simplifies code generation, for example, for object initializers. The last element can also have a comma.
 
-=== "[:material-heart:](#) Ktlint"
-
-    ```kotlin
-    class FooWrapper(Foo(
-        a = 3,
-        b = 4, // Trailing comma enforced
-    )) // No trailing comma enforced because of continuated parenthesis
-    ```
-=== "[:material-heart-off-outline:](#) Disallowed"
-
-    ```kotlin
-    class FooWrapper(Foo(
-        a = 3,
-        b = 4 // Trailing comma is missing
-    ),) // No trailing comma expected
-    ```
-
 !!! note
-    Trailing comma on call site is automatically disabled if the [Wrapping](#wrapping) rule (or, before version `0.48.0`, the [Indentation](#indentation) rule) is disabled or not loaded (see [dependencies](./dependencies.md)).
+    Trailing comma on call site is automatically disabled if the [Wrapping](#wrapping) rule (or, before version `0.45.0`, the [Indentation](#indentation) rule) is disabled or not loaded. Because it cannot provide proper formatting with unwrapped calls. (see [dependencies](./dependencies.md)).
+
+    === "[:material-heart:](#) Trailing comma with wrapping"
+
+        ```kotlin
+        FooWrapper(
+            Foo(
+                a = 3,
+                b = 4,
+            ),
+        )
+        ```
+    === "[:material-heart-off-outline:](#) Trailing comma without wrapping"
+
+        ```kotlin
+        FooWrapper(Foo(
+            a = 3,
+            b = 4,
+        ),) // it's weird to insert "," between unwrapped (continued) parenthesis
+        ```
 
 
 Rule id: `trailing-comma-on-call-site`
@@ -223,25 +225,28 @@ Consistent removal (default) or adding of trailing comma's on declaration site.
      * It makes it easy to add and reorder elements – there is no need to add or delete the comma if you manipulate elements.
      * It simplifies code generation, for example, for object initializers. The last element can also have a comma.
 
-=== "[:material-heart:](#) Ktlint"
-
-    ```kotlin
-    class FooWrapper(val foo: Foo = Foo(
-        a = 3,
-        b = 4, // Trailing comma enforced
-    )) // No trailing comma enforced because of continuated parenthesis
-    ```
-=== "[:material-heart-off-outline:](#) Disallowed"
-
-    ```kotlin
-    class FooWrapper(val foo: Foo = Foo(
-        a = 3,
-        b = 4 // Trailing comma is missing
-    ),) // No trailing comma expected
-    ```
-
 !!! note
-    Trailing comma on declaration site is automatically disabled if the [Wrapping](#wrapping) rule (or, before version `0.48.0`, the [Indentation](#indentation) rule) is disabled or not loaded (see [dependencies](./dependencies.md)).
+    Trailing comma on declaration site is automatically disabled if the [Wrapping](#wrapping) rule (or, before version `0.45.0`, the [Indentation](#indentation) rule) is disabled or not loaded. Because it cannot provide proper formatting with unwrapped declarations. (see [dependencies](./dependencies.md)).
+
+    === "[:material-heart:](#) Trailing comma with wrapping"
+
+        ```kotlin
+        class FooWrapper(
+            val foo = Foo(
+                a = 3,
+                b = 4,
+            ),
+        )
+        ```
+    === "[:material-heart-off-outline:](#) Trailing comma without wrapping"
+
+        ```kotlin
+        class FooWrapper(val foo = Foo(
+            a = 3,
+            b = 4,
+        ),) // it's weird to insert "," between unwrapped (continued) parenthesis
+        ```
+
 
 Rule id: `trailing-comma-on-declaration-site`
 
