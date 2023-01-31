@@ -202,7 +202,7 @@ Consistent removal (default) or adding of trailing comma's on call site.
     ```
 
 !!! note
-    Trailing comma on call site is automatically disabled if the [Wrapping](#wrapping) rule (or, before version `0.45.0`, the [Indentation](#indentation) rule) is disabled or not loaded (see [dependencies](./dependencies.md)).
+    Trailing comma on call site is automatically disabled if the [Wrapping](#wrapping) rule (or, before version `0.48.0`, the [Indentation](#indentation) rule) is disabled or not loaded (see [dependencies](./dependencies.md)).
 
 
 Rule id: `trailing-comma-on-call-site`
@@ -241,7 +241,7 @@ Consistent removal (default) or adding of trailing comma's on declaration site.
     ```
 
 !!! note
-    Trailing comma on declaration site is automatically disabled if the [Wrapping](#wrapping) rule (or, before version `0.45.0`, the [Indentation](#indentation) rule) is disabled or not loaded (see [dependencies](./dependencies.md)).
+    Trailing comma on declaration site is automatically disabled if the [Wrapping](#wrapping) rule (or, before version `0.48.0`, the [Indentation](#indentation) rule) is disabled or not loaded (see [dependencies](./dependencies.md)).
 
 Rule id: `trailing-comma-on-declaration-site`
 
